@@ -5,4 +5,9 @@
     <Project Path="infra/Aspire/src/ReSys.AppHost/ReSys.AppHost.csproj" />
     <Project Path="infra/Aspire/src/ReSys.ServiceDefaults/ReSys.ServiceDefaults.csproj" />
   </Folder>
+  <Folder Name="/service/" />
+  <Folder Name="/service/Api/" />
+  <Folder Name="/service/Api/src/">
+    <Project Path="service/Api/src/Api/Api.csproj" />
+  </Folder>
 </Solution>
