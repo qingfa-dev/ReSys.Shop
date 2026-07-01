@@ -1,0 +1,64 @@
+kind: BuildingBlockModule
+id: yaml-docs-references
+name: Resys.FashionShop.YamlDocs.References
+version: "1.0.0"
+status: stable
+schema_version: "3.0"
+
+meta:
+  name: YAML Documentation References
+  description: >
+    Reference files for the Shared YAML Documentation Standard
+    v3.0. Contains the element reference (full key specification for
+    every section), naming conventions (ID patterns, attribute enums,
+    string formatting rules), and validation checklist (pre-output
+    self-check for document compliance).
+  category: "Documentation Standard | Reference"
+  stability: Stable
+
+principles:
+  - id: P1
+    name: Completeness for Autonomous Generation
+    description: >
+      The reference files must contain everything an AI agent needs to
+      generate a fully compliant YAML document without external resources.
+    rationale: Enables fully automated document generation by AI agents.
+
+abstractions:
+  - category: Reference Documents
+    order: 1
+    description: Reference files that define the YAML schema rules.
+    items:
+      - id: A1
+        name: Element Reference
+        type: class
+        path: ./element-reference.md
+        description: >
+          Complete key-level specification for meta, principles, features,
+          abstractions, technical, anti_patterns, usage, testing, guides,
+          references, and file_structure sections.
+        purpose: Authoritative spec for every YAML key across all document kinds.
+      - id: A2
+        name: Naming Conventions
+        type: class
+        path: ./naming-conventions.md
+        description: >
+          ID prefix patterns, attribute value enumerations for status,
+          feature type, abstraction type, severity, direction, order,
+          and YAML string formatting conventions.
+        purpose: Ensures consistent naming and formatting across all documents.
+      - id: A3
+        name: Validation Checklist
+        type: class
+        path: ./validation-checklist.md
+        description: >
+          Pre-output self-check checklist for auditing documents against
+          all 20 hard rules before finalization.
+        purpose: Automated validation reference for AI document generation.
+
+file_structure: |
+  guide/yaml-docs/referneces/
+  ├── README.yaml              # This documentation
+  ├── element-reference.md     # Full key spec
+  ├── naming-conventions.md    # ID patterns and enums
+  └── validation-checklist.md  # Pre-output validation

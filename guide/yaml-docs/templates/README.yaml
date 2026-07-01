@@ -1,0 +1,82 @@
+kind: BuildingBlockModule
+id: yaml-docs-templates
+name: Resys.FashionShop.YamlDocs.Templates
+version: "1.0.0"
+status: stable
+schema_version: "3.0"
+
+meta:
+  name: YAML Documentation Templates
+  description: >
+    Template files for the Shared YAML Documentation Standard
+    v3.0. Provides ready-to-use YAML skeletons for each supported
+    document kind: BuildingBlockModule (module.yaml), ServiceModule
+    (service.yaml), DomainModule (domain.yaml), ConcernsModule
+    (concerns.yaml), and AgentContext (agents.yaml).
+  category: "Documentation Standard | Templates"
+  stability: Stable
+
+principles:
+  - id: P1
+    name: Drop-In Usability
+    description: >
+      Each template is a complete, valid YAML document with all required
+      sections. Authors only need to fill in the blanks.
+    rationale: >
+      Minimizes the effort to produce a compliant document and reduces
+      the risk of structural errors.
+
+abstractions:
+  - category: Document Templates
+    order: 1
+    description: Template files for each document kind.
+    items:
+      - id: A1
+        name: BuildingBlockModule Template
+        type: class
+        path: ./module.yaml
+        description: >
+          Template for generic modules, libraries, SDKs, and utilities
+          with all required and optional sections annotated.
+        purpose: Starting point for non-service module documentation.
+      - id: A2
+        name: ServiceModule Template
+        type: class
+        path: ./service.yaml
+        description: >
+          Template for microservices and bounded-context APIs with
+          required technical, anti_patterns, and usage sections.
+        purpose: Starting point for service module documentation.
+      - id: A3
+        name: DomainModule Template
+        type: class
+        path: ./domain.yaml
+        description: >
+          Template for DDD domain layers with overview, core concepts,
+          references, and testing sections.
+        purpose: Starting point for domain entity and aggregate documentation.
+      - id: A4
+        name: ConcernsModule Template
+        type: class
+        path: ./concerns.yaml
+        description: >
+          Template for cross-cutting behavior modules with required
+          principles and features sections.
+        purpose: Starting point for documenting cross-cutting concerns.
+      - id: A5
+        name: AgentContext Template
+        type: class
+        path: ./agents.yaml
+        description: >
+          Template for AGENTS.yaml with project_info, agent_rules,
+          boundaries, patterns, code_style, and testing_context.
+        purpose: Starting point for AI agent context documentation.
+
+file_structure: |
+  guide/yaml-docs/templates/
+  ├── README.yaml              # This documentation
+  ├── agents.yaml              # AgentContext template
+  ├── concerns.yaml            # ConcernsModule template
+  ├── domain.yaml              # DomainModule template
+  ├── module.yaml              # BuildingBlockModule template
+  └── service.yaml             # ServiceModule template

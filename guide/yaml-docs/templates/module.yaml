@@ -1,0 +1,257 @@
+# ════════════════════════════════════════════════════
+# [ModuleName] Documentation (YAML)
+# Purpose:  [One sentence: what problem does this solve?]
+# Version:  1.0.0
+# Status:   stable
+# Schema:   2.0
+# Updated:  YYYY-MM-DD
+# ════════════════════════════════════════════════════
+
+kind: BuildingBlockModule
+id: kebab-case-module-id
+name: Namespace.ModuleName
+version: "1.0.0"
+status: stable                    # stable | beta | deprecated
+schema_version: "2.0"
+
+# ─────────────────────────────────────────────────────
+# META — identity, stability, dependencies
+# REQUIRED. Always first.
+# ─────────────────────────────────────────────────────
+meta:
+  name: Module Display Name
+  description: >
+    Two to four sentences describing purpose and scope.
+    What does this module provide? Who consumes it?
+    What problem does it solve?
+  category: "Error Handling | Domain Logic | Infrastructure | Messaging"
+  stability: Stable
+  standards_alignment: "Evans DDD | SOLID | RFC XXXX"  # optional
+  dependencies:
+    - name: PackageName
+      version: "1.2.3"
+    # - name: PackageName2
+    #   version: ">=2.0.0"
+
+# ─────────────────────────────────────────────────────
+# PRINCIPLES — design philosophies
+# OPTIONAL. Include when module has deliberate tradeoffs
+# worth stating. Omit for pure-utility modules.
+# ─────────────────────────────────────────────────────
+principles:
+  - id: P1
+    name: Principle Name
+    description: What this principle states in one or two sentences.
+    rationale: Why this matters; what would go wrong without it.
+  - id: P2
+    name: Principle Name
+    description: ...
+    rationale: ...
+  # Add P3, P4 ... as needed
+
+# ─────────────────────────────────────────────────────
+# FEATURES — capability inventory
+# OPTIONAL. Include when module has distinct feature
+# groups a consumer might selectively adopt.
+# ─────────────────────────────────────────────────────
+features:
+  - id: F1
+    name: Feature Name
+    type: core                          # core | extension | integration | utility
+    description: What this feature provides.
+    api_highlight: "TypeName { key: type }"   # optional: key API surface
+  - id: F2
+    name: Feature Name
+    type: extension
+    description: ...
+    methods:
+      - name: "MethodName<T>"
+        description: What this method does
+      - name: MethodName2
+        description: ...
+  - id: F3
+    name: Feature Name
+    type: integration
+    description: ...
+  # Add F4, F5 ... as needed
+
+# ─────────────────────────────────────────────────────
+# ABSTRACTIONS — component inventory
+# REQUIRED. Core documentation section.
+# Organize by semantic category, not by file order.
+# ─────────────────────────────────────────────────────
+abstractions:
+  - category: Primary Category Name
+    order: 1
+    description: What these abstractions have in common.
+    items:
+      - id: A1
+        name: IInterfaceName
+        type: interface   # interface|class|abstract|record|enum|function|handler|middleware|extension
+        path: ./Relative/Path/From/Module/Root/File.cs
+        description: What this abstraction does. One to two sentences.
+        purpose: Why you'd reach for it. Decision-making value. Start with a verb.
+        contract: |
+          // Contract: pre=condition, post=condition, throws=ExceptionType
+          public interface IExample { Guid Id { get; } }
+        top_use: Most common use case in one line.
+        example: |
+          public class MyEntity : IExample {
+            // implementation
+          }
+      - id: A2
+        name: ClassName
+        type: class
+        path: ./Relative/Path/File.cs
+        description: ...
+        purpose: ...
+        methods:
+          - name: "Method(param: type)"
+            description: What it does
+          - name: "Method2(param: type)"
+            description: ...
+        example: |
+          // Usage example
+      # Add A3, A4 ... as needed
+
+  - category: Secondary Category Name
+    order: 2
+    description: ...
+    items:
+      - id: B1           # secondary category uses B-prefix IDs
+        name: ClassName
+        type: class
+        path: ./Relative/Path/File.cs
+        description: ...
+        purpose: ...
+      # Add B2, B3 ... as needed
+
+  # Add more categories (C-prefix IDs) as needed
+
+# ─────────────────────────────────────────────────────
+# TECHNICAL — internals and mechanisms
+# OPTIONAL. Include for non-obvious internal behavior,
+# algorithms, flow control, or protocol details.
+# ─────────────────────────────────────────────────────
+technical:
+  mechanisms:
+    - id: M1
+      name: Mechanism Name
+      scope: "Core flow control"
+      description: >
+        Prose explanation of how this mechanism works.
+      pattern: |
+        // Code or pseudocode illustrating the mechanism
+        result = step1().then(step2);
+    - id: M2
+      name: Mechanism Name
+      scope: "HTTP mapping"
+      steps:
+        - Step one
+        - Step two
+        - Step three
+  # Add M3, M4 ... as needed
+
+# ─────────────────────────────────────────────────────
+# ANTI-PATTERNS — what NOT to do
+# OPTIONAL but strongly recommended.
+# severity: critical | high | medium | low
+# ─────────────────────────────────────────────────────
+anti_patterns:
+  - id: AP1
+    name: Anti-Pattern Name
+    severity: critical
+    avoid: What NOT to do, in one sentence.
+    bad_example: "❌ bad_code_example()"
+    better_approach: What TO do instead.
+    good_example: "✅ good_code_example()"
+    impact: Consequence of using this anti-pattern.   # optional
+  - id: AP2
+    name: Anti-Pattern Name
+    severity: high
+    avoid: ...
+    better_approach: ...
+  # Add AP3, AP4 ... as needed
+
+# ─────────────────────────────────────────────────────
+# USAGE — common patterns and scenarios
+# RECOMMENDED for consumer-facing modules.
+# ─────────────────────────────────────────────────────
+usage:
+  scenarios:
+    - id: S1
+      title: Scenario or Pattern Title
+      context: When / why a developer reaches for this pattern.
+      pattern: |
+        // 10-25 line code example
+        var result = service.DoSomething(input);
+        result.Match(
+          onSuccess: v => Console.WriteLine(v),
+          onFailure: e => Console.WriteLine(e.Message)
+        );
+      benefits:
+        - First benefit
+        - Second benefit
+    - id: S2
+      title: Scenario Title
+      context: ...
+      pattern: |
+        // Example
+      benefits:
+        - ...
+  # Add S3, S4 ... as needed
+
+# ─────────────────────────────────────────────────────
+# TESTING — test patterns
+# OPTIONAL. Include when testing approach is non-obvious
+# or differs meaningfully from standard unit testing.
+# ─────────────────────────────────────────────────────
+testing:
+  strategies:
+    - id: TS1
+      title: Test Strategy Title
+      objective: What this test pattern verifies.
+      code_example: |
+        [Fact]
+        public void MethodName_Condition_Expected() {
+          // Arrange
+          // Act
+          // Assert
+        }
+  # Add TS2, TS3 ... as needed
+
+# ─────────────────────────────────────────────────────
+# GUIDES — step-by-step tutorials
+# OPTIONAL. Include only for complex setup flows.
+# ─────────────────────────────────────────────────────
+guides:
+  - id: G1
+    title: Guide Title
+    objective: What the guide teaches.
+    steps:
+      - order: 1
+        title: Step Title
+        description: What to do in this step.
+        code_snippet: |
+          // Code for this step
+          public class MyEntity : Entity { }
+      - order: 2
+        title: Step Title
+        description: ...
+    best_practices:
+      - Best practice one
+      - Best practice two
+
+# ─────────────────────────────────────────────────────
+# FILE STRUCTURE — directory layout
+# REQUIRED. Always last.
+# Use ASCII tree with # comments on important files.
+# ─────────────────────────────────────────────────────
+file_structure: |
+  ModuleName/
+  ├── SubFolder/
+  │   ├── File.cs              # Short description
+  │   └── File2.cs             # Short description
+  ├── RootFile.cs              # Short description
+  ├── RootFile2.cs             # Short description
+  └── README.yaml              # This documentation

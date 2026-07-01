@@ -1,0 +1,398 @@
+# ════════════════════════════════════════════════════
+# [DomainName] Domain Documentation (YAML)
+# Purpose:  Core DDD building blocks for [DomainName] bounded context
+# Version:  1.0.0
+# Status:   stable
+# Schema:   2.0
+# Updated:  YYYY-MM-DD
+# ════════════════════════════════════════════════════
+
+kind: BuildingBlockModule
+id: domain-name-domain
+name: Namespace.Domain
+version: "1.0.0"
+status: stable
+schema_version: "2.0"
+
+meta:
+  name: DomainName Domain Building Block
+  description: >
+    Core DDD abstractions for the [DomainName] bounded context.
+    Provides base types for entities, aggregates, value objects,
+    and business rule enforcement following Evans DDD principles.
+  category: Domain-Driven Design & Architecture
+  stability: Stable
+  standards_alignment: "Evans DDD, Fowler Aggregates, SOLID Principles"
+  dependencies:
+    - name: .NET
+      version: "10+"
+    - name: System
+      version: built-in
+
+# ─────────────────────────────────────────────────────
+# OVERVIEW — DDD domain layer context
+# Domain variant only.
+# ─────────────────────────────────────────────────────
+overview:
+  objective: >
+    One paragraph: what does this domain layer express?
+    What business problem does it model? Who are the key actors?
+  core_concepts:
+    - name: Entity
+      description: >
+        Objects with a distinct identity that persists through state changes.
+        Identity comparison, not value comparison.
+    - name: Value Object
+      description: >
+        Immutable objects defined by their attributes, not identity.
+        Two value objects with the same data are equal.
+    - name: Aggregate
+      description: >
+        Cluster of domain objects treated as a single unit.
+        The Aggregate Root controls access and enforces invariants.
+    - name: Business Rule
+      description: >
+        Encapsulated domain invariants checked before state transitions.
+        Returns a boolean and a violation message.
+    - name: Domain Event
+      description: >
+        Records that something noteworthy happened in the domain.
+        Published after aggregate state changes.
+
+abstractions:
+  - category: Core DDD
+    order: 1
+    description: Foundational abstractions every domain entity builds on.
+    items:
+      - id: A1
+        name: IEntity
+        type: interface
+        path: ./Abstracts/IEntity.cs
+        description: >
+          Marker interface for all domain entities. Carries identity
+          semantics: two entities are equal if and only if their IDs match.
+        purpose: >
+          Enables generic repository contracts and EF Core configurations
+          that work across all entity types without casting.
+        contract: |
+          // Invariant: Id is assigned exactly once at creation; never null
+          public interface IEntity {
+            Guid Id { get; }
+          }
+        top_use: Base constraint for generic repositories and specs.
+        example: |
+          public class Order : Entity, IEntity {
+            private Order(Guid id) : base(id) { }
+          }
+
+      - id: A2
+        name: Entity
+        type: abstract
+        path: ./Models/Entity.cs
+        description: >
+          Abstract base class implementing IEntity with Guid identity
+          and structural equality based on Id comparison.
+        purpose: >
+          Eliminates equality boilerplate from every domain entity.
+          Override only when an entity requires composite identity.
+        contract: |
+          // Contract: pre=id != Guid.Empty, post=Id==id
+          // Invariant: Equals() compares by Id, not by reference
+        example: |
+          public class Product : Entity {
+            public string Name { get; private set; }
+            private Product(Guid id, string name) : base(id) {
+              Name = name;
+            }
+          }
+
+      - id: A3
+        name: ValueObject
+        type: abstract
+        path: ./Models/ValueObject.cs
+        description: >
+          Abstract base class for value objects with structural equality
+          based on all component parts returned by GetEqualityComponents().
+        purpose: >
+          Correct equality for money, addresses, coordinates, and other
+          concept types defined by their attributes, not identity.
+        contract: |
+          // Invariant: GetEqualityComponents() must return all meaningful fields
+          // Invariant: Value objects are immutable — no public setters
+        example: |
+          public class Money : ValueObject {
+            public decimal Amount { get; }
+            public string Currency { get; }
+            protected override IEnumerable<object> GetEqualityComponents() {
+              yield return Amount;
+              yield return Currency;
+            }
+          }
+
+      - id: A4
+        name: AggregateRoot
+        type: abstract
+        path: ./Models/AggregateRoot.cs
+        description: >
+          Abstract base for aggregate roots; extends Entity with a
+          domain event collection and CheckRule() enforcement.
+        purpose: >
+          Enforces business invariants at aggregate boundaries and
+          collects domain events for dispatch after persistence.
+        contract: |
+          // Contract: CheckRule() throws BusinessRuleViolatedException if rule fails
+          // Invariant: Domain events dispatched AFTER successful SaveChanges
+        example: |
+          public class Order : AggregateRoot {
+            public void Place() {
+              CheckRule(new OrderMustHaveItemsRule(_items));
+              RaiseEvent(new OrderPlacedEvent(Id));
+            }
+          }
+
+      - id: A5
+        name: IBusinessRule
+        type: interface
+        path: ./Abstracts/IBusinessRule.cs
+        description: >
+          Contract for encapsulated domain invariants that aggregates
+          check before executing state-changing operations.
+        purpose: >
+          Keeps business logic testable in isolation and prevents
+          scattered validation across the application layer.
+        contract: |
+          public interface IBusinessRule {
+            bool IsBroken();
+            string Message { get; }
+          }
+        top_use: "Inline rule check: CheckRule(new MinimumOrderAmountRule(total, minimum))."
+        example: |
+          public class MinimumOrderAmountRule : IBusinessRule {
+            private readonly decimal _total, _minimum;
+            public MinimumOrderAmountRule(decimal total, decimal minimum) {
+              _total = total; _minimum = minimum;
+            }
+            public bool IsBroken() => _total < _minimum;
+            public string Message => $"Order total {_total} below minimum {_minimum}";
+          }
+
+  - category: Specialized Behaviors
+    order: 2
+    description: >
+      Optional marker interfaces for cross-cutting domain concerns.
+      Implement only what the entity genuinely requires.
+    items:
+      - id: B1
+        name: IAuditable
+        type: interface
+        path: ./Abstracts/IAuditable.cs
+        description: Marks entities that track creation and modification timestamps.
+        purpose: >
+          Enables automatic audit stamping by EF Core interceptors without
+          manual timestamp management in every entity.
+        contract: |
+          public interface IAuditable {
+            DateTime CreatedAt { get; set; }
+            DateTime? UpdatedAt { get; set; }
+          }
+        top_use: "All persistent entities requiring an audit trail."
+
+      - id: B2
+        name: ISoftDeleted
+        type: interface
+        path: ./Abstracts/ISoftDeleted.cs
+        description: Marks entities that use logical deletion instead of physical row removal.
+        purpose: >
+          Enables global query filters and soft-delete interceptors,
+          keeping deleted records in the database for audit and recovery.
+        contract: |
+          public interface ISoftDeleted {
+            bool IsDeleted { get; set; }
+            DateTime? DeletedAt { get; set; }
+          }
+
+      - id: B3
+        name: IHasVersion
+        type: interface
+        path: ./Abstracts/IHasVersion.cs
+        description: Marks aggregates that participate in optimistic concurrency control.
+        purpose: >
+          Prevents lost-update anomalies in high-concurrency scenarios by
+          exposing a row version token for EF Core concurrency tokens.
+
+      - id: B4
+        name: IHasDomainEvent
+        type: interface
+        path: ./Abstracts/IHasDomainEvent.cs
+        description: >
+          Marks aggregates that accumulate domain events for dispatch
+          after successful persistence.
+        purpose: >
+          Decouples side-effect dispatch from domain logic while keeping
+          events transactionally consistent with state changes.
+
+technical:
+  explanations:
+    - id: E1
+      name: Entity vs Value Object Decision
+      prose: >
+        Use an Entity when an object has a lifecycle and must be traceable over time —
+        even if all its data changes, it remains the "same thing" by identity.
+        Use a Value Object when the concept is defined entirely by its data and
+        has no independent identity (Money, Address, Coordinates).
+      key_insight: >
+        If two instances with identical data are interchangeable in all contexts,
+        use ValueObject. If not, use Entity.
+
+    - id: E2
+      name: Aggregate Boundary Design
+      prose: >
+        An aggregate boundary should encompass the minimum set of objects
+        required to enforce a single business invariant atomically.
+        Large aggregates cause contention; too-small aggregates push invariant
+        enforcement into the application layer.
+      key_insight: >
+        Prefer small aggregates. Reference other aggregates by ID, not by object reference.
+
+anti_patterns:
+  - id: AP1
+    name: Anemic Domain Model
+    severity: critical
+    avoid: >
+      Entities with only public getters and setters and no behavior —
+      all logic living in application services.
+    bad_example: "❌ order.Status = OrderStatus.Placed; // set in application service"
+    better_approach: >
+      Encapsulate state changes in domain methods that enforce invariants.
+    good_example: "✅ order.Place(); // checks rules, raises event internally"
+
+  - id: AP2
+    name: Domain Logic in Application Layer
+    severity: high
+    avoid: Business rule checks (if/else validation) in command handlers or services.
+    better_approach: >
+      Encapsulate in IBusinessRule implementations; call CheckRule() on aggregate.
+
+  - id: AP3
+    name: Cross-Aggregate Object Reference
+    severity: high
+    avoid: Holding object references to other aggregates (Order holds Customer object).
+    better_approach: >
+      Reference other aggregates by ID only (order.CustomerId = customer.Id).
+    impact: Cross-aggregate references leak consistency boundaries and cause contention.
+
+  - id: AP4
+    name: Mutable Value Objects
+    severity: medium
+    avoid: Value objects with public setters or mutation methods.
+    better_approach: >
+      Create new instances on change. All properties init-only or readonly.
+
+guides:
+  - id: G1
+    title: Creating a Rich Domain Entity
+    objective: Build an entity with private constructor, factory method, and behavior.
+    steps:
+      - order: 1
+        title: Extend Entity with private constructor
+        code_snippet: |
+          public class Product : Entity {
+            private Product(Guid id) : base(id) { }
+          }
+      - order: 2
+        title: Add a static factory method
+        code_snippet: |
+          public static Product Create(string name, decimal price) {
+            var product = new Product(Guid.NewGuid());
+            product.Name = name;
+            product.Price = price;
+            return product;
+          }
+      - order: 3
+        title: Add behavior methods that enforce rules
+        code_snippet: |
+          public void UpdatePrice(decimal newPrice) {
+            CheckRule(new PriceMustBePositiveRule(newPrice));
+            Price = newPrice;
+          }
+    best_practices:
+      - Never expose a public parameterless constructor.
+      - Use private or init-only setters for all properties.
+      - Raise domain events from behavior methods, not from constructors.
+
+testing:
+  strategies:
+    - id: TS1
+      title: Entity Equality Testing
+      objective: Verify that entity equality is based on ID, not on property values.
+      code_example: |
+        [Fact]
+        public void TwoEntitiesWithSameId_AreEqual() {
+          var id = Guid.NewGuid();
+          var e1 = Product.Reconstitute(id, "Product A");
+          var e2 = Product.Reconstitute(id, "Product B");
+          Assert.Equal(e1, e2);
+        }
+
+    - id: TS2
+      title: Business Rule Testing
+      objective: Verify that aggregate throws when a business rule is violated.
+      code_example: |
+        [Fact]
+        public void Order_Place_ThrowsWhen_NoItems() {
+          var order = Order.Create(customerId);
+          var ex = Assert.Throws<BusinessRuleViolatedException>(
+            () => order.Place()
+          );
+          Assert.Contains("must have at least one item", ex.Message);
+        }
+
+    - id: TS3
+      title: Domain Event Testing
+      objective: Verify that the correct domain events are raised after state transitions.
+      code_example: |
+        [Fact]
+        public void Order_Place_Raises_OrderPlacedEvent() {
+          var order = Order.CreateWithItems(customerId, validItems);
+          order.Place();
+          Assert.Single(order.DomainEvents.OfType<OrderPlacedEvent>());
+        }
+
+# ─────────────────────────────────────────────────────
+# REFERENCES — literature (Domain variant only)
+# ─────────────────────────────────────────────────────
+references:
+  - id: R1
+    author: "Evans, Eric"
+    title: "Domain-Driven Design: Tackling Complexity in the Heart of Software"
+    year: 2003
+    relevance: "Foundational text; defines Entity, Value Object, Aggregate, Domain Event."
+  - id: R2
+    author: "Fowler, Martin"
+    title: Patterns of Enterprise Application Architecture
+    year: 2002
+    relevance: "Repository pattern, Unit of Work, and Layer Supertype."
+  - id: R3
+    author: "Vernon, Vaughn"
+    title: Implementing Domain-Driven Design
+    year: 2013
+    relevance: "Practical aggregate design, domain event publishing, bounded contexts."
+
+file_structure: |
+  Domain/
+  ├── Abstracts/
+  │   ├── IEntity.cs                    # Entity identity marker
+  │   ├── IAggregateRoot.cs             # Aggregate root marker
+  │   ├── IBusinessRule.cs              # Business rule contract
+  │   ├── IAuditable.cs                 # Audit trail marker
+  │   ├── ISoftDeleted.cs               # Soft-delete marker
+  │   ├── IHasVersion.cs                # Optimistic concurrency marker
+  │   └── IHasDomainEvent.cs            # Domain event collection marker
+  ├── Models/
+  │   ├── Entity.cs                     # Abstract entity base
+  │   ├── AggregateRoot.cs              # Abstract aggregate root base
+  │   └── ValueObject.cs                # Abstract value object base
+  ├── Exceptions/
+  │   ├── DomainException.cs            # Base domain exception
+  │   └── BusinessRuleViolatedException.cs  # Thrown by CheckRule()
+  └── README.yaml                       # This documentation
