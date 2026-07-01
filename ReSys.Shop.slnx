@@ -1,2 +1,8 @@
 <Solution>
+  <Folder Name="/infra/" />
+  <Folder Name="/infra/Aspire/" />
+  <Folder Name="/infra/Aspire/src/">
+    <Project Path="infra/Aspire/src/ReSys.AppHost/ReSys.AppHost.csproj" />
+    <Project Path="infra/Aspire/src/ReSys.ServiceDefaults/ReSys.ServiceDefaults.csproj" />
+  </Folder>
 </Solution>
