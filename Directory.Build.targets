@@ -1,0 +1,68 @@
+<Project>
+  <!-- Architecture Validation Targets -->
+
+  <!-- 1. DOMAIN LAYER: Must remain pure (no Infrastructure or Application references) -->
+  <Target Name="ValidateDomainReferences"
+          BeforeTargets="BeforeBuild;ResolveProjectReferences"
+          Condition="$(MSBuildProjectName.EndsWith('.Domain'))">
+    <ItemGroup>
+      <ForbiddenRef Include="@(ProjectReference)"
+        Condition="$([System.String]::Copy('%(Filename)').EndsWith('.Infrastructure')) OR
+                   $([System.String]::Copy('%(Filename)').EndsWith('.Application'))" />
+    </ItemGroup>
+    <Error Text="Architecture violation: Domain cannot reference Infrastructure or Application."
+           Condition="'@(ForbiddenRef)' != ''" />
+  </Target>
+
+  <!-- 2. APPLICATION LAYER: Cannot reference Infrastructure directly -->
+  <Target Name="ValidateApplicationReferences"
+          BeforeTargets="BeforeBuild;ResolveProjectReferences"
+          Condition="$(MSBuildProjectName.EndsWith('.Application'))">
+    <ItemGroup>
+      <ForbiddenRef Include="@(ProjectReference)"
+        Condition="$([System.String]::Copy('%(Filename)').EndsWith('.Infrastructure'))" />
+    </ItemGroup>
+    <Error Text="Architecture violation: Application cannot reference Infrastructure directly (use DIP)."
+           Condition="'@(ForbiddenRef)' != ''" />
+  </Target>
+
+  <!-- 3. PRESENTATION/API LAYER: Warning only (DI composition root may reference Infrastructure) -->
+  <Target Name="ValidatePresentationReferences"
+          BeforeTargets="BeforeBuild;ResolveProjectReferences"
+          Condition="$(MSBuildProjectName.EndsWith('.Api')) OR $(MSBuildProjectName.EndsWith('.Web'))">
+    <ItemGroup>
+      <ForbiddenRef Include="@(ProjectReference)"
+        Condition="$([System.String]::Copy('%(Filename)').EndsWith('.Infrastructure'))" />
+    </ItemGroup>
+    <Warning Text="Consider using abstractions instead of direct Infrastructure references."
+             Condition="'@(ForbiddenRef)' != ''" />
+  </Target>
+
+  <!-- 4. VERTICAL SLICE ISOLATION: Prevent modules from referencing each other -->
+  <Target Name="ValidateVerticalSliceIsolation"
+          BeforeTargets="BeforeBuild;ResolveProjectReferences"
+          Condition="false"> <!-- Enable by setting to 'true' -->
+    <ItemGroup>
+      <ForbiddenRef Include="@(ProjectReference)"
+        Condition="$(MSBuildProjectName.Contains('.Modules.')) AND
+                   ($([System.String]::Copy('%(Filename)').Contains('.Modules.')) OR
+                    $([System.String]::Copy('%(Filename)').EndsWith('.Modules')))" />
+    </ItemGroup>
+    <Warning Text="Modules should not reference each other directly."
+             Condition="'@(ForbiddenRef)' != ''" />
+  </Target>
+
+  <!-- EditorConfig Validation -->
+  <Target Name="ValidateEditorConfig" BeforeTargets="BeforeBuild">
+    <Warning Text="Create .editorconfig at repository root for consistent code style."
+             Condition="!Exists('$(MSBuildThisFileDirectory).editorconfig')" />
+  </Target>
+
+  <!-- SourceLink Validation -->
+  <Target Name="ValidateSourceLink"
+          BeforeTargets="Pack"
+          Condition="'$(IsPackable)' == 'true' AND '$(ContinuousIntegrationBuild)' == 'true'">
+    <Error Text="SourceLink not configured (requires PublishRepositoryUrl and EmbedUntrackedSources)."
+           Condition="'$(PublishRepositoryUrl)' != 'true' OR '$(EmbedUntrackedSources)' != 'true'" />
+  </Target>
+</Project>
