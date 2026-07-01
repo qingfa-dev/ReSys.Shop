@@ -7,9 +7,15 @@
     <Nullable>enable</Nullable>
     <UserSecretsId>ab9b0111-bf66-4ef2-9a46-27dc205aef68</UserSecretsId>
   </PropertyGroup>
-
+   <ItemGroup>
+    <PackageReference Include="Aspire.Hosting.JavaScript" />
+    <PackageReference Include="Aspire.Hosting.PostgreSQL" />
+    <PackageReference Include="Aspire.Hosting.Python" />
+    <PackageReference Include="Aspire.Hosting.Redis" />
+  </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="../ReSys.ServiceDefaults/ReSys.ServiceDefaults.csproj"  IsAspireProjectResource ="false"/>
+    <ProjectReference Include="../../../../service/Api/src/Api/Api.csproj" />
+    <ProjectReference Include="../ReSys.ServiceDefaults/ReSys.ServiceDefaults.csproj" IsAspireProjectResource="false" />
   </ItemGroup>
 
 </Project>

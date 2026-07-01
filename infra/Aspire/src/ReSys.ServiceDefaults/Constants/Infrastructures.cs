@@ -4,17 +4,17 @@ public static class Infrastructures
 {
     public static class Databases
     {
-        public const string PostgresServer = "ReSys-Postgres";
-        public const string PostgresResource = "ReSys-Db";
+        public const string Server = "Postgres";
+        public const string Resource = "ReSysDatabase";
     }
 
     public static class Cache
     {
-        public const string RedisResource = "ReSys-Cache";
+        public const string Resource = "ReSysCache";
     }
 
     public static class Smtp
     {
-        public const string PapercutResource = "ReSys-Papercut";
+        public const string Resource = "ReSysPapercut";
     }
 }
