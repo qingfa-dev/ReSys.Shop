@@ -137,6 +137,13 @@
           "Pipelines.Sockets.Unofficial": "2.2.8"
         }
       },
+      "modules": {
+        "type": "Project",
+        "dependencies": {
+          "Microsoft.SourceLink.GitHub": "[8.0.0, )",
+          "Shared": "[1.0.0, )"
+        }
+      },
       "resys.servicedefaults": {
         "type": "Project",
         "dependencies": {
@@ -150,6 +157,13 @@
           "OpenTelemetry.Instrumentation.Http": "[1.16.0, )",
           "OpenTelemetry.Instrumentation.Runtime": "[1.15.1, )",
           "OpenTelemetry.Instrumentation.StackExchangeRedis": "[1.16.0-beta.1, )"
+        }
+      },
+      "shared": {
+        "type": "Project",
+        "dependencies": {
+          "Microsoft.SourceLink.GitHub": "[8.0.0, )",
+          "ReSys.ServiceDefaults": "[1.0.0, )"
         }
       },
       "Microsoft.Extensions.Http.Resilience": {
