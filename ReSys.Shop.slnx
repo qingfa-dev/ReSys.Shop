@@ -9,5 +9,14 @@
   <Folder Name="/service/Api/" />
   <Folder Name="/service/Api/src/">
     <Project Path="service/Api/src/Api/Api.csproj" />
+    <Project Path="service/Api/src/Modules/Modules.csproj" />
+    <Project Path="service/Api/src/Shared/Shared.csproj" />
+  </Folder>
+  <Folder Name="/service/Api/tests/">
+    <Project Path="service/Api/tests/Api.Tests/Api.Tests.csproj" />
+    <Project Path="service/Api/tests/Shared.UnitTests/Shared.UnitTests.csproj" />
+  </Folder>
+  <Folder Name="/service/Api/tests/Modules.UnitTests/">
+    <Project Path="service/Api/tests/Modules.UnitTests/Module.UnitTests.csproj" />
   </Folder>
 </Solution>
