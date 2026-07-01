@@ -1,3 +1,5 @@
+using Aspire.Hosting.JavaScript;
+
 using ReSys.ServiceDefaults.Constants;
 
 IDistributedApplicationBuilder builder = DistributedApplication.CreateBuilder(args);
@@ -14,5 +16,19 @@ IResourceBuilder<PostgresDatabaseResource> database = postgres.AddDatabase(
 IResourceBuilder<ProjectResource> api = builder.AddProject<Projects.Api>(Services.Api)
     .WithReference(database)
     .WithReference(redis);
+
+IResourceBuilder<ViteAppResource> store = builder.AddViteApp(Application.Store, "../../../../app/Store")
+    .WithPnpm()
+    .WithHttpEndpoint(targetPort: 5173)
+    .WithEnvironment("VITE_API_URL", api.GetEndpoint("http"))
+    .WithReference(api)
+    .WaitFor(api);
+
+IResourceBuilder<ViteAppResource> admin = builder.AddViteApp(Application.Admin, "../../../../app/Admin")
+    .WithPnpm()
+    .WithHttpEndpoint(targetPort: 5174)
+    .WithEnvironment("VITE_API_URL", api.GetEndpoint("http"))
+    .WithReference(api)
+    .WaitFor(api);
 
 builder.Build().Run();

@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
+import { api } from '@/api'
 
 export interface Product {
   id: string
@@ -26,9 +27,7 @@ export const useCatalogStore = defineStore('catalog', () => {
     isLoading.value = true
     error.value = null
     try {
-      const response = await fetch('/api/products')
-      if (!response.ok) throw new Error('Failed to fetch products')
-      products.value = await response.json()
+      products.value = await api.get<Product[]>('/api/products')
     } catch (e) {
       error.value = e instanceof Error ? e.message : 'Unknown error'
     } finally {
@@ -40,9 +39,7 @@ export const useCatalogStore = defineStore('catalog', () => {
     isLoading.value = true
     error.value = null
     try {
-      const response = await fetch(`/api/products/${id}`)
-      if (!response.ok) throw new Error('Failed to fetch product')
-      const product = await response.json()
+      const product = await api.get<Product>(`/api/products/${id}`)
       const index = products.value.findIndex((p) => p.id === id)
       if (index >= 0) {
         products.value[index] = product
