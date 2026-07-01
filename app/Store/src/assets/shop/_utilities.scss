@@ -1,0 +1,62 @@
+@use 'variables' as *;
+
+.product-card {
+  border: 1px solid $color-border;
+  border-radius: 0.5rem;
+  overflow: hidden;
+  background-color: $color-surface;
+  transition: box-shadow 0.2s ease;
+
+  &:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  }
+}
+
+.price-display {
+  font-weight: 700;
+  font-size: 1.25rem;
+  color: $color-primary;
+}
+
+.price-original {
+  text-decoration: line-through;
+  color: $color-text-secondary;
+  font-size: 0.875rem;
+  margin-left: $spacing-sm;
+}
+
+.price-discount {
+  color: $color-danger;
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.rating-stars {
+  color: $color-primary;
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: $spacing-xs $spacing-sm;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.badge-sale {
+  background-color: $color-danger;
+  color: white;
+}
+
+.badge-new {
+  background-color: $color-accent;
+  color: white;
+}
+
+.badge-out-of-stock {
+  background-color: $color-text-secondary;
+  color: white;
+}
