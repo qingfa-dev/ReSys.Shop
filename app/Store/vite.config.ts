@@ -25,4 +25,10 @@ export default defineConfig({
       '@': fileURLToPath(new URL('./src', import.meta.url)),
     },
   },
+  server: {
+    port: 5174,
+    proxy: {
+      '/api': { target: process.env.VITE_API_URL || 'http://localhost:5035', changeOrigin: true },
+    },
+  },
 })
