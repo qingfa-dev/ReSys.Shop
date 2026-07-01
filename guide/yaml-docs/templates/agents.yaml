@@ -1,0 +1,184 @@
+# ════════════════════════════════════════════════════
+# AGENTS.yaml — AI Coding Agent Context
+# Project:  [ProjectName]
+# Version:  [semver]
+# Purpose:  Structured context for AI coding agents
+#           (Claude Code, GitHub Copilot, Cursor, etc.)
+# Schema:   2.0
+# Updated:  YYYY-MM-DD
+#
+# KEY PRINCIPLE (ETH Zurich AGENTbench 2026):
+# Human-curated, concise annotations outperform verbose
+# LLM-generated context. Every entry must earn its place.
+# ════════════════════════════════════════════════════
+
+kind: AgentContext
+project: ProjectName
+version: "1.0.0"
+schema_version: "2.0"
+
+# ─────────────────────────────────────────────────────
+# PROJECT — identity and one-liner
+# ─────────────────────────────────────────────────────
+project_info:
+  name: ProjectName
+  version: "1.0.0"
+  description: One sentence — what this project does.
+  tech_stack: ".NET 10 | TypeScript | Python 3.12"
+
+# ─────────────────────────────────────────────────────
+# BUILDING BLOCKS — module documentation links
+# Each module entry links to a README.yaml the agent
+# can fetch for deeper context on that module.
+# ─────────────────────────────────────────────────────
+building_blocks:
+  path: relative/path/to/blocks
+  modules:
+    - name: ModuleName
+      doc: ModuleName/README.yaml
+      description: One-line purpose.
+    - name: ModuleName2
+      doc: ModuleName2/README.yaml
+      description: One-line purpose.
+    # Add modules as needed
+
+# ─────────────────────────────────────────────────────
+# AGENT RULES — hard constraints for the agent
+# severity: critical | high | medium | low
+# Write in imperative mood. One rule per entry.
+# Keep concise — verbose rules reduce compliance.
+# ─────────────────────────────────────────────────────
+agent_rules:
+  # Architecture rules
+  - id: AR1
+    severity: critical
+    rule: Never import Infrastructure namespaces into Domain layer.
+  - id: AR2
+    severity: critical
+    rule: "Never throw exceptions for business-rule failures — return Result<T>."
+
+  # Code style rules
+  - id: AR3
+    severity: high
+    rule: All public methods and interfaces require XML-doc / TSDoc comments.
+  - id: AR4
+    severity: high
+    rule: >
+      Use Behavior static methods for concern operations; do NOT set concern
+      properties directly (e.g. use SoftDeleteBehavior.Delete(), not IsDeleted=true).
+
+  # Database rules
+  - id: AR5
+    severity: high
+    rule: Repository implementations live in Infrastructure; interfaces live in Domain.
+
+  # Testing rules
+  - id: AR6
+    severity: medium
+    rule: Unit tests must not hit the database — use in-memory or mocked repositories.
+
+  # Add AR7, AR8 ... as needed
+
+# ─────────────────────────────────────────────────────
+# BOUNDARIES — architectural layer dependencies
+# direction: blocked | allowed | conditional
+# reason: required when direction is conditional
+# ─────────────────────────────────────────────────────
+boundaries:
+  # The agent must never introduce these dependencies
+  - from: Domain
+    to: Infrastructure
+    direction: blocked
+    reason: Domain must remain framework-agnostic.
+  - from: Domain
+    to: Application
+    direction: blocked
+    reason: No upward dependencies in clean architecture.
+
+  # The agent may freely introduce these
+  - from: API
+    to: Application
+    direction: allowed
+  - from: Application
+    to: Domain
+    direction: allowed
+  - from: Infrastructure
+    to: Domain
+    direction: allowed
+
+  # Conditional — only with explicit justification
+  - from: Application
+    to: Infrastructure
+    direction: conditional
+    reason: Only via registered interfaces; never concrete EF types.
+
+# ─────────────────────────────────────────────────────
+# PATTERNS — coding patterns the agent must follow
+# These are affirmative: what TO do.
+# Contrast with agent_rules which are prohibitions.
+# ─────────────────────────────────────────────────────
+patterns:
+  - id: PP1
+    name: Result Pattern
+    description: |
+      Return Result<T> from all service and handler methods.
+      Use Failures.NotFound(), Failures.Validation() factory methods.
+      Compose with .Then() and .Map() for pipelines.
+  - id: PP2
+    name: Concern Composition
+    description: |
+      Compose entity behaviors through interfaces (ISluggable, IAuditable, etc.)
+      not inheritance. Apply Behavior static methods in domain logic.
+  - id: PP3
+    name: CQRS Handler Pattern
+    description: |
+      Commands return Result or Result<T>.
+      Queries return Result<T> where T is a DTO, never a domain entity.
+      Handlers must not emit domain events directly — raise on aggregate, publish via outbox.
+  - id: PP4
+    name: Repository Contract
+    description: |
+      Repositories expose: GetByIdAsync, ListAsync, AddAsync, UpdateAsync, DeleteAsync.
+      Queries beyond these use Specification pattern; do not add ad-hoc query methods.
+  # Add PP5, PP6 ... as needed
+
+# ─────────────────────────────────────────────────────
+# CODE STYLE — language and formatting rules
+# Keep short; refer to .editorconfig for formatting.
+# ─────────────────────────────────────────────────────
+code_style:
+  - File-scoped namespaces only (no block namespaces).
+  - Primary constructors preferred for simple injection.
+  - Use var when the type is obvious from the right-hand side.
+  - Prefer async/await over .Result or .Wait() calls.
+  - Constants and enums in PascalCase; private fields in _camelCase.
+
+# ─────────────────────────────────────────────────────
+# TESTING CONTEXT — what tests look like here
+# ─────────────────────────────────────────────────────
+testing_context:
+  frameworks:
+    - name: xUnit
+      version: "2.x"
+    - name: FluentAssertions
+      version: "6.x"
+    - name: NSubstitute
+      version: "5.x"
+  convention: >
+    Test method names: MethodName_Condition_Expected.
+    One Arrange/Act/Assert block per test. No logic in tests.
+  scope: |
+    Unit tests: pure domain logic, no I/O.
+    Integration tests: in-memory EF Core, no external services.
+    E2E tests: path/to/e2e — do not modify without approval.
+
+# ─────────────────────────────────────────────────────
+# AGENT SKIP ZONES — blocks the agent must not touch
+# ─────────────────────────────────────────────────────
+agent_skip_zones:
+  - path: path/to/sensitive/file.cs
+    reason: "Hand-tuned performance-critical code — see ADR-042"
+  - path: path/to/legal/
+    reason: "Legal compliance text — requires legal review to modify"
+  - pattern: "**/Migrations/**"
+    reason: "EF Core migrations — generated; use dotnet ef commands"

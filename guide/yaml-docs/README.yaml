@@ -1,0 +1,158 @@
+kind: BuildingBlockModule
+id: yaml-docs
+name: Resys.FashionShop.YamlDocs
+version: "1.0.0"
+status: stable
+schema_version: "3.0"
+
+meta:
+  name: YAML Documentation Standard
+  description: >
+    Shared YAML Documentation Standard v3.0 used to produce all
+    README.yaml files across the resys.fashion_shop monorepo. Includes
+    the standard specification (SKILL.md), element reference, naming
+    conventions, validation checklist, and document templates for each
+    supported module kind (module, service, domain, concerns, agents).
+  category: "Documentation Standard | YAML Schema"
+  stability: Stable
+  dependencies:
+    - name: PyYAML
+      version: "6.x"
+      scope: dev
+
+principles:
+  - id: P1
+    name: Hard Rules Enforce Consistency
+    description: >
+      The standard defines 20 hard rules that every document must satisfy.
+      Documents that violate hard rules are considered invalid.
+    rationale: >
+      Machine-enforceable rules ensure all documents have consistent
+      structure regardless of author.
+  - id: P2
+    name: AI-First Consumption
+    description: >
+      Documents are designed to be parsed by AI coding agents as easily
+      as by humans. All fields have explicit semantic meaning.
+    rationale: >
+      Enables autonomous AI agents to navigate, understand, and modify
+      code with full context awareness.
+
+features:
+  - id: F1
+    name: Module Documentation Templates
+    type: core
+    description: >
+      Ready-to-use YAML templates for BuildingBlockModule, ServiceModule,
+      DomainModule, ConcernsModule, and AgentContext document kinds.
+  - id: F2
+    name: Validation Tooling
+    type: utility
+    description: >
+      Validation checklist and hard rules for automated document auditing.
+      Includes ID prefix conventions, section inclusion rules, and path
+      formatting requirements.
+  - id: F3
+    name: Element Reference
+    type: core
+    description: >
+      Complete specification of every YAML key across all document kinds
+      with allowed values, format rules, and usage examples.
+
+abstractions:
+  - category: Standard Documents
+    order: 1
+    description: Core specification and reference documents.
+    items:
+      - id: A1
+        name: Standard Specification
+        type: class
+        path: ./SKILL.md
+        description: >
+          Shared YAML Documentation Standard v3.0 defining hard
+          rules, document kinds, section inclusion rules, and workflow.
+        purpose: Master specification for all YAML documentation in the project.
+      - id: A2
+        name: Element Reference
+        type: class
+        path: ./referneces/element-reference.md
+        description: >
+          Complete key-level specification for every section across all
+          document kinds with allowed values and format rules.
+        purpose: Authoritative reference for writing compliant YAML documents.
+      - id: A3
+        name: Naming Conventions
+        type: class
+        path: ./referneces/naming-conventions.md
+        description: >
+          ID prefix patterns, attribute value enumerations, file naming,
+          YAML string conventions, and cross-reference linking rules.
+        purpose: Ensures consistent naming across all documentation.
+      - id: A4
+        name: Validation Checklist
+        type: class
+        path: ./referneces/validation-checklist.md
+        description: >
+          Pre-output self-check checklist for auditing documents against
+          all hard rules before they are finalized.
+        purpose: Automated validation guide for AI agents and CI pipelines.
+
+  - category: Document Templates
+    order: 2
+    description: Ready-to-use template files for each document kind.
+    items:
+      - id: B1
+        name: Service Module Template
+        type: class
+        path: ./templates/service.yaml
+        description: >
+          Complete ServiceModule template with all required and recommended
+          sections for microservice documentation.
+        purpose: Starting point for documenting any microservice in the project.
+      - id: B2
+        name: Building Block Module Template
+        type: class
+        path: ./templates/module.yaml
+        description: >
+          Complete BuildingBlockModule template for generic modules,
+          libraries, SDKs, and utilities.
+        purpose: Starting point for documenting non-service modules.
+      - id: B3
+        name: Domain Module Template
+        type: class
+        path: ./templates/domain.yaml
+        description: >
+          DomainModule template for DDD domain layers with overview,
+          references, and detailed entity documentation.
+        purpose: Starting point for documenting domain aggregates and entities.
+      - id: B4
+        name: Concerns Module Template
+        type: class
+        path: ./templates/concerns.yaml
+        description: >
+          ConcernsModule template for cross-cutting behaviors like
+          auditing, soft delete, and validation.
+        purpose: Starting point for documenting cross-cutting concerns.
+      - id: B5
+        name: Agent Context Template
+        type: class
+        path: ./templates/agents.yaml
+        description: >
+          AgentContext template for AGENTS.yaml with agent rules,
+          boundaries, patterns, and code style.
+        purpose: Starting point for AI agent context documentation.
+
+file_structure: |
+  guide/yaml-docs/
+  ├── README.yaml              # This documentation
+  ├── SKILL.md                 # Shared YAML Documentation Standard v3.0
+  ├── referneces/
+  │   ├── element-reference.md
+  │   ├── naming-conventions.md
+  │   └── validation-checklist.md
+  └── templates/
+      ├── agents.yaml
+      ├── concerns.yaml
+      ├── domain.yaml
+      ├── module.yaml
+      └── service.yaml

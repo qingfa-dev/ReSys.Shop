@@ -1,0 +1,1355 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ============================================================
+  CODE COMMENTING RULES — XML STANDARD
+  Version   : 3.0
+  Encoding  : UTF-8
+  Standard  : Language-agnostic; aligns with TSDoc / JSDoc /
+              C# XML-doc / Google Docstring / Rust doc conventions.
+  Research  : Backed by Conventional Comments (conventionalcomments.org),
+              Clean Code (Martin, 2008), MIT CommLab style guide,
+              TechTarget commenting best-practices (2024),
+              TSDoc spec (microsoft/tsdoc), VoiceType 2025 guide,
+              Towards Data Science commentary article (Jan 2025),
+              AGENTS.md open standard (Linux Foundation, 2026),
+              ETH Zurich AGENTbench study (2026),
+              Semantic Density Principle (arXiv:2604.07502, 2026).
+  ============================================================
+-->
+
+<CommentingRules
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  schema-version="3.0"
+  last-updated="2026-04-15"
+  authors="Engineering Standards Team"
+  license="CC-BY-4.0">
+
+  <!-- ═══════════════════════════════════════════════════════
+       PHILOSOPHY
+       v3.0 additions: AI/Agent readability, Semantic Density,
+       and the dual audience principle.
+  ═══════════════════════════════════════════════════════ -->
+  <Philosophy>
+    <Principle id="P1" authority="Martin-2008-Ch4">
+      Comments exist to explain WHY, never WHAT.
+      Self-documenting code — achieved through clear naming and
+      structure — is the primary documentation mechanism.
+      A comment that restates what the code already expresses is
+      noise that degrades maintainability.
+    </Principle>
+
+    <Principle id="P2" authority="MIT-CommLab">
+      Four mechanisms govern clear code communication in this order
+      of preference: (1) naming, (2) structure, (3) context,
+      (4) comments. Reach for a comment only when the first three
+      cannot carry the intent.
+    </Principle>
+
+    <Principle id="P3" authority="TechTarget-2024">
+      Comments provide the most value when they expose non-intuitive
+      behaviour: edge-case workarounds, performance trade-offs,
+      historical context, and complex business rules not obvious from
+      the code structure.
+    </Principle>
+
+    <Principle id="P4" authority="VoiceType-2025">
+      Self-documenting code is championed by Robert C. Martin
+      ("Uncle Bob"), Google's engineering style guides, and Python's
+      PEP 8. When code is expressive enough, remaining comments can
+      focus exclusively on the reasoning behind decisions.
+    </Principle>
+
+    <Principle id="P5" authority="Conventional-Comments-org">
+      Prefixing a comment with a structured label makes intention
+      immediately clear, changes tone deliberately, prompts
+      actionable follow-up, encourages collaboration, and — critically
+      — makes comments machine-parseable for tooling.
+    </Principle>
+
+    <Principle id="P6" authority="arXiv-2604.07502-2026">
+      [NEW in v3.0] Code is now read by two audiences: human
+      developers AND AI coding agents. Structured labels serve both.
+      Prefer semantic density: every comment token must earn its place.
+      An ETH Zurich study (AGENTbench, 2026) confirms that
+      human-curated, semantically precise annotations outperform
+      verbose LLM-generated context files in agent task success rates.
+    </Principle>
+
+    <Principle id="P7" authority="Addy-Osmani-2025">
+      [NEW in v3.0] When an AI coding agent edits a file, the comments
+      it encounters form part of its operational context. Labels such
+      as Contract:, Invariant:, and Assume: are therefore not just
+      for human readers — they constrain and guide agent behaviour
+      directly. Write them with both audiences in mind.
+    </Principle>
+  </Philosophy>
+
+  <!-- ═══════════════════════════════════════════════════════
+       FORMATTING CONVENTIONS
+  ═══════════════════════════════════════════════════════ -->
+  <FormattingConventions>
+    <Rule id="F1">Place comments on their own line — never trailing a code statement, except for inline data literals (see F6).</Rule>
+    <Rule id="F2">Begin comment text with a capitalised word, treating it as a sentence.</Rule>
+    <Rule id="F3">Keep each line under 100 characters. (80 for legacy codebases; 100 is the modern default per Google and Airbnb style guides.)</Rule>
+    <Rule id="F4">Insert exactly one space between the delimiter (//, #, --) and the label.</Rule>
+    <Rule id="F5">Align the comment with the indentation of the code block it describes.</Rule>
+    <Rule id="F6">
+      For inline data literals (colour arrays, magic numbers, enums),
+      inline alignment of trailing comments IS acceptable when it
+      dramatically improves readability — e.g. RGB tuples.
+    </Rule>
+    <Rule id="F7">
+      Write code comments in English by default. Exceptions apply only
+      when the entire team shares another language and the code will
+      never be read externally.
+    </Rule>
+    <Rule id="F8">One label, one action. Never join two actions with "and".</Rule>
+    <Rule id="F9">
+      [NEW in v3.0] For agent-targeted annotations (CAT-10), always use
+      a structured key-value form inside the comment body so that
+      parsers and LLMs can extract them reliably.
+      Example: // Contract: pre=x>0, post=result>0, throws=ArgumentException
+    </Rule>
+    <Rule id="F10">
+      [NEW in v3.0] Use imperative-mood verbs, not nouns or passive voice.
+      "Filter expired items" not "Expired item filtering" or
+      "Expired items are filtered here".
+    </Rule>
+  </FormattingConventions>
+
+  <!-- ═══════════════════════════════════════════════════════
+       LABEL DECISION TREE
+       Use this tree before choosing a label.
+       v3.0: Added agent-targeted branch.
+  ═══════════════════════════════════════════════════════ -->
+  <LabelDecisionTree>
+    <Question id="Q1">Is this comment documenting a PUBLIC API surface?</Question>
+    <AnswerYes>→ Use DocCommentStandards (TSDoc / XML-doc / Google Docstring). Do not use inline labels.</AnswerYes>
+    <AnswerNo>→ Continue to Q2.</AnswerNo>
+
+    <Question id="Q2">Is this a time-sensitive or work-in-progress marker?</Question>
+    <AnswerYes>→ Use a TemporalMarker (TODO, FIXME, HACK, TEMP, DEADLINE, DEPRECATED, BREAKING).</AnswerYes>
+    <AnswerNo>→ Continue to Q3.</AnswerNo>
+
+    <Question id="Q3">Is this comment primarily for an AI/coding-agent consumer?</Question>
+    <AnswerYes>→ Use CAT-10 Agent Annotation labels (Contract, Invariant, Assume, AgentHint, AgentSkip, Boundary).</AnswerYes>
+    <AnswerNo>→ Continue to Q4.</AnswerNo>
+
+    <Question id="Q4">Does the comment describe validation / checking?</Question>
+    <AnswerYes>→ CAT-1 (Validate, Check, Guard, Verify, Assert).</AnswerYes>
+    <AnswerNo>→ Continue to Q5.</AnswerNo>
+
+    <Question id="Q5">Does the comment describe creating, mutating, or deleting an object?</Question>
+    <AnswerYes>→ CAT-2 (Create, Assign, Update, Add, Remove, Clone, Merge, Initialize).</AnswerYes>
+    <AnswerNo>→ Continue to Q6.</AnswerNo>
+
+    <Question id="Q6">Does the comment describe a computation, transformation, or aggregation?</Question>
+    <AnswerYes>→ CAT-3 (Compute, Transform, Parse, Format, Filter, Generate, Normalize, Aggregate, Sort, Explain).</AnswerYes>
+    <AnswerNo>→ Continue to Q7.</AnswerNo>
+
+    <Question id="Q7">Does the comment describe a domain event, business rule, or policy?</Question>
+    <AnswerYes>→ CAT-4 (Enforce, Raise, Trigger, Notify, Handle, Subscribe).</AnswerYes>
+    <AnswerNo>→ Continue to Q8.</AnswerNo>
+
+    <Question id="Q8">Does the comment describe async flow, retries, batching, or rate control?</Question>
+    <AnswerYes>→ CAT-5 (Await, Retry, Skip, Fallback, Batch, Throttle, Defer, Continue, Break).</AnswerYes>
+    <AnswerNo>→ Continue to Q9.</AnswerNo>
+
+    <Question id="Q9">Does the comment describe resource acquisition, caching, or cleanup?</Question>
+    <AnswerYes>→ CAT-6 (Acquire, Release, Lock, Cache, Purge, Pool, Dispose).</AnswerYes>
+    <AnswerNo>→ Continue to Q10.</AnswerNo>
+
+    <Question id="Q10">Does the comment describe exception handling, degradation, or rollback?</Question>
+    <AnswerYes>→ CAT-7 (Catch, Recover, Compensate, Degrade, Escalate, Suppress).</AnswerYes>
+    <AnswerNo>→ Continue to Q11.</AnswerNo>
+
+    <Question id="Q11">Does the comment describe an external integration boundary?</Question>
+    <AnswerYes>→ CAT-8 (Call, Send, Receive, Publish, Map, Serialize, Deserialize, Webhook).</AnswerYes>
+    <AnswerNo>→ Continue to Q12.</AnswerNo>
+
+    <Question id="Q12">Does the comment describe logging, tracing, metrics, or audit?</Question>
+    <AnswerYes>→ CAT-9 (Log, Trace, Monitor, Audit, Profile, Debug).</AnswerYes>
+    <AnswerNo>→ Consider whether a comment is necessary. If it is, use the closest matching label and add a team-vocab extension.</AnswerNo>
+  </LabelDecisionTree>
+
+  <!-- ═══════════════════════════════════════════════════════
+       LABEL CATEGORIES
+  ═══════════════════════════════════════════════════════ -->
+  <Categories>
+
+    <!-- ─── 1. VALIDATION ─────────────────────────────────── -->
+    <Category id="CAT-1" name="Validation and Checks">
+      <Description>
+        Preconditions, input validation, and conditional assertions.
+        Use liberally around business-rule enforcement.
+        Security-sensitive: always name the threat being mitigated.
+      </Description>
+
+      <Label name="Validate:">
+        <When>Input or data must meet a format or business-rule requirement.</When>
+        <Example lang="csharp">
+          // Validate: Email format matches RFC 5322 and domain whitelist
+          if (!Regex.IsMatch(email, pattern) || !IsAllowedDomain(email))
+              throw new InvalidEmailException(email);
+        </Example>
+        <Example lang="python">
+          # Validate: Amount is positive and within single-transaction limit
+          if not (0 &lt; amount &lt;= MAX_TRANSACTION_AMOUNT):
+              raise ValueError(f"Amount {amount} outside allowed range")
+        </Example>
+      </Label>
+
+      <Label name="Check:">
+        <When>Assert a condition before proceeding — null checks, existence, permissions.</When>
+        <Example lang="csharp">
+          // Check: User has edit permissions for this resource
+          if (!await _authService.CanEditAsync(user.Id, resource.Id))
+              return Forbid();
+        </Example>
+      </Label>
+
+      <Label name="Guard:">
+        <When>Defensive boundary check to prevent runtime errors. Name the threat (null, overflow, injection).</When>
+        <Example lang="csharp">
+          // Guard: Array index within bounds to prevent IndexOutOfRangeException
+          if (index &lt; 0 || index &gt;= items.Length)
+              throw new IndexOutOfRangeException();
+        </Example>
+        <Example lang="typescript">
+          // Guard: Prevent SSRF by rejecting non-allowlisted hostnames
+          if (!ALLOWED_HOSTS.has(new URL(target).hostname))
+              throw new ForbiddenHostError(target);
+        </Example>
+      </Label>
+
+      <Label name="Verify:">
+        <When>Confirm post-condition or system state after an operation.</When>
+        <Example lang="csharp">
+          // Verify: Transaction committed successfully before releasing lock
+          Debug.Assert(transaction.Status == TransactionStatus.Committed);
+        </Example>
+      </Label>
+
+      <Label name="Assert:">
+        <When>
+          Development-time invariant that must never be false;
+          stripped or silent in production builds.
+        </When>
+        <Example lang="csharp">
+          // Assert: All order items carry a positive price
+          Debug.Assert(order.Items.All(i =&gt; i.Price &gt; 0));
+        </Example>
+      </Label>
+
+      <AntiPattern>
+        <Bad>// Check: check the order</Bad>
+        <Good>// Check: Order total exceeds zero before payment gateway call</Good>
+        <Reason>Labels must narrow intent, not echo the label word itself.</Reason>
+      </AntiPattern>
+    </Category>
+
+    <!-- ─── 2. OBJECT OPERATIONS ──────────────────────────── -->
+    <Category id="CAT-2" name="Object Operations">
+      <Description>
+        Object lifecycle — creation, mutation, deletion, and merging.
+      </Description>
+
+      <Label name="Create:">
+        <When>Instantiate a new domain object or value type.</When>
+        <Example lang="csharp">
+          // Create: Order entity with default pending status
+          var order = Order.Create(customerId);
+        </Example>
+      </Label>
+
+      <Label name="Assign:">
+        <When>Set a property value; include the business reason, not the mechanics.</When>
+        <Example lang="csharp">
+          // Assign: Priority based on customer tier — premium orders fulfil first
+          order.Priority = customer.Tier == Tier.Premium ? Priority.High : Priority.Normal;
+        </Example>
+      </Label>
+
+      <Label name="Update:">
+        <When>Modify an existing object's state.</When>
+        <Example lang="csharp">
+          // Update: Shipping address from latest customer profile
+          order.ShippingAddress = customer.PrimaryAddress;
+        </Example>
+      </Label>
+
+      <Label name="Add:">
+        <When>Insert an element into a collection.</When>
+      </Label>
+
+      <Label name="Remove:">
+        <When>Delete from a collection or mark for soft-delete.</When>
+        <Example lang="csharp">
+          // Remove: Expired items from cart before checkout to prevent stale pricing
+          cart.Items.RemoveAll(item =&gt; item.ExpiresAt &lt; DateTime.UtcNow);
+        </Example>
+      </Label>
+
+      <Label name="Clone:">
+        <When>Produce an independent copy — deep or shallow — of an object. Specify depth.</When>
+        <Example lang="csharp">
+          // Clone: User preferences as deep copy for rollback snapshot
+          var backupPrefs = user.Preferences.DeepClone();
+        </Example>
+      </Label>
+
+      <Label name="Merge:">
+        <When>Combine data from multiple sources with defined conflict resolution.</When>
+        <Example lang="csharp">
+          // Merge: CRM and account data, account wins on conflict
+          var customer = CustomerMerger.Merge(crmData, accountData, prioritizeAccount: true);
+        </Example>
+      </Label>
+
+      <Label name="Initialize:">
+        <When>Populate defaults or calculated values during object setup.</When>
+        <Example lang="csharp">
+          // Initialize: Cart with customer's preferred currency and primary address
+          cart.Initialize(customer.PreferredCurrency, customer.ShippingAddress);
+        </Example>
+      </Label>
+
+      <Label name="Reset:">
+        <When>[NEW in v3.0] Return an object to a known default state without full re-creation.</When>
+        <Example lang="typescript">
+          // Reset: Form state to pristine after successful submission
+          form.reset(DEFAULT_FORM_VALUES);
+        </Example>
+      </Label>
+    </Category>
+
+    <!-- ─── 3. PROCESSING LOGIC ───────────────────────────── -->
+    <Category id="CAT-3" name="Processing Logic">
+      <Description>
+        Computations, data transformations, aggregations, and formatting.
+        Use verbs rather than nouns (TDS Jan 2025).
+      </Description>
+
+      <Label name="Compute:">
+        <When>Derive a calculated value — totals, scores, rates. State the formula or algorithm.</When>
+        <Example lang="csharp">
+          // Compute: Order total inclusive of regional tax rate (subtotal × (1 + taxRate))
+          order.Total = order.Subtotal * (1 + taxRate);
+        </Example>
+      </Label>
+
+      <Label name="Transform:">
+        <When>Convert an object from one representation to another. Name both sides.</When>
+        <Example lang="csharp">
+          // Transform: CustomerDto → Customer domain entity via AutoMapper profile
+          var customer = _mapper.Map&lt;Customer&gt;(customerDto);
+        </Example>
+      </Label>
+
+      <Label name="Parse:">
+        <When>Extract structured data from raw text, bytes, or environment input.</When>
+        <Example lang="csharp">
+          // Parse: Feature-flag configuration from APP_CONFIG env var (JSON format)
+          var config = ConfigParser.Parse(Environment.GetEnvironmentVariable("APP_CONFIG"));
+        </Example>
+      </Label>
+
+      <Label name="Format:">
+        <When>Structure data for display, serialisation, or logging output.</When>
+        <Example lang="csharp">
+          // Format: Audit entry as structured JSON for log aggregation pipeline
+          var logEntry = JsonSerializer.Serialize(
+              new { order.Id, order.Total, Timestamp = _clock.UtcNow });
+        </Example>
+      </Label>
+
+      <Label name="Filter:">
+        <When>Remove unwanted elements from a collection based on a predicate.</When>
+        <Example lang="csharp">
+          // Filter: Active subscriptions only — excludes cancelled and trial-expired
+          var active = subscriptions.Where(s =&gt; s.IsActive).ToList();
+        </Example>
+      </Label>
+
+      <Label name="Generate:">
+        <When>Produce derived data — IDs, hashes, tokens, reference codes.</When>
+        <Example lang="csharp">
+          // Generate: Human-readable order reference for customer display (prefix + timestamp + id)
+          order.DisplayReference = _refGen.Generate(
+              prefix: "ORD", timestamp: order.CreatedAt, customerId: order.CustomerId);
+        </Example>
+      </Label>
+
+      <Label name="Normalize:">
+        <When>Standardise format or encoding — phone numbers, currencies, casing.</When>
+        <Example lang="csharp">
+          // Normalize: Phone to E.164 format for SMS gateway compatibility
+          var phone = PhoneUtil.FormatE164(customer.Phone, customer.Country);
+        </Example>
+      </Label>
+
+      <Label name="Aggregate:">
+        <When>Combine multiple values into a summary metric or projection.</When>
+      </Label>
+
+      <Label name="Sort:">
+        <When>Order data by a business-meaningful criterion — not just alphabetically. State the criterion.</When>
+      </Label>
+
+      <Label name="Explain:">
+        <When>
+          [NEW in v3.0] Describe the algorithmic or mathematical reasoning
+          behind a non-obvious implementation choice. Use for O(n²) trade-offs,
+          domain formulas, or counter-intuitive optimisations.
+        </When>
+        <Example lang="python">
+          # Explain: Using insertion sort here because n is always &lt;= 8 in practice;
+          #          it outperforms quicksort on tiny arrays due to cache locality.
+          insertion_sort(items)
+        </Example>
+      </Label>
+    </Category>
+
+    <!-- ─── 4. EVENTS AND BUSINESS RULES ─────────────────── -->
+    <Category id="CAT-4" name="Events and Business Rules">
+      <Description>
+        Domain events, policy enforcement, and workflow triggers.
+        The distinction between Raise (internal domain event) and
+        Trigger (external workflow) is intentional.
+      </Description>
+
+      <Label name="Enforce:">
+        <When>Apply a business invariant or policy that must not be violated.</When>
+        <Example lang="csharp">
+          // Enforce: Minimum order amount policy (configured per region in appsettings)
+          if (order.Total &lt; _settings.MinimumOrderAmount)
+              throw new BusinessRuleViolationException(
+                  $"Total {order.Total} below minimum {_settings.MinimumOrderAmount}");
+        </Example>
+      </Label>
+
+      <Label name="Raise:">
+        <When>Emit an internal domain event for the current aggregate.</When>
+        <Example lang="csharp">
+          // Raise: InventoryReservedEvent so warehouse handler picks up line items
+          order.RaiseEvent(new InventoryReservedEvent(order.Items));
+        </Example>
+      </Label>
+
+      <Label name="Trigger:">
+        <When>Initiate an external workflow, saga, or background process.</When>
+        <Example lang="csharp">
+          // Trigger: Email verification workflow for new registrant
+          await _workflows.TriggerAsync(WorkflowType.EmailVerification, user.Id);
+        </Example>
+      </Label>
+
+      <Label name="Notify:">
+        <When>Dispatch a notification to users, admins, or external systems.</When>
+        <Example lang="csharp">
+          // Notify: Security team of anomalous login pattern via PagerDuty webhook
+          await _alerts.NotifySecurityAsync($"Unusual login from {ipAddress} for {user.Email}");
+        </Example>
+      </Label>
+
+      <Label name="Handle:">
+        <When>Process an inbound domain or integration event inside a handler.</When>
+        <Example lang="csharp">
+          // Handle: Fulfil order on OrderPlacedEvent — idempotent via outbox pattern
+          public async Task Handle(OrderPlacedEvent e)
+              =&gt; await _fulfillment.ProcessAsync(e.OrderId);
+        </Example>
+      </Label>
+
+      <Label name="Subscribe:">
+        <When>Register a listener for domain or integration events.</When>
+      </Label>
+
+      <Label name="Policy:">
+        <When>
+          [NEW in v3.0] Reference a named business or compliance policy that
+          governs the block. Enables grep-based policy audits.
+        </When>
+        <Example lang="csharp">
+          // Policy: GDPR Article 17 — right to erasure; anonymise, do not delete
+          customer.Anonymize();
+        </Example>
+      </Label>
+    </Category>
+
+    <!-- ─── 5. FLOW CONTROL ──────────────────────────────── -->
+    <Category id="CAT-5" name="Flow Control and Coordination">
+      <Description>
+        Async operations, retry policies, short-circuits, and batching.
+        Essential for async-heavy microservice codebases.
+      </Description>
+
+      <Label name="Await:">
+        <When>Wait on an async operation; document timeout or cancellation semantics.</When>
+        <Example lang="csharp">
+          // Await: External payment API — 30 s timeout, CancellationToken from caller
+          var response = await _httpClient.PostAsync(endpoint, payload, cts.Token);
+        </Example>
+      </Label>
+
+      <Label name="Retry:">
+        <When>Re-attempt after a transient failure with a defined policy.</When>
+        <Example lang="csharp">
+          // Retry: DB query on transient SQL exception — exponential backoff, max 3 attempts
+          var result = await _retryPolicy.ExecuteAsync(() =&gt; _db.QueryAsync(sql, parameters));
+        </Example>
+      </Label>
+
+      <Label name="Skip:">
+        <When>Bypass a code path under a well-defined condition. State the condition explicitly.</When>
+        <Example lang="csharp">
+          // Skip: New checkout flow if feature flag "new-checkout" is disabled
+          if (!_flags.IsEnabled("new-checkout"))
+              return await ProcessLegacyCheckout(order);
+        </Example>
+      </Label>
+
+      <Label name="Fallback:">
+        <When>Use an alternative data source or strategy when the primary fails.</When>
+        <Example lang="csharp">
+          // Fallback: Serve cached pricing if catalogue service unavailable (stale &lt; 15 min)
+          var prices = await _catalogue.GetPricesAsync() ?? _cache.GetPrices();
+        </Example>
+      </Label>
+
+      <Label name="Batch:">
+        <When>Group multiple operations for efficiency or rate compliance.</When>
+        <Example lang="csharp">
+          // Batch: Bulk status update capped at 100 records per DB round-trip
+          var updates = pending.Take(100)
+              .Select(o =&gt; new StatusUpdate(o.Id, OrderStatus.Processing));
+          await _repo.BulkUpdateAsync(updates);
+        </Example>
+      </Label>
+
+      <Label name="Throttle:">
+        <When>Limit operation rate to avoid overloading downstream services. State the limit.</When>
+        <Example lang="csharp">
+          // Throttle: Third-party API limit 100 req/min — SemaphoreSlim enforces window
+          await _rateLimiter.WaitAsync(cancellationToken);
+          var result = await _externalApi.CallAsync(request);
+        </Example>
+      </Label>
+
+      <Label name="Defer:">
+        <When>Postpone an operation for later execution — queue, scheduler, or hook.</When>
+      </Label>
+
+      <Label name="Continue:">
+        <When>Explicitly proceed to the next loop iteration for readability.</When>
+      </Label>
+
+      <Label name="Break:">
+        <When>Exit a loop or pipeline early on a well-defined condition.</When>
+      </Label>
+
+      <Label name="Circuit:">
+        <When>
+          [NEW in v3.0] Open a circuit breaker or reference an existing one.
+          Name the threshold and the state (open/half-open/closed).
+        </When>
+        <Example lang="csharp">
+          // Circuit: Open after 5 consecutive failures — 30 s recovery window
+          await _circuitBreaker.ExecuteAsync(() =&gt; _service.CallAsync(request));
+        </Example>
+      </Label>
+    </Category>
+
+    <!-- ─── 6. RESOURCE MANAGEMENT ──────────────────────── -->
+    <Category id="CAT-6" name="Resource Management">
+      <Description>
+        Connections, locks, cache entries, and cleanup. Critical for
+        preventing leaks in long-running services.
+      </Description>
+
+      <Label name="Acquire:">
+        <When>Obtain a scarce resource — connection, lock, file handle, semaphore.</When>
+        <Example lang="csharp">
+          // Acquire: Distributed lock to prevent concurrent inventory mutation (TTL 2 min)
+          using var dLock = await _lockProvider.AcquireAsync(
+              $"inv-{sku}", expiry: TimeSpan.FromMinutes(2));
+        </Example>
+      </Label>
+
+      <Label name="Release:">
+        <When>Explicitly free a resource outside of a using/try-finally scope.</When>
+      </Label>
+
+      <Label name="Lock:">
+        <When>Establish exclusive access to a shared in-process resource.</When>
+        <Example lang="csharp">
+          // Lock: Synchronise access to shared metrics accumulator (not Interlocked — complex update)
+          lock (_metricsSync) { _metrics.OrderCount++; }
+        </Example>
+      </Label>
+
+      <Label name="Cache:">
+        <When>Store a computed or fetched value for subsequent fast retrieval. State TTL and invalidation strategy.</When>
+        <Example lang="csharp">
+          // Cache: Exchange rates valid 15 min — FX API rate-limit is 100 calls/h
+          _cache.Set(cacheKey, rates, TimeSpan.FromMinutes(15));
+        </Example>
+      </Label>
+
+      <Label name="Purge:">
+        <When>Remove stale, expired, or invalid entries from a cache or store.</When>
+        <Example lang="csharp">
+          // Purge: Session tokens older than 24 h from Redis to comply with session policy
+          await _sessionStore.PurgeExpiredAsync(olderThan: TimeSpan.FromHours(24));
+        </Example>
+      </Label>
+
+      <Label name="Pool:">
+        <When>Borrow or return an instance from a managed resource pool.</When>
+        <Example lang="csharp">
+          // Pool: Borrow HTTP client pre-configured for payment-gateway mTLS
+          var client = _httpPool.Get("payment-gateway");
+        </Example>
+      </Label>
+
+      <Label name="Dispose:">
+        <When>Explicitly release managed and unmanaged resources at end of scope.</When>
+      </Label>
+    </Category>
+
+    <!-- ─── 7. ERROR HANDLING ────────────────────────────── -->
+    <Category id="CAT-7" name="Error Handling and Recovery">
+      <Description>
+        Exception handling, graceful degradation, and rollback.
+        Label catch blocks individually — one label per exception type.
+      </Description>
+
+      <Label name="Catch:">
+        <When>Handle a specific, named exception type with intention.</When>
+        <Example lang="csharp">
+          // Catch: Payment gateway timeout — queue for async retry via outbox
+          catch (PaymentTimeoutException ex)
+          {
+              _logger.LogWarning("Timeout for order {Id}", order.Id);
+              await _retryQueue.EnqueueAsync(order.Id);
+          }
+        </Example>
+      </Label>
+
+      <Label name="Recover:">
+        <When>Attempt to restore a valid system state after an error.</When>
+      </Label>
+
+      <Label name="Compensate:">
+        <When>Roll back side-effects of a failed operation (saga compensation).</When>
+        <Example lang="csharp">
+          // Compensate: Release reserved inventory on payment failure (saga step 3 rollback)
+          await _inventory.ReleaseReservationAsync(order.Items);
+        </Example>
+      </Label>
+
+      <Label name="Degrade:">
+        <When>Reduce to a safe subset of functionality while core features continue.</When>
+        <Example lang="csharp">
+          // Degrade: Route to manual processing queue — avoids order loss during outage
+          await _manualQueue.EnqueueAsync(order.Id);
+        </Example>
+      </Label>
+
+      <Label name="Escalate:">
+        <When>Re-throw or forward an error to a higher-level handler.</When>
+        <Example lang="csharp">
+          // Escalate: Unrecoverable payment failure — surface to API layer for 500 response
+          throw new OrderProcessingException("Payment failed", ex);
+        </Example>
+      </Label>
+
+      <Label name="Suppress:">
+        <When>
+          Intentionally swallow a non-critical exception.
+          ALWAYS document WHY suppression is safe here.
+        </When>
+        <Example lang="csharp">
+          // Suppress: Optional telemetry failure must not block order flow (best-effort only)
+          catch (TelemetryException) { /* intentionally empty */ }
+        </Example>
+      </Label>
+    </Category>
+
+    <!-- ─── 8. INTEGRATION AND COMMUNICATION ─────────────── -->
+    <Category id="CAT-8" name="Integration and Communication">
+      <Description>
+        External API calls, message publishing, and data mapping.
+        Always include system name and contract version where possible.
+      </Description>
+
+      <Label name="Call:">
+        <When>Invoke an external service or internal remote procedure. Name the system and contract version.</When>
+        <Example lang="csharp">
+          // Call: Identity provider (Okta) v2 API to validate bearer token
+          var identity = await _idp.ValidateTokenAsync(bearerToken);
+        </Example>
+      </Label>
+
+      <Label name="Send:">
+        <When>Transmit a command or document to an external system.</When>
+        <Example lang="csharp">
+          // Send: Confirmed order to warehouse fulfilment API (FulfilmentDto v3)
+          await _warehouse.SendOrderAsync(fulfilmentDto);
+        </Example>
+      </Label>
+
+      <Label name="Receive:">
+        <When>Ingest data arriving from an external source.</When>
+      </Label>
+
+      <Label name="Publish:">
+        <When>Broadcast an event onto a message bus for fan-out consumers.</When>
+        <Example lang="csharp">
+          // Publish: OrderStatusChangedEvent — consumed by notifications and analytics
+          await _bus.PublishAsync(new OrderStatusChangedEvent(order.Id, newStatus));
+        </Example>
+      </Label>
+
+      <Label name="Map:">
+        <When>Convert between different data models at a boundary layer.</When>
+        <Example lang="csharp">
+          // Map: Domain order → OrderResponse DTO (wire format for v2 API consumers)
+          var response = _mapper.Map&lt;OrderResponse&gt;(order);
+        </Example>
+      </Label>
+
+      <Label name="Serialize:">
+        <When>Convert an object to a transmittable or storable format. State the target format.</When>
+      </Label>
+
+      <Label name="Deserialize:">
+        <When>Reconstruct a typed object from raw transmitted data. State the source format.</When>
+      </Label>
+
+      <Label name="Webhook:">
+        <When>Handle and validate an inbound webhook request.</When>
+        <Example lang="csharp">
+          // Webhook: Verify HMAC-SHA256 signature before processing payload — prevents replay
+          if (!_webhookValidator.IsValid(req.Headers, req.Body))
+              return Unauthorized("Invalid signature");
+        </Example>
+      </Label>
+    </Category>
+
+    <!-- ─── 9. OBSERVABILITY ─────────────────────────────── -->
+    <Category id="CAT-9" name="Observability and Debugging">
+      <Description>
+        Logging, distributed tracing, metrics, and compliance audit.
+        Favour structured logging (key-value pairs) over string interpolation.
+      </Description>
+
+      <Label name="Log:">
+        <When>Record a business event or diagnostic fact for troubleshooting.</When>
+        <Example lang="csharp">
+          // Log: Order processed — structured fields for Kibana dashboard query
+          _logger.LogInformation(
+              "Order {OrderId} processed for {CustomerId} — total {Total}",
+              order.Id, order.CustomerId, order.Total);
+        </Example>
+      </Label>
+
+      <Label name="Trace:">
+        <When>Open a distributed trace span for cross-service correlation.</When>
+        <Example lang="csharp">
+          // Trace: End-to-end order processing span — correlates with warehouse service
+          using var span = _tracer.StartActivity("ProcessOrder");
+          span?.SetTag("order.id", order.Id);
+          span?.SetTag("customer.tier", customer.Tier.ToString());
+        </Example>
+      </Label>
+
+      <Label name="Monitor:">
+        <When>Emit a metric counter, gauge, or histogram for dashboards.</When>
+        <Example lang="csharp">
+          // Monitor: Orders-processed counter segmented by customer tier for SLO dashboard
+          _metrics.Counter("orders.processed")
+              .WithTag("tier", customer.Tier.ToString())
+              .Increment();
+        </Example>
+      </Label>
+
+      <Label name="Audit:">
+        <When>Record a tamper-evident entry for compliance or security review.</When>
+        <Example lang="csharp">
+          // Audit: PCI-DSS 3.3 compliant log — card data never written to disk
+          _audit.Log(new AuditEntry {
+              UserId    = order.CustomerId,
+              Action    = "OrderPayment",
+              Amount    = order.Total,
+              Timestamp = _clock.UtcNow
+          });
+        </Example>
+      </Label>
+
+      <Label name="Profile:">
+        <When>Bracket a performance-sensitive section for measurement.</When>
+        <Example lang="csharp">
+          // Profile: Cross-region pricing query — P99 target &lt; 200 ms
+          using var timer = _profiler.StartTimer("pricing-query");
+          var prices = await _pricer.GetCrossRegionPricesAsync(skus);
+        </Example>
+      </Label>
+
+      <Label name="Debug:">
+        <When>
+          Temporary diagnostic output — MUST be removed before merging to main.
+          Use the TEMP temporal marker alongside this label.
+        </When>
+        <Example lang="python">
+          # TEMP Debug: Dump raw payload to verify upstream schema change — remove before merge
+          print(f"[DEBUG] raw_payload={payload!r}")
+        </Example>
+      </Label>
+    </Category>
+
+    <!-- ─── 10. AI / AGENT ANNOTATIONS (NEW in v3.0) ──────── -->
+    <Category id="CAT-10" name="AI and Agent Annotations">
+      <Description>
+        [NEW in v3.0] Structured annotations consumed by AI coding agents,
+        static analysers, and formal verification tools. Based on the Semantic
+        Density Principle (arXiv:2604.07502) and Design-by-Contract conventions.
+
+        Use a KEY=VALUE form so parsers can extract values without natural-language
+        interpretation. These labels sit between doc-comments (CAT-API contracts)
+        and inline labels (CAT-1 to CAT-9) in terms of formality.
+
+        KEY INSIGHT: An ETH Zurich AGENTbench study (2026) found that
+        human-curated, tightly scoped annotations outperform verbose AI-generated
+        context files. Every token in a CAT-10 comment must earn its place.
+      </Description>
+
+      <Label name="Contract:">
+        <When>
+          Specify a formal pre/post-condition and exception contract for a function.
+          Use at function entry. Enables Design-by-Contract tooling and agent reasoning.
+        </When>
+        <Format>// Contract: pre=CONDITION, post=CONDITION, throws=EXCEPTION_TYPE</Format>
+        <Example lang="csharp">
+          // Contract: pre=order!=null &amp;&amp; order.Total>0, post=receipt.TransactionId!=null,
+          //           throws=PaymentTimeoutException|InsufficientFundsException
+          public async Task&lt;PaymentReceipt&gt; ProcessPaymentAsync(Order order) { }
+        </Example>
+        <Example lang="python">
+          # Contract: pre=len(items)>0, post=sum(result)==sum(items), throws=ValueError
+          def normalize_weights(items: list[float]) -&gt; list[float]: ...
+        </Example>
+      </Label>
+
+      <Label name="Invariant:">
+        <When>
+          Declare a property that must always be true for a class or data structure.
+          Place at class or struct level. Agents must not violate these.
+        </When>
+        <Format>// Invariant: CONDITION [; CONDITION ...]</Format>
+        <Example lang="csharp">
+          // Invariant: Total >= 0; Status is never null; Items.Count >= 1 when Status == Placed
+          public class Order { }
+        </Example>
+      </Label>
+
+      <Label name="Assume:">
+        <When>
+          Document an assumption the code makes that is NOT enforced with a guard.
+          Forces the agent to surface the assumption rather than silently rely on it.
+        </When>
+        <Format>// Assume: CONDITION — REASON why enforcement is omitted</Format>
+        <Example lang="python">
+          # Assume: input_df has no NaN values — caller guarantees upstream cleaning pipeline
+          def compute_percentiles(input_df: pd.DataFrame) -&gt; pd.Series: ...
+        </Example>
+      </Label>
+
+      <Label name="AgentHint:">
+        <When>
+          Provide explicit guidance to AI coding agents on how to edit or extend
+          this block. Use when the intent is non-obvious and auto-completion
+          patterns would otherwise produce incorrect modifications.
+        </When>
+        <Format>// AgentHint: INSTRUCTION [; do NOT: ANTIPATTERN]</Format>
+        <Example lang="typescript">
+          // AgentHint: Add new payment methods to the switch below, never use a default branch;
+          //            do NOT inline currency conversion — call CurrencyService.ConvertAsync()
+          switch (method) { ... }
+        </Example>
+      </Label>
+
+      <Label name="AgentSkip:">
+        <When>
+          Mark a block that AI agents MUST NOT auto-refactor or rewrite.
+          Use for hand-tuned algorithms, legal text, compliance-critical code,
+          or code where the LLM context window would lose essential nuance.
+        </When>
+        <Format>// AgentSkip: REASON</Format>
+        <Example lang="csharp">
+          // AgentSkip: Hand-tuned SIMD vectorisation; auto-refactoring breaks alignment guarantees
+          unsafe void ProcessBatchSIMD(float* src, float* dst, int length) { }
+        </Example>
+      </Label>
+
+      <Label name="Boundary:">
+        <When>
+          Mark an architectural boundary that agents must respect.
+          Prevents agents from introducing cross-layer dependencies or leaking abstractions.
+        </When>
+        <Format>// Boundary: LAYER → LAYER — REASON</Format>
+        <Example lang="csharp">
+          // Boundary: Domain → Infrastructure — do not import EF Core types above this line
+          public interface IOrderRepository { }
+        </Example>
+      </Label>
+
+      <Label name="Context:">
+        <When>
+          Supply background context that is NOT in the code itself but is needed
+          for correct interpretation — links to ADRs, tickets, external specs.
+        </When>
+        <Format>// Context: DESCRIPTION — see REF</Format>
+        <Example lang="python">
+          # Context: This formula implements ISO 4217 rounding rules for JPY (0 decimal places);
+          #          see ADR-042 and https://www.iso.org/standard/64758.html
+          rounded = round(amount, currency.decimal_places)
+        </Example>
+      </Label>
+    </Category>
+
+  </Categories>
+
+  <!-- ═══════════════════════════════════════════════════════
+       TEMPORAL MARKERS
+  ═══════════════════════════════════════════════════════ -->
+  <TemporalMarkers>
+    <Description>
+      Temporal markers prefix inline labels to surface time-sensitive context.
+      Format: MARKER(owner, ISO-date): reason — ticket reference
+      IDEs such as IntelliJ IDEA and VS Code aggregate these automatically.
+    </Description>
+
+    <Marker name="TODO">
+      <Format>// TODO(jane.smith, 2026-06-01): Replace with PaymentService v2 — TICKET-1234</Format>
+      <When>Planned work not yet complete. Include owner and deadline.</When>
+    </Marker>
+
+    <Marker name="FIXME">
+      <Format>// FIXME(ops-team, 2026-04-15): Memory leak on scroll listener — TICKET-5678</Format>
+      <When>Known defect that needs correction before the next release.</When>
+    </Marker>
+
+    <Marker name="HACK">
+      <Format>// HACK(platform, 2026-03-01): Workaround for rate-limit bug in SDK v3.1 — TICKET-9999</Format>
+      <When>Temporary or suboptimal workaround that must be revisited.</When>
+    </Marker>
+
+    <Marker name="TEMP">
+      <Format>// TEMP: Debug logging active — remove before merge</Format>
+      <When>Short-lived code added for a specific investigation or deploy window.</When>
+    </Marker>
+
+    <Marker name="DEADLINE">
+      <Format>// DEADLINE(2026-06-15): Remove feature flag after full rollout — TICKET-9012</Format>
+      <When>Hard expiry date attached to a code path or feature toggle.</When>
+    </Marker>
+
+    <Marker name="DEPRECATED">
+      <Format>// DEPRECATED(2026-01-01): Use OrderService.ProcessV2 instead</Format>
+      <When>
+        Mark an API or method scheduled for removal.
+        Align with @deprecated doc-comment tags (JSDoc / TSDoc / C# XML-doc).
+      </When>
+    </Marker>
+
+    <Marker name="BREAKING">
+      <Format>// BREAKING(2026-07-01): Return type changes from string to UUID — bump major semver</Format>
+      <When>[NEW in v3.0] Flag a change that breaks backward compatibility. Essential for library authors and API publishers.</When>
+    </Marker>
+
+    <Marker name="PERF">
+      <Format>// PERF(john.doe, 2026-05-01): Profiled at 340 ms P99 — optimise before GA — TICKET-2345</Format>
+      <When>[NEW in v3.0] Flag a performance bottleneck with measured data. Include the measurement and target.</When>
+    </Marker>
+
+  </TemporalMarkers>
+
+  <!-- ═══════════════════════════════════════════════════════
+       CONVENTIONAL COMMENTS EXTENSION (code-review)
+  ═══════════════════════════════════════════════════════ -->
+  <ConventionalCommentsExtension>
+    <Description>
+      For code-review comments the Conventional Comments standard
+      (conventionalcomments.org) adds decoration qualifiers in
+      parentheses that provide machine-parseable context. These
+      complement — not replace — the inline commenting labels above.
+    </Description>
+
+    <Format>label (decorations?): subject [discussion?]</Format>
+
+    <ReviewLabels>
+      <ReviewLabel name="praise:"     meaning="Positive, constructive recognition." />
+      <ReviewLabel name="nitpick:"    meaning="Minor non-blocking style preference." />
+      <ReviewLabel name="suggestion:" meaning="Concrete, actionable improvement." />
+      <ReviewLabel name="issue:"      meaning="Problem that MUST be addressed." />
+      <ReviewLabel name="question:"   meaning="Genuine request for clarification." />
+      <ReviewLabel name="thought:"    meaning="Exploratory idea without pressure." />
+      <ReviewLabel name="chore:"      meaning="Housekeeping unrelated to logic." />
+      <ReviewLabel name="security:"   meaning="[NEW in v3.0] Security risk requiring immediate attention." />
+    </ReviewLabels>
+
+    <Decorations>
+      <Decoration name="non-blocking" meaning="Does not block PR approval." />
+      <Decoration name="blocking"     meaning="Must be resolved before merge." />
+      <Decoration name="if-minor"     meaning="Fix only if change is small." />
+      <Decoration name="security"     meaning="Has security implications." />
+      <Decoration name="performance"  meaning="Has performance implications." />
+      <Decoration name="agent-safe"   meaning="[NEW in v3.0] Safe for AI agent auto-fix." />
+      <Decoration name="agent-skip"   meaning="[NEW in v3.0] Do NOT delegate to AI agent." />
+    </Decorations>
+
+    <Example>
+      <!-- suggestion (security, blocking): Validate webhook signature
+           before deserialising the body — an unsigned payload could
+           trigger unintended state changes. -->
+      <!-- issue (agent-skip, blocking): Hand-tuned SIMD path — do not
+           delegate this refactor to an AI agent. -->
+    </Example>
+  </ConventionalCommentsExtension>
+
+  <!-- ═══════════════════════════════════════════════════════
+       DOCUMENTATION COMMENT STANDARDS (per language)
+  ═══════════════════════════════════════════════════════ -->
+  <DocCommentStandards>
+    <Description>
+      Public API surfaces — classes, interfaces, public methods — MUST
+      carry machine-readable documentation comments. Inline labels
+      (above) annotate implementation logic; doc-comment blocks annotate
+      contracts consumed by tooling, IDEs, and generated documentation.
+    </Description>
+
+    <Standard lang="TypeScript" spec="TSDoc" url="https://tsdoc.org/">
+      <RequiredTags>@param @returns @throws @remarks</RequiredTags>
+      <OptionalTags>@example @see @deprecated @internal @beta @sealed</OptionalTags>
+      <Example>
+        /**
+         * Calculates the arithmetic mean of two operands.
+         *
+         * @param x - First input number.
+         * @param y - Second input number.
+         * @returns The arithmetic mean of `x` and `y`.
+         * @throws {@link RangeError} if either operand is NaN.
+         *
+         * @example
+         * ```ts
+         * getAverage(4, 6); // returns 5
+         * ```
+         */
+        const getAverage = (x: number, y: number): number =&gt; (x + y) / 2;
+      </Example>
+    </Standard>
+
+    <Standard lang="CSharp" spec="XML Documentation Comments"
+              url="https://learn.microsoft.com/dotnet/csharp/language-reference/xmldoc/">
+      <RequiredTags>summary param returns exception</RequiredTags>
+      <OptionalTags>remarks example seealso value typeparam inheritdoc</OptionalTags>
+      <Example>
+        /// &lt;summary&gt;
+        /// Processes payment for a confirmed order.
+        /// &lt;/summary&gt;
+        /// &lt;param name="order"&gt;The order to charge. Must not be null.&lt;/param&gt;
+        /// &lt;returns&gt;A payment receipt containing transaction ID.&lt;/returns&gt;
+        /// &lt;exception cref="PaymentTimeoutException"&gt;
+        /// Thrown when the gateway does not respond within 30 seconds.
+        /// &lt;/exception&gt;
+        /// &lt;exception cref="InsufficientFundsException"&gt;
+        /// Thrown when the customer's payment method is declined.
+        /// &lt;/exception&gt;
+        public async Task&lt;PaymentReceipt&gt; ProcessPaymentAsync(Order order) { }
+      </Example>
+    </Standard>
+
+    <Standard lang="Python" spec="Google Docstring Style"
+              url="https://google.github.io/styleguide/pyguide.html#38-comments-and-docstrings">
+      <RequiredTags>Args Returns Raises</RequiredTags>
+      <OptionalTags>Yields Example Attributes Note Todo</OptionalTags>
+      <Example>
+        def process_payment(order: Order) -&gt; PaymentReceipt:
+            """Process payment for a confirmed order.
+
+            Args:
+                order: The order entity to charge. Must have a positive total.
+
+            Returns:
+                PaymentReceipt containing the gateway transaction ID.
+
+            Raises:
+                PaymentTimeoutException: Gateway did not respond in 30 s.
+                InsufficientFundsException: Payment method was declined.
+            """
+      </Example>
+    </Standard>
+
+    <Standard lang="Rust" spec="Rustdoc" url="https://doc.rust-lang.org/rustdoc/">
+      <RequiredTags># Examples # Errors # Panics</RequiredTags>
+      <OptionalTags># Safety # Performance # See Also</OptionalTags>
+      <Note>
+        Rustdoc comments use Markdown. The # Errors section is required for
+        functions returning Result. # Safety is required for unsafe functions.
+        Doctests in # Examples are compiled and run by cargo test.
+      </Note>
+      <Example>
+        /// Processes payment for a confirmed order.
+        ///
+        /// # Errors
+        ///
+        /// Returns [`PaymentError::Timeout`] if the gateway does not respond within 30 s.
+        /// Returns [`PaymentError::Declined`] if the payment method is declined.
+        ///
+        /// # Examples
+        ///
+        /// ```rust
+        /// let receipt = process_payment(&amp;order).await?;
+        /// assert!(!receipt.transaction_id.is_empty());
+        /// ```
+        pub async fn process_payment(order: &amp;Order) -&gt; Result&lt;PaymentReceipt, PaymentError&gt; { }
+      </Example>
+    </Standard>
+
+    <Standard lang="Go" spec="GoDoc" url="https://pkg.go.dev/golang.org/x/tools/cmd/godoc">
+      <RequiredTags>Function summary (first sentence), param/return in prose</RequiredTags>
+      <OptionalTags>Deprecated: Example_ functions in _test.go</OptionalTags>
+      <Note>
+        GoDoc extracts the first sentence of a comment as the summary.
+        There are no structured tags — document parameters and return values
+        in prose. Deprecated items use "Deprecated:" as the first word.
+      </Note>
+      <Example>
+        // ProcessPayment charges the provided order via the configured payment gateway.
+        // It returns a PaymentReceipt containing the transaction ID, or an error if
+        // the gateway times out (after 30 s) or the payment method is declined.
+        func ProcessPayment(ctx context.Context, order *Order) (*PaymentReceipt, error) { }
+      </Example>
+    </Standard>
+
+    <Standard lang="Java" spec="Javadoc" url="https://docs.oracle.com/en/java/javase/21/docs/specs/javadoc/doc-comment-spec.html">
+      <RequiredTags>@param @return @throws</RequiredTags>
+      <OptionalTags>@see @since @deprecated @implNote @apiNote</OptionalTags>
+      <Example>
+        /**
+         * Processes payment for a confirmed order.
+         *
+         * @param order the order to charge; must not be {@code null}
+         * @return a {@link PaymentReceipt} containing the transaction ID
+         * @throws PaymentTimeoutException if the gateway does not respond within 30 s
+         * @throws InsufficientFundsException if the payment method is declined
+         * @since 2.0
+         */
+        public CompletableFuture&lt;PaymentReceipt&gt; processPayment(Order order) { }
+      </Example>
+    </Standard>
+
+  </DocCommentStandards>
+
+  <!-- ═══════════════════════════════════════════════════════
+       ANTI-PATTERNS
+  ═══════════════════════════════════════════════════════ -->
+  <AntiPatterns>
+
+    <AntiPattern id="AP-1" name="Redundancy">
+      <Description>Comment restates what the code already says.</Description>
+      <Bad>
+        // Assign: Set order ID to 123
+        order.Id = 123;
+      </Bad>
+      <Good>
+        // Assign: Order ID from payment gateway response — gateway is source of truth
+        order.Id = paymentResponse.OrderId;
+      </Good>
+      <Authority>Martin-2008-Ch4; TechTarget-2024</Authority>
+    </AntiPattern>
+
+    <AntiPattern id="AP-2" name="Vagueness">
+      <Description>Label is present but subject gives no useful information.</Description>
+      <Bad>// Process: Handle the order</Bad>
+      <Good>// Validate: Order meets minimum purchase and in-stock requirements before payment</Good>
+      <Authority>Conventional-Comments-org</Authority>
+    </AntiPattern>
+
+    <AntiPattern id="AP-3" name="Over-commenting">
+      <Description>Every trivial line carries a comment, drowning signal in noise.</Description>
+      <Bad>
+        // Create: New list
+        var items = new List&lt;Item&gt;();
+        // Add: First item
+        items.Add(item1);
+      </Bad>
+      <Good>
+        // Create: Cart pre-populated with customer's saved items for one-click checkout
+        var items = new List&lt;Item&gt;(customer.SavedItems);
+      </Good>
+      <Authority>daily.dev-2025; MIT-CommLab</Authority>
+    </AntiPattern>
+
+    <AntiPattern id="AP-4" name="Inconsistent style">
+      <Description>Mixed capitalisation and labelling breaks grep-ability and scanning.</Description>
+      <Bad>
+        // validate email format
+        // CHECK: user permissions
+        // Generate ID
+      </Bad>
+      <Good>
+        // Validate: Email format and domain allowlist
+        // Check: User permissions for resource access
+        // Generate: Unique transaction ID
+      </Good>
+      <Authority>OpenReplay-Blog; Conventional-Comments-org</Authority>
+    </AntiPattern>
+
+    <AntiPattern id="AP-5" name="Stale comments">
+      <Description>Comment describes old behaviour that the code has since evolved beyond.</Description>
+      <Bad>
+        // Create: Simple product entity
+        var product = await ProductFactory.CreateWithInventoryTracking(
+            sku, name, price, supplier, warehouseLocation);
+      </Bad>
+      <Good>
+        // Create: Product with full inventory-management metadata for warehouse sync
+        var product = await ProductFactory.CreateWithInventoryTracking(
+            sku, name, price, supplier, warehouseLocation);
+      </Good>
+      <Authority>Martin-2008-Ch4; daily.dev-2025</Authority>
+    </AntiPattern>
+
+    <AntiPattern id="AP-6" name="Commented-out code">
+      <Description>
+        Dead code left commented-out pollutes the file. Use version control (git) instead.
+      </Description>
+      <Authority>TDS-Jan2025</Authority>
+    </AntiPattern>
+
+    <AntiPattern id="AP-7" name="Verbose agent context" authority="ETH-AGENTbench-2026">
+      <Description>
+        [NEW in v3.0] Bloated CAT-10 annotations that attempt to fully describe
+        the codebase in comments. An ETH Zurich study (AGENTbench, 2026) shows
+        that verbose LLM-generated context reduces agent task success rates by ~3%
+        and increases inference costs by 20%. Keep agent annotations concise and
+        factual — one constraint per line.
+      </Description>
+      <Bad>
+        // AgentHint: This is a complex function that does many things. First it validates
+        //             the input, then it processes the data, then it saves to the database.
+        //             Be careful when modifying it because it is used in many places and
+        //             has many side effects that are hard to predict...
+      </Bad>
+      <Good>
+        // AgentHint: do NOT add DB calls here — use the repository injected in the ctor;
+        //            validation lives in OrderValidator, not here
+      </Good>
+    </AntiPattern>
+
+    <AntiPattern id="AP-8" name="Passive voice in comment body" authority="TDS-Jan2025">
+      <Description>
+        [NEW in v3.0] Passive voice obscures the agent or intent.
+        Use imperative-mood verbs.
+      </Description>
+      <Bad>// Filter: Expired sessions are removed from the cache</Bad>
+      <Good>// Filter: Remove expired sessions from cache to prevent stale auth</Good>
+    </AntiPattern>
+
+  </AntiPatterns>
+
+  <!-- ═══════════════════════════════════════════════════════
+       BEST PRACTICES — QUICK REFERENCE
+  ═══════════════════════════════════════════════════════ -->
+  <BestPractices>
+    <Practice id="BP-1"  authority="Martin-2008">Comment the WHY, never the WHAT.</Practice>
+    <Practice id="BP-2"  authority="Conventional-Comments">One label, one action — no "and".</Practice>
+    <Practice id="BP-3"  authority="DEV-Community-2024">Capitalise first word after the colon.</Practice>
+    <Practice id="BP-4"  authority="TDS-Jan2025">Align comment with its code block's indentation.</Practice>
+    <Practice id="BP-5"  authority="DEV-Community-2024">Max 100 characters per comment line (80 for legacy).</Practice>
+    <Practice id="BP-6"  authority="MIT-CommLab">Use comments sparingly — naming and structure first.</Practice>
+    <Practice id="BP-7"  authority="daily.dev-2025">Write the comment while writing the code — never retroactively.</Practice>
+    <Practice id="BP-8"  authority="Martin-2008">Update comments immediately when refactoring.</Practice>
+    <Practice id="BP-9"  authority="TechTarget-2024">Always comment external integration boundaries (Call/Send/Receive).</Practice>
+    <Practice id="BP-10" authority="VoiceType-2025">Use IDE-standard tags (TSDoc / XML-doc / GoDoc) for all public API surfaces.</Practice>
+    <Practice id="BP-11" authority="OpenReplay">Establish a team commenting vocabulary and enforce it in code review.</Practice>
+    <Practice id="BP-12" authority="TDS-Jan2025">Prefer verbs over nouns: "Filter expired sessions" not "Expired session filter".</Practice>
+    <Practice id="BP-13" authority="arXiv-2604.07502-2026">[NEW] Apply the Semantic Density Principle: every token in a comment must earn its place. Remove filler words.</Practice>
+    <Practice id="BP-14" authority="ETH-AGENTbench-2026">[NEW] Prefer CAT-10 annotations for agent-consumed boundaries; keep them human-curated, not LLM-generated.</Practice>
+    <Practice id="BP-15" authority="Addy-Osmani-2025">[NEW] When code will be edited by AI agents, add AgentHint: and Boundary: labels at decision points.</Practice>
+    <Practice id="BP-16" authority="Medium-2025">[NEW] Attribution: link to external specs, ADRs, or tickets using Context: rather than embedding URLs in arbitrary comments.</Practice>
+  </BestPractices>
+
+  <!-- ═══════════════════════════════════════════════════════
+       CONTEXT-SPECIFIC GUIDELINES
+  ═══════════════════════════════════════════════════════ -->
+  <ContextGuidelines>
+    <Context name="Complex Business Logic">
+      Use Enforce: and Validate: liberally to make domain policies explicit
+      and searchable. Add Policy: references to compliance frameworks.
+    </Context>
+    <Context name="External Integration Points">
+      Always pair Call:, Send:, and Receive: comments with the system name
+      and the data contract version where possible.
+    </Context>
+    <Context name="Performance-Critical Code">
+      Use Cache:, Compute:, and Profile: to flag hotspots. Include the
+      measured or expected order of magnitude. Add PERF marker for known issues.
+    </Context>
+    <Context name="Error-Prone Operations">
+      Bracket with Guard:, Catch:, and Compensate: to make failure modes
+      explicit for future maintainers.
+    </Context>
+    <Context name="Async and Concurrent Code">
+      Use Await:, Lock:, and Throttle: consistently so that concurrency
+      boundaries are immediately visible on scan. Add Circuit: for resilience patterns.
+    </Context>
+    <Context name="Security-Sensitive Code">
+      Always comment validation logic with Validate: or Guard: plus
+      the threat being mitigated (e.g., "SQL injection", "SSRF", "replay attack").
+    </Context>
+    <Context name="AI-Agent-Edited Code">
+      [NEW in v3.0] Add Contract:, Invariant:, and Boundary: at module
+      entry points. Use AgentSkip: for hand-tuned sections. Use AgentHint:
+      at complex branching points. Keep annotations concise — see AP-7.
+    </Context>
+    <Context name="Library and SDK Code">
+      [NEW in v3.0] Use BREAKING temporal marker on any public surface change.
+      All public APIs require doc-comment coverage (BP-10). Mark internal
+      helpers with @internal / internal visibility modifiers.
+    </Context>
+  </ContextGuidelines>
+
+  <!-- ═══════════════════════════════════════════════════════
+       ADOPTION ROADMAP
+  ═══════════════════════════════════════════════════════ -->
+  <AdoptionRoadmap>
+    <Phase id="1" name="Foundation" duration="Week 1–2">
+      <Task>Agree on team commenting vocabulary and add to style guide.</Task>
+      <Task>Create IDE snippets for the most common labels (Validate, Guard, Catch, Call, Log).</Task>
+      <Task>Add label consistency check to code-review checklist.</Task>
+      <Task>Apply to all new code and critical business-logic paths first.</Task>
+      <Task>[NEW] Identify code paths regularly edited by AI agents and add Contract: + Boundary: annotations.</Task>
+    </Phase>
+
+    <Phase id="2" name="Adoption" duration="Month 1–2">
+      <Task>Apply during routine refactoring — no big-bang rewrites.</Task>
+      <Task>Include in PR review feedback as a non-blocking nitpick.</Task>
+      <Task>Configure linting rules for TODO/FIXME/BREAKING format enforcement.</Task>
+      <Task>Enable TSDoc, XML-doc, or GoDoc linting on public interfaces.</Task>
+      <Task>[NEW] Audit CAT-10 agent annotations for verbosity (AP-7) during PRs.</Task>
+    </Phase>
+
+    <Phase id="3" name="Optimisation" duration="Month 2–3">
+      <Task>Introduce grep / AST tooling to audit label usage across repos.</Task>
+      <Task>Define domain-specific extension labels for your bounded context.</Task>
+      <Task>Integrate doc-comment tags with API documentation generation pipeline.</Task>
+      <Task>Measure adoption via code-review metrics and static analysis reports.</Task>
+      <Task>[NEW] Run agent-task success benchmarks (pre/post annotation) to validate CAT-10 quality.</Task>
+      <Task>[NEW] Configure Conventional Comments decorations (agent-safe, agent-skip) in your PR tooling.</Task>
+    </Phase>
+  </AdoptionRoadmap>
+
+</CommentingRules>

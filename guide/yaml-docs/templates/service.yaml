@@ -1,0 +1,276 @@
+# ════════════════════════════════════════════════════
+# [ServiceName] Service Documentation (YAML)
+# Purpose:  [One-line: what this service does]
+# Version:  1.0.0
+# Status:   stable
+# Schema:   2.0
+# Updated:  YYYY-MM-DD
+# ════════════════════════════════════════════════════
+
+kind: ServiceModule
+id: service-name
+name: Namespace.ServiceName
+version: "1.0.0"
+status: stable
+schema_version: "2.0"
+
+meta:
+  name: ServiceName Service
+  description: >
+    Two to four sentences: what bounded context does this serve?
+    What are the primary responsibilities? Who consumes this service?
+  category: "Order Management | Authentication | Notifications | Payments"
+  stability: Stable
+  standards_alignment: "REST, CQRS, Event Sourcing, Clean Architecture"
+  dependencies:
+    - name: Framework
+      version: "x.x"
+    - name: ORM
+      version: "x.x"
+    - name: MessageBus
+      version: "x.x"
+
+principles:
+  - id: P1
+    name: Single Bounded Context
+    description: >
+      This service owns the [ContextName] bounded context exclusively.
+      No other service may write to its data store.
+    rationale: >
+      Clear ownership prevents coupling and enables independent deployment.
+  - id: P2
+    name: CQRS Separation
+    description: >
+      Commands mutate state and return Result. Queries return DTOs, never domain entities.
+  - id: P3
+    name: Async-First
+    description: >
+      All I/O operations are async. Synchronous paths are reserved for pure in-memory computation.
+
+features:
+  - id: F1
+    name: Command Handling
+    type: core
+    description: >
+      CQRS command handlers that mutate domain state through aggregates.
+      All commands return Result or Result<T>.
+  - id: F2
+    name: Query Handling
+    type: core
+    description: >
+      Read-optimized queries returning DTOs. May bypass domain layer for performance.
+  - id: F3
+    name: Domain Event Publishing
+    type: integration
+    description: >
+      Domain events raised by aggregates are published to the message bus
+      via the outbox pattern after successful persistence.
+  - id: F4
+    name: Integration Event Consumers
+    type: integration
+    description: >
+      Handles integration events from other services, triggering domain commands
+      via the internal CQRS pipeline.
+
+abstractions:
+  - category: Commands
+    order: 1
+    description: >
+      Mutating operations. Each command handler: validates input, loads aggregate,
+      executes domain method, persists, publishes events.
+    items:
+      - id: A1
+        name: CreateXxxCommand
+        type: handler
+        path: ./Application/Commands/CreateXxx/CreateXxxCommand.cs
+        description: Command to create a new [Xxx] aggregate.
+        purpose: Entry point for [Xxx] creation flow from API or integration consumer.
+        contract: |
+          // Contract: pre=request.IsValid(), post=result.Value is Guid (new aggregate ID)
+          // throws=ValidationException|DuplicateException
+        top_use: Called by POST /api/[xxx] endpoint and [SomeEvent] integration handler.
+
+      - id: A2
+        name: UpdateXxxCommand
+        type: handler
+        path: ./Application/Commands/UpdateXxx/UpdateXxxCommand.cs
+        description: Command to update an existing [Xxx] aggregate.
+        purpose: >
+          Handles partial updates; loads aggregate by ID, applies domain method,
+          persists changes.
+        contract: |
+          // Contract: pre=Id exists in repository, post=aggregate state reflects request
+          // throws=NotFoundException|ConcurrencyException
+      # Add A3, A4 ... for other commands
+
+  - category: Queries
+    order: 2
+    description: Read operations returning DTOs. No domain entities leave this layer.
+    items:
+      - id: B1
+        name: GetXxxByIdQuery
+        type: handler
+        path: ./Application/Queries/GetXxxById/GetXxxByIdQuery.cs
+        description: Retrieves a single [Xxx] by its ID as a [XxxDto].
+        purpose: >
+          Powers the GET /api/[xxx]/{id} endpoint.
+          Returns Result.Failure(Failures.NotFound()) when ID does not exist.
+
+      - id: B2
+        name: ListXxxQuery
+        type: handler
+        path: ./Application/Queries/ListXxx/ListXxxQuery.cs
+        description: Returns a paged list of [Xxx] items matching filter criteria.
+        purpose: Powers the GET /api/[xxx] endpoint with filtering and pagination.
+        contract: |
+          // Contract: pre=PageNumber>=1 && PageSize in [1..100]
+          // post=result is PagedResult<XxxDto>
+      # Add B3, B4 ... for other queries
+
+  - category: Domain Events
+    order: 3
+    description: Events raised by aggregates and published via the outbox pattern.
+    items:
+      - id: C1
+        name: XxxCreatedEvent
+        type: record
+        path: ./Domain/Events/XxxCreatedEvent.cs
+        description: Raised when a new [Xxx] aggregate is successfully created.
+        purpose: >
+          Triggers downstream side-effects in other services via the message bus.
+          Consumed by: [ServiceA], [ServiceB].
+      # Add C2, C3 ... for other events
+
+technical:
+  mechanisms:
+    - id: M1
+      name: Command Pipeline
+      scope: Application layer — command processing flow
+      steps:
+        - "API endpoint receives HTTP request → validates and maps to Command record"
+        - MediatR dispatches Command to its Handler
+        - Handler validates business input (FluentValidation pipeline behaviour)
+        - Handler loads aggregate from repository
+        - "Handler calls domain method on aggregate — aggregate enforces invariants"
+        - Repository persists aggregate; outbox captures domain events
+        - "Handler returns Result<T> to endpoint"
+        - Endpoint maps Result to HTTP response via ToApiResult() extension
+
+    - id: M2
+      name: Outbox Pattern
+      scope: Domain event publishing — guaranteed delivery
+      description: >
+        Domain events are stored in the same transaction as aggregate changes.
+        A background processor reads the outbox and publishes to the message bus,
+        deleting entries after confirmed delivery.
+      pattern: |
+        // In DbContext.SaveChanges():
+        // 1. Collect domain events from all tracked aggregates
+        // 2. Persist aggregate changes + outbox entries atomically
+        // 3. Clear domain event collections
+
+    - id: M3
+      name: Result-to-HTTP Mapping
+      scope: API layer — response code translation
+      description: >
+        The .ToApiResult() extension maps Result types to IResult (Minimal API).
+      status_code_map:
+        - type: Success
+          code: 200
+        - type: Created
+          code: 201
+        - type: ValidationFailure
+          code: 400
+        - type: NotFound
+          code: 404
+        - type: Conflict
+          code: 409
+        - type: InternalServerError
+          code: 500
+
+anti_patterns:
+  - id: AP1
+    name: Domain Entity in Query Response
+    severity: high
+    avoid: Returning domain entities directly from queries or API endpoints.
+    better_approach: >
+      Map to DTOs in query handlers. Domain entities must not cross service boundaries.
+
+  - id: AP2
+    name: Business Logic in Handlers
+    severity: high
+    avoid: if/else business rule checks inside command handlers.
+    better_approach: >
+      Move to aggregate methods with IBusinessRule checks. Handler orchestrates only.
+
+  - id: AP3
+    name: Synchronous Integration
+    severity: critical
+    avoid: Direct HTTP calls to other services inside command handlers.
+    better_approach: >
+      Publish domain/integration events. Consume integration events asynchronously.
+    impact: Tight coupling, cascading failures, and distributed transaction risk.
+
+usage:
+  scenarios:
+    - id: S1
+      title: Creating a New [Xxx] via API
+      context: Consumer POSTs to /api/[xxx] to create a new resource.
+      pattern: |
+        // Endpoint
+        app.MapPost("/api/[xxx]", async (CreateXxxRequest req, ISender sender) => {
+          var command = new CreateXxxCommand(req.Name, req.Description);
+          var result = await sender.Send(command);
+          return result.ToApiResult(id => Results.Created($"/api/[xxx]/{id}", id));
+        });
+      benefits:
+        - Consistent error response shapes
+        - Automatic HTTP status code mapping
+        - Domain logic fully encapsulated in handler + aggregate
+
+    - id: S2
+      title: Handling an Integration Event from Another Service
+      context: >
+        [OtherService] publishes [SomeIntegrationEvent]; this service must react.
+      pattern: |
+        public class SomeIntegrationEventConsumer :
+            IConsumer<SomeIntegrationEvent> {
+          public async Task Consume(ConsumeContext<SomeIntegrationEvent> ctx) {
+            var command = new DerivedCommand(ctx.Message.EntityId);
+            var result = await _sender.Send(command);
+            // Handle result — log failure, push to dead-letter queue, etc.
+          }
+        }
+      benefits:
+        - Decoupled inter-service communication
+        - Retryable via message bus semantics
+
+file_structure: |
+  ServiceName/
+  ├── API/
+  │   ├── Endpoints/                    # Minimal API endpoint definitions
+  │   └── Middleware/                   # Service-specific middleware
+  ├── Application/
+  │   ├── Commands/
+  │   │   ├── CreateXxx/
+  │   │   │   ├── CreateXxxCommand.cs
+  │   │   │   ├── CreateXxxHandler.cs
+  │   │   │   └── CreateXxxValidator.cs
+  │   │   └── UpdateXxx/
+  │   ├── Queries/
+  │   │   ├── GetXxxById/
+  │   │   └── ListXxx/
+  │   └── DTOs/                         # Response data transfer objects
+  ├── Domain/
+  │   ├── Xxx.cs                        # Aggregate root
+  │   ├── Events/                       # Domain events
+  │   └── Rules/                        # IBusinessRule implementations
+  ├── Infrastructure/
+  │   ├── Persistence/
+  │   │   ├── ServiceNameDbContext.cs
+  │   │   ├── Configurations/           # EF Core entity configurations
+  │   │   └── Repositories/             # Repository implementations
+  │   └── Messaging/
+  │       ├── Publishers/               # Integration event publishers
+  │       └── Consumers/                # Integration event consumers
+  └── README.yaml                       # This documentation
