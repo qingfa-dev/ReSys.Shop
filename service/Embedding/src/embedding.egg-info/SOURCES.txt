@@ -1,0 +1,15 @@
+pyproject.toml
+src/embedding/__init__.py
+src/embedding/main.py
+src/embedding.egg-info/PKG-INFO
+src/embedding.egg-info/SOURCES.txt
+src/embedding.egg-info/dependency_links.txt
+src/embedding.egg-info/requires.txt
+src/embedding.egg-info/top_level.txt
+src/embedding/config/__init__.py
+src/embedding/config/settings.py
+src/embedding/middleware/__init__.py
+src/embedding/middleware/exception_handler.py
+src/embedding/routers/__init__.py
+src/embedding/routers/embedding_router.py
+src/embedding/routers/health_router.py
