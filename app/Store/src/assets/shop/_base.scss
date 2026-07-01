@@ -1,0 +1,21 @@
+@use 'variables' as *;
+
+body {
+  font-family: $font-family-body;
+  color: $color-text;
+  background-color: $color-bg;
+}
+
+a {
+  color: $color-primary;
+  text-decoration: none;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
+::selection {
+  background-color: rgba($color-primary, 0.2);
+  color: $color-text;
+}
