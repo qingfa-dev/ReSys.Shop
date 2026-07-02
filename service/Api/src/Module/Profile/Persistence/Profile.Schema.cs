@@ -1,10 +1,10 @@
 using Shared.Governance.Conventions;
 
-namespace Module.Profile.Persistence.Constants;
+namespace Module.Profile.Persistence;
 
 public static class ProfileSchema
 {
-    public static string Name => "Profiles".ToSnakeCase()!;
+    public static string Name => "Profile".ToSnakeCase()!;
 
     public static class TableNames
     {

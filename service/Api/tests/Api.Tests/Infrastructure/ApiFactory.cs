@@ -47,6 +47,9 @@ public sealed class ApiFactory : WebApplicationFactory<Program>
                 ["Authentication:Jwt:Issuer"] = "ReSys.Shop.Test",
                 ["Authentication:Jwt:Audience"] = "ReSys.Shop.Test",
 
+                ["Authentication:Google:ClientId"] = "test-client-id",
+                ["Authentication:Google:ClientSecret"] = "test-client-secret",
+
                 ["GuestSession:CookieSecurePolicy"] = "SameAsRequest",
 
                 ["AntiForgery:HeaderName"] = "X-XSRF-TOKEN",

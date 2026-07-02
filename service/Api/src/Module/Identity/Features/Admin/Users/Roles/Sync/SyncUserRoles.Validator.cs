@@ -1,4 +1,4 @@
-using Module.Identity.Features.Admin.Users.Shared.Validators;
+using Shared.Security.Identity.Domain.Roles;
 
 namespace Module.Identity.Features.Admin.Users.Roles.Sync;
 
@@ -9,7 +9,7 @@ public static partial class SyncUserRoles
     {
         public CommandValidator()
         {
-            RuleFor(x => x.Request.Roles).ApplyRoleCollectionRules();
+            RuleForEach(x => x.Request.Roles).ApplyRoleNameRules();
         }
     }
 }

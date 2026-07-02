@@ -1,7 +1,6 @@
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 using Module.Profile.Domain.Wishlists;
-using Module.Profile.Persistence.Constants;
 
 namespace Module.Profile.Persistence.Configurations;
 

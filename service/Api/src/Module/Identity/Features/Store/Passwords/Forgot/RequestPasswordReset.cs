@@ -25,6 +25,9 @@ public static partial class RequestPasswordReset
         {
             var request = command.Request;
 
+            if (string.IsNullOrWhiteSpace(request.Email))
+                return Result.NoContent();
+
             var user = await userManager.FindByEmailAsync(request.Email);
 
             if (user is null)
@@ -44,7 +47,14 @@ public static partial class RequestPasswordReset
             if (!updateResult.Succeeded)
                 return updateResult.ToResult();
 
-            await SendPasswordResetNotificationAsync(user, resetPath);
+            try
+            {
+                await SendPasswordResetNotificationAsync(user, resetPath);
+            }
+            catch (Exception ex)
+            {
+                logger.LogWarning(ex, "Failed to send password reset notification to {UserId}", user.Id);
+            }
 
             return Result.NoContent();
         }

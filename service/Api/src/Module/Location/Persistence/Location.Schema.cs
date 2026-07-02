@@ -3,7 +3,7 @@ using Module.Location.Domain.States;
 
 using Shared.Governance.Conventions;
 
-namespace Module.Location.Persistence.Constants;
+namespace Module.Location.Persistence;
 
 public static class LocationSchema
 {

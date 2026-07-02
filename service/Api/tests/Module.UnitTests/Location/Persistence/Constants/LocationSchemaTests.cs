@@ -1,4 +1,4 @@
-using Module.Location.Persistence.Constants;
+using Module.Location.Persistence;
 
 namespace Module.UnitTests.Location.Persistence.Constants;
 

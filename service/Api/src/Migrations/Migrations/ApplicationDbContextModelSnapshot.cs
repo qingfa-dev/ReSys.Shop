@@ -259,7 +259,7 @@ namespace Api.Migrations.Migrations
                     b.HasIndex("AddressType", "UserProfileId")
                         .HasDatabaseName("ix_addresses_address_type_user_profile_id");
 
-                    b.ToTable("addresses", "profiles");
+                    b.ToTable("addresses", "profile");
                 });
 
             modelBuilder.Entity("Module.Profile.Domain.UserProfile", b =>
@@ -386,7 +386,7 @@ namespace Api.Migrations.Migrations
                     b.HasIndex("UserId")
                         .HasDatabaseName("ix_user_profiles_user_id");
 
-                    b.ToTable("user_profiles", "profiles");
+                    b.ToTable("user_profiles", "profile");
                 });
 
             modelBuilder.Entity("Module.Profile.Domain.Wishlists.WishedItems.WishedItem", b =>
@@ -434,7 +434,7 @@ namespace Api.Migrations.Migrations
                         .IsUnique()
                         .HasDatabaseName("ix_wished_items_wishlist_id_variant_id");
 
-                    b.ToTable("wished_items", "profiles");
+                    b.ToTable("wished_items", "profile");
                 });
 
             modelBuilder.Entity("Module.Profile.Domain.Wishlists.Wishlist", b =>
@@ -512,7 +512,7 @@ namespace Api.Migrations.Migrations
                     b.HasIndex("UserId", "IsDefault")
                         .HasDatabaseName("ix_wishlists_user_id_is_default");
 
-                    b.ToTable("wishlists", "profiles");
+                    b.ToTable("wishlists", "profile");
                 });
 
             modelBuilder.Entity("Shared.Security.Identity.Domain.Roles.Claims.RoleClaim", b =>
@@ -1005,7 +1005,7 @@ namespace Api.Migrations.Migrations
                             b1.HasKey("UserProfileId")
                                 .HasName("pk_user_profiles");
 
-                            b1.ToTable("user_profiles", "profiles");
+                            b1.ToTable("user_profiles", "profile");
 
                             b1.WithOwner()
                                 .HasForeignKey("UserProfileId")
@@ -1061,7 +1061,7 @@ namespace Api.Migrations.Migrations
                             b1.HasKey("UserProfileId")
                                 .HasName("pk_user_profiles");
 
-                            b1.ToTable("user_profiles", "profiles");
+                            b1.ToTable("user_profiles", "profile");
 
                             b1.WithOwner()
                                 .HasForeignKey("UserProfileId")

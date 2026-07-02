@@ -1,12 +1,16 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 
+using Module.Location.Persistence;
+using Module.Profile.Persistence;
+
 using Npgsql;
 
 using Respawn;
 
 using Shared.Operational.Persistence.Data;
 using Shared.Operational.Persistence.Seeders;
+using Shared.Security.Identity.Domain.Shared;
 
 using Testcontainers.PostgreSql;
 
@@ -46,7 +50,7 @@ public sealed class ApiFixture : IAsyncLifetime
 
         _respawner = await Respawner.CreateAsync(connection, new RespawnerOptions
         {
-            SchemasToInclude = ["locations", "profiles", "identity"],
+            SchemasToInclude = [LocationSchema.Name, ProfileSchema.Name, IdentitySchema.Name],
             TablesToIgnore = ["__EFMigrationsHistory"]
         });
     }
