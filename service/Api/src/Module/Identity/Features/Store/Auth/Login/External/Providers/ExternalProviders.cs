@@ -1,6 +1,6 @@
 using Shared.Security.Authentication.External.Services;
 
-namespace Module.Identity.Features.Store.Auth.External.Providers;
+namespace Module.Identity.Features.Store.Auth.Login.External.Providers;
 
 /// <summary>
 /// Defines the use case for retrieving available external login providers.

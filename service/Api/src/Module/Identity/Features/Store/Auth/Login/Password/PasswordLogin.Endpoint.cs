@@ -1,4 +1,4 @@
-namespace Module.Identity.Features.Store.Auth.Password;
+namespace Module.Identity.Features.Store.Auth.Login.Password;
 
 public static partial class PasswordLogin
 {

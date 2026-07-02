@@ -1,6 +1,6 @@
 using Module.Identity.Features.Store.Shared.Models;
 
-namespace Module.Identity.Features.Store.Auth.External.Authenticate;
+namespace Module.Identity.Features.Store.Auth.Login.External.Authenticate;
 
 public static partial class ExternalAuthenticate
 {

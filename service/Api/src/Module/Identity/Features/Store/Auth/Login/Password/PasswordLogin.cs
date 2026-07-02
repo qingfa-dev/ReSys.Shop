@@ -5,7 +5,7 @@ using Shared.Security.Authentication.Tokens.Services.Access;
 using Shared.Security.Authentication.Tokens.Services.Refresh;
 using Shared.Security.Identity.Domain.Users;
 
-namespace Module.Identity.Features.Store.Auth.Password;
+namespace Module.Identity.Features.Store.Auth.Login.Password;
 
 /// <summary>
 /// Defines the use case for password-based authentication.

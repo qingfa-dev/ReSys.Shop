@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Identity;
 
-using Module.Identity.Features.Store.Auth.Password;
+using Module.Identity.Features.Store.Auth.Login.Password;
 using Module.UnitTests.Identity.Fixtures;
 
 using Shared.Security.Authentication.Tokens.Models;
@@ -8,7 +8,7 @@ using Shared.Security.Authentication.Tokens.Services.Access;
 using Shared.Security.Authentication.Tokens.Services.Refresh;
 using Shared.Security.Identity.Domain.Users;
 
-namespace Module.UnitTests.Identity.Features.Store.Auth.Password;
+namespace Module.UnitTests.Identity.Features.Store.Auth.Login.Password;
 
 [Trait("Category", "Unit")]
 [Trait("Module", "Identity")]
