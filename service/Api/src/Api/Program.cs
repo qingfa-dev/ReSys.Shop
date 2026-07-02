@@ -1,6 +1,6 @@
 using System.Reflection;
 
-using Module.Locations;
+using Module.Location;
 
 using ReSys.ServiceDefaults;
 

@@ -1,7 +1,7 @@
 using Module.Location.Persistence.Seeders;
 
 // Boundary: Domain → Infrastructure
-namespace Module.Locations;
+namespace Module.Location;
 
 public static class LocationsExtensions
 {

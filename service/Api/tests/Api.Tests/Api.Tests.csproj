@@ -10,5 +10,15 @@
   <ItemGroup>
     <Content Include="xunit.runner.json" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
+  
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" />
+    <PackageReference Include="Testcontainers.PostgreSql" />
+    <PackageReference Include="Respawn" />
+  </ItemGroup>
+  
+  <ItemGroup>
+    <ProjectReference Include="../../src/Api/Api.csproj" />
+  </ItemGroup>
 
 </Project>
