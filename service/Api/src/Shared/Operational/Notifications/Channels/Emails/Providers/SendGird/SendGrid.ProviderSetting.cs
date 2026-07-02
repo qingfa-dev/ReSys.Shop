@@ -1,0 +1,22 @@
+using Shared.Operational.Notifications.Channels.Emails.Options;
+using Shared.Operational.Notifications.Options.Providers;
+
+namespace Shared.Operational.Notifications.Channels.Emails.Providers.SendGird;
+
+/// <summary>
+/// Configuration settings for the SendGrid email provider.
+/// </summary>
+public sealed class SendGridProviderSetting : BaseProviderSetting
+{
+    /// <inheritdoc />
+    public static new string Section => $"{EmailChannelSetting.Section}:Providers:SendGrids";
+
+    /// <inheritdoc />
+    public new int Priority { get; set; } = 2;
+
+    /// <summary>
+    /// Gets or sets the API key used to authenticate with SendGrid.
+    /// </summary>
+    public string ApiKey { get; set; } = string.Empty;
+
+}
