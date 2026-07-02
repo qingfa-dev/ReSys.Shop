@@ -1,4 +1,4 @@
-namespace Module.Identity.Features.Store.Auth.External.Providers;
+namespace Module.Identity.Features.Store.Auth.Login.External.Providers;
 
 public static partial class ExternalProviders
 {

@@ -1,10 +1,10 @@
-using Module.Identity.Features.Store.Auth.External.Providers;
+using Module.Identity.Features.Store.Auth.Login.External.Providers;
 
 using Shared.Security.Authentication.External.Models;
 using Shared.Security.Authentication.External.Providers;
 using Shared.Security.Authentication.External.Services;
 
-namespace Module.UnitTests.Identity.Features.Store.Auth.External.Providers;
+namespace Module.UnitTests.Identity.Features.Store.Auth.Login.External.Providers;
 
 [Trait("Category", "Unit")]
 [Trait("Module", "Identity")]

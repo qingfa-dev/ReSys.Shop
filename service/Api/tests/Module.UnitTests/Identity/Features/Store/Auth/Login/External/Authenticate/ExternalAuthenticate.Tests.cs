@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Identity;
 
-using Module.Identity.Features.Store.Auth.External.Authenticate;
+using Module.Identity.Features.Store.Auth.Login.External.Authenticate;
 using Module.UnitTests.Identity.Fixtures;
 
 using Shared.Security.Authentication.External.Models;
@@ -12,7 +12,7 @@ using Shared.Security.Identity.Domain.Roles;
 using Shared.Security.Identity.Domain.Users;
 using Shared.Security.Identity.Domain.Users.Logins;
 
-namespace Module.UnitTests.Identity.Features.Store.Auth.External.Authenticate;
+namespace Module.UnitTests.Identity.Features.Store.Auth.Login.External.Authenticate;
 
 [Trait("Category", "Unit")]
 [Trait("Module", "Identity")]

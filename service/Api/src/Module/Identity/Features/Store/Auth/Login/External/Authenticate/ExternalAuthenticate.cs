@@ -8,7 +8,7 @@ using Shared.Security.Identity.Domain.Roles;
 using Shared.Security.Identity.Domain.Users;
 using Shared.Security.Identity.Domain.Users.Logins;
 
-namespace Module.Identity.Features.Store.Auth.External.Authenticate;
+namespace Module.Identity.Features.Store.Auth.Login.External.Authenticate;
 
 /// <summary>
 /// Defines the use case for external provider authentication.
