@@ -1,0 +1,1 @@
+"""Fashion-CLIP model implementation."""

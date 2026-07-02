@@ -1,0 +1,1 @@
+"""Embedding data access."""

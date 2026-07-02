@@ -1,0 +1,290 @@
+kind: ServiceModule
+id: embedding-service
+name: ReSys.Shop.Embedding
+version: "1.0.0"
+status: stable
+schema_version: "3.0"
+
+meta:
+  name: ML Embedding Sidecar
+  description: >
+    Lean FastAPI service that hosts a single Fashion-CLIP one-shot model in
+    memory, providing image-to-embedding vectorization for the resys.fashion_shop
+    platform. Exposes three endpoints: /health, /embed (single image), and
+    /embed/batch (multiple images). The model is loaded once at startup via
+    an init lifecycle hook, eliminating cold-start latency per request.
+  category: "Machine Learning | Image Embedding"
+  stability: Stable
+  standards_alignment: "REST, Sidecar Pattern"
+  dependencies:
+    - name: Python
+      version: "3.12"
+      scope: runtime
+    - name: FastAPI
+      version: "0.x"
+      scope: runtime
+    - name: PyTorch
+      version: "2.x"
+      scope: runtime
+    - name: open-clip-torch
+      version: "1.x"
+      scope: runtime
+
+principles:
+  - id: P1
+    name: Single Model, No Cold Start
+    description: >
+      The Fashion-CLIP model is loaded exactly once during application
+      startup and kept in memory for the lifetime of the process.
+    rationale: >
+      Model loading is expensive (seconds to tens of seconds). Per-request
+      loading would make the service unusable for real-time search.
+  - id: P2
+    name: Stateless Inference
+    description: >
+      Each /embed request is independent. No session state, no caching,
+      no request-to-request dependencies.
+    rationale: >
+      Enables horizontal scaling behind a load balancer without sticky
+      sessions or distributed state.
+
+features:
+  - id: F1
+    name: Single Image Embedding
+    type: core
+    description: >
+      POST /embed accepts an image file (multipart form) and returns a
+      512-dimensional float array embedding vector via Fashion-CLIP.
+  - id: F2
+    name: Batch Image Embedding
+    type: core
+    description: >
+      POST /embed/batch accepts multiple image files and returns an array
+      of embedding vectors. Processes images sequentially on the same model
+      instance.
+  - id: F3
+    name: Health Check
+    type: utility
+    description: >
+      GET /health returns service status and the loaded model name for
+      monitoring and orchestration readiness probes.
+
+abstractions:
+  - category: API Endpoints
+    order: 1
+    description: HTTP endpoints exposed by the embding service.
+    items:
+      - id: A1
+        name: Health Endpoint
+        type: function
+        path: ./main.py
+        description: GET /health returning model status and name.
+        purpose: Used by Aspire and Docker for readiness/liveness probes.
+        contract: |
+          // Response: {"status": "ok", "model": "fashion-clip"}
+          // Status code: 200
+      - id: A2
+        name: Embed Endpoint
+        type: function
+        path: ./main.py
+        description: >
+          POST /embed accepting a single image file. Returns a float array
+          embedding of dimension 512.
+        purpose: Primary endpoint called by the .NET API during product creation and search.
+        contract: |
+          // Input: multipart/form-data with field "image"
+          // Response: {"embedding": [0.1, ...], "dim": 512}
+          // Status code: 200 on success, 422 on invalid input
+      - id: A3
+        name: Batch Embed Endpoint
+        type: function
+        path: ./main.py
+        description: >
+          POST /embed/batch accepting multiple image files. Returns array
+          of float array embeddings.
+        purpose: Used for batch processing during data migration or re-indexing.
+        contract: |
+          // Input: multipart/form-data with field "images" (multiple files)
+          // Response: {"embeddings": [[0.1, ...], ...], "dim": 512}
+
+  - category: Model Layer
+    order: 2
+    description: Model loading and inference abstractions.
+    items:
+      - id: B1
+        name: AbstractEmbedder
+        type: interface
+        path: ./models/abstract_embedder.py
+        description: >
+          Abstract base class defining the embed(image: bytes) -> list[float]
+          interface for model implementations.
+        purpose: Enables swapping models without changing endpoint code.
+      - id: B2
+        name: FashionCLIPEmbedder
+        type: class
+        path: ./models/fashion_clip.py
+        description: >
+          Concrete implementation using open-clip-torch with the
+          fashion-clip model. Loads model and preprocessing transforms
+          at construction time.
+        purpose: Default embedder used by the running service.
+
+technical:
+  mechanisms:
+    - id: M1
+      name: Model Lifecycle
+      scope: "Startup and inference"
+      steps:
+        - "FastAPI startup event creates FashionCLIPEmbedder instance"
+        - "Constructor loads Fashion-CLIP model via open-clip-torch"
+        - "Model and preprocessing transforms stored as instance fields"
+        - "Each /embed call: preprocess image -> model.encode_image() -> normalize -> return list"
+        - "No per-request model loading; inference is in-memory only"
+    - id: M2
+      name: Image Preprocessing Pipeline
+      scope: "Inference request handling"
+      steps:
+        - "Receive raw image bytes from multipart upload"
+        - "Decode to PIL Image (RGB conversion if needed)"
+        - "Apply Fashion-CLIP preprocessing transforms (resize, center crop, normalize)"
+        - "Add batch dimension and move to model device (CPU or CUDA)"
+        - "Run model.encode_image() and return embedding vector"
+
+anti_patterns:
+  - id: AP1
+    name: Per-Request Model Loading
+    severity: critical
+    avoid: Loading the model on every /embed request.
+    better_approach: >
+      Load the model once at application startup using FastAPI's lifespan
+      mechanism. Keep the model instance in a global or app-state variable.
+    impact: Adds 5-30 seconds of latency to every request, making the service unusable.
+  - id: AP2
+    name: Returning Raw Tensors
+    severity: medium
+    avoid: Returning PyTorch tensors directly in JSON responses.
+    better_approach: >
+      Convert tensors to Python lists via .tolist() before serialization.
+      PyTorch tensors are not JSON-serializable by default.
+
+usage:
+  scenarios:
+    - id: S1
+      title: Generating an Embedding for a Single Product Image
+      context: >
+        The .NET API creates a new product and needs to generate its
+        embedding for similarity search.
+      pattern: |
+        POST /embed
+        Content-Type: multipart/form-data
+        Body: image=<binary image data>
+        ---
+        Response 200:
+        {
+          "embedding": [0.042, -0.153, 0.287, ...],
+          "dim": 512
+        }
+      benefits:
+        - Simple HTTP interface, no SDK required
+        - Returns normalized embedding ready for pgvector storage
+
+file_structure: |
+  services/Embedding/
+├── README.yaml
+├── pyproject.toml
+├── uv.lock
+├── .env
+├── .python-version
+│
+├── app.py                      # FastAPI application entry
+├── main.py                     # Server bootstrap
+│
+├── config/
+│   ├── settings.py
+│   ├── logging.py
+│   └── dependency.py
+│
+├── routers/
+│   ├── health_router.py
+│   ├── embedding_router.py
+│   ├── model_router.py
+│   └── cache_router.py
+│
+├── controllers/
+│   ├── embedding_controller.py
+│   ├── model_controller.py
+│   └── cache_controller.py
+│
+├── services/
+│   ├── embedding_service.py
+│   ├── cache_service.py
+│   ├── preprocessing_service.py
+│   ├── validation_service.py
+│   │
+│   └── gateways/
+│       ├── embedding_gateway.py
+│       ├── image_storage_gateway.py
+│       ├── model_gateway.py
+│       └── cache_gateway.py
+│
+├── repositories/
+│   ├── embedding_repository.py
+│   ├── cache_repository.py
+│   └── metadata_repository.py
+│
+├── schemas/
+│   ├── requests.py
+│   ├── responses.py
+│   └── common.py
+│
+├── models/
+│   ├── embedding.py
+│   ├── metadata.py
+│   └── cache.py
+│
+├── middleware/
+│   ├── auth.py
+│   ├── logging.py
+│   └── exception_handler.py
+│
+├── dependencies/
+│   ├── authentication.py
+│   └── services.py
+│
+├── infra/
+│   ├── models/
+│   │   ├── fashion_clip.py
+│   │   ├── clip.py
+│   │   ├── siglip.py
+│   │   └── base.py
+│   │
+│   ├── storage/
+│   │   ├── local_storage.py
+│   │   └── s3_storage.py
+│   │
+│   ├── cache/
+│   │   ├── filesystem_cache.py
+│   │   └── redis_cache.py
+│   │
+│   ├── preprocessing/
+│   │   ├── clip.py
+│   │   ├── siglip.py
+│   │   └── fashion_clip.py
+│   │
+│   └── utils/
+│       ├── image_loader.py
+│       └── tensor.py
+│
+├── utils/
+│   ├── constants.py
+│   ├── exceptions.py
+│   └── logger.py
+│
+├── tests/
+│   ├── unit/
+│   ├── integration/
+│   └── e2e/
+│
+└── docs/
+    ├── openapi.yaml
+    └── architecture.md

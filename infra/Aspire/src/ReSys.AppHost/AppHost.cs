@@ -14,10 +14,12 @@ IResourceBuilder<RedisResource> redis = builder.AddRedis(Infrastructures.Cache.R
 IResourceBuilder<PostgresDatabaseResource> database = postgres.AddDatabase(
     Infrastructures.Databases.Resource);
 
-var embedding = builder.AddPythonApp(
+var embedding = builder.AddUvicornApp(
         Services.Embedding,
         "../../../../service/Embedding",
-        "embedding.main")
+        "embedding.main:app")
+    .WithUv()
+    .WithHttpHealthCheck("/health")
     .WithHttpEndpoint(targetPort: 8000, name: "http")
     .WithExternalHttpEndpoints();
 
