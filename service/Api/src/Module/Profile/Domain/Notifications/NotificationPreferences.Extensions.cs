@@ -25,9 +25,9 @@ public static class NotificationPreferencesExtensions
 
     public static Result<NotificationPreferences> Update(
         this NotificationPreferences prefs,
-        Optional<bool> enableSms = default,
-        Optional<bool> enableEmail = default,
-        Optional<bool> enableNewsfeeds = default)
+        bool? enableSms = default,
+        bool? enableEmail = default,
+        bool? enableNewsfeeds = default)
     {
         if (enableSms.HasValue) prefs.EnableSms = enableSms.Value;
         if (enableEmail.HasValue) prefs.EnableEmail = enableEmail.Value;

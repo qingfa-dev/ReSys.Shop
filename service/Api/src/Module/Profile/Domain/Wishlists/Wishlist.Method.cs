@@ -50,17 +50,17 @@ public static class WishlistExtensions
 
     public static Result<Wishlist> Update(
         this Wishlist wishlist,
-        Optional<string> name = default,
-        Optional<bool> isPrivate = default,
-        Optional<bool> isDefault = default)
+        string? name = default,
+        bool? isPrivate = default,
+        bool? isDefault = default)
     {
-        if (name.HasValue)
+        if (name is not null)
         {
-            if (string.IsNullOrWhiteSpace(name.Value))
+            if (string.IsNullOrWhiteSpace(name))
                 return WishlistResult.Failure.NameRequired;
-            if (name.Value.Length > WishlistConstant.Constraints.MaxNameLength)
+            if (name.Length > WishlistConstant.Constraints.MaxNameLength)
                 return WishlistResult.Failure.NameTooLong;
-            wishlist.Name = name.Value;
+            wishlist.Name = name;
         }
 
         if (isPrivate.HasValue) wishlist.IsPrivate = isPrivate.Value;

@@ -124,12 +124,8 @@ public class UserPreferenceMethodsTests
     [InlineData("XL", "34", "12")]
     public void Update_WithSizeFields_ShouldSetSizes(string? sizeTop, string? sizeBottom, string? shoeSize)
     {
-        Optional<string?> topOpt = sizeTop is not null ? sizeTop : default;
-        Optional<string?> bottomOpt = sizeBottom is not null ? sizeBottom : default;
-        Optional<string?> shoeOpt = shoeSize is not null ? shoeSize : default;
-
         Result<UserPreferences> result = UserPreferenceMethod.Create()
-            .Value.Update(sizeTop: topOpt, sizeBottom: bottomOpt, shoeSize: shoeOpt);
+            .Value.Update(sizeTop: sizeTop, sizeBottom: sizeBottom, shoeSize: shoeSize);
 
         result.IsSuccess.Should().BeTrue();
         if (sizeTop is not null)

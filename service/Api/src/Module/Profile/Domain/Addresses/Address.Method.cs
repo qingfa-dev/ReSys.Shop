@@ -92,77 +92,77 @@ public static class AddressMethod
 
     public static Result<Address> Update(
         this Address address,
-        Optional<string?> firstName = default,
-        Optional<string?> lastName = default,
-        Optional<string?> address1 = default,
-        Optional<string?> address2 = default,
-        Optional<string?> city = default,
-        Optional<string?> zipCode = default,
-        Optional<string?> phone = default,
-        Optional<string?> label = default,
-        Optional<bool> isDefault = default,
-        Optional<bool> isDefaultBilling = default,
-        Optional<bool> isDefaultShipping = default,
-        Optional<string?> stateProvince = default,
-        Optional<string?> countryCode = default,
-        Optional<string?> stateCode = default,
-        Optional<string?> countryName = default,
-        Optional<AddressType> addressType = default)
+        string? firstName = default,
+        string? lastName = default,
+        string? address1 = default,
+        string? address2 = default,
+        string? city = default,
+        string? zipCode = default,
+        string? phone = default,
+        string? label = default,
+        bool? isDefault = default,
+        bool? isDefaultBilling = default,
+        bool? isDefaultShipping = default,
+        string? stateProvince = default,
+        string? countryCode = default,
+        string? stateCode = default,
+        string? countryName = default,
+        AddressType? addressType = default)
     {
-        if (firstName.HasValue)
+        if (firstName is not null)
         {
-            if (firstName.Value?.Length > AddressConstant.Constraints.MaxFirstNameLength)
+            if (firstName.Length > AddressConstant.Constraints.MaxFirstNameLength)
                 return AddressResult.Failure.FirstNameTooLong;
-            address.FirstName = firstName.Value!;
+            address.FirstName = firstName;
         }
 
-        if (lastName.HasValue)
+        if (lastName is not null)
         {
-            if (lastName.Value?.Length > AddressConstant.Constraints.MaxLastNameLength)
+            if (lastName.Length > AddressConstant.Constraints.MaxLastNameLength)
                 return AddressResult.Failure.LastNameTooLong;
-            address.LastName = lastName.Value;
+            address.LastName = lastName;
         }
 
-        if (address1.HasValue)
+        if (address1 is not null)
         {
-            if (address1.Value?.Length > AddressConstant.Constraints.MaxAddress1Length)
+            if (address1.Length > AddressConstant.Constraints.MaxAddress1Length)
                 return AddressResult.Failure.Address1TooLong;
-            address.Address1 = address1.Value!;
+            address.Address1 = address1;
         }
 
-        if (address2.HasValue)
+        if (address2 is not null)
         {
-            if (address2.Value?.Length > AddressConstant.Constraints.MaxAddress2Length)
+            if (address2.Length > AddressConstant.Constraints.MaxAddress2Length)
                 return AddressResult.Failure.Address2TooLong;
-            address.Address2 = address2.Value;
+            address.Address2 = address2;
         }
 
-        if (city.HasValue)
+        if (city is not null)
         {
-            if (city.Value?.Length > AddressConstant.Constraints.MaxCityLength)
+            if (city.Length > AddressConstant.Constraints.MaxCityLength)
                 return AddressResult.Failure.CityTooLong;
-            address.City = city.Value!;
+            address.City = city;
         }
 
-        if (zipCode.HasValue)
+        if (zipCode is not null)
         {
-            if (zipCode.Value?.Length > AddressConstant.Constraints.MaxZipCodeLength)
+            if (zipCode.Length > AddressConstant.Constraints.MaxZipCodeLength)
                 return AddressResult.Failure.ZipCodeTooLong;
-            address.ZipCode = zipCode.Value;
+            address.ZipCode = zipCode;
         }
 
-        if (phone.HasValue)
+        if (phone is not null)
         {
-            if (phone.Value?.Length > AddressConstant.Constraints.MaxPhoneLength)
+            if (phone.Length > AddressConstant.Constraints.MaxPhoneLength)
                 return AddressResult.Failure.PhoneTooLong;
-            address.Phone = phone.Value;
+            address.Phone = phone;
         }
 
-        if (label.HasValue)
+        if (label is not null)
         {
-            if (label.Value?.Length > AddressConstant.Constraints.MaxLabelLength)
+            if (label.Length > AddressConstant.Constraints.MaxLabelLength)
                 return AddressResult.Failure.LabelTooLong;
-            address.Label = label.Value;
+            address.Label = label;
         }
 
         if (isDefault.HasValue)
@@ -174,32 +174,32 @@ public static class AddressMethod
         if (isDefaultShipping.HasValue)
             address.IsDefaultShipping = isDefaultShipping.Value;
 
-        if (stateProvince.HasValue)
+        if (stateProvince is not null)
         {
-            if (stateProvince.Value?.Length > AddressConstant.Constraints.MaxStateProvinceLength)
+            if (stateProvince.Length > AddressConstant.Constraints.MaxStateProvinceLength)
                 return AddressResult.Failure.StateProvinceTooLong;
-            address.StateProvince = stateProvince.Value;
+            address.StateProvince = stateProvince;
         }
 
-        if (countryCode.HasValue)
+        if (countryCode is not null)
         {
-            if (countryCode.Value?.Length > AddressConstant.Constraints.MaxCountryCodeLength)
+            if (countryCode.Length > AddressConstant.Constraints.MaxCountryCodeLength)
                 return AddressResult.Failure.CountryCodeTooLong;
-            address.CountryCode = countryCode.Value;
+            address.CountryCode = countryCode;
         }
 
-        if (stateCode.HasValue)
+        if (stateCode is not null)
         {
-            if (stateCode.Value?.Length > AddressConstant.Constraints.MaxStateCodeLength)
+            if (stateCode.Length > AddressConstant.Constraints.MaxStateCodeLength)
                 return AddressResult.Failure.StateCodeTooLong;
-            address.StateCode = stateCode.Value;
+            address.StateCode = stateCode;
         }
 
-        if (countryName.HasValue)
+        if (countryName is not null)
         {
-            if (countryName.Value?.Length > AddressConstant.Constraints.MaxCountryNameLength)
+            if (countryName.Length > AddressConstant.Constraints.MaxCountryNameLength)
                 return AddressResult.Failure.CountryNameTooLong;
-            address.CountryName = countryName.Value!;
+            address.CountryName = countryName;
         }
 
         if (addressType.HasValue)

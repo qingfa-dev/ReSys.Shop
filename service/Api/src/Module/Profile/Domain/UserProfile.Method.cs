@@ -92,83 +92,83 @@ public static class UserProfileMethod
 
     public static Result<UserProfile> Update(
         this UserProfile profile,
-        Optional<string?> firstName = default,
-        Optional<string?> lastName = default,
-        Optional<string?> email = default,
-        Optional<string?> phoneNumber = default,
-        Optional<DateTimeOffset?> dateOfBirth = default,
-        Optional<string?> gender = default,
-        Optional<string?> bio = default,
-        Optional<string?> avatarUrl = default,
-        Optional<UserPreferences> preferences = default,
-        Optional<NotificationPreferences> notifications = default,
-        Optional<bool> acceptsEmailMarketing = default,
-        Optional<string?> internalNoteHtml = default,
-        Optional<Guid?> defaultBillingAddressId = default,
-        Optional<Guid?> defaultShippingAddressId = default)
+        string? firstName = default,
+        string? lastName = default,
+        string? email = default,
+        string? phoneNumber = default,
+        DateTimeOffset? dateOfBirth = default,
+        string? gender = default,
+        string? bio = default,
+        string? avatarUrl = default,
+        UserPreferences? preferences = default,
+        NotificationPreferences? notifications = default,
+        bool? acceptsEmailMarketing = default,
+        string? internalNoteHtml = default,
+        Guid? defaultBillingAddressId = default,
+        Guid? defaultShippingAddressId = default)
     {
-        if (firstName.HasValue)
+        if (firstName is not null)
         {
-            if (string.IsNullOrWhiteSpace(firstName.Value))
+            if (string.IsNullOrWhiteSpace(firstName))
                 return UserProfileResult.Failure.FirstNameRequired;
-            profile.FirstName = firstName.Value;
+            profile.FirstName = firstName;
         }
 
-        if (lastName.HasValue)
+        if (lastName is not null)
         {
-            if (string.IsNullOrWhiteSpace(lastName.Value))
+            if (string.IsNullOrWhiteSpace(lastName))
                 return UserProfileResult.Failure.LastNameRequired;
-            profile.LastName = lastName.Value;
+            profile.LastName = lastName;
         }
 
-        if (email.HasValue)
+        if (email is not null)
         {
-            if (string.IsNullOrWhiteSpace(email.Value))
+            if (string.IsNullOrWhiteSpace(email))
                 return UserProfileResult.Failure.EmailRequired;
-            profile.Email = email.Value;
+            profile.Email = email;
         }
 
-        if (phoneNumber.HasValue)
-            profile.PhoneNumber = phoneNumber.Value;
+        if (phoneNumber is not null)
+            profile.PhoneNumber = phoneNumber;
 
         if (dateOfBirth.HasValue)
             profile.DateOfBirth = dateOfBirth.Value;
 
-        if (gender.HasValue)
+        if (gender is not null)
         {
-            if (gender.Value?.Length > UserProfileConstant.Constraints.MaxGenderLength)
+            if (gender.Length > UserProfileConstant.Constraints.MaxGenderLength)
                 return UserProfileResult.Failure.GenderTooLong;
-            profile.Gender = gender.Value;
+            profile.Gender = gender;
         }
 
-        if (bio.HasValue)
+        if (bio is not null)
         {
-            if (bio.Value?.Length > UserProfileConstant.Constraints.MaxBioLength)
+            if (bio.Length > UserProfileConstant.Constraints.MaxBioLength)
                 return UserProfileResult.Failure.BioTooLong;
-            profile.Bio = bio.Value;
+            profile.Bio = bio;
         }
 
-        if (avatarUrl.HasValue)
+        if (avatarUrl is not null)
         {
-            if (avatarUrl.Value?.Length > UserProfileConstant.Constraints.MaxAvatarUrlLength)
+            if (avatarUrl.Length > UserProfileConstant.Constraints.MaxAvatarUrlLength)
                 return UserProfileResult.Failure.AvatarUrlTooLong;
-            profile.AvatarUrl = avatarUrl.Value;
+            profile.AvatarUrl = avatarUrl;
         }
 
-        if (preferences.HasValue)
-            profile.Preferences = preferences.Value;
+        if (preferences is not null)
+            profile.Preferences = preferences;
 
-        if (notifications.HasValue)
-            profile.Notifications = notifications.Value;
+        if (notifications is not null)
+            profile.Notifications = notifications;
 
         if (acceptsEmailMarketing.HasValue)
             profile.AcceptsEmailMarketing = acceptsEmailMarketing.Value;
 
-        if (internalNoteHtml.HasValue)
+        if (internalNoteHtml is not null)
         {
-            if (internalNoteHtml.Value?.Length > UserProfileConstant.Constraints.MaxInternalNoteLength)
+            if (internalNoteHtml.Length > UserProfileConstant.Constraints.MaxInternalNoteLength)
                 return UserProfileResult.Failure.InternalNoteTooLong;
-            profile.InternalNoteHtml = internalNoteHtml.Value;
+            profile.InternalNoteHtml = internalNoteHtml;
         }
 
         if (defaultBillingAddressId.HasValue)
