@@ -1,10 +1,10 @@
 using System.Net;
 
-using Module.Location.Features.Admin.Countries.Shared.Models;
-using Module.Location.Features.Admin.States.Shared.Models;
-
 using Api.Tests.Infrastructure;
 using Api.Tests.Infrastructure.Auth;
+
+using Module.Location.Features.Admin.Countries.Shared.Models;
+using Module.Location.Features.Admin.States.Shared.Models;
 
 namespace Api.Tests.Scenarios.Location.Admin.States.Create;
 

@@ -1,5 +1,3 @@
-using Microsoft.EntityFrameworkCore;
-
 using Module.Location.Domain.Countries;
 using Module.Location.Domain.States;
 using Module.Location.Features.Admin.States.Update;
@@ -9,7 +7,7 @@ using Shared.Operational.Persistence.Data;
 namespace Module.UnitTests.Location.Features.Admin.States.Update;
 
 [Trait("Category", "Unit")]
-[Trait("Module", "Locations")]
+[Trait("Module", "Location")]
 [Trait("Feature", "StateUpdate")]
 public class UpdateStateTests : IDisposable
 {
@@ -79,7 +77,7 @@ public class UpdateStateTests : IDisposable
             TestContext.Current.CancellationToken);
 
         result.IsFailure.Should().BeTrue();
-        result.Errors[0].Code.Should().Be(StateResult.Errors.NotFound.Code);
+        result.Errors[0].Code.Should().Be(StateResult.Failure.NotFound.Code);
     }
 
     [Fact(DisplayName = "Should return CountryNotFound when country doesn't exist")]
@@ -98,7 +96,7 @@ public class UpdateStateTests : IDisposable
             TestContext.Current.CancellationToken);
 
         result.IsFailure.Should().BeTrue();
-        result.Errors[0].Code.Should().Be(StateResult.Errors.CountryNotFound.Code);
+        result.Errors[0].Code.Should().Be(StateResult.Failure.CountryNotFound.Code);
     }
 
     [Fact(DisplayName = "Should return duplicate error when Abbreviation belongs to another state in same country")]
@@ -118,7 +116,7 @@ public class UpdateStateTests : IDisposable
             TestContext.Current.CancellationToken);
 
         result.IsFailure.Should().BeTrue();
-        result.Errors[0].Code.Should().Be(StateResult.Errors.AbbreviationDuplicate.Code);
+        result.Errors[0].Code.Should().Be(StateResult.Failure.AbbreviationDuplicate.Code);
     }
 
     [Fact(DisplayName = "Should allow same Abbreviation (current state unchanged)")]

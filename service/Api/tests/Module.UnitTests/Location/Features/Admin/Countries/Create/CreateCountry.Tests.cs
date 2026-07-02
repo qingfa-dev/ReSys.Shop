@@ -1,5 +1,3 @@
-using Microsoft.EntityFrameworkCore;
-
 using Module.Location.Domain.Countries;
 using Module.Location.Features.Admin.Countries.Create;
 
@@ -8,7 +6,7 @@ using Shared.Operational.Persistence.Data;
 namespace Module.UnitTests.Location.Features.Admin.Countries.Create;
 
 [Trait("Category", "Unit")]
-[Trait("Module", "Locations")]
+[Trait("Module", "Location")]
 [Trait("Feature", "CountryCreate")]
 public class CreateCountryTests : IDisposable
 {
@@ -75,7 +73,7 @@ public class CreateCountryTests : IDisposable
 
         // Assert
         result.IsFailure.Should().BeTrue();
-        result.Errors[0].Code.Should().Be(CountryResult.Errors.IsoCodeDuplicate.Code);
+        result.Errors[0].Code.Should().Be(CountryResult.Failure.IsoCodeDuplicate.Code);
     }
 
     [Fact(DisplayName = "Should set CreatedAt timestamp")]

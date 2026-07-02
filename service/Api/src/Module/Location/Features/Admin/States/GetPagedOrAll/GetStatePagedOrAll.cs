@@ -1,11 +1,8 @@
-using Shared.Operational.Persistence.Specifications.Querying;
-using Shared.Operational.Persistence.Data;
-
 using Module.Location.Domain.States;
 using Module.Location.Features.Admin.States.Shared.Mappings;
 
 using Shared.Operational.Persistence.Specifications.Paging.Extensions;
-using Microsoft.EntityFrameworkCore;
+using Shared.Operational.Persistence.Specifications.Querying;
 
 namespace Module.Location.Features.Admin.States.GetPagedOrAll;
 

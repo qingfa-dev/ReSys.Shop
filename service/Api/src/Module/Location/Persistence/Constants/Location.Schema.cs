@@ -7,7 +7,7 @@ namespace Module.Location.Persistence.Constants;
 
 public static class LocationSchema
 {
-    public static string Name => "Locations".ToSnakeCase()!;
+    public static string Name => "Location".ToSnakeCase()!;
 
     public static class TableNames
     {

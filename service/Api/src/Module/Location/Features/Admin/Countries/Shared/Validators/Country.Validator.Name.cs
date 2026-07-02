@@ -9,10 +9,10 @@ public static partial class CountryValidator
     {
         return ruleBuilder
             .NotEmpty()
-            .WithErrorCode(errorCode: CountryResult.Errors.NameRequired.Code)
-            .WithMessage(errorMessage: CountryResult.Errors.NameRequired.Message)
+            .WithErrorCode(errorCode: CountryResult.Failure.NameRequired.Code)
+            .WithMessage(errorMessage: CountryResult.Failure.NameRequired.Message)
             .MaximumLength(maximumLength: CountryConstant.Constraints.MaxNameLength)
-            .WithErrorCode(errorCode: CountryResult.Errors.NameTooLong.Code)
-            .WithMessage(errorMessage: CountryResult.Errors.NameTooLong.Message);
+            .WithErrorCode(errorCode: CountryResult.Failure.NameTooLong.Code)
+            .WithMessage(errorMessage: CountryResult.Failure.NameTooLong.Message);
     }
 }

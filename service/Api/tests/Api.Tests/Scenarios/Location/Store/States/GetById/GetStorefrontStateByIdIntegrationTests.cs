@@ -4,7 +4,7 @@ using Api.Tests.Infrastructure;
 
 using Module.Location.Features.Admin.States.Shared.Models;
 
-namespace Api.Tests.Scenarios.Locations.Store.States.GetById;
+namespace Api.Tests.Scenarios.Location.Store.States.GetById;
 
 public sealed class GetStorefrontStateByIdIntegrationTests(ApiFixture fixture) : ApiIntegrationTestBase(fixture)
 {

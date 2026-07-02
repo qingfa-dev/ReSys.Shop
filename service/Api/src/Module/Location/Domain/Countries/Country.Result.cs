@@ -19,7 +19,7 @@ public static class CountryResult
 
     // Errors
     /// <summary>Domain error definitions for Country operations.</summary>
-    public static class Errors
+    public static class Failure
     {
         // Check: Predefined failures for common country-related error scenarios
         /// <summary>Country not found by the specified identifier.</summary>

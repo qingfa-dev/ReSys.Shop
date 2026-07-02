@@ -1,4 +1,3 @@
-using FluentValidation;
 using FluentValidation.TestHelper;
 
 using Module.Location.Domain.States;
@@ -7,7 +6,7 @@ using Module.Location.Features.Admin.States.Shared.Validators;
 namespace Module.UnitTests.Location.Features.Admin.States.Shared.Validations;
 
 [Trait("Category", "Unit")]
-[Trait("Module", "Locations")]
+[Trait("Module", "Location")]
 [Trait("Feature", "Validators")]
 public class StateAbbreviationValidationsTests
 {
@@ -32,7 +31,7 @@ public class StateAbbreviationValidationsTests
         var result = validator.TestValidate(new TestModel { Abbreviation = abbreviation });
 
         result.ShouldHaveValidationErrorFor(x => x.Abbreviation)
-            .WithErrorCode(StateResult.Errors.AbbreviationRequired.Code);
+            .WithErrorCode(StateResult.Failure.AbbreviationRequired.Code);
     }
 
     [Fact(DisplayName = "Validator: Should fail when abbreviation is null")]
@@ -42,7 +41,7 @@ public class StateAbbreviationValidationsTests
         var result = validator.TestValidate(new TestModel { Abbreviation = null });
 
         result.ShouldHaveValidationErrorFor(x => x.Abbreviation)
-            .WithErrorCode(StateResult.Errors.AbbreviationRequired.Code);
+            .WithErrorCode(StateResult.Failure.AbbreviationRequired.Code);
     }
 
     [Fact(DisplayName = "Validator: Should fail when abbreviation exceeds max length")]
@@ -53,7 +52,7 @@ public class StateAbbreviationValidationsTests
         var result = validator.TestValidate(new TestModel { Abbreviation = longAbbreviation });
 
         result.ShouldHaveValidationErrorFor(x => x.Abbreviation)
-            .WithErrorCode(StateResult.Errors.AbbreviationTooLong.Code);
+            .WithErrorCode(StateResult.Failure.AbbreviationTooLong.Code);
     }
 
     [Theory(DisplayName = "Validator: Should pass with valid abbreviation")]

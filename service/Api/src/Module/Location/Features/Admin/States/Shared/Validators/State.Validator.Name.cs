@@ -9,10 +9,10 @@ public static partial class StateValidator
     {
         return ruleBuilder
             .NotEmpty()
-            .WithErrorCode(errorCode: StateResult.Errors.NameRequired.Code)
-            .WithMessage(errorMessage: StateResult.Errors.NameRequired.Message)
+            .WithErrorCode(errorCode: StateResult.Failure.NameRequired.Code)
+            .WithMessage(errorMessage: StateResult.Failure.NameRequired.Message)
             .MaximumLength(maximumLength: StateConstant.Constraints.MaxNameLength)
-            .WithErrorCode(errorCode: StateResult.Errors.NameTooLong.Code)
-            .WithMessage(errorMessage: StateResult.Errors.NameTooLong.Message);
+            .WithErrorCode(errorCode: StateResult.Failure.NameTooLong.Code)
+            .WithMessage(errorMessage: StateResult.Failure.NameTooLong.Message);
     }
 }

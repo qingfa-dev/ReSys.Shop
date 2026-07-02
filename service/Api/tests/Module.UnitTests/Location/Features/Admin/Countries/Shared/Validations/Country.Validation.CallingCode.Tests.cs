@@ -1,4 +1,3 @@
-using FluentValidation;
 using FluentValidation.TestHelper;
 
 using Module.Location.Domain.Countries;
@@ -7,7 +6,7 @@ using Module.Location.Features.Admin.Countries.Shared.Validators;
 namespace Module.UnitTests.Location.Features.Admin.Countries.Shared.Validations;
 
 [Trait("Category", "Unit")]
-[Trait("Module", "Locations")]
+[Trait("Module", "Location")]
 [Trait("Feature", "Validators")]
 public class CountryCallingCodeValidationsTests
 {
@@ -50,7 +49,7 @@ public class CountryCallingCodeValidationsTests
         var result = validator.TestValidate(new TestModel { CallingCode = longCallingCode });
 
         result.ShouldHaveValidationErrorFor(x => x.CallingCode)
-            .WithErrorCode(CountryResult.Errors.CallingCodeTooLong.Code);
+            .WithErrorCode(CountryResult.Failure.CallingCodeTooLong.Code);
     }
 
     [Theory(DisplayName = "Validator: Should pass with valid calling code")]

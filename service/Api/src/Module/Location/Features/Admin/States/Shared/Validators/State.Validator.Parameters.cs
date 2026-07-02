@@ -12,8 +12,8 @@ public static partial class StateValidator
             RuleFor(expression: x => x.Name).ApplyStateNameRules();
             RuleFor(expression: x => x.Abbreviation).ApplyStateAbbreviationRules();
             RuleFor(expression: x => x.CountryId).NotEmpty()
-                .WithErrorCode(errorCode: StateResult.Errors.CountryRequired.Code)
-                .WithMessage(errorMessage: StateResult.Errors.CountryRequired.Message);
+                .WithErrorCode(errorCode: StateResult.Failure.CountryRequired.Code)
+                .WithMessage(errorMessage: StateResult.Failure.CountryRequired.Message);
         }
     }
 

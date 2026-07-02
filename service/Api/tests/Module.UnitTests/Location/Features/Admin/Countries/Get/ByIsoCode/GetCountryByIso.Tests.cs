@@ -1,5 +1,3 @@
-using Microsoft.EntityFrameworkCore;
-
 using Module.Location.Domain.Countries;
 using Module.Location.Features.Admin.Countries.GetByIsoCode;
 
@@ -8,7 +6,7 @@ using Shared.Operational.Persistence.Data;
 namespace Module.UnitTests.Location.Features.Admin.Countries.Get.ByIsoCode;
 
 [Trait("Category", "Unit")]
-[Trait("Module", "Locations")]
+[Trait("Module", "Location")]
 [Trait("Feature", "CountryGetByIsoCode")]
 public class GetCountryByIsoTests : IDisposable
 {
@@ -66,7 +64,7 @@ public class GetCountryByIsoTests : IDisposable
 
         // Assert
         result.IsFailure.Should().BeTrue();
-        result.Errors[0].Code.Should().Be(CountryResult.Errors.NotFound.Code);
+        result.Errors[0].Code.Should().Be(CountryResult.Failure.NotFound.Code);
     }
 
     [Fact(DisplayName = "Should return correct country when multiple exist")]

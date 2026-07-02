@@ -1,4 +1,3 @@
-using FluentValidation;
 using FluentValidation.TestHelper;
 
 using Module.Location.Features.Admin.Countries.Shared.Validators;
@@ -9,7 +8,7 @@ using CountryResult = Module.Location.Domain.Countries.CountryResult;
 namespace Module.UnitTests.Location.Features.Admin.Countries.Shared.Validations;
 
 [Trait("Category", "Unit")]
-[Trait("Module", "Locations")]
+[Trait("Module", "Location")]
 [Trait("Feature", "Validators")]
 public class CountryNameValidationsTests
 {
@@ -34,7 +33,7 @@ public class CountryNameValidationsTests
         var result = validator.TestValidate(new TestModel { Name = name });
 
         result.ShouldHaveValidationErrorFor(x => x.Name)
-            .WithErrorCode(CountryResult.Errors.NameRequired.Code);
+            .WithErrorCode(CountryResult.Failure.NameRequired.Code);
     }
 
     [Fact(DisplayName = "Validator: Should fail when country name is null")]
@@ -44,7 +43,7 @@ public class CountryNameValidationsTests
         var result = validator.TestValidate(new TestModel { Name = null });
 
         result.ShouldHaveValidationErrorFor(x => x.Name)
-            .WithErrorCode(CountryResult.Errors.NameRequired.Code);
+            .WithErrorCode(CountryResult.Failure.NameRequired.Code);
     }
 
     [Fact(DisplayName = "Validator: Should fail when country name exceeds max length")]
@@ -55,7 +54,7 @@ public class CountryNameValidationsTests
         var result = validator.TestValidate(new TestModel { Name = longName });
 
         result.ShouldHaveValidationErrorFor(x => x.Name)
-            .WithErrorCode(CountryResult.Errors.NameTooLong.Code);
+            .WithErrorCode(CountryResult.Failure.NameTooLong.Code);
     }
 
     [Theory(DisplayName = "Validator: Should pass with valid country name")]

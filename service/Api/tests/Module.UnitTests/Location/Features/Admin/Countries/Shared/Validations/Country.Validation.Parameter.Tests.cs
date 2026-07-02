@@ -9,7 +9,7 @@ using CountryResult = Module.Location.Domain.Countries.CountryResult;
 namespace Module.UnitTests.Location.Features.Admin.Countries.Shared.Validations;
 
 [Trait("Category", "Unit")]
-[Trait("Module", "Locations")]
+[Trait("Module", "Location")]
 [Trait("Feature", "Validators")]
 public class CountryParametersValidatorTests
 {
@@ -20,7 +20,7 @@ public class CountryParametersValidatorTests
         var result = validator.TestValidate(new CountryRequest { Name = string.Empty });
 
         result.ShouldHaveValidationErrorFor(x => x.Name)
-            .WithErrorCode(CountryResult.Errors.NameRequired.Code);
+            .WithErrorCode(CountryResult.Failure.NameRequired.Code);
     }
 
     [Fact(DisplayName = "Validator: Should fail when Name is null")]
@@ -30,7 +30,7 @@ public class CountryParametersValidatorTests
         var result = validator.TestValidate(new CountryRequest { Name = null! });
 
         result.ShouldHaveValidationErrorFor(x => x.Name)
-            .WithErrorCode(CountryResult.Errors.NameRequired.Code);
+            .WithErrorCode(CountryResult.Failure.NameRequired.Code);
     }
 
     [Fact(DisplayName = "Validator: Should fail when Name exceeds 100 characters")]
@@ -41,7 +41,7 @@ public class CountryParametersValidatorTests
         var result = validator.TestValidate(new CountryRequest { Name = longName });
 
         result.ShouldHaveValidationErrorFor(x => x.Name)
-            .WithErrorCode(CountryResult.Errors.NameTooLong.Code);
+            .WithErrorCode(CountryResult.Failure.NameTooLong.Code);
     }
 
     [Fact(DisplayName = "Validator: Should fail when IsoCode is empty")]
@@ -51,7 +51,7 @@ public class CountryParametersValidatorTests
         var result = validator.TestValidate(new CountryRequest { Name = "Test Country", IsoCode = string.Empty });
 
         result.ShouldHaveValidationErrorFor(x => x.IsoCode)
-            .WithErrorCode(CountryResult.Errors.IsoCodeRequired.Code);
+            .WithErrorCode(CountryResult.Failure.IsoCodeRequired.Code);
     }
 
     [Fact(DisplayName = "Validator: Should fail when IsoCode is null")]
@@ -61,7 +61,7 @@ public class CountryParametersValidatorTests
         var result = validator.TestValidate(new CountryRequest { Name = "Test Country", IsoCode = null! });
 
         result.ShouldHaveValidationErrorFor(x => x.IsoCode)
-            .WithErrorCode(CountryResult.Errors.IsoCodeRequired.Code);
+            .WithErrorCode(CountryResult.Failure.IsoCodeRequired.Code);
     }
 
     [Fact(DisplayName = "Validator: Should fail when IsoCode exceeds 3 characters")]
@@ -72,7 +72,7 @@ public class CountryParametersValidatorTests
         var result = validator.TestValidate(new CountryRequest { Name = "Test Country", IsoCode = longIsoCode });
 
         result.ShouldHaveValidationErrorFor(x => x.IsoCode)
-            .WithErrorCode(CountryResult.Errors.IsoCodeTooLong.Code);
+            .WithErrorCode(CountryResult.Failure.IsoCodeTooLong.Code);
     }
 
     [Fact(DisplayName = "Validator: Should fail when CallingCode exceeds 10 characters")]
@@ -83,7 +83,7 @@ public class CountryParametersValidatorTests
         var result = validator.TestValidate(new CountryRequest { Name = "Test Country", IsoCode = "TC", CallingCode = longCallingCode });
 
         result.ShouldHaveValidationErrorFor(x => x.CallingCode)
-            .WithErrorCode(CountryResult.Errors.CallingCodeTooLong.Code);
+            .WithErrorCode(CountryResult.Failure.CallingCodeTooLong.Code);
     }
 
     [Theory(DisplayName = "Validator: Should pass with valid CountryParameters")]

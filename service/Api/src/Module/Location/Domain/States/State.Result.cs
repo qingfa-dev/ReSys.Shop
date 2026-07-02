@@ -13,7 +13,7 @@ public static class StateResult
     }
 
     // Errors
-    public static class Errors
+    public static class Failure
     {
         // Check: Predefined failures for common state-related error scenarios
         public static Error NotFound => Error.NotFound(

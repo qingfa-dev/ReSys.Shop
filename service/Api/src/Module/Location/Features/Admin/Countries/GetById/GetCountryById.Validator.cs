@@ -11,8 +11,8 @@ public static partial class GetCountryById
         {
             RuleFor(expression: x => x.Id)
                 .NotEmpty()
-                .WithErrorCode(errorCode: CountryResult.Errors.IdRequired.Code)
-                .WithMessage(errorMessage: CountryResult.Errors.IdRequired.Message);
+                .WithErrorCode(errorCode: CountryResult.Failure.IdRequired.Code)
+                .WithMessage(errorMessage: CountryResult.Failure.IdRequired.Message);
         }
     }
 }

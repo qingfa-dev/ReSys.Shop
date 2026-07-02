@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Locations Domain Documentation / Purpose: Geographic locations DDD domain — Countries, States / Version: 1.0.0 / Status: Production / Schema: 1.0 / Updated: 2026-05-22 -->
+<!-- Location Domain Documentation / Purpose: Geographic locations DDD domain — Countries, States / Version: 1.0.0 / Status: Production / Schema: 1.0 / Updated: 2026-05-22 -->
 <BuildingBlockModule id="locations-domain" name="Module.Location.Domain" version="1.0.0" status="stable" schema-version="1.0">
-  <ModuleMeta><Name>Locations Domain</Name><Description>Geographic locations DDD domain: Countries with ISO alpha-2/3 codes and display names, States with country reference and abbreviation. Supports both admin CRUD and storefront queries with ISO code lookups.</Description><Category>DDD · Locations</Category><Stability>Stable</Stability><Dependencies><Dependency name="BuildingBlocks.Domain" version="1.0.0"/></Dependencies></ModuleMeta>
+  <ModuleMeta><Name>Location Domain</Name><Description>Geographic locations DDD domain: Countries with ISO alpha-2/3 codes and display names, States with country reference and abbreviation. Supports both admin CRUD and storefront queries with ISO code lookups.</Description><Category>DDD · Location</Category><Stability>Stable</Stability><Dependencies><Dependency name="BuildingBlocks.Domain" version="1.0.0"/></Dependencies></ModuleMeta>
   <Principles><Principle id="P1" name="ISO Standard Compliance"><Description>Countries and states follow ISO 3166 standards for codes and abbreviations.</Description><Rationale>Ensures interoperability with shipping, tax, and address validation systems.</Rationale></Principle><Principle id="P2" name="Country as Aggregate Root"><Description>Country is the aggregate root; states exist only within a country context.</Description><Rationale>States have no independent existence outside their parent country.</Rationale></Principle></Principles>
   <Features><Feature id="F1" name="Countries" type="core"><Description>Country aggregate with ISO alpha-2/3 codes, display name, and associated states.</Description></Feature><Feature id="F2" name="States" type="core"><Description>State/province by country reference with abbreviation and ISO code.</Description></Feature></Features>
   <AbstractionsCatalog>
@@ -11,5 +11,5 @@
     </Category>
   </AbstractionsCatalog>
   <AntiPatterns><AntiPattern id="AP1" name="Free-Text Country" severity="medium"><Avoid>Using free-text strings for country references instead of CountryId foreign keys.</Avoid><BetterApproach>Use CountryId FK for data consistency and referential integrity.</BetterApproach></AntiPattern></AntiPatterns>
-  <FileStructure>Locations/Domain/ → Countries/ | States/ | README.xml</FileStructure>
+  <FileStructure>Location/Domain/ → Countries/ | States/ | README.xml</FileStructure>
 </BuildingBlockModule>

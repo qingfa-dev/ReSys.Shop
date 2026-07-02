@@ -1,10 +1,6 @@
 using Module.Location.Domain.States;
 using Module.Location.Features.Admin.States.Shared.Mappings;
 
-using Shared.Operational.Persistence.Data;
-
-using Microsoft.EntityFrameworkCore;
-
 namespace Module.Location.Features.Store.States.GetByIsoCode;
 
 /// <summary>Handles retrieval of a state by ISO code for storefront.</summary>
@@ -29,7 +25,7 @@ public static partial class GetStorefrontStateByIso
                     s.Abbreviation == request.IsoCode, cancellationToken: cancellationToken);
 
             if (entity is null)
-                return StateResult.Errors.NotFound;
+                return StateResult.Failure.NotFound;
 
             // Map: Return the state as response.
             return entity.MapToDetail<Response>();

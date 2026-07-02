@@ -1,5 +1,3 @@
-using Microsoft.EntityFrameworkCore;
-
 using Module.Location.Domain.Countries;
 using Module.Location.Features.Admin.Countries.GetPagedOrAll;
 
@@ -8,7 +6,7 @@ using Shared.Operational.Persistence.Data;
 namespace Module.UnitTests.Location.Features.Admin.Countries.Get.PagedOrAll;
 
 [Trait("Category", "Unit")]
-[Trait("Module", "Locations")]
+[Trait("Module", "Location")]
 [Trait("Feature", "CountryPagedOrAll")]
 public class GetCountryPagedOrAllTests : IDisposable
 {

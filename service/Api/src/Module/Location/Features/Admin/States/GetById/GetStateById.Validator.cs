@@ -10,8 +10,8 @@ public static partial class GetStateById
         {
             RuleFor(expression: x => x.Id)
                 .NotEmpty()
-                .WithErrorCode(errorCode: StateResult.Errors.IdRequired.Code)
-                .WithMessage(errorMessage: StateResult.Errors.IdRequired.Message);
+                .WithErrorCode(errorCode: StateResult.Failure.IdRequired.Code)
+                .WithMessage(errorMessage: StateResult.Failure.IdRequired.Message);
         }
     }
 }

@@ -19,9 +19,9 @@ public static class CountryExtensions
     {
         // Validate: Country name and ISO codes are required
         if (string.IsNullOrWhiteSpace(value: name))
-            return CountryResult.Errors.NameRequired;
+            return CountryResult.Failure.NameRequired;
         if (string.IsNullOrWhiteSpace(value: isoCode))
-            return CountryResult.Errors.IsoCodeRequired;
+            return CountryResult.Failure.IsoCodeRequired;
 
         var country = new Country
         {
@@ -69,7 +69,7 @@ public static class CountryExtensions
         if (!country.IsActive) return Result.Ok();
         // Enforce: Cannot deactivate country with active states
         if (country.States?.Any(predicate: s => s.IsActive) == true)
-            return CountryResult.Errors.HasActiveStates;
+            return CountryResult.Failure.HasActiveStates;
         country.IsActive = false;
         AuditableBehavior.Touch(entity: country);
         return Result.Ok();

@@ -1,10 +1,6 @@
 using Module.Location.Domain.Countries;
 using Module.Location.Domain.States;
 
-using Shared.Operational.Persistence.Data;
-
-using Microsoft.EntityFrameworkCore;
-
 namespace Module.Location.Persistence.Seeders;
 
 /// <summary>Seeds default state data into the database.</summary>

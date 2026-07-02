@@ -1,7 +1,5 @@
 using Module.Location.Domain.Countries;
 
-using Shared.Operational.Persistence.Data;
-
 namespace Module.Location.Persistence.Seeders;
 
 /// <summary>Seeds default country data into the database.</summary>

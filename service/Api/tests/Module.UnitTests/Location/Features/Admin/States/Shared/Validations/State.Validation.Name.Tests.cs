@@ -1,4 +1,3 @@
-using FluentValidation;
 using FluentValidation.TestHelper;
 
 using Module.Location.Domain.States;
@@ -7,7 +6,7 @@ using Module.Location.Features.Admin.States.Shared.Validators;
 namespace Module.UnitTests.Location.Features.Admin.States.Shared.Validations;
 
 [Trait("Category", "Unit")]
-[Trait("Module", "Locations")]
+[Trait("Module", "Location")]
 [Trait("Feature", "Validators")]
 public class StateNameValidationsTests
 {
@@ -31,7 +30,7 @@ public class StateNameValidationsTests
         var result = validator.TestValidate(new TestModel { Name = null });
 
         result.ShouldHaveValidationErrorFor(x => x.Name)
-            .WithErrorCode(StateResult.Errors.NameRequired.Code);
+            .WithErrorCode(StateResult.Failure.NameRequired.Code);
     }
 
     [Theory(DisplayName = "Validator: Should fail when state name is empty")]
@@ -43,7 +42,7 @@ public class StateNameValidationsTests
         var result = validator.TestValidate(new TestModel { Name = name });
 
         result.ShouldHaveValidationErrorFor(x => x.Name)
-            .WithErrorCode(StateResult.Errors.NameRequired.Code);
+            .WithErrorCode(StateResult.Failure.NameRequired.Code);
     }
 
     [Fact(DisplayName = "Validator: Should fail when state name exceeds max length")]
@@ -54,7 +53,7 @@ public class StateNameValidationsTests
         var result = validator.TestValidate(new TestModel { Name = longName });
 
         result.ShouldHaveValidationErrorFor(x => x.Name)
-            .WithErrorCode(StateResult.Errors.NameTooLong.Code);
+            .WithErrorCode(StateResult.Failure.NameTooLong.Code);
     }
 
     [Theory(DisplayName = "Validator: Should pass with valid state name")]

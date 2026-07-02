@@ -6,7 +6,7 @@ using Module.Location.Features.Admin.States.Shared.Models;
 namespace Module.UnitTests.Location.Features.Admin.States.Shared.Mappings;
 
 [Trait("Category", "Unit")]
-[Trait("Module", "Locations")]
+[Trait("Module", "Location")]
 [Trait("Feature", "Mappings")]
 public class StateModelMappingTests
 {

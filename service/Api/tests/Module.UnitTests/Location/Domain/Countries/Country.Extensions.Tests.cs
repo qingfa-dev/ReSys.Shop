@@ -3,7 +3,7 @@ using Module.Location.Domain.Countries;
 namespace Module.UnitTests.Location.Domain.Countries;
 
 [Trait("Category", "Unit")]
-[Trait("Module", "Locations")]
+[Trait("Module", "Location")]
 [Trait("Entity", "Country")]
 public class CountryExtensionsTests
 {
@@ -37,7 +37,7 @@ public class CountryExtensionsTests
         var result = CountryExtensions.Create(name!, "US", "USA", "United States of America");
 
         result.IsFailure.Should().BeTrue();
-        result.Errors[0].Should().Be(CountryResult.Errors.NameRequired);
+        result.Errors[0].Should().Be(CountryResult.Failure.NameRequired);
     }
 
     [Theory(DisplayName = "Create: Should fail when ISO code is empty")]
@@ -49,7 +49,7 @@ public class CountryExtensionsTests
         var result = CountryExtensions.Create("United States", isoCode!, "USA", "United States of America");
 
         result.IsFailure.Should().BeTrue();
-        result.Errors[0].Should().Be(CountryResult.Errors.IsoCodeRequired);
+        result.Errors[0].Should().Be(CountryResult.Failure.IsoCodeRequired);
     }
 
     [Fact(DisplayName = "Create: Should use default values for optional parameters")]
@@ -148,7 +148,7 @@ public class CountryExtensionsTests
         var result = country.Deactivate();
 
         result.IsFailure.Should().BeTrue();
-        result.Errors[0].Should().Be(CountryResult.Errors.HasActiveStates);
+        result.Errors[0].Should().Be(CountryResult.Failure.HasActiveStates);
         country.IsActive.Should().BeTrue();
     }
 

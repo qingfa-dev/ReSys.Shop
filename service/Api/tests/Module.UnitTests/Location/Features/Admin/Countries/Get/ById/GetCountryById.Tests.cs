@@ -1,5 +1,3 @@
-using Microsoft.EntityFrameworkCore;
-
 using Module.Location.Domain.Countries;
 using Module.Location.Features.Admin.Countries.GetById;
 
@@ -8,7 +6,7 @@ using Shared.Operational.Persistence.Data;
 namespace Module.UnitTests.Location.Features.Admin.Countries.Get.ById;
 
 [Trait("Category", "Unit")]
-[Trait("Module", "Locations")]
+[Trait("Module", "Location")]
 [Trait("Feature", "CountryGetById")]
 public class GetCountryByIdTests : IDisposable
 {
@@ -65,7 +63,7 @@ public class GetCountryByIdTests : IDisposable
 
         // Assert
         result.IsFailure.Should().BeTrue();
-        result.Errors[0].Code.Should().Be(CountryResult.Errors.NotFound.Code);
+        result.Errors[0].Code.Should().Be(CountryResult.Failure.NotFound.Code);
     }
 
     [Fact(DisplayName = "Should return correct country from multiple")]

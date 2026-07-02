@@ -3,7 +3,7 @@ using Module.Location.Persistence.Constants;
 namespace Module.UnitTests.Location.Persistence.Constants;
 
 [Trait("Category", "Unit")]
-[Trait("Module", "Locations")]
+[Trait("Module", "Location")]
 [Trait("Feature", "Schema")]
 public class LocationSchemaTests
 {
@@ -22,7 +22,7 @@ public class LocationSchemaTests
         [Fact]
         public void ShouldUseToSnakeCase()
         {
-            LocationSchema.Name.Should().Be("locations");
+            LocationSchema.Name.Should().Be("location");
         }
     }
 }

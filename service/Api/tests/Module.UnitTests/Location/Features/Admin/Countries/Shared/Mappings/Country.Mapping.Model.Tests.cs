@@ -5,7 +5,7 @@ using Module.Location.Features.Admin.Countries.Shared.Models;
 namespace Module.UnitTests.Location.Features.Admin.Countries.Shared.Mappings;
 
 [Trait("Category", "Unit")]
-[Trait("Module", "Locations")]
+[Trait("Module", "Location")]
 [Trait("Feature", "Mappings")]
 public class CountryModelMappingTests
 {

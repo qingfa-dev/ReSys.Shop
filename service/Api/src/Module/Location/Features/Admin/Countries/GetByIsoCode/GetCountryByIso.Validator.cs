@@ -11,11 +11,11 @@ public static partial class GetCountryByIso
         {
             RuleFor(expression: x => x.IsoCode)
                 .NotEmpty()
-                .WithErrorCode(errorCode: CountryResult.Errors.IsoCodeRequired.Code)
-                .WithMessage(errorMessage: CountryResult.Errors.IsoCodeRequired.Message)
+                .WithErrorCode(errorCode: CountryResult.Failure.IsoCodeRequired.Code)
+                .WithMessage(errorMessage: CountryResult.Failure.IsoCodeRequired.Message)
                 .MaximumLength(maximumLength: CountryConstant.Constraints.MaxIsoCodeLength)
-                .WithErrorCode(errorCode: CountryResult.Errors.IsoCodeTooLong.Code)
-                .WithMessage(errorMessage: CountryResult.Errors.IsoCodeTooLong.Message);
+                .WithErrorCode(errorCode: CountryResult.Failure.IsoCodeTooLong.Code)
+                .WithMessage(errorMessage: CountryResult.Failure.IsoCodeTooLong.Message);
         }
     }
 }

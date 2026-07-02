@@ -9,7 +9,7 @@ public static partial class CountryValidator
     {
         return ruleBuilder
             .MaximumLength(maximumLength: CountryConstant.Constraints.MaxCallingCodeLength)
-            .WithErrorCode(errorCode: CountryResult.Errors.CallingCodeTooLong.Code)
-            .WithMessage(errorMessage: CountryResult.Errors.CallingCodeTooLong.Message);
+            .WithErrorCode(errorCode: CountryResult.Failure.CallingCodeTooLong.Code)
+            .WithMessage(errorMessage: CountryResult.Failure.CallingCodeTooLong.Message);
     }
 }

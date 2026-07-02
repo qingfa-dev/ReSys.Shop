@@ -1,10 +1,6 @@
 using Module.Location.Domain.Countries;
 using Module.Location.Features.Admin.Countries.Shared.Mappings;
 
-using Shared.Operational.Persistence.Data;
-
-using Microsoft.EntityFrameworkCore;
-
 namespace Module.Location.Features.Admin.Countries.Update;
 
 /// <summary>Handles update of an existing country.</summary>
@@ -32,7 +28,7 @@ public static partial class UpdateCountry
                 .FirstOrDefaultAsync(predicate: c => c.Id == command.Id, cancellationToken: cancellationToken);
 
             if (country is null)
-                return CountryResult.Errors.NotFound;
+                return CountryResult.Failure.NotFound;
 
             // Validate: No duplicate ISO code with another country (case-insensitive).
             var duplicateCountry = await dbContext.Set<Country>()
@@ -41,7 +37,7 @@ public static partial class UpdateCountry
                     c.Id != command.Id, cancellationToken: cancellationToken);
 
             if (duplicateCountry is not null)
-                return CountryResult.Errors.IsoCodeDuplicate;
+                return CountryResult.Failure.IsoCodeDuplicate;
 
             // Update: Apply request data to country entity.
             request.MapToDomain(country: country);

@@ -1,5 +1,3 @@
-using Microsoft.EntityFrameworkCore;
-
 using Module.Location.Domain.Countries;
 using Module.Location.Features.Admin.Countries.Update;
 
@@ -8,7 +6,7 @@ using Shared.Operational.Persistence.Data;
 namespace Module.UnitTests.Location.Features.Admin.Countries.Update;
 
 [Trait("Category", "Unit")]
-[Trait("Module", "Locations")]
+[Trait("Module", "Location")]
 [Trait("Feature", "CountryUpdate")]
 public class UpdateCountryTests : IDisposable
 {
@@ -72,7 +70,7 @@ public class UpdateCountryTests : IDisposable
 
         // Assert
         result.IsFailure.Should().BeTrue();
-        result.Errors[0].Code.Should().Be(CountryResult.Errors.NotFound.Code);
+        result.Errors[0].Code.Should().Be(CountryResult.Failure.NotFound.Code);
     }
 
     [Fact(DisplayName = "Should return duplicate error when IsoCode belongs to another country")]
@@ -94,7 +92,7 @@ public class UpdateCountryTests : IDisposable
 
         // Assert
         result.IsFailure.Should().BeTrue();
-        result.Errors[0].Code.Should().Be(CountryResult.Errors.IsoCodeDuplicate.Code);
+        result.Errors[0].Code.Should().Be(CountryResult.Failure.IsoCodeDuplicate.Code);
     }
 
     [Fact(DisplayName = "Should set ModifiedAt timestamp")]
