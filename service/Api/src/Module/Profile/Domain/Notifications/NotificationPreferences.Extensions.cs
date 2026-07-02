@@ -1,0 +1,40 @@
+using Microsoft.CodeAnalysis;
+
+namespace Module.Profile.Domain.Notifications;
+
+public static class NotificationPreferencesExtensions
+{
+    #region Factory Methods
+
+    public static Result<NotificationPreferences> Create(
+        bool? enableSms = true,
+        bool? enableEmail = true,
+        bool? enableNewsfeeds = true)
+    {
+        return new NotificationPreferences
+        {
+            EnableSms = enableSms ?? true,
+            EnableEmail = enableEmail ?? true,
+            EnableNewsfeeds = enableNewsfeeds ?? true
+        };
+    }
+
+    #endregion
+
+    #region Update
+
+    public static Result<NotificationPreferences> Update(
+        this NotificationPreferences prefs,
+        Optional<bool> enableSms = default,
+        Optional<bool> enableEmail = default,
+        Optional<bool> enableNewsfeeds = default)
+    {
+        if (enableSms.HasValue) prefs.EnableSms = enableSms.Value;
+        if (enableEmail.HasValue) prefs.EnableEmail = enableEmail.Value;
+        if (enableNewsfeeds.HasValue) prefs.EnableNewsfeeds = enableNewsfeeds.Value;
+
+        return prefs;
+    }
+
+    #endregion
+}
