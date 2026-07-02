@@ -1,0 +1,1 @@
+"""External image storage gateway."""

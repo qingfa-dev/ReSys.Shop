@@ -1,3 +1,7 @@
+[build-system]
+requires = ["setuptools>=75"]
+build-backend = "setuptools.build_meta"
+
 [project]
 name = "embedding"
 version = "0.1.0"
@@ -8,6 +12,31 @@ dependencies = [
     "uvicorn[standard]>=0.34",
     "pydantic>=2.0",
     "pydantic-settings>=2.0",
+]
+
+[tool.setuptools.package-dir]
+"embedding" = "src"
+
+[tool.setuptools]
+packages = [
+    "embedding",
+    "embedding.config",
+    "embedding.controllers",
+    "embedding.dependencies",
+    "embedding.infra",
+    "embedding.infra.cache",
+    "embedding.infra.models",
+    "embedding.infra.preprocessing",
+    "embedding.infra.storage",
+    "embedding.infra.utils",
+    "embedding.middleware",
+    "embedding.models",
+    "embedding.repositories",
+    "embedding.routers",
+    "embedding.schemas",
+    "embedding.services",
+    "embedding.services.gateways",
+    "embedding.utils",
 ]
 
 [tool.ruff]
@@ -21,4 +50,5 @@ select = ["E", "F", "W", "I"]
 dev = [
     "pytest>=8",
     "httpx>=0.28",
+    "ruff>=0.15.20",
 ]
