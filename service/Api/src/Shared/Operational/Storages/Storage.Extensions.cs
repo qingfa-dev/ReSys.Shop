@@ -75,15 +75,14 @@ public static class StorageExtensions
 
     private static void AddStorageServices(this IServiceCollection services)
     {
+        services.AddSingleton<StorageMalwareScanner>();
         services.AddSingleton<ContentMalwareScanner>();
         services.AddSingleton<LocalStorageProvider>();
         services.AddSingleton<S3StorageProvider>();
         services.AddSingleton<IStorageMalwareScanner>(sp =>
-            new StorageMalwareScanner(
-                sp.GetRequiredService<ILogger<StorageMalwareScanner>>(),
-                sp.GetService<IOptions<StorageMalwareScannerOptions>>(),
-                sp.GetService<IClamClient>(),
-                sp.GetRequiredService<ContentMalwareScanner>()));
+            new AggregateMalwareScanner(
+                [sp.GetRequiredService<StorageMalwareScanner>(), sp.GetRequiredService<ContentMalwareScanner>()],
+                sp.GetRequiredService<ILogger<AggregateMalwareScanner>>()));
 
         services.AddSingleton<IImageProcessor, ImageProcessor>();
     }
