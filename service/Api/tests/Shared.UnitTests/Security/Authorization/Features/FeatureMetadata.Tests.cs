@@ -37,7 +37,7 @@ public sealed class FeatureMetadataTests
     }
 
     [Fact(DisplayName = "FeatureMetadata: all modules should have unique identifiers (no duplicates across modules)")]
-    public void AllModules_ShouldHaveUniqueIdentifiers()
+    public void AllModule_ShouldHaveUniqueIdentifiers()
     {
         List<string> allIdentifiers =
         [

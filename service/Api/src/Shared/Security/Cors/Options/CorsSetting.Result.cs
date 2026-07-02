@@ -2,7 +2,7 @@ namespace Shared.Security.Cors.Options;
 
 public static class CorsResult
 {
-    public static class Errors
+    public static class Failure
     {
         public static Error OriginsNull =>
             Error.Validation(

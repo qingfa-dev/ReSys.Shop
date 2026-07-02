@@ -35,70 +35,89 @@ public static partial class UserMethod
 
     public static Result<User> Update(
         this User user,
-        Optional<string?> userName = default,
-        Optional<string?> email = default,
-        Optional<string?> firstName = default,
-        Optional<string?> lastName = default,
-        Optional<string?> phoneNumber = default,
-        Optional<bool> emailConfirmed = default,
-        Optional<bool> phoneNumberConfirmed = default)
+        string? userName = default,
+        string? email = default,
+        string? firstName = default,
+        string? lastName = default,
+        string? phoneNumber = default,
+        bool? emailConfirmed = default,
+        bool? phoneNumberConfirmed = default)
     {
         ArgumentNullException.ThrowIfNull(user);
 
         bool isChanged = false;
 
         // Update: username with validation
-        if (userName.HasValue)
+        if (userName is not null)
         {
-            string newUserName = userName.Value!;
-            if (string.IsNullOrWhiteSpace(newUserName))
+            if (string.IsNullOrWhiteSpace(userName))
                 return UserResult.Failure.UsernameRequired;
 
-            isChanged |= userName.ApplyIfChanged(user.UserName, x => user.UserName = x);
+            if (userName != user.UserName)
+            {
+                user.UserName = userName;
+                isChanged = true;
+            }
         }
 
         // Update: email via SetEmail for consistent validation
-        if (email.HasValue)
+        if (email is not null)
         {
-            Result<User> emailResult = user.SetEmail(email.Value!);
+            Result<User> emailResult = user.SetEmail(email);
             if (emailResult.IsFailure)
                 return emailResult;
 
             isChanged = true;
         }
 
-        // Update: first name via ApplyIfChanged
-        if (firstName.HasValue)
+        // Update: first name
+        if (firstName is not null)
         {
-            isChanged |= firstName.ApplyIfChanged(user.FirstName!, x => user.FirstName = x!);
+            if (firstName != user.FirstName)
+            {
+                user.FirstName = firstName;
+                isChanged = true;
+            }
         }
 
-        // Update: last name via ApplyIfChanged
-        if (lastName.HasValue)
+        // Update: last name
+        if (lastName is not null)
         {
-            isChanged |= lastName.ApplyIfChanged(user.LastName!, x => user.LastName = x);
+            if (lastName != user.LastName)
+            {
+                user.LastName = lastName;
+                isChanged = true;
+            }
         }
 
         // Update: phone number via SetPhoneNumber for consistent validation
-        if (phoneNumber.HasValue)
+        if (phoneNumber is not null)
         {
-            Result<User> phoneResult = user.SetPhoneNumber(phoneNumber.Value!);
+            Result<User> phoneResult = user.SetPhoneNumber(phoneNumber);
             if (phoneResult.IsFailure)
                 return phoneResult;
 
             isChanged = true;
         }
 
-        // Update: email confirmed via ApplyIfChanged
+        // Update: email confirmed
         if (emailConfirmed.HasValue)
         {
-            isChanged |= emailConfirmed.ApplyIfChanged(user.EmailConfirmed, x => user.EmailConfirmed = x);
+            if (emailConfirmed.Value != user.EmailConfirmed)
+            {
+                user.EmailConfirmed = emailConfirmed.Value;
+                isChanged = true;
+            }
         }
 
-        // Update: phone number confirmed via ApplyIfChanged
+        // Update: phone number confirmed
         if (phoneNumberConfirmed.HasValue)
         {
-            isChanged |= phoneNumberConfirmed.ApplyIfChanged(user.PhoneNumberConfirmed, x => user.PhoneNumberConfirmed = x);
+            if (phoneNumberConfirmed.Value != user.PhoneNumberConfirmed)
+            {
+                user.PhoneNumberConfirmed = phoneNumberConfirmed.Value;
+                isChanged = true;
+            }
         }
 
         // Audit: touch only when something actually changed

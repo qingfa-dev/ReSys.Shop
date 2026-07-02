@@ -101,7 +101,7 @@ Refactor the current SCSS architecture (ported from PrimeFaces Sakai Vue templat
 
 - **ALT-001**: Convert everything to Tailwind and delete all SCSS. Rejected because PrimeVue theme overrides require CSS custom property values that are cumbersome to maintain purely in Tailwind config.
 - **ALT-002**: Keep the full Sakai Vue 7-1 pattern as-is. Rejected because it introduces substantial dead code (demo, flags, preloader) and duplicates theming that PrimeVue 5's `--p-*` tokens provide natively.
-- **ALT-003**: Use CSS Modules instead of SCSS. Rejected because PrimeVue's design-token system uses global CSS variables, making scoped stylesheets counterproductive for layout-level theming.
+- **ALT-003**: Use CSS Module instead of SCSS. Rejected because PrimeVue's design-token system uses global CSS variables, making scoped stylesheets counterproductive for layout-level theming.
 - **ALT-004**: Use a Tailwind plugin for PrimeVue theme variables. Rejected because `@primeuix/themes` already provides the design-token pipeline at runtime — a Tailwind plugin would duplicate that work.
 
 ## 4. Dependencies

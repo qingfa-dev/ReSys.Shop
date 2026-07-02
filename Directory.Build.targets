@@ -44,11 +44,11 @@
           Condition="false"> <!-- Enable by setting to 'true' -->
     <ItemGroup>
       <ForbiddenRef Include="@(ProjectReference)"
-        Condition="$(MSBuildProjectName.Contains('.Modules.')) AND
-                   ($([System.String]::Copy('%(Filename)').Contains('.Modules.')) OR
-                    $([System.String]::Copy('%(Filename)').EndsWith('.Modules')))" />
+        Condition="$(MSBuildProjectName.Contains('.Module.')) AND
+                   ($([System.String]::Copy('%(Filename)').Contains('.Module.')) OR
+                    $([System.String]::Copy('%(Filename)').EndsWith('.Module')))" />
     </ItemGroup>
-    <Warning Text="Modules should not reference each other directly."
+    <Warning Text="Module should not reference each other directly."
              Condition="'@(ForbiddenRef)' != ''" />
   </Target>
 

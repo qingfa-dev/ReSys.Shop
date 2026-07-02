@@ -1,0 +1,270 @@
+# ════════════════════════════════════════════════════
+# Api.Migrations Guide (YAML)
+# Purpose:  Step-by-step instructions for creating and
+#           managing EF Core migrations
+# Version:  1.0.0
+# Status:   stable
+# Schema:   3.0
+# Updated:  2026-07-02
+# ════════════════════════════════════════════════════
+
+kind: BuildingBlockModule
+id: migrations-guide
+name: Api.Migrations.Guide
+version: "1.0.0"
+status: stable
+schema_version: "3.0"
+
+meta:
+  name: EF Core Migration Guide
+  description: >
+    Standalone guide for creating, reverting, and managing EF Core
+    migrations in the ReSys.Shop API. Covers the complete workflow
+    from entity modification through to applying migrations in
+    development and production. All commands use the Api.Migrations
+    project as the target and Api.csproj as the startup project.
+  category: "Data Access | Migrations | Guide"
+  stability: Stable
+
+guides:
+  - id: G1
+    title: Add a New Migration
+    objective: >
+      Generate a new EF Core migration after modifying entity classes
+      or entity type configurations in the Shared or Module projects.
+    prerequisites:
+      - "dotnet ef CLI tool installed (dotnet tool install --global dotnet-ef)"
+      - "PostgreSQL running on localhost:5432"
+      - "Entity changes committed or staged in source control"
+    steps:
+      - order: 1
+        title: Modify Entity or Configuration
+        description: >
+          Add, remove, or modify properties in entity classes or
+          create/update IEntityTypeConfiguration classes in the
+          Shared or Module project. The new migration will reflect
+          the diff between the current model and the last snapshot.
+        code_snippet: |
+          // Example: Add a Description property to an entity
+          public class Product
+          {
+              public Guid Id { get; set; }
+              public string Name { get; set; }
+              public string? Description { get; set; }  // New property
+          }
+      - order: 2
+        title: Create the Migration
+        description: >
+          Run dotnet ef migrations add with a PascalCase name
+          describing the change. Work from the repository root.
+        code_snippet: |
+          dotnet ef migrations add AddProductDescription \
+            --project service/Api/src/Migrations/Api.Migrations.csproj \
+            --startup-project service/Api/src/Api/Api.csproj
+      - order: 3
+        title: Review Generated Files
+        description: >
+          Inspect the generated files in service/Api/src/Migrations/Migrations/
+          to confirm the Up and Down methods contain the expected
+          schema operations. Never edit generated code manually.
+        code_snippet: |
+          # Expected output in Migrations/{timestamp}_AddProductDescription.cs
+          protected override void Up(MigrationBuilder migrationBuilder)
+          {
+              migrationBuilder.AddColumn<string>(
+                  name: "description",
+                  table: "products",
+                  type: "text",
+                  nullable: true);
+          }
+
+          protected override void Down(MigrationBuilder migrationBuilder)
+          {
+              migrationBuilder.DropColumn(
+                  name: "description",
+                  table: "products");
+          }
+      - order: 4
+        title: Verify the Model Snapshot
+        description: >
+          Confirm that ApplicationDbContextModelSnapshot.cs was
+          updated to reflect the new entity state. This file is
+          auto-generated and must never be edited manually.
+      - order: 5
+        title: Apply Migration Locally
+        description: >
+          Run dotnet ef database update to apply the migration
+          to your local PostgreSQL instance for verification.
+        code_snippet: |
+          dotnet ef database update \
+            --project service/Api/src/Migrations/Api.Migrations.csproj \
+            --startup-project service/Api/src/Api/Api.csproj
+    best_practices:
+      - Use descriptive PascalCase names (AddProductDescription, RenameCountryCode, etc.)
+      - Create one migration per logical change for clean rollback
+      - Review generated Up/Down before committing
+      - Never edit auto-generated migration or snapshot files
+    pitfalls:
+      - Forgetting to add a startup project causes EF Core to fail loading the DbContext
+      - Referencing types from Module without rebuilding the Module project first
+      - Skipping the --project flag targets the wrong project
+
+  - id: G2
+    title: Revert and Remove a Migration
+    objective: >
+      Roll back the database to a previous state and clean up the
+      most recent migration files when the migration is incorrect
+      or no longer needed.
+    prerequisites:
+      - "Most recent migration has not been applied in production"
+    steps:
+      - order: 1
+        title: Roll Back the Database
+        description: >
+          Revert the target database to the migration before the
+          one you want to remove. Replace PreviousMigrationName
+          with the name of the migration to keep.
+        code_snippet: |
+          dotnet ef database update PreviousMigrationName \
+            --project service/Api/src/Migrations/Api.Migrations.csproj \
+            --startup-project service/Api/src/Api/Api.csproj
+      - order: 2
+        title: Remove the Migration Files
+        description: >
+          Delete the most recent migration and revert the model
+          snapshot to its previous state.
+        code_snippet: |
+          dotnet ef migrations remove \
+            --project service/Api/src/Migrations/Api.Migrations.csproj \
+            --startup-project service/Api/src/Api/Api.csproj
+    pitfalls:
+      - Running migrations remove before rolling back the database leaves it out of sync
+      - Stacked migrations must be removed in reverse order (LIFO)
+
+  - id: G3
+    title: Apply Migrations at Application Startup
+    objective: >
+      Understand how migrations are automatically applied when the
+      API application starts, for development and staging environments.
+    prerequisites:
+      - "Application has been configured with PersistenceExtensions.AddPersistence()"
+      - "Connection string is correctly set in appsettings or Aspire config"
+    steps:
+      - order: 1
+        title: Startup Migration Flow
+        description: >
+          In Program.cs, InitializeDatabaseAsync is called with
+          runMigrations: true. This triggers
+          DatabaseInitializer.RunMigrationsAsync which calls
+          DbContext.Database.MigrateAsync() with retry logic.
+        code_snippet: |
+          // Program.cs
+          await app.InitializeDatabaseAsync(
+              runMigrations: true,
+              runSeeders: runSeeders);
+      - order: 2
+        title: Verify Migration Applied
+        description: >
+          Check the __EFMigrationsHistory table in the target
+          database to confirm the migration was recorded. Each
+          applied migration has one row with the migration ID
+          and product version.
+        code_snippet: |
+          -- Query the migrations history table
+          SELECT migration_id, product_version
+          FROM public.__ef_migrations_history
+          ORDER BY migration_id;
+    best_practices:
+      - Use runMigrations: false in production deployments; deploy SQL scripts instead
+      - Run dotnet ef migrations script --idempotent for production releases
+      - Test migration rollback procedures in staging before production
+
+  - id: G4
+    title: Generate a Production SQL Script
+    objective: >
+      Produce an idempotent SQL script from your migrations for
+      DBA review or deployment in production environments where
+      direct dotnet ef commands are not available.
+    steps:
+      - order: 1
+        title: Generate the Script
+        description: >
+          Run dotnet ef migrations script with the --idempotent
+          flag to produce a single SQL file that handles any
+          starting state.
+        code_snippet: |
+          dotnet ef migrations script \
+            --output ./deploy/migrations.sql \
+            --idempotent \
+            --project service/Api/src/Migrations/Api.Migrations.csproj \
+            --startup-project service/Api/src/Api/Api.csproj
+      - order: 2
+        title: Review the Output
+        description: >
+          The generated SQL wraps each migration in transaction
+          blocks and checks __EFMigrationsHistory before applying.
+        code_snippet: |
+          -- Example output structure
+          CREATE TABLE IF NOT EXISTS "__EFMigrationsHistory" (...);
+          INSERT INTO "__EFMigrationsHistory" (migration_id, product_version)
+          VALUES ('20260702110944_InitialCreate', '10.0.9');
+    best_practices:
+      - Always generate idempotent scripts for production to handle partial deployments
+      - Commit the SQL script alongside the release tag in source control
+      - Test the script against a staging environment first
+
+anti_patterns:
+  - id: AP1
+    name: Multiple Entities Changed in One Migration
+    severity: medium
+    avoid: >
+      Making changes to multiple unrelated entities in a single
+      migration, making it impossible to roll back independently.
+    better_approach: >
+      Create separate migrations for each logical change even if
+      they were made in the same development session.
+    impact: >
+      Reduces rollback granularity and makes it harder to isolate
+      schema deployment issues.
+  - id: AP2
+    name: Stacked Migrations Without Regular Review
+    severity: medium
+    avoid: >
+      Accumulating many unapplied migrations without ever running
+      database update, increasing the risk of complex conflicts.
+    better_approach: >
+      Apply migrations to local development database after each
+      change and run dotnet ef migrations list to track state.
+    impact: >
+      Large migration stacks increase the risk of merge conflicts
+      and make debugging schema issues more difficult.
+
+usage:
+  scenarios:
+    - id: S1
+      title: Quick New Entity
+      context: >
+        You created a new entity class and its configuration,
+        and need a migration to create the corresponding table.
+      pattern: |
+        dotnet ef migrations add CreateProductTable \
+          --project service/Api/src/Migrations/Api.Migrations.csproj \
+          --startup-project service/Api/src/Api/Api.csproj
+    - id: S2
+      title: List Pending Migrations
+      context: Check which migrations exist but have not yet been applied.
+      pattern: |
+        dotnet ef migrations list \
+          --project service/Api/src/Migrations/Api.Migrations.csproj \
+          --startup-project service/Api/src/Api/Api.csproj
+
+file_structure: |
+  Migrations/
+  ├── GUIDE.yaml        # This guide
+  ├── README.yaml       # Module documentation
+  ├── DesignTimeDbContextFactory.cs
+  ├── Api.Migrations.csproj
+  └── Migrations/
+      ├── 20260702110944_InitialCreate.cs
+      ├── 20260702110944_InitialCreate.Designer.cs
+      └── ApplicationDbContextModelSnapshot.cs

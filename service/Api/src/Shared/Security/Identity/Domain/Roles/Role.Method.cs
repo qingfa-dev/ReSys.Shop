@@ -5,19 +5,20 @@ namespace Shared.Security.Identity.Domain.Roles;
 public static class RoleMethod
 {
     #region Create
-    public static Result<Role> Create(string name, Optional<string> description = default)
+    public static Result<Role> Create(string name, string? description = default)
     {
         // Validate: Check required fields
         if (string.IsNullOrWhiteSpace(name))
             return RoleResult.Failure.NameRequired;
         if (name.Length > RoleConstant.Constraints.Name.MaxLength)
             return RoleResult.Failure.NameTooLong;
-        if (description.HasValue && description.Value.Length > RoleConstant.Constraints.Description.MaxLength)
+        if (description is not null && description.Length > RoleConstant.Constraints.Description.MaxLength)
             return RoleResult.Failure.DescriptionTooLong;
 
         // Create: Instantiate role with optional description
         Role entity = new() { Name = name };
-        description.Apply(x => entity.Description = x);
+        if (description is not null)
+            entity.Description = description;
 
         AuditableBehavior.Create(entity);
 
@@ -27,7 +28,7 @@ public static class RoleMethod
     #endregion
 
     #region Update
-    public static Result<Role> Update(this Role entity, Optional<string> name = default, Optional<string> description = default)
+    public static Result<Role> Update(this Role entity, string? name = default, string? description = default)
     {
         // Validate
         ArgumentNullException.ThrowIfNull(entity);
@@ -38,25 +39,31 @@ public static class RoleMethod
         bool isChanged = false;
 
         // Update name
-        if (name.HasValue)
+        if (name is not null)
         {
-            string newName = name.Value;
-            if (string.IsNullOrWhiteSpace(newName))
+            if (string.IsNullOrWhiteSpace(name))
                 return RoleResult.Failure.NameRequired;
-            if (newName.Length > RoleConstant.Constraints.Name.MaxLength)
+            if (name.Length > RoleConstant.Constraints.Name.MaxLength)
                 return RoleResult.Failure.NameTooLong;
 
-            isChanged |= name.ApplyIfChanged(entity.Name!, x => entity.Name = x);
+            if (name != entity.Name)
+            {
+                entity.Name = name;
+                isChanged = true;
+            }
         }
 
         // Update description
-        if (description.HasValue)
+        if (description is not null)
         {
-            string newDescription = description.Value;
-            if (newDescription.Length > RoleConstant.Constraints.Description.MaxLength)
+            if (description.Length > RoleConstant.Constraints.Description.MaxLength)
                 return RoleResult.Failure.DescriptionTooLong;
 
-            isChanged |= description.ApplyIfChanged(entity.Description!, x => entity.Description = newDescription);
+            if (description != entity.Description)
+            {
+                entity.Description = description;
+                isChanged = true;
+            }
         }
 
         // Audit only when changed

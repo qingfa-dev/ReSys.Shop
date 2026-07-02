@@ -18,7 +18,7 @@ public sealed record PermissionMetadata : IDescriptor
     public string Description { get; init; }
     public object? Example { get; init; }
 
-    internal PermissionMetadata(
+    public PermissionMetadata(
         string domain,
         string category,
         string resource,
