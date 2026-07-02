@@ -1,5 +1,3 @@
-using Microsoft.CodeAnalysis;
-
 namespace Module.Profile.Domain.Preferences;
 
 public static class UserPreferenceMethod

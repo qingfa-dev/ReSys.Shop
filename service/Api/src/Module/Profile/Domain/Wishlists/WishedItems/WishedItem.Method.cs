@@ -1,5 +1,3 @@
-using Microsoft.CodeAnalysis;
-
 namespace Module.Profile.Domain.Wishlists.WishedItems;
 
 public static class WishedItemMethod

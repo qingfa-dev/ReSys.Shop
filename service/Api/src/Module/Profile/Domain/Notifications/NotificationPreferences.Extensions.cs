@@ -1,5 +1,3 @@
-using Microsoft.CodeAnalysis;
-
 namespace Module.Profile.Domain.Notifications;
 
 public static class NotificationPreferencesExtensions

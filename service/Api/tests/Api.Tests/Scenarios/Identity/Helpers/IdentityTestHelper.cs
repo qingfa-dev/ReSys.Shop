@@ -5,8 +5,6 @@ using System.Security.Claims;
 using System.Text;
 using System.Text.Json;
 
-using Api.Tests.Infrastructure;
-
 using Microsoft.IdentityModel.Tokens;
 
 using Module.Identity.Features.Admin.Users.Shared.Models;
