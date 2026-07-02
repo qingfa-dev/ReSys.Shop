@@ -1,0 +1,21 @@
+namespace Module.Identity.Features.Admin.Users.Shared.Models;
+
+public class UserDetailResponse : UserParameter
+{
+    public Guid Id { get; init; }
+
+    public bool IsActive { get; init; }
+
+    public DateTimeOffset CreatedAtUtc { get; init; }
+
+    public DateTimeOffset? ModifiedAtUtc { get; init; }
+}
+
+public class UserListResponse : UserParameter
+{
+    public Guid Id { get; init; }
+
+    public string FullName { get; init; } = string.Empty;
+
+    public bool IsActive { get; init; }
+}
