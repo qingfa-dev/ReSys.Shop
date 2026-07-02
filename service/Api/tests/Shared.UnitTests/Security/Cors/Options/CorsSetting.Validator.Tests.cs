@@ -52,7 +52,7 @@ public sealed class CorsSettingValidatorTests
         result.Errors.Should()
             .Contain(error =>
                 error.ErrorCode ==
-                CorsResult.Errors.OriginsNull.Code);
+                CorsResult.Failure.OriginsNull.Code);
     }
 
     [Theory(DisplayName = "Validator should fail when wildcard is mixed with explicit origins")]
@@ -75,6 +75,6 @@ public sealed class CorsSettingValidatorTests
         result.Errors.Should()
             .Contain(error =>
                 error.ErrorCode ==
-                CorsResult.Errors.AmbiguousOrigin.Code);
+                CorsResult.Failure.AmbiguousOrigin.Code);
     }
 }

@@ -1,0 +1,44 @@
+using Module.Profile.Features.Shared;
+
+namespace Module.Profile.Features.Store.Profile.Update;
+
+public static partial class UpdateProfile
+{
+    /// <summary>
+    /// Represents the API endpoint for updating the authenticated user's profile.
+    /// </summary>
+    public sealed class Endpoint : ICarterModule
+    {
+        /// <summary>
+        /// Adds the endpoint for updating a profile to the Carter module.
+        /// </summary>
+        /// <param name="app">The endpoint route builder.</param>
+        public void AddRoutes(IEndpointRouteBuilder app)
+        {
+            // Map: Defines a PUT endpoint for updating the authenticated user's profile.
+            app.MapPut(ProfileFeature.Store.Profile.Update.Route, async (
+                [FromBody] Request request,
+                ISender sender,
+                ICurrentUser currentUser,
+                CancellationToken ct) =>
+            {
+                // Create: Construct a command wrapping the request body.
+                var userId = Guid.Parse(currentUser.UserId!);
+                var command = new Command(userId, request);
+                // Send: Dispatch the command to the mediator for processing.
+                var result = await sender.Send(command, ct);
+                // Map: Convert the result to an IResult for the HTTP response.
+                return result.ToResult();
+            })
+            .RequireAuthorization()
+            .WithName(nameof(UpdateProfile))
+            .WithTags(ProfileFeature.Tags.Profile)
+            .WithSummary(ProfileFeature.Store.Profile.Update.Summary)
+            .WithDescription(ProfileFeature.Store.Profile.Update.Description)
+            .Produces<Result<Response>>()
+            .Produces<Result>(StatusCodes.Status400BadRequest)
+            .Produces<Result>(StatusCodes.Status401Unauthorized)
+            .Produces<Result>(StatusCodes.Status404NotFound);
+        }
+    }
+}

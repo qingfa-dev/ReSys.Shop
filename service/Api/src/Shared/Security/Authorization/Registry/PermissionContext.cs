@@ -155,8 +155,8 @@ public static class PermissionContext
             "payment_methods", "Payment Methods", "Payment method configuration resource.");
         public static readonly OptionDescriptor<string> StockItems = OptionDescriptor<string>.Option(
             "stockitems", "Stock Items", "Stock item (inventory unit) resource.");
-        public static readonly OptionDescriptor<string> StockLocations = OptionDescriptor<string>.Option(
-            "stocklocations", "Stock Locations", "Stock location (warehouse) resource.");
+        public static readonly OptionDescriptor<string> StockLocation = OptionDescriptor<string>.Option(
+            "stocklocations", "Stock Location", "Stock location (warehouse) resource.");
         public static readonly OptionDescriptor<string> StockReservations = OptionDescriptor<string>.Option(
             "stock_reservations", "Stock Reservations", "Stock reservation resource.");
         public static readonly OptionDescriptor<string> Settings = OptionDescriptor<string>.Option(

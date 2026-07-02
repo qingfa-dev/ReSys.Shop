@@ -1,5 +1,4 @@
 using Aspire.Hosting.JavaScript;
-using Aspire.Hosting.Python;
 
 using ReSys.ServiceDefaults.Constants;
 

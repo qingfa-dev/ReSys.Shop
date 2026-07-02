@@ -1,0 +1,319 @@
+# ════════════════════════════════════════════════════
+# Api.Migrations Documentation (YAML)
+# Purpose:  Design-time EF Core migrations project for ReSys.Shop API
+# Version:  1.0.0
+# Status:   stable
+# Schema:   3.0
+# Updated:  2026-07-02
+# ════════════════════════════════════════════════════
+
+kind: BuildingBlockModule
+id: api-migrations
+name: Api.Migrations
+version: "1.0.0"
+status: stable
+schema_version: "3.0"
+
+meta:
+  name: API EF Core Migrations
+  description: >
+    Design-time EF Core migrations project for the ReSys.Shop API.
+    Provides the DesignTimeDbContextFactory and hosts all generated
+    migration files and model snapshots. Separated into its own project
+    to isolate the Microsoft.EntityFrameworkCore.Design dependency and
+    prevent it from being deployed at runtime. References both Shared
+    (for ApplicationDbContext and entity configurations) and Module
+    (for module-level entity configurations discovered via IModuleMarker).
+  category: "Data Access | Persistence | Migrations"
+  stability: Stable
+  dependencies:
+    - name: Microsoft.EntityFrameworkCore.Design
+      version: "10.x"
+      scope: dev
+    - name: Npgsql.EntityFrameworkCore.PostgreSQL
+      version: "10.x"
+      scope: runtime
+    - name: EFCore.NamingConventions
+      version: "10.x"
+      scope: runtime
+
+principles:
+  - id: P1
+    name: Design-Time Isolation
+    description: >
+      Migrations live in a dedicated project to keep the design-time
+      EF Core package scoped to development-only tooling.
+    rationale: >
+      Prevents the design-time package from being deployed to production
+      and keeps runtime projects free of tooling-only dependencies.
+  - id: P2
+    name: Single Source of Truth for Schema
+    description: >
+      The ApplicationDbContext model and IEntityTypeConfiguration classes
+      are the sole authoritative definition of the database schema.
+      Migration files are derived artifacts regenerated from model changes.
+    rationale: >
+      Ensures the database schema always reflects the C# model exactly.
+      Manual schema changes cause drift and are forbidden.
+
+features:
+  - id: F1
+    name: Design-Time DbContext Factory
+    type: core
+    description: >
+      Implements IDesignTimeDbContextFactory to provide a design-time
+      DbContext instance for EF Core CLI tools like dotnet ef migrations.
+    api_highlight: "DesignTimeDbContextFactory : IDesignTimeDbContextFactory<ApplicationDbContext>"
+  - id: F2
+    name: Migration Generation
+    type: core
+    description: >
+      Hosts all generated migration files created by dotnet ef migrations add,
+      enabling version-controlled schema evolution across environments.
+  - id: F3
+    name: Model Snapshot
+    type: core
+    description: >
+      Maintains an auto-generated ApplicationDbContextModelSnapshot
+      that tracks the current state of the EF Core model for diff
+      computation when generating new migrations.
+  - id: F4
+    name: Module Entity Discovery
+    type: integration
+    description: >
+      References the Module project to discover entity type configurations
+      via the IModuleMarker assembly during design-time model building.
+    api_highlight: "ApplicationDbContext.AdditionalConfigurationsAssemblies = [typeof(IModuleMarker).Assembly]"
+
+abstractions:
+  - category: Design-Time Infrastructure
+    order: 1
+    description: Core types that enable EF Core CLI tooling for migration operations.
+    items:
+      - id: A1
+        name: DesignTimeDbContextFactory
+        type: class
+        path: ./DesignTimeDbContextFactory.cs
+        description: >
+          Creates an ApplicationDbContext with a hard-coded localhost
+          connection string for dotnet ef CLI commands.
+        purpose: >
+          Enables EF Core design-time tools to create a DbContext
+          without requiring a running application instance.
+        contract: |
+          // Implements IDesignTimeDbContextFactory<ApplicationDbContext>
+          // Connection: Host=localhost;Database=resys_shop;Username=postgres;Password=postgres
+          // Provider: Npgsql with UseVector() and UseSnakeCaseNamingConvention()
+          // Additional assemblies: Module (via IModuleMarker)
+        methods:
+          - name: "CreateDbContext(args: string[]) -> ApplicationDbContext"
+            description: Returns a fully configured design-time DbContext.
+        example: |
+          // Invoked implicitly by:
+          dotnet ef migrations add AddProductTable
+
+      - id: A2
+        name: Api.Migrations.csproj
+        type: class
+        path: ./Api.Migrations.csproj
+        description: >
+          MSBuild project that references Shared and Module projects
+          and carries the EF Core Design package for CLI tooling.
+        purpose: >
+          Defines the migrations assembly target and project dependencies
+          so EF Core can resolve entity configurations and store migrations.
+        reference: >
+          Set as migrations assembly in DesignTimeDbContextFactory and
+          PersistenceExtensions.AddPersistence
+
+  - category: Generated Artifacts
+    order: 2
+    description: Auto-generated files produced by the EF Core CLI migration commands.
+    items:
+      - id: B1
+        name: Migration
+        type: class
+        path: ./Migrations/{timestamp}_{name}.cs
+        description: >
+          Auto-generated migration file with Up and Down methods
+          containing MigrationBuilder calls for schema changes.
+        purpose: >
+          Encodes a single versioned schema change that can be applied
+          (Up) or reverted (Down) transactionally.
+        contract: |
+          // Generated by: dotnet ef migrations add <name>
+          // Up(MigrationBuilder): applies schema changes
+          // Down(MigrationBuilder): reverts schema changes
+        example: |
+          protected override void Up(MigrationBuilder migrationBuilder)
+          {
+              migrationBuilder.CreateTable(
+                  name: "products",
+                  columns: table => new
+                  {
+                      id = table.Column<Guid>(type: "uuid", nullable: false),
+                      name = table.Column<string>(type: "text", nullable: false)
+                  },
+                  constraints: table => table.PrimaryKey("pk_products", x => x.id));
+          }
+
+      - id: B2
+        name: MigrationDesigner
+        type: class
+        path: ./Migrations/{timestamp}_{name}.Designer.cs
+        description: >
+          Auto-generated EF Core model snapshot captured at migration
+          creation time, used by future diff operations.
+        purpose: >
+          Provides the previous state for incremental model comparison
+          when the next migration is generated.
+        note: >
+          This file is auto-generated and must never be edited manually.
+
+      - id: B3
+        name: ApplicationDbContextModelSnapshot
+        type: class
+        path: ./Migrations/ApplicationDbContextModelSnapshot.cs
+        description: >
+          Cumulative model snapshot representing the full target state
+          after all migrations have been applied.
+        purpose: >
+          Stores the current target model so EF Core can diff it against
+          the latest migration's Designer snapshot to compute the next
+          migration steps.
+        note: >
+          This file is auto-generated and must never be edited manually.
+
+technical:
+  mechanisms:
+    - id: M1
+      name: Migration Generation Pipeline
+      scope: "EF Core CLI workflow"
+      description: >
+        When dotnet ef migrations add is executed, EF Core loads the
+        current model from ApplicationDbContext, compares it to the
+        last migration's snapshot, computes the diff, and generates
+        Up/Down migration code and updates the model snapshot.
+      steps:
+        - "EF Core loads ApplicationDbContext via DesignTimeDbContextFactory"
+        - "EF Core builds the model from OnModelCreating and IEntityTypeConfiguration classes"
+        - "EF Core reads the last migration's Designer snapshot or ModelSnapshot"
+        - "EF Core computes the diff between the current model and the snapshot"
+        - "EF Core generates: {timestamp}_{name}.cs and {timestamp}_{name}.Designer.cs"
+        - "EF Core updates ApplicationDbContextModelSnapshot.cs"
+    - id: M2
+      name: Model Snapshot Diffing
+      scope: "Snapshot comparison algorithm"
+      description: >
+        Each migration's Designer.cs stores EF Core model metadata
+        (entity types, properties, keys, indexes, relationships) at
+        creation time. The ModelSnapshot stores the cumulative target.
+        EF Core diffs the current model against the snapshot to
+        determine schema operations for the next migration.
+      pattern: |
+        // Conceptual: diff = CurrentModel - LastSnapshot
+        // Entity added -> CreateTable
+        // Property added -> AddColumn
+        // Entity removed -> DropTable
+        // Property removed -> DropColumn
+
+anti_patterns:
+  - id: AP1
+    name: Manual Schema Changes in Migration Up/Down
+    severity: critical
+    avoid: >
+      Editing generated Up or Down methods to add schema changes
+      that were not produced by the model diff pipeline.
+    bad_example: |
+      // ❌ Manually adding a column
+      protected override void Up(MigrationBuilder migrationBuilder)
+      {
+          migrationBuilder.AddColumn<string>(
+              name: "manual_column",
+              table: "products",
+              type: "text",
+              nullable: true);
+      }
+    better_approach: >
+      Add the property to the entity class and create the corresponding
+      IEntityTypeConfiguration, then run dotnet ef migrations add.
+    good_example: |
+      // ✅ Property added to entity, then:
+      dotnet ef migrations add AddDescriptionToProduct
+    impact: >
+      Creates drift between the C# model and the database schema,
+      causing future migration diffs to be incorrect.
+  - id: AP2
+    name: Manual Editing of Snapshot Files
+    severity: high
+    avoid: >
+      Manually deleting or modifying ApplicationDbContextModelSnapshot
+      or any Designer.cs file without going through EF Core commands.
+    better_approach: >
+      Always use dotnet ef migrations add or dotnet ef migrations remove
+      to update snapshot files. Never edit generated files by hand.
+    impact: >
+      Inconsistent snapshots cause incorrect diff computation and
+      may generate invalid migration SQL.
+
+usage:
+  scenarios:
+    - id: S1
+      title: Create a New Migration
+      context: >
+        After adding or modifying entity classes or
+        IEntityTypeConfiguration classes in the Shared or Module projects.
+      pattern: |
+        dotnet ef migrations add AddProductTable \
+          --project src/Migrations/Api.Migrations.csproj \
+          --startup-project src/Api/Api.csproj
+    - id: S2
+      title: Revert and Remove a Migration
+      context: When the most recent migration is incorrect or unneeded.
+      pattern: |
+        # Roll back the database
+        dotnet ef database update PreviousMigrationName \
+          --project src/Migrations/Api.Migrations.csproj \
+          --startup-project src/Api/Api.csproj
+
+        # Remove the migration files
+        dotnet ef migrations remove \
+          --project src/Migrations/Api.Migrations.csproj \
+          --startup-project src/Api/Api.csproj
+    - id: S3
+      title: Generate Idempotent SQL Script
+      context: When migrations must be reviewed by DBA or run in production.
+      pattern: |
+        dotnet ef migrations script \
+          --output ./migrations.sql \
+          --idempotent \
+          --project src/Migrations/Api.Migrations.csproj \
+          --startup-project src/Api/Api.csproj
+
+testing:
+  strategies:
+    - id: TS1
+      title: Migration Idempotency Verification
+      objective: >
+        Verify the full migration pipeline applies without errors
+        from an empty database state to the latest schema.
+      scope: integration
+      code_example: |
+        [Fact]
+        public async Task Migrate_EmptyDatabase_AppliesSuccessfully()
+        {
+            // Arrange: create fresh PostgreSQL database
+            // Act: run DbContext.Database.MigrateAsync()
+            // Assert: verify expected tables and columns exist
+        }
+
+file_structure: |
+  Migrations/
+  ├── Api.Migrations.csproj               # Project references Shared + Module, EF Core Design
+  ├── DesignTimeDbContextFactory.cs        # IDesignTimeDbContextFactory for CLI tooling
+  ├── Migrations/
+  │   ├── {timestamp}_{name}.cs                 # Migration Up/Down (one per change)
+  │   ├── {timestamp}_{name}.Designer.cs        # Snapshot at migration creation
+  │   └── ApplicationDbContextModelSnapshot.cs  # Cumulative model snapshot
+  ├── README.yaml                         # This documentation
+  └── GUIDE.yaml                          # Step-by-step migration guide

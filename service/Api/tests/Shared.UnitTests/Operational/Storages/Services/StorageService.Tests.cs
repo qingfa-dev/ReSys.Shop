@@ -3,7 +3,6 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
 using Shared.Operational.Storages.Models;
-using Shared.Operational.Storages.Processing;
 using Shared.Operational.Storages.Providers;
 using Shared.Operational.Storages.Security;
 using Shared.Operational.Storages.Security.Guard;

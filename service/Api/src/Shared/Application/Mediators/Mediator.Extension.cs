@@ -37,7 +37,7 @@ public static class Extensions
             // Register: Handlers from the current building block assembly
             cfg.RegisterServicesFromAssembly(Assembly.GetExecutingAssembly());
 
-            // Register: Handlers from additional assemblies (e.g., Modules)
+            // Register: Handlers from additional assemblies (e.g., Module)
             foreach (var assembly in additionalAssemblies)
             {
                 cfg.RegisterServicesFromAssembly(assembly);

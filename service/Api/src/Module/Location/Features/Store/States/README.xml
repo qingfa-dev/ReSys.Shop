@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- FG: Store States / Purpose: Public state/province querying. / Schema: 1.0 / Updated: 2026-05-22 -->
+<BuildingBlockModule id="locations-features-store-states" name="Module.Location.Features.Store.States" version="1.0.0" status="stable" schema-version="1.0">
+  <ModuleMeta><Name>Store States</Name><Description>Public state/province querying.</Description><Category>Features</Category><Stability>Stable</Stability></ModuleMeta>
+  <Features><Feature id="F1" name="Endpoints" type="core"><Description>Get states by country, ID, ISO code, paged. Returns only active states.</Description></Feature></Features>
+  <AntiPatterns><AntiPattern id="AP1" name="Empty State List" severity="low"><Avoid> Not returning states for countries that have them.</Avoid><BetterApproach></BetterApproach></AntiPattern></AntiPatterns>
+    <AbstractionsCatalog>
+    <Category name="Components" order="1">
+      <Description>Key components in this directory.</Description>
+      <Abstraction id="A1" name="Get" type="directory">
+        <Path>./Get/</Path>
+        <Description>Get definition.</Description>
+        <Purpose>Supports module functionality.</Purpose>
+      </Abstraction>
+    </Category>
+  </AbstractionsCatalog>
+  <FileStructure>Features/Store States → Shared/</FileStructure>
+</BuildingBlockModule>
