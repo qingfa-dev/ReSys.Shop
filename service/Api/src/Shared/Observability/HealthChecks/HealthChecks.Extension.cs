@@ -5,7 +5,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 
-using ReSys.Shop.ServiceDefaults.Constants;
+using ReSys.ServiceDefaults.Constants;
 
 namespace Shared.Observability.HealthChecks;
 
@@ -18,13 +18,13 @@ public static class HealthChecksExtension
         builder.Services.AddHealthChecks();
 
         var pgConnection = ResolveConnectionString(builder.Configuration,
-            Infrastructures.Databases.PostgresResource, "DefaultConnection");
+            Infrastructures.Databases.Resource, "DefaultConnection");
         if (pgConnection is not null)
             builder.Services.AddHealthChecks()
                 .AddNpgSql(pgConnection, tags: ["ready", "database"]);
 
         var redisConnection = ResolveConnectionString(builder.Configuration,
-            Infrastructures.Cache.RedisResource, "Redis");
+            Infrastructures.Cache.Resource, "Redis");
         if (redisConnection is not null)
             builder.Services.AddHealthChecks()
                 .AddRedis(redisConnection, tags: ["ready", "cache"]);

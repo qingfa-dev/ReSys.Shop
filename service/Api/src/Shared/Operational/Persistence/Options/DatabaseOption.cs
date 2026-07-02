@@ -1,4 +1,4 @@
-using ReSys.Shop.ServiceDefaults.Constants;
+using ReSys.ServiceDefaults.Constants;
 
 namespace Shared.Operational.Persistence.Options;
 
@@ -11,7 +11,7 @@ public static class DatabaseOption
     public const string Default = "DefaultConnection";
 
     /// <summary>The connection string key used when running in a .NET Aspire environment.</summary>
-    public const string Aspire = Infrastructures.Databases.PostgresResource;
+    public const string Aspire = Infrastructures.Databases.Resource;
 
     /// <summary>The key used for in-memory database configuration in testing scenarios.</summary>
     public const string InMemory = "InMemoryDatabase";

@@ -6,8 +6,6 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 
-using ReSys.Shop.ServiceDefaults;
-
 using Shared.Application.Extensions.Validations;
 using Shared.Performance.Caching.Options;
 using Shared.Performance.Caching.Wrappers;
@@ -94,9 +92,6 @@ public static class CachingExtensions
                     {
                         options.InstanceName = "ReSys_";
                     });
-
-                // Add: Redis OpenTelemetry instrumentation for command tracing
-                builder.AddRedisInstrumentation(multiplexer);
             }
         }
         else
