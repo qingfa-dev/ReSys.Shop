@@ -1,6 +1,8 @@
 using System.Reflection;
 
+using Module.Identity;
 using Module.Location;
+using Module.Profile;
 
 using ReSys.ServiceDefaults;
 
@@ -26,7 +28,9 @@ builder.AddSecurity();
 builder.AddOperational(additionalAssemblies);
 
 // Configure: Add moudular
-builder.AddLocationsModule();
+builder.AddLocationModule();
+builder.AddIdentityModule();
+builder.AddProfilesModule();
 
 WebApplication app = builder.Build();
 

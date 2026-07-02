@@ -1,7 +1,6 @@
 using System.Net;
 
 using Api.Tests.Infrastructure;
-using Api.Tests.Infrastructure.Http;
 
 using Shared.Security.AntiForgery.Endpoints;
 
