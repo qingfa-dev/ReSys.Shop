@@ -73,8 +73,8 @@ public static class PersistenceExtensions
             options.UseNpgsql(connectionString, npgsqlOptions =>
             {
                 npgsqlOptions.UseVector();
-                // Assign: Set migrations assembly to ReSys.Api.Migrations project
-                npgsqlOptions.MigrationsAssembly("ReSys.Api.Migrations");
+                // Assign: Set migrations assembly to Api.Migrations project
+                npgsqlOptions.MigrationsAssembly("Api.Migrations");
             });
 
             // Initialize: Apply snake_case naming convention for PostgreSQL compatibility

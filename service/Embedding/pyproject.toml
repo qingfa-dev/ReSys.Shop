@@ -31,7 +31,6 @@ packages = [
     "embedding.infra.utils",
     "embedding.middleware",
     "embedding.models",
-    "embedding.repositories",
     "embedding.routers",
     "embedding.schemas",
     "embedding.services",

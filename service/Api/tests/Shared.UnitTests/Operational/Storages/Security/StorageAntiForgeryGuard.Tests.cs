@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
-using Shared.Operational.Storages.Security;
 using Shared.Operational.Storages.Security.Guard.Options;
 using Shared.Performance.Caching.Wrappers;
 

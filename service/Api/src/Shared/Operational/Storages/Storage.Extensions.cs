@@ -2,9 +2,6 @@ using FluentValidation;
 
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Options;
-
-using nClam;
 
 using Shared.Application.Extensions.Validations;
 using Shared.Operational.Storages.Options;
