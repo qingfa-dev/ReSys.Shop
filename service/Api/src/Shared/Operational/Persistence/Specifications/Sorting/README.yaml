@@ -1,0 +1,89 @@
+---
+module: Sorting
+namespace: Shared.Persistence.Specifications.Sorting
+status: implemented
+description: >
+  Sort specification abstraction for entity queries. Provides a unified SortModel
+  parsed from three input surfaces (DSL string, JSON, query-string) with optional
+  field whitelist validation, and applies sort ordering to IQueryable queries via
+  an expression builder.
+---
+
+# Sorting Module
+
+## Purpose
+
+Define, parse, validate, and apply sort specifications to entity queries.
+The `SortModel` is an immutable, validated representation of an ordered list
+of sort clauses. Each clause specifies a field name, direction (ascending/descending),
+and optional null-placement rule.
+
+## Principles
+
+1. **Immutable model** — `SortModel` and `SortClause` are immutable after construction.
+2. **Fail-safe validation** — Invalid fields populate `Violations` and cause `IsValid=false`;
+   the caller decides how to handle them. No exceptions during parsing/validation.
+3. **Three input surfaces** — DSL string (`Name asc, CreatedAt desc`), JSON array,
+   and query-string parameters produce the same `SortModel` shape.
+4. **Internal construction** — `SortModel` constructor is `internal`. Construction
+   is only permitted via `SortModelExtensions` factory methods or parsers.
+5. **Optionally-allowed enforcement** — An optional `AllowedFields` whitelist
+   (via `IReadOnlySet<string>`) validates field references post-parse.
+
+## Anti-Patterns
+
+- **Do NOT construct `SortModel` directly** — Use `SortModelExtensions.FromString`,
+  `FromJson`, or `FromQueryString` factory methods.
+- **Do NOT bypass `AllowedFields`** — Always pass the entity's allowed sort fields
+  when the input comes from an untrusted source (e.g., query string).
+- **Do NOT mutate** — All types are immutable. Create new instances when changes are needed.
+
+## File Structure
+
+```
+Sorting/
+├── README.yaml
+├── Sort.Clause.cs                     # SortClause primary record definition
+├── Sort.Clause.Behavior.cs            # DirectionToken, ToString()
+├── Sort.Clause.Constant.cs            # DefaultDirection, DefaultNulls
+├── Sort.Direction.cs                  # SortDirection enum (Ascending, Descending)
+├── Sort.Model.cs                      # SortModel primary partial class
+├── Sort.Model.Behavior.cs             # ComputeViolations, HasField, ClauseFor, ResolveClauses
+├── Sort.Model.Constant.cs             # Cache.ModelPrefix, Default.Clauses, Empty sentinel
+├── Sort.Model.Result.cs               # SortModelResult (SuccessMsg + Failure error factories)
+├── Sort.Nulls.Type.cs                 # SortNulls enum (First, Last)
+├── SortModelExtensions.cs             # FromString, FromJson, FromQueryString public API
+├── Expression/
+│   ├── SortExpressionBuilder.cs       # BuildKeySelector for OrderBy/ThenBy
+│   └── SortExpressionBuilder.Constant.cs # Cached MethodInfo handles
+├── Extensions/
+│   └── SortModelEfCoreExtensions.cs   # IQueryable.ApplySort extension method
+└── Parsing/
+    ├── SortDslParser.cs               # DSL clause parser
+    ├── SortJsonParser.cs              # JSON clause parser
+    ├── SortQueryStringParser.cs        # Query-string entry parser
+    └── SortParserHelpers.cs           # Shared ParseDirection, ParseNulls
+```
+
+## Usage
+
+```csharp
+// From DSL string
+Result<SortModel> result = SortModelExtensions.FromString("Name asc, CreatedAt desc", allowedFields);
+
+// From JSON
+Result<SortModel> result = SortModelExtensions.FromJson("""[{"field":"Name"},{"field":"CreatedAt","direction":"desc"}]""");
+
+// From query string
+Result<SortModel> result = SortModelExtensions.FromQueryString(httpContext.Request.Query["sort"]);
+
+// Apply to IQueryable
+IQueryable<Product> sorted = dbContext.Products.ApplySort(result.Value);
+```
+
+## Dependencies
+
+- `Shared.Models.Errors` — `Error` struct and `Error.Validation()` factory
+- `Shared.Models.Results` — `Result<T>` generic struct
+- `Shared.Persistence.Specifications.Helpers` — `QueryHelper.GetPropertyCaseInsensitive`
+- `Microsoft.EntityFrameworkCore` / `System.Linq.Expressions` — for expression builder

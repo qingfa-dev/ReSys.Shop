@@ -1,0 +1,93 @@
+---
+module: Paging
+namespace: Shared.Persistence.Specifications.Paging
+status: implemented
+description: >
+  Page specification abstraction for entity queries. Provides an immutable PageModel
+  with normalized page/pageSize values parsed from explicit integers, query-string,
+  and JSON input, with extension methods for EF Core and in-memory pagination.
+---
+
+# Paging Module
+
+## Purpose
+
+Define, parse, normalize, and apply pagination to entity queries.
+The `PageModel` is an immutable, normalized representation of a pagination request.
+Page and pageSize are clamped to bounds via `PageBounds` rather than rejected —
+out-of-range values are silently corrected.
+
+## Principles
+
+1. **Immutable model** — `PageModel` and `PageBounds` are immutable after construction.
+2. **Silent clamping** — Out-of-range page/size values are clamped to `PageBounds` limits;
+   no validation errors are produced for out-of-bounds values. Consistent with REST API
+   conventions (400 for malformed input, 200 with default pagination for out-of-range).
+3. **Three input surfaces** — Explicit integer values, query-string parameter strings,
+   and JSON objects produce the same `PageModel` shape.
+4. **Internal construction** — `PageModel` constructor is `internal`. Construction
+   is only permitted via `PageModelExtensions` factory methods.
+5. **Normalized output** — `Page` is always ≥ 1, `PageSize` is always in `[1, MaxPageSize]`.
+   Raw caller input is never stored — only the normalized result.
+
+## Anti-Patterns
+
+- **Do NOT construct `PageModel` directly** — Use `PageModelExtensions.FromValues`,
+  `FromQueryString`, or `FromJson` factory methods.
+- **Do NOT bypass `PageBounds` normalization** — Always pass a `PageBounds` instance
+  to factory methods. Use `PageBounds.Default` for standard endpoints.
+- **Do NOT mutate** — All types are immutable. Create new instances when changes are needed.
+- **Do NOT check for out-of-range values** — The module silently clamps them.
+  If you need validation, check before calling the factory.
+
+## File Structure
+
+```
+Paging/
+├── README.yaml
+├── Page.Bounds.cs                     # PageBounds primary record definition
+├── Page.Bounds.Behavior.cs            # NormalizePage, NormalizePageSize
+├── Page.Bounds.Constant.cs            # DefaultPageValue, DefaultPageSizeValue, DefaultMaxPageSizeValue, Default
+├── Page.Model.cs                      # PageModel primary partial class (properties, constructor)
+├── Page.Model.Behavior.cs             # Derived members (Skip, TotalPages, HasNextPage, HasPreviousPage, ToString)
+├── Page.Model.Constant.cs             # Empty sentinel
+├── Page.Model.Result.cs               # PageModelResult (SuccessMsg + Failure error factories)
+├── PageModelExtensions.cs             # Public API: FromValues, FromQueryString, FromJson
+├── Extensions/
+│   ├── PageModelEfCoreExtensions.cs   # Async IQueryable pagination (EF Core)
+│   └── PageModelInMemoryExtensions.cs # Sync IEnumerable pagination (in-memory)
+└── Parsing/
+    ├── PageQueryStringParser.cs        # Query-string parameter parser
+    └── PageJsonParser.cs              # JSON parser
+```
+
+## Usage
+
+```csharp
+// From explicit integer values
+Result<PageModel> result = PageModelExtensions.FromValues(page: 2, pageSize: 20);
+
+// From query-string parameters
+Result<PageModel> result = PageModelExtensions.FromQueryString("2", "20");
+
+// From JSON
+Result<PageModel> result = PageModelExtensions.FromJson("""{"page":2,"pageSize":20}""");
+
+// With custom bounds
+PageBounds adminBounds = new(DefaultPageSize: 500, MaxPageSize: 1000);
+Result<PageModel> result = PageModelExtensions.FromValues(1, 50, adminBounds);
+
+// Apply to IQueryable (EF Core)
+PagedResult<Product> paged = await dbContext.Products
+    .ToPagedResultAsync(result.Value);
+
+// Apply to IEnumerable (in-memory)
+PagedResult<Product> paged = productList.ToPagedResult(result.Value);
+```
+
+## Dependencies
+
+- `Shared.Models.Errors` — `Error` struct and `Error.Validation()` factory
+- `Shared.Models.Results` — `Result<T>` and `PagedResult<T>` structs
+- `Microsoft.EntityFrameworkCore` — for async EF Core extension methods
+- `System.Text.Json` — for JSON parser

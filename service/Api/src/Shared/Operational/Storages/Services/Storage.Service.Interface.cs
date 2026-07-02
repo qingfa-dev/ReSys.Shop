@@ -1,0 +1,45 @@
+using Shared.Operational.Storages.Models;
+using Shared.Operational.Storages.Providers;
+
+namespace Shared.Operational.Storages.Services;
+
+/// <summary>
+/// High-level storage service that routes operations to the correct <see cref="IStorageProvider"/>
+/// and applies cross-cutting concerns (security, anti-forgery, auditing).
+/// </summary>
+public interface IStorageService
+{
+    /// <summary>
+    /// Uploads an object using the <paramref name="providerName"/> provider.
+    /// Pass <c>null</c> to use the default provider.
+    /// </summary>
+    Task<Result<UploadResult>> UploadAsync(
+        UploadRequest request,
+        string? providerName = null,
+        UploadOptions? options = null,
+        CancellationToken ct = default);
+
+    /// <summary>Downloads an object from the <paramref name="providerName"/> provider.</summary>
+    Task<Result<DownloadResult>> DownloadAsync(
+        string key,
+        string? providerName = null,
+        CancellationToken ct = default);
+
+    /// <summary>Deletes an object from the <paramref name="providerName"/> provider.</summary>
+    Task<Result> DeleteAsync(
+        string key,
+        string? providerName = null,
+        CancellationToken ct = default);
+
+    /// <summary>Stats an object from the <paramref name="providerName"/> provider.</summary>
+    Task<Result<StoredObjectInfo>> StatAsync(
+        string key,
+        string? providerName = null,
+        CancellationToken ct = default);
+
+    /// <summary>Lists objects under <paramref name="prefix"/> from the <paramref name="providerName"/> provider.</summary>
+    Task<Result<IReadOnlyList<StoredObjectInfo>>> ListAsync(
+        string? prefix = null,
+        string? providerName = null,
+        CancellationToken ct = default);
+}
