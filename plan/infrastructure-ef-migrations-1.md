@@ -20,7 +20,7 @@ Create the missing ` Api.Migrations` class library project that the `Application
 - **REQ-003**: Add the project to `ReSys.Shop.slnx` under folder `/service/Api/src/`
 - **REQ-004**: Provide a `DesignTimeDbContextFactory` so `dotnet ef migrations add` can resolve `ApplicationDbContext` at design time with all entity configurations loaded
 - **REQ-005**: The migration assembly name must be ` Api.Migrations` to match the existing `MigrationsAssembly` string in `PersistenceExtensions.cs:77`
-- **REQ-006**: Generate the initial migration (`InitialCreate`) capturing all entity types: Identity tables (`identity.users`, `identity.roles`, `identity.user_roles`, `identity.user_claims`, `identity.user_logins`, `identity.user_tokens`, `identity.role_claims`, `identity.user_passkeys`) and Locations tables (`Locations.countries`, `Locations.states`), plus all cross-cutting columns (audit, version, soft-delete, slug)
+- **REQ-006**: Generate the initial migration (`InitialCreate`) capturing all entity types: Identity tables (`identity.users`, `identity.roles`, `identity.user_roles`, `identity.user_claims`, `identity.user_logins`, `identity.user_tokens`, `identity.role_claims`, `identity.user_passkeys`) and Location tables (`Location.countries`, `Location.states`), plus all cross-cutting columns (audit, version, soft-delete, slug)
 - **CON-001**: The `ApplicationDbContext` is sealed and uses `ApplyConfigurationsFromAssembly` scanning — the design-time factory must set `AdditionalConfigurationsAssemblies` to include the `Module` assembly before constructing the context
 - **CON-002**: Use `dotnet ef` tool already configured at version `10.0.9` in `dotnet-tools.json`
 - **CON-003**: All entity type configurations already exist — the initial migration must reflect the current model without manual schema changes
@@ -57,7 +57,7 @@ Create the missing ` Api.Migrations` class library project that the `Application
 
 | Task | Description | Completed | Date |
 |------|-------------|-----------|------|
-| TASK-009 | Read the generated `InitialCreate.cs` migration file and verify it contains: `migrationBuilder.CreateTable` calls for `Identity.users`, `Identity.roles`, `Identity.user_roles`, `Identity.user_claims`, `Identity.user_logins`, `Identity.user_tokens`, `Identity.role_claims`, `Identity.user_passkeys`, `Locations.countries`, `Locations.states` — plus the `vector` extension enablement via `migrationBuilder.Sql("CREATE EXTENSION IF NOT EXISTS vector")` and any `migrationBuilder.AlterDatabase().Annotation("Npgsql:PostgresExtension:vector", ...)` | |  |
+| TASK-009 | Read the generated `InitialCreate.cs` migration file and verify it contains: `migrationBuilder.CreateTable` calls for `Identity.users`, `Identity.roles`, `Identity.user_roles`, `Identity.user_claims`, `Identity.user_logins`, `Identity.user_tokens`, `Identity.role_claims`, `Identity.user_passkeys`, `Location.countries`, `Location.states` — plus the `vector` extension enablement via `migrationBuilder.Sql("CREATE EXTENSION IF NOT EXISTS vector")` and any `migrationBuilder.AlterDatabase().Annotation("Npgsql:PostgresExtension:vector", ...)` | |  |
 | TASK-010 | Run `dotnet build` on the full solution one final time to confirm zero warnings/errors | |  |
 
 ## 3. Alternatives
@@ -87,7 +87,7 @@ Create the missing ` Api.Migrations` class library project that the `Application
 
 - **TEST-001**: Run `dotnet build` — solution must build with zero errors and zero warnings after migration project is added
 - **TEST-002**: Verify the generated migration `.cs` file compiles by running `dotnet build` after migration generation
-- **TEST-003**: Manual inspection of `InitialCreate.cs` confirms all expected entity types are mapped (Identity + Locations + cross-cutting columns)
+- **TEST-003**: Manual inspection of `InitialCreate.cs` confirms all expected entity types are mapped (Identity + Location + cross-cutting columns)
 - **TEST-004**: Confirm `dotnet ef migrations list --project service/Api/src/Migrations/ Api.Migrations.csproj --startup-project service/Api/src/Api/Api.csproj` returns the newly created migration
 
 ## 7. Risks & Assumptions
@@ -96,7 +96,7 @@ Create the missing ` Api.Migrations` class library project that the `Application
 - **RISK-002**: Entity configurations in `Module` are discovered via `AdditionalConfigurationsAssemblies` at runtime. If the design-time factory does not set this static property before constructing the context, entity types from `Module` (Countries, States) will be missing from the generated migration. **Mitigation**: The `DesignTimeDbContextFactory` explicitly sets `ApplicationDbContext.AdditionalConfigurationsAssemblies` to include `typeof(IModuleMarker).Assembly`.
 - **RISK-003**: The `MigrationsAssembly` string `" Api.Migrations"` must match the actual assembly name produced by the project. This is the default assembly name for a project named ` Api.Migrations`, so no explicit `<AssemblyName>` override is needed.
 - **ASSUMPTION-001**: A PostgreSQL instance is available on localhost with default credentials, or the connection string in `Api/appsettings.json` is usable by the design-time factory.
-- **ASSUMPTION-002**: No additional modules beyond `Locations` currently contribute entity configurations — if more modules are added later, they must also be added to `DesignTimeDbContextFactory`'s `AdditionalConfigurationsAssemblies`.
+- **ASSUMPTION-002**: No additional modules beyond `Location` currently contribute entity configurations — if more modules are added later, they must also be added to `DesignTimeDbContextFactory`'s `AdditionalConfigurationsAssemblies`.
 
 ## 8. Related Specifications / Further Reading
 
