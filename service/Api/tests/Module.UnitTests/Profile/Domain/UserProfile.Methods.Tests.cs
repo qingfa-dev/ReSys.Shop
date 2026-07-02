@@ -105,17 +105,6 @@ public class UserProfileMethodTests
         updated.Value.PhoneNumber.Should().Be("+1234567890");
     }
 
-    [Fact(DisplayName = "Update should clear phone number when set to null")]
-    public void Update_WithPhoneNumberNull_ShouldSetNull()
-    {
-        Result<UserProfile> result = UserProfileMethod.Create(FirstName, LastName, Email,
-            phoneNumber: "+1234567890");
-
-        Result<UserProfile> updated = result.Value.Update(phoneNumber: null);
-
-        updated.Value.PhoneNumber.Should().BeNull();
-    }
-
     [Fact(DisplayName = "Update should set date of birth")]
     public void Update_WithDateOfBirth_ShouldSetDateOfBirth()
     {

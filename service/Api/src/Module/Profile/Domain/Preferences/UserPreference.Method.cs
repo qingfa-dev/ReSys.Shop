@@ -52,73 +52,69 @@ public static class UserPreferenceMethod
 
     public static Result<UserPreferences> Update(
         this UserPreferences prefs,
-        Optional<string?> preferredStyle = default,
-        Optional<string?> preferredFit = default,
-        Optional<List<string>?> favoriteColors = default,
-        Optional<List<string>?> favoriteCategories = default,
-        Optional<List<string>?> preferredBrands = default,
-        Optional<string?> sizeTop = default,
-        Optional<string?> sizeBottom = default,
-        Optional<string?> shoeSize = default)
+        string? preferredStyle = default,
+        string? preferredFit = default,
+        List<string>? favoriteColors = default,
+        List<string>? favoriteCategories = default,
+        List<string>? preferredBrands = default,
+        string? sizeTop = default,
+        string? sizeBottom = default,
+        string? shoeSize = default)
     {
-        if (preferredStyle.HasValue)
+        if (preferredStyle is not null)
         {
-            if (preferredStyle.Value?.Length > UserPreferenceConstant.Constraints.MaxPreferredStyleLength)
+            if (preferredStyle.Length > UserPreferenceConstant.Constraints.MaxPreferredStyleLength)
                 return UserPreferencesResult.Failure.StyleTooLong;
-            prefs.PreferredStyle = preferredStyle.Value ?? UserPreferenceConstant.Defaults.PreferredStyle;
+            prefs.PreferredStyle = preferredStyle;
         }
 
-        if (preferredFit.HasValue)
+        if (preferredFit is not null)
         {
-            if (preferredFit.Value?.Length > UserPreferenceConstant.Constraints.MaxPreferredFitLength)
+            if (preferredFit.Length > UserPreferenceConstant.Constraints.MaxPreferredFitLength)
                 return UserPreferencesResult.Failure.FitTooLong;
-            prefs.PreferredFit = preferredFit.Value ?? UserPreferenceConstant.Defaults.PreferredFit;
+            prefs.PreferredFit = preferredFit;
         }
 
-        if (favoriteColors.HasValue)
+        if (favoriteColors is not null)
         {
-            List<string>? colors = favoriteColors.Value;
-            if (colors is not null && colors.Count > UserPreferenceConstant.Constraints.MaxFavoriteColorsPerUser)
+            if (favoriteColors.Count > UserPreferenceConstant.Constraints.MaxFavoriteColorsPerUser)
                 return UserPreferencesResult.Failure.TooManyFavoriteColors;
-            prefs.FavoriteColors = colors ?? [];
+            prefs.FavoriteColors = favoriteColors;
         }
 
-        if (favoriteCategories.HasValue)
+        if (favoriteCategories is not null)
         {
-            List<string>? categories = favoriteCategories.Value;
-            if (categories is not null &&
-                categories.Count > UserPreferenceConstant.Constraints.MaxFavoriteCategoriesPerUser)
+            if (favoriteCategories.Count > UserPreferenceConstant.Constraints.MaxFavoriteCategoriesPerUser)
                 return UserPreferencesResult.Failure.TooManyFavoriteCategories;
-            prefs.FavoriteCategories = categories ?? [];
+            prefs.FavoriteCategories = favoriteCategories;
         }
 
-        if (preferredBrands.HasValue)
+        if (preferredBrands is not null)
         {
-            List<string>? brands = preferredBrands.Value;
-            if (brands is not null && brands.Count > UserPreferenceConstant.Constraints.MaxPreferredBrandsPerUser)
+            if (preferredBrands.Count > UserPreferenceConstant.Constraints.MaxPreferredBrandsPerUser)
                 return UserPreferencesResult.Failure.TooManyPreferredBrands;
-            prefs.PreferredBrands = brands ?? [];
+            prefs.PreferredBrands = preferredBrands;
         }
 
-        if (sizeTop.HasValue)
+        if (sizeTop is not null)
         {
-            if (sizeTop.Value?.Length > UserPreferenceConstant.Constraints.MaxSizeTopLength)
+            if (sizeTop.Length > UserPreferenceConstant.Constraints.MaxSizeTopLength)
                 return UserPreferencesResult.Failure.InvalidSizeTop;
-            prefs.SizeTop = sizeTop.Value;
+            prefs.SizeTop = sizeTop;
         }
 
-        if (sizeBottom.HasValue)
+        if (sizeBottom is not null)
         {
-            if (sizeBottom.Value?.Length > UserPreferenceConstant.Constraints.MaxSizeBottomLength)
+            if (sizeBottom.Length > UserPreferenceConstant.Constraints.MaxSizeBottomLength)
                 return UserPreferencesResult.Failure.InvalidSizeBottom;
-            prefs.SizeBottom = sizeBottom.Value;
+            prefs.SizeBottom = sizeBottom;
         }
 
-        if (shoeSize.HasValue)
+        if (shoeSize is not null)
         {
-            if (shoeSize.Value?.Length > UserPreferenceConstant.Constraints.MaxShoeSizeLength)
+            if (shoeSize.Length > UserPreferenceConstant.Constraints.MaxShoeSizeLength)
                 return UserPreferencesResult.Failure.InvalidShoeSize;
-            prefs.ShoeSize = shoeSize.Value;
+            prefs.ShoeSize = shoeSize;
         }
 
         return prefs;

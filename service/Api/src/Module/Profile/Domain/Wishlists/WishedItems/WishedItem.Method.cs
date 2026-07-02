@@ -32,7 +32,7 @@ public static class WishedItemMethod
 
     public static Result<WishedItem> Update(
         this WishedItem item,
-        Optional<int> quantity = default)
+        int? quantity = default)
     {
         if (quantity.HasValue)
         {
