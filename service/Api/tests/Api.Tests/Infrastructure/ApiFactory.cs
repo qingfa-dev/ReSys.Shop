@@ -1,8 +1,12 @@
+using Microsoft.AspNetCore.Antiforgery;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Options;
 
 namespace Api.Tests.Infrastructure;
 
@@ -46,15 +50,26 @@ public sealed class ApiFactory : WebApplicationFactory<Program>
 
                 ["GuestSession:CookieSecurePolicy"] = "SameAsRequest",
 
+                ["AntiForgery:HeaderName"] = "X-XSRF-TOKEN",
                 ["AntiForgery:IsEnabled"] = "false",
                 ["AntiForgery:Required"] = "false",
-                ["AntiForgery:CookieSecurePolicy"] = "SameAsRequest"
+                ["AntiForgery:CookieName"] = "XSRF-TOKEN",
+                ["AntiForgery:CookieSecurePolicy"] = "SameAsRequest",
+                ["AntiForgery:CookieSameSite"] = "Strict",
+                ["AntiForgery:CookieHttpOnly"] = "true"
             });
         });
 
         builder.ConfigureServices(services =>
         {
             services.RemoveAll<IHostedService>();
+
+            services.Configure<AntiforgeryOptions>(static options =>
+            {
+                options.HeaderName = "X-XSRF-TOKEN";
+                options.Cookie.Name = "XSRF-TOKEN";
+                options.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
+            });
         });
     }
 }

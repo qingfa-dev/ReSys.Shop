@@ -14,11 +14,25 @@ public static class EndpointExtension
         this WebApplicationBuilder builder,
         params Assembly[] additionalAssemblies)
     {
+        List<Assembly> assembliesToScan = [..additionalAssemblies];
+
+        Assembly? entryAssembly = Assembly.GetEntryAssembly();
+        if (entryAssembly is not null && !assembliesToScan.Contains(entryAssembly))
+        {
+            assembliesToScan.Add(entryAssembly);
+        }
+
+        Assembly sharedAssembly = typeof(EndpointExtension).Assembly;
+        if (!assembliesToScan.Contains(sharedAssembly))
+        {
+            assembliesToScan.Add(sharedAssembly);
+        }
+
         builder.Services.AddCarter(
             new DependencyContextAssemblyCatalog(),
             configurator =>
             {
-                foreach (Assembly assembly in additionalAssemblies)
+                foreach (Assembly assembly in assembliesToScan)
                 {
                     Type[] moduleTypes = assembly.GetTypes()
                         .Where(t => !t.IsAbstract && typeof(ICarterModule).IsAssignableFrom(t))
