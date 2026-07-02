@@ -9,7 +9,7 @@ public static partial class UpdateAddress
     {
         public void AddRoutes(IEndpointRouteBuilder app)
         {
-            app.MapPut(ProfilesFeature.Store.Addresses.Update.Route, async (
+            app.MapPut(ProfileFeature.Store.Addresses.Update.Route, async (
                     [FromRoute] Guid id,
                     [FromBody] Request request,
                     ISender sender,
@@ -21,9 +21,9 @@ public static partial class UpdateAddress
                 })
                 .RequireAuthorization()
                 .WithName(nameof(UpdateAddress))
-                .WithTags(ProfilesFeature.Tags.Address)
-                .WithSummary(ProfilesFeature.Store.Addresses.Update.Summary)
-                .WithDescription(ProfilesFeature.Store.Addresses.Update.Description)
+                .WithTags(ProfileFeature.Tags.Address)
+                .WithSummary(ProfileFeature.Store.Addresses.Update.Summary)
+                .WithDescription(ProfileFeature.Store.Addresses.Update.Description)
                 .Produces<Result<Response>>()
                 .Produces<Result>(StatusCodes.Status400BadRequest)
                 .Produces<Result>(StatusCodes.Status401Unauthorized)

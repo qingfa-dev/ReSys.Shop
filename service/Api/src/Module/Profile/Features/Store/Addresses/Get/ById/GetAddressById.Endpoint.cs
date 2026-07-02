@@ -9,7 +9,7 @@ public static partial class GetAddressById
     {
         public void AddRoutes(IEndpointRouteBuilder app)
         {
-            app.MapGet(ProfilesFeature.Store.Addresses.GetById.Route, async (
+            app.MapGet(ProfileFeature.Store.Addresses.GetById.Route, async (
                 [FromRoute] Guid id,
                 ISender sender,
                 CancellationToken cancellationToken) =>
@@ -20,9 +20,9 @@ public static partial class GetAddressById
             })
             .RequireAuthorization()
             .WithName(nameof(GetAddressById))
-            .WithTags(ProfilesFeature.Tags.Address)
-            .WithSummary(ProfilesFeature.Store.Addresses.GetById.Summary)
-            .WithDescription(ProfilesFeature.Store.Addresses.GetById.Description)
+            .WithTags(ProfileFeature.Tags.Address)
+            .WithSummary(ProfileFeature.Store.Addresses.GetById.Summary)
+            .WithDescription(ProfileFeature.Store.Addresses.GetById.Description)
             .Produces<Result<Response>>()
             .Produces<Result>(StatusCodes.Status400BadRequest)
             .Produces<Result>(StatusCodes.Status401Unauthorized)

@@ -16,7 +16,7 @@ public static partial class GetProfilesPagedOrAll
         public void AddRoutes(IEndpointRouteBuilder app)
         {
             // Map: Defines a GET endpoint for retrieving profiles, supporting pagination and querying.
-            app.MapGet(ProfilesFeature.Store.Profile.GetAll.Route, async (
+            app.MapGet(ProfileFeature.Store.Profile.GetAll.Route, async (
                 [AsParameters] Parameters parameters,
                 ISender sender,
                 CancellationToken ct) =>
@@ -30,9 +30,9 @@ public static partial class GetProfilesPagedOrAll
             })
             .RequireAuthorization()
             .WithName(nameof(GetProfilesPagedOrAll))
-            .WithTags(ProfilesFeature.Tags.Profile)
-            .WithSummary(ProfilesFeature.Store.Profile.GetAll.Summary)
-            .WithDescription(ProfilesFeature.Store.Profile.GetAll.Description)
+            .WithTags(ProfileFeature.Tags.Profile)
+            .WithSummary(ProfileFeature.Store.Profile.GetAll.Summary)
+            .WithDescription(ProfileFeature.Store.Profile.GetAll.Description)
             .Produces<PagedResult<Response>>()
             .Produces<Result>(StatusCodes.Status400BadRequest)
             .Produces<Result>(StatusCodes.Status401Unauthorized)

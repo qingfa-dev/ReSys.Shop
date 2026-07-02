@@ -32,6 +32,8 @@ public sealed class ApiFactory : WebApplicationFactory<Program>
 
                 ["Observability:UseAspireOTLPExporter"] = "false",
                 ["Observability:ExposeDetailedReport"] = "true",
+                ["Observability:SensitiveDataLogging"] = "false",
+                ["Diagnostics:Logging:LogLevel:Microsoft.EntityFrameworkCore"] = "Warning",
 
                 ["Caching:Enabled"] = "false",
                 ["Caching:Memory:Enabled"] = "false",
@@ -49,6 +51,14 @@ public sealed class ApiFactory : WebApplicationFactory<Program>
 
                 ["Authentication:Google:ClientId"] = "test-client-id",
                 ["Authentication:Google:ClientSecret"] = "test-client-secret",
+
+                ["Notification:ApplicationName"] = "ReSys Shop Test",
+                ["Notification:SupportEmail"] = "support@resys.shop",
+                ["Notification:SupportPhone"] = "+1-123-456-7890",
+                ["Notification:ApplicationUrl"] = "http://localhost:5000",
+                ["Notification:CustomerSupportLink"] = "http://localhost:5000/support",
+                ["Notification:UnsubscribeUrl"] = "http://localhost:5000/unsubscribe",
+                ["Notification:SurveyUrl"] = "http://localhost:5000/survey",
 
                 ["GuestSession:CookieSecurePolicy"] = "SameAsRequest",
 

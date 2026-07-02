@@ -1,6 +1,6 @@
 namespace Module.Profile.Features.Shared;
 
-public static class ProfilesFeature
+public static class ProfileFeature
 {
     public static class Tags
     {

@@ -9,7 +9,7 @@ public static partial class CreateAddress
     {
         public void AddRoutes(IEndpointRouteBuilder app)
         {
-            app.MapPost(ProfilesFeature.Store.Addresses.Create.Route, async (
+            app.MapPost(ProfileFeature.Store.Addresses.Create.Route, async (
                     [FromBody] Request request,
                     ISender sender,
                     CancellationToken cancellationToken) =>
@@ -20,9 +20,9 @@ public static partial class CreateAddress
                 })
                 .RequireAuthorization()
                 .WithName(nameof(CreateAddress))
-                .WithTags(ProfilesFeature.Tags.Address)
-                .WithSummary(ProfilesFeature.Store.Addresses.Create.Summary)
-                .WithDescription(ProfilesFeature.Store.Addresses.Create.Description)
+                .WithTags(ProfileFeature.Tags.Address)
+                .WithSummary(ProfileFeature.Store.Addresses.Create.Summary)
+                .WithDescription(ProfileFeature.Store.Addresses.Create.Description)
                 .Produces<Result<Response>>(StatusCodes.Status201Created)
                 .Produces<Result>(StatusCodes.Status400BadRequest)
                 .Produces<Result>(StatusCodes.Status401Unauthorized)

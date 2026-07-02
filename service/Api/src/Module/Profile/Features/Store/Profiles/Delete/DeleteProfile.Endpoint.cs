@@ -9,7 +9,7 @@ public static partial class DeleteProfile
         // Route: DELETE api/store/identity/profiles — deactivate authenticated user's profile
         public void AddRoutes(IEndpointRouteBuilder app)
         {
-            app.MapDelete(ProfilesFeature.Store.Profile.Delete.Route, async (
+            app.MapDelete(ProfileFeature.Store.Profile.Delete.Route, async (
                 ISender sender,
                 ICurrentUser currentUser,
                 CancellationToken ct) =>
@@ -21,9 +21,9 @@ public static partial class DeleteProfile
             })
             .RequireAuthorization()
             .WithName(nameof(DeleteProfile))
-            .WithTags(ProfilesFeature.Tags.Profile)
-            .WithSummary(ProfilesFeature.Store.Profile.Delete.Summary)
-            .WithDescription(ProfilesFeature.Store.Profile.Delete.Description)
+            .WithTags(ProfileFeature.Tags.Profile)
+            .WithSummary(ProfileFeature.Store.Profile.Delete.Summary)
+            .WithDescription(ProfileFeature.Store.Profile.Delete.Description)
             .Produces<Result>()
             .Produces<Result>(StatusCodes.Status400BadRequest)
             .Produces<Result>(StatusCodes.Status401Unauthorized)

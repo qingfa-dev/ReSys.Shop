@@ -14,6 +14,7 @@ public static partial class GetSession
                 var result = await sender.Send(query, ct);
                 return result.ToResult();
             })
+            .AllowAnonymous()
             .WithName(nameof(GetSession))
             .WithTags(IdentityFeature.Tags.Authentication)
             .WithSummary(IdentityFeature.Store.Auth.Sessions.Get.Summary)
