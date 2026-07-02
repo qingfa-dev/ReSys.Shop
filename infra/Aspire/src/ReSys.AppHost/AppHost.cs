@@ -13,9 +13,17 @@ IResourceBuilder<RedisResource> redis = builder.AddRedis(Infrastructures.Cache.R
 IResourceBuilder<PostgresDatabaseResource> database = postgres.AddDatabase(
     Infrastructures.Databases.Resource);
 
+var embedding = builder.AddPythonApp(
+        Services.Embedding,
+        "../../../../service/Embedding",
+        "embedding.main")
+    .WithHttpEndpoint(targetPort: 8000, name: "http")
+    .WithExternalHttpEndpoints();
+
 IResourceBuilder<ProjectResource> api = builder.AddProject<Projects.Api>(Services.Api)
     .WithReference(database)
-    .WithReference(redis);
+    .WithReference(redis)
+    .WithReference(embedding);
 
 IResourceBuilder<ViteAppResource> store = builder.AddViteApp(Application.Store, "../../../../app/Store")
     .WithPnpm()
