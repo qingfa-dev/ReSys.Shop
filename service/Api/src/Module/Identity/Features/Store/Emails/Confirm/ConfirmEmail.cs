@@ -1,4 +1,9 @@
+using MediatR;
+
 using Microsoft.AspNetCore.Identity;
+
+using Module.Profile.Domain;
+using Module.Profile.Features.Store.Profile.Create;
 
 using Shared.Governance.Conventions;
 using Shared.Operational.Notifications.Models;
@@ -16,7 +21,8 @@ public static partial class ConfirmEmail
         UserManager<User> userManager,
         ICurrentUser currentUser,
         INotificationService notificationService,
-        ILogger<CommandHandler> logger)
+        ILogger<CommandHandler> logger,
+        IMediator mediator)
         : ICommandHandler<Command>
     {
         public async Task<Result> Handle(Command command, CancellationToken cancellationToken)
@@ -69,6 +75,7 @@ public static partial class ConfirmEmail
             {
                 UserLoggers.Emails.EmailVerified(logger, UserId: user.Id, Email: user.Email!, Timestamp: DateTime.UtcNow, ActionBy: currentUser.UserName);
                 await SendWelcomeNotificationAsync(user);
+                await CreateUserProfileAsync(user, cancellationToken);
             }
 
             return Result.NoContent();
@@ -82,6 +89,33 @@ public static partial class ConfirmEmail
                 .AddParam(NotificationParameterType.UserFirstName, user.FirstName);
 
             await notificationService.SendAsync(message.Value, default);
+        }
+
+        private async Task CreateUserProfileAsync(User user, CancellationToken cancellationToken)
+        {
+            try
+            {
+                var profileResult = await mediator.Send(new CreateProfile.Command(user.Id, new CreateProfile.Request
+                {
+                    FirstName = user.FirstName,
+                    LastName = user.LastName ?? string.Empty,
+                    Email = user.Email!
+                }), cancellationToken);
+
+                if (profileResult.IsFailure)
+                {
+                    var errors = string.Join("; ", profileResult.Errors.Select(e => $"{e.Code}: {e.Message}"));
+                    UserProfileLoggers.Management.ProfileCreationFailed(logger, user.Id, errors);
+                }
+                else
+                {
+                    UserProfileLoggers.Management.ProfileCreated(logger, user.Id, profileResult.Value.Id);
+                }
+            }
+            catch (Exception ex)
+            {
+                UserProfileLoggers.Management.ProfileCreationFailed(logger, user.Id, ex.Message);
+            }
         }
     }
 }

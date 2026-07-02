@@ -1,6 +1,9 @@
+using MediatR;
+
 using Microsoft.AspNetCore.Identity;
 
 using Module.Identity.Features.Store.Auth.Login.External.Authenticate;
+using Module.Profile.Features.Store.Profile.Create;
 using Module.UnitTests.Identity.Fixtures;
 
 using Shared.Security.Authentication.External.Models;
@@ -26,6 +29,7 @@ public class ExternalAuthenticateTests
     private readonly Mock<ISystemDateTime> _dateTimeMock;
     private readonly Mock<ICurrentUser> _currentUserMock;
     private readonly Mock<ILogger<ExternalAuthenticate.CommandHandler>> _loggerMock;
+    private readonly Mock<IMediator> _mediatorMock;
     private readonly DateTimeOffset _fixedNow;
 
     public ExternalAuthenticateTests()
@@ -46,6 +50,11 @@ public class ExternalAuthenticateTests
         _currentUserMock.Setup(x => x.Device).Returns("Chrome/120");
 
         _loggerMock = new Mock<ILogger<ExternalAuthenticate.CommandHandler>>();
+        _mediatorMock = new Mock<IMediator>();
+
+        _mediatorMock
+            .Setup(x => x.Send(It.IsAny<CreateProfile.Command>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new CreateProfile.Response());
     }
 
     // ===== Factory =====
@@ -57,7 +66,8 @@ public class ExternalAuthenticateTests
         _refreshTokenServiceMock.Object,
         _dateTimeMock.Object,
         _currentUserMock.Object,
-        _loggerMock.Object);
+        _loggerMock.Object,
+        _mediatorMock.Object);
 
     private static ExternalAuthenticate.Command CreateCommand(string provider, string idToken) => new(
         new ExternalAuthenticate.Request { Provider = provider, IdToken = idToken });
@@ -258,6 +268,9 @@ public class ExternalAuthenticateTests
         capturedUser.EmailConfirmed.Should().BeTrue();
         capturedUser.CreatedAtUtc.Should().Be(_fixedNow);
         capturedUser.UserName.Should().NotBeNullOrEmpty();
+        _mediatorMock.Verify(
+            x => x.Send(It.IsAny<CreateProfile.Command>(), It.IsAny<CancellationToken>()),
+            Times.Once);
     }
 
     [Fact(DisplayName = "Should assign default User role when creating new user")]
@@ -283,6 +296,9 @@ public class ExternalAuthenticateTests
             TestContext.Current.CancellationToken);
 
         capturedRole.Should().Be(RoleConstant.Defaults.User);
+        _mediatorMock.Verify(
+            x => x.Send(It.IsAny<CreateProfile.Command>(), It.IsAny<CancellationToken>()),
+            Times.Once);
     }
 
     [Fact(DisplayName = "Should link external login when creating new user")]
@@ -310,6 +326,39 @@ public class ExternalAuthenticateTests
         capturedLogin.Should().NotBeNull();
         capturedLogin!.LoginProvider.Should().Be("google");
         capturedLogin.ProviderKey.Should().Be("sub-456");
+        _mediatorMock.Verify(
+            x => x.Send(It.IsAny<CreateProfile.Command>(), It.IsAny<CancellationToken>()),
+            Times.Once);
+    }
+
+    [Fact(DisplayName = "Should create profile with correct user data for new external user")]
+    public async Task Handle_NewUser_CreatesProfileWithCorrectData()
+    {
+        var userId = Guid.NewGuid();
+        _userManagerMock.Setup(x => x.FindByEmailAsync(It.IsAny<string>())).ReturnsAsync((User?)null);
+        SetUpProviderSuccess(subjectId: "sub-789", email: "external@test.com");
+        SetUpCreateUserSuccess();
+        SetUpAddRoleSuccess();
+        SetUpAddLoginSuccess();
+        SetUpAccessTokenSuccess();
+        SetUpRefreshTokenSuccess(userId);
+        SetUpUpdateSuccess();
+
+        CreateProfile.Command? captured = null;
+        _mediatorMock
+            .Setup(x => x.Send(It.IsAny<CreateProfile.Command>(), It.IsAny<CancellationToken>()))
+            .Callback<IRequest<Result<CreateProfile.Response>>, CancellationToken>((req, _) => captured = (CreateProfile.Command)req)
+            .ReturnsAsync(new CreateProfile.Response());
+
+        await CreateHandler().Handle(
+            CreateCommand("google", "valid-token"),
+            TestContext.Current.CancellationToken);
+
+        captured.Should().NotBeNull();
+        captured.UserId.Should().NotBeEmpty();
+        captured.Request.FirstName.Should().Be("John");
+        captured.Request.LastName.Should().Be("Doe");
+        captured.Request.Email.Should().Be("external@test.com");
     }
 
     // ==================== EXISTING USER — LINK NEW PROVIDER ====================
@@ -340,6 +389,9 @@ public class ExternalAuthenticateTests
         capturedLogin.Should().NotBeNull();
         capturedLogin!.LoginProvider.Should().Be("google");
         capturedLogin.ProviderKey.Should().Be("new-provider-sub");
+        _mediatorMock.Verify(
+            x => x.Send(It.IsAny<CreateProfile.Command>(), It.IsAny<CancellationToken>()),
+            Times.Never);
     }
 
     // ==================== EXISTING USER — LOGIN ALREADY LINKED ====================
@@ -364,6 +416,9 @@ public class ExternalAuthenticateTests
             TestContext.Current.CancellationToken);
 
         _userManagerMock.Verify(x => x.AddLoginAsync(It.IsAny<User>(), It.IsAny<UserLoginInfo>()), Times.Never);
+        _mediatorMock.Verify(
+            x => x.Send(It.IsAny<CreateProfile.Command>(), It.IsAny<CancellationToken>()),
+            Times.Never);
     }
 
     // ==================== CREATION FAILURES ====================
@@ -380,6 +435,9 @@ public class ExternalAuthenticateTests
             TestContext.Current.CancellationToken);
 
         result.IsFailure.Should().BeTrue();
+        _mediatorMock.Verify(
+            x => x.Send(It.IsAny<CreateProfile.Command>(), It.IsAny<CancellationToken>()),
+            Times.Never);
     }
 
     [Fact(DisplayName = "Should return failure when AddToRoleAsync fails")]
@@ -395,6 +453,9 @@ public class ExternalAuthenticateTests
             TestContext.Current.CancellationToken);
 
         result.IsFailure.Should().BeTrue();
+        _mediatorMock.Verify(
+            x => x.Send(It.IsAny<CreateProfile.Command>(), It.IsAny<CancellationToken>()),
+            Times.Never);
     }
 
     [Fact(DisplayName = "Should return failure when AddLoginAsync fails for new user")]
@@ -411,6 +472,9 @@ public class ExternalAuthenticateTests
             TestContext.Current.CancellationToken);
 
         result.IsFailure.Should().BeTrue();
+        _mediatorMock.Verify(
+            x => x.Send(It.IsAny<CreateProfile.Command>(), It.IsAny<CancellationToken>()),
+            Times.Never);
     }
 
     // ==================== INACTIVE USER ====================
@@ -433,6 +497,9 @@ public class ExternalAuthenticateTests
 
         result.IsFailure.Should().BeTrue();
         result.Errors[0].Code.Should().Be(UserResult.Failure.Inactive.Code);
+        _mediatorMock.Verify(
+            x => x.Send(It.IsAny<CreateProfile.Command>(), It.IsAny<CancellationToken>()),
+            Times.Never);
     }
 
     // ==================== TOKEN GENERATION FAILURES ====================
@@ -451,6 +518,9 @@ public class ExternalAuthenticateTests
             TestContext.Current.CancellationToken);
 
         result.IsFailure.Should().BeTrue();
+        _mediatorMock.Verify(
+            x => x.Send(It.IsAny<CreateProfile.Command>(), It.IsAny<CancellationToken>()),
+            Times.Never);
     }
 
     [Fact(DisplayName = "Should return failure when refresh token generation fails")]
@@ -468,6 +538,9 @@ public class ExternalAuthenticateTests
             TestContext.Current.CancellationToken);
 
         result.IsFailure.Should().BeTrue();
+        _mediatorMock.Verify(
+            x => x.Send(It.IsAny<CreateProfile.Command>(), It.IsAny<CancellationToken>()),
+            Times.Never);
     }
 
     // ==================== UPDATE FAILURES ====================
@@ -488,6 +561,9 @@ public class ExternalAuthenticateTests
             TestContext.Current.CancellationToken);
 
         result.IsFailure.Should().BeTrue();
+        _mediatorMock.Verify(
+            x => x.Send(It.IsAny<CreateProfile.Command>(), It.IsAny<CancellationToken>()),
+            Times.Never);
     }
 
     // ==================== SUCCESSFUL LOGIN ====================
@@ -526,5 +602,8 @@ public class ExternalAuthenticateTests
         result.Value.AccessTokenExpiresIn.Should().Be(expiresIn);
         result.Value.RefreshToken.Should().Be("refresh-token-xyz");
         result.Value.RefreshTokenExpiresIn.Should().Be(new DateTimeOffset(refreshExp).ToUnixTimeSeconds());
+        _mediatorMock.Verify(
+            x => x.Send(It.IsAny<CreateProfile.Command>(), It.IsAny<CancellationToken>()),
+            Times.Never);
     }
 }

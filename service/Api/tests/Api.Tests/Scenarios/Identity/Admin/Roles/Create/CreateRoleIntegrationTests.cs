@@ -2,7 +2,6 @@ using System.Net;
 
 using Api.Tests.Infrastructure;
 using Api.Tests.Infrastructure.Auth;
-using Api.Tests.Scenarios.Identity.Helpers;
 
 using Module.Identity.Features.Admin.Roles.Shared.Models;
 

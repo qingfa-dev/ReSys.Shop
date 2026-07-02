@@ -1,8 +1,11 @@
 using System.Text;
 
+using MediatR;
+
 using Microsoft.AspNetCore.Identity;
 
 using Module.Identity.Features.Store.Emails.Confirm;
+using Module.Profile.Features.Store.Profile.Create;
 using Module.UnitTests.Identity.Fixtures;
 
 using Shared.Operational.Notifications.Models;
@@ -21,6 +24,7 @@ public class ConfirmEmailTests
     private readonly Mock<ILogger<ConfirmEmail.CommandHandler>> _loggerMock;
     private readonly Mock<ICurrentUser> _currentUserMock;
     private readonly Mock<INotificationService> _notificationServiceMock;
+    private readonly Mock<IMediator> _mediatorMock;
 
     public ConfirmEmailTests()
     {
@@ -28,11 +32,15 @@ public class ConfirmEmailTests
         _loggerMock = new Mock<ILogger<ConfirmEmail.CommandHandler>>();
         _currentUserMock = new Mock<ICurrentUser>();
         _notificationServiceMock = new Mock<INotificationService>();
+        _mediatorMock = new Mock<IMediator>();
 
         _currentUserMock.Setup(x => x.UserName).Returns("admin");
         _notificationServiceMock
             .Setup(x => x.SendAsync(It.IsAny<NotificationMessage>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(Result.Ok());
+        _mediatorMock
+            .Setup(x => x.Send(It.IsAny<CreateProfile.Command>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new CreateProfile.Response());
     }
 
     private ConfirmEmail.CommandHandler CreateHandler()
@@ -40,7 +48,8 @@ public class ConfirmEmailTests
             _userManagerMock.Object,
             _currentUserMock.Object,
             _notificationServiceMock.Object,
-            _loggerMock.Object);
+            _loggerMock.Object,
+            _mediatorMock.Object);
 
     private static string ValidBase64(string raw) =>
         Convert.ToBase64String(Encoding.UTF8.GetBytes(raw));
@@ -122,6 +131,9 @@ public class ConfirmEmailTests
         _notificationServiceMock.Verify(
             x => x.SendAsync(It.IsAny<NotificationMessage>(), It.IsAny<CancellationToken>()),
             Times.Never);
+        _mediatorMock.Verify(
+            x => x.Send(It.IsAny<CreateProfile.Command>(), It.IsAny<CancellationToken>()),
+            Times.Never);
     }
 
     #endregion
@@ -157,6 +169,43 @@ public class ConfirmEmailTests
         _notificationServiceMock.Verify(x => x.SendAsync(
             It.Is<NotificationMessage>(m => m.UseCase == NotificationUseCase.WelcomeSent),
             It.IsAny<CancellationToken>()), Times.Once);
+        _mediatorMock.Verify(
+            x => x.Send(It.IsAny<CreateProfile.Command>(), It.IsAny<CancellationToken>()),
+            Times.Once);
+    }
+
+    [Fact(DisplayName = "EmailVerification: Should create profile with correct user data")]
+    public async Task Handle_ShouldCreateProfile_WithCorrectUserData()
+    {
+        var user = CreateUnconfirmedUser();
+
+        _userManagerMock
+            .Setup(x => x.FindByIdAsync(It.IsAny<string>()))
+            .ReturnsAsync(user);
+        _userManagerMock
+            .Setup(x => x.ConfirmEmailAsync(It.IsAny<User>(), It.IsAny<string>()))
+            .ReturnsAsync(IdentityResult.Success);
+        _userManagerMock
+            .Setup(x => x.UpdateAsync(It.IsAny<User>()))
+            .ReturnsAsync(IdentityResult.Success);
+
+        CreateProfile.Command? captured = null;
+        _mediatorMock
+            .Setup(x => x.Send(It.IsAny<CreateProfile.Command>(), It.IsAny<CancellationToken>()))
+            .Callback<IRequest<Result<CreateProfile.Response>>, CancellationToken>((req, _) => captured = (CreateProfile.Command)req)
+            .ReturnsAsync(new CreateProfile.Response());
+
+        var handler = CreateHandler();
+        var command = new ConfirmEmail.Command(
+            new ConfirmEmail.Request(user.Id, ValidBase64("valid-token"), null));
+
+        await handler.Handle(command, TestContext.Current.CancellationToken);
+
+        captured.Should().NotBeNull();
+        captured!.UserId.Should().Be(user.Id);
+        captured.Request.FirstName.Should().Be(user.FirstName);
+        captured.Request.LastName.Should().Be(user.LastName);
+        captured.Request.Email.Should().Be(user.Email);
     }
 
     [Fact(DisplayName = "EmailVerification: Should return failure when ConfirmEmailAsync fails")]
@@ -248,6 +297,9 @@ public class ConfirmEmailTests
         _notificationServiceMock.Verify(
             x => x.SendAsync(It.IsAny<NotificationMessage>(), It.IsAny<CancellationToken>()),
             Times.Never);
+        _mediatorMock.Verify(
+            x => x.Send(It.IsAny<CreateProfile.Command>(), It.IsAny<CancellationToken>()),
+            Times.Never);
     }
 
     [Fact(DisplayName = "EmailChange: Should return failure when ChangeEmailAsync fails")]
@@ -303,6 +355,9 @@ public class ConfirmEmailTests
         result.IsFailure.Should().BeTrue();
         _notificationServiceMock.Verify(
             x => x.SendAsync(It.IsAny<NotificationMessage>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+        _mediatorMock.Verify(
+            x => x.Send(It.IsAny<CreateProfile.Command>(), It.IsAny<CancellationToken>()),
             Times.Never);
     }
 

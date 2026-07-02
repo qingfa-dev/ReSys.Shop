@@ -1,4 +1,9 @@
+using MediatR;
+
 using Microsoft.AspNetCore.Identity;
+
+using Module.Profile.Domain;
+using Module.Profile.Features.Store.Profile.Create;
 
 using Shared.Security.Authentication.External.Providers;
 using Shared.Security.Authentication.Tokens.Models;
@@ -24,7 +29,8 @@ public static partial class ExternalAuthenticate
         IRefreshTokenService refreshTokenService,
         ISystemDateTime dateTime,
         ICurrentUser currentUser,
-        ILogger<CommandHandler> logger)
+        ILogger<CommandHandler> logger,
+        IMediator mediator)
         : ICommandHandler<Command, Response>
     {
         // Contract: pre=command!=null, post=result!=null
@@ -92,6 +98,9 @@ public static partial class ExternalAuthenticate
                     Provider: userInfo.Provider,
                     Email: userInfo.Email,
                     ActionBy: user.UserName!);
+
+                // Create: User profile for the newly created user
+                await CreateUserProfileAsync(user, cancellationToken);
             }
             else
             {
@@ -164,6 +173,33 @@ public static partial class ExternalAuthenticate
             var baseName = email.Split('@')[0].ToLowerInvariant();
             var randomSuffix = Guid.NewGuid().ToString("N")[..6];
             return $"{baseName}_{randomSuffix}";
+        }
+
+        private async Task CreateUserProfileAsync(User user, CancellationToken cancellationToken)
+        {
+            try
+            {
+                var profileResult = await mediator.Send(new CreateProfile.Command(user.Id, new CreateProfile.Request
+                {
+                    FirstName = user.FirstName,
+                    LastName = user.LastName ?? string.Empty,
+                    Email = user.Email!
+                }), cancellationToken);
+
+                if (profileResult.IsFailure)
+                {
+                    var errors = string.Join("; ", profileResult.Errors.Select(e => $"{e.Code}: {e.Message}"));
+                    UserProfileLoggers.Management.ProfileCreationFailed(logger, user.Id, errors);
+                }
+                else
+                {
+                    UserProfileLoggers.Management.ProfileCreated(logger, user.Id, profileResult.Value.Id);
+                }
+            }
+            catch (Exception ex)
+            {
+                UserProfileLoggers.Management.ProfileCreationFailed(logger, user.Id, ex.Message);
+            }
         }
     }
 }

@@ -1,5 +1,3 @@
-using Microsoft.CodeAnalysis;
-
 using Module.Profile.Domain.Preferences;
 
 namespace Module.UnitTests.Profile.Domain.Preferences;
