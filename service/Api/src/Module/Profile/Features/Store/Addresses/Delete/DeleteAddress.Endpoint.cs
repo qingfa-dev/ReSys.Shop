@@ -9,7 +9,7 @@ public static partial class DeleteAddress
     {
         public void AddRoutes(IEndpointRouteBuilder app)
         {
-            app.MapDelete(ProfilesFeature.Store.Addresses.Delete.Route, async (
+            app.MapDelete(ProfileFeature.Store.Addresses.Delete.Route, async (
                 [FromRoute] Guid id,
                 ISender sender,
                 CancellationToken cancellationToken) =>
@@ -20,9 +20,9 @@ public static partial class DeleteAddress
             })
             .RequireAuthorization()
             .WithName(nameof(DeleteAddress))
-            .WithTags(ProfilesFeature.Tags.Address)
-            .WithSummary(ProfilesFeature.Store.Addresses.Delete.Summary)
-            .WithDescription(ProfilesFeature.Store.Addresses.Delete.Description)
+            .WithTags(ProfileFeature.Tags.Address)
+            .WithSummary(ProfileFeature.Store.Addresses.Delete.Summary)
+            .WithDescription(ProfileFeature.Store.Addresses.Delete.Description)
             .Produces<Result<Response>>()
             .Produces<Result>(StatusCodes.Status400BadRequest)
             .Produces<Result>(StatusCodes.Status401Unauthorized)

@@ -9,7 +9,7 @@ public static partial class GetAddresses
     {
         public void AddRoutes(IEndpointRouteBuilder app)
         {
-            app.MapGet(ProfilesFeature.Store.Addresses.GetAll.Route, async (
+            app.MapGet(ProfileFeature.Store.Addresses.GetAll.Route, async (
                 [AsParameters] Parameters parameters,
                 ISender sender,
                 CancellationToken cancellationToken) =>
@@ -20,9 +20,9 @@ public static partial class GetAddresses
             })
             .RequireAuthorization()
             .WithName(nameof(GetAddresses))
-            .WithTags(ProfilesFeature.Tags.Address)
-            .WithSummary(ProfilesFeature.Store.Addresses.GetAll.Summary)
-            .WithDescription(ProfilesFeature.Store.Addresses.GetAll.Description)
+            .WithTags(ProfileFeature.Tags.Address)
+            .WithSummary(ProfileFeature.Store.Addresses.GetAll.Summary)
+            .WithDescription(ProfileFeature.Store.Addresses.GetAll.Description)
             .Produces<Result<Response>>()
             .Produces<Result>(StatusCodes.Status400BadRequest)
             .Produces<Result>(StatusCodes.Status401Unauthorized)

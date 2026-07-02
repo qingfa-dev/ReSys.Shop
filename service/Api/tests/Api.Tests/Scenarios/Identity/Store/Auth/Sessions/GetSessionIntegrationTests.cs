@@ -1,0 +1,17 @@
+using System.Net;
+
+using Api.Tests.Infrastructure;
+
+namespace Api.Tests.Scenarios.Identity.Store.Auth.Sessions;
+
+public sealed class GetSessionIntegrationTests(ApiFixture fixture) : ApiIntegrationTestBase(fixture)
+{
+    [Fact]
+    public async Task GetSession_WithoutAuth_Returns401()
+    {
+        HttpResponseMessage response = await Client.GetAsync(
+            "/api/store/identity/auth/sessions");
+
+        response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
+    }
+}
