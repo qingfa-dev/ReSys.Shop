@@ -2,10 +2,6 @@ using Module.Location.Domain.Countries;
 using Module.Location.Domain.States;
 using Module.Location.Features.Admin.States.Shared.Mappings;
 
-using Shared.Operational.Persistence.Data;
-
-using Microsoft.EntityFrameworkCore;
-
 namespace Module.Location.Features.Admin.States.Create;
 
 /// <summary>Handles creation of a new state.</summary>
@@ -32,7 +28,7 @@ public static partial class CreateState
                 .FirstOrDefaultAsync(predicate: c => c.Id == request.CountryId, cancellationToken: cancellationToken);
 
             if (existingCountry is null)
-                return StateResult.Errors.CountryNotFound;
+                return StateResult.Failure.CountryNotFound;
 
             // Validate: No duplicate state abbreviation for the same country.
             var existingState = await dbContext.Set<State>()
@@ -40,7 +36,7 @@ public static partial class CreateState
                                                      && s.CountryId == request.CountryId, cancellationToken: cancellationToken);
 
             if (existingState is not null)
-                return StateResult.Errors.AbbreviationDuplicate;
+                return StateResult.Failure.AbbreviationDuplicate;
 
             // Create: Map request to domain entity.
             var state = request.MapToDomain();

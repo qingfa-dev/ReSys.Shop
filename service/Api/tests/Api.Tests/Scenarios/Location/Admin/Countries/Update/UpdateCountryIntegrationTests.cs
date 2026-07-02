@@ -4,7 +4,7 @@ using Api.Tests.Infrastructure;
 
 using Module.Location.Features.Admin.Countries.Shared.Models;
 
-namespace Api.Tests.Scenarios.Locations.Admin.Countries.Update;
+namespace Api.Tests.Scenarios.Location.Admin.Countries.Update;
 
 public sealed class UpdateCountryIntegrationTests(ApiFixture fixture) : ApiIntegrationTestBase(fixture)
 {

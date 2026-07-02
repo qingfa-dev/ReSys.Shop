@@ -1,8 +1,8 @@
 using System.Net;
 
-using Module.Location.Features.Admin.Countries.Shared.Models;
-
 using Api.Tests.Infrastructure;
+
+using Module.Location.Features.Admin.Countries.Shared.Models;
 
 namespace Api.Tests.Scenarios.Location.Admin.Countries.GetById;
 

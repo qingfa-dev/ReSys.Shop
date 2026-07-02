@@ -3,7 +3,7 @@ using Shared.Security.Identity.Domain.Permissions;
 
 namespace Module.Location.Features.Shared;
 
-/// <summary>Contains route and permission metadata for the Locations feature.</summary>
+/// <summary>Contains route and permission metadata for the Location feature.</summary>
 public static partial class LocationFeature
 {
     /// <summary>Admin-facing configuration for countries and states CRUD operations.</summary>

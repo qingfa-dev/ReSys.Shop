@@ -1,5 +1,3 @@
-using Microsoft.EntityFrameworkCore;
-
 using Module.Location.Domain.Countries;
 using Module.Location.Domain.States;
 using Module.Location.Features.Admin.States.Create;
@@ -9,7 +7,7 @@ using Shared.Operational.Persistence.Data;
 namespace Module.UnitTests.Location.Features.Admin.States.Create;
 
 [Trait("Category", "Unit")]
-[Trait("Module", "Locations")]
+[Trait("Module", "Location")]
 [Trait("Feature", "StateCreate")]
 public class CreateStateTests : IDisposable
 {
@@ -86,7 +84,7 @@ public class CreateStateTests : IDisposable
 
         // Assert
         result.IsFailure.Should().BeTrue();
-        result.Errors[0].Code.Should().Be(StateResult.Errors.CountryNotFound.Code);
+        result.Errors[0].Code.Should().Be(StateResult.Failure.CountryNotFound.Code);
     }
 
     [Fact(DisplayName = "Should fail when abbreviation is duplicate in same country")]
@@ -125,7 +123,7 @@ public class CreateStateTests : IDisposable
 
         // Assert
         result.IsFailure.Should().BeTrue();
-        result.Errors[0].Code.Should().Be(StateResult.Errors.AbbreviationDuplicate.Code);
+        result.Errors[0].Code.Should().Be(StateResult.Failure.AbbreviationDuplicate.Code);
     }
 
     [Fact(DisplayName = "Should allow same abbreviation in different countries")]

@@ -1,4 +1,4 @@
-# Locations Domain
+# Location Domain
 
 DDD domain models: Countries and States with ISO code lookups.
 
@@ -11,4 +11,4 @@ DDD domain models: Countries and States with ISO code lookups.
 
 ## Category
 
-Domain-Driven Design · Locations
+Domain-Driven Design · Location

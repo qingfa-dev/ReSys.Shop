@@ -1,10 +1,6 @@
 using Module.Location.Domain.Countries;
 using Module.Location.Features.Admin.Countries.Shared.Mappings;
 
-using Shared.Operational.Persistence.Data;
-
-using Microsoft.EntityFrameworkCore;
-
 namespace Module.Location.Features.Store.Countries.GetByIsoCode;
 
 /// <summary>Handles retrieval of a country by ISO code for storefront.</summary>
@@ -29,7 +25,7 @@ public static partial class GetStorefrontCountryByIso
                     c.IsoCode == request.IsoCode, cancellationToken: cancellationToken);
 
             if (entity is null)
-                return CountryResult.Errors.NotFound;
+                return CountryResult.Failure.NotFound;
 
             // Map: Return the country as response.
             return entity.MapToDetail<Response>();

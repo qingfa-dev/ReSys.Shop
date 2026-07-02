@@ -9,10 +9,10 @@ public static partial class StateValidator
     {
         return ruleBuilder
             .NotEmpty()
-            .WithErrorCode(errorCode: StateResult.Errors.AbbreviationRequired.Code)
-            .WithMessage(errorMessage: StateResult.Errors.AbbreviationRequired.Message)
+            .WithErrorCode(errorCode: StateResult.Failure.AbbreviationRequired.Code)
+            .WithMessage(errorMessage: StateResult.Failure.AbbreviationRequired.Message)
             .MaximumLength(maximumLength: StateConstant.Constraints.MaxAbbreviationLength)
-            .WithErrorCode(errorCode: StateResult.Errors.AbbreviationTooLong.Code)
-            .WithMessage(errorMessage: StateResult.Errors.AbbreviationTooLong.Message);
+            .WithErrorCode(errorCode: StateResult.Failure.AbbreviationTooLong.Code)
+            .WithMessage(errorMessage: StateResult.Failure.AbbreviationTooLong.Message);
     }
 }

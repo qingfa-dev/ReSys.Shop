@@ -14,11 +14,11 @@ public static class StateExtensions
     {
         // Validate: State name, abbreviation, and country are required
         if (string.IsNullOrWhiteSpace(value: name))
-            return StateResult.Errors.NameRequired;
+            return StateResult.Failure.NameRequired;
         if (string.IsNullOrWhiteSpace(value: abbreviation))
-            return StateResult.Errors.AbbreviationRequired;
+            return StateResult.Failure.AbbreviationRequired;
         if (countryId == Guid.Empty)
-            return StateResult.Errors.CountryRequired;
+            return StateResult.Failure.CountryRequired;
 
         var state = new State
         {

@@ -1,5 +1,3 @@
-using Microsoft.EntityFrameworkCore;
-
 using Module.Location.Domain.Countries;
 using Module.Location.Domain.States;
 using Module.Location.Features.Admin.States.Delete;
@@ -9,7 +7,7 @@ using Shared.Operational.Persistence.Data;
 namespace Module.UnitTests.Location.Features.Admin.States.Delete;
 
 [Trait("Category", "Unit")]
-[Trait("Module", "Locations")]
+[Trait("Module", "Location")]
 [Trait("Feature", "StateDelete")]
 public class DeleteStateTests : IDisposable
 {
@@ -67,7 +65,7 @@ public class DeleteStateTests : IDisposable
             TestContext.Current.CancellationToken);
 
         result.IsFailure.Should().BeTrue();
-        result.Errors[0].Code.Should().Be(StateResult.Errors.NotFound.Code);
+        result.Errors[0].Code.Should().Be(StateResult.Failure.NotFound.Code);
     }
 
     [Fact(DisplayName = "Should actually remove state from database")]

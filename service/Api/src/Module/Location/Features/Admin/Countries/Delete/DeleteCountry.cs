@@ -2,10 +2,6 @@ using Module.Location.Domain.Countries;
 using Module.Location.Domain.States;
 using Module.Location.Features.Admin.Countries.Shared.Mappings;
 
-using Shared.Operational.Persistence.Data;
-
-using Microsoft.EntityFrameworkCore;
-
 namespace Module.Location.Features.Admin.Countries.Delete;
 
 /// <summary>Handles deletion of a country.</summary>
@@ -31,14 +27,14 @@ public static partial class DeleteCountry
                 .FirstOrDefaultAsync(predicate: c => c.Id == command.Id, cancellationToken: cancellationToken);
 
             if (country is null)
-                return CountryResult.Errors.NotFound;
+                return CountryResult.Failure.NotFound;
 
             // Validate: Cannot delete country with associated states.
             var hasStates = await dbContext.Set<State>()
                 .AnyAsync(predicate: s => s.CountryId == command.Id, cancellationToken: cancellationToken);
 
             if (hasStates)
-                return CountryResult.Errors.CannotDeleteWithStates;
+                return CountryResult.Failure.CannotDeleteWithStates;
 
             // Remove: Delete the country from the database.
             dbContext.Set<Country>().Remove(entity: country);

@@ -1,10 +1,6 @@
 using Module.Location.Domain.Countries;
 using Module.Location.Features.Admin.Countries.Shared.Mappings;
 
-using Shared.Operational.Persistence.Data;
-
-using Microsoft.EntityFrameworkCore;
-
 namespace Module.Location.Features.Admin.Countries.GetById;
 
 /// <summary>Handles retrieval of a country by identifier.</summary>
@@ -28,7 +24,7 @@ public static partial class GetCountryById
                 .FirstOrDefaultAsync(predicate: c => c.Id == request.Id, cancellationToken: cancellationToken);
 
             if (entity is null)
-                return CountryResult.Errors.NotFound;
+                return CountryResult.Failure.NotFound;
 
             // Map: Return the country as response.
             return entity.MapToDetail<Response>();

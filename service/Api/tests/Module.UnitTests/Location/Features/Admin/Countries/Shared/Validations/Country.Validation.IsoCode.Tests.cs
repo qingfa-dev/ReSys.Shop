@@ -1,4 +1,3 @@
-using FluentValidation;
 using FluentValidation.TestHelper;
 
 using Module.Location.Features.Admin.Countries.Shared.Validators;
@@ -9,7 +8,7 @@ using CountryResult = Module.Location.Domain.Countries.CountryResult;
 namespace Module.UnitTests.Location.Features.Admin.Countries.Shared.Validations;
 
 [Trait("Category", "Unit")]
-[Trait("Module", "Locations")]
+[Trait("Module", "Location")]
 [Trait("Feature", "Validators")]
 public class CountryIsoCodeValidationsTests
 {
@@ -34,7 +33,7 @@ public class CountryIsoCodeValidationsTests
         var result = validator.TestValidate(new TestModel { IsoCode = isoCode });
 
         result.ShouldHaveValidationErrorFor(x => x.IsoCode)
-            .WithErrorCode(CountryResult.Errors.IsoCodeRequired.Code);
+            .WithErrorCode(CountryResult.Failure.IsoCodeRequired.Code);
     }
 
     [Fact(DisplayName = "Validator: Should fail when ISO code is null")]
@@ -44,7 +43,7 @@ public class CountryIsoCodeValidationsTests
         var result = validator.TestValidate(new TestModel { IsoCode = null });
 
         result.ShouldHaveValidationErrorFor(x => x.IsoCode)
-            .WithErrorCode(CountryResult.Errors.IsoCodeRequired.Code);
+            .WithErrorCode(CountryResult.Failure.IsoCodeRequired.Code);
     }
 
     [Fact(DisplayName = "Validator: Should fail when ISO code exceeds max length")]
@@ -55,7 +54,7 @@ public class CountryIsoCodeValidationsTests
         var result = validator.TestValidate(new TestModel { IsoCode = longIsoCode });
 
         result.ShouldHaveValidationErrorFor(x => x.IsoCode)
-            .WithErrorCode(CountryResult.Errors.IsoCodeTooLong.Code);
+            .WithErrorCode(CountryResult.Failure.IsoCodeTooLong.Code);
     }
 
     [Theory(DisplayName = "Validator: Should pass with valid ISO code")]

@@ -3,7 +3,7 @@ using Module.Location.Domain.States;
 namespace Module.UnitTests.Location.Domain.States;
 
 [Trait("Category", "Unit")]
-[Trait("Module", "Locations")]
+[Trait("Module", "Location")]
 [Trait("Entity", "State")]
 public class StateExtensionsTests
 {
@@ -34,7 +34,7 @@ public class StateExtensionsTests
         var result = StateExtensions.Create(name!, "CA", Guid.NewGuid());
 
         result.IsFailure.Should().BeTrue();
-        result.Errors[0].Should().Be(StateResult.Errors.NameRequired);
+        result.Errors[0].Should().Be(StateResult.Failure.NameRequired);
     }
 
     [Theory(DisplayName = "Create: Should fail when abbreviation is empty")]
@@ -46,7 +46,7 @@ public class StateExtensionsTests
         var result = StateExtensions.Create("California", abbreviation!, Guid.NewGuid());
 
         result.IsFailure.Should().BeTrue();
-        result.Errors[0].Should().Be(StateResult.Errors.AbbreviationRequired);
+        result.Errors[0].Should().Be(StateResult.Failure.AbbreviationRequired);
     }
 
     [Fact(DisplayName = "Create: Should fail when CountryId is empty")]
@@ -55,7 +55,7 @@ public class StateExtensionsTests
         var result = StateExtensions.Create("California", "CA", Guid.Empty);
 
         result.IsFailure.Should().BeTrue();
-        result.Errors[0].Should().Be(StateResult.Errors.CountryRequired);
+        result.Errors[0].Should().Be(StateResult.Failure.CountryRequired);
     }
 
     [Fact(DisplayName = "Create: Should use default IsActive value")]

@@ -1,7 +1,7 @@
-using Shared.Application.Domain.Concerns.Auditable;
-
 using Module.Location.Domain.States;
 using Module.Location.Features.Admin.States.Shared.Models;
+
+using Shared.Application.Domain.Concerns.Auditable;
 
 namespace Module.Location.Features.Admin.States.Shared.Mappings;
 

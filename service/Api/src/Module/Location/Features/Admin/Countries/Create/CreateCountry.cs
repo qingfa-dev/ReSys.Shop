@@ -1,10 +1,6 @@
 using Module.Location.Domain.Countries;
 using Module.Location.Features.Admin.Countries.Shared.Mappings;
 
-using Shared.Operational.Persistence.Data;
-
-using Microsoft.EntityFrameworkCore;
-
 namespace Module.Location.Features.Admin.Countries.Create;
 
 /// <summary>Handles creation of a new country.</summary>
@@ -34,7 +30,7 @@ public static partial class CreateCountry
 
             // Validate: ISO code uniqueness business rule
             if (existingEntity is not null)
-                return CountryResult.Errors.IsoCodeDuplicate;
+                return CountryResult.Failure.IsoCodeDuplicate;
 
             // Create: Map request to domain entity
             var entity = request.MapToDomain();

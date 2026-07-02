@@ -7,7 +7,7 @@ using Module.Location.Features.Admin.States.Shared.Validators;
 namespace Module.UnitTests.Location.Features.Admin.States.Shared.Validations;
 
 [Trait("Category", "Unit")]
-[Trait("Module", "Locations")]
+[Trait("Module", "Location")]
 [Trait("Feature", "Validators")]
 public class StateParametersValidatorTests
 {
@@ -19,7 +19,7 @@ public class StateParametersValidatorTests
         var result = validator.TestValidate(model);
 
         result.ShouldHaveValidationErrorFor(x => x.Name)
-            .WithErrorCode(StateResult.Errors.NameRequired.Code);
+            .WithErrorCode(StateResult.Failure.NameRequired.Code);
     }
 
     [Theory(DisplayName = "Validator: Should fail when Name is empty")]
@@ -32,7 +32,7 @@ public class StateParametersValidatorTests
         var result = validator.TestValidate(model);
 
         result.ShouldHaveValidationErrorFor(x => x.Name)
-            .WithErrorCode(StateResult.Errors.NameRequired.Code);
+            .WithErrorCode(StateResult.Failure.NameRequired.Code);
     }
 
     [Fact(DisplayName = "Validator: Should fail when Name exceeds max length")]
@@ -44,7 +44,7 @@ public class StateParametersValidatorTests
         var result = validator.TestValidate(model);
 
         result.ShouldHaveValidationErrorFor(x => x.Name)
-            .WithErrorCode(StateResult.Errors.NameTooLong.Code);
+            .WithErrorCode(StateResult.Failure.NameTooLong.Code);
     }
 
     [Theory(DisplayName = "Validator: Should fail when Abbreviation is empty")]
@@ -57,7 +57,7 @@ public class StateParametersValidatorTests
         var result = validator.TestValidate(model);
 
         result.ShouldHaveValidationErrorFor(x => x.Abbreviation)
-            .WithErrorCode(StateResult.Errors.AbbreviationRequired.Code);
+            .WithErrorCode(StateResult.Failure.AbbreviationRequired.Code);
     }
 
     [Fact(DisplayName = "Validator: Should fail when Abbreviation exceeds max length")]
@@ -69,7 +69,7 @@ public class StateParametersValidatorTests
         var result = validator.TestValidate(model);
 
         result.ShouldHaveValidationErrorFor(x => x.Abbreviation)
-            .WithErrorCode(StateResult.Errors.AbbreviationTooLong.Code);
+            .WithErrorCode(StateResult.Failure.AbbreviationTooLong.Code);
     }
 
     [Fact(DisplayName = "Validator: Should fail when CountryId is empty")]
@@ -80,7 +80,7 @@ public class StateParametersValidatorTests
         var result = validator.TestValidate(model);
 
         result.ShouldHaveValidationErrorFor(x => x.CountryId)
-            .WithErrorCode(StateResult.Errors.CountryRequired.Code);
+            .WithErrorCode(StateResult.Failure.CountryRequired.Code);
     }
 
     [Theory(DisplayName = "Validator: Should pass with valid StateParameters")]

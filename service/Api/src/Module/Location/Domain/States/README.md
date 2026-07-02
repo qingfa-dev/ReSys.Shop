@@ -4,4 +4,4 @@ State/province aggregate by country reference.
 
 ## Category
 
-DDD · Locations
+DDD · Location

@@ -1,10 +1,6 @@
 using Module.Location.Domain.States;
 using Module.Location.Features.Admin.States.Shared.Mappings;
 
-using Shared.Operational.Persistence.Data;
-
-using Microsoft.EntityFrameworkCore;
-
 namespace Module.Location.Features.Admin.States.Delete;
 
 /// <summary>Handles deletion of a state.</summary>
@@ -29,7 +25,7 @@ public static partial class DeleteState
                 .FirstOrDefaultAsync(predicate: s => s.Id == command.Id, cancellationToken: cancellationToken);
 
             if (state is null)
-                return StateResult.Errors.NotFound;
+                return StateResult.Failure.NotFound;
 
             // Remove: Delete the state from the database.
             dbContext.Set<State>().Remove(entity: state);

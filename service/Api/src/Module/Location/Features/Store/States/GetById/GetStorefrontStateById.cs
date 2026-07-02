@@ -1,10 +1,6 @@
 using Module.Location.Domain.States;
 using Module.Location.Features.Admin.States.Shared.Mappings;
 
-using Shared.Operational.Persistence.Data;
-
-using Microsoft.EntityFrameworkCore;
-
 namespace Module.Location.Features.Store.States.GetById;
 
 /// <summary>Handles retrieval of a state by identifier for storefront.</summary>
@@ -28,7 +24,7 @@ public static partial class GetStorefrontStateById
                 .FirstOrDefaultAsync(predicate: s => s.Id == request.Id, cancellationToken: cancellationToken);
 
             if (state is null)
-                return StateResult.Errors.NotFound;
+                return StateResult.Failure.NotFound;
 
             // Map: Return the state as response.
             return state.MapToDetail<Response>();

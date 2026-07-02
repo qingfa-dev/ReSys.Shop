@@ -4,4 +4,4 @@ Country aggregate with ISO codes and name.
 
 ## Category
 
-DDD · Locations
+DDD · Location

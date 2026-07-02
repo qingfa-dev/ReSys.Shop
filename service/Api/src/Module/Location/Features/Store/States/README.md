@@ -4,4 +4,4 @@ Public state/province querying.
 
 ## Category
 
-Locations · Store
+Location · Store

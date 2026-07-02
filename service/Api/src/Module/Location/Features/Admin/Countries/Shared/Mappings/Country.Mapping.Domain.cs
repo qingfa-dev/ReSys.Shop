@@ -1,7 +1,7 @@
-using Shared.Application.Domain.Concerns.Auditable;
-
 using Module.Location.Domain.Countries;
 using Module.Location.Features.Admin.Countries.Shared.Models;
+
+using Shared.Application.Domain.Concerns.Auditable;
 
 namespace Module.Location.Features.Admin.Countries.Shared.Mappings;
 

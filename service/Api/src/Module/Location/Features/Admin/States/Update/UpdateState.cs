@@ -2,10 +2,6 @@ using Module.Location.Domain.Countries;
 using Module.Location.Domain.States;
 using Module.Location.Features.Admin.States.Shared.Mappings;
 
-using Shared.Operational.Persistence.Data;
-
-using Microsoft.EntityFrameworkCore;
-
 namespace Module.Location.Features.Admin.States.Update;
 
 /// <summary>Handles update of an existing state.</summary>
@@ -32,14 +28,14 @@ public static partial class UpdateState
                 .FirstOrDefaultAsync(predicate: s => s.Id == command.Id, cancellationToken: cancellationToken);
 
             if (entity is null)
-                return StateResult.Errors.NotFound;
+                return StateResult.Failure.NotFound;
 
             // Check: Verify the referenced country exists.
             var existingCountry = await dbContext.Set<Country>()
                 .FirstOrDefaultAsync(predicate: c => c.Id == request.CountryId, cancellationToken: cancellationToken);
 
             if (existingCountry is null)
-                return StateResult.Errors.CountryNotFound;
+                return StateResult.Failure.CountryNotFound;
 
             // Validate: No duplicate state abbreviation for the same country.
             var duplicateState = await dbContext.Set<State>()
@@ -49,7 +45,7 @@ public static partial class UpdateState
                     s.Id != command.Id, cancellationToken: cancellationToken);
 
             if (duplicateState is not null)
-                return StateResult.Errors.AbbreviationDuplicate;
+                return StateResult.Failure.AbbreviationDuplicate;
 
             // Update: Apply request data to state entity.
             request.MapToDomain(state: entity);
