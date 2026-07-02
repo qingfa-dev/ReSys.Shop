@@ -19,9 +19,9 @@ internal sealed partial class ImageProcessor(ILogger<ImageProcessor> logger) : I
 
         ProcessingResizeMode mode = options.ResizeMode switch
         {
-            Models.ResizeMode.Fit => ProcessingResizeMode.Fit,
-            Models.ResizeMode.Fill => ProcessingResizeMode.Fill,
-            Models.ResizeMode.Stretch => ProcessingResizeMode.Stretch,
+            ResizeMode.Fit => ProcessingResizeMode.Fit,
+            ResizeMode.Fill => ProcessingResizeMode.Fill,
+            ResizeMode.Stretch => ProcessingResizeMode.Stretch,
             _ => ProcessingResizeMode.Stretch
         };
 
@@ -29,7 +29,7 @@ internal sealed partial class ImageProcessor(ILogger<ImageProcessor> logger) : I
         string? outputFormat = options.OutputFormat;
 
         if ((width is not null && width <= 0) || (height is not null && height <= 0))
-            return Task.FromResult(ImageProcessorResult.Failure.InvalidDimensions(width, height));
+            return Task.FromResult<Result<Stream>>(ImageProcessorResult.Failure.InvalidDimensions(width, height));
 
         Loggers.LogProcessingStarted(logger, width, height, mode, maintainAspectRatio);
 
@@ -43,7 +43,7 @@ internal sealed partial class ImageProcessor(ILogger<ImageProcessor> logger) : I
                 if (codec is null)
                 {
                     Loggers.LogProcessingFailed(logger, "Input stream does not contain a valid image.");
-                    return Task.FromResult(ImageProcessorResult.Failure.InvalidImage);
+                    return Task.FromResult<Result<Stream>>(ImageProcessorResult.Failure.InvalidImage);
                 }
 
                 sourceEncodedFormat = codec.EncodedFormat;
@@ -53,7 +53,7 @@ internal sealed partial class ImageProcessor(ILogger<ImageProcessor> logger) : I
             if (source is null)
             {
                 Loggers.LogProcessingFailed(logger, "Input stream does not contain a valid image.");
-                return Task.FromResult(ImageProcessorResult.Failure.InvalidImage);
+                return Task.FromResult<Result<Stream>>(ImageProcessorResult.Failure.InvalidImage);
             }
 
             using (source)
@@ -64,61 +64,71 @@ internal sealed partial class ImageProcessor(ILogger<ImageProcessor> logger) : I
                 int targetWidth = width ?? (int)Math.Round(height!.Value * (double)sourceWidth / sourceHeight);
                 int targetHeight = height ?? (int)Math.Round(width!.Value * (double)sourceHeight / sourceWidth);
 
-                float drawX, drawY, drawW, drawH;
+                Func<SKImage, SKData>? encoder = ResolveEncoder(outputFormat, sourceEncodedFormat);
+
+                if (encoder is null)
+                {
+                    Loggers.LogProcessingFailed(logger, $"Unsupported output format '{outputFormat}'.");
+                    return Task.FromResult<Result<Stream>>(ImageProcessorResult.Failure.UnsupportedFormat(outputFormat!));
+                }
+
+                SKBitmap target;
+                SKRect destRect;
 
                 if (!maintainAspectRatio || mode == ProcessingResizeMode.Stretch)
                 {
-                    drawX = 0;
-                    drawY = 0;
-                    drawW = targetWidth;
-                    drawH = targetHeight;
+                    target = new SKBitmap(targetWidth, targetHeight);
+                    destRect = new SKRect(0, 0, targetWidth, targetHeight);
                 }
                 else if (mode == ProcessingResizeMode.Fit)
                 {
                     float scale = Math.Min((float)targetWidth / sourceWidth, (float)targetHeight / sourceHeight);
-                    drawW = sourceWidth * scale;
-                    drawH = sourceHeight * scale;
-                    drawX = (targetWidth - drawW) / 2;
-                    drawY = (targetHeight - drawH) / 2;
+                    int fitW = Math.Max(1, (int)Math.Round(sourceWidth * scale));
+                    int fitH = Math.Max(1, (int)Math.Round(sourceHeight * scale));
+                    target = new SKBitmap(fitW, fitH);
+                    destRect = new SKRect(0, 0, fitW, fitH);
                 }
                 else
                 {
                     float scale = Math.Max((float)targetWidth / sourceWidth, (float)targetHeight / sourceHeight);
-                    drawW = sourceWidth * scale;
-                    drawH = sourceHeight * scale;
-                    drawX = (targetWidth - drawW) / 2;
-                    drawY = (targetHeight - drawH) / 2;
+                    float drawW = sourceWidth * scale;
+                    float drawH = sourceHeight * scale;
+                    float drawX = (targetWidth - drawW) / 2;
+                    float drawY = (targetHeight - drawH) / 2;
+                    target = new SKBitmap(targetWidth, targetHeight);
+                    destRect = new SKRect(drawX, drawY, drawX + drawW, drawY + drawH);
                 }
 
-                using var target = new SKBitmap(targetWidth, targetHeight);
-                using var canvas = new SKCanvas(target);
-                canvas.Clear(SKColors.Transparent);
-
-                using (var image = SKImage.FromBitmap(source))
+                using (target)
+                using (var canvas = new SKCanvas(target))
                 {
-                    canvas.DrawImage(image, new SKRect(drawX, drawY, drawX + drawW, drawY + drawH), Constants.DefaultResampleOptions);
+                    if (mode != ProcessingResizeMode.Fit || maintainAspectRatio == false)
+                        canvas.Clear(SKColors.Transparent);
+
+                    using (var image = SKImage.FromBitmap(source))
+                    {
+                        canvas.DrawImage(image, destRect, Constants.DefaultResampleOptions);
+                    }
+
+                    canvas.Flush();
+
+                    using SKImage targetImage = SKImage.FromBitmap(target);
+                    using SKData encoded = encoder(targetImage);
+
+                    var outputStream = new MemoryStream();
+                    encoded.SaveTo(outputStream);
+                    outputStream.Position = 0;
+
+                    Loggers.LogProcessingCompleted(logger, sourceWidth, sourceHeight, target.Width, target.Height, outputFormat ?? Constants.DefaultFormatLabel);
+
+                    return Task.FromResult(Result<Stream>.Ok(outputStream));
                 }
-
-                canvas.Flush();
-
-                Func<SKImage, SKData>? encoder = ResolveEncoder(outputFormat, sourceEncodedFormat);
-
-                using SKImage targetImage = SKImage.FromBitmap(target);
-                using SKData encoded = encoder?.Invoke(targetImage) ?? Constants.FallbackEncoder(targetImage);
-
-                var outputStream = new MemoryStream();
-                encoded.SaveTo(outputStream);
-                outputStream.Position = 0;
-
-                Loggers.LogProcessingCompleted(logger, sourceWidth, sourceHeight, target.Width, target.Height, outputFormat ?? Constants.DefaultFormatLabel);
-
-                return Task.FromResult(Result<Stream>.Ok(outputStream));
             }
         }
         catch (Exception ex)
         {
             Loggers.LogProcessingFailed(logger, ex.Message);
-            return Task.FromResult(ImageProcessorResult.Failure.InvalidImage);
+            return Task.FromResult<Result<Stream>>(ImageProcessorResult.Failure.InvalidImage);
         }
     }
 

@@ -3,6 +3,7 @@ using MediatR;
 using Microsoft.Extensions.Logging;
 
 using Shared.Application.Mediators.Behaviours.Exceptions;
+using Shared.Application.Models.Results;
 using Shared.UnitTests.Application.Mediators.Fixtures;
 
 namespace Shared.UnitTests.Application.Mediators.Behaviours.Exceptions;

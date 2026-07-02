@@ -1,4 +1,4 @@
-using ReSys.Shop.ServiceDefaults.Constants;
+using ReSys.ServiceDefaults.Constants;
 
 using Shared.Operational.Persistence.Options;
 
@@ -18,7 +18,7 @@ public class DatabaseOptionTests
     [Fact(DisplayName = "Aspire connection string should match ServiceDefaults constant")]
     public void Aspire_ShouldMatchServiceDefaultsConstant()
     {
-        DatabaseOption.Aspire.Should().Be(Infrastructures.Databases.PostgresResource);
+        DatabaseOption.Aspire.Should().Be(Infrastructures.Databases.Resource);
     }
 
     [Fact(DisplayName = "InMemory connection string should be 'InMemoryDatabase'")]

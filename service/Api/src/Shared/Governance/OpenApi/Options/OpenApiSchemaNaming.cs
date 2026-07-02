@@ -4,10 +4,25 @@ internal static class OpenApiSchemaNaming
 {
     internal static string GetSchemaReferenceId(Type type)
     {
+        return GetSchemaReferenceId(type, []);
+    }
+
+    private static string GetSchemaReferenceId(Type type, List<Type> path)
+    {
+        if (path.Contains(type))
+            return type.Name;
+
+        if (type.IsGenericParameter)
+            return type.Name;
+
+        path.Add(type);
+
         Type? underlyingType = Nullable.GetUnderlyingType(type);
         if (underlyingType is not null)
         {
-            return GetSchemaReferenceId(underlyingType);
+            string result = GetSchemaReferenceId(underlyingType, path);
+            path.RemoveAt(path.Count - 1);
+            return result;
         }
 
         if (type.Name.StartsWith("<>f", StringComparison.Ordinal))
@@ -17,16 +32,19 @@ internal static class OpenApiSchemaNaming
             string[] argNames = new string[typeArgs.Length];
             for (int i = 0; i < typeArgs.Length; i++)
             {
-                argNames[i] = GetSchemaReferenceId(typeArgs[i]);
+                argNames[i] = GetSchemaReferenceId(typeArgs[i], path);
             }
 
+            path.RemoveAt(path.Count - 1);
             return $"{typeName}{string.Join("And", argNames)}";
         }
 
         if (type.IsArray)
         {
             Type elementType = type.GetElementType()!;
-            return $"ArrayOf{GetSchemaReferenceId(elementType)}";
+            string result = $"ArrayOf{GetSchemaReferenceId(elementType, path)}";
+            path.RemoveAt(path.Count - 1);
+            return result;
         }
 
         if (type.IsGenericType)
@@ -36,24 +54,28 @@ internal static class OpenApiSchemaNaming
 
             if (type.IsNested && type.DeclaringType is { } genericDeclaring)
             {
-                name = GetSchemaReferenceId(genericDeclaring) + name;
+                name = GetSchemaReferenceId(genericDeclaring, path) + name;
             }
 
             Type[] args = type.GetGenericArguments();
             string[] argNames = new string[args.Length];
             for (int i = 0; i < args.Length; i++)
             {
-                argNames[i] = GetSchemaReferenceId(args[i]);
+                argNames[i] = GetSchemaReferenceId(args[i], path);
             }
 
+            path.RemoveAt(path.Count - 1);
             return $"{name}Of{string.Join("And", argNames)}";
         }
 
         if (type.IsNested)
         {
-            return GetSchemaReferenceId(type.DeclaringType!) + type.Name;
+            string result = GetSchemaReferenceId(type.DeclaringType!, path) + type.Name;
+            path.RemoveAt(path.Count - 1);
+            return result;
         }
 
+        path.RemoveAt(path.Count - 1);
         return type.Name;
     }
 

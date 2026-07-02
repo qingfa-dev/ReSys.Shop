@@ -8,7 +8,7 @@ internal sealed partial class ImageProcessor
     {
         internal const string DefaultFormatLabel = "auto";
 
-        internal static readonly SKSamplingOptions DefaultResampleOptions = new(SKFilterQuality.Medium);
+        internal static readonly SKSamplingOptions DefaultResampleOptions = new(SKFilterMode.Linear, SKMipmapMode.Linear);
 
         internal static readonly Dictionary<string, Func<SKImage, SKData>> FormatEncoders = new(StringComparer.OrdinalIgnoreCase)
         {

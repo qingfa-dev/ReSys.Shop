@@ -61,7 +61,7 @@ public class BackgroundJobSettingValidatorTests
         var configuration = new ConfigurationBuilder()
             .AddInMemoryCollection(new Dictionary<string, string?>
             {
-                ["ConnectionStrings:ReSys-Cache"] = "redis://localhost:6379"
+                ["ConnectionStrings:Cache"] = "redis://localhost:6379"
             })
             .Build();
 
