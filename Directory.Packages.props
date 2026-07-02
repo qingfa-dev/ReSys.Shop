@@ -85,7 +85,8 @@
     <PackageVersion Include="MessagePack" Version="3.1.7" />
 
     <!-- Image Processing -->
-    <PackageVersion Include="SixLabors.ImageSharp" Version="4.0.0" />
+    <PackageVersion Include="SkiaSharp" Version="3.116.1" />
+    <PackageVersion Include="SkiaSharp.NativeAssets.Linux" Version="3.116.1" />
 
     <!-- Malware Scanning -->
     <PackageVersion Include="nClam" Version="7.0.0" />
