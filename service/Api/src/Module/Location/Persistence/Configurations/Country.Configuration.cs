@@ -1,7 +1,6 @@
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 using Module.Location.Domain.Countries;
-using Module.Location.Persistence.Constants;
 
 namespace Module.Location.Persistence.Configurations;
 

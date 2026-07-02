@@ -17,7 +17,9 @@ public sealed class AddressSeeder(IApplicationDbContext context) : AbstractDataS
             return Result.Ok();
         }
 
-        var us = await Context.Set<Country>().FirstAsync(c => c.IsoCode == "US", cancellationToken);
+        var us = await Context.Set<Country>().FirstOrDefaultAsync(c => c.IsoCode == "US", cancellationToken);
+        if (us is null)
+            return Result.Ok();
         var states = await Context.Set<State>().Where(s => s.CountryId == us.Id).ToListAsync(cancellationToken);
         var ny = states.First(s => s.Abbreviation == "NY");
         var ca = states.First(s => s.Abbreviation == "CA");

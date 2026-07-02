@@ -3,7 +3,6 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Module.Profile.Domain;
 using Module.Profile.Domain.Addresses;
 using Module.Profile.Domain.Preferences;
-using Module.Profile.Persistence.Constants;
 
 namespace Module.Profile.Persistence.Configurations;
 
