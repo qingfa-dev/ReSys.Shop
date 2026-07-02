@@ -42,7 +42,7 @@ public static class FilterModelExtensions
     /// </param>
     /// <returns>
     /// <see cref="FilterModel.Empty"/> for blank input; a parsed model on success;
-    /// a <see cref="CorsResult.Errors.InvalidSyntax"/> failure otherwise.
+    /// a <see cref="CorsResult.Failure.InvalidSyntax"/> failure otherwise.
     /// </returns>
     public static Result<FilterModel> FromString(
         string? filterString,
@@ -93,7 +93,7 @@ public static class FilterModelExtensions
     /// <param name="allowedFields">Optional whitelist of permitted field names.</param>
     /// <returns>
     /// <see cref="FilterModel.Empty"/> for blank input; a parsed model on success;
-    /// a <see cref="CorsResult.Errors.InvalidJson"/> or structural failure otherwise.
+    /// a <see cref="CorsResult.Failure.InvalidJson"/> or structural failure otherwise.
     /// </returns>
     public static Result<FilterModel> FromJson(
         string? json,

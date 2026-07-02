@@ -8,15 +8,15 @@ public sealed class CorsSettingValidator : AbstractValidator<CorsSetting>
     {
         RuleFor(x => x.Origins)
             .NotNull()
-            .WithErrorCode(CorsResult.Errors.OriginsNull.Code)
-            .WithMessage(CorsResult.Errors.OriginsNull.Message);
+            .WithErrorCode(CorsResult.Failure.OriginsNull.Code)
+            .WithMessage(CorsResult.Failure.OriginsNull.Message);
 
         RuleFor(x => x.Origins)
             .Must(origins =>
                 origins is null ||
                 !origins.Contains("*") ||
                 origins.Length == 1)
-            .WithErrorCode(CorsResult.Errors.AmbiguousOrigin.Code)
-            .WithMessage(CorsResult.Errors.AmbiguousOrigin.Message);
+            .WithErrorCode(CorsResult.Failure.AmbiguousOrigin.Code)
+            .WithMessage(CorsResult.Failure.AmbiguousOrigin.Message);
     }
 }
