@@ -1,0 +1,44 @@
+using Module.Catalog.Domain.OptionTypes.Values;
+using Module.Catalog.Features.Admin.OptionTypes.OptionValues.Shared.Mappings;
+
+namespace Module.Catalog.Features.Admin.OptionTypes.OptionValues.Get.Paged;
+
+/// <summary>
+/// Defines the use case for retrieving a paged or full list of option values.
+/// </summary>
+public static partial class GetOptionValuesPaged
+{
+    public record Query(Guid OptionTypeId, Parameters Parameters) : IPagedQuery<Response>;
+
+    public sealed class PagedQueryHandler(IApplicationDbContext dbContext)
+        : IPagedQueryHandler<Query, Response>
+    {
+        /// <summary>
+        /// Handles the request and returns a result.
+        /// </summary>
+        /// <param name="request">The query containing request data.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        // Contract: pre=request!=null, post=result!=null
+        public async Task<PagedResult<Response>> Handle(Query request, CancellationToken cancellationToken)
+        {
+            // Assign: Extract querying parameters
+            var parametersResult = request.Parameters.ParseAll();
+
+            // Query: Retrieve option values, apply filtering/sorting, and project to paged result
+            if (parametersResult.IsFailure)
+            {
+                // Apply paged query logic
+                return parametersResult.Errors;
+            }
+
+            // Compute: Retrieve option values, apply filtering/sorting, and project to paged result
+            var pagedResult = await dbContext.Set<OptionValue>()
+                .AsNoTracking()
+                .Where(x => x.OptionTypeId == request.OptionTypeId)
+                .ApplyQuerying(parametersResult.Value)
+                .ToPagedOrAllAsync(parametersResult.Value, x => x.MapToListItem<Response>(), cancellationToken);
+
+            return pagedResult;
+        }
+    }
+}

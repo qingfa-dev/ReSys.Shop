@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<BuildingBlockModule id="catalog-taxonomies" name="Modules.Catalog.Domain.Taxonomies" version="1.0.0" status="stable" schema-version="1.0">
+  <ModuleMeta>
+    <Name>Taxonomies Domain</Name><Description>Hierarchical taxonomies and taxons with auto-classification rules.</Description>
+    <Category>DDD · Catalog</Category><Stability>Stable</Stability>
+  </ModuleMeta>
+  <AbstractionsCatalog>
+    <Category name="Taxonomy" order="1">
+      <Abstraction id="A1" name="Taxonomy" type="class"><Path>./</Path><Description>Top-level taxonomy aggregate (e.g., "Clothing").</Description></Abstraction>
+      <Abstraction id="A2" name="Taxon" type="class"><Path>./Taxons/</Path><Description>Hierarchical taxon node with position and rules.</Description></Abstraction>
+      <Abstraction id="A3" name="Rule" type="class"><Path>./Taxons/Rules/</Path><Description>Auto-classification rule for product-to-taxon assignment.</Description></Abstraction>
+    </Category>
+  </AbstractionsCatalog>
+  <FileStructure>Taxonomies/Taxons/Rules/</FileStructure>
+</BuildingBlockModule>

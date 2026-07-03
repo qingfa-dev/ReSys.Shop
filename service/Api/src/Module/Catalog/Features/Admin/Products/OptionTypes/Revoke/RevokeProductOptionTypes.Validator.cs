@@ -1,0 +1,15 @@
+using Module.Catalog.Features.Admin.Products.OptionTypes.Shared.Validations;
+
+namespace Module.Catalog.Features.Admin.Products.OptionTypes.Revoke;
+
+public static partial class RevokeProductOptionTypes
+{
+    public sealed class Validator : AbstractValidator<Command>
+    {
+        public Validator()
+        {
+            RuleFor(x => x.Request.Items)
+                .ApplyProductOptionTypeAssignmentItemRules();
+        }
+    }
+}

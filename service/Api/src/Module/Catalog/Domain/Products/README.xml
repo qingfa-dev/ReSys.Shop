@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<BuildingBlockModule id="catalog-products" name="Modules.Catalog.Domain.Products" version="1.0.0" status="stable" schema-version="1.0">
+  <ModuleMeta>
+    <Name>Products Domain</Name><Description>Product, Variant, Image, Price, Embedding, Prototype, Classification aggregates.</Description>
+    <Category>DDD · Catalog</Category><Stability>Stable</Stability>
+  </ModuleMeta>
+  <AbstractionsCatalog>
+    <Category name="Core" order="1">
+      <Abstraction id="A1" name="Product" type="class"><Path>./</Path><Description>Product aggregate root with classifications and prototypes.</Description></Abstraction>
+      <Abstraction id="A2" name="Variant" type="class"><Path>./Variants/</Path><Description>SKU with images, prices, embeddings, option values.</Description></Abstraction>
+      <Abstraction id="A3" name="Image" type="class"><Path>./Variants/Images/</Path><Description>Product variant image.</Description></Abstraction>
+      <Abstraction id="A4" name="Price" type="class"><Path>./Variants/Prices/</Path><Description>Variant pricing with currency.</Description></Abstraction>
+      <Abstraction id="A5" name="Embedding" type="class"><Path>./Variants/Images/Embeddings/</Path><Description>ML-generated visual embedding vector.</Description></Abstraction>
+    </Category>
+  </AbstractionsCatalog>
+  <FileStructure>
+    Products/
+    ├── Classifications/
+    ├── Prototypes/
+    └── Variants/
+        ├── Images/Embeddings/
+        └── Prices/
+  </FileStructure>
+</BuildingBlockModule>
