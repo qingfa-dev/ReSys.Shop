@@ -1,0 +1,49 @@
+# =============================================================================
+# ReSys.Shop API Test - Storefront Catalog Products
+# =============================================================================
+# @baseUrl          = {{baseUrl}}
+# @contentType      = {{contentType}}
+# @storeToken       = {{storeToken}}
+# @nonExistentId    = {{nonExistentId}}
+# @existingProductId = {{existingProductId}}
+# =============================================================================
+
+### ---------------------------------------------------------------------------
+### 1. Get product by slug – success
+# GET /api/storefront/products/{slug}
+# Expected: 200 OK – single product
+# ---------------------------------------------------------------------------
+GET {{baseUrl}}/api/storefront/products/classic-t-shirt
+Content-Type: {{contentType}}
+
+### ---------------------------------------------------------------------------
+### 2. Get product by slug – not found
+# GET /api/storefront/products/{slug}
+# Expected: 404 Not Found – slug does not exist
+# ---------------------------------------------------------------------------
+GET {{baseUrl}}/api/storefront/products/non-existent-product
+Content-Type: {{contentType}}
+
+### ---------------------------------------------------------------------------
+### 3. Availability matrix
+# GET /api/storefront/products/{id}/availability
+# Expected: 200 OK – variant availability matrix
+# ---------------------------------------------------------------------------
+GET {{baseUrl}}/api/storefront/products/{{existingProductId}}/availability
+Content-Type: {{contentType}}
+
+### ---------------------------------------------------------------------------
+### 4. Related products
+# GET /api/storefront/products/{id}/related
+# Expected: 200 OK – list of related products
+# ---------------------------------------------------------------------------
+GET {{baseUrl}}/api/storefront/products/{{existingProductId}}/related
+Content-Type: {{contentType}}
+
+### ---------------------------------------------------------------------------
+### 5. Similar products
+# GET /api/storefront/products/{id}/similar
+# Expected: 200 OK – list of similar products
+# ---------------------------------------------------------------------------
+GET {{baseUrl}}/api/storefront/products/{{existingProductId}}/similar
+Content-Type: {{contentType}}

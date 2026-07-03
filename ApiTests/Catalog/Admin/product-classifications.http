@@ -1,0 +1,57 @@
+# =============================================================================
+# ReSys.Shop API Test - Admin Catalog Product Classifications
+# =============================================================================
+# @baseUrl          = {{baseUrl}}
+# @contentType      = {{contentType}}
+# @adminToken       = {{adminToken}}
+# @existingProductId = {{existingProductId}}
+# @existingTaxonId  = {{existingTaxonId}}
+# =============================================================================
+
+### ---------------------------------------------------------------------------
+### 1. Get classifications
+# GET /api/catalog/products/{id}/classifications
+# Expected: 200 OK – list of product classifications
+# ---------------------------------------------------------------------------
+GET {{baseUrl}}/api/catalog/products/{{existingProductId}}/classifications
+Content-Type: {{contentType}}
+Authorization: Bearer {{adminToken}}
+
+### ---------------------------------------------------------------------------
+### 2. Assign taxons – success
+# POST /api/catalog/products/{id}/classifications/assign
+# Expected: 200 OK – taxons assigned to product
+# ---------------------------------------------------------------------------
+POST {{baseUrl}}/api/catalog/products/{{existingProductId}}/classifications/assign
+Content-Type: {{contentType}}
+Authorization: Bearer {{adminToken}}
+
+{
+  "taxonIds": ["{{existingTaxonId}}"]
+}
+
+### ---------------------------------------------------------------------------
+### 3. Revoke taxons – success
+# POST /api/catalog/products/{id}/classifications/revoke
+# Expected: 200 OK – taxons revoked from product
+# ---------------------------------------------------------------------------
+POST {{baseUrl}}/api/catalog/products/{{existingProductId}}/classifications/revoke
+Content-Type: {{contentType}}
+Authorization: Bearer {{adminToken}}
+
+{
+  "taxonIds": ["{{existingTaxonId}}"]
+}
+
+### ---------------------------------------------------------------------------
+### 4. Sync classifications – success
+# PUT /api/catalog/products/{id}/classifications/sync
+# Expected: 200 OK – classifications synchronized
+# ---------------------------------------------------------------------------
+PUT {{baseUrl}}/api/catalog/products/{{existingProductId}}/classifications/sync
+Content-Type: {{contentType}}
+Authorization: Bearer {{adminToken}}
+
+{
+  "taxonIds": ["{{existingTaxonId}}"]
+}

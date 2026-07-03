@@ -1,0 +1,39 @@
+# =============================================================================
+# ReSys.Shop API Test - Admin Identity / Auth (Admin Login)
+# =============================================================================
+# Admin authentication endpoints.
+# =============================================================================
+
+### Admin Login - Success (200)
+# Authenticates an admin user and returns a JWT token.
+# Expect: 200 OK with accessToken, refreshToken, and user profile.
+# @name adminLogin
+POST {{baseUrl}}/api/identity/users/login
+Content-Type: {{contentType}}
+
+{
+  "email": "admin@resys.shop",
+  "password": "Admin123!"
+}
+
+### Admin Login - Invalid Credentials (401)
+# Using wrong email/password combination.
+# Expect: 401 Unauthorized with invalid credentials message.
+POST {{baseUrl}}/api/identity/users/login
+Content-Type: {{contentType}}
+
+{
+  "email": "admin@resys.shop",
+  "password": "WrongPassword99!"
+}
+
+### Admin Login - Validation Error (400)
+# Empty email and password fields.
+# Expect: 400 Bad Request with validation errors.
+POST {{baseUrl}}/api/identity/users/login
+Content-Type: {{contentType}}
+
+{
+  "email": "",
+  "password": ""
+}

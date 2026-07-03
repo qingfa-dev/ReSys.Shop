@@ -1,0 +1,67 @@
+# =============================================================================
+# ReSys.Shop API Test - Storefront Catalog Taxonomies & Taxons
+# =============================================================================
+# @baseUrl          = {{baseUrl}}
+# @contentType      = {{contentType}}
+# @page             = {{page}}
+# @pageSize         = {{pageSize}}
+# @nonExistentId    = {{nonExistentId}}
+# @existingTaxonomyId = {{existingTaxonomyId}}
+# @existingTaxonId  = {{existingTaxonId}}
+# =============================================================================
+
+### ---------------------------------------------------------------------------
+### 1. Get taxonomy tree – success
+# GET /api/storefront/taxonomies/{id}
+# Expected: 200 OK – taxonomy tree with nested taxons
+# ---------------------------------------------------------------------------
+GET {{baseUrl}}/api/storefront/taxonomies/{{existingTaxonomyId}}
+Content-Type: {{contentType}}
+
+### ---------------------------------------------------------------------------
+### 2. Get taxonomy tree – not found
+# GET /api/storefront/taxonomies/{id}
+# Expected: 404 Not Found
+# ---------------------------------------------------------------------------
+GET {{baseUrl}}/api/storefront/taxonomies/{{nonExistentId}}
+Content-Type: {{contentType}}
+
+### ---------------------------------------------------------------------------
+### 3. List taxons
+# GET /api/storefront/taxons
+# Expected: 200 OK – list of all taxons
+# ---------------------------------------------------------------------------
+GET {{baseUrl}}/api/storefront/taxons
+Content-Type: {{contentType}}
+
+### ---------------------------------------------------------------------------
+### 4. Filter taxons by depth
+# GET /api/storefront/taxons?depth=1
+# Expected: 200 OK – taxons filtered by depth
+# ---------------------------------------------------------------------------
+GET {{baseUrl}}/api/storefront/taxons?depth=1
+Content-Type: {{contentType}}
+
+### ---------------------------------------------------------------------------
+### 5. Get taxon products – success
+# GET /api/storefront/taxons/{id}/products
+# Expected: 200 OK – products in this taxon
+# ---------------------------------------------------------------------------
+GET {{baseUrl}}/api/storefront/taxons/{{existingTaxonId}}/products
+Content-Type: {{contentType}}
+
+### ---------------------------------------------------------------------------
+### 6. Get taxon products – empty
+# GET /api/storefront/taxons/{id}/products
+# Expected: 200 OK – empty product list (taxon has no products)
+# ---------------------------------------------------------------------------
+GET {{baseUrl}}/api/storefront/taxons/{{nonExistentId}}/products
+Content-Type: {{contentType}}
+
+### ---------------------------------------------------------------------------
+### 7. Get taxon products with pagination
+# GET /api/storefront/taxons/{id}/products?page={page}&pageSize={pageSize}
+# Expected: 200 OK – paginated product list
+# ---------------------------------------------------------------------------
+GET {{baseUrl}}/api/storefront/taxons/{{existingTaxonId}}/products?page={{page}}&pageSize={{pageSize}}
+Content-Type: {{contentType}}

@@ -1,0 +1,39 @@
+# =============================================================================
+# Profile - Store Notifications API Tests
+# =============================================================================
+# Base URL: {{baseUrl}}/api/store/profiles/notifications
+# Auth: Store Bearer Token required for most operations
+# =============================================================================
+
+### List notifications (200)
+# Returns all notifications for the authenticated user
+# Expected: 200 OK with a list of notifications
+GET {{baseUrl}}/api/store/profiles/notifications
+Authorization: Bearer {{storeToken}}
+
+### Mark notification as read (200)
+# Marks a single notification as read by its GUID
+# Expected: 200 OK
+PATCH {{baseUrl}}/api/store/profiles/notifications/{{existingAddressId}}/read
+Authorization: Bearer {{storeToken}}
+
+### Mark all notifications as read (200)
+# Marks every unread notification for the authenticated user as read
+# Expected: 200 OK
+PATCH {{baseUrl}}/api/store/profiles/notifications/read-all
+Authorization: Bearer {{storeToken}}
+
+### List notifications - No Auth (401)
+# Attempts to list notifications without an Authorization header
+# Expected: 401 Unauthorized
+GET {{baseUrl}}/api/store/profiles/notifications
+
+### Mark notification as read - No Auth (401)
+# Attempts to mark a notification as read without an Authorization header
+# Expected: 401 Unauthorized
+PATCH {{baseUrl}}/api/store/profiles/notifications/{{existingAddressId}}/read
+
+### Mark all notifications as read - No Auth (401)
+# Attempts to mark all notifications as read without an Authorization header
+# Expected: 401 Unauthorized
+PATCH {{baseUrl}}/api/store/profiles/notifications/read-all

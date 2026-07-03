@@ -1,0 +1,50 @@
+# =============================================================================
+# ReSys.Shop API Test - Admin Identity / Role Permissions
+# =============================================================================
+# Manage permission assignments for a specific role.
+# =============================================================================
+
+### Get Role Permissions - Success (200)
+# Returns all permissions assigned to the role.
+# Expect: 200 OK with an array of permission strings.
+GET {{baseUrl}}/api/identity/roles/{{existingRoleId}}/permissions
+Authorization: Bearer {{adminToken}}
+
+### Assign Permissions - Success (200)
+# Adds permissions to the role.
+# Expect: 200 OK with the updated permission list.
+PUT {{baseUrl}}/api/identity/roles/{{existingRoleId}}/permissions/assign
+Content-Type: {{contentType}}
+Authorization: Bearer {{adminToken}}
+
+{
+  "permissions": ["orders.read", "orders.write"]
+}
+
+### Revoke Permissions - Success (200)
+# Removes specific permissions from the role.
+# Expect: 200 OK with the updated permission list.
+DELETE {{baseUrl}}/api/identity/roles/{{existingRoleId}}/permissions/revoke
+Content-Type: {{contentType}}
+Authorization: Bearer {{adminToken}}
+
+{
+  "permissions": ["orders.write"]
+}
+
+### Sync Permissions - Success (200)
+# Replaces all role permissions with the provided set.
+# Expect: 200 OK with the synced permission list.
+PATCH {{baseUrl}}/api/identity/roles/{{existingRoleId}}/permissions/sync
+Content-Type: {{contentType}}
+Authorization: Bearer {{adminToken}}
+
+{
+  "permissions": ["orders.read", "orders.write", "orders.cancel", "orders.refund"]
+}
+
+### Get Role Permissions - Role Not Found (404)
+# Using a non-existent role ID.
+# Expect: 404 Not Found.
+GET {{baseUrl}}/api/identity/roles/{{nonExistentId}}/permissions
+Authorization: Bearer {{adminToken}}

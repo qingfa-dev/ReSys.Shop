@@ -1,0 +1,51 @@
+# =============================================================================
+# ReSys.Shop API Test - Store Identity / Auth - Sessions
+# =============================================================================
+# Session management including get, refresh, and logout.
+# =============================================================================
+
+### Get Session - Success (200)
+# Returns the current user's active session info.
+# Expect: 200 OK with sessionId, device, createdAt, expiresAt.
+GET {{baseUrl}}/api/store/identity/auth/sessions
+Authorization: Bearer {{storeToken}}
+
+### Get Session - No Auth (401)
+# Calling without Authorization header.
+# Expect: 401 Unauthorized.
+GET {{baseUrl}}/api/store/identity/auth/sessions
+
+### Refresh Token - Success (200)
+# Exchanges a refresh token for a new access/refresh token pair.
+# Expect: 200 OK with new accessToken and refreshToken.
+# @name refreshSession
+POST {{baseUrl}}/api/store/identity/auth/sessions/refresh
+Content-Type: {{contentType}}
+
+{
+  "refreshToken": "{{storeRefreshToken}}"
+}
+
+### Logout - Single Device (200)
+# Logs out the current device only.
+# Expect: 200 OK with logout confirmation.
+POST {{baseUrl}}/api/store/identity/auth/logout
+Content-Type: {{contentType}}
+Authorization: Bearer {{storeToken}}
+
+{
+  "refreshToken": "{{storeRefreshToken}}",
+  "revokeAll": false
+}
+
+### Logout - All Devices (200)
+# Revokes all active sessions for the user.
+# Expect: 200 OK with confirmation that all devices were logged out.
+POST {{baseUrl}}/api/store/identity/auth/logout
+Content-Type: {{contentType}}
+Authorization: Bearer {{storeToken}}
+
+{
+  "refreshToken": "{{storeRefreshToken}}",
+  "revokeAll": true
+}

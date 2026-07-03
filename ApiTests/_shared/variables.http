@@ -1,0 +1,35 @@
+# =============================================================================
+# ReSys.Shop API Test - Shared Variables
+# =============================================================================
+# Override these in your editor's REST Client settings or in a
+# local `http-client.env.json` / `http-client.private.env.json`.
+# =============================================================================
+
+### Base URL
+@baseUrl = http://localhost:5000
+
+### Content Type
+@contentType = application/json
+
+### Bearer tokens (obtain via auth-helpers.http)
+@adminToken = {{adminToken}}
+@storeToken = {{storeToken}}
+
+### Common GUIDs for testing (replace with actual seeded IDs)
+@existingUserId = 00000000-0000-0000-0000-000000000001
+@existingRoleId = 00000000-0000-0000-0000-000000000002
+@existingCountryId = 00000000-0000-0000-0000-000000000010
+@existingStateId = 00000000-0000-0000-0000-000000000020
+@existingProductId = 00000000-0000-0000-0000-000000000100
+@existingVariantId = 00000000-0000-0000-0000-000000000101
+@existingTaxonomyId = 00000000-0000-0000-0000-000000000200
+@existingTaxonId = 00000000-0000-0000-0000-000000000201
+@existingOptionTypeId = 00000000-0000-0000-0000-000000000300
+@existingOptionValueId = 00000000-0000-0000-0000-000000000301
+@existingProfileId = 00000000-0000-0000-0000-000000000400
+@existingAddressId = 00000000-0000-0000-0000-000000000401
+@nonExistentId = 00000000-0000-0000-0000-00000000ffff
+
+### Query defaults
+@page = 1
+@pageSize = 10

@@ -1,0 +1,67 @@
+# =============================================================================
+# ReSys.Shop API Test - Store Identity / Auth - Login
+# =============================================================================
+# Customer authentication via password, external providers, and provider discovery.
+# =============================================================================
+
+### Login With Email - Success (200)
+# Authenticates using email and password.
+# Expect: 200 OK with accessToken, refreshToken, and user profile.
+# @name emailLogin
+POST {{baseUrl}}/api/store/identity/auth/login/password
+Content-Type: {{contentType}}
+
+{
+  "credential": "customer@resys.shop",
+  "password": "Customer123!"
+}
+
+### Login With Username - Success (200)
+# Authenticates using username instead of email.
+# Expect: 200 OK with accessToken, refreshToken, and user profile.
+# @name usernameLogin
+POST {{baseUrl}}/api/store/identity/auth/login/password
+Content-Type: {{contentType}}
+
+{
+  "credential": "customer",
+  "password": "Customer123!"
+}
+
+### Login - Wrong Password (401)
+# Correct email but incorrect password.
+# Expect: 401 Unauthorized.
+POST {{baseUrl}}/api/store/identity/auth/login/password
+Content-Type: {{contentType}}
+
+{
+  "credential": "customer@resys.shop",
+  "password": "WrongPassword99!"
+}
+
+### Login - Non-Existent User (401)
+# Email does not exist in the system.
+# Expect: 401 Unauthorized (generic error to avoid user enumeration).
+POST {{baseUrl}}/api/store/identity/auth/login/password
+Content-Type: {{contentType}}
+
+{
+  "credential": "nonexistent@example.com",
+  "password": "SomePass123!"
+}
+
+### External Provider Login - Success (200)
+# Authenticates via an external identity provider (Google).
+# Expect: 200 OK with accessToken, refreshToken, and user profile.
+POST {{baseUrl}}/api/store/identity/auth/login/external
+Content-Type: {{contentType}}
+
+{
+  "provider": "Google",
+  "idToken": "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.placeholder"
+}
+
+### List External Providers - Success (200)
+# Returns a list of configured external authentication providers.
+# Expect: 200 OK with an array of provider objects (name, iconUrl, enabled).
+GET {{baseUrl}}/api/store/identity/auth/login/external/providers

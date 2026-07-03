@@ -1,0 +1,54 @@
+# =============================================================================
+# Profile - Store Profiles API Tests
+# =============================================================================
+# Base URL: {{baseUrl}}/api/store/profiles/profiles
+# Auth: Store Bearer Token required for most operations
+# =============================================================================
+
+### Get own profile - Success (200)
+# Returns the authenticated store user's profile
+# Expected: 200 OK with current user's profile details
+GET {{baseUrl}}/api/store/profiles/profiles
+Authorization: Bearer {{storeToken}}
+
+### Get own profile - No Auth (401)
+# Attempts to retrieve own profile without an Authorization header
+# Expected: 401 Unauthorized
+GET {{baseUrl}}/api/store/profiles/profiles
+
+### List all profiles (200)
+# Returns all store profiles the authenticated user has access to
+# Expected: 200 OK with a list of profiles
+GET {{baseUrl}}/api/store/profiles/profiles/all
+Authorization: Bearer {{storeToken}}
+
+### Update own profile - Success (200)
+# Updates the authenticated user's profile fields
+# Expected: 200 OK with updated profile
+PUT {{baseUrl}}/api/store/profiles/profiles
+Authorization: Bearer {{storeToken}}
+Content-Type: {{contentType}}
+
+{
+  "firstName": "John",
+  "lastName": "Doe",
+  "phone": "+1-555-0100"
+}
+
+### Update own profile - Validation Error (400)
+# Attempts to update profile with invalid/missing required data
+# Expected: 400 Bad Request with validation errors
+PUT {{baseUrl}}/api/store/profiles/profiles
+Authorization: Bearer {{storeToken}}
+Content-Type: {{contentType}}
+
+{
+  "firstName": "",
+  "lastName": ""
+}
+
+### Delete/deactivate own profile (200)
+# Deletes or deactivates the authenticated user's profile
+# Expected: 200 OK (or 204 No Content depending on implementation)
+DELETE {{baseUrl}}/api/store/profiles/profiles
+Authorization: Bearer {{storeToken}}

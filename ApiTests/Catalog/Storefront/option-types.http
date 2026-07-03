@@ -1,0 +1,22 @@
+# =============================================================================
+# ReSys.Shop API Test - Storefront Catalog Option Types
+# =============================================================================
+# @baseUrl     = {{baseUrl}}
+# @contentType = {{contentType}}
+# =============================================================================
+
+### ---------------------------------------------------------------------------
+### 1. Get all option types with values
+# GET /api/storefront/option-types
+# Expected: 200 OK – list of option types with their values
+# ---------------------------------------------------------------------------
+GET {{baseUrl}}/api/storefront/option-types
+Content-Type: {{contentType}}
+
+### ---------------------------------------------------------------------------
+### 2. Get option types – empty results
+# GET /api/storefront/option-types
+# Expected: 200 OK – empty list (no option types configured)
+# ---------------------------------------------------------------------------
+GET {{baseUrl}}/api/storefront/option-types?unused=true
+Content-Type: {{contentType}}
