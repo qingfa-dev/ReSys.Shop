@@ -1,0 +1,44 @@
+# =============================================================================
+# ReSys.Shop API Test - Admin Identity / User Permissions
+# =============================================================================
+# Manage direct permission assignments for a specific user.
+# =============================================================================
+
+### Get User Permissions - Success (200)
+# Returns all direct permissions assigned to the user.
+# Expect: 200 OK with an array of permission strings.
+GET {{baseUrl}}/api/identity/users/{{existingUserId}}/permissions
+Authorization: Bearer {{adminToken}}
+
+### Assign Permissions - Success (200)
+# Grants additional permissions to the user.
+# Expect: 200 OK with the updated permission list.
+POST {{baseUrl}}/api/identity/users/{{existingUserId}}/permissions/assign
+Content-Type: {{contentType}}
+Authorization: Bearer {{adminToken}}
+
+{
+  "permissions": ["reports.read", "reports.export"]
+}
+
+### Revoke Permissions - Success (200)
+# Removes specific permissions from the user.
+# Expect: 200 OK with the updated permission list.
+DELETE {{baseUrl}}/api/identity/users/{{existingUserId}}/permissions/revoke
+Content-Type: {{contentType}}
+Authorization: Bearer {{adminToken}}
+
+{
+  "permissions": ["reports.read"]
+}
+
+### Sync Permissions - Success (200)
+# Replaces all direct permissions with the provided set.
+# Expect: 200 OK with the synced permission list.
+PUT {{baseUrl}}/api/identity/users/{{existingUserId}}/permissions/sync
+Content-Type: {{contentType}}
+Authorization: Bearer {{adminToken}}
+
+{
+  "permissions": ["reports.read", "reports.write", "analytics.read"]
+}

@@ -1,0 +1,64 @@
+# =============================================================================
+# ReSys.Shop API Test - Store Identity / Auth - Register
+# =============================================================================
+# New customer registration flow.
+# =============================================================================
+
+### Register - Success (201)
+# Registers a new store customer account.
+# Expect: 201 Created with userId, email, and confirmation message.
+# @name registerUser
+POST {{baseUrl}}/api/store/identity/auth/register
+Content-Type: {{contentType}}
+
+{
+  "firstName": "Alice",
+  "lastName": "Johnson",
+  "email": "alice.johnson@example.com",
+  "userName": "alice.johnson",
+  "password": "SecurePass789!",
+  "acceptTerm": true
+}
+
+### Register - Duplicate Email (409)
+# Attempt to register with an already-used email.
+# Expect: 409 Conflict with duplicate email error.
+POST {{baseUrl}}/api/store/identity/auth/register
+Content-Type: {{contentType}}
+
+{
+  "firstName": "Alice",
+  "lastName": "Johnson",
+  "email": "alice.johnson@example.com",
+  "userName": "alice.johnson.dup",
+  "password": "AnotherPass123!",
+  "acceptTerm": true
+}
+
+### Register - Weak Password (400)
+# Password is too short and lacks special characters.
+# Expect: 400 Bad Request with password policy violations.
+POST {{baseUrl}}/api/store/identity/auth/register
+Content-Type: {{contentType}}
+
+{
+  "firstName": "Bob",
+  "lastName": "Smith",
+  "email": "bob.smith@example.com",
+  "userName": "bob.smith",
+  "password": "Ab1",
+  "acceptTerm": true
+}
+
+### Register - Missing Required Fields (400)
+# Missing firstName and acceptTerm.
+# Expect: 400 Bad Request with validation errors for required fields.
+POST {{baseUrl}}/api/store/identity/auth/register
+Content-Type: {{contentType}}
+
+{
+  "lastName": "Only",
+  "email": "missing@example.com",
+  "userName": "missing.fields",
+  "password": "ValidPass123!"
+}

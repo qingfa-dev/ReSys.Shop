@@ -1,0 +1,140 @@
+# =============================================================================
+# ReSys.Shop API Test - Admin Location States
+# =============================================================================
+# @baseUrl        = {{baseUrl}}
+# @contentType    = {{contentType}}
+# @adminToken     = {{adminToken}}
+# @nonExistentId  = {{nonExistentId}}
+# @existingCountryId = {{existingCountryId}}
+# =============================================================================
+
+### ---------------------------------------------------------------------------
+### 1. Create state – success
+# POST /api/locations/states
+# Expected: 201 Created with location header
+# ---------------------------------------------------------------------------
+POST {{baseUrl}}/api/locations/states
+Content-Type: {{contentType}}
+Authorization: Bearer {{adminToken}}
+
+{
+  "name": "California",
+  "isoCode": "US-CA",
+  "countryId": "{{existingCountryId}}"
+}
+
+### ---------------------------------------------------------------------------
+### 2. Create state – duplicate ISO within same country
+# POST /api/locations/states
+# Expected: 409 Conflict – ISO code already exists for this country
+# ---------------------------------------------------------------------------
+POST {{baseUrl}}/api/locations/states
+Content-Type: {{contentType}}
+Authorization: Bearer {{adminToken}}
+
+{
+  "name": "California (Duplicate)",
+  "isoCode": "US-CA",
+  "countryId": "{{existingCountryId}}"
+}
+
+### ---------------------------------------------------------------------------
+### 3. Create state – validation error (empty name)
+# POST /api/locations/states
+# Expected: 400 Bad Request – name is required
+# ---------------------------------------------------------------------------
+POST {{baseUrl}}/api/locations/states
+Content-Type: {{contentType}}
+Authorization: Bearer {{adminToken}}
+
+{
+  "name": "",
+  "isoCode": "XX-YY",
+  "countryId": "{{existingCountryId}}"
+}
+
+### ---------------------------------------------------------------------------
+### 4. List states (default pagination)
+# GET /api/locations/states
+# Expected: 200 OK – paged list of states
+# ---------------------------------------------------------------------------
+GET {{baseUrl}}/api/locations/states?page={{page}}&pageSize={{pageSize}}
+Content-Type: {{contentType}}
+Authorization: Bearer {{adminToken}}
+
+### ---------------------------------------------------------------------------
+### 5. List states filtered by country
+# GET /api/locations/states?countryId={id}
+# Expected: 200 OK – states belonging to the specified country
+# ---------------------------------------------------------------------------
+GET {{baseUrl}}/api/locations/states?countryId={{existingCountryId}}&page={{page}}&pageSize={{pageSize}}
+Content-Type: {{contentType}}
+Authorization: Bearer {{adminToken}}
+
+### ---------------------------------------------------------------------------
+### 6. Get state by ID – success
+# GET /api/locations/states/{id}
+# Expected: 200 OK – single state
+# ---------------------------------------------------------------------------
+GET {{baseUrl}}/api/locations/states/{{existingStateId}}
+Content-Type: {{contentType}}
+Authorization: Bearer {{adminToken}}
+
+### ---------------------------------------------------------------------------
+### 7. Get state by ID – not found
+# GET /api/locations/states/{id}
+# Expected: 404 Not Found
+# ---------------------------------------------------------------------------
+GET {{baseUrl}}/api/locations/states/{{nonExistentId}}
+Content-Type: {{contentType}}
+Authorization: Bearer {{adminToken}}
+
+### ---------------------------------------------------------------------------
+### 8. Get state by ISO code – success
+# GET /api/locations/states/by-iso/{isoCode}
+# Expected: 200 OK – single state
+# ---------------------------------------------------------------------------
+GET {{baseUrl}}/api/locations/states/by-iso/US-CA
+Content-Type: {{contentType}}
+Authorization: Bearer {{adminToken}}
+
+### ---------------------------------------------------------------------------
+### 9. Get state by ISO code – not found
+# GET /api/locations/states/by-iso/{isoCode}
+# Expected: 404 Not Found
+# ---------------------------------------------------------------------------
+GET {{baseUrl}}/api/locations/states/by-iso/XX-YY
+Content-Type: {{contentType}}
+Authorization: Bearer {{adminToken}}
+
+### ---------------------------------------------------------------------------
+### 10. Update state – success
+# PUT /api/locations/states/{id}
+# Expected: 200 OK – updated state
+# ---------------------------------------------------------------------------
+PUT {{baseUrl}}/api/locations/states/{{existingStateId}}
+Content-Type: {{contentType}}
+Authorization: Bearer {{adminToken}}
+
+{
+  "name": "Golden State",
+  "isoCode": "US-CA",
+  "countryId": "{{existingCountryId}}"
+}
+
+### ---------------------------------------------------------------------------
+### 11. Delete state – success
+# DELETE /api/locations/states/{id}
+# Expected: 200 OK (or 204 No Content)
+# ---------------------------------------------------------------------------
+DELETE {{baseUrl}}/api/locations/states/{{existingStateId}}
+Content-Type: {{contentType}}
+Authorization: Bearer {{adminToken}}
+
+### ---------------------------------------------------------------------------
+### 12. No authentication – 401
+# GET /api/locations/states
+# Expected: 401 Unauthorized – missing or invalid token
+# ---------------------------------------------------------------------------
+GET {{baseUrl}}/api/locations/states
+Content-Type: {{contentType}}

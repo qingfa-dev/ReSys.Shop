@@ -1,0 +1,115 @@
+# =============================================================================
+# ReSys.Shop API Test - Admin Identity / Users
+# =============================================================================
+# CRUD + status toggle for admin user management.
+# =============================================================================
+
+### Create User - Success (201)
+# Creates a new admin user with full profile.
+# Expect: 201 Created with userId, email, and profile details.
+# @name createUser
+POST {{baseUrl}}/api/identity/users
+Content-Type: {{contentType}}
+Authorization: Bearer {{adminToken}}
+
+{
+  "firstName": "John",
+  "lastName": "Doe",
+  "email": "john.doe@example.com",
+  "userName": "john.doe",
+  "password": "P@ssword123"
+}
+
+### Create User - Duplicate Email (409)
+# Attempt to create another user with the same email.
+# Expect: 409 Conflict with duplicate email error message.
+POST {{baseUrl}}/api/identity/users
+Content-Type: {{contentType}}
+Authorization: Bearer {{adminToken}}
+
+{
+  "firstName": "Jane",
+  "lastName": "Doe",
+  "email": "john.doe@example.com",
+  "userName": "jane.doe",
+  "password": "P@ssword456"
+}
+
+### Create User - Validation Error (400)
+# Missing required fields (firstName, email, password).
+# Expect: 400 Bad Request with validation errors.
+POST {{baseUrl}}/api/identity/users
+Content-Type: {{contentType}}
+Authorization: Bearer {{adminToken}}
+
+{
+  "lastName": "Incomplete"
+}
+
+### List Users (200)
+# Returns a paged list of users.
+# Expect: 200 OK with page, pageSize, totalCount, items[].
+GET {{baseUrl}}/api/identity/users?page={{page}}&pageSize={{pageSize}}
+Authorization: Bearer {{adminToken}}
+
+### List Users - No Auth (401)
+# Calling without Authorization header.
+# Expect: 401 Unauthorized.
+GET {{baseUrl}}/api/identity/users?page={{page}}&pageSize={{pageSize}}
+
+### Get User By ID - Success (200)
+# Retrieves a single user by their GUID.
+# Expect: 200 OK with full user profile.
+GET {{baseUrl}}/api/identity/users/{{existingUserId}}
+Authorization: Bearer {{adminToken}}
+
+### Get User By ID - Not Found (404)
+# Using a non-existent user ID.
+# Expect: 404 Not Found.
+GET {{baseUrl}}/api/identity/users/{{nonExistentId}}
+Authorization: Bearer {{adminToken}}
+
+### Update User - Success (200)
+# Updates the user's firstName and lastName.
+# Expect: 200 OK with updated fields.
+PUT {{baseUrl}}/api/identity/users/{{existingUserId}}
+Content-Type: {{contentType}}
+Authorization: Bearer {{adminToken}}
+
+{
+  "firstName": "Johnathan",
+  "lastName": "Doe-Smith",
+  "email": "john.doe@example.com",
+  "userName": "john.doe"
+}
+
+### Update User - Not Found (404)
+# Attempt to update a non-existent user.
+# Expect: 404 Not Found.
+PUT {{baseUrl}}/api/identity/users/{{nonExistentId}}
+Content-Type: {{contentType}}
+Authorization: Bearer {{adminToken}}
+
+{
+  "firstName": "Ghost",
+  "lastName": "User",
+  "email": "ghost@example.com",
+  "userName": "ghost.user"
+}
+
+### Delete User - Success (200)
+# Soft/hard deletes the specified user.
+# Expect: 200 OK with success confirmation.
+DELETE {{baseUrl}}/api/identity/users/{{existingUserId}}
+Authorization: Bearer {{adminToken}}
+
+### Toggle User Status - Success (200)
+# Toggles the user's active/disabled status.
+# Expect: 200 OK with new status value.
+PATCH {{baseUrl}}/api/identity/users/{{existingUserId}}/status
+Content-Type: {{contentType}}
+Authorization: Bearer {{adminToken}}
+
+{
+  "isActive": false
+}

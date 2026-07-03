@@ -1,0 +1,46 @@
+# =============================================================================
+# ReSys.Shop API Test - Storefront Catalog Search by Image
+# =============================================================================
+# @baseUrl     = {{baseUrl}}
+# @contentType = {{contentType}}
+# =============================================================================
+
+### ---------------------------------------------------------------------------
+### 1. Search by image – success
+# POST /api/storefront/search-by-image
+# Expected: 200 OK – visually similar products returned
+# Content-Type: multipart/form-data
+# ---------------------------------------------------------------------------
+POST {{baseUrl}}/api/storefront/search-by-image
+Content-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW
+
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="image"; filename="product-photo.jpg"
+Content-Type: image/jpeg
+
+< ../_shared/test-files/product-photo.jpg
+------WebKitFormBoundary7MA4YWxkTrZu0gW--
+
+### ---------------------------------------------------------------------------
+### 2. Search by image – invalid image format
+# POST /api/storefront/search-by-image
+# Expected: 400 Bad Request – unsupported image format
+# Content-Type: multipart/form-data
+# ---------------------------------------------------------------------------
+POST {{baseUrl}}/api/storefront/search-by-image
+Content-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW
+
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="image"; filename="document.pdf"
+Content-Type: application/pdf
+
+< ../_shared/test-files/document.pdf
+------WebKitFormBoundary7MA4YWxkTrZu0gW--
+
+### ---------------------------------------------------------------------------
+### 3. Search by image – no image uploaded
+# POST /api/storefront/search-by-image
+# Expected: 400 Bad Request – image file is required
+# ---------------------------------------------------------------------------
+POST {{baseUrl}}/api/storefront/search-by-image
+Content-Type: {{contentType}}

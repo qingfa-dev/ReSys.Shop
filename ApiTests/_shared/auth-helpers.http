@@ -1,0 +1,50 @@
+# =============================================================================
+# ReSys.Shop API Test - Auth Helpers
+# =============================================================================
+# Use these requests to obtain bearer tokens for admin and store users.
+# The tokens are stored in variables @adminToken and @storeToken via
+# script bindings (VS Code REST Client / JetBrains HTTP Client).
+# =============================================================================
+
+### Admin Login
+# @name adminLogin
+POST {{baseUrl}}/api/identity/users/login
+Content-Type: {{contentType}}
+
+{
+  "email": "admin@resys.shop",
+  "password": "Admin123!"
+}
+
+### Store User Login
+# @name storeLogin
+POST {{baseUrl}}/api/store/identity/auth/login/password
+Content-Type: {{contentType}}
+
+{
+  "credential": "customer@resys.shop",
+  "password": "Customer123!"
+}
+
+### Register a new store user (for signup flow testing)
+# @name storeRegister
+POST {{baseUrl}}/api/store/identity/auth/register
+Content-Type: {{contentType}}
+
+{
+  "email": "testuser-{{$randomInt 1000 9999}}@resys.shop",
+  "userName": "testuser-{{$randomInt 1000 9999}}",
+  "password": "TestPass123!",
+  "firstName": "Test",
+  "lastName": "User",
+  "acceptTerm": true
+}
+
+### Refresh Token
+# @name refreshToken
+POST {{baseUrl}}/api/store/identity/auth/sessions/refresh
+Content-Type: {{contentType}}
+
+{
+  "refreshToken": "{{storeRefreshToken}}"
+}

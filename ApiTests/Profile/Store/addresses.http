@@ -1,0 +1,128 @@
+# =============================================================================
+# Profile - Store Addresses API Tests
+# =============================================================================
+# Base URL: {{baseUrl}}/api/store/profiles/addresses
+# Auth: Store Bearer Token required for most operations
+# =============================================================================
+
+### Create address - Success (201)
+# Creates a new address for the authenticated user
+# Expected: 201 Created with the new address
+POST {{baseUrl}}/api/store/profiles/addresses
+Authorization: Bearer {{storeToken}}
+Content-Type: {{contentType}}
+
+{
+  "addressType": "Shipping",
+  "firstName": "Jane",
+  "lastName": "Smith",
+  "companyName": "Acme Corp",
+  "address1": "123 Main Street",
+  "address2": "Suite 400",
+  "city": "New York",
+  "stateProvince": "NY",
+  "zipPostalCode": "10001",
+  "countryName": "United States",
+  "isDefault": true
+}
+
+### Create address - Validation Error (400)
+# Attempts to create an address with missing required fields
+# Expected: 400 Bad Request with validation errors
+POST {{baseUrl}}/api/store/profiles/addresses
+Authorization: Bearer {{storeToken}}
+Content-Type: {{contentType}}
+
+{
+  "addressType": "",
+  "firstName": "",
+  "lastName": "",
+  "address1": "",
+  "city": "",
+  "countryName": ""
+}
+
+### List addresses (200)
+# Returns all addresses for the authenticated user
+# Expected: 200 OK with a list of addresses
+GET {{baseUrl}}/api/store/profiles/addresses
+Authorization: Bearer {{storeToken}}
+
+### Get address by ID - Success (200)
+# Returns a single address by its GUID
+# Expected: 200 OK with address details
+GET {{baseUrl}}/api/store/profiles/addresses/{{existingAddressId}}
+Authorization: Bearer {{storeToken}}
+
+### Get address by ID - Not Found (404)
+# Attempts to retrieve an address with a non-existent ID
+# Expected: 404 Not Found
+GET {{baseUrl}}/api/store/profiles/addresses/{{nonExistentId}}
+Authorization: Bearer {{storeToken}}
+
+### Update address - Success (200)
+# Updates an existing address for the authenticated user
+# Expected: 200 OK with updated address
+PUT {{baseUrl}}/api/store/profiles/addresses/{{existingAddressId}}
+Authorization: Bearer {{storeToken}}
+Content-Type: {{contentType}}
+
+{
+  "addressType": "Billing",
+  "firstName": "Jane",
+  "lastName": "Smith",
+  "companyName": "Acme Corp",
+  "address1": "456 Oak Avenue",
+  "address2": "Floor 12",
+  "city": "New York",
+  "stateProvince": "NY",
+  "zipPostalCode": "10002",
+  "countryName": "United States",
+  "isDefault": true
+}
+
+### Delete address - Success (200)
+# Deletes an address by its GUID
+# Expected: 200 OK (or 204 No Content depending on implementation)
+DELETE {{baseUrl}}/api/store/profiles/addresses/{{existingAddressId}}
+Authorization: Bearer {{storeToken}}
+
+### List addresses - No Auth (401)
+# Attempts to list addresses without an Authorization header
+# Expected: 401 Unauthorized
+GET {{baseUrl}}/api/store/profiles/addresses
+
+### Create address - No Auth (401)
+# Attempts to create an address without an Authorization header
+# Expected: 401 Unauthorized
+POST {{baseUrl}}/api/store/profiles/addresses
+Content-Type: {{contentType}}
+
+{
+  "addressType": "Shipping",
+  "firstName": "No",
+  "lastName": "Auth",
+  "address1": "1 Test Lane",
+  "city": "Nowhere",
+  "countryName": "Nowhereland"
+}
+
+### Update address - No Auth (401)
+# Attempts to update an address without an Authorization header
+# Expected: 401 Unauthorized
+PUT {{baseUrl}}/api/store/profiles/addresses/{{existingAddressId}}
+Content-Type: {{contentType}}
+
+{
+  "addressType": "Shipping",
+  "firstName": "No",
+  "lastName": "Auth",
+  "address1": "1 Test Lane",
+  "city": "Nowhere",
+  "countryName": "Nowhereland"
+}
+
+### Delete address - No Auth (401)
+# Attempts to delete an address without an Authorization header
+# Expected: 401 Unauthorized
+DELETE {{baseUrl}}/api/store/profiles/addresses/{{existingAddressId}}

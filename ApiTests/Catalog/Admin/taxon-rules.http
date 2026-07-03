@@ -1,0 +1,80 @@
+# =============================================================================
+# ReSys.Shop API Test - Admin Catalog Taxon Rules
+# =============================================================================
+# @baseUrl          = {{baseUrl}}
+# @contentType      = {{contentType}}
+# @adminToken       = {{adminToken}}
+# @nonExistentId    = {{nonExistentId}}
+# @existingTaxonomyId = {{existingTaxonomyId}}
+# @existingTaxonId  = {{existingTaxonId}}
+# =============================================================================
+
+### ---------------------------------------------------------------------------
+### 1. Create rule – success
+# POST /api/catalog/taxonomies/{taxonomyId}/taxons/{id}/rules
+# Expected: 201 Created with location header
+# ---------------------------------------------------------------------------
+POST {{baseUrl}}/api/catalog/taxonomies/{{existingTaxonomyId}}/taxons/{{existingTaxonId}}/rules
+Content-Type: {{contentType}}
+Authorization: Bearer {{adminToken}}
+
+{
+  "type": "PriceRange",
+  "value": "10-100",
+  "operator": "Between"
+}
+
+### ---------------------------------------------------------------------------
+### 2. List rules
+# GET /api/catalog/taxonomies/{taxonomyId}/taxons/{id}/rules
+# Expected: 200 OK – list of taxon rules
+# ---------------------------------------------------------------------------
+GET {{baseUrl}}/api/catalog/taxonomies/{{existingTaxonomyId}}/taxons/{{existingTaxonId}}/rules
+Content-Type: {{contentType}}
+Authorization: Bearer {{adminToken}}
+
+### ---------------------------------------------------------------------------
+### 3. Update rule – success
+# PUT /api/catalog/taxonomies/{taxonomyId}/taxons/{id}/rules/{ruleId}
+# Expected: 200 OK – updated rule
+# ---------------------------------------------------------------------------
+PUT {{baseUrl}}/api/catalog/taxonomies/{{existingTaxonomyId}}/taxons/{{existingTaxonId}}/rules/{{nonExistentId}}
+Content-Type: {{contentType}}
+Authorization: Bearer {{adminToken}}
+
+{
+  "type": "PriceRange",
+  "value": "20-200",
+  "operator": "Between"
+}
+
+### ---------------------------------------------------------------------------
+### 4. Delete rule – success
+# DELETE /api/catalog/taxonomies/{taxonomyId}/taxons/{id}/rules/{ruleId}
+# Expected: 200 OK – rule removed
+# ---------------------------------------------------------------------------
+DELETE {{baseUrl}}/api/catalog/taxonomies/{{existingTaxonomyId}}/taxons/{{existingTaxonId}}/rules/{{nonExistentId}}
+Content-Type: {{contentType}}
+Authorization: Bearer {{adminToken}}
+
+### ---------------------------------------------------------------------------
+### 5. Sync rules
+# POST /api/catalog/taxonomies/{taxonomyId}/taxons/{id}/rules/sync
+# Expected: 200 OK – rules replaced with provided array
+# ---------------------------------------------------------------------------
+POST {{baseUrl}}/api/catalog/taxonomies/{{existingTaxonomyId}}/taxons/{{existingTaxonId}}/rules/sync
+Content-Type: {{contentType}}
+Authorization: Bearer {{adminToken}}
+
+[
+  {
+    "type": "Brand",
+    "value": "Nike",
+    "operator": "Equals"
+  },
+  {
+    "type": "PriceRange",
+    "value": "0-500",
+    "operator": "Between"
+  }
+]

@@ -1,0 +1,81 @@
+# =============================================================================
+# ReSys.Shop API Test - Admin Identity / Roles
+# =============================================================================
+# CRUD for admin role management.
+# =============================================================================
+
+### Create Role - Success (201)
+# Creates a new role with a set of permissions.
+# Expect: 201 Created with roleId, name, and assigned permissions.
+# @name createRole
+POST {{baseUrl}}/api/identity/roles
+Content-Type: {{contentType}}
+Authorization: Bearer {{adminToken}}
+
+{
+  "name": "content-manager",
+  "description": "Manages content and media assets",
+  "permissions": ["content.read", "content.write", "media.read"]
+}
+
+### Create Role - Duplicate (409)
+# Attempt to create another role with the same name.
+# Expect: 409 Conflict with duplicate name error.
+POST {{baseUrl}}/api/identity/roles
+Content-Type: {{contentType}}
+Authorization: Bearer {{adminToken}}
+
+{
+  "name": "content-manager",
+  "description": "Duplicate role entry",
+  "permissions": ["content.read"]
+}
+
+### Create Role - Validation Error (400)
+# Role name is empty.
+# Expect: 400 Bad Request with validation error for name.
+POST {{baseUrl}}/api/identity/roles
+Content-Type: {{contentType}}
+Authorization: Bearer {{adminToken}}
+
+{
+  "name": "",
+  "description": "A role with no name"
+}
+
+### List Roles (200)
+# Returns all roles in the system.
+# Expect: 200 OK with an array of roles.
+GET {{baseUrl}}/api/identity/roles
+Authorization: Bearer {{adminToken}}
+
+### Get Role By ID - Success (200)
+# Retrieves a single role by its GUID.
+# Expect: 200 OK with role details and permissions.
+GET {{baseUrl}}/api/identity/roles/{{existingRoleId}}
+Authorization: Bearer {{adminToken}}
+
+### Get Role By ID - Not Found (404)
+# Using a non-existent role ID.
+# Expect: 404 Not Found.
+GET {{baseUrl}}/api/identity/roles/{{nonExistentId}}
+Authorization: Bearer {{adminToken}}
+
+### Update Role - Success (200)
+# Updates the role name and description.
+# Expect: 200 OK with updated role fields.
+PUT {{baseUrl}}/api/identity/roles/{{existingRoleId}}
+Content-Type: {{contentType}}
+Authorization: Bearer {{adminToken}}
+
+{
+  "name": "senior-content-manager",
+  "description": "Senior manager with publishing rights",
+  "permissions": ["content.read", "content.write", "content.publish", "media.read"]
+}
+
+### Delete Role - Success (200)
+# Deletes the specified role.
+# Expect: 200 OK with success confirmation.
+DELETE {{baseUrl}}/api/identity/roles/{{existingRoleId}}
+Authorization: Bearer {{adminToken}}

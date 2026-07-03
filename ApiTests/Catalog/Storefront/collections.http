@@ -1,0 +1,40 @@
+# =============================================================================
+# ReSys.Shop API Test - Storefront Catalog Collections
+# =============================================================================
+# @baseUrl     = {{baseUrl}}
+# @contentType = {{contentType}}
+# @page        = {{page}}
+# @pageSize    = {{pageSize}}
+# =============================================================================
+
+### ---------------------------------------------------------------------------
+### 1. Get collection – success
+# GET /api/storefront/collections/{season}
+# Expected: 200 OK – products in the "spring-2026" collection
+# ---------------------------------------------------------------------------
+GET {{baseUrl}}/api/storefront/collections/spring-2026
+Content-Type: {{contentType}}
+
+### ---------------------------------------------------------------------------
+### 2. Get collection – empty
+# GET /api/storefront/collections/{season}
+# Expected: 200 OK – empty product list (no products for this season)
+# ---------------------------------------------------------------------------
+GET {{baseUrl}}/api/storefront/collections/fall-2025
+Content-Type: {{contentType}}
+
+### ---------------------------------------------------------------------------
+### 3. Get collection – not found
+# GET /api/storefront/collections/{season}
+# Expected: 404 Not Found – season does not exist
+# ---------------------------------------------------------------------------
+GET {{baseUrl}}/api/storefront/collections/nonexistent-season
+Content-Type: {{contentType}}
+
+### ---------------------------------------------------------------------------
+### 4. Get collection with pagination
+# GET /api/storefront/collections/{season}?page={page}&pageSize={pageSize}
+# Expected: 200 OK – paginated collection results
+# ---------------------------------------------------------------------------
+GET {{baseUrl}}/api/storefront/collections/spring-2026?page={{page}}&pageSize={{pageSize}}
+Content-Type: {{contentType}}

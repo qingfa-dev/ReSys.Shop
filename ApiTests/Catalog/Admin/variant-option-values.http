@@ -1,0 +1,57 @@
+# =============================================================================
+# ReSys.Shop API Test - Admin Catalog Variant Option Values
+# =============================================================================
+# @baseUrl            = {{baseUrl}}
+# @contentType        = {{contentType}}
+# @adminToken         = {{adminToken}}
+# @existingVariantId  = {{existingVariantId}}
+# @existingOptionValueId = {{existingOptionValueId}}
+# =============================================================================
+
+### ---------------------------------------------------------------------------
+### 1. Get option values with status
+# GET /api/catalog/products/variants/{variantId}/option-values
+# Expected: 200 OK – list of option values with assignment status
+# ---------------------------------------------------------------------------
+GET {{baseUrl}}/api/catalog/products/variants/{{existingVariantId}}/option-values
+Content-Type: {{contentType}}
+Authorization: Bearer {{adminToken}}
+
+### ---------------------------------------------------------------------------
+### 2. Assign option values – success
+# POST /api/catalog/products/variants/{variantId}/option-values/assign
+# Expected: 200 OK – option values assigned
+# ---------------------------------------------------------------------------
+POST {{baseUrl}}/api/catalog/products/variants/{{existingVariantId}}/option-values/assign
+Content-Type: {{contentType}}
+Authorization: Bearer {{adminToken}}
+
+{
+  "optionValueIds": ["{{existingOptionValueId}}"]
+}
+
+### ---------------------------------------------------------------------------
+### 3. Revoke option values – success
+# POST /api/catalog/products/variants/{variantId}/option-values/revoke
+# Expected: 200 OK – option values revoked
+# ---------------------------------------------------------------------------
+POST {{baseUrl}}/api/catalog/products/variants/{{existingVariantId}}/option-values/revoke
+Content-Type: {{contentType}}
+Authorization: Bearer {{adminToken}}
+
+{
+  "optionValueIds": ["{{existingOptionValueId}}"]
+}
+
+### ---------------------------------------------------------------------------
+### 4. Sync option values – success
+# PUT /api/catalog/products/variants/{variantId}/option-values/sync
+# Expected: 200 OK – option values synchronized
+# ---------------------------------------------------------------------------
+PUT {{baseUrl}}/api/catalog/products/variants/{{existingVariantId}}/option-values/sync
+Content-Type: {{contentType}}
+Authorization: Bearer {{adminToken}}
+
+{
+  "optionValueIds": ["{{existingOptionValueId}}"]
+}

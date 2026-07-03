@@ -1,0 +1,153 @@
+# =============================================================================
+# ReSys.Shop API Tests - Batch Runner
+# =============================================================================
+# Sequentially runs key smoke-test scenarios across all modules.
+#
+# Prerequisites:
+#   1. API running at {{baseUrl}}
+#   2. Database seeded with test data
+#   3. GUIDs in _shared/variables.http updated
+#   4. Tokens obtained (run auth-helpers.http first)
+#
+# Note: Each request here is a representative smoke test.
+# Open individual .http files for full scenario coverage.
+# =============================================================================
+
+### =======================================================
+### HEALTH CHECK
+### =======================================================
+
+### GET Health
+GET {{baseUrl}}/health
+Content-Type: {{contentType}}
+
+### =======================================================
+### IDENTITY - STORE AUTH
+### =======================================================
+
+### Register a new user
+# @name register
+POST {{baseUrl}}/api/store/identity/auth/register
+Content-Type: {{contentType}}
+
+{
+  "email": "batch-{{$randomInt 10000 99999}}@test.resys.shop",
+  "userName": "batch-{{$randomInt 10000 99999}}",
+  "password": "BatchPass123!",
+  "firstName": "Batch",
+  "lastName": "Test",
+  "acceptTerm": true
+}
+
+### Login with email
+# @name login
+POST {{baseUrl}}/api/store/identity/auth/login/password
+Content-Type: {{contentType}}
+
+{
+  "credential": "customer@resys.shop",
+  "password": "Customer123!"
+}
+
+### Get current session
+GET {{baseUrl}}/api/store/identity/auth/sessions
+Content-Type: {{contentType}}
+Authorization: Bearer {{storeToken}}
+
+### =======================================================
+### LOCATION - STORE (PUBLIC)
+### =======================================================
+
+### List countries
+GET {{baseUrl}}/api/store/locations/countries
+Content-Type: {{contentType}}
+
+### List states
+GET {{baseUrl}}/api/store/locations/states
+Content-Type: {{contentType}}
+
+### =======================================================
+### PROFILE - STORE (AUTHENTICATED)
+### =======================================================
+
+### Get own profile
+GET {{baseUrl}}/api/store/profiles/profiles
+Content-Type: {{contentType}}
+Authorization: Bearer {{storeToken}}
+
+### List addresses
+GET {{baseUrl}}/api/store/profiles/addresses
+Content-Type: {{contentType}}
+Authorization: Bearer {{storeToken}}
+
+### =======================================================
+### CATALOG - STOREFRONT (PUBLIC)
+### =======================================================
+
+### Search products
+GET {{baseUrl}}/api/storefront/search?q=t-shirt&pageSize=5
+Content-Type: {{contentType}}
+
+### Filter products
+GET {{baseUrl}}/api/storefront/filter?color=Red&pageSize=5
+Content-Type: {{contentType}}
+
+### Get product by slug
+GET {{baseUrl}}/api/storefront/products/classic-t-shirt
+Content-Type: {{contentType}}
+
+### List option types
+GET {{baseUrl}}/api/storefront/option-types
+Content-Type: {{contentType}}
+
+### =======================================================
+### IDENTITY - ADMIN
+### =======================================================
+
+### List users (admin)
+GET {{baseUrl}}/api/identity/users?page=1&pageSize=10
+Content-Type: {{contentType}}
+Authorization: Bearer {{adminToken}}
+
+### List roles (admin)
+GET {{baseUrl}}/api/identity/roles?page=1&pageSize=10
+Content-Type: {{contentType}}
+Authorization: Bearer {{adminToken}}
+
+### List permissions (admin)
+GET {{baseUrl}}/api/identity/permissions
+Content-Type: {{contentType}}
+Authorization: Bearer {{adminToken}}
+
+### =======================================================
+### LOCATION - ADMIN
+### =======================================================
+
+### List countries (admin)
+GET {{baseUrl}}/api/locations/countries?page=1&pageSize=10
+Content-Type: {{contentType}}
+Authorization: Bearer {{adminToken}}
+
+### List states (admin)
+GET {{baseUrl}}/api/locations/states?page=1&pageSize=10
+Content-Type: {{contentType}}
+Authorization: Bearer {{adminToken}}
+
+### =======================================================
+### CATALOG - ADMIN
+### =======================================================
+
+### List products (admin)
+GET {{baseUrl}}/api/catalog/products?page=1&pageSize=10
+Content-Type: {{contentType}}
+Authorization: Bearer {{adminToken}}
+
+### List taxonomies (admin)
+GET {{baseUrl}}/api/catalog/taxonomies?page=1&pageSize=10
+Content-Type: {{contentType}}
+Authorization: Bearer {{adminToken}}
+
+### List option types (admin)
+GET {{baseUrl}}/api/catalog/option-types?page=1&pageSize=10
+Content-Type: {{contentType}}
+Authorization: Bearer {{adminToken}}

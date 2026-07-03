@@ -1,0 +1,135 @@
+# =============================================================================
+# ReSys.Shop API Test - Admin Location Countries
+# =============================================================================
+# @baseUrl      = {{baseUrl}}
+# @contentType  = {{contentType}}
+# @adminToken   = {{adminToken}}
+# @nonExistentId = {{nonExistentId}}
+# =============================================================================
+
+### ---------------------------------------------------------------------------
+### 1. Create country – success
+# POST /api/locations/countries
+# Expected: 201 Created with location header
+# ---------------------------------------------------------------------------
+POST {{baseUrl}}/api/locations/countries
+Content-Type: {{contentType}}
+Authorization: Bearer {{adminToken}}
+
+{
+  "name": "Japan",
+  "isoCode": "JP"
+}
+
+### ---------------------------------------------------------------------------
+### 2. Create country – duplicate ISO code
+# POST /api/locations/countries
+# Expected: 409 Conflict – ISO code already exists
+# ---------------------------------------------------------------------------
+POST {{baseUrl}}/api/locations/countries
+Content-Type: {{contentType}}
+Authorization: Bearer {{adminToken}}
+
+{
+  "name": "Japan (Duplicate)",
+  "isoCode": "JP"
+}
+
+### ---------------------------------------------------------------------------
+### 3. Create country – validation error (empty name)
+# POST /api/locations/countries
+# Expected: 400 Bad Request – name is required
+# ---------------------------------------------------------------------------
+POST {{baseUrl}}/api/locations/countries
+Content-Type: {{contentType}}
+Authorization: Bearer {{adminToken}}
+
+{
+  "name": "",
+  "isoCode": "XX"
+}
+
+### ---------------------------------------------------------------------------
+### 4. List countries (default pagination)
+# GET /api/locations/countries
+# Expected: 200 OK – paged list of countries
+# ---------------------------------------------------------------------------
+GET {{baseUrl}}/api/locations/countries?page={{page}}&pageSize={{pageSize}}
+Content-Type: {{contentType}}
+Authorization: Bearer {{adminToken}}
+
+### ---------------------------------------------------------------------------
+### 5. List countries – custom pagination
+# GET /api/locations/countries
+# Expected: 200 OK – paged list with page=1&pageSize=5
+# ---------------------------------------------------------------------------
+GET {{baseUrl}}/api/locations/countries?page=1&pageSize=5
+Content-Type: {{contentType}}
+Authorization: Bearer {{adminToken}}
+
+### ---------------------------------------------------------------------------
+### 6. Get country by ID – success
+# GET /api/locations/countries/{id}
+# Expected: 200 OK – single country
+# ---------------------------------------------------------------------------
+GET {{baseUrl}}/api/locations/countries/{{existingCountryId}}
+Content-Type: {{contentType}}
+Authorization: Bearer {{adminToken}}
+
+### ---------------------------------------------------------------------------
+### 7. Get country by ID – not found
+# GET /api/locations/countries/{id}
+# Expected: 404 Not Found
+# ---------------------------------------------------------------------------
+GET {{baseUrl}}/api/locations/countries/{{nonExistentId}}
+Content-Type: {{contentType}}
+Authorization: Bearer {{adminToken}}
+
+### ---------------------------------------------------------------------------
+### 8. Get country by ISO code – success
+# GET /api/locations/countries/by-iso/{isoCode}
+# Expected: 200 OK – single country
+# ---------------------------------------------------------------------------
+GET {{baseUrl}}/api/locations/countries/by-iso/US
+Content-Type: {{contentType}}
+Authorization: Bearer {{adminToken}}
+
+### ---------------------------------------------------------------------------
+### 9. Get country by ISO code – not found
+# GET /api/locations/countries/by-iso/{isoCode}
+# Expected: 404 Not Found
+# ---------------------------------------------------------------------------
+GET {{baseUrl}}/api/locations/countries/by-iso/ZZ
+Content-Type: {{contentType}}
+Authorization: Bearer {{adminToken}}
+
+### ---------------------------------------------------------------------------
+### 10. Update country – success
+# PUT /api/locations/countries/{id}
+# Expected: 200 OK – updated country
+# ---------------------------------------------------------------------------
+PUT {{baseUrl}}/api/locations/countries/{{existingCountryId}}
+Content-Type: {{contentType}}
+Authorization: Bearer {{adminToken}}
+
+{
+  "name": "United States of America",
+  "isoCode": "US"
+}
+
+### ---------------------------------------------------------------------------
+### 11. Delete country – success
+# DELETE /api/locations/countries/{id}
+# Expected: 200 OK (or 204 No Content)
+# ---------------------------------------------------------------------------
+DELETE {{baseUrl}}/api/locations/countries/{{existingCountryId}}
+Content-Type: {{contentType}}
+Authorization: Bearer {{adminToken}}
+
+### ---------------------------------------------------------------------------
+### 12. No authentication – 401
+# GET /api/locations/countries
+# Expected: 401 Unauthorized – missing or invalid token
+# ---------------------------------------------------------------------------
+GET {{baseUrl}}/api/locations/countries
+Content-Type: {{contentType}}

@@ -1,0 +1,16 @@
+# =============================================================================
+# ReSys.Shop API Test - Admin Identity / Permissions
+# =============================================================================
+# List all available permissions in the system.
+# =============================================================================
+
+### Get All Permissions - Success (200)
+# Returns the complete list of system-wide permissions.
+# Expect: 200 OK with an array of permission objects (name, group, description).
+GET {{baseUrl}}/api/identity/permissions
+Authorization: Bearer {{adminToken}}
+
+### Get All Permissions - No Auth (401)
+# Calling without Authorization header.
+# Expect: 401 Unauthorized.
+GET {{baseUrl}}/api/identity/permissions

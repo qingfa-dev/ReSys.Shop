@@ -1,0 +1,61 @@
+# =============================================================================
+# ReSys.Shop API Test - Admin Identity / User Roles
+# =============================================================================
+# Manage role assignments for a specific user.
+# =============================================================================
+
+### Get User Roles - Success (200)
+# Returns all roles assigned to the user.
+# Expect: 200 OK with an array of role objects.
+GET {{baseUrl}}/api/identity/users/{{existingUserId}}/roles
+Authorization: Bearer {{adminToken}}
+
+### Get User Roles - User Not Found (404)
+# Using a non-existent user ID.
+# Expect: 404 Not Found.
+GET {{baseUrl}}/api/identity/users/{{nonExistentId}}/roles
+Authorization: Bearer {{adminToken}}
+
+### Assign Roles - Success (200)
+# Assigns one or more roles to the user.
+# Expect: 200 OK with the updated list of user roles.
+POST {{baseUrl}}/api/identity/users/{{existingUserId}}/roles/assign
+Content-Type: {{contentType}}
+Authorization: Bearer {{adminToken}}
+
+{
+  "roleIds": ["{{existingRoleId}}"]
+}
+
+### Assign Roles - User Not Found (404)
+# Attempt to assign roles to a non-existent user.
+# Expect: 404 Not Found.
+POST {{baseUrl}}/api/identity/users/{{nonExistentId}}/roles/assign
+Content-Type: {{contentType}}
+Authorization: Bearer {{adminToken}}
+
+{
+  "roleIds": ["{{existingRoleId}}"]
+}
+
+### Revoke Roles - Success (200)
+# Removes specified roles from the user.
+# Expect: 200 OK with the updated list of user roles.
+DELETE {{baseUrl}}/api/identity/users/{{existingUserId}}/roles/revoke
+Content-Type: {{contentType}}
+Authorization: Bearer {{adminToken}}
+
+{
+  "roleIds": ["{{existingRoleId}}"]
+}
+
+### Sync Roles - Success (200)
+# Replaces all role assignments with the provided set.
+# Expect: 200 OK with the synced list of user roles.
+PATCH {{baseUrl}}/api/identity/users/{{existingUserId}}/roles/sync
+Content-Type: {{contentType}}
+Authorization: Bearer {{adminToken}}
+
+{
+  "roleIds": ["{{existingRoleId}}"]
+}

@@ -1,0 +1,43 @@
+# =============================================================================
+# ReSys.Shop API Test - Storefront Catalog Digitals
+# =============================================================================
+# @baseUrl          = {{baseUrl}}
+# @contentType      = {{contentType}}
+# @storeToken       = {{storeToken}}
+# @nonExistentId    = {{nonExistentId}}
+# =============================================================================
+
+### ---------------------------------------------------------------------------
+### 1. Generate download link – success
+# GET /api/storefront/digitals/{id}/download
+# Expected: 200 OK – temporary download URL returned
+# ---------------------------------------------------------------------------
+GET {{baseUrl}}/api/storefront/digitals/{{nonExistentId}}/download
+Content-Type: {{contentType}}
+Authorization: Bearer {{storeToken}}
+
+### ---------------------------------------------------------------------------
+### 2. Generate download link – not found
+# GET /api/storefront/digitals/{id}/download
+# Expected: 404 Not Found – digital asset does not exist
+# ---------------------------------------------------------------------------
+GET {{baseUrl}}/api/storefront/digitals/{{nonExistentId}}/download
+Content-Type: {{contentType}}
+Authorization: Bearer {{storeToken}}
+
+### ---------------------------------------------------------------------------
+### 3. Generate download link – unauthorized
+# GET /api/storefront/digitals/{id}/download
+# Expected: 401 Unauthorized – missing or invalid token
+# ---------------------------------------------------------------------------
+GET {{baseUrl}}/api/storefront/digitals/{{nonExistentId}}/download
+Content-Type: {{contentType}}
+
+### ---------------------------------------------------------------------------
+### 4. Generate download link – expired
+# GET /api/storefront/digitals/{id}/download
+# Expected: 410 Gone – download link has expired
+# ---------------------------------------------------------------------------
+GET {{baseUrl}}/api/storefront/digitals/{{nonExistentId}}/download
+Content-Type: {{contentType}}
+Authorization: Bearer {{storeToken}}
