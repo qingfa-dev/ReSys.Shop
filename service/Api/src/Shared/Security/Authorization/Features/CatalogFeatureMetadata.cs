@@ -105,6 +105,22 @@ public static class CatalogFeatureMetadata
         public static IReadOnlyList<PermissionMetadata> All => [List, Read, Create, Update, Delete];
     }
 
+      public static class OptionTypesOptionValues
+    {
+        public static readonly PermissionMetadata List = PermissionMetadataMethod.For(
+            PermissionContext.Domains.Admin, PermissionContext.Categories.Catalog, PermissionContext.Resources.OptionTypesOptionValues, PermissionContext.Actions.View);
+        public static readonly PermissionMetadata Read = PermissionMetadataMethod.For(
+            PermissionContext.Domains.Admin, PermissionContext.Categories.Catalog, PermissionContext.Resources.OptionTypesOptionValues, PermissionContext.Actions.Read);
+        public static readonly PermissionMetadata Create = PermissionMetadataMethod.For(
+            PermissionContext.Domains.Admin, PermissionContext.Categories.Catalog, PermissionContext.Resources.OptionTypesOptionValues, PermissionContext.Actions.Create);
+        public static readonly PermissionMetadata Update = PermissionMetadataMethod.For(
+            PermissionContext.Domains.Admin, PermissionContext.Categories.Catalog, PermissionContext.Resources.OptionTypesOptionValues, PermissionContext.Actions.Update);
+        public static readonly PermissionMetadata Delete = PermissionMetadataMethod.For(
+            PermissionContext.Domains.Admin, PermissionContext.Categories.Catalog, PermissionContext.Resources.OptionTypesOptionValues, PermissionContext.Actions.Delete);
+
+        public static IReadOnlyList<PermissionMetadata> All => [List, Read, Create, Update, Delete];
+    }
+
     public static class PropertyTypes
     {
         public static readonly PermissionMetadata List = PermissionMetadataMethod.For(
@@ -188,6 +204,7 @@ public static class CatalogFeatureMetadata
         .. Taxonomies.All,
         .. Taxons.All,
         .. OptionTypes.All,
+        .. OptionTypesOptionValues.All,
         .. PropertyTypes.All,
         .. ProductsOptionTypes.All,
         .. ProductsClassifications.All,

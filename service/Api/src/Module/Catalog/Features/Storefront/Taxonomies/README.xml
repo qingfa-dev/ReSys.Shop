@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Feature Group: Storefront Taxonomies / Purpose: Public taxonomy tree browsing. / Schema: 1.0 / Updated: 2026-05-22 -->
+<BuildingBlockModule id="catalog-features-storefront-taxonomies" name="Modules.Catalog.Features.Storefront.Taxonomies" version="1.0.0" status="stable" schema-version="1.0">
+  <ModuleMeta><Name>Storefront Taxonomies</Name><Description>Public taxonomy tree browsing.</Description><Category>Features</Category><Stability>Stable</Stability></ModuleMeta>
+  <Features><Feature id="F1" name="Endpoints" type="core"><Description>Get taxonomy tree with nested taxons.</Description></Feature></Features>
+  <AntiPatterns><AntiPattern id="AP1" name="Loading Entire Tree" severity="medium"><Avoid> Returning all taxon levels for every taxonomy request.</Avoid><BetterApproach></BetterApproach></AntiPattern></AntiPatterns>
+    <AbstractionsCatalog>
+    <Category name="Components" order="1">
+      <Description>Key components in this directory.</Description>
+      <Abstraction id="A1" name="Get" type="directory">
+        <Path>./Get/</Path>
+        <Description>Get definition.</Description>
+        <Purpose>Supports module functionality.</Purpose>
+      </Abstraction>
+    </Category>
+  </AbstractionsCatalog>
+  <FileStructure>Features/Storefront Taxonomies → Shared/</FileStructure>
+</BuildingBlockModule>

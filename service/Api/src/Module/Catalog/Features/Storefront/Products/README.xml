@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Feature Group: Storefront Products / Purpose: Public product browsing: search, filter, detail, similar, image search, availability. / Schema: 1.0 / Updated: 2026-05-22 -->
+<BuildingBlockModule id="catalog-features-storefront-products" name="Modules.Catalog.Features.Storefront.Products" version="1.0.0" status="stable" schema-version="1.0">
+  <ModuleMeta><Name>Storefront Products</Name><Description>Public product browsing: search, filter, detail, similar, image search, availability.</Description><Category>Features</Category><Stability>Stable</Stability></ModuleMeta>
+  <Features><Feature id="F1" name="Endpoints" type="core"><Description>Search, Filter, Detail, Similar, Related, NewArrivals, Availability checks, SearchByImage via embedding vectors.</Description></Feature></Features>
+  <AntiPatterns><AntiPattern id="AP1" name="N+1 Variant Queries" severity="high"><Avoid> Loading product variants one-by-one instead of eager loading.</Avoid><BetterApproach></BetterApproach></AntiPattern></AntiPatterns>
+    <AbstractionsCatalog>
+    <Category name="Components" order="1">
+      <Description>Key components in this directory.</Description>
+      <Abstraction id="A1" name="Get" type="directory">
+        <Path>./Get/</Path>
+        <Description>Get definition.</Description>
+        <Purpose>Supports module functionality.</Purpose>
+      </Abstraction>
+      <Abstraction id="A2" name="SearchByImage" type="directory">
+        <Path>./SearchByImage/</Path>
+        <Description>SearchByImage definition.</Description>
+        <Purpose>Supports module functionality.</Purpose>
+      </Abstraction>
+    </Category>
+  </AbstractionsCatalog>
+  <FileStructure>Features/Storefront Products → Shared/</FileStructure>
+</BuildingBlockModule>
