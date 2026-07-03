@@ -78,7 +78,7 @@ public static partial class SyncVariantPrices
                 else
                 {
                     // Create: New price for this currency/country combination
-                    var createResult = PriceExtensions.Create(
+                    var createResult = PriceMethod.Create(
                         amount: item.Amount,
                         currency: item.Currency,
                         variantId: variantId,

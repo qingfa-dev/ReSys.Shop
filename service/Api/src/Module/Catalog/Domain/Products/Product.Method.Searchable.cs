@@ -1,8 +1,8 @@
 namespace Module.Catalog.Domain.Products;
 
-public static class ProductSearchableExtensions
+public static partial class ProductMethod
 {
-    // Aggregate: Combine all searchable text fields into a single index string
+    #region Search Methods
     public static string SearchIndexText(this Product product)
     {
         var parts = new List<string>
@@ -25,7 +25,6 @@ public static class ProductSearchableExtensions
         return string.Join(" ", parts.Where(p => !string.IsNullOrEmpty(p)));
     }
 
-    // Parse: Tokenize search index text into distinct lowercase search tokens
     public static string[] SearchTokens(this Product product)
     {
         return product.SearchIndexText()
@@ -35,7 +34,6 @@ public static class ProductSearchableExtensions
             .ToArray();
     }
 
-    // Filter: Check if the product matches a given search query
     public static bool MatchesSearchQuery(this Product product, string query)
     {
         if (string.IsNullOrWhiteSpace(query))
@@ -48,4 +46,5 @@ public static class ProductSearchableExtensions
 
         return indexText.Contains(lowerQuery);
     }
+    #endregion
 }

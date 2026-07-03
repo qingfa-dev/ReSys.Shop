@@ -33,7 +33,7 @@ public class ProductClassificationMappingTests
     [Fact(DisplayName = "ToDomain (Update): Should update position on existing entity")]
     public void ToDomain_Update_ShouldUpdatePosition()
     {
-        var classification = ClassificationExtensions.Create(
+        var classification = ClassificationMethod.Create(
             Guid.NewGuid(), Guid.NewGuid(), position: 1).Value;
 
         var item = new ProductClassificationAssignmentItem

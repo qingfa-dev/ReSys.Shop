@@ -1,12 +1,12 @@
 
 using Module.Catalog.Domain.Products.Variants.Images;
 
-namespace Module.UnitTests.Catalog.Domain.Products.VariantImageMethod;
+namespace Module.UnitTests.Catalog.Domain.Products.Variants.Images;
 
 [Trait("Category", "Unit")]
 [Trait("Module", "Catalog")]
 [Trait("Entity", "VariantImage")]
-public class VariantImageMethodTests
+public class VariantImageTests
 {
     [Fact(DisplayName = "Create: Should return VariantImage with correct properties")]
     public void Create_WithValidParameters_ShouldReturnVariantImage()

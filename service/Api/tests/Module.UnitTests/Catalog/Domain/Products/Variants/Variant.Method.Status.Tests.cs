@@ -5,7 +5,8 @@ namespace Module.UnitTests.Catalog.Domain.Products.Variants;
 [Trait("Category", "Unit")]
 [Trait("Module", "Catalog")]
 [Trait("Entity", "Variant")]
-public class VariantPublishableExtensionsTests
+[Trait("Concern", "Status")]
+public class VariantMethodStatusTests
 {
     private static Variant CreateVariant() => new()
     {
@@ -14,7 +15,7 @@ public class VariantPublishableExtensionsTests
         DiscontinuedOn = null
     };
 
-    [Fact(DisplayName = "IsPublished: Should return true when not deleted and not discontinued")]
+    [Fact(DisplayName = "IsPublished: Should return true when active")]
     public void IsPublished_WhenActive_ShouldReturnTrue()
     {
         var variant = CreateVariant();
@@ -73,26 +74,36 @@ public class VariantPublishableExtensionsTests
         result.Errors[0].Should().Be(VariantResult.Errors.AlreadyDeleted);
     }
 
-    [Fact(DisplayName = "Unpublish: Should set DiscontinuedOn")]
-    public void Unpublish_WhenPublished_ShouldSetDiscontinuedOn()
+    [Fact(DisplayName = "Publish: When already published should return Ok")]
+    public void Publish_WhenAlreadyPublished_ShouldReturnOk()
     {
         var variant = CreateVariant();
 
-        var result = variant.Unpublish();
+        var result = variant.Publish();
+
+        result.IsSuccess.Should().BeTrue();
+    }
+
+    [Fact(DisplayName = "Discontinue: Should set DiscontinuedOn")]
+    public void Discontinue_WhenActive_ShouldSetDiscontinuedOn()
+    {
+        var variant = CreateVariant();
+
+        var result = variant.Discontinue();
 
         result.IsSuccess.Should().BeTrue();
         variant.DiscontinuedOn.Should().NotBeNull();
     }
 
-    [Fact(DisplayName = "Unpublish: When deleted should return failure")]
-    public void Unpublish_WhenDeleted_ShouldReturnFailure()
+    [Fact(DisplayName = "Discontinue: When already discontinued should return failure")]
+    public void Discontinue_WhenAlreadyDiscontinued_ShouldReturnFailure()
     {
         var variant = CreateVariant();
-        variant.IsDeleted = true;
+        variant.DiscontinuedOn = DateTimeOffset.UtcNow.AddDays(-1);
 
-        var result = variant.Unpublish();
+        var result = variant.Discontinue();
 
         result.IsFailure.Should().BeTrue();
-        result.Errors[0].Should().Be(VariantResult.Errors.AlreadyDeleted);
+        result.Errors[0].Should().Be(VariantResult.Errors.AlreadyDiscontinued);
     }
 }

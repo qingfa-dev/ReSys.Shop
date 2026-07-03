@@ -61,7 +61,7 @@ public class AssignProductClassificationsTests : IDisposable
         var taxonId = Guid.NewGuid();
 
         _dbContext.Set<Product>().Add(product);
-        _dbContext.Set<Classification>().Add(ClassificationExtensions.Create(product.Id, taxonId, 0, false).Value);
+        _dbContext.Set<Classification>().Add(ClassificationMethod.Create(product.Id, taxonId, 0, false).Value);
         await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 
         var request = new AssignProductClassifications.Request { Items = [new ProductClassificationAssignmentItem { TaxonId = taxonId, Position = 0 }, new ProductClassificationAssignmentItem { TaxonId = Guid.NewGuid(), Position = 0 }] };
@@ -110,7 +110,7 @@ public class AssignProductClassificationsTests : IDisposable
         var taxonId = Guid.NewGuid();
 
         _dbContext.Set<Product>().Add(product);
-        _dbContext.Set<Classification>().Add(ClassificationExtensions.Create(product.Id, taxonId, 0, false).Value);
+        _dbContext.Set<Classification>().Add(ClassificationMethod.Create(product.Id, taxonId, 0, false).Value);
         await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 
         var request = new AssignProductClassifications.Request { Items = [new ProductClassificationAssignmentItem { TaxonId = taxonId, Position = 0 }] };
@@ -129,7 +129,7 @@ public class AssignProductClassificationsTests : IDisposable
         var taxonId = Guid.NewGuid();
 
         _dbContext.Set<Product>().Add(product);
-        _dbContext.Set<Classification>().Add(ClassificationExtensions.Create(product.Id, taxonId, 0, false).Value);
+        _dbContext.Set<Classification>().Add(ClassificationMethod.Create(product.Id, taxonId, 0, false).Value);
         await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 
         var request = new AssignProductClassifications.Request { Items = [new ProductClassificationAssignmentItem { TaxonId = taxonId, Position = 5 }] };

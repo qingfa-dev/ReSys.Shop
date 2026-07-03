@@ -1,6 +1,6 @@
 using Module.Catalog.Domain.Products.Variants.Images.Embeddings;
 
-namespace Module.UnitTests.Catalog.Domain.Products.VariantImageMethod.Embeddings;
+namespace Module.UnitTests.Catalog.Domain.Products.Variants.Images.Embeddings;
 
 [Trait("Category", "Unit")]
 [Trait("Module", "Catalog")]

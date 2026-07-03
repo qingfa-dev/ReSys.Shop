@@ -48,7 +48,7 @@ public class UpdateProductTests : IDisposable
     public async Task Handle_ShouldReturnSuccess_WhenValid()
     {
         var product = ProductMethod.Create("Original", "original", status: ProductStatus.Draft).Value;
-        var masterVariant = VariantExtensions.Create(product.Id, "original-master", isMaster: true).Value;
+        var masterVariant = VariantMethod.Create(product.Id, "original-master", isMaster: true).Value;
         product.Variants.Add(masterVariant);
         _dbContext.Set<Product>().Add(product);
         await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
@@ -95,7 +95,7 @@ public class UpdateProductTests : IDisposable
     public async Task Handle_ShouldReturnFailure_WhenSlugIsDuplicate()
     {
         var product = ProductMethod.Create("Original", "original", status: ProductStatus.Draft).Value;
-        var masterVariant = VariantExtensions.Create(product.Id, "original-master", isMaster: true).Value;
+        var masterVariant = VariantMethod.Create(product.Id, "original-master", isMaster: true).Value;
         product.Variants.Add(masterVariant);
         _dbContext.Set<Product>().Add(product);
 
@@ -119,7 +119,7 @@ public class UpdateProductTests : IDisposable
     public async Task Handle_ShouldUpdateMasterVariant_WhenVariantFieldsProvided()
     {
         var product = ProductMethod.Create("Product", "product", status: ProductStatus.Draft).Value;
-        var masterVariant = VariantExtensions.Create(product.Id, "product-master", isMaster: true).Value;
+        var masterVariant = VariantMethod.Create(product.Id, "product-master", isMaster: true).Value;
         product.Variants.Add(masterVariant);
         _dbContext.Set<Product>().Add(product);
         await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);

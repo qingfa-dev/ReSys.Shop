@@ -39,7 +39,7 @@ public class SetVariantPriceTests : IDisposable
     [Fact(DisplayName = "Handler: Should create new price when none exists for currency")]
     public async Task Handle_ShouldCreatePrice_WhenNoExisting()
     {
-        var variant = VariantExtensions.Create(Guid.NewGuid(), "SKU-001", isMaster: true).Value;
+        var variant = VariantMethod.Create(Guid.NewGuid(), "SKU-001", isMaster: true).Value;
         _dbContext.Set<Variant>().Add(variant);
         await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 
@@ -63,11 +63,11 @@ public class SetVariantPriceTests : IDisposable
     [Fact(DisplayName = "Handler: Should update existing price for same currency")]
     public async Task Handle_ShouldUpdatePrice_WhenExisting()
     {
-        var variant = VariantExtensions.Create(Guid.NewGuid(), "SKU-001", isMaster: true).Value;
+        var variant = VariantMethod.Create(Guid.NewGuid(), "SKU-001", isMaster: true).Value;
         _dbContext.Set<Variant>().Add(variant);
         await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 
-        var existingPrice = PriceExtensions.Create(10m, "USD", variantId: variant.Id, countryIso: "US").Value;
+        var existingPrice = PriceMethod.Create(10m, "USD", variantId: variant.Id, countryIso: "US").Value;
         _dbContext.Set<Price>().Add(existingPrice);
         await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 

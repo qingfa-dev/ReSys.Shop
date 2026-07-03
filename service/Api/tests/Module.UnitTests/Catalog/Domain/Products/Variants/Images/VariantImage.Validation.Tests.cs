@@ -1,7 +1,7 @@
 
 using Module.Catalog.Domain.Products.Variants.Images;
 
-namespace Module.UnitTests.Catalog.Domain.Products.VariantImageMethod;
+namespace Module.UnitTests.Catalog.Domain.Products.Variants.Images;
 
 [Trait("Category", "Unit")]
 [Trait("Module", "Catalog")]

@@ -35,7 +35,7 @@ public class SearchProductsTests : IDisposable
     {
         var product = ProductMethod.Create("Blue T-Shirt", "blue-tshirt", status: ProductStatus.Active).Value;
         product.AvailableOn = DateTimeOffset.UtcNow.AddDays(-1);
-        product.MasterVariantId = VariantExtensions.Create(product.Id, "M", isMaster: true).Value.Id;
+        product.MasterVariantId = VariantMethod.Create(product.Id, "M", isMaster: true).Value.Id;
         _dbContext.Set<Product>().Add(product);
         await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 
@@ -53,7 +53,7 @@ public class SearchProductsTests : IDisposable
     {
         var product = ProductMethod.Create("Shoes", "shoes", status: ProductStatus.Active).Value;
         product.AvailableOn = DateTimeOffset.UtcNow.AddDays(-1);
-        product.MasterVariantId = VariantExtensions.Create(product.Id, "M", isMaster: true).Value.Id;
+        product.MasterVariantId = VariantMethod.Create(product.Id, "M", isMaster: true).Value.Id;
         _dbContext.Set<Product>().Add(product);
         await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 

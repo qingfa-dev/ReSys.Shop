@@ -43,7 +43,7 @@ public class GetProductClassificationsTests : IDisposable
         _dbContext.Set<Taxonomy>().Add(taxonomy);
         _dbContext.Set<Taxon>().AddRange(taxon1, taxon2);
         _dbContext.Set<Product>().Add(product);
-        _dbContext.Set<Classification>().Add(ClassificationExtensions.Create(product.Id, taxon1.Id, 0, false).Value);
+        _dbContext.Set<Classification>().Add(ClassificationMethod.Create(product.Id, taxon1.Id, 0, false).Value);
         await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 
         var result = await _handler.Handle(new GetProductClassifications.Query(product.Id), TestContext.Current.CancellationToken);
@@ -88,7 +88,7 @@ public class GetProductClassificationsTests : IDisposable
         _dbContext.Set<Taxonomy>().AddRange(taxonomy1, taxonomy2);
         _dbContext.Set<Taxon>().AddRange(taxon1, taxon2);
         _dbContext.Set<Product>().Add(product);
-        _dbContext.Set<Classification>().Add(ClassificationExtensions.Create(product.Id, taxon1.Id, 0, false).Value);
+        _dbContext.Set<Classification>().Add(ClassificationMethod.Create(product.Id, taxon1.Id, 0, false).Value);
         await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 
         var result = await _handler.Handle(new GetProductClassifications.Query(product.Id), TestContext.Current.CancellationToken);
@@ -108,7 +108,7 @@ public class GetProductClassificationsTests : IDisposable
         _dbContext.Set<Taxonomy>().Add(taxonomy);
         _dbContext.Set<Taxon>().Add(taxon);
         _dbContext.Set<Product>().AddRange(productA, productB);
-        _dbContext.Set<Classification>().Add(ClassificationExtensions.Create(productA.Id, taxon.Id, 0, false).Value);
+        _dbContext.Set<Classification>().Add(ClassificationMethod.Create(productA.Id, taxon.Id, 0, false).Value);
         await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 
         var result = await _handler.Handle(new GetProductClassifications.Query(productB.Id), TestContext.Current.CancellationToken);

@@ -1,6 +1,6 @@
 namespace Module.Catalog.Domain.Products.Classifications;
 
-public static class ClassificationExtensions
+public static class ClassificationMethod
 {
     #region Factory Methods
     /// <summary>

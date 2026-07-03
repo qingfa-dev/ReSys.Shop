@@ -32,6 +32,7 @@ builder.AddLocationModule();
 builder.AddIdentityModule();
 builder.AddProfilesModule();
 
+
 WebApplication app = builder.Build();
 
 // Initialize: Map default health/liveness endpoints

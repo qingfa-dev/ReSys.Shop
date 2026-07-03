@@ -44,12 +44,12 @@ public class GetRelatedProductsTests : IDisposable
         var product1 = ProductMethod.Create("Main Product", "main", status: ProductStatus.Active).Value;
         product1.AvailableOn = DateTimeOffset.UtcNow.AddDays(-1);
         product1.Classifications.Add(new Classification { Product = product1, Taxon = taxon });
-        product1.MasterVariantId = VariantExtensions.Create(product1.Id, "M", isMaster: true).Value.Id;
+        product1.MasterVariantId = VariantMethod.Create(product1.Id, "M", isMaster: true).Value.Id;
 
         var product2 = ProductMethod.Create("Related Product", "related", status: ProductStatus.Active).Value;
         product2.AvailableOn = DateTimeOffset.UtcNow.AddDays(-1);
         product2.Classifications.Add(new Classification { Product = product2, Taxon = taxon });
-        product2.MasterVariantId = VariantExtensions.Create(product2.Id, "M2", isMaster: true).Value.Id;
+        product2.MasterVariantId = VariantMethod.Create(product2.Id, "M2", isMaster: true).Value.Id;
 
         _dbContext.Set<Taxonomy>().Add(taxonomy);
         _dbContext.Set<Product>().Add(product1);
@@ -67,7 +67,7 @@ public class GetRelatedProductsTests : IDisposable
     {
         var product = ProductMethod.Create("Lonely Product", "lonely", status: ProductStatus.Active).Value;
         product.AvailableOn = DateTimeOffset.UtcNow.AddDays(-1);
-        product.MasterVariantId = VariantExtensions.Create(product.Id, "M", isMaster: true).Value.Id;
+        product.MasterVariantId = VariantMethod.Create(product.Id, "M", isMaster: true).Value.Id;
         _dbContext.Set<Product>().Add(product);
         await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 

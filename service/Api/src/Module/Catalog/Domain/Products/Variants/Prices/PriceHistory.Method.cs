@@ -1,6 +1,6 @@
 namespace Module.Catalog.Domain.Products.Variants.Prices;
 
-public static class PriceHistoryExtensions
+public static class PriceHistoryMethod
 {
     #region Factory Methods
     // Contract: pre=amount>=0&&currency!=null, post=entity.Amount==amount&&entity.Currency==currency

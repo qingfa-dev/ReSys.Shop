@@ -2,7 +2,7 @@ using Pgvector;
 
 namespace Module.Catalog.Domain.Products.Variants.Images.Embeddings;
 
-public static class ImageEmbeddingExtensions
+public static class ImageEmbeddingMethod
 {
     #region Factory Methods
     /// <summary>

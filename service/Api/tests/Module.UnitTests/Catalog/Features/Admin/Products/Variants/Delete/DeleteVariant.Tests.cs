@@ -38,7 +38,7 @@ public class DeleteVariantTests : IDisposable
     [Fact(DisplayName = "Handler: Should soft-delete variant")]
     public async Task Handle_ShouldReturnSuccess_WhenValid()
     {
-        var variant = VariantExtensions.Create(Guid.NewGuid(), "SKU-001", isMaster: true).Value;
+        var variant = VariantMethod.Create(Guid.NewGuid(), "SKU-001", isMaster: true).Value;
         _dbContext.Set<Variant>().Add(variant);
         await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 
@@ -65,7 +65,7 @@ public class DeleteVariantTests : IDisposable
     [Fact(DisplayName = "Handler: Should return not-found when variant already deleted (soft-delete filter applies)")]
     public async Task Handle_ShouldReturnNotFound_WhenAlreadyDeleted()
     {
-        var variant = VariantExtensions.Create(Guid.NewGuid(), "SKU-001", isMaster: true).Value;
+        var variant = VariantMethod.Create(Guid.NewGuid(), "SKU-001", isMaster: true).Value;
         variant.IsDeleted = true;
         _dbContext.Set<Variant>().Add(variant);
         await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);

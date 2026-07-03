@@ -1,15 +1,14 @@
 namespace Module.Catalog.Domain.Products.Variants;
 
-public static class VariantPublishableExtensions
+public static partial class VariantMethod
 {
-    // Compute: Determine if the variant is currently published and available
+    #region Status Methods
     public static bool IsPublished(this Variant variant)
     {
         return !variant.IsDeleted
             && (!variant.DiscontinuedOn.HasValue || variant.DiscontinuedOn > DateTimeOffset.UtcNow);
     }
 
-    // Contract: pre=variant!=null, post=variant.DiscontinuedOn==null
     public static Result Publish(this Variant variant)
     {
         if (variant.IsDeleted)
@@ -17,19 +16,25 @@ public static class VariantPublishableExtensions
             return VariantResult.Errors.AlreadyDeleted;
         }
 
+        if (variant.IsPublished())
+        {
+            return Result.Ok();
+        }
+
         variant.DiscontinuedOn = null;
         return Result.Ok(VariantResult.Success.Updated(variant.Id));
     }
 
-    // Contract: pre=variant!=null, post=variant.DiscontinuedOn!=null
-    public static Result Unpublish(this Variant variant)
+    public static Result Discontinue(this Variant variant)
     {
-        if (variant.IsDeleted)
+        if (variant.DiscontinuedOn <= DateTimeOffset.UtcNow)
         {
-            return VariantResult.Errors.AlreadyDeleted;
+            return VariantResult.Errors.AlreadyDiscontinued;
         }
 
         variant.DiscontinuedOn = DateTimeOffset.UtcNow;
+
         return Result.Ok(VariantResult.Success.Discontinued);
     }
+    #endregion
 }

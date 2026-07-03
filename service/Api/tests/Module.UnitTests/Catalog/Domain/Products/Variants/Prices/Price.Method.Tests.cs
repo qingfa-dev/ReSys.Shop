@@ -5,7 +5,7 @@ namespace Module.UnitTests.Catalog.Domain.Products.Variants.Prices;
 [Trait("Category", "Unit")]
 [Trait("Module", "Catalog")]
 [Trait("Entity", "Price")]
-public class PriceExtensionsTests
+public class PriceMethodTests
 {
     [Fact(DisplayName = "Create: Should return Price with correct properties")]
     public void Create_WithValidParameters_ShouldReturnPrice()
@@ -16,7 +16,7 @@ public class PriceExtensionsTests
         var currency = "USD";
 
         // Act
-        var result = PriceExtensions.Create(amount, currency, variantId);
+        var result = PriceMethod.Create(amount, currency, variantId);
 
         // Assert
         result.IsSuccess.Should().BeTrue();
@@ -28,7 +28,7 @@ public class PriceExtensionsTests
     [Fact(DisplayName = "Update: Should update amount and currency")]
     public void Update_WithValidParameters_ShouldUpdateProperties()
     {
-        var priceResult = PriceExtensions.Create(10m, "USD");
+        var priceResult = PriceMethod.Create(10m, "USD");
         priceResult.IsSuccess.Should().BeTrue();
         var price = priceResult.Value;
         var newAmount = 15.50m;
@@ -48,7 +48,7 @@ public class PriceExtensionsTests
     [Fact(DisplayName = "Update: Partial update with only amount should preserve others")]
     public void Update_WithOnlyAmount_ShouldPreserveOthers()
     {
-        var priceResult = PriceExtensions.Create(10m, "USD", compareAtAmount: 20m, countryIso: "US");
+        var priceResult = PriceMethod.Create(10m, "USD", compareAtAmount: 20m, countryIso: "US");
         priceResult.IsSuccess.Should().BeTrue();
         var price = priceResult.Value;
 
@@ -64,7 +64,7 @@ public class PriceExtensionsTests
     [Fact(DisplayName = "Delete: Should mark as deleted and set DeletedAt")]
     public void Delete_WhenCalled_ShouldSetDeletedAt()
     {
-        var priceResult = PriceExtensions.Create(10m, "USD");
+        var priceResult = PriceMethod.Create(10m, "USD");
         priceResult.IsSuccess.Should().BeTrue();
         var price = priceResult.Value;
 
@@ -77,7 +77,7 @@ public class PriceExtensionsTests
     [Fact(DisplayName = "Delete: When already deleted should return error")]
     public void Delete_WhenAlreadyDeleted_ShouldReturnError()
     {
-        var priceResult = PriceExtensions.Create(10m, "USD");
+        var priceResult = PriceMethod.Create(10m, "USD");
         priceResult.IsSuccess.Should().BeTrue();
         var price = priceResult.Value;
         price.Delete();

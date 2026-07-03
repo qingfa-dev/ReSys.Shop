@@ -55,7 +55,7 @@ public sealed class AutoClassificationService(
                 if (matches && !hasClassification)
                 {
                     // Add: New automatic classification
-                    var classificationResult = ClassificationExtensions.Create(product.Id, taxonId, isAutomatic: true);
+                    var classificationResult = ClassificationMethod.Create(product.Id, taxonId, isAutomatic: true);
                     if (classificationResult.IsFailure)
                         continue;
 
@@ -115,7 +115,7 @@ public sealed class AutoClassificationService(
             if (matches && !hasClassification)
             {
                 // Add: New automatic classification
-                var classificationResult = ClassificationExtensions.Create(productId, taxon.Id, isAutomatic: true);
+                var classificationResult = ClassificationMethod.Create(productId, taxon.Id, isAutomatic: true);
                 if (classificationResult.IsFailure)
                     return;
 

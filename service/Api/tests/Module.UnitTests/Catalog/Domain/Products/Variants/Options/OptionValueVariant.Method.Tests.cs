@@ -5,7 +5,7 @@ namespace Module.UnitTests.Catalog.Domain.Products.Variants.Options;
 [Trait("Category", "Unit")]
 [Trait("Module", "Catalog")]
 [Trait("Entity", "OptionValueVariant")]
-public class OptionValueVariantExtensionsTests
+public class OptionValueVariantMethodTests
 {
     [Fact(DisplayName = "Create: Should return OptionValueVariant with correct properties")]
     public void Create_WithValidParameters_ShouldReturnOptionValueVariant()
@@ -15,7 +15,7 @@ public class OptionValueVariantExtensionsTests
         var optionValueId = Guid.NewGuid();
 
         // Act
-        var result = OptionValueVariantExtensions.Create(variantId, optionValueId);
+        var result = OptionValueVariantMethod.Create(variantId, optionValueId);
 
         // Assert
         result.IsSuccess.Should().BeTrue();

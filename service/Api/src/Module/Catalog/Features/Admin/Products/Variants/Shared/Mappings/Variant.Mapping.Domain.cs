@@ -17,7 +17,7 @@ public static partial class VariantMapping
     /// <returns>A result containing the new Variant entity or validation failures.</returns>
     public static Result<Variant> MapToDomain<T>(this T request, Guid productId) where T : VariantRequest
     {
-        return VariantExtensions.Create(
+        return VariantMethod.Create(
             productId: productId,
             sku: request.Sku,
             isMaster: request.IsMaster,

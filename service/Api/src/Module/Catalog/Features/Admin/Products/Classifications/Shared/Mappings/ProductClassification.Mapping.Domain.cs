@@ -10,7 +10,7 @@ public static partial class ProductClassificationMapping
         Guid productId)
         where T : ProductClassificationAssignmentItem
     {
-        return ClassificationExtensions.Create(
+        return ClassificationMethod.Create(
             productId: productId,
             taxonId: item.TaxonId,
             position: item.Position);

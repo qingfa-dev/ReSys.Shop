@@ -1,6 +1,6 @@
 namespace Module.Catalog.Domain.Products.Variants.Prices;
 
-public static class PriceExtensions
+public static class PriceMethod
 {
     #region Factory Methods
     /// <summary>

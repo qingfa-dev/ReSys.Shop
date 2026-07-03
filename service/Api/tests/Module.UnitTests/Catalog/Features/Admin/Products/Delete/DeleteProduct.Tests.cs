@@ -40,8 +40,8 @@ public class DeleteProductTests : IDisposable
     public async Task Handle_ShouldReturnSuccess_WhenValid()
     {
         var product = ProductMethod.Create("Product", "product", status: ProductStatus.Draft).Value;
-        var variant1 = VariantExtensions.Create(product.Id, "SKU-001", isMaster: true).Value;
-        var variant2 = VariantExtensions.Create(product.Id, "SKU-002", isMaster: false).Value;
+        var variant1 = VariantMethod.Create(product.Id, "SKU-001", isMaster: true).Value;
+        var variant2 = VariantMethod.Create(product.Id, "SKU-002", isMaster: false).Value;
         product.Variants.Add(variant1);
         product.Variants.Add(variant2);
         _dbContext.Set<Product>().Add(product);

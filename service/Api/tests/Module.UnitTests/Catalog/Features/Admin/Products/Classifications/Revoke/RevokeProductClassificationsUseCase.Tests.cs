@@ -42,8 +42,8 @@ public class RevokeProductClassificationsTests : IDisposable
         var taxonId2 = Guid.NewGuid();
 
         _dbContext.Set<Product>().Add(product);
-        _dbContext.Set<Classification>().Add(ClassificationExtensions.Create(product.Id, taxonId1, 0, false).Value);
-        _dbContext.Set<Classification>().Add(ClassificationExtensions.Create(product.Id, taxonId2, 0, false).Value);
+        _dbContext.Set<Classification>().Add(ClassificationMethod.Create(product.Id, taxonId1, 0, false).Value);
+        _dbContext.Set<Classification>().Add(ClassificationMethod.Create(product.Id, taxonId2, 0, false).Value);
         await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 
         var request = new RevokeProductClassifications.Request { Items = [new ProductClassificationAssignmentItem { TaxonId = taxonId1, Position = 0 }] };
@@ -89,9 +89,9 @@ public class RevokeProductClassificationsTests : IDisposable
         var taxonId3 = Guid.NewGuid();
 
         _dbContext.Set<Product>().Add(product);
-        _dbContext.Set<Classification>().Add(ClassificationExtensions.Create(product.Id, taxonId1, 0, false).Value);
-        _dbContext.Set<Classification>().Add(ClassificationExtensions.Create(product.Id, taxonId2, 0, false).Value);
-        _dbContext.Set<Classification>().Add(ClassificationExtensions.Create(product.Id, taxonId3, 0, false).Value);
+        _dbContext.Set<Classification>().Add(ClassificationMethod.Create(product.Id, taxonId1, 0, false).Value);
+        _dbContext.Set<Classification>().Add(ClassificationMethod.Create(product.Id, taxonId2, 0, false).Value);
+        _dbContext.Set<Classification>().Add(ClassificationMethod.Create(product.Id, taxonId3, 0, false).Value);
         await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 
         var request = new RevokeProductClassifications.Request { Items = [new ProductClassificationAssignmentItem { TaxonId = taxonId1, Position = 0 }, new ProductClassificationAssignmentItem { TaxonId = taxonId3, Position = 0 }] };
@@ -112,8 +112,8 @@ public class RevokeProductClassificationsTests : IDisposable
         var taxonId2 = Guid.NewGuid();
 
         _dbContext.Set<Product>().Add(product);
-        _dbContext.Set<Classification>().Add(ClassificationExtensions.Create(product.Id, taxonId1, 0, false).Value);
-        _dbContext.Set<Classification>().Add(ClassificationExtensions.Create(product.Id, taxonId2, 0, false).Value);
+        _dbContext.Set<Classification>().Add(ClassificationMethod.Create(product.Id, taxonId1, 0, false).Value);
+        _dbContext.Set<Classification>().Add(ClassificationMethod.Create(product.Id, taxonId2, 0, false).Value);
         await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 
         var request = new RevokeProductClassifications.Request { Items = [new ProductClassificationAssignmentItem { TaxonId = taxonId1, Position = 0 }, new ProductClassificationAssignmentItem { TaxonId = taxonId2, Position = 0 }] };
@@ -133,7 +133,7 @@ public class RevokeProductClassificationsTests : IDisposable
         var taxonId2 = Guid.NewGuid();
 
         _dbContext.Set<Product>().Add(product);
-        _dbContext.Set<Classification>().Add(ClassificationExtensions.Create(product.Id, taxonId1, 0, false).Value);
+        _dbContext.Set<Classification>().Add(ClassificationMethod.Create(product.Id, taxonId1, 0, false).Value);
         await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 
         var request = new RevokeProductClassifications.Request { Items = [new ProductClassificationAssignmentItem { TaxonId = taxonId1, Position = 0 }, new ProductClassificationAssignmentItem { TaxonId = taxonId2, Position = 0 }] };

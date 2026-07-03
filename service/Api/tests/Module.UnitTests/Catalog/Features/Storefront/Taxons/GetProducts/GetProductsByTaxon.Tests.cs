@@ -42,7 +42,7 @@ public class GetProductsByTaxonTests : IDisposable
         var product = ProductMethod.Create("T-Shirt", "tshirt", status: ProductStatus.Active).Value;
         product.AvailableOn = DateTimeOffset.UtcNow.AddDays(-1);
         product.Classifications.Add(new Classification { Product = product, Taxon = taxon });
-        product.MasterVariantId = VariantExtensions.Create(product.Id, "M", isMaster: true).Value.Id;
+        product.MasterVariantId = VariantMethod.Create(product.Id, "M", isMaster: true).Value.Id;
 
         _dbContext.Set<Taxonomy>().Add(taxonomy);
         _dbContext.Set<Product>().Add(product);

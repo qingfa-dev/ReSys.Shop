@@ -39,8 +39,8 @@ public class SyncVariantPricesTests : IDisposable
     [Fact(DisplayName = "Handler: Should add new and remove stale prices")]
     public async Task Handle_ShouldAddAndRemove_WhenDiff()
     {
-        var variant = VariantExtensions.Create(Guid.NewGuid(), "SKU-001", isMaster: true).Value;
-        var stalePrice = PriceExtensions.Create(10m, "USD", variantId: variant.Id, countryIso: "US").Value;
+        var variant = VariantMethod.Create(Guid.NewGuid(), "SKU-001", isMaster: true).Value;
+        var stalePrice = PriceMethod.Create(10m, "USD", variantId: variant.Id, countryIso: "US").Value;
         _dbContext.Set<Variant>().Add(variant);
         _dbContext.Set<Price>().Add(stalePrice);
         await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
@@ -64,8 +64,8 @@ public class SyncVariantPricesTests : IDisposable
     [Fact(DisplayName = "Handler: Should no-op when prices match")]
     public async Task Handle_ShouldNoOp_WhenIdentical()
     {
-        var variant = VariantExtensions.Create(Guid.NewGuid(), "SKU-001", isMaster: true).Value;
-        var price = PriceExtensions.Create(10m, "USD", variantId: variant.Id, countryIso: "US").Value;
+        var variant = VariantMethod.Create(Guid.NewGuid(), "SKU-001", isMaster: true).Value;
+        var price = PriceMethod.Create(10m, "USD", variantId: variant.Id, countryIso: "US").Value;
         _dbContext.Set<Variant>().Add(variant);
         _dbContext.Set<Price>().Add(price);
         await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
@@ -89,8 +89,8 @@ public class SyncVariantPricesTests : IDisposable
     [Fact(DisplayName = "Handler: Should remove all when request has empty prices")]
     public async Task Handle_ShouldRemoveAll_WhenEmptyRequest()
     {
-        var variant = VariantExtensions.Create(Guid.NewGuid(), "SKU-001", isMaster: true).Value;
-        var price = PriceExtensions.Create(10m, "USD", variantId: variant.Id).Value;
+        var variant = VariantMethod.Create(Guid.NewGuid(), "SKU-001", isMaster: true).Value;
+        var price = PriceMethod.Create(10m, "USD", variantId: variant.Id).Value;
         _dbContext.Set<Variant>().Add(variant);
         _dbContext.Set<Price>().Add(price);
         await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);

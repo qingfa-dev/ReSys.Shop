@@ -46,7 +46,7 @@ public class UploadVariantImageTests : IDisposable
     public async Task Handle_ShouldReturnSuccess_WhenValid()
     {
         var product = ProductMethod.Create("Test Product", "test-product", status: ProductStatus.Draft).Value;
-        var variant = VariantExtensions.Create(product.Id, "SKU-001", isMaster: true).Value;
+        var variant = VariantMethod.Create(product.Id, "SKU-001", isMaster: true).Value;
         _dbContext.Set<Product>().Add(product);
         _dbContext.Set<Variant>().Add(variant);
         await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
@@ -123,7 +123,7 @@ public class UploadVariantImageTests : IDisposable
     public async Task Handle_ShouldReturnFailure_WhenStorageFails()
     {
         var product = ProductMethod.Create("Test", "test", status: ProductStatus.Draft).Value;
-        var variant = VariantExtensions.Create(product.Id, "SKU-001", isMaster: true).Value;
+        var variant = VariantMethod.Create(product.Id, "SKU-001", isMaster: true).Value;
         _dbContext.Set<Product>().Add(product);
         _dbContext.Set<Variant>().Add(variant);
         await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);

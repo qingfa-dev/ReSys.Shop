@@ -36,7 +36,7 @@ public class AssignVariantOptionValuesTests : IDisposable
     [Fact(DisplayName = "Handler: Should assign option values to variant")]
     public async Task Handle_ShouldAssignOptionValues()
     {
-        var variant = VariantExtensions.Create(Guid.NewGuid(), "SKU-001", isMaster: true).Value;
+        var variant = VariantMethod.Create(Guid.NewGuid(), "SKU-001", isMaster: true).Value;
         _dbContext.Set<Variant>().Add(variant);
         await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 
@@ -57,9 +57,9 @@ public class AssignVariantOptionValuesTests : IDisposable
     [Fact(DisplayName = "Handler: Should skip already-assigned option values")]
     public async Task Handle_ShouldSkipAlreadyAssigned()
     {
-        var variant = VariantExtensions.Create(Guid.NewGuid(), "SKU-001", isMaster: true).Value;
+        var variant = VariantMethod.Create(Guid.NewGuid(), "SKU-001", isMaster: true).Value;
         var optionValueId = Guid.NewGuid();
-        var existing = OptionValueVariantExtensions.Create(variant.Id, optionValueId).Value;
+        var existing = OptionValueVariantMethod.Create(variant.Id, optionValueId).Value;
         _dbContext.Set<Variant>().Add(variant);
         _dbContext.Set<OptionValueVariant>().Add(existing);
         await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);

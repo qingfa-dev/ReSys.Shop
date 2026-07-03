@@ -1,5 +1,5 @@
 using Module.Catalog.Domain.Products.Variants.Images;
-using Module.Catalog.Features.Admin.Products.VariantImageMethod.Delete;
+using Module.Catalog.Features.Admin.Products.Variants.Images.Delete;
 
 namespace Module.UnitTests.Catalog.Features.Admin.Products.Variants.Images.Delete;
 
