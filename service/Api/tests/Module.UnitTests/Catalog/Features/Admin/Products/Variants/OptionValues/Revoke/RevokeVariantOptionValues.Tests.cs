@@ -36,9 +36,9 @@ public class RevokeVariantOptionValuesTests : IDisposable
     [Fact(DisplayName = "Handler: Should revoke assigned option values")]
     public async Task Handle_ShouldRevokeAssignedOptionValues()
     {
-        var variant = VariantExtensions.Create(Guid.NewGuid(), "SKU-001", isMaster: true).Value;
+        var variant = VariantMethod.Create(Guid.NewGuid(), "SKU-001", isMaster: true).Value;
         var optionValueId = Guid.NewGuid();
-        var junction = OptionValueVariantExtensions.Create(variant.Id, optionValueId).Value;
+        var junction = OptionValueVariantMethod.Create(variant.Id, optionValueId).Value;
         _dbContext.Set<Variant>().Add(variant);
         _dbContext.Set<OptionValueVariant>().Add(junction);
         await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
@@ -58,7 +58,7 @@ public class RevokeVariantOptionValuesTests : IDisposable
     [Fact(DisplayName = "Handler: Should no-op when option value not assigned")]
     public async Task Handle_ShouldNoOp_WhenNotAssigned()
     {
-        var variant = VariantExtensions.Create(Guid.NewGuid(), "SKU-001", isMaster: true).Value;
+        var variant = VariantMethod.Create(Guid.NewGuid(), "SKU-001", isMaster: true).Value;
         _dbContext.Set<Variant>().Add(variant);
         await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 

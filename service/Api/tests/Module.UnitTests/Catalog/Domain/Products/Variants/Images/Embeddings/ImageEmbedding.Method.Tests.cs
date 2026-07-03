@@ -1,11 +1,11 @@
 using Module.Catalog.Domain.Products.Variants.Images.Embeddings;
 
-namespace Module.UnitTests.Catalog.Domain.Products.VariantImageMethod.Embeddings;
+namespace Module.UnitTests.Catalog.Domain.Products.Variants.Images.Embeddings;
 
 [Trait("Category", "Unit")]
 [Trait("Module", "Catalog")]
 [Trait("Entity", "ImageEmbedding")]
-public class ImageEmbeddingExtensionsTests
+public class ImageEmbeddingMethodTests
 {
     [Fact(DisplayName = "Create: Should return ImageEmbedding with correct properties")]
     public void Create_WithValidParameters_ShouldReturnImageEmbedding()
@@ -15,7 +15,7 @@ public class ImageEmbeddingExtensionsTests
         var modelVersion = "v1";
         var vectorData = new float[] { 0.1f, 0.2f, 0.3f, 0.4f, 0.5f };
 
-        var result = ImageEmbeddingExtensions.Create(variantImageId, modelName, modelVersion, vectorData);
+        var result = ImageEmbeddingMethod.Create(variantImageId, modelName, modelVersion, vectorData);
 
         result.Should().NotBeNull();
         result.Id.Should().NotBe(Guid.Empty);

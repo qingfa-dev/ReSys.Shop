@@ -33,7 +33,7 @@ public class PriceMappingTests
     {
         var request = new PriceRequest { Amount = 25.00m, Currency = "EUR", CompareAtAmount = 35.00m, CountryIso = "GB" };
 
-        var entity = PriceExtensions.Create(10m, "USD").Value;
+        var entity = PriceMethod.Create(10m, "USD").Value;
 
         var result = request.MapToDomain(entity);
 
@@ -48,7 +48,7 @@ public class PriceMappingTests
     public void MapToResponse_ShouldMapEntityToResponse()
     {
         var variantId = Guid.NewGuid();
-        var entity = PriceExtensions.Create(19.99m, "USD", variantId: variantId, compareAtAmount: 29.99m, countryIso: "US").Value;
+        var entity = PriceMethod.Create(19.99m, "USD", variantId: variantId, compareAtAmount: 29.99m, countryIso: "US").Value;
 
         var result = entity.MapToDetail<PriceResponse>();
 

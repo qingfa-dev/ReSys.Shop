@@ -92,7 +92,7 @@ public class AutoClassificationServiceTests : IDisposable
         // Arrange
         var taxon = CreateTaxon("Auto", automatic: true);
         var product = CreateProduct("Stale Product");
-        var stale = ClassificationExtensions.Create(product.Id, taxon.Id, isAutomatic: true).Value;
+        var stale = ClassificationMethod.Create(product.Id, taxon.Id, isAutomatic: true).Value;
         
         _dbContext.Set<Taxon>().Add(taxon);
         _dbContext.Set<Product>().Add(product);
@@ -116,7 +116,7 @@ public class AutoClassificationServiceTests : IDisposable
         var taxon = CreateTaxon("Auto", automatic: true);
         var product = CreateProduct("Manual Match");
         // Manual classification (IsAutomatic = false)
-        var manual = ClassificationExtensions.Create(product.Id, taxon.Id, isAutomatic: false).Value;
+        var manual = ClassificationMethod.Create(product.Id, taxon.Id, isAutomatic: false).Value;
         
         _dbContext.Set<Taxon>().Add(taxon);
         _dbContext.Set<Product>().Add(product);
@@ -169,7 +169,7 @@ public class AutoClassificationServiceTests : IDisposable
         var t2 = CreateTaxon("Manual Taxon", automatic: false);
         
         // Manual assignment to a non-automatic taxon
-        var manual = ClassificationExtensions.Create(p.Id, t2.Id, isAutomatic: false).Value;
+        var manual = ClassificationMethod.Create(p.Id, t2.Id, isAutomatic: false).Value;
 
         _dbContext.Set<Product>().Add(p);
         _dbContext.Set<Taxon>().AddRange(t1, t2);

@@ -38,7 +38,7 @@ public class UpdateVariantTests : IDisposable
     [Fact(DisplayName = "Handler: Should update variant fields")]
     public async Task Handle_ShouldReturnSuccess_WhenValid()
     {
-        var variant = VariantExtensions.Create(Guid.NewGuid(), "OLD-SKU", isMaster: true, position: 0).Value;
+        var variant = VariantMethod.Create(Guid.NewGuid(), "OLD-SKU", isMaster: true, position: 0).Value;
         variant.Price = 10m;
         _dbContext.Set<Variant>().Add(variant);
         await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
@@ -87,7 +87,7 @@ public class UpdateVariantTests : IDisposable
     [Fact(DisplayName = "Handler: Partial update should preserve other fields")]
     public async Task Handle_ShouldPreserveOtherFields_WhenPartialUpdate()
     {
-        var variant = VariantExtensions.Create(Guid.NewGuid(), "SKU-001", isMaster: true, position: 0).Value;
+        var variant = VariantMethod.Create(Guid.NewGuid(), "SKU-001", isMaster: true, position: 0).Value;
         variant.Price = 10m;
         variant.CostPrice = 5m;
         variant.CostCurrency = "USD";

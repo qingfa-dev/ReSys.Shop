@@ -36,9 +36,9 @@ public class SyncVariantOptionValuesTests : IDisposable
     [Fact(DisplayName = "Handler: Should add new and remove stale option values")]
     public async Task Handle_ShouldAddAndRemove_WhenDiff()
     {
-        var variant = VariantExtensions.Create(Guid.NewGuid(), "SKU-001", isMaster: true).Value;
+        var variant = VariantMethod.Create(Guid.NewGuid(), "SKU-001", isMaster: true).Value;
         var staleId = Guid.NewGuid();
-        var staleJunction = OptionValueVariantExtensions.Create(variant.Id, staleId).Value;
+        var staleJunction = OptionValueVariantMethod.Create(variant.Id, staleId).Value;
         _dbContext.Set<Variant>().Add(variant);
         _dbContext.Set<OptionValueVariant>().Add(staleJunction);
         await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
@@ -60,9 +60,9 @@ public class SyncVariantOptionValuesTests : IDisposable
     [Fact(DisplayName = "Handler: Should no-op when sets match")]
     public async Task Handle_ShouldNoOp_WhenIdentical()
     {
-        var variant = VariantExtensions.Create(Guid.NewGuid(), "SKU-001", isMaster: true).Value;
+        var variant = VariantMethod.Create(Guid.NewGuid(), "SKU-001", isMaster: true).Value;
         var optionValueId = Guid.NewGuid();
-        var junction = OptionValueVariantExtensions.Create(variant.Id, optionValueId).Value;
+        var junction = OptionValueVariantMethod.Create(variant.Id, optionValueId).Value;
         _dbContext.Set<Variant>().Add(variant);
         _dbContext.Set<OptionValueVariant>().Add(junction);
         await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
@@ -82,8 +82,8 @@ public class SyncVariantOptionValuesTests : IDisposable
     [Fact(DisplayName = "Handler: Should remove all when empty request")]
     public async Task Handle_ShouldRemoveAll_WhenEmptyRequest()
     {
-        var variant = VariantExtensions.Create(Guid.NewGuid(), "SKU-001", isMaster: true).Value;
-        var junction = OptionValueVariantExtensions.Create(variant.Id, Guid.NewGuid()).Value;
+        var variant = VariantMethod.Create(Guid.NewGuid(), "SKU-001", isMaster: true).Value;
+        var junction = OptionValueVariantMethod.Create(variant.Id, Guid.NewGuid()).Value;
         _dbContext.Set<Variant>().Add(variant);
         _dbContext.Set<OptionValueVariant>().Add(junction);
         await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);

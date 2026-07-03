@@ -39,8 +39,8 @@ public class RemoveVariantPriceTests : IDisposable
     [Fact(DisplayName = "Handler: Should soft-delete price")]
     public async Task Handle_ShouldReturnSuccess_WhenValid()
     {
-        var variant = VariantExtensions.Create(Guid.NewGuid(), "SKU-001", isMaster: true).Value;
-        var price = PriceExtensions.Create(10m, "USD", variantId: variant.Id).Value;
+        var variant = VariantMethod.Create(Guid.NewGuid(), "SKU-001", isMaster: true).Value;
+        var price = PriceMethod.Create(10m, "USD", variantId: variant.Id).Value;
         _dbContext.Set<Variant>().Add(variant);
         _dbContext.Set<Price>().Add(price);
         await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
@@ -66,7 +66,7 @@ public class RemoveVariantPriceTests : IDisposable
     [Fact(DisplayName = "Handler: Should return failure when price not found")]
     public async Task Handle_ShouldReturnFailure_WhenPriceNotFound()
     {
-        var variant = VariantExtensions.Create(Guid.NewGuid(), "SKU-001", isMaster: true).Value;
+        var variant = VariantMethod.Create(Guid.NewGuid(), "SKU-001", isMaster: true).Value;
         _dbContext.Set<Variant>().Add(variant);
         await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 

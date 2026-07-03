@@ -35,7 +35,7 @@ public class VariantMappingTests
     [Fact(DisplayName = "MapToDomain (Update): Should update all variant fields")]
     public void MapToDomain_Update_ShouldUpdateAllFields()
     {
-        var entity = VariantExtensions.Create(Guid.NewGuid(), "OLD-SKU", isMaster: true, position: 0).Value;
+        var entity = VariantMethod.Create(Guid.NewGuid(), "OLD-SKU", isMaster: true, position: 0).Value;
         var request = new VariantRequest
         {
             Sku = "NEW-SKU",
@@ -72,7 +72,7 @@ public class VariantMappingTests
     [Fact(DisplayName = "MapToDomain (Update): Partial update should preserve unchanged fields")]
     public void MapToDomain_Update_ShouldPreserveOtherFields()
     {
-        var entity = VariantExtensions.Create(Guid.NewGuid(), "OLD-SKU", isMaster: true, position: 0).Value;
+        var entity = VariantMethod.Create(Guid.NewGuid(), "OLD-SKU", isMaster: true, position: 0).Value;
         entity.Price = 10m;
         entity.CostPrice = 5m;
         entity.CostCurrency = "USD";
@@ -102,7 +102,7 @@ public class VariantMappingTests
     {
         var variantId = Guid.NewGuid();
         var productId = Guid.NewGuid();
-        var entity = VariantExtensions.Create(productId, "SKU-001", isMaster: true, position: 0, id: variantId).Value;
+        var entity = VariantMethod.Create(productId, "SKU-001", isMaster: true, position: 0, id: variantId).Value;
         entity.Price = 19.99m;
         entity.CostPrice = 10m;
         entity.CostCurrency = "USD";
@@ -125,7 +125,7 @@ public class VariantMappingTests
     {
         var variantId = Guid.NewGuid();
         var productId = Guid.NewGuid();
-        var entity = VariantExtensions.Create(productId, "SKU-001", isMaster: false, position: 2, id: variantId).Value;
+        var entity = VariantMethod.Create(productId, "SKU-001", isMaster: false, position: 2, id: variantId).Value;
 
         var result = entity.MapToListItem<VariantListItemResponse>();
 

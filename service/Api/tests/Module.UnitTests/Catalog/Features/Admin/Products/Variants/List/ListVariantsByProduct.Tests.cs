@@ -33,8 +33,8 @@ public class ListVariantsByProductTests : IDisposable
     public async Task Handle_ShouldReturnVariants_WhenProductHasVariants()
     {
         var productId = Guid.NewGuid();
-        var variant1 = VariantExtensions.Create(productId, "SKU-001", isMaster: true).Value;
-        var variant2 = VariantExtensions.Create(productId, "SKU-002", isMaster: false).Value;
+        var variant1 = VariantMethod.Create(productId, "SKU-001", isMaster: true).Value;
+        var variant2 = VariantMethod.Create(productId, "SKU-002", isMaster: false).Value;
         _dbContext.Set<Variant>().AddRange(variant1, variant2);
         await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 
@@ -48,8 +48,8 @@ public class ListVariantsByProductTests : IDisposable
     public async Task Handle_ShouldExcludeSoftDeletedVariants()
     {
         var productId = Guid.NewGuid();
-        var active = VariantExtensions.Create(productId, "SKU-001", isMaster: true).Value;
-        var deleted = VariantExtensions.Create(productId, "SKU-002", isMaster: false).Value;
+        var active = VariantMethod.Create(productId, "SKU-001", isMaster: true).Value;
+        var deleted = VariantMethod.Create(productId, "SKU-002", isMaster: false).Value;
         deleted.Delete("admin");
         _dbContext.Set<Variant>().AddRange(active, deleted);
         await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);

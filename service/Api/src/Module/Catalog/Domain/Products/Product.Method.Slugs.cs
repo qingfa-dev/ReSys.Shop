@@ -2,9 +2,9 @@ using System.Text.RegularExpressions;
 
 namespace Module.Catalog.Domain.Products;
 
-public static class ProductSlugsExtensions
+public static partial class ProductMethod
 {
-    // Generate: Generate a URL slug from the product name
+    #region Slug Generation
     public static string GenerateSlug(this Product product)
     {
         if (!string.IsNullOrEmpty(product.Slug))
@@ -15,7 +15,6 @@ public static class ProductSlugsExtensions
         return GenerateSlugFromName(product.Name);
     }
 
-    // Normalize: Convert product name to URL-safe slug string
     public static string GenerateSlugFromName(string name)
     {
         if (string.IsNullOrWhiteSpace(name))
@@ -33,8 +32,9 @@ public static class ProductSlugsExtensions
 
         return string.IsNullOrEmpty(slug) ? Guid.NewGuid().ToString("N")[..8] : slug;
     }
+    #endregion
 
-    // Check: Verify slug availability against current product slug
+    #region Slug Validation
     public static bool IsSlugAvailable(this Product product, string candidateSlug)
     {
         if (string.IsNullOrWhiteSpace(candidateSlug))
@@ -45,7 +45,6 @@ public static class ProductSlugsExtensions
         return !string.Equals(product.Slug, candidateSlug, StringComparison.OrdinalIgnoreCase);
     }
 
-    // Guard: Ensure slug uniqueness by appending a UUID if colliding
     public static string EnsureSlugIsUnique(this Product product, string candidateSlug)
     {
         if (string.IsNullOrWhiteSpace(candidateSlug))
@@ -58,10 +57,10 @@ public static class ProductSlugsExtensions
             return candidateSlug;
         }
 
-        return $"{candidateSlug}-{Guid.NewGuid():N}"[..255];
+        var unique = $"{candidateSlug}-{Guid.NewGuid():N}";
+        return unique.Length > 255 ? unique[..255] : unique;
     }
 
-    // Normalize: Downcase the product slug
     public static void NormalizeSlug(this Product product)
     {
         if (!string.IsNullOrEmpty(product.Slug))
@@ -69,4 +68,5 @@ public static class ProductSlugsExtensions
             product.Slug = product.Slug.ToLowerInvariant();
         }
     }
+    #endregion
 }

@@ -38,7 +38,7 @@ public class GetProductDetailPageTests : IDisposable
     {
         var product = ProductMethod.Create("Test Product", "test-product", description: "A test product", status: ProductStatus.Active).Value;
         product.AvailableOn = DateTimeOffset.UtcNow.AddDays(-1);
-        var variant = VariantExtensions.Create(product.Id, "SKU-001", isMaster: true).Value;
+        var variant = VariantMethod.Create(product.Id, "SKU-001", isMaster: true).Value;
         variant.Prices.Add(new Price { Amount = 29.99m, Currency = "USD" });
         product.Variants.Add(variant);
         product.MasterVariantId = variant.Id;
@@ -66,7 +66,7 @@ public class GetProductDetailPageTests : IDisposable
     {
         var product = ProductMethod.Create("Future Product", "future-product", status: ProductStatus.Active).Value;
         product.AvailableOn = DateTimeOffset.UtcNow.AddDays(30);
-        product.MasterVariantId = VariantExtensions.Create(product.Id, "SKU-FUTURE", isMaster: true).Value.Id;
+        product.MasterVariantId = VariantMethod.Create(product.Id, "SKU-FUTURE", isMaster: true).Value.Id;
         _dbContext.Set<Product>().Add(product);
         await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 
@@ -80,11 +80,11 @@ public class GetProductDetailPageTests : IDisposable
     {
         var product = ProductMethod.Create("Priced Product", "priced-product", status: ProductStatus.Active).Value;
         product.AvailableOn = DateTimeOffset.UtcNow.AddDays(-1);
-        var master = VariantExtensions.Create(product.Id, "MASTER", isMaster: true).Value;
+        var master = VariantMethod.Create(product.Id, "MASTER", isMaster: true).Value;
         master.Prices.Add(new Price { Amount = 49.99m, Currency = "USD" });
         product.Variants.Add(master);
         product.MasterVariantId = master.Id;
-        var variant = VariantExtensions.Create(product.Id, "V-001", isMaster: false).Value;
+        var variant = VariantMethod.Create(product.Id, "V-001", isMaster: false).Value;
         variant.Prices.Add(new Price { Amount = 39.99m, Currency = "USD" });
         product.Variants.Add(variant);
         _dbContext.Set<Product>().Add(product);

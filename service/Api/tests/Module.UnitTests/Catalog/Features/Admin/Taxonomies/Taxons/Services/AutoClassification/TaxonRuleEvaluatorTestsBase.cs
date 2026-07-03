@@ -85,7 +85,7 @@ public abstract class TaxonRuleEvaluatorTestsBase
     {
         var sut = CreateEvaluator();
         var product = CreateProduct("Product");
-        var master = VariantExtensions.Create(product.Id, "SKU-1", isMaster: true).Value;
+        var master = VariantMethod.Create(product.Id, "SKU-1", isMaster: true).Value;
         master.Price = (decimal?)price;
         product.Variants.Add(master);
 
@@ -104,9 +104,9 @@ public abstract class TaxonRuleEvaluatorTestsBase
     {
         var sut = CreateEvaluator();
         var product = CreateProduct("Product");
-        var master = VariantExtensions.Create(product.Id, actualSku, isMaster: true).Value;
+        var master = VariantMethod.Create(product.Id, actualSku, isMaster: true).Value;
         product.Variants.Add(master);
-        var other = VariantExtensions.Create(product.Id, "OTHER-SKU", isMaster: false).Value;
+        var other = VariantMethod.Create(product.Id, "OTHER-SKU", isMaster: false).Value;
         product.Variants.Add(other);
 
         var taxon = CreateTaxon("Taxon", automatic: true);
@@ -124,8 +124,8 @@ public abstract class TaxonRuleEvaluatorTestsBase
     {
         var sut = CreateEvaluator();
         var product = CreateProduct("Product");
-        product.Variants.Add(VariantExtensions.Create(product.Id, "VAR-1", isMaster: true).Value);
-        product.Variants.Add(VariantExtensions.Create(product.Id, actualSku2, isMaster: false).Value);
+        product.Variants.Add(VariantMethod.Create(product.Id, "VAR-1", isMaster: true).Value);
+        product.Variants.Add(VariantMethod.Create(product.Id, actualSku2, isMaster: false).Value);
 
         var taxon = CreateTaxon("Taxon", automatic: true);
         taxon.TaxonRules.Add(TaxonRuleExtensions.Create(taxon.Id, TaxonRuleType.VariantSku, TaxonRuleMatchPolicy.IsEqualTo, ruleValue));
@@ -213,7 +213,7 @@ public abstract class TaxonRuleEvaluatorTestsBase
     {
         var sut = CreateEvaluator();
         var product = CreateProduct("Product");
-        var master = VariantExtensions.Create(product.Id, "SKU-1", isMaster: true).Value;
+        var master = VariantMethod.Create(product.Id, "SKU-1", isMaster: true).Value;
         master.Price = (decimal)price;
         product.Variants.Add(master);
 
@@ -250,11 +250,11 @@ public abstract class TaxonRuleEvaluatorTestsBase
     {
         var sut = CreateEvaluator();
         var product = CreateProduct("Product");
-        var v1 = VariantExtensions.Create(product.Id, "V1", isMaster: true).Value;
+        var v1 = VariantMethod.Create(product.Id, "V1", isMaster: true).Value;
         v1.Price = (decimal)price1;
         product.Variants.Add(v1);
         
-        var v2 = VariantExtensions.Create(product.Id, "V2", isMaster: false).Value;
+        var v2 = VariantMethod.Create(product.Id, "V2", isMaster: false).Value;
         v2.Price = (decimal)price2;
         product.Variants.Add(v2);
 
@@ -274,7 +274,7 @@ public abstract class TaxonRuleEvaluatorTestsBase
     {
         var sut = CreateEvaluator();
         var product = CreateProduct("Product");
-        var master = VariantExtensions.Create(product.Id, "SKU-1", isMaster: true).Value;
+        var master = VariantMethod.Create(product.Id, "SKU-1", isMaster: true).Value;
         master.Price = 100;
         product.Variants.Add(master);
 

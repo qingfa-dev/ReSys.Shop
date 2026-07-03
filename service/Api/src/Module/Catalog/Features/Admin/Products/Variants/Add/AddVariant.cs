@@ -58,7 +58,7 @@ public static partial class AddVariant
                 // Create: Junction entities linking variant to each option value
                 foreach (var optionValueId in request.OptionValueIds)
                 {
-                    var junctionResult = OptionValueVariantExtensions.Create(variant.Id, optionValueId);
+                    var junctionResult = OptionValueVariantMethod.Create(variant.Id, optionValueId);
                     if (junctionResult.IsFailure)
                         return junctionResult.Errors;
 

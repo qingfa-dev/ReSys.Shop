@@ -44,13 +44,13 @@ public class GetProductAvailabilityTests : IDisposable
         var blue = new OptionValue { Name = "Blue", OptionType = colorType, Position = 2 };
         var small = new OptionValue { Name = "S", OptionType = sizeType, Position = 1 };
 
-        var variant1 = VariantExtensions.Create(product.Id, "V-RED-S", isMaster: false).Value;
+        var variant1 = VariantMethod.Create(product.Id, "V-RED-S", isMaster: false).Value;
         variant1.OptionValueVariants.Add(new OptionValueVariant { VariantId = variant1.Id, OptionValueId = red.Id, OptionValue = red });
         variant1.OptionValueVariants.Add(new OptionValueVariant { VariantId = variant1.Id, OptionValueId = small.Id, OptionValue = small });
         variant1.Prices.Add(new Price { Amount = 19.99m, Currency = "USD" });
 
         product.Variants.Add(variant1);
-        product.MasterVariantId = VariantExtensions.Create(product.Id, "MASTER", isMaster: true).Value.Id;
+        product.MasterVariantId = VariantMethod.Create(product.Id, "MASTER", isMaster: true).Value.Id;
         _dbContext.Set<Product>().Add(product);
         await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 
@@ -65,7 +65,7 @@ public class GetProductAvailabilityTests : IDisposable
     public async Task Handle_ShouldReturnEmptyMatrix_WhenNoVariants()
     {
         var product = ProductMethod.Create("Empty Product", "empty", status: ProductStatus.Active).Value;
-        product.MasterVariantId = VariantExtensions.Create(product.Id, "MASTER", isMaster: true).Value.Id;
+        product.MasterVariantId = VariantMethod.Create(product.Id, "MASTER", isMaster: true).Value.Id;
         _dbContext.Set<Product>().Add(product);
         await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 

@@ -16,7 +16,7 @@ public static partial class PriceMapping
     /// <returns>A result containing the new Price entity or validation failures.</returns>
     public static Result<Price> MapToDomain<T>(this T request, Guid variantId) where T : PriceRequest
     {
-        return PriceExtensions.Create(
+        return PriceMethod.Create(
             amount: request.Amount,
             currency: request.Currency,
             variantId: variantId,

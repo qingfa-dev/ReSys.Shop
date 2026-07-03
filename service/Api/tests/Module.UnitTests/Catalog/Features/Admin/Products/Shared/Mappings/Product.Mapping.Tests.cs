@@ -131,7 +131,7 @@ public class ProductMappingTests
     public void MapToListItem_ShouldIncludeVariantsCount()
     {
         var entity = ProductMethod.Create("Product", "product", status: ProductStatus.Draft).Value;
-        var variant = Module.Catalog.Domain.Products.Variants.VariantExtensions.Create(entity.Id, "SKU-001", isMaster: true).Value;
+        var variant = Module.Catalog.Domain.Products.Variants.VariantMethod.Create(entity.Id, "SKU-001", isMaster: true).Value;
         entity.Variants.Add(variant);
 
         var result = entity.MapToListItem<ProductListItemResponse>();

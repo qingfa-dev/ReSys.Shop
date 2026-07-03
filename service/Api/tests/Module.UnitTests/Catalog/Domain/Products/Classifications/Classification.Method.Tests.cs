@@ -5,7 +5,7 @@ namespace Module.UnitTests.Catalog.Domain.Products.Classifications;
 [Trait("Category", "Unit")]
 [Trait("Module", "Catalog")]
 [Trait("Entity", "Classification")]
-public class ClassificationExtensionsTests
+public class ClassificationMethodTests
 {
     [Fact(DisplayName = "Create: Should return Classification with correct properties")]
     public void Create_WithValidParameters_ShouldReturnClassification()
@@ -15,7 +15,7 @@ public class ClassificationExtensionsTests
         var position = 1;
         var isAutomatic = true;
 
-        var result = ClassificationExtensions.Create(productId, taxonId, position, isAutomatic);
+        var result = ClassificationMethod.Create(productId, taxonId, position, isAutomatic);
 
         result.IsSuccess.Should().BeTrue();
         result.Value.ProductId.Should().Be(productId);
@@ -27,7 +27,7 @@ public class ClassificationExtensionsTests
     [Fact(DisplayName = "Create: With null product ID should allow null")]
     public void Create_WithNullProductId_ShouldAllowNull()
     {
-        var result = ClassificationExtensions.Create(null, Guid.NewGuid());
+        var result = ClassificationMethod.Create(null, Guid.NewGuid());
 
         result.Value.ProductId.Should().BeNull();
         result.Value.TaxonId.Should().NotBeNull();
@@ -36,7 +36,7 @@ public class ClassificationExtensionsTests
     [Fact(DisplayName = "Create: With null taxon ID should allow null")]
     public void Create_WithNullTaxonId_ShouldAllowNull()
     {
-        var result = ClassificationExtensions.Create(Guid.NewGuid(), null);
+        var result = ClassificationMethod.Create(Guid.NewGuid(), null);
 
         result.Value.ProductId.Should().NotBeNull();
         result.Value.TaxonId.Should().BeNull();

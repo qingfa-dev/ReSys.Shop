@@ -1,5 +1,5 @@
 using Module.Catalog.Domain.Products.Variants.Images;
-using Module.Catalog.Features.Admin.Products.VariantImageMethod.Download;
+using Module.Catalog.Features.Admin.Products.Variants.Images.Download;
 using Module.Catalog.Features.Admin.Products.Variants.Images.Shared.Models;
 
 namespace Module.UnitTests.Catalog.Features.Admin.Products.Variants.Images.Download;

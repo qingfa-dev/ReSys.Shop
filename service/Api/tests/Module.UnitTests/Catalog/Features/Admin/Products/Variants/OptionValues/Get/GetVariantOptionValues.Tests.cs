@@ -38,8 +38,8 @@ public class GetVariantOptionValuesTests : IDisposable
         var optionType = OptionTypeMethod.Create("Color", "Color").Value;
         var assignedValue = OptionValueExtensions.Create(optionType.Id, "Red", "Red").Value;
         var unassignedValue = OptionValueExtensions.Create(optionType.Id, "Blue", "Blue").Value;
-        var variant = VariantExtensions.Create(Guid.NewGuid(), "SKU-001", isMaster: true).Value;
-        var junction = OptionValueVariantExtensions.Create(variant.Id, assignedValue.Id).Value;
+        var variant = VariantMethod.Create(Guid.NewGuid(), "SKU-001", isMaster: true).Value;
+        var junction = OptionValueVariantMethod.Create(variant.Id, assignedValue.Id).Value;
 
         _dbContext.Set<OptionType>().Add(optionType);
         _dbContext.Set<OptionValue>().AddRange(assignedValue, unassignedValue);
@@ -65,7 +65,7 @@ public class GetVariantOptionValuesTests : IDisposable
     [Fact(DisplayName = "Handler: Should return empty list when no option values exist")]
     public async Task Handle_ShouldReturnEmpty_WhenNoOptionValues()
     {
-        var variant = VariantExtensions.Create(Guid.NewGuid(), "SKU-001", isMaster: true).Value;
+        var variant = VariantMethod.Create(Guid.NewGuid(), "SKU-001", isMaster: true).Value;
         _dbContext.Set<Variant>().Add(variant);
         await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 

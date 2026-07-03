@@ -43,8 +43,8 @@ public class SyncProductClassificationsTests : IDisposable
         var addId = Guid.NewGuid();
 
         _dbContext.Set<Product>().Add(product);
-        _dbContext.Set<Classification>().Add(ClassificationExtensions.Create(product.Id, keepId, 0, false).Value);
-        _dbContext.Set<Classification>().Add(ClassificationExtensions.Create(product.Id, removeId, 0, false).Value);
+        _dbContext.Set<Classification>().Add(ClassificationMethod.Create(product.Id, keepId, 0, false).Value);
+        _dbContext.Set<Classification>().Add(ClassificationMethod.Create(product.Id, removeId, 0, false).Value);
         await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 
         var request = new SyncProductClassifications.Request { Items = [new ProductClassificationAssignmentItem { TaxonId = keepId, Position = 0 }, new ProductClassificationAssignmentItem { TaxonId = addId, Position = 1 }] };
@@ -65,7 +65,7 @@ public class SyncProductClassificationsTests : IDisposable
         var taxonId = Guid.NewGuid();
 
         _dbContext.Set<Product>().Add(product);
-        _dbContext.Set<Classification>().Add(ClassificationExtensions.Create(product.Id, taxonId, 0, false).Value);
+        _dbContext.Set<Classification>().Add(ClassificationMethod.Create(product.Id, taxonId, 0, false).Value);
         await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 
         var request = new SyncProductClassifications.Request { Items = [new ProductClassificationAssignmentItem { TaxonId = taxonId, Position = 0 }] };
@@ -95,8 +95,8 @@ public class SyncProductClassificationsTests : IDisposable
         var remove = Guid.NewGuid();
 
         _dbContext.Set<Product>().Add(product);
-        _dbContext.Set<Classification>().Add(ClassificationExtensions.Create(product.Id, keep, 0, false).Value);
-        _dbContext.Set<Classification>().Add(ClassificationExtensions.Create(product.Id, remove, 0, false).Value);
+        _dbContext.Set<Classification>().Add(ClassificationMethod.Create(product.Id, keep, 0, false).Value);
+        _dbContext.Set<Classification>().Add(ClassificationMethod.Create(product.Id, remove, 0, false).Value);
         await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 
         var request = new SyncProductClassifications.Request { Items = [new ProductClassificationAssignmentItem { TaxonId = keep, Position = 0 }] };
@@ -117,8 +117,8 @@ public class SyncProductClassificationsTests : IDisposable
         var taxonId2 = Guid.NewGuid();
 
         _dbContext.Set<Product>().Add(product);
-        _dbContext.Set<Classification>().Add(ClassificationExtensions.Create(product.Id, taxonId1, 0, false).Value);
-        _dbContext.Set<Classification>().Add(ClassificationExtensions.Create(product.Id, taxonId2, 0, false).Value);
+        _dbContext.Set<Classification>().Add(ClassificationMethod.Create(product.Id, taxonId1, 0, false).Value);
+        _dbContext.Set<Classification>().Add(ClassificationMethod.Create(product.Id, taxonId2, 0, false).Value);
         await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 
         var request = new SyncProductClassifications.Request { Items = [] };
@@ -159,7 +159,7 @@ public class SyncProductClassificationsTests : IDisposable
 
         _dbContext.Set<Product>().Add(product);
         foreach (var id in keep.Concat(remove))
-            _dbContext.Set<Classification>().Add(ClassificationExtensions.Create(product.Id, id, 0, false).Value);
+            _dbContext.Set<Classification>().Add(ClassificationMethod.Create(product.Id, id, 0, false).Value);
         await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 
         var request = new SyncProductClassifications.Request { Items = [..keep.Select(x => new ProductClassificationAssignmentItem { TaxonId = x, Position = 0 }), ..add.Select(x => new ProductClassificationAssignmentItem { TaxonId = x, Position = 1 })] };
@@ -191,7 +191,7 @@ public class SyncProductClassificationsTests : IDisposable
         var taxonId = Guid.NewGuid();
 
         _dbContext.Set<Product>().Add(product);
-        _dbContext.Set<Classification>().Add(ClassificationExtensions.Create(product.Id, taxonId, 0, false).Value);
+        _dbContext.Set<Classification>().Add(ClassificationMethod.Create(product.Id, taxonId, 0, false).Value);
         await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 
         var request = new SyncProductClassifications.Request { Items = [new ProductClassificationAssignmentItem { TaxonId = taxonId, Position = 3 }] };

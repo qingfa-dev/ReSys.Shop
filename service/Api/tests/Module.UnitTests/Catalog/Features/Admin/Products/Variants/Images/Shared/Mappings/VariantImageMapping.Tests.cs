@@ -3,7 +3,7 @@ using Module.Catalog.Domain.Products.Variants.Images;
 using Module.Catalog.Features.Admin.Products.Variants.Images.Shared.Mappings;
 using Module.Catalog.Features.Admin.Products.Variants.Images.Shared.Models;
 
-namespace Module.UnitTests.Catalog.Features.Admin.Products.VariantImageMethod.Shared.Mappings;
+namespace Module.UnitTests.Catalog.Features.Admin.Products.Variants.Images.Shared.Mappings;
 
 [Trait("Category", "Unit")]
 [Trait("Module", "Catalog")]

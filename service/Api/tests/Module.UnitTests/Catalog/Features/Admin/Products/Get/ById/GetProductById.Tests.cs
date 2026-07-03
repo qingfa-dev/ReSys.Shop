@@ -34,7 +34,7 @@ public class GetProductByIdTests : IDisposable
     public async Task Handle_ShouldReturnSuccess_WhenProductExists()
     {
         var product = ProductMethod.Create("Product", "product", description: "Desc", status: ProductStatus.Active).Value;
-        var variant = VariantExtensions.Create(product.Id, "SKU-001", isMaster: true).Value;
+        var variant = VariantMethod.Create(product.Id, "SKU-001", isMaster: true).Value;
         product.Variants.Add(variant);
         product.MasterVariantId = variant.Id;
         _dbContext.Set<Product>().Add(product);

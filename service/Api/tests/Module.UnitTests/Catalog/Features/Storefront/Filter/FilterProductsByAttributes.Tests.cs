@@ -42,11 +42,11 @@ public class FilterProductsByAttributesTests : IDisposable
 
         var product = ProductMethod.Create("Red Shirt", "red-shirt", status: ProductStatus.Active).Value;
         product.AvailableOn = DateTimeOffset.UtcNow.AddDays(-1);
-        var variant = VariantExtensions.Create(product.Id, "R-M", isMaster: false).Value;
+        var variant = VariantMethod.Create(product.Id, "R-M", isMaster: false).Value;
         variant.Prices.Add(new Price { Amount = 10m, Currency = "USD" });
         variant.OptionValueVariants.Add(new OptionValueVariant { Variant = variant, VariantId = variant.Id, OptionValue = red, OptionValueId = red.Id });
         product.Variants.Add(variant);
-        product.MasterVariantId = VariantExtensions.Create(product.Id, "M", isMaster: true).Value.Id;
+        product.MasterVariantId = VariantMethod.Create(product.Id, "M", isMaster: true).Value.Id;
 
         _dbContext.Set<OptionType>().Add(colorType);
         _dbContext.Set<Product>().Add(product);
@@ -65,7 +65,7 @@ public class FilterProductsByAttributesTests : IDisposable
     {
         var product = ProductMethod.Create("Blue Shirt", "blue-shirt", status: ProductStatus.Active).Value;
         product.AvailableOn = DateTimeOffset.UtcNow.AddDays(-1);
-        product.MasterVariantId = VariantExtensions.Create(product.Id, "M", isMaster: true).Value.Id;
+        product.MasterVariantId = VariantMethod.Create(product.Id, "M", isMaster: true).Value.Id;
         _dbContext.Set<Product>().Add(product);
         await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 

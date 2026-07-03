@@ -35,7 +35,7 @@ public static partial class AssignVariantOptionValues
                 if (existingIds.Contains(optionValueId))
                     continue;
 
-                var junctionResult = OptionValueVariantExtensions.Create(command.VariantId, optionValueId);
+                var junctionResult = OptionValueVariantMethod.Create(command.VariantId, optionValueId);
                 if (junctionResult.IsFailure)
                     return junctionResult.Errors;
 
