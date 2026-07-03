@@ -1,4 +1,3 @@
-using Shared.Security.Authorization.Attributes;
 using Shared.Security.Identity.Domain.Permissions;
 
 namespace Module.Identity.Features.Admin.Permissions.Get;

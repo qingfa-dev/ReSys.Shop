@@ -4,7 +4,6 @@ using Module.Identity.Features.Admin.Users.Delete;
 using Module.Profile.Domain;
 using Module.UnitTests.Identity.Fixtures;
 
-using Shared.Operational.Persistence.Data;
 using Shared.Security.Identity.Domain.Users;
 
 namespace Module.UnitTests.Identity.Features.Admin.Users.Delete;

@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Identity;
 using Module.Identity.Features.Admin.Roles.Shared.Mappings;
 
 using Shared.Operational.Persistence.Specifications.Paging.Extensions;
-using Shared.Operational.Persistence.Specifications.Querying;
 using Shared.Security.Identity.Domain.Roles;
 
 namespace Module.Identity.Features.Admin.Roles.Get.PagedOrAll;

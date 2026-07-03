@@ -7,7 +7,7 @@ using Module.UnitTests.Identity.Fixtures;
 using Shared.Security.Authorization.Permissions.Services;
 using Shared.Security.Identity.Domain.Users;
 
-namespace Modules.Tests.Identities.Features.Store.Auth.Sessions.Get;
+namespace Module.Tests.Identities.Features.Store.Auth.Sessions.Get;
 
 [Trait("Category", "Unit")]
 [Trait("Module", "Identity")]

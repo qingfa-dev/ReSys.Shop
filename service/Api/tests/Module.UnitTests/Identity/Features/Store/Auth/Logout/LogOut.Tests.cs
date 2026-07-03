@@ -1,14 +1,14 @@
 using Microsoft.AspNetCore.Identity;
 
-using static Module.Identity.Features.Store.Auth.Logout.Logout;
-
 using Module.UnitTests.Identity.Fixtures;
 
 using Shared.Security.Authentication.Tokens.Models;
 using Shared.Security.Authentication.Tokens.Services.Refresh;
 using Shared.Security.Identity.Domain.Users;
 
-namespace Modules.Tests.Identities.Features.Store.Auth.Logout;
+using static Module.Identity.Features.Store.Auth.Logout.Logout;
+
+namespace Module.Tests.Identities.Features.Store.Auth.Logout;
 
 [Trait("Category", "Unit")]
 [Trait("Module", "Identity")]

@@ -1,5 +1,3 @@
-using Shared.Security.Authorization.Attributes;
-
 namespace Module.Identity.Features.Admin.Roles.Get.ById;
 
 public static partial class GetRoleById

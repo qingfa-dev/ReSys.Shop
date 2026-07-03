@@ -2,8 +2,6 @@ using Module.Location.Domain.Countries;
 using Module.Location.Domain.States;
 using Module.Location.Features.Admin.States.GetById;
 
-using Shared.Operational.Persistence.Data;
-
 namespace Module.UnitTests.Location.Features.Admin.States.Get.ById;
 
 [Trait("Category", "Unit")]

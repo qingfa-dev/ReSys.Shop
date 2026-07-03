@@ -4,7 +4,6 @@ using Module.Profile.Features.Store.Addresses.Create;
 using Module.UnitTests.Identity.Fixtures;
 using Module.UnitTests.Profile.Domain;
 
-using Shared.Operational.Persistence.Data;
 using Shared.Security.Identity.Domain.Users;
 
 namespace Module.UnitTests.Profile.Features.Store.Addresses.Create;

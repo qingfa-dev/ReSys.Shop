@@ -2,7 +2,6 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Options;
 
 using Shared.Application.Domain.Concerns.Auditable;
-using Shared.Governance.Conventions;
 using Shared.Operational.Notifications.Models;
 using Shared.Operational.Notifications.Options;
 using Shared.Operational.Notifications.Services;

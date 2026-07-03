@@ -1,5 +1,3 @@
-using Shared.Security.Authorization.Attributes;
-
 namespace Module.Identity.Features.Admin.Roles.Get.PagedOrAll;
 
 public static partial class GetRolesPagedOrAll

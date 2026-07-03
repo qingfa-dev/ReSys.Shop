@@ -1,5 +1,3 @@
-using Shared.Operational.Persistence.Specifications.Querying;
-
 namespace Module.Profile.Features.Store.Profile.Get.PagedOrAll;
 
 public static partial class GetProfilesPagedOrAll

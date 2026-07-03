@@ -1,5 +1,3 @@
-using Shared.Security.Authorization.Attributes;
-
 namespace Module.Identity.Features.Admin.Users.Permissions.Revoke;
 
 public static partial class RevokeUserPermissions

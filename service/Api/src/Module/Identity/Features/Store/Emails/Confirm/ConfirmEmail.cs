@@ -1,11 +1,8 @@
-using MediatR;
-
 using Microsoft.AspNetCore.Identity;
 
 using Module.Profile.Domain;
 using Module.Profile.Features.Store.Profile.Create;
 
-using Shared.Governance.Conventions;
 using Shared.Operational.Notifications.Models;
 using Shared.Operational.Notifications.Services;
 using Shared.Operational.Notifications.Templates;

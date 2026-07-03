@@ -1,7 +1,5 @@
 using Module.Location.Features.Shared;
 
-using Shared.Security.Authorization.Attributes;
-
 namespace Module.Location.Features.Admin.Countries.Create;
 
 public static partial class CreateCountry

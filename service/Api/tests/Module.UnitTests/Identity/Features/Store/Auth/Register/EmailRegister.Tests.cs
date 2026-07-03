@@ -1,9 +1,8 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Options;
 
-using Module.UnitTests.Identity.Fixtures;
-
 using Module.Identity.Features.Store.Auth.Register;
+using Module.UnitTests.Identity.Fixtures;
 
 using Shared.Governance.Conventions;
 using Shared.Operational.Notifications.Models;
@@ -13,7 +12,7 @@ using Shared.Operational.Notifications.Templates;
 using Shared.Security.Identity.Domain.Roles;
 using Shared.Security.Identity.Domain.Users;
 
-namespace Modules.Tests.Identities.Features.Store.Auth.Register;
+namespace Module.Tests.Identities.Features.Store.Auth.Register;
 
 [Trait("Category", "Unit")]
 [Trait("Module", "Identity")]

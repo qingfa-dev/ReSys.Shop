@@ -4,8 +4,6 @@ using Module.Profile.Features.Store.Addresses.Get.PagedOrAll;
 using Module.UnitTests.Identity.Fixtures;
 using Module.UnitTests.Profile.Domain;
 
-using Shared.Operational.Persistence.Data;
-
 namespace Module.UnitTests.Profile.Features.Store.Addresses.Get.PagedOrAll;
 
 [Trait("Category", "Unit")]
