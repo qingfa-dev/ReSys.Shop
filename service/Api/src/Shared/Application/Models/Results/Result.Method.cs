@@ -52,10 +52,12 @@ public readonly partial record struct Result : IResultRecord
             metadata);
 
     public static Result NoContent(
+        string? message = null,
         params (string Key, object? Value)[] metadata)
         => FactorySuccess(
             ResultConstant.StatusCodes.NoContent,
-            metadata: metadata);
+            message,
+            metadata);
 
     #endregion
 

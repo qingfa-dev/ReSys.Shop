@@ -219,7 +219,7 @@ usage:
       pattern: |
         // Endpoint
         app.MapPost("/api/[xxx]", async (CreateXxxRequest req, ISender sender) => {
-          var command = new CreateXxxCommand(req.Name, req.Description);
+          var command = new CreateXxxCommand(req.Name, req.Message);
           var result = await sender.Send(command);
           return result.ToApiResult(id => Results.Created($"/api/[xxx]/{id}", id));
         });
