@@ -2,7 +2,6 @@ using Microsoft.AspNetCore.Identity;
 
 using Module.Identity.Features.Admin.Users.Shared.Mappings;
 
-using Shared.Governance.Conventions;
 using Shared.Security.Identity.Domain.Users;
 
 namespace Module.Identity.Features.Admin.Users.Create;

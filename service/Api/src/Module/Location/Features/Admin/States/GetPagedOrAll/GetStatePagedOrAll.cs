@@ -2,7 +2,6 @@ using Module.Location.Domain.States;
 using Module.Location.Features.Admin.States.Shared.Mappings;
 
 using Shared.Operational.Persistence.Specifications.Paging.Extensions;
-using Shared.Operational.Persistence.Specifications.Querying;
 
 namespace Module.Location.Features.Admin.States.GetPagedOrAll;
 

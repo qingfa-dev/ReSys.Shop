@@ -2,7 +2,6 @@ using Module.Profile.Domain;
 using Module.Profile.Features.Store.Profile.Create;
 using Module.UnitTests.Profile.Domain;
 
-using Shared.Operational.Persistence.Data;
 using Shared.Security.Identity.Domain.Users;
 
 namespace Module.UnitTests.Profile.Features.Store.Profile.Create;

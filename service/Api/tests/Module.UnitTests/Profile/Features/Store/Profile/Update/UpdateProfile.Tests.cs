@@ -2,8 +2,6 @@ using Module.Profile.Domain;
 using Module.Profile.Features.Store.Profile.Update;
 using Module.UnitTests.Profile.Domain;
 
-using Shared.Operational.Persistence.Data;
-
 namespace Module.UnitTests.Profile.Features.Store.Profile.Update;
 
 [Trait("Category", "Unit")]

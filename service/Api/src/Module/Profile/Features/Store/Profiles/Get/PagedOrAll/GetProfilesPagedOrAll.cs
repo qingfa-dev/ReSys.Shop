@@ -2,7 +2,6 @@ using Module.Profile.Domain;
 using Module.Profile.Features.Store.Profile.Shared.Mappings;
 
 using Shared.Operational.Persistence.Specifications.Paging.Extensions;
-using Shared.Operational.Persistence.Specifications.Querying;
 
 namespace Module.Profile.Features.Store.Profile.Get.PagedOrAll;
 

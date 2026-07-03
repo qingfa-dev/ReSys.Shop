@@ -1,8 +1,6 @@
 using Module.Location.Domain.Countries;
 using Module.Location.Features.Admin.Countries.GetByIsoCode;
 
-using Shared.Operational.Persistence.Data;
-
 namespace Module.UnitTests.Location.Features.Admin.Countries.Get.ByIsoCode;
 
 [Trait("Category", "Unit")]

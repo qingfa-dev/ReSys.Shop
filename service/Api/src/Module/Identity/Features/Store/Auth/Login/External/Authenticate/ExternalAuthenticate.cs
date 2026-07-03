@@ -1,5 +1,3 @@
-using MediatR;
-
 using Microsoft.AspNetCore.Identity;
 
 using Module.Profile.Domain;

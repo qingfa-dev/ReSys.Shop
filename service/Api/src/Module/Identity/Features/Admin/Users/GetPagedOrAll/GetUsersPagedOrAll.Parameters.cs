@@ -1,5 +1,3 @@
-using Shared.Operational.Persistence.Specifications.Querying;
-
 namespace Module.Identity.Features.Admin.Users.GetPagedOrAll;
 
 public static partial class GetUsersPagedOrAll

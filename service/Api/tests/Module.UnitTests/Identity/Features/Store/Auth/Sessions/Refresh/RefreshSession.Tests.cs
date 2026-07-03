@@ -8,7 +8,7 @@ using Shared.Security.Authentication.Tokens.Services.Access;
 using Shared.Security.Authentication.Tokens.Services.Refresh;
 using Shared.Security.Identity.Domain.Users;
 
-namespace Modules.Tests.Identities.Features.Store.Auth.Sessions.Refresh;
+namespace Module.Tests.Identities.Features.Store.Auth.Sessions.Refresh;
 
 [Trait("Category", "Unit")]
 [Trait("Module", "Identity")]

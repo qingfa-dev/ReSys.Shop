@@ -1,5 +1,3 @@
-using Shared.Governance.Conventions;
-
 namespace Module.Profile.Persistence;
 
 public static class ProfileSchema

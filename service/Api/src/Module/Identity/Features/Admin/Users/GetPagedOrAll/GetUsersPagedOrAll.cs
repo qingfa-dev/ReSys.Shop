@@ -1,6 +1,5 @@
 using Module.Identity.Features.Admin.Users.Shared.Mappings;
 
-using Shared.Operational.Persistence.Specifications.Querying;
 using Shared.Security.Identity.Domain.Users;
 
 namespace Module.Identity.Features.Admin.Users.GetPagedOrAll;

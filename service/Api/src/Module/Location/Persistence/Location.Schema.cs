@@ -1,8 +1,6 @@
 using Module.Location.Domain.Countries;
 using Module.Location.Domain.States;
 
-using Shared.Governance.Conventions;
-
 namespace Module.Location.Persistence;
 
 public static class LocationSchema
