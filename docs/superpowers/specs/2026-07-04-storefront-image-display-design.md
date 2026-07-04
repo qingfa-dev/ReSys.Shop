@@ -21,19 +21,28 @@ Replace the download endpoint with a display endpoint that uses `TypedResults.Ph
 |--------|-------|---------|
 | GET | `api/storefront/images/{id:guid}` | Display VariantImage inline (replaces download) |
 
+### Storage Abstraction
+
+A new `ResolvePath` method is added to the storage abstraction so the handler stays provider-agnostic:
+
+- `IStorageProvider.ResolvePath(string key)` → `Result<string>` — resolves the physical file path
+- `LocalStorageProvider`: reuses existing path resolution with traversal guard
+- `S3StorageProvider`: returns `ProviderError` (not a file-based provider)
+- `IStorageService.ResolvePathAsync(string key, ...)` — delegates to the resolved provider
+
 ### Handler Design
 
 1. Look up `VariantImage` by ID from `IApplicationDbContext`
 2. Return 404 if not found via `VariantImageResult.Failure.ById(id)`
-3. Construct the physical file path: `Path.GetFullPath(Path.Combine(localPath, image.StoragePath))`
+3. Call `IStorageService.ResolvePathAsync(image.StoragePath)` — provider-agnostic path resolution
 4. Verify the file exists with `File.Exists()`, return 404 if not
 5. Return `TypedResults.PhysicalFile(fullPath, image.ContentType)` — serves inline, no forced download
 
 ### Dependencies
 
 - `IApplicationDbContext` — DB lookup
-- `IOptions<LocalStorageProviderSetting>` — provides `LocalPath` (e.g., `./uploads`)
-- No `IStorageService` needed — `PhysicalFile` reads the file directly via the OS
+- `IStorageService.ResolvePathAsync()` — provider-agnostic physical path resolution
+- No direct coupling to `LocalStorageProviderSetting` — the storage abstraction handles provider specifics
 
 ### Directory Structure
 
@@ -69,5 +78,5 @@ No response model changes needed. Product list/detail already returns `VariantIm
 
 - Follows existing vertical slice pattern (partial class + Carter endpoint + MediatR handler)
 - Uses `TypedResults.PhysicalFile` for zero-copy file serving from the local filesystem
-- Coupled to local storage by design — the user chose this path explicitly
-- If S3/Azure are needed later, a separate serving strategy would be implemented (redirect to presigned URL or a provider-specific stream endpoint)
+- Handler uses `IStorageService.ResolvePathAsync()` — provider-agnostic; works with any `IStorageProvider`
+- Local provider returns physical path; cloud providers return error and caller falls back to `DownloadAsync` streaming

@@ -2,9 +2,9 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Replace the download endpoint with a display endpoint using `TypedResults.PhysicalFile()` for inline image serving.
+**Goal:** Replace the download endpoint with a display endpoint using `TypedResults.PhysicalFile()`. Add `ResolvePath` to the storage abstraction so the handler stays provider-agnostic.
 
-**Architecture:** Replace `Images/Get/Download/` with `Images/Get/Image/`. The new handler uses `IOptions<LocalStorageProviderSetting>` to resolve the physical file path from `VariantImage.StoragePath`, then the endpoint returns `TypedResults.PhysicalFile(fullPath, contentType)` — no `fileDownloadName`, so browsers display inline.
+**Architecture:** Add `ResolvePath(string key)` to `IStorageProvider` → implements it in local (returns physical path) and S3 (returns error). Expose through `IStorageService`. The handler calls `IStorageService.ResolvePath(image.StoragePath)` — no provider-specific logic in the storefront. The endpoint returns `TypedResults.PhysicalFile(fullPath, contentType)` for inline display.
 
 **Tech Stack:** .NET 10, ASP.NET Core Minimal API, Carter, MediatR, Entity Framework Core, Moq (tests)
 
@@ -12,15 +12,153 @@
 
 - Route: `api/storefront/images/{id:guid}` — serves image for inline display
 - Uses `TypedResults.PhysicalFile(fullPath, contentType)` — no forced download
-- Handler uses `IOptions<LocalStorageProviderSetting>` (not IStorageService)
-- Path construction mirrors `LocalStorageProvider.ResolvePath()`: `Path.GetFullPath(Path.Combine(localPath, storagePath))` with traversal guard
-- File existence checked with `File.Exists()` before returning
-- Not found → `VariantImageResult.Failure.ById(id)`
+- Handler uses `IStorageService.ResolvePath(key)` — not `IOptions<LocalStorageProviderSetting>` directly
+- `IStorageProvider.ResolvePath` returns `Result<string>` — physical path or error
+- Local provider reuses existing `ResolvePath` (make public); S3 returns `ProviderError`
+- `IStorageService.ResolvePath` delegates to the resolved provider (same pattern as DownloadAsync)
+- Not found cases: `VariantImageResult.Failure.ById(id)` for missing image or file
 - Tags: `CatalogFeature.Tags.Variant`
 
 ---
 
-### Task 1: Update Route Constant
+### Task 1: Add `ResolvePath` to Storage Provider Interface
+
+**Files:**
+- Modify: `service/Api/src/Shared/Operational/Storages/Providers/StorageProvider.Interface.cs`
+- Modify: `service/Api/src/Shared/Operational/Storages/Providers/Local.StorageProvider.Implementation.cs`
+- Modify: `service/Api/src/Shared/Operational/Storages/Providers/S3.StorageProvider.Implementation.cs`
+
+**Interfaces:**
+- Produces: `IStorageProvider.ResolvePath(string key)` → `Result<string>`
+
+- [ ] **Step 1: Add method to `IStorageProvider`**
+
+File: `service/Api/src/Shared/Operational/Storages/Providers/StorageProvider.Interface.cs`
+
+Add after `DownloadAsync`:
+
+```csharp
+/// <summary>Resolves the physical file path for <paramref name="key"/> if this is a file-based provider.</summary>
+/// <param name="key">Object key as stored.</param>
+/// <returns>The full physical file path, or an error for non-file-based providers.</returns>
+Result<string> ResolvePath(string key);
+```
+
+- [ ] **Step 2: Implement in `LocalStorageProvider`**
+
+File: `service/Api/src/Shared/Operational/Storages/Providers/Local.StorageProvider.Implementation.cs`
+
+Change the existing private `ResolvePath` method (line 197) from `private` to `public`:
+
+```csharp
+public Result<string> ResolvePath(string key)
+{
+    try
+    {
+        var root = Path.GetFullPath(options.Value.LocalPath);
+        var combined = Path.GetFullPath(Path.Combine(root, key.TrimStart('/').Replace('/', Path.DirectorySeparatorChar)));
+
+        if (!combined.StartsWith(root, StringComparison.Ordinal))
+            return StorageResult.Failure.PathTraversalDetected(key);
+
+        return Result<string>.Ok(combined);
+    }
+    catch (Exception ex)
+    {
+        return StorageResult.Failure.ProviderError(ex.Message);
+    }
+}
+```
+
+- [ ] **Step 3: Implement in `S3StorageProvider`**
+
+File: `service/Api/src/Shared/Operational/Storages/Providers/S3.StorageProvider.Implementation.cs`
+
+Add the method:
+
+```csharp
+public Result<string> ResolvePath(string key) =>
+    StorageResult.Failure.ProviderError("S3 is not a file-based provider. Use DownloadAsync to get a stream.");
+```
+
+- [ ] **Step 4: Verify build**
+
+Run: `dotnet build service/Api/src/Shared/Shared.csproj --no-restore 2>&1 | tail -5`
+Expected: Build succeeded
+
+- [ ] **Step 5: Commit**
+
+```bash
+git add service/Api/src/Shared/Operational/Storages/Providers/
+git commit -m "feat(storage): add ResolvePath to IStorageProvider for physical file path resolution"
+```
+
+---
+
+### Task 2: Add `ResolvePath` to `IStorageService`
+
+**Files:**
+- Modify: `service/Api/src/Shared/Operational/Storages/Services/Storage.Service.Interface.cs`
+- Modify: `service/Api/src/Shared/Operational/Storages/Services/Storage.Service.Implementation.cs`
+
+**Interfaces:**
+- Consumes: `IStorageProvider.ResolvePath(string key)` (Task 1)
+- Produces: `IStorageService.ResolvePath(string key, string? providerName = null, CancellationToken ct = default)`
+
+- [ ] **Step 1: Add method to `IStorageService` interface**
+
+File: `service/Api/src/Shared/Operational/Storages/Services/Storage.Service.Interface.cs`
+
+Add after `DownloadAsync`:
+
+```csharp
+/// <summary>Resolves the physical file path using the <paramref name="providerName"/> provider.</summary>
+/// <param name="key">Object key as stored.</param>
+/// <param name="providerName">Provider name; pass <c>null</c> for default.</param>
+/// <param name="ct">Cancellation token.</param>
+/// <returns>The full physical file path, or an error for non-file-based providers.</returns>
+Task<Result<string>> ResolvePathAsync(
+    string key,
+    string? providerName = null,
+    CancellationToken ct = default);
+```
+
+- [ ] **Step 2: Implement in `StorageService`**
+
+File: `service/Api/src/Shared/Operational/Storages/Services/Storage.Service.Implementation.cs`
+
+Add after `DownloadAsync`:
+
+```csharp
+/// <inheritdoc />
+public Task<Result<string>> ResolvePathAsync(
+    string key,
+    string? providerName = null,
+    CancellationToken ct = default)
+{
+    if (!TryResolve(providerName, out IStorageProvider provider))
+        return Task.FromResult<Result<string>>(StorageResult.Failure.ProviderNotFound(providerName ?? defaultProviderName));
+
+    Result<string> result = provider.ResolvePath(key);
+    return Task.FromResult(result);
+}
+```
+
+- [ ] **Step 3: Verify build**
+
+Run: `dotnet build service/Api/src/Shared/Shared.csproj --no-restore 2>&1 | tail -5`
+Expected: Build succeeded
+
+- [ ] **Step 4: Commit**
+
+```bash
+git add service/Api/src/Shared/Operational/Storages/Services/
+git commit -m "feat(storage): add ResolvePathAsync to IStorageService"
+```
+
+---
+
+### Task 3: Update Route Constant
 
 **Files:**
 - Modify: `service/Api/src/Module/Catalog/Features/Shared/CatalogFeature.Storefront.cs`
@@ -30,9 +168,8 @@
 
 - [ ] **Step 1: Replace `Download` route constant with `Image`**
 
-In `CatalogFeature.Storefront.cs`, replace the `Images.Get.Download` nested class:
+In `CatalogFeature.Storefront.cs`, replace:
 
-**Before (lines 114-120):**
 ```csharp
                 public static class Download
                 {
@@ -42,7 +179,8 @@ In `CatalogFeature.Storefront.cs`, replace the `Images.Get.Download` nested clas
                 }
 ```
 
-**After:**
+With:
+
 ```csharp
                 public static class Image
                 {
@@ -55,7 +193,7 @@ In `CatalogFeature.Storefront.cs`, replace the `Images.Get.Download` nested clas
 - [ ] **Step 2: Verify build**
 
 Run: `dotnet build service/Api/src/Module/Module.csproj --no-restore 2>&1 | tail -5`
-Expected: Build fails (old `DownloadImage.cs` references removed constant) — fixed in Task 2
+Expected: Build fails (old DownloadImage.cs references removed constant) — fixed in Task 4
 
 - [ ] **Step 3: Commit**
 
@@ -66,7 +204,7 @@ git commit -m "feat(catalog): replace Images download route constant with image 
 
 ---
 
-### Task 2: Create GetImage Handler and Endpoint
+### Task 4: Create GetImage Handler and Endpoint
 
 **Files:**
 - Create: `service/Api/src/Module/Catalog/Features/Storefront/Images/Get/Image/GetImage.cs`
@@ -75,8 +213,8 @@ git commit -m "feat(catalog): replace Images download route constant with image 
 - Delete: `service/Api/src/Module/Catalog/Features/Storefront/Images/Get/Download/DownloadImage.Endpoint.cs`
 
 **Interfaces:**
-- Consumes: `CatalogFeature.Storefront.Images.Get.Image.Route`, `.Summary`, `.Description` (Task 1)
-- Consumes: `IApplicationDbContext`, `IOptions<LocalStorageProviderSetting>`, `VariantImage`, `VariantImageResult`
+- Consumes: `CatalogFeature.Storefront.Images.Get.Image.Route`, `.Summary`, `.Description` (Task 3)
+- Consumes: `IApplicationDbContext`, `IStorageService.ResolvePathAsync()`, `VariantImage`, `VariantImageResult`
 - Produces: `GetImage.Query`, `GetImage.Response`, `GetImage.Endpoint`
 
 - [ ] **Step 1: Create handler file**
@@ -86,11 +224,9 @@ Create directory: `mkdir -p service/Api/src/Module/Catalog/Features/Storefront/I
 File: `service/Api/src/Module/Catalog/Features/Storefront/Images/Get/Image/GetImage.cs`
 
 ```csharp
-using Microsoft.Extensions.Options;
-
 using Module.Catalog.Domain.Products.Variants.Images;
 
-using Shared.Operational.Storages.Providers.Options;
+using Shared.Operational.Storages.Services;
 
 namespace Module.Catalog.Features.Storefront.Images.Get.Image;
 
@@ -102,7 +238,7 @@ public static partial class GetImage
 
     public sealed class QueryHandler(
         IApplicationDbContext dbContext,
-        IOptions<LocalStorageProviderSetting> storageOptions)
+        IStorageService storageService)
         : IQueryHandler<Query, Response>
     {
         public async Task<Result<Response>> Handle(Query query, CancellationToken cancellationToken)
@@ -113,13 +249,12 @@ public static partial class GetImage
             if (image is null)
                 return VariantImageResult.Failure.ById(query.Id);
 
-            var root = Path.GetFullPath(storageOptions.Value.LocalPath);
-            var fullPath = Path.GetFullPath(Path.Combine(
-                root,
-                image.StoragePath.TrimStart('/').Replace('/', Path.DirectorySeparatorChar)));
+            var pathResult = await storageService.ResolvePathAsync(image.StoragePath, ct: cancellationToken);
 
-            if (!fullPath.StartsWith(root, StringComparison.Ordinal))
-                return VariantImageResult.Failure.ById(query.Id);
+            if (pathResult.IsFailure)
+                return pathResult.Errors;
+
+            var fullPath = pathResult.Value;
 
             if (!File.Exists(fullPath))
                 return VariantImageResult.Failure.ById(query.Id);
@@ -186,20 +321,20 @@ Expected: Build succeeded
 
 ```bash
 git add service/Api/src/Module/Catalog/Features/Storefront/Images/Get/
-git commit -m "feat(catalog): replace download endpoint with PhysicalFile inline display endpoint"
+git commit -m "feat(catalog): replace download endpoint with ResolvePath-based inline display endpoint"
 ```
 
 ---
 
-### Task 3: Update Tests
+### Task 5: Update Tests
 
 **Files:**
 - Delete: `service/Api/tests/Module.UnitTests/Catalog/Features/Storefront/Images/Download/DownloadImage.Tests.cs`
 - Create: `service/Api/tests/Module.UnitTests/Catalog/Features/Storefront/Images/Image/GetImage.Tests.cs`
 
 **Interfaces:**
-- Consumes: `GetImage.QueryHandler` (Task 2)
-- Consumes: `IOptions<LocalStorageProviderSetting>`, `LocalStorageProviderSetting` (from Shared)
+- Consumes: `GetImage.QueryHandler` (Task 4)
+- Consumes: `IStorageService.ResolvePathAsync()` → mocked via Moq
 
 - [ ] **Step 1: Delete old test file**
 
@@ -214,13 +349,13 @@ Create directory: `mkdir -p service/Api/tests/Module.UnitTests/Catalog/Features/
 File: `service/Api/tests/Module.UnitTests/Catalog/Features/Storefront/Images/Image/GetImage.Tests.cs`
 
 ```csharp
-using Microsoft.Extensions.Options;
-
 using Module.Catalog.Domain.Products;
 using Module.Catalog.Domain.Products.Variants.Images;
 using Module.Catalog.Features.Storefront.Images.Get.Image;
 
-using Shared.Operational.Storages.Providers.Options;
+using Shared.Operational.Storages.Services;
+
+using Moq;
 
 namespace Module.UnitTests.Catalog.Features.Storefront.Images.Get.Image;
 
@@ -230,6 +365,7 @@ namespace Module.UnitTests.Catalog.Features.Storefront.Images.Get.Image;
 public class GetImageTests : IDisposable
 {
     private readonly ApplicationDbContext _dbContext;
+    private readonly Mock<IStorageService> _storageServiceMock;
     private readonly string _tempDir;
     private readonly GetImage.QueryHandler _handler;
 
@@ -245,10 +381,9 @@ public class GetImageTests : IDisposable
         _tempDir = Path.Combine(Path.GetTempPath(), $"imgtest-{Guid.NewGuid():N}");
         Directory.CreateDirectory(_tempDir);
 
-        var setting = new LocalStorageProviderSetting { LocalPath = _tempDir };
-        var optionsWrapper = Options.Create(setting);
+        _storageServiceMock = new Mock<IStorageService>();
 
-        _handler = new GetImage.QueryHandler(_dbContext, optionsWrapper);
+        _handler = new GetImage.QueryHandler(_dbContext, _storageServiceMock.Object);
     }
 
     public void Dispose()
@@ -280,6 +415,10 @@ public class GetImageTests : IDisposable
         _dbContext.Set<VariantImage>().Add(image);
         await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 
+        _storageServiceMock
+            .Setup(s => s.ResolvePathAsync(storagePath, null, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Result<string>.Ok(filePath));
+
         var result = await _handler.Handle(
             new GetImage.Query(image.Id),
             TestContext.Current.CancellationToken);
@@ -302,16 +441,50 @@ public class GetImageTests : IDisposable
     [Fact(DisplayName = "Handler: Should return failure when file does not exist on disk")]
     public async Task Handle_ShouldReturnFailure_WhenFileDoesNotExist()
     {
+        var storagePath = "images/missing.jpg";
+        var missingPath = Path.Combine(_tempDir, "images", "missing.jpg");
+
         var image = new VariantImage
         {
             Id = Guid.NewGuid(),
             FileName = "missing.jpg",
             ContentType = "image/jpeg",
-            StoragePath = "images/missing.jpg",
+            StoragePath = storagePath,
             Url = string.Empty
         };
         _dbContext.Set<VariantImage>().Add(image);
         await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
+
+        _storageServiceMock
+            .Setup(s => s.ResolvePathAsync(storagePath, null, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Result<string>.Ok(missingPath));
+
+        var result = await _handler.Handle(
+            new GetImage.Query(image.Id),
+            TestContext.Current.CancellationToken);
+
+        result.IsFailure.Should().BeTrue();
+    }
+
+    [Fact(DisplayName = "Handler: Should return failure when storage resolves to error")]
+    public async Task Handle_ShouldReturnFailure_WhenResolvePathFails()
+    {
+        var storagePath = "images/test.jpg";
+
+        var image = new VariantImage
+        {
+            Id = Guid.NewGuid(),
+            FileName = "test.jpg",
+            ContentType = "image/jpeg",
+            StoragePath = storagePath,
+            Url = string.Empty
+        };
+        _dbContext.Set<VariantImage>().Add(image);
+        await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
+
+        _storageServiceMock
+            .Setup(s => s.ResolvePathAsync(storagePath, null, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Result<string>.NotFound("Path not found"));
 
         var result = await _handler.Handle(
             new GetImage.Query(image.Id),
@@ -324,8 +497,8 @@ public class GetImageTests : IDisposable
 
 - [ ] **Step 3: Run storefront tests**
 
-Run: `dotnet test service/Api/tests/Module.UnitTests/Module.UnitTests.csproj --no-restore --filter "FullyQualifiedName~Storefront" 2>&1 | tail -15`
-Expected: All Storefront tests pass
+Run: `dotnet test service/Api/tests/Module.UnitTests/Module.UnitTests.csproj --no-restore --filter "FullyQualifiedName~StorefrontGetImage" 2>&1 | tail -15`
+Expected: All GetImage tests pass
 
 - [ ] **Step 4: Run full test suite**
 
@@ -336,14 +509,14 @@ Expected: All tests pass
 
 ```bash
 git add service/Api/tests/Module.UnitTests/Catalog/Features/Storefront/Images/
-git commit -m "test(catalog): update image tests for PhysicalFile display endpoint"
+git commit -m "test(catalog): update image tests for ResolvePath-based display endpoint"
 ```
 
 ---
 
-### Task 4: Final Build and Verification
+### Task 6: Final Build and Verification
 
-- [ ] **Step 1: Build module**
+- [ ] **Step 1: Build entire solution**
 
 Run: `dotnet build service/Api/src/Module/Module.csproj --no-restore 2>&1 | tail -5`
 Expected: Build succeeded, 0 errors
