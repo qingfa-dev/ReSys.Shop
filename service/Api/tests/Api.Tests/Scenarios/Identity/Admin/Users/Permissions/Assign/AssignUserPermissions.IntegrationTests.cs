@@ -5,7 +5,7 @@ using Api.Tests.Scenarios.Identity.Helpers;
 
 namespace Api.Tests.Scenarios.Identity.Admin.Users.Permissions.Assign;
 
-public sealed class AssignUserPermissionsIntegrationTests(ApiFixture fixture) : ApiIntegrationTestBase(fixture)
+public sealed class AssignUserPermissionsIntegrationTests(ApiFixture fixture) : IdentityIntegrationTestBase(fixture)
 {
     [Fact]
     public async Task AssignUserPermissions_WithNonexistentUser_Returns404()

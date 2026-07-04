@@ -5,7 +5,7 @@ using Api.Tests.Scenarios.Identity.Helpers;
 
 namespace Api.Tests.Scenarios.Identity.Admin.Users.Roles.Sync;
 
-public sealed class SyncUserRolesIntegrationTests(ApiFixture fixture) : ApiIntegrationTestBase(fixture)
+public sealed class SyncUserRolesIntegrationTests(ApiFixture fixture) : IdentityIntegrationTestBase(fixture)
 {
     [Fact]
     public async Task SyncUserRoles_WithValidRoleSet_Returns200()

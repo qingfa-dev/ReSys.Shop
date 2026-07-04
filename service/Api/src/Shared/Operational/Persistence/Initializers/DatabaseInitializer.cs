@@ -69,27 +69,30 @@ public static partial class DatabaseInitializer
     {
         IEnumerable<IApplicationDbContext> contexts = scope.ServiceProvider.GetServices<IApplicationDbContext>();
 
-        foreach (IApplicationDbContext context in contexts)
+        Task[] migrationTasks = contexts
+            .OfType<DbContext>()
+            .Select(dbContext => ApplyOneContextAsync(dbContext, logger))
+            .ToArray();
+
+        await Task.WhenAll(migrationTasks);
+    }
+
+    private static async Task ApplyOneContextAsync(DbContext dbContext, ILogger logger)
+    {
+        string dbContextName = dbContext.GetType().Name;
+        Loggers.LogApplyingMigrations(logger, dbContextName);
+
+        bool migrationApplied = await ApplyMigrationsWithRetryAsync(
+            dbContext,
+            logger);
+
+        if (!migrationApplied)
         {
-            if (context is not DbContext dbContext)
-                continue;
-
-            string dbContextName = dbContext.GetType().Name;
-            Loggers.LogApplyingMigrations(logger, dbContextName);
-
-            bool migrationApplied = await ApplyMigrationsWithRetryAsync(
-                dbContext,
-                logger);
-
-            if (!migrationApplied)
-            {
-                Loggers.LogMigrationExecutionFailed(logger, dbContextName);
-
-            }
-            else
-            {
-                Loggers.LogMigrationsApplied(logger);
-            }
+            Loggers.LogMigrationExecutionFailed(logger, dbContextName);
+        }
+        else
+        {
+            Loggers.LogMigrationsApplied(logger);
         }
     }
 

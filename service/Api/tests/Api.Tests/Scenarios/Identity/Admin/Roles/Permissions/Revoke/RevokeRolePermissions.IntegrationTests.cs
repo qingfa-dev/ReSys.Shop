@@ -5,7 +5,7 @@ using Api.Tests.Scenarios.Identity.Helpers;
 
 namespace Api.Tests.Scenarios.Identity.Admin.Roles.Permissions.Revoke;
 
-public sealed class RevokeRolePermissionsIntegrationTests(ApiFixture fixture) : ApiIntegrationTestBase(fixture)
+public sealed class RevokeRolePermissionsIntegrationTests(ApiFixture fixture) : IdentityIntegrationTestBase(fixture)
 {
     [Fact]
     public async Task RevokeRolePermissions_WithNonexistentRole_Returns404()

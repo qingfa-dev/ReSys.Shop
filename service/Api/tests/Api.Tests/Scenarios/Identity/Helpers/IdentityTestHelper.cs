@@ -1,3 +1,4 @@
+using System.Collections.Concurrent;
 using System.Globalization;
 using System.IdentityModel.Tokens.Jwt;
 using System.Net.Http.Headers;
@@ -20,6 +21,7 @@ public static class IdentityTestHelper
     private const string TestAudience = "ReSys.Shop.Test";
 
     private static int _counter;
+    private static readonly ConcurrentDictionary<(Guid UserId, string Email), string> _userTokenCache = new();
 
     public static string ValidUserName(string prefix = "testuser")
     {
@@ -35,6 +37,11 @@ public static class IdentityTestHelper
 
     public static string GenerateUserToken(Guid userId, string email)
     {
+        return _userTokenCache.GetOrAdd((userId, email), BuildUserToken);
+    }
+
+    private static string BuildUserToken((Guid UserId, string Email) key)
+    {
         SymmetricSecurityKey securityKey = new SymmetricSecurityKey(
             Encoding.UTF8.GetBytes(TestSecret));
         SigningCredentials credentials = new SigningCredentials(
@@ -42,8 +49,8 @@ public static class IdentityTestHelper
 
         Claim[] claims =
         [
-            new Claim(JwtRegisteredClaimNames.Sub, userId.ToString()),
-            new Claim(JwtRegisteredClaimNames.Email, email),
+            new Claim(JwtRegisteredClaimNames.Sub, key.UserId.ToString()),
+            new Claim(JwtRegisteredClaimNames.Email, key.Email),
             new Claim(JwtRegisteredClaimNames.Name, "Test User"),
             new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
             new Claim(JwtRegisteredClaimNames.Iat,

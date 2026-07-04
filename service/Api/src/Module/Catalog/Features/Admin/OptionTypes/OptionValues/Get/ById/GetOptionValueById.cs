@@ -23,6 +23,7 @@ public static partial class GetOptionValueById
         {
             // Check: Find the specific option value by its ID and parent type ID
             var entity = await dbContext.Set<OptionValue>()
+                .Include(x => x.OptionType)
                 .AsNoTracking()
                 .FirstOrDefaultAsync(x => x.Id == request.Id && x.OptionTypeId == request.OptionTypeId, cancellationToken);
 

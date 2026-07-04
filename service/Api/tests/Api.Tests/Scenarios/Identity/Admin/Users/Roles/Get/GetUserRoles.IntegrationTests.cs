@@ -5,7 +5,7 @@ using Api.Tests.Scenarios.Identity.Helpers;
 
 namespace Api.Tests.Scenarios.Identity.Admin.Users.Roles.Get;
 
-public sealed class GetUserRolesIntegrationTests(ApiFixture fixture) : ApiIntegrationTestBase(fixture)
+public sealed class GetUserRolesIntegrationTests(ApiFixture fixture) : IdentityIntegrationTestBase(fixture)
 {
     [Fact]
     public async Task GetUserRoles_WithExistingUser_Returns200()

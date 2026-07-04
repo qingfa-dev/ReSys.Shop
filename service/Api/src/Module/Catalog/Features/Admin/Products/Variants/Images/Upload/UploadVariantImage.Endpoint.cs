@@ -30,6 +30,7 @@ public static partial class UploadVariantImage
             .HasPermission(CatalogFeature.Admin.Products.Variants.Images.Upload.Permission)
             .WithSummary(CatalogFeature.Admin.Products.Variants.Images.Upload.Summary)
             .WithDescription(CatalogFeature.Admin.Products.Variants.Images.Upload.Description)
+            .DisableAntiforgery()
             .Accepts<Request>("multipart/form-data")
             .Produces<Result<Response>>(StatusCodes.Status201Created)
             .Produces<Result>(StatusCodes.Status400BadRequest)

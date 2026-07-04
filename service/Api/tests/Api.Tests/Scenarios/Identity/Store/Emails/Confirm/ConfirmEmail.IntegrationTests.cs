@@ -4,7 +4,7 @@ using Api.Tests.Infrastructure;
 
 namespace Api.Tests.Scenarios.Identity.Store.Emails.Confirm;
 
-public sealed class ConfirmEmailIntegrationTests(ApiFixture fixture) : ApiIntegrationTestBase(fixture)
+public sealed class ConfirmEmailIntegrationTests(ApiFixture fixture) : IdentityIntegrationTestBase(fixture)
 {
     [Fact]
     public async Task ConfirmEmail_WithInvalidToken_Returns422()

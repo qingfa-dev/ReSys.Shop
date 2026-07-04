@@ -5,7 +5,7 @@ using Api.Tests.Scenarios.Identity.Helpers;
 
 namespace Api.Tests.Scenarios.Identity.Admin.Users.Permissions.Sync;
 
-public sealed class SyncUserPermissionsIntegrationTests(ApiFixture fixture) : ApiIntegrationTestBase(fixture)
+public sealed class SyncUserPermissionsIntegrationTests(ApiFixture fixture) : IdentityIntegrationTestBase(fixture)
 {
     [Fact]
     public async Task SyncUserPermissions_WithNonexistentUser_Returns404()

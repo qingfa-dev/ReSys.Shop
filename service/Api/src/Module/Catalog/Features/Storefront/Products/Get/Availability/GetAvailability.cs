@@ -1,3 +1,4 @@
+using Module.Catalog.Domain.Products;
 using Module.Catalog.Domain.Products.Variants;
 using Module.Catalog.Features.Storefront.Products.Shared.Models;
 
@@ -27,6 +28,11 @@ public static partial class GetAvailability
         // Contract: pre=query.Id!=Guid.Empty, post=result!=null
         public async Task<Result<Response>> Handle(Query query, CancellationToken cancellationToken)
         {
+            var productExists = await dbContext.Set<Product>()
+                .AnyAsync(x => x.Id == query.Id && !x.IsDeleted, cancellationToken);
+            if (!productExists)
+                return Result<Response>.NotFound();
+
             var variants = await dbContext.Set<Variant>()
                 .Include(v => v.OptionValueVariants)
                     .ThenInclude(ov => ov.OptionValue!)

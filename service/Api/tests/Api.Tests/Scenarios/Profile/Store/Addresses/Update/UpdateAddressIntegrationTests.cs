@@ -4,7 +4,7 @@ using Api.Tests.Infrastructure;
 
 namespace Api.Tests.Scenarios.Profile.Store.Addresses.Update;
 
-public sealed class UpdateAddressIntegrationTests(ApiFixture fixture) : ApiIntegrationTestBase(fixture)
+public sealed class UpdateAddressIntegrationTests(ApiFixture fixture) : ProfileIntegrationTestBase(fixture)
 {
     [Fact]
     public async Task UpdateAddress_WithoutAuth_Returns401()

@@ -7,7 +7,7 @@ using Module.Identity.Features.Admin.Users.Shared.Models;
 
 namespace Api.Tests.Scenarios.Identity.Admin.Users.GetById;
 
-public sealed class GetUserByIdIntegrationTests(ApiFixture fixture) : ApiIntegrationTestBase(fixture)
+public sealed class GetUserByIdIntegrationTests(ApiFixture fixture) : IdentityIntegrationTestBase(fixture)
 {
     [Fact]
     public async Task GetUserById_WithExistingUser_Returns200()

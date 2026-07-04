@@ -54,7 +54,7 @@ public static partial class CreateTaxonomy
             {
                 Name = entity.Name,
                 Presentation = entity.Presentation,
-                Slug = entity.Name.ToLowerInvariant(),
+                Slug = entity.Name.ToLowerInvariant().Replace(' ', '-'),
                 Position = 0
             };
             await sender.Send(new CreateTaxon.Command(entity.Id, taxonRequest), cancellationToken);

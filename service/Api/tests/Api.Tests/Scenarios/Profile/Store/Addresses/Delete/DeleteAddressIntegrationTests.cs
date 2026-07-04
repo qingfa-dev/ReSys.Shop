@@ -4,7 +4,7 @@ using Api.Tests.Infrastructure;
 
 namespace Api.Tests.Scenarios.Profile.Store.Addresses.Delete;
 
-public sealed class DeleteAddressIntegrationTests(ApiFixture fixture) : ApiIntegrationTestBase(fixture)
+public sealed class DeleteAddressIntegrationTests(ApiFixture fixture) : ProfileIntegrationTestBase(fixture)
 {
     [Fact]
     public async Task DeleteAddress_WithoutAuth_Returns401()

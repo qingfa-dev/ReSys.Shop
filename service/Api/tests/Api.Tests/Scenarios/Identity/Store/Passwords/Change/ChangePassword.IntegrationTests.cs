@@ -5,7 +5,7 @@ using Api.Tests.Scenarios.Identity.Helpers;
 
 namespace Api.Tests.Scenarios.Identity.Store.Passwords.Change;
 
-public sealed class ChangePasswordIntegrationTests(ApiFixture fixture) : ApiIntegrationTestBase(fixture)
+public sealed class ChangePasswordIntegrationTests(ApiFixture fixture) : IdentityIntegrationTestBase(fixture)
 {
     [Fact]
     public async Task ChangePassword_WithoutAuth_Returns401()

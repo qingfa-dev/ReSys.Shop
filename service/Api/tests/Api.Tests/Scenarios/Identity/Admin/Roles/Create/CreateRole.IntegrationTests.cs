@@ -7,7 +7,7 @@ using Module.Identity.Features.Admin.Roles.Shared.Models;
 
 namespace Api.Tests.Scenarios.Identity.Admin.Roles.Create;
 
-public sealed class CreateRoleIntegrationTests(ApiFixture fixture) : ApiIntegrationTestBase(fixture)
+public sealed class CreateRoleIntegrationTests(ApiFixture fixture) : IdentityIntegrationTestBase(fixture)
 {
     [Fact]
     public async Task CreateRole_WithValidRequest_Returns201()

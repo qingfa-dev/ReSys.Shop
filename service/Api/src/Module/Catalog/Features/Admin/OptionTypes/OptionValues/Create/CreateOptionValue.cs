@@ -29,8 +29,8 @@ public static partial class CreateOptionValue
             var request = command.Request;
 
             // Check: Ensure parent option type exists in the database
-            var typeExists = await dbContext.Set<OptionType>().AnyAsync(x => x.Id == optionTypeId, cancellationToken);
-            if (!typeExists)
+            var optionType = await dbContext.Set<OptionType>().FindAsync([optionTypeId], cancellationToken);
+            if (optionType is null)
                 return OptionTypeResult.Failure.NotFound;
 
             // Check: Verify uniqueness of the name within the same option type
@@ -53,7 +53,9 @@ public static partial class CreateOptionValue
 
             // Log: Record option value creation event for audit trail
             OptionValueLoggers.Created(logger, Name: entity.Name, Id: entity.Id, OptionTypeId: optionTypeId, ActionBy: currentUser.UserName);
-            return entity.MapToListItem<Response>();
+            return Result<Response>.Created(
+                entity.MapToListItem<Response>(),
+                OptionValueResult.Success.Created(entity.Id));
         }
     }
 }

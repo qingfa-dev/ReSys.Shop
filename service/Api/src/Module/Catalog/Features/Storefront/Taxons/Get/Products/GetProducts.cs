@@ -9,7 +9,7 @@ namespace Module.Catalog.Features.Storefront.Taxons.Get.Products;
 /// </summary>
 public static partial class GetProducts
 {
-    public sealed record Query(Parameters Parameters) : IPagedQuery<Response>;
+    public sealed record Query(Guid Id, Parameters Parameters) : IPagedQuery<Response>;
 
     public sealed class PagedQueryHandler(IApplicationDbContext dbContext)
         : IPagedQueryHandler<Query, Response>
@@ -25,7 +25,7 @@ public static partial class GetProducts
             var parameters = request.Parameters;
 
             var taxon = await dbContext.Set<Taxon>()
-                .FirstOrDefaultAsync(t => t.Id == parameters.TaxonId && !t.IsDeleted, cancellationToken);
+                .FirstOrDefaultAsync(t => t.Id == request.Id && !t.IsDeleted, cancellationToken);
 
             if (taxon is null)
                 return PagedResult<Response>.Ok([], 0, 0, 0);
@@ -48,12 +48,32 @@ public static partial class GetProducts
             if (parsing.IsFailure)
                 return parsing.Errors;
 
-            var pagedResult = await query
-                .OrderByDescending(x => x.CreatedAtUtc)
-                .ApplyQuerying(parsing.Value)
-                .ToPagedOrAllAsync(parsing.Value, x => x.MapToStoreListItem<Response>(), cancellationToken);
+            var sortedQuery = query
+                .OrderByDescending(x => x.CreatedAtUtc);
 
-            return pagedResult;
+            var filteredQuery = sortedQuery.ApplyQuerying(parsing.Value);
+
+            var page = parsing.Value.Page;
+
+            List<Response> mapped;
+            if (page.IsEmpty)
+            {
+                var allItems = await filteredQuery.AsNoTracking().ToListAsync(cancellationToken);
+                mapped = allItems.Select(x => x.MapToStoreListItem<Response>()).ToList();
+                return PagedResult<Response>.Create(mapped, 1, Math.Max(1, mapped.Count), mapped.Count);
+            }
+
+            var count = await filteredQuery.LongCountAsync(cancellationToken);
+
+            var items = await filteredQuery
+                .Skip(page.Skip)
+                .Take(page.PageSize)
+                .AsNoTracking()
+                .ToListAsync(cancellationToken);
+
+            mapped = items.Select(x => x.MapToStoreListItem<Response>()).ToList();
+
+            return PagedResult<Response>.Create(mapped, page.Page, page.PageSize, count);
         }
     }
 }

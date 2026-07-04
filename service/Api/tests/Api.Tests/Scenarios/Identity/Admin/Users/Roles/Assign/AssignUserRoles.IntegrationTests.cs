@@ -5,7 +5,7 @@ using Api.Tests.Scenarios.Identity.Helpers;
 
 namespace Api.Tests.Scenarios.Identity.Admin.Users.Roles.Assign;
 
-public sealed class AssignUserRolesIntegrationTests(ApiFixture fixture) : ApiIntegrationTestBase(fixture)
+public sealed class AssignUserRolesIntegrationTests(ApiFixture fixture) : IdentityIntegrationTestBase(fixture)
 {
     [Fact]
     public async Task AssignUserRoles_WithValidRole_Returns200()

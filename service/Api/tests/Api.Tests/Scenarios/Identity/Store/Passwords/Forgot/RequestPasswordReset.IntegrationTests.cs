@@ -5,7 +5,7 @@ using Api.Tests.Scenarios.Identity.Helpers;
 
 namespace Api.Tests.Scenarios.Identity.Store.Passwords.Forgot;
 
-public sealed class RequestPasswordResetIntegrationTests(ApiFixture fixture) : ApiIntegrationTestBase(fixture)
+public sealed class RequestPasswordResetIntegrationTests(ApiFixture fixture) : IdentityIntegrationTestBase(fixture)
 {
     [Fact]
     public async Task RequestPasswordReset_WithValidEmail_Returns204()

@@ -8,7 +8,7 @@ using Module.Identity.Features.Admin.Users.Shared.Models;
 
 namespace Api.Tests.Scenarios.Identity.Admin.Users.Create;
 
-public sealed class CreateUserIntegrationTests(ApiFixture fixture) : ApiIntegrationTestBase(fixture)
+public sealed class CreateUserIntegrationTests(ApiFixture fixture) : IdentityIntegrationTestBase(fixture)
 {
     [Fact]
     public async Task CreateUser_WithValidRequest_Returns201()

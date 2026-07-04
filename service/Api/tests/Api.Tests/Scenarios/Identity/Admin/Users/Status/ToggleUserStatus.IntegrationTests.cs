@@ -5,7 +5,7 @@ using Api.Tests.Scenarios.Identity.Helpers;
 
 namespace Api.Tests.Scenarios.Identity.Admin.Users.Status;
 
-public sealed class ToggleUserStatusIntegrationTests(ApiFixture fixture) : ApiIntegrationTestBase(fixture)
+public sealed class ToggleUserStatusIntegrationTests(ApiFixture fixture) : IdentityIntegrationTestBase(fixture)
 {
     [Fact]
     public async Task ToggleUserStatus_WithExistingUser_Returns200()

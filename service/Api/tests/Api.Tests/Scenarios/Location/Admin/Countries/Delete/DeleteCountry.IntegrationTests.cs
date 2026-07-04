@@ -7,7 +7,7 @@ using Module.Location.Features.Admin.Countries.Shared.Models;
 
 namespace Api.Tests.Scenarios.Location.Admin.Countries.Delete;
 
-public sealed class DeleteCountryIntegrationTests(ApiFixture fixture) : ApiIntegrationTestBase(fixture)
+public sealed class DeleteCountryIntegrationTests(ApiFixture fixture) : LocationIntegrationTestBase(fixture)
 {
     [Fact]
     public async Task DeleteCountry_WithExistingId_ReturnsSuccess()

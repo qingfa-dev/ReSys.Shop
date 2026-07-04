@@ -5,7 +5,7 @@ using Api.Tests.Scenarios.Identity.Helpers;
 
 namespace Api.Tests.Scenarios.Identity.Store.Emails.Change;
 
-public sealed class ChangeEmailIntegrationTests(ApiFixture fixture) : ApiIntegrationTestBase(fixture)
+public sealed class ChangeEmailIntegrationTests(ApiFixture fixture) : IdentityIntegrationTestBase(fixture)
 {
     [Fact]
     public async Task ChangeEmail_WithoutAuth_Returns401()

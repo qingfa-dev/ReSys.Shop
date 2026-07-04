@@ -10,7 +10,8 @@ public static partial class OptionTypeMapping
         return OptionTypeMethod.Create(
             name: request.Name,
             presentation: request.Presentation,
-            position: request.Position);
+            position: request.Position,
+            filterable: request.Filterable);
     }
 
     public static Result MapToDomain<T>(this T request, OptionType optionType) where T : OptionTypeRequest

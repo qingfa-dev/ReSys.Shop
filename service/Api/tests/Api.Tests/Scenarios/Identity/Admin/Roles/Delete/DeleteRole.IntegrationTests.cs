@@ -6,7 +6,7 @@ using Api.Tests.Scenarios.Identity.Helpers;
 
 namespace Api.Tests.Scenarios.Identity.Admin.Roles.Delete;
 
-public sealed class DeleteRoleIntegrationTests(ApiFixture fixture) : ApiIntegrationTestBase(fixture)
+public sealed class DeleteRoleIntegrationTests(ApiFixture fixture) : IdentityIntegrationTestBase(fixture)
 {
     [Fact]
     public async Task DeleteRole_WithExistingId_ReturnsSuccess()

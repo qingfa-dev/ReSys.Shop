@@ -33,6 +33,7 @@ public static partial class GetOptionValuesPaged
 
             // Compute: Retrieve option values, apply filtering/sorting, and project to paged result
             var pagedResult = await dbContext.Set<OptionValue>()
+                .Include(x => x.OptionType)
                 .AsNoTracking()
                 .Where(x => x.OptionTypeId == request.OptionTypeId)
                 .ApplyQuerying(parametersResult.Value)

@@ -91,7 +91,8 @@
     <NoWarn>$(NoWarn);CS1591;CS1573;CA1707;xUnit1051;CA1861</NoWarn>
     <ParallelizeTestCollections>true</ParallelizeTestCollections>
     <MaxParallelThreads>0</MaxParallelThreads>
-    <CollectCoverage>true</CollectCoverage>
+    <!-- Coverage is opt-in: pass /p:CollectCoverage=true on CI runs that need it. -->
+    <CollectCoverage Condition="'$(CollectCoverage)' == ''">false</CollectCoverage>
     <CoverletOutputFormat>cobertura,json</CoverletOutputFormat>
     <CoverletOutput>$(MSBuildProjectDirectory)/coverage/</CoverletOutput>
   </PropertyGroup>

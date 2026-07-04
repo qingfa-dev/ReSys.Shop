@@ -4,7 +4,7 @@ using Api.Tests.Infrastructure;
 
 namespace Api.Tests.Scenarios.Profile.Store.Addresses.Create;
 
-public sealed class CreateAddressIntegrationTests(ApiFixture fixture) : ApiIntegrationTestBase(fixture)
+public sealed class CreateAddressIntegrationTests(ApiFixture fixture) : ProfileIntegrationTestBase(fixture)
 {
     [Fact]
     public async Task CreateAddress_WithoutAuth_Returns401()

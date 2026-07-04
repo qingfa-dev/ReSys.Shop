@@ -6,7 +6,7 @@ using Module.Location.Features.Admin.Countries.Shared.Models;
 
 namespace Api.Tests.Scenarios.Location.Admin.Countries.GetByIsoCode;
 
-public sealed class GetCountryByIsoIntegrationTests(ApiFixture fixture) : ApiIntegrationTestBase(fixture)
+public sealed class GetCountryByIsoIntegrationTests(ApiFixture fixture) : LocationIntegrationTestBase(fixture)
 {
     [Fact]
     public async Task GetCountryByIso_WithExistingCode_Returns200()

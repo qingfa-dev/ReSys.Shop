@@ -4,7 +4,7 @@ using Api.Tests.Infrastructure;
 
 namespace Api.Tests.Scenarios.Profile.Store.Profiles.Update;
 
-public sealed class UpdateProfileIntegrationTests(ApiFixture fixture) : ApiIntegrationTestBase(fixture)
+public sealed class UpdateProfileIntegrationTests(ApiFixture fixture) : ProfileIntegrationTestBase(fixture)
 {
     [Fact]
     public async Task UpdateProfile_WithoutAuth_Returns401()

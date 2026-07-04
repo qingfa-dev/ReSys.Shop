@@ -4,7 +4,7 @@ using Api.Tests.Infrastructure;
 
 namespace Api.Tests.Scenarios.Profile.Store.Addresses.GetAll;
 
-public sealed class GetAddressesIntegrationTests(ApiFixture fixture) : ApiIntegrationTestBase(fixture)
+public sealed class GetAddressesIntegrationTests(ApiFixture fixture) : ProfileIntegrationTestBase(fixture)
 {
     [Fact]
     public async Task GetAddresses_WithoutAuth_Returns401()

@@ -37,7 +37,7 @@ public static partial class ListPricesByVariant
 
             // Load: Base query for prices filtered by variant
             var query = dbContext.Set<Price>()
-                .Where(p => p.PriceListId != null && p.VariantId == variantId)
+                .Where(p => p.VariantId == variantId && p.DeletedAt == null)
                 .AsNoTracking();
 
             // Paginate: Apply query options and return paged or all results

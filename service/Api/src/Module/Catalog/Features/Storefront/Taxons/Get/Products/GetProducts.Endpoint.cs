@@ -14,7 +14,7 @@ public static partial class GetProducts
                 ISender sender,
                 CancellationToken ct) =>
             {
-                var query = new Query(parameters);
+                var query = new Query(id, parameters);
                 var result = await sender.Send(query, ct);
                 return result.ToPagedResult();
             })

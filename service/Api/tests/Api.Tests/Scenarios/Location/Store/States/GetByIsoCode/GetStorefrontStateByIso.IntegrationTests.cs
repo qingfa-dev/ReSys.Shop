@@ -6,7 +6,7 @@ using Module.Location.Features.Admin.States.Shared.Models;
 
 namespace Api.Tests.Scenarios.Location.Store.States.GetByIsoCode;
 
-public sealed class GetStorefrontStateByIsoIntegrationTests(ApiFixture fixture) : ApiIntegrationTestBase(fixture)
+public sealed class GetStorefrontStateByIsoIntegrationTests(ApiFixture fixture) : LocationIntegrationTestBase(fixture)
 {
     [Fact]
     public async Task GetStateByIso_WithExistingCode_Returns200()

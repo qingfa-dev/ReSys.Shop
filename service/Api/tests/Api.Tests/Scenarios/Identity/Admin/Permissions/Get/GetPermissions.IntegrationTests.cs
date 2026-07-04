@@ -7,7 +7,7 @@ using Shared.Security.Identity.Domain.Permissions;
 
 namespace Api.Tests.Scenarios.Identity.Admin.Permissions.Get;
 
-public sealed class GetPermissionsIntegrationTests(ApiFixture fixture) : ApiIntegrationTestBase(fixture)
+public sealed class GetPermissionsIntegrationTests(ApiFixture fixture) : IdentityIntegrationTestBase(fixture)
 {
     [Fact]
     public async Task GetPermissions_ReturnsAllSystemPermissions()

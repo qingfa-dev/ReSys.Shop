@@ -7,7 +7,7 @@ using Module.Identity.Features.Admin.Roles.Shared.Models;
 
 namespace Api.Tests.Scenarios.Identity.Admin.Roles.GetPagedOrAll;
 
-public sealed class GetRolesPagedOrAllIntegrationTests(ApiFixture fixture) : ApiIntegrationTestBase(fixture)
+public sealed class GetRolesPagedOrAllIntegrationTests(ApiFixture fixture) : IdentityIntegrationTestBase(fixture)
 {
     [Fact]
     public async Task GetRolesPagedOrAll_ReturnsRoles()

@@ -4,7 +4,7 @@ using Module.Location.Features.Admin.Countries.Shared.Models;
 
 namespace Api.Tests.Scenarios.Location.Store.Countries.GetPagedOrAll;
 
-public sealed class GetStorefrontCountryPagedOrAllIntegrationTests(ApiFixture fixture) : ApiIntegrationTestBase(fixture)
+public sealed class GetStorefrontCountryPagedOrAllIntegrationTests(ApiFixture fixture) : LocationIntegrationTestBase(fixture)
 {
     [Fact]
     public async Task GetCountryPagedOrAll_ReturnsSeededCountries()

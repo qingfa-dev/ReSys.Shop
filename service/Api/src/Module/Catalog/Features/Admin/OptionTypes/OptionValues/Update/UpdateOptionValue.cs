@@ -29,12 +29,13 @@ public static partial class UpdateOptionValue
             var request = command.Request;
 
             // Check: Ensure parent option type exists
-            var typeExists = await dbContext.Set<OptionType>().AnyAsync(x => x.Id == optionTypeId, cancellationToken);
-            if (!typeExists)
+            var optionType = await dbContext.Set<OptionType>().FindAsync([optionTypeId], cancellationToken);
+            if (optionType is null)
                 return OptionTypeResult.Failure.NotFound;
 
             // Check: Find the specific option value entity to update
             var entity = await dbContext.Set<OptionValue>()
+                .Include(x => x.OptionType)
                 .FirstOrDefaultAsync(x => x.Id == command.Id && x.OptionTypeId == optionTypeId, cancellationToken);
 
             if (entity is null)
