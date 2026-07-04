@@ -1,14 +1,16 @@
+using Microsoft.AspNetCore.Http;
+
 using Module.Catalog.Features.Shared;
 
-namespace Module.Catalog.Features.Storefront.Images.Get.Download;
+namespace Module.Catalog.Features.Storefront.Images.Get.Image;
 
-public static partial class DownloadImage
+public static partial class GetImage
 {
     public class Endpoint : ICarterModule
     {
         public void AddRoutes(IEndpointRouteBuilder app)
         {
-            app.MapGet(CatalogFeature.Storefront.Images.Get.Download.Route, async (
+            app.MapGet(CatalogFeature.Storefront.Images.Get.Image.Route, async (
                 [FromRoute] Guid id,
                 ISender sender,
                 CancellationToken ct) =>
@@ -19,12 +21,12 @@ public static partial class DownloadImage
                 if (result.IsFailure)
                     return result.ToResult();
 
-                return Results.File(result.Value.Stream, result.Value.ContentType, result.Value.FileName);
+                return TypedResults.PhysicalFile(result.Value.FullPath, result.Value.ContentType);
             })
-            .WithName(nameof(DownloadImage))
+            .WithName(nameof(GetImage))
             .WithTags(CatalogFeature.Tags.Variant)
-            .WithSummary(CatalogFeature.Storefront.Images.Get.Download.Summary)
-            .WithDescription(CatalogFeature.Storefront.Images.Get.Download.Description)
+            .WithSummary(CatalogFeature.Storefront.Images.Get.Image.Summary)
+            .WithDescription(CatalogFeature.Storefront.Images.Get.Image.Description)
             .Produces(StatusCodes.Status200OK)
             .Produces<Result>(StatusCodes.Status404NotFound);
         }
