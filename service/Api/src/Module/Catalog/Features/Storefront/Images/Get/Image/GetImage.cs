@@ -2,16 +2,13 @@ using Module.Catalog.Domain.Products.Variants.Images;
 
 using Shared.Operational.Storages.Services;
 
-namespace Module.Catalog.Features.Storefront.Images.Get.Download;
+namespace Module.Catalog.Features.Storefront.Images.Get.Image;
 
-public static partial class DownloadImage
+public static partial class GetImage
 {
     public sealed record Query(Guid Id) : IQuery<Response>;
 
-    public sealed record Response(Stream Stream, string FileName, string ContentType) : IDisposable
-    {
-        public void Dispose() => Stream.Dispose();
-    }
+    public sealed record Response(string FullPath, string ContentType);
 
     public sealed class QueryHandler(
         IApplicationDbContext dbContext,
@@ -26,15 +23,17 @@ public static partial class DownloadImage
             if (image is null)
                 return VariantImageResult.Failure.ById(query.Id);
 
-            var downloadResult = await storageService.DownloadAsync(image.StoragePath, ct: cancellationToken);
+            var pathResult = await storageService.ResolvePathAsync(image.StoragePath, ct: cancellationToken);
 
-            if (downloadResult.IsFailure)
-                return downloadResult.Errors;
+            if (pathResult.IsFailure)
+                return pathResult.Errors;
 
-            return new Response(
-                downloadResult.Value.Content,
-                image.FileName,
-                image.ContentType);
+            var fullPath = pathResult.Value;
+
+            if (!File.Exists(fullPath))
+                return VariantImageResult.Failure.ById(query.Id);
+
+            return new Response(fullPath, image.ContentType);
         }
     }
 }
