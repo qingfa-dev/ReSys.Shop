@@ -25,6 +25,16 @@ public interface IStorageService
         string? providerName = null,
         CancellationToken ct = default);
 
+    /// <summary>Resolves the physical file path using the <paramref name="providerName"/> provider.</summary>
+    /// <param name="key">Object key as stored.</param>
+    /// <param name="providerName">Provider name; pass <c>null</c> for default.</param>
+    /// <param name="ct">Cancellation token.</param>
+    /// <returns>The full physical file path, or an error for non-file-based providers.</returns>
+    Task<Result<string>> ResolvePathAsync(
+        string key,
+        string? providerName = null,
+        CancellationToken ct = default);
+
     /// <summary>Deletes an object from the <paramref name="providerName"/> provider.</summary>
     Task<Result> DeleteAsync(
         string key,
