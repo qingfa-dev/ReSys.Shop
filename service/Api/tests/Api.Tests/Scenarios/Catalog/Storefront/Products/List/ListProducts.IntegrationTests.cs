@@ -65,7 +65,7 @@ public sealed class ListProductsIntegrationTests(ApiFixture fixture) : CatalogIn
         activateResponse.IsSuccessStatusCode.Should().BeTrue();
 
         HttpResponseMessage response = await Client.GetAsync(
-            "/api/storefront/products?q=Searchable");
+            "/api/storefront/products?search=Searchable");
 
         response.StatusCode.Should().Be(HttpStatusCode.OK);
     }
@@ -79,5 +79,41 @@ public sealed class ListProductsIntegrationTests(ApiFixture fixture) : CatalogIn
         response.StatusCode.Should().Be(HttpStatusCode.OK);
         PagedResult<JsonElement> result = await response.ReadAsPagedResultAsync<JsonElement>();
         result.IsSuccess.Should().BeTrue();
+    }
+
+    [Fact]
+    public async Task ListProducts_WithOptionValueAlias_ReturnsOk()
+    {
+        HttpResponseMessage response = await Client.GetAsync(
+            "/api/storefront/products?optionValue=Red");
+
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+    }
+
+    [Fact]
+    public async Task ListProducts_WithPriceRange_ReturnsOk()
+    {
+        HttpResponseMessage response = await Client.GetAsync(
+            "/api/storefront/products?minPrice=1&maxPrice=1000");
+
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+    }
+
+    [Fact]
+    public async Task ListProducts_WithUnwhitelistedRawFilter_ReturnsOk()
+    {
+        HttpResponseMessage response = await Client.GetAsync(
+            "/api/storefront/products?filter=NotARealField=oops");
+
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+    }
+
+    [Fact]
+    public async Task ListProducts_WithAliasAndRawFilter_ReturnsOk()
+    {
+        HttpResponseMessage response = await Client.GetAsync(
+            "/api/storefront/products?optionValue=Red&filter=Variants.OptionValueVariants.OptionValue.OptionType.Name=Color");
+
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
     }
 }

@@ -23,58 +23,28 @@ public static partial class ListProducts
                     .ThenInclude(v => v.OptionValueVariants)
                         .ThenInclude(ov => ov.OptionValue!)
                             .ThenInclude(o => o.OptionType!)
+                .Include(x => x.Classifications)
+                    .ThenInclude(c => c.Taxon)
                 .Where(x => !x.IsDeleted && x.AvailableOn <= DateTimeOffset.UtcNow)
                 .AsNoTracking();
 
-            if (!string.IsNullOrWhiteSpace(parameters.Q))
+            foreach (IStorefrontProductAlias alias in StorefrontProductFilterAliases.All)
             {
-                var searchTerm = parameters.Q.ToLowerInvariant();
-                query = query.Where(x =>
-                    EF.Functions.ILike(x.Name, $"%{searchTerm}%")
-                    || EF.Functions.ILike(x.Slug, $"%{searchTerm}%")
-                    || (x.Description != null && EF.Functions.ILike(x.Description, $"%{searchTerm}%")));
+                var predicate = alias.BuildPredicate(parameters);
+                if (predicate is not null)
+                    query = query.Where(predicate);
             }
 
-            if (!string.IsNullOrWhiteSpace(parameters.Color))
+            var allowedSearchFields = new HashSet<string>(StringComparer.OrdinalIgnoreCase) { "Name", "Slug", "Description" };
+            var allowedSortFields = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
             {
-                query = query.Where(x => x.Variants
-                    .Any(v => v.OptionValueVariants
-                        .Any(ov => ov.OptionValue != null
-                            && ov.OptionValue.OptionType.Name == "Color"
-                            && EF.Functions.ILike(ov.OptionValue.Name, parameters.Color))));
-            }
+                "Name", "Slug", "AvailableOn", "CreatedAtUtc", "Variants.Prices.Amount"
+            };
 
-            if (!string.IsNullOrWhiteSpace(parameters.Size))
-            {
-                query = query.Where(x => x.Variants
-                    .Any(v => v.OptionValueVariants
-                        .Any(ov => ov.OptionValue != null
-                            && ov.OptionValue.OptionType.Name == "Size"
-                            && EF.Functions.ILike(ov.OptionValue.Name, parameters.Size))));
-            }
-
-            if (parameters.MinPrice.HasValue)
-            {
-                query = query.Where(x => x.Variants
-                    .Any(v => v.Prices.Any(p => p.Amount >= parameters.MinPrice.Value)));
-            }
-
-            if (parameters.MaxPrice.HasValue)
-            {
-                query = query.Where(x => x.Variants
-                    .Any(v => v.Prices.Any(p => p.Amount <= parameters.MaxPrice.Value)));
-            }
-
-            if (!string.IsNullOrWhiteSpace(parameters.Material))
-            {
-                query = query.Where(x => x.Variants
-                    .Any(v => v.OptionValueVariants
-                        .Any(ov => ov.OptionValue != null
-                            && ov.OptionValue.OptionType.Name == "Material"
-                            && EF.Functions.ILike(ov.OptionValue.Name, parameters.Material))));
-            }
-
-            var parsing = parameters.ParseAll();
+            var parsing = parameters.ParseAll(
+                StorefrontProductFilterAliases.CanonicalFields,
+                allowedSearchFields,
+                allowedSortFields);
             if (parsing.IsFailure)
                 return parsing.Errors;
 
