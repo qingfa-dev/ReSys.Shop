@@ -7,7 +7,7 @@ using Module.Identity.Features.Admin.Users.Shared.Models;
 
 namespace Api.Tests.Scenarios.Identity.Admin.Users.GetPagedOrAll;
 
-public sealed class GetUsersPagedOrAllIntegrationTests(ApiFixture fixture) : ApiIntegrationTestBase(fixture)
+public sealed class GetUsersPagedOrAllIntegrationTests(ApiFixture fixture) : IdentityIntegrationTestBase(fixture)
 {
     [Fact]
     public async Task GetUsersPagedOrAll_ReturnsSeededUsers()

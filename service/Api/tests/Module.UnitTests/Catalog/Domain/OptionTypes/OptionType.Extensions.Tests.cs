@@ -14,7 +14,7 @@ public class OptionTypeMethodTests
     {
         var id = Guid.NewGuid();
 
-        var result = OptionTypeMethod.Create(name, presentation, position, id);
+        var result = OptionTypeMethod.Create(name, presentation, position, id: id);
         var optionType = result.Value;
 
         result.IsSuccess.Should().BeTrue();

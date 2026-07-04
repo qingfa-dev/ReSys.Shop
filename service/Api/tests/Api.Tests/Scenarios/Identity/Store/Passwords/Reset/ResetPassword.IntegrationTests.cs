@@ -4,7 +4,7 @@ using Api.Tests.Infrastructure;
 
 namespace Api.Tests.Scenarios.Identity.Store.Passwords.Reset;
 
-public sealed class ResetPasswordIntegrationTests(ApiFixture fixture) : ApiIntegrationTestBase(fixture)
+public sealed class ResetPasswordIntegrationTests(ApiFixture fixture) : IdentityIntegrationTestBase(fixture)
 {
     [Fact]
     public async Task ResetPassword_WithInvalidToken_Returns422()

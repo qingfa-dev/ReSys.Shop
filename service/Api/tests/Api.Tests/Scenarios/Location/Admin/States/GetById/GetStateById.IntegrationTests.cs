@@ -6,7 +6,7 @@ using Module.Location.Features.Admin.States.Shared.Models;
 
 namespace Api.Tests.Scenarios.Location.Admin.States.GetById;
 
-public sealed class GetStateByIdIntegrationTests(ApiFixture fixture) : ApiIntegrationTestBase(fixture)
+public sealed class GetStateByIdIntegrationTests(ApiFixture fixture) : LocationIntegrationTestBase(fixture)
 {
     [Fact]
     public async Task GetStateById_WithSeededState_Returns200()

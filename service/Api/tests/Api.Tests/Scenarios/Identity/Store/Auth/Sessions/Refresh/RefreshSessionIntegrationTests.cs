@@ -4,7 +4,7 @@ using Api.Tests.Infrastructure;
 
 namespace Api.Tests.Scenarios.Identity.Store.Auth.Sessions.Refresh;
 
-public sealed class RefreshSessionIntegrationTests(ApiFixture fixture) : ApiIntegrationTestBase(fixture)
+public sealed class RefreshSessionIntegrationTests(ApiFixture fixture) : IdentityIntegrationTestBase(fixture)
 {
     [Fact]
     public async Task RefreshSession_WithMissingToken_Returns422()

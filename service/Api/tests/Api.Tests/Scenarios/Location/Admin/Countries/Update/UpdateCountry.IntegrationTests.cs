@@ -6,7 +6,7 @@ using Module.Location.Features.Admin.Countries.Shared.Models;
 
 namespace Api.Tests.Scenarios.Location.Admin.Countries.Update;
 
-public sealed class UpdateCountryIntegrationTests(ApiFixture fixture) : ApiIntegrationTestBase(fixture)
+public sealed class UpdateCountryIntegrationTests(ApiFixture fixture) : LocationIntegrationTestBase(fixture)
 {
     private async Task<string> GetFirstCountryIdAsync()
     {

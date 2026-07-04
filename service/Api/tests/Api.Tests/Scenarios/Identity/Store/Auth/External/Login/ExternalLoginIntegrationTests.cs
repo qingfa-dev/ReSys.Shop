@@ -4,7 +4,7 @@ using Api.Tests.Infrastructure;
 
 namespace Api.Tests.Scenarios.Identity.Store.Auth.External.Login;
 
-public sealed class ExternalLoginIntegrationTests(ApiFixture fixture) : ApiIntegrationTestBase(fixture)
+public sealed class ExternalLoginIntegrationTests(ApiFixture fixture) : IdentityIntegrationTestBase(fixture)
 {
     [Fact]
     public async Task ExternalLogin_WithMissingProvider_Returns422()

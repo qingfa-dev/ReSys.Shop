@@ -4,7 +4,7 @@ using Module.Location.Features.Admin.States.Shared.Models;
 
 namespace Api.Tests.Scenarios.Location.Admin.States.GetPagedOrAll;
 
-public sealed class GetStatePagedOrAllIntegrationTests(ApiFixture fixture) : ApiIntegrationTestBase(fixture)
+public sealed class GetStatePagedOrAllIntegrationTests(ApiFixture fixture) : LocationIntegrationTestBase(fixture)
 {
     [Fact]
     public async Task GetStatePagedOrAll_ReturnsSeededStates()

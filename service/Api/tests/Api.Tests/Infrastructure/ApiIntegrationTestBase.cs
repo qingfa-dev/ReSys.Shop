@@ -10,9 +10,11 @@ public abstract class ApiIntegrationTestBase : IAsyncLifetime
         _fixture = fixture;
     }
 
+    protected ApiFixture Fixture => _fixture;
+
     protected HttpClient Client => _fixture.Client;
 
-    public async ValueTask InitializeAsync()
+    public virtual async ValueTask InitializeAsync()
     {
         await _fixture.ResetDatabaseAsync();
     }

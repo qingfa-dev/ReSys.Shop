@@ -7,7 +7,7 @@ using Module.Identity.Features.Admin.Users.Shared.Models;
 
 namespace Api.Tests.Scenarios.Identity.Admin.Users.Update;
 
-public sealed class UpdateUserIntegrationTests(ApiFixture fixture) : ApiIntegrationTestBase(fixture)
+public sealed class UpdateUserIntegrationTests(ApiFixture fixture) : IdentityIntegrationTestBase(fixture)
 {
     [Fact]
     public async Task UpdateUser_WithValidRequest_Returns200()

@@ -7,7 +7,7 @@ using Module.Location.Features.Admin.Countries.Shared.Models;
 
 namespace Api.Tests.Scenarios.Location.Admin.Countries.Create;
 
-public sealed class CreateCountryIntegrationTests(ApiFixture fixture) : ApiIntegrationTestBase(fixture)
+public sealed class CreateCountryIntegrationTests(ApiFixture fixture) : LocationIntegrationTestBase(fixture)
 {
     [Fact]
     public async Task CreateCountry_WithValidRequest_Returns200()

@@ -5,7 +5,7 @@ using Api.Tests.Scenarios.Identity.Helpers;
 
 namespace Api.Tests.Scenarios.Identity.Store.Emails.Resend;
 
-public sealed class ResendEmailVerificationIntegrationTests(ApiFixture fixture) : ApiIntegrationTestBase(fixture)
+public sealed class ResendEmailVerificationIntegrationTests(ApiFixture fixture) : IdentityIntegrationTestBase(fixture)
 {
     [Fact]
     public async Task ResendVerification_WithValidEmail_Returns204()

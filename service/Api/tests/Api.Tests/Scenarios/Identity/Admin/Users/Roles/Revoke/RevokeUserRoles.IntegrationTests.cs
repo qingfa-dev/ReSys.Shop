@@ -5,7 +5,7 @@ using Api.Tests.Scenarios.Identity.Helpers;
 
 namespace Api.Tests.Scenarios.Identity.Admin.Users.Roles.Revoke;
 
-public sealed class RevokeUserRolesIntegrationTests(ApiFixture fixture) : ApiIntegrationTestBase(fixture)
+public sealed class RevokeUserRolesIntegrationTests(ApiFixture fixture) : IdentityIntegrationTestBase(fixture)
 {
     [Fact]
     public async Task RevokeUserRoles_WithExistingRole_Returns200()

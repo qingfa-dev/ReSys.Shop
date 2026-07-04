@@ -51,11 +51,45 @@ public static class AuthenticatedRequestExtensions
         return await client.SendAsync(request);
     }
 
+    public static async Task<HttpResponseMessage> PatchAsAdminRawAsync(
+        this HttpClient client,
+        string requestUri,
+        object? body = null)
+    {
+        HttpContent? content = body is not null
+            ? JsonContent.Create(body)
+            : null;
+
+        using HttpRequestMessage request = CreateAdminRequest(HttpMethod.Patch, requestUri, content);
+        return await client.SendAsync(request);
+    }
+
     public static async Task<HttpResponseMessage> DeleteAsAdminRawAsync(
         this HttpClient client,
         string requestUri)
     {
         using HttpRequestMessage request = CreateAdminRequest(HttpMethod.Delete, requestUri);
+        return await client.SendAsync(request);
+    }
+
+    public static async Task<HttpResponseMessage> GetAsAdminRawAsync(
+        this HttpClient client,
+        string requestUri)
+    {
+        using HttpRequestMessage request = CreateAdminRequest(HttpMethod.Get, requestUri);
+        return await client.SendAsync(request);
+    }
+
+    public static async Task<HttpResponseMessage> PutAsAdminRawAsync(
+        this HttpClient client,
+        string requestUri,
+        object? body = null)
+    {
+        HttpContent? content = body is not null
+            ? JsonContent.Create(body)
+            : null;
+
+        using HttpRequestMessage request = CreateAdminRequest(HttpMethod.Put, requestUri, content);
         return await client.SendAsync(request);
     }
 }

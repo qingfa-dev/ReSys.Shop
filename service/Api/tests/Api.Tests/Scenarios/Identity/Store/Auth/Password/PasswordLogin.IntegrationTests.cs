@@ -4,7 +4,7 @@ using Api.Tests.Infrastructure;
 
 namespace Api.Tests.Scenarios.Identity.Store.Auth.Password;
 
-public sealed class PasswordLoginIntegrationTests(ApiFixture fixture) : ApiIntegrationTestBase(fixture)
+public sealed class PasswordLoginIntegrationTests(ApiFixture fixture) : IdentityIntegrationTestBase(fixture)
 {
     [Fact]
     public async Task PasswordLogin_WithInvalidCredentials_Returns401()

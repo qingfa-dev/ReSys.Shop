@@ -6,7 +6,7 @@ using Api.Tests.Scenarios.Identity.Helpers;
 
 namespace Api.Tests.Scenarios.Identity.Admin.Users.Delete;
 
-public sealed class DeleteUserIntegrationTests(ApiFixture fixture) : ApiIntegrationTestBase(fixture)
+public sealed class DeleteUserIntegrationTests(ApiFixture fixture) : IdentityIntegrationTestBase(fixture)
 {
     [Fact]
     public async Task DeleteUser_WithExistingId_ReturnsSuccess()

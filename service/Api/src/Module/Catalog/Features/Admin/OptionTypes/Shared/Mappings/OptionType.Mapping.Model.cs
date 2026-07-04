@@ -1,5 +1,6 @@
 using Module.Catalog.Domain.OptionTypes;
 using Module.Catalog.Features.Admin.OptionTypes.Shared.Models;
+
 namespace Module.Catalog.Features.Admin.OptionTypes.Shared.Mappings;
 
 public static partial class OptionTypeMapping

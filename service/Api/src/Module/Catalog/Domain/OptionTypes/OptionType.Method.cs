@@ -16,6 +16,7 @@ public static class OptionTypeMethod
         string name,
         string? presentation,
         int position = 0,
+        bool filterable = false,
         Guid? id = null)
     {
         var optionType = new OptionType
@@ -24,6 +25,7 @@ public static class OptionTypeMethod
             Name = name,
             Presentation = presentation,
             Position = position,
+            Filterable = filterable,
         };
 
         return optionType;

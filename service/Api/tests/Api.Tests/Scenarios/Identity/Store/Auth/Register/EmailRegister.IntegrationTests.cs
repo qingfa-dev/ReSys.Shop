@@ -5,7 +5,7 @@ using Api.Tests.Scenarios.Identity.Helpers;
 
 namespace Api.Tests.Scenarios.Identity.Store.Auth.Register;
 
-public sealed class EmailRegisterIntegrationTests(ApiFixture fixture) : ApiIntegrationTestBase(fixture)
+public sealed class EmailRegisterIntegrationTests(ApiFixture fixture) : IdentityIntegrationTestBase(fixture)
 {
     [Fact]
     public async Task Register_WithValidData_Returns200()

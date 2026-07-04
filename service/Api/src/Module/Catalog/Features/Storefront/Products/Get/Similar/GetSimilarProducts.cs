@@ -25,10 +25,10 @@ public static partial class GetSimilarProducts
             var variant = await dbContext.Set<Variant>()
                 .Include(x => x.Product)
                 .AsNoTracking()
-                .FirstOrDefaultAsync(x => x.Id == request.Id && !x.IsDeleted, cancellationToken);
+                .FirstOrDefaultAsync(x => x.ProductId == request.Id && !x.IsDeleted, cancellationToken);
 
             if (variant is null || variant.Product is null)
-                return Result<Response>.Ok(new Response { Items = [] });
+                return Result<Response>.NotFound();
 
             // Query: Get the embedding vector for the variant's primary image.
             var queryVector = await dbContext.Set<ImageEmbedding>()

@@ -7,7 +7,7 @@ using Module.Identity.Features.Admin.Roles.Shared.Models;
 
 namespace Api.Tests.Scenarios.Identity.Admin.Roles.GetById;
 
-public sealed class GetRoleByIdIntegrationTests(ApiFixture fixture) : ApiIntegrationTestBase(fixture)
+public sealed class GetRoleByIdIntegrationTests(ApiFixture fixture) : IdentityIntegrationTestBase(fixture)
 {
     [Fact]
     public async Task GetRoleById_WithExistingRole_Returns200()

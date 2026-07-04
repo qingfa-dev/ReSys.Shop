@@ -13,7 +13,11 @@ public static class AuthTokenHelper
     private const string TestIssuer = "ReSys.Shop.Test";
     private const string TestAudience = "ReSys.Shop.Test";
 
-    public static string GenerateAdminToken()
+    private static readonly Lazy<string> _cachedAdminToken = new(BuildAdminToken);
+
+    public static string GenerateAdminToken() => _cachedAdminToken.Value;
+
+    private static string BuildAdminToken()
     {
         SymmetricSecurityKey securityKey = new SymmetricSecurityKey(
             Encoding.UTF8.GetBytes(TestSecret));

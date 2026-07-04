@@ -7,7 +7,7 @@ using Module.Identity.Features.Admin.Roles.Shared.Models;
 
 namespace Api.Tests.Scenarios.Identity.Admin.Roles.Update;
 
-public sealed class UpdateRoleIntegrationTests(ApiFixture fixture) : ApiIntegrationTestBase(fixture)
+public sealed class UpdateRoleIntegrationTests(ApiFixture fixture) : IdentityIntegrationTestBase(fixture)
 {
     [Fact]
     public async Task UpdateRole_WithValidRequest_Returns200()

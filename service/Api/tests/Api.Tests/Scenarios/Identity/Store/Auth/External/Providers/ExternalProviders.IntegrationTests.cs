@@ -4,7 +4,7 @@ using Api.Tests.Infrastructure;
 
 namespace Api.Tests.Scenarios.Identity.Store.Auth.External.Providers;
 
-public sealed class ExternalProvidersIntegrationTests(ApiFixture fixture) : ApiIntegrationTestBase(fixture)
+public sealed class ExternalProvidersIntegrationTests(ApiFixture fixture) : IdentityIntegrationTestBase(fixture)
 {
     [Fact]
     public async Task GetExternalProviders_Returns200()

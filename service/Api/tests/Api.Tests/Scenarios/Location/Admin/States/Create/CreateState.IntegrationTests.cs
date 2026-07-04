@@ -8,7 +8,7 @@ using Module.Location.Features.Admin.States.Shared.Models;
 
 namespace Api.Tests.Scenarios.Location.Admin.States.Create;
 
-public sealed class CreateStateIntegrationTests(ApiFixture fixture) : ApiIntegrationTestBase(fixture)
+public sealed class CreateStateIntegrationTests(ApiFixture fixture) : LocationIntegrationTestBase(fixture)
 {
     private async Task<Guid> GetFirstCountryIdAsync()
     {

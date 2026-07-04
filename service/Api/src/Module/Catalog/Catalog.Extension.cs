@@ -6,6 +6,9 @@ using Module.Catalog.Features.Admin.Taxonomies.Taxons.Services.AutoClassificatio
 using Module.Catalog.Features.Admin.Taxonomies.Taxons.Services.AutoClassification.Abstractions;
 using Module.Catalog.Features.Admin.Taxonomies.Taxons.Services.Hierarchy;
 using Module.Catalog.Features.Admin.Taxonomies.Taxons.Services.Hierarchy.Abstractions;
+using Module.Catalog.Persistence.Seeders;
+
+using Shared.Operational.Persistence.Seeders;
 
 namespace Module.Catalog;
 
@@ -25,6 +28,11 @@ public static class CatalogExtensions
         builder.Services.AddScoped<ITaxonHierarchyService, TaxonHierarchyService>();
         builder.Services.AddScoped<IAutoClassificationService, AutoClassificationService>();
         builder.Services.AddSingleton<ITaxonRuleEvaluator, TaxonRuleEvaluator>();
+
+        builder.AddSeeder<CatalogOptionSeeder>();
+        builder.AddSeeder<CatalogTaxonomySeeder>();
+        builder.AddSeeder<CatalogTaxonSeeder>();
+        builder.AddSeeder<CatalogDemoSeeder>();
 
         return builder;
     }

@@ -6,7 +6,7 @@ using Module.Location.Features.Admin.Countries.Shared.Models;
 
 namespace Api.Tests.Scenarios.Location.Store.Countries.GetById;
 
-public sealed class GetStorefrontCountryByIdIntegrationTests(ApiFixture fixture) : ApiIntegrationTestBase(fixture)
+public sealed class GetStorefrontCountryByIdIntegrationTests(ApiFixture fixture) : LocationIntegrationTestBase(fixture)
 {
     [Fact]
     public async Task GetCountryById_WithSeededCountry_Returns200()

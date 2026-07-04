@@ -4,7 +4,7 @@ using Api.Tests.Infrastructure;
 
 namespace Api.Tests.Scenarios.Identity.Store.Auth.Logout;
 
-public sealed class LogoutIntegrationTests(ApiFixture fixture) : ApiIntegrationTestBase(fixture)
+public sealed class LogoutIntegrationTests(ApiFixture fixture) : IdentityIntegrationTestBase(fixture)
 {
     [Fact]
     public async Task Logout_WithoutAuth_Returns401()

@@ -6,7 +6,7 @@ using Module.Location.Features.Admin.States.Shared.Models;
 
 namespace Api.Tests.Scenarios.Location.Admin.States.Update;
 
-public sealed class UpdateStateIntegrationTests(ApiFixture fixture) : ApiIntegrationTestBase(fixture)
+public sealed class UpdateStateIntegrationTests(ApiFixture fixture) : LocationIntegrationTestBase(fixture)
 {
     private async Task<(string StateId, string CountryId)> GetFirstStateAsync()
     {
