@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.OpenApi;
+using Microsoft.OpenApi;
 
 namespace Shared.Governance.OpenApi.Options;
 
@@ -45,6 +46,25 @@ public static class OpenApiOptionsSetup
 
             // Assume: OpenAPI generator detects host automatically; avoiding hardcoding document.Servers 
             // ensuring "Try it out" feature points to the correct endpoint regardless of port or proxy.
+
+            // Add: Bearer JWT security scheme so Scalar shows the "Authorize" button
+            document.Components ??= new OpenApiComponents();
+            document.Components.SecuritySchemes ??= new Dictionary<string, IOpenApiSecurityScheme>();
+            document.Components.SecuritySchemes["Bearer"] = new OpenApiSecurityScheme
+            {
+                Type = SecuritySchemeType.Http,
+                Scheme = "bearer",
+                BearerFormat = "JWT",
+                Description = "Enter your JWT Bearer token"
+            };
+
+            document.Security =
+            [
+                new OpenApiSecurityRequirement
+                {
+                    [new OpenApiSecuritySchemeReference("Bearer", null, null)] = []
+                }
+            ];
 
             return Task.CompletedTask;
         });
