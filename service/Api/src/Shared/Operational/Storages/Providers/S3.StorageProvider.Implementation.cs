@@ -57,6 +57,9 @@ internal sealed partial class S3StorageProvider(
         return Task.FromResult(Result<IReadOnlyList<StoredObjectInfo>>.Ok([]));
     }
 
+    public Result<string> ResolvePath(string key) =>
+        StorageResult.Failure.ProviderError("S3 is not a file-based provider. Use DownloadAsync to get a stream.");
+
     private Uri BuildBucketUri(string key)
     {
         var opts = options.Value;

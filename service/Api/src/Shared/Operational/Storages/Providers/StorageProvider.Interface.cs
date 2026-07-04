@@ -27,6 +27,11 @@ public interface IStorageProvider
     /// <param name="ct">Cancellation token.</param>
     Task<Result<DownloadResult>> DownloadAsync(string key, CancellationToken ct = default);
 
+    /// <summary>Resolves the physical file path for <paramref name="key"/> if this is a file-based provider.</summary>
+    /// <param name="key">Object key as stored.</param>
+    /// <returns>The full physical file path, or an error for non-file-based providers.</returns>
+    Result<string> ResolvePath(string key);
+
     /// <summary>Deletes the object identified by <paramref name="key"/>.</summary>
     /// <param name="key">Object key to remove.</param>
     /// <param name="ct">Cancellation token.</param>

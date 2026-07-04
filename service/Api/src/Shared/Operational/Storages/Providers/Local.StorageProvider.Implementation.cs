@@ -194,7 +194,7 @@ internal sealed partial class LocalStorageProvider(
         }
     }
 
-    private Result<string> ResolvePath(string key)
+    public Result<string> ResolvePath(string key)
     {
         try
         {
