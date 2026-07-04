@@ -110,11 +110,11 @@ public static partial class CatalogFeature
         {
             public static class Get
             {
-                public static class Download
+                public static class Image
                 {
-                    public const string Route = $"{Storefront.Route}/images/{{id:guid}}/download";
-                    public const string Description = "Download a variant image file by its ID";
-                    public const string Summary = "Download image";
+                    public const string Route = $"{Storefront.Route}/images/{{id:guid}}";
+                    public const string Description = "Display a variant image file inline by its ID";
+                    public const string Summary = "Display image";
                 }
             }
         }
