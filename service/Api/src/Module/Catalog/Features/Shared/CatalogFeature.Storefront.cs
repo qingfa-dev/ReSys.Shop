@@ -47,32 +47,11 @@ public static partial class CatalogFeature
                     public const string Summary = "Search by image upload";
                 }
 
-                public static class Search
+                public static class List
                 {
-                    public const string Route = $"{Storefront.Route}/search";
-                    public const string Description = "Full-text search across products";
-                    public const string Summary = "Search products";
-                }
-
-                public static class Filter
-                {
-                    public const string Route = $"{Storefront.Route}/filter";
-                    public const string Description = "Faceted product filtering by attributes (color, size, price, material)";
-                    public const string Summary = "Filter products by attributes";
-                }
-
-                public static class NewArrivals
-                {
-                    public const string Route = $"{Storefront.Route}/new-arrivals";
-                    public const string Description = "Retrieve newly arrived products";
-                    public const string Summary = "Get new arrivals";
-                }
-
-                public static class Collections
-                {
-                    public const string Route = $"{Storefront.Route}/collections/{{season}}";
-                    public const string Description = "Retrieve seasonal collection page";
-                    public const string Summary = "Get collection by season";
+                    public const string Route = BaseRoute;
+                    public const string Description = "Unified product listing with optional text search, faceted filters, sorting, and pagination";
+                    public const string Summary = "List or search products";
                 }
             }
         }
@@ -127,15 +106,15 @@ public static partial class CatalogFeature
             }
         }
 
-        public static class Digitals
+        public static class Images
         {
             public static class Get
             {
-                public static class DownloadLink
+                public static class Download
                 {
-                    public const string Route = $"{Storefront.Route}/digitals/{{id:guid}}/download";
-                    public const string Description = "Generate a time-limited signed download URL for a digital asset";
-                    public const string Summary = "Download digital asset";
+                    public const string Route = $"{Storefront.Route}/images/{{id:guid}}/download";
+                    public const string Description = "Download a variant image file by its ID";
+                    public const string Summary = "Download image";
                 }
             }
         }
