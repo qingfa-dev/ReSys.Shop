@@ -10,7 +10,7 @@ public readonly partial record struct Result<T> : IResultRecord
     public T Value
     {
         get => field!;
-        private init;
+        init;
     }
 
     [MemberNotNullWhen(true, nameof(Value))]

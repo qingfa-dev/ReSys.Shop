@@ -2,6 +2,7 @@ using FluentValidation;
 
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 
 using Shared.Application.Extensions.Validations;
 using Shared.Operational.Storages.Options;
@@ -11,12 +12,14 @@ using Shared.Operational.Storages.Providers.Options;
 using Shared.Operational.Storages.Security;
 using Shared.Operational.Storages.Security.Guard;
 using Shared.Operational.Storages.Security.Guard.Options;
+using Shared.Operational.Storages.Services;
 
 using Shared.Operational.Storages.Security.Options;
 using Shared.Operational.Storages.Security.Scanners;
 using Shared.Operational.Storages.Security.Scanners.Options;
 
 using StorageAntiForgeryGuard = Shared.Operational.Storages.Security.Guard.StorageAntiForgeryGuard;
+using Microsoft.AspNetCore.Http;
 
 namespace Shared.Operational.Storages;
 
@@ -82,6 +85,27 @@ public static class StorageExtensions
                 sp.GetRequiredService<ILogger<AggregateMalwareScanner>>()));
 
         services.AddSingleton<IImageProcessor, ImageProcessor>();
+
+        services.AddSingleton<IStorageService>(sp =>
+        {
+            var options = sp.GetRequiredService<IOptions<StorageSetting>>();
+            var providers = new Dictionary<string, IStorageProvider>(StringComparer.OrdinalIgnoreCase)
+            {
+                [sp.GetRequiredService<LocalStorageProvider>().Name] = sp.GetRequiredService<LocalStorageProvider>(),
+                [sp.GetRequiredService<S3StorageProvider>().Name] = sp.GetRequiredService<S3StorageProvider>(),
+            };
+
+            return new StorageService(
+                providers,
+                options.Value.DefaultProvider,
+                sp.GetRequiredService<IStorageSecurityEnforcer>(),
+                sp.GetRequiredService<IStorageAntiForgeryGuard>(),
+                sp.GetRequiredService<IHttpContextAccessor>(),
+                sp.GetRequiredService<ILogger<StorageService>>(),
+                sp.GetService<IStorageMalwareScanner>(),
+                sp.GetService<IImageProcessor>(),
+                sp.GetService<IOptions<StorageSecuritySetting>>());
+        });
     }
 
     public static WebApplication UseStorage(this WebApplication app)

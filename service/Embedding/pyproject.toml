@@ -12,6 +12,8 @@ dependencies = [
     "uvicorn[standard]>=0.34",
     "pydantic>=2.0",
     "pydantic-settings>=2.0",
+    "torch>=2.0",
+    "open-clip-torch>=1.0",
 ]
 
 [tool.setuptools.package-dir]

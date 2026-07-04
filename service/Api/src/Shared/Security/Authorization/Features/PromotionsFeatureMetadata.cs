@@ -10,9 +10,9 @@ public static class PromotionsFeatureMetadata
     public static class Promotions
     {
         public static readonly PermissionMetadata List = PermissionMetadataMethod.For(
-            PermissionContext.Domains.Admin, PermissionContext.Categories.Merchandising, PermissionContext.Resources.Promotions, PermissionContext.Actions.View);
+            PermissionContext.Domains.Admin, PermissionContext.Categories.Merchandising, PermissionContext.Resources.Promotions, PermissionContext.Actions.List);
         public static readonly PermissionMetadata Read = PermissionMetadataMethod.For(
-            PermissionContext.Domains.Admin, PermissionContext.Categories.Merchandising, PermissionContext.Resources.Promotions, PermissionContext.Actions.Read);
+            PermissionContext.Domains.Admin, PermissionContext.Categories.Merchandising, PermissionContext.Resources.Promotions, PermissionContext.Actions.Detail);
         public static readonly PermissionMetadata Create = PermissionMetadataMethod.For(
             PermissionContext.Domains.Admin, PermissionContext.Categories.Merchandising, PermissionContext.Resources.Promotions, PermissionContext.Actions.Create);
         public static readonly PermissionMetadata Update = PermissionMetadataMethod.For(
@@ -28,7 +28,7 @@ public static class PromotionsFeatureMetadata
         public static readonly PermissionMetadata Create = PermissionMetadataMethod.For(
             PermissionContext.Domains.Admin, PermissionContext.Categories.Merchandising, PermissionContext.Resources.PromotionRules, PermissionContext.Actions.Create);
         public static readonly PermissionMetadata Read = PermissionMetadataMethod.For(
-            PermissionContext.Domains.Admin, PermissionContext.Categories.Merchandising, PermissionContext.Resources.PromotionRules, PermissionContext.Actions.Read);
+            PermissionContext.Domains.Admin, PermissionContext.Categories.Merchandising, PermissionContext.Resources.PromotionRules, PermissionContext.Actions.Detail);
         public static readonly PermissionMetadata Delete = PermissionMetadataMethod.For(
             PermissionContext.Domains.Admin, PermissionContext.Categories.Merchandising, PermissionContext.Resources.PromotionRules, PermissionContext.Actions.Delete);
 
@@ -40,7 +40,7 @@ public static class PromotionsFeatureMetadata
         public static readonly PermissionMetadata Create = PermissionMetadataMethod.For(
             PermissionContext.Domains.Admin, PermissionContext.Categories.Merchandising, PermissionContext.Resources.PromotionActions, PermissionContext.Actions.Create);
         public static readonly PermissionMetadata Read = PermissionMetadataMethod.For(
-            PermissionContext.Domains.Admin, PermissionContext.Categories.Merchandising, PermissionContext.Resources.PromotionActions, PermissionContext.Actions.Read);
+            PermissionContext.Domains.Admin, PermissionContext.Categories.Merchandising, PermissionContext.Resources.PromotionActions, PermissionContext.Actions.Detail);
         public static readonly PermissionMetadata Delete = PermissionMetadataMethod.For(
             PermissionContext.Domains.Admin, PermissionContext.Categories.Merchandising, PermissionContext.Resources.PromotionActions, PermissionContext.Actions.Delete);
 

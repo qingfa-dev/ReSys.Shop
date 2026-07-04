@@ -10,9 +10,9 @@ public static class OrderingFeatureMetadata
     public static class Orders
     {
         public static readonly PermissionMetadata List = PermissionMetadataMethod.For(
-            PermissionContext.Domains.Admin, PermissionContext.Categories.Ordering, PermissionContext.Resources.Orders, PermissionContext.Actions.View);
+            PermissionContext.Domains.Admin, PermissionContext.Categories.Ordering, PermissionContext.Resources.Orders, PermissionContext.Actions.List);
         public static readonly PermissionMetadata Read = PermissionMetadataMethod.For(
-            PermissionContext.Domains.Admin, PermissionContext.Categories.Ordering, PermissionContext.Resources.Orders, PermissionContext.Actions.Read);
+            PermissionContext.Domains.Admin, PermissionContext.Categories.Ordering, PermissionContext.Resources.Orders, PermissionContext.Actions.Detail);
         public static readonly PermissionMetadata Create = PermissionMetadataMethod.For(
             PermissionContext.Domains.Admin, PermissionContext.Categories.Ordering, PermissionContext.Resources.Orders, PermissionContext.Actions.Create);
         public static readonly PermissionMetadata Update = PermissionMetadataMethod.For(
@@ -32,7 +32,7 @@ public static class OrderingFeatureMetadata
     public static class Fulfillment
     {
         public static readonly PermissionMetadata List = PermissionMetadataMethod.For(
-            PermissionContext.Domains.Admin, PermissionContext.Categories.Ordering, PermissionContext.Resources.Fulfillment, PermissionContext.Actions.View);
+            PermissionContext.Domains.Admin, PermissionContext.Categories.Ordering, PermissionContext.Resources.Fulfillment, PermissionContext.Actions.List);
         public static readonly PermissionMetadata Manage = PermissionMetadataMethod.For(
             PermissionContext.Domains.Admin, PermissionContext.Categories.Ordering, PermissionContext.Resources.Fulfillment, PermissionContext.Actions.Fulfill);
         public static readonly PermissionMetadata Ship = PermissionMetadataMethod.For(
@@ -44,7 +44,7 @@ public static class OrderingFeatureMetadata
     public static class Payments
     {
         public static readonly PermissionMetadata List = PermissionMetadataMethod.For(
-            PermissionContext.Domains.Admin, PermissionContext.Categories.Ordering, PermissionContext.Resources.Payments, PermissionContext.Actions.View);
+            PermissionContext.Domains.Admin, PermissionContext.Categories.Ordering, PermissionContext.Resources.Payments, PermissionContext.Actions.List);
         public static readonly PermissionMetadata Manage = PermissionMetadataMethod.For(
             PermissionContext.Domains.Admin, PermissionContext.Categories.Ordering, PermissionContext.Resources.Payments, PermissionContext.Actions.Manage);
         public static readonly PermissionMetadata Capture = PermissionMetadataMethod.For(
@@ -62,7 +62,7 @@ public static class OrderingFeatureMetadata
         public static readonly PermissionMetadata Create = PermissionMetadataMethod.For(
             PermissionContext.Domains.Admin, PermissionContext.Categories.Ordering, PermissionContext.Resources.PaymentMethods, PermissionContext.Actions.Create);
         public static readonly PermissionMetadata Read = PermissionMetadataMethod.For(
-            PermissionContext.Domains.Admin, PermissionContext.Categories.Ordering, PermissionContext.Resources.PaymentMethods, PermissionContext.Actions.Read);
+            PermissionContext.Domains.Admin, PermissionContext.Categories.Ordering, PermissionContext.Resources.PaymentMethods, PermissionContext.Actions.Detail);
         public static readonly PermissionMetadata Update = PermissionMetadataMethod.For(
             PermissionContext.Domains.Admin, PermissionContext.Categories.Ordering, PermissionContext.Resources.PaymentMethods, PermissionContext.Actions.Update);
         public static readonly PermissionMetadata Delete = PermissionMetadataMethod.For(

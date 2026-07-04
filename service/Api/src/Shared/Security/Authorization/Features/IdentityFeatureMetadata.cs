@@ -10,9 +10,9 @@ public static class IdentityFeatureMetadata
     public static class Users
     {
         public static readonly PermissionMetadata List = PermissionMetadataMethod.For(
-            PermissionContext.Domains.Admin, PermissionContext.Categories.Identity, PermissionContext.Resources.Users, PermissionContext.Actions.View);
+            PermissionContext.Domains.Admin, PermissionContext.Categories.Identity, PermissionContext.Resources.Users, PermissionContext.Actions.List);
         public static readonly PermissionMetadata Read = PermissionMetadataMethod.For(
-            PermissionContext.Domains.Admin, PermissionContext.Categories.Identity, PermissionContext.Resources.Users, PermissionContext.Actions.Read);
+            PermissionContext.Domains.Admin, PermissionContext.Categories.Identity, PermissionContext.Resources.Users, PermissionContext.Actions.Detail);
         public static readonly PermissionMetadata Create = PermissionMetadataMethod.For(
             PermissionContext.Domains.Admin, PermissionContext.Categories.Identity, PermissionContext.Resources.Users, PermissionContext.Actions.Create);
         public static readonly PermissionMetadata Update = PermissionMetadataMethod.For(
@@ -28,9 +28,9 @@ public static class IdentityFeatureMetadata
     public static class Roles
     {
         public static readonly PermissionMetadata List = PermissionMetadataMethod.For(
-            PermissionContext.Domains.Admin, PermissionContext.Categories.Identity, PermissionContext.Resources.Roles, PermissionContext.Actions.View);
+            PermissionContext.Domains.Admin, PermissionContext.Categories.Identity, PermissionContext.Resources.Roles, PermissionContext.Actions.List);
         public static readonly PermissionMetadata Read = PermissionMetadataMethod.For(
-            PermissionContext.Domains.Admin, PermissionContext.Categories.Identity, PermissionContext.Resources.Roles, PermissionContext.Actions.Read);
+            PermissionContext.Domains.Admin, PermissionContext.Categories.Identity, PermissionContext.Resources.Roles, PermissionContext.Actions.Detail);
         public static readonly PermissionMetadata Create = PermissionMetadataMethod.For(
             PermissionContext.Domains.Admin, PermissionContext.Categories.Identity, PermissionContext.Resources.Roles, PermissionContext.Actions.Create);
         public static readonly PermissionMetadata Update = PermissionMetadataMethod.For(
@@ -46,7 +46,7 @@ public static class IdentityFeatureMetadata
     public static class Permissions
     {
         public static readonly PermissionMetadata List = PermissionMetadataMethod.For(
-            PermissionContext.Domains.Admin, PermissionContext.Categories.Identity, PermissionContext.Resources.Permissions, PermissionContext.Actions.View);
+            PermissionContext.Domains.Admin, PermissionContext.Categories.Identity, PermissionContext.Resources.Permissions, PermissionContext.Actions.List);
 
         public static IReadOnlyList<PermissionMetadata> All => [List];
     }
