@@ -224,6 +224,19 @@ internal sealed partial class StorageService(
             : Task.FromResult<Result<DownloadResult>>(StorageResult.Failure.ProviderNotFound(providerName ?? defaultProviderName));
 
     /// <inheritdoc />
+    public Task<Result<string>> ResolvePathAsync(
+        string key,
+        string? providerName = null,
+        CancellationToken ct = default)
+    {
+        if (!TryResolve(providerName, out IStorageProvider provider))
+            return Task.FromResult<Result<string>>(StorageResult.Failure.ProviderNotFound(providerName ?? defaultProviderName));
+
+        Result<string> result = provider.ResolvePath(key);
+        return Task.FromResult(result);
+    }
+
+    /// <inheritdoc />
     public Task<Result> DeleteAsync(
         string key,
         string? providerName = null,
