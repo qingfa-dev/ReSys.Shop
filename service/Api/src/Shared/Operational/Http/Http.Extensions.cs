@@ -10,7 +10,7 @@ using Shared.Operational.Http.Options;
 
 namespace Shared.Operational.Http;
 
-public static class Extensions
+public static class HttpClientExtensions
 {
     public static WebApplicationBuilder AddHttpClients(
         this WebApplicationBuilder builder)
@@ -48,14 +48,64 @@ public static class Extensions
     public static IServiceCollection AddTypedHttpClient<TClient>(
         this IServiceCollection services,
         string baseAddress,
+        Action<HttpClient>? configure = null,
         bool attachResilience = true)
         where TClient : class
     {
         var builder = services.AddHttpClient<TClient>(c =>
         {
             c.BaseAddress = new Uri(baseAddress);
+            configure?.Invoke(c);
         })
         .AddHttpMessageHandler<CorrelationIdPropagationHandler>();
+
+        if (attachResilience)
+            builder.AddResilienceHandler(
+                ResilienceExtensions.DefaultPipelineName,
+                _ => { });
+
+        return services;
+    }
+
+    public static IServiceCollection AddTypedHttpClient<TService, TImplementation>(
+        this IServiceCollection services,
+        string baseAddress,
+        Action<HttpClient>? configure = null,
+        bool attachResilience = true)
+        where TService : class
+        where TImplementation : class, TService
+    {
+        var builder = services.AddHttpClient<TService, TImplementation>(c =>
+        {
+            c.BaseAddress = new Uri(baseAddress);
+            configure?.Invoke(c);
+        })
+        .AddHttpMessageHandler<CorrelationIdPropagationHandler>();
+
+        if (attachResilience)
+            builder.AddResilienceHandler(
+                ResilienceExtensions.DefaultPipelineName,
+                _ => { });
+
+        return services;
+    }
+
+    public static IServiceCollection AddTypedHttpClient<TService, TImplementation, THandler>(
+        this IServiceCollection services,
+        string baseAddress,
+        Action<HttpClient>? configure = null,
+        bool attachResilience = true)
+        where TService : class
+        where TImplementation : class, TService
+        where THandler : DelegatingHandler
+    {
+        var builder = services.AddHttpClient<TService, TImplementation>(c =>
+        {
+            c.BaseAddress = new Uri(baseAddress);
+            configure?.Invoke(c);
+        })
+        .AddHttpMessageHandler<CorrelationIdPropagationHandler>()
+        .AddHttpMessageHandler<THandler>();
 
         if (attachResilience)
             builder.AddResilienceHandler(

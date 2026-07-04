@@ -1,5 +1,6 @@
 using System.Reflection;
 
+using Module.Catalog;
 using Module.Identity;
 using Module.Location;
 using Module.Profile;
@@ -31,6 +32,7 @@ builder.AddOperational(additionalAssemblies);
 builder.AddLocationModule();
 builder.AddIdentityModule();
 builder.AddProfilesModule();
+builder.AddCatalogModule();
 
 
 WebApplication app = builder.Build();

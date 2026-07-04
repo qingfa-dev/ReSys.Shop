@@ -17,19 +17,15 @@ public static class CatalogExtensions
     /// <summary>
     /// Adds the Catalog module services to the specified service collection.
     /// </summary>
-    /// <param name="services">The service collection to add services to.</param>
-    /// <param name="configuration">The application configuration.</param>
-    /// <returns>The service collection with catalog services registered.</returns>
-    public static IServiceCollection AddCatalogModule(
-        this IServiceCollection services,
-        IConfiguration configuration)
+    public static WebApplicationBuilder AddCatalogModule(
+        this WebApplicationBuilder builder)
     {
-        services.AddInferenceClient(configuration);
+        builder.Services.AddInferenceClient(builder.Configuration);
 
-        services.AddScoped<ITaxonHierarchyService, TaxonHierarchyService>();
-        services.AddScoped<IAutoClassificationService, AutoClassificationService>();
-        services.AddSingleton<ITaxonRuleEvaluator, TaxonRuleEvaluator>();
+        builder.Services.AddScoped<ITaxonHierarchyService, TaxonHierarchyService>();
+        builder.Services.AddScoped<IAutoClassificationService, AutoClassificationService>();
+        builder.Services.AddSingleton<ITaxonRuleEvaluator, TaxonRuleEvaluator>();
 
-        return services;
+        return builder;
     }
 }

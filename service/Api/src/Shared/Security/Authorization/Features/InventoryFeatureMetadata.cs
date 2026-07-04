@@ -10,9 +10,9 @@ public static class InventoryFeatureMetadata
     public static class StockItems
     {
         public static readonly PermissionMetadata List = PermissionMetadataMethod.For(
-            PermissionContext.Domains.Admin, PermissionContext.Categories.Inventory, PermissionContext.Resources.StockItems, PermissionContext.Actions.View);
+            PermissionContext.Domains.Admin, PermissionContext.Categories.Inventory, PermissionContext.Resources.StockItems, PermissionContext.Actions.List);
         public static readonly PermissionMetadata Read = PermissionMetadataMethod.For(
-            PermissionContext.Domains.Admin, PermissionContext.Categories.Inventory, PermissionContext.Resources.StockItems, PermissionContext.Actions.Read);
+            PermissionContext.Domains.Admin, PermissionContext.Categories.Inventory, PermissionContext.Resources.StockItems, PermissionContext.Actions.Detail);
         public static readonly PermissionMetadata Create = PermissionMetadataMethod.For(
             PermissionContext.Domains.Admin, PermissionContext.Categories.Inventory, PermissionContext.Resources.StockItems, PermissionContext.Actions.Create);
         public static readonly PermissionMetadata Update = PermissionMetadataMethod.For(
@@ -28,9 +28,9 @@ public static class InventoryFeatureMetadata
     public static class StockLocation
     {
         public static readonly PermissionMetadata List = PermissionMetadataMethod.For(
-            PermissionContext.Domains.Admin, PermissionContext.Categories.Inventory, PermissionContext.Resources.StockLocation, PermissionContext.Actions.View);
+            PermissionContext.Domains.Admin, PermissionContext.Categories.Inventory, PermissionContext.Resources.StockLocation, PermissionContext.Actions.List);
         public static readonly PermissionMetadata Read = PermissionMetadataMethod.For(
-            PermissionContext.Domains.Admin, PermissionContext.Categories.Inventory, PermissionContext.Resources.StockLocation, PermissionContext.Actions.Read);
+            PermissionContext.Domains.Admin, PermissionContext.Categories.Inventory, PermissionContext.Resources.StockLocation, PermissionContext.Actions.Detail);
         public static readonly PermissionMetadata Create = PermissionMetadataMethod.For(
             PermissionContext.Domains.Admin, PermissionContext.Categories.Inventory, PermissionContext.Resources.StockLocation, PermissionContext.Actions.Create);
         public static readonly PermissionMetadata Update = PermissionMetadataMethod.For(
@@ -44,7 +44,7 @@ public static class InventoryFeatureMetadata
     public static class StockReservations
     {
         public static readonly PermissionMetadata Read = PermissionMetadataMethod.For(
-            PermissionContext.Domains.Admin, PermissionContext.Categories.Inventory, PermissionContext.Resources.StockReservations, PermissionContext.Actions.Read);
+            PermissionContext.Domains.Admin, PermissionContext.Categories.Inventory, PermissionContext.Resources.StockReservations, PermissionContext.Actions.Detail);
         public static readonly PermissionMetadata Cancel = PermissionMetadataMethod.For(
             PermissionContext.Domains.Admin, PermissionContext.Categories.Inventory, PermissionContext.Resources.StockReservations, PermissionContext.Actions.Cancel);
 

@@ -5,7 +5,7 @@ using Module;
 
 using Shared.Operational.Persistence.Data;
 
-namespace Api.Migrations;
+namespace Api;
 
 public class DesignTimeDbContextFactory : IDesignTimeDbContextFactory<ApplicationDbContext>
 {

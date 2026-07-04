@@ -10,7 +10,7 @@ public static class ConfigurationFeatureMetadata
     public static class Settings
     {
         public static readonly PermissionMetadata Read = PermissionMetadataMethod.For(
-            PermissionContext.Domains.Admin, PermissionContext.Categories.Configuration, PermissionContext.Resources.Settings, PermissionContext.Actions.Read);
+            PermissionContext.Domains.Admin, PermissionContext.Categories.Configuration, PermissionContext.Resources.Settings, PermissionContext.Actions.Detail);
         public static readonly PermissionMetadata Update = PermissionMetadataMethod.For(
             PermissionContext.Domains.Admin, PermissionContext.Categories.Configuration, PermissionContext.Resources.Settings, PermissionContext.Actions.Update);
 
@@ -20,7 +20,7 @@ public static class ConfigurationFeatureMetadata
     public static class Stores
     {
         public static readonly PermissionMetadata Read = PermissionMetadataMethod.For(
-            PermissionContext.Domains.Admin, PermissionContext.Categories.Configuration, PermissionContext.Resources.Stores, PermissionContext.Actions.Read);
+            PermissionContext.Domains.Admin, PermissionContext.Categories.Configuration, PermissionContext.Resources.Stores, PermissionContext.Actions.Detail);
         public static readonly PermissionMetadata Create = PermissionMetadataMethod.For(
             PermissionContext.Domains.Admin, PermissionContext.Categories.Configuration, PermissionContext.Resources.Stores, PermissionContext.Actions.Create);
         public static readonly PermissionMetadata Delete = PermissionMetadataMethod.For(
@@ -72,7 +72,7 @@ public static class ConfigurationFeatureMetadata
     public static class TaxCategories
     {
         public static readonly PermissionMetadata Read = PermissionMetadataMethod.For(
-            PermissionContext.Domains.Admin, PermissionContext.Categories.Configuration, PermissionContext.Resources.TaxCategories, PermissionContext.Actions.Read);
+            PermissionContext.Domains.Admin, PermissionContext.Categories.Configuration, PermissionContext.Resources.TaxCategories, PermissionContext.Actions.Detail);
         public static readonly PermissionMetadata Update = PermissionMetadataMethod.For(
             PermissionContext.Domains.Admin, PermissionContext.Categories.Configuration, PermissionContext.Resources.TaxCategories, PermissionContext.Actions.Update);
         public static readonly PermissionMetadata Delete = PermissionMetadataMethod.For(
@@ -84,7 +84,7 @@ public static class ConfigurationFeatureMetadata
     public static class TaxRates
     {
         public static readonly PermissionMetadata Read = PermissionMetadataMethod.For(
-            PermissionContext.Domains.Admin, PermissionContext.Categories.Configuration, PermissionContext.Resources.TaxRates, PermissionContext.Actions.Read);
+            PermissionContext.Domains.Admin, PermissionContext.Categories.Configuration, PermissionContext.Resources.TaxRates, PermissionContext.Actions.Detail);
         public static readonly PermissionMetadata Update = PermissionMetadataMethod.For(
             PermissionContext.Domains.Admin, PermissionContext.Categories.Configuration, PermissionContext.Resources.TaxRates, PermissionContext.Actions.Update);
         public static readonly PermissionMetadata Delete = PermissionMetadataMethod.For(
@@ -96,7 +96,7 @@ public static class ConfigurationFeatureMetadata
     public static class CustomFieldDefinitions
     {
         public static readonly PermissionMetadata Read = PermissionMetadataMethod.For(
-            PermissionContext.Domains.Admin, PermissionContext.Categories.Configuration, PermissionContext.Resources.CustomFieldDefinitions, PermissionContext.Actions.Read);
+            PermissionContext.Domains.Admin, PermissionContext.Categories.Configuration, PermissionContext.Resources.CustomFieldDefinitions, PermissionContext.Actions.Detail);
         public static readonly PermissionMetadata Update = PermissionMetadataMethod.For(
             PermissionContext.Domains.Admin, PermissionContext.Categories.Configuration, PermissionContext.Resources.CustomFieldDefinitions, PermissionContext.Actions.Update);
         public static readonly PermissionMetadata Delete = PermissionMetadataMethod.For(
@@ -108,7 +108,7 @@ public static class ConfigurationFeatureMetadata
     public static class CustomFields
     {
         public static readonly PermissionMetadata Read = PermissionMetadataMethod.For(
-            PermissionContext.Domains.Admin, PermissionContext.Categories.Configuration, PermissionContext.Resources.CustomFields, PermissionContext.Actions.Read);
+            PermissionContext.Domains.Admin, PermissionContext.Categories.Configuration, PermissionContext.Resources.CustomFields, PermissionContext.Actions.Detail);
         public static readonly PermissionMetadata Update = PermissionMetadataMethod.For(
             PermissionContext.Domains.Admin, PermissionContext.Categories.Configuration, PermissionContext.Resources.CustomFields, PermissionContext.Actions.Update);
         public static readonly PermissionMetadata Delete = PermissionMetadataMethod.For(

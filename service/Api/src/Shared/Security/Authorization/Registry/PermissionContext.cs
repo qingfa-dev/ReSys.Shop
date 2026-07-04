@@ -49,9 +49,9 @@ public static class PermissionContext
 
     public static class Actions
     {
-        public static readonly OptionDescriptor<string> View = OptionDescriptor<string>.Option(
+        public static readonly OptionDescriptor<string> List = OptionDescriptor<string>.Option(
             "view", "View", "Allows viewing resources without modification.");
-        public static readonly OptionDescriptor<string> Read = OptionDescriptor<string>.Option(
+        public static readonly OptionDescriptor<string> Detail = OptionDescriptor<string>.Option(
             "read", "Read", "Allows reading resource details.");
         public static readonly OptionDescriptor<string> Create = OptionDescriptor<string>.Option(
             "create", "Create", "Allows creating new resources.");

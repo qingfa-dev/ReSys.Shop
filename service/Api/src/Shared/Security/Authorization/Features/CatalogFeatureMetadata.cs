@@ -10,9 +10,9 @@ public static class CatalogFeatureMetadata
     public static class Products
     {
         public static readonly PermissionMetadata List = PermissionMetadataMethod.For(
-            PermissionContext.Domains.Admin, PermissionContext.Categories.Catalog, PermissionContext.Resources.Products, PermissionContext.Actions.View);
+            PermissionContext.Domains.Admin, PermissionContext.Categories.Catalog, PermissionContext.Resources.Products, PermissionContext.Actions.List);
         public static readonly PermissionMetadata Read = PermissionMetadataMethod.For(
-            PermissionContext.Domains.Admin, PermissionContext.Categories.Catalog, PermissionContext.Resources.Products, PermissionContext.Actions.Read);
+            PermissionContext.Domains.Admin, PermissionContext.Categories.Catalog, PermissionContext.Resources.Products, PermissionContext.Actions.Detail);
         public static readonly PermissionMetadata Create = PermissionMetadataMethod.For(
             PermissionContext.Domains.Admin, PermissionContext.Categories.Catalog, PermissionContext.Resources.Products, PermissionContext.Actions.Create);
         public static readonly PermissionMetadata Update = PermissionMetadataMethod.For(
@@ -32,9 +32,9 @@ public static class CatalogFeatureMetadata
     public static class Variants
     {
         public static readonly PermissionMetadata List = PermissionMetadataMethod.For(
-            PermissionContext.Domains.Admin, PermissionContext.Categories.Catalog, PermissionContext.Resources.ProductsVariants, PermissionContext.Actions.View);
+            PermissionContext.Domains.Admin, PermissionContext.Categories.Catalog, PermissionContext.Resources.ProductsVariants, PermissionContext.Actions.List);
         public static readonly PermissionMetadata Read = PermissionMetadataMethod.For(
-            PermissionContext.Domains.Admin, PermissionContext.Categories.Catalog, PermissionContext.Resources.ProductsVariants, PermissionContext.Actions.Read);
+            PermissionContext.Domains.Admin, PermissionContext.Categories.Catalog, PermissionContext.Resources.ProductsVariants, PermissionContext.Actions.Detail);
         public static readonly PermissionMetadata Create = PermissionMetadataMethod.For(
             PermissionContext.Domains.Admin, PermissionContext.Categories.Catalog, PermissionContext.Resources.ProductsVariants, PermissionContext.Actions.Create);
         public static readonly PermissionMetadata Update = PermissionMetadataMethod.For(
@@ -52,9 +52,9 @@ public static class CatalogFeatureMetadata
     public static class Taxonomies
     {
         public static readonly PermissionMetadata List = PermissionMetadataMethod.For(
-            PermissionContext.Domains.Admin, PermissionContext.Categories.Catalog, PermissionContext.Resources.Taxonomies, PermissionContext.Actions.View);
+            PermissionContext.Domains.Admin, PermissionContext.Categories.Catalog, PermissionContext.Resources.Taxonomies, PermissionContext.Actions.List);
         public static readonly PermissionMetadata Read = PermissionMetadataMethod.For(
-            PermissionContext.Domains.Admin, PermissionContext.Categories.Catalog, PermissionContext.Resources.Taxonomies, PermissionContext.Actions.Read);
+            PermissionContext.Domains.Admin, PermissionContext.Categories.Catalog, PermissionContext.Resources.Taxonomies, PermissionContext.Actions.Detail);
         public static readonly PermissionMetadata Create = PermissionMetadataMethod.For(
             PermissionContext.Domains.Admin, PermissionContext.Categories.Catalog, PermissionContext.Resources.Taxonomies, PermissionContext.Actions.Create);
         public static readonly PermissionMetadata Update = PermissionMetadataMethod.For(
@@ -72,9 +72,9 @@ public static class CatalogFeatureMetadata
     public static class Taxons
     {
         public static readonly PermissionMetadata List = PermissionMetadataMethod.For(
-            PermissionContext.Domains.Admin, PermissionContext.Categories.Catalog, PermissionContext.Resources.Taxons, PermissionContext.Actions.View);
+            PermissionContext.Domains.Admin, PermissionContext.Categories.Catalog, PermissionContext.Resources.Taxons, PermissionContext.Actions.List);
         public static readonly PermissionMetadata Read = PermissionMetadataMethod.For(
-            PermissionContext.Domains.Admin, PermissionContext.Categories.Catalog, PermissionContext.Resources.Taxons, PermissionContext.Actions.Read);
+            PermissionContext.Domains.Admin, PermissionContext.Categories.Catalog, PermissionContext.Resources.Taxons, PermissionContext.Actions.Detail);
         public static readonly PermissionMetadata Create = PermissionMetadataMethod.For(
             PermissionContext.Domains.Admin, PermissionContext.Categories.Catalog, PermissionContext.Resources.Taxons, PermissionContext.Actions.Create);
         public static readonly PermissionMetadata Update = PermissionMetadataMethod.For(
@@ -92,9 +92,9 @@ public static class CatalogFeatureMetadata
     public static class OptionTypes
     {
         public static readonly PermissionMetadata List = PermissionMetadataMethod.For(
-            PermissionContext.Domains.Admin, PermissionContext.Categories.Catalog, PermissionContext.Resources.OptionTypes, PermissionContext.Actions.View);
+            PermissionContext.Domains.Admin, PermissionContext.Categories.Catalog, PermissionContext.Resources.OptionTypes, PermissionContext.Actions.List);
         public static readonly PermissionMetadata Read = PermissionMetadataMethod.For(
-            PermissionContext.Domains.Admin, PermissionContext.Categories.Catalog, PermissionContext.Resources.OptionTypes, PermissionContext.Actions.Read);
+            PermissionContext.Domains.Admin, PermissionContext.Categories.Catalog, PermissionContext.Resources.OptionTypes, PermissionContext.Actions.Detail);
         public static readonly PermissionMetadata Create = PermissionMetadataMethod.For(
             PermissionContext.Domains.Admin, PermissionContext.Categories.Catalog, PermissionContext.Resources.OptionTypes, PermissionContext.Actions.Create);
         public static readonly PermissionMetadata Update = PermissionMetadataMethod.For(
@@ -108,9 +108,9 @@ public static class CatalogFeatureMetadata
       public static class OptionTypesOptionValues
     {
         public static readonly PermissionMetadata List = PermissionMetadataMethod.For(
-            PermissionContext.Domains.Admin, PermissionContext.Categories.Catalog, PermissionContext.Resources.OptionTypesOptionValues, PermissionContext.Actions.View);
+            PermissionContext.Domains.Admin, PermissionContext.Categories.Catalog, PermissionContext.Resources.OptionTypesOptionValues, PermissionContext.Actions.List);
         public static readonly PermissionMetadata Read = PermissionMetadataMethod.For(
-            PermissionContext.Domains.Admin, PermissionContext.Categories.Catalog, PermissionContext.Resources.OptionTypesOptionValues, PermissionContext.Actions.Read);
+            PermissionContext.Domains.Admin, PermissionContext.Categories.Catalog, PermissionContext.Resources.OptionTypesOptionValues, PermissionContext.Actions.Detail);
         public static readonly PermissionMetadata Create = PermissionMetadataMethod.For(
             PermissionContext.Domains.Admin, PermissionContext.Categories.Catalog, PermissionContext.Resources.OptionTypesOptionValues, PermissionContext.Actions.Create);
         public static readonly PermissionMetadata Update = PermissionMetadataMethod.For(
@@ -124,9 +124,9 @@ public static class CatalogFeatureMetadata
     public static class PropertyTypes
     {
         public static readonly PermissionMetadata List = PermissionMetadataMethod.For(
-            PermissionContext.Domains.Admin, PermissionContext.Categories.Catalog, PermissionContext.Resources.PropertyTypes, PermissionContext.Actions.View);
+            PermissionContext.Domains.Admin, PermissionContext.Categories.Catalog, PermissionContext.Resources.PropertyTypes, PermissionContext.Actions.List);
         public static readonly PermissionMetadata Read = PermissionMetadataMethod.For(
-            PermissionContext.Domains.Admin, PermissionContext.Categories.Catalog, PermissionContext.Resources.PropertyTypes, PermissionContext.Actions.Read);
+            PermissionContext.Domains.Admin, PermissionContext.Categories.Catalog, PermissionContext.Resources.PropertyTypes, PermissionContext.Actions.Detail);
         public static readonly PermissionMetadata Create = PermissionMetadataMethod.For(
             PermissionContext.Domains.Admin, PermissionContext.Categories.Catalog, PermissionContext.Resources.PropertyTypes, PermissionContext.Actions.Create);
         public static readonly PermissionMetadata Update = PermissionMetadataMethod.For(
@@ -143,7 +143,7 @@ public static class CatalogFeatureMetadata
             PermissionContext.Domains.Admin,
             PermissionContext.Categories.Catalog,
             PermissionContext.Resources.ProductsOptionTypes,
-            PermissionContext.Actions.Read);
+            PermissionContext.Actions.Detail);
         public static readonly PermissionMetadata Assign = PermissionMetadataMethod.For(
             PermissionContext.Domains.Admin,
             PermissionContext.Categories.Catalog,
@@ -160,7 +160,7 @@ public static class CatalogFeatureMetadata
     public static class ProductsClassifications
     {
         public static readonly PermissionMetadata Read = PermissionMetadataMethod.For(
-            PermissionContext.Domains.Admin, PermissionContext.Categories.Catalog, PermissionContext.Resources.ProductsClassifications, PermissionContext.Actions.Read);
+            PermissionContext.Domains.Admin, PermissionContext.Categories.Catalog, PermissionContext.Resources.ProductsClassifications, PermissionContext.Actions.Detail);
         public static readonly PermissionMetadata Assign = PermissionMetadataMethod.For(
             PermissionContext.Domains.Admin, PermissionContext.Categories.Catalog, PermissionContext.Resources.ProductsClassifications, PermissionContext.Actions.Assign);
         public static readonly PermissionMetadata Revoke = PermissionMetadataMethod.For(
@@ -174,7 +174,7 @@ public static class CatalogFeatureMetadata
     public static class VariantOptionValues
     {
         public static readonly PermissionMetadata List = PermissionMetadataMethod.For(
-            PermissionContext.Domains.Admin, PermissionContext.Categories.Catalog, PermissionContext.Resources.ProductsVariantsOptionValues, PermissionContext.Actions.View);
+            PermissionContext.Domains.Admin, PermissionContext.Categories.Catalog, PermissionContext.Resources.ProductsVariantsOptionValues, PermissionContext.Actions.List);
         public static readonly PermissionMetadata Manage = PermissionMetadataMethod.For(
             PermissionContext.Domains.Admin, PermissionContext.Categories.Catalog, PermissionContext.Resources.ProductsVariantsOptionValues, PermissionContext.Actions.Manage);
 
@@ -184,9 +184,9 @@ public static class CatalogFeatureMetadata
     public static class VariantImages
     {
         public static readonly PermissionMetadata List = PermissionMetadataMethod.For(
-            PermissionContext.Domains.Admin, PermissionContext.Categories.Catalog, PermissionContext.Resources.ProductsVariantsImages, PermissionContext.Actions.View);
+            PermissionContext.Domains.Admin, PermissionContext.Categories.Catalog, PermissionContext.Resources.ProductsVariantsImages, PermissionContext.Actions.List);
         public static readonly PermissionMetadata Read = PermissionMetadataMethod.For(
-            PermissionContext.Domains.Admin, PermissionContext.Categories.Catalog, PermissionContext.Resources.ProductsVariantsImages, PermissionContext.Actions.Read);
+            PermissionContext.Domains.Admin, PermissionContext.Categories.Catalog, PermissionContext.Resources.ProductsVariantsImages, PermissionContext.Actions.Detail);
         public static readonly PermissionMetadata Upload = PermissionMetadataMethod.For(
             PermissionContext.Domains.Admin, PermissionContext.Categories.Catalog, PermissionContext.Resources.ProductsVariantsImages, PermissionContext.Actions.Create);
         public static readonly PermissionMetadata Update = PermissionMetadataMethod.For(

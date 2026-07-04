@@ -10,9 +10,9 @@ public static class LocationFeatureMetadata
     public static class Countries
     {
         public static readonly PermissionMetadata List = PermissionMetadataMethod.For(
-            PermissionContext.Domains.Admin, PermissionContext.Categories.Location, PermissionContext.Resources.Countries, PermissionContext.Actions.View);
+            PermissionContext.Domains.Admin, PermissionContext.Categories.Location, PermissionContext.Resources.Countries, PermissionContext.Actions.List);
         public static readonly PermissionMetadata Read = PermissionMetadataMethod.For(
-            PermissionContext.Domains.Admin, PermissionContext.Categories.Location, PermissionContext.Resources.Countries, PermissionContext.Actions.Read);
+            PermissionContext.Domains.Admin, PermissionContext.Categories.Location, PermissionContext.Resources.Countries, PermissionContext.Actions.Detail);
         public static readonly PermissionMetadata Create = PermissionMetadataMethod.For(
             PermissionContext.Domains.Admin, PermissionContext.Categories.Location, PermissionContext.Resources.Countries, PermissionContext.Actions.Create);
         public static readonly PermissionMetadata Update = PermissionMetadataMethod.For(
@@ -26,9 +26,9 @@ public static class LocationFeatureMetadata
     public static class States
     {
         public static readonly PermissionMetadata List = PermissionMetadataMethod.For(
-            PermissionContext.Domains.Admin, PermissionContext.Categories.Location, PermissionContext.Resources.States, PermissionContext.Actions.View);
+            PermissionContext.Domains.Admin, PermissionContext.Categories.Location, PermissionContext.Resources.States, PermissionContext.Actions.List);
         public static readonly PermissionMetadata Read = PermissionMetadataMethod.For(
-            PermissionContext.Domains.Admin, PermissionContext.Categories.Location, PermissionContext.Resources.States, PermissionContext.Actions.Read);
+            PermissionContext.Domains.Admin, PermissionContext.Categories.Location, PermissionContext.Resources.States, PermissionContext.Actions.Detail);
         public static readonly PermissionMetadata Create = PermissionMetadataMethod.For(
             PermissionContext.Domains.Admin, PermissionContext.Categories.Location, PermissionContext.Resources.States, PermissionContext.Actions.Create);
         public static readonly PermissionMetadata Update = PermissionMetadataMethod.For(

@@ -85,11 +85,11 @@ Authorization: Bearer {{storeToken}}
 ### =======================================================
 
 ### Search products
-GET {{baseUrl}}/api/storefront/search?q=t-shirt&pageSize=5
+GET {{baseUrl}}/api/storefront/products?q=t-shirt&pageSize=5
 Content-Type: {{contentType}}
 
 ### Filter products
-GET {{baseUrl}}/api/storefront/filter?color=Red&pageSize=5
+GET {{baseUrl}}/api/storefront/products?color=Red&pageSize=5
 Content-Type: {{contentType}}
 
 ### Get product by slug

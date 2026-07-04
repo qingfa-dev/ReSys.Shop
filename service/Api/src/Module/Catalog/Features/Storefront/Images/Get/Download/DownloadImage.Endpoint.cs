@@ -17,7 +17,7 @@ public static partial class DownloadImage
                 var result = await sender.Send(query, ct);
 
                 if (result.IsFailure)
-                    return Results.NotFound(result);
+                    return result.ToResult();
 
                 return Results.File(result.Value.Stream, result.Value.ContentType, result.Value.FileName);
             })
