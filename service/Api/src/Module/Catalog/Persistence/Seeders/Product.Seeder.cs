@@ -1,13 +1,8 @@
-using Microsoft.EntityFrameworkCore;
-
 using Module.Catalog.Domain.Products;
 using Module.Catalog.Domain.Products.Classifications;
 using Module.Catalog.Domain.Products.Variants;
 using Module.Catalog.Domain.Products.Variants.Prices;
 using Module.Catalog.Domain.Taxonomies.Taxons;
-
-using Shared.Operational.Persistence.Data;
-using Shared.Operational.Persistence.Seeders;
 
 namespace Module.Catalog.Persistence.Seeders;
 

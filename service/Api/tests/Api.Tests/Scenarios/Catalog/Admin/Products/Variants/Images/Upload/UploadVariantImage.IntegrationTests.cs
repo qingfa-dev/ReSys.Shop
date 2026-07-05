@@ -1,6 +1,4 @@
-using System.Net;
 using System.Net.Http.Headers;
-using System.Text;
 
 using Api.Tests.Infrastructure;
 using Api.Tests.Infrastructure.Auth;

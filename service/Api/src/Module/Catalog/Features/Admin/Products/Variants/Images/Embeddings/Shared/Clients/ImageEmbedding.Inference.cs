@@ -35,6 +35,30 @@ public class InferenceClient : IInferenceClient
         }
     }
 
+    public async Task<Result<EmbeddingResponse>> CreateEmbeddingFromBytesAsync(byte[] imageBytes, string contentType, string? model = null, CancellationToken ct = default)
+    {
+        try
+        {
+            using var content = new MultipartFormDataContent();
+            var imageContent = new ByteArrayContent(imageBytes);
+            imageContent.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue(contentType);
+            content.Add(imageContent, "image", "upload");
+            if (!string.IsNullOrEmpty(model))
+                content.Add(new StringContent(model), "model");
+
+            var response = await _httpClient.PostAsync("/embeddings/bytes", content, ct);
+            return await DeserializeResultAsync<EmbeddingResponse>(response, ct);
+        }
+        catch (OperationCanceledException)
+        {
+            return ImageEmbeddingResult.Errors.RequestTimeout;
+        }
+        catch (Exception ex)
+        {
+            return ImageEmbeddingResult.Errors.CommunicationFailed(ex.Message);
+        }
+    }
+
     public async Task<Result<List<ModelMetadata>>> ListModelsAsync(CancellationToken ct = default)
     {
         try

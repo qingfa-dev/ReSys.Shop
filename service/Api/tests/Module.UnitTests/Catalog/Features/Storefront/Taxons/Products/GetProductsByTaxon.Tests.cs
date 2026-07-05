@@ -5,7 +5,7 @@ using Module.Catalog.Domain.Taxonomies;
 using Module.Catalog.Domain.Taxonomies.Taxons;
 using Module.Catalog.Features.Storefront.Taxons.Get.Products;
 
-namespace Module.UnitTests.Catalog.Features.Storefront.Taxons.Get.Products;
+namespace Module.UnitTests.Catalog.Features.Storefront.Taxons.Products;
 
 [Trait("Category", "Unit")]
 [Trait("Module", "Catalog")]
@@ -49,7 +49,7 @@ public class GetProductsByTaxonTests : IDisposable
         await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 
         var result = await _handler.Handle(
-            new GetProducts.Query(new GetProducts.Parameters { TaxonId = taxon.Id }),
+            new GetProducts.Query(taxon.Id, new GetProducts.Parameters()),
             TestContext.Current.CancellationToken);
 
         result.IsSuccess.Should().BeTrue();
@@ -66,7 +66,7 @@ public class GetProductsByTaxonTests : IDisposable
         await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 
         var result = await _handler.Handle(
-            new GetProducts.Query(new GetProducts.Parameters { TaxonId = taxon.Id }),
+            new GetProducts.Query(taxon.Id, new GetProducts.Parameters()),
             TestContext.Current.CancellationToken);
 
         result.Items.Should().BeEmpty();

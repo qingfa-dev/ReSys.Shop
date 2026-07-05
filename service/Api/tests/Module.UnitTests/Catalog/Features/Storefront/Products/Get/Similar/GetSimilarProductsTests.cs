@@ -38,9 +38,8 @@ public class GetSimilarProductsTests : IDisposable
             new GetSimilarProducts.Query(Guid.NewGuid()),
             TestContext.Current.CancellationToken);
 
-        // Assert
-        result.IsSuccess.Should().BeTrue();
-        result.Value.Items.Should().BeEmpty();
+        // Assert: No product found for this ID
+        result.IsSuccess.Should().BeFalse();
     }
 
     [Fact(DisplayName = "Handler: Should return empty result when variant has no embedding")]
@@ -57,7 +56,7 @@ public class GetSimilarProductsTests : IDisposable
 
         // Act
         var result = await _handler.Handle(
-            new GetSimilarProducts.Query(variant.Id),
+            new GetSimilarProducts.Query(product.Id),
             TestContext.Current.CancellationToken);
 
         // Assert: No embedding -> returns empty

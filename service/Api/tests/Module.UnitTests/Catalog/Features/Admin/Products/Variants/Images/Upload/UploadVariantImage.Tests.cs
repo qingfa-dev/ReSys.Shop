@@ -1,3 +1,5 @@
+using Hangfire;
+
 using Microsoft.AspNetCore.Http;
 
 using Module.Catalog.Domain.Products;
@@ -33,7 +35,7 @@ public class UploadVariantImageTests : IDisposable
         _currentUserMock.Setup(x => x.UserName).Returns("admin");
 
         _handler = new UploadVariantImage.CommandHandler(
-            _dbContext, _storageServiceMock.Object, _loggerMock.Object, _currentUserMock.Object);
+            _dbContext, _storageServiceMock.Object, backgroundJobClient: null, _loggerMock.Object, _currentUserMock.Object);
     }
 
     public void Dispose()

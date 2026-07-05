@@ -61,6 +61,11 @@ public static class ImageEmbeddingResult
         public static Error  InvalidResponse => Error.Unexpected(
             "Inference.InvalidResponse",
             "Invalid response from inference service.");
+
+        /// <summary>Failed to generate embedding from raw image bytes.</summary>
+        public static Error  EmbeddingFromBytesFailed(string details) => Error.Unexpected(
+            code: "Inference.EmbeddingFromBytesFailed",
+            message: "Failed to generate embedding from image bytes: " + details);
         #endregion
     }
 }

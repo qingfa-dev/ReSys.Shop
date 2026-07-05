@@ -194,7 +194,10 @@ public static class CatalogFeatureMetadata
         public static readonly PermissionMetadata Delete = PermissionMetadataMethod.For(
             PermissionContext.Domains.Admin, PermissionContext.Categories.Catalog, PermissionContext.Resources.ProductsVariantsImages, PermissionContext.Actions.Delete);
 
-        public static IReadOnlyList<PermissionMetadata> All => [List, Read, Upload, Update, Delete];
+        public static readonly PermissionMetadata ManageEmbeddings = PermissionMetadataMethod.For(
+            PermissionContext.Domains.Admin, PermissionContext.Categories.Catalog, PermissionContext.Resources.ProductsVariantsImages, PermissionContext.Actions.ManageAssets);
+
+        public static IReadOnlyList<PermissionMetadata> All => [List, Read, Upload, Update, Delete, ManageEmbeddings];
     }
 
     public static IReadOnlyList<PermissionMetadata> All =>

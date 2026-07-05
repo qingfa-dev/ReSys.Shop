@@ -1,5 +1,3 @@
-using Microsoft.AspNetCore.Http;
-
 using Module.Catalog.Features.Shared;
 
 namespace Module.Catalog.Features.Storefront.Images.Get.Image;

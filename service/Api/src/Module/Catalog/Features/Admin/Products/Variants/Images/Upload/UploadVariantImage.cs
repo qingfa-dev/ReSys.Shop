@@ -1,5 +1,9 @@
+using Hangfire;
+using Hangfire.States;
+
 using Module.Catalog.Domain.Products.Variants;
 using Module.Catalog.Domain.Products.Variants.Images;
+using Module.Catalog.Features.Admin.Products.Variants.Images.Embeddings.Shared.Services;
 using Module.Catalog.Features.Admin.Products.Variants.Images.Shared.Mappings;
 
 using Shared.Operational.Storages.Models;
@@ -20,6 +24,7 @@ public static partial class UploadVariantImage
     public sealed class CommandHandler(
         IApplicationDbContext dbContext,
         IStorageService storageService,
+        IBackgroundJobClient? backgroundJobClient,
         ILogger<CommandHandler> logger,
         ICurrentUser currentUser)
         : ICommandHandler<Command, Response>
@@ -96,6 +101,15 @@ public static partial class UploadVariantImage
 
             // Log: Record image creation event for observability
             VariantImageLoggers.Created(logger, Id: image.Id, VariantId: image.VariantId ?? Guid.Empty, FileName: image.FileName, ActionBy: currentUser.UserName);
+
+            // Enqueue: Trigger background embedding generation for search-type images
+            if (imageType == VariantImageType.Search)
+            {
+                var modelName = VariantImageConstant.Defaults.DefaultEmbeddingModel;
+                backgroundJobClient?.Create<IEmbeddingOrchestrator>(
+                    orchestrator => orchestrator.GenerateAndPersistAsync(image.Id, modelName, CancellationToken.None),
+                    new EnqueuedState());
+            }
 
             // Map: Return created image as detail DTO with 201 response
             return Result<Response>.Created(

@@ -1,10 +1,5 @@
-using Microsoft.EntityFrameworkCore;
-
 using Module.Catalog.Domain.OptionTypes;
 using Module.Catalog.Domain.OptionTypes.Values;
-
-using Shared.Operational.Persistence.Data;
-using Shared.Operational.Persistence.Seeders;
 
 namespace Module.Catalog.Persistence.Seeders;
 
