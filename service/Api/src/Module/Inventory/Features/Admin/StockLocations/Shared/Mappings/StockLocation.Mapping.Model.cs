@@ -5,7 +5,6 @@ namespace Module.Inventory.Features.Admin.StockLocations.Shared.Mappings;
 
 public static partial class StockLocationMapping
 {
-    // Map: Domain entity -> Detail response
     public static T MapToDetail<T>(this StockLocation entity) where T : StockLocationDetailResponse, new()
     {
         return new T
@@ -26,10 +25,11 @@ public static partial class StockLocationMapping
             Position = entity.Position,
             CreatedAtUtc = entity.CreatedAtUtc,
             ModifiedAtUtc = entity.ModifiedAtUtc,
+            CreatedBy = entity.CreatedBy,
+            ModifiedBy = entity.ModifiedBy,
         };
     }
 
-    // Map: Domain entity -> List item response
     public static T MapToListItem<T>(this StockLocation entity) where T : StockLocationListItemResponse, new()
     {
         return new T
@@ -50,6 +50,8 @@ public static partial class StockLocationMapping
             Position = entity.Position,
             CreatedAtUtc = entity.CreatedAtUtc,
             ModifiedAtUtc = entity.ModifiedAtUtc,
+            CreatedBy = entity.CreatedBy,
+            ModifiedBy = entity.ModifiedBy,
         };
     }
 }

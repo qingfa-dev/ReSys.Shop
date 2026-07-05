@@ -40,8 +40,6 @@ public static partial class StockLocationMethod
             PropagateAllVariants = propagateAllVariants,
             AdminName = adminName,
             Position = position,
-            CreatedAtUtc = DateTimeOffset.UtcNow,
-            CreatedBy = "System"
         };
 
         return location;

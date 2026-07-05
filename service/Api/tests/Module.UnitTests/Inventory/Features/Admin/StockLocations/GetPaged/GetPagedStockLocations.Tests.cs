@@ -1,7 +1,7 @@
 using Module.Inventory.Domain.StockLocations;
-using Module.Inventory.Features.Admin.StockLocations.Get.Paged;
+using Module.Inventory.Features.Admin.StockLocations.GetPaged;
 
-namespace Module.UnitTests.Inventory.Features.Admin.StockLocations.Get.Paged;
+namespace Module.UnitTests.Inventory.Features.Admin.StockLocations.GetPaged;
 
 [Trait("Category", "Unit")]
 [Trait("Module", "Inventory")]
@@ -32,7 +32,6 @@ public class GetPagedStockLocationsTests : IDisposable
     [Fact(DisplayName = "Handler: Should return paged list of stock locations")]
     public async Task Handle_ShouldReturnPagedResults()
     {
-        // Arrange: Seed data
         _dbContext.Set<StockLocation>().AddRange(
             StockLocationMethod.Create("Location A").Value,
             StockLocationMethod.Create("Location B").Value,
@@ -42,10 +41,8 @@ public class GetPagedStockLocationsTests : IDisposable
 
         var query = new GetPagedStockLocations.Query(new QueryingParameters { PageSize = 2, PageNumber = 0 });
 
-        // Act
         var result = await _handler.Handle(query, TestContext.Current.CancellationToken);
 
-        // Assert
         result.Items.Should().HaveCount(2);
         result.TotalCount.Should().Be(3);
     }
@@ -53,19 +50,16 @@ public class GetPagedStockLocationsTests : IDisposable
     [Fact(DisplayName = "Handler: Should return all locations when page size is zero")]
     public async Task Handle_ShouldReturnAll_WhenPageSizeZero()
     {
-        // Arrange
         _dbContext.Set<StockLocation>().AddRange(
             StockLocationMethod.Create("Alpha").Value,
             StockLocationMethod.Create("Beta").Value
         );
         await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 
-        // Act
         var result = await _handler.Handle(
             new GetPagedStockLocations.Query(new QueryingParameters()),
             TestContext.Current.CancellationToken);
 
-        // Assert
         result.Items.Should().HaveCount(2);
     }
 }

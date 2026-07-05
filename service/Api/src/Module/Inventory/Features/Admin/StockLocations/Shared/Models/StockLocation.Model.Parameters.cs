@@ -2,7 +2,7 @@ using Module.Inventory.Domain.StockLocations;
 
 namespace Module.Inventory.Features.Admin.StockLocations.Shared.Models;
 
-public abstract class StockLocationParameters
+public abstract record class StockLocationParameters
 {
     // Validate: Name is required and limited to max length
     public string Name { get; init; } = string.Empty;

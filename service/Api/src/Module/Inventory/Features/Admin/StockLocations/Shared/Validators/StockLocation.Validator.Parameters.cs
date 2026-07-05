@@ -1,11 +1,9 @@
-using Module.Inventory.Domain.StockLocations;
 using Module.Inventory.Features.Admin.StockLocations.Shared.Models;
 
 namespace Module.Inventory.Features.Admin.StockLocations.Shared.Validators;
 
 public static partial class StockLocationValidator
 {
-    // Validate: StockLocation parameters rules (name required, max lengths)
     public sealed class StockLocationParametersValidator : AbstractValidator<StockLocationParameters>
     {
         public StockLocationParametersValidator()
