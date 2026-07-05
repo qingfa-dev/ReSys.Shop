@@ -2,6 +2,7 @@ using FluentValidation;
 using FluentValidation.TestHelper;
 
 using Module.Inventory.Domain.StockLocations.StockItems;
+using Module.Inventory.Features.Admin.StockItems.Shared.Validators;
 
 namespace Module.UnitTests.Inventory.Domain.StockItems;
 

@@ -4,5 +4,5 @@ namespace Module.Inventory.Features.Admin.StockItems.Create;
 
 public static partial class CreateStockItem
 {
-    public class Request : StockItemRequest { }
+    public record Request : StockItemRequest;
 }

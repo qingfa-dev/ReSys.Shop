@@ -22,7 +22,7 @@ public static partial class DeleteStockItem
             .HasPermission(InventoryFeature.Admin.StockItems.Delete.Permission)
             .WithSummary(InventoryFeature.Admin.StockItems.Delete.Summary)
             .WithDescription(InventoryFeature.Admin.StockItems.Delete.Description)
-            .Produces<Result>()
+            .Produces<Result<Response>>()
             .Produces<Result>(StatusCodes.Status400BadRequest)
             .Produces<Result>(StatusCodes.Status404NotFound);
         }
