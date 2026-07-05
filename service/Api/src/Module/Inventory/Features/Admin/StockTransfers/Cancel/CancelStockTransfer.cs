@@ -1,5 +1,5 @@
+using Module.Inventory.Domain.StockLocations.StockItems;
 using Module.Inventory.Domain.StockTransfers;
-using Module.Inventory.Services.Abstractions;
 
 namespace Module.Inventory.Features.Admin.StockTransfers.Cancel;
 
@@ -9,7 +9,7 @@ public static partial class CancelStockTransfer
     public sealed record Command(Guid Id) : ICommand;
 
     public sealed class CommandHandler(
-        IStockChecker stockChecker,
+        IApplicationDbContext dbContext,
         ILogger<CommandHandler> logger)
         : ICommandHandler<Command>
     {
@@ -19,15 +19,37 @@ public static partial class CancelStockTransfer
         /// <returns>A result indicating success or failure.</returns>
         public async Task<Result> Handle(Command command, CancellationToken cancellationToken)
         {
-            // Contract: pre=command!=null, post=result!=null
-            // Cancel: Restore source stock if InTransit
-            var result = await stockChecker.CancelTransferAsync(command.Id, cancellationToken);
+            var transfer = await dbContext.Set<StockTransfer>()
+                .Include(t => t.TransferItems)
+                .FirstOrDefaultAsync(t => t.Id == command.Id, cancellationToken);
 
-            // Log: Transfer canceled
-            if (result.IsSuccess)
-                StockTransferLoggers.Canceled(logger, Id: command.Id);
+            if (transfer is null)
+                return StockTransferResult.Failure.NotFound;
 
-            return result;
+            var wasInTransit = transfer.State == TransferState.InTransit;
+            var cancelResult = transfer.Cancel();
+            if (cancelResult.IsFailure) return cancelResult;
+
+            if (wasInTransit)
+            {
+                foreach (var item in transfer.TransferItems)
+                {
+                    var stockItem = await dbContext.Set<StockItem>()
+                        .FirstOrDefaultAsync(si => si.VariantId == item.VariantId
+                            && si.StockLocationId == transfer.SourceLocationId, cancellationToken);
+
+                    if (stockItem is not null)
+                    {
+                        stockItem.CountOnHand += item.Quantity;
+                        stockItem.ModifiedAtUtc = DateTimeOffset.UtcNow;
+                    }
+                }
+            }
+
+            await dbContext.SaveChangesAsync(cancellationToken);
+
+            StockTransferLoggers.Canceled(logger, Id: command.Id);
+            return Result.Ok();
         }
     }
 }

@@ -1,5 +1,6 @@
-using Module.Inventory.Services;
-using Module.Inventory.Services.Abstractions;
+using Module.Inventory.Domain.StockLocations.StockItems;
+using Module.Inventory.Domain.StockLocations.StockItems.StockMovements;
+using Module.Inventory.Domain.StockReservations;
 
 namespace Module.Inventory.Features.Admin.StockItems.Restock;
 
@@ -8,7 +9,7 @@ public static partial class RestockStockItem
 {
     public sealed record Command(Guid Id, Request Request) : ICommand<Response>;
 
-    public sealed class CommandHandler(IStockChecker stockChecker)
+    public sealed class CommandHandler(IApplicationDbContext dbContext)
         : ICommandHandler<Command, Response>
     {
         /// <summary>Executes the restock stock item command.</summary>
@@ -17,18 +18,108 @@ public static partial class RestockStockItem
         /// <returns>A result containing the restock outcome and backorder details.</returns>
         public async Task<Result<Response>> Handle(Command command, CancellationToken cancellationToken)
         {
-            // Contract: pre=command!=null, post=result!=null
-            // Execute: Restock via StockChecker (handles backorder fulfillment internally)
-            var result = await stockChecker.RestockAsync(
-                command.Id,
-                command.Request.Quantity,
-                command.Request.Reference,
-                command.Request.Reason,
-                cancellationToken);
+            var stockItemId = command.Id;
+            var quantity = command.Request.Quantity;
+            var reference = command.Request.Reference;
+            var reason = command.Request.Reason;
 
-            return result.IsSuccess
-                ? Result<Response>.Ok(new Response(result.Value))
-                : result.Errors;
+            if (quantity <= 0)
+                return StockItemResult.Errors.NegativeCountOnHand;
+
+            var stockItem = await dbContext.Set<StockItem>()
+                .FirstOrDefaultAsync(si => si.Id == stockItemId, cancellationToken);
+
+            if (stockItem is null)
+                return StockItemResult.Errors.NotFound(stockItemId);
+
+            var previousCount = stockItem.CountOnHand;
+            var totalFulfilled = 0;
+            var fullyFulfilled = 0;
+            var partiallyFulfilled = 0;
+            var remaining = quantity;
+
+            if (stockItem.Backorderable)
+            {
+                var backorderReservations = await dbContext.Set<StockReservation>()
+                    .Where(r => r.VariantId == stockItem.VariantId
+                                && r.StockLocationId == stockItem.StockLocationId
+                                && r.State == ReservationState.Reserved
+                                && r.ExpiresAtUtc > DateTimeOffset.UtcNow)
+                    .OrderBy(r => r.CreatedAtUtc)
+                    .ToListAsync(cancellationToken);
+
+                foreach (var reservation in backorderReservations)
+                {
+                    if (remaining <= 0) break;
+
+                    var fill = Math.Min(reservation.Quantity, remaining);
+                    remaining -= fill;
+                    totalFulfilled += fill;
+
+                    if (fill >= reservation.Quantity)
+                    {
+                        fullyFulfilled++;
+                        reservation.State = ReservationState.Fulfilled;
+                    }
+                    else
+                    {
+                        partiallyFulfilled++;
+                        reservation.Quantity -= fill;
+                    }
+
+                    reservation.ModifiedAtUtc = DateTimeOffset.UtcNow;
+
+                    var movement = new StockMovement
+                    {
+                        Id = Guid.NewGuid(),
+                        StockItemId = stockItem.Id,
+                        Quantity = fill,
+                        PreviousCountOnHand = stockItem.CountOnHand,
+                        Action = "backorder_fulfilled",
+                        OriginatorType = "Order",
+                        OriginatorId = reservation.OrderId,
+                        Reason = "Backorder fulfilled from restock",
+                        CreatedAtUtc = DateTimeOffset.UtcNow,
+                        CreatedBy = "System"
+                    };
+                    dbContext.Set<StockMovement>().Add(movement);
+                }
+            }
+
+            stockItem.CountOnHand += remaining;
+            stockItem.ModifiedAtUtc = DateTimeOffset.UtcNow;
+
+            var restockMovement = StockMovementMethod.Create(
+                stockItemId: stockItem.Id,
+                quantity: quantity,
+                previousCountOnHand: previousCount,
+                originatorType: "Restock",
+                reason: reason);
+
+            Guid movementId;
+            if (restockMovement.IsSuccess)
+            {
+                restockMovement.Value.Action = "restock";
+                dbContext.Set<StockMovement>().Add(restockMovement.Value);
+                movementId = restockMovement.Value.Id;
+            }
+            else
+            {
+                movementId = Guid.Empty;
+            }
+
+            await dbContext.SaveChangesAsync(cancellationToken);
+
+            return new Response
+            {
+                StockItemId = stockItem.Id,
+                PreviousCountOnHand = previousCount,
+                NewCountOnHand = stockItem.CountOnHand,
+                BackordersFulfilled = fullyFulfilled,
+                PartiallyFulfilled = partiallyFulfilled,
+                RemainingQuantity = remaining,
+                MovementId = movementId
+            };
         }
     }
 }
