@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- FG: Admin StockItems / Purpose: Admin stock item CRUD with bulk adjustment. / Schema: 1.0 / Updated: 2026-05-22 -->
+<BuildingBlockModule id="inventory-features-admin-stockitems" name="Modules.Inventory.Features.Admin.StockItems" version="1.0.0" status="stable" schema-version="1.0">
+  <ModuleMeta><Name>Admin StockItems</Name><Description>Admin stock item CRUD with bulk adjustment.</Description><Category>Features</Category><Stability>Stable</Stability></ModuleMeta>
+  <Features><Feature id="F1" name="Endpoints" type="core"><Description>Create, Update, Delete, Get stock items. BulkAdjust for mass inventory updates.</Description></Feature></Features>
+  <AntiPatterns><AntiPattern id="AP1" name="Blind Bulk Adjustments" severity="high"><Avoid> Adjusting stock without recording reason or audit trail.</Avoid><BetterApproach></BetterApproach></AntiPattern></AntiPatterns>
+    <AbstractionsCatalog>
+    <Category name="Components" order="1">
+      <Description>Key components in this directory.</Description>
+      <Abstraction id="A1" name="BulkAdjust" type="directory">
+        <Path>./BulkAdjust/</Path>
+        <Description>BulkAdjust definition.</Description>
+        <Purpose>Supports module functionality.</Purpose>
+      </Abstraction>
+      <Abstraction id="A2" name="Create" type="directory">
+        <Path>./Create/</Path>
+        <Description>Create definition.</Description>
+        <Purpose>Supports module functionality.</Purpose>
+      </Abstraction>
+      <Abstraction id="A3" name="Delete" type="directory">
+        <Path>./Delete/</Path>
+        <Description>Delete definition.</Description>
+        <Purpose>Supports module functionality.</Purpose>
+      </Abstraction>
+      <Abstraction id="A4" name="Get" type="directory">
+        <Path>./Get/</Path>
+        <Description>Get definition.</Description>
+        <Purpose>Supports module functionality.</Purpose>
+      </Abstraction>
+      <Abstraction id="A5" name="Update" type="directory">
+        <Path>./Update/</Path>
+        <Description>Update definition.</Description>
+        <Purpose>Supports module functionality.</Purpose>
+      </Abstraction>
+    </Category>
+  </AbstractionsCatalog>
+  <FileStructure>Features/Admin StockItems → Shared/</FileStructure>
+</BuildingBlockModule>

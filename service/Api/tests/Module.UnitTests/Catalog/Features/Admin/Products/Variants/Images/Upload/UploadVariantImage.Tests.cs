@@ -1,5 +1,3 @@
-using Hangfire;
-
 using Microsoft.AspNetCore.Http;
 
 using Module.Catalog.Domain.Products;

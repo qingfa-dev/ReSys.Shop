@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- StockItems Domain Subdirectory / Purpose: Per-product stock tracking aggregate. / Schema: 1.0 / Updated: 2026-05-22 -->
+<BuildingBlockModule id="inventory-domain-stockitems" name="Modules.Inventory.Domain.StockItems" version="1.0.0" status="stable" schema-version="1.0">
+  <ModuleMeta><Name>StockItems Domain</Name><Description>Per-product stock tracking aggregate.</Description><Category>DDD</Category><Stability>Stable</Stability></ModuleMeta>
+  <Principles><Principle id="P1" name="Single Responsibility"><Description>Tracks stock quantity per product variant per location. Supports inbound/outbound adjustments and quantity holds.</Description><Rationale>Each variant-location pair is a separate StockItem for precise tracking.</Rationale></Principle></Principles>
+  <Features><Feature id="F1" name="StockItems " type="core">Negative Stock: Allowing stock quantities to go below zero.</Feature></Features>
+  <AntiPatterns><AntiPattern id="AP1" name="Validate against available quantity before confirm" severity="critical"><Avoid>Proceeding without validation or proper configuration.</Avoid><BetterApproach>Always validate inputs and follow documented patterns.</BetterApproach></AntiPattern></AntiPatterns>
+  <AbstractionsCatalog>
+<Category name="Core" order="1">
+<Description>Primary components.</Description>
+<Abstraction id="A1" name="StockItem.Constant" type="class"><Path>./StockItem.Constant.cs</Path><Description>StockItem.Constant component.</Description><Purpose>Part of module.</Purpose></Abstraction>
+<Abstraction id="A2" name="StockItem" type="class"><Path>./StockItem.cs</Path><Description>StockItem component.</Description><Purpose>Part of module.</Purpose></Abstraction>
+<Abstraction id="A3" name="StockItem.Extensions" type="class"><Path>./StockItem.Extensions.cs</Path><Description>StockItem.Extensions component.</Description><Purpose>Part of module.</Purpose></Abstraction>
+<Abstraction id="A4" name="StockItem.Result" type="class"><Path>./StockItem.Result.cs</Path><Description>StockItem.Result component.</Description><Purpose>Part of module.</Purpose></Abstraction>
+<Abstraction id="A5" name="StockItem.Validation" type="class"><Path>./StockItem.Validation.cs</Path><Description>StockItem.Validation component.</Description><Purpose>Part of module.</Purpose></Abstraction>
+</Category>
+</AbstractionsCatalog>
+  <FileStructure>StockItems/ → README.xml</FileStructure>
+</BuildingBlockModule>

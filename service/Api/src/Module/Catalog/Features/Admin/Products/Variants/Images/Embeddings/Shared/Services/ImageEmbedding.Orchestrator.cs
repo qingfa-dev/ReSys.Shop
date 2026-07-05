@@ -1,4 +1,3 @@
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 
 using Module.Catalog.Domain.Products.Variants.Images;
