@@ -42,7 +42,7 @@ public class StockItemMappingTests
     {
         var request = new StockItemRequest { StockLocationId = Guid.NewGuid(), VariantId = Guid.NewGuid(), CountOnHand = 20, Backorderable = false };
 
-        var entity = StockItemExtensions.Create(
+        var entity = StockItemMethod.Create(
             Guid.NewGuid(), Guid.NewGuid()).Value;
 
         var result = request.MapToDomain(entity);

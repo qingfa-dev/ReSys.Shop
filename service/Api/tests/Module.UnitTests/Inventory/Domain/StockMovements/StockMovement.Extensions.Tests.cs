@@ -13,7 +13,7 @@ public class StockMovementExtensionsTests
         var stockItemId = Guid.NewGuid();
         var originatorId = Guid.NewGuid();
 
-        var result = StockMovementExtensions.Create(stockItemId, 10, 100, "Order", originatorId, "Restock");
+        var result = StockMovementMethod.Create(stockItemId, 10, 100, "Order", originatorId, "Restock");
         var movement = result.Value;
 
         result.IsSuccess.Should().BeTrue();
@@ -28,7 +28,7 @@ public class StockMovementExtensionsTests
     [Fact(DisplayName = "Create: Should fail when quantity is zero")]
     public void Create_WithZeroQuantity_ShouldFail()
     {
-        var result = StockMovementExtensions.Create(Guid.NewGuid(), 0);
+        var result = StockMovementMethod.Create(Guid.NewGuid(), 0);
 
         result.IsFailure.Should().BeTrue();
         result.Errors[0].Should().Be(StockMovementResult.Errors.QuantityZero);
@@ -37,7 +37,7 @@ public class StockMovementExtensionsTests
     [Fact(DisplayName = "Create: Should fail with invalid originator type")]
     public void Create_WithInvalidOriginatorType_ShouldFail()
     {
-        var result = StockMovementExtensions.Create(Guid.NewGuid(), 5, originatorType: "InvalidType");
+        var result = StockMovementMethod.Create(Guid.NewGuid(), 5, originatorType: "InvalidType");
 
         result.IsFailure.Should().BeTrue();
         result.Errors[0].Should().Be(StockMovementResult.Errors.InvalidOriginatorType);
@@ -46,13 +46,13 @@ public class StockMovementExtensionsTests
     [Fact(DisplayName = "Create: Should accept valid originator types")]
     public void Create_WithValidOriginatorTypes_ShouldSucceed()
     {
-        var move1 = StockMovementExtensions.Create(Guid.NewGuid(), 5, originatorType: "Order").Value;
+        var move1 = StockMovementMethod.Create(Guid.NewGuid(), 5, originatorType: "Order").Value;
         move1.OriginatorType.Should().Be("Order");
 
-        var move2 = StockMovementExtensions.Create(Guid.NewGuid(), 5, originatorType: "Transfer").Value;
+        var move2 = StockMovementMethod.Create(Guid.NewGuid(), 5, originatorType: "Transfer").Value;
         move2.OriginatorType.Should().Be("Transfer");
 
-        var move3 = StockMovementExtensions.Create(Guid.NewGuid(), 5, originatorType: "Adjustment").Value;
+        var move3 = StockMovementMethod.Create(Guid.NewGuid(), 5, originatorType: "Adjustment").Value;
         move3.OriginatorType.Should().Be("Adjustment");
     }
 }

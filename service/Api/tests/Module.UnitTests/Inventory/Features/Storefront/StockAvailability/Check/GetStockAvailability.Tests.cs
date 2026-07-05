@@ -3,7 +3,7 @@ using Module.Inventory.Domain.StockLocations;
 using Module.Inventory.Domain.StockReservations;
 using Module.Inventory.Features.Storefront.StockAvailability.Check;
 
-namespace Module.UnitTests.Inventory.Features.Storefront.StockAvailability;
+namespace Module.UnitTests.Inventory.Features.Storefront.StockAvailability.Check;
 
 [Trait("Category", "Unit")]
 [Trait("Module", "Inventory")]

@@ -86,7 +86,7 @@ public static partial class ImportStockItems
                     }
                     else
                     {
-                        var createResult = StockItemExtensions.Create(locationId, variantId, backorderable, countOnHand);
+                        var createResult = StockItemMethod.Create(locationId, variantId, backorderable, countOnHand);
                         if (createResult.IsFailure)
                         {
                             response.Errors.Add(new ImportError { Row = row, VariantId = values[variantIdIdx], Error = "Failed to create stock item" });

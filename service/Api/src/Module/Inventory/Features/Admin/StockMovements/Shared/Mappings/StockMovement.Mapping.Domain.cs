@@ -12,7 +12,7 @@ public static partial class StockMovementMapping
         Guid? originatorId = null,
         string? reason = null)
     {
-        return StockMovementExtensions.Create(
+        return StockMovementMethod.Create(
             stockItemId: stockItemId,
             quantity: quantity,
             previousCountOnHand: previousCountOnHand,
