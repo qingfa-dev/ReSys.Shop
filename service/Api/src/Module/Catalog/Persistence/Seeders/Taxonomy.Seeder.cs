@@ -1,8 +1,5 @@
 using Module.Catalog.Domain.Taxonomies;
 
-using Shared.Operational.Persistence.Data;
-using Shared.Operational.Persistence.Seeders;
-
 namespace Module.Catalog.Persistence.Seeders;
 
 public sealed class CatalogTaxonomySeeder(IApplicationDbContext context) : AbstractDataSeeder(context)

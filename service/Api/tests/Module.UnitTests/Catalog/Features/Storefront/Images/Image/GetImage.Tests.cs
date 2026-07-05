@@ -2,10 +2,6 @@ using Module.Catalog.Domain.Products;
 using Module.Catalog.Domain.Products.Variants.Images;
 using Module.Catalog.Features.Storefront.Images.Get.Image;
 
-using Shared.Operational.Storages.Services;
-
-using Moq;
-
 namespace Module.UnitTests.Catalog.Features.Storefront.Images.Get.Image;
 
 [Trait("Category", "Unit")]

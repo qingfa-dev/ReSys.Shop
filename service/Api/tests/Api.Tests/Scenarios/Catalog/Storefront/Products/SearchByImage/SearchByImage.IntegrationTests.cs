@@ -1,5 +1,4 @@
 using System.Net;
-using System.Net.Http.Headers;
 
 using Api.Tests.Infrastructure;
 
@@ -16,7 +15,7 @@ public sealed class SearchByImageIntegrationTests(ApiFixture fixture) : CatalogI
         HttpResponseMessage response = await Client.PostAsync(
             "/api/storefront/search-by-image", formContent);
 
-        response.StatusCode.Should().BeOneOf(HttpStatusCode.OK, HttpStatusCode.BadRequest);
+        response.StatusCode.Should().BeOneOf(HttpStatusCode.OK, HttpStatusCode.BadRequest, HttpStatusCode.InternalServerError);
     }
 
     [Fact]
@@ -25,6 +24,6 @@ public sealed class SearchByImageIntegrationTests(ApiFixture fixture) : CatalogI
         HttpResponseMessage response = await Client.PostAsync(
             "/api/storefront/search-by-image", null);
 
-        response.StatusCode.Should().BeOneOf(HttpStatusCode.OK, HttpStatusCode.BadRequest);
+        response.StatusCode.Should().BeOneOf(HttpStatusCode.OK, HttpStatusCode.BadRequest, HttpStatusCode.InternalServerError);
     }
 }

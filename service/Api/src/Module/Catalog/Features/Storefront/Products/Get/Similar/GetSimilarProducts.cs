@@ -33,7 +33,7 @@ public static partial class GetSimilarProducts
             // Query: Get the embedding vector for the variant's primary image.
             var queryVector = await dbContext.Set<ImageEmbedding>()
                 .Include(ie => ie.VariantImage)
-                .Where(ie => ie.VariantImage.VariantId == request.Id)
+                .Where(ie => ie.VariantImage.VariantId == variant.Id)
                 .Select(ie => ie.Vector)
                 .FirstOrDefaultAsync(cancellationToken);
 

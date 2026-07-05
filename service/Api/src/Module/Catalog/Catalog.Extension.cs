@@ -1,14 +1,12 @@
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
 using Module.Catalog.Features.Admin.Products.Variants.Images.Embeddings.Shared.Clients;
+using Module.Catalog.Features.Admin.Products.Variants.Images.Embeddings.Shared.Services;
 using Module.Catalog.Features.Admin.Taxonomies.Taxons.Services.AutoClassification;
 using Module.Catalog.Features.Admin.Taxonomies.Taxons.Services.AutoClassification.Abstractions;
 using Module.Catalog.Features.Admin.Taxonomies.Taxons.Services.Hierarchy;
 using Module.Catalog.Features.Admin.Taxonomies.Taxons.Services.Hierarchy.Abstractions;
 using Module.Catalog.Persistence.Seeders;
-
-using Shared.Operational.Persistence.Seeders;
 
 namespace Module.Catalog;
 
@@ -24,6 +22,7 @@ public static class CatalogExtensions
         this WebApplicationBuilder builder)
     {
         builder.Services.AddInferenceClient(builder.Configuration);
+        builder.Services.AddEmbeddingOrchestrator(builder.Configuration);
 
         builder.Services.AddScoped<ITaxonHierarchyService, TaxonHierarchyService>();
         builder.Services.AddScoped<IAutoClassificationService, AutoClassificationService>();

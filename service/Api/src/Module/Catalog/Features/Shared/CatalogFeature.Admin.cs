@@ -572,6 +572,27 @@ public static partial class CatalogFeature
                     public const string Summary = "Download variant image";
                     public static PermissionMetadata Permission => CatalogFeatureMetadata.VariantImages.List;
                 }
+
+                public static class Embeddings
+                {
+                    private const string EmbeddingRoute = $"{StandaloneImageRoute}/{{id:guid}}/embeddings";
+
+                    public static class Create
+                    {
+                        public const string Route = EmbeddingRoute;
+                        public const string Description = "Generate embedding for a variant image using the inference service";
+                        public const string Summary = "Create image embedding";
+                        public static PermissionMetadata Permission => CatalogFeatureMetadata.VariantImages.ManageEmbeddings;
+                    }
+
+                    public static class Regenerate
+                    {
+                        public const string Route = EmbeddingRoute;
+                        public const string Description = "Regenerate embedding for a variant image with a new model version";
+                        public const string Summary = "Regenerate image embedding";
+                        public static PermissionMetadata Permission => CatalogFeatureMetadata.VariantImages.ManageEmbeddings;
+                    }
+                }
             }
         }
         }

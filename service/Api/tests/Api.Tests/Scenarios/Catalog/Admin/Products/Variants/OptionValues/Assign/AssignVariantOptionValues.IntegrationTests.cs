@@ -3,7 +3,6 @@ using System.Net;
 using Api.Tests.Infrastructure;
 using Api.Tests.Infrastructure.Auth;
 
-using Module.Catalog.Features.Admin.Products.Variants.OptionValues.Get;
 using Module.Catalog.Features.Admin.Products.Variants.Shared.Models;
 
 namespace Api.Tests.Scenarios.Catalog.Admin.Products.Variants.OptionValues.Assign;

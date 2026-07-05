@@ -1,5 +1,3 @@
-using Module.Catalog.Domain.Products.Variants;
-
 namespace Module.Catalog.Domain.Products;
 
 public static partial class ProductMethod

@@ -1,5 +1,4 @@
 using System.Net;
-using System.Text.Json;
 
 using Api.Tests.Infrastructure;
 using Api.Tests.Infrastructure.Auth;
