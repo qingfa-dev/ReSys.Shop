@@ -4,5 +4,5 @@ namespace Module.Inventory.Features.Admin.StockLocations.Create;
 
 public static partial class CreateStockLocation
 {
-    public class Response : StockLocationDetailResponse { }
+    public record Response : StockLocationDetailResponse;
 }

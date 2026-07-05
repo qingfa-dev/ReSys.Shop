@@ -1,3 +1,5 @@
+using Shared.Application.Domain.Concerns.Auditable;
+
 using Module.Inventory.Domain.StockLocations;
 using Module.Inventory.Features.Admin.StockLocations.Shared.Models;
 
@@ -5,10 +7,9 @@ namespace Module.Inventory.Features.Admin.StockLocations.Shared.Mappings;
 
 public static partial class StockLocationMapping
 {
-    // Map: Request -> Domain entity (create)
     public static Result<StockLocation> MapToDomain<T>(this T request) where T : StockLocationRequest
     {
-        return StockLocationMethod.Create(
+        var result = StockLocationMethod.Create(
             name: request.Name,
             active: request.Active,
             isDefault: request.Default,
@@ -22,12 +23,18 @@ public static partial class StockLocationMapping
             backorderableDefault: request.BackorderableDefault,
             propagateAllVariants: request.PropagateAllVariants,
             position: request.Position);
+
+        if (result.IsSuccess)
+        {
+            AuditableBehavior.Create(result.Value);
+        }
+
+        return result;
     }
 
-    // Map: Request -> Domain entity (update)
     public static Result MapToDomain<T>(this T request, StockLocation location) where T : StockLocationRequest
     {
-        return location.Update(
+        var result = location.Update(
             name: request.Name,
             presentation: request.Presentation,
             code: request.Code,
@@ -41,5 +48,12 @@ public static partial class StockLocationMapping
             backorderableDefault: request.BackorderableDefault,
             propagateAllVariants: request.PropagateAllVariants,
             position: request.Position);
+
+        if (result.IsSuccess)
+        {
+            AuditableBehavior.Touch(location);
+        }
+
+        return result;
     }
 }

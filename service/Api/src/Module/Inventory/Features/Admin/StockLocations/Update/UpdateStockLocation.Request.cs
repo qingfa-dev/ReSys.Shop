@@ -4,5 +4,5 @@ namespace Module.Inventory.Features.Admin.StockLocations.Update;
 
 public static partial class UpdateStockLocation
 {
-    public class Request : StockLocationRequest { }
+    public record Request : StockLocationRequest;
 }

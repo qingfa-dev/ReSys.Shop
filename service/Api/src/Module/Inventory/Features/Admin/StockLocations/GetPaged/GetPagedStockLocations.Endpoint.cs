@@ -1,6 +1,6 @@
 using Module.Inventory.Features.Shared;
 
-namespace Module.Inventory.Features.Admin.StockLocations.Get.Paged;
+namespace Module.Inventory.Features.Admin.StockLocations.GetPaged;
 
 public static partial class GetPagedStockLocations
 {

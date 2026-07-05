@@ -1,4 +1,4 @@
-namespace Module.Inventory.Features.Admin.StockLocations.Get.ById;
+namespace Module.Inventory.Features.Admin.StockLocations.GetById;
 
 public static partial class GetStockLocationById
 {

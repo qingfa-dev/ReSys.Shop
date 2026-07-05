@@ -1,15 +1,21 @@
+using Shared.Application.Domain.Concerns.Auditable;
+
 namespace Module.Inventory.Features.Admin.StockLocations.Shared.Models;
 
-public class StockLocationDetailResponse : StockLocationParameters
+public record StockLocationDetailResponse : StockLocationParameters
 {
     public Guid Id { get; init; }
-    public DateTimeOffset CreatedAtUtc { get; set; }
-    public DateTimeOffset? ModifiedAtUtc { get; set; }
+    public DateTimeOffset CreatedAtUtc { get; init; }
+    public DateTimeOffset? ModifiedAtUtc { get; init; }
+    public string? CreatedBy { get; init; }
+    public string? ModifiedBy { get; init; }
 }
 
-public class StockLocationListItemResponse : StockLocationParameters
+public record StockLocationListItemResponse : StockLocationParameters
 {
     public Guid Id { get; init; }
-    public DateTimeOffset CreatedAtUtc { get; set; }
-    public DateTimeOffset? ModifiedAtUtc { get; set; }
+    public DateTimeOffset CreatedAtUtc { get; init; }
+    public DateTimeOffset? ModifiedAtUtc { get; init; }
+    public string? CreatedBy { get; init; }
+    public string? ModifiedBy { get; init; }
 }
