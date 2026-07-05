@@ -168,7 +168,7 @@ technical:
       scope: Entity implementation pattern
       pattern: |
         // Entities compose multiple concerns simultaneously
-        public class EntityName : Entity, IAggregateRoot,
+        public class EntityName : Entity, IEntity,
                                   IConcern1, IConcern2, IConcern3 {
           // Concern properties
           public Type Prop1 { get; set; }
@@ -216,7 +216,7 @@ usage:
       title: Entity with Multiple Concerns
       context: Creating a fully-featured entity requiring several cross-cutting behaviors.
       pattern: |
-        public class EntityName : Entity, IAggregateRoot,
+        public class EntityName : Entity, IEntity,
                                   IConcern1, IConcern2, IConcern3 {
           // Concern 1 properties
           public Type1 Prop1 { get; set; }

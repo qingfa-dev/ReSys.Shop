@@ -130,9 +130,9 @@ abstractions:
           }
 
       - id: A4
-        name: AggregateRoot
+        name: Entity
         type: abstract
-        path: ./Models/AggregateRoot.cs
+        path: ./Models/Entity.cs
         description: >
           Abstract base for aggregate roots; extends Entity with a
           domain event collection and CheckRule() enforcement.
@@ -143,7 +143,7 @@ abstractions:
           // Contract: CheckRule() throws BusinessRuleViolatedException if rule fails
           // Invariant: Domain events dispatched AFTER successful SaveChanges
         example: |
-          public class Order : AggregateRoot {
+          public class Order : Entity {
             public void Place() {
               CheckRule(new OrderMustHaveItemsRule(_items));
               RaiseEvent(new OrderPlacedEvent(Id));
@@ -382,7 +382,7 @@ file_structure: |
   Domain/
   ├── Abstracts/
   │   ├── IEntity.cs                    # Entity identity marker
-  │   ├── IAggregateRoot.cs             # Aggregate root marker
+  │   ├── IEntity.cs             # Aggregate root marker
   │   ├── IBusinessRule.cs              # Business rule contract
   │   ├── IAuditable.cs                 # Audit trail marker
   │   ├── ISoftDeleted.cs               # Soft-delete marker
@@ -390,7 +390,7 @@ file_structure: |
   │   └── IHasDomainEvent.cs            # Domain event collection marker
   ├── Models/
   │   ├── Entity.cs                     # Abstract entity base
-  │   ├── AggregateRoot.cs              # Abstract aggregate root base
+  │   ├── Entity.cs              # Abstract aggregate root base
   │   └── ValueObject.cs                # Abstract value object base
   ├── Exceptions/
   │   ├── DomainException.cs            # Base domain exception

@@ -10,7 +10,7 @@ public class InterceptorTestDbContext(DbContextOptions<InterceptorTestDbContext>
     public DbSet<TestAuditableEntity> TestAuditableEntities => Set<TestAuditableEntity>();
     public DbSet<TestVersionedEntity> TestVersionedEntities => Set<TestVersionedEntity>();
     public DbSet<TestSoftDeletedEntity> TestSoftDeletedEntities => Set<TestSoftDeletedEntity>();
-    public DbSet<Entity> TestAggregateRoots => Set<Entity>();
+    public DbSet<Entity> TestEntitys => Set<Entity>();
     public DbSet<TestNonAuditableEntity> TestNonAuditableEntities => Set<TestNonAuditableEntity>();
     public DbSet<TestNonVersionedEntity> TestNonVersionedEntities => Set<TestNonVersionedEntity>();
     public DbSet<TestNonSoftDeletedEntity> TestNonSoftDeletedEntities => Set<TestNonSoftDeletedEntity>();

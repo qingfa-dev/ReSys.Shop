@@ -7,7 +7,7 @@ public static class InventoryFeatureMetadata
 {
     public static string ModuleName => "Inventory";
 
-    public static class StockItems
+    public static class StockItem
     {
         public static readonly PermissionMetadata List = PermissionMetadataMethod.For(
             PermissionContext.Domains.Admin, PermissionContext.Categories.Inventory, PermissionContext.Resources.StockItems, PermissionContext.Actions.List);
@@ -53,7 +53,7 @@ public static class InventoryFeatureMetadata
 
     public static IReadOnlyList<PermissionMetadata> All =>
     [
-        .. StockItems.All,
+        .. StockItem.All,
         .. StockLocation.All,
         .. StockReservations.All,
     ];

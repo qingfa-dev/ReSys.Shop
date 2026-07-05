@@ -1,4 +1,3 @@
-using Module.Catalog.Domain.Products.Variants.Images;
 using Module.Catalog.Domain.Products.Variants.Images.Embeddings;
 using Module.Catalog.Features.Admin.Products.Variants.Images.Embeddings.Shared.Models;
 using Module.Catalog.Features.Admin.Products.Variants.Images.Embeddings.Shared.Services;
