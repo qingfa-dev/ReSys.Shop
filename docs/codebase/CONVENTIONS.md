@@ -6,61 +6,85 @@
 
 | Item | Rule | Example | Evidence |
 |------|------|---------|----------|
-| C# files | PascalCase | `Program.cs`, `CatalogExtension.cs`, `GetProductDetailPage.Tests.cs` | `service/Api/src/` |
-| C# classes/types | PascalCase | `Product`, `IStorageProvider`, `CatalogExtensions` | `service/Api/src/` |
-| C# methods | PascalCase | `AddCatalogModule()`, `InitializeDatabaseAsync()` | `service/Api/src/` |
-| C# private fields | `_camelCase` | `_context`, `_logger`, `_repository` | `service/Api/src/` |
-| Vue files | PascalCase | `App.vue`, `HomeView.vue`, `CartView.vue` | `app/Store/src/views/` |
-| TS/JS variables | camelCase | `isLoading`, `items`, `fetchProducts()` | `app/Store/src/stores/` |
-| Python files | snake_case | `main.py`, `health_router.py`, `embedding_service.py` | `service/Embedding/src/` |
-| Python functions | snake_case | `register_exception_handlers()`, `health()` | `service/Embedding/src/` |
-| .csproj files | PascalCase with dots | `Api.csproj`, `Api.Migrations.csproj`, `Module.UnitTests.csproj` | `service/Api/` |
-| Config JSON | PascalCase | `ConnectionStrings`, `Authentication:Jwt:Secret` | `service/Api/src/Api/appsettings.json` |
-| Env vars | `VITE_UPPER_SNAKE` (frontend), JSON path (backend) | `VITE_API_URL` | `app/Admin/.env.development` |
-| .http test files | kebab-case | `products.http`, `auth-login.http`, `auth-register.http` | `ApiTests/` |
+| C# files | PascalCase, with dot-separated suffixes for partials | `Country.Extensions.cs`, `Variant.Validation.cs`, `Catalog.Extension.cs` | `service/Api/src/Module/Location/Domain/Countries/` |
+| C# classes/types | PascalCase | `Country`, `GetProductDetail`, `ApplicationDbContext` | `.editorconfig:205` |
+| C# interfaces | `I` prefix + PascalCase | `IStorageProvider`, `ICorrelationContext`, `IModuleMarker` | `.editorconfig:209` |
+| C# methods | PascalCase | `AddCatalogModule()`, `ToResult()`, `UpdateAsync()` | `.editorconfig:217` |
+| C# properties | PascalCase | `public string Name { get; set; }` | `.editorconfig:221` |
+| C# local variables | camelCase | `var result = ...`, `string countryName` | `.editorconfig:229` |
+| C# parameters | camelCase | `(string isoCode, CancellationToken ct)` | `.editorconfig:237` |
+| C# private instance fields | `_camelCase` (underscore prefix) | `private readonly IDbContext _context;` | `.editorconfig:244-246` |
+| C# private static fields | `s_camelCase` (s_ prefix) | `private static int s_counter;` | `.editorconfig:248-250` |
+| C# constants (public + private) | PascalCase | `public const int MaxRetries = 3;` | `.editorconfig:252-258` |
+| Vue/TS components | PascalCase | `App.vue`, `HomeView.vue`, `CartView.vue` | `app/Store/src/views/` |
+| Vue/TS files (non-component) | camelCase | `main.ts`, `api.ts`, `cart.ts`, `catalog.ts` | `app/Store/src/` |
+| .http test files | kebab-case | `products.http`, `auth-login.http`, `option-types.http` | `ApiTests/Catalog/Admin/` |
+| Python files | snake_case | `embedding_router.py`, `local_storage.py`, `fashion_clip.py` | `service/Embedding/src/` |
+| Python classes | PascalCase | `Settings`, `CORSMiddleware` | `service/Embedding/src/main.py` |
+| Database tables/columns | snake_case (via EFCore.NamingConventions) | Schema: `catalog`, table: `variant_images`, column: `created_at` | `Directory.Packages.props:41`, `service/Api/src/Migrations/Migrations/` |
 
 ### 2) Formatting and Linting
 
-- Formatter (.NET): Built-in `.editorconfig` + IDE code-style enforcement
-- Formatter (JS/TS): **oxfmt** (`pnpm run format` runs `oxfmt src/`)
-- Linter (JS/TS): **oxlint** + **ESLint** (run via `pnpm run lint`)
-- Formatter (Python): **Ruff** configured in `pyproject.toml`
-- Most relevant enforced rules (.NET): `TreatWarningsAsErrors=true`, `AnalysisLevel=latest`, `EnableNETAnalyzers=true`, `EnforceCodeStyleInBuild=true`
-- Most relevant enforced rules (Python): Ruff selection `E`, `F`, `W`, `I` (pycodestyle, Pyflakes, pycodestyle warnings, isort)
-- Most relevant enforced rules (JS/TS): ESLint via `eslint-plugin-vue` + `@vue/eslint-config-typescript`
-- Run commands: `dotnet build` (build-time analysis), `pnpm run lint`, `pnpm run format`, `uv run ruff check`
+- .NET formatter + linter: `.editorconfig` with `TreatWarningsAsErrors=true` (`Directory.Build.props:17`), `AnalysisLevel=latest` (`Directory.Build.props:14`), `EnforceCodeStyleInBuild=true` (`Directory.Build.props:16`)
+- .NET indentation: 4 spaces for `.cs`, 2 spaces for `.csproj`, `.json`, `.props`, `.targets`, `.slnx` (`editorconfig:28`)
+- C# specific formatting: K&R braces (`csharp_new_line_before_open_brace = all`), `using` directives outside namespace, file-scoped namespace declarations preferred, `var` usage discouraged (explicit types preferred)
+- Frontend formatter: oxfmt v0.54.0 — `app/Admin/.oxfmtrc.json`, `app/Store/.oxfmtrc.json`
+- Frontend linters: oxlint (~1.69.0) + ESLint (10.5.0) with Vue and TypeScript plugins — run via `pnpm run lint` which runs both sequentially
+- Python linter: Ruff — rules `E, F, W, I` (pycodestyle, Pyflakes, isort) — `service/Embedding/pyproject.toml:24-25`
+- Python line length: 100 characters — `service/Embedding/pyproject.toml:23`
+- Most relevant enforced .NET rules:
+  - `dotnet_style_readonly_field = true:warning` — mutable fields that could be readonly flagged as warnings
+  - `csharp_prefer_static_local_function = true:warning` — non-static local functions captured as warnings
+  - `CA1716` and `CA1848` are globally suppressed (`Directory.Build.props:19`)
+  - Test projects suppress `CA1707` (xUnit snake_case test names), `CS1591` (no XML docs), `xUnit1051` (CancellationToken), `CA1861`
 
 ### 3) Import and Module Conventions
 
-- C# imports: `ImplicitUsings` enabled globally in `Directory.Build.props`; explicit `using` statements in files where needed; grouped by System → NuGet → Project
-- Vue/TS imports: `@` path alias maps to `./src`; lazy-loaded route imports via `() => import('../views/...')`
-- Python imports: Standard library → third-party → local (isort-enforced by Ruff)
-- .NET `InternalsVisibleTo` configured centrally in `Directory.Build.props` for test assemblies (`*.Tests`, `*.UnitTests`, `*.IntegrationTests`, `DynamicProxyGenAssembly2`)
+- C# using directive grouping: System directives first, then separated by groups — `dotnet_separate_import_directive_groups = true` (`.editorconfig:38`)
+- C# using placement: outside namespace — `csharp_using_directive_placement = outside_namespace` (`.editorconfig:150`)
+- Frontend path aliases: `@` alias maps to `./src` in both SPAs — `app/Admin/vite.config.ts:13`, `app/Store/vite.config.ts:12`
+- Frontend import order: enforced by oxlint isort-style rules; ESLint `import/order` plugin
+- Python: Ruff's `I` (isort) rules enforce import ordering — `service/Embedding/pyproject.toml:24`
+- Barrel exports: Not widely used; each feature action is self-contained with its own files
+- Module DI registration: Each C# module exposes an `Add{Module}Module()` extension on `IServiceCollection` — e.g., `Catalog.Extension.cs`, `Identity.Extensions.cs`
 
 ### 4) Error and Logging Conventions
 
-- Error strategy by layer:
-  - **Domain**: Result object pattern (`Result<T>.Success()`, `Result<T>.Failure()`) — exceptions not thrown from domain logic
-  - **Application/MediatR**: `ExceptionMappingBehavior` catches unhandled exceptions and maps to structured API errors
-  - **Presentation**: Carter endpoints delegate to MediatR pipeline; error responses use standard HTTP status codes
-- Logging style: Structured logging via `ILogger<T>` throughout .NET code. Correlation ID propagated via `X-Correlation-Id` header (`Observability/Correlation/CorrelationMiddleware.cs`). Minimum log level configurable in settings.
-- Sensitive-data redaction: `Observability.SensitiveHeaders` in `appsettings.json` redacts `Authorization`, `Cookie`, `X-Api-Key` from logs
-- Python logging: `src/utils/logger.py` provides structured logging (still a stub)
+- Error strategy: Result object pattern (`Result<T>` from `Shared/Application/Models/Results/`). Domain operations return explicit Success/Failure rather than throwing exceptions. Exception mapping behavior in MediatR pipeline catches unhandled exceptions and converts them to structured API error responses.
+- Result types available: `Result` (void), `Result<T>` (value), `ValueResult<T>` (value with less allocation), `PagedResult<T>` (paginated)
+- Error descriptors: `Shared/Application/Models/Descriptors/` — `Descriptor` and `OptionDescriptor` for label/code/value error payloads
+- MediatR pipeline guarantees: Validation errors return before handler execution (ValidationBehavior), unhandled exceptions are caught and mapped (ExceptionMappingBehavior)
+- Logging: `ILogger<T>` via standard Microsoft.Extensions.Logging — structured logging through OpenTelemetry pipeline (`Shared/Observability/Logging/Logging.Extension.cs`)
+- Logger conventions: Domain entities define logger messages in `{Entity}.Loggers.cs` partials (e.g., `UserProfile.Loggers.cs`, `Country.Loggers.cs`)
+- Logging context: Correlation ID propagated via `Shared/Observability/Correlation/CorrelationMiddleware.cs`
+- Sensitive-data redaction: [TODO] — no explicit redaction policy found in code or configuration
 
 ### 5) Testing Conventions
 
-- Test file naming/location rule (C#): Tests mirror source directory structure under `tests/` with `.Tests.cs` suffix. E.g., handler `Module/Catalog/Features/.../Handler.cs` → test at `tests/Module.UnitTests/Catalog/Features/.../Handler.Tests.cs`
-- Test file naming/location rule (Vue): `__tests__/` directory co-located near source. E.g., `src/__tests__/App.spec.ts`
-- Test file naming/location rule (Python): `tests/` at project root, mirrors `src/` structure
-- Mocking strategy norm: Moq for .NET unit tests; Testcontainers for integration tests; `client: TestClient` for FastAPI tests
-- Coverage expectation: `CollectCoverage` opt-in (not enforced by default), coverlet outputs Cobertura + JSON format
+- Test file naming: `*Tests.cs` or `*.Tests.cs` — e.g., `Country.Extensions.Tests.cs`, `Country.Configuration.Tests.cs`
+- Test location: Separate test projects under `service/Api/tests/`:
+  - `Api.Tests/` — Integration tests (requires Docker, hits real PostgreSQL + Redis via Testcontainers)
+  - `Module.UnitTests/` — Unit tests (EF Core InMemory + Moq, no Docker)
+  - `Shared.UnitTests/` — Unit tests for Shared infrastructure
+- Test project auto-detection: Projects ending in `.Tests`, `.UnitTests`, `.IntegrationTests`, `.Specs` are auto-detected (`Directory.Build.props:72-77`)
+- Mocking strategy: Moq for interfaces, EF Core InMemory for database in unit tests; Testcontainers + Respawn for integration tests
+- Coverage expectation: Opt-in only — run with `/p:CollectCoverage=true` (`Directory.Build.props:95`)
+- Frontend tests: Co-located in `src/__tests__/` with `*.spec.ts` naming — e.g., `App.spec.ts`, `cart.store.spec.ts`
+- Python tests: pytest with `httpx` for HTTP testing — `service/Embedding/pyproject.toml` dev deps
 
 ### 6) Evidence
 
-- `.editorconfig` — formatting rules
-- `Directory.Build.props` — code quality settings (lines 12-20)
-- `Directory.Build.targets` — architecture validation targets
-- `app/Admin/eslint.config.ts` — ESLint config
-- `service/Embedding/pyproject.toml` — Ruff configuration
-- `service/Api/src/Api/Program.cs` — startup conventions
-- `service/Api/tests/Module.UnitTests/Catalog/Features/Storefront/Products/GetDetailPage/GetProductDetailPage.Tests.cs` — representative test structure
+- `.editorconfig` — C# naming, formatting, and style rules (389 lines)
+- `Directory.Build.props` — Build-wide MSBuild settings (analysis level, warnings-as-errors, InternalsVisibleTo, test detection)
+- `Directory.Build.targets` — Architecture validation targets
+- `Directory.Packages.props` — Central Package Management version definitions
+- `service/Api/src/Shared/Application/Models/Results/` — Result object pattern (Result, ValueResult, PagedResult)
+- `service/Api/src/Shared/Application/Mediators/Behaviours/` — Pipeline behaviors (Logging, Validation, ExceptionMapping)
+- `service/Api/src/Module/Location/Domain/Countries/Country.Extensions.cs` — Domain partial class pattern
+- `service/Api/src/Module/Catalog/Catalog.Extension.cs` — Module DI registration pattern
+- `app/Admin/.oxfmtrc.json` — Admin SPA formatter config
+- `app/Admin/.oxlintrc.json` — Admin SPA linter config
+- `app/Store/.oxfmtrc.json` — Store SPA formatter config
+- `app/Store/.oxlintrc.json` — Store SPA linter config
+- `service/Embedding/pyproject.toml` — Python tooling (Ruff, pytest)
+- `guide/code-commenting/CommentingRules.xml` — Temporal marker conventions (TODO, FIXME, HACK)

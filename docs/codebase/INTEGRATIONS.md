@@ -6,48 +6,81 @@
 
 | System | Type (API/DB/Queue/etc) | Purpose | Auth model | Criticality | Evidence |
 |--------|---------------------------|---------|------------|-------------|----------|
-| PostgreSQL | Database (primary) | All application data persistence | Username/password (connection string) | High | `Directory.Packages.props:42-44` |
-| Redis | Cache / job store | Distributed caching, Hangfire job storage, session store | None (trusted network) | Medium | `Directory.Packages.props:60,78-79` |
-| pgvector | PostgreSQL extension | Vector similarity search for image embeddings | N/A (DB extension) | Medium | `Directory.Packages.props:43-44` |
-| ClamAV | TCP socket | Malware scanning on uploaded files | None (local socket) | Low | `Directory.Packages.props:92` |
-| SendGrid | REST API | Transactional email delivery (email channel provider) | API key | Low | `Directory.Packages.props:81` |
-| SMTP | TCP protocol | Email delivery (local dev / self-hosted) | Optional credentials | Low | `Directory.Packages.props:82` |
-| Sinch | REST API | SMS notification delivery | Project ID + Key ID + Key Secret | Low | `Directory.Packages.props:83` |
-| Google | OAuth 2.0 / REST | External login / Google authentication | Client ID | Low | `Directory.Packages.props:74` |
-| Stripe | REST API | Payment processing | API keys (not yet wired) | Low | `Directory.Packages.props:84` |
-| OpenTelemetry | OTLP protocol | Traces, metrics, logs export to OTLP collector | OTLP endpoint URL | Low | `Directory.Packages.props:26-29` |
+| PostgreSQL 17 + pgvector | Database | Primary data store; relational data + vector similarity search | Connection string | High | `infra/Aspire/src/ReSys.AppHost/AppHost.cs:8` |
+| Redis 7 | Cache / Queue | HybridCache backend; Hangfire job storage (optional) | Connection string | High | `infra/Aspire/src/ReSys.AppHost/AppHost.cs:12` |
+| Embedding Service (Python) | Internal API | Image vector embedding generation (Fashion-CLIP) | [TODO] | Medium | `infra/Aspire/src/ReSys.AppHost/AppHost.cs:18` |
+| SendGrid | External API (email) | Transactional email delivery | API key | Medium | `Directory.Packages.props:81` |
+| SMTP | External (email) | Email fallback provider | Credentials / None | Medium | `Directory.Packages.props:82` |
+| Sinch | External API (SMS) | SMS notifications | API key | Low | `Directory.Packages.props:83` |
+| Google OAuth | External API (auth) | Social login (Google sign-in) | Client ID/Secret | Medium | `Directory.Packages.props:74` |
+| Stripe | External API (payments) | Payment processing | API key | Medium | `Directory.Packages.props:84` |
+| ClamAV (nClam) | External (malware scan) | File upload malware scanning | None (socket/network) | Medium | `Directory.Packages.props:92` |
+| OpenTelemetry Collector | External (observability) | Traces, metrics, logs export | OTLP endpoint | Low | `Directory.Packages.props:26` |
+| S3-compatible Storage | External API (storage) | Cloud file storage | Access key / Secret | [TODO] | `Shared/Operational/Storages/Providers/` |
+| Azure Blob Storage | External API (storage) | Cloud file storage | Connection string / Managed identity | [TODO] | `Shared/Operational/Storages/Providers/` |
+| Local Filesystem | Internal (storage) | Development file storage | None (filesystem path) | High (dev) | `service/Api/src/Api/appsettings.Development.json:15-18` |
 
 ### 2) Data Stores
 
 | Store | Role | Access layer | Key risk | Evidence |
 |-------|------|--------------|----------|----------|
-| PostgreSQL | Primary application database (users, products, orders, profiles, etc.) | EF Core via `ApplicationDbContext` + Npgsql provider | Schema migration errors; connection pool exhaustion | `Persistence.Extensions.cs`, `AppDbContext.cs` |
-| Redis | Distributed cache + Hangfire job storage + refresh token store | `IDistributedCache`, `StackExchange.Redis`, `HybridCache` | Data loss on restart (if not persisted); single-point-of-failure | `appsettings.json:75`, `Directory.Packages.props:60` |
-| Local filesystem | File storage for product images / uploads (Local provider) | `IStorageProvider.Local` | Not scalable across instances; data loss on host failure | `appsettings.json:93,121-124` |
+| PostgreSQL | Primary relational database, vector store (pgvector), ASP.NET Identity tables, Hangfire job storage | EF Core via Npgsql (with pgvector EF provider) | Schema migration failures can block deployments; single database for all modules (no isolation) | `Shared/Operational/Persistence/`, `Migrations/Migrations/` |
+| Redis | Distributed cache, session state, Hangfire job queue backend | `IDistributedCache` / `HybridCache`, `Hangfire.Redis.StackExchange` | Redis unavailability affects caching, job processing, and potentially sessions | `Shared/Performance/Caching/`, `Shared/Operational/Backgrounds/` |
+| Local Filesystem | Uploaded file storage (images, assets); dev-only | `IStorageProvider` with `LocalStorageProvider` implementation | Filesystem path traversal; file permissions; not scalable for production | `Shared/Operational/Storages/Providers/` |
+| S3-compatible (planned) | Production file storage | `IStorageProvider` with S3 provider implementation | Credential management; bucket permissions | `Shared/Operational/Storages/Providers/` |
+| Azure Blob (planned) | Production file storage | `IStorageProvider` with Azure Blob provider implementation | Credential management; container permissions | `Shared/Operational/Storages/Providers/` |
 
 ### 3) Secrets and Credentials Handling
 
-- Credential sources: `.env` files (git-ignored), `appsettings.json` (defaults/empty), `appsettings.Development.json` (dev overrides), Aspire User Secrets
-- Hardcoding checks: Development secrets are hardcoded in `appsettings.Development.json` (e.g., `"Secret": "ThisIsADevelopmentJwtSecretKey..."`, DB password `"postgres"`) — acceptable for local dev only
-- Rotation or lifecycle notes: No automated rotation mechanism detected. Secrets are static until manually rotated.
+- Credential sources:
+  - Development: `appsettings.Development.json` (committed — contains hardcoded JWT secret and DB connection string)
+  - Aspire: User Secrets (`UserSecretsId` in `infra/Aspire/src/ReSys.AppHost/ReSys.AppHost.csproj:8`)
+  - Frontend: `.env.development` files (`VITE_API_URL`)
+  - Standard .NET configuration pipeline: environment variables, `appsettings.{Environment}.json`
+- Hardcoding checks:
+  - **Dev JWT secret is hardcoded** in `service/Api/src/Api/appsettings.Development.json:11` (`ThisIsADevelopmentJwtSecretKeyThatIsLongEnough32!`)
+  - DB connection string is hardcoded in dev settings (`Host=localhost;Database=resys_shop;Username=postgres;Password=postgres`)
+  - No `.env.example` or `.env.template` exists for backend — `service/Api/src/Api/` has no env files
+- Rotation or lifecycle notes: No automated rotation mechanism detected; JWT secret rotation would require manual config change and token invalidation
 
 ### 4) Reliability and Failure Behavior
 
-- Retry/backoff behavior: `Microsoft.Extensions.Http.Resilience` configured via `AddStandardResilienceHandler()` in `ServiceDefaults/Extensions.cs`. Custom `CorrelationIdPropagationHandler`. Timeout default 30s (`Http:DefaultTimeoutSeconds`).
-- Timeout policy: Configured per HTTP client and per notification provider (`Notification.Channels.Email.Providers.SendGrids.Timeout: 00:00:30`)
-- Circuit-breaker or fallback behavior: Standard resilience handler includes circuit breaker (from `Microsoft.Extensions.Http.Resilience`). Notification channels have priority-based fallback (e.g., SendGrid falls back to SMTP; SMS falls back to logging provider).
+- Retry/backoff behavior:
+  - HTTP resilience: `Microsoft.Extensions.Http.Resilience` configured via `Shared/Operational/Http/ResilienceExtensions.cs` — StandardResilienceHandler with defaults
+  - Service discovery: `Microsoft.Extensions.ServiceDiscovery` via Aspire — automatic endpoint resolution
+  - No custom retry logic found for database, cache, or storage operations
+- Timeout policy:
+  - HTTP client resilience pipeline in ServiceDefaults includes default timeouts
+  - [TODO] — explicit timeout configuration for database connections, cache operations, or external API calls not found in code
+- Circuit-breaker or fallback behavior:
+  - HTTP resilience pipeline includes circuit breaker (via Polly, configured in ServiceDefaults)
+  - Storage provider fallback (S3 > Azure > Local) not detected in code
+  - Email provider fallback chain: SendGrid primary, SMTP fallback — `Shared/Operational/Notifications/`
+  - No circuit breaker found for database or cache calls
 
 ### 5) Observability for Integrations
 
-- Logging around external calls: Structured `ILogger` logs throughout. Correlation IDs propagate via `X-Correlation-Id`. OpenTelemetry instruments EF Core, HTTP client, ASP.NET Core, Redis, and Npgsql.
-- Metrics/tracing coverage: OpenTelemetry configured in `ServiceDefaults/Extensions.cs` — traces and metrics for ASP.NET Core, HTTP client, Redis, Npgsql, and runtime. OTLP exporter optional.
-- Missing visibility gaps: Hangfire dashboard is accessible at `/jobs` (dev only). No dedicated integration health check dashboards beyond standard `/health` + `/alive`.
+- Logging around external calls: Yes — OpenTelemetry instrumentation includes ASP.NET Core, HTTP client, Redis, and Npgsql traces (`ReSys.ServiceDefaults/Extensions.cs:68-86`)
+- Metrics/tracing coverage:
+  - ASP.NET Core request metrics and traces
+  - HTTP client outbound tracing
+  - Redis instrumentation (traces for cache operations)
+  - Npgsql/PostgreSQL tracing (database query traces)
+  - Runtime metrics (GC, CPU, memory)
+- Missing visibility gaps:
+  - No custom spans for storage operations (file upload/download timing)
+  - No Hangfire job execution tracing
+  - No custom business metrics (orders placed, products searched)
+  - No log aggregation pipeline defined (OTLP endpoint is optional, no fallback)
 
 ### 6) Evidence
 
-- `infra/Aspire/src/ReSys.ServiceDefaults/Extensions.cs` — resilience + OpenTelemetry setup
-- `service/Api/src/Shared/Operational/Notifications/` — notification channel providers (SendGrid, SMTP, Sinch)
-- `service/Api/src/Shared/Operational/Storages/Providers/` — storage provider options (Local, S3, Azure)
-- `service/Api/src/Shared/Operational/Http/ResilienceExtensions.cs` — HTTP resilience config
-- `service/Api/src/Api/appsettings.json` — all integration configuration with defaults
-- `infra/Aspire/src/ReSys.AppHost/AppHost.cs` — Aspire resource wiring (PostgreSQL, Redis, Embedding)
+- `infra/Aspire/src/ReSys.AppHost/AppHost.cs` — Service topology and wiring
+- `infra/Aspire/src/ReSys.ServiceDefaults/Extensions.cs` — OpenTelemetry, health checks, resilience configuration
+- `infra/Aspire/src/ReSys.ServiceDefaults/Constants/` — Named references for services and infrastructure images
+- `service/Api/src/Shared/Operational/Storages/Storage.Extensions.cs` — Storage provider registration
+- `service/Api/src/Shared/Operational/Notifications/Notification.Extension.cs` — Notification provider registration
+- `service/Api/src/Shared/Operational/Http/ResilienceExtensions.cs` — HTTP resilience pipeline
+- `service/Api/src/Shared/Security/Authentication/Authentication.Extension.cs` — JWT and OAuth configuration
+- `service/Api/src/Api/appsettings.Development.json` — Dev configuration (DB, JWT, storage, notifications, CORS)
+- `Directory.Packages.props` — All integration package references
