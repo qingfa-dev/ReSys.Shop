@@ -5,7 +5,6 @@ namespace Module.Inventory.Features.Admin.StockItems.Shared.Mappings;
 
 public static partial class StockItemMapping
 {
-    // Map: Domain entity -> Detail response
     public static T MapToDetail<T>(this StockItem entity) where T : StockItemDetailResponse, new()
     {
         return new T
@@ -17,10 +16,11 @@ public static partial class StockItemMapping
             Backorderable = entity.Backorderable,
             CreatedAtUtc = entity.CreatedAtUtc,
             ModifiedAtUtc = entity.ModifiedAtUtc,
+            CreatedBy = entity.CreatedBy,
+            ModifiedBy = entity.ModifiedBy,
         };
     }
 
-    // Map: Domain entity -> List item response
     public static T MapToListItem<T>(this StockItem entity) where T : StockItemListItemResponse, new()
     {
         return new T
@@ -31,6 +31,9 @@ public static partial class StockItemMapping
             CountOnHand = entity.CountOnHand,
             Backorderable = entity.Backorderable,
             CreatedAtUtc = entity.CreatedAtUtc,
+            ModifiedAtUtc = entity.ModifiedAtUtc,
+            CreatedBy = entity.CreatedBy,
+            ModifiedBy = entity.ModifiedBy,
         };
     }
 }

@@ -42,7 +42,6 @@ public class ProductConfiguration : IEntityTypeConfiguration<Product>
         builder.Property(x => x.MetaKeywords)
             .HasMaxLength(ProductConstant.Constraints.MaxMetaKeywordsLength);
 
-        builder.Property(x => x.TaxCategoryId);
         #endregion
 
         #region Relationships

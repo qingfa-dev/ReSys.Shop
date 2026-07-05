@@ -10,5 +10,5 @@ public abstract record ProductParameters
     public string? MetaKeywords { get; init; }
     public DateTimeOffset? AvailableOn { get; init; }
     public DateTimeOffset? DiscontinueOn { get; init; }
-    public Guid? TaxCategoryId { get; init; }
+    public bool TrackInventory { get; init; }
 }

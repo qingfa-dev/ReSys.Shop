@@ -22,7 +22,6 @@ public class ProductMappingTests
             MetaDescription = "Premium cotton t-shirt",
             MetaKeywords = "t-shirt, cotton",
             AvailableOn = DateTimeOffset.UtcNow,
-            TaxCategoryId = Guid.NewGuid(),
         };
 
         var result = request.MapToDomain();
@@ -37,7 +36,6 @@ public class ProductMappingTests
         entity.MetaDescription.Should().Be(request.MetaDescription);
         entity.MetaKeywords.Should().Be(request.MetaKeywords);
         entity.AvailableOn.Should().Be(request.AvailableOn);
-        entity.TaxCategoryId.Should().Be(request.TaxCategoryId);
     }
 
     [Fact(DisplayName = "MapToDomain (Update): Should update existing Product entity from request")]
@@ -52,7 +50,6 @@ public class ProductMappingTests
             MetaDescription = "New meta description",
             MetaKeywords = "new, keywords",
             AvailableOn = DateTimeOffset.UtcNow.AddDays(1),
-            TaxCategoryId = Guid.NewGuid(),
         };
 
         var entity = ProductMethod.Create("Old Name", "old-slug", status: ProductStatus.Active).Value;
@@ -67,7 +64,6 @@ public class ProductMappingTests
         entity.MetaDescription.Should().Be(request.MetaDescription);
         entity.MetaKeywords.Should().Be(request.MetaKeywords);
         entity.AvailableOn.Should().Be(request.AvailableOn);
-        entity.TaxCategoryId.Should().Be(request.TaxCategoryId);
     }
 
     [Fact(DisplayName = "MapToDomain (Update): Should preserve fields when request values are null")]

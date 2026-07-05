@@ -14,7 +14,6 @@ public static partial class ProductMethod
         string? metaKeywords = null,
         DateTimeOffset? discontinueOn = null,
         DateTimeOffset? makeActiveAt = null,
-        Guid? taxCategoryId = null,
         Guid? id = null)
     {
         var product = new Product
@@ -30,7 +29,6 @@ public static partial class ProductMethod
             MetaKeywords = metaKeywords,
             DiscontinueOn = discontinueOn,
             MakeActiveAt = makeActiveAt,
-            TaxCategoryId = taxCategoryId,
             CreatedAtUtc = DateTimeOffset.UtcNow,
             CreatedBy = "System"
         };
@@ -63,7 +61,6 @@ public static partial class ProductMethod
         product.MetaKeywords = metaKeywords ?? product.MetaKeywords;
         product.DiscontinueOn = discontinueOn ?? product.DiscontinueOn;
         product.MakeActiveAt = makeActiveAt ?? product.MakeActiveAt;
-        product.TaxCategoryId = taxCategoryId ?? product.TaxCategoryId;
 
         return Result.Ok();
     }

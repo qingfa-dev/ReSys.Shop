@@ -7,19 +7,19 @@ namespace Module.Inventory.Features.Admin.StockItems.BulkAdjust;
 /// <summary>Handles bulk adjustment of stock item quantities.</summary>
 public static partial class BulkAdjustStockItems
 {
-    public sealed record Command(Request Request) : ICommand;
+    public sealed record Command(Request Request) : ICommand<Response>;
 
     public sealed class CommandHandler(
         IApplicationDbContext dbContext,
         ILogger<CommandHandler> logger,
         ICurrentUser currentUser)
-        : ICommandHandler<Command>
+        : ICommandHandler<Command, Response>
     {
         /// <summary>Executes the bulk adjust stock items command.</summary>
         /// <param name="command">The command containing adjustment data.</param>
         /// <param name="cancellationToken">Cancellation token.</param>
         /// <returns>A result indicating success.</returns>
-        public async Task<Result> Handle(Command command, CancellationToken cancellationToken)
+        public async Task<Result<Response>> Handle(Command command, CancellationToken cancellationToken)
         {
             // Contract: pre=command!=null, post=result!=null
             var request = command.Request;
@@ -59,7 +59,7 @@ public static partial class BulkAdjustStockItems
             StockItemLoggers.Adjusted(logger, CountOnHand: entity.CountOnHand, Id: entity.Id, ActionBy: currentUser.UserName);
 
             // Map: Return success result.
-            return Result.Ok(StockItemResult.Success.Adjusted);
+            return new Response();
         }
     }
 }

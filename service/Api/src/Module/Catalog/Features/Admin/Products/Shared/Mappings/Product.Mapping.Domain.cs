@@ -24,8 +24,7 @@ public static partial class ProductMapping
             metaDescription: request.MetaDescription,
             metaKeywords: request.MetaKeywords,
             availableOn: request.AvailableOn,
-            discontinueOn: request.DiscontinueOn,
-            taxCategoryId: request.TaxCategoryId);
+            discontinueOn: request.DiscontinueOn);
     }
 
     /// <summary>
@@ -45,7 +44,6 @@ public static partial class ProductMapping
             metaDescription: request.MetaDescription,
             metaKeywords: request.MetaKeywords,
             availableOn: request.AvailableOn,
-            discontinueOn: request.DiscontinueOn,
-            taxCategoryId: request.TaxCategoryId);
+            discontinueOn: request.DiscontinueOn);
     }
 }

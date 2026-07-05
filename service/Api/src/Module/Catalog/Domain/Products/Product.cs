@@ -45,7 +45,6 @@ public sealed partial class Product : Entity, IAuditable, ISoftDeletable
 
     #region Relationships
     public Guid MasterVariantId { get; set; }
-    public Guid? TaxCategoryId { get; set; }
     public ICollection<Variant> Variants { get; set; } = [];
     public ICollection<ProductOptionType> ProductOptionTypes { get; set; } = [];
     public ICollection<Classification> Classifications { get; set; } = [];

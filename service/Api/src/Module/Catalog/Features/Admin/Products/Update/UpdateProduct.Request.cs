@@ -7,7 +7,7 @@ public static partial class UpdateProduct
 public record Request : ProductRequest
     {
         public string? Sku { get; init; }
-        public bool? TrackInventory { get; init; }
+        public new bool? TrackInventory { get; init; }
         public decimal? Price { get; init; }
         public decimal? CostPrice { get; init; }
         public string? CostCurrency { get; init; }
