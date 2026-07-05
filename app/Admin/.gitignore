@@ -41,3 +41,4 @@ __screenshots__/
 # unplugin-auto-import generated files
 .auto-imports/
 .eslintrc-auto-import.json
+src/auto-imports.d.ts
