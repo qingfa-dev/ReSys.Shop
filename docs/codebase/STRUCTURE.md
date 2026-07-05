@@ -6,55 +6,71 @@
 
 | Path | Purpose | Evidence |
 |------|---------|----------|
-| `service/Api/src/Api/` | .NET Web API entry point (Program.cs, startup config) | `service/Api/src/Api/Program.cs` |
-| `service/Api/src/Shared/` | Cross-cutting infrastructure (auth, persistence, storage, caching, observability, etc.) | `service/Api/src/Shared/Shared.csproj` |
-| `service/Api/src/Module/` | Business modules (Catalog, Identity, Location, Profile) | `service/Api/src/Module/Module.csproj` |
-| `service/Api/src/Migrations/` | EF Core database migrations | `service/Api/src/Migrations/Api.Migrations.csproj` |
-| `service/Api/tests/` | .NET test projects (Api.Tests, Module.UnitTests, Shared.UnitTests) | `service/Api/tests/` |
-| `service/Embedding/` | Python FastAPI ML embedding sidecar service | `service/Embedding/src/main.py` |
-| `infra/Aspire/` | .NET Aspire orchestration (AppHost + ServiceDefaults) | `infra/Aspire/src/ReSys.AppHost/AppHost.cs` |
-| `infra/Cache/` | Cache infrastructure (placeholder — only .gitkeep) | `infra/Cache/` |
-| `infra/Database/` | Database infrastructure (placeholder — only .gitkeep) | `infra/Database/` |
-| `app/Admin/` | Vue 3 admin SPA (PrimeVue) — scaffold/early stage | `app/Admin/src/main.ts` |
-| `app/Store/` | Vue 3 storefront SPA (Nuxt UI) — more feature-complete | `app/Store/src/main.ts` |
-| `ApiTests/` | HTTP API test files (REST Client / JetBrains HTTP Client format) | `ApiTests/README.md` |
-| `guide/` | Coding conventions and developer guides | `guide/code-commenting/CommentingRules.xml` |
-| `docs/` | Documentation (codebase docs, superpowers plans/specs) | `docs/codebase/`, `docs/superpowers/` |
+| `service/Api/src/Api/` | .NET API host — Program.cs, middleware pipeline, config | `service/Api/src/Api/Program.cs` |
+| `service/Api/src/Module/` | Business logic — Catalog, Identity, Inventory, Location, Profile modules | `service/Api/src/Module/Module.csproj` |
+| `service/Api/src/Shared/` | Shared infrastructure — persistence, auth, storage, caching, notifications, jobs | `service/Api/src/Shared/Shared.csproj` |
+| `service/Api/src/Migrations/` | EF Core migrations and database schema snapshots | `service/Api/src/Migrations/Api.Migrations.csproj` |
+| `service/Api/tests/` | .NET test projects — `Api.Tests` (integration), `Module.UnitTests`, `Shared.UnitTests` | `service/Api/tests/Api.Tests/Api.Tests.csproj` |
+| `service/Embedding/` | Python FastAPI ML sidecar (Fashion-CLIP embeddings, uvicorn) | `service/Embedding/pyproject.toml` |
+| `infra/Aspire/src/ReSys.AppHost/` | Aspire orchestration — wires PostgreSQL, Redis, API, Embedding, SPAs | `infra/Aspire/src/ReSys.AppHost/AppHost.cs` |
+| `infra/Aspire/src/ReSys.ServiceDefaults/` | Aspire shared defaults — OpenTelemetry, health checks, resilience | `infra/Aspire/src/ReSys.ServiceDefaults/Extensions.cs` |
+| `app/Admin/` | Vue 3 Admin SPA — PrimeVue + Tailwind CSS (scaffold/WIP) | `app/Admin/package.json` |
+| `app/Store/` | Vue 3 Storefront SPA — Nuxt UI + Tailwind CSS | `app/Store/package.json` |
+| `ApiTests/` | HTTP test files (.http) for REST Client — manual API testing | `ApiTests/README.md` |
+| `docs/codebase/` | Codebase documentation (STACK, ARCHITECTURE, CONVENTIONS, etc.) | `docs/codebase/STACK.md` |
+| `docs/superpowers/` | Implementation plans and specs for recent features | `docs/superpowers/plans/`, `docs/superpowers/specs/` |
+| `guide/code-commenting/` | Code commenting conventions and rules | `guide/code-commenting/CommentingRules.xml` |
+| `.editorconfig` | Root code style rules for .NET, JSON, XML | `.editorconfig` |
+| `Directory.Build.props` | Build-wide MSBuild properties (TFM, analysis, InternalsVisibleTo) | `Directory.Build.props` |
+| `Directory.Build.targets` | Architecture validation targets (layer dependency checks) | `Directory.Build.targets` |
+| `Directory.Packages.props` | Central Package Management version definitions | `Directory.Packages.props` |
 
 ### 2) Entry Points
 
-- Main runtime entry: `service/Api/src/Api/Program.cs` — .NET WebApplication host
-- Aspire orchestration entry: `infra/Aspire/src/ReSys.AppHost/AppHost.cs` — orchestrates API, Embedding, frontends, DB, Redis
-- Embedding service entry: `service/Embedding/src/main.py` — FastAPI app (separate process)
-- Admin frontend entry: `app/Admin/src/main.ts` — Vue 3 app bootstrap
-- Store frontend entry: `app/Store/src/main.ts` — Vue 3 app bootstrap
-- How entry is selected: Aspire AppHost starts everything; alternatively, each service can be run independently via `dotnet run`, `uv run uvicorn`, or `pnpm dev`
+- Main runtime entry: `service/Api/src/Api/Program.cs` — .NET 10 WebApplication bootstrapper
+- Secondary entry points:
+  - `infra/Aspire/src/ReSys.AppHost/AppHost.cs` — Aspire orchestration startup (all-in-one)
+  - `service/Embedding/src/main.py` — Python FastAPI uvicorn app
+  - `app/Admin/src/main.ts` — Vue 3 Admin SPA bootstrap
+  - `app/Store/src/main.ts` — Vue 3 Storefront SPA bootstrap
+- How entry is selected:
+  - `dotnet run --project infra/Aspire/src/ReSys.AppHost` starts everything via Aspire
+  - `dotnet run --project service/Api/src/Api` starts API alone
+  - `pnpm run dev` in `app/Admin` or `app/Store` starts SPA dev server alone
+  - `uv run uvicorn embedding.main:app` starts embedding service alone
 
 ### 3) Module Boundaries
 
 | Boundary | What belongs here | What must not be here |
 |----------|-------------------|------------------------|
-| `Shared/` | Cross-cutting infrastructure (persistence, auth, caching, storage, security, observability, governance) | Business logic, feature-specific code |
-| `Module/` | Domain entities, feature handlers (Carter endpoints, MediatR), persistence configs, seeders | Infrastructure code (HTTP clients, storage providers) |
-| `Module/Catalog/` | Product, variant, taxonomy, option-type domain + features | Identity user management, location data |
-| `Module/Identity/` | User, role, permission management + auth endpoints | Catalog or profile entities |
-| `Module/Location/` | Country, state domain + lookup endpoints | Payment processing, notifications |
-| `Module/Profile/` | User profiles, addresses, wishlists, preferences, notifications | Authentication logic |
-| `Api/` | DI composition, middleware pipeline, appsettings | Business logic (must delegate to modules) |
-| `infra/Aspire/` | Cloud orchestration, resource references (DB, Redis, services) | Application feature code |
+| `service/Api/src/Api/` | Program.cs, appsettings, launchSettings, DesignTimeDbContextFactory | Business logic, persistence models, domain types |
+| `service/Api/src/Shared/` | Cross-cutting infrastructure: persistence (EF Core setup, specs, interceptors), auth (JWT, Identity, OAuth, guest sessions), authorization (feature metadata, permission registry), storage (IStorageProvider, Local/S3 abstractions), caching (HybridCache wrapper), notifications (email/SMS providers), background jobs (Hangfire), observability (OTel, correlation, health checks), governance (OpenAPI, validation conventions, enum/case converters), error handling (Result types, exception mapping) | Business-specific domain logic or module-to-module imports |
+| `service/Api/src/Module/Catalog/` | Products, variants, variant images, product options, taxonomies, taxons, taxon rules, option types, classifications, product search/filter, image embeddings, price history | Identity management, location data, user profiles, payment processing |
+| `service/Api/src/Module/Identity/` | Users, roles, permissions, auth (login/register/logout/sessions), email confirmation, password management, external OAuth, role-permission assignments | Product data, location data, user profiles/addresses |
+| `service/Api/src/Module/Inventory/` | Stock items, stock locations, stock reservations, stock transfers, stock movements | Product catalog data, user profiles, payment processing |
+| `service/Api/src/Module/Location/` | Countries, states/provinces, ISO code lookups, country calling codes | User data, product data |
+| `service/Api/src/Module/Profile/` | User profiles, addresses, wishlists, notification preferences | Authentication/authorization logic, product data |
+| `service/Api/src/Migrations/` | EF Core migration files (.cs), schema snapshots, migration guide | Application logic, domain models |
+| `service/Embedding/` | Python ML inference (CLIP/Fashion-CLIP models), embedding generation API, image preprocessing, embedding caching | Business logic, database access, user management |
+| `app/Admin/` | Admin UI components, admin-specific views and stores | Storefront UI components, backend business logic |
+| `app/Store/` | Storefront UI components, customer-facing views, cart/catalog stores, checkout flow | Admin UI components, admin auth logic |
 
 ### 4) Naming and Organization Rules
 
-- File naming pattern (.NET): **PascalCase** for all C# files (e.g., `Program.cs`, `CatalogExtension.cs`, `GetProductDetailPage.Tests.cs`)
-- File naming pattern (Vue): **PascalCase** for single-file components (e.g., `App.vue`, `HomeView.vue`, `CartView.vue`)
-- File naming pattern (Python): **snake_case** for modules (e.g., `main.py`, `health_router.py`, `embedding_service.py`)
-- Directory organization pattern: **Feature-first** inside modules (e.g., `Catalog/Features/Admin/Products/Create/`), **Layer-based** inside features (handlers, validators, mappings, models)
-- Import aliasing: `@` maps to `./src` in both Vue apps (`vite.config.ts`). In .NET, implicit usings enabled with project references.
-- HTTP test files organized by module then concern (e.g., `ApiTests/Catalog/Admin/products.http`)
+- File naming pattern (C#): PascalCase — e.g., `Country.Extensions.cs`, `GetProductDetail.cs`, `Catalog.Extension.cs`
+- File naming pattern (Vue/TS): PascalCase for components — e.g., `App.vue`, `HomeView.vue`; kebab-case for .http tests — e.g., `products.http`
+- Directory organization pattern: feature-first vertical slices — `Features/{Admin|Storefront|Store}/{FeatureName}/{Action}/` (e.g., `Features/Admin/Products/Variants/Images/Upload/`)
+- Domain layer separated: `Domain/{EntityName}/` with partial class files (e.g., `Domain/Products/Variants/Variant.cs`, `Variant.Extension.cs`, `Variant.Validation.cs`)
+- C# module entry: each module has `{Module}.Extension.cs` with `IServiceCollection` extension methods (e.g., `Catalog.Extension.cs`, `Identity.Extensions.cs`)
+- Import aliasing (frontend): `@` alias maps to `./src` in both Admin and Store SPAs — `app/Admin/vite.config.ts:13`, `app/Store/vite.config.ts:12`
 
 ### 5) Evidence
 
-- `ReSys.Shop.slnx` — solution layout
-- `service/Api/src/Api/Program.cs` — entry point + module registration
-- `infra/Aspire/src/ReSys.AppHost/AppHost.cs` — orchestration manifest
-- `ApiTests/README.md` — API test structure description
+- `.codebase-scan.txt` — Directory tree scan output
+- `ReSys.Shop.slnx` — Solution project references
+- `service/Api/src/Api/Program.cs` — API entry point and DI wiring
+- `infra/Aspire/src/ReSys.AppHost/AppHost.cs` — Aspire service wiring
+- `service/Embedding/src/main.py` — Python entry point
+- `app/Admin/vite.config.ts` — Admin Vite config with `@` alias
+- `app/Store/vite.config.ts` — Store Vite config with `@` alias
+- `Directory.Build.targets` — Layer dependency validation rules
