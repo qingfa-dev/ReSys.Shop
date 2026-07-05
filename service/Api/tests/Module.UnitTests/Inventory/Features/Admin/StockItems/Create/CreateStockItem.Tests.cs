@@ -76,7 +76,7 @@ public class CreateStockItemTests : IDisposable
         var locationId = Guid.NewGuid();
 
         _dbContext.Set<StockItem>().Add(
-            StockItemExtensions.Create(locationId, variantId).Value);
+            StockItemMethod.Create(locationId, variantId).Value);
         await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 
         var request = new CreateStockItem.Request

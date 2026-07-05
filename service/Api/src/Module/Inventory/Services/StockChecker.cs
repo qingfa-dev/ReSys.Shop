@@ -182,7 +182,7 @@ public class StockChecker : IStockChecker
         var previousCount = stockItem.CountOnHand;
         stockItem.CountOnHand -= quantity;
 
-        var movement = StockMovementExtensions.Create(
+        var movement = StockMovementMethod.Create(
             stockItemId: stockItem.Id,
             quantity: -quantity,
             previousCountOnHand: previousCount,
@@ -222,7 +222,7 @@ public class StockChecker : IStockChecker
         var previousCount = stockItem.CountOnHand;
         stockItem.CountOnHand += quantity;
 
-        var movement = StockMovementExtensions.Create(
+        var movement = StockMovementMethod.Create(
             stockItemId: stockItem.Id,
             quantity: quantity,
             previousCountOnHand: previousCount,
@@ -378,7 +378,7 @@ public class StockChecker : IStockChecker
         stockItem.ModifiedAtUtc = DateTimeOffset.UtcNow;
 
         // Create StockMovement for the restock
-        var movement = StockMovementExtensions.Create(
+        var movement = StockMovementMethod.Create(
             stockItemId: stockItem.Id,
             quantity: quantity,
             previousCountOnHand: previousCount,

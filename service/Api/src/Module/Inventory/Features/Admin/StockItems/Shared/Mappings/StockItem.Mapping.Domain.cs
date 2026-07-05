@@ -8,7 +8,7 @@ public static partial class StockItemMapping
     // Map: Request -> Domain entity (create)
     public static Result<StockItem> MapToDomain<T>(this T request) where T : StockItemRequest
     {
-        return StockItemExtensions.Create(
+        return StockItemMethod.Create(
             stockLocationId: request.StockLocationId,
             variantId: request.VariantId,
             countOnHand: request.CountOnHand,

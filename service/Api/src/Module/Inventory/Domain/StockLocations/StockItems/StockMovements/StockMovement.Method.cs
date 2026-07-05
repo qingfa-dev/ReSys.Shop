@@ -1,6 +1,6 @@
 namespace Module.Inventory.Domain.StockLocations.StockItems.StockMovements;
 
-public static class StockMovementExtensions
+public static class StockMovementMethod
 {
     #region Factory Methods
     /// <summary>
