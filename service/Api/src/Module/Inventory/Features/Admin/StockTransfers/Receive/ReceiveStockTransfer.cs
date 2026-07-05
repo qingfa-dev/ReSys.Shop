@@ -1,5 +1,6 @@
+using Module.Inventory.Domain.StockLocations.StockItems;
+using Module.Inventory.Domain.StockLocations.StockItems.StockMovements;
 using Module.Inventory.Domain.StockTransfers;
-using Module.Inventory.Services.Abstractions;
 
 namespace Module.Inventory.Features.Admin.StockTransfers.Receive;
 
@@ -9,7 +10,7 @@ public static partial class ReceiveStockTransfer
     public sealed record Command(Guid Id, Request Request) : ICommand;
 
     public sealed class CommandHandler(
-        IStockChecker stockChecker,
+        IApplicationDbContext dbContext,
         ILogger<CommandHandler> logger)
         : ICommandHandler<Command>
     {
@@ -19,19 +20,57 @@ public static partial class ReceiveStockTransfer
         /// <returns>A result indicating success or failure.</returns>
         public async Task<Result> Handle(Command command, CancellationToken cancellationToken)
         {
-            // Contract: pre=command!=null, post=result!=null
-            // Map: Convert request items to tuples
+            var transfer = await dbContext.Set<StockTransfer>()
+                .Include(t => t.TransferItems)
+                .FirstOrDefaultAsync(t => t.Id == command.Id, cancellationToken);
+
+            if (transfer is null)
+                return StockTransferResult.Failure.NotFound;
+
+            if (transfer.State != TransferState.InTransit)
+                return StockTransferResult.Failure.InvalidStateTransition(transfer.State, TransferState.Received);
+
             var receivedItems = command.Request.Items
                 .Select(i => (i.VariantId, i.Quantity))
                 .ToList();
 
-            var result = await stockChecker.ReceiveTransferAsync(command.Id, receivedItems, cancellationToken);
+            foreach (var (variantId, quantity) in receivedItems)
+            {
+                var receiveResult = transfer.Receive(variantId, quantity);
+                if (receiveResult.IsFailure) return receiveResult;
 
-            // Log: Transfer received
-            if (result.IsSuccess)
-                StockTransferLoggers.Received(logger, Id: command.Id);
+                var destStockItem = await dbContext.Set<StockItem>()
+                    .FirstOrDefaultAsync(si => si.VariantId == variantId
+                        && si.StockLocationId == transfer.DestinationLocationId, cancellationToken);
 
-            return result;
+                if (destStockItem is not null)
+                {
+                    var previousCount = destStockItem.CountOnHand;
+                    destStockItem.CountOnHand += quantity;
+                    destStockItem.ModifiedAtUtc = DateTimeOffset.UtcNow;
+
+                    var movement = new StockMovement
+                    {
+                        Id = Guid.NewGuid(),
+                        StockItemId = destStockItem.Id,
+                        StockLocationId = transfer.DestinationLocationId,
+                        Quantity = quantity,
+                        PreviousCountOnHand = previousCount,
+                        Action = "transfer_in",
+                        OriginatorType = "Transfer",
+                        OriginatorId = transfer.Id,
+                        Reason = $"Received from transfer {transfer.Number}",
+                        CreatedAtUtc = DateTimeOffset.UtcNow,
+                        CreatedBy = "System"
+                    };
+                    dbContext.Set<StockMovement>().Add(movement);
+                }
+            }
+
+            await dbContext.SaveChangesAsync(cancellationToken);
+
+            StockTransferLoggers.Received(logger, Id: command.Id);
+            return Result.Ok();
         }
     }
 }

@@ -1,4 +1,5 @@
-using Module.Inventory.Services.Abstractions;
+using Module.Inventory.Domain.StockLocations.StockItems;
+using Module.Inventory.Domain.StockReservations;
 
 namespace Module.Inventory.Features.Storefront.CartReservations.Reserve;
 
@@ -7,7 +8,7 @@ public static partial class ReserveCartStock
 {
     public sealed record Command(Request Request, string CartToken) : ICommand<Response>;
 
-    public sealed class CommandHandler(IStockChecker stockChecker)
+    public sealed class CommandHandler(IApplicationDbContext dbContext)
         : ICommandHandler<Command, Response>
     {
         /// <summary>Executes the reserve cart stock command.</summary>
@@ -16,28 +17,48 @@ public static partial class ReserveCartStock
         /// <returns>A result containing the reservation details.</returns>
         public async Task<Result<Response>> Handle(Command command, CancellationToken cancellationToken)
         {
-            // Contract: pre=command!=null, post=result!=null
-            // Reserve: Create cart-scoped stock reservation via StockChecker
-            var result = await stockChecker.ReserveForCartAsync(
-                command.Request.VariantId,
-                command.Request.Quantity,
-                command.Request.StockLocationId!.Value,
-                command.CartToken,
-                command.Request.TtlMinutes,
-                cancellationToken);
+            var variantId = command.Request.VariantId;
+            var quantity = command.Request.Quantity;
+            var stockLocationId = command.Request.StockLocationId!.Value;
+            var cartToken = command.CartToken;
+            var ttlMinutes = command.Request.TtlMinutes;
 
-            // Guard: Return failure if reservation could not be created
+            if (quantity <= 0)
+                return StockReservationResult.Errors.QuantityZero;
+
+            var stockItem = await dbContext.Set<StockItem>()
+                .FirstOrDefaultAsync(si => si.VariantId == variantId && si.StockLocationId == stockLocationId, cancellationToken);
+
+            if (stockItem is null)
+                return StockReservationResult.Errors.InsufficientStock;
+
+            var reserved = await dbContext.Set<StockReservation>()
+                .Where(r => r.VariantId == variantId
+                            && r.StockLocationId == stockLocationId
+                            && r.State == ReservationState.Reserved
+                            && r.ExpiresAtUtc > DateTimeOffset.UtcNow)
+                .SumAsync(r => r.Quantity, cancellationToken);
+
+            var available = stockItem.CountOnHand - reserved;
+            if (available < quantity)
+                return StockReservationResult.Errors.InsufficientStock;
+
+            var result = StockReservationExtensions.Reserve(variantId, quantity, stockLocationId, null, ttlMinutes);
             if (result.IsFailure) return result.Errors;
 
-            // Map: Return reservation details
-            var r = result.Value;
+            var reservation = result.Value;
+            reservation.CartToken = cartToken;
+            dbContext.Set<StockReservation>().Add(reservation);
+
+            await dbContext.SaveChangesAsync(cancellationToken);
+
             return new Response
             {
-                Id = r.Id,
-                VariantId = r.VariantId,
-                Quantity = r.Quantity,
-                ExpiresAtUtc = r.ExpiresAtUtc!.Value,
-                State = r.State.ToString()
+                Id = reservation.Id,
+                VariantId = reservation.VariantId,
+                Quantity = reservation.Quantity,
+                ExpiresAtUtc = reservation.ExpiresAtUtc!.Value,
+                State = reservation.State.ToString()
             };
         }
     }
