@@ -13,15 +13,12 @@ export {}
 declare module 'vue' {
   export interface GlobalComponents {
     Button: typeof import('primevue/button')['default']
-    Column: typeof import('primevue/column')['default']
+    Card: typeof import('primevue/card')['default']
     ConfirmDialog: typeof import('primevue/confirmdialog')['default']
-    DataTable: typeof import('primevue/datatable')['default']
-    Dialog: typeof import('primevue/dialog')['default']
     InputSwitch: typeof import('primevue/inputswitch')['default']
     InputText: typeof import('primevue/inputtext')['default']
     OverlayPanel: typeof import('primevue/overlaypanel')['default']
     Password: typeof import('primevue/password')['default']
-    ProgressSpinner: typeof import('primevue/progressspinner')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
     Tag: typeof import('primevue/tag')['default']
@@ -35,15 +32,12 @@ declare module 'vue' {
 // For TSX support
 declare global {
   const Button: typeof import('primevue/button')['default']
-  const Column: typeof import('primevue/column')['default']
+  const Card: typeof import('primevue/card')['default']
   const ConfirmDialog: typeof import('primevue/confirmdialog')['default']
-  const DataTable: typeof import('primevue/datatable')['default']
-  const Dialog: typeof import('primevue/dialog')['default']
   const InputSwitch: typeof import('primevue/inputswitch')['default']
   const InputText: typeof import('primevue/inputtext')['default']
   const OverlayPanel: typeof import('primevue/overlaypanel')['default']
   const Password: typeof import('primevue/password')['default']
-  const ProgressSpinner: typeof import('primevue/progressspinner')['default']
   const RouterLink: typeof import('vue-router')['RouterLink']
   const RouterView: typeof import('vue-router')['RouterView']
   const Tag: typeof import('primevue/tag')['default']
