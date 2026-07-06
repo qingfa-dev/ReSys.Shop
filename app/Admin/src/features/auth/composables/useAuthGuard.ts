@@ -1,4 +1,5 @@
 import type { NavigationGuardWithThis, RouteLocationNormalized } from 'vue-router'
+import { RouteName } from '@/shared/config/routes'
 import { useAuthState } from './useAuthState'
 
 export function useAuthGuard(_router: unknown): NavigationGuardWithThis<undefined> {
@@ -6,7 +7,7 @@ export function useAuthGuard(_router: unknown): NavigationGuardWithThis<undefine
   return function (to: RouteLocationNormalized, _from, next) {
     const requiresAuth = to.meta.authRequired === true
     if (requiresAuth && !isAuthenticated.value) {
-      return next({ name: 'login', query: { redirect: to.fullPath } })
+      return next({ name: RouteName.Login, query: { redirect: to.fullPath } })
     }
     return next()
   }
