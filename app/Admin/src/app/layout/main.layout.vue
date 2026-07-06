@@ -4,6 +4,7 @@ import { computed, watch, ref } from 'vue'
 import AppTopbar from './topbar.layout.vue'
 import AppFooter from './footer.layout.vue'
 import AppSidebar from './sidebar.layout.vue'
+import AppBreadcrumb from '@/shared/components/breadcrumb.component.vue'
 
 const { layoutConfig, layoutState, hideMobileMenu } = useLayout()
 
@@ -61,6 +62,7 @@ const isOutsideClicked = (event: MouseEvent) => {
     <AppSidebar />
     <div class="layout-main-container">
       <div class="layout-main">
+        <AppBreadcrumb />
         <router-view />
       </div>
       <AppFooter />
