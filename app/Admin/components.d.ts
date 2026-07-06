@@ -12,10 +12,11 @@ export {}
 /* prettier-ignore */
 declare module 'vue' {
   export interface GlobalComponents {
-    Avatar: typeof import('primevue/avatar')['default']
     Button: typeof import('primevue/button')['default']
-    Checkbox: typeof import('primevue/checkbox')['default']
+    Column: typeof import('primevue/column')['default']
     ConfirmDialog: typeof import('primevue/confirmdialog')['default']
+    DataTable: typeof import('primevue/datatable')['default']
+    Dialog: typeof import('primevue/dialog')['default']
     InputSwitch: typeof import('primevue/inputswitch')['default']
     InputText: typeof import('primevue/inputtext')['default']
     OverlayPanel: typeof import('primevue/overlaypanel')['default']
@@ -23,23 +24,21 @@ declare module 'vue' {
     ProgressSpinner: typeof import('primevue/progressspinner')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
-    SelectButton: typeof import('primevue/selectbutton')['default']
-    Sidebar: typeof import('primevue/sidebar')['default']
-    Slider: typeof import('primevue/slider')['default']
     Tag: typeof import('primevue/tag')['default']
     Toast: typeof import('primevue/toast')['default']
   }
   export interface GlobalDirectives {
-    Ripple: typeof import('primevue/ripple')['default']
+    StyleClass: typeof import('primevue/styleclass')['default']
   }
 }
 
 // For TSX support
 declare global {
-  const Avatar: typeof import('primevue/avatar')['default']
   const Button: typeof import('primevue/button')['default']
-  const Checkbox: typeof import('primevue/checkbox')['default']
+  const Column: typeof import('primevue/column')['default']
   const ConfirmDialog: typeof import('primevue/confirmdialog')['default']
+  const DataTable: typeof import('primevue/datatable')['default']
+  const Dialog: typeof import('primevue/dialog')['default']
   const InputSwitch: typeof import('primevue/inputswitch')['default']
   const InputText: typeof import('primevue/inputtext')['default']
   const OverlayPanel: typeof import('primevue/overlaypanel')['default']
@@ -47,9 +46,6 @@ declare global {
   const ProgressSpinner: typeof import('primevue/progressspinner')['default']
   const RouterLink: typeof import('vue-router')['RouterLink']
   const RouterView: typeof import('vue-router')['RouterView']
-  const SelectButton: typeof import('primevue/selectbutton')['default']
-  const Sidebar: typeof import('primevue/sidebar')['default']
-  const Slider: typeof import('primevue/slider')['default']
   const Tag: typeof import('primevue/tag')['default']
   const Toast: typeof import('primevue/toast')['default']
 }

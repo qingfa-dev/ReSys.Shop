@@ -8,7 +8,7 @@ const router = createRouter({
     { path: '/login', name: 'login', component: () => import('@/features/auth/views/login.view.vue'), meta: { public: true } },
     { path: '/', component: AppLayout, meta: { breadcrumb: 'navigation.home' }, children: [
       { path: '', name: 'home', redirect: { name: 'reports.dashboard' } },
-      { path: 'profile', name: 'profile', component: () => import('@/features/auth/views/Profile.view.vue'), meta: { breadcrumb: 'My Profile' } },
+      { path: 'profile', name: 'profile', component: () => import('@/features/profile/views/Profile.view.vue'), meta: { breadcrumb: 'My Profile' } },
     ]},
   ],
 })
