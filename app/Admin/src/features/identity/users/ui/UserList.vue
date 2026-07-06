@@ -31,7 +31,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { useUsersList, useDeleteUser, useUser } from '../api'
 import type { User, UserListItem } from '../model/user.types'
 import { useConfirm } from '@/shared/composables/useConfirm'
@@ -46,7 +46,7 @@ const page = ref(1)
 let pageSize = 20
 
 const params = computed(() => ({ page: page.value, pageSize, search: filters.value.search }))
-const query = useUsersList(params as never)
+const query = useUsersList(params)
 
 const rows = computed<UserListItem[]>(() => query.data.value?.items ?? [])
 const total = computed(() => query.data.value?.totalCount ?? 0)
@@ -55,6 +55,19 @@ const formOpen = ref(false)
 const editing = ref<User | null>(null)
 const detailsOpen = ref(false)
 const detailsUser = ref<User | null>(null)
+
+const selectedId = ref<string | null>(null)
+const user = useUser(selectedId)
+
+watch(user.data, (data) => {
+  if (data) {
+    editing.value = data
+    detailsUser.value = data
+  } else {
+    if (formOpen.value) formOpen.value = false
+    if (detailsOpen.value) detailsOpen.value = false
+  }
+})
 
 const remove = useDeleteUser()
 const confirm = useConfirm()
@@ -66,18 +79,12 @@ function onPage(e: { page: number; rows: number }) {
 }
 
 function openEdit(item: UserListItem) {
-  const { data: user } = useUser(item.id)
-  if (user.value) {
-    editing.value = user.value
-    formOpen.value = true
-  }
+  selectedId.value = item.id
+  formOpen.value = true
 }
 function openDetails(item: UserListItem) {
-  const { data: user } = useUser(item.id)
-  if (user.value) {
-    detailsUser.value = user.value
-    detailsOpen.value = true
-  }
+  selectedId.value = item.id
+  detailsOpen.value = true
 }
 async function confirmDelete(user: UserListItem) {
   confirm.require({
