@@ -1,0 +1,66 @@
+/**
+ * Base schema for feature-specific locales.
+ * Used to ensure all feature modules (Examples, Orders, etc.) provide consistent UI strings.
+ */
+export interface FeatureLocales {
+  /** Primary headers and breadcrumb titles. */
+  titles: Record<string, string>
+  /** Explanatory sub-text for pages or sections. */
+  descriptions?: Record<string, string>
+  /** Form field labels. */
+  labels?: Record<string, string>
+  /** Input hints and placeholder text. */
+  placeholders?: Record<string, string>
+  /** Contextual help strings. */
+  tooltips?: Record<string, string>
+  /** Feedback messages for user actions. */
+  messages: Record<string, string>
+  /** Button and clickable action labels. */
+  actions: Record<string, string>
+  /** DataTable headers and metadata strings. */
+  table?: Record<string, string>
+  /** Localized filter operators. */
+  filters?: Record<string, string>
+  /** Configuration for confirmation dialogs. */
+  confirm?: Record<string, string | ((...args: string[]) => string)>
+  /** Feature-specific common strings. */
+  common?: Record<string, string>
+  /** Allow indexing for flexible access. */
+  [key: string]: unknown
+}
+
+/**
+ * General/Common strings used across the entire application.
+ * Contains strings that are independent of any specific business feature.
+ */
+export interface GeneralLocales {
+  /** Basic action labels (Save, Cancel, etc.) */
+  common: {
+    confirm: string
+    cancel: string
+    save: string
+    delete: string
+    edit: string
+    back: string
+    next: string
+    prev: string
+    yes: string
+    no: string
+    loading: string
+    success: string
+    error: string
+    warning: string
+    info: string
+  }
+  /** Top-level navigation labels. */
+  navigation: {
+    dashboard: string
+    home: string
+    about: string
+    testing: string
+    catalog: string
+    profile: string
+    settings: string
+    logout: string
+  }
+}
