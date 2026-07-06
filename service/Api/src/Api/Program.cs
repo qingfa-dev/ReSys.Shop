@@ -2,6 +2,7 @@ using System.Reflection;
 
 using Module.Catalog;
 using Module.Identity;
+using Module.Inventory;
 using Module.Location;
 using Module.Profile;
 
@@ -33,7 +34,7 @@ builder.AddLocationModule();
 builder.AddIdentityModule();
 builder.AddProfilesModule();
 builder.AddCatalogModule();
-
+builder.AddInventoryModule();
 
 WebApplication app = builder.Build();
 
