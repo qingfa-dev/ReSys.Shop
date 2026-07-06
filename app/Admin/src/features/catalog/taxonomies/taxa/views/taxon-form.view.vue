@@ -1,0 +1,350 @@
+<script setup lang="ts">
+import { onMounted, computed, ref, watch } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
+import { useTaxonStore } from '../stores/taxon.store'
+import { useTaxonomyStore } from '../../stores/taxonomy.store'
+import { storeToRefs } from 'pinia'
+import { useForm } from 'vee-validate'
+import { toTypedSchema } from '@vee-validate/zod'
+import { TaxonSchema } from '../schemas/taxon.schema'
+import { taxonLocales } from '../locales/taxon.locales'
+import { useApiErrorHandler } from '@/shared/composables/api-error-handler.use'
+import { useToast } from '@/shared/composables/toast.use'
+import AppBreadcrumb from '@/shared/components/breadcrumb.component.vue'
+import MetadataManager from '@/shared/components/metadata-manager.component.vue'
+import TaxonRulesManagerComponent from '../components/taxon-rules-manager.component.vue'
+import TaxonProductsPreviewComponent from '../components/taxon-products-preview.component.vue'
+import { taxonService } from '../services/taxon.service'
+import type { TaxonDetail } from '../types/taxon.types'
+
+const t = taxonLocales as any
+const route = useRoute()
+const router = useRouter()
+const taxonStore = useTaxonStore()
+const taxonomyStore = useTaxonomyStore()
+const { loading: storeLoading, currentRules } = storeToRefs(taxonStore)
+const { currentItem: taxonomy } = storeToRefs(taxonomyStore)
+const { handleApiResult } = useApiErrorHandler()
+const { showToast } = useToast()
+
+const taxonomyId = computed(() => route.params.taxonomyId as string)
+const taxonId = computed(() => route.params.id as string)
+const isEdit = computed(() => !!taxonId.value)
+const parentIdParam = computed(() => route.query.parentId as string)
+
+const activeTab = ref(0)
+const actionLoading = ref(false)
+const initialLoading = ref(false)
+const previewRef = ref<any>(null)
+
+// --- FORM SETUP ---
+const { defineField, handleSubmit, errors, setValues, resetForm, values: formValues } = useForm({
+  validationSchema: toTypedSchema(TaxonSchema),
+  initialValues: {
+    taxonomy_id: taxonomyId.value,
+    name: '',
+    presentation: '',
+    description: '',
+    slug: '',
+    position: 0,
+    hide_from_nav: false,
+    parent_id: parentIdParam.value || null,
+    automatic: false,
+    rules_match_policy: 'all',
+    sort_order: 'manual',
+    meta_title: '',
+    meta_description: '',
+    meta_keywords: '',
+  },
+})
+
+const [name] = defineField('name')
+const [presentation] = defineField('presentation')
+const [description] = defineField('description')
+const [slug] = defineField('slug')
+const [position] = defineField('position')
+const [hide_from_nav] = defineField('hide_from_nav')
+const [automatic] = defineField('automatic')
+const [rules_match_policy] = defineField('rules_match_policy')
+const [sort_order] = defineField('sort_order')
+const [meta_title] = defineField('meta_title')
+const [meta_description] = defineField('meta_description')
+const [meta_keywords] = defineField('meta_keywords')
+
+const public_metadata = ref<Record<string, any>>({})
+const private_metadata = ref<Record<string, any>>({})
+
+const generateSlug = () => {
+  if (!name.value || (isEdit.value && slug.value)) return
+  slug.value = name.value
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/(^-|-$)/g, '')
+}
+
+const loadData = async () => {
+  initialLoading.value = true
+  
+  if (!taxonomy.value || taxonomy.value.id !== taxonomyId.value) {
+    await taxonomyStore.fetchById(taxonomyId.value)
+  }
+
+  if (isEdit.value) {
+    const result = await taxonService.getById(taxonId.value)
+    if (result.success && result.data) {
+      setValues({
+        taxonomy_id: result.data.taxonomy_id,
+        name: result.data.name,
+        presentation: result.data.presentation,
+        description: result.data.description || '',
+        slug: result.data.slug,
+        position: result.data.position,
+        hide_from_nav: result.data.hide_from_nav,
+        parent_id: result.data.parent_id as any,
+        automatic: result.data.automatic,
+        rules_match_policy: result.data.rules_match_policy as any,
+        sort_order: result.data.sort_order,
+        meta_title: result.data.meta_title || '',
+        meta_description: result.data.meta_description || '',
+        meta_keywords: result.data.meta_keywords || '',
+      })
+      public_metadata.value = result.data.public_metadata || {}
+      private_metadata.value = result.data.private_metadata || {}
+      
+      if (result.data.automatic) {
+        await taxonStore.fetchRules(taxonomyId.value, taxonId.value)
+      }
+    } else {
+      handleApiResult(result)
+      router.push({ name: 'catalog.taxa.manager', params: { taxonomyId: taxonomyId.value } })
+    }
+  } else {
+      resetForm({
+          values: {
+              taxonomy_id: taxonomyId.value,
+              name: '',
+              presentation: '',
+              description: '',
+              slug: '',
+              position: 0,
+              hide_from_nav: false,
+              parent_id: parentIdParam.value || null,
+              automatic: false,
+              rules_match_policy: 'all',
+              sort_order: 'manual',
+              meta_title: '',
+              meta_description: '',
+              meta_keywords: '',
+          }
+      })
+      public_metadata.value = {}
+      private_metadata.value = {}
+  }
+  
+  initialLoading.value = false
+}
+
+watch([taxonId, isEdit], () => {
+    loadData()
+}, { immediate: false })
+
+onMounted(() => {
+  loadData()
+})
+
+const onFormSubmit = handleSubmit(async (values) => {
+  actionLoading.value = true
+  const payload = {
+    ...values,
+    public_metadata: public_metadata.value,
+    private_metadata: private_metadata.value,
+  }
+
+  const result = isEdit.value
+    ? await taxonStore.updateTaxon(taxonomyId.value, taxonId.value, payload)
+    : await taxonStore.addTaxon(taxonomyId.value, payload)
+
+  if (result.success) {
+    showToast(
+      'success',
+      t.common?.success || 'Success',
+      (isEdit.value
+        ? t.messages?.update_success
+        : t.messages?.create_success) || 'Success',
+    )
+    if (!isEdit.value && result.data) {
+        // Redirect to edit to allow adding rules if it's automatic
+        router.push({ name: 'catalog.taxa.edit', params: { taxonomyId: taxonomyId.value, id: result.data.id } })
+    } else {
+        taxonStore.fetchTaxons(taxonomyId.value) // Refresh sidebar
+    }
+  } else {
+    handleApiResult(result)
+  }
+  actionLoading.value = false
+})
+
+const handleRulesUpdated = () => {
+    if (previewRef.value) {
+        previewRef.value.refresh()
+    }
+}
+
+const goBack = () => router.push({ name: 'catalog.taxa.manager', params: { taxonomyId: taxonomyId.value } })
+</script>
+
+<template>
+  <div class="flex flex-col h-full overflow-hidden">
+    <div v-if="initialLoading" class="flex flex-col items-center justify-center py-32">
+        <ProgressSpinner />
+    </div>
+
+    <div v-else class="flex flex-col h-full">
+        <!-- Compact Header for Split View -->
+        <div class="flex items-center justify-between mb-4 bg-surface-0 dark:bg-surface-900 p-4 rounded-2xl border border-surface-100 dark:border-surface-800 shadow-sm">
+            <div class="flex items-center gap-3 overflow-hidden">
+                <div v-if="!initialLoading" class="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center text-primary shrink-0">
+                    <i :class="isEdit ? 'pi pi-pencil' : 'pi pi-plus'"></i>
+                </div>
+                <div v-if="!initialLoading" class="overflow-hidden">
+                    <h3 class="text-lg font-black tracking-tight m-0 truncate">{{ isEdit ? presentation : t.titles?.create }}</h3>
+                    <p class="text-xs text-surface-500 m-0 truncate">{{ isEdit ? t.descriptions?.automation_edit : t.descriptions?.automation_create }}</p>
+                </div>
+            </div>
+            <div class="flex items-center gap-2 shrink-0">
+                <Button 
+                    :label="isEdit ? t.actions?.save : t.actions?.create" 
+                    icon="pi pi-check" 
+                    class="rounded-xl px-6 shadow-lg shadow-primary/20" 
+                    :loading="actionLoading"
+                    @click="onFormSubmit" 
+                />
+            </div>
+        </div>
+
+        <Card class="flex-1 border-none shadow-sm rounded-3xl bg-surface-0 dark:bg-surface-900 overflow-hidden flex flex-col">
+          <template #content>
+            <div class="flex flex-col h-full">
+                <Tabs v-model:value="activeTab" class="flex-1 flex flex-col overflow-hidden">
+                    <TabList class="shrink-0">
+                        <Tab :value="0">{{ t.tabs?.general }}</Tab>
+                        <!-- Automation and Preview tabs hidden for now -->
+                        <!-- <Tab :value="1">
+                            <div class="flex items-center gap-2">
+                                <span>{{ t.tabs?.automation }}</span>
+                                <Badge v-if="automatic" :value="currentRules.length" severity="warn" size="small" />
+                            </div>
+                        </Tab>
+                        <Tab :value="2" v-if="automatic">{{ t.tabs?.preview }}</Tab> -->
+                        <Tab :value="3">{{ t.tabs?.seo }}</Tab>
+                        <Tab :value="4">{{ t.tabs?.metadata }}</Tab>
+                    </TabList>
+
+                    <TabPanels class="flex-1 overflow-y-auto p-6 scrollbar-thin">
+                        <TabPanel :value="0">
+                            <div class="flex flex-col gap-6">
+                                <div class="grid grid-cols-1 gap-6">
+                                    <div class="flex flex-col gap-2">
+                                        <label class="font-bold text-xs uppercase tracking-wider text-surface-500">{{ t.labels?.name }}</label>
+                                        <InputText v-model="name" class="w-full rounded-xl h-11" :invalid="!!errors.name" @blur="generateSlug" />
+                                        <small class="text-red-500" v-if="errors.name">{{ errors.name }}</small>
+                                    </div>
+
+                                    <div class="flex flex-col gap-2">
+                                        <label class="font-bold text-xs uppercase tracking-wider text-surface-500">{{ t.labels?.presentation }}</label>
+                                        <InputText v-model="presentation" class="w-full rounded-xl h-11" :invalid="!!errors.presentation" />
+                                        <small class="text-red-500" v-if="errors.presentation">{{ errors.presentation }}</small>
+                                    </div>
+
+                                    <div class="grid grid-cols-2 gap-4">
+                                        <div class="flex flex-col gap-2">
+                                            <label class="font-bold text-xs uppercase tracking-wider text-surface-500">{{ t.labels?.slug }}</label>
+                                            <InputText v-model="slug" class="w-full font-mono text-sm rounded-xl h-11" :invalid="!!errors.slug" />
+                                        </div>
+                                        <div class="flex flex-col gap-2">
+                                            <label class="font-bold text-xs uppercase tracking-wider text-surface-500">{{ t.labels?.position }}</label>
+                                            <InputNumber v-model="position" showButtons :min="0" class="w-full rounded-xl overflow-hidden" inputClass="h-11" />
+                                        </div>
+                                    </div>
+
+                                    <div class="flex flex-col gap-2">
+                                        <label class="font-bold text-xs uppercase tracking-wider text-surface-500">{{ t.labels?.description }}</label>
+                                        <Textarea v-model="description" rows="3" class="w-full rounded-xl" />
+                                    </div>
+
+                                    <div class="p-4 bg-surface-50 dark:bg-surface-800/50 rounded-2xl border border-surface-100 dark:border-surface-800 flex items-center justify-between mt-2">
+                                        <span class="font-bold text-sm">{{ t.labels?.hide_from_nav }}</span>
+                                        <ToggleSwitch v-model="hide_from_nav" />
+                                    </div>
+
+                                    <!-- Automatic Collection hidden for now -->
+                                    <!-- <div class="p-4 bg-amber-50 dark:bg-amber-900/10 rounded-2xl border border-amber-100 dark:border-amber-900/30 flex items-center justify-between mt-2">
+                                        <div class="flex items-center gap-3">
+                                            <i class="pi pi-bolt text-amber-600"></i>
+                                            <span class="font-bold text-sm">{{ t.labels?.automatic }}</span>
+                                        </div>
+                                        <ToggleSwitch v-model="automatic" />
+                                    </div> -->
+                                </div>
+                            </div>
+                        </TabPanel>
+
+                        <!-- Automation and Preview TabPanels hidden for now -->
+                        <!-- <TabPanel :value="1"> ... </TabPanel> -->
+                        <!-- <TabPanel :value="2"> ... </TabPanel> -->
+
+                        <TabPanel :value="3">
+                            <div class="flex flex-col gap-6">
+                                <div class="flex flex-col gap-2">
+                                    <label class="font-bold text-xs uppercase text-surface-500">{{ t.labels?.meta_title }}</label>
+                                    <InputText v-model="meta_title" class="w-full rounded-xl" :placeholder="t.placeholders?.meta_title" />
+                                </div>
+                                <div class="flex flex-col gap-2">
+                                    <label class="font-bold text-xs uppercase text-surface-500">{{ t.labels?.meta_description }}</label>
+                                    <Textarea v-model="meta_description" rows="3" class="w-full rounded-xl" :placeholder="t.placeholders?.meta_description" />
+                                </div>
+                            </div>
+                        </TabPanel>
+
+                        <TabPanel :value="4">
+                            <div class="flex flex-col gap-8">
+                                <MetadataManager v-model="public_metadata" :title="t.labels?.public_metadata" />
+                                <MetadataManager v-model="private_metadata" :title="t.labels?.private_metadata" />
+                            </div>
+                        </TabPanel>
+                    </TabPanels>
+                </Tabs>
+            </div>
+          </template>
+        </Card>
+    </div>
+  </div>
+</template>
+
+<style scoped>
+.animate-fadein {
+    animation: fadeIn 0.4s ease-out;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+:deep(.p-tabs-list) {
+    border-bottom: 1px solid var(--p-surface-100);
+}
+.dark :deep(.p-tabs-list) {
+    border-bottom-color: var(--p-surface-800);
+}
+.scrollbar-thin::-webkit-scrollbar {
+    width: 4px;
+}
+.scrollbar-thin::-webkit-scrollbar-thumb {
+    background: var(--p-surface-200);
+    border-radius: 4px;
+}
+.dark .scrollbar-thin::-webkit-scrollbar-thumb {
+    background: var(--p-surface-700);
+}
+</style>
