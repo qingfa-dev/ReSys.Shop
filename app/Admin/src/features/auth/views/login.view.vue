@@ -1,24 +1,26 @@
 <script setup lang="ts">
-import { computed, ref, onMounted } from 'vue';
-import { useRouter } from 'vue-router';
-import { useAuthStore } from '../stores/auth.store';
-import { storeToRefs } from 'pinia';
-import { useForm } from 'vee-validate';
-import { toTypedSchema } from '@vee-validate/zod';
-import { LoginSchema } from '../schemas/auth.schema';
-import { authLocales } from '../locales/auth.locales';
-import { useApiErrorHandler } from '@/shared/composables/api-error-handler.use';
-import AppBrandMark from '@/shared/components/AppBrandMark.vue'
+import { ref, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
+import { useAuthStore } from '../stores/auth.store'
+import { storeToRefs } from 'pinia'
+import { useForm } from 'vee-validate'
+import { toTypedSchema } from '@vee-validate/zod'
+import { LoginSchema } from '../schemas/auth.schema'
+import { authLocales } from '../locales/auth.locales'
+import { useApiErrorHandler } from '@/shared/composables/api-error-handler.use'
 
-const router = useRouter();
-const authStore = useAuthStore();
-const { loading } = storeToRefs(authStore);
-const { handleApiResult } = useApiErrorHandler();
+const router = useRouter()
+const authStore = useAuthStore()
+const { loading } = storeToRefs(authStore)
+const { handleApiResult } = useApiErrorHandler()
 
 const mounted = ref(false)
+const showDevTools = ref(false)
 
 onMounted(() => {
-  setTimeout(() => { mounted.value = true }, 50)
+  requestAnimationFrame(() => {
+    mounted.value = true
+  })
 })
 
 const { defineField, handleSubmit, errors, setErrors, values, setValues } = useForm({
@@ -28,14 +30,14 @@ const { defineField, handleSubmit, errors, setErrors, values, setValues } = useF
     password: '',
     rememberMe: false,
   },
-});
+})
 
-const [credential] = defineField('credential');
-const [password] = defineField('password');
-const [rememberMe] = defineField('rememberMe');
+const [credential] = defineField('credential')
+const [password] = defineField('password')
+const [rememberMe] = defineField('rememberMe')
 
 const onSubmit = handleSubmit(async (formValues) => {
-  const result = await authStore.login(formValues);
+  const result = await authStore.login(formValues)
   const handled = handleApiResult(result, {
     setErrors,
     fieldNames: Object.keys(values),
@@ -43,249 +45,216 @@ const onSubmit = handleSubmit(async (formValues) => {
     successMessage: authLocales.messages?.login_success,
     errorTitle: authLocales.common?.error,
     genericError: authLocales.messages?.login_failed,
-  });
+  })
   if (handled && result.success) {
-    router.push('/');
+    router.push('/')
   }
-});
-
-const showDevTools = ref(false)
+})
 
 const fillSeedCredentials = () => {
   setValues({
     credential: 'admin@resys.shop',
     password: 'Admin@1234!',
-  });
-};
+  })
+}
 </script>
 
 <template>
-  <div class="login-page">
-    <div class="login-grid">
-      <!-- Brand panel -->
-      <div class="brand-panel">
-        <div class="brand-content" :class="{ 'is-visible': mounted }">
-          <div class="brand-mark">
-            <AppBrandMark :size="64" />
-          </div>
-          <h1 class="brand-title">
-            ReSys<span class="brand-dot">.</span><span class="brand-shop">Shop</span>
-          </h1>
-          <p class="brand-tagline">{{ authLocales.titles?.app_subtitle }}</p>
-        </div>
+  <div class="login-root">
+    <div class="login-container" :class="{ 'is-visible': mounted }">
+      <!-- Brand -->
+      <div class="brand">
+        <h1 class="brand-wordmark">
+          <span class="brand-resys">ReSys</span><span class="brand-dot">.</span><span class="brand-shop">Shop</span>
+        </h1>
+        <p class="brand-subtitle">{{ authLocales.titles?.app_subtitle }}</p>
       </div>
 
-      <!-- Form panel -->
-      <div class="form-panel">
-        <div class="form-container" :class="{ 'is-visible': mounted }">
-          <div class="form-card">
-            <h2 class="form-heading">{{ authLocales.titles?.login }}</h2>
+      <!-- Divider -->
+      <div class="divider">
+        <span class="divider-line"></span>
+        <span class="divider-mark">&#9670;</span>
+        <span class="divider-line"></span>
+      </div>
 
-            <form @submit="onSubmit" class="login-form">
-              <div class="field">
-                <label for="credential">{{ authLocales.labels?.credential }}</label>
-                <div class="input-wrapper" :class="{ 'has-error': !!errors.credential }">
-                  <span class="input-icon pi pi-envelope"></span>
-                  <InputText
-                    id="credential"
-                    v-model="credential"
-                    type="text"
-                    :placeholder="authLocales.placeholders?.credential"
-                    :disabled="loading"
-                    :invalid="!!errors.credential"
-                  />
-                </div>
-                <Transition name="fade">
-                  <small v-if="errors.credential" class="field-error">{{ errors.credential }}</small>
-                </Transition>
-              </div>
+      <!-- Form -->
+      <form @submit="onSubmit" class="login-form" novalidate>
+        <div class="field">
+          <label for="credential">{{ authLocales.labels?.credential }}</label>
+          <input
+            id="credential"
+            v-model="credential"
+            type="text"
+            :placeholder="authLocales.placeholders?.credential"
+            class="text-input"
+            :class="{ 'has-value': values.credential, 'has-error': !!errors.credential }"
+            :disabled="loading"
+            autocomplete="username"
+            spellcheck="false"
+          />
+          <Transition name="fade">
+            <p v-if="errors.credential" class="field-msg error">{{ errors.credential }}</p>
+          </Transition>
+        </div>
 
-              <div class="field">
-                <label for="password">{{ authLocales.labels?.password }}</label>
-                <div class="input-wrapper" :class="{ 'has-error': !!errors.password }">
-                  <span class="input-icon pi pi-lock"></span>
-                  <Password
-                    id="password"
-                    v-model="password"
-                    :feedback="false"
-                    toggleMask
-                    :placeholder="authLocales.placeholders?.password"
-                    :disabled="loading"
-                    :invalid="!!errors.password"
-                  />
-                </div>
-                <Transition name="fade">
-                  <small v-if="errors.password" class="field-error">{{ errors.password }}</small>
-                </Transition>
-              </div>
-
-              <div class="form-options">
-                <div class="checkbox-group">
-                  <Checkbox id="rememberMe" v-model="rememberMe" :binary="true" :disabled="loading" />
-                  <label for="rememberMe">{{ authLocales.labels?.remember_me }}</label>
-                </div>
-                <a href="#" class="forgot-link">{{ authLocales.labels?.forgot_password }}</a>
-              </div>
-
-              <Button
-                type="submit"
-                :label="authLocales.labels?.sign_in"
-                icon="pi pi-arrow-right"
-                iconPos="right"
-                class="submit-btn"
-                :loading="loading"
-              />
-            </form>
+        <div class="field">
+          <label for="password">{{ authLocales.labels?.password }}</label>
+          <div class="password-wrapper">
+            <input
+              id="password"
+              v-model="password"
+              type="password"
+              :placeholder="authLocales.placeholders?.password"
+              class="text-input"
+              :class="{ 'has-value': values.password, 'has-error': !!errors.password }"
+              :disabled="loading"
+              autocomplete="current-password"
+            />
           </div>
+          <Transition name="fade">
+            <p v-if="errors.password" class="field-msg error">{{ errors.password }}</p>
+          </Transition>
+        </div>
 
-          <!-- Dev tools toggle -->
-          <div class="dev-tools">
-            <button class="dev-toggle" @click="showDevTools = !showDevTools">
-              <span class="pi pi-code"></span>
-              {{ showDevTools ? 'Hide' : 'Dev' }}
+        <div class="form-footer">
+          <label class="checkbox-label">
+            <input type="checkbox" v-model="rememberMe" :disabled="loading" class="checkbox" />
+            <span class="checkbox-faux"></span>
+            <span class="checkbox-text">{{ authLocales.labels?.remember_me }}</span>
+          </label>
+          <a href="#" class="forgot-link">{{ authLocales.labels?.forgot_password }}</a>
+        </div>
+
+        <button
+          type="submit"
+          class="submit-btn"
+          :disabled="loading"
+        >
+          <span v-if="!loading" class="submit-text">{{ authLocales.labels?.sign_in }}</span>
+          <span v-if="!loading" class="submit-arrow">
+            <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+              <path d="M3 9h12M10 4l5 5-5 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </span>
+          <span v-else class="submit-loading">
+            <svg class="spinner" width="18" height="18" viewBox="0 0 18 18" fill="none">
+              <circle cx="9" cy="9" r="7" stroke="currentColor" stroke-width="2" stroke-dasharray="32" stroke-linecap="round" opacity="0.3"/>
+              <circle cx="9" cy="9" r="7" stroke="currentColor" stroke-width="2" stroke-dasharray="32" stroke-linecap="round" stroke-dashoffset="24"/>
+            </svg>
+          </span>
+        </button>
+      </form>
+
+      <!-- Dev toggle -->
+      <div class="dev-section">
+        <button class="dev-toggle" @click="showDevTools = !showDevTools" type="button">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+            <path d="M4 1L1 7l3 6M10 1l3 6-3 6" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
+          </svg>
+          {{ showDevTools ? 'close' : 'dev' }}
+        </button>
+        <Transition name="fade">
+          <div v-if="showDevTools" class="dev-panel">
+            <button type="button" class="dev-quick-btn" @click="fillSeedCredentials" :disabled="loading">
+              <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+                <path d="M6 1v10M1 6h10" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
+              </svg>
+              Login as admin@resys.shop
             </button>
-            <Transition name="fade">
-              <div v-if="showDevTools" class="dev-panel">
-                <Button
-                  type="button"
-                  label="Quick Login (Seed Admin)"
-                  icon="pi pi-bolt"
-                  severity="secondary"
-                  outlined
-                  class="w-full"
-                  @click="fillSeedCredentials"
-                  :disabled="loading"
-                />
-              </div>
-            </Transition>
           </div>
-
-          <p class="copyright">{{ authLocales.messages?.copyright?.replace('{year}', new Date().getFullYear().toString()) }}</p>
-        </div>
+        </Transition>
       </div>
+
+      <p class="copyright">{{ authLocales.messages?.copyright?.replace('{year}', new Date().getFullYear().toString()) }}</p>
     </div>
   </div>
 </template>
 
 <style scoped>
-.login-page {
+/* ───── Reset ───── */
+.login-root {
   min-height: 100vh;
-  background: #F8F7F4;
-  background-image:
-    linear-gradient(rgba(0, 0, 0, 0.04) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(0, 0, 0, 0.04) 1px, transparent 1px);
-  background-size: 48px 48px;
-}
-
-.login-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  min-height: 100vh;
-}
-
-/* ───── Brand panel ───── */
-.brand-panel {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: #1C1917;
-  position: relative;
-  overflow: hidden;
+  padding: 32px 24px;
+  background: #FCFCFA;
 }
 
-.brand-panel::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background:
-    radial-gradient(ellipse at 30% 50%, rgba(180, 83, 9, 0.15) 0%, transparent 60%),
-    radial-gradient(ellipse at 70% 50%, rgba(180, 83, 9, 0.08) 0%, transparent 50%);
-}
-
-.brand-content {
-  position: relative;
-  text-align: center;
-  opacity: 0;
-  transform: translateY(12px);
-  transition: opacity 0.7s ease-out, transform 0.7s ease-out;
-}
-
-.brand-content.is-visible {
-  opacity: 1;
-  transform: translateY(0);
-}
-
-.brand-mark {
-  display: flex;
-  justify-content: center;
-  margin-bottom: 24px;
-}
-
-.brand-title {
-  font-family: 'Sora', ui-sans-serif, system-ui, sans-serif;
-  font-size: 2.25rem;
-  font-weight: 700;
-  letter-spacing: -0.03em;
-  color: #FAFAF9;
-  margin: 0 0 8px 0;
-  line-height: 1.2;
-}
-
-.brand-dot {
-  color: #B45309;
-}
-
-.brand-shop {
-  font-weight: 500;
-  color: #A8A29E;
-}
-
-.brand-tagline {
-  font-size: 0.875rem;
-  color: #78716C;
-  margin: 0;
-  letter-spacing: 0.02em;
-}
-
-/* ───── Form panel ───── */
-.form-panel {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 32px;
-}
-
-.form-container {
+.login-container {
   width: 100%;
   max-width: 400px;
   opacity: 0;
-  transform: translateY(16px);
-  transition: opacity 0.5s ease-out 0.2s, transform 0.5s ease-out 0.2s;
+  transform: translateY(12px);
+  transition: opacity 0.6s ease-out, transform 0.6s ease-out;
 }
-
-.form-container.is-visible {
+.login-container.is-visible {
   opacity: 1;
   transform: translateY(0);
 }
 
-.form-card {
-  background: #FFFFFF;
-  border-radius: 16px;
-  padding: 40px 36px;
-  box-shadow:
-    0 1px 3px rgba(0, 0, 0, 0.04),
-    0 8px 24px rgba(0, 0, 0, 0.06);
+/* ───── Brand ───── */
+.brand {
+  text-align: center;
 }
 
-.form-heading {
-  font-family: 'Sora', ui-sans-serif, system-ui, sans-serif;
-  font-size: 1.5rem;
-  font-weight: 600;
-  color: #1C1917;
-  margin: 0 0 28px 0;
-  line-height: 1.3;
+.brand-wordmark {
+  font-family: 'DM Serif Display', ui-serif, Georgia, serif;
+  font-size: 2.5rem;
+  font-weight: 400;
+  font-style: italic;
+  color: #1A1A1A;
+  margin: 0;
+  line-height: 1.15;
+  letter-spacing: -0.01em;
 }
 
+.brand-resys {
+  font-style: italic;
+}
+
+.brand-dot {
+  color: #6B4F3A;
+  font-style: italic;
+}
+
+.brand-shop {
+  font-style: normal;
+  font-weight: 400;
+  color: #6B4F3A;
+}
+
+.brand-subtitle {
+  font-size: 0.8125rem;
+  color: #A69282;
+  margin: 8px 0 0 0;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  font-weight: 500;
+}
+
+/* ───── Divider ───── */
+.divider {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 36px 0;
+}
+
+.divider-line {
+  flex: 1;
+  height: 1px;
+  background: #E8E2DA;
+}
+
+.divider-mark {
+  color: #6B4F3A;
+  font-size: 8px;
+  line-height: 1;
+  opacity: 0.6;
+}
+
+/* ───── Form ───── */
 .login-form {
   display: flex;
   flex-direction: column;
@@ -299,65 +268,269 @@ const fillSeedCredentials = () => {
 }
 
 .field label {
-  font-size: 0.8125rem;
-  font-weight: 500;
-  color: #44403C;
-  letter-spacing: 0.01em;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #6B4F3A;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
 }
 
-.input-wrapper {
-  position: relative;
+/* ───── Text input ───── */
+.text-input {
+  width: 100%;
+  height: 48px;
+  padding: 0 16px;
+  font-size: 0.9375rem;
+  font-family: 'Inter', ui-sans-serif, system-ui, sans-serif;
+  color: #1A1A1A;
+  background: transparent;
+  border: none;
+  border-bottom: 1.5px solid #E8E2DA;
+  border-radius: 0;
+  outline: none;
+  transition: border-color 0.2s ease, background 0.2s ease;
+  -webkit-appearance: none;
 }
 
-.input-wrapper .input-icon {
+.text-input::placeholder {
+  color: #C4B8AC;
+}
+
+.text-input:hover {
+  border-color: #C4B8AC;
+}
+
+.text-input:focus {
+  border-color: #6B4F3A;
+  background: #F5F2EE;
+}
+
+.text-input.has-value {
+  border-color: #6B4F3A;
+}
+
+.text-input.has-error {
+  border-color: #B91C1C;
+}
+
+.text-input:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.field-msg {
+  font-size: 0.75rem;
+  margin: 2px 0 0 0;
+  line-height: 1.3;
+}
+
+.field-msg.error {
+  color: #B91C1C;
+}
+
+/* ───── Password wrapper ───── */
+.password-wrapper .text-input {
+  /* Inherits from .text-input */
+}
+
+/* ───── Form footer ───── */
+.form-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 4px;
+}
+
+/* Custom checkbox */
+.checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  user-select: none;
+}
+
+.checkbox-label input[type="checkbox"] {
   position: absolute;
-  left: 12px;
-  top: 50%;
-  transform: translateY(-50%);
-  color: #A8A29E;
-  font-size: 0.875rem;
-  z-index: 1;
+  opacity: 0;
+  width: 0;
+  height: 0;
   pointer-events: none;
 }
 
-.input-wrapper :deep(.p-inputtext),
-.input-wrapper :deep(.p-password) {
+.checkbox-faux {
+  width: 16px;
+  height: 16px;
+  border: 1.5px solid #C4B8AC;
+  border-radius: 3px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: border-color 0.2s, background 0.2s;
+  flex-shrink: 0;
+}
+
+.checkbox-label input:checked + .checkbox-faux {
+  border-color: #6B4F3A;
+  background: #6B4F3A;
+}
+
+.checkbox-label input:checked + .checkbox-faux::after {
+  content: '';
+  width: 5px;
+  height: 8px;
+  border: solid #FFFFFF;
+  border-width: 0 1.5px 1.5px 0;
+  transform: rotate(45deg);
+  margin-top: -1px;
+}
+
+.checkbox-label input:focus-visible + .checkbox-faux {
+  outline: 2px solid #6B4F3A;
+  outline-offset: 2px;
+}
+
+.checkbox-text {
+  font-size: 0.8125rem;
+  color: #6B4F3A;
+}
+
+.forgot-link {
+  font-size: 0.8125rem;
+  color: #A69282;
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.forgot-link:hover {
+  color: #6B4F3A;
+}
+
+/* ───── Submit button ───── */
+.submit-btn {
   width: 100%;
-}
-
-.input-wrapper :deep(.p-inputtext) {
-  padding-left: 36px;
-  height: 44px;
-  border-radius: 10px;
-  border: 1.5px solid #E7E5E4;
-  background: #FAFAF9;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background: #6B4F3A;
+  color: #FFFFFF;
+  border: none;
+  border-radius: 6px;
+  font-family: 'Inter', ui-sans-serif, system-ui, sans-serif;
   font-size: 0.875rem;
-  transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s ease, transform 0.15s ease;
+  margin-top: 8px;
 }
 
-.input-wrapper :deep(.p-inputtext):focus {
-  border-color: #B45309;
-  box-shadow: 0 0 0 3px rgba(180, 83, 9, 0.1);
-  background: #FFFFFF;
+.submit-btn:hover:not(:disabled) {
+  background: #5A4230;
+  transform: translateY(-1px);
 }
 
-.input-wrapper :deep(.p-inputtext)::placeholder {
-  color: #D6D3D1;
+.submit-btn:active:not(:disabled) {
+  transform: translateY(0);
 }
 
-.input-wrapper :deep(.p-password-input) {
-  padding-left: 36px !important;
+.submit-btn:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
 }
 
-.input-wrapper.has-error :deep(.p-inputtext) {
-  border-color: #DC2626;
+.submit-text {
+  letter-spacing: 0.02em;
 }
 
-.field-error {
-  color: #DC2626;
+.submit-arrow {
+  display: flex;
+  align-items: center;
+  transition: transform 0.2s ease;
+}
+
+.submit-btn:hover .submit-arrow {
+  transform: translateX(3px);
+}
+
+.submit-loading {
+  display: flex;
+  align-items: center;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.spinner {
+  animation: spin 0.8s linear infinite;
+}
+
+/* ───── Dev tools ───── */
+.dev-section {
+  margin-top: 24px;
+  text-align: center;
+}
+
+.dev-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.6875rem;
+  font-family: 'Inter', ui-sans-serif, system-ui, sans-serif;
+  font-weight: 500;
+  color: #C4B8AC;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 6px 10px;
+  border-radius: 4px;
+  transition: color 0.2s, background 0.2s;
+}
+
+.dev-toggle:hover {
+  color: #A69282;
+  background: #F5F2EE;
+}
+
+.dev-panel {
+  margin-top: 12px;
+}
+
+.dev-quick-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
   font-size: 0.75rem;
+  font-family: 'Inter', ui-sans-serif, system-ui, sans-serif;
+  font-weight: 500;
+  color: #6B4F3A;
+  background: #F5F2EE;
+  border: 1px solid #E8E2DA;
+  border-radius: 6px;
+  padding: 8px 16px;
+  cursor: pointer;
+  transition: background 0.2s, border-color 0.2s;
 }
 
+.dev-quick-btn:hover {
+  background: #E8E2DA;
+  border-color: #C4B8AC;
+}
+
+/* ───── Copyright ───── */
+.copyright {
+  text-align: center;
+  font-size: 0.6875rem;
+  color: #C4B8AC;
+  margin-top: 28px;
+  letter-spacing: 0.03em;
+}
+
+/* ───── Transitions ───── */
 .fade-enter-active,
 .fade-leave-active {
   transition: opacity 0.2s ease;
@@ -367,116 +540,24 @@ const fillSeedCredentials = () => {
   opacity: 0;
 }
 
-.form-options {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
-.checkbox-group {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.checkbox-group label {
-  font-size: 0.8125rem;
-  color: #44403C;
-  cursor: pointer;
-}
-
-.forgot-link {
-  font-size: 0.8125rem;
-  font-weight: 500;
-  color: #B45309;
-  text-decoration: none;
-  transition: color 0.2s;
-}
-
-.forgot-link:hover {
-  color: #92400E;
-}
-
-.submit-btn {
-  width: 100%;
-  height: 44px;
-  border-radius: 10px;
-  background: #B45309;
-  border: none;
-  font-weight: 600;
-  font-size: 0.875rem;
-  transition: background 0.2s, transform 0.15s, box-shadow 0.2s;
-  margin-top: 4px;
-}
-
-.submit-btn:hover {
-  background: #92400E;
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(180, 83, 9, 0.25);
-}
-
-.submit-btn:active {
-  transform: translateY(0);
-}
-
-/* ───── Dev tools ───── */
-.dev-tools {
-  margin-top: 16px;
-  text-align: center;
-}
-
-.dev-toggle {
-  font-size: 0.75rem;
-  color: #A8A29E;
-  background: none;
-  border: none;
-  cursor: pointer;
-  padding: 6px 12px;
-  border-radius: 6px;
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  transition: color 0.2s, background 0.2s;
-}
-
-.dev-toggle:hover {
-  color: #78716C;
-  background: rgba(0, 0, 0, 0.04);
-}
-
-.dev-panel {
-  margin-top: 12px;
-}
-
-/* ───── Copyright ───── */
-.copyright {
-  text-align: center;
-  font-size: 0.75rem;
-  color: #A8A29E;
-  margin-top: 24px;
-}
-
 /* ───── Responsive ───── */
-@media (max-width: 768px) {
-  .login-grid {
-    grid-template-columns: 1fr;
+@media (max-width: 480px) {
+  .login-container {
+    max-width: 100%;
   }
 
-  .brand-panel {
-    min-height: 180px;
-    padding: 32px 24px;
+  .brand-wordmark {
+    font-size: 2rem;
   }
 
-  .brand-title {
-    font-size: 1.75rem;
+  .divider {
+    margin: 28px 0;
   }
 
-  .form-panel {
-    padding: 24px 16px;
-  }
-
-  .form-card {
-    padding: 28px 24px;
+  .form-footer {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
   }
 }
 </style>
