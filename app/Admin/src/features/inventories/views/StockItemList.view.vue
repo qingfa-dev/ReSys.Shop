@@ -79,130 +79,134 @@ const toggleLowStock = () => {
 <template>
     <div class="p-6 max-w-7xl mx-auto">
         <AppBreadcrumb :locales="t" />
-        
-        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mt-4 mb-8">
-            <div>
-                <h2 class="text-4xl font-black tracking-tighter text-surface-900 dark:text-surface-50 m-0">
-                    {{ t.titles.list }}
-                </h2>
-                <p class="text-surface-500 m-0">{{ t.descriptions?.list }}</p>
-            </div>
-            <div class="flex items-center gap-3">
-                <Button :label="t.actions.new_transfer" icon="pi pi-arrow-right-arrow-left" outlined class="rounded-xl px-6" />
-            </div>
-        </div>
-
-        <div class="overflow-hidden border shadow-sm bg-surface-0 dark:bg-surface-900 rounded-3xl border-surface-100 dark:border-surface-800">
-            <DataTable 
-                v-model:filters="filters"
-                :value="stocks" 
-                :loading="loading" 
-                :lazy="true" 
-                :paginator="true" 
-                :rows="stockQuery.page_size || 10" 
-                :totalRecords="totalStocks" 
-                @page="onPage"
-                @sort="onSort"
-                @filter="onFilter"
-                dataKey="id"
-                rowHover
-                :first="((stockQuery.page || 1) - 1) * (stockQuery.page_size || 10)"
-                :sortField="stockQuery.sort_by"
-                :sortOrder="stockQuery.is_descending ? -1 : 1"
-                filterDisplay="menu"
-                removableSort
-                scrollable
-            >
-                <template #header>
-                    <div class="flex flex-col items-center justify-between gap-4 md:flex-row p-2">
-                        <IconField iconPosition="left" class="w-full md:w-72">
-                            <InputIcon class="pi pi-search" />
-                            <InputText
-                                v-model="(filters.global as any).value"
-                                :placeholder="t.placeholders?.search"
-                                @keyup.enter="onFilter"
-                                class="w-full rounded-xl"
-                            />
-                        </IconField>
-
-                        <Button
-                            type="button"
-                            :icon="stockQuery.low_stock ? 'pi pi-filter-fill' : 'pi pi-filter'"
-                            :label="stockQuery.low_stock ? 'Low Stock Only' : 'All Stock'"
-                            :severity="stockQuery.low_stock ? 'danger' : 'secondary'"
-                            outlined
-                            @click="toggleLowStock"
-                            class="rounded-xl"
-                        />
-                        <Button
-                            type="button"
-                            icon="pi pi-filter-slash"
-                            :label="t.table?.clear_filter"
-                            outlined
-                            @click="clearFilters"
-                            class="w-full rounded-xl md:w-auto"
-                        />
+        <Card class="rounded-3xl shadow-sm border-none bg-surface-0 dark:bg-surface-900 overflow-hidden">
+            <template #title>
+                <div class="flex items-center justify-between p-4">
+                    <div class="flex flex-col gap-1">
+                        <div class="flex items-center gap-3">
+                            <span class="text-xl font-bold">{{ t.titles.list }}</span>
+                            <Badge :value="totalStocks" severity="info" />
+                        </div>
+                        <span class="text-sm text-surface-500">{{ t.descriptions?.list }}</span>
                     </div>
-                </template>
-
-                <template #empty>
-                    <div class="flex flex-col items-center justify-center py-20 text-surface-400">
-                        <i class="mb-4 text-6xl pi pi-box opacity-20"></i>
-                        <p class="text-xl font-medium">{{ t.messages.empty_list }}</p>
-                    </div>
-                </template>
-
-                <Column field="sku" :header="t.table.sku" sortable>
-                    <template #body="{ data }">
-                        <span class="font-mono text-xs uppercase tracking-widest font-bold">{{ data.sku }}</span>
-                    </template>
-                </Column>
-
-                <Column field="variant_name" :header="t.table.product" sortable>
-                    <template #body="{ data }">
-                        <span class="font-bold text-surface-900 dark:text-surface-0">{{ data.variant_name }}</span>
-                    </template>
-                </Column>
-
-                <Column field="stock_location_name" :header="t.table.location" sortable>
-                    <template #body="{ data }">
-                        <div class="flex items-center gap-2">
-                            <i class="pi pi-building text-surface-400"></i>
-                            <span>{{ data.stock_location_name }}</span>
+                    <Button :label="t.actions.new_transfer" icon="pi pi-arrow-right-arrow-left" severity="secondary" outlined class="rounded-xl" />
+                </div>
+            </template>
+            <template #content>
+                <DataTable 
+                    v-model:filters="filters"
+                    :value="stocks" 
+                    :loading="loading" 
+                    :lazy="true" 
+                    :paginator="true" 
+                    :rows="stockQuery.page_size || 10" 
+                    :totalRecords="totalStocks" 
+                    @page="onPage"
+                    @sort="onSort"
+                    @filter="onFilter"
+                    dataKey="id"
+                    rowHover
+                    :first="((stockQuery.page || 1) - 1) * (stockQuery.page_size || 10)"
+                    :sortField="stockQuery.sort_by"
+                    :sortOrder="stockQuery.is_descending ? -1 : 1"
+                    filterDisplay="menu"
+                    removableSort
+                    scrollable
+                    stripedRows
+                    showGridlines
+                >
+                    <template #header>
+                        <div class="flex items-center justify-between gap-4">
+                            <IconField iconPosition="left" class="w-full md:w-72">
+                                <InputIcon class="pi pi-search" />
+                                <InputText
+                                    v-model="(filters.global as any).value"
+                                    :placeholder="t.placeholders?.search"
+                                    @keyup.enter="onFilter"
+                                    class="w-full rounded-xl"
+                                />
+                            </IconField>
+                            <div class="flex items-center gap-2">
+                                <Button
+                                    type="button"
+                                    :icon="stockQuery.low_stock ? 'pi pi-filter-fill' : 'pi pi-filter'"
+                                    :label="stockQuery.low_stock ? 'Low Stock Only' : 'All Stock'"
+                                    :severity="stockQuery.low_stock ? 'danger' : 'secondary'"
+                                    outlined
+                                    @click="toggleLowStock"
+                                    class="rounded-xl"
+                                />
+                                <Button
+                                    type="button"
+                                    icon="pi pi-filter-slash"
+                                    :label="t.table?.clear_filter"
+                                    outlined
+                                    @click="clearFilters"
+                                    class="rounded-xl"
+                                />
+                            </div>
                         </div>
                     </template>
-                </Column>
 
-                <Column field="quantity_on_hand" :header="t.table.on_hand" sortable class="text-center">
-                    <template #body="{ data }">
-                        <span class="font-black text-lg">{{ data.quantity_on_hand }}</span>
-                    </template>
-                </Column>
-
-                <Column field="quantity_reserved" :header="t.table.reserved" sortable class="text-center">
-                    <template #body="{ data }">
-                        <span class="text-surface-500">{{ data.quantity_reserved }}</span>
-                    </template>
-                </Column>
-
-                <Column field="count_available" :header="t.table.available" sortable class="text-center">
-                    <template #body="{ data }">
-                        <Tag :value="data.count_available" 
-                             :severity="data.count_available > 10 ? 'success' : (data.count_available > 0 ? 'warning' : 'danger')" 
-                             class="px-3 font-bold" />
-                    </template>
-                </Column>
-
-                <Column :header="t.table.actions" class="w-32 text-right" frozen alignFrozen="right">
-                    <template #body="{ data }">
-                        <div class="flex justify-end gap-1">
-                            <Button icon="pi pi-cog" severity="secondary" text rounded v-tooltip.top="'Adjust Stock'" @click="showAdjust(data)" />
-                            <Button icon="pi pi-history" severity="secondary" text rounded v-tooltip.top="'History'" @click="showHistory(data)" />
+                    <template #empty>
+                        <div class="flex flex-col items-center justify-center py-20 text-surface-400">
+                            <i class="mb-4 text-6xl pi pi-box opacity-20"></i>
+                            <p class="text-xl font-medium">{{ t.messages.empty_list }}</p>
                         </div>
                     </template>
-                </Column>
-            </DataTable>
-        </div>
+
+                    <Column field="sku" :header="t.table.sku" sortable>
+                        <template #body="{ data }">
+                            <span class="font-mono text-xs uppercase tracking-widest font-bold">{{ data.sku }}</span>
+                        </template>
+                    </Column>
+
+                    <Column field="variant_name" :header="t.table.product" sortable>
+                        <template #body="{ data }">
+                            <span class="font-bold text-surface-900 dark:text-surface-0">{{ data.variant_name }}</span>
+                        </template>
+                    </Column>
+
+                    <Column field="stock_location_name" :header="t.table.location" sortable>
+                        <template #body="{ data }">
+                            <div class="flex items-center gap-2">
+                                <i class="pi pi-building text-surface-400"></i>
+                                <span>{{ data.stock_location_name }}</span>
+                            </div>
+                        </template>
+                    </Column>
+
+                    <Column field="quantity_on_hand" :header="t.table.on_hand" sortable class="text-center">
+                        <template #body="{ data }">
+                            <span class="font-black text-lg">{{ data.quantity_on_hand }}</span>
+                        </template>
+                    </Column>
+
+                    <Column field="quantity_reserved" :header="t.table.reserved" sortable class="text-center">
+                        <template #body="{ data }">
+                            <span class="text-surface-500">{{ data.quantity_reserved }}</span>
+                        </template>
+                    </Column>
+
+                    <Column field="count_available" :header="t.table.available" sortable class="text-center">
+                        <template #body="{ data }">
+                            <Tag :value="data.count_available" 
+                                 :severity="data.count_available > 10 ? 'success' : (data.count_available > 0 ? 'warning' : 'danger')" 
+                                 class="px-3 font-bold" />
+                        </template>
+                    </Column>
+
+                    <Column :header="t.table.actions" class="w-32 text-right" frozen alignFrozen="right">
+                        <template #body="{ data }">
+                            <div class="flex justify-end gap-1">
+                                <Button icon="pi pi-cog" severity="secondary" text rounded v-tooltip.top="'Adjust Stock'" @click="showAdjust(data)" />
+                                <Button icon="pi pi-history" severity="secondary" text rounded v-tooltip.top="'History'" @click="showHistory(data)" />
+                            </div>
+                        </template>
+                    </Column>
+                </DataTable>
+            </template>
+        </Card>
 
         <!-- Adjust Dialog -->
         <StockAdjustmentDialog 

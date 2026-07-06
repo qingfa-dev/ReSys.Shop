@@ -148,6 +148,15 @@ onMounted(() => {
       </div>
       <div class="flex w-full gap-3 md:w-auto">
         <Button
+          icon="pi pi-refresh"
+          severity="secondary"
+          outlined
+          @click="loadProducts"
+          :loading="loading"
+          class="rounded-xl"
+          v-tooltip.top="'Refresh'"
+        />
+        <Button
           :label="t.actions.new"
           icon="pi pi-plus"
           @click="router.push({ name: 'catalog.products.create' })"
@@ -175,6 +184,10 @@ onMounted(() => {
         removableSort
         scrollable
         rowHover
+        stripedRows
+        showGridlines
+        dataKey="id"
+        breakpoint="960px"
       >
         <template #header>
           <div class="flex flex-col items-center justify-between gap-4 md:flex-row">

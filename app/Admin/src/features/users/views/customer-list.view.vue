@@ -84,11 +84,14 @@ const clearFilters = () => {
                 @filter="onFilter"
                 dataKey="id"
                 rowHover
+                scrollable
                 :first="((query.page || 1) - 1) * (query.page_size || 10)"
                 :sortField="query.sort_by"
                 :sortOrder="query.is_descending ? -1 : 1"
                 filterDisplay="menu"
                 removableSort
+                stripedRows
+                showGridlines
             >
                 <template #header>
                     <div class="flex flex-col items-center justify-between gap-4 md:flex-row p-2">

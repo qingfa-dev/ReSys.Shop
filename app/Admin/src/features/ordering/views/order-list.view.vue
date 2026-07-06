@@ -122,24 +122,20 @@ onMounted(() => {
 <template>
   <div class="p-6">
     <AppBreadcrumb :locales="t" />
-    <div class="flex flex-col items-start justify-between gap-4 mb-8 md:flex-row md:items-center">
-      <div>
-        <h2 class="text-3xl font-black tracking-tight text-surface-900 dark:text-surface-50">
-          {{ t.titles.list }}
-        </h2>
-        <div class="flex items-center gap-2 mt-1">
-          <span class="text-surface-500 dark:text-surface-400">
-            {{ t.descriptions?.list }}
-          </span>
-          <Badge :value="totalRecords" severity="info" class="ml-2"></Badge>
+    <Card class="rounded-3xl shadow-sm border-none bg-surface-0 dark:bg-surface-900 overflow-hidden">
+      <template #title>
+        <div class="flex items-center justify-between p-4">
+          <div class="flex flex-col gap-1">
+            <div class="flex items-center gap-3">
+              <span class="text-xl font-bold">{{ t.titles.list }}</span>
+              <Badge :value="totalRecords" severity="info" />
+            </div>
+            <span class="text-sm text-surface-500">{{ t.descriptions?.list }}</span>
+          </div>
+          <Button label="New Order" icon="pi pi-plus" severity="primary" class="rounded-xl" @click="router.push({ name: 'ordering.orders.create' })" />
         </div>
-      </div>
-      <div class="flex items-center gap-3">
-        <Button label="New Order" icon="pi pi-plus" class="rounded-xl px-6 shadow-lg shadow-primary/20" @click="router.push({ name: 'ordering.orders.create' })" />
-      </div>
-    </div>
-
-    <div class="overflow-hidden border shadow-sm bg-surface-0 dark:bg-surface-900 rounded-2xl border-surface-100 dark:border-surface-800">
+      </template>
+      <template #content>
         <DataTable 
             :value="orders" 
             :loading="loading" 
@@ -160,71 +156,73 @@ onMounted(() => {
             removableSort
             scrollable
             rowHover
+            stripedRows
+            showGridlines
         >
-        <template #header>
-          <div class="flex flex-col items-center justify-between gap-4 md:flex-row">
-            <IconField iconPosition="left" class="w-full md:w-72">
-              <InputIcon class="pi pi-search" />
-              <InputText
-                v-model="(filters.global as any).value"
-                :placeholder="t.placeholders?.search"
-                @keyup.enter="onFilter"
-                class="w-full rounded-xl"
+          <template #header>
+            <div class="flex items-center justify-between gap-4">
+              <IconField iconPosition="left" class="w-full md:w-72">
+                <InputIcon class="pi pi-search" />
+                <InputText
+                  v-model="(filters.global as any).value"
+                  :placeholder="t.placeholders?.search"
+                  @keyup.enter="onFilter"
+                  class="w-full rounded-xl"
+                />
+              </IconField>
+              <Button
+                type="button"
+                icon="pi pi-filter-slash"
+                :label="t.table?.clear_filter"
+                outlined
+                @click="clearFilters"
+                class="rounded-xl"
               />
-            </IconField>
-
-            <Button
-              type="button"
-              icon="pi pi-filter-slash"
-              :label="t.table?.clear_filter"
-              outlined
-              @click="clearFilters"
-              class="w-full rounded-xl md:w-auto"
-            />
-          </div>
-        </template>
-
-        <Column field="number" :header="t.table.number" sortable filter>
-            <template #body="{ data }">
-                <span class="font-black text-primary cursor-pointer hover:underline" @click="router.push({ name: 'ordering.orders.detail', params: { id: data.id } })">
-                    {{ data.number }}
-                </span>
-            </template>
-        </Column>
-
-        <Column field="email" :header="t.table.customer" sortable>
-            <template #body="{ data }">
-                <div class="flex flex-col">
-                    <span class="font-bold">{{ data.email || 'Guest' }}</span>
-                </div>
-            </template>
-        </Column>
-
-        <Column field="created_at" :header="t.table.date" sortable>
-            <template #body="{ data }">
-                <span class="text-sm font-medium">{{ formatDate(data.created_at) }}</span>
-            </template>
-        </Column>
-
-        <Column field="total_cents" :header="t.table.total" sortable>
-            <template #body="{ data }">
-                <span class="font-black text-lg">{{ formatCurrency(data.total_cents / 100) }}</span>
-            </template>
-        </Column>
-
-        <Column field="state" :header="t.table.status" filter>
-            <template #body="{ data }">
-                <Tag :value="data.state" :severity="getStatusSeverity(data.state)" rounded class="font-black px-3" />
-            </template>
-        </Column>
-
-        <Column :header="t.table.actions" class="w-32 text-right" frozen alignFrozen="right">
-          <template #body="{ data }">
-            <Button icon="pi pi-eye" severity="secondary" text rounded @click="router.push({ name: 'ordering.orders.detail', params: { id: data.id } })" />
+            </div>
           </template>
-        </Column>
-      </DataTable>
-    </div>
+
+          <Column field="number" :header="t.table.number" sortable filter>
+            <template #body="{ data }">
+              <span class="font-black text-primary cursor-pointer hover:underline" @click="router.push({ name: 'ordering.orders.detail', params: { id: data.id } })">
+                {{ data.number }}
+              </span>
+            </template>
+          </Column>
+
+          <Column field="email" :header="t.table.customer" sortable>
+            <template #body="{ data }">
+              <div class="flex flex-col">
+                <span class="font-bold">{{ data.email || 'Guest' }}</span>
+              </div>
+            </template>
+          </Column>
+
+          <Column field="created_at" :header="t.table.date" sortable>
+            <template #body="{ data }">
+              <span class="text-sm font-medium">{{ formatDate(data.created_at) }}</span>
+            </template>
+          </Column>
+
+          <Column field="total_cents" :header="t.table.total" sortable>
+            <template #body="{ data }">
+              <span class="font-black text-lg">{{ formatCurrency(data.total_cents / 100) }}</span>
+            </template>
+          </Column>
+
+          <Column field="state" :header="t.table.status" filter>
+            <template #body="{ data }">
+              <Tag :value="data.state" :severity="getStatusSeverity(data.state)" rounded class="font-black px-3" />
+            </template>
+          </Column>
+
+          <Column :header="t.table.actions" class="w-32 text-right" frozen alignFrozen="right">
+            <template #body="{ data }">
+              <Button icon="pi pi-eye" severity="secondary" text rounded @click="router.push({ name: 'ordering.orders.detail', params: { id: data.id } })" />
+            </template>
+          </Column>
+        </DataTable>
+      </template>
+    </Card>
   </div>
 </template>
 

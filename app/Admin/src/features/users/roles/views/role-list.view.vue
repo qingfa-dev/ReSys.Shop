@@ -4,6 +4,7 @@ import { useRouter } from 'vue-router';
 import { useToast } from '@/shared/composables/toast.use';
 import { useConfirm } from 'primevue/useconfirm';
 import { roleService } from '../../services/role.service';
+import AppBreadcrumb from '@/shared/components/breadcrumb.component.vue';
 import type { RoleSummary } from '../../types/user.types';
 import type { DataTablePageEvent } from 'primevue/datatable';
 
@@ -60,69 +61,79 @@ const confirmDelete = (role: RoleSummary) => {
 </script>
 
 <template>
-    <div class="card p-6">
-        <div class="flex justify-between items-center mb-8">
-            <div>
-                <h1 class="text-3xl font-black uppercase tracking-tighter text-surface-900 dark:text-surface-0">Roles</h1>
-                <p class="text-surface-500">Manage system roles and access control.</p>
-            </div>
-            <Button label="Create Role" icon="pi pi-plus" @click="router.push({ name: 'role-create' })" class="px-6 rounded-xl shadow-lg" />
-        </div>
-
-        <div class="overflow-hidden border border-surface-100 dark:border-surface-800 rounded-2xl shadow-sm">
-            <DataTable 
-                :value="roles" 
-                :loading="loading" 
-                lazy 
-                paginator 
-                :rows="query.page_size" 
-                :totalRecords="totalRecords" 
-                @page="onPage"
-                dataKey="id"
-                rowHover
-            >
-                <Column field="name" header="Role Name" sortable>
-                    <template #body="{ data }">
-                        <div class="flex flex-col">
-                            <span class="font-bold">{{ data.display_name || data.name }}</span>
-                            <small class="font-mono text-[10px] text-surface-500">{{ data.name }}</small>
+    <div class="p-6">
+        <AppBreadcrumb :locales="{ titles: { list: 'Roles' }, descriptions: { list: 'Manage system roles and access control.' } }" />
+        <Card class="rounded-3xl shadow-sm border-none bg-surface-0 dark:bg-surface-900 overflow-hidden">
+            <template #title>
+                <div class="flex items-center justify-between p-4">
+                    <div class="flex flex-col gap-1">
+                        <div class="flex items-center gap-3">
+                            <span class="text-xl font-bold">Roles</span>
+                            <Badge :value="totalRecords" severity="info" />
                         </div>
-                    </template>
-                </Column>
+                        <span class="text-sm text-surface-500">Manage system roles and access control.</span>
+                    </div>
+                    <Button label="Create Role" icon="pi pi-plus" severity="primary" class="rounded-xl" @click="router.push({ name: 'role-create' })" />
+                </div>
+            </template>
+            <template #content>
+                <DataTable 
+                    :value="roles" 
+                    :loading="loading" 
+                    lazy 
+                    paginator 
+                    :rows="query.page_size" 
+                    :totalRecords="totalRecords" 
+                    @page="onPage"
+                    dataKey="id"
+                    rowHover
+                    scrollable
+                    stripedRows
+                    showGridlines
+                >
+                    <Column field="name" header="Role Name" sortable>
+                        <template #body="{ data }">
+                            <div class="flex flex-col">
+                                <span class="font-bold">{{ data.display_name || data.name }}</span>
+                                <small class="font-mono text-[10px] text-surface-500">{{ data.name }}</small>
+                            </div>
+                        </template>
+                    </Column>
 
-                <Column field="priority" header="Priority" sortable>
-                    <template #body="{ data }">
-                        <Badge :value="data.priority" severity="info" />
-                    </template>
-                </Column>
+                    <Column field="priority" header="Priority" sortable>
+                        <template #body="{ data }">
+                            <Badge :value="data.priority" severity="info" />
+                        </template>
+                    </Column>
 
-                <Column field="user_count" header="Users">
-                    <template #body="{ data }">
-                         <div class="flex items-center gap-2">
-                            <i class="pi pi-users text-surface-400"></i>
-                            <span>{{ data.user_count }}</span>
-                        </div>
-                    </template>
-                </Column>
-                
-                 <Column header="Type">
-                    <template #body="{ data }">
-                        <Tag v-if="data.is_system_role" value="System" severity="warning" icon="pi pi-lock" rounded />
-                        <Tag v-else value="Custom" severity="secondary" rounded />
-                        <Tag v-if="data.is_default" value="Default" severity="success" class="ml-2" rounded />
-                    </template>
-                </Column>
+                    <Column field="user_count" header="Users">
+                        <template #body="{ data }">
+                            <div class="flex items-center gap-2">
+                                <i class="pi pi-users text-surface-400"></i>
+                                <span>{{ data.user_count }}</span>
+                            </div>
+                        </template>
+                    </Column>
+                    
+                    <Column header="Type">
+                        <template #body="{ data }">
+                            <Tag v-if="data.is_system_role" value="System" severity="warning" icon="pi pi-lock" rounded />
+                            <Tag v-else value="Custom" severity="secondary" rounded />
+                            <Tag v-if="data.is_default" value="Default" severity="success" class="ml-2" rounded />
+                        </template>
+                    </Column>
 
-                <Column header="Actions" class="w-48 text-right">
-                    <template #body="{ data }">
-                        <div class="flex justify-end gap-1">
-                            <Button icon="pi pi-shield" text rounded v-tooltip.top="'Permissions'" @click="router.push({ name: 'role-permissions', params: { id: data.id } })" />
-                            <Button icon="pi pi-pencil" text rounded severity="secondary" @click="router.push({ name: 'role-edit', params: { id: data.id } })" />
-                            <Button icon="pi pi-trash" text rounded severity="danger" :disabled="data.is_system_role" @click="confirmDelete(data)" />
-                        </div>
-                    </template>
-                </Column>
-            </DataTable>
-        </div>
+                    <Column header="Actions" class="w-48 text-right">
+                        <template #body="{ data }">
+                            <div class="flex justify-end gap-1">
+                                <Button icon="pi pi-shield" text rounded v-tooltip.top="'Permissions'" @click="router.push({ name: 'role-permissions', params: { id: data.id } })" />
+                                <Button icon="pi pi-pencil" text rounded severity="secondary" @click="router.push({ name: 'role-edit', params: { id: data.id } })" />
+                                <Button icon="pi pi-trash" text rounded severity="danger" :disabled="data.is_system_role" @click="confirmDelete(data)" />
+                            </div>
+                        </template>
+                    </Column>
+                </DataTable>
+            </template>
+        </Card>
     </div>
 </template>
