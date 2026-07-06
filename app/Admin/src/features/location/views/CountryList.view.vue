@@ -62,8 +62,9 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="p-6">
-    <div class="flex flex-col items-start justify-between gap-4 mb-8 md:flex-row md:items-center">
+  <Card>
+    <template #content>
+      <div class="flex flex-col items-start justify-between gap-4 mb-8 md:flex-row md:items-center">
       <div>
         <h2 class="text-3xl font-black tracking-tight text-surface-900 dark:text-surface-50">Countries</h2>
         <div class="flex items-center gap-2 mt-1">
@@ -84,6 +85,8 @@ onMounted(() => {
         removableSort
         scrollable
         rowHover
+        stripedRows
+        showGridlines
         dataKey="id"
       >
         <template #empty>
@@ -141,7 +144,8 @@ onMounted(() => {
       @close="onDialogClose"
       @saved="onSaved"
     />
-  </div>
+  </template>
+</Card>
 </template>
 
 <style scoped>

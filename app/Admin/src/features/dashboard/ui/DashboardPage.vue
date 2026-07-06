@@ -5,18 +5,24 @@
       <AppLoadingState />
     </div>
     <div v-else class="grid grid-cols-1 gap-4 md:grid-cols-3">
-      <div class="rounded border border-surface-200 bg-white p-4">
-        <p class="text-sm text-color-secondary">Signed in as</p>
-        <p class="text-lg font-semibold">{{ userName }}</p>
-      </div>
-      <div class="rounded border border-surface-200 bg-white p-4">
-        <p class="text-sm text-color-secondary">Roles</p>
-        <p class="text-lg font-semibold">{{ rolesCount }}</p>
-      </div>
-      <div class="rounded border border-surface-200 bg-white p-4">
-        <p class="text-sm text-color-secondary">Permissions</p>
-        <p class="text-lg font-semibold">{{ permissionsCount }}</p>
-      </div>
+      <Card>
+        <template #content>
+          <p class="text-sm text-color-secondary">Signed in as</p>
+          <p class="text-lg font-semibold">{{ userName }}</p>
+        </template>
+      </Card>
+      <Card>
+        <template #content>
+          <p class="text-sm text-color-secondary">Roles</p>
+          <p class="text-lg font-semibold">{{ rolesCount }}</p>
+        </template>
+      </Card>
+      <Card>
+        <template #content>
+          <p class="text-sm text-color-secondary">Permissions</p>
+          <p class="text-lg font-semibold">{{ permissionsCount }}</p>
+        </template>
+      </Card>
     </div>
   </div>
 </template>

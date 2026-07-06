@@ -64,7 +64,7 @@ async function onSave() {
 </script>
 
 <template>
-    <div class="card p-6 max-w-6xl mx-auto">
+    <Card>
         <div class="flex items-center justify-between mb-8">
             <div class="flex items-center gap-4">
                 <Button icon="pi pi-arrow-left" text rounded @click="router.back()" />
@@ -77,7 +77,7 @@ async function onSave() {
                     </p>
                 </div>
             </div>
-            <Button label="Save Changes" icon="pi pi-check" @click="onSave" :loading="saving" />
+            <Button label="Save Changes" icon="pi pi-check" @click="onSave" :loading="saving" severity="primary" />
         </div>
 
         <div v-if="loading" class="flex justify-center p-12">
@@ -103,5 +103,6 @@ async function onSave() {
                 </template>
             </PickList>
         </div>
-    </div>
+    </template>
+</Card>
 </template>

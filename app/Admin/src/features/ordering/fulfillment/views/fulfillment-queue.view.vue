@@ -20,13 +20,14 @@ const shipOrder = (id: string) => {
 </script>
 
 <template>
-    <div class="card">
-        <div class="flex justify-between items-center mb-6">
+    <Card>
+        <template #content>
+            <div class="flex justify-between items-center mb-6">
             <h1 class="text-2xl font-bold">Fulfillment Queue</h1>
             <p class="text-surface-500">Orders ready for picking and packing.</p>
         </div>
 
-        <DataTable :value="queue" :loading="loading" dataKey="id">
+        <DataTable :value="queue" :loading="loading" dataKey="id" stripedRows showGridlines>
             <Column field="number" header="Order #">
                 <template #body="{ data }">
                     <span class="font-bold text-primary cursor-pointer" @click="router.push({ name: 'ordering.orders.detail', params: { id: data.id } })">
@@ -48,5 +49,6 @@ const shipOrder = (id: string) => {
                 </template>
             </Column>
         </DataTable>
-    </div>
+    </template>
+</Card>
 </template>
