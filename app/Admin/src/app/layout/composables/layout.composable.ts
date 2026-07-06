@@ -1,6 +1,4 @@
 import { ref, computed } from 'vue'
-import { useThemeStore } from '@/app/stores/theme.store'
-import { useSidebarStore } from '@/app/stores/sidebar.store'
 import { useRouter } from 'vue-router'
 
 export interface MenuItem {
@@ -12,12 +10,14 @@ export interface MenuItem {
 }
 
 export function useLayout() {
-  const theme = useThemeStore()
-  const sidebar = useSidebarStore()
   const router = useRouter()
 
-  const darkMode = computed(() => theme.isDark)
-  const sidebarCollapsed = computed(() => sidebar.collapsed)
+  const STORAGE_KEY_SIDEBAR = 'admin:sidebar:collapsed'
+  const collapsed = ref(localStorage.getItem(STORAGE_KEY_SIDEBAR) === '1')
+  const isDark = ref(false)
+
+  const darkMode = computed(() => isDark.value)
+  const sidebarCollapsed = computed(() => collapsed.value)
 
   const menuItems = ref<MenuItem[]>([
     {
@@ -42,11 +42,13 @@ export function useLayout() {
   ])
 
   function toggleDarkMode() {
-    theme.toggle()
+    isDark.value = !isDark.value
+    document.documentElement.classList.toggle('p-dark', isDark.value)
   }
 
   function toggleSidebar() {
-    sidebar.toggle()
+    collapsed.value = !collapsed.value
+    localStorage.setItem(STORAGE_KEY_SIDEBAR, collapsed.value ? '1' : '0')
   }
 
   function navigate(to: string) {

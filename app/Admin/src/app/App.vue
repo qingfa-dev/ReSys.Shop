@@ -1,12 +1,14 @@
-<template>
-  <AppProviders>
-    <RouterView v-slot="{ Component, route }">
-      <component :is="Component" v-if="Component" :key="route.fullPath" />
-    </RouterView>
-  </AppProviders>
-</template>
-
 <script setup lang="ts">
 import { RouterView } from 'vue-router'
-import AppProviders from './providers/AppProviders.vue'
+import { watch } from 'vue'
+import { useToast } from 'primevue/usetoast'
+import { toastBus } from '@/shared/composables/toast.use'
+const toast = useToast()
+watch(toastBus, (newValue) => {
+  if (newValue) { toast.add(newValue); toastBus.value = null }
+})
 </script>
+<template>
+  <router-view />
+  <Toast />
+</template>
