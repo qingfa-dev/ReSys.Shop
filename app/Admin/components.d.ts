@@ -12,23 +12,44 @@ export {}
 /* prettier-ignore */
 declare module 'vue' {
   export interface GlobalComponents {
-    Column: typeof import('primevue/column')['default']
+    Avatar: typeof import('primevue/avatar')['default']
+    Button: typeof import('primevue/button')['default']
+    Checkbox: typeof import('primevue/checkbox')['default']
+    ConfirmDialog: typeof import('primevue/confirmdialog')['default']
+    InputSwitch: typeof import('primevue/inputswitch')['default']
     InputText: typeof import('primevue/inputtext')['default']
-    MultiSelect: typeof import('primevue/multiselect')['default']
+    OverlayPanel: typeof import('primevue/overlaypanel')['default']
     Password: typeof import('primevue/password')['default']
+    ProgressSpinner: typeof import('primevue/progressspinner')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
-    Select: typeof import('primevue/select')['default']
+    SelectButton: typeof import('primevue/selectbutton')['default']
+    Sidebar: typeof import('primevue/sidebar')['default']
+    Slider: typeof import('primevue/slider')['default']
+    Tag: typeof import('primevue/tag')['default']
+    Toast: typeof import('primevue/toast')['default']
+  }
+  export interface GlobalDirectives {
+    Ripple: typeof import('primevue/ripple')['default']
   }
 }
 
 // For TSX support
 declare global {
-  const Column: typeof import('primevue/column')['default']
+  const Avatar: typeof import('primevue/avatar')['default']
+  const Button: typeof import('primevue/button')['default']
+  const Checkbox: typeof import('primevue/checkbox')['default']
+  const ConfirmDialog: typeof import('primevue/confirmdialog')['default']
+  const InputSwitch: typeof import('primevue/inputswitch')['default']
   const InputText: typeof import('primevue/inputtext')['default']
-  const MultiSelect: typeof import('primevue/multiselect')['default']
+  const OverlayPanel: typeof import('primevue/overlaypanel')['default']
   const Password: typeof import('primevue/password')['default']
+  const ProgressSpinner: typeof import('primevue/progressspinner')['default']
   const RouterLink: typeof import('vue-router')['RouterLink']
   const RouterView: typeof import('vue-router')['RouterView']
-  const Select: typeof import('primevue/select')['default']
+  const SelectButton: typeof import('primevue/selectbutton')['default']
+  const Sidebar: typeof import('primevue/sidebar')['default']
+  const Slider: typeof import('primevue/slider')['default']
+  const Tag: typeof import('primevue/tag')['default']
+  const Toast: typeof import('primevue/toast')['default']
 }

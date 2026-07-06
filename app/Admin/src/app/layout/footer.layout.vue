@@ -10,7 +10,7 @@
 </template>
 
 <script setup lang="ts">
-import { APP_NAME, APP_VERSION } from '@/shared/config/app'
+import { APP_NAME, APP_VERSION } from '@/shared/config/app' // eslint-disable-line
 
 const year = new Date().getFullYear()
 const appName = APP_NAME
