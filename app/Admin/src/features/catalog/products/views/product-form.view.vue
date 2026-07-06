@@ -144,7 +144,7 @@ const onSubmit = handleSubmit(async (values) => {
         <Card class="border-none shadow-sm rounded-3xl bg-surface-0 dark:bg-surface-900 overflow-hidden">
             <template #content>
                 <Tabs v-model:value="activeTab">
-                    <TabList>
+                    <TabList scrollable>
                         <Tab :value="0">
                             <div class="flex items-center gap-2">
                                 <i class="pi pi-info-circle"></i>
@@ -337,10 +337,14 @@ const onSubmit = handleSubmit(async (values) => {
 </template>
 
 <style scoped>
-:deep(.p-tabs-list) {
+:deep(.p-tablist-tab-list) {
+    padding: 0 0.5rem;
     border-bottom: 1px solid var(--p-surface-100);
 }
-.dark :deep(.p-tabs-list) {
+.dark :deep(.p-tablist-tab-list) {
     border-bottom-color: var(--p-surface-800);
+}
+:deep(.p-tabpanel) {
+    padding: 0;
 }
 </style>
