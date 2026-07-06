@@ -1,7 +1,7 @@
 import { describe, it, expect, vi } from 'vitest'
 import { mount, flushPromises } from '@vue/test-utils'
 import { createPinia, setActivePinia } from 'pinia'
-import { createRouter, createMemoryHistory, type Router } from 'vue-router'
+import { createRouter, createMemoryHistory } from 'vue-router'
 import { VueQueryPlugin, QueryClient } from '@tanstack/vue-query'
 import PrimeVue from 'primevue/config'
 import { defineComponent, h, type Ref, ref } from 'vue'
@@ -27,7 +27,7 @@ describe('app router integration', () => {
     const guardRef: Ref<ReturnType<typeof useAuthGuard> | null> = ref(null)
     const GuardHost = defineComponent({
       setup() {
-        guardRef.value = useAuthGuard(router as unknown as Router)
+        guardRef.value = useAuthGuard()
         return () => h('div')
       },
     })
