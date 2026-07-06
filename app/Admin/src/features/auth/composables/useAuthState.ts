@@ -22,12 +22,14 @@ export function useAuthState() {
 
   async function setTokens(t: AuthTokens) {
     tokens.value = t
+    localStorage.setItem('auth:tokens', JSON.stringify(t))
     const user = await api.get<AuthUser>('/api/auth/me')
     qc.setQueryData(authQueryKeys.currentUser(), user)
   }
 
   function clear() {
     tokens.value = null
+    localStorage.removeItem('auth:tokens')
     qc.removeQueries({ queryKey: authQueryKeys.all })
   }
 
