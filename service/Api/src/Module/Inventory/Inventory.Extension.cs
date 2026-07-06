@@ -1,16 +1,21 @@
 using Microsoft.Extensions.DependencyInjection;
+using Module.Inventory.Persistence.Seeders;
 using Module.Inventory.Services;
 using Module.Inventory.Services.Abstractions;
 
 namespace Module.Inventory;
 
-// @CAT-10 Boundary: Domain -> Application — module registration boundary; do not add domain logic here
 public static class InventoryExtension
 {
-    public static IServiceCollection AddInventoryModule(this IServiceCollection services)
+    public static WebApplicationBuilder AddInventoryModule(this WebApplicationBuilder builder)
     {
-        services.AddScoped<IStockChecker, StockChecker>();
-        services.AddHostedService<ReservationExpiryService>();
-        return services;
+        builder.Services.AddScoped<IStockChecker, StockChecker>();
+        builder.Services.AddHostedService<ReservationExpiryService>();
+
+        builder.AddSeeder<StockLocationSeeder>();
+        builder.AddSeeder<InventoryStockItemSeeder>();
+        builder.AddSeeder<InventoryStockMovementSeeder>();
+
+        return builder;
     }
 }
