@@ -63,6 +63,7 @@ export default defineConfigWithVueTs(
                 '@tanstack/vue-query',
                 'pinia',
                 'primevue',
+                '@primevue/themes',
                 'zod',
                 'vitest',
                 '@vue/test-utils',
