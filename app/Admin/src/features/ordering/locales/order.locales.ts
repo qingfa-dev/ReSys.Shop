@@ -1,0 +1,51 @@
+import type { FeatureLocales } from '@/shared/locales/locale.types';
+
+export const orderLocales: FeatureLocales = {
+  titles: {
+    list: 'Orders',
+    detail: 'Order Detail',
+    items: 'Order Items',
+    logistics: 'Logistics',
+    customer: 'Customer Info',
+  },
+  descriptions: {
+    list: 'Manage customer orders, fulfillment and status history.',
+  },
+  table: {
+    number: 'Order #',
+    customer: 'Customer',
+    date: 'Date',
+    total: 'Total',
+    status: 'Status',
+    actions: 'Actions',
+    clear_filter: 'Clear Filters'
+  },
+  labels: {
+    number: 'Order Number',
+    status: 'Status',
+    subtotal: 'Subtotal',
+    shipping: 'Shipping',
+    discount: 'Discount',
+    total: 'Total',
+    shipping_address: 'Shipping Address',
+    payment_method: 'Payment & Carrier',
+  },
+  actions: {
+    view: 'View Details',
+    cancel: 'Cancel Order',
+    ship: 'Mark as Shipped',
+  },
+  placeholders: {
+    search: 'Search by Order # or Customer...',
+    state: 'Filter by state...',
+  },
+  messages: {
+    empty_list: 'No orders found matching your criteria.',
+    loading: 'Loading orders...',
+  },
+  common: {
+    success: 'Success',
+    error: 'Error',
+    warning: 'Warning',
+  }
+};
