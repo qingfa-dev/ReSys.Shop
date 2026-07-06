@@ -12,13 +12,23 @@ export {}
 /* prettier-ignore */
 declare module 'vue' {
   export interface GlobalComponents {
+    Column: typeof import('primevue/column')['default']
+    InputText: typeof import('primevue/inputtext')['default']
+    MultiSelect: typeof import('primevue/multiselect')['default']
+    Password: typeof import('primevue/password')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
+    Select: typeof import('primevue/select')['default']
   }
 }
 
 // For TSX support
 declare global {
+  const Column: typeof import('primevue/column')['default']
+  const InputText: typeof import('primevue/inputtext')['default']
+  const MultiSelect: typeof import('primevue/multiselect')['default']
+  const Password: typeof import('primevue/password')['default']
   const RouterLink: typeof import('vue-router')['RouterLink']
   const RouterView: typeof import('vue-router')['RouterView']
+  const Select: typeof import('primevue/select')['default']
 }
