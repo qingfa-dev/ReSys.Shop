@@ -1,4 +1,4 @@
-import { useQuery } from '@tanstack/vue-query'
+import { useQuery, type UseQueryReturnType } from '@tanstack/vue-query'
 import type { Ref } from 'vue'
 import { api } from '@/shared/api/client'
 import type { PagedResult } from '@/shared/api/paged-result'
@@ -6,7 +6,9 @@ import type { PageRequest } from '@/shared/types/page'
 import type { UserListItem } from '../model/user.types'
 import { usersQueryKeys } from './query-keys'
 
-export function useUsersList(params: Ref<PageRequest>) {
+export function useUsersList(
+  params: Ref<PageRequest>,
+): UseQueryReturnType<PagedResult<UserListItem>, Error> {
   return useQuery({
     queryKey: usersQueryKeys.list(params as unknown as Record<string, unknown>),
     queryFn: () => {
@@ -16,5 +18,5 @@ export function useUsersList(params: Ref<PageRequest>) {
       if (params.value.search) search.set('search', params.value.search)
       return api.getPaged<UserListItem>(`/api/admin/identity/users?${search.toString()}`)
     },
-  }) as unknown as { suspense: () => Promise<PagedResult<UserListItem>>; data: Ref<PagedResult<UserListItem>>; isLoading: Ref<boolean>; error: Ref<Error | null>; refetch: () => void }
+  })
 }
