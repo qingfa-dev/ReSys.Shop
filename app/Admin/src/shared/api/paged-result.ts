@@ -1,10 +1,4 @@
-export interface PageRequest {
-  page: number
-  pageSize: number
-  sort?: string
-  direction?: 'asc' | 'desc'
-  search?: string
-}
+export { type PageRequest } from '@/shared/types/page'
 
 export interface PagedResult<T> {
   items: T[]
