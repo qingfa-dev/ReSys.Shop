@@ -76,7 +76,7 @@ public class TaxonHierarchyInternalTests : IDisposable
     {
         // Arrange
         var taxo = TaxonomyExtensions.Create("T", "T", 0).Value;
-        var taxon = TaxonExtensions.Create(taxo.Id, null, "T1", "T1", null, 0, "t1", null, null, null, false, null, null, false, null, null).Value;
+        var taxon = TaxonMethod.Create(taxo.Id, null, "T1", "T1", null, 0, "t1", null, null, null, false, null, null, false, null, null).Value;
         _dbContext.Set<Taxonomy>().Add(taxo);
         _dbContext.Set<Taxon>().Add(taxon);
         await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
@@ -95,7 +95,7 @@ public class TaxonHierarchyInternalTests : IDisposable
         // Arrange
         var taxo = TaxonomyExtensions.Create("T", "T", 0).Value;
         var otherTaxoId = Guid.NewGuid();
-        var taxon = TaxonExtensions.Create(taxo.Id, null, "T1", "T1", null, 0, "t1", null, null, null, false, null, null, false, null, null).Value;
+        var taxon = TaxonMethod.Create(taxo.Id, null, "T1", "T1", null, 0, "t1", null, null, null, false, null, null, false, null, null).Value;
         _dbContext.Set<Taxonomy>().Add(taxo);
         _dbContext.Set<Taxon>().Add(taxon);
         await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
@@ -113,8 +113,8 @@ public class TaxonHierarchyInternalTests : IDisposable
     {
         // Arrange
         var taxo = TaxonomyExtensions.Create("T", "T", 0).Value;
-        var root = TaxonExtensions.Create(taxo.Id, null, "Root", "Root", null, 0, "root", null, null, null, false, null, null, false, null, null).Value;
-        var child = TaxonExtensions.Create(taxo.Id, root.Id, "Child", "Child", null, 0, "child", null, null, null, false, null, null, false, null, null).Value;
+        var root = TaxonMethod.Create(taxo.Id, null, "Root", "Root", null, 0, "root", null, null, null, false, null, null, false, null, null).Value;
+        var child = TaxonMethod.Create(taxo.Id, root.Id, "Child", "Child", null, 0, "child", null, null, null, false, null, null, false, null, null).Value;
         
         root.Lft = 1; root.Rgt = 4;
         child.Lft = 2; child.Rgt = 3;
@@ -138,10 +138,10 @@ public class TaxonHierarchyInternalTests : IDisposable
     {
         // Arrange
         var taxo = TaxonomyExtensions.Create("T", "T", 0).Value;
-        var root = TaxonExtensions.Create(taxo.Id, null, "Root", "Root", null, 0, "root", null, null, null, false, null, null, false, null, null).Value;
-        var branch = TaxonExtensions.Create(taxo.Id, root.Id, "Branch", "Branch", null, 0, "branch", null, null, null, false, null, null, false, null, null).Value;
-        var leaf = TaxonExtensions.Create(taxo.Id, branch.Id, "Leaf", "Leaf", null, 0, "leaf", null, null, null, false, null, null, false, null, null).Value;
-        var other = TaxonExtensions.Create(taxo.Id, root.Id, "Other", "Other", null, 1, "other", null, null, null, false, null, null, false, null, null).Value;
+        var root = TaxonMethod.Create(taxo.Id, null, "Root", "Root", null, 0, "root", null, null, null, false, null, null, false, null, null).Value;
+        var branch = TaxonMethod.Create(taxo.Id, root.Id, "Branch", "Branch", null, 0, "branch", null, null, null, false, null, null, false, null, null).Value;
+        var leaf = TaxonMethod.Create(taxo.Id, branch.Id, "Leaf", "Leaf", null, 0, "leaf", null, null, null, false, null, null, false, null, null).Value;
+        var other = TaxonMethod.Create(taxo.Id, root.Id, "Other", "Other", null, 1, "other", null, null, null, false, null, null, false, null, null).Value;
 
         root.Lft = 1; root.Rgt = 8;
         branch.Lft = 2; branch.Rgt = 5;

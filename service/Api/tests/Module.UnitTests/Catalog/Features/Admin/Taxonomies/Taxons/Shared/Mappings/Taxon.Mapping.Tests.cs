@@ -16,7 +16,7 @@ public class TaxonMappingTests
     public void MapToListItemResponse_ShouldMapEntityToResponse()
     {
         // Arrange
-        var taxon = TaxonExtensions.Create(
+        var taxon = TaxonMethod.Create(
             taxonomyId: _taxonomyId,
             parentId: null,
             name: "Category",
@@ -76,8 +76,8 @@ public class TaxonMappingTests
     public void MapToDetailResponse_ShouldMapEntityToResponse()
     {
         // Arrange
-        var parent = TaxonExtensions.Create(_taxonomyId, null, "Parent", null, null, 0, "parent", null, null, null, false, null, null, false, null, null).Value;
-        var taxon = TaxonExtensions.Create(_taxonomyId, parent.Id, "Child", null, null, 1, "child", null, null, null, false, null, null, false, null, null).Value;
+        var parent = TaxonMethod.Create(_taxonomyId, null, "Parent", null, null, 0, "parent", null, null, null, false, null, null, false, null, null).Value;
+        var taxon = TaxonMethod.Create(_taxonomyId, parent.Id, "Child", null, null, 1, "child", null, null, null, false, null, null, false, null, null).Value;
         taxon.Parent = parent;
 
         // Act
@@ -95,9 +95,9 @@ public class TaxonMappingTests
     public void MapToTreeItem_ShouldMapEntityToResponseWithChildren()
     {
         // Arrange
-        var root = TaxonExtensions.Create(_taxonomyId, null, "Root", null, null, 0, "root", null, null, null, false, null, null, false, null, null).Value;
-        var child1 = TaxonExtensions.Create(_taxonomyId, root.Id, "Child 1", null, null, 1, "child-1", null, null, null, false, null, null, false, null, null).Value;
-        var child2 = TaxonExtensions.Create(_taxonomyId, root.Id, "Child 2", null, null, 2, "child-2", null, null, null, false, null, null, false, null, null).Value;
+        var root = TaxonMethod.Create(_taxonomyId, null, "Root", null, null, 0, "root", null, null, null, false, null, null, false, null, null).Value;
+        var child1 = TaxonMethod.Create(_taxonomyId, root.Id, "Child 1", null, null, 1, "child-1", null, null, null, false, null, null, false, null, null).Value;
+        var child2 = TaxonMethod.Create(_taxonomyId, root.Id, "Child 2", null, null, 2, "child-2", null, null, null, false, null, null, false, null, null).Value;
 
         root.Children.Add(child1);
         root.Children.Add(child2);
@@ -140,7 +140,7 @@ public class TaxonMappingTests
     [Fact(DisplayName = "MapToDomain (Update): Should update existing Taxon entity from request")]
     public void MapToDomain_Update_ShouldUpdateEntity()
     {
-        var entity = TaxonExtensions.Create(_taxonomyId, null, "Old Name", "Old Display", "Old Desc", 0, "old-name", null, null, null, false, null, null, false, null, null).Value;
+        var entity = TaxonMethod.Create(_taxonomyId, null, "Old Name", "Old Display", "Old Desc", 0, "old-name", null, null, null, false, null, null, false, null, null).Value;
 
         var request = new TaxonRequest
         {
@@ -159,7 +159,7 @@ public class TaxonMappingTests
     [Fact(DisplayName = "MapToTreeItem: Should set expanded and active path flags")]
     public void MapToTreeItem_ShouldSetFlags()
     {
-        var root = TaxonExtensions.Create(_taxonomyId, null, "Root", null, null, 0, "root", null, null, null, false, null, null, false, null, null).Value;
+        var root = TaxonMethod.Create(_taxonomyId, null, "Root", null, null, 0, "root", null, null, null, false, null, null, false, null, null).Value;
 
         root.Lft = 1; root.Rgt = 2; root.Depth = 0;
 

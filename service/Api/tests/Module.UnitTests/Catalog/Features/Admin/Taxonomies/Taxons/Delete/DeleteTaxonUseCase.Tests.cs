@@ -53,8 +53,8 @@ public class DeleteTaxonTests : IDisposable
     public async Task Handle_ShouldReturnSuccess_WhenValid()
     {
         var taxonomy = TaxonomyExtensions.Create("Categories", "Categories", 0).Value;
-        var parent = TaxonExtensions.Create(taxonomy.Id, null, "Root", "Root", null, 0, "root", null, null, null, false, null, null, false, null, null).Value;
-        var taxon = TaxonExtensions.Create(taxonomy.Id, parent.Id, "Shirts", "Shirts", null, 1, "shirts", null, null, null, false, null, null, false, null, null).Value;
+        var parent = TaxonMethod.Create(taxonomy.Id, null, "Root", "Root", null, 0, "root", null, null, null, false, null, null, false, null, null).Value;
+        var taxon = TaxonMethod.Create(taxonomy.Id, parent.Id, "Shirts", "Shirts", null, 1, "shirts", null, null, null, false, null, null, false, null, null).Value;
 
         _dbContext.Set<Taxonomy>().Add(taxonomy);
         _dbContext.Set<Taxon>().AddRange(parent, taxon);
@@ -79,8 +79,8 @@ public class DeleteTaxonTests : IDisposable
     public async Task Handle_ShouldCallAutoClassification_WhenAutomatic()
     {
         var taxonomy = TaxonomyExtensions.Create("Categories", "Categories", 0).Value;
-        var parent = TaxonExtensions.Create(taxonomy.Id, null, "Root", "Root", null, 0, "root", null, null, null, false, null, null, false, null, null).Value;
-        var taxon = TaxonExtensions.Create(taxonomy.Id, parent.Id, "Shirts", "Shirts", null, 1, "shirts", null, null, null, true, null, null, false, null, null).Value;
+        var parent = TaxonMethod.Create(taxonomy.Id, null, "Root", "Root", null, 0, "root", null, null, null, false, null, null, false, null, null).Value;
+        var taxon = TaxonMethod.Create(taxonomy.Id, parent.Id, "Shirts", "Shirts", null, 1, "shirts", null, null, null, true, null, null, false, null, null).Value;
 
         _dbContext.Set<Taxonomy>().Add(taxonomy);
         _dbContext.Set<Taxon>().AddRange(parent, taxon);
@@ -119,9 +119,9 @@ public class DeleteTaxonTests : IDisposable
     public async Task Handle_ShouldReturnFailure_WhenHasChildren()
     {
         var taxonomy = TaxonomyExtensions.Create("Categories", "Categories", 0).Value;
-        var parent = TaxonExtensions.Create(taxonomy.Id, null, "Root", "Root", null, 0, "root", null, null, null, false, null, null, false, null, null).Value;
-        var taxon = TaxonExtensions.Create(taxonomy.Id, parent.Id, "Shirts", "Shirts", null, 1, "shirts", null, null, null, false, null, null, false, null, null).Value;
-        var child = TaxonExtensions.Create(taxonomy.Id, taxon.Id, "T-Shirts", "T-Shirts", null, 0, "t-shirts", null, null, null, false, null, null, false, null, null).Value;
+        var parent = TaxonMethod.Create(taxonomy.Id, null, "Root", "Root", null, 0, "root", null, null, null, false, null, null, false, null, null).Value;
+        var taxon = TaxonMethod.Create(taxonomy.Id, parent.Id, "Shirts", "Shirts", null, 1, "shirts", null, null, null, false, null, null, false, null, null).Value;
+        var child = TaxonMethod.Create(taxonomy.Id, taxon.Id, "T-Shirts", "T-Shirts", null, 0, "t-shirts", null, null, null, false, null, null, false, null, null).Value;
 
         _dbContext.Set<Taxonomy>().Add(taxonomy);
         _dbContext.Set<Taxon>().AddRange(parent, taxon, child);

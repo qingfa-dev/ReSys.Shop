@@ -35,7 +35,7 @@ public class GetTaxonRulesTests : IDisposable
     public async Task Handle_ShouldReturnRules_WhenTaxonExists()
     {
         var taxonomy = TaxonomyExtensions.Create("Categories", "Categories", 0).Value;
-        var taxon = TaxonExtensions.Create(taxonomy.Id, null, "Shirts", "Shirts", null, 0, "shirts", null, null, null, false, null, null, false, null, null).Value;
+        var taxon = TaxonMethod.Create(taxonomy.Id, null, "Shirts", "Shirts", null, 0, "shirts", null, null, null, false, null, null, false, null, null).Value;
 
         var rule1 = TaxonRuleExtensions.Create(taxon.Id, TaxonRuleType.ProductPrice, TaxonRuleMatchPolicy.GreaterThan, "10.00");
         var rule2 = TaxonRuleExtensions.Create(taxon.Id, TaxonRuleType.ProductName, TaxonRuleMatchPolicy.IsEqualTo, "Shirt");
@@ -57,7 +57,7 @@ public class GetTaxonRulesTests : IDisposable
     public async Task Handle_ShouldReturnEmptyList_WhenNoRules()
     {
         var taxonomy = TaxonomyExtensions.Create("Categories", "Categories", 0).Value;
-        var taxon = TaxonExtensions.Create(taxonomy.Id, null, "Shirts", "Shirts", null, 0, "shirts", null, null, null, false, null, null, false, null, null).Value;
+        var taxon = TaxonMethod.Create(taxonomy.Id, null, "Shirts", "Shirts", null, 0, "shirts", null, null, null, false, null, null, false, null, null).Value;
 
         _dbContext.Set<Taxonomy>().Add(taxonomy);
         _dbContext.Set<Taxon>().Add(taxon);
@@ -82,7 +82,7 @@ public class GetTaxonRulesTests : IDisposable
     public async Task Handle_ShouldMapRuleProperties_WhenRulesExist()
     {
         var taxonomy = TaxonomyExtensions.Create("Categories", "Categories", 0).Value;
-        var taxon = TaxonExtensions.Create(taxonomy.Id, null, "Shirts", "Shirts", null, 0, "shirts", null, null, null, false, null, null, false, null, null).Value;
+        var taxon = TaxonMethod.Create(taxonomy.Id, null, "Shirts", "Shirts", null, 0, "shirts", null, null, null, false, null, null, false, null, null).Value;
         var rule = TaxonRuleExtensions.Create(taxon.Id, TaxonRuleType.ProductSku, TaxonRuleMatchPolicy.Contains, "ABC");
 
         _dbContext.Set<Taxonomy>().Add(taxonomy);

@@ -44,7 +44,7 @@ public class DeleteTaxonRuleTests : IDisposable
     public async Task Handle_ShouldReturnSuccess_WhenTaxonNotAutomatic()
     {
         var taxonomy = TaxonomyExtensions.Create("Categories", "Categories", 0).Value;
-        var taxon = TaxonExtensions.Create(taxonomy.Id, null, "Shirts", "Shirts", null, 0, "shirts", null, null, null, false, null, null, false, null, null).Value;
+        var taxon = TaxonMethod.Create(taxonomy.Id, null, "Shirts", "Shirts", null, 0, "shirts", null, null, null, false, null, null, false, null, null).Value;
         var rule = TaxonRuleExtensions.Create(taxon.Id, TaxonRuleType.ProductName, TaxonRuleMatchPolicy.IsEqualTo, "T-Shirt");
 
         _dbContext.Set<Taxonomy>().Add(taxonomy);
@@ -67,7 +67,7 @@ public class DeleteTaxonRuleTests : IDisposable
     public async Task Handle_ShouldTriggerAutoClassification_WhenTaxonIsAutomatic()
     {
         var taxonomy = TaxonomyExtensions.Create("Categories", "Categories", 0).Value;
-        var taxon = TaxonExtensions.Create(taxonomy.Id, null, "Shirts", "Shirts", null, 0, "shirts", null, null, null, true, null, null, false, null, null).Value;
+        var taxon = TaxonMethod.Create(taxonomy.Id, null, "Shirts", "Shirts", null, 0, "shirts", null, null, null, true, null, null, false, null, null).Value;
         var rule = TaxonRuleExtensions.Create(taxon.Id, TaxonRuleType.ProductName, TaxonRuleMatchPolicy.IsEqualTo, "T-Shirt");
 
         _dbContext.Set<Taxonomy>().Add(taxonomy);
@@ -97,7 +97,7 @@ public class DeleteTaxonRuleTests : IDisposable
     public async Task Handle_ShouldReturnFailure_WhenRuleNotFound()
     {
         var taxonomy = TaxonomyExtensions.Create("Categories", "Categories", 0).Value;
-        var taxon = TaxonExtensions.Create(taxonomy.Id, null, "Shirts", "Shirts", null, 0, "shirts", null, null, null, false, null, null, false, null, null).Value;
+        var taxon = TaxonMethod.Create(taxonomy.Id, null, "Shirts", "Shirts", null, 0, "shirts", null, null, null, false, null, null, false, null, null).Value;
 
         _dbContext.Set<Taxonomy>().Add(taxonomy);
         _dbContext.Set<Taxon>().Add(taxon);
@@ -115,7 +115,7 @@ public class DeleteTaxonRuleTests : IDisposable
     public async Task Handle_ShouldNotPropagate_WhenAutoClassificationThrows()
     {
         var taxonomy = TaxonomyExtensions.Create("Categories", "Categories", 0).Value;
-        var taxon = TaxonExtensions.Create(taxonomy.Id, null, "Shirts", "Shirts", null, 0, "shirts", null, null, null, true, null, null, false, null, null).Value;
+        var taxon = TaxonMethod.Create(taxonomy.Id, null, "Shirts", "Shirts", null, 0, "shirts", null, null, null, true, null, null, false, null, null).Value;
         var rule = TaxonRuleExtensions.Create(taxon.Id, TaxonRuleType.ProductName, TaxonRuleMatchPolicy.IsEqualTo, "T-Shirt");
 
         _dbContext.Set<Taxonomy>().Add(taxonomy);
@@ -136,7 +136,7 @@ public class DeleteTaxonRuleTests : IDisposable
     {
         var taxonomy = TaxonomyExtensions.Create("Categories", "Categories", 0).Value;
         var otherTaxonomy = TaxonomyExtensions.Create("Brands", "Brands", 0).Value;
-        var taxon = TaxonExtensions.Create(otherTaxonomy.Id, null, "Shirts", "Shirts", null, 0, "shirts", null, null, null, false, null, null, false, null, null).Value;
+        var taxon = TaxonMethod.Create(otherTaxonomy.Id, null, "Shirts", "Shirts", null, 0, "shirts", null, null, null, false, null, null, false, null, null).Value;
 
         _dbContext.Set<Taxonomy>().AddRange(taxonomy, otherTaxonomy);
         _dbContext.Set<Taxon>().Add(taxon);

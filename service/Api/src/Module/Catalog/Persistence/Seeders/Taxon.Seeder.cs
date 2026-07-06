@@ -125,7 +125,7 @@ public sealed class CatalogTaxonSeeder(IApplicationDbContext context) : Abstract
         int rgt,
         int depth)
     {
-        var result = TaxonExtensions.Create(
+        var result = TaxonMethod.Create(
             taxonomyId: taxonomyId,
             parentId: parentId,
             name: name,
@@ -163,7 +163,7 @@ public sealed class CatalogTaxonSeeder(IApplicationDbContext context) : Abstract
         int rgt,
         int depth)
     {
-        var result = TaxonExtensions.Create(
+        var result = TaxonMethod.Create(
             taxonomyId: taxonomyId,
             parentId: parentId,
             name: name,

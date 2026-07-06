@@ -72,7 +72,7 @@ public class RestoreTaxonomyTests : IDisposable
         _dbContext.Set<Taxonomy>().Add(entity);
         await _dbContext.SaveChangesAsync(ct);
 
-        var root = TaxonExtensions.Create(entity.Id, null, "Root", "Root", null, 0, "root", null, null, null, false, null, null, false, null, null).Value;
+        var root = TaxonMethod.Create(entity.Id, null, "Root", "Root", null, 0, "root", null, null, null, false, null, null, false, null, null).Value;
         root.Lft = 1; root.Rgt = 2;
         _dbContext.Set<Taxon>().Add(root);
         await _dbContext.SaveChangesAsync(ct);

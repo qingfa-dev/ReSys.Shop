@@ -9,7 +9,7 @@ using Slugify;
 
 namespace Module.Catalog.Domain.Taxonomies.Taxons;
 
-public static class TaxonExtensions
+public static class TaxonMethod
 {
     private static readonly SlugHelper SlugHelper = new();
 

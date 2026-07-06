@@ -7,7 +7,7 @@ namespace Module.UnitTests.Catalog.Domain.Taxonomies.Taxons;
 [Trait("Entity", "Taxon")]
 public class TaxonExtensionsTests
 {
-    private static Taxon CreateSampleTaxon() => TaxonExtensions.Create(
+    private static Taxon CreateSampleTaxon() => TaxonMethod.Create(
         taxonomyId: Guid.NewGuid(),
         parentId: null,
         name: "Sample",
@@ -41,7 +41,7 @@ public class TaxonExtensionsTests
         var parentId = Guid.NewGuid();
         var id = Guid.NewGuid();
 
-        var result = TaxonExtensions.Create(
+        var result = TaxonMethod.Create(
             taxonomyId: taxonomyId,
             parentId: parentId,
             name: name,
