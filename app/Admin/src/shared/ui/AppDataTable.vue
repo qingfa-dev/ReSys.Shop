@@ -18,7 +18,7 @@
 </template>
 
 <script setup lang="ts" generic="TRow">
-import { DEFAULT_PAGE_SIZE } from '@/shared/config/app'
+import { DEFAULT_PAGE_SIZE } from '@/shared/types/page'
 import AppEmptyState from './AppEmptyState.vue'
 
 withDefaults(
