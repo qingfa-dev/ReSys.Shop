@@ -57,7 +57,18 @@ export default defineConfigWithVueTs(
           rules: [
             {
               from: ['shared', 'features', 'app'],
-              allow: ['vue', 'vue-router', '@tanstack/vue-query', 'pinia', 'primevue/*', 'zod'],
+              allow: [
+                'vue',
+                'vue-router',
+                '@tanstack/vue-query',
+                'pinia',
+                'primevue/*',
+                'zod',
+                'vitest',
+                '@vue/test-utils',
+                'happy-dom',
+                '@testing-library/*',
+              ],
             },
           ],
         },
