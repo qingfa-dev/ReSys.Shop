@@ -1,62 +1,132 @@
-<template>
-  <li>
-    <div
-      v-ripple
-      class="flex cursor-pointer items-center gap-2 rounded-lg p-3 transition-colors duration-200 hover:bg-surface-100"
-      :class="[isActive && 'bg-primary-50 text-primary-700']"
-      @click="handleClick"
-    >
-      <i v-if="item.icon" :class="item.icon" class="text-lg" />
-      <span v-if="!collapsed" class="text-sm font-medium">{{ item.label }}</span>
-      <i
-        v-if="item.items && !collapsed"
-        class="pi pi-angle-down ml-auto transition-transform duration-200"
-        :class="{ 'rotate-180': expanded }"
-      />
-    </div>
-    <ul
-      v-if="item.items && !collapsed"
-      v-show="expanded"
-      class="ml-4 overflow-hidden transition-all duration-200"
-    >
-      <MenuItemLayout
-        v-for="(child, index) in item.items"
-        :key="index"
-        :item="child"
-        :collapsed="collapsed"
-      />
-    </ul>
-  </li>
-</template>
-
 <script setup lang="ts">
-import { ref, computed } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
-import type { MenuItem } from './composables/layout.composable'
+import { useLayout } from '@/app/layout/composables/layout.composable'
+import { computed, ref, watch } from 'vue'
+import { useRoute } from 'vue-router'
+
+export interface MenuItem {
+  label?: string
+  icon?: string
+  to?: string | object
+  url?: string
+  target?: string
+  items?: MenuItem[]
+  separator?: boolean
+  visible?: boolean
+  disabled?: boolean
+  class?: string
+  command?: (event: { originalEvent: Event; item: MenuItem }) => void
+}
+
+const route = useRoute()
+const { layoutState } = useLayout()
+
+defineOptions({
+  name: 'AppMenuItem',
+})
 
 const props = defineProps<{
   item: MenuItem
-  collapsed: boolean
+  index?: number
+  root?: boolean
 }>()
 
-const route = useRoute()
-const router = useRouter()
-
-const expanded = ref(false)
+const active = ref(false)
 
 const isActive = computed(() => {
-  if (props.item.to) {
-    return route.path === props.item.to
+  if (props.item.to && typeof props.item.to === 'string' && route.path === props.item.to) return true
+  if (props.item.to && typeof props.item.to === 'object' && 'name' in props.item.to) {
+    return route.name === props.item.to.name
+  }
+  if (props.item.items) {
+    return props.item.items.some(child => {
+      if (typeof child.to === 'string' && child.to === route.path) return true
+      if (child.to && typeof child.to === 'object' && 'name' in child.to && route.name === child.to.name) return true
+      if (child.items) return child.items.some(sub => {
+        if (typeof sub.to === 'string' && sub.to === route.path) return true
+        if (sub.to && typeof sub.to === 'object' && 'name' in sub.to && route.name === sub.to.name) return true
+        return false
+      })
+      return false
+    })
   }
   return false
 })
 
-function handleClick() {
-  if (props.item.to) {
-    router.push(props.item.to)
-  }
+watch(() => route.path, (newPath) => {
   if (props.item.items) {
-    expanded.value = !expanded.value
+    const hasActiveChild = props.item.items.some(child => {
+      if (typeof child.to === 'string' && child.to === newPath) return true
+      if (child.to && typeof child.to === 'object' && 'name' in child.to && route.name === child.to.name) return true
+      if (child.items) return child.items.some(sub => {
+        if (typeof sub.to === 'string' && sub.to === newPath) return true
+        if (sub.to && typeof sub.to === 'object' && 'name' in sub.to && route.name === sub.to.name) return true
+        return false
+      })
+      return false
+    })
+    if (hasActiveChild) active.value = true
+  }
+}, { immediate: true })
+
+const itemClick = (event: Event, item: MenuItem) => {
+  if (item.disabled) {
+    event.preventDefault()
+    return
+  }
+  if (item.command) {
+    item.command({ originalEvent: event, item })
+  }
+  if (item.items) {
+    active.value = !active.value
+  }
+  if (item.to || item.url) {
+    layoutState.overlayMenuActive = false
+    layoutState.mobileMenuActive = false
   }
 }
 </script>
+
+<template>
+  <li :class="{ 'layout-root-menuitem': root, 'active-menuitem': active || isActive }">
+    <div v-if="root && item.visible !== false" class="layout-menuitem-root-text">
+      {{ item.label }}
+    </div>
+
+    <a
+      v-if="!root && item.items && item.visible !== false"
+      :href="item.url"
+      @click="itemClick($event, item)"
+      :class="[item.class, { 'active-route': isActive }]"
+      :target="item.target"
+      tabindex="0"
+    >
+      <i v-if="item.icon" :class="item.icon" class="layout-menuitem-icon" />
+      <span class="layout-menuitem-text">{{ item.label }}</span>
+      <i class="pi pi-fw pi-angle-down layout-submenu-toggler" />
+    </a>
+
+    <router-link
+      v-if="!root && item.to && !item.items && item.visible !== false"
+      @click="itemClick($event, item)"
+      exactActiveClass="active-route"
+      :class="[item.class]"
+      tabindex="0"
+      :to="item.to"
+    >
+      <i v-if="item.icon" :class="item.icon" class="layout-menuitem-icon" />
+      <span class="layout-menuitem-text">{{ item.label }}</span>
+    </router-link>
+
+    <Transition v-if="item.items && item.visible !== false" name="layout-submenu">
+      <ul v-show="root ? true : active || isActive" class="layout-submenu">
+        <AppMenuItem
+          v-for="(child, i) in item.items"
+          :key="child.label + '_' + i"
+          :item="child"
+          :index="i"
+          :root="false"
+        />
+      </ul>
+    </Transition>
+  </li>
+</template>
