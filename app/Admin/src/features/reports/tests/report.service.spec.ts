@@ -21,7 +21,7 @@ describe('ReportService', () => {
 
       const result = await reportService.getSalesSummary()
 
-      expect(apiClient.get).toHaveBeenCalledWith('/api/admin/dashboard/sales-summary', { params: {} })
+      expect(apiClient.get).toHaveBeenCalledWith('admin/dashboard/sales-summary', { params: {} })
       expect(result).toEqual(mockResponse)
     })
   })
@@ -33,7 +33,7 @@ describe('ReportService', () => {
 
       const result = await reportService.getInventorySummary()
 
-      expect(apiClient.get).toHaveBeenCalledWith('/api/admin/dashboard/inventory-summary')
+      expect(apiClient.get).toHaveBeenCalledWith('admin/dashboard/inventory-summary')
       expect(result).toEqual(mockResponse)
     })
   })
@@ -45,7 +45,7 @@ describe('ReportService', () => {
 
       const result = await reportService.getCatalogSummary()
 
-      expect(apiClient.get).toHaveBeenCalledWith('/api/admin/dashboard/catalog-summary')
+      expect(apiClient.get).toHaveBeenCalledWith('admin/dashboard/catalog-summary')
       expect(result).toEqual(mockResponse)
     })
   })
@@ -57,7 +57,7 @@ describe('ReportService', () => {
 
       const result = await reportService.getRecentActivity(5)
 
-      expect(apiClient.get).toHaveBeenCalledWith('/api/admin/dashboard/recent-activity', { params: { limit: 5 } })
+      expect(apiClient.get).toHaveBeenCalledWith('admin/dashboard/recent-activity', { params: { limit: 5 } })
       expect(result).toEqual(mockResponse)
     })
   })

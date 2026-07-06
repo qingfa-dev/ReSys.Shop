@@ -18,7 +18,7 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
-import { APP_NAME } from '@/shared/config/app'
+import { APP_NAME } from '@/shared/config/app' // eslint-disable-line
 import { useLayout } from './composables/layout.composable'
 import MenuLayout from './menu.layout.vue'
 

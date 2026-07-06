@@ -1,5 +1,5 @@
 <template>
-  <Sidebar v-model:visible="visible" position="right" class="w-80">
+  <Sidebar :visible="visible" @update:visible="(v: boolean) => emit('update:visible', v)" position="right" class="w-80">
     <template #header>
       <div class="flex items-center gap-2">
         <i class="pi pi-cog text-xl" />

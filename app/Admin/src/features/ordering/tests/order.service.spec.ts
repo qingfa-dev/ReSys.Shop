@@ -25,7 +25,7 @@ describe('OrderService', () => {
 
       const result = await orderService.list(params)
 
-      expect(apiClient.get).toHaveBeenCalledWith('/api/admin/orders', { params })
+      expect(apiClient.get).toHaveBeenCalledWith('/admin/orders', { params })
       expect(result).toEqual(mockResponse)
     })
   })
@@ -39,7 +39,7 @@ describe('OrderService', () => {
 
       const result = await orderService.getById(id)
 
-      expect(apiClient.get).toHaveBeenCalledWith(`/api/admin/orders/${id}`)
+      expect(apiClient.get).toHaveBeenCalledWith(`/admin/orders/${id}`)
       expect(result).toEqual(mockResponse)
     })
   })
@@ -53,7 +53,7 @@ describe('OrderService', () => {
 
       const result = await orderService.updateState(id)
 
-      expect(apiClient.post).toHaveBeenCalledWith(`/api/admin/orders/${id}/advance`)
+      expect(apiClient.post).toHaveBeenCalledWith(`/admin/orders/${id}/advance`)
       expect(result).toEqual(mockResponse)
     })
   })
@@ -68,7 +68,7 @@ describe('OrderService', () => {
 
       const result = await orderService.cancelOrder(id, reason)
 
-      expect(apiClient.post).toHaveBeenCalledWith(`/api/admin/orders/${id}/cancel`, { reason })
+      expect(apiClient.post).toHaveBeenCalledWith(`/admin/orders/${id}/cancel`, { reason })
       expect(result).toEqual(mockResponse)
     })
   })
