@@ -26,6 +26,16 @@ public static class StockItemResult
     public static class Errors
     {
         #region Validation
+        /// <summary>Error when stock location ID is required but missing.</summary>
+        public static Error StockLocationIdRequired => Error.Validation(
+            code: "StockItem.StockLocationIdRequired",
+            message: "Stock location ID is required.");
+
+        /// <summary>Error when variant ID is required but missing.</summary>
+        public static Error VariantIdRequired => Error.Validation(
+            code: "StockItem.VariantIdRequired",
+            message: "Variant ID is required.");
+
         /// <summary>Error when count-on-hand would become negative.</summary>
         public static Error NegativeCountOnHand => Error.Validation(
             code: "StockItem.CountOnHand.Negative",
