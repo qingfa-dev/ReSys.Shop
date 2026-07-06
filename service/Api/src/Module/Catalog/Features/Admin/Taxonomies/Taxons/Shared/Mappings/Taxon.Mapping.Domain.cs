@@ -8,7 +8,7 @@ public static partial class TaxonMapping
     // Create:
     public static Result<Taxon> MapToDomain<T>(this T request, Guid taxonomyId) where T : TaxonRequest
     {
-        return TaxonExtensions.Create(
+        return TaxonMethod.Create(
         #region Relationships
             taxonomyId,
             request.ParentId,

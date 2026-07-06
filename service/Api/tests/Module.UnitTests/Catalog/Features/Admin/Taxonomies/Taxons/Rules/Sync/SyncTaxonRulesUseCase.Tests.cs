@@ -44,7 +44,7 @@ public class SyncTaxonRulesTests : IDisposable
     public async Task Handle_ShouldAddNewRules_WhenNoId()
     {
         var taxonomy = TaxonomyExtensions.Create("Categories", "Categories", 0).Value;
-        var taxon = TaxonExtensions.Create(taxonomy.Id, null, "Shirts", "Shirts", null, 0, "shirts", null, null, null, false, null, null, false, null, null).Value;
+        var taxon = TaxonMethod.Create(taxonomy.Id, null, "Shirts", "Shirts", null, 0, "shirts", null, null, null, false, null, null, false, null, null).Value;
 
         _dbContext.Set<Taxonomy>().Add(taxonomy);
         _dbContext.Set<Taxon>().Add(taxon);
@@ -82,7 +82,7 @@ public class SyncTaxonRulesTests : IDisposable
     public async Task Handle_ShouldUpdateAndRemove_WhenIdsProvided()
     {
         var taxonomy = TaxonomyExtensions.Create("Categories", "Categories", 0).Value;
-        var taxon = TaxonExtensions.Create(taxonomy.Id, null, "Shirts", "Shirts", null, 0, "shirts", null, null, null, false, null, null, false, null, null).Value;
+        var taxon = TaxonMethod.Create(taxonomy.Id, null, "Shirts", "Shirts", null, 0, "shirts", null, null, null, false, null, null, false, null, null).Value;
         var existingRule = TaxonRuleExtensions.Create(taxon.Id, TaxonRuleType.ProductName, TaxonRuleMatchPolicy.IsEqualTo, "Old");
         var toRemove = TaxonRuleExtensions.Create(taxon.Id, TaxonRuleType.ProductSku, TaxonRuleMatchPolicy.Contains, "XYZ");
 
@@ -123,7 +123,7 @@ public class SyncTaxonRulesTests : IDisposable
     public async Task Handle_ShouldHandleMixedScenario()
     {
         var taxonomy = TaxonomyExtensions.Create("Categories", "Categories", 0).Value;
-        var taxon = TaxonExtensions.Create(taxonomy.Id, null, "Shirts", "Shirts", null, 0, "shirts", null, null, null, false, null, null, false, null, null).Value;
+        var taxon = TaxonMethod.Create(taxonomy.Id, null, "Shirts", "Shirts", null, 0, "shirts", null, null, null, false, null, null, false, null, null).Value;
         var keep = TaxonRuleExtensions.Create(taxon.Id, TaxonRuleType.ProductName, TaxonRuleMatchPolicy.IsEqualTo, "Keep");
         var remove = TaxonRuleExtensions.Create(taxon.Id, TaxonRuleType.ProductSku, TaxonRuleMatchPolicy.Contains, "Remove");
 
@@ -165,7 +165,7 @@ public class SyncTaxonRulesTests : IDisposable
     public async Task Handle_ShouldRemoveAll_WhenEmptyIncomingList()
     {
         var taxonomy = TaxonomyExtensions.Create("Categories", "Categories", 0).Value;
-        var taxon = TaxonExtensions.Create(taxonomy.Id, null, "Shirts", "Shirts", null, 0, "shirts", null, null, null, false, null, null, false, null, null).Value;
+        var taxon = TaxonMethod.Create(taxonomy.Id, null, "Shirts", "Shirts", null, 0, "shirts", null, null, null, false, null, null, false, null, null).Value;
         var rule1 = TaxonRuleExtensions.Create(taxon.Id, TaxonRuleType.ProductName, TaxonRuleMatchPolicy.IsEqualTo, "A");
         var rule2 = TaxonRuleExtensions.Create(taxon.Id, TaxonRuleType.ProductPrice, TaxonRuleMatchPolicy.GreaterThan, "10");
 
@@ -200,7 +200,7 @@ public class SyncTaxonRulesTests : IDisposable
     public async Task Handle_ShouldTriggerAutoClassification_WhenTaxonIsAutomatic()
     {
         var taxonomy = TaxonomyExtensions.Create("Categories", "Categories", 0).Value;
-        var taxon = TaxonExtensions.Create(taxonomy.Id, null, "Shirts", "Shirts", null, 0, "shirts", null, null, null, true, null, null, false, null, null).Value;
+        var taxon = TaxonMethod.Create(taxonomy.Id, null, "Shirts", "Shirts", null, 0, "shirts", null, null, null, true, null, null, false, null, null).Value;
 
         _dbContext.Set<Taxonomy>().Add(taxonomy);
         _dbContext.Set<Taxon>().Add(taxon);
@@ -230,7 +230,7 @@ public class SyncTaxonRulesTests : IDisposable
     public async Task Handle_ShouldNotPropagate_WhenAutoClassificationThrows()
     {
         var taxonomy = TaxonomyExtensions.Create("Categories", "Categories", 0).Value;
-        var taxon = TaxonExtensions.Create(taxonomy.Id, null, "Shirts", "Shirts", null, 0, "shirts", null, null, null, true, null, null, false, null, null).Value;
+        var taxon = TaxonMethod.Create(taxonomy.Id, null, "Shirts", "Shirts", null, 0, "shirts", null, null, null, true, null, null, false, null, null).Value;
 
         _dbContext.Set<Taxonomy>().Add(taxonomy);
         _dbContext.Set<Taxon>().Add(taxon);
@@ -262,7 +262,7 @@ public class SyncTaxonRulesTests : IDisposable
     {
         var taxonomy = TaxonomyExtensions.Create("Categories", "Categories", 0).Value;
         var otherTaxonomy = TaxonomyExtensions.Create("Brands", "Brands", 0).Value;
-        var taxon = TaxonExtensions.Create(otherTaxonomy.Id, null, "Shirts", "Shirts", null, 0, "shirts", null, null, null, false, null, null, false, null, null).Value;
+        var taxon = TaxonMethod.Create(otherTaxonomy.Id, null, "Shirts", "Shirts", null, 0, "shirts", null, null, null, false, null, null, false, null, null).Value;
 
         _dbContext.Set<Taxonomy>().AddRange(taxonomy, otherTaxonomy);
         _dbContext.Set<Taxon>().Add(taxon);

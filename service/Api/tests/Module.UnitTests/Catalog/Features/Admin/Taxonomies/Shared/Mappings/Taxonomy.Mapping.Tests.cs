@@ -109,8 +109,8 @@ public class TaxonomyMappingTests
         var entity = TaxonomyExtensions.Create("Category", "Display", 5).Value;
         typeof(Taxonomy).GetProperty("Id")!.SetValue(entity, taxonomyId);
 
-        var child1 = TaxonExtensions.Create(taxonomyId, null, "Child1", "Child1", null, 0, "child1", null, null, null, false, null, null, false, null, null).Value;
-        var child2 = TaxonExtensions.Create(taxonomyId, null, "Child2", "Child2", null, 1, "child2", null, null, null, false, null, null, false, null, null).Value;
+        var child1 = TaxonMethod.Create(taxonomyId, null, "Child1", "Child1", null, 0, "child1", null, null, null, false, null, null, false, null, null).Value;
+        var child2 = TaxonMethod.Create(taxonomyId, null, "Child2", "Child2", null, 1, "child2", null, null, null, false, null, null, false, null, null).Value;
 
         entity.Taxons.Add(child1);
         entity.Taxons.Add(child2);

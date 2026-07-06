@@ -48,8 +48,8 @@ public class TaxonHierarchyPermalinksTests : IDisposable
         // Arrange
         var ct = TestContext.Current.CancellationToken;
         var taxonomy = TaxonomyExtensions.Create("Clothing", "Clothing", 0).Value;
-        var root = TaxonExtensions.Create(taxonomy.Id, null, "Mens", "Mens", null, 0, "mens", null, null, null, false, null, null, false, null, null).Value;
-        var child = TaxonExtensions.Create(taxonomy.Id, root.Id, "Shirts", "Shirts", null, 0, "shirts", null, null, null, false, null, null, false, null, null).Value;
+        var root = TaxonMethod.Create(taxonomy.Id, null, "Mens", "Mens", null, 0, "mens", null, null, null, false, null, null, false, null, null).Value;
+        var child = TaxonMethod.Create(taxonomy.Id, root.Id, "Shirts", "Shirts", null, 0, "shirts", null, null, null, false, null, null, false, null, null).Value;
         
         // Correct nested sets (RegeneratePermalinks depends on them)
         root.Lft = 1; root.Rgt = 4;
@@ -88,8 +88,8 @@ public class TaxonHierarchyPermalinksTests : IDisposable
         // Arrange
         var ct = TestContext.Current.CancellationToken;
         var taxonomy = TaxonomyExtensions.Create("Clothing", "Clothing", 0).Value;
-        var root = TaxonExtensions.Create(taxonomy.Id, null, "Mens", "Mens", null, 0, "mens", null, null, null, false, null, null, false, null, null).Value;
-        var child = TaxonExtensions.Create(taxonomy.Id, root.Id, "Shirts", "Shirts", null, 0, "shirts", null, null, null, false, null, null, false, null, null).Value;
+        var root = TaxonMethod.Create(taxonomy.Id, null, "Mens", "Mens", null, 0, "mens", null, null, null, false, null, null, false, null, null).Value;
+        var child = TaxonMethod.Create(taxonomy.Id, root.Id, "Shirts", "Shirts", null, 0, "shirts", null, null, null, false, null, null, false, null, null).Value;
         
         root.Lft = 1; root.Rgt = 4;
         child.Lft = 2; child.Rgt = 3;
@@ -121,8 +121,8 @@ public class TaxonHierarchyPermalinksTests : IDisposable
     {
         // Arrange
         var taxoId = Guid.NewGuid();
-        var root = TaxonExtensions.Create(taxoId, null, "Mens", "Mens", null, 0, "mens", null, null, null, false, null, null, false, null, null).Value;
-        var child = TaxonExtensions.Create(taxoId, root.Id, "Shirts", "Shirts", null, 0, "shirts", null, null, null, false, null, null, false, null, null).Value;
+        var root = TaxonMethod.Create(taxoId, null, "Mens", "Mens", null, 0, "mens", null, null, null, false, null, null, false, null, null).Value;
+        var child = TaxonMethod.Create(taxoId, root.Id, "Shirts", "Shirts", null, 0, "shirts", null, null, null, false, null, null, false, null, null).Value;
         
         var allTaxons = new List<Taxon> { root, child };
         var toUpdate = new List<Taxon> { root, child }; // Update both to ensure root is processed first
@@ -142,7 +142,7 @@ public class TaxonHierarchyPermalinksTests : IDisposable
     {
         var ct = TestContext.Current.CancellationToken;
         var taxonomy = TaxonomyExtensions.Create("Categories", "Categories", 0).Value;
-        var root = TaxonExtensions.Create(taxonomy.Id, null, "Categories", "Categories", null, 0, "categories", null, null, null, false, null, null, false, null, null).Value;
+        var root = TaxonMethod.Create(taxonomy.Id, null, "Categories", "Categories", null, 0, "categories", null, null, null, false, null, null, false, null, null).Value;
         
         root.Lft = 1; root.Rgt = 2;
         root.Permalink = "old";

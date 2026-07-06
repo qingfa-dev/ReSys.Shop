@@ -68,8 +68,8 @@ public class DeleteTaxonomyTests : IDisposable
     public async Task Handle_ShouldReturnFailure_WhenHasTaxons()
     {
         var entity = TaxonomyExtensions.Create("Categories", "Presentation", 0).Value;
-        var root = TaxonExtensions.Create(entity.Id, null, "Root", "Root", null, 0, "root", null, null, null, false, null, null, false, null, null).Value;
-        var child = TaxonExtensions.Create(entity.Id, root.Id, "Shirts", "Shirts", null, 0, "shirts", null, null, null, false, null, null, false, null, null).Value;
+        var root = TaxonMethod.Create(entity.Id, null, "Root", "Root", null, 0, "root", null, null, null, false, null, null, false, null, null).Value;
+        var child = TaxonMethod.Create(entity.Id, root.Id, "Shirts", "Shirts", null, 0, "shirts", null, null, null, false, null, null, false, null, null).Value;
 
         entity.Taxons.Add(root);
         entity.Taxons.Add(child);
@@ -88,7 +88,7 @@ public class DeleteTaxonomyTests : IDisposable
     {
         var ct = TestContext.Current.CancellationToken;
         var entity = TaxonomyExtensions.Create("Categories", "Presentation", 0).Value;
-        var root = TaxonExtensions.Create(entity.Id, null, "Root", "Root", null, 0, "root", null, null, null, false, null, null, false, null, null).Value;
+        var root = TaxonMethod.Create(entity.Id, null, "Root", "Root", null, 0, "root", null, null, null, false, null, null, false, null, null).Value;
 
         _dbContext.Set<Taxonomy>().Add(entity);
         _dbContext.Set<Taxon>().Add(root);

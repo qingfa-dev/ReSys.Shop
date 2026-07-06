@@ -139,7 +139,7 @@ public class UpdateTaxonomyTests : IDisposable
         _dbContext.Set<Taxonomy>().Add(entity);
         await _dbContext.SaveChangesAsync(ct);
 
-        var root = TaxonExtensions.Create(entity.Id, null, "Root", "Root", null, 0, "root", null, null, null, false, null, null, false, null, null).Value;
+        var root = TaxonMethod.Create(entity.Id, null, "Root", "Root", null, 0, "root", null, null, null, false, null, null, false, null, null).Value;
         root.Delete();
         _dbContext.Set<Taxon>().Add(root);
         await _dbContext.SaveChangesAsync(ct);
@@ -178,7 +178,7 @@ public class UpdateTaxonomyTests : IDisposable
     {
         var ct = TestContext.Current.CancellationToken;
         var entity = TaxonomyExtensions.Create("Categories", "Categories", 0).Value;
-        var root = TaxonExtensions.Create(entity.Id, null, "Root", "Root", null, 0, "root", null, null, null, false, null, null, false, null, null).Value;
+        var root = TaxonMethod.Create(entity.Id, null, "Root", "Root", null, 0, "root", null, null, null, false, null, null, false, null, null).Value;
         root.Lft = 1; root.Rgt = 2; root.Depth = 0;
 
         _dbContext.Set<Taxonomy>().Add(entity);

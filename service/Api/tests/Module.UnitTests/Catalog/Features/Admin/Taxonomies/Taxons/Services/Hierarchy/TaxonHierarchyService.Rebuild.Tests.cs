@@ -48,8 +48,8 @@ public class TaxonHierarchyRebuildTests : IDisposable
         // Arrange
         var ct = TestContext.Current.CancellationToken;
         var taxonomy = TaxonomyExtensions.Create("Categories", "Categories", 0).Value;
-        var root = TaxonExtensions.Create(taxonomy.Id, null, "Categories", "Categories", null, 0, "categories", null, null, null, false, null, null, false, null, null).Value;
-        var child = TaxonExtensions.Create(taxonomy.Id, root.Id, "Shirts", "Shirts", null, 0, "shirts", null, null, null, false, null, null, false, null, null).Value;
+        var root = TaxonMethod.Create(taxonomy.Id, null, "Categories", "Categories", null, 0, "categories", null, null, null, false, null, null, false, null, null).Value;
+        var child = TaxonMethod.Create(taxonomy.Id, root.Id, "Shirts", "Shirts", null, 0, "shirts", null, null, null, false, null, null, false, null, null).Value;
         
         // Corrupt initial values
         root.Lft = 0; root.Rgt = 0;
@@ -86,9 +86,9 @@ public class TaxonHierarchyRebuildTests : IDisposable
         // Arrange
         var ct = TestContext.Current.CancellationToken;
         var taxonomy = TaxonomyExtensions.Create("Cat", "Cat", 0).Value;
-        var root = TaxonExtensions.Create(taxonomy.Id, null, "Cat", "Cat", null, 0, "cat", null, null, null, false, null, null, false, null, null).Value;
-        var branch1 = TaxonExtensions.Create(taxonomy.Id, root.Id, "B1", "B1", null, 0, "b1", null, null, null, false, null, null, false, null, null).Value;
-        var branch2 = TaxonExtensions.Create(taxonomy.Id, root.Id, "B2", "B2", null, 1, "b2", null, null, null, false, null, null, false, null, null).Value;
+        var root = TaxonMethod.Create(taxonomy.Id, null, "Cat", "Cat", null, 0, "cat", null, null, null, false, null, null, false, null, null).Value;
+        var branch1 = TaxonMethod.Create(taxonomy.Id, root.Id, "B1", "B1", null, 0, "b1", null, null, null, false, null, null, false, null, null).Value;
+        var branch2 = TaxonMethod.Create(taxonomy.Id, root.Id, "B2", "B2", null, 1, "b2", null, null, null, false, null, null, false, null, null).Value;
         
         // Setup initial healthy state: root(1,6), B1(2,3), B2(4,5)
         root.Lft = 1; root.Rgt = 6;
@@ -100,7 +100,7 @@ public class TaxonHierarchyRebuildTests : IDisposable
         await _dbContext.SaveChangesAsync(ct);
 
         // Now add a child to B1 but keep B1's Rgt as 3 (corrupting it)
-        var leaf = TaxonExtensions.Create(taxonomy.Id, branch1.Id, "Leaf", "Leaf", null, 0, "leaf", null, null, null, false, null, null, false, null, null).Value;
+        var leaf = TaxonMethod.Create(taxonomy.Id, branch1.Id, "Leaf", "Leaf", null, 0, "leaf", null, null, null, false, null, null, false, null, null).Value;
         _dbContext.Set<Taxon>().Add(leaf);
         await _dbContext.SaveChangesAsync(ct);
         _dbContext.ChangeTracker.Clear();
@@ -136,7 +136,7 @@ public class TaxonHierarchyRebuildTests : IDisposable
         // Arrange
         var ct = TestContext.Current.CancellationToken;
         var taxonomy = TaxonomyExtensions.Create("Cat", "Cat", 0).Value;
-        var root = TaxonExtensions.Create(taxonomy.Id, null, "Cat", "Cat", null, 0, "cat", null, null, null, false, null, null, false, null, null).Value;
+        var root = TaxonMethod.Create(taxonomy.Id, null, "Cat", "Cat", null, 0, "cat", null, null, null, false, null, null, false, null, null).Value;
         
         root.Lft = 0; root.Rgt = 0;
         root.Permalink = "old-permalink";
@@ -164,8 +164,8 @@ public class TaxonHierarchyRebuildTests : IDisposable
     {
         // Arrange
         var taxoId = Guid.NewGuid();
-        var root = TaxonExtensions.Create(taxoId, null, "Root", "Root", null, 0, "root", null, null, null, false, null, null, false, null, null).Value;
-        var child = TaxonExtensions.Create(taxoId, root.Id, "Child", "Child", null, 0, "child", null, null, null, false, null, null, false, null, null).Value;
+        var root = TaxonMethod.Create(taxoId, null, "Root", "Root", null, 0, "root", null, null, null, false, null, null, false, null, null).Value;
+        var child = TaxonMethod.Create(taxoId, root.Id, "Child", "Child", null, 0, "child", null, null, null, false, null, null, false, null, null).Value;
         
         var taxons = new List<Taxon> { root, child };
 
@@ -185,7 +185,7 @@ public class TaxonHierarchyRebuildTests : IDisposable
     {
         var ct = TestContext.Current.CancellationToken;
         var taxonomy = TaxonomyExtensions.Create("Categories", "Categories", 0).Value;
-        var root = TaxonExtensions.Create(taxonomy.Id, null, "Categories", "Categories", null, 0, "categories", null, null, null, false, null, null, false, null, null).Value;
+        var root = TaxonMethod.Create(taxonomy.Id, null, "Categories", "Categories", null, 0, "categories", null, null, null, false, null, null, false, null, null).Value;
         
         root.Lft = 0; root.Rgt = 0;
 

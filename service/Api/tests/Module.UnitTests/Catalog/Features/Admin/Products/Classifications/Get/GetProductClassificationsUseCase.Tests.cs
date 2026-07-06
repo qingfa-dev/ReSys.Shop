@@ -36,8 +36,8 @@ public class GetProductClassificationsTests : IDisposable
     public async Task Handle_ShouldReturnItemsWithCorrectIsAssigned()
     {
         var taxonomy = TaxonomyExtensions.Create("Categories", "Categories", 0).Value;
-        var taxon1 = TaxonExtensions.Create(taxonomy.Id, null, "Shirts", "Shirts", null, 0, "shirts", null, null, null, false, null, null, false, null, null).Value;
-        var taxon2 = TaxonExtensions.Create(taxonomy.Id, null, "Pants", "Pants", null, 0, "pants", null, null, null, false, null, null, false, null, null).Value;
+        var taxon1 = TaxonMethod.Create(taxonomy.Id, null, "Shirts", "Shirts", null, 0, "shirts", null, null, null, false, null, null, false, null, null).Value;
+        var taxon2 = TaxonMethod.Create(taxonomy.Id, null, "Pants", "Pants", null, 0, "pants", null, null, null, false, null, null, false, null, null).Value;
         var product = ProductMethod.Create("Test Product", "test-product").Value;
 
         _dbContext.Set<Taxonomy>().Add(taxonomy);
@@ -81,8 +81,8 @@ public class GetProductClassificationsTests : IDisposable
     {
         var taxonomy1 = TaxonomyExtensions.Create("Categories", "Categories", 0).Value;
         var taxonomy2 = TaxonomyExtensions.Create("Brands", "Brands", 0).Value;
-        var taxon1 = TaxonExtensions.Create(taxonomy1.Id, null, "Shirts", "Shirts", null, 0, "shirts", null, null, null, false, null, null, false, null, null).Value;
-        var taxon2 = TaxonExtensions.Create(taxonomy2.Id, null, "Nike", "Nike", null, 0, "nike", null, null, null, false, null, null, false, null, null).Value;
+        var taxon1 = TaxonMethod.Create(taxonomy1.Id, null, "Shirts", "Shirts", null, 0, "shirts", null, null, null, false, null, null, false, null, null).Value;
+        var taxon2 = TaxonMethod.Create(taxonomy2.Id, null, "Nike", "Nike", null, 0, "nike", null, null, null, false, null, null, false, null, null).Value;
         var product = ProductMethod.Create("Test Product", "test-product").Value;
 
         _dbContext.Set<Taxonomy>().AddRange(taxonomy1, taxonomy2);
@@ -101,7 +101,7 @@ public class GetProductClassificationsTests : IDisposable
     public async Task Handle_ShouldNotBleedClassificationsFromOtherProducts()
     {
         var taxonomy = TaxonomyExtensions.Create("Categories", "Categories", 0).Value;
-        var taxon = TaxonExtensions.Create(taxonomy.Id, null, "Shirts", "Shirts", null, 0, "shirts", null, null, null, false, null, null, false, null, null).Value;
+        var taxon = TaxonMethod.Create(taxonomy.Id, null, "Shirts", "Shirts", null, 0, "shirts", null, null, null, false, null, null, false, null, null).Value;
         var productA = ProductMethod.Create("Product A", "product-a").Value;
         var productB = ProductMethod.Create("Product B", "product-b").Value;
 
@@ -121,8 +121,8 @@ public class GetProductClassificationsTests : IDisposable
     public async Task Handle_ShouldExcludeSoftDeletedTaxons()
     {
         var taxonomy = TaxonomyExtensions.Create("Categories", "Categories", 0).Value;
-        var activeTaxon = TaxonExtensions.Create(taxonomy.Id, null, "Active", "Active", null, 0, "active", null, null, null, false, null, null, false, null, null).Value;
-        var deletedTaxon = TaxonExtensions.Create(taxonomy.Id, null, "Deleted", "Deleted", null, 0, "deleted", null, null, null, false, null, null, false, null, null).Value;
+        var activeTaxon = TaxonMethod.Create(taxonomy.Id, null, "Active", "Active", null, 0, "active", null, null, null, false, null, null, false, null, null).Value;
+        var deletedTaxon = TaxonMethod.Create(taxonomy.Id, null, "Deleted", "Deleted", null, 0, "deleted", null, null, null, false, null, null, false, null, null).Value;
         deletedTaxon.Delete();
         var product = ProductMethod.Create("Test Product", "test-product").Value;
 

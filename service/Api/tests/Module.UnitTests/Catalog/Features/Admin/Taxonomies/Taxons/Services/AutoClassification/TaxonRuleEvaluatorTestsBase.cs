@@ -293,7 +293,7 @@ public abstract class TaxonRuleEvaluatorTestsBase
 
     protected static Taxon CreateTaxon(string name, bool automatic)
     {
-        return TaxonExtensions.Create(
+        return TaxonMethod.Create(
             taxonomyId: Guid.NewGuid(),
             parentId: null,
             name: name,
