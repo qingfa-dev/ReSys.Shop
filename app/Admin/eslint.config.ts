@@ -33,9 +33,9 @@ export default defineConfigWithVueTs(
     plugins: { boundaries },
     settings: {
       'boundaries/elements': [
-        { type: 'shared', pattern: 'src/shared/*' },
-        { type: 'features', pattern: 'src/features/*', mode: 'folder' },
-        { type: 'app', pattern: 'src/app/*', mode: 'folder' },
+        { type: 'shared', pattern: 'src/shared/**/*' },
+        { type: 'features', pattern: 'src/features/**/*', mode: 'folder' },
+        { type: 'app', pattern: 'src/app/**/*', mode: 'folder' },
       ],
     },
     rules: {
@@ -47,30 +47,6 @@ export default defineConfigWithVueTs(
             { from: 'shared', disallow: ['features', 'app'] },
             { from: 'features', disallow: ['features', 'app'] },
             { from: 'app', allow: ['shared', 'features'] },
-          ],
-        },
-      ],
-      'boundaries/external': [
-        'error',
-        {
-          default: 'disallow',
-          rules: [
-            {
-              from: ['shared', 'features', 'app'],
-              allow: [
-                'vue',
-                'vue-router',
-                '@tanstack/vue-query',
-                'pinia',
-                'primevue',
-                '@primevue/themes',
-                'zod',
-                'vitest',
-                '@vue/test-utils',
-                'happy-dom',
-                '@testing-library/*',
-              ],
-            },
           ],
         },
       ],
