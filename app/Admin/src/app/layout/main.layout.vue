@@ -14,11 +14,12 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, provide } from 'vue'
 import TopbarLayout from './topbar.layout.vue'
 import SidebarLayout from './sidebar.layout.vue'
 import FooterLayout from './footer.layout.vue'
 import ConfiguratorLayout from './configurator.layout.vue'
 
 const configuratorVisible = ref(false)
+provide('configuratorVisible', configuratorVisible)
 </script>
