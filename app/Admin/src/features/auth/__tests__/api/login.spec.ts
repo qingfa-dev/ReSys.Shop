@@ -1,7 +1,4 @@
 import { describe, it, expect, vi } from 'vitest'
-import { mount } from '@vue/test-utils'
-import { defineComponent, h } from 'vue'
-import { VueQueryPlugin, QueryClient } from '@tanstack/vue-query'
 import { useLogin } from '../../api/login'
 
 vi.mock('@/shared/api/client', () => ({
@@ -10,16 +7,8 @@ vi.mock('@/shared/api/client', () => ({
 
 describe('useLogin', () => {
   it('calls api.post with login endpoint', async () => {
-    const client = new QueryClient({ defaultOptions: { queries: { retry: false } } })
-    let captured: ReturnType<typeof useLogin> | null = null
-    const Host = defineComponent({
-      setup() {
-        captured = useLogin()
-        return () => h('div')
-      },
-    })
-    mount(Host, { global: { plugins: [[VueQueryPlugin, { queryClient: client }]] } })
-    await captured!.mutateAsync({ email: 'a@b.co', password: 'secret123' })
+    const { mutateAsync } = useLogin()
+    await mutateAsync({ email: 'a@b.co', password: 'secret123' })
     const { api } = await import('@/shared/api/client')
     expect(api.post).toHaveBeenCalledWith('/api/auth/login', { email: 'a@b.co', password: 'secret123' })
   })

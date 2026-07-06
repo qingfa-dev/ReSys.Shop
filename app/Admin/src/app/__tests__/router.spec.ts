@@ -2,7 +2,6 @@ import { describe, it, expect, vi } from 'vitest'
 import { mount, flushPromises } from '@vue/test-utils'
 import { createPinia, setActivePinia } from 'pinia'
 import { createRouter, createMemoryHistory } from 'vue-router'
-import { VueQueryPlugin, QueryClient } from '@tanstack/vue-query'
 import PrimeVue from 'primevue/config'
 import { defineComponent, h, type Ref, ref } from 'vue'
 import App from '../App.vue'
@@ -22,7 +21,6 @@ vi.mock('@/shared/api/client', () => ({
 describe('app router integration', () => {
   it('redirects unauthenticated users from / to /login', async () => {
     setActivePinia(createPinia())
-    const client = new QueryClient({ defaultOptions: { queries: { retry: false } } })
     const router = createRouter({ history: createMemoryHistory(), routes })
     const guardRef: Ref<ReturnType<typeof useAuthGuard> | null> = ref(null)
     const GuardHost = defineComponent({
@@ -31,12 +29,12 @@ describe('app router integration', () => {
         return () => h('div')
       },
     })
-    mount(GuardHost, { global: { plugins: [[VueQueryPlugin, { queryClient: client }], PrimeVue] } })
+    mount(GuardHost, { global: { plugins: [PrimeVue] } })
     router.beforeEach(guardRef.value!)
     await router.push('/')
     await router.isReady()
     const wrapper = mount(App, {
-      global: { plugins: [router, [VueQueryPlugin, { queryClient: client }], PrimeVue] },
+      global: { plugins: [router, PrimeVue] },
     })
     await flushPromises()
     expect(wrapper.html()).toContain('Sign in')

@@ -1,12 +1,23 @@
-import { useMutation, useQueryClient, type UseMutationReturnType } from '@tanstack/vue-query'
+import { ref } from 'vue'
 import { api } from '@/shared/api/client'
 import type { User, UserCreateRequest } from '../model/user.types'
-import { usersQueryKeys } from './query-keys'
 
-export function useCreateUser(): UseMutationReturnType<User, Error, UserCreateRequest, unknown> {
-  const qc = useQueryClient()
-  return useMutation({
-    mutationFn: (body) => api.post<User>('/api/admin/identity/users', body),
-    onSuccess: () => qc.invalidateQueries({ queryKey: usersQueryKeys.all }),
-  })
+export function useCreateUser() {
+  const isPending = ref(false)
+  const error = ref<Error | null>(null)
+
+  async function mutateAsync(body: UserCreateRequest): Promise<User> {
+    isPending.value = true
+    error.value = null
+    try {
+      return await api.post<User>('/api/admin/identity/users', body)
+    } catch (e) {
+      error.value = e instanceof Error ? e : new Error('Unknown error')
+      throw e
+    } finally {
+      isPending.value = false
+    }
+  }
+
+  return { mutateAsync, isPending, error }
 }
