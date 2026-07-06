@@ -18,6 +18,7 @@ public static class StockItemResult
         public static string Restocked => "StockItem was successfully restocked.";
         /// <summary>Success message for stock item pick.</summary>
         public static string Picked => "StockItem was successfully picked.";
+        public static string BulkAdjusted => "StockItems were successfully bulk adjusted.";
     }
 
     /// <summary>

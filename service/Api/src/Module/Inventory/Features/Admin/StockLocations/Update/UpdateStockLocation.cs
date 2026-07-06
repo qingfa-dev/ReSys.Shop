@@ -41,7 +41,9 @@ public static partial class UpdateStockLocation
             // Log: Stock location updated.
             StockLocationLoggers.Updated(logger, Name: entity.Name, Id: entity.Id, ActionBy: currentUser.UserName);
             // Map: Return the updated stock location as response.
-            return entity.MapToDetail<Response>();
+            return Result<Response>.Ok(
+                entity.MapToDetail<Response>(),
+                StockLocationResult.Success.Updated);
         }
     }
 }
