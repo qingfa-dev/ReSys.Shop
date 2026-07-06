@@ -59,7 +59,8 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, inject } from 'vue'
+import type { Ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useLayout } from './composables/layout.composable'
 import GlobalSearch from './components/GlobalSearch.vue'
@@ -68,7 +69,7 @@ const router = useRouter()
 const { darkMode, sidebarCollapsed, toggleDarkMode, toggleSidebar } = useLayout()
 
 const collapsed = computed(() => sidebarCollapsed.value)
-const configuratorVisible = ref(false)
+const configuratorVisible = inject<Ref<boolean>>('configuratorVisible')!
 const userMenuVisible = ref(false)
 const userName = ref('Admin')
 
