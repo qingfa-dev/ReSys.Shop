@@ -22,7 +22,7 @@ public static partial class BulkAdjustStockItems
             .HasPermission(InventoryFeature.Admin.StockItems.BulkAdjust.Permission)
             .WithSummary(InventoryFeature.Admin.StockItems.BulkAdjust.Summary)
             .WithDescription(InventoryFeature.Admin.StockItems.BulkAdjust.Description)
-            .Produces<Result<Response>>()
+            .Produces<Result>()
             .Produces<Result>(StatusCodes.Status400BadRequest)
             .Produces<Result>(StatusCodes.Status404NotFound);
         }
