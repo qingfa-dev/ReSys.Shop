@@ -12,7 +12,7 @@ describe('useAuthGuard', () => {
     let captured: ReturnType<typeof useAuthGuard> | null = null
     const Host = defineComponent({
       setup() {
-        captured = useAuthGuard({} as never)
+        captured = useAuthGuard()
         return () => h('div')
       },
     })
@@ -30,7 +30,7 @@ describe('useAuthGuard', () => {
     let captured: ReturnType<typeof useAuthGuard> | null = null
     const Host = defineComponent({
       setup() {
-        captured = useAuthGuard({} as never)
+        captured = useAuthGuard()
         return () => h('div')
       },
     })

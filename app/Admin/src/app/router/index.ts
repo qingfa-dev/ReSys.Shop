@@ -7,7 +7,7 @@ const router = createRouter({
   routes,
 })
 
-const guard = useAuthGuard(router)
+const guard = useAuthGuard()
 router.beforeEach(guard)
 
 export default router
