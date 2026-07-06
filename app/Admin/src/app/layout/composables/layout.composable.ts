@@ -1,66 +1,108 @@
-import { ref, computed } from 'vue'
-import { useRouter } from 'vue-router'
+import { computed, reactive } from 'vue';
 
-export interface MenuItem {
-  label: string
-  icon?: string
-  to?: string
-  items?: MenuItem[]
-  visible?: boolean
+export interface LayoutConfig {
+    preset: string;
+    primary: string;
+    surface: string | null;
+    darkTheme: boolean;
+    menuMode: string;
 }
 
+export interface LayoutState {
+    staticMenuInactive: boolean;
+    overlayMenuActive: boolean;
+    profileSidebarVisible: boolean;
+    configSidebarVisible: boolean;
+    sidebarExpanded: boolean;
+    menuHoverActive: boolean;
+    activeMenuItem: string | null;
+    activePath: string | null;
+    mobileMenuActive: boolean;
+    anchored: boolean;
+}
+
+const layoutConfig = reactive<LayoutConfig>({
+    preset: 'Aura',
+    primary: 'emerald',
+    surface: 'slate',
+    darkTheme: false,
+    menuMode: 'static'
+});
+
+const layoutState = reactive<LayoutState>({
+    staticMenuInactive: false,
+    overlayMenuActive: false,
+    profileSidebarVisible: false,
+    configSidebarVisible: false,
+    sidebarExpanded: false,
+    menuHoverActive: false,
+    activeMenuItem: null,
+    activePath: null,
+    mobileMenuActive: false,
+    anchored: false
+});
+
 export function useLayout() {
-  const router = useRouter()
+    const toggleDarkMode = () => {
+        if (!document.startViewTransition) {
+            executeDarkModeToggle();
+            return;
+        }
 
-  const STORAGE_KEY_SIDEBAR = 'admin:sidebar:collapsed'
-  const collapsed = ref(localStorage.getItem(STORAGE_KEY_SIDEBAR) === '1')
-  const isDark = ref(false)
+        document.startViewTransition(() => executeDarkModeToggle());
+    };
 
-  const darkMode = computed(() => isDark.value)
-  const sidebarCollapsed = computed(() => collapsed.value)
+    const executeDarkModeToggle = () => {
+        layoutConfig.darkTheme = !layoutConfig.darkTheme;
+        document.documentElement.classList.toggle('app-dark');
+    };
 
-  const menuItems = ref<MenuItem[]>([
-    {
-      label: 'Dashboard',
-      icon: 'pi pi-home',
-      to: '/',
-    },
-    {
-      label: 'Identity',
-      icon: 'pi pi-users',
-      items: [
-        { label: 'Users', icon: 'pi pi-user', to: '/identity/users' },
-      ],
-    },
-    {
-      label: 'Catalog',
-      icon: 'pi pi-book',
-      items: [
-        { label: 'Products', icon: 'pi pi-box', to: '/catalog/products' },
-      ],
-    },
-  ])
+    const toggleMenu = () => {
+        if (isDesktop()) {
+            if (layoutConfig.menuMode === 'static') {
+                layoutState.staticMenuInactive = !layoutState.staticMenuInactive;
+            }
 
-  function toggleDarkMode() {
-    isDark.value = !isDark.value
-    document.documentElement.classList.toggle('p-dark', isDark.value)
-  }
+            if (layoutConfig.menuMode === 'overlay') {
+                layoutState.overlayMenuActive = !layoutState.overlayMenuActive;
+            }
+        } else {
+            layoutState.mobileMenuActive = !layoutState.mobileMenuActive;
+        }
+    };
 
-  function toggleSidebar() {
-    collapsed.value = !collapsed.value
-    localStorage.setItem(STORAGE_KEY_SIDEBAR, collapsed.value ? '1' : '0')
-  }
+    const toggleConfigSidebar = () => {
+        layoutState.configSidebarVisible = !layoutState.configSidebarVisible;
+    };
 
-  function navigate(to: string) {
-    router.push(to)
-  }
+    const hideMobileMenu = () => {
+        layoutState.mobileMenuActive = false;
+    };
 
-  return {
-    darkMode,
-    sidebarCollapsed,
-    menuItems,
-    toggleDarkMode,
-    toggleSidebar,
-    navigate,
-  }
+    const changeMenuMode = (mode: string) => {
+        layoutConfig.menuMode = mode;
+        layoutState.staticMenuInactive = false;
+        layoutState.mobileMenuActive = false;
+        layoutState.sidebarExpanded = false;
+        layoutState.menuHoverActive = false;
+        layoutState.anchored = false;
+    };
+
+    const isDarkTheme = computed(() => layoutConfig.darkTheme);
+    const isDesktop = () => window.innerWidth > 991;
+
+    const hasOpenOverlay = computed(() => layoutState.overlayMenuActive);
+
+    return {
+        layoutConfig: layoutConfig, // Allow mutation for color picker
+        layoutState: layoutState,
+        isDarkTheme,
+        toggleDarkMode,
+        toggleConfigSidebar,
+        toggleMenu,
+        hideMobileMenu,
+        changeMenuMode,
+        isDesktop,
+        hasOpenOverlay
+    };
 }
