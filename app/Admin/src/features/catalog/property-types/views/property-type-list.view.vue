@@ -115,8 +115,9 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="p-6">
-    <AppBreadcrumb :locales="propertyTypeLocales" />
+  <Card>
+    <template #content>
+      <AppBreadcrumb :locales="propertyTypeLocales" />
     
     <div class="flex flex-col items-start justify-between gap-4 mb-8 md:flex-row md:items-center">
       <div>
@@ -155,6 +156,8 @@ onMounted(() => {
         removableSort
         scrollable
         rowHover
+        stripedRows
+        showGridlines
       >
         <template #header>
           <div class="flex flex-col items-center justify-between gap-4 md:flex-row">
@@ -221,7 +224,8 @@ onMounted(() => {
         </Column>
       </DataTable>
     </div>
-  </div>
+  </template>
+</Card>
 </template>
 
 <style scoped>

@@ -100,7 +100,7 @@ async function onSubmit() {
 </script>
 
 <template>
-    <div class="card p-6 max-w-4xl mx-auto">
+    <Card>
         <div class="flex items-center gap-4 mb-8">
             <Button icon="pi pi-arrow-left" text rounded @click="router.back()" />
             <div>
@@ -173,5 +173,6 @@ async function onSubmit() {
                 <Button type="submit" :label="isEditMode ? 'Save Changes' : 'Send Invitation'" :loading="submitting" icon="pi pi-check" />
             </div>
         </form>
-    </div>
+    </template>
+</Card>
 </template>

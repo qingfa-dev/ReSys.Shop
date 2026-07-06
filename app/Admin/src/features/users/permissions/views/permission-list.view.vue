@@ -38,7 +38,7 @@ const onPage = (event: DataTablePageEvent) => {
 </script>
 
 <template>
-    <div class="card p-6">
+    <Card>
         <div class="flex justify-between items-center mb-8">
             <div>
                 <h1 class="text-3xl font-black uppercase tracking-tighter text-surface-900 dark:text-surface-0">Permissions</h1>
@@ -60,6 +60,8 @@ const onPage = (event: DataTablePageEvent) => {
                 sortMode="single"
                 sortField="module"
                 :sortOrder="1"
+                stripedRows
+                showGridlines
             >
                 <template #groupheader="slotProps">
                     <div class="flex items-center gap-2 px-4 py-2 bg-surface-50 dark:bg-surface-900 border-y border-surface-200 dark:border-surface-700">
@@ -81,5 +83,6 @@ const onPage = (event: DataTablePageEvent) => {
                 <Column field="description" header="Description" class="text-surface-500"></Column>
             </DataTable>
         </div>
-    </div>
+    </template>
+</Card>
 </template>

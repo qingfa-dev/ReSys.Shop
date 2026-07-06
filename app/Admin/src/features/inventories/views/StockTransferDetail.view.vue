@@ -142,7 +142,7 @@ onMounted(() => {
                         </div>
                     </template>
                     <template #content>
-                        <DataTable :value="transfer.items" class="p-datatable-sm">
+                        <DataTable :value="transfer.items" class="p-datatable-sm" stripedRows showGridlines>
                             <template #empty>
                                 <div class="p-8 text-center text-surface-400 italic">No items added to this transfer yet.</div>
                             </template>

@@ -185,7 +185,7 @@ const onSubmit = async () => {
                             </AutoComplete>
                         </div>
 
-                        <DataTable :value="selectedItems" class="p-datatable-sm" v-if="selectedItems.length > 0">
+                        <DataTable :value="selectedItems" class="p-datatable-sm" v-if="selectedItems.length > 0" stripedRows showGridlines>
                             <Column header="Product">
                                 <template #body="{ data }">
                                     <span class="font-bold">{{ data.name }}</span>

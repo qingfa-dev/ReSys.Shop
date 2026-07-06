@@ -54,8 +54,9 @@ const clearFilters = () => {
 </script>
 
 <template>
-    <div class="p-6 max-w-7xl mx-auto">
-        <AppBreadcrumb :locales="t" />
+    <Card>
+        <template #content>
+            <AppBreadcrumb :locales="t" />
         
         <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mt-4 mb-8">
             <div>
@@ -156,7 +157,8 @@ const clearFilters = () => {
                 </Column>
             </DataTable>
         </div>
-    </div>
+    </template>
+</Card>
 </template>
 
 <style scoped>

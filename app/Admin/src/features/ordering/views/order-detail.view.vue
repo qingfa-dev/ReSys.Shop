@@ -161,7 +161,7 @@ const getStatusSeverity = (status: string) => {
                         </div>
                     </template>
                     <template #content>
-                        <DataTable :value="current_order.line_items" class="p-datatable-sm">
+                        <DataTable :value="current_order.line_items" class="p-datatable-sm" stripedRows showGridlines>
                             <Column header="Product">
                                 <template #body="{ data }">
                                     <div class="flex items-center gap-3">
