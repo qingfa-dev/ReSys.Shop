@@ -62,7 +62,7 @@ export default defineConfigWithVueTs(
                 'vue-router',
                 '@tanstack/vue-query',
                 'pinia',
-                'primevue/*',
+                'primevue',
                 'zod',
                 'vitest',
                 '@vue/test-utils',
