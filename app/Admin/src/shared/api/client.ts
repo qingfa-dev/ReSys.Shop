@@ -1,22 +1,29 @@
-import { ApiError } from './errors'
-import { buildHeaders } from './fetch-options'
+import axios, { type AxiosInstance, type AxiosResponse, type AxiosError } from 'axios'
+import { ApiError, fromAxiosError } from './errors'
+import { getToken } from './fetch-options'
 import type { Envelope } from './envelope'
 import type { PagedResult } from './paged-result'
 
 const BASE_URL = import.meta.env.VITE_API_URL || ''
 
-async function request<T>(path: string, options?: RequestInit): Promise<T> {
-  const response = await fetch(`${BASE_URL}${path}`, {
-    ...options,
-    headers: buildHeaders(options?.headers),
-  })
-  if (!response.ok) {
-    const message = await response.text().catch(() => response.statusText)
-    throw new ApiError(response.status, message || `API error: ${response.statusText}`)
+const apiClient: AxiosInstance = axios.create({ baseURL: BASE_URL })
+
+apiClient.interceptors.request.use((config) => {
+  config.headers.set('Content-Type', 'application/json')
+  config.headers.set('X-Request-Id', crypto.randomUUID())
+  const token = getToken()
+  if (token) {
+    config.headers.set('Authorization', `Bearer ${token}`)
   }
-  if (response.status === 204) return undefined as T
-  return (await response.json()) as T
-}
+  return config
+})
+
+apiClient.interceptors.response.use(
+  (response: AxiosResponse) => response,
+  (error: AxiosError<Record<string, unknown> | undefined>) => {
+    throw fromAxiosError(error)
+  },
+)
 
 function unwrap<T>(envelope: Envelope<T>): T {
   if (!envelope.isSuccess) {
@@ -24,6 +31,18 @@ function unwrap<T>(envelope: Envelope<T>): T {
     throw new ApiError(422, message)
   }
   return envelope.value as T
+}
+
+async function request<T>(path: string, options?: { method?: string; body?: unknown }): Promise<T> {
+  const response = await apiClient({
+    url: path,
+    method: options?.method ?? 'GET',
+    data: options?.body ?? undefined,
+    validateStatus: (status: number) => status >= 200 && status < 300,
+  })
+  if (response.status === 204) return undefined as T
+  const data = response.data as T
+  return data
 }
 
 export const api = {
@@ -38,7 +57,7 @@ export const api = {
   post<T>(path: string, body?: unknown): Promise<T> {
     return request<Envelope<T> | T>(path, {
       method: 'POST',
-      body: body ? JSON.stringify(body) : undefined,
+      body,
     }).then((r) =>
       r && typeof r === 'object' && 'isSuccess' in r ? unwrap(r as Envelope<T>) : (r as T),
     )
@@ -46,7 +65,7 @@ export const api = {
   put<T>(path: string, body?: unknown): Promise<T> {
     return request<Envelope<T> | T>(path, {
       method: 'PUT',
-      body: body ? JSON.stringify(body) : undefined,
+      body,
     }).then((r) =>
       r && typeof r === 'object' && 'isSuccess' in r ? unwrap(r as Envelope<T>) : (r as T),
     )

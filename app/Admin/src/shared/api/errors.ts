@@ -1,3 +1,5 @@
+import type { AxiosError } from 'axios'
+
 export const ErrorCode = {
   BadRequest: 400,
   Unauthorized: 401,
@@ -24,4 +26,15 @@ export class ApiError extends Error {
 
 export function isApiError(value: unknown): value is ApiError {
   return value instanceof ApiError
+}
+
+export function fromAxiosError(error: AxiosError<Record<string, unknown> | undefined>): ApiError {
+  const status = error.response?.status ?? 500
+  const data = error.response?.data
+  const message =
+    (data?.message as string) ||
+    (data?.title as string) ||
+    error.message ||
+    'Unknown error'
+  return new ApiError(status, message)
 }
