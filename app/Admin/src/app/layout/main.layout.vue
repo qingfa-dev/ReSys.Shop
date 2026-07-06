@@ -5,6 +5,7 @@ import AppTopbar from './topbar.layout.vue'
 import AppFooter from './footer.layout.vue'
 import AppSidebar from './sidebar.layout.vue'
 import AppBreadcrumb from '@/shared/components/breadcrumb.component.vue'
+import FloatingConfigurator from './components/FloatingConfigurator.vue'
 
 const { layoutConfig, layoutState, hideMobileMenu } = useLayout()
 
@@ -67,6 +68,7 @@ const isOutsideClicked = (event: MouseEvent) => {
       </div>
       <AppFooter />
     </div>
+    <FloatingConfigurator />
     <div class="layout-mask animate-fadein" @click="hideMobileMenu" />
   </div>
   <ConfirmDialog />
