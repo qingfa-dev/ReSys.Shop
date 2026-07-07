@@ -2,6 +2,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
 using Module.Payment.Features.Storefront.Payment.Webhooks;
+using Module.Payment.Infrastructure.Gateways.Bogus;
 using Module.Payment.Infrastructure.Gateways.Stripe;
 
 // @CAT-10 Boundary: Domain -> Infrastructure — do not import persistence concerns above this line
@@ -21,8 +22,19 @@ public static class PaymentExtension
         // Register: Stripe options from configuration
         services.Configure<StripeOptions>(configuration.GetSection("Stripe"));
 
-        // Register: StripeGateway as the payment gateway provider
-        services.AddScoped<Domain.Gateways.IPaymentGatewayActionProvider, StripeGateway>();
+        // Register: Bogus options from configuration
+        services.Configure<BogusOptions>(configuration.GetSection(BogusOptions.SectionName));
+
+        // Register: Payment gateway provider — Bogus (offline) takes precedence when UseBogusGateway=true
+        var useBogus = configuration.GetValue<bool>("Payment:UseBogusGateway");
+        if (useBogus)
+        {
+            services.AddScoped<Domain.Gateways.IPaymentGatewayActionProvider, BogusGateway>();
+        }
+        else
+        {
+            services.AddScoped<Domain.Gateways.IPaymentGatewayActionProvider, StripeGateway>();
+        }
 
         // Register: Stripe webhook service
         services.AddSingleton<IStripeWebhookService, StripeWebhookService>();
