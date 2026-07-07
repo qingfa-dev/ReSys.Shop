@@ -16,6 +16,8 @@ public static class OrderingExtension
     public static IServiceCollection AddOrderingModule(this IServiceCollection services)
     {
         services.AddScoped<IOrderEventPublisher, Infrastructure.Events.NullOrderEventPublisher>();
+        services.AddScoped<Backgrounds.CartExpiryJob>();
+        services.AddHostedService<Services.CartExpiryService>();
         return services;
     }
 }
