@@ -14,4 +14,8 @@
     <ProjectReference Include="../Shared/Shared.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <PackageReference Include="Stripe.net" />
+  </ItemGroup>
+
 </Project>
