@@ -6,6 +6,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 using Module.Catalog.Persistence;
 using Module.Location.Persistence;
+using Module.Ordering.Persistence.Constants;
 using Module.Profile.Persistence;
 
 using Npgsql;
@@ -27,6 +28,7 @@ public sealed class ApiFixture : IAsyncLifetime
         CatalogSchema.Name,
         IdentitySchema.Name,
         LocationSchema.Name,
+        OrderingSchema.Name,
         ProfileSchema.Name
     ];
 
@@ -157,6 +159,7 @@ public sealed class ApiFixture : IAsyncLifetime
             [CatalogSchema.Name] = new List<Type>(),
             [IdentitySchema.Name] = new List<Type>(),
             [LocationSchema.Name] = new List<Type>(),
+            [OrderingSchema.Name] = new List<Type>(),
             [ProfileSchema.Name] = new List<Type>(),
         };
 
@@ -187,6 +190,8 @@ public sealed class ApiFixture : IAsyncLifetime
             return CatalogSchema.Name;
         if (ns.Contains(".Location.", StringComparison.OrdinalIgnoreCase))
             return LocationSchema.Name;
+        if (ns.Contains(".Ordering.", StringComparison.OrdinalIgnoreCase))
+            return OrderingSchema.Name;
         if (ns.Contains(".Profile.", StringComparison.OrdinalIgnoreCase))
             return ProfileSchema.Name;
         if (ns.Contains(".Identity.", StringComparison.OrdinalIgnoreCase) ||
