@@ -1,7 +1,3 @@
-using BuildingBlocks.Identity.Domain.AccessControls;
-using BuildingBlocks.Identity.Domain.AccessControls.Stores;
-
-using Shared.Security.Authorization.Features;
 using Shared.Security.Identity.Domain.Permissions;
 
 namespace Module.Ordering.Features.Shared;
@@ -37,46 +33,6 @@ public static partial class OrderingFeature
                 public const string Route = $"{BaseRoute}/{{id:guid}}/status";
                 public const string Description = "Update order status";
                 public const string Summary = "Update order status";
-                public static PermissionMetadata Permission => OrderingFeatureMetadata.Orders.Update;
-            }
-
-            public static class AddAdjustment
-            {
-                public const string Route = $"{BaseRoute}/{{id:guid}}/adjustments";
-                public const string Description = "Add an adjustment to an order";
-                public const string Summary = "Add order adjustment";
-                public static PermissionMetadata Permission => OrderingFeatureMetadata.Orders.Update;
-            }
-
-            public static class GetAdjustments
-            {
-                public const string Route = $"{BaseRoute}/{{id:guid}}/adjustments";
-                public const string Description = "Retrieve all adjustments for an order";
-                public const string Summary = "Get order adjustments";
-                public static PermissionMetadata Permission => OrderingFeatureMetadata.Orders.Read;
-            }
-
-            public static class GetAdjustmentById
-            {
-                public const string Route = $"{BaseRoute}/{{id:guid}}/adjustments/{{adjustmentId:guid}}";
-                public const string Description = "Retrieve a single adjustment for an order";
-                public const string Summary = "Get order adjustment by ID";
-                public static PermissionMetadata Permission => OrderingFeatureMetadata.Orders.Read;
-            }
-
-            public static class UpdateAdjustment
-            {
-                public const string Route = $"{BaseRoute}/{{id:guid}}/adjustments/{{adjustmentId:guid}}";
-                public const string Description = "Update an adjustment state or eligibility";
-                public const string Summary = "Update order adjustment";
-                public static PermissionMetadata Permission => OrderingFeatureMetadata.Orders.Update;
-            }
-
-            public static class RemoveAdjustment
-            {
-                public const string Route = $"{BaseRoute}/{{id:guid}}/adjustments/{{adjustmentId:guid}}";
-                public const string Description = "Remove an adjustment from an order";
-                public const string Summary = "Remove order adjustment";
                 public static PermissionMetadata Permission => OrderingFeatureMetadata.Orders.Update;
             }
 
@@ -152,14 +108,6 @@ public static partial class OrderingFeature
                 public static PermissionMetadata Permission => OrderingFeatureMetadata.Orders.Update;
             }
 
-            public static class ResendConfirmationEmail
-            {
-                public const string Route = $"{BaseRoute}/{{id:guid}}/resend-confirmation-email";
-                public const string Description = "Resend order confirmation email";
-                public const string Summary = "Resend confirmation email";
-                public static PermissionMetadata Permission => OrderingFeatureMetadata.Orders.Update;
-            }
-
             public static class UpdateDetails
             {
                 public const string Route = $"{BaseRoute}/{{id:guid}}";
@@ -208,37 +156,6 @@ public static partial class OrderingFeature
                 public static PermissionMetadata Permission => OrderingFeatureMetadata.Orders.Delete;
             }
 
-            public static class Shipments
-            {
-                public const string Route = $"{BaseRoute}/{{orderId:guid}}/shipments";
-                public const string Description = "Retrieve all shipments for an order";
-                public const string Summary = "Get order shipments";
-                public static PermissionMetadata Permission => OrderingFeatureMetadata.Fulfillment.Read;
-            }
-
-            public static class CreateShipment
-            {
-                public const string Route = $"{BaseRoute}/{{orderId:guid}}/shipments";
-                public const string Description = "Create a new shipment for an order";
-                public const string Summary = "Create order shipment";
-                public static PermissionMetadata Permission => OrderingFeatureMetadata.Fulfillment.Manage;
-            }
-
-            public static class GetShipmentById
-            {
-                public const string Route = $"{BaseRoute}/{{orderId:guid}}/shipments/{{shipmentId:guid}}";
-                public const string Description = "Retrieve a single shipment for an order";
-                public const string Summary = "Get order shipment by ID";
-                public static PermissionMetadata Permission => OrderingFeatureMetadata.Fulfillment.Read;
-            }
-
-            public static class UpdateShipment
-            {
-                public const string Route = $"{BaseRoute}/{{orderId:guid}}/shipments/{{shipmentId:guid}}";
-                public const string Description = "Update a shipment for an order";
-                public const string Summary = "Update order shipment";
-                public static PermissionMetadata Permission => OrderingFeatureMetadata.Fulfillment.Manage;
-            }
         }
     }
 }

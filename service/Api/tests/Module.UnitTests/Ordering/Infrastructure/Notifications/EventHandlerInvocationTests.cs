@@ -1,9 +1,9 @@
-using FluentAssertions;
 using Module.Ordering.Domain.Orders;
-using Module.Ordering.Domain.Orders.Events;
-using Module.Ordering.Features.Admin.Orders.ResendConfirmationEmail;
-using Module.Ordering.Features.Admin.Orders.Resume;
-using Xunit;
+using Module.Ordering.Features.Admin.Orders.Cancel;
+
+using Shared.Operational.Notifications.Models;
+using Shared.Operational.Notifications.Services;
+using Shared.Operational.Notifications.Templates;
 
 namespace Module.UnitTests.Ordering.Infrastructure.Notifications;
 
@@ -13,6 +13,9 @@ namespace Module.UnitTests.Ordering.Infrastructure.Notifications;
 public sealed class EventHandlerInvocationTests : IDisposable
 {
     private readonly ApplicationDbContext _dbContext;
+    private readonly Mock<INotificationService> _notificationServiceMock;
+    private readonly Mock<ICurrentUser> _currentUserMock;
+    private readonly Mock<ILogger<CancelOrderAdmin.CommandHandler>> _loggerMock;
 
     public EventHandlerInvocationTests()
     {
@@ -22,6 +25,17 @@ public sealed class EventHandlerInvocationTests : IDisposable
 
         ApplicationDbContext.AdditionalConfigurationsAssemblies = [typeof(Order).Assembly];
         _dbContext = new ApplicationDbContext(options);
+
+        _notificationServiceMock = new Mock<INotificationService>();
+        _notificationServiceMock
+            .Setup(x => x.SendAsync(It.IsAny<NotificationMessage>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Result.Ok());
+
+        _currentUserMock = new Mock<ICurrentUser>();
+        _currentUserMock.Setup(x => x.UserId).Returns(Guid.NewGuid().ToString());
+        _currentUserMock.Setup(x => x.UserName).Returns("test-user");
+
+        _loggerMock = new Mock<ILogger<CancelOrderAdmin.CommandHandler>>();
     }
 
     public void Dispose()
@@ -30,57 +44,35 @@ public sealed class EventHandlerInvocationTests : IDisposable
         GC.SuppressFinalize(this);
     }
 
-    [Fact(DisplayName = "ResumeOrder handler should raise OrderResumedEvent on tracked entity")]
-    public async Task ResumeOrder_ShouldRaiseOrderResumedEvent()
-    {
-        var order = OrderExtensions.Create("USD", userId: Guid.NewGuid(), storeId: Guid.Empty).Value;
-        order.Status = OrderStatus.Placed;
-        order.CompletedAtUtc = DateTimeOffset.UtcNow;
-        order.Email = "test@example.com";
-        _dbContext.Set<Order>().Add(order);
-        await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
-
-        order.Cancel(Guid.NewGuid());
-        await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
-
-        var handler = new ResumeOrder.CommandHandler(_dbContext);
-        var result = await handler.Handle(
-            new ResumeOrder.Command(order.Id),
-            TestContext.Current.CancellationToken);
-
-        result.IsSuccess.Should().BeTrue();
-
-        order.DomainEvents.Should().ContainSingle().Which.Should().BeOfType<OrderResumedEvent>();
-        var evt = (OrderResumedEvent)order.DomainEvents.Single();
-        evt.OrderId.Should().Be(order.Id);
-        evt.OrderNumber.Should().Be(order.Number);
-        evt.CustomerEmail.Should().Be("test@example.com");
-    }
-
-    [Fact(DisplayName = "ResendOrderConfirmationEmail handler should raise OrderPlacedEvent")]
-    public async Task ResendConfirmation_ShouldRaiseOrderPlacedEvent()
+    [Fact(DisplayName = "CancelOrderAdmin handler should send OrderCancelled notification")]
+    public async Task CancelOrderAdmin_ShouldSendOrderCancelledNotification()
     {
         var order = OrderExtensions.Create("USD", userId: Guid.NewGuid(), storeId: Guid.Empty).Value;
         order.Status = OrderStatus.Placed;
         order.CompletedAtUtc = DateTimeOffset.UtcNow;
         order.Email = "test@example.com";
         order.Number = "R20260521-TEST01";
-        order.Total = 59.99m;
         _dbContext.Set<Order>().Add(order);
         await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 
-        var handler = new ResendOrderConfirmationEmail.CommandHandler(_dbContext);
+        var handler = new CancelOrderAdmin.CommandHandler(
+            _dbContext,
+            _currentUserMock.Object,
+            _notificationServiceMock.Object,
+            _loggerMock.Object);
+
         var result = await handler.Handle(
-            new ResendOrderConfirmationEmail.Command(order.Id),
+            new CancelOrderAdmin.Command(order.Id, new CancelOrderAdmin.Request { Reason = "test" }),
             TestContext.Current.CancellationToken);
 
         result.IsSuccess.Should().BeTrue();
 
-        order.DomainEvents.Should().ContainSingle().Which.Should().BeOfType<OrderPlacedEvent>();
-        var evt = (OrderPlacedEvent)order.DomainEvents.Single();
-        evt.OrderId.Should().Be(order.Id);
-        evt.OrderNumber.Should().Be(order.Number);
-        evt.CustomerEmail.Should().Be("test@example.com");
-        evt.Total.Should().Be(59.99m);
+        _notificationServiceMock.Verify(
+            x => x.SendAsync(
+                It.Is<NotificationMessage>(m =>
+                    m.UseCase == NotificationUseCase.OrderCancelled &&
+                    m.Recipient.Identifier == "test@example.com"),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
     }
 }

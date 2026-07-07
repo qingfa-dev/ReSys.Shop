@@ -1,5 +1,3 @@
-using Module.Ordering.Features.Admin.Orders.Shared.Models;
-
 namespace Module.Ordering.Features.Storefront.Orders.ListOrders;
 
 public static partial class ListCustomerOrders

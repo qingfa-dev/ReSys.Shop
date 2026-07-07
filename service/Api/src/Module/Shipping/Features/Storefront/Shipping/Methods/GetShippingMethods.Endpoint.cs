@@ -1,7 +1,3 @@
-using Carter;
-using MediatR;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Routing;
 using Module.Shipping.Features.Shared;
 
 namespace Module.Shipping.Features.Storefront.Shipping.Methods;
@@ -19,6 +15,7 @@ public static partial class GetShippingMethods
                 var result = await sender.Send(new Query(), ct);
                 return result.ToResult();
             })
+            .RequireAuthorization()
             .WithName(nameof(GetShippingMethods))
             .WithTags(ShippingFeature.Tags.ShippingMethod)
             .WithSummary(ShippingFeature.Storefront.Shipping.Methods.Summary)

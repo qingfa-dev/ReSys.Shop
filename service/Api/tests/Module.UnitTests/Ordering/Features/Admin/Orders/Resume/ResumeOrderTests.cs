@@ -1,6 +1,8 @@
 using Module.Ordering.Domain.Orders;
 using Module.Ordering.Features.Admin.Orders.Resume;
 
+using Shared.Operational.Notifications.Services;
+
 namespace Module.UnitTests.Ordering.Features.Admin.Orders.Resume;
 
 [Trait("Category", "Unit")]
@@ -9,6 +11,8 @@ namespace Module.UnitTests.Ordering.Features.Admin.Orders.Resume;
 public class ResumeOrderTests : IDisposable
 {
     private readonly ApplicationDbContext _dbContext;
+    private readonly Mock<INotificationService> _notificationServiceMock;
+    private readonly Mock<ILogger<ResumeOrder.CommandHandler>> _loggerMock;
     private readonly ResumeOrder.CommandHandler _handler;
 
     public ResumeOrderTests()
@@ -19,7 +23,9 @@ public class ResumeOrderTests : IDisposable
 
         ApplicationDbContext.AdditionalConfigurationsAssemblies = [typeof(Order).Assembly];
         _dbContext = new ApplicationDbContext(options);
-        _handler = new ResumeOrder.CommandHandler(_dbContext);
+        _notificationServiceMock = new Mock<INotificationService>();
+        _loggerMock = new Mock<ILogger<ResumeOrder.CommandHandler>>();
+        _handler = new ResumeOrder.CommandHandler(_dbContext, _notificationServiceMock.Object, _loggerMock.Object);
     }
 
     public void Dispose()

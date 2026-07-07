@@ -1,5 +1,3 @@
-using Microsoft.Extensions.Logging;
-
 namespace Module.Payment.Domain.Payments;
 
 public static partial class PaymentLoggers

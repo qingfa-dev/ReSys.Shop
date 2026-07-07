@@ -1,4 +1,3 @@
-using FluentValidation;
 using Module.Payment.Domain.PaymentMethods;
 
 namespace Module.Payment.Features.Admin.PaymentMethods.Update;

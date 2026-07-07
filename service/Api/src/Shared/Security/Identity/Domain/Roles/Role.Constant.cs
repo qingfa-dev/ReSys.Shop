@@ -81,7 +81,6 @@ public static class RoleConstant
             .. OrderingFeatureMetadata.All.Where(p => p.Action is "view" or "read" or "update" or "fulfill" or "ship" or "refund" or "cancel"),
             .. InventoryFeatureMetadata.All.Where(p => p.Action is "view" or "read" or "update" or "adjust"),
             .. ConfigurationFeatureMetadata.All.Where(p => p.Action is "view" or "read" or "update"),
-            .. PromotionsFeatureMetadata.All.Where(p => p.Action is "view" or "read" or "create" or "update"),
             .. DashboardFeatureMetadata.All.Where(p => p.Action is "view" or "read"),
         ];
 

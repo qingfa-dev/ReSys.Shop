@@ -1,4 +1,3 @@
-using FluentValidation; using FluentValidation.TestHelper;
 using Module.Payment.Domain.Payments;
 
 namespace Module.UnitTests.Payment.Domain.Payments;

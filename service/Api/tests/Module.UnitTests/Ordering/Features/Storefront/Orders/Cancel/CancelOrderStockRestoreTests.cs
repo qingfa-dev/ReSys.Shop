@@ -1,3 +1,5 @@
+using Shared.Operational.Notifications.Models;
+using Shared.Operational.Notifications.Services;
 using Module.Inventory.Domain.StockLocations.StockItems;
 using Module.Inventory.Domain.StockLocations.StockItems.StockMovements;
 using Module.Inventory.Services;
@@ -18,6 +20,7 @@ public class CancelOrderStockRestoreTests : IDisposable
     private readonly Mock<ICurrentUser> _currentUserMock;
     private readonly Mock<ILogger<CancelOrderHandler.CommandHandler>> _loggerMock;
     private readonly Mock<IPaymentGatewayActionProvider> _paymentGatewayMock;
+    private readonly Mock<INotificationService> _notificationServiceMock;
     private readonly CancelOrderHandler.CommandHandler _handler;
     private readonly Guid _userId = Guid.NewGuid();
     private readonly Guid _variantId = Guid.NewGuid();
@@ -42,10 +45,14 @@ public class CancelOrderStockRestoreTests : IDisposable
         _loggerMock = new Mock<ILogger<CancelOrderHandler.CommandHandler>>();
 
         _paymentGatewayMock = new Mock<IPaymentGatewayActionProvider>();
+        _notificationServiceMock = new Mock<INotificationService>();
+        _notificationServiceMock
+            .Setup(x => x.SendAsync(It.IsAny<NotificationMessage>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Result.Ok());
 
         _handler = new CancelOrderHandler.CommandHandler(
             _dbContext, new StockChecker(_dbContext), _paymentGatewayMock.Object,
-            _loggerMock.Object, _currentUserMock.Object);
+            _loggerMock.Object, _currentUserMock.Object, _notificationServiceMock.Object);
     }
 
     public void Dispose()

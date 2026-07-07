@@ -6,11 +6,10 @@ public static class ShippingRateExtensions
 {
     #region Factory Methods
     /// <summary>
-    /// Creates a new shipping rate for a shipment and shipping method.
+    /// Creates a new shipping rate for a shipping method.
     /// </summary>
     /// <param name="name">The rate display name. Must not be empty.</param>
     /// <param name="cost">The base cost. Must be greater than zero.</param>
-    /// <param name="shipmentId">The shipment identifier.</param>
     /// <param name="shippingMethodId">The shipping method identifier.</param>
     /// <param name="deliveryRange">Optional delivery range description.</param>
     /// <returns>A result containing the newly created shipping rate.</returns>
@@ -18,7 +17,6 @@ public static class ShippingRateExtensions
     public static Result<ShippingRate> Create(
         string name,
         decimal cost,
-        Guid shipmentId,
         Guid shippingMethodId,
         string? deliveryRange = null,
         decimal? minWeight = null,
@@ -51,7 +49,6 @@ public static class ShippingRateExtensions
             MinWeight = minWeight,
             MaxWeight = maxWeight,
             FreeShippingThreshold = freeShippingThreshold,
-            ShipmentId = shipmentId,
             ShippingMethodId = shippingMethodId,
             CreatedAtUtc = DateTimeOffset.UtcNow,
             CreatedBy = "System"

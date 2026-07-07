@@ -1,4 +1,3 @@
-using BuildingBlocks.Querying.Models;
 using Module.Ordering.Domain.Orders;
 using Module.Ordering.Features.Storefront.Orders.ListOrders;
 

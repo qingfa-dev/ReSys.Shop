@@ -1,8 +1,8 @@
-using Microsoft.EntityFrameworkCore;
 using Module.Ordering.Domain.Orders;
 using Module.Payment.Domain.Gateways;
 using Module.Payment.Domain.Payments;
 using Module.Payment.Domain.PaymentMethods;
+
 using PaymentDomain = Module.Payment.Domain.Payments.Payment;
 
 namespace Module.Payment.Features.Storefront.Payment.CreateIntent;
@@ -42,16 +42,16 @@ namespace Module.Payment.Features.Storefront.Payment.CreateIntent;
                 .FirstOrDefaultAsync(cancellationToken);
 
             if (paymentMethod is null)
-                return PaymentResult.Errors.NotFound;
+                return PaymentResult.Failure.NotFound;
 
             // Create: Build payment record.
-            var createResult = PaymentExtensions.Create(
+            var createResult = Domain.Payments.PaymentFactory.Create(
                 amount: order.Total,
-                paymentMethodId: paymentMethod.Id,
+                paymentMethodId: (Guid)paymentMethod.Id,
                 orderId: order.Id);
 
             if (createResult.IsFailure)
-                return createResult.Failures;
+                return createResult.Errors;
 
             var payment = createResult.Value;
             // Create: Persist new entity.
@@ -73,9 +73,9 @@ namespace Module.Payment.Features.Storefront.Payment.CreateIntent;
             };
 
             // Process: Execute payment via gateway (authorize or purchase based on auto_capture).
-            var processResult = await PaymentExtensions.ProcessAsync(payment, gateway, options, cancellationToken);
+            var processResult = await PaymentFactory.ProcessAsync(payment, gateway, options, cancellationToken);
             if (processResult.IsFailure)
-                return processResult.Failures;
+                return processResult.Errors;
 
             // Persist: Save changes to the database.
             await dbContext.SaveChangesAsync(cancellationToken);

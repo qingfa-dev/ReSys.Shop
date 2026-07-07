@@ -126,7 +126,7 @@ public static class PaymentProcessing
         var gatewayResult = await gateway.CaptureAsync(amount.Value, payment.ResponseCode, options, cancellationToken).ConfigureAwait(false);
 
         if (gatewayResult.IsFailure)
-            return gatewayResult;
+            return gatewayResult.ToBase();
 
         var response = gatewayResult.Value;
 
@@ -142,7 +142,7 @@ public static class PaymentProcessing
         }
 
         payment.State = PaymentState.Failed;
-        return Result.Failure(PaymentResult.Errors.CaptureFailed(response.Message));
+        return Result.Failure(PaymentResult.Failure.CaptureFailed(response.Message));
     }
 
     #endregion Capture
@@ -171,7 +171,7 @@ public static class PaymentProcessing
             : await gateway.VoidAsync(payment.ResponseCode, null, options, cancellationToken).ConfigureAwait(false);
 
         if (gatewayResult.IsFailure)
-            return gatewayResult;
+            return gatewayResult.ToBase();
 
         var response = gatewayResult.Value;
 
@@ -185,7 +185,7 @@ public static class PaymentProcessing
             return Result.Ok(PaymentResult.Success.Voided(payment.Number));
         }
 
-        return Result.Failure(PaymentResult.Errors.VoidFailed(response.Message));
+        return Result.Failure(PaymentResult.Failure.VoidFailed(response.Message));
     }
 
     #endregion Void
@@ -202,7 +202,7 @@ public static class PaymentProcessing
         var gatewayResult = await gateway.CancelAsync(payment.ResponseCode, payment, cancellationToken).ConfigureAwait(false);
 
         if (gatewayResult.IsFailure)
-            return gatewayResult;
+            return gatewayResult.ToBase();
 
         var response = gatewayResult.Value;
 
@@ -216,7 +216,7 @@ public static class PaymentProcessing
         }
 
         payment.State = PaymentState.Failed;
-        return Result.Failure(PaymentResult.Errors.CancelFailed(response.Message));
+        return PaymentResult.Failure.CancelFailed(response.Message);
     }
 
     #endregion Cancel
@@ -231,12 +231,12 @@ public static class PaymentProcessing
     public static async Task<Result> CreditAsync(this Payment payment, IPaymentGatewayActionProvider gateway, GatewayOptions options, decimal amount, CancellationToken cancellationToken = default)
     {
         if (!payment.CreditAllowed())
-            return Result.Failure(PaymentResult.Errors.CreditNotAllowed);
+            return PaymentResult.Failure.CreditNotAllowed;
 
         var gatewayResult = await gateway.CreditAsync(amount, payment.ResponseCode, options, cancellationToken).ConfigureAwait(false);
 
         if (gatewayResult.IsFailure)
-            return gatewayResult;
+            return gatewayResult.Errors;
 
         var response = gatewayResult.Value;
 
@@ -248,7 +248,7 @@ public static class PaymentProcessing
             return Result.Ok(PaymentResult.Success.Credited(payment.Number, amount));
         }
 
-        return Result.Failure(PaymentResult.Errors.CreditFailed(response.Message));
+        return PaymentResult.Failure.CreditFailed(response.Message);
     }
 
     #endregion Credit
@@ -262,10 +262,10 @@ public static class PaymentProcessing
         if (gateway.SourceRequired)
         {
             if (payment.SourceId is null || string.IsNullOrEmpty(payment.SourceType))
-                return Result.Failure(PaymentResult.Errors.ProcessingSourceRequired);
+                return PaymentResult.Failure.ProcessingSourceRequired;
 
             if (payment.State == PaymentState.Processing)
-                return Result.Failure(PaymentResult.Errors.ProcessingAlreadyProcessing);
+                return PaymentResult.Failure.ProcessingAlreadyProcessing;
         }
 
         return Result.Ok();
@@ -293,7 +293,7 @@ public static class PaymentProcessing
         var gatewayResult = await action(payment.Amount, source, options, cancellationToken).ConfigureAwait(false);
 
         if (gatewayResult.IsFailure)
-            return gatewayResult;
+            return gatewayResult.Errors;
 
         var response = gatewayResult.Value;
 
@@ -310,7 +310,7 @@ public static class PaymentProcessing
         }
 
         payment.State = PaymentState.Failed;
-        return Result.Failure(PaymentResult.Errors.GatewayError(response.Message));
+        return PaymentResult.Failure.GatewayError(response.Message);
     }
 
     // Call: Execute gateway action returning a typed result -- same as GatewayActionAsync

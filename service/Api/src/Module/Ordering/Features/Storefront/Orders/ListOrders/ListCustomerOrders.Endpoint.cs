@@ -16,6 +16,7 @@ public static partial class ListCustomerOrders
                 var result = await sender.Send(new Query(parameters), ct);
                 return result.ToPagedResult();
             })
+            .RequireAuthorization()
             .WithName(nameof(ListCustomerOrders))
             .WithTags(OrderingFeature.Tags.Order)
             .WithSummary(OrderingFeature.Storefront.Orders.List.Summary)

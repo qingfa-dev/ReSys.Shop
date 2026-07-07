@@ -1,8 +1,3 @@
-using Carter;
-using MediatR;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Routing;
 using Module.Payment.Features.Shared;
 
 namespace Module.Payment.Features.Storefront.Payment.Webhooks;

@@ -1,7 +1,9 @@
-using Microsoft.EntityFrameworkCore;
 using Module.Ordering.Domain.Orders;
-using Module.Ordering.Domain.Orders.Events;
 using Module.Ordering.Features.Admin.Orders.Shared.Mappings;
+
+using Shared.Operational.Notifications.Models;
+using Shared.Operational.Notifications.Services;
+using Shared.Operational.Notifications.Templates;
 
 namespace Module.Ordering.Features.Admin.Orders.Cancel;
 /// <summary>Handles CancelOrderAdmin feature.</summary>
@@ -9,7 +11,11 @@ public static partial class CancelOrderAdmin
 {
     public sealed record Command(Guid Id, Request Request) : ICommand<Response>;
 
-    public sealed class CommandHandler(IApplicationDbContext dbContext, ICurrentUser currentUser) : ICommandHandler<Command, Response>
+    public sealed class CommandHandler(
+        IApplicationDbContext dbContext,
+        ICurrentUser currentUser,
+        INotificationService notificationService,
+        ILogger<CommandHandler> logger) : ICommandHandler<Command, Response>
     {
         /// <summary>Handles the command.</summary>
         /// <param name="command">The command to handle.</param>
@@ -29,20 +35,35 @@ public static partial class CancelOrderAdmin
             if (result.IsFailure)
                 return result.Failures;
 
-            // Raise: Order canceled domain event.
-            order.AddDomainEvent(new OrderCanceledEvent(
-                order.Id,
-                order.Number,
-                order.UserId!.Value,
-                order.Email ?? string.Empty,
-                order.CanceledAtUtc!.Value,
-                currentUser.UserId));
-
             // Persist: Save changes.
             await dbContext.SaveChangesAsync(cancellationToken);
 
+            // Notify: Send order canceled notification.
+            await SendOrderCanceledNotificationAsync(order, cancellationToken);
+
             // Map: Return the updated entity as response.
             return order.MapToDetail<Response>();
+        }
+
+        private async Task SendOrderCanceledNotificationAsync(Order order, CancellationToken ct)
+        {
+            if (string.IsNullOrWhiteSpace(order.Email))
+                return;
+
+            var message = NotificationMessage.Create(
+                NotificationUseCase.OrderCancelled,
+                NotificationRecipient.Create(order.Email, order.Number),
+                NotificationChannel.Email,
+                NotificationContext.Create(
+                    (NotificationParameterType.OrderNumber, order.Number),
+                    (NotificationParameterType.UserFirstName, order.Email.Split('@')[0])));
+
+            var result = await notificationService.SendAsync(message, ct);
+            if (result.IsFailure)
+            {
+                logger.LogWarning("Failed to send order canceled notification for order {OrderId}: {Errors}",
+                    order.Id, string.Join("; ", result.Failures.Select(f => f.Description)));
+            }
         }
     }
 }

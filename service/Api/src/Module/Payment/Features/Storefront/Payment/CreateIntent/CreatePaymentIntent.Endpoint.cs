@@ -1,8 +1,3 @@
-using Carter;
-using MediatR;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Routing;
 using Module.Payment.Features.Shared;
 
 namespace Module.Payment.Features.Storefront.Payment.CreateIntent;
@@ -22,6 +17,7 @@ public static partial class CreatePaymentIntent
                 var result = await sender.Send(command, ct);
                 return result.ToResult();
             })
+            .RequireAuthorization()
             .WithName(nameof(CreatePaymentIntent))
             .WithTags(PaymentFeature.Tags.Payment)
             .WithSummary(PaymentFeature.Storefront.Payment.CreateIntent.Summary)

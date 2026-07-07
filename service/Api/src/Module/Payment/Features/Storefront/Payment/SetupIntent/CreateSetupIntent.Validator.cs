@@ -1,5 +1,3 @@
-using FluentValidation;
-
 namespace Module.Payment.Features.Storefront.Payment.SetupIntent;
 
 public static partial class CreateSetupIntent

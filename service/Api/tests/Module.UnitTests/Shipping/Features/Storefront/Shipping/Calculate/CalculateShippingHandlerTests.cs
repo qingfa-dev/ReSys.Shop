@@ -1,10 +1,8 @@
-using Microsoft.Extensions.Logging;
 using Module.Catalog.Domain.Products.Variants;
 using Module.Ordering.Domain.Orders;
 using Module.Shipping.Domain.ShippingMethods;
 using Module.Shipping.Domain.ShippingRates;
 using Module.Shipping.Features.Storefront.Shipping.Calculate;
-using Moq;
 
 namespace Module.UnitTests.Shipping.Features.Storefront.Shipping.Calculate;
 
@@ -65,7 +63,7 @@ public class CalculateShippingHandlerTests : IDisposable
 
         var method = ShippingMethodExtensions.Create("Standard", "flat_rate").Value;
         _dbContext.Set<ShippingMethod>().Add(method);
-        var rate = ShippingRateExtensions.Create("Standard Rate", 5.99m, Guid.Empty, method.Id,
+        var rate = ShippingRateExtensions.Create("Standard Rate", 5.99m, method.Id,
             minWeight: 0, maxWeight: 5).Value;
         _dbContext.Set<ShippingRate>().Add(rate);
         await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);

@@ -1,5 +1,3 @@
-using FluentValidation;
-
 namespace Module.Ordering.Features.Storefront.Cart.UpdateCheckout;
 
 public static partial class UpdateCheckout

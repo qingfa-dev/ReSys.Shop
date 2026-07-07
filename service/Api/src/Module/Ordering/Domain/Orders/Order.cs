@@ -4,7 +4,6 @@ using Shared.Application.Domain.Models;
 
 using Module.Ordering.Domain.Adjustments;
 using Module.Ordering.Domain.LineItems;
-using Module.Shipping.Domain.Shipments;
 namespace Module.Ordering.Domain.Orders;
 
 /// <summary>
@@ -65,7 +64,6 @@ public sealed partial class Order : Entity, IAuditable, ISoftDeletable
     public ICollection<LineItem> LineItems { get; set; } = [];
     public ICollection<Adjustment> Adjustments { get; set; } = [];
     public IList<PaymentRecord> Payments { get; set; } = [];
-    public ICollection<Shipment> Shipments { get; set; } = [];
     #endregion Navigation
 
     #region Soft Deletion

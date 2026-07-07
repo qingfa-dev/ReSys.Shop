@@ -1,5 +1,3 @@
-using Microsoft.Extensions.Logging;
-
 namespace Module.Ordering.Domain.Orders;
 
 public static partial class PaymentRecordLoggers

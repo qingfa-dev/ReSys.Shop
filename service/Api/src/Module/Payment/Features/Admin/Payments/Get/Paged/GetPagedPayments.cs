@@ -1,12 +1,9 @@
-using BuildingBlocks.Querying.Extensions;
-using BuildingBlocks.Querying.Models;
-using Microsoft.EntityFrameworkCore;
 using PaymentDomain = Module.Payment.Domain.Payments.Payment;
 
 namespace Module.Payment.Features.Admin.Payments.Get.Paged;
 
-    /// <summary>Handles GetPagedPayments feature.</summary>
-    public static partial class GetPagedPayments
+/// <summary>Handles GetPagedPayments feature.</summary>
+public static partial class GetPagedPayments
 {
     public record Query(QueryingParameters Parameters) : IPagedQuery<Response>;
 
@@ -19,22 +16,21 @@ namespace Module.Payment.Features.Admin.Payments.Get.Paged;
         /// <returns>The paged result.</returns>
         public async Task<PagedResult<Response>> Handle(Query request, CancellationToken cancellationToken)
         {
+            var parsing = request.Parameters.ParseAll();
+            if (parsing.IsFailure)
+                return parsing.Errors;
 
-        // Contract: pre=command!=null, post=result!=null
-            // Query: Retrieve payments with order info.
-            var query = dbContext.Set<PaymentDomain>()
+            var pagedResult = await dbContext.Set<PaymentDomain>()
                 .AsNoTracking()
-                .ApplyQueryOptions(request.Parameters);
-
-            var pagedResult = await query
-                .ToPagedOrAllAsync(x => new Response
+                .ApplyQuerying(parsing.Value)
+                .ToPagedOrAllAsync(parsing.Value, x => new Response
                 {
                     Id = x.Id,
                     Amount = x.Amount,
                     State = x.State.ToString(),
                     OrderId = x.OrderId,
                     PaymentMethodId = x.PaymentMethodId
-                }, request.Parameters, cancellationToken);
+                }, cancellationToken);
 
             return pagedResult;
         }

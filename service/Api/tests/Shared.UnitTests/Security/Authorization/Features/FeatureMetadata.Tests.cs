@@ -17,7 +17,6 @@ public sealed class FeatureMetadataTests
         { () => OrderingFeatureMetadata.All, OrderingFeatureMetadata.ModuleName },
         { () => InventoryFeatureMetadata.All, InventoryFeatureMetadata.ModuleName },
         { () => ConfigurationFeatureMetadata.All, ConfigurationFeatureMetadata.ModuleName },
-        { () => PromotionsFeatureMetadata.All, PromotionsFeatureMetadata.ModuleName },
         { () => DashboardFeatureMetadata.All, DashboardFeatureMetadata.ModuleName },
     };
 
@@ -48,7 +47,6 @@ public sealed class FeatureMetadataTests
             .. OrderingFeatureMetadata.All.Select(static p => p.Identifier),
             .. InventoryFeatureMetadata.All.Select(static p => p.Identifier),
             .. ConfigurationFeatureMetadata.All.Select(static p => p.Identifier),
-            .. PromotionsFeatureMetadata.All.Select(static p => p.Identifier),
             .. DashboardFeatureMetadata.All.Select(static p => p.Identifier),
         ];
 

@@ -1,6 +1,5 @@
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
-using Moq;
+
 using Module.Inventory.Services;
 using Module.Inventory.Services.Abstractions;
 

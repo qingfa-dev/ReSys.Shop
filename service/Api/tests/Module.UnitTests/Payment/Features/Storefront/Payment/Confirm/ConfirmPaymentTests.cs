@@ -27,7 +27,7 @@ public class ConfirmPaymentTests : IDisposable
     [Fact(DisplayName = "Handler: Should confirm payment when in Pending state")]
     public async Task Handle_ShouldConfirm_WhenPending()
     {
-        var payment = PaymentExtensions.Create(100m, Guid.NewGuid(), Guid.NewGuid()).Value;
+        var payment = PaymentFactory.Create(100m, Guid.NewGuid(), Guid.NewGuid()).Value;
         payment.Process();
         payment.Pend();
         _dbContext.Set<PaymentDomain>().Add(payment);
@@ -44,7 +44,7 @@ public class ConfirmPaymentTests : IDisposable
     [Fact(DisplayName = "Handler: Should return failure when payment in Checkout state")]
     public async Task Handle_ShouldFail_WhenCheckout()
     {
-        var payment = PaymentExtensions.Create(100m, Guid.NewGuid(), Guid.NewGuid()).Value;
+        var payment = PaymentFactory.Create(100m, Guid.NewGuid(), Guid.NewGuid()).Value;
         _dbContext.Set<PaymentDomain>().Add(payment);
         await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 
@@ -58,7 +58,7 @@ public class ConfirmPaymentTests : IDisposable
     [Fact(DisplayName = "Handler: Should return failure when payment already completed")]
     public async Task Handle_ShouldFail_WhenAlreadyCompleted()
     {
-        var payment = PaymentExtensions.Create(100m, Guid.NewGuid(), Guid.NewGuid()).Value;
+        var payment = PaymentFactory.Create(100m, Guid.NewGuid(), Guid.NewGuid()).Value;
         payment.Process();
         payment.Complete();
         _dbContext.Set<PaymentDomain>().Add(payment);

@@ -25,23 +25,23 @@ public static class LineItemResult
         /// <summary>Returns a not-found failure for the specified line item ID.</summary>
         public static Error NotFound(Guid id) => Error.NotFound(
             code: "LineItem.NotFound",
-            description: $"LineItem with ID '{id}' was not found.");
+            message: $"LineItem with ID '{id}' was not found.");
 
         public static Error QuantityExceedsMax => Error.Validation(
             code: "LineItem.Quantity.OutOfRange",
-            description: $"Quantity must be between 1 and {LineItemConstant.MaxQuantity}.");
+            message: $"Quantity must be between 1 and {LineItemConstant.MaxQuantity}.");
 
         public static Error InvalidPrice => Error.Validation(
             code: "LineItem.Price.Invalid",
-            description: "Price must be greater than or equal to zero.");
+            message: "Price must be greater than or equal to zero.");
 
         public static Error OrderNotFound(Guid id) => Error.NotFound(
             code: "LineItem.Order.NotFound",
-            description: $"Order with ID '{id}' was not found.");
+            message: $"Order with ID '{id}' was not found.");
 
         public static Error VariantNotFound(Guid id) => Error.NotFound(
             code: "LineItem.Variant.NotFound",
-            description: $"Variant with ID '{id}' was not found.");
+            message: $"Variant with ID '{id}' was not found.");
         #endregion
     }
 }

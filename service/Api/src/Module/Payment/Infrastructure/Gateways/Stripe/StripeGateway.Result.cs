@@ -10,16 +10,16 @@ public static class StripeGatewayResult
         /// <summary>PaymentIntent ID is required for capture.</summary>
         public static Error CaptureMissingIntent => Error.Validation(
             code: "Stripe.Capture.MissingIntent",
-            description: "PaymentIntent ID required.");
+            message: "PaymentIntent ID required.");
 
         /// <summary>PaymentIntent ID is required for credit.</summary>
         public static Error CreditMissingIntent => Error.Validation(
             code: "Stripe.Credit.MissingIntent",
-            description: "PaymentIntent ID required.");
+            message: "PaymentIntent ID required.");
 
         /// <summary>PaymentIntent ID is required for cancel.</summary>
         public static Error CancelMissingIntent => Error.Validation(
             code: "Stripe.Cancel.MissingIntent",
-            description: "PaymentIntent ID required.");
+            message: "PaymentIntent ID required.");
     }
 }

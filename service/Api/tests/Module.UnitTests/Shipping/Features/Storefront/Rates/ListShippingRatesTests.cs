@@ -1,9 +1,5 @@
-using BuildingBlocks.Querying.Models;
-using Microsoft.Extensions.Logging;
 using Module.Shipping.Domain.ShippingRates;
-using Module.Shipping.Domain.Shipments;
 using Module.Shipping.Features.Storefront.Shipping.Rates;
-using Moq;
 
 namespace Module.UnitTests.Shipping.Features.Storefront.Rates;
 
@@ -39,8 +35,8 @@ public class ListShippingRatesTests : IDisposable
     [Fact(DisplayName = "Handler: Should list base shipping rates")]
     public async Task Handle_ShouldReturnRates_WhenRatesExist()
     {
-        var rate1 = ShippingRateExtensions.Create("Standard", 5.99m, Guid.Empty, Guid.NewGuid()).Value;
-        var rate2 = ShippingRateExtensions.Create("Express", 12.99m, Guid.Empty, Guid.NewGuid()).Value;
+        var rate1 = ShippingRateExtensions.Create("Standard", 5.99m, Guid.NewGuid()).Value;
+        var rate2 = ShippingRateExtensions.Create("Express", 12.99m, Guid.NewGuid()).Value;
         _dbContext.Set<ShippingRate>().AddRange(rate1, rate2);
         await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 

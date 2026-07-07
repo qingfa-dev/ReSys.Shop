@@ -1,4 +1,3 @@
-using Microsoft.EntityFrameworkCore;
 using Module.Ordering.Domain.Orders;
 
 namespace Module.Ordering.Features.Admin.Orders.Approve;

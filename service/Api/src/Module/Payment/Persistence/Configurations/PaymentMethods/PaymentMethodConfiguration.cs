@@ -1,6 +1,4 @@
-using BuildingBlocks.Persistence.Configurations.Dictionaries;
-
-using Microsoft.EntityFrameworkCore;
+using Shared.Operational.Persistence.Configurations.Dictionaries;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 using Module.Payment.Persistence.Constants;

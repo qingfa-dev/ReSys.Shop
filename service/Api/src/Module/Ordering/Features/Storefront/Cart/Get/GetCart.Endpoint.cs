@@ -1,7 +1,3 @@
-using Carter;
-using MediatR;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Routing;
 using Module.Ordering.Features.Shared;
 
 namespace Module.Ordering.Features.Storefront.Cart.Get;
@@ -20,6 +16,7 @@ public static partial class GetCart
                 var result = await sender.Send(query, ct);
                 return result.ToResult();
             })
+            .RequireAuthorization()
             .WithName(nameof(GetCart))
             .WithTags(OrderingFeature.Tags.Cart)
             .WithSummary(OrderingFeature.Storefront.Cart.Get.Summary)

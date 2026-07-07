@@ -3,7 +3,6 @@ using Module.Inventory.Domain.StockLocations;
 using Module.Inventory.Domain.StockLocations.StockItems;
 using Module.Inventory.Domain.StockReservations;
 using Module.Inventory.Domain.StockLocations.StockItems.StockMovements;
-using Module.Inventory.Domain.StockTransfers;
 
 namespace Module.UnitTests.Inventory.Domain.Services;
 

@@ -31,13 +31,6 @@ public static partial class OrderingFeature
                 public const string Summary = "Associate cart with user";
             }
 
-            public static class ChangeCurrency
-            {
-                public const string Route = $"{BaseRoute}/currency";
-                public const string Description = "Change the cart currency and recalculate values";
-                public const string Summary = "Change cart currency";
-            }
-
             public static class AddItem
             {
                 public const string Route = $"{BaseRoute}/items";
@@ -85,13 +78,6 @@ public static partial class OrderingFeature
                 public const string Route = BaseRoute;
                 public const string Description = "Update cart checkout details (email, addresses, special instructions)";
                 public const string Summary = "Update checkout";
-            }
-
-            public static class Advance
-            {
-                public const string Route = $"{BaseRoute}/advance";
-                public const string Description = "Advance the checkout to the next state";
-                public const string Summary = "Advance checkout";
             }
 
             public static class Validate

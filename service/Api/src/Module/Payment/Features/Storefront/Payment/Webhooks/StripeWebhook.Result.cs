@@ -10,11 +10,11 @@ public static class StripeWebhookResult
         /// <summary>Stripe webhook signature validation failed.</summary>
         public static Error InvalidSignature => Error.Unauthorized(
             code: "Stripe.Webhook.InvalidSignature",
-            description: "Invalid Stripe webhook signature.");
+            message: "Invalid Stripe webhook signature.");
 
         /// <summary>Stripe webhook payload could not be parsed.</summary>
         public static Error InvalidPayload => Error.BadRequest(
             code: "Stripe.Webhook.InvalidPayload",
-            description: "Unable to parse Stripe webhook payload.");
+            message: "Unable to parse Stripe webhook payload.");
     }
 }

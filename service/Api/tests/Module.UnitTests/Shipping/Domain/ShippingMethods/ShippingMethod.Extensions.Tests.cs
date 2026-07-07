@@ -1,4 +1,3 @@
-using Module.Shipping.Domain.Shipments;
 using Module.Shipping.Domain.ShippingMethods;
 namespace Module.UnitTests.Shipping.Domain.ShippingMethods;
 [Trait("Category","Unit")][Trait("Module","Shipping")][Trait("Entity","ShippingMethod")]
@@ -53,22 +52,5 @@ public class ShippingMethodExtensionsTests
         var m = ShippingMethodExtensions.Create("Std", "FlatRate").Value;
         m.IsDeleted = true;
         m.IsAvailableFor().Should().BeFalse();
-    }
-    [Fact]
-    public void IsAvailableFor_WithShipment_WhenAvailable_ShouldReturnTrue()
-    {
-        var m = ShippingMethodExtensions.Create("Std", "FlatRate").Value;
-        var s = ShipmentExtensions.Create(Guid.NewGuid(), Guid.NewGuid()).Value;
-        var r = m.IsAvailableFor(s);
-        r.Should().BeTrue();
-    }
-    [Fact]
-    public void IsAvailableFor_WithShipment_WhenDeleted_ShouldReturnFalse()
-    {
-        var m = ShippingMethodExtensions.Create("Std", "FlatRate").Value;
-        m.IsDeleted = true;
-        var s = ShipmentExtensions.Create(Guid.NewGuid(), Guid.NewGuid()).Value;
-        var r = m.IsAvailableFor(s);
-        r.Should().BeFalse();
     }
 }

@@ -1,7 +1,5 @@
 using Module.Ordering.Domain.LineItems;
 using Module.Ordering.Domain.Orders;
-
-using Microsoft.EntityFrameworkCore;
 namespace Module.Ordering.Features.Admin.Orders.AddLineItem;
 /// <summary>Handles AddOrderLineItem feature.</summary>
 public static partial class AddOrderLineItem

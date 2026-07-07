@@ -27,7 +27,7 @@ public class GetPaymentByIdTests : IDisposable
     [Fact(DisplayName = "Handler: Should return payment detail by ID")]
     public async Task Handle_ShouldReturnPayment_WhenExists()
     {
-        var payment = PaymentExtensions.Create(100m, Guid.NewGuid(), Guid.NewGuid()).Value;
+        var payment = PaymentFactory.Create(100m, Guid.NewGuid(), Guid.NewGuid()).Value;
         _dbContext.Set<PaymentDomain>().Add(payment);
         await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 

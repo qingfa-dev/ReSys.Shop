@@ -505,58 +505,6 @@ public static partial class NotificationStore
         },
         #endregion
 
-        #region Promotions
-        [NotificationUseCase.FlashSaleStarted] = new NotificationTemplate
-        {
-            Value = NotificationUseCase.FlashSaleStarted,
-            Name = "Flash Sale Started",
-            TemplateFormatType = NotificationFormat.Html,
-            Priority = NotificationPriorityLevel.Low,
-            TemplateContent = "Flash sale alert! {PromotionName} is now live with {PromotionDiscount} off.\n\nShop the sale at {PromotionUrl} before it ends on {PromotionExpiration}.",
-            HtmlTemplateContent = "<html><body style='" + NotificationTemplateStyles.BaseBodyStyle + "'><h2 style='" + NotificationTemplateStyles.HeaderStyle + "'>Flash Sale Started</h2><p><b>{PromotionName}</b> is now live with <b>{PromotionDiscount}</b> off!</p><p><a href='{PromotionUrl}' style='" + NotificationTemplateStyles.ButtonStyle + "'>Shop the Sale</a></p><p>Hurry, this offer ends on <b>{PromotionExpiration}</b>.</p></body></html>",
-            ParamValues =
-            [
-                NotificationParameterType.PromotionName,
-                NotificationParameterType.PromotionDiscount,
-                NotificationParameterType.PromotionUrl,
-                NotificationParameterType.PromotionExpiration
-            ],
-            Description = "Sent when a limited-time flash sale event starts."
-        },
-
-        [NotificationUseCase.CouponIssued] = new NotificationTemplate
-        {
-            Value = NotificationUseCase.CouponIssued,
-            Name = "Coupon Issued",
-            TemplateFormatType = NotificationFormat.Html,
-            Priority = NotificationPriorityLevel.Normal,
-            TemplateContent = "You've received a coupon! Use code {PromotionCode} to get {PromotionDiscount} off.\n\nThis coupon expires on {PromotionExpiration}. Don't miss out!",
-            HtmlTemplateContent = "<html><body style='" + NotificationTemplateStyles.BaseBodyStyle + "'><h2 style='" + NotificationTemplateStyles.HeaderStyle + "'>Coupon Issued</h2><p>You've received a coupon! Use code <b>{PromotionCode}</b> to get <b>{PromotionDiscount}</b> off.</p><p>This coupon expires on <b>{PromotionExpiration}</b>.</p><p><a href='{ApplicationUrl}' style='" + NotificationTemplateStyles.ButtonStyle + "'>Shop Now</a></p></body></html>",
-            ParamValues =
-            [
-                NotificationParameterType.PromotionCode,
-                NotificationParameterType.PromotionDiscount,
-                NotificationParameterType.PromotionExpiration
-            ],
-            Description = "Sent when a coupon code is issued to a user."
-        },
-
-        [NotificationUseCase.CouponExpiring] = new NotificationTemplate
-        {
-            Value = NotificationUseCase.CouponExpiring,
-            Name = "Coupon Expiring Soon",
-            TemplateFormatType = NotificationFormat.Html,
-            Priority = NotificationPriorityLevel.Normal,
-            TemplateContent = "Your coupon code {PromotionCode} is about to expire on {PromotionExpiration}.\n\nUse it now to enjoy your discount before it's gone!",
-            HtmlTemplateContent = "<html><body style='" + NotificationTemplateStyles.BaseBodyStyle + "'><h2 style='" + NotificationTemplateStyles.HeaderStyle + "'>Coupon Expiring Soon</h2><p>Your coupon code <b>{PromotionCode}</b> is about to expire on <b>{PromotionExpiration}</b>.</p><p><a href='{ApplicationUrl}' style='" + NotificationTemplateStyles.ButtonStyle + "'>Use Your Coupon</a></p><p>Use it now to enjoy your discount before it's gone!</p></body></html>",
-            ParamValues =
-            [
-                NotificationParameterType.PromotionCode,
-                NotificationParameterType.PromotionExpiration
-            ],
-            Description = "Sent when a coupon is about to expire."
-        },
-
         [NotificationUseCase.NewCollectionReleased] = new NotificationTemplate
         {
             Value = NotificationUseCase.NewCollectionReleased,
@@ -572,7 +520,6 @@ public static partial class NotificationStore
             ],
             Description = "Sent when a new product collection is released."
         },
-        #endregion
 
         #region System
         [NotificationUseCase.SecurityAlert] = new NotificationTemplate

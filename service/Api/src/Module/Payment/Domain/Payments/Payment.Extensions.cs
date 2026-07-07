@@ -2,7 +2,7 @@ using Module.Payment.Domain.Gateways;
 
 namespace Module.Payment.Domain.Payments;
 
-public static class PaymentExtensions
+public static class PaymentFactory
 {
     #region Factory Methods
     /// <summary>
@@ -25,7 +25,7 @@ public static class PaymentExtensions
         // Validate: Payment amount must be greater than zero
         if (amount <= 0)
         {
-            return PaymentResult.Errors.AmountMustBePositive;
+            return PaymentResult.Failure.AmountMustBePositive;
         }
 
         var payment = new Payment
@@ -42,7 +42,7 @@ public static class PaymentExtensions
             CreatedBy = "System"
         };
 
-        return Result.Ok(payment);
+        return payment;
     }
 
     private static string GeneratePaymentNumber()
@@ -62,7 +62,7 @@ public static class PaymentExtensions
     {
         if (!CanTransitionTo(PaymentState.Processing))
         {
-            return PaymentResult.Errors.InvalidStateTransition(payment.State, PaymentState.Processing);
+            return PaymentResult.Failure.InvalidStateTransition(payment.State, PaymentState.Processing);
         }
 
         payment.State = PaymentState.Processing;
@@ -87,7 +87,7 @@ public static class PaymentExtensions
     {
         if (payment.State is not PaymentState.Processing)
         {
-            return PaymentResult.Errors.InvalidStateTransition(payment.State, PaymentState.Pending);
+            return PaymentResult.Failure.InvalidStateTransition(payment.State, PaymentState.Pending);
         }
 
         payment.State = PaymentState.Pending;
@@ -106,12 +106,12 @@ public static class PaymentExtensions
     {
         if (payment.State is PaymentState.Completed)
         {
-            return PaymentResult.Errors.AlreadyCompleted;
+            return PaymentResult.Failure.AlreadyCompleted;
         }
 
         if (payment.State is not (PaymentState.Processing or PaymentState.Pending))
         {
-            return PaymentResult.Errors.InvalidStateTransition(payment.State, PaymentState.Completed);
+            return PaymentResult.Failure.InvalidStateTransition(payment.State, PaymentState.Completed);
         }
 
         payment.State = PaymentState.Completed;
@@ -130,12 +130,12 @@ public static class PaymentExtensions
     {
         if (payment.State is PaymentState.Failed)
         {
-            return PaymentResult.Errors.AlreadyFailed;
+            return PaymentResult.Failure.AlreadyFailed;
         }
 
         if (payment.State is not (PaymentState.Checkout or PaymentState.Processing or PaymentState.Pending))
         {
-            return PaymentResult.Errors.InvalidStateTransition(payment.State, PaymentState.Failed);
+            return PaymentResult.Failure.InvalidStateTransition(payment.State, PaymentState.Failed);
         }
 
         payment.State = PaymentState.Failed;
@@ -154,12 +154,12 @@ public static class PaymentExtensions
     {
         if (payment.State is PaymentState.Void)
         {
-            return PaymentResult.Errors.AlreadyVoided;
+            return PaymentResult.Failure.AlreadyVoided;
         }
 
         if (payment.State is not (PaymentState.Processing or PaymentState.Pending))
         {
-            return PaymentResult.Errors.InvalidStateTransition(payment.State, PaymentState.Void);
+            return PaymentResult.Failure.InvalidStateTransition(payment.State, PaymentState.Void);
         }
 
         payment.State = PaymentState.Void;
@@ -183,7 +183,7 @@ public static class PaymentExtensions
 
         if (payment.State is not (PaymentState.Failed or PaymentState.Void))
         {
-            return PaymentResult.Errors.InvalidStateTransition(payment.State, PaymentState.Invalid);
+            return PaymentResult.Failure.InvalidStateTransition(payment.State, PaymentState.Invalid);
         }
 
         payment.State = PaymentState.Invalid;
@@ -243,10 +243,10 @@ public static class PaymentExtensions
         {
             if (amount > payment.Amount)
             {
-                return PaymentResult.Errors.AmountExceedsAuthorized;
+                return PaymentResult.Failure.AmountExceedsAuthorized;
             }
 
-            return PaymentResult.Errors.InvalidStateTransition(payment.State, PaymentState.Completed);
+            return PaymentResult.Failure.InvalidStateTransition(payment.State, PaymentState.Completed);
         }
 
         return Result.Ok(PaymentResult.Success.Captured(payment.Number, amount));
@@ -278,9 +278,9 @@ public static class PaymentExtensions
         if (!payment.CanRefund(amount))
         {
             if (payment.State is not PaymentState.Completed)
-                return PaymentResult.Errors.InvalidStateTransition(payment.State, PaymentState.Completed);
+                return PaymentResult.Failure.InvalidStateTransition(payment.State, PaymentState.Completed);
 
-            return PaymentResult.Errors.AmountExceedsAuthorized;
+            return PaymentResult.Failure.AmountExceedsAuthorized;
         }
 
         payment.ModifiedAtUtc = DateTimeOffset.UtcNow;
@@ -326,9 +326,9 @@ public static class PaymentExtensions
         if (!payment.CanCapture(amount))
         {
             if (amount > payment.Amount)
-                return PaymentResult.Errors.AmountExceedsAuthorized;
+                return PaymentResult.Failure.AmountExceedsAuthorized;
 
-            return PaymentResult.Errors.InvalidStateTransition(payment.State, PaymentState.Completed);
+            return PaymentResult.Failure.InvalidStateTransition(payment.State, PaymentState.Completed);
         }
 
         return await PaymentProcessing.CaptureAsync(payment, gateway, options, amount, cancellationToken).ConfigureAwait(false);
@@ -341,10 +341,10 @@ public static class PaymentExtensions
     public static Task<Result> VoidAsync(this Payment payment, IPaymentGatewayActionProvider gateway, GatewayOptions options, CancellationToken cancellationToken = default)
     {
         if (payment.State is PaymentState.Void)
-            return Task.FromResult<Result>(PaymentResult.Errors.AlreadyVoided);
+            return Task.FromResult<Result>(PaymentResult.Failure.AlreadyVoided);
 
         if (payment.State is not (PaymentState.Processing or PaymentState.Pending))
-            return Task.FromResult<Result>(PaymentResult.Errors.InvalidStateTransition(payment.State, PaymentState.Void));
+            return Task.FromResult<Result>(PaymentResult.Failure.InvalidStateTransition(payment.State, PaymentState.Void));
 
         return PaymentProcessing.VoidTransactionAsync(payment, gateway, options, null, cancellationToken);
     }
@@ -367,9 +367,9 @@ public static class PaymentExtensions
         if (!payment.CanRefund(amount))
         {
             if (payment.State is not PaymentState.Completed)
-                return PaymentResult.Errors.InvalidStateTransition(payment.State, PaymentState.Completed);
+                return PaymentResult.Failure.InvalidStateTransition(payment.State, PaymentState.Completed);
 
-            return PaymentResult.Errors.AmountExceedsAuthorized;
+            return PaymentResult.Failure.AmountExceedsAuthorized;
         }
 
         var result = await PaymentProcessing.CreditAsync(payment, gateway, options, amount, cancellationToken).ConfigureAwait(false);

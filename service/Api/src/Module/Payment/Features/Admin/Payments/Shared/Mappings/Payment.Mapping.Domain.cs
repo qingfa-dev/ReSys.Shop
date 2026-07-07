@@ -8,7 +8,7 @@ public static class PaymentDomainMapping
 {
     public static PaymentDomain MapToDomain<T>(this T parameters) where T : Models.PaymentParameters
     {
-        return PaymentExtensions.Create(
+        return PaymentFactory.Create(
             parameters.Amount,
             parameters.PaymentMethodId,
             parameters.OrderId).Value;

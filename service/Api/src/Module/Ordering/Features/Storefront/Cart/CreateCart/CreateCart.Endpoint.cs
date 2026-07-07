@@ -1,8 +1,3 @@
-using Carter;
-using MediatR;
-using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Routing;
 using Module.Ordering.Features.Shared;
 
 namespace Module.Ordering.Features.Storefront.Cart.CreateCart;
@@ -18,6 +13,7 @@ public static partial class CreateCart
                 var result = await sender.Send(new Command(), ct);
                 return result.ToResult();
             })
+            .RequireAuthorization()
             .WithName(nameof(CreateCart))
             .WithTags(OrderingFeature.Tags.Cart)
             .WithSummary(OrderingFeature.Storefront.Cart.Create.Summary)

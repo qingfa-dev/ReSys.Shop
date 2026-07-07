@@ -1,5 +1,5 @@
-using Microsoft.EntityFrameworkCore;
 using Module.Payment.Domain.Payments;
+
 using PaymentDomain = Module.Payment.Domain.Payments.Payment;
 
 namespace Module.Payment.Features.Storefront.Payment.Confirm;
@@ -26,16 +26,16 @@ namespace Module.Payment.Features.Storefront.Payment.Confirm;
 
             // Check: Verify the payment exists.
             if (payment is null)
-                return PaymentResult.Errors.NotFound;
+                return PaymentResult.Failure.NotFound;
 
             // Validate: Payment must be in Processing or Pending state to confirm
             if (payment.State is not (PaymentState.Processing or PaymentState.Pending))
             {
                 // Validate: Check business rule.
                 if (payment.State is PaymentState.Completed)
-                    return PaymentResult.Errors.AlreadyCompleted;
+                    return PaymentResult.Failure.AlreadyCompleted;
 
-                return PaymentResult.Errors.InvalidStateTransition(payment.State, PaymentState.Completed);
+                return PaymentResult.Failure.InvalidStateTransition(payment.State, PaymentState.Completed);
             }
 
             // Transition: Complete the payment

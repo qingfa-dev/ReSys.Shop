@@ -1,4 +1,3 @@
-using Microsoft.EntityFrameworkCore;
 using Module.Ordering.Domain.Adjustments;
 using Module.Ordering.Domain.Orders;
 using Module.Shipping.Domain.Calculators;

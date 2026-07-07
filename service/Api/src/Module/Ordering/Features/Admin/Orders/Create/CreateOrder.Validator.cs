@@ -1,4 +1,3 @@
-using FluentValidation;
 using Module.Ordering.Features.Admin.Orders.Shared.Validators;
 
 namespace Module.Ordering.Features.Admin.Orders.Create;

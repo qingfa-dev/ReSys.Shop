@@ -99,7 +99,7 @@ public sealed partial class Order
 
     // Enforce: Cancel behavior — void/cancel payments, cancel shipments, send webhook
     // Note: Payment voiding and shipment cancellation are handled by the CancelOrder handler.
-    //       Domain events (OrderCanceledEvent) trigger notification consumers.
+    //       Notifications are sent inline by the command handler via INotificationService.
     #pragma warning disable CA1822 // Stub - handlers manage these side effects
     internal void AfterCancel()
     {
@@ -108,7 +108,7 @@ public sealed partial class Order
 
     // Enforce: Resume behavior — restart shipments, consider risk, send webhook
     // Note: Shipment reactivation is handled by the ResumeOrder handler.
-    //       Domain events (OrderResumedEvent) trigger notification consumers.
+    //       Notifications are sent inline by the command handler via INotificationService.
     #pragma warning disable CA1822 // Stub - handlers manage these side effects
     internal void AfterResume()
     {

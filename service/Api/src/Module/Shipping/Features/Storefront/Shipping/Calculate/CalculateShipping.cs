@@ -1,5 +1,3 @@
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
 using Module.Ordering.Domain.Orders;
 using Module.Shipping.Domain.Calculators;
 using Module.Shipping.Domain.ShippingMethods;

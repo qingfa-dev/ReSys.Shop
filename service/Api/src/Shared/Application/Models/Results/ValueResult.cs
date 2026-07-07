@@ -56,3 +56,14 @@ public readonly partial record struct Result<T> : IResultRecord
     }
     #endregion
 }
+
+public readonly partial record struct Result<T>
+{
+    public List<Error> Failures => Errors;
+    public static Result<T> Failure(Error error) => error;
+}
+
+public readonly partial record struct Result<T>
+{
+    public Error FirstFailure => Errors?.FirstOrDefault() ?? default;
+}

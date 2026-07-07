@@ -186,6 +186,8 @@ public readonly partial record struct Result<T> : IResultRecord
         => FactoryFailure(
             errors: errors);
 
+
+
     #endregion
     #endregion
 }

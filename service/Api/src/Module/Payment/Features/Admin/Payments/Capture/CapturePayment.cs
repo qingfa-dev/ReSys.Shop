@@ -1,6 +1,6 @@
-using Microsoft.EntityFrameworkCore;
 using Module.Payment.Domain.Gateways;
 using Module.Payment.Domain.Payments;
+
 using PaymentDomain = Module.Payment.Domain.Payments.Payment;
 
 namespace Module.Payment.Features.Admin.Payments.Capture;
@@ -27,7 +27,7 @@ namespace Module.Payment.Features.Admin.Payments.Capture;
 
             // Check: Verify the payment exists.
             if (payment is null)
-                return PaymentResult.Errors.NotFound;
+                return PaymentResult.Failure.NotFound;
 
             var captureAmount = command.Request.Amount ?? payment.UncapturedAmount();
 
@@ -47,7 +47,7 @@ namespace Module.Payment.Features.Admin.Payments.Capture;
             // Capture: Attempt to capture the payment via gateway.
             var captureResult = await payment.CaptureAsync(gateway, options, captureAmount, cancellationToken);
             if (captureResult.IsFailure)
-                return captureResult.Failures;
+                return captureResult.Errors;
 
             // Persist: Save changes.
             await dbContext.SaveChangesAsync(cancellationToken);

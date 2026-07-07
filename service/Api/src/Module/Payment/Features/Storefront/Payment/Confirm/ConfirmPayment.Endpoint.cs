@@ -1,8 +1,3 @@
-using Carter;
-using MediatR;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Routing;
 using Module.Payment.Features.Shared;
 
 namespace Module.Payment.Features.Storefront.Payment.Confirm;
@@ -23,6 +18,7 @@ public static partial class ConfirmPayment
                 var result = await sender.Send(command, ct);
                 return result.ToResult();
             })
+            .RequireAuthorization()
             .WithName(nameof(ConfirmPayment))
             .WithTags(PaymentFeature.Tags.Payment)
             .WithSummary(PaymentFeature.Storefront.Payment.Confirm.Summary)

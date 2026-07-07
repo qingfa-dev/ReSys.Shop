@@ -1,4 +1,3 @@
-using Microsoft.EntityFrameworkCore;
 using Module.Ordering.Domain.LineItems;
 using Module.Ordering.Domain.Orders;
 

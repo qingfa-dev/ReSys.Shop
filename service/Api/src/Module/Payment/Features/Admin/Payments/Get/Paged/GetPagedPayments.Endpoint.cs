@@ -1,8 +1,3 @@
-using BuildingBlocks.Authorization.Attributes;
-using Carter;
-using MediatR;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Routing;
 using Module.Payment.Features.Shared;
 
 namespace Module.Payment.Features.Admin.Payments.Get.Paged;
@@ -17,9 +12,9 @@ public static partial class GetPagedPayments
                 ISender sender,
                 CancellationToken ct) =>
             {
-                var query = new Query(new BuildingBlocks.Querying.Models.QueryingParameters());
+                var query = new Query(new QueryingParameters());
                 var result = await sender.Send(query, ct);
-                return result.ToResult();
+                return result.ToPagedResult();
             })
             .WithName(nameof(GetPagedPayments))
             .WithTags(PaymentFeature.Tags.Payment)

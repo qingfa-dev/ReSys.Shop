@@ -18,7 +18,7 @@ public class StripeGatewayAuthorizeTests
         _options = new StripeOptions { SecretKey = "sk_test_fake" };
         _gateway = new StripeGateway(Options.Create(_options));
 
-        var payment = PaymentExtensions.Create(50m, Guid.NewGuid(), Guid.NewGuid()).Value;
+        var payment = PaymentFactory.Create(50m, Guid.NewGuid(), Guid.NewGuid()).Value;
         _gatewayOptions = new GatewayOptions(payment)
         {
             Email = "test@example.com",

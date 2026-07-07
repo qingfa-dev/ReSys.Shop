@@ -1,5 +1,3 @@
-using Microsoft.Extensions.Logging;
-
 namespace Module.Ordering.Domain.Orders;
 
 // Log: Structured logging events for Order lifecycle operations

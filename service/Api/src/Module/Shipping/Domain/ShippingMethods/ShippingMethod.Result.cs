@@ -28,59 +28,59 @@ public static class ShippingMethodResult
         /// <summary>Returns a validation error indicating method name is required.</summary>
         public static Error NameRequired => Error.Validation(
             code: "ShippingMethod.Name.Required",
-            description: "Shipping method name is required.");
+            message: "Shipping method name is required.");
 
         /// <summary>Returns a validation error indicating method name is too long.</summary>
         public static Error NameTooLong => Error.Validation(
             code: "ShippingMethod.Name.TooLong",
-            description: $"Shipping method name cannot exceed {ShippingMethodConstant.Constraints.MaxNameLength} characters.");
+            message: $"Shipping method name cannot exceed {ShippingMethodConstant.Constraints.MaxNameLength} characters.");
 
         /// <summary>Returns a validation error indicating code is too long.</summary>
         public static Error CodeTooLong => Error.Validation(
             code: "ShippingMethod.Code.TooLong",
-            description: $"Shipping method code cannot exceed {ShippingMethodConstant.Constraints.MaxCodeLength} characters.");
+            message: $"Shipping method code cannot exceed {ShippingMethodConstant.Constraints.MaxCodeLength} characters.");
 
         /// <summary>Returns a conflict error indicating the code is already in use.</summary>
         public static Error CodeDuplicate => Error.Conflict(
             code: "ShippingMethod.Code.Duplicate",
-            description: "A shipping method with the same code already exists.");
+            message: "A shipping method with the same code already exists.");
 
         /// <summary>Returns a validation error indicating the tracking URL is too long.</summary>
         public static Error InvalidTrackingUrl => Error.Validation(
             code: "ShippingMethod.TrackingUrl.Invalid",
-            description: $"Shipping method tracking URL cannot exceed {ShippingMethodConstant.Constraints.MaxTrackingUrlLength} characters.");
+            message: $"Shipping method tracking URL cannot exceed {ShippingMethodConstant.Constraints.MaxTrackingUrlLength} characters.");
 
         /// <summary>Returns a validation error indicating admin name is too long.</summary>
         public static Error AdminNameTooLong => Error.Validation(
             code: "ShippingMethod.AdminName.TooLong",
-            description: $"Shipping method admin name cannot exceed {ShippingMethodConstant.Constraints.MaxAdminNameLength} characters.");
+            message: $"Shipping method admin name cannot exceed {ShippingMethodConstant.Constraints.MaxAdminNameLength} characters.");
 
         /// <summary>Returns a validation error indicating calculator type is required.</summary>
         public static Error CalculatorRequired => Error.Validation(
             code: "ShippingMethod.Calculator.Required",
-            description: "Shipping method calculator type is required.");
+            message: "Shipping method calculator type is required.");
 
         /// <summary>Returns a validation error indicating calculator type is too long.</summary>
         public static Error CalculatorTooLong => Error.Validation(
             code: "ShippingMethod.Calculator.TooLong",
-            description: $"Shipping method calculator type cannot exceed {ShippingMethodConstant.Constraints.MaxCalculatorTypeLength} characters.");
+            message: $"Shipping method calculator type cannot exceed {ShippingMethodConstant.Constraints.MaxCalculatorTypeLength} characters.");
 
         /// <summary>Returns a validation error indicating the ID is required.</summary>
         public static Error IdRequired => Error.Validation(
             code: "ShippingMethod.Id.Required",
-            description: "Shipping method ID is required.");
+            message: "Shipping method ID is required.");
         #endregion Validation
 
         #region Business
         /// <summary>Returns a not-found error for the shipping method.</summary>
         public static Error NotFound => Error.NotFound(
             code: "ShippingMethod.NotFound",
-            description: "Shipping method was not found.");
+            message: "Shipping method was not found.");
 
         /// <summary>Returns a not-found error when no rates are available for the method.</summary>
         public static Error NoRateAvailable => Error.NotFound(
             code: "ShippingMethod.NoRateAvailable",
-            description: "No shipping rate is available for this method.");
+            message: "No shipping rate is available for this method.");
         #endregion Business
     }
 }

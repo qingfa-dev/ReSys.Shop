@@ -3,6 +3,9 @@ using Module.Inventory.Domain.StockLocations;
 using Module.Ordering.Domain.Orders;
 using Module.Ordering.Features.Storefront.Cart.Checkout;
 
+using Shared.Operational.Notifications.Models;
+using Shared.Operational.Notifications.Services;
+
 namespace Module.UnitTests.Ordering.Features.Storefront.Cart.Checkout;
 
 [Trait("Category", "Unit")]
@@ -13,6 +16,7 @@ public class CreateOrderFromCartTests : IDisposable
     private readonly ApplicationDbContext _dbContext;
     private readonly Mock<ICurrentUser> _currentUserMock;
     private readonly Mock<ILogger<CreateOrderFromCart.CommandHandler>> _loggerMock;
+    private readonly Mock<INotificationService> _notificationServiceMock;
     private readonly CreateOrderFromCart.CommandHandler _handler;
 
     public CreateOrderFromCartTests()
@@ -32,8 +36,12 @@ public class CreateOrderFromCartTests : IDisposable
         _currentUserMock.Setup(x => x.UserId).Returns(Guid.NewGuid().ToString());
 
         _loggerMock = new Mock<ILogger<CreateOrderFromCart.CommandHandler>>();
+        _notificationServiceMock = new Mock<INotificationService>();
+        _notificationServiceMock
+            .Setup(x => x.SendAsync(It.IsAny<NotificationMessage>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Result.Ok());
 
-        _handler = new CreateOrderFromCart.CommandHandler(_dbContext, _loggerMock.Object, _currentUserMock.Object);
+        _handler = new CreateOrderFromCart.CommandHandler(_dbContext, _loggerMock.Object, _currentUserMock.Object, _notificationServiceMock.Object);
     }
 
     public void Dispose()
@@ -46,12 +54,12 @@ public class CreateOrderFromCartTests : IDisposable
     public async Task Handle_ShouldReturnSuccess_WhenCartHasItems()
     {
         // Arrange: Seed location and stock
-        var location = StockLocationExtensions.Create("Warehouse").Value;
+        var location = StockLocationMethod.Create("Warehouse").Value;
         _dbContext.Set<StockLocation>().Add(location);
         await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 
         var variantId = Guid.NewGuid();
-        var stockItem = StockItemExtensions.Create(stockLocationId: location.Id, variantId: variantId, countOnHand: 10).Value;
+        var stockItem = StockItemMethod.Create(stockLocationId: location.Id, variantId: variantId, countOnHand: 10).Value;
         _dbContext.Set<StockItem>().Add(stockItem);
         await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 

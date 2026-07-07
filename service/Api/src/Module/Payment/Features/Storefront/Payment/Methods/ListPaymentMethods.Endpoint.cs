@@ -1,10 +1,3 @@
-using BuildingBlocks.Querying.Models;
-
-using Carter;
-using MediatR;
-using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Routing;
 using Module.Payment.Features.Shared;
 
 namespace Module.Payment.Features.Storefront.Payment.Methods;
@@ -22,6 +15,7 @@ public static partial class ListPaymentMethods
                 var result = await sender.Send(new Query(parameters), ct);
                 return result.ToPagedResult();
             })
+            .RequireAuthorization()
             .WithName(nameof(ListPaymentMethods))
             .WithTags(PaymentFeature.Tags.Payment)
             .WithSummary(PaymentFeature.Storefront.Payment.Methods.Summary)

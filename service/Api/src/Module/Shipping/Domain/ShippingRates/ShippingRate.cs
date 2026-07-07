@@ -1,6 +1,5 @@
 using Shared.Application.Domain.Concerns.Auditable;
 using Shared.Application.Domain.Models;
-using Module.Shipping.Domain.Shipments;
 
 namespace Module.Shipping.Domain.ShippingRates;
 /// <summary>Represents a Shipping Rate.</summary>
@@ -24,8 +23,6 @@ public sealed partial class ShippingRate : Entity, IAuditable
     #endregion Properties
 
     #region Relationships
-    public Guid ShipmentId { get; set; }
-    public Shipment Shipment { get; set; } = null!;
     public Guid ShippingMethodId { get; set; }
     #endregion Relationships
 

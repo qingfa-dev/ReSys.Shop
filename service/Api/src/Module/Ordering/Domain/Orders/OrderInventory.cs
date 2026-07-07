@@ -1,8 +1,5 @@
-using Microsoft.EntityFrameworkCore;
 using Module.Inventory.Services.Abstractions;
 using Module.Inventory.Domain.StockLocations.StockItems;
-using Module.Inventory.Domain.StockReservations;
-using Module.Inventory.Domain.StockLocations.StockItems.StockMovements;
 
 namespace Module.Ordering.Domain.Orders;
 

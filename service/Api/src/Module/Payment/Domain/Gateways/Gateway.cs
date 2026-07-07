@@ -1,4 +1,3 @@
-using BuildingBlocks.Models;
 using Module.Payment.Domain.Payments;
 
 namespace Module.Payment.Domain.Gateways;

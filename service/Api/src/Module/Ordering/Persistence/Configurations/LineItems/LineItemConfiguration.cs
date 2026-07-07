@@ -1,4 +1,3 @@
-using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 using Module.Ordering.Persistence.Constants;
@@ -52,7 +51,7 @@ public class LineItemConfiguration : IEntityTypeConfiguration<LineItem>
             .OnDelete(DeleteBehavior.Cascade);
 
         builder.HasOne(x => x.Variant)
-            .WithMany(v => v.LineItems)
+            .WithMany()
             .HasForeignKey(x => x.VariantId)
             .OnDelete(DeleteBehavior.SetNull);
         #endregion

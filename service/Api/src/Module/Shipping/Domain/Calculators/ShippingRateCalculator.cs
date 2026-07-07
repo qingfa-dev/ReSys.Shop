@@ -1,5 +1,3 @@
-using Microsoft.EntityFrameworkCore;
-
 using Module.Shipping.Domain.ShippingMethods;
 using Module.Shipping.Domain.ShippingRates;
 

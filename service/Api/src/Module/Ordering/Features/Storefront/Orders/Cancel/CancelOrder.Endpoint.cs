@@ -1,8 +1,3 @@
-using Carter;
-using MediatR;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Routing;
 using Module.Ordering.Features.Shared;
 
 namespace Module.Ordering.Features.Storefront.Orders.Cancel;
@@ -22,6 +17,7 @@ public static partial class CancelOrder
                 var result = await sender.Send(command, ct);
                 return result.ToResult();
             })
+            .RequireAuthorization()
             .WithName(nameof(CancelOrder))
             .WithTags(OrderingFeature.Tags.Order)
             .WithSummary(OrderingFeature.Storefront.Orders.Cancel.Summary)

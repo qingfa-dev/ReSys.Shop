@@ -271,49 +271,6 @@ namespace Shared.Operational.Notifications.Store
             },
             #endregion
 
-            #region Promotion-related parameters
-            [NotificationParameterType.PromotionName] = new NotificationDefinition<NotificationParameterType>
-            {
-                Value = NotificationParameterType.PromotionName,
-                Name = nameof(NotificationParameterType.PromotionName),
-                Presentation = "Promotion Name",
-                Description = "The name of the promotion or marketing campaign.",
-                Example = "Summer Sale"
-            },
-            [NotificationParameterType.PromotionCode] = new NotificationDefinition<NotificationParameterType>
-            {
-                Value = NotificationParameterType.PromotionCode,
-                Name = nameof(NotificationParameterType.PromotionCode),
-                Presentation = "Promotion Code",
-                Description = "The alphanumeric discount code for the promotion.",
-                Example = "SUMMER20"
-            },
-            [NotificationParameterType.PromotionDiscount] = new NotificationDefinition<NotificationParameterType>
-            {
-                Value = NotificationParameterType.PromotionDiscount,
-                Name = nameof(NotificationParameterType.PromotionDiscount),
-                Presentation = "Promotion Discount",
-                Description = "The discount value or percentage offered by the promotion.",
-                Example = "20% off"
-            },
-            [NotificationParameterType.PromotionUrl] = new NotificationDefinition<NotificationParameterType>
-            {
-                Value = NotificationParameterType.PromotionUrl,
-                Name = nameof(NotificationParameterType.PromotionUrl),
-                Presentation = "Promotion URL",
-                Description = "URL to the promotion landing page.",
-                Example = "https://resys.shop/promotions/summer-sale"
-            },
-            [NotificationParameterType.PromotionExpiration] = new NotificationDefinition<NotificationParameterType>
-            {
-                Value = NotificationParameterType.PromotionExpiration,
-                Name = nameof(NotificationParameterType.PromotionExpiration),
-                Presentation = "Promotion Expiration",
-                Description = "The expiration date of the promotion or offer.",
-                Example = "2026-08-31"
-            },
-            #endregion
-
             #region Cart-related parameters
             [NotificationParameterType.CartItemCount] = new NotificationDefinition<NotificationParameterType>
             {

@@ -1,4 +1,3 @@
-using FluentValidation;using FluentValidation.TestHelper;
 using Module.Shipping.Domain.ShippingRates;
 namespace Module.UnitTests.Shipping.Domain.ShippingRates;
 [Trait("Category","Unit")][Trait("Module","Shipping")][Trait("Entity","ShippingRate")]
