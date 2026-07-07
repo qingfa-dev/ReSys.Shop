@@ -67,7 +67,7 @@ public static class IdentitySettingConstant
     /// </summary>
     public static class SignIn
     {
-        public const bool RequireConfirmedEmail = true;
-        public const bool RequireConfirmedAccount = true;
+        public const bool RequireConfirmedEmail = false;
+        public const bool RequireConfirmedAccount = false;
     }
 }

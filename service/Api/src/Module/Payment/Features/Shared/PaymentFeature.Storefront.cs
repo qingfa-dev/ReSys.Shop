@@ -19,7 +19,7 @@ public sealed partial class PaymentFeature
 
             public static class Confirm
             {
-                public const string Route = $"{BaseRoute}/confirm";
+                public const string Route = $"{BaseRoute}/confirm/{{paymentId:guid}}";
                 public const string Description = "Confirm a payment";
                 public const string Summary = "Confirm payment";
             }
