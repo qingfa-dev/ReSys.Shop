@@ -1,33 +1,32 @@
 export interface SalesSummary {
-  total_revenue: number;
-  order_count: number;
-  average_order_value: number;
-  revenue_trend_percentage: number;
-  trend_history?: Array<{ date: string; revenue: number }>;
+  totalRevenue: number;
+  orderCount: number;
+  averageOrderValue: number;
+  revenueTrendPercentage: number;
+  trendHistory?: Array<{ date: string; revenue: number }>;
 }
 
 export interface InventorySummary {
-  total_variants: number;
-  out_of_stock_count: number;
-  low_stock_count: number;
-  stock_accuracy_percentage: number;
+  totalVariants: number;
+  outOfStockCount: number;
+  lowStockCount: number;
+  stockAccuracyPercentage: number;
 }
 
 export interface RecentProduct {
   id: string;
   name: string;
   slug: string;
-  created_at: string;
+  createdAtUtc: string;
 }
 
 export interface CatalogSummary {
-  total_products: number;
-  active_products: number;
-  total_variants: number;
-  total_taxonomies: number;
-  total_taxons: number;
-  total_digital_products: number;
-  recently_added: RecentProduct[];
+  totalProducts: number;
+  activeProducts: number;
+  totalVariants: number;
+  totalTaxonomies: number;
+  totalTaxons: number;
+  recentlyAdded: RecentProduct[];
 }
 
 export interface ActivityItem {
@@ -43,7 +42,9 @@ export interface RecentActivityResponse {
   items: ActivityItem[];
 }
 
-export interface DashboardQuery {
-  from?: string;
-  to?: string;
+import type { ServerQueryingParameters } from '@/shared/api/types/query-params.types'
+
+export interface DashboardQuery extends ServerQueryingParameters {
+  from?: string
+  to?: string
 }

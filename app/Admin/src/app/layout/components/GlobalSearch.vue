@@ -3,7 +3,7 @@
     <i class="pi pi-search" />
     <InputText
       v-model="searchQuery"
-      :placeholder="$t('layout.search') || 'Search...'"
+      :placeholder="generalLocales.layout.search"
       class="w-64 rounded-border"
       @focus="overlayVisible = true"
       @keydown.escape="overlayVisible = false"
@@ -20,7 +20,7 @@
           <span class="ml-2 text-sm text-color-secondary">{{ result.description }}</span>
         </div>
         <div v-if="searchResults.length === 0 && searchQuery.length > 0" class="p-2 text-sm text-color-secondary">
-          {{ $t('layout.noResults') || 'No results found' }}
+          {{ generalLocales.layout.noResults }}
         </div>
       </div>
     </OverlayPanel>
@@ -30,6 +30,7 @@
 <script setup lang="ts">
 import { ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
+import { generalLocales } from '@/shared/locales/general.locales'
 
 const router = useRouter()
 

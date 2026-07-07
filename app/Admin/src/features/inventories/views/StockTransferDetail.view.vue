@@ -40,7 +40,7 @@ async function loadTransfer() {
 }
 
 const onSearchProduct = async (event: { query: string }) => {
-    const res = await productStore.fetchProducts({ search: event.query, page_size: 5 });
+    const res = await productStore.fetchProducts({ search: event.query, pageSize: 5 });
     if (res.success && res.data) {
         productResults.value = res.data;
     }
@@ -89,11 +89,11 @@ async function onReceive() {
     }
 }
 
-const getStatusSeverity = (status?: string) => {
-    switch (status) {
+const getStatusSeverity = (state?: string) => {
+    switch (state) {
         case 'Received': return 'success';
-        case 'Shipped': return 'info';
-        case 'Pending': return 'warning';
+        case 'InTransit': return 'info';
+        case 'Draft': return 'warning';
         case 'Canceled': return 'danger';
         default: return 'secondary';
     }
@@ -114,16 +114,16 @@ onMounted(() => {
                 <div class="flex flex-col">
                     <div class="flex items-center gap-3">
                         <h2 class="text-4xl font-black tracking-tighter text-surface-900 dark:text-surface-50 m-0">
-                            {{ transfer.reference_number }}
+                            {{ transfer.referenceNumber }}
                         </h2>
-                        <Tag :value="transfer.status" :severity="getStatusSeverity(transfer.status)" rounded class="font-bold px-3" />
+                        <Tag :value="transfer.state" :severity="getStatusSeverity(transfer.state)" rounded class="font-bold px-3" />
                     </div>
-                    <p class="text-sm text-surface-500 m-0">Initiated on {{ formatDate(transfer.created_at) }}</p>
+                    <p class="text-sm text-surface-500 m-0">Initiated on {{ formatDate(transfer.createdAtUtc) }}</p>
                 </div>
             </div>
             <div class="flex items-center gap-3">
-                <Button v-if="transfer.status === 'Pending'" :label="t.actions?.ship" icon="pi pi-send" class="rounded-xl px-6" :loading="processing" @click="onShip" />
-                <Button v-if="transfer.status === 'Shipped'" :label="t.actions?.receive" icon="pi pi-download" severity="success" class="rounded-xl px-6" :loading="processing" @click="onReceive" />
+                <Button v-if="transfer.state === 'Draft'" :label="t.actions?.ship" icon="pi pi-send" class="rounded-xl px-6" :loading="processing" @click="onShip" />
+                <Button v-if="transfer.state === 'InTransit'" :label="t.actions?.receive" icon="pi pi-download" severity="success" class="rounded-xl px-6" :loading="processing" @click="onReceive" />
             </div>
         </div>
 
@@ -138,7 +138,7 @@ onMounted(() => {
                     <template #title>
                         <div class="flex justify-between items-center p-4">
                             <span class="text-xl font-black uppercase tracking-tight">Merchandise</span>
-                            <Button v-if="transfer.status === 'Pending'" :label="t.actions?.add" icon="pi pi-plus" size="small" text @click="itemDialog = true" />
+                            <Button v-if="transfer.state === 'Draft'" :label="t.actions?.add" icon="pi pi-plus" size="small" text @click="itemDialog = true" />
                         </div>
                     </template>
                     <template #content>
@@ -149,13 +149,13 @@ onMounted(() => {
                             <Column header="Product">
                                 <template #body="{ data }">
                                     <div class="flex flex-col">
-                                        <span class="font-bold text-surface-900 dark:text-surface-0">{{ data.variant_name }}</span>
+                                        <span class="font-bold text-surface-900 dark:text-surface-0">{{ data.variantName }}</span>
                                         <small class="font-mono text-xs text-surface-500 uppercase">{{ data.sku }}</small>
                                     </div>
                                 </template>
                             </Column>
                             <Column field="quantity" header="Quantity" class="text-right font-mono font-bold"></Column>
-                            <Column class="w-12 text-right" v-if="transfer.status === 'Pending'">
+                            <Column class="w-12 text-right" v-if="transfer.state === 'Draft'">
                                 <template #body>
                                     <Button icon="pi pi-trash" severity="danger" text rounded />
                                 </template>
@@ -183,7 +183,7 @@ onMounted(() => {
                                     <div class="w-10 h-10 rounded-xl bg-surface-800 flex items-center justify-center">
                                         <i class="pi pi-building text-surface-400"></i>
                                     </div>
-                                    <span class="font-bold text-lg">{{ transfer.source_location_name }}</span>
+                                    <span class="font-bold text-lg">{{ transfer.sourceLocationName }}</span>
                                 </div>
                             </div>
 
@@ -197,7 +197,7 @@ onMounted(() => {
                                     <div class="w-10 h-10 rounded-xl bg-primary/20 flex items-center justify-center text-primary">
                                         <i class="pi pi-map-marker"></i>
                                     </div>
-                                    <span class="font-bold text-lg">{{ transfer.destination_location_name }}</span>
+                                    <span class="font-bold text-lg">{{ transfer.destinationLocationName }}</span>
                                 </div>
                             </div>
                         </div>

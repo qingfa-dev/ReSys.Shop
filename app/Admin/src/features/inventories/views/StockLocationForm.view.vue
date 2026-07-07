@@ -30,12 +30,12 @@ const form = ref<CreateStockLocationRequest>({
     code: '',
     presentation: '',
     type: 0, // Warehouse
-    is_default: false,
+    isDefault: false,
     address: {
         address1: '',
         city: '',
-        zip_code: '',
-        country_code: 'US'
+        zipCode: '',
+        countryCode: 'US'
     }
 });
 
@@ -59,17 +59,17 @@ async function loadLocation() {
                 code: res.data.code,
                 presentation: res.data.presentation || '',
                 type: 0, // Need to map enum if necessary, backend might use string
-                is_default: res.data.is_default,
+                isDefault: res.data.isDefault,
                 address: {
                     address1: res.data.address.address1,
                     address2: res.data.address.address2 || '',
                     city: res.data.address.city,
-                    zip_code: res.data.address.zip_code,
-                    country_code: res.data.address.country_code,
-                    state_code: res.data.address.state_code || '',
+                    zipCode: res.data.address.zipCode,
+                    countryCode: res.data.address.countryCode,
+                    stateCode: res.data.address.stateCode || '',
                     phone: res.data.address.phone || '',
-                    first_name: res.data.address.first_name || '',
-                    last_name: res.data.address.last_name || '',
+                    firstName: res.data.address.firstName || '',
+                    lastName: res.data.address.lastName || '',
                     company: res.data.address.company || ''
                 }
             };
@@ -176,11 +176,11 @@ onMounted(() => {
                             </div>
                             <div class="flex flex-col gap-2">
                                 <label class="font-bold text-sm">{{ t.labels?.zip }}</label>
-                                <InputText v-model="form.address.zip_code" required class="w-full rounded-xl" />
+                                <InputText v-model="form.address.zipCode" required class="w-full rounded-xl" />
                             </div>
                             <div class="flex flex-col gap-2">
                                 <label class="font-bold text-sm">{{ t.labels?.country }}</label>
-                                <InputText v-model="form.address.country_code" required class="w-full rounded-xl" maxlength="2" placeholder="e.g. US" />
+                                <InputText v-model="form.address.countryCode" required class="w-full rounded-xl" maxlength="2" placeholder="e.g. US" />
                             </div>
                         </div>
                     </template>
@@ -202,7 +202,7 @@ onMounted(() => {
                                     <span class="font-bold text-sm">{{ t.labels?.is_default }}</span>
                                     <small class="text-surface-500">Fallback for inventory logic</small>
                                 </div>
-                                <ToggleSwitch v-model="form.is_default" />
+                                <ToggleSwitch v-model="form.isDefault" />
                             </div>
 
                             <Divider />

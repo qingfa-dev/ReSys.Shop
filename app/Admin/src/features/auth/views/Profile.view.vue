@@ -26,7 +26,7 @@ const notifications = ref({
 
 onMounted(async () => {
     loading.value = true;
-    const result = await authService.currentUser();
+    const result = await authService.getProfile();
     if (result.success && result.data) {
         user.value = result.data;
     } else {
@@ -36,8 +36,8 @@ onMounted(async () => {
 });
 
 const initials = computed(() => {
-    if (!user.value?.full_name) return '?';
-    return user.value.full_name
+    if (!user.value?.fullName) return '?';
+    return user.value.fullName
         .split(' ')
         .map((n: string) => n[0])
         .join('')
@@ -78,10 +78,10 @@ async function onChangePassword() {
                             {{ initials }}
                         </div>
                         <div>
-                            <h2 class="text-2xl font-bold text-surface-900 dark:text-surface-0">{{ user.full_name || 'User' }}</h2>
+                            <h2 class="text-2xl font-bold text-surface-900 dark:text-surface-0">{{ user.fullName || 'User' }}</h2>
                             <p class="text-surface-500 dark:text-surface-400">{{ user.email }}</p>
                             <div class="flex flex-wrap gap-2 mt-2">
-                                <Tag v-for="role in user.role_names" :key="role" :value="role" severity="info" />
+                                <Tag v-for="role in user.roleNames" :key="role" :value="role" severity="info" />
                             </div>
                         </div>
                     </div>
@@ -101,7 +101,7 @@ async function onChangePassword() {
                         <div class="flex flex-col gap-4">
                             <div>
                                 <span class="text-xs font-bold uppercase tracking-widest text-surface-400">Full Name</span>
-                                <p class="text-lg font-medium">{{ user.full_name || 'N/A' }}</p>
+                                <p class="text-lg font-medium">{{ user.fullName || 'N/A' }}</p>
                             </div>
                             <div>
                                 <span class="text-xs font-bold uppercase tracking-widest text-surface-400">Email Address</span>
@@ -109,11 +109,11 @@ async function onChangePassword() {
                             </div>
                             <div>
                                 <span class="text-xs font-bold uppercase tracking-widest text-surface-400">Username</span>
-                                <p class="text-lg font-medium">{{ user.user_name || 'N/A' }}</p>
+                                <p class="text-lg font-medium">{{ user.userName || 'N/A' }}</p>
                             </div>
                             <div>
                                 <span class="text-xs font-bold uppercase tracking-widest text-surface-400">Joined On</span>
-                                <p class="text-lg font-medium">{{ formatDate(user.created_at) }}</p>
+                                <p class="text-lg font-medium">{{ formatDate(user.createdAtUtc) }}</p>
                             </div>
                         </div>
                     </template>

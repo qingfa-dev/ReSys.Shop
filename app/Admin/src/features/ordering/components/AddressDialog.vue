@@ -13,23 +13,23 @@ const emit = defineEmits<{
 }>();
 
 const shipAddr = ref<Partial<AddressDetail>>({
-    firstname: '',
-    lastname: '',
+    firstName: '',
+    lastName: '',
     address1: '',
     address2: '',
     city: '',
-    zipcode: '',
-    country_code: 'US'
+    zipCode: '',
+    countryCode: 'US'
 });
 
 const billAddr = ref<Partial<AddressDetail>>({
-    firstname: '',
-    lastname: '',
+    firstName: '',
+    lastName: '',
     address1: '',
     address2: '',
     city: '',
-    zipcode: '',
-    country_code: 'US'
+    zipCode: '',
+    countryCode: 'US'
 });
 
 const sameAsShipping = ref(true);
@@ -44,7 +44,7 @@ onMounted(() => {
         // Simple check if they are the same
         const s = props.shippingAddress;
         const b = props.billingAddress;
-        if (s && b && s.address1 === b.address1 && s.zipcode === b.zipcode) {
+        if (s && b && s.address1 === b.address1 && s.zipCode === b.zipCode) {
             sameAsShipping.value = true;
         } else {
             sameAsShipping.value = false;
@@ -54,8 +54,8 @@ onMounted(() => {
 
 const onSave = () => {
     const payload: UpdateAddressesRequest = {
-        shipping_address: shipAddr.value,
-        billing_address: sameAsShipping.value ? shipAddr.value : billAddr.value
+        shippingAddress: shipAddr.value,
+        billingAddress: sameAsShipping.value ? shipAddr.value : billAddr.value
     };
     emit('save', payload);
 };
@@ -70,11 +70,11 @@ const onSave = () => {
                 <div class="grid grid-cols-2 gap-3">
                     <div class="flex flex-col gap-1">
                         <label class="text-xs font-bold">First Name</label>
-                        <InputText v-model="shipAddr.firstname" class="p-inputtext-sm" />
+                        <InputText v-model="shipAddr.firstName" class="p-inputtext-sm" />
                     </div>
                     <div class="flex flex-col gap-1">
                         <label class="text-xs font-bold">Last Name</label>
-                        <InputText v-model="shipAddr.lastname" class="p-inputtext-sm" />
+                        <InputText v-model="shipAddr.lastName" class="p-inputtext-sm" />
                     </div>
                 </div>
                 <div class="flex flex-col gap-1">
@@ -92,12 +92,12 @@ const onSave = () => {
                     </div>
                     <div class="flex flex-col gap-1">
                         <label class="text-xs font-bold">Zip Code</label>
-                        <InputText v-model="shipAddr.zipcode" class="p-inputtext-sm" />
+                        <InputText v-model="shipAddr.zipCode" class="p-inputtext-sm" />
                     </div>
                 </div>
                  <div class="flex flex-col gap-1">
                     <label class="text-xs font-bold">Country Code (ISO)</label>
-                    <InputText v-model="shipAddr.country_code" class="p-inputtext-sm" />
+                    <InputText v-model="shipAddr.countryCode" class="p-inputtext-sm" />
                 </div>
             </div>
 
@@ -115,11 +115,11 @@ const onSave = () => {
                     <div class="grid grid-cols-2 gap-3">
                         <div class="flex flex-col gap-1">
                             <label class="text-xs font-bold">First Name</label>
-                            <InputText v-model="billAddr.firstname" class="p-inputtext-sm" />
+                            <InputText v-model="billAddr.firstName" class="p-inputtext-sm" />
                         </div>
                         <div class="flex flex-col gap-1">
                             <label class="text-xs font-bold">Last Name</label>
-                            <InputText v-model="billAddr.lastname" class="p-inputtext-sm" />
+                            <InputText v-model="billAddr.lastName" class="p-inputtext-sm" />
                         </div>
                     </div>
                     <div class="flex flex-col gap-1">
@@ -137,12 +137,12 @@ const onSave = () => {
                         </div>
                         <div class="flex flex-col gap-1">
                             <label class="text-xs font-bold">Zip Code</label>
-                            <InputText v-model="billAddr.zipcode" class="p-inputtext-sm" />
+                            <InputText v-model="billAddr.zipCode" class="p-inputtext-sm" />
                         </div>
                     </div>
                     <div class="flex flex-col gap-1">
                         <label class="text-xs font-bold">Country Code (ISO)</label>
-                        <InputText v-model="billAddr.country_code" class="p-inputtext-sm" />
+                        <InputText v-model="billAddr.countryCode" class="p-inputtext-sm" />
                     </div>
                 </div>
                 <div v-else class="flex items-center justify-center h-full border-2 border-dashed border-surface-100 dark:border-surface-800 rounded-3xl text-surface-400 italic text-sm text-center p-8">

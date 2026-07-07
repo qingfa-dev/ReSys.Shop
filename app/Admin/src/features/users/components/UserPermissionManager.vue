@@ -25,12 +25,12 @@ onMounted(async () => {
 async function loadPermissions() {
     loading.value = true;
     try {
-        const res = await permissionService.listPermissions({ page_size: 1000 });
+        const res = await permissionService.list({ pageSize: 1000 });
         if (res.success && res.data) {
-            const allPerms = res.data.items;
+            const allPerms = res.data;
             
-            selection.value[1] = allPerms.filter((p: PermissionSummary) => props.initialPermissions.includes(p.name));
-            selection.value[0] = allPerms.filter((p: PermissionSummary) => !props.initialPermissions.includes(p.name));
+            selection.value[1] = allPerms.filter((p: PermissionSummary) => props.initialPermissions.includes(p.identifier));
+            selection.value[0] = allPerms.filter((p: PermissionSummary) => !props.initialPermissions.includes(p.identifier));
         }
     } finally {
         loading.value = false;
@@ -40,7 +40,7 @@ async function loadPermissions() {
 async function onSave() {
     saving.value = true;
     try {
-        const currentNames = selection.value[1].map((p: PermissionSummary) => p.name);
+        const currentNames = selection.value[1].map((p: PermissionSummary) => p.identifier);
         
         // 1. Find to add
         const toAdd = currentNames.filter((name: string) => !props.initialPermissions.includes(name));
@@ -77,16 +77,16 @@ async function onSave() {
             <ProgressSpinner />
         </div>
 
-        <PickList v-else v-model="selection" dataKey="name" breakpoint="1400px" 
+        <PickList v-else v-model="selection" dataKey="identifier" breakpoint="1400px" 
                   :showSourceControls="false" :showTargetControls="false">
             <template #sourceheader> Available </template>
             <template #targetheader> Assigned </template>
             <template #item="slotProps">
                 <div class="flex flex-col p-2">
-                    <span class="font-bold text-xs">{{ slotProps.item.display_name }}</span>
+                    <span class="font-bold text-xs">{{ slotProps.item.name }}</span>
                     <div class="flex items-center gap-2 mt-1">
-                        <Tag :value="slotProps.item.module" class="text-[9px]" severity="secondary" />
-                        <small class="text-[10px] text-surface-500 font-mono truncate">{{ slotProps.item.name }}</small>
+                        <Tag :value="slotProps.item.action" class="text-[9px]" severity="secondary" />
+                        <small class="text-[10px] text-surface-500 font-mono truncate">{{ slotProps.item.identifier }}</small>
                     </div>
                 </div>
             </template>

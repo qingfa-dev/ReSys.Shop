@@ -6,7 +6,7 @@ import { PropertyKind } from '../types/property-kind';
 
 vi.mock('../services/property-type.service', () => ({
   propertyTypeService: {
-    getList: vi.fn(),
+    list: vi.fn(),
     getById: vi.fn(),
     create: vi.fn(),
     update: vi.fn(),
@@ -23,7 +23,7 @@ describe('PropertyTypeStore', () => {
   it('should fetch list successfully', async () => {
     const store = usePropertyTypeStore();
     const mockData = [{ id: '1', name: 'Material', presentation: 'Mat', kind: PropertyKind.String, position: 0, filterable: false }];
-    vi.mocked(propertyTypeService.getList).mockResolvedValue({ success: true, data: mockData, meta: { total_count: 1 } } as any);
+    vi.mocked(propertyTypeService.list).mockResolvedValue({ success: true, data: mockData, meta: { totalCount: 1 } } as any);
 
     await store.fetchList();
 

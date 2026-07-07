@@ -14,12 +14,12 @@ const emit = defineEmits<{
 
 const { formatCurrency } = useFormatter();
 
-const amount = ref(props.payment.amount_cents / 100);
+const amount = ref(props.payment.amountCents / 100);
 const reason = ref('Customer requested cancellation');
 
 const onSave = () => {
     emit('save', {
-        amount_cents: Math.round(amount.value * 100),
+        amountCents: Math.round(amount.value * 100),
         reason: reason.value
     });
 };
@@ -31,17 +31,17 @@ const onSave = () => {
             <div class="p-4 bg-surface-50 dark:bg-surface-800 rounded-2xl border border-surface-100 dark:border-surface-700">
                 <div class="flex justify-between items-center mb-2">
                     <span class="text-xs font-black uppercase tracking-widest text-surface-400">Original Amount</span>
-                    <span class="font-bold">{{ formatCurrency(payment.amount_cents / 100) }}</span>
+                    <span class="font-bold">{{ formatCurrency(payment.amountCents / 100) }}</span>
                 </div>
                 <div class="flex justify-between items-center">
                     <span class="text-xs font-black uppercase tracking-widest text-surface-400">Method</span>
-                    <Tag :value="payment.method_type" severity="secondary" class="text-[10px]" />
+                    <Tag :value="payment.methodType" severity="secondary" class="text-[10px]" />
                 </div>
             </div>
 
             <div class="flex flex-col gap-2">
                 <label class="font-bold text-sm">Refund Amount</label>
-                <InputNumber v-model="amount" mode="currency" currency="USD" locale="en-US" class="w-full" inputClass="h-12" :max="payment.amount_cents / 100" />
+                <InputNumber v-model="amount" mode="currency" currency="USD" locale="en-US" class="w-full" inputClass="h-12" :max="payment.amountCents / 100" />
                 <small class="text-surface-500">Partial refunds are supported.</small>
             </div>
 

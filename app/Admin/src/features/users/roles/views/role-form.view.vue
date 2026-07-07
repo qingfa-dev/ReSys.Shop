@@ -16,7 +16,7 @@ const submitting = ref(false);
 
 const form = ref<CreateRoleRequest & UpdateRoleRequest>({
     name: '',
-    display_name: '',
+    displayName: '',
     description: '',
     priority: 0
 });
@@ -35,16 +35,16 @@ onMounted(async () => {
 });
 
 async function loadRole() {
-    const res = await roleService.getRole(roleId.value);
+    const res = await roleService.getById(roleId.value);
     if (res.success && res.data) {
         const role = res.data;
         form.value = {
             name: role.name,
-            display_name: role.display_name || '',
+            displayName: role.displayName || '',
             description: role.description || '',
             priority: role.priority
         };
-        isSystemRole.value = role.is_system_role;
+        isSystemRole.value = role.isSystem;
     } else {
         showToast('error', 'Error', 'Failed to load role details');
         router.push({ name: 'roles-list' });
@@ -56,11 +56,11 @@ async function onSubmit() {
     try {
         if (isEditMode.value) {
             const updateData: UpdateRoleRequest = {
-                display_name: form.value.display_name,
+                displayName: form.value.displayName,
                 description: form.value.description,
                 priority: form.value.priority
             };
-            const res = await roleService.updateRole(roleId.value, updateData);
+            const res = await roleService.update(roleId.value, updateData);
             if (res.success) {
                 showToast('success', 'Success', 'Role updated successfully');
                 router.push({ name: 'roles-list' });
@@ -68,11 +68,11 @@ async function onSubmit() {
         } else {
             const createData: CreateRoleRequest = {
                 name: form.value.name,
-                display_name: form.value.display_name,
+                displayName: form.value.displayName,
                 description: form.value.description,
                 priority: form.value.priority
             };
-            const res = await roleService.createRole(createData);
+            const res = await roleService.create(createData);
             if (res.success) {
                 showToast('success', 'Success', 'Role created successfully');
                 router.push({ name: 'roles-list' });
@@ -110,8 +110,8 @@ async function onSubmit() {
             </div>
 
             <div class="field">
-                <label for="display_name" class="font-bold block mb-2">Display Name</label>
-                <InputText id="display_name" v-model="form.display_name" class="w-full" required />
+                <label for="displayName" class="font-bold block mb-2">Display Name</label>
+                <InputText id="displayName" v-model="form.displayName" class="w-full" required />
             </div>
 
             <div class="field">

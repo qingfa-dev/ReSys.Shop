@@ -9,7 +9,6 @@ import { taxonomyLocales } from '../locales/taxonomy.locales'
 import { useToast } from '@/shared/composables/toast.use'
 import type { FeatureLocales } from '@/shared/locales/locale.types'
 import AppBreadcrumb from '@/shared/components/breadcrumb.component.vue'
-import MetadataManager from '@/shared/components/metadata-manager.component.vue'
 
 // --- LOCALES & ALIASES ---
 const t = taxonomyLocales as any
@@ -39,9 +38,6 @@ const [name] = defineField('name')
 const [presentation] = defineField('presentation')
 const [position] = defineField('position')
 
-const public_metadata = ref<Record<string, any>>({})
-const private_metadata = ref<Record<string, any>>({})
-
 onMounted(async () => {
   store.clearCurrent()
   if (isEdit.value) {
@@ -52,8 +48,7 @@ onMounted(async () => {
         presentation: result.data.presentation || '',
         position: result.data.position,
       })
-      public_metadata.value = result.data.public_metadata || {}
-      private_metadata.value = result.data.private_metadata || {}
+
     }
   }
 })
@@ -62,8 +57,6 @@ onMounted(async () => {
 const onFormSubmit = submitForm(async (values) => {
   const payload = {
     ...values,
-    public_metadata: public_metadata.value,
-    private_metadata: private_metadata.value,
   }
 
   const result = isEdit.value
@@ -79,7 +72,7 @@ const onFormSubmit = submitForm(async (values) => {
     if (!isEdit.value && result.data) {
         router.push({ name: 'catalog.taxonomies.edit', params: { id: result.data.id } })
     }
-    store.fetchTaxonomies({ page_size: 100 }) // Refresh sidebar list
+    store.fetchTaxonomies({ pageSize: 100 }) // Refresh sidebar list
   }
 })
 </script>
@@ -114,7 +107,6 @@ const onFormSubmit = submitForm(async (values) => {
             <Tabs v-model:value="activeTab" class="flex-1 flex flex-col overflow-hidden">
                 <TabList class="shrink-0">
                     <Tab :value="0">{{ (t as any).tabs.general }}</Tab>
-                    <Tab :value="1">{{ (t as any).tabs.metadata }}</Tab>
                 </TabList>
 
                 <TabPanels class="flex-1 overflow-y-auto p-6 scrollbar-thin">
@@ -142,13 +134,7 @@ const onFormSubmit = submitForm(async (values) => {
                         </div>
                     </TabPanel>
 
-                    <TabPanel :value="1">
-                        <div class="flex flex-col gap-8">
-                            <MetadataManager v-model="public_metadata" :title="(t.labels as any).public_metadata" />
-                            <Divider />
-                            <MetadataManager v-model="private_metadata" :title="(t.labels as any).private_metadata" />
-                        </div>
-                    </TabPanel>
+
                 </TabPanels>
             </Tabs>
           </div>

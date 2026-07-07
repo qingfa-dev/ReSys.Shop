@@ -21,9 +21,9 @@ describe('QueryBuilder', () => {
     const params = builder.build();
 
     expect(params.filter).toBe('name=Apple');
-    expect(params.sort).toBe('price desc');
+    expect(params.sort).toEqual(['-price']);
     expect(params.page).toBe(2);
-    expect(params.page_size).toBe(20);
+    expect(params.pageSize).toBe(20);
   });
 
   it('should support multiple where conditions with commas', () => {
@@ -54,7 +54,7 @@ describe('QueryBuilder', () => {
 
     const params = builder.build();
     expect(params.filter).toBe('category.name=Books');
-    expect(params.sort).toBe('category.name');
+    expect(params.sort).toEqual(['category.name']);
   });
 
   it('should support search with multiple fields', () => {
@@ -63,7 +63,7 @@ describe('QueryBuilder', () => {
 
     const params = builder.build();
     expect(params.search).toBe('query');
-    expect(params.search_field).toEqual(['name', 'category.name']);
+    expect(params.searchFields).toEqual(['name', 'category.name']);
   });
 
   it('should support custom mappings', () => {
@@ -74,7 +74,7 @@ describe('QueryBuilder', () => {
 
     const params = builder.build();
     expect(params.filter).toBe('category.name=Electronics');
-    expect(params.sort).toBe('category.name desc');
+    expect(params.sort).toEqual(['-category.name']);
   });
 
   it('should format special values correctly', () => {
@@ -111,7 +111,7 @@ describe('QueryBuilder', () => {
       .orderByDescending('category.name');
 
     const params = builder.build();
-    expect(params.sort).toBe('name desc,category.name desc');
+    expect(params.sort).toEqual(['-name', '-category.name']);
   });
 
   it('should handle complex chaining with mixed operations', () => {
@@ -127,9 +127,9 @@ describe('QueryBuilder', () => {
 
     const params = builder.build();
     expect(params.filter).toBe('price>10,(name*a|name*b)');
-    expect(params.sort).toBe('price desc');
+    expect(params.sort).toEqual(['-price']);
     expect(params.page).toBe(1);
-    expect(params.page_size).toBe(100);
+    expect(params.pageSize).toBe(100);
   });
 
   it('should verify snake_case property paths in filter string', () => {
@@ -177,6 +177,6 @@ describe('QueryBuilder', () => {
       .search('test', ['n', 'cn']);
 
     const params = builder.build();
-    expect(params.search_field).toEqual(['name', 'category.name']);
+    expect(params.searchFields).toEqual(['name', 'category.name']);
   });
 });

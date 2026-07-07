@@ -32,14 +32,13 @@ const loadUsers = async () => {
 const onPage = (event: DataTablePageEvent) => {
     store.fetchAdmins({
         page: event.page !== undefined ? event.page + 1 : 1,
-        page_size: event.rows,
+        pageSize: event.rows,
     });
 };
 
 const onSort = (event: DataTableSortEvent) => {
     store.fetchAdmins({
-        sort_by: event.sortField as string,
-        is_descending: event.sortOrder === -1,
+        sort: [event.sortOrder === -1 ? `-${event.sortField as string}` : event.sortField as string],
         page: 1,
     });
 };
@@ -105,10 +104,10 @@ const confirmDelete = (user: AdminUserSummary) => {
           @sort="onSort"
           @filter="onFilter"
           :paginator="true"
-          :rows="query.page_size || 10"
-          :first="((query.page || 1) - 1) * (query.page_size || 10)"
-          :sortField="query.sort_by"
-          :sortOrder="query.is_descending ? -1 : 1"
+          :rows="query.pageSize || 10"
+          :first="((query.page || 1) - 1) * (query.pageSize || 10)"
+          :sortField="query.sort?.[0]?.replace(/^-/, '')"
+          :sortOrder="query.sort?.[0]?.startsWith('-') ? -1 : 1"
           dataKey="id"
           filterDisplay="menu"
           removableSort
@@ -146,32 +145,32 @@ const confirmDelete = (user: AdminUserSummary) => {
             </div>
           </template>
 
-          <Column field="full_name" :header="t.table?.user" sortable>
+          <Column field="fullName" :header="t.table?.user" sortable>
             <template #body="{ data }">
               <div class="flex flex-col">
-                <span class="font-bold text-surface-900 dark:text-surface-0">{{ data.full_name || 'Incomplete Profile' }}</span>
+                <span class="font-bold text-surface-900 dark:text-surface-0">{{ data.fullName || 'Incomplete Profile' }}</span>
                 <small class="font-mono text-[10px] text-surface-500 uppercase tracking-widest">{{ data.email }}</small>
               </div>
             </template>
           </Column>
 
-          <Column field="role_names" :header="t.table?.roles">
+          <Column field="roleNames" :header="t.table?.roles">
             <template #body="{ data }">
               <div class="flex gap-1">
-                <Tag v-for="r in data.role_names" :key="r" :value="r" severity="info" class="text-[9px] font-black uppercase" />
+                <Tag v-for="r in data.roleNames" :key="r" :value="r" severity="info" class="text-[9px] font-black uppercase" />
               </div>
             </template>
           </Column>
 
-          <Column field="is_active" :header="t.table?.status">
+          <Column field="isActive" :header="t.table?.status">
             <template #body="{ data }">
-              <Tag :value="data.is_active ? 'Active' : 'Inactive'" :severity="data.is_active ? 'success' : 'secondary'" rounded class="font-bold px-3" />
+              <Tag :value="data.isActive ? 'Active' : 'Inactive'" :severity="data.isActive ? 'success' : 'secondary'" rounded class="font-bold px-3" />
             </template>
           </Column>
 
-          <Column field="created_at" :header="t.table?.joined" sortable>
+          <Column field="createdAtUtc" :header="t.table?.joined" sortable>
             <template #body="{ data }">
-              <span class="text-sm">{{ formatDate(data.created_at) }}</span>
+              <span class="text-sm">{{ formatDate(data.createdAtUtc) }}</span>
             </template>
           </Column>
 

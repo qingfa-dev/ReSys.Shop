@@ -51,11 +51,11 @@ const onToggleStatus = async (id: string, current: boolean) => {
 
                 <div class="flex items-center gap-2 text-surface-500 text-sm">
                     <i class="pi pi-map-marker text-xs"></i>
-                    <span>{{ loc.city }}, {{ loc.country_code }}</span>
+                    <span>{{ loc.city }}, {{ loc.countryCode }}</span>
                 </div>
 
                 <div class="flex items-center gap-2">
-                    <Badge v-if="loc.is_default" value="Primary" severity="info" class="text-[10px] font-black" />
+                    <Badge v-if="loc.isDefault" value="Primary" severity="info" class="text-[10px] font-black" />
                     <Tag :value="loc.type" severity="secondary" class="text-[10px] font-black" />
                 </div>
 

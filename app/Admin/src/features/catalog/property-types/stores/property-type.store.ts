@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia';
 import { ref } from 'vue';
+import { usePagedList } from '@/shared/composables/paged-list.use';
 import { propertyTypeService } from '../services/property-type.service';
 import type { 
   PropertyTypeListItem, 
@@ -11,30 +12,12 @@ import type {
 } from '../types/property-type.types';
 
 export const usePropertyTypeStore = defineStore('property-type', () => {
-  const items = ref<PropertyTypeListItem[]>([]);
   const currentItem = ref<PropertyTypeDetail | null>(null);
-  const loading = ref(false);
-  const totalRecords = ref(0);
-  const query = ref<PropertyTypeQuery>({
-    page: 1,
-    page_size: 10,
-    sort: 'position',
-  });
 
-  async function fetchList(params?: Partial<PropertyTypeQuery>) {
-    loading.value = true;
-    if (params) {
-      query.value = { ...query.value, ...params };
-    }
-
-    const result = await propertyTypeService.getList(query.value);
-    if (result.success && result.data) {
-      items.value = result.data;
-      totalRecords.value = result.meta?.total_count || 0;
-    }
-    loading.value = false;
-    return result;
-  }
+  const { items, loading, totalRecords, params, fetch: fetchList } = usePagedList<PropertyTypeListItem, PropertyTypeQuery>(
+    (p) => propertyTypeService.list(p),
+    { sort: ['position'] },
+  );
 
   async function fetchById(id: string) {
     loading.value = true;
@@ -83,7 +66,7 @@ export const usePropertyTypeStore = defineStore('property-type', () => {
     currentItem,
     loading,
     totalRecords,
-    query,
+    params,
     fetchList,
     fetchById,
     create,

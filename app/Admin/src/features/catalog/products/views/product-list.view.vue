@@ -49,7 +49,7 @@ const loadProducts = async () => {
 const onPage = (event: DataTablePageEvent) => {
   store.fetchProducts({
     page: event.page !== undefined ? event.page + 1 : 1,
-    page_size: event.rows,
+    pageSize: event.rows,
   });
 };
 
@@ -60,8 +60,7 @@ const onSort = (event: DataTableSortEvent) => {
   }
 
   store.fetchProducts({
-    sort_by: event.sortField as string,
-    is_descending: event.sortOrder === -1,
+    sort: [event.sortOrder === -1 ? `-${event.sortField}` : event.sortField as string],
     page: 1,
   });
 };
@@ -177,10 +176,10 @@ onMounted(() => {
         @sort="onSort"
         @filter="onFilter"
         :paginator="true"
-        :rows="query.page_size || 10"
-        :first="((query.page || 1) - 1) * (query.page_size || 10)"
-        :sortField="query.sort_by"
-        :sortOrder="query.is_descending ? -1 : 1"
+        :rows="query.pageSize || 10"
+        :first="((query.page || 1) - 1) * (query.pageSize || 10)"
+        :sortField="query.sort?.[0]?.replace(/^-/, '')"
+        :sortOrder="query.sort?.[0]?.startsWith('-') ? -1 : 1"
         filterDisplay="menu"
         removableSort
         scrollable
@@ -220,10 +219,10 @@ onMounted(() => {
           </div>
         </template>
 
-        <Column field="image_url" :header="t.table?.preview" class="w-24">
+        <Column field="imageUrl" :header="t.table?.preview" class="w-24">
           <template #body="{ data }">
             <div class="w-14 h-14 rounded-xl overflow-hidden border border-surface-100 dark:border-surface-700 bg-surface-50 flex items-center justify-center">
-                <Image v-if="data.image_url" :src="data.image_url" :alt="data.name" preview imageClass="w-full h-full object-cover" />
+                <Image v-if="data.imageUrl" :src="data.imageUrl" :alt="data.name" preview imageClass="w-full h-full object-cover" />
                 <i v-else class="pi pi-image text-surface-300 text-xl"></i>
             </div>
           </template>
@@ -253,15 +252,15 @@ onMounted(() => {
             </template>
         </Column>
 
-        <Column field="variant_count" header="Variants" class="text-center w-24">
+        <Column field="variantsCount" header="Variants" class="text-center w-24">
             <template #body="{ data }">
-                <Badge :value="data.variant_count" severity="secondary" />
+                <Badge :value="data.variantsCount" severity="secondary" />
             </template>
         </Column>
 
-        <Column field="is_active" :header="t.table?.status">
+        <Column field="status" :header="t.table?.status">
             <template #body="{ data }">
-                <Tag :value="data.is_active ? 'Active' : 'Inactive'" :severity="data.is_active ? 'success' : 'secondary'" rounded class="font-bold px-3" />
+                <Tag :value="data.status" :severity="data.status === 'Active' ? 'success' : 'secondary'" rounded class="font-bold px-3" />
             </template>
         </Column>
 

@@ -1,20 +1,29 @@
 import { describe, it, expect } from 'vitest'
 import { parseApiError } from './api.utils'
 
+
 describe('parseApiError - Edge Cases', () => {
   it('should handle null or undefined input gracefully', () => {
     expect(parseApiError(null as unknown)).toEqual({
-      status: 500,
+      statusCode: 500,
       title: 'Connection Error',
+      message: null,
       detail: 'An unexpected error occurred.',
+      isSuccess: false,
+      errors: {},
+      error_code: undefined,
     })
   })
 
   it('should handle non-object inputs', () => {
     expect(parseApiError('Something went wrong')).toEqual({
-      status: 500,
+      statusCode: 500,
       title: 'Connection Error',
+      message: null,
       detail: 'An unexpected error occurred.',
+      isSuccess: false,
+      errors: {},
+      error_code: undefined,
     })
   })
 
@@ -22,11 +31,11 @@ describe('parseApiError - Edge Cases', () => {
     const error = {
       response: {
         status: 403,
-        data: { title: 'Forbidden' }, // No status field in body
+        data: { title: 'Forbidden' },
       },
     }
     const result = parseApiError(error)
-    expect(result.status).toBe(403)
+    expect(result.statusCode).toBe(403)
     expect(result.title).toBe('Forbidden')
   })
 
@@ -52,15 +61,15 @@ describe('parseApiError - Edge Cases', () => {
     expect(result.errors).toEqual({})
   })
 
-  it('should prioritize apiError.status over axios response status', () => {
+  it('should prioritize apiError.statusCode over axios response status', () => {
     const error = {
       response: {
         status: 400,
-        data: { status: 422, title: 'Unprocessable' },
+        data: { statusCode: 422, title: 'Unprocessable' },
       },
     }
     const result = parseApiError(error)
-    expect(result.status).toBe(422)
+    expect(result.statusCode).toBe(422)
   })
 
   it('should handle PascalCase properties from backend', () => {
@@ -70,7 +79,7 @@ describe('parseApiError - Edge Cases', () => {
       },
     }
     const result = parseApiError(error)
-    expect(result.status).toBe(409)
+    expect(result.statusCode).toBe(409)
     expect(result.title).toBe('Conflict')
     expect(result.detail).toBe('Already exists')
     expect(result.error_code).toBe('Duplicate')
@@ -88,12 +97,41 @@ describe('parseApiError - Edge Cases', () => {
 
   it('should be idempotent and return already parsed errors', () => {
     const parsedError = {
-      status: 400,
+      statusCode: 400,
       title: 'Already Parsed',
       detail: 'Details here',
       error_code: 'CODE',
     }
     const result = parseApiError(parsedError)
-    expect(result).toEqual(parsedError)
+    expect(result.statusCode).toBe(400)
+    expect(result.title).toBe('Already Parsed')
+    expect(result.detail).toBe('Details here')
+    expect(result.error_code).toBe('CODE')
+  })
+
+  it('should convert ServerError[] to Record<string, string[]>', () => {
+    const error = {
+      response: {
+        status: 400,
+        data: {
+          isSuccess: false,
+          statusCode: 400,
+          message: 'Validation failed',
+          errors: [
+            { code: 'Required', message: 'Name is required', type: 0, metadata: null },
+            { code: 'Required', message: 'Email is required', type: 0, metadata: null },
+            { code: 'InvalidFormat', message: 'Invalid email format', type: 0, metadata: null },
+          ],
+        },
+      },
+    }
+    const result = parseApiError(error)
+    expect(result.statusCode).toBe(400)
+    expect(result.isSuccess).toBe(false)
+    expect(result.message).toBe('Validation failed')
+    expect(result.errors).toEqual({
+      Required: ['Name is required', 'Email is required'],
+      InvalidFormat: ['Invalid email format'],
+    })
   })
 })

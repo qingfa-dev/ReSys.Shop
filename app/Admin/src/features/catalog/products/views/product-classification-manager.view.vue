@@ -4,7 +4,7 @@ import { useProductStore } from '../stores/product.store';
 import { useTaxonomyStore } from '@/features/catalog/taxonomies/stores/taxonomy.store';
 import { storeToRefs } from 'pinia';
 import { useApiErrorHandler } from '@/shared/composables/api-error-handler.use';
-import type { ApiResult } from '@/shared/api/api.types';
+import type { ApiResult } from '@/shared/api/types/api.types';
 
 const props = defineProps<{
     productId: string;
@@ -22,7 +22,7 @@ onMounted(async () => {
 });
 
 const onToggleTaxon = async (taxonId: string) => {
-    const currentIds = current_classifications.value.map((c: any) => c.taxon_id);
+    const currentIds = current_classifications.value.map((c: any) => c.taxonId);
     const hasTaxon = currentIds.includes(taxonId);
     
     let newIds = [];
@@ -34,14 +34,14 @@ const onToggleTaxon = async (taxonId: string) => {
 
     const result = (await productStore.updateClassifications(props.productId, {
         taxon_ids: newIds,
-        main_taxon_id: current_classifications.value.find((c: any) => c.is_main)?.taxon_id
+        main_taxon_id: current_classifications.value.find((c: any) => c.isMain)?.taxonId
     })) as unknown as ApiResult<any>;
     handleApiResult(result);
 };
 
 const onSetMain = async (taxonId: string) => {
     const result = (await productStore.updateClassifications(props.productId, {
-        taxon_ids: current_classifications.value.map((c: any) => c.taxon_id),
+        taxon_ids: current_classifications.value.map((c: any) => c.taxonId),
         main_taxon_id: taxonId
     })) as unknown as ApiResult<any>;
     handleApiResult(result);

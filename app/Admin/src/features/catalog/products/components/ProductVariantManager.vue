@@ -31,7 +31,7 @@ const loadVariants = async () => {
     try {
         const result = await variantService.listByProductId(props.productId);
         if (result.success && result.data) {
-            variants.value = result.data.items || [];
+            variants.value = result.data || [];
         }
     } finally {
         loading.value = false;
@@ -124,7 +124,7 @@ onMounted(() => {
                     <template #body="{ data }">
                         <div class="flex items-center gap-2">
                             <span class="font-mono text-xs font-bold">{{ data.sku }}</span>
-                            <Tag v-if="data.is_master" value="Master" severity="primary" class="text-[8px]" />
+                            <Tag v-if="data.isMaster" value="Master" severity="primary" class="text-[8px]" />
                         </div>
                     </template>
                 </Column>
@@ -140,16 +140,16 @@ onMounted(() => {
                         <span class="font-black">{{ formatCurrency(data.price) }}</span>
                     </template>
                 </Column>
-                <Column field="is_active" :header="t.table?.status" class="text-center w-24">
+                <Column field="status" :header="t.table?.status" class="text-center w-24">
                     <template #body="{ data }">
-                        <Tag :value="data.is_active ? 'Active' : 'Inactive'" :severity="data.is_active ? 'success' : 'secondary'" rounded class="text-[10px]" />
+                        <Tag :value="data.status || 'Active'" :severity="(data.status || 'Active') === 'Active' ? 'success' : 'secondary'" rounded class="text-[10px]" />
                     </template>
                 </Column>
                 <Column class="w-32 text-right">
                     <template #body="{ data }">
                         <div class="flex justify-end gap-1">
                             <Button icon="pi pi-pencil" text rounded size="small" severity="secondary" @click="openEdit(data)" />
-                            <Button v-if="!data.is_master" icon="pi pi-trash" text rounded size="small" severity="danger" @click="onDelete(data)" />
+                            <Button v-if="!data.isMaster" icon="pi pi-trash" text rounded size="small" severity="danger" @click="onDelete(data)" />
                         </div>
                     </template>
                 </Column>

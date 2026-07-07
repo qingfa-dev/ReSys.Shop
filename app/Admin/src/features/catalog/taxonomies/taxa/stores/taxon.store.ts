@@ -51,11 +51,11 @@ export const useTaxonStore = defineStore('taxon', () => {
 
 
 
-      if (t.parent_id && map[t.parent_id]) {
+      if (t.parentId && map[t.parentId]) {
 
-        map[t.parent_id]!.children.push(item);
+        map[t.parentId]!.children.push(item);
 
-      } else if (!t.parent_id) {
+      } else if (!t.parentId) {
 
         roots.push(item);
 
@@ -93,7 +93,7 @@ export const useTaxonStore = defineStore('taxon', () => {
 
     if (taxonomyId && taxonomyId !== 'root') {
 
-        params.taxonomy_id = [taxonomyId];
+        params.taxonomyId = [taxonomyId];
 
     }
 
@@ -103,7 +103,7 @@ export const useTaxonStore = defineStore('taxon', () => {
 
       currentTaxons.value = result.data;
 
-      totalRecords.value = result.meta?.total_count || result.data.length;
+      totalRecords.value = result.meta?.totalCount || result.data.length;
 
     } else if (!result.success) {
 
@@ -125,7 +125,7 @@ export const useTaxonStore = defineStore('taxon', () => {
 
     error.value = null;
 
-    const result = await taxonService.create({ ...request, taxonomy_id: taxonomyId } as CreateTaxonRequest);
+    const result = await taxonService.create({ ...request, taxonomyId: taxonomyId } as CreateTaxonRequest);
 
     if (result.success) {
 
@@ -151,7 +151,7 @@ export const useTaxonStore = defineStore('taxon', () => {
 
     error.value = null;
 
-    const result = await taxonService.update(taxonId, { ...request, taxonomy_id: taxonomyId });
+    const result = await taxonService.update(taxonId, { ...request, taxonomyId: taxonomyId });
 
     if (result.success) {
 

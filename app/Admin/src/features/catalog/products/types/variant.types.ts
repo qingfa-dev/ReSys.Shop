@@ -5,15 +5,18 @@ export interface VariantOption {
 
 export interface VariantSummary {
   id: string;
-  product_id: string;
+  productId: string;
   sku: string | null;
   barcode: string | null;
   price: number;
-  compare_at_price: number | null;
-  cost_price: number | null;
-  is_master: boolean;
+  compareAtPrice: number | null;
+  costPrice: number | null;
+  costCurrency?: string;
+  isMaster: boolean;
   position: number;
-  track_inventory: boolean;
+  trackInventory: boolean;
+  weightUnit?: string;
+  dimensionsUnit?: string;
   options: VariantOption[];
 }
 
@@ -22,25 +25,23 @@ export interface VariantDetail extends VariantSummary {
   height: number | null;
   width: number | null;
   depth: number | null;
-  public_metadata: Record<string, any>;
-  private_metadata: Record<string, any>;
-  option_value_ids: string[];
+  optionValueIds: string[];
 }
 
 export interface CreateVariantRequest {
-  product_id?: string;
+  productId?: string;
   sku: string;
   barcode?: string;
   price: number;
-  compare_at_price?: number | null;
-  cost_price?: number | null;
+  compareAtPrice?: number | null;
+  costPrice?: number | null;
   position?: number;
-  track_inventory?: boolean;
+  trackInventory?: boolean;
   weight?: number | null;
   height?: number | null;
   width?: number | null;
   depth?: number | null;
-  option_value_ids?: string[];
+  optionValueIds?: string[];
 }
 
 export type UpdateVariantRequest = Partial<CreateVariantRequest>;

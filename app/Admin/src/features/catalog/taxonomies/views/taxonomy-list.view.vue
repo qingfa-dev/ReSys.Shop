@@ -52,7 +52,7 @@ const createItem = () => {
 const onPage = (event: DataTablePageEvent) => {
   store.fetchTaxonomies({
     page: event.page !== undefined ? event.page + 1 : 1,
-    page_size: event.rows,
+    pageSize: event.rows,
   });
 };
 
@@ -63,8 +63,7 @@ const onSort = (event: DataTableSortEvent) => {
   }
 
   store.fetchTaxonomies({
-    sort_by: event.sortField as string,
-    is_descending: event.sortOrder === -1,
+    sort: [event.sortOrder === -1 ? `-${event.sortField}` : event.sortField as string],
     page: 1,
   });
 };
@@ -155,8 +154,8 @@ onMounted(() => {
         :totalRecords="totalRecords"
         lazy
         paginator
-        :rows="query.page_size || 10"
-        :first="((query.page || 1) - 1) * (query.page_size || 10)"
+        :rows="query.pageSize || 10"
+        :first="((query.page || 1) - 1) * (query.pageSize || 10)"
         @page="onPage"
         @sort="onSort"
         @filter="onFilter"
@@ -199,9 +198,9 @@ onMounted(() => {
             </template>
         </Column>
 
-        <Column field="taxon_count" :header="t.table.taxons" sortable class="text-center">
+        <Column field="taxonsCount" :header="t.table.taxons" sortable class="text-center">
             <template #body="{ data }">
-                <Badge :value="data.taxon_count" severity="secondary" class="font-bold" />
+                <Badge :value="data.taxonsCount" severity="secondary" class="font-bold" />
             </template>
         </Column>
 

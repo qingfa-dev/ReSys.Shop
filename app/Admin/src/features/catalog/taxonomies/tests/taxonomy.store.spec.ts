@@ -42,7 +42,7 @@ describe('TaxonomyStore', () => {
     vi.mocked(taxonomyService.list).mockResolvedValue({
       success: true,
       data: mockData,
-      meta: { total_count: 1 } as any
+      meta: { totalCount: 1 } as any
     });
 
     await store.fetchTaxonomies();

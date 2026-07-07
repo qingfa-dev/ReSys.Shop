@@ -27,29 +27,23 @@ const { defineField, errors, handleSubmit: submitForm, setValues, resetForm } = 
   validationSchema: toTypedSchema(countryCreateSchema),
   initialValues: {
     name: '',
-    isoCode2: '',
-    isoCode3: '',
-    numericCode: '',
-    phoneCode: '',
+    isoCode: '',
+    callingCode: '',
     isActive: true,
   },
 })
 
 const [name] = defineField('name')
-const [isoCode2] = defineField('isoCode2')
-const [isoCode3] = defineField('isoCode3')
-const [numericCode] = defineField('numericCode')
-const [phoneCode] = defineField('phoneCode')
+const [isoCode] = defineField('isoCode')
+const [callingCode] = defineField('callingCode')
 const [isActive] = defineField('isActive')
 
 watch(() => props.visible, (val) => {
   if (val && props.item) {
     setValues({
       name: props.item.name,
-      isoCode2: props.item.isoCode2,
-      isoCode3: props.item.isoCode3,
-      numericCode: props.item.numericCode || '',
-      phoneCode: props.item.phoneCode || '',
+      isoCode: props.item.isoCode,
+      callingCode: props.item.callingCode || '',
       isActive: props.item.isActive,
     })
   } else if (val) {
@@ -96,28 +90,15 @@ const onCancel = () => {
         <small class="text-red-500 ml-1" v-if="errors.name">{{ errors.name }}</small>
       </div>
 
-      <div class="grid grid-cols-2 gap-4">
-        <div class="flex flex-col gap-2">
-          <label for="isoCode2" class="font-bold text-xs uppercase tracking-wider text-surface-500 ml-1">ISO Code 2</label>
-          <InputText id="isoCode2" v-model="isoCode2" placeholder="US" maxlength="2" class="rounded-xl h-11 uppercase" :invalid="!!errors.isoCode2" />
-          <small class="text-red-500 ml-1" v-if="errors.isoCode2">{{ errors.isoCode2 }}</small>
-        </div>
-        <div class="flex flex-col gap-2">
-          <label for="isoCode3" class="font-bold text-xs uppercase tracking-wider text-surface-500 ml-1">ISO Code 3</label>
-          <InputText id="isoCode3" v-model="isoCode3" placeholder="USA" maxlength="3" class="rounded-xl h-11 uppercase" :invalid="!!errors.isoCode3" />
-          <small class="text-red-500 ml-1" v-if="errors.isoCode3">{{ errors.isoCode3 }}</small>
-        </div>
+      <div class="flex flex-col gap-2">
+        <label for="isoCode" class="font-bold text-xs uppercase tracking-wider text-surface-500 ml-1">ISO Code</label>
+        <InputText id="isoCode" v-model="isoCode" placeholder="US" maxlength="2" class="rounded-xl h-11 uppercase" :invalid="!!errors.isoCode" />
+        <small class="text-red-500 ml-1" v-if="errors.isoCode">{{ errors.isoCode }}</small>
       </div>
 
-      <div class="grid grid-cols-2 gap-4">
-        <div class="flex flex-col gap-2">
-          <label for="numericCode" class="font-bold text-xs uppercase tracking-wider text-surface-500 ml-1">Numeric Code</label>
-          <InputText id="numericCode" v-model="numericCode" placeholder="840" class="rounded-xl h-11" />
-        </div>
-        <div class="flex flex-col gap-2">
-          <label for="phoneCode" class="font-bold text-xs uppercase tracking-wider text-surface-500 ml-1">Phone Code</label>
-          <InputText id="phoneCode" v-model="phoneCode" placeholder="+1" class="rounded-xl h-11" />
-        </div>
+      <div class="flex flex-col gap-2">
+        <label for="callingCode" class="font-bold text-xs uppercase tracking-wider text-surface-500 ml-1">Calling Code</label>
+        <InputText id="callingCode" v-model="callingCode" placeholder="+1" class="rounded-xl h-11" />
       </div>
 
       <div class="flex flex-col gap-2">

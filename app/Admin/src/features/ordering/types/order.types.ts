@@ -3,54 +3,56 @@ export interface OrderListItem {
   number: string;
   state: string;
   currency: string;
-  total_cents: number;
-  total_display: string;
+  totalCents: number;
+  totalDisplay: string;
   email?: string;
-  created_at: string;
+  paymentState?: string;
+  shipmentState?: string;
+  createdAtUtc: string;
 }
 
 export interface AddressDetail {
   id: string;
-  firstname: string;
-  lastname: string;
+  firstName: string;
+  lastName: string;
   address1: string;
   address2?: string;
   city: string;
-  zipcode: string;
-  country_code: string;
-  state_code?: string;
+  zipCode: string;
+  countryCode: string;
+  stateCode?: string;
   phone?: string;
   company?: string;
 }
 
 export interface LineItemDetail {
   id: string;
-  variant_id: string;
+  variantId: string;
   name: string;
   sku: string;
   quantity: number;
-  unit_price_cents: number;
-  unit_price_display: string;
-  total_cents: number;
-  total_display: string;
-  inventory_units: InventoryUnitDetail[];
+  unitPriceCents: number;
+  unitPriceDisplay: string;
+  totalCents: number;
+  totalDisplay: string;
+  inventoryUnits: InventoryUnitDetail[];
 }
 
 export interface PaymentDetail {
   id: string;
-  amount_cents: number;
-  amount_display: string;
+  amountCents: number;
+  amountDisplay: string;
   state: string;
-  method_type: string;
-  transaction_id?: string;
-  created_at: string;
+  methodType: string;
+  transactionId?: string;
+  createdAtUtc: string;
 }
 
 export interface InventoryUnitDetail {
   id: string;
   sku: string;
   state: string;
-  serial_number?: string;
+  serialNumber?: string;
   pending: boolean;
 }
 
@@ -58,62 +60,58 @@ export interface ShipmentDetail {
   id: string;
   number: string;
   state: string;
-  tracking_number?: string;
-  stock_location_id: string;
-  stock_location_name?: string;
+  trackingNumber?: string;
+  stockLocationId: string;
+  stockLocationName?: string;
   units: InventoryUnitDetail[];
 }
 
 export interface OrderHistoryDetail {
   description: string;
-  from_state?: string;
-  to_state: string;
-  triggered_by?: string;
-  created_at: string;
+  fromState?: string;
+  toState: string;
+  triggeredBy?: string;
+  createdAtUtc: string;
   context: Record<string, any>;
 }
 
 export interface OrderDetail extends OrderListItem {
-  item_total_cents: number;
-  item_total_display: string;
-  shipment_total_cents: number;
-  shipment_total_display: string;
-  line_items: LineItemDetail[];
+  itemTotalCents: number;
+  itemTotalDisplay: string;
+  shipmentTotalCents: number;
+  shipmentTotalDisplay: string;
+  lineItems: LineItemDetail[];
   payments: PaymentDetail[];
   shipments: ShipmentDetail[];
   history: OrderHistoryDetail[];
-  shipping_address?: AddressDetail;
-  billing_address?: AddressDetail;
+  shippingAddress?: AddressDetail;
+  billingAddress?: AddressDetail;
 }
 
-export interface OrderSearchParams {
-  page?: number;
-  page_size?: number;
-  search?: string;
-  filter?: string;
-  state?: string;
-  sort_by?: string;
-  is_descending?: boolean;
-  store_id?: string;
-  warehouse_id?: string;
-  from_date?: string;
-  to_date?: string;
+import type { ServerQueryingParameters } from '@/shared/api/types/query-params.types'
+
+export interface OrderSearchParams extends ServerQueryingParameters {
+  state?: string
+  storeId?: string
+  warehouseId?: string
+  fromDate?: string
+  toDate?: string
 }
 
 export interface CreateOrderRequest {
   email: string;
   currency?: string;
-  line_items: Array<{ variant_id: string; quantity: number }>;
+  lineItems: Array<{ variantId: string; quantity: number }>;
 }
 
 export interface AddOrderItemRequest {
-  variant_id: string;
+  variantId: string;
   quantity: number;
 }
 
 export interface UpdateAddressesRequest {
-  shipping_address?: Partial<AddressDetail>;
-  billing_address?: Partial<AddressDetail>;
+  shippingAddress?: Partial<AddressDetail>;
+  billingAddress?: Partial<AddressDetail>;
 }
 
 export interface CancelOrderRequest {
@@ -121,11 +119,11 @@ export interface CancelOrderRequest {
 }
 
 export interface CreateShipmentRequest {
-  stock_location_id: string;
-  inventory_unit_ids: string[];
+  stockLocationId: string;
+  inventoryUnitIds: string[];
 }
 
 export interface RefundPaymentRequest {
-  amount_cents: number;
+  amountCents: number;
   reason: string;
 }

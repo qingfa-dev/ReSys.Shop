@@ -9,8 +9,8 @@ import type {
   CreateTaxonomyRequest, 
   UpdateTaxonomyRequest 
 } from '../types/taxonomy.types';
-import apiClient from '@/shared/api/api.client';
-import type { ApiResult } from '@/shared/api/api.types';
+import apiClient from '@/shared/api/http/api.client';
+import type { ApiResult } from '@/shared/api/types/api.types';
 
 export const useTaxonomyStore = defineStore('taxonomy', () => {
   const { showToast } = useToast();
@@ -24,10 +24,9 @@ export const useTaxonomyStore = defineStore('taxonomy', () => {
 
   const query = ref<TaxonomyQuery>({
     page: 1,
-    page_size: 10,
+    pageSize: 10,
     search: '',
-    sort_by: 'position',
-    is_descending: false
+    sort: ['position']
   });
 
   const totalRecords = ref(0);
@@ -43,7 +42,7 @@ export const useTaxonomyStore = defineStore('taxonomy', () => {
       const result = await taxonomyService.list(query.value);
       if (result.success && result.data) {
         taxonomies.value = result.data;
-        totalRecords.value = result.meta?.total_count || 0;
+        totalRecords.value = result.meta?.totalCount || 0;
       } else if (!result.success) {
         error.value = result.error.detail || 'Failed to fetch taxonomies';
       }

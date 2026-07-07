@@ -1,20 +1,29 @@
+import type { ServerQueryingParameters } from '@/shared/api/types/query-params.types'
+
 export interface Country {
   id: string
   name: string
-  isoCode2: string
-  isoCode3: string
-  numericCode: string
-  phoneCode: string
+  isoCode: string
+  callingCode: string
   isActive: boolean
+  statesRequired?: boolean
+  zipcodeRequired?: boolean
+  createdAtUtc?: string
+  modifiedAtUtc?: string
 }
+
+export type CountrySearchParams = ServerQueryingParameters
 
 export interface CountryCreateRequest {
   name: string
-  isoCode2: string
-  isoCode3: string
-  numericCode: string
-  phoneCode: string
+  isoCode: string
+  callingCode: string
   isActive: boolean
 }
 
-export type CountryUpdateRequest = CountryCreateRequest
+export interface CountryUpdateRequest {
+  name: string
+  isoCode: string
+  callingCode: string
+  isActive: boolean
+}

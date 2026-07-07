@@ -25,9 +25,9 @@ onMounted(async () => {
 async function loadRoles() {
     loading.value = true;
     try {
-        const res = await roleService.listRoles({ page_size: 100 });
+        const res = await roleService.list({ pageSize: 100 });
         if (res.success && res.data) {
-            const allRoles = res.data.items;
+            const allRoles = res.data;
             
             // Map names to objects
             selection.value[1] = allRoles.filter((r: RoleSummary) => props.assignedRoles.includes(r.name));
@@ -73,7 +73,7 @@ async function onSave() {
             <template #targetheader> Assigned Roles </template>
             <template #item="slotProps">
                 <div class="flex flex-col p-2">
-                    <span class="font-bold text-sm">{{ slotProps.item.display_name || slotProps.item.name }}</span>
+                    <span class="font-bold text-sm">{{ slotProps.item.displayName || slotProps.item.name }}</span>
                     <small class="text-surface-500">{{ slotProps.item.name }}</small>
                 </div>
             </template>

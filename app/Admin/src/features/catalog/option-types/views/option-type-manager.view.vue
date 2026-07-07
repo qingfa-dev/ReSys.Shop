@@ -21,7 +21,7 @@ const { showToast } = useToast()
 const selectedId = computed(() => route.params.id as string)
 
 onMounted(async () => {
-  await store.fetchList({ page_size: 100 })
+  await store.fetchList({ pageSize: 100 })
 })
 
 const openNew = () => {
@@ -74,7 +74,7 @@ const goBack = () => router.push({ name: 'catalog.dashboard' })
             </div>
             <div class="flex items-center gap-2">
                 <Button :label="t.actions?.create" icon="pi pi-plus" size="small" class="rounded-xl shadow-lg" @click="openNew()" />
-                <Button icon="pi pi-refresh" severity="secondary" text rounded @click="store.fetchList({ page_size: 100 })" :loading="loading" />
+                <Button icon="pi pi-refresh" severity="secondary" text rounded @click="store.fetchList({ pageSize: 100 })" :loading="loading" />
             </div>
         </div>
     </div>

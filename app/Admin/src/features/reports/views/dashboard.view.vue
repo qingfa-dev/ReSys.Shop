@@ -13,14 +13,14 @@ onMounted(() => {
 });
 
 const chartData = computed(() => {
-    if (!sales.value?.trend_history) return null;
+    if (!sales.value?.trendHistory) return null;
     
     return {
-        labels: sales.value.trend_history.map(h => new Date(h.date).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })),
+        labels: sales.value.trendHistory.map(h => new Date(h.date).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })),
         datasets: [
             {
                 label: 'Revenue',
-                data: sales.value.trend_history.map(h => h.revenue),
+                data: sales.value.trendHistory.map(h => h.revenue),
                 fill: true,
                 borderColor: '#3b82f6',
                 tension: 0.4,
@@ -122,7 +122,7 @@ const getActivityColor = (type: string) => {
                     <div class="flex items-start justify-between">
                         <div class="flex flex-col gap-2">
                             <span class="text-sm font-medium text-surface-500 dark:text-surface-400">Total Orders</span>
-                            <span class="text-3xl font-bold text-surface-900 dark:text-surface-0">{{ sales?.order_count || 0 }}</span>
+                            <span class="text-3xl font-bold text-surface-900 dark:text-surface-0">{{ sales?.orderCount || 0 }}</span>
                         </div>
                         <div class="flex items-center justify-center w-12 h-12 rounded-lg bg-blue-50 dark:bg-blue-500/10">
                             <i class="pi pi-shopping-bag text-xl text-blue-500"></i>
@@ -136,7 +136,7 @@ const getActivityColor = (type: string) => {
                     <div class="flex items-start justify-between">
                         <div class="flex flex-col gap-2">
                             <span class="text-sm font-medium text-surface-500 dark:text-surface-400">Revenue</span>
-                            <span class="text-3xl font-bold text-surface-900 dark:text-surface-0">{{ formatCurrency(sales?.total_revenue || 0) }}</span>
+                            <span class="text-3xl font-bold text-surface-900 dark:text-surface-0">{{ formatCurrency(sales?.totalRevenue || 0) }}</span>
                         </div>
                         <div class="flex items-center justify-center w-12 h-12 rounded-lg bg-green-50 dark:bg-green-500/10">
                             <i class="pi pi-dollar text-xl text-green-500"></i>
@@ -150,7 +150,7 @@ const getActivityColor = (type: string) => {
                     <div class="flex items-start justify-between">
                         <div class="flex flex-col gap-2">
                             <span class="text-sm font-medium text-surface-500 dark:text-surface-400">Active Products</span>
-                            <span class="text-3xl font-bold text-surface-900 dark:text-surface-0">{{ catalog?.active_products || 0 }}</span>
+                            <span class="text-3xl font-bold text-surface-900 dark:text-surface-0">{{ catalog?.activeProducts || 0 }}</span>
                         </div>
                         <div class="flex items-center justify-center w-12 h-12 rounded-lg bg-purple-50 dark:bg-purple-500/10">
                             <i class="pi pi-box text-xl text-purple-500"></i>
@@ -164,7 +164,7 @@ const getActivityColor = (type: string) => {
                     <div class="flex items-start justify-between">
                         <div class="flex flex-col gap-2">
                             <span class="text-sm font-medium text-surface-500 dark:text-surface-400">Pending Fulfillment</span>
-                            <span class="text-3xl font-bold text-surface-900 dark:text-surface-0">{{ inventory?.low_stock_count || 0 }}</span>
+                            <span class="text-3xl font-bold text-surface-900 dark:text-surface-0">{{ inventory?.lowStockCount || 0 }}</span>
                         </div>
                         <div class="flex items-center justify-center w-12 h-12 rounded-lg bg-orange-50 dark:bg-orange-500/10">
                             <i class="pi pi-truck text-xl text-orange-500"></i>

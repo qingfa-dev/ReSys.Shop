@@ -22,7 +22,7 @@ const loadPreview = async () => {
   loading.value = true
   const result = await taxonService.getProductPreview(props.taxonId, {
     page: page.value,
-    page_size: pageSize.value
+    pageSize: pageSize.value
   })
   
   if (result.success && result.data) {
@@ -77,10 +77,10 @@ defineExpose({
                 </div>
             </template>
 
-            <Column field="image_url" header="Preview" class="w-20">
+            <Column field="imageUrl" header="Preview" class="w-20">
                 <template #body="{ data }">
                     <div class="w-10 h-10 rounded-lg overflow-hidden border border-surface-100 dark:border-surface-700 bg-surface-50 flex items-center justify-center">
-                        <img v-if="data.image_url" :src="data.image_url" :alt="data.name" class="w-full h-full object-cover" />
+                        <img v-if="data.imageUrl" :src="data.imageUrl" :alt="data.name" class="w-full h-full object-cover" />
                         <i v-else class="pi pi-image text-surface-300"></i>
                     </div>
                 </template>
@@ -100,9 +100,9 @@ defineExpose({
                 </template>
             </Column>
 
-            <Column field="is_active" header="Status" class="text-center w-24">
+            <Column field="status" header="Status" class="text-center w-24">
                 <template #body="{ data }">
-                    <Tag :value="data.is_active ? 'Active' : 'Draft'" :severity="data.is_active ? 'success' : 'secondary'" rounded class="text-[10px]" />
+                    <Tag :value="data.status" :severity="data.status === 'Active' ? 'success' : 'secondary'" rounded class="text-[10px]" />
                 </template>
             </Column>
         </DataTable>

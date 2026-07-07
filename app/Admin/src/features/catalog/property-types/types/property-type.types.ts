@@ -1,4 +1,6 @@
-import type { ApiResult, PaginationMeta } from '@/shared/api/api.types';
+import type { ApiResult } from '@/shared/api/types/api.types';
+import type { PaginationMeta } from '@/shared/api/types/result.types';
+import type { ServerQueryingParameters } from '@/shared/api/types/query-params.types';
 import type { PropertyTypeFormData } from '../schemas/property-type.schema';
 import type { PropertyKind } from './property-kind';
 
@@ -25,13 +27,6 @@ export type UpdatePropertyTypeRequest = PropertyTypeFormData & {
   privateMetadata?: Record<string, any>;
 };
 
-export interface PropertyTypeQuery {
-  page?: number;
-  page_size?: number;
-  sort?: string;
-  search?: string;
-  search_field?: string[];
-  filter?: string;
-}
+export type PropertyTypeQuery = ServerQueryingParameters
 
 export type { ApiResult, PaginationMeta };

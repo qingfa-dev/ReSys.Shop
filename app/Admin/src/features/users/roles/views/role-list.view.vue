@@ -17,7 +17,7 @@ const loading = ref(false);
 const totalRecords = ref(0);
 const query = ref({
     page: 1,
-    page_size: 20
+    pageSize: 20
 });
 
 onMounted(() => {
@@ -27,10 +27,10 @@ onMounted(() => {
 async function fetchRoles() {
     loading.value = true;
     try {
-        const res = await roleService.listRoles(query.value);
+        const res = await roleService.list(query.value);
         if (res.success && res.data) {
-            roles.value = res.data.items;
-            totalRecords.value = res.data.total_count || 0;
+            roles.value = res.data;
+            totalRecords.value = res.meta?.totalCount || 0;
         }
     } finally {
         loading.value = false;
@@ -39,18 +39,18 @@ async function fetchRoles() {
 
 const onPage = (event: DataTablePageEvent) => {
     query.value.page = event.page !== undefined ? event.page + 1 : 1;
-    query.value.page_size = event.rows;
+    query.value.pageSize = event.rows;
     fetchRoles();
 };
 
 const confirmDelete = (role: RoleSummary) => {
     confirm.require({
-        message: `Are you sure you want to delete the role "${role.display_name || role.name}"? This cannot be undone.`,
+        message: `Are you sure you want to delete the role "${role.displayName || role.name}"? This cannot be undone.`,
         header: 'Delete Role',
         icon: 'pi pi-exclamation-triangle',
         acceptClass: 'p-button-danger',
         accept: async () => {
-            const res = await roleService.deleteRole(role.id);
+            const res = await roleService.delete(role.id);
             if (res.success) {
                 showToast('success', 'Deleted', 'Role deleted successfully');
                 fetchRoles();
@@ -82,7 +82,7 @@ const confirmDelete = (role: RoleSummary) => {
                     :loading="loading" 
                     lazy 
                     paginator 
-                    :rows="query.page_size" 
+                    :rows="query.pageSize" 
                     :totalRecords="totalRecords" 
                     @page="onPage"
                     dataKey="id"
@@ -94,7 +94,7 @@ const confirmDelete = (role: RoleSummary) => {
                     <Column field="name" header="Role Name" sortable>
                         <template #body="{ data }">
                             <div class="flex flex-col">
-                                <span class="font-bold">{{ data.display_name || data.name }}</span>
+                                <span class="font-bold">{{ data.displayName || data.name }}</span>
                                 <small class="font-mono text-[10px] text-surface-500">{{ data.name }}</small>
                             </div>
                         </template>
@@ -106,20 +106,20 @@ const confirmDelete = (role: RoleSummary) => {
                         </template>
                     </Column>
 
-                    <Column field="user_count" header="Users">
+                    <Column field="userCount" header="Users">
                         <template #body="{ data }">
                             <div class="flex items-center gap-2">
                                 <i class="pi pi-users text-surface-400"></i>
-                                <span>{{ data.user_count }}</span>
+                                <span>{{ data.userCount }}</span>
                             </div>
                         </template>
                     </Column>
                     
                     <Column header="Type">
                         <template #body="{ data }">
-                            <Tag v-if="data.is_system_role" value="System" severity="warning" icon="pi pi-lock" rounded />
+                            <Tag v-if="data.isSystem" value="System" severity="warning" icon="pi pi-lock" rounded />
                             <Tag v-else value="Custom" severity="secondary" rounded />
-                            <Tag v-if="data.is_default" value="Default" severity="success" class="ml-2" rounded />
+                            <Tag v-if="data.isDefault" value="Default" severity="success" class="ml-2" rounded />
                         </template>
                     </Column>
 
@@ -128,7 +128,7 @@ const confirmDelete = (role: RoleSummary) => {
                             <div class="flex justify-end gap-1">
                                 <Button icon="pi pi-shield" text rounded v-tooltip.top="'Permissions'" @click="router.push({ name: 'role-permissions', params: { id: data.id } })" />
                                 <Button icon="pi pi-pencil" text rounded severity="secondary" @click="router.push({ name: 'role-edit', params: { id: data.id } })" />
-                                <Button icon="pi pi-trash" text rounded severity="danger" :disabled="data.is_system_role" @click="confirmDelete(data)" />
+                                <Button icon="pi pi-trash" text rounded severity="danger" :disabled="data.isSystem" @click="confirmDelete(data)" />
                             </div>
                         </template>
                     </Column>

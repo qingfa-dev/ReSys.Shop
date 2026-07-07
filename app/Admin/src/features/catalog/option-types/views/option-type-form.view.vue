@@ -39,7 +39,7 @@ const { defineField, handleSubmit, errors, setValues, setErrors, values } = useF
   initialValues: {
     name: '',
     presentation: '',
-    description: '',
+
     position: 0,
     filterable: false,
   },
@@ -47,7 +47,6 @@ const { defineField, handleSubmit, errors, setValues, setErrors, values } = useF
 
 const [name] = defineField('name')
 const [presentation] = defineField('presentation')
-const [description] = defineField('description')
 const [position] = defineField('position')
 const [filterable] = defineField('filterable')
 
@@ -143,12 +142,9 @@ const loadItem = async () => {
     setValues({
       name: result.data.name,
       presentation: result.data.presentation,
-      description: result.data.description || '',
       position: result.data.position,
       filterable: result.data.filterable,
     })
-    publicMetadata.value = result.data.publicMetadata || {}
-    privateMetadata.value = result.data.privateMetadata || {}
 
     // Load values independently
     await valueStore.fetchValues(itemId.value)
@@ -181,7 +177,7 @@ const onSubmit = handleSubmit(async (formValues) => {
   if (handled && !isEdit.value && result.data) {
     router.push({ name: 'catalog.option-types.edit', params: { id: result.data.id } })
   }
-  store.fetchList({ page_size: 100 }) // Refresh sidebar
+  store.fetchList({ pageSize: 100 }) // Refresh sidebar
 })
 
 onMounted(() => {
@@ -257,10 +253,6 @@ const cancel = () => {
                                     </div>
                                 </div>
 
-                                <div class="flex flex-col gap-2">
-                                    <label for="description" class="font-bold text-xs uppercase tracking-wider text-surface-500 ml-1">{{ optionTypeLocales.labels?.description }}</label>
-                                    <Textarea id="description" v-model="description" rows="3" class="w-full rounded-xl" :placeholder="optionTypeLocales.placeholders?.description" />
-                                </div>
                             </div>
                         </div>
                     </TabPanel>

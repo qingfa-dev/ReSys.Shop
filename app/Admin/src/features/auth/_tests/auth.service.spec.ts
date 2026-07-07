@@ -1,10 +1,10 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { authService } from '../services/auth.service'
-import apiClient from '@/shared/api/api.client'
+import apiClient from '@/shared/api/http/api.client'
 import type { LoginRequest } from '../types/auth.types'
 
 // Mock apiClient
-vi.mock('@/shared/api/api.client', () => ({
+vi.mock('@/shared/api/http/api.client', () => ({
   default: {
     post: vi.fn(),
   },

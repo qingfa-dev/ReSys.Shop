@@ -20,14 +20,13 @@ onMounted(() => {
 const onPage = (event: DataTablePageEvent) => {
     store.fetchUnits({
         page: event.page !== undefined ? event.page + 1 : 1,
-        page_size: event.rows,
+        pageSize: event.rows,
     });
 };
 
 const onSort = (event: DataTableSortEvent) => {
     store.fetchUnits({
-        sort_by: event.sortField as string,
-        is_descending: event.sortOrder === -1,
+        sort: [event.sortOrder === -1 ? `-${event.sortField as string}` : event.sortField as string],
         page: 1,
     });
 };
@@ -64,15 +63,15 @@ const getStatusSeverity = (state: string) => {
                 :loading="loading" 
                 :lazy="true" 
                 :paginator="true" 
-                :rows="unitQuery.page_size || 20" 
+                :rows="unitQuery.pageSize || 20" 
                 :totalRecords="totalUnits" 
                 @page="onPage"
                 @sort="onSort"
                 dataKey="id"
                 rowHover
-                :first="((unitQuery.page || 1) - 1) * (unitQuery.page_size || 20)"
-                :sortField="unitQuery.sort_by"
-                :sortOrder="unitQuery.is_descending ? -1 : 1"
+                :first="((unitQuery.page || 1) - 1) * (unitQuery.pageSize || 20)"
+                :sortField="unitQuery.sort?.[0]?.replace(/^-/, '')"
+                :sortOrder="unitQuery.sort?.[0]?.startsWith('-') ? -1 : 1"
                 removableSort
                 scrollable
             >

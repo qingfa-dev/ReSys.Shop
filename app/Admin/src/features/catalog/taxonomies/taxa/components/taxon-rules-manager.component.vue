@@ -37,13 +37,12 @@ const {
   resetForm: resetRuleForm,
 } = useForm({
   validationSchema: toTypedSchema(TaxonRuleSchema),
-  initialValues: { type: 'product_name', match_policy: 'is_equal_to', value: '', property_name: '' },
+  initialValues: { type: 'product_name', matchPolicy: 'is_equal_to', value: '' },
 })
 
 const [rType] = defineRuleField('type')
-const [rPolicy] = defineRuleField('match_policy')
+const [rPolicy] = defineRuleField('matchPolicy')
 const [rValue] = defineRuleField('value')
-const [rProperty] = defineRuleField('property_name')
 
 const ruleTypeOptions = [
   { label: 'Product Name', value: 'product_name' },
@@ -74,9 +73,8 @@ const openEditRule = (rule: TaxonRuleListItem) => {
   editingRuleId.value = rule.id
   setRuleFields({
     type: rule.type,
-    match_policy: rule.match_policy,
+    matchPolicy: rule.matchPolicy,
     value: rule.value,
-    property_name: rule.property_name || '',
   })
   showRuleDialog.value = true
 }
@@ -179,10 +177,10 @@ const regenerate = async () => {
               </div>
             </template>
           </Column>
-          <Column field="match_policy" :header="(taxonLocales.labels as any).rule_policy_header || 'Condition'">
+          <Column field="matchPolicy" :header="(taxonLocales.labels as any).rule_policy_header || 'Condition'">
             <template #body="{ data }">
               <span class="text-[11px] px-2 py-0.5 rounded-full bg-surface-100 dark:bg-surface-800 text-surface-500 border border-surface-200 dark:border-surface-700">
-                {{ data.match_policy.replace(/_/g, ' ') }}
+                {{ data.matchPolicy.replace(/_/g, ' ') }}
               </span>
             </template>
           </Column>
@@ -256,11 +254,6 @@ const regenerate = async () => {
             optionValue="value"
             class="w-full rounded-xl"
           />
-        </div>
-
-        <div v-if="rType === 'product_property'" class="flex flex-col gap-2">
-          <label class="font-bold text-sm text-surface-700 dark:text-surface-300">{{ taxonLocales.labels?.rule_property }}</label>
-          <InputText v-model="rProperty" placeholder="Property name..." class="w-full rounded-xl" />
         </div>
 
         <div class="flex flex-col gap-2">

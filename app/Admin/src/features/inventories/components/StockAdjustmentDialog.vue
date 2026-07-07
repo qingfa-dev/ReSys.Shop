@@ -19,7 +19,6 @@ const loading = ref(false);
 const form = ref({
     quantity: 0,
     type: 0, // Adjustment
-    unit_cost: 0,
     reason: '',
     reference: ''
 });
@@ -61,10 +60,7 @@ async function onSubmit() {
                     <label class="font-bold text-sm">{{ t.labels?.quantity }}</label>
                     <InputNumber v-model="form.quantity" showButtons :min="-10000" :max="10000" class="w-full" />
                 </div>
-                <div class="flex flex-col gap-2">
-                    <label class="font-bold text-sm">{{ t.labels?.unit_cost }}</label>
-                    <InputNumber v-model="form.unit_cost" mode="currency" currency="USD" locale="en-US" class="w-full" />
-                </div>
+
             </div>
 
             <div class="flex flex-col gap-2">

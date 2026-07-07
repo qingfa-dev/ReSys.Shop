@@ -48,7 +48,7 @@ const loadOrders = async () => {
 const onPage = (event: DataTablePageEvent) => {
   store.fetchOrders({
     page: event.page !== undefined ? event.page + 1 : 1,
-    page_size: event.rows,
+    pageSize: event.rows,
   });
 };
 
@@ -59,8 +59,7 @@ const onSort = (event: DataTableSortEvent) => {
   }
 
   store.fetchOrders({
-    sort_by: event.sortField as string,
-    is_descending: event.sortOrder === -1,
+    sort: [event.sortOrder === -1 ? `-${event.sortField as string}` : event.sortField as string],
     page: 1,
   });
 };
@@ -141,7 +140,7 @@ onMounted(() => {
             :loading="loading" 
             lazy 
             paginator 
-            :rows="query.page_size" 
+            :rows="query.pageSize" 
             :totalRecords="totalRecords" 
             @page="onPage"
             @sort="onSort"
@@ -149,9 +148,9 @@ onMounted(() => {
             dataKey="id"
             responsiveLayout="stack"
             breakpoint="960px"
-            :first="((query.page || 1) - 1) * (query.page_size || 10)"
-            :sortField="query.sort_by"
-            :sortOrder="query.is_descending ? -1 : 1"
+            :first="((query.page || 1) - 1) * (query.pageSize || 10)"
+            :sortField="query.sort?.[0]?.replace(/^-/, '')"
+            :sortOrder="query.sort?.[0]?.startsWith('-') ? -1 : 1"
             filterDisplay="menu"
             removableSort
             scrollable
@@ -197,15 +196,15 @@ onMounted(() => {
             </template>
           </Column>
 
-          <Column field="created_at" :header="t.table.date" sortable>
+          <Column field="createdAtUtc" :header="t.table.date" sortable>
             <template #body="{ data }">
-              <span class="text-sm font-medium">{{ formatDate(data.created_at) }}</span>
+              <span class="text-sm font-medium">{{ formatDate(data.createdAtUtc) }}</span>
             </template>
           </Column>
 
-          <Column field="total_cents" :header="t.table.total" sortable>
+          <Column field="totalCents" :header="t.table.total" sortable>
             <template #body="{ data }">
-              <span class="font-black text-lg">{{ formatCurrency(data.total_cents / 100) }}</span>
+              <span class="font-black text-lg">{{ formatCurrency(data.totalCents / 100) }}</span>
             </template>
           </Column>
 

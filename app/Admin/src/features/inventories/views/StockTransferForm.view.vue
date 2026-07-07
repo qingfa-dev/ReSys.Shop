@@ -14,13 +14,13 @@ const { showToast } = useToast();
 
 const loading = ref(false);
 const form = ref<CreateStockTransferRequest>({
-    source_location_id: '',
-    destination_location_id: '',
+    sourceLocationId: '',
+    destinationLocationId: '',
     reason: ''
 });
 
 async function onSubmit() {
-    if (form.value.source_location_id === form.value.destination_location_id) {
+    if (form.value.sourceLocationId === form.value.destinationLocationId) {
         showToast('error', 'Error', 'Source and destination cannot be the same.');
         return;
     }
@@ -57,12 +57,12 @@ async function onSubmit() {
                 <form @submit.prevent="onSubmit" class="flex flex-col gap-6">
                     <div class="flex flex-col gap-2">
                         <label class="font-bold text-sm">{{ t.labels?.source }}</label>
-                        <LocationSelector v-model="form.source_location_id" placeholder="Select Source Warehouse" />
+                        <LocationSelector v-model="form.sourceLocationId" placeholder="Select Source Warehouse" />
                     </div>
 
                     <div class="flex flex-col gap-2">
                         <label class="font-bold text-sm">{{ t.labels?.destination }}</label>
-                        <LocationSelector v-model="form.destination_location_id" placeholder="Select Destination Warehouse" />
+                        <LocationSelector v-model="form.destinationLocationId" placeholder="Select Destination Warehouse" />
                     </div>
 
                     <div class="flex flex-col gap-2">

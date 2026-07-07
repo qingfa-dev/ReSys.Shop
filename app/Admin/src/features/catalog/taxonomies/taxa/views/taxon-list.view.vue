@@ -28,19 +28,19 @@ const taxonomies = ref<{label: string, value: string}[]>([])
 
 const filters = ref<DataTableFilterMeta>({
   global: { value: null, matchMode: FilterMatchMode.CONTAINS },
-  taxonomy_id: { value: null, matchMode: FilterMatchMode.EQUALS }
+  taxonomyId: { value: null, matchMode: FilterMatchMode.EQUALS }
 })
 
 const lazyParams = ref({
     page: 1,
     rows: 10,
     search: '',
-    taxonomy_id: undefined as string | undefined
+    taxonomyId: undefined as string | undefined
 })
 
 const loadItems = async () => {
   // Load taxonomies for filter
-  const taxResult = await taxonomyStore.fetchTaxonomies({ page_size: 100 })
+  const taxResult = await taxonomyStore.fetchTaxonomies({ pageSize: 100 })
   if (taxResult.success && taxResult.data) {
       taxonomies.value = taxResult.data.map(tx => ({ label: tx.presentation || tx.name, value: tx.id }))
   }
@@ -49,10 +49,10 @@ const loadItems = async () => {
 }
 
 const fetchPagedData = async () => {
-    const taxId = lazyParams.value.taxonomy_id || undefined
+    const taxId = lazyParams.value.taxonomyId || undefined
     await store.fetchTaxons(taxId || '', {
         page: lazyParams.value.page,
-        page_size: lazyParams.value.rows,
+        pageSize: lazyParams.value.rows,
         search: lazyParams.value.search || undefined
     })
 }
@@ -66,7 +66,7 @@ const onPage = (event: DataTablePageEvent) => {
 const onFilter = () => {
   lazyParams.value.page = 1
   lazyParams.value.search = (filters.value.global as any).value
-  lazyParams.value.taxonomy_id = (filters.value.taxonomy_id as any).value
+  lazyParams.value.taxonomyId = (filters.value.taxonomyId as any).value
   fetchPagedData()
 }
 
@@ -87,7 +87,7 @@ const confirmDelete = (item: TaxonListItem) => {
     acceptLabel: t.actions?.delete_taxon,
     acceptProps: { severity: 'danger' },
     accept: async () => {
-      const result = await store.deleteTaxon(item.taxonomy_id, item.id)
+      const result = await store.deleteTaxon(item.taxonomyId, item.id)
       if (result.success) {
         showToast('success', 'Deleted', t.messages?.delete_success || 'Category deleted')
       }
@@ -153,7 +153,7 @@ onMounted(() => {
                 />
                 </IconField>
                 <Select 
-                    v-model="(filters.taxonomy_id as any).value" 
+                    v-model="(filters.taxonomyId as any).value" 
                     :options="taxonomies" 
                     optionLabel="label" 
                     optionValue="value" 
@@ -197,16 +197,16 @@ onMounted(() => {
             </template>
         </Column>
 
-        <Column field="product_count" header="Products" class="text-center">
+        <Column field="productCount" header="Products" class="text-center">
             <template #body="{ data }">
-                <Badge :value="data.product_count" severity="secondary" />
+                <Badge :value="data.productCount" severity="secondary" />
             </template>
         </Column>
 
         <Column class="w-32 text-right">
           <template #body="{ data }">
             <div class="flex justify-end gap-1">
-              <Button icon="pi pi-pencil" severity="secondary" text rounded @click="router.push({ name: 'catalog.taxa.edit', params: { taxonomyId: data.taxonomy_id, id: data.id } })" />
+              <Button icon="pi pi-pencil" severity="secondary" text rounded @click="router.push({ name: 'catalog.taxa.edit', params: { taxonomyId: data.taxonomyId, id: data.id } })" />
               <Button icon="pi pi-trash" severity="danger" text rounded @click="confirmDelete(data)" />
             </div>
           </template>

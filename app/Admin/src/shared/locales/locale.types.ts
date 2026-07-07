@@ -63,4 +63,9 @@ export interface GeneralLocales {
     settings: string
     logout: string
   }
+  /** Layout chrome strings (search, etc.). */
+  layout: {
+    search: string
+    noResults: string
+  }
 }

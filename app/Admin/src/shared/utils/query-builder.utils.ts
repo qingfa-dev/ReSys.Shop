@@ -1,3 +1,5 @@
+import type { ServerQueryingParameters, SearchMode, SortDirection } from '../api/types/query-params.types'
+
 /**
  * Supported filter operators for the dynamic query engine.
  * = (Equals), != (Not Equals), > (Greater), < (Less), >= (GreaterOrEqual), <= (LessOrEqual)
@@ -27,7 +29,7 @@ export type NestedKeyOf<T extends object> = {
  *   .page(1, 20)
  *   .build();
  * 
- * // Output: { filter: "price>100", sort: "createdAt desc", page: 1, page_size: 20 }
+ * // Output: { filter: "price>100", sort: ["-createdAt"], page: 1, pageSize: 20 }
  * ```
  */
 export class QueryBuilder<T extends object = Record<string, unknown>> {
@@ -35,6 +37,7 @@ export class QueryBuilder<T extends object = Record<string, unknown>> {
   private _sorts: string[] = [];
   private _searchText?: string;
   private _searchFields: string[] = [];
+  private _searchMode?: SearchMode;
   private _page?: number;
   private _pageSize?: number;
   private _mappings: Map<string, string> = new Map();
@@ -175,6 +178,14 @@ export class QueryBuilder<T extends object = Record<string, unknown>> {
   }
 
   /**
+   * Configures the search mode (any / all).
+   */
+  searchMode(mode: SearchMode): this {
+    this._searchMode = mode
+    return this
+  }
+
+  /**
    * Configures 1-based pagination.
    * 
    * @param index 1-based page index
@@ -190,16 +201,9 @@ export class QueryBuilder<T extends object = Record<string, unknown>> {
    * Builds the final query parameters object.
    * Keys are snake_case to be handled by the backend normalization middleware.
    * 
-   * @returns An object like `{ filter?: string, sort?: string, search?: string, search_field?: string[], page?: number, page_size?: number }`
+    * @returns An object matching the ServerQueryingParameters interface
    */
-  build(): {
-    filter?: string
-    sort?: string
-    search?: string
-    search_field?: string[]
-    page?: number
-    page_size?: number
-  } {
+  build(): ServerQueryingParameters {
     const params: Record<string, unknown> = {};
 
     if (this._filterParts.length > 0) {
@@ -207,18 +211,27 @@ export class QueryBuilder<T extends object = Record<string, unknown>> {
     }
 
     if (this._sorts.length > 0) {
-      params.sort = this._sorts.join(',');
+      params.sort = this._sorts.map(s => {
+        if (s.endsWith(' desc')) {
+          return `-${s.slice(0, -5)}`
+        }
+        return s
+      })
     }
 
     if (this._searchText) {
       params.search = this._searchText;
       if (this._searchFields.length > 0) {
-        params.search_field = this._searchFields;
+        params.searchFields = this._searchFields;
       }
     }
 
     if (this._page !== undefined) params.page = this._page;
-    if (this._pageSize !== undefined) params.page_size = this._pageSize;
+    if (this._pageSize !== undefined) params.pageSize = this._pageSize;
+
+    if (this._searchMode) {
+      params.searchMode = this._searchMode
+    }
 
     return params;
   }

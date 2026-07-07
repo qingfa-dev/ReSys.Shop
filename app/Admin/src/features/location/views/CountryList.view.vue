@@ -102,21 +102,15 @@ onMounted(() => {
           </template>
         </Column>
 
-        <Column field="isoCode2" header="ISO2" sortable class="text-center">
+        <Column field="isoCode" header="ISO Code" sortable class="text-center">
           <template #body="{ data }">
-            <Tag :value="data.isoCode2" severity="info" />
+            <Tag :value="data.isoCode" severity="info" />
           </template>
         </Column>
 
-        <Column field="isoCode3" header="ISO3" sortable class="text-center">
+        <Column field="callingCode" header="Calling Code" sortable class="text-center">
           <template #body="{ data }">
-            <Tag :value="data.isoCode3" severity="contrast" />
-          </template>
-        </Column>
-
-        <Column field="phoneCode" header="Phone Code" sortable class="text-center">
-          <template #body="{ data }">
-            <span class="font-mono">{{ data.phoneCode || '-' }}</span>
+            <span class="font-mono">{{ data.callingCode || '-' }}</span>
           </template>
         </Column>
 
