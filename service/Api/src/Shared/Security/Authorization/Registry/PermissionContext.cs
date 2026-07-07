@@ -41,6 +41,8 @@ public static class PermissionContext
             "configuration", "Configuration", "Configuration permission category.");
         public static readonly OptionDescriptor<string> Merchandising = OptionDescriptor<string>.Option(
             "merchandising", "Merchandising", "Merchandising permission category.");
+        public static readonly OptionDescriptor<string> Payment = OptionDescriptor<string>.Option(
+            "payment", "Payment", "Payment permission category.");
         public static readonly OptionDescriptor<string> Dashboard = OptionDescriptor<string>.Option(
             "dashboard", "Dashboard", "Dashboard permission category.");
     }
@@ -206,6 +208,7 @@ public static class PermissionContext
         all.AddRange(LocationFeatureMetadata.All);
         all.AddRange(ProfileFeatureMetadata.All);
         all.AddRange(OrderingFeatureMetadata.All);
+        all.AddRange(PaymentFeatureMetadata.All);
         all.AddRange(InventoryFeatureMetadata.All);
         all.AddRange(ConfigurationFeatureMetadata.All);
         all.AddRange(DashboardFeatureMetadata.All);
