@@ -6,6 +6,7 @@ public static class ProfileFeature
     {
         public static readonly string[] Address = ["Address"];
         public static readonly string[] Profile = ["Profile"];
+        public static readonly string[] NotificationPreferences = ["NotificationPreferences"];
     }
 
     public static class Store
@@ -89,6 +90,25 @@ public static class ProfileFeature
                 public const string Route = $"{BaseRoute}/{{id:guid}}";
                 public const string Description = "Delete an address";
                 public const string Summary = "Delete address";
+            }
+        }
+
+        public static class NotificationPreferences
+        {
+            private const string BaseRoute = $"{StoreRoute}/notification-preferences";
+
+            public static class Get
+            {
+                public const string Route = BaseRoute;
+                public const string Description = "Retrieve the authenticated user's notification preferences";
+                public const string Summary = "Get notification preferences";
+            }
+
+            public static class Update
+            {
+                public const string Route = BaseRoute;
+                public const string Description = "Update the authenticated user's notification preferences";
+                public const string Summary = "Update notification preferences";
             }
         }
     }
