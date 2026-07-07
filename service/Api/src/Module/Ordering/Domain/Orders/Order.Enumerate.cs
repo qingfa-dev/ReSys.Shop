@@ -1,11 +1,12 @@
 namespace Module.Ordering.Domain.Orders;
 
-// Enumerate: Order lifecycle statuses — Draft, Placed, Canceled
+// Enumerate: Order lifecycle statuses — Draft, Placed, Canceled, Expired
 public enum OrderStatus
 {
-    Draft,
-    Placed,
-    Canceled
+    Draft = 0,
+    Placed = 1,
+    Canceled = 2,
+    Expired = 4
 }
 
 // Enumerate: Checkout state machine progression — Address → Delivery → Payment → Confirm → Complete
