@@ -21,6 +21,8 @@ public static class PermissionContext
             "configuration", "Configuration", "System configuration domain for permission identifiers.");
         public static readonly OptionDescriptor<string> Dashboard = OptionDescriptor<string>.Option(
             "dashboard", "Dashboard", "Dashboard and reporting domain for permission identifiers.");
+        public static readonly OptionDescriptor<string> Store = OptionDescriptor<string>.Option(
+            "store", "Store", "Storefront domain for permission identifiers.");
     }
 
     public static class Categories
@@ -191,6 +193,8 @@ public static class PermissionContext
             "custom_fields", "Custom Fields", "Custom field value resource.");
         public static readonly OptionDescriptor<string> Stores = OptionDescriptor<string>.Option(
             "stores", "Stores", "Multi-store configuration resource.");
+        public static readonly OptionDescriptor<string> NotificationPreferences = OptionDescriptor<string>.Option(
+            "notification_preferences", "Notification Preferences", "User notification preferences resource.");
     }
 
     private static readonly Dictionary<string, PermissionMetadata> SByIdentifier =
