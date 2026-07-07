@@ -1,0 +1,44 @@
+using Module.Profile.Domain.Wishlists;
+
+using Shared.Security.Identity.Domain.Users;
+
+namespace Module.Profile.Features.Store.Wishlists.Get;
+
+public static partial class GetWishlists
+{
+    public sealed record Query(Parameters Parameters) : IPagedQuery<Response>;
+
+    public sealed class PagedQueryHandler(IApplicationDbContext dbContext, ICurrentUser currentUser)
+        : IPagedQueryHandler<Query, Response>
+    {
+        public async Task<PagedResult<Response>> Handle(Query request, CancellationToken cancellationToken)
+        {
+            if (string.IsNullOrEmpty(currentUser.UserId))
+                return PagedResult<Response>.Create(items: [], page: 1, pageSize: 10, totalCount: 0);
+
+            var page = request.Parameters.PageNumber ?? 1;
+            var pageSize = request.Parameters.PageSize ?? 10;
+
+            var query = dbContext.Set<Wishlist>()
+                .Where(w => w.UserId == Guid.Parse(currentUser.UserId) && !w.IsDeleted);
+
+            var totalCount = await query.CountAsync(cancellationToken);
+
+            var items = await query
+                .OrderByDescending(w => w.CreatedAtUtc)
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .Select(w => new Response
+                {
+                    Id = w.Id,
+                    Name = w.Name,
+                    IsPrivate = w.IsPrivate,
+                    IsDefault = w.IsDefault,
+                    ItemCount = w.WishedItems.Count
+                })
+                .ToListAsync(cancellationToken);
+
+            return PagedResult<Response>.Create(items: items, page: page, pageSize: pageSize, totalCount: totalCount);
+        }
+    }
+}

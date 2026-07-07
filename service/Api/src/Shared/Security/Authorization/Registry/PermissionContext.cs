@@ -195,6 +195,8 @@ public static class PermissionContext
             "stores", "Stores", "Multi-store configuration resource.");
         public static readonly OptionDescriptor<string> NotificationPreferences = OptionDescriptor<string>.Option(
             "notification_preferences", "Notification Preferences", "User notification preferences resource.");
+        public static readonly OptionDescriptor<string> Wishlists = OptionDescriptor<string>.Option(
+            "wishlists", "Wishlists", "User wishlist resource.");
     }
 
     private static readonly Dictionary<string, PermissionMetadata> SByIdentifier =
