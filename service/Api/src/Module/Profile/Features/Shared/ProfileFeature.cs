@@ -7,6 +7,7 @@ public static class ProfileFeature
         public static readonly string[] Address = ["Address"];
         public static readonly string[] Profile = ["Profile"];
         public static readonly string[] NotificationPreferences = ["NotificationPreferences"];
+        public static readonly string[] Wishlist = ["Wishlist"];
     }
 
     public static class Store
@@ -109,6 +110,60 @@ public static class ProfileFeature
                 public const string Route = BaseRoute;
                 public const string Description = "Update the authenticated user's notification preferences";
                 public const string Summary = "Update notification preferences";
+            }
+        }
+
+        public static class Wishlists
+        {
+            private const string BaseRoute = $"{StoreRoute}/wishlists";
+
+            public static class GetAll
+            {
+                public const string Route = BaseRoute;
+                public const string Description = "List the authenticated user's wishlists";
+                public const string Summary = "List wishlists";
+            }
+
+            public static class GetById
+            {
+                public const string Route = $"{BaseRoute}/{{id:guid}}";
+                public const string Description = "Retrieve a wishlist by identifier";
+                public const string Summary = "Get wishlist by ID";
+            }
+
+            public static class Create
+            {
+                public const string Route = BaseRoute;
+                public const string Description = "Create a new wishlist";
+                public const string Summary = "Create wishlist";
+            }
+
+            public static class Update
+            {
+                public const string Route = $"{BaseRoute}/{{id:guid}}";
+                public const string Description = "Update a wishlist's name, privacy, or default flag";
+                public const string Summary = "Update wishlist";
+            }
+
+            public static class Delete
+            {
+                public const string Route = $"{BaseRoute}/{{id:guid}}";
+                public const string Description = "Soft-delete a wishlist";
+                public const string Summary = "Delete wishlist";
+            }
+
+            public static class AddItem
+            {
+                public const string Route = $"{BaseRoute}/{{id:guid}}/items";
+                public const string Description = "Add a variant to a wishlist";
+                public const string Summary = "Add item to wishlist";
+            }
+
+            public static class RemoveItem
+            {
+                public const string Route = $"{BaseRoute}/{{id:guid}}/items/{{itemId:guid}}";
+                public const string Description = "Remove an item from a wishlist";
+                public const string Summary = "Remove wishlist item";
             }
         }
     }
