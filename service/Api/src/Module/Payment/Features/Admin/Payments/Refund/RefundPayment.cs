@@ -1,6 +1,6 @@
-using Microsoft.EntityFrameworkCore;
 using Module.Payment.Domain.Gateways;
 using Module.Payment.Domain.Payments;
+
 using PaymentDomain = Module.Payment.Domain.Payments.Payment;
 
 namespace Module.Payment.Features.Admin.Payments.Refund;
@@ -26,7 +26,7 @@ namespace Module.Payment.Features.Admin.Payments.Refund;
 
             // Check: Verify the payment exists.
             if (payment is null)
-                return PaymentResult.Errors.NotFound;
+                return PaymentResult.Failure.NotFound;
 
             // Construct: Gateway options from payment data.
             var options = new GatewayOptions(payment)

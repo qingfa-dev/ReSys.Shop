@@ -1,12 +1,14 @@
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
 using Module.Inventory.Domain.Stock;
 using Module.Inventory.Domain.StockLocations.StockItems;
 using Module.Inventory.Domain.StockReservations;
 using Module.Inventory.Domain.StockLocations.StockItems.StockMovements;
 using Module.Ordering.Domain.Orders;
-using Module.Ordering.Domain.Orders.Events;
 using Module.Payment.Domain.Payments;
+
+using Shared.Operational.Notifications.Models;
+using Shared.Operational.Notifications.Services;
+using Shared.Operational.Notifications.Templates;
+
 using PaymentDomain = Module.Payment.Domain.Payments.Payment;
 
 namespace Module.Ordering.Features.Storefront.Cart.Checkout;
@@ -18,7 +20,8 @@ public static partial class CreateOrderFromCart
     public sealed class CommandHandler(
         IApplicationDbContext dbContext,
         ILogger<CommandHandler> logger,
-        ICurrentUser currentUser)
+        ICurrentUser currentUser,
+        INotificationService notificationService)
         : ICommandHandler<Command, Response>
     {
         /// <summary>Handles the command.</summary>
@@ -137,17 +140,11 @@ public static partial class CreateOrderFromCart
                 }
             }
 
-            // Raise: Order placed domain event.
-            cart.AddDomainEvent(new OrderPlacedEvent(
-                cart.Id,
-                cart.Number,
-                cart.UserId!.Value,
-                cart.Email ?? string.Empty,
-                cart.Total,
-                cart.CompletedAtUtc!.Value));
-
             // Persist: Save changes.
             await dbContext.SaveChangesAsync(cancellationToken);
+
+            // Notify: Send order confirmation to customer.
+            await SendOrderPlacedNotificationAsync(cart, cancellationToken);
 
             // Log: Success.
             OrderLoggers.Placed(logger, Number: cart.Number, Id: cart.Id, ActionBy: currentUser.UserName);
@@ -165,6 +162,28 @@ public static partial class CreateOrderFromCart
         private static string GenerateOrderNumber()
         {
             return $"R{DateTimeOffset.UtcNow:yyyyMMdd}-{Guid.NewGuid().ToString()[..6].ToUpperInvariant()}";
+        }
+
+        private async Task SendOrderPlacedNotificationAsync(Order order, CancellationToken ct)
+        {
+            if (string.IsNullOrWhiteSpace(order.Email))
+                return;
+
+            var message = NotificationMessage.Create(
+                NotificationUseCase.OrderConfirmed,
+                NotificationRecipient.Create(order.Email, order.Number),
+                NotificationChannel.Email,
+                NotificationContext.Create(
+                    (NotificationParameterType.OrderNumber, order.Number),
+                    (NotificationParameterType.OrderTotal, order.Total.ToString("F2", System.Globalization.CultureInfo.InvariantCulture)),
+                    (NotificationParameterType.UserFirstName, order.Email.Split('@')[0])));
+
+            var result = await notificationService.SendAsync(message, ct);
+            if (result.IsFailure)
+            {
+                logger.LogWarning("Failed to send order confirmation notification for order {OrderId}: {Errors}",
+                    order.Id, string.Join("; ", result.Failures.Select(f => f.Description)));
+            }
         }
     }
 }

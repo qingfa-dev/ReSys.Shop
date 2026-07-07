@@ -1,6 +1,5 @@
 using Module.Inventory.Domain.StockLocations.StockItems;
 using Module.Inventory.Domain.StockReservations;
-using Module.Inventory.Features.Admin.StockReservations.Shared.Models;
 using Module.Inventory.Features.Storefront.CartReservations.Reserve;
 
 namespace Module.UnitTests.Inventory.Features.Storefront.CartReservations.Reserve;

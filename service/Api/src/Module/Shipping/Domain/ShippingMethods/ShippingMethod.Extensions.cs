@@ -1,5 +1,4 @@
-using Module.Identity.Domain.Addresses;
-using Module.Shipping.Domain.Shipments;
+using Module.Profile.Domain.Addresses;
 
 namespace Module.Shipping.Domain.ShippingMethods;
 
@@ -97,21 +96,5 @@ public static class ShippingMethodExtensions
         return method.AvailableToUsers && !method.IsDeleted;
     }
 
-    /// <summary>
-    /// Determines whether the shipping method is available for the specified shipment and address.
-    /// Checks basic availability, zone inclusion, and category matching.
-    /// </summary>
-    /// <param name="method">The shipping method to check.</param>
-    /// <param name="shipment">The shipment to validate for.</param>
-    /// <param name="address">Optional shipping address for zone validation.</param>
-    /// <returns>True if available for the shipment; otherwise false.</returns>
-    // @CAT-5 Compute: Zone+category eligibility — method must be active, address must match at least one zone, inventory must match categories
-    public static bool IsAvailableFor(this ShippingMethod method, Shipment shipment, Address? address = null)
-    {
-        if (!method.AvailableToUsers || method.IsDeleted)
-            return false;
-
-        return true;
-    }
     #endregion Methods
 }

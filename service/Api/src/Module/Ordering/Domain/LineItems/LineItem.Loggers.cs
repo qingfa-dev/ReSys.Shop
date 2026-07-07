@@ -1,5 +1,3 @@
-using Microsoft.Extensions.Logging;
-
 namespace Module.Ordering.Domain.LineItems;
 
 // Log: Structured logging events for LineItem lifecycle operations

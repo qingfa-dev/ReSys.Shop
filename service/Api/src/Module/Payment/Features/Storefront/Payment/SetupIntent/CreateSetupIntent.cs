@@ -1,7 +1,9 @@
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
+
 using Module.Payment.Infrastructure.Gateways.Stripe;
+
 using DomainPaymentMethod = Module.Payment.Domain.PaymentMethods.PaymentMethod;
+
 using Stripe;
 
 namespace Module.Payment.Features.Storefront.Payment.SetupIntent;
@@ -34,7 +36,7 @@ namespace Module.Payment.Features.Storefront.Payment.SetupIntent;
 
             // Check: Verify the payment method exists.
             if (paymentMethod is null)
-                return Domain.Payments.PaymentResult.Errors.NotFound;
+                return Domain.Payments.PaymentResult.Failure.NotFound;
 
             // Call: Create Stripe SetupIntent
             try
@@ -58,9 +60,9 @@ namespace Module.Payment.Features.Storefront.Payment.SetupIntent;
             catch (StripeException ex)
             {
                 var stripeError = ex.StripeError;
-                return Result.Failure<Response>(Failures.BadRequest(
+                return Error.BadRequest(
                     $"Stripe.{stripeError?.Code ?? "UnknownError"}",
-                    stripeError?.Message ?? ex.Message));
+                    stripeError?.Message ?? ex.Message);
             }
         }
     }

@@ -1,5 +1,5 @@
 using Microsoft.Extensions.Options;
-using Module.Payment.Domain.Gateways;
+
 using Module.Payment.Domain.Payments;
 using Module.Payment.Infrastructure.Gateways.Stripe;
 
@@ -19,7 +19,7 @@ public class StripeGatewayTests
         _options = new StripeOptions { SecretKey = "sk_test_fake" };
         _gateway = new StripeGateway(Options.Create(_options));
 
-        var payment = PaymentExtensions.Create(100m, Guid.NewGuid(), Guid.NewGuid()).Value;
+        var payment = PaymentFactory.Create(100m, Guid.NewGuid(), Guid.NewGuid()).Value;
         _gatewayOptions = new GatewayOptions(payment)
         {
             Email = "test@example.com",

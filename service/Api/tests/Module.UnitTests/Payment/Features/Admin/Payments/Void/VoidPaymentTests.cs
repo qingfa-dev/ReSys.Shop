@@ -1,7 +1,7 @@
-using Moq;
 using Module.Payment.Domain.Gateways;
 using Module.Payment.Domain.Payments;
 using Module.Payment.Features.Admin.Payments.Void;
+
 using PaymentDomain = Module.Payment.Domain.Payments.Payment;
 
 namespace Module.UnitTests.Payment.Features.Admin.Payments.Void;
@@ -27,7 +27,7 @@ public class VoidPaymentTests : IDisposable
         _gatewayMock.Setup(x => x.AutoCapture).Returns(false);
         _gatewayMock.Setup(x => x.PaymentProfilesSupported).Returns(false);
         _gatewayMock.Setup(x => x.VoidAsync(It.IsAny<string?>(), It.IsAny<object?>(), It.IsAny<GatewayOptions>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(Result.Ok(new PaymentGatewayResponse(true, "Voided")));
+            .ReturnsAsync(new PaymentGatewayResponse(true, "Voided"));
 
         _handler = new VoidPayment.CommandHandler(_dbContext, _gatewayMock.Object);
     }
@@ -37,7 +37,7 @@ public class VoidPaymentTests : IDisposable
     [Fact(DisplayName = "Handler: Should void payment when in Pending state")]
     public async Task Handle_ShouldVoid_WhenPending()
     {
-        var payment = PaymentExtensions.Create(100m, Guid.NewGuid(), Guid.NewGuid()).Value;
+        var payment = PaymentFactory.Create(100m, Guid.NewGuid(), Guid.NewGuid()).Value;
         payment.ResponseCode = "auth-123";
         payment.Process();
         payment.Pend();
@@ -54,9 +54,9 @@ public class VoidPaymentTests : IDisposable
     public async Task Handle_ShouldReturnFailure_WhenGatewayDeclines()
     {
         _gatewayMock.Setup(x => x.VoidAsync(It.IsAny<string?>(), It.IsAny<object?>(), It.IsAny<GatewayOptions>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(Result.Failure<PaymentGatewayResponse>(Failures.BadRequest("Gateway.Declined", "Void declined.")));
+            .ReturnsAsync(Error.BadRequest("Gateway.Declined", "Void declined."));
 
-        var payment = PaymentExtensions.Create(100m, Guid.NewGuid(), Guid.NewGuid()).Value;
+        var payment = PaymentFactory.Create(100m, Guid.NewGuid(), Guid.NewGuid()).Value;
         payment.ResponseCode = "auth-123";
         payment.Process();
         payment.Pend();
@@ -71,7 +71,7 @@ public class VoidPaymentTests : IDisposable
     [Fact(DisplayName = "Handler: Should return failure when payment in wrong state")]
     public async Task Handle_ShouldFail_WhenCheckout()
     {
-        var payment = PaymentExtensions.Create(100m, Guid.NewGuid(), Guid.NewGuid()).Value;
+        var payment = PaymentFactory.Create(100m, Guid.NewGuid(), Guid.NewGuid()).Value;
         _dbContext.Set<PaymentDomain>().Add(payment);
         await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 

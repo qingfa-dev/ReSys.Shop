@@ -40,7 +40,6 @@ public class ShippingRateCalculatorTests : IDisposable
         var rate = ShippingRateExtensions.Create(
             name: "Standard",
             cost: 5.99m,
-            shipmentId: _shipmentId,
             shippingMethodId: _methodId,
             minWeight: 0m,
             maxWeight: 5m).Value;
@@ -61,7 +60,6 @@ public class ShippingRateCalculatorTests : IDisposable
         var rate = ShippingRateExtensions.Create(
             name: "Express",
             cost: 10.99m,
-            shipmentId: _shipmentId,
             shippingMethodId: _methodId,
             minWeight: 5m,
             maxWeight: 10m).Value;
@@ -82,7 +80,6 @@ public class ShippingRateCalculatorTests : IDisposable
         var rate = ShippingRateExtensions.Create(
             name: "Flat Rate",
             cost: 5.99m,
-            shipmentId: _shipmentId,
             shippingMethodId: _methodId,
             minWeight: null,
             maxWeight: null).Value;
@@ -103,14 +100,12 @@ public class ShippingRateCalculatorTests : IDisposable
         var expensive = ShippingRateExtensions.Create(
             name: "Express",
             cost: 8.99m,
-            shipmentId: _shipmentId,
             shippingMethodId: _methodId,
             minWeight: 0m,
             maxWeight: 10m).Value;
         var cheap = ShippingRateExtensions.Create(
             name: "Standard",
             cost: 5.99m,
-            shipmentId: Guid.NewGuid(),
             shippingMethodId: _methodId,
             minWeight: 0m,
             maxWeight: 10m).Value;
@@ -143,14 +138,12 @@ public class ShippingRateCalculatorTests : IDisposable
         var restricted = ShippingRateExtensions.Create(
             name: "Standard",
             cost: 5.99m,
-            shipmentId: _shipmentId,
             shippingMethodId: _methodId,
             minWeight: 0m,
             maxWeight: 5m).Value;
         var unrestricted = ShippingRateExtensions.Create(
             name: "Flat Rate",
             cost: 8.99m,
-            shipmentId: Guid.NewGuid(),
             shippingMethodId: _methodId,
             minWeight: null,
             maxWeight: null).Value;

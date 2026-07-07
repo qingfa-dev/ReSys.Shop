@@ -1,10 +1,3 @@
-using BuildingBlocks.Querying.Models;
-
-using Carter;
-using MediatR;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Routing;
 using Module.Shipping.Features.Shared;
 
 namespace Module.Shipping.Features.Storefront.Shipping.Rates;
@@ -23,6 +16,7 @@ public static partial class ListShippingRates
                 var result = await sender.Send(new Query(parameters), ct);
                 return result.ToPagedResult();
             })
+            .RequireAuthorization()
             .WithName(nameof(ListShippingRates))
             .WithTags(ShippingFeature.Tags.ShippingRate)
             .WithSummary(ShippingFeature.Storefront.Shipping.Rates.Summary)

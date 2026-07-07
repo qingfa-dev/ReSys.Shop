@@ -1,6 +1,6 @@
-using Microsoft.EntityFrameworkCore;
 using Module.Payment.Domain.Gateways;
 using Module.Payment.Domain.Payments;
+
 using PaymentDomain = Module.Payment.Domain.Payments.Payment;
 
 namespace Module.Payment.Features.Admin.Payments.Void;
@@ -27,7 +27,7 @@ namespace Module.Payment.Features.Admin.Payments.Void;
 
             // Check: Verify the payment exists.
             if (payment is null)
-                return PaymentResult.Errors.NotFound;
+                return PaymentResult.Failure.NotFound;
 
             // Construct: Gateway options from payment data.
             var options = new GatewayOptions(payment)
@@ -45,7 +45,7 @@ namespace Module.Payment.Features.Admin.Payments.Void;
             // Void: Attempt to void the payment via gateway.
             var voidResult = await payment.VoidAsync(gateway, options, cancellationToken);
             if (voidResult.IsFailure)
-                return voidResult.Failures;
+                return voidResult.Errors;
 
             // Persist: Save changes.
             await dbContext.SaveChangesAsync(cancellationToken);

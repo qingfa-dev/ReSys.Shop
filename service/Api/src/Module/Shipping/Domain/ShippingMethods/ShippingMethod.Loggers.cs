@@ -1,5 +1,3 @@
-using Microsoft.Extensions.Logging;
-
 namespace Module.Shipping.Domain.ShippingMethods;
 
 // Log: Source-generated loggers for shipping method lifecycle events (CAT-9 Observability)

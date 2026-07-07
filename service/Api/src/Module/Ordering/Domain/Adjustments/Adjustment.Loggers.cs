@@ -1,5 +1,3 @@
-using Microsoft.Extensions.Logging;
-
 namespace Module.Ordering.Domain.Adjustments;
 
 // Log: Structured logging events for Adjustment lifecycle operations

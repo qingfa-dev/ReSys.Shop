@@ -1,6 +1,4 @@
-using Microsoft.EntityFrameworkCore;
 using Module.Payment.Domain.Payments;
-using Module.Payment.Features.Storefront.Payment.Webhooks;
 using PaymentDomain = Module.Payment.Domain.Payments.Payment;
 using Stripe;
 using StripeEvent = Stripe.Event;
@@ -27,12 +25,12 @@ namespace Module.Payment.Features.Storefront.Payment.Webhooks;
         // Contract: pre=command!=null, post=result!=null
             // Validate: Verify Stripe webhook signature
             if (!webhookService.ValidateSignature(command.Payload, command.StripeSignature))
-                return Result.Failure(StripeWebhookResult.Errors.InvalidSignature);
+                return StripeWebhookResult.Errors.InvalidSignature;
 
             // Parse: Deserialize Stripe event
             var stripeEvent = webhookService.ParseEvent(command.Payload);
             if (stripeEvent is null)
-                return Result.Failure(StripeWebhookResult.Errors.InvalidPayload);
+                return StripeWebhookResult.Errors.InvalidPayload;
 
             // Process: Handle event by type
             switch (stripeEvent.Type)

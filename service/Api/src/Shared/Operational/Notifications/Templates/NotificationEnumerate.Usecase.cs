@@ -111,16 +111,6 @@ public enum NotificationUseCase
     /// <para>Uses: <see cref="NotificationParameterType.UserFirstName"/>, <see cref="NotificationParameterType.CartItemCount"/>, <see cref="NotificationParameterType.CartTotal"/>, <see cref="NotificationParameterType.CartUrl"/>.</para></summary>
     CartAbandoned,
 
-    // Region: Promotions
-    /// <summary>Sent when a flash sale event starts.
-    /// <para>Uses: <see cref="NotificationParameterType.PromotionName"/>, <see cref="NotificationParameterType.PromotionDiscount"/>, <see cref="NotificationParameterType.PromotionUrl"/>, <see cref="NotificationParameterType.PromotionExpiration"/>.</para></summary>
-    FlashSaleStarted,
-    /// <summary>Sent when a coupon is issued to a user.
-    /// <para>Uses: <see cref="NotificationParameterType.PromotionCode"/>, <see cref="NotificationParameterType.PromotionDiscount"/>, <see cref="NotificationParameterType.PromotionExpiration"/>.</para></summary>
-    CouponIssued,
-    /// <summary>Sent when a coupon is about to expire.
-    /// <para>Uses: <see cref="NotificationParameterType.PromotionCode"/>, <see cref="NotificationParameterType.PromotionExpiration"/>.</para></summary>
-    CouponExpiring,
     /// <summary>Sent when a new collection is released.
     /// <para>Uses: <see cref="NotificationParameterType.CollectionName"/>, <see cref="NotificationParameterType.CollectionUrl"/>.</para></summary>
     NewCollectionReleased,

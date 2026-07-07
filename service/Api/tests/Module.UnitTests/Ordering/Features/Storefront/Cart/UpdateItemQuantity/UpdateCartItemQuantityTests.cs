@@ -52,11 +52,11 @@ public class UpdateCartItemQuantityTests : IDisposable
     public async Task Handle_ShouldUpdateQuantity_WhenItemExists()
     {
         // Arrange: Seed cart with line item and stock
-        var location = StockLocationExtensions.Create("Main").Value;
+        var location = StockLocationMethod.Create("Main").Value;
         _dbContext.Set<StockLocation>().Add(location);
         await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 
-        var stockItem = StockItemExtensions.Create(stockLocationId: location.Id, variantId: _variantId, countOnHand: 10).Value;
+        var stockItem = StockItemMethod.Create(stockLocationId: location.Id, variantId: _variantId, countOnHand: 10).Value;
         _dbContext.Set<StockItem>().Add(stockItem);
         await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 
@@ -91,11 +91,11 @@ public class UpdateCartItemQuantityTests : IDisposable
     public async Task Handle_ShouldFail_WhenInsufficientStock()
     {
         // Arrange: Seed cart and stock with only 3 available
-        var location = StockLocationExtensions.Create("Main").Value;
+        var location = StockLocationMethod.Create("Main").Value;
         _dbContext.Set<StockLocation>().Add(location);
         await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 
-        var stockItem = StockItemExtensions.Create(stockLocationId: location.Id, variantId: _variantId, countOnHand: 3).Value;
+        var stockItem = StockItemMethod.Create(stockLocationId: location.Id, variantId: _variantId, countOnHand: 3).Value;
         _dbContext.Set<StockItem>().Add(stockItem);
         await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 

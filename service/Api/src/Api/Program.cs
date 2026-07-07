@@ -4,7 +4,10 @@ using Module.Catalog;
 using Module.Identity;
 using Module.Inventory;
 using Module.Location;
+using Module.Ordering;
+using Module.Payment;
 using Module.Profile;
+using Module.Shipping;
 
 using ReSys.ServiceDefaults;
 
@@ -35,6 +38,9 @@ builder.AddIdentityModule();
 builder.AddProfilesModule();
 builder.AddCatalogModule();
 builder.AddInventoryModule();
+builder.Services.AddOrderingModule();
+builder.Services.AddPaymentModule(builder.Configuration);
+builder.Services.AddShippingModule();
 
 WebApplication app = builder.Build();
 

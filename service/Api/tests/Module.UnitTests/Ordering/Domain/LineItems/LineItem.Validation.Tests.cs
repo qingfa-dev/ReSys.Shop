@@ -1,4 +1,3 @@
-using FluentValidation;using FluentValidation.TestHelper;
 using Module.Ordering.Domain.LineItems;
 namespace Module.UnitTests.Ordering.Domain.LineItems;
 [Trait("Category","Unit")][Trait("Module","Ordering")][Trait("Feature","Validators")][Trait("Entity","LineItem")]

@@ -1,5 +1,3 @@
-using FluentValidation;
-
 namespace Module.Ordering.Features.Admin.Orders.Approve;
 
 public static partial class ApproveOrder

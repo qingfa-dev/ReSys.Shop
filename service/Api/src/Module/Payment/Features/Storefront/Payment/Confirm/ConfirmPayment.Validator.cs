@@ -1,5 +1,3 @@
-using FluentValidation;
-
 namespace Module.Payment.Features.Storefront.Payment.Confirm;
 
 public static partial class ConfirmPayment

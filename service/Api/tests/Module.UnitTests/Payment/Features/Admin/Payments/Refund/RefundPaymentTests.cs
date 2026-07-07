@@ -1,7 +1,7 @@
-using Moq;
 using Module.Payment.Domain.Gateways;
 using Module.Payment.Domain.Payments;
 using Module.Payment.Features.Admin.Payments.Refund;
+
 using PaymentDomain = Module.Payment.Domain.Payments.Payment;
 
 namespace Module.UnitTests.Payment.Features.Admin.Payments.Refund;
@@ -26,7 +26,7 @@ public class RefundPaymentTests : IDisposable
         _gatewayMock = new Mock<IPaymentGatewayActionProvider>();
         _gatewayMock.Setup(x => x.AutoCapture).Returns(false);
         _gatewayMock.Setup(x => x.CreditAsync(It.IsAny<decimal>(), It.IsAny<string?>(), It.IsAny<GatewayOptions>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(Result.Ok(new PaymentGatewayResponse(true, "Refunded")));
+            .ReturnsAsync(new PaymentGatewayResponse(true, "Refunded"));
 
         _handler = new RefundPayment.CommandHandler(_dbContext, _gatewayMock.Object);
     }
@@ -36,7 +36,7 @@ public class RefundPaymentTests : IDisposable
     [Fact(DisplayName = "Handler: Should refund payment when in Completed state")]
     public async Task Handle_ShouldRefund_WhenCompleted()
     {
-        var payment = PaymentExtensions.Create(100m, Guid.NewGuid(), Guid.NewGuid()).Value;
+        var payment = PaymentFactory.Create(100m, Guid.NewGuid(), Guid.NewGuid()).Value;
         payment.Process();
         payment.Complete();
         _dbContext.Set<PaymentDomain>().Add(payment);
@@ -54,9 +54,9 @@ public class RefundPaymentTests : IDisposable
     public async Task Handle_ShouldReturnFailure_WhenGatewayDeclines()
     {
         _gatewayMock.Setup(x => x.CreditAsync(It.IsAny<decimal>(), It.IsAny<string?>(), It.IsAny<GatewayOptions>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(Result.Failure<PaymentGatewayResponse>(Failures.BadRequest("Gateway.Declined", "Refund declined.")));
+            .ReturnsAsync(Error.BadRequest("Gateway.Declined", "Refund declined."));
 
-        var payment = PaymentExtensions.Create(100m, Guid.NewGuid(), Guid.NewGuid()).Value;
+        var payment = PaymentFactory.Create(100m, Guid.NewGuid(), Guid.NewGuid()).Value;
         payment.Process();
         payment.Complete();
         _dbContext.Set<PaymentDomain>().Add(payment);
@@ -72,7 +72,7 @@ public class RefundPaymentTests : IDisposable
     [Fact(DisplayName = "Handler: Should return failure when payment in wrong state")]
     public async Task Handle_ShouldFail_WhenPending()
     {
-        var payment = PaymentExtensions.Create(100m, Guid.NewGuid(), Guid.NewGuid()).Value;
+        var payment = PaymentFactory.Create(100m, Guid.NewGuid(), Guid.NewGuid()).Value;
         payment.Process();
         payment.Pend();
         _dbContext.Set<PaymentDomain>().Add(payment);

@@ -1,4 +1,3 @@
-using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 using Module.Shipping.Persistence.Constants;
@@ -54,15 +53,10 @@ public class ShippingRateConfiguration : IEntityTypeConfiguration<ShippingRate>
         builder.Property(x => x.FreeShippingThreshold)
             .HasPrecision(ShippingRateConstant.Constraints.Precision, ShippingRateConstant.Constraints.Scale);
 
-        builder.Property(x => x.ShipmentId);
         builder.Property(x => x.ShippingMethodId);
         #endregion
 
-        #region Relationships
-        builder.HasOne(x => x.Shipment)
-            .WithMany(s => s.ShippingRates)
-            .HasForeignKey(x => x.ShipmentId)
-            .OnDelete(DeleteBehavior.Cascade);
+        #region Indexes
         #endregion
     }
 }

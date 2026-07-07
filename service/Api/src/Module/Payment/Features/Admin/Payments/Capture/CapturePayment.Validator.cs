@@ -1,5 +1,3 @@
-using FluentValidation;
-
 namespace Module.Payment.Features.Admin.Payments.Capture;
 
 public static partial class CapturePayment

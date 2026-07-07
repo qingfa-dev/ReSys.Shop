@@ -81,18 +81,6 @@ public enum NotificationParameterType
     /// <summary>URL to the collection's landing page.</summary>
     CollectionUrl,
 
-    // Region: Promotion
-    /// <summary>The name of the promotion or campaign (e.g., "Summer Sale").</summary>
-    PromotionName,
-    /// <summary>The alphanumeric discount code (e.g., "SUMMER20").</summary>
-    PromotionCode,
-    /// <summary>The discount value or percentage (e.g., "20% off").</summary>
-    PromotionDiscount,
-    /// <summary>URL to the promotion landing page.</summary>
-    PromotionUrl,
-    /// <summary>The expiration date of the promotion.</summary>
-    PromotionExpiration,
-
     // Region: Cart
     /// <summary>The number of items currently in the cart.</summary>
     CartItemCount,

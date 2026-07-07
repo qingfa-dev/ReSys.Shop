@@ -1,5 +1,3 @@
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
 using Module.Shipping.Domain.ShippingMethods;
 
 namespace Module.Shipping.Features.Storefront.Shipping.Methods;

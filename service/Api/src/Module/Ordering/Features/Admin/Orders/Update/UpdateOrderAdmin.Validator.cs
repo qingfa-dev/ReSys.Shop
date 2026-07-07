@@ -1,5 +1,3 @@
-using FluentValidation;
-
 namespace Module.Ordering.Features.Admin.Orders.Update;
 
 public static partial class UpdateOrderAdmin

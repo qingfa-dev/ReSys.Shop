@@ -19,8 +19,6 @@ public static class PermissionContext
             "inventory", "Inventory", "Inventory management domain for permission identifiers.");
         public static readonly OptionDescriptor<string> Configuration = OptionDescriptor<string>.Option(
             "configuration", "Configuration", "System configuration domain for permission identifiers.");
-        public static readonly OptionDescriptor<string> Promotions = OptionDescriptor<string>.Option(
-            "promotions", "Promotions", "Promotions and discounts domain for permission identifiers.");
         public static readonly OptionDescriptor<string> Dashboard = OptionDescriptor<string>.Option(
             "dashboard", "Dashboard", "Dashboard and reporting domain for permission identifiers.");
     }
@@ -161,12 +159,6 @@ public static class PermissionContext
             "stock_reservations", "Stock Reservations", "Stock reservation resource.");
         public static readonly OptionDescriptor<string> Settings = OptionDescriptor<string>.Option(
             "settings", "Settings", "Application settings resource.");
-        public static readonly OptionDescriptor<string> Promotions = OptionDescriptor<string>.Option(
-            "promotions", "Promotions", "Promotion definition resource.");
-        public static readonly OptionDescriptor<string> PromotionRules = OptionDescriptor<string>.Option(
-            "promotions_rules", "Promotion Rules", "Promotion rule resource.");
-        public static readonly OptionDescriptor<string> PromotionActions = OptionDescriptor<string>.Option(
-            "promotions_actions", "Promotion Actions", "Promotion action resource.");
         public static readonly OptionDescriptor<string> Sales = OptionDescriptor<string>.Option(
             "sales", "Sales", "Sales data resource for reporting.");
         public static readonly OptionDescriptor<string> InventoryDb = OptionDescriptor<string>.Option(
@@ -216,7 +208,6 @@ public static class PermissionContext
         all.AddRange(OrderingFeatureMetadata.All);
         all.AddRange(InventoryFeatureMetadata.All);
         all.AddRange(ConfigurationFeatureMetadata.All);
-        all.AddRange(PromotionsFeatureMetadata.All);
         all.AddRange(DashboardFeatureMetadata.All);
 
         foreach (PermissionMetadata perm in all)

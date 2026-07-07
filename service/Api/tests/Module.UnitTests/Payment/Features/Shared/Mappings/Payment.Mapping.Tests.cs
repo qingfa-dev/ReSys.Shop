@@ -26,14 +26,14 @@ public class PaymentMappingTests
         payment.Id.Should().NotBe(Guid.Empty);
     }
 
-    [Fact(DisplayName = "ToDomain: Should fail when amount is zero or negative")]
-    public void ToDomain_WhenAmountIsZero_ShouldThrow()
+    [Fact(DisplayName = "ToDomain: Should return null when amount is zero or negative")]
+    public void ToDomain_WhenAmountIsZero_ShouldReturnNull()
     {
         var request = new PaymentRequest { Amount = 0, OrderId = Guid.NewGuid(), PaymentMethodId = Guid.NewGuid() };
 
-        var act = () => request.MapToDomain();
+        var payment = request.MapToDomain();
 
-        act.Should().Throw<Exception>();
+        payment.Should().BeNull();
     }
 
     [Fact(DisplayName = "ToDetail: Should map entity to detail response")]

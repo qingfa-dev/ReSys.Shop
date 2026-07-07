@@ -41,7 +41,7 @@ public static class OrderExtensions
             CreatedBy = "System"
         };
 
-        return Result.Ok(order);
+        return order;
     }
     #endregion
 
@@ -344,22 +344,6 @@ public static class OrderExtensions
             order.PaymentState = "credit_owed";
         else
             order.PaymentState = "paid";
-    }
-
-    /// <summary>
-    /// Derives the order shipment state from its shipment records.
-    /// </summary>
-    /// <param name="order">The order to derive shipment state for.</param>
-    // @CAT-5 Compute: Derives shipment state from aggregated shipment states (resolved by infrastructure)
-    public static void UpdateShipmentState(this Order order)
-    {
-        order.ShipmentState = order.Shipments.Count switch
-        {
-            0 => "pending",
-            _ when order.Shipments.All(s => s.State == Shipping.Domain.Shipments.ShipmentState.Shipped) => "delivered",
-            _ when order.Shipments.Any(s => s.State == Shipping.Domain.Shipments.ShipmentState.Shipped) => "partial",
-            _ => "pending"
-        };
     }
     #endregion
 }

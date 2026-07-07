@@ -1,4 +1,3 @@
-using Moq;
 using Module.Payment.Domain.Gateways;
 using Module.Payment.Domain.Payments;
 using Module.Payment.Domain.PaymentMethods;
@@ -38,7 +37,7 @@ public class CreatePaymentIntentTests : IDisposable
         _gatewayMock = new Mock<IPaymentGatewayActionProvider>();
         _gatewayMock.Setup(x => x.AutoCapture).Returns(false);
         _gatewayMock.Setup(x => x.AuthorizeAsync(It.IsAny<decimal>(), It.IsAny<object?>(), It.IsAny<GatewayOptions>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(Result.Ok(new PaymentGatewayResponse(true, "Authorized")));
+            .ReturnsAsync(new PaymentGatewayResponse(true, "Authorized"));
 
         _handler = new CreatePaymentIntent.CommandHandler(_dbContext, _currentUserMock.Object, _gatewayMock.Object);
     }
@@ -80,7 +79,7 @@ public class CreatePaymentIntentTests : IDisposable
     public async Task Handle_ShouldReturnFailure_WhenGatewayDeclines()
     {
         _gatewayMock.Setup(x => x.AuthorizeAsync(It.IsAny<decimal>(), It.IsAny<object?>(), It.IsAny<GatewayOptions>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(Result.Failure<PaymentGatewayResponse>(Failures.BadRequest("Gateway.Declined", "Card declined.")));
+            .ReturnsAsync(Error.BadRequest("Gateway.Declined", "Card declined."));
 
         var userId = Guid.Parse(_currentUserMock.Object.UserId!);
         var order = OrderExtensions.Create("USD", userId, Guid.NewGuid()).Value;

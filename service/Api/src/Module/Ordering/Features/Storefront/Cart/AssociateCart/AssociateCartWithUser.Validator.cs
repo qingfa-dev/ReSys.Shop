@@ -1,5 +1,3 @@
-using FluentValidation;
-
 namespace Module.Ordering.Features.Storefront.Cart.AssociateCart;
 
 public static partial class AssociateCartWithUser

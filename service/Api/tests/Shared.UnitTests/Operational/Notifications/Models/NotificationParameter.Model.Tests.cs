@@ -14,7 +14,6 @@ public sealed class NotificationParameterModelTests
         yield return [NotificationParameterType.VerificationCode, "123456", true];
         yield return [NotificationParameterType.OrderTotal, "$49.99", true];
         yield return [NotificationParameterType.UserFirstName, "Alice", true];
-        yield return [NotificationParameterType.PromotionCode, null, true];
     }
 
     [Theory(DisplayName = "Create should return parameter with matching values")]

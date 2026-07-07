@@ -1,9 +1,5 @@
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
-
 using Module.Ordering.Domain.Adjustments;
 using Module.Ordering.Domain.Orders;
-using Module.Promotions.Domain.Services;
 using Module.Shipping.Domain.Calculators;
 
 namespace Module.Ordering.Features.Storefront.Cart.UpdateCheckout;
@@ -15,8 +11,7 @@ namespace Module.Ordering.Features.Storefront.Cart.UpdateCheckout;
 
     public sealed class CommandHandler(
         IApplicationDbContext dbContext,
-        ICurrentUser currentUser,
-        ILogger<PromotionEvaluator> evaluatorLogger)
+        ICurrentUser currentUser)
         : ICommandHandler<Command>
     {
         public async Task<Result> Handle(Command command, CancellationToken cancellationToken)
@@ -94,11 +89,6 @@ namespace Module.Ordering.Features.Storefront.Cart.UpdateCheckout;
                     }
                 }
             }
-
-            var evaluator = new PromotionEvaluator(dbContext, evaluatorLogger);
-            var evalResult = await evaluator.Evaluate(cart, userId, [], cancellationToken);
-            if (evalResult.IsFailure)
-                return evalResult.Failures;
 
             return Result.Ok();
         }

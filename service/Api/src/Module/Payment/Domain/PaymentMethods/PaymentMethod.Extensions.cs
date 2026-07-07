@@ -37,7 +37,7 @@ public static class PaymentMethodExtensions
             CreatedBy = "System"
         };
 
-        return Result.Ok(method);
+        return method;
     }
     #endregion Factory Methods
 

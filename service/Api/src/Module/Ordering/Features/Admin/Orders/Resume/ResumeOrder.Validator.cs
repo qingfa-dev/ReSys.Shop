@@ -1,5 +1,3 @@
-using FluentValidation;
-
 namespace Module.Ordering.Features.Admin.Orders.Resume;
 
 public static partial class ResumeOrder

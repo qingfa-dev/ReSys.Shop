@@ -6,8 +6,8 @@ public static class PaymentValidation
     {
         return ruleBuilder
             .GreaterThan(0)
-            .WithErrorCode(PaymentResult.Errors.AmountMustBePositive.Code)
-            .WithMessage(PaymentResult.Errors.AmountMustBePositive.Description);
+            .WithErrorCode(PaymentResult.Failure.AmountMustBePositive.Code)
+            .WithMessage(PaymentResult.Failure.AmountMustBePositive.Description);
     }
 
     public static IRuleBuilderOptions<T, PaymentState> ApplyStateTransitionRules<T>(
@@ -16,7 +16,7 @@ public static class PaymentValidation
     {
         return ruleBuilder
             .Must(target => IsValidTransition(currentState, target))
-            .WithErrorCode(PaymentResult.Errors.InvalidStateTransition(currentState, currentState).Code)
+            .WithErrorCode(PaymentResult.Failure.InvalidStateTransition(currentState, currentState).Code)
             .WithMessage($"Invalid state transition from '{currentState}'.");
     }
 

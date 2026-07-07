@@ -1,6 +1,3 @@
-using BuildingBlocks.Querying.Helpers;
-using FluentValidation;
-
 namespace Module.Shipping.Features.Storefront.Shipping.Rates;
 
 public static partial class ListShippingRates
@@ -9,8 +6,8 @@ public static partial class ListShippingRates
     {
         public Validator()
         {
-            RuleFor(x => x.Parameters.PageIndex).ApplyPageValidation();
-            RuleFor(x => x.Parameters.PageSize).ApplyPageSizeValidation();
+            RuleFor(x => x.Parameters.PageNumber).GreaterThanOrEqualTo(1);
+            RuleFor(x => x.Parameters.PageSize).GreaterThanOrEqualTo(1);
         }
     }
 }

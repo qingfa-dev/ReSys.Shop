@@ -6,6 +6,6 @@ public static class PaymentRecordResult
     {
         public static Error InvalidState => Error.Validation(
             code: "PaymentRecord.State.Invalid",
-            description: "Payment state must be one of: checkout, pending, completed, failed, void, invalid.");
+            message: "Payment state must be one of: checkout, pending, completed, failed, void, invalid.");
     }
 }

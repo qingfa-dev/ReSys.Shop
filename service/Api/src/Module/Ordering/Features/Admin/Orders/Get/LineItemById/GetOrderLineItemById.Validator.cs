@@ -1,5 +1,3 @@
-using FluentValidation;
-
 namespace Module.Ordering.Features.Admin.Orders.Get.LineItemById;
 
 public static partial class GetOrderLineItemById

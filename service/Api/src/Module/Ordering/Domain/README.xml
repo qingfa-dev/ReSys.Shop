@@ -14,7 +14,7 @@
     <Category>Domain-Driven Design · Ordering</Category>
     <Stability>Stable</Stability>
     <StandardsAlignment>Evans DDD · Aggregate Root · Domain Events</StandardsAlignment>
-    <Dependencies><Dependency name="BuildingBlocks.Domain" version="1.0.0"/><Dependency name="BuildingBlocks.Calculators" version="1.0.0"/></Dependencies>
+    <Dependencies><Dependency name="Shared.Domain" version="1.0.0"/><Dependency name="Shared.Calculators" version="1.0.0"/></Dependencies>
   </ModuleMeta>
   <Principles>
     <Principle id="P1" name="Price Snapshot at Order Time"><Description>Line items and adjustments store prices at order creation time — never recalculated from current product prices.</Description><Rationale>Orders are historical records; changing prices would break financial audit.</Rationale></Principle>

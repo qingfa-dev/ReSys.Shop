@@ -17,7 +17,6 @@ public sealed class PermissionContextTests
         PermissionContext.Domains.Ordering.Value.Should().Be("ordering");
         PermissionContext.Domains.Inventory.Value.Should().Be("inventory");
         PermissionContext.Domains.Configuration.Value.Should().Be("configuration");
-        PermissionContext.Domains.Promotions.Value.Should().Be("promotions");
         PermissionContext.Domains.Dashboard.Value.Should().Be("dashboard");
     }
 
@@ -43,7 +42,6 @@ public sealed class PermissionContextTests
         PermissionContext.Resources.Orders.Value.Should().Be("orders");
         PermissionContext.Resources.StockItems.Value.Should().Be("stockitems");
         PermissionContext.Resources.Settings.Value.Should().Be("settings");
-        PermissionContext.Resources.Promotions.Value.Should().Be("promotions");
         PermissionContext.Resources.Sales.Value.Should().Be("sales");
         PermissionContext.Resources.Stores.Value.Should().Be("stores");
     }

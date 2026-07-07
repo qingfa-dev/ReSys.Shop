@@ -1,12 +1,12 @@
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
-using Module.Inventory.Domain.StockLocations.StockItems;
 using Module.Inventory.Services.Abstractions;
 using Module.Ordering.Domain.Orders;
-using Module.Ordering.Domain.Orders.Events;
 using Module.Payment.Domain.Gateways;
 using Module.Payment.Domain.Payments;
-using Module.Shipping.Domain.Shipments;
+
+using Shared.Operational.Notifications.Models;
+using Shared.Operational.Notifications.Services;
+using Shared.Operational.Notifications.Templates;
+
 using PaymentDomain = Module.Payment.Domain.Payments.Payment;
 
 namespace Module.Ordering.Features.Storefront.Orders.Cancel;
@@ -21,7 +21,8 @@ namespace Module.Ordering.Features.Storefront.Orders.Cancel;
         IStockChecker stockChecker,
         IPaymentGatewayActionProvider paymentGateway,
         ILogger<CommandHandler> logger,
-        ICurrentUser currentUser)
+        ICurrentUser currentUser,
+        INotificationService notificationService)
         : ICommandHandler<Command>
     {
         /// <summary>Handles the command.</summary>
@@ -76,16 +77,6 @@ namespace Module.Ordering.Features.Storefront.Orders.Cancel;
                 await payment.VoidTransactionAsync(paymentGateway, options, cancellationToken: cancellationToken);
             }
 
-            // Cancel: Cancel associated shipments.
-            var shipments = await dbContext.Set<Shipment>()
-                .Where(s => s.OrderId == entity.Id)
-                .ToListAsync(cancellationToken);
-
-            foreach (var shipment in shipments)
-            {
-                shipment.Cancel();
-            }
-
             // Restore: Restore stock for each line item on cancellation.
             if (entity.CompletedAtUtc.HasValue)
             {
@@ -96,22 +87,37 @@ namespace Module.Ordering.Features.Storefront.Orders.Cancel;
                 }
             }
 
-            // Raise: Order canceled domain event.
-            entity.AddDomainEvent(new OrderCanceledEvent(
-                entity.Id,
-                entity.Number,
-                entity.UserId!.Value,
-                entity.Email ?? string.Empty,
-                entity.CanceledAtUtc!.Value,
-                currentUser.UserId));
-
             // Persist: Save changes.
             await dbContext.SaveChangesAsync(cancellationToken);
+
+            // Notify: Send order canceled notification.
+            await SendOrderCanceledNotificationAsync(entity, cancellationToken);
 
             // Log: Success.
             OrderLoggers.Canceled(logger, Number: entity.Number, Id: entity.Id, ActionBy: currentUser.UserName);
 
             return Result.Ok(OrderResult.Success.Canceled(entity.Id));
+        }
+
+        private async Task SendOrderCanceledNotificationAsync(Order order, CancellationToken ct)
+        {
+            if (string.IsNullOrWhiteSpace(order.Email))
+                return;
+
+            var message = NotificationMessage.Create(
+                NotificationUseCase.OrderCancelled,
+                NotificationRecipient.Create(order.Email, order.Number),
+                NotificationChannel.Email,
+                NotificationContext.Create(
+                    (NotificationParameterType.OrderNumber, order.Number),
+                    (NotificationParameterType.UserFirstName, order.Email.Split('@')[0])));
+
+            var result = await notificationService.SendAsync(message, ct);
+            if (result.IsFailure)
+            {
+                logger.LogWarning("Failed to send order canceled notification for order {OrderId}: {Errors}",
+                    order.Id, string.Join("; ", result.Failures.Select(f => f.Description)));
+            }
         }
     }
 }

@@ -29,7 +29,7 @@
     <Stability>Stable</Stability>
     <StandardsAlignment>DDD tactical patterns; Vertical Slice Architecture</StandardsAlignment>
     <Dependencies>
-      <Dependency name="BuildingBlocks" version="1.0.0" />
+      <Dependency name="Shared" version="1.0.0" />
     </Dependencies>
   </ModuleMeta>
 

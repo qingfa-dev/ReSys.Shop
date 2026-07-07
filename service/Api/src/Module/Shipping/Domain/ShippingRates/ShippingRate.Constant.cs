@@ -44,7 +44,6 @@ public static class ShippingRateConstant
         public static readonly string[] AllowedFilterFields =
         [
             nameof(ShippingRate.Selected),
-            nameof(ShippingRate.ShipmentId),
             nameof(ShippingRate.ShippingMethodId)
         ];
     }

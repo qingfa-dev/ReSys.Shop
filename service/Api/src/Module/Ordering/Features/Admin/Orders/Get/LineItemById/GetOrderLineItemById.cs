@@ -1,4 +1,3 @@
-using Microsoft.EntityFrameworkCore;
 using Module.Ordering.Domain.LineItems;
 
 namespace Module.Ordering.Features.Admin.Orders.Get.LineItemById;

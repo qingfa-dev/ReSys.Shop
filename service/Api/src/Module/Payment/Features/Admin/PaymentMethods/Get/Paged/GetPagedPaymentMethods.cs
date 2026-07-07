@@ -17,15 +17,16 @@ namespace Module.Payment.Features.Admin.PaymentMethods.Get.Paged;
         /// <returns>The result of handling the query.</returns>
         public async Task<PagedResult<Response>> Handle(Query request, CancellationToken cancellationToken)
         {
-            var parameters = request.Parameters;
+            var parsing = request.Parameters.ParseAll();
+            if (parsing.IsFailure)
+                return parsing.Errors;
 
-            // Query: Retrieve all active payment methods with querying options.
             var pagedResult = await dbContext.Set<PaymentMethod>()
                 .AsNoTracking()
                 .OrderBy(m => m.Position)
                 .ThenBy(m => m.Name)
-                .ApplyQueryOptions(parameters)
-                .ToPagedOrAllAsync(m => m.MapToListItem<Response>(), parameters, cancellationToken);
+                .ApplyQuerying(parsing.Value)
+                .ToPagedOrAllAsync(parsing.Value, m => m.MapToListItem<Response>(), cancellationToken);
 
             return pagedResult;
         }

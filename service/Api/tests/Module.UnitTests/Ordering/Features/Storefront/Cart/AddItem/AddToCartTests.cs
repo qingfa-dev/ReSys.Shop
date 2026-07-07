@@ -53,11 +53,11 @@ public class AddToCartTests : IDisposable
         _dbContext.Set<Variant>().Add(variant);
         await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 
-        var location = StockLocationExtensions.Create("Main").Value;
+        var location = StockLocationMethod.Create("Main").Value;
         _dbContext.Set<StockLocation>().Add(location);
         await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 
-        var stockItem = StockItemExtensions.Create(stockLocationId: location.Id, variantId: variant.Id, countOnHand: 10).Value;
+        var stockItem = StockItemMethod.Create(stockLocationId: location.Id, variantId: variant.Id, countOnHand: 10).Value;
         _dbContext.Set<StockItem>().Add(stockItem);
         await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 

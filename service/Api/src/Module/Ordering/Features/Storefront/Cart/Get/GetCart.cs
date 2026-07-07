@@ -1,5 +1,3 @@
-using Microsoft.EntityFrameworkCore;
-
 using Module.Ordering.Domain.Orders;
 
 namespace Module.Ordering.Features.Storefront.Cart.Get;

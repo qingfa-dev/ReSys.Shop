@@ -32,7 +32,7 @@
     <Stability>Beta</Stability>
     <StandardsAlignment>DDD tactical patterns (Entity, Entity, Result pattern); CAT-labeled per Code Commenting Standard v3.0</StandardsAlignment>
     <Dependencies>
-      <Dependency name="BuildingBlocks" version="1.0.0" />
+      <Dependency name="Shared" version="1.0.0" />
     </Dependencies>
   </ModuleMeta>
 
@@ -51,7 +51,7 @@
     </Principle>
     <Principle id="P4" name="Result Pattern">
       <Description>All service methods return Result&lt;T&gt; — never throw for business rule violations.</Description>
-      <Rationale>Ensures predictable error handling at domain boundaries; aligns with BuildingBlocks conventions.</Rationale>
+      <Rationale>Ensures predictable error handling at domain boundaries; aligns with Shared conventions.</Rationale>
     </Principle>
   </Principles>
 

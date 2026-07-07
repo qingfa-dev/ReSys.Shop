@@ -40,7 +40,6 @@ public class WeightlessVariantFallbackTests : IDisposable
         var rate = ShippingRateExtensions.Create(
             name: "Flat Rate",
             cost: 5.99m,
-            shipmentId: _shipmentId,
             shippingMethodId: _methodId,
             minWeight: null,
             maxWeight: null).Value;
@@ -61,7 +60,6 @@ public class WeightlessVariantFallbackTests : IDisposable
         var rate = ShippingRateExtensions.Create(
             name: "Standard",
             cost: 5.99m,
-            shipmentId: _shipmentId,
             shippingMethodId: _methodId,
             minWeight: 0m,
             maxWeight: 5m).Value;
@@ -82,7 +80,6 @@ public class WeightlessVariantFallbackTests : IDisposable
         var rate = ShippingRateExtensions.Create(
             name: "Special",
             cost: 10.99m,
-            shipmentId: _shipmentId,
             shippingMethodId: _methodId,
             minWeight: 0m,
             maxWeight: 0m).Value;

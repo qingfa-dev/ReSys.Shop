@@ -1,8 +1,3 @@
-using BuildingBlocks.Querying.Extensions;
-using BuildingBlocks.Querying.Models;
-
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
 using Module.Shipping.Domain.ShippingRates;
 
 namespace Module.Shipping.Features.Storefront.Shipping.Rates;
@@ -21,13 +16,13 @@ public static partial class ListShippingRates
         public async Task<PagedResult<Response>> Handle(Query request, CancellationToken cancellationToken)
         {
             _ = logger;
-            var parameters = request.Parameters;
+            var parsing = request.Parameters.ParseAll();
+            if (parsing.IsFailure)
+                return parsing.Errors;
 
-            // Query: Retrieve all standalone shipping rates with querying options.
             var pagedResult = await dbContext.Set<ShippingRate>()
                 .AsNoTracking()
-                .Where(r => r.ShipmentId == Guid.Empty)
-                .ApplyQueryOptions(parameters)
+                .ApplyQuerying(parsing.Value)
                 .Select(r => new Response
                 {
                     Id = r.Id,
@@ -40,7 +35,7 @@ public static partial class ListShippingRates
                     MaxWeight = r.MaxWeight,
                     FreeShippingThreshold = r.FreeShippingThreshold
                 })
-                .ToPagedOrAllAsync(x => x, parameters, cancellationToken);
+                .ToPagedOrAllAsync(parsing.Value, x => x, cancellationToken);
 
             return pagedResult;
         }

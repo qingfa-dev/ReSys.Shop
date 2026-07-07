@@ -1,7 +1,3 @@
-using Carter;
-using MediatR;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Routing;
 using Module.Ordering.Features.Shared;
 
 namespace Module.Ordering.Features.Storefront.Cart.Checkout;
@@ -21,6 +17,7 @@ public static partial class CreateOrderFromCart
                 var result = await sender.Send(command, ct);
                 return result.ToResult();
             })
+            .RequireAuthorization()
             .WithName(nameof(CreateOrderFromCart))
             .WithTags(OrderingFeature.Tags.Cart)
             .WithSummary(OrderingFeature.Storefront.Cart.Checkout.Summary)

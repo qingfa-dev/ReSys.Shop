@@ -1,7 +1,3 @@
-using BuildingBlocks.Querying.Extensions;
-using BuildingBlocks.Querying.Models;
-
-using Microsoft.EntityFrameworkCore;
 using Module.Payment.Domain.PaymentMethods;
 
 namespace Module.Payment.Features.Storefront.Payment.Methods;
@@ -20,13 +16,15 @@ namespace Module.Payment.Features.Storefront.Payment.Methods;
         /// <returns>The result of handling the query.</returns>
         public async Task<PagedResult<Response>> Handle(Query request, CancellationToken cancellationToken)
         {
-            var parameters = request.Parameters;
+            var parsing = request.Parameters.ParseAll();
+            if (parsing.IsFailure)
+                return parsing.Errors;
 
             var pagedResult = await dbContext.Set<PaymentMethod>().AsNoTracking()
                 .Where(m => m.Active && !m.IsDeleted)
-                .ApplyQueryOptions(parameters)
+                .ApplyQuerying(parsing.Value)
                 .Select(m => new Response { Id = m.Id, Name = m.Name, Description = m.Description })
-                .ToPagedOrAllAsync(x => x, parameters, cancellationToken);
+                .ToPagedOrAllAsync(parsing.Value, x => x, cancellationToken);
 
             return pagedResult;
         }

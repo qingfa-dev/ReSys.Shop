@@ -40,7 +40,6 @@ public class FreeShippingThresholdTests : IDisposable
         var rate = ShippingRateExtensions.Create(
             name: "Standard",
             cost: 8.99m,
-            shipmentId: _shipmentId,
             shippingMethodId: _methodId,
             freeShippingThreshold: 50m).Value;
         await SeedRates(rate);
@@ -60,7 +59,6 @@ public class FreeShippingThresholdTests : IDisposable
         var rate = ShippingRateExtensions.Create(
             name: "Standard",
             cost: 8.99m,
-            shipmentId: _shipmentId,
             shippingMethodId: _methodId,
             freeShippingThreshold: 50m).Value;
         await SeedRates(rate);
@@ -80,7 +78,6 @@ public class FreeShippingThresholdTests : IDisposable
         var rate = ShippingRateExtensions.Create(
             name: "Standard",
             cost: 8.99m,
-            shipmentId: _shipmentId,
             shippingMethodId: _methodId,
             minWeight: 0m,
             maxWeight: 5m,
@@ -102,14 +99,12 @@ public class FreeShippingThresholdTests : IDisposable
         var regular = ShippingRateExtensions.Create(
             name: "Regular",
             cost: 5.99m,
-            shipmentId: _shipmentId,
             shippingMethodId: _methodId,
             minWeight: 0m,
             maxWeight: 5m).Value;
         var freeEligible = ShippingRateExtensions.Create(
             name: "Premium",
             cost: 8.99m,
-            shipmentId: Guid.NewGuid(),
             shippingMethodId: _methodId,
             minWeight: 0m,
             maxWeight: 5m,
