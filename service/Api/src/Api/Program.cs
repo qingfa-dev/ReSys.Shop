@@ -8,8 +8,10 @@ using Module.Ordering;
 using Module.Payment;
 using Module.Profile;
 using Module.Shipping;
+using Module.Webhooks;
 
 using ReSys.ServiceDefaults;
+
 
 using Shared.Application;
 using Shared.Governance;
@@ -41,6 +43,7 @@ builder.AddInventoryModule();
 builder.Services.AddOrderingModule();
 builder.Services.AddPaymentModule(builder.Configuration);
 builder.Services.AddShippingModule();
+builder.AddWebhooksModule();
 
 // Swap: Order event publisher from no-op to webhook-backed implementation
 builder.Services.AddScoped<Module.Ordering.Domain.Orders.IOrderEventPublisher,
