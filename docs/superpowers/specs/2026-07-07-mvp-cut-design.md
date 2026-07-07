@@ -56,7 +56,7 @@ These items remain in the codebase with `[WIP-MVP]` XML docs and a `// TODO [v1.
   - Implements `IPaymentGatewayActionProvider` (the existing abstract base `Gateway.cs`).
   - Test card numbers: `4242 4242 4242 4242` → success, `4000 0000 0000 0002` → declined, `4000 0000 0000 9995` → insufficient funds.
   - Registered as the default gateway when `IConfiguration["Payment:UseBogusGateway"] == "true"`. Production setting (`false` or absent) keeps Stripe.
-- **Refactor `PaymentFeatureMetadata`**: extract `.Payments` and `.PaymentMethods` permission groups from `Shared/Security/Authorization/Features/OrderingFeatureMetadata.cs:44-76` into a new `Shared/Security/Authorization/Features/PaymentFeatureMetadata.cs`. Update `Module/Payment/Features/Shared/PaymentFeature.Admin.cs:20,28,36,44,52,65,73,81,89,97` to reference the new metadata class. Update `OrderingFeatureMetadata.All` to drop the moved groups.
+- **Refactor `PaymentFeatureMetadata`**: extract `.Payments` and `.PaymentMethods` permission groups from `Shared/Security/Authorization/Features/OrderingFeatureMetadata.cs:44-76` into a new `Shared/Security/Authorization/Features/PaymentFeatureMetadata.cs`. Update `Module/Payment/Features/Shared/PaymentFeature.Admin.cs:20,28,36,44,52,65,73,81,89,97,105,113` to reference the new metadata class. Update `OrderingFeatureMetadata.All` to drop the moved groups.
 - **[WIP-MVP] Partial refund:** `Module/Payment/Features/Admin/Payments/Refund/RefundPayment.cs` accepts an optional `Amount` parameter but always refunds the captured total. Add `[WIP-MVP]` XML doc on the handler and a `// TODO [v1.x]` comment on the parameter.
 
 ### 1.2 `Module.Ordering`
@@ -78,9 +78,10 @@ These items remain in the codebase with `[WIP-MVP]` XML docs and a `// TODO [v1.
   - Wire to existing `Module/Profile/Domain/Notifications/NotificationPreferences.cs` and `Domain/Preferences/UserPreference.cs` domain entities.
   - Add `ProfileFeatureMetadata.NotificationPreferences` group with `Read` / `Update` permissions.
 - **Add `Wishlists` API** (CORE):
-  - `Module/Profile/Features/Store/Wishlists/{Add, Remove, List, GetById, Move}/` (5 actions).
-  - Wire to existing `Module/Profile/Domain/Wishlists/` + `WishedItems/` entities.
-  - Add `ProfileFeatureMetadata.Wishlists` group with `List` / `Read` / `Add` / `Remove` / `Move` permissions.
+  - `Module/Profile/Features/Store/Wishlists/{Create, Get, GetById, Update, Delete, AddItem, RemoveItem}/` (7 actions).
+  - Wire to existing `Module/Profile/Domain/Wishlists/` + `WishedItems/` entities (which expose `Create`, `Update`, `AddItem`, `RemoveItem` domain methods).
+  - Add `ProfileFeatureMetadata.Wishlists` group with `List` / `Read` / `Create` / `Update` / `Delete` / `AddItem` / `RemoveItem` permissions.
+  - **No `Move` action** — domain has no move-between-wishlists method. If needed in v1.x, add `WishlistMethod.MoveItem(this, wishedItemId, targetWishlistId)` first.
 
 ### 1.4 `Module.Catalog`
 
@@ -105,8 +106,8 @@ Implement deferred items from `plan/feature-inventory-mvp-cut-1.md` (Post-MVP li
   - `GET /stock-items/summary` `Summary`
   - `POST /stock-items/import` `Import` (CSV upload; reuse `IStorageService` for file handling)
   - `DELETE /stock-items/{id}` `Delete`
-- Admin `StockTransfers` (full 6-action flow):
-  - `Create`, `Cancel`, `Get` (Paged), `GetPaged`, `Receive`, `Transfer`.
+- Admin `StockTransfers` (5 actions, partially scaffolded per `Module/Inventory/Features/Admin/StockTransfers/`):
+  - `Create`, `Cancel`, `Get` (with `Paged` sub-action), `Receive`, `Transfer`.
 - Admin `StockMovements`:
   - `Get` (Paged), `GetById`.
 - Admin `StockReservations`:
@@ -162,7 +163,7 @@ Add new shared subsystem at `Shared/Operational/Webhooks/`:
   - `Test` action posts a sample event to the subscription URL and returns the response status.
   - Reuse the existing `Module.csproj` (single Module project).
   - `Webhooks.Extension.cs` (`AddWebhooksModule`).
-- Wire `builder.AddWebhooksModule()` in `Program.cs` after `AddPaymentModule`.
+- Wire `builder.AddWebhooksModule()` in `Program.cs` after `AddShippingModule()` (current module order: Location → Identity → Profile → Catalog → Inventory → Ordering → Payment → Shipping → Webhooks).
 
 ### 1.11 `service/Embedding` (Python sidecar)
 
@@ -182,7 +183,7 @@ Add new shared subsystem at `Shared/Operational/Webhooks/`:
   - `Payment/{CreateIntent, Confirm, Methods}.IntegrationTests.cs` (using BogusGateway)
   - `Shipping/{Methods, Rates, Calculate}.IntegrationTests.cs`
   - `Profile/NotificationPreferences/{Get, Update}.IntegrationTests.cs`
-  - `Profile/Wishlists/{Add, Remove, List}.IntegrationTests.cs`
+  - `Profile/Wishlists/{Create, AddItem, RemoveItem, List}.IntegrationTests.cs`
   - `Webhooks/Subscriptions/{Create, Get, Update, Delete, Test}.IntegrationTests.cs`
 - **HTTP smoke files** (all under `ApiTests/`):
   - `Ordering/{Cart, Orders}.http`
@@ -228,13 +229,13 @@ Add new shared subsystem at `Shared/Operational/Webhooks/`:
 |---|---|---|
 | 2.1 | Add `Module/Shipping/Features/Admin/ShippingMethods/*` + `ShippingRates/*` | Unit tests for Create/Get/Update/Delete |
 | 2.2 | Add `Module/Profile/Features/Store/NotificationPreferences/{Get,Update}/` | Unit test: Get returns current prefs; Update persists |
-| 2.3 | Add `Module/Profile/Features/Store/Wishlists/{Add,Remove,List,GetById,Move}/` | Unit test: add → list contains; remove → list empty |
+| 2.3 | Add `Module/Profile/Features/Store/Wishlists/{Create,Get,GetById,Update,Delete,AddItem,RemoveItem}/` | Unit test: add item → list contains; remove item → list empty |
 | 2.4 | Add `Module/Ordering/Backgrounds/CartExpiryJob.cs` + `Services/CartExpiryService.cs` (HostedService) | `dotnet build` clean; recurring job visible in Hangfire dashboard |
 | 2.5 | Add `OrderPlaced` event emission in `CreateOrderFromCart.cs` (calls `IOrderEventPublisher.PublishAsync` with no-op default; swap to webhook publisher in `Program.cs`) | Unit test: place order → `PublishAsync` invoked with "order.placed" |
 | 2.6 | Add `Module/Webhooks/Features/Admin/Subscriptions/*` (Create, Get, GetById, GetPaged, Update, Delete, Test) | Unit tests for CRUD + Test endpoint posts a sample event |
 | 2.7 | Add `Shared/Security/Authentication/External/Providers/Facebook/*` and `Microsoft/*` (scaffold only; no real keys) | `dotnet build` clean; provider registered in DI |
 | 2.8 | Add `Module/Inventory/Features/Admin/StockItems/{Restock,LowStock,Summary,Import,Delete}/` | Unit tests for each |
-| 2.9 | Add `Module/Inventory/Features/Admin/StockTransfers/{Create,Cancel,Get,GetPaged,Receive,Transfer}/` | Unit tests for happy path + state transitions |
+| 2.9 | Add `Module/Inventory/Features/Admin/StockTransfers/{Create,Cancel,Get/Paged,Receive,Transfer}/` | Unit tests for happy path + state transitions |
 | 2.10 | Add `Module/Inventory/Features/Admin/StockMovements/{Get,GetById}/` | Unit test: list returns recent movements |
 | 2.11 | Add `Module/Inventory/Features/Admin/StockReservations/{Get,GetById,Cancel}/` | Unit test: cancel → reservation soft-deleted |
 | 2.12 | Add `Module/Inventory/Features/Admin/StockLocations/Delete` | Unit test: delete → soft-delete + audits |
@@ -251,8 +252,8 @@ Add new shared subsystem at `Shared/Operational/Webhooks/`:
 | 3.3 | `Api.Tests/Scenarios/Payment/{CreateIntent,Confirm,Methods}.IntegrationTests.cs` (BogusGateway) | All pass |
 | 3.4 | `Api.Tests/Scenarios/Shipping/{Methods,Rates,Calculate}.IntegrationTests.cs` | All pass |
 | 3.5 | `Api.Tests/Scenarios/Profile/NotificationPreferences/{Get,Update}.IntegrationTests.cs` | All pass |
-| 3.6 | `Api.Tests/Scenarios/Profile/Wishlists/{Add,Remove,List}.IntegrationTests.cs` | All pass |
-| 3.7 | `Api.Tests/Scenarios/Webhooks/Subscriptions/{Create,Get,Update,Delete}.IntegrationTests.cs` | All pass |
+| 3.6 | `Api.Tests/Scenarios/Profile/Wishlists/{Create,AddItem,RemoveItem,List}.IntegrationTests.cs` | All pass |
+| 3.7 | `Api.Tests/Scenarios/Webhooks/Subscriptions/{Create,Get,Update,Delete,Test}.IntegrationTests.cs` | All pass |
 | 3.8 | `ApiTests/Ordering/{Cart,Orders}.http` smoke files | Manual run via REST Client |
 | 3.9 | `ApiTests/Payment/{Intents,Webhooks}.http` smoke files | Manual run |
 | 3.10 | `ApiTests/Shipping/{Methods,Calculate}.http` smoke files | Manual run |
