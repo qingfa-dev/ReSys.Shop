@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- PromotionRules Domain Subdirectory / Purpose: Promotion eligibility rules. / Schema: 1.0 / Updated: 2026-05-22 -->
+<BuildingBlockModule id="promotions-domain-promotionrules" name="Modules.Promotions.Domain.PromotionRules" version="1.0.0" status="stable" schema-version="1.0">
+  <ModuleMeta><Name>PromotionRules Domain</Name><Description>Promotion eligibility rules.</Description><Category>DDD</Category><Stability>Stable</Stability></ModuleMeta>
+  <Principles><Principle id="P1" name="Single Responsibility"><Description>Rules determine if a promotion applies to an order: cart total thresholds, product/category filters, customer group, coupon code, date ranges.</Description><Rationale>Rules are composable — all must pass for a promotion to apply.</Rationale></Principle></Principles>
+  <Features><Feature id="F1" name="PromotionRules " type="core">Always-True Rules: Creating rules that don't filter anything but add complexity.</Feature></Features>
+  <AntiPatterns><AntiPattern id="AP1" name="Every rule should meaningfully constrain eligibili" severity="medium"><Avoid>Proceeding without validation or proper configuration.</Avoid><BetterApproach>Always validate inputs and follow documented patterns.</BetterApproach></AntiPattern></AntiPatterns>
+  <AbstractionsCatalog>
+<Category name="Core" order="1">
+<Description>Primary components.</Description>
+<Abstraction id="A1" name="PromotionRule.Constant" type="class"><Path>./PromotionRule.Constant.cs</Path><Description>PromotionRule.Constant component.</Description><Purpose>Part of module.</Purpose></Abstraction>
+<Abstraction id="A2" name="PromotionRule" type="class"><Path>./PromotionRule.cs</Path><Description>PromotionRule component.</Description><Purpose>Part of module.</Purpose></Abstraction>
+<Abstraction id="A3" name="PromotionRule.Extensions" type="class"><Path>./PromotionRule.Extensions.cs</Path><Description>PromotionRule.Extensions component.</Description><Purpose>Part of module.</Purpose></Abstraction>
+<Abstraction id="A4" name="PromotionRule.Result" type="class"><Path>./PromotionRule.Result.cs</Path><Description>PromotionRule.Result component.</Description><Purpose>Part of module.</Purpose></Abstraction>
+<Abstraction id="A5" name="PromotionRule.Validation" type="class"><Path>./PromotionRule.Validation.cs</Path><Description>PromotionRule.Validation component.</Description><Purpose>Part of module.</Purpose></Abstraction>
+</Category>
+</AbstractionsCatalog>
+  <FileStructure>PromotionRules/ → README.xml</FileStructure>
+</BuildingBlockModule>

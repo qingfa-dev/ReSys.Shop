@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- CouponCodes Domain Subdirectory / Purpose: Discount coupon codes. / Schema: 1.0 / Updated: 2026-05-22 -->
+<BuildingBlockModule id="promotions-domain-couponcodes" name="Modules.Promotions.Domain.CouponCodes" version="1.0.0" status="stable" schema-version="1.0">
+  <ModuleMeta><Name>CouponCodes Domain</Name><Description>Discount coupon codes.</Description><Category>DDD</Category><Stability>Stable</Stability></ModuleMeta>
+  <Principles><Principle id="P1" name="Single Responsibility"><Description>Unique coupon codes with usage limits (per-customer, global), date ranges, and optional minimum order amount. Generated cryptographically random.</Description><Rationale>Coupons enable targeted promotions without exposing the full promotion to all customers.</Rationale></Principle></Principles>
+  <Features><Feature id="F1" name="CouponCodes " type="core">Guessable Coupon Codes: Using sequential or predictable coupon codes.</Feature></Features>
+  <AntiPatterns><AntiPattern id="AP1" name="Use cryptographically random codes with prefix (e." severity="high"><Avoid>Proceeding without validation or proper configuration.</Avoid><BetterApproach>Always validate inputs and follow documented patterns.</BetterApproach></AntiPattern></AntiPatterns>
+  <AbstractionsCatalog>
+<Category name="Core" order="1">
+<Description>Primary components.</Description>
+<Abstraction id="A1" name="CouponCode.Builder" type="class"><Path>./CouponCode.Builder.cs</Path><Description>CouponCode.Builder component.</Description><Purpose>Part of module.</Purpose></Abstraction>
+<Abstraction id="A2" name="CouponCode.Constant" type="class"><Path>./CouponCode.Constant.cs</Path><Description>CouponCode.Constant component.</Description><Purpose>Part of module.</Purpose></Abstraction>
+<Abstraction id="A3" name="CouponCode" type="class"><Path>./CouponCode.cs</Path><Description>CouponCode component.</Description><Purpose>Part of module.</Purpose></Abstraction>
+<Abstraction id="A4" name="CouponCode.Enumerate" type="class"><Path>./CouponCode.Enumerate.cs</Path><Description>CouponCode.Enumerate component.</Description><Purpose>Part of module.</Purpose></Abstraction>
+<Abstraction id="A5" name="CouponCode.Extensions" type="class"><Path>./CouponCode.Extensions.cs</Path><Description>CouponCode.Extensions component.</Description><Purpose>Part of module.</Purpose></Abstraction>
+<Abstraction id="A6" name="CouponCode.Result" type="class"><Path>./CouponCode.Result.cs</Path><Description>CouponCode.Result component.</Description><Purpose>Part of module.</Purpose></Abstraction>
+<Abstraction id="A7" name="CouponCode.Validation" type="class"><Path>./CouponCode.Validation.cs</Path><Description>CouponCode.Validation component.</Description><Purpose>Part of module.</Purpose></Abstraction>
+</Category>
+</AbstractionsCatalog>
+  <FileStructure>CouponCodes/ → README.xml</FileStructure>
+</BuildingBlockModule>

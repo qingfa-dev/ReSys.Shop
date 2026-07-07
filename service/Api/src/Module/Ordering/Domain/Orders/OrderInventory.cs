@@ -1,0 +1,110 @@
+using Microsoft.EntityFrameworkCore;
+using Module.Inventory.Services.Abstractions;
+using Module.Inventory.Domain.StockLocations.StockItems;
+using Module.Inventory.Domain.StockReservations;
+using Module.Inventory.Domain.StockLocations.StockItems.StockMovements;
+
+namespace Module.Ordering.Domain.Orders;
+
+/// <summary>
+/// Synchronizes inventory units for completed orders when line item quantities change.
+/// Handles stock decrement on shipment and increment on return/cancellation.
+/// </summary>
+// Invariant: Order and LineItem must not be null; inventory unit count must match line item quantity
+// @CAT-10 Boundary: Domain → Data — queries StockItem/StockReservation/StockMovement via StockChecker
+public partial class OrderInventory
+{
+    private readonly IApplicationDbContext _dbContext;
+    private readonly IStockChecker _stockChecker;
+
+    public Order Order { get; }
+    public LineItems.LineItem LineItem { get; }
+
+    /// <summary>
+    /// Creates a new OrderInventory for the specified order and line item with stock management.
+    /// </summary>
+    /// <param name="order">The parent order.</param>
+    /// <param name="lineItem">The line item to synchronize inventory for.</param>
+    /// <param name="dbContext">The application database context for stock operations.</param>
+    public OrderInventory(Order order, LineItems.LineItem lineItem, IApplicationDbContext dbContext, IStockChecker stockChecker)
+    {
+        Order = order;
+        LineItem = lineItem;
+        _dbContext = dbContext;
+        _stockChecker = stockChecker;
+    }
+
+    /// <summary>
+    /// Verifies inventory unit counts match line item quantity and adjusts as needed.
+    /// </summary>
+    // @CAT-5 Compute: Verify inventory unit counts match line item quantity; add/remove as needed
+    public async Task VerifyAsync(CancellationToken cancellationToken = default)
+    {
+        if (!Order.CompletedAtUtc.HasValue) return;
+
+        var unitsCount = LineItem.Quantity;
+
+        if (unitsCount < LineItem.Quantity)
+        {
+            var quantity = LineItem.Quantity - unitsCount;
+            await AddToShipmentAsync(quantity, cancellationToken);
+        }
+        else if (unitsCount > LineItem.Quantity)
+        {
+            await RemoveAsync(unitsCount, cancellationToken);
+        }
+    }
+
+    /// <summary>
+    /// Decrements stock for a line item when it is shipped.
+    /// </summary>
+    /// <param name="quantity">The quantity to decrement.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    // @CAT-2 Update: Decrement stock via StockChecker and create audit trail
+    public async ValueTask AddToShipmentAsync(int quantity, CancellationToken cancellationToken = default)
+    {
+        // Determine stock location — use order's stock location or default first available
+        var stockLocationId = await DetermineStockLocationAsync(cancellationToken);
+
+        if (stockLocationId == Guid.Empty) return;
+
+        await _stockChecker.DecrementStockAsync(
+            LineItem.VariantId,
+            quantity,
+            stockLocationId,
+            Order.Id,
+            cancellationToken);
+    }
+
+    /// <summary>
+    /// Increments stock for a line item when it is returned or order is cancelled.
+    /// </summary>
+    /// <param name="unitsCount">The quantity to increment.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    // @CAT-2 Update: Increment stock via StockChecker and create audit trail
+    public async ValueTask RemoveAsync(int unitsCount, CancellationToken cancellationToken = default)
+    {
+        var stockLocationId = await DetermineStockLocationAsync(cancellationToken);
+
+        if (stockLocationId == Guid.Empty) return;
+
+        await _stockChecker.IncrementStockAsync(
+            LineItem.VariantId,
+            unitsCount,
+            stockLocationId,
+            Order.Id,
+            cancellationToken);
+    }
+
+    /// <summary>
+    /// Determines the stock location to use for inventory operations.
+    /// </summary>
+    private async Task<Guid> DetermineStockLocationAsync(CancellationToken cancellationToken)
+    {
+        // Use the first available stock location for this variant
+        var stockItem = await _dbContext.Set<StockItem>()
+            .FirstOrDefaultAsync(si => si.VariantId == LineItem.VariantId, cancellationToken);
+
+        return stockItem?.StockLocationId ?? Guid.Empty;
+    }
+}

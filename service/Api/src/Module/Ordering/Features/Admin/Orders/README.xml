@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- FG: Admin Orders / Purpose: Full admin order management: CRUD, workflow, adjustments, line items, shipments. / Schema: 1.0 / Updated: 2026-05-22 -->
+<BuildingBlockModule id="ordering-features-admin-orders" name="Modules.Ordering.Features.Admin.Orders" version="1.0.0" status="stable" schema-version="1.0">
+  <ModuleMeta><Name>Admin Orders</Name><Description>Full admin order management: CRUD, workflow, adjustments, line items, shipments.</Description><Category>Features</Category><Stability>Stable</Stability></ModuleMeta>
+  <Features><Feature id="F1" name="Endpoints" type="core"><Description>Create, Update, Delete, Get, Approve, Cancel, Complete, Resume orders. Manage adjustments, line items, shipments, addresses, shipping method, status, resend email.</Description></Feature></Features>
+  <AntiPatterns><AntiPattern id="AP1" name="Order Status Jump" severity="critical"><Avoid> Transitioning order status without processing intermediate states.</Avoid><BetterApproach></BetterApproach></AntiPattern></AntiPatterns>
+    <AbstractionsCatalog>
+    <Category name="Components" order="1">
+      <Description>Key components in this directory.</Description>
+      <Abstraction id="A1" name="AddAdjustment" type="directory">
+        <Path>./AddAdjustment/</Path>
+        <Description>AddAdjustment definition.</Description>
+        <Purpose>Supports module functionality.</Purpose>
+      </Abstraction>
+      <Abstraction id="A2" name="AddLineItem" type="directory">
+        <Path>./AddLineItem/</Path>
+        <Description>AddLineItem definition.</Description>
+        <Purpose>Supports module functionality.</Purpose>
+      </Abstraction>
+      <Abstraction id="A3" name="Approve" type="directory">
+        <Path>./Approve/</Path>
+        <Description>Approve definition.</Description>
+        <Purpose>Supports module functionality.</Purpose>
+      </Abstraction>
+      <Abstraction id="A4" name="Cancel" type="directory">
+        <Path>./Cancel/</Path>
+        <Description>Cancel definition.</Description>
+        <Purpose>Supports module functionality.</Purpose>
+      </Abstraction>
+      <Abstraction id="A5" name="Complete" type="directory">
+        <Path>./Complete/</Path>
+        <Description>Complete definition.</Description>
+        <Purpose>Supports module functionality.</Purpose>
+      </Abstraction>
+      <Abstraction id="A6" name="Create" type="directory">
+        <Path>./Create/</Path>
+        <Description>Create definition.</Description>
+        <Purpose>Supports module functionality.</Purpose>
+      </Abstraction>
+      <Abstraction id="A7" name="Delete" type="directory">
+        <Path>./Delete/</Path>
+        <Description>Delete definition.</Description>
+        <Purpose>Supports module functionality.</Purpose>
+      </Abstraction>
+      <Abstraction id="A8" name="Get" type="directory">
+        <Path>./Get/</Path>
+        <Description>Get definition.</Description>
+        <Purpose>Supports module functionality.</Purpose>
+      </Abstraction>
+      <Abstraction id="A9" name="RemoveAdjustment" type="directory">
+        <Path>./RemoveAdjustment/</Path>
+        <Description>RemoveAdjustment definition.</Description>
+        <Purpose>Supports module functionality.</Purpose>
+      </Abstraction>
+      <Abstraction id="A10" name="RemoveLineItem" type="directory">
+        <Path>./RemoveLineItem/</Path>
+        <Description>RemoveLineItem definition.</Description>
+        <Purpose>Supports module functionality.</Purpose>
+      </Abstraction>
+    </Category>
+  </AbstractionsCatalog>
+  <FileStructure>Features/Admin Orders → Shared/</FileStructure>
+</BuildingBlockModule>

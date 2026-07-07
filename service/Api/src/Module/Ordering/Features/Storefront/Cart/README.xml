@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- FG: Storefront Cart / Purpose: Customer cart management and checkout. / Schema: 1.0 / Updated: 2026-05-22 -->
+<BuildingBlockModule id="ordering-features-storefront-cart" name="Modules.Ordering.Features.Storefront.Cart" version="1.0.0" status="stable" schema-version="1.0">
+  <ModuleMeta><Name>Storefront Cart</Name><Description>Customer cart management and checkout.</Description><Category>Features</Category><Stability>Stable</Stability></ModuleMeta>
+  <Features><Feature id="F1" name="Endpoints" type="core"><Description>Create, Delete, Get, Empty, Associate cart. Add/Remove/Update items. AdvanceCheckout, Checkout, ValidateCheckout, SelectShippingRate, ChangeCurrency.</Description></Feature></Features>
+  <AntiPatterns><AntiPattern id="AP1" name="Cart Abandonment" severity="low"><Avoid> Allowing abandoned carts to accumulate without cleanup.</Avoid><BetterApproach></BetterApproach></AntiPattern></AntiPatterns>
+    <AbstractionsCatalog>
+    <Category name="Components" order="1">
+      <Description>Key components in this directory.</Description>
+      <Abstraction id="A1" name="AddItem" type="directory">
+        <Path>./AddItem/</Path>
+        <Description>AddItem definition.</Description>
+        <Purpose>Supports module functionality.</Purpose>
+      </Abstraction>
+      <Abstraction id="A2" name="AdvanceCheckout" type="directory">
+        <Path>./AdvanceCheckout/</Path>
+        <Description>AdvanceCheckout definition.</Description>
+        <Purpose>Supports module functionality.</Purpose>
+      </Abstraction>
+      <Abstraction id="A3" name="AssociateCart" type="directory">
+        <Path>./AssociateCart/</Path>
+        <Description>AssociateCart definition.</Description>
+        <Purpose>Supports module functionality.</Purpose>
+      </Abstraction>
+      <Abstraction id="A4" name="ChangeCurrency" type="directory">
+        <Path>./ChangeCurrency/</Path>
+        <Description>ChangeCurrency definition.</Description>
+        <Purpose>Supports module functionality.</Purpose>
+      </Abstraction>
+      <Abstraction id="A5" name="Checkout" type="directory">
+        <Path>./Checkout/</Path>
+        <Description>Checkout definition.</Description>
+        <Purpose>Supports module functionality.</Purpose>
+      </Abstraction>
+      <Abstraction id="A6" name="CreateCart" type="directory">
+        <Path>./CreateCart/</Path>
+        <Description>CreateCart definition.</Description>
+        <Purpose>Supports module functionality.</Purpose>
+      </Abstraction>
+      <Abstraction id="A7" name="DeleteCart" type="directory">
+        <Path>./DeleteCart/</Path>
+        <Description>DeleteCart definition.</Description>
+        <Purpose>Supports module functionality.</Purpose>
+      </Abstraction>
+      <Abstraction id="A8" name="EmptyCart" type="directory">
+        <Path>./EmptyCart/</Path>
+        <Description>EmptyCart definition.</Description>
+        <Purpose>Supports module functionality.</Purpose>
+      </Abstraction>
+      <Abstraction id="A9" name="Get" type="directory">
+        <Path>./Get/</Path>
+        <Description>Get definition.</Description>
+        <Purpose>Supports module functionality.</Purpose>
+      </Abstraction>
+      <Abstraction id="A10" name="RemoveItem" type="directory">
+        <Path>./RemoveItem/</Path>
+        <Description>RemoveItem definition.</Description>
+        <Purpose>Supports module functionality.</Purpose>
+      </Abstraction>
+    </Category>
+  </AbstractionsCatalog>
+  <FileStructure>Features/Storefront Cart → Shared/</FileStructure>
+</BuildingBlockModule>

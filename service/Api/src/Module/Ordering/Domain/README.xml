@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ════════════════════════════════════════════════════════
+  Ordering Domain Documentation (XML)
+  Purpose:  Order management DDD domain — Orders with
+            line items, adjustments, and status workflow
+  Version:  1.0.0 / Status: Production / Schema: 1.0 / Updated: 2026-05-22
+  ════════════════════════════════════════════════════════
+-->
+<BuildingBlockModule id="ordering-domain" name="Modules.Ordering.Domain" version="1.0.0" status="stable" schema-version="1.0">
+  <ModuleMeta>
+    <Name>Ordering Domain</Name>
+    <Description>Order management DDD domain: Order aggregate with line items and price adjustments, status workflow (pending→approved→completed→cancelled), domain events for state transitions, and adjustment calculator pipeline.</Description>
+    <Category>Domain-Driven Design · Ordering</Category>
+    <Stability>Stable</Stability>
+    <StandardsAlignment>Evans DDD · Aggregate Root · Domain Events</StandardsAlignment>
+    <Dependencies><Dependency name="BuildingBlocks.Domain" version="1.0.0"/><Dependency name="BuildingBlocks.Calculators" version="1.0.0"/></Dependencies>
+  </ModuleMeta>
+  <Principles>
+    <Principle id="P1" name="Price Snapshot at Order Time"><Description>Line items and adjustments store prices at order creation time — never recalculated from current product prices.</Description><Rationale>Orders are historical records; changing prices would break financial audit.</Rationale></Principle>
+    <Principle id="P2" name="Status-Driven Workflow"><Description>Order status transitions (Place→Approve→Ship→Complete) each enforce invariants and raise domain events.</Description><Rationale>Every state change is validated and auditable.</Rationale></Principle>
+    <Principle id="P3" name="Adjuster Pipeline"><Description>Price adjustments flow through a composable adjuster pipeline (tax, discount, shipping) for consistent calculation.</Description><Rationale>Ensures every adjustment follows the same calculation path regardless of source.</Rationale></Principle>
+  </Principles>
+  <Features>
+    <Feature id="F1" name="Order Aggregate" type="core"><Description>Order with line items, adjustments, shipments, billing/shipping addresses, and status workflow.</Description></Feature>
+    <Feature id="F2" name="Line Item Management" type="core"><Description>Add, remove, update line items with product variant reference and quantity.</Description></Feature>
+    <Feature id="F3" name="Adjustment Calculation" type="core"><Description>Composable price adjustments via adjuster pipeline (discounts, taxes, shipping fees).</Description></Feature>
+    <Feature id="F4" name="Domain Events" type="core"><Description>OrderPlaced, OrderApproved, OrderCancelled, OrderCompleted events for downstream integration.</Description></Feature>
+  </Features>
+  <AbstractionsCatalog>
+    <Category name="Core Aggregates" order="1">
+      <Abstraction id="A1" name="Order" type="class"><Path>./Orders/</Path><Description>Order aggregate root with line items, adjustments, shipments, addresses, status, and domain events.</Description><Purpose>Central entity for the entire order lifecycle from cart to fulfillment.</Purpose></Abstraction>
+      <Abstraction id="A2" name="LineItem" type="class"><Path>./LineItems/</Path><Description>Order line item with product variant reference, quantity, and snapshot price.</Description><Purpose>What was purchased — immutable after order placement.</Purpose></Abstraction>
+      <Abstraction id="A3" name="Adjustment" type="class"><Path>./Adjustments/</Path><Description>Price adjustment (discount, tax, shipping fee) with calculator reference.</Description><Purpose>Modular price modifiers applied through the adjuster pipeline.</Purpose></Abstraction>
+    </Category>
+  </AbstractionsCatalog>
+  <TechnicalDetails>
+    <Mechanism id="M1" name="Order Status Workflow"><Scope>Status transitions</Scope><Steps><Step>Place: Cart items become order; validate stock; raise OrderPlaced</Step><Step>Approve: Admin confirms order; reserve stock; raise OrderApproved</Step><Step>Complete: All items shipped; raise OrderCompleted</Step><Step>Cancel: Before shipment; release reservations; raise OrderCancelled</Step></Steps></Mechanism>
+  </TechnicalDetails>
+  <AntiPatterns>
+    <AntiPattern id="AP1" name="Direct Status Setting" severity="critical"><Avoid>Setting order.Status directly — bypasses validation and domain events.</Avoid><BetterApproach>Use order.Place(), order.Approve(), order.Cancel() which enforce invariants.</BetterApproach></AntiPattern>
+    <AntiPattern id="AP2" name="Recalculating Line Item Prices" severity="high"><Avoid>Updating line item prices from current product price after order creation.</Avoid><BetterApproach>Prices are snapshotted at order time and immutable.</BetterApproach></AntiPattern>
+  </AntiPatterns>
+  <UsageGuide>
+    <Scenario id="S1" title="Place Order from Cart"><Context>Customer checks out — cart becomes an order.</Context><Pattern>var order = Order.PlaceFromCart(cart, customerId);\norder.AddShippingAddress(address);\nawait repository.AddAsync(order);\nawait mediator.Publish(new OrderPlacedEvent(order.Id));</Pattern></Scenario>
+  </UsageGuide>
+  <FileStructure>
+    Ordering/Domain/
+    ├── Adjustments/          # Price adjustments with adjuster pipeline
+    │   └── Adjuster/
+    ├── LineItems/            # Order line items
+    ├── Orders/               # Order aggregate root
+    │   └── Events/           # Domain events
+    └── README.xml
+  </FileStructure>
+</BuildingBlockModule>

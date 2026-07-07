@@ -1,0 +1,67 @@
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
+using Module.Payment.Infrastructure.Gateways.Stripe;
+using DomainPaymentMethod = Module.Payment.Domain.PaymentMethods.PaymentMethod;
+using Stripe;
+
+namespace Module.Payment.Features.Storefront.Payment.SetupIntent;
+
+    /// <summary>Handles CreateSetupIntent feature.</summary>
+    public static partial class CreateSetupIntent
+{
+    public sealed record Command(Guid PaymentMethodId) : ICommand<Response>;
+
+    public sealed class CommandHandler(
+        IApplicationDbContext dbContext,
+        IOptions<StripeOptions> stripeOptions)
+        : ICommandHandler<Command, Response>
+    {
+        /// <summary>Handles the command.</summary>
+        /// <param name="command">The command to handle.</param>
+        /// <param name="cancellationToken">Cancellation token.</param>
+        /// <returns>The result of handling the command.</returns>
+        public async Task<Result<Response>> Handle(Command command, CancellationToken cancellationToken)
+        {
+
+        // Contract: pre=command!=null, post=result!=null
+            // Set Stripe API key from options
+            // Update: Modify entity properties.
+            StripeConfiguration.ApiKey = stripeOptions.Value.SecretKey;
+
+            // Query: Load payment method
+            var paymentMethod = await dbContext.Set<DomainPaymentMethod>()
+                .FirstOrDefaultAsync(pm => pm.Id == command.PaymentMethodId, cancellationToken);
+
+            // Check: Verify the payment method exists.
+            if (paymentMethod is null)
+                return Domain.Payments.PaymentResult.Errors.NotFound;
+
+            // Call: Create Stripe SetupIntent
+            try
+            {
+                var options = new SetupIntentCreateOptions
+                {
+                    Metadata = new Dictionary<string, string>
+                    {
+                        ["payment_method_id"] = paymentMethod.Id.ToString()
+                    }
+                };
+
+                var setupIntent = await new SetupIntentService().CreateAsync(options, null, cancellationToken).ConfigureAwait(false);
+
+                return new Response
+                {
+                    ClientSecret = setupIntent.ClientSecret
+                };
+            }
+            // Boundary: Dynamic Stripe error — code and message are runtime values from StripeException, cannot be predefined.
+            catch (StripeException ex)
+            {
+                var stripeError = ex.StripeError;
+                return Result.Failure<Response>(Failures.BadRequest(
+                    $"Stripe.{stripeError?.Code ?? "UnknownError"}",
+                    stripeError?.Message ?? ex.Message));
+            }
+        }
+    }
+}

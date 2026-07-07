@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- FG: Storefront Payment / Purpose: Customer payment flow: intents, methods, webhooks. / Schema: 1.0 / Updated: 2026-05-22 -->
+<BuildingBlockModule id="payment-features-storefront-payment" name="Modules.Payment.Features.Storefront.Payment" version="1.0.0" status="stable" schema-version="1.0">
+  <ModuleMeta><Name>Storefront Payment</Name><Description>Customer payment flow: intents, methods, webhooks.</Description><Category>Features</Category><Stability>Stable</Stability></ModuleMeta>
+  <Features><Feature id="F1" name="Endpoints" type="core"><Description>CreateIntent, Confirm, SetupIntent for future payments. List methods. Webhooks for gateway callbacks.</Description></Feature></Features>
+  <AntiPatterns><AntiPattern id="AP1" name="Trusting Webhook Source" severity="critical"><Avoid> Processing webhooks without verifying gateway signature.</Avoid><BetterApproach></BetterApproach></AntiPattern></AntiPatterns>
+    <AbstractionsCatalog>
+    <Category name="Components" order="1">
+      <Description>Key components in this directory.</Description>
+      <Abstraction id="A1" name="Confirm" type="directory">
+        <Path>./Confirm/</Path>
+        <Description>Confirm definition.</Description>
+        <Purpose>Supports module functionality.</Purpose>
+      </Abstraction>
+      <Abstraction id="A2" name="CreateIntent" type="directory">
+        <Path>./CreateIntent/</Path>
+        <Description>CreateIntent definition.</Description>
+        <Purpose>Supports module functionality.</Purpose>
+      </Abstraction>
+      <Abstraction id="A3" name="Methods" type="directory">
+        <Path>./Methods/</Path>
+        <Description>Methods definition.</Description>
+        <Purpose>Supports module functionality.</Purpose>
+      </Abstraction>
+      <Abstraction id="A4" name="SetupIntent" type="directory">
+        <Path>./SetupIntent/</Path>
+        <Description>SetupIntent definition.</Description>
+        <Purpose>Supports module functionality.</Purpose>
+      </Abstraction>
+      <Abstraction id="A5" name="Webhooks" type="directory">
+        <Path>./Webhooks/</Path>
+        <Description>Webhooks definition.</Description>
+        <Purpose>Supports module functionality.</Purpose>
+      </Abstraction>
+    </Category>
+  </AbstractionsCatalog>
+  <FileStructure>Features/Storefront Payment → Shared/</FileStructure>
+</BuildingBlockModule>

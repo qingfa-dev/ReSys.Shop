@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Orders Domain Subdirectory / Purpose: Order aggregate root with status workflow and domain events. / Schema: 1.0 / Updated: 2026-05-22 -->
+<BuildingBlockModule id="ordering-domain-orders" name="Modules.Ordering.Domain.Orders" version="1.0.0" status="stable" schema-version="1.0">
+  <ModuleMeta><Name>Orders Domain</Name><Description>Order aggregate root with status workflow and domain events.</Description><Category>DDD</Category><Stability>Stable</Stability></ModuleMeta>
+  <Principles><Principle id="P1" name="Single Responsibility"><Description>Order aggregate root manages the order lifecycle: pending → approved → shipped → completed → cancelled. Each state transition publishes domain events (OrderPlaced, OrderApproved, etc.) for downstream processing.</Description><Rationale>Aggregate root ensures order invariants are maintained across all state transitions.</Rationale></Principle></Principles>
+  <Features><Feature id="F1" name="Orders " type="core">Direct Status Mutation: Setting order.Status directly instead of using behavior methods.</Feature></Features>
+  <AntiPatterns><AntiPattern id="AP1" name="Use Order.Place(), Order.Approve(), Order.Cancel()" severity="critical"><Avoid>Proceeding without validation or proper configuration.</Avoid><BetterApproach>Always validate inputs and follow documented patterns.</BetterApproach></AntiPattern></AntiPatterns>
+  <AbstractionsCatalog>
+<Category name="Core" order="1">
+<Description>Primary components.</Description>
+<Abstraction id="A1" name="Order.AddressBook" type="class"><Path>./Order.AddressBook.cs</Path><Description>Order.AddressBook component.</Description><Purpose>Part of module.</Purpose></Abstraction>
+<Abstraction id="A2" name="Order.Checkout" type="class"><Path>./Order.Checkout.cs</Path><Description>Order.Checkout component.</Description><Purpose>Part of module.</Purpose></Abstraction>
+<Abstraction id="A3" name="Order.Constant" type="class"><Path>./Order.Constant.cs</Path><Description>Order.Constant component.</Description><Purpose>Part of module.</Purpose></Abstraction>
+<Abstraction id="A4" name="OrderContents" type="class"><Path>./OrderContents.cs</Path><Description>OrderContents component.</Description><Purpose>Part of module.</Purpose></Abstraction>
+<Abstraction id="A5" name="Order" type="class"><Path>./Order.cs</Path><Description>Order component.</Description><Purpose>Part of module.</Purpose></Abstraction>
+<Abstraction id="A6" name="Order.CurrencyUpdater" type="class"><Path>./Order.CurrencyUpdater.cs</Path><Description>Order.CurrencyUpdater component.</Description><Purpose>Part of module.</Purpose></Abstraction>
+<Abstraction id="A7" name="Order.Enumerate" type="class"><Path>./Order.Enumerate.cs</Path><Description>Order.Enumerate component.</Description><Purpose>Part of module.</Purpose></Abstraction>
+<Abstraction id="A8" name="Order.Extensions" type="class"><Path>./Order.Extensions.cs</Path><Description>Order.Extensions component.</Description><Purpose>Part of module.</Purpose></Abstraction>
+<Abstraction id="A9" name="OrderInventory" type="class"><Path>./OrderInventory.cs</Path><Description>OrderInventory component.</Description><Purpose>Part of module.</Purpose></Abstraction>
+<Abstraction id="A10" name="OrderMerger" type="class"><Path>./OrderMerger.cs</Path><Description>OrderMerger component.</Description><Purpose>Part of module.</Purpose></Abstraction>
+</Category>
+</AbstractionsCatalog>
+  <FileStructure>Orders/ → README.xml</FileStructure>
+</BuildingBlockModule>

@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- FG: Admin Shipments / Purpose: Admin shipment management: create, cancel, ship, status updates, tracking. / Schema: 1.0 / Updated: 2026-05-22 -->
+<BuildingBlockModule id="shipping-features-admin-shipments" name="Modules.Shipping.Features.Admin.Shipments" version="1.0.0" status="stable" schema-version="1.0">
+  <ModuleMeta><Name>Admin Shipments</Name><Description>Admin shipment management: create, cancel, ship, status updates, tracking.</Description><Category>Features</Category><Stability>Stable</Stability></ModuleMeta>
+  <Features><Feature id="F1" name="Endpoints" type="core"><Description>Create, Cancel, Ship, MarkPending, MarkReady, DeleteShipment, Get shipments. UpdateTracking.</Description></Feature></Features>
+  <AntiPatterns><AntiPattern id="AP1" name="Shipment Without Address Verification" severity="high"><Avoid> Shipping to unverified addresses.</Avoid><BetterApproach></BetterApproach></AntiPattern></AntiPatterns>
+    <AbstractionsCatalog>
+    <Category name="Components" order="1">
+      <Description>Key components in this directory.</Description>
+      <Abstraction id="A1" name="Cancel" type="directory">
+        <Path>./Cancel/</Path>
+        <Description>Cancel definition.</Description>
+        <Purpose>Supports module functionality.</Purpose>
+      </Abstraction>
+      <Abstraction id="A2" name="Create" type="directory">
+        <Path>./Create/</Path>
+        <Description>Create definition.</Description>
+        <Purpose>Supports module functionality.</Purpose>
+      </Abstraction>
+      <Abstraction id="A3" name="DeleteShipment" type="directory">
+        <Path>./DeleteShipment/</Path>
+        <Description>DeleteShipment definition.</Description>
+        <Purpose>Supports module functionality.</Purpose>
+      </Abstraction>
+      <Abstraction id="A4" name="Get" type="directory">
+        <Path>./Get/</Path>
+        <Description>Get definition.</Description>
+        <Purpose>Supports module functionality.</Purpose>
+      </Abstraction>
+      <Abstraction id="A5" name="MarkPending" type="directory">
+        <Path>./MarkPending/</Path>
+        <Description>MarkPending definition.</Description>
+        <Purpose>Supports module functionality.</Purpose>
+      </Abstraction>
+      <Abstraction id="A6" name="MarkReady" type="directory">
+        <Path>./MarkReady/</Path>
+        <Description>MarkReady definition.</Description>
+        <Purpose>Supports module functionality.</Purpose>
+      </Abstraction>
+      <Abstraction id="A7" name="Ship" type="directory">
+        <Path>./Ship/</Path>
+        <Description>Ship definition.</Description>
+        <Purpose>Supports module functionality.</Purpose>
+      </Abstraction>
+      <Abstraction id="A8" name="UpdateTracking" type="directory">
+        <Path>./UpdateTracking/</Path>
+        <Description>UpdateTracking definition.</Description>
+        <Purpose>Supports module functionality.</Purpose>
+      </Abstraction>
+    </Category>
+  </AbstractionsCatalog>
+  <FileStructure>Features/Admin Shipments → Shared/</FileStructure>
+</BuildingBlockModule>

@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- FG: Storefront Orders / Purpose: Customer order viewing and cancellation. / Schema: 1.0 / Updated: 2026-05-22 -->
+<BuildingBlockModule id="ordering-features-storefront-orders" name="Modules.Ordering.Features.Storefront.Orders" version="1.0.0" status="stable" schema-version="1.0">
+  <ModuleMeta><Name>Storefront Orders</Name><Description>Customer order viewing and cancellation.</Description><Category>Features</Category><Stability>Stable</Stability></ModuleMeta>
+  <Features><Feature id="F1" name="Endpoints" type="core"><Description>Get order by ID, List orders for current user, Cancel order.</Description></Feature></Features>
+  <AntiPatterns><AntiPattern id="AP1" name="Cancelling After Shipment" severity="high"><Avoid> Allowing customers to cancel already-shipped orders.</Avoid><BetterApproach></BetterApproach></AntiPattern></AntiPatterns>
+    <AbstractionsCatalog>
+    <Category name="Components" order="1">
+      <Description>Key components in this directory.</Description>
+      <Abstraction id="A1" name="Cancel" type="directory">
+        <Path>./Cancel/</Path>
+        <Description>Cancel definition.</Description>
+        <Purpose>Supports module functionality.</Purpose>
+      </Abstraction>
+      <Abstraction id="A2" name="Get" type="directory">
+        <Path>./Get/</Path>
+        <Description>Get definition.</Description>
+        <Purpose>Supports module functionality.</Purpose>
+      </Abstraction>
+      <Abstraction id="A3" name="ListOrders" type="directory">
+        <Path>./ListOrders/</Path>
+        <Description>ListOrders definition.</Description>
+        <Purpose>Supports module functionality.</Purpose>
+      </Abstraction>
+    </Category>
+  </AbstractionsCatalog>
+  <FileStructure>Features/Storefront Orders → Shared/</FileStructure>
+</BuildingBlockModule>

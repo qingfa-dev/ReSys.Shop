@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Promotions Domain Subdirectory / Purpose: Promotion aggregate root. / Schema: 1.0 / Updated: 2026-05-22 -->
+<BuildingBlockModule id="promotions-domain-promotions" name="Modules.Promotions.Domain.Promotions" version="1.0.0" status="stable" schema-version="1.0">
+  <ModuleMeta><Name>Promotions Domain</Name><Description>Promotion aggregate root.</Description><Category>DDD</Category><Stability>Stable</Stability></ModuleMeta>
+  <Principles><Principle id="P1" name="Single Responsibility"><Description>Promotion aggregate root manages lifecycle (draft → active → inactive), owns rules (eligibility) and actions (discount). Supports activation/deactivation/duplicate operations.</Description><Rationale>Aggregate root ensures promotion invariants: active promotions must have at least one rule and one action.</Rationale></Principle></Principles>
+  <Features><Feature id="F1" name="Promotions " type="core">Promotion Without Rules: Activating a promotion that applies to every order.</Feature></Features>
+  <AntiPatterns><AntiPattern id="AP1" name="Require at least one eligibility rule before activ" severity="high"><Avoid>Proceeding without validation or proper configuration.</Avoid><BetterApproach>Always validate inputs and follow documented patterns.</BetterApproach></AntiPattern></AntiPatterns>
+  <AbstractionsCatalog>
+<Category name="Core" order="1">
+<Description>Primary components.</Description>
+<Abstraction id="A1" name="Promotion.Constant" type="class"><Path>./Promotion.Constant.cs</Path><Description>Promotion.Constant component.</Description><Purpose>Part of module.</Purpose></Abstraction>
+<Abstraction id="A2" name="Promotion" type="class"><Path>./Promotion.cs</Path><Description>Promotion component.</Description><Purpose>Part of module.</Purpose></Abstraction>
+<Abstraction id="A3" name="Promotion.Enumerate" type="class"><Path>./Promotion.Enumerate.cs</Path><Description>Promotion.Enumerate component.</Description><Purpose>Part of module.</Purpose></Abstraction>
+<Abstraction id="A4" name="Promotion.Extensions" type="class"><Path>./Promotion.Extensions.cs</Path><Description>Promotion.Extensions component.</Description><Purpose>Part of module.</Purpose></Abstraction>
+<Abstraction id="A5" name="Promotion.Publishable" type="class"><Path>./Promotion.Publishable.cs</Path><Description>Promotion.Publishable component.</Description><Purpose>Part of module.</Purpose></Abstraction>
+<Abstraction id="A6" name="Promotion.Ransackable" type="class"><Path>./Promotion.Ransackable.cs</Path><Description>Promotion.Ransackable component.</Description><Purpose>Part of module.</Purpose></Abstraction>
+<Abstraction id="A7" name="Promotion.Result" type="class"><Path>./Promotion.Result.cs</Path><Description>Promotion.Result component.</Description><Purpose>Part of module.</Purpose></Abstraction>
+<Abstraction id="A8" name="Promotion.Validation" type="class"><Path>./Promotion.Validation.cs</Path><Description>Promotion.Validation component.</Description><Purpose>Part of module.</Purpose></Abstraction>
+</Category>
+</AbstractionsCatalog>
+  <FileStructure>Promotions/ → README.xml</FileStructure>
+</BuildingBlockModule>

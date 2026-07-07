@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Gateways Domain Subdirectory / Purpose: Payment gateway definitions (Stripe, etc.). / Schema: 1.0 / Updated: 2026-05-22 -->
+<BuildingBlockModule id="payment-domain-gateways" name="Modules.Payment.Domain.Gateways" version="1.0.0" status="stable" schema-version="1.0">
+  <ModuleMeta><Name>Gateways Domain</Name><Description>Payment gateway definitions (Stripe, etc.).</Description><Category>DDD</Category><Stability>Stable</Stability></ModuleMeta>
+  <Principles><Principle id="P1" name="Single Responsibility"><Description>Gateway definition with supported currencies, methods, and configuration. Gateways are resolved by Payment entity at transaction time.</Description><Rationale>Abstraction allows adding new payment gateways without modifying domain logic.</Rationale></Principle></Principles>
+  <Features><Feature id="F1" name="Gateways " type="core">Gateway Logic in Domain: Embedding Stripe API calls inside domain entities.</Feature></Features>
+  <AntiPatterns><AntiPattern id="AP1" name="Domain defines the interface. Infrastructure layer" severity="critical"><Avoid>Proceeding without validation or proper configuration.</Avoid><BetterApproach>Always validate inputs and follow documented patterns.</BetterApproach></AntiPattern></AntiPatterns>
+  <AbstractionsCatalog>
+<Category name="Core" order="1">
+<Description>Primary components.</Description>
+<Abstraction id="A1" name="Gateway" type="class"><Path>./Gateway.cs</Path><Description>Gateway component.</Description><Purpose>Part of module.</Purpose></Abstraction>
+<Abstraction id="A2" name="IPaymentGatewayActionProvider" type="class"><Path>./IPaymentGatewayActionProvider.cs</Path><Description>IPaymentGatewayActionProvider component.</Description><Purpose>Part of module.</Purpose></Abstraction>
+<Abstraction id="A3" name="PaymentGatewayResponse" type="class"><Path>./PaymentGatewayResponse.cs</Path><Description>PaymentGatewayResponse component.</Description><Purpose>Part of module.</Purpose></Abstraction>
+</Category>
+</AbstractionsCatalog>
+  <FileStructure>Gateways/ → README.xml</FileStructure>
+</BuildingBlockModule>

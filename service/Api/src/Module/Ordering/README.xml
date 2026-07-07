@@ -1,0 +1,424 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ════════════════════════════════════════════════════════
+  Ordering Module Documentation (XML)
+  Purpose:  Domain entities, checkout workflow, and adjustment calculations for order management
+  Version:  1.0.0
+  Status:   Stable
+  Schema:   1.0
+  Updated:  2026-05-18
+  ════════════════════════════════════════════════════════
+-->
+
+<BuildingBlockModule
+  id="ordering-module"
+  name="Modules.Ordering"
+  version="1.0.0"
+  status="stable"
+  schema-version="1.0">
+
+  <ModuleMeta>
+    <Name>Ordering Module</Name>
+    <Description>
+      Domain entities, value objects, services, and checkout engine for order lifecycle management.
+      Covers order creation, checkout state machine transitions, payment/shipment state tracking,
+      adjustment recalculation, store credit and gift card integration, digital delivery, and
+      cart merge operations. Ported directly from Spree::Order Ruby concerns.
+    </Description>
+    <Category>Domain Logic</Category>
+    <Stability>Stable</Stability>
+    <StandardsAlignment>DDD tactical patterns; Vertical Slice Architecture</StandardsAlignment>
+    <Dependencies>
+      <Dependency name="BuildingBlocks" version="1.0.0" />
+    </Dependencies>
+  </ModuleMeta>
+
+  <Principles>
+    <Principle id="P1" name="Sealed Partial Entity Pattern">
+      <Description>Domain entities are sealed partial classes with one concern per partial file, matching the Ruby concern pattern.</Description>
+      <Rationale>Ruby concerns mix in behavior across files; C# sealed partial classes provide equivalent modularity without inheritance complexity.</Rationale>
+    </Principle>
+    <Principle id="P2" name="Direct Ruby Port">
+      <Description>All business logic is ported directly from ruby-sdk-1/ Spree::Order concerns and services without a TypeScript middleman.</Description>
+      <Rationale>Ruby types drop ~40% of business logic in translation; direct port ensures full fidelity to the tested Spree codebase.</Rationale>
+    </Principle>
+    <Principle id="P3" name="Immutable Checkout Steps">
+      <Description>Checkout steps are resolved via queries not mutation; Registry supports composition without subclassing.</Description>
+      <Rationale>Prevents state machine drift; allows third-party extensions to add/reorder steps dynamically.</Rationale>
+    </Principle>
+  </Principles>
+
+  <Features>
+    <Feature id="F1" name="Order Management" type="core">
+      <Description>Create, finalize, cancel, and approve orders with full state machine enforcement.</Description>
+      <Methods>
+        <Method name="AdvanceCheckout()">Transition order through checkout states</Method>
+        <Method name="Finalize()">Complete order placement with totals recalculation</Method>
+        <Method name="Cancel(canceledById)">Cancel a placed order with canceler tracking</Method>
+      </Methods>
+    </Feature>
+
+    <Feature id="F2" name="Checkout State Machine" type="core">
+      <Description>Ruby-ported checkout flow with before/after transition hooks, guard methods, and step queries.</Description>
+      <Methods>
+        <Method name="ResolvedCheckoutSteps">Dynamic step list filtering by delivery/payment/confirmation requirements</Method>
+        <Method name="CurrentCheckoutStep">Customer-facing step from internal state</Method>
+        <Method name="CheckoutAllowed()">Validates line item prerequisites</Method>
+      </Methods>
+    </Feature>
+
+    <Feature id="F3" name="Adjustment Engine" type="core">
+      <Description>Promotion and tax adjusters with competing-promotion selection and totals persistence.</Description>
+    </Feature>
+
+    <Feature id="F4" name="Store Credit &amp; Gift Cards" type="extension">
+      <Description>Store credit calculation, gift card application/recalculation, and coverage queries.</Description>
+    </Feature>
+
+    <Feature id="F5" name="Digital Delivery" type="extension">
+      <Description>Digital order detection, digital link management, and create_digital_links hook.</Description>
+    </Feature>
+
+    <Feature id="F6" name="Cart Merge" type="utility">
+      <Description>Guest-to-user cart merge with line item deduplication and quantity accumulation.</Description>
+    </Feature>
+
+    <Feature id="F7" name="Checkout Registry" type="extension">
+      <Description>Composable extension point for custom checkout steps and requirements without monkey-patching.</Description>
+    </Feature>
+  </Features>
+
+  <AbstractionsCatalog>
+    <Category name="Orders" order="1">
+      <Description>Order aggregate root with all lifecycle concerns.</Description>
+
+      <Abstraction id="A1" name="Order" type="class">
+        <Path>./Domain/Orders/Order.cs</Path>
+        <Description>Sealed partial aggregate root for order entity. Central entity holding line items, adjustments, payment records, and checkout state.</Description>
+        <Purpose>Represents a customer order through its entire lifecycle from draft to completed or canceled.</Purpose>
+        <Contract>Invariant: Total &gt;= 0; ItemTotal &gt;= 0; CheckoutState progresses forward only; Items.Count &gt;= 1 when Status != Draft</Contract>
+        <TopUse>Creating and managing customer shopping carts and orders.</TopUse>
+      </Abstraction>
+
+      <Abstraction id="A2" name="Order.Checkout" type="partial">
+        <Path>./Domain/Orders/Order.Checkout.cs</Path>
+        <Description>Checkout state machine: step resolution, guard methods (DeliveryRequired, PaymentRequired, ConfirmationRequired, AllowCancel), and lifecycle callbacks.</Description>
+        <Purpose>Ports Spree::Order::Checkout concern — defines checkout flow, transition guards, and hook callbacks.</Purpose>
+      </Abstraction>
+
+      <Abstraction id="A3" name="Order.AddressBook" type="partial">
+        <Path>./Domain/Orders/Order.AddressBook.cs</Path>
+        <Description>Address cloning and ID assignment with ownership validation.</Description>
+        <Purpose>Ports Spree::Order::AddressBook concern for billing/shipping address management.</Purpose>
+      </Abstraction>
+
+      <Abstraction id="A4" name="Order.CurrencyUpdater" type="partial">
+        <Path>./Domain/Orders/Order.CurrencyUpdater.cs</Path>
+        <Description>Homogenizes line item currencies when order currency changes.</Description>
+        <Purpose>Ports Spree::Order::CurrencyUpdater concern for multi-currency cart consistency.</Purpose>
+      </Abstraction>
+
+      <Abstraction id="A5" name="Order.Payments" type="partial">
+        <Path>./Domain/Orders/Order.Payments.cs</Path>
+        <Description>Payment state tracking via PaymentRecord snapshots and unprocessed payment enumeration.</Description>
+        <Purpose>Ports Spree::Order::Payments concern for payment lifecycle coordination.</Purpose>
+      </Abstraction>
+
+      <Abstraction id="A6" name="Order.StoreCredit" type="partial">
+        <Path>./Domain/Orders/Order.StoreCredit.cs</Path>
+        <Description>Store credit calculation: total applied, applicable, available, and coverage checks.</Description>
+        <Purpose>Ports Spree::Order::StoreCredit concern for store credit integration.</Purpose>
+      </Abstraction>
+
+      <Abstraction id="A7" name="Order.Digital" type="partial">
+        <Path>./Domain/Orders/Order.Digital.cs</Path>
+        <Description>Digital order detection and digital line item queries.</Description>
+        <Purpose>Ports Spree::Order::Digital concern for digital delivery logic.</Purpose>
+      </Abstraction>
+
+      <Abstraction id="A8" name="Order.Webhooks" type="partial">
+        <Path>./Domain/Orders/Order.Webhooks.cs</Path>
+        <Description>Webhook notification stubs for order placed/canceled/resumed events.</Description>
+        <Purpose>Ports Spree::Order::Webhooks concern — dispatches lifecycle webhooks from infrastructure.</Purpose>
+      </Abstraction>
+    </Category>
+
+    <Category name="Domain Services" order="2">
+      <Description>Stateless services that coordinate order business logic.</Description>
+
+      <Abstraction id="B1" name="OrderUpdater" type="class">
+        <Path>./Domain/Orders/OrderUpdater.cs</Path>
+        <Description>Updates item count, totals (payment, item, shipment, adjustment), and payment/shipment state. Ports Spree::OrderUpdater.</Description>
+        <Purpose>Central recalculation engine called after any order mutation.</Purpose>
+      </Abstraction>
+
+      <Abstraction id="B2" name="OrderContents" type="class">
+        <Path>./Domain/Orders/OrderContents.cs</Path>
+        <Description>Adds/removes line items with quantity coordination. Ports Spree::OrderContents.</Description>
+        <Purpose>Cart modification entry point with inventory awareness.</Purpose>
+      </Abstraction>
+
+      <Abstraction id="B3" name="OrderInventory" type="class">
+        <Path>./Domain/Orders/OrderInventory.cs</Path>
+        <Description>Synchronizes inventory units for completed orders on line item quantity changes. Ports Spree::OrderInventory.</Description>
+        <Purpose>Ensures inventory unit counts match line item quantities for completed orders.</Purpose>
+      </Abstraction>
+
+      <Abstraction id="B4" name="OrderMerger" type="class">
+        <Path>./Domain/Orders/OrderMerger.cs</Path>
+        <Description>Merges guest cart into user cart with line item deduplication and quantity accumulation. Ports Spree::OrderMerger.</Description>
+        <Purpose>Cart merge on user login — combines guest and authenticated carts.</Purpose>
+      </Abstraction>
+    </Category>
+
+    <Category name="Checkout Engine" order="3">
+      <Description>Composable checkout step registry and requirement evaluation.</Description>
+
+      <Abstraction id="C1" name="CheckoutRegistry" type="class">
+        <Path>./Domain/Checkout/CheckoutRegistry.cs</Path>
+        <Description>Global registry for custom checkout steps and additional requirements. Ports Spree::Checkout::Registry.</Description>
+        <Purpose>Extension point for third-party checkout steps without subclassing.</Purpose>
+      </Abstraction>
+
+      <Abstraction id="C2" name="CheckoutStep" type="class">
+        <Path>./Domain/Checkout/CheckoutStep.cs</Path>
+        <Description>Value object for a custom checkout step with satisfied/applicable predicates and before/after ordering.</Description>
+        <Purpose>Encapsulates a single custom checkout step's behavior and position.</Purpose>
+      </Abstraction>
+
+      <Abstraction id="C3" name="CheckoutRequirement" type="class">
+        <Path>./Domain/Checkout/CheckoutRequirement.cs</Path>
+        <Description>Value object for an additional requirement attached to an existing checkout step.</Description>
+        <Purpose>Adds field-level validation requirements to existing steps.</Purpose>
+      </Abstraction>
+
+      <Abstraction id="C4" name="CheckoutRequirements" type="class">
+        <Path>./Domain/Checkout/CheckoutRequirements.cs</Path>
+        <Description>Aggregates default + registered requirements for an order. Ports Spree::Checkout::Requirements.</Description>
+        <Purpose>Single entry point to evaluate all unmet checkout requirements.</Purpose>
+      </Abstraction>
+
+      <Abstraction id="C5" name="DefaultCheckoutRequirements" type="class">
+        <Path>./Domain/Checkout/DefaultCheckoutRequirements.cs</Path>
+        <Description>Built-in requirements for line items, email, shipping address, shipping method, and payment. Ports Spree::Checkout::DefaultRequirements.</Description>
+        <Purpose>Baseline checkout validation matching the standard Spree flow.</Purpose>
+      </Abstraction>
+    </Category>
+
+    <Category name="Adjustments" order="4">
+      <Description>Adjustment calculation, state management, and adjuster hierarchy.</Description>
+
+      <Abstraction id="D1" name="Adjustment" type="class">
+        <Path>./Domain/Adjustments/Adjustment.cs</Path>
+        <Description>Entity representing a single adjustment (promotion, tax, shipping) on an order or line item.</Description>
+        <Purpose>Tracks monetary adjustments with eligibility and open/closed state machine.</Purpose>
+      </Abstraction>
+
+      <Abstraction id="D2" name="IAdjustable" type="interface">
+        <Path>./Domain/Adjustments/IAdjustable.cs</Path>
+        <Description>Interface for entities that can have adjustments (Order, LineItem).</Description>
+        <Purpose>Polymorphic adjustment target for the AdjustmentsUpdater.</Purpose>
+      </Abstraction>
+
+      <Abstraction id="D3" name="AdjusterBase" type="abstract">
+        <Path>./Domain/Adjustments/Adjuster/AdjusterBase.cs</Path>
+        <Description>Abstract base for adjustment calculators. Ports Spree::Adjustable::Adjuster::Base.</Description>
+        <Purpose>Template method pattern for adjustment recalculation strategies.</Purpose>
+      </Abstraction>
+
+      <Abstraction id="D4" name="PromotionAdjuster" type="class">
+        <Path>./Domain/Adjustments/Adjuster/PromotionAdjuster.cs</Path>
+        <Description>Selects the best competing promotion and marks all others ineligible. Ports Spree::Adjustable::Adjuster::Promotion.</Description>
+        <Purpose>Ensures only the most valuable promotion applies to an order.</Purpose>
+      </Abstraction>
+
+      <Abstraction id="D5" name="TaxAdjuster" type="class">
+        <Path>./Domain/Adjustments/Adjuster/TaxAdjuster.cs</Path>
+        <Description>Separates included and additional tax totals. Ports Spree::Adjustable::Adjuster::Tax.</Description>
+        <Purpose>Tax breakdown for pricing display and analytics.</Purpose>
+      </Abstraction>
+
+      <Abstraction id="D6" name="AdjustmentsUpdater" type="class">
+        <Path>./Domain/Adjustments/AdjustmentsUpdater.cs</Path>
+        <Description>Orchestrates non-tax and tax adjusters, then persists totals. Ports Spree::Adjustable::AdjustmentsUpdater.</Description>
+        <Purpose>Top-level adjustment recalculation coordinator.</Purpose>
+      </Abstraction>
+    </Category>
+
+    <Category name="Supporting Entities" order="5">
+      <Description>Related entities for line items, digital links, and order-promotion associations.</Description>
+
+      <Abstraction id="E1" name="LineItem" type="class">
+        <Path>./Domain/LineItems/LineItem.cs</Path>
+        <Description>Order line item with quantity, pricing, tax breakdown, and digital flags.</Description>
+        <Purpose>Represents a single product variant line within an order.</Purpose>
+      </Abstraction>
+
+      <Abstraction id="E2" name="DigitalLink" type="class">
+        <Path>./Domain/DigitalLinks/DigitalLink.cs</Path>
+        <Description>Download link for digital assets with access counter, expiry, and limit enforcement.</Description>
+        <Purpose>Access-controlled digital download after order completion.</Purpose>
+      </Abstraction>
+
+      <Abstraction id="E3" name="OrderPromotion" type="class">
+        <Path>./Domain/OrderPromotions/OrderPromotion.cs</Path>
+        <Description>Join entity linking promotions to orders with optional promotion code.</Description>
+        <Purpose>Tracks which promotions were applied to an order.</Purpose>
+      </Abstraction>
+
+      <Abstraction id="E4" name="PaymentRecord" type="struct">
+        <Path>./Domain/Orders/PaymentRecord.cs</Path>
+        <Description>Immutable value object capturing payment snapshot for state calculation.</Description>
+        <Purpose>Enables payment state computation without cross-module dependency on Payment entity.</Purpose>
+      </Abstraction>
+
+      <Abstraction id="E5" name="OrderConstant" type="static">
+        <Path>./Domain/Orders/Order.Constant.cs</Path>
+        <Description>Constraints, defaults, and query configuration constants for the Order entity.</Description>
+      </Abstraction>
+
+      <Abstraction id="E6" name="OrderEnums" type="enum">
+        <Path>./Domain/Orders/Order.Enumerate.cs</Path>
+        <Description>OrderStatus (Draft, Placed, Canceled) and CheckoutState (Address, Delivery, Payment, Confirm, Complete) enums.</Description>
+      </Abstraction>
+    </Category>
+  </AbstractionsCatalog>
+
+  <TechnicalDetails>
+    <Mechanism id="M1" name="Checkout State Resolution">
+      <Scope>Core checkout flow logic</Scope>
+      <Description>
+        ResolvedCheckoutSteps dynamically builds the step list by checking delivery, payment, and
+        confirmation requirements at query time. This mirrors the Ruby checkout_flow DSL
+        where steps are conditionally included based on order state.
+      </Description>
+    </Mechanism>
+
+    <Mechanism id="M2" name="Promotion Conflict Resolution">
+      <Scope>Promotion adjustment calculation</Scope>
+      <Description>
+        PromotionAdjuster selects the single best competing promotion by ordering adjustments by
+        amount ASC, created_at DESC, and created_at DESC. All non-winning adjustments are marked
+        ineligible, ensuring only one promotion applies per order.
+      </Description>
+    </Mechanism>
+
+    <Mechanism id="M3" name="Store Credit Calculation">
+      <Scope>Payment state computation</Scope>
+      <Description>
+        TotalApplicableStoreCredit behaves differently depending on checkout state:
+        after payment state, it returns the already-applied credit; before payment,
+        it caps available credit at the order total (min(total, user_available)).
+        This prevents over-crediting before checkout completes.
+      </Description>
+    </Mechanism>
+  </TechnicalDetails>
+
+  <AntiPatterns>
+    <AntiPattern id="AP1" name="Direct Payment Entity Access" severity="medium">
+      <Avoid>Importing Payment or Shipment entities from Payment/Shipping modules into Order partials.</Avoid>
+      <BetterApproach>Use PaymentRecord value objects for state calculations; wire full entities only in Persistence layer.</BetterApproach>
+    </AntiPattern>
+
+    <AntiPattern id="AP2" name="Mutable Checkout Steps" severity="high">
+      <Avoid>Adding/removing checkout steps by mutating arrays directly.</Avoid>
+      <BetterApproach>Use CheckoutRegistry for dynamic step registration with before/after constraints.</BetterApproach>
+    </AntiPattern>
+  </AntiPatterns>
+
+  <UsageGuide>
+    <Scenario id="S1" title="Creating and Finalizing an Order">
+      <Context>When a customer completes checkout, the order must be finalized with totals recombination.</Context>
+      <Pattern>
+        var order = OrderExtensions.Create("USD", userId, storeId).Value;
+        order.AdvanceCheckout();
+        order.Finalize();
+      </Pattern>
+      <Benefits>
+        <Benefit>State machine ensures valid transitions only</Benefit>
+        <Benefit>Totals automatically recalculated on finalize</Benefit>
+      </Benefits>
+    </Scenario>
+
+    <Scenario id="S2" title="Checkout Requirement Evaluation">
+      <Context>Before rendering the checkout UI, evaluate all requirements to determine which steps still need input.</Context>
+      <Pattern>
+        var reqs = new CheckoutRequirements(order);
+        var unmet = reqs.Call();
+        if (unmet.Count == 0) { /* all set — proceed to complete */ }
+      </Pattern>
+      <Benefits>
+        <Benefit>Composable — built-in + custom requirements merged automatically</Benefit>
+        <Benefit>No state machine coupling for UI validation</Benefit>
+      </Benefits>
+    </Scenario>
+  </UsageGuide>
+
+  <FileStructure>
+    Ordering/
+    ├── Domain/
+    │   ├── Adjustments/
+    │   │   ├── Adjuster/
+    │   │   │   ├── AdjusterBase.cs             # Abstract base for adjustment calculators
+    │   │   │   ├── PromotionAdjuster.cs         # Best-promotion selection strategy
+    │   │   │   └── TaxAdjuster.cs               # Included/additional tax separation
+    │   │   ├── Adjustment.cs                    # Adjustment entity
+    │   │   ├── Adjustment.Constant.cs           # Defaults, constraints, query config
+    │   │   ├── Adjustment.Extensions.cs         # Factory and state transition methods
+    │   │   ├── Adjustment.Loggers.cs            # Structured logging events
+    │   │   ├── Adjustment.Result.cs             # Success/error message factories
+    │   │   ├── Adjustment.Validation.cs         # FluentValidation rules
+    │   │   ├── AdjustmentsUpdater.cs            # Orchestrates adjuster pipeline
+    │   │   └── IAdjustable.cs                   # Interface for adjustable entities
+    │   ├── Checkout/
+    │   │   ├── CheckoutRegistry.cs              # Global step/requirement registry
+    │   │   ├── CheckoutRequirement.cs           # Custom requirement value object
+    │   │   ├── CheckoutRequirements.cs          # Aggregates all requirements for order
+    │   │   ├── CheckoutStep.cs                  # Custom checkout step value object
+    │   │   └── DefaultCheckoutRequirements.cs   # Built-in requirement checks
+    │   ├── DigitalLinks/
+    │   │   ├── DigitalLink.cs                   # Digital download link entity
+    │   │   ├── DigitalLink.Constant.cs          # Defaults, constraints, query config
+    │   │   ├── DigitalLink.Extensions.cs         # Factory and access methods
+    │   │   ├── DigitalLink.Loggers.cs           # Structured logging events
+    │   │   ├── DigitalLink.Result.cs            # Success/error message factories
+    │   │   └── DigitalLink.Validation.cs        # FluentValidation rules
+    │   ├── LineItems/
+    │   │   ├── LineItem.cs                      # Order line item entity
+    │   │   ├── LineItem.Constant.cs             # Limits and query config
+    │   │   ├── LineItem.Extensions.cs           # Factory and calculation methods
+    │   │   ├── LineItem.Loggers.cs              # Structured logging events
+    │   │   ├── LineItem.Result.cs               # Success/error message factories
+    │   │   └── LineItem.Validation.cs           # FluentValidation rules
+    │   ├── OrderPromotions/
+    │   │   ├── OrderPromotion.cs                # Order-promotion join entity
+    │   │   ├── OrderPromotion.Constant.cs       # Query config
+    │   │   ├── OrderPromotion.Extensions.cs     # Factory methods
+    │   │   └── OrderPromotion.Result.cs         # Success/error message factories
+    │   └── Orders/
+    │       ├── Order.cs                         # Sealed partial aggregate root
+    │       ├── Order.AddressBook.cs             # Address cloning and assignment
+    │       ├── Order.Checkout.cs                # State machine, guards, callbacks
+    │       ├── Order.Constant.cs                # Constraints, defaults, query config
+    │       ├── Order.CurrencyUpdater.cs         # Multi-currency homogenization
+    │       ├── Order.Digital.cs                 # Digital delivery detection
+    │       ├── Order.Enumerate.cs               # OrderStatus and CheckoutState enums
+    │       ├── Order.Extensions.cs              # Factory and state machine methods
+    │       ├── Order.Loggers.cs                 # Structured logging events
+    │       ├── Order.Payments.cs                # Payment record snapshots
+    │       ├── Order.Result.cs                  # Success/error message factories
+    │       ├── Order.StoreCredit.cs             # Store credit calculations
+    │       ├── Order.Validation.cs              # FluentValidation rules
+    │       ├── Order.Webhooks.cs                # Webhook stub methods
+    │       ├── OrderContents.cs                 # Add/remove line items
+    │       ├── OrderInventory.cs                # Inventory unit sync
+    │       ├── OrderMerger.cs                   # Guest-to-user cart merge
+    │       ├── OrderUpdater.cs                  # Totals and state recalculation
+    │       └── PaymentRecord.cs                 # Immutable payment snapshot value object
+    ├── Persistence/                              # EF Core configuration (not in scope)
+    ├── Ordering.Extension.cs                    # Module registration
+    ├── README.md                                # Human-readable summary
+    └── README.xml                               # This documentation
+  </FileStructure>
+
+</BuildingBlockModule>
