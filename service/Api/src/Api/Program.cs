@@ -50,6 +50,7 @@ app.MapDefaultEndpoints();
 app.UseGovernance();
 app.UsePerformance();
 app.UseSecurity();
+app.UseRateLimiter();
 app.UseOperational();
 app.UseObservability();
 app.UseHttpsRedirection();
