@@ -1,0 +1,7 @@
+# =============================================================================
+# Embedding Service - Health Check API Smoke Tests
+# =============================================================================
+
+### Health check – success (200)
+GET {{baseUrl}}/health
+Content-Type: {{contentType}}

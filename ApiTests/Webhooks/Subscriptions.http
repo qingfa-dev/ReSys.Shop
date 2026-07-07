@@ -1,0 +1,33 @@
+# =============================================================================
+# Webhooks - Admin Subscriptions API Smoke Tests
+# =============================================================================
+
+### Create webhook subscription – success (200)
+POST {{baseUrl}}/api/webhooks/subscriptions
+Authorization: Bearer {{adminToken}}
+Content-Type: {{contentType}}
+
+{
+  "event": "order.placed",
+  "url": "https://example.com/webhook",
+  "secret": "whsec_test",
+  "maxRetries": 3
+}
+
+### List webhook subscriptions – success (200)
+GET {{baseUrl}}/api/webhooks/subscriptions?page=1&pageSize=10
+Authorization: Bearer {{adminToken}}
+
+### Get webhook subscription by ID – not found (404)
+GET {{baseUrl}}/api/webhooks/subscriptions/{{nonExistentId}}
+Authorization: Bearer {{adminToken}}
+
+### Create webhook subscription – no auth (401)
+POST {{baseUrl}}/api/webhooks/subscriptions
+Content-Type: {{contentType}}
+
+{
+  "event": "order.placed",
+  "url": "https://example.com/webhook",
+  "secret": "whsec_test"
+}

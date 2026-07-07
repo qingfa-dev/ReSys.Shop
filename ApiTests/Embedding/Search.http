@@ -1,0 +1,23 @@
+# =============================================================================
+# Embedding Service - Embedding API Smoke Tests
+# =============================================================================
+# Note: These endpoints are served by the Embedding service (FastAPI),
+# not the main .NET API. Update {{baseUrl}} accordingly when running
+# against the Embedding service directly.
+# =============================================================================
+
+### Embed text – success (200)
+POST {{baseUrl}}/embeddings/embed
+Content-Type: {{contentType}}
+
+{
+  "text": "wireless bluetooth headphones"
+}
+
+### Batch embed – success (200)
+POST {{baseUrl}}/embeddings/embed/batch
+Content-Type: {{contentType}}
+
+{
+  "texts": ["wireless headphones", "running shoes", "leather wallet"]
+}

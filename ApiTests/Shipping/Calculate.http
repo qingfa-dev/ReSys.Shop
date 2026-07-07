@@ -1,0 +1,22 @@
+# =============================================================================
+# Shipping - Storefront Shipping Calculate API Smoke Tests
+# =============================================================================
+
+### Calculate shipping – no auth (401)
+POST {{baseUrl}}/api/storefront/shipping/calculate
+Content-Type: {{contentType}}
+
+{
+  "orderId": "{{nonExistentId}}",
+  "shippingMethodId": "{{nonExistentId}}"
+}
+
+### Calculate shipping – success (200) with auth
+POST {{baseUrl}}/api/storefront/shipping/calculate
+Authorization: Bearer {{storeToken}}
+Content-Type: {{contentType}}
+
+{
+  "orderId": "{{nonExistentId}}",
+  "shippingMethodId": "{{nonExistentId}}"
+}
