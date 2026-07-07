@@ -1,3 +1,30 @@
+Short summary
+
+External systems and integrations used or expected by the repo.
+
+Databases & caches
+- PostgreSQL (pgvector mentioned) — primary persistence.
+- Redis — caching and session-like storage.
+
+Messaging / background
+- Hangfire used for background jobs (referenced in AGENTS.md).
+
+Third-party services
+- Email: SendGrid/SMTP mentioned as notification options in AGENTS.md.
+- Storage: Local/S3/Azure storage abstraction noted in AGENTS.md.
+
+# Evidence
+- [AGENTS.md](AGENTS.md)
+- [service/Api/src/Shared](service/Api/src/Shared)
+
+[Decision]
+- Secrets management (team): Adopt local development secrets via environment files and Aspire user secrets as the primary development approach. Action: remove hardcoded secrets from committed `appsettings.Development.json`, add a `.env.template` / `.env.example` documenting required env vars, and prefer Aspire user secrets for per-developer credentials.
+
+[Done]
+- `.env.template` created at `service/Api/src/Api/.env.template` containing the canonical development environment variables discovered in `appsettings.Development.json`, SPA env files, and notification/storage configuration.
+
+[TODO]
+- Review `.env.template` values and sanitize any remaining hardcoded development secrets from `appsettings.Development.json` (e.g., remove dev JWT secret). Consider moving to Aspire user secrets for developers.
 # External Integrations
 
 ## Core Sections (Required)

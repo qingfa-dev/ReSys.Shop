@@ -12,6 +12,16 @@
           "Microsoft.SourceLink.Common": "8.0.0"
         }
       },
+      "Stripe.net": {
+        "type": "Direct",
+        "requested": "[52.1.0, )",
+        "resolved": "52.1.0",
+        "contentHash": "xzYOMenSrhR2UIgk+zBOjfzADSFe9NnCuhffs2FMpWSJst4M19m6QS7GAxq4cLeBdWvUoUo3RuHNc5uzI5eOFg==",
+        "dependencies": {
+          "Newtonsoft.Json": "13.0.3",
+          "System.Configuration.ConfigurationManager": "9.0.0"
+        }
+      },
       "AspNetCore.HealthChecks.UI.Core": {
         "type": "Transitive",
         "resolved": "9.0.0",
@@ -589,6 +599,20 @@
         "resolved": "7.0.0",
         "contentHash": "GLltyqEsE5/3IE+zYRP5sNa1l44qKl9v+bfdMcwg+M9qnQf47wK3H0SUR/T+3N4JEQXF3vV4CSuuo0rsg+nq2A=="
       },
+      "System.Configuration.ConfigurationManager": {
+        "type": "Transitive",
+        "resolved": "9.0.0",
+        "contentHash": "PdkuMrwDhXoKFo/JxISIi9E8L+QGn9Iquj2OKDWHB6Y/HnUOuBouF7uS3R4Hw3FoNmwwMo6hWgazQdyHIIs27A==",
+        "dependencies": {
+          "System.Diagnostics.EventLog": "9.0.0",
+          "System.Security.Cryptography.ProtectedData": "9.0.0"
+        }
+      },
+      "System.Diagnostics.EventLog": {
+        "type": "Transitive",
+        "resolved": "9.0.0",
+        "contentHash": "qd01+AqPhbAG14KtdtIqFk+cxHQFZ/oqRSCoxU1F+Q6Kv0cl726sl7RzU9yLFGd4BUOKdN4XojXF0pQf/R6YeA=="
+      },
       "System.Management": {
         "type": "Transitive",
         "resolved": "7.0.2",
@@ -596,6 +620,11 @@
         "dependencies": {
           "System.CodeDom": "7.0.0"
         }
+      },
+      "System.Security.Cryptography.ProtectedData": {
+        "type": "Transitive",
+        "resolved": "9.0.0",
+        "contentHash": "CJW+x/F6fmRQ7N6K8paasTw9PDZp4t7G76UjGNlSDgoHPF0h08vTzLYbLZpOLEJSg35d5wy2jCXGo84EN05DpQ=="
       },
       "System.Threading.RateLimiting": {
         "type": "Transitive",

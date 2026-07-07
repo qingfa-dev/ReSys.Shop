@@ -1,3 +1,37 @@
+Short summary
+
+Known problems, technical debt and areas to watch (evidence-based).
+
+- `service/Embedding` has broken imports and cannot start as noted in AGENTS.md — investigate and fix.
+- Admin SPA has placeholder content and limited functionality; some routes are stubs (AGENTS.md).
+- Stale build artifacts present in `Embedding/build/lib/` — should be gitignored.
+- Dev JWT secret is hardcoded in `appsettings.Development.json` (AGENTS.md note) — security risk.
+High-priority concerns (from repo scan / AGENTS.md)
+- `service/Embedding` has broken imports and cannot start as noted in AGENTS.md — investigate and fix.
+- Admin SPA has placeholder content and limited functionality; some routes are stubs (AGENTS.md).
+- Stale build artifacts present in `Embedding/build/lib/` — should be gitignored.
+- Dev JWT secret is hardcoded in `appsettings.Development.json` (AGENTS.md note) — security risk.
+
+[Decisions]
+- Deployment: Local with Aspire (team choice) — developer workflow runs via `dotnet run --project infra/Aspire/src/ReSys.AppHost`.
+- Secrets: Adopt local environment files and Aspire user secrets for development; remove hardcoded dev secrets from committed files.
+- CI: No CI present and setup is deferred per team availability.
+- `service/Embedding` has broken imports and cannot start as noted in AGENTS.md — investigate and fix.
+- Admin SPA has placeholder content and limited functionality; some routes are stubs (AGENTS.md).
+- Stale build artifacts present in `Embedding/build/lib/` — should be gitignored.
+- Dev JWT secret is hardcoded in `appsettings.Development.json` (AGENTS.md note) — security risk.
+
+High-churn areas
+- `app/Admin/package.json`, `service/Api/src/Api/Program.cs`, and `infra/Aspire/src/ReSys.AppHost/AppHost.cs` are among top-churn files (scan output).
+
+Evidence
+- [AGENTS.md](AGENTS.md)
+- [service/Embedding](service/Embedding)
+- [app/ReSys.Admin](app/ReSys.Admin)
+- High-churn list in `docs/codebase/.codebase-scan.txt`
+
+[TODO]
+- Add remediation backlog items (seeding, secret rotation, embedding fixes) — prioritize with the team.
 # Codebase Concerns
 
 ## Core Sections (Required)
@@ -74,11 +108,11 @@
 1. [ASK USER] Is the Inventory module (`service/Api/src/Module/Inventory/`) officially part of the product, or is it an experimental/planned module? It appears in the codebase but is not listed in README.md's features or module list.
 2. [ASK USER] Is Stripe payment processing currently in use, or is it planned for future implementation? The `Stripe.net` package is listed in Directory.Packages.props but no reference to payment features appears in the README or codebase structure.
 3. [ASK USER] Should the `ValidateVerticalSliceIsolation` build target be enabled to enforce module boundaries at build time (currently disabled with `Condition="false"`)?
-4. [ASK USER] What is the target deployment environment? Are Dockerfiles needed next, or will deployment continue via raw CLI commands? If containerization is planned, which orchestrator (Kubernetes, Docker Compose, cloud PaaS)?
-5. [ASK USER] What is the priority order for the known WIP components: Admin SPA, Embedding service, CI/CD pipeline, Dockerfiles?
-6. [ASK USER] Is there a preferred secrets management solution for production (Azure Key Vault, AWS Secrets Manager, HashiCorp Vault, environment variables)?
+4. [Answered] Deployment environment: Local with Aspire. Dockerfiles and production deployment model deferred — document later. (Recorded in STACK.md and CONCERNS decisions.)
+5. [ASK USER] What is the priority order for the known WIP components: Admin SPA, Embedding service, CI/CD pipeline, Dockerfiles? (Left to backlog/prioritization in CONCERNS)
+6. [Answered] Secrets: Adopt local environment files and Aspire user secrets for development. For production, preferred provider not specified yet — please advise when ready.
 7. [ASK USER] Are the large `.superpowers/sdd/` review diffs (~15MB total) still needed, or can they be archived/removed?
-8. [ASK USER] Should a `.env.example` or configuration reference be created for the backend API to document all required environment variables?
+8. [Done] `.env.template` created at `service/Api/src/Api/.env.template` to document required development env vars. Review and sanitize hardcoded dev secrets from `appsettings.Development.json`.
 
 ### 8) Evidence
 

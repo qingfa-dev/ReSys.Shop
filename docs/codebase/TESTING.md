@@ -1,3 +1,24 @@
+Short summary
+
+Testing strategies and frameworks observed in the repository.
+
+Test types & locations
+- Unit tests: `service/Api/tests/Module.UnitTests` and `Shared.UnitTests` use in-memory EF Core / Moq patterns.
+- Integration tests: `service/Api/tests/Api.Tests` use Testcontainers (PostgreSQL + Redis) and require Docker.
+- HTTP tests: `ApiTests/` contains `.http` files for REST Client usage.
+
+Commands
+- Build + test: `dotnet build` and `dotnet test` (AGENTS.md quick start commands).
+
+Evidence
+- [ApiTests/README.md](ApiTests/README.md)
+- [service/Api/tests/Api.Tests](service/Api/tests/Api.Tests)
+- [ReSys.Shop.slnx](ReSys.Shop.slnx)
+
+[Decision / TODO]
+- CI: No CI/CD pipelines detected in the repo. Per your input, there is no time to set up CI now; document as deferred work. Recommendation: add a minimal GitHub Actions workflow to run `dotnet build` + `dotnet test` + frontend `pnpm` lint/test when time permits.
+
+- [TODO] Create a minimal CI workflow file (e.g. `.github/workflows/ci.yml`) to run builds and tests on PRs — deferred per team availability.
 # Testing Patterns
 
 ## Core Sections (Required)

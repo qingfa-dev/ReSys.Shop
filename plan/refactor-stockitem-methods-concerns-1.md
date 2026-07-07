@@ -135,7 +135,7 @@ This plan renames the file to `StockItem.Method.cs`, splits by concern into part
 ## 7. Risks & Assumptions
 
 - **RISK-001**: Renaming `StockItem.Extensions.cs` to `StockItem.Method.cs` may break feature handler imports if any file uses `using static StockItemMethod` or references the filename. Mitigation: the class name `StockItemMethod` does not change, only the filename. SDK-style projects use file content, not filenames, for compilation.
-- **RISK-002**: `StockItem.Method.Tests.cs` tests class `StockItemExtensionsTests` — after deleting and recreating, the new test classes have different names, but trait filtering (`Entity=StockItem`) remains the same.
+- **RISK-002**: `StockItem.Method.Tests.cs` tests class `StockItemMethodTests` — after deleting and recreating, the new test classes have different names, but trait filtering (`Entity=StockItem`) remains the same.
 - **ASSUMPTION-001**: No feature handler references `StockItemMethod` by namespace path — all usages are via `StockItemMethod.Create(...)` or `item.Update(...)` which remain unchanged.
 - **ASSUMPTION-002**: The duplicate methods `IsAvailable`/`CanSupply` may eventually be consolidated. For now, a code comment marks them as deprecation candidates without changing behavior.
 

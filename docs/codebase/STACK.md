@@ -1,3 +1,39 @@
+Short summary
+
+This repository is primarily a C#/.NET (SDK 10.0.301) backend with Vue frontends and a small Python "embedding" service. Core infra references include PostgreSQL (pgvector), Redis, and Hangfire.
+
+Languages & runtimes
+- C# / .NET 10 (SDK in [global.json](global.json))
+- TypeScript / Vue (frontends under `app/Admin`, `app/Store`)
+- Python (embedding service in `service/Embedding`)
+
+Frameworks & libraries
+- ASP.NET Core, EF Core, Migrations
+- MediatR / CQRS + Carter minimal APIs (see ARCHITECTURE.md)
+- Vue + Vite for admin/store frontends
+
+Tooling
+- `dotnet` CLI (solution: `ReSys.Shop.slnx`)
+- `pnpm` for frontend packages (`app/Admin/package.json`)
+- `uv` for Python service (`service/Embedding/pyproject.toml`)
+
+Databases & infra
+- PostgreSQL (pgvector referenced in repo docs)
+- Redis (caching)
+- Hangfire (background jobs)
+
+# Evidence
+- [AGENTS.md](AGENTS.md)
+- [global.json](global.json)
+- [app/Admin/package.json](app/Admin/package.json)
+- [service/Embedding/pyproject.toml](service/Embedding/pyproject.toml)
+- [service/Api/src/Migrations](service/Api/src/Migrations)
+
+[Decision]
+- Deployment: Local with Aspire (team choice). Aspire AppHost under `infra/Aspire` is the local orchestrator used for development and local end-to-end runs. Evidence: `infra/Aspire/src/ReSys.AppHost` and `AGENTS.md`.
+
+[TODO]
+- Production deployment model (containers, orchestrator, cloud provider) is not present in the repo — document later when team chooses cloud/orchestrator.
 # Technology Stack
 
 ## Core Sections (Required)

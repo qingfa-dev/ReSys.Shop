@@ -1,3 +1,24 @@
+Short summary
+
+High-level architecture observed from repo files and AGENTS.md.
+
+Architecture overview
+- Modular monolith split into projects: `Api` (host), `Module` (business logic), `Shared` (infrastructure), `Migrations`.
+- CQRS via MediatR patterns and handlers; HTTP endpoints implemented as Carter minimal API endpoints that delegate to MediatR handlers.
+- Pipeline behaviors: `LoggingBehavior → ValidationBehavior → ExceptionMappingBehavior` (described in AGENTS.md).
+- Aspire AppHost (under `infra/Aspire`) orchestrates local dev environment and runs the API + embedding + frontends.
+
+Data flow
+- HTTP endpoints (Carter) → MediatR commands/queries → Module handlers → EF Core repositories → PostgreSQL
+- Background jobs via Hangfire for asynchronous processing
+
+Evidence
+- [AGENTS.md](AGENTS.md)
+- [service/Api/src/Module](service/Api/src/Module)
+- [infra/Aspire/src/ReSys.AppHost/ReSys.AppHost.csproj](infra/Aspire/src/ReSys.AppHost/ReSys.AppHost.csproj)
+
+[Decision]
+- Team decision: keep the modular monolith. Aspire remains the local orchestrator for development; long-term production decomposition is [TODO].
 # Architecture
 
 ## Core Sections (Required)

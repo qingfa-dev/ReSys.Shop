@@ -1,3 +1,25 @@
+Short summary
+
+Coding conventions and repository policies observed.
+
+Key conventions (evidence-based)
+- `TreatWarningsAsErrors=true` is enforced (build policy mentioned in AGENTS.md and Directory.Build.props influences build).
+- `InternalsVisibleTo` set globally via `Directory.Build.props` so tests can access internals.
+- Editor config present at repo root: `.editorconfig` (formatting rules).
+- C# naming rules and styles referenced in `guide/code-commenting/CommentingRules.xml` and AGENTS.md (private fields `_camelCase`, interfaces `IPascalCase`).
+
+Tooling conventions
+- Use `dotnet test` for running tests; integration tests rely on Docker/Testcontainers (Api.Tests).
+- Frontends use `pnpm` and Vite; repo contains `pnpm-lock.yaml` files.
+
+Evidence
+- [Directory.Build.props](Directory.Build.props)
+- [.editorconfig](.editorconfig)
+- [guide/code-commenting/CommentingRules.xml](guide/code-commenting/CommentingRules.xml)
+- [AGENTS.md](AGENTS.md)
+
+[TODO]
+- Exact linting and pre-commit hooks not found — add if desired. Mark as [ASK USER].
 # Coding Conventions
 
 ## Core Sections (Required)

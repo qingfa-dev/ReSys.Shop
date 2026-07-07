@@ -86,7 +86,7 @@ public static class TaxonValidation
 
     public static IRuleBuilderOptions<T, string?> ApplyMetaDescriptionRules<T>(this IRuleBuilder<T, string?> ruleBuilder)
     {
-        // Meta description: optional, max length
+        // Meta message: optional, max length
         return ruleBuilder
             .MaximumLength(TaxonConstant.Constraints.MetaDescriptionMaxLength)
             .WithErrorCode(TaxonResult.Errors.MetaDescriptionTooLong.Code)

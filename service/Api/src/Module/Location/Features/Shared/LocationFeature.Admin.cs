@@ -1,4 +1,3 @@
-using Shared.Security.Authorization.Features;
 using Shared.Security.Identity.Domain.Permissions;
 
 namespace Module.Location.Features.Shared;
