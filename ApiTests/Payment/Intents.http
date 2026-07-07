@@ -1,0 +1,19 @@
+# =============================================================================
+# Payment - Storefront Payment Intents API Smoke Tests
+# =============================================================================
+
+### Create payment intent – no auth (401)
+POST {{baseUrl}}/api/storefront/payment/create-intent
+Authorization: Bearer {{storeToken}}
+Content-Type: {{contentType}}
+
+{
+  "orderId": "{{nonExistentId}}"
+}
+
+### List payment methods – no auth (401)
+GET {{baseUrl}}/api/storefront/payment/methods
+
+### List payment methods – success (200)
+GET {{baseUrl}}/api/storefront/payment/methods
+Authorization: Bearer {{storeToken}}

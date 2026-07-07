@@ -1,0 +1,17 @@
+# =============================================================================
+# Shipping - Storefront Shipping Methods & Rates API Smoke Tests
+# =============================================================================
+
+### List shipping methods – no auth (401)
+GET {{baseUrl}}/api/storefront/shipping/methods
+
+### List shipping methods – success (200)
+GET {{baseUrl}}/api/storefront/shipping/methods
+Authorization: Bearer {{storeToken}}
+
+### List shipping rates – no auth (401)
+GET {{baseUrl}}/api/storefront/shipping/rates
+
+### List shipping rates – success (200)
+GET {{baseUrl}}/api/storefront/shipping/rates?page=1&pageSize=10
+Authorization: Bearer {{storeToken}}

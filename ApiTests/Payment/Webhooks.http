@@ -1,0 +1,16 @@
+# =============================================================================
+# Payment - Stripe Webhook Smoke Tests
+# =============================================================================
+
+### Stripe webhook – no auth (accepts without auth typically)
+POST {{baseUrl}}/api/storefront/webhooks/stripe
+Content-Type: {{contentType}}
+
+{
+  "type": "payment_intent.succeeded",
+  "data": {
+    "object": {
+      "id": "pi_test_123"
+    }
+  }
+}

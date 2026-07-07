@@ -1,0 +1,29 @@
+# =============================================================================
+# Ordering - Storefront Cart API Smoke Tests
+# =============================================================================
+
+### Create cart – success (201)
+POST {{baseUrl}}/api/storefront/cart
+Authorization: Bearer {{storeToken}}
+Content-Type: {{contentType}}
+
+{}
+
+### Get cart – success (200)
+GET {{baseUrl}}/api/storefront/cart
+Authorization: Bearer {{storeToken}}
+
+### Add item to cart – no auth (401)
+POST {{baseUrl}}/api/storefront/cart/items
+Content-Type: {{contentType}}
+
+{
+  "variantId": "{{nonExistentId}}",
+  "quantity": 1
+}
+
+### Create cart – no auth (401)
+POST {{baseUrl}}/api/storefront/cart
+Content-Type: {{contentType}}
+
+{}
