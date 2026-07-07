@@ -155,7 +155,7 @@ public static partial class InventoryFeature
                 public const string Route = BaseRoute;
                 public const string Description = "Retrieve all stock reservations";
                 public const string Summary = "Get all stock reservations";
-                public static PermissionMetadata Permission => InventoryFeatureMetadata.StockReservations.Read;
+                public static PermissionMetadata Permission => InventoryFeatureMetadata.StockReservations.List;
             }
 
             public static class GetById
@@ -184,7 +184,7 @@ public static partial class InventoryFeature
                 public const string Route = BaseRoute;
                 public const string Description = "Create a new stock transfer between locations";
                 public const string Summary = "Create stock transfer";
-                public static PermissionMetadata Permission => InventoryFeatureMetadata.StockLocation.Update;
+                public static PermissionMetadata Permission => InventoryFeatureMetadata.StockTransfers.Create;
             }
 
             public static class GetAll
@@ -192,7 +192,7 @@ public static partial class InventoryFeature
                 public const string Route = BaseRoute;
                 public const string Description = "Retrieve all stock transfers";
                 public const string Summary = "Get all stock transfers";
-                public static PermissionMetadata Permission => InventoryFeatureMetadata.StockLocation.List;
+                public static PermissionMetadata Permission => InventoryFeatureMetadata.StockTransfers.List;
             }
 
             public static class GetById
@@ -200,7 +200,7 @@ public static partial class InventoryFeature
                 public const string Route = $"{BaseRoute}/{{id:guid}}";
                 public const string Description = "Retrieve a stock transfer by identifier";
                 public const string Summary = "Get stock transfer by ID";
-                public static PermissionMetadata Permission => InventoryFeatureMetadata.StockLocation.Read;
+                public static PermissionMetadata Permission => InventoryFeatureMetadata.StockTransfers.Read;
             }
 
             public static class Transfer
@@ -208,7 +208,7 @@ public static partial class InventoryFeature
                 public const string Route = $"{BaseRoute}/{{id:guid}}/transfer";
                 public const string Description = "Execute a stock transfer (Draft → InTransit)";
                 public const string Summary = "Execute stock transfer";
-                public static PermissionMetadata Permission => InventoryFeatureMetadata.StockLocation.Update;
+                public static PermissionMetadata Permission => InventoryFeatureMetadata.StockTransfers.Update;
             }
 
             public static class Receive
@@ -216,7 +216,7 @@ public static partial class InventoryFeature
                 public const string Route = $"{BaseRoute}/{{id:guid}}/receive";
                 public const string Description = "Receive items at destination (InTransit → Received)";
                 public const string Summary = "Receive stock transfer";
-                public static PermissionMetadata Permission => InventoryFeatureMetadata.StockLocation.Update;
+                public static PermissionMetadata Permission => InventoryFeatureMetadata.StockTransfers.Update;
             }
 
             public static class Cancel
@@ -224,7 +224,7 @@ public static partial class InventoryFeature
                 public const string Route = $"{BaseRoute}/{{id:guid}}/cancel";
                 public const string Description = "Cancel a stock transfer (Draft|InTransit → Canceled)";
                 public const string Summary = "Cancel stock transfer";
-                public static PermissionMetadata Permission => InventoryFeatureMetadata.StockLocation.Update;
+                public static PermissionMetadata Permission => InventoryFeatureMetadata.StockTransfers.Cancel;
             }
         }
 
@@ -237,7 +237,7 @@ public static partial class InventoryFeature
                 public const string Route = BaseRoute;
                 public const string Description = "Retrieve all stock movements";
                 public const string Summary = "Get all stock movements";
-                public static PermissionMetadata Permission => InventoryFeatureMetadata.StockItem.List;
+                public static PermissionMetadata Permission => InventoryFeatureMetadata.StockMovements.List;
             }
 
             public static class GetById
@@ -245,7 +245,7 @@ public static partial class InventoryFeature
                 public const string Route = $"{BaseRoute}/{{id:guid}}";
                 public const string Description = "Retrieve a stock movement by identifier";
                 public const string Summary = "Get stock movement by ID";
-                public static PermissionMetadata Permission => InventoryFeatureMetadata.StockItem.Read;
+                public static PermissionMetadata Permission => InventoryFeatureMetadata.StockMovements.Read;
             }
         }
     }
