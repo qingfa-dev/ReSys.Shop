@@ -22,6 +22,17 @@ public static class ShippingMethodValidation
             .WithMessage(ShippingMethodResult.Errors.CodeTooLong.Description);
     }
 
+    public static IRuleBuilderOptions<T, string?> ApplyCalculatorTypeRules<T>(this IRuleBuilder<T, string?> ruleBuilder)
+    {
+        return ruleBuilder
+            .NotEmpty()
+            .WithErrorCode(ShippingMethodResult.Errors.CalculatorRequired.Code)
+            .WithMessage(ShippingMethodResult.Errors.CalculatorRequired.Description)
+            .MaximumLength(ShippingMethodConstant.Constraints.MaxCalculatorTypeLength)
+            .WithErrorCode(ShippingMethodResult.Errors.CalculatorTooLong.Code)
+            .WithMessage(ShippingMethodResult.Errors.CalculatorTooLong.Description);
+    }
+
     public static IRuleBuilderOptions<T, string?> ApplyTrackingUrlRules<T>(this IRuleBuilder<T, string?> ruleBuilder)
     {
         return ruleBuilder

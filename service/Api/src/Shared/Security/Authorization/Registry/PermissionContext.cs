@@ -47,6 +47,8 @@ public static class PermissionContext
             "payment", "Payment", "Payment permission category.");
         public static readonly OptionDescriptor<string> Dashboard = OptionDescriptor<string>.Option(
             "dashboard", "Dashboard", "Dashboard permission category.");
+        public static readonly OptionDescriptor<string> Shipping = OptionDescriptor<string>.Option(
+            "shipping", "Shipping", "Shipping permission category.");
     }
 
     public static class Actions
@@ -197,6 +199,10 @@ public static class PermissionContext
             "notification_preferences", "Notification Preferences", "User notification preferences resource.");
         public static readonly OptionDescriptor<string> Wishlists = OptionDescriptor<string>.Option(
             "wishlists", "Wishlists", "User wishlist resource.");
+        public static readonly OptionDescriptor<string> ShippingMethods = OptionDescriptor<string>.Option(
+            "shipping_methods", "Shipping Methods", "Shipping method configuration resource.");
+        public static readonly OptionDescriptor<string> ShippingRates = OptionDescriptor<string>.Option(
+            "shipping_rates", "Shipping Rates", "Shipping rate configuration resource.");
     }
 
     private static readonly Dictionary<string, PermissionMetadata> SByIdentifier =
@@ -218,6 +224,7 @@ public static class PermissionContext
         all.AddRange(InventoryFeatureMetadata.All);
         all.AddRange(ConfigurationFeatureMetadata.All);
         all.AddRange(DashboardFeatureMetadata.All);
+        all.AddRange(ShippingFeatureMetadata.All);
 
         foreach (PermissionMetadata perm in all)
         {

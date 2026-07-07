@@ -98,6 +98,41 @@ public static class ShippingRateExtensions
     }
 
     /// <summary>
+    /// Updates the shipping rate properties. Only non-null parameters are applied.
+    /// </summary>
+    public static Result Update(
+        this ShippingRate rate,
+        string? name = null,
+        decimal? cost = null,
+        string? deliveryRange = null,
+        decimal? minWeight = null,
+        decimal? maxWeight = null,
+        decimal? freeShippingThreshold = null,
+        Guid? shippingMethodId = null)
+    {
+        if (cost.HasValue && cost.Value <= 0)
+            return ShippingRateResult.Errors.CostRequired;
+
+        if (minWeight.HasValue && maxWeight.HasValue && minWeight.Value > maxWeight.Value)
+            return ShippingRateResult.Errors.MinWeightExceedsMaxWeight;
+
+        if (minWeight.HasValue && minWeight.Value < 0) return ShippingRateResult.Errors.WeightNegative;
+        if (maxWeight.HasValue && maxWeight.Value < 0) return ShippingRateResult.Errors.WeightNegative;
+
+        rate.Name = name ?? rate.Name;
+        rate.Cost = cost ?? rate.Cost;
+        rate.FinalPrice = cost ?? rate.FinalPrice;
+        rate.DisplayPrice = cost?.ToString("F2", CultureInfo.InvariantCulture) ?? rate.DisplayPrice;
+        rate.DeliveryRange = deliveryRange ?? rate.DeliveryRange;
+        rate.MinWeight = minWeight ?? rate.MinWeight;
+        rate.MaxWeight = maxWeight ?? rate.MaxWeight;
+        rate.FreeShippingThreshold = freeShippingThreshold ?? rate.FreeShippingThreshold;
+        rate.ShippingMethodId = shippingMethodId ?? rate.ShippingMethodId;
+
+        return Result.Ok();
+    }
+
+    /// <summary>
     /// Determines whether the shipping rate is free (cost zero or less).
     /// </summary>
     /// <param name="rate">The shipping rate to check.</param>
