@@ -1,0 +1,57 @@
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
+
+using Module.Ordering.Persistence.Constants;
+using Module.Ordering.Domain.Adjustments;
+
+namespace Module.Ordering.Persistence.Configurations.Adjustments;
+
+public class AdjustmentConfiguration : IEntityTypeConfiguration<Adjustment>
+{
+    public void Configure(EntityTypeBuilder<Adjustment> builder)
+    {
+        builder.ToTable(OrderingSchema.TableNames.Adjustments, OrderingSchema.Name);
+
+        builder.HasKey(x => x.Id);
+
+        #region Properties
+        builder.Property(x => x.Amount)
+            .IsRequired()
+            .HasPrecision(AdjustmentConstant.Constraints.MonetaryPrecision, AdjustmentConstant.Constraints.MonetaryScale);
+
+        builder.Property(x => x.DisplayAmount)
+            .HasMaxLength(AdjustmentConstant.Constraints.MaxDisplayAmountLength);
+
+        builder.Property(x => x.Label)
+            .IsRequired()
+            .HasMaxLength(AdjustmentConstant.Constraints.MaxLabelLength);
+
+        builder.Property(x => x.Eligible)
+            .HasDefaultValue(AdjustmentConstant.Defaults.Eligible);
+
+        builder.Property(x => x.Included)
+            .HasDefaultValue(AdjustmentConstant.Defaults.Included);
+
+        builder.Property(x => x.Mandatory)
+            .HasDefaultValue(AdjustmentConstant.Defaults.Mandatory);
+
+        builder.Property(x => x.State)
+            .IsRequired()
+            .HasMaxLength(50)
+            .HasDefaultValue(AdjustmentConstant.Defaults.State);
+
+        builder.Property(x => x.AdjustableType)
+            .IsRequired()
+            .HasMaxLength(AdjustmentConstant.Constraints.MaxTypeStrings);
+
+        builder.Property(x => x.AdjustableId).IsRequired();
+
+        builder.Property(x => x.SourceType)
+            .HasMaxLength(AdjustmentConstant.Constraints.MaxTypeStrings);
+
+        builder.Property(x => x.SourceId);
+
+        builder.Property(x => x.OrderId).IsRequired();
+        #endregion
+    }
+}

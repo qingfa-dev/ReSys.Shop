@@ -1,0 +1,84 @@
+using Module.Payment.Domain.Payments;
+using Module.Payment.Features.Storefront.Payment.Confirm;
+using PaymentDomain = Module.Payment.Domain.Payments.Payment;
+
+namespace Module.UnitTests.Payment.Features.Storefront.Payment.Confirm;
+
+[Trait("Category", "Unit")]
+[Trait("Module", "Payment")]
+[Trait("Feature", "ConfirmPayment")]
+public class ConfirmPaymentTests : IDisposable
+{
+    private readonly ApplicationDbContext _dbContext;
+    private readonly ConfirmPayment.CommandHandler _handler;
+
+    public ConfirmPaymentTests()
+    {
+        var options = new DbContextOptionsBuilder<ApplicationDbContext>()
+            .UseInMemoryDatabase(Guid.NewGuid().ToString())
+            .Options;
+        ApplicationDbContext.AdditionalConfigurationsAssemblies = [typeof(PaymentDomain).Assembly];
+        _dbContext = new ApplicationDbContext(options);
+        _handler = new ConfirmPayment.CommandHandler(_dbContext);
+    }
+
+    public void Dispose() { _dbContext.Dispose(); GC.SuppressFinalize(this); }
+
+    [Fact(DisplayName = "Handler: Should confirm payment when in Pending state")]
+    public async Task Handle_ShouldConfirm_WhenPending()
+    {
+        var payment = PaymentExtensions.Create(100m, Guid.NewGuid(), Guid.NewGuid()).Value;
+        payment.Process();
+        payment.Pend();
+        _dbContext.Set<PaymentDomain>().Add(payment);
+        await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
+
+        var result = await _handler.Handle(
+            new ConfirmPayment.Command(payment.Id),
+            TestContext.Current.CancellationToken);
+
+        result.IsSuccess.Should().BeTrue();
+        result.Value.State.Should().Be(PaymentState.Completed);
+    }
+
+    [Fact(DisplayName = "Handler: Should return failure when payment in Checkout state")]
+    public async Task Handle_ShouldFail_WhenCheckout()
+    {
+        var payment = PaymentExtensions.Create(100m, Guid.NewGuid(), Guid.NewGuid()).Value;
+        _dbContext.Set<PaymentDomain>().Add(payment);
+        await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
+
+        var result = await _handler.Handle(
+            new ConfirmPayment.Command(payment.Id),
+            TestContext.Current.CancellationToken);
+
+        result.IsFailure.Should().BeTrue();
+    }
+
+    [Fact(DisplayName = "Handler: Should return failure when payment already completed")]
+    public async Task Handle_ShouldFail_WhenAlreadyCompleted()
+    {
+        var payment = PaymentExtensions.Create(100m, Guid.NewGuid(), Guid.NewGuid()).Value;
+        payment.Process();
+        payment.Complete();
+        _dbContext.Set<PaymentDomain>().Add(payment);
+        await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
+
+        var result = await _handler.Handle(
+            new ConfirmPayment.Command(payment.Id),
+            TestContext.Current.CancellationToken);
+
+        result.IsFailure.Should().BeTrue();
+        result.FirstFailure!.Code.Should().Be("Payment.AlreadyCompleted");
+    }
+
+    [Fact(DisplayName = "Handler: Should return NotFound when payment does not exist")]
+    public async Task Handle_ShouldReturnNotFound_WhenMissing()
+    {
+        var result = await _handler.Handle(
+            new ConfirmPayment.Command(Guid.NewGuid()),
+            TestContext.Current.CancellationToken);
+
+        result.IsFailure.Should().BeTrue();
+    }
+}

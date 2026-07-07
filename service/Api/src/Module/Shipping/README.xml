@@ -1,0 +1,495 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ════════════════════════════════════════════════════════
+  Shipping Module Documentation (XML)
+  Purpose:  Manages shipment lifecycle, shipping rates, zones, and calculator strategies
+  Version:  1.0.0
+  Status:   Production
+  Schema:   1.0
+  Updated:  2026-05-18
+  ════════════════════════════════════════════════════════
+-->
+
+<BuildingBlockModule
+  id="shipping"
+  name="Modules.Shipping"
+  version="1.0.0"
+  status="stable"
+  schema-version="1.0">
+
+  <!-- ═══════════════════════════════════════════════════
+       MODULE META
+  ═══════════════════════════════════════════════════════ -->
+  <ModuleMeta>
+    <Name>Shipping Module</Name>
+    <Description>
+      Provides domain models, calculators, and state machine logic for the shipping
+      subsystem. Manages shipment lifecycle (Pending → Ready → Shipped → terminal),
+      shipping rate selection, zone-based geographic matching, and strategy-pattern
+      shipping cost calculators ported from Spree Ruby SDK. Consumed by the Ordering
+      module during checkout and by admin features for shipment management.
+    </Description>
+    <Category>Domain Logic</Category>
+    <Stability>Stable</Stability>
+    <StandardsAlignment>Evans DDD; Strategy Pattern; State Machine pattern</StandardsAlignment>
+    <Dependencies>
+      <Dependency name="BuildingBlocks" version="1.0.0" />
+      <Dependency name="Modules.Identity" version="1.0.0" />
+    </Dependencies>
+  </ModuleMeta>
+
+  <!-- ═══════════════════════════════════════════════════
+       PRINCIPLES
+  ═══════════════════════════════════════════════════════ -->
+  <Principles>
+    <Principle id="P1" name="Strategy Pattern Calculators">
+      <Description>Shipping cost calculations use the Strategy pattern via IShippingCalculator interface.</Description>
+      <Rationale>Allows runtime selection of calculator strategy (FlatRate, PerItem, FlexiRate, etc.) without coupling to concrete implementations. Mirrors the Ruby SDK's calculator hierarchy.</Rationale>
+    </Principle>
+    <Principle id="P2" name="Sealed Partial Entity Pattern">
+      <Description>Each domain entity is a sealed partial class with one concern per partial file.</Description>
+      <Rationale>Keeps entity definitions small and focused. Concerns (extensions, validation, constants, results, loggers, custom events, webhooks) each live in their own file, following the Ruby concern-to-interface mapping convention.</Rationale>
+    </Principle>
+    <Principle id="P3" name="State Machine Invariants">
+      <Description>Shipment state transitions follow a strict state machine with well-defined preconditions.</Description>
+      <Rationale>Prevents invalid state transitions and ensures data integrity. Transition rules are ported directly from Ruby SDK shipment.rb state machine.</Rationale>
+    </Principle>
+  </Principles>
+
+  <!-- ═══════════════════════════════════════════════════
+       FEATURES
+  ═══════════════════════════════════════════════════════ -->
+  <Features>
+    <Feature id="F1" name="Shipment Lifecycle" type="core">
+      <Description>Full state machine for shipments: Pending, Ready, Shipped, Canceled with extensions for Pend, Resume transitions. Supports after-ship, after-cancel, after-resume lifecycle callbacks.</Description>
+      <ApiHighlight>Shipment { State, Ready(), Ship(), Cancel(), Pend(), Resume() }</ApiHighlight>
+    </Feature>
+
+    <Feature id="F2" name="Shipping Rate Selection" type="core">
+      <Description>Select, unselect, and query shipping rates per shipment. Cost-based rate presentation with delivery range metadata.</Description>
+      <ApiHighlight>ShippingRate { Cost, Selected, Select(), Unselect() }</ApiHighlight>
+    </Feature>
+
+    <Feature id="F3" name="Shipping Cost Calculators" type="extension">
+      <Description>Six strategy-pattern calculators ported from Ruby SDK: FlatRate, PerItem, FlatPercentItemTotal, FlexiRate, PriceSack, DigitalDelivery. Each implements IShippingCalculator with Compute(ShipmentContext).</Description>
+      <Methods>
+        <Method name="FlatRateShippingCalculator">Flat fee per order with weight and item total bounds</Method>
+        <Method name="PerItemShippingCalculator">Fee per quantity unit</Method>
+        <Method name="FlatPercentItemTotalShippingCalculator">Percentage of item total</Method>
+        <Method name="FlexiRateShippingCalculator">Tiered first-item + additional-item pricing</Method>
+        <Method name="PriceSackShippingCalculator">Normal vs. discount rate based on price threshold</Method>
+        <Method name="DigitalDeliveryShippingCalculator">Fixed fee only when all items are digital</Method>
+      </Methods>
+    </Feature>
+
+    <Feature id="F4" name="Zone-Based Matching" type="core">
+      <Description>Geographic zones (Country and State kinds) with zone member membership for address-based shipping eligibility. Ported from Ruby SDK Zone model.</Description>
+      <ApiHighlight>Zone { Kind, IncludesAddress(), AddCountry(), AddState() }</ApiHighlight>
+    </Feature>
+
+    <Feature id="F5" name="Shipping Method Configuration" type="core">
+      <Description>Configurable shipping methods with calculator type assignment, tax category association, zone and category linking, tracking URL template, and availability toggles.</Description>
+      <ApiHighlight>ShippingMethod { CalculatorType, TrackingUrl, BuildTrackingUrl() }</ApiHighlight>
+    </Feature>
+  </Features>
+
+  <!-- ═══════════════════════════════════════════════════
+       ABSTRACTIONS CATALOG
+  ═══════════════════════════════════════════════════════ -->
+  <AbstractionsCatalog>
+
+    <Category name="Shipments" order="1">
+      <Description>Core shipment entity and state machine operations. Follows sealed partial pattern with concern-per-file.</Description>
+
+      <Abstraction id="A1" name="Shipment" type="class">
+        <Path>./Domain/Shipments/Shipment.cs</Path>
+        <Description>Aggregate root for the shipping bounded context. Tracks shipment state, cost, tracking, and relations to order and stock location.</Description>
+        <Purpose>Represent a physical shipment of inventory from a stock location to a customer address. Ported from Spree::Shipment Ruby model.</Purpose>
+        <Contract>
+          // Contract: pre=Id!=default, post=State in {Pending,Ready,Shipped,Canceled}, throws=none
+        </Contract>
+        <TopUse>Create and manage shipment lifecycle during checkout fulfillment.</TopUse>
+      </Abstraction>
+
+      <Abstraction id="A2" name="ShipmentExtensions" type="extension">
+        <Path>./Domain/Shipments/Shipment.Extensions.cs</Path>
+        <Description>Extension methods for Shipment: factory creation, state transitions (Ready, Ship, Cancel), rate selection, and transfer operations.</Description>
+        <Purpose>Provide the primary API for mutating shipment state. Each method returns a Result monad for error handling.</Purpose>
+      </Abstraction>
+
+      <Abstraction id="A3" name="ShipmentStateMachine" type="extension">
+        <Path>./Domain/Shipments/Shipment.StateMachine.cs</Path>
+        <Description>Additional state transitions (Pend, Resume), lifecycle callbacks (AfterShip, AfterCancel, AfterResume), state determination, and query helpers (IsBackordered, IsTracked, IsShippable, GetTaxTotal).</Description>
+        <Purpose>Port Ruby SDK state machine logic: pend, resume, determine_state, manifest operations.</Purpose>
+      </Abstraction>
+
+      <Abstraction id="A4" name="ShipmentCustomEvents" type="extension">
+        <Path>./Domain/Shipments/Shipment.CustomEvents.cs</Path>
+        <Description>Publishes custom domain events for shipment lifecycle: shipment.shipped, shipment.canceled, shipment.resumed.</Description>
+        <Purpose>Fire domain-level events so other modules (notifications, analytics) can react to shipment changes.</Purpose>
+      </Abstraction>
+
+      <Abstraction id="A5" name="ShipmentWebhooks" type="extension">
+        <Path>./Domain/Shipments/Shipment.Webhooks.cs</Path>
+        <Description>Webhook dispatch integration point for shipment lifecycle events. Currently a placeholder for external service integration.</Description>
+        <Purpose>Notify external systems when shipments transition to shipped state.</Purpose>
+      </Abstraction>
+
+      <Abstraction id="A6" name="ShipmentState" type="enum">
+        <Path>./Domain/Shipments/Shipment.Enumerate.cs</Path>
+        <Description>Enum defining valid shipment states: Pending, Ready, Shipped, Canceled.</Description>
+        <Purpose>Type-safe representation of shipment lifecycle states, mirroring Ruby SDK state machine states.</Purpose>
+      </Abstraction>
+
+      <Abstraction id="A7" name="ShipmentValidation" type="class">
+        <Path>./Domain/Shipments/Shipment.Validation.cs</Path>
+        <Description>Validates state machine transitions: Pending→Ready, Pending→Canceled, Ready→Shipped, Ready→Canceled.</Description>
+        <Purpose>Enforce valid state transitions per Ruby SDK shipment.rb state machine rules.</Purpose>
+      </Abstraction>
+    </Category>
+
+    <Category name="Shipping Rates" order="2">
+      <Description>Shipping rate entity for cost presentation and selection.</Description>
+
+      <Abstraction id="B1" name="ShippingRate" type="class">
+        <Path>./Domain/ShippingRates/ShippingRate.cs</Path>
+        <Description>Entity representing a shipping cost option for a shipment. Contains cost, final price, tax breakdown, and selection state.</Description>
+        <Purpose>Model a single shipping rate quote associated with a shipment and shipping method.</Purpose>
+      </Abstraction>
+
+      <Abstraction id="B2" name="ShippingRateExtensions" type="extension">
+        <Path>./Domain/ShippingRates/ShippingRate.Extensions.cs</Path>
+        <Description>Rate creation, selection, unselection, and free-rate detection.</Description>
+        <Purpose>Manage rate selection lifecycle within a shipment's set of available rates.</Purpose>
+      </Abstraction>
+    </Category>
+
+    <Category name="Shipping Methods" order="3">
+      <Description>Shipping method configuration with calculator and zone associations.</Description>
+
+      <Abstraction id="C1" name="ShippingMethod" type="class">
+        <Path>./Domain/ShippingMethods/ShippingMethod.cs</Path>
+        <Description>Configurable shipping method entity with calculator type, tracking URL template, and availability settings. Supports many-to-many relationships with shipping categories and zones via join entities.</Description>
+        <Purpose>Define a shipping method that can be selected during checkout, with associated calculator strategy.</Purpose>
+      </Abstraction>
+
+      <Abstraction id="C2" name="ShippingMethodCategory" type="class">
+        <Path>./Domain/ShippingMethods/ShippingMethodCategory.cs</Path>
+        <Description>Join entity linking ShippingMethod to ShippingCategory. Enables category-based method filtering.</Description>
+        <Purpose>Associate shipping methods with eligible shipping categories.</Purpose>
+      </Abstraction>
+
+      <Abstraction id="C3" name="ShippingMethodZone" type="class">
+        <Path>./Domain/ShippingMethods/ShippingMethodZone.cs</Path>
+        <Description>Join entity linking ShippingMethod to Zone. Enables geographic method availability.</Description>
+        <Purpose>Associate shipping methods with eligible geographic zones.</Purpose>
+      </Abstraction>
+    </Category>
+
+    <Category name="Shipping Categories" order="4">
+      <Description>Shipping category classification for method eligibility.</Description>
+
+      <Abstraction id="D1" name="ShippingCategory" type="class">
+        <Path>./Domain/ShippingCategories/ShippingCategory.cs</Path>
+        <Description>Soft-deletable aggregate root categorizing products for shipping method eligibility. Supports parameterizable metadata.</Description>
+        <Purpose>Classify products into shipping categories to control which shipping methods apply.</Purpose>
+      </Abstraction>
+    </Category>
+
+    <Category name="Zones" order="5">
+      <Description>Geographic zone definitions for shipping method availability.</Description>
+
+      <Abstraction id="E1" name="Zone" type="class">
+        <Path>./Domain/Zones/Zone.cs</Path>
+        <Description>Geographic zone (Country or State kind) with polymorphic zone members. Supports address matching for shipping eligibility determination.</Description>
+        <Purpose>Define geographic coverage areas for shipping methods. Ported from Ruby Spree::Zone model.</Purpose>
+      </Abstraction>
+
+      <Abstraction id="E2" name="ZoneKind" type="enum">
+        <Path>./Domain/Zones/Zone.Enumerate.cs</Path>
+        <Description>Enum defining zone kinds: Country (collection of countries) and State (collection of states/provinces).</Description>
+        <Purpose>Type-safe zone kind classification per Ruby SDK Zone model.</Purpose>
+      </Abstraction>
+    </Category>
+
+    <Category name="Zone Members" order="6">
+      <Description>Polymorphic join entities linking zones to countries or states.</Description>
+
+      <Abstraction id="F1" name="ZoneMember" type="class">
+        <Path>./Domain/ZoneMembers/ZoneMember.cs</Path>
+        <Description>Polymorphic entity linking a Zone to a zoneable entity (Country or State) via ZoneableId and ZoneableType.</Description>
+        <Purpose>Implement the polymorphic zone membership pattern from Ruby SDK Zone model.</Purpose>
+      </Abstraction>
+    </Category>
+
+    <Category name="Calculators" order="7">
+      <Description>Shipping cost calculator strategy pattern implementations.</Description>
+
+      <Abstraction id="G1" name="IShippingCalculator" type="interface">
+        <Path>./Domain/Calculators/IShippingCalculator.cs</Path>
+        <Description>Strategy interface for all shipping cost calculators. Defines Compute(ShipmentContext) returning nullable decimal.</Description>
+        <Purpose>Enable polymorphic calculator selection per shipping method, following the Ruby SDK ShippingCalculator hierarchy.</Purpose>
+      </Abstraction>
+
+      <Abstraction id="G2" name="ShippingCalculator" type="abstract">
+        <Path>./Domain/Calculators/ShippingCalculator.cs</Path>
+        <Description>Abstract base class implementing IShippingCalculator with IsAvailable() guard and Total() helper. All concrete shipping calculators inherit from this.</Description>
+        <Purpose>Provide shared Total() computation and availability guard for all shipping calculators.</Purpose>
+      </Abstraction>
+
+      <Abstraction id="G3" name="ShipmentContext" type="class">
+        <Path>./Domain/Calculators/ShipmentContext.cs</Path>
+        <Description>Value object carrying shipment calculation context: item total, weight, and content items.</Description>
+        <Purpose>Encapsulate all inputs needed by shipping calculators to compute a rate.</Purpose>
+      </Abstraction>
+
+      <Abstraction id="G4" name="FlatRateShippingCalculator" type="class">
+        <Path>./Domain/Calculators/Shipping/FlatRateShippingCalculator.cs</Path>
+        <Description>Flat-rate shipping with optional weight and item total bounds checks. Returns null when bounds are exceeded.</Description>
+        <Purpose>Provide fixed-price shipping configurable with eligibility thresholds. Ported from Spree::Calculator::Shipping::FlatRate.</Purpose>
+      </Abstraction>
+
+      <Abstraction id="G5" name="PerItemShippingCalculator" type="class">
+        <Path>./Domain/Calculators/Shipping/PerItemShippingCalculator.cs</Path>
+        <Description>Per-item flat rate: cost = amount × total quantity. Ported from Spree::Calculator::Shipping::PerItem.</Description>
+        <Purpose>Calculate shipping as a multiple of quantity.</Purpose>
+      </Abstraction>
+
+      <Abstraction id="G6" name="FlatPercentItemTotalShippingCalculator" type="class">
+        <Path>./Domain/Calculators/Shipping/FlatPercentItemTotalShippingCalculator.cs</Path>
+        <Description>Percentage-based shipping: cost = total × (flat_percent / 100), rounded to 2 decimals. Ported from Spree::Calculator::Shipping::FlatPercentItemTotal.</Description>
+        <Purpose>Calculate shipping as a percentage of the item total.</Purpose>
+      </Abstraction>
+
+      <Abstraction id="G7" name="FlexiRateShippingCalculator" type="class">
+        <Path>./Domain/Calculators/Shipping/FlexiRateShippingCalculator.cs</Path>
+        <Description>Tiered per-item shipping: first_item + additional_item × capped quantity. Ported from Spree::Calculator::Shipping::FlexiRate.</Description>
+        <Purpose>Provide graduated pricing where the first item costs more than additional items.</Purpose>
+      </Abstraction>
+
+      <Abstraction id="G8" name="PriceSackShippingCalculator" type="class">
+        <Path>./Domain/Calculators/Shipping/PriceSackShippingCalculator.cs</Path>
+        <Description>Threshold-based pricing: normal amount below minimal threshold, discount amount above. Ported from Spree::Calculator::Shipping::PriceSack.</Description>
+        <Purpose>Provide discounted shipping for orders above a price threshold.</Purpose>
+      </Abstraction>
+
+      <Abstraction id="G9" name="DigitalDeliveryShippingCalculator" type="class">
+        <Path>./Domain/Calculators/Shipping/DigitalDeliveryShippingCalculator.cs</Path>
+        <Description>Digital delivery calculator: returns fixed amount but only available when all shipment contents are digital variants. Ported from Spree::Calculator::Shipping::DigitalDelivery.</Description>
+        <Purpose>Handle zero-cost or fixed-cost shipping for digital-only shipments.</Purpose>
+      </Abstraction>
+    </Category>
+
+  </AbstractionsCatalog>
+
+  <!-- ═══════════════════════════════════════════════════
+       TECHNICAL DETAILS
+  ═══════════════════════════════════════════════════════ -->
+  <TechnicalDetails>
+    <Mechanism id="M1" name="Shipment State Machine">
+      <Scope>Core flow control — shipment lifecycle transitions</Scope>
+      <Description>
+        Shipment state is managed via extension methods (Ready, Ship, Cancel, Pend, Resume)
+        that validate transitions through ShipmentValidation.IsValidTransition before mutation.
+        This pattern mirrors the Ruby state_machine gem but uses C# extension methods with
+        Result monad return values instead of callback-based transitions.
+      </Description>
+    </Mechanism>
+
+    <Mechanism id="M2" name="Calculator Strategy Pattern">
+      <Scope>Shipping cost computation — strategy selection per shipping method</Scope>
+      <Description>
+        Each shipping method declares a CalculatorType string. At computation time, the
+        appropriate IShippingCalculator implementation is selected and invoked with a
+        ShipmentContext carrying item totals, weights, and content metadata. Calculators
+        return null when their eligibility conditions are not met, signaling "rate not available"
+        to the caller. All six calculators are ported directly from Ruby SDK shipping calculators.
+      </Description>
+      <Pattern>
+        // Selection pseudocode:
+        var calculator = ResolveCalculator(method.CalculatorType);
+        var context = ShipmentContext.Create(itemTotal, weight, contents);
+        var cost = calculator.Compute(context);
+      </Pattern>
+    </Mechanism>
+  </TechnicalDetails>
+
+  <!-- ═══════════════════════════════════════════════════
+       ANTI-PATTERNS
+  ═══════════════════════════════════════════════════════ -->
+  <AntiPatterns>
+    <AntiPattern id="AP1" name="Bypassing State Validation" severity="critical">
+      <Avoid>Directly setting Shipment.State without calling transition methods.</Avoid>
+      <Example>❌ shipment.State = ShipmentState.Shipped;</Example>
+      <BetterApproach>Always use extension methods: shipment.Ship(tracking).</BetterApproach>
+      <Impact>Circumvents transition validation, potentially leaving system in inconsistent state.</Impact>
+    </AntiPattern>
+
+    <AntiPattern id="AP2" name="Hardcoding Calculator Logic" severity="high">
+      <Avoid>Embedding shipping cost calculation logic outside the calculator strategy classes.</Avoid>
+      <BetterApproach>Implement IShippingCalculator for new strategies and register via CalculatorType resolution.</BetterApproach>
+      <Impact>Makes the system rigid and non-extensible. New calculators cannot be added without modifying core logic.</Impact>
+    </AntiPattern>
+  </AntiPatterns>
+
+  <!-- ═══════════════════════════════════════════════════
+       USAGE GUIDE
+  ═══════════════════════════════════════════════════════ -->
+  <UsageGuide>
+    <Scenario id="S1" title="Creating and Shipping an Order's Shipment">
+      <Context>During checkout fulfillment, a shipment must be created, a rate selected, and the shipment shipped.</Context>
+      <Pattern>
+        // Create shipment
+        var result = ShipmentExtensions.Create(orderId, stockLocationId);
+        if (result.IsFailure) { /* handle error */ }
+        var shipment = result.Value;
+
+        // Select a shipping rate
+        shipment.SelectShippingRate(rateId);
+
+        // Transition through lifecycle
+        shipment.Ready();
+        shipment.Ship(trackingNumber);
+      </Pattern>
+      <Benefits>
+        <Benefit>Guarantees valid state transitions per Ruby SDK state machine rules.</Benefit>
+        <Benefit>All operations return Result monad for consistent error handling.</Benefit>
+      </Benefits>
+    </Scenario>
+
+    <Scenario id="S2" title="Using a Calculator Strategy">
+      <Context>Compute shipping cost using a specific calculator strategy for a given shipping method.</Context>
+      <Pattern>
+        var calculator = new FlatRateShippingCalculator
+        {
+            Amount = 10.00m,
+            MaximumItemTotal = 500.00m
+        };
+
+        var context = ShipmentContext.Create(
+            itemTotal: 120.00m,
+            weight: 3.5m,
+            contents: new List&lt;ShipmentContentItem&gt; { ... }
+        );
+
+        decimal? cost = calculator.Compute(context);
+        // cost == 10.00 (within bounds)
+      </Pattern>
+      <Benefits>
+        <Benefit>Each calculator is independently testable.</Benefit>
+        <Benefit>New calculators can be added without modifying existing ones (Open/Closed principle).</Benefit>
+      </Benefits>
+    </Scenario>
+  </UsageGuide>
+
+  <!-- ═══════════════════════════════════════════════════
+       TESTING STRATEGIES
+  ═══════════════════════════════════════════════════════ -->
+  <TestingStrategies>
+    <Strategy id="TS1" title="Calculator Unit Tests">
+      <Objective>Verify each shipping calculator returns correct cost for given inputs and respects eligibility bounds.</Objective>
+      <CodeExample>
+        [Fact]
+        public void FlatRate_WithinBounds_ReturnsAmount()
+        {
+            var calc = new FlatRateShippingCalculator { Amount = 5m };
+            var ctx = ShipmentContext.Create(100m, 10m, []);
+            var cost = calc.Compute(ctx);
+            Assert.Equal(5m, cost);
+        }
+      </CodeExample>
+    </Strategy>
+
+    <Strategy id="TS2" title="State Transition Tests">
+      <Objective>Verify valid and invalid state transitions for Shipment state machine.</Objective>
+      <CodeExample>
+        [Fact]
+        public void Ship_FromReady_ReturnsSuccess()
+        {
+            var shipment = ...; // fixture in Ready state
+            var result = shipment.Ship("TRACK123");
+            Assert.True(result.IsSuccess);
+            Assert.Equal(ShipmentState.Shipped, shipment.State);
+        }
+      </CodeExample>
+    </Strategy>
+  </TestingStrategies>
+
+  <!-- ═══════════════════════════════════════════════════
+       FILE STRUCTURE
+  ═══════════════════════════════════════════════════════ -->
+  <FileStructure>
+    Shipping/
+    ├── Shipping.Extension.cs                          # Module DI registration
+    ├── README.xml                                     # This documentation
+    ├── Domain/
+    │   ├── Calculators/
+    │   │   ├── IShippingCalculator.cs                 # Strategy interface
+    │   │   ├── ShipmentContext.cs                     # Calculator input context
+    │   │   ├── ShipmentContentItem.cs                 # Calculator content item
+    │   │   ├── ShippingCalculator.cs                  # Abstract base class
+    │   │   └── Shipping/
+    │   │       ├── FlatRateShippingCalculator.cs      # Flat fee per order
+    │   │       ├── PerItemShippingCalculator.cs       # Fee per quantity unit
+    │   │       ├── FlatPercentItemTotalShippingCalculator.cs  # % of item total
+    │   │       ├── FlexiRateShippingCalculator.cs     # Tiered per-item pricing
+    │   │       ├── PriceSackShippingCalculator.cs     # Threshold-based pricing
+    │   │       └── DigitalDeliveryShippingCalculator.cs  # Digital-only shipping
+    │   ├── Shipments/
+    │   │   ├── Shipment.cs                            # Aggregate root entity
+    │   │   ├── Shipment.Constant.cs                   # Constraints, defaults, queries
+    │   │   ├── Shipment.CustomEvents.cs               # Domain event publishing
+    │   │   ├── Shipment.Enumerate.cs                  # ShipmentState enum
+    │   │   ├── Shipment.Extensions.cs                 # Factory + state machine
+    │   │   ├── Shipment.Loggers.cs                    # Source-generated loggers
+    │   │   ├── Shipment.Result.cs                     # Success/error factories
+    │   │   ├── Shipment.StateMachine.cs               # Pend, Resume, lifecycle
+    │   │   ├── Shipment.Validation.cs                 # Transition validation
+    │   │   └── Shipment.Webhooks.cs                   # Webhook dispatch placeholder
+    │   ├── ShippingCategories/
+    │   │   ├── ShippingCategory.cs                    # Aggregate root entity
+    │   │   ├── ShippingCategory.Constant.cs           # Constraints, defaults, queries
+    │   │   ├── ShippingCategory.Extensions.cs         # Factory + CRUD operations
+    │   │   ├── ShippingCategory.Loggers.cs            # Source-generated loggers
+    │   │   ├── ShippingCategory.Result.cs             # Success/error factories
+    │   │   └── ShippingCategory.Validation.cs         # Name validation rules
+    │   ├── ShippingMethods/
+    │   │   ├── ShippingMethod.cs                      # Aggregate root entity
+    │   │   ├── ShippingMethod.Constant.cs             # Constraints, defaults, queries
+    │   │   ├── ShippingMethod.Extensions.cs           # Factory + operations
+    │   │   ├── ShippingMethod.Loggers.cs              # Source-generated loggers
+    │   │   ├── ShippingMethod.Result.cs               # Success/error factories
+    │   │   ├── ShippingMethod.Validation.cs           # Field validation rules
+    │   │   ├── ShippingMethodCategory.cs              # Join entity (Method ↔ Category)
+    │   │   ├── ShippingMethodCategory.Constant.cs     # Query fields
+    │   │   ├── ShippingMethodCategory.Extensions.cs   # Factory
+    │   │   ├── ShippingMethodCategory.Result.cs       # Success/error factories
+    │   │   ├── ShippingMethodZone.cs                  # Join entity (Method ↔ Zone)
+    │   │   ├── ShippingMethodZone.Constant.cs         # Query fields
+    │   │   ├── ShippingMethodZone.Extensions.cs       # Factory
+    │   │   └── ShippingMethodZone.Result.cs           # Success/error factories
+    │   ├── ShippingRates/
+    │   │   ├── ShippingRate.cs                        # Entity
+    │   │   ├── ShippingRate.Constant.cs               # Constraints, defaults, queries
+    │   │   ├── ShippingRate.Extensions.cs             # Factory + selection
+    │   │   ├── ShippingRate.Loggers.cs                # Source-generated loggers
+    │   │   ├── ShippingRate.Result.cs                 # Success/error factories
+    │   │   └── ShippingRate.Validation.cs             # Field validation rules
+    │   ├── ZoneMembers/
+    │   │   ├── ZoneMember.cs                          # Polymorphic join entity
+    │   │   ├── ZoneMember.Constant.cs                 # Constraints
+    │   │   ├── ZoneMember.Extensions.cs               # Factory
+    │   │   └── ZoneMember.Result.cs                   # Success/error factories
+    │   └── Zones/
+    │       ├── Zone.cs                                # Aggregate root entity
+    │       ├── Zone.Constant.cs                       # Constraints, queries
+    │       ├── Zone.Enumerate.cs                      # ZoneKind enum
+    │       ├── Zone.Extensions.cs                     # Factory + membership ops
+    │       ├── Zone.Loggers.cs                        # Source-generated loggers
+    │       ├── Zone.Result.cs                         # Success/error factories
+    │       └── Zone.Validation.cs                     # Field validation rules
+    ├── Persistence/                                   # EF Core configuration (not in scope)
+    └── Features/                                      # Carter endpoints (not in scope)
+  </FileStructure>
+
+</BuildingBlockModule>

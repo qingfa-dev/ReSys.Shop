@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Payments Domain Subdirectory / Purpose: Payment transaction aggregate with capture/void/refund. / Schema: 1.0 / Updated: 2026-05-22 -->
+<BuildingBlockModule id="payment-domain-payments" name="Modules.Payment.Domain.Payments" version="1.0.0" status="stable" schema-version="1.0">
+  <ModuleMeta><Name>Payments Domain</Name><Description>Payment transaction aggregate with capture/void/refund.</Description><Category>DDD</Category><Stability>Stable</Stability></ModuleMeta>
+  <Principles><Principle id="P1" name="Single Responsibility"><Description>Payment aggregate tracks the full transaction lifecycle: initiated → authorized → captured → refunded → voided. Each transition requires gateway interaction via the Infrastructure layer.</Description><Rationale>Aggregate ensures payment invariants (one capture per authorization, refund ≤ captured amount) are enforced.</Rationale></Principle></Principles>
+  <Features><Feature id="F1" name="Payments " type="core">Void After Capture: Attempting to void a payment that has already been captured.</Feature></Features>
+  <AntiPatterns><AntiPattern id="AP1" name="Void is only valid before capture. After capture, " severity="critical"><Avoid>Proceeding without validation or proper configuration.</Avoid><BetterApproach>Always validate inputs and follow documented patterns.</BetterApproach></AntiPattern></AntiPatterns>
+  <AbstractionsCatalog>
+<Category name="Core" order="1">
+<Description>Primary components.</Description>
+<Abstraction id="A1" name="GatewayOptions" type="class"><Path>./GatewayOptions.cs</Path><Description>GatewayOptions component.</Description><Purpose>Part of module.</Purpose></Abstraction>
+<Abstraction id="A2" name="Payment.Constant" type="class"><Path>./Payment.Constant.cs</Path><Description>Payment.Constant component.</Description><Purpose>Part of module.</Purpose></Abstraction>
+<Abstraction id="A3" name="Payment" type="class"><Path>./Payment.cs</Path><Description>Payment component.</Description><Purpose>Part of module.</Purpose></Abstraction>
+<Abstraction id="A4" name="Payment.Enumerate" type="class"><Path>./Payment.Enumerate.cs</Path><Description>Payment.Enumerate component.</Description><Purpose>Part of module.</Purpose></Abstraction>
+<Abstraction id="A5" name="Payment.Extensions" type="class"><Path>./Payment.Extensions.cs</Path><Description>Payment.Extensions component.</Description><Purpose>Part of module.</Purpose></Abstraction>
+<Abstraction id="A6" name="Payment.Processing" type="class"><Path>./Payment.Processing.cs</Path><Description>Payment.Processing component.</Description><Purpose>Part of module.</Purpose></Abstraction>
+<Abstraction id="A7" name="Payment.Result" type="class"><Path>./Payment.Result.cs</Path><Description>Payment.Result component.</Description><Purpose>Part of module.</Purpose></Abstraction>
+<Abstraction id="A8" name="Payment.Validation" type="class"><Path>./Payment.Validation.cs</Path><Description>Payment.Validation component.</Description><Purpose>Part of module.</Purpose></Abstraction>
+</Category>
+</AbstractionsCatalog>
+  <FileStructure>Payments/ → README.xml</FileStructure>
+</BuildingBlockModule>

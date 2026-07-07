@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- OrderPromotions Domain Subdirectory / Purpose: Applied promotion tracking on orders. / Schema: 1.0 / Updated: 2026-05-22 -->
+<BuildingBlockModule id="promotions-domain-orderpromotions" name="Modules.Promotions.Domain.OrderPromotions" version="1.0.0" status="stable" schema-version="1.0">
+  <ModuleMeta><Name>OrderPromotions Domain</Name><Description>Applied promotion tracking on orders.</Description><Category>DDD</Category><Stability>Stable</Stability></ModuleMeta>
+  <Principles><Principle id="P1" name="Single Responsibility"><Description>Records which promotions were applied to an order, including the promotion ID, action executed, and discount amount.</Description><Rationale>Audit trail for order discount breakdown and promotion effectiveness analytics.</Rationale></Principle></Principles>
+  <Features><Feature id="F1" name="OrderPromotions " type="core">Orphaned Promotion Reference: Deleting a promotion that was already applied to orders.</Feature></Features>
+  <AntiPatterns><AntiPattern id="AP1" name="Soft-delete promotions or prevent deletion of prom" severity="high"><Avoid>Proceeding without validation or proper configuration.</Avoid><BetterApproach>Always validate inputs and follow documented patterns.</BetterApproach></AntiPattern></AntiPatterns>
+  <AbstractionsCatalog>
+<Category name="Core" order="1">
+<Description>Primary components.</Description>
+<Abstraction id="A1" name="OrderPromotion.Constant" type="class"><Path>./OrderPromotion.Constant.cs</Path><Description>OrderPromotion.Constant component.</Description><Purpose>Part of module.</Purpose></Abstraction>
+<Abstraction id="A2" name="OrderPromotion" type="class"><Path>./OrderPromotion.cs</Path><Description>OrderPromotion component.</Description><Purpose>Part of module.</Purpose></Abstraction>
+<Abstraction id="A3" name="OrderPromotion.Extensions" type="class"><Path>./OrderPromotion.Extensions.cs</Path><Description>OrderPromotion.Extensions component.</Description><Purpose>Part of module.</Purpose></Abstraction>
+<Abstraction id="A4" name="OrderPromotion.Result" type="class"><Path>./OrderPromotion.Result.cs</Path><Description>OrderPromotion.Result component.</Description><Purpose>Part of module.</Purpose></Abstraction>
+<Abstraction id="A5" name="OrderPromotion.Validation" type="class"><Path>./OrderPromotion.Validation.cs</Path><Description>OrderPromotion.Validation component.</Description><Purpose>Part of module.</Purpose></Abstraction>
+</Category>
+</AbstractionsCatalog>
+  <FileStructure>OrderPromotions/ → README.xml</FileStructure>
+</BuildingBlockModule>

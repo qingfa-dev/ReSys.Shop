@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- PromotionActions Domain Subdirectory / Purpose: Promotion action aggregate. / Schema: 1.0 / Updated: 2026-05-22 -->
+<BuildingBlockModule id="promotions-domain-promotionactions" name="Modules.Promotions.Domain.PromotionActions" version="1.0.0" status="stable" schema-version="1.0">
+  <ModuleMeta><Name>PromotionActions Domain</Name><Description>Promotion action aggregate.</Description><Category>DDD</Category><Stability>Stable</Stability></ModuleMeta>
+  <Principles><Principle id="P1" name="Single Responsibility"><Description>Actions associated with a promotion: type (percent, fixed, free_shipping), calculator parameters, and applicability rules.</Description><Rationale>Actions are child entities of Promotion, not standalone aggregates.</Rationale></Principle></Principles>
+  <Features><Feature id="F1" name="PromotionActions " type="core">Shared Actions: Reusing the same action instance across multiple promotions.</Feature></Features>
+  <AntiPatterns><AntiPattern id="AP1" name="Each promotion has its own action instances. Shari" severity="medium"><Avoid>Proceeding without validation or proper configuration.</Avoid><BetterApproach>Always validate inputs and follow documented patterns.</BetterApproach></AntiPattern></AntiPatterns>
+  <AbstractionsCatalog>
+<Category name="Core" order="1">
+<Description>Primary components.</Description>
+<Abstraction id="A1" name="PromotionAction.Constant" type="class"><Path>./PromotionAction.Constant.cs</Path><Description>PromotionAction.Constant component.</Description><Purpose>Part of module.</Purpose></Abstraction>
+<Abstraction id="A2" name="PromotionAction" type="class"><Path>./PromotionAction.cs</Path><Description>PromotionAction component.</Description><Purpose>Part of module.</Purpose></Abstraction>
+<Abstraction id="A3" name="PromotionAction.Extensions" type="class"><Path>./PromotionAction.Extensions.cs</Path><Description>PromotionAction.Extensions component.</Description><Purpose>Part of module.</Purpose></Abstraction>
+<Abstraction id="A4" name="PromotionAction.Result" type="class"><Path>./PromotionAction.Result.cs</Path><Description>PromotionAction.Result component.</Description><Purpose>Part of module.</Purpose></Abstraction>
+<Abstraction id="A5" name="PromotionAction.Validation" type="class"><Path>./PromotionAction.Validation.cs</Path><Description>PromotionAction.Validation component.</Description><Purpose>Part of module.</Purpose></Abstraction>
+</Category>
+</AbstractionsCatalog>
+  <FileStructure>PromotionActions/ → README.xml</FileStructure>
+</BuildingBlockModule>

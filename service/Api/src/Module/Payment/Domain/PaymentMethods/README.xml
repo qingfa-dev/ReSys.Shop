@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- PaymentMethods Domain Subdirectory / Purpose: Stored payment methods (credit card, digital wallet). / Schema: 1.0 / Updated: 2026-05-22 -->
+<BuildingBlockModule id="payment-domain-paymentmethods" name="Modules.Payment.Domain.PaymentMethods" version="1.0.0" status="stable" schema-version="1.0">
+  <ModuleMeta><Name>PaymentMethods Domain</Name><Description>Stored payment methods (credit card, digital wallet).</Description><Category>DDD</Category><Stability>Stable</Stability></ModuleMeta>
+  <Principles><Principle id="P1" name="Single Responsibility"><Description>Securely stored payment method references tied to a user. Supports card, digital wallet, and bank transfer types.</Description><Rationale>Returning customers can reuse saved payment methods without re-entering details.</Rationale></Principle></Principles>
+  <Features><Feature id="F1" name="PaymentMethods " type="core">Storing Raw Card Data: Keeping full card numbers or CVV in the database.</Feature></Features>
+  <AntiPatterns><AntiPattern id="AP1" name="Store only tokenized references from the payment g" severity="critical"><Avoid>Proceeding without validation or proper configuration.</Avoid><BetterApproach>Always validate inputs and follow documented patterns.</BetterApproach></AntiPattern></AntiPatterns>
+  <AbstractionsCatalog>
+<Category name="Core" order="1">
+<Description>Primary components.</Description>
+<Abstraction id="A1" name="CheckPaymentMethod" type="class"><Path>./CheckPaymentMethod.cs</Path><Description>CheckPaymentMethod component.</Description><Purpose>Part of module.</Purpose></Abstraction>
+<Abstraction id="A2" name="PaymentMethod.Constant" type="class"><Path>./PaymentMethod.Constant.cs</Path><Description>PaymentMethod.Constant component.</Description><Purpose>Part of module.</Purpose></Abstraction>
+<Abstraction id="A3" name="PaymentMethod" type="class"><Path>./PaymentMethod.cs</Path><Description>PaymentMethod component.</Description><Purpose>Part of module.</Purpose></Abstraction>
+<Abstraction id="A4" name="PaymentMethod.Enumerate" type="class"><Path>./PaymentMethod.Enumerate.cs</Path><Description>PaymentMethod.Enumerate component.</Description><Purpose>Part of module.</Purpose></Abstraction>
+<Abstraction id="A5" name="PaymentMethod.Extensions" type="class"><Path>./PaymentMethod.Extensions.cs</Path><Description>PaymentMethod.Extensions component.</Description><Purpose>Part of module.</Purpose></Abstraction>
+<Abstraction id="A6" name="PaymentMethod.Result" type="class"><Path>./PaymentMethod.Result.cs</Path><Description>PaymentMethod.Result component.</Description><Purpose>Part of module.</Purpose></Abstraction>
+<Abstraction id="A7" name="PaymentMethod.Validation" type="class"><Path>./PaymentMethod.Validation.cs</Path><Description>PaymentMethod.Validation component.</Description><Purpose>Part of module.</Purpose></Abstraction>
+<Abstraction id="A8" name="PaymentMethod.Webhooks" type="class"><Path>./PaymentMethod.Webhooks.cs</Path><Description>PaymentMethod.Webhooks component.</Description><Purpose>Part of module.</Purpose></Abstraction>
+</Category>
+</AbstractionsCatalog>
+  <FileStructure>PaymentMethods/ → README.xml</FileStructure>
+</BuildingBlockModule>

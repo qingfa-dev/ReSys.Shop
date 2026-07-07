@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- LineItems Domain Subdirectory / Purpose: Order line items referencing product variants. / Schema: 1.0 / Updated: 2026-05-22 -->
+<BuildingBlockModule id="ordering-domain-lineitems" name="Modules.Ordering.Domain.LineItems" version="1.0.0" status="stable" schema-version="1.0">
+  <ModuleMeta><Name>LineItems Domain</Name><Description>Order line items referencing product variants.</Description><Category>DDD</Category><Stability>Stable</Stability></ModuleMeta>
+  <Principles><Principle id="P1" name="Single Responsibility"><Description>Line items record the product variant, quantity, unit price, and applied adjustments for each item in an order.</Description><Rationale>Line items capture the snapshot of pricing at order time, independent of future price changes.</Rationale></Principle></Principles>
+  <Features><Feature id="F1" name="LineItems " type="core">Live Pricing Reference: Reading current product price for an existing order line item.</Feature></Features>
+  <AntiPatterns><AntiPattern id="AP1" name="Line items store price at order time. Never recalc" severity="high"><Avoid>Proceeding without validation or proper configuration.</Avoid><BetterApproach>Always validate inputs and follow documented patterns.</BetterApproach></AntiPattern></AntiPatterns>
+  <AbstractionsCatalog>
+<Category name="Core" order="1">
+<Description>Primary components.</Description>
+<Abstraction id="A1" name="LineItem.Constant" type="class"><Path>./LineItem.Constant.cs</Path><Description>LineItem.Constant component.</Description><Purpose>Part of module.</Purpose></Abstraction>
+<Abstraction id="A2" name="LineItem" type="class"><Path>./LineItem.cs</Path><Description>LineItem component.</Description><Purpose>Part of module.</Purpose></Abstraction>
+<Abstraction id="A3" name="LineItem.Extensions" type="class"><Path>./LineItem.Extensions.cs</Path><Description>LineItem.Extensions component.</Description><Purpose>Part of module.</Purpose></Abstraction>
+<Abstraction id="A4" name="LineItem.Result" type="class"><Path>./LineItem.Result.cs</Path><Description>LineItem.Result component.</Description><Purpose>Part of module.</Purpose></Abstraction>
+<Abstraction id="A5" name="LineItem.Validation" type="class"><Path>./LineItem.Validation.cs</Path><Description>LineItem.Validation component.</Description><Purpose>Part of module.</Purpose></Abstraction>
+</Category>
+</AbstractionsCatalog>
+  <FileStructure>LineItems/ → README.xml</FileStructure>
+</BuildingBlockModule>

@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- FG: Admin ShippingMethods / Purpose: Admin shipping method CRUD with activate/deactivate. / Schema: 1.0 / Updated: 2026-05-22 -->
+<BuildingBlockModule id="shipping-features-admin-shippingmethods" name="Modules.Shipping.Features.Admin.ShippingMethods" version="1.0.0" status="stable" schema-version="1.0">
+  <ModuleMeta><Name>Admin ShippingMethods</Name><Description>Admin shipping method CRUD with activate/deactivate.</Description><Category>Features</Category><Stability>Stable</Stability></ModuleMeta>
+  <Features><Feature id="F1" name="Endpoints" type="core"><Description>Create, Update, Delete, Get shipping methods. Activate, Deactivate.</Description></Feature></Features>
+  <AntiPatterns><AntiPattern id="AP1" name="Deactivating Without Notice" severity="medium"><Avoid> Disabling a shipping method that customers are actively using.</Avoid><BetterApproach></BetterApproach></AntiPattern></AntiPatterns>
+    <AbstractionsCatalog>
+    <Category name="Components" order="1">
+      <Description>Key components in this directory.</Description>
+      <Abstraction id="A1" name="Activate" type="directory">
+        <Path>./Activate/</Path>
+        <Description>Activate definition.</Description>
+        <Purpose>Supports module functionality.</Purpose>
+      </Abstraction>
+      <Abstraction id="A2" name="Create" type="directory">
+        <Path>./Create/</Path>
+        <Description>Create definition.</Description>
+        <Purpose>Supports module functionality.</Purpose>
+      </Abstraction>
+      <Abstraction id="A3" name="Deactivate" type="directory">
+        <Path>./Deactivate/</Path>
+        <Description>Deactivate definition.</Description>
+        <Purpose>Supports module functionality.</Purpose>
+      </Abstraction>
+      <Abstraction id="A4" name="Delete" type="directory">
+        <Path>./Delete/</Path>
+        <Description>Delete definition.</Description>
+        <Purpose>Supports module functionality.</Purpose>
+      </Abstraction>
+      <Abstraction id="A5" name="Get" type="directory">
+        <Path>./Get/</Path>
+        <Description>Get definition.</Description>
+        <Purpose>Supports module functionality.</Purpose>
+      </Abstraction>
+      <Abstraction id="A6" name="Update" type="directory">
+        <Path>./Update/</Path>
+        <Description>Update definition.</Description>
+        <Purpose>Supports module functionality.</Purpose>
+      </Abstraction>
+    </Category>
+  </AbstractionsCatalog>
+  <FileStructure>Features/Admin ShippingMethods → Shared/</FileStructure>
+</BuildingBlockModule>

@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- FG: Admin CouponCodes / Purpose: Admin coupon code CRUD. / Schema: 1.0 / Updated: 2026-05-22 -->
+<BuildingBlockModule id="promotions-features-admin-couponcodes" name="Modules.Promotions.Features.Admin.CouponCodes" version="1.0.0" status="stable" schema-version="1.0">
+  <ModuleMeta><Name>Admin CouponCodes</Name><Description>Admin coupon code CRUD.</Description><Category>Features</Category><Stability>Stable</Stability></ModuleMeta>
+  <Features><Feature id="F1" name="Endpoints" type="core"><Description>Create, Delete, Get coupon codes by ID or paged.</Description></Feature></Features>
+  <AntiPatterns><AntiPattern id="AP1" name="Unlimited Usage Coupons" severity="medium"><Avoid> Creating coupons with no usage limit.</Avoid><BetterApproach></BetterApproach></AntiPattern></AntiPatterns>
+    <AbstractionsCatalog>
+    <Category name="Components" order="1">
+      <Description>Key components in this directory.</Description>
+      <Abstraction id="A1" name="Create" type="directory">
+        <Path>./Create/</Path>
+        <Description>Create definition.</Description>
+        <Purpose>Supports module functionality.</Purpose>
+      </Abstraction>
+      <Abstraction id="A2" name="Delete" type="directory">
+        <Path>./Delete/</Path>
+        <Description>Delete definition.</Description>
+        <Purpose>Supports module functionality.</Purpose>
+      </Abstraction>
+      <Abstraction id="A3" name="Get" type="directory">
+        <Path>./Get/</Path>
+        <Description>Get definition.</Description>
+        <Purpose>Supports module functionality.</Purpose>
+      </Abstraction>
+    </Category>
+  </AbstractionsCatalog>
+  <FileStructure>Features/Admin CouponCodes → Shared/</FileStructure>
+</BuildingBlockModule>

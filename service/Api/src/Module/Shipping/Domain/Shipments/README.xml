@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Shipments Domain Subdirectory / Purpose: Shipment aggregate with status workflow and events. / Schema: 1.0 / Updated: 2026-05-22 -->
+<BuildingBlockModule id="shipping-domain-shipments" name="Modules.Shipping.Domain.Shipments" version="1.0.0" status="stable" schema-version="1.0">
+  <ModuleMeta><Name>Shipments Domain</Name><Description>Shipment aggregate with status workflow and events.</Description><Category>DDD</Category><Stability>Stable</Stability></ModuleMeta>
+  <Principles><Principle id="P1" name="Single Responsibility"><Description>Shipment aggregate tracks physical shipping: status workflow (pending → ready → shipped → delivered), tracking number, carrier, and shipping address. Each transition publishes domain events.</Description><Rationale>Aggregate ensures shipment invariants: tracking number required before ship, address validated before marking ready.</Rationale></Principle></Principles>
+  <Features><Feature id="F1" name="Shipments " type="core">Ship Without Tracking: Marking a shipment as shipped without a tracking number.</Feature></Features>
+  <AntiPatterns><AntiPattern id="AP1" name="Require tracking number before setting status to s" severity="high"><Avoid>Proceeding without validation or proper configuration.</Avoid><BetterApproach>Always validate inputs and follow documented patterns.</BetterApproach></AntiPattern></AntiPatterns>
+  <AbstractionsCatalog>
+<Category name="Core" order="1">
+<Description>Primary components.</Description>
+<Abstraction id="A1" name="Shipment.Constant" type="class"><Path>./Shipment.Constant.cs</Path><Description>Shipment.Constant component.</Description><Purpose>Part of module.</Purpose></Abstraction>
+<Abstraction id="A2" name="Shipment" type="class"><Path>./Shipment.cs</Path><Description>Shipment component.</Description><Purpose>Part of module.</Purpose></Abstraction>
+<Abstraction id="A3" name="Shipment.Enumerate" type="class"><Path>./Shipment.Enumerate.cs</Path><Description>Shipment.Enumerate component.</Description><Purpose>Part of module.</Purpose></Abstraction>
+<Abstraction id="A4" name="Shipment.Extensions" type="class"><Path>./Shipment.Extensions.cs</Path><Description>Shipment.Extensions component.</Description><Purpose>Part of module.</Purpose></Abstraction>
+<Abstraction id="A5" name="Shipment.Result" type="class"><Path>./Shipment.Result.cs</Path><Description>Shipment.Result component.</Description><Purpose>Part of module.</Purpose></Abstraction>
+<Abstraction id="A6" name="Shipment.StateMachine" type="class"><Path>./Shipment.StateMachine.cs</Path><Description>Shipment.StateMachine component.</Description><Purpose>Part of module.</Purpose></Abstraction>
+<Abstraction id="A7" name="Shipment.Validation" type="class"><Path>./Shipment.Validation.cs</Path><Description>Shipment.Validation component.</Description><Purpose>Part of module.</Purpose></Abstraction>
+</Category>
+</AbstractionsCatalog>
+  <FileStructure>Shipments/ → README.xml</FileStructure>
+</BuildingBlockModule>

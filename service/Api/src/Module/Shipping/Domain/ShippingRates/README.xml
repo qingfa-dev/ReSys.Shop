@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- ShippingRates Domain Subdirectory / Purpose: Computed shipping rates. / Schema: 1.0 / Updated: 2026-05-22 -->
+<BuildingBlockModule id="shipping-domain-shippingrates" name="Modules.Shipping.Domain.ShippingRates" version="1.0.0" status="stable" schema-version="1.0">
+  <ModuleMeta><Name>ShippingRates Domain</Name><Description>Computed shipping rates.</Description><Category>DDD</Category><Stability>Stable</Stability></ModuleMeta>
+  <Principles><Principle id="P1" name="Single Responsibility"><Description>Rate quotes computed by shipping method calculators based on cart weight, dimensions, destination, and method constraints.</Description><Rationale>Rates are computed at quote time and stored with the order for historical accuracy.</Rationale></Principle></Principles>
+  <Features><Feature id="F1" name="ShippingRates " type="core">Live Rate Recalculation: Recomputing shipping rates for already-placed orders.</Feature></Features>
+  <AntiPatterns><AntiPattern id="AP1" name="Store the rate at order placement time. Only recal" severity="high"><Avoid>Proceeding without validation or proper configuration.</Avoid><BetterApproach>Always validate inputs and follow documented patterns.</BetterApproach></AntiPattern></AntiPatterns>
+  <AbstractionsCatalog>
+<Category name="Core" order="1">
+<Description>Primary components.</Description>
+<Abstraction id="A1" name="ShippingRate.Constant" type="class"><Path>./ShippingRate.Constant.cs</Path><Description>ShippingRate.Constant component.</Description><Purpose>Part of module.</Purpose></Abstraction>
+<Abstraction id="A2" name="ShippingRate" type="class"><Path>./ShippingRate.cs</Path><Description>ShippingRate component.</Description><Purpose>Part of module.</Purpose></Abstraction>
+<Abstraction id="A3" name="ShippingRate.Enumerate" type="class"><Path>./ShippingRate.Enumerate.cs</Path><Description>ShippingRate.Enumerate component.</Description><Purpose>Part of module.</Purpose></Abstraction>
+<Abstraction id="A4" name="ShippingRate.Extensions" type="class"><Path>./ShippingRate.Extensions.cs</Path><Description>ShippingRate.Extensions component.</Description><Purpose>Part of module.</Purpose></Abstraction>
+<Abstraction id="A5" name="ShippingRate.Result" type="class"><Path>./ShippingRate.Result.cs</Path><Description>ShippingRate.Result component.</Description><Purpose>Part of module.</Purpose></Abstraction>
+<Abstraction id="A6" name="ShippingRate.Validation" type="class"><Path>./ShippingRate.Validation.cs</Path><Description>ShippingRate.Validation component.</Description><Purpose>Part of module.</Purpose></Abstraction>
+</Category>
+</AbstractionsCatalog>
+  <FileStructure>ShippingRates/ → README.xml</FileStructure>
+</BuildingBlockModule>
