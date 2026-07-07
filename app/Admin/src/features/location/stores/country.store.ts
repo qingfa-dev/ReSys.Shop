@@ -13,10 +13,10 @@ export const useCountryStore = defineStore('country', () => {
 
   async function fetchCountries(params?: Record<string, unknown>) {
     loading.value = true
-    const result = await countryService.getAll(params)
+    const result = await countryService.list(params)
     if (result.success) {
       items.value = result.data
-      totalRecords.value = result.meta?.total_count ?? result.data.length
+      totalRecords.value = result.meta?.totalCount ?? result.data.length
     } else {
       showToast('error', 'Error', result.error?.detail || 'Failed to load countries')
     }

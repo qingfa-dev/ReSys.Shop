@@ -23,11 +23,11 @@ const selectedUnitIds = ref<string[]>([]);
 // We assume pending means not shipped yet.
 const availableUnits = computed(() => {
     const units: any[] = [];
-    if (!props.order.line_items) return [];
+    if (!props.order.lineItems) return [];
     
-    props.order.line_items.forEach(item => {
+    props.order.lineItems.forEach((item: any) => {
         if (item.inventory_units) {
-            item.inventory_units.forEach(unit => {
+            item.inventory_units.forEach((unit: any) => {
                 if (unit.state !== 'Shipped' && unit.state !== 'Canceled') {
                     units.push(unit);
                 }
@@ -50,8 +50,8 @@ const onSubmit = async () => {
     loading.value = true;
     try {
         const payload: CreateShipmentRequest = {
-            stock_location_id: stockLocationId.value,
-            inventory_unit_ids: selectedUnitIds.value
+            stockLocationId: stockLocationId.value,
+            inventoryUnitIds: selectedUnitIds.value
         };
         const res = await orderService.createShipment(props.order.id, payload);
         if (res.success) {

@@ -4,7 +4,7 @@ import { usePropertyTypeStore } from '@/features/catalog/property-types/stores/p
 import { useApiErrorHandler } from '@/shared/composables/api-error-handler.use';
 import { useToast } from '@/shared/composables/toast.use';
 import { productService } from '../services/product.service';
-import type { ApiResult } from '@/shared/api/api.types';
+import type { ApiResult } from '@/shared/api/types/api.types';
 import type { ProductProperty } from '../types/product.types';
 
 const props = defineProps<{
@@ -34,7 +34,7 @@ const loadData = async () => {
         }
 
         // 2. Get all available property types
-        await propertyTypeStore.fetchList({ page_size: 100 });
+        await propertyTypeStore.fetchList({ pageSize: 100 });
         availablePropertyTypes.value = propertyTypeStore.items.map(pt => ({
             label: `${pt.presentation} (${pt.name})`,
             value: pt.id

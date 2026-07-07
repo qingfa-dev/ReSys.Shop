@@ -17,15 +17,15 @@ export const useOptionValueStore = defineStore('option-value', () => {
   const totalRecords = ref(0);
   const query = ref<OptionValueQuery>({
     page: 1,
-    page_size: 10,
-    sort: 'position'
+    pageSize: 10,
+    sort: ['position']
   });
 
   const loading = ref(false);
 
-  async function fetchValues(option_type_id: string, queryParams?: Partial<OptionValueQuery>) {
+  async function fetchValues(optionTypeId: string, queryParams?: Partial<OptionValueQuery>) {
     loading.value = true;
-    const result = await optionValueService.list({ ...queryParams, option_type_id });
+    const result = await optionValueService.list({ ...queryParams, optionTypeId } as OptionValueQuery);
     if (result.success && result.data) {
       values.value = result.data;
       values.value.sort((a, b) => a.position - b.position);
@@ -43,15 +43,15 @@ export const useOptionValueStore = defineStore('option-value', () => {
     const result = await optionValueService.list(query.value);
     if (result.success && result.data) {
         items.value = result.data;
-        totalRecords.value = result.meta?.total_count || 0;
+        totalRecords.value = result.meta?.totalCount || 0;
     }
     loading.value = false;
     return result;
   }
 
-  async function create(option_type_id: string, payload: Omit<CreateOptionValueRequest, 'option_type_id'>): Promise<ApiResult<OptionValueListItem>> {
+  async function create(optionTypeId: string, payload: Omit<CreateOptionValueRequest, 'optionTypeId'>): Promise<ApiResult<OptionValueListItem>> {
     loading.value = true;
-    const request: CreateOptionValueRequest = { ...payload, option_type_id };
+    const request: CreateOptionValueRequest = { ...payload, optionTypeId };
     const result = await optionValueService.create(request);
     
     if (result.success && result.data) {
@@ -86,9 +86,9 @@ export const useOptionValueStore = defineStore('option-value', () => {
     return result;
   }
 
-  async function updatePositions(option_type_id: string, positions: { id: string; position: number }[]): Promise<ApiResult<void>> {
+  async function updatePositions(optionTypeId: string, positions: { id: string; position: number }[]): Promise<ApiResult<void>> {
     loading.value = true;
-    const result = await optionValueService.reorder({ option_type_id, positions });
+    const result = await optionValueService.reorder({ optionTypeId, positions });
     if (result.success) {
       positions.forEach(p => {
           const val = values.value.find(v => v.id === p.id);

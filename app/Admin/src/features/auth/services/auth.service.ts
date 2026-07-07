@@ -1,5 +1,5 @@
-import apiClient from '@/shared/api/api.client'
-import type { ApiResult } from '@/shared/api/api.types'
+import apiClient from '@/shared/api/http/api.client'
+import type { ApiResult } from '@/shared/api/types/api.types'
 import type { LoginRequest, RefreshRequest, AuthenticationResponse } from '../types/auth.types'
 
 const BASE_URL = '/auth'

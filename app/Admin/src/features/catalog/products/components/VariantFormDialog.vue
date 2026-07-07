@@ -5,6 +5,7 @@ import { toTypedSchema } from '@vee-validate/zod';
 import * as z from 'zod';
 import { productService } from '../services/product.service';
 import { optionValueService } from '@/features/catalog/option-types/option-values/services/option-value.service';
+import type { OptionValueQuery } from '@/features/catalog/option-types/option-values/types/option-value.types';
 import type { VariantDetail } from '../types/variant.types';
 import { productLocales, type ProductLocales } from '../locales/product.locales';
 
@@ -34,7 +35,7 @@ const loadingOptions = ref(false);
 const schema = z.object({
     sku: z.string().min(1, 'SKU is required'),
     price: z.number().min(0, 'Price must be non-negative'),
-    track_inventory: z.boolean(),
+    trackInventory: z.boolean(),
     barcode: z.string().optional().nullable(),
     weight: z.number().optional().nullable(),
 });
@@ -44,7 +45,7 @@ const { defineField, handleSubmit, errors, resetForm, setValues } = useForm({
     initialValues: {
         sku: '',
         price: 0,
-        track_inventory: true,
+        trackInventory: true,
         barcode: '',
         weight: null as number | null,
     }
@@ -52,7 +53,7 @@ const { defineField, handleSubmit, errors, resetForm, setValues } = useForm({
 
 const [sku] = defineField('sku');
 const [price] = defineField('price');
-const [track_inventory] = defineField('track_inventory');
+const [trackInventory] = defineField('trackInventory');
 const [barcode] = defineField('barcode');
 const [weight] = defineField('weight');
 
@@ -65,7 +66,7 @@ const fetchOptions = async () => {
             const types = res.data;
             // 2. Fetch values for each type using the correct service
             for (const type of types) {
-                const valRes = await optionValueService.list({ option_type_id: type.id });
+                const valRes = await optionValueService.list({ optionTypeId: type.id } as OptionValueQuery);
                 if (valRes.success && valRes.data) {
                     type.values = valRes.data;
                 }
@@ -88,15 +89,15 @@ watch([() => props.variant, assignedOptionTypes], ([newVariant, types]) => {
         setValues({
             sku: newVariant.sku || '',
             price: newVariant.price,
-            track_inventory: newVariant.track_inventory,
+            trackInventory: newVariant.trackInventory,
             barcode: newVariant.barcode || '',
             weight: newVariant.weight,
         });
         
         // Map existing options to selection
         const mapped: Record<string, string> = {};
-        if (newVariant.option_value_ids && types.length > 0) {
-            newVariant.option_value_ids.forEach((id: string) => {
+        if (newVariant.optionValueIds && types.length > 0) {
+            newVariant.optionValueIds.forEach((id: string) => {
                 types.forEach(type => {
                     if (type.values && type.values.some((v: any) => v.id === id)) {
                         mapped[type.id] = id;
@@ -116,8 +117,8 @@ const onSubmit = handleSubmit((values) => {
     
     emit('save', {
         ...values,
-        option_value_ids: optionValueIds,
-        product_id: props.productId
+        optionValueIds: optionValueIds,
+        productId: props.productId
     });
 });
 </script>
@@ -132,7 +133,7 @@ const onSubmit = handleSubmit((values) => {
             </div>
 
             <!-- Option Values Selection -->
-            <div v-if="!variant?.is_master && assignedOptionTypes.length > 0" class="flex flex-col gap-4 p-4 bg-surface-50 dark:bg-surface-800/50 rounded-2xl border border-surface-200 dark:border-surface-700">
+            <div v-if="!variant?.isMaster && assignedOptionTypes.length > 0" class="flex flex-col gap-4 p-4 bg-surface-50 dark:bg-surface-800/50 rounded-2xl border border-surface-200 dark:border-surface-700">
                 <span class="font-bold text-xs uppercase tracking-wider text-surface-500">{{ t.variants?.form?.attributes }}</span>
                 <div v-for="type in assignedOptionTypes" :key="type.id" class="flex flex-col gap-1">
                     <label class="text-xs font-medium">{{ type.presentation || type.name }}</label>
@@ -162,7 +163,7 @@ const onSubmit = handleSubmit((values) => {
                     <span class="font-bold text-sm">{{ t.variants?.form?.track_inventory }}</span>
                     <span class="text-xs text-surface-500">{{ t.variants?.form?.track_inventory_desc }}</span>
                 </div>
-                <ToggleSwitch v-model="track_inventory" />
+                <ToggleSwitch v-model="trackInventory" />
             </div>
         </div>
 

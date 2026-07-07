@@ -41,20 +41,20 @@ const previewRef = ref<any>(null)
 const { defineField, handleSubmit, errors, setValues, resetForm, values: formValues } = useForm({
   validationSchema: toTypedSchema(TaxonSchema),
   initialValues: {
-    taxonomy_id: taxonomyId.value,
+    taxonomyId: taxonomyId.value,
     name: '',
     presentation: '',
     description: '',
     slug: '',
     position: 0,
-    hide_from_nav: false,
-    parent_id: parentIdParam.value || null,
+    hideFromNav: false,
+    parentId: parentIdParam.value || null,
     automatic: false,
-    rules_match_policy: 'all',
-    sort_order: 'manual',
-    meta_title: '',
-    meta_description: '',
-    meta_keywords: '',
+    rulesMatchPolicy: 'all',
+    sortOrder: 'manual',
+    metaTitle: '',
+    metaDescription: '',
+    metaKeywords: '',
   },
 })
 
@@ -63,13 +63,13 @@ const [presentation] = defineField('presentation')
 const [description] = defineField('description')
 const [slug] = defineField('slug')
 const [position] = defineField('position')
-const [hide_from_nav] = defineField('hide_from_nav')
+const [hideFromNav] = defineField('hideFromNav')
 const [automatic] = defineField('automatic')
-const [rules_match_policy] = defineField('rules_match_policy')
-const [sort_order] = defineField('sort_order')
-const [meta_title] = defineField('meta_title')
-const [meta_description] = defineField('meta_description')
-const [meta_keywords] = defineField('meta_keywords')
+const [rulesMatchPolicy] = defineField('rulesMatchPolicy')
+const [sortOrder] = defineField('sortOrder')
+const [metaTitle] = defineField('metaTitle')
+const [metaDescription] = defineField('metaDescription')
+const [metaKeywords] = defineField('metaKeywords')
 
 const public_metadata = ref<Record<string, any>>({})
 const private_metadata = ref<Record<string, any>>({})
@@ -93,23 +93,21 @@ const loadData = async () => {
     const result = await taxonService.getById(taxonId.value)
     if (result.success && result.data) {
       setValues({
-        taxonomy_id: result.data.taxonomy_id,
+        taxonomyId: result.data.taxonomyId,
         name: result.data.name,
         presentation: result.data.presentation,
         description: result.data.description || '',
         slug: result.data.slug,
         position: result.data.position,
-        hide_from_nav: result.data.hide_from_nav,
-        parent_id: result.data.parent_id as any,
+        hideFromNav: result.data.hideFromNav,
+        parentId: result.data.parentId as any,
         automatic: result.data.automatic,
-        rules_match_policy: result.data.rules_match_policy as any,
-        sort_order: result.data.sort_order,
-        meta_title: result.data.meta_title || '',
-        meta_description: result.data.meta_description || '',
-        meta_keywords: result.data.meta_keywords || '',
+        rulesMatchPolicy: result.data.rulesMatchPolicy as any,
+        sortOrder: result.data.sortOrder,
+        metaTitle: result.data.metaTitle || '',
+        metaDescription: result.data.metaDescription || '',
+        metaKeywords: result.data.metaKeywords || '',
       })
-      public_metadata.value = result.data.public_metadata || {}
-      private_metadata.value = result.data.private_metadata || {}
       
       if (result.data.automatic) {
         await taxonStore.fetchRules(taxonomyId.value, taxonId.value)
@@ -121,24 +119,22 @@ const loadData = async () => {
   } else {
       resetForm({
           values: {
-              taxonomy_id: taxonomyId.value,
+              taxonomyId: taxonomyId.value,
               name: '',
               presentation: '',
               description: '',
               slug: '',
               position: 0,
-              hide_from_nav: false,
-              parent_id: parentIdParam.value || null,
+              hideFromNav: false,
+              parentId: parentIdParam.value || null,
               automatic: false,
-              rules_match_policy: 'all',
-              sort_order: 'manual',
-              meta_title: '',
-              meta_description: '',
-              meta_keywords: '',
+              rulesMatchPolicy: 'all',
+              sortOrder: 'manual',
+              metaTitle: '',
+              metaDescription: '',
+              metaKeywords: '',
           }
       })
-      public_metadata.value = {}
-      private_metadata.value = {}
   }
   
   initialLoading.value = false
@@ -152,12 +148,10 @@ onMounted(() => {
   loadData()
 })
 
-const onFormSubmit = handleSubmit(async (values) => {
+const onFormSubmit = handleSubmit(async (values: any) => {
   actionLoading.value = true
   const payload = {
     ...values,
-    public_metadata: public_metadata.value,
-    private_metadata: private_metadata.value,
   }
 
   const result = isEdit.value
@@ -274,7 +268,7 @@ const goBack = () => router.push({ name: 'catalog.taxa.manager', params: { taxon
 
                                     <div class="p-4 bg-surface-50 dark:bg-surface-800/50 rounded-2xl border border-surface-100 dark:border-surface-800 flex items-center justify-between mt-2">
                                         <span class="font-bold text-sm">{{ t.labels?.hide_from_nav }}</span>
-                                        <ToggleSwitch v-model="hide_from_nav" />
+                                        <ToggleSwitch v-model="hideFromNav" />
                                     </div>
 
                                     <!-- Automatic Collection hidden for now -->
@@ -297,11 +291,11 @@ const goBack = () => router.push({ name: 'catalog.taxa.manager', params: { taxon
                             <div class="flex flex-col gap-6">
                                 <div class="flex flex-col gap-2">
                                     <label class="font-bold text-xs uppercase text-surface-500">{{ t.labels?.meta_title }}</label>
-                                    <InputText v-model="meta_title" class="w-full rounded-xl" :placeholder="t.placeholders?.meta_title" />
+                                    <InputText v-model="metaTitle" class="w-full rounded-xl" :placeholder="t.placeholders?.meta_title" />
                                 </div>
                                 <div class="flex flex-col gap-2">
                                     <label class="font-bold text-xs uppercase text-surface-500">{{ t.labels?.meta_description }}</label>
-                                    <Textarea v-model="meta_description" rows="3" class="w-full rounded-xl" :placeholder="t.placeholders?.meta_description" />
+                                    <Textarea v-model="metaDescription" rows="3" class="w-full rounded-xl" :placeholder="t.placeholders?.meta_description" />
                                 </div>
                             </div>
                         </TabPanel>

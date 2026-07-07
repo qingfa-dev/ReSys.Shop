@@ -1,27 +1,17 @@
 import { defineStore } from 'pinia';
-import { ref } from 'vue';
 import { useToast } from '@/shared/composables/toast.use';
+import { usePagedList } from '@/shared/composables/paged-list.use';
 import { fulfillmentService } from '@/features/ordering/fulfillment/services/fulfillment.service';
 import type { OrderListItem } from '../../types/order.types';
+import type { ServerQueryingParameters } from '@/shared/api/types/query-params.types';
 
 export const useFulfillmentStore = defineStore('fulfillment', () => {
   const { showToast } = useToast();
-  const queue = ref<OrderListItem[]>([]);
-  const loading = ref(false);
-  const total_count = ref(0);
 
-  async function fetchQueue() {
-    loading.value = true;
-    try {
-      const result = await fulfillmentService.getQueue({ page: 1, page_size: 50 });
-      if (result.success && result.data) {
-        queue.value = result.data;
-        total_count.value = result.meta?.total_count || 0;
-      }
-    } finally {
-      loading.value = false;
-    }
-  }
+  const { items: queue, loading, totalRecords: totalCount, fetch: fetchQueue } = usePagedList<OrderListItem, ServerQueryingParameters>(
+    (p) => fulfillmentService.getQueue(p),
+    { page: 1, pageSize: 50 },
+  );
 
   async function shipOrder(id: string, trackingNumber: string) {
     loading.value = true;
@@ -42,7 +32,7 @@ export const useFulfillmentStore = defineStore('fulfillment', () => {
   return {
     queue,
     loading,
-    total_count,
+    totalCount,
     fetchQueue,
     shipOrder
   };

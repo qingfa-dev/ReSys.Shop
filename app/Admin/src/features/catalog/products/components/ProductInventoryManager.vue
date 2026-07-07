@@ -34,7 +34,7 @@ const loadData = async () => {
         // 1. Load Variants using Service
         const varResult = await variantService.listByProductId(props.productId);
         if (varResult.success && varResult.data) {
-            variants.value = varResult.data.items || [];
+            variants.value = varResult.data || [];
         }
 
         // 2. Load Stock Items using inventoryService

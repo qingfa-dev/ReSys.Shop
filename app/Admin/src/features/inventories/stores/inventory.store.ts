@@ -26,30 +26,27 @@ export const useInventoryStore = defineStore('inventory', () => {
 
   const stockQuery = ref<InventorySearchParams>({
     page: 1,
-    page_size: 10,
+    pageSize: 10,
     search: '',
-    sort_by: 'quantity_on_hand',
-    is_descending: true
+    sort: ['-countOnHand']
   });
 
   const locationQuery = ref<InventorySearchParams>({
     page: 1,
-    page_size: 20,
-    sort_by: 'name'
+    pageSize: 20,
+    sort: ['name']
   });
 
   const transferQuery = ref<InventorySearchParams>({
     page: 1,
-    page_size: 10,
-    sort_by: 'created_at',
-    is_descending: true
+    pageSize: 10,
+    sort: ['-createdAtUtc']
   });
 
   const unitQuery = ref<InventoryUnitSearchParams>({
     page: 1,
-    page_size: 20,
-    sort_by: 'created_at',
-    is_descending: true
+    pageSize: 20,
+    sort: ['-createdAtUtc']
   });
 
   // --- ACTIONS ---
@@ -61,7 +58,7 @@ export const useInventoryStore = defineStore('inventory', () => {
       const result = await inventoryService.listStocks(stockQuery.value);
       if (result.success && result.data) {
         stocks.value = result.data;
-        totalStocks.value = result.meta?.total_count || 0;
+        totalStocks.value = result.meta?.totalCount || 0;
       }
       return result;
     } finally {
@@ -76,7 +73,7 @@ export const useInventoryStore = defineStore('inventory', () => {
       const result = await inventoryService.listLocations(locationQuery.value);
       if (result.success && result.data) {
         locations.value = result.data;
-        totalLocations.value = result.meta?.total_count || 0;
+        totalLocations.value = result.meta?.totalCount || 0;
       }
       return result;
     } finally {
@@ -96,7 +93,7 @@ export const useInventoryStore = defineStore('inventory', () => {
       const result = await inventoryService.listTransfers(transferQuery.value);
       if (result.success && result.data) {
         transfers.value = result.data;
-        totalTransfers.value = result.meta?.total_count || 0;
+        totalTransfers.value = result.meta?.totalCount || 0;
       }
       return result;
     } finally {
@@ -111,7 +108,7 @@ export const useInventoryStore = defineStore('inventory', () => {
       const result = await inventoryService.listInventoryUnits(unitQuery.value);
       if (result.success && result.data) {
         units.value = result.data;
-        totalUnits.value = result.meta?.total_count || 0;
+        totalUnits.value = result.meta?.totalCount || 0;
       }
       return result;
     } finally {

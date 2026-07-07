@@ -36,6 +36,6 @@ const authStore = useAuthStore()
 const { user } = storeToRefs(authStore)
 const userData = computed(() => user.value as Record<string, unknown> | null)
 const userName = computed(() => String(userData.value?.name ?? userData.value?.sub ?? '—'))
-const rolesCount = computed(() => ((userData.value?.role_names ?? userData.value?.roles) as any[] | undefined)?.length ?? 0)
+const rolesCount = computed(() => ((userData.value?.roleNames ?? userData.value?.roles) as any[] | undefined)?.length ?? 0)
 const permissionsCount = computed(() => ((userData.value?.permissions as any[] | undefined)?.length ?? 0))
 </script>

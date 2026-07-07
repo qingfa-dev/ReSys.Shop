@@ -21,18 +21,18 @@ onMounted(async () => {
     loading.value = true;
     try {
         // 1. Get Role details (using list workaround again or I should fix service)
-        const rolesRes = await roleService.listRoles({ page_size: 100 });
+        const rolesRes = await roleService.list({ pageSize: 100 });
         if (rolesRes.success && rolesRes.data) {
-            const role = rolesRes.data.items.find(r => r.id === roleId.value);
+            const role = rolesRes.data.find(r => r.id === roleId.value);
             if (role) {
-                roleName.value = role.display_name || role.name;
+                roleName.value = role.displayName || role.name;
                 
                 // 2. Get All Permissions
                 // We use a large page size to get all. Ideally we should have a non-paged endpoint or search.
-                const permsRes = await permissionService.listPermissions({ page_size: 1000 });
+                const permsRes = await permissionService.list({ pageSize: 1000 });
                 
                 if (permsRes.success && permsRes.data) {
-                    const allPerms = permsRes.data.items;
+                    const allPerms = permsRes.data;
                     
                     // Temporary: I will assume I can get them.
                     // If not, this view will need backend work.
@@ -51,7 +51,7 @@ onMounted(async () => {
 async function onSave() {
     saving.value = true;
     try {
-        const permissionNames = selection.value[1].map(p => p.name);
+        const permissionNames = selection.value[1].map(p => p.identifier);
         const res = await roleService.syncPermissions(roleId.value, permissionNames);
         if (res.success) {
             showToast('success', 'Saved', 'Permissions updated successfully');
@@ -85,7 +85,7 @@ async function onSave() {
         </div>
 
         <div v-else>
-            <PickList v-model="selection" dataKey="name" breakpoint="1400px">
+            <PickList v-model="selection" dataKey="identifier" breakpoint="1400px">
                 <template #sourceheader>
                     <div class="font-bold p-2">Available Permissions</div>
                 </template>
@@ -94,10 +94,10 @@ async function onSave() {
                 </template>
                 <template #item="slotProps">
                     <div class="flex flex-col p-2">
-                        <span class="font-bold text-sm">{{ slotProps.item.display_name }}</span>
+                        <span class="font-bold text-sm">{{ slotProps.item.name }}</span>
                         <div class="flex items-center gap-2 mt-1">
-                            <Tag :value="slotProps.item.module" class="text-[10px]" severity="secondary" />
-                            <small class="text-surface-500 truncate">{{ slotProps.item.name }}</small>
+                            <Tag :value="slotProps.item.action" class="text-[10px]" severity="secondary" />
+                            <small class="text-surface-500 truncate">{{ slotProps.item.identifier }}</small>
                         </div>
                     </div>
                 </template>

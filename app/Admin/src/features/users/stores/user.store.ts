@@ -22,10 +22,9 @@ export const useUserStore = defineStore('user', () => {
 
   const query = ref<UserSearchParams>({
     page: 1,
-    page_size: 10,
+    pageSize: 10,
     search: '',
-    sort_by: 'created_at',
-    is_descending: true
+    sort: ['-createdAtUtc']
   });
 
   const totalRecords = ref(0);
@@ -35,10 +34,10 @@ export const useUserStore = defineStore('user', () => {
     loading.value = true;
     query.value = { ...query.value, ...params };
     try {
-      const result = await userService.listAdmins(query.value);
+      const result = await userService.list(query.value);
       if (result.success && result.data) {
         admins.value = result.data;
-        totalRecords.value = result.meta?.total_count || 0;
+        totalRecords.value = result.meta?.totalCount || 0;
       }
       return result;
     } finally {
@@ -53,7 +52,7 @@ export const useUserStore = defineStore('user', () => {
       const result = await userService.listCustomers(query.value);
       if (result.success && result.data) {
         customers.value = result.data;
-        totalRecords.value = result.meta?.total_count || 0;
+        totalRecords.value = result.meta?.totalCount || 0;
       }
       return result;
     } finally {
@@ -64,7 +63,7 @@ export const useUserStore = defineStore('user', () => {
   async function createAdmin(data: CreateAdminUserRequest) {
     submitting.value = true;
     try {
-      const result = await userService.createAdmin(data);
+      const result = await userService.create(data);
       if (result.success) {
         showToast('success', 'Created', 'Staff account created');
         await fetchAdmins();
@@ -78,7 +77,7 @@ export const useUserStore = defineStore('user', () => {
   async function deleteAdmin(id: string) {
     loading.value = true;
     try {
-      const result = await userService.deleteAdmin(id);
+      const result = await userService.delete(id);
       if (result.success) {
         showToast('success', 'Deleted', 'Staff account removed');
         await fetchAdmins();

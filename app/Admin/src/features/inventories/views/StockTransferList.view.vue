@@ -21,15 +21,15 @@ onMounted(() => {
 const onPage = (event: DataTablePageEvent) => {
     store.fetchTransfers({
         page: event.page !== undefined ? event.page + 1 : 1,
-        page_size: event.rows,
+        pageSize: event.rows,
     });
 };
 
-const getStatusSeverity = (status: string) => {
-    switch (status) {
+const getStatusSeverity = (state: string) => {
+    switch (state) {
         case 'Received': return 'success';
-        case 'Shipped': return 'info';
-        case 'Pending': return 'warning';
+        case 'InTransit': return 'info';
+        case 'Draft': return 'warning';
         case 'Canceled': return 'danger';
         default: return 'secondary';
     }
@@ -58,7 +58,7 @@ const getStatusSeverity = (status: string) => {
                     :loading="loading" 
                     :lazy="true" 
                     :paginator="true" 
-                    :rows="transferQuery.page_size || 10" 
+                    :rows="transferQuery.pageSize || 10" 
                     :totalRecords="totalTransfers" 
                     @page="onPage"
                     dataKey="id"
@@ -74,31 +74,31 @@ const getStatusSeverity = (status: string) => {
                         </div>
                     </template>
 
-                    <Column field="reference_number" :header="t.table.reference">
+                    <Column field="referenceNumber" :header="t.table.reference">
                         <template #body="{ data }">
-                            <span class="font-mono font-bold">{{ data.reference_number }}</span>
+                            <span class="font-mono font-bold">{{ data.referenceNumber }}</span>
                         </template>
                     </Column>
 
                     <Column :header="t.table.location">
                         <template #body="{ data }">
                             <div class="flex items-center gap-3">
-                                <span class="font-medium">{{ data.source_location_name }}</span>
+                                <span class="font-medium">{{ data.sourceLocationName }}</span>
                                 <i class="pi pi-arrow-right text-surface-300"></i>
-                                <span class="font-medium text-primary">{{ data.destination_location_name }}</span>
+                                <span class="font-medium text-primary">{{ data.destinationLocationName }}</span>
                             </div>
                         </template>
                     </Column>
 
-                    <Column field="status" :header="t.table.status" class="text-center">
+                    <Column field="state" :header="t.table.status" class="text-center">
                         <template #body="{ data }">
-                            <Tag :value="data.status" :severity="getStatusSeverity(data.status)" rounded class="px-3" />
+                            <Tag :value="data.state" :severity="getStatusSeverity(data.state)" rounded class="px-3" />
                         </template>
                     </Column>
 
-                    <Column field="created_at" header="Initiated">
+                    <Column field="createdAtUtc" header="Initiated">
                         <template #body="{ data }">
-                            <span class="text-sm">{{ formatDate(data.created_at) }}</span>
+                            <span class="text-sm">{{ formatDate(data.createdAtUtc) }}</span>
                         </template>
                     </Column>
 

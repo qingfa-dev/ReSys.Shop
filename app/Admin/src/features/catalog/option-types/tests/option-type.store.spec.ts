@@ -6,7 +6,7 @@ import { optionTypeService } from '../services/option-type.service';
 // Mock service
 vi.mock('../services/option-type.service', () => ({
   optionTypeService: {
-    getList: vi.fn(),
+    list: vi.fn(),
     getById: vi.fn(),
     create: vi.fn(),
     update: vi.fn(),
@@ -29,14 +29,14 @@ describe('OptionTypeStore', () => {
       const mockResponse = {
         success: true,
         data: mockData,
-        meta: { total_count: 1, page_count: 1 }
+        meta: { totalCount: 1, page_count: 1 }
       };
 
-      vi.mocked(optionTypeService.getList).mockResolvedValue(mockResponse as any);
+      vi.mocked(optionTypeService.list).mockResolvedValue(mockResponse as any);
 
       await store.fetchList();
 
-      expect(optionTypeService.getList).toHaveBeenCalled();
+      expect(optionTypeService.list).toHaveBeenCalled();
       expect(store.items).toEqual(mockData);
       expect(store.totalRecords).toBe(1);
       expect(store.loading).toBe(false);
@@ -44,7 +44,7 @@ describe('OptionTypeStore', () => {
 
     it('should handle errors gracefully', async () => {
       const store = useOptionTypeStore();
-      vi.mocked(optionTypeService.getList).mockResolvedValue({ success: false, error: { title: 'Err' } } as any);
+      vi.mocked(optionTypeService.list).mockResolvedValue({ success: false, error: { title: 'Err' } } as any);
 
       await store.fetchList();
 

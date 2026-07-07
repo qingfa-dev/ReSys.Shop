@@ -1,5 +1,5 @@
-import apiClient from '@/shared/api/api.client';
-import type { ApiResult } from '@/shared/api/api.types';
+import apiClient from '@/shared/api/http/api.client';
+import type { ApiResult } from '@/shared/api/types/api.types';
 
 export interface GlobalSearchResult {
     type: 'Product' | 'Order' | 'User';

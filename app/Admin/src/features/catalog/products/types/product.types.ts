@@ -1,29 +1,33 @@
+import type { ServerQueryingParameters } from '@/shared/api/types/query-params.types'
 import type { VariantSummary } from './variant.types';
+
+export type ProductStatus = 'Draft' | 'Active' | 'Archived';
+export type VariantImageType = 'Default' | 'Thumbnail' | 'Square' | 'Gallery' | 'Search';
 
 export interface ProductImage {
   id: string;
-  product_id: string;
-  variant_id: string | null;
+  productId: string;
+  variantId: string | null;
   url: string;
   alt: string | null;
   position: number;
   role: number;
-  status: 'Pending' | 'Processing' | 'Processed' | 'Failed';
-  file_size: number | null;
+  status: VariantImageType | null;
+  fileSize: number | null;
   width: number | null;
   height: number | null;
-  is_default: boolean; 
+  isDefault: boolean;
 }
 
 export interface ProductClassification {
   id: string;
-  product_id: string;
-  taxon_id: string;
+  productId: string;
+  taxonId: string;
   position: number;
-  is_automatic: boolean;
-  is_main: boolean;
-  taxon_name?: string;
-  taxonomy_name?: string;
+  isAutomatic: boolean;
+  isMain: boolean;
+  taxonName?: string;
+  taxonomyName?: string;
 }
 
 export interface ProductProperty {
@@ -41,26 +45,21 @@ export interface ProductSummary {
   description: string | null;
   sku: string | null;
   price: number;
-  is_active: boolean;
-  is_visible: boolean;
-  is_digital: boolean;
-  image_url: string | null;
-  variant_count: number;
-  created_at: string;
-  updated_at: string | null;
+  status: ProductStatus;
+  imageUrl: string | null;
+  variantsCount: number;
+  createdAtUtc: string;
+  modifiedAtUtc: string | null;
 }
 
 export interface ProductDetail extends ProductSummary {
-  meta_title: string | null;
-  meta_description: string | null;
-  meta_keywords: string | null;
+  metaTitle: string | null;
+  metaDescription: string | null;
+  metaKeywords: string | null;
   weight: number | null;
   height: number | null;
   width: number | null;
   depth: number | null;
-  brand: string | null;
-  public_metadata: Record<string, any>;
-  private_metadata: Record<string, any>;
   variants: VariantSummary[];
   classifications: ProductClassification[];
   properties: ProductProperty[];
@@ -73,16 +72,16 @@ export interface CreateProductRequest {
   description?: string;
   price: number;
   sku?: string;
-  is_active: boolean;
-  is_visible: boolean;
+  availableOn?: string;
+  discontinueOn?: string;
+  trackInventory?: boolean;
   weight?: number | null;
   height?: number | null;
   width?: number | null;
   depth?: number | null;
-  brand?: string | null;
-  meta_title?: string | null;
-  meta_description?: string | null;
-  meta_keywords?: string | null;
+  metaTitle?: string | null;
+  metaDescription?: string | null;
+  metaKeywords?: string | null;
 }
 
 export interface UpdateProductRequest {
@@ -91,24 +90,20 @@ export interface UpdateProductRequest {
   description?: string;
   price?: number;
   sku?: string;
-  is_active?: boolean;
-  is_visible?: boolean;
+  availableOn?: string;
+  discontinueOn?: string;
+  trackInventory?: boolean;
   weight?: number | null;
   height?: number | null;
   width?: number | null;
   depth?: number | null;
-  brand?: string | null;
-  meta_title?: string | null;
-  meta_description?: string | null;
-  meta_keywords?: string | null;
+  metaTitle?: string | null;
+  metaDescription?: string | null;
+  metaKeywords?: string | null;
 }
 
-export interface ProductSearchParams {
-  page?: number;
-  page_size?: number;
-  search?: string;
-  is_active?: boolean;
-  sort_by?: string;
-  is_descending?: boolean;
-  filter?: string;
+export interface ProductSearchParams extends ServerQueryingParameters {
+  status?: string
+  taxonId?: string
+  season?: string
 }

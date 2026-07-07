@@ -161,7 +161,7 @@ const getStatusSeverity = (status: string) => {
                         </div>
                     </template>
                     <template #content>
-                        <DataTable :value="current_order.line_items" class="p-datatable-sm" stripedRows showGridlines>
+                        <DataTable :value="current_order.lineItems" class="p-datatable-sm" stripedRows showGridlines>
                             <Column header="Product">
                                 <template #body="{ data }">
                                     <div class="flex items-center gap-3">
@@ -172,28 +172,28 @@ const getStatusSeverity = (status: string) => {
                                     </div>
                                 </template>
                             </Column>
-                            <Column field="unit_price_cents" header="Price">
-                                <template #body="{ data }">{{ formatCurrency(data.unit_price_cents / 100) }}</template>
+                            <Column field="unitPriceCents" header="Price">
+                                <template #body="{ data }">{{ formatCurrency(data.unitPriceCents / 100) }}</template>
                             </Column>
                             <Column field="quantity" header="Qty" class="text-center"></Column>
-                            <Column field="total_cents" header="Total" class="text-right font-bold">
-                                <template #body="{ data }">{{ formatCurrency(data.total_cents / 100) }}</template>
+                            <Column field="totalCents" header="Total" class="text-right font-bold">
+                                <template #body="{ data }">{{ formatCurrency(data.totalCents / 100) }}</template>
                             </Column>
                         </DataTable>
 
                         <div class="flex flex-col gap-3 mt-10 pt-6 border-t border-surface-100 dark:border-surface-800 max-w-sm ml-auto">
                             <div class="flex justify-between">
                                 <span class="text-surface-500 font-medium uppercase text-xs tracking-widest">Subtotal</span>
-                                <span class="font-bold">{{ formatCurrency(current_order.item_total_cents / 100) }}</span>
+                                <span class="font-bold">{{ formatCurrency(current_order.itemTotalCents / 100) }}</span>
                             </div>
                             <div class="flex justify-between">
                                 <span class="text-surface-500 font-medium uppercase text-xs tracking-widest">Shipping</span>
-                                <span class="font-bold">{{ formatCurrency(current_order.shipment_total_cents / 100) }}</span>
+                                <span class="font-bold">{{ formatCurrency(current_order.shipmentTotalCents / 100) }}</span>
                             </div>
                             <Divider />
                             <div class="flex justify-between items-center">
                                 <span class="text-xl font-black">TOTAL</span>
-                                <span class="text-4xl font-black text-primary">{{ formatCurrency(current_order.total_cents / 100) }}</span>
+                                <span class="text-4xl font-black text-primary">{{ formatCurrency(current_order.totalCents / 100) }}</span>
                             </div>
                         </div>
                     </template>
@@ -217,12 +217,12 @@ const getStatusSeverity = (status: string) => {
                             </div>
                         </template>
                         <template #content>
-                            <div v-if="current_order.shipping_address" class="flex flex-col gap-1">
-                                <span class="font-bold">{{ current_order.shipping_address.firstname }} {{ current_order.shipping_address.lastname }}</span>
-                                <span>{{ current_order.shipping_address.address1 }}</span>
-                                <span v-if="current_order.shipping_address.address2">{{ current_order.shipping_address.address2 }}</span>
-                                <span>{{ current_order.shipping_address.zipcode }} {{ current_order.shipping_address.city }}</span>
-                                <span class="font-bold uppercase text-xs mt-2">{{ current_order.shipping_address.country_code }}</span>
+                            <div v-if="current_order.shippingAddress" class="flex flex-col gap-1">
+                                <span class="font-bold">{{ current_order.shippingAddress.firstName }} {{ current_order.shippingAddress.lastName }}</span>
+                                <span>{{ current_order.shippingAddress.address1 }}</span>
+                                <span v-if="current_order.shippingAddress.address2">{{ current_order.shippingAddress.address2 }}</span>
+                                <span>{{ current_order.shippingAddress.zipCode }} {{ current_order.shippingAddress.city }}</span>
+                                <span class="font-bold uppercase text-xs mt-2">{{ current_order.shippingAddress.countryCode }}</span>
                             </div>
                             <p v-else class="italic text-surface-400">No shipping address provided.</p>
                         </template>
@@ -244,12 +244,12 @@ const getStatusSeverity = (status: string) => {
                             </div>
                         </template>
                         <template #content>
-                            <div v-if="current_order.billing_address" class="flex flex-col gap-1">
-                                <span class="font-bold">{{ current_order.billing_address.firstname }} {{ current_order.billing_address.lastname }}</span>
-                                <span>{{ current_order.billing_address.address1 }}</span>
-                                <span v-if="current_order.billing_address.address2">{{ current_order.billing_address.address2 }}</span>
-                                <span>{{ current_order.billing_address.zipcode }} {{ current_order.billing_address.city }}</span>
-                                <span class="font-bold uppercase text-xs mt-2">{{ current_order.billing_address.country_code }}</span>
+                            <div v-if="current_order.billingAddress" class="flex flex-col gap-1">
+                                <span class="font-bold">{{ current_order.billingAddress.firstName }} {{ current_order.billingAddress.lastName }}</span>
+                                <span>{{ current_order.billingAddress.address1 }}</span>
+                                <span v-if="current_order.billingAddress.address2">{{ current_order.billingAddress.address2 }}</span>
+                                <span>{{ current_order.billingAddress.zipCode }} {{ current_order.billingAddress.city }}</span>
+                                <span class="font-bold uppercase text-xs mt-2">{{ current_order.billingAddress.countryCode }}</span>
                             </div>
                             <p v-else class="italic text-surface-400">No billing address provided.</p>
                         </template>
@@ -262,14 +262,14 @@ const getStatusSeverity = (status: string) => {
                             <div class="flex flex-col">
                                 <span class="font-bold text-sm">{{ event.description }}</span>
                                 <div class="flex items-center gap-2 mt-1">
-                                    <Tag :value="event.from_state || 'Initial'" severity="secondary" class="text-[10px]" />
+                                    <Tag :value="event.fromState || 'Initial'" severity="secondary" class="text-[10px]" />
                                     <i class="pi pi-arrow-right text-[10px] text-surface-400"></i>
-                                    <Tag :value="event.to_state" severity="primary" class="text-[10px]" />
+                                    <Tag :value="event.toState" severity="primary" class="text-[10px]" />
                                 </div>
                             </div>
                             <div class="flex flex-col items-end">
-                                <span class="text-xs text-surface-400 font-mono">{{ new Date(event.created_at).toLocaleString() }}</span>
-                                <small class="text-[10px] text-surface-500 uppercase font-bold tracking-tighter" v-if="event.triggered_by">BY: {{ event.triggered_by }}</small>
+                                <span class="text-xs text-surface-400 font-mono">{{ new Date(event.createdAtUtc).toLocaleString() }}</span>
+                                <small class="text-[10px] text-surface-500 uppercase font-bold tracking-tighter" v-if="event.triggeredBy">BY: {{ event.triggeredBy }}</small>
                             </div>
                         </div>
                         <p v-if="current_order.history.length === 0" class="text-sm italic text-surface-500 text-center py-4">No history events recorded.</p>
@@ -314,9 +314,9 @@ const getStatusSeverity = (status: string) => {
                             </div>
                             <div class="flex items-center gap-2 text-xs text-surface-500">
                                 <i class="pi pi-building"></i>
-                                <span>{{ shipment.stock_location_name || 'Warehouse TBD' }}</span>
+                                <span>{{ shipment.stockLocationName || 'Warehouse TBD' }}</span>
                             </div>
-                            <Button label="Track Package" icon="pi pi-map-marker" size="small" text class="mt-3 w-full" v-if="shipment.tracking_number" />
+                            <Button label="Track Package" icon="pi pi-map-marker" size="small" text class="mt-3 w-full" v-if="shipment.trackingNumber" />
                         </div>
                         <p v-if="current_order.shipments.length === 0" class="text-sm italic text-surface-500 text-center py-4">No shipments generated.</p>
                         <Button label="Create Manual Shipment" icon="pi pi-box" outlined class="w-full rounded-xl" v-if="current_order.state === 'Processing'" @click="showShipmentDialog = true" />
@@ -329,7 +329,7 @@ const getStatusSeverity = (status: string) => {
                             <div class="flex justify-between items-start mb-3">
                                 <div class="flex flex-col">
                                     <span class="text-xs text-surface-400 font-bold uppercase tracking-tighter">Method</span>
-                                    <span class="font-bold">{{ payment.method_type }}</span>
+                                    <span class="font-bold">{{ payment.methodType }}</span>
                                 </div>
                                 <div class="flex flex-col items-end gap-2">
                                     <Tag :value="payment.state" severity="success" class="text-[10px] uppercase font-black" />
@@ -347,9 +347,9 @@ const getStatusSeverity = (status: string) => {
                             <div class="flex justify-between items-end">
                                 <div class="flex flex-col">
                                     <span class="text-xs text-surface-400 font-bold uppercase tracking-tighter">Amount</span>
-                                    <span class="font-black text-xl text-primary">{{ formatCurrency(payment.amount_cents / 100) }}</span>
+                                    <span class="font-black text-xl text-primary">{{ formatCurrency(payment.amountCents / 100) }}</span>
                                 </div>
-                                <span class="text-[10px] text-surface-400 font-mono">{{ new Date(payment.created_at).toLocaleDateString() }}</span>
+                                <span class="text-[10px] text-surface-400 font-mono">{{ new Date(payment.createdAtUtc).toLocaleDateString() }}</span>
                             </div>
                         </div>
                          <p v-if="current_order.payments.length === 0" class="text-sm italic text-surface-500 text-center py-4">No payments captured.</p>
@@ -368,8 +368,8 @@ const getStatusSeverity = (status: string) => {
 
         <AddressDialog
             v-if="showAddressDialog && current_order"
-            :shippingAddress="current_order.shipping_address"
-            :billingAddress="current_order.billing_address"
+            :shippingAddress="current_order.shippingAddress"
+            :billingAddress="current_order.billingAddress"
             @save="onSaveAddresses"
             @close="showAddressDialog = false"
         />

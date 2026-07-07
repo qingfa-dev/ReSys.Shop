@@ -42,14 +42,13 @@ onMounted(() => {
 const onPage = (event: DataTablePageEvent) => {
     store.fetchStocks({
         page: event.page !== undefined ? event.page + 1 : 1,
-        page_size: event.rows,
+        pageSize: event.rows,
     });
 };
 
 const onSort = (event: DataTableSortEvent) => {
     store.fetchStocks({
-        sort_by: event.sortField as string,
-        is_descending: event.sortOrder === -1,
+        sort: [event.sortOrder === -1 ? `-${event.sortField as string}` : event.sortField as string],
         page: 1,
     });
 };
@@ -66,12 +65,12 @@ const clearFilters = () => {
     filters.value = {
         global: { value: null, matchMode: FilterMatchMode.CONTAINS },
     };
-    stockQuery.value.low_stock = false;
+    stockQuery.value.lowStock = false;
     onFilter();
 };
 
 const toggleLowStock = () => {
-    stockQuery.value.low_stock = !stockQuery.value.low_stock;
+    stockQuery.value.lowStock = !stockQuery.value.lowStock;
     store.fetchStocks();
 };
 </script>
@@ -99,16 +98,16 @@ const toggleLowStock = () => {
                     :loading="loading" 
                     :lazy="true" 
                     :paginator="true" 
-                    :rows="stockQuery.page_size || 10" 
+                    :rows="stockQuery.pageSize || 10" 
                     :totalRecords="totalStocks" 
                     @page="onPage"
                     @sort="onSort"
                     @filter="onFilter"
                     dataKey="id"
                     rowHover
-                    :first="((stockQuery.page || 1) - 1) * (stockQuery.page_size || 10)"
-                    :sortField="stockQuery.sort_by"
-                    :sortOrder="stockQuery.is_descending ? -1 : 1"
+                    :first="((stockQuery.page || 1) - 1) * (stockQuery.pageSize || 10)"
+                    :sortField="stockQuery.sort?.[0]?.replace(/^-/, '')"
+                    :sortOrder="stockQuery.sort?.[0]?.startsWith('-') ? -1 : 1"
                     filterDisplay="menu"
                     removableSort
                     scrollable
@@ -129,9 +128,9 @@ const toggleLowStock = () => {
                             <div class="flex items-center gap-2">
                                 <Button
                                     type="button"
-                                    :icon="stockQuery.low_stock ? 'pi pi-filter-fill' : 'pi pi-filter'"
-                                    :label="stockQuery.low_stock ? 'Low Stock Only' : 'All Stock'"
-                                    :severity="stockQuery.low_stock ? 'danger' : 'secondary'"
+                                    :icon="stockQuery.lowStock ? 'pi pi-filter-fill' : 'pi pi-filter'"
+                                    :label="stockQuery.lowStock ? 'Low Stock Only' : 'All Stock'"
+                                    :severity="stockQuery.lowStock ? 'danger' : 'secondary'"
                                     outlined
                                     @click="toggleLowStock"
                                     class="rounded-xl"
@@ -176,22 +175,22 @@ const toggleLowStock = () => {
                         </template>
                     </Column>
 
-                    <Column field="quantity_on_hand" :header="t.table.on_hand" sortable class="text-center">
+                    <Column field="countOnHand" :header="t.table.on_hand" sortable class="text-center">
                         <template #body="{ data }">
-                            <span class="font-black text-lg">{{ data.quantity_on_hand }}</span>
+                            <span class="font-black text-lg">{{ data.countOnHand }}</span>
                         </template>
                     </Column>
 
-                    <Column field="quantity_reserved" :header="t.table.reserved" sortable class="text-center">
+                    <Column field="quantityReserved" :header="t.table.reserved" sortable class="text-center">
                         <template #body="{ data }">
-                            <span class="text-surface-500">{{ data.quantity_reserved }}</span>
+                            <span class="text-surface-500">{{ data.quantityReserved }}</span>
                         </template>
                     </Column>
 
-                    <Column field="count_available" :header="t.table.available" sortable class="text-center">
+                    <Column field="countAvailable" :header="t.table.available" sortable class="text-center">
                         <template #body="{ data }">
-                            <Tag :value="data.count_available" 
-                                 :severity="data.count_available > 10 ? 'success' : (data.count_available > 0 ? 'warning' : 'danger')" 
+                            <Tag :value="data.countAvailable" 
+                                 :severity="data.countAvailable > 10 ? 'success' : (data.countAvailable > 0 ? 'warning' : 'danger')" 
                                  class="px-3 font-bold" />
                         </template>
                     </Column>

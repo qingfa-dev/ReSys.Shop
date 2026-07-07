@@ -9,7 +9,7 @@ const loading = ref(false);
 const totalRecords = ref(0);
 const query = ref({
     page: 1,
-    page_size: 50,
+    pageSize: 50,
     search: ''
 });
 
@@ -20,10 +20,10 @@ onMounted(() => {
 async function fetchPermissions() {
     loading.value = true;
     try {
-        const res = await permissionService.listPermissions(query.value);
+        const res = await permissionService.list(query.value);
         if (res.success && res.data) {
-            permissions.value = res.data.items;
-            totalRecords.value = res.data.total_count || 0;
+            permissions.value = res.data;
+            totalRecords.value = res.meta?.totalCount || 0;
         }
     } finally {
         loading.value = false;
@@ -32,7 +32,7 @@ async function fetchPermissions() {
 
 const onPage = (event: DataTablePageEvent) => {
     query.value.page = event.page !== undefined ? event.page + 1 : 1;
-    query.value.page_size = event.rows;
+    query.value.pageSize = event.rows;
     fetchPermissions();
 };
 </script>
@@ -52,7 +52,7 @@ const onPage = (event: DataTablePageEvent) => {
                 :loading="loading" 
                 lazy 
                 paginator 
-                :rows="query.page_size" 
+                :rows="query.pageSize" 
                 :totalRecords="totalRecords" 
                 @page="onPage"
                 rowGroupMode="subheader"

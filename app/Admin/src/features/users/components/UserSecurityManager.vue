@@ -57,7 +57,7 @@ async function onUnlock() {
 async function onVerify() {
     loading.value = true;
     try {
-        const res = await userService.verifyAccount(props.user.id, { verify_email: true, verify_phone: true });
+        const res = await userService.verifyAccount(props.user.id, { verifyEmail: true, verifyPhone: true });
         if (res.success) {
             showToast('success', 'Success', t.messages.verify_success || 'Account verified');
             emit('updated');
@@ -77,23 +77,23 @@ async function onVerify() {
             <div class="bg-surface-50 dark:bg-surface-900 p-6 rounded-2xl border border-surface-100 dark:border-surface-800 flex flex-col gap-4">
                 <div class="flex justify-between items-center pb-4 border-b border-surface-200 dark:border-surface-700">
                     <span class="text-surface-500 font-medium">{{ t.security.lockout_end }}</span>
-                    <span class="font-bold" v-if="user.lockout_end">{{ formatDate(user.lockout_end) }}</span>
+                    <span class="font-bold" v-if="user.lockoutEnd">{{ formatDate(user.lockoutEnd) }}</span>
                     <Tag v-else value="None" severity="success" rounded />
                 </div>
                 
                 <div class="flex justify-between items-center pb-4 border-b border-surface-200 dark:border-surface-700">
                     <span class="text-surface-500 font-medium">{{ t.security.failed_attempts }}</span>
-                    <Badge :value="user.access_failed_count || 0" :severity="(user.access_failed_count || 0) > 0 ? 'warning' : 'secondary'" />
+                    <Badge :value="user.accessFailedCount || 0" :severity="(user.accessFailedCount || 0) > 0 ? 'warning' : 'secondary'" />
                 </div>
 
                 <div class="flex justify-between items-center pb-4 border-b border-surface-200 dark:border-surface-700">
                     <span class="text-surface-500 font-medium">{{ t.security.email_verified }}</span>
-                    <Tag :value="user.email_confirmed ? 'Verified' : 'Pending'" :severity="user.email_confirmed ? 'success' : 'warning'" rounded />
+                    <Tag :value="user.emailConfirmed ? 'Verified' : 'Pending'" :severity="user.emailConfirmed ? 'success' : 'warning'" rounded />
                 </div>
 
                 <div class="flex justify-between items-center">
                     <span class="text-surface-500 font-medium">{{ t.security.phone_verified }}</span>
-                    <Tag :value="user.phone_number_confirmed ? 'Verified' : 'Pending'" :severity="user.phone_number_confirmed ? 'success' : 'warning'" rounded />
+                    <Tag :value="user.phoneNumberConfirmed ? 'Verified' : 'Pending'" :severity="user.phoneNumberConfirmed ? 'success' : 'warning'" rounded />
                 </div>
             </div>
         </div>
@@ -103,8 +103,8 @@ async function onVerify() {
             <h3 class="text-xl font-bold m-0">{{ t.security.actions_title }}</h3>
             <div class="flex flex-col gap-3">
                 <Button :label="t.actions.reset_password" icon="pi pi-key" severity="danger" outlined class="w-full justify-start rounded-xl" @click="onResetPassword" />
-                <Button :label="t.actions.unlock" icon="pi pi-lock-open" severity="warning" outlined class="w-full justify-start rounded-xl" @click="onUnlock" :disabled="!user.lockout_end" />
-                <Button :label="t.actions.verify" icon="pi pi-check-circle" severity="success" outlined class="w-full justify-start rounded-xl" @click="onVerify" :disabled="user.email_confirmed && user.phone_number_confirmed" />
+                <Button :label="t.actions.unlock" icon="pi pi-lock-open" severity="warning" outlined class="w-full justify-start rounded-xl" @click="onUnlock" :disabled="!user.lockoutEnd" />
+                <Button :label="t.actions.verify" icon="pi pi-check-circle" severity="success" outlined class="w-full justify-start rounded-xl" @click="onVerify" :disabled="user.emailConfirmed && user.phoneNumberConfirmed" />
             </div>
         </div>
     </div>

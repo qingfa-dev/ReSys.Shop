@@ -24,7 +24,7 @@ const currentProductVariants = ref<any[]>([]);
 const onSearchProduct = async (event: { query: string }) => {
     productsLoading.value = true;
     try {
-        const res = await productStore.fetchProducts({ search: event.query, page_size: 5 });
+        const res = await productStore.fetchProducts({ search: event.query, pageSize: 5 });
         if (res.success && res.data) {
             productResults.value = res.data;
         }
@@ -48,7 +48,7 @@ const onProductSelect = async (product: any) => {
 
 const onSelectVariant = (variant: any) => {
     emit('save', {
-        variant_id: variant.id,
+        variantId: variant.id,
         quantity: quantity.value
     });
 };

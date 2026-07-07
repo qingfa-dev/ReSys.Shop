@@ -28,4 +28,8 @@ export const generalLocales: GeneralLocales = {
     settings: 'Settings',
     logout: 'Logout',
   },
+  layout: {
+    search: 'Search...',
+    noResults: 'No results found',
+  },
 }

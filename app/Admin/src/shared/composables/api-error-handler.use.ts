@@ -1,5 +1,5 @@
-import type { ApiResult } from '@/shared/api/api.types'
-import { parseApiError } from '@/shared/api/api.utils'
+import type { ApiResult } from '@/shared/api/types/api.types'
+import { parseApiError } from '@/shared/api/utils/api.utils'
 import { useToast } from './toast.use'
 
 /**
@@ -65,7 +65,7 @@ export function useApiErrorHandler() {
       showToast('warn', toastTitle, toastDetail)
     } else {
       // 2. Handle Global Errors (409, 500, etc.)
-      const severity = apiError.status && apiError.status < 500 ? 'warn' : 'error'
+      const severity = apiError.statusCode && apiError.statusCode < 500 ? 'warn' : 'error'
       const baseTitle = apiError.title || locales?.errorTitle || 'Error'
       const toastTitle = apiError.error_code ? `${baseTitle} (${apiError.error_code})` : baseTitle
       const toastDetail = apiError.detail || locales?.genericError || 'An unexpected error occurred.'

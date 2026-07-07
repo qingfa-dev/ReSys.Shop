@@ -2,7 +2,7 @@ import { defineStore } from 'pinia';
 import { ref, computed } from 'vue';
 import { authService } from '../services/auth.service';
 import type { LoginRequest, AuthenticationResponse } from '../types/auth.types';
-import type { ApiResult } from '@/shared/api/api.types';
+import type { ApiResult } from '@/shared/api/types/api.types';
 import { jwtDecode } from 'jwt-decode';
 
 export const useAuthStore = defineStore('auth', () => {
@@ -61,7 +61,7 @@ export const useAuthStore = defineStore('auth', () => {
             }
         } catch (e) {
             console.error('Logout failed', e);
-            result = { success: false, error: { title: 'Logout Failed', status: 500 }, data: null as any };
+            result = { success: false, error: { title: 'Logout Failed', statusCode: 500, message: 'Logout Failed', detail: 'Logout Failed', isSuccess: false, errors: {}, error_code: undefined }, data: null as any };
         } finally {
             clearTokens();
             loading.value = false;

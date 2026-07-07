@@ -19,7 +19,7 @@ const fetchMovements = async () => {
     }
     loading.value = true;
     try {
-        const res = await inventoryService.listMovements({ stock_item_id: props.stockItemId, page_size: 50 });
+        const res = await inventoryService.listMovements({ stockItemId: props.stockItemId, pageSize: 50 });
         if (res.success && res.data) {
             movements.value = res.data;
         }
@@ -60,17 +60,17 @@ const getColor = (type: string) => {
 
         <Timeline v-else :value="movements" class="customized-timeline">
             <template #opposite="slotProps">
-                <small class="text-surface-500 font-mono">{{ formatDate(slotProps.item.created_at) }}</small>
+                <small class="text-surface-500 font-mono">{{ formatDate(slotProps.item.createdAtUtc) }}</small>
             </template>
             <template #marker="slotProps">
                 <span class="flex w-8 h-8 items-center justify-center bg-surface-100 dark:bg-surface-800 rounded-full shadow-sm">
-                    <i :class="[getIcon(slotProps.item.type), getColor(slotProps.item.type)]" class="text-xs"></i>
+                    <i :class="[getIcon(slotProps.item.action), getColor(slotProps.item.action)]" class="text-xs"></i>
                 </span>
             </template>
             <template #content="slotProps">
                 <div class="flex flex-col mb-6">
                     <div class="flex items-center gap-2">
-                        <span class="font-bold text-sm">{{ slotProps.item.type }}</span>
+                        <span class="font-bold text-sm">{{ slotProps.item.action }}</span>
                         <Tag :value="slotProps.item.quantity > 0 ? `+${slotProps.item.quantity}` : slotProps.item.quantity"
                              :severity="slotProps.item.quantity > 0 ? 'success' : 'danger'" class="text-[10px]" />
                     </div>
@@ -78,7 +78,7 @@ const getColor = (type: string) => {
                         {{ slotProps.item.reason }}
                     </p>
                     <div class="flex items-center gap-4 mt-2 text-[10px] text-surface-400 font-mono uppercase tracking-tighter">
-                        <span>Balance: {{ slotProps.item.balance_before }} → {{ slotProps.item.balance_after }}</span>
+                        <span>Previous Count: {{ slotProps.item.previousCountOnHand }}</span>
                         <span v-if="slotProps.item.reference">REF: {{ slotProps.item.reference }}</span>
                     </div>
                 </div>

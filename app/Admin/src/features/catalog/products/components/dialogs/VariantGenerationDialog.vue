@@ -7,8 +7,8 @@ import { productService } from '../../services/product.service';
 import { variantService } from '../../services/variant.service';
 import { productLocales as t } from '../../locales/product.locales';
 import { useToast } from '@/shared/composables/toast.use';
-import apiClient from '@/shared/api/api.client';
-import type { ApiResult } from '@/shared/api/api.types';
+import apiClient from '@/shared/api/http/api.client';
+import type { ApiResult } from '@/shared/api/types/api.types';
 
 const props = defineProps<{
     productId: string;
@@ -142,12 +142,10 @@ const confirmGeneration = async () => {
         // A bulk endpoint would be better for performance, but this is safer without backend changes.
         for (const variant of generatedPreview.value) {
             const payload = {
-                product_id: props.productId,
+                productId: props.productId,
                 sku: `${productStore.current_product?.sku || 'SKU'}-${variant.sku_suffix}`,
                 price: productStore.current_product?.price || 0,
                 option_values: variant.options.map((o: any) => o.id),
-                // Metadata to track origin?
-                public_metadata: { source: 'generator' }
             };
 
             // Strategy: Create Variant -> Add Option Values
@@ -156,7 +154,7 @@ const confirmGeneration = async () => {
             const createRes = await variantService.create(props.productId, {
                 sku: payload.sku,
                 price: payload.price,
-                track_inventory: true
+                trackInventory: true
             });
 
             if (createRes.success && createRes.data) {

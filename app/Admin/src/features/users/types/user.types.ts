@@ -1,77 +1,76 @@
 export interface AdminUserSummary {
   id: string;
   email: string;
-  user_name: string | null;
-  first_name: string | null;
-  last_name: string | null;
-  full_name: string | null;
-  role_names: string[];
-  is_active: boolean;
-  created_at: string;
+  userName: string | null;
+  firstName: string | null;
+  lastName: string | null;
+  fullName: string | null;
+  roleNames: string[];
+  isActive: boolean;
+  createdAtUtc: string;
   // Security Fields
-  phone_number?: string | null;
-  email_confirmed?: boolean;
-  phone_number_confirmed?: boolean;
-  access_failed_count?: number;
-  lockout_end?: string | null;
-  last_sign_in_at?: string | null;
-  last_ip_address?: string | null;
+  phoneNumber?: string | null;
+  emailConfirmed?: boolean;
+  phoneNumberConfirmed?: boolean;
+  accessFailedCount?: number;
+  lockoutEnd?: string | null;
+  lastSignInAtUtc?: string | null;
+  lastIpAddress?: string | null;
 }
 
 export interface RoleSummary {
   id: string;
   name: string;
-  display_name: string | null;
+  displayName: string | null;
   description: string | null;
   priority: number;
-  is_system_role: boolean;
-  is_default: boolean;
-  user_count: number;
+  isSystem: boolean;
+  isDefault: boolean;
+  userCount: number;
 }
 
 export interface PermissionSummary {
+  identifier: string;
   name: string;
-  display_name: string;
   description: string | null;
-  module: string;
+  action: string;
 }
 
 export interface CustomerSummary {
   id: string;
   email: string;
-  first_name: string | null;
-  last_name: string | null;
-  full_name: string | null;
-  order_count: number;
-  total_spent_cents: number;
-  is_active: boolean;
-  created_at: string;
+  firstName: string | null;
+  lastName: string | null;
+  fullName: string | null;
+  ordersCount: number;
+  totalSpent: number;
+  isActive: boolean;
+  createdAtUtc: string;
 }
 
-export interface UserSearchParams {
-  page?: number;
-  page_size?: number;
-  search?: string;
-  is_active?: boolean;
-  role?: string;
-  sort_by?: string;
-  is_descending?: boolean;
-  filter?: string;
+import type { ServerQueryingParameters } from '@/shared/api/types/query-params.types'
+
+export interface UserSearchParams extends ServerQueryingParameters {
+  isActive?: boolean
+  role?: string
 }
 
 export interface CreateAdminUserRequest {
   email: string;
-  first_name: string;
-  last_name: string;
+  firstName: string;
+  lastName: string;
   role: string[];
   password?: string;
+  phoneNumber?: string;
+  emailConfirmed?: boolean;
 }
 
 export interface UpdateAdminUserRequest {
-  first_name?: string;
-  last_name?: string;
+  firstName?: string;
+  lastName?: string;
   role?: string[];
-  is_active?: boolean;
+  isActive?: boolean;
+  phoneNumber?: string;
 }
 
 export interface ResetPasswordRequest {
@@ -79,19 +78,19 @@ export interface ResetPasswordRequest {
 }
 
 export interface VerifyUserRequest {
-  verify_email: boolean;
-  verify_phone: boolean;
+  verifyEmail: boolean;
+  verifyPhone: boolean;
 }
 
 export interface CreateRoleRequest {
   name: string;
-  display_name?: string;
+  displayName?: string;
   description?: string;
   priority: number;
 }
 
 export interface UpdateRoleRequest {
-  display_name?: string;
+  displayName?: string;
   description?: string;
   priority?: number;
 }

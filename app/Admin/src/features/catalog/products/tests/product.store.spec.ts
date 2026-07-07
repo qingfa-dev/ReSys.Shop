@@ -44,7 +44,7 @@ describe('ProductStore', () => {
     vi.mocked(productService.list).mockResolvedValue({
       success: true,
       data: mockData,
-      meta: { total_count: 1 } as any
+      meta: { totalCount: 1 } as any
     });
 
     await store.fetchProducts();
@@ -59,7 +59,7 @@ describe('ProductStore', () => {
     
     vi.mocked(productService.list).mockResolvedValue({
       success: false,
-      error: { title: 'Network Error' },
+      error: { title: 'Network Error', statusCode: 500, message: 'Network Error', detail: 'Network Error', isSuccess: false, errors: {}, error_code: undefined },
       data: null as any
     });
 

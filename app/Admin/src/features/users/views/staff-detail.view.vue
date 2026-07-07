@@ -30,7 +30,7 @@ onMounted(async () => {
 async function loadData() {
     loading.value = true;
     try {
-        const res = await userService.getAdminDetail(userId.value);
+        const res = await userService.getById(userId.value);
         if (res.success && res.data) {
             user.value = res.data;
             await loadPermissions();
@@ -56,10 +56,10 @@ function onEdit() {
 
 async function onToggleStatus() {
     if (!user.value) return;
-    const newStatus = !user.value.is_active;
+    const newStatus = !user.value.isActive;
     const res = await userService.updateAdminStatus(userId.value, newStatus);
     if (res.success) {
-        user.value.is_active = newStatus;
+        user.value.isActive = newStatus;
         showToast('success', 'Status Updated', `User is now ${newStatus ? 'active' : 'inactive'}`);
     }
 }
@@ -75,15 +75,15 @@ async function onToggleStatus() {
                 <div class="flex flex-col">
                     <div class="flex items-center gap-3">
                         <h2 class="text-4xl font-black tracking-tighter text-surface-900 dark:text-surface-50 m-0">
-                            {{ user.full_name || 'Staff Member' }}
+                            {{ user.fullName || 'Staff Member' }}
                         </h2>
-                        <Tag :value="user.is_active ? 'Active' : 'Inactive'" :severity="user.is_active ? 'success' : 'secondary'" rounded class="font-bold px-3" />
+                        <Tag :value="user.isActive ? 'Active' : 'Inactive'" :severity="user.isActive ? 'success' : 'secondary'" rounded class="font-bold px-3" />
                     </div>
                     <p class="text-sm text-surface-500 m-0 font-mono">{{ user.email }}</p>
                 </div>
             </div>
             <div class="flex items-center gap-3">
-                <Button :label="user.is_active ? 'Deactivate' : 'Activate'" :severity="user.is_active ? 'danger' : 'success'" outlined icon="pi pi-power-off" @click="onToggleStatus" class="rounded-xl px-6" />
+                <Button :label="user.isActive ? 'Deactivate' : 'Activate'" :severity="user.isActive ? 'danger' : 'success'" outlined icon="pi pi-power-off" @click="onToggleStatus" class="rounded-xl px-6" />
                 <Button :label="t.actions.edit" icon="pi pi-pencil" class="rounded-xl px-8 shadow-xl shadow-primary/20" @click="onEdit" />
             </div>
         </div>
@@ -127,15 +127,15 @@ async function onToggleStatus() {
                                     <div class="flex flex-col gap-4">
                                         <div class="flex flex-col">
                                             <label class="text-xs text-surface-400 uppercase font-bold mb-1">Username</label>
-                                            <span class="text-lg font-medium">{{ user.user_name || '-' }}</span>
+                                            <span class="text-lg font-medium">{{ user.userName || '-' }}</span>
                                         </div>
                                         <div class="flex flex-col">
                                             <label class="text-xs text-surface-400 uppercase font-bold mb-1">First Name</label>
-                                            <span class="text-lg font-medium">{{ user.first_name || '-' }}</span>
+                                            <span class="text-lg font-medium">{{ user.firstName || '-' }}</span>
                                         </div>
                                         <div class="flex flex-col">
                                             <label class="text-xs text-surface-400 uppercase font-bold mb-1">Last Name</label>
-                                            <span class="text-lg font-medium">{{ user.last_name || '-' }}</span>
+                                            <span class="text-lg font-medium">{{ user.lastName || '-' }}</span>
                                         </div>
                                     </div>
                                 </div>
@@ -144,15 +144,15 @@ async function onToggleStatus() {
                                     <div class="flex flex-col gap-4">
                                         <div class="flex flex-col">
                                             <label class="text-xs text-surface-400 uppercase font-bold mb-1">Joined Date</label>
-                                            <span class="text-lg font-medium">{{ formatDate(user.created_at) }}</span>
+                                            <span class="text-lg font-medium">{{ formatDate(user.createdAtUtc) }}</span>
                                         </div>
                                         <div class="flex flex-col">
                                             <label class="text-xs text-surface-400 uppercase font-bold mb-1">Last Sign In</label>
-                                            <span class="text-lg font-medium">{{ user.last_sign_in_at ? formatDate(user.last_sign_in_at) : 'Never' }}</span>
+                                            <span class="text-lg font-medium">{{ user.lastSignInAtUtc ? formatDate(user.lastSignInAtUtc) : 'Never' }}</span>
                                         </div>
                                         <div class="flex flex-col">
                                             <label class="text-xs text-surface-400 uppercase font-bold mb-1">Last Known IP</label>
-                                            <span class="text-lg font-medium font-mono text-surface-600">{{ user.last_ip_address || '-' }}</span>
+                                            <span class="text-lg font-medium font-mono text-surface-600">{{ user.lastIpAddress || '-' }}</span>
                                         </div>
                                     </div>
                                 </div>
@@ -161,7 +161,7 @@ async function onToggleStatus() {
 
                         <!-- Roles Panel -->
                         <TabPanel :value="1">
-                            <UserRoleManager :userId="user.id" :assignedRoles="user.role_names" @updated="loadData" />
+                            <UserRoleManager :userId="user.id" :assignedRoles="user.roleNames" @updated="loadData" />
                         </TabPanel>
 
                         <!-- Permissions Panel -->

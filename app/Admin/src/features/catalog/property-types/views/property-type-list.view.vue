@@ -15,7 +15,7 @@ import { PropertyKindOptions } from '../types/property-kind'
 
 const router = useRouter()
 const store = usePropertyTypeStore()
-const { items, loading, totalRecords, query } = storeToRefs(store)
+const { items, loading, totalRecords, params: query } = storeToRefs(store)
 const { showToast } = useToast()
 const confirm = useConfirm()
 
@@ -32,7 +32,7 @@ const loadItems = async () => {
 const onPage = (event: DataTablePageEvent) => {
   store.fetchList({
     page: event.page !== undefined ? event.page + 1 : 1,
-    page_size: event.rows
+    pageSize: event.rows
   })
 }
 
@@ -63,7 +63,7 @@ const onFilter = () => {
   
   store.fetchList({
     search: globalFilter.value || undefined,
-    search_field: globalFilter.value ? ['Name', 'Presentation'] : undefined,
+    searchFields: globalFilter.value ? ['Name', 'Presentation'] : undefined,
     filter: built.filter,
     page: 1
   })
@@ -147,8 +147,8 @@ onMounted(() => {
         :totalRecords="totalRecords"
         lazy
         paginator
-        :rows="query.page_size"
-        :first="((query.page || 1) - 1) * (query.page_size || 10)"
+        :rows="query.pageSize"
+        :first="((query.page || 1) - 1) * (query.pageSize || 10)"
         @page="onPage"
         @sort="onSort"
         @filter="onFilter"

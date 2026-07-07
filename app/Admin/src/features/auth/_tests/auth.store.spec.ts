@@ -106,7 +106,7 @@ describe('AuthStore', () => {
       const store = useAuthStore()
       const mockErrorResponse = {
         success: false as const,
-        error: { title: 'Invalid credentials', status: 400 },
+        error: { title: 'Invalid credentials', statusCode: 400, message: 'Invalid credentials', detail: 'Invalid credentials', isSuccess: false, errors: {}, error_code: undefined },
         data: null as any,
       }
 

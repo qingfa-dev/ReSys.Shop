@@ -18,10 +18,10 @@ const roleOptions = ref<{ label: string, value: string }[]>([]);
 
 const form = ref<CreateAdminUserRequest & UpdateAdminUserRequest>({
     email: '',
-    first_name: '',
-    last_name: '',
+    firstName: '',
+    lastName: '',
     role: [],
-    is_active: true, // Only for update/display
+    isActive: true, // Only for update/display
     password: '' // Only for create
 });
 
@@ -38,25 +38,25 @@ onMounted(async () => {
 });
 
 async function fetchRoles() {
-    const res = await roleService.listRoles({ page_size: 100 });
+    const res = await roleService.list({ pageSize: 100 });
     if (res.success && res.data) {
-        roleOptions.value = res.data.items.map(r => ({
-            label: r.display_name || r.name,
+        roleOptions.value = res.data.map(r => ({
+            label: r.displayName || r.name,
             value: r.name
         }));
     }
 }
 
 async function loadUser() {
-    const res = await userService.getAdminDetail(userId.value);
+    const res = await userService.getById(userId.value);
     if (res.success && res.data) {
         const user = res.data;
         form.value = {
             email: user.email,
-            first_name: user.first_name || '',
-            last_name: user.last_name || '',
-            role: user.role_names || [],
-            is_active: user.is_active
+            firstName: user.firstName || '',
+            lastName: user.lastName || '',
+            role: user.roleNames || [],
+            isActive: user.isActive
         };
     } else {
         showToast('error', 'Error', 'Failed to load user details');
@@ -69,12 +69,12 @@ async function onSubmit() {
     try {
         if (isEditMode.value) {
             const updateData: UpdateAdminUserRequest = {
-                first_name: form.value.first_name,
-                last_name: form.value.last_name,
+                firstName: form.value.firstName,
+                lastName: form.value.lastName,
                 role: form.value.role,
-                is_active: form.value.is_active
+                isActive: form.value.isActive
             };
-            const res = await userService.updateAdmin(userId.value, updateData);
+            const res = await userService.update(userId.value, updateData);
             if (res.success) {
                 showToast('success', 'Success', 'Staff member updated successfully');
                 router.push({ name: 'admin-users' });
@@ -82,12 +82,12 @@ async function onSubmit() {
         } else {
             const createData: CreateAdminUserRequest = {
                 email: form.value.email,
-                first_name: form.value.first_name,
-                last_name: form.value.last_name,
+                firstName: form.value.firstName,
+                lastName: form.value.lastName,
                 role: form.value.role,
                 password: form.value.password
             };
-            const res = await userService.createAdmin(createData);
+            const res = await userService.create(createData);
             if (res.success) {
                 showToast('success', 'Success', 'Staff member invited successfully');
                 router.push({ name: 'admin-users' });
@@ -134,12 +134,12 @@ async function onSubmit() {
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div class="field">
-                    <label for="first_name" class="font-bold block mb-2">First Name</label>
-                    <InputText id="first_name" v-model="form.first_name" class="w-full" required />
+                    <label for="firstName" class="font-bold block mb-2">First Name</label>
+                    <InputText id="firstName" v-model="form.firstName" class="w-full" required />
                 </div>
                 <div class="field">
-                    <label for="last_name" class="font-bold block mb-2">Last Name</label>
-                    <InputText id="last_name" v-model="form.last_name" class="w-full" required />
+                    <label for="lastName" class="font-bold block mb-2">Last Name</label>
+                    <InputText id="lastName" v-model="form.lastName" class="w-full" required />
                 </div>
             </div>
 
@@ -163,8 +163,8 @@ async function onSubmit() {
             <div v-if="isEditMode" class="field">
                 <label class="font-bold block mb-2">Account Status</label>
                 <div class="flex items-center gap-3">
-                    <InputSwitch v-model="form.is_active" inputId="is_active" />
-                    <label for="is_active" class="cursor-pointer">{{ form.is_active ? 'Active' : 'Inactive' }}</label>
+                    <InputSwitch v-model="form.isActive" inputId="isActive" />
+                    <label for="isActive" class="cursor-pointer">{{ form.isActive ? 'Active' : 'Inactive' }}</label>
                 </div>
             </div>
 

@@ -30,13 +30,13 @@ describe('FulfillmentStore', () => {
       vi.mocked(fulfillmentService.getQueue).mockResolvedValue({
         success: true,
         data: mockData,
-        meta: { total_count: 1 } as any
+        meta: { totalCount: 1 } as any
       });
 
       await store.fetchQueue();
 
       expect(store.queue).toEqual(mockData);
-      expect(store.total_count).toBe(1);
+      expect(store.totalCount).toBe(1);
       expect(store.loading).toBe(false);
     });
   });

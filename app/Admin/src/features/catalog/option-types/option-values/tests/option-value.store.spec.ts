@@ -36,7 +36,7 @@ describe('OptionValueStore', () => {
 
       await store.fetchValues('type-123');
 
-      expect(optionValueService.list).toHaveBeenCalledWith({ option_type_id: 'type-123' });
+      expect(optionValueService.list).toHaveBeenCalledWith({ optionTypeId: 'type-123' });
       expect(store.values).toHaveLength(2);
       expect(store.values[0]!.id).toBe('1'); // Sorted by position
     });
@@ -50,7 +50,7 @@ describe('OptionValueStore', () => {
       vi.mocked(optionValueService.list).mockResolvedValue({
         success: true,
         data: mockData,
-        meta: { total_count: 1 } as any
+        meta: { totalCount: 1 } as any
       } as any);
 
       await store.fetchList({ search: 'Blue' });
@@ -68,24 +68,24 @@ describe('OptionValueStore', () => {
       const newData = { name: 'Large', presentation: 'L', position: 3 };
       vi.mocked(optionValueService.create).mockResolvedValue({
         success: true,
-        data: { ...newData, id: '3', option_type_id: 'type-123' }
+        data: { ...newData, id: '3', optionTypeId: 'type-123' }
       } as any);
 
       const result = await store.create('type-123', newData);
 
-      expect(optionValueService.create).toHaveBeenCalledWith({ ...newData, option_type_id: 'type-123' });
+      expect(optionValueService.create).toHaveBeenCalledWith({ ...newData, optionTypeId: 'type-123' });
       expect(result.success).toBe(true);
       expect(store.values).toContainEqual(expect.objectContaining({ id: '3' }));
     });
 
     it('update should update local state', async () => {
       const store = useOptionValueStore();
-      store.values = [{ id: '1', option_type_id: 'type-123', name: 'Small', presentation: 'S', position: 1 }];
+      store.values = [{ id: '1', optionTypeId: 'type-123', name: 'Small', presentation: 'S', position: 1 }];
       
       const updatedData = { name: 'Small Updated', presentation: 'S!', position: 1 };
       vi.mocked(optionValueService.update).mockResolvedValue({
         success: true,
-        data: { id: '1', option_type_id: 'type-123', ...updatedData }
+        data: { id: '1', optionTypeId: 'type-123', ...updatedData }
       } as any);
 
       await store.update('1', updatedData);

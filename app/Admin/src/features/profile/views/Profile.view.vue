@@ -10,7 +10,7 @@ import { useToast } from '@/shared/composables/toast.use'
 const profileSchema = z.object({
   firstName: z.string().min(1, 'First name is required'),
   lastName: z.string().min(1, 'Last name is required'),
-  phone: z.string().default(''),
+  phoneNumber: z.string().default(''),
 })
 
 const store = useProfileStore()
@@ -22,20 +22,20 @@ const { defineField, errors, handleSubmit: submitForm, setValues, resetForm } = 
   initialValues: {
     firstName: '',
     lastName: '',
-    phone: '',
+    phoneNumber: '',
   },
 })
 
 const [firstName] = defineField('firstName')
 const [lastName] = defineField('lastName')
-const [phone] = defineField('phone')
+const [phoneNumber] = defineField('phoneNumber')
 
 watch(profile, (val) => {
   if (val) {
     setValues({
       firstName: val.firstName || '',
       lastName: val.lastName || '',
-      phone: val.phone || '',
+      phoneNumber: val.phoneNumber || '',
     })
   }
 })
@@ -93,9 +93,9 @@ onMounted(() => {
             </div>
 
             <div class="flex flex-col gap-2">
-              <label for="phone" class="font-bold text-sm">Phone</label>
-              <InputText id="phone" v-model="phone" class="w-full rounded-xl" :invalid="!!errors.phone" />
-              <small class="text-red-500 font-medium" v-if="errors.phone">{{ errors.phone }}</small>
+              <label for="phoneNumber" class="font-bold text-sm">Phone</label>
+              <InputText id="phoneNumber" v-model="phoneNumber" class="w-full rounded-xl" :invalid="!!errors.phoneNumber" />
+              <small class="text-red-500 font-medium" v-if="errors.phoneNumber">{{ errors.phoneNumber }}</small>
             </div>
 
             <Button
@@ -126,7 +126,7 @@ onMounted(() => {
             </div>
             <div class="flex flex-col">
               <span class="text-xs font-bold uppercase tracking-widest text-surface-400">Phone</span>
-              <span class="text-lg font-medium">{{ profile.phone || 'N/A' }}</span>
+              <span class="text-lg font-medium">{{ profile.phoneNumber || 'N/A' }}</span>
             </div>
           </div>
         </div>

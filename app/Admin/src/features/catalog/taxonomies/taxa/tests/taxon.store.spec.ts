@@ -22,8 +22,8 @@ describe('TaxonStore', () => {
   it('should build taxon tree correctly with unique keys', () => {
     const store = useTaxonStore();
     store.currentTaxons = [
-      { id: '1', name: 'Root', presentation: 'Root', parent_id: undefined, position: 0 } as any,
-      { id: '2', name: 'Child', presentation: 'Child', parent_id: '1', position: 0 } as any
+      { id: '1', name: 'Root', presentation: 'Root', parentId: undefined, position: 0 } as any,
+      { id: '2', name: 'Child', presentation: 'Child', parentId: '1', position: 0 } as any
     ];
 
     expect(store.taxonTree).toHaveLength(1);

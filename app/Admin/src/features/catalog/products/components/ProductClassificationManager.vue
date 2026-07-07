@@ -5,8 +5,8 @@ import { useTaxonomyStore } from '@/features/catalog/taxonomies/stores/taxonomy.
 import { storeToRefs } from 'pinia';
 import { useApiErrorHandler } from '@/shared/composables/api-error-handler.use';
 import { useToast } from '@/shared/composables/toast.use';
-import type { ApiResult } from '@/shared/api/api.types';
-import apiClient from '@/shared/api/api.client';
+import type { ApiResult } from '@/shared/api/types/api.types';
+import apiClient from '@/shared/api/http/api.client';
 import type { ProductClassification } from '../types/product.types';
 
 const props = defineProps<{
@@ -27,7 +27,7 @@ const loadHierarchy = async () => {
     loading.value = true;
     try {
         await productStore.fetchClassifications(props.productId);
-        await taxonomyStore.fetchTaxonomies({ page_size: 100 });
+        await taxonomyStore.fetchTaxonomies({ pageSize: 100 });
         
         // Fetch tree for each taxonomy
         for (const tax of taxonomies.value) {
@@ -55,7 +55,7 @@ onMounted(async () => {
 });
 
 const onToggleTaxon = async (taxonId: string) => {
-    const currentIds = current_classifications.value.map((c: ProductClassification) => c.taxon_id);
+    const currentIds = current_classifications.value.map((c: ProductClassification) => c.taxonId);
     const hasTaxon = currentIds.includes(taxonId);
     
     let newIds = [];
@@ -67,7 +67,7 @@ const onToggleTaxon = async (taxonId: string) => {
 
     const result = (await productStore.updateClassifications(props.productId, {
         taxon_ids: newIds,
-        main_taxon_id: current_classifications.value.find((c: ProductClassification) => c.is_main)?.taxon_id
+        main_taxon_id: current_classifications.value.find((c: ProductClassification) => c.isMain)?.taxonId
     })) as unknown as ApiResult<any>;
     
     if (result.success) {
@@ -79,7 +79,7 @@ const onToggleTaxon = async (taxonId: string) => {
 
 const onSetMain = async (taxonId: string) => {
     const result = (await productStore.updateClassifications(props.productId, {
-        taxon_ids: current_classifications.value.map((c: ProductClassification) => c.taxon_id),
+        taxon_ids: current_classifications.value.map((c: ProductClassification) => c.taxonId),
         main_taxon_id: taxonId
     })) as unknown as ApiResult<any>;
     
@@ -90,8 +90,8 @@ const onSetMain = async (taxonId: string) => {
     }
 };
 
-const isSelected = (taxonId: string) => current_classifications.value.some((c: ProductClassification) => c.taxon_id === taxonId);
-const isMain = (taxonId: string) => current_classifications.value.some((c: ProductClassification) => c.taxon_id === taxonId && c.is_main);
+const isSelected = (taxonId: string) => current_classifications.value.some((c: ProductClassification) => c.taxonId === taxonId);
+const isMain = (taxonId: string) => current_classifications.value.some((c: ProductClassification) => c.taxonId === taxonId && c.isMain);
 </script>
 
 <template>
@@ -109,7 +109,7 @@ const isMain = (taxonId: string) => current_classifications.value.some((c: Produ
             <div v-for="taxonomy in taxonomies" :key="taxonomy.id" class="bg-surface-50 dark:bg-surface-800/50 rounded-3xl border border-surface-100 dark:border-surface-800 flex flex-col overflow-hidden">
                 <div class="p-4 bg-surface-0 dark:bg-surface-900 border-b border-surface-100 dark:border-surface-800 flex items-center justify-between">
                     <span class="font-black text-sm uppercase tracking-tighter">{{ taxonomy.presentation || taxonomy.name }}</span>
-                    <Badge :value="taxonomy.taxon_count" severity="secondary" />
+                    <Badge :value="taxonomy.taxonsCount" severity="secondary" />
                 </div>
                 
                 <div class="p-4 overflow-y-auto max-h-[400px]">

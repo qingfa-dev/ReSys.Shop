@@ -35,16 +35,13 @@ const { defineField, handleSubmit, errors, setValues } = useForm({
         sku: '',
         price: 0,
         description: '',
-        is_active: true,
-        is_visible: true,
         weight: null,
         height: null,
         width: null,
         depth: null,
-        brand: '',
-        meta_title: '',
-        meta_description: '',
-        meta_keywords: '',
+        metaTitle: '',
+        metaDescription: '',
+        metaKeywords: '',
     }
 });
 
@@ -53,17 +50,16 @@ const [slug] = defineField('slug');
 const [sku] = defineField('sku');
 const [price] = defineField('price');
 const [description] = defineField('description');
-const [is_active] = defineField('is_active');
-const [is_visible] = defineField('is_visible');
 const [weight] = defineField('weight');
 const [height] = defineField('height');
 const [width] = defineField('width');
 const [depth] = defineField('depth');
-const [brand] = defineField('brand');
-const [meta_title] = defineField('meta_title');
-const [meta_description] = defineField('meta_description');
-const [meta_keywords] = defineField('meta_keywords');
+const [metaTitle] = defineField('metaTitle');
+const [metaDescription] = defineField('metaDescription');
+const [metaKeywords] = defineField('metaKeywords');
 
+const isActive = ref(true);
+const isVisible = ref(true);
 const public_metadata = ref<Record<string, any>>({});
 const private_metadata = ref<Record<string, any>>({});
 
@@ -77,43 +73,47 @@ onMounted(async () => {
     if (isEdit.value) {
         const result = await store.fetchProductById(productId.value);
         if (result.success && current_product.value) {
+            const p = current_product.value as any;
+            isActive.value = p.status === 'Active';
+            isVisible.value = true;
             setValues({
-                name: current_product.value.name,
-                slug: current_product.value.slug,
-                sku: current_product.value.sku || '',
-                price: current_product.value.price,
-                description: current_product.value.description || '',
-                is_active: current_product.value.is_active,
-                is_visible: current_product.value.is_visible,
-                weight: (current_product.value as any).weight,
-                height: (current_product.value as any).height,
-                width: (current_product.value as any).width,
-                depth: (current_product.value as any).depth,
-                brand: (current_product.value as any).brand || '',
-                meta_title: (current_product.value as any).meta_title || '',
-                meta_description: (current_product.value as any).meta_description || '',
-                meta_keywords: (current_product.value as any).meta_keywords || '',
+                name: p.name,
+                slug: p.slug,
+                sku: p.sku || '',
+                price: p.price,
+                description: p.description || '',
+                weight: p.weight,
+                height: p.height,
+                width: p.width,
+                depth: p.depth,
+                metaTitle: p.metaTitle || '',
+                metaDescription: p.metaDescription || '',
+                metaKeywords: p.metaKeywords || '',
             });
-            public_metadata.value = current_product.value.public_metadata || {};
-            private_metadata.value = current_product.value.private_metadata || {};
         }
     } else {
         store.current_product = null;
     }
 });
 
-const onSubmit = handleSubmit(async (values) => {
+const onSubmit = handleSubmit(async (values: any) => {
     const payload = {
-        ...values,
-        public_metadata: public_metadata.value,
-        private_metadata: private_metadata.value
+        name: values.name,
+        slug: values.slug,
+        description: values.description,
+        price: values.price,
+        sku: values.sku,
+        weight: values.weight,
+        height: values.height,
+        width: values.width,
+        depth: values.depth,
     };
 
     if (isEdit.value) {
-        const result = await store.updateProduct(productId.value, payload);
+        const result = await store.updateProduct(productId.value, payload as any);
         if (result?.success) router.push({ name: 'catalog.products.list' });
     } else {
-        const result = await store.createProduct(payload);
+        const result = await store.createProduct(payload as any);
         if (result?.success) router.push({ name: 'catalog.products.list' });
     }
 });
@@ -217,7 +217,7 @@ const onSubmit = handleSubmit(async (values) => {
                                     </div>
                                 </div>
 
-                                <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
                                     <div class="flex flex-col gap-2">
                                         <label class="font-bold text-xs uppercase tracking-wider text-surface-500 ml-1">{{ t.labels?.sku }}</label>
                                         <InputText v-model="sku" class="w-full rounded-2xl h-12 px-4 font-mono" :invalid="!!errors.sku" />
@@ -227,10 +227,6 @@ const onSubmit = handleSubmit(async (values) => {
                                         <label class="font-bold text-xs uppercase tracking-wider text-surface-500 ml-1">{{ t.labels?.price }}</label>
                                         <InputNumber v-model="price" mode="currency" currency="USD" locale="en-US" class="w-full rounded-2xl h-12 overflow-hidden" inputClass="px-4" :invalid="!!errors.price" />
                                         <small class="text-red-500 ml-1" v-if="errors.price">{{ errors.price }}</small>
-                                    </div>
-                                    <div class="flex flex-col gap-2">
-                                        <label class="font-bold text-xs uppercase tracking-wider text-surface-500 ml-1">{{ t.labels?.brand }}</label>
-                                        <InputText v-model="brand" class="w-full rounded-2xl h-12 px-4" />
                                     </div>
                                 </div>
 
@@ -245,14 +241,14 @@ const onSubmit = handleSubmit(async (values) => {
                                             <span class="font-bold text-surface-900 dark:text-surface-0">Active Status</span>
                                             <p class="text-xs text-surface-500 m-0">Visible in the storefront and buyable.</p>
                                         </div>
-                                        <ToggleSwitch v-model="is_active" />
+                                        <ToggleSwitch v-model="isActive" />
                                     </div>
                                     <div class="p-6 bg-surface-50 dark:bg-surface-800/50 rounded-3xl border border-surface-100 dark:border-surface-800 flex items-center justify-between">
                                         <div class="flex flex-col">
                                             <span class="font-bold text-surface-900 dark:text-surface-0">Searchable</span>
                                             <p class="text-xs text-surface-500 m-0">Can be found via global search.</p>
                                         </div>
-                                        <ToggleSwitch v-model="is_visible" />
+                                        <ToggleSwitch v-model="isVisible" />
                                     </div>
                                 </div>
                             </div>
@@ -309,15 +305,15 @@ const onSubmit = handleSubmit(async (values) => {
                             <div class="flex flex-col gap-8 max-w-3xl">
                                 <div class="flex flex-col gap-2">
                                     <label class="font-bold text-xs uppercase text-surface-500 ml-1">{{ t.labels?.meta_title }}</label>
-                                    <InputText v-model="meta_title" class="w-full rounded-2xl h-12 px-4" />
+                                    <InputText v-model="metaTitle" class="w-full rounded-2xl h-12 px-4" />
                                 </div>
                                 <div class="flex flex-col gap-2">
                                     <label class="font-bold text-xs uppercase text-surface-500 ml-1">{{ t.labels?.meta_description }}</label>
-                                    <Textarea v-model="meta_description" rows="3" class="w-full rounded-2xl p-4" />
+                                    <Textarea v-model="metaDescription" rows="3" class="w-full rounded-2xl p-4" />
                                 </div>
                                 <div class="flex flex-col gap-2">
                                     <label class="font-bold text-xs uppercase text-surface-500 ml-1">{{ t.labels?.meta_keywords }}</label>
-                                    <InputText v-model="meta_keywords" class="w-full rounded-2xl h-12 px-4" />
+                                    <InputText v-model="metaKeywords" class="w-full rounded-2xl h-12 px-4" />
                                 </div>
                             </div>
                         </TabPanel>

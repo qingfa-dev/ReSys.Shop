@@ -14,7 +14,7 @@ import type { OptionTypeListItem } from '../types/option-type.types'
 
 const router = useRouter()
 const store = useOptionTypeStore()
-const { items, loading, totalRecords, query } = storeToRefs(store)
+const { items, loading, totalRecords, params: query } = storeToRefs(store)
 const { showToast } = useToast()
 const confirm = useConfirm()
 
@@ -31,7 +31,7 @@ const loadItems = async () => {
 const onPage = (event: DataTablePageEvent) => {
   store.fetchList({
     page: event.page !== undefined ? event.page + 1 : 1,
-    page_size: event.rows
+    pageSize: event.rows
   })
 }
 
@@ -62,7 +62,7 @@ const onFilter = () => {
   
   store.fetchList({
     search: globalFilter.value || undefined,
-    search_field: globalFilter.value ? ['Name', 'Presentation', 'Description'] : undefined,
+    searchFields: globalFilter.value ? ['Name', 'Presentation', 'Description'] : undefined,
     filter: built.filter,
     page: 1
   })
@@ -141,8 +141,8 @@ onMounted(() => {
         :totalRecords="totalRecords"
         lazy
         paginator
-        :rows="query.page_size"
-        :first="((query.page || 1) - 1) * (query.page_size || 10)"
+        :rows="query.pageSize"
+        :first="((query.page || 1) - 1) * (query.pageSize || 10)"
         @page="onPage"
         @sort="onSort"
         @filter="onFilter"
@@ -216,7 +216,7 @@ onMounted(() => {
                 text 
                 rounded 
                 v-tooltip.top="'Manage Values'" 
-                @click="router.push({ name: 'catalog.option-values.list', query: { option_type_id: data.id } })" 
+                @click="router.push({ name: 'catalog.option-values.list', query: { optionTypeId: data.id } })" 
               />
               <Button icon="pi pi-pencil" severity="secondary" text rounded @click="editItem(data.id)" />
               <Button icon="pi pi-trash" severity="danger" text rounded @click="confirmDelete(data)" />

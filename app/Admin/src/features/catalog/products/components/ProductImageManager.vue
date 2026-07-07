@@ -2,8 +2,8 @@
 import { ref, onMounted } from 'vue';
 import { useApiErrorHandler } from '@/shared/composables/api-error-handler.use';
 import { useToast } from '@/shared/composables/toast.use';
-import apiClient from '@/shared/api/api.client';
-import type { ApiResult } from '@/shared/api/api.types';
+import apiClient from '@/shared/api/http/api.client';
+import type { ApiResult } from '@/shared/api/types/api.types';
 import type { ProductImage } from '../types/product.types';
 import ProductImageUploader from './images/ProductImageUploader.vue';
 import ProductImageList from './images/ProductImageList.vue';

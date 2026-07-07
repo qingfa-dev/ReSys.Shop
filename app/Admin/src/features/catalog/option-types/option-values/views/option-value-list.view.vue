@@ -46,20 +46,20 @@ const {
   resetForm: resetFormFields
 } = useForm({
   validationSchema: toTypedSchema(OptionValueSchema.extend({
-      option_type_id: z.string().min(1, 'Option type is required')
+      optionTypeId: z.string().min(1, 'Option type is required')
   })),
   initialValues: {
     name: '',
     presentation: '',
     position: 0,
-    option_type_id: ''
+    optionTypeId: ''
   }
 })
 
 const [name] = defineField('name')
 const [presentation] = defineField('presentation')
 const [position] = defineField('position')
-const [option_type_id] = defineField('option_type_id')
+const [optionTypeId] = defineField('optionTypeId')
 
 const openNew = () => {
     isEditing.value = false
@@ -67,11 +67,11 @@ const openNew = () => {
     resetFormFields()
     
     // Default to active filter or first available option type
-    const activeFilterId = (filters.value.option_type_id as { value: any }).value
+    const activeFilterId = (filters.value.optionTypeId as { value: any }).value
     if (activeFilterId) {
-        option_type_id.value = activeFilterId
+        optionTypeId.value = activeFilterId
     } else if (optionTypes.value.length > 0 && optionTypes.value[0]) {
-        option_type_id.value = optionTypes.value[0].value
+        optionTypeId.value = optionTypes.value[0].value
     }
     
     showDialog.value = true
@@ -84,7 +84,7 @@ const openEdit = (val: OptionValueListItem) => {
         name: val.name,
         presentation: val.presentation,
         position: val.position,
-        option_type_id: val.option_type_id
+        optionTypeId: val.optionTypeId
     })
     showDialog.value = true
 }
@@ -93,7 +93,7 @@ const onFormSubmit = handleFormSubmit(async (values) => {
     submitting.value = true
     const result = isEditing.value && editingId.value
         ? await store.update(editingId.value, values)
-        : await store.create(values.option_type_id, values)
+        : await store.create(values.optionTypeId, values)
     
     if (result.success) {
         showToast('success', t.common.success || 'Success', (isEditing.value ? t.messages.update_success : t.messages.create_success) || 'Success')
@@ -108,20 +108,20 @@ const onFormSubmit = handleFormSubmit(async (values) => {
 const filters = ref<DataTableFilterMeta>({
   global: { value: null, matchMode: FilterMatchMode.CONTAINS },
   name: { operator: FilterOperator.AND, constraints: [{ value: null, matchMode: FilterMatchMode.CONTAINS }] },
-  option_type_id: { value: null, matchMode: FilterMatchMode.EQUALS } // Simple value filter for dropdown
+  optionTypeId: { value: null, matchMode: FilterMatchMode.EQUALS } // Simple value filter for dropdown
 })
 
 const loadItems = async () => {
   // Load option types first for defaults/filters
-  const typesResult = await typeStore.fetchList({ page_size: 100 })
+  const typesResult = await typeStore.fetchList({ pageSize: 100 })
   if (typesResult.success && typesResult.data) {
       optionTypes.value = typesResult.data.map(t => ({ label: t.presentation || t.name, value: t.id }))
   }
 
   // Check for pre-filter in route
-  if (route.query.option_type_id) {
-      filters.value.option_type_id = { value: route.query.option_type_id as string, matchMode: FilterMatchMode.EQUALS }
-      query.value.option_type_id = route.query.option_type_id as string
+  if (route.query.optionTypeId) {
+      filters.value.optionTypeId = { value: route.query.optionTypeId as string, matchMode: FilterMatchMode.EQUALS }
+      query.value.optionTypeId = route.query.optionTypeId as string
   }
   
   await store.fetchList()
@@ -130,7 +130,7 @@ const loadItems = async () => {
 const onPage = (event: DataTablePageEvent) => {
   store.fetchList({
     page: event.page !== undefined ? event.page + 1 : 1,
-    page_size: event.rows
+    pageSize: event.rows
   })
 }
 
@@ -145,7 +145,7 @@ const onSort = (event: DataTableSortEvent) => {
 const onFilter = () => {
   const globalFilter = filters.value.global as { value: string | null }
   const nameFilter = filters.value.name as { constraints: { value: string | null }[] }
-  const typeFilterValue = (filters.value.option_type_id as { value: any }).value
+  const typeFilterValue = (filters.value.optionTypeId as { value: any }).value
 
   const builder = new QueryBuilder()
   
@@ -153,18 +153,18 @@ const onFilter = () => {
     builder.where('Name', '*', nameFilter.constraints[0].value)
   }
 
-  // We pass option_type_id directly to the API param, not as a filter string usually, 
+  // We pass optionTypeId directly to the API param, not as a filter string usually, 
   // but if we want to use the builder:
-  // Since the service listFlat takes OptionValueQuery which has explicit `option_type_id` prop,
+  // Since the service listFlat takes OptionValueQuery which has explicit `optionTypeId` prop,
   // we should map it there.
   
   const built = builder.build()
   
   store.fetchList({
     search: globalFilter.value || undefined,
-    search_field: globalFilter.value ? ['Name', 'Presentation'] : undefined,
+    searchFields: globalFilter.value ? ['Name', 'Presentation'] : undefined,
     filter: built.filter,
-    option_type_id: typeFilterValue || undefined, // Pass explicit param
+    optionTypeId: typeFilterValue || undefined, // Pass explicit param
     page: 1
   })
 }
@@ -173,7 +173,7 @@ const clearFilters = () => {
   filters.value = {
     global: { value: null, matchMode: FilterMatchMode.CONTAINS },
     name: { operator: FilterOperator.AND, constraints: [{ value: null, matchMode: FilterMatchMode.CONTAINS }] },
-    option_type_id: { value: null, matchMode: FilterMatchMode.EQUALS }
+    optionTypeId: { value: null, matchMode: FilterMatchMode.EQUALS }
   }
   onFilter()
   // Clear route query to reflect cleared state
@@ -199,9 +199,9 @@ const confirmDelete = (item: OptionValueListItem) => {
 }
 
 // Watch for route changes to update filter if navigating from outside
-watch(() => route.query.option_type_id, (newVal) => {
-    if (newVal && newVal !== (filters.value.option_type_id as any).value) {
-        filters.value.option_type_id = { value: newVal as string, matchMode: FilterMatchMode.EQUALS }
+watch(() => route.query.optionTypeId, (newVal) => {
+    if (newVal && newVal !== (filters.value.optionTypeId as any).value) {
+        filters.value.optionTypeId = { value: newVal as string, matchMode: FilterMatchMode.EQUALS }
         onFilter()
     }
 })
@@ -243,8 +243,8 @@ onMounted(() => {
         :totalRecords="totalRecords"
         lazy
         paginator
-        :rows="query.page_size"
-        :first="((query.page || 1) - 1) * (query.page_size || 10)"
+        :rows="query.pageSize"
+        :first="((query.page || 1) - 1) * (query.pageSize || 10)"
         @page="onPage"
         @sort="onSort"
         @filter="onFilter"
@@ -267,7 +267,7 @@ onMounted(() => {
                 </IconField>
                 <!-- Option Type Filter (Quick Access) -->
                 <Select 
-                    v-model="(filters.option_type_id as any).value" 
+                    v-model="(filters.optionTypeId as any).value" 
                     :options="optionTypes" 
                     optionLabel="label" 
                     optionValue="value" 
@@ -330,7 +330,7 @@ onMounted(() => {
         <div class="flex flex-col gap-2">
           <label class="font-bold text-sm">{{ t.labels.option_type }}</label>
           <Select 
-            v-model="option_type_id" 
+            v-model="optionTypeId" 
             :options="optionTypes" 
             optionLabel="label" 
             optionValue="value" 
@@ -338,7 +338,7 @@ onMounted(() => {
             :placeholder="t.placeholders.option_type"
             :disabled="isEditing"
           />
-          <small class="text-red-500" v-if="formErrors.option_type_id">{{ formErrors.option_type_id }}</small>
+          <small class="text-red-500" v-if="formErrors.optionTypeId">{{ formErrors.optionTypeId }}</small>
         </div>
 
         <div class="flex flex-col gap-2">

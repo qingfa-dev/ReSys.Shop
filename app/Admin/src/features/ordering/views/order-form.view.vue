@@ -16,7 +16,7 @@ const { showToast } = useToast();
 const loading = ref(false);
 const email = ref('');
 const currency = ref('USD');
-const selectedItems = ref<Array<{ variant_id: string; sku: string; name: string; price: number; quantity: number }>>([]);
+const selectedItems = ref<Array<{ variantId: string; sku: string; name: string; price: number; quantity: number }>>([]);
 
 // Product Search for adding items
 const productsLoading = ref(false);
@@ -31,7 +31,7 @@ const selectedVariant = ref<any>(null);
 const onSearchProduct = async (event: { query: string }) => {
     productsLoading.value = true;
     try {
-        const res = await productStore.fetchProducts({ search: event.query, page_size: 5 });
+        const res = await productStore.fetchProducts({ search: event.query, pageSize: 5 });
         if (res.success && res.data) {
             productResults.value = res.data;
         }
@@ -71,12 +71,12 @@ const onProductSelect = async (product: any) => {
 };
 
 const addVariantToOrder = (variant: any, product: any) => {
-    const existing = selectedItems.value.find(i => i.variant_id === variant.id);
+    const existing = selectedItems.value.find(i => i.variantId === variant.id);
     if (existing) {
         existing.quantity++;
     } else {
         selectedItems.value.push({
-            variant_id: variant.id,
+            variantId: variant.id,
             sku: variant.sku,
             name: `${product.name} - ${variant.sku}`, // or better name construction
             price: variant.price,
@@ -113,7 +113,7 @@ const onSubmit = async () => {
     const payload: CreateOrderRequest = {
         email: email.value,
         currency: currency.value,
-        line_items: selectedItems.value.map(i => ({ variant_id: i.variant_id, quantity: i.quantity }))
+        lineItems: selectedItems.value.map(i => ({ variantId: i.variantId, quantity: i.quantity }))
     };
 
     loading.value = true;

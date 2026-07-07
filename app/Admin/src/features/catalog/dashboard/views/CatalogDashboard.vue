@@ -37,11 +37,11 @@ const navigateToOptionTypes = () => router.push({ name: 'catalog.option-types.li
                     <div class="w-12 h-12 flex items-center justify-center rounded-xl bg-blue-50 dark:bg-blue-900/20 text-blue-600">
                         <i class="pi pi-shopping-bag text-xl"></i>
                     </div>
-                    <span class="text-sm font-bold text-green-500">{{ summary.active_products }} Active</span>
+                    <span class="text-sm font-bold text-green-500">{{ summary.activeProducts }} Active</span>
                 </div>
                 <div>
                     <span class="block text-surface-500 dark:text-surface-400 text-sm font-medium mb-1">Total Products</span>
-                    <span class="text-3xl font-black text-surface-900 dark:text-surface-0 leading-none">{{ summary.total_products }}</span>
+                    <span class="text-3xl font-black text-surface-900 dark:text-surface-0 leading-none">{{ summary.totalProducts }}</span>
                 </div>
             </div>
 
@@ -54,7 +54,7 @@ const navigateToOptionTypes = () => router.push({ name: 'catalog.option-types.li
                 </div>
                 <div>
                     <span class="block text-surface-500 dark:text-surface-400 text-sm font-medium mb-1">Total SKU Variants</span>
-                    <span class="text-3xl font-black text-surface-900 dark:text-surface-0 leading-none">{{ summary.total_variants }}</span>
+                    <span class="text-3xl font-black text-surface-900 dark:text-surface-0 leading-none">{{ summary.totalVariants }}</span>
                 </div>
             </div>
 
@@ -64,11 +64,11 @@ const navigateToOptionTypes = () => router.push({ name: 'catalog.option-types.li
                     <div class="w-12 h-12 flex items-center justify-center rounded-xl bg-orange-50 dark:bg-orange-900/20 text-orange-600">
                         <i class="pi pi-sitemap text-xl"></i>
                     </div>
-                    <span class="text-sm font-bold text-surface-500">{{ summary.total_taxonomies }} Roots</span>
+                    <span class="text-sm font-bold text-surface-500">{{ summary.totalTaxonomies }} Roots</span>
                 </div>
                 <div>
                     <span class="block text-surface-500 dark:text-surface-400 text-sm font-medium mb-1">Categories (Taxons)</span>
-                    <span class="text-3xl font-black text-surface-900 dark:text-surface-0 leading-none">{{ summary.total_taxons }}</span>
+                    <span class="text-3xl font-black text-surface-900 dark:text-surface-0 leading-none">{{ summary.totalTaxons }}</span>
                 </div>
             </div>
 
@@ -81,7 +81,7 @@ const navigateToOptionTypes = () => router.push({ name: 'catalog.option-types.li
                 </div>
                 <div>
                     <span class="block text-surface-500 dark:text-surface-400 text-sm font-medium mb-1">Digital Assets</span>
-                    <span class="text-3xl font-black text-surface-900 dark:text-surface-0 leading-none">{{ summary.total_digital_products }}</span>
+                    <span class="text-3xl font-black text-surface-900 dark:text-surface-0 leading-none">{{ summary.totalDigitalProducts }}</span>
                 </div>
             </div>
         </div>
@@ -95,15 +95,15 @@ const navigateToOptionTypes = () => router.push({ name: 'catalog.option-types.li
                         <Button label="View All" text size="small" @click="navigateToProducts" />
                     </div>
                     <div class="p-0">
-                        <DataTable :value="summary?.recently_added" class="p-datatable-sm border-none">
+                        <DataTable :value="summary?.recentlyAdded" class="p-datatable-sm border-none">
                             <Column field="name" header="Product Name">
                                 <template #body="{ data }">
                                     <span class="font-bold text-surface-900 dark:text-surface-0">{{ data.name }}</span>
                                 </template>
                             </Column>
-                            <Column field="created_at" header="Added On">
+                            <Column field="createdAtUtc" header="Added On">
                                 <template #body="{ data }">
-                                    <span class="text-sm text-surface-500">{{ formatDate(data.created_at) }}</span>
+                                    <span class="text-sm text-surface-500">{{ formatDate(data.createdAtUtc) }}</span>
                                 </template>
                             </Column>
                             <Column class="w-24 text-right">

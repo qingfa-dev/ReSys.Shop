@@ -13,10 +13,10 @@ export const useStateStore = defineStore('state', () => {
 
   async function fetchStates(params?: Record<string, unknown>) {
     loading.value = true
-    const result = await stateService.getAll(params)
+    const result = await stateService.list(params)
     if (result.success) {
       items.value = result.data
-      totalRecords.value = result.meta?.total_count ?? result.data.length
+      totalRecords.value = result.meta?.totalCount ?? result.data.length
     } else {
       showToast('error', 'Error', result.error?.detail || 'Failed to load states')
     }

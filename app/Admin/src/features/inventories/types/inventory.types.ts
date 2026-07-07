@@ -3,10 +3,15 @@ export interface StockLocation {
   name: string;
   code: string;
   active: boolean;
-  is_default: boolean;
+  isDefault: boolean;
   type: string;
   city: string;
-  country_code: string;
+  countryCode: string;
+  position?: number;
+  backorderableDefault?: boolean;
+  propagateAllVariants?: boolean;
+  lowStockThreshold?: number;
+  notifyOnLowStock?: boolean;
 }
 
 export interface StockLocationDetail extends StockLocation {
@@ -15,63 +20,68 @@ export interface StockLocationDetail extends StockLocation {
     address1: string;
     address2: string | null;
     city: string;
-    zip_code: string;
-    country_code: string;
-    state_code: string | null;
+    zipCode: string;
+    countryCode: string;
+    stateCode: string | null;
     phone: string | null;
-    first_name: string | null;
-    last_name: string | null;
+    firstName: string | null;
+    lastName: string | null;
     company: string | null;
   };
-  public_metadata: Record<string, any>;
-  private_metadata: Record<string, any>;
+  publicMetadata: Record<string, any>;
+  privateMetadata: Record<string, any>;
 }
 
 export interface StockItem {
   id: string;
-  variant_id: string;
+  variantId: string;
   sku: string;
-  variant_name: string;
-  stock_location_id: string;
-  stock_location_name: string;
-  quantity_on_hand: number;
-  quantity_reserved: number;
-  count_available: number;
+  variantName: string;
+  stockLocationId: string;
+  stockLocationName: string;
+  countOnHand: number;
+  quantityReserved?: number;
+  countAvailable?: number;
   backorderable: boolean;
 }
 
 export interface StockItemDetail extends StockItem {
-  backorder_limit: number;
-  created_at: string;
-  updated_at: string | null;
+  backorderLimit: number;
+  createdAtUtc: string;
+  modifiedAtUtc: string | null;
 }
+
+export type ReservationState = 'Reserved' | 'Fulfilled' | 'Released' | 'Expired';
 
 export interface InventoryUnit {
   id: string;
-  stock_item_id: string;
+  stockItemId: string;
   sku: string;
-  serial_number: string | null;
-  state: 'Available' | 'Reserved' | 'Shipped' | 'Damaged' | 'Returned' | 'Sold';
-  order_id: string | null;
-  shipment_id: string | null;
-  created_at: string;
+  serialNumber: string | null;
+  state: ReservationState;
+  orderId: string | null;
+  shipmentId: string | null;
+  createdAtUtc: string;
 }
+
+export type TransferState = 'Draft' | 'InTransit' | 'Received' | 'Canceled';
 
 export interface StockTransfer {
   id: string;
-  reference_number: string;
-  source_location_id: string;
-  source_location_name: string;
-  destination_location_id: string;
-  destination_location_name: string;
-  status: 'Pending' | 'Shipped' | 'Received' | 'Canceled';
-  created_at: string;
+  number: string;
+  referenceNumber: string;
+  sourceLocationId: string;
+  sourceLocationName: string;
+  destinationLocationId: string;
+  destinationLocationName: string;
+  state: TransferState;
+  createdAtUtc: string;
 }
 
 export interface StockTransferItem {
-  variant_id: string;
+  variantId: string;
   sku: string;
-  variant_name: string;
+  variantName: string;
   quantity: number;
 }
 
@@ -83,13 +93,12 @@ export interface StockTransferDetail extends StockTransfer {
 export interface StockAdjustmentRequest {
   quantity: number;
   type: number; // 0: Adjustment, 1: Purchase, 2: Sale, 3: Return, 4: Transfer, 5: Loss, 6: Audit
-  unit_cost: number;
   reason?: string;
   reference?: string;
 }
 
 export interface StockAuditRequest {
-  physical_count: number;
+  physicalCount: number;
   reason?: string;
   reference?: string;
 }
@@ -99,44 +108,40 @@ export interface CreateStockLocationRequest {
   presentation?: string;
   code: string;
   type: number;
-  is_default: boolean;
+  isDefault: boolean;
   address: {
     address1: string;
     address2?: string;
     city: string;
-    zip_code: string;
-    country_code: string;
-    state_code?: string;
+    zipCode: string;
+    countryCode: string;
+    stateCode?: string;
     phone?: string;
-    first_name?: string;
-    last_name?: string;
+    firstName?: string;
+    lastName?: string;
     company?: string;
   };
 }
 
 export interface CreateStockTransferRequest {
-  source_location_id: string;
-  destination_location_id: string;
+  sourceLocationId: string;
+  destinationLocationId: string;
   reason?: string;
 }
 
-export interface InventorySearchParams {
-  page?: number;
-  page_size?: number;
-  search?: string;
-  filter?: string;
-  sort_by?: string;
-  is_descending?: boolean;
-  low_stock?: boolean;
+import type { ServerQueryingParameters } from '@/shared/api/types/query-params.types'
+
+export interface InventorySearchParams extends ServerQueryingParameters {
+  lowStock?: boolean
 }
 
 export interface InventoryUnitSearchParams extends InventorySearchParams {
 
-  stock_item_id?: string;
+  stockItemId?: string;
 
-  order_id?: string;
+  orderId?: string;
 
-  shipment_id?: string;
+  shipmentId?: string;
 
   state?: number;
 
@@ -148,25 +153,21 @@ export interface StockMovement {
 
   id: string;
 
-  stock_item_id: string;
+  stockItemId: string;
 
-  type: string;
+  action: string;
 
   quantity: number;
 
-  balance_before: number;
-
-  balance_after: number;
-
-  unit_cost: number;
+  previousCountOnHand: number;
 
   reason: string | null;
 
   reference: string | null;
 
-  created_at: string;
+  createdAtUtc: string;
 
-  created_by: string | null;
+  createdBy: string | null;
 
 }
 
@@ -174,7 +175,7 @@ export interface StockMovement {
 
 export interface StockMovementSearchParams extends InventorySearchParams {
 
-  stock_item_id?: string;
+  stockItemId?: string;
 
   type?: number;
 

@@ -1,7 +1,9 @@
 import { defineStore } from 'pinia';
-import { ref, watch } from 'vue';
-import { productService } from '../services/product.service';
+import { ref } from 'vue';
 import { useToast } from '@/shared/composables/toast.use';
+import { usePagedList } from '@/shared/composables/paged-list.use';
+import { apiClient } from '@/shared/api';
+import { productService } from '../services/product.service';
 import type { 
   ProductSummary, 
   ProductDetail, 
@@ -11,60 +13,21 @@ import type {
   ProductClassification,
   ProductImage
 } from '../types/product.types';
-import type { ApiResult } from '@/shared/api/api.types';
-import apiClient from '@/shared/api/api.client';
+import type { ApiResult } from '@/shared/api/types/api.types';
 
 export const useProductStore = defineStore('product', () => {
   const { showToast } = useToast();
 
   // --- STATE ---
-  const products = ref<ProductSummary[]>([]);
   const current_product = ref<ProductDetail | null>(null);
   const current_classifications = ref<ProductClassification[]>([]);
   const current_images = ref<ProductImage[]>([]);
-  const loading = ref(false);
   const submitting = ref(false);
-  const error = ref<string | null>(null);
 
-  // Pagination & Search state
-  const query = ref<ProductSearchParams>({
-    page: 1,
-    page_size: 10,
-    search: '',
-    sort_by: 'created_at',
-    is_descending: true
-  });
-
-  const totalRecords = ref(0);
-
-  // --- WATCHERS ---
-  // Note: Auto-fetching is handled by the view via onFilter/onPage normally, 
-  // but we keep the store state reactive.
-
-  // --- ACTIONS ---
-  async function fetchProducts(params: ProductSearchParams = {}) {
-    loading.value = true;
-    error.value = null;
-    
-    // Merge provided params with current query state
-    query.value = { ...query.value, ...params };
-
-    try {
-      const result = await productService.list(query.value);
-      if (result.success && result.data) {
-        products.value = result.data;
-        totalRecords.value = result.meta?.total_count || 0;
-      } else {
-        error.value = result.error?.title || 'Failed to fetch products';
-      }
-      return result;
-    } catch (err) {
-      error.value = 'An unexpected error occurred';
-      throw err;
-    } finally {
-      loading.value = false;
-    }
-  }
+  const { items: products, totalRecords, params: query, fetch: fetchProducts, loading, error } = usePagedList<ProductSummary, ProductSearchParams>(
+    (p) => productService.list(p),
+    { page: 1, pageSize: 10, search: '', sort: ['-created_at'] },
+  );
 
   async function fetchProductById(id: string) {
     loading.value = true;
@@ -125,7 +88,7 @@ export const useProductStore = defineStore('product', () => {
   async function fetchClassifications(productId: string) {
     loading.value = true;
     try {
-        const result = (await apiClient.get(`/admin/catalog/products/${productId}/classifications`)) as unknown as ApiResult<any>;
+        const result = await apiClient.get(`/admin/catalog/products/${productId}/classifications`) as unknown as ApiResult<any>;
         if (result.success && result.data) {
             current_classifications.value = result.data;
         }
@@ -138,7 +101,7 @@ export const useProductStore = defineStore('product', () => {
   async function updateClassifications(productId: string, data: any) {
     submitting.value = true;
     try {
-        const result = (await apiClient.put(`/admin/catalog/products/${productId}/classifications`, data)) as unknown as ApiResult<any>;
+        const result = await apiClient.put(`/admin/catalog/products/${productId}/classifications`, data) as unknown as ApiResult<any>;
         if (result.success) {
             showToast('success', 'Updated', 'Classifications saved');
             await fetchClassifications(productId);
@@ -150,7 +113,6 @@ export const useProductStore = defineStore('product', () => {
   }
 
   return {
-    // State
     products,
     current_product,
     current_classifications,
@@ -159,8 +121,6 @@ export const useProductStore = defineStore('product', () => {
     error,
     query,
     totalRecords,
-    
-    // Actions
     fetchProducts,
     fetchProductById,
     createProduct,

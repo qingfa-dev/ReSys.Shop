@@ -1,4 +1,4 @@
-import type { ApiResult } from '@/shared/api/api.types'
+import type { ApiResult } from '@/shared/api/types/api.types'
 import type { LoginFormData } from '../schemas/auth.schema'
 
 export type LoginRequest = LoginFormData & {
