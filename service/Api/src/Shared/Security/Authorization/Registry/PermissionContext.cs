@@ -163,6 +163,10 @@ public static class PermissionContext
             "stocklocations", "Stock Location", "Stock location (warehouse) resource.");
         public static readonly OptionDescriptor<string> StockReservations = OptionDescriptor<string>.Option(
             "stock_reservations", "Stock Reservations", "Stock reservation resource.");
+        public static readonly OptionDescriptor<string> StockMovements = OptionDescriptor<string>.Option(
+            "stock_movements", "Stock Movements", "Stock movement resource.");
+        public static readonly OptionDescriptor<string> StockTransfers = OptionDescriptor<string>.Option(
+            "stock_transfers", "Stock Transfers", "Stock transfer resource.");
         public static readonly OptionDescriptor<string> Settings = OptionDescriptor<string>.Option(
             "settings", "Settings", "Application settings resource.");
         public static readonly OptionDescriptor<string> Sales = OptionDescriptor<string>.Option(
