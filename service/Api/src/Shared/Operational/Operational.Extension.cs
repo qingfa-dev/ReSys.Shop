@@ -7,6 +7,7 @@ using Shared.Operational.Http;
 using Shared.Operational.Notifications;
 using Shared.Operational.Persistence;
 using Shared.Operational.Storages;
+using Shared.Operational.Webhooks;
 
 namespace Shared.Operational;
 
@@ -23,6 +24,7 @@ public static class OperationalExtension
         builder.AddNotifications();
         builder.AddBackgroundJobs();
         builder.AddHttpClients();
+        builder.AddWebhooks();
 
         return builder;
     }
