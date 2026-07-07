@@ -21,7 +21,8 @@ public static partial class CreateOrderFromCart
         IApplicationDbContext dbContext,
         ILogger<CommandHandler> logger,
         ICurrentUser currentUser,
-        INotificationService notificationService)
+        INotificationService notificationService,
+        IOrderEventPublisher eventPublisher)
         : ICommandHandler<Command, Response>
     {
         /// <summary>Handles the command.</summary>
@@ -142,6 +143,18 @@ public static partial class CreateOrderFromCart
 
             // Persist: Save changes.
             await dbContext.SaveChangesAsync(cancellationToken);
+
+            // Event: Publish order.placed to the event bus (no-op by default; wired to webhooks in Program.cs)
+            await eventPublisher.PublishAsync("order.placed", new
+            {
+                OrderId = cart.Id,
+                OrderNumber = cart.Number,
+                UserId = cart.UserId,
+                Email = cart.Email,
+                Total = cart.Total,
+                Currency = cart.Currency,
+                PlacedAtUtc = cart.CompletedAtUtc
+            }, cancellationToken);
 
             // Notify: Send order confirmation to customer.
             await SendOrderPlacedNotificationAsync(cart, cancellationToken);

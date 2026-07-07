@@ -6,6 +6,8 @@ using Module.Ordering.Features.Storefront.Cart.Checkout;
 using Shared.Operational.Notifications.Models;
 using Shared.Operational.Notifications.Services;
 
+using Module.Ordering.Infrastructure.Events;
+
 namespace Module.UnitTests.Ordering.Features.Storefront.Cart.Checkout;
 
 [Trait("Category", "Unit")]
@@ -17,6 +19,7 @@ public class CreateOrderFromCartTests : IDisposable
     private readonly Mock<ICurrentUser> _currentUserMock;
     private readonly Mock<ILogger<CreateOrderFromCart.CommandHandler>> _loggerMock;
     private readonly Mock<INotificationService> _notificationServiceMock;
+    private readonly NullOrderEventPublisher _eventPublisher;
     private readonly CreateOrderFromCart.CommandHandler _handler;
 
     public CreateOrderFromCartTests()
@@ -41,7 +44,9 @@ public class CreateOrderFromCartTests : IDisposable
             .Setup(x => x.SendAsync(It.IsAny<NotificationMessage>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(Result.Ok());
 
-        _handler = new CreateOrderFromCart.CommandHandler(_dbContext, _loggerMock.Object, _currentUserMock.Object, _notificationServiceMock.Object);
+        _eventPublisher = new NullOrderEventPublisher();
+
+        _handler = new CreateOrderFromCart.CommandHandler(_dbContext, _loggerMock.Object, _currentUserMock.Object, _notificationServiceMock.Object, _eventPublisher);
     }
 
     public void Dispose()
