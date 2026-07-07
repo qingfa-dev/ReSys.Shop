@@ -1,5 +1,3 @@
-using Shared.Application.Domain.Concerns.Auditable;
-
 namespace Module.Inventory.Features.Admin.StockLocations.Shared.Models;
 
 public record StockLocationDetailResponse : StockLocationParameters

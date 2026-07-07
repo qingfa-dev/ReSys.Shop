@@ -1,5 +1,3 @@
-using Shared.Application.Domain.Concerns.Auditable;
-
 namespace Module.Inventory.Features.Admin.StockItems.Shared.Models;
 
 public record StockItemDetailResponse : StockItemParameters

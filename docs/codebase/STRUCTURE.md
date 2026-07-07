@@ -1,3 +1,27 @@
+Short summary
+
+Top-level layout and where to find key code.
+
+Repository layout (high level)
+- `service/Api/` — main backend projects: `Api`, `Module`, `Shared`, `Migrations`.
+- `infra/Aspire/` — AppHost orchestration projects (Aspire AppHost + service defaults).
+- `service/Embedding/` — Python embedding service (pyproject + uv files).
+- `app/` — front-end applications: `Admin`, `ReSys.Admin`, `Store`.
+- `ApiTests/` — HTTP and integration test collections and helpers.
+
+Projects & entry points
+- Solution: `ReSys.Shop.slnx` references `infra/Aspire/src/ReSys.AppHost/ReSys.AppHost.csproj` and backend projects under `service/Api/src/`.
+- Frontend dev entry: `app/Admin/index.html` and Vite configs under each app.
+
+Evidence
+- [ReSys.Shop.slnx](ReSys.Shop.slnx)
+- [service/Api/src/Api/Api.csproj](service/Api/src/Api/Api.csproj)
+- [infra/Aspire/src/ReSys.AppHost/ReSys.AppHost.csproj](infra/Aspire/src/ReSys.AppHost/ReSys.AppHost.csproj)
+- [app/Admin/index.html](app/Admin/index.html)
+- [ApiTests/README.md](ApiTests/README.md)
+
+[TODO]
+- Per-module README files are sparse; add focused READMEs per project if desired. Marked as [ASK USER] to prioritise.
 # Codebase Structure
 
 ## Core Sections (Required)

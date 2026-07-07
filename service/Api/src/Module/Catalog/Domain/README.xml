@@ -17,7 +17,7 @@
     <Category>Domain-Driven Design · Catalog</Category>
     <Stability>Stable</Stability>
     <StandardsAlignment>Evans DDD · Aggregate Root Pattern · Value Objects</StandardsAlignment>
-    <Dependencies><Dependency name="BuildingBlocks.Domain" version="1.0.0"/></Dependencies>
+    <Dependencies><Dependency name="Shared.Domain" version="1.0.0"/></Dependencies>
   </ModuleMeta>
   <Principles>
     <Principle id="P1" name="Variant as SKU"><Description>Each product variant is a distinct stock-keeping unit with its own price, images, and inventory.</Description><Rationale>Separates what customers browse (product) from what they purchase (variant).</Rationale></Principle>

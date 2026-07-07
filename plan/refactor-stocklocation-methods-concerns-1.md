@@ -165,7 +165,7 @@ This plan splits `StockLocation.Method.cs` by concern into partial-class files m
 
 - **RISK-001**: Delegating `Update()` activation to `Deactivate()`/`Activate()` may change return behavior because `Deactivate()` returns `Result.Ok(successMessage)` while `Update()` returns `Result.Ok()`. Mitigation: `Update()` retains its own return type and only uses the guard/state-mutation from `Deactivate()`/`Activate()`, not their return value.
 - **RISK-002**: `StockLocation.StoreScoped.cs` is referenced by EF Core configuration (`StockLocationConfiguration.cs`) for the `StoreId` column mapping — keeping the property in a partial file on the same class is fine since EF Core navigates the full `StockLocation` type.
-- **ASSUMPTION-001**: No other files reference `StockLocationMethod` or `StockLocationExtensions` by class name — all usages are via `StockLocationMethod.Create(...)` or `location.Update(...)` which remain unchanged.
+- **ASSUMPTION-001**: No other files reference `StockLocationMethod` or `StockLocationMethod` by class name — all usages are via `StockLocationMethod.Create(...)` or `location.Update(...)` which remain unchanged.
 - **ASSUMPTION-002**: The SDK-style project (`*.csproj`) auto-includes all `*.cs` files in the directory tree, so no project file edits are needed for new or removed files.
 
 ## 8. Related Specifications / Further Reading

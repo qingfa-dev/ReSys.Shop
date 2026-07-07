@@ -24,4 +24,5 @@ global using Shared.Operational.Persistence.Specifications.Querying;
 global using Shared.Security.Authentication.Contexts.Services;
 global using Shared.Governance.Conventions;
 global using Shared.Security.Authorization.Attributes;
+global using Shared.Security.Authorization.Features;
 

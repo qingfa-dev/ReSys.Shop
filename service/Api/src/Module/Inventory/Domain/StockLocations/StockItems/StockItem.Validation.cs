@@ -1,5 +1,3 @@
-using FluentValidation;
-
 namespace Module.Inventory.Domain.StockLocations.StockItems;
 
 public static class StockItemValidation
