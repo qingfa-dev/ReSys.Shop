@@ -42,6 +42,10 @@ builder.Services.AddOrderingModule();
 builder.Services.AddPaymentModule(builder.Configuration);
 builder.Services.AddShippingModule();
 
+// Swap: Order event publisher from no-op to webhook-backed implementation
+builder.Services.AddScoped<Module.Ordering.Domain.Orders.IOrderEventPublisher,
+    Module.Ordering.Infrastructure.Events.WebhookOrderEventPublisher>();
+
 WebApplication app = builder.Build();
 
 // Initialize: Map default health/liveness endpoints
