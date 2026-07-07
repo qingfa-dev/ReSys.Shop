@@ -3,7 +3,7 @@ namespace Module.Shipping.Domain.ShippingRates;
 public static class ShippingRateValidation
 {
     // Validate: Shipping rate name must not be empty or exceed max length
-    public static IRuleBuilderOptions<T, string> ApplyNameRules<T>(this IRuleBuilder<T, string> ruleBuilder)
+    public static IRuleBuilderOptions<T, string> ApplyNameRules<T>(this IRuleBuilder<T, string?> ruleBuilder)
     {
         return ruleBuilder
             .NotEmpty()
