@@ -1,6 +1,10 @@
 using Shared.Security.Authorization.Registry;
 using Shared.Security.Identity.Domain.Permissions;
 
+// [WIP-MVP] Multi-factor authentication (MFA / 2FA) endpoints are deferred to v1.x.
+// When implementing, add a `TwoFactor` permission group with Enable / Disable / Verify actions.
+// See docs/superpowers/specs/2026-07-07-mvp-cut-design.md.
+
 namespace Shared.Security.Authorization.Features;
 
 public static class IdentityFeatureMetadata

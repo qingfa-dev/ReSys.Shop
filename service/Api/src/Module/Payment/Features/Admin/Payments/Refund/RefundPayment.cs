@@ -5,7 +5,10 @@ using PaymentDomain = Module.Payment.Domain.Payments.Payment;
 
 namespace Module.Payment.Features.Admin.Payments.Refund;
 
-    /// <summary>Handles RefundPayment feature.</summary>
+    /// <summary>
+    /// [WIP-MVP] Refunds the full captured amount. The optional `Amount` parameter is accepted
+    /// for API compatibility but ignored. Partial refund is deferred to v1.x.
+    /// </summary>
     public static partial class RefundPayment
 {
     public sealed record Command(Guid Id, Request Request) : ICommand<Response>;
@@ -41,8 +44,11 @@ namespace Module.Payment.Features.Admin.Payments.Refund;
                 IdempotencyKey = $"spree-{payment.Number}",
             };
 
+            // [WIP-MVP] For MVP, always refund the full captured total. Partial refund is deferred to v1.x.
+            var refundAmount = payment.Amount;
+
             // Refund: Attempt to refund via gateway.
-            var refundResult = await payment.RefundAsync(gateway, options, command.Request.Amount, cancellationToken);
+            var refundResult = await payment.RefundAsync(gateway, options, refundAmount, cancellationToken);
             if (refundResult.IsFailure)
                 return refundResult.Failures;
 

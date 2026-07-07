@@ -2,6 +2,10 @@ using Aspire.Hosting.JavaScript;
 
 using ReSys.ServiceDefaults.Constants;
 
+// [WIP-MVP] YARP API gateway is deferred to v1.x. The Services.Gateway constant is defined
+// in ReSys.ServiceDefaults but not registered as a resource here. Frontends call the API
+// directly via VITE_API_URL. See docs/superpowers/specs/2026-07-07-mvp-cut-design.md.
+
 IDistributedApplicationBuilder builder = DistributedApplication.CreateBuilder(args);
 
 IResourceBuilder<PostgresServerResource> postgres = builder.AddPostgres(Infrastructures.Databases.Server)
@@ -25,7 +29,8 @@ var embedding = builder.AddUvicornApp(
 IResourceBuilder<ProjectResource> api = builder.AddProject<Projects.Api>(Services.Api)
     .WithReference(database)
     .WithReference(redis)
-    .WithReference(embedding);
+    .WithReference(embedding)
+    .WithEnvironment("ASPNETCORE_ENVIRONMENT", "Development");
 
 IResourceBuilder<ViteAppResource> store = builder.AddViteApp(Application.Store, "../../../../app/Store")
     .WithPnpm()
