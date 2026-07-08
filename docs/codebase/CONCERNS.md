@@ -44,10 +44,10 @@ Evidence
 | High | No CI/CD pipeline | Scan output: "No CI/CD pipelines detected" | No automated build verification, test execution, or lint enforcement before merge | Set up GitHub Actions workflow for build + test + lint |
 | High | Module cross-reference enforcement is disabled | `Directory.Build.targets:44` — `Condition="false"` on ValidateVerticalSliceIsolation | Module isolation depends solely on developer discipline; accidental cross-module references won't be caught at build time | Enable the validation target and fix any violations, or remove it to avoid false confidence |
 | High | No container images or Dockerfiles exist | README states "No Dockerfiles exist yet — deployment runs raw CLI commands"; scan confirms no Dockerfiles found | Production deployment is undefined; no repeatable build artifact | Create Dockerfile for API service; define multi-stage build |
-| Medium | Embedding service has unresolved runtime issues | README marks embedding service as WIP (known broken); AGENTS.md notes `config.settings` import errors | Vector search and image similarity features are inoperable without the ML sidecar | Fix Python imports; verify service starts and generates embeddings end-to-end |
-| Medium | Admin SPA is a scaffold with no real views | `app/Admin/src/App.vue` contains placeholder "You did it!"; router has empty routes; only a counter Pinia store | Admin functionality cannot be used at all | Prioritize Admin SPA feature development or clearly mark as low priority |
+| Medium | Embedding service has resolved import issues but runtime status unverified | All imports referenced in `main.py` now exist in `service/Embedding/src/`: `config/settings.py`, `routers/embedding_router.py`, `routers/health_router.py`, `routers/model_router.py`, `middleware/exception_handler.py` | Vector search and image similarity features depend on the ML sidecar being operational | Verify service starts with `uv run uvicorn embedding.main:app` and generates embeddings end-to-end; run `uv run pytest` to validate |
+| Medium | Admin SPA has layout infrastructure but minimal feature routes | `app/Admin/src/app/router/index.ts` — routes limited to login, profile, error; `app/Admin/src/app/layout/main.layout.vue` — topbar, sidebar, footer, breadcrumb exist | Admin functionality is largely non-functional; business feature routes are not connected | Continue Admin SPA feature development following existing layout patterns and feature folder structure |
 | Medium | Monolith scaling risk — all modules compile into single deployable | All modules share one process; Hangfire runs in-process with API | Traffic increase to one module affects all modules; background jobs compete for API resources | Plan module extraction strategy; externalize Hangfire to separate worker process |
-| Medium | No backend .env.example or configuration documentation | Scan output: "No .env.example or .env.template found" | New developers don't know what env vars to set; onboarding takes longer | Create `.env.example` in `service/Api/src/Api/` listing all required variables |
+| Medium | No backend .env.example or configuration documentation | Scan output: "No .env.example or .env.template found" (scan may miss new files) | New developers don't know what env vars to set; onboarding takes longer | `.env.template` has been created at `service/Api/src/Api/.env.template`; verify it is comprehensive and accessible |
 | Medium | Large migration files may cause startup delays | `service/Api/src/Migrations/Migrations/20260703144227_AddCatalogModuleEntities.Designer.cs` — 98KB; `ApplicationDbContextModelSnapshot.cs` — 97.8KB | Database initialization at startup could be slow with large migration files | Review migration strategy; consider squash/reset for initial schema |
 | Low | No HTTPS enforcement guard in code | No middleware found that redirects HTTP to HTTPS beyond `app.UseHttpsRedirection()` in `Program.cs:49` | Mixed content or non-TLS connections in production | Add HSTS middleware; enforce HTTPS in all environments except dev |
 
@@ -56,7 +56,7 @@ Evidence
 | Debt item | Why it exists | Where | Risk if ignored | Suggested fix |
 |-----------|---------------|-------|-----------------|---------------|
 | Embedded `build/lib/` artifacts | Build process leaves stale compiled Python in source tree | `service/Embedding/build/lib/` | Confusing for developers; risk of running outdated code | Add `build/` and `__pycache__/` to `.gitignore`; remove tracked artifacts |
-| Large `.superpowers/sdd/` review diffs | Two diff files are 7.8MB and 8.2MB each | `.superpowers/sdd/review-6e103fe..32de0cb.diff` (8.2MB), `.superpowers/sdd/review-6e103fe..6e63e8a.diff` (7.8MB) | Bloats repo; slows git operations | Archive old review diffs or add .gitignore rule for large diffs |
+| Not present | Large `.superpowers/sdd/` review diffs | `.superpowers/` directory no longer exists in repo | N/A — risk removed | N/A — already resolved |
 | Shared.csproj has too many dependencies | Single infrastructure project references nearly every production package | `service/Api/src/Shared/Shared.csproj` — 30+ PackageReference elements | Any NuGet version change affects all modules; tight coupling | Consider splitting Shared into smaller, purpose-specific packages (Shared.Persistence, Shared.Auth, etc.) |
 | HTTP tests require manual data seeding | .http files must be run against a pre-seeded API instance | `ApiTests/README.md` | Test results are not deterministic; hard to reproduce failures | Add setup/teardown to .http files or migrate critical flows to integration tests |
 | Code commenting guide is aspirational | Comprehensive XML guide exists but enforcement is manual | `guide/code-commenting/CommentingRules.xml` (63KB) | Inconsistent documentation across codebase | Implement linting rules for comment format enforcement or reduce guide to enforceable subset |
@@ -68,7 +68,7 @@ Evidence
 |------|--------------------------------|----------|--------------------|-----|
 | Hardcoded JWT secret in committed config | A02:2021 — Cryptographic Failures | `service/Api/src/Api/appsettings.Development.json:11` — secret is plaintext in git-tracked file | Marked as development-only | Same secret may be accidentally used in production; no rotation mechanism |
 | Hardcoded DB credentials in dev config | A07:2021 — Identification/Authentication Failures | `appsettings.Development.json:8` — `Password=postgres` | Development-only | Leaked credentials if repo becomes public; local dev DB may use same creds as production |
-| No API rate limiting | A04:2021 — Insecure Design | No rate limiting middleware found in Program.cs or Shared | None | Brute-force attacks on login/register endpoints possible; resource exhaustion risk |
+| API rate limiting is present with named policies | A04:2021 — Insecure Design | `appsettings.json:91-97` — policies for default (100/min), auth (5/min), register (3/hour), forgot-password (3/hour), payment (30/min); `Program.cs:51` — `UseRateLimiter()` | Rate limiter middleware registered | [TODO] — verify policies are enforced per-endpoint; confirm auth/register policies apply to correct endpoints |
 | CORS allows localhost origins in dev config | A05:2021 — Security Misconfiguration | `appsettings.Development.json:20-25` — `["localhost:5173", "localhost:4173", "localhost:3000"]` with `AllowCredentials: true` | Development-only | If dev config accidentally used in production, allows credentialed requests from any localhost origin |
 | Anti-forgery protection present but scope unknown | A01:2021 — Broken Access Control | `Shared/Security/AntiForgery/AntiForgery.Extensions.cs` | CSRF protection configured | [TODO] — scope not verified: which endpoints are protected, is it applied globally or selectively |
 | Security headers present but scope unknown | A05:2021 — Security Misconfiguration | `Shared/Security/Headers/SecurityHeadersMiddleware.cs` | Security header middleware exists | [TODO] — headers configured and enforced not verified |
@@ -82,7 +82,7 @@ Evidence
 | Hangfire and API share same process | Hangfire registered in `Shared/Operational/Backgrounds/Background.Extension.cs`; same `WebApplication` host | Background job CPU/memory competes with API request handling | Under heavy job load, API response times degrade; under heavy API load, job processing delays | Externalize Hangfire to separate worker process/container |
 | HybridCache with Redis fallback chain unclear | `Shared/Performance/Caching/Caching.Extension.cs` | Cache miss behavior and Redis unavailability strategy undefined | Cache stampede on Redis failure; in-memory caches cause inconsistencies across instances | Document cache architecture; add Redis connection resilience checks |
 | No connection pool limits documented | Npgsql and Redis connection strings in dev config have no pool size configuration | Connection pool exhaustion under load | Database connection starvation for burst traffic | Configure Npgsql `MaxPoolSize`, Redis `MaxConnections`; add connection pool monitoring |
-| Large .superpowers diff files (7.8MB, 8.2MB) | `docs/codebase/.codebase-scan.txt:321-322` | Git operations slower; repo larger than needed | Cloned repo size impact; `git log` and `git blame` slower | Archive or gitignore large review diffs |
+| Not applicable | `.superpowers/` directory no longer exists | N/A | N/A | Already resolved |
 
 ### 5) Fragile/High-Churn Areas
 
@@ -106,26 +106,26 @@ Evidence
 ### 7) `[ASK USER]` Questions
 
 1. [ASK USER] Is the Inventory module (`service/Api/src/Module/Inventory/`) officially part of the product, or is it an experimental/planned module? It appears in the codebase but is not listed in README.md's features or module list.
-2. [ASK USER] Is Stripe payment processing currently in use, or is it planned for future implementation? The `Stripe.net` package is listed in Directory.Packages.props but no reference to payment features appears in the README or codebase structure.
+2. [ASK USER] Is Stripe payment processing currently in use, or is it planned for future implementation? The `Stripe.net` package is listed in Directory.Packages.props but Payment module currently uses BogusGateway for development.
 3. [ASK USER] Should the `ValidateVerticalSliceIsolation` build target be enabled to enforce module boundaries at build time (currently disabled with `Condition="false"`)?
-4. [Answered] Deployment environment: Local with Aspire. Dockerfiles and production deployment model deferred — document later. (Recorded in STACK.md and CONCERNS decisions.)
-5. [ASK USER] What is the priority order for the known WIP components: Admin SPA, Embedding service, CI/CD pipeline, Dockerfiles? (Left to backlog/prioritization in CONCERNS)
-6. [Answered] Secrets: Adopt local environment files and Aspire user secrets for development. For production, preferred provider not specified yet — please advise when ready.
-7. [ASK USER] Are the large `.superpowers/sdd/` review diffs (~15MB total) still needed, or can they be archived/removed?
-8. [Done] `.env.template` created at `service/Api/src/Api/.env.template` to document required development env vars. Review and sanitize hardcoded dev secrets from `appsettings.Development.json`.
+4. [ASK USER] What is the priority order for the known WIP components: Admin SPA feature routes, Embedding service runtime fixes, CI/CD pipeline, Dockerfiles?
+5. [ASK USER] Are Ordering, Payment, Shipping, and Webhooks modules considered part of the product's v1.0 scope? They appear in code and are wired in Program.cs but are not documented in README.md.
+6. [ASK USER] Are the `app/ReSys.Admin/` (npm-based) and `app/Admin/` (pnpm-based) directories both needed, or is one a migration artifact? The pnpm-based `app/Admin/` appears to be the active one based on structure.
 
 ### 8) Evidence
 
 - `.codebase-scan.txt` — CI/CD absence, containerization absence, security config absence, high-churn files, large file indicators
 - `service/Api/src/Api/appsettings.Development.json` — Hardcoded secrets (JWT, DB connection)
-- `service/Api/src/Api/Program.cs` — Startup migration/seeding, HTTPS redirect
+- `service/Api/src/Api/appsettings.json` — Rate limiting policies, auth config, CORS defaults
+- `service/Api/src/Api/Program.cs` — Startup migration/seeding, rate limiter, middleware order
+- `service/Api/src/Api/.env.template` — Environment variable template for dev onboarding
 - `Directory.Build.targets` — Disabled ValidateVerticalSliceIsolation target
 - `README.md` — Work-in-progress declarations (Admin SPA, Embedding service, Dockerfiles, CI/CD)
 - `AGENTS.md` — Known broken components list
 - `service/Embedding/src/main.py` — Embedding service entry point (structure exists, runtime status unverified)
-- `app/Admin/src/App.vue` — Admin SPA placeholder content
-- `app/Admin/src/router/index.ts` — Empty router
+- `app/Admin/src/app/router/index.ts` — Admin SPA router (limited to login, profile, error)
+- `app/Admin/src/app/layout/main.layout.vue` — Admin layout infrastructure
 - Git log — High-churn files (AppHost.cs 7, Program.cs 6, CatalogFeatureMetadata.cs 5)
 - `Directory.Packages.props` — Stripe.net package (present but feature not in README)
 - `guide/code-commenting/CommentingRules.xml` — Aspirational commenting standards
-- `service/Embedding/pyproject.toml` — Python dependency requirements (not verified against runtime)
+- `service/Embedding/pyproject.toml` — Python dependency requirements
