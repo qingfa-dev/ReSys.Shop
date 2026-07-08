@@ -12,9 +12,6 @@ public sealed partial class ShippingRate : Entity, IAuditable
     public bool Selected { get; set; } = ShippingRateConstant.Defaults.Selected;
     public decimal Cost { get; set; }
     public decimal FinalPrice { get; set; }
-    public decimal TaxAmount { get; set; }
-    public decimal AdditionalTaxTotal { get; set; }
-    public decimal IncludedTaxTotal { get; set; }
     public string DisplayPrice { get; set; } = string.Empty;
     public string? DeliveryRange { get; set; }
     public decimal? MinWeight { get; set; }

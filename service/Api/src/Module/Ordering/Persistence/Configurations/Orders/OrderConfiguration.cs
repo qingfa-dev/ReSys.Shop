@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 using Module.Ordering.Persistence.Constants;
 using Module.Ordering.Domain.Orders;
+using Module.Payment.Domain.Payments;
 
 namespace Module.Ordering.Persistence.Configurations.Orders;
 
@@ -39,13 +40,7 @@ public class OrderConfiguration : IEntityTypeConfiguration<Order>
         builder.Property(x => x.AdjustmentTotal)
             .HasPrecision(OrderConstant.Constraints.Precision, OrderConstant.Constraints.Scale);
 
-        builder.Property(x => x.TaxTotal)
-            .HasPrecision(OrderConstant.Constraints.Precision, OrderConstant.Constraints.Scale);
-
         builder.Property(x => x.ShipmentTotal)
-            .HasPrecision(OrderConstant.Constraints.Precision, OrderConstant.Constraints.Scale);
-
-        builder.Property(x => x.PromoTotal)
             .HasPrecision(OrderConstant.Constraints.Precision, OrderConstant.Constraints.Scale);
 
         builder.Property(x => x.Total)
@@ -78,7 +73,10 @@ public class OrderConfiguration : IEntityTypeConfiguration<Order>
         #endregion
 
         #region Relationships
-        builder.Ignore(x => x.Payments);
+        builder.HasMany(x => x.Payments)
+            .WithOne(p => p.Order)
+            .HasForeignKey(p => p.OrderId)
+            .OnDelete(DeleteBehavior.Cascade);
 
         builder.HasMany(x => x.Adjustments)
             .WithOne()

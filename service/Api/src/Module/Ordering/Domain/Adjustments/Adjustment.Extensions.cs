@@ -10,7 +10,7 @@ public static class AdjustmentMethod
     /// <param name="adjustableId">Identifier of the adjustable entity.</param>
     /// <param name="adjustableType">Type of the adjustable entity (Order, LineItem, Shipment).</param>
     /// <param name="sourceId">Identifier of the source entity.</param>
-    /// <param name="sourceType">Type of the source entity (PromotionAction, TaxRate).</param>
+    /// <param name="sourceType">Type of the source entity (Shipping).</param>
     /// <param name="orderId">Parent order identifier.</param>
     /// <param name="mandatory">Whether the adjustment is mandatory.</param>
     /// <param name="eligible">Whether the adjustment is eligible for totals.</param>

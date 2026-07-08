@@ -1,3 +1,5 @@
+using PaymentStateEnum = Module.Payment.Domain.Payments.PaymentState;
+
 namespace Module.Ordering.Domain.Orders;
 
 public static class OrderExtensions
@@ -31,9 +33,7 @@ public static class OrderExtensions
             StoreId = storeId,
             ItemTotal = 0m,
             AdjustmentTotal = 0m,
-            TaxTotal = 0m,
             ShipmentTotal = 0m,
-            PromoTotal = 0m,
             Total = 0m,
             PaymentTotal = 0m,
             OutstandingBalance = 0m,
@@ -199,9 +199,7 @@ public static class OrderExtensions
         order.Adjustments.Clear();
         order.ItemTotal = 0m;
         order.AdjustmentTotal = 0m;
-        order.TaxTotal = 0m;
         order.ShipmentTotal = 0m;
-        order.PromoTotal = 0m;
         order.Total = 0m;
         order.PaymentTotal = 0m;
         order.OutstandingBalance = 0m;
@@ -219,9 +217,7 @@ public static class OrderExtensions
         order.ItemCount = order.LineItems.Sum(li => li.Quantity);
         order.ItemTotal = order.LineItems.Sum(li => li.Total);
         order.AdjustmentTotal = order.Adjustments.Where(a => a.Eligible).Sum(a => a.Amount);
-        order.TaxTotal = order.Adjustments.Where(a => a.Eligible && a.SourceType == "TaxRate").Sum(a => a.Amount);
         order.ShipmentTotal = order.Adjustments.Where(a => a.Eligible && a.SourceType == "Shipping").Sum(a => a.Amount);
-        order.PromoTotal = order.Adjustments.Where(a => a.Eligible && a.SourceType == "PromotionAction").Sum(a => a.Amount);
         order.Total = order.ItemTotal + order.AdjustmentTotal;
         order.OutstandingBalance = order.Total - order.PaymentTotal;
     }
@@ -334,7 +330,7 @@ public static class OrderExtensions
     // @CAT-5 Compute: Derives payment state from payments: all-failed→"failed", canceled+zero→"void", balance>0→"balance_due", balance<0→"credit_owed", else→"paid"
     public static void UpdatePaymentState(this Order order)
     {
-        if (order.Payments.Count > 0 && !order.Payments.Any(p => p.State != "failed" && p.State != "invalid"))
+        if (order.Payments.Count > 0 && !order.Payments.Any(p => p.State != PaymentStateEnum.Failed && p.State != PaymentStateEnum.Invalid))
             order.PaymentState = "failed";
         else if (order.Status == OrderStatus.Canceled && order.PaymentTotal == 0m)
             order.PaymentState = "void";

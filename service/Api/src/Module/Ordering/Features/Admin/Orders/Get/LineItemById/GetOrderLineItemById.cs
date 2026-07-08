@@ -13,7 +13,6 @@ public static partial class GetOrderLineItemById
         public decimal Price { get; init; }
         public decimal Total { get; init; }
         public decimal AdjustmentTotal { get; init; }
-        public decimal TaxTotal { get; init; }
         public string Currency { get; init; } = string.Empty;
         public DateTimeOffset CreatedAtUtc { get; init; }
     }
@@ -41,7 +40,6 @@ public static partial class GetOrderLineItemById
                 Price = lineItem.Price,
                 Total = lineItem.Total,
                 AdjustmentTotal = lineItem.AdjustmentTotal,
-                TaxTotal = lineItem.TaxTotal,
                 Currency = lineItem.Currency,
                 CreatedAtUtc = lineItem.CreatedAtUtc
             };

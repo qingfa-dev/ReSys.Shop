@@ -68,34 +68,17 @@ public static class LineItemExtensions
     }
 
     /// <summary>
-    /// Recalculates the line item total based on quantity, price, adjustments, and tax.
+    /// Recalculates the line item total based on quantity, price, and adjustments.
     /// </summary>
     /// <param name="lineItem">The line item to recalculate.</param>
     /// <returns>A success result with the recalculated line item ID.</returns>
-    // Compute: PreTaxAmount = (Quantity * Price) + AdjustmentTotal - PromoTotal; Total = PreTaxAmount + TaxTotal
+    // Compute: Total = (Quantity * Price) + AdjustmentTotal
     public static Result RecalculateTotal(this LineItem lineItem)
     {
-        lineItem.PreTaxAmount = (lineItem.Quantity * lineItem.Price)
-                              + lineItem.AdjustmentTotal
-                              - lineItem.PromoTotal;
-
-        lineItem.Total = lineItem.PreTaxAmount + lineItem.TaxTotal;
+        lineItem.Total = (lineItem.Quantity * lineItem.Price)
+                       + lineItem.AdjustmentTotal;
 
         return Result.Ok(LineItemResult.Success.Recalculated(lineItem.Id));
-    }
-
-    /// <summary>
-    /// Applies a tax amount to the line item and recalculates totals.
-    /// </summary>
-    /// <param name="lineItem">The line item to apply tax to.</param>
-    /// <param name="taxAmount">The tax amount to add.</param>
-    /// <returns>A success result with the recalculated line item ID.</returns>
-    public static Result ApplyTax(this LineItem lineItem, decimal taxAmount)
-    {
-        // Update: Accumulate tax amount onto the line item tax total
-        lineItem.TaxTotal += taxAmount;
-
-        return lineItem.RecalculateTotal();
     }
     #endregion
 

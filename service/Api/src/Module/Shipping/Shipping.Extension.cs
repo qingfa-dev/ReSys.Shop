@@ -1,4 +1,9 @@
+using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
+
+using Module.Shipping.Persistence.Seeders;
+
+using Shared.Operational.Persistence.Seeders;
 
 namespace Module.Shipping;
 
@@ -6,10 +11,17 @@ namespace Module.Shipping;
 // @CAT-10 Boundary: Module -> Host — this is the composition root for the Shipping module DI registration
 public static class ShippingExtension
 {
-    // Register: Configure Shipping module services in the application DI container
-    //           Currently provides calculator strategy services
-    public static IServiceCollection AddShippingModule(this IServiceCollection services)
+    /// <summary>
+    /// Registers Shipping module services into the dependency injection container.
+    /// </summary>
+    /// <param name="builder">The application builder.</param>
+    /// <returns>The application builder for chaining.</returns>
+    public static WebApplicationBuilder AddShippingModule(this WebApplicationBuilder builder)
     {
-        return services;
+        // Register: Seeders
+        builder.AddSeeder<ShippingMethodSeeder>();
+        builder.AddSeeder<ShippingRateSeeder>();
+
+        return builder;
     }
 }

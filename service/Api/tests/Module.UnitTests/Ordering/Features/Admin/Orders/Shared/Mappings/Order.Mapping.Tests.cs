@@ -50,9 +50,7 @@ public class OrderMappingTests
         response.ShippingMethodId.Should().Be(order.ShippingMethodId);
         response.ItemTotal.Should().Be(order.ItemTotal);
         response.AdjustmentTotal.Should().Be(order.AdjustmentTotal);
-        response.TaxTotal.Should().Be(order.TaxTotal);
         response.ShipmentTotal.Should().Be(order.ShipmentTotal);
-        response.PromoTotal.Should().Be(order.PromoTotal);
         response.Total.Should().Be(order.Total);
         response.PaymentTotal.Should().Be(order.PaymentTotal);
         response.OutstandingBalance.Should().Be(order.OutstandingBalance);
@@ -138,9 +136,7 @@ public class OrderMappingTests
         order.ShippingMethodId = Guid.NewGuid();
         order.ItemTotal = 50m;
         order.AdjustmentTotal = 5m;
-        order.TaxTotal = 10m;
         order.ShipmentTotal = 15m;
-        order.PromoTotal = 0m;
         order.Total = 80m;
         order.PaymentTotal = 80m;
         order.OutstandingBalance = 0m;

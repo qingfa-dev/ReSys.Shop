@@ -25,7 +25,17 @@ public static partial class GetOrderLineItems
                 .ApplyQuerying(parseAll.Value);
 
             var pagedResult = await query
-                .Select(li => new Response { Id = li.Id, VariantId = li.VariantId, Quantity = li.Quantity, Price = li.Price, Total = li.Total, AdjustmentTotal = li.AdjustmentTotal, TaxTotal = li.TaxTotal, Currency = li.Currency, CreatedAtUtc = li.CreatedAtUtc })
+                .Select(li => new Response
+                {
+                    Id = li.Id,
+                    VariantId = li.VariantId,
+                    Quantity = li.Quantity,
+                    Price = li.Price,
+                    Total = li.Total,
+                    AdjustmentTotal = li.AdjustmentTotal,
+                    Currency = li.Currency,
+                    CreatedAtUtc = li.CreatedAtUtc
+                })
                 .ToPagedOrAllAsync(parseAll.Value, x => x, cancellationToken);
 
             return pagedResult;

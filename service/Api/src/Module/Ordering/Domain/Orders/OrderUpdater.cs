@@ -1,3 +1,5 @@
+using PaymentStateEnum = Module.Payment.Domain.Payments.PaymentState;
+
 namespace Module.Ordering.Domain.Orders;
 
 /// <summary>
@@ -59,7 +61,7 @@ public partial class OrderUpdater
     public void UpdatePaymentTotal()
     {
         Order.PaymentTotal = Order.Payments
-            .Where(p => p.State == "completed")
+            .Where(p => p.State == PaymentStateEnum.Completed)
             .Sum(p => p.Amount);
     }
 
@@ -93,7 +95,7 @@ public partial class OrderUpdater
     }
 
     /// <summary>
-    /// Recalculates all adjustment totals including promo, included tax, and additional tax.
+    /// Recalculates all adjustment totals.
     /// </summary>
     // @CAT-5 Compute: Recalculate all adjustment totals
     public void UpdateAdjustmentTotal()
@@ -104,15 +106,6 @@ public partial class OrderUpdater
             .Sum(a => a.Amount);
 
         Order.AdjustmentTotal = lineItemAdjustmentTotal + orderAdjustmentTotal;
-        Order.PromoTotal = Order.Adjustments
-            .Where(a => a.Eligible && a.SourceType == "PromotionAction")
-            .Sum(a => a.Amount);
-        Order.IncludedTaxTotal = Order.Adjustments
-            .Where(a => a.Eligible && a.Included)
-            .Sum(a => a.Amount);
-        Order.AdditionalTaxTotal = Order.Adjustments
-            .Where(a => a.Eligible && !a.Included)
-            .Sum(a => a.Amount);
 
         UpdateOrderTotal();
     }
@@ -136,7 +129,7 @@ public partial class OrderUpdater
     // @CAT-5 Compute: Determine payment state from payment records
     public void UpdatePaymentState()
     {
-        if (Order.Payments.Count > 0 && !Order.Payments.Any(p => p.State != "failed" && p.State != "invalid"))
+        if (Order.Payments.Count > 0 && !Order.Payments.Any(p => p.State != PaymentStateEnum.Failed && p.State != PaymentStateEnum.Invalid))
         {
             Order.PaymentState = "failed";
         }

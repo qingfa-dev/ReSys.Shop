@@ -9,7 +9,6 @@ public static partial class GetOrderLineItems
         public decimal Price { get; init; }
         public decimal Total { get; init; }
         public decimal AdjustmentTotal { get; init; }
-        public decimal TaxTotal { get; init; }
         public string Currency { get; init; } = string.Empty;
         public DateTimeOffset CreatedAtUtc { get; init; }
     }
