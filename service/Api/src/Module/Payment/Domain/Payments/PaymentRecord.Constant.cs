@@ -24,22 +24,22 @@ public static class PaymentConstant
     {
         public static readonly string[] AllowedSearchFields =
         [
-            nameof(Payment.Number)
+            nameof(PaymentRecord.Number)
         ];
 
         public static readonly string[] AllowedSortFields =
         [
-            nameof(Payment.Number),
-            nameof(Payment.Amount),
-            nameof(Payment.State),
-            nameof(Payment.CreatedAtUtc)
+            nameof(PaymentRecord.Number),
+            nameof(PaymentRecord.Amount),
+            nameof(PaymentRecord.State),
+            nameof(PaymentRecord.CreatedAtUtc)
         ];
 
         public static readonly string[] AllowedFilterFields =
         [
-            nameof(Payment.State),
-            nameof(Payment.PaymentMethodId),
-            nameof(Payment.OrderId)
+            nameof(PaymentRecord.State),
+            nameof(PaymentRecord.PaymentMethodId),
+            nameof(PaymentRecord.OrderId)
         ];
     }
 }

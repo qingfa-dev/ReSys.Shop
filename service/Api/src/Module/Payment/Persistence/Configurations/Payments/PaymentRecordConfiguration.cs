@@ -5,11 +5,11 @@ using Module.Payment.Persistence.Constants;
 
 namespace Module.Payment.Persistence.Configurations.Payments;
 
-public class PaymentConfiguration : IEntityTypeConfiguration<global::Module.Payment.Domain.Payments.Payment>
+public class PaymentConfiguration : IEntityTypeConfiguration<global::Module.Payment.Domain.Payments.PaymentRecord>
 {
-    public void Configure(EntityTypeBuilder<global::Module.Payment.Domain.Payments.Payment> builder)
+    public void Configure(EntityTypeBuilder<global::Module.Payment.Domain.Payments.PaymentRecord> builder)
     {
-        builder.ToTable(PaymentSchema.TableNames.Payments, PaymentSchema.Name);
+        builder.ToTable(PaymentSchema.TableNames.PaymentRecords, PaymentSchema.Name);
 
         builder.HasKey(x => x.Id);
 
@@ -50,7 +50,7 @@ public class PaymentConfiguration : IEntityTypeConfiguration<global::Module.Paym
 
         #region Relationships
         builder.HasOne(x => x.Order)
-            .WithMany()
+            .WithMany(o => o.Payments)
             .HasForeignKey(x => x.OrderId)
             .OnDelete(DeleteBehavior.Cascade);
 

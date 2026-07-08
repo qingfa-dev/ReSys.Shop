@@ -1,5 +1,5 @@
 using Module.Payment.Domain.PaymentMethods;
-using PaymentDomain = Module.Payment.Domain.PaymentMethods.PaymentMethod;
+using PaymentRecord = Module.Payment.Domain.PaymentMethods.PaymentMethod;
 
 namespace Module.Payment.Features.Admin.PaymentMethods.Shared.Mappings;
 
@@ -7,7 +7,7 @@ namespace Module.Payment.Features.Admin.PaymentMethods.Shared.Mappings;
 public static partial class PaymentMethodMapping
 {
     /// <summary>Maps a request to a new PaymentMethod domain entity (create).</summary>
-    public static Result<PaymentDomain> MapToDomain<T>(this T request) where T : Models.PaymentMethodRequest
+    public static Result<PaymentRecord> MapToDomain<T>(this T request) where T : Models.PaymentMethodRequest
     {
         return PaymentMethodExtensions.Create(
             name: request.Name,
@@ -18,7 +18,7 @@ public static partial class PaymentMethodMapping
     }
 
     /// <summary>Maps a request to an existing PaymentMethod domain entity (update).</summary>
-    public static Result MapToDomain<T>(this T request, PaymentDomain method) where T : Models.PaymentMethodRequest
+    public static Result MapToDomain<T>(this T request, PaymentRecord method) where T : Models.PaymentMethodRequest
     {
         return method.Update(
             name: request.Name,
@@ -31,7 +31,7 @@ public static partial class PaymentMethodMapping
     }
 
     /// <summary>Maps a partial-update request (PATCH) to an existing PaymentMethod domain entity.</summary>
-    public static Result MapUpdateToDomain<T>(this T request, PaymentDomain method) where T : Models.PaymentMethodUpdateRequest
+    public static Result MapUpdateToDomain<T>(this T request, PaymentRecord method) where T : Models.PaymentMethodUpdateRequest
     {
         return method.Update(
             name: request.Name,

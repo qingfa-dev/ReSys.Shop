@@ -30,7 +30,7 @@ public sealed partial class PaymentMethod : Entity, IAuditable, IParameterizable
     #endregion Auditing
 
     #region Relationships
-    public ICollection<Payments.Payment> Payments { get; set; } = [];
+    public ICollection<Payments.PaymentRecord> Payments { get; set; } = [];
     #endregion Relationships
 
     #region Soft Deletion

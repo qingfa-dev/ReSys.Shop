@@ -1,5 +1,5 @@
 using Module.Payment.Domain.Payments;
-using PaymentDomain = Module.Payment.Domain.Payments.Payment;
+using PaymentRecord = Module.Payment.Domain.Payments.PaymentRecord;
 using Stripe;
 using StripeEvent = Stripe.Event;
 
@@ -60,7 +60,7 @@ namespace Module.Payment.Features.Storefront.Payment.Webhooks;
             if (intent is null)
                 return Result.Ok();
 
-            var payment = await dbContext.Set<PaymentDomain>()
+            var payment = await dbContext.Set<PaymentRecord>()
                 .FirstOrDefaultAsync(p => p.ResponseCode == intent.Id, cancellationToken);
 
             if (payment is null)
@@ -79,7 +79,7 @@ namespace Module.Payment.Features.Storefront.Payment.Webhooks;
             if (intent is null)
                 return Result.Ok();
 
-            var payment = await dbContext.Set<PaymentDomain>()
+            var payment = await dbContext.Set<PaymentRecord>()
                 .FirstOrDefaultAsync(p => p.ResponseCode == intent.Id, cancellationToken);
 
             if (payment is null)
@@ -98,7 +98,7 @@ namespace Module.Payment.Features.Storefront.Payment.Webhooks;
             if (charge is null || string.IsNullOrEmpty(charge.PaymentIntentId))
                 return Result.Ok();
 
-            var payment = await dbContext.Set<PaymentDomain>()
+            var payment = await dbContext.Set<PaymentRecord>()
                 .FirstOrDefaultAsync(p => p.ResponseCode == charge.PaymentIntentId, cancellationToken);
 
             if (payment is null)

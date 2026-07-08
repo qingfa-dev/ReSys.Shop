@@ -1,7 +1,7 @@
 using Module.Payment.Domain.Gateways;
 using Module.Payment.Domain.Payments;
 
-using PaymentDomain = Module.Payment.Domain.Payments.Payment;
+using PaymentRecord = Module.Payment.Domain.Payments.PaymentRecord;
 
 namespace Module.UnitTests.Payment.Domain.Payments;
 
@@ -19,12 +19,12 @@ public class PaymentProcessingAsyncTests
         _gatewayMock.Setup(x => x.SourceRequired).Returns(false);
     }
 
-    private static PaymentDomain CreatePayment(decimal amount = 100m)
+    private static PaymentRecord CreatePayment(decimal amount = 100m)
     {
         return PaymentFactory.Create(amount, Guid.NewGuid(), Guid.NewGuid()).Value;
     }
 
-    private static GatewayOptions CreateGatewayOptions(PaymentDomain payment)
+    private static GatewayOptions CreateGatewayOptions(PaymentRecord payment)
     {
         return new GatewayOptions(payment)
         {

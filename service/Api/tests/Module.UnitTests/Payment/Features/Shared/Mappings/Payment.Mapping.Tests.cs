@@ -2,7 +2,7 @@ using Module.Payment.Domain.Payments;
 using Module.Payment.Features.Admin.Payments.Shared.Mappings;
 using Module.Payment.Features.Admin.Payments.Shared.Models;
 
-using PaymentDomain = Module.Payment.Domain.Payments.Payment;
+using PaymentRecord = Module.Payment.Domain.Payments.PaymentRecord;
 
 namespace Module.UnitTests.Payment.Features.Shared.Mappings;
 
@@ -101,9 +101,9 @@ public class PaymentMappingTests
         response.Id.Should().Be(payment.Id);
     }
 
-    private static PaymentDomain CreatePayment(Action<PaymentDomain>? configure = null)
+    private static PaymentRecord CreatePayment(Action<PaymentRecord>? configure = null)
     {
-        var payment = new PaymentDomain
+        var payment = new PaymentRecord
         {
             Id = Guid.NewGuid(),
             Amount = 99.99m,

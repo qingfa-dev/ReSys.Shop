@@ -4,7 +4,7 @@ using Module.Payment.Domain.Gateways;
 using Module.Payment.Domain.Payments;
 using Module.Payment.Infrastructure.Gateways.Bogus;
 
-using PaymentDomain = Module.Payment.Domain.Payments.Payment;
+using PaymentRecord = Module.Payment.Domain.Payments.PaymentRecord;
 
 namespace Module.UnitTests.Payment.Infrastructure;
 

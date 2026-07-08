@@ -1,10 +1,10 @@
-using PaymentDomain = Module.Payment.Domain.Payments.Payment;
+using PaymentRecord = Module.Payment.Domain.Payments.PaymentRecord;
 
 namespace Module.Payment.Features.Admin.Payments.Shared.Mappings;
 
 public static class PaymentModelMapping
 {
-    public static T MapToDetail<T>(this PaymentDomain payment) where T : Models.PaymentDetailResponse, new()
+    public static T MapToDetail<T>(this PaymentRecord payment) where T : Models.PaymentDetailResponse, new()
     {
         return new T
         {
@@ -22,7 +22,7 @@ public static class PaymentModelMapping
         };
     }
 
-    public static T MapToListItem<T>(this PaymentDomain payment) where T : Models.PaymentListItemResponse, new()
+    public static T MapToListItem<T>(this PaymentRecord payment) where T : Models.PaymentListItemResponse, new()
     {
         return new T
         {

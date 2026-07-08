@@ -1,6 +1,6 @@
 using Module.Payment.Domain.Payments;
 
-using PaymentDomain = Module.Payment.Domain.Payments.Payment;
+using PaymentRecord = Module.Payment.Domain.Payments.PaymentRecord;
 
 namespace Module.Payment.Features.Admin.Payments.Get.ById;
 
@@ -21,7 +21,7 @@ namespace Module.Payment.Features.Admin.Payments.Get.ById;
 
         // Contract: pre=command!=null, post=result!=null
             // Query: Get payment by ID.
-            var payment = await dbContext.Set<PaymentDomain>()
+            var payment = await dbContext.Set<PaymentRecord>()
                 .AsNoTracking()
                 .FirstOrDefaultAsync(p => p.Id == query.Id, cancellationToken);
 

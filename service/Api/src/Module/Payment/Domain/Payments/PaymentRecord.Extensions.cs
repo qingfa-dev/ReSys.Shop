@@ -15,7 +15,7 @@ public static class PaymentFactory
     /// <param name="sourceType">Optional type name of the payment source.</param>
     /// <returns>A result containing the created payment or an amount validation error.</returns>
     // Contract: pre=amount>0 && paymentMethodId!=default && orderId!=default, post=payment.Id!=default && payment.State==Checkout
-    public static Result<Payment> Create(
+    public static Result<PaymentRecord> Create(
         decimal amount,
         Guid paymentMethodId,
         Guid orderId,
@@ -28,7 +28,7 @@ public static class PaymentFactory
             return PaymentResult.Failure.AmountMustBePositive;
         }
 
-        var payment = new Payment
+        var payment = new PaymentRecord
         {
             Id = Guid.NewGuid(),
             Number = GeneratePaymentNumber(),
@@ -58,7 +58,7 @@ public static class PaymentFactory
     /// <param name="payment">The payment to process. Must be in Checkout state.</param>
     /// <returns>A result indicating success or an invalid state transition error.</returns>
     // Enforce: Payment must be in Checkout state to transition to Processing
-    public static Result Process(this Payment payment)
+    public static Result Process(this PaymentRecord payment)
     {
         if (!CanTransitionTo(PaymentState.Processing))
         {
@@ -83,7 +83,7 @@ public static class PaymentFactory
     /// <param name="payment">The payment to pend. Must be in Processing state.</param>
     /// <returns>A result indicating success or an invalid state transition error.</returns>
     // Enforce: Payment must be in Processing state to transition to Pending
-    public static Result Pend(this Payment payment)
+    public static Result Pend(this PaymentRecord payment)
     {
         if (payment.State is not PaymentState.Processing)
         {
@@ -102,7 +102,7 @@ public static class PaymentFactory
     /// <param name="payment">The payment to complete. Must be in Processing or Pending state and not already completed.</param>
     /// <returns>A result indicating success or an invalid state transition error.</returns>
     // Enforce: Payment must not already be completed and must be in Processing or Pending state
-    public static Result Complete(this Payment payment)
+    public static Result Complete(this PaymentRecord payment)
     {
         if (payment.State is PaymentState.Completed)
         {
@@ -126,7 +126,7 @@ public static class PaymentFactory
     /// <param name="payment">The payment to fail. Must be in Checkout, Processing, or Pending state and not already failed.</param>
     /// <returns>A result indicating success or an invalid state transition error.</returns>
     // Enforce: Payment must not already be failed and must be in Checkout, Processing, or Pending state
-    public static Result Fail(this Payment payment)
+    public static Result Fail(this PaymentRecord payment)
     {
         if (payment.State is PaymentState.Failed)
         {
@@ -150,7 +150,7 @@ public static class PaymentFactory
     /// <param name="payment">The payment to void. Must be in Processing or Pending state and not already voided.</param>
     /// <returns>A result indicating success or an invalid state transition error.</returns>
     // Enforce: Payment must not already be voided and must be in Processing or Pending state
-    public static Result Void(this Payment payment)
+    public static Result Void(this PaymentRecord payment)
     {
         if (payment.State is PaymentState.Void)
         {
@@ -174,7 +174,7 @@ public static class PaymentFactory
     /// <param name="payment">The payment to invalidate. Must be in Failed or Void state.</param>
     /// <returns>A result indicating success or an invalid state transition error.</returns>
     // Enforce: Payment must be in Failed or Void state to transition to Invalid
-    public static Result Invalidate(this Payment payment)
+    public static Result Invalidate(this PaymentRecord payment)
     {
         if (payment.State is PaymentState.Invalid)
         {
@@ -200,7 +200,7 @@ public static class PaymentFactory
     /// <param name="payment">The payment to check.</param>
     /// <returns>True if the payment is in Completed state and eligible for credit.</returns>
     // Compute: Credit is allowed only when the payment has reached the Completed state
-    public static bool CreditAllowed(this Payment payment)
+    public static bool CreditAllowed(this PaymentRecord payment)
     {
         return payment.State is PaymentState.Completed;
     }
@@ -211,7 +211,7 @@ public static class PaymentFactory
     /// <param name="payment">The payment to calculate for.</param>
     /// <returns>The full payment amount if not yet completed, or zero once completed.</returns>
     // Compute: Uncaptured amount is the full payment amount before completion; zero after completion
-    public static decimal UncapturedAmount(this Payment payment)
+    public static decimal UncapturedAmount(this PaymentRecord payment)
     {
         return payment.State is PaymentState.Completed ? 0 : payment.Amount;
     }
@@ -223,7 +223,7 @@ public static class PaymentFactory
     /// <param name="amount">The amount to capture. Must be positive and within the payment amount.</param>
     /// <returns>True if the payment is in a capturable state and the amount is valid.</returns>
     // Compute: Capture is allowed when payment is Processing or Pending and amount is positive and within the authorized amount
-    public static bool CanCapture(this Payment payment, decimal amount)
+    public static bool CanCapture(this PaymentRecord payment, decimal amount)
     {
         return payment.State is PaymentState.Processing or PaymentState.Pending
             && amount > 0
@@ -237,7 +237,7 @@ public static class PaymentFactory
     /// <param name="amount">The amount to capture. Must be capturable per business rules.</param>
     /// <returns>A result indicating success or an error if the payment state or amount is invalid.</returns>
     // Enforce: Payment must be capturable and the amount must not exceed the authorized amount
-    public static Result Capture(this Payment payment, decimal amount)
+    public static Result Capture(this PaymentRecord payment, decimal amount)
     {
         if (!payment.CanCapture(amount))
         {
@@ -259,7 +259,7 @@ public static class PaymentFactory
     /// <param name="amount">The amount to refund. Must be positive and not exceed the payment amount.</param>
     /// <returns>True if the payment is completed and the refund amount is valid.</returns>
     // Compute: Refund is allowed only when payment is Completed and amount is positive and within authorized amount
-    public static bool CanRefund(this Payment payment, decimal amount)
+    public static bool CanRefund(this PaymentRecord payment, decimal amount)
     {
         return payment.State is PaymentState.Completed
             && amount > 0
@@ -273,7 +273,7 @@ public static class PaymentFactory
     /// <param name="amount">The amount to refund.</param>
     /// <returns>A result indicating success or an error if the payment state or amount is invalid.</returns>
     // Enforce: Payment must be completed and the refund amount must not exceed the authorized amount
-    public static Result Refund(this Payment payment, decimal amount)
+    public static Result Refund(this PaymentRecord payment, decimal amount)
     {
         if (!payment.CanRefund(amount))
         {
@@ -294,7 +294,7 @@ public static class PaymentFactory
     /// Processes the payment via the gateway -- authorizes or purchases depending on auto_capture.
     /// </summary>
     // Contract: pre=payment!=null && gateway!=null, post=payment.State is Pending or Completed or Failed
-    public static Task<Result> ProcessAsync(this Payment payment, IPaymentGatewayActionProvider gateway, GatewayOptions options, CancellationToken cancellationToken = default)
+    public static Task<Result> ProcessAsync(this PaymentRecord payment, IPaymentGatewayActionProvider gateway, GatewayOptions options, CancellationToken cancellationToken = default)
     {
         return PaymentProcessing.ProcessAsync(payment, gateway, options, cancellationToken);
     }
@@ -303,7 +303,7 @@ public static class PaymentFactory
     /// Authorizes the payment amount against the payment source via the gateway.
     /// </summary>
     // Contract: pre=payment.State==Checkout && gateway!=null, post=payment.State==Pending or Failed
-    public static Task<Result> AuthorizeAsync(this Payment payment, IPaymentGatewayActionProvider gateway, GatewayOptions options, CancellationToken cancellationToken = default)
+    public static Task<Result> AuthorizeAsync(this PaymentRecord payment, IPaymentGatewayActionProvider gateway, GatewayOptions options, CancellationToken cancellationToken = default)
     {
         return PaymentProcessing.AuthorizeAsync(payment, gateway, options, cancellationToken);
     }
@@ -312,7 +312,7 @@ public static class PaymentFactory
     /// Purchases (authorize + capture) the payment amount via the gateway.
     /// </summary>
     // Contract: pre=payment.State==Checkout && gateway!=null, post=payment.State==Completed or Failed
-    public static Task<Result> PurchaseAsync(this Payment payment, IPaymentGatewayActionProvider gateway, GatewayOptions options, CancellationToken cancellationToken = default)
+    public static Task<Result> PurchaseAsync(this PaymentRecord payment, IPaymentGatewayActionProvider gateway, GatewayOptions options, CancellationToken cancellationToken = default)
     {
         return PaymentProcessing.PurchaseAsync(payment, gateway, options, cancellationToken);
     }
@@ -321,7 +321,7 @@ public static class PaymentFactory
     /// Captures the specified amount via the gateway after validating state preconditions.
     /// </summary>
     // Enforce: Payment must be capturable and the amount must not exceed the authorized amount
-    public static async Task<Result> CaptureAsync(this Payment payment, IPaymentGatewayActionProvider gateway, GatewayOptions options, decimal amount, CancellationToken cancellationToken = default)
+    public static async Task<Result> CaptureAsync(this PaymentRecord payment, IPaymentGatewayActionProvider gateway, GatewayOptions options, decimal amount, CancellationToken cancellationToken = default)
     {
         if (!payment.CanCapture(amount))
         {
@@ -338,7 +338,7 @@ public static class PaymentFactory
     /// Voids the payment transaction via the gateway.
     /// </summary>
     // Contract: pre=payment.State is Processing or Pending, post=payment.State==Void or Failed
-    public static Task<Result> VoidAsync(this Payment payment, IPaymentGatewayActionProvider gateway, GatewayOptions options, CancellationToken cancellationToken = default)
+    public static Task<Result> VoidAsync(this PaymentRecord payment, IPaymentGatewayActionProvider gateway, GatewayOptions options, CancellationToken cancellationToken = default)
     {
         if (payment.State is PaymentState.Void)
             return Task.FromResult<Result>(PaymentResult.Failure.AlreadyVoided);
@@ -353,7 +353,7 @@ public static class PaymentFactory
     /// Cancels the payment via the gateway cancel action.
     /// </summary>
     // Contract: post=payment.State==Void or Failed
-    public static Task<Result> CancelAsync(this Payment payment, IPaymentGatewayActionProvider gateway, CancellationToken cancellationToken = default)
+    public static Task<Result> CancelAsync(this PaymentRecord payment, IPaymentGatewayActionProvider gateway, CancellationToken cancellationToken = default)
     {
         return PaymentProcessing.CancelAsync(payment, gateway, cancellationToken);
     }
@@ -362,7 +362,7 @@ public static class PaymentFactory
     /// Refunds the specified amount via the gateway after validating state preconditions.
     /// </summary>
     // Enforce: Payment must be completed and the refund amount must not exceed the authorized amount
-    public static async Task<Result> RefundAsync(this Payment payment, IPaymentGatewayActionProvider gateway, GatewayOptions options, decimal amount, CancellationToken cancellationToken = default)
+    public static async Task<Result> RefundAsync(this PaymentRecord payment, IPaymentGatewayActionProvider gateway, GatewayOptions options, decimal amount, CancellationToken cancellationToken = default)
     {
         if (!payment.CanRefund(amount))
         {
