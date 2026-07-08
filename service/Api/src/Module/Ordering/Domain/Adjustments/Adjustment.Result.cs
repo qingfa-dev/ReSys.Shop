@@ -45,7 +45,7 @@ public static class AdjustmentResult
 
         public static Error InvalidSourceType => Error.Validation(
             code: "Adjustment.SourceType.Invalid",
-            message: $"Source type must be one of: PromotionAction, TaxRate.");
+            message: $"Source type must be one of: Shipping.");
 
         public static Error AlreadyClosed => Error.Conflict(
             code: "Adjustment.AlreadyClosed",

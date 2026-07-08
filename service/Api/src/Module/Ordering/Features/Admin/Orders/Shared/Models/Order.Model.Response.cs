@@ -10,9 +10,7 @@ public class OrderDetailResponse : OrderParameters
     public CheckoutState CheckoutState { get; init; }
     public decimal ItemTotal { get; init; }
     public decimal AdjustmentTotal { get; init; }
-    public decimal TaxTotal { get; init; }
     public decimal ShipmentTotal { get; init; }
-    public decimal PromoTotal { get; init; }
     public decimal Total { get; init; }
     public decimal PaymentTotal { get; init; }
     public decimal OutstandingBalance { get; init; }

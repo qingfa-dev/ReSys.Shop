@@ -4,12 +4,13 @@ using Shared.Application.Domain.Models;
 
 using Module.Ordering.Domain.Adjustments;
 using Module.Ordering.Domain.LineItems;
+using Module.Payment.Domain.Payments;
 namespace Module.Ordering.Domain.Orders;
 
 /// <summary>
 /// Represents a customer order as the aggregate root in the ordering context.
 /// </summary>
-// @CAT-10 Invariant: Total = ItemTotal + AdjustmentTotal + TaxTotal + ShipmentTotal - PromoTotal; CheckoutState progresses forward; Finalized orders are immutable except Cancel; Total >= 0
+// @CAT-10 Invariant: Total = ItemTotal + AdjustmentTotal + ShipmentTotal; CheckoutState progresses forward; Finalized orders are immutable except Cancel; Total >= 0
 public sealed partial class Order : Entity, IAuditable, ISoftDeletable
 {
     #region Properties
@@ -20,12 +21,7 @@ public sealed partial class Order : Entity, IAuditable, ISoftDeletable
     public string Currency { get; set; } = OrderConstant.Defaults.Currency;
     public decimal ItemTotal { get; set; }
     public decimal AdjustmentTotal { get; set; }
-    public decimal IncludedTaxTotal { get; set; }
-    public decimal AdditionalTaxTotal { get; set; }
-    public decimal TaxTotal { get; set; }
     public decimal ShipmentTotal { get; set; }
-    public decimal PromoTotal { get; set; }
-    public decimal CartPromoTotal { get; set; }
     public decimal Total { get; set; }
     public decimal PaymentTotal { get; set; }
     public decimal OutstandingBalance { get; set; }
@@ -63,7 +59,7 @@ public sealed partial class Order : Entity, IAuditable, ISoftDeletable
     #region Navigation
     public ICollection<LineItem> LineItems { get; set; } = [];
     public ICollection<Adjustment> Adjustments { get; set; } = [];
-    public IList<PaymentRecord> Payments { get; set; } = [];
+    public ICollection<PaymentRecord> Payments { get; set; } = [];
     #endregion Navigation
 
     #region Soft Deletion

@@ -9,7 +9,7 @@ using Shared.Operational.Notifications.Models;
 using Shared.Operational.Notifications.Services;
 using Shared.Operational.Notifications.Templates;
 
-using PaymentDomain = Module.Payment.Domain.Payments.Payment;
+using PaymentRecord = Module.Payment.Domain.Payments.PaymentRecord;
 
 namespace Module.Ordering.Features.Storefront.Cart.Checkout;
 /// <summary>Handles CreateOrderFromCart feature.</summary>
@@ -67,7 +67,7 @@ public static partial class CreateOrderFromCart
                 if (string.IsNullOrWhiteSpace(paymentIntentId))
                     return OrderResult.Errors.PaymentRequired;
 
-                var payment = await dbContext.Set<PaymentDomain>()
+                var payment = await dbContext.Set<PaymentRecord>()
                     .FirstOrDefaultAsync(p => p.ResponseCode == paymentIntentId
                                           && p.OrderId == cart.Id
                                           && p.State == PaymentState.Completed, cancellationToken);

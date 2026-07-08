@@ -28,18 +28,6 @@ public class LineItemConfiguration : IEntityTypeConfiguration<LineItem>
         builder.Property(x => x.AdjustmentTotal)
             .HasPrecision(LineItemConstant.Precision, LineItemConstant.Scale);
 
-        builder.Property(x => x.TaxTotal)
-            .HasPrecision(LineItemConstant.Precision, LineItemConstant.Scale);
-
-        builder.Property(x => x.PromoTotal)
-            .HasPrecision(LineItemConstant.Precision, LineItemConstant.Scale);
-
-        builder.Property(x => x.IncludedTaxTotal)
-            .HasPrecision(LineItemConstant.Precision, LineItemConstant.Scale);
-
-        builder.Property(x => x.PreTaxAmount)
-            .HasPrecision(LineItemConstant.Precision, LineItemConstant.Scale);
-
         builder.Property(x => x.VariantId).IsRequired();
         builder.Property(x => x.OrderId).IsRequired();
         #endregion

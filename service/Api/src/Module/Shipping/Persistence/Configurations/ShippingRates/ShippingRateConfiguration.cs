@@ -28,15 +28,6 @@ public class ShippingRateConfiguration : IEntityTypeConfiguration<ShippingRate>
         builder.Property(x => x.FinalPrice)
             .HasPrecision(ShippingRateConstant.Constraints.Precision, ShippingRateConstant.Constraints.Scale);
 
-        builder.Property(x => x.TaxAmount)
-            .HasPrecision(ShippingRateConstant.Constraints.Precision, ShippingRateConstant.Constraints.Scale);
-
-        builder.Property(x => x.AdditionalTaxTotal)
-            .HasPrecision(ShippingRateConstant.Constraints.Precision, ShippingRateConstant.Constraints.Scale);
-
-        builder.Property(x => x.IncludedTaxTotal)
-            .HasPrecision(ShippingRateConstant.Constraints.Precision, ShippingRateConstant.Constraints.Scale);
-
         builder.Property(x => x.DisplayPrice)
             .IsRequired()
             .HasMaxLength(ShippingRateConstant.Constraints.MaxDisplayPriceLength);

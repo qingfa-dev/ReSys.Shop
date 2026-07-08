@@ -17,8 +17,5 @@ public class LineItemExtensionsTests
         var li=LineItemExtensions.Create(Guid.NewGuid(),Guid.NewGuid(),1,10).Value;
         var r=li.UpdateQuantity(3);r.IsSuccess.Should().BeTrue();li.Quantity.Should().Be(3);
     }
-    [Fact]public void ApplyTax_ShouldIncreaseTaxTotal(){
-        var li=LineItemExtensions.Create(Guid.NewGuid(),Guid.NewGuid(),1,10).Value;
-        var r=li.ApplyTax(2);r.IsSuccess.Should().BeTrue();li.TaxTotal.Should().Be(2);
-    }
+
 }

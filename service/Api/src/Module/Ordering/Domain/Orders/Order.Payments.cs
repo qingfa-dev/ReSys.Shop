@@ -1,3 +1,6 @@
+using PaymentRecord = Module.Payment.Domain.Payments.PaymentRecord;
+using PaymentStateEnum = Module.Payment.Domain.Payments.PaymentState;
+
 namespace Module.Ordering.Domain.Orders;
 
 // Invariant: PaymentTotal must not exceed Total; payment errors must not block checkout by default
@@ -14,7 +17,7 @@ public sealed partial class Order
         // Validate: At least one unprocessed payment must exist
         if (!HasUnprocessedPayments) return false;
 
-        foreach (var _ in GetUnprocessedPayments())
+        foreach (var payment in GetUnprocessedPayments())
         {
             if (PaymentTotal >= Total) break;
         }
@@ -24,12 +27,12 @@ public sealed partial class Order
 
     // Compute: Whether there are unprocessed (checkout-state) payments
     public bool HasUnprocessedPayments =>
-        Payments.Any(p => p.State == "checkout");
+        Payments.Any(p => p.State == PaymentStateEnum.Checkout);
 
     // Compute: Get unprocessed payment records
     public IReadOnlyList<PaymentRecord> GetUnprocessedPayments() =>
         Payments
-            .Where(p => p.State == "checkout")
+            .Where(p => p.State == PaymentStateEnum.Checkout)
             .ToList()
             .AsReadOnly();
 

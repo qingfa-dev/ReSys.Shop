@@ -7,7 +7,7 @@ using Shared.Operational.Notifications.Models;
 using Shared.Operational.Notifications.Services;
 using Shared.Operational.Notifications.Templates;
 
-using PaymentDomain = Module.Payment.Domain.Payments.Payment;
+using PaymentRecord = Module.Payment.Domain.Payments.PaymentRecord;
 
 namespace Module.Ordering.Features.Storefront.Orders.Cancel;
 
@@ -57,7 +57,7 @@ namespace Module.Ordering.Features.Storefront.Orders.Cancel;
             entity.CanceledById = currentUser.UserId is not null && Guid.TryParse(currentUser.UserId, out var canceledBy) ? canceledBy : null;
 
             // Void: Cancel associated payments via gateway.
-            var payments = await dbContext.Set<PaymentDomain>()
+            var payments = await dbContext.Set<PaymentRecord>()
                 .Where(p => p.OrderId == entity.Id && p.State != PaymentState.Void && p.State != PaymentState.Failed)
                 .ToListAsync(cancellationToken);
 
