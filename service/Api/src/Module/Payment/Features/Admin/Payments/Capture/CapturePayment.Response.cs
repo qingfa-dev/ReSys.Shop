@@ -10,7 +10,7 @@ public static partial class CapturePayment
         public string Number { get; init; } = string.Empty;
         public decimal Amount { get; init; }
         public decimal CapturedAmount { get; init; }
-        public PaymentState State { get; init; }
+        public PaymentRecordState State { get; init; }
         public string Message { get; init; } = string.Empty;
     }
 }

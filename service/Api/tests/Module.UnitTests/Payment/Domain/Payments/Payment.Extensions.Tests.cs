@@ -11,7 +11,7 @@ public class PaymentExtensionsTests
         var result = PaymentFactory.Create(100m, Guid.NewGuid(), Guid.NewGuid());
 
         result.IsSuccess.Should().BeTrue();
-        result.Value.State.Should().Be(PaymentState.Checkout);
+        result.Value.State.Should().Be(PaymentRecordState.Checkout);
         result.Value.Amount.Should().Be(100m);
     }
 
@@ -41,31 +41,31 @@ public class PaymentExtensionsTests
         var result = payment.Process();
 
         result.IsSuccess.Should().BeTrue();
-        payment.State.Should().Be(PaymentState.Processing);
+        payment.State.Should().Be(PaymentRecordState.Processing);
     }
 
     [Fact]
     public void Process_FromNonCheckout_ShouldFail()
     {
         var payment = PaymentFactory.Create(100m, Guid.NewGuid(), Guid.NewGuid()).Value;
-        payment.State = PaymentState.Processing;
+        payment.State = PaymentRecordState.Processing;
 
         var result = payment.Process();
 
         result.IsFailure.Should().BeTrue();
-        result.FirstFailure.Should().Be(PaymentResult.Failure.InvalidStateTransition(PaymentState.Processing, PaymentState.Processing));
+        result.FirstFailure.Should().Be(PaymentResult.Failure.InvalidStateTransition(PaymentRecordState.Processing, PaymentRecordState.Processing));
     }
 
     [Fact]
     public void Pend_FromProcessing_ShouldTransitionToPending()
     {
         var payment = PaymentFactory.Create(100m, Guid.NewGuid(), Guid.NewGuid()).Value;
-        payment.State = PaymentState.Processing;
+        payment.State = PaymentRecordState.Processing;
 
         var result = payment.Pend();
 
         result.IsSuccess.Should().BeTrue();
-        payment.State.Should().Be(PaymentState.Pending);
+        payment.State.Should().Be(PaymentRecordState.Pending);
     }
 
     [Fact]
@@ -76,38 +76,38 @@ public class PaymentExtensionsTests
         var result = payment.Pend();
 
         result.IsFailure.Should().BeTrue();
-        result.FirstFailure.Should().Be(PaymentResult.Failure.InvalidStateTransition(PaymentState.Checkout, PaymentState.Pending));
+        result.FirstFailure.Should().Be(PaymentResult.Failure.InvalidStateTransition(PaymentRecordState.Checkout, PaymentRecordState.Pending));
     }
 
     [Fact]
     public void Complete_FromProcessing_ShouldTransitionToCompleted()
     {
         var payment = PaymentFactory.Create(100m, Guid.NewGuid(), Guid.NewGuid()).Value;
-        payment.State = PaymentState.Processing;
+        payment.State = PaymentRecordState.Processing;
 
         var result = payment.Complete();
 
         result.IsSuccess.Should().BeTrue();
-        payment.State.Should().Be(PaymentState.Completed);
+        payment.State.Should().Be(PaymentRecordState.Completed);
     }
 
     [Fact]
     public void Complete_FromPending_ShouldTransitionToCompleted()
     {
         var payment = PaymentFactory.Create(100m, Guid.NewGuid(), Guid.NewGuid()).Value;
-        payment.State = PaymentState.Pending;
+        payment.State = PaymentRecordState.Pending;
 
         var result = payment.Complete();
 
         result.IsSuccess.Should().BeTrue();
-        payment.State.Should().Be(PaymentState.Completed);
+        payment.State.Should().Be(PaymentRecordState.Completed);
     }
 
     [Fact]
     public void Complete_WhenAlreadyCompleted_ShouldFail()
     {
         var payment = PaymentFactory.Create(100m, Guid.NewGuid(), Guid.NewGuid()).Value;
-        payment.State = PaymentState.Completed;
+        payment.State = PaymentRecordState.Completed;
 
         var result = payment.Complete();
 
@@ -119,12 +119,12 @@ public class PaymentExtensionsTests
     public void Complete_FromInvalidState_ShouldFail()
     {
         var payment = PaymentFactory.Create(100m, Guid.NewGuid(), Guid.NewGuid()).Value;
-        payment.State = PaymentState.Checkout;
+        payment.State = PaymentRecordState.Checkout;
 
         var result = payment.Complete();
 
         result.IsFailure.Should().BeTrue();
-        result.FirstFailure.Should().Be(PaymentResult.Failure.InvalidStateTransition(PaymentState.Checkout, PaymentState.Completed));
+        result.FirstFailure.Should().Be(PaymentResult.Failure.InvalidStateTransition(PaymentRecordState.Checkout, PaymentRecordState.Completed));
     }
 
     [Fact]
@@ -135,38 +135,38 @@ public class PaymentExtensionsTests
         var result = payment.Fail();
 
         result.IsSuccess.Should().BeTrue();
-        payment.State.Should().Be(PaymentState.Failed);
+        payment.State.Should().Be(PaymentRecordState.Failed);
     }
 
     [Fact]
     public void Fail_FromProcessing_ShouldTransitionToFailed()
     {
         var payment = PaymentFactory.Create(100m, Guid.NewGuid(), Guid.NewGuid()).Value;
-        payment.State = PaymentState.Processing;
+        payment.State = PaymentRecordState.Processing;
 
         var result = payment.Fail();
 
         result.IsSuccess.Should().BeTrue();
-        payment.State.Should().Be(PaymentState.Failed);
+        payment.State.Should().Be(PaymentRecordState.Failed);
     }
 
     [Fact]
     public void Fail_FromPending_ShouldTransitionToFailed()
     {
         var payment = PaymentFactory.Create(100m, Guid.NewGuid(), Guid.NewGuid()).Value;
-        payment.State = PaymentState.Pending;
+        payment.State = PaymentRecordState.Pending;
 
         var result = payment.Fail();
 
         result.IsSuccess.Should().BeTrue();
-        payment.State.Should().Be(PaymentState.Failed);
+        payment.State.Should().Be(PaymentRecordState.Failed);
     }
 
     [Fact]
     public void Fail_WhenAlreadyFailed_ShouldFail()
     {
         var payment = PaymentFactory.Create(100m, Guid.NewGuid(), Guid.NewGuid()).Value;
-        payment.State = PaymentState.Failed;
+        payment.State = PaymentRecordState.Failed;
 
         var result = payment.Fail();
 
@@ -178,7 +178,7 @@ public class PaymentExtensionsTests
     public void Fail_FromInvalidState_ShouldFail()
     {
         var payment = PaymentFactory.Create(100m, Guid.NewGuid(), Guid.NewGuid()).Value;
-        payment.State = PaymentState.Completed;
+        payment.State = PaymentRecordState.Completed;
 
         var result = payment.Fail();
 
@@ -189,31 +189,31 @@ public class PaymentExtensionsTests
     public void Void_FromProcessing_ShouldTransitionToVoid()
     {
         var payment = PaymentFactory.Create(100m, Guid.NewGuid(), Guid.NewGuid()).Value;
-        payment.State = PaymentState.Processing;
+        payment.State = PaymentRecordState.Processing;
 
         var result = payment.Void();
 
         result.IsSuccess.Should().BeTrue();
-        payment.State.Should().Be(PaymentState.Void);
+        payment.State.Should().Be(PaymentRecordState.Void);
     }
 
     [Fact]
     public void Void_FromPending_ShouldTransitionToVoid()
     {
         var payment = PaymentFactory.Create(100m, Guid.NewGuid(), Guid.NewGuid()).Value;
-        payment.State = PaymentState.Pending;
+        payment.State = PaymentRecordState.Pending;
 
         var result = payment.Void();
 
         result.IsSuccess.Should().BeTrue();
-        payment.State.Should().Be(PaymentState.Void);
+        payment.State.Should().Be(PaymentRecordState.Void);
     }
 
     [Fact]
     public void Void_WhenAlreadyVoided_ShouldFail()
     {
         var payment = PaymentFactory.Create(100m, Guid.NewGuid(), Guid.NewGuid()).Value;
-        payment.State = PaymentState.Void;
+        payment.State = PaymentRecordState.Void;
 
         var result = payment.Void();
 
@@ -235,31 +235,31 @@ public class PaymentExtensionsTests
     public void Invalidate_FromFailed_ShouldTransitionToInvalid()
     {
         var payment = PaymentFactory.Create(100m, Guid.NewGuid(), Guid.NewGuid()).Value;
-        payment.State = PaymentState.Failed;
+        payment.State = PaymentRecordState.Failed;
 
         var result = payment.Invalidate();
 
         result.IsSuccess.Should().BeTrue();
-        payment.State.Should().Be(PaymentState.Invalid);
+        payment.State.Should().Be(PaymentRecordState.Invalid);
     }
 
     [Fact]
     public void Invalidate_FromVoid_ShouldTransitionToInvalid()
     {
         var payment = PaymentFactory.Create(100m, Guid.NewGuid(), Guid.NewGuid()).Value;
-        payment.State = PaymentState.Void;
+        payment.State = PaymentRecordState.Void;
 
         var result = payment.Invalidate();
 
         result.IsSuccess.Should().BeTrue();
-        payment.State.Should().Be(PaymentState.Invalid);
+        payment.State.Should().Be(PaymentRecordState.Invalid);
     }
 
     [Fact]
     public void Invalidate_WhenAlreadyInvalid_ShouldBeIdempotent()
     {
         var payment = PaymentFactory.Create(100m, Guid.NewGuid(), Guid.NewGuid()).Value;
-        payment.State = PaymentState.Invalid;
+        payment.State = PaymentRecordState.Invalid;
 
         var result = payment.Invalidate();
 
@@ -280,7 +280,7 @@ public class PaymentExtensionsTests
     public void CreditAllowed_WhenCompleted_ShouldReturnTrue()
     {
         var payment = PaymentFactory.Create(100m, Guid.NewGuid(), Guid.NewGuid()).Value;
-        payment.State = PaymentState.Completed;
+        payment.State = PaymentRecordState.Completed;
 
         payment.CreditAllowed().Should().BeTrue();
     }
@@ -305,7 +305,7 @@ public class PaymentExtensionsTests
     public void UncapturedAmount_AfterCompletion_ShouldReturnZero()
     {
         var payment = PaymentFactory.Create(100m, Guid.NewGuid(), Guid.NewGuid()).Value;
-        payment.State = PaymentState.Completed;
+        payment.State = PaymentRecordState.Completed;
 
         payment.UncapturedAmount().Should().Be(0m);
     }
@@ -314,7 +314,7 @@ public class PaymentExtensionsTests
     public void CanCapture_WhenProcessingWithValidAmount_ShouldReturnTrue()
     {
         var payment = PaymentFactory.Create(100m, Guid.NewGuid(), Guid.NewGuid()).Value;
-        payment.State = PaymentState.Processing;
+        payment.State = PaymentRecordState.Processing;
 
         payment.CanCapture(50m).Should().BeTrue();
     }
@@ -323,7 +323,7 @@ public class PaymentExtensionsTests
     public void CanCapture_WhenPendingWithValidAmount_ShouldReturnTrue()
     {
         var payment = PaymentFactory.Create(100m, Guid.NewGuid(), Guid.NewGuid()).Value;
-        payment.State = PaymentState.Pending;
+        payment.State = PaymentRecordState.Pending;
 
         payment.CanCapture(50m).Should().BeTrue();
     }
@@ -332,7 +332,7 @@ public class PaymentExtensionsTests
     public void CanCapture_WithExcessAmount_ShouldReturnFalse()
     {
         var payment = PaymentFactory.Create(100m, Guid.NewGuid(), Guid.NewGuid()).Value;
-        payment.State = PaymentState.Processing;
+        payment.State = PaymentRecordState.Processing;
 
         payment.CanCapture(200m).Should().BeFalse();
     }
@@ -341,7 +341,7 @@ public class PaymentExtensionsTests
     public void CanCapture_WithZeroAmount_ShouldReturnFalse()
     {
         var payment = PaymentFactory.Create(100m, Guid.NewGuid(), Guid.NewGuid()).Value;
-        payment.State = PaymentState.Processing;
+        payment.State = PaymentRecordState.Processing;
 
         payment.CanCapture(0m).Should().BeFalse();
     }
@@ -358,7 +358,7 @@ public class PaymentExtensionsTests
     public void Capture_WhenValid_ShouldSucceed()
     {
         var payment = PaymentFactory.Create(100m, Guid.NewGuid(), Guid.NewGuid()).Value;
-        payment.State = PaymentState.Processing;
+        payment.State = PaymentRecordState.Processing;
 
         var result = payment.Capture(50m);
 
@@ -369,7 +369,7 @@ public class PaymentExtensionsTests
     public void Capture_WhenAmountExceedsAuthorized_ShouldFail()
     {
         var payment = PaymentFactory.Create(100m, Guid.NewGuid(), Guid.NewGuid()).Value;
-        payment.State = PaymentState.Processing;
+        payment.State = PaymentRecordState.Processing;
 
         var result = payment.Capture(200m);
 

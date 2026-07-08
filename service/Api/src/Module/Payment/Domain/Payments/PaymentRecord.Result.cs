@@ -42,7 +42,7 @@ public static class PaymentResult
             message: "Payment amount must be greater than zero.");
 
         /// <summary>Error indicating an invalid payment state transition was attempted.</summary>
-        public static Error InvalidStateTransition(PaymentState from, PaymentState to) => Error.Validation(
+        public static Error InvalidStateTransition(PaymentRecordState from, PaymentRecordState to) => Error.Validation(
             code: "Payment.State.InvalidTransition",
             message: $"Cannot transition payment from '{from}' to '{to}'.");
         #endregion Validation

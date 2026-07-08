@@ -70,7 +70,7 @@ public static partial class CreateOrderFromCart
                 var payment = await dbContext.Set<PaymentRecord>()
                     .FirstOrDefaultAsync(p => p.ResponseCode == paymentIntentId
                                           && p.OrderId == cart.Id
-                                          && p.State == PaymentState.Completed, cancellationToken);
+                                          && p.State == PaymentRecordState.Completed, cancellationToken);
 
                 if (payment is null)
                     return OrderResult.Errors.PaymentFailed;

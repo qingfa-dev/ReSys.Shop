@@ -1,6 +1,6 @@
 namespace Module.Payment.Domain.Payments;
 
-public enum PaymentState
+public enum PaymentRecordState
 {
     Checkout,
     Processing,

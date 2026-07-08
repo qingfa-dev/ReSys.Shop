@@ -22,7 +22,7 @@ public class PaymentMappingTests
         payment.Amount.Should().Be(request.Amount);
         payment.PaymentMethodId.Should().Be(request.PaymentMethodId);
         payment.OrderId.Should().Be(request.OrderId);
-        payment.State.Should().Be(PaymentState.Checkout);
+        payment.State.Should().Be(PaymentRecordState.Checkout);
         payment.Id.Should().NotBe(Guid.Empty);
     }
 
@@ -107,7 +107,7 @@ public class PaymentMappingTests
         {
             Id = Guid.NewGuid(),
             Amount = 99.99m,
-            State = PaymentState.Checkout,
+            State = PaymentRecordState.Checkout,
             PaymentMethodId = Guid.NewGuid(),
             OrderId = Guid.NewGuid(),
             IntentClientSecret = null,

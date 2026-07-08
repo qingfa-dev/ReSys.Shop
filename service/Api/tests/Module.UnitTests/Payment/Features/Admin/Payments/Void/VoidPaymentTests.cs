@@ -47,7 +47,7 @@ public class VoidPaymentTests : IDisposable
         var result = await _handler.Handle(new VoidPayment.Command(payment.Id), TestContext.Current.CancellationToken);
 
         result.IsSuccess.Should().BeTrue();
-        result.Value.State.Should().Be(PaymentState.Void);
+        result.Value.State.Should().Be(PaymentRecordState.Void);
     }
 
     [Fact(DisplayName = "Handler: Should return failure when gateway declines void")]
