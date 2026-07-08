@@ -1,4 +1,4 @@
-using PaymentStateEnum = Module.Payment.Domain.Payments.PaymentState;
+using Module.Payment.Domain.Payments;
 
 namespace Module.Ordering.Domain.Orders;
 
@@ -330,7 +330,7 @@ public static class OrderExtensions
     // @CAT-5 Compute: Derives payment state from payments: all-failed→"failed", canceled+zero→"void", balance>0→"balance_due", balance<0→"credit_owed", else→"paid"
     public static void UpdatePaymentState(this Order order)
     {
-        if (order.Payments.Count > 0 && !order.Payments.Any(p => p.State != PaymentStateEnum.Failed && p.State != PaymentStateEnum.Invalid))
+        if (order.Payments.Count > 0 && !order.Payments.Any(p => p.State != PaymentRecordState.Failed && p.State != PaymentRecordState.Invalid))
             order.PaymentState = "failed";
         else if (order.Status == OrderStatus.Canceled && order.PaymentTotal == 0m)
             order.PaymentState = "void";

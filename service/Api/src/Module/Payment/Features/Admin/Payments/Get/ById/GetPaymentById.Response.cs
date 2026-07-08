@@ -9,7 +9,7 @@ public static partial class GetPaymentById
         public Guid Id { get; init; }
         public string Number { get; init; } = string.Empty;
         public decimal Amount { get; init; }
-        public PaymentState State { get; init; }
+        public PaymentRecordState State { get; init; }
         public string? ResponseCode { get; init; }
         public string? IntentClientSecret { get; init; }
         public Guid OrderId { get; init; }

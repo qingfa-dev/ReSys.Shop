@@ -9,7 +9,7 @@ public static partial class ConfirmPayment
         public Guid Id { get; init; }
         public string Number { get; init; } = null!;
         public decimal Amount { get; init; }
-        public PaymentState State { get; init; }
+        public PaymentRecordState State { get; init; }
         public string Message { get; init; } = null!;
     }
 }

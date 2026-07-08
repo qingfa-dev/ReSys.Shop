@@ -58,7 +58,7 @@ namespace Module.Ordering.Features.Storefront.Orders.Cancel;
 
             // Void: Cancel associated payments via gateway.
             var payments = await dbContext.Set<PaymentRecord>()
-                .Where(p => p.OrderId == entity.Id && p.State != PaymentState.Void && p.State != PaymentState.Failed)
+                .Where(p => p.OrderId == entity.Id && p.State != PaymentRecordState.Void && p.State != PaymentRecordState.Failed)
                 .ToListAsync(cancellationToken);
 
             foreach (var payment in payments)

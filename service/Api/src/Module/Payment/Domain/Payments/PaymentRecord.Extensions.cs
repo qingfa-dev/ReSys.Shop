@@ -60,19 +60,19 @@ public static class PaymentFactory
     // Enforce: Payment must be in Checkout state to transition to Processing
     public static Result Process(this PaymentRecord payment)
     {
-        if (!CanTransitionTo(PaymentState.Processing))
+        if (!CanTransitionTo(PaymentRecordState.Processing))
         {
-            return PaymentResult.Failure.InvalidStateTransition(payment.State, PaymentState.Processing);
+            return PaymentResult.Failure.InvalidStateTransition(payment.State, PaymentRecordState.Processing);
         }
 
-        payment.State = PaymentState.Processing;
+        payment.State = PaymentRecordState.Processing;
         payment.ModifiedAtUtc = DateTimeOffset.UtcNow;
 
         return Result.Ok(PaymentResult.Success.Processed(payment.Number));
 
-        bool CanTransitionTo(PaymentState target) => target switch
+        bool CanTransitionTo(PaymentRecordState target) => target switch
         {
-            PaymentState.Processing => payment.State is PaymentState.Checkout,
+            PaymentRecordState.Processing => payment.State is PaymentRecordState.Checkout,
             _ => false
         };
     }
@@ -85,12 +85,12 @@ public static class PaymentFactory
     // Enforce: Payment must be in Processing state to transition to Pending
     public static Result Pend(this PaymentRecord payment)
     {
-        if (payment.State is not PaymentState.Processing)
+        if (payment.State is not PaymentRecordState.Processing)
         {
-            return PaymentResult.Failure.InvalidStateTransition(payment.State, PaymentState.Pending);
+            return PaymentResult.Failure.InvalidStateTransition(payment.State, PaymentRecordState.Pending);
         }
 
-        payment.State = PaymentState.Pending;
+        payment.State = PaymentRecordState.Pending;
         payment.ModifiedAtUtc = DateTimeOffset.UtcNow;
 
         return Result.Ok(PaymentResult.Success.Pended(payment.Number));
@@ -104,17 +104,17 @@ public static class PaymentFactory
     // Enforce: Payment must not already be completed and must be in Processing or Pending state
     public static Result Complete(this PaymentRecord payment)
     {
-        if (payment.State is PaymentState.Completed)
+        if (payment.State is PaymentRecordState.Completed)
         {
             return PaymentResult.Failure.AlreadyCompleted;
         }
 
-        if (payment.State is not (PaymentState.Processing or PaymentState.Pending))
+        if (payment.State is not (PaymentRecordState.Processing or PaymentRecordState.Pending))
         {
-            return PaymentResult.Failure.InvalidStateTransition(payment.State, PaymentState.Completed);
+            return PaymentResult.Failure.InvalidStateTransition(payment.State, PaymentRecordState.Completed);
         }
 
-        payment.State = PaymentState.Completed;
+        payment.State = PaymentRecordState.Completed;
         payment.ModifiedAtUtc = DateTimeOffset.UtcNow;
 
         return Result.Ok(PaymentResult.Success.Completed(payment.Number));
@@ -128,17 +128,17 @@ public static class PaymentFactory
     // Enforce: Payment must not already be failed and must be in Checkout, Processing, or Pending state
     public static Result Fail(this PaymentRecord payment)
     {
-        if (payment.State is PaymentState.Failed)
+        if (payment.State is PaymentRecordState.Failed)
         {
             return PaymentResult.Failure.AlreadyFailed;
         }
 
-        if (payment.State is not (PaymentState.Checkout or PaymentState.Processing or PaymentState.Pending))
+        if (payment.State is not (PaymentRecordState.Checkout or PaymentRecordState.Processing or PaymentRecordState.Pending))
         {
-            return PaymentResult.Failure.InvalidStateTransition(payment.State, PaymentState.Failed);
+            return PaymentResult.Failure.InvalidStateTransition(payment.State, PaymentRecordState.Failed);
         }
 
-        payment.State = PaymentState.Failed;
+        payment.State = PaymentRecordState.Failed;
         payment.ModifiedAtUtc = DateTimeOffset.UtcNow;
 
         return Result.Ok(PaymentResult.Success.Failed(payment.Number));
@@ -152,17 +152,17 @@ public static class PaymentFactory
     // Enforce: Payment must not already be voided and must be in Processing or Pending state
     public static Result Void(this PaymentRecord payment)
     {
-        if (payment.State is PaymentState.Void)
+        if (payment.State is PaymentRecordState.Void)
         {
             return PaymentResult.Failure.AlreadyVoided;
         }
 
-        if (payment.State is not (PaymentState.Processing or PaymentState.Pending))
+        if (payment.State is not (PaymentRecordState.Processing or PaymentRecordState.Pending))
         {
-            return PaymentResult.Failure.InvalidStateTransition(payment.State, PaymentState.Void);
+            return PaymentResult.Failure.InvalidStateTransition(payment.State, PaymentRecordState.Void);
         }
 
-        payment.State = PaymentState.Void;
+        payment.State = PaymentRecordState.Void;
         payment.ModifiedAtUtc = DateTimeOffset.UtcNow;
 
         return Result.Ok(PaymentResult.Success.Voided(payment.Number));
@@ -176,17 +176,17 @@ public static class PaymentFactory
     // Enforce: Payment must be in Failed or Void state to transition to Invalid
     public static Result Invalidate(this PaymentRecord payment)
     {
-        if (payment.State is PaymentState.Invalid)
+        if (payment.State is PaymentRecordState.Invalid)
         {
             return Result.Ok();
         }
 
-        if (payment.State is not (PaymentState.Failed or PaymentState.Void))
+        if (payment.State is not (PaymentRecordState.Failed or PaymentRecordState.Void))
         {
-            return PaymentResult.Failure.InvalidStateTransition(payment.State, PaymentState.Invalid);
+            return PaymentResult.Failure.InvalidStateTransition(payment.State, PaymentRecordState.Invalid);
         }
 
-        payment.State = PaymentState.Invalid;
+        payment.State = PaymentRecordState.Invalid;
         payment.ModifiedAtUtc = DateTimeOffset.UtcNow;
 
         return Result.Ok();
@@ -202,7 +202,7 @@ public static class PaymentFactory
     // Compute: Credit is allowed only when the payment has reached the Completed state
     public static bool CreditAllowed(this PaymentRecord payment)
     {
-        return payment.State is PaymentState.Completed;
+        return payment.State is PaymentRecordState.Completed;
     }
 
     /// <summary>
@@ -213,7 +213,7 @@ public static class PaymentFactory
     // Compute: Uncaptured amount is the full payment amount before completion; zero after completion
     public static decimal UncapturedAmount(this PaymentRecord payment)
     {
-        return payment.State is PaymentState.Completed ? 0 : payment.Amount;
+        return payment.State is PaymentRecordState.Completed ? 0 : payment.Amount;
     }
 
     /// <summary>
@@ -225,7 +225,7 @@ public static class PaymentFactory
     // Compute: Capture is allowed when payment is Processing or Pending and amount is positive and within the authorized amount
     public static bool CanCapture(this PaymentRecord payment, decimal amount)
     {
-        return payment.State is PaymentState.Processing or PaymentState.Pending
+        return payment.State is PaymentRecordState.Processing or PaymentRecordState.Pending
             && amount > 0
             && amount <= payment.Amount;
     }
@@ -246,7 +246,7 @@ public static class PaymentFactory
                 return PaymentResult.Failure.AmountExceedsAuthorized;
             }
 
-            return PaymentResult.Failure.InvalidStateTransition(payment.State, PaymentState.Completed);
+            return PaymentResult.Failure.InvalidStateTransition(payment.State, PaymentRecordState.Completed);
         }
 
         return Result.Ok(PaymentResult.Success.Captured(payment.Number, amount));
@@ -261,7 +261,7 @@ public static class PaymentFactory
     // Compute: Refund is allowed only when payment is Completed and amount is positive and within authorized amount
     public static bool CanRefund(this PaymentRecord payment, decimal amount)
     {
-        return payment.State is PaymentState.Completed
+        return payment.State is PaymentRecordState.Completed
             && amount > 0
             && amount <= payment.Amount;
     }
@@ -277,8 +277,8 @@ public static class PaymentFactory
     {
         if (!payment.CanRefund(amount))
         {
-            if (payment.State is not PaymentState.Completed)
-                return PaymentResult.Failure.InvalidStateTransition(payment.State, PaymentState.Completed);
+            if (payment.State is not PaymentRecordState.Completed)
+                return PaymentResult.Failure.InvalidStateTransition(payment.State, PaymentRecordState.Completed);
 
             return PaymentResult.Failure.AmountExceedsAuthorized;
         }
@@ -328,7 +328,7 @@ public static class PaymentFactory
             if (amount > payment.Amount)
                 return PaymentResult.Failure.AmountExceedsAuthorized;
 
-            return PaymentResult.Failure.InvalidStateTransition(payment.State, PaymentState.Completed);
+            return PaymentResult.Failure.InvalidStateTransition(payment.State, PaymentRecordState.Completed);
         }
 
         return await PaymentProcessing.CaptureAsync(payment, gateway, options, amount, cancellationToken).ConfigureAwait(false);
@@ -340,11 +340,11 @@ public static class PaymentFactory
     // Contract: pre=payment.State is Processing or Pending, post=payment.State==Void or Failed
     public static Task<Result> VoidAsync(this PaymentRecord payment, IPaymentGatewayActionProvider gateway, GatewayOptions options, CancellationToken cancellationToken = default)
     {
-        if (payment.State is PaymentState.Void)
+        if (payment.State is PaymentRecordState.Void)
             return Task.FromResult<Result>(PaymentResult.Failure.AlreadyVoided);
 
-        if (payment.State is not (PaymentState.Processing or PaymentState.Pending))
-            return Task.FromResult<Result>(PaymentResult.Failure.InvalidStateTransition(payment.State, PaymentState.Void));
+        if (payment.State is not (PaymentRecordState.Processing or PaymentRecordState.Pending))
+            return Task.FromResult<Result>(PaymentResult.Failure.InvalidStateTransition(payment.State, PaymentRecordState.Void));
 
         return PaymentProcessing.VoidTransactionAsync(payment, gateway, options, null, cancellationToken);
     }
@@ -366,8 +366,8 @@ public static class PaymentFactory
     {
         if (!payment.CanRefund(amount))
         {
-            if (payment.State is not PaymentState.Completed)
-                return PaymentResult.Failure.InvalidStateTransition(payment.State, PaymentState.Completed);
+            if (payment.State is not PaymentRecordState.Completed)
+                return PaymentResult.Failure.InvalidStateTransition(payment.State, PaymentRecordState.Completed);
 
             return PaymentResult.Failure.AmountExceedsAuthorized;
         }

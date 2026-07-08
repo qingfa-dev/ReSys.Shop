@@ -1,5 +1,5 @@
 using PaymentRecord = Module.Payment.Domain.Payments.PaymentRecord;
-using PaymentStateEnum = Module.Payment.Domain.Payments.PaymentState;
+using PaymentStateEnum = Module.Payment.Domain.Payments.PaymentRecordState;
 
 namespace Module.Ordering.Domain.Orders;
 

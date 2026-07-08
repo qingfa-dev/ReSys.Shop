@@ -10,9 +10,9 @@ public static class PaymentValidation
             .WithMessage(PaymentResult.Failure.AmountMustBePositive.Description);
     }
 
-    public static IRuleBuilderOptions<T, PaymentState> ApplyStateTransitionRules<T>(
-        this IRuleBuilder<T, PaymentState> ruleBuilder,
-        PaymentState currentState)
+    public static IRuleBuilderOptions<T, PaymentRecordState> ApplyStateTransitionRules<T>(
+        this IRuleBuilder<T, PaymentRecordState> ruleBuilder,
+        PaymentRecordState currentState)
     {
         return ruleBuilder
             .Must(target => IsValidTransition(currentState, target))
@@ -20,18 +20,18 @@ public static class PaymentValidation
             .WithMessage($"Invalid state transition from '{currentState}'.");
     }
 
-    private static bool IsValidTransition(PaymentState from, PaymentState to) => (from, to) switch
+    private static bool IsValidTransition(PaymentRecordState from, PaymentRecordState to) => (from, to) switch
     {
-        (PaymentState.Checkout, PaymentState.Processing) => true,
-        (PaymentState.Processing, PaymentState.Pending) => true,
-        (PaymentState.Processing, PaymentState.Completed) => true,
-        (PaymentState.Processing, PaymentState.Failed) => true,
-        (PaymentState.Processing, PaymentState.Void) => true,
-        (PaymentState.Pending, PaymentState.Completed) => true,
-        (PaymentState.Pending, PaymentState.Failed) => true,
-        (PaymentState.Pending, PaymentState.Void) => true,
-        (PaymentState.Failed, PaymentState.Invalid) => true,
-        (PaymentState.Void, PaymentState.Invalid) => true,
+        (PaymentRecordState.Checkout, PaymentRecordState.Processing) => true,
+        (PaymentRecordState.Processing, PaymentRecordState.Pending) => true,
+        (PaymentRecordState.Processing, PaymentRecordState.Completed) => true,
+        (PaymentRecordState.Processing, PaymentRecordState.Failed) => true,
+        (PaymentRecordState.Processing, PaymentRecordState.Void) => true,
+        (PaymentRecordState.Pending, PaymentRecordState.Completed) => true,
+        (PaymentRecordState.Pending, PaymentRecordState.Failed) => true,
+        (PaymentRecordState.Pending, PaymentRecordState.Void) => true,
+        (PaymentRecordState.Failed, PaymentRecordState.Invalid) => true,
+        (PaymentRecordState.Void, PaymentRecordState.Invalid) => true,
         _ => false
     };
 }

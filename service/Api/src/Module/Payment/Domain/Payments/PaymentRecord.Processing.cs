@@ -41,7 +41,7 @@ public static class PaymentProcessing
 
         return await PaymentProcessing.GatewayActionAsync(payment, gateway, options,
             (amount, src, opts, ct) => gateway.AuthorizeAsync(amount, src, opts, ct),
-            PaymentState.Pending, cancellationToken).ConfigureAwait(false);
+            PaymentRecordState.Pending, cancellationToken).ConfigureAwait(false);
     }
 
     #endregion Authorization
@@ -64,7 +64,7 @@ public static class PaymentProcessing
         var result = await PaymentProcessing.GatewayActionInnerAsync(
             payment, gateway, options,
             (amount, src, opts, ct) => gateway.PurchaseAsync(amount, src, opts, ct),
-            PaymentState.Completed,
+            PaymentRecordState.Completed,
             cancellationToken).ConfigureAwait(false);
 
         if (result.IsSuccess)
@@ -88,15 +88,15 @@ public static class PaymentProcessing
     {
         payment.StartedProcessing();
 
-        if (gateway.AutoCapture && payment.State != PaymentState.Completed)
+        if (gateway.AutoCapture && payment.State != PaymentRecordState.Completed)
         {
-            payment.State = PaymentState.Completed;
+            payment.State = PaymentRecordState.Completed;
             return Task.FromResult(Result.Ok(PaymentResult.Success.Completed(payment.Number)));
         }
 
-        if (payment.State == PaymentState.Checkout || payment.State == PaymentState.Processing)
+        if (payment.State == PaymentRecordState.Checkout || payment.State == PaymentRecordState.Processing)
         {
-            payment.State = PaymentState.Pending;
+            payment.State = PaymentRecordState.Pending;
             return Task.FromResult(Result.Ok(PaymentResult.Success.Pended(payment.Number)));
         }
 
@@ -115,7 +115,7 @@ public static class PaymentProcessing
     // Call: Gateway capture action
     public static async Task<Result> CaptureAsync(this PaymentRecord payment, IPaymentGatewayActionProvider gateway, GatewayOptions options, decimal? amount = null, CancellationToken cancellationToken = default)
     {
-        if (payment.State == PaymentState.Completed)
+        if (payment.State == PaymentRecordState.Completed)
             return Result.Ok();
 
         amount ??= payment.Amount;
@@ -135,13 +135,13 @@ public static class PaymentProcessing
 
         if (response.Success)
         {
-            payment.State = PaymentState.Completed;
+            payment.State = PaymentRecordState.Completed;
             payment.ResponseCode = response.Authorization ?? payment.ResponseCode;
 
             return Result.Ok(PaymentResult.Success.Captured(payment.Number, amount.Value));
         }
 
-        payment.State = PaymentState.Failed;
+        payment.State = PaymentRecordState.Failed;
         return Result.Failure(PaymentResult.Failure.CaptureFailed(response.Message));
     }
 
@@ -156,12 +156,12 @@ public static class PaymentProcessing
     // Call: Gateway void action with source (profile-based) or without
     public static async Task<Result> VoidTransactionAsync(this PaymentRecord payment, IPaymentGatewayActionProvider gateway, GatewayOptions options, object? source = null, CancellationToken cancellationToken = default)
     {
-        if (payment.State == PaymentState.Void)
+        if (payment.State == PaymentRecordState.Void)
             return Result.Ok();
 
         if (string.IsNullOrEmpty(payment.ResponseCode))
         {
-            payment.State = PaymentState.Void;
+            payment.State = PaymentRecordState.Void;
             return Result.Ok(PaymentResult.Success.Voided(payment.Number));
         }
 
@@ -181,7 +181,7 @@ public static class PaymentProcessing
         if (response.Success)
         {
             payment.ResponseCode = response.Authorization ?? payment.ResponseCode;
-            payment.State = PaymentState.Void;
+            payment.State = PaymentRecordState.Void;
             return Result.Ok(PaymentResult.Success.Voided(payment.Number));
         }
 
@@ -211,11 +211,11 @@ public static class PaymentProcessing
 
         if (response.Success)
         {
-            payment.State = PaymentState.Void;
+            payment.State = PaymentRecordState.Void;
             return Result.Ok(PaymentResult.Success.Voided(payment.Number));
         }
 
-        payment.State = PaymentState.Failed;
+        payment.State = PaymentRecordState.Failed;
         return PaymentResult.Failure.CancelFailed(response.Message);
     }
 
@@ -264,7 +264,7 @@ public static class PaymentProcessing
             if (payment.SourceId is null || string.IsNullOrEmpty(payment.SourceType))
                 return PaymentResult.Failure.ProcessingSourceRequired;
 
-            if (payment.State == PaymentState.Processing)
+            if (payment.State == PaymentRecordState.Processing)
                 return PaymentResult.Failure.ProcessingAlreadyProcessing;
         }
 
@@ -274,9 +274,9 @@ public static class PaymentProcessing
     // Enforce: Transition to Processing state before gateway action
     private static void StartedProcessing(this PaymentRecord payment)
     {
-        if (payment.State == PaymentState.Checkout)
+        if (payment.State == PaymentRecordState.Checkout)
         {
-            payment.State = PaymentState.Processing;
+            payment.State = PaymentRecordState.Processing;
         }
     }
 
@@ -286,7 +286,7 @@ public static class PaymentProcessing
         IPaymentGatewayActionProvider gateway,
         GatewayOptions options,
         Func<decimal, object?, GatewayOptions, CancellationToken, Task<Result<PaymentGatewayResponse>>> action,
-        PaymentState successState,
+        PaymentRecordState successState,
         CancellationToken cancellationToken)
     {
         var source = payment.SourceType is not null ? new { Id = payment.SourceId, Type = payment.SourceType } : null;
@@ -304,12 +304,12 @@ public static class PaymentProcessing
         {
             payment.ResponseCode = response.Authorization ?? payment.ResponseCode;
             payment.State = successState;
-            return Result.Ok(successState == PaymentState.Pending
+            return Result.Ok(successState == PaymentRecordState.Pending
                 ? PaymentResult.Success.Pended(payment.Number)
                 : PaymentResult.Success.Completed(payment.Number));
         }
 
-        payment.State = PaymentState.Failed;
+        payment.State = PaymentRecordState.Failed;
         return PaymentResult.Failure.GatewayError(response.Message);
     }
 
@@ -319,7 +319,7 @@ public static class PaymentProcessing
         IPaymentGatewayActionProvider gateway,
         GatewayOptions options,
         Func<decimal, object?, GatewayOptions, CancellationToken, Task<Result<PaymentGatewayResponse>>> action,
-        PaymentState successState,
+        PaymentRecordState successState,
         CancellationToken cancellationToken)
     {
         return GatewayActionAsync(payment, gateway, options, action, successState, cancellationToken);

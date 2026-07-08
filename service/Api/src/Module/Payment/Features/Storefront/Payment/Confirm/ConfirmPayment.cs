@@ -27,13 +27,13 @@ namespace Module.Payment.Features.Storefront.Payment.Confirm;
                 return PaymentResult.Failure.NotFound;
 
             // Validate: Payment must be in Processing or Pending state to confirm
-            if (payment.State is not (PaymentState.Processing or PaymentState.Pending))
+            if (payment.State is not (PaymentRecordState.Processing or PaymentRecordState.Pending))
             {
                 // Validate: Check business rule.
-                if (payment.State is PaymentState.Completed)
+                if (payment.State is PaymentRecordState.Completed)
                     return PaymentResult.Failure.AlreadyCompleted;
 
-                return PaymentResult.Failure.InvalidStateTransition(payment.State, PaymentState.Completed);
+                return PaymentResult.Failure.InvalidStateTransition(payment.State, PaymentRecordState.Completed);
             }
 
             // Transition: Complete the payment
