@@ -31,7 +31,7 @@ Evidence
 | Path | Purpose | Evidence |
 |------|---------|----------|
 | `service/Api/src/Api/` | .NET API host — Program.cs, middleware pipeline, config | `service/Api/src/Api/Program.cs` |
-| `service/Api/src/Module/` | Business logic — Catalog, Identity, Inventory, Location, Profile modules | `service/Api/src/Module/Module.csproj` |
+| `service/Api/src/Module/` | Business logic — 9 modules: Catalog, Identity, Inventory, Location, Ordering, Payment, Profile, Shipping, Webhooks | `service/Api/src/Module/Module.csproj` |
 | `service/Api/src/Shared/` | Shared infrastructure — persistence, auth, storage, caching, notifications, jobs | `service/Api/src/Shared/Shared.csproj` |
 | `service/Api/src/Migrations/` | EF Core migrations and database schema snapshots | `service/Api/src/Migrations/Api.Migrations.csproj` |
 | `service/Api/tests/` | .NET test projects — `Api.Tests` (integration), `Module.UnitTests`, `Shared.UnitTests` | `service/Api/tests/Api.Tests/Api.Tests.csproj` |
@@ -73,7 +73,11 @@ Evidence
 | `service/Api/src/Module/Identity/` | Users, roles, permissions, auth (login/register/logout/sessions), email confirmation, password management, external OAuth, role-permission assignments | Product data, location data, user profiles/addresses |
 | `service/Api/src/Module/Inventory/` | Stock items, stock locations, stock reservations, stock transfers, stock movements | Product catalog data, user profiles, payment processing |
 | `service/Api/src/Module/Location/` | Countries, states/provinces, ISO code lookups, country calling codes | User data, product data |
+| `service/Api/src/Module/Ordering/` | Cart management, checkout, order lifecycle (create/list/view/status), cart expiry background jobs, order events | Payment processing, shipping calculation |
+| `service/Api/src/Module/Payment/` | Payment intents, payment method management, refund processing, webhook handlers, BogusGateway (dev/testing) | Order fulfillment, shipping |
 | `service/Api/src/Module/Profile/` | User profiles, addresses, wishlists, notification preferences | Authentication/authorization logic, product data |
+| `service/Api/src/Module/Shipping/` | Shipping method CRUD, shipping rate management, rate calculation, address estimation | Payment processing, order fulfillment |
+| `service/Api/src/Module/Webhooks/` | Webhook subscription CRUD, webhook delivery, ECDSA signing, event bus for cross-module integration | Direct module-to-module references |
 | `service/Api/src/Migrations/` | EF Core migration files (.cs), schema snapshots, migration guide | Application logic, domain models |
 | `service/Embedding/` | Python ML inference (CLIP/Fashion-CLIP models), embedding generation API, image preprocessing, embedding caching | Business logic, database access, user management |
 | `app/Admin/` | Admin UI components, admin-specific views and stores | Storefront UI components, backend business logic |

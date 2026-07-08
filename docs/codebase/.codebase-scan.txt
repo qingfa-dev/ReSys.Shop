@@ -9,82 +9,6 @@
 .idea/.idea.ReSys.Shop/.idea/projectSettingsUpdater.xml
 .idea/.idea.ReSys.Shop/.idea/vcs.xml
 .idea/.idea.ReSys.Shop/.idea/workspace.xml
-.superpowers
-.superpowers/sdd
-.superpowers/sdd/.gitignore
-.superpowers/sdd/fix-report.md
-.superpowers/sdd/fix-tasks-final-review.md
-.superpowers/sdd/img-task-1-report.md
-.superpowers/sdd/img-task-2-report.md
-.superpowers/sdd/img-task-3-report.md
-.superpowers/sdd/img-task-4-report.md
-.superpowers/sdd/img-task-5-report.md
-.superpowers/sdd/progress-image-pipeline-2026-07-04.md
-.superpowers/sdd/progress.md
-.superpowers/sdd/review-08857a2..b42f7be.diff
-.superpowers/sdd/review-22bd77e..dfc2968.diff
-.superpowers/sdd/review-2c93fb7..32de0cb.diff
-.superpowers/sdd/review-3449850..d99d071.diff
-.superpowers/sdd/review-3862494..b881d10.diff
-.superpowers/sdd/review-3dec765..3dec765.diff
-.superpowers/sdd/review-3dec765..c1dcf59.diff
-.superpowers/sdd/review-437c0fe..c2f14d5.diff
-.superpowers/sdd/review-459f6bb..b9bff8f.diff
-.superpowers/sdd/review-53b721f..858809a.diff
-.superpowers/sdd/review-651cc9e..9775d06.diff
-.superpowers/sdd/review-6e103fe..32de0cb.diff
-.superpowers/sdd/review-6e103fe..6e63e8a.diff
-.superpowers/sdd/review-6ee28e1..651cc9e.diff
-.superpowers/sdd/review-750f293..3449850.diff
-.superpowers/sdd/review-7d5f8c7..6ee28e1.diff
-.superpowers/sdd/review-a2ff1ba..22bd77e.diff
-.superpowers/sdd/review-a2ff1ba..6c79211.diff
-.superpowers/sdd/review-b42f7be..a2ff1ba.diff
-.superpowers/sdd/review-b9bff8f..3dec765.diff
-.superpowers/sdd/review-c1dcf59..2c93fb7.diff
-.superpowers/sdd/review-c2f14d5..53b721f.diff
-.superpowers/sdd/review-c8349fa..0681fc2.diff
-.superpowers/sdd/review-dfc2968..6e63e8a.diff
-.superpowers/sdd/review-e5f37af..7e0564b.diff
-.superpowers/sdd/task-1-brief.md
-.superpowers/sdd/task-1-fix-report.md
-.superpowers/sdd/task-1-report.md
-.superpowers/sdd/task-10-brief.md
-.superpowers/sdd/task-11-brief.md
-.superpowers/sdd/task-11-report.md
-.superpowers/sdd/task-12-brief.md
-.superpowers/sdd/task-13-brief.md
-.superpowers/sdd/task-14-brief.md
-.superpowers/sdd/task-14-report.md
-.superpowers/sdd/task-15-brief.md
-.superpowers/sdd/task-16-brief.md
-.superpowers/sdd/task-17-brief.md
-.superpowers/sdd/task-18-brief.md
-.superpowers/sdd/task-19-brief.md
-.superpowers/sdd/task-2-brief.md
-.superpowers/sdd/task-2-fix-report.md
-.superpowers/sdd/task-2-report.md
-.superpowers/sdd/task-20-brief.md
-.superpowers/sdd/task-21-brief.md
-.superpowers/sdd/task-22-brief.md
-.superpowers/sdd/task-23-brief.md
-.superpowers/sdd/task-24-brief.md
-.superpowers/sdd/task-25-brief.md
-.superpowers/sdd/task-26-brief.md
-.superpowers/sdd/task-3-brief.md
-.superpowers/sdd/task-3-report.md
-.superpowers/sdd/task-4-brief.md
-.superpowers/sdd/task-4-report.md
-.superpowers/sdd/task-5-brief.md
-.superpowers/sdd/task-5-report.md
-.superpowers/sdd/task-6-brief.md
-.superpowers/sdd/task-6-report.md
-.superpowers/sdd/task-7-brief.md
-.superpowers/sdd/task-7-report.md
-.superpowers/sdd/task-8-brief.md
-.superpowers/sdd/task-8-report.md
-.superpowers/sdd/task-9-brief.md
-.superpowers/sdd/task-9-report.md
 AGENTS.md
 ApiTests
 ApiTests/Catalog
@@ -106,6 +30,9 @@ ApiTests/Catalog/Storefront/option-types.http
 ApiTests/Catalog/Storefront/products.http
 ApiTests/Catalog/Storefront/search-by-image.http
 ApiTests/Catalog/Storefront/taxonomies-taxons.http
+ApiTests/Embedding
+ApiTests/Embedding/Health.http
+ApiTests/Embedding/Search.http
 ApiTests/Identity
 ApiTests/Identity/Admin
 ApiTests/Identity/Admin/auth-admin.http
@@ -128,6 +55,12 @@ ApiTests/Location/Admin/states.http
 ApiTests/Location/Store
 ApiTests/Location/Store/countries.http
 ApiTests/Location/Store/states.http
+ApiTests/Ordering
+ApiTests/Ordering/Cart.http
+ApiTests/Ordering/Orders.http
+ApiTests/Payment
+ApiTests/Payment/Intents.http
+ApiTests/Payment/Webhooks.http
 ApiTests/Profile
 ApiTests/Profile/Admin
 ApiTests/Profile/Admin/profiles.http
@@ -138,6 +71,11 @@ ApiTests/Profile/Store/preferences.http
 ApiTests/Profile/Store/profiles.http
 ApiTests/Profile/Store/wishlists.http
 ApiTests/README.md
+ApiTests/Shipping
+ApiTests/Shipping/Calculate.http
+ApiTests/Shipping/Methods.http
+ApiTests/Webhooks
+ApiTests/Webhooks/Subscriptions.http
 ApiTests/_shared
 ApiTests/_shared/README.md
 ApiTests/_shared/auth-helpers.http
@@ -200,6 +138,68 @@ app/ReSys.Admin/eslint.config.ts
 app/ReSys.Admin/index.html
 app/ReSys.Admin/package-lock.json
 app/ReSys.Admin/package.json
+app/ReSys.Admin/postcss.config.ts
+app/ReSys.Admin/public
+app/ReSys.Admin/public/favicon.ico
+app/ReSys.Admin/src
+app/ReSys.Admin/src/app.vue
+app/ReSys.Admin/src/assets
+app/ReSys.Admin/src/features
+app/ReSys.Admin/src/layout
+app/ReSys.Admin/src/main.ts
+app/ReSys.Admin/src/router
+app/ReSys.Admin/src/shared
+app/ReSys.Admin/src/views
+app/ReSys.Admin/tailwind.config.js
+app/ReSys.Admin/tsconfig.app.json
+app/ReSys.Admin/tsconfig.json
+app/ReSys.Admin/tsconfig.node.json
+app/ReSys.Admin/vite.config.ts
+app/ReSys.Admin/vitest.config.ts
+app/Store
+app/Store/.editorconfig
+app/Store/.env.development
+app/Store/.gitattributes
+app/Store/.gitignore
+app/Store/.oxfmtrc.json
+app/Store/.oxlintrc.json
+app/Store/.vscode
+app/Store/.vscode/extensions.json
+app/Store/auto-imports.d.ts
+app/Store/components.d.ts
+app/Store/env.d.ts
+app/Store/eslint.config.ts
+app/Store/index.html
+app/Store/package.json
+app/Store/pnpm-lock.yaml
+app/Store/pnpm-workspace.yaml
+app/Store/public
+app/Store/public/favicon.ico
+app/Store/src
+app/Store/src/App.vue
+app/Store/src/__tests__
+app/Store/src/api.ts
+app/Store/src/assets
+app/Store/src/main.ts
+app/Store/src/router
+app/Store/src/stores
+app/Store/src/views
+app/Store/tsconfig.app.json
+app/Store/tsconfig.json
+app/Store/tsconfig.node.json
+app/Store/tsconfig.vitest.json
+app/Store/vite.config.ts
+app/Store/vitest.config.ts
+docs
+docs/ci
+docs/ci/README.md
+docs/codebase
+docs/codebase/.codebase-scan.txt
+docs/codebase/ARCHITECTURE.md
+docs/codebase/CONCERNS.md
+docs/codebase/CONVENTIONS.md
+docs/codebase/ESHOP-COMPLIANCE.md
+docs/codebase/INTEGRATIONS.md
 
 === STACK DETECTION (manifest files) ===
 
@@ -249,6 +249,7 @@ No .env.example or .env.template found. Identify required environment variables 
 
 === TODO / FIXME / HACK (production code only, test dirs excluded) ===
 app/ReSys.Admin/src/features/ordering/fulfillment/services/fulfillment.service.ts:14: // TODO: Implement complex shipment creation (requires selecting stock location and inventory units)
+service/Api/src/Module/Payment/Features/Admin/Payments/Refund/RefundPayment.Request.cs:8: // TODO [v1.x]: Implement partial refund. See docs/superpowers/specs/2026-07-07-mvp-cut-design.md.
 service/Api/src/Module/Ordering/Domain/Orders/Order.Checkout.cs:119: // TODO: Query Profiles module for user's default BillAddressId / ShipAddressId.
 guide/code-commenting/CommentingRules.xml:131: <AnswerYes>→ Use a TemporalMarker (TODO, FIXME, HACK, TEMP, DEADLINE, DEPRECATED, BREAKING).</AnswerYes>
 guide/code-commenting/CommentingRules.xml:131: <AnswerYes>→ Use a TemporalMarker (TODO, FIXME, HACK, TEMP, DEADLINE, DEPRECATED, BREAKING).</AnswerYes>
@@ -263,34 +264,39 @@ guide/code-commenting/CommentingRules.xml:1340: <Task>Configure linting rules fo
 guide/code-commenting/CommentingRules.xml:1340: <Task>Configure linting rules for TODO/FIXME/BREAKING format enforcement.</Task>
 
 === GIT RECENT COMMITS (last 20) ===
-9c4bc60 refactor(admin): realign API types with backend, add module clients and usePagedList composable
-f17c337 chore: ignore ReSys.Admin directory, fix api.client.ts formatting
-8ef3800 refactor(catalog): rename TaxonExtensions to TaxonMethod
-5e494df fix(inventory): fix BulkAdjust response, UpdateStockLocation return, remove unused files
-5910cd5 feat(inventory): wire module, add migration, seeders, and cart release
-3772bac chore(admin): reorganize auth tests, update component types, add migration docs
-f0e623b fix(admin): unify list/detail/CRUD pages with Sakai Card wrappers + DataTable props + Button severity
-6e2d95c docs: mark sakai components plan complete
-7acb0f6 feat(admin): enhance profile page with Sakai-style Cards, avatar, notification prefs
-f52c9e9 feat(admin): add error pages (404, 500, 403) + empty page template
-44f6137 feat(admin): add FloatingConfigurator with dark mode + palette quick access
-310f2df feat(admin): refine profile feature with Sakai-consistent layout
-9a2e7a3 docs: mark admin design refinement plan complete
-8ebad53 feat(admin): polish all feature pages with Sakai-consistent styling
-5a163cc docs: update design refinement plan with phase 1 completion
-33cfe80 feat(admin): wire breadcrumb component into main layout
-99cfe56 feat(admin): restore full Sakai layout system
-22527ff feat(admin): redesign login page — editorial shop identity
-695a160 feat(admin): redesign login page with brand identity
-7db291f chore(admin): cleanup dead code, finalize PrimeVue migration
+6e4e0e4 fix: resolve startup blockers found during e2e smoke test
+365cc4a test: add Payment, Shipping, Profile, Webhooks integration tests and HTTP smoke files
+3247f8d test(ordering): add happy-path integration tests for Cart and Orders
+df0df1b chore(mvp): add [WIP-MVP] flags and stub docs for deferred items
+ff06959 feat(inventory): add admin features (Import, permissions, resource refs)
+6e7feb5 feat(auth): scaffold Facebook and Microsoft OAuth providers
+b3ab3a9 feat(webhooks): add Webhooks admin module with subscription CRUD + Test
+e92b4fc feat(ordering): add cart-expiry background job
+fb20d71 feat(ordering): emit order.placed event to webhook bus
+0f86c17 feat(shipping): add admin CRUD for ShippingMethods and ShippingRates
+e5284d7 feat(profile): add Wishlists API endpoints (7 actions)
+b7efed0 feat(profile): add NotificationPreferences API endpoints
+5f0639e feat(webhooks): add webhook subscription + delivery subsystem
+563aaa3 feat(webhooks): add WebhookDeliveryJob background delivery service
+508f435 feat(webhooks): add IWebhookSigner, IWebhookDispatcher, and implementations
+eb070e2 feat(webhooks): add WebhookSchema and EF Core entity configurations
+c648e51 feat(webhooks): add WebhookSubscription and WebhookDelivery domain entities
+0245b97 feat(security): add rate limiting middleware with named policies
+2900f7d feat(payment): add BogusGateway for offline development
+af318b3 refactor(authz): extract PaymentFeatureMetadata from OrderingFeatureMetadata
 
 === HIGH-CHURN FILES (last 90 days, top 20) ===
+  11 service/Api/src/Api/Program.cs
+   9 service/Api/src/Shared/Security/Authorization/Registry/PermissionContext.cs
+   8 infra/Aspire/src/ReSys.AppHost/AppHost.cs
+   7 service/Api/src/Migrations/Migrations/ApplicationDbContextModelSnapshot.cs
    7 app/Admin/package.json
    7 app/Admin/pnpm-lock.yaml
-   7 service/Api/src/Api/Program.cs
-   7 infra/Aspire/src/ReSys.AppHost/AppHost.cs
-   6 service/Api/src/Migrations/Migrations/ApplicationDbContextModelSnapshot.cs
+   6 service/Api/src/Api/appsettings.json
    6 app/Admin/eslint.config.ts
+   5 service/Api/src/Shared/Security/Authorization/Features/InventoryFeatureMetadata.cs
+   5 service/Api/src/Shared/Security/Authorization/Features/ProfileFeatureMetadata.cs
+   5 service/Api/src/Api/packages.lock.json
    5 app/Admin/components.d.ts
    5 app/Admin/src/app/router/index.ts
    5 app/Admin/src/app/layout/main.layout.vue
@@ -299,37 +305,32 @@ f52c9e9 feat(admin): add error pages (404, 500, 403) + empty page template
    5 service/Embedding/pyproject.toml
    5 service/Api/tests/Api.Tests/Infrastructure/ApiFactory.cs
    5 ReSys.Shop.slnx
-   4 app/Admin/src/features/catalog/products/views/product-list.view.vue
-   4 app/Admin/src/features/dashboard/ui/DashboardPage.vue
-   4 app/Admin/src/features/profile/views/Profile.view.vue
-   4 app/Admin/src/features/users/views/customer-list.view.vue
-   4 .gitignore
-   4 app/Admin/index.html
+   4 service/Api/src/Api/appsettings.Development.json
 
 === MONOREPO SIGNALS ===
 No monorepo signals detected.
 
 === CODE METRICS ===
-Total files scanned: 4070
-Total lines of code: 233163
+Total files scanned: 3726
+Total lines of code: 229961
 
 Files by language:
-  C#: 3086
-  Other: 628
+  C#: 2857
+  Other: 513
   TypeScript: 285
   Python: 70
   JavaScript: 1
 
 Top 10 largest files:
-.superpowers/sdd/review-6e103fe..32de0cb.diff: 8223.0KB
-.superpowers/sdd/review-6e103fe..6e63e8a.diff: 7885.2KB
 app/ReSys.Admin/package-lock.json: 278.2KB
-.superpowers/sdd/review-e5f37af..7e0564b.diff: 275.0KB
 app/Store/pnpm-lock.yaml: 236.6KB
 app/Admin/pnpm-lock.yaml: 187.7KB
+service/Api/src/Migrations/Migrations/20260707163321_AddInventoryAdminFeatures.Designer.cs: 159.8KB
+service/Api/src/Migrations/Migrations/20260707155425_AddWebhookSubscriptions.Designer.cs: 159.8KB
+service/Api/src/Migrations/Migrations/ApplicationDbContextModelSnapshot.cs: 159.6KB
 service/Embedding/uv.lock: 149.3KB
+docs/superpowers/plans/2026-07-07-mvp-cut.md: 125.4KB
 service/Api/src/Migrations/Migrations/20260706183045_AddInventoryModuleEntities.Designer.cs: 119.5KB
-service/Api/src/Migrations/Migrations/ApplicationDbContextModelSnapshot.cs: 119.4KB
 docs/superpowers/plans/2026-07-06-admin-vertical-slice-foundation.md: 98.4KB
 
 === CI/CD PIPELINES ===

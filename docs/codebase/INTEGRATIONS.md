@@ -35,7 +35,7 @@ Third-party services
 |--------|---------------------------|---------|------------|-------------|----------|
 | PostgreSQL 17 + pgvector | Database | Primary data store; relational data + vector similarity search | Connection string | High | `infra/Aspire/src/ReSys.AppHost/AppHost.cs:8` |
 | Redis 7 | Cache / Queue | HybridCache backend; Hangfire job storage (optional) | Connection string | High | `infra/Aspire/src/ReSys.AppHost/AppHost.cs:12` |
-| Embedding Service (Python) | Internal API | Image vector embedding generation (Fashion-CLIP) | [TODO] | Medium | `infra/Aspire/src/ReSys.AppHost/AppHost.cs:18` |
+| Embedding Service (Python) | Internal API | Image vector embedding generation (Fashion-CLIP) | [TODO] — auth between services not defined | Medium | `infra/Aspire/src/ReSys.AppHost/AppHost.cs:18` |
 | SendGrid | External API (email) | Transactional email delivery | API key | Medium | `Directory.Packages.props:81` |
 | SMTP | External (email) | Email fallback provider | Credentials / None | Medium | `Directory.Packages.props:82` |
 | Sinch | External API (SMS) | SMS notifications | API key | Low | `Directory.Packages.props:83` |

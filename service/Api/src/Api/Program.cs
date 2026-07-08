@@ -40,9 +40,9 @@ builder.AddIdentityModule();
 builder.AddProfilesModule();
 builder.AddCatalogModule();
 builder.AddInventoryModule();
-builder.Services.AddOrderingModule();
-builder.Services.AddPaymentModule(builder.Configuration);
-builder.Services.AddShippingModule();
+builder.AddOrderingModule();
+builder.AddPaymentModule();
+builder.AddShippingModule();
 builder.AddWebhooksModule();
 
 // Swap: Order event publisher from no-op to webhook-backed implementation

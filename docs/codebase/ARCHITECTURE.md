@@ -26,7 +26,7 @@ Evidence
 ### 1) Architectural Style
 
 - Primary style: Modular monolith with CQRS vertical slices
-- Why this classification: The solution has a single API host (`Api.csproj`) that references a single `Module` project containing all business logic. Modules are organized as vertical slices under `Module/{ModuleName}/Features/{Admin|Storefront}/{Feature}/{Action}/`. Each module exposes itself via an `IServiceCollection` extension but modules never reference each other. This is enforced by build-time conventions, not the currently-disabled `ValidateVerticalSliceIsolation` target (`Directory.Build.targets:42-53`).
+- Why this classification: The solution has a single API host (`Api.csproj`) that references a single `Module` project containing all business logic across 9 modules. Modules are organized as vertical slices under `Module/{ModuleName}/Features/{Admin|Storefront}/{Feature}/{Action}/`. Each module exposes itself via an `IServiceCollection` extension but modules never reference each other. This is enforced by build-time conventions, not the currently-disabled `ValidateVerticalSliceIsolation` target (`Directory.Build.targets:42-53`).
 - Primary constraints:
   - TreatWarningsAsErrors — any warning fails the build (`Directory.Build.props:17`)
   - Central Package Management — all NuGet versions in one file (`Directory.Packages.props:4`)
@@ -67,9 +67,14 @@ Evidence for each step:
 | **Identity module** | Users, roles, permissions, auth flows (login/register/logout/refresh), email confirmation, password reset, external OAuth login, session management | Product data, locations, profiles | `service/Api/src/Module/Identity/Identity.Extensions.cs` |
 | **Inventory module** | Stock items, stock locations, stock reservations, stock transfers, stock movements | Product catalog data, user profiles | `service/Api/src/Module/Inventory/Inventory.Extension.cs` |
 | **Location module** | Countries, states/provinces, lookup by ID or ISO code | User data, product data | `service/Api/src/Module/Location/Locations.Extensions.cs` |
+| **Ordering module** | Cart management, checkout, orders (create/list/view/status), cart expiry, order events | Product catalog, payment processing, shipping | `service/Api/src/Module/Ordering/` |
+| **Payment module** | Payment intents, payment methods, refunds, webhook handlers, BogusGateway (dev) | Order fulfillment, shipping | `service/Api/src/Module/Payment/` |
 | **Profile module** | User profiles, addresses, wishlists, notification preferences | Authentication/authorization, product data | `service/Api/src/Module/Profile/Profiles.Extensions.cs` |
+| **Shipping module** | Shipping methods, shipping rates, address normalization, rate calculation | Order fulfillment, payment | `service/Api/src/Module/Shipping/` |
+| **Webhooks module** | Webhook subscriptions, delivery, signing, events bus for cross-module integration | Module-to-module direct calls | `service/Api/src/Module/Webhooks/` |
 | **Migrations** | EF Core migration files, database schema snapshot, migration guide | Application logic, domain models | `service/Api/src/Migrations/Api.Migrations.csproj` |
 | **Embedding service** | Python ML inference (Fashion-CLIP), embedding generation API, image preprocessing, embedding caching | .NET business logic, database access, user management | `service/Embedding/src/main.py` |
+| **Aspire AppHost** | Service orchestration (PostgreSQL, Redis, API, Embedding, Admin SPA, Store SPA), service discovery, health checks, resilience | Application business logic | `infra/Aspire/src/ReSys.AppHost/AppHost.cs` |
 
 ### 4) Reused Patterns
 
@@ -86,7 +91,7 @@ Evidence for each step:
 
 ### 5) Known Architectural Risks
 
-- **Module cross-reference enforcement is disabled**: `ValidateVerticalSliceIsolation` target in `Directory.Build.targets:44` is gated with `Condition="false"`. Module isolation relies on convention and code review, not build enforcement.
+- **Module cross-reference enforcement is disabled**: `ValidateVerticalSliceIsolation` target in `Directory.Build.targets:44` is gated with `Condition="false"`. With 9 modules sharing a single assembly, module isolation relies on convention and code review, not build enforcement.
 - **Monolith scaling**: All modules compile into a single deployable; scaling requires scaling the entire API instance. Background jobs (Hangfire) share the same process/connection pool unless externalized.
 - **Embedding service is a separate process**: The Python ML sidecar is not integrated into the .NET DI pipeline; the communication protocol (HTTP/gRPC) and failure handling need to be defined. The service exists but may not be fully operational (see CONCERNS.md).
 - **No API gateway or reverse proxy defined**: Frontends proxy `/api` to `localhost:5035` in dev; production routing strategy is not yet defined.
@@ -94,10 +99,15 @@ Evidence for each step:
 
 ### 6) Evidence
 
-- `service/Api/src/Api/Program.cs` — API entry point showing DI wiring order and middleware pipeline
+- `service/Api/src/Api/Program.cs` — API entry point showing DI wiring order, middleware pipeline, 9 module registrations
 - `service/Api/src/Shared/Application/Mediators/Mediator.Extension.cs` — MediatR registration with pipeline behaviors
 - `service/Api/src/Shared/Application/Endpoints/Endpoint.Extension.cs` — Carter endpoint discovery
-- `service/Api/src/Module/Catalog/Catalog.Extension.cs` — Module DI extension pattern
+- `service/Api/src/Module/Catalog/Catalog.Extension.cs` — Module DI extension pattern (representative)
+- `service/Api/src/Module/Ordering/` — Ordering module with cart, checkout, orders, events
+- `service/Api/src/Module/Payment/` — Payment module with intents, methods, refunds, webhooks
+- `service/Api/src/Module/Shipping/` — Shipping module with methods, rates, calculation
+- `service/Api/src/Module/Webhooks/` — Webhooks module with subscriptions, delivery, signing
 - `Directory.Build.targets` — Architecture validation targets (layer dependency enforcement)
 - `service/Api/src/Shared/Application/Models/Results/` — Result object pattern implementations
 - `infra/Aspire/src/ReSys.AppHost/AppHost.cs` — Service topology (all services wired together)
+- `Directory.Build.props` — Build constraints (TreatWarningsAsErrors, Central Package Management)
