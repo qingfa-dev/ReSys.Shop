@@ -1,7 +1,5 @@
 using Module.Payment.Domain.Payments;
 
-using PaymentDomain = Module.Payment.Domain.Payments.Payment;
-
 namespace Module.Payment.Features.Storefront.Payment.Confirm;
 
     /// <summary>Handles ConfirmPayment feature.</summary>
@@ -21,7 +19,7 @@ namespace Module.Payment.Features.Storefront.Payment.Confirm;
 
         // Contract: pre=command!=null, post=result!=null
             // Query: Get payment by ID
-            var payment = await dbContext.Set<PaymentDomain>()
+            var payment = await dbContext.Set<PaymentRecord>()
                 .FirstOrDefaultAsync(p => p.Id == command.PaymentId, cancellationToken);
 
             // Check: Verify the payment exists.

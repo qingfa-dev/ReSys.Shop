@@ -1,4 +1,5 @@
 using Module.Payment.Domain.PaymentMethods;
+using Module.Payment.Domain.Payments;
 
 namespace Module.Payment.Persistence.Constants;
 
@@ -8,7 +9,7 @@ public static class PaymentSchema
 
     public static class TableNames
     {
-        public static string Payments => nameof(Payment).ToSnakeCase()!;
-        public static string PaymentMethods => nameof(PaymentMethod).ToSnakeCase()!;
+        public static string PaymentRecords => nameof(PaymentRecord).ToSnakeCase();
+        public static string PaymentMethods => nameof(PaymentMethod).ToSnakeCase();
     }
 }

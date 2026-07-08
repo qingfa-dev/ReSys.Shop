@@ -1,4 +1,4 @@
-using PaymentDomain = Module.Payment.Domain.Payments.Payment;
+using PaymentRecord = Module.Payment.Domain.Payments.PaymentRecord;
 
 namespace Module.Payment.Features.Admin.Payments.Get.Paged;
 
@@ -20,7 +20,7 @@ public static partial class GetPagedPayments
             if (parsing.IsFailure)
                 return parsing.Errors;
 
-            var pagedResult = await dbContext.Set<PaymentDomain>()
+            var pagedResult = await dbContext.Set<PaymentRecord>()
                 .AsNoTracking()
                 .ApplyQuerying(parsing.Value)
                 .ToPagedOrAllAsync(parsing.Value, x => new Response

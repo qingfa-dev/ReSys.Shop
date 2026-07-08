@@ -1,7 +1,7 @@
 using Module.Payment.Domain.Gateways;
 using Module.Payment.Domain.Payments;
 
-using PaymentDomain = Module.Payment.Domain.Payments.Payment;
+using PaymentRecord = Module.Payment.Domain.Payments.PaymentRecord;
 
 namespace Module.Payment.Features.Admin.Payments.Capture;
 
@@ -22,7 +22,7 @@ namespace Module.Payment.Features.Admin.Payments.Capture;
 
         // Contract: pre=command!=null, post=result!=null
             // Query: Get payment by ID.
-            var payment = await dbContext.Set<PaymentDomain>()
+            var payment = await dbContext.Set<PaymentRecord>()
                 .FirstOrDefaultAsync(p => p.Id == command.Id, cancellationToken);
 
             // Check: Verify the payment exists.

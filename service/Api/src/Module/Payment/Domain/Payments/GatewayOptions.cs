@@ -5,9 +5,9 @@ namespace Module.Payment.Domain.Payments;
 // Define: Gateway options builder ported from Spree::Payment::GatewayOptions — constructs the options hash sent to payment gateways
 public sealed class GatewayOptions
 {
-    private readonly Payment _payment;
+    private readonly PaymentRecord _payment;
 
-    public GatewayOptions(Payment payment)
+    public GatewayOptions(PaymentRecord payment)
     {
         _payment = payment;
     }

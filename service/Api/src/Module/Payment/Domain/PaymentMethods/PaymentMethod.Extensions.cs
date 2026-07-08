@@ -125,12 +125,6 @@ public static class PaymentMethodExtensions
     /// </summary>
     /// <param name="method">The payment method to check.</param>
     /// <returns>True if the provider type is StoreCredit.</returns>
-    // @CAT-5 Compute: Identify store credit methods by comparing provider type
-    public static bool IsStoreCredit(this PaymentMethod method)
-    {
-        return method.ProviderType.Equals("StoreCredit", StringComparison.OrdinalIgnoreCase);
-    }
-
     // @CAT-5 Compute: Payment method is available when active and its DisplayOn scope encompasses the order's originating channel
     /// <summary>
     /// Determines whether this payment method is available for the given order.

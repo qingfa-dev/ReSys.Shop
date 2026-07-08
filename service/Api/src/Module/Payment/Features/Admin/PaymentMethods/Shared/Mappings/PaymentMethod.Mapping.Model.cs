@@ -1,4 +1,4 @@
-using PaymentDomain = Module.Payment.Domain.PaymentMethods.PaymentMethod;
+using PaymentRecord = Module.Payment.Domain.PaymentMethods.PaymentMethod;
 
 namespace Module.Payment.Features.Admin.PaymentMethods.Shared.Mappings;
 
@@ -9,7 +9,7 @@ public static partial class PaymentMethodMapping
     /// <typeparam name="T">The response type, must inherit from PaymentMethodDetailResponse.</typeparam>
     /// <param name="entity">The domain entity.</param>
     /// <returns>The mapped response.</returns>
-    public static T MapToDetail<T>(this PaymentDomain entity) where T : Models.PaymentMethodDetailResponse, new()
+    public static T MapToDetail<T>(this PaymentRecord entity) where T : Models.PaymentMethodDetailResponse, new()
     {
         return new T
         {
@@ -31,7 +31,7 @@ public static partial class PaymentMethodMapping
     }
 
     /// <summary>Maps a domain PaymentMethod to a list item response.</summary>
-    public static T MapToListItem<T>(this PaymentDomain entity) where T : Models.PaymentMethodListItemResponse, new()
+    public static T MapToListItem<T>(this PaymentRecord entity) where T : Models.PaymentMethodListItemResponse, new()
     {
         return new T
         {

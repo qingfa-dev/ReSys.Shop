@@ -2,7 +2,7 @@ using Module.Payment.Domain.Gateways;
 using Module.Payment.Domain.Payments;
 using Module.Payment.Features.Admin.Payments.Refund;
 
-using PaymentDomain = Module.Payment.Domain.Payments.Payment;
+using PaymentRecord = Module.Payment.Domain.Payments.PaymentRecord;
 
 namespace Module.UnitTests.Payment.Features.Admin.Payments.Refund;
 
@@ -20,7 +20,7 @@ public class RefundPaymentTests : IDisposable
         var options = new DbContextOptionsBuilder<ApplicationDbContext>()
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
             .Options;
-        ApplicationDbContext.AdditionalConfigurationsAssemblies = [typeof(PaymentDomain).Assembly];
+        ApplicationDbContext.AdditionalConfigurationsAssemblies = [typeof(PaymentRecord).Assembly];
         _dbContext = new ApplicationDbContext(options);
 
         _gatewayMock = new Mock<IPaymentGatewayActionProvider>();
@@ -39,7 +39,7 @@ public class RefundPaymentTests : IDisposable
         var payment = PaymentFactory.Create(100m, Guid.NewGuid(), Guid.NewGuid()).Value;
         payment.Process();
         payment.Complete();
-        _dbContext.Set<PaymentDomain>().Add(payment);
+        _dbContext.Set<PaymentRecord>().Add(payment);
         await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 
         var result = await _handler.Handle(
@@ -59,7 +59,7 @@ public class RefundPaymentTests : IDisposable
         var payment = PaymentFactory.Create(100m, Guid.NewGuid(), Guid.NewGuid()).Value;
         payment.Process();
         payment.Complete();
-        _dbContext.Set<PaymentDomain>().Add(payment);
+        _dbContext.Set<PaymentRecord>().Add(payment);
         await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 
         var result = await _handler.Handle(
@@ -75,7 +75,7 @@ public class RefundPaymentTests : IDisposable
         var payment = PaymentFactory.Create(100m, Guid.NewGuid(), Guid.NewGuid()).Value;
         payment.Process();
         payment.Pend();
-        _dbContext.Set<PaymentDomain>().Add(payment);
+        _dbContext.Set<PaymentRecord>().Add(payment);
         await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 
         var result = await _handler.Handle(

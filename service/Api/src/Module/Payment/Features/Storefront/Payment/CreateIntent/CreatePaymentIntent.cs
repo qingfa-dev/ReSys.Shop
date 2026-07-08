@@ -3,8 +3,6 @@ using Module.Payment.Domain.Gateways;
 using Module.Payment.Domain.Payments;
 using Module.Payment.Domain.PaymentMethods;
 
-using PaymentDomain = Module.Payment.Domain.Payments.Payment;
-
 namespace Module.Payment.Features.Storefront.Payment.CreateIntent;
 
     /// <summary>Handles CreatePaymentIntent feature.</summary>
@@ -55,7 +53,7 @@ namespace Module.Payment.Features.Storefront.Payment.CreateIntent;
 
             var payment = createResult.Value;
             // Create: Persist new entity.
-            dbContext.Set<PaymentDomain>().Add(payment);
+            dbContext.Set<PaymentRecord>().Add(payment);
             // Persist: Save changes to the database.
             await dbContext.SaveChangesAsync(cancellationToken);
 

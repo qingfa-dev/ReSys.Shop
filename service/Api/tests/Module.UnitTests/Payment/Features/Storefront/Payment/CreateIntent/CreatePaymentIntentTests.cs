@@ -4,7 +4,7 @@ using Module.Payment.Domain.PaymentMethods;
 using Module.Payment.Features.Storefront.Payment.CreateIntent;
 using Module.Ordering.Domain.Orders;
 
-using PaymentDomain = Module.Payment.Domain.Payments.Payment;
+using PaymentRecord = Module.Payment.Domain.Payments.PaymentRecord;
 
 namespace Module.UnitTests.Payment.Features.Storefront.Payment.CreateIntent;
 
@@ -25,7 +25,7 @@ public class CreatePaymentIntentTests : IDisposable
             .Options;
 
         ApplicationDbContext.AdditionalConfigurationsAssemblies = [
-            typeof(PaymentDomain).Assembly,
+            typeof(PaymentRecord).Assembly,
             typeof(Order).Assembly
         ];
         _dbContext = new ApplicationDbContext(options);

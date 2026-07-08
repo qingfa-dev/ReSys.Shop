@@ -1,5 +1,6 @@
 using Shared.Application.Domain.Concerns.Auditable;
 using Shared.Application.Domain.Models;
+
 using Module.Payment.Domain.PaymentMethods;
 using Module.Ordering.Domain.Orders;
 
@@ -7,7 +8,7 @@ namespace Module.Payment.Domain.Payments;
 
 /// <summary>Represents a payment transaction within an order, managing state transitions, capture, and refund.</summary>
 // @CAT-10 Invariant: Amount > 0; State progresses Checkout->Processing->Pending->Completed or ->Failed->Void; CapturedTotal <= Amount; RefundedTotal <= CapturedTotal
-public sealed partial class Payment : Entity, IAuditable
+public sealed partial class PaymentRecord : Entity, IAuditable
 {
     #region Properties
     public string Number { get; set; } = string.Empty;
@@ -41,6 +42,6 @@ public sealed partial class Payment : Entity, IAuditable
     #endregion Auditing
 
     #region Constructor
-    internal Payment() { }
+    internal PaymentRecord() { }
     #endregion Constructor
 }
