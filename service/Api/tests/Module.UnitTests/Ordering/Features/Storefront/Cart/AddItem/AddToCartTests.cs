@@ -87,6 +87,6 @@ public class AddToCartTests : IDisposable
             TestContext.Current.CancellationToken);
 
         result.IsFailure.Should().BeTrue();
-        result.FirstFailure!.Code.Should().Be(LineItemResult.Errors.VariantNotFound(Guid.NewGuid()).Code);
+        result.Errors[0].Code.Should().Be(LineItemResult.Errors.VariantNotFound(Guid.NewGuid()).Code);
     }
 }

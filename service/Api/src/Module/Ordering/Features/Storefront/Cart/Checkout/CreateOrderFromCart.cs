@@ -3,6 +3,7 @@ using Module.Inventory.Domain.StockLocations.StockItems;
 using Module.Inventory.Domain.StockReservations;
 using Module.Inventory.Domain.StockLocations.StockItems.StockMovements;
 using Module.Ordering.Domain.Orders;
+using Module.Ordering.Domain.Orders.Contracts;
 using Module.Payment.Domain.Payments;
 
 using Shared.Operational.Notifications.Models;
@@ -120,23 +121,21 @@ public static partial class CreateOrderFromCart
                         si.CountOnHand -= take;
                         remaining -= take;
 
-                        var reservation = StockReservationExtensions.Reserve(
+                        var reservation = StockReservationMethod.Reserve(
                             si.VariantId, take, si.StockLocationId, cart.Id, 30).Value;
                         dbContext.Set<StockReservation>().Add(reservation);
 
-                        var movement = new StockMovement
-                        {
-                            Id = Guid.NewGuid(),
-                            StockItemId = si.Id,
-                            Quantity = -take,
-                            PreviousCountOnHand = si.CountOnHand + take,
-                            Action = "ship",
-                            OriginatorType = "Order",
-                            OriginatorId = cart.Id,
-                            CreatedAtUtc = DateTimeOffset.UtcNow,
-                            CreatedBy = currentUser.UserName
-                        };
-                        dbContext.Set<StockMovement>().Add(movement);
+                        var movementResult = StockMovementMethod.Create(
+                            stockItemId: si.Id,
+                            quantity: -take,
+                            previousCountOnHand: si.CountOnHand + take,
+                            originatorType: "Order",
+                            originatorId: cart.Id,
+                            action: "ship",
+                            createdBy: currentUser.UserName);
+
+                        if (movementResult.IsSuccess)
+                            dbContext.Set<StockMovement>().Add(movementResult.Value);
                     }
                 }
             }
@@ -195,7 +194,7 @@ public static partial class CreateOrderFromCart
             if (result.IsFailure)
             {
                 logger.LogWarning("Failed to send order confirmation notification for order {OrderId}: {Errors}",
-                    order.Id, string.Join("; ", result.Failures.Select(f => f.Description)));
+                    order.Id, string.Join("; ", result.Errors.Select(f => f.Description)));
             }
         }
     }

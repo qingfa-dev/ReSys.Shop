@@ -25,7 +25,7 @@ public static partial class ListCustomerOrders
 
             // Contract: pre=query!=null, post=result!=null
             var parseAll = parameters.ParseAll();
-            if (parseAll.IsError)
+            if (parseAll.IsFailure)
                 return parseAll.Errors;
 
             // Query: Retrieve orders for current user (excluding drafts) with querying options.

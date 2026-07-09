@@ -3,20 +3,21 @@ using Module.Inventory.Domain.StockLocations.StockItems.StockMovements;
 using Module.Inventory.Services;
 using Module.Ordering.Domain.LineItems;
 using Module.Ordering.Domain.Orders;
+using Module.Ordering.Features.Shared.Services;
 
-namespace Module.UnitTests.Ordering.Domain.Orders;
+namespace Module.UnitTests.Ordering.Features.Shared.Services;
 
 [Trait("Category", "Unit")]
 [Trait("Module", "Ordering")]
-[Trait("Feature", "OrderInventory")]
-public class OrderInventoryTests : IDisposable
+[Trait("Feature", "OrderInventoryService")]
+public class OrderInventoryServiceTests : IDisposable
 {
     private readonly ApplicationDbContext _dbContext;
-    private readonly StockChecker _stockChecker;
+    private readonly StockQuantityService _stockChecker;
     private readonly Guid _variantId = Guid.NewGuid();
     private readonly Guid _stockLocationId = Guid.NewGuid();
 
-    public OrderInventoryTests()
+    public OrderInventoryServiceTests()
     {
         var options = new DbContextOptionsBuilder<ApplicationDbContext>()
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
@@ -27,7 +28,7 @@ public class OrderInventoryTests : IDisposable
             typeof(Order).Assembly
         ];
         _dbContext = new ApplicationDbContext(options);
-        _stockChecker = new StockChecker(_dbContext);
+        _stockChecker = new StockQuantityService(_dbContext);
     }
 
     public void Dispose()
@@ -85,7 +86,7 @@ public class OrderInventoryTests : IDisposable
     {
         var ct = TestContext.Current.CancellationToken;
         var (order, lineItem) = CreateOrderWithLineItem(stockCountOnHand: 5);
-        var inventory = new OrderInventory(order, lineItem, _dbContext, _stockChecker);
+        var inventory = new OrderInventoryService(order, lineItem, _dbContext, _stockChecker);
 
         await inventory.RemoveAsync(lineItem.Quantity, ct);
         await _dbContext.SaveChangesAsync(ct);
@@ -105,7 +106,7 @@ public class OrderInventoryTests : IDisposable
     {
         var ct = TestContext.Current.CancellationToken;
         var (order, lineItem) = CreateOrderWithLineItem(stockCountOnHand: 10);
-        var inventory = new OrderInventory(order, lineItem, _dbContext, _stockChecker);
+        var inventory = new OrderInventoryService(order, lineItem, _dbContext, _stockChecker);
 
         await inventory.AddToShipmentAsync(2, ct);
         await _dbContext.SaveChangesAsync(ct);
@@ -125,7 +126,7 @@ public class OrderInventoryTests : IDisposable
     {
         var ct = TestContext.Current.CancellationToken;
         var (order, lineItem) = CreateOrderWithLineItem(stockCountOnHand: 10);
-        var inventory = new OrderInventory(order, lineItem, _dbContext, _stockChecker);
+        var inventory = new OrderInventoryService(order, lineItem, _dbContext, _stockChecker);
 
         await inventory.VerifyAsync(ct);
 
@@ -139,7 +140,7 @@ public class OrderInventoryTests : IDisposable
     {
         var ct = TestContext.Current.CancellationToken;
         var (order, lineItem) = CreateOrderWithLineItem();
-        var inventory = new OrderInventory(order, lineItem, _dbContext, _stockChecker);
+        var inventory = new OrderInventoryService(order, lineItem, _dbContext, _stockChecker);
 
         await inventory.RemoveAsync(lineItem.Quantity, ct);
 
@@ -152,7 +153,7 @@ public class OrderInventoryTests : IDisposable
     {
         var ct = TestContext.Current.CancellationToken;
         var (order, lineItem) = CreateOrderWithLineItem();
-        var inventory = new OrderInventory(order, lineItem, _dbContext, _stockChecker);
+        var inventory = new OrderInventoryService(order, lineItem, _dbContext, _stockChecker);
 
         await inventory.AddToShipmentAsync(2, ct);
 

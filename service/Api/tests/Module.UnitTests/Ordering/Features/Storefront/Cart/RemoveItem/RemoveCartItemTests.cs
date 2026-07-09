@@ -82,7 +82,7 @@ public class RemoveCartItemTests : IDisposable
 
         // Assert
         result.IsFailure.Should().BeTrue();
-        result.Failures.Should().Contain(f => f.Code == "Order.NotFound");
+        result.Errors.Should().Contain(f => f.Code == "Order.NotFound");
     }
 
     [Fact(DisplayName = "Handler: Should return failure when user not authenticated")]

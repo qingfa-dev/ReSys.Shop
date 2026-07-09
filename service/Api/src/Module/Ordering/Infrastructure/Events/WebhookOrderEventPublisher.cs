@@ -1,6 +1,6 @@
 using Microsoft.Extensions.Logging;
 
-using Module.Ordering.Domain.Orders;
+using Module.Ordering.Domain.Orders.Contracts;
 
 using Shared.Operational.Webhooks.Services;
 

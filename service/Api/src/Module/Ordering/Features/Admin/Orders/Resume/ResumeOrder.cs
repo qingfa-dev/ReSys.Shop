@@ -22,7 +22,7 @@ public static partial class ResumeOrder
             if (order is null) return (Result<Response>)OrderResult.Errors.NotFound(command.Id);
 
             var result = order.Resume();
-            if (result.IsFailure) return (Result<Response>)result.Failures;
+            if (result.IsFailure) return (Result<Response>)result.Errors;
 
             await dbContext.SaveChangesAsync(cancellationToken);
 
@@ -49,7 +49,7 @@ public static partial class ResumeOrder
             if (result.IsFailure)
             {
                 logger.LogWarning("Failed to send order resumed notification for order {OrderId}: {Errors}",
-                    order.Id, string.Join("; ", result.Failures.Select(f => f.Description)));
+                    order.Id, string.Join("; ", result.Errors.Select(f => f.Description)));
             }
         }
     }

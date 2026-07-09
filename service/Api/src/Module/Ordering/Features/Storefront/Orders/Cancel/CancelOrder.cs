@@ -1,5 +1,6 @@
 using Module.Inventory.Services.Abstractions;
 using Module.Ordering.Domain.Orders;
+using Module.Ordering.Features.Shared.Services;
 using Module.Payment.Domain.Gateways;
 using Module.Payment.Domain.Payments;
 
@@ -18,7 +19,7 @@ namespace Module.Ordering.Features.Storefront.Orders.Cancel;
 
     public sealed class CommandHandler(
         IApplicationDbContext dbContext,
-        IStockChecker stockChecker,
+        IStockQuantityService stockChecker,
         IPaymentGatewayActionProvider paymentGateway,
         ILogger<CommandHandler> logger,
         ICurrentUser currentUser,
@@ -82,7 +83,7 @@ namespace Module.Ordering.Features.Storefront.Orders.Cancel;
             {
                 foreach (var lineItem in entity.LineItems)
                 {
-                    var orderInventory = new OrderInventory(entity, lineItem, dbContext, stockChecker);
+                    var orderInventory = new OrderInventoryService(entity, lineItem, dbContext, stockChecker);
                     await orderInventory.RemoveAsync(lineItem.Quantity, cancellationToken);
                 }
             }
@@ -116,7 +117,7 @@ namespace Module.Ordering.Features.Storefront.Orders.Cancel;
             if (result.IsFailure)
             {
                 logger.LogWarning("Failed to send order canceled notification for order {OrderId}: {Errors}",
-                    order.Id, string.Join("; ", result.Failures.Select(f => f.Description)));
+                    order.Id, string.Join("; ", result.Errors.Select(f => f.Description)));
             }
         }
     }

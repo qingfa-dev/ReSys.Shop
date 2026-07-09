@@ -15,6 +15,7 @@ public class OrderDetailResponse : OrderParameters
     public decimal PaymentTotal { get; init; }
     public decimal OutstandingBalance { get; init; }
     public string? PaymentState { get; init; }
+    public string? ShipmentState { get; init; }
     public Guid? UserId { get; init; }
     public Guid? StoreId { get; init; }
     public DateTimeOffset? CompletedAtUtc { get; init; }

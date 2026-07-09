@@ -21,7 +21,7 @@ public static partial class CreateOrder
             // Create: Map the request to a new Order entity.
             var result = request.MapToDomain(userId: Guid.Empty, storeId: Guid.Empty);
             if (result.IsFailure)
-                return result.Failures;
+                return result.Errors;
 
             var order = result.Value;
 

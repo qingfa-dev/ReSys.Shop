@@ -37,7 +37,7 @@ public class GetOrderLineItemByIdTests : IDisposable
         _dbContext.Set<Order>().Add(order);
         await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 
-        var lineItem = LineItemExtensions.Create(order.Id, Guid.NewGuid(), 2, 29.99m).Value;
+        var lineItem = LineItemMethod.Create(order.Id, Guid.NewGuid(), 2, 29.99m).Value;
         _dbContext.Set<LineItem>().Add(lineItem);
         await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 
@@ -63,6 +63,6 @@ public class GetOrderLineItemByIdTests : IDisposable
             TestContext.Current.CancellationToken);
 
         result.IsFailure.Should().BeTrue();
-        result.FirstFailure!.Code.Should().Be(LineItemResult.Errors.NotFound(Guid.NewGuid()).Code);
+        result.Errors[0].Code.Should().Be(LineItemResult.Errors.NotFound(Guid.NewGuid()).Code);
     }
 }

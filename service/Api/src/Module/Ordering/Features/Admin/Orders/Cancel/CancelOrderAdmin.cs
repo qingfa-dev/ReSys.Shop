@@ -33,7 +33,7 @@ public static partial class CancelOrderAdmin
             var parsed = Guid.TryParse(currentUser.UserId, out var userId);
             var result = order.Cancel(userId);
             if (result.IsFailure)
-                return result.Failures;
+                return result.Errors;
 
             // Persist: Save changes.
             await dbContext.SaveChangesAsync(cancellationToken);
@@ -62,7 +62,7 @@ public static partial class CancelOrderAdmin
             if (result.IsFailure)
             {
                 logger.LogWarning("Failed to send order canceled notification for order {OrderId}: {Errors}",
-                    order.Id, string.Join("; ", result.Failures.Select(f => f.Description)));
+                    order.Id, string.Join("; ", result.Errors.Select(f => f.Description)));
             }
         }
     }
