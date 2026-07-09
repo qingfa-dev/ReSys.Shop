@@ -1,4 +1,4 @@
-namespace Module.Ordering.Domain.Orders;
+namespace Module.Ordering.Domain.Orders.Contracts;
 
 public interface IOrderEventPublisher
 {

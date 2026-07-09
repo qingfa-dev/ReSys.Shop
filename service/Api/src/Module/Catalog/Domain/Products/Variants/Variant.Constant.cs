@@ -17,12 +17,10 @@ public static class VariantConstant
         public const string CostCurrency = "USD";
 
         public const decimal Weight = 0m;
-        public const WeightUnit WeightUnit = global::Module.Catalog.Domain.Products.Variants.WeightUnit.Kg;
 
         public const decimal Height = 0m;
         public const decimal Width = 0m;
         public const decimal Depth = 0m;
-        public const DimensionUnit DimensionsUnit = global::Module.Catalog.Domain.Products.Variants.DimensionUnit.Cm;
 
         public const int MaxOptionValues = 100; // Arbitrary limit to prevent excessive options
     }

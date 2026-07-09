@@ -105,6 +105,10 @@ public static class PermissionContext
             "manage_rules", "Manage Rules", "Allows managing business rules.");
         public static readonly OptionDescriptor<string> ManageItems = OptionDescriptor<string>.Option(
             "manage_items", "Manage Items", "Allows managing line items.");
+        public static readonly OptionDescriptor<string> AddItem = OptionDescriptor<string>.Option(
+            "add_item", "Add Item", "Allows adding items to a resource.");
+        public static readonly OptionDescriptor<string> RemoveItem = OptionDescriptor<string>.Option(
+            "remove_item", "Remove Item", "Allows removing items from a resource.");
     }
 
     public static class Resources

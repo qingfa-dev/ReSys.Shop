@@ -37,7 +37,7 @@ public static class AuthenticationExtensions
     /// </summary>
     /// <param name="app">The web application to configure.</param>
     /// <returns>The web application for method chaining.</returns>
-    public static WebApplication UseApplicationAuthentication(WebApplication app)
+    public static WebApplication UseApplicationAuthentication(this WebApplication app)
     {
         app.UseAuthentication();
         return app;

@@ -48,7 +48,7 @@ public class VariantConfiguration : IEntityTypeConfiguration<Variant>
         builder.Property(x => x.WeightUnit)
             .HasConversion<string>()
             .HasMaxLength(10)
-            .HasDefaultValue(VariantConstant.Defaults.WeightUnit)
+            .HasDefaultValue(WeightUnit.Kg)
             .IsRequired(false);
 
         builder.Property(x => x.Height)
@@ -66,7 +66,7 @@ public class VariantConfiguration : IEntityTypeConfiguration<Variant>
         builder.Property(x => x.DimensionsUnit)
             .HasConversion<string>()
             .HasMaxLength(10)
-            .HasDefaultValue(VariantConstant.Defaults.DimensionsUnit)
+            .HasDefaultValue(DimensionUnit.Cm)
             .IsRequired(false);
 
         builder.Property(x => x.DiscontinuedOn);

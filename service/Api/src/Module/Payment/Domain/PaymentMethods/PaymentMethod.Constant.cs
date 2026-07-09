@@ -14,7 +14,6 @@ public static class PaymentMethodConstant
     {
         public const bool Active = true;
         public const bool AutoCapture = false;
-        public const DisplayOn DisplayOn = Domain.PaymentMethods.DisplayOn.Both;
         public const int Position = 0;
     }
 

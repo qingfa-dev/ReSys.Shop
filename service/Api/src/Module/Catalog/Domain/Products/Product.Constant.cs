@@ -10,7 +10,6 @@ public static class ProductConstant
     /// </summary>
     public static class Defaults
     {
-        public const ProductStatus Status = ProductStatus.Draft;
     }
 
     /// <summary>

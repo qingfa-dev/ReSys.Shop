@@ -40,7 +40,7 @@ public class PaymentMethodConfiguration : IEntityTypeConfiguration<PaymentMethod
         builder.Property(x => x.DisplayOn)
             .IsRequired()
             .HasConversion<string>()
-            .HasDefaultValue(PaymentMethodConstant.Defaults.DisplayOn);
+            .HasDefaultValue(DisplayOn.Both);
 
         builder.Property(x => x.Position)
             .IsRequired()

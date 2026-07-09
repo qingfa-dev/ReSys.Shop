@@ -12,7 +12,6 @@ using Module.Webhooks;
 
 using ReSys.ServiceDefaults;
 
-
 using Shared.Application;
 using Shared.Governance;
 using Shared.Observability;
@@ -46,7 +45,7 @@ builder.AddShippingModule();
 builder.AddWebhooksModule();
 
 // Swap: Order event publisher from no-op to webhook-backed implementation
-builder.Services.AddScoped<Module.Ordering.Domain.Orders.IOrderEventPublisher,
+builder.Services.AddScoped<Module.Ordering.Domain.Orders.Contracts.IOrderEventPublisher,
     Module.Ordering.Infrastructure.Events.WebhookOrderEventPublisher>();
 
 WebApplication app = builder.Build();
@@ -57,7 +56,6 @@ app.MapDefaultEndpoints();
 app.UseGovernance();
 app.UsePerformance();
 app.UseSecurity();
-app.UseRateLimiter();
 app.UseOperational();
 app.UseObservability();
 app.UseHttpsRedirection();

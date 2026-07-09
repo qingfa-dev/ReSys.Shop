@@ -24,7 +24,7 @@ public class PaymentConfiguration : IEntityTypeConfiguration<global::Module.Paym
         builder.Property(x => x.State)
             .IsRequired()
             .HasConversion<string>()
-            .HasDefaultValue(PaymentConstant.Defaults.State);
+            .HasDefaultValue(PaymentRecordState.Checkout);
 
         builder.Property(x => x.ResponseCode)
             .HasMaxLength(PaymentConstant.Constraints.MaxResponseCodeLength);

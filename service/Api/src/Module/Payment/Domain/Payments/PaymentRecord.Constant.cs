@@ -17,7 +17,6 @@ public static class PaymentConstant
 
     public static class Defaults
     {
-        public const PaymentRecordState State = Payments.PaymentRecordState.Checkout;
     }
 
     public static class Query

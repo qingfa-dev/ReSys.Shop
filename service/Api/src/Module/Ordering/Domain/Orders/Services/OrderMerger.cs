@@ -1,4 +1,4 @@
-namespace Module.Ordering.Domain.Orders;
+namespace Module.Ordering.Domain.Orders.Services;
 
 /// <summary>
 /// Combines a guest cart into a user cart, merging line items and reassigning the user.

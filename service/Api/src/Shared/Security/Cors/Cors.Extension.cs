@@ -63,7 +63,7 @@ public static class CorsExtensions
         return builder;
     }
 
-    public static WebApplication UseCors(WebApplication app)
+    public static WebApplication UseCors(this WebApplication app)
     {
         app.UseCors();
         return app;
