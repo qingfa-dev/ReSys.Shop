@@ -35,7 +35,7 @@ public static class StockMovementResult
         /// <summary>Error when the originator type is not recognised.</summary>
         public static Error InvalidOriginatorType => Error.Validation(
             code: "StockMovement.OriginatorType.Invalid",
-            message: "Originator type must be one of: Order, Transfer, Adjustment.");
+            message: "Originator type must be one of: Order, Transfer, Adjustment, Restock.");
 
         /// <summary>Error when the reason exceeds maximum length.</summary>
         public static Error ReasonTooLong => Error.Validation(

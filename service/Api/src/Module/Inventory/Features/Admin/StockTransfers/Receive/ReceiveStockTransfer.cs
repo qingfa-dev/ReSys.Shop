@@ -49,21 +49,18 @@ public static partial class ReceiveStockTransfer
                     destStockItem.CountOnHand += quantity;
                     destStockItem.ModifiedAtUtc = DateTimeOffset.UtcNow;
 
-                    var movement = new StockMovement
-                    {
-                        Id = Guid.NewGuid(),
-                        StockItemId = destStockItem.Id,
-                        StockLocationId = transfer.DestinationLocationId,
-                        Quantity = quantity,
-                        PreviousCountOnHand = previousCount,
-                        Action = "transfer_in",
-                        OriginatorType = "Transfer",
-                        OriginatorId = transfer.Id,
-                        Reason = $"Received from transfer {transfer.Number}",
-                        CreatedAtUtc = DateTimeOffset.UtcNow,
-                        CreatedBy = "System"
-                    };
-                    dbContext.Set<StockMovement>().Add(movement);
+                    var movementResult = StockMovementMethod.Create(
+                        stockItemId: destStockItem.Id,
+                        quantity: quantity,
+                        previousCountOnHand: previousCount,
+                        originatorType: "Transfer",
+                        originatorId: transfer.Id,
+                        reason: $"Received from transfer {transfer.Number}",
+                        action: "transfer_in",
+                        stockLocationId: transfer.DestinationLocationId);
+
+                    if (movementResult.IsSuccess)
+                        dbContext.Set<StockMovement>().Add(movementResult.Value);
                 }
             }
 

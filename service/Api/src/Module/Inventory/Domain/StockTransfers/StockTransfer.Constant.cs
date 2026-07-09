@@ -10,7 +10,6 @@ public static class StockTransferConstant
 
     public static class Defaults
     {
-        public const TransferState State = TransferState.Draft;
     }
 
     public static class Query

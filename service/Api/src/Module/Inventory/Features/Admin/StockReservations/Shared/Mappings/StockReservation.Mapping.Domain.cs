@@ -9,7 +9,7 @@ public static partial class StockReservationMapping
     public static Result<StockReservation> MapToDomain<T>(this T request, int ttlMinutes = StockReservationConstant.Defaults.DefaultTtlMinutes)
         where T : StockReservationRequest
     {
-        return StockReservationExtensions.Reserve(
+        return StockReservationMethod.Reserve(
             variantId: request.VariantId,
             quantity: request.Quantity,
             stockLocationId: request.StockLocationId,

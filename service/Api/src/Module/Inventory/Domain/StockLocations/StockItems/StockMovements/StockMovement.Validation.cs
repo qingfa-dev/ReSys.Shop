@@ -13,7 +13,7 @@ public static class StockMovementValidation
     public static IRuleBuilderOptions<T, string?> ApplyOriginatorTypeRules<T>(this IRuleBuilder<T, string?> ruleBuilder)
     {
         return ruleBuilder
-            .Must(type => type is null or "Order" or "Transfer" or "Adjustment")
+            .Must(type => type is null or "Order" or "Transfer" or "Adjustment" or "Restock")
             .WithErrorCode(StockMovementResult.Errors.InvalidOriginatorType.Code)
             .WithMessage(StockMovementResult.Errors.InvalidOriginatorType.Message);
     }

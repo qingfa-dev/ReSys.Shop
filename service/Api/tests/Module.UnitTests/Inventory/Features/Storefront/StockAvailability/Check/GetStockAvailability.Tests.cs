@@ -92,16 +92,9 @@ public class GetStockAvailabilityTests : IDisposable
         _dbContext.Set<StockItem>().Add(
             new StockItem { VariantId = variantId, StockLocationId = location1.Id, CountOnHand = 10 }
         );
-        _dbContext.Set<StockReservation>().Add(new StockReservation
-        {
-            VariantId = variantId,
-            StockLocationId = location1.Id,
-            OrderId = Guid.NewGuid(),
-            Quantity = 3,
-            State = ReservationState.Reserved,
-            ExpiresAtUtc = DateTimeOffset.UtcNow.AddMinutes(30),
-            CreatedAtUtc = DateTimeOffset.UtcNow
-        });
+        _dbContext.Set<StockReservation>().Add(StockReservationMethod.SeedForTest(
+            variantId, 3, ReservationState.Reserved, DateTimeOffset.UtcNow.AddMinutes(30),
+            location1.Id, orderId: Guid.NewGuid(), createdAtUtc: DateTimeOffset.UtcNow));
         await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 
         // Act
@@ -128,15 +121,9 @@ public class GetStockAvailabilityTests : IDisposable
         _dbContext.Set<StockItem>().Add(
             new StockItem { VariantId = variantId, StockLocationId = locA.Id, CountOnHand = 5 }
         );
-        _dbContext.Set<StockReservation>().Add(new StockReservation
-        {
-            VariantId = variantId,
-            StockLocationId = locA.Id,
-            Quantity = 2,
-            State = ReservationState.Reserved,
-            ExpiresAtUtc = DateTimeOffset.UtcNow.AddMinutes(30),
-            CreatedAtUtc = DateTimeOffset.UtcNow
-        });
+        _dbContext.Set<StockReservation>().Add(StockReservationMethod.SeedForTest(
+            variantId, 2, ReservationState.Reserved, DateTimeOffset.UtcNow.AddMinutes(30),
+            locA.Id, createdAtUtc: DateTimeOffset.UtcNow));
         await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 
         // Act
@@ -163,15 +150,9 @@ public class GetStockAvailabilityTests : IDisposable
         _dbContext.Set<StockItem>().Add(
             new StockItem { VariantId = variantId, StockLocationId = loc.Id, CountOnHand = 10 }
         );
-        _dbContext.Set<StockReservation>().Add(new StockReservation
-        {
-            VariantId = variantId,
-            StockLocationId = loc.Id,
-            Quantity = 3,
-            State = ReservationState.Reserved,
-            ExpiresAtUtc = DateTimeOffset.UtcNow.AddMinutes(-10), // expired
-            CreatedAtUtc = DateTimeOffset.UtcNow.AddMinutes(-40)
-        });
+        _dbContext.Set<StockReservation>().Add(StockReservationMethod.SeedForTest(
+            variantId, 3, ReservationState.Reserved, DateTimeOffset.UtcNow.AddMinutes(-10),
+            loc.Id, createdAtUtc: DateTimeOffset.UtcNow.AddMinutes(-40)));
         await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 
         // Act
@@ -196,15 +177,9 @@ public class GetStockAvailabilityTests : IDisposable
         _dbContext.Set<StockItem>().Add(
             new StockItem { VariantId = variantId, StockLocationId = loc.Id, CountOnHand = 0 }
         );
-        _dbContext.Set<StockReservation>().Add(new StockReservation
-        {
-            VariantId = variantId,
-            StockLocationId = loc.Id,
-            Quantity = 3,
-            State = ReservationState.Reserved,
-            ExpiresAtUtc = DateTimeOffset.UtcNow.AddMinutes(30),
-            CreatedAtUtc = DateTimeOffset.UtcNow
-        });
+        _dbContext.Set<StockReservation>().Add(StockReservationMethod.SeedForTest(
+            variantId, 3, ReservationState.Reserved, DateTimeOffset.UtcNow.AddMinutes(30),
+            loc.Id, createdAtUtc: DateTimeOffset.UtcNow));
         await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 
         // Act

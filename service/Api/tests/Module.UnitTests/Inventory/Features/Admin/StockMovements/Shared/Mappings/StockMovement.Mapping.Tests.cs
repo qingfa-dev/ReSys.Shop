@@ -98,18 +98,18 @@ public class StockMovementMappingTests
 
     private static StockMovement CreateStockMovement(Action<StockMovement>? configure = null)
     {
-        var movement = new StockMovement
-        {
-            Id = Guid.NewGuid(),
-            StockItemId = Guid.NewGuid(),
-            Quantity = 5,
-            PreviousCountOnHand = 10,
-            Action = "sold",
-            Reason = "Order fulfillment",
-            OriginatorType = "Order",
-            OriginatorId = Guid.NewGuid(),
-            CreatedAtUtc = DateTimeOffset.UtcNow,
-        };
+        var result = StockMovementMethod.Create(
+            stockItemId: Guid.NewGuid(),
+            quantity: 5,
+            previousCountOnHand: 10,
+            originatorType: "Order",
+            originatorId: Guid.NewGuid(),
+            reason: "Order fulfillment",
+            action: "sold");
+
+        var movement = result.Value;
+        movement.Id = Guid.NewGuid();
+        movement.CreatedAtUtc = DateTimeOffset.UtcNow;
         configure?.Invoke(movement);
         return movement;
     }

@@ -2,7 +2,7 @@ using Shared.Application.Domain.Concerns.Auditable;
 
 namespace Module.Inventory.Domain.StockReservations;
 
-public static class StockReservationExtensions
+public static class StockReservationMethod
 {
     #region Factory Methods
     // Create: Reserve a quantity of stock for an order with a configurable TTL
@@ -12,7 +12,9 @@ public static class StockReservationExtensions
         int quantity,
         Guid? stockLocationId,
         Guid? orderId,
-        int ttlMinutes)
+        int ttlMinutes,
+        string? cartToken = null,
+        string? createdBy = null)
     {
         // Validate: Reservation quantity must be positive
         if (quantity <= 0)
@@ -28,9 +30,38 @@ public static class StockReservationExtensions
             OrderId = orderId,
             State = ReservationState.Reserved,
             ExpiresAtUtc = DateTimeOffset.UtcNow.AddMinutes(ttlMinutes),
+            CartToken = cartToken,
         };
 
-        AuditableBehavior.CreateBy(reservation, by: "System", atUtc: DateTimeOffset.UtcNow);
+        AuditableBehavior.CreateBy(reservation, by: createdBy ?? "System", atUtc: DateTimeOffset.UtcNow);
+        return reservation;
+    }
+    // Seed: Create a reservation for test seeding with full control over state and expiry
+    // Contract: bypasses quantity validation — test seeding may need edge-case values
+    public static StockReservation SeedForTest(
+        Guid variantId,
+        int quantity,
+        ReservationState state,
+        DateTimeOffset? expiresAtUtc,
+        Guid? stockLocationId = null,
+        Guid? orderId = null,
+        string? cartToken = null,
+        DateTimeOffset? createdAtUtc = null,
+        string createdBy = "System")
+    {
+        var reservation = new StockReservation
+        {
+            Id = Guid.NewGuid(),
+            VariantId = variantId,
+            Quantity = quantity,
+            StockLocationId = stockLocationId,
+            OrderId = orderId,
+            State = state,
+            ExpiresAtUtc = expiresAtUtc,
+            CartToken = cartToken,
+        };
+
+        AuditableBehavior.CreateBy(reservation, createdBy, createdAtUtc);
         return reservation;
     }
     #endregion

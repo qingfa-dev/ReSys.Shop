@@ -34,9 +34,9 @@ public class ReservationExpiryService : BackgroundService
                 await Task.Delay(SweepInterval, stoppingToken);
 
                 using var scope = _scopeFactory.CreateScope();
-                var stockChecker = scope.ServiceProvider.GetRequiredService<IStockChecker>();
+                var reservationService = scope.ServiceProvider.GetRequiredService<IStockReservationService>();
 
-                var expiredCount = await stockChecker.ExpireReservationsAndRestoreStockAsync(stoppingToken);
+                var expiredCount = await reservationService.ExpireReservationsAndRestoreStockAsync(stoppingToken);
 
                 if (expiredCount > 0)
                     ReservationExpiryLoggers.SweepCompleted(_logger, expiredCount);
