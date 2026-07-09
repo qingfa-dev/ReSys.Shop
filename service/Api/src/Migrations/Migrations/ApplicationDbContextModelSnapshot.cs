@@ -1689,11 +1689,6 @@ namespace Api.Migrations.Migrations
                         .HasColumnType("text")
                         .HasColumnName("currency");
 
-                    b.Property<decimal>("IncludedTaxTotal")
-                        .HasPrecision(18, 2)
-                        .HasColumnType("numeric(18,2)")
-                        .HasColumnName("included_tax_total");
-
                     b.Property<DateTimeOffset?>("ModifiedAtUtc")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("modified_at_utc");
@@ -1707,31 +1702,16 @@ namespace Api.Migrations.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("order_id");
 
-                    b.Property<decimal>("PreTaxAmount")
-                        .HasPrecision(18, 2)
-                        .HasColumnType("numeric(18,2)")
-                        .HasColumnName("pre_tax_amount");
-
                     b.Property<decimal>("Price")
                         .HasPrecision(18, 2)
                         .HasColumnType("numeric(18,2)")
                         .HasColumnName("price");
-
-                    b.Property<decimal>("PromoTotal")
-                        .HasPrecision(18, 2)
-                        .HasColumnType("numeric(18,2)")
-                        .HasColumnName("promo_total");
 
                     b.Property<int>("Quantity")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("integer")
                         .HasDefaultValue(1)
                         .HasColumnName("quantity");
-
-                    b.Property<decimal>("TaxTotal")
-                        .HasPrecision(18, 2)
-                        .HasColumnType("numeric(18,2)")
-                        .HasColumnName("tax_total");
 
                     b.Property<decimal>("Total")
                         .HasPrecision(18, 2)
@@ -1760,11 +1740,6 @@ namespace Api.Migrations.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("id");
 
-                    b.Property<decimal>("AdditionalTaxTotal")
-                        .HasPrecision(18, 2)
-                        .HasColumnType("numeric(18,2)")
-                        .HasColumnName("additional_tax_total");
-
                     b.Property<decimal>("AdjustmentTotal")
                         .HasPrecision(18, 2)
                         .HasColumnType("numeric(18,2)")
@@ -1789,11 +1764,6 @@ namespace Api.Migrations.Migrations
                     b.Property<Guid?>("CanceledById")
                         .HasColumnType("uuid")
                         .HasColumnName("canceled_by_id");
-
-                    b.Property<decimal>("CartPromoTotal")
-                        .HasPrecision(18, 2)
-                        .HasColumnType("numeric(18,2)")
-                        .HasColumnName("cart_promo_total");
 
                     b.Property<string>("CheckoutState")
                         .IsRequired()
@@ -1837,11 +1807,6 @@ namespace Api.Migrations.Migrations
                         .HasColumnType("character varying(255)")
                         .HasColumnName("email");
 
-                    b.Property<decimal>("IncludedTaxTotal")
-                        .HasPrecision(18, 2)
-                        .HasColumnType("numeric(18,2)")
-                        .HasColumnName("included_tax_total");
-
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean")
                         .HasColumnName("is_deleted");
@@ -1884,11 +1849,6 @@ namespace Api.Migrations.Migrations
                         .HasColumnType("numeric(18,2)")
                         .HasColumnName("payment_total");
 
-                    b.Property<decimal>("PromoTotal")
-                        .HasPrecision(18, 2)
-                        .HasColumnType("numeric(18,2)")
-                        .HasColumnName("promo_total");
-
                     b.Property<string>("SessionId")
                         .HasMaxLength(100)
                         .HasColumnType("character varying(100)")
@@ -1926,11 +1886,6 @@ namespace Api.Migrations.Migrations
                     b.Property<Guid?>("StoreId")
                         .HasColumnType("uuid")
                         .HasColumnName("store_id");
-
-                    b.Property<decimal>("TaxTotal")
-                        .HasPrecision(18, 2)
-                        .HasColumnType("numeric(18,2)")
-                        .HasColumnName("tax_total");
 
                     b.Property<decimal>("Total")
                         .HasPrecision(18, 2)
@@ -2065,7 +2020,7 @@ namespace Api.Migrations.Migrations
                     b.ToTable("payment_method", "payment");
                 });
 
-            modelBuilder.Entity("Module.Payment.Domain.Payments.Payment", b =>
+            modelBuilder.Entity("Module.Payment.Domain.Payments.PaymentRecord", b =>
                 {
                     b.Property<Guid>("Id")
                         .HasColumnType("uuid")
@@ -2154,15 +2109,15 @@ namespace Api.Migrations.Migrations
                         .HasColumnName("state");
 
                     b.HasKey("Id")
-                        .HasName("pk_payment");
+                        .HasName("pk_payment_record");
 
                     b.HasIndex("OrderId")
-                        .HasDatabaseName("ix_payment_order_id");
+                        .HasDatabaseName("ix_payment_record_order_id");
 
                     b.HasIndex("PaymentMethodId")
-                        .HasDatabaseName("ix_payment_payment_method_id");
+                        .HasDatabaseName("ix_payment_record_payment_method_id");
 
-                    b.ToTable("payment", "payment");
+                    b.ToTable("payment_record", "payment");
                 });
 
             modelBuilder.Entity("Module.Profile.Domain.Addresses.Address", b =>
@@ -2630,11 +2585,6 @@ namespace Api.Migrations.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("id");
 
-                    b.Property<decimal>("AdditionalTaxTotal")
-                        .HasPrecision(18, 2)
-                        .HasColumnType("numeric(18,2)")
-                        .HasColumnName("additional_tax_total");
-
                     b.Property<decimal>("Cost")
                         .HasPrecision(18, 2)
                         .HasColumnType("numeric(18,2)")
@@ -2670,11 +2620,6 @@ namespace Api.Migrations.Migrations
                         .HasColumnType("numeric(18,2)")
                         .HasColumnName("free_shipping_threshold");
 
-                    b.Property<decimal>("IncludedTaxTotal")
-                        .HasPrecision(18, 2)
-                        .HasColumnType("numeric(18,2)")
-                        .HasColumnName("included_tax_total");
-
                     b.Property<decimal?>("MaxWeight")
                         .HasPrecision(18, 2)
                         .HasColumnType("numeric(18,2)")
@@ -2709,11 +2654,6 @@ namespace Api.Migrations.Migrations
                     b.Property<Guid>("ShippingMethodId")
                         .HasColumnType("uuid")
                         .HasColumnName("shipping_method_id");
-
-                    b.Property<decimal>("TaxAmount")
-                        .HasPrecision(18, 2)
-                        .HasColumnType("numeric(18,2)")
-                        .HasColumnName("tax_amount");
 
                     b.HasKey("Id")
                         .HasName("pk_shipping_rate");
@@ -3536,21 +3476,21 @@ namespace Api.Migrations.Migrations
                     b.Navigation("Variant");
                 });
 
-            modelBuilder.Entity("Module.Payment.Domain.Payments.Payment", b =>
+            modelBuilder.Entity("Module.Payment.Domain.Payments.PaymentRecord", b =>
                 {
                     b.HasOne("Module.Ordering.Domain.Orders.Order", "Order")
-                        .WithMany()
+                        .WithMany("Payments")
                         .HasForeignKey("OrderId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
-                        .HasConstraintName("fk_payment_orders_order_id");
+                        .HasConstraintName("fk_payment_record_order_order_id");
 
                     b.HasOne("Module.Payment.Domain.PaymentMethods.PaymentMethod", "PaymentMethod")
                         .WithMany("Payments")
                         .HasForeignKey("PaymentMethodId")
                         .OnDelete(DeleteBehavior.SetNull)
                         .IsRequired()
-                        .HasConstraintName("fk_payment_payment_method_payment_method_id");
+                        .HasConstraintName("fk_payment_record_payment_method_payment_method_id");
 
                     b.Navigation("Order");
 
@@ -3889,6 +3829,8 @@ namespace Api.Migrations.Migrations
                     b.Navigation("Adjustments");
 
                     b.Navigation("LineItems");
+
+                    b.Navigation("Payments");
                 });
 
             modelBuilder.Entity("Module.Payment.Domain.PaymentMethods.PaymentMethod", b =>

@@ -9,9 +9,12 @@ public static class StockMovementMethod
     /// <param name="stockItemId">The stock item identifier.</param>
     /// <param name="quantity">The quantity moved. Positive for received stock, negative for shipped stock. Must not be zero.</param>
     /// <param name="previousCountOnHand">The count-on-hand before the movement.</param>
-    /// <param name="originatorType">The originator type: Order, Transfer, or Adjustment.</param>
+    /// <param name="originatorType">The originator type: Order, Transfer, Adjustment, or Restock.</param>
     /// <param name="originatorId">The originator identifier.</param>
     /// <param name="reason">Optional reason for the movement.</param>
+    /// <param name="action">Optional action label for the movement (e.g., sold, transfer_out, restock).</param>
+    /// <param name="stockLocationId">Optional stock location identifier for location-scoped movements.</param>
+    /// <param name="createdBy">Optional creator identifier. Defaults to "System".</param>
     /// <returns>A result containing the created stock movement.</returns>
     // Guard: Prevent zero-quantity stock movements — no business meaning
     public static Result<StockMovement> Create(
@@ -20,7 +23,10 @@ public static class StockMovementMethod
         int? previousCountOnHand = null,
         string? originatorType = null,
         Guid? originatorId = null,
-        string? reason = null)
+        string? reason = null,
+        string? action = null,
+        Guid? stockLocationId = null,
+        string? createdBy = null)
     {
         // Guard: Quantity must not be zero — no movement without change
         if (quantity == 0)
@@ -41,8 +47,10 @@ public static class StockMovementMethod
             OriginatorType = originatorType,
             OriginatorId = originatorId,
             Reason = reason,
+            Action = action,
+            StockLocationId = stockLocationId,
             CreatedAtUtc = DateTimeOffset.UtcNow,
-            CreatedBy = "System"
+            CreatedBy = createdBy ?? "System"
         });
     }
     #endregion

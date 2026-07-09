@@ -43,11 +43,10 @@ public static partial class ReserveCartStock
             if (available < quantity)
                 return StockReservationResult.Errors.InsufficientStock;
 
-            var result = StockReservationExtensions.Reserve(variantId, quantity, stockLocationId, null, ttlMinutes);
+            var result = StockReservationMethod.Reserve(variantId, quantity, stockLocationId, null, ttlMinutes, cartToken: cartToken);
             if (result.IsFailure) return result.Errors;
 
             var reservation = result.Value;
-            reservation.CartToken = cartToken;
             dbContext.Set<StockReservation>().Add(reservation);
 
             await dbContext.SaveChangesAsync(cancellationToken);

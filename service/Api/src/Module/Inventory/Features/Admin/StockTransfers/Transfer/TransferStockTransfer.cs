@@ -50,21 +50,18 @@ public static partial class TransferStockTransfer
                 stockItem.CountOnHand -= item.Quantity;
                 stockItem.ModifiedAtUtc = DateTimeOffset.UtcNow;
 
-                var movement = new StockMovement
-                {
-                    Id = Guid.NewGuid(),
-                    StockItemId = stockItem.Id,
-                    StockLocationId = transfer.SourceLocationId,
-                    Quantity = -item.Quantity,
-                    PreviousCountOnHand = previousCount,
-                    Action = "transfer_out",
-                    OriginatorType = "Transfer",
-                    OriginatorId = transfer.Id,
-                    Reason = $"Transfer {transfer.Number} to {transfer.DestinationLocationId}",
-                    CreatedAtUtc = DateTimeOffset.UtcNow,
-                    CreatedBy = "System"
-                };
-                dbContext.Set<StockMovement>().Add(movement);
+                var movementResult = StockMovementMethod.Create(
+                    stockItemId: stockItem.Id,
+                    quantity: -item.Quantity,
+                    previousCountOnHand: previousCount,
+                    originatorType: "Transfer",
+                    originatorId: transfer.Id,
+                    reason: $"Transfer {transfer.Number} to {transfer.DestinationLocationId}",
+                    action: "transfer_out",
+                    stockLocationId: transfer.SourceLocationId);
+
+                if (movementResult.IsSuccess)
+                    dbContext.Set<StockMovement>().Add(movementResult.Value);
             }
 
             await dbContext.SaveChangesAsync(cancellationToken);

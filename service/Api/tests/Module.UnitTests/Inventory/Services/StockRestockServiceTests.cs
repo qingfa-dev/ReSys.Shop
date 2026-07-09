@@ -1,22 +1,22 @@
+using Module.Inventory.Services;
 using Module.Inventory.Domain.StockLocations.StockItems;
-using Module.Inventory.Domain.StockLocations.StockItems.StockMovements;
 using Module.Inventory.Domain.StockReservations;
-using Module.Inventory.Features.Admin.StockItems.Restock;
+using Module.Inventory.Domain.StockLocations.StockItems.StockMovements;
 
-namespace Module.UnitTests.Inventory.Features.Admin.StockItems.Restock;
+namespace Module.UnitTests.Inventory.Services;
 
 [Trait("Category", "Unit")]
 [Trait("Module", "Inventory")]
-[Trait("Feature", "RestockStockItem")]
-public class RestockStockItemTests : IDisposable
+[Trait("Feature", "StockRestockService")]
+public class StockRestockServiceTests : IDisposable
 {
     private readonly ApplicationDbContext _dbContext;
-    private readonly RestockStockItem.CommandHandler _handler;
+    private readonly StockRestockService _service;
     private readonly Guid _variantId = Guid.NewGuid();
     private readonly Guid _stockLocationId = Guid.NewGuid();
     private readonly Guid _orderId = Guid.NewGuid();
 
-    public RestockStockItemTests()
+    public StockRestockServiceTests()
     {
         var options = new DbContextOptionsBuilder<ApplicationDbContext>()
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
@@ -24,7 +24,7 @@ public class RestockStockItemTests : IDisposable
 
         ApplicationDbContext.AdditionalConfigurationsAssemblies = [typeof(StockItem).Assembly];
         _dbContext = new ApplicationDbContext(options);
-        _handler = new RestockStockItem.CommandHandler(_dbContext);
+        _service = new StockRestockService(_dbContext);
     }
 
     public void Dispose()
@@ -33,27 +33,27 @@ public class RestockStockItemTests : IDisposable
         GC.SuppressFinalize(this);
     }
 
-    private async Task<StockItem> SeedStockItem(int countOnHand, bool backorderable = false)
+    private async Task<StockItem> SeedStockItem(int countOnHand)
     {
         var ct = TestContext.Current.CancellationToken;
         var stockItem = new StockItem
         {
             VariantId = _variantId, StockLocationId = _stockLocationId,
-            CountOnHand = countOnHand, Backorderable = backorderable
+            CountOnHand = countOnHand, Backorderable = false
         };
         _dbContext.Set<StockItem>().Add(stockItem);
         await _dbContext.SaveChangesAsync(ct);
         return stockItem;
     }
 
-    [Fact(DisplayName = "Handler: Should increase CountOnHand")]
-    public async Task Handle_ShouldIncreaseCountOnHand()
+    [Fact(DisplayName = "RestockAsync: Should increase CountOnHand")]
+    public async Task RestockAsync_ShouldIncreaseCountOnHand()
     {
+        var ct = TestContext.Current.CancellationToken;
         var item = await SeedStockItem(10);
 
-        var result = await _handler.Handle(
-            new RestockStockItem.Command(item.Id, new RestockStockItem.Request { Quantity = 20 }),
-            TestContext.Current.CancellationToken);
+        var result = await _service.RestockAsync(item.Id, 20, cancellationToken: ct);
+        await _dbContext.SaveChangesAsync(ct);
 
         result.IsSuccess.Should().BeTrue();
         result.Value.PreviousCountOnHand.Should().Be(10);
@@ -61,35 +61,30 @@ public class RestockStockItemTests : IDisposable
         result.Value.BackordersFulfilled.Should().Be(0);
         result.Value.RemainingQuantity.Should().Be(20);
 
-        var stockItem = await _dbContext.Set<StockItem>().FirstAsync(si => si.Id == item.Id,
-            cancellationToken: TestContext.Current.CancellationToken);
+        var stockItem = await _dbContext.Set<StockItem>().FirstAsync(si => si.Id == item.Id, ct);
         stockItem.CountOnHand.Should().Be(30);
     }
 
-    [Fact(DisplayName = "Handler: Should return failure when quantity zero")]
-    public async Task Handle_ShouldReturnFailure_WhenQuantityZero()
+    [Fact(DisplayName = "RestockAsync: Should return failure when quantity zero")]
+    public async Task RestockAsync_ShouldReturnFailure_WhenQuantityZero()
     {
+        var ct = TestContext.Current.CancellationToken;
         var item = await SeedStockItem(10);
 
-        var result = await _handler.Handle(
-            new RestockStockItem.Command(item.Id, new RestockStockItem.Request { Quantity = 0 }),
-            TestContext.Current.CancellationToken);
-
+        var result = await _service.RestockAsync(item.Id, 0, cancellationToken: ct);
         result.IsFailure.Should().BeTrue();
     }
 
-    [Fact(DisplayName = "Handler: Should return failure when stock item not found")]
-    public async Task Handle_ShouldReturnFailure_WhenStockItemNotFound()
+    [Fact(DisplayName = "RestockAsync: Should return failure when stock item not found")]
+    public async Task RestockAsync_ShouldReturnFailure_WhenStockItemNotFound()
     {
-        var result = await _handler.Handle(
-            new RestockStockItem.Command(Guid.NewGuid(), new RestockStockItem.Request { Quantity = 10 }),
-            TestContext.Current.CancellationToken);
-
+        var result = await _service.RestockAsync(Guid.NewGuid(), 10,
+            cancellationToken: TestContext.Current.CancellationToken);
         result.IsFailure.Should().BeTrue();
     }
 
-    [Fact(DisplayName = "Handler: Should fulfill backorders fully")]
-    public async Task Handle_ShouldFulfillBackordersFully()
+    [Fact(DisplayName = "RestockAsync: Should fulfill backorders fully")]
+    public async Task RestockAsync_ShouldFulfillBackordersFully()
     {
         var ct = TestContext.Current.CancellationToken;
         var stockItem = new StockItem
@@ -110,9 +105,8 @@ public class RestockStockItemTests : IDisposable
             _stockLocationId, orderB, createdAtUtc: DateTimeOffset.UtcNow.AddMinutes(-5)));
         await _dbContext.SaveChangesAsync(ct);
 
-        var result = await _handler.Handle(
-            new RestockStockItem.Command(stockItem.Id, new RestockStockItem.Request { Quantity = 5 }),
-            ct);
+        var result = await _service.RestockAsync(stockItem.Id, 5, cancellationToken: ct);
+        await _dbContext.SaveChangesAsync(ct);
 
         result.IsSuccess.Should().BeTrue();
         result.Value.BackordersFulfilled.Should().Be(2);
@@ -121,8 +115,8 @@ public class RestockStockItemTests : IDisposable
         result.Value.NewCountOnHand.Should().Be(0);
     }
 
-    [Fact(DisplayName = "Handler: Should partially fulfill backorders")]
-    public async Task Handle_ShouldPartiallyFulfillBackorders()
+    [Fact(DisplayName = "RestockAsync: Should partially fulfill backorders")]
+    public async Task RestockAsync_ShouldPartiallyFulfillBackorders()
     {
         var ct = TestContext.Current.CancellationToken;
         var stockItem = new StockItem
@@ -138,9 +132,8 @@ public class RestockStockItemTests : IDisposable
             _stockLocationId, _orderId, createdAtUtc: DateTimeOffset.UtcNow));
         await _dbContext.SaveChangesAsync(ct);
 
-        var result = await _handler.Handle(
-            new RestockStockItem.Command(stockItem.Id, new RestockStockItem.Request { Quantity = 4 }),
-            ct);
+        var result = await _service.RestockAsync(stockItem.Id, 4, cancellationToken: ct);
+        await _dbContext.SaveChangesAsync(ct);
 
         result.IsSuccess.Should().BeTrue();
         result.Value.BackordersFulfilled.Should().Be(0);
@@ -148,8 +141,8 @@ public class RestockStockItemTests : IDisposable
         result.Value.RemainingQuantity.Should().Be(0);
     }
 
-    [Fact(DisplayName = "Handler: Should not fulfill backorders when not backorderable")]
-    public async Task Handle_ShouldNotFulfillBackorders_WhenNotBackorderable()
+    [Fact(DisplayName = "RestockAsync: Should not fulfill backorders when not backorderable")]
+    public async Task RestockAsync_ShouldNotFulfillBackorders_WhenNotBackorderable()
     {
         var ct = TestContext.Current.CancellationToken;
         var stockItem = new StockItem
@@ -165,9 +158,8 @@ public class RestockStockItemTests : IDisposable
             _stockLocationId, _orderId, createdAtUtc: DateTimeOffset.UtcNow));
         await _dbContext.SaveChangesAsync(ct);
 
-        var result = await _handler.Handle(
-            new RestockStockItem.Command(stockItem.Id, new RestockStockItem.Request { Quantity = 10 }),
-            ct);
+        var result = await _service.RestockAsync(stockItem.Id, 10, cancellationToken: ct);
+        await _dbContext.SaveChangesAsync(ct);
 
         result.IsSuccess.Should().BeTrue();
         result.Value.BackordersFulfilled.Should().Be(0);
@@ -175,20 +167,14 @@ public class RestockStockItemTests : IDisposable
         result.Value.NewCountOnHand.Should().Be(15);
     }
 
-    [Fact(DisplayName = "Handler: Should create StockMovement with reference")]
-    public async Task Handle_ShouldCreateStockMovement_WithReference()
+    [Fact(DisplayName = "RestockAsync: Should create StockMovement with reference")]
+    public async Task RestockAsync_ShouldCreateStockMovement_WithReference()
     {
         var ct = TestContext.Current.CancellationToken;
         var item = await SeedStockItem(5);
 
-        var result = await _handler.Handle(
-            new RestockStockItem.Command(item.Id, new RestockStockItem.Request
-            {
-                Quantity = 10,
-                Reference = "PO-001",
-                Reason = "Summer restock"
-            }),
-            ct);
+        var result = await _service.RestockAsync(item.Id, 10, "PO-001", "Summer restock", ct);
+        await _dbContext.SaveChangesAsync(ct);
 
         result.IsSuccess.Should().BeTrue();
         var movement = await _dbContext.Set<StockMovement>().FirstOrDefaultAsync(cancellationToken: ct);

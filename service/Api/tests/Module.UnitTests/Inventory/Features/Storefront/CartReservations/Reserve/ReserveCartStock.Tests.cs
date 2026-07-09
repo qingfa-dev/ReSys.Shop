@@ -48,13 +48,9 @@ public class ReserveCartStockTests : IDisposable
     private async Task<StockReservation> SeedReservation(int quantity, ReservationState state, DateTimeOffset? expiresAtUtc = null)
     {
         var ct = TestContext.Current.CancellationToken;
-        var reservation = new StockReservation
-        {
-            VariantId = _variantId, StockLocationId = _stockLocationId,
-            OrderId = Guid.NewGuid(), Quantity = quantity, State = state,
-            ExpiresAtUtc = expiresAtUtc ?? DateTimeOffset.UtcNow.AddMinutes(30),
-            CreatedAtUtc = DateTimeOffset.UtcNow
-        };
+        var reservation = StockReservationMethod.SeedForTest(
+            _variantId, quantity, state, expiresAtUtc ?? DateTimeOffset.UtcNow.AddMinutes(30),
+            _stockLocationId, orderId: Guid.NewGuid(), createdAtUtc: DateTimeOffset.UtcNow);
         _dbContext.Set<StockReservation>().Add(reservation);
         await _dbContext.SaveChangesAsync(ct);
         return reservation;

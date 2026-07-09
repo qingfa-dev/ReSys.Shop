@@ -12,7 +12,7 @@ namespace Module.UnitTests.Inventory.Services;
 [Trait("Feature", "ReservationExpiryService")]
 public class ReservationExpiryServiceTests : IDisposable
 {
-    private readonly Mock<IStockChecker> _stockCheckerMock;
+    private readonly Mock<IStockReservationService> _stockCheckerMock;
     private readonly Mock<IServiceScopeFactory> _scopeFactoryMock;
     private readonly Mock<IServiceScope> _scopeMock;
     private readonly Mock<IServiceProvider> _serviceProviderMock;
@@ -21,14 +21,14 @@ public class ReservationExpiryServiceTests : IDisposable
 
     public ReservationExpiryServiceTests()
     {
-        _stockCheckerMock = new Mock<IStockChecker>();
+        _stockCheckerMock = new Mock<IStockReservationService>();
         _scopeMock = new Mock<IServiceScope>();
         _serviceProviderMock = new Mock<IServiceProvider>();
         _scopeFactoryMock = new Mock<IServiceScopeFactory>();
         _loggerMock = new Mock<ILogger<ReservationExpiryService>>();
 
         _serviceProviderMock
-            .Setup(x => x.GetService(typeof(IStockChecker)))
+            .Setup(x => x.GetService(typeof(IStockReservationService)))
             .Returns(_stockCheckerMock.Object);
 
         _scopeMock

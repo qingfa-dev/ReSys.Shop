@@ -1,0 +1,116 @@
+using Module.Inventory.Domain.StockLocations.StockItems;
+using Module.Inventory.Domain.StockLocations.StockItems.StockMovements;
+using Module.Inventory.Domain.StockReservations;
+using Module.Inventory.Services.Abstractions;
+
+namespace Module.Inventory.Services;
+
+public class StockRestockService(IApplicationDbContext dbContext) : IStockRestockService
+{
+    private readonly IApplicationDbContext _dbContext = dbContext;
+
+    public async Task<Result<RestockResult>> RestockAsync(
+        Guid stockItemId,
+        int quantity,
+        string? reference = null,
+        string? reason = null,
+        CancellationToken cancellationToken = default)
+    {
+        if (quantity <= 0)
+            return StockItemResult.Errors.NegativeCountOnHand;
+
+        var stockItem = await _dbContext.Set<StockItem>()
+            .FirstOrDefaultAsync(si => si.Id == stockItemId, cancellationToken);
+
+        if (stockItem is null)
+            return StockItemResult.Errors.NotFound(stockItemId);
+
+        var previousCount = stockItem.CountOnHand;
+
+        var backorderResult = await FulfillBackordersInternalAsync(stockItem, quantity, cancellationToken);
+        var remainingAfterBackorders = quantity - backorderResult.TotalFulfilled;
+
+        stockItem.CountOnHand += remainingAfterBackorders;
+        stockItem.ModifiedAtUtc = DateTimeOffset.UtcNow;
+
+        var movement = StockMovementMethod.Create(
+            stockItemId: stockItem.Id,
+            quantity: quantity,
+            previousCountOnHand: previousCount,
+            originatorType: "Restock",
+            reason: reason,
+            action: "restock");
+
+        if (movement.IsSuccess)
+        {
+            _dbContext.Set<StockMovement>().Add(movement.Value);
+        }
+
+        return new RestockResult
+        {
+            StockItemId = stockItem.Id,
+            PreviousCountOnHand = previousCount,
+            NewCountOnHand = stockItem.CountOnHand,
+            BackordersFulfilled = backorderResult.FullyFulfilled,
+            PartiallyFulfilled = backorderResult.PartiallyFulfilled,
+            RemainingQuantity = remainingAfterBackorders,
+            MovementId = movement.IsSuccess ? movement.Value.Id : Guid.Empty
+        };
+    }
+
+    private async Task<BackorderFulfillmentResult> FulfillBackordersInternalAsync(
+        StockItem stockItem,
+        int restockQuantity,
+        CancellationToken cancellationToken)
+    {
+        var result = new BackorderFulfillmentResult();
+
+        if (!stockItem.Backorderable)
+            return result;
+
+        var backorderReservations = await _dbContext.Set<StockReservation>()
+            .Where(r => r.VariantId == stockItem.VariantId
+                        && r.StockLocationId == stockItem.StockLocationId
+                        && r.State == ReservationState.Reserved
+                        && r.ExpiresAtUtc > DateTimeOffset.UtcNow)
+            .OrderBy(r => r.CreatedAtUtc)
+            .ToListAsync(cancellationToken);
+
+        var remaining = restockQuantity;
+        foreach (var reservation in backorderReservations)
+        {
+            if (remaining <= 0) break;
+
+            var fill = Math.Min(reservation.Quantity, remaining);
+            remaining -= fill;
+            result.TotalFulfilled += fill;
+
+            if (fill >= reservation.Quantity)
+            {
+                result.FullyFulfilled++;
+                reservation.State = ReservationState.Fulfilled;
+            }
+            else
+            {
+                result.PartiallyFulfilled++;
+                reservation.Quantity -= fill;
+            }
+
+            reservation.ModifiedAtUtc = DateTimeOffset.UtcNow;
+
+            var movementResult = StockMovementMethod.Create(
+                stockItemId: stockItem.Id,
+                quantity: fill,
+                previousCountOnHand: stockItem.CountOnHand,
+                originatorType: "Order",
+                originatorId: reservation.OrderId,
+                reason: "Backorder fulfilled from restock",
+                action: "backorder_fulfilled");
+
+            if (movementResult.IsSuccess)
+                _dbContext.Set<StockMovement>().Add(movementResult.Value);
+        }
+
+        return result;
+    }
+}

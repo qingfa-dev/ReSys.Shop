@@ -69,20 +69,17 @@ public static partial class RestockStockItem
 
                     reservation.ModifiedAtUtc = DateTimeOffset.UtcNow;
 
-                    var movement = new StockMovement
-                    {
-                        Id = Guid.NewGuid(),
-                        StockItemId = stockItem.Id,
-                        Quantity = fill,
-                        PreviousCountOnHand = stockItem.CountOnHand,
-                        Action = "backorder_fulfilled",
-                        OriginatorType = "Order",
-                        OriginatorId = reservation.OrderId,
-                        Reason = "Backorder fulfilled from restock",
-                        CreatedAtUtc = DateTimeOffset.UtcNow,
-                        CreatedBy = "System"
-                    };
-                    dbContext.Set<StockMovement>().Add(movement);
+                    var movementResult = StockMovementMethod.Create(
+                        stockItemId: stockItem.Id,
+                        quantity: fill,
+                        previousCountOnHand: stockItem.CountOnHand,
+                        originatorType: "Order",
+                        originatorId: reservation.OrderId,
+                        reason: "Backorder fulfilled from restock",
+                        action: "backorder_fulfilled");
+
+                    if (movementResult.IsSuccess)
+                        dbContext.Set<StockMovement>().Add(movementResult.Value);
                 }
             }
 
@@ -94,12 +91,12 @@ public static partial class RestockStockItem
                 quantity: quantity,
                 previousCountOnHand: previousCount,
                 originatorType: "Restock",
-                reason: reason);
+                reason: reason,
+                action: "restock");
 
             Guid movementId;
             if (restockMovement.IsSuccess)
             {
-                restockMovement.Value.Action = "restock";
                 dbContext.Set<StockMovement>().Add(restockMovement.Value);
                 movementId = restockMovement.Value.Id;
             }

@@ -1,21 +1,21 @@
+using Module.Inventory.Services;
 using Module.Inventory.Domain.StockLocations;
 using Module.Inventory.Domain.StockLocations.StockItems;
 using Module.Inventory.Domain.StockReservations;
-using Module.Inventory.Features.Admin.StockItems.Summary;
 
-namespace Module.UnitTests.Inventory.Features.Admin.StockItems.Summary;
+namespace Module.UnitTests.Inventory.Services;
 
 [Trait("Category", "Unit")]
 [Trait("Module", "Inventory")]
-[Trait("Feature", "GetStockSummary")]
-public class GetStockSummaryTests : IDisposable
+[Trait("Feature", "StockSummaryService")]
+public class StockSummaryServiceTests : IDisposable
 {
     private readonly ApplicationDbContext _dbContext;
-    private readonly GetStockSummary.QueryHandler _handler;
+    private readonly StockSummaryService _service;
     private readonly Guid _variantId = Guid.NewGuid();
     private readonly Guid _orderId = Guid.NewGuid();
 
-    public GetStockSummaryTests()
+    public StockSummaryServiceTests()
     {
         var options = new DbContextOptionsBuilder<ApplicationDbContext>()
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
@@ -23,7 +23,7 @@ public class GetStockSummaryTests : IDisposable
 
         ApplicationDbContext.AdditionalConfigurationsAssemblies = [typeof(StockItem).Assembly];
         _dbContext = new ApplicationDbContext(options);
-        _handler = new GetStockSummary.QueryHandler(_dbContext);
+        _service = new StockSummaryService(_dbContext);
     }
 
     public void Dispose()
@@ -32,8 +32,8 @@ public class GetStockSummaryTests : IDisposable
         GC.SuppressFinalize(this);
     }
 
-    [Fact(DisplayName = "Handler: Should return consolidated per-variant totals")]
-    public async Task Handle_ShouldReturnConsolidatedPerVariant()
+    [Fact(DisplayName = "GetStockSummaryAsync: Should return consolidated per-variant totals")]
+    public async Task GetStockSummaryAsync_ShouldReturnConsolidatedPerVariant()
     {
         var ct = TestContext.Current.CancellationToken;
         var locA = Guid.NewGuid();
@@ -52,11 +52,10 @@ public class GetStockSummaryTests : IDisposable
             locA, _orderId, createdAtUtc: DateTimeOffset.UtcNow));
         await _dbContext.SaveChangesAsync(ct);
 
-        var result = await _handler.Handle(new GetStockSummary.Query(), ct);
+        var result = await _service.GetStockSummaryAsync(ct);
 
-        result.IsSuccess.Should().BeTrue();
-        result.Value.Should().HaveCount(1);
-        var summary = result.Value[0];
+        result.Should().HaveCount(1);
+        var summary = result[0];
         summary.VariantId.Should().Be(_variantId);
         summary.TotalOnHand.Should().Be(12);
         summary.TotalReserved.Should().Be(2);
@@ -64,8 +63,8 @@ public class GetStockSummaryTests : IDisposable
         summary.LocationBreakdown.Should().HaveCount(2);
     }
 
-    [Fact(DisplayName = "Handler: Should flag low stock items")]
-    public async Task Handle_ShouldFlagLowStockItems()
+    [Fact(DisplayName = "GetStockSummaryAsync: Should flag low stock items")]
+    public async Task GetStockSummaryAsync_ShouldFlagLowStockItems()
     {
         var ct = TestContext.Current.CancellationToken;
         var loc = Guid.NewGuid();
@@ -76,19 +75,16 @@ public class GetStockSummaryTests : IDisposable
         _dbContext.Set<StockItem>().Add(new StockItem { VariantId = _variantId, StockLocationId = loc, CountOnHand = 3 });
         await _dbContext.SaveChangesAsync(ct);
 
-        var result = await _handler.Handle(new GetStockSummary.Query(), ct);
+        var result = await _service.GetStockSummaryAsync(ct);
 
-        result.IsSuccess.Should().BeTrue();
-        result.Value.Should().HaveCount(1);
-        result.Value[0].LocationBreakdown[0].IsLowStock.Should().BeTrue();
+        result.Should().HaveCount(1);
+        result[0].LocationBreakdown[0].IsLowStock.Should().BeTrue();
     }
 
-    [Fact(DisplayName = "Handler: Should return empty when no stock items")]
-    public async Task Handle_ShouldReturnEmpty_WhenNoStockItems()
+    [Fact(DisplayName = "GetStockSummaryAsync: Should return empty when no stock items")]
+    public async Task GetStockSummaryAsync_ShouldReturnEmpty_WhenNoStockItems()
     {
-        var result = await _handler.Handle(new GetStockSummary.Query(), TestContext.Current.CancellationToken);
-
-        result.IsSuccess.Should().BeTrue();
-        result.Value.Should().BeEmpty();
+        var result = await _service.GetStockSummaryAsync(TestContext.Current.CancellationToken);
+        result.Should().BeEmpty();
     }
 }
