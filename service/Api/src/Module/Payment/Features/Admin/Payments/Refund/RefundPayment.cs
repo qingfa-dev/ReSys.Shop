@@ -50,7 +50,7 @@ namespace Module.Payment.Features.Admin.Payments.Refund;
             // Refund: Attempt to refund via gateway.
             var refundResult = await payment.RefundAsync(gateway, options, refundAmount, cancellationToken);
             if (refundResult.IsFailure)
-                return refundResult.Failures;
+                return refundResult.Errors;
 
             // Persist: Save changes to the database.
             await dbContext.SaveChangesAsync(cancellationToken);

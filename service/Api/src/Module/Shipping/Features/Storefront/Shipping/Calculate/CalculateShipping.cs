@@ -57,7 +57,7 @@ public static partial class CalculateShipping
                 cancellationToken);
 
             if (calcResult.IsFailure)
-                return (Result<Response>)calcResult.Failures;
+                return (Result<Response>)calcResult.Errors;
 
             var (cost, isFree) = calcResult.Value;
 

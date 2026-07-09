@@ -117,25 +117,5 @@ public sealed class ValueResultEdgeCaseTests
 
     #endregion
 
-    #region Untested Properties
 
-    [Fact(DisplayName = "IsError on failure should be true")]
-    public void IsError_OnFailure_ShouldBeTrue()
-    {
-        var result = Result<string>.BadRequest("bad");
-
-        result.IsError.Should().BeTrue();
-        result.IsFailure.Should().BeTrue();
-    }
-
-    [Fact(DisplayName = "IsError on success should be false")]
-    public void IsError_OnSuccess_ShouldBeFalse()
-    {
-        var result = Result<string>.Ok("good");
-
-        result.IsError.Should().BeFalse();
-        result.IsFailure.Should().BeFalse();
-    }
-
-    #endregion
 }

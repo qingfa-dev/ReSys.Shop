@@ -128,8 +128,8 @@ public class ShippingRateCalculatorTests : IDisposable
             TestContext.Current.CancellationToken);
 
         result.IsFailure.Should().BeTrue();
-        result.FirstFailure.Should().NotBeNull();
-        result.FirstFailure!.Code.Should().Be("ShippingMethod.NoRateAvailable");
+        result.Errors[0].Should().NotBeNull();
+        result.Errors[0].Code.Should().Be("ShippingMethod.NoRateAvailable");
     }
 
     [Fact(DisplayName = "Calculate: Weight mismatch falls back to unrestricted rate")]

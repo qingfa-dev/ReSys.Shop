@@ -16,7 +16,7 @@ public static partial class CreateShippingMethod
 
             var createResult = request.MapToDomain();
             if (createResult.IsFailure)
-                return createResult.Failures;
+                return createResult.Errors;
 
             var method = createResult.Value;
 

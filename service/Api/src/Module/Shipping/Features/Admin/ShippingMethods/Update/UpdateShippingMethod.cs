@@ -20,7 +20,7 @@ public static partial class UpdateShippingMethod
 
             var result = command.Request.MapUpdateToDomain(method);
             if (result.IsFailure)
-                return result.Failures;
+                return result.Errors;
 
             await dbContext.SaveChangesAsync(cancellationToken);
 

@@ -20,7 +20,7 @@ public static partial class UpdateShippingRate
 
             var result = command.Request.MapUpdateToDomain(rate);
             if (result.IsFailure)
-                return result.Failures;
+                return result.Errors;
 
             await dbContext.SaveChangesAsync(cancellationToken);
 

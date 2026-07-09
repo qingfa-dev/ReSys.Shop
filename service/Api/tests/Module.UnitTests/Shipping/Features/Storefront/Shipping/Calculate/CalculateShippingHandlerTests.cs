@@ -100,7 +100,7 @@ public class CalculateShippingHandlerTests : IDisposable
             TestContext.Current.CancellationToken);
 
         result.IsFailure.Should().BeTrue();
-        result.FirstFailure!.Code.Should().Be(OrderResult.Errors.NotFound(Guid.NewGuid()).Code);
+        result.Errors[0].Code.Should().Be(OrderResult.Errors.NotFound(Guid.NewGuid()).Code);
     }
 
     [Fact(DisplayName = "Handler: Should return not found when method missing")]
@@ -119,6 +119,6 @@ public class CalculateShippingHandlerTests : IDisposable
             TestContext.Current.CancellationToken);
 
         result.IsFailure.Should().BeTrue();
-        result.FirstFailure!.Code.Should().Be(ShippingMethodResult.Errors.NotFound.Code);
+        result.Errors[0].Code.Should().Be(ShippingMethodResult.Errors.NotFound.Code);
     }
 }

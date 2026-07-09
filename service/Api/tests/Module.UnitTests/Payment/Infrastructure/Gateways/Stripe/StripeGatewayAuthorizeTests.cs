@@ -38,7 +38,7 @@ public class StripeGatewayAuthorizeTests
         var result = await _gateway.AuthorizeAsync(50m, "pm_fake", _gatewayOptions, TestContext.Current.CancellationToken);
 
         result.IsFailure.Should().BeTrue();
-        result.FirstFailure!.Code.Should().Contain("Stripe.");
+        result.Errors[0].Code.Should().Contain("Stripe.");
     }
 
     [Fact(DisplayName = "PurchaseAsync: Should return failure with invalid API key")]
@@ -47,7 +47,7 @@ public class StripeGatewayAuthorizeTests
         var result = await _gateway.PurchaseAsync(50m, "pm_fake", _gatewayOptions, TestContext.Current.CancellationToken);
 
         result.IsFailure.Should().BeTrue();
-        result.FirstFailure!.Code.Should().Contain("Stripe.");
+        result.Errors[0].Code.Should().Contain("Stripe.");
     }
 
     [Fact(DisplayName = "CaptureAsync: With responseCode should attempt capture")]
@@ -57,7 +57,7 @@ public class StripeGatewayAuthorizeTests
 
         // With a fake PaymentIntent ID and invalid API key, Stripe returns an error
         result.IsFailure.Should().BeTrue();
-        result.FirstFailure!.Code.Should().Contain("Stripe.");
+        result.Errors[0].Code.Should().Contain("Stripe.");
     }
 
     [Fact(DisplayName = "VoidAsync: With responseCode should attempt cancel")]
@@ -66,7 +66,7 @@ public class StripeGatewayAuthorizeTests
         var result = await _gateway.VoidAsync("pi_fake_intent", null, _gatewayOptions, TestContext.Current.CancellationToken);
 
         result.IsFailure.Should().BeTrue();
-        result.FirstFailure!.Code.Should().Contain("Stripe.");
+        result.Errors[0].Code.Should().Contain("Stripe.");
     }
 
     [Fact(DisplayName = "CreditAsync: With invalid key should return failure")]
@@ -75,6 +75,6 @@ public class StripeGatewayAuthorizeTests
         var result = await _gateway.CreditAsync(30m, "pi_fake_intent", _gatewayOptions, TestContext.Current.CancellationToken);
 
         result.IsFailure.Should().BeTrue();
-        result.FirstFailure!.Code.Should().Contain("Stripe.");
+        result.Errors[0].Code.Should().Contain("Stripe.");
     }
 }

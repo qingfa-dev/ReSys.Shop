@@ -84,7 +84,7 @@ public class PaymentProcessingAsyncTests
         var result = await PaymentProcessing.AuthorizeAsync(payment, _gatewayMock.Object, options, TestContext.Current.CancellationToken);
 
         result.IsFailure.Should().BeTrue();
-        result.FirstFailure!.Code.Should().Be("Gateway.ConnectionError");
+        result.Errors[0].Code.Should().Be("Gateway.ConnectionError");
     }
 
     #endregion
@@ -280,7 +280,7 @@ public class PaymentProcessingAsyncTests
         var result = await PaymentProcessing.CreditAsync(payment, _gatewayMock.Object, options, 50m, TestContext.Current.CancellationToken);
 
         result.IsFailure.Should().BeTrue();
-        result.FirstFailure!.Code.Should().Be("Payment.Credit.NotAllowed");
+        result.Errors[0].Code.Should().Be("Payment.Credit.NotAllowed");
     }
 
     #endregion

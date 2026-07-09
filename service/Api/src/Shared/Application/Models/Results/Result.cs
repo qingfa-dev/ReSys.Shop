@@ -12,6 +12,7 @@ public readonly partial record struct Result : IResultRecord
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public string? Message { get; }
 
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public List<Error> Errors { get; }
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]

@@ -24,7 +24,7 @@ namespace Module.Payment.Features.Admin.PaymentMethods.Create;
             // Create: Map the request to a new PaymentMethod entity.
             var createResult = request.MapToDomain();
             if (createResult.IsFailure)
-                return createResult.Failures;
+                return createResult.Errors;
 
             var method = createResult.Value;
 

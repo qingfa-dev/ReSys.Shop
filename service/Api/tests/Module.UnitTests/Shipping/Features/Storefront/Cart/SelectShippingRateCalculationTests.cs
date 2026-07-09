@@ -151,6 +151,6 @@ public class SelectShippingRateCalculationTests : IDisposable
             TestContext.Current.CancellationToken);
 
         result.IsFailure.Should().BeTrue();
-        result.FirstFailure!.Code.Should().Be(OrderResult.Errors.UserNotAuthenticated.Code);
+        result.Errors[0].Code.Should().Be(OrderResult.Errors.UserNotAuthenticated.Code);
     }
 }
