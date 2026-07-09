@@ -1,29 +1,32 @@
 using Module.Inventory.Services.Abstractions;
 using Module.Inventory.Domain.StockLocations.StockItems;
+using Module.Ordering.Domain.LineItems;
+using Module.Ordering.Domain.Orders;
 
-namespace Module.Ordering.Domain.Orders;
+namespace Module.Ordering.Features.Shared.Services;
 
 /// <summary>
 /// Synchronizes inventory units for completed orders when line item quantities change.
 /// Handles stock decrement on shipment and increment on return/cancellation.
 /// </summary>
 // Invariant: Order and LineItem must not be null; inventory unit count must match line item quantity
-// @CAT-10 Boundary: Domain → Data — queries StockItem/StockReservation/StockMovement via StockChecker
-public partial class OrderInventory
+// @CAT-10 Boundary: Application → Data — queries StockItem/StockReservation/StockMovement via StockChecker
+public partial class OrderInventoryService
 {
     private readonly IApplicationDbContext _dbContext;
-    private readonly IStockChecker _stockChecker;
+    private readonly IStockQuantityService _stockChecker;
 
     public Order Order { get; }
-    public LineItems.LineItem LineItem { get; }
+    public LineItem LineItem { get; }
 
     /// <summary>
-    /// Creates a new OrderInventory for the specified order and line item with stock management.
+    /// Creates a new OrderInventoryService for the specified order and line item with stock management.
     /// </summary>
     /// <param name="order">The parent order.</param>
     /// <param name="lineItem">The line item to synchronize inventory for.</param>
     /// <param name="dbContext">The application database context for stock operations.</param>
-    public OrderInventory(Order order, LineItems.LineItem lineItem, IApplicationDbContext dbContext, IStockChecker stockChecker)
+    /// <param name="stockChecker">The stock checker service for inventory mutations.</param>
+    public OrderInventoryService(Order order, LineItem lineItem, IApplicationDbContext dbContext, IStockQuantityService stockChecker)
     {
         Order = order;
         LineItem = lineItem;

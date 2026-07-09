@@ -5,7 +5,6 @@ public static class AddressConstant
     public static class Defaults
     {
         public const bool IsDefault = false;
-        public const AddressType Type = AddressType.Shipping;
     }
 
     public static class Constraints

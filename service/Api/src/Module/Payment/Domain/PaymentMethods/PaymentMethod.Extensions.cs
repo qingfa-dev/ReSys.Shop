@@ -20,7 +20,7 @@ public static class PaymentMethodExtensions
         string? code,
         string providerType,
         bool autoCapture = PaymentMethodConstant.Defaults.AutoCapture,
-        DisplayOn displayOn = PaymentMethodConstant.Defaults.DisplayOn)
+        DisplayOn displayOn = DisplayOn.Both)
     {
         var method = new PaymentMethod
         {

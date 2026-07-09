@@ -48,9 +48,9 @@ public static class ProfileFeatureMetadata
         public static readonly PermissionMetadata Delete = PermissionMetadataMethod.For(
             PermissionContext.Domains.Store, PermissionContext.Categories.Profile, PermissionContext.Resources.Wishlists, PermissionContext.Actions.Delete);
         public static readonly PermissionMetadata AddItem = PermissionMetadataMethod.For(
-            PermissionContext.Domains.Store, PermissionContext.Categories.Profile, PermissionContext.Resources.Wishlists, PermissionContext.Actions.Create);
+            PermissionContext.Domains.Store, PermissionContext.Categories.Profile, PermissionContext.Resources.Wishlists, PermissionContext.Actions.AddItem);
         public static readonly PermissionMetadata RemoveItem = PermissionMetadataMethod.For(
-            PermissionContext.Domains.Store, PermissionContext.Categories.Profile, PermissionContext.Resources.Wishlists, PermissionContext.Actions.Delete);
+            PermissionContext.Domains.Store, PermissionContext.Categories.Profile, PermissionContext.Resources.Wishlists, PermissionContext.Actions.RemoveItem);
 
         public static IReadOnlyList<PermissionMetadata> All =>
             [List, Read, Create, Update, Delete, AddItem, RemoveItem];

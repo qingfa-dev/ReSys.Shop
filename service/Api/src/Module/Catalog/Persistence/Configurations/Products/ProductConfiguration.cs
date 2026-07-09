@@ -27,7 +27,7 @@ public class ProductConfiguration : IEntityTypeConfiguration<Product>
         builder.Property(x => x.Status)
             .IsRequired()
             .HasConversion<string>()
-            .HasDefaultValue(ProductConstant.Defaults.Status);
+            .HasDefaultValue(ProductStatus.Draft);
 
         builder.Property(x => x.AvailableOn);
         builder.Property(x => x.DiscontinueOn);

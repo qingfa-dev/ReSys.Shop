@@ -17,7 +17,7 @@ public sealed partial class Product : Entity, IAuditable, ISoftDeletable
     #region Properties
     public string Name { get; set; } = string.Empty;
     public string Description { get; set; } = string.Empty;
-    public ProductStatus Status { get; set; } = ProductConstant.Defaults.Status;
+    public ProductStatus Status { get; set; } = ProductStatus.Draft;
     #endregion Properties
 
     #region SEO

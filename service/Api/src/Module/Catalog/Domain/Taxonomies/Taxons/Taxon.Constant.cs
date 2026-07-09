@@ -23,8 +23,6 @@ public static class TaxonConstant
     public static class Default
     {
         public const int Position = 0;
-        public const TaxonMatchPolicy MatchPolicy = TaxonMatchPolicy.All;
-        public const TaxonSortOrder SortOrder = TaxonSortOrder.Manual;
     }
 
     public static class Patterns

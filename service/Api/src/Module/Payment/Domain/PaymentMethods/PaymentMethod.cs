@@ -16,7 +16,7 @@ public sealed partial class PaymentMethod : Entity, IAuditable, IParameterizable
     public string ProviderType { get; set; } = string.Empty;
     public bool Active { get; set; } = PaymentMethodConstant.Defaults.Active;
     public bool AutoCapture { get; set; } = PaymentMethodConstant.Defaults.AutoCapture;
-    public DisplayOn DisplayOn { get; set; } = PaymentMethodConstant.Defaults.DisplayOn;
+    public DisplayOn DisplayOn { get; set; } = DisplayOn.Both;
     public int Position { get; set; } = PaymentMethodConstant.Defaults.Position;
     public string? Presentation { get; set; }
     public Dictionary<string, string> Preferences { get; set; } = [];

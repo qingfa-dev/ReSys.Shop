@@ -1,6 +1,6 @@
 using PaymentStateEnum = Module.Payment.Domain.Payments.PaymentRecordState;
 
-namespace Module.Ordering.Domain.Orders;
+namespace Module.Ordering.Domain.Orders.Services;
 
 /// <summary>
 /// Recalculates all order totals, payment and shipment states, and persists changes.

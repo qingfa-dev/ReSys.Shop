@@ -1,4 +1,4 @@
-namespace Module.Ordering.Domain.Orders;
+namespace Module.Ordering.Domain.Orders.Services;
 
 /// <summary>
 /// Coordinates adding/removing line items with inventory and tax updates for an order.

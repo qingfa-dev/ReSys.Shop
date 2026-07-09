@@ -33,7 +33,7 @@ public static class PaymentFactory
             Id = Guid.NewGuid(),
             Number = GeneratePaymentNumber(),
             Amount = amount,
-            State = PaymentConstant.Defaults.State,
+            State = PaymentRecordState.Checkout,
             PaymentMethodId = paymentMethodId,
             OrderId = orderId,
             SourceId = sourceId,

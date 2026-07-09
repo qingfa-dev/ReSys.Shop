@@ -13,7 +13,7 @@ public sealed partial class PaymentRecord : Entity, IAuditable
     #region Properties
     public string Number { get; set; } = string.Empty;
     public decimal Amount { get; set; }
-    public PaymentRecordState State { get; set; } = PaymentConstant.Defaults.State;
+    public PaymentRecordState State { get; set; } = PaymentRecordState.Checkout;
     public string? ResponseCode { get; set; }
     public string? AvsResponse { get; set; }
     public string? CvvResponseCode { get; set; }

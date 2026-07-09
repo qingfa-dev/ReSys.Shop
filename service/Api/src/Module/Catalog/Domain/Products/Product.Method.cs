@@ -7,7 +7,7 @@ public static partial class ProductMethod
         string name,
         string slug,
         string? description = null,
-        ProductStatus status = ProductConstant.Defaults.Status,
+        ProductStatus status = ProductStatus.Draft,
         DateTimeOffset? availableOn = null,
         string? metaTitle = null,
         string? metaDescription = null,

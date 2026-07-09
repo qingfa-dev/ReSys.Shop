@@ -6,7 +6,6 @@ using Shared.Security.Authorization;
 using Shared.Security.Cors;
 using Shared.Security.Headers;
 using Shared.Security.Identity;
-using Shared.Security.RateLimiting;
 
 namespace Shared.Security;
 
@@ -23,7 +22,7 @@ public static class SecurityExtension
         builder.AddApplicationIdentity();
         builder.AddSecurityHeaders();
         builder.AddAntiForgery();
-        builder.AddRateLimiting();
+        // builder.AddRateLimiting();
 
         return builder;
     }
@@ -35,9 +34,10 @@ public static class SecurityExtension
     public static WebApplication UseSecurity(this WebApplication app)
     {
         app.UseSecurityHeaders();
-        CorsExtensions.UseCors(app);
-        AuthenticationExtensions.UseApplicationAuthentication(app);
+        app.UseCors();
+        app.UseApplicationAuthentication();
         app.UseApplicationAuthorization();
+        // app.UseRateLimiter();
 
         return app;
     }
