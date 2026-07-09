@@ -1,4 +1,4 @@
-using Module.Ordering.Domain.Orders;
+using Module.Ordering.Domain.Orders.Contracts;
 
 namespace Module.Ordering.Infrastructure.Events;
 

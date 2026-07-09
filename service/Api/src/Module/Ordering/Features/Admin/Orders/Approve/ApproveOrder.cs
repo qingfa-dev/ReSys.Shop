@@ -16,7 +16,7 @@ public static partial class ApproveOrder
 
             var approvedById = Guid.TryParse(currentUser.UserId, out var parsedId) ? parsedId : Guid.Empty;
             var result = order.Approve(approvedById);
-            if (result.IsFailure) return (Result<Response>)result.Failures;
+            if (result.IsFailure) return (Result<Response>)result.Errors;
 
             order.ApprovedAtUtc = DateTimeOffset.UtcNow;
             order.ModifiedAtUtc = DateTimeOffset.UtcNow;

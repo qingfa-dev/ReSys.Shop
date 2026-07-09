@@ -18,8 +18,6 @@ public static class OrderConstant
 
     public static class Defaults
     {
-        public const OrderStatus Status = OrderStatus.Draft;
-        public const CheckoutState CheckoutState = Orders.CheckoutState.Address;
         public const string Currency = "USD";
         public const string CreatedBy = "System";
     }

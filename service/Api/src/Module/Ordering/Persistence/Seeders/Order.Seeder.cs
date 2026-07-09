@@ -83,7 +83,7 @@ public sealed class OrderSeeder(IApplicationDbContext context) : AbstractDataSee
         {
             var variant = eligibleVariants[i % eligibleVariants.Count];
             int qty = rng.Next(1, 3);
-            var lineResult = LineItemExtensions.Create(order.Id, variant.Id, qty, variant.Price.GetValueOrDefault());
+            var lineResult = LineItemMethod.Create(order.Id, variant.Id, qty, variant.Price.GetValueOrDefault());
             if (lineResult.IsSuccess)
             {
                 order.LineItems.Add(lineResult.Value);

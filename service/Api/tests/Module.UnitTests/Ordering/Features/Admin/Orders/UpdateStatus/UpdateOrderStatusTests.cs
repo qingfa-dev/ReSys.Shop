@@ -94,6 +94,6 @@ public class UpdateOrderStatusTests : IDisposable
             TestContext.Current.CancellationToken);
 
         result.IsFailure.Should().BeTrue();
-        result.FirstFailure!.Code.Should().Be(OrderResult.Errors.NotFound(Guid.NewGuid()).Code);
+        result.Errors[0].Code.Should().Be(OrderResult.Errors.NotFound(Guid.NewGuid()).Code);
     }
 }

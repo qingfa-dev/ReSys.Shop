@@ -22,12 +22,12 @@ public class OrderConfiguration : IEntityTypeConfiguration<Order>
         builder.Property(x => x.Status)
             .IsRequired()
             .HasConversion<string>()
-            .HasDefaultValue(OrderConstant.Defaults.Status);
+            .HasDefaultValue(OrderStatus.Draft);
 
         builder.Property(x => x.CheckoutState)
             .IsRequired()
             .HasConversion<string>()
-            .HasDefaultValue(OrderConstant.Defaults.CheckoutState);
+            .HasDefaultValue(CheckoutState.Address);
 
         builder.Property(x => x.Currency)
             .IsRequired()

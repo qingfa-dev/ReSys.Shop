@@ -17,7 +17,7 @@ public static partial class GetOrderLineItems
             var parameters = request.Parameters;
 
             var parseAll = parameters.ParseAll();
-            if (parseAll.IsError)
+            if (parseAll.IsFailure)
                 return parseAll.Errors;
 
             var query = dbContext.Set<LineItem>().AsNoTracking()

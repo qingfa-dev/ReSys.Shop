@@ -16,9 +16,9 @@ public static partial class AddOrderLineItem
         {
             // Contract: pre=command!=null, post=result!=null
             // Create: Build the line item.
-            var createResult = LineItemExtensions.Create(command.OrderId, command.Request.VariantId, command.Request.Quantity, command.Request.Price);
+            var createResult = LineItemMethod.Create(command.OrderId, command.Request.VariantId, command.Request.Quantity, command.Request.Price);
             if (createResult.IsFailure)
-                return createResult.Failures;
+                return createResult.Errors;
 
             var lineItem = createResult.Value;
 

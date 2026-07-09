@@ -16,8 +16,8 @@ public sealed partial class Order : Entity, IAuditable, ISoftDeletable
     #region Properties
     public string Number { get; set; } = string.Empty;
     public string? SessionId { get; set; }
-    public OrderStatus Status { get; set; } = OrderConstant.Defaults.Status;
-    public CheckoutState CheckoutState { get; set; } = OrderConstant.Defaults.CheckoutState;
+    public OrderStatus Status { get; set; } = OrderStatus.Draft;
+    public CheckoutState CheckoutState { get; set; } = CheckoutState.Address;
     public string Currency { get; set; } = OrderConstant.Defaults.Currency;
     public decimal ItemTotal { get; set; }
     public decimal AdjustmentTotal { get; set; }

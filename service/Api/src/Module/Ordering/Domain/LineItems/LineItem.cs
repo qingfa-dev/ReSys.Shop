@@ -33,6 +33,7 @@ public sealed partial class LineItem : Entity, IAuditable
     #endregion Auditing
 
     #region Constructor
-    internal LineItem() { } // For EF Core
+    // Boundary: Persistence → Domain — reserved for EF Core materialization, do not invoke from application code
+    internal LineItem() { }
     #endregion Constructor
 }

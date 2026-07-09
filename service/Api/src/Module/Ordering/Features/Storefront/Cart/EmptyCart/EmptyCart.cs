@@ -35,7 +35,7 @@ namespace Module.Ordering.Features.Storefront.Cart.EmptyCart;
             // Update: Clear entity contents.
             var result = cart.Empty();
             if (result.IsFailure)
-                return result.Failures;
+                return result.Errors;
 
             cart.RecalculateTotals();
             // Persist: Save changes to the database.

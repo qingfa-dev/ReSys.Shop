@@ -24,7 +24,7 @@ public static partial class UpdateOrderLineItem
             // Update: Apply quantity change.
             var updateResult = lineItem.UpdateQuantity(command.Request.Quantity);
             if (updateResult.IsFailure)
-                return updateResult.Failures;
+                return updateResult.Errors;
 
             // Update: Recalculate order totals.
             var order = await dbContext.Set<Order>().FirstOrDefaultAsync(o => o.Id == command.OrderId, cancellationToken);

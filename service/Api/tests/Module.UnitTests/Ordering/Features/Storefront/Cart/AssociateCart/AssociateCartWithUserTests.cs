@@ -41,14 +41,14 @@ public class AssociateCartWithUserTests : IDisposable
     {
         // Arrange: user cart with 1 item
         var userCart = OrderExtensions.Create("USD", _userId, Guid.Empty).Value;
-        var lineItem1 = LineItemExtensions.Create(userCart.Id, Guid.NewGuid(), 1, 10m).Value;
+        var lineItem1 = LineItemMethod.Create(userCart.Id, Guid.NewGuid(), 1, 10m).Value;
         userCart.LineItems.Add(lineItem1);
         _dbContext.Set<Order>().Add(userCart);
 
         // Arrange: guest cart with 2 items (one matching variant)
         var guestCart = OrderExtensions.Create("USD", null, Guid.Empty).Value;
-        var matchingItem = LineItemExtensions.Create(guestCart.Id, lineItem1.VariantId, 3, 10m).Value;
-        var newItem = LineItemExtensions.Create(guestCart.Id, Guid.NewGuid(), 2, 20m).Value;
+        var matchingItem = LineItemMethod.Create(guestCart.Id, lineItem1.VariantId, 3, 10m).Value;
+        var newItem = LineItemMethod.Create(guestCart.Id, Guid.NewGuid(), 2, 20m).Value;
         guestCart.LineItems.Add(matchingItem);
         guestCart.LineItems.Add(newItem);
         _dbContext.Set<Order>().Add(guestCart);
@@ -80,6 +80,6 @@ public class AssociateCartWithUserTests : IDisposable
             TestContext.Current.CancellationToken);
 
         result.IsFailure.Should().BeTrue();
-        result.FirstFailure!.Code.Should().Be(OrderResult.Errors.NotFound(Guid.NewGuid()).Code);
+        result.Errors[0].Code.Should().Be(OrderResult.Errors.NotFound(Guid.NewGuid()).Code);
     }
 }

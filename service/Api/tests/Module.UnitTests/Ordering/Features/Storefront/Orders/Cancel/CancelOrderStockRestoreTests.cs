@@ -51,7 +51,7 @@ public class CancelOrderStockRestoreTests : IDisposable
             .ReturnsAsync(Result.Ok());
 
         _handler = new CancelOrderHandler.CommandHandler(
-            _dbContext, new StockChecker(_dbContext), _paymentGatewayMock.Object,
+            _dbContext, new StockQuantityService(_dbContext), _paymentGatewayMock.Object,
             _loggerMock.Object, _currentUserMock.Object, _notificationServiceMock.Object);
     }
 

@@ -24,7 +24,7 @@ public static partial class CreateCart
             var sessionId = currentUser.IsAuthenticated ? null : currentUser.SessionId;
 
             var createResult = OrderExtensions.Create("USD", userId, storeId, sessionId: sessionId);
-            if (createResult.IsFailure) return (Result<Response>)createResult.Failures;
+            if (createResult.IsFailure) return (Result<Response>)createResult.Errors;
 
             var order = createResult.Value;
             dbContext.Set<Order>().Add(order);
