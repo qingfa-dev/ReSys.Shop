@@ -19,16 +19,14 @@ public static partial class CreateWebhookSubscription
             var secretHash = Convert.ToHexString(
                 SHA256.HashData(Encoding.UTF8.GetBytes(request.Secret)));
 
-            var subscription = new WebhookSubscription
-            {
-                Event = request.Event,
-                Url = request.Url,
-                SecretHash = secretHash,
-                Active = true,
-                HeadersJson = request.HeadersJson,
-                MaxRetries = request.MaxRetries,
-                CreatedAtUtc = DateTimeOffset.UtcNow,
-            };
+            var subscriptionResult = WebhookSubscriptionMethod.Create(
+                @event: request.Event,
+                url: request.Url,
+                secretHash: secretHash,
+                maxRetries: request.MaxRetries,
+                headersJson: request.HeadersJson);
+            if (subscriptionResult.IsFailure) return Result<Response>.Failure(subscriptionResult.Errors[0]);
+            var subscription = subscriptionResult.Value;
 
             dbContext.Set<WebhookSubscription>().Add(subscription);
             await dbContext.SaveChangesAsync(cancellationToken);

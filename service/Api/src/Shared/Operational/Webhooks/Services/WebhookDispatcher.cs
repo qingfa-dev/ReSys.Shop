@@ -38,16 +38,12 @@ public sealed class WebhookDispatcher : IWebhookDispatcher
 
         foreach (var sub in subscriptions)
         {
-            var delivery = new WebhookDelivery
-            {
-                Id = Guid.NewGuid(),
-                SubscriptionId = sub.Id,
-                Event = eventName,
-                PayloadJson = payloadJson,
-                Status = WebhookDeliveryStatus.Pending,
-                CreatedAtUtc = DateTimeOffset.UtcNow
-            };
-            _dbContext.Set<WebhookDelivery>().Add(delivery);
+            var deliveryResult = WebhookDeliveryMethod.Create(
+                subscriptionId: sub.Id,
+                @event: eventName,
+                payloadJson: payloadJson);
+            if (deliveryResult.IsSuccess)
+                _dbContext.Set<WebhookDelivery>().Add(deliveryResult.Value);
         }
         await _dbContext.SaveChangesAsync(ct);
         return Result.Ok();
@@ -56,7 +52,6 @@ public sealed class WebhookDispatcher : IWebhookDispatcher
     public async Task<Result<WebhookDelivery>> DeliverAsync(
         WebhookSubscription subscription, WebhookDelivery delivery, CancellationToken ct = default)
     {
-        delivery.AttemptCount += 1;
         try
         {
             var signature = _signer.Sign(delivery.PayloadJson, subscription.SecretHash);
@@ -72,38 +67,22 @@ public sealed class WebhookDispatcher : IWebhookDispatcher
             using var resp = await http.SendAsync(req, ct);
             if (resp.IsSuccessStatusCode)
             {
-                delivery.Status = WebhookDeliveryStatus.Delivered;
-                delivery.DeliveredAtUtc = DateTimeOffset.UtcNow;
+                delivery.MarkDelivered();
                 _logger.LogInformation("Webhook delivered {DeliveryId} to {Url} ({Status})",
                     delivery.Id, subscription.Url, resp.StatusCode);
             }
             else
             {
-                HandleFailure(delivery, subscription, $"HTTP {(int)resp.StatusCode}");
+                delivery.MarkFailed($"HTTP {(int)resp.StatusCode}", subscription.MaxRetries);
             }
         }
         catch (Exception ex)
         {
-            HandleFailure(delivery, subscription, ex.Message);
+            delivery.MarkFailed(ex.Message, subscription.MaxRetries);
             _logger.LogWarning(ex, "Webhook delivery {DeliveryId} failed", delivery.Id);
         }
 
         await _dbContext.SaveChangesAsync(ct);
         return Result<WebhookDelivery>.Ok(delivery);
-    }
-
-    private static void HandleFailure(WebhookDelivery delivery, WebhookSubscription sub, string error)
-    {
-        delivery.LastError = error;
-        if (delivery.AttemptCount >= sub.MaxRetries)
-        {
-            delivery.Status = WebhookDeliveryStatus.Dead;
-        }
-        else
-        {
-            delivery.Status = WebhookDeliveryStatus.Failed;
-            var delaySeconds = (int)Math.Pow(5, delivery.AttemptCount) * 60;
-            delivery.NextRetryAtUtc = DateTimeOffset.UtcNow.AddSeconds(delaySeconds);
-        }
     }
 }

@@ -31,14 +31,12 @@ public static partial class TestWebhookSubscription
                 timestamp = DateTimeOffset.UtcNow,
             });
 
-            var delivery = new WebhookDelivery
-            {
-                SubscriptionId = subscription.Id,
-                Event = subscription.Event,
-                PayloadJson = samplePayload,
-                Status = WebhookDeliveryStatus.Pending,
-                CreatedAtUtc = DateTimeOffset.UtcNow,
-            };
+            var deliveryResult = WebhookDeliveryMethod.Create(
+                subscriptionId: subscription.Id,
+                @event: subscription.Event,
+                payloadJson: samplePayload);
+            if (deliveryResult.IsFailure) return Result<Response>.Failure(deliveryResult.Errors[0]);
+            var delivery = deliveryResult.Value;
 
             dbContext.Set<WebhookDelivery>().Add(delivery);
             await dbContext.SaveChangesAsync(cancellationToken);
