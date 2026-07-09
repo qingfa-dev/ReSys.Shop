@@ -16,7 +16,7 @@ public static partial class CreateShippingRate
 
             var createResult = request.MapToDomain();
             if (createResult.IsFailure)
-                return createResult.Failures;
+                return createResult.Errors;
 
             var rate = createResult.Value;
 

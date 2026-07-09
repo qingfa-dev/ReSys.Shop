@@ -69,7 +69,7 @@ public class ConfirmPaymentTests : IDisposable
             TestContext.Current.CancellationToken);
 
         result.IsFailure.Should().BeTrue();
-        result.FirstFailure!.Code.Should().Be("Payment.AlreadyCompleted");
+        result.Errors[0].Code.Should().Be("Payment.AlreadyCompleted");
     }
 
     [Fact(DisplayName = "Handler: Should return NotFound when payment does not exist")]

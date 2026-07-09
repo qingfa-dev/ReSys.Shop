@@ -14,7 +14,7 @@ public static partial class ShippingMethodMapping
             taxCategoryId: request.TaxCategoryId);
 
         if (result.IsFailure)
-            return result.Failures;
+            return result.Errors;
 
         var method = result.Value;
         method.TrackingUrl = request.TrackingUrl;

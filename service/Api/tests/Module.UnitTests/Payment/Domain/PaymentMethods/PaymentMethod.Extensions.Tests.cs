@@ -37,7 +37,7 @@ public class PaymentMethodExtensionsTests
         var result = method.Activate();
 
         result.IsFailure.Should().BeTrue();
-        result.FirstFailure.Should().Be(PaymentMethodResult.Errors.AlreadyActive);
+        result.Errors[0].Should().Be(PaymentMethodResult.Errors.AlreadyActive);
     }
 
     [Fact]
@@ -60,7 +60,7 @@ public class PaymentMethodExtensionsTests
         var result = method.Deactivate();
 
         result.IsFailure.Should().BeTrue();
-        result.FirstFailure.Should().Be(PaymentMethodResult.Errors.AlreadyInactive);
+        result.Errors[0].Should().Be(PaymentMethodResult.Errors.AlreadyInactive);
     }
 
     [Fact]

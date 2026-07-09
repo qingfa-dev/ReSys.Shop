@@ -39,7 +39,7 @@ namespace Module.Payment.Features.Storefront.Payment.Confirm;
             // Transition: Complete the payment
             var completeResult = payment.Complete();
             if (completeResult.IsFailure)
-                return completeResult.Failures;
+                return completeResult.Errors;
 
             // Persist: Save changes to the database.
             await dbContext.SaveChangesAsync(cancellationToken);

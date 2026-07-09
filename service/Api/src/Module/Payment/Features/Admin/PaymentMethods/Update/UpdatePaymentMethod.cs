@@ -29,7 +29,7 @@ namespace Module.Payment.Features.Admin.PaymentMethods.Update;
             // Update: Map the partial-update request to the entity (PATCH semantics).
             var result = command.Request.MapUpdateToDomain(method);
             if (result.IsFailure)
-                return result.Failures;
+                return result.Errors;
 
             // Persist: Save changes to the database.
             await dbContext.SaveChangesAsync(cancellationToken);

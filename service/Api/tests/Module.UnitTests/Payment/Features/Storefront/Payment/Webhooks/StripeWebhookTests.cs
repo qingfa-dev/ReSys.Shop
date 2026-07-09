@@ -32,7 +32,7 @@ public class StripeWebhookTests : IDisposable
         _webhookMock.Setup(x => x.ValidateSignature(It.IsAny<string>(), It.IsAny<string>())).Returns(false);
         var result = await _handler.Handle(new StripeWebhook.Command("{}", "invalid"), TestContext.Current.CancellationToken);
         result.IsFailure.Should().BeTrue();
-        result.FirstFailure!.Code.Should().Be("Stripe.Webhook.InvalidSignature");
+        result.Errors[0].Code.Should().Be("Stripe.Webhook.InvalidSignature");
     }
 
     [Fact(DisplayName = "Webhook: unknown event returns success")]
@@ -49,6 +49,6 @@ public class StripeWebhookTests : IDisposable
         _webhookMock.Setup(x => x.ParseEvent(It.IsAny<string>())).Returns((global::Stripe.Event?)null);
         var result = await _handler.Handle(new StripeWebhook.Command("bad", "valid"), TestContext.Current.CancellationToken);
         result.IsFailure.Should().BeTrue();
-        result.FirstFailure!.Code.Should().Be("Stripe.Webhook.InvalidPayload");
+        result.Errors[0].Code.Should().Be("Stripe.Webhook.InvalidPayload");
     }
 }

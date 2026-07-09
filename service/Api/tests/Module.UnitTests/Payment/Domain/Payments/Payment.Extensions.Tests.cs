@@ -21,7 +21,7 @@ public class PaymentExtensionsTests
         var result = PaymentFactory.Create(0m, Guid.NewGuid(), Guid.NewGuid());
 
         result.IsFailure.Should().BeTrue();
-        result.FirstFailure.Should().Be(PaymentResult.Failure.AmountMustBePositive);
+        result.Errors[0].Should().Be(PaymentResult.Failure.AmountMustBePositive);
     }
 
     [Fact]
@@ -30,7 +30,7 @@ public class PaymentExtensionsTests
         var result = PaymentFactory.Create(-50m, Guid.NewGuid(), Guid.NewGuid());
 
         result.IsFailure.Should().BeTrue();
-        result.FirstFailure.Should().Be(PaymentResult.Failure.AmountMustBePositive);
+        result.Errors[0].Should().Be(PaymentResult.Failure.AmountMustBePositive);
     }
 
     [Fact]
@@ -53,7 +53,7 @@ public class PaymentExtensionsTests
         var result = payment.Process();
 
         result.IsFailure.Should().BeTrue();
-        result.FirstFailure.Should().Be(PaymentResult.Failure.InvalidStateTransition(PaymentRecordState.Processing, PaymentRecordState.Processing));
+        result.Errors[0].Should().Be(PaymentResult.Failure.InvalidStateTransition(PaymentRecordState.Processing, PaymentRecordState.Processing));
     }
 
     [Fact]
@@ -76,7 +76,7 @@ public class PaymentExtensionsTests
         var result = payment.Pend();
 
         result.IsFailure.Should().BeTrue();
-        result.FirstFailure.Should().Be(PaymentResult.Failure.InvalidStateTransition(PaymentRecordState.Checkout, PaymentRecordState.Pending));
+        result.Errors[0].Should().Be(PaymentResult.Failure.InvalidStateTransition(PaymentRecordState.Checkout, PaymentRecordState.Pending));
     }
 
     [Fact]
@@ -112,7 +112,7 @@ public class PaymentExtensionsTests
         var result = payment.Complete();
 
         result.IsFailure.Should().BeTrue();
-        result.FirstFailure.Should().Be(PaymentResult.Failure.AlreadyCompleted);
+        result.Errors[0].Should().Be(PaymentResult.Failure.AlreadyCompleted);
     }
 
     [Fact]
@@ -124,7 +124,7 @@ public class PaymentExtensionsTests
         var result = payment.Complete();
 
         result.IsFailure.Should().BeTrue();
-        result.FirstFailure.Should().Be(PaymentResult.Failure.InvalidStateTransition(PaymentRecordState.Checkout, PaymentRecordState.Completed));
+        result.Errors[0].Should().Be(PaymentResult.Failure.InvalidStateTransition(PaymentRecordState.Checkout, PaymentRecordState.Completed));
     }
 
     [Fact]
@@ -171,7 +171,7 @@ public class PaymentExtensionsTests
         var result = payment.Fail();
 
         result.IsFailure.Should().BeTrue();
-        result.FirstFailure.Should().Be(PaymentResult.Failure.AlreadyFailed);
+        result.Errors[0].Should().Be(PaymentResult.Failure.AlreadyFailed);
     }
 
     [Fact]
@@ -218,7 +218,7 @@ public class PaymentExtensionsTests
         var result = payment.Void();
 
         result.IsFailure.Should().BeTrue();
-        result.FirstFailure.Should().Be(PaymentResult.Failure.AlreadyVoided);
+        result.Errors[0].Should().Be(PaymentResult.Failure.AlreadyVoided);
     }
 
     [Fact]
@@ -374,7 +374,7 @@ public class PaymentExtensionsTests
         var result = payment.Capture(200m);
 
         result.IsFailure.Should().BeTrue();
-        result.FirstFailure.Should().Be(PaymentResult.Failure.AmountExceedsAuthorized);
+        result.Errors[0].Should().Be(PaymentResult.Failure.AmountExceedsAuthorized);
     }
 
     [Fact]

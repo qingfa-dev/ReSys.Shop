@@ -81,7 +81,7 @@ public class StripeGatewayTests
         var result = await _gateway.PurchaseAsync(100m, null, _gatewayOptions, TestContext.Current.CancellationToken);
 
         result.IsFailure.Should().BeTrue();
-        result.FirstFailure!.Code.Should().Contain("Stripe.");
+        result.Errors[0].Code.Should().Contain("Stripe.");
     }
 
     [Fact(DisplayName = "StripeGateway: AuthorizeAsync with invalid key should return failure")]
@@ -90,7 +90,7 @@ public class StripeGatewayTests
         var result = await _gateway.AuthorizeAsync(100m, null, _gatewayOptions, TestContext.Current.CancellationToken);
 
         result.IsFailure.Should().BeTrue();
-        result.FirstFailure!.Code.Should().Contain("Stripe.");
+        result.Errors[0].Code.Should().Contain("Stripe.");
     }
 
     [Fact(DisplayName = "StripeGateway: CaptureAsync without responseCode should return failure")]
@@ -99,7 +99,7 @@ public class StripeGatewayTests
         var result = await _gateway.CaptureAsync(50m, null, _gatewayOptions, TestContext.Current.CancellationToken);
 
         result.IsFailure.Should().BeTrue();
-        result.FirstFailure!.Code.Should().Be("Stripe.Capture.MissingIntent");
+        result.Errors[0].Code.Should().Be("Stripe.Capture.MissingIntent");
     }
 
     [Fact(DisplayName = "StripeGateway: VoidAsync without responseCode should return failure")]
@@ -108,7 +108,7 @@ public class StripeGatewayTests
         var result = await _gateway.VoidAsync(null, null, _gatewayOptions, TestContext.Current.CancellationToken);
 
         result.IsFailure.Should().BeTrue();
-        result.FirstFailure!.Code.Should().Be("Stripe.Cancel.MissingIntent");
+        result.Errors[0].Code.Should().Be("Stripe.Cancel.MissingIntent");
     }
 
     [Fact(DisplayName = "StripeGateway: CancelAsync without responseCode should return failure")]
@@ -117,7 +117,7 @@ public class StripeGatewayTests
         var result = await _gateway.CancelAsync(null, null, TestContext.Current.CancellationToken);
 
         result.IsFailure.Should().BeTrue();
-        result.FirstFailure!.Code.Should().Be("Stripe.Cancel.MissingIntent");
+        result.Errors[0].Code.Should().Be("Stripe.Cancel.MissingIntent");
     }
 
     [Fact(DisplayName = "StripeGateway: CreditAsync without responseCode should return failure")]
@@ -126,6 +126,6 @@ public class StripeGatewayTests
         var result = await _gateway.CreditAsync(50m, null, _gatewayOptions, TestContext.Current.CancellationToken);
 
         result.IsFailure.Should().BeTrue();
-        result.FirstFailure!.Code.Should().Be("Stripe.Credit.MissingIntent");
+        result.Errors[0].Code.Should().Be("Stripe.Credit.MissingIntent");
     }
 }
