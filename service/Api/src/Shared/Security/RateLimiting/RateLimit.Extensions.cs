@@ -1,11 +1,16 @@
 using System.Threading.RateLimiting;
 
+using FluentValidation;
+
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.RateLimiting;
 
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+
+using Shared.Application.Extensions.Validations;
+using Shared.Security.RateLimiting.Options;
 
 namespace Shared.Security.RateLimiting;
 
@@ -19,10 +24,17 @@ public static class RateLimitExtensions
 
     public static WebApplicationBuilder AddRateLimiting(this WebApplicationBuilder builder)
     {
-        var policies = builder.Configuration.GetSection("RateLimit:Policies").Get<Dictionary<string, RateLimitPolicyConfig>>()
-            ?? new Dictionary<string, RateLimitPolicyConfig>();
+        builder.Services.AddSingleton<IValidator<RateLimitSetting>, RateLimitSettingValidator>();
 
-        var defaultConfig = policies.GetValueOr(DefaultPolicy, new RateLimitPolicyConfig { PermitLimit = 100, WindowSeconds = 60 });
+        builder.Services.AddOptions<RateLimitSetting>()
+            .BindConfiguration(RateLimitSetting.SectionName)
+            .ValidateFluentValidation()
+            .ValidateOnStart();
+
+        RateLimitSetting setting = builder.Configuration.GetSection(RateLimitSetting.SectionName).Get<RateLimitSetting>() ?? new();
+
+        if (!setting.Enabled)
+            return builder;
 
         builder.Services.AddRateLimiter(options =>
         {
@@ -30,19 +42,23 @@ public static class RateLimitExtensions
             options.GlobalLimiter = PartitionedRateLimiter.Create<HttpContext, string>(httpContext =>
                 RateLimitPartition.GetFixedWindowLimiter(
                     partitionKey: httpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown",
-                    factory: _ => new FixedWindowRateLimiterOptions
+                    factory: _ =>
                     {
-                        PermitLimit = defaultConfig.PermitLimit,
-                        Window = TimeSpan.FromSeconds(defaultConfig.WindowSeconds),
-                        QueueProcessingOrder = QueueProcessingOrder.OldestFirst,
-                        QueueLimit = 0,
-                        AutoReplenishment = true
+                        var cfg = setting.Policies.GetValueOrDefault(DefaultPolicy, new RateLimitPolicyConfig());
+                        return new FixedWindowRateLimiterOptions
+                        {
+                            PermitLimit = cfg.PermitLimit,
+                            Window = TimeSpan.FromSeconds(cfg.WindowSeconds),
+                            QueueProcessingOrder = QueueProcessingOrder.OldestFirst,
+                            QueueLimit = 0,
+                            AutoReplenishment = true
+                        };
                     }));
 
-            AddNamedPolicy(options, AuthPolicy, policies, ipPartition: true);
-            AddNamedPolicy(options, RegisterPolicy, policies, ipPartition: true);
-            AddNamedPolicy(options, ForgotPasswordPolicy, policies, ipPartition: true);
-            AddNamedPolicy(options, PaymentPolicy, policies, ipPartition: true, userPartition: true);
+            AddNamedPolicy(options, AuthPolicy, setting.Policies, ipPartition: true);
+            AddNamedPolicy(options, RegisterPolicy, setting.Policies, ipPartition: true);
+            AddNamedPolicy(options, ForgotPasswordPolicy, setting.Policies, ipPartition: true);
+            AddNamedPolicy(options, PaymentPolicy, setting.Policies, ipPartition: true, userPartition: true);
         });
 
         return builder;
@@ -55,12 +71,14 @@ public static class RateLimitExtensions
         bool ipPartition = false,
         bool userPartition = false)
     {
-        var cfg = policies.GetValueOr(policyName, new RateLimitPolicyConfig { PermitLimit = 10, WindowSeconds = 60 });
         options.AddPolicy(policyName, httpContext =>
         {
             var key = (ipPartition ? httpContext.Connection.RemoteIpAddress?.ToString() : null)
                 ?? (userPartition ? httpContext.User.Identity?.Name : null)
                 ?? "unknown";
+
+            var cfg = policies.GetValueOrDefault(policyName, new RateLimitPolicyConfig());
+
             return RateLimitPartition.GetFixedWindowLimiter(key, _ => new FixedWindowRateLimiterOptions
             {
                 PermitLimit = cfg.PermitLimit,
@@ -70,20 +88,5 @@ public static class RateLimitExtensions
                 AutoReplenishment = true
             });
         });
-    }
-
-    public sealed class RateLimitPolicyConfig
-    {
-        public int PermitLimit { get; set; } = 10;
-        public int WindowSeconds { get; set; } = 60;
-    }
-}
-
-internal static class DictionaryExtensions
-{
-    internal static TValue GetValueOr<TKey, TValue>(this Dictionary<TKey, TValue> dictionary, TKey key, TValue defaultValue)
-        where TKey : notnull
-    {
-        return dictionary.TryGetValue(key, out var value) ? value : defaultValue;
     }
 }
