@@ -1,9 +1,15 @@
+using Module.Inventory.Services.Abstractions;
 using Module.Ordering.Domain.Orders;
 using Module.Ordering.Features.Admin.Orders.Shared.Mappings;
+using Module.Ordering.Features.Shared.Services;
+using Module.Payment.Domain.Gateways;
+using Module.Payment.Domain.Payments;
 
 using Shared.Operational.Notifications.Models;
 using Shared.Operational.Notifications.Services;
 using Shared.Operational.Notifications.Templates;
+
+using PaymentRecord = Module.Payment.Domain.Payments.PaymentRecord;
 
 namespace Module.Ordering.Features.Admin.Orders.Cancel;
 /// <summary>Handles CancelOrderAdmin feature.</summary>
@@ -15,33 +21,62 @@ public static partial class CancelOrderAdmin
         IApplicationDbContext dbContext,
         ICurrentUser currentUser,
         INotificationService notificationService,
-        ILogger<CommandHandler> logger) : ICommandHandler<Command, Response>
+        ILogger<CommandHandler> logger,
+        IPaymentGatewayActionProvider paymentGateway,
+        IStockQuantityService stockChecker) : ICommandHandler<Command, Response>
     {
-        /// <summary>Handles the command.</summary>
-        /// <param name="command">The command to handle.</param>
-        /// <param name="cancellationToken">Cancellation token.</param>
-        /// <returns>The result of handling the command.</returns>
         public async Task<Result<Response>> Handle(Command command, CancellationToken cancellationToken)
         {
-            // Contract: pre=command!=null, post=result!=null
-            // Check: Verify the order exists.
-            var order = await dbContext.Set<Order>().FirstOrDefaultAsync(o => o.Id == command.Id, cancellationToken);
+            var order = await dbContext.Set<Order>()
+                .Include(o => o.LineItems)
+                .FirstOrDefaultAsync(o => o.Id == command.Id, cancellationToken);
             if (order is null)
                 return OrderResult.Errors.NotFound(command.Id);
 
-            // Update: Cancel the order.
-            var parsed = Guid.TryParse(currentUser.UserId, out var userId);
+            var wasPlaced = order.Status == OrderStatus.Placed;
+            Guid.TryParse(currentUser.UserId, out var userId);
             var result = order.Cancel(userId);
             if (result.IsFailure)
                 return result.Errors;
 
-            // Persist: Save changes.
+            var payments = await dbContext.Set<PaymentRecord>()
+                .Where(p => p.OrderId == order.Id && p.State != PaymentRecordState.Void && p.State != PaymentRecordState.Failed)
+                .ToListAsync(cancellationToken);
+
+            foreach (var payment in payments)
+            {
+                var options = new GatewayOptions(payment)
+                {
+                    Email = order.Email ?? string.Empty,
+                    StatementDescriptorSuffix = string.Empty,
+                    Customer = order.Email ?? string.Empty,
+                    CustomerId = currentUser.UserId,
+                    Ip = currentUser.IpAddress,
+                    OrderId = $"{order.Number}-{payment.Number}",
+                    PaymentId = payment.Number,
+                    IdempotencyKey = $"spree-{payment.Number}"
+                };
+                var voidResult = await payment.VoidTransactionAsync(paymentGateway, options, cancellationToken: cancellationToken);
+                if (voidResult.IsFailure)
+                {
+                    logger.LogWarning("Failed to void payment {PaymentId} for order {OrderId}: {Errors}",
+                        payment.Id, order.Id, string.Join("; ", voidResult.Errors.Select(f => f.Description)));
+                }
+            }
+
+            if (wasPlaced)
+            {
+                foreach (var lineItem in order.LineItems)
+                {
+                    var orderInventory = new OrderInventoryService(order, lineItem, dbContext, stockChecker);
+                    await orderInventory.RemoveAsync(lineItem.Quantity, cancellationToken);
+                }
+            }
+
             await dbContext.SaveChangesAsync(cancellationToken);
 
-            // Notify: Send order canceled notification.
             await SendOrderCanceledNotificationAsync(order, cancellationToken);
 
-            // Map: Return the updated entity as response.
             return order.MapToDetail<Response>();
         }
 

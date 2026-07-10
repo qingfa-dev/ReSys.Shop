@@ -1,5 +1,6 @@
 using Module.Inventory.Domain.StockLocations.StockItems;
 using Module.Inventory.Domain.StockLocations.StockItems.StockMovements;
+using Module.Inventory.Domain.StockReservations;
 using Module.Inventory.Services.Abstractions;
 
 namespace Module.Inventory.Services;
@@ -20,6 +21,9 @@ public class StockQuantityService : IStockQuantityService
         Guid orderId,
         CancellationToken cancellationToken = default)
     {
+        if (quantity <= 0)
+            return StockItemResult.Errors.NegativeCountOnHand;
+
         var stockItem = await _dbContext.Set<StockItem>()
             .FirstOrDefaultAsync(si => si.VariantId == variantId && si.StockLocationId == stockLocationId, cancellationToken);
 
@@ -43,6 +47,16 @@ public class StockQuantityService : IStockQuantityService
         if (movement.IsSuccess)
             _dbContext.Set<StockMovement>().Add(movement.Value);
 
+        var reservation = await _dbContext.Set<StockReservation>()
+            .FirstOrDefaultAsync(r => r.OrderId == orderId && r.VariantId == variantId
+                && r.State == ReservationState.Reserved, cancellationToken);
+
+        if (reservation is not null)
+        {
+            reservation.State = ReservationState.Fulfilled;
+            reservation.ModifiedAtUtc = DateTimeOffset.UtcNow;
+        }
+
         return Result.Ok();
     }
 
@@ -53,6 +67,8 @@ public class StockQuantityService : IStockQuantityService
         Guid orderId,
         CancellationToken cancellationToken = default)
     {
+        if (quantity <= 0)
+            return StockItemResult.Errors.NegativeCountOnHand;
         var stockItem = await _dbContext.Set<StockItem>()
             .FirstOrDefaultAsync(si => si.VariantId == variantId && si.StockLocationId == stockLocationId, cancellationToken);
 

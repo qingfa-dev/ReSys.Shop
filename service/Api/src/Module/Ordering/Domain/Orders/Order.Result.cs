@@ -67,7 +67,7 @@ public static class OrderResult
             message: "Cannot finalize an order with no items.");
 
         /// <summary>User must be authenticated to perform this operation.</summary>
-        public static Error UserNotAuthenticated => Error.Validation(
+        public static Error UserNotAuthenticated => Error.Unauthorized(
             code: "Order.User.NotAuthenticated",
             message: "User must be authenticated.");
 

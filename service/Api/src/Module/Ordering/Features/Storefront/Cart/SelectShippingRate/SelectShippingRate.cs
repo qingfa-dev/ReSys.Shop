@@ -75,22 +75,25 @@ namespace Module.Ordering.Features.Storefront.Cart.SelectShippingRate;
                 // Create: Add shipping adjustment with computed cost.
                 if (cost > 0)
                 {
-                    var adjustment = AdjustmentMethod.Create(
+                    var adjResult = AdjustmentMethod.Create(
                         label: "Shipping",
                         amount: cost,
                         adjustableId: cart.Id,
                         adjustableType: "Order",
                         sourceId: command.Request.ShippingMethodId,
                         sourceType: "Shipping",
-                        orderId: cart.Id).Value;
+                        orderId: cart.Id);
 
-                    cart.Adjustments.Add(adjustment);
-                    dbContext.Set<Adjustment>().Add(adjustment);
+                    if (adjResult.IsSuccess)
+                    {
+                        cart.Adjustments.Add(adjResult.Value);
+                        dbContext.Set<Adjustment>().Add(adjResult.Value);
+                    }
                 }
-
-                // Compute: Recalculate order totals.
-                cart.RecalculateTotals();
             }
+
+            // Compute: Recalculate order totals regardless of calculator result.
+            cart.RecalculateTotals();
 
             // Persist: Save changes to the database.
             await dbContext.SaveChangesAsync(cancellationToken);

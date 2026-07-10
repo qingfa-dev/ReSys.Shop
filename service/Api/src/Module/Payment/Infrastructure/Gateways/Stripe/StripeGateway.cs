@@ -26,7 +26,8 @@ public sealed class StripeGateway : Gateway
         try
         {
             var po = CreatePaymentIntentOptions(amountInCents, source, options, autoCapture: true);
-            var intent = await new PaymentIntentService().CreateAsync(po, null, cancellationToken).ConfigureAwait(false);
+            var requestOptions = new RequestOptions { IdempotencyKey = options.IdempotencyKey ?? Guid.NewGuid().ToString() };
+            var intent = await new PaymentIntentService().CreateAsync(po, requestOptions, cancellationToken).ConfigureAwait(false);
             return new PaymentGatewayResponse(true, intent.Status == "succeeded" ? "Payment captured." : $"Status: {intent.Status}", authorization: intent.Id);
         }
         catch (StripeException ex) { return MapStripeException(ex); }
@@ -37,7 +38,8 @@ public sealed class StripeGateway : Gateway
         try
         {
             var po = CreatePaymentIntentOptions(amountInCents, source, options, autoCapture: false);
-            var intent = await new PaymentIntentService().CreateAsync(po, null, cancellationToken).ConfigureAwait(false);
+            var requestOptions = new RequestOptions { IdempotencyKey = options.IdempotencyKey ?? Guid.NewGuid().ToString() };
+            var intent = await new PaymentIntentService().CreateAsync(po, requestOptions, cancellationToken).ConfigureAwait(false);
             return new PaymentGatewayResponse(true, intent.Status == "requires_capture" ? "Authorized." : $"Status: {intent.Status}", authorization: intent.Id);
         }
         catch (StripeException ex) { return MapStripeException(ex); }
@@ -49,7 +51,8 @@ public sealed class StripeGateway : Gateway
         try
         {
             var cap = new PaymentIntentCaptureOptions { AmountToCapture = (long)(amount * CentsMultiplier) };
-            var intent = await new PaymentIntentService().CaptureAsync(responseCode, cap, null, cancellationToken).ConfigureAwait(false);
+            var requestOptions = new RequestOptions { IdempotencyKey = options.IdempotencyKey ?? Guid.NewGuid().ToString() };
+            var intent = await new PaymentIntentService().CaptureAsync(responseCode, cap, requestOptions, cancellationToken).ConfigureAwait(false);
             return new PaymentGatewayResponse(true, "Captured.", authorization: intent.Id);
         }
         catch (StripeException ex) { return MapStripeException(ex); }
@@ -65,7 +68,8 @@ public sealed class StripeGateway : Gateway
         try
         {
             var ro = new RefundCreateOptions { PaymentIntent = responseCode, Amount = (long)(amount * CentsMultiplier) };
-            var refund = await new RefundService().CreateAsync(ro, null, cancellationToken).ConfigureAwait(false);
+            var requestOptions = new RequestOptions { IdempotencyKey = options.IdempotencyKey ?? Guid.NewGuid().ToString() };
+            var refund = await new RefundService().CreateAsync(ro, requestOptions, cancellationToken).ConfigureAwait(false);
             return new PaymentGatewayResponse(true, "Refunded.", authorization: refund.Id);
         }
         catch (StripeException ex) { return MapStripeException(ex); }
@@ -91,7 +95,8 @@ public sealed class StripeGateway : Gateway
         try
         {
             var co = new PaymentIntentCancelOptions();
-            var intent = await new PaymentIntentService().CancelAsync(responseCode, co, null, cancellationToken).ConfigureAwait(false);
+            var requestOptions = new RequestOptions { IdempotencyKey = Guid.NewGuid().ToString() };
+            var intent = await new PaymentIntentService().CancelAsync(responseCode, co, requestOptions, cancellationToken).ConfigureAwait(false);
             return new PaymentGatewayResponse(true, "Voided.", authorization: intent.Id);
         }
         catch (StripeException ex) { return MapStripeException(ex); }

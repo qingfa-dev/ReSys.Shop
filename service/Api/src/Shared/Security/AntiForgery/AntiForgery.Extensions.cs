@@ -40,7 +40,6 @@ public static class AntiForgeryExtensions
             }
         });
 
-
         return builder;
     }
 

@@ -41,6 +41,10 @@ public static class StockReservationResult
         /// <summary>Error when reservation quantity is not a positive value.</summary>
         public static Error QuantityMustBePositive => QuantityZero;
 
+        public static Error TtlMustBePositive => Error.Validation(
+            code: "StockReservation.Ttl.NotPositive",
+            message: "TTL minutes must be greater than zero.");
+
         /// <summary>Error when there is insufficient available stock for the reservation.</summary>
         public static Error InsufficientStock => Error.Validation(
             code: "StockReservation.InsufficientStock",

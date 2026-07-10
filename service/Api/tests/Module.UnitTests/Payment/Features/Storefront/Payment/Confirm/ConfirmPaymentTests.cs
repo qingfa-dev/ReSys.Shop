@@ -19,7 +19,10 @@ public class ConfirmPaymentTests : IDisposable
             .Options;
         ApplicationDbContext.AdditionalConfigurationsAssemblies = [typeof(PaymentRecord).Assembly];
         _dbContext = new ApplicationDbContext(options);
-        _handler = new ConfirmPayment.CommandHandler(_dbContext);
+        var currentUserMock = new Mock<ICurrentUser>();
+        currentUserMock.Setup(x => x.UserId).Returns(Guid.NewGuid().ToString());
+        currentUserMock.Setup(x => x.UserName).Returns("test-user");
+        _handler = new ConfirmPayment.CommandHandler(_dbContext, currentUserMock.Object);
     }
 
     public void Dispose() { _dbContext.Dispose(); GC.SuppressFinalize(this); }

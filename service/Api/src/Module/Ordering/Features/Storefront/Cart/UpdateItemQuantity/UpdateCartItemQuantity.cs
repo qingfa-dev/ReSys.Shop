@@ -25,7 +25,7 @@ public static partial class UpdateCartItemQuantity
             if (!Guid.TryParse(currentUser.UserId, out var userId))
                 return OrderResult.Errors.UserNotAuthenticated;
 
-            if (command.Request.Quantity <= 0)
+            if (command.Request.Quantity <= 0 || command.Request.Quantity > LineItemConstant.MaxQuantity)
                 return OrderResult.Errors.QuantityNotPositive;
 
             // Query: Find the user's draft cart.

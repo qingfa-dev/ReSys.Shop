@@ -66,7 +66,9 @@ namespace Module.Payment.Features.Storefront.Payment.Webhooks;
             if (payment is null)
                 return Result.Ok();
 
-            payment.Complete();
+            var completeResult = payment.Complete();
+            if (completeResult.IsFailure)
+                return completeResult.Errors;
             await dbContext.SaveChangesAsync(cancellationToken);
             return Result.Ok(PaymentResult.Success.Completed(payment.Number));
         }
@@ -103,6 +105,9 @@ namespace Module.Payment.Features.Storefront.Payment.Webhooks;
 
             if (payment is null)
                 return Result.Ok();
+
+            if (charge.AmountRefunded > 0)
+                payment.RefundedAmount = charge.AmountRefunded / 100m;
 
             payment.ModifiedAtUtc = DateTimeOffset.UtcNow;
             await dbContext.SaveChangesAsync(cancellationToken);

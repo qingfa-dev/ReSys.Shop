@@ -45,10 +45,10 @@ public static partial class ConfirmEmail
             if (user is null)
                 return UserResult.Failure.NotFound;
 
-            if (user.EmailConfirmed)
-                return Result.NoContent();
-
             var isEmailChange = !string.IsNullOrWhiteSpace(decodedNewEmail);
+
+            if (user.EmailConfirmed && !isEmailChange)
+                return Result.NoContent();
 
             var identityResult = isEmailChange
                 ? await userManager.ChangeEmailAsync(user, decodedNewEmail!, decodedToken)

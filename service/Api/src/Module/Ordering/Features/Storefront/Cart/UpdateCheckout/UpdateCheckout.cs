@@ -75,20 +75,26 @@ namespace Module.Ordering.Features.Storefront.Cart.UpdateCheckout;
 
                     if (cost > 0)
                     {
-                        var adjustment = AdjustmentMethod.Create(
+                        var adjResult = AdjustmentMethod.Create(
                             label: "Shipping",
                             amount: cost,
                             adjustableId: cart.Id,
                             adjustableType: "Order",
                             sourceId: cart.ShippingMethodId.Value,
                             sourceType: "Shipping",
-                            orderId: cart.Id).Value;
+                            orderId: cart.Id);
 
-                        cart.Adjustments.Add(adjustment);
-                        dbContext.Set<Adjustment>().Add(adjustment);
+                        if (adjResult.IsSuccess)
+                        {
+                            cart.Adjustments.Add(adjResult.Value);
+                            dbContext.Set<Adjustment>().Add(adjResult.Value);
+                        }
                     }
                 }
             }
+
+            cart.RecalculateTotals();
+            await dbContext.SaveChangesAsync(cancellationToken);
 
             return Result.Ok();
         }

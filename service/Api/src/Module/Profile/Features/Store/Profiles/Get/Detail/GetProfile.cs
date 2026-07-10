@@ -19,6 +19,12 @@ public static partial class GetProfile
             if (!currentUser.IsAuthenticated || string.IsNullOrEmpty(currentUser.UserId))
                 return UserProfileResult.Failure.AuthRequired;
 
+            if (!Guid.TryParse(currentUser.UserId, out var currentUserId))
+                return UserProfileResult.Failure.AuthRequired;
+
+            if (request.UserId != currentUserId)
+                return Error.Forbidden("Profile.Get.Permission", "Cannot access another user's profile.");
+
             var user = await dbContext.Set<User>()
                 .FirstOrDefaultAsync(u => u.Id == request.UserId, cancellationToken);
             if (user is null)

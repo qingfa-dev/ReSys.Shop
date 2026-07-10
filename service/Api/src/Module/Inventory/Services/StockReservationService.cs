@@ -16,6 +16,26 @@ public class StockReservationService(IApplicationDbContext dbContext) : IStockRe
         int ttlMinutes = 30,
         CancellationToken cancellationToken = default)
     {
+        if (quantity <= 0)
+            return StockReservationResult.Errors.QuantityZero;
+
+        var stockItem = await _dbContext.Set<StockItem>()
+            .FirstOrDefaultAsync(si => si.VariantId == variantId && si.StockLocationId == stockLocationId, cancellationToken);
+
+        if (stockItem is null)
+            return StockReservationResult.Errors.InsufficientStock;
+
+        var reserved = await _dbContext.Set<StockReservation>()
+            .Where(r => r.VariantId == variantId
+                        && r.StockLocationId == stockLocationId
+                        && r.State == ReservationState.Reserved
+                        && r.ExpiresAtUtc > DateTimeOffset.UtcNow)
+            .SumAsync(r => r.Quantity, cancellationToken);
+
+        var available = stockItem.CountOnHand - reserved;
+        if (available < quantity)
+            return StockReservationResult.Errors.InsufficientStock;
+
         var result = StockReservationMethod.Reserve(variantId, quantity, stockLocationId, orderId, ttlMinutes);
         if (result.IsFailure) return result;
 
@@ -77,16 +97,6 @@ public class StockReservationService(IApplicationDbContext dbContext) : IStockRe
 
         foreach (var r in expired)
         {
-            if (r.StockLocationId.HasValue)
-            {
-                var stockItem = await _dbContext.Set<StockItem>()
-                    .FirstOrDefaultAsync(si => si.VariantId == r.VariantId
-                        && si.StockLocationId == r.StockLocationId, cancellationToken);
-
-                if (stockItem is not null)
-                    stockItem.CountOnHand += r.Quantity;
-            }
-
             r.State = ReservationState.Expired;
             r.ModifiedAtUtc = now;
         }

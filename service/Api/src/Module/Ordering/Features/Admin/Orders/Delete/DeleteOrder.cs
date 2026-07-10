@@ -20,7 +20,9 @@ public static partial class DeleteOrder
             if (order is null)
                 return OrderResult.Errors.NotFound(command.Id);
 
-            // Remove: Soft-delete the order.
+            if (order.Status is OrderStatus.Placed)
+                return Error.Validation("Order.Delete.InvalidStatus", "Only Draft or Expired orders can be deleted.");
+
             order.IsDeleted = true;
             order.DeletedAtUtc = DateTimeOffset.UtcNow;
 
