@@ -108,6 +108,7 @@ public class StockReservationServiceTests : IDisposable
     {
         var ct = TestContext.Current.CancellationToken;
         var otherOrderId = Guid.NewGuid();
+        await SeedStockItem(10);
         await SeedReservation(2, ReservationState.Reserved);
         await SeedReservation(5, ReservationState.Reserved);
         await SeedReservation(1, ReservationState.Released);
@@ -127,6 +128,10 @@ public class StockReservationServiceTests : IDisposable
         var otherReservation = await _dbContext.Set<StockReservation>()
             .FirstAsync(r => r.OrderId == otherOrderId, ct);
         otherReservation.State.Should().Be(ReservationState.Reserved);
+
+        var stockItem = await _dbContext.Set<StockItem>()
+            .FirstAsync(si => si.VariantId == _variantId && si.StockLocationId == _stockLocationId, ct);
+        stockItem.CountOnHand.Should().Be(17);
     }
 
     [Fact(DisplayName = "ReleaseReservationsAsync: Should handle empty reservations list")]
@@ -169,6 +174,21 @@ public class StockReservationServiceTests : IDisposable
         await _service.ExpireReservationsAsync(ct);
         var fresh = await _dbContext.Set<StockReservation>().FirstAsync(r => r.Quantity == 1, ct);
         fresh.State.Should().Be(ReservationState.Reserved);
+    }
+
+    [Fact(DisplayName = "ExpireReservationsAsync: Should restore stock for expired reservations")]
+    public async Task ExpireReservationsAsync_ShouldRestoreStockForExpiredReservations()
+    {
+        var ct = TestContext.Current.CancellationToken;
+        await SeedStockItem(5);
+        await SeedReservation(3, ReservationState.Reserved, DateTimeOffset.UtcNow.AddMinutes(-5));
+
+        await _service.ExpireReservationsAsync(ct);
+        await _dbContext.SaveChangesAsync(ct);
+
+        var stockItem = await _dbContext.Set<StockItem>()
+            .FirstAsync(si => si.VariantId == _variantId && si.StockLocationId == _stockLocationId, ct);
+        stockItem.CountOnHand.Should().Be(8);
     }
 
     #endregion

@@ -1,5 +1,3 @@
-using Module.Webhooks.Features.Shared;
-
 namespace Module.Webhooks.Features.Admin.Subscriptions.Delete;
 
 public static partial class DeleteWebhookSubscription
@@ -18,7 +16,7 @@ public static partial class DeleteWebhookSubscription
                 return result.ToResult();
             })
             .WithName(nameof(DeleteWebhookSubscription))
-            .WithTags(WebhooksFeature.Tags.Webhook)
+            .WithTags(WebhooksFeature.Tags.Subscription)
             .WithSummary(WebhooksFeature.Admin.Subscriptions.Delete.Summary)
             .WithDescription(WebhooksFeature.Admin.Subscriptions.Delete.Description)
             .Produces<Result>()

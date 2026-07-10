@@ -1,5 +1,3 @@
-using Module.Webhooks.Features.Shared;
-
 namespace Module.Webhooks.Features.Admin.Subscriptions.Create;
 
 public static partial class CreateWebhookSubscription
@@ -18,7 +16,7 @@ public static partial class CreateWebhookSubscription
                 return result.ToResult();
             })
             .WithName(nameof(CreateWebhookSubscription))
-            .WithTags(WebhooksFeature.Tags.Webhook)
+            .WithTags(WebhooksFeature.Tags.Subscription)
             .WithSummary(WebhooksFeature.Admin.Subscriptions.Create.Summary)
             .WithDescription(WebhooksFeature.Admin.Subscriptions.Create.Description)
             .Produces<Result<Response>>()

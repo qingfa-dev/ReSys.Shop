@@ -1,5 +1,3 @@
-using Module.Webhooks.Features.Shared;
-
 namespace Module.Webhooks.Features.Admin.Subscriptions.Get.Paged;
 
 public static partial class GetWebhookSubscriptions
@@ -8,7 +6,7 @@ public static partial class GetWebhookSubscriptions
     {
         public void AddRoutes(IEndpointRouteBuilder app)
         {
-            app.MapGet(WebhooksFeature.Admin.Subscriptions.GetAll.Route, async (
+            app.MapGet(WebhooksFeature.Admin.Subscriptions.GetPaged.Route, async (
                 [AsParameters] QueryingParameters parameters,
                 ISender sender,
                 CancellationToken ct) =>
@@ -18,9 +16,9 @@ public static partial class GetWebhookSubscriptions
                 return result.ToPagedResult();
             })
             .WithName(nameof(GetWebhookSubscriptions))
-            .WithTags(WebhooksFeature.Tags.Webhook)
-            .WithSummary(WebhooksFeature.Admin.Subscriptions.GetAll.Summary)
-            .WithDescription(WebhooksFeature.Admin.Subscriptions.GetAll.Description)
+            .WithTags(WebhooksFeature.Tags.Subscription)
+            .WithSummary(WebhooksFeature.Admin.Subscriptions.GetPaged.Summary)
+            .WithDescription(WebhooksFeature.Admin.Subscriptions.GetPaged.Description)
             .Produces<PagedResult<Response>>();
         }
     }
