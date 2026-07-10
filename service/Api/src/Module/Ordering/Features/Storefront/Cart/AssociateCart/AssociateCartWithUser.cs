@@ -58,7 +58,7 @@ public static partial class AssociateCartWithUser
             targetOrder.RecalculateTotals();
             await dbContext.SaveChangesAsync(cancellationToken);
 
-            return new Response { Id = targetOrder.Id, ItemCount = targetOrder.LineItems.Count };
+            return new Response { Id = targetOrder.Id, ItemCount = targetOrder.ItemCount };
         }
     }
 }

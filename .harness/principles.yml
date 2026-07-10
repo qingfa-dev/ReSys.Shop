@@ -1,0 +1,171 @@
+version: "1.0"
+
+principles:
+  - id: result-not-exceptions
+    name: Result objects for domain operations, not exceptions
+    description: >
+      All domain operations return `Result<T>` or `Result`. Exceptions are only
+      for unrecoverable infrastructure failures (DB connection loss, disk full).
+    rationale: >
+      Agents replicate error-handling patterns they find. Scattered try/catch
+      makes behavior unpredictable. Explicit `Result` types force callers to
+      handle failure paths, making the code self-documenting about what can fail.
+    enforcement: lint
+    severity: error
+    examples:
+      good: |
+        public async Task<Result<Product>> CreateAsync(CreateProduct.Command command, CancellationToken ct)
+        {
+            if (await dbContext.Products.AnyAsync(p => p.Slug == command.Request.Slug, ct))
+                return ProductResult.Errors.DuplicateSlug;
+            // ...
+            return Result.Created(product);
+        }
+      bad: |
+        public async Task<Product> CreateAsync(CreateProduct.Command command, CancellationToken ct)
+        {
+            if (await dbContext.Products.AnyAsync(p => p.Slug == command.Request.Slug, ct))
+                throw new DuplicateSlugException(command.Request.Slug);
+            // ...
+            return product;
+        }
+
+  - id: vertical-slice-isolation
+    name: Modules never reference each other
+    description: >
+      All 9 business modules live in one `Module` assembly but must not
+      cross-reference by namespace. Cross-module communication via MediatR
+      `ISender` only.
+    rationale: >
+      Without this rule, agents produce entangled modules that can't be extracted.
+      `ISender` keeps coupling explicit and traceable — agents can find all
+      cross-module calls by searching for `ISender.Send`.
+    enforcement: test
+    severity: error
+    examples:
+      good: |
+        // In Ordering handler, dispatch to Inventory via ISender
+        var result = await sender.Send(new ReserveStockCommand(item.ProductId, item.Quantity), ct);
+      bad: |
+        // In Ordering handler, import Inventory namespace directly
+        using Module.Inventory.Features.Admin.StockItems.Reserve;
+        var result = await new ReserveStockHandler(dbContext, logger).Handle(command, ct);
+
+  - id: cqrs-handler-discipline
+    name: Every feature action is a complete CQRS vertical slice
+    description: >
+      Each feature action is a `static partial class` with exactly 5 files:
+      Handler (command/query + handler), Request (input DTO), Response (output DTO),
+      Endpoint (Carter route), Validator (FluentValidation rules).
+    rationale: >
+      Agents follow patterns they can see. A consistent 5-file structure makes
+      it obvious where new code goes. Partial classes keep the handler focused
+      on orchestration, separate from routing concerns.
+    enforcement: review
+    severity: warning
+    examples:
+      good: |
+        Features/Admin/Products/Create/
+          CreateProduct.cs          — Command + Handler
+          CreateProduct.Request.cs   — Input DTO
+          CreateProduct.Response.cs  — Output DTO
+          CreateProduct.Endpoint.cs  — Carter route mapping
+          CreateProduct.Validator.cs — FluentValidation rules
+      bad: |
+        Features/Admin/Products/Create.cs  — everything in one file
+
+  - id: warnings-as-errors
+    name: Every build warning is an error
+    description: >
+      `TreatWarningsAsErrors=true` is set globally. No warning is tolerated at
+      build time — including XML doc comment warnings, naming rule violations,
+      and nullable reference type warnings.
+    rationale: >
+      Agents produce warnings at scale. Without this rule, warnings accumulate
+      silently until the build is effectively unreadable. Enforcing errors makes
+      every warning visible and fixable immediately.
+    enforcement: lint
+    severity: error
+    examples:
+      good: dotnet build  # passes cleanly
+      bad: dotnet build  # produces warnings (they fail)
+
+  - id: forward-only-dependency
+    name: Dependencies flow forward only — Shared → nothing, Module → Shared, Api → Both
+    description: >
+      `Shared` depends on nothing inside `service/`. `Module` depends only on
+      `Shared`. `Api` depends on `Module`, `Shared`, and `Migrations`.
+      No circular or backward references.
+    rationale: >
+      Forward-only dependencies let agents reason about impact without tracing
+      cycles. A change in Shared affects everything downstream predictably.
+    enforcement: test
+    severity: error
+    examples:
+      good: |
+        Api.csproj → Shared.csproj, Module.csproj, Migrations.csproj
+        Module.csproj → Shared.csproj
+        Shared.csproj → ReSys.ServiceDefaults.csproj (Aspire, outside service/)
+      bad: |
+        Shared.csproj → Module.csproj  (backward reference)
+
+  - id: snake-case-db
+    name: All database objects use snake_case naming
+    description: >
+      EF Core entities are configured with `EFCore.NamingConventions` for
+      snake_case table and column names. Enum values stored as strings.
+      DateTime properties stored as UTC.
+    rationale: >
+      Agents querying the database directly need consistent naming. Mixing
+      PascalCase, camelCase, and snake_case makes ad-hoc queries unreliable.
+    enforcement: lint
+    severity: error
+    examples:
+      good: |
+        // Configured in ApplicationDbContext via UseSnakeCaseNamingConvention
+        // Table: "catalog_products", Column: "created_at_utc"
+      bad: |
+        // Table: "Products", Column: "CreatedAtUtc"
+
+  - id: domain-entity-behavior
+    name: Domain entities own their behavior, not just data
+    description: >
+      Entity classes contain domain methods, validation rules, and factory
+      methods — organized as partial class files per concern (`.Method.cs`,
+      `.Validation.cs`, `.Result.cs`, `.Constant.cs`, `.Loggers.cs`).
+    rationale: >
+      Anemic entities (data-only) push logic into services, scattering domain
+      rules. The partial-class pattern makes each concern discoverable while
+      keeping the entity as a single conceptual unit.
+    enforcement: review
+    severity: warning
+    examples:
+      good: |
+        Domain/Product/
+          Product.cs            — entity class
+          Product.Method.cs     — Update(), Delete(deletedBy), Activate()
+          Product.Validation.cs — domain invariants
+          Product.Result.cs     — ProductResult.Errors factory
+          Product.Constant.cs   — defaults
+          Product.Loggers.cs    — LoggerMessage delegates
+      bad: |
+        Domain/Product.cs  — 500-line file mixing data, methods, validation
+
+  - id: structured-logging
+    name: All operational logging uses structured loggers, not ad-hoc print
+    description: >
+      C# uses `ILogger<T>` with `[LoggerMessage]` source generators for
+      high-performance structured logging. Python uses the `logging` module
+      with structured formatters. No `Console.WriteLine`, `print()`,
+      or `console.log` for operational output.
+    rationale: >
+      Structured logs are queryable by agents via LogQL/PromQL. Ad-hoc print
+      creates blind spots — agents can't diagnose issues they can't query.
+    enforcement: lint
+    severity: error
+    examples:
+      good: |
+        [LoggerMessage(EventId = 1, Level = LogLevel.Information, Message = "Product {ProductId} created by {UserId}")]
+        static partial void LogProductCreated(ILogger logger, Guid productId, Guid userId);
+      bad: |
+        Console.WriteLine($"Product {productId} created");

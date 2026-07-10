@@ -1,0 +1,107 @@
+version: "1.0"
+
+naming:
+  files:
+    pattern: PascalCase
+    description: C# files follow PascalCase matching the type they contain
+    exceptions:
+      - AGENTS.md
+      - README.md
+      - Directory.Build.props
+      - Directory.Build.targets
+      - Directory.Packages.props
+      - global.json
+      - dotnet-tools.json
+      - .editorconfig
+      - .gitignore
+      - appsettings.json
+      - appsettings.*.json
+    violation_message: |
+      File "{{file}}" uses {{actual}} naming — should be PascalCase.
+      C# source files must match the type they declare.
+      Fix: rename to {{expected}}.
+      See: .harness/enforcement.yml
+  feature_files:
+    pattern: "{Action}{Feature}.{Role}.cs"
+    description: C# vertical slice files follow Action+Feature+Role naming
+    examples:
+      - CreateProduct.cs        # Command + Handler
+      - CreateProduct.Request.cs
+      - CreateProduct.Response.cs
+      - CreateProduct.Endpoint.cs
+      - CreateProduct.Validator.cs
+    violation_message: |
+      File "{{file}}" does not match the vertical slice naming pattern.
+      Feature action files must be: {Action}{Feature}.{Role}.cs
+      Example: CreateProduct.Request.cs, DeleteProduct.Endpoint.cs
+      Fix: rename file to match the pattern.
+      See: .harness/principles.yml#cqrs-handler-discipline
+  private_fields:
+    pattern: _camelCase
+    description: C# private fields prefixed with underscore
+    violation_message: |
+      Field "{{field}}" in "{{file}}" uses {{actual}} naming.
+      C# private fields must be _camelCase (e.g., _dbContext, _logger).
+      Fix: rename to _{{camelCase}}.
+      See: .editorconfig (dotnet_naming_rule.private_fields)
+
+file_limits:
+  max_lines: 800
+  max_lines_warning: 500
+  description: Files exceeding 800 lines are candidates for splitting
+  violation_message: |
+    File "{{file}}" has {{actual}} lines (limit: {{limit}}).
+    Large files reduce agent effectiveness by exceeding context windows.
+    Fix: split into smaller files grouped by concern.
+    See: .harness/enforcement.yml#file_limits
+  exempt_patterns:
+    - "*.Designer.cs"
+    - "*.g.cs"
+    - "*.g.i.cs"
+    - "DbContextModelSnapshot.cs"
+
+logging:
+  style: structured
+  required_fields:
+    - level
+    - message
+    - timestamp
+  prohibited_patterns:
+    - Console.WriteLine
+    - Console.Write
+    - print(
+    - console.log(
+  violation_message: |
+    File "{{file}}" uses {{pattern}} for operational logging.
+    Ad-hoc print statements create observability blind spots.
+    Fix: use ILogger<T> with [LoggerMessage] in C#, or the project's structured
+    logging utility in Python.
+    See: .harness/principles.yml#structured-logging
+
+imports:
+  boundary_check: true
+  description: Modules must not cross-reference; shared code lives in Shared/
+  violation_message: |
+    Boundary violation — {{source_file}} imports from {{target_file}}.
+    Modules must not reference each other. Cross-module communication must go
+    through MediatR ISender.
+    Fix: remove the direct reference and use ISender.Send() to dispatch to the
+    target module's handler.
+    See: .harness/principles.yml#vertical-slice-isolation
+  banned_patterns:
+    - "../../**/internal"
+  module_cross_reference_patterns:
+    - "using Module\\.(Catalog|Identity|Inventory|Location|Ordering|Payment|Profile|Shipping|Webhooks)\\.(?!Shared)"
+
+testing:
+  boundary_testing_required: true
+  min_coverage_new_code: 80
+  naming_pattern: "*.Tests.cs"
+  co_located: false
+  description: Tests live in service/Api/tests/ not alongside source
+  violation_message: |
+    Test "{{file}}" does not follow naming convention.
+    C# test files should use *.Tests.cs pattern and live under
+    service/Api/tests/{ProjectName}/.
+    Fix: rename or relocate the test file.
+    See: docs/codebase/TESTING.md

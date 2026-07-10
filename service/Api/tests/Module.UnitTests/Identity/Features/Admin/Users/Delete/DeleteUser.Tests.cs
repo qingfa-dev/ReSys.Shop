@@ -30,6 +30,7 @@ public class DeleteUserTests : IDisposable
         _userManagerMock = IdentityMocks.CreateUserManagerMock<User>();
         _currentUserMock = new Mock<ICurrentUser>();
         _currentUserMock.Setup(x => x.UserName).Returns("admin");
+        _currentUserMock.Setup(x => x.UserId).Returns("A0000000-0000-0000-0000-000000000000");
 
         return new DeleteUser.CommandHandler(
             _userManagerMock.Object,

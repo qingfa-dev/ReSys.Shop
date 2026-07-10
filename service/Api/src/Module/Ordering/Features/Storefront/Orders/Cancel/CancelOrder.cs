@@ -50,7 +50,7 @@ namespace Module.Ordering.Features.Storefront.Orders.Cancel;
             if (entity.Status == OrderStatus.Canceled)
                 return OrderResult.Errors.AlreadyCanceled;
 
-            var wasPlaced = entity.Status == OrderStatus.Placed;
+            var wasPlaced = entity.Status == OrderStatus.Placed && entity.CompletedAtUtc.HasValue;
 
             entity.Status = OrderStatus.Canceled;
             // Update: Modify entity properties.

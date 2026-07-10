@@ -63,6 +63,7 @@ public class StockReservationServiceTests : IDisposable
     public async Task ReserveAsync_ShouldCreateReservation_WithCorrectProperties()
     {
         var ct = TestContext.Current.CancellationToken;
+        await SeedStockItem(10);
         var result = await _service.ReserveAsync(_variantId, 3, _stockLocationId, _orderId, cancellationToken: ct);
 
         result.IsSuccess.Should().BeTrue();
@@ -91,6 +92,7 @@ public class StockReservationServiceTests : IDisposable
     public async Task ReserveAsync_ShouldUseDefaultTtl()
     {
         var ct = TestContext.Current.CancellationToken;
+        await SeedStockItem(10);
         var result = await _service.ReserveAsync(_variantId, 1, _stockLocationId, _orderId, cancellationToken: ct);
 
         result.IsSuccess.Should().BeTrue();
