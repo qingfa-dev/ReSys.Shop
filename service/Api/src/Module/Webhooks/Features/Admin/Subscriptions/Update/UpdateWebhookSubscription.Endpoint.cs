@@ -16,6 +16,7 @@ public static partial class UpdateWebhookSubscription
                 var result = await sender.Send(command, ct);
                 return result.ToResult();
             })
+            .HasPermission(WebhooksFeature.Admin.Subscriptions.Update.Permission)
             .WithName(nameof(UpdateWebhookSubscription))
             .WithTags(WebhooksFeature.Tags.Subscription)
             .WithSummary(WebhooksFeature.Admin.Subscriptions.Update.Summary)

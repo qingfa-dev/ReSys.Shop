@@ -15,6 +15,7 @@ public static partial class GetWebhookSubscriptionById
                 var result = await sender.Send(query, ct);
                 return result.ToResult();
             })
+            .HasPermission(WebhooksFeature.Admin.Subscriptions.GetById.Permission)
             .WithName(nameof(GetWebhookSubscriptionById))
             .WithTags(WebhooksFeature.Tags.Subscription)
             .WithSummary(WebhooksFeature.Admin.Subscriptions.GetById.Summary)

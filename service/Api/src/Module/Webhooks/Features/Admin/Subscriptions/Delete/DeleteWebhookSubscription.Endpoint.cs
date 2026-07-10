@@ -15,6 +15,7 @@ public static partial class DeleteWebhookSubscription
                 var result = await sender.Send(command, ct);
                 return result.ToResult();
             })
+            .HasPermission(WebhooksFeature.Admin.Subscriptions.Delete.Permission)
             .WithName(nameof(DeleteWebhookSubscription))
             .WithTags(WebhooksFeature.Tags.Subscription)
             .WithSummary(WebhooksFeature.Admin.Subscriptions.Delete.Summary)
