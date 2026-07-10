@@ -53,9 +53,11 @@ public partial class OrderMerger
         if (currentLineItem is not null)
         {
             currentLineItem.Quantity += otherLineItem.Quantity;
+            currentLineItem.Total = currentLineItem.Price * currentLineItem.Quantity;
         }
         else
         {
+            otherLineItem.OrderId = Order.Id;
             Order.LineItems.Add(otherLineItem);
         }
     }

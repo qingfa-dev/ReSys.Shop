@@ -52,16 +52,6 @@ public class CartReservationService(IApplicationDbContext dbContext) : ICartRese
 
         foreach (var r in reservations)
         {
-            if (r.StockLocationId.HasValue)
-            {
-                var stockItem = await _dbContext.Set<StockItem>()
-                    .FirstOrDefaultAsync(si => si.VariantId == r.VariantId
-                        && si.StockLocationId == r.StockLocationId, cancellationToken);
-
-                if (stockItem is not null)
-                    stockItem.CountOnHand += r.Quantity;
-            }
-
             r.State = ReservationState.Released;
             r.ModifiedAtUtc = DateTimeOffset.UtcNow;
         }

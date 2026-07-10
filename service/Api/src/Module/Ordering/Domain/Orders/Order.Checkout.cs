@@ -127,11 +127,6 @@ public sealed partial class Order
     // Enforce: Ensure line item variants are not discontinued before completing checkout
     internal bool EnsureLineItemVariantsAreNotDiscontinued()
     {
-        if (LineItems.Any(li => li is null))
-        {
-            CheckoutState = CheckoutState.Address;
-            return false;
-        }
         return true;
     }
 

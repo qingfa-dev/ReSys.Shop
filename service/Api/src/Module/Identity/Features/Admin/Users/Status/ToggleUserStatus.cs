@@ -28,6 +28,12 @@ public static partial class ToggleUserStatus
         public async Task<Result> Handle(Command command, CancellationToken cancellationToken)
         {
             // Check: Find the user by its unique identifier.
+            if (!Guid.TryParse(currentUser.UserId, out var currentUserId))
+                return UserResult.Failure.Unauthorized;
+
+            if (command.Id == currentUserId)
+                return Error.Forbidden("User.Status.Self", "Cannot toggle your own account status.");
+
             var user = await userManager.FindByIdAsync(command.Id.ToString());
             if (user is null)
                 return UserResult.Failure.NotFound;

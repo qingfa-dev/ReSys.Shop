@@ -36,7 +36,7 @@ namespace Module.Ordering.Features.Storefront.Orders.Cancel;
         // Contract: pre=command!=null, post=result!=null
             // Check: Resolve current user identifier.
             if (!Guid.TryParse(currentUser.UserId, out var userId))
-                return OrderResult.Errors.NotFound(command.Id);
+                return OrderResult.Errors.UserNotAuthenticated;
 
             // Check: Find the existing order scoped to current user.
             var entity = await dbContext.Set<Order>()
@@ -50,7 +50,8 @@ namespace Module.Ordering.Features.Storefront.Orders.Cancel;
             if (entity.Status == OrderStatus.Canceled)
                 return OrderResult.Errors.AlreadyCanceled;
 
-            // Update: Transition order to Canceled.
+            var wasPlaced = entity.Status == OrderStatus.Placed;
+
             entity.Status = OrderStatus.Canceled;
             // Update: Modify entity properties.
             entity.CanceledAtUtc = DateTimeOffset.UtcNow;
@@ -75,11 +76,15 @@ namespace Module.Ordering.Features.Storefront.Orders.Cancel;
                     PaymentId = payment.Number,
                     IdempotencyKey = $"spree-{payment.Number}"
                 };
-                await payment.VoidTransactionAsync(paymentGateway, options, cancellationToken: cancellationToken);
+                var voidResult = await payment.VoidTransactionAsync(paymentGateway, options, cancellationToken: cancellationToken);
+                if (voidResult.IsFailure)
+                {
+                    logger.LogWarning("Failed to void payment {PaymentId} for order {OrderId}: {Errors}",
+                        payment.Id, entity.Id, string.Join("; ", voidResult.Errors.Select(f => f.Description)));
+                }
             }
 
-            // Restore: Restore stock for each line item on cancellation.
-            if (entity.CompletedAtUtc.HasValue)
+            if (wasPlaced)
             {
                 foreach (var lineItem in entity.LineItems)
                 {

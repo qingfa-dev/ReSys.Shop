@@ -21,16 +21,17 @@ namespace Module.Ordering.Features.Storefront.Cart.EmptyCart;
 
         // Contract: pre=command!=null, post=result!=null
             if (!Guid.TryParse(currentUser.UserId, out var userId))
-                return Result.Ok();
+                return OrderResult.Errors.UserNotAuthenticated;
 
             // Query: Retrieve data from database.
             var cart = await dbContext.Set<Order>()
                 .Include(x => x.LineItems)
+                .Include(x => x.Adjustments)
                 .Where(x => x.UserId == userId && x.Status == OrderStatus.Draft)
                 .FirstOrDefaultAsync(cancellationToken);
 
             if (cart is null)
-                return Result.Ok();
+                return OrderResult.Errors.NotFound(Guid.Empty);
 
             // Update: Clear entity contents.
             var result = cart.Empty();

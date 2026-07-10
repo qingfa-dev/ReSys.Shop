@@ -258,12 +258,12 @@ public static class PaymentFactory
     /// <param name="payment">The payment to check.</param>
     /// <param name="amount">The amount to refund. Must be positive and not exceed the payment amount.</param>
     /// <returns>True if the payment is completed and the refund amount is valid.</returns>
-    // Compute: Refund is allowed only when payment is Completed and amount is positive and within authorized amount
+    // Compute: Refund is allowed only when Payment is Completed and amount is within remaining refundable
     public static bool CanRefund(this PaymentRecord payment, decimal amount)
     {
         return payment.State is PaymentRecordState.Completed
             && amount > 0
-            && amount <= payment.Amount;
+            && (payment.Amount - payment.RefundedAmount) >= amount;
     }
 
     /// <summary>
@@ -283,6 +283,7 @@ public static class PaymentFactory
             return PaymentResult.Failure.AmountExceedsAuthorized;
         }
 
+        payment.RefundedAmount += amount;
         payment.ModifiedAtUtc = DateTimeOffset.UtcNow;
         return Result.Ok(PaymentResult.Success.Credited(payment.Number, amount));
     }
@@ -375,6 +376,7 @@ public static class PaymentFactory
         var result = await PaymentProcessing.CreditAsync(payment, gateway, options, amount, cancellationToken).ConfigureAwait(false);
         if (result.IsSuccess)
         {
+            payment.RefundedAmount += amount;
             payment.ModifiedAtUtc = DateTimeOffset.UtcNow;
         }
 

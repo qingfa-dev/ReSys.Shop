@@ -18,20 +18,16 @@ public static partial class UpdateProfile
     /// <summary>
     /// Handles the <see cref="Command"/> to update profile fields and synchronize UserProfile.
     /// </summary>
-    public sealed class CommandHandler(IApplicationDbContext dbContext)
+    public sealed class CommandHandler(IApplicationDbContext dbContext, ICurrentUser currentUser)
         : ICommandHandler<Command, Response>
     {
-        /// <summary>
-        /// Handles the update of profile fields on the identity User
-        /// and synchronizes changes to the associated UserProfile entity.
-        /// </summary>
-        /// <param name="command">The command containing updated profile data.</param>
-        /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns>A result containing updated profile details with change-tracking flags or an error.</returns>
         public async Task<Result<Response>> Handle(Command command, CancellationToken cancellationToken)
         {
             var request = command.Request;
             var userId = command.UserId;
+
+            if (!Guid.TryParse(currentUser.UserId, out var currentUserId) || userId != currentUserId)
+                return UserProfileResult.Failure.AuthRequired;
 
             var profile = await dbContext.Set<UserProfile>()
                 .FirstOrDefaultAsync(p => p.UserId == userId, cancellationToken);

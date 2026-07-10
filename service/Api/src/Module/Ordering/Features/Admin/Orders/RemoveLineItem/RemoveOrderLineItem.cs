@@ -14,16 +14,15 @@ namespace Module.Ordering.Features.Admin.Orders.RemoveLineItem;
         /// <returns>The result of handling the command.</returns>
         public async Task<Result> Handle(Command command, CancellationToken cancellationToken)
         {
-
-        // Contract: pre=command!=null, post=result!=null
             var lineItem = await dbContext.Set<LineItem>().FirstOrDefaultAsync(li => li.Id == command.LineItemId && li.OrderId == command.OrderId, cancellationToken);
             if (lineItem is null) return LineItemResult.Errors.NotFound(command.LineItemId);
+
+            var order = await dbContext.Set<Order>().FirstOrDefaultAsync(o => o.Id == command.OrderId, cancellationToken);
+            if (order is null) return OrderResult.Errors.NotFound(command.OrderId);
+            if (order.Status != OrderStatus.Draft) return Error.Validation("Order.RemoveLineItem.InvalidStatus", "Line items can only be removed from Draft orders.");
             // Remove: Delete entity from database.
             dbContext.Set<LineItem>().Remove(lineItem);
-            // Query: Retrieve data from database.
-            var order = await dbContext.Set<Order>().FirstOrDefaultAsync(o => o.Id == command.OrderId, cancellationToken);
-            if (order is not null) order.RecalculateTotals();
-            // Persist: Save changes to the database.
+            order.RecalculateTotals();
             await dbContext.SaveChangesAsync(cancellationToken);
             return Result.Ok();
         }

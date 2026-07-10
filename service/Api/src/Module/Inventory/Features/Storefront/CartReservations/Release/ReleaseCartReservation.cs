@@ -1,5 +1,4 @@
 using Module.Inventory.Domain.StockReservations;
-using Module.Inventory.Domain.StockLocations.StockItems;
 
 namespace Module.Inventory.Features.Storefront.CartReservations.Release;
 
@@ -24,16 +23,6 @@ public static partial class ReleaseCartReservation
             reservation.State = ReservationState.Released;
             reservation.ExpiresAtUtc = DateTimeOffset.UtcNow;
             reservation.ModifiedAtUtc = DateTimeOffset.UtcNow;
-
-            if (reservation.StockLocationId.HasValue)
-            {
-                var stockItem = await dbContext.Set<StockItem>()
-                    .FirstOrDefaultAsync(s => s.VariantId == reservation.VariantId
-                        && s.StockLocationId == reservation.StockLocationId, cancellationToken);
-
-                if (stockItem is not null)
-                    stockItem.CountOnHand += reservation.Quantity;
-            }
 
             await dbContext.SaveChangesAsync(cancellationToken);
 

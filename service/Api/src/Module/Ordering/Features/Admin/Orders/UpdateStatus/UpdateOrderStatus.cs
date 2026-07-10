@@ -40,7 +40,7 @@ namespace Module.Ordering.Features.Admin.Orders.UpdateStatus;
                     // Update: Modify entity properties.
                     entity.CompletedAtUtc = DateTimeOffset.UtcNow;
                     break;
-                case OrderStatus.Canceled:
+                case OrderStatus.Canceled when entity.Status != OrderStatus.Canceled:
                     // Update: Modify entity properties.
                     entity.Status = OrderStatus.Canceled;
                     // Update: Modify entity properties.

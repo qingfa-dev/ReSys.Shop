@@ -35,7 +35,12 @@ public static partial class DeleteUser
         {
             var request = command.Request;
 
-            // Check: Find the user by its unique identifier.
+            if (!Guid.TryParse(currentUser.UserId, out var currentUserId))
+                return UserResult.Failure.Unauthorized;
+
+            if (request.Id == currentUserId)
+                return Error.Forbidden("User.Delete.Self", "Cannot delete your own account.");
+
             var user = await userManager.FindByIdAsync(request.Id.ToString());
             if (user is null)
                 return UserResult.Failure.NotFound;

@@ -27,6 +27,7 @@ namespace Module.Ordering.Features.Storefront.Cart.ValidateCheckout;
             var cart = await dbContext.Set<Order>()
                 .Include(x => x.LineItems)
                 .Where(x => x.UserId == userId && x.Status == OrderStatus.Draft)
+                .AsNoTracking()
                 .FirstOrDefaultAsync(cancellationToken);
 
             if (cart is null)

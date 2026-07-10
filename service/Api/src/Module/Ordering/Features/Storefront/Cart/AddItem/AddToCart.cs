@@ -73,6 +73,8 @@ namespace Module.Ordering.Features.Storefront.Cart.AddItem;
             var existingLine = cart.LineItems.FirstOrDefault(li => li.VariantId == request.VariantId);
             if (existingLine is not null)
             {
+                if (existingLine.Quantity + request.Quantity > LineItemConstant.MaxQuantity)
+                    return LineItemResult.Errors.QuantityExceedsMax;
                 existingLine.Quantity += request.Quantity;
                 existingLine.Total = existingLine.Price * existingLine.Quantity;
                 cart.RecalculateTotals();
@@ -82,33 +84,25 @@ namespace Module.Ordering.Features.Storefront.Cart.AddItem;
             }
 
             // Create: Add new line item.
-            var lineItem = new LineItem
-            {
-                Id = Guid.NewGuid(),
-                OrderId = cart.Id,
-                VariantId = request.VariantId,
-                Quantity = request.Quantity,
-                Price = variant.Price ?? 0,
-                Total = (variant.Price ?? 0) * request.Quantity,
-                Currency = "USD",
-                CreatedAtUtc = DateTimeOffset.UtcNow,
-                CreatedBy = currentUser.UserName
-            };
+            var lineItem = LineItemMethod.Create(cart.Id, request.VariantId, request.Quantity, variant.Price ?? 0);
+            if (lineItem.IsFailure)
+                return lineItem.Errors;
+
+            var newItem = lineItem.Value;
 
             // Create: Persist new entity.
-            dbContext.Set<LineItem>().Add(lineItem);
+            dbContext.Set<LineItem>().Add(newItem);
             cart.RecalculateTotals();
 
             // Persist: Save changes to the database.
             await dbContext.SaveChangesAsync(cancellationToken);
 
             // Log: Record operation outcome.
-            LineItemLoggers.Created(logger, Id: lineItem.Id, OrderId: cart.Id, VariantId: request.VariantId, ActionBy: currentUser.UserName);
+            LineItemLoggers.Created(logger, Id: newItem.Id, OrderId: cart.Id, VariantId: request.VariantId, ActionBy: currentUser.UserName);
 
-            // Map: Return mapped result.
             return Result<Response>.Created(
-                new Response { LineItemId = lineItem.Id },
-                LineItemResult.Success.Created(lineItem.Id));
+                new Response { LineItemId = newItem.Id },
+                LineItemResult.Success.Created(newItem.Id));
         }
     }
 }

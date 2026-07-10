@@ -20,6 +20,7 @@ public sealed partial class PaymentRecord : Entity, IAuditable
     public string? CvvResponseMessage { get; set; }
     public string? IntentClientSecret { get; set; }
     public bool CaptureEventCreated { get; set; }
+    public decimal RefundedAmount { get; set; }
     #endregion Properties
 
     #region Identifiers

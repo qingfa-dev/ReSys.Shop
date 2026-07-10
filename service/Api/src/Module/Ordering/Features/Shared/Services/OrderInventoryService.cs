@@ -41,26 +41,8 @@ public partial class OrderInventoryService
     public async Task VerifyAsync(CancellationToken cancellationToken = default)
     {
         if (!Order.CompletedAtUtc.HasValue) return;
-
-        var unitsCount = LineItem.Quantity;
-
-        if (unitsCount < LineItem.Quantity)
-        {
-            var quantity = LineItem.Quantity - unitsCount;
-            await AddToShipmentAsync(quantity, cancellationToken);
-        }
-        else if (unitsCount > LineItem.Quantity)
-        {
-            await RemoveAsync(unitsCount, cancellationToken);
-        }
     }
 
-    /// <summary>
-    /// Decrements stock for a line item when it is shipped.
-    /// </summary>
-    /// <param name="quantity">The quantity to decrement.</param>
-    /// <param name="cancellationToken">The cancellation token.</param>
-    // @CAT-2 Update: Decrement stock via StockChecker and create audit trail
     public async ValueTask AddToShipmentAsync(int quantity, CancellationToken cancellationToken = default)
     {
         // Determine stock location — use order's stock location or default first available

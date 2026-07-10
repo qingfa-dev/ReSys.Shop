@@ -2,25 +2,21 @@ using Module.Payment.Domain.Payments;
 
 namespace Module.Payment.Features.Storefront.Payment.Confirm;
 
-    /// <summary>Handles ConfirmPayment feature.</summary>
-    public static partial class ConfirmPayment
+public static partial class ConfirmPayment
 {
     public sealed record Command(Guid PaymentId) : ICommand<Response>;
 
-    public sealed class CommandHandler(IApplicationDbContext dbContext)
+    public sealed class CommandHandler(IApplicationDbContext dbContext, ICurrentUser currentUser)
         : ICommandHandler<Command, Response>
     {
-        /// <summary>Handles the command.</summary>
-        /// <param name="command">The command to handle.</param>
-        /// <param name="cancellationToken">Cancellation token.</param>
-        /// <returns>The result of handling the command.</returns>
         public async Task<Result<Response>> Handle(Command command, CancellationToken cancellationToken)
         {
+            if (!Guid.TryParse(currentUser.UserId, out var userId))
+                return PaymentResult.Failure.NotFound;
 
-        // Contract: pre=command!=null, post=result!=null
-            // Query: Get payment by ID
             var payment = await dbContext.Set<PaymentRecord>()
-                .FirstOrDefaultAsync(p => p.Id == command.PaymentId, cancellationToken);
+                .Include(p => p.Order)
+                .FirstOrDefaultAsync(p => p.Id == command.PaymentId && p.Order.UserId == userId, cancellationToken);
 
             // Check: Verify the payment exists.
             if (payment is null)

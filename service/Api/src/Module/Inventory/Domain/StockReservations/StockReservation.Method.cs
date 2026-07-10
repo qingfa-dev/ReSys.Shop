@@ -20,6 +20,9 @@ public static class StockReservationMethod
         if (quantity <= 0)
             return StockReservationResult.Errors.QuantityZero;
 
+        if (ttlMinutes <= 0)
+            return StockReservationResult.Errors.TtlMustBePositive;
+
         // Create: Stock reservation with expiry
         var reservation = new StockReservation
         {

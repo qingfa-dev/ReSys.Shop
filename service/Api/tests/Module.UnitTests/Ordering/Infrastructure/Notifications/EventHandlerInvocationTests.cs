@@ -1,5 +1,7 @@
 using Module.Ordering.Domain.Orders;
 using Module.Ordering.Features.Admin.Orders.Cancel;
+using Module.Inventory.Services.Abstractions;
+using Module.Payment.Domain.Gateways;
 
 using Shared.Operational.Notifications.Models;
 using Shared.Operational.Notifications.Services;
@@ -59,7 +61,9 @@ public sealed class EventHandlerInvocationTests : IDisposable
             _dbContext,
             _currentUserMock.Object,
             _notificationServiceMock.Object,
-            _loggerMock.Object);
+            _loggerMock.Object,
+            new Mock<IPaymentGatewayActionProvider>().Object,
+            new Mock<IStockQuantityService>().Object);
 
         var result = await handler.Handle(
             new CancelOrderAdmin.Command(order.Id, new CancelOrderAdmin.Request { Reason = "test" }),
