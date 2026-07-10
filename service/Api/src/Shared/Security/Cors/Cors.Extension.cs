@@ -13,7 +13,7 @@ public static class CorsExtensions
 {
     private const string WildcardOrigin = "*";
 
-    public static WebApplicationBuilder AddCors(
+    public static WebApplicationBuilder AddSecurityCors(
         this WebApplicationBuilder builder)
     {
         builder.Services.AddSingleton<IValidator<CorsSetting>, CorsSettingValidator>();
@@ -63,7 +63,7 @@ public static class CorsExtensions
         return builder;
     }
 
-    public static WebApplication UseCors(this WebApplication app)
+    public static WebApplication UseSecurityCors(this WebApplication app)
     {
         app.UseCors();
         return app;

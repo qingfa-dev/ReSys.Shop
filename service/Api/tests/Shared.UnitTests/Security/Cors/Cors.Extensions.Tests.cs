@@ -30,7 +30,7 @@ public sealed class CorsExtensionsTests
     public void AddCors_ShouldRegisterCorsServices()
     {
         WebApplicationBuilder builder = CreateBuilderWithCors(new CorsSetting());
-        builder.AddCors();
+        builder.AddSecurityCors();
 
         using ServiceProvider provider =
             builder.Services.BuildServiceProvider();
@@ -44,7 +44,7 @@ public sealed class CorsExtensionsTests
     public async Task AddCors_ShouldAddDefaultPolicy()
     {
         WebApplicationBuilder builder = CreateBuilderWithCors(new CorsSetting());
-        builder.AddCors();
+        builder.AddSecurityCors();
 
         await using ServiceProvider provider =
             builder.Services.BuildServiceProvider();
@@ -69,7 +69,7 @@ public sealed class CorsExtensionsTests
     {
         WebApplicationBuilder builder = CreateBuilderWithCors(
             new CorsSetting { Origins = [origin] });
-        builder.AddCors();
+        builder.AddSecurityCors();
 
         await using ServiceProvider provider =
             builder.Services.BuildServiceProvider();
@@ -97,7 +97,7 @@ public sealed class CorsExtensionsTests
     {
         WebApplicationBuilder builder = CreateBuilderWithCors(
             new CorsSetting { Origins = ["https://example.com"], AllowCredentials = allowCredentials });
-        builder.AddCors();
+        builder.AddSecurityCors();
 
         await using ServiceProvider provider =
             builder.Services.BuildServiceProvider();
@@ -121,7 +121,7 @@ public sealed class CorsExtensionsTests
     {
         WebApplicationBuilder builder = CreateBuilderWithCors(
             new CorsSetting { Origins = ["*"] });
-        builder.AddCors();
+        builder.AddSecurityCors();
 
         await using ServiceProvider provider =
             builder.Services.BuildServiceProvider();
@@ -144,7 +144,7 @@ public sealed class CorsExtensionsTests
     {
         WebApplicationBuilder builder = CreateBuilderWithCors(
             new CorsSetting { Origins = ["*"], AllowCredentials = true });
-        builder.AddCors();
+        builder.AddSecurityCors();
 
         await using ServiceProvider provider =
             builder.Services.BuildServiceProvider();
