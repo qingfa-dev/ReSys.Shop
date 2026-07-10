@@ -62,7 +62,7 @@ public class AssociateCartWithUserTests : IDisposable
 
         // Assert
         result.IsSuccess.Should().BeTrue();
-        result.Value.ItemCount.Should().Be(2); // merged: 1 matching + 1 new
+        result.Value.ItemCount.Should().Be(6); // merged: qty 4 + qty 2
 
         var persistedUserCart = await _dbContext.Set<Order>()
             .Include(o => o.LineItems)

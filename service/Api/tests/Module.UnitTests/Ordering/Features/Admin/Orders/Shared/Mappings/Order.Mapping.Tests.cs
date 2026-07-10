@@ -58,6 +58,9 @@ public class OrderMappingTests
         response.ShipmentState.Should().Be(order.ShipmentState);
         response.UserId.Should().Be(order.UserId);
         response.StoreId.Should().Be(order.StoreId);
+        response.ItemCount.Should().Be(order.ItemCount);
+        response.ApprovedById.Should().Be(order.ApprovedById);
+        response.ApprovedAtUtc.Should().Be(order.ApprovedAtUtc);
         response.CompletedAtUtc.Should().Be(order.CompletedAtUtc);
         response.CanceledAtUtc.Should().Be(order.CanceledAtUtc);
         response.CreatedAtUtc.Should().Be(order.CreatedAtUtc);
@@ -72,6 +75,8 @@ public class OrderMappingTests
             o.CompletedAtUtc = null;
             o.CanceledAtUtc = null;
             o.ModifiedAtUtc = null;
+            o.ApprovedAtUtc = null;
+            o.ApprovedById = null;
         });
 
         var response = order.MapToDetail<OrderDetailResponse>();
@@ -79,6 +84,8 @@ public class OrderMappingTests
         response.CompletedAtUtc.Should().BeNull();
         response.CanceledAtUtc.Should().BeNull();
         response.ModifiedAtUtc.Should().BeNull();
+        response.ApprovedAtUtc.Should().BeNull();
+        response.ApprovedById.Should().BeNull();
     }
 
     [Fact(DisplayName = "ToListItem: Should map entity to list item response")]
@@ -144,6 +151,9 @@ public class OrderMappingTests
         order.ShipmentState = "pending";
         order.Status = OrderStatus.Placed;
         order.CheckoutState = CheckoutState.Complete;
+        order.ItemCount = 5;
+        order.ApprovedById = Guid.NewGuid();
+        order.ApprovedAtUtc = DateTimeOffset.UtcNow;
         order.CompletedAtUtc = DateTimeOffset.UtcNow;
         order.ModifiedAtUtc = DateTimeOffset.UtcNow;
         configure?.Invoke(order);

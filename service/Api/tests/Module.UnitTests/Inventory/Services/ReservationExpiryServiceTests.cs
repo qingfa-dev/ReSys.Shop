@@ -73,18 +73,27 @@ public class ReservationExpiryServiceTests : IDisposable
     [Fact(DisplayName = "ExecuteAsync: Should call ExpireReservationsAndRestoreStock with correct return value")]
     public async Task ExecuteAsync_ShouldCallExpireMethod_WhenExpiredCountReturned()
     {
-        var expireCount = 0;
+        var callCount = 0;
+        var secondCallSignal = new SemaphoreSlim(0);
         _stockCheckerMock
             .Setup(x => x.ExpireReservationsAndRestoreStockAsync(It.IsAny<CancellationToken>()))
-            .ReturnsAsync(() => ++expireCount <= 2 ? 3 : 0);
+            .ReturnsAsync(() =>
+            {
+                if (Interlocked.Increment(ref callCount) >= 2)
+                    secondCallSignal.Release();
+                return 3;
+            });
 
         using var cts = new CancellationTokenSource();
         var task = _service.StartAsync(cts.Token);
-        await Task.Delay(100, TestContext.Current.CancellationToken);
+
+        Assert.True(
+            await secondCallSignal.WaitAsync(TimeSpan.FromSeconds(5)),
+            "Service did not call ExpireReservationsAndRestoreStockAsync at least 2 times");
+
         cts.Cancel();
         await task;
 
-        // Verify ExpireReservationsAndRestoreStockAsync was called multiple times
         _stockCheckerMock.Verify(
             x => x.ExpireReservationsAndRestoreStockAsync(It.IsAny<CancellationToken>()),
             Times.AtLeast(2));
@@ -114,22 +123,27 @@ public class ReservationExpiryServiceTests : IDisposable
     public async Task ExecuteAsync_ShouldCatchException_AndContinueLoop()
     {
         var callCount = 0;
+        var secondCallSignal = new SemaphoreSlim(0);
         _stockCheckerMock
             .Setup(x => x.ExpireReservationsAndRestoreStockAsync(It.IsAny<CancellationToken>()))
             .ReturnsAsync(() =>
             {
-                callCount++;
-                if (callCount == 1) throw new InvalidOperationException("Test exception");
+                var count = Interlocked.Increment(ref callCount);
+                if (count == 1) throw new InvalidOperationException("Test exception");
+                if (count >= 2) secondCallSignal.Release();
                 return 0;
             });
 
         using var cts = new CancellationTokenSource();
         var task = _service.StartAsync(cts.Token);
-        await Task.Delay(100, TestContext.Current.CancellationToken);
+
+        Assert.True(
+            await secondCallSignal.WaitAsync(TimeSpan.FromSeconds(5)),
+            "Service did not call ExpireReservationsAndRestoreStockAsync at least 2 times");
+
         cts.Cancel();
         await task;
 
-        // Should have been called at least twice (first throws, second succeeds)
         _stockCheckerMock.Verify(
             x => x.ExpireReservationsAndRestoreStockAsync(It.IsAny<CancellationToken>()),
             Times.AtLeast(2));
