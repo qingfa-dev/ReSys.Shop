@@ -46,7 +46,7 @@ public static partial class CreateState
             await dbContext.SaveChangesAsync(cancellationToken: cancellationToken);
 
             // Map: Return the created state as response.
-            return state.MapToListItem<Response>();
+            return Result<Response>.Created(state.MapToListItem<Response>());
         }
     }
 }

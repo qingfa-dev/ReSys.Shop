@@ -40,7 +40,7 @@ public static partial class CreateCountry
             await dbContext.SaveChangesAsync(cancellationToken: cancellationToken);
 
             // Map: Return created country as response
-            return entity.MapToListItem<Response>();
+            return Result<Response>.Created(entity.MapToListItem<Response>());
         }
     }
 }

@@ -26,7 +26,7 @@ public sealed class CreateCountryIntegrationTests(ApiFixture fixture) : Location
         ApiResponse result = await response.ReadApiResponseAsync();
 
         result.IsSuccess.Should().BeTrue();
-        result.StatusCode.Should().Be(HttpStatusCode.OK);
+        result.StatusCode.Should().Be(HttpStatusCode.Created);
         CountryListItemResponse? value = result.DeserializeValue<CountryListItemResponse>();
         value.Should().NotBeNull();
         value!.Name.Should().Be("Test Country");

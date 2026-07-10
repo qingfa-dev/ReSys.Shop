@@ -82,7 +82,7 @@ public static partial class CreateAddress
             await dbContext.SaveChangesAsync(cancellationToken);
 
             // Map: Domain entity to response DTO
-            return address.ToResponse<Response>();
+            return Result<Response>.Created(address.ToResponse<Response>());
         }
     }
 }

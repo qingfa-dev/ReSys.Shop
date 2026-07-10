@@ -1,18 +1,11 @@
 using Module.Ordering.Domain.Orders;
+using Module.Ordering.Features.Admin.Orders.Shared.Mappings;
 
 namespace Module.Ordering.Features.Storefront.Cart.CreateCart;
 
 /// <summary>Creates a new shopping cart for the current user or as a guest cart.</summary>
 public static partial class CreateCart
 {
-    public class Response
-    {
-        public Guid Id { get; init; }
-        public string Number { get; init; } = string.Empty;
-        public string Currency { get; init; } = string.Empty;
-        public DateTimeOffset CreatedAtUtc { get; init; }
-    }
-
     public sealed record Command : ICommand<Response>;
 
     public sealed class CommandHandler(IApplicationDbContext dbContext, ICurrentUser currentUser) : ICommandHandler<Command, Response>
@@ -30,13 +23,7 @@ public static partial class CreateCart
             dbContext.Set<Order>().Add(order);
             await dbContext.SaveChangesAsync(cancellationToken);
 
-            return new Response
-            {
-                Id = order.Id,
-                Number = order.Number,
-                Currency = order.Currency,
-                CreatedAtUtc = order.CreatedAtUtc
-            };
+            return Result<Response>.Created(order.MapToDetail<Response>());
         }
     }
 }
