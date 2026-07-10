@@ -1,64 +1,72 @@
-# ReSys.Shop — AGENTS.md
+# ReSys.Shop — Agent Guide
 
-## Quick start
+ReSys.Shop is an e-commerce platform — a .NET 10 modular monolith with Vue 3 frontends
+and a Python ML sidecar. Agents work across C#, TypeScript, and Python; all service
+components start via Aspire orchestration. See `.harness/` for machine-readable
+domain boundaries, principles, and quality baselines.
+
+## Non-Negotiable Rules
+
+1. **Result objects, not exceptions** — all domain operations return `Result<T>` or `Result`. Exceptions only for unrecoverable infrastructure failures.
+2. **Modules never reference each other** — all 9 business modules live in one `Module` assembly but must not cross-reference. Communication via MediatR `ISender` only.
+3. **Vertical slice feature files** — every C# feature action is a `static partial class` split across files in `Features/{Admin|Storefront}/{Feature}/{Action}/`, each with Handler, Request, Response, Endpoint, Validator.
+4. **Warnings-as-errors** — `TreatWarningsAsErrors=true` globally. Any warning fails the build.
+5. **Forward-only dependency** — `Shared` depends on nothing within `service/`. `Module` depends only on `Shared`. `Api` composes both.
+
+## Repository Map
+
+- `.harness/domains.yml` — 9 business domains + infrastructure + UI domains with layer maps
+- `.harness/principles.yml` — golden principles with rationale and enforcement
+- `.harness/enforcement.yml` — naming, file limits, logging, import rules
+- `.harness/quality.yml` — per-domain quality scores (6 dimensions)
+- `docs/codebase/ARCHITECTURE.md` — detailed architecture, layer responsibilities, data flow
+- `docs/codebase/STACK.md` — full framework versions and toolchain
+- `docs/codebase/CONCERNS.md` — tech debt, risks, security concerns
+- `docs/codebase/CONVENTIONS.md` — coding conventions
+- `docs/codebase/TESTING.md` — testing strategy
+- `plan/` — 62 implementation plans (refactors, features, fixes)
+- `guide/code-commenting/CommentingRules.xml` — comment convention rules
+- `Directory.Packages.props` — central NuGet package versions
+
+## Tech Stack
+
+- .NET 10 (C# preview), Vue 3 + TypeScript 6, Python 3.14
+- EF Core + Npgsql + pgvector, Carter minimal APIs, MediatR CQRS, FluentValidation, Mapster
+- HybridCache + Redis, Hangfire, JWT + ASP.NET Identity, SendGrid/SMTP/Sinch
+- Aspire orchestration (PostgreSQL pgvector:pg17-trixie, Redis 7-alpine), OpenTelemetry
+- pnpm workspaces for Vue SPAs, uv for Python, Central Package Management for NuGet
+
+## Verification
 
 ```bash
-# .NET API (the main backend)
-dotnet build                          # Build — warnings-as-errors enforced
-dotnet test                           # Run all .NET tests (unit + integration)
-dotnet test service/Api/tests/Module.UnitTests  # Unit tests only (fast, no Docker)
-dotnet test --filter "FullyQualifiedName~Location"  # Filter by module
-
-# Vue frontends (pnpm — not npm)
-cd app/Admin && pnpm install && pnpm run dev      # Admin SPA on :5173
-cd app/Store && pnpm install && pnpm run dev      # Store SPA on :5174
-
-# Python embedding service (uv — not pip)
-cd service/Embedding && uv sync && uv run pytest
-uv run uvicorn embedding.main:app --reload        # Dev server
-
-# Aspire orchestration (starts everything)
-dotnet run --project infra/Aspire/src/ReSys.AppHost
+dotnet build                                          # C# build (warnings-as-errors)
+dotnet test service/Api/tests/Module.UnitTests        # Unit tests (fast, no Docker)
+dotnet test service/Api/tests/Shared.UnitTests        # Shared unit tests
+dotnet test                                           # All tests (inc. integration — requires Docker)
+dotnet test /p:CollectCoverage=true                   # Opt-in coverage
+dotnet test --filter "FullyQualifiedName~Location"    # Filter by module
+cd app/Admin && pnpm run lint && pnpm run test:unit   # Admin SPA verification
+cd app/Store && pnpm run lint && pnpm run test:unit   # Store SPA verification
+cd service/Embedding && uv run ruff check . && uv run pytest  # Python verification
 ```
 
-## Architecture essentials
+## Code Organization
 
-- **Modular monolith**: 4 C# projects — `Api/` (host), `Module/` (business), `Shared/` (infrastructure), `Migrations/` (EF Core). Modules never reference each other.
-- **CQRS via MediatR**: All feature endpoints use `ICommand<>` / `IQuery<>` handlers behind **Carter** minimal API endpoints. Pipeline: `LoggingBehavior → ValidationBehavior → ExceptionMappingBehavior`.
-- **Shared/ is the backbone**: persistence (EF Core + Npgsql + pgvector), auth (JWT + ASP.NET Identity), storage abstraction (Local/S3/Azure), caching (HybridCache + Redis), notifications (SendGrid/SMTP/Sinch), background jobs (Hangfire).
-- **Aspire orchestrates**: `.NET Aspire AppHost` wires PostgreSQL (pgvector:pg17-trixie), Redis (7-alpine), API, Embedding, Admin, Store. Run locally via `dotnet run --project infra/Aspire/src/ReSys.AppHost`.
-- **No Dockerfiles exist yet** — deployment runs raw CLI commands.
-- **Four business modules**: Catalog (products/variants/taxonomies/option-types), Identity (users/roles/permissions), Location (countries/states), Profile (profiles/addresses/wishlists/notifications).
+- **`service/Api/src/Api/`** — thin host: `Program.cs`, appsettings, startup
+- **`service/Api/src/Module/`** — 9 business modules (Catalog, Identity, Inventory, Location, Ordering, Payment, Profile, Shipping, Webhooks), each with `Domain/`, `Features/`, `Persistence/`
+- **`service/Api/src/Shared/`** — cross-cutting infrastructure: Application abstractions, Security, Operational, Performance, Observability, Governance
+- **`service/Api/src/Migrations/`** — EF Core migrations (separate assembly)
+- **`app/Admin/`** — Vue 3 Admin SPA (PrimeVue, Sakai theme, pnpm, Vite 8)
+- **`app/Store/`** — Vue 3 Storefront SPA (Nuxt UI, pnpm, Vite 8)
+- **`service/Embedding/`** — Python FastAPI ML sidecar (uv, Fashion-CLIP, torch)
+- **`infra/Aspire/`** — orchestration (AppHost + ServiceDefaults)
+- **`ApiTests/`** — 49 `.http` files for manual endpoint testing
 
-## Testing quirks
+## Known Issues
 
-- **Integration tests** (`Api.Tests`) use **Testcontainers** (PostgreSQL + Redis). **Requires Docker**. DB state reset via **Respawn** per test class (via `ApiIntegrationTestBase`).
-- **Unit tests** (`Module.UnitTests`, `Shared.UnitTests`) use EF Core InMemory + Moq. No Docker needed.
-- **HTTP tests** (`ApiTests/`) are `.http` files for REST Client / JetBrains HTTP Client. Require running API with seeded data.
-- Coverage is **opt-in**: `dotnet test /p:CollectCoverage=true`.
-
-## Convention gotchas
-
-- `TreatWarningsAsErrors=true` — any warning fails the build.
-- `InternalsVisibleTo` set **globally** in `Directory.Build.props` — test projects see internals automatically.
-- Domain abstractions (`result object pattern` via `Result<T>`, `ValueResult<T>`, `PagedResult<T>`) — prefer explicit `.Success()` / `.Failure()` over exceptions.
-- `.editorconfig` defines extensive C# naming rules (private fields `_camelCase`, static fields `s_camelCase`, interfaces `IPascalCase`).
-- C# feature files organize as `Features/{Admin|Storefront}/{FeatureName}/{Action}/` — not layer-first.
-- Frontend `.env.development` files contain `VITE_API_URL=http://localhost:5035`. Aspire overrides this.
-- Python project uses **uv** (not pip), **Ruff** linter, `snake_case` modules.
-
-## Known broken / work-in-progress
-
-- **Embedding service** `main.py` imports modules that don't exist (`config.settings`, `routers/embedding_router`). Cannot start.
-- **Admin SPA** has empty router and only a placeholder counter store — no real views.
-- `Embedding/build/lib/` contains stale build artifacts — should be gitignored.
-- Dev JWT secret hardcoded in `appsettings.Development.json`.
-
-## Key references
-
-- `docs/codebase/STACK.md` — full framework versions
-- `docs/codebase/ARCHITECTURE.md` — layer responsibilities + data flow
-- `docs/codebase/CONCERNS.md` — tech debt, risks
-- `docs/codebase/.codebase-scan.txt` — full git churn, file counts
-- `guide/code-commenting/CommentingRules.xml` — comment convention rules
-- `Directory.Packages.props` — all NuGet package versions centrally
+- Dev JWT secret hardcoded in `appsettings.Development.json` — security risk
+- `app/ReSys.Admin/` is a legacy admin SPA (npm, older deps) — use `app/Admin/` (pnpm) instead
+- `ValidateVerticalSliceIsolation` build target is disabled (`Condition="false"` in `Directory.Build.targets:44`)
+- No CI/CD pipeline configured yet
+- No Dockerfiles — Aspire manages containers for local dev only
+- `Embedding/build/lib/` contains stale build artifacts — should be gitignored

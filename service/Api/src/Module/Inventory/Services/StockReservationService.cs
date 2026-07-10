@@ -99,6 +99,14 @@ public class StockReservationService(IApplicationDbContext dbContext) : IStockRe
         {
             r.State = ReservationState.Expired;
             r.ModifiedAtUtc = now;
+
+            if (r.StockLocationId is not null)
+            {
+                var stockItem = await _dbContext.Set<StockItem>()
+                    .FirstOrDefaultAsync(si => si.VariantId == r.VariantId && si.StockLocationId == r.StockLocationId.Value, cancellationToken);
+                if (stockItem is not null)
+                    stockItem.CountOnHand += r.Quantity;
+            }
         }
 
         if (expired.Count > 0)

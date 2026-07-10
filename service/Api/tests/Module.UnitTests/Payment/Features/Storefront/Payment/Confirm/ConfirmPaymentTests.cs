@@ -1,3 +1,4 @@
+using Module.Ordering.Domain.Orders;
 using Module.Payment.Domain.Payments;
 using Module.Payment.Features.Storefront.Payment.Confirm;
 using PaymentRecord = Module.Payment.Domain.Payments.PaymentRecord;
@@ -11,18 +12,32 @@ public class ConfirmPaymentTests : IDisposable
 {
     private readonly ApplicationDbContext _dbContext;
     private readonly ConfirmPayment.CommandHandler _handler;
+    private readonly string _currentUserId;
 
     public ConfirmPaymentTests()
     {
+        _currentUserId = Guid.NewGuid().ToString();
         var options = new DbContextOptionsBuilder<ApplicationDbContext>()
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
             .Options;
-        ApplicationDbContext.AdditionalConfigurationsAssemblies = [typeof(PaymentRecord).Assembly];
+        ApplicationDbContext.AdditionalConfigurationsAssemblies = [typeof(PaymentRecord).Assembly, typeof(Order).Assembly];
         _dbContext = new ApplicationDbContext(options);
         var currentUserMock = new Mock<ICurrentUser>();
-        currentUserMock.Setup(x => x.UserId).Returns(Guid.NewGuid().ToString());
+        currentUserMock.Setup(x => x.UserId).Returns(_currentUserId);
         currentUserMock.Setup(x => x.UserName).Returns("test-user");
         _handler = new ConfirmPayment.CommandHandler(_dbContext, currentUserMock.Object);
+    }
+
+    private async Task SeedOrderAsync(Guid orderId, CancellationToken ct)
+    {
+        var order = new Order
+        {
+            Id = orderId,
+            UserId = Guid.Parse(_currentUserId),
+            Status = OrderStatus.Placed,
+        };
+        _dbContext.Set<Order>().Add(order);
+        await _dbContext.SaveChangesAsync(ct);
     }
 
     public void Dispose() { _dbContext.Dispose(); GC.SuppressFinalize(this); }
@@ -35,6 +50,7 @@ public class ConfirmPaymentTests : IDisposable
         payment.Pend();
         _dbContext.Set<PaymentRecord>().Add(payment);
         await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
+        await SeedOrderAsync(payment.OrderId, TestContext.Current.CancellationToken);
 
         var result = await _handler.Handle(
             new ConfirmPayment.Command(payment.Id),
@@ -50,6 +66,7 @@ public class ConfirmPaymentTests : IDisposable
         var payment = PaymentFactory.Create(100m, Guid.NewGuid(), Guid.NewGuid()).Value;
         _dbContext.Set<PaymentRecord>().Add(payment);
         await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
+        await SeedOrderAsync(payment.OrderId, TestContext.Current.CancellationToken);
 
         var result = await _handler.Handle(
             new ConfirmPayment.Command(payment.Id),
@@ -66,6 +83,7 @@ public class ConfirmPaymentTests : IDisposable
         payment.Complete();
         _dbContext.Set<PaymentRecord>().Add(payment);
         await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
+        await SeedOrderAsync(payment.OrderId, TestContext.Current.CancellationToken);
 
         var result = await _handler.Handle(
             new ConfirmPayment.Command(payment.Id),

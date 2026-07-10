@@ -31,7 +31,7 @@ namespace Module.Ordering.Features.Storefront.Cart.EmptyCart;
                 .FirstOrDefaultAsync(cancellationToken);
 
             if (cart is null)
-                return OrderResult.Errors.NotFound(Guid.Empty);
+                return Result.Ok();
 
             // Update: Clear entity contents.
             var result = cart.Empty();

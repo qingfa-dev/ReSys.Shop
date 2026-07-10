@@ -18,6 +18,9 @@ public class OrderDetailResponse : OrderParameters
     public string? ShipmentState { get; init; }
     public Guid? UserId { get; init; }
     public Guid? StoreId { get; init; }
+    public int ItemCount { get; init; }
+    public Guid? ApprovedById { get; init; }
+    public DateTimeOffset? ApprovedAtUtc { get; init; }
     public DateTimeOffset? CompletedAtUtc { get; init; }
     public DateTimeOffset? CanceledAtUtc { get; init; }
     public DateTimeOffset CreatedAtUtc { get; set; }

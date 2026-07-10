@@ -1,0 +1,54 @@
+version: "1.0"
+
+agents_md:
+  style: toc
+  max_lines: 100
+  path: AGENTS.md
+
+docs_structure:
+  design_docs:
+    enabled: true
+    index: false
+    core_beliefs: false
+  exec_plans:
+    enabled: true
+    sections:
+      - active
+      - completed
+      - tech_debt
+    paths:
+      active: docs/superpowers/plans
+      completed: plan
+  product_specs:
+    enabled: true
+    index: false
+    paths:
+      specs: docs/superpowers/specs
+  references:
+    enabled: true
+    paths:
+      codebase: docs/codebase
+      security: docs/security
+      ci: docs/ci
+  generated:
+    enabled: false
+
+guides:
+  - name: CONVENTIONS
+    path: docs/codebase/CONVENTIONS.md
+    description: C# and Vue coding conventions
+  - name: TESTING
+    path: docs/codebase/TESTING.md
+    description: Testing strategy, patterns, and commands
+  - name: STACK
+    path: docs/codebase/STACK.md
+    description: Full framework versions and toolchain
+  - name: CONCERNS
+    path: docs/codebase/CONCERNS.md
+    description: Tech debt, risks, security concerns
+  - name: ARCHITECTURE
+    path: docs/codebase/ARCHITECTURE.md
+    description: Layer responsibilities and data flow
+  - name: CODE_COMMENTING
+    path: guide/code-commenting/CommentingRules.xml
+    description: Comment convention rules (XML)
