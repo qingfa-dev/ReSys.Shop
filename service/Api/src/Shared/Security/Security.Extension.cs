@@ -18,7 +18,7 @@ public static class SecurityExtension
     {
         builder.AddApplicationAuthorization();
         builder.AddApplicationAuthentication();
-        builder.AddCors();
+        builder.AddSecurityCors();
         builder.AddApplicationIdentity();
         builder.AddSecurityHeaders();
         builder.AddAntiForgery();
@@ -34,7 +34,7 @@ public static class SecurityExtension
     public static WebApplication UseSecurity(this WebApplication app)
     {
         app.UseSecurityHeaders();
-        app.UseCors();
+        app.UseSecurityCors();
         app.UseApplicationAuthentication();
         app.UseApplicationAuthorization();
         // app.UseRateLimiter();
