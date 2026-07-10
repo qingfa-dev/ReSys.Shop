@@ -1,7 +1,10 @@
 using System.Net;
+using System.Net.Http.Headers;
 
 using Api.Tests.Infrastructure;
-using Api.Tests.Infrastructure.Auth;
+using Api.Tests.Scenarios.Identity.Helpers;
+
+using Module.Profile.Persistence;
 
 namespace Api.Tests.Scenarios.Profile.Store.NotificationPreferences.Update;
 
@@ -10,9 +13,19 @@ public sealed class UpdateNotificationPreferencesIntegrationTests(ApiFixture fix
     [Fact]
     public async Task UpdateNotificationPreferences_WithAuth_ReturnsOk()
     {
+        var (userId, email, _) = await IdentityTestHelper.CreateTestUserAsync(Client);
+        await Fixture.ResetSchemasAsync([ProfileSchema.Name]);
+        string token = IdentityTestHelper.GenerateUserToken(userId, email);
+
         var request = new { enableSms = true, enableEmail = true, enableNewsfeeds = false };
-        HttpResponseMessage response = await Client.PutAsAdminRawAsync(
-            "/api/store/profiles/notification-preferences", request);
+        using var httpRequest = new HttpRequestMessage(HttpMethod.Put,
+            "/api/store/profiles/notification-preferences")
+        {
+            Content = JsonContent.Create(request)
+        };
+        httpRequest.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
+
+        HttpResponseMessage response = await Client.SendAsync(httpRequest);
         response.StatusCode.Should().Be(HttpStatusCode.OK);
     }
 

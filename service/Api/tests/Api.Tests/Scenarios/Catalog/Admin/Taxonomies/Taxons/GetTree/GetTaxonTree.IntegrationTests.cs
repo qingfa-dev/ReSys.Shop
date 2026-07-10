@@ -8,7 +8,7 @@ namespace Api.Tests.Scenarios.Catalog.Admin.Taxonomies.Taxons.GetTree;
 
 public sealed class GetTaxonTreeIntegrationTests(ApiFixture fixture) : CatalogIntegrationTestBase(fixture)
 {
-    [Fact(Skip = "Tree endpoint handler is not yet implemented")]
+    [Fact]
     public async Task GetTaxonTree_WithNestedTaxons_ReturnsTree()
     {
         var taxonomyRequest = new

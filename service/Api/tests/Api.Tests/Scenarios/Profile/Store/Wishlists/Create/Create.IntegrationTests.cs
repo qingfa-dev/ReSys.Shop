@@ -1,7 +1,8 @@
 using System.Net;
+using System.Net.Http.Headers;
 
 using Api.Tests.Infrastructure;
-using Api.Tests.Infrastructure.Auth;
+using Api.Tests.Scenarios.Identity.Helpers;
 
 using CreateWishlistResponse = Module.Profile.Features.Store.Wishlists.Create.CreateWishlist;
 
@@ -12,9 +13,18 @@ public sealed class CreateWishlistIntegrationTests(ApiFixture fixture) : Profile
     [Fact]
     public async Task CreateWishlist_WithAuth_ReturnsCreated()
     {
+        var (userId, email, _) = await IdentityTestHelper.CreateTestUserAsync(Client);
+        string token = IdentityTestHelper.GenerateUserToken(userId, email);
+
         var request = new { name = "My Wishlist", isPrivate = false };
-        HttpResponseMessage response = await Client.PostAsAdminRawAsync(
-            "/api/store/profiles/wishlists", request);
+        using var httpRequest = new HttpRequestMessage(HttpMethod.Post,
+            "/api/store/profiles/wishlists")
+        {
+            Content = JsonContent.Create(request)
+        };
+        httpRequest.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
+
+        HttpResponseMessage response = await Client.SendAsync(httpRequest);
         ApiResponse result = await response.ReadApiResponseAsync();
 
         result.IsSuccess.Should().BeTrue();
