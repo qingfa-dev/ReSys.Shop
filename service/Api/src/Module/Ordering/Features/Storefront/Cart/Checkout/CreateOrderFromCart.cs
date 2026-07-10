@@ -4,6 +4,7 @@ using Module.Inventory.Domain.StockReservations;
 using Module.Inventory.Domain.StockLocations.StockItems.StockMovements;
 using Module.Ordering.Domain.Orders;
 using Module.Ordering.Domain.Orders.Contracts;
+using Module.Ordering.Features.Admin.Orders.Shared.Mappings;
 using Module.Payment.Domain.Payments;
 
 using Shared.Operational.Notifications.Models;
@@ -162,13 +163,7 @@ public static partial class CreateOrderFromCart
             OrderLoggers.Placed(logger, Number: cart.Number, Id: cart.Id, ActionBy: currentUser.UserName);
 
             // Map: Return the created order.
-            return new Response
-            {
-                Id = cart.Id,
-                Number = cart.Number,
-                Status = cart.Status,
-                PaymentState = cart.PaymentState
-            };
+            return Result<Response>.Created(cart.MapToDetail<Response>());
         }
 
         private static string GenerateOrderNumber()

@@ -36,7 +36,7 @@ public sealed class CreateStateIntegrationTests(ApiFixture fixture) : LocationIn
         ApiResponse result = await response.ReadApiResponseAsync();
 
         result.IsSuccess.Should().BeTrue();
-        result.StatusCode.Should().Be(HttpStatusCode.OK);
+        result.StatusCode.Should().Be(HttpStatusCode.Created);
         StateListResponse? value = result.DeserializeValue<StateListResponse>();
         value.Should().NotBeNull();
         value!.Name.Should().Be("Test State");

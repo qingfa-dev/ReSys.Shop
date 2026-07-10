@@ -60,7 +60,7 @@ public static partial class CreateTaxonRule
                 }
             }
 
-            return rule.MapToDetail<Response>();
+            return Result<Response>.Created(rule.MapToDetail<Response>());
         }
     }
 }

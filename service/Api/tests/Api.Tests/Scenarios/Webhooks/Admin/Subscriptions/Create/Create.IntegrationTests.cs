@@ -24,7 +24,7 @@ public sealed class CreateWebhookSubscriptionIntegrationTests(ApiFixture fixture
         ApiResponse result = await response.ReadApiResponseAsync();
 
         result.IsSuccess.Should().BeTrue();
-        result.StatusCode.Should().Be(HttpStatusCode.OK);
+        result.StatusCode.Should().Be(HttpStatusCode.Created);
         var value = result.DeserializeValue<CreateResponse.Response>();
         value.Should().NotBeNull();
         value!.Id.Should().NotBeEmpty();

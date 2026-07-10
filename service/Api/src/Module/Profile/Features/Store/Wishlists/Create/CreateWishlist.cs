@@ -29,7 +29,7 @@ public static partial class CreateWishlist
             dbContext.Set<Wishlist>().Add(wishlist);
             await dbContext.SaveChangesAsync(cancellationToken);
 
-            return new Response
+            return Result<Response>.Created(new Response
             {
                 Id = wishlist.Id,
                 Name = wishlist.Name,
@@ -37,7 +37,7 @@ public static partial class CreateWishlist
                 IsDefault = wishlist.IsDefault,
                 Token = wishlist.Token,
                 ItemCount = 0
-            };
+            });
         }
     }
 }
