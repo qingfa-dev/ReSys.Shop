@@ -15,6 +15,7 @@ public static partial class TestWebhookSubscription
                 var result = await sender.Send(command, ct);
                 return result.ToResult();
             })
+            .HasPermission(WebhooksFeature.Admin.Subscriptions.Test.Permission)
             .WithName(nameof(TestWebhookSubscription))
             .WithTags(WebhooksFeature.Tags.Subscription)
             .WithSummary(WebhooksFeature.Admin.Subscriptions.Test.Summary)
