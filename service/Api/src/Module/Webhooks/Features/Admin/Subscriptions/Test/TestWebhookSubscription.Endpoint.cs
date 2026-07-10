@@ -1,5 +1,3 @@
-using Module.Webhooks.Features.Shared;
-
 namespace Module.Webhooks.Features.Admin.Subscriptions.Test;
 
 public static partial class TestWebhookSubscription
@@ -18,7 +16,7 @@ public static partial class TestWebhookSubscription
                 return result.ToResult();
             })
             .WithName(nameof(TestWebhookSubscription))
-            .WithTags(WebhooksFeature.Tags.Webhook)
+            .WithTags(WebhooksFeature.Tags.Subscription)
             .WithSummary(WebhooksFeature.Admin.Subscriptions.Test.Summary)
             .WithDescription(WebhooksFeature.Admin.Subscriptions.Test.Description)
             .Produces<Result<Response>>()

@@ -1,5 +1,3 @@
-using Module.Webhooks.Features.Shared;
-
 namespace Module.Webhooks.Features.Admin.Subscriptions.Update;
 
 public static partial class UpdateWebhookSubscription
@@ -19,7 +17,7 @@ public static partial class UpdateWebhookSubscription
                 return result.ToResult();
             })
             .WithName(nameof(UpdateWebhookSubscription))
-            .WithTags(WebhooksFeature.Tags.Webhook)
+            .WithTags(WebhooksFeature.Tags.Subscription)
             .WithSummary(WebhooksFeature.Admin.Subscriptions.Update.Summary)
             .WithDescription(WebhooksFeature.Admin.Subscriptions.Update.Description)
             .Produces<Result<Response>>()

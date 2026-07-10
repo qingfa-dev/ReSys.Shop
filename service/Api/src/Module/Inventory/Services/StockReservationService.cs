@@ -55,7 +55,18 @@ public class StockReservationService(IApplicationDbContext dbContext) : IStockRe
         {
             r.State = ReservationState.Released;
             r.ModifiedAtUtc = DateTimeOffset.UtcNow;
+
+            if (r.StockLocationId is not null)
+            {
+                var stockItem = await _dbContext.Set<StockItem>()
+                    .FirstOrDefaultAsync(si => si.VariantId == r.VariantId && si.StockLocationId == r.StockLocationId.Value, cancellationToken);
+                if (stockItem is not null)
+                    stockItem.CountOnHand += r.Quantity;
+            }
         }
+
+        if (reservations.Count > 0)
+            await _dbContext.SaveChangesAsync(cancellationToken);
     }
 
     public async Task ExpireReservationsAsync(CancellationToken cancellationToken = default)
@@ -69,7 +80,18 @@ public class StockReservationService(IApplicationDbContext dbContext) : IStockRe
         {
             r.State = ReservationState.Expired;
             r.ModifiedAtUtc = now;
+
+            if (r.StockLocationId is not null)
+            {
+                var stockItem = await _dbContext.Set<StockItem>()
+                    .FirstOrDefaultAsync(si => si.VariantId == r.VariantId && si.StockLocationId == r.StockLocationId.Value, cancellationToken);
+                if (stockItem is not null)
+                    stockItem.CountOnHand += r.Quantity;
+            }
         }
+
+        if (expired.Count > 0)
+            await _dbContext.SaveChangesAsync(cancellationToken);
     }
 
     public async Task<Result> FulfillReservationAsync(Guid reservationId, CancellationToken cancellationToken = default)
