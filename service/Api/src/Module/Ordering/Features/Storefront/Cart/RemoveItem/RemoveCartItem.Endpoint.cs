@@ -19,7 +19,8 @@ public static partial class RemoveCartItem
             .WithTags(OrderingFeature.Tags.Cart)
             .WithSummary(OrderingFeature.Storefront.Cart.RemoveItem.Summary)
             .WithDescription(OrderingFeature.Storefront.Cart.RemoveItem.Description)
-            .Produces<Result>();
+            .Produces<Result>()
+            .Produces<Result>(StatusCodes.Status400BadRequest);
         }
     }
 }
