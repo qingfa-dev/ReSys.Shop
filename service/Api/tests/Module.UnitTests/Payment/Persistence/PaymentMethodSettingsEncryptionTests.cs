@@ -2,7 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using Module.Payment.Domain.PaymentMethods;
 using Module.Payment.Persistence.Constants;
 using Shared.Operational.Security.Encryption;
-using Shared.Persistence.Converters;
+using Shared.Operational.Persistence.Configurations.Dictionaries;
 
 namespace Module.UnitTests.Payment.Persistence;
 
