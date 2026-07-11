@@ -1,4 +1,4 @@
-namespace Module.Payment.Features.Admin.PaymentMethods.Services.Registry;
+namespace Module.Payment.Services.Registry;
 
 public sealed class GatewayProvidersOptions
 {

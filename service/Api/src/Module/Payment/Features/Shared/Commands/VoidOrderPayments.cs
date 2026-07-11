@@ -1,6 +1,6 @@
-using Module.Payment.Domain.Gateways;
+using Module.Payment.Services.Gateways;
 using Module.Payment.Domain.PaymentCaptures;
-using Module.Payment.Features.Admin.Payments.Services.GatewayProcessing;
+using Module.Payment.Services.GatewayProcessing;
 
 namespace Module.Payment.Features.Shared.Commands;
 

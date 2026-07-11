@@ -1,4 +1,4 @@
-using Module.Payment.Domain.Gateways;
+using Module.Payment.Services.Gateways;
 using Module.Payment.Domain.PaymentMethods;
 using Module.Payment.Features.Admin.PaymentMethods.Create;
 

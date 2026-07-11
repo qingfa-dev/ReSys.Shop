@@ -1,4 +1,4 @@
-using Module.Payment.Domain.Gateways;
+using Module.Payment.Services.Gateways;
 
 namespace Module.Payment.Domain.PaymentCaptures;
 
