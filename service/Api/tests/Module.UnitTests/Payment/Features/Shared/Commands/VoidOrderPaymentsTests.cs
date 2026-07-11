@@ -6,7 +6,8 @@ using IPaymentProcessingService = Module.Payment.Services.Processing.IPaymentPro
 using PaymentProcessingResult = Module.Payment.Services.Processing.PaymentProcessingResult;
 using GatewayOptions = Module.Payment.Services.Provider.GatewayOptions;
 
-using Module.Payment.Services.Models;
+using Module.Payment.Services.Provider;
+using Module.Payment.Services.Processing;
 
 namespace Module.UnitTests.Payment.Features.Shared.Commands;
 

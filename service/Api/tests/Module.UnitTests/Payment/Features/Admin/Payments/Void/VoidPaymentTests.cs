@@ -5,7 +5,8 @@ using PaymentProcessingResult = Module.Payment.Services.Processing.PaymentProces
 using GatewayOptions = Module.Payment.Services.Provider.GatewayOptions;
 using PaymentGatewayResponse = Module.Payment.Services.Provider.PaymentGatewayResponse;
 
-using Module.Payment.Services.Models;
+using Module.Payment.Services.Provider;
+using Module.Payment.Services.Processing;
 using Module.Payment.Domain.PaymentCaptures;
 using Module.Payment.Features.Admin.Payments.Void;
 
