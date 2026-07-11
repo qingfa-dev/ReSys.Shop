@@ -1,38 +1,30 @@
-# Task 1: Atomic Stock Deduction in CreateOrderFromCart — Report
+# Task 1: Remove Direct Identity → Profile Reference in ConfirmEmail
 
-## Changes Made
+## Status: ✓ Complete
 
-### 1. `service/Api/src/Module/Ordering/Features/Storefront/Cart/Checkout/CreateOrderFromCart.cs`
+## Changes
 
-**Problem:** The handler had a TOCTOU race condition — it first checked stock availability via `AvailabilityValidator.IsAvailable()` (lines 89-99), then separately deducted stock in-memory (lines 107-141). Between the check and deduction, another request could oversell.
+### 1. Created: `Shared/Application/Contracts/Profile/CreateUserProfileCommand.cs`
+- `CreateUserProfileCommand` record implementing `ICommand<CreateUserProfileResult>`
+- `CreateUserProfileResult(Guid ProfileId)` response type
 
-**Fix:** Replaced both loops with a single atomic pass using `ExecuteUpdateAsync` with a `WHERE CountOnHand >= take` guard:
-- Each stock item is loaded, then atomically decremented via `ExecuteUpdateAsync`
-- If 0 rows are updated (`updated == 0`), another request claimed the stock — returns `StockItemResult.Errors.InsufficientStock`
-- If `remaining > 0` after exhausting all stock locations for a variant, returns `InsufficientStock`
-- Uses `currentUser.UserName ?? "System"` for `createdBy` in stock movements
+### 2. Modified: `Module/Profile/Features/Store/Profiles/Create/CreateProfile.cs`
+- Added `CreateUserProfileCommandHandler` that wraps existing `CreateProfile.CommandHandler`
+- Uses `Shared.Application.Contracts.Profile` import (avoided full-qualified name due to `Shared` namespace collision with `Module.Profile.Features.Store.Profiles.Shared`)
 
-### 2. `service/Api/tests/Module.UnitTests/Ordering/Features/Storefront/Cart/Checkout/CreateOrderFromCartStockTests.cs` (NEW)
-
-Two stock-specific tests, both skipped under InMemoryDatabase (requires PostgreSQL for `ExecuteUpdateAsync`):
-
-| Test | Purpose |
-|------|---------|
-| `Handle_ShouldReturnInsufficientStock_WhenQuantityExceedsStock` | Verifies `InsufficientStock` error when cart requests more than available |
-| `Handle_Concurrent_Checkouts_Should_Not_Oversell` | Verifies at most 1 of 2 concurrent checkouts succeeds for a single-unit stock item |
-
-### 3. `service/Api/tests/Module.UnitTests/Ordering/Features/Storefront/Cart/Checkout/CreateOrderFromCartTests.cs`
-
-Marked `Handle_ShouldReturnSuccess_WhenCartHasItems` as `Skip = "Requires PostgreSQL — ExecuteUpdateAsync not supported by InMemory provider"` since the handler now uses `ExecuteUpdateAsync`.
+### 3. Modified: `Module/Identity/Features/Store/Emails/Confirm/ConfirmEmail.cs`
+- Removed `using Module.Profile.Domain;` and `using Module.Profile.Features.Store.Profiles.Create;`
+- Added `using Shared.Application.Contracts.Profile;`
+- Replaced direct `CreateProfile.Command` call with `CreateUserProfileCommand` via `IMediator`
+- Replaced `UserProfileLoggers.Management.*` with `UserLoggers.Profiles.*` (already in Shared)
 
 ## Verification
 
-- **Build:** `dotnet build` — 0 warnings, 0 errors
-- **Tests:** 2314 passed, 2 pre-existing failures (unrelated architecture/transition tests), 6 skipped (including our 3 PostgreSQL-dependent tests)
-- **Pattern:** Follows existing convention from `TransferStockTransfer.Tests.cs` (same Skip reason)
+- **Build**: `dotnet build` — succeeds (0 warnings, 0 errors)
+- **Architecture test**: `dotnet test --filter-class "ModuleIsolationTests"` — 3/4 pass, 1 failure is pre-existing `Catalog→Inventory` + `Ordering→Inventory` violations (unrelated)
 
-## Files Changed/Added
+## Notes
 
-- `M` service/Api/src/Module/Ordering/Features/Storefront/Cart/Checkout/CreateOrderFromCart.cs
-- `M` service/Api/tests/Module.UnitTests/Ordering/Features/Storefront/Cart/Checkout/CreateOrderFromCartTests.cs
-- `A` service/Api/tests/Module.UnitTests/Ordering/Features/Storefront/Cart/Checkout/CreateOrderFromCartStockTests.cs
+- `UserLoggers.Profiles` (in `Shared.Security.Identity.Domain.Users`) was used instead of `UserProfileLoggers.Management` (in `Module.Profile.Domain`) to avoid any direct module reference
+- The `CreateUserProfileCommandHandler` delegates to the existing `CreateProfile.CommandHandler`, so no logic changes
+- Error propagation uses implicit `List<Error>` → `Result<T>` conversion
