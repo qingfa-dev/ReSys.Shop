@@ -1,7 +1,5 @@
 using Module.Ordering.Domain.Orders;
 using Module.Payment.Services.Abstractions;
-using Module.Payment.Services.Models;
-using Module.Payment.Services.Gateways;
 using Module.Payment.Domain.PaymentCaptures;
 using Module.Payment.Features.Storefront.Payment.Confirm;
 using PaymentCapture = Module.Payment.Domain.PaymentCaptures.PaymentCapture;
@@ -139,6 +137,32 @@ public class ConfirmPaymentTests : IDisposable
     {
         var result = await _handler.Handle(
             new ConfirmPayment.Command(Guid.NewGuid()),
+            TestContext.Current.CancellationToken);
+
+        result.IsFailure.Should().BeTrue();
+    }
+
+    [Fact(DisplayName = "Handler: Should fail when payment belongs to another user")]
+    public async Task Handle_Should_Fail_When_Payment_Belongs_To_Another_User()
+    {
+        var otherUserId = Guid.NewGuid();
+        var otherOrder = new Order
+        {
+            Id = Guid.NewGuid(),
+            UserId = otherUserId,
+            Status = OrderStatus.Placed,
+        };
+        _dbContext.Set<Order>().Add(otherOrder);
+        await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
+
+        var payment = CreateTestPayment(orderId: otherOrder.Id);
+        payment.Process();
+        payment.Pend();
+        _dbContext.Set<PaymentCapture>().Add(payment);
+        await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
+
+        var result = await _handler.Handle(
+            new ConfirmPayment.Command(payment.Id),
             TestContext.Current.CancellationToken);
 
         result.IsFailure.Should().BeTrue();
