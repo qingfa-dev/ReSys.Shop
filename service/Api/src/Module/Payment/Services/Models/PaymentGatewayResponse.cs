@@ -1,4 +1,4 @@
-namespace Module.Payment.Services.Gateways;
+namespace Module.Payment.Services.Models;
 
 /// <summary>Gateway response data — success/failure carried by Result wrapper, not this record.</summary>
 public sealed record PaymentGatewayResponse

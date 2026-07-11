@@ -37,7 +37,7 @@ NEW FILES:
 MODIFY:
   service/Api/src/Module/Payment/Domain/Gateways/IPaymentGatewayActionProvider.cs
   service/Api/src/Module/Payment/Domain/Gateways/Gateway.cs
-  service/Api/src/Module/Payment/Domain/Gateways/PaymentGatewayResponse.cs
+  service/Api/src/Module/Payment/Domain/Gateways/PaymentGatewayResult.cs
   service/Api/src/Module/Payment/Domain/PaymentCaptures/GatewayOptions.cs  → MOVE to Gateways/
   service/Api/src/Module/Payment/Domain/PaymentCaptures/PaymentCapture.cs
   service/Api/src/Module/Payment/Domain/PaymentCaptures/PaymentCapture.Method.Factory.cs
@@ -423,22 +423,22 @@ git commit -m "feat(persistence): add EncryptedDictionaryConverter for AES-encry
 
 ---
 
-### Task 4: PaymentGatewayResponse — Flatten and Simplify
+### Task 4: PaymentGatewayResult — Flatten and Simplify
 
 **Files:**
-- Modify: `service/Api/src/Module/Payment/Domain/Gateways/PaymentGatewayResponse.cs`
+- Modify: `service/Api/src/Module/Payment/Domain/Gateways/PaymentGatewayResult.cs`
 
 **Interfaces:**
-- Produces: `PaymentGatewayResponse` record with: `Success`, `Message`, `Provider`, `Authorization`, `SetupIntentClientSecret`, `PaymentStatus`, `AvsResultCode`, `CvvResultCode`, `CvvResultMessage`, `Properties` (dictionary). Removes `Params`/`Options` nested dicts (replaced by `Properties`). Removes `AvsResult`/`CvvResult` nested dicts (replaced by flat strings).
+- Produces: `PaymentGatewayResult` record with: `Success`, `Message`, `Provider`, `Authorization`, `SetupIntentClientSecret`, `PaymentStatus`, `AvsResultCode`, `CvvResultCode`, `CvvResultMessage`, `Properties` (dictionary). Removes `Params`/`Options` nested dicts (replaced by `Properties`). Removes `AvsResult`/`CvvResult` nested dicts (replaced by flat strings).
 
-- [ ] **Step 1: Rewrite PaymentGatewayResponse.cs**
+- [ ] **Step 1: Rewrite PaymentGatewayResult.cs**
 
 Replace the entire file:
 
 ```csharp
 namespace Module.Payment.Domain.Gateways;
 
-public sealed record PaymentGatewayResponse
+public sealed record PaymentGatewayResult
 {
     public bool Success { get; }
     public string Message { get; }
@@ -451,7 +451,7 @@ public sealed record PaymentGatewayResponse
     public string? CvvResultMessage { get; }
     public Dictionary<string, object?> Properties { get; }
 
-    public PaymentGatewayResponse(
+    public PaymentGatewayResult(
         bool success,
         string message,
         string provider,
@@ -480,9 +480,9 @@ public sealed record PaymentGatewayResponse
 - [ ] **Step 2: Find all usages that need updating**
 
 ```bash
-rg "PaymentGatewayResponse" service/Api/src/ --no-heading | grep -v "\.csproj\|obj\|bin"
+rg "PaymentGatewayResult" service/Api/src/ --no-heading | grep -v "\.csproj\|obj\|bin"
 ```
-Expected: list of files calling `new PaymentGatewayResponse(...)` — they will break on build in next step.
+Expected: list of files calling `new PaymentGatewayResult(...)` — they will break on build in next step.
 
 - [ ] **Step 3: Build to see what breaks**
 
@@ -494,8 +494,8 @@ Expected: FAIL — 10-20 call sites using old constructor signature `(bool succe
 - [ ] **Step 4: Commit**
 
 ```bash
-git add service/Api/src/Module/Payment/Domain/Gateways/PaymentGatewayResponse.cs
-git commit -m "refactor(payment): flatten PaymentGatewayResponse — add Provider, flat AVS/CVV, Properties bag"
+git add service/Api/src/Module/Payment/Domain/Gateways/PaymentGatewayResult.cs
+git commit -m "refactor(payment): flatten PaymentGatewayResult — add Provider, flat AVS/CVV, Properties bag"
 ```
 
 ---
@@ -568,7 +568,7 @@ new GatewayOptions
 ```bash
 dotnet build service/Api/src/Module/ 2>&1 | grep -E "error CS" | wc -l
 ```
-Expected: ~15-30 errors from `new GatewayOptions(payment)` and `new PaymentGatewayResponse(...)` — will fix in per-feature tasks.
+Expected: ~15-30 errors from `new GatewayOptions(payment)` and `new PaymentGatewayResult(...)` — will fix in per-feature tasks.
 
 - [ ] **Step 5: Commit**
 
@@ -885,22 +885,22 @@ public interface IPaymentGatewayActionProvider
     bool PaymentProfilesSupported { get; }
     bool Supports(object? source);
 
-    Task<Result<PaymentGatewayResponse>> AuthorizeAsync(
+    Task<Result<PaymentGatewayResult>> AuthorizeAsync(
         decimal amount, object? source, GatewayOptions options, CancellationToken ct = default);
 
-    Task<Result<PaymentGatewayResponse>> CaptureAsync(
+    Task<Result<PaymentGatewayResult>> CaptureAsync(
         decimal amount, string? responseCode, GatewayOptions options, CancellationToken ct = default);
 
-    Task<Result<PaymentGatewayResponse>> PurchaseAsync(
+    Task<Result<PaymentGatewayResult>> PurchaseAsync(
         decimal amount, object? source, GatewayOptions options, CancellationToken ct = default);
 
-    Task<Result<PaymentGatewayResponse>> VoidAsync(
+    Task<Result<PaymentGatewayResult>> VoidAsync(
         string? responseCode, object? source, GatewayOptions options, CancellationToken ct = default);
 
-    Task<Result<PaymentGatewayResponse>> RefundAsync(
+    Task<Result<PaymentGatewayResult>> RefundAsync(
         decimal amount, string? responseCode, GatewayOptions options, CancellationToken ct = default);
 
-    Task<Result<PaymentGatewayResponse>> CreateSetupIntentAsync(
+    Task<Result<PaymentGatewayResult>> CreateSetupIntentAsync(
         string? customerId, Dictionary<string, string>? metadata, CancellationToken ct = default);
 
     Task<string> GetPaymentStatusAsync(
@@ -923,22 +923,22 @@ public abstract class Gateway : IPaymentGatewayActionProvider
     public abstract bool PaymentProfilesSupported { get; }
     public abstract bool Supports(object? source);
 
-    public abstract Task<Result<PaymentGatewayResponse>> AuthorizeAsync(
+    public abstract Task<Result<PaymentGatewayResult>> AuthorizeAsync(
         decimal amount, object? source, GatewayOptions options, CancellationToken ct = default);
 
-    public abstract Task<Result<PaymentGatewayResponse>> CaptureAsync(
+    public abstract Task<Result<PaymentGatewayResult>> CaptureAsync(
         decimal amount, string? responseCode, GatewayOptions options, CancellationToken ct = default);
 
-    public abstract Task<Result<PaymentGatewayResponse>> PurchaseAsync(
+    public abstract Task<Result<PaymentGatewayResult>> PurchaseAsync(
         decimal amount, object? source, GatewayOptions options, CancellationToken ct = default);
 
-    public abstract Task<Result<PaymentGatewayResponse>> VoidAsync(
+    public abstract Task<Result<PaymentGatewayResult>> VoidAsync(
         string? responseCode, object? source, GatewayOptions options, CancellationToken ct = default);
 
-    public abstract Task<Result<PaymentGatewayResponse>> RefundAsync(
+    public abstract Task<Result<PaymentGatewayResult>> RefundAsync(
         decimal amount, string? responseCode, GatewayOptions options, CancellationToken ct = default);
 
-    public abstract Task<Result<PaymentGatewayResponse>> CreateSetupIntentAsync(
+    public abstract Task<Result<PaymentGatewayResult>> CreateSetupIntentAsync(
         string? customerId, Dictionary<string, string>? metadata, CancellationToken ct = default);
 
     public virtual Task<string> GetPaymentStatusAsync(
@@ -1075,7 +1075,7 @@ git commit -m "refactor(payment): update Stripe/Bogus options to bind from Gatew
 - Modify: `service/Api/src/Module/Payment/Infrastructure/Gateways/Stripe/StripeGateway.Result.cs`
 
 **Interfaces:**
-- Consumes: `GatewayConstants.Providers.Stripe`, `GatewayConstants.Amount.CentsMultiplier`, `GatewayConstants.Stripe.*`, `GatewayConstants.ResponseMessages.*`, `GatewayConstants.ErrorCodes.Stripe.*`, new `PaymentGatewayResponse` constructor
+- Consumes: `GatewayConstants.Providers.Stripe`, `GatewayConstants.Amount.CentsMultiplier`, `GatewayConstants.Stripe.*`, `GatewayConstants.ResponseMessages.*`, `GatewayConstants.ErrorCodes.Stripe.*`, new `PaymentGatewayResult` constructor
 - Produces: `StripeGateway` implementing all interface methods with `RequestOptions.ApiKey` per call
 
 - [ ] **Step 1: Rewrite StripeGateway.cs — full implementation**
@@ -1109,7 +1109,7 @@ public sealed class StripeGateway : Gateway
         IdempotencyKey = opt.IdempotencyKey
     };
 
-    public override async Task<Result<PaymentGatewayResponse>> PurchaseAsync(
+    public override async Task<Result<PaymentGatewayResult>> PurchaseAsync(
         decimal amount, object? source, GatewayOptions options, CancellationToken ct = default)
     {
         try
@@ -1118,7 +1118,7 @@ public sealed class StripeGateway : Gateway
             var ro = BuildRequestOptions(options);
             var intent = await new PaymentIntentService().CreateAsync(po, ro, ct).ConfigureAwait(false);
             var ok = intent.Status == GatewayConstants.Stripe.IntentStatus.Succeeded;
-            return new PaymentGatewayResponse(ok,
+            return new PaymentGatewayResult(ok,
                 ok ? GatewayConstants.ResponseMessages.PaymentCaptured : $"Status: {intent.Status}",
                 GatewayConstants.Providers.Stripe,
                 authorization: intent.Id);
@@ -1126,7 +1126,7 @@ public sealed class StripeGateway : Gateway
         catch (StripeException ex) { return MapStripeException(ex); }
     }
 
-    public override async Task<Result<PaymentGatewayResponse>> AuthorizeAsync(
+    public override async Task<Result<PaymentGatewayResult>> AuthorizeAsync(
         decimal amount, object? source, GatewayOptions options, CancellationToken ct = default)
     {
         try
@@ -1135,7 +1135,7 @@ public sealed class StripeGateway : Gateway
             var ro = BuildRequestOptions(options);
             var intent = await new PaymentIntentService().CreateAsync(po, ro, ct).ConfigureAwait(false);
             var ok = intent.Status == GatewayConstants.Stripe.IntentStatus.RequiresCapture;
-            return new PaymentGatewayResponse(ok,
+            return new PaymentGatewayResult(ok,
                 ok ? GatewayConstants.ResponseMessages.Authorized : $"Status: {intent.Status}",
                 GatewayConstants.Providers.Stripe,
                 authorization: intent.Id);
@@ -1143,7 +1143,7 @@ public sealed class StripeGateway : Gateway
         catch (StripeException ex) { return MapStripeException(ex); }
     }
 
-    public override async Task<Result<PaymentGatewayResponse>> CaptureAsync(
+    public override async Task<Result<PaymentGatewayResult>> CaptureAsync(
         decimal amount, string? responseCode, GatewayOptions options, CancellationToken ct = default)
     {
         if (string.IsNullOrEmpty(responseCode))
@@ -1156,13 +1156,13 @@ public sealed class StripeGateway : Gateway
             };
             var ro = BuildRequestOptions(options);
             var intent = await new PaymentIntentService().CaptureAsync(responseCode, co, ro, ct).ConfigureAwait(false);
-            return new PaymentGatewayResponse(true, GatewayConstants.ResponseMessages.Captured,
+            return new PaymentGatewayResult(true, GatewayConstants.ResponseMessages.Captured,
                 GatewayConstants.Providers.Stripe, authorization: intent.Id);
         }
         catch (StripeException ex) { return MapStripeException(ex); }
     }
 
-    public override async Task<Result<PaymentGatewayResponse>> VoidAsync(
+    public override async Task<Result<PaymentGatewayResult>> VoidAsync(
         string? responseCode, object? source, GatewayOptions options, CancellationToken ct = default)
     {
         if (string.IsNullOrEmpty(responseCode))
@@ -1172,13 +1172,13 @@ public sealed class StripeGateway : Gateway
             var co = new PaymentIntentCancelOptions();
             var ro = BuildRequestOptions(options);
             var intent = await new PaymentIntentService().CancelAsync(responseCode, co, ro, ct).ConfigureAwait(false);
-            return new PaymentGatewayResponse(true, GatewayConstants.ResponseMessages.Voided,
+            return new PaymentGatewayResult(true, GatewayConstants.ResponseMessages.Voided,
                 GatewayConstants.Providers.Stripe, authorization: intent.Id);
         }
         catch (StripeException ex) { return MapStripeException(ex); }
     }
 
-    public override async Task<Result<PaymentGatewayResponse>> RefundAsync(
+    public override async Task<Result<PaymentGatewayResult>> RefundAsync(
         decimal amount, string? responseCode, GatewayOptions options, CancellationToken ct = default)
     {
         if (string.IsNullOrEmpty(responseCode))
@@ -1192,13 +1192,13 @@ public sealed class StripeGateway : Gateway
             };
             var requestOptions = BuildRequestOptions(options);
             var refund = await new RefundService().CreateAsync(ro, requestOptions, ct).ConfigureAwait(false);
-            return new PaymentGatewayResponse(true, GatewayConstants.ResponseMessages.Refunded,
+            return new PaymentGatewayResult(true, GatewayConstants.ResponseMessages.Refunded,
                 GatewayConstants.Providers.Stripe, authorization: refund.Id);
         }
         catch (StripeException ex) { return MapStripeException(ex); }
     }
 
-    public override async Task<Result<PaymentGatewayResponse>> CreateSetupIntentAsync(
+    public override async Task<Result<PaymentGatewayResult>> CreateSetupIntentAsync(
         string? customerId, Dictionary<string, string>? metadata, CancellationToken ct = default)
     {
         try
@@ -1206,7 +1206,7 @@ public sealed class StripeGateway : Gateway
             var options = new SetupIntentCreateOptions { Metadata = metadata };
             var ro = new RequestOptions { ApiKey = _options.SecretKey };
             var intent = await new SetupIntentService().CreateAsync(options, ro, ct).ConfigureAwait(false);
-            return new PaymentGatewayResponse(true, "Setup intent created.",
+            return new PaymentGatewayResult(true, "Setup intent created.",
                 GatewayConstants.Providers.Stripe,
                 setupIntentClientSecret: intent.ClientSecret);
         }
@@ -1243,7 +1243,7 @@ public sealed class StripeGateway : Gateway
         return o;
     }
 
-    private static Result<PaymentGatewayResponse> MapStripeException(StripeException ex)
+    private static Result<PaymentGatewayResult> MapStripeException(StripeException ex)
     {
         var e = ex.StripeError;
         var code = e?.Code ?? GatewayConstants.ErrorCodes.Stripe.UnknownError;
@@ -1304,7 +1304,7 @@ git commit -m "refactor(payment): StripeGateway — per-request ApiKey, all cons
 - Modify: `service/Api/src/Module/Payment/Infrastructure/Gateways/Bogus/BogusGateway.Result.cs`
 
 **Interfaces:**
-- Consumes: `GatewayConstants.Providers.Bogus`, `GatewayConstants.Bogus.*`, `GatewayConstants.Amount.CentsMultiplier`, new `PaymentGatewayResponse` constructor
+- Consumes: `GatewayConstants.Providers.Bogus`, `GatewayConstants.Bogus.*`, `GatewayConstants.Amount.CentsMultiplier`, new `PaymentGatewayResult` constructor
 
 - [ ] **Step 1: Rewrite BogusGateway.cs — use constants, add new methods**
 
@@ -1334,58 +1334,58 @@ public sealed class BogusGateway : Gateway
 
     public BogusGateway(IOptions<BogusOptions> options) { _options = options; }
 
-    public override Task<Result<PaymentGatewayResponse>> PurchaseAsync(
+    public override Task<Result<PaymentGatewayResult>> PurchaseAsync(
         decimal amount, object? source, GatewayOptions options, CancellationToken ct = default)
         => SimulateGatewayResponse(amount, source, options, "purchase");
 
-    public override Task<Result<PaymentGatewayResponse>> AuthorizeAsync(
+    public override Task<Result<PaymentGatewayResult>> AuthorizeAsync(
         decimal amount, object? source, GatewayOptions options, CancellationToken ct = default)
         => SimulateGatewayResponse(amount, source, options, "authorize");
 
-    public override Task<Result<PaymentGatewayResponse>> CaptureAsync(
+    public override Task<Result<PaymentGatewayResult>> CaptureAsync(
         decimal amount, string? responseCode, GatewayOptions options, CancellationToken ct = default)
     {
-        return Task.FromResult(Result.Ok(new PaymentGatewayResponse(
+        return Task.FromResult(Result.Ok(new PaymentGatewayResult(
             true, GatewayConstants.ResponseMessages.Captured, GatewayConstants.Providers.Bogus,
             authorization: responseCode)));
     }
 
-    public override Task<Result<PaymentGatewayResponse>> VoidAsync(
+    public override Task<Result<PaymentGatewayResult>> VoidAsync(
         string? responseCode, object? source, GatewayOptions options, CancellationToken ct = default)
     {
-        return Task.FromResult(Result.Ok(new PaymentGatewayResponse(
+        return Task.FromResult(Result.Ok(new PaymentGatewayResult(
             true, GatewayConstants.ResponseMessages.Voided, GatewayConstants.Providers.Bogus,
             authorization: responseCode)));
     }
 
-    public override Task<Result<PaymentGatewayResponse>> RefundAsync(
+    public override Task<Result<PaymentGatewayResult>> RefundAsync(
         decimal amount, string? responseCode, GatewayOptions options, CancellationToken ct = default)
     {
-        return Task.FromResult(Result.Ok(new PaymentGatewayResponse(
+        return Task.FromResult(Result.Ok(new PaymentGatewayResult(
             true, GatewayConstants.ResponseMessages.Refunded, GatewayConstants.Providers.Bogus,
             authorization: responseCode)));
     }
 
-    public override Task<Result<PaymentGatewayResponse>> CreateSetupIntentAsync(
+    public override Task<Result<PaymentGatewayResult>> CreateSetupIntentAsync(
         string? customerId, Dictionary<string, string>? metadata, CancellationToken ct = default)
     {
-        return Task.FromResult(Result.Ok(new PaymentGatewayResponse(
+        return Task.FromResult(Result.Ok(new PaymentGatewayResult(
             true, "Bogus setup intent created.", GatewayConstants.Providers.Bogus,
             setupIntentClientSecret: $"{GatewayConstants.Bogus.SetupIntentSecretPrefix}{Guid.NewGuid():N}")));
     }
 
-    private Task<Result<PaymentGatewayResponse>> SimulateGatewayResponse(
+    private Task<Result<PaymentGatewayResult>> SimulateGatewayResponse(
         decimal amount, object? source, GatewayOptions options, string action)
     {
         var cardNumber = source as string;
         if (cardNumber == TestCards.Declined)
-            return Task.FromResult<Result<PaymentGatewayResponse>>(BogusGatewayResult.Errors.CardDeclined);
+            return Task.FromResult<Result<PaymentGatewayResult>>(BogusGatewayResult.Errors.CardDeclined);
         if (cardNumber == TestCards.InsufficientFunds)
-            return Task.FromResult<Result<PaymentGatewayResponse>>(BogusGatewayResult.Errors.InsufficientFunds);
+            return Task.FromResult<Result<PaymentGatewayResult>>(BogusGatewayResult.Errors.InsufficientFunds);
         if (cardNumber != TestCards.Success && cardNumber is not null)
-            return Task.FromResult<Result<PaymentGatewayResponse>>(BogusGatewayResult.Errors.UnknownCard);
+            return Task.FromResult<Result<PaymentGatewayResult>>(BogusGatewayResult.Errors.UnknownCard);
 
-        return Task.FromResult(Result.Ok(new PaymentGatewayResponse(
+        return Task.FromResult(Result.Ok(new PaymentGatewayResult(
             true, $"{action} captured.", GatewayConstants.Providers.Bogus,
             authorization: $"auth_{Guid.NewGuid():N}")));
     }
@@ -2345,13 +2345,13 @@ Expected: PASS with zero warnings
 ```bash
 dotnet test service/Api/tests/Module.UnitTests --filter "FullyQualifiedName~Payment" 2>&1 | tail -30
 ```
-Expected: Some tests will likely fail because test code uses old `PaymentGatewayResponse`, `GatewayOptions`, or `IPaymentGatewayActionProvider` signatures.
+Expected: Some tests will likely fail because test code uses old `PaymentGatewayResult`, `GatewayOptions`, or `IPaymentGatewayActionProvider` signatures.
 
 - [ ] **Step 3: Update broken tests**
 
 For each failing test, update the setup to match new signatures:
 - `Mock<IPaymentGatewayActionProvider>()` → `Mock<IPaymentGatewayActionProvider>()` (interface changed, update Mock setups for new methods)
-- `new PaymentGatewayResponse(true, "Captured")` → `new PaymentGatewayResponse(true, "Captured", "bogus")` (add provider parameter)
+- `new PaymentGatewayResult(true, "Captured")` → `new PaymentGatewayResult(true, "Captured", "bogus")` (add provider parameter)
 - `new GatewayOptions(payment) { ... }` → `new GatewayOptions { ... }` (remove payment constructor arg)
 - Update `Mock<IGatewayRegistry>` to return `Mock<IPaymentGatewayActionProvider>().Object` wrapped in `Result.Ok()`
 
@@ -2537,4 +2537,4 @@ git commit -m "refactor(payment): complete gateway abstraction — all specs val
 
 **Placeholder scan:** No TODOs, TBDs, or "implement later" found. Every step has concrete code.
 
-**Type consistency:** `PaymentCapture` is the entity name used throughout. `GatewayConstants.*` members are consistently referenced. `IGatewayRegistry.GetGateway` returns `Result<IPaymentGatewayActionProvider>`. `PaymentGatewayResponse` constructor with `(success, message, provider)` is used uniformly.
+**Type consistency:** `PaymentCapture` is the entity name used throughout. `GatewayConstants.*` members are consistently referenced. `IGatewayRegistry.GetGateway` returns `Result<IPaymentGatewayActionProvider>`. `PaymentGatewayResult` constructor with `(success, message, provider)` is used uniformly.

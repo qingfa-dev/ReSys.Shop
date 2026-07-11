@@ -1,6 +1,6 @@
 using Stripe;
 
-namespace Module.Payment.Services.Gateways.Webhooks;
+namespace Module.Payment.Services.Abstractions;
 
 public interface IStripeWebhookService
 {

@@ -1,4 +1,4 @@
-namespace Module.Payment.Services.Gateways;
+namespace Module.Payment.Services.Models;
 
 public sealed record GatewayOptions
 {

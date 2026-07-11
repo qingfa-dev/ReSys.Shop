@@ -1,9 +1,9 @@
-using Module.Payment.Services.Gateways;
+using Module.Payment.Services.Models;
 using Module.Payment.Domain.PaymentCaptures;
 using PaymentCapture = Module.Payment.Domain.PaymentCaptures.PaymentCapture;
 using Stripe;
 using StripeEvent = Stripe.Event;
-using Module.Payment.Services.Gateways.Webhooks;
+using Module.Payment.Services.Abstractions;
 
 namespace Module.Payment.Features.Storefront.Payment.Webhooks;
 

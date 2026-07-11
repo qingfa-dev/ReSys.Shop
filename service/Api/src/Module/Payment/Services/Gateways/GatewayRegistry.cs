@@ -1,3 +1,5 @@
+using Module.Payment.Services.Abstractions;
+
 namespace Module.Payment.Services.Gateways;
 
 public sealed class GatewayRegistry : IGatewayRegistry

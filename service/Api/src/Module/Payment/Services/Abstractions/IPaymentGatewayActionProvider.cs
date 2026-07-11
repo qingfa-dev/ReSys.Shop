@@ -1,4 +1,6 @@
-namespace Module.Payment.Services.Gateways;
+using Module.Payment.Services.Models;
+
+namespace Module.Payment.Services.Abstractions;
 
 public interface IPaymentGatewayActionProvider
 {

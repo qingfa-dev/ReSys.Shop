@@ -1,8 +1,8 @@
 using Module.Ordering.Domain.Orders;
-using Module.Payment.Services.Gateways;
 using Module.Payment.Domain.PaymentCaptures;
 using Module.Payment.Domain.PaymentMethods;
-using Module.Payment.Services.GatewayProcessing;
+using Module.Payment.Services.Abstractions;
+using Module.Payment.Services.Models;
 
 namespace Module.Payment.Features.Storefront.Payment.CreateIntent;
 

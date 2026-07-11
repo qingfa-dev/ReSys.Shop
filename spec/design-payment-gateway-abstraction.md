@@ -11,12 +11,12 @@ tags: design, payment, gateway, refactor, abstraction, encryption
 
 ## 1. Purpose & Scope
 
-Refactor `IPaymentGatewayActionProvider`, `GatewayOptions`, `PaymentGatewayResponse`, and `PaymentMethod` to form a provider-agnostic gateway abstraction. The current design leaks Stripe-specific concepts (PaymentIntent, SetupIntent, webhook types) into the domain and feature handlers, and couples `PaymentMethod.ProviderType` to free-form strings with no mapping to concrete gateway implementations. All hardcoded string values must be consolidated into nested constants classes under `GatewayConstants`.
+Refactor `IPaymentGatewayActionProvider`, `GatewayOptions`, `PaymentGatewayResult`, and `PaymentMethod` to form a provider-agnostic gateway abstraction. The current design leaks Stripe-specific concepts (PaymentIntent, SetupIntent, webhook types) into the domain and feature handlers, and couples `PaymentMethod.ProviderType` to free-form strings with no mapping to concrete gateway implementations. All hardcoded string values must be consolidated into nested constants classes under `GatewayConstants`.
 
 **Scope:**
 - `IPaymentGatewayActionProvider` — generalize to support any payment provider: Authorize, Capture, Purchase, Void, Refund, CreateSetupIntent, GetPaymentStatus
 - `GatewayOptions` — decouple from `PaymentRecord`; become a `record` with zero domain-type references
-- `PaymentGatewayResponse` — simplify flat structure; add `Provider`, `SetupIntentClientSecret`, `Properties` bag; remove nested `Params`/`Options`/`AvsResult`/`CvvResult` dictionaries
+- `PaymentGatewayResult` — simplify flat structure; add `Provider`, `SetupIntentClientSecret`, `Properties` bag; remove nested `Params`/`Options`/`AvsResult`/`CvvResult` dictionaries
 - `PaymentMethod` — replace `ProviderType` (free-form string) with `ProviderKey` validated against `IGatewayRegistry`. **Add `Settings` dictionary for encrypted provider-specific values** (API key overrides, merchant IDs). Keep `Preferences` as plain JSONB for non-sensitive behavioral config. Persist `WebhookEnabled` flag (not secrets) to DB.
 - `PaymentRecord` — add `ProviderKey` snapshot; remove `Order` navigation property
 - `StripeGateway` — eliminate global `StripeConfiguration.ApiKey`; use per-request `RequestOptions.ApiKey` from `GatewayProviders:stripe` config section (not from PaymentMethod.Settings — that's an admin override)
@@ -94,8 +94,8 @@ Refactor `IPaymentGatewayActionProvider`, `GatewayOptions`, `PaymentGatewayRespo
 ### Provider Abstraction
 
 - **REQ-GEN-001**: `IPaymentGatewayActionProvider` must declare: `ProviderKey { get; }`, `AutoCapture { get; }`, `SourceRequired { get; }`, `Supports(object?)`, and lifecycle methods.
-- **REQ-GEN-002**: Every gateway method accepts `GatewayOptions` and returns `Result<PaymentGatewayResponse>`. No exceptions thrown from gateway methods.
-- **REQ-GEN-003**: `PaymentGatewayResponse` includes `Provider`, `SetupIntentClientSecret`, `PaymentStatus`, flat AVS/CVV strings, and `Properties` bag.
+- **REQ-GEN-002**: Every gateway method accepts `GatewayOptions` and returns `Result<PaymentGatewayResult>`. No exceptions thrown from gateway methods.
+- **REQ-GEN-003**: `PaymentGatewayResult` includes `Provider`, `SetupIntentClientSecret`, `PaymentStatus`, flat AVS/CVV strings, and `Properties` bag.
 - **REQ-GEN-004**: Gateway implementations must not set global static state. `StripeConfiguration.ApiKey` must never be set. `RequestOptions.ApiKey` from config per call.
 - **REQ-GEN-005**: `GatewayOptions` must be a `record` with zero references to domain entities.
 - **REQ-GEN-006**: `CreateSetupIntentAsync` must be on `IPaymentGatewayActionProvider`.
@@ -135,7 +135,7 @@ Refactor `IPaymentGatewayActionProvider`, `GatewayOptions`, `PaymentGatewayRespo
 ### Constraints
 
 - **CON-001**: All feature handlers inject `IGatewayRegistry` instead of `IPaymentGatewayActionProvider`.
-- **CON-002**: `PaymentGatewayResponse` constructor parameter `parmas` → `properties`.
+- **CON-002**: `PaymentGatewayResult` constructor parameter `parmas` → `properties`.
 - **CON-003**: `IdempotencyKey` prefix `"spree-"` → `GatewayConstants.Idempotency.Prefix`.
 - **CON-004**: `PaymentRecordConfiguration` maps `CaptureEventCreated`, `RefundedAmount`, `ProviderKey`.
 - **CON-005**: `PaymentMethodConfiguration` maps `ProviderKey`, `WebhookEnabled`, `Settings` (encrypted), `Preferences` (plain); removes `ProviderType` mapping.
@@ -335,22 +335,22 @@ public interface IPaymentGatewayActionProvider
     bool SourceRequired { get; }
     bool Supports(object? source);
 
-    Task<Result<PaymentGatewayResponse>> AuthorizeAsync(
+    Task<Result<PaymentGatewayResult>> AuthorizeAsync(
         decimal amount, object? source, GatewayOptions options, CancellationToken ct = default);
 
-    Task<Result<PaymentGatewayResponse>> CaptureAsync(
+    Task<Result<PaymentGatewayResult>> CaptureAsync(
         decimal amount, string? responseCode, GatewayOptions options, CancellationToken ct = default);
 
-    Task<Result<PaymentGatewayResponse>> PurchaseAsync(
+    Task<Result<PaymentGatewayResult>> PurchaseAsync(
         decimal amount, object? source, GatewayOptions options, CancellationToken ct = default);
 
-    Task<Result<PaymentGatewayResponse>> VoidAsync(
+    Task<Result<PaymentGatewayResult>> VoidAsync(
         string? responseCode, object? source, GatewayOptions options, CancellationToken ct = default);
 
-    Task<Result<PaymentGatewayResponse>> RefundAsync(
+    Task<Result<PaymentGatewayResult>> RefundAsync(
         decimal amount, string? responseCode, GatewayOptions options, CancellationToken ct = default);
 
-    Task<Result<PaymentGatewayResponse>> CreateSetupIntentAsync(
+    Task<Result<PaymentGatewayResult>> CreateSetupIntentAsync(
         string? customerId, Dictionary<string, string>? metadata, CancellationToken ct = default);
 
     Task<string> GetPaymentStatusAsync(
@@ -385,12 +385,12 @@ public sealed record GatewayOptions
 }
 ```
 
-### 4.9 `PaymentGatewayResponse`
+### 4.9 `PaymentGatewayResult`
 
 ```csharp
 namespace Module.Payment.Domain.Gateways;
 
-public sealed record PaymentGatewayResponse
+public sealed record PaymentGatewayResult
 {
     public bool Success { get; }
     public string Message { get; }
@@ -403,7 +403,7 @@ public sealed record PaymentGatewayResponse
     public string? CvvResultMessage { get; }
     public Dictionary<string, object?> Properties { get; }
 
-    public PaymentGatewayResponse(
+    public PaymentGatewayResult(
         bool success,
         string message,
         string provider,
@@ -771,7 +771,7 @@ public sealed class StripeGateway : Gateway
         IdempotencyKey = opt.IdempotencyKey
     };
 
-    public override async Task<Result<PaymentGatewayResponse>> PurchaseAsync(
+    public override async Task<Result<PaymentGatewayResult>> PurchaseAsync(
         decimal amount, object? source, GatewayOptions options, CancellationToken ct)
     {
         try
@@ -782,7 +782,7 @@ public sealed class StripeGateway : Gateway
             var status = intent.Status == GatewayConstants.Stripe.IntentStatus.Succeeded
                 ? GatewayConstants.ResponseMessages.PaymentCaptured
                 : $"Status: {intent.Status}";
-            return new PaymentGatewayResponse(true, status, GatewayConstants.Providers.Stripe,
+            return new PaymentGatewayResult(true, status, GatewayConstants.Providers.Stripe,
                 authorization: intent.Id);
         }
         catch (StripeException ex) { return MapStripeException(ex); }
@@ -841,7 +841,7 @@ public static class BogusGatewayResult
 - **AC-013**: Given `CreatePaymentIntent` handler, Then calls `IGatewayRegistry.GetGateway(payment.ProviderKey)`.
 - **AC-014**: Given `PaymentRecordConfiguration`, Then `CaptureEventCreated`, `RefundedAmount`, `ProviderKey` are mapped.
 - **AC-015**: Given `PaymentMethodConfiguration`, Then `ProviderKey`, `WebhookEnabled`, `Settings` (encrypted), `Preferences` (plain) are mapped; `ProviderType` is not mapped.
-- **AC-016**: Given `PaymentGatewayResponse` constructor, Then parameter is named `properties` not `parmas`.
+- **AC-016**: Given `PaymentGatewayResult` constructor, Then parameter is named `properties` not `parmas`.
 - **AC-017**: Given any Payment module file, Then no hardcoded string duplicates a `GatewayConstants` member.
 - **AC-018**: Given `PaymentMethod.Settings` contains `{"merchant_id": "acct_123"}`, When persisted, Then DB column value is not human-readable (Base64 ciphertext).
 - **AC-019**: Given encrypted DB column value, When loaded by EF Core, Then `PaymentMethod.Settings` is decrypted to the original `Dictionary<string, string>`.
@@ -980,7 +980,7 @@ public sealed class StripeGateway : Gateway
         IdempotencyKey = opt.IdempotencyKey
     };
 
-    public override async Task<Result<PaymentGatewayResponse>> PurchaseAsync(
+    public override async Task<Result<PaymentGatewayResult>> PurchaseAsync(
         decimal amount, object? source, GatewayOptions options, CancellationToken ct)
     {
         try
@@ -989,7 +989,7 @@ public sealed class StripeGateway : Gateway
             var ro = BuildRequestOptions(options);
             var intent = await new PaymentIntentService().CreateAsync(po, ro, ct).ConfigureAwait(false);
             var succeeded = intent.Status == GatewayConstants.Stripe.IntentStatus.Succeeded;
-            return new PaymentGatewayResponse(
+            return new PaymentGatewayResult(
                 succeeded,
                 succeeded ? GatewayConstants.ResponseMessages.PaymentCaptured : status,
                 GatewayConstants.Providers.Stripe,
@@ -998,7 +998,7 @@ public sealed class StripeGateway : Gateway
         catch (StripeException ex) { return MapStripeException(ex); }
     }
 
-    public override async Task<Result<PaymentGatewayResponse>> CreateSetupIntentAsync(
+    public override async Task<Result<PaymentGatewayResult>> CreateSetupIntentAsync(
         string? customerId, Dictionary<string, string>? metadata, CancellationToken ct)
     {
         try
@@ -1006,7 +1006,7 @@ public sealed class StripeGateway : Gateway
             var options = new SetupIntentCreateOptions { Metadata = metadata };
             var ro = new RequestOptions { ApiKey = _options.SecretKey };
             var intent = await new SetupIntentService().CreateAsync(options, ro, ct).ConfigureAwait(false);
-            return new PaymentGatewayResponse(
+            return new PaymentGatewayResult(
                 true, "Setup intent created.", GatewayConstants.Providers.Stripe,
                 setupIntentClientSecret: intent.ClientSecret);
         }
@@ -1048,10 +1048,10 @@ public async Task<Result<Response>> Handle(Command command, CancellationToken ct
 ### 9.4 BogusGateway SetupIntent
 
 ```csharp
-public override Task<Result<PaymentGatewayResponse>> CreateSetupIntentAsync(
+public override Task<Result<PaymentGatewayResult>> CreateSetupIntentAsync(
     string? customerId, Dictionary<string, string>? metadata, CancellationToken ct)
 {
-    var response = new PaymentGatewayResponse(
+    var response = new PaymentGatewayResult(
         success: true,
         message: "Bogus setup intent created.",
         provider: GatewayConstants.Providers.Bogus,
@@ -1111,7 +1111,7 @@ public static Result<PaymentMethod> Create(
 - Zero occurrences of `StripeConfiguration.ApiKey` assignment in codebase (grep-verified).
 - Payment module has zero `using Module.Ordering.*` directives.
 - Ordering module has zero `using Module.Payment.*` directives.
-- `PaymentGatewayResponse` has no `Params` or `Options` properties.
+- `PaymentGatewayResult` has no `Params` or `Options` properties.
 - `PaymentMethod` has `ProviderKey` not `ProviderType`; `Settings` (encrypted) and `Preferences` (plain) dictionaries; `WebhookEnabled` flag; no `WebhookUrl`/`WebhookSecret` properties.
 - `PaymentRecordConfiguration` maps `CaptureEventCreated`, `RefundedAmount`, `ProviderKey`.
 - `PaymentMethodConfiguration` maps `ProviderKey`, `WebhookEnabled`, `Settings` (encrypted), `Preferences` (plain); does not map `ProviderType`, `WebhookUrl`, `WebhookSecret`.

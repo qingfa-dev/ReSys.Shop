@@ -1,7 +1,7 @@
-using Module.Payment.Services.Gateways;
 using Module.Payment.Domain.PaymentCaptures;
+using Module.Payment.Services.Models;
 
-namespace Module.Payment.Services.GatewayProcessing;
+namespace Module.Payment.Services.Abstractions;
 
 public interface IPaymentProcessingService
 {

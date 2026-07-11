@@ -1,7 +1,10 @@
+using Module.Payment.Services.Abstractions;
+using Module.Payment.Services.Models;
+
 using Module.Payment.Services.Gateways;
 using Module.Payment.Domain.PaymentCaptures;
 
-namespace Module.Payment.Services.GatewayProcessing;
+namespace Module.Payment.Services.Gateways;
 
 public sealed class PaymentProcessingService : IPaymentProcessingService
 {
