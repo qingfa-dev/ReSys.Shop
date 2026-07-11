@@ -1,4 +1,5 @@
 using Module.Ordering.Domain.Orders;
+using Module.Payment.Domain.Gateways;
 using Module.Payment.Domain.Payments;
 using Module.Payment.Features.Storefront.Payment.Confirm;
 using PaymentRecord = Module.Payment.Domain.Payments.PaymentRecord;
@@ -13,6 +14,7 @@ public class ConfirmPaymentTests : IDisposable
     private readonly ApplicationDbContext _dbContext;
     private readonly ConfirmPayment.CommandHandler _handler;
     private readonly string _currentUserId;
+    private readonly Mock<IPaymentGatewayActionProvider> _gatewayMock;
 
     public ConfirmPaymentTests()
     {
@@ -25,7 +27,10 @@ public class ConfirmPaymentTests : IDisposable
         var currentUserMock = new Mock<ICurrentUser>();
         currentUserMock.Setup(x => x.UserId).Returns(_currentUserId);
         currentUserMock.Setup(x => x.UserName).Returns("test-user");
-        _handler = new ConfirmPayment.CommandHandler(_dbContext, currentUserMock.Object);
+        _gatewayMock = new Mock<IPaymentGatewayActionProvider>();
+        _gatewayMock.Setup(x => x.GetPaymentIntentStatusAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync("succeeded");
+        _handler = new ConfirmPayment.CommandHandler(_dbContext, currentUserMock.Object, _gatewayMock.Object);
     }
 
     private async Task SeedOrderAsync(Guid orderId, CancellationToken ct)
@@ -42,10 +47,17 @@ public class ConfirmPaymentTests : IDisposable
 
     public void Dispose() { _dbContext.Dispose(); GC.SuppressFinalize(this); }
 
+    private static PaymentRecord CreateTestPayment(Guid? paymentMethodId = null, Guid? orderId = null)
+    {
+        var payment = PaymentFactory.Create(100m, paymentMethodId ?? Guid.NewGuid(), orderId ?? Guid.NewGuid()).Value;
+        payment.ResponseCode = "pi_test_123";
+        return payment;
+    }
+
     [Fact(DisplayName = "Handler: Should confirm payment when in Pending state")]
     public async Task Handle_ShouldConfirm_WhenPending()
     {
-        var payment = PaymentFactory.Create(100m, Guid.NewGuid(), Guid.NewGuid()).Value;
+        var payment = CreateTestPayment();
         payment.Process();
         payment.Pend();
         _dbContext.Set<PaymentRecord>().Add(payment);
@@ -60,10 +72,31 @@ public class ConfirmPaymentTests : IDisposable
         result.Value.State.Should().Be(PaymentRecordState.Completed);
     }
 
+    [Fact(DisplayName = "Handler: Should return failure when gateway status is not succeeded")]
+    public async Task Handle_ShouldFail_WhenGatewayStatusNotSucceeded()
+    {
+        _gatewayMock.Setup(x => x.GetPaymentIntentStatusAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync("requires_payment_method");
+
+        var payment = CreateTestPayment();
+        payment.Process();
+        payment.Pend();
+        _dbContext.Set<PaymentRecord>().Add(payment);
+        await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
+        await SeedOrderAsync(payment.OrderId, TestContext.Current.CancellationToken);
+
+        var result = await _handler.Handle(
+            new ConfirmPayment.Command(payment.Id),
+            TestContext.Current.CancellationToken);
+
+        result.IsFailure.Should().BeTrue();
+        result.Errors[0].Code.Should().Be("Payment.Confirm.NotSucceeded");
+    }
+
     [Fact(DisplayName = "Handler: Should return failure when payment in Checkout state")]
     public async Task Handle_ShouldFail_WhenCheckout()
     {
-        var payment = PaymentFactory.Create(100m, Guid.NewGuid(), Guid.NewGuid()).Value;
+        var payment = CreateTestPayment();
         _dbContext.Set<PaymentRecord>().Add(payment);
         await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
         await SeedOrderAsync(payment.OrderId, TestContext.Current.CancellationToken);
@@ -78,7 +111,7 @@ public class ConfirmPaymentTests : IDisposable
     [Fact(DisplayName = "Handler: Should return failure when payment already completed")]
     public async Task Handle_ShouldFail_WhenAlreadyCompleted()
     {
-        var payment = PaymentFactory.Create(100m, Guid.NewGuid(), Guid.NewGuid()).Value;
+        var payment = CreateTestPayment();
         payment.Process();
         payment.Complete();
         _dbContext.Set<PaymentRecord>().Add(payment);
