@@ -13,6 +13,7 @@ public class CapturePaymentTests : IDisposable
 {
     private readonly ApplicationDbContext _dbContext;
     private readonly Mock<IPaymentGatewayActionProvider> _gatewayMock;
+    private readonly Mock<IGatewayRegistry> _gatewayRegistryMock;
     private readonly CapturePayment.CommandHandler _handler;
 
     public CapturePaymentTests()
@@ -26,9 +27,13 @@ public class CapturePaymentTests : IDisposable
         _gatewayMock = new Mock<IPaymentGatewayActionProvider>();
         _gatewayMock.Setup(x => x.AutoCapture).Returns(false);
         _gatewayMock.Setup(x => x.CaptureAsync(It.IsAny<decimal>(), It.IsAny<string?>(), It.IsAny<GatewayOptions>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new PaymentGatewayResponse(true, "Captured"));
+            .ReturnsAsync(new PaymentGatewayResponse(true, "Captured", "bogus"));
 
-        _handler = new CapturePayment.CommandHandler(_dbContext, _gatewayMock.Object);
+        _gatewayRegistryMock = new Mock<IGatewayRegistry>();
+        _gatewayRegistryMock.Setup(x => x.GetGateway(It.IsAny<string>()))
+            .Returns(Result<IPaymentGatewayActionProvider>.Ok(_gatewayMock.Object));
+
+        _handler = new CapturePayment.CommandHandler(_dbContext, _gatewayRegistryMock.Object);
     }
 
     public void Dispose() { _dbContext.Dispose(); GC.SuppressFinalize(this); }

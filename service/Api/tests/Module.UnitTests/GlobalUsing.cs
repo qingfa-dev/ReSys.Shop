@@ -18,3 +18,5 @@ global using Shared.Security.Authentication.Contexts.Services;
 global using Shared.Operational.Persistence.Data;
 
 global using Xunit;
+
+global using MediatR;

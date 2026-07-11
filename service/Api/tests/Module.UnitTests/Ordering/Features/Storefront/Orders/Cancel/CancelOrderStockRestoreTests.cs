@@ -1,3 +1,5 @@
+using MediatR;
+
 using Shared.Operational.Notifications.Models;
 using Shared.Operational.Notifications.Services;
 using Module.Inventory.Domain.StockLocations.StockItems;
@@ -5,7 +7,6 @@ using Module.Inventory.Domain.StockLocations.StockItems.StockMovements;
 using Module.Inventory.Services;
 using Module.Ordering.Domain.LineItems;
 using Module.Ordering.Domain.Orders;
-using Module.Payment.Domain.Gateways;
 
 using CancelOrderHandler = Module.Ordering.Features.Storefront.Orders.Cancel.CancelOrder;
 
@@ -19,7 +20,7 @@ public class CancelOrderStockRestoreTests : IDisposable
     private readonly ApplicationDbContext _dbContext;
     private readonly Mock<ICurrentUser> _currentUserMock;
     private readonly Mock<ILogger<CancelOrderHandler.CommandHandler>> _loggerMock;
-    private readonly Mock<IPaymentGatewayActionProvider> _paymentGatewayMock;
+    private readonly Mock<ISender> _senderMock;
     private readonly Mock<INotificationService> _notificationServiceMock;
     private readonly CancelOrderHandler.CommandHandler _handler;
     private readonly Guid _userId = Guid.NewGuid();
@@ -44,14 +45,18 @@ public class CancelOrderStockRestoreTests : IDisposable
 
         _loggerMock = new Mock<ILogger<CancelOrderHandler.CommandHandler>>();
 
-        _paymentGatewayMock = new Mock<IPaymentGatewayActionProvider>();
+        _senderMock = new Mock<ISender>();
+        _senderMock
+            .Setup(x => x.Send(It.IsAny<IRequest<Result>>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Result.Ok());
+
         _notificationServiceMock = new Mock<INotificationService>();
         _notificationServiceMock
             .Setup(x => x.SendAsync(It.IsAny<NotificationMessage>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(Result.Ok());
 
         _handler = new CancelOrderHandler.CommandHandler(
-            _dbContext, new StockQuantityService(_dbContext), _paymentGatewayMock.Object,
+            _dbContext, new StockQuantityService(_dbContext), _senderMock.Object,
             _loggerMock.Object, _currentUserMock.Object, _notificationServiceMock.Object);
     }
 
@@ -112,7 +117,7 @@ public class CancelOrderStockRestoreTests : IDisposable
         result.IsSuccess.Should().BeTrue();
         var stockItem = await _dbContext.Set<StockItem>()
             .FirstAsync(si => si.VariantId == _variantId, ct);
-        stockItem.CountOnHand.Should().Be(8); // 5 + 3
+        stockItem.CountOnHand.Should().Be(8);
     }
 
     [Fact(DisplayName = "Handler: Should create StockMovement when restoring stock on cancel")]

@@ -1,18 +1,14 @@
 using Module.Inventory.Services.Abstractions;
 using Module.Ordering.Domain.Orders;
 using Module.Ordering.Features.Shared.Services;
-using Module.Payment.Domain.Gateways;
-using Module.Payment.Domain.PaymentCaptures;
 
 using Shared.Operational.Notifications.Models;
 using Shared.Operational.Notifications.Services;
 using Shared.Operational.Notifications.Templates;
 
-using PaymentCapture = Module.Payment.Domain.PaymentCaptures.PaymentCapture;
-
 namespace Module.Ordering.Features.Storefront.Orders.Cancel;
 
-/// <summary>Cancels a customer's placed order with payment voiding via gateway, inventory release, and email notification.</summary>
+/// <summary>Cancels a customer's placed order with payment voiding via MediatR, inventory release, and email notification.</summary>
 public static partial class CancelOrder
 {
     public sealed record Command(Guid Id) : ICommand;
@@ -20,7 +16,7 @@ public static partial class CancelOrder
     public sealed class CommandHandler(
         IApplicationDbContext dbContext,
         IStockQuantityService stockChecker,
-        IGatewayRegistry gatewayRegistry,
+        ISender sender,
         ILogger<CommandHandler> logger,
         ICurrentUser currentUser,
         INotificationService notificationService)
@@ -58,37 +54,15 @@ public static partial class CancelOrder
             // Update: Record cancellation user identity.
             entity.CanceledById = currentUser.UserId is not null && Guid.TryParse(currentUser.UserId, out var canceledBy) ? canceledBy : null;
 
-            // Void: Cancel associated payments via gateway.
-            var payments = await dbContext.Set<PaymentCapture>()
-                .Where(p => p.OrderId == entity.Id && p.State != PaymentRecordState.Void && p.State != PaymentRecordState.Failed)
-                .ToListAsync(cancellationToken);
-
-            foreach (var payment in payments)
+            // Void: Cancel associated payments via MediatR.
+            var voidResult = await sender.Send(
+                new Module.Payment.Features.Shared.Commands.VoidOrderPaymentsCommand(
+                    entity.Id, "Order cancelled by customer"),
+                cancellationToken);
+            if (voidResult.IsFailure)
             {
-                var gatewayResult = gatewayRegistry.GetGateway(payment.ProviderKey);
-                if (gatewayResult.IsFailure)
-                {
-                    logger.LogWarning("Failed to find gateway for payment {PaymentId} for order {OrderId}: {Errors}",
-                        payment.Id, entity.Id, string.Join("; ", gatewayResult.Errors.Select(f => f.Message)));
-                    continue;
-                }
-                var gw = gatewayResult.Value;
-
-                var options = new GatewayOptions
-                {
-                    Email = entity.Email ?? string.Empty,
-                    Customer = entity.Email ?? string.Empty,
-                    OrderId = $"{entity.Number}-{payment.Number}",
-                    PaymentId = payment.Number,
-                    IdempotencyKey = GatewayConstants.Idempotency.ForPayment(payment.Number),
-                    StatementDescriptorSuffix = string.Empty,
-                };
-                var voidResult = await payment.VoidTransactionAsync(gw, options, cancellationToken: cancellationToken);
-                if (voidResult.IsFailure)
-                {
-                    logger.LogWarning("Failed to void payment {PaymentId} for order {OrderId}: {Errors}",
-                        payment.Id, entity.Id, string.Join("; ", voidResult.Errors.Select(f => f.Message)));
-                }
+                logger.LogWarning("Failed to void payments for order {OrderId}: {Errors}",
+                    entity.Id, string.Join("; ", voidResult.Errors.Select(f => f.Message)));
             }
 
             if (wasPlaced)

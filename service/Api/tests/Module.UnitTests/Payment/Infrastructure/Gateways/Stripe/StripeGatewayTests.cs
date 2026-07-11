@@ -20,8 +20,7 @@ public class StripeGatewayTests
         _options = new StripeOptions { SecretKey = "sk_test_fake" };
         _gateway = new StripeGateway(Options.Create(_options));
 
-        var payment = PaymentCaptureMethod.Create(100m, Guid.NewGuid(), Guid.NewGuid()).Value;
-        _gatewayOptions = new GatewayOptions(payment)
+        _gatewayOptions = new GatewayOptions
         {
             Email = "test@example.com",
             StatementDescriptorSuffix = "Test",
@@ -70,12 +69,6 @@ public class StripeGatewayTests
         _gateway.Supports(42).Should().BeFalse();
     }
 
-    [Fact(DisplayName = "StripeGateway: Constructor should set ApiKey")]
-    public void Constructor_ShouldSetApiKey()
-    {
-        global::Stripe.StripeConfiguration.ApiKey.Should().Be("sk_test_fake");
-    }
-
     [Fact(DisplayName = "StripeGateway: PurchaseAsync with invalid key should return failure")]
     public async Task PurchaseAsync_ShouldReturnFailure_WithInvalidApiKey()
     {
@@ -112,19 +105,10 @@ public class StripeGatewayTests
         result.Errors[0].Code.Should().Be("Stripe.Cancel.MissingIntent");
     }
 
-    [Fact(DisplayName = "StripeGateway: CancelAsync without responseCode should return failure")]
-    public async Task CancelAsync_ShouldReturnFailure_WithoutResponseCode()
+    [Fact(DisplayName = "StripeGateway: RefundAsync without responseCode should return failure")]
+    public async Task RefundAsync_ShouldReturnFailure_WithoutResponseCode()
     {
-        var result = await _gateway.CancelAsync(null, null, TestContext.Current.CancellationToken);
-
-        result.IsFailure.Should().BeTrue();
-        result.Errors[0].Code.Should().Be("Stripe.Cancel.MissingIntent");
-    }
-
-    [Fact(DisplayName = "StripeGateway: CreditAsync without responseCode should return failure")]
-    public async Task CreditAsync_ShouldReturnFailure_WithoutResponseCode()
-    {
-        var result = await _gateway.CreditAsync(50m, null, _gatewayOptions, TestContext.Current.CancellationToken);
+        var result = await _gateway.RefundAsync(50m, null, _gatewayOptions, TestContext.Current.CancellationToken);
 
         result.IsFailure.Should().BeTrue();
         result.Errors[0].Code.Should().Be("Stripe.Credit.MissingIntent");

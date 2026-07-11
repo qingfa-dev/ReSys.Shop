@@ -13,6 +13,7 @@ public class VoidPaymentTests : IDisposable
 {
     private readonly ApplicationDbContext _dbContext;
     private readonly Mock<IPaymentGatewayActionProvider> _gatewayMock;
+    private readonly Mock<IGatewayRegistry> _gatewayRegistryMock;
     private readonly VoidPayment.CommandHandler _handler;
 
     public VoidPaymentTests()
@@ -27,9 +28,13 @@ public class VoidPaymentTests : IDisposable
         _gatewayMock.Setup(x => x.AutoCapture).Returns(false);
         _gatewayMock.Setup(x => x.PaymentProfilesSupported).Returns(false);
         _gatewayMock.Setup(x => x.VoidAsync(It.IsAny<string?>(), It.IsAny<object?>(), It.IsAny<GatewayOptions>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new PaymentGatewayResponse(true, "Voided"));
+            .ReturnsAsync(new PaymentGatewayResponse(true, "Voided", "bogus"));
 
-        _handler = new VoidPayment.CommandHandler(_dbContext, _gatewayMock.Object);
+        _gatewayRegistryMock = new Mock<IGatewayRegistry>();
+        _gatewayRegistryMock.Setup(x => x.GetGateway(It.IsAny<string>()))
+            .Returns(Result<IPaymentGatewayActionProvider>.Ok(_gatewayMock.Object));
+
+        _handler = new VoidPayment.CommandHandler(_dbContext, _gatewayRegistryMock.Object);
     }
 
     public void Dispose() { _dbContext.Dispose(); GC.SuppressFinalize(this); }

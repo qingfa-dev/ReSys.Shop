@@ -1,3 +1,4 @@
+using Module.Payment.Domain.Gateways;
 using Module.Payment.Domain.PaymentCaptures;
 using Module.Payment.Infrastructure.Gateways.Stripe;
 using PaymentCapture = Module.Payment.Domain.PaymentCaptures.PaymentCapture;
@@ -37,16 +38,16 @@ public static partial class StripeWebhook
             // Process: Handle event by type
             switch (stripeEvent.Type)
             {
-                case "payment_intent.succeeded":
+                case GatewayConstants.WebhookEvents.Stripe.PaymentIntentSucceeded:
                     return await HandlePaymentIntentSucceeded(dbContext, stripeEvent, cancellationToken);
 
-                case "payment_intent.payment_failed":
+                case GatewayConstants.WebhookEvents.Stripe.PaymentIntentPaymentFailed:
                     return await HandlePaymentIntentFailed(dbContext, stripeEvent, cancellationToken);
 
-                case "charge.refunded":
+                case GatewayConstants.WebhookEvents.Stripe.ChargeRefunded:
                     return await HandleChargeRefunded(dbContext, stripeEvent, cancellationToken);
 
-                case "charge.dispute.created":
+                case GatewayConstants.WebhookEvents.Stripe.ChargeDisputeCreated:
                     return HandleChargeDisputeCreated(stripeEvent);
 
                 default:

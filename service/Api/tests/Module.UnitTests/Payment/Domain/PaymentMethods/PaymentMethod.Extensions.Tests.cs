@@ -13,7 +13,7 @@ public class PaymentMethodExtensionsTests
         result.IsSuccess.Should().BeTrue();
         result.Value.Name.Should().Be("Credit Card");
         result.Value.Code.Should().Be("CC");
-        result.Value.ProviderType.Should().Be("CreditCard");
+        result.Value.ProviderKey.Should().Be("CreditCard");
         result.Value.Active.Should().BeTrue();
     }
 

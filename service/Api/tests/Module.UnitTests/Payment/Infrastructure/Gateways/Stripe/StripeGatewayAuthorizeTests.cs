@@ -19,8 +19,7 @@ public class StripeGatewayAuthorizeTests
         _options = new StripeOptions { SecretKey = "sk_test_fake" };
         _gateway = new StripeGateway(Options.Create(_options));
 
-        var payment = PaymentCaptureMethod.Create(50m, Guid.NewGuid(), Guid.NewGuid()).Value;
-        _gatewayOptions = new GatewayOptions(payment)
+        _gatewayOptions = new GatewayOptions
         {
             Email = "test@example.com",
             StatementDescriptorSuffix = "Test",
@@ -56,7 +55,6 @@ public class StripeGatewayAuthorizeTests
     {
         var result = await _gateway.CaptureAsync(50m, "pi_fake_intent", _gatewayOptions, TestContext.Current.CancellationToken);
 
-        // With a fake PaymentIntent ID and invalid API key, Stripe returns an error
         result.IsFailure.Should().BeTrue();
         result.Errors[0].Code.Should().Contain("Stripe.");
     }
@@ -70,10 +68,10 @@ public class StripeGatewayAuthorizeTests
         result.Errors[0].Code.Should().Contain("Stripe.");
     }
 
-    [Fact(DisplayName = "CreditAsync: With invalid key should return failure")]
-    public async Task CreditAsync_WithInvalidKey_ShouldReturnFailure()
+    [Fact(DisplayName = "RefundAsync: With invalid key should return failure")]
+    public async Task RefundAsync_WithInvalidKey_ShouldReturnFailure()
     {
-        var result = await _gateway.CreditAsync(30m, "pi_fake_intent", _gatewayOptions, TestContext.Current.CancellationToken);
+        var result = await _gateway.RefundAsync(30m, "pi_fake_intent", _gatewayOptions, TestContext.Current.CancellationToken);
 
         result.IsFailure.Should().BeTrue();
         result.Errors[0].Code.Should().Contain("Stripe.");

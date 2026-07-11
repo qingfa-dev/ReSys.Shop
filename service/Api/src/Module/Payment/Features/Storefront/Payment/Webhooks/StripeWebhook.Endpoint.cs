@@ -1,3 +1,4 @@
+using Module.Payment.Domain.Gateways;
 using Module.Payment.Features.Shared;
 
 namespace Module.Payment.Features.Storefront.Payment.Webhooks;
@@ -13,14 +14,12 @@ public static partial class StripeWebhook
                 ISender sender,
                 CancellationToken ct) =>
             {
-                // Read: Raw request body for signature validation
                 using var reader = new StreamReader(request.Body);
                 var payload = await reader.ReadToEndAsync(ct);
 
-                // Get: Stripe-Signature header
-                var stripeSignature = request.Headers["Stripe-Signature"].FirstOrDefault();
+                var stripeSignature = request.Headers[GatewayConstants.Webhook.Headers.StripeSignature].FirstOrDefault();
                 if (string.IsNullOrEmpty(stripeSignature))
-                    return Results.BadRequest("Missing Stripe-Signature header.");
+                    return Results.BadRequest(GatewayConstants.Webhook.Messages.MissingSignature);
 
                 var command = new Command(payload, stripeSignature);
                 var result = await sender.Send(command, ct);

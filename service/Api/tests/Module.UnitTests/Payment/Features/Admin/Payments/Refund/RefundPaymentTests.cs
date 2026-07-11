@@ -13,6 +13,7 @@ public class RefundPaymentTests : IDisposable
 {
     private readonly ApplicationDbContext _dbContext;
     private readonly Mock<IPaymentGatewayActionProvider> _gatewayMock;
+    private readonly Mock<IGatewayRegistry> _gatewayRegistryMock;
     private readonly RefundPayment.CommandHandler _handler;
 
     public RefundPaymentTests()
@@ -25,10 +26,14 @@ public class RefundPaymentTests : IDisposable
 
         _gatewayMock = new Mock<IPaymentGatewayActionProvider>();
         _gatewayMock.Setup(x => x.AutoCapture).Returns(false);
-        _gatewayMock.Setup(x => x.CreditAsync(It.IsAny<decimal>(), It.IsAny<string?>(), It.IsAny<GatewayOptions>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new PaymentGatewayResponse(true, "Refunded"));
+        _gatewayMock.Setup(x => x.RefundAsync(It.IsAny<decimal>(), It.IsAny<string?>(), It.IsAny<GatewayOptions>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new PaymentGatewayResponse(true, "Refunded", "bogus"));
 
-        _handler = new RefundPayment.CommandHandler(_dbContext, _gatewayMock.Object);
+        _gatewayRegistryMock = new Mock<IGatewayRegistry>();
+        _gatewayRegistryMock.Setup(x => x.GetGateway(It.IsAny<string>()))
+            .Returns(Result<IPaymentGatewayActionProvider>.Ok(_gatewayMock.Object));
+
+        _handler = new RefundPayment.CommandHandler(_dbContext, _gatewayRegistryMock.Object);
     }
 
     public void Dispose() { _dbContext.Dispose(); GC.SuppressFinalize(this); }
@@ -53,7 +58,7 @@ public class RefundPaymentTests : IDisposable
     [Fact(DisplayName = "Handler: Should return failure when gateway declines refund")]
     public async Task Handle_ShouldReturnFailure_WhenGatewayDeclines()
     {
-        _gatewayMock.Setup(x => x.CreditAsync(It.IsAny<decimal>(), It.IsAny<string?>(), It.IsAny<GatewayOptions>(), It.IsAny<CancellationToken>()))
+        _gatewayMock.Setup(x => x.RefundAsync(It.IsAny<decimal>(), It.IsAny<string?>(), It.IsAny<GatewayOptions>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(Error.BadRequest("Gateway.Declined", "Refund declined."));
 
         var payment = PaymentCaptureMethod.Create(100m, Guid.NewGuid(), Guid.NewGuid()).Value;
