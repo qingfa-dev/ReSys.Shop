@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
+using Module.Catalog.Domain.Products.Variants;
 using Module.Ordering.Domain.LineItems;
 
 namespace Module.Ordering.Persistence.Configurations.LineItems;
@@ -36,6 +37,11 @@ public class LineItemConfiguration : IEntityTypeConfiguration<LineItem>
             .WithMany(o => o.LineItems)
             .HasForeignKey(x => x.OrderId)
             .OnDelete(DeleteBehavior.Cascade);
+
+        builder.HasOne<Variant>()
+            .WithMany()
+            .HasForeignKey(x => x.VariantId)
+            .OnDelete(DeleteBehavior.SetNull);
         #endregion
     }
 }
