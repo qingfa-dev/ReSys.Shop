@@ -115,5 +115,10 @@ public static class OrderResult
         public static Error IdRequired => Error.Validation(
             code: "Order.IdRequired",
             message: "Order identifier is required.");
+
+        /// <summary>One or more line item variants are discontinued.</summary>
+        public static Error VariantDiscontinued => Error.Validation(
+            code: "Order.VariantDiscontinued",
+            message: "One or more items in your cart have been discontinued.");
     }
 }

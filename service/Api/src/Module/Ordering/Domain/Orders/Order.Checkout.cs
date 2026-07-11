@@ -124,10 +124,10 @@ public sealed partial class Order
             ShipAddressId = shipAddressId;
     }
 
-    // Enforce: Ensure line item variants are not discontinued before completing checkout
-    internal bool EnsureLineItemVariantsAreNotDiscontinued()
+    // Validate: Ensure none of the order's line item variants are discontinued
+    internal bool EnsureLineItemVariantsAreNotDiscontinued(HashSet<Guid> discontinuedVariantIds)
     {
-        return true;
+        return !LineItems.Any(li => discontinuedVariantIds.Contains(li.VariantId));
     }
 
     // Enforce: Ensure all line items are in stock before completing checkout
