@@ -52,10 +52,6 @@ public static partial class UpdateOrderStatus
                         }
                     }
                     break;
-                case OrderStatus.Placed when entity.Status == OrderStatus.Draft:
-                    entity.Status = OrderStatus.Placed;
-                    entity.CompletedAtUtc = DateTimeOffset.UtcNow;
-                    break;
                 default:
                     return OrderResult.Errors.InvalidStatusTransition;
             }
