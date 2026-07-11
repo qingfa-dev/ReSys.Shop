@@ -1,5 +1,4 @@
 using Module.Inventory.Domain.StockReservations;
-using Module.Inventory.Domain.StockLocations.StockItems;
 using Module.Inventory.Features.Admin.StockReservations.Shared.Mappings;
 
 namespace Module.Inventory.Features.Admin.StockReservations.Cancel;
@@ -30,17 +29,6 @@ public static partial class CancelStockReservation
             // Update: Release the reservation.
             reservation.State = ReservationState.Released;
             reservation.ModifiedAtUtc = DateTimeOffset.UtcNow;
-
-            // Update: Restore stock if a location was associated.
-            if (reservation.StockLocationId.HasValue)
-            {
-                var stockItem = await dbContext.Set<StockItem>()
-                    .FirstOrDefaultAsync(s => s.VariantId == reservation.VariantId
-                        && s.StockLocationId == reservation.StockLocationId, cancellationToken);
-
-                if (stockItem is not null)
-                    stockItem.CountOnHand += reservation.Quantity;
-            }
 
             // Persist: Save changes to the database.
             await dbContext.SaveChangesAsync(cancellationToken);
