@@ -15,6 +15,11 @@ public static partial class EmailRegister
             RuleFor(x => x.LastName).ApplyUserLastNameRules();
             RuleFor(x => x.Phone).ApplyUserPhoneRules()
                 .When(m => !string.IsNullOrEmpty(m.Phone));
+
+            RuleFor(x => x.AcceptTerm)
+                .Equal(true)
+                .WithErrorCode("Auth.Register.AcceptTerm.Required")
+                .WithMessage("You must accept the terms and conditions.");
         }
     }
 }
