@@ -1,4 +1,3 @@
-using Module.Inventory.Domain.Stock;
 using Module.Inventory.Domain.StockLocations.StockItems;
 using Module.Inventory.Domain.StockReservations;
 using Module.Inventory.Domain.StockLocations.StockItems.StockMovements;
@@ -86,58 +85,60 @@ public static partial class CreateOrderFromCart
             if (cart.LineItems.Count == 0)
                 return OrderResult.Errors.EmptyOrderCannotFinalize;
 
-            // Validate: Stock availability for each item.
-            foreach (var lineItem in cart.LineItems)
-            {
-                var stockItems = await dbContext.Set<StockItem>()
-                    .Include(x => x.StockLocation)
-                    .Where(x => x.VariantId == lineItem.VariantId)
-                    .ToListAsync(cancellationToken);
-
-                if (!AvailabilityValidator.IsAvailable(stockItems, lineItem.Quantity))
-                    return StockItemResult.Errors.InsufficientStock;
-            }
-
             // Update: Place the order.
             cart.Status = OrderStatus.Placed;
             cart.CheckoutState = CheckoutState.Complete;
             cart.CompletedAtUtc = DateTimeOffset.UtcNow;
             cart.Number = GenerateOrderNumber();
 
+            // Deduct: Atomic stock deduction with optimistic concurrency guard.
+            // Each ExecuteUpdateAsync has a WHERE CountOnHand >= take guard;
+            // if 0 rows are updated the stock was claimed by another request.
             foreach (var lineItem in cart.LineItems)
             {
                 var stockItems = await dbContext.Set<StockItem>()
-                    .Include(x => x.StockLocation)
                     .Where(si => si.VariantId == lineItem.VariantId)
+                    .OrderByDescending(si => si.CountOnHand)
                     .ToListAsync(cancellationToken);
 
                 var remaining = lineItem.Quantity;
-                foreach (var si in stockItems.OrderByDescending(s => s.CountOnHand))
+                foreach (var si in stockItems)
                 {
                     if (remaining <= 0) break;
                     var take = Math.Min(si.CountOnHand, remaining);
-                    if (take > 0)
-                    {
-                        si.CountOnHand -= take;
-                        remaining -= take;
+                    if (take <= 0) continue;
 
-                        var reservation = StockReservationMethod.Reserve(
-                            si.VariantId, take, si.StockLocationId, cart.Id, 30).Value;
-                        dbContext.Set<StockReservation>().Add(reservation);
+                    var updated = await dbContext.Set<StockItem>()
+                        .Where(x => x.Id == si.Id && x.CountOnHand >= take)
+                        .ExecuteUpdateAsync(setters => setters
+                            .SetProperty(x => x.CountOnHand, x => x.CountOnHand - take)
+                            .SetProperty(x => x.ModifiedAtUtc, DateTimeOffset.UtcNow),
+                            cancellationToken);
 
-                        var movementResult = StockMovementMethod.Create(
-                            stockItemId: si.Id,
-                            quantity: -take,
-                            previousCountOnHand: si.CountOnHand + take,
-                            originatorType: "Order",
-                            originatorId: cart.Id,
-                            action: "ship",
-                            createdBy: currentUser.UserName);
+                    if (updated == 0)
+                        return StockItemResult.Errors.InsufficientStock;
 
-                        if (movementResult.IsSuccess)
-                            dbContext.Set<StockMovement>().Add(movementResult.Value);
-                    }
+                    remaining -= take;
+
+                    var reservation = StockReservationMethod.Reserve(
+                        si.VariantId, take, si.StockLocationId, cart.Id, 30).Value;
+                    dbContext.Set<StockReservation>().Add(reservation);
+
+                    var movementResult = StockMovementMethod.Create(
+                        stockItemId: si.Id,
+                        quantity: -take,
+                        previousCountOnHand: si.CountOnHand,
+                        originatorType: "Order",
+                        originatorId: cart.Id,
+                        action: "ship",
+                        createdBy: currentUser.UserName ?? "System");
+
+                    if (movementResult.IsSuccess)
+                        dbContext.Set<StockMovement>().Add(movementResult.Value);
                 }
+
+                if (remaining > 0)
+                    return StockItemResult.Errors.InsufficientStock;
             }
 
             await dbContext.SaveChangesAsync(cancellationToken);
