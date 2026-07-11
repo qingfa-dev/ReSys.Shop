@@ -50,7 +50,7 @@ public class PaymentProcessingAsyncTests
         var payment = CreatePayment();
         var options = CreateGatewayOptions(payment);
 
-        var result = await PaymentProcessing.AuthorizeAsync(payment, _gatewayMock.Object, options, TestContext.Current.CancellationToken);
+        var result = await PaymentCaptureMethod.AuthorizeAsync(payment, _gatewayMock.Object, options, TestContext.Current.CancellationToken);
 
         result.IsSuccess.Should().BeTrue();
         payment.State.Should().Be(PaymentRecordState.Pending);
@@ -66,7 +66,7 @@ public class PaymentProcessingAsyncTests
         var payment = CreatePayment();
         var options = CreateGatewayOptions(payment);
 
-        var result = await PaymentProcessing.AuthorizeAsync(payment, _gatewayMock.Object, options, TestContext.Current.CancellationToken);
+        var result = await PaymentCaptureMethod.AuthorizeAsync(payment, _gatewayMock.Object, options, TestContext.Current.CancellationToken);
 
         result.IsFailure.Should().BeTrue();
         payment.State.Should().Be(PaymentRecordState.Failed);
@@ -81,7 +81,7 @@ public class PaymentProcessingAsyncTests
         var payment = CreatePayment();
         var options = CreateGatewayOptions(payment);
 
-        var result = await PaymentProcessing.AuthorizeAsync(payment, _gatewayMock.Object, options, TestContext.Current.CancellationToken);
+        var result = await PaymentCaptureMethod.AuthorizeAsync(payment, _gatewayMock.Object, options, TestContext.Current.CancellationToken);
 
         result.IsFailure.Should().BeTrue();
         result.Errors[0].Code.Should().Be("Gateway.ConnectionError");
@@ -100,7 +100,7 @@ public class PaymentProcessingAsyncTests
         var payment = CreatePayment();
         var options = CreateGatewayOptions(payment);
 
-        var result = await PaymentProcessing.PurchaseAsync(payment, _gatewayMock.Object, options, TestContext.Current.CancellationToken);
+        var result = await PaymentCaptureMethod.PurchaseAsync(payment, _gatewayMock.Object, options, TestContext.Current.CancellationToken);
 
         result.IsSuccess.Should().BeTrue();
         payment.State.Should().Be(PaymentRecordState.Completed);
@@ -116,7 +116,7 @@ public class PaymentProcessingAsyncTests
         var payment = CreatePayment();
         var options = CreateGatewayOptions(payment);
 
-        var result = await PaymentProcessing.PurchaseAsync(payment, _gatewayMock.Object, options, TestContext.Current.CancellationToken);
+        var result = await PaymentCaptureMethod.PurchaseAsync(payment, _gatewayMock.Object, options, TestContext.Current.CancellationToken);
 
         result.IsFailure.Should().BeTrue();
         payment.State.Should().Be(PaymentRecordState.Failed);
@@ -136,7 +136,7 @@ public class PaymentProcessingAsyncTests
         var options = CreateGatewayOptions(payment);
         payment.State = PaymentRecordState.Pending;
 
-        var result = await PaymentProcessing.CaptureAsync(payment, _gatewayMock.Object, options, null, TestContext.Current.CancellationToken);
+        var result = await PaymentCaptureMethod.CaptureAsync(payment, _gatewayMock.Object, options, null, TestContext.Current.CancellationToken);
 
         result.IsSuccess.Should().BeTrue();
         payment.State.Should().Be(PaymentRecordState.Completed);
@@ -152,7 +152,7 @@ public class PaymentProcessingAsyncTests
         var options = CreateGatewayOptions(payment);
         payment.State = PaymentRecordState.Pending;
 
-        var result = await PaymentProcessing.CaptureAsync(payment, _gatewayMock.Object, options, 50m, TestContext.Current.CancellationToken);
+        var result = await PaymentCaptureMethod.CaptureAsync(payment, _gatewayMock.Object, options, 50m, TestContext.Current.CancellationToken);
 
         result.IsSuccess.Should().BeTrue();
         payment.State.Should().Be(PaymentRecordState.Completed);
@@ -165,7 +165,7 @@ public class PaymentProcessingAsyncTests
         var options = CreateGatewayOptions(payment);
         payment.State = PaymentRecordState.Completed;
 
-        var result = await PaymentProcessing.CaptureAsync(payment, _gatewayMock.Object, options, null, TestContext.Current.CancellationToken);
+        var result = await PaymentCaptureMethod.CaptureAsync(payment, _gatewayMock.Object, options, null, TestContext.Current.CancellationToken);
 
         result.IsFailure.Should().BeTrue();
         result.Errors[0]!.Code.Should().Be("Payment.AlreadyCompleted");
@@ -187,7 +187,7 @@ public class PaymentProcessingAsyncTests
         payment.State = PaymentRecordState.Pending;
         payment.ResponseCode = "auth-123";
 
-        var result = await PaymentProcessing.VoidTransactionAsync(payment, _gatewayMock.Object, options, null, TestContext.Current.CancellationToken);
+        var result = await PaymentCaptureMethod.VoidTransactionAsync(payment, _gatewayMock.Object, options, null, TestContext.Current.CancellationToken);
 
         result.IsSuccess.Should().BeTrue();
         payment.State.Should().Be(PaymentRecordState.Void);
@@ -200,7 +200,7 @@ public class PaymentProcessingAsyncTests
         var options = CreateGatewayOptions(payment);
         payment.State = PaymentRecordState.Pending;
 
-        var result = await PaymentProcessing.VoidTransactionAsync(payment, _gatewayMock.Object, options, null, TestContext.Current.CancellationToken);
+        var result = await PaymentCaptureMethod.VoidTransactionAsync(payment, _gatewayMock.Object, options, null, TestContext.Current.CancellationToken);
 
         result.IsSuccess.Should().BeTrue();
         payment.State.Should().Be(PaymentRecordState.Void);
@@ -214,7 +214,7 @@ public class PaymentProcessingAsyncTests
         var options = CreateGatewayOptions(payment);
         payment.State = PaymentRecordState.Void;
 
-        var result = await PaymentProcessing.VoidTransactionAsync(payment, _gatewayMock.Object, options, null, TestContext.Current.CancellationToken);
+        var result = await PaymentCaptureMethod.VoidTransactionAsync(payment, _gatewayMock.Object, options, null, TestContext.Current.CancellationToken);
 
         result.IsSuccess.Should().BeTrue();
     }
@@ -232,7 +232,7 @@ public class PaymentProcessingAsyncTests
         var payment = CreatePayment();
         payment.ResponseCode = "auth-123";
 
-        var result = await PaymentProcessing.CancelAsync(payment, _gatewayMock.Object, TestContext.Current.CancellationToken);
+        var result = await PaymentCaptureMethod.CancelAsync(payment, _gatewayMock.Object, TestContext.Current.CancellationToken);
 
         result.IsSuccess.Should().BeTrue();
         payment.State.Should().Be(PaymentRecordState.Void);
@@ -247,7 +247,7 @@ public class PaymentProcessingAsyncTests
         var payment = CreatePayment();
         payment.ResponseCode = "auth-123";
 
-        var result = await PaymentProcessing.CancelAsync(payment, _gatewayMock.Object, TestContext.Current.CancellationToken);
+        var result = await PaymentCaptureMethod.CancelAsync(payment, _gatewayMock.Object, TestContext.Current.CancellationToken);
 
         result.IsFailure.Should().BeTrue();
     }
@@ -266,7 +266,7 @@ public class PaymentProcessingAsyncTests
         var options = CreateGatewayOptions(payment);
         payment.State = PaymentRecordState.Completed;
 
-        var result = await PaymentProcessing.CreditAsync(payment, _gatewayMock.Object, options, 50m, TestContext.Current.CancellationToken);
+        var result = await PaymentCaptureMethod.CreditAsync(payment, _gatewayMock.Object, options, 50m, TestContext.Current.CancellationToken);
 
         result.IsSuccess.Should().BeTrue();
     }
@@ -278,7 +278,7 @@ public class PaymentProcessingAsyncTests
         var options = CreateGatewayOptions(payment);
         payment.State = PaymentRecordState.Pending;
 
-        var result = await PaymentProcessing.CreditAsync(payment, _gatewayMock.Object, options, 50m, TestContext.Current.CancellationToken);
+        var result = await PaymentCaptureMethod.CreditAsync(payment, _gatewayMock.Object, options, 50m, TestContext.Current.CancellationToken);
 
         result.IsFailure.Should().BeTrue();
         result.Errors[0].Code.Should().Be("Payment.Credit.NotAllowed");
@@ -298,7 +298,7 @@ public class PaymentProcessingAsyncTests
         var payment = CreatePayment();
         var options = CreateGatewayOptions(payment);
 
-        var result = await PaymentProcessing.ProcessAsync(payment, _gatewayMock.Object, options, TestContext.Current.CancellationToken);
+        var result = await PaymentCaptureMethod.ProcessAsync(payment, _gatewayMock.Object, options, TestContext.Current.CancellationToken);
 
         result.IsSuccess.Should().BeTrue();
         payment.State.Should().Be(PaymentRecordState.Pending);
@@ -316,7 +316,7 @@ public class PaymentProcessingAsyncTests
         var payment = CreatePayment();
         var options = CreateGatewayOptions(payment);
 
-        var result = await PaymentProcessing.ProcessAsync(payment, _gatewayMock.Object, options, TestContext.Current.CancellationToken);
+        var result = await PaymentCaptureMethod.ProcessAsync(payment, _gatewayMock.Object, options, TestContext.Current.CancellationToken);
 
         result.IsSuccess.Should().BeTrue();
         payment.State.Should().Be(PaymentRecordState.Completed);
@@ -339,7 +339,7 @@ public class PaymentProcessingAsyncTests
         var payment = CreatePayment();
         var options = CreateGatewayOptions(payment);
 
-        await PaymentProcessing.AuthorizeAsync(payment, _gatewayMock.Object, options, token);
+        await PaymentCaptureMethod.AuthorizeAsync(payment, _gatewayMock.Object, options, token);
 
         _gatewayMock.Verify(x => x.AuthorizeAsync(It.IsAny<decimal>(), It.IsAny<object?>(), It.IsAny<GatewayOptions>(), token), Times.Once);
     }
