@@ -26,34 +26,32 @@ public static partial class PasswordLogin
       ILogger<CommandHandler> logger)
       : ICommandHandler<Command, Response>
     {
-        // Contract: pre=command!=null, post=result!=null
+        // Contract: pre=command!=null, post=result!=null, throws=DbUpdateException
         /// <summary>
-        /// Handles the command for password-based authentication.
+        /// Authenticates a user via email/phone/username and password, returning JWT and refresh tokens on success.
+        /// Validates credentials against Identity, enforces active-status check, and records the login timestamp.
         /// </summary>
         /// <param name="command">The command containing login credentials.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns>A result containing JWT and refresh tokens or an error.</returns>
+        /// <returns>A result containing JWT and refresh tokens or invalid-credentials error.</returns>
+        /// <exception cref="DbUpdateException">Thrown when the identity store fails to save the updated login timestamp.</exception>
         public async Task<Result<Response>> Handle(Command command, CancellationToken cancellationToken)
         {
             var request = command.Request;
 
-            // Query: Find user by email, phone, or username
             var user = await FindUserByCredentialAsync(request.Credential);
             if (user is null)
                 return UserResult.Failure.InvalidCredentials;
 
-            // Check: Verify user password with SignInManager
+            if (!user.IsActive)
+                return UserResult.Failure.Inactive;
+
             var signInResult = await signInManager.CheckPasswordSignInAsync(
                 user, request.Password, lockoutOnFailure: true);
 
             if (!signInResult.Succeeded)
                 return UserResult.Failure.InvalidCredentials;
 
-            // Check: Ensure user account is active
-            if (!user.IsActive)
-                return UserResult.Failure.Inactive;
-
-            // Create: Generate JWT access token
             var tokenRequest = new TokenRequestModel(
                 user.Id,
                 user.Email!,
@@ -63,24 +61,19 @@ public static partial class PasswordLogin
             if (tokenResult.IsFailure)
                 return tokenResult.Errors;
 
-            // Create: Generate refresh token via service
             var refreshResult = await refreshTokenService.GenerateAsync(user.Id, cancellationToken);
 
             if (refreshResult.IsFailure)
                 return refreshResult.Errors;
 
-            // Update: Record login activity and persist changes
             user.LastLoginAtUtc = dateTime.UtcNow;
 
-            // Persist: Save updated user state
             var result = await userManager.UpdateAsync(user);
             if (!result.Succeeded)
                 return result.ToResult<Response>();
 
-            // Log: Record successful login
             UserLoggers.Auth.LoginSucceeded(logger, UserId: user.Id, IpAddress: currentUser.IpAddress, ActionBy: user.UserName!);
 
-            // Map: Build the success response with tokens
             return new Response()
             {
                 AccessToken = tokenResult.Value.Token,
@@ -90,13 +83,17 @@ public static partial class PasswordLogin
             };
         }
 
-        internal Task<User?> FindUserByCredentialAsync(string credential)
+        internal async Task<User?> FindUserByCredentialAsync(string credential)
         {
-            var user = userManager.Users.FirstOrDefault(u =>
-                u.Email == credential ||
-                u.PhoneNumber == credential ||
-                u.UserName == credential);
-            return Task.FromResult(user);
+            var user = await userManager.FindByEmailAsync(credential);
+            if (user is not null)
+                return user;
+
+            user = await userManager.FindByNameAsync(credential);
+            if (user is not null)
+                return user;
+
+            return await userManager.Users.FirstOrDefaultAsync(u => u.PhoneNumber == credential);
         }
     }
 }

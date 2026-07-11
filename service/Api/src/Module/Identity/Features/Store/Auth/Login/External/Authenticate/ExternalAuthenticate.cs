@@ -31,35 +31,35 @@ public static partial class ExternalAuthenticate
         IMediator mediator)
         : ICommandHandler<Command, Response>
     {
-        // Contract: pre=command!=null, post=result!=null
+        // Contract: pre=command!=null, post=result!=null, throws=DbUpdateException
         /// <summary>
-        /// Handles the command for external provider authentication.
+        /// Authenticates or registers a user via an external OAuth/OpenID provider.
+        /// On first login, creates a user account, assigns the default role, links the provider,
+        /// and creates a user profile. On subsequent logins, links the provider if not already linked.
+        /// Returns JWT and refresh tokens on success.
         /// </summary>
         /// <param name="command">The command containing provider and ID token.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>A result containing JWT and refresh tokens or an error.</returns>
+        /// <exception cref="DbUpdateException">Thrown when the identity store fails to save user or token state.</exception>
         public async Task<Result<Response>> Handle(Command command, CancellationToken cancellationToken)
         {
             var request = command.Request;
 
-            // Query: Resolve the matching external login provider
             var providerKey = request.Provider.Trim().ToLowerInvariant();
             var provider = externalLoginProviders.FirstOrDefault(p => p.Provider == providerKey);
             if (provider is null)
                 return UserResult.Failure.ExternalLoginUnsupportedProvider;
 
-            // Validate: Verify the ID token with the provider
             var validationResult = await provider.ValidateIdTokenAsync(request.IdToken, cancellationToken);
             if (validationResult.IsFailure)
                 return UserResult.Failure.InvalidCredentials;
 
             var userInfo = validationResult.Value;
 
-            // Query: Look up existing user by email
             var user = await userManager.FindByEmailAsync(userInfo.Email);
             if (user is null)
             {
-                // Create: Instantiate a new User entity from external provider data
                 user = new User
                 {
                     Id = Guid.NewGuid(),
@@ -72,17 +72,14 @@ public static partial class ExternalAuthenticate
                     CreatedAtUtc = dateTime.UtcNow
                 };
 
-                // Persist: Create user account
                 var createResult = await userManager.CreateAsync(user);
                 if (!createResult.Succeeded)
                     return createResult.ToResult<Response>();
 
-                // Update: Assign default application role
                 var roleResult = await userManager.AddToRoleAsync(user, RoleConstant.Defaults.User);
                 if (!roleResult.Succeeded)
                     return roleResult.ToResult<Response>();
 
-                // Update: Link the external login to the user account
                 var addLoginResult = await userManager.AddLoginAsync(user, new UserLoginInfo(
                     loginProvider: userInfo.Provider,
                     providerKey: userInfo.ProviderSubjectId,
@@ -90,14 +87,12 @@ public static partial class ExternalAuthenticate
                 if (!addLoginResult.Succeeded)
                     return addLoginResult.ToResult<Response>();
 
-                // Log: Record external user creation
                 UserLoggers.ExternalLogin.ExternalUserCreated(logger,
                     UserId: user.Id,
                     Provider: userInfo.Provider,
                     Email: userInfo.Email,
                     ActionBy: user.UserName!);
 
-                // Create: User profile for the newly created user
                 await CreateUserProfileAsync(user, cancellationToken);
             }
             else
@@ -108,7 +103,6 @@ public static partial class ExternalAuthenticate
 
                 if (existingLogin is null)
                 {
-                    // Update: Link the external login to the existing user account
                     var linkResult = await userManager.AddLoginAsync(user, new UserLoginInfo(
                         loginProvider: userInfo.Provider,
                         providerKey: userInfo.ProviderSubjectId,
@@ -119,44 +113,30 @@ public static partial class ExternalAuthenticate
                 }
             }
 
-            // Check: Ensure user account is active
             if (!user.IsActive)
                 return UserResult.Failure.Inactive;
 
-            // Create: Generate JWT access token
             var tokenRequest = new TokenRequestModel(user.Id, user.Email!, user.FullName);
             var tokenResult = accessTokenService.GenerateToken(tokenRequest);
             if (tokenResult.IsFailure)
                 return tokenResult.Errors;
 
-            // Create: Generate refresh token
             var refreshResult = await refreshTokenService.GenerateAsync(user.Id, cancellationToken);
             if (refreshResult.IsFailure)
                 return refreshResult.Errors;
 
-            // Update: Record login activity
             user.LastLoginAtUtc = dateTime.UtcNow;
-            user.UserLogins.Add(new UserLogin
-            {
-                LoginProvider = userInfo.Provider,
-                ProviderKey = userInfo.ProviderSubjectId,
-                ProviderDisplayName = userInfo.Provider,
-                UserId = user.Id,
-            });
 
-            // Persist: Save updated user state
             var updateResult = await userManager.UpdateAsync(user);
             if (!updateResult.Succeeded)
                 return updateResult.ToResult<Response>();
 
-            // Log: Record successful external login
             UserLoggers.ExternalLogin.ExternalLoginSucceeded(logger,
                 UserId: user.Id,
                 Provider: userInfo.Provider,
                 IpAddress: currentUser.IpAddress,
                 ActionBy: user.UserName!);
 
-            // Map: Build the success response with tokens
             return new Response
             {
                 AccessToken = tokenResult.Value.Token,
