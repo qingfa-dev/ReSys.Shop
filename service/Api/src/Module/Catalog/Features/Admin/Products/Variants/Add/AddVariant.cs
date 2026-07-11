@@ -43,6 +43,13 @@ public static partial class AddVariant
             if (!productExists)
                 return ProductResult.Errors.NotFound(productId);
 
+            // Check: SKU must be unique across all variants
+            var skuExists = await dbContext.Set<Variant>()
+                .AnyAsync(x => x.Sku == request.Sku, cancellationToken);
+
+            if (skuExists)
+                return VariantResult.Errors.SkuAlreadyExists(request.Sku);
+
             // Create: Variant domain entity from request via mapping
             var result = request.MapToDomain(productId);
             if (result.IsFailure)
@@ -66,7 +73,6 @@ public static partial class AddVariant
                 }
             }
 
-            // Persist: Save variant with option-value junctions to database
             dbContext.Set<Variant>().Add(variant);
             await dbContext.SaveChangesAsync(cancellationToken);
 
