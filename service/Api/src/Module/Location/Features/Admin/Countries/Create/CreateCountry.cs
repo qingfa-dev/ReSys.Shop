@@ -25,7 +25,7 @@ public static partial class CreateCountry
 
             // Check: No duplicate country with same ISO code (case-insensitive)
             var existingEntity = await dbContext.Set<Country>()
-                .FirstOrDefaultAsync(predicate: c => c.IsoCode == request.IsoCode,
+                .FirstOrDefaultAsync(predicate: c => c.IsoCode.ToUpper() == request.IsoCode.ToUpper(),
                     cancellationToken: cancellationToken);
 
             // Validate: ISO code uniqueness business rule

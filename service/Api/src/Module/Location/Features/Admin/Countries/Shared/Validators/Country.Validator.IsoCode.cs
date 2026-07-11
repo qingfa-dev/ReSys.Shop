@@ -13,6 +13,9 @@ public static partial class CountryValidator
             .WithMessage(errorMessage: CountryResult.Failure.IsoCodeRequired.Message)
             .MaximumLength(maximumLength: CountryConstant.Constraints.MaxIsoCodeLength)
             .WithErrorCode(errorCode: CountryResult.Failure.IsoCodeTooLong.Code)
-            .WithMessage(errorMessage: CountryResult.Failure.IsoCodeTooLong.Message);
+            .WithMessage(errorMessage: CountryResult.Failure.IsoCodeTooLong.Message)
+            .Matches("^[A-Z]{2,3}$")
+            .WithErrorCode("Country.IsoCode.InvalidFormat")
+            .WithMessage("ISO code must be 2-3 uppercase letters.");
     }
 }
