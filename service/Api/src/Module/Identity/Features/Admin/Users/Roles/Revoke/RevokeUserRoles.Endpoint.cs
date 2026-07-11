@@ -9,7 +9,7 @@ public static partial class RevokeUserRoles
     {
         public void AddRoutes(IEndpointRouteBuilder app)
         {
-            app.MapDelete(IdentityFeature.Admin.Users.Roles.Revoke.Route, async (
+            app.MapPost(IdentityFeature.Admin.Users.Roles.Revoke.Route, async (
                 Guid id,
                 [FromBody] Request request,
                 ISender sender,
