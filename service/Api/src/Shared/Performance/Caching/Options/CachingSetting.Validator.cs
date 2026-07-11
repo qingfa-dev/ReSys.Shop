@@ -43,7 +43,7 @@ public sealed class CachingSettingValidator : AbstractValidator<CachingSetting>
 
         // Custom validation for connection string when distributed cache is required
         RuleFor(x => x)
-            .Custom((options, context) =>
+            .Custom((Action<CachingSetting, ValidationContext<CachingSetting>>)((options, context) =>
             {
                 if (options.Distributed is null || !options.Distributed.Required)
                     return;
@@ -53,9 +53,9 @@ public sealed class CachingSettingValidator : AbstractValidator<CachingSetting>
                 if (string.IsNullOrEmpty(connectionString))
                 {
                     Error error = CachingSettingResult.Failure.ConnectionStringMissing(name);
-                    context.AddFailure(error.Code, error.Message);
+                    context.AddFailure(error.Code, (string)error.Message);
                 }
-            });
+            }));
     }
 
     private (string Name, string? Value) ResolveConnectionString()

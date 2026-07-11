@@ -1,9 +1,11 @@
+using Microsoft.EntityFrameworkCore;
+
 using Module.Inventory.Domain.StockLocations.StockItems;
 using Module.Inventory.Features.Admin.StockItems.Shared.Mappings;
 
 namespace Module.Inventory.Features.Admin.StockItems.Create;
 
-/// <summary>Handles creation of a new stock item.</summary>
+/// <summary>Creates a stock item for a product variant at a specific location after ensuring no duplicate exists.</summary>
 public static partial class CreateStockItem
 {
     public sealed record Command(Request Request) : ICommand<Response>;
@@ -14,13 +16,14 @@ public static partial class CreateStockItem
         ICurrentUser currentUser)
         : ICommandHandler<Command, Response>
     {
-        /// <summary>Executes the create stock item command.</summary>
-        /// <param name="command">The command containing the stock item request data.</param>
+        /// <summary>Creates a new stock item for a product variant at the specified location.</summary>
+        /// <param name="command">The command containing stock item data.</param>
         /// <param name="cancellationToken">Cancellation token.</param>
-        /// <returns>A result indicating success with the created response.</returns>
+        /// <returns>A result with the created stock item details.</returns>
+        /// <exception cref="DbUpdateException">Thrown when the database update fails.</exception>
         public async Task<Result<Response>> Handle(Command command, CancellationToken cancellationToken)
         {
-            // Contract: pre=command!=null, post=result!=null
+            // Contract: pre=command!=null, post=result!=null, throws=DbUpdateException
             var request = command.Request;
 
             // Check: Verify if a stock item already exists for the variant and location combination.
@@ -38,7 +41,6 @@ public static partial class CreateStockItem
 
             var entity = result.Value;
 
-            // Persist: Save the new stock item to the database.
             dbContext.Set<StockItem>().Add(entity);
             await dbContext.SaveChangesAsync(cancellationToken);
 

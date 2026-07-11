@@ -3,23 +3,22 @@ using Module.Location.Features.Admin.Countries.Shared.Mappings;
 
 namespace Module.Location.Features.Admin.Countries.GetByIsoCode;
 
-/// <summary>Handles retrieval of a country by ISO code.</summary>
+/// <summary>Retrieves a country by its ISO code.</summary>
 public static partial class GetCountryByIso
 {
-    /// <summary>Query to retrieve a country by ISO code.</summary>
     public sealed record Query(string IsoCode) : IQuery<Response>;
 
     public sealed class QueryHandler(IApplicationDbContext dbContext)
         : IQueryHandler<Query, Response>
     {
-        /// <summary>Executes the get country by iso query.</summary>
+        /// <summary>Loads a single country by ISO code and maps to detail response.</summary>
         /// <param name="request">The query containing the ISO code.</param>
-        /// <param name="cancellationToken">Cancellation token.</param>
-        /// <returns>A result containing the country details.</returns>
+        /// <param name="cancellationToken">Propagates cancellation signal.</param>
+        /// <returns>A result containing the country details or a not-found error.</returns>
         public async Task<Result<Response>> Handle(Query request, CancellationToken cancellationToken)
         {
-            // Contract: pre=request!=null, post=result!=null
-            // Query: Retrieve country by ISO code.
+            // Contract: pre=request!=null, post=country found or NotFound returned
+            // Load: Retrieve country by ISO code.
             var entity = await dbContext.Set<Country>()
                 .FirstOrDefaultAsync(predicate: c =>
                     c.IsoCode == request.IsoCode, cancellationToken: cancellationToken);

@@ -64,8 +64,12 @@ public class PasswordLoginTests
 
     // ===== Mock Setup Helpers =====
 
-    private void SetUpUsersQueryable(params User[] users) =>
+    private void SetUpUsersQueryable(params User[] users)
+    {
         _userManagerMock.Setup(x => x.Users).Returns(users.AsQueryable());
+        _userManagerMock.Setup(x => x.FindByEmailAsync(It.IsAny<string>())).ReturnsAsync((string email) => users.FirstOrDefault(u => u.Email == email));
+        _userManagerMock.Setup(x => x.FindByNameAsync(It.IsAny<string>())).ReturnsAsync((string name) => users.FirstOrDefault(u => u.UserName == name));
+    }
 
     private void SetUpSignInSuccess() =>
         _signInManagerMock

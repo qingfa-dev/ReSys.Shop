@@ -6,8 +6,8 @@ using Module.Ordering.Domain.Orders;
 
 namespace Module.Ordering.Features.Storefront.Cart.AddItem;
 
-    /// <summary>Handles AddToCart feature.</summary>
-    public static partial class AddToCart
+/// <summary>Adds a variant to the current user's cart, creating a new draft order if none exists, merging with existing line items for the same variant.</summary>
+public static partial class AddToCart
 {
     public sealed record Command(Request Request) : ICommand<Response>;
 
@@ -17,14 +17,14 @@ namespace Module.Ordering.Features.Storefront.Cart.AddItem;
         ICurrentUser currentUser)
         : ICommandHandler<Command, Response>
     {
-        /// <summary>Handles the command.</summary>
-        /// <param name="command">The command to handle.</param>
+        /// <summary>Adds a variant to the user's cart, creating a new cart or merging with an existing line item, with stock validation.</summary>
+        /// <param name="command">The command containing the variant ID and quantity.</param>
         /// <param name="cancellationToken">Cancellation token.</param>
-        /// <returns>The result of handling the command.</returns>
+        /// <returns>The response with the new or updated line item ID.</returns>
+        /// <exception cref="DbUpdateException">Thrown when the database update fails.</exception>
         public async Task<Result<Response>> Handle(Command command, CancellationToken cancellationToken)
         {
-
-        // Contract: pre=command!=null, post=result!=null
+            // Contract: pre=command!=null, post=result!=null, throws=DbUpdateException
             var request = command.Request;
 
             // Check: Resolve current user identifier or guest session.
@@ -34,7 +34,7 @@ namespace Module.Ordering.Features.Storefront.Cart.AddItem;
             if (userId is null && string.IsNullOrWhiteSpace(sessionId))
                 return OrderResult.Errors.UserNotAuthenticated;
 
-            // Check: Verify variant exists.
+            // Check: Variant exists in catalog.
             var variant = await dbContext.Set<Variant>()
                 .FirstOrDefaultAsync(x => x.Id == request.VariantId, cancellationToken);
 
@@ -55,21 +55,19 @@ namespace Module.Ordering.Features.Storefront.Cart.AddItem;
                     return createResult.Errors;
 
                 cart = createResult.Value;
-                // Create: Persist new entity.
                 dbContext.Set<Order>().Add(cart);
             }
 
-            // Validate: Check stock availability for requested quantity.
+            // Validate: Stock availability for requested quantity.
             var stockItems = await dbContext.Set<StockItem>()
                 .Include(x => x.StockLocation)
                 .Where(x => x.VariantId == request.VariantId)
                 .ToListAsync(cancellationToken);
 
-            // Validate: Check stock availability.
             if (!AvailabilityValidator.IsAvailable(stockItems, request.Quantity))
                 return StockItemResult.Errors.InsufficientStock;
 
-            // Check: If variant already in cart, update quantity.
+            // Check: Variant already in cart — merge quantities.
             var existingLine = cart.LineItems.FirstOrDefault(li => li.VariantId == request.VariantId);
             if (existingLine is not null)
             {
@@ -78,26 +76,23 @@ namespace Module.Ordering.Features.Storefront.Cart.AddItem;
                 existingLine.Quantity += request.Quantity;
                 existingLine.Total = existingLine.Price * existingLine.Quantity;
                 cart.RecalculateTotals();
-                // Persist: Save changes to the database.
                 await dbContext.SaveChangesAsync(cancellationToken);
                 return Result<Response>.Ok(new Response { LineItemId = existingLine.Id });
             }
 
-            // Create: Add new line item.
+            // Create: Add new line item to cart.
             var lineItem = LineItemMethod.Create(cart.Id, request.VariantId, request.Quantity, variant.Price ?? 0);
             if (lineItem.IsFailure)
                 return lineItem.Errors;
 
             var newItem = lineItem.Value;
 
-            // Create: Persist new entity.
             dbContext.Set<LineItem>().Add(newItem);
             cart.RecalculateTotals();
 
-            // Persist: Save changes to the database.
             await dbContext.SaveChangesAsync(cancellationToken);
 
-            // Log: Record operation outcome.
+            // Log: Record the new line item in audit log.
             LineItemLoggers.Created(logger, Id: newItem.Id, OrderId: cart.Id, VariantId: request.VariantId, ActionBy: currentUser.UserName);
 
             return Result<Response>.Created(

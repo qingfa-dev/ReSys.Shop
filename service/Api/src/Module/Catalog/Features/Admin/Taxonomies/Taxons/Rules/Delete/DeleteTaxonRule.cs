@@ -16,10 +16,13 @@ public static partial class DeleteTaxonRule
         : ICommandHandler<Command, Response>
     {
         /// <summary>
-        /// Handles the request and returns a result.
+        /// Deletes a taxon rule, persists the removal, and triggers auto-classification regeneration if the taxon is automatic.
         /// </summary>
-        /// <param name="command">The command containing request data.</param>
-        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <param name="command">The command containing taxonomy ID, taxon ID, and rule ID.</param>
+        /// <param name="cancellationToken">Propagates cancellation notification.</param>
+        /// <returns>A success result indicating the rule was deleted.</returns>
+        /// <exception cref="DbUpdateException">Thrown when the database update fails.</exception>
+        // Contract: pre=command!=null, post=result!=null
         public async Task<Result<Response>> Handle(Command command, CancellationToken cancellationToken)
         {
             var taxonomyId = command.TaxonomyId;

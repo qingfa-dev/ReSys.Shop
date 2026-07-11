@@ -4,23 +4,24 @@ using Module.Location.Features.Admin.States.Shared.Mappings;
 
 namespace Module.Location.Features.Admin.States.Update;
 
-/// <summary>Handles update of an existing state.</summary>
+/// <summary>Updates an existing state with abbreviation uniqueness validation.</summary>
 public static partial class UpdateState
 {
-    /// <summary>Command to update an existing state.</summary>
     public sealed record Command(Guid Id, Request Request) : ICommand<Response>;
 
     public sealed class CommandHandler(
         IApplicationDbContext dbContext)
         : ICommandHandler<Command, Response>
     {
-        /// <summary>Executes the update state command.</summary>
+        /// <summary>Validates state existence, country reference, and abbreviation uniqueness, then applies updates.</summary>
         /// <param name="command">The command containing the update data.</param>
-        /// <param name="cancellationToken">Cancellation token.</param>
-        /// <returns>A result containing the updated state details.</returns>
+        /// <param name="cancellationToken">Propagates cancellation signal.</param>
+        /// <returns>A result containing the updated state details or an error.</returns>
+        /// <exception cref="DbUpdateException">Thrown when database persistence fails.</exception>
         public async Task<Result<Response>> Handle(Command command, CancellationToken cancellationToken)
         {
-            // Contract: pre=command!=null, post=result!=null
+            // Contract: pre=state!=null && country exists && abbreviation unique, post=state updated,
+            //           throws=DbUpdateException
             var request = command.Request;
 
             // Check: Find the existing state.
@@ -50,7 +51,6 @@ public static partial class UpdateState
             // Update: Apply request data to state entity.
             request.MapToDomain(state: entity);
 
-            // Persist: Save changes to the database.
             await dbContext.SaveChangesAsync(cancellationToken: cancellationToken);
             // Map: Return the updated state as response.
             return entity.MapToDetail<Response>();

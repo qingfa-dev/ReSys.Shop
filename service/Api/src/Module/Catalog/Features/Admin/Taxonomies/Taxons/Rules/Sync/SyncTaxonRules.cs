@@ -17,16 +17,20 @@ public static partial class SyncTaxonRules
         : ICommandHandler<Command, Response>
     {
         /// <summary>
-        /// Handles the request and returns a result.
+        /// Synchronises taxon rules — creates, updates, and removes rules to match the
+        /// incoming set, then triggers auto-classification if the taxon is automatic.
         /// </summary>
-        /// <param name="command">The command containing request data.</param>
+        /// <param name="command">The command containing taxonomy ID, taxon ID, and rule set.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
+        /// <exception cref="DbUpdateException">Thrown when persistence fails.</exception>
+        // Contract: pre=command.TaxonomyId!=Guid.Empty && command.TaxonId!=Guid.Empty, post=result.Rules!=null, throws=DbUpdateException
         public async Task<Result<Response>> Handle(Command command, CancellationToken cancellationToken)
         {
             var taxonomyId = command.TaxonomyId;
             var taxonId = command.TaxonId;
             var request = command.Request;
 
+            // Validate: Parent taxon must exist
             var taxon = await dbContext.Set<Taxon>()
                 .FirstOrDefaultAsync(x => x.Id == taxonId && x.TaxonomyId == taxonomyId, cancellationToken);
             if (taxon is null)

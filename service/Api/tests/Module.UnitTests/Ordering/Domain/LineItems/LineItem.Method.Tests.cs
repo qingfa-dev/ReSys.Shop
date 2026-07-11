@@ -67,8 +67,8 @@ public class LineItemMethodTests
         lineItem.Total.Should().Be((2 * 15m) + 5m);
     }
 
-    [Fact(DisplayName = "FinalAmount: returns Total + AdjustmentTotal")]
-    public void FinalAmount_ShouldReturnTotalPlusAdjustmentTotal()
+    [Fact(DisplayName = "FinalAmount: returns Total (includes AdjustmentTotal)")]
+    public void FinalAmount_ShouldReturnTotal()
     {
         var lineItem = LineItemMethod.Create(Guid.NewGuid(), Guid.NewGuid(), 1, 10m).Value;
         lineItem.AdjustmentTotal = 3m;
@@ -76,6 +76,6 @@ public class LineItemMethodTests
 
         var amount = lineItem.FinalAmount();
 
-        amount.Should().Be(lineItem.Total + lineItem.AdjustmentTotal);
+        amount.Should().Be(lineItem.Total);
     }
 }

@@ -1,10 +1,12 @@
+using Microsoft.EntityFrameworkCore;
+
 using Module.Inventory.Domain.StockLocations.StockItems;
 using Module.Inventory.Domain.StockLocations.StockItems.StockMovements;
 using Module.Inventory.Features.Admin.StockMovements.Shared.Mappings;
 
 namespace Module.Inventory.Features.Admin.StockItems.BulkAdjust;
 
-/// <summary>Handles bulk adjustment of stock item quantities.</summary>
+/// <summary>Adjusts quantities for multiple stock items in a single operation, recording each adjustment as a movement.</summary>
 public static partial class BulkAdjustStockItems
 {
     public sealed record Command(Request Request) : ICommand;
@@ -15,12 +17,14 @@ public static partial class BulkAdjustStockItems
         ICurrentUser currentUser)
         : ICommandHandler<Command>
     {
-        /// <summary>Executes the bulk adjust stock items command.</summary>
+        /// <summary>Adjusts each stock item by the specified delta and records stock movements for audit.</summary>
         /// <param name="command">The command containing adjustment data.</param>
         /// <param name="cancellationToken">Cancellation token.</param>
         /// <returns>A result indicating success.</returns>
+        /// <exception cref="DbUpdateException">Thrown when the database update fails.</exception>
         public async Task<Result> Handle(Command command, CancellationToken cancellationToken)
         {
+            // Contract: pre=command!=null, post=result!=null, throws=DbUpdateException
             var request = command.Request;
 
             foreach (var item in request.Items)

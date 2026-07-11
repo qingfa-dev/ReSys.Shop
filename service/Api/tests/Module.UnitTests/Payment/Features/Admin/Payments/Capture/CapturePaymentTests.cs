@@ -1,8 +1,8 @@
 using Module.Payment.Domain.Gateways;
-using Module.Payment.Domain.Payments;
+using Module.Payment.Domain.PaymentCaptures;
 using Module.Payment.Features.Admin.Payments.Capture;
 
-using PaymentRecord = Module.Payment.Domain.Payments.PaymentRecord;
+using PaymentCapture = Module.Payment.Domain.PaymentCaptures.PaymentCapture;
 
 namespace Module.UnitTests.Payment.Features.Admin.Payments.Capture;
 
@@ -20,7 +20,7 @@ public class CapturePaymentTests : IDisposable
         var options = new DbContextOptionsBuilder<ApplicationDbContext>()
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
             .Options;
-        ApplicationDbContext.AdditionalConfigurationsAssemblies = [typeof(PaymentRecord).Assembly];
+        ApplicationDbContext.AdditionalConfigurationsAssemblies = [typeof(PaymentCapture).Assembly];
         _dbContext = new ApplicationDbContext(options);
 
         _gatewayMock = new Mock<IPaymentGatewayActionProvider>();
@@ -36,9 +36,9 @@ public class CapturePaymentTests : IDisposable
     [Fact(DisplayName = "Handler: Should capture payment when in Processing state")]
     public async Task Handle_ShouldCapture_WhenProcessing()
     {
-        var payment = PaymentFactory.Create(100m, Guid.NewGuid(), Guid.NewGuid()).Value;
+        var payment = PaymentCaptureMethod.Create(100m, Guid.NewGuid(), Guid.NewGuid()).Value;
         payment.Process();
-        _dbContext.Set<PaymentRecord>().Add(payment);
+        _dbContext.Set<PaymentCapture>().Add(payment);
         await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 
         var request = new CapturePayment.Request { Amount = 50m };
@@ -54,9 +54,9 @@ public class CapturePaymentTests : IDisposable
         _gatewayMock.Setup(x => x.CaptureAsync(It.IsAny<decimal>(), It.IsAny<string?>(), It.IsAny<GatewayOptions>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(Error.BadRequest("Gateway.Declined", "Card was declined."));
 
-        var payment = PaymentFactory.Create(100m, Guid.NewGuid(), Guid.NewGuid()).Value;
+        var payment = PaymentCaptureMethod.Create(100m, Guid.NewGuid(), Guid.NewGuid()).Value;
         payment.Process();
-        _dbContext.Set<PaymentRecord>().Add(payment);
+        _dbContext.Set<PaymentCapture>().Add(payment);
         await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 
         var result = await _handler.Handle(new CapturePayment.Command(payment.Id, new CapturePayment.Request { Amount = 50m }), TestContext.Current.CancellationToken);
@@ -67,8 +67,8 @@ public class CapturePaymentTests : IDisposable
     [Fact(DisplayName = "Handler: Should return failure when payment in wrong state")]
     public async Task Handle_ShouldFail_WhenCheckout()
     {
-        var payment = PaymentFactory.Create(100m, Guid.NewGuid(), Guid.NewGuid()).Value;
-        _dbContext.Set<PaymentRecord>().Add(payment);
+        var payment = PaymentCaptureMethod.Create(100m, Guid.NewGuid(), Guid.NewGuid()).Value;
+        _dbContext.Set<PaymentCapture>().Add(payment);
         await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 
         var result = await _handler.Handle(new CapturePayment.Command(payment.Id, new CapturePayment.Request { Amount = 50m }), TestContext.Current.CancellationToken);

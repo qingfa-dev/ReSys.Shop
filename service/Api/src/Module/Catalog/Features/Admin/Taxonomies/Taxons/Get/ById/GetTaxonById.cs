@@ -11,6 +11,13 @@ public static partial class GetTaxonById
     public sealed class QueryHandler(IApplicationDbContext dbContext)
         : IQueryHandler<Query, Response>
     {
+        /// <summary>
+        /// Retrieves a single taxon by its ID within a taxonomy with full details.
+        /// </summary>
+        /// <param name="request">The query containing the taxonomy ID and taxon ID.</param>
+        /// <param name="cancellationToken">Propagates cancellation notification.</param>
+        /// <returns>A success result with the taxon detail response.</returns>
+        // Contract: pre=request!=null, post=result!=null
         public async Task<Result<Response>> Handle(Query request, CancellationToken cancellationToken)
         {
             var taxonomyExists = await dbContext.Set<Taxonomy>()

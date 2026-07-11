@@ -43,7 +43,6 @@ public partial class TaxonHierarchyService
         // Update: Perform the permalink regeneration in memory
         UpdatePermalinksInternal(taxonomy.Name, allTaxons, taxonsToUpdate);
 
-        // Persist: Commit updated SEO and display paths to the database
         await _dbContext.SaveChangesAsync(ct);
 
         return Result.Ok();

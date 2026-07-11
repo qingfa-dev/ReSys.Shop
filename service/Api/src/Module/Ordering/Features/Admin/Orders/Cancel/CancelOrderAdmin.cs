@@ -3,16 +3,16 @@ using Module.Ordering.Domain.Orders;
 using Module.Ordering.Features.Admin.Orders.Shared.Mappings;
 using Module.Ordering.Features.Shared.Services;
 using Module.Payment.Domain.Gateways;
-using Module.Payment.Domain.Payments;
+using Module.Payment.Domain.PaymentCaptures;
 
 using Shared.Operational.Notifications.Models;
 using Shared.Operational.Notifications.Services;
 using Shared.Operational.Notifications.Templates;
 
-using PaymentRecord = Module.Payment.Domain.Payments.PaymentRecord;
+using PaymentCapture = Module.Payment.Domain.PaymentCaptures.PaymentCapture;
 
 namespace Module.Ordering.Features.Admin.Orders.Cancel;
-/// <summary>Handles CancelOrderAdmin feature.</summary>
+/// <summary>Cancels an order across the system — voids pending payments via gateway, releases reserved inventory, and sends a cancellation notification to the customer.</summary>
 public static partial class CancelOrderAdmin
 {
     public sealed record Command(Guid Id, Request Request) : ICommand<Response>;
@@ -25,8 +25,14 @@ public static partial class CancelOrderAdmin
         IPaymentGatewayActionProvider paymentGateway,
         IStockQuantityService stockChecker) : ICommandHandler<Command, Response>
     {
+        /// <summary>Voids payments, releases inventory for placed orders, persists the cancellation, and notifies the customer.</summary>
+        /// <param name="command">The command containing the order ID and cancellation details.</param>
+        /// <param name="cancellationToken">Cancellation token.</param>
+        /// <returns>The cancelled order response.</returns>
+        /// <exception cref="DbUpdateException">Thrown when the database update fails.</exception>
         public async Task<Result<Response>> Handle(Command command, CancellationToken cancellationToken)
         {
+            // Contract: pre=command!=null, post=result!=null, throws=DbUpdateException
             var order = await dbContext.Set<Order>()
                 .Include(o => o.LineItems)
                 .FirstOrDefaultAsync(o => o.Id == command.Id, cancellationToken);
@@ -39,7 +45,7 @@ public static partial class CancelOrderAdmin
             if (result.IsFailure)
                 return result.Errors;
 
-            var payments = await dbContext.Set<PaymentRecord>()
+            var payments = await dbContext.Set<PaymentCapture>()
                 .Where(p => p.OrderId == order.Id && p.State != PaymentRecordState.Void && p.State != PaymentRecordState.Failed)
                 .ToListAsync(cancellationToken);
 
@@ -60,7 +66,7 @@ public static partial class CancelOrderAdmin
                 if (voidResult.IsFailure)
                 {
                     logger.LogWarning("Failed to void payment {PaymentId} for order {OrderId}: {Errors}",
-                        payment.Id, order.Id, string.Join("; ", voidResult.Errors.Select(f => f.Description)));
+                        payment.Id, order.Id, string.Join("; ", voidResult.Errors.Select(f => f.Message)));
                 }
             }
 
@@ -97,7 +103,7 @@ public static partial class CancelOrderAdmin
             if (result.IsFailure)
             {
                 logger.LogWarning("Failed to send order canceled notification for order {OrderId}: {Errors}",
-                    order.Id, string.Join("; ", result.Errors.Select(f => f.Description)));
+                    order.Id, string.Join("; ", result.Errors.Select(f => f.Message)));
             }
         }
     }

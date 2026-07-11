@@ -12,8 +12,14 @@ public static partial class CreateCart
 
     public sealed class CommandHandler(IApplicationDbContext dbContext, ICurrentUser currentUser) : ICommandHandler<Command, Response>
     {
+        /// <summary>Returns the existing draft cart for the current user or creates and persists a new one.</summary>
+        /// <param name="command">The (empty) command.</param>
+        /// <param name="cancellationToken">Cancellation token.</param>
+        /// <returns>The cart detail response.</returns>
+        /// <exception cref="DbUpdateException">Thrown when the database update fails.</exception>
         public async Task<Result<Response>> Handle(Command command, CancellationToken cancellationToken)
         {
+            // Contract: pre=command!=null, post=result!=null, throws=DbUpdateException
             var userId = Guid.TryParse(currentUser.UserId, out var parsedId) ? parsedId : (Guid?)null;
             var storeId = Guid.Empty;
             var sessionId = currentUser.IsAuthenticated ? null : currentUser.SessionId;

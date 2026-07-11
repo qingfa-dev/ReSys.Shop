@@ -1,8 +1,8 @@
 using Module.Payment.Domain.Gateways;
-using Module.Payment.Domain.Payments;
+using Module.Payment.Domain.PaymentCaptures;
 using Module.Payment.Features.Admin.Payments.Void;
 
-using PaymentRecord = Module.Payment.Domain.Payments.PaymentRecord;
+using PaymentCapture = Module.Payment.Domain.PaymentCaptures.PaymentCapture;
 
 namespace Module.UnitTests.Payment.Features.Admin.Payments.Void;
 
@@ -20,7 +20,7 @@ public class VoidPaymentTests : IDisposable
         var options = new DbContextOptionsBuilder<ApplicationDbContext>()
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
             .Options;
-        ApplicationDbContext.AdditionalConfigurationsAssemblies = [typeof(PaymentRecord).Assembly];
+        ApplicationDbContext.AdditionalConfigurationsAssemblies = [typeof(PaymentCapture).Assembly];
         _dbContext = new ApplicationDbContext(options);
 
         _gatewayMock = new Mock<IPaymentGatewayActionProvider>();
@@ -37,11 +37,11 @@ public class VoidPaymentTests : IDisposable
     [Fact(DisplayName = "Handler: Should void payment when in Pending state")]
     public async Task Handle_ShouldVoid_WhenPending()
     {
-        var payment = PaymentFactory.Create(100m, Guid.NewGuid(), Guid.NewGuid()).Value;
+        var payment = PaymentCaptureMethod.Create(100m, Guid.NewGuid(), Guid.NewGuid()).Value;
         payment.ResponseCode = "auth-123";
         payment.Process();
         payment.Pend();
-        _dbContext.Set<PaymentRecord>().Add(payment);
+        _dbContext.Set<PaymentCapture>().Add(payment);
         await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 
         var result = await _handler.Handle(new VoidPayment.Command(payment.Id), TestContext.Current.CancellationToken);
@@ -56,11 +56,11 @@ public class VoidPaymentTests : IDisposable
         _gatewayMock.Setup(x => x.VoidAsync(It.IsAny<string?>(), It.IsAny<object?>(), It.IsAny<GatewayOptions>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(Error.BadRequest("Gateway.Declined", "Void declined."));
 
-        var payment = PaymentFactory.Create(100m, Guid.NewGuid(), Guid.NewGuid()).Value;
+        var payment = PaymentCaptureMethod.Create(100m, Guid.NewGuid(), Guid.NewGuid()).Value;
         payment.ResponseCode = "auth-123";
         payment.Process();
         payment.Pend();
-        _dbContext.Set<PaymentRecord>().Add(payment);
+        _dbContext.Set<PaymentCapture>().Add(payment);
         await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 
         var result = await _handler.Handle(new VoidPayment.Command(payment.Id), TestContext.Current.CancellationToken);
@@ -71,8 +71,8 @@ public class VoidPaymentTests : IDisposable
     [Fact(DisplayName = "Handler: Should return failure when payment in wrong state")]
     public async Task Handle_ShouldFail_WhenCheckout()
     {
-        var payment = PaymentFactory.Create(100m, Guid.NewGuid(), Guid.NewGuid()).Value;
-        _dbContext.Set<PaymentRecord>().Add(payment);
+        var payment = PaymentCaptureMethod.Create(100m, Guid.NewGuid(), Guid.NewGuid()).Value;
+        _dbContext.Set<PaymentCapture>().Add(payment);
         await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 
         var result = await _handler.Handle(new VoidPayment.Command(payment.Id), TestContext.Current.CancellationToken);

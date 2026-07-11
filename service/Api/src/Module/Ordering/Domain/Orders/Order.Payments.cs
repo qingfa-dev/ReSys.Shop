@@ -1,5 +1,5 @@
-using PaymentRecord = Module.Payment.Domain.Payments.PaymentRecord;
-using PaymentStateEnum = Module.Payment.Domain.Payments.PaymentRecordState;
+using PaymentCapture = Module.Payment.Domain.PaymentCaptures.PaymentCapture;
+using PaymentStateEnum = Module.Payment.Domain.PaymentCaptures.PaymentRecordState;
 
 namespace Module.Ordering.Domain.Orders;
 
@@ -30,7 +30,7 @@ public sealed partial class Order
         Payments.Any(p => p.State == PaymentStateEnum.Checkout);
 
     // Compute: Get unprocessed payment records
-    public IReadOnlyList<PaymentRecord> GetUnprocessedPayments() =>
+    public IReadOnlyList<PaymentCapture> GetUnprocessedPayments() =>
         Payments
             .Where(p => p.State == PaymentStateEnum.Checkout)
             .ToList()

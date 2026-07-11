@@ -17,10 +17,11 @@ public static partial class GetTaxonRules
         : IQueryHandler<Query, List<Response>>
     {
         /// <summary>
-        /// Handles the request and returns a result.
+        /// Retrieves all rules for a specific taxon ordered by rule type.
         /// </summary>
-        /// <param name="query">The query containing request data.</param>
-        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <param name="query">The query containing the taxonomy ID and taxon ID.</param>
+        /// <param name="cancellationToken">Propagates cancellation notification.</param>
+        /// <returns>A success result with the list of taxon rule details.</returns>
         // Contract: pre=query!=null, post=result!=null
         public async Task<Result<List<Response>>> Handle(Query query, CancellationToken cancellationToken)
         {

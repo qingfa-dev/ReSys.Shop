@@ -77,6 +77,6 @@ public class DeleteProfileTests : IDisposable
         var result = await _handler.Handle(new DeleteProfile.Command(_userId), TestContext.Current.CancellationToken);
 
         result.IsFailure.Should().BeTrue();
-        result.Errors[0].Code.Should().Be(UserResult.Failure.NotFound.Code);
+        result.Errors[0].Code.Should().Be(UserProfileResult.Failure.NotFound.Code);
     }
 }

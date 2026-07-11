@@ -6,26 +6,31 @@ using Shared.Security.Identity.Domain.Users;
 
 namespace Module.Profile.Features.Store.Addresses.Update;
 
+/// <summary>Updates an existing address on the authenticated user's profile.</summary>
 public static partial class UpdateAddress
 {
-    // ============ COMMAND ============
     public sealed record Command(Guid Id, Request Request) : ICommand<Response>;
 
-    // ============ COMMAND HANDLER ============
     public sealed class CommandHandler(
         IApplicationDbContext dbContext,
         ICurrentUser currentUser)
         : ICommandHandler<Command, Response>
     {
+        /// <summary>Validates duplicates and per-type limits, updates the entity, and enforces default-address invariants.</summary>
+        /// <param name="command">The command containing the address ID and update data.</param>
+        /// <param name="cancellationToken">Propagates cancellation signal.</param>
+        /// <returns>A result containing the updated address response or an error.</returns>
+        /// <exception cref="DbUpdateException">Thrown when database persistence fails.</exception>
         public async Task<Result<Response>> Handle(Command command, CancellationToken cancellationToken)
         {
+            // Contract: pre=user authenticated && address exists, post=address updated, throws=DbUpdateException
             var request = command.Request;
 
             // Check: Ensure user is authenticated
             if (string.IsNullOrEmpty(currentUser.UserId))
                 return AddressResult.Failure.AuthRequired;
 
-            // Resolve: Get the profile with addresses
+            // Load: Get the profile with addresses
             var profile = await dbContext.Set<UserProfile>()
                 .FirstOrDefaultAsync(p => p.UserId == Guid.Parse(currentUser.UserId), cancellationToken);
 
@@ -64,7 +69,7 @@ public static partial class UpdateAddress
             // Update: Apply changes to entity
             address.UpdateEntity(request);
 
-            // Business Rule: 1 and only 1 default per type
+            // Enforce: 1 and only 1 default per type
             var sameTypeAddresses = profile.Addresses
                 .Where(a => a.AddressType == address.AddressType && a.Id != address.Id)
                 .ToList();
@@ -102,7 +107,6 @@ public static partial class UpdateAddress
                 }
             }
 
-            // Await: Persist changes
             await dbContext.SaveChangesAsync(cancellationToken);
 
             // Map: Domain entity to response DTO

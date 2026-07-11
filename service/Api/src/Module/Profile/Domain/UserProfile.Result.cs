@@ -91,5 +91,10 @@ public static class UserProfileResult
         public static Error AuthRequired => Error.Unauthorized(
             code: "UserProfile.AuthRequired",
             message: "Authentication required.");
+
+        /// <summary>Access denied — user cannot access another user's profile.</summary>
+        public static Error AccessDenied => Error.Forbidden(
+            code: "Profile.Get.Permission",
+            message: "Cannot access another user's profile.");
     }
 }

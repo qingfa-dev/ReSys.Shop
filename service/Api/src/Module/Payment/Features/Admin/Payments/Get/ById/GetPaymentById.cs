@@ -1,33 +1,32 @@
-using Module.Payment.Domain.Payments;
+using Module.Payment.Domain.PaymentCaptures;
 
-using PaymentRecord = Module.Payment.Domain.Payments.PaymentRecord;
+using PaymentCapture = Module.Payment.Domain.PaymentCaptures.PaymentCapture;
 
 namespace Module.Payment.Features.Admin.Payments.Get.ById;
 
-    /// <summary>Handles GetPaymentById feature.</summary>
-    public static partial class GetPaymentById
+/// <summary>Retrieves a payment record by its unique identifier with full detail.</summary>
+public static partial class GetPaymentById
 {
     public sealed record Query(Guid Id) : IQuery<Response>;
 
     public sealed class QueryHandler(IApplicationDbContext dbContext)
         : IQueryHandler<Query, Response>
     {
-        /// <summary>Handles the query.</summary>
-        /// <param name="request">The query request.</param>
-        /// <param name="cancellationToken">Cancellation token.</param>
-        /// <returns>The result of handling the query.</returns>
-        public async Task<Result<Response>> Handle(Query query, CancellationToken cancellationToken)
+        /// <summary>Loads a single payment by ID using a no-tracking query and maps to full detail response.</summary>
+        /// <param name="request">The query containing the payment ID.</param>
+        /// <param name="cancellationToken">Propagates cancellation signal.</param>
+        /// <returns>A result containing the full payment details or not-found error.</returns>
+        public async Task<Result<Response>> Handle(Query request, CancellationToken cancellationToken)
         {
-
-        // Contract: pre=command!=null, post=result!=null
-            // Query: Get payment by ID.
-            var payment = await dbContext.Set<PaymentRecord>()
+            // Contract: pre=request!=null, post=result!=null, method found or NotFound returned
+            // Load: Payment by ID.
+            var payment = await dbContext.Set<PaymentCapture>()
                 .AsNoTracking()
-                .FirstOrDefaultAsync(p => p.Id == query.Id, cancellationToken);
+                .FirstOrDefaultAsync(p => p.Id == request.Id, cancellationToken);
 
             // Check: Verify the payment exists.
             if (payment is null)
-                return PaymentResult.Failure.NotFound;
+                return PaymentCaptureResult.Failure.NotFound;
 
             // Map: Convert to full detail response.
             return new Response

@@ -6,26 +6,26 @@ public sealed class AzureStorageProviderSettingValidator : AbstractValidator<Azu
 {
     public AzureStorageProviderSettingValidator()
     {
-        When(x => x.IsEnabled, () =>
+        When(x => x.IsEnabled, (Action)(() =>
         {
             RuleFor(x => x.ConnectionString)
                 .NotEmpty()
                 .WithErrorCode(AzureStorageProviderResult.Failure.ConnectionStringRequired.Code)
-                .WithMessage(AzureStorageProviderResult.Failure.ConnectionStringRequired.Message);
+                .WithMessage((string)AzureStorageProviderResult.Failure.ConnectionStringRequired.Message);
 
             RuleFor(x => x.ContainerName)
                 .NotEmpty()
                 .WithErrorCode(AzureStorageProviderResult.Failure.ContainerNameRequired.Code)
-                .WithMessage(AzureStorageProviderResult.Failure.ContainerNameRequired.Message)
+                .WithMessage((string)AzureStorageProviderResult.Failure.ContainerNameRequired.Message)
                 .Must(BeValidContainerName)
                 .WithErrorCode(AzureStorageProviderResult.Failure.ContainerNameInvalid.Code)
-                .WithMessage(AzureStorageProviderResult.Failure.ContainerNameInvalid.Message);
+                .WithMessage((string)AzureStorageProviderResult.Failure.ContainerNameInvalid.Message);
 
             RuleFor(x => x.BufferSize)
                 .GreaterThanOrEqualTo(AzureStorageProviderConstant.Constraints.BufferSizeMin)
                 .WithErrorCode(AzureStorageProviderResult.Failure.BufferSizeInvalid.Code)
-                .WithMessage(AzureStorageProviderResult.Failure.BufferSizeInvalid.Message);
-        });
+                .WithMessage((string)AzureStorageProviderResult.Failure.BufferSizeInvalid.Message);
+        }));
     }
 
     private static bool BeValidContainerName(string name)

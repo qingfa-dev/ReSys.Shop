@@ -3,7 +3,7 @@ using Module.Shipping.Domain.Calculators;
 using Module.Shipping.Domain.ShippingMethods;
 
 namespace Module.Shipping.Features.Storefront.Shipping.Calculate;
-/// <summary>Calculates shipping cost for a given order and method.</summary>
+/// <summary>Calculates shipping cost for a given order and shipping method based on weight.</summary>
 public static partial class CalculateShipping
 {
     public sealed record Command(Request Request) : ICommand<Response>;
@@ -11,13 +11,13 @@ public static partial class CalculateShipping
     public sealed class CommandHandler(IApplicationDbContext dbContext, ILogger<CommandHandler> logger)
         : ICommandHandler<Command, Response>
     {
-        /// <summary>Handles calculating shipping cost based on order context.</summary>
-        /// <param name="command">The command.</param>
-        /// <param name="cancellationToken">Cancellation token.</param>
-        /// <returns>The shipping cost response.</returns>
+        /// <summary>Loads the shipping method and order, computes order weight from line items, then calculates cost.</summary>
+        /// <param name="command">The command containing the shipping method ID and order ID.</param>
+        /// <param name="cancellationToken">Propagates cancellation signal.</param>
+        /// <returns>A result containing the calculated shipping cost details or an error.</returns>
         public async Task<Result<Response>> Handle(Command command, CancellationToken cancellationToken)
         {
-            // Contract: pre=command!=null, post=result!=null
+            // Contract: pre=method!=null && order!=null, post=shipping cost calculated
             _ = logger;
             var request = command.Request;
 
@@ -48,7 +48,7 @@ public static partial class CalculateShipping
             var orderWeight = order.LineItems.Sum(li =>
                 weightMap.TryGetValue(li.VariantId, out var w) ? li.Quantity * w : 0m);
 
-            // Compute: Calculate shipping cost.
+            // Compute: Calculate shipping cost via rate calculator.
             var calcResult = await ShippingRateCalculator.CalculateAsync(
                 dbContext,
                 request.ShippingMethodId,
@@ -61,8 +61,7 @@ public static partial class CalculateShipping
 
             var (cost, isFree) = calcResult.Value;
 
-            // Log: Operation success.
-            // Map: Return shipping cost response.
+            // Map: Return shipping cost response with method details.
             return new Response
             {
                 ShippingMethodId = method.Id,

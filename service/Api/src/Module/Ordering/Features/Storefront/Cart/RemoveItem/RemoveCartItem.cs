@@ -3,8 +3,8 @@ using Module.Ordering.Domain.Orders;
 
 namespace Module.Ordering.Features.Storefront.Cart.RemoveItem;
 
-    /// <summary>Handles RemoveCartItem feature.</summary>
-    public static partial class RemoveCartItem
+/// <summary>Removes a line item from the current user's draft cart and recalculates order totals.</summary>
+public static partial class RemoveCartItem
 {
     public sealed record Command(Guid LineItemId) : ICommand;
 
@@ -13,18 +13,18 @@ namespace Module.Ordering.Features.Storefront.Cart.RemoveItem;
         ICurrentUser currentUser)
         : ICommandHandler<Command>
     {
-        /// <summary>Handles the command.</summary>
-        /// <param name="command">The command to handle.</param>
+        /// <summary>Finds the user's draft cart, removes the specified line item, and recalculates totals.</summary>
+        /// <param name="command">The command containing the line item ID to remove.</param>
         /// <param name="cancellationToken">Cancellation token.</param>
-        /// <returns>The result of handling the command.</returns>
+        /// <returns>The result of the operation.</returns>
+        /// <exception cref="DbUpdateException">Thrown when the database update fails.</exception>
         public async Task<Result> Handle(Command command, CancellationToken cancellationToken)
         {
-
-        // Contract: pre=command!=null, post=result!=null
+            // Contract: pre=command!=null, post=result!=null, throws=DbUpdateException
             if (!Guid.TryParse(currentUser.UserId, out var userId))
                 return OrderResult.Errors.UserNotAuthenticated;
 
-            // Query: Retrieve data from database.
+            // Check: Find the user's draft cart.
             var cart = await dbContext.Set<Order>()
                 .Include(x => x.LineItems)
                 .Where(x => x.UserId == userId && x.Status == OrderStatus.Draft)
@@ -37,12 +37,10 @@ namespace Module.Ordering.Features.Storefront.Cart.RemoveItem;
             if (lineItem is null)
                 return LineItemResult.Errors.NotFound(command.LineItemId);
 
-            // Remove: Detach entity from collection.
+            // Remove: Detach entity from collection and delete from database.
             cart.LineItems.Remove(lineItem);
-            // Remove: Delete entity from database.
             dbContext.Set<Module.Ordering.Domain.LineItems.LineItem>().Remove(lineItem);
             cart.RecalculateTotals();
-            // Persist: Save changes to the database.
             await dbContext.SaveChangesAsync(cancellationToken);
 
             return Result.Ok();

@@ -69,5 +69,19 @@ public static class StockItemResult
             code: "StockItem.AlreadyExists",
             message: $"A StockItem already exists for Variant '{variantId}' at StockLocation '{locationId}'.");
         #endregion
+
+        #region Import
+
+        /// <summary>Error when no CSV file is provided for import.</summary>
+        public static Error ImportFileRequired => Error.Validation(
+            code: "StockItem.Import.FileRequired",
+            message: "CSV file is required.");
+
+        /// <summary>Error when the imported CSV file is empty.</summary>
+        public static Error ImportEmptyFile => Error.Validation(
+            code: "StockItem.Import.EmptyFile",
+            message: "CSV file is empty.");
+
+        #endregion
     }
 }

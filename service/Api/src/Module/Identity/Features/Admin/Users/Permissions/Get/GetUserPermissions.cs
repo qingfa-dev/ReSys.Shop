@@ -22,27 +22,26 @@ public static partial class GetUserPermissions
         IPermissionService permissionService)
         : IQueryHandler<Query, Response>
     {
+        // Contract: pre=request!=null, post=result!=null, throws=DbUpdateException
         /// <summary>
-        /// Handles the query to get permissions for a specific user, indicating which are direct and which are inherited.
+        /// Retrieves the full permission tree for a user, marking each permission as direct or inherited through roles.
         /// </summary>
         /// <param name="request">The query containing the user ID.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns>A result containing the permission tree with assignment status, or an error if the user is not found.</returns>
+        /// <returns>A result containing the permission tree with assignment status, or NotFound if the user does not exist.</returns>
+        /// <exception cref="DbUpdateException">Thrown when the underlying identity store fails.</exception>
         public async Task<Result<Response>> Handle(Query request, CancellationToken cancellationToken)
         {
-            // Check: Find the user by its ID.
             var user = await userManager.FindByIdAsync(request.Id.ToString());
             if (user is null)
                 return UserResult.Failure.NotFound;
 
-            // Get: Retrieve the effective permissions for the user via the IPermissionService
             var permissionsResult = await permissionService.GetEffectiveUserPermissionsAsync(user.Id, cancellationToken);
             if (permissionsResult.IsFailure)
                 return permissionsResult.Errors;
 
             var effectivePermissions = permissionsResult.Value;
 
-            // Map: Transform the PermissionContext discovery tree into the response format.
             var categories = PermissionContext.All
                 .GroupBy(p => p.Category)
                 .Select(categoryGroup => new Response.CategoryResponse

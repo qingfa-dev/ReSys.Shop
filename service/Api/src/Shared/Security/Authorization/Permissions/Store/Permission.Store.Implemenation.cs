@@ -8,36 +8,26 @@ using Shared.Security.Identity.Domain.Users.Roles;
 
 namespace Shared.Security.Authorization.Permissions.Store;
 
-/// <summary>
-/// Retrieves permissions for a user by merging role claims and user claims from the database.
-/// </summary>
-/// <remarks>
-/// Creates a new instance of <see cref="PermissionStoreService"/>.
-/// </remarks>
-/// <param name="dbContext">The database context.</param>
-/// <param name="logger">The logger instance.</param>
+/// <summary>Queries user and role permissions from the database by merging UserClaim and RoleClaim tables.</summary>
+// Invariant: Permissions are stored as ClaimType=PermissionMetadataConstant.ClaimType claims; all queries return case-insensitive distinct sets.
+// Context: Store always returns empty set on failure to prevent cascading authorization failures (Threat TMT-AUTH-001).
+// Boundary: Store → Persistence — pure data access; no business logic or cache orchestration.
 public sealed partial class PermissionStoreService(
     IApplicationDbContext dbContext,
     ILogger<PermissionStoreService> logger) : IPermissionStore
 {
-    /// <summary>
-    /// The database context for accessing permission data.
-    /// </summary>
     private readonly IApplicationDbContext _dbContext = dbContext;
-
-    /// <summary>
-    /// Logger for tracking store operations.
-    /// </summary>
     private readonly ILogger<PermissionStoreService> _logger = logger;
 
-    /// <inheritdoc />
+    /// <summary>Returns all permissions for a user by merging role-based claims and direct user claims.</summary>
+    // Contract: pre=userId!=Guid.Empty, post=return.IsSuccess && return.Value!=null, throws=never
     public async Task<Result<HashSet<string>>> GetUserPermissionsAsync(
         Guid userId,
         CancellationToken ct = default)
     {
         try
         {
-            // Receive: Fetch claims associated with all roles assigned to the user
+            // Call: fetch claims from all roles assigned to the user via UserRole-RoleClaim join
             List<string?> roleClaims = await _dbContext.Set<UserRole>()
                 .Where(ur => ur.UserId == userId)
                 .Join(
@@ -48,71 +38,69 @@ public sealed partial class PermissionStoreService(
                 .Distinct()
                 .ToListAsync(ct);
 
-            // Receive: Fetch claims assigned directly to the specific user account
+            // Call: fetch claims assigned directly to the user account (not role-derived)
             List<string?> userClaims = await _dbContext.Set<UserClaim>()
                 .Where(uc => uc.UserId == userId)
                 .Select(uc => uc.ClaimValue)
                 .Distinct()
                 .ToListAsync(ct);
 
-            // Transform: Merge role and user claims into a single unique set of permissions
+            // Transform: merge role and user claims into single case-insensitive unique set
             var allPermissions = roleClaims
                 .Concat(userClaims)
                 .Where(p => p != null)
                 .Select(p => p!)
                 .ToHashSet(StringComparer.OrdinalIgnoreCase);
 
-            // Log: Record quantity of permissions loaded for the user
+            // Log: record quantity of permissions loaded for the user
             Loggers.LogPermissionsLoaded(_logger, allPermissions.Count, userId);
 
             return Result<HashSet<string>>.Ok(allPermissions, PermissionStoreResult.Success.Retrieved);
         }
         catch (Exception ex)
         {
-            // Log: Detailed error for database query failure
+            // Catch: log query failure and return empty set — prevents cascading authorization failure
             Loggers.LogGetPermissionsFailed(_logger, userId, ex);
-
-            // Fallback: Return empty permission set to prevent complete system failure
             return Result<HashSet<string>>.Ok([], PermissionStoreResult.Success.Retrieved);
         }
     }
 
-    /// <inheritdoc />
+    /// <summary>Returns all permissions assigned directly to a role via RoleClaim records.</summary>
+    // Contract: pre=roleId!=Guid.Empty, post=return.IsSuccess && return.Value!=null, throws=never
     public async Task<Result<HashSet<string>>> GetRolePermissionsAsync(
         Guid roleId,
         CancellationToken ct = default)
     {
         try
         {
-            // Receive: Fetch claims associated with the specific role
+            // Call: fetch distinct claim values for the role (module boundary: Store → Persistence)
             List<string?> roleClaims = await _dbContext.Set<RoleClaim>()
                 .Where(rc => rc.RoleId == roleId)
                 .Select(rc => rc.ClaimValue)
                 .Distinct()
                 .ToListAsync(ct);
 
-            // Transform: Filter and clean permission strings
+            // Transform: filter nulls and build case-insensitive set
             var permissions = roleClaims
                 .Where(p => p != null)
                 .Select(p => p!)
                 .ToHashSet(StringComparer.OrdinalIgnoreCase);
 
-            // Log: Record quantity of permissions loaded for the role
+            // Log: record quantity of permissions loaded for the role
             Loggers.LogRolePermissionsLoaded(_logger, permissions.Count, roleId);
 
             return Result<HashSet<string>>.Ok(permissions, PermissionStoreResult.Success.Retrieved);
         }
         catch (Exception ex)
         {
-            // Log: Detailed error for database query failure
+            // Catch: log query failure and return empty set
             Loggers.LogGetRolePermissionsFailed(_logger, roleId, ex);
-
-            // Fallback: Return empty permission set
             return Result<HashSet<string>>.Ok([], PermissionStoreResult.Success.Retrieved);
         }
     }
 
-    /// <inheritdoc />
+    /// <summary>Returns the set of role IDs assigned to a user.</summary>
+    // Contract: pre=userId!=Guid.Empty, post=return.IsSuccess, throws=never
     public async Task<Result<HashSet<Guid>>> GetUserRoleIdsAsync(
         Guid userId,
         CancellationToken ct = default)
@@ -128,48 +116,48 @@ public sealed partial class PermissionStoreService(
         }
         catch (Exception ex)
         {
-            // Log: Failed to get roles for user
+            // Catch: log and return empty set
             Loggers.LogGetPermissionsFailed(_logger, userId, ex);
             return Result<HashSet<Guid>>.Ok([], PermissionStoreResult.Success.Retrieved);
         }
     }
 
-    /// <inheritdoc />
+    /// <summary>Returns only the direct (non-role) permissions assigned to a user via UserClaim records.</summary>
+    // Contract: pre=userId!=Guid.Empty, post=return.IsSuccess && return.Value!=null, throws=never
     public async Task<Result<HashSet<string>>> GetUserDirectPermissionsAsync(
         Guid userId,
         CancellationToken ct = default)
     {
         try
         {
-            // Receive: Fetch claims assigned directly to the specific user account
+            // Call: fetch claims assigned directly to the user account
             List<string?> userClaims = await _dbContext.Set<UserClaim>()
                 .Where(uc => uc.UserId == userId)
                 .Select(uc => uc.ClaimValue)
                 .Distinct()
                 .ToListAsync(ct);
 
-            // Transform: Filter and clean permission strings
+            // Transform: filter nulls and build case-insensitive set
             var permissions = userClaims
                 .Where(p => p != null)
                 .Select(p => p!)
                 .ToHashSet(StringComparer.OrdinalIgnoreCase);
 
-            // Log: Record quantity of direct permissions loaded
+            // Log: record quantity of direct permissions loaded
             Loggers.LogPermissionsLoaded(_logger, permissions.Count, userId);
 
             return Result<HashSet<string>>.Ok(permissions, PermissionStoreResult.Success.Retrieved);
         }
         catch (Exception ex)
         {
-            // Log: Detailed error for database query failure
+            // Catch: log query failure and return empty set
             Loggers.LogGetPermissionsFailed(_logger, userId, ex);
-
-            // Fallback: Return empty set
             return Result<HashSet<string>>.Ok([], PermissionStoreResult.Success.Retrieved);
         }
     }
 
-    /// <inheritdoc />
+    /// <summary>Adds permissions to a role by creating RoleClaim records.</summary>
+    // Contract: pre=roleId!=Guid.Empty && permissions!=null, post=return.IsSuccess if committed, throws=never
     public async Task<Result> AddRolePermissionsAsync(Guid roleId, IEnumerable<string> permissions, CancellationToken ct = default)
     {
         try
@@ -196,7 +184,8 @@ public sealed partial class PermissionStoreService(
         }
     }
 
-    /// <inheritdoc />
+    /// <summary>Removes permissions from a role by deleting matching RoleClaim records.</summary>
+    // Contract: pre=roleId!=Guid.Empty && permissions!=null, post=return.IsSuccess if committed, throws=never
     public async Task<Result> RemoveRolePermissionsAsync(Guid roleId, IEnumerable<string> permissions, CancellationToken ct = default)
     {
         try
@@ -223,7 +212,8 @@ public sealed partial class PermissionStoreService(
         }
     }
 
-    /// <inheritdoc />
+    /// <summary>Adds direct permissions to a user by creating UserClaim records.</summary>
+    // Contract: pre=userId!=Guid.Empty && permissions!=null, post=return.IsSuccess if committed, throws=never
     public async Task<Result> AddUserDirectPermissionsAsync(Guid userId, IEnumerable<string> permissions, CancellationToken ct = default)
     {
         try
@@ -250,7 +240,8 @@ public sealed partial class PermissionStoreService(
         }
     }
 
-    /// <inheritdoc />
+    /// <summary>Removes direct permissions from a user by deleting matching UserClaim records.</summary>
+    // Contract: pre=userId!=Guid.Empty && permissions!=null, post=return.IsSuccess if committed, throws=never
     public async Task<Result> RemoveUserDirectPermissionsAsync(Guid userId, IEnumerable<string> permissions, CancellationToken ct = default)
     {
         try
@@ -277,41 +268,41 @@ public sealed partial class PermissionStoreService(
         }
     }
 
-    /// <inheritdoc />
-    // Batch: Load all distinct permission identifiers across role + user claim tables.
+    /// <summary>Loads all distinct permission identifiers across role and user claim tables.</summary>
+    // Contract: post=return.IsSuccess && return.Value!=null, throws=never
     public async Task<Result<HashSet<string>>> GetAllPermissionIdentifiersAsync(CancellationToken ct = default)
     {
         try
         {
-            // Batch: Query distinct permission claim values from role claims.
+            // Call: query distinct permission claim values from role claims
             List<string?> roleIdentifiers = await _dbContext.Set<RoleClaim>()
                 .Where(rc => rc.ClaimType == PermissionMetadataConstant.ClaimType)
                 .Select(rc => rc.ClaimValue)
                 .Distinct()
                 .ToListAsync(ct);
 
-            // Batch: Query distinct permission claim values from user claims.
+            // Call: query distinct permission claim values from user claims
             List<string?> userIdentifiers = await _dbContext.Set<UserClaim>()
                 .Where(uc => uc.ClaimType == PermissionMetadataConstant.ClaimType)
                 .Select(uc => uc.ClaimValue)
                 .Distinct()
                 .ToListAsync(ct);
 
-            // Merge: Combine role and user identifiers into single unique set.
+            // Merge: combine role and user identifiers into single unique case-insensitive set
             var identifiers = roleIdentifiers
                 .Concat(userIdentifiers)
                 .Where(v => v != null)
                 .Select(v => v!)
                 .ToHashSet(StringComparer.OrdinalIgnoreCase);
 
-            // Log: Record total distinct permission identifiers loaded from store.
+            // Log: record total distinct permission identifiers loaded from store
             Loggers.LogAllIdentifiersLoaded(_logger, identifiers.Count);
 
             return Result<HashSet<string>>.Ok(identifiers, PermissionStoreResult.Success.Retrieved);
         }
         catch (Exception ex)
         {
-            // Catch: Return empty set on failure to prevent cascading errors.
+            // Catch: return empty set on failure to prevent cascading errors
             Loggers.LogGetPermissionsFailed(_logger, Guid.Empty, ex);
             return Result<HashSet<string>>.Ok([], PermissionStoreResult.Success.Retrieved);
         }

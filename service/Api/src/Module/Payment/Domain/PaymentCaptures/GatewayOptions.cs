@@ -1,13 +1,13 @@
-namespace Module.Payment.Domain.Payments;
+namespace Module.Payment.Domain.PaymentCaptures;
 /// <summary>Represents a Gateway Options.</summary>
 
 // Invariant: Currency is ISO 4217 3-letter code; OrderId format is "{order_number}-{payment_number}"
 // Define: Gateway options builder ported from Spree::Payment::GatewayOptions — constructs the options hash sent to payment gateways
 public sealed class GatewayOptions
 {
-    private readonly PaymentRecord _payment;
+    private readonly PaymentCapture _payment;
 
-    public GatewayOptions(PaymentRecord payment)
+    public GatewayOptions(PaymentCapture payment)
     {
         _payment = payment;
     }

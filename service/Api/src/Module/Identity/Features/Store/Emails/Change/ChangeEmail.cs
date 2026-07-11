@@ -21,6 +21,16 @@ public static partial class ChangeEmail
         IOptions<NotificationSetting> notificationSetting)
         : ICommandHandler<Command>
     {
+        // Contract: pre=command!=null, post=result!=null, throws=DbUpdateException
+        /// <summary>
+        /// Requests an email address change for the current user. Validates the current password,
+        /// checks the new email is not already taken by another user, generates a change token,
+        /// and sends a confirmation notification.
+        /// </summary>
+        /// <param name="command">The command containing the new email and current password.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>A result indicating success or validation failure.</returns>
+        /// <exception cref="DbUpdateException">Thrown when the identity store fails to persist the audit timestamp.</exception>
         public async Task<Result> Handle(Command command, CancellationToken cancellationToken)
         {
             var request = command.Request;

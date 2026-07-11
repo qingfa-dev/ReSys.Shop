@@ -2,7 +2,7 @@ using Module.Ordering.Domain.LineItems;
 
 namespace Module.Ordering.Features.Admin.Orders.Get.LineItemById;
 
-/// <summary>Gets a single line item for an order.</summary>
+/// <summary>Retrieves a single line item by ID scoped to its parent order, returning a detail response DTO.</summary>
 public static partial class GetOrderLineItemById
 {
     public class Response
@@ -21,6 +21,10 @@ public static partial class GetOrderLineItemById
 
     public sealed class QueryHandler(IApplicationDbContext dbContext) : IQueryHandler<Query, Response>
     {
+        /// <summary>Finds the line item by IDs and maps it to a response DTO.</summary>
+        /// <param name="query">The query containing order ID and line item ID.</param>
+        /// <param name="cancellationToken">Cancellation token.</param>
+        /// <returns>The line item detail response.</returns>
         public async Task<Result<Response>> Handle(Query query, CancellationToken cancellationToken)
         {
             var lineItem = await dbContext.Set<LineItem>()

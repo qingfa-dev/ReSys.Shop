@@ -77,7 +77,7 @@ public class ReleaseCartReservationTests : IDisposable
         updated.ExpiresAtUtc.Should().BeCloseTo(DateTimeOffset.UtcNow, TimeSpan.FromSeconds(5));
 
         var reloaded = await _dbContext.Set<StockItem>().FindAsync([stockItem.Id], TestContext.Current.CancellationToken);
-        reloaded!.CountOnHand.Should().Be(13);
+        reloaded!.CountOnHand.Should().Be(10);
     }
 
     [Fact(DisplayName = "Handler: Should return failure when reservation not found")]

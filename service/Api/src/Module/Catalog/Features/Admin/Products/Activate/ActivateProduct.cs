@@ -41,7 +41,6 @@ public static partial class ActivateProduct
             entity.AvailableOn ??= DateTimeOffset.UtcNow;
             entity.Status = ProductStatus.Active;
 
-            // Persist: Save status change to database
             await dbContext.SaveChangesAsync(cancellationToken);
 
             // Log: Record activation event for observability

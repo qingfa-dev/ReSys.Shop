@@ -25,12 +25,14 @@ public static partial class DeleteUser
     )
         : ICommandHandler<Command, Response>
     {
+        // Contract: pre=command!=null, post=result!=null, throws=DbUpdateException
         /// <summary>
-        /// Handles the deletion of a user account and ensures the associated profile is also removed.
+        /// Deletes a user account by ID. Blocks self-deletion. Logs the deletion and returns the deleted user's identity.
         /// </summary>
         /// <param name="command">The command with the user identifier.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns>A result containing the deleted user's ID and username, or an error.</returns>
+        /// <returns>A result containing the deleted user's ID and username, or unauthorized/self-delete/not-found error.</returns>
+        /// <exception cref="DbUpdateException">Thrown when the identity store fails to persist the deletion.</exception>
         public async Task<Result<Response>> Handle(Command command, CancellationToken cancellationToken)
         {
             var request = command.Request;
@@ -39,25 +41,22 @@ public static partial class DeleteUser
                 return UserResult.Failure.Unauthorized;
 
             if (request.Id == currentUserId)
-                return Error.Forbidden("User.Delete.Self", "Cannot delete your own account.");
+                return UserResult.Failure.SelfDelete;
 
             var user = await userManager.FindByIdAsync(request.Id.ToString());
             if (user is null)
                 return UserResult.Failure.NotFound;
 
-            // Remove: Attempt to delete the user using the user manager.
             var result = await userManager.DeleteAsync(user);
             if (!result.Succeeded)
                 return result.ToResult<Response>();
 
-            // Log: Record successful user deletion
             UserLoggers.Management.Deleted(logger,
                 UserName: user.UserName!,
                 Email: user.Email!,
                 UserId: user.Id,
                 ActionBy: currentUser.UserName);
 
-            // Create: Return a response with the details of the deleted user.
             return new Response(user.Id,
                 user.UserName ?? string.Empty);
         }

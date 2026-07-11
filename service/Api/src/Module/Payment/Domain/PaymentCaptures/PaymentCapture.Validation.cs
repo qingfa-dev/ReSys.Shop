@@ -1,13 +1,13 @@
-namespace Module.Payment.Domain.Payments;
+namespace Module.Payment.Domain.PaymentCaptures;
 
-public static class PaymentValidation
+public static class PaymentCaptureValidation
 {
     public static IRuleBuilderOptions<T, decimal> ApplyAmountRules<T>(this IRuleBuilder<T, decimal> ruleBuilder)
     {
         return ruleBuilder
             .GreaterThan(0)
-            .WithErrorCode(PaymentResult.Failure.AmountMustBePositive.Code)
-            .WithMessage(PaymentResult.Failure.AmountMustBePositive.Description);
+            .WithErrorCode(PaymentCaptureResult.Failure.AmountMustBePositive.Code)
+            .WithMessage(PaymentCaptureResult.Failure.AmountMustBePositive.Message);
     }
 
     public static IRuleBuilderOptions<T, PaymentRecordState> ApplyStateTransitionRules<T>(
@@ -16,8 +16,8 @@ public static class PaymentValidation
     {
         return ruleBuilder
             .Must(target => IsValidTransition(currentState, target))
-            .WithErrorCode(PaymentResult.Failure.InvalidStateTransition(currentState, currentState).Code)
-            .WithMessage($"Invalid state transition from '{currentState}'.");
+            .WithErrorCode(PaymentCaptureResult.Failure.InvalidStateTransition(currentState, currentState).Code)
+            .WithMessage(PaymentCaptureResult.Failure.InvalidStateTransition(currentState, currentState).Message);
     }
 
     private static bool IsValidTransition(PaymentRecordState from, PaymentRecordState to) => (from, to) switch

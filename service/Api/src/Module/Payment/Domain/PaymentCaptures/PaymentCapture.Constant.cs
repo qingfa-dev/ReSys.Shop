@@ -1,4 +1,4 @@
-namespace Module.Payment.Domain.Payments;
+namespace Module.Payment.Domain.PaymentCaptures;
 
 public static class PaymentConstant
 {
@@ -23,22 +23,22 @@ public static class PaymentConstant
     {
         public static readonly string[] AllowedSearchFields =
         [
-            nameof(PaymentRecord.Number)
+            nameof(PaymentCapture.Number)
         ];
 
         public static readonly string[] AllowedSortFields =
         [
-            nameof(PaymentRecord.Number),
-            nameof(PaymentRecord.Amount),
-            nameof(PaymentRecord.State),
-            nameof(PaymentRecord.CreatedAtUtc)
+            nameof(PaymentCapture.Number),
+            nameof(PaymentCapture.Amount),
+            nameof(PaymentCapture.State),
+            nameof(PaymentCapture.CreatedAtUtc)
         ];
 
         public static readonly string[] AllowedFilterFields =
         [
-            nameof(PaymentRecord.State),
-            nameof(PaymentRecord.PaymentMethodId),
-            nameof(PaymentRecord.OrderId)
+            nameof(PaymentCapture.State),
+            nameof(PaymentCapture.PaymentMethodId),
+            nameof(PaymentCapture.OrderId)
         ];
     }
 }

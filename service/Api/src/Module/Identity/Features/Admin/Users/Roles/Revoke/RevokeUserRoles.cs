@@ -26,14 +26,21 @@ public static partial class RevokeUserRoles
         )
         : ICommandHandler<Command>
     {
+        // Contract: pre=command!=null, post=result!=null, throws=DbUpdateException
+        /// <summary>
+        /// Revokes roles from a user. Filters to roles the user currently has, removes them
+        /// via Identity, persists changes, and invalidates the user's permission cache.
+        /// </summary>
+        /// <param name="command">The command with user ID and role names to revoke.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>A result indicating success or not-found error.</returns>
+        /// <exception cref="DbUpdateException">Thrown when the identity store fails to persist role changes.</exception>
         public async Task<Result> Handle(Command command, CancellationToken cancellationToken)
         {
-            // Check: Find the target user.
             var user = await userManager.FindByIdAsync(command.Id.ToString());
             if (user is null)
                 return UserResult.Failure.NotFound;
 
-            // Filter: Identify roles that the user actually has.
             var rolesToRemove = new List<string>();
             foreach (var roleName in command.Request.Roles)
             {
@@ -46,27 +53,22 @@ public static partial class RevokeUserRoles
             if (rolesToRemove.Count == 0)
                 return Result.Ok();
 
-            // Remove: Revoke the roles from the user.
             var identityResult = await userManager.RemoveFromRolesAsync(user, rolesToRemove);
             if (!identityResult.Succeeded)
                 return identityResult.ToResult();
 
-            // Update Metadata:
             AuditableBehavior.Touch(user, dateTime.UtcNow);
 
-            // Persist:
             var updateResult = await userManager.UpdateAsync(user);
             if (!updateResult.Succeeded)
                 return updateResult.ToResult();
 
-            // Log: Record successful role revocation
             if (logger.IsEnabled(LogLevel.Debug))
             {
                 var roles = string.Join(", ", rolesToRemove);
                 UserLoggers.Roles.RolesRevoked(logger, UserName: user.UserName!, UserId: user.Id, Roles: roles);
             }
 
-            // Post-persist side effects.
             await OnRolesChangedAsync(user, cancellationToken);
 
             return Result.Ok();

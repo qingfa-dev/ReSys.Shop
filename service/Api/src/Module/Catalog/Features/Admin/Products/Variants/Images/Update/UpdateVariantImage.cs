@@ -53,7 +53,6 @@ public static partial class UpdateVariantImage
             if (updateResult.IsFailure)
                 return updateResult.Errors;
 
-            // Persist: Save changes to database
             await dbContext.SaveChangesAsync(cancellationToken);
 
             // Log: Record image update event for observability

@@ -10,7 +10,7 @@ namespace Module.Ordering.Features.Shared.Services;
 /// Handles stock decrement on shipment and increment on return/cancellation.
 /// </summary>
 // Invariant: Order and LineItem must not be null; inventory unit count must match line item quantity
-// @CAT-10 Boundary: Application → Data — queries StockItem/StockReservation/StockMovement via StockChecker
+// Boundary: Application → Data — queries StockItem/StockReservation/StockMovement via StockChecker
 public partial class OrderInventoryService
 {
     private readonly IApplicationDbContext _dbContext;
@@ -37,7 +37,7 @@ public partial class OrderInventoryService
     /// <summary>
     /// Verifies inventory unit counts match line item quantity and adjusts as needed.
     /// </summary>
-    // @CAT-5 Compute: Verify inventory unit counts match line item quantity; add/remove as needed
+    // Compute: Verify inventory unit counts match line item quantity; add or remove as needed.
     public async Task VerifyAsync(CancellationToken cancellationToken = default)
     {
         if (!Order.CompletedAtUtc.HasValue) return;
@@ -63,7 +63,7 @@ public partial class OrderInventoryService
     /// </summary>
     /// <param name="unitsCount">The quantity to increment.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
-    // @CAT-2 Update: Increment stock via StockChecker and create audit trail
+    // Update: Increment stock via StockChecker and create audit trail.
     public async ValueTask RemoveAsync(int unitsCount, CancellationToken cancellationToken = default)
     {
         var stockLocationId = await DetermineStockLocationAsync(cancellationToken);

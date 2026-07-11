@@ -15,6 +15,13 @@ public static partial class GetImage
         IStorageService storageService)
         : IQueryHandler<Query, Response>
     {
+        /// <summary>
+        /// Retrieves a product variant image by resolving the storage path and verifying the file exists on disk.
+        /// </summary>
+        /// <param name="query">The query containing the image ID.</param>
+        /// <param name="cancellationToken">Propagates cancellation notification.</param>
+        /// <returns>A success result with the image full path and content type.</returns>
+        // Contract: pre=query.Id!=Guid.Empty, post=result!=null
         public async Task<Result<Response>> Handle(Query query, CancellationToken cancellationToken)
         {
             var image = await dbContext.Set<VariantImage>()

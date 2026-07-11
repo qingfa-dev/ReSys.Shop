@@ -3,27 +3,25 @@ using Module.Location.Features.Admin.Countries.Shared.Mappings;
 
 namespace Module.Location.Features.Admin.Countries.Update;
 
-/// <summary>Handles update of an existing country.</summary>
+/// <summary>Updates an existing country after validating ISO code uniqueness.</summary>
 public static partial class UpdateCountry
 {
-    // ============ COMMAND ============
-    /// <summary>Command to update an existing country.</summary>
     public sealed record Command(Guid Id, Request Request) : ICommand<Response>;
 
-    // ============ COMMAND HANDLER ============
     public sealed class CommandHandler(IApplicationDbContext dbContext)
         : ICommandHandler<Command, Response>
     {
-        /// <summary>Executes the update country command.</summary>
+        /// <summary>Validates the country exists and ISO code is unique, then applies updates.</summary>
         /// <param name="command">The command containing the update data.</param>
-        /// <param name="cancellationToken">Cancellation token.</param>
-        /// <returns>A result containing the updated country details.</returns>
+        /// <param name="cancellationToken">Propagates cancellation signal.</param>
+        /// <returns>A result containing the updated country details or an error.</returns>
+        /// <exception cref="DbUpdateException">Thrown when database persistence fails.</exception>
         public async Task<Result<Response>> Handle(Command command, CancellationToken cancellationToken)
         {
-            // Contract: pre=command!=null, post=result!=null
+            // Contract: pre=country!=null && IsoCode unique (excl. self), post=country updated, throws=DbUpdateException
             var request = command.Request;
 
-            // Check: Country exists for the given Id.
+            // Load: Country exists for the given Id.
             var country = await dbContext.Set<Country>()
                 .FirstOrDefaultAsync(predicate: c => c.Id == command.Id, cancellationToken: cancellationToken);
 
@@ -42,7 +40,6 @@ public static partial class UpdateCountry
             // Update: Apply request data to country entity.
             request.MapToDomain(country: country);
 
-            // Persist: Save changes to database.
             dbContext.Set<Country>().Update(entity: country);
             await dbContext.SaveChangesAsync(cancellationToken: cancellationToken);
 

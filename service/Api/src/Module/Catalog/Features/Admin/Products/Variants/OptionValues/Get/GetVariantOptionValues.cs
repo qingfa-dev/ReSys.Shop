@@ -13,10 +13,12 @@ public static partial class GetVariantOptionValues
         : IQueryHandler<Query, Response>
     {
         /// <summary>
-        /// Handles the request and returns a result.
+        /// Retrieves all option values with their assigned state for a variant.
         /// </summary>
-        /// <param name="request">The query containing request data.</param>
-        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <param name="request">The query containing the variant ID.</param>
+        /// <param name="cancellationToken">Propagates cancellation notification.</param>
+        /// <returns>A success result with the variant option values and their assignment status.</returns>
+        // Contract: pre=request.VariantId!=Guid.Empty, post=result!=null
         public async Task<Result<Response>> Handle(Query request, CancellationToken cancellationToken)
         {
             var variantExists = await dbContext.Set<Variant>()

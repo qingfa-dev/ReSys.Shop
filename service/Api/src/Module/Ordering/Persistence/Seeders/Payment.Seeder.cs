@@ -1,7 +1,7 @@
 using Module.Ordering.Domain.Orders;
 using Module.Payment.Domain.PaymentMethods;
-using Module.Payment.Domain.Payments;
-using PaymentEntity = Module.Payment.Domain.Payments.PaymentRecord;
+using Module.Payment.Domain.PaymentCaptures;
+using PaymentEntity = Module.Payment.Domain.PaymentCaptures.PaymentCapture;
 
 namespace Module.Ordering.Persistence.Seeders;
 
@@ -27,7 +27,7 @@ public sealed class PaymentSeeder(IApplicationDbContext context) : AbstractDataS
 
         foreach (var order in orders)
         {
-            var paymentResult = PaymentFactory.Create(order.PaymentTotal, creditCard.Id, order.Id);
+            var paymentResult = PaymentCaptureMethod.Create(order.PaymentTotal, creditCard.Id, order.Id);
             if (paymentResult.IsFailure)
                 continue;
 

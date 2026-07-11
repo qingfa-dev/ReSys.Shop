@@ -2,21 +2,22 @@ using Module.Ordering.Domain.Orders;
 using Module.Ordering.Features.Admin.Orders.Shared.Mappings;
 
 namespace Module.Ordering.Features.Admin.Orders.Update;
-/// <summary>Handles UpdateOrderAdmin feature.</summary>
+/// <summary>Updates editable fields on a draft order using patch semantics — only non-null request values overwrite the existing order properties.</summary>
 public static partial class UpdateOrderAdmin
 {
     public sealed record Command(Guid Id, Request Request) : ICommand<Response>;
 
     public sealed class CommandHandler(IApplicationDbContext dbContext) : ICommandHandler<Command, Response>
     {
-        /// <summary>Handles the command.</summary>
-        /// <param name="command">The command to handle.</param>
+        /// <summary>Applies partial updates (patch semantics) to a draft order and persists changes.</summary>
+        /// <param name="command">The command containing the order ID and updated fields.</param>
         /// <param name="cancellationToken">Cancellation token.</param>
-        /// <returns>The result of handling the command.</returns>
+        /// <returns>The updated order response.</returns>
+        /// <exception cref="DbUpdateException">Thrown when the database update fails.</exception>
         public async Task<Result<Response>> Handle(Command command, CancellationToken cancellationToken)
         {
-            // Contract: pre=command!=null, post=result!=null
-            // Check: Verify the order exists.
+            // Contract: pre=command!=null, post=result!=null, throws=DbUpdateException
+            // Check: Order exists and is in draft status.
             var order = await dbContext.Set<Order>().FirstOrDefaultAsync(o => o.Id == command.Id, cancellationToken);
             if (order is null)
                 return OrderResult.Errors.NotFound(command.Id);
@@ -34,7 +35,6 @@ public static partial class UpdateOrderAdmin
             if (req.ShippingMethodId.HasValue) order.ShippingMethodId = req.ShippingMethodId;
             order.ModifiedAtUtc = DateTimeOffset.UtcNow;
 
-            // Persist: Save changes.
             await dbContext.SaveChangesAsync(cancellationToken);
 
             // Map: Return the updated entity as response.

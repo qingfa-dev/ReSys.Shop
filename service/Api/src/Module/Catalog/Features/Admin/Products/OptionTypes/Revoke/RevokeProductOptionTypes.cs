@@ -13,10 +13,13 @@ public static partial class RevokeProductOptionTypes
         : ICommandHandler<Command>
     {
         /// <summary>
-        /// Handles the request and returns a result.
+        /// Revokes (removes) option type associations from a product by deleting the specified junction records.
         /// </summary>
-        /// <param name="command">The command containing request data.</param>
-        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <param name="command">The command containing the product ID and option type IDs to revoke.</param>
+        /// <param name="cancellationToken">Propagates cancellation notification.</param>
+        /// <returns>A success result indicating the option types were revoked.</returns>
+        /// <exception cref="DbUpdateException">Thrown when the database update fails.</exception>
+        // Contract: pre=command!=null, post=result!=null
         public async Task<Result> Handle(Command command, CancellationToken cancellationToken)
         {
             // Check: Product exists before removing option type associations

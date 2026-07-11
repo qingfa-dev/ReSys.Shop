@@ -1,7 +1,7 @@
 using Module.Shipping.Domain.ShippingMethods;
 
 namespace Module.Shipping.Features.Storefront.Shipping.Methods;
-/// <summary>Gets available shipping methods for the storefront.</summary>
+/// <summary>Retrieves all shipping methods available to storefront users.</summary>
 public static partial class GetShippingMethods
 {
     public sealed record Query : IQuery<Response>;
@@ -9,21 +9,21 @@ public static partial class GetShippingMethods
     public sealed class QueryHandler(IApplicationDbContext dbContext, ILogger<QueryHandler> logger)
         : IQueryHandler<Query, Response>
     {
-        /// <summary>Handles retrieving shipping methods.</summary>
-        /// <param name="request">The query.</param>
-        /// <param name="cancellationToken">Cancellation token.</param>
-        /// <returns>The shipping methods response.</returns>
+        /// <summary>Loads active, non-deleted shipping methods and returns them as a list.</summary>
+        /// <param name="request">The empty query.</param>
+        /// <param name="cancellationToken">Propagates cancellation signal.</param>
+        /// <returns>A result containing the list of available shipping methods.</returns>
         public async Task<Result<Response>> Handle(Query request, CancellationToken cancellationToken)
         {
-            // Contract: pre=request!=null, post=result!=null
+            // Contract: pre=none, post=list of available shipping methods returned
             _ = logger;
-            // Query: Retrieve all available shipping methods.
+            // Load: All available shipping methods.
             var methods = await dbContext.Set<ShippingMethod>()
                 .Where(x => x.AvailableToUsers && !x.IsDeleted)
                 .AsNoTracking()
                 .ToListAsync(cancellationToken);
 
-            // Map: Return list of shipping methods.
+            // Map: Return list of available shipping methods.
             return new Response
             {
                 Methods = methods.Select(m => new ShippingMethodDto

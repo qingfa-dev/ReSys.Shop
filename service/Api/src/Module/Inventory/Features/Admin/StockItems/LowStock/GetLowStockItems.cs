@@ -17,7 +17,7 @@ public static partial class GetLowStockItems
         public async Task<Result<List<Response>>> Handle(Query request, CancellationToken cancellationToken)
         {
             // Contract: pre=request!=null, post=result!=null
-            // Query: Retrieve stock items with location filter
+            // Load: Retrieve stock items with location filter
             var query = dbContext.Set<StockItem>()
                 .Include(si => si.StockLocation)
                 .Where(si => si.StockLocation != null && !si.StockLocation.IsDeleted && si.StockLocation.Active)

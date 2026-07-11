@@ -1,6 +1,6 @@
 using Module.Payment.Features.Storefront.Payment.Webhooks;
 
-using PaymentRecord = Module.Payment.Domain.Payments.PaymentRecord;
+using PaymentCapture = Module.Payment.Domain.PaymentCaptures.PaymentCapture;
 
 namespace Module.UnitTests.Payment.Features.Storefront.Payment.Webhooks;
 
@@ -17,7 +17,7 @@ public class StripeWebhookTests : IDisposable
     {
         var opts = new DbContextOptionsBuilder<ApplicationDbContext>()
             .UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
-        ApplicationDbContext.AdditionalConfigurationsAssemblies = [typeof(PaymentRecord).Assembly];
+        ApplicationDbContext.AdditionalConfigurationsAssemblies = [typeof(PaymentCapture).Assembly];
         _dbContext = new ApplicationDbContext(opts);
         _webhookMock = new Mock<IStripeWebhookService>();
         _webhookMock.Setup(x => x.ValidateSignature(It.IsAny<string>(), It.IsAny<string>())).Returns(true);

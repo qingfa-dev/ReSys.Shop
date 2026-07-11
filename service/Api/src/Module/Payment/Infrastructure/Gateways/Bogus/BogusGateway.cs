@@ -1,9 +1,9 @@
 using Microsoft.Extensions.Options;
 
 using Module.Payment.Domain.Gateways;
-using Module.Payment.Domain.Payments;
+using Module.Payment.Domain.PaymentCaptures;
 
-using PaymentRecord = Module.Payment.Domain.Payments.PaymentRecord;
+using PaymentRecord = Module.Payment.Domain.PaymentCaptures.PaymentCapture;
 
 namespace Module.Payment.Infrastructure.Gateways.Bogus;
 

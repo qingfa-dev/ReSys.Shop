@@ -1,4 +1,4 @@
-using PaymentStateEnum = Module.Payment.Domain.Payments.PaymentRecordState;
+using PaymentStateEnum = Module.Payment.Domain.PaymentCaptures.PaymentRecordState;
 
 namespace Module.Ordering.Domain.Orders.Services;
 
@@ -24,7 +24,7 @@ public partial class OrderUpdater
     /// <summary>
     /// Recalculates item count, totals, payment/shipment state, and persists changes.
     /// </summary>
-    // @CAT-5 Compute: Recalculate item count, totals, payment/shipment state, and persist
+    // Compute: Recalculate item count, totals, payment/shipment state, and persist.
     public void Update()
     {
         UpdateItemCount();
@@ -45,7 +45,7 @@ public partial class OrderUpdater
     /// <summary>
     /// Recalculates all order totals: payment, item, shipment, and adjustment.
     /// </summary>
-    // @CAT-5 Compute: Recalculate all order totals
+    // Compute: Recalculate all order totals.
     public void UpdateTotals()
     {
         UpdatePaymentTotal();
@@ -57,7 +57,7 @@ public partial class OrderUpdater
     /// <summary>
     /// Calculates the payment total from completed payments minus refunds.
     /// </summary>
-    // @CAT-5 Compute: Payment total from completed payments minus refunds
+    // Compute: Payment total from completed payments minus refunds.
     public void UpdatePaymentTotal()
     {
         Order.PaymentTotal = Order.Payments
@@ -68,7 +68,7 @@ public partial class OrderUpdater
     /// <summary>
     /// Calculates the item total from all line items.
     /// </summary>
-    // @CAT-5 Compute: Item total from all line items
+    // Compute: Item total from all line items.
     public void UpdateItemTotal()
     {
         Order.ItemTotal = Order.LineItems.Sum(li => li.Total);
@@ -78,7 +78,7 @@ public partial class OrderUpdater
     /// <summary>
     /// Calculates the shipment total from all shipments.
     /// </summary>
-    // @CAT-5 Compute: Shipment total from all shipments
+    // Compute: Shipment total from all shipments.
     public void UpdateShipmentTotal()
     {
         Order.ShipmentTotal = 0m; // resolved by infrastructure
@@ -88,7 +88,7 @@ public partial class OrderUpdater
     /// <summary>
     /// Calculates the order total as item + shipment + adjustment totals.
     /// </summary>
-    // @CAT-5 Compute: Order total = item + shipment + adjustment totals
+    // Compute: Order total = item + shipment + adjustment totals.
     public void UpdateOrderTotal()
     {
         Order.Total = Order.ItemTotal + Order.ShipmentTotal + Order.AdjustmentTotal;
@@ -97,7 +97,7 @@ public partial class OrderUpdater
     /// <summary>
     /// Recalculates all adjustment totals.
     /// </summary>
-    // @CAT-5 Compute: Recalculate all adjustment totals
+    // Compute: Recalculate all adjustment totals.
     public void UpdateAdjustmentTotal()
     {
         var lineItemAdjustmentTotal = Order.LineItems.Sum(li => li.AdjustmentTotal);
@@ -113,7 +113,7 @@ public partial class OrderUpdater
     /// <summary>
     /// Updates the item count from line items total quantity.
     /// </summary>
-    // @CAT-5 Compute: Update item count from line items total quantity
+    // Compute: Update item count from line items total quantity.
     public void UpdateItemCount()
     {
         Order.ItemCount = Order.LineItems.Sum(li => li.Quantity);
@@ -126,7 +126,7 @@ public partial class OrderUpdater
     /// <summary>
     /// Determines the payment state from payment records and outstanding balance.
     /// </summary>
-    // @CAT-5 Compute: Determine payment state from payment records
+    // Compute: Determine payment state from payment records.
     public void UpdatePaymentState()
     {
         if (Order.Payments.Count > 0 && !Order.Payments.Any(p => p.State != PaymentStateEnum.Failed && p.State != PaymentStateEnum.Invalid))
@@ -154,7 +154,7 @@ public partial class OrderUpdater
     /// <summary>
     /// Determines the shipment state from shipment states.
     /// </summary>
-    // @CAT-5 Compute: Determine shipment state from shipment states
+    // Compute: Determine shipment state from shipment states.
     public void UpdateShipmentState()
     {
         Order.ShipmentState = null; // resolved by infrastructure
@@ -167,7 +167,7 @@ public partial class OrderUpdater
     /// <summary>
     /// Saves calculated totals to the order record with modification timestamp.
     /// </summary>
-    // @CAT-5 Compute: Save calculated totals to the order record
+    // Update: Save calculated totals to the order record with modification timestamp.
     public void PersistTotals()
     {
         Order.ModifiedAtUtc = DateTimeOffset.UtcNow;

@@ -4,8 +4,8 @@ using Module.Shipping.Domain.Calculators;
 
 namespace Module.Ordering.Features.Storefront.Cart.UpdateCheckout;
 
-    /// <summary>Handles UpdateCheckout feature.</summary>
-    public static partial class UpdateCheckout
+/// <summary>Updates checkout fields (email, addresses, instructions) and recalculates shipping cost when the ship address changes.</summary>
+public static partial class UpdateCheckout
 {
     public sealed record Command(Request Request) : ICommand;
 
@@ -14,14 +14,18 @@ namespace Module.Ordering.Features.Storefront.Cart.UpdateCheckout;
         ICurrentUser currentUser)
         : ICommandHandler<Command>
     {
+        /// <summary>Applies partial updates to the draft cart and recalculates shipping when the ship address is changed.</summary>
+        /// <param name="command">The command containing checkout fields to update.</param>
+        /// <param name="cancellationToken">Cancellation token.</param>
+        /// <returns>The result of the operation.</returns>
+        /// <exception cref="DbUpdateException">Thrown when the database update fails.</exception>
         public async Task<Result> Handle(Command command, CancellationToken cancellationToken)
         {
-
-        // Contract: pre=command!=null, post=result!=null
+            // Contract: pre=command!=null, post=result!=null, throws=DbUpdateException
             if (!Guid.TryParse(currentUser.UserId, out var userId))
                 return OrderResult.Errors.UserNotAuthenticated;
 
-            // Query: Retrieve data from database.
+            // Check: Find the user's draft cart with line items and adjustments.
             var cart = await dbContext.Set<Order>()
                 .Include(x => x.LineItems)
                 .Include(x => x.Adjustments)
@@ -40,7 +44,7 @@ namespace Module.Ordering.Features.Storefront.Cart.UpdateCheckout;
             if (req.SpecialInstructions is not null) cart.SpecialInstructions = req.SpecialInstructions;
             cart.ModifiedAtUtc = DateTimeOffset.UtcNow;
 
-            // Compute: If ship address changed and a shipping method is selected, recalculate shipping cost.
+            // Compute: Recalculate shipping cost when ship address changes and a method is selected.
             if (addressChanged && cart.ShippingMethodId.HasValue)
             {
                 var variantIds = cart.LineItems.Select(li => li.VariantId).Distinct().ToList();

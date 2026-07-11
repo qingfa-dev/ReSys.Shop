@@ -1,7 +1,10 @@
+using Microsoft.Extensions.Logging;
 using Module.Inventory.Domain.StockLocations.StockItems;
 using Module.Inventory.Domain.StockLocations.StockItems.StockMovements;
 using Module.Inventory.Domain.StockReservations;
 using Module.Inventory.Features.Admin.StockItems.Restock;
+using Moq;
+using Shared.Security.Authentication.Contexts.Services;
 
 namespace Module.UnitTests.Inventory.Features.Admin.StockItems.Restock;
 
@@ -11,6 +14,7 @@ namespace Module.UnitTests.Inventory.Features.Admin.StockItems.Restock;
 public class RestockStockItemTests : IDisposable
 {
     private readonly ApplicationDbContext _dbContext;
+    private readonly Mock<ICurrentUser> _currentUserMock;
     private readonly RestockStockItem.CommandHandler _handler;
     private readonly Guid _variantId = Guid.NewGuid();
     private readonly Guid _stockLocationId = Guid.NewGuid();
@@ -24,7 +28,11 @@ public class RestockStockItemTests : IDisposable
 
         ApplicationDbContext.AdditionalConfigurationsAssemblies = [typeof(StockItem).Assembly];
         _dbContext = new ApplicationDbContext(options);
-        _handler = new RestockStockItem.CommandHandler(_dbContext);
+
+        _currentUserMock = new Mock<ICurrentUser>();
+        _currentUserMock.Setup(x => x.UserName).Returns("admin");
+
+        _handler = new RestockStockItem.CommandHandler(_dbContext, _currentUserMock.Object, Mock.Of<ILogger<RestockStockItem.CommandHandler>>());
     }
 
     public void Dispose()

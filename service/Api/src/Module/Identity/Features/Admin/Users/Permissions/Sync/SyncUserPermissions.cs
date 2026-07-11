@@ -28,23 +28,29 @@ public static partial class SyncUserPermissions
         ILogger<CommandHandler> logger)
         : ICommandHandler<Command>
     {
+        // Contract: pre=command!=null, post=result!=null, throws=DbUpdateException
+        /// <summary>
+        /// Synchronizes the direct permission set for a user to match the requested list.
+        /// Computes the diff against current claims, validates caller authority for both
+        /// additions and removals, applies batch changes, persists, and invalidates the cache.
+        /// </summary>
+        /// <param name="command">The command with user ID and the full list of target permissions.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>A result indicating success or unauthorized/not-found/assign-denied/revoke-denied error.</returns>
+        /// <exception cref="DbUpdateException">Thrown when the identity store fails to persist user claims.</exception>
         public async Task<Result> Handle(Command command, CancellationToken cancellationToken)
         {
-            // Check: Ensure the current user is authenticated.
             if (!currentUser.IsAuthenticated || !Guid.TryParse(currentUser.UserId, out Guid currentUserId))
                 return UserResult.Failure.Unauthorized;
 
-            // Check: Find the target user.
             var user = await userManager.FindByIdAsync(command.Id.ToString());
             if (user is null)
                 return UserResult.Failure.NotFound;
 
-            // Filter: Extract and validate permissions from the request.
             var requestedPermissions = command.Request.Permissions
                 .Where(p => PermissionContext.All.Select(x => x.Identifier).Contains(p))
                 .ToList();
 
-            // Security Check: Verify authority to assign all requested permissions.
             if (requestedPermissions.Count > 0)
             {
                 var authResult =
@@ -54,14 +60,12 @@ public static partial class SyncUserPermissions
                     return UserResult.Failure.AssignDenied(requestedPermissions.First());
             }
 
-            // Get: Current direct permissions.
             var existingClaims = await userManager.GetClaimsAsync(user);
             var existingPermissionValues = existingClaims
                 .Where(c => c.Type == PermissionMetadataConstant.ClaimType)
                 .Select(c => c.Value)
                 .ToHashSet(StringComparer.OrdinalIgnoreCase);
 
-            // Calculate Differences:
             var permissionsToAdd = requestedPermissions
                 .Where(p => !existingPermissionValues.Contains(p))
                 .ToList();
@@ -73,7 +77,6 @@ public static partial class SyncUserPermissions
             if (permissionsToAdd.Count == 0 && permissionsToRemove.Count == 0)
                 return Result.Ok();
 
-            // Security Check for Revocation:
             if (permissionsToRemove.Count > 0)
             {
                 var authResult =
@@ -83,7 +86,6 @@ public static partial class SyncUserPermissions
                     return UserResult.Failure.RevokeDenied(permissionsToRemove.First());
             }
 
-            // Execute Updates:
             if (permissionsToAdd.Count > 0)
             {
                 var addResult =
@@ -99,20 +101,16 @@ public static partial class SyncUserPermissions
                 if (removeResult.IsFailure) return removeResult;
             }
 
-            // Update Metadata:
             AuditableBehavior.Touch(user, dateTime.UtcNow);
 
-            // Persist:
             var updateResult = await userManager.UpdateAsync(user);
             if (!updateResult.Succeeded)
                 return updateResult.ToResult();
 
-            // Log: Record successful permission sync
             UserLoggers.Permissions.PermissionsSynced(logger, UserName: user.UserName!, UserId: user.Id,
                 AddedCount: permissionsToAdd.Count, RemovedCount: permissionsToRemove.Count,
                 ActionBy: currentUser.UserName);
 
-            // Post-persist side effects.
             await OnPermissionsChangedAsync(user, cancellationToken);
 
             return Result.Ok();

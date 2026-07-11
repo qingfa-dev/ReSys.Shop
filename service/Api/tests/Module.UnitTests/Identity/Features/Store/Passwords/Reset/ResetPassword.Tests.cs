@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Identity;
 using Module.Identity.Features.Store.Passwords.Reset;
 using Module.UnitTests.Identity.Fixtures;
 
+using Shared.Application.Systems.SystemDateTimes;
 using Shared.Operational.Notifications.Models;
 using Shared.Operational.Notifications.Services;
 using Shared.Operational.Notifications.Templates;
@@ -26,6 +27,7 @@ public class ResetPasswordTests
 
         _handler = new ResetPassword.CommandHandler(
             _userManagerMock.Object,
+            Mock.Of<ISystemDateTime>(),
             _notificationServiceMock.Object,
             Mock.Of<ILogger<ResetPassword.CommandHandler>>());
 

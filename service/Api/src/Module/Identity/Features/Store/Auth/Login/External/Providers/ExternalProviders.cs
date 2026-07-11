@@ -14,17 +14,15 @@ public static partial class ExternalProviders
     {
         // Contract: pre=request!=null, post=result!=null
         /// <summary>
-        /// Handles the query to retrieve available external login providers.
+        /// Returns the list of configured external OAuth/OpenID providers available for login.
         /// </summary>
         /// <param name="request">The query.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns>A result containing the list of available external providers.</returns>
+        /// <returns>A paged result containing available external providers.</returns>
         public Task<PagedResult<Response>> Handle(PagedQuery request, CancellationToken cancellationToken)
         {
-            // Query: Retrieve available external login providers
             var providers = discoveryService.GetAvailableProviders();
 
-            // Map: Return the provider list as the response
             var result = PagedResult<Response>.Ok(
                 items: providers.Items.Select(p => new Response
                 {

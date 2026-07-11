@@ -5,16 +5,16 @@ using Module.Inventory.Domain.StockLocations.StockItems.StockMovements;
 using Module.Ordering.Domain.Orders;
 using Module.Ordering.Domain.Orders.Contracts;
 using Module.Ordering.Features.Admin.Orders.Shared.Mappings;
-using Module.Payment.Domain.Payments;
+using Module.Payment.Domain.PaymentCaptures;
 
 using Shared.Operational.Notifications.Models;
 using Shared.Operational.Notifications.Services;
 using Shared.Operational.Notifications.Templates;
 
-using PaymentRecord = Module.Payment.Domain.Payments.PaymentRecord;
+using PaymentCapture = Module.Payment.Domain.PaymentCaptures.PaymentCapture;
 
 namespace Module.Ordering.Features.Storefront.Cart.Checkout;
-/// <summary>Handles CreateOrderFromCart feature.</summary>
+/// <summary>Converts the current user's draft cart into a placed order with payment verification, stock deduction, inventory reservation, notification, and event publishing.</summary>
 public static partial class CreateOrderFromCart
 {
     public sealed record Command(Request Request) : ICommand<Response>;
@@ -27,18 +27,19 @@ public static partial class CreateOrderFromCart
         IOrderEventPublisher eventPublisher)
         : ICommandHandler<Command, Response>
     {
-        /// <summary>Handles the command.</summary>
-        /// <param name="command">The command to handle.</param>
+        /// <summary>Validates checkout prerequisites, verifies payment, deducts stock, reserves inventory, places the order, publishes an event, and sends a notification.</summary>
+        /// <param name="command">The command containing checkout request with optional payment intent ID.</param>
         /// <param name="cancellationToken">Cancellation token.</param>
-        /// <returns>The result of handling the command.</returns>
+        /// <returns>The created order response.</returns>
+        /// <exception cref="DbUpdateException">Thrown when the database update fails.</exception>
         public async Task<Result<Response>> Handle(Command command, CancellationToken cancellationToken)
         {
-            // Contract: pre=command!=null, post=result!=null
+            // Contract: pre=command!=null, post=result!=null, throws=DbUpdateException
             // Check: Resolve current user identifier.
             if (!Guid.TryParse(currentUser.UserId, out var userId))
                 return OrderResult.Errors.UserNotAuthenticated;
 
-            // Query: Find the current user's draft cart.
+            // Load: Find the current user's draft cart.
             var cart = await dbContext.Set<Order>()
                 .Include(x => x.LineItems)
                 .ThenInclude(x => x.Variant)
@@ -69,7 +70,7 @@ public static partial class CreateOrderFromCart
                 if (string.IsNullOrWhiteSpace(paymentIntentId))
                     return OrderResult.Errors.PaymentRequired;
 
-                var payment = await dbContext.Set<PaymentRecord>()
+                var payment = await dbContext.Set<PaymentCapture>()
                     .FirstOrDefaultAsync(p => p.ResponseCode == paymentIntentId
                                           && p.OrderId == cart.Id
                                           && p.State == PaymentRecordState.Completed, cancellationToken);
@@ -141,10 +142,9 @@ public static partial class CreateOrderFromCart
                 }
             }
 
-            // Persist: Save changes.
             await dbContext.SaveChangesAsync(cancellationToken);
 
-            // Event: Publish order.placed to the event bus (no-op by default; wired to webhooks in Program.cs)
+            // Publish: Emit order.placed event for downstream consumers (webhooks, analytics).
             await eventPublisher.PublishAsync("order.placed", new
             {
                 OrderId = cart.Id,
@@ -156,13 +156,13 @@ public static partial class CreateOrderFromCart
                 PlacedAtUtc = cart.CompletedAtUtc
             }, cancellationToken);
 
-            // Notify: Send order confirmation to customer.
+            // Notify: Send order confirmation email to customer.
             await SendOrderPlacedNotificationAsync(cart, cancellationToken);
 
-            // Log: Success.
+            // Log: Record placement in audit log.
             OrderLoggers.Placed(logger, Number: cart.Number, Id: cart.Id, ActionBy: currentUser.UserName);
 
-            // Map: Return the created order.
+            // Map: Return the created order as response.
             return Result<Response>.Created(cart.MapToDetail<Response>());
         }
 
@@ -189,7 +189,7 @@ public static partial class CreateOrderFromCart
             if (result.IsFailure)
             {
                 logger.LogWarning("Failed to send order confirmation notification for order {OrderId}: {Errors}",
-                    order.Id, string.Join("; ", result.Errors.Select(f => f.Description)));
+                    order.Id, string.Join("; ", result.Errors.Select(f => f.Message)));
             }
         }
     }

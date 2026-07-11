@@ -1,24 +1,24 @@
 using Module.Payment.Domain.PaymentMethods;
-using Module.Payment.Domain.Payments;
+using Module.Payment.Domain.PaymentCaptures;
 
 namespace Module.Payment.Features.Admin.PaymentMethods.Delete;
 
-    /// <summary>Handles DeletePaymentMethod feature.</summary>
-    public static partial class DeletePaymentMethod
+/// <summary>Soft-deletes a payment method, preventing new usage while preserving referential integrity.</summary>
+public static partial class DeletePaymentMethod
 {
     public sealed record Command(Guid Id) : ICommand;
 
     public sealed class CommandHandler(IApplicationDbContext dbContext)
         : ICommandHandler<Command>
     {
-        /// <summary>Handles the command.</summary>
-        /// <param name="command">The command to handle.</param>
-        /// <param name="cancellationToken">Cancellation token.</param>
-        /// <returns>The result of handling the command.</returns>
+        /// <summary>Validates no active payments reference the method, then performs soft-delete.</summary>
+        /// <param name="command">The command identifying the payment method to delete.</param>
+        /// <param name="cancellationToken">Propagates cancellation signal.</param>
+        /// <returns>A success result or an error if the method is not found or has active payments.</returns>
+        /// <exception cref="DbUpdateException">Thrown when database persistence fails.</exception>
         public async Task<Result> Handle(Command command, CancellationToken cancellationToken)
         {
-
-        // Contract: pre=command!=null, post=result!=null
+            // Contract: pre=command!=null, post=method.IsDeleted==true, throws=DbUpdateException
             // Check: Verify the payment method exists.
             var method = await dbContext.Set<PaymentMethod>()
                 .FirstOrDefaultAsync(m => m.Id == command.Id, cancellationToken);
@@ -27,7 +27,7 @@ namespace Module.Payment.Features.Admin.PaymentMethods.Delete;
                 return PaymentMethodResult.Errors.NotFound;
 
             // Check: Verify no active payments reference this payment method.
-            var hasActivePayments = await dbContext.Set<PaymentRecord>()
+            var hasActivePayments = await dbContext.Set<PaymentCapture>()
                 .AnyAsync(p => p.PaymentMethodId == command.Id
                     && p.State != PaymentRecordState.Completed
                     && p.State != PaymentRecordState.Failed
@@ -42,7 +42,6 @@ namespace Module.Payment.Features.Admin.PaymentMethods.Delete;
             method.IsDeleted = true;
             method.DeletedAtUtc = DateTimeOffset.UtcNow;
             method.DeletedBy = "System";
-            // Persist: Save changes to the database.
             await dbContext.SaveChangesAsync(cancellationToken);
 
             return Result.Ok();

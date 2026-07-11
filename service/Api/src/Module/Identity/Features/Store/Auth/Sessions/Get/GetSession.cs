@@ -12,41 +12,35 @@ namespace Module.Identity.Features.Store.Auth.Sessions.Get;
 /// </summary>
 public static partial class GetSession
 {
-    // ============  QUERY  ============
     public sealed record Query : IQuery<Response>;
 
-    // ============  QUERY HANDLER ============
     public partial class QueryHandler(
         ICurrentUser currentUser,
         IPermissionService permissionService,
         UserManager<User> userManager)
         : IQueryHandler<Query, Response>
     {
-        // Contract: pre=request!=null, post=result!=null
+        // Contract: pre=request!=null, post=result!=null, throws=DbUpdateException
         /// <summary>
-        /// Handles the query to retrieve the current user's session.
+        /// Resolves the current authenticated user and returns their session payload including roles and effective permissions.
         /// </summary>
         /// <param name="request">The query.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns>A result containing the current user's session data or an error.</returns>
+        /// <returns>A result containing user ID, roles, and permissions, or an auth-required error.</returns>
+        /// <exception cref="DbUpdateException">Thrown when the identity store query fails.</exception>
         public async Task<Result<Response>> Handle(Query request, CancellationToken cancellationToken)
         {
-            // Check: Ensure user is authenticated
             if (!currentUser.IsAuthenticated)
                 return UserProfileResult.Failure.AuthRequired;
 
-            // Query: Resolve current user from identity store
             var user = await userManager.FindByIdAsync(currentUser.UserId!);
             if (user is null)
                 return UserResult.Failure.NotFound;
 
-            // Query: Retrieve assigned roles for the user
             var roles = await userManager.GetRolesAsync(user);
 
-            // Query: Retrieve assigned permissions for the users
             var permissions = await permissionService.GetEffectiveUserPermissionsAsync(user.Id, cancellationToken);
 
-            // Map: Build the profile response with user data, roles, and permissions
             var response = new Response
             {
                 Id = user.Id,

@@ -1,8 +1,8 @@
-using Module.Payment.Domain.Payments;
+using Module.Payment.Domain.PaymentCaptures;
 using Module.Payment.Features.Admin.Payments.Shared.Mappings;
 using Module.Payment.Features.Admin.Payments.Shared.Models;
 
-using PaymentRecord = Module.Payment.Domain.Payments.PaymentRecord;
+using PaymentCapture = Module.Payment.Domain.PaymentCaptures.PaymentCapture;
 
 namespace Module.UnitTests.Payment.Features.Shared.Mappings;
 
@@ -101,9 +101,9 @@ public class PaymentMappingTests
         response.Id.Should().Be(payment.Id);
     }
 
-    private static PaymentRecord CreatePayment(Action<PaymentRecord>? configure = null)
+    private static PaymentCapture CreatePayment(Action<PaymentCapture>? configure = null)
     {
-        var payment = new PaymentRecord
+        var payment = new PaymentCapture
         {
             Id = Guid.NewGuid(),
             Amount = 99.99m,

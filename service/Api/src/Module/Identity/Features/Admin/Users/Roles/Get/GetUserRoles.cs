@@ -13,29 +13,30 @@ public static partial class GetUserRoles
     /// <param name="Id">The unique identifier of the user.</param>
     public sealed record Query(Guid Id) : IQuery<Response>;
 
-    /// <summary>
-    /// Handles the <see cref="Query"/> to retrieve user roles.
-    /// </summary>
     public sealed class QueryHandler(
         UserManager<User> userManager,
         RoleManager<Role> roleManager)
         : IQueryHandler<Query, Response>
     {
+        // Contract: pre=request!=null, post=result!=null, throws=DbUpdateException
+        /// <summary>
+        /// Retrieves every system role with an assignment flag for the given user.
+        /// </summary>
+        /// <param name="request">The query containing the user ID.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>A result containing all roles with assignment status, or NotFound if the user does not exist.</returns>
+        /// <exception cref="DbUpdateException">Thrown when the underlying identity store fails.</exception>
         public async Task<Result<Response>> Handle(Query request, CancellationToken cancellationToken)
         {
-            // Check: Find the user.
             var user = await userManager.FindByIdAsync(request.Id.ToString());
             if (user is null)
                 return UserResult.Failure.NotFound;
 
-            // Get: All roles in the system.
             var allRoles = roleManager.Roles.ToList();
 
-            // Get: User's assigned roles.
             var userRoles = await userManager.GetRolesAsync(user);
             var userRolesSet = userRoles.ToHashSet(StringComparer.OrdinalIgnoreCase);
 
-            // Map:
             var roles = allRoles.Select(role => new Response.RoleItemResponse
             {
                 Name = role.Name!,

@@ -41,7 +41,6 @@ public static partial class DiscontinueProduct
             entity.DiscontinueOn ??= DateTimeOffset.UtcNow;
             entity.Status = ProductStatus.Archived;
 
-            // Persist: Save discontinued status to database
             await dbContext.SaveChangesAsync(cancellationToken);
 
             // Log: Record discontinuation event for observability

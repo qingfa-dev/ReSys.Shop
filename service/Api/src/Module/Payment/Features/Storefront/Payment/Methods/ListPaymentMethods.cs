@@ -1,8 +1,8 @@
 using Module.Payment.Domain.PaymentMethods;
 
 namespace Module.Payment.Features.Storefront.Payment.Methods;
-    /// <summary>Handles ListPaymentMethods feature.</summary>
-    public static partial class ListPaymentMethods
+/// <summary>Lists active payment methods available for storefront checkout.</summary>
+public static partial class ListPaymentMethods
 {
     public class Response { public Guid Id { get; init; } public string Name { get; init; } = null!; public string? Description { get; init; } }
 
@@ -10,10 +10,10 @@ namespace Module.Payment.Features.Storefront.Payment.Methods;
 
     public sealed class PagedQueryHandler(IApplicationDbContext dbContext) : IPagedQueryHandler<Query, Response>
     {
-        /// <summary>Handles the query.</summary>
-        /// <param name="request">The query request.</param>
-        /// <param name="cancellationToken">Cancellation token.</param>
-        /// <returns>The result of handling the query.</returns>
+        /// <summary>Loads and returns only active, non-deleted payment methods with pagination.</summary>
+        /// <param name="request">The query containing paging parameters.</param>
+        /// <param name="cancellationToken">Propagates cancellation signal.</param>
+        /// <returns>A paged result of active payment methods.</returns>
         public async Task<PagedResult<Response>> Handle(Query request, CancellationToken cancellationToken)
         {
             var parsing = request.Parameters.ParseAll();

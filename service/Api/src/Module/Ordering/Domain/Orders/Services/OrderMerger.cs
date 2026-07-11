@@ -25,7 +25,7 @@ public partial class OrderMerger
     /// <param name="otherOrder">The order to merge from.</param>
     /// <param name="userId">Optional user identifier to assign to the merged order.</param>
     /// <param name="discardMerged">Whether to clear line items from the merged order (default true).</param>
-    // @CAT-5 Compute: Merge the other order into this order, optionally discarding the merged order
+    // Merge: Combine the other order into this order, optionally discarding the merged order.
     public void Merge(Order otherOrder, Guid? userId = null, bool discardMerged = true)
     {
         foreach (var otherLineItem in otherOrder.LineItems)
@@ -45,11 +45,11 @@ public partial class OrderMerger
         }
     }
 
-    // @CAT-5 Compute: Find a matching line item by variant ID between orders
+    // Check: Find a matching line item by variant ID between orders.
     private LineItems.LineItem? FindMatchingLineItem(LineItems.LineItem otherLineItem) =>
         Order.LineItems.FirstOrDefault(myLi => myLi.VariantId == otherLineItem.VariantId);
 
-    // @CAT-5 Compute: Combine quantities for matching line items; reassign non-matching items
+    // Compute: Combine quantities for matching line items; reassign non-matching items.
     private void HandleMerge(LineItems.LineItem? currentLineItem, LineItems.LineItem otherLineItem)
     {
         if (currentLineItem is not null)

@@ -25,33 +25,32 @@ public static partial class EmailRegister
         ILogger<CommandHandler> logger)
         : ICommandHandler<Command, Response>
     {
-        // Contract: pre=command!=null, post=result!=null
+        // Contract: pre=command!=null, post=result!=null, throws=DbUpdateException
         /// <summary>
-        /// Handles the command for email-based user registration.
+        /// Registers a new user account with email and password. Validates uniqueness of email and username,
+        /// creates the Identity user, assigns the default role, generates an email verification token,
+        /// and sends a verification notification.
         /// </summary>
         /// <param name="command">The command containing registration details.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns>A result containing the registered user's details or an error.</returns>
+        /// <returns>A result containing the registered user's ID, email, and success message, or a validation error.</returns>
+        /// <exception cref="DbUpdateException">Thrown when the identity store fails to persist the new user.</exception>
         public async Task<Result<Response>> Handle(Command command, CancellationToken cancellationToken)
         {
             var request = command.Request;
 
-            // Check: Ensure the email is not already registered
             var existingUser = await userManager.FindByEmailAsync(request.Email);
             if (existingUser is not null)
                 return UserResult.Failure.EmailDuplicate;
 
-            // Check: Verify required name fields are present
             if (string.IsNullOrWhiteSpace(request.FirstName))
                 return UserResult.Failure.FirstNameRequired;
 
-            // Check: Ensure the username is not already taken
             var trimmedUsername = request.UserName.Trim();
             var existingByUsername = await userManager.FindByNameAsync(trimmedUsername.ToLowerInvariant());
             if (existingByUsername is not null)
                 return UserResult.Failure.UsernameDuplicate;
 
-            // Create: Instantiate a new User entity from request data
             var user = new User
             {
                 Id = Guid.NewGuid(),
@@ -65,32 +64,25 @@ public static partial class EmailRegister
                 CreatedAtUtc = DateTimeOffset.UtcNow
             };
 
-            // Persist: Create user account with hashed password via Identity
             var identityResult = await userManager.CreateAsync(user, request.Password);
             if (!identityResult.Succeeded)
                 return identityResult.ToResult<Response>();
 
-            // Update: Assign default application role to the new user
             var roleResult = await userManager.AddToRoleAsync(user, RoleConstant.Defaults.User);
             if (!roleResult.Succeeded)
                 return roleResult.ToResult<Response>();
 
-            // Create: Generate email verification token and secure verification URL
             var token = await userManager.GenerateEmailConfirmationTokenAsync(user);
             var verificationUrl = BuildVerificationPath(user.Id, token);
 
-            // Update: Record verification request
             AuditableBehavior.Touch(user);
 
-            // Persist: Save user state
             var updateResult = await userManager.UpdateAsync(user);
             if (!updateResult.Succeeded)
                 return updateResult.ToResult<Response>();
 
-            // Notify: Send email verification
             await SendEmailVerificationNotificationAsync(user, request.Email, verificationUrl);
 
-            // Map: Return registration success response
             return new Response(
                 user.Id,
                 user.Email,

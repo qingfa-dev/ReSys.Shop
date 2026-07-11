@@ -12,8 +12,9 @@ public static partial class GetPermissions
 
     public sealed class QueryHandler : IPagedQueryHandler<Query, PermissionMetadata>
     {
+        // Contract: pre=request!=null, post=result!=null
         /// <summary>
-        /// Handles the query to retrieve all available permissions.
+        /// Returns every known permission from the permission registry, unfiltered — used for display and assignment UIs.
         /// </summary>
         /// <param name="request">The query.</param>
         /// <param name="cancellationToken">The cancellation token.</param>

@@ -1,7 +1,7 @@
 using Module.Payment.Domain.Gateways;
-using Module.Payment.Domain.Payments;
+using Module.Payment.Domain.PaymentCaptures;
 
-using PaymentRecord = Module.Payment.Domain.Payments.PaymentRecord;
+using PaymentCapture = Module.Payment.Domain.PaymentCaptures.PaymentCapture;
 
 namespace Module.UnitTests.Payment.Domain.Payments;
 
@@ -19,12 +19,12 @@ public class PaymentProcessingAsyncTests
         _gatewayMock.Setup(x => x.SourceRequired).Returns(false);
     }
 
-    private static PaymentRecord CreatePayment(decimal amount = 100m)
+    private static PaymentCapture CreatePayment(decimal amount = 100m)
     {
-        return PaymentFactory.Create(amount, Guid.NewGuid(), Guid.NewGuid()).Value;
+        return PaymentCaptureMethod.Create(amount, Guid.NewGuid(), Guid.NewGuid()).Value;
     }
 
-    private static GatewayOptions CreateGatewayOptions(PaymentRecord payment)
+    private static GatewayOptions CreateGatewayOptions(PaymentCapture payment)
     {
         return new GatewayOptions(payment)
         {
@@ -158,8 +158,8 @@ public class PaymentProcessingAsyncTests
         payment.State.Should().Be(PaymentRecordState.Completed);
     }
 
-    [Fact(DisplayName = "CaptureAsync: Should return Ok when already completed")]
-    public async Task CaptureAsync_ShouldReturnOk_WhenAlreadyCompleted()
+    [Fact(DisplayName = "CaptureAsync: Should return AlreadyCompleted error when payment is already completed")]
+    public async Task CaptureAsync_ShouldReturnAlreadyCompleted_WhenAlreadyCompleted()
     {
         var payment = CreatePayment();
         var options = CreateGatewayOptions(payment);
@@ -167,7 +167,8 @@ public class PaymentProcessingAsyncTests
 
         var result = await PaymentProcessing.CaptureAsync(payment, _gatewayMock.Object, options, null, TestContext.Current.CancellationToken);
 
-        result.IsSuccess.Should().BeTrue();
+        result.IsFailure.Should().BeTrue();
+        result.Errors[0]!.Code.Should().Be("Payment.AlreadyCompleted");
         _gatewayMock.Verify(x => x.CaptureAsync(It.IsAny<decimal>(), It.IsAny<string?>(), It.IsAny<GatewayOptions>(), It.IsAny<CancellationToken>()), Times.Never);
     }
 

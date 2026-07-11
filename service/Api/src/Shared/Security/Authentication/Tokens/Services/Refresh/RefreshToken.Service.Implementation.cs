@@ -11,9 +11,9 @@ using Shared.Security.Identity.Domain.Tokens;
 
 namespace Shared.Security.Authentication.Tokens.Services.Refresh;
 
-/// <summary>
-/// Service for managing refresh tokens including generation, retrieval, and revocation.
-/// </summary>
+/// <summary>Issues, validates, rotates, and revokes refresh tokens with optional sliding expiration, theft detection, and blacklist integration.</summary>
+// Invariant: TokenHash uniquely identifies each token; one TokenFamilyId per token chain; revoked tokens never become un-revoked.
+// Context: Rotation and reuse detection mitigate refresh token theft (Threat TMT-TOK-003, TMT-TOK-004).
 public partial class RefreshTokenService(
     IRefreshTokenStore refreshTokenStore,
     ITokenBlacklistService? tokenBlacklistService,
@@ -25,17 +25,17 @@ public partial class RefreshTokenService(
     private readonly JwtSettings _jwtOptions = jwtOptions.Value;
     private readonly TokenSecurityOptions _tokenSecurityOptions = jwtOptions.Value.TokenSecurity;
 
-    /// <inheritdoc/>
+    /// <summary>Issues a new refresh token with cryptographically secure random value and persists to store.</summary>
+    // Contract: pre=userId!=Guid.Empty, post=return.IsSuccess && entity.Id!=Guid.Empty, throws=Exception on persistence failure
     public async Task<Result<RefreshTokenResponseModel>> GenerateAsync(Guid userId, CancellationToken ct = default)
     {
-        // Contract: Returns a newly issued refresh token with raw value and entity persisted
         try
         {
-            // Generate: Create cryptographically secure random token
+            // Generate: cryptographically strong random token to prevent brute-force guessing (TMT-TOK-003)
             string rawToken = GenerateSecureToken();
             string tokenHash = ComputeSha256Hash(rawToken);
 
-            // Create: Instantiate a new refresh token entity
+            // Create: refresh token entity bound to user with device fingerprint for audit trail
             var entity = new RefreshToken
             {
                 Id = Guid.NewGuid(),
@@ -50,48 +50,49 @@ public partial class RefreshTokenService(
                 IpAddress = currentUser?.IpAddress
             };
 
-            // Persist: Save to primary store
+            // Call: persist to primary store (module boundary: Service → Store)
             await refreshTokenStore.AddAsync(entity, ct);
 
-            // Log: Record successful token issuance
+            // Log: record successful token issuance for audit trail
             Loggers.LogTokenGenerated(logger, userId, entity.ExpiresAtUtc, _tokenSecurityOptions.RotationEnabled);
 
-            // Transform: Map to public response DTO
+            // Transform: domain entity to public response DTO — raw token returned only at issuance
             return MapToResponse(entity, rawToken);
         }
         catch (Exception ex)
         {
-            // Log: Detailed error for token generation failure
+            // Catch: token generation failure must not leak cryptographic details to caller
             Loggers.LogTokenGenerationFailed(logger, userId, ex);
             return RefreshTokenResult.Failure.GenerationFailed;
         }
     }
 
-    /// <inheritdoc/>
+    /// <summary>Retrieves a refresh token by raw value, validates expiry and revocation, applies sliding expiration, and checks theft replays.</summary>
+    // Contract: pre=token!=null && token.Length>0, post=return.IsSuccess implies entity.IsActive, throws=Exception on store failure
     public async Task<Result<RefreshTokenResponseModel>> GetByTokenAsync(string token, CancellationToken ct = default)
     {
-        // Validate: Guard against empty or missing token
+        // Guard: reject empty or whitespace token to avoid unnecessary hash computation
         if (string.IsNullOrWhiteSpace(token))
             return RefreshTokenResult.Failure.NotFound;
 
-        // Compute: Hash the raw token for secure lookup
+        // Compute: SHA256 hash for secure store lookup — raw token never stored or logged
         string tokenHash = ComputeSha256Hash(token);
 
-        // Call: Retrieve token data from the store
+        // Call: retrieve token by hash from store (module boundary: Service → Store)
         RefreshToken? entity = await refreshTokenStore.GetByTokenHashAsync(tokenHash, ct);
 
         if (entity is null)
             return RefreshTokenResult.Failure.NotFound;
 
-        // Check: Verify token has not reached its expiration date
+        // Validate: token must not exceed its configured lifetime
         if (entity.IsExpired)
             return RefreshTokenResult.Failure.Expired;
 
-        // Check: Verify token has not been manually revoked
+        // Validate: token must not have been previously revoked
         if (entity.IsRevoked)
             return RefreshTokenResult.Failure.Revoked;
 
-        // Update: Apply sliding expiration if enabled and within configured limits
+        // Compute: slide expiration forward when enabled and below max-age ceiling to extend valid session
         if (_tokenSecurityOptions.SlidingExpirationEnabled && entity.LastUsedAtUtc.HasValue)
         {
             DateTime maxAge = DateTime.UtcNow.AddDays(_tokenSecurityOptions.MaxTokenAgeDays);
@@ -105,7 +106,7 @@ public partial class RefreshTokenService(
             }
         }
 
-        // Check: Execute theft detection logic for rotated tokens
+        // Validate: check for token replay using theft detector — mitigates TMT-TOK-004
         if (_tokenSecurityOptions.ReuseDetectionEnabled && tokenTheftDetector is not null)
         {
             Result<bool> theftResult = await tokenTheftDetector.IsTokenReusedAsync(
@@ -117,7 +118,7 @@ public partial class RefreshTokenService(
             if (theftResult.Value)
                 return RefreshTokenResult.Failure.TheftDetected;
 
-            // Call: Record token usage to detect future replays
+            // Call: record token usage to detect future replays
             await tokenTheftDetector.MarkTokenAsUsedAsync(
                 token, entity.UserId, ct);
         }
@@ -125,50 +126,51 @@ public partial class RefreshTokenService(
         return MapToResponse(entity);
     }
 
-    /// <inheritdoc/>
+    /// <summary>Revokes a single refresh token by raw value and optionally adds to global blacklist.</summary>
+    // Contract: pre=request.Token!=null, post=entity.RevokedAtUtc!=null, throws=Exception on store failure
     public async Task<Result> RevokeAsync(RevokeTokenRequestModel request, CancellationToken ct = default)
     {
-        // Validate: Ensure a specific token was targeted for revocation
+        // Guard: reject empty token — prevents unnecessary store lookup
         if (string.IsNullOrEmpty(request.Token))
             return RefreshTokenResult.Failure.NotFound;
 
-        // Compute: Hash the raw token
+        // Compute: hash the raw token for secure lookup
         string tokenHash = ComputeSha256Hash(request.Token);
 
-        // Call: Fetch the targeted token from store
+        // Call: fetch the targeted token from store
         RefreshToken? entity = await refreshTokenStore.GetByTokenHashAsync(tokenHash, ct);
 
         if (entity is null)
             return RefreshTokenResult.Failure.NotFound;
 
-        // Update: Mark the token as revoked with the provided reason
+        // Update: mark token as revoked with reason for audit trail
         entity.RevokedAtUtc = DateTimeOffset.UtcNow;
         entity.RevocationReason = MapRevocationReason(request.Reason);
         await refreshTokenStore.UpdateAsync(entity, ct);
 
-        // Call: Optionally add the token ID to the global blacklist
+        // Call: optionally add token ID to global blacklist for immediate invalidation (boundary: Service → Blacklist)
         if (tokenBlacklistService is not null)
         {
             await tokenBlacklistService.BlacklistTokenAsync(entity.Id.ToString(), entity.ExpiresAtUtc.UtcDateTime, ct);
         }
 
-        // Log: Record security event
+        // Log: record security event for audit
         Loggers.LogTokenRevoked(logger, entity.Id, entity.UserId, request.Reason);
 
         return RefreshTokenResult.Success.Revoked;
     }
 
-    /// <inheritdoc/>
+    /// <summary>Revokes all active tokens for a user — used during password change, account lock, or theft response.</summary>
+    // Contract: pre=userId!=Guid.Empty, post=return.IsSuccess, throws=Exception on store failure
     public async Task<Result<int>> RevokeAllForUserAsync(Guid userId, string reason, CancellationToken ct = default)
     {
-        // Contract: All active tokens for the user are revoked and persisted
-        // Call: Retrieve all active tokens for the specified user
+        // Call: fetch all active tokens for user (boundary: Service → Store)
         List<RefreshToken> activeTokens = await refreshTokenStore.GetActiveByUserIdAsync(userId, ct);
 
         if (activeTokens.Count == 0)
             return 0;
 
-        // Update: Mark each active token as revoked
+        // Update: bulk-revoke all active tokens to invalidate all sessions
         DateTimeOffset now = DateTimeOffset.UtcNow;
         RefreshTokenRevocationReason revocationReason = MapRevocationReason(reason);
         foreach (RefreshToken rt in activeTokens)
@@ -177,35 +179,36 @@ public partial class RefreshTokenService(
             rt.RevocationReason = revocationReason;
         }
 
-        // Persist: Flush all revocations in a single transaction
+        // Call: flush all revocations in single transaction (module boundary: Service → Store)
         await refreshTokenStore.SaveChangesAsync(ct);
 
-        // Log: Audit record for mass session invalidation
+        // Log: audit record for mass session invalidation
         Loggers.LogAllTokensRevoked(logger, activeTokens.Count, userId, reason);
         return RefreshTokenResult.Success.AllRevoked(activeTokens.Count);
     }
 
-    /// <inheritdoc/>
+    /// <summary>Exchanges an existing refresh token for a new one in the same family, revoking the old token — optionally detects theft of already-rotated tokens.</summary>
+    // Contract: pre=token!=null, post=return.IsSuccess implies oldEntity.RevokedAtUtc!=null && newEntity.Id!=null, throws=Exception on persistence failure
     public async Task<Result<RefreshTokenResponseModel>> RotateAsync(string token, CancellationToken ct = default)
     {
-        // Validate: Resolve and validate the existing token
+        // Compute: hash the raw token for store lookup
         string tokenHash = ComputeSha256Hash(token);
 
-        // Call: Fetch the existing token from store
+        // Call: fetch the existing token from store
         RefreshToken? oldEntity = await refreshTokenStore.GetByTokenHashAsync(tokenHash, ct);
 
-        // Check: Token must exist
+        // Validate: token must exist and be active for rotation
         if (oldEntity is null)
             return RefreshTokenResult.Failure.NotFound;
 
-        // Check: Token must not be expired
+        // Validate: expired tokens cannot be rotated
         if (oldEntity.IsExpired)
             return RefreshTokenResult.Failure.Expired;
 
-        // Check: Token reuse detection — already-revoked token indicates potential theft
+        // Validate: already-revoked token indicates potential theft (TMT-TOK-004)
         if (oldEntity.IsRevoked)
         {
-            // Recover: If reuse detection is enabled, revoke all user tokens as safety measure
+            // Recover: revoke all user tokens as safety measure when reuse detected
             if (_tokenSecurityOptions.ReuseDetectionEnabled)
             {
                 await RevokeAllForUserAsync(oldEntity.UserId, RefreshTokenConstant.RevocationReasons.ReuseDetected, ct);
@@ -215,20 +218,19 @@ public partial class RefreshTokenService(
             return RefreshTokenResult.Failure.Revoked;
         }
 
-        // AgentHint: When rotation is disabled, return the existing token without issuing a new one
+        // AgentHint: When rotation is disabled, returning existing token avoids unnecessary churn
         if (!_tokenSecurityOptions.RotationEnabled)
         {
             return MapToResponse(oldEntity);
         }
 
-        // Handle: Perform token rotation (revoke old, issue new)
         try
         {
-            // Generate: Create new cryptographically secure token
+            // Generate: cryptographically strong new token for rotation
             string newRawToken = GenerateSecureToken();
             string newTokenHash = ComputeSha256Hash(newRawToken);
 
-            // Create: Instantiate new token entity with same family and device context
+            // Create: new entity shares TokenFamilyId with old token to preserve rotation chain
             RefreshToken newEntity = new RefreshToken
             {
                 Id = Guid.NewGuid(),
@@ -243,22 +245,22 @@ public partial class RefreshTokenService(
                 IpAddress = oldEntity.IpAddress
             };
 
-            // Update: Revoke old token and link rotation chain
+            // Update: revoke old token and link rotation chain for audit traceability
             oldEntity.RevokedAtUtc = DateTimeOffset.UtcNow;
             oldEntity.RevocationReason = RefreshTokenRevocationReason.Replaced;
             oldEntity.ReplacedByTokenId = newEntity.Id;
 
-            // Persist: Commit new entity first, then update old entity
+            // Call: persist new token first, then update old — order prevents orphan detection gap
             await refreshTokenStore.AddAsync(newEntity, ct);
             await refreshTokenStore.UpdateAsync(oldEntity, ct);
 
-            // Log: Record rotation event for audit trail
+            // Log: record rotation event for audit trail
             Loggers.LogTokenRotated(logger, oldEntity.UserId, oldEntity.Id, newEntity.Id);
             return MapToResponse(newEntity, newRawToken);
         }
         catch (Exception ex)
         {
-            // Log: Detailed error for rotation failure
+            // Catch: rotation failure must not orphan old token — caller may retry
             Loggers.LogTokenRotationFailed(logger, oldEntity.UserId, ex);
             return RefreshTokenResult.Failure.RotationFailed;
         }

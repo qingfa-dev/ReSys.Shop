@@ -19,31 +19,34 @@ public static partial class RestoreTaxon
         : ICommandHandler<Command>
     {
         /// <summary>
-        /// Handles the request and returns a result.
+        /// Restores a soft-deleted taxon and rebuilds the hierarchy tree.
         /// </summary>
-        /// <param name="command">The command containing request data.</param>
+        /// <param name="command">The command containing taxonomy ID and taxon ID.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
-        // Contract: pre=command!=null, post=result!=null
+        /// <exception cref="DbUpdateException">Thrown when persistence fails.</exception>
+        // Contract: pre=command.TaxonomyId!=Guid.Empty && command.Id!=Guid.Empty, post=result.IsSuccess, throws=DbUpdateException
         public async Task<Result> Handle(Command command, CancellationToken cancellationToken)
         {
             var taxonomyId = command.TaxonomyId;
 
+            // Validate: Parent taxonomy must exist
             var taxonomyExists = await dbContext.Set<Taxonomy>()
                 .AnyAsync(x => x.Id == taxonomyId, cancellationToken);
             if (!taxonomyExists)
                 return TaxonomyResult.Errors.NotFound;
 
+            // Load: Fetch soft-deleted taxon (bypassing query filter)
             var entity = await dbContext.Set<Taxon>()
                 .IgnoreQueryFilters()
                 .FirstOrDefaultAsync(x => x.Id == command.Id && x.TaxonomyId == taxonomyId, cancellationToken);
             if (entity is null)
                 return TaxonResult.Errors.NotFound;
 
+            // Update: Restore taxon — undeletes entity and resets status
             var restoreResult = entity.Restore();
             if (restoreResult.IsFailure)
                 return restoreResult.Errors;
 
-            // Persist: Save changes to the database.
             dbContext.Set<Taxon>().Update(entity);
             await dbContext.SaveChangesAsync(cancellationToken);
 

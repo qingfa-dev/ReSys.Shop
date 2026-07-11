@@ -25,7 +25,7 @@ public partial class OrderContents
     /// <param name="lineItem">The line item to add.</param>
     /// <param name="quantity">The quantity to add (default 1).</param>
     /// <returns>This OrderContents instance for chaining.</returns>
-    // @CAT-5 Compute: Add a variant to the order with the specified quantity and options
+    // Create: Add a variant to the order with the specified quantity and options.
     public OrderContents Add(LineItems.LineItem lineItem, int quantity = 1)
     {
         var existing = Order.LineItems.FirstOrDefault(li => li.VariantId == lineItem.VariantId);
@@ -48,7 +48,7 @@ public partial class OrderContents
     /// <param name="lineItem">The line item to remove quantity from.</param>
     /// <param name="quantity">The quantity to remove (default 1).</param>
     /// <returns>This OrderContents instance for chaining.</returns>
-    // @CAT-5 Compute: Remove a specified quantity of a variant from the order
+    // Remove: Remove a specified quantity of a variant from the order.
     public OrderContents Remove(LineItems.LineItem lineItem, int quantity = 1)
     {
         var existing = Order.LineItems.FirstOrDefault(li => li.VariantId == lineItem.VariantId);
@@ -73,7 +73,7 @@ public partial class OrderContents
     /// </summary>
     /// <param name="lineItem">The line item to remove.</param>
     /// <returns>This OrderContents instance for chaining.</returns>
-    // @CAT-5 Compute: Remove an entire line item from the order
+    // Remove: Remove an entire line item from the order.
     public OrderContents RemoveLineItem(LineItems.LineItem lineItem)
     {
         Order.LineItems.Remove(lineItem);

@@ -23,21 +23,21 @@ public static partial class GetRolePermissions
     public sealed class QueryHandler(RoleManager<Role> roleManager)
         : IQueryHandler<Query, Response>
     {
-        // Contract: pre=request!=null, post=result!=null
+        // Contract: pre=request!=null, post=result!=null, throws=DbUpdateException
         /// <summary>
-        /// Handles the query to get permissions for a specific role, indicating which are assigned.
+        /// Retrieves the full permission tree for a role, marking each permission as assigned or not.
+        /// Static permissions derive from the role's name; dynamic permissions come from identity claims.
         /// </summary>
         /// <param name="request">The query containing the role ID.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns>A result containing the permission tree with assignment status, or an error if the role is not found.</returns>
+        /// <returns>A result containing the permission tree with assignment status, or NotFound if the role does not exist.</returns>
+        /// <exception cref="DbUpdateException">Thrown when the underlying identity store fails to persist claim queries.</exception>
         public async Task<Result<Response>> Handle(Query request, CancellationToken cancellationToken)
         {
-            // Check: Find the role by its ID.
             var role = await roleManager.FindByIdAsync(request.Id.ToString());
             if (role is null)
                 return RoleResult.Failure.NotFound;
 
-            // Get: Retrieve static permissions explicitly assigned to the role by its name.
             var staticPermissions = (role.Name?.ToLowerInvariant() switch
             {
                 "admin" => RoleConstant.RolePermissions.Admin,
@@ -46,19 +46,15 @@ public static partial class GetRolePermissions
                 _ => []
             }).Select(p => p.Identifier);
 
-            // Get: Retrieve dynamic permissions stored as claims for the role.
             var claims = await roleManager.GetClaimsAsync(role);
             var dynamicPermissions = claims
                 .Where(c => c.Type == PermissionMetadataConstant.ClaimType)
                 .Select(c => c.Value);
 
-            // Aggregate: Combine static and dynamic permissions into a hash set for efficient lookup.
             var assignedIdentifiers = staticPermissions
                 .Concat(dynamicPermissions)
                 .ToHashSet(StringComparer.OrdinalIgnoreCase);
 
-            // Map: Transform the PermissionContext discovery tree into the response format,
-            // marking each permission with its assignment status.
             var categories = PermissionContext.All
                 .GroupBy(p => p.Category)
                 .Select(categoryGroup => new Response.CategoryResponse
@@ -81,7 +77,6 @@ public static partial class GetRolePermissions
                 })
                 .ToList();
 
-            // Create: Construct the final response object.
             var response = new Response
             {
                 Categories = categories

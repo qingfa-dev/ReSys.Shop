@@ -14,14 +14,15 @@ public static partial class GetOptionValueById
         : IQueryHandler<Query, Response>
     {
         /// <summary>
-        /// Handles the request and returns a result.
+        /// Retrieves a single option value by its ID and parent option type ID.
         /// </summary>
-        /// <param name="request">The query containing request data.</param>
-        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <param name="request">The query containing the option value ID and option type ID.</param>
+        /// <param name="cancellationToken">Propagates cancellation notification.</param>
+        /// <returns>A success result with the option value detail response.</returns>
         // Contract: pre=request!=null, post=result!=null
         public async Task<Result<Response>> Handle(Query request, CancellationToken cancellationToken)
         {
-            // Check: Find the specific option value by its ID and parent type ID
+            // Load: Find the specific option value by its ID and parent type ID
             var entity = await dbContext.Set<OptionValue>()
                 .Include(x => x.OptionType)
                 .AsNoTracking()

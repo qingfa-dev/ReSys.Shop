@@ -3,18 +3,18 @@ using Module.Payment.Features.Admin.PaymentMethods.Shared.Mappings;
 
 namespace Module.Payment.Features.Admin.PaymentMethods.Get.Paged;
 
-    /// <summary>Handles GetPagedPaymentMethods feature.</summary>
-    public static partial class GetPagedPaymentMethods
+/// <summary>Retrieves a paged list of payment methods with sorting and filtering.</summary>
+public static partial class GetPagedPaymentMethods
 {
     public sealed record Query(QueryingParameters Parameters) : IPagedQuery<Response>;
 
     public sealed class PagedQueryHandler(IApplicationDbContext dbContext)
         : IPagedQueryHandler<Query, Response>
     {
-        /// <summary>Handles the query.</summary>
-        /// <param name="request">The query request.</param>
-        /// <param name="cancellationToken">Cancellation token.</param>
-        /// <returns>The result of handling the query.</returns>
+        /// <summary>Loads and returns payment methods ordered by position then name with pagination applied.</summary>
+        /// <param name="request">The query containing paging and filtering parameters.</param>
+        /// <param name="cancellationToken">Propagates cancellation signal.</param>
+        /// <returns>A paged result of payment method list items.</returns>
         public async Task<PagedResult<Response>> Handle(Query request, CancellationToken cancellationToken)
         {
             var parsing = request.Parameters.ParseAll();

@@ -15,10 +15,11 @@ public static partial class GetProducts
         : IPagedQueryHandler<Query, Response>
     {
         /// <summary>
-        /// Handles the request and returns a result.
+        /// Retrieves a paged list of products belonging to a taxon and its descendants using nested set (Lft/Rgt) range.
         /// </summary>
-        /// <param name="request">The query containing request data.</param>
-        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <param name="request">The query containing the taxon ID and pagination parameters.</param>
+        /// <param name="cancellationToken">Propagates cancellation notification.</param>
+        /// <returns>A paged result of storefront product list items.</returns>
         // Contract: pre=request!=null, post=result!=null
         public async Task<PagedResult<Response>> Handle(Query request, CancellationToken cancellationToken)
         {

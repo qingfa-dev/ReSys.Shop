@@ -35,5 +35,39 @@ public static class WebhookSubscriptionErrors
         public static Error SecretHashRequired => Error.Validation(
             code: "WebhookSubscription.SecretHash.Required",
             message: "Secret hash is required.");
+
+        #region Url Validation
+
+        /// <summary>URL must not be empty.</summary>
+        public static Error UrlEmpty => Error.Validation(
+            code: "Webhooks.Subscription.Url.Empty",
+            message: "URL must not be empty.");
+
+        /// <summary>URL must not exceed the maximum length.</summary>
+        public static Error SubscriptionUrlTooLong => Error.Validation(
+            code: "Webhooks.Subscription.Url.TooLong",
+            message: $"URL must not exceed {WebhookSubscriptionConstant.Constraints.Url.MaxLength} characters.");
+
+        /// <summary>URL must be a valid absolute URI.</summary>
+        public static Error UrlInvalid => Error.Validation(
+            code: "Webhooks.Subscription.Url.Invalid",
+            message: "URL must be a valid absolute URI.");
+
+        /// <summary>Only HTTPS URLs are allowed.</summary>
+        public static Error UrlScheme => Error.Validation(
+            code: "Webhooks.Subscription.Url.Scheme",
+            message: "Only HTTPS URLs are allowed.");
+
+        /// <summary>This hostname is not allowed.</summary>
+        public static Error UrlBlocked => Error.Validation(
+            code: "Webhooks.Subscription.Url.Blocked",
+            message: "This hostname is not allowed.");
+
+        /// <summary>Private network addresses are not allowed.</summary>
+        public static Error UrlPrivate => Error.Validation(
+            code: "Webhooks.Subscription.Url.Private",
+            message: "Private network addresses are not allowed.");
+
+        #endregion
     }
 }

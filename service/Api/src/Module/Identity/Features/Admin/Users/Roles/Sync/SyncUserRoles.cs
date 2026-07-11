@@ -28,18 +28,25 @@ public static partial class SyncUserRoles
     )
         : ICommandHandler<Command>
     {
+        // Contract: pre=command!=null, post=result!=null, throws=DbUpdateException
+        /// <summary>
+        /// Synchronizes the role set for a user to match the requested list. Computes the diff
+        /// against current roles, validates that requested roles exist, removes departing roles,
+        /// adds new roles, persists changes, and invalidates the permission cache.
+        /// </summary>
+        /// <param name="command">The command with user ID and the full list of target role names.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>A result indicating success or not-found error.</returns>
+        /// <exception cref="DbUpdateException">Thrown when the identity store fails to persist role changes.</exception>
         public async Task<Result> Handle(Command command, CancellationToken cancellationToken)
         {
-            // Check: Find the target user.
             var user = await userManager.FindByIdAsync(command.Id.ToString());
             if (user is null)
                 return UserResult.Failure.NotFound;
 
-            // Get: Current roles.
             var currentRoles = await userManager.GetRolesAsync(user);
             var requestedRoles = command.Request.Roles.Distinct().ToList();
 
-            // Calculate Differences:
             var rolesToAdd = requestedRoles
                 .Where(r => !currentRoles.Contains(r, StringComparer.OrdinalIgnoreCase))
                 .ToList();
@@ -51,7 +58,6 @@ public static partial class SyncUserRoles
             if (rolesToAdd.Count == 0 && rolesToRemove.Count == 0)
                 return Result.Ok();
 
-            // Validate Roles to Add exist:
             foreach (var roleName in rolesToAdd)
             {
                 if (!await roleManager.RoleExistsAsync(roleName))
@@ -60,7 +66,6 @@ public static partial class SyncUserRoles
                 }
             }
 
-            // Execute Updates:
             if (rolesToRemove.Count > 0)
             {
                 var removeResult = await userManager.RemoveFromRolesAsync(user, rolesToRemove);
@@ -73,19 +78,15 @@ public static partial class SyncUserRoles
                 if (!addResult.Succeeded) return addResult.ToResult();
             }
 
-            // Update Metadata:
             AuditableBehavior.Touch(user, dateTime.UtcNow);
 
-            // Persist:
             var updateResult = await userManager.UpdateAsync(user);
             if (!updateResult.Succeeded)
                 return updateResult.ToResult();
 
-            // Log: Record successful role sync
             UserLoggers.Roles.RolesSynced(logger, UserName: user.UserName!, UserId: user.Id, AddedCount: rolesToAdd.Count,
                 RemovedCount: rolesToRemove.Count);
 
-            // Post-persist side effects.
             await OnRolesChangedAsync(user, cancellationToken);
 
             return Result.Ok();

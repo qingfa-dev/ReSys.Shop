@@ -95,7 +95,6 @@ public static partial class UploadVariantImage
 
             var image = createResult.Value;
 
-            // Persist: Add new image entity to the data context
             dbContext.Set<VariantImage>().Add(image);
             await dbContext.SaveChangesAsync(cancellationToken);
 

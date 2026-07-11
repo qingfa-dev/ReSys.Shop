@@ -4,23 +4,24 @@ using Module.Location.Features.Admin.States.Shared.Mappings;
 
 namespace Module.Location.Features.Admin.States.Create;
 
-/// <summary>Handles creation of a new state.</summary>
+/// <summary>Creates a new state for an existing country with abbreviation uniqueness validation.</summary>
 public static partial class CreateState
 {
-    /// <summary>Command to create a new state.</summary>
     public sealed record Command(Request Request) : ICommand<Response>;
 
     public sealed class CommandHandler(
         IApplicationDbContext dbContext)
         : ICommandHandler<Command, Response>
     {
-        /// <summary>Executes the create state command.</summary>
+        /// <summary>Validates the country exists and abbreviation is unique, then persists the new state.</summary>
         /// <param name="command">The command containing the state request data.</param>
-        /// <param name="cancellationToken">Cancellation token.</param>
-        /// <returns>A result containing the created state.</returns>
+        /// <param name="cancellationToken">Propagates cancellation signal.</param>
+        /// <returns>A result containing the created state or an error.</returns>
+        /// <exception cref="DbUpdateException">Thrown when database persistence fails.</exception>
         public async Task<Result<Response>> Handle(Command command, CancellationToken cancellationToken)
         {
-            // Contract: pre=command!=null, post=result!=null
+            // Contract: pre=country exists && abbreviation unique for country, post=state persisted,
+            //           throws=DbUpdateException
             var request = command.Request;
 
             // Check: Verify the referenced country exists.
@@ -41,7 +42,6 @@ public static partial class CreateState
             // Create: Map request to domain entity.
             var state = request.MapToDomain();
 
-            // Persist: Save the new state to the database.
             dbContext.Set<State>().Add(entity: state);
             await dbContext.SaveChangesAsync(cancellationToken: cancellationToken);
 

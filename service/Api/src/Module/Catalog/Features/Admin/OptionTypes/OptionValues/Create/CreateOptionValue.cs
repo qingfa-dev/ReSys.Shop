@@ -18,36 +18,36 @@ public static partial class CreateOptionValue
         : ICommandHandler<Command, Response>
     {
         /// <summary>
-        /// Handles the request and returns a result.
+        /// Creates a new option value under a parent option type.
         /// </summary>
-        /// <param name="command">The command containing request data.</param>
+        /// <param name="command">The command containing the parent ID and value payload.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
-        // Contract: pre=command!=null, post=result!=null
+        /// <exception cref="DbUpdateException">Thrown when persistence fails.</exception>
+        // Contract: pre=command.OptionTypeId!=Guid.Empty, post=result.Id!=null, throws=DbUpdateException
         public async Task<Result<Response>> Handle(Command command, CancellationToken cancellationToken)
         {
             var optionTypeId = command.OptionTypeId;
             var request = command.Request;
 
-            // Check: Ensure parent option type exists in the database
+            // Validate: Parent option type must exist to receive new values
             var optionType = await dbContext.Set<OptionType>().FindAsync([optionTypeId], cancellationToken);
             if (optionType is null)
                 return OptionTypeResult.Failure.NotFound;
 
-            // Check: Verify uniqueness of the name within the same option type
+            // Validate: Value name must be unique within the parent option type
             var nameExists = await dbContext.Set<OptionValue>()
                 .AnyAsync(x => x.OptionTypeId == optionTypeId && x.Name == request.Name, cancellationToken);
 
             if (nameExists)
                 return OptionValueResult.Errors.NameAlreadyExists;
 
-            // Create: Instantiate new OptionValue entity from request data
+            // Create: Instantiate new OptionValue entity from validated request
             var result = request.MapToDomain(optionTypeId);
             if (result.IsFailure)
                 return result.Errors;
 
             var entity = result.Value;
 
-            // Persist: Add entity to database and save changes.
             dbContext.Set<OptionValue>().Add(entity);
             await dbContext.SaveChangesAsync(cancellationToken);
 

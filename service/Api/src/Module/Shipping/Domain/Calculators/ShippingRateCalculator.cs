@@ -24,7 +24,7 @@ public static class ShippingRateCalculator
         decimal orderTotal,
         CancellationToken cancellationToken = default)
     {
-        // Query: Get all rates for the shipping method, ordered by cost ascending.
+        // Load: Get all rates for the shipping method, ordered by cost ascending.
         var rates = await dbContext.Set<ShippingRate>()
             .Where(r => r.ShippingMethodId == shippingMethodId)
             .OrderBy(r => r.Cost)

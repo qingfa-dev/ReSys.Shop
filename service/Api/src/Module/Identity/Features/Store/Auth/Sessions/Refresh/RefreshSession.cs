@@ -20,38 +20,35 @@ public static partial class RefreshSession
         IRefreshTokenService refreshTokenService)
             : ICommandHandler<Command, Response>
     {
-        // Contract: pre=command!=null, post=result!=null
+        // Contract: pre=command!=null, post=result!=null, throws=DbUpdateException
         /// <summary>
-        /// Handles the command to refresh an authentication session.
+        /// Rotates a refresh token and issues a new JWT access token. Validates the token, resolves the
+        /// associated user, checks active status, and returns fresh credentials.
         /// </summary>
         /// <param name="command">The command containing the refresh token.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns>A result containing the new access and refresh tokens or an error.</returns>
+        /// <returns>A result containing the new access and refresh tokens, or token-required/not-found/inactive error.</returns>
+        /// <exception cref="DbUpdateException">Thrown when the token store fails to persist rotation.</exception>
         public async Task<Result<Response>> Handle(Command command, CancellationToken cancellationToken)
         {
             var request = command.Request;
 
-            // Check: Ensure refresh token is provided
             if (string.IsNullOrWhiteSpace(request.RefreshToken))
                 return UserResult.Failure.TokenRequired;
 
-            // Query: Rotate the refresh token via service (handles all security checks)
             var rotateResult = await refreshTokenService.RotateAsync(request.RefreshToken, cancellationToken);
             if (rotateResult.IsFailure)
                 return rotateResult.Errors;
 
             var refreshToken = rotateResult.Value;
 
-            // Query: Resolve user associated with the token
             var user = await userManager.FindByIdAsync(refreshToken.UserId.ToString());
             if (user is null)
                 return UserResult.Failure.NotFound;
 
-            // Check: Ensure user account is active
             if (!user.IsActive)
                 return UserResult.Failure.Inactive;
 
-            // Create: Generate new JWT access token
             var tokenRequest = new TokenRequestModel(
                 user.Id,
                 user.Email!,
@@ -61,7 +58,6 @@ public static partial class RefreshSession
             if (tokenResult.IsFailure)
                 return tokenResult.Errors;
 
-            // Map: Build the success response with tokens
             return new Response
             {
                 AccessToken = tokenResult.Value.Token,

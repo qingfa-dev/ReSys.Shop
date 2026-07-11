@@ -51,7 +51,6 @@ public static partial class RemoveVariantPrice
             if (deleteResult.IsFailure)
                 return deleteResult.Errors;
 
-            // Persist: Save soft-delete state to database
             dbContext.Set<Price>().Update(price);
             await dbContext.SaveChangesAsync(cancellationToken);
 

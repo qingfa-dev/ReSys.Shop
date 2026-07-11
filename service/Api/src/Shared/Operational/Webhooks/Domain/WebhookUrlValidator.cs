@@ -21,26 +21,26 @@ public static class WebhookUrlValidator
     public static Result ValidateUrl(string? url)
     {
         if (string.IsNullOrWhiteSpace(url))
-            return Error.Validation("Webhooks.Subscription.Url.Empty", "URL must not be empty.");
+            return WebhookSubscriptionErrors.Failure.UrlEmpty;
 
         if (url.Length > MaxUrlLength)
-            return Error.Validation("Webhooks.Subscription.Url.TooLong", $"URL must not exceed {MaxUrlLength} characters.");
+            return WebhookSubscriptionErrors.Failure.SubscriptionUrlTooLong;
 
         if (!Uri.TryCreate(url, UriKind.Absolute, out var uri))
-            return Error.Validation("Webhooks.Subscription.Url.Invalid", "URL must be a valid absolute URI.");
+            return WebhookSubscriptionErrors.Failure.UrlInvalid;
 
         if (!AllowedSchemes.Contains(uri.Scheme.ToLowerInvariant()))
-            return Error.Validation("Webhooks.Subscription.Url.Scheme", "Only HTTPS URLs are allowed.");
+            return WebhookSubscriptionErrors.Failure.UrlScheme;
 
         if (BlockedHosts.Contains(uri.Host))
-            return Error.Validation("Webhooks.Subscription.Url.Blocked", "This hostname is not allowed.");
+            return WebhookSubscriptionErrors.Failure.UrlBlocked;
 
         if (IPAddress.TryParse(uri.Host, out var ip))
         {
             foreach (var (network, prefixLength) in PrivateRanges)
             {
                 if (IsInSubnet(ip, network, prefixLength))
-                    return Error.Validation("Webhooks.Subscription.Url.Private", "Private network addresses are not allowed.");
+                    return WebhookSubscriptionErrors.Failure.UrlPrivate;
             }
         }
 

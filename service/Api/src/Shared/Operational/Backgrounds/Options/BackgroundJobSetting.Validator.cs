@@ -44,14 +44,14 @@ public sealed class BackgroundJobSettingValidator : AbstractValidator<Background
             .WithMessage(BackgroundJobSettingResult.Failure.DashboardPathTooLong.Message);
 
         // Conditional validation: when CachingEnabled is true, require connection string
-        When(x => x.CachingEnabled, () =>
+        When(x => x.CachingEnabled, (Action)(() =>
         {
             // Validate: Caching requires valid Redis connection string
             RuleFor(x => x)
                 .Must(_ => HasValidConnectionString())
                 .WithErrorCode(BackgroundJobSettingResult.Failure.CachingConnectionStringMissing.Code)
-                .WithMessage(BackgroundJobSettingResult.Failure.CachingConnectionStringMissing.Message);
-        });
+                .WithMessage((string)BackgroundJobSettingResult.Failure.CachingConnectionStringMissing.Message);
+        }));
     }
 
     /// <summary>

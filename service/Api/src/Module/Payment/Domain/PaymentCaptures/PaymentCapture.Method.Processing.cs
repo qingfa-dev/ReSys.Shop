@@ -1,6 +1,6 @@
 using Module.Payment.Domain.Gateways;
 
-namespace Module.Payment.Domain.Payments;
+namespace Module.Payment.Domain.PaymentCaptures;
 
 /// <summary>
 /// Payment processing operations -- port of Spree::Payment::Processing concern.
@@ -15,7 +15,7 @@ public static class PaymentProcessing
     /// </summary>
     // Contract: pre=payment!=null && gateway!=null, post=payment.State is Pending or Completed or Failed
     // Enforce: Auto-capture determines authorize vs purchase path
-    public static Task<Result> ProcessAsync(this PaymentRecord payment, IPaymentGatewayActionProvider gateway, GatewayOptions options, CancellationToken cancellationToken = default)
+    public static Task<Result> ProcessAsync(this PaymentCapture payment, IPaymentGatewayActionProvider gateway, GatewayOptions options, CancellationToken cancellationToken = default)
     {
         if (gateway.AutoCapture)
             return PaymentProcessing.PurchaseAsync(payment, gateway, options, cancellationToken);
@@ -31,7 +31,7 @@ public static class PaymentProcessing
     /// </summary>
     // Contract: pre=payment.State==Checkout && gateway!=null, post=payment.State==Pending or Failed
     // Call: Gateway authorize action
-    public static async Task<Result> AuthorizeAsync(this PaymentRecord payment, IPaymentGatewayActionProvider gateway, GatewayOptions options, CancellationToken cancellationToken = default)
+    public static async Task<Result> AuthorizeAsync(this PaymentCapture payment, IPaymentGatewayActionProvider gateway, GatewayOptions options, CancellationToken cancellationToken = default)
     {
         var preconditions = payment.HandlePaymentPreconditions(gateway);
         if (preconditions.IsFailure)
@@ -53,7 +53,7 @@ public static class PaymentProcessing
     /// </summary>
     // Contract: pre=payment.State==Checkout && gateway!=null, post=payment.State==Completed or Failed
     // Call: Gateway purchase action; creates capture event on success
-    public static async Task<Result> PurchaseAsync(this PaymentRecord payment, IPaymentGatewayActionProvider gateway, GatewayOptions options, CancellationToken cancellationToken = default)
+    public static async Task<Result> PurchaseAsync(this PaymentCapture payment, IPaymentGatewayActionProvider gateway, GatewayOptions options, CancellationToken cancellationToken = default)
     {
         var preconditions = payment.HandlePaymentPreconditions(gateway);
         if (preconditions.IsFailure)
@@ -84,20 +84,20 @@ public static class PaymentProcessing
     /// </summary>
     // Contract: pre=payment.State==Checkout, post=payment.State is Completed or Pending
     // Enforce: Auto-capture determines complete vs pend path
-    public static Task<Result> ConfirmAsync(this PaymentRecord payment, IPaymentGatewayActionProvider gateway, CancellationToken cancellationToken = default)
+    public static Task<Result> ConfirmAsync(this PaymentCapture payment, IPaymentGatewayActionProvider gateway, CancellationToken cancellationToken = default)
     {
         payment.StartedProcessing();
 
         if (gateway.AutoCapture && payment.State != PaymentRecordState.Completed)
         {
             payment.State = PaymentRecordState.Completed;
-            return Task.FromResult(Result.Ok(PaymentResult.Success.Completed(payment.Number)));
+            return Task.FromResult(Result.Ok(PaymentCaptureResult.Success.Completed(payment.Number)));
         }
 
         if (payment.State == PaymentRecordState.Checkout || payment.State == PaymentRecordState.Processing)
         {
             payment.State = PaymentRecordState.Pending;
-            return Task.FromResult(Result.Ok(PaymentResult.Success.Pended(payment.Number)));
+            return Task.FromResult(Result.Ok(PaymentCaptureResult.Success.Pended(payment.Number)));
         }
 
         return Task.FromResult(Result.Ok());
@@ -113,10 +113,10 @@ public static class PaymentProcessing
     /// </summary>
     // Contract: pre=payment.State is Processing or Pending, post=payment.State==Completed or Failed
     // Call: Gateway capture action
-    public static async Task<Result> CaptureAsync(this PaymentRecord payment, IPaymentGatewayActionProvider gateway, GatewayOptions options, decimal? amount = null, CancellationToken cancellationToken = default)
+    public static async Task<Result> CaptureAsync(this PaymentCapture payment, IPaymentGatewayActionProvider gateway, GatewayOptions options, decimal? amount = null, CancellationToken cancellationToken = default)
     {
         if (payment.State == PaymentRecordState.Completed)
-            return PaymentResult.Failure.AlreadyCompleted;
+            return PaymentCaptureResult.Failure.AlreadyCompleted;
 
         amount ??= payment.Amount;
 
@@ -138,11 +138,11 @@ public static class PaymentProcessing
             payment.State = PaymentRecordState.Completed;
             payment.ResponseCode = response.Authorization ?? payment.ResponseCode;
 
-            return Result.Ok(PaymentResult.Success.Captured(payment.Number, amount.Value));
+            return Result.Ok(PaymentCaptureResult.Success.Captured(payment.Number, amount.Value));
         }
 
         payment.State = PaymentRecordState.Failed;
-        return Result.Failure(PaymentResult.Failure.CaptureFailed(response.Message));
+        return Result.Failure(PaymentCaptureResult.Failure.CaptureFailed(response.Message));
     }
 
     #endregion Capture
@@ -154,7 +154,7 @@ public static class PaymentProcessing
     /// </summary>
     // Contract: pre=payment.State is Processing or Pending, post=payment.State==Void or Failed
     // Call: Gateway void action with source (profile-based) or without
-    public static async Task<Result> VoidTransactionAsync(this PaymentRecord payment, IPaymentGatewayActionProvider gateway, GatewayOptions options, object? source = null, CancellationToken cancellationToken = default)
+    public static async Task<Result> VoidTransactionAsync(this PaymentCapture payment, IPaymentGatewayActionProvider gateway, GatewayOptions options, object? source = null, CancellationToken cancellationToken = default)
     {
         if (payment.State == PaymentRecordState.Void)
             return Result.Ok();
@@ -162,7 +162,7 @@ public static class PaymentProcessing
         if (string.IsNullOrEmpty(payment.ResponseCode))
         {
             payment.State = PaymentRecordState.Void;
-            return Result.Ok(PaymentResult.Success.Voided(payment.Number));
+            return Result.Ok(PaymentCaptureResult.Success.Voided(payment.Number));
         }
 
         // Call: Gateway void -- with source if profiles supported, otherwise standard
@@ -182,10 +182,10 @@ public static class PaymentProcessing
         {
             payment.ResponseCode = response.Authorization ?? payment.ResponseCode;
             payment.State = PaymentRecordState.Void;
-            return Result.Ok(PaymentResult.Success.Voided(payment.Number));
+            return Result.Ok(PaymentCaptureResult.Success.Voided(payment.Number));
         }
 
-        return Result.Failure(PaymentResult.Failure.VoidFailed(response.Message));
+        return Result.Failure(PaymentCaptureResult.Failure.VoidFailed(response.Message));
     }
 
     #endregion Void
@@ -197,7 +197,7 @@ public static class PaymentProcessing
     /// </summary>
     // Contract: post=payment.State==Void or Failed
     // Call: Gateway cancel action
-    public static async Task<Result> CancelAsync(this PaymentRecord payment, IPaymentGatewayActionProvider gateway, CancellationToken cancellationToken = default)
+    public static async Task<Result> CancelAsync(this PaymentCapture payment, IPaymentGatewayActionProvider gateway, CancellationToken cancellationToken = default)
     {
         var gatewayResult = await gateway.CancelAsync(payment.ResponseCode, payment, cancellationToken).ConfigureAwait(false);
 
@@ -212,11 +212,11 @@ public static class PaymentProcessing
         if (response.Success)
         {
             payment.State = PaymentRecordState.Void;
-            return Result.Ok(PaymentResult.Success.Voided(payment.Number));
+            return Result.Ok(PaymentCaptureResult.Success.Voided(payment.Number));
         }
 
         payment.State = PaymentRecordState.Failed;
-        return PaymentResult.Failure.CancelFailed(response.Message);
+        return PaymentCaptureResult.Failure.CancelFailed(response.Message);
     }
 
     #endregion Cancel
@@ -228,10 +228,10 @@ public static class PaymentProcessing
     /// </summary>
     // Contract: pre=payment.State==Completed && amount<=payment.Amount, post=creates credit/refund
     // Call: Gateway credit action
-    public static async Task<Result> CreditAsync(this PaymentRecord payment, IPaymentGatewayActionProvider gateway, GatewayOptions options, decimal amount, CancellationToken cancellationToken = default)
+    public static async Task<Result> CreditAsync(this PaymentCapture payment, IPaymentGatewayActionProvider gateway, GatewayOptions options, decimal amount, CancellationToken cancellationToken = default)
     {
         if (!payment.CreditAllowed())
-            return PaymentResult.Failure.CreditNotAllowed;
+            return PaymentCaptureResult.Failure.CreditNotAllowed;
 
         var gatewayResult = await gateway.CreditAsync(amount, payment.ResponseCode, options, cancellationToken).ConfigureAwait(false);
 
@@ -245,10 +245,10 @@ public static class PaymentProcessing
 
         if (response.Success)
         {
-            return Result.Ok(PaymentResult.Success.Credited(payment.Number, amount));
+            return Result.Ok(PaymentCaptureResult.Success.Credited(payment.Number, amount));
         }
 
-        return PaymentResult.Failure.CreditFailed(response.Message);
+        return PaymentCaptureResult.Failure.CreditFailed(response.Message);
     }
 
     #endregion Credit
@@ -257,22 +257,22 @@ public static class PaymentProcessing
 
     // Validate: Payment preconditions before gateway action -- mirrors Ruby handle_payment_preconditions
     // Enforce: Source required if payment method requires it; source must be supported
-    private static Result HandlePaymentPreconditions(this PaymentRecord payment, IPaymentGatewayActionProvider gateway)
+    private static Result HandlePaymentPreconditions(this PaymentCapture payment, IPaymentGatewayActionProvider gateway)
     {
         if (gateway.SourceRequired)
         {
             if (payment.SourceId is null || string.IsNullOrEmpty(payment.SourceType))
-                return PaymentResult.Failure.ProcessingSourceRequired;
+                return PaymentCaptureResult.Failure.ProcessingSourceRequired;
 
             if (payment.State == PaymentRecordState.Processing)
-                return PaymentResult.Failure.ProcessingAlreadyProcessing;
+                return PaymentCaptureResult.Failure.ProcessingAlreadyProcessing;
         }
 
         return Result.Ok();
     }
 
     // Enforce: Transition to Processing state before gateway action
-    private static void StartedProcessing(this PaymentRecord payment)
+    private static void StartedProcessing(this PaymentCapture payment)
     {
         if (payment.State == PaymentRecordState.Checkout)
         {
@@ -282,7 +282,7 @@ public static class PaymentProcessing
 
     // Call: Execute gateway action and handle response -- mirrors Ruby gateway_action
     private static async Task<Result> GatewayActionAsync(
-        PaymentRecord payment,
+        PaymentCapture payment,
         IPaymentGatewayActionProvider gateway,
         GatewayOptions options,
         Func<decimal, object?, GatewayOptions, CancellationToken, Task<Result<PaymentGatewayResponse>>> action,
@@ -305,17 +305,17 @@ public static class PaymentProcessing
             payment.ResponseCode = response.Authorization ?? payment.ResponseCode;
             payment.State = successState;
             return Result.Ok(successState == PaymentRecordState.Pending
-                ? PaymentResult.Success.Pended(payment.Number)
-                : PaymentResult.Success.Completed(payment.Number));
+                ? PaymentCaptureResult.Success.Pended(payment.Number)
+                : PaymentCaptureResult.Success.Completed(payment.Number));
         }
 
         payment.State = PaymentRecordState.Failed;
-        return PaymentResult.Failure.GatewayError(response.Message);
+        return PaymentCaptureResult.Failure.GatewayError(response.Message);
     }
 
     // Call: Execute gateway action returning a typed result -- same as GatewayActionAsync
     private static Task<Result> GatewayActionInnerAsync(
-        PaymentRecord payment,
+        PaymentCapture payment,
         IPaymentGatewayActionProvider gateway,
         GatewayOptions options,
         Func<decimal, object?, GatewayOptions, CancellationToken, Task<Result<PaymentGatewayResponse>>> action,
@@ -326,7 +326,7 @@ public static class PaymentProcessing
     }
 
     // Log: Record gateway response details -- mirrors Ruby record_response
-    private static void RecordGatewayResponse(this PaymentRecord payment, PaymentGatewayResponse response)
+    private static void RecordGatewayResponse(this PaymentCapture payment, PaymentGatewayResponse response)
     {
         payment.AvsResponse = response.AvsResultCode;
         payment.CvvResponseCode = response.CvvResultCode;

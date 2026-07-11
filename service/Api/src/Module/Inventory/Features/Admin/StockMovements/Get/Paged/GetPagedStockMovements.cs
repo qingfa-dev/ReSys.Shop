@@ -3,7 +3,7 @@ using Module.Inventory.Features.Admin.StockMovements.Shared.Mappings;
 
 namespace Module.Inventory.Features.Admin.StockMovements.Get.Paged;
 
-/// <summary>Handles paged retrieval of stock movements.</summary>
+/// <summary>Returns paged stock movements with optional date range, variant, and location filters.</summary>
 public static partial class GetPagedStockMovements
 {
     public record Query(Parameters Parameters) : IPagedQuery<Response>;
@@ -11,8 +11,8 @@ public static partial class GetPagedStockMovements
     public sealed class PagedQueryHandler(IApplicationDbContext dbContext)
         : IPagedQueryHandler<Query, Response>
     {
-        /// <summary>Executes the paged stock movements query.</summary>
-        /// <param name="request">The query containing paging parameters.</param>
+        /// <summary>Applies filters and pagination to the stock movements query and returns paged results.</summary>
+        /// <param name="request">The query containing paging and filter parameters.</param>
         /// <param name="cancellationToken">Cancellation token.</param>
         /// <returns>A paged result of stock movements.</returns>
         public async Task<PagedResult<Response>> Handle(Query request, CancellationToken cancellationToken)
@@ -20,7 +20,7 @@ public static partial class GetPagedStockMovements
             // Contract: pre=request!=null, post=result!=null
             var parameters = request.Parameters;
 
-            // Query: Retrieve stock movements with optional date/variant/location filters
+            // Load: Retrieve stock movements with optional date/variant/location filters
             var query = dbContext.Set<StockMovement>().AsNoTracking().AsQueryable();
 
             if (parameters.FromUtc.HasValue)

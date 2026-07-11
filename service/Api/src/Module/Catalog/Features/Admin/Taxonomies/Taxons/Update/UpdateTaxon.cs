@@ -21,22 +21,26 @@ public static partial class UpdateTaxon
         : ICommandHandler<Command, Response>
     {
         /// <summary>
-        /// Handles the request and returns a result.
+        /// Updates a taxon with parent-reparenting validation, ancestor-cycle detection,
+        /// and hierarchy rebuild.
         /// </summary>
-        /// <param name="command">The command containing request data.</param>
+        /// <param name="command">The command containing taxonomy ID, taxon ID, and update payload.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
-        // Contract: pre=command!=null, post=result!=null
+        /// <exception cref="DbUpdateException">Thrown when persistence fails.</exception>
+        // Contract: pre=command.TaxonomyId!=Guid.Empty && command.Id!=Guid.Empty, post=result!=null, throws=DbUpdateException
         public async Task<Result<Response>> Handle(Command command, CancellationToken cancellationToken)
         {
             var taxonomyId = command.TaxonomyId;
             var id = command.Id;
             var request = command.Request;
 
+            // Validate: Parent taxonomy must exist
             var taxonomyExists = await dbContext.Set<Taxonomy>()
                 .AnyAsync(x => x.Id == taxonomyId, cancellationToken);
             if (!taxonomyExists)
                 return TaxonomyResult.Errors.NotFound;
 
+            // Load: Fetch the taxon to update
             var entity = await dbContext.Set<Taxon>()
                 .FirstOrDefaultAsync(x => x.Id == id && x.TaxonomyId == taxonomyId, cancellationToken);
             if (entity is null)
@@ -44,17 +48,21 @@ public static partial class UpdateTaxon
 
             if (request.ParentId.HasValue && request.ParentId.Value != entity.ParentId)
             {
+                // Enforce: Root taxon cannot be reparented
                 if (entity.ParentId == null)
                     return TaxonResult.Errors.RootLock;
 
+                // Enforce: Taxon cannot be its own parent — creates circular reference
                 if (request.ParentId.Value == id)
                     return TaxonResult.Errors.SelfParenting;
 
+                // Validate: New parent must not be a descendant of this taxon
                 var descendantCheck = await hierarchyService.ValidateDescendantAsync(id, request.ParentId.Value, cancellationToken);
                 if (descendantCheck.IsFailure)
                     return descendantCheck.Errors;
             }
 
+            // Validate: Taxon name must be unique at the target parent level
             var targetParentId = request.ParentId ?? entity.ParentId;
             var normalizedName = ParameterizableBehavior.Normalize(request.Name);
             var nameExists = await dbContext.Set<Taxon>()
@@ -69,11 +77,11 @@ public static partial class UpdateTaxon
             var oldPosition = entity.Position;
             var oldName = entity.Name;
 
+            // Update: Apply incoming values to existing taxon entity
             var updateResult = request.MapToDomain(entity);
             if (updateResult.IsFailure)
                 return updateResult.Errors;
 
-            // Persist: Save changes to the database.
             dbContext.Set<Taxon>().Update(entity);
             await dbContext.SaveChangesAsync(cancellationToken);
 

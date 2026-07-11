@@ -14,14 +14,15 @@ public static partial class GetOptionTypeById
         : IQueryHandler<Query, Response>
     {
         /// <summary>
-        /// Handles the request and returns a result.
+        /// Retrieves a single option type by its ID with full details.
         /// </summary>
-        /// <param name="request">The query containing request data.</param>
-        /// <param name="cancellationToken">The cancellation token.</param>
-        // Contract: pre=request!=null, post=result!=null
+        /// <param name="request">The query containing the option type ID.</param>
+        /// <param name="cancellationToken">Propagates cancellation notification.</param>
+        /// <returns>A success result with the option type detail response.</returns>
+        // Contract: pre=request.Id!=Guid.Empty, post=result!=null
         public async Task<Result<Response>> Handle(Query request, CancellationToken cancellationToken)
         {
-            // Query: Fetch the option type by its ID.
+            // Load: Fetch the option type by its ID.
             var entity = await dbContext.Set<OptionType>()
                 .AsNoTracking()
                 .FirstOrDefaultAsync(x => x.Id == request.Id, cancellationToken);

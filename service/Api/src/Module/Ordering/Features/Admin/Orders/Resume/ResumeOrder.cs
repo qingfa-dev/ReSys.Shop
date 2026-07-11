@@ -16,8 +16,14 @@ public static partial class ResumeOrder
         INotificationService notificationService,
         ILogger<CommandHandler> logger) : ICommandHandler<Command, Response>
     {
+        /// <summary>Restores a canceled order to its previous active state by invoking domain resume logic and sending a notification.</summary>
+        /// <param name="command">The command containing the order ID to resume.</param>
+        /// <param name="cancellationToken">Cancellation token.</param>
+        /// <returns>The resume response with updated status.</returns>
+        /// <exception cref="DbUpdateException">Thrown when the database update fails.</exception>
         public async Task<Result<Response>> Handle(Command command, CancellationToken cancellationToken)
         {
+            // Contract: pre=command!=null, post=result!=null, throws=DbUpdateException
             var order = await dbContext.Set<Order>().FirstOrDefaultAsync(o => o.Id == command.Id, cancellationToken);
             if (order is null) return (Result<Response>)OrderResult.Errors.NotFound(command.Id);
 
@@ -26,7 +32,7 @@ public static partial class ResumeOrder
 
             await dbContext.SaveChangesAsync(cancellationToken);
 
-            // Notify: Send order resumed notification.
+            // Notify: Send order confirmation to the customer's email.
             await SendOrderResumedNotificationAsync(order, cancellationToken);
 
             return new Response { Id = order.Id, Status = order.Status };
@@ -49,7 +55,7 @@ public static partial class ResumeOrder
             if (result.IsFailure)
             {
                 logger.LogWarning("Failed to send order resumed notification for order {OrderId}: {Errors}",
-                    order.Id, string.Join("; ", result.Errors.Select(f => f.Description)));
+                    order.Id, string.Join("; ", result.Errors.Select(f => f.Message)));
             }
         }
     }

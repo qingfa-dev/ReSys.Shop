@@ -22,44 +22,44 @@ public static partial class UpdateTaxonomy
         : ICommandHandler<Command, Response>
     {
         /// <summary>
-        /// Handles the request and returns a result.
+        /// Updates a taxonomy and synchronises its root taxon (create, restore, or rename).
         /// </summary>
-        /// <param name="command">The command containing request data.</param>
+        /// <param name="command">The command containing the taxonomy ID and update payload.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
-        // Contract: pre=command!=null, post=result!=null
+        /// <exception cref="DbUpdateException">Thrown when persistence fails.</exception>
+        // Contract: pre=command.Id!=Guid.Empty && command.Request!=null, post=result!=null, throws=DbUpdateException
         public async Task<Result<Response>> Handle(Command command, CancellationToken cancellationToken)
         {
             var request = command.Request;
 
-            // Query: Find the existing taxonomy entity by its ID.
+            // Load: Fetch the existing taxonomy entity to modify
             var entity = await dbContext.Set<Taxonomy>()
                 .FirstOrDefaultAsync(x => x.Id == command.Id, cancellationToken);
             if (entity is null)
                 return TaxonomyResult.Errors.NotFound;
 
-            // Validate: Ensure that no other taxonomy with the same name exists.
+            // Validate: Updated taxonomy name must not conflict with another entity
             var normalizedName = ParameterizableBehavior.Normalize(request.Name);
             var nameExists = await dbContext.Set<Taxonomy>()
                 .AnyAsync(x => x.Name == normalizedName && x.Id != command.Id, cancellationToken);
             if (nameExists)
                 return TaxonomyResult.Errors.DuplicateName;
 
-            // Update: Apply the changes from the request to the domain entity.
+            // Update: Apply incoming request values to existing taxonomy entity
             var updateResult = request.MapToDomain(entity);
             if (updateResult.IsFailure)
                 return updateResult.Errors;
 
-            // Persist: Save the changes to the database.
             await dbContext.SaveChangesAsync(cancellationToken);
 
-            // Query: Find the root taxon for this taxonomy (including soft-deleted).
+            // Load: Find root taxon (including soft-deleted) to determine sync action
             var rootTaxon = await dbContext.Set<Taxon>()
                 .IgnoreQueryFilters()
                 .FirstOrDefaultAsync(x => x.TaxonomyId == entity.Id && x.ParentId == null, cancellationToken);
 
             if (rootTaxon == null)
             {
-                // Create: Root taxon if it's missing.
+                // Trigger: Create missing root taxon to maintain taxonomy integrity
                 var createRequest = new CreateTaxon.Request
                 {
                     Name = entity.Name,
@@ -73,11 +73,11 @@ public static partial class UpdateTaxonomy
             {
                 if (rootTaxon.IsDeleted)
                 {
-                    // Restore: If the root taxon was soft-deleted, restore it first.
+                    // Trigger: Restore soft-deleted root taxon before applying updates
                     await sender.Send(new RestoreTaxon.Command(entity.Id, rootTaxon.Id), cancellationToken);
                 }
 
-                // Update: Existing root taxon with the new taxonomy name and presentation.
+                // Trigger: Sync root taxon with updated taxonomy name and presentation
                 var updateRequest = new UpdateTaxon.Request
                 {
                     Name = entity.Name,

@@ -1,8 +1,8 @@
 using Module.Ordering.Domain.Orders;
 using Module.Payment.Domain.Gateways;
-using Module.Payment.Domain.Payments;
+using Module.Payment.Domain.PaymentCaptures;
 using Module.Payment.Features.Storefront.Payment.Confirm;
-using PaymentRecord = Module.Payment.Domain.Payments.PaymentRecord;
+using PaymentCapture = Module.Payment.Domain.PaymentCaptures.PaymentCapture;
 
 namespace Module.UnitTests.Payment.Features.Storefront.Payment.Confirm;
 
@@ -22,7 +22,7 @@ public class ConfirmPaymentTests : IDisposable
         var options = new DbContextOptionsBuilder<ApplicationDbContext>()
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
             .Options;
-        ApplicationDbContext.AdditionalConfigurationsAssemblies = [typeof(PaymentRecord).Assembly, typeof(Order).Assembly];
+        ApplicationDbContext.AdditionalConfigurationsAssemblies = [typeof(PaymentCapture).Assembly, typeof(Order).Assembly];
         _dbContext = new ApplicationDbContext(options);
         var currentUserMock = new Mock<ICurrentUser>();
         currentUserMock.Setup(x => x.UserId).Returns(_currentUserId);
@@ -47,9 +47,9 @@ public class ConfirmPaymentTests : IDisposable
 
     public void Dispose() { _dbContext.Dispose(); GC.SuppressFinalize(this); }
 
-    private static PaymentRecord CreateTestPayment(Guid? paymentMethodId = null, Guid? orderId = null)
+    private static PaymentCapture CreateTestPayment(Guid? paymentMethodId = null, Guid? orderId = null)
     {
-        var payment = PaymentFactory.Create(100m, paymentMethodId ?? Guid.NewGuid(), orderId ?? Guid.NewGuid()).Value;
+        var payment = PaymentCaptureMethod.Create(100m, paymentMethodId ?? Guid.NewGuid(), orderId ?? Guid.NewGuid()).Value;
         payment.ResponseCode = "pi_test_123";
         return payment;
     }
@@ -60,7 +60,7 @@ public class ConfirmPaymentTests : IDisposable
         var payment = CreateTestPayment();
         payment.Process();
         payment.Pend();
-        _dbContext.Set<PaymentRecord>().Add(payment);
+        _dbContext.Set<PaymentCapture>().Add(payment);
         await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
         await SeedOrderAsync(payment.OrderId, TestContext.Current.CancellationToken);
 
@@ -81,7 +81,7 @@ public class ConfirmPaymentTests : IDisposable
         var payment = CreateTestPayment();
         payment.Process();
         payment.Pend();
-        _dbContext.Set<PaymentRecord>().Add(payment);
+        _dbContext.Set<PaymentCapture>().Add(payment);
         await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
         await SeedOrderAsync(payment.OrderId, TestContext.Current.CancellationToken);
 
@@ -97,7 +97,7 @@ public class ConfirmPaymentTests : IDisposable
     public async Task Handle_ShouldFail_WhenCheckout()
     {
         var payment = CreateTestPayment();
-        _dbContext.Set<PaymentRecord>().Add(payment);
+        _dbContext.Set<PaymentCapture>().Add(payment);
         await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
         await SeedOrderAsync(payment.OrderId, TestContext.Current.CancellationToken);
 
@@ -114,7 +114,7 @@ public class ConfirmPaymentTests : IDisposable
         var payment = CreateTestPayment();
         payment.Process();
         payment.Complete();
-        _dbContext.Set<PaymentRecord>().Add(payment);
+        _dbContext.Set<PaymentCapture>().Add(payment);
         await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
         await SeedOrderAsync(payment.OrderId, TestContext.Current.CancellationToken);
 

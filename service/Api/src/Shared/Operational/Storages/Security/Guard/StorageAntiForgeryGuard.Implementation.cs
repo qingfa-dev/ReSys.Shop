@@ -7,6 +7,10 @@ using Shared.Performance.Caching.Wrappers;
 
 namespace Shared.Operational.Storages.Security.Guard;
 
+/// <summary>Validates anti-forgery tokens for storage uploads with rate-limited failure tracking — mitigates TMT-CSRF-001.</summary>
+// Invariant: Block threshold is MaxConsecutiveFailures from config; block duration resets on successful validation.
+// Context: CSRF attack on upload endpoints (Threat TMT-CSRF-001). Failure counter cached with the block TTL for distributed rate limiting.
+// Boundary: Guard → CacheService | ASP.NET Antiforgery — delegates CSRF validation to ASP.NET middleware; uses cache for failure tracking.
 internal sealed partial class StorageAntiForgeryGuard(
     ICacheService cacheService,
     IAntiforgery antiforgery,
@@ -24,26 +28,34 @@ internal sealed partial class StorageAntiForgeryGuard(
             LocalCacheExpiration = blockDuration,
         };
 
+    /// <summary>Validates an anti-forgery token — blocks after consecutive failures exceed threshold.</summary>
+    // Contract: pre=identityKey!=null && httpContext!=null, post=return.IsSuccess if token valid, throws=never
     public async Task<Result> ValidateRequestAsync(string identityKey, HttpContext httpContext, CancellationToken ct = default)
     {
+        // Guard: reject immediately if identity is already in blocked state
         if (await IsBlockedAsync(identityKey, ct))
             return StorageAntiForgeryGuardResult.Failure.TooManyAttempts();
 
+        // Validate: check ASP.NET anti-forgery token
         if (!await antiforgery.IsRequestValidAsync(httpContext))
         {
             Loggers.LogAntiforgeryTokenInvalid(logger, identityKey);
             return await RecordFailureAsync(identityKey, ct);
         }
 
+        // Reset: clear failure counter on successful validation
         await ResetAsync(identityKey, ct);
         return Result.Ok();
     }
 
+    /// <summary>Records a CSRF validation failure and blocks the identity after threshold exceeded.</summary>
+    // Contract: pre=identityKey!=null, post=return.IsSuccess implies failure recorded, throws=never
     public async Task<Result> RecordFailureAsync(string identityKey, CancellationToken ct = default)
     {
         AntiForgeryOptions opts = options.Value;
         string cacheKey = GetCacheKey(identityKey);
 
+        // Cache: read current failure count or start at 0
         int failures = await cacheService.GetOrCreateAsync<int>(
             cacheKey,
             static _ => ValueTask.FromResult(0),
@@ -52,12 +64,14 @@ internal sealed partial class StorageAntiForgeryGuard(
 
         failures++;
 
+        // Cache: increment and persist with sliding block TTL
         await cacheService.SetAsync(
             cacheKey,
             failures,
             CreateEntryOptions(opts.BlockDuration),
             cancellationToken: ct);
 
+        // Validate: check if threshold reached — block identity
         if (failures >= opts.MaxConsecutiveFailures)
         {
             Loggers.LogIdentityBlocked(logger, identityKey, failures);
@@ -68,12 +82,16 @@ internal sealed partial class StorageAntiForgeryGuard(
         return Result.Ok();
     }
 
+    /// <summary>Clears the failure counter for an identity on successful CSRF validation.</summary>
+    // Contract: pre=identityKey!=null, post=failure counter cleared, throws=never
     public async Task ResetAsync(string identityKey, CancellationToken ct = default)
     {
         await cacheService.RemoveAsync(GetCacheKey(identityKey), ct);
         Loggers.LogIdentityReset(logger, identityKey);
     }
 
+    /// <summary>Checks whether an identity has exceeded the maximum consecutive failure threshold.</summary>
+    // Contract: pre=identityKey!=null, post=return==true if blocked, throws=never
     public async Task<bool> IsBlockedAsync(string identityKey, CancellationToken ct = default)
     {
         int failures = await cacheService.GetOrCreateAsync<int>(

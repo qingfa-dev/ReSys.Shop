@@ -22,6 +22,16 @@ public static partial class ConfirmEmail
         IMediator mediator)
         : ICommandHandler<Command>
     {
+        // Contract: pre=command!=null, post=result!=null, throws=DbUpdateException
+        /// <summary>
+        /// Confirms a pending email verification or email change. Decodes the token and optional new email,
+        /// applies the confirmation via Identity, updates audit timestamps, sends a welcome notification
+        /// for first-time verification, and creates an initial user profile.
+        /// </summary>
+        /// <param name="command">The command containing the confirmation token and optional new email.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>A result indicating success, or an invalid-token/not-found error.</returns>
+        /// <exception cref="DbUpdateException">Thrown when the identity store fails to persist the confirmation.</exception>
         public async Task<Result> Handle(Command command, CancellationToken cancellationToken)
         {
             var request = command.Request;

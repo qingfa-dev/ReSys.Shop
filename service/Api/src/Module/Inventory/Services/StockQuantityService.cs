@@ -21,21 +21,26 @@ public class StockQuantityService : IStockQuantityService
         Guid orderId,
         CancellationToken cancellationToken = default)
     {
+        // Validate: Quantity must be positive for a valid decrement
         if (quantity <= 0)
             return StockItemResult.Errors.NegativeCountOnHand;
 
+        // Load: Find the stock item for this variant at the specified location
         var stockItem = await _dbContext.Set<StockItem>()
             .FirstOrDefaultAsync(si => si.VariantId == variantId && si.StockLocationId == stockLocationId, cancellationToken);
 
         if (stockItem is null)
             return StockItemResult.Errors.VariantNotFound(variantId);
 
+        // Validate: Ensure sufficient stock before decrementing
         if (stockItem.CountOnHand < quantity)
             return StockItemResult.Errors.InsufficientStock;
 
         var previousCount = stockItem.CountOnHand;
+        // Update: Decrease the on-hand quantity
         stockItem.CountOnHand -= quantity;
 
+        // Create: Record the outgoing stock movement for audit trail
         var movement = StockMovementMethod.Create(
             stockItemId: stockItem.Id,
             quantity: -quantity,
@@ -47,12 +52,14 @@ public class StockQuantityService : IStockQuantityService
         if (movement.IsSuccess)
             _dbContext.Set<StockMovement>().Add(movement.Value);
 
+        // Load: Find the matching order reservation to fulfill
         var reservation = await _dbContext.Set<StockReservation>()
             .FirstOrDefaultAsync(r => r.OrderId == orderId && r.VariantId == variantId
                 && r.State == ReservationState.Reserved, cancellationToken);
 
         if (reservation is not null)
         {
+            // Update: Fulfill the reservation since stock has been decremented
             reservation.State = ReservationState.Fulfilled;
             reservation.ModifiedAtUtc = DateTimeOffset.UtcNow;
         }
@@ -67,8 +74,10 @@ public class StockQuantityService : IStockQuantityService
         Guid orderId,
         CancellationToken cancellationToken = default)
     {
+        // Validate: Quantity must be positive for a valid increment
         if (quantity <= 0)
             return StockItemResult.Errors.NegativeCountOnHand;
+        // Load: Find the stock item for this variant at the specified location
         var stockItem = await _dbContext.Set<StockItem>()
             .FirstOrDefaultAsync(si => si.VariantId == variantId && si.StockLocationId == stockLocationId, cancellationToken);
 
@@ -76,8 +85,10 @@ public class StockQuantityService : IStockQuantityService
             return StockItemResult.Errors.VariantNotFound(variantId);
 
         var previousCount = stockItem.CountOnHand;
+        // Update: Increase the on-hand quantity
         stockItem.CountOnHand += quantity;
 
+        // Create: Record the incoming stock movement for audit trail
         var movement = StockMovementMethod.Create(
             stockItemId: stockItem.Id,
             quantity: quantity,

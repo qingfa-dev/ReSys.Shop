@@ -12,17 +12,20 @@ public class StockSummaryService(IApplicationDbContext dbContext) : IStockSummar
     {
         var now = DateTimeOffset.UtcNow;
 
+        // Load: Fetch all stock items with their locations
         var stockItems = await _dbContext.Set<StockItem>()
             .Include(si => si.StockLocation)
             .Where(si => si.StockLocation != null && !si.StockLocation.IsDeleted && si.StockLocation.Active)
             .ToListAsync(cancellationToken);
 
+        // Load: Fetch all active reservations grouped by variant and location
         var reservations = await _dbContext.Set<StockReservation>()
             .Where(r => r.State == ReservationState.Reserved && r.ExpiresAtUtc > now)
             .GroupBy(r => new { r.VariantId, r.StockLocationId })
             .Select(g => new { g.Key.VariantId, g.Key.StockLocationId, Reserved = g.Sum(r => r.Quantity) })
             .ToListAsync(cancellationToken);
 
+        // Aggregate: Build a lookup map of variant → location → reserved quantity
         var reservationMap = reservations
             .Where(r => r.StockLocationId.HasValue)
             .GroupBy(r => r.VariantId)
@@ -30,6 +33,7 @@ public class StockSummaryService(IApplicationDbContext dbContext) : IStockSummar
                 g => g.Key,
                 g => g.ToDictionary(r => r.StockLocationId!.Value, r => r.Reserved));
 
+        // Aggregate: Group stock items by variant and compute totals with reservation accounting
         var grouped = stockItems
             .GroupBy(si => si.VariantId)
             .Select(g =>

@@ -15,30 +15,30 @@ public static partial class CreateOptionType
         : ICommandHandler<Command, Response>
     {
         /// <summary>
-        /// Handles the request and returns a result.
+        /// Creates a new option type after validating name uniqueness.
         /// </summary>
         /// <param name="command">The command containing request data.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
-        // Contract: pre=command!=null, post=result!=null
+        /// <exception cref="DbUpdateException">Thrown when persistence fails.</exception>
+        // Contract: pre=command!=null, post=result!=null, throws=DbUpdateException
         public async Task<Result<Response>> Handle(Command command, CancellationToken cancellationToken)
         {
             var request = command.Request;
 
-            // Check: Verify if an option type with the same name already exists.
+            // Validate: Option type name must be unique within the system
             var nameExists = await dbContext.Set<OptionType>()
                 .AnyAsync(x => x.Name == request.Name, cancellationToken);
 
             if (nameExists)
                 return OptionTypeResult.Failure.DuplicateName;
 
-            // Create: Map the request to a new OptionType entity.
+            // Create: Instantiate OptionType entity from validated request
             var result = request.MapToDomain();
             if (result.IsFailure)
                 return result.Errors;
 
             var entity = result.Value;
 
-            // Persist: Add entity to database and save changes.
             dbContext.Set<OptionType>().Add(entity);
             await dbContext.SaveChangesAsync(cancellationToken);
 

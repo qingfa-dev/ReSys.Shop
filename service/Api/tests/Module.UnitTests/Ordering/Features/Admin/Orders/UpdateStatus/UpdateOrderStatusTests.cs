@@ -1,3 +1,4 @@
+using Module.Inventory.Services.Abstractions;
 using Module.Ordering.Domain.Orders;
 using Module.Ordering.Features.Admin.Orders.UpdateStatus;
 
@@ -11,6 +12,7 @@ public class UpdateOrderStatusTests : IDisposable
     private readonly ApplicationDbContext _dbContext;
     private readonly Mock<ICurrentUser> _currentUserMock;
     private readonly Mock<ILogger<UpdateOrderStatus.CommandHandler>> _loggerMock;
+    private readonly Mock<IStockQuantityService> _stockCheckerMock;
     private readonly UpdateOrderStatus.CommandHandler _handler;
 
     public UpdateOrderStatusTests()
@@ -26,8 +28,9 @@ public class UpdateOrderStatusTests : IDisposable
         _currentUserMock.Setup(x => x.UserName).Returns("admin");
 
         _loggerMock = new Mock<ILogger<UpdateOrderStatus.CommandHandler>>();
+        _stockCheckerMock = new Mock<IStockQuantityService>();
 
-        _handler = new UpdateOrderStatus.CommandHandler(_dbContext, _loggerMock.Object, _currentUserMock.Object);
+        _handler = new UpdateOrderStatus.CommandHandler(_dbContext, _loggerMock.Object, _currentUserMock.Object, _stockCheckerMock.Object);
     }
 
     public void Dispose()
@@ -36,8 +39,8 @@ public class UpdateOrderStatusTests : IDisposable
         GC.SuppressFinalize(this);
     }
 
-    [Fact(DisplayName = "Handler: Should place an order from draft")]
-    public async Task Handle_ShouldPlaceOrder_WhenDraft()
+    [Fact(DisplayName = "Handler: Should return failure when transitioning draft to placed")]
+    public async Task Handle_ShouldReturnFailure_WhenDraftToPlaced()
     {
         // Arrange
         var order = OrderExtensions.Create("USD", userId: Guid.NewGuid(), storeId: Guid.Empty).Value;
@@ -52,11 +55,7 @@ public class UpdateOrderStatusTests : IDisposable
             TestContext.Current.CancellationToken);
 
         // Assert
-        result.IsSuccess.Should().BeTrue();
-
-        var persisted = await _dbContext.Set<Order>().FindAsync(new object[] { order.Id }, TestContext.Current.CancellationToken);
-        persisted.Should().NotBeNull();
-        persisted!.Status.Should().Be(OrderStatus.Placed);
+        result.IsFailure.Should().BeTrue();
     }
 
     [Fact(DisplayName = "Handler: Should cancel an order")]

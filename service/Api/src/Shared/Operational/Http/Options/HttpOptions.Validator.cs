@@ -13,20 +13,20 @@ public sealed class HttpOptionsValidator : AbstractValidator<HttpOptions>
             .WithErrorCode(HttpOptionsResult.Failure.DefaultTimeoutSecondsOutOfRange.Code)
             .WithMessage(HttpOptionsResult.Failure.DefaultTimeoutSecondsOutOfRange.Message);
 
-        RuleForEach(x => x.Clients).ChildRules(client =>
+        RuleForEach(x => x.Clients).ChildRules((Action<InlineValidator<KeyValuePair<string, NamedClientOptions>>>)(client =>
         {
             client.RuleFor(x => x.Value.BaseAddress)
                 .NotEmpty()
                 .WithErrorCode(HttpOptionsResult.Failure.ClientBaseAddressEmpty.Code)
-                .WithMessage(HttpOptionsResult.Failure.ClientBaseAddressEmpty.Message)
+                .WithMessage((string)HttpOptionsResult.Failure.ClientBaseAddressEmpty.Message)
                 .Must(u => Uri.TryCreate(u, UriKind.Absolute, out _))
                 .WithErrorCode(HttpOptionsResult.Failure.ClientBaseAddressInvalid.Code)
-                .WithMessage(HttpOptionsResult.Failure.ClientBaseAddressInvalid.Message);
+                .WithMessage((string)HttpOptionsResult.Failure.ClientBaseAddressInvalid.Message);
 
             client.RuleFor(x => x.Value.TimeoutSeconds)
                 .GreaterThanOrEqualTo(HttpConstant.Constraints.TimeoutSecondsMin)
                 .WithErrorCode(HttpOptionsResult.Failure.ClientTimeoutSecondsNegative.Code)
-                .WithMessage(HttpOptionsResult.Failure.ClientTimeoutSecondsNegative.Message);
-        });
+                .WithMessage((string)HttpOptionsResult.Failure.ClientTimeoutSecondsNegative.Message);
+        }));
     }
 }

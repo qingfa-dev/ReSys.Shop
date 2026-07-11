@@ -1,10 +1,12 @@
+using Microsoft.EntityFrameworkCore;
+
 using Module.Inventory.Domain.StockLocations.StockItems;
 using Module.Inventory.Domain.StockLocations.StockItems.StockMovements;
 using Module.Inventory.Domain.StockTransfers;
 
 namespace Module.Inventory.Features.Admin.StockTransfers.Transfer;
 
-/// <summary>Handles execution of a stock transfer (Draft → InTransit).</summary>
+/// <summary>Executes a stock transfer by deducting source stock and transitioning from Draft to InTransit.</summary>
 public static partial class TransferStockTransfer
 {
     public sealed record Command(Guid Id) : ICommand;
@@ -14,12 +16,15 @@ public static partial class TransferStockTransfer
         ILogger<CommandHandler> logger)
         : ICommandHandler<Command>
     {
-        /// <summary>Executes the transfer stock transfer command.</summary>
+        /// <summary>Validates the transfer, deducts stock at source, records movements, and persists.</summary>
         /// <param name="command">The command containing the transfer identifier.</param>
         /// <param name="cancellationToken">Cancellation token.</param>
         /// <returns>A result indicating success or failure.</returns>
+        /// <exception cref="DbUpdateException">Thrown when the database update fails.</exception>
         public async Task<Result> Handle(Command command, CancellationToken cancellationToken)
         {
+            // Contract: pre=command!=null && transfer.State==Draft, post=result!=null, throws=DbUpdateException
+            // Load: Find the transfer with items
             var transfer = await dbContext.Set<StockTransfer>()
                 .Include(t => t.TransferItems)
                 .FirstOrDefaultAsync(t => t.Id == command.Id, cancellationToken);

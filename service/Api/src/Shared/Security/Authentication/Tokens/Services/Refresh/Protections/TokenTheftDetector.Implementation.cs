@@ -10,9 +10,9 @@ using Shared.Security.Identity.Domain.Tokens;
 
 namespace Shared.Security.Authentication.Tokens.Services.Refresh.Protections;
 
-/// <summary>
-/// Implementation of <see cref="ITokenTheftDetector"/> using hybrid cache with database fallback.
-/// </summary>
+/// <summary>Detects refresh token reuse (theft) using hybrid cache with database fallback — mitigates TMT-TOK-004.</summary>
+// Invariant: Token hash is deterministic SHA256; cache key includes userId to prevent cross-user collision; cache failure degrades to database check.
+// Context: Token replay attacks occur when an attacker steals a refresh token and uses it after legitimate rotation. This detector flags the legitimate owner's next use as theft.
 public sealed partial class TokenTheftDetector(
     IRefreshTokenStore refreshTokenStore,
     HybridCache hybridCache,
@@ -22,22 +22,23 @@ public sealed partial class TokenTheftDetector(
     private readonly TokenSecurityOptions _options = options.Value;
     private const string CachePrefix = "token_theft:";
 
-    /// <inheritdoc/>
+    /// <summary>Checks if a token has been used before (indicating theft), with cache-first and database-fallback.</summary>
+    // Contract: pre=token!=null && userId!=Guid.Empty, post=return.IsSuccess, throws=Exception on combined cache+db failure
     public async Task<Result<bool>> IsTokenReusedAsync(string token, Guid userId, CancellationToken ct = default)
     {
-        // Guard: Skip check if theft detection is globally disabled
+        // Guard: skip check when detection is globally disabled to avoid unnecessary work
         if (!_options.ReuseDetectionEnabled)
         {
             return Result<bool>.Ok(false);
         }
 
-        // Compute: Generate deterministic hash of the token for secure lookup
+        // Compute: deterministic SHA256 hash for secure cache and store keying — raw token never stored
         string tokenHash = ComputeTokenHash(token);
         string cacheKey = $"{CachePrefix}{userId}:{tokenHash}";
 
         try
         {
-            // Cache: Probe for previous usage of this specific token
+            // Cache: probe HybridCache for previous usage of this token (module boundary: Detector → Cache)
             string? existing = await hybridCache.GetOrCreateAsync(
                 cacheKey, _ => ValueTask.FromResult((string?)null),
                 tags: ["token-theft", $"user:{userId}"],
@@ -45,10 +46,10 @@ public sealed partial class TokenTheftDetector(
 
             if (existing != null)
             {
-                // Log: High-severity security alert for detected token reuse
+                // Log: high-severity security alert for detected token reuse
                 Loggers.LogTokenReuseDetected(logger, userId);
 
-                // Call: Execute emergency revocation of all user sessions
+                // Call: emergency revocation of all user sessions as containment measure
                 await RevokeAllUserTokensAsync(userId, "reuse_detected", ct);
                 return Result<bool>.Ok(true);
             }
@@ -57,21 +58,21 @@ public sealed partial class TokenTheftDetector(
         }
         catch (Exception ex)
         {
-            // Fallback: Attempt database-level check if the cache is unavailable
+            // Fallback: attempt database-level check when cache is unavailable — degrades, does not fail open
             Loggers.LogCacheCheckFailed(logger, ex);
 
             try
             {
-                // Call: Look up the token by hash in the primary store
+                // Call: lookup token in primary store (module boundary: Detector → Store)
                 RefreshToken? tokenEntity = await refreshTokenStore.GetByTokenHashAsync(tokenHash, ct);
 
-                // Check: Token exists and was previously replaced — indicates replay attack
+                // Validate: previously-replaced token in DB confirms replay attack
                 if (tokenEntity != null && tokenEntity.RevocationReason == RefreshTokenRevocationReason.Replaced)
                 {
-                    // Log: Security alert based on database evidence
+                    // Log: security alert based on database evidence
                     Loggers.LogTokenReuseDetectedInDb(logger, userId);
 
-                    // Call: Emergency revocation of all sessions
+                    // Call: emergency revocation of all sessions
                     await RevokeAllUserTokensAsync(userId, "reuse_detected", ct);
                     return Result<bool>.Ok(true);
                 }
@@ -80,29 +81,30 @@ public sealed partial class TokenTheftDetector(
             }
             catch (Exception dbEx)
             {
-                // Log: Infrastructure failure — unable to verify reuse
+                // Catch: both cache and DB unavailable — failure is safer than false negative
                 Loggers.LogDbCheckFailed(logger, dbEx);
                 return RefreshTokenResult.Failure.TokenTheftDetectorFailure;
             }
         }
     }
 
-    /// <inheritdoc/>
+    /// <summary>Records a token as used to detect future replays.</summary>
+    // Contract: pre=token!=null && userId!=Guid.Empty, post=token marked used, throws=non-fatal (best-effort)
     public async Task MarkTokenAsUsedAsync(string token, Guid userId, CancellationToken ct = default)
     {
-        // Guard: Skip if detection is disabled
+        // Guard: skip when detection is disabled
         if (!_options.ReuseDetectionEnabled)
         {
             return;
         }
 
-        // Compute: Generate hash for cache key
+        // Compute: deterministic hash for cache key
         string tokenHash = ComputeTokenHash(token);
         string cacheKey = $"{CachePrefix}{userId}:{tokenHash}";
 
         try
         {
-            // Cache: Register the token as used in the current session
+            // Cache: register token as used via HybridCache (module boundary: Detector → Cache)
             await hybridCache.SetAsync(
                 cacheKey,
                 "used",
@@ -111,35 +113,36 @@ public sealed partial class TokenTheftDetector(
         }
         catch (Exception ex)
         {
-            // Fallback: Attempt to persist usage marker to database if cache fails
+            // Fallback: touch LastUsedAtUtc in database when cache is unavailable
             Loggers.LogMarkTokenCacheFailed(logger, ex);
 
             try
             {
-                // Call: Fetch token record from primary store by computed hash
+                // Call: lookup token in store and update timestamp (module boundary: Detector → Store)
                 RefreshToken? tokenEntity = await refreshTokenStore.GetByTokenHashAsync(tokenHash, ct);
                 if (tokenEntity != null)
                 {
-                    // Update: Touch LastUsedAtUtc to record usage on the persistent record
+                    // Update: set LastUsedAtUtc to now — database as fallback usage marker
                     tokenEntity.LastUsedAtUtc = DateTimeOffset.UtcNow;
                     await refreshTokenStore.UpdateAsync(tokenEntity, ct);
                 }
             }
             catch (Exception dbEx)
             {
-                // Log: Persistent storage error — non-fatal
+                // Catch: both cache and DB unavailable — non-fatal, theft detection may miss this replay
                 Loggers.LogMarkTokenDbFailed(logger, dbEx);
             }
         }
     }
 
-    /// <inheritdoc/>
+    /// <summary>Revokes all active tokens for a user and purges theft-detection cache entries — used during theft response.</summary>
+    // Contract: pre=userId!=Guid.Empty, post=all active tokens revoked, throws=non-fatal (best-effort)
     public async Task RevokeAllUserTokensAsync(Guid userId, string reason, CancellationToken ct = default)
     {
-        // Call: Fetch all currently active tokens for the user
+        // Call: fetch all currently active tokens (module boundary: Detector → Store)
         List<RefreshToken> activeTokens = await refreshTokenStore.GetActiveByUserIdAsync(userId, ct);
 
-        // Update: Mark each active token as revoked
+        // Update: revoke each active token to invalidate all sessions
         DateTime now = DateTime.UtcNow;
         foreach (RefreshToken token in activeTokens)
         {
@@ -150,22 +153,22 @@ public sealed partial class TokenTheftDetector(
 
         if (activeTokens.Count != 0)
         {
-            // Log: Audit record for mass session invalidation
+            // Log: audit record for mass session invalidation
             Loggers.LogAllTokensRevoked(logger, activeTokens.Count, userId, reason);
         }
 
-        // Call: Purge the user's theft-detection entries from cache
+        // Call: purge theft-detection cache entries for user (module boundary: Detector → Cache)
         await CleanupCacheForUserAsync(userId, ct);
     }
 
-    // Compute: SHA256 hash for consistent cache and store keying
+    // Compute: SHA256 hash for deterministic cache and store keying — raw token never stored or logged
     private static string ComputeTokenHash(string token)
     {
         byte[] bytes = SHA256.HashData(Encoding.UTF8.GetBytes(token));
         return Convert.ToHexString(bytes).ToLowerInvariant();
     }
 
-    // Map: String reason to domain enumeration
+    // Transform: string reason string to domain enumeration for consistent audit trail
     private static RefreshTokenRevocationReason MapToRevocationReason(string reason)
     {
         return reason.ToLowerInvariant() switch
@@ -178,7 +181,7 @@ public sealed partial class TokenTheftDetector(
         };
     }
 
-    // Cleanup: Remove cached theft-detection entries for a user
+    // Cache: purge theft-detection entries for user to clean up after mass revocation
     private async Task CleanupCacheForUserAsync(Guid userId, CancellationToken ct)
     {
         try
@@ -187,35 +190,34 @@ public sealed partial class TokenTheftDetector(
         }
         catch (Exception ex)
         {
+            // Catch: cache cleanup failure is non-fatal — stale entries expire via TTL
             Loggers.LogCacheCleanupFailed(logger, userId, ex);
         }
     }
 }
 
-/// <summary>
-/// A "Null Object" implementation of <see cref="ITokenTheftDetector"/> that always returns success
-/// and detects no reuse. This is used when token reuse detection is disabled.
-/// </summary>
+/// <summary>Null-object implementation that returns "not reused" for all checks — used when theft detection is disabled.</summary>
+// Invariant: Always returns false for IsTokenReusedAsync; all mutating methods are no-ops.
 public class NoOpTokenTheftDetector : ITokenTheftDetector
 {
-    /// <inheritdoc/>
+    /// <summary>Always reports no reuse — theft detection is disabled.</summary>
+    // Contract: post=return.IsSuccess && return.Value==false
     public Task<Result<bool>> IsTokenReusedAsync(string token, Guid userId, CancellationToken ct = default)
     {
-        // When disabled, we never report reuse (false means not detected).
         return Task.FromResult(Result<bool>.Ok(false));
     }
 
-    /// <inheritdoc/>
+    /// <summary>No-op — theft detection is disabled.</summary>
+    // Contract: post=no side effects
     public Task MarkTokenAsUsedAsync(string token, Guid userId, CancellationToken ct = default)
     {
-        // No-op implementation does nothing.
         return Task.CompletedTask;
     }
 
-    /// <inheritdoc/>
+    /// <summary>No-op — theft detection is disabled.</summary>
+    // Contract: post=no side effects
     public Task RevokeAllUserTokensAsync(Guid userId, string reason, CancellationToken ct = default)
     {
-        // No-op implementation does nothing.
         return Task.CompletedTask;
     }
 }

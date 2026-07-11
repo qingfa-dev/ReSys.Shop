@@ -1,6 +1,6 @@
 using Microsoft.Extensions.Options;
 using Module.Payment.Domain.Gateways;
-using Module.Payment.Domain.Payments;
+using Module.Payment.Domain.PaymentCaptures;
 using Stripe;
 
 namespace Module.Payment.Infrastructure.Gateways.Stripe;
