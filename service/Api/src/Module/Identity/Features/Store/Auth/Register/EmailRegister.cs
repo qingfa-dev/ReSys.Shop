@@ -47,7 +47,7 @@ public static partial class EmailRegister
                 return UserResult.Failure.FirstNameRequired;
 
             var trimmedUsername = request.UserName.Trim();
-            var existingByUsername = await userManager.FindByNameAsync(trimmedUsername.ToLowerInvariant());
+            var existingByUsername = await userManager.FindByNameAsync(trimmedUsername);
             if (existingByUsername is not null)
                 return UserResult.Failure.UsernameDuplicate;
 
