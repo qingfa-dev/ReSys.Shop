@@ -16,6 +16,13 @@ public static partial class UpdateOrderLineItem
         public async Task<Result<Response>> Handle(Command command, CancellationToken cancellationToken)
         {
             // Contract: pre=command!=null, post=result!=null
+            // Check: Verify the order exists and is in draft status.
+            var order = await dbContext.Set<Order>().FirstOrDefaultAsync(o => o.Id == command.OrderId, cancellationToken);
+            if (order is null)
+                return OrderResult.Errors.NotFound(command.OrderId);
+            if (order.Status != OrderStatus.Draft)
+                return Error.Validation("Order.LineItem.Update.NotDraft", "Only draft orders can have line items modified.");
+
             // Check: Find the line item.
             var lineItem = await dbContext.Set<LineItem>().FirstOrDefaultAsync(li => li.Id == command.LineItemId && li.OrderId == command.OrderId, cancellationToken);
             if (lineItem is null)
@@ -27,9 +34,7 @@ public static partial class UpdateOrderLineItem
                 return updateResult.Errors;
 
             // Update: Recalculate order totals.
-            var order = await dbContext.Set<Order>().FirstOrDefaultAsync(o => o.Id == command.OrderId, cancellationToken);
-            if (order is not null)
-                order.RecalculateTotals();
+            order.RecalculateTotals();
 
             // Persist: Save changes.
             await dbContext.SaveChangesAsync(cancellationToken);

@@ -21,6 +21,9 @@ public static partial class UpdateOrderShipAddress
             if (order is null)
                 return OrderResult.Errors.NotFound(command.Id);
 
+            if (order.Status != OrderStatus.Draft)
+                return Error.Validation("Order.ShipAddress.Update.NotDraft", "Only draft orders can have shipping address modified.");
+
             // Update: Set the shipping address.
             order.ShipAddressId = command.Request.AddressId;
             order.ModifiedAtUtc = DateTimeOffset.UtcNow;
