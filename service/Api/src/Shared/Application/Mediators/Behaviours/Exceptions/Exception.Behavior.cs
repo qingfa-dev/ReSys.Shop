@@ -30,7 +30,6 @@ public sealed partial class ExceptionMappingBehavior<TRequest, TResponse>(
             if (logger.IsEnabled(LogLevel.Error))
             {
                 Loggers.UnhandledException(logger, typeof(TRequest).Name, ex);
-                description += $" Exception: {ex.Message}";
             }
 
             Error failure = Error.Unexpected(
