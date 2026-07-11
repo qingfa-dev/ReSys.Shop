@@ -1,5 +1,6 @@
 using Module.Ordering.Domain.Orders;
-using Module.Payment.Services.Abstractions;
+using IGatewayRegistry = Module.Payment.Services.Provider.IGatewayRegistry;
+
 using Module.Payment.Services.Models;
 using Module.Payment.Domain.PaymentCaptures;
 

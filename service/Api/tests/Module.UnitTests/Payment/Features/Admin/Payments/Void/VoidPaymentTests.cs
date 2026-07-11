@@ -1,6 +1,9 @@
-using Module.Payment.Services.Abstractions;
+using IPaymentGatewayActionProvider = Module.Payment.Services.Provider.IPaymentGatewayActionProvider;
+using IGatewayRegistry = Module.Payment.Services.Provider.IGatewayRegistry;
+using IPaymentProcessingService = Module.Payment.Services.Processing.IPaymentProcessingService;
+using PaymentProcessingResult = Module.Payment.Services.Processing.PaymentProcessingResult;
+
 using Module.Payment.Services.Models;
-using Module.Payment.Services.Gateways;
 using Module.Payment.Domain.PaymentCaptures;
 using Module.Payment.Features.Admin.Payments.Void;
 

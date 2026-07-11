@@ -1,6 +1,9 @@
 using Module.Payment.Domain.PaymentCaptures;
 using Module.Payment.Features.Shared.Commands;
-using Module.Payment.Services.Abstractions;
+using IPaymentGatewayActionProvider = Module.Payment.Services.Provider.IPaymentGatewayActionProvider;
+using IGatewayRegistry = Module.Payment.Services.Provider.IGatewayRegistry;
+using IPaymentProcessingService = Module.Payment.Services.Processing.IPaymentProcessingService;
+
 using Module.Payment.Services.Models;
 
 namespace Module.UnitTests.Payment.Features.Shared.Commands;

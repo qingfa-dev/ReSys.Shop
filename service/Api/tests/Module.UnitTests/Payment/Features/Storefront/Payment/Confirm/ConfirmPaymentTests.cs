@@ -1,5 +1,7 @@
 using Module.Ordering.Domain.Orders;
-using Module.Payment.Services.Abstractions;
+using IPaymentGatewayActionProvider = Module.Payment.Services.Provider.IPaymentGatewayActionProvider;
+using IGatewayRegistry = Module.Payment.Services.Provider.IGatewayRegistry;
+
 using Module.Payment.Domain.PaymentCaptures;
 using Module.Payment.Features.Storefront.Payment.Confirm;
 using PaymentCapture = Module.Payment.Domain.PaymentCaptures.PaymentCapture;

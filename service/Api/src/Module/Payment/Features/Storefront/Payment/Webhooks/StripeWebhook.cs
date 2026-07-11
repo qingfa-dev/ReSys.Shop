@@ -4,7 +4,7 @@ using Module.Payment.Domain.PaymentCaptures;
 using PaymentCapture = Module.Payment.Domain.PaymentCaptures.PaymentCapture;
 using Stripe;
 using StripeEvent = Stripe.Event;
-using Module.Payment.Services.Abstractions;
+using IStripeWebhookService = Module.Payment.Services.Webhook.IStripeWebhookService;
 
 namespace Module.Payment.Features.Storefront.Payment.Webhooks;
 
