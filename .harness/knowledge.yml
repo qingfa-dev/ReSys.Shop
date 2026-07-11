@@ -49,6 +49,9 @@ guides:
   - name: ARCHITECTURE
     path: docs/codebase/ARCHITECTURE.md
     description: Layer responsibilities and data flow
+  - name: PROCESS
+    path: docs/codebase/PROCESS.md
+    description: Doc-gardening, GC, feedback encoding, escalation boundaries
   - name: CODE_COMMENTING
     path: guide/code-commenting/CommentingRules.xml
     description: Comment convention rules (XML)

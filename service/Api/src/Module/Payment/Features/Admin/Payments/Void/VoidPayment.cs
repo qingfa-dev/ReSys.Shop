@@ -1,5 +1,6 @@
 using Module.Payment.Domain.Gateways;
 using Module.Payment.Domain.PaymentCaptures;
+using Module.Payment.Features.Admin.Payments.Services.GatewayProcessing;
 
 using PaymentCapture = Module.Payment.Domain.PaymentCaptures.PaymentCapture;
 
@@ -9,7 +10,7 @@ public static partial class VoidPayment
 {
     public sealed record Command(Guid Id) : ICommand<Response>;
 
-    public sealed class CommandHandler(IApplicationDbContext dbContext, IGatewayRegistry gatewayRegistry)
+    public sealed class CommandHandler(IApplicationDbContext dbContext, IGatewayRegistry gatewayRegistry, IPaymentProcessingService processingService)
         : ICommandHandler<Command, Response>
     {
         public async Task<Result<Response>> Handle(Command command, CancellationToken cancellationToken)
@@ -35,7 +36,7 @@ public static partial class VoidPayment
                 StatementDescriptorSuffix = string.Empty,
             };
 
-            var voidResult = await payment.VoidAsync(gateway, options, cancellationToken);
+            var voidResult = await processingService.VoidAsync(payment, gateway, options, cancellationToken);
             if (voidResult.IsFailure)
                 return voidResult.Errors;
 

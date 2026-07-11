@@ -8,7 +8,7 @@ domain boundaries, principles, and quality baselines.
 ## Non-Negotiable Rules
 
 1. **Result objects, not exceptions** — all domain operations return `Result<T>` or `Result`. Exceptions only for unrecoverable infrastructure failures.
-2. **Modules never reference each other** — all 9 business modules live in one `Module` assembly but must not cross-reference. Communication via MediatR `ISender` only.
+2. **Modules never reference each other** — all 8 business modules live in one `Module` assembly but must not cross-reference. Communication via MediatR `ISender` only.
 3. **Vertical slice feature files** — every C# feature action is a `static partial class` split across files in `Features/{Admin|Storefront}/{Feature}/{Action}/`, each with Handler, Request, Response, Endpoint, Validator.
 4. **Warnings-as-errors** — `TreatWarningsAsErrors=true` globally. Any warning fails the build.
 5. **Forward-only dependency** — `Shared` depends on nothing within `service/`. `Module` depends only on `Shared`. `Api` composes both.
@@ -24,6 +24,7 @@ domain boundaries, principles, and quality baselines.
 - `docs/codebase/CONCERNS.md` — tech debt, risks, security concerns
 - `docs/codebase/CONVENTIONS.md` — coding conventions
 - `docs/codebase/TESTING.md` — testing strategy
+- `docs/codebase/PROCESS.md` — doc-gardening, GC, feedback encoding, escalation boundaries
 - `plan/` — 62 implementation plans (refactors, features, fixes)
 - `guide/code-commenting/CommentingRules.xml` — comment convention rules
 - `Directory.Packages.props` — central NuGet package versions
@@ -53,7 +54,7 @@ cd service/Embedding && uv run ruff check . && uv run pytest  # Python verificat
 ## Code Organization
 
 - **`service/Api/src/Api/`** — thin host: `Program.cs`, appsettings, startup
-- **`service/Api/src/Module/`** — 9 business modules (Catalog, Identity, Inventory, Location, Ordering, Payment, Profile, Shipping, Webhooks), each with `Domain/`, `Features/`, `Persistence/`
+- **`service/Api/src/Module/`** — 8 business modules (Catalog, Identity, Inventory, Location, Ordering, Payment, Profile, Shipping), each with `Domain/`, `Features/`, `Persistence/`
 - **`service/Api/src/Shared/`** — cross-cutting infrastructure: Application abstractions, Security, Operational, Performance, Observability, Governance
 - **`service/Api/src/Migrations/`** — EF Core migrations (separate assembly)
 - **`app/Admin/`** — Vue 3 Admin SPA (PrimeVue, Sakai theme, pnpm, Vite 8)

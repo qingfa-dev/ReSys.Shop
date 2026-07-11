@@ -25,46 +25,43 @@ public sealed class BogusGateway : Gateway
 
     public override Task<Result<PaymentGatewayResponse>> PurchaseAsync(
         decimal amount, object? source, GatewayOptions options, CancellationToken ct = default)
-        => SimulateGatewayResponse(amount, source, options, "purchase");
+        => SimulateGatewayResponse(amount, source, options);
 
     public override Task<Result<PaymentGatewayResponse>> AuthorizeAsync(
         decimal amount, object? source, GatewayOptions options, CancellationToken ct = default)
-        => SimulateGatewayResponse(amount, source, options, "authorize");
+        => SimulateGatewayResponse(amount, source, options);
 
     public override Task<Result<PaymentGatewayResponse>> CaptureAsync(
         decimal amount, string? responseCode, GatewayOptions options, CancellationToken ct = default)
     {
-        return Task.FromResult(Result<PaymentGatewayResponse>.Ok(new PaymentGatewayResponse(
-            true, GatewayConstants.ResponseMessages.Captured, GatewayConstants.Providers.Bogus,
-            authorization: responseCode)));
+        return Task.FromResult(Result<PaymentGatewayResponse>.Ok(
+            new PaymentGatewayResponse(GatewayConstants.Providers.Bogus, authorization: responseCode)));
     }
 
     public override Task<Result<PaymentGatewayResponse>> VoidAsync(
         string? responseCode, object? source, GatewayOptions options, CancellationToken ct = default)
     {
-        return Task.FromResult(Result<PaymentGatewayResponse>.Ok(new PaymentGatewayResponse(
-            true, GatewayConstants.ResponseMessages.Voided, GatewayConstants.Providers.Bogus,
-            authorization: responseCode)));
+        return Task.FromResult(Result<PaymentGatewayResponse>.Ok(
+            new PaymentGatewayResponse(GatewayConstants.Providers.Bogus, authorization: responseCode)));
     }
 
     public override Task<Result<PaymentGatewayResponse>> RefundAsync(
         decimal amount, string? responseCode, GatewayOptions options, CancellationToken ct = default)
     {
-        return Task.FromResult(Result<PaymentGatewayResponse>.Ok(new PaymentGatewayResponse(
-            true, GatewayConstants.ResponseMessages.Refunded, GatewayConstants.Providers.Bogus,
-            authorization: responseCode)));
+        return Task.FromResult(Result<PaymentGatewayResponse>.Ok(
+            new PaymentGatewayResponse(GatewayConstants.Providers.Bogus, authorization: responseCode)));
     }
 
     public override Task<Result<PaymentGatewayResponse>> CreateSetupIntentAsync(
         string? customerId, Dictionary<string, string>? metadata, CancellationToken ct = default)
     {
-        return Task.FromResult(Result<PaymentGatewayResponse>.Ok(new PaymentGatewayResponse(
-            true, "Bogus setup intent created.", GatewayConstants.Providers.Bogus,
-            setupIntentClientSecret: $"{GatewayConstants.Bogus.SetupIntentSecretPrefix}{Guid.NewGuid():N}")));
+        return Task.FromResult(Result<PaymentGatewayResponse>.Ok(
+            new PaymentGatewayResponse(GatewayConstants.Providers.Bogus,
+                setupIntentClientSecret: $"{GatewayConstants.Bogus.SetupIntentSecretPrefix}{Guid.NewGuid():N}")));
     }
 
     private Task<Result<PaymentGatewayResponse>> SimulateGatewayResponse(
-        decimal amount, object? source, GatewayOptions options, string action)
+        decimal amount, object? source, GatewayOptions options)
     {
         var cardNumber = source as string;
         if (cardNumber == TestCards.Declined)
@@ -74,8 +71,8 @@ public sealed class BogusGateway : Gateway
         if (cardNumber != TestCards.Success && cardNumber is not null)
             return Task.FromResult<Result<PaymentGatewayResponse>>(BogusGatewayResult.Errors.UnknownCard);
 
-        return Task.FromResult(Result<PaymentGatewayResponse>.Ok(new PaymentGatewayResponse(
-            true, $"{action} captured.", GatewayConstants.Providers.Bogus,
-            authorization: $"auth_{Guid.NewGuid():N}")));
+        return Task.FromResult(Result<PaymentGatewayResponse>.Ok(
+            new PaymentGatewayResponse(GatewayConstants.Providers.Bogus,
+                authorization: $"auth_{Guid.NewGuid():N}")));
     }
 }

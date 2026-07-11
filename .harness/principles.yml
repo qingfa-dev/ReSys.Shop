@@ -33,7 +33,7 @@ principles:
   - id: vertical-slice-isolation
     name: Modules never reference each other
     description: >
-      All 9 business modules live in one `Module` assembly but must not
+      All 8 business modules live in one `Module` assembly but must not
       cross-reference by namespace. Cross-module communication via MediatR
       `ISender` only.
     rationale: >

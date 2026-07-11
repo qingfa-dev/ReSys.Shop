@@ -16,7 +16,7 @@ A modular e-commerce platform built with .NET 10, Vue 3, and PostgreSQL — feat
 
 ## Architecture
 
-ReSys.Shop is a **modular monolith** with 9 business modules sharing common infrastructure. The API uses **CQRS via MediatR** with Carter minimal API endpoints, backed by **EF Core + PostgreSQL** (with pgvector for vector similarity search).
+ReSys.Shop is a **modular monolith** with 8 business modules sharing common infrastructure. The API uses **CQRS via MediatR** with Carter minimal API endpoints, backed by **EF Core + PostgreSQL** (with pgvector for vector similarity search).
 
 ```
 HTTP request
@@ -39,10 +39,9 @@ Each business module is a self-contained vertical slice organized as `Features/{
 | **Inventory** | Stock items, stock locations, reservations, transfers |
 | **Location** | Countries, states/provinces, ISO code lookups |
 | **Ordering** | Cart management, checkout, orders, cart expiry jobs |
-| **Payment** | Payment intents, methods, refunds, webhook handlers |
+| **Payment** | Payment intents, methods, refunds, Stripe webhook handlers |
 | **Profile** | User profiles, addresses, wishlists, notification preferences |
 | **Shipping** | Shipping methods, rates, calculation, address estimation |
-| **Webhooks** | Subscriptions, delivery, signing, cross-module event bus |
 
 ## Features
 
@@ -54,7 +53,7 @@ Each business module is a self-contained vertical slice organized as `Features/{
 - **Multi-tier caching** — HybridCache + Redis + in-memory with configurable expiration
 - **Full auth stack** — JWT tokens with refresh/rotation, guest sessions, Google OAuth, permission-based authorization
 - **Rate limiting** — Named policies for auth, registration, password resets, and payment endpoints
-- **Webhook infrastructure** — ECDSA-signed webhook subscriptions with delivery job pipeline
+- **Outbound webhooks** — Hangfire job POSTs `order.placed` events to configured URLs
 - **OpenAPI-first** — Scalar UI, FluentValidation auto-registration, structured API error responses
 - **Specification-based querying** — DSL-driven filtering, sorting, paging, and full-text search with composable expressions
 
@@ -117,10 +116,10 @@ The API uses the standard .NET configuration pipeline (`appsettings.json` + envi
 ├── service/
 │   ├── Api/src/
 │   │   ├── Api/           # Host — Program.cs, middleware, config
-│   │   ├── Module/        # 9 business modules
+│   │   ├── Module/        # 8 business modules
 │   │   │   ├── Catalog/   ├── Identity/   ├── Inventory/
 │   │   │   ├── Location/  ├── Ordering/   ├── Payment/
-│   │   │   ├── Profile/   ├── Shipping/   └── Webhooks/
+│   │   │   ├── Profile/   └── Shipping/
 │   │   ├── Shared/        # Infrastructure (persistence, auth, storage, caching, jobs, notifications)
 │   │   └── Migrations/    # EF Core migrations
 │   ├── Api/tests/         # .NET tests (unit + integration)

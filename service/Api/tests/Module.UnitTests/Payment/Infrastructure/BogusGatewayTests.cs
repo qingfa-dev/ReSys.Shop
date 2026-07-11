@@ -34,7 +34,7 @@ public class BogusGatewayTests
             source: BogusGateway.TestCards.Success,
             options: CreateGatewayOptions());
         Assert.True(response.IsSuccess);
-        Assert.Contains("captured", response.Value!.Message, StringComparison.OrdinalIgnoreCase);
+        Assert.NotNull(response.Value!.Authorization);
     }
 
     [Fact]

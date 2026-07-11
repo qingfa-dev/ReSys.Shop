@@ -1,3 +1,4 @@
+using Module.Payment.Features.Admin.Payments.Services.GatewayProcessing;
 using Module.Payment.Domain.Gateways;
 using Module.Payment.Domain.PaymentCaptures;
 using Module.Payment.Features.Admin.Payments.Capture;
@@ -14,6 +15,8 @@ public class CapturePaymentTests : IDisposable
     private readonly ApplicationDbContext _dbContext;
     private readonly Mock<IPaymentGatewayActionProvider> _gatewayMock;
     private readonly Mock<IGatewayRegistry> _gatewayRegistryMock;
+
+    private readonly Mock<IPaymentProcessingService> _processingServiceMock;
     private readonly CapturePayment.CommandHandler _handler;
 
     public CapturePaymentTests()
@@ -27,13 +30,17 @@ public class CapturePaymentTests : IDisposable
         _gatewayMock = new Mock<IPaymentGatewayActionProvider>();
         _gatewayMock.Setup(x => x.AutoCapture).Returns(false);
         _gatewayMock.Setup(x => x.CaptureAsync(It.IsAny<decimal>(), It.IsAny<string?>(), It.IsAny<GatewayOptions>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new PaymentGatewayResponse(true, "Captured", "bogus"));
+            .ReturnsAsync(new PaymentGatewayResponse("bogus"));
 
         _gatewayRegistryMock = new Mock<IGatewayRegistry>();
         _gatewayRegistryMock.Setup(x => x.GetGateway(It.IsAny<string>()))
             .Returns(Result<IPaymentGatewayActionProvider>.Ok(_gatewayMock.Object));
 
-        _handler = new CapturePayment.CommandHandler(_dbContext, _gatewayRegistryMock.Object);
+
+        _processingServiceMock = new Mock<IPaymentProcessingService>();
+        _processingServiceMock.Setup(x => x.CaptureAsync(It.IsAny<PaymentCapture>(), It.IsAny<IPaymentGatewayActionProvider>(), It.IsAny<GatewayOptions>(), It.IsAny<decimal?>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Result.Ok());
+        _handler = new CapturePayment.CommandHandler(_dbContext, _gatewayRegistryMock.Object, _processingServiceMock.Object);
     }
 
     public void Dispose() { _dbContext.Dispose(); GC.SuppressFinalize(this); }

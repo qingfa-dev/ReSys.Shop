@@ -2,6 +2,7 @@ using Module.Ordering.Domain.Orders;
 using Module.Payment.Domain.Gateways;
 using Module.Payment.Domain.PaymentCaptures;
 using Module.Payment.Domain.PaymentMethods;
+using Module.Payment.Features.Admin.Payments.Services.GatewayProcessing;
 
 namespace Module.Payment.Features.Storefront.Payment.CreateIntent;
 
@@ -12,7 +13,8 @@ public static partial class CreatePaymentIntent
     public sealed class CommandHandler(
         IApplicationDbContext dbContext,
         ICurrentUser currentUser,
-        IGatewayRegistry gatewayRegistry)
+        IGatewayRegistry gatewayRegistry,
+        IPaymentProcessingService processingService)
         : ICommandHandler<Command, Response>
     {
         public async Task<Result<Response>> Handle(Command command, CancellationToken cancellationToken)
@@ -56,7 +58,7 @@ public static partial class CreatePaymentIntent
                 StatementDescriptorSuffix = string.Empty,
             };
 
-            var processResult = await PaymentCaptureMethod.ProcessAsync(payment, gateway, options, cancellationToken);
+            var processResult = await processingService.ProcessAsync(payment, gateway, options, cancellationToken);
             if (processResult.IsFailure) return processResult.Errors;
 
             await dbContext.SaveChangesAsync(cancellationToken);
