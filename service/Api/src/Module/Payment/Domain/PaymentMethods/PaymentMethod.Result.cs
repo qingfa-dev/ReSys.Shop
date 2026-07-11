@@ -77,6 +77,11 @@ public static class PaymentMethodResult
         public static Error AlreadyInactive => Error.Conflict(
             code: "PaymentMethod.AlreadyInactive",
             message: "Payment method is already inactive.");
+
+        /// <summary>Error indicating the payment method has active payments and cannot be deleted.</summary>
+        public static Error HasActivePayments => Error.Conflict(
+            code: "PaymentMethod.HasActivePayments",
+            message: "Cannot delete the payment method because it has active payments.");
         #endregion Business
     }
 }

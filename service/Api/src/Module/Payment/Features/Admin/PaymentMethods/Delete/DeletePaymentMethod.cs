@@ -1,4 +1,5 @@
 using Module.Payment.Domain.PaymentMethods;
+using Module.Payment.Domain.Payments;
 
 namespace Module.Payment.Features.Admin.PaymentMethods.Delete;
 
@@ -24,6 +25,18 @@ namespace Module.Payment.Features.Admin.PaymentMethods.Delete;
 
             if (method is null)
                 return PaymentMethodResult.Errors.NotFound;
+
+            // Check: Verify no active payments reference this payment method.
+            var hasActivePayments = await dbContext.Set<PaymentRecord>()
+                .AnyAsync(p => p.PaymentMethodId == command.Id
+                    && p.State != PaymentRecordState.Completed
+                    && p.State != PaymentRecordState.Failed
+                    && p.State != PaymentRecordState.Void
+                    && p.State != PaymentRecordState.Invalid,
+                cancellationToken);
+
+            if (hasActivePayments)
+                return PaymentMethodResult.Errors.HasActivePayments;
 
             // Soft Delete: Mark the payment method as deleted.
             method.IsDeleted = true;
