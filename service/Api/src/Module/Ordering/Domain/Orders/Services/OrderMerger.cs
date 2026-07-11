@@ -1,3 +1,5 @@
+using Module.Ordering.Domain.LineItems;
+
 namespace Module.Ordering.Domain.Orders.Services;
 
 /// <summary>
@@ -52,6 +54,8 @@ public partial class OrderMerger
     {
         if (currentLineItem is not null)
         {
+            if (currentLineItem.Quantity + otherLineItem.Quantity > LineItemConstant.MaxQuantity)
+                return; // skip merging if it would exceed max quantity
             currentLineItem.Quantity += otherLineItem.Quantity;
             currentLineItem.Total = currentLineItem.Price * currentLineItem.Quantity;
         }
