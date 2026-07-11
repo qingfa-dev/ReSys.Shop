@@ -7,7 +7,7 @@ namespace Module.Payment.Features.Admin.PaymentMethods.Services.Gateways.Stripe;
 public sealed class StripeGateway : Gateway
 {
     private const long CentsMultiplier = 100;
-    private readonly StripeOptions _options;
+    private readonly StripeSetting _options;
 
     public override string ProviderKey => GatewayConstants.Providers.Stripe;
     public override bool AutoCapture => true;
@@ -15,7 +15,7 @@ public sealed class StripeGateway : Gateway
     public override bool PaymentProfilesSupported => true;
     public override bool Supports(object? source) => source is string or null;
 
-    public StripeGateway(IOptions<StripeOptions> options)
+    public StripeGateway(IOptions<StripeSetting> options)
     {
         _options = options.Value;
     }

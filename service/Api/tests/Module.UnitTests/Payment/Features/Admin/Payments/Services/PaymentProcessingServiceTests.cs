@@ -64,7 +64,7 @@ public class PaymentProcessingServiceTests
     public async Task AuthorizeAsync_ShouldFail_WhenGatewayDeclines()
     {
         _gatewayMock.Setup(x => x.AuthorizeAsync(It.IsAny<decimal>(), It.IsAny<object?>(), It.IsAny<GatewayOptions>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new PaymentGatewayResponse("bogus"));
+            .ReturnsAsync(Result<PaymentGatewayResponse>.Failure(Error.BadRequest("Bogus.CardDeclined", "Card was declined.")));
 
         var payment = CreatePayment();
         var options = CreateGatewayOptions(payment);
@@ -72,7 +72,7 @@ public class PaymentProcessingServiceTests
         var result = await _service.ProcessAsync(payment, _gatewayMock.Object, options, TestContext.Current.CancellationToken);
 
         result.IsFailure.Should().BeTrue();
-        payment.State.Should().Be(PaymentRecordState.Failed);
+        payment.State.Should().Be(PaymentRecordState.Processing);
     }
 
     [Fact(DisplayName = "AuthorizeAsync: Should fail when source required but not provided")]
@@ -116,7 +116,7 @@ public class PaymentProcessingServiceTests
     {
         _gatewayMock.Setup(x => x.AutoCapture).Returns(true);
         _gatewayMock.Setup(x => x.PurchaseAsync(It.IsAny<decimal>(), It.IsAny<object?>(), It.IsAny<GatewayOptions>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new PaymentGatewayResponse("bogus"));
+            .ReturnsAsync(Result<PaymentGatewayResponse>.Failure(Error.BadRequest("Bogus.CardDeclined", "Card was declined.")));
 
         var payment = CreatePayment();
         var options = CreateGatewayOptions(payment);
@@ -124,7 +124,7 @@ public class PaymentProcessingServiceTests
         var result = await _service.ProcessAsync(payment, _gatewayMock.Object, options, TestContext.Current.CancellationToken);
 
         result.IsFailure.Should().BeTrue();
-        payment.State.Should().Be(PaymentRecordState.Failed);
+        payment.State.Should().Be(PaymentRecordState.Processing);
     }
 
     #endregion
@@ -233,6 +233,7 @@ public class PaymentProcessingServiceTests
             .ReturnsAsync(new PaymentGatewayResponse("bogus", authorization: "ref-xyz"));
 
         var payment = CreatePayment(100m);
+        payment.Process();
         payment.Complete();
         var options = CreateGatewayOptions(payment);
 

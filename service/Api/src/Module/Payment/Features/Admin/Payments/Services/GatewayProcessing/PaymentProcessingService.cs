@@ -39,7 +39,7 @@ public sealed class PaymentProcessingService : IPaymentProcessingService
     public Task<Result> VoidAsync(PaymentCapture payment, IPaymentGatewayActionProvider gateway, GatewayOptions options, CancellationToken ct = default)
     {
         if (payment.State is PaymentRecordState.Void)
-            return Task.FromResult<Result>(PaymentCaptureResult.Failure.AlreadyVoided);
+            return Task.FromResult(Result.Ok());
 
         if (payment.State is not (PaymentRecordState.Processing or PaymentRecordState.Pending))
             return Task.FromResult<Result>(PaymentCaptureResult.Failure.InvalidStateTransition(payment.State, PaymentRecordState.Void));

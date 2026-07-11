@@ -6,7 +6,7 @@ namespace Module.Payment.Features.Admin.PaymentMethods.Services.Gateways.Bogus;
 public sealed class BogusGateway : Gateway
 {
     private const long CentsMultiplier = 100;
-    private readonly IOptions<BogusOptions> _options;
+    private readonly IOptions<BogusSetting> _options;
 
     public override string ProviderKey => GatewayConstants.Providers.Bogus;
     public override bool AutoCapture => true;
@@ -21,7 +21,7 @@ public sealed class BogusGateway : Gateway
         public const string InsufficientFunds = GatewayConstants.Bogus.TestCards.InsufficientFunds;
     }
 
-    public BogusGateway(IOptions<BogusOptions> options) { _options = options; }
+    public BogusGateway(IOptions<BogusSetting> options) { _options = options; }
 
     public override Task<Result<PaymentGatewayResponse>> PurchaseAsync(
         decimal amount, object? source, GatewayOptions options, CancellationToken ct = default)

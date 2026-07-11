@@ -11,13 +11,13 @@ namespace Module.UnitTests.Payment.Infrastructure.Gateways.Stripe;
 [Trait("Feature", "StripeGateway")]
 public class StripeGatewayTests
 {
-    private readonly StripeOptions _options;
+    private readonly StripeSetting _options;
     private readonly StripeGateway _gateway;
     private readonly GatewayOptions _gatewayOptions;
 
     public StripeGatewayTests()
     {
-        _options = new StripeOptions { SecretKey = "sk_test_fake" };
+        _options = new StripeSetting { SecretKey = "sk_test_fake" };
         _gateway = new StripeGateway(Options.Create(_options));
 
         _gatewayOptions = new GatewayOptions

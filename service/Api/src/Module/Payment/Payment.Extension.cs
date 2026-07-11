@@ -1,3 +1,4 @@
+using System.Runtime.CompilerServices;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
@@ -32,10 +33,10 @@ public static class PaymentExtension
         services.Configure<GatewayProvidersOptions>(
             configuration.GetSection(GatewayConstants.Configuration.SectionName));
 
-        services.Configure<StripeOptions>(
-            configuration.GetSection(StripeOptions.SectionName));
-        services.Configure<BogusOptions>(
-            configuration.GetSection(BogusOptions.SectionName));
+        services.Configure<StripeSetting>(
+            configuration.GetSection(StripeSetting.SectionName));
+        services.Configure<BogusSetting>(
+            configuration.GetSection(BogusSetting.SectionName));
 
         services.AddSingleton<IEncryptionService>(sp =>
         {
@@ -55,11 +56,11 @@ public static class PaymentExtension
         services.AddSingleton<IGatewayRegistry>(sp =>
         {
             var registry = new GatewayRegistry();
-            var stripeOpts = sp.GetRequiredService<IOptions<StripeOptions>>();
+            var stripeOpts = sp.GetRequiredService<IOptions<StripeSetting>>();
             if (stripeOpts.Value.Enabled)
                 registry.Register(GatewayConstants.Providers.Stripe, sp.GetRequiredService<StripeGateway>);
 
-            var bogusOpts = sp.GetRequiredService<IOptions<BogusOptions>>();
+            var bogusOpts = sp.GetRequiredService<IOptions<BogusSetting>>();
             if (bogusOpts.Value.Enabled)
                 registry.Register(GatewayConstants.Providers.Bogus, sp.GetRequiredService<BogusGateway>);
 

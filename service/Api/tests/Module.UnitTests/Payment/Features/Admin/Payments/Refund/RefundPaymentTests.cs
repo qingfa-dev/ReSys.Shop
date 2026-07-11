@@ -65,7 +65,7 @@ public class RefundPaymentTests : IDisposable
     [Fact(DisplayName = "Handler: Should return failure when gateway declines refund")]
     public async Task Handle_ShouldReturnFailure_WhenGatewayDeclines()
     {
-        _gatewayMock.Setup(x => x.RefundAsync(It.IsAny<decimal>(), It.IsAny<string?>(), It.IsAny<GatewayOptions>(), It.IsAny<CancellationToken>()))
+        _processingServiceMock.Setup(x => x.RefundAsync(It.IsAny<PaymentCapture>(), It.IsAny<IPaymentGatewayActionProvider>(), It.IsAny<GatewayOptions>(), It.IsAny<decimal>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(Error.BadRequest("Gateway.Declined", "Refund declined."));
 
         var payment = PaymentCaptureMethod.Create(100m, Guid.NewGuid(), Guid.NewGuid()).Value;
@@ -84,6 +84,9 @@ public class RefundPaymentTests : IDisposable
     [Fact(DisplayName = "Handler: Should return failure when payment in wrong state")]
     public async Task Handle_ShouldFail_WhenPending()
     {
+        _processingServiceMock.Setup(x => x.RefundAsync(It.IsAny<PaymentCapture>(), It.IsAny<IPaymentGatewayActionProvider>(), It.IsAny<GatewayOptions>(), It.IsAny<decimal>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(PaymentCaptureResult.Failure.InvalidStateTransition(PaymentRecordState.Pending, PaymentRecordState.Completed));
+
         var payment = PaymentCaptureMethod.Create(100m, Guid.NewGuid(), Guid.NewGuid()).Value;
         payment.Process();
         payment.Pend();

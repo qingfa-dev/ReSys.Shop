@@ -8,7 +8,7 @@ namespace Module.UnitTests.Payment.Infrastructure;
 
 public class BogusGatewayTests
 {
-    private static BogusGateway CreateGateway() => new(Options.Create(new BogusOptions()));
+    private static BogusGateway CreateGateway() => new(Options.Create(new BogusSetting()));
 
     private static GatewayOptions CreateGatewayOptions()
     {

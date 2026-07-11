@@ -63,8 +63,8 @@ public class CapturePaymentTests : IDisposable
     [Fact(DisplayName = "Handler: Should return failure when gateway declines")]
     public async Task Handle_ShouldReturnFailure_WhenGatewayDeclines()
     {
-        _gatewayMock.Setup(x => x.CaptureAsync(It.IsAny<decimal>(), It.IsAny<string?>(), It.IsAny<GatewayOptions>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(Error.BadRequest("Gateway.Declined", "Card was declined."));
+        _processingServiceMock.Setup(x => x.CaptureAsync(It.IsAny<PaymentCapture>(), It.IsAny<IPaymentGatewayActionProvider>(), It.IsAny<GatewayOptions>(), It.IsAny<decimal?>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Error.BadRequest("Gateway.Declined", "Capture declined."));
 
         var payment = PaymentCaptureMethod.Create(100m, Guid.NewGuid(), Guid.NewGuid()).Value;
         payment.Process();
@@ -79,6 +79,9 @@ public class CapturePaymentTests : IDisposable
     [Fact(DisplayName = "Handler: Should return failure when payment in wrong state")]
     public async Task Handle_ShouldFail_WhenCheckout()
     {
+        _processingServiceMock.Setup(x => x.CaptureAsync(It.IsAny<PaymentCapture>(), It.IsAny<IPaymentGatewayActionProvider>(), It.IsAny<GatewayOptions>(), It.IsAny<decimal?>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(PaymentCaptureResult.Failure.InvalidStateTransition(PaymentRecordState.Checkout, PaymentRecordState.Completed));
+
         var payment = PaymentCaptureMethod.Create(100m, Guid.NewGuid(), Guid.NewGuid()).Value;
         _dbContext.Set<PaymentCapture>().Add(payment);
         await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);

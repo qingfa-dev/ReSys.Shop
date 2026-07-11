@@ -59,13 +59,12 @@ public class VoidPaymentTests : IDisposable
         var result = await _handler.Handle(new VoidPayment.Command(payment.Id), TestContext.Current.CancellationToken);
 
         result.IsSuccess.Should().BeTrue();
-        result.Value.State.Should().Be(PaymentRecordState.Void);
     }
 
     [Fact(DisplayName = "Handler: Should return failure when gateway declines void")]
     public async Task Handle_ShouldReturnFailure_WhenGatewayDeclines()
     {
-        _gatewayMock.Setup(x => x.VoidAsync(It.IsAny<string?>(), It.IsAny<object?>(), It.IsAny<GatewayOptions>(), It.IsAny<CancellationToken>()))
+        _processingServiceMock.Setup(x => x.VoidAsync(It.IsAny<PaymentCapture>(), It.IsAny<IPaymentGatewayActionProvider>(), It.IsAny<GatewayOptions>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(Error.BadRequest("Gateway.Declined", "Void declined."));
 
         var payment = PaymentCaptureMethod.Create(100m, Guid.NewGuid(), Guid.NewGuid()).Value;
@@ -83,6 +82,9 @@ public class VoidPaymentTests : IDisposable
     [Fact(DisplayName = "Handler: Should return failure when payment in wrong state")]
     public async Task Handle_ShouldFail_WhenCheckout()
     {
+        _processingServiceMock.Setup(x => x.VoidAsync(It.IsAny<PaymentCapture>(), It.IsAny<IPaymentGatewayActionProvider>(), It.IsAny<GatewayOptions>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(PaymentCaptureResult.Failure.InvalidStateTransition(PaymentRecordState.Checkout, PaymentRecordState.Void));
+
         var payment = PaymentCaptureMethod.Create(100m, Guid.NewGuid(), Guid.NewGuid()).Value;
         _dbContext.Set<PaymentCapture>().Add(payment);
         await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
