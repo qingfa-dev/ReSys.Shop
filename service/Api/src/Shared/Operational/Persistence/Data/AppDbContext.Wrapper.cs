@@ -1,20 +1,33 @@
+using System.Data;
+
 using System.Diagnostics.CodeAnalysis;
 
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Infrastructure;
+
+using Shared.Operational.Persistence.Transactions;
 
 namespace Shared.Operational.Persistence.Data;
 
 /// <summary>
 /// Defines the contract for the application database context.
-/// Provides access to entity sets and change tracking.
+/// Provides access to entity sets, change tracking, and transaction support.
 /// </summary>
 public interface IApplicationDbContext
 {
     /// <summary>
-    /// Gets the <see cref="Microsoft.EntityFrameworkCore.DatabaseFacade"/> for the context.
+    /// Gets whether the current database provider supports transactions.
+    /// Returns false for in-memory provider, true for relational providers.
     /// </summary>
-    DatabaseFacade Database { get; }
+    bool SupportsTransactions { get; }
+
+    /// <summary>
+    /// Begins a database transaction at the specified isolation level.
+    /// Returns a NoOpTransaction when the provider does not support transactions.
+    /// </summary>
+    /// <param name="isolationLevel">The isolation level for the transaction.</param>
+    /// <param name="cancellationToken">A cancellation token.</param>
+    /// <returns>An <see cref="IDatabaseTransaction"/> instance.</returns>
+    Task<IDatabaseTransaction> BeginTransactionAsync(IsolationLevel isolationLevel, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Gets a DbSet for the specified entity type.

@@ -1,3 +1,4 @@
+using System.Data;
 using System.Reflection;
 
 using Microsoft.AspNetCore.Identity;
@@ -9,6 +10,7 @@ using Shared.Operational.Persistence.Configurations.Enums;
 using Shared.Operational.Persistence.Configurations.Models;
 using Shared.Operational.Persistence.Configurations.Numbers;
 using Shared.Operational.Persistence.Configurations.Vectors;
+using Shared.Operational.Persistence.Transactions;
 using Shared.Security.Identity.Domain.Roles;
 using Shared.Security.Identity.Domain.Roles.Claims;
 using Shared.Security.Identity.Domain.Users;
@@ -34,6 +36,19 @@ public class ApplicationDbContext : IdentityDbContext<User, Role, Guid, UserClai
         : base(options)
     {
     }
+
+    public bool SupportsTransactions =>
+        Database.ProviderName is not "Microsoft.EntityFrameworkCore.InMemory";
+
+    public async Task<IDatabaseTransaction> BeginTransactionAsync(IsolationLevel isolationLevel, CancellationToken cancellationToken = default)
+    {
+        if (!SupportsTransactions)
+            return new NoOpTransaction();
+
+        var transaction = await Database.BeginTransactionAsync(isolationLevel, cancellationToken);
+        return new EfCoreTransaction(transaction);
+    }
+
     /// <summary>
     /// Additional assemblies to scan for entity configurations.
     /// Set this static property before the DbContext is first used.

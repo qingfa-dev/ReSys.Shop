@@ -27,6 +27,9 @@ public sealed class AesEncryptionService : IEncryptionService
 
     public string Decrypt(string ciphertext)
     {
+        if (string.IsNullOrEmpty(ciphertext))
+            return string.Empty;
+
         var bytes = Convert.FromBase64String(ciphertext);
         using var cipherStream = new MemoryStream(bytes);
         using var plainStream = EncryptionHelper.DecryptAsync(cipherStream, _key).GetAwaiter().GetResult();
