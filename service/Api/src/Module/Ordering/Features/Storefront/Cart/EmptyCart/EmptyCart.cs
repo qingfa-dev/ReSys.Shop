@@ -20,14 +20,18 @@ namespace Module.Ordering.Features.Storefront.Cart.EmptyCart;
         {
 
         // Contract: pre=command!=null, post=result!=null
-            if (!Guid.TryParse(currentUser.UserId, out var userId))
+            var userId = Guid.TryParse(currentUser.UserId, out var parsed) ? parsed : (Guid?)null;
+            var sessionId = currentUser.IsAuthenticated ? null : currentUser.SessionId;
+
+            if (userId is null && string.IsNullOrWhiteSpace(sessionId))
                 return OrderResult.Errors.UserNotAuthenticated;
 
             // Query: Retrieve data from database.
             var cart = await dbContext.Set<Order>()
                 .Include(x => x.LineItems)
                 .Include(x => x.Adjustments)
-                .Where(x => x.UserId == userId && x.Status == OrderStatus.Draft)
+                .Where(x => (x.UserId == userId && x.Status == OrderStatus.Draft)
+                         || (x.SessionId == sessionId && x.Status == OrderStatus.Draft))
                 .FirstOrDefaultAsync(cancellationToken);
 
             if (cart is null)
