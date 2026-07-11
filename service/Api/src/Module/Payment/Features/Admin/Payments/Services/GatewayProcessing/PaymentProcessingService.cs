@@ -39,7 +39,7 @@ public sealed class PaymentProcessingService : IPaymentProcessingService
     public Task<Result<PaymentProcessingResult>> VoidAsync(PaymentCapture payment, IPaymentGatewayActionProvider gateway, GatewayOptions options, CancellationToken ct = default)
     {
         if (payment.State is PaymentRecordState.Void)
-            return Task.FromResult(Result<PaymentProcessingResult>.Ok(ProcessingResult.Success.Voided(payment.Number)));
+            return Task.FromResult(ProcessingResult.Success.Voided(payment.Number));
 
         if (payment.State is not (PaymentRecordState.Processing or PaymentRecordState.Pending))
             return Task.FromResult<Result<PaymentProcessingResult>>(ProcessingResult.Errors.InvalidStateTransition(payment.State, PaymentRecordState.Void));
@@ -99,13 +99,13 @@ public sealed class PaymentProcessingService : IPaymentProcessingService
         if (gateway.AutoCapture && payment.State != PaymentRecordState.Completed)
         {
             payment.State = PaymentRecordState.Completed;
-            return Task.FromResult(Result<PaymentProcessingResult>.Ok(ProcessingResult.Success.ConfirmCompleted(payment.Number)));
+            return Task.FromResult(ProcessingResult.Success.ConfirmCompleted(payment.Number));
         }
 
         if (payment.State == PaymentRecordState.Checkout || payment.State == PaymentRecordState.Processing)
         {
             payment.State = PaymentRecordState.Pending;
-            return Task.FromResult(Result<PaymentProcessingResult>.Ok(ProcessingResult.Success.ConfirmPended(payment.Number)));
+            return Task.FromResult(ProcessingResult.Success.ConfirmPended(payment.Number));
         }
 
         return Task.FromResult(Result<PaymentProcessingResult>.Ok(new PaymentProcessingResult()));
@@ -222,9 +222,9 @@ public sealed class PaymentProcessingService : IPaymentProcessingService
         RecordGatewayResponse(payment, response);
         payment.ResponseCode = response.Authorization ?? payment.ResponseCode;
         payment.State = successState;
-        return Result<PaymentProcessingResult>.Ok(successState == PaymentRecordState.Pending
+        return successState == PaymentRecordState.Pending
             ? ProcessingResult.Success.Pended(payment.Number)
-            : ProcessingResult.Success.Completed(payment.Number));
+            : ProcessingResult.Success.Completed(payment.Number);
     }
     #endregion
 }

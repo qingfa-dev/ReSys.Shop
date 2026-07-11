@@ -51,7 +51,7 @@ public static partial class CapturePayment
                 Amount = payment.Amount,
                 CapturedAmount = captureAmount,
                 State = payment.State,
-                Message = captureResult.Value.Message ?? string.Empty
+                Message = captureResult.Message ?? string.Empty
             };
         }
     }
