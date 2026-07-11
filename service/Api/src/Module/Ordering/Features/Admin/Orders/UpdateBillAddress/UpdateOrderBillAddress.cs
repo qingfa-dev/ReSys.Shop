@@ -21,6 +21,9 @@ public static partial class UpdateOrderBillAddress
             if (order is null)
                 return OrderResult.Errors.NotFound(command.Id);
 
+            if (order.Status != OrderStatus.Draft)
+                return Error.Validation("Order.BillAddress.Update.NotDraft", "Only draft orders can have billing address modified.");
+
             // Update: Set the billing address.
             order.BillAddressId = command.Request.AddressId;
             order.ModifiedAtUtc = DateTimeOffset.UtcNow;

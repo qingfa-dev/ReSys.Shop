@@ -21,6 +21,9 @@ public static partial class UpdateOrderAdmin
             if (order is null)
                 return OrderResult.Errors.NotFound(command.Id);
 
+            if (order.Status != OrderStatus.Draft)
+                return Error.Validation("Order.Update.NotDraft", "Only draft orders can be modified.");
+
             var req = command.Request;
 
             // Update: Apply partial changes (PATCH semantics).
