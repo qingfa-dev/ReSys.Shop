@@ -17,12 +17,27 @@ public static partial class SearchByImage
     {
         private const string DefaultModel = VariantImageConstant.Defaults.DefaultEmbeddingModel;
 
+        /// <summary>
+        /// Performs a visual similarity search by encoding an uploaded image into an embedding vector
+        /// and querying the nearest neighbors in pgvector space.
+        /// </summary>
+        /// <param name="command">The command containing the uploaded image file.</param>
+        /// <param name="cancellationToken">Propagates cancellation notification.</param>
+        /// <returns>A success result with the list of visually similar product variants.</returns>
+        // Contract: pre=command!=null, post=result!=null
         public async Task<Result<Response>> Handle(Command command, CancellationToken cancellationToken)
         {
             var image = command.Image;
 
             if (image is null || image.Length == 0)
                 return new Response { Items = [] };
+
+            const long MaxFileSize = 10_485_760; // 10 MB
+            if (image.Length > MaxFileSize)
+                return Error.Validation("SearchByImage.FileTooLarge", "Image file must not exceed 10 MB.");
+
+            if (!image.ContentType.StartsWith("image/"))
+                return Error.Validation("SearchByImage.InvalidContentType", "File must be an image.");
 
             using var ms = new MemoryStream();
             await image.CopyToAsync(ms, cancellationToken);
