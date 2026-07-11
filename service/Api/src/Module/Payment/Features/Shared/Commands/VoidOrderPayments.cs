@@ -33,7 +33,9 @@ public sealed class VoidOrderPaymentsCommandHandler(
                 StatementDescriptorSuffix = string.Empty,
             };
 
-            await processingService.VoidTransactionAsync(payment, gatewayResult.Value, options, null, ct);
+            var voidResult = await processingService.VoidTransactionAsync(payment, gatewayResult.Value, options, null, ct);
+            if (voidResult.IsFailure)
+                return voidResult.Errors;
         }
 
         await dbContext.SaveChangesAsync(ct);
