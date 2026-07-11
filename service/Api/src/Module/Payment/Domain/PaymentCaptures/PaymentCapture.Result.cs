@@ -36,6 +36,11 @@ public static class PaymentCaptureResult
     public static class Failure
     {
         #region Validation
+        /// <summary>Provider is not registered in the gateway registry.</summary>
+        public static Error ProviderNotRegistered(string providerKey) => Error.NotFound(
+            code: "Payment.ProviderKey.NotRegistered",
+            message: $"Provider '{providerKey}' is not registered in the gateway registry.");
+
         /// <summary>Error indicating the payment amount must be greater than zero.</summary>
         public static Error AmountMustBePositive => Error.Validation(
             code: "Payment.Amount.Positive",

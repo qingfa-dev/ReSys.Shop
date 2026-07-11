@@ -2,7 +2,6 @@ using Shared.Application.Domain.Concerns.Auditable;
 using Shared.Application.Domain.Models;
 
 using Module.Payment.Domain.PaymentMethods;
-using Module.Ordering.Domain.Orders;
 
 namespace Module.Payment.Domain.PaymentCaptures;
 
@@ -21,6 +20,7 @@ public sealed partial class PaymentCapture : Entity, IAuditable
     public string? IntentClientSecret { get; set; }
     public bool CaptureEventCreated { get; set; }
     public decimal RefundedAmount { get; set; }
+    public string ProviderKey { get; set; } = string.Empty;
     #endregion Properties
 
     #region Identifiers
@@ -31,7 +31,6 @@ public sealed partial class PaymentCapture : Entity, IAuditable
     #endregion Identifiers
 
     #region Relationships
-    public Order Order { get; set; } = null!;
     public PaymentMethod PaymentMethod { get; set; } = null!;
     #endregion Relationships
 
