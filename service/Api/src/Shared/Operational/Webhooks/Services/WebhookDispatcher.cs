@@ -82,7 +82,6 @@ public sealed class WebhookDispatcher : IWebhookDispatcher
             _logger.LogWarning(ex, "Webhook delivery {DeliveryId} failed", delivery.Id);
         }
 
-        await _dbContext.SaveChangesAsync(ct);
         return Result<WebhookDelivery>.Ok(delivery);
     }
 }

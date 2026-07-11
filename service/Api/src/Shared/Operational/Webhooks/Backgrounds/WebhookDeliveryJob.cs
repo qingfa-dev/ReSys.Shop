@@ -33,7 +33,7 @@ public sealed class WebhookDeliveryJob
             .Take(100)
             .ToListAsync(ct);
 
-        _logger.LogInformation("Webhook delivery job picked {Count} deliveries", due.Count);
+        _logger.LogDebug("Webhook delivery job picked {Count} deliveries", due.Count);
 
         foreach (var delivery in due)
         {
