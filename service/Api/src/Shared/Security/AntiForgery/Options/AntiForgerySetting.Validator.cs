@@ -34,12 +34,12 @@ public sealed class AntiForgerySettingValidator : AbstractValidator<AntiForgeryS
             .WithErrorCode(AntiForgerySettingResult.Failure.CookieSecurePolicyInvalid.Code)
             .WithMessage(AntiForgerySettingResult.Failure.CookieSecurePolicyInvalid.Message);
 
-        When(x => x.CookieMaxAgeMinutes.HasValue, () =>
+        When(x => x.CookieMaxAgeMinutes.HasValue, (Action)(() =>
         {
             RuleFor(x => x.CookieMaxAgeMinutes!.Value)
                 .GreaterThan(0)
                 .WithErrorCode(AntiForgerySettingResult.Failure.CookieMaxAgeMinutesInvalid.Code)
-                .WithMessage(AntiForgerySettingResult.Failure.CookieMaxAgeMinutesInvalid.Message);
-        });
+                .WithMessage((string)AntiForgerySettingResult.Failure.CookieMaxAgeMinutesInvalid.Message);
+        }));
     }
 }

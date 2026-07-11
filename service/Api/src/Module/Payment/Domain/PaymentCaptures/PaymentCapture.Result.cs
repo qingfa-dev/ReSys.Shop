@@ -1,9 +1,9 @@
-namespace Module.Payment.Domain.Payments;
+namespace Module.Payment.Domain.PaymentCaptures;
 
 /// <summary>
 /// Provides success messages and error definitions for payment domain operations.
 /// </summary>
-public static class PaymentResult
+public static class PaymentCaptureResult
 {
     /// <summary>
     /// Contains success message templates for payment lifecycle events.

@@ -3,18 +3,18 @@ using Module.Ordering.Features.Admin.Orders.Shared.Mappings;
 
 namespace Module.Ordering.Features.Admin.Orders.Get.Paged;
 
-    /// <summary>Handles GetPagedOrders feature.</summary>
-    public static partial class GetPagedOrders
+/// <summary>Retrieves a paged, filterable, sortable list of orders for the admin order grid.</summary>
+public static partial class GetPagedOrders
 {
     public record Query(Parameters Parameters) : IPagedQuery<Response>;
 
     public sealed class PagedQueryHandler(IApplicationDbContext dbContext)
         : IPagedQueryHandler<Query, Response>
     {
-        /// <summary>Handles the paged query.</summary>
-        /// <param name="request">The query request.</param>
+        /// <summary>Parses query parameters and executes a paged database query with includes and mapping.</summary>
+        /// <param name="request">The paged query request with parameters.</param>
         /// <param name="cancellationToken">Cancellation token.</param>
-        /// <returns>The paged result.</returns>
+        /// <returns>The paged order list response.</returns>
         public async Task<PagedResult<Response>> Handle(Query request, CancellationToken cancellationToken)
         {
             var parsing = request.Parameters.ParseAll();

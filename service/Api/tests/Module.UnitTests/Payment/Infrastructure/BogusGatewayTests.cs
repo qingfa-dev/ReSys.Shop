@@ -1,10 +1,10 @@
 using Microsoft.Extensions.Options;
 
 using Module.Payment.Domain.Gateways;
-using Module.Payment.Domain.Payments;
+using Module.Payment.Domain.PaymentCaptures;
 using Module.Payment.Infrastructure.Gateways.Bogus;
 
-using PaymentRecord = Module.Payment.Domain.Payments.PaymentRecord;
+using PaymentRecord = Module.Payment.Domain.PaymentCaptures.PaymentCapture;
 
 namespace Module.UnitTests.Payment.Infrastructure;
 
@@ -14,7 +14,7 @@ public class BogusGatewayTests
 
     private static GatewayOptions CreateGatewayOptions()
     {
-        var payment = PaymentFactory.Create(10m, Guid.NewGuid(), Guid.NewGuid()).Value;
+        var payment = PaymentCaptureMethod.Create(10m, Guid.NewGuid(), Guid.NewGuid()).Value;
         return new GatewayOptions(payment)
         {
             Email = "test@example.com",

@@ -16,11 +16,10 @@ using Shared.Operational.Storages.Security.Scanners;
 
 namespace Shared.Operational.Storages.Services;
 
-/// <summary>
-/// Routes storage operations to the registered <see cref="IStorageProvider"/> by name,
-/// applying security enforcement, anti-forgery protection, and an optional pre-processing
-/// pipeline (hash → malware scan → image processing → encryption) before each upload.
-/// </summary>
+/// <summary>Orchestrates storage operations — routes by provider name, applies security enforcement, anti-forgery, and an optional pre-upload pipeline (hash, malware scan, image processing, encryption).</summary>
+// Invariant: Provider lookup by name — falls back to defaultProviderName if unspecified; all operations timed via RunTimed wrapper.
+// Boundary: Service → StorageProvider | SecurityEnforcer | MalwareScanner | ImageProcessor — orchestrates across multiple subsystems; never accesses I/O or cache directly.
+// Context: Upload pipeline applies sequential transforms (hash → malware scan → image processing → encryption) to mitigate TMT-FILE-001 through TMT-FILE-004.
 internal sealed partial class StorageService(
     IReadOnlyDictionary<string, IStorageProvider> providers,
     string defaultProviderName,
@@ -33,7 +32,8 @@ internal sealed partial class StorageService(
     IOptions<StorageSecuritySetting>? storageSecurityOptions = null)
     : IStorageService
 {
-    /// <inheritdoc />
+    /// <summary>Uploads content through the security and processing pipeline, then delegates to the resolved storage provider.</summary>
+    // Contract: pre=request!=null && request.Key!=null && request.Content!=null, post=return.IsSuccess implies uploaded, throws=never
     public async Task<Result<UploadResult>> UploadAsync(
         UploadRequest request,
         string? providerName = null,
@@ -43,7 +43,7 @@ internal sealed partial class StorageService(
         if (!TryResolve(providerName, out IStorageProvider provider))
             return StorageResult.Failure.ProviderNotFound(providerName ?? defaultProviderName);
 
-        // Check: Validate anti-forgery CSRF token and rate-limit consecutive failures.
+        // Validate: anti-forgery CSRF token with rate-limited failure tracking (TMT-CSRF-001)
         HttpContext? httpContext = httpContextAccessor.HttpContext;
         if (httpContext is not null)
         {
@@ -56,7 +56,7 @@ internal sealed partial class StorageService(
             }
         }
 
-        // Validate: Run security rules — extension allowlist, size cap, magic bytes.
+        // Validate: run security rules — extension allowlist, size cap, magic bytes (module boundary: Service → SecurityEnforcer)
         Result securityResult = await enforcer.EnforceAsync(request, ct);
         if (!securityResult.IsSuccess)
         {
@@ -64,13 +64,13 @@ internal sealed partial class StorageService(
             return securityResult.Errors;
         }
 
-        // Merge options: method-level overrides request-level.
+        // Merge: method-level options override request-level defaults
         UploadOptions effectiveOptions = options ?? request.Options ?? new();
 
-        // Track metadata additions from pipeline steps.
+        // Track: accumulated metadata from each pipeline stage
         Dictionary<string, string>? pipelineMetadata = null;
 
-        // Pipeline: Hash (on original content, before any transforms).
+        // Pipeline: hash content before any transforms — verifiable integrity later
         Stream content = request.Content;
         if (effectiveOptions.GenerateHash)
         {
@@ -86,12 +86,13 @@ internal sealed partial class StorageService(
             }
             catch (Exception ex)
             {
+                // Catch: hash failure blocks upload — content integrity cannot be verified
                 Loggers.LogHashFailed(logger, request.Key, ex.Message);
                 return StorageResult.Failure.HashFailed(ex.Message);
             }
         }
 
-        // Pipeline: Malware scan.
+        // Pipeline: scan for malware via ClamAV or content scanner (module boundary: Service → MalwareScanner)
         if (effectiveOptions.ScanForMalware && malwareScanner is not null)
         {
             if (content.CanSeek)
@@ -108,12 +109,14 @@ internal sealed partial class StorageService(
             {
                 string threat = scanResult.Value.ThreatName ?? "unknown";
 
+                // Validate: rejection policy — block upload when malware detected
                 if (effectiveOptions.OnMalwareDetected == InfectionAction.Reject)
                 {
                     Loggers.LogMalwareRejected(logger, request.Key, threat);
                     return StorageResult.Failure.MalwareRejected(threat);
                 }
 
+                // Validate: quarantine policy — mark metadata, allow upload
                 if (effectiveOptions.OnMalwareDetected == InfectionAction.Quarantine)
                 {
                     Loggers.LogMalwareQuarantined(logger, request.Key, threat);
@@ -122,6 +125,7 @@ internal sealed partial class StorageService(
                     pipelineMetadata["quarantine-timestamp"] = DateTimeOffset.UtcNow.ToString("O");
                 }
 
+                // Validate: warning policy — log threat, allow upload with metadata flag
                 if (effectiveOptions.OnMalwareDetected == InfectionAction.AllowWithWarning)
                 {
                     Loggers.LogMalwareWarning(logger, request.Key, threat);
@@ -131,7 +135,7 @@ internal sealed partial class StorageService(
             }
         }
 
-        // Pipeline: Image processing.
+        // Pipeline: process image (resize, format conversion) via SkiaSharp (module boundary: Service → ImageProcessor)
         if (imageProcessor is not null && (effectiveOptions.ResizeWidth is not null || effectiveOptions.ResizeHeight is not null || effectiveOptions.OutputFormat is not null))
         {
             if (content.CanSeek)
@@ -148,12 +152,13 @@ internal sealed partial class StorageService(
             Loggers.LogImageProcessingCompleted(logger, request.Key);
         }
 
-        // Pipeline: Encrypt.
+        // Pipeline: encrypt content at rest using configured key (TMT-FILE-004)
         if (effectiveOptions.Encrypt)
         {
             string? encryptionKey = storageSecurityOptions?.Value?.EncryptionKey;
             if (string.IsNullOrEmpty(encryptionKey))
             {
+                // Guard: no encryption key configured — skip with warning, not error
                 Loggers.LogEncryptionSkipped(logger, request.Key);
             }
             else
@@ -171,20 +176,21 @@ internal sealed partial class StorageService(
                 }
                 catch (Exception ex)
                 {
+                    // Catch: encryption failure blocks upload — content would be stored in plaintext
                     Loggers.LogEncryptionFailed(logger, request.Key, ex.Message);
                     return StorageResult.Failure.EncryptionFailed(ex.Message);
                 }
             }
         }
 
-        // Overwrite flag: pass via metadata.
+        // Transform: mark overwrite in metadata for provider-level handling
         if (effectiveOptions.Overwrite)
         {
             pipelineMetadata ??= [];
             pipelineMetadata["overwrite-existing"] = "true";
         }
 
-        // Merge pipeline metadata into request metadata.
+        // Merge: combine pipeline metadata with request metadata for final upload
         IReadOnlyDictionary<string, string>? mergedMetadata = request.Metadata;
         if (pipelineMetadata is not null)
         {
@@ -194,10 +200,10 @@ internal sealed partial class StorageService(
             mergedMetadata = combined;
         }
 
-        // Rebuild request with processed content and merged metadata.
+        // Rebuild: request with processed content and merged metadata
         UploadRequest uploadRequest = request with { Content = content, Metadata = mergedMetadata };
 
-        // Upload: Delegate to the resolved provider and record timing.
+        // Call: delegate to the resolved provider with timing (module boundary: Service → Provider)
         Stopwatch sw = Stopwatch.StartNew();
         Result<UploadResult> result = await provider.UploadAsync(uploadRequest, ct);
         sw.Stop();
@@ -214,7 +220,8 @@ internal sealed partial class StorageService(
         return result;
     }
 
-    /// <inheritdoc />
+    /// <summary>Downloads a stored object by key from the resolved provider.</summary>
+    // Contract: pre=key!=null, post=return.IsSuccess implies stream and metadata returned, throws=never
     public Task<Result<DownloadResult>> DownloadAsync(
         string key,
         string? providerName = null,
@@ -223,7 +230,8 @@ internal sealed partial class StorageService(
             ? RunTimed(provider.Name, nameof(DownloadAsync), key, () => provider.DownloadAsync(key, ct))
             : Task.FromResult<Result<DownloadResult>>(StorageResult.Failure.ProviderNotFound(providerName ?? defaultProviderName));
 
-    /// <inheritdoc />
+    /// <summary>Resolves the storage path for a key without downloading content.</summary>
+    // Contract: pre=key!=null, post=return.IsSuccess implies path resolved, throws=never
     public Task<Result<string>> ResolvePathAsync(
         string key,
         string? providerName = null,
@@ -236,7 +244,8 @@ internal sealed partial class StorageService(
         return Task.FromResult(result);
     }
 
-    /// <inheritdoc />
+    /// <summary>Deletes a stored object by key from the resolved provider.</summary>
+    // Contract: pre=key!=null, post=return.IsSuccess implies deleted (if existed), throws=never
     public Task<Result> DeleteAsync(
         string key,
         string? providerName = null,
@@ -245,7 +254,8 @@ internal sealed partial class StorageService(
             ? RunTimed(provider.Name, nameof(DeleteAsync), key, () => provider.DeleteAsync(key, ct))
             : Task.FromResult<Result>(StorageResult.Failure.ProviderNotFound(providerName ?? defaultProviderName));
 
-    /// <inheritdoc />
+    /// <summary>Gets metadata for a stored object by key from the resolved provider.</summary>
+    // Contract: pre=key!=null, post=return.IsSuccess implies metadata returned, throws=never
     public Task<Result<StoredObjectInfo>> StatAsync(
         string key,
         string? providerName = null,
@@ -254,7 +264,8 @@ internal sealed partial class StorageService(
             ? RunTimed(provider.Name, nameof(StatAsync), key, () => provider.StatAsync(key, ct))
             : Task.FromResult<Result<StoredObjectInfo>>(StorageResult.Failure.ProviderNotFound(providerName ?? defaultProviderName));
 
-    /// <inheritdoc />
+    /// <summary>Lists stored objects, optionally filtered by prefix, from the resolved provider.</summary>
+    // Contract: pre=none, post=return.IsSuccess, throws=never
     public Task<Result<IReadOnlyList<StoredObjectInfo>>> ListAsync(
         string? prefix = null,
         string? providerName = null,
@@ -265,6 +276,7 @@ internal sealed partial class StorageService(
 
     // ── Helpers ─────────────────────────────────────────────────────────────
 
+    // Guard: resolve provider by name — falls back to default when name is null/empty
     private bool TryResolve(string? name, out IStorageProvider provider)
     {
         string key = string.IsNullOrWhiteSpace(name) ? defaultProviderName : name;
@@ -274,14 +286,17 @@ internal sealed partial class StorageService(
         return false;
     }
 
+    // Compute: extract first error code from error list for structured logging
     private static string? FirstErrorCode(List<Error> errors)
         => errors.Count > 0 ? errors[0].Code : null;
 
+    // Compute: extract user identity key from HTTP context for anti-forgery tracking
     private static string ExtractIdentityKey(HttpContext httpContext)
         => httpContext.User?.FindFirstValue(ClaimTypes.NameIdentifier)
            ?? httpContext.Connection.RemoteIpAddress?.ToString()
            ?? "anonymous";
 
+    // Profile: execute action with timing — logs success/failure with duration
     private async Task<Result<T>> RunTimed<T>(
         string providerName, string operation, string key, Func<Task<Result<T>>> action)
     {
@@ -299,6 +314,7 @@ internal sealed partial class StorageService(
         return result;
     }
 
+    // Profile: execute action with timing — non-generic overload for Result (not Result<T>)
     private async Task<Result> RunTimed(
         string providerName, string operation, string key, Func<Task<Result>> action)
     {

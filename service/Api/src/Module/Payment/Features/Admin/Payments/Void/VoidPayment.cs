@@ -1,33 +1,33 @@
 using Module.Payment.Domain.Gateways;
-using Module.Payment.Domain.Payments;
+using Module.Payment.Domain.PaymentCaptures;
 
-using PaymentRecord = Module.Payment.Domain.Payments.PaymentRecord;
+using PaymentCapture = Module.Payment.Domain.PaymentCaptures.PaymentCapture;
 
 namespace Module.Payment.Features.Admin.Payments.Void;
 
-    /// <summary>Handles VoidPayment feature.</summary>
-    public static partial class VoidPayment
+/// <summary>Voids a payment through the payment gateway, preventing settlement.</summary>
+public static partial class VoidPayment
 {
     public sealed record Command(Guid Id) : ICommand<Response>;
 
     public sealed class CommandHandler(IApplicationDbContext dbContext, IPaymentGatewayActionProvider gateway)
         : ICommandHandler<Command, Response>
     {
-        /// <summary>Handles the command.</summary>
-        /// <param name="command">The command to handle.</param>
-        /// <param name="cancellationToken">Cancellation token.</param>
-        /// <returns>The result of handling the command.</returns>
+        /// <summary>Voids an authorized or pending payment via the configured gateway and persists the result.</summary>
+        /// <param name="command">The command identifying the payment to void.</param>
+        /// <param name="cancellationToken">Propagates cancellation signal.</param>
+        /// <returns>A result containing the voided payment details or an error.</returns>
+        /// <exception cref="DbUpdateException">Thrown when database persistence fails.</exception>
         public async Task<Result<Response>> Handle(Command command, CancellationToken cancellationToken)
         {
-
-        // Contract: pre=command!=null, post=result!=null
-            // Query: Get payment by ID.
-            var payment = await dbContext.Set<PaymentRecord>()
+            // Contract: pre=payment!=null && payment.CanVoid, post=payment.State==Void, throws=DbUpdateException
+            // Load: Payment by ID.
+            var payment = await dbContext.Set<PaymentCapture>()
                 .FirstOrDefaultAsync(p => p.Id == command.Id, cancellationToken);
 
             // Check: Verify the payment exists.
             if (payment is null)
-                return PaymentResult.Failure.NotFound;
+                return PaymentCaptureResult.Failure.NotFound;
 
             // Construct: Gateway options from payment data.
             var options = new GatewayOptions(payment)
@@ -47,7 +47,6 @@ namespace Module.Payment.Features.Admin.Payments.Void;
             if (voidResult.IsFailure)
                 return voidResult.Errors;
 
-            // Persist: Save changes.
             await dbContext.SaveChangesAsync(cancellationToken);
 
             // Map: Return result.

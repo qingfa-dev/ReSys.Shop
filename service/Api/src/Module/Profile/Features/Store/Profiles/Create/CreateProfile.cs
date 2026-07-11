@@ -5,32 +5,22 @@ using Shared.Security.Identity.Domain.Users;
 
 namespace Module.Profile.Features.Store.Profile.Create;
 
-/// <summary>
-/// Defines the use case for creating a new profile for the authenticated user.
-/// </summary>
+/// <summary>Creates a new user profile for an existing identity user.</summary>
 public static partial class CreateProfile
 {
-    /// <summary>
-    /// Represents the command to create a new profile.
-    /// </summary>
     /// <param name="UserId">The unique identifier of the user.</param>
     /// <param name="Request">The request containing profile details.</param>
     public sealed record Command(Guid UserId, Request Request) : ICommand<Response>;
 
-    /// <summary>
-    /// Handles the <see cref="Command"/> to create a new user profile.
-    /// </summary>
     public sealed class CommandHandler(
         IApplicationDbContext dbContext)
         : ICommandHandler<Command, Response>
     {
-        /// <summary>
-        /// Handles the creation of a new profile for an existing identity user.
-        /// Validates user existence, enforces one-profile-per-user, and persists via shared mapping.
-        /// </summary>
+        /// <summary>Validates user existence, enforces one-profile-per-user, and persists via shared mapping.</summary>
         /// <param name="command">The command containing the user ID and profile data.</param>
-        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <param name="cancellationToken">Propagates cancellation signal.</param>
         /// <returns>A result containing the created profile details or an error.</returns>
+        /// <exception cref="DbUpdateException">Thrown when database persistence fails.</exception>
         public async Task<Result<Response>> Handle(Command command, CancellationToken cancellationToken)
         {
             var request = command.Request;

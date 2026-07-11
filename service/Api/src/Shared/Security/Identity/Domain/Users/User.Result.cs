@@ -537,5 +537,23 @@ public static class UserResult
             message: $"You do not have the required permission '{permission}' to revoke it from others.");
 
         #endregion
+
+        #region Admin
+
+        /// <summary>
+        /// [Admin]: Cannot toggle own account status
+        /// </summary>
+        public static Error SelfStatusToggle => Error.Forbidden(
+            code: "User.Status.Self",
+            message: "Cannot toggle your own account status.");
+
+        /// <summary>
+        /// [Admin]: Cannot delete own account
+        /// </summary>
+        public static Error SelfDelete => Error.Forbidden(
+            code: "User.Delete.Self",
+            message: "Cannot delete your own account.");
+
+        #endregion
     }
 }

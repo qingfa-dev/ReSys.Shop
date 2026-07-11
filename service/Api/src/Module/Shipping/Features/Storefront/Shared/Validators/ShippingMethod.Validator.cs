@@ -11,10 +11,10 @@ public static partial class ShippingMethodValidator
             RuleFor(x => x.MethodName)
                 .NotEmpty()
                 .WithErrorCode(ShippingMethodResult.Errors.NameRequired.Code)
-                .WithMessage(ShippingMethodResult.Errors.NameRequired.Description)
+                .WithMessage(ShippingMethodResult.Errors.NameRequired.Message)
                 .MaximumLength(ShippingMethodConstant.Constraints.MaxNameLength)
                 .WithErrorCode(ShippingMethodResult.Errors.NameTooLong.Code)
-                .WithMessage(ShippingMethodResult.Errors.NameTooLong.Description);
+                .WithMessage(ShippingMethodResult.Errors.NameTooLong.Message);
 
             RuleFor(x => x.Cost)
                 .GreaterThanOrEqualTo(0)

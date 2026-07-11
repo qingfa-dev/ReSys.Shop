@@ -1,10 +1,12 @@
+using Microsoft.EntityFrameworkCore;
+
 using Module.Inventory.Domain.StockLocations.StockItems;
 using Module.Inventory.Domain.StockLocations.StockItems.StockMovements;
 using Module.Inventory.Domain.StockTransfers;
 
 namespace Module.Inventory.Features.Admin.StockTransfers.Receive;
 
-/// <summary>Handles receiving items at destination for a stock transfer (InTransit → Received).</summary>
+/// <summary>Receives items at the destination location, transitioning a transfer from InTransit to Received.</summary>
 public static partial class ReceiveStockTransfer
 {
     public sealed record Command(Guid Id, Request Request) : ICommand;
@@ -14,12 +16,15 @@ public static partial class ReceiveStockTransfer
         ILogger<CommandHandler> logger)
         : ICommandHandler<Command>
     {
-        /// <summary>Executes the receive stock transfer command.</summary>
+        /// <summary>Validates the transfer state, receives each item at the destination, and records movements.</summary>
         /// <param name="command">The command containing receive data.</param>
         /// <param name="cancellationToken">Cancellation token.</param>
         /// <returns>A result indicating success or failure.</returns>
+        /// <exception cref="DbUpdateException">Thrown when the database update fails.</exception>
         public async Task<Result> Handle(Command command, CancellationToken cancellationToken)
         {
+            // Contract: pre=command!=null && transfer.State==InTransit, post=result!=null, throws=DbUpdateException
+            // Load: Find the transfer with items
             var transfer = await dbContext.Set<StockTransfer>()
                 .Include(t => t.TransferItems)
                 .FirstOrDefaultAsync(t => t.Id == command.Id, cancellationToken);

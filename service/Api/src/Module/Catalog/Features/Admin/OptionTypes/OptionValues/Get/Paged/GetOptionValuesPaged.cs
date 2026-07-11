@@ -14,17 +14,18 @@ public static partial class GetOptionValuesPaged
         : IPagedQueryHandler<Query, Response>
     {
         /// <summary>
-        /// Handles the request and returns a result.
+        /// Retrieves a paged or full list of option values for an option type with filtering and sorting.
         /// </summary>
-        /// <param name="request">The query containing request data.</param>
-        /// <param name="cancellationToken">The cancellation token.</param>
-        // Contract: pre=request!=null, post=result!=null
+        /// <param name="request">The query containing the option type ID, pagination, and filtering parameters.</param>
+        /// <param name="cancellationToken">Propagates cancellation notification.</param>
+        /// <returns>A paged result of option value list items.</returns>
+        // Contract: pre=request.OptionTypeId!=Guid.Empty, post=result.Items!=null
         public async Task<PagedResult<Response>> Handle(Query request, CancellationToken cancellationToken)
         {
-            // Assign: Extract querying parameters
+            // Parse: Validate and parse querying parameters
             var parametersResult = request.Parameters.ParseAll();
 
-            // Query: Retrieve option values, apply filtering/sorting, and project to paged result
+            // Load: Retrieve option values, apply filtering/sorting, and project to paged result
             if (parametersResult.IsFailure)
             {
                 // Apply paged query logic

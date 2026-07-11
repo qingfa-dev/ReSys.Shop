@@ -1,11 +1,12 @@
 using System.Data;
+using Microsoft.EntityFrameworkCore;
 
 using Module.Inventory.Domain.StockLocations.StockItems;
 using Module.Inventory.Domain.StockReservations;
 
 namespace Module.Inventory.Features.Storefront.CartReservations.Reserve;
 
-/// <summary>Handles reservation of stock for a cart item with configurable TTL.</summary>
+/// <summary>Reserves stock for a cart item using a serializable transaction to prevent oversell.</summary>
 public static partial class ReserveCartStock
 {
     public sealed record Command(Request Request, string CartToken) : ICommand<Response>;
@@ -13,12 +14,14 @@ public static partial class ReserveCartStock
     public sealed class CommandHandler(IApplicationDbContext dbContext)
         : ICommandHandler<Command, Response>
     {
-        /// <summary>Executes the reserve cart stock command.</summary>
+        /// <summary>Locks the stock row, validates availability, creates the reservation, and commits.</summary>
         /// <param name="command">The command containing variant, quantity, and cart token.</param>
         /// <param name="cancellationToken">Cancellation token.</param>
-        /// <returns>A result containing the reservation details.</returns>
+        /// <returns>A result with the reservation details.</returns>
+        /// <exception cref="DbUpdateException">Thrown when the database update fails.</exception>
         public async Task<Result<Response>> Handle(Command command, CancellationToken cancellationToken)
         {
+            // Contract: pre=command!=null && command.Request.Quantity>0, post=result!=null, throws=DbUpdateException
             var variantId = command.Request.VariantId;
             var quantity = command.Request.Quantity;
             var stockLocationId = command.Request.StockLocationId!.Value;

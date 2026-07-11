@@ -18,27 +18,31 @@ public static partial class RepositionTaxon
         : ICommandHandler<Command, Response>
     {
         /// <summary>
-        /// Handles the request and returns a result.
+        /// Repositions a taxon under a new parent with ancestor-cycle validation and hierarchy rebuild.
         /// </summary>
-        /// <param name="command">The command containing request data.</param>
+        /// <param name="command">The command containing taxonomy ID, taxon ID, and new position.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
-        // Contract: pre=command!=null, post=result!=null
+        /// <exception cref="DbUpdateException">Thrown when persistence fails.</exception>
+        // Contract: pre=command.TaxonomyId!=Guid.Empty && command.Id!=Guid.Empty, post=result.Id!=null, throws=DbUpdateException
         public async Task<Result<Response>> Handle(Command command, CancellationToken cancellationToken)
         {
             var taxonomyId = command.TaxonomyId;
             var id = command.Id;
             var request = command.Request;
 
+            // Validate: Parent taxonomy must exist
             var taxonomyExists = await dbContext.Set<Taxonomy>()
                 .AnyAsync(x => x.Id == taxonomyId, cancellationToken);
             if (!taxonomyExists)
                 return TaxonomyResult.Errors.NotFound;
 
+            // Load: Fetch the taxon to reposition
             var entity = await dbContext.Set<Taxon>()
                 .FirstOrDefaultAsync(x => x.Id == id && x.TaxonomyId == taxonomyId, cancellationToken);
             if (entity is null)
                 return TaxonResult.Errors.NotFound;
 
+            // Enforce: Root taxon cannot be repositioned
             if (entity.ParentId == null)
                 return TaxonResult.Errors.RootLock;
 
@@ -46,24 +50,27 @@ public static partial class RepositionTaxon
             var positionChanged = entity.Position != request.Position;
             var parentChanged = entity.ParentId != request.ParentId;
 
+            // Skip: No-op when neither position nor parent has changed
             if (!positionChanged && !parentChanged)
                 return new Response { Id = id };
 
             if (request.ParentId.HasValue && request.ParentId.Value != entity.ParentId)
             {
+                // Enforce: Taxon cannot be its own parent
                 if (request.ParentId.Value == id)
                     return TaxonResult.Errors.SelfParenting;
 
+                // Validate: New parent must not be a descendant of this taxon
                 var descendantCheck = await hierarchyService.ValidateDescendantAsync(id, request.ParentId.Value, cancellationToken);
                 if (descendantCheck.IsFailure)
                     return descendantCheck.Errors;
             }
 
+            // Update: Apply new parent and position to taxon entity
             var moveResult = entity.Move(request.ParentId, request.Position);
             if (moveResult.IsFailure)
                 return moveResult.Errors;
 
-            // Persist: Save changes to the database.
             dbContext.Set<Taxon>().Update(entity);
             await dbContext.SaveChangesAsync(cancellationToken);
 

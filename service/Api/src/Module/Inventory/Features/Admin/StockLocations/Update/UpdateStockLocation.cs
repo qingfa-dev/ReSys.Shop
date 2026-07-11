@@ -35,7 +35,6 @@ public static partial class UpdateStockLocation
             if (result.IsFailure)
                 return result.Errors;
 
-            // Persist: Save changes to the database.
             await dbContext.SaveChangesAsync(cancellationToken);
 
             // Log: Stock location updated.

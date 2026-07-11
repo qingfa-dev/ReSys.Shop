@@ -17,36 +17,36 @@ public static partial class DeleteOptionValue
         : ICommandHandler<Command, Response>
     {
         /// <summary>
-        /// Handles the request and returns a result.
+        /// Deletes an option value after confirming the parent option type exists.
         /// </summary>
-        /// <param name="command">The command containing request data.</param>
+        /// <param name="command">The command containing the parent type ID and value ID.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
-        // Contract: pre=command!=null, post=result!=null
+        /// <exception cref="DbUpdateException">Thrown when persistence fails.</exception>
+        // Contract: pre=command.OptionTypeId!=Guid.Empty && command.Id!=Guid.Empty, post=result.Id!=null, throws=DbUpdateException
         public async Task<Result<Response>> Handle(Command command, CancellationToken cancellationToken)
         {
-            // Assign: Extract option type ID for cleaner logic
             var optionTypeId = command.OptionTypeId;
 
-            // Check: Ensure the parent option type exists in the database
+            // Validate: Parent option type must exist before deleting its child value
             var typeExists = await dbContext.Set<OptionType>().AnyAsync(x => x.Id == optionTypeId, cancellationToken);
             if (!typeExists)
                 return OptionTypeResult.Failure.NotFound;
 
-            // Check: Find the specific option value entity to delete
+            // Load: Fetch the specific option value to delete
             var entity = await dbContext.Set<OptionValue>()
                 .FirstOrDefaultAsync(x => x.Id == command.Id && x.OptionTypeId == optionTypeId, cancellationToken);
 
             if (entity is null)
                 return OptionValueResult.Errors.NotFound;
 
-            // Remove: Mark the entity for deletion and persist changes
+            // Remove: Delete the option value entity
             dbContext.Set<OptionValue>().Remove(entity);
             await dbContext.SaveChangesAsync(cancellationToken);
 
             // Log: Record successful deletion with identity context
             OptionValueLoggers.Deleted(logger, Name: entity.Name, Id: entity.Id, OptionTypeId: entity.OptionTypeId, ActionBy: currentUser.UserName);
 
-            // Create: Return response containing the ID of the deleted resource
+            // Map: Return deleted resource ID in response
             return new Response { Id = entity.Id };
         }
     }

@@ -3,17 +3,21 @@ using Shared.Operational.Notifications.Providers;
 
 namespace Shared.Operational.Notifications.Hubs;
 
-/// <summary>Orchestrates delivery across multiple INotificationProvider implementations with priority-based fallback.</summary>
+/// <summary>Orchestrates delivery across multiple notification providers with priority-based fallback — tries each provider sequentially until one succeeds.</summary>
+// Invariant: Providers are filtered by channel and ordered by priority; first successful delivery short-circuits remaining providers.
+// Boundary: Hub → INotificationProvider — orchestrates across all registered providers; never accesses delivery infrastructure directly.
 public sealed partial class NotificationHub(
     IEnumerable<INotificationProvider> providers,
     ILogger<NotificationHub> logger)
     : INotificationHub
 {
+    /// <summary>Delivers a notification message by iterating active providers for the channel in priority order until one succeeds.</summary>
+    // Contract: pre=message!=null, post=return.IsSuccess if any provider succeeded, throws=never
     public async Task<Result> SendAsync(
         NotificationMessage message,
         CancellationToken ct = default)
     {
-        // Filter: Active providers matching the message delivery channel, ordered by priority
+        // Filter: active providers matching the message delivery channel, ordered by priority for fallback
         var activeProviders = providers
             .Where(p => p.IsEnabled)
             .Where(p => p.Channel == message.Channel)
@@ -22,17 +26,17 @@ public sealed partial class NotificationHub(
 
         if (activeProviders.Count == 0)
         {
-            // Log: No active providers configured for this channel
+            // Log: no active providers configured for this channel
             Loggers.LogNoActiveProviders(logger, message.Channel);
             return NotificationHubResult.Failure.NoProvidersConfigured(
                     message.Channel);
         }
 
         var notificationRecipient = message.Recipient.Name ?? message.Recipient.Identifier;
-        // Fallback: Try each provider sequentially until one succeeds
+        // Fallback: try each provider sequentially until one succeeds
         foreach (INotificationProvider? provider in activeProviders)
         {
-            // Log: Attempting provider delivery
+            // Log: attempting provider delivery
             Loggers.LogAttemptingToSend(
                 logger,
                 provider.Name,
@@ -40,9 +44,10 @@ public sealed partial class NotificationHub(
                 provider.Priority,
                 notificationRecipient);
 
+            // Call: delegate fully-prepared message to the provider (module boundary: Hub → Provider)
             Result result = await provider.SendAsync(message, ct);
 
-            // Check: Delivery succeeded — return immediately
+            // Validate: delivery succeeded — return immediately, skip remaining providers
             if (result.IsSuccess)
             {
                 Loggers.LogSendSuccess(
@@ -54,7 +59,7 @@ public sealed partial class NotificationHub(
                 return Result.Ok();
             }
 
-            // Log: Provider failed, try next in fallback chain
+            // Log: provider failed, try next in fallback chain
             Loggers.LogProviderFailed(
                 logger,
                 provider.Name,
@@ -62,7 +67,7 @@ public sealed partial class NotificationHub(
                 result.Message);
         }
 
-        // Log: All providers exhausted for this channel
+        // Log: all providers exhausted for this channel
         Loggers.LogAllProvidersFailed(
             logger,
             message.Channel,

@@ -1,4 +1,4 @@
-namespace Module.Payment.Domain.Payments;
+namespace Module.Payment.Domain.PaymentCaptures;
 
 public enum PaymentRecordState
 {

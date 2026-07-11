@@ -3,24 +3,21 @@ using Module.Profile.Features.Store.Profile.Shared.Mappings;
 
 namespace Module.Profile.Features.Store.Profile.Update;
 
-/// <summary>
-/// Defines the use case for updating the authenticated user's profile.
-/// </summary>
+/// <summary>Updates or creates the authenticated user's profile fields.</summary>
 public static partial class UpdateProfile
 {
-    /// <summary>
-    /// Represents the command to update profile fields.
-    /// </summary>
     /// <param name="UserId">The unique identifier of the user whose profile to update.</param>
     /// <param name="Request">The request containing updated profile details.</param>
     public sealed record Command(Guid UserId, Request Request) : ICommand<Response>;
 
-    /// <summary>
-    /// Handles the <see cref="Command"/> to update profile fields and synchronize UserProfile.
-    /// </summary>
     public sealed class CommandHandler(IApplicationDbContext dbContext, ICurrentUser currentUser)
         : ICommandHandler<Command, Response>
     {
+        /// <summary>Applies partial updates to the profile, creating one if it does not exist.</summary>
+        /// <param name="command">The command containing the user ID and profile update data.</param>
+        /// <param name="cancellationToken">Propagates cancellation signal.</param>
+        /// <returns>A result containing the updated profile details or an error.</returns>
+        /// <exception cref="DbUpdateException">Thrown when database persistence fails.</exception>
         public async Task<Result<Response>> Handle(Command command, CancellationToken cancellationToken)
         {
             var request = command.Request;

@@ -1,28 +1,28 @@
 using Module.Ordering.Domain.LineItems;
 using Module.Ordering.Domain.Orders;
 namespace Module.Ordering.Features.Admin.Orders.AddLineItem;
-/// <summary>Handles AddOrderLineItem feature.</summary>
+/// <summary>Adds a new line item to an existing order, creating the line item entity and recalculating order totals.</summary>
 public static partial class AddOrderLineItem
 {
     public sealed record Command(Guid OrderId, Request Request) : ICommand<Response>;
 
     public sealed class CommandHandler(IApplicationDbContext dbContext) : ICommandHandler<Command, Response>
     {
-        /// <summary>Handles the command.</summary>
-        /// <param name="command">The command to handle.</param>
+        /// <summary>Creates a line item from the request, adds it to the database, and recalculates the parent order's totals.</summary>
+        /// <param name="command">The command containing the order ID and line item details.</param>
         /// <param name="cancellationToken">Cancellation token.</param>
-        /// <returns>The result of handling the command.</returns>
+        /// <returns>The created line item response.</returns>
+        /// <exception cref="DbUpdateException">Thrown when the database update fails.</exception>
         public async Task<Result<Response>> Handle(Command command, CancellationToken cancellationToken)
         {
-            // Contract: pre=command!=null, post=result!=null
-            // Create: Build the line item.
+            // Contract: pre=command!=null, post=result!=null, throws=DbUpdateException
+            // Create: Build the line item from request data.
             var createResult = LineItemMethod.Create(command.OrderId, command.Request.VariantId, command.Request.Quantity, command.Request.Price);
             if (createResult.IsFailure)
                 return createResult.Errors;
 
             var lineItem = createResult.Value;
 
-            // Persist: Add the new entity.
             dbContext.Set<LineItem>().Add(lineItem);
 
             // Update: Recalculate order totals.
@@ -32,7 +32,6 @@ public static partial class AddOrderLineItem
                 order.RecalculateTotals();
             }
 
-            // Persist: Save changes.
             await dbContext.SaveChangesAsync(cancellationToken);
 
             // Map: Return the created entity as response.

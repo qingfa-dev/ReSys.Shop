@@ -8,12 +8,10 @@ using Shared.Security.Identity.Domain.Roles;
 
 namespace Shared.Security.Authorization.Requirements;
 
-/// <summary>
-/// Consolidated authorization handler that fetches user permissions directly
-/// from cache/store and evaluates the permission requirement.
-/// 
-/// Replaces the combined flow of PermissionClaimsTransformer and PermissionAuthorizationHandler.
-/// </summary>
+/// <summary>Evaluates permission requirements by resolving effective user permissions via cache/store pipeline — admin role bypasses all checks.</summary>
+// Invariant: Admin role always succeeds; unauthenticated requests are skipped; failed resolution does not fail open (denies instead).
+// Context: Authorization decisions must never throw — empty permission set results in denial (Threat TMT-AUTH-001).
+// Boundary: Handler → PermissionService — ASP.NET AuthorizationHandler boundary; never accesses store or cache directly.
 public partial class PermissionRequirementAuthorizationHandler(
     IPermissionService permissionService,
     ILogger<PermissionRequirementAuthorizationHandler> logger)
@@ -23,11 +21,11 @@ public partial class PermissionRequirementAuthorizationHandler(
         AuthorizationHandlerContext context,
         PermissionRequirement requirement)
     {
-        // Guard: Skip for unauthenticated requests
+        // Guard: skip unauthenticated requests — no identity to evaluate
         if (context.User.Identity?.IsAuthenticated != true)
             return;
 
-        // Receive: Extract User ID from the authenticated principal
+        // Call: extract User ID from the authenticated principal (NameIdentifier or JWT sub claim)
         var userId = context.User.FindFirstValue(ClaimTypes.NameIdentifier)
             ?? context.User.FindFirstValue(JwtRegisteredClaimNames.Sub);
 
@@ -37,14 +35,14 @@ public partial class PermissionRequirementAuthorizationHandler(
             return;
         }
 
-        // Check: Validate the extracted identifier format
+        // Validate: identifier must be a valid Guid to proceed
         if (!Guid.TryParse(userId, out Guid parsedUserId))
         {
             Loggers.LogInvalidNameIdentifier(logger, userId);
             return;
         }
 
-        // Bypass: Admin role automatically passes all permission checks.
+        // Guard: admin role bypasses all permission checks — policy override
         if (context.User.IsInRole(RoleConstant.Defaults.Admin))
         {
             Loggers.LogAdminBypass(logger, parsedUserId, requirement.Permission);
@@ -52,19 +50,19 @@ public partial class PermissionRequirementAuthorizationHandler(
             return;
         }
 
-        // Call: Retrieve effective permissions using the optimized service
+        // Call: resolve effective permissions via service (module boundary: Handler → PermissionService)
         Result<HashSet<string>> permissionsResult = await permissionService.GetEffectiveUserPermissionsAsync(parsedUserId);
 
         if (permissionsResult.IsFailure)
         {
-            // Log: Record resolution failure
+            // Log: record resolution failure — deny rather than fail open
             Loggers.LogCacheAccessFailed(logger, parsedUserId, permissionsResult.Message);
             return;
         }
 
         HashSet<string> permissions = permissionsResult.Value;
 
-        // Evaluate: Check if the fetched permissions contain the required one
+        // Validate: check if resolved permissions contain the required one
         if (permissions.Contains(requirement.Permission))
         {
             Loggers.LogAuthorizationSucceeded(logger, parsedUserId, requirement.Permission);

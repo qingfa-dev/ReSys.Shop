@@ -3,22 +3,22 @@ using Module.Payment.Features.Admin.PaymentMethods.Shared.Mappings;
 
 namespace Module.Payment.Features.Admin.PaymentMethods.Update;
 
-    /// <summary>Handles UpdatePaymentMethod feature.</summary>
-    public static partial class UpdatePaymentMethod
+/// <summary>Updates an existing payment method using PATCH semantics.</summary>
+public static partial class UpdatePaymentMethod
 {
     public sealed record Command(Guid Id, Request Request) : ICommand<Response>;
 
     public sealed class CommandHandler(IApplicationDbContext dbContext)
         : ICommandHandler<Command, Response>
     {
-        /// <summary>Handles the command.</summary>
-        /// <param name="command">The command to handle.</param>
-        /// <param name="cancellationToken">Cancellation token.</param>
-        /// <returns>The result of handling the command.</returns>
+        /// <summary>Applies partial updates to the payment method and persists changes.</summary>
+        /// <param name="command">The command containing the payment method ID and update data.</param>
+        /// <param name="cancellationToken">Propagates cancellation signal.</param>
+        /// <returns>A result containing the updated payment method details or an error.</returns>
+        /// <exception cref="DbUpdateException">Thrown when database persistence fails.</exception>
         public async Task<Result<Response>> Handle(Command command, CancellationToken cancellationToken)
         {
-
-        // Contract: pre=command!=null, post=result!=null
+            // Contract: pre=command!=null && command.Id!=Guid.Empty, post=method updated, throws=DbUpdateException
             // Check: Verify the payment method exists.
             var method = await dbContext.Set<PaymentMethod>()
                 .FirstOrDefaultAsync(m => m.Id == command.Id, cancellationToken);
@@ -31,7 +31,6 @@ namespace Module.Payment.Features.Admin.PaymentMethods.Update;
             if (result.IsFailure)
                 return result.Errors;
 
-            // Persist: Save changes to the database.
             await dbContext.SaveChangesAsync(cancellationToken);
 
             // Map: Return the updated entity as response.

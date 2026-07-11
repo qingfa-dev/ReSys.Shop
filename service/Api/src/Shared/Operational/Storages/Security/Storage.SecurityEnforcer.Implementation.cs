@@ -5,15 +5,21 @@ using Shared.Operational.Storages.Security.Options;
 
 namespace Shared.Operational.Storages.Security;
 
+/// <summary>Validates uploads against extension allowlist/blocklist, file size cap, and optional magic-byte signatures — mitigates TMT-FILE-001.</summary>
+// Invariant: Extension check passes only if extension is in AllowedExtensions AND not in BlockedExtensions; magic-byte validation is optional.
+// Context: File upload validation prevents malicious file execution (Threat TMT-FILE-001). Extension-only checks are insufficient — magic bytes provide content-type verification.
 internal sealed partial class StorageSecurityEnforcer(
     IOptions<StorageSecuritySetting> options,
     ILogger<StorageSecurityEnforcer> logger)
     : IStorageSecurityEnforcer
 {
+    /// <summary>Validates a file upload against extension allowlist/blocklist, size cap, and magic-byte signatures.</summary>
+    // Contract: pre=request!=null, post=return.IsSuccess implies all security checks passed, throws=never
     public async Task<Result> EnforceAsync(UploadRequest request, CancellationToken ct = default)
     {
         string extension = Path.GetExtension(request.Key);
 
+        // Validate: reject blocked extensions before checking allowlist — blocklist takes priority
         Result blockedResult = CheckBlockedExtension(extension);
         if (!blockedResult.IsSuccess)
         {
@@ -21,6 +27,7 @@ internal sealed partial class StorageSecurityEnforcer(
             return blockedResult;
         }
 
+        // Validate: reject extensions not in the configured allowlist
         Result allowedResult = CheckAllowedExtension(extension);
         if (!allowedResult.IsSuccess)
         {
@@ -28,6 +35,7 @@ internal sealed partial class StorageSecurityEnforcer(
             return allowedResult;
         }
 
+        // Validate: reject files exceeding configured maximum size
         Result sizeResult = CheckFileSize(request.Content);
         if (!sizeResult.IsSuccess)
         {
@@ -35,6 +43,7 @@ internal sealed partial class StorageSecurityEnforcer(
             return sizeResult;
         }
 
+        // Validate: optionally verify file header bytes match known signatures for the extension
         if (options.Value.ValidateMagicBytes)
         {
             Result magicResult = await CheckMagicBytesAsync(request.Content, extension, ct);
@@ -49,6 +58,7 @@ internal sealed partial class StorageSecurityEnforcer(
         return Result.Ok();
     }
 
+    // Validate: check extension against configured blocklist — rejects dangerous extensions like .exe, .scr
     private Result CheckBlockedExtension(string extension)
     {
         if (string.IsNullOrEmpty(extension))
@@ -60,6 +70,7 @@ internal sealed partial class StorageSecurityEnforcer(
         return Result.Ok();
     }
 
+    // Validate: check extension against configured allowlist — only known-safe extensions permitted
     private Result CheckAllowedExtension(string extension)
     {
         if (string.IsNullOrEmpty(extension))
@@ -74,6 +85,7 @@ internal sealed partial class StorageSecurityEnforcer(
         return Result.Ok();
     }
 
+    // Validate: check file size against configured maximum to prevent resource exhaustion
     private Result CheckFileSize(Stream content)
     {
         long length;
@@ -92,6 +104,7 @@ internal sealed partial class StorageSecurityEnforcer(
         return Result.Ok();
     }
 
+    // Validate: read file header bytes and compare against known magic signatures for the extension
     private static async Task<Result> CheckMagicBytesAsync(Stream content, string extension, CancellationToken ct)
     {
         if (!KnownMagicSignatures.TryGetValue(extension, out byte[][]? signatures))
@@ -118,6 +131,7 @@ internal sealed partial class StorageSecurityEnforcer(
         return Result.Ok();
     }
 
+    // Compute: read exact byte count from stream — handles partial reads from network streams
     private static async Task<byte[]> ReadExactAsync(Stream stream, int count, CancellationToken ct)
     {
         byte[] buffer = new byte[count];

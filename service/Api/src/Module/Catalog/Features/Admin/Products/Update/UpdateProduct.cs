@@ -54,10 +54,9 @@ public static partial class UpdateProduct
             if (result.IsFailure)
                 return result.Errors;
 
-            // Persist: Save updated product to database
             await dbContext.SaveChangesAsync(cancellationToken);
 
-            // Dispatch: Update master variant via command (mirrors CreateProduct → AddVariant pattern)
+            // Trigger: Update master variant via command (mirrors CreateProduct → AddVariant pattern)
             var masterVariant = entity.Variants.FirstOrDefault(v => v.IsMaster);
             if (masterVariant is not null)
             {

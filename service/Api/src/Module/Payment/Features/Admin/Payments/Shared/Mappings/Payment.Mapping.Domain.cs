@@ -1,14 +1,14 @@
-using Module.Payment.Domain.Payments;
+using Module.Payment.Domain.PaymentCaptures;
 
-using PaymentRecord = Module.Payment.Domain.Payments.PaymentRecord;
+using PaymentCapture = Module.Payment.Domain.PaymentCaptures.PaymentCapture;
 
 namespace Module.Payment.Features.Admin.Payments.Shared.Mappings;
 
 public static class PaymentRecordMapping
 {
-    public static PaymentRecord MapToDomain<T>(this T parameters) where T : Models.PaymentParameters
+    public static PaymentCapture MapToDomain<T>(this T parameters) where T : Models.PaymentParameters
     {
-        return PaymentFactory.Create(
+        return PaymentCaptureMethod.Create(
             parameters.Amount,
             parameters.PaymentMethodId,
             parameters.OrderId).Value;

@@ -1,13 +1,13 @@
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-using Module.Payment.Domain.Payments;
+using Module.Payment.Domain.PaymentCaptures;
 using Module.Payment.Persistence.Constants;
 
 namespace Module.Payment.Persistence.Configurations.Payments;
 
-public class PaymentConfiguration : IEntityTypeConfiguration<global::Module.Payment.Domain.Payments.PaymentRecord>
+public class PaymentConfiguration : IEntityTypeConfiguration<global::Module.Payment.Domain.PaymentCaptures.PaymentCapture>
 {
-    public void Configure(EntityTypeBuilder<global::Module.Payment.Domain.Payments.PaymentRecord> builder)
+    public void Configure(EntityTypeBuilder<global::Module.Payment.Domain.PaymentCaptures.PaymentCapture> builder)
     {
         builder.ToTable(PaymentSchema.TableNames.PaymentRecords, PaymentSchema.Name);
 

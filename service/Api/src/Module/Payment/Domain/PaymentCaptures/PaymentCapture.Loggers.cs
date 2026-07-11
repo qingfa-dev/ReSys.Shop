@@ -1,6 +1,6 @@
-namespace Module.Payment.Domain.Payments;
+namespace Module.Payment.Domain.PaymentCaptures;
 
-public static partial class PaymentLoggers
+public static partial class PaymentCaptureLoggers
 {
     [LoggerMessage(
         EventId = 3101,

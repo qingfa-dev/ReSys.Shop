@@ -27,46 +27,43 @@ public static partial class UpdateUser
     )
         : ICommandHandler<Command, Response>
     {
+        // Contract: pre=command!=null, post=result!=null, throws=DbUpdateException
         /// <summary>
-        /// Handles the update of a user account and synchronizes changes to the associated profile.
+        /// Updates a user's details by ID. Validates uniqueness of the new email and username
+        /// (excluding the current user), maps changes to the domain entity, persists via Identity,
+        /// and logs the update.
         /// </summary>
         /// <param name="command">The command with updated user data.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns>A result containing the updated user's details or an error.</returns>
+        /// <returns>A result containing the updated user's details, or not-found/duplicate error.</returns>
+        /// <exception cref="DbUpdateException">Thrown when the identity store fails to persist the update.</exception>
         public async Task<Result<Response>> Handle(Command command, CancellationToken cancellationToken)
         {
             var request = command.Request;
 
-            // Check: Find the user by its unique identifier.
             var user = await userManager.FindByIdAsync(command.Id.ToString());
             if (user is null)
                 return UserResult.Failure.NotFound;
 
-            // Check: Verify if the new email already exists for another user.
             var existingByEmail = await userManager.FindByEmailAsync(request.Email);
             if (existingByEmail is not null && existingByEmail.Id != user.Id)
                 return UserResult.Failure.EmailDuplicate;
 
-            // Check: Verify if the new username already exists for another user.
             var existingByUserName = await userManager.FindByNameAsync(request.UserName);
             if (existingByUserName is not null && existingByUserName.Id != user.Id)
                 return UserResult.Failure.UsernameDuplicate;
 
-            // Update: Apply changes from the request to the user entity.
             var updateResult = request.MapToDomain(user);
             if (updateResult.IsFailure)
                 return updateResult.Errors;
 
-            // Update: Persist the changes using the user manager.
             var result = await userManager.UpdateAsync(user);
             if (!result.Succeeded)
                 return result.ToResult<Response>();
 
-            // Log: Record successful user update
             UserLoggers.Management.Updated(logger, UserName: user.UserName!, Email: user.Email!, UserId: user.Id,
                 ActionBy: currentUser.UserName);
 
-            // Map: Convert the updated user entity to the response DTO.
             return user.MapToDetail<Response>();
         }
     }

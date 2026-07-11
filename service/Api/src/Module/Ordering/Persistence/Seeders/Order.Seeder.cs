@@ -2,7 +2,7 @@ using Module.Catalog.Domain.Products.Variants;
 using Module.Ordering.Domain.LineItems;
 using Module.Ordering.Domain.Orders;
 using Module.Payment.Domain.PaymentMethods;
-using Module.Payment.Domain.Payments;
+using Module.Payment.Domain.PaymentCaptures;
 
 using Module.Profile.Domain;
 using Module.Profile.Domain.Addresses;
@@ -101,7 +101,7 @@ public sealed class OrderSeeder(IApplicationDbContext context) : AbstractDataSee
         if (finalizeResult.IsFailure)
             return;
 
-        var paymentResult = PaymentFactory.Create(order.Total, creditCard.Id, order.Id);
+        var paymentResult = PaymentCaptureMethod.Create(order.Total, creditCard.Id, order.Id);
         if (paymentResult.IsFailure)
             return;
         var payment = paymentResult.Value;

@@ -15,35 +15,35 @@ public static partial class UpdateOptionType
         : ICommandHandler<Command, Response>
     {
         /// <summary>
-        /// Handles the request and returns a result.
+        /// Updates an existing option type after validating name uniqueness.
         /// </summary>
-        /// <param name="command">The command containing request data.</param>
+        /// <param name="command">The command containing the ID and update payload.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
-        // Contract: pre=command!=null, post=result!=null
+        /// <exception cref="DbUpdateException">Thrown when persistence fails.</exception>
+        // Contract: pre=command.Id!=Guid.Empty && command.Request!=null, post=result!=null, throws=DbUpdateException
         public async Task<Result<Response>> Handle(Command command, CancellationToken cancellationToken)
         {
             var request = command.Request;
 
-            // Query: Fetch the existing option type by ID.
+            // Load: Fetch the existing option type to modify
             var entity = await dbContext.Set<OptionType>()
                 .FirstOrDefaultAsync(x => x.Id == command.Id, cancellationToken);
 
             if (entity is null)
                 return OptionTypeResult.Failure.NotFound;
 
-            // Check: Verify if an option type with the same name already exists (excluding the current one).
+            // Validate: Updated name must not conflict with another option type
             var nameExists = await dbContext.Set<OptionType>()
                 .AnyAsync(x => x.Name == request.Name && x.Id != command.Id, cancellationToken);
 
             if (nameExists)
                 return OptionTypeResult.Failure.DuplicateName;
 
-            // Update: Apply changes from the request to the entity.
+            // Update: Apply incoming request values to existing entity
             var result = request.MapToDomain(entity);
             if (result.IsFailure)
                 return result.Errors;
 
-            // Persist: Save changes to the database.
             await dbContext.SaveChangesAsync(cancellationToken);
 
             // Log: Record option type update event for audit trail

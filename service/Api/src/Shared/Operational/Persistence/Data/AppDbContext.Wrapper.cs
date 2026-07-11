@@ -1,6 +1,7 @@
 using System.Diagnostics.CodeAnalysis;
 
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 
 namespace Shared.Operational.Persistence.Data;
 
@@ -10,6 +11,11 @@ namespace Shared.Operational.Persistence.Data;
 /// </summary>
 public interface IApplicationDbContext
 {
+    /// <summary>
+    /// Gets the <see cref="Microsoft.EntityFrameworkCore.DatabaseFacade"/> for the context.
+    /// </summary>
+    DatabaseFacade Database { get; }
+
     /// <summary>
     /// Gets a DbSet for the specified entity type.
     /// </summary>

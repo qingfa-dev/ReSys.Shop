@@ -1,9 +1,11 @@
+using Microsoft.EntityFrameworkCore;
+
 using Module.Inventory.Domain.StockTransfers;
 using Module.Inventory.Features.Admin.StockTransfers.Shared.Mappings;
 
 namespace Module.Inventory.Features.Admin.StockTransfers.Create;
 
-/// <summary>Handles creation of a new stock transfer between locations.</summary>
+/// <summary>Creates a stock transfer request between source and destination locations in Draft state.</summary>
 public static partial class CreateStockTransfer
 {
     public sealed record Command(Request Request) : ICommand<Response>;
@@ -14,13 +16,14 @@ public static partial class CreateStockTransfer
         ICurrentUser currentUser)
         : ICommandHandler<Command, Response>
     {
-        /// <summary>Executes the create stock transfer command.</summary>
-        /// <param name="command">The command containing the transfer request data.</param>
+        /// <summary>Maps the request to a domain transfer entity and persists it.</summary>
+        /// <param name="command">The command containing transfer data.</param>
         /// <param name="cancellationToken">Cancellation token.</param>
-        /// <returns>A result containing the created stock transfer details.</returns>
+        /// <returns>A result with the created transfer details.</returns>
+        /// <exception cref="DbUpdateException">Thrown when the database update fails.</exception>
         public async Task<Result<Response>> Handle(Command command, CancellationToken cancellationToken)
         {
-            // Contract: pre=command!=null, post=result!=null
+            // Contract: pre=command!=null, post=result!=null, throws=DbUpdateException
             var request = command.Request;
 
             // Map: Convert request to domain entity via shared mapper
@@ -33,7 +36,6 @@ public static partial class CreateStockTransfer
             var transfer = createResult.Value;
             transfer.CreatedBy = currentUser.UserName;
 
-            // Persist: Save the new transfer to the database
             dbContext.Set<StockTransfer>().Add(transfer);
             await dbContext.SaveChangesAsync(cancellationToken);
 

@@ -2,16 +2,16 @@ using Module.Ordering.Domain.LineItems;
 
 namespace Module.Ordering.Features.Admin.Orders.Get.LineItems;
 
-/// <summary>Handles GetOrderLineItems feature.</summary>
+/// <summary>Retrieves a paged list of line items for a given order, supporting filtering and sorting for the admin view.</summary>
 public static partial class GetOrderLineItems
 {
     public sealed record Query(Guid OrderId, QueryingParameters Parameters) : IPagedQuery<Response>;
     public sealed class PagedQueryHandler(IApplicationDbContext dbContext) : IPagedQueryHandler<Query, Response>
     {
-        /// <summary>Handles the query.</summary>
-        /// <param name="request">The query request.</param>
+        /// <summary>Parses parameters and queries line items scoped to the order with paging.</summary>
+        /// <param name="request">The paged query request with order ID and parameters.</param>
         /// <param name="cancellationToken">Cancellation token.</param>
-        /// <returns>The result of handling the query.</returns>
+        /// <returns>The paged line item list response.</returns>
         public async Task<PagedResult<Response>> Handle(Query request, CancellationToken cancellationToken)
         {
             var parameters = request.Parameters;

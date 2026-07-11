@@ -3,23 +3,22 @@ using Module.Location.Features.Admin.States.Shared.Mappings;
 
 namespace Module.Location.Features.Admin.States.GetByIsoCode;
 
-/// <summary>Handles retrieval of a state by ISO code (abbreviation).</summary>
+/// <summary>Retrieves a state by its abbreviation (ISO code).</summary>
 public static partial class GetStateByIso
 {
-    /// <summary>Query to retrieve a state by ISO code.</summary>
     public sealed record Query(string IsoCode) : IQuery<Response>;
 
     public sealed class QueryHandler(IApplicationDbContext dbContext)
         : IQueryHandler<Query, Response>
     {
-        /// <summary>Executes the get state by iso query.</summary>
+        /// <summary>Loads a single state by abbreviation and maps to detail response.</summary>
         /// <param name="request">The query containing the ISO code.</param>
-        /// <param name="cancellationToken">Cancellation token.</param>
-        /// <returns>A result containing the state details.</returns>
+        /// <param name="cancellationToken">Propagates cancellation signal.</param>
+        /// <returns>A result containing the state details or a not-found error.</returns>
         public async Task<Result<Response>> Handle(Query request, CancellationToken cancellationToken)
         {
-            // Contract: pre=request!=null, post=result!=null
-            // Query: Retrieve state by abbreviation.
+            // Contract: pre=request!=null, post=state found or NotFound returned
+            // Load: Retrieve state by abbreviation.
             var entity = await dbContext.Set<State>()
                 .FirstOrDefaultAsync(predicate: s =>
                     s.Abbreviation == request.IsoCode, cancellationToken: cancellationToken);

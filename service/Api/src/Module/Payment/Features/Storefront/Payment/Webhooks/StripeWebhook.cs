@@ -1,12 +1,12 @@
-using Module.Payment.Domain.Payments;
-using PaymentRecord = Module.Payment.Domain.Payments.PaymentRecord;
+using Module.Payment.Domain.PaymentCaptures;
+using PaymentCapture = Module.Payment.Domain.PaymentCaptures.PaymentCapture;
 using Stripe;
 using StripeEvent = Stripe.Event;
 
 namespace Module.Payment.Features.Storefront.Payment.Webhooks;
 
-    /// <summary>Handles StripeWebhook feature.</summary>
-    public static partial class StripeWebhook
+/// <summary>Processes inbound Stripe webhooks by validating signatures and dispatching to event handlers.</summary>
+public static partial class StripeWebhook
 {
     public sealed record Command(string Payload, string StripeSignature) : ICommand;
 
@@ -15,14 +15,15 @@ namespace Module.Payment.Features.Storefront.Payment.Webhooks;
         IStripeWebhookService webhookService)
         : ICommandHandler<Command>
     {
-        /// <summary>Handles the command.</summary>
-        /// <param name="command">The command to handle.</param>
-        /// <param name="cancellationToken">Cancellation token.</param>
-        /// <returns>The result of handling the command.</returns>
+        /// <summary>Validates the Stripe webhook signature, parses the event, and routes to the appropriate handler.</summary>
+        /// <param name="command">The command containing the raw payload and Stripe signature header.</param>
+        /// <param name="cancellationToken">Propagates cancellation signal.</param>
+        /// <returns>A success result or an error if signature validation or event processing fails.</returns>
+        /// <exception cref="DbUpdateException">Thrown when database persistence fails in event handlers.</exception>
         public async Task<Result> Handle(Command command, CancellationToken cancellationToken)
         {
-
-        // Contract: pre=command!=null, post=result!=null
+            // Contract: pre=command!=null && command.Payload!=null, post=event routed or silently skipped,
+            //           throws=DbUpdateException
             // Validate: Verify Stripe webhook signature
             if (!webhookService.ValidateSignature(command.Payload, command.StripeSignature))
                 return StripeWebhookResult.Errors.InvalidSignature;
@@ -60,7 +61,7 @@ namespace Module.Payment.Features.Storefront.Payment.Webhooks;
             if (intent is null)
                 return Result.Ok();
 
-            var payment = await dbContext.Set<PaymentRecord>()
+            var payment = await dbContext.Set<PaymentCapture>()
                 .FirstOrDefaultAsync(p => p.ResponseCode == intent.Id, cancellationToken);
 
             if (payment is null)
@@ -70,7 +71,7 @@ namespace Module.Payment.Features.Storefront.Payment.Webhooks;
             if (completeResult.IsFailure)
                 return completeResult.Errors;
             await dbContext.SaveChangesAsync(cancellationToken);
-            return Result.Ok(PaymentResult.Success.Completed(payment.Number));
+            return Result.Ok(PaymentCaptureResult.Success.Completed(payment.Number));
         }
 
         // Handle: payment_intent.payment_failed -- transition payment to Failed
@@ -81,7 +82,7 @@ namespace Module.Payment.Features.Storefront.Payment.Webhooks;
             if (intent is null)
                 return Result.Ok();
 
-            var payment = await dbContext.Set<PaymentRecord>()
+            var payment = await dbContext.Set<PaymentCapture>()
                 .FirstOrDefaultAsync(p => p.ResponseCode == intent.Id, cancellationToken);
 
             if (payment is null)
@@ -91,7 +92,7 @@ namespace Module.Payment.Features.Storefront.Payment.Webhooks;
             if (failResult.IsFailure)
                 return failResult.Errors;
             await dbContext.SaveChangesAsync(cancellationToken);
-            return Result.Ok(PaymentResult.Success.Failed(payment.Number));
+            return Result.Ok(PaymentCaptureResult.Success.Failed(payment.Number));
         }
 
         // Handle: charge.refunded -- record refund
@@ -102,7 +103,7 @@ namespace Module.Payment.Features.Storefront.Payment.Webhooks;
             if (charge is null || string.IsNullOrEmpty(charge.PaymentIntentId))
                 return Result.Ok();
 
-            var payment = await dbContext.Set<PaymentRecord>()
+            var payment = await dbContext.Set<PaymentCapture>()
                 .FirstOrDefaultAsync(p => p.ResponseCode == charge.PaymentIntentId, cancellationToken);
 
             if (payment is null)

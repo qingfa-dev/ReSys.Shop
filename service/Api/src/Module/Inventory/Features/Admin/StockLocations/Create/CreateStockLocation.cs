@@ -37,7 +37,6 @@ public static partial class CreateStockLocation
 
             var entity = result.Value;
 
-            // Persist: Save the new stock location to the database.
             dbContext.Set<StockLocation>().Add(entity);
             await dbContext.SaveChangesAsync(cancellationToken);
 

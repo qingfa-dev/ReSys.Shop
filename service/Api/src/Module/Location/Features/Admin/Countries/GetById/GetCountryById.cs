@@ -3,23 +3,22 @@ using Module.Location.Features.Admin.Countries.Shared.Mappings;
 
 namespace Module.Location.Features.Admin.Countries.GetById;
 
-/// <summary>Handles retrieval of a country by identifier.</summary>
+/// <summary>Retrieves a country by its unique identifier.</summary>
 public static partial class GetCountryById
 {
-    /// <summary>Query to retrieve a country by ID.</summary>
     public sealed record Query(Guid Id) : IQuery<Response>;
 
     public sealed class QueryHandler(IApplicationDbContext dbContext)
         : IQueryHandler<Query, Response>
     {
-        /// <summary>Executes the get country by id query.</summary>
+        /// <summary>Loads a single country by ID and maps to detail response.</summary>
         /// <param name="request">The query containing the country identifier.</param>
-        /// <param name="cancellationToken">Cancellation token.</param>
-        /// <returns>A result containing the country details.</returns>
+        /// <param name="cancellationToken">Propagates cancellation signal.</param>
+        /// <returns>A result containing the country details or a not-found error.</returns>
         public async Task<Result<Response>> Handle(Query request, CancellationToken cancellationToken)
         {
-            // Contract: pre=request!=null, post=result!=null
-            // Query: Retrieve country by identifier.
+            // Contract: pre=request!=null, post=country found or NotFound returned
+            // Load: Retrieve country by identifier.
             var entity = await dbContext.Set<Country>()
                 .FirstOrDefaultAsync(predicate: c => c.Id == request.Id, cancellationToken: cancellationToken);
 

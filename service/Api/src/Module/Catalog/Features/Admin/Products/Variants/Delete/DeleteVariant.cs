@@ -46,7 +46,6 @@ public static partial class DeleteVariant
             if (deleteResult.IsFailure)
                 return deleteResult.Errors;
 
-            // Persist: Save soft-delete state to database
             dbContext.Set<Variant>().Update(entity);
             await dbContext.SaveChangesAsync(cancellationToken);
 

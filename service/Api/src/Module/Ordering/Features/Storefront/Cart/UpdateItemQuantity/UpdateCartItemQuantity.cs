@@ -4,7 +4,7 @@ using Module.Ordering.Domain.LineItems;
 using Module.Ordering.Domain.Orders;
 
 namespace Module.Ordering.Features.Storefront.Cart.UpdateItemQuantity;
-/// <summary>Handles UpdateCartItemQuantity feature.</summary>
+/// <summary>Updates the quantity of a line item in the current user's draft cart after validating stock availability.</summary>
 public static partial class UpdateCartItemQuantity
 {
     public sealed record Command(Guid LineItemId, Request Request) : ICommand;
@@ -15,20 +15,21 @@ public static partial class UpdateCartItemQuantity
         ICurrentUser currentUser)
         : ICommandHandler<Command>
     {
-        /// <summary>Handles the command.</summary>
-        /// <param name="command">The command to handle.</param>
+        /// <summary>Validates stock, updates the line item quantity and total, and recalculates cart totals.</summary>
+        /// <param name="command">The command containing the line item ID and new quantity.</param>
         /// <param name="cancellationToken">Cancellation token.</param>
-        /// <returns>The result of handling the command.</returns>
+        /// <returns>The result of the operation.</returns>
+        /// <exception cref="DbUpdateException">Thrown when the database update fails.</exception>
         public async Task<Result> Handle(Command command, CancellationToken cancellationToken)
         {
-            // Contract: pre=command!=null, post=result!=null
+            // Contract: pre=command!=null, post=result!=null, throws=DbUpdateException
             if (!Guid.TryParse(currentUser.UserId, out var userId))
                 return OrderResult.Errors.UserNotAuthenticated;
 
             if (command.Request.Quantity <= 0 || command.Request.Quantity > LineItemConstant.MaxQuantity)
                 return OrderResult.Errors.QuantityNotPositive;
 
-            // Query: Find the user's draft cart.
+            // Check: Find the user's draft cart.
             var cart = await dbContext.Set<Order>()
                 .Include(x => x.LineItems)
                 .Where(x => x.UserId == userId && x.Status == OrderStatus.Draft)
@@ -41,7 +42,7 @@ public static partial class UpdateCartItemQuantity
             if (lineItem is null)
                 return LineItemResult.Errors.NotFound(command.LineItemId);
 
-            // Validate: Check stock availability.
+            // Validate: Stock availability for the new quantity.
             var stockItems = await dbContext.Set<StockItem>()
                 .Where(x => x.VariantId == lineItem.VariantId)
                 .ToListAsync(cancellationToken);
@@ -54,10 +55,9 @@ public static partial class UpdateCartItemQuantity
             lineItem.Total = lineItem.Price * command.Request.Quantity;
             cart.RecalculateTotals();
 
-            // Persist: Save changes.
             await dbContext.SaveChangesAsync(cancellationToken);
 
-            // Log: Record operation.
+            // Log: Record quantity change in audit log.
             LineItemLoggers.QuantityUpdated(logger, Id: lineItem.Id, OrderId: cart.Id, Quantity: lineItem.Quantity, ActionBy: currentUser.UserName);
 
             return Result.Ok();

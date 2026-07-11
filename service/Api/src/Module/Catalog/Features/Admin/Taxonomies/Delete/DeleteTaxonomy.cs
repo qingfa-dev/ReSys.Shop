@@ -18,37 +18,37 @@ public static partial class DeleteTaxonomy
         : ICommandHandler<Command>
     {
         /// <summary>
-        /// Handles the request and returns a result.
+        /// Deletes a taxonomy after ensuring no active child taxons remain.
         /// </summary>
-        /// <param name="command">The command containing request data.</param>
+        /// <param name="command">The command containing the taxonomy ID.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
+        /// <exception cref="DbUpdateException">Thrown when persistence fails.</exception>
+        // Contract: pre=command.Id!=Guid.Empty, post=result.IsSuccess, throws=DbUpdateException
         public async Task<Result> Handle(Command command, CancellationToken cancellationToken)
         {
-            // Query: Find the existing taxonomy entity, including its associated taxons.
+            // Load: Fetch taxonomy with associated taxons to evaluate deletion eligibility
             var entity = await dbContext.Set<Taxonomy>()
                 .Include(x => x.Taxons)
                 .FirstOrDefaultAsync(x => x.Id == command.Id, cancellationToken);
             if (entity is null)
                 return TaxonomyResult.Errors.NotFound;
 
-            // Guard: Prevent deletion if there are any associated taxons.
-            // Requirement: Allow deletion if no taxons left or only the root with no children left.
+            // Enforce: Prevent deletion when non-root taxons or root with children still exist
             var nonRootTaxonsCount = entity.Taxons.Count(x => x.ParentId != null);
             var rootTaxon = entity.Taxons.FirstOrDefault(x => x.ParentId == null);
 
             if (nonRootTaxonsCount > 0 || (rootTaxon != null && rootTaxon.Children.Count > 0))
                 return TaxonomyResult.Errors.HasTaxons;
 
-            // Remove: Delete the taxonomy entity from the database.
+            // Remove: Soft-delete the taxonomy entity
             var deleteResult = entity.Delete();
             if (deleteResult.IsFailure)
                 return deleteResult.Errors;
 
-            // Remove: Delete the taxonomy entity from the database.
             dbContext.Set<Taxonomy>().Update(entity);
             await dbContext.SaveChangesAsync(cancellationToken);
 
-            // Root taxon: Delete the root taxon for this taxonomy.
+            // Trigger: Cascade delete to root taxon via DeleteTaxon command
             var root = await dbContext.Set<Taxon>()
                 .IgnoreQueryFilters()
                 .FirstOrDefaultAsync(x => x.TaxonomyId == entity.Id && x.ParentId == null, cancellationToken);
@@ -57,7 +57,6 @@ public static partial class DeleteTaxonomy
                 await sender.Send(new DeleteTaxon.Command(entity.Id, root.Id), cancellationToken);
             }
 
-            // Create: The response with the ID of the deleted entity.
             return Result.Ok(TaxonomyResult.Success.Deleted);
         }
     }

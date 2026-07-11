@@ -5,23 +5,24 @@ using Shared.Security.Identity.Domain.Tokens;
 
 namespace Shared.Security.Authentication.Tokens.Services.Refresh.Store;
 
-/// <summary>
-/// EF Core implementation of <see cref="IRefreshTokenStore"/> for refresh token persistence.
-/// </summary>
+/// <summary>Stores and retrieves refresh tokens using EF Core against the application database context.</summary>
+// Invariant: TokenHash is the sole lookup key for GetByTokenHashAsync; revoked tokens keep RevokedAtUtc set; expired tokens are filtered by ExpiresAtUtc.
+// Boundary: Store → Persistence — no domain logic lives here, only data access.
 public partial class RefreshTokenStore(
     IApplicationDbContext dbContext,
     ILogger<RefreshTokenStore> logger) : IRefreshTokenStore
 {
-    /// <inheritdoc/>
+    /// <summary>Looks up a refresh token by its SHA256 hash.</summary>
+    // Contract: pre=tokenHash!=null, post=return==null || return.TokenHash==tokenHash, throws=Exception on EF Core failure
     public async Task<RefreshToken?> GetByTokenHashAsync(string tokenHash, CancellationToken ct = default)
     {
-        // Validate: Guard against empty hash
+        // Guard: empty hash cannot match any stored token — return null immediately
         if (string.IsNullOrWhiteSpace(tokenHash))
         {
             return null;
         }
 
-        // Call: Retrieve token by SHA256 hash from the identity store
+        // Call: EF Core query filtered by SHA256 hash (module boundary: Store → Persistence)
         try
         {
             return await dbContext.Set<RefreshToken>()
@@ -29,15 +30,17 @@ public partial class RefreshTokenStore(
         }
         catch (Exception ex)
         {
+            // Catch: log and rethrow to let caller handle infrastructure failure
             Loggers.LogStoreOperationFailed(logger, nameof(GetByTokenHashAsync), ex);
             throw;
         }
     }
 
-    /// <inheritdoc/>
+    /// <summary>Looks up a refresh token by its primary key.</summary>
+    // Contract: pre=id!=Guid.Empty, post=return==null || return.Id==id, throws=Exception on EF Core failure
     public async Task<RefreshToken?> GetByIdAsync(Guid id, CancellationToken ct = default)
     {
-        // Call: Retrieve token by primary key
+        // Call: EF Core query by primary key
         try
         {
             return await dbContext.Set<RefreshToken>()
@@ -45,18 +48,19 @@ public partial class RefreshTokenStore(
         }
         catch (Exception ex)
         {
+            // Catch: log and rethrow to let caller handle infrastructure failure
             Loggers.LogStoreOperationFailed(logger, nameof(GetByIdAsync), ex);
             throw;
         }
     }
 
-    /// <inheritdoc/>
+    /// <summary>Returns all non-expired and non-revoked tokens for a user.</summary>
+    // Contract: pre=userId!=Guid.Empty, post=return contains only RevokedAtUtc==null && ExpiresAtUtc>UtcNow tokens, throws=Exception on EF Core failure
     public async Task<List<RefreshToken>> GetActiveByUserIdAsync(Guid userId, CancellationToken ct = default)
     {
-        // Contract: Returns only non-expired, non-revoked tokens for the given user
         DateTimeOffset now = DateTimeOffset.UtcNow;
 
-        // Call: Query active tokens with user and time filters
+        // Call: query tokens filtered by user and active status (module boundary: Store → Persistence)
         try
         {
             return await dbContext.Set<RefreshToken>()
@@ -65,15 +69,17 @@ public partial class RefreshTokenStore(
         }
         catch (Exception ex)
         {
+            // Catch: log and rethrow to let caller handle infrastructure failure
             Loggers.LogStoreOperationFailed(logger, nameof(GetActiveByUserIdAsync), ex);
             throw;
         }
     }
 
-    /// <inheritdoc/>
+    /// <summary>Persists a new refresh token entity to the database.</summary>
+    // Contract: pre=entity!=null, post=entity.Id is generated, throws=Exception on EF Core failure
     public async Task AddAsync(RefreshToken entity, CancellationToken ct = default)
     {
-        // Create: Register entity with EF Core change tracker
+        // Call: register and flush within single unit-of-work (module boundary: Store → Persistence)
         try
         {
             dbContext.Set<RefreshToken>().Add(entity);
@@ -81,36 +87,41 @@ public partial class RefreshTokenStore(
         }
         catch (Exception ex)
         {
+            // Catch: log and rethrow to let caller handle infrastructure failure
             Loggers.LogStoreOperationFailed(logger, nameof(AddAsync), ex);
             throw;
         }
     }
 
-    /// <inheritdoc/>
+    /// <summary>Saves changes to an existing tracked refresh token entity.</summary>
+    // Contract: pre=entity is tracked by DbContext, post=changes persisted, throws=Exception on EF Core failure
     public async Task UpdateAsync(RefreshToken entity, CancellationToken ct = default)
     {
-        // Update: EF Core change tracker detects modifications on tracked entities
+        // Call: EF Core tracks modifications automatically on previously-fetched entities
         try
         {
             await dbContext.SaveChangesAsync(ct);
         }
         catch (Exception ex)
         {
+            // Catch: log and rethrow to let caller handle infrastructure failure
             Loggers.LogStoreOperationFailed(logger, nameof(UpdateAsync), ex);
             throw;
         }
     }
 
-    /// <inheritdoc/>
+    /// <summary>Flushes all pending changes to the database in a single transaction.</summary>
+    // Contract: post=all tracked changes persisted, throws=Exception on EF Core failure
     public async Task SaveChangesAsync(CancellationToken ct = default)
     {
-        // Persist: Flush all pending changes in a single unit-of-work
+        // Call: flush unit-of-work (module boundary: Store → Persistence)
         try
         {
             await dbContext.SaveChangesAsync(ct);
         }
         catch (Exception ex)
         {
+            // Catch: log and rethrow to let caller handle infrastructure failure
             Loggers.LogStoreOperationFailed(logger, nameof(SaveChangesAsync), ex);
             throw;
         }

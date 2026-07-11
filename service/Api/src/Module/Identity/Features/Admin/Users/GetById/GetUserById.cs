@@ -11,16 +11,22 @@ public static partial class GetUserById
     public sealed class QueryHandler(IApplicationDbContext dbContext)
         : IQueryHandler<Query, Response>
     {
+        // Contract: pre=request!=null, post=result!=null, throws=DbUpdateException
+        /// <summary>
+        /// Retrieves a user's full details by ID, or returns NotFound if no matching user exists.
+        /// </summary>
+        /// <param name="request">The query containing the user ID.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>A result containing the user details or NotFound error.</returns>
+        /// <exception cref="DbUpdateException">Thrown when the database query fails.</exception>
         public async Task<Result<Response>> Handle(Query request, CancellationToken cancellationToken)
         {
-            // Check: Attempt to find the user by its unique identifier.
             var user = await dbContext.Set<User>()
                 .FirstOrDefaultAsync(u => u.Id == request.Id, cancellationToken);
 
             if (user is null)
                 return UserResult.Failure.NotFound;
 
-            // Map: Convert the user entity to the detailed response DTO.
             var response = user.MapToDetail<Response>();
 
             return response;

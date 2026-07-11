@@ -2,8 +2,8 @@ using Module.Ordering.Domain.Orders;
 
 namespace Module.Ordering.Features.Storefront.Cart.DeleteCart;
 
-    /// <summary>Handles DeleteCart feature.</summary>
-    public static partial class DeleteCart
+/// <summary>Soft-deletes the current user's draft cart by marking it as deleted, reclaiming the resource.</summary>
+public static partial class DeleteCart
 {
     public sealed record Command : ICommand;
 
@@ -12,21 +12,21 @@ namespace Module.Ordering.Features.Storefront.Cart.DeleteCart;
         ICurrentUser currentUser)
         : ICommandHandler<Command>
     {
-        /// <summary>Handles the command.</summary>
-        /// <param name="command">The command to handle.</param>
+        /// <summary>Finds the current user's draft cart and marks it as deleted with a timestamp.</summary>
+        /// <param name="command">The (empty) command.</param>
         /// <param name="cancellationToken">Cancellation token.</param>
-        /// <returns>The result of handling the command.</returns>
+        /// <returns>The result of the operation.</returns>
+        /// <exception cref="DbUpdateException">Thrown when the database update fails.</exception>
         public async Task<Result> Handle(Command command, CancellationToken cancellationToken)
         {
-
-        // Contract: pre=command!=null, post=result!=null
+            // Contract: pre=command!=null, post=result!=null, throws=DbUpdateException
             var userId = Guid.TryParse(currentUser.UserId, out var parsed) ? parsed : (Guid?)null;
             var sessionId = currentUser.IsAuthenticated ? null : currentUser.SessionId;
 
             if (userId is null && string.IsNullOrWhiteSpace(sessionId))
                 return Result.Ok();
 
-            // Query: Retrieve data from database.
+            // Check: Find the user's draft cart.
             var cart = await dbContext.Set<Order>()
                 .Where(x => (x.UserId == userId && x.Status == OrderStatus.Draft)
                          || (x.SessionId == sessionId && x.Status == OrderStatus.Draft))
@@ -35,11 +35,9 @@ namespace Module.Ordering.Features.Storefront.Cart.DeleteCart;
             if (cart is null)
                 return Result.Ok();
 
-            // Update: Modify entity properties.
+            // Update: Soft-delete the cart with timestamp.
             cart.IsDeleted = true;
-            // Update: Modify entity properties.
             cart.DeletedAtUtc = DateTimeOffset.UtcNow;
-            // Persist: Save changes to the database.
             await dbContext.SaveChangesAsync(cancellationToken);
 
             return Result.Ok();

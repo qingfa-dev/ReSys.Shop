@@ -16,9 +16,11 @@ public class StockRestockService(IApplicationDbContext dbContext) : IStockRestoc
         string? reason = null,
         CancellationToken cancellationToken = default)
     {
+        // Validate: Quantity must be positive for a valid restock
         if (quantity <= 0)
             return StockItemResult.Errors.NegativeCountOnHand;
 
+        // Load: Find the stock item by identifier
         var stockItem = await _dbContext.Set<StockItem>()
             .FirstOrDefaultAsync(si => si.Id == stockItemId, cancellationToken);
 
@@ -27,12 +29,15 @@ public class StockRestockService(IApplicationDbContext dbContext) : IStockRestoc
 
         var previousCount = stockItem.CountOnHand;
 
+        // Create: Fulfill pending backorders from the incoming restock quantity
         var backorderResult = await FulfillBackordersInternalAsync(stockItem, quantity, cancellationToken);
         var remainingAfterBackorders = quantity - backorderResult.TotalFulfilled;
 
+        // Update: Add remaining stock to on-hand after backorder fulfillment
         stockItem.CountOnHand += remainingAfterBackorders;
         stockItem.ModifiedAtUtc = DateTimeOffset.UtcNow;
 
+        // Create: Record the restock movement for audit trail
         var movement = StockMovementMethod.Create(
             stockItemId: stockItem.Id,
             quantity: quantity,
@@ -68,6 +73,7 @@ public class StockRestockService(IApplicationDbContext dbContext) : IStockRestoc
         if (!stockItem.Backorderable)
             return result;
 
+        // Load: Find pending backorder reservations in FIFO order
         var backorderReservations = await _dbContext.Set<StockReservation>()
             .Where(r => r.VariantId == stockItem.VariantId
                         && r.StockLocationId == stockItem.StockLocationId
@@ -81,6 +87,7 @@ public class StockRestockService(IApplicationDbContext dbContext) : IStockRestoc
         {
             if (remaining <= 0) break;
 
+            // Compute: How much of this reservation can be fulfilled
             var fill = Math.Min(reservation.Quantity, remaining);
             remaining -= fill;
             result.TotalFulfilled += fill;
@@ -88,16 +95,19 @@ public class StockRestockService(IApplicationDbContext dbContext) : IStockRestoc
             if (fill >= reservation.Quantity)
             {
                 result.FullyFulfilled++;
+                // Update: Mark reservation as fully fulfilled
                 reservation.State = ReservationState.Fulfilled;
             }
             else
             {
                 result.PartiallyFulfilled++;
+                // Update: Reduce the reservation quantity by the fulfilled amount
                 reservation.Quantity -= fill;
             }
 
             reservation.ModifiedAtUtc = DateTimeOffset.UtcNow;
 
+            // Create: Record the backorder fulfillment movement
             var movementResult = StockMovementMethod.Create(
                 stockItemId: stockItem.Id,
                 quantity: fill,

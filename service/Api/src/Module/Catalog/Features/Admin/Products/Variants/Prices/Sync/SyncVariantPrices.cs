@@ -107,7 +107,6 @@ public static partial class SyncVariantPrices
                 }
             }
 
-            // Persist: Save all add/update/remove changes in single transaction
             await dbContext.SaveChangesAsync(cancellationToken);
 
             // Log: Record price sync summary for audit trail

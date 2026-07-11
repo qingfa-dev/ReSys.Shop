@@ -14,14 +14,15 @@ public static partial class GetTaxonomyById
         : IQueryHandler<Query, Response>
     {
         /// <summary>
-        /// Handles the request and returns a result.
+        /// Retrieves a single taxonomy by its ID with full details.
         /// </summary>
-        /// <param name="request">The query containing request data.</param>
-        /// <param name="cancellationToken">The cancellation token.</param>
-        // Contract: pre=request!=null, post=result!=null
+        /// <param name="request">The query containing the taxonomy ID.</param>
+        /// <param name="cancellationToken">Propagates cancellation notification.</param>
+        /// <returns>A success result with the taxonomy detail response.</returns>
+        // Contract: pre=request.Id!=Guid.Empty, post=result!=null
         public async Task<Result<Response>> Handle(Query request, CancellationToken cancellationToken)
         {
-            // Query: Fetch the taxonomy entity by its ID.
+            // Load: Fetch the taxonomy entity by its ID.
             var entity = await dbContext.Set<Taxonomy>()
                 .AsNoTracking()
                 .FirstOrDefaultAsync(x => x.Id == request.Id, cancellationToken);

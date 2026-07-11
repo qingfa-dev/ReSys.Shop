@@ -4,8 +4,8 @@ using Stripe;
 
 namespace Module.Payment.Features.Storefront.Payment.SetupIntent;
 
-    /// <summary>Handles CreateSetupIntent feature.</summary>
-    public static partial class CreateSetupIntent
+/// <summary>Creates a Stripe SetupIntent for saving a payment method for future use.</summary>
+public static partial class CreateSetupIntent
 {
     public sealed record Command(Guid PaymentMethodId) : ICommand<Response>;
 
@@ -13,21 +13,21 @@ namespace Module.Payment.Features.Storefront.Payment.SetupIntent;
         IApplicationDbContext dbContext)
         : ICommandHandler<Command, Response>
     {
-        /// <summary>Handles the command.</summary>
-        /// <param name="command">The command to handle.</param>
-        /// <param name="cancellationToken">Cancellation token.</param>
-        /// <returns>The result of handling the command.</returns>
+        /// <summary>Validates the payment method exists, then creates a Stripe SetupIntent for tokenization.</summary>
+        /// <param name="command">The command containing the payment method ID to set up.</param>
+        /// <param name="cancellationToken">Propagates cancellation signal.</param>
+        /// <returns>A result containing the Stripe client secret or an error.</returns>
+        /// <exception cref="DbUpdateException">Thrown when database persistence fails.</exception>
         public async Task<Result<Response>> Handle(Command command, CancellationToken cancellationToken)
         {
-
-        // Contract: pre=command!=null, post=result!=null
-            // Query: Load payment method
+            // Contract: pre=paymentMethod!=null, post=clientSecret!=null, throws=DbUpdateException|StripeException
+            // Load: Payment method
             var paymentMethod = await dbContext.Set<DomainPaymentMethod>()
                 .FirstOrDefaultAsync(pm => pm.Id == command.PaymentMethodId && pm.Active && !pm.IsDeleted, cancellationToken);
 
             // Check: Verify the payment method exists.
             if (paymentMethod is null)
-                return Domain.Payments.PaymentResult.Failure.NotFound;
+                return Domain.PaymentCaptures.PaymentCaptureResult.Failure.NotFound;
 
             // Call: Create Stripe SetupIntent
             try

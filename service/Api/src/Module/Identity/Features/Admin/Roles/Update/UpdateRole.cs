@@ -26,47 +26,42 @@ public static partial class UpdateRole
         ILogger<CommandHandler> logger)
         : ICommandHandler<Command, Response>
     {
-        // Contract: pre=command!=null, post=result!=null
+        // Contract: pre=command!=null, post=result!=null, throws=DbUpdateException
         /// <summary>
-        /// Handles the command to update an existing role, ensuring uniqueness, system role protection, and raising a domain event.
+        /// Updates a role's name and description. Enforces uniqueness of the new name,
+        /// blocks updates to system-protected roles, records audit metadata, and logs the change.
         /// </summary>
         /// <param name="command">The command containing the updated role's details.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns>A result containing the updated role's details or an error.</returns>
+        /// <returns>A result containing the updated role's details, or NotFound/AlreadyExists/SystemRoleProtected error.</returns>
+        /// <exception cref="DbUpdateException">Thrown when the identity store fails to persist the update.</exception>
         public async Task<Result<Response>> Handle(Command command, CancellationToken cancellationToken)
         {
             var request = command.Request;
 
-            // Check: Find the role by its ID.
             var role = await roleManager.FindByIdAsync(command.Id.ToString());
             if (role is null)
                 return RoleResult.Failure.NotFound;
 
-            // Enforce: System roles cannot be updated.
             if (role.IsSystem)
             {
                 RoleLoggers.Management.SystemRoleProtected(logger, RoleName: role.Name!, RoleId: role.Id);
                 return RoleResult.Failure.SystemRoleProtected;
             }
 
-            // Check: Verify if a role with the updated name already exists and is not the current role.
             var existingByName = await roleManager.FindByNameAsync(request.Name);
             if (existingByName is not null && existingByName.Id != role.Id)
                 return RoleResult.Failure.AlreadyExists;
 
-            // Update: Apply changes from the request to the role entity.
             request.MapToDomain(role);
             AuditableBehavior.Touch(role, DateTimeOffset.UtcNow);
 
-            // Update: Persist the updated role in the identity store.
             var result = await roleManager.UpdateAsync(role);
             if (!result.Succeeded)
                 return result.ToResult<Response>();
 
-            // Log: Record successful role update
             RoleLoggers.Management.Updated(logger, RoleName: role.Name!, RoleId: role.Id);
 
-            // Map: Convert the updated role entity to the response DTO.
             return role.MapToDetail<Response>();
         }
     }

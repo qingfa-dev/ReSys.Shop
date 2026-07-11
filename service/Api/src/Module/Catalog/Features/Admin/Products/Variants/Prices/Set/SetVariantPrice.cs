@@ -68,7 +68,6 @@ public static partial class SetVariantPrice
                 dbContext.Set<Price>().Add(priceResult.Value);
             }
 
-            // Persist: Save price upsert to database
             await dbContext.SaveChangesAsync(cancellationToken);
 
             // Log: Record price change event for audit trail

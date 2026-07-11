@@ -28,24 +28,24 @@ public static partial class AssignUserPermissions
         ILogger<CommandHandler> logger)
         : ICommandHandler<Command>
     {
+        // Contract: pre=command!=null, post=result!=null, throws=DbUpdateException
         /// <summary>
-        /// Handles the command to assign direct permissions to a specific user.
+        /// Assigns direct permissions to a user. Validates caller authority for each requested permission,
+        /// computes delta against existing claims, persists additions, and invalidates the user's permission cache.
         /// </summary>
         /// <param name="command">The command with user ID and permissions to assign.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns>A result indicating success or failure due to unauthorized access, user not found, or internal errors.</returns>
+        /// <returns>A result indicating success or unauthorized/not-found/assign-denied error.</returns>
+        /// <exception cref="DbUpdateException">Thrown when the identity store fails to persist user claims.</exception>
         public async Task<Result> Handle(Command command, CancellationToken cancellationToken)
         {
-            // Check: Ensure the current user is authenticated before proceeding.
             if (!currentUser.IsAuthenticated || !Guid.TryParse(currentUser.UserId, out Guid currentUserId))
                 return UserResult.Failure.Unauthorized;
 
-            // Check: Find the target user by their ID.
             var user = await userManager.FindByIdAsync(command.Id.ToString());
             if (user is null)
                 return UserResult.Failure.NotFound;
 
-            // Filter: Extract and validate permissions from the request against the known PermissionStore.
             var requestedPermissions = command.Request.Permissions
                 .Where(p => PermissionContext.All.Select(p => p.Identifier).Contains(p))
                 .ToList();
@@ -53,24 +53,20 @@ public static partial class AssignUserPermissions
             if (requestedPermissions.Count == 0)
                 return Result.Ok();
 
-            // Security Check: Verify that the current user has the authority to assign all requested permissions.
             var authResult =
                 await permissionService.HasAllPermissionsAsync(currentUserId, requestedPermissions, cancellationToken);
 
             if (authResult.IsFailure || !authResult.Value)
             {
-                // Note: We return the first one from requested list as 'denied' for simple error reporting.
                 return UserResult.Failure.AssignDenied(requestedPermissions.First());
             }
 
-            // Get: Retrieve existing direct claims (permissions) for the user.
             var existingClaims = await userManager.GetClaimsAsync(user);
             var existingPermissionValues = existingClaims
                 .Where(c => c.Type == PermissionMetadataConstant.ClaimType)
                 .Select(c => c.Value)
                 .ToHashSet(StringComparer.OrdinalIgnoreCase);
 
-            // Filter: Identify only the new permissions that need to be added.
             var permissionsToAdd = requestedPermissions
                 .Where(p => !existingPermissionValues.Contains(p))
                 .ToList();
@@ -78,21 +74,17 @@ public static partial class AssignUserPermissions
             if (permissionsToAdd.Count == 0)
                 return Result.Ok();
 
-            // Add: Execute a batch addition of the new direct permissions to the user.
             var addResult =
                 await permissionService.AddUserDirectPermissionsAsync(user.Id, permissionsToAdd, cancellationToken);
             if (addResult.IsFailure)
                 return addResult;
 
-            // Update: Record the modification time for the user metadata.
             AuditableBehavior.Touch(user, dateTime.UtcNow);
 
-            // Sync: Persist the user state.
             var updateResult = await userManager.UpdateAsync(user);
             if (!updateResult.Succeeded)
                 return updateResult.ToResult();
 
-            // Log: Record successful permission assignment
             if (logger.IsEnabled(LogLevel.Debug))
             {
                 var permissions = string.Join(", ", permissionsToAdd);
@@ -100,7 +92,6 @@ public static partial class AssignUserPermissions
                     Permissions: permissions, ActionBy: currentUser.UserName);
             }
 
-            // Post-persist side effects.
             await OnPermissionsChangedAsync(user, cancellationToken);
 
             return Result.Ok();

@@ -25,25 +25,31 @@ public sealed class CartExpiryService : BackgroundService
         _logger = logger;
     }
 
+    /// <summary>Periodically sweeps expired draft carts by running a background job on a configurable interval.</summary>
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
+        // Log: Service started — sweep interval is {DefaultSweepInterval.TotalHours} hours.
         _logger.LogInformation("Cart-expiry service started");
 
         while (!stoppingToken.IsCancellationRequested)
         {
             try
             {
+                // Await: Delay for the configured sweep interval before next run.
                 await Task.Delay(DefaultSweepInterval, stoppingToken);
 
                 using var scope = _scopeFactory.CreateScope();
                 var job = scope.ServiceProvider.GetRequiredService<CartExpiryJob>();
 
+                // Await: Execute the cart expiry job.
                 await job.RunAsync(stoppingToken);
             }
+            // Catch: Shutdown requested — exit loop cleanly.
             catch (OperationCanceledException) when (stoppingToken.IsCancellationRequested)
             {
                 break;
             }
+            // Catch: Log and continue on unexpected errors to keep the sweep loop alive.
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error during cart expiry sweep");

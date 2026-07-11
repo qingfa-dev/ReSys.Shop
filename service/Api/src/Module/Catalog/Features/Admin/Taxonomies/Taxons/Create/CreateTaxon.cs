@@ -21,16 +21,19 @@ public static partial class CreateTaxon
         : ICommandHandler<Command, Response>
     {
         /// <summary>
-        /// Handles the request and returns a result.
+        /// Creates a new taxon under a parent, validates parent ancestry and name uniqueness,
+        /// then rebuilds the hierarchy tree.
         /// </summary>
-        /// <param name="command">The command containing request data.</param>
+        /// <param name="command">The command containing parent taxonomy ID and taxon payload.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
-        // Contract: pre=command!=null, post=result!=null
+        /// <exception cref="DbUpdateException">Thrown when persistence fails.</exception>
+        // Contract: pre=command.TaxonomyId!=Guid.Empty, post=result.Id!=null, throws=DbUpdateException
         public async Task<Result<Response>> Handle(Command command, CancellationToken cancellationToken)
         {
             var taxonomyId = command.TaxonomyId;
             var request = command.Request;
 
+            // Validate: Parent taxonomy must exist to accept new taxons
             var taxonomyExists = await dbContext.Set<Taxonomy>()
                 .AnyAsync(x => x.Id == taxonomyId, cancellationToken);
             if (!taxonomyExists)
@@ -38,6 +41,7 @@ public static partial class CreateTaxon
 
             if (request.ParentId.HasValue)
             {
+                // Validate: Parent taxon must exist and belong to same taxonomy
                 var parent = await dbContext.Set<Taxon>()
                     .AsNoTracking()
                     .FirstOrDefaultAsync(x => x.Id == request.ParentId.Value, cancellationToken);
@@ -49,6 +53,7 @@ public static partial class CreateTaxon
                     return TaxonResult.Errors.ParentTaxonomyMismatch;
             }
 
+            // Validate: Taxon name must be unique within its parent at the same hierarchy level
             var normalizedName = ParameterizableBehavior.Normalize(request.Name);
             var nameExists = await dbContext.Set<Taxon>()
                 .AnyAsync(x => x.TaxonomyId == taxonomyId &&
@@ -57,19 +62,19 @@ public static partial class CreateTaxon
             if (nameExists)
                 return TaxonResult.Errors.DuplicateName;
 
+            // Create: Instantiate new taxon entity from validated request
             var result = request.MapToDomain(taxonomyId);
             if (result.IsFailure)
                 return result.Errors;
             var entity = result.Value;
 
-            // Persist: Add entity to database and save changes.
             dbContext.Set<Taxon>().Add(entity);
             await dbContext.SaveChangesAsync(cancellationToken);
 
             // Log: Record taxon creation event for audit trail
             TaxonLoggers.Created(logger, entity.Id, entity.Name, entity.TaxonomyId);
 
-            // Call: Rebuild hierarchy for the taxonomy.
+            // Trigger: Rebuild hierarchy tree to reflect new taxon position
             var hierarchyResult = await hierarchyService.RebuildHierarchyAsync(entity.TaxonomyId, null, cancellationToken);
             if (hierarchyResult.IsFailure)
             {

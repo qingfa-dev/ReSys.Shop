@@ -3,6 +3,10 @@ using Shared.Security.Authorization.Permissions.Store;
 
 namespace Shared.Security.Authorization.Permissions.Services;
 
+/// <summary>Resolves effective user permissions by merging role-based and direct permissions through a cache-aside pattern with parallel role resolution.</summary>
+// Invariant: Effective permissions are the union of role permissions + direct user permissions; cache is invalidated on every store mutation.
+// Context: Permission resolution must never throw in the authorization pipeline — empty set is the safe default (Threat TMT-AUTH-001).
+// Boundary: Service → Cache | Store — orchestrates between two data sources; never calls the database directly.
 // Contract: pre=cache!=null && store!=null && logger!=null
 public sealed partial class PermissionService(
     IPermissionCache cache,
@@ -10,35 +14,35 @@ public sealed partial class PermissionService(
     ILogger<PermissionService> logger)
     : IPermissionService
 {
-    /// <inheritdoc />
-    // Contract: pre=userId!=Guid.Empty, post=return.IsSuccess
+    /// <summary>Resolves effective permissions for a user by merging role + direct permissions with cache-aside and parallel role resolution.</summary>
+    // Contract: pre=userId!=Guid.Empty, post=return.IsSuccess && return.Value!=null, throws=never — returns empty set on failure
     public async Task<Result<HashSet<string>>> GetEffectiveUserPermissionsAsync(Guid userId,
         CancellationToken ct = default)
     {
         try
         {
-            // Check: Probe user cache for pre-resolved permission set.
+            // Cache: probe user cache for pre-resolved permission set (module boundary: Service → Cache)
             Result<HashSet<string>?> cacheResult = await cache.GetAsync(userId, ct);
 
-            // Guard: Return cached set immediately if found.
+            // Guard: return cached set immediately if found — avoids store round-trips
             if (cacheResult is { IsSuccess: true, Value: not null })
             {
                 Loggers.LogEffectivePermissionsResolved(logger, cacheResult.Value.Count, userId);
                 return Result<HashSet<string>>.Ok(cacheResult.Value, PermissionServiceResult.Success.Resolved);
             }
 
-            // Receive: Fetch role IDs assigned to the user from the store.
+            // Call: fetch role IDs assigned to user from store (module boundary: Service → Store)
             Result<HashSet<Guid>> rolesResult = await store.GetUserRoleIdsAsync(userId, ct);
             HashSet<Guid> roleIds = rolesResult.IsSuccess ? rolesResult.Value : [];
 
-            // Batch: Resolve permissions for each role in parallel via cache-aware pipeline.
+            // Batch: resolve permissions for each role in parallel via cache-aware pipeline — avoids N+1
             IEnumerable<Task<HashSet<string>>> rolePermissionTasks = roleIds.Select(async roleId =>
             {
                 Result<HashSet<string>?> roleCacheResult = await cache.GetRoleAsync(roleId, ct);
                 if (roleCacheResult is { IsSuccess: true, Value: not null })
                     return roleCacheResult.Value;
 
-                // Cache: Fallback to store on cache miss; populate role cache after resolution.
+                // Cache: fallback to store on cache miss; populate role cache after resolution
                 Result<HashSet<string>> roleStoreResult = await store.GetRolePermissionsAsync(roleId, ct);
                 HashSet<string> rolePerms = roleStoreResult.IsSuccess ? roleStoreResult.Value : [];
 
@@ -48,20 +52,20 @@ public sealed partial class PermissionService(
                 return rolePerms;
             });
 
-            // Receive: Fetch direct user permissions (non-role claims) from store.
+            // Call: fetch direct user permissions (non-role claims) from store
             Task<Result<HashSet<string>>> userDirectPermsTask = store.GetUserDirectPermissionsAsync(userId, ct);
 
-            // Await: Execute all role resolution tasks concurrently.
+            // Await: execute all role resolution tasks concurrently for throughput
             HashSet<string>[] rolePermissionSets = await Task.WhenAll(rolePermissionTasks);
             Result<HashSet<string>> userDirectResult = await userDirectPermsTask;
             HashSet<string> userDirectPerms = userDirectResult.IsSuccess ? userDirectResult.Value : [];
 
-            // Merge: Union all role permission sets with direct user permissions.
+            // Merge: union all role permission sets with direct user permissions — case-insensitive dedup
             var permissions = new HashSet<string>(userDirectPerms, StringComparer.OrdinalIgnoreCase);
             foreach (HashSet<string>? set in rolePermissionSets)
                 permissions.UnionWith(set);
 
-            // Cache: Populate user cache with role tags for targeted invalidation.
+            // Cache: populate user cache with role tags for targeted invalidation on role change
             await cache.SetUserAsync(userId, permissions, roleIds, ct);
 
             Loggers.LogEffectivePermissionsResolved(logger, permissions.Count, userId);
@@ -69,21 +73,21 @@ public sealed partial class PermissionService(
         }
         catch (Exception ex)
         {
-            // Catch: Return empty set on unexpected failure to prevent cascading errors.
+            // Catch: return empty set on unexpected failure — never throw in auth pipeline per TMT-AUTH-001
             Loggers.LogUserResolutionFailed(logger, userId, ex.Message);
 
-            // Fallback: Always return success with empty set — never throw in auth pipeline.
+            // Fallback: always return success with empty set to prevent cascading authorization failures
             return Result<HashSet<string>>.Ok(new HashSet<string>(), PermissionServiceResult.Success.Resolved);
         }
     }
 
-    /// <inheritdoc />
-    // Contract: pre=roleId!=Guid.Empty
+    /// <summary>Resolves permissions for a role using cache-aside pattern.</summary>
+    // Contract: pre=roleId!=Guid.Empty, post=return.IsSuccess && return.Value!=null, throws=never
     public async Task<Result<HashSet<string>>> GetRolePermissionsAsync(Guid roleId, CancellationToken ct = default)
     {
         try
         {
-            // Check: Probe role cache first.
+            // Cache: probe role cache first (module boundary: Service → Cache)
             Result<HashSet<string>?> roleCacheResult = await cache.GetRoleAsync(roleId, ct);
             if (roleCacheResult.IsSuccess && roleCacheResult.Value != null)
             {
@@ -91,11 +95,11 @@ public sealed partial class PermissionService(
                 return Result<HashSet<string>>.Ok(roleCacheResult.Value, PermissionServiceResult.Success.RoleResolved);
             }
 
-            // Fallback: Query store on cache miss.
+            // Call: query store on cache miss (module boundary: Service → Store)
             Result<HashSet<string>> roleStoreResult = await store.GetRolePermissionsAsync(roleId, ct);
             HashSet<string> rolePerms = roleStoreResult.IsSuccess ? roleStoreResult.Value : [];
 
-            // Cache: Populate role cache for subsequent requests.
+            // Cache: populate role cache for subsequent requests
             if (roleStoreResult.IsSuccess)
                 await cache.SetRoleAsync(roleId, rolePerms, ct);
 
@@ -104,33 +108,33 @@ public sealed partial class PermissionService(
         }
         catch (Exception ex)
         {
-            // Catch: Return empty set on failure.
+            // Catch: return empty set on failure — prevents auth pipeline crash
             Loggers.LogRoleResolutionFailed(logger, roleId, ex.Message);
             return Result<HashSet<string>>.Ok(new HashSet<string>(), PermissionServiceResult.Success.RoleResolved);
         }
     }
 
-    /// <inheritdoc />
-    // Contract: pre=userId!=Guid.Empty && permissions!=null
+    /// <summary>Verifies that a user has ALL specified permissions.</summary>
+    // Contract: pre=userId!=Guid.Empty && permissions!=null, post=return.IsSuccess, throws=never
     public async Task<Result<bool>> HasAllPermissionsAsync(Guid userId, IEnumerable<string> permissions,
         CancellationToken ct = default)
     {
-        // Verify: Check that every specified permission exists in the user's effective set.
+        // Call: resolve effective user permissions
         Result<HashSet<string>> userPermsResult = await GetEffectiveUserPermissionsAsync(userId, ct);
 
-        // Guard: Propagate failure early if permission resolution failed.
+        // Guard: propagate failure early if permission resolution failed
         if (userPermsResult.IsFailure) return userPermsResult.Errors;
 
         var hasAll = permissions.All(p => userPermsResult.Value.Contains(p));
         return hasAll;
     }
 
-    /// <inheritdoc />
-    // Contract: pre=roleId!=Guid.Empty && permissions!=null
+    /// <summary>Verifies that a role has ALL specified permissions.</summary>
+    // Contract: pre=roleId!=Guid.Empty && permissions!=null, post=return.IsSuccess, throws=never
     public async Task<Result<bool>> RoleHasAllPermissionsAsync(Guid roleId, IEnumerable<string> permissions,
         CancellationToken ct = default)
     {
-        // Verify: Check that every specified permission exists in the role's permission set.
+        // Call: resolve role permissions
         Result<HashSet<string>> rolePermsResult = await GetRolePermissionsAsync(roleId, ct);
         if (rolePermsResult.IsFailure) return rolePermsResult.Errors;
 
@@ -138,22 +142,22 @@ public sealed partial class PermissionService(
         return hasAll;
     }
 
-    /// <inheritdoc />
-    // Delegate: Forward invalidation to cache layer for cascade (role + tagged users).
+    /// <summary>Invalidates cached permissions for a role and all users tagged with that role.</summary>
+    // Delegate: forward invalidation to cache layer for cascade (role + tagged users)
     public Task<Result> InvalidateRolePermissionsAsync(Guid roleId, CancellationToken ct = default)
     {
         return cache.InvalidateRoleAsync(roleId, ct);
     }
 
-    /// <inheritdoc />
-    // Delegate: Forward invalidation to cache layer for single user.
+    /// <summary>Invalidates cached permissions for a single user.</summary>
+    // Delegate: forward invalidation to cache layer for single user
     public Task<Result> InvalidateUserPermissionsAsync(Guid userId, CancellationToken ct = default)
     {
         return cache.InvalidateUserAsync(userId, ct);
     }
 
-    /// <inheritdoc />
-    // Batch: Persist new permissions to store, then invalidate cache for consistency.
+    /// <summary>Persists new permissions to a role and invalidates cache for consistency.</summary>
+    // Contract: pre=roleId!=Guid.Empty && permissions!=null, post=return.IsSuccess if store succeeds, throws=never
     public async Task<Result> AddRolePermissionsAsync(Guid roleId, IEnumerable<string> permissions,
         CancellationToken ct = default)
     {
@@ -161,7 +165,7 @@ public sealed partial class PermissionService(
 
         if (addResult.IsSuccess)
         {
-            // Cache: Invalidate role + cascading user caches after successful store mutation.
+            // Cache: invalidate role + cascading user caches after successful store mutation
             await cache.InvalidateRoleAsync(roleId, ct);
             return Result.Ok(PermissionServiceResult.Success.Added);
         }
@@ -169,8 +173,8 @@ public sealed partial class PermissionService(
         return addResult;
     }
 
-    /// <inheritdoc />
-    // Batch: Remove permissions from store, then invalidate cache for consistency.
+    /// <summary>Removes permissions from a role and invalidates cache for consistency.</summary>
+    // Contract: pre=roleId!=Guid.Empty && permissions!=null, post=return.IsSuccess if store succeeds, throws=never
     public async Task<Result> RemoveRolePermissionsAsync(Guid roleId, IEnumerable<string> permissions,
         CancellationToken ct = default)
     {
@@ -185,8 +189,8 @@ public sealed partial class PermissionService(
         return removeResult;
     }
 
-    /// <inheritdoc />
-    // Batch: Persist direct user permissions to store, then invalidate user cache.
+    /// <summary>Persists direct permissions to a user and invalidates user cache.</summary>
+    // Contract: pre=userId!=Guid.Empty && permissions!=null, post=return.IsSuccess if store succeeds, throws=never
     public async Task<Result> AddUserDirectPermissionsAsync(Guid userId, IEnumerable<string> permissions,
         CancellationToken ct = default)
     {
@@ -201,8 +205,8 @@ public sealed partial class PermissionService(
         return addResult;
     }
 
-    /// <inheritdoc />
-    // Batch: Remove direct user permissions from store, then invalidate user cache.
+    /// <summary>Removes direct permissions from a user and invalidates user cache.</summary>
+    // Contract: pre=userId!=Guid.Empty && permissions!=null, post=return.IsSuccess if store succeeds, throws=never
     public async Task<Result> RemoveUserDirectPermissionsAsync(Guid userId, IEnumerable<string> permissions,
         CancellationToken ct = default)
     {

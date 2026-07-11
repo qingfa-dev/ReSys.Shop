@@ -19,8 +19,8 @@ public static partial class GetProductById
         : IQueryHandler<Query, Response>
     {
         /// <summary>
-        /// Handles the query — loads the product with 5 Include chains
-        /// (variants, prices, images, options, classifications) and maps to DTO.
+        /// Retrieves a single product by ID with full related data including
+        /// variants, prices, images, option types, and taxon classifications.
         /// </summary>
         /// <param name="query">The query containing the product ID.</param>
         /// <param name="cancellationToken">Propagates cancellation notification.</param>

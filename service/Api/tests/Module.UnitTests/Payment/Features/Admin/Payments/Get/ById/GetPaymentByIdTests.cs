@@ -1,6 +1,6 @@
-using Module.Payment.Domain.Payments;
+using Module.Payment.Domain.PaymentCaptures;
 using Module.Payment.Features.Admin.Payments.Get.ById;
-using PaymentRecord = Module.Payment.Domain.Payments.PaymentRecord;
+using PaymentCapture = Module.Payment.Domain.PaymentCaptures.PaymentCapture;
 
 namespace Module.UnitTests.Payment.Features.Admin.Payments.Get.ById;
 
@@ -17,7 +17,7 @@ public class GetPaymentByIdTests : IDisposable
         var options = new DbContextOptionsBuilder<ApplicationDbContext>()
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
             .Options;
-        ApplicationDbContext.AdditionalConfigurationsAssemblies = [typeof(PaymentRecord).Assembly];
+        ApplicationDbContext.AdditionalConfigurationsAssemblies = [typeof(PaymentCapture).Assembly];
         _dbContext = new ApplicationDbContext(options);
         _handler = new GetPaymentById.QueryHandler(_dbContext);
     }
@@ -27,8 +27,8 @@ public class GetPaymentByIdTests : IDisposable
     [Fact(DisplayName = "Handler: Should return payment detail by ID")]
     public async Task Handle_ShouldReturnPayment_WhenExists()
     {
-        var payment = PaymentFactory.Create(100m, Guid.NewGuid(), Guid.NewGuid()).Value;
-        _dbContext.Set<PaymentRecord>().Add(payment);
+        var payment = PaymentCaptureMethod.Create(100m, Guid.NewGuid(), Guid.NewGuid()).Value;
+        _dbContext.Set<PaymentCapture>().Add(payment);
         await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 
         var result = await _handler.Handle(new GetPaymentById.Query(payment.Id), TestContext.Current.CancellationToken);

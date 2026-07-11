@@ -2,7 +2,7 @@ using Module.Inventory.Domain.StockReservations;
 
 namespace Module.Inventory.Features.Storefront.CartReservations.Status;
 
-/// <summary>Handles retrieval of active stock reservations for the current cart.</summary>
+/// <summary>Lists active, non-expired stock reservations for a given cart token with remaining TTL.</summary>
 public static partial class GetCartReservations
 {
     public sealed record Query(string CartToken) : IQuery<List<Response>>;
@@ -10,12 +10,13 @@ public static partial class GetCartReservations
     public sealed class QueryHandler(IApplicationDbContext dbContext)
         : IQueryHandler<Query, List<Response>>
     {
-        /// <summary>Executes the get cart reservations query.</summary>
+        /// <summary>Fetches all active reservations for the cart and computes remaining seconds before expiry.</summary>
         /// <param name="request">The query containing the cart token.</param>
         /// <param name="cancellationToken">Cancellation token.</param>
         /// <returns>A list of active reservations with remaining TTL.</returns>
         public async Task<Result<List<Response>>> Handle(Query request, CancellationToken cancellationToken)
         {
+            // Contract: pre=request!=null, post=result!=null
             var now = DateTimeOffset.UtcNow;
             var reservations = await dbContext.Set<StockReservation>()
                 .Where(r => r.CartToken == request.CartToken

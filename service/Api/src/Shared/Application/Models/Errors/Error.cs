@@ -4,7 +4,6 @@ public readonly partial struct Error
 {
     public string Code { get; init; }
     public string Message { get; init; }
-    public string Description => Message;
     public int Type { get; init; }
     public Dictionary<string, object?>? Metadata { get; init; }
 

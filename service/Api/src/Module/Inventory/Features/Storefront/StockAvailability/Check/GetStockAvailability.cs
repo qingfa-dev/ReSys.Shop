@@ -3,7 +3,7 @@ using Module.Inventory.Domain.StockReservations;
 
 namespace Module.Inventory.Features.Storefront.StockAvailability.Check;
 
-/// <summary>Handles retrieval of stock availability for a variant including reservation accounting.</summary>
+/// <summary>Checks stock availability for a variant across locations, accounting for active reservations and cart-specific holds.</summary>
 public static partial class GetStockAvailability
 {
     public sealed record Query(Guid VariantId, string? CartToken = null) : IQuery<Response>;
@@ -11,21 +11,21 @@ public static partial class GetStockAvailability
     public sealed class QueryHandler(IApplicationDbContext dbContext)
         : IQueryHandler<Query, Response>
     {
-        /// <summary>Executes the get stock availability query accounting for active reservations.</summary>
+        /// <summary>Loads stock items and reservations, then computes per-location and cart-specific availability.</summary>
         /// <param name="request">The query containing the variant identifier.</param>
         /// <param name="cancellationToken">Cancellation token.</param>
-        /// <returns>A result containing the availability information.</returns>
+        /// <returns>A result with the availability information.</returns>
         public async Task<Result<Response>> Handle(Query request, CancellationToken cancellationToken)
         {
             // Contract: pre=request!=null, post=result!=null
-            // Query: Retrieve all stock items for the given variant across locations.
+            // Load: Retrieve all stock items for the given variant across locations.
             var stockItems = await dbContext.Set<StockItem>()
                 .Include(x => x.StockLocation)
                 .Where(x => x.VariantId == request.VariantId)
                 .AsNoTracking()
                 .ToListAsync(cancellationToken);
 
-            // Query: Get active reserved quantities per location.
+            // Load: Get active reserved quantities per location.
             var now = DateTimeOffset.UtcNow;
             var reservedByLocation = await dbContext.Set<StockReservation>()
                 .Where(r => r.VariantId == request.VariantId

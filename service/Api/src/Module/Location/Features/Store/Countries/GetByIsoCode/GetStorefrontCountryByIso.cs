@@ -3,23 +3,22 @@ using Module.Location.Features.Admin.Countries.Shared.Mappings;
 
 namespace Module.Location.Features.Store.Countries.GetByIsoCode;
 
-/// <summary>Handles retrieval of a country by ISO code for storefront.</summary>
+/// <summary>Retrieves a country by ISO code for the storefront.</summary>
 public static partial class GetStorefrontCountryByIso
 {
-    /// <summary>Query to retrieve a country by ISO code for the storefront.</summary>
     public sealed record Query(string IsoCode) : IQuery<Response>;
 
     public sealed class QueryHandler(IApplicationDbContext dbContext)
         : IQueryHandler<Query, Response>
     {
-        /// <summary>Executes the get country by iso query for storefront.</summary>
+        /// <summary>Loads a single country by ISO code for storefront display.</summary>
         /// <param name="request">The query containing the ISO code.</param>
-        /// <param name="cancellationToken">Cancellation token.</param>
-        /// <returns>A result containing the country details.</returns>
+        /// <param name="cancellationToken">Propagates cancellation signal.</param>
+        /// <returns>A result containing the country details or a not-found error.</returns>
         public async Task<Result<Response>> Handle(Query request, CancellationToken cancellationToken)
         {
-            // Contract: pre=request!=null, post=result!=null
-            // Query: Retrieve country by ISO code.
+            // Contract: pre=request!=null, post=country found or NotFound returned
+            // Load: Retrieve country by ISO code.
             var entity = await dbContext.Set<Country>()
                 .FirstOrDefaultAsync(predicate: c =>
                     c.IsoCode == request.IsoCode, cancellationToken: cancellationToken);

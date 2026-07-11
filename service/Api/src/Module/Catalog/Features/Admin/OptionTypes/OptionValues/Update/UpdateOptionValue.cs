@@ -18,22 +18,23 @@ public static partial class UpdateOptionValue
         : ICommandHandler<Command, Response>
     {
         /// <summary>
-        /// Handles the request and returns a result.
+        /// Updates an option value after validating parent existence and name uniqueness.
         /// </summary>
-        /// <param name="command">The command containing request data.</param>
+        /// <param name="command">The command containing the IDs and update payload.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
-        // Contract: pre=command!=null, post=result!=null
+        /// <exception cref="DbUpdateException">Thrown when persistence fails.</exception>
+        // Contract: pre=command.OptionTypeId!=Guid.Empty && command.Id!=Guid.Empty, post=result!=null, throws=DbUpdateException
         public async Task<Result<Response>> Handle(Command command, CancellationToken cancellationToken)
         {
             var optionTypeId = command.OptionTypeId;
             var request = command.Request;
 
-            // Check: Ensure parent option type exists
+            // Validate: Parent option type must exist to receive updates
             var optionType = await dbContext.Set<OptionType>().FindAsync([optionTypeId], cancellationToken);
             if (optionType is null)
                 return OptionTypeResult.Failure.NotFound;
 
-            // Check: Find the specific option value entity to update
+            // Load: Fetch the specific option value to update
             var entity = await dbContext.Set<OptionValue>()
                 .Include(x => x.OptionType)
                 .FirstOrDefaultAsync(x => x.Id == command.Id && x.OptionTypeId == optionTypeId, cancellationToken);
@@ -41,19 +42,18 @@ public static partial class UpdateOptionValue
             if (entity is null)
                 return OptionValueResult.Errors.NotFound;
 
-            // Check: Verify uniqueness of the new name within the same option type (excluding the entity being updated)
+            // Validate: Updated name must not conflict with another value in the same option type
             var nameExists = await dbContext.Set<OptionValue>()
                 .AnyAsync(x => x.OptionTypeId == optionTypeId && x.Name == request.Name && x.Id != command.Id, cancellationToken);
 
             if (nameExists)
                 return OptionValueResult.Errors.NameAlreadyExists;
 
-            // Update: Apply changes from request to the domain entity
+            // Update: Apply incoming values to existing entity
             var result = request.MapToDomain(entity);
             if (result.IsFailure)
                 return result.Errors;
 
-            // Persist: Save changes to the database.
             await dbContext.SaveChangesAsync(cancellationToken);
 
             // Log: Record option value update event for audit trail

@@ -2,22 +2,22 @@ using Module.Payment.Domain.PaymentMethods;
 
 namespace Module.Payment.Features.Admin.PaymentMethods.Deactivate;
 
-    /// <summary>Handles DeactivatePaymentMethod feature.</summary>
-    public static partial class DeactivatePaymentMethod
+/// <summary>Deactivates a payment method, removing it from storefront availability.</summary>
+public static partial class DeactivatePaymentMethod
 {
     public sealed record Command(Guid Id) : ICommand;
 
     public sealed class CommandHandler(IApplicationDbContext dbContext)
         : ICommandHandler<Command>
     {
-        /// <summary>Handles the command.</summary>
-        /// <param name="command">The command to handle.</param>
-        /// <param name="cancellationToken">Cancellation token.</param>
-        /// <returns>The result of handling the command.</returns>
+        /// <summary>Deactivates the specified payment method and persists the state change.</summary>
+        /// <param name="command">The command identifying the payment method to deactivate.</param>
+        /// <param name="cancellationToken">Propagates cancellation signal.</param>
+        /// <returns>A success result or an error if the payment method is not found or deactivation fails.</returns>
+        /// <exception cref="DbUpdateException">Thrown when database persistence fails.</exception>
         public async Task<Result> Handle(Command command, CancellationToken cancellationToken)
         {
-
-        // Contract: pre=command!=null, post=result!=null
+            // Contract: pre=command!=null, post=method.Active==false, throws=DbUpdateException
             // Check: Verify the payment method exists.
             var method = await dbContext.Set<PaymentMethod>()
                 .FirstOrDefaultAsync(m => m.Id == command.Id, cancellationToken);
@@ -30,7 +30,6 @@ namespace Module.Payment.Features.Admin.PaymentMethods.Deactivate;
             if (result.IsFailure)
                 return result;
 
-            // Persist: Save changes to the database.
             await dbContext.SaveChangesAsync(cancellationToken);
             return Result.Ok();
         }

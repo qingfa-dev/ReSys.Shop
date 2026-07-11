@@ -8,10 +8,10 @@ public static class ShippingRateValidation
         return ruleBuilder
             .NotEmpty()
             .WithErrorCode(ShippingRateResult.Errors.NameRequired.Code)
-            .WithMessage(ShippingRateResult.Errors.NameRequired.Description)
+            .WithMessage(ShippingRateResult.Errors.NameRequired.Message)
             .MaximumLength(ShippingRateConstant.Constraints.MaxNameLength)
             .WithErrorCode(ShippingRateResult.Errors.NameTooLong.Code)
-            .WithMessage(ShippingRateResult.Errors.NameTooLong.Description);
+            .WithMessage(ShippingRateResult.Errors.NameTooLong.Message);
     }
 
     public static IRuleBuilderOptions<T, decimal> ApplyCostRules<T>(this IRuleBuilder<T, decimal> ruleBuilder)
@@ -19,7 +19,7 @@ public static class ShippingRateValidation
         return ruleBuilder
             .GreaterThan(0)
             .WithErrorCode(ShippingRateResult.Errors.CostRequired.Code)
-            .WithMessage(ShippingRateResult.Errors.CostRequired.Description);
+            .WithMessage(ShippingRateResult.Errors.CostRequired.Message);
     }
 
     public static IRuleBuilderOptions<T, string?> ApplyDeliveryRangeRules<T>(this IRuleBuilder<T, string?> ruleBuilder)

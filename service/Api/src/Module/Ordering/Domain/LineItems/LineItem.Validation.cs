@@ -8,7 +8,7 @@ public static class LineItemValidation
         return ruleBuilder
             .InclusiveBetween(1, LineItemConstant.MaxQuantity)
             .WithErrorCode(LineItemResult.Errors.QuantityExceedsMax.Code)
-            .WithMessage(LineItemResult.Errors.QuantityExceedsMax.Description);
+            .WithMessage(LineItemResult.Errors.QuantityExceedsMax.Message);
     }
 
     public static IRuleBuilderOptions<T, decimal> ApplyPriceRules<T>(this IRuleBuilder<T, decimal> ruleBuilder)
@@ -16,6 +16,6 @@ public static class LineItemValidation
         return ruleBuilder
             .GreaterThanOrEqualTo(0)
             .WithErrorCode(LineItemResult.Errors.InvalidPrice.Code)
-            .WithMessage(LineItemResult.Errors.InvalidPrice.Description);
+            .WithMessage(LineItemResult.Errors.InvalidPrice.Message);
     }
 }

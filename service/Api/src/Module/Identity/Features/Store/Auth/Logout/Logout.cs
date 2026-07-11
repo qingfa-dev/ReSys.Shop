@@ -22,26 +22,25 @@ public static partial class Logout
         ILogger<Command> logger)
         : ICommandHandler<Command>
     {
-        // Contract: pre=command!=null, post=result!=null
+        // Contract: pre=command!=null, post=result!=null, throws=DbUpdateException
         /// <summary>
-        /// Handles the command to log out the current user.
+        /// Logs out the current user by revoking their refresh token(s). Supports single-device logout
+        /// (one refresh token) or all-devices logout (every token for the user).
         /// </summary>
         /// <param name="command">The command containing logout options.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns>A result indicating logout success.</returns>
+        /// <returns>A result indicating logout success or unauthorized error.</returns>
+        /// <exception cref="DbUpdateException">Thrown when the token store fails to persist revocation.</exception>
         public async Task<Result> Handle(Command command, CancellationToken cancellationToken)
         {
             var request = command.Request;
-            // Check: Ensure user is authenticated
             if (!currentUser.IsAuthenticated || !Guid.TryParse(currentUser.UserId, out var userId))
                 return UserResult.Failure.InvalidCredentials;
 
-            // Query: Get user entity for logging
             var user = await userManager.FindByIdAsync(userId.ToString());
             if (user is null)
                 return UserResult.Failure.NotFound;
 
-            // Remove: Revoke all tokens if requested
             if (request.RevokeAll)
             {
                 var revokeAllResult = await refreshTokenService.RevokeAllForUserAsync(
@@ -54,13 +53,11 @@ public static partial class Logout
 
                 int revokedCount = revokeAllResult.Value;
 
-                // Log: Record logout from all devices
                 UserLoggers.Auth.AllDevicesLoggedOut(logger, UserId: userId, DeviceCount: revokedCount, Reason: RefreshTokenConstant.RevocationReasons.UserLogoutAll, ActionBy: user.UserName!);
 
                 return Result.Ok(UserResult.Success.AllDevicesLoggedOut);
             }
 
-            // Remove: Revoke single refresh token
             if (!string.IsNullOrEmpty(request.RefreshToken))
             {
                 var revokeResult = await refreshTokenService.RevokeAsync(
@@ -70,7 +67,6 @@ public static partial class Logout
                 if (revokeResult.IsFailure)
                     return revokeResult.Errors;
 
-                // Log: Record single device logout
                 UserLoggers.Auth.LoggedOut(logger, UserId: userId, Reason: RefreshTokenConstant.RevocationReasons.UserLogout, ActionBy: user.UserName!);
             }
 

@@ -17,10 +17,12 @@ public static partial class AssignProductClassifications
         : ICommandHandler<Command>
     {
         /// <summary>
-        /// Handles the request and returns a result.
+        /// Assigns classifications to a product by creating or updating junction records with position tracking.
         /// </summary>
-        /// <param name="command">The command containing request data.</param>
-        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <param name="command">The command containing the product ID and classification items with positions.</param>
+        /// <param name="cancellationToken">Propagates cancellation notification.</param>
+        /// <returns>A success result indicating the classifications were assigned.</returns>
+        /// <exception cref="DbUpdateException">Thrown when the database update fails.</exception>
         // Contract: pre=command!=null, post=result!=null
         public async Task<Result> Handle(Command command, CancellationToken cancellationToken)
         {

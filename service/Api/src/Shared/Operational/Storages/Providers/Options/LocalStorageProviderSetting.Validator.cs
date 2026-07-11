@@ -6,20 +6,20 @@ public sealed class LocalStorageProviderSettingValidator : AbstractValidator<Loc
 {
     public LocalStorageProviderSettingValidator()
     {
-        When(x => x.IsEnabled, () =>
+        When(x => x.IsEnabled, (Action)(() =>
         {
             RuleFor(x => x.LocalPath)
                 .NotEmpty()
                 .WithErrorCode(LocalStorageProviderResult.Failure.LocalPathRequired.Code)
-                .WithMessage(LocalStorageProviderResult.Failure.LocalPathRequired.Message)
+                .WithMessage((string)LocalStorageProviderResult.Failure.LocalPathRequired.Message)
                 .Must(path => !string.IsNullOrWhiteSpace(path) && path.IndexOfAny(Path.GetInvalidPathChars()) == -1)
                 .WithErrorCode(LocalStorageProviderResult.Failure.LocalPathInvalid.Code)
-                .WithMessage(LocalStorageProviderResult.Failure.LocalPathInvalid.Message);
+                .WithMessage((string)LocalStorageProviderResult.Failure.LocalPathInvalid.Message);
 
             RuleFor(x => x.BufferSize)
                 .GreaterThanOrEqualTo(LocalStorageProviderConstant.Constraints.BufferSizeMin)
                 .WithErrorCode(LocalStorageProviderResult.Failure.BufferSizeInvalid.Code)
-                .WithMessage(LocalStorageProviderResult.Failure.BufferSizeInvalid.Message);
-        });
+                .WithMessage((string)LocalStorageProviderResult.Failure.BufferSizeInvalid.Message);
+        }));
     }
 }

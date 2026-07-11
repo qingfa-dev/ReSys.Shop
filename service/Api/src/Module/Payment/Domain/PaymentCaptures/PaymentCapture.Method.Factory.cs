@@ -1,8 +1,8 @@
 using Module.Payment.Domain.Gateways;
 
-namespace Module.Payment.Domain.Payments;
+namespace Module.Payment.Domain.PaymentCaptures;
 
-public static class PaymentFactory
+public static class PaymentCaptureMethod
 {
     #region Factory Methods
     /// <summary>
@@ -15,7 +15,7 @@ public static class PaymentFactory
     /// <param name="sourceType">Optional type name of the payment source.</param>
     /// <returns>A result containing the created payment or an amount validation error.</returns>
     // Contract: pre=amount>0 && paymentMethodId!=default && orderId!=default, post=payment.Id!=default && payment.State==Checkout
-    public static Result<PaymentRecord> Create(
+    public static Result<PaymentCapture> Create(
         decimal amount,
         Guid paymentMethodId,
         Guid orderId,
@@ -25,10 +25,10 @@ public static class PaymentFactory
         // Validate: Payment amount must be greater than zero
         if (amount <= 0)
         {
-            return PaymentResult.Failure.AmountMustBePositive;
+            return PaymentCaptureResult.Failure.AmountMustBePositive;
         }
 
-        var payment = new PaymentRecord
+        var payment = new PaymentCapture
         {
             Id = Guid.NewGuid(),
             Number = GeneratePaymentNumber(),
@@ -58,17 +58,17 @@ public static class PaymentFactory
     /// <param name="payment">The payment to process. Must be in Checkout state.</param>
     /// <returns>A result indicating success or an invalid state transition error.</returns>
     // Enforce: Payment must be in Checkout state to transition to Processing
-    public static Result Process(this PaymentRecord payment)
+    public static Result Process(this PaymentCapture payment)
     {
         if (!CanTransitionTo(PaymentRecordState.Processing))
         {
-            return PaymentResult.Failure.InvalidStateTransition(payment.State, PaymentRecordState.Processing);
+            return PaymentCaptureResult.Failure.InvalidStateTransition(payment.State, PaymentRecordState.Processing);
         }
 
         payment.State = PaymentRecordState.Processing;
         payment.ModifiedAtUtc = DateTimeOffset.UtcNow;
 
-        return Result.Ok(PaymentResult.Success.Processed(payment.Number));
+        return Result.Ok(PaymentCaptureResult.Success.Processed(payment.Number));
 
         bool CanTransitionTo(PaymentRecordState target) => target switch
         {
@@ -83,17 +83,17 @@ public static class PaymentFactory
     /// <param name="payment">The payment to pend. Must be in Processing state.</param>
     /// <returns>A result indicating success or an invalid state transition error.</returns>
     // Enforce: Payment must be in Processing state to transition to Pending
-    public static Result Pend(this PaymentRecord payment)
+    public static Result Pend(this PaymentCapture payment)
     {
         if (payment.State is not PaymentRecordState.Processing)
         {
-            return PaymentResult.Failure.InvalidStateTransition(payment.State, PaymentRecordState.Pending);
+            return PaymentCaptureResult.Failure.InvalidStateTransition(payment.State, PaymentRecordState.Pending);
         }
 
         payment.State = PaymentRecordState.Pending;
         payment.ModifiedAtUtc = DateTimeOffset.UtcNow;
 
-        return Result.Ok(PaymentResult.Success.Pended(payment.Number));
+        return Result.Ok(PaymentCaptureResult.Success.Pended(payment.Number));
     }
 
     /// <summary>
@@ -102,22 +102,22 @@ public static class PaymentFactory
     /// <param name="payment">The payment to complete. Must be in Processing or Pending state and not already completed.</param>
     /// <returns>A result indicating success or an invalid state transition error.</returns>
     // Enforce: Payment must not already be completed and must be in Processing or Pending state
-    public static Result Complete(this PaymentRecord payment)
+    public static Result Complete(this PaymentCapture payment)
     {
         if (payment.State is PaymentRecordState.Completed)
         {
-            return PaymentResult.Failure.AlreadyCompleted;
+            return PaymentCaptureResult.Failure.AlreadyCompleted;
         }
 
         if (payment.State is not (PaymentRecordState.Processing or PaymentRecordState.Pending))
         {
-            return PaymentResult.Failure.InvalidStateTransition(payment.State, PaymentRecordState.Completed);
+            return PaymentCaptureResult.Failure.InvalidStateTransition(payment.State, PaymentRecordState.Completed);
         }
 
         payment.State = PaymentRecordState.Completed;
         payment.ModifiedAtUtc = DateTimeOffset.UtcNow;
 
-        return Result.Ok(PaymentResult.Success.Completed(payment.Number));
+        return Result.Ok(PaymentCaptureResult.Success.Completed(payment.Number));
     }
 
     /// <summary>
@@ -126,22 +126,22 @@ public static class PaymentFactory
     /// <param name="payment">The payment to fail. Must be in Checkout, Processing, or Pending state and not already failed.</param>
     /// <returns>A result indicating success or an invalid state transition error.</returns>
     // Enforce: Payment must not already be failed and must be in Checkout, Processing, or Pending state
-    public static Result Fail(this PaymentRecord payment)
+    public static Result Fail(this PaymentCapture payment)
     {
         if (payment.State is PaymentRecordState.Failed)
         {
-            return PaymentResult.Failure.AlreadyFailed;
+            return PaymentCaptureResult.Failure.AlreadyFailed;
         }
 
         if (payment.State is not (PaymentRecordState.Checkout or PaymentRecordState.Processing or PaymentRecordState.Pending))
         {
-            return PaymentResult.Failure.InvalidStateTransition(payment.State, PaymentRecordState.Failed);
+            return PaymentCaptureResult.Failure.InvalidStateTransition(payment.State, PaymentRecordState.Failed);
         }
 
         payment.State = PaymentRecordState.Failed;
         payment.ModifiedAtUtc = DateTimeOffset.UtcNow;
 
-        return Result.Ok(PaymentResult.Success.Failed(payment.Number));
+        return Result.Ok(PaymentCaptureResult.Success.Failed(payment.Number));
     }
 
     /// <summary>
@@ -150,22 +150,22 @@ public static class PaymentFactory
     /// <param name="payment">The payment to void. Must be in Processing or Pending state and not already voided.</param>
     /// <returns>A result indicating success or an invalid state transition error.</returns>
     // Enforce: Payment must not already be voided and must be in Processing or Pending state
-    public static Result Void(this PaymentRecord payment)
+    public static Result Void(this PaymentCapture payment)
     {
         if (payment.State is PaymentRecordState.Void)
         {
-            return PaymentResult.Failure.AlreadyVoided;
+            return PaymentCaptureResult.Failure.AlreadyVoided;
         }
 
         if (payment.State is not (PaymentRecordState.Processing or PaymentRecordState.Pending))
         {
-            return PaymentResult.Failure.InvalidStateTransition(payment.State, PaymentRecordState.Void);
+            return PaymentCaptureResult.Failure.InvalidStateTransition(payment.State, PaymentRecordState.Void);
         }
 
         payment.State = PaymentRecordState.Void;
         payment.ModifiedAtUtc = DateTimeOffset.UtcNow;
 
-        return Result.Ok(PaymentResult.Success.Voided(payment.Number));
+        return Result.Ok(PaymentCaptureResult.Success.Voided(payment.Number));
     }
 
     /// <summary>
@@ -174,7 +174,7 @@ public static class PaymentFactory
     /// <param name="payment">The payment to invalidate. Must be in Failed or Void state.</param>
     /// <returns>A result indicating success or an invalid state transition error.</returns>
     // Enforce: Payment must be in Failed or Void state to transition to Invalid
-    public static Result Invalidate(this PaymentRecord payment)
+    public static Result Invalidate(this PaymentCapture payment)
     {
         if (payment.State is PaymentRecordState.Invalid)
         {
@@ -183,7 +183,7 @@ public static class PaymentFactory
 
         if (payment.State is not (PaymentRecordState.Failed or PaymentRecordState.Void))
         {
-            return PaymentResult.Failure.InvalidStateTransition(payment.State, PaymentRecordState.Invalid);
+            return PaymentCaptureResult.Failure.InvalidStateTransition(payment.State, PaymentRecordState.Invalid);
         }
 
         payment.State = PaymentRecordState.Invalid;
@@ -200,7 +200,7 @@ public static class PaymentFactory
     /// <param name="payment">The payment to check.</param>
     /// <returns>True if the payment is in Completed state and eligible for credit.</returns>
     // Compute: Credit is allowed only when the payment has reached the Completed state
-    public static bool CreditAllowed(this PaymentRecord payment)
+    public static bool CreditAllowed(this PaymentCapture payment)
     {
         return payment.State is PaymentRecordState.Completed;
     }
@@ -211,7 +211,7 @@ public static class PaymentFactory
     /// <param name="payment">The payment to calculate for.</param>
     /// <returns>The full payment amount if not yet completed, or zero once completed.</returns>
     // Compute: Uncaptured amount is the full payment amount before completion; zero after completion
-    public static decimal UncapturedAmount(this PaymentRecord payment)
+    public static decimal UncapturedAmount(this PaymentCapture payment)
     {
         return payment.State is PaymentRecordState.Completed ? 0 : payment.Amount;
     }
@@ -223,7 +223,7 @@ public static class PaymentFactory
     /// <param name="amount">The amount to capture. Must be positive and within the payment amount.</param>
     /// <returns>True if the payment is in a capturable state and the amount is valid.</returns>
     // Compute: Capture is allowed when payment is Processing or Pending and amount is positive and within the authorized amount
-    public static bool CanCapture(this PaymentRecord payment, decimal amount)
+    public static bool CanCapture(this PaymentCapture payment, decimal amount)
     {
         return payment.State is PaymentRecordState.Processing or PaymentRecordState.Pending
             && amount > 0
@@ -237,19 +237,19 @@ public static class PaymentFactory
     /// <param name="amount">The amount to capture. Must be capturable per business rules.</param>
     /// <returns>A result indicating success or an error if the payment state or amount is invalid.</returns>
     // Enforce: Payment must be capturable and the amount must not exceed the authorized amount
-    public static Result Capture(this PaymentRecord payment, decimal amount)
+    public static Result Capture(this PaymentCapture payment, decimal amount)
     {
         if (!payment.CanCapture(amount))
         {
             if (amount > payment.Amount)
             {
-                return PaymentResult.Failure.AmountExceedsAuthorized;
+                return PaymentCaptureResult.Failure.AmountExceedsAuthorized;
             }
 
-            return PaymentResult.Failure.InvalidStateTransition(payment.State, PaymentRecordState.Completed);
+            return PaymentCaptureResult.Failure.InvalidStateTransition(payment.State, PaymentRecordState.Completed);
         }
 
-        return Result.Ok(PaymentResult.Success.Captured(payment.Number, amount));
+        return Result.Ok(PaymentCaptureResult.Success.Captured(payment.Number, amount));
     }
 
     /// <summary>
@@ -259,7 +259,7 @@ public static class PaymentFactory
     /// <param name="amount">The amount to refund. Must be positive and not exceed the payment amount.</param>
     /// <returns>True if the payment is completed and the refund amount is valid.</returns>
     // Compute: Refund is allowed only when Payment is Completed and amount is within remaining refundable
-    public static bool CanRefund(this PaymentRecord payment, decimal amount)
+    public static bool CanRefund(this PaymentCapture payment, decimal amount)
     {
         return payment.State is PaymentRecordState.Completed
             && amount > 0
@@ -273,19 +273,19 @@ public static class PaymentFactory
     /// <param name="amount">The amount to refund.</param>
     /// <returns>A result indicating success or an error if the payment state or amount is invalid.</returns>
     // Enforce: Payment must be completed and the refund amount must not exceed the authorized amount
-    public static Result Refund(this PaymentRecord payment, decimal amount)
+    public static Result Refund(this PaymentCapture payment, decimal amount)
     {
         if (!payment.CanRefund(amount))
         {
             if (payment.State is not PaymentRecordState.Completed)
-                return PaymentResult.Failure.InvalidStateTransition(payment.State, PaymentRecordState.Completed);
+                return PaymentCaptureResult.Failure.InvalidStateTransition(payment.State, PaymentRecordState.Completed);
 
-            return PaymentResult.Failure.AmountExceedsAuthorized;
+            return PaymentCaptureResult.Failure.AmountExceedsAuthorized;
         }
 
         payment.RefundedAmount += amount;
         payment.ModifiedAtUtc = DateTimeOffset.UtcNow;
-        return Result.Ok(PaymentResult.Success.Credited(payment.Number, amount));
+        return Result.Ok(PaymentCaptureResult.Success.Credited(payment.Number, amount));
     }
     #endregion Capture Logic
 
@@ -295,7 +295,7 @@ public static class PaymentFactory
     /// Processes the payment via the gateway -- authorizes or purchases depending on auto_capture.
     /// </summary>
     // Contract: pre=payment!=null && gateway!=null, post=payment.State is Pending or Completed or Failed
-    public static Task<Result> ProcessAsync(this PaymentRecord payment, IPaymentGatewayActionProvider gateway, GatewayOptions options, CancellationToken cancellationToken = default)
+    public static Task<Result> ProcessAsync(this PaymentCapture payment, IPaymentGatewayActionProvider gateway, GatewayOptions options, CancellationToken cancellationToken = default)
     {
         return PaymentProcessing.ProcessAsync(payment, gateway, options, cancellationToken);
     }
@@ -304,7 +304,7 @@ public static class PaymentFactory
     /// Authorizes the payment amount against the payment source via the gateway.
     /// </summary>
     // Contract: pre=payment.State==Checkout && gateway!=null, post=payment.State==Pending or Failed
-    public static Task<Result> AuthorizeAsync(this PaymentRecord payment, IPaymentGatewayActionProvider gateway, GatewayOptions options, CancellationToken cancellationToken = default)
+    public static Task<Result> AuthorizeAsync(this PaymentCapture payment, IPaymentGatewayActionProvider gateway, GatewayOptions options, CancellationToken cancellationToken = default)
     {
         return PaymentProcessing.AuthorizeAsync(payment, gateway, options, cancellationToken);
     }
@@ -313,7 +313,7 @@ public static class PaymentFactory
     /// Purchases (authorize + capture) the payment amount via the gateway.
     /// </summary>
     // Contract: pre=payment.State==Checkout && gateway!=null, post=payment.State==Completed or Failed
-    public static Task<Result> PurchaseAsync(this PaymentRecord payment, IPaymentGatewayActionProvider gateway, GatewayOptions options, CancellationToken cancellationToken = default)
+    public static Task<Result> PurchaseAsync(this PaymentCapture payment, IPaymentGatewayActionProvider gateway, GatewayOptions options, CancellationToken cancellationToken = default)
     {
         return PaymentProcessing.PurchaseAsync(payment, gateway, options, cancellationToken);
     }
@@ -322,14 +322,14 @@ public static class PaymentFactory
     /// Captures the specified amount via the gateway after validating state preconditions.
     /// </summary>
     // Enforce: Payment must be capturable and the amount must not exceed the authorized amount
-    public static async Task<Result> CaptureAsync(this PaymentRecord payment, IPaymentGatewayActionProvider gateway, GatewayOptions options, decimal amount, CancellationToken cancellationToken = default)
+    public static async Task<Result> CaptureAsync(this PaymentCapture payment, IPaymentGatewayActionProvider gateway, GatewayOptions options, decimal amount, CancellationToken cancellationToken = default)
     {
         if (!payment.CanCapture(amount))
         {
             if (amount > payment.Amount)
-                return PaymentResult.Failure.AmountExceedsAuthorized;
+                return PaymentCaptureResult.Failure.AmountExceedsAuthorized;
 
-            return PaymentResult.Failure.InvalidStateTransition(payment.State, PaymentRecordState.Completed);
+            return PaymentCaptureResult.Failure.InvalidStateTransition(payment.State, PaymentRecordState.Completed);
         }
 
         return await PaymentProcessing.CaptureAsync(payment, gateway, options, amount, cancellationToken).ConfigureAwait(false);
@@ -339,13 +339,13 @@ public static class PaymentFactory
     /// Voids the payment transaction via the gateway.
     /// </summary>
     // Contract: pre=payment.State is Processing or Pending, post=payment.State==Void or Failed
-    public static Task<Result> VoidAsync(this PaymentRecord payment, IPaymentGatewayActionProvider gateway, GatewayOptions options, CancellationToken cancellationToken = default)
+    public static Task<Result> VoidAsync(this PaymentCapture payment, IPaymentGatewayActionProvider gateway, GatewayOptions options, CancellationToken cancellationToken = default)
     {
         if (payment.State is PaymentRecordState.Void)
-            return Task.FromResult<Result>(PaymentResult.Failure.AlreadyVoided);
+            return Task.FromResult<Result>(PaymentCaptureResult.Failure.AlreadyVoided);
 
         if (payment.State is not (PaymentRecordState.Processing or PaymentRecordState.Pending))
-            return Task.FromResult<Result>(PaymentResult.Failure.InvalidStateTransition(payment.State, PaymentRecordState.Void));
+            return Task.FromResult<Result>(PaymentCaptureResult.Failure.InvalidStateTransition(payment.State, PaymentRecordState.Void));
 
         return PaymentProcessing.VoidTransactionAsync(payment, gateway, options, null, cancellationToken);
     }
@@ -354,7 +354,7 @@ public static class PaymentFactory
     /// Cancels the payment via the gateway cancel action.
     /// </summary>
     // Contract: post=payment.State==Void or Failed
-    public static Task<Result> CancelAsync(this PaymentRecord payment, IPaymentGatewayActionProvider gateway, CancellationToken cancellationToken = default)
+    public static Task<Result> CancelAsync(this PaymentCapture payment, IPaymentGatewayActionProvider gateway, CancellationToken cancellationToken = default)
     {
         return PaymentProcessing.CancelAsync(payment, gateway, cancellationToken);
     }
@@ -363,14 +363,14 @@ public static class PaymentFactory
     /// Refunds the specified amount via the gateway after validating state preconditions.
     /// </summary>
     // Enforce: Payment must be completed and the refund amount must not exceed the authorized amount
-    public static async Task<Result> RefundAsync(this PaymentRecord payment, IPaymentGatewayActionProvider gateway, GatewayOptions options, decimal amount, CancellationToken cancellationToken = default)
+    public static async Task<Result> RefundAsync(this PaymentCapture payment, IPaymentGatewayActionProvider gateway, GatewayOptions options, decimal amount, CancellationToken cancellationToken = default)
     {
         if (!payment.CanRefund(amount))
         {
             if (payment.State is not PaymentRecordState.Completed)
-                return PaymentResult.Failure.InvalidStateTransition(payment.State, PaymentRecordState.Completed);
+                return PaymentCaptureResult.Failure.InvalidStateTransition(payment.State, PaymentRecordState.Completed);
 
-            return PaymentResult.Failure.AmountExceedsAuthorized;
+            return PaymentCaptureResult.Failure.AmountExceedsAuthorized;
         }
 
         var result = await PaymentProcessing.CreditAsync(payment, gateway, options, amount, cancellationToken).ConfigureAwait(false);

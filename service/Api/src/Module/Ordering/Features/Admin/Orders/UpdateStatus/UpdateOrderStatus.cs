@@ -4,8 +4,8 @@ using Module.Ordering.Features.Shared.Services;
 
 namespace Module.Ordering.Features.Admin.Orders.UpdateStatus;
 
-    /// <summary>Handles UpdateOrderStatus feature.</summary>
-    public static partial class UpdateOrderStatus
+/// <summary>Transitions an order to a new status (e.g., canceled) with side effects — inventory release and audit logging.</summary>
+public static partial class UpdateOrderStatus
 {
     public sealed record Command(Guid Id, Request Request) : ICommand;
 
@@ -16,14 +16,14 @@ namespace Module.Ordering.Features.Admin.Orders.UpdateStatus;
         IStockQuantityService stockChecker)
         : ICommandHandler<Command>
     {
-        /// <summary>Handles the command.</summary>
-        /// <param name="command">The command to handle.</param>
+        /// <summary>Applies a status transition (currently only cancel) to an order with inventory release and logging.</summary>
+        /// <param name="command">The command containing the order ID and target status.</param>
         /// <param name="cancellationToken">Cancellation token.</param>
-        /// <returns>The result of handling the command.</returns>
+        /// <returns>The result of the operation.</returns>
+        /// <exception cref="DbUpdateException">Thrown when the database update fails.</exception>
         public async Task<Result> Handle(Command command, CancellationToken cancellationToken)
         {
-
-        // Contract: pre=command!=null, post=result!=null
+            // Contract: pre=command!=null, post=result!=null, throws=DbUpdateException
             // Check: Find the existing entity.
             var entity = await dbContext.Set<Order>()
                 .Include(x => x.LineItems)
@@ -56,10 +56,9 @@ namespace Module.Ordering.Features.Admin.Orders.UpdateStatus;
                     return OrderResult.Errors.InvalidStatusTransition;
             }
 
-            // Persist: Save changes to the database.
             await dbContext.SaveChangesAsync(cancellationToken);
 
-            // Log: Success.
+            // Log: Record cancellation in audit log.
             if (entity.Status == OrderStatus.Canceled)
                 OrderLoggers.Canceled(logger, Number: entity.Number, Id: entity.Id, ActionBy: currentUser.UserName);
 

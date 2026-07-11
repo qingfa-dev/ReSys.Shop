@@ -2,7 +2,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 using Module.Ordering.Persistence.Constants;
 using Module.Ordering.Domain.Orders;
-using Module.Payment.Domain.Payments;
+using Module.Payment.Domain.PaymentCaptures;
 
 namespace Module.Ordering.Persistence.Configurations.Orders;
 

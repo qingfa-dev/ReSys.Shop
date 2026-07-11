@@ -25,20 +25,24 @@ public class ReservationExpiryService : BackgroundService
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
+        // Log: Reservation expiry sweep started
         _logger.LogInformation("Reservation expiry service started");
 
         while (!stoppingToken.IsCancellationRequested)
         {
             try
             {
+                // Await: Wait for the sweep interval before next check
                 await Task.Delay(SweepInterval, stoppingToken);
 
                 using var scope = _scopeFactory.CreateScope();
+                // Call: Acquire reservation service via DI scope
                 var reservationService = scope.ServiceProvider.GetRequiredService<IStockReservationService>();
 
                 var expiredCount = await reservationService.ExpireReservationsAndRestoreStockAsync(stoppingToken);
 
                 if (expiredCount > 0)
+                    // Log: Report count of expired and restored reservations
                     ReservationExpiryLoggers.SweepCompleted(_logger, expiredCount);
             }
             catch (OperationCanceledException) when (stoppingToken.IsCancellationRequested)
@@ -47,10 +51,12 @@ public class ReservationExpiryService : BackgroundService
             }
             catch (Exception ex)
             {
+                // Log: Non-fatal error during sweep — will retry on next interval
                 _logger.LogError(ex, "Error during reservation expiry sweep");
             }
         }
 
+        // Log: Reservation expiry sweep stopped
         _logger.LogInformation("Reservation expiry service stopped");
     }
 }

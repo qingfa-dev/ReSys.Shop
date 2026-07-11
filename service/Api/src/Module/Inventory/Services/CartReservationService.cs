@@ -16,14 +16,17 @@ public class CartReservationService(IApplicationDbContext dbContext) : ICartRese
         int ttlMinutes = 15,
         CancellationToken cancellationToken = default)
     {
+        // Validate: Quantity must be positive for a valid reservation
         if (quantity <= 0)
             return StockReservationResult.Errors.QuantityZero;
 
+        // Load: Find the stock item for this variant at the specified location
         var stockItem = await _dbContext.Set<StockItem>()
             .FirstOrDefaultAsync(si => si.VariantId == variantId && si.StockLocationId == stockLocationId, cancellationToken);
 
         if (stockItem is null) return StockReservationResult.Errors.InsufficientStock;
 
+        // Load: Sum already-reserved quantities for this variant and location
         var reserved = await _dbContext.Set<StockReservation>()
             .Where(r => r.VariantId == variantId
                         && r.StockLocationId == stockLocationId
@@ -31,10 +34,12 @@ public class CartReservationService(IApplicationDbContext dbContext) : ICartRese
                         && r.ExpiresAtUtc > DateTimeOffset.UtcNow)
             .SumAsync(r => r.Quantity, cancellationToken);
 
+        // Compute: Available stock = on-hand minus already-reserved
         var available = stockItem.CountOnHand - reserved;
         if (available < quantity)
             return StockReservationResult.Errors.InsufficientStock;
 
+        // Create: Build the cart reservation via domain factory method
         var result = StockReservationMethod.Reserve(variantId, quantity, stockLocationId, null, ttlMinutes, cartToken: cartToken);
         if (result.IsFailure) return result;
 
@@ -46,20 +51,24 @@ public class CartReservationService(IApplicationDbContext dbContext) : ICartRese
 
     public async Task ReleaseCartReservationsAsync(string cartToken, CancellationToken cancellationToken = default)
     {
+        // Load: Find all active reservations for this cart token
         var reservations = await _dbContext.Set<StockReservation>()
             .Where(r => r.CartToken == cartToken && r.State == ReservationState.Reserved)
             .ToListAsync(cancellationToken);
 
         foreach (var r in reservations)
         {
+            // Update: Release the reservation
             r.State = ReservationState.Released;
             r.ModifiedAtUtc = DateTimeOffset.UtcNow;
 
             if (r.StockLocationId is not null)
             {
+                // Load: Find the stock item to restore quantity
                 var stockItem = await _dbContext.Set<StockItem>()
                     .FirstOrDefaultAsync(si => si.VariantId == r.VariantId && si.StockLocationId == r.StockLocationId.Value, cancellationToken);
                 if (stockItem is not null)
+                    // Update: Restore the released quantity to available stock
                     stockItem.CountOnHand += r.Quantity;
             }
         }
@@ -69,10 +78,12 @@ public class CartReservationService(IApplicationDbContext dbContext) : ICartRese
         string cartToken, CancellationToken cancellationToken = default)
     {
         var now = DateTimeOffset.UtcNow;
+        // Load: Find all active, non-expired reservations for this cart
         var reservations = await _dbContext.Set<StockReservation>()
             .Where(r => r.CartToken == cartToken && r.State == ReservationState.Reserved && r.ExpiresAtUtc > now)
             .ToListAsync(cancellationToken);
 
+        // Compute: Remaining TTL for each reservation
         return reservations
             .Select(r => (r, (int)(r.ExpiresAtUtc!.Value - now).TotalSeconds))
             .ToList();

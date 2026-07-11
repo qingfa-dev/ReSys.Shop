@@ -4,8 +4,8 @@ using Module.Shipping.Domain.Calculators;
 
 namespace Module.Ordering.Features.Storefront.Cart.SelectShippingRate;
 
-    /// <summary>Handles SelectShippingRate feature.</summary>
-    public static partial class SelectShippingRate
+/// <summary>Selects a shipping method for the cart, calculates the shipping cost, replaces existing shipping adjustments, and recalculates totals.</summary>
+public static partial class SelectShippingRate
 {
     public sealed record Command(Request Request) : ICommand;
 
@@ -14,18 +14,18 @@ namespace Module.Ordering.Features.Storefront.Cart.SelectShippingRate;
         ICurrentUser currentUser)
         : ICommandHandler<Command>
     {
-        /// <summary>Handles the command.</summary>
-        /// <param name="command">The command to handle.</param>
+        /// <summary>Sets the shipping method, calculates cost from weight, replaces old shipping adjustments, and persists.</summary>
+        /// <param name="command">The command containing the shipping method ID.</param>
         /// <param name="cancellationToken">Cancellation token.</param>
-        /// <returns>The result of handling the command.</returns>
+        /// <returns>The result of the operation.</returns>
+        /// <exception cref="DbUpdateException">Thrown when the database update fails.</exception>
         public async Task<Result> Handle(Command command, CancellationToken cancellationToken)
         {
-
-        // Contract: pre=command!=null, post=result!=null
+            // Contract: pre=command!=null, post=result!=null, throws=DbUpdateException
             if (!Guid.TryParse(currentUser.UserId, out var userId))
                 return OrderResult.Errors.UserNotAuthenticated;
 
-            // Query: Retrieve data from database.
+            // Check: Find the user's draft cart with line items and adjustments.
             var cart = await dbContext.Set<Order>()
                 .Include(o => o.LineItems)
                 .Include(o => o.Adjustments)
@@ -39,7 +39,7 @@ namespace Module.Ordering.Features.Storefront.Cart.SelectShippingRate;
             cart.ShippingMethodId = command.Request.ShippingMethodId;
             cart.ModifiedAtUtc = DateTimeOffset.UtcNow;
 
-            // Compute: Calculate order weight from line items.
+            // Compute: Calculate total order weight from variant weights.
             var variantIds = cart.LineItems.Select(li => li.VariantId).Distinct().ToList();
             var variantWeights = await dbContext.Set<Catalog.Domain.Products.Variants.Variant>()
                 .Where(v => variantIds.Contains(v.Id))
@@ -62,7 +62,7 @@ namespace Module.Ordering.Features.Storefront.Cart.SelectShippingRate;
             {
                 var (cost, _) = calcResult.Value;
 
-                // Remove existing shipping adjustments to avoid duplicates.
+                // Remove: Clear old shipping adjustments before adding replacement.
                 var existingShipping = cart.Adjustments
                     .Where(a => a.SourceType == "Shipping")
                     .ToList();
@@ -95,7 +95,6 @@ namespace Module.Ordering.Features.Storefront.Cart.SelectShippingRate;
             // Compute: Recalculate order totals regardless of calculator result.
             cart.RecalculateTotals();
 
-            // Persist: Save changes to the database.
             await dbContext.SaveChangesAsync(cancellationToken);
             return Result.Ok();
         }

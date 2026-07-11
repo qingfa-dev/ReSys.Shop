@@ -1,7 +1,7 @@
 using Module.Shipping.Domain.ShippingRates;
 
 namespace Module.Shipping.Features.Storefront.Shipping.Rates;
-/// <summary>Lists available shipping rates for the storefront.</summary>
+/// <summary>Lists shipping rates available for storefront checkout.</summary>
 public static partial class ListShippingRates
 {
     public sealed record Query(QueryingParameters Parameters) : IPagedQuery<Response>;
@@ -9,10 +9,10 @@ public static partial class ListShippingRates
     public sealed class PagedQueryHandler(IApplicationDbContext dbContext, ILogger<PagedQueryHandler> logger)
         : IPagedQueryHandler<Query, Response>
     {
-        /// <summary>Handles listing shipping rates.</summary>
-        /// <param name="request">The query.</param>
-        /// <param name="cancellationToken">Cancellation token.</param>
-        /// <returns>List of shipping rates.</returns>
+        /// <summary>Loads and paginates shipping rates with full cost and delivery details.</summary>
+        /// <param name="request">The query containing paging parameters.</param>
+        /// <param name="cancellationToken">Propagates cancellation signal.</param>
+        /// <returns>A paged result of shipping rate details.</returns>
         public async Task<PagedResult<Response>> Handle(Query request, CancellationToken cancellationToken)
         {
             _ = logger;

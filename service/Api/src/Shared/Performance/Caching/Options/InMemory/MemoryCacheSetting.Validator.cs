@@ -17,12 +17,12 @@ public sealed class MemoryCacheSettingValidator : AbstractValidator<MemoryCacheS
             .WithMessage(MemoryCacheResult.Failure.CompactionPercentageOutOfRange.Message);
 
         // If you add a size limit:
-        When(x => x.SizeLimitBytes.HasValue, () =>
+        When(x => x.SizeLimitBytes.HasValue, (Action)(() =>
         {
             RuleFor(x => x.SizeLimitBytes!.Value)
                 .GreaterThanOrEqualTo(MemoryCacheConstants.Constraints.SizeLimitBytesMin)
                 .WithErrorCode(MemoryCacheResult.Failure.SizeLimitOutOfRange.Code)
-                .WithMessage(MemoryCacheResult.Failure.SizeLimitOutOfRange.Message);
-        });
+                .WithMessage((string)MemoryCacheResult.Failure.SizeLimitOutOfRange.Message);
+        }));
     }
 }

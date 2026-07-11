@@ -2,8 +2,8 @@ using Module.Ordering.Domain.Orders;
 
 namespace Module.Ordering.Features.Storefront.Cart.Get;
 
-    /// <summary>Handles GetCart feature.</summary>
-    public static partial class GetCart
+/// <summary>Retrieves the current user's active cart (draft order) with line items and totals, or returns an empty cart structure.</summary>
+public static partial class GetCart
 {
     public sealed record Query : IQuery<Response>;
 
@@ -12,14 +12,13 @@ namespace Module.Ordering.Features.Storefront.Cart.Get;
         ICurrentUser currentUser)
         : IQueryHandler<Query, Response>
     {
-        /// <summary>Handles the query.</summary>
-        /// <param name="query">The query to handle.</param>
+        /// <summary>Finds the current user's active draft cart with included line items, returning an empty cart if none exists.</summary>
+        /// <param name="query">The (empty) query.</param>
         /// <param name="cancellationToken">Cancellation token.</param>
-        /// <returns>The result of handling the query.</returns>
+        /// <returns>The cart response or an empty cart structure.</returns>
         public async Task<Result<Response>> Handle(Query query, CancellationToken cancellationToken)
         {
-
-        // Contract: pre=query!=null, post=result!=null
+            // Contract: pre=query!=null, post=result!=null
             // Check: Resolve current user identifier or guest session.
             var userId = Guid.TryParse(currentUser.UserId, out var parsedId) ? parsedId : (Guid?)null;
             var sessionId = currentUser.IsAuthenticated ? null : currentUser.SessionId;
@@ -27,7 +26,7 @@ namespace Module.Ordering.Features.Storefront.Cart.Get;
             if (userId is null && string.IsNullOrWhiteSpace(sessionId))
                 return OrderResult.Errors.UserNotAuthenticated;
 
-            // Query: Find the current user's active cart (Draft order).
+            // Check: Find the current user's active cart (Draft order).
             var cart = await dbContext.Set<Order>()
                 .Include(x => x.LineItems)
                 .ThenInclude(x => x.Variant)

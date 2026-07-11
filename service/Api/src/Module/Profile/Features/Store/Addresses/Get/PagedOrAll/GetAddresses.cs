@@ -3,24 +3,28 @@ using Module.Profile.Features.Store.Addresses.Shared.Mappings;
 
 namespace Module.Profile.Features.Store.Addresses.Get.PagedOrAll;
 
+/// <summary>Retrieves paged addresses for the authenticated user with optional type filtering.</summary>
 public static partial class GetAddresses
 {
-    // ============ PAGED QUERY ============
     public record Query(Parameters Parameters) : IPagedQuery<Response>;
 
-    // ============ PAGED QUERY HANDLER ============
     public sealed class PagedQueryHandler(
         IApplicationDbContext dbContext,
         ICurrentUser currentUser)
         : IPagedQueryHandler<Query, Response>
     {
+        /// <summary>Loads the user profile and returns addresses filtered by type with in-memory pagination.</summary>
+        /// <param name="request">The query containing paging and optional address-type filter.</param>
+        /// <param name="cancellationToken">Propagates cancellation signal.</param>
+        /// <returns>A paged result of address response items.</returns>
         public async Task<PagedResult<Response>> Handle(Query request, CancellationToken cancellationToken)
         {
+            // Contract: pre=user authenticated, post=paged addresses returned (may be empty)
             // Check: Ensure user is authenticated
             if (string.IsNullOrEmpty(currentUser.UserId))
                 return PagedResult<Response>.Create(items: [], page: 1, pageSize: 10, totalCount: 0);
 
-            // Resolve: Get the profile for the current user
+            // Load: Get the profile for the current user
             var profile = await dbContext.Set<UserProfile>()
                 .FirstOrDefaultAsync(p => p.UserId == Guid.Parse(currentUser.UserId), cancellationToken);
 

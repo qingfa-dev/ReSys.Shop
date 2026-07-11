@@ -2,18 +2,18 @@ using Module.Inventory.Services.Abstractions;
 using Module.Ordering.Domain.Orders;
 using Module.Ordering.Features.Shared.Services;
 using Module.Payment.Domain.Gateways;
-using Module.Payment.Domain.Payments;
+using Module.Payment.Domain.PaymentCaptures;
 
 using Shared.Operational.Notifications.Models;
 using Shared.Operational.Notifications.Services;
 using Shared.Operational.Notifications.Templates;
 
-using PaymentRecord = Module.Payment.Domain.Payments.PaymentRecord;
+using PaymentCapture = Module.Payment.Domain.PaymentCaptures.PaymentCapture;
 
 namespace Module.Ordering.Features.Storefront.Orders.Cancel;
 
-    /// <summary>Handles CancelOrder feature.</summary>
-    public static partial class CancelOrder
+/// <summary>Cancels a customer's placed order with payment voiding via gateway, inventory release, and email notification.</summary>
+public static partial class CancelOrder
 {
     public sealed record Command(Guid Id) : ICommand;
 
@@ -26,14 +26,14 @@ namespace Module.Ordering.Features.Storefront.Orders.Cancel;
         INotificationService notificationService)
         : ICommandHandler<Command>
     {
-        /// <summary>Handles the command.</summary>
-        /// <param name="command">The command to handle.</param>
+        /// <summary>Voids payments, releases inventory for placed orders, persists cancellation, and notifies the customer.</summary>
+        /// <param name="command">The command containing the order ID to cancel.</param>
         /// <param name="cancellationToken">Cancellation token.</param>
-        /// <returns>The result of handling the command.</returns>
+        /// <returns>The result of the operation.</returns>
+        /// <exception cref="DbUpdateException">Thrown when the database update fails.</exception>
         public async Task<Result> Handle(Command command, CancellationToken cancellationToken)
         {
-
-        // Contract: pre=command!=null, post=result!=null
+            // Contract: pre=command!=null, post=result!=null, throws=DbUpdateException
             // Check: Resolve current user identifier.
             if (!Guid.TryParse(currentUser.UserId, out var userId))
                 return OrderResult.Errors.UserNotAuthenticated;
@@ -53,13 +53,13 @@ namespace Module.Ordering.Features.Storefront.Orders.Cancel;
             var wasPlaced = entity.Status == OrderStatus.Placed && entity.CompletedAtUtc.HasValue;
 
             entity.Status = OrderStatus.Canceled;
-            // Update: Modify entity properties.
+            // Update: Record cancellation timestamp.
             entity.CanceledAtUtc = DateTimeOffset.UtcNow;
-            // Update: Modify entity properties.
+            // Update: Record cancellation user identity.
             entity.CanceledById = currentUser.UserId is not null && Guid.TryParse(currentUser.UserId, out var canceledBy) ? canceledBy : null;
 
             // Void: Cancel associated payments via gateway.
-            var payments = await dbContext.Set<PaymentRecord>()
+            var payments = await dbContext.Set<PaymentCapture>()
                 .Where(p => p.OrderId == entity.Id && p.State != PaymentRecordState.Void && p.State != PaymentRecordState.Failed)
                 .ToListAsync(cancellationToken);
 
@@ -80,7 +80,7 @@ namespace Module.Ordering.Features.Storefront.Orders.Cancel;
                 if (voidResult.IsFailure)
                 {
                     logger.LogWarning("Failed to void payment {PaymentId} for order {OrderId}: {Errors}",
-                        payment.Id, entity.Id, string.Join("; ", voidResult.Errors.Select(f => f.Description)));
+                        payment.Id, entity.Id, string.Join("; ", voidResult.Errors.Select(f => f.Message)));
                 }
             }
 
@@ -93,13 +93,12 @@ namespace Module.Ordering.Features.Storefront.Orders.Cancel;
                 }
             }
 
-            // Persist: Save changes.
             await dbContext.SaveChangesAsync(cancellationToken);
 
-            // Notify: Send order canceled notification.
+            // Notify: Send order canceled notification to customer.
             await SendOrderCanceledNotificationAsync(entity, cancellationToken);
 
-            // Log: Success.
+            // Log: Record cancellation in audit log.
             OrderLoggers.Canceled(logger, Number: entity.Number, Id: entity.Id, ActionBy: currentUser.UserName);
 
             return Result.Ok(OrderResult.Success.Canceled(entity.Id));
@@ -122,7 +121,7 @@ namespace Module.Ordering.Features.Storefront.Orders.Cancel;
             if (result.IsFailure)
             {
                 logger.LogWarning("Failed to send order canceled notification for order {OrderId}: {Errors}",
-                    order.Id, string.Join("; ", result.Errors.Select(f => f.Description)));
+                    order.Id, string.Join("; ", result.Errors.Select(f => f.Message)));
             }
         }
     }

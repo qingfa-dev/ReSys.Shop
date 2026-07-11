@@ -16,10 +16,12 @@ public static partial class RevokeProductClassifications
         : ICommandHandler<Command>
     {
         /// <summary>
-        /// Handles the request and returns a result.
+        /// Revokes (removes) classification associations from a product by deleting the specified junction records.
         /// </summary>
-        /// <param name="command">The command containing request data.</param>
-        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <param name="command">The command containing the product ID and taxon IDs to revoke.</param>
+        /// <param name="cancellationToken">Propagates cancellation notification.</param>
+        /// <returns>A success result indicating the classifications were revoked.</returns>
+        /// <exception cref="DbUpdateException">Thrown when the database update fails.</exception>
         // Contract: pre=command!=null, post=result!=null
         public async Task<Result> Handle(Command command, CancellationToken cancellationToken)
         {

@@ -3,8 +3,8 @@ using Module.Ordering.Features.Admin.Orders.Shared.Mappings;
 
 namespace Module.Ordering.Features.Storefront.Orders.Get.ById;
 
-    /// <summary>Handles GetCustomerOrder feature.</summary>
-    public static partial class GetCustomerOrder
+/// <summary>Retrieves a placed order by ID scoped to the current customer, including line items.</summary>
+public static partial class GetCustomerOrder
 {
     public sealed record Query(Guid Id) : IQuery<Response>;
 
@@ -13,19 +13,18 @@ namespace Module.Ordering.Features.Storefront.Orders.Get.ById;
         ICurrentUser currentUser)
         : IQueryHandler<Query, Response>
     {
-        /// <summary>Handles the query.</summary>
-        /// <param name="query">The query to handle.</param>
+        /// <summary>Finds the order by ID scoped to the current user and maps it to a customer-safe detail response.</summary>
+        /// <param name="query">The query containing the order ID.</param>
         /// <param name="cancellationToken">Cancellation token.</param>
-        /// <returns>The result of handling the query.</returns>
+        /// <returns>The order detail response.</returns>
         public async Task<Result<Response>> Handle(Query query, CancellationToken cancellationToken)
         {
-
-        // Contract: pre=query!=null, post=result!=null
+            // Contract: pre=query!=null, post=result!=null
             // Check: Resolve current user identifier.
             if (!Guid.TryParse(currentUser.UserId, out var userId))
                 return (Result<Response>)OrderResult.Errors.NotFound(query.Id);
 
-            // Query: Retrieve order by identifier scoped to current user.
+            // Check: Retrieve order by identifier scoped to current user.
             var entity = await dbContext.Set<Order>()
                 .Include(x => x.LineItems)
                 .AsNoTracking()

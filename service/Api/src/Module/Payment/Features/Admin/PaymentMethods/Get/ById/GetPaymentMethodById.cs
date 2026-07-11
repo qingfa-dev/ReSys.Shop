@@ -3,26 +3,25 @@ using Module.Payment.Features.Admin.PaymentMethods.Shared.Mappings;
 
 namespace Module.Payment.Features.Admin.PaymentMethods.Get.ById;
 
-    /// <summary>Handles GetPaymentMethodById feature.</summary>
-    public static partial class GetPaymentMethodById
+/// <summary>Retrieves a payment method by its unique identifier.</summary>
+public static partial class GetPaymentMethodById
 {
     public sealed record Query(Guid Id) : IQuery<Response>;
 
     public sealed class QueryHandler(IApplicationDbContext dbContext)
         : IQueryHandler<Query, Response>
     {
-        /// <summary>Handles the query.</summary>
-        /// <param name="request">The query request.</param>
-        /// <param name="cancellationToken">Cancellation token.</param>
-        /// <returns>The result of handling the query.</returns>
-        public async Task<Result<Response>> Handle(Query query, CancellationToken cancellationToken)
+        /// <summary>Loads and returns a single payment method by ID using a no-tracking query.</summary>
+        /// <param name="request">The query containing the payment method ID.</param>
+        /// <param name="cancellationToken">Propagates cancellation signal.</param>
+        /// <returns>A result containing the payment method details or not-found error.</returns>
+        public async Task<Result<Response>> Handle(Query request, CancellationToken cancellationToken)
         {
-
-        // Contract: pre=command!=null, post=result!=null
-            // Query: Retrieve payment method by ID.
+            // Contract: pre=request!=null, post=result!=null, method found or NotFound returned
+            // Load: Payment method by ID.
             var method = await dbContext.Set<PaymentMethod>()
                 .AsNoTracking()
-                .FirstOrDefaultAsync(m => m.Id == query.Id, cancellationToken);
+                .FirstOrDefaultAsync(m => m.Id == request.Id, cancellationToken);
 
             // Check: Verify the payment method exists.
             if (method is null)

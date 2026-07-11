@@ -1,33 +1,33 @@
 using Module.Payment.Domain.Gateways;
-using Module.Payment.Domain.Payments;
+using Module.Payment.Domain.PaymentCaptures;
 
-using PaymentRecord = Module.Payment.Domain.Payments.PaymentRecord;
+using PaymentCapture = Module.Payment.Domain.PaymentCaptures.PaymentCapture;
 
 namespace Module.Payment.Features.Admin.Payments.Capture;
 
-    /// <summary>Handles CapturePayment feature.</summary>
-    public static partial class CapturePayment
+/// <summary>Captures an authorized payment through the payment gateway.</summary>
+public static partial class CapturePayment
 {
     public sealed record Command(Guid Id, Request Request) : ICommand<Response>;
 
     public sealed class CommandHandler(IApplicationDbContext dbContext, IPaymentGatewayActionProvider gateway)
         : ICommandHandler<Command, Response>
     {
-        /// <summary>Handles the command.</summary>
-        /// <param name="command">The command to handle.</param>
-        /// <param name="cancellationToken">Cancellation token.</param>
-        /// <returns>The result of handling the command.</returns>
+        /// <summary>Captures a previously authorized payment via the configured gateway and persists the result.</summary>
+        /// <param name="command">The command containing the payment ID and optional capture amount.</param>
+        /// <param name="cancellationToken">Propagates cancellation signal.</param>
+        /// <returns>A result containing the captured payment details or an error.</returns>
+        /// <exception cref="DbUpdateException">Thrown when database persistence fails.</exception>
         public async Task<Result<Response>> Handle(Command command, CancellationToken cancellationToken)
         {
-
-        // Contract: pre=command!=null, post=result!=null
-            // Query: Get payment by ID.
-            var payment = await dbContext.Set<PaymentRecord>()
+            // Contract: pre=payment!=null && payment.CanCapture, post=payment.State==Completed, throws=DbUpdateException
+            // Load: Payment by ID.
+            var payment = await dbContext.Set<PaymentCapture>()
                 .FirstOrDefaultAsync(p => p.Id == command.Id, cancellationToken);
 
             // Check: Verify the payment exists.
             if (payment is null)
-                return PaymentResult.Failure.NotFound;
+                return PaymentCaptureResult.Failure.NotFound;
 
             var captureAmount = command.Request.Amount ?? payment.UncapturedAmount();
 
@@ -49,7 +49,6 @@ namespace Module.Payment.Features.Admin.Payments.Capture;
             if (captureResult.IsFailure)
                 return captureResult.Errors;
 
-            // Persist: Save changes.
             await dbContext.SaveChangesAsync(cancellationToken);
 
             // Map: Return result.

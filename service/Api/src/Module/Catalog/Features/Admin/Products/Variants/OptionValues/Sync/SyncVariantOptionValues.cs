@@ -13,10 +13,14 @@ public static partial class SyncVariantOptionValues
         : ICommandHandler<Command>
     {
         /// <summary>
-        /// Handles the request and returns a result.
+        /// Synchronizes variant option values by computing the diff between existing and requested associations,
+        /// adding new junction records and removing stale ones in a single transaction.
         /// </summary>
-        /// <param name="command">The command containing request data.</param>
-        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <param name="command">The command containing the variant ID and the full set of desired option value IDs.</param>
+        /// <param name="cancellationToken">Propagates cancellation notification.</param>
+        /// <returns>A success result indicating the option values were synchronized.</returns>
+        /// <exception cref="DbUpdateException">Thrown when the database update fails.</exception>
+        // Contract: pre=command!=null, post=result!=null
         public async Task<Result> Handle(Command command, CancellationToken cancellationToken)
         {
             var variantExists = await dbContext.Set<Variant>()

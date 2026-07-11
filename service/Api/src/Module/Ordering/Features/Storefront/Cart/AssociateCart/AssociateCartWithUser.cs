@@ -21,8 +21,14 @@ public static partial class AssociateCartWithUser
 
     public sealed class CommandHandler(IApplicationDbContext dbContext, ICurrentUser currentUser) : ICommandHandler<Command, Response>
     {
+        /// <summary>Merges a guest cart into the authenticated user's cart, combining matching line items by variant.</summary>
+        /// <param name="command">The command containing the guest order ID to associate.</param>
+        /// <param name="cancellationToken">Cancellation token.</param>
+        /// <returns>The merged cart response.</returns>
+        /// <exception cref="DbUpdateException">Thrown when the database update fails.</exception>
         public async Task<Result<Response>> Handle(Command command, CancellationToken cancellationToken)
         {
+            // Contract: pre=command!=null, post=result!=null, throws=DbUpdateException
             var userId = Guid.TryParse(currentUser.UserId, out var parsedId) ? parsedId : Guid.Empty;
             if (userId == Guid.Empty)
                 return (Result<Response>)OrderResult.Errors.UserNotAuthenticated;

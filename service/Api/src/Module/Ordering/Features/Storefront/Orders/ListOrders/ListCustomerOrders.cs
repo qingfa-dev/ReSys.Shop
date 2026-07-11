@@ -2,6 +2,7 @@ using Module.Ordering.Domain.Orders;
 
 namespace Module.Ordering.Features.Storefront.Orders.ListOrders;
 
+/// <summary>Lists the current customer's placed orders (excluding drafts) with paging, filtering, and sorting.</summary>
 public static partial class ListCustomerOrders
 {
     public sealed record Query(QueryingParameters Parameters) : IPagedQuery<Response>;
@@ -11,10 +12,10 @@ public static partial class ListCustomerOrders
         ICurrentUser currentUser)
         : IPagedQueryHandler<Query, Response>
     {
-        /// <summary>Handles the query.</summary>
-        /// <param name="request">The query to handle.</param>
+        /// <summary>Parses parameters and queries placed orders scoped to the current user with paging.</summary>
+        /// <param name="request">The paged query request with parameters.</param>
         /// <param name="cancellationToken">Cancellation token.</param>
-        /// <returns>The result of handling the query.</returns>
+        /// <returns>The paged order list response.</returns>
         public async Task<PagedResult<Response>> Handle(Query request, CancellationToken cancellationToken)
         {
             var parameters = request.Parameters;
@@ -23,12 +24,11 @@ public static partial class ListCustomerOrders
             if (!Guid.TryParse(currentUser.UserId, out var userId))
                 return PagedResult<Response>.Create();
 
-            // Contract: pre=query!=null, post=result!=null
             var parseAll = parameters.ParseAll();
             if (parseAll.IsFailure)
                 return parseAll.Errors;
 
-            // Query: Retrieve orders for current user (excluding drafts) with querying options.
+            // Check: Retrieve orders for current user (excluding drafts) with querying options.
             var pagedResult = await dbContext.Set<Order>()
                 .AsNoTracking()
                 .Where(o => o.UserId == userId && o.Status != OrderStatus.Draft)

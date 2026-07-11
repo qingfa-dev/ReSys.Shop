@@ -1,10 +1,12 @@
+using Microsoft.EntityFrameworkCore;
+
 using Module.Inventory.Domain.StockLocations.StockItems;
 using Module.Inventory.Domain.StockLocations.StockItems.StockMovements;
 using Module.Inventory.Domain.StockTransfers;
 
 namespace Module.Inventory.Features.Admin.StockTransfers.Cancel;
 
-/// <summary>Handles cancellation of a stock transfer (Draft|InTransit → Canceled).</summary>
+/// <summary>Cancels a stock transfer; restores source stock if it was already InTransit.</summary>
 public static partial class CancelStockTransfer
 {
     public sealed record Command(Guid Id) : ICommand;
@@ -14,12 +16,15 @@ public static partial class CancelStockTransfer
         ILogger<CommandHandler> logger)
         : ICommandHandler<Command>
     {
-        /// <summary>Executes the cancel stock transfer command.</summary>
+        /// <summary>Transitions the transfer to Canceled and restores stock if it was deducted.</summary>
         /// <param name="command">The command containing the transfer identifier.</param>
         /// <param name="cancellationToken">Cancellation token.</param>
         /// <returns>A result indicating success or failure.</returns>
+        /// <exception cref="DbUpdateException">Thrown when the database update fails.</exception>
         public async Task<Result> Handle(Command command, CancellationToken cancellationToken)
         {
+            // Contract: pre=command!=null, post=result!=null, throws=DbUpdateException
+            // Load: Find the transfer with items
             var transfer = await dbContext.Set<StockTransfer>()
                 .Include(t => t.TransferItems)
                 .FirstOrDefaultAsync(t => t.Id == command.Id, cancellationToken);

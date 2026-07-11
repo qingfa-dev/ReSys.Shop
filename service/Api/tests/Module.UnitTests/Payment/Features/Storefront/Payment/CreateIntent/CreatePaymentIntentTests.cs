@@ -1,10 +1,10 @@
 using Module.Payment.Domain.Gateways;
-using Module.Payment.Domain.Payments;
+using Module.Payment.Domain.PaymentCaptures;
 using Module.Payment.Domain.PaymentMethods;
 using Module.Payment.Features.Storefront.Payment.CreateIntent;
 using Module.Ordering.Domain.Orders;
 
-using PaymentRecord = Module.Payment.Domain.Payments.PaymentRecord;
+using PaymentCapture = Module.Payment.Domain.PaymentCaptures.PaymentCapture;
 
 namespace Module.UnitTests.Payment.Features.Storefront.Payment.CreateIntent;
 
@@ -25,7 +25,7 @@ public class CreatePaymentIntentTests : IDisposable
             .Options;
 
         ApplicationDbContext.AdditionalConfigurationsAssemblies = [
-            typeof(PaymentRecord).Assembly,
+            typeof(PaymentCapture).Assembly,
             typeof(Order).Assembly
         ];
         _dbContext = new ApplicationDbContext(options);

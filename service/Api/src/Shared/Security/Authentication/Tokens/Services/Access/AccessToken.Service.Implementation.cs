@@ -11,29 +11,30 @@ using Shared.Security.Authentication.Tokens.Options;
 
 namespace Shared.Security.Authentication.Tokens.Services.Access;
 
-/// <summary>
-/// Service for generating JWT access tokens using HMAC-SHA256 signing.
-/// </summary>
+/// <summary>Produces a signed JWT access token using HMAC-SHA256 with configurable issuer, audience, and expiration.</summary>
+// Invariant: Secret length >= 32 chars minimum; signing always uses HMAC-SHA256; JTI uniquely identifies each token.
+// Context: JWT signing secret must never leak to logs or error responses — see Threat TMT-TOK-001.
 public class AccessTokenService(IOptions<JwtSettings> jwtOptions) : IAccessTokenService
 {
     private readonly JwtSettings _jwtOptions = jwtOptions.Value;
 
-    /// <inheritdoc/>
+    /// <summary>Generates a signed JWT access token from the provided user request model.</summary>
+    // Contract: pre=request!=null && _jwtOptions.Secret.Length>=JwtSettingsConstant.Constraints.Secret.MinLength, post=return.IsSuccess && TokenResponseModel.Token!=null, throws=Exception on cryptographic failure
     public Result<TokenResponseModel> GenerateToken(TokenRequestModel request)
     {
-        // Validate: Ensure the signing secret meets minimum security requirements
+        // Validate: signing secret meets minimum length before any crypto operation to prevent weak-key attacks
         if (string.IsNullOrEmpty(_jwtOptions.Secret) || _jwtOptions.Secret.Length < JwtSettingsConstant.Constraints.Secret.MinLength)
             return AccessTokenResult.Failure.InvalidConfiguration;
 
         try
         {
-            // Initialize: Create the symmetric security key from the configured secret
+            // Compute: symmetric key from configured secret for HMAC-SHA256 signing
             SymmetricSecurityKey securityKey = new SymmetricSecurityKey(
                 Encoding.UTF8.GetBytes(_jwtOptions.Secret));
             SigningCredentials credentials = new SigningCredentials(
                 securityKey, SecurityAlgorithms.HmacSha256);
 
-            // Generate: Create the standard JWT claims for the user
+            // Transform: user identity into standard JWT registered claims for downstream service consumption
             Claim[] claims =
             [
                 new Claim(JwtRegisteredClaimNames.Sub, request.UserId.ToString()),
@@ -45,10 +46,10 @@ public class AccessTokenService(IOptions<JwtSettings> jwtOptions) : IAccessToken
                     ClaimValueTypes.Integer64)
             ];
 
-            // Compute: Determine expiration timestamp based on configuration
+            // Compute: absolute expiration from configuration to enforce token lifetime policy
             DateTime expiration = DateTime.UtcNow.AddMinutes(_jwtOptions.AccessTokenExpirationInMinutes);
 
-            // Create: Build the security token descriptor with claims and signing
+            // Create: token descriptor with claims, expiry, signing — all inputs must be populated
             SecurityTokenDescriptor tokenDescriptor = new SecurityTokenDescriptor
             {
                 Subject = new ClaimsIdentity(claims),
@@ -58,12 +59,12 @@ public class AccessTokenService(IOptions<JwtSettings> jwtOptions) : IAccessToken
                 SigningCredentials = credentials
             };
 
-            // Call: Serialize the JWT to its final compact string representation
+            // Call: JwtSecurityTokenHandler serializes into compact token string for HTTP bearer transmission
             JwtSecurityTokenHandler tokenHandler = new JwtSecurityTokenHandler();
             SecurityToken securityToken = tokenHandler.CreateToken(tokenDescriptor);
             string accessToken = tokenHandler.WriteToken(securityToken);
 
-            // Transform: Map the generated token and expiry to the response DTO
+            // Transform: domain token and expiry into wire-format response DTO
             return Result<TokenResponseModel>.Ok(new TokenResponseModel(
                 Token: accessToken,
                 ExpiresIn: new DateTimeOffset(expiration).ToUnixTimeSeconds()
@@ -71,7 +72,7 @@ public class AccessTokenService(IOptions<JwtSettings> jwtOptions) : IAccessToken
         }
         catch (Exception)
         {
-            // Log: Cryptographic or configuration error prevented token generation
+            // Catch: Cryptographic failure must not propagate stack details to caller — generic error only, see TMT-TOK-002
             return AccessTokenResult.Failure.GenerationFailed;
         }
     }

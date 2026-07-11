@@ -1,4 +1,4 @@
-using Module.Payment.Domain.Payments;
+using Module.Payment.Domain.PaymentCaptures;
 
 namespace Module.Payment.Features.Admin.Payments.Capture;
 

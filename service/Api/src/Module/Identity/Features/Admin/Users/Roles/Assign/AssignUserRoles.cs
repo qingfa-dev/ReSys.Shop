@@ -28,14 +28,22 @@ public static partial class AssignUserRoles
         )
         : ICommandHandler<Command>
     {
+        // Contract: pre=command!=null, post=result!=null, throws=DbUpdateException
+        /// <summary>
+        /// Assigns roles to a user. Validates each role exists and is not already assigned,
+        /// persists changes via Identity, and invalidates the user's permission cache
+        /// since roles influence effective permissions.
+        /// </summary>
+        /// <param name="command">The command with user ID and role names to assign.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>A result indicating success or not-found error.</returns>
+        /// <exception cref="DbUpdateException">Thrown when the identity store fails to persist role assignments.</exception>
         public async Task<Result> Handle(Command command, CancellationToken cancellationToken)
         {
-            // Check: Find the target user.
             var user = await userManager.FindByIdAsync(command.Id.ToString());
             if (user is null)
                 return UserResult.Failure.NotFound;
 
-            // Filter: Validate requested roles exist in the system.
             var rolesToAdd = new List<string>();
             foreach (var roleName in command.Request.Roles)
             {
@@ -51,27 +59,22 @@ public static partial class AssignUserRoles
             if (rolesToAdd.Count == 0)
                 return Result.Ok();
 
-            // Add: Assign the new roles to the user.
             var identityResult = await userManager.AddToRolesAsync(user, rolesToAdd);
             if (!identityResult.Succeeded)
                 return identityResult.ToResult();
 
-            // Update Metadata:
             AuditableBehavior.Touch(user, dateTime.UtcNow);
 
-            // Persist:
             var updateResult = await userManager.UpdateAsync(user);
             if (!updateResult.Succeeded)
                 return updateResult.ToResult();
 
-            // Log: Record successful role assignment
             if (logger.IsEnabled(LogLevel.Debug))
             {
                 var roles = string.Join(", ", rolesToAdd);
                 UserLoggers.Roles.RolesAssigned(logger, UserName: user.UserName!, UserId: user.Id, Roles: roles);
             }
 
-            // Post-persist side effects.
             await OnRolesChangedAsync(user, cancellationToken);
 
             return Result.Ok();

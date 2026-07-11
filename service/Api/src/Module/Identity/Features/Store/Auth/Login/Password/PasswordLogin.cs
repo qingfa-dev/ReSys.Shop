@@ -93,7 +93,7 @@ public static partial class PasswordLogin
             if (user is not null)
                 return user;
 
-            return await userManager.Users.FirstOrDefaultAsync(u => u.PhoneNumber == credential);
+            return userManager.Users.FirstOrDefault(u => u.PhoneNumber == credential);
         }
     }
 }

@@ -18,8 +18,8 @@ public static partial class GetProductsPagedList
         : IPagedQueryHandler<Query, Response>
     {
         /// <summary>
-        /// Handles the paged query — builds a filtered, sorted query and returns
-        /// a paged result of product list items.
+        /// Retrieves a paged list of non-deleted products with optional filtering
+        /// by status, taxon classification, season, and search term.
         /// </summary>
         /// <param name="request">The query containing filtering and pagination parameters.</param>
         /// <param name="cancellationToken">Propagates cancellation notification.</param>

@@ -14,16 +14,17 @@ public static partial class GetTaxonomiesPaged
         : IPagedQueryHandler<Query, Response>
     {
         /// <summary>
-        /// Handles the request and returns a result.
+        /// Retrieves a paged or full list of taxonomies with filtering and sorting support.
         /// </summary>
-        /// <param name="request">The query containing request data.</param>
-        /// <param name="cancellationToken">The cancellation token.</param>
-        // Contract: pre=request!=null, post=result!=null
+        /// <param name="request">The query containing pagination and filtering parameters.</param>
+        /// <param name="cancellationToken">Propagates cancellation notification.</param>
+        /// <returns>A paged result of taxonomy list items.</returns>
+        // Contract: pre=request.Parameters!=null, post=result.Items!=null
         public async Task<PagedResult<Response>> Handle(Query request, CancellationToken cancellationToken)
         {
             var parameters = request.Parameters;
 
-            // Query: Start with the base set of taxonomies.
+            // Load: Start with the base set of taxonomies.
             // Parse: Validate and parse querying parameters
             var parsing = parameters.ParseAll();
             if (parsing.IsFailure)

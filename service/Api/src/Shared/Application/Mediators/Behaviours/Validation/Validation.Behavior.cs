@@ -57,6 +57,6 @@ public sealed partial class ValidationBehavior<TRequest, TResponse>(
                 ("fields", f.PropertyName)))
             .ToList();
 
-        return (TResponse)(dynamic)Result.Validation(errors: validationFailures);
+        return (TResponse)(dynamic)validationFailures;
     }
 }

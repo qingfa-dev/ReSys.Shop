@@ -1,35 +1,35 @@
 using Module.Payment.Domain.Gateways;
-using Module.Payment.Domain.Payments;
+using Module.Payment.Domain.PaymentCaptures;
 
-using PaymentRecord = Module.Payment.Domain.Payments.PaymentRecord;
+using PaymentCapture = Module.Payment.Domain.PaymentCaptures.PaymentCapture;
 
 namespace Module.Payment.Features.Admin.Payments.Refund;
 
-    /// <summary>
-    /// [WIP-MVP] Refunds the full captured amount. The optional `Amount` parameter is accepted
-    /// for API compatibility but ignored. Partial refund is deferred to v1.x.
-    /// </summary>
-    public static partial class RefundPayment
+/// <summary>
+/// [WIP-MVP] Refunds the full captured amount. The optional Amount parameter is accepted
+/// for API compatibility but ignored. Partial refund is deferred to v1.x.
+/// </summary>
+public static partial class RefundPayment
 {
     public sealed record Command(Guid Id, Request Request) : ICommand<Response>;
 
     public sealed class CommandHandler(IApplicationDbContext dbContext, IPaymentGatewayActionProvider gateway)
         : ICommandHandler<Command, Response>
     {
-        /// <summary>Handles the command.</summary>
-        /// <param name="command">The command to handle.</param>
-        /// <param name="cancellationToken">Cancellation token.</param>
-        /// <returns>The result of handling the command.</returns>
+        /// <summary>Refunds a captured payment via the configured gateway and persists the result.</summary>
+        /// <param name="command">The command containing the payment ID and refund details.</param>
+        /// <param name="cancellationToken">Propagates cancellation signal.</param>
+        /// <returns>A result containing the refunded payment details or an error.</returns>
+        /// <exception cref="DbUpdateException">Thrown when database persistence fails.</exception>
         public async Task<Result<Response>> Handle(Command command, CancellationToken cancellationToken)
         {
-
-        // Contract: pre=command!=null, post=result!=null
-            var payment = await dbContext.Set<PaymentRecord>()
+            // Contract: pre=payment!=null && payment.CanRefund, post=payment.RefundedAmount>0, throws=DbUpdateException
+            var payment = await dbContext.Set<PaymentCapture>()
                 .FirstOrDefaultAsync(p => p.Id == command.Id, cancellationToken);
 
             // Check: Verify the payment exists.
             if (payment is null)
-                return PaymentResult.Failure.NotFound;
+                return PaymentCaptureResult.Failure.NotFound;
 
             // Construct: Gateway options from payment data.
             var options = new GatewayOptions(payment)
@@ -52,7 +52,7 @@ namespace Module.Payment.Features.Admin.Payments.Refund;
             if (refundResult.IsFailure)
                 return refundResult.Errors;
 
-            // Persist: Save changes to the database.
+            await dbContext.SaveChangesAsync(cancellationToken);
             await dbContext.SaveChangesAsync(cancellationToken);
 
             return new Response
