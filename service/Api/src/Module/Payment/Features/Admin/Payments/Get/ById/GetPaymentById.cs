@@ -37,11 +37,10 @@ namespace Module.Payment.Features.Admin.Payments.Get.ById;
                 Amount = payment.Amount,
                 State = payment.State,
                 ResponseCode = payment.ResponseCode,
-                IntentClientSecret = payment.IntentClientSecret,
                 OrderId = payment.OrderId,
-                OrderNumber = null,
+                OrderNumber = payment.Order?.Number,
                 PaymentMethodId = payment.PaymentMethodId,
-                PaymentMethodName = null,
+                PaymentMethodName = payment.PaymentMethod?.Name,
                 CreatedAtUtc = payment.CreatedAtUtc,
                 ModifiedAtUtc = payment.ModifiedAtUtc
             };
