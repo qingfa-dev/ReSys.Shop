@@ -113,7 +113,7 @@ public static partial class SyncVariantPrices
             VariantLoggers.Updated(logger, Sku: string.Empty, Id: variantId, ActionBy: currentUser.UserName);
 
             return Result<Response>.Ok(
-                new Response { Added = added, Updated = updated, Removed = removed },
+                new Response { VariantId = variantId, Added = added, Updated = updated, Removed = removed },
                 $"Prices synced: {added} added, {updated} updated, {removed} removed.");
         }
     }

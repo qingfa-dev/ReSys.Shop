@@ -8,7 +8,11 @@ public static partial class GetImage
 {
     public sealed record Query(Guid Id) : IQuery<Response>;
 
-    public sealed record Response(string FullPath, string ContentType);
+    public sealed record Response
+    {
+        public string FullPath { get; init; } = string.Empty;
+        public string ContentType { get; init; } = string.Empty;
+    }
 
     public sealed class QueryHandler(
         IApplicationDbContext dbContext,
@@ -40,7 +44,7 @@ public static partial class GetImage
             if (!File.Exists(fullPath))
                 return VariantImageResult.Failure.ById(query.Id);
 
-            return new Response(fullPath, image.ContentType);
+            return new Response { FullPath = fullPath, ContentType = image.ContentType };
         }
     }
 }
