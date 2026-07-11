@@ -11,7 +11,6 @@ public static partial class GetPaymentById
         public decimal Amount { get; init; }
         public PaymentRecordState State { get; init; }
         public string? ResponseCode { get; init; }
-        public string? IntentClientSecret { get; init; }
         public Guid OrderId { get; init; }
         public string? OrderNumber { get; init; }
         public Guid PaymentMethodId { get; init; }
