@@ -78,6 +78,10 @@ public static class PaymentMethodResult
             code: "PaymentMethod.AlreadyInactive",
             message: "Payment method is already inactive.");
 
+        public static Error ProviderNotRegistered(string providerKey) => Error.Validation(
+            code: "PaymentMethod.ProviderKey.NotRegistered",
+            message: $"Provider '{providerKey}' is not registered in the gateway registry.");
+
         /// <summary>Error indicating the payment method has active payments and cannot be deleted.</summary>
         public static Error HasActivePayments => Error.Conflict(
             code: "PaymentMethod.HasActivePayments",
