@@ -31,4 +31,10 @@ public static partial class PaymentCaptureLoggers
         Level = LogLevel.Debug,
         Message = "[Payment.Captured]: {Number} ({Id}) for {Amount} by {ActionBy}")]
     public static partial void Captured(ILogger logger, string Number, Guid Id, decimal Amount, string? ActionBy = "System");
+
+    [LoggerMessage(
+        EventId = 2008,
+        Level = LogLevel.Warning,
+        Message = "[Payment.DisputeCreated]: Charge {ChargeId} reason {Reason}")]
+    public static partial void DisputeCreated(this ILogger logger, string chargeId, string reason);
 }

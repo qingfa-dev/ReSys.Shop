@@ -1,3 +1,4 @@
+using Microsoft.Extensions.Logging;
 using Module.Payment.Services.Models;
 using Module.Payment.Domain.PaymentCaptures;
 using PaymentCapture = Module.Payment.Domain.PaymentCaptures.PaymentCapture;
@@ -14,7 +15,8 @@ public static partial class StripeWebhook
 
     public sealed class CommandHandler(
         IApplicationDbContext dbContext,
-        IStripeWebhookService webhookService)
+        IStripeWebhookService webhookService,
+        ILogger<CommandHandler> logger)
         : ICommandHandler<Command>
     {
         /// <summary>Validates the Stripe webhook signature, parses the event, and routes to the appropriate handler.</summary>
@@ -48,7 +50,7 @@ public static partial class StripeWebhook
                     return await HandleChargeRefunded(dbContext, stripeEvent, cancellationToken);
 
                 case GatewayConstants.WebhookEvents.Stripe.ChargeDisputeCreated:
-                    return HandleChargeDisputeCreated(stripeEvent);
+                    return HandleChargeDisputeCreated(stripeEvent, logger);
 
                 default:
                     return Result.Ok();
@@ -125,13 +127,14 @@ public static partial class StripeWebhook
         }
 
         // Handle: charge.dispute.created -- log dispute (no state change)
-        private static Result HandleChargeDisputeCreated(StripeEvent stripeEvent)
+        private static Result HandleChargeDisputeCreated(StripeEvent stripeEvent, ILogger logger)
         {
-            var charge = stripeEvent.Data.Object as Charge;
-            if (charge is null)
+            var dispute = stripeEvent.Data.Object as Dispute;
+            if (dispute is null)
                 return Result.Ok();
 
-            // TODO: Add dispute handling logic when business requirements are defined
+            PaymentCaptureLoggers.DisputeCreated(logger, dispute.ChargeId, dispute.Reason ?? "unknown");
+
             return Result.Ok();
         }
     }
