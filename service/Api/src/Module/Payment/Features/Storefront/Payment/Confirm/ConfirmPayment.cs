@@ -7,7 +7,10 @@ public static partial class ConfirmPayment
 {
     public sealed record Command(Guid PaymentId) : ICommand<Response>;
 
-    public sealed class CommandHandler(IApplicationDbContext dbContext, ICurrentUser currentUser, IPaymentGatewayActionProvider gateway)
+    public sealed class CommandHandler(
+        IApplicationDbContext dbContext,
+        ICurrentUser currentUser,
+        IGatewayRegistry gatewayRegistry)
         : ICommandHandler<Command, Response>
     {
         public async Task<Result<Response>> Handle(Command command, CancellationToken cancellationToken)
@@ -16,36 +19,34 @@ public static partial class ConfirmPayment
                 return PaymentCaptureResult.Failure.NotFound;
 
             var payment = await dbContext.Set<PaymentCapture>()
-                .Include(p => p.Order)
-                .FirstOrDefaultAsync(p => p.Id == command.PaymentId && p.Order.UserId == userId, cancellationToken);
-
-            // Check: Verify the payment exists.
+                .FirstOrDefaultAsync(p => p.Id == command.PaymentId, cancellationToken);
             if (payment is null)
                 return PaymentCaptureResult.Failure.NotFound;
 
-            // Validate: Payment must be in Processing or Pending state to confirm
             if (payment.State is not (PaymentRecordState.Processing or PaymentRecordState.Pending))
             {
-                // Validate: Check business rule.
                 if (payment.State is PaymentRecordState.Completed)
                     return PaymentCaptureResult.Failure.AlreadyCompleted;
-
                 return PaymentCaptureResult.Failure.InvalidStateTransition(payment.State, PaymentRecordState.Completed);
             }
 
-            // Verify: Check payment intent status at the gateway
-            var status = await gateway.GetPaymentIntentStatusAsync(payment.ResponseCode!, cancellationToken);
-            if (status != "succeeded")
+            var gatewayResult = gatewayRegistry.GetGateway(payment.ProviderKey);
+            if (gatewayResult.IsFailure)
+                return PaymentCaptureResult.Failure.ProviderNotRegistered(payment.ProviderKey);
+            var gateway = gatewayResult.Value;
+
+            if (string.IsNullOrEmpty(payment.ResponseCode))
                 return PaymentCaptureResult.Failure.NotSucceeded;
 
-            // Transition: Complete the payment
+            var status = await gateway.GetPaymentStatusAsync(payment.ResponseCode, cancellationToken);
+            if (status != GatewayConstants.Stripe.IntentStatus.Succeeded)
+                return PaymentCaptureResult.Failure.NotSucceeded;
+
             var completeResult = payment.Complete();
-            if (completeResult.IsFailure)
-                return completeResult.Errors;
+            if (completeResult.IsFailure) return completeResult.Errors;
 
             await dbContext.SaveChangesAsync(cancellationToken);
 
-            // Map: Return the result.
             return new Response
             {
                 Id = payment.Id,
