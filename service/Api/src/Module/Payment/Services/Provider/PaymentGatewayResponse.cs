@@ -5,6 +5,7 @@ public sealed record PaymentGatewayResponse
 {
     public string Provider { get; }
     public string? Authorization { get; }
+    public string? ClientSecret { get; }
     public string? SetupIntentClientSecret { get; }
     public string? PaymentStatus { get; }
     public string? AvsResultCode { get; }
@@ -15,6 +16,7 @@ public sealed record PaymentGatewayResponse
     public PaymentGatewayResponse(
         string provider,
         string? authorization = null,
+        string? clientSecret = null,
         string? setupIntentClientSecret = null,
         string? paymentStatus = null,
         Dictionary<string, object?>? properties = null,
@@ -24,6 +26,7 @@ public sealed record PaymentGatewayResponse
     {
         Provider = provider;
         Authorization = authorization;
+        ClientSecret = clientSecret;
         SetupIntentClientSecret = setupIntentClientSecret;
         PaymentStatus = paymentStatus;
         Properties = properties ?? new Dictionary<string, object?>();

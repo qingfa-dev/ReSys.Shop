@@ -1,8 +1,5 @@
 using Microsoft.Extensions.Options;
-using Module.Payment.Services.Abstractions;
-using Module.Payment.Services.Provider;
 
-using Module.Payment.Services.Provider.Stripe;
 using Stripe;
 
 namespace Module.Payment.Services.Provider.Stripe;
@@ -40,7 +37,8 @@ public sealed class StripeGateway : Gateway
             if (intent.Status != GatewayConstants.Stripe.IntentStatus.Succeeded)
                 return Error.BadRequest("Stripe.Purchase.NotSucceeded", $"Purchase status: {intent.Status}");
             return new PaymentGatewayResponse(GatewayConstants.Providers.Stripe,
-                authorization: intent.Id);
+                authorization: intent.Id,
+                clientSecret: intent.ClientSecret);
         }
         catch (StripeException ex) { return MapStripeException(ex); }
     }
@@ -56,7 +54,8 @@ public sealed class StripeGateway : Gateway
             if (intent.Status != GatewayConstants.Stripe.IntentStatus.RequiresCapture)
                 return Error.BadRequest("Stripe.Authorize.NotRequiresCapture", $"Authorize status: {intent.Status}");
             return new PaymentGatewayResponse(GatewayConstants.Providers.Stripe,
-                authorization: intent.Id);
+                authorization: intent.Id,
+                clientSecret: intent.ClientSecret);
         }
         catch (StripeException ex) { return MapStripeException(ex); }
     }
