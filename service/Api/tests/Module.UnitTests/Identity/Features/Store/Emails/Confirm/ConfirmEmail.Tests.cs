@@ -3,8 +3,8 @@ using System.Text;
 using Microsoft.AspNetCore.Identity;
 
 using Module.Identity.Features.Store.Emails.Confirm;
-using Module.Profile.Features.Store.Profiles.Create;
 using Module.UnitTests.Identity.Fixtures;
+using Shared.Application.Contracts.Profile;
 
 using Shared.Operational.Notifications.Models;
 using Shared.Operational.Notifications.Services;
@@ -37,8 +37,8 @@ public class ConfirmEmailTests
             .Setup(x => x.SendAsync(It.IsAny<NotificationMessage>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(Result.Ok());
         _mediatorMock
-            .Setup(x => x.Send(It.IsAny<CreateProfile.Command>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new CreateProfile.Response());
+            .Setup(x => x.Send(It.IsAny<CreateUserProfileCommand>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new CreateUserProfileResult(Guid.NewGuid()));
     }
 
     private ConfirmEmail.CommandHandler CreateHandler()
@@ -130,7 +130,7 @@ public class ConfirmEmailTests
             x => x.SendAsync(It.IsAny<NotificationMessage>(), It.IsAny<CancellationToken>()),
             Times.Never);
         _mediatorMock.Verify(
-            x => x.Send(It.IsAny<CreateProfile.Command>(), It.IsAny<CancellationToken>()),
+            x => x.Send(It.IsAny<CreateUserProfileCommand>(), It.IsAny<CancellationToken>()),
             Times.Never);
     }
 
@@ -168,7 +168,7 @@ public class ConfirmEmailTests
             It.Is<NotificationMessage>(m => m.UseCase == NotificationUseCase.WelcomeSent),
             It.IsAny<CancellationToken>()), Times.Once);
         _mediatorMock.Verify(
-            x => x.Send(It.IsAny<CreateProfile.Command>(), It.IsAny<CancellationToken>()),
+            x => x.Send(It.IsAny<CreateUserProfileCommand>(), It.IsAny<CancellationToken>()),
             Times.Once);
     }
 
@@ -187,11 +187,11 @@ public class ConfirmEmailTests
             .Setup(x => x.UpdateAsync(It.IsAny<User>()))
             .ReturnsAsync(IdentityResult.Success);
 
-        CreateProfile.Command? captured = null;
+        CreateUserProfileCommand? captured = null;
         _mediatorMock
-            .Setup(x => x.Send(It.IsAny<CreateProfile.Command>(), It.IsAny<CancellationToken>()))
-            .Callback<IRequest<Result<CreateProfile.Response>>, CancellationToken>((req, _) => captured = (CreateProfile.Command)req)
-            .ReturnsAsync(new CreateProfile.Response());
+            .Setup(x => x.Send(It.IsAny<CreateUserProfileCommand>(), It.IsAny<CancellationToken>()))
+            .Callback<IRequest<Result<CreateUserProfileResult>>, CancellationToken>((req, _) => captured = (CreateUserProfileCommand)req)
+            .ReturnsAsync(new CreateUserProfileResult(Guid.NewGuid()));
 
         var handler = CreateHandler();
         var command = new ConfirmEmail.Command(
@@ -201,9 +201,9 @@ public class ConfirmEmailTests
 
         captured.Should().NotBeNull();
         captured!.UserId.Should().Be(user.Id);
-        captured.Request.FirstName.Should().Be(user.FirstName);
-        captured.Request.LastName.Should().Be(user.LastName);
-        captured.Request.Email.Should().Be(user.Email);
+        captured.FirstName.Should().Be(user.FirstName);
+        captured.LastName.Should().Be(user.LastName);
+        captured.Email.Should().Be(user.Email);
     }
 
     [Fact(DisplayName = "EmailVerification: Should return failure when ConfirmEmailAsync fails")]
@@ -296,7 +296,7 @@ public class ConfirmEmailTests
             x => x.SendAsync(It.IsAny<NotificationMessage>(), It.IsAny<CancellationToken>()),
             Times.Never);
         _mediatorMock.Verify(
-            x => x.Send(It.IsAny<CreateProfile.Command>(), It.IsAny<CancellationToken>()),
+            x => x.Send(It.IsAny<CreateUserProfileCommand>(), It.IsAny<CancellationToken>()),
             Times.Never);
     }
 
@@ -355,7 +355,7 @@ public class ConfirmEmailTests
             x => x.SendAsync(It.IsAny<NotificationMessage>(), It.IsAny<CancellationToken>()),
             Times.Never);
         _mediatorMock.Verify(
-            x => x.Send(It.IsAny<CreateProfile.Command>(), It.IsAny<CancellationToken>()),
+            x => x.Send(It.IsAny<CreateUserProfileCommand>(), It.IsAny<CancellationToken>()),
             Times.Never);
     }
 
