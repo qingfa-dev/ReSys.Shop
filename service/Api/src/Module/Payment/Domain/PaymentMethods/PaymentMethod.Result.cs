@@ -49,7 +49,7 @@ public static class PaymentMethodResult
         /// <summary>Error indicating the provider type exceeds the maximum length.</summary>
         public static Error ProviderTypeTooLong => Error.Validation(
             code: "PaymentMethod.ProviderType.TooLong",
-            message: $"Payment method provider type cannot exceed {PaymentMethodConstant.Constraints.MaxProviderTypeLength} characters.");
+            message: $"Payment method provider type cannot exceed {PaymentMethodConstant.Constraints.MaxProviderKeyLength} characters.");
 
         /// <summary>Error indicating the description exceeds the maximum length.</summary>
         public static Error DescriptionTooLong => Error.Validation(

@@ -74,7 +74,7 @@ public class OrderConfiguration : IEntityTypeConfiguration<Order>
 
         #region Relationships
         builder.HasMany(x => x.Payments)
-            .WithOne(p => p.Order)
+            .WithOne()
             .HasForeignKey(p => p.OrderId)
             .OnDelete(DeleteBehavior.Cascade);
 

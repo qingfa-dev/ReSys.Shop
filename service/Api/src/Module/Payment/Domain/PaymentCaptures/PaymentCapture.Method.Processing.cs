@@ -199,7 +199,7 @@ public static class PaymentProcessing
     // Call: Gateway cancel action
     public static async Task<Result> CancelAsync(this PaymentCapture payment, IPaymentGatewayActionProvider gateway, CancellationToken cancellationToken = default)
     {
-        var gatewayResult = await gateway.CancelAsync(payment.ResponseCode, payment, cancellationToken).ConfigureAwait(false);
+        var gatewayResult = await gateway.VoidAsync(payment.ResponseCode, payment, new GatewayOptions { Email = string.Empty, Customer = string.Empty, OrderId = payment.OrderId.ToString(), PaymentId = payment.Number, IdempotencyKey = GatewayConstants.Idempotency.ForPayment(payment.Number) }, cancellationToken).ConfigureAwait(false);
 
         if (gatewayResult.IsFailure)
             return gatewayResult.ToBase();
@@ -233,7 +233,7 @@ public static class PaymentProcessing
         if (!payment.CreditAllowed())
             return PaymentCaptureResult.Failure.CreditNotAllowed;
 
-        var gatewayResult = await gateway.CreditAsync(amount, payment.ResponseCode, options, cancellationToken).ConfigureAwait(false);
+        var gatewayResult = await gateway.RefundAsync(amount, payment.ResponseCode, options, cancellationToken).ConfigureAwait(false);
 
         if (gatewayResult.IsFailure)
             return gatewayResult.Errors;

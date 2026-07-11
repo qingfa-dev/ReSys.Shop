@@ -1,4 +1,5 @@
 using Module.Payment.Domain.PaymentCaptures;
+using Module.Payment.Infrastructure.Gateways.Stripe;
 using PaymentCapture = Module.Payment.Domain.PaymentCaptures.PaymentCapture;
 using Stripe;
 using StripeEvent = Stripe.Event;

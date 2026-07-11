@@ -37,7 +37,7 @@ public static partial class GetPaymentById
                 State = payment.State,
                 ResponseCode = payment.ResponseCode,
                 OrderId = payment.OrderId,
-                OrderNumber = payment.Order?.Number,
+                OrderNumber = null,
                 PaymentMethodId = payment.PaymentMethodId,
                 PaymentMethodName = payment.PaymentMethod?.Name,
                 CreatedAtUtc = payment.CreatedAtUtc,
