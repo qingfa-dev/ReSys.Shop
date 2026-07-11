@@ -1,8 +1,6 @@
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-using Module.Ordering.Persistence.Constants;
 using Module.Ordering.Domain.Orders;
-using Module.Payment.Domain.PaymentCaptures;
 
 namespace Module.Ordering.Persistence.Configurations.Orders;
 
@@ -73,11 +71,6 @@ public class OrderConfiguration : IEntityTypeConfiguration<Order>
         #endregion
 
         #region Relationships
-        builder.HasMany(x => x.Payments)
-            .WithOne()
-            .HasForeignKey(p => p.OrderId)
-            .OnDelete(DeleteBehavior.Cascade);
-
         builder.HasMany(x => x.Adjustments)
             .WithOne()
             .HasForeignKey(a => a.OrderId)

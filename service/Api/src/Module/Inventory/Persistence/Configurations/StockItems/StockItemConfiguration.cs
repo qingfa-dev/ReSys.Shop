@@ -27,11 +27,6 @@ public class StockItemConfiguration : IEntityTypeConfiguration<StockItem>
         #endregion
 
         #region Relationships
-        builder.HasOne(x => x.Variant)
-            .WithMany(v => v.StockItems)
-            .HasForeignKey(x => x.VariantId)
-            .OnDelete(DeleteBehavior.Cascade);
-
         builder.HasMany(x => x.StockMovements)
             .WithOne(sm => sm.StockItem)
             .HasForeignKey(sm => sm.StockItemId)

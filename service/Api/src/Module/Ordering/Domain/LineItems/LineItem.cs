@@ -22,7 +22,6 @@ public sealed partial class LineItem : Entity, IAuditable
     public Guid OrderId { get; set; }
     public Order Order { get; set; } = null!;
     public Guid VariantId { get; set; }
-    public Catalog.Domain.Products.Variants.Variant Variant { get; set; } = null!;
     #endregion Relationships
 
     #region Auditing

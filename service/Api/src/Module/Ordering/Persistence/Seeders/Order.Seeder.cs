@@ -109,7 +109,6 @@ public sealed class OrderSeeder(IApplicationDbContext context) : AbstractDataSee
             return;
         if (payment.Complete().IsFailure)
             return;
-        order.Payments.Add(payment);
         order.PaymentTotal = payment.Amount;
         order.OutstandingBalance = order.Total - order.PaymentTotal;
         order.UpdatePaymentState();

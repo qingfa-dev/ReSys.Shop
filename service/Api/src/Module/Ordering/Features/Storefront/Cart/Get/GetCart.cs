@@ -1,3 +1,4 @@
+using Module.Catalog.Domain.Products.Variants;
 using Module.Ordering.Domain.Orders;
 
 namespace Module.Ordering.Features.Storefront.Cart.Get;
@@ -29,7 +30,6 @@ public static partial class GetCart
             // Check: Find the current user's active cart (Draft order).
             var cart = await dbContext.Set<Order>()
                 .Include(x => x.LineItems)
-                .ThenInclude(x => x.Variant)
                 .Where(x => (x.UserId == userId && x.Status == OrderStatus.Draft)
                          || (x.SessionId == sessionId && x.Status == OrderStatus.Draft))
                 .AsNoTracking()
@@ -48,18 +48,28 @@ public static partial class GetCart
                 };
             }
 
+            var variantIds = cart.LineItems.Select(li => li.VariantId).ToList();
+            var variants = await dbContext.Set<Variant>()
+                .Where(v => variantIds.Contains(v.Id))
+                .AsNoTracking()
+                .ToDictionaryAsync(v => v.Id, v => v, cancellationToken);
+
             return new Response
             {
                 Id = cart.Id,
-                Items = cart.LineItems.Select(li => new CartItem
+                Items = cart.LineItems.Select(li =>
                 {
-                    Id = li.Id,
-                    VariantId = li.VariantId,
-                    VariantName = li.Variant?.Sku ?? "",
-                    Sku = li.Variant?.Sku ?? "",
-                    Quantity = li.Quantity,
-                    Price = li.Price,
-                    Total = li.Total
+                    variants.TryGetValue(li.VariantId, out var v);
+                    return new CartItem
+                    {
+                        Id = li.Id,
+                        VariantId = li.VariantId,
+                        VariantName = v?.Sku ?? "",
+                        Sku = v?.Sku ?? "",
+                        Quantity = li.Quantity,
+                        Price = li.Price,
+                        Total = li.Total
+                    };
                 }).ToList(),
                 ItemTotal = cart.ItemTotal,
                 Total = cart.Total,
