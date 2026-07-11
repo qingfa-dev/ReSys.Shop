@@ -1,7 +1,5 @@
 using Module.Profile.Domain.Wishlists;
 
-using Shared.Security.Identity.Domain.Users;
-
 namespace Module.Profile.Features.Store.Wishlists.Get;
 
 /// <summary>Retrieves a paged list of wishlists for the authenticated user.</summary>

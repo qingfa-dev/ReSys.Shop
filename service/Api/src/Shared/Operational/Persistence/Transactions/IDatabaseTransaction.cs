@@ -1,5 +1,3 @@
-using System.Data;
-
 namespace Shared.Operational.Persistence.Transactions;
 
 public interface IDatabaseTransaction : IAsyncDisposable

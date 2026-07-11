@@ -1,5 +1,5 @@
 using Module.Profile.Domain;
-using Module.Profile.Features.Store.Profile.Get.Detail;
+using Module.Profile.Features.Store.Profiles.Get.Detail;
 using Module.UnitTests.Identity.Fixtures;
 using Module.UnitTests.Profile.Domain;
 

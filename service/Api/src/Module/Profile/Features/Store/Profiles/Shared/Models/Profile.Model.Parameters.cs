@@ -1,4 +1,4 @@
-namespace Module.Profile.Features.Store.Profile.Shared.Models;
+namespace Module.Profile.Features.Store.Profiles.Shared.Models;
 
 public abstract class ProfileParameter
 {

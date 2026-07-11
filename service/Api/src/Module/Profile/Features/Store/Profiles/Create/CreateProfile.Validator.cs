@@ -1,7 +1,7 @@
-using Module.Profile.Features.Store.Profile.Shared.Models;
-using Module.Profile.Features.Store.Profile.Shared.Validators;
+using Module.Profile.Features.Store.Profiles.Shared.Models;
+using Module.Profile.Features.Store.Profiles.Shared.Validators;
 
-namespace Module.Profile.Features.Store.Profile.Create;
+namespace Module.Profile.Features.Store.Profiles.Create;
 
 public static partial class CreateProfile
 {

@@ -2,6 +2,8 @@ using IPaymentGatewayActionProvider = Module.Payment.Services.Provider.IPaymentG
 using IGatewayRegistry = Module.Payment.Services.Provider.IGatewayRegistry;
 using IPaymentProcessingService = Module.Payment.Services.Processing.IPaymentProcessingService;
 using PaymentProcessingResult = Module.Payment.Services.Processing.PaymentProcessingResult;
+using GatewayOptions = Module.Payment.Services.Provider.GatewayOptions;
+using PaymentGatewayResponse = Module.Payment.Services.Provider.PaymentGatewayResponse;
 
 using Module.Payment.Services.Models;
 using Module.Payment.Domain.PaymentCaptures;

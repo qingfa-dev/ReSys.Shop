@@ -5,7 +5,7 @@ using Module.Catalog.Domain.Products.Variants;
 using Module.Catalog.Domain.Products.Variants.Prices;
 using Module.Catalog.Features.Storefront.Products.Get.Detail;
 
-namespace Module.UnitTests.Catalog.Features.Storefront.Products.Get.Detail;
+namespace Module.UnitTests.Catalog.Features.Storefront.Products.GetDetailPage;
 
 [Trait("Category", "Unit")]
 [Trait("Module", "Catalog")]

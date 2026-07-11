@@ -1,5 +1,3 @@
-using FluentValidation;
-
 using Module.Profile.Domain.Wishlists;
 
 namespace Module.Profile.Features.Store.Wishlists.Create;

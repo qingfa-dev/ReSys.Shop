@@ -1,5 +1,3 @@
-using Module.Payment.Services.Provider;
-
 namespace Module.Payment.Services.Provider;
 
 public abstract class Gateway : IPaymentGatewayActionProvider

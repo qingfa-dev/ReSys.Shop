@@ -7,7 +7,7 @@ using Module.Catalog.Domain.Taxonomies;
 using Module.Catalog.Domain.Taxonomies.Taxons;
 using Module.Catalog.Features.Storefront.Products.Get.Related;
 
-namespace Module.UnitTests.Catalog.Features.Storefront.Products.Get.Related;
+namespace Module.UnitTests.Catalog.Features.Storefront.Products.GetRelated;
 
 [Trait("Category", "Unit")]
 [Trait("Module", "Catalog")]

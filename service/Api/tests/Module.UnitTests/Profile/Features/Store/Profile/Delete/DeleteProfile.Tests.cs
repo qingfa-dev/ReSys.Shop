@@ -1,8 +1,6 @@
 using Module.Profile.Domain;
-using Module.Profile.Features.Store.Profile.Delete;
+using Module.Profile.Features.Store.Profiles.Delete;
 using Module.UnitTests.Profile.Domain;
-
-using Shared.Security.Identity.Domain.Users;
 
 namespace Module.UnitTests.Profile.Features.Store.Profile.Delete;
 

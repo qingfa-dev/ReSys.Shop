@@ -1,5 +1,3 @@
-using Module.Profile.Domain.Addresses;
-
 namespace Module.Shipping.Domain.ShippingMethods;
 
 public static class ShippingMethodExtensions

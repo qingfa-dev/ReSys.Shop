@@ -1,7 +1,7 @@
 using Module.Profile.Domain;
-using Module.Profile.Features.Store.Profile.Shared.Mappings;
+using Module.Profile.Features.Store.Profiles.Shared.Mappings;
 
-namespace Module.Profile.Features.Store.Profile.Update;
+namespace Module.Profile.Features.Store.Profiles.Update;
 
 /// <summary>Updates or creates the authenticated user's profile fields.</summary>
 public static partial class UpdateProfile

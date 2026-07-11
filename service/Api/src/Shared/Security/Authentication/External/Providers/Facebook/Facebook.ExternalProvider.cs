@@ -6,7 +6,7 @@ using Shared.Security.Identity.Domain.Users;
 
 namespace Shared.Security.Authentication.External.Providers.Facebook;
 
-public sealed class FacebookExternalProvider(
+public sealed partial class FacebookExternalProvider(
     IOptions<FacebookOptions> options,
     ILogger<FacebookExternalProvider> logger,
     IFacebookTokenValidator tokenValidator) : IExternalLoginProvider
@@ -44,7 +44,7 @@ public sealed class FacebookExternalProvider(
         }
         catch (Exception ex)
         {
-            _logger.LogWarning(ex, "Facebook access token validation failed");
+            Loggers.TokenValidationError(_logger, ex);
             return UserResult.Failure.ExternalLoginTokenInvalid;
         }
     }

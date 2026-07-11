@@ -1,13 +1,12 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 
 using Module.Ordering.Backgrounds;
 
 namespace Module.Ordering.Services;
 
-public sealed class CartExpiryService : BackgroundService
+public sealed partial class CartExpiryService : BackgroundService
 {
     private readonly IServiceScopeFactory _scopeFactory;
     private readonly IConfiguration _configuration;
@@ -29,7 +28,7 @@ public sealed class CartExpiryService : BackgroundService
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
         // Log: Service started — sweep interval is {DefaultSweepInterval.TotalHours} hours.
-        _logger.LogInformation("Cart-expiry service started");
+        Loggers.Started(_logger);
 
         while (!stoppingToken.IsCancellationRequested)
         {
@@ -52,7 +51,7 @@ public sealed class CartExpiryService : BackgroundService
             // Catch: Log and continue on unexpected errors to keep the sweep loop alive.
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error during cart expiry sweep");
+                Loggers.SweepError(_logger, ex);
             }
         }
     }

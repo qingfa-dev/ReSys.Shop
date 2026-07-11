@@ -3,8 +3,6 @@ using System.Data;
 using Module.Inventory.Domain.StockLocations.StockItems;
 using Module.Inventory.Domain.StockReservations;
 
-using Shared.Operational.Persistence.Transactions;
-
 namespace Module.Inventory.Features.Storefront.CartReservations.Reserve;
 
 /// <summary>Reserves stock for a cart item using a serializable transaction to prevent oversell.</summary>

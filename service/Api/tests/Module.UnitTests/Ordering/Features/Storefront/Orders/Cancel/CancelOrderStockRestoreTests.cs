@@ -1,5 +1,3 @@
-using MediatR;
-
 using Shared.Operational.Notifications.Models;
 using Shared.Operational.Notifications.Services;
 using Module.Inventory.Domain.StockLocations.StockItems;

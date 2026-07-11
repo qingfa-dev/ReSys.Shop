@@ -3,7 +3,7 @@ using Module.Catalog.Domain.Products.Variants;
 using Module.Catalog.Domain.Products.Variants.Prices;
 using Module.Catalog.Features.Storefront.Products.Get.List;
 
-namespace Module.UnitTests.Catalog.Features.Storefront.Products.Get.List;
+namespace Module.UnitTests.Catalog.Features.Storefront.List;
 
 [Trait("Category", "Unit")]
 [Trait("Module", "Catalog")]

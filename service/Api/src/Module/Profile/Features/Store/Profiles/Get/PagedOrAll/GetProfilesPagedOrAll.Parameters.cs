@@ -1,4 +1,4 @@
-namespace Module.Profile.Features.Store.Profile.Get.PagedOrAll;
+namespace Module.Profile.Features.Store.Profiles.Get.PagedOrAll;
 
 public static partial class GetProfilesPagedOrAll
 {

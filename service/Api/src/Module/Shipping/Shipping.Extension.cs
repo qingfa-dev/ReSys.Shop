@@ -1,9 +1,4 @@
-using Microsoft.AspNetCore.Builder;
-using Microsoft.Extensions.DependencyInjection;
-
 using Module.Shipping.Persistence.Seeders;
-
-using Shared.Operational.Persistence.Seeders;
 
 namespace Module.Shipping;
 

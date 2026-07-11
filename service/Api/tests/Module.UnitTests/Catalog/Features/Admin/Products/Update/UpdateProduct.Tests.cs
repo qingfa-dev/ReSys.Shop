@@ -1,5 +1,3 @@
-using MediatR;
-
 using Module.Catalog.Domain.Products;
 using Module.Catalog.Domain.Products.Variants;
 using Module.Catalog.Features.Admin.Products.Update;

@@ -1,5 +1,3 @@
-using Microsoft.CodeAnalysis;
-
 using Module.Profile.Domain.Wishlists.WishedItems;
 
 namespace Module.Profile.Domain.Wishlists;

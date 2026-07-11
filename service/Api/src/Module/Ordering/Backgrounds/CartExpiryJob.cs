@@ -1,12 +1,8 @@
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
-
 using Module.Ordering.Domain.Orders;
-using Shared.Operational.Persistence.Data;
 
 namespace Module.Ordering.Backgrounds;
 
-public sealed class CartExpiryJob
+public sealed partial class CartExpiryJob
 {
     private readonly IApplicationDbContext _dbContext;
     private readonly ILogger<CartExpiryJob> _logger;
@@ -28,7 +24,7 @@ public sealed class CartExpiryJob
             .Select(o => new { o.Id, o.Status, o.ModifiedAtUtc, o.IsDeleted })
             .ToListAsync(ct);
 
-        _logger.LogInformation("Cart-expiry job found {Count} drafts to expire", expired.Count);
+        Loggers.Found(_logger, expired.Count, cutoff);
 
         foreach (var cart in expired)
         {
@@ -40,6 +36,6 @@ public sealed class CartExpiryJob
                     .SetProperty(o => o.DeletedAtUtc, DateTimeOffset.UtcNow), ct);
         }
 
-        _logger.LogInformation("Cart-expiry job completed: {Count} drafts expired", expired.Count);
+        Loggers.Completed(_logger, expired.Count);
     }
 }

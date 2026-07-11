@@ -56,10 +56,18 @@ public static class ProfileFeatureMetadata
             [List, Read, Create, Update, Delete, AddItem, RemoveItem];
     }
 
+    public static class Profile
+    {
+        public static readonly PermissionMetadata GetAll = new("Profile", "Admin", "Profiles", "GetAll");
+
+        public static IReadOnlyList<PermissionMetadata> All => [GetAll];
+    }
+
     public static IReadOnlyList<PermissionMetadata> All =>
     [
         .. UserProfile.All,
         .. NotificationPreferences.All,
         .. Wishlists.All,
+        .. Profile.All,
     ];
 }

@@ -2,7 +2,7 @@ using Module.Catalog.Domain.Products;
 using Module.Catalog.Domain.Products.Variants.Images;
 using Module.Catalog.Features.Storefront.Images.Get.Image;
 
-namespace Module.UnitTests.Catalog.Features.Storefront.Images.Get.Image;
+namespace Module.UnitTests.Catalog.Features.Storefront.Images.Image;
 
 [Trait("Category", "Unit")]
 [Trait("Module", "Catalog")]

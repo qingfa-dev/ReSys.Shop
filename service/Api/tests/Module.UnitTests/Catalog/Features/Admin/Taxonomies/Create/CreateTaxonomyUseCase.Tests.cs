@@ -1,5 +1,3 @@
-using MediatR;
-
 using Module.Catalog.Domain.Taxonomies;
 using Module.Catalog.Features.Admin.Taxonomies.Create;
 using Module.Catalog.Features.Admin.Taxonomies.Taxons.Create;

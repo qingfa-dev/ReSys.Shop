@@ -1,11 +1,7 @@
-using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 
-using Module.Ordering.Domain.Orders;
 using Module.Ordering.Domain.Orders.Contracts;
 using Module.Ordering.Persistence.Seeders;
-
-using Shared.Operational.Persistence.Seeders;
 
 namespace Module.Ordering;
 

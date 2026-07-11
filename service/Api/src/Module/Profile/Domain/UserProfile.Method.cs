@@ -1,5 +1,3 @@
-using Microsoft.CodeAnalysis;
-
 using Module.Profile.Domain.Addresses;
 using Module.Profile.Domain.Notifications;
 using Module.Profile.Domain.Preferences;

@@ -1,6 +1,3 @@
-using Module.Payment.Services.Provider;
-using Module.Payment.Services.Provider.Stripe;
-
 namespace Module.Payment.Services.Provider.Stripe;
 
 public sealed class StripeSetting

@@ -1,5 +1,3 @@
-using FluentValidation;
-
 namespace Module.Profile.Features.Store.NotificationPreferences.Update;
 
 public static partial class UpdateNotificationPreferences

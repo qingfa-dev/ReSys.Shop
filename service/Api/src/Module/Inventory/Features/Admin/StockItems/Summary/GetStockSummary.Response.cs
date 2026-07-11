@@ -1,4 +1,4 @@
-using Module.Inventory.Services;
+using Module.Inventory.Services.Models;
 
 namespace Module.Inventory.Features.Admin.StockItems.Summary;
 

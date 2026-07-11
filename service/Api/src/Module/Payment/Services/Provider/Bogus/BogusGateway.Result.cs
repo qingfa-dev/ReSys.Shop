@@ -1,6 +1,3 @@
-using Module.Payment.Services.Provider;
-using Module.Payment.Services.Provider.Bogus;
-
 namespace Module.Payment.Services.Provider.Bogus;
 
 public static class BogusGatewayResult

@@ -12,7 +12,7 @@ namespace Shared.Security.Authentication.External.Providers.Google;
 /// Validates Google OAuth ID tokens via Google.Apis.Auth.
 /// Implements IExternalLoginProvider for the "google" provider key.
 /// </summary>
-public sealed class GoogleExternalProvider(
+public sealed partial class GoogleExternalProvider(
     IOptions<GoogleOptions> options,
     ILogger<GoogleExternalProvider> logger,
     IGoogleTokenValidator tokenValidator) : IExternalLoginProvider
@@ -68,7 +68,7 @@ public sealed class GoogleExternalProvider(
         catch (InvalidJwtException ex)
         {
             // Log: Google ID token validation failure — structured warning with exception details
-            _logger.LogWarning(ex, "Google ID token validation failed");
+            Loggers.TokenValidationError(_logger, ex);
             return UserResult.Failure.ExternalLoginTokenInvalid;
         }
     }

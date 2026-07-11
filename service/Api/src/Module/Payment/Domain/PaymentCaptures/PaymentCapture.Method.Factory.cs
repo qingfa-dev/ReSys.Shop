@@ -1,7 +1,3 @@
-using Module.Payment.Services.Abstractions;
-using Module.Payment.Services.Models;
-using Module.Payment.Services.Gateways;
-
 namespace Module.Payment.Domain.PaymentCaptures;
 
 public static partial class PaymentCaptureMethod

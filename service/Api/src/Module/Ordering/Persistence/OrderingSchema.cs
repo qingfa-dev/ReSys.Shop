@@ -1,4 +1,4 @@
-namespace Module.Ordering.Persistence.Constants;
+namespace Module.Ordering.Persistence;
 
 public static class OrderingSchema
 {

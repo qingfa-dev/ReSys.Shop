@@ -1,8 +1,7 @@
-
 using Module.Catalog.Domain.Products.Variants.Images;
 using Module.Catalog.Features.Admin.Products.Variants.Images.Shared.Mappings;
 
-namespace Module.Catalog.Features.Admin.Products.Update;
+namespace Module.Catalog.Features.Admin.Products.Variants.Images.Update;
 
 /// <summary>
 /// Defines the use case for updating a variant image.

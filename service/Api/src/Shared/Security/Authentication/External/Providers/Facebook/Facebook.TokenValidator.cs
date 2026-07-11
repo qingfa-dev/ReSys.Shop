@@ -1,11 +1,9 @@
 using System.Net.Http.Json;
 using System.Text.Json;
 
-using Microsoft.Extensions.Logging;
-
 namespace Shared.Security.Authentication.External.Providers.Facebook;
 
-public sealed class FacebookTokenValidator : IFacebookTokenValidator
+public sealed partial class FacebookTokenValidator : IFacebookTokenValidator
 {
     private readonly IHttpClientFactory _httpClientFactory;
     private readonly ILogger<FacebookTokenValidator> _logger;
@@ -23,7 +21,7 @@ public sealed class FacebookTokenValidator : IFacebookTokenValidator
         var response = await http.GetAsync(url, ct);
         if (!response.IsSuccessStatusCode)
         {
-            _logger.LogWarning("Facebook token validation failed: {Status}", response.StatusCode);
+            Loggers.ValidationFailed(_logger, response.StatusCode);
             throw new InvalidOperationException("Invalid Facebook access token");
         }
         var doc = await response.Content.ReadFromJsonAsync<JsonElement>(cancellationToken: ct);

@@ -2,11 +2,9 @@ using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using System.Text.Json;
 
-using Microsoft.Extensions.Logging;
-
 namespace Shared.Security.Authentication.External.Providers.Microsoft;
 
-public sealed class MicrosoftTokenValidator : IMicrosoftTokenValidator
+public sealed partial class MicrosoftTokenValidator : IMicrosoftTokenValidator
 {
     private readonly IHttpClientFactory _httpClientFactory;
     private readonly ILogger<MicrosoftTokenValidator> _logger;
@@ -25,7 +23,7 @@ public sealed class MicrosoftTokenValidator : IMicrosoftTokenValidator
         var response = await http.GetAsync(url, ct);
         if (!response.IsSuccessStatusCode)
         {
-            _logger.LogWarning("Microsoft token validation failed: {Status}", response.StatusCode);
+            Loggers.ValidationFailed(_logger, response.StatusCode);
             throw new InvalidOperationException("Invalid Microsoft access token");
         }
         var doc = await response.Content.ReadFromJsonAsync<JsonElement>(cancellationToken: ct);

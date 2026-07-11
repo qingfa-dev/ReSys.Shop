@@ -1,5 +1,5 @@
 using Module.Catalog.Domain.Products.Variants.Images;
-using Module.Catalog.Features.Admin.Products.ListByVariant;
+using Module.Catalog.Features.Admin.Products.Variants.Images.ListByVariant;
 
 namespace Module.UnitTests.Catalog.Features.Admin.Products.Variants.Images.ListByVariant;
 

@@ -1,6 +1,7 @@
 using Module.Inventory.Domain.StockLocations.StockItems;
 using Module.Inventory.Domain.StockReservations;
 using Module.Inventory.Services.Abstractions;
+using Module.Inventory.Services.Models;
 
 namespace Module.Inventory.Services;
 

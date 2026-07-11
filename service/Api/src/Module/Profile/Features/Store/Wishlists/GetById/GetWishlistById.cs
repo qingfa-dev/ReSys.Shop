@@ -1,9 +1,4 @@
-using Microsoft.EntityFrameworkCore;
-
 using Module.Profile.Domain.Wishlists;
-using Module.Profile.Domain.Wishlists.WishedItems;
-
-using Shared.Security.Identity.Domain.Users;
 
 namespace Module.Profile.Features.Store.Wishlists.GetById;
 

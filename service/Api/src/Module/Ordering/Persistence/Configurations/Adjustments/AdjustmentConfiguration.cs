@@ -1,6 +1,5 @@
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-using Module.Ordering.Persistence.Constants;
 using Module.Ordering.Domain.Adjustments;
 
 namespace Module.Ordering.Persistence.Configurations.Adjustments;

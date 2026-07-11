@@ -1,7 +1,6 @@
 using Module.Payment.Services.Provider;
 
 using Module.Payment.Domain.PaymentCaptures;
-using Module.Payment.Services.Processing;
 
 namespace Module.Payment.Services.Processing;
 
