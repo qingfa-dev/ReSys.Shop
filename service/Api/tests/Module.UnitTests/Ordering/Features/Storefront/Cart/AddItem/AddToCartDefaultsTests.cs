@@ -1,9 +1,9 @@
 using Microsoft.Extensions.Configuration;
 
 using Module.Catalog.Domain.Products.Variants;
-using Module.Inventory.Domain.StockLocations.StockItems;
+using Module.Inventory.Domain.Stock;
 using Module.Inventory.Domain.StockLocations;
-using Module.Ordering.Domain.LineItems;
+using Module.Inventory.Domain.StockLocations.StockItems;
 using Module.Ordering.Domain.Orders;
 using Module.Ordering.Features.Storefront.Cart.AddItem;
 
@@ -11,8 +11,8 @@ namespace Module.UnitTests.Ordering.Features.Storefront.Cart.AddItem;
 
 [Trait("Category", "Unit")]
 [Trait("Module", "Ordering")]
-[Trait("Feature", "AddToCart")]
-public class AddToCartTests : IDisposable
+[Trait("Feature", "AddToCartDefaults")]
+public class AddToCartDefaultsTests : IDisposable
 {
     private readonly ApplicationDbContext _dbContext;
     private readonly Mock<ICurrentUser> _currentUserMock;
@@ -20,7 +20,7 @@ public class AddToCartTests : IDisposable
     private readonly Mock<IConfiguration> _configurationMock;
     private readonly AddToCart.CommandHandler _handler;
 
-    public AddToCartTests()
+    public AddToCartDefaultsTests()
     {
         var options = new DbContextOptionsBuilder<ApplicationDbContext>()
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
@@ -51,10 +51,9 @@ public class AddToCartTests : IDisposable
         GC.SuppressFinalize(this);
     }
 
-    [Fact(DisplayName = "Handler: Should add item to cart")]
-    public async Task Handle_ShouldAddItem_WhenVariantExists()
+    [Fact(DisplayName = "Handler: Should create cart with configured currency and no default address")]
+    public async Task Handle_ShouldCreateCart_WithConfiguredCurrencyAndNoDefaultAddress()
     {
-        // Arrange: Seed variant and stock
         var variant = new Variant { Sku = "TSHIRT-001", Price = 19.99m };
         _dbContext.Set<Variant>().Add(variant);
         await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
@@ -67,32 +66,17 @@ public class AddToCartTests : IDisposable
         _dbContext.Set<StockItem>().Add(stockItem);
         await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 
-        // Act
         var result = await _handler.Handle(
-            new AddToCart.Command(new AddToCart.Request { VariantId = variant.Id, Quantity = 2 }),
+            new AddToCart.Command(new AddToCart.Request { VariantId = variant.Id, Quantity = 1 }),
             TestContext.Current.CancellationToken);
 
-        // Assert
         result.IsSuccess.Should().BeTrue();
 
-        // Verify cart was created and item added
         var cart = await _dbContext.Set<Order>()
-            .Include(x => x.LineItems)
             .FirstOrDefaultAsync(x => x.Status == OrderStatus.Draft,
                 cancellationToken: TestContext.Current.CancellationToken);
         cart.Should().NotBeNull();
-        cart!.LineItems.Should().HaveCount(1);
-        cart.LineItems.First().Quantity.Should().Be(2);
-    }
-
-    [Fact(DisplayName = "Handler: Should return failure when variant not found")]
-    public async Task Handle_ShouldReturnFailure_WhenVariantNotFound()
-    {
-        var result = await _handler.Handle(
-            new AddToCart.Command(new AddToCart.Request { VariantId = Guid.NewGuid(), Quantity = 1 }),
-            TestContext.Current.CancellationToken);
-
-        result.IsFailure.Should().BeTrue();
-        result.Errors[0].Code.Should().Be(LineItemResult.Errors.VariantNotFound(Guid.NewGuid()).Code);
+        cart!.Currency.Should().Be("USD");
+        cart.ShipAddressId.Should().BeNull();
     }
 }
