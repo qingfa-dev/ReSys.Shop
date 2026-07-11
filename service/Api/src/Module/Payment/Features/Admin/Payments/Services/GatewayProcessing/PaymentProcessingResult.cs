@@ -4,7 +4,6 @@ namespace Module.Payment.Features.Admin.Payments.Services.GatewayProcessing;
 
 public sealed record PaymentProcessingResult
 {
-    public string? Message { get; init; }
     public PaymentRecordState? State { get; init; }
     public decimal? CapturedAmount { get; init; }
     public decimal? RefundedAmount { get; init; }
@@ -15,54 +14,45 @@ public static class ProcessingResult
 {
     public static class Success
     {
-        public static PaymentProcessingResult Processed(string number) => new()
-        {
-            Message = $"Payment '{number}' was successfully processed.",
-            State = PaymentRecordState.Processing
-        };
+        public static Result<PaymentProcessingResult> Processed(string number) =>
+            Result<PaymentProcessingResult>.Ok(
+                new PaymentProcessingResult { State = PaymentRecordState.Processing },
+                message: $"Payment '{number}' was successfully processed.");
 
-        public static PaymentProcessingResult Pended(string number) => new()
-        {
-            Message = $"Payment '{number}' was successfully pended.",
-            State = PaymentRecordState.Pending
-        };
+        public static Result<PaymentProcessingResult> Pended(string number) =>
+            Result<PaymentProcessingResult>.Ok(
+                new PaymentProcessingResult { State = PaymentRecordState.Pending },
+                message: $"Payment '{number}' was successfully pended.");
 
-        public static PaymentProcessingResult Completed(string number) => new()
-        {
-            Message = $"Payment '{number}' was successfully completed.",
-            State = PaymentRecordState.Completed
-        };
+        public static Result<PaymentProcessingResult> Completed(string number) =>
+            Result<PaymentProcessingResult>.Ok(
+                new PaymentProcessingResult { State = PaymentRecordState.Completed },
+                message: $"Payment '{number}' was successfully completed.");
 
-        public static PaymentProcessingResult Captured(string number, decimal amount) => new()
-        {
-            Message = $"Payment '{number}' was captured for {amount}.",
-            State = PaymentRecordState.Completed,
-            CapturedAmount = amount
-        };
+        public static Result<PaymentProcessingResult> Captured(string number, decimal amount) =>
+            Result<PaymentProcessingResult>.Ok(
+                new PaymentProcessingResult { State = PaymentRecordState.Completed, CapturedAmount = amount },
+                message: $"Payment '{number}' was captured for {amount}.");
 
-        public static PaymentProcessingResult Voided(string number) => new()
-        {
-            Message = $"Payment '{number}' was successfully voided.",
-            State = PaymentRecordState.Void
-        };
+        public static Result<PaymentProcessingResult> Voided(string number) =>
+            Result<PaymentProcessingResult>.Ok(
+                new PaymentProcessingResult { State = PaymentRecordState.Void },
+                message: $"Payment '{number}' was successfully voided.");
 
-        public static PaymentProcessingResult Credited(string number, decimal amount) => new()
-        {
-            Message = $"Payment '{number}' was credited for {amount}.",
-            RefundedAmount = amount
-        };
+        public static Result<PaymentProcessingResult> Credited(string number, decimal amount) =>
+            Result<PaymentProcessingResult>.Ok(
+                new PaymentProcessingResult { RefundedAmount = amount },
+                message: $"Payment '{number}' was credited for {amount}.");
 
-        public static PaymentProcessingResult ConfirmCompleted(string number) => new()
-        {
-            Message = $"Payment '{number}' was confirmed and completed.",
-            State = PaymentRecordState.Completed
-        };
+        public static Result<PaymentProcessingResult> ConfirmCompleted(string number) =>
+            Result<PaymentProcessingResult>.Ok(
+                new PaymentProcessingResult { State = PaymentRecordState.Completed },
+                message: $"Payment '{number}' was confirmed and completed.");
 
-        public static PaymentProcessingResult ConfirmPended(string number) => new()
-        {
-            Message = $"Payment '{number}' was confirmed and pended.",
-            State = PaymentRecordState.Pending
-        };
+        public static Result<PaymentProcessingResult> ConfirmPended(string number) =>
+            Result<PaymentProcessingResult>.Ok(
+                new PaymentProcessingResult { State = PaymentRecordState.Pending },
+                message: $"Payment '{number}' was confirmed and pended.");
     }
 
     public static class Errors

@@ -48,7 +48,7 @@ public static partial class VoidPayment
                 Number = payment.Number,
                 Amount = payment.Amount,
                 State = payment.State,
-                Message = voidResult.Value.Message ?? string.Empty
+                Message = voidResult.Message ?? string.Empty
             };
         }
     }

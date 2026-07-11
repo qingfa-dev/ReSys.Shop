@@ -51,7 +51,7 @@ public static partial class RefundPayment
                 Amount = payment.Amount,
                 RefundedAmount = refundAmount,
                 State = payment.State,
-                Message = refundResult.Value.Message ?? string.Empty
+                Message = refundResult.Message ?? string.Empty
             };
         }
     }
