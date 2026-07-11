@@ -12,7 +12,7 @@ using Shared.Operational.Notifications.Templates;
 using Shared.Security.Identity.Domain.Roles;
 using Shared.Security.Identity.Domain.Users;
 
-namespace Module.Tests.Identities.Features.Store.Auth.Register;
+namespace Module.UnitTests.Identity.Features.Store.Auth.Register;
 
 [Trait("Category", "Unit")]
 [Trait("Module", "Identity")]

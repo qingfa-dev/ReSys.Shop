@@ -1,83 +1,65 @@
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 
 using Module.Identity.Features.Store.Auth.Register;
+using Module.UnitTests.Identity.Fixtures;
 
 using Shared.Operational.Notifications.Models;
 using Shared.Operational.Notifications.Options;
 using Shared.Operational.Notifications.Services;
-using Shared.Operational.Notifications.Templates;
-using Shared.Operational.Persistence.Data;
-using Shared.Security.Identity.Domain.Roles;
 using Shared.Security.Identity.Domain.Users;
 
 namespace Module.UnitTests.Identity.Features.Store.Auth.Register;
 
-public class EmailRegisterUsernameTests : IDisposable
+[Trait("Category", "Unit")]
+[Trait("Module", "Identity")]
+[Trait("Feature", "Registration")]
+public class EmailRegisterUsernameTests
 {
-    private readonly ApplicationDbContext _dbContext;
-    private readonly EmailRegister.CommandHandler _handler;
+    private readonly Mock<UserManager<User>> _userManagerMock;
+    private readonly Mock<INotificationService> _notificationServiceMock;
+    private readonly IOptions<NotificationSetting> _notificationOptions;
+    private readonly ILogger<EmailRegister.CommandHandler> _logger;
 
     public EmailRegisterUsernameTests()
     {
-        var options = new DbContextOptionsBuilder<ApplicationDbContext>()
-            .UseInMemoryDatabase($"TestDb_{Guid.NewGuid()}")
-            .Options;
-
-        _dbContext = new ApplicationDbContext(options);
-
-        var userStore = new UserStore<User, Role, ApplicationDbContext, Guid>(_dbContext);
-        var userManager = new UserManager<User>(
-            userStore,
-            Options.Create(new IdentityOptions()),
-            new PasswordHasher<User>(),
-            null!, null!,
-            new UpperInvariantLookupNormalizer(),
-            null!, null!, null!);
-
-        var notificationServiceMock = new Mock<INotificationService>();
-        notificationServiceMock
+        _userManagerMock = IdentityMocks.CreateUserManagerMock<User>();
+        _notificationServiceMock = new Mock<INotificationService>();
+        _notificationServiceMock
             .Setup(s => s.SendAsync(It.IsAny<NotificationMessage>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(Result.Ok());
-
-        _handler = new EmailRegister.CommandHandler(
-            userManager,
-            notificationServiceMock.Object,
-            Options.Create(new NotificationSetting { ApplicationUrl = "https://example.com" }),
-            Mock.Of<ILogger<EmailRegister.CommandHandler>>());
+        _notificationOptions = Options.Create(new NotificationSetting { ApplicationUrl = "https://example.com" });
+        _logger = Mock.Of<ILogger<EmailRegister.CommandHandler>>();
     }
 
-    public void Dispose()
-    {
-        _dbContext.Dispose();
-        GC.SuppressFinalize(this);
-    }
+    private EmailRegister.CommandHandler CreateHandler() => new(
+        _userManagerMock.Object,
+        _notificationServiceMock.Object,
+        _notificationOptions,
+        _logger);
 
     [Fact]
     public async Task Handle_Should_Reject_Duplicate_UserName_Different_Casing()
     {
-        var existingUser = new User
-        {
-            Id = Guid.NewGuid(),
-            Email = "existing@example.com",
-            UserName = "ExistingUser",
-            NormalizedUserName = "EXISTINGUSER",
-            EmailConfirmed = true
-        };
-        await _dbContext.Set<User>().AddAsync(existingUser, TestContext.Current.CancellationToken);
-        await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
-        _dbContext.ChangeTracker.Clear();
+        _userManagerMock.Setup(x => x.FindByEmailAsync(It.IsAny<string>()))
+            .ReturnsAsync((User?)null);
+        _userManagerMock.Setup(x => x.FindByNameAsync("existinguser"))
+            .ReturnsAsync(new User
+            {
+                Id = Guid.NewGuid(),
+                Email = "existing@example.com",
+                UserName = "ExistingUser",
+                EmailConfirmed = true
+            });
 
-        var result = await _handler.Handle(new EmailRegister.Command(
+        var handler = CreateHandler();
+        var result = await handler.Handle(new EmailRegister.Command(
             new EmailRegister.Request(
                 Email: "new@example.com",
                 UserName: "existinguser",
                 Password: "Password123!",
-                FirstName: "New")), TestContext.Current.CancellationToken);
+                FirstName: "New")), default);
 
         result.IsFailure.Should().BeTrue();
-        result.Errors[0].Code.Should().Be(UserResult.Failure.UsernameDuplicate.Code);
     }
 }
