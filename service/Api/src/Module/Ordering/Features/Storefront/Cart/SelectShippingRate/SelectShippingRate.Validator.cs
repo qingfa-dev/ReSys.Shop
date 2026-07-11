@@ -8,6 +8,11 @@ public static partial class SelectShippingRate
         {
             RuleFor(x => x.Request)
                 .NotNull();
+
+            RuleFor(x => x.Request.ShippingMethodId)
+                .NotEmpty()
+                .WithErrorCode("ShippingRate.Selection.MethodRequired")
+                .WithMessage("Shipping method is required.");
         }
     }
 }
