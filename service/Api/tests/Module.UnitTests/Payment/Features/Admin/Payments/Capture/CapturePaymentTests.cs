@@ -39,7 +39,7 @@ public class CapturePaymentTests : IDisposable
 
         _processingServiceMock = new Mock<IPaymentProcessingService>();
         _processingServiceMock.Setup(x => x.CaptureAsync(It.IsAny<PaymentCapture>(), It.IsAny<IPaymentGatewayActionProvider>(), It.IsAny<GatewayOptions>(), It.IsAny<decimal?>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(Result.Ok());
+            .ReturnsAsync(new PaymentProcessingResult());
         _handler = new CapturePayment.CommandHandler(_dbContext, _gatewayRegistryMock.Object, _processingServiceMock.Object);
     }
 

@@ -39,7 +39,7 @@ public class RefundPaymentTests : IDisposable
 
         _processingServiceMock = new Mock<IPaymentProcessingService>();
         _processingServiceMock.Setup(x => x.RefundAsync(It.IsAny<PaymentCapture>(), It.IsAny<IPaymentGatewayActionProvider>(), It.IsAny<GatewayOptions>(), It.IsAny<decimal>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(Result.Ok());
+            .ReturnsAsync(new PaymentProcessingResult());
         _handler = new RefundPayment.CommandHandler(_dbContext, _gatewayRegistryMock.Object, _processingServiceMock.Object);
     }
 
