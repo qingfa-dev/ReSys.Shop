@@ -1,11 +1,15 @@
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 
 using Module.Identity.Features.Store.Auth.Login.Password;
 using Module.UnitTests.Identity.Fixtures;
 
+using Shared.Operational.Persistence.Data;
 using Shared.Security.Authentication.Tokens.Models;
 using Shared.Security.Authentication.Tokens.Services.Access;
 using Shared.Security.Authentication.Tokens.Services.Refresh;
+using Shared.Security.Identity.Domain.Roles;
 using Shared.Security.Identity.Domain.Users;
 
 namespace Module.UnitTests.Identity.Features.Store.Auth.Login.Password;
@@ -64,11 +68,34 @@ public class PasswordLoginTests
 
     // ===== Mock Setup Helpers =====
 
+    private UserManager<User>? _realUserManager;
+
     private void SetUpUsersQueryable(params User[] users)
     {
-        _userManagerMock.Setup(x => x.Users).Returns(users.AsQueryable());
-        _userManagerMock.Setup(x => x.FindByEmailAsync(It.IsAny<string>())).ReturnsAsync((string email) => users.FirstOrDefault(u => u.Email == email));
-        _userManagerMock.Setup(x => x.FindByNameAsync(It.IsAny<string>())).ReturnsAsync((string name) => users.FirstOrDefault(u => u.UserName == name));
+        if (users.Length == 0)
+        {
+            // When no users, use an EF Core InMemory DbSet so async queries work
+            SetUpEmptyUsersViaDbContext();
+            _userManagerMock.Setup(x => x.FindByEmailAsync(It.IsAny<string>())).ReturnsAsync((User?)null);
+            _userManagerMock.Setup(x => x.FindByNameAsync(It.IsAny<string>())).ReturnsAsync((User?)null);
+        }
+        else
+        {
+            _userManagerMock.Setup(x => x.Users).Returns(AsyncQueryable.Create(users));
+            _userManagerMock.Setup(x => x.FindByEmailAsync(It.IsAny<string>())).ReturnsAsync((string email) => users.FirstOrDefault(u => u.Email == email));
+            _userManagerMock.Setup(x => x.FindByNameAsync(It.IsAny<string>())).ReturnsAsync((string name) => users.FirstOrDefault(u => u.UserName == name));
+        }
+    }
+
+    private void SetUpEmptyUsersViaDbContext()
+    {
+        var options = new DbContextOptionsBuilder<ApplicationDbContext>()
+            .UseInMemoryDatabase($"UserTest_{Guid.NewGuid()}")
+            .Options;
+        var dbContext = new ApplicationDbContext(options);
+        var userStore = new UserStore<User, Role, ApplicationDbContext, Guid>(dbContext);
+        _realUserManager = new UserManager<User>(userStore, null!, null!, null!, null!, null!, null!, null!, null!);
+        _userManagerMock.Setup(x => x.Users).Returns(_realUserManager.Users);
     }
 
     private void SetUpSignInSuccess() =>
