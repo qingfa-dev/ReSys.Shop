@@ -1,7 +1,3 @@
-using Microsoft.Extensions.Options;
-
-using Module.Payment.Infrastructure.Gateways.Stripe;
-
 using DomainPaymentMethod = Module.Payment.Domain.PaymentMethods.PaymentMethod;
 
 using Stripe;
@@ -14,8 +10,7 @@ namespace Module.Payment.Features.Storefront.Payment.SetupIntent;
     public sealed record Command(Guid PaymentMethodId) : ICommand<Response>;
 
     public sealed class CommandHandler(
-        IApplicationDbContext dbContext,
-        IOptions<StripeOptions> stripeOptions)
+        IApplicationDbContext dbContext)
         : ICommandHandler<Command, Response>
     {
         /// <summary>Handles the command.</summary>
@@ -26,13 +21,9 @@ namespace Module.Payment.Features.Storefront.Payment.SetupIntent;
         {
 
         // Contract: pre=command!=null, post=result!=null
-            // Set Stripe API key from options
-            // Update: Modify entity properties.
-            StripeConfiguration.ApiKey = stripeOptions.Value.SecretKey;
-
             // Query: Load payment method
             var paymentMethod = await dbContext.Set<DomainPaymentMethod>()
-                .FirstOrDefaultAsync(pm => pm.Id == command.PaymentMethodId, cancellationToken);
+                .FirstOrDefaultAsync(pm => pm.Id == command.PaymentMethodId && pm.Active && !pm.IsDeleted, cancellationToken);
 
             // Check: Verify the payment method exists.
             if (paymentMethod is null)
