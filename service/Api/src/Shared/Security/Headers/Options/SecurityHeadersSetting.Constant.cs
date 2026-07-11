@@ -23,7 +23,7 @@ public static class SecurityHeadersSettingConstant
 
         public const string XFrameOptions = "DENY";
 
-        public const string? ContentSecurityPolicy = null;
+        public const string? ContentSecurityPolicy = "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'";
 
         public const string ReferrerPolicy = "strict-origin-when-cross-origin";
 
