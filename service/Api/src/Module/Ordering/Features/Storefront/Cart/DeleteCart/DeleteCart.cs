@@ -20,12 +20,16 @@ namespace Module.Ordering.Features.Storefront.Cart.DeleteCart;
         {
 
         // Contract: pre=command!=null, post=result!=null
-            if (!Guid.TryParse(currentUser.UserId, out var userId))
+            var userId = Guid.TryParse(currentUser.UserId, out var parsed) ? parsed : (Guid?)null;
+            var sessionId = currentUser.IsAuthenticated ? null : currentUser.SessionId;
+
+            if (userId is null && string.IsNullOrWhiteSpace(sessionId))
                 return Result.Ok();
 
             // Query: Retrieve data from database.
             var cart = await dbContext.Set<Order>()
-                .Where(x => x.UserId == userId && x.Status == OrderStatus.Draft)
+                .Where(x => (x.UserId == userId && x.Status == OrderStatus.Draft)
+                         || (x.SessionId == sessionId && x.Status == OrderStatus.Draft))
                 .FirstOrDefaultAsync(cancellationToken);
 
             if (cart is null)
