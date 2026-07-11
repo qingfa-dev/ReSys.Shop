@@ -1,6 +1,6 @@
 using Module.Payment.Domain.Gateways;
 
-namespace Module.Payment.Infrastructure.Gateways.Bogus;
+namespace Module.Payment.Features.Admin.PaymentMethods.Services.Gateways.Bogus;
 
 public static class BogusGatewayResult
 {

@@ -1,6 +1,6 @@
 using Module.Payment.Domain.Gateways;
 using Module.Payment.Domain.PaymentCaptures;
-using Module.Payment.Infrastructure.Gateways.Stripe;
+using Module.Payment.Features.Admin.PaymentMethods.Services.Gateways.Webhooks;
 using PaymentCapture = Module.Payment.Domain.PaymentCaptures.PaymentCapture;
 using Stripe;
 using StripeEvent = Stripe.Event;

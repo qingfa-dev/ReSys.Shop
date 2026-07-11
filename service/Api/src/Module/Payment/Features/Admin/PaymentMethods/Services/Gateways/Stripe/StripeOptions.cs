@@ -1,6 +1,6 @@
 using Module.Payment.Domain.Gateways;
 
-namespace Module.Payment.Infrastructure.Gateways.Stripe;
+namespace Module.Payment.Features.Admin.PaymentMethods.Services.Gateways.Stripe;
 
 public sealed class StripeOptions
 {

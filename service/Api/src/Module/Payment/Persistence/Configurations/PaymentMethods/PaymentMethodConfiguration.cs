@@ -2,7 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Module.Payment.Domain.Gateways;
 using Module.Payment.Domain.PaymentMethods;
-using Module.Payment.Persistence.Constants;
+using Module.Payment.Persistence;
 using Shared.Operational.Persistence.Configurations.Dictionaries;
 
 namespace Module.Payment.Persistence.Configurations.PaymentMethods;
