@@ -44,4 +44,8 @@ public abstract partial class Gateway : IPaymentGatewayActionProvider
 
     // Compute: List of actions this gateway supports -- mirrors Ruby actions method
     public virtual string[] Actions => ["authorize", "capture", "purchase", "void", "credit"];
+
+    // Call: Retrieve payment intent status from gateway
+    public virtual Task<string> GetPaymentIntentStatusAsync(string paymentIntentId, CancellationToken cancellationToken = default)
+        => Task.FromResult("succeeded");
 }
