@@ -1,14 +1,11 @@
-using System.Runtime.CompilerServices;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 
+using Module.Payment.Services.Abstractions;
+using Module.Payment.Services.Models;
 using Module.Payment.Services.Gateways;
-using Module.Payment.Services.Gateways.Bogus;
-using Module.Payment.Services.Gateways.Stripe;
-using Module.Payment.Services.Gateways.Webhooks;
-using Module.Payment.Services.Registry;
-using Module.Payment.Services.GatewayProcessing;
+using Module.Payment.Services.Webhooks;
 using Module.Payment.Persistence.Seeders;
 
 using Shared.Operational.Security.Encryption;

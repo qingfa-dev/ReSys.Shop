@@ -1,11 +1,12 @@
+using Module.Payment.Services.Models;
+using Module.Payment.Services.Abstractions;
 using Microsoft.Extensions.Options;
 
 using Module.Payment.Services.Gateways;
-using Module.Payment.Services.Gateways.Stripe;
 
 using Stripe;
 
-namespace Module.Payment.Services.Gateways.Webhooks;
+namespace Module.Payment.Services.Webhooks;
 
 public sealed class StripeWebhookHandler : IWebhookHandler, IStripeWebhookService
 {

@@ -1,6 +1,7 @@
+using Module.Payment.Services.Models;
 using Module.Payment.Services.Gateways;
 
-namespace Module.Payment.Services.Gateways.Stripe;
+namespace Module.Payment.Services.Gateways;
 
 public static class StripeGatewayResult
 {

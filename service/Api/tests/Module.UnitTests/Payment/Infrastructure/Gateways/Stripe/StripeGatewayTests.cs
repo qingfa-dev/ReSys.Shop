@@ -1,8 +1,9 @@
 using Microsoft.Extensions.Options;
 
+using Module.Payment.Services.Abstractions;
+using Module.Payment.Services.Models;
 using Module.Payment.Services.Gateways;
 using Module.Payment.Domain.PaymentCaptures;
-using Module.Payment.Services.Gateways.Stripe;
 
 namespace Module.UnitTests.Payment.Infrastructure.Gateways.Stripe;
 

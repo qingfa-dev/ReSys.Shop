@@ -1,10 +1,10 @@
 using Module.Payment.Services.Gateways;
 
-namespace Module.Payment.Services.Gateways.Stripe;
+namespace Module.Payment.Services.Models;
 
-public sealed class StripeSetting
+public sealed class BogusSetting
 {
-    public const string SectionName = GatewayConstants.Configuration.SectionName + ":" + GatewayConstants.Providers.Stripe;
+    public const string SectionName = GatewayConstants.Configuration.SectionName + ":" + GatewayConstants.Providers.Bogus;
 
     public bool Enabled { get; set; }
     public string? SecretKey { get; set; }

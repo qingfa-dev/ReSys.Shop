@@ -2,6 +2,15 @@
 === DIRECTORY TREE (max depth 3, source files only) ===
 .editorconfig
 .gitignore
+.harness
+.harness/config.yml
+.harness/domains.yml
+.harness/enforcement.yml
+.harness/knowledge.yml
+.harness/principles.yml
+.harness/quality.yml
+.harness/scripts
+.harness/scripts/verify-harness.py
 .idea
 .idea/.idea.ReSys.Shop
 .idea/.idea.ReSys.Shop/.idea
@@ -9,6 +18,74 @@
 .idea/.idea.ReSys.Shop/.idea/projectSettingsUpdater.xml
 .idea/.idea.ReSys.Shop/.idea/vcs.xml
 .idea/.idea.ReSys.Shop/.idea/workspace.xml
+.superpowers
+.superpowers/sdd
+.superpowers/sdd/.gitignore
+.superpowers/sdd/progress.md
+.superpowers/sdd/review-8f1503c..3d2ec19.diff
+.superpowers/sdd/review-8fe9d85..8fe9d85.diff
+.superpowers/sdd/review-dfc65a3..ea9beb4.diff
+.superpowers/sdd/review-e0fe2bc..f559677.diff
+.superpowers/sdd/review-f559677..6994efd.diff
+.superpowers/sdd/review-f8626de..8fe9d85.diff
+.superpowers/sdd/review-task1.diff
+.superpowers/sdd/review-tasks23.diff
+.superpowers/sdd/task-1-brief.md
+.superpowers/sdd/task-1-fix-report.md
+.superpowers/sdd/task-1-report.md
+.superpowers/sdd/task-10-brief.md
+.superpowers/sdd/task-11-15-report.md
+.superpowers/sdd/task-11-brief.md
+.superpowers/sdd/task-12-brief.md
+.superpowers/sdd/task-13-brief.md
+.superpowers/sdd/task-14-brief.md
+.superpowers/sdd/task-15-brief.md
+.superpowers/sdd/task-16-22-report.md
+.superpowers/sdd/task-16-brief.md
+.superpowers/sdd/task-17-brief.md
+.superpowers/sdd/task-18-brief.md
+.superpowers/sdd/task-19-brief.md
+.superpowers/sdd/task-2-1-2-report.md
+.superpowers/sdd/task-2-3-4-report.md
+.superpowers/sdd/task-2-5-report.md
+.superpowers/sdd/task-2-6-7-8-report.md
+.superpowers/sdd/task-2-brief.md
+.superpowers/sdd/task-2-report.md
+.superpowers/sdd/task-20-brief.md
+.superpowers/sdd/task-21-brief.md
+.superpowers/sdd/task-22-brief.md
+.superpowers/sdd/task-23-29-report.md
+.superpowers/sdd/task-23-brief.md
+.superpowers/sdd/task-24-brief.md
+.superpowers/sdd/task-25-brief.md
+.superpowers/sdd/task-26-brief.md
+.superpowers/sdd/task-27-brief.md
+.superpowers/sdd/task-28-brief.md
+.superpowers/sdd/task-29-brief.md
+.superpowers/sdd/task-3-1-2-3-report.md
+.superpowers/sdd/task-3-4-5-report.md
+.superpowers/sdd/task-3-6-7-report.md
+.superpowers/sdd/task-3-8-9-10-11-report.md
+.superpowers/sdd/task-3-brief.md
+.superpowers/sdd/task-3-report.md
+.superpowers/sdd/task-4-1-2-report.md
+.superpowers/sdd/task-4-10-report.md
+.superpowers/sdd/task-4-3-4-5-6-report.md
+.superpowers/sdd/task-4-5-report.md
+.superpowers/sdd/task-4-7-8-9-10-11-12-13-report.md
+.superpowers/sdd/task-4-brief.md
+.superpowers/sdd/task-4-report.md
+.superpowers/sdd/task-5-3-4-5-6-7-report.md
+.superpowers/sdd/task-5-8-9-report.md
+.superpowers/sdd/task-5-brief.md
+.superpowers/sdd/task-6-1-2-3-4-report.md
+.superpowers/sdd/task-6-5-report.md
+.superpowers/sdd/task-6-6-7-8-9-10-11-12-13-report.md
+.superpowers/sdd/task-6-brief.md
+.superpowers/sdd/task-6-report.md
+.superpowers/sdd/task-7-brief.md
+.superpowers/sdd/task-8-brief.md
+.superpowers/sdd/task-9-brief.md
 AGENTS.md
 ApiTests
 ApiTests/Catalog
@@ -74,8 +151,6 @@ ApiTests/README.md
 ApiTests/Shipping
 ApiTests/Shipping/Calculate.http
 ApiTests/Shipping/Methods.http
-ApiTests/Webhooks
-ApiTests/Webhooks/Subscriptions.http
 ApiTests/_shared
 ApiTests/_shared/README.md
 ApiTests/_shared/auth-helpers.http
@@ -125,81 +200,6 @@ app/Admin/vite.config.ts
 app/Admin/vitest.config.ts
 app/ReSys.Admin
 app/ReSys.Admin/.editorconfig
-app/ReSys.Admin/.eslintcache
-app/ReSys.Admin/.gitattributes
-app/ReSys.Admin/.gitignore
-app/ReSys.Admin/.prettierrc.json
-app/ReSys.Admin/.vscode
-app/ReSys.Admin/.vscode/extensions.json
-app/ReSys.Admin/.vscode/settings.json
-app/ReSys.Admin/README.md
-app/ReSys.Admin/env.d.ts
-app/ReSys.Admin/eslint.config.ts
-app/ReSys.Admin/index.html
-app/ReSys.Admin/package-lock.json
-app/ReSys.Admin/package.json
-app/ReSys.Admin/postcss.config.ts
-app/ReSys.Admin/public
-app/ReSys.Admin/public/favicon.ico
-app/ReSys.Admin/src
-app/ReSys.Admin/src/app.vue
-app/ReSys.Admin/src/assets
-app/ReSys.Admin/src/features
-app/ReSys.Admin/src/layout
-app/ReSys.Admin/src/main.ts
-app/ReSys.Admin/src/router
-app/ReSys.Admin/src/shared
-app/ReSys.Admin/src/views
-app/ReSys.Admin/tailwind.config.js
-app/ReSys.Admin/tsconfig.app.json
-app/ReSys.Admin/tsconfig.json
-app/ReSys.Admin/tsconfig.node.json
-app/ReSys.Admin/vite.config.ts
-app/ReSys.Admin/vitest.config.ts
-app/Store
-app/Store/.editorconfig
-app/Store/.env.development
-app/Store/.gitattributes
-app/Store/.gitignore
-app/Store/.oxfmtrc.json
-app/Store/.oxlintrc.json
-app/Store/.vscode
-app/Store/.vscode/extensions.json
-app/Store/auto-imports.d.ts
-app/Store/components.d.ts
-app/Store/env.d.ts
-app/Store/eslint.config.ts
-app/Store/index.html
-app/Store/package.json
-app/Store/pnpm-lock.yaml
-app/Store/pnpm-workspace.yaml
-app/Store/public
-app/Store/public/favicon.ico
-app/Store/src
-app/Store/src/App.vue
-app/Store/src/__tests__
-app/Store/src/api.ts
-app/Store/src/assets
-app/Store/src/main.ts
-app/Store/src/router
-app/Store/src/stores
-app/Store/src/views
-app/Store/tsconfig.app.json
-app/Store/tsconfig.json
-app/Store/tsconfig.node.json
-app/Store/tsconfig.vitest.json
-app/Store/vite.config.ts
-app/Store/vitest.config.ts
-docs
-docs/ci
-docs/ci/README.md
-docs/codebase
-docs/codebase/.codebase-scan.txt
-docs/codebase/ARCHITECTURE.md
-docs/codebase/CONCERNS.md
-docs/codebase/CONVENTIONS.md
-docs/codebase/ESHOP-COMPLIANCE.md
-docs/codebase/INTEGRATIONS.md
 
 === STACK DETECTION (manifest files) ===
 
@@ -250,6 +250,7 @@ No .env.example or .env.template found. Identify required environment variables 
 === TODO / FIXME / HACK (production code only, test dirs excluded) ===
 app/ReSys.Admin/src/features/ordering/fulfillment/services/fulfillment.service.ts:14: // TODO: Implement complex shipment creation (requires selecting stock location and inventory units)
 service/Api/src/Module/Payment/Features/Admin/Payments/Refund/RefundPayment.Request.cs:8: // TODO [v1.x]: Implement partial refund. See docs/superpowers/specs/2026-07-07-mvp-cut-design.md.
+service/Api/src/Module/Payment/Features/Storefront/Payment/Webhooks/StripeWebhook.cs:134: // TODO: Add dispute handling logic when business requirements are defined
 service/Api/src/Module/Ordering/Domain/Orders/Order.Checkout.cs:119: // TODO: Query Profiles module for user's default BillAddressId / ShipAddressId.
 guide/code-commenting/CommentingRules.xml:131: <AnswerYes>→ Use a TemporalMarker (TODO, FIXME, HACK, TEMP, DEADLINE, DEPRECATED, BREAKING).</AnswerYes>
 guide/code-commenting/CommentingRules.xml:131: <AnswerYes>→ Use a TemporalMarker (TODO, FIXME, HACK, TEMP, DEADLINE, DEPRECATED, BREAKING).</AnswerYes>
@@ -264,74 +265,74 @@ guide/code-commenting/CommentingRules.xml:1340: <Task>Configure linting rules fo
 guide/code-commenting/CommentingRules.xml:1340: <Task>Configure linting rules for TODO/FIXME/BREAKING format enforcement.</Task>
 
 === GIT RECENT COMMITS (last 20) ===
-6e4e0e4 fix: resolve startup blockers found during e2e smoke test
-365cc4a test: add Payment, Shipping, Profile, Webhooks integration tests and HTTP smoke files
-3247f8d test(ordering): add happy-path integration tests for Cart and Orders
-df0df1b chore(mvp): add [WIP-MVP] flags and stub docs for deferred items
-ff06959 feat(inventory): add admin features (Import, permissions, resource refs)
-6e7feb5 feat(auth): scaffold Facebook and Microsoft OAuth providers
-b3ab3a9 feat(webhooks): add Webhooks admin module with subscription CRUD + Test
-e92b4fc feat(ordering): add cart-expiry background job
-fb20d71 feat(ordering): emit order.placed event to webhook bus
-0f86c17 feat(shipping): add admin CRUD for ShippingMethods and ShippingRates
-e5284d7 feat(profile): add Wishlists API endpoints (7 actions)
-b7efed0 feat(profile): add NotificationPreferences API endpoints
-5f0639e feat(webhooks): add webhook subscription + delivery subsystem
-563aaa3 feat(webhooks): add WebhookDeliveryJob background delivery service
-508f435 feat(webhooks): add IWebhookSigner, IWebhookDispatcher, and implementations
-eb070e2 feat(webhooks): add WebhookSchema and EF Core entity configurations
-c648e51 feat(webhooks): add WebhookSubscription and WebhookDelivery domain entities
-0245b97 feat(security): add rate limiting middleware with named policies
-2900f7d feat(payment): add BogusGateway for offline development
-af318b3 refactor(authz): extract PaymentFeatureMetadata from OrderingFeatureMetadata
+b8ef97a refactor(payment): move Domain/Gateways and Features/.../GatewayProcessing to Services/Gateways and Services/GatewayProcessing
+ca48c9d refactor(payment): move Message from PaymentProcessingResult to Result<T>, update Success factories
+0dcff06 feat(payment): add PaymentProcessingResult with typed Success/Errors — IPaymentProcessingService returns Result<PaymentProcessingResult> instead of bare Result
+363187b fix(tests): update PaymentGatewayResponse constructors, fix decline test mocks, resolve stale namespace references
+f7e6c78 refactor(payment): simplify PaymentGatewayResponse — remove Success/Message, push failure to Result level; update StripeGateway declined handling
+24c7fa0 refactor(payment): split PaymentCaptureMethod following Adjustments pattern — Method.State.cs, Method.Gateway.cs
+a946905 refactor(payment): split GatewayConstants — move entity-specific constants to PaymentCapture.Constant and PaymentMethod.Constant
+6e90484 refactor(payment): restructure module to match Catalog standard — remove Infrastructure/, move gateways to Features/Services, flatten Persistence schema
+7dc0f87 task-7: remove Webhooks stanzas from .harness YAML files
+ddc745d task-6: delete webhook test files, update ModuleIsolationTests
+7332aea task-5: update CreateOrderFromCart to use BackgroundJobClient instead of eventPublisher
+5a4e6f9 task-4: create OrderPlacedDeliveryJob Hangfire job for outbound webhook delivery
+ea9beb4 task(ordering): Create OrderPlacedDeliveryJob Hangfire job
+dfc65a3 task-3: create OutboundWebhookOptions, DI registration, config section
+9fa8ca5 refactor(payment): move EncryptedDictionaryConverter to Shared/Operational/Persistence/Configurations/Dictionaries
+06c5631 task-2: delete Module.Webhooks tree, fix Program.cs, remove WebhookOrderEventPublisher
+f559677 task-1: delete Shared.Operational.Webhooks tree (19 files, 839 lines)
+e0fe2bc feat(payment): add encryption tests for Settings roundtrip + fix empty-string Decrypt edge case
+80fced1 feat(payment): add migration for gateway abstraction + fix Settings/Preferences mapping gaps
+971b606 refactor(payment): complete gateway abstraction — DI, config, decoupling, tests
 
 === HIGH-CHURN FILES (last 90 days, top 20) ===
-  11 service/Api/src/Api/Program.cs
-   9 service/Api/src/Shared/Security/Authorization/Registry/PermissionContext.cs
-   8 infra/Aspire/src/ReSys.AppHost/AppHost.cs
-   7 service/Api/src/Migrations/Migrations/ApplicationDbContextModelSnapshot.cs
-   7 app/Admin/package.json
-   7 app/Admin/pnpm-lock.yaml
-   6 service/Api/src/Api/appsettings.json
-   6 app/Admin/eslint.config.ts
-   5 service/Api/src/Shared/Security/Authorization/Features/InventoryFeatureMetadata.cs
-   5 service/Api/src/Shared/Security/Authorization/Features/ProfileFeatureMetadata.cs
-   5 service/Api/src/Api/packages.lock.json
-   5 app/Admin/components.d.ts
-   5 app/Admin/src/app/router/index.ts
-   5 app/Admin/src/app/layout/main.layout.vue
-   5 app/Admin/src/features/identity/users/api/get-list.ts
-   5 service/Api/src/Shared/Security/Authorization/Features/CatalogFeatureMetadata.cs
-   5 service/Embedding/pyproject.toml
-   5 service/Api/tests/Api.Tests/Infrastructure/ApiFactory.cs
-   5 ReSys.Shop.slnx
-   4 service/Api/src/Api/appsettings.Development.json
+  15 service/Api/src/Api/Program.cs
+  12 service/Api/src/Module/Payment/Features/Admin/Payments/Refund/RefundPayment.cs
+  11 service/Api/src/Module/Payment/Features/Storefront/Payment/Webhooks/StripeWebhook.cs
+  11 service/Api/tests/Module.UnitTests/Payment/Features/Storefront/Payment/Confirm/ConfirmPaymentTests.cs
+  10 service/Api/src/Module/Payment/Features/Storefront/Payment/Confirm/ConfirmPayment.cs
+  10 service/Api/src/Module/Payment/Payment.Extension.cs
+  10 service/Api/tests/Module.UnitTests/Payment/Features/Admin/Payments/Void/VoidPaymentTests.cs
+  10 service/Api/tests/Module.UnitTests/Payment/Features/Storefront/Payment/CreateIntent/CreatePaymentIntentTests.cs
+  10 service/Api/src/Module/Ordering/Features/Storefront/Orders/Cancel/CancelOrder.cs
+  10 service/Api/src/Shared/Security/Authorization/Registry/PermissionContext.cs
+   9 service/Api/src/Module/Payment/Features/Admin/Payments/Capture/CapturePayment.cs
+   9 service/Api/src/Module/Payment/Features/Admin/Payments/Void/VoidPayment.cs
+   9 service/Api/tests/Module.UnitTests/Payment/Features/Admin/Payments/Capture/CapturePaymentTests.cs
+   9 service/Api/tests/Module.UnitTests/Payment/Features/Admin/Payments/Refund/RefundPaymentTests.cs
+   9 service/Api/tests/Module.UnitTests/Payment/Infrastructure/Gateways/Stripe/StripeGatewayAuthorizeTests.cs
+   9 service/Api/tests/Module.UnitTests/Payment/Infrastructure/Gateways/Stripe/StripeGatewayTests.cs
+   9 service/Api/tests/Module.UnitTests/Payment/Domain/Payments/PaymentProcessingAsyncTests.cs
+   9 service/Api/src/Module/Ordering/Features/Storefront/Cart/Checkout/CreateOrderFromCart.cs
+   9 service/Api/src/Api/appsettings.json
+   9 service/Api/src/Migrations/Migrations/ApplicationDbContextModelSnapshot.cs
 
 === MONOREPO SIGNALS ===
 No monorepo signals detected.
 
 === CODE METRICS ===
-Total files scanned: 3726
-Total lines of code: 229961
+Total files scanned: 3821
+Total lines of code: 233905
 
 Files by language:
-  C#: 2857
-  Other: 513
+  C#: 2856
+  Other: 608
   TypeScript: 285
-  Python: 70
+  Python: 71
   JavaScript: 1
 
 Top 10 largest files:
+.superpowers/sdd/review-8f1503c..3d2ec19.diff: 1138.5KB
+.superpowers/sdd/review-f8626de..8fe9d85.diff: 349.8KB
 app/ReSys.Admin/package-lock.json: 278.2KB
 app/Store/pnpm-lock.yaml: 236.6KB
 app/Admin/pnpm-lock.yaml: 187.7KB
-service/Api/src/Migrations/Migrations/20260707163321_AddInventoryAdminFeatures.Designer.cs: 159.8KB
 service/Api/src/Migrations/Migrations/20260707155425_AddWebhookSubscriptions.Designer.cs: 159.8KB
-service/Api/src/Migrations/Migrations/ApplicationDbContextModelSnapshot.cs: 159.6KB
+service/Api/src/Migrations/Migrations/20260711040656_RefactorPaymentGatewayAbstraction.Designer.cs: 158.2KB
+service/Api/src/Migrations/Migrations/ApplicationDbContextModelSnapshot.cs: 158.1KB
+service/Api/src/Migrations/Migrations/20260709112448_RefactorWebhookConstants.Designer.cs: 157.3KB
 service/Embedding/uv.lock: 149.3KB
-docs/superpowers/plans/2026-07-07-mvp-cut.md: 125.4KB
-service/Api/src/Migrations/Migrations/20260706183045_AddInventoryModuleEntities.Designer.cs: 119.5KB
-docs/superpowers/plans/2026-07-06-admin-vertical-slice-foundation.md: 98.4KB
 
 === CI/CD PIPELINES ===
 No CI/CD pipelines detected.

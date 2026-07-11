@@ -1,7 +1,10 @@
 using Microsoft.Extensions.Options;
+using Module.Payment.Services.Abstractions;
+using Module.Payment.Services.Models;
+
 using Module.Payment.Services.Gateways;
 
-namespace Module.Payment.Services.Gateways.Bogus;
+namespace Module.Payment.Services.Gateways;
 
 public sealed class BogusGateway : Gateway
 {
