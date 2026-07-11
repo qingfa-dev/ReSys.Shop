@@ -1,6 +1,5 @@
 using Module.Payment.Services.Abstractions;
 using Module.Payment.Services.Models;
-using Module.Payment.Services.Gateways;
 using Module.Payment.Domain.PaymentCaptures;
 
 using PaymentCapture = Module.Payment.Domain.PaymentCaptures.PaymentCapture;
@@ -49,7 +48,7 @@ public static partial class RefundPayment
             {
                 Id = payment.Id,
                 Number = payment.Number,
-                Amount = payment.Amount,
+                Amount = command.Request.Amount,
                 RefundedAmount = refundAmount,
                 State = payment.State,
                 Message = refundResult.Message ?? string.Empty
