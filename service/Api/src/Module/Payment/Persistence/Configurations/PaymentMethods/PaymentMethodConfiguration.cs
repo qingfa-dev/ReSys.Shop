@@ -1,6 +1,5 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using Module.Payment.Domain.Gateways;
 using Module.Payment.Domain.PaymentMethods;
 using Module.Payment.Persistence;
 using Shared.Operational.Persistence.Configurations.Dictionaries;
@@ -16,7 +15,7 @@ public class PaymentMethodConfiguration : IEntityTypeConfiguration<PaymentMethod
         builder.Property(x => x.Name).IsRequired().HasMaxLength(255);
         builder.Property(x => x.Code).HasMaxLength(50);
         builder.Property(x => x.Description).HasMaxLength(1000);
-        builder.Property(x => x.ProviderKey).IsRequired().HasMaxLength(GatewayConstants.Constraints.MaxProviderKeyLength);
+        builder.Property(x => x.ProviderKey).IsRequired().HasMaxLength(PaymentMethodConstant.Constraints.MaxProviderKeyLength);
         builder.Property(x => x.Active).IsRequired().HasDefaultValue(true);
         builder.Property(x => x.AutoCapture).IsRequired().HasDefaultValue(false);
         builder.Property(x => x.DisplayOn).IsRequired().HasConversion<string>().HasDefaultValue(DisplayOn.Both);

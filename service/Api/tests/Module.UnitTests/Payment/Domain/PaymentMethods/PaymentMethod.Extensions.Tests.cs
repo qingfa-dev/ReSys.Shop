@@ -8,7 +8,7 @@ public class PaymentMethodExtensionsTests
     [Fact]
     public void Create_WithValidParams_ShouldReturnPaymentMethod()
     {
-        var result = PaymentMethodExtensions.Create("Credit Card", "CC", "CreditCard");
+        var result = PaymentMethodMethod.Create("Credit Card", "CC", "CreditCard");
 
         result.IsSuccess.Should().BeTrue();
         result.Value.Name.Should().Be("Credit Card");
@@ -20,7 +20,7 @@ public class PaymentMethodExtensionsTests
     [Fact]
     public void Activate_WhenInactive_ShouldActivate()
     {
-        var method = PaymentMethodExtensions.Create("Test", null, "TestProvider").Value;
+        var method = PaymentMethodMethod.Create("Test", null, "TestProvider").Value;
         method.Active = false;
 
         var result = method.Activate();
@@ -32,7 +32,7 @@ public class PaymentMethodExtensionsTests
     [Fact]
     public void Activate_WhenAlreadyActive_ShouldFail()
     {
-        var method = PaymentMethodExtensions.Create("Test", null, "TestProvider").Value;
+        var method = PaymentMethodMethod.Create("Test", null, "TestProvider").Value;
 
         var result = method.Activate();
 
@@ -43,7 +43,7 @@ public class PaymentMethodExtensionsTests
     [Fact]
     public void Deactivate_WhenActive_ShouldDeactivate()
     {
-        var method = PaymentMethodExtensions.Create("Test", null, "TestProvider").Value;
+        var method = PaymentMethodMethod.Create("Test", null, "TestProvider").Value;
 
         var result = method.Deactivate();
 
@@ -54,7 +54,7 @@ public class PaymentMethodExtensionsTests
     [Fact]
     public void Deactivate_WhenAlreadyInactive_ShouldFail()
     {
-        var method = PaymentMethodExtensions.Create("Test", null, "TestProvider").Value;
+        var method = PaymentMethodMethod.Create("Test", null, "TestProvider").Value;
         method.Active = false;
 
         var result = method.Deactivate();
@@ -66,7 +66,7 @@ public class PaymentMethodExtensionsTests
     [Fact]
     public void UpdatePreferences_ShouldReplacePreferences()
     {
-        var method = PaymentMethodExtensions.Create("Test", null, "TestProvider").Value;
+        var method = PaymentMethodMethod.Create("Test", null, "TestProvider").Value;
         var prefs = new Dictionary<string, string> { ["key1"] = "value1" };
 
         var result = method.UpdatePreferences(prefs);

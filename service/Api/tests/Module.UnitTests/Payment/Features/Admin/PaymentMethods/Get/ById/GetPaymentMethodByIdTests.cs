@@ -26,7 +26,7 @@ public class GetPaymentMethodByIdTests : IDisposable
     [Fact(DisplayName = "Handler: Should return payment method by ID")]
     public async Task Handle_ShouldReturn_WhenExists()
     {
-        var method = PaymentMethodExtensions.Create("Stripe", null, "CreditCard").Value;
+        var method = PaymentMethodMethod.Create("Stripe", null, "CreditCard").Value;
         _dbContext.Set<PaymentMethod>().Add(method);
         await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 
