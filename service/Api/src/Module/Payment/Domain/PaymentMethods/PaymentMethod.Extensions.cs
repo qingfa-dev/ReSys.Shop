@@ -38,7 +38,10 @@ public static class PaymentMethodExtensions
         string? providerKey = null,
         bool? autoCapture = null,
         DisplayOn? displayOn = null,
-        string? presentation = null)
+        string? presentation = null,
+        Dictionary<string, string>? settings = null,
+        Dictionary<string, string>? preferences = null,
+        bool? webhookEnabled = null)
     {
         method.Name = name ?? method.Name;
         method.Code = code ?? method.Code;
@@ -47,6 +50,9 @@ public static class PaymentMethodExtensions
         method.AutoCapture = autoCapture ?? method.AutoCapture;
         method.DisplayOn = displayOn ?? method.DisplayOn;
         method.Presentation = presentation ?? method.Presentation;
+        if (settings is not null) method.Settings = settings;
+        if (preferences is not null) method.Preferences = preferences;
+        if (webhookEnabled.HasValue) method.WebhookEnabled = webhookEnabled.Value;
         method.ModifiedAtUtc = DateTimeOffset.UtcNow;
         method.ModifiedBy = "System";
         return Result.Ok(PaymentMethodResult.Success.Updated(method.Name));
