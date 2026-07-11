@@ -40,7 +40,8 @@ public static class ShippingRateCalculator
                 // No weight restriction — matches any weight
                 (r.MinWeight == null && r.MaxWeight == null)
                 // Weight-bound match
-                || (r.MinWeight <= orderWeight && r.MaxWeight >= orderWeight))
+                || ((r.MinWeight == null || r.MinWeight <= orderWeight)
+                    && (r.MaxWeight == null || r.MaxWeight >= orderWeight)))
             .ToList();
 
         // If no weight-match, fall back to unrestricted-weight rates.
