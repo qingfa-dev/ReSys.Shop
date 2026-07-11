@@ -9,13 +9,15 @@ public static class PaymentMethodExtensions
         string providerKey,
         bool autoCapture = PaymentMethodConstant.Defaults.AutoCapture,
         DisplayOn displayOn = DisplayOn.Both,
-        Dictionary<string, string>? settings = null)
+        Dictionary<string, string>? settings = null,
+        string? description = null)
     {
         var method = new PaymentMethod
         {
             Id = Guid.NewGuid(),
             Name = name,
             Code = code,
+            Description = description,
             ProviderKey = providerKey,
             Active = PaymentMethodConstant.Defaults.Active,
             AutoCapture = autoCapture,

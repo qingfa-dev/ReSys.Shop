@@ -1,5 +1,7 @@
 #pragma warning disable CA1873
 
+using System.Data;
+
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -7,6 +9,7 @@ using Microsoft.Extensions.Logging;
 using Shared.Operational.Persistence.Data;
 using Shared.Operational.Persistence.Initializers;
 using Shared.Operational.Persistence.Seeders;
+using Shared.Operational.Persistence.Transactions;
 
 namespace Shared.UnitTests.Operational.Persistence.Initializers;
 
@@ -18,6 +21,10 @@ public class DatabaseInitializerTests
     private sealed class TestDbContext(DbContextOptions<TestDbContext> options)
         : DbContext(options), IApplicationDbContext
     {
+        public bool SupportsTransactions => false;
+
+        public Task<IDatabaseTransaction> BeginTransactionAsync(IsolationLevel isolationLevel, CancellationToken cancellationToken = default) =>
+            Task.FromResult<IDatabaseTransaction>(new NoOpTransaction());
     }
 
     private static ServiceProvider BuildProvider(Action<IServiceCollection> configure)

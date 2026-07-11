@@ -1,8 +1,9 @@
 using System.Data;
-using Microsoft.EntityFrameworkCore;
 
 using Module.Inventory.Domain.StockLocations.StockItems;
 using Module.Inventory.Domain.StockReservations;
+
+using Shared.Operational.Persistence.Transactions;
 
 namespace Module.Inventory.Features.Storefront.CartReservations.Reserve;
 
@@ -31,15 +32,13 @@ public static partial class ReserveCartStock
             if (quantity <= 0)
                 return StockReservationResult.Errors.QuantityZero;
 
-            await using var transaction = await dbContext.Database.BeginTransactionAsync(
+            await using var transaction = await dbContext.BeginTransactionAsync(
                 IsolationLevel.Serializable, cancellationToken);
 
             try
             {
                 var stockItem = await dbContext.Set<StockItem>()
-                    .FromSqlRaw("SELECT * FROM inventory.stock_items WHERE variant_id = {0} AND stock_location_id = {1} FOR UPDATE",
-                        variantId, stockLocationId)
-                    .FirstOrDefaultAsync(cancellationToken);
+                    .FirstOrDefaultAsync(si => si.VariantId == variantId && si.StockLocationId == stockLocationId, cancellationToken);
 
                 if (stockItem is null)
                 {

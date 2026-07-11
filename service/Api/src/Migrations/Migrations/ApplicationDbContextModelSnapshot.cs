@@ -1909,6 +1909,124 @@ namespace Api.Migrations.Migrations
                     b.ToTable("orders", "ordering");
                 });
 
+            modelBuilder.Entity("Module.Payment.Domain.PaymentCaptures.PaymentCapture", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<decimal>("Amount")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("numeric(18,2)")
+                        .HasColumnName("amount");
+
+                    b.Property<string>("AvsResponse")
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)")
+                        .HasColumnName("avs_response");
+
+                    b.Property<bool>("CaptureEventCreated")
+                        .HasColumnType("boolean")
+                        .HasColumnName("capture_event_created");
+
+                    b.Property<DateTimeOffset>("CreatedAtUtc")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at_utc");
+
+                    b.Property<string>("CreatedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("created_by");
+
+                    b.Property<string>("CvvResponseCode")
+                        .HasMaxLength(10)
+                        .HasColumnType("character varying(10)")
+                        .HasColumnName("cvv_response_code");
+
+                    b.Property<string>("CvvResponseMessage")
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)")
+                        .HasColumnName("cvv_response_message");
+
+                    b.Property<string>("IntentClientSecret")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
+                        .HasColumnName("intent_client_secret");
+
+                    b.Property<DateTimeOffset?>("ModifiedAtUtc")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("modified_at_utc");
+
+                    b.Property<string>("ModifiedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("modified_by");
+
+                    b.Property<string>("Number")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)")
+                        .HasColumnName("number");
+
+                    b.Property<Guid>("OrderId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("order_id");
+
+                    b.Property<Guid?>("OrderId1")
+                        .HasColumnType("uuid")
+                        .HasColumnName("order_id1");
+
+                    b.Property<Guid>("PaymentMethodId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("payment_method_id");
+
+                    b.Property<string>("ProviderKey")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)")
+                        .HasColumnName("provider_key");
+
+                    b.Property<decimal>("RefundedAmount")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("numeric(18,2)")
+                        .HasColumnName("refunded_amount");
+
+                    b.Property<string>("ResponseCode")
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)")
+                        .HasColumnName("response_code");
+
+                    b.Property<Guid?>("SourceId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("source_id");
+
+                    b.Property<string>("SourceType")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("source_type");
+
+                    b.Property<string>("State")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("text")
+                        .HasDefaultValue("Checkout")
+                        .HasColumnName("state");
+
+                    b.HasKey("Id")
+                        .HasName("pk_payment_capture");
+
+                    b.HasIndex("OrderId")
+                        .HasDatabaseName("ix_payment_capture_order_id");
+
+                    b.HasIndex("OrderId1")
+                        .HasDatabaseName("ix_payment_capture_order_id1");
+
+                    b.HasIndex("PaymentMethodId")
+                        .HasDatabaseName("ix_payment_capture_payment_method_id");
+
+                    b.ToTable("payment_capture", "payment");
+                });
+
             modelBuilder.Entity("Module.Payment.Domain.PaymentMethods.PaymentMethod", b =>
                 {
                     b.Property<Guid>("Id")
@@ -1989,135 +2107,34 @@ namespace Api.Migrations.Migrations
 
                     b.Property<string>("Preferences")
                         .IsRequired()
-                        .HasColumnType("text")
+                        .HasColumnType("jsonb")
                         .HasColumnName("preferences");
 
                     b.Property<string>("Presentation")
                         .HasColumnType("text")
                         .HasColumnName("presentation");
 
-                    b.Property<string>("ProviderType")
+                    b.Property<string>("ProviderKey")
                         .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)")
-                        .HasColumnName("provider_type");
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)")
+                        .HasColumnName("provider_key");
+
+                    b.Property<string>("Settings")
+                        .IsRequired()
+                        .HasColumnType("jsonb")
+                        .HasColumnName("settings");
 
                     b.Property<bool>("WebhookEnabled")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("boolean")
+                        .HasDefaultValue(false)
                         .HasColumnName("webhook_enabled");
-
-                    b.Property<string>("WebhookSecret")
-                        .HasColumnType("text")
-                        .HasColumnName("webhook_secret");
-
-                    b.Property<string>("WebhookUrl")
-                        .HasColumnType("text")
-                        .HasColumnName("webhook_url");
 
                     b.HasKey("Id")
                         .HasName("pk_payment_method");
 
                     b.ToTable("payment_method", "payment");
-                });
-
-            modelBuilder.Entity("Module.Payment.Domain.Payments.PaymentRecord", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .HasColumnType("uuid")
-                        .HasColumnName("id");
-
-                    b.Property<decimal>("Amount")
-                        .HasPrecision(18, 2)
-                        .HasColumnType("numeric(18,2)")
-                        .HasColumnName("amount");
-
-                    b.Property<string>("AvsResponse")
-                        .HasMaxLength(255)
-                        .HasColumnType("character varying(255)")
-                        .HasColumnName("avs_response");
-
-                    b.Property<bool>("CaptureEventCreated")
-                        .HasColumnType("boolean")
-                        .HasColumnName("capture_event_created");
-
-                    b.Property<DateTimeOffset>("CreatedAtUtc")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("created_at_utc");
-
-                    b.Property<string>("CreatedBy")
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)")
-                        .HasColumnName("created_by");
-
-                    b.Property<string>("CvvResponseCode")
-                        .HasMaxLength(10)
-                        .HasColumnType("character varying(10)")
-                        .HasColumnName("cvv_response_code");
-
-                    b.Property<string>("CvvResponseMessage")
-                        .HasMaxLength(255)
-                        .HasColumnType("character varying(255)")
-                        .HasColumnName("cvv_response_message");
-
-                    b.Property<string>("IntentClientSecret")
-                        .HasMaxLength(500)
-                        .HasColumnType("character varying(500)")
-                        .HasColumnName("intent_client_secret");
-
-                    b.Property<DateTimeOffset?>("ModifiedAtUtc")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("modified_at_utc");
-
-                    b.Property<string>("ModifiedBy")
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)")
-                        .HasColumnName("modified_by");
-
-                    b.Property<string>("Number")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("character varying(50)")
-                        .HasColumnName("number");
-
-                    b.Property<Guid>("OrderId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("order_id");
-
-                    b.Property<Guid>("PaymentMethodId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("payment_method_id");
-
-                    b.Property<string>("ResponseCode")
-                        .HasMaxLength(255)
-                        .HasColumnType("character varying(255)")
-                        .HasColumnName("response_code");
-
-                    b.Property<Guid?>("SourceId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("source_id");
-
-                    b.Property<string>("SourceType")
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)")
-                        .HasColumnName("source_type");
-
-                    b.Property<string>("State")
-                        .IsRequired()
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("text")
-                        .HasDefaultValue("Checkout")
-                        .HasColumnName("state");
-
-                    b.HasKey("Id")
-                        .HasName("pk_payment_record");
-
-                    b.HasIndex("OrderId")
-                        .HasDatabaseName("ix_payment_record_order_id");
-
-                    b.HasIndex("PaymentMethodId")
-                        .HasDatabaseName("ix_payment_record_payment_method_id");
-
-                    b.ToTable("payment_record", "payment");
                 });
 
             modelBuilder.Entity("Module.Profile.Domain.Addresses.Address", b =>
@@ -3476,23 +3493,26 @@ namespace Api.Migrations.Migrations
                     b.Navigation("Variant");
                 });
 
-            modelBuilder.Entity("Module.Payment.Domain.Payments.PaymentRecord", b =>
+            modelBuilder.Entity("Module.Payment.Domain.PaymentCaptures.PaymentCapture", b =>
                 {
-                    b.HasOne("Module.Ordering.Domain.Orders.Order", "Order")
-                        .WithMany("Payments")
+                    b.HasOne("Module.Ordering.Domain.Orders.Order", null)
+                        .WithMany()
                         .HasForeignKey("OrderId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
-                        .HasConstraintName("fk_payment_record_order_order_id");
+                        .HasConstraintName("fk_payment_capture_order_order_id");
+
+                    b.HasOne("Module.Ordering.Domain.Orders.Order", null)
+                        .WithMany("Payments")
+                        .HasForeignKey("OrderId1")
+                        .HasConstraintName("fk_payment_capture_orders_order_id1");
 
                     b.HasOne("Module.Payment.Domain.PaymentMethods.PaymentMethod", "PaymentMethod")
                         .WithMany("Payments")
                         .HasForeignKey("PaymentMethodId")
                         .OnDelete(DeleteBehavior.SetNull)
                         .IsRequired()
-                        .HasConstraintName("fk_payment_record_payment_method_payment_method_id");
-
-                    b.Navigation("Order");
+                        .HasConstraintName("fk_payment_capture_payment_method_payment_method_id");
 
                     b.Navigation("PaymentMethod");
                 });

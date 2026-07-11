@@ -1,7 +1,10 @@
+using System.Data;
+
 using Microsoft.EntityFrameworkCore;
 
 using Shared.Operational.Persistence.Data;
 using Shared.Operational.Persistence.Seeders;
+using Shared.Operational.Persistence.Transactions;
 
 namespace Shared.UnitTests.Operational.Persistence.Seeders;
 
@@ -32,6 +35,11 @@ public class AbstractDataSeederTests
         : DbContext(options), IApplicationDbContext
     {
         public DbSet<TestEntity> TestEntities => Set<TestEntity>();
+
+        public bool SupportsTransactions => false;
+
+        public Task<IDatabaseTransaction> BeginTransactionAsync(IsolationLevel isolationLevel, CancellationToken cancellationToken = default) =>
+            Task.FromResult<IDatabaseTransaction>(new NoOpTransaction());
     }
 
     private static TestDbContext CreateInMemoryContext(String databaseName)

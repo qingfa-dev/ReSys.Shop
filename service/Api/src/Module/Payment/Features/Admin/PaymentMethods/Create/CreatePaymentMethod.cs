@@ -23,8 +23,6 @@ public static partial class CreatePaymentMethod
                 return createResult.Errors;
 
             var method = createResult.Value;
-            method.Description = request.Description;
-
             dbContext.Set<PaymentMethod>().Add(method);
             await dbContext.SaveChangesAsync(cancellationToken);
 
