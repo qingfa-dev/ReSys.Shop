@@ -27,28 +27,31 @@ public static partial class TransferStockTransfer
             if (transfer is null)
                 return StockTransferResult.Failure.NotFound;
 
-            foreach (var item in transfer.TransferItems)
-            {
-                var stockItem = await dbContext.Set<StockItem>()
-                    .FirstOrDefaultAsync(si => si.VariantId == item.VariantId
-                        && si.StockLocationId == transfer.SourceLocationId, cancellationToken);
-
-                if (stockItem is null || stockItem.CountOnHand < item.Quantity)
-                    return StockTransferResult.Failure.InsufficientStockAtSource;
-            }
-
             var transitionResult = transfer.Transfer();
             if (transitionResult.IsFailure) return transitionResult;
 
             foreach (var item in transfer.TransferItems)
             {
                 var stockItem = await dbContext.Set<StockItem>()
-                    .FirstAsync(si => si.VariantId == item.VariantId
+                    .FirstOrDefaultAsync(si => si.VariantId == item.VariantId
                         && si.StockLocationId == transfer.SourceLocationId, cancellationToken);
 
+                if (stockItem is null)
+                    return StockTransferResult.Failure.InsufficientStockAtSource;
+
                 var previousCount = stockItem.CountOnHand;
-                stockItem.CountOnHand -= item.Quantity;
-                stockItem.ModifiedAtUtc = DateTimeOffset.UtcNow;
+
+                var affected = await dbContext.Set<StockItem>()
+                    .Where(x => x.VariantId == item.VariantId
+                        && x.StockLocationId == transfer.SourceLocationId
+                        && x.CountOnHand >= item.Quantity)
+                    .ExecuteUpdateAsync(s => s
+                        .SetProperty(x => x.CountOnHand, x => x.CountOnHand - item.Quantity)
+                        .SetProperty(x => x.ModifiedAtUtc, DateTimeOffset.UtcNow),
+                    cancellationToken);
+
+                if (affected == 0)
+                    return StockTransferResult.Failure.InsufficientStockAtSource;
 
                 var movementResult = StockMovementMethod.Create(
                     stockItemId: stockItem.Id,
