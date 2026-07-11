@@ -1,29 +1,47 @@
-# Task 2: Remove Hardcoded Cart Defaults — Implementation Report
+# Task 2 Report: Remove Cross-Module Entity Navigation Properties
 
-## Changes Made
+## Summary
 
-### 1. Configuration (`appsettings.json` + `appsettings.Development.json`)
-- Added `"DefaultCurrency": "USD"` under the `"Ordering"` section in both files.
+Removed 4 cross-module navigation properties from domain entities and fixed all downstream compilation errors. Build passes with 0 warnings, 0 errors.
 
-### 2. `Order.Extensions.cs` — `Create` method
-- Added `Guid? shipAddressId = null` parameter (last position).
-- Sets `ShipAddressId = shipAddressId` on the created `Order` entity.
-- Existing callers unchanged (defaults to `null`).
+## Changes
 
-### 3. `AddToCart.cs` — `CommandHandler`
-- Injected `IConfiguration configuration` via primary constructor.
-- Changed `"USD"` literal to `configuration["Ordering:DefaultCurrency"] ?? "USD"`.
-- Added explicit `shipAddressId: null` argument to `OrderExtensions.Create` call.
+### Entity Nav Property Removals
 
-### 4. `AddToCartTests.cs` — existing test
-- Added `Mock<IConfiguration>` setup returning `"USD"` for `["Ordering:DefaultCurrency"]`.
-- Passes `_configurationMock.Object` to handler constructor.
+| File | Change |
+|------|--------|
+| `Variant.cs` | Removed `ICollection<StockItem> StockItems`, removed Inventory using |
+| `StockItem.cs` | Removed `Variant Variant`, removed Catalog using |
+| `Order.cs` | Removed `ICollection<PaymentCapture> Payments`, removed Payment using |
+| `LineItem.cs` | Removed `Variant Variant` |
 
-### 5. `AddToCartDefaultsTests.cs` — new test
-- Verifies cart `Currency` equals configured value (`"USD"`).
-- Verifies `ShipAddressId` is `null`.
+### EF Configuration Removals
+
+| File | Change |
+|------|--------|
+| `VariantConfiguration.cs` | Removed `HasMany(x => x.StockItems)...WithOne(si => si.Variant)` |
+| `StockItemConfiguration.cs` | Removed `HasOne(x => x.Variant)...WithMany(v => v.StockItems)` |
+| `LineItemConfiguration.cs` | Removed `HasOne(x => x.Variant)` |
+| `OrderConfiguration.cs` | Removed `HasMany(x => x.Payments)` |
+
+### Handler Fixes (Nav Access → Explicit Query)
+
+| File | Change |
+|------|--------|
+| `GetCart.cs` | Removed `.ThenInclude(x => x.Variant)`; query variants separately via `dbContext.Set<Variant>()` |
+| `CreateOrderFromCart.cs` | Removed `.ThenInclude(x => x.Variant)`; query discontinued variants via `dbContext.Set<Variant>().Where(v => v.DiscontinuedOn != null)` |
+
+### Domain Service Fixes (Removed PaymentCapture Dependencies)
+
+| File | Change |
+|------|--------|
+| `Order.Payments.cs` | **Deleted** — `ProcessPayments()`, `HasUnprocessedPayments`, `GetUnprocessedPayments` were unused |
+| `Order.Extensions.cs` | Simplified `UpdatePaymentState()` — removed `PaymentCapture` parameter, uses only status+balance |
+| `OrderUpdater.cs` | Simplified `UpdatePaymentTotal()`/`UpdatePaymentState()` — removed `PaymentCapture` parameter |
+| `Order.Seeder.cs` | Removed `order.Payments.Add(payment)` |
 
 ## Verification
-- Build: 0 warnings, 0 errors.
-- Tests: 2315 passed, 2 pre-existing failures (architecture isolation, admin update-status).
-- New test: passes.
+
+- **Build**: `dotnet build` — 0 warnings, 0 errors (all 9 projects)
+- **Architecture test**: Catalog↔Inventory and Ordering→Catalog/Payment navigation violations removed
+- **Remaining test failures**: 3 pre-existing Identity test failures; 1 architecture test failure from pre-existing seeder/service cross-references (out of scope)

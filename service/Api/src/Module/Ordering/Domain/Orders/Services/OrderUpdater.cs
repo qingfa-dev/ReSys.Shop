@@ -1,5 +1,3 @@
-using PaymentStateEnum = Module.Payment.Domain.PaymentCaptures.PaymentRecordState;
-
 namespace Module.Ordering.Domain.Orders.Services;
 
 /// <summary>
@@ -48,21 +46,9 @@ public partial class OrderUpdater
     // Compute: Recalculate all order totals.
     public void UpdateTotals()
     {
-        UpdatePaymentTotal();
         UpdateItemTotal();
         UpdateShipmentTotal();
         UpdateAdjustmentTotal();
-    }
-
-    /// <summary>
-    /// Calculates the payment total from completed payments minus refunds.
-    /// </summary>
-    // Compute: Payment total from completed payments minus refunds.
-    public void UpdatePaymentTotal()
-    {
-        Order.PaymentTotal = Order.Payments
-            .Where(p => p.State == PaymentStateEnum.Completed)
-            .Sum(p => p.Amount);
     }
 
     /// <summary>
@@ -124,16 +110,12 @@ public partial class OrderUpdater
     #region State Updates
 
     /// <summary>
-    /// Determines the payment state from payment records and outstanding balance.
+    /// Determines the payment state from outstanding balance and status.
     /// </summary>
-    // Compute: Determine payment state from payment records.
+    // Compute: Determine payment state from status and balance.
     public void UpdatePaymentState()
     {
-        if (Order.Payments.Count > 0 && !Order.Payments.Any(p => p.State != PaymentStateEnum.Failed && p.State != PaymentStateEnum.Invalid))
-        {
-            Order.PaymentState = "failed";
-        }
-        else if (Order.Status == OrderStatus.Canceled && Order.PaymentTotal == 0m)
+        if (Order.Status == OrderStatus.Canceled && Order.PaymentTotal == 0m)
         {
             Order.PaymentState = "void";
         }

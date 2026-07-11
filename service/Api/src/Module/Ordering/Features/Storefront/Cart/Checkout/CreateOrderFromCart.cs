@@ -1,3 +1,4 @@
+using Module.Catalog.Domain.Products.Variants;
 using Module.Inventory.Domain.StockLocations.StockItems;
 using Module.Inventory.Domain.StockReservations;
 using Module.Inventory.Domain.StockLocations.StockItems.StockMovements;
@@ -39,7 +40,6 @@ public static partial class CreateOrderFromCart
             // Load: Find the current user's draft cart.
             var cart = await dbContext.Set<Order>()
                 .Include(x => x.LineItems)
-                .ThenInclude(x => x.Variant)
                 .Where(x => x.UserId == userId && x.Status == OrderStatus.Draft)
                 .FirstOrDefaultAsync(cancellationToken);
 
@@ -86,10 +86,11 @@ public static partial class CreateOrderFromCart
                 return OrderResult.Errors.EmptyOrderCannotFinalize;
 
             // Validate: Check for discontinued variants.
-            var discontinuedVariantIds = cart.LineItems
-                .Where(li => li.Variant is not null && li.Variant.DiscontinuedOn is not null)
-                .Select(li => li.VariantId)
-                .ToHashSet();
+            var variantIds = cart.LineItems.Select(li => li.VariantId).ToList();
+            var discontinuedVariantIds = await dbContext.Set<Variant>()
+                .Where(v => variantIds.Contains(v.Id) && v.DiscontinuedOn != null)
+                .Select(v => v.Id)
+                .ToHashSetAsync(cancellationToken);
 
             if (!cart.EnsureLineItemVariantsAreNotDiscontinued(discontinuedVariantIds))
                 return OrderResult.Errors.VariantDiscontinued;

@@ -1,5 +1,3 @@
-using Module.Payment.Domain.PaymentCaptures;
-
 namespace Module.Ordering.Domain.Orders;
 
 public static class OrderExtensions
@@ -326,15 +324,13 @@ public static class OrderExtensions
 
     #region State Derivations
     /// <summary>
-    /// Derives the order payment state from its payment records and outstanding balance.
+    /// Derives the order payment state from its outstanding balance and status.
     /// </summary>
     /// <param name="order">The order to derive payment state for.</param>
-    // @CAT-5 Compute: Derives payment state from payments: all-failed→"failed", canceled+zero→"void", balance>0→"balance_due", balance<0→"credit_owed", else→"paid"
+    // @CAT-5 Compute: Derives payment state from status and balance: canceled+zero→"void", balance>0→"balance_due", balance<0→"credit_owed", else→"paid"
     public static void UpdatePaymentState(this Order order)
     {
-        if (order.Payments.Count > 0 && !order.Payments.Any(p => p.State != PaymentRecordState.Failed && p.State != PaymentRecordState.Invalid))
-            order.PaymentState = "failed";
-        else if (order.Status == OrderStatus.Canceled && order.PaymentTotal == 0m)
+        if (order.Status == OrderStatus.Canceled && order.PaymentTotal == 0m)
             order.PaymentState = "void";
         else if (order.OutstandingBalance > 0m)
             order.PaymentState = "balance_due";
