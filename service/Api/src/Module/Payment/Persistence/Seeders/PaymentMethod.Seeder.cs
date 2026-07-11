@@ -1,3 +1,4 @@
+using Module.Payment.Domain.Gateways;
 using Module.Payment.Domain.PaymentMethods;
 
 namespace Module.Payment.Persistence.Seeders;
@@ -14,16 +15,17 @@ public sealed class PaymentMethodSeeder(IApplicationDbContext context) : Abstrac
 
         var methods = new[]
         {
-            PaymentMethodExtensions.Create("Credit Card", "credit_card", "CreditCard", autoCapture: true),
-            PaymentMethodExtensions.Create("PayPal", "paypal", "PayPal"),
-            PaymentMethodExtensions.Create("Bank Transfer", "bank_transfer", "BankTransfer", displayOn: DisplayOn.Backend),
+            PaymentMethodExtensions.Create(
+                "Credit Card", "credit_card", GatewayConstants.Providers.Stripe, autoCapture: true),
+            PaymentMethodExtensions.Create(
+                "Bank Transfer", "bank_transfer", GatewayConstants.Providers.Stripe,
+                displayOn: DisplayOn.Backend),
         };
 
         foreach (var result in methods)
             Context.Set<PaymentMethod>().Add(result.Value);
 
         await Context.SaveChangesAsync(cancellationToken);
-
         return Result.Ok();
     }
 }
