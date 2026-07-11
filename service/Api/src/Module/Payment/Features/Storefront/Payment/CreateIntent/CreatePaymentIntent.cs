@@ -37,7 +37,7 @@ namespace Module.Payment.Features.Storefront.Payment.CreateIntent;
 
             // Check: Find a default payment method.
             var paymentMethod = await dbContext.Set<PaymentMethod>()
-                .FirstOrDefaultAsync(cancellationToken);
+                .FirstOrDefaultAsync(c => c.Active && !c.IsDeleted, cancellationToken);
 
             if (paymentMethod is null)
                 return PaymentResult.Failure.NotFound;
