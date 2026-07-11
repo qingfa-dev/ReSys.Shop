@@ -349,7 +349,7 @@ public class EmailRegisterTests
         var userId = Guid.NewGuid();
         var result = EmailRegister.CommandHandler.BuildVerificationPath(userId, "tokenABC");
 
-        result.Should().Be($"verify-email?userId={userId}&token={"tokenABC".ToBase64()}");
+        result.Should().Be($"verify-email?userId={userId}&token={"tokenABC".ToBase64Url()}");
     }
 
     [Fact(DisplayName = "BuildVerificationPath should URL encode special characters")]
@@ -358,6 +358,6 @@ public class EmailRegisterTests
         var userId = Guid.NewGuid();
         var result = EmailRegister.CommandHandler.BuildVerificationPath(userId, "token+with=special&chars");
 
-        result.Should().Be($"verify-email?userId={userId}&token={"token+with=special&chars".ToBase64()}");
+        result.Should().Be($"verify-email?userId={userId}&token={"token+with=special&chars".ToBase64Url()}");
     }
 }
