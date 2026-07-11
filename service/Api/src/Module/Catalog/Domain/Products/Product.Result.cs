@@ -87,6 +87,11 @@ public static class ProductResult
             code: "Product.DuplicateSlug",
             message: "A product with the same slug already exists.");
 
+        /// <summary>Product is already deleted.</summary>
+        public static Error  AlreadyDeleted => Error.Conflict(
+            code: "Product.AlreadyDeleted",
+            message: "Product is already deleted.");
+
         /// <summary>Product is already active.</summary>
         public static Error  AlreadyActive => Error.Conflict(
             code: "Product.AlreadyActive",
