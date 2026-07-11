@@ -116,7 +116,7 @@ public static class PaymentProcessing
     public static async Task<Result> CaptureAsync(this PaymentRecord payment, IPaymentGatewayActionProvider gateway, GatewayOptions options, decimal? amount = null, CancellationToken cancellationToken = default)
     {
         if (payment.State == PaymentRecordState.Completed)
-            return Result.Ok();
+            return PaymentResult.Failure.AlreadyCompleted;
 
         amount ??= payment.Amount;
 
