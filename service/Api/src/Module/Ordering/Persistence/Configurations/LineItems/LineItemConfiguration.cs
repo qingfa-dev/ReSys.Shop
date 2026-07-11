@@ -41,7 +41,7 @@ public class LineItemConfiguration : IEntityTypeConfiguration<LineItem>
         builder.HasOne<Variant>()
             .WithMany()
             .HasForeignKey(x => x.VariantId)
-            .OnDelete(DeleteBehavior.SetNull);
+            .OnDelete(DeleteBehavior.Cascade);
         #endregion
     }
 }
