@@ -1,8 +1,5 @@
 using Module.Payment.Domain.Gateways;
 using Module.Payment.Domain.PaymentCaptures;
-using Microsoft.EntityFrameworkCore;
-
-using PaymentCapture = Module.Payment.Domain.PaymentCaptures.PaymentCapture;
 
 namespace Module.Payment.Features.Shared.Commands;
 
