@@ -1,6 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Module.Payment.Domain.PaymentMethods;
-using Module.Payment.Persistence.Constants;
+using Module.Payment.Persistence;
 using Shared.Operational.Security.Encryption;
 using Shared.Operational.Persistence.Configurations.Dictionaries;
 

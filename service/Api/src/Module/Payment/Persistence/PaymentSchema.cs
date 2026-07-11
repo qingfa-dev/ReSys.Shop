@@ -1,7 +1,7 @@
 using Module.Payment.Domain.PaymentMethods;
 using Module.Payment.Domain.PaymentCaptures;
 
-namespace Module.Payment.Persistence.Constants;
+namespace Module.Payment.Persistence;
 
 public static class PaymentSchema
 {
