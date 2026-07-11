@@ -1,6 +1,6 @@
 using System.Runtime.CompilerServices;
 using Shared.Operational.Security.Encryption;
-using Shared.Persistence.Converters;
+using Shared.Operational.Persistence.Configurations.Dictionaries;
 
 namespace Module.UnitTests;
 

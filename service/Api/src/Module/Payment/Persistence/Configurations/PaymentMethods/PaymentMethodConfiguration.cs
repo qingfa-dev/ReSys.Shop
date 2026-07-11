@@ -4,7 +4,7 @@ using Module.Payment.Domain.Gateways;
 using Module.Payment.Domain.PaymentMethods;
 using Module.Payment.Persistence.Constants;
 using Shared.Operational.Persistence.Configurations.Dictionaries;
-using Shared.Persistence.Converters;
+using Shared.Operational.Persistence.Configurations.Dictionaries;
 
 namespace Module.Payment.Persistence.Configurations.PaymentMethods;
 

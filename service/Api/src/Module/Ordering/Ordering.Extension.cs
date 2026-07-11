@@ -3,6 +3,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 using Module.Ordering.Domain.Orders;
 using Module.Ordering.Domain.Orders.Contracts;
+using Module.Ordering.Infrastructure.Options;
 using Module.Ordering.Persistence.Seeders;
 
 using Shared.Operational.Persistence.Seeders;
@@ -20,6 +21,7 @@ public static class OrderingExtension
     // @CAT-10 Boundary: Module DI registration entry point
     public static WebApplicationBuilder AddOrderingModule(this WebApplicationBuilder builder)
     {
+        builder.AddOutboundWebhooks();
         builder.Services.AddScoped<IOrderEventPublisher, Infrastructure.Events.NullOrderEventPublisher>();
         builder.Services.AddScoped<Backgrounds.CartExpiryJob>();
         builder.Services.AddHostedService<Services.CartExpiryService>();

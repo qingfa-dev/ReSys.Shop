@@ -8,7 +8,7 @@ using Module.Payment.Infrastructure.Gateways.Bogus;
 using Module.Payment.Infrastructure.Gateways.Stripe;
 using Module.Payment.Persistence.Seeders;
 using Shared.Operational.Security.Encryption;
-using Shared.Persistence.Converters;
+using Shared.Operational.Persistence.Configurations.Dictionaries;
 
 // @CAT-10 Boundary: Domain -> Infrastructure — do not import persistence concerns above this line
 namespace Module.Payment;
