@@ -1,3 +1,5 @@
+using Microsoft.Extensions.Configuration;
+
 using Module.Catalog.Domain.Products.Variants;
 using Module.Inventory.Domain.Stock;
 using Module.Inventory.Domain.StockLocations.StockItems;
@@ -14,7 +16,8 @@ public static partial class AddToCart
     public sealed class CommandHandler(
         IApplicationDbContext dbContext,
         ILogger<CommandHandler> logger,
-        ICurrentUser currentUser)
+        ICurrentUser currentUser,
+        IConfiguration configuration)
         : ICommandHandler<Command, Response>
     {
         /// <summary>Adds a variant to the user's cart, creating a new cart or merging with an existing line item, with stock validation.</summary>
@@ -50,7 +53,8 @@ public static partial class AddToCart
 
             if (cart is null)
             {
-                var createResult = OrderExtensions.Create("USD", userId, Guid.Empty, sessionId: sessionId);
+                var currency = configuration["Ordering:DefaultCurrency"] ?? "USD";
+                var createResult = OrderExtensions.Create(currency, userId, Guid.Empty, sessionId: sessionId, shipAddressId: null);
                 if (createResult.IsFailure)
                     return createResult.Errors;
 

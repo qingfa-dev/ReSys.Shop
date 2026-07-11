@@ -19,7 +19,8 @@ public static class OrderExtensions
         Guid? userId,
         Guid storeId,
         Guid? id = null,
-        string? sessionId = null)
+        string? sessionId = null,
+        Guid? shipAddressId = null)
     {
         var order = new Order
         {
@@ -31,6 +32,7 @@ public static class OrderExtensions
             Currency = currency,
             UserId = userId,
             StoreId = storeId,
+            ShipAddressId = shipAddressId,
             ItemTotal = 0m,
             AdjustmentTotal = 0m,
             ShipmentTotal = 0m,
