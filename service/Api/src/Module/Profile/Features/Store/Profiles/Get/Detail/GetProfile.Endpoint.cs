@@ -26,7 +26,9 @@ public static partial class GetProfile
                     return Results.Unauthorized();
 
                 // Create: Construct a query from the current user's identity.
-                var query = new Query(Guid.Parse(currentUser.UserId));
+                if (!Guid.TryParse(currentUser.UserId, out var userId))
+                    return Results.Unauthorized();
+                var query = new Query(userId);
                 // Send: Dispatch the query to the mediator for processing.
                 var result = await sender.Send(query, ct);
                 // Map: Convert the result to an IResult for the HTTP response.

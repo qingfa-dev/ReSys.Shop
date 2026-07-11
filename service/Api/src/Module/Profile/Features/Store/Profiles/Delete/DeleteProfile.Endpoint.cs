@@ -14,7 +14,8 @@ public static partial class DeleteProfile
                 ICurrentUser currentUser,
                 CancellationToken ct) =>
             {
-                var userId = Guid.Parse(currentUser.UserId!);
+                if (!Guid.TryParse(currentUser.UserId, out var userId))
+                    return Results.Unauthorized();
                 var command = new Command(userId);
                 var result = await sender.Send(command, ct);
                 return result.ToResult();

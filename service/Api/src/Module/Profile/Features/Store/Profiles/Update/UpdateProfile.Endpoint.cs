@@ -23,7 +23,8 @@ public static partial class UpdateProfile
                 CancellationToken ct) =>
             {
                 // Create: Construct a command wrapping the request body.
-                var userId = Guid.Parse(currentUser.UserId!);
+                if (!Guid.TryParse(currentUser.UserId, out var userId))
+                    return Results.Unauthorized();
                 var command = new Command(userId, request);
                 // Send: Dispatch the command to the mediator for processing.
                 var result = await sender.Send(command, ct);
