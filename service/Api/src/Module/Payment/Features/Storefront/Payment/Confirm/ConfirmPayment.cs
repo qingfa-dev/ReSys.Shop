@@ -1,3 +1,4 @@
+using Module.Payment.Domain.Gateways;
 using Module.Payment.Domain.Payments;
 
 namespace Module.Payment.Features.Storefront.Payment.Confirm;
@@ -6,7 +7,7 @@ public static partial class ConfirmPayment
 {
     public sealed record Command(Guid PaymentId) : ICommand<Response>;
 
-    public sealed class CommandHandler(IApplicationDbContext dbContext, ICurrentUser currentUser)
+    public sealed class CommandHandler(IApplicationDbContext dbContext, ICurrentUser currentUser, IPaymentGatewayActionProvider gateway)
         : ICommandHandler<Command, Response>
     {
         public async Task<Result<Response>> Handle(Command command, CancellationToken cancellationToken)
@@ -31,6 +32,11 @@ public static partial class ConfirmPayment
 
                 return PaymentResult.Failure.InvalidStateTransition(payment.State, PaymentRecordState.Completed);
             }
+
+            // Verify: Check payment intent status at the gateway
+            var status = await gateway.GetPaymentIntentStatusAsync(payment.ResponseCode!, cancellationToken);
+            if (status != "succeeded")
+                return PaymentResult.Failure.NotSucceeded;
 
             // Transition: Complete the payment
             var completeResult = payment.Complete();

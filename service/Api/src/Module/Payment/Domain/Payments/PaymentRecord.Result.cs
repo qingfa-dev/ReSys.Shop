@@ -92,6 +92,11 @@ public static class PaymentResult
         public static Error CreditNotAllowed => Error.Conflict(
             code: "Payment.Credit.NotAllowed",
             message: "Payment is not in a completed state and cannot be credited.");
+
+        /// <summary>Payment has not succeeded at the gateway.</summary>
+        public static Error NotSucceeded => Error.Validation(
+            code: "Payment.Confirm.NotSucceeded",
+            message: "Payment has not succeeded at the gateway.");
         #endregion Business
 
         #region Gateway Response Errors (dynamic message)
