@@ -87,7 +87,9 @@ namespace Module.Payment.Features.Storefront.Payment.Webhooks;
             if (payment is null)
                 return Result.Ok();
 
-            payment.Fail();
+            var failResult = payment.Fail();
+            if (failResult.IsFailure)
+                return failResult.Errors;
             await dbContext.SaveChangesAsync(cancellationToken);
             return Result.Ok(PaymentResult.Success.Failed(payment.Number));
         }
@@ -107,7 +109,12 @@ namespace Module.Payment.Features.Storefront.Payment.Webhooks;
                 return Result.Ok();
 
             if (charge.AmountRefunded > 0)
-                payment.RefundedAmount = charge.AmountRefunded / 100m;
+            {
+                var newRefunded = charge.AmountRefunded / 100m;
+                var delta = newRefunded - payment.RefundedAmount;
+                if (delta > 0)
+                    payment.Refund(delta);
+            }
 
             payment.ModifiedAtUtc = DateTimeOffset.UtcNow;
             await dbContext.SaveChangesAsync(cancellationToken);
@@ -121,7 +128,7 @@ namespace Module.Payment.Features.Storefront.Payment.Webhooks;
             if (charge is null)
                 return Result.Ok();
 
-            // Log: Dispute created for informational purposes -- no payment state change
+            // TODO: Add dispute handling logic when business requirements are defined
             return Result.Ok();
         }
     }
