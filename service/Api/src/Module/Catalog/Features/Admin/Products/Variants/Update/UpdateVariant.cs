@@ -40,12 +40,18 @@ public static partial class UpdateVariant
             if (entity is null)
                 return VariantResult.Errors.NotFound(id);
 
+            // Check: SKU must be unique across all variants (excluding current variant)
+            var skuExists = await dbContext.Set<Variant>()
+                .AnyAsync(x => x.Sku == request.Sku && x.Id != command.Id, cancellationToken);
+
+            if (skuExists)
+                return VariantResult.Errors.SkuAlreadyExists(request.Sku);
+
             // Update: Apply request fields to existing variant domain entity via mapping
             var result = request.MapToDomain(entity);
             if (result.IsFailure)
                 return result.Errors;
 
-            // Persist: Save variant with updated fields, pricing, and physical specs
             await dbContext.SaveChangesAsync(cancellationToken);
 
             // Log: Record variant update event for observability

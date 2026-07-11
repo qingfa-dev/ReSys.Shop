@@ -86,6 +86,11 @@ public static class VariantResult
             code: "Variant.DuplicateSku",
             message: "A variant with the same SKU already exists.");
 
+        /// <summary>SKU already exists.</summary>
+        public static Error  SkuAlreadyExists(string sku) => Error.Conflict(
+            code: "Variant.SkuAlreadyExists",
+            message: $"A variant with SKU '{sku}' already exists.");
+
         /// <summary>Variant is already deleted.</summary>
         public static Error  AlreadyDeleted => Error.Conflict(
             code: "Variant.AlreadyDeleted",
