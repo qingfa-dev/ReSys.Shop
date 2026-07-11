@@ -2,7 +2,7 @@ using Module.Payment.Domain.Gateways;
 
 namespace Module.Payment.Features.Admin.PaymentMethods.Services.Gateways.Bogus;
 
-public sealed class BogusOptions
+public sealed class BogusSetting
 {
     public const string SectionName = GatewayConstants.Configuration.SectionName + ":" + GatewayConstants.Providers.Bogus;
 

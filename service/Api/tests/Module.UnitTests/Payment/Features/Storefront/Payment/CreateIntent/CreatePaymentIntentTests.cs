@@ -86,7 +86,7 @@ public class CreatePaymentIntentTests : IDisposable
     [Fact(DisplayName = "Handler: Should return failure when gateway declines authorization")]
     public async Task Handle_ShouldReturnFailure_WhenGatewayDeclines()
     {
-        _gatewayMock.Setup(x => x.AuthorizeAsync(It.IsAny<decimal>(), It.IsAny<object?>(), It.IsAny<GatewayOptions>(), It.IsAny<CancellationToken>()))
+        _processingServiceMock.Setup(x => x.ProcessAsync(It.IsAny<PaymentCapture>(), It.IsAny<IPaymentGatewayActionProvider>(), It.IsAny<GatewayOptions>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(Error.BadRequest("Gateway.Declined", "Card declined."));
 
         var userId = Guid.Parse(_currentUserMock.Object.UserId!);

@@ -9,7 +9,7 @@ namespace Module.Payment.Features.Admin.PaymentMethods.Services.Gateways.Webhook
 
 public sealed class StripeWebhookHandler : IWebhookHandler, IStripeWebhookService
 {
-    private readonly StripeOptions _options;
+    private readonly StripeSetting _options;
 
     public string Provider => GatewayConstants.Providers.Stripe;
 
@@ -21,7 +21,7 @@ public sealed class StripeWebhookHandler : IWebhookHandler, IStripeWebhookServic
         GatewayConstants.WebhookEvents.Stripe.ChargeDisputeCreated
     ];
 
-    public StripeWebhookHandler(IOptions<StripeOptions> options)
+    public StripeWebhookHandler(IOptions<StripeSetting> options)
     {
         _options = options.Value;
     }
