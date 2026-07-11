@@ -1,4 +1,5 @@
 using Module.Shipping.Domain.ShippingMethods;
+using Module.Shipping.Domain.ShippingRates;
 
 namespace Module.Shipping.Features.Admin.ShippingMethods.Delete;
 
@@ -16,6 +17,12 @@ public static partial class DeleteShippingMethod
 
             if (method is null)
                 return ShippingMethodResult.Errors.NotFound;
+
+            var hasRates = await dbContext.Set<ShippingRate>()
+                .AnyAsync(r => r.ShippingMethodId == command.Id, cancellationToken);
+
+            if (hasRates)
+                return ShippingMethodResult.Failure.HasAssociatedRates;
 
             method.IsDeleted = true;
             method.DeletedAtUtc = DateTimeOffset.UtcNow;
