@@ -1,85 +1,81 @@
 using Microsoft.Extensions.Options;
-
 using Module.Payment.Domain.Gateways;
-using Module.Payment.Domain.PaymentCaptures;
-
-using PaymentRecord = Module.Payment.Domain.PaymentCaptures.PaymentCapture;
 
 namespace Module.Payment.Infrastructure.Gateways.Bogus;
 
-/// <summary>
-/// Offline payment gateway for local development. No external network calls.
-/// Implements the contract of <see cref="Gateway"/> using deterministic test card numbers.
-/// </summary>
 public sealed class BogusGateway : Gateway
 {
     private const long CentsMultiplier = 100;
+    private readonly IOptions<BogusOptions> _options;
 
-    public static class TestCards
-    {
-        public const string Success = "4242424242424242";
-        public const string Declined = "4000000000000002";
-        public const string InsufficientFunds = "4000000000009995";
-    }
-
-    public BogusGateway(IOptions<BogusOptions> options) { }
-
+    public override string ProviderKey => GatewayConstants.Providers.Bogus;
     public override bool AutoCapture => true;
     public override bool SourceRequired => true;
     public override bool PaymentProfilesSupported => false;
     public override bool Supports(object? source) => source is string;
 
-    public override Task<Result<PaymentGatewayResponse>> PurchaseAsync(
-        decimal amountInCents, object? source, GatewayOptions options, CancellationToken cancellationToken = default)
+    public static class TestCards
     {
-        var card = source as string;
-        return Task.FromResult(ProcessCard(card, "captured"));
+        public const string Success = GatewayConstants.Bogus.TestCards.Success;
+        public const string Declined = GatewayConstants.Bogus.TestCards.Declined;
+        public const string InsufficientFunds = GatewayConstants.Bogus.TestCards.InsufficientFunds;
     }
+
+    public BogusGateway(IOptions<BogusOptions> options) { _options = options; }
+
+    public override Task<Result<PaymentGatewayResponse>> PurchaseAsync(
+        decimal amount, object? source, GatewayOptions options, CancellationToken ct = default)
+        => SimulateGatewayResponse(amount, source, options, "purchase");
 
     public override Task<Result<PaymentGatewayResponse>> AuthorizeAsync(
-        decimal amountInCents, object? source, GatewayOptions options, CancellationToken cancellationToken = default)
-    {
-        var card = source as string;
-        return Task.FromResult(ProcessCard(card, "authorized"));
-    }
+        decimal amount, object? source, GatewayOptions options, CancellationToken ct = default)
+        => SimulateGatewayResponse(amount, source, options, "authorize");
 
     public override Task<Result<PaymentGatewayResponse>> CaptureAsync(
-        decimal amount, string? responseCode, GatewayOptions options, CancellationToken cancellationToken = default)
+        decimal amount, string? responseCode, GatewayOptions options, CancellationToken ct = default)
     {
-        return Task.FromResult(Result<PaymentGatewayResponse>.Ok(
-            new PaymentGatewayResponse(true, "Captured.", authorization: responseCode ?? Guid.NewGuid().ToString())));
+        return Task.FromResult(Result<PaymentGatewayResponse>.Ok(new PaymentGatewayResponse(
+            true, GatewayConstants.ResponseMessages.Captured, GatewayConstants.Providers.Bogus,
+            authorization: responseCode)));
     }
 
     public override Task<Result<PaymentGatewayResponse>> VoidAsync(
-        string? responseCode, object? source, GatewayOptions options, CancellationToken cancellationToken = default)
+        string? responseCode, object? source, GatewayOptions options, CancellationToken ct = default)
     {
-        return Task.FromResult(Result<PaymentGatewayResponse>.Ok(
-            new PaymentGatewayResponse(true, "Voided.", authorization: responseCode)));
+        return Task.FromResult(Result<PaymentGatewayResponse>.Ok(new PaymentGatewayResponse(
+            true, GatewayConstants.ResponseMessages.Voided, GatewayConstants.Providers.Bogus,
+            authorization: responseCode)));
     }
 
-    public override Task<Result<PaymentGatewayResponse>> CancelAsync(
-        string? responseCode, object? payment, CancellationToken cancellationToken = default)
+    public override Task<Result<PaymentGatewayResponse>> RefundAsync(
+        decimal amount, string? responseCode, GatewayOptions options, CancellationToken ct = default)
     {
-        return Task.FromResult(Result<PaymentGatewayResponse>.Ok(
-            new PaymentGatewayResponse(true, "Cancelled.", authorization: responseCode)));
+        return Task.FromResult(Result<PaymentGatewayResponse>.Ok(new PaymentGatewayResponse(
+            true, GatewayConstants.ResponseMessages.Refunded, GatewayConstants.Providers.Bogus,
+            authorization: responseCode)));
     }
 
-    public override Task<Result<PaymentGatewayResponse>> CreditAsync(
-        decimal amount, string? responseCode, GatewayOptions options, CancellationToken cancellationToken = default)
+    public override Task<Result<PaymentGatewayResponse>> CreateSetupIntentAsync(
+        string? customerId, Dictionary<string, string>? metadata, CancellationToken ct = default)
     {
-        return Task.FromResult(Result<PaymentGatewayResponse>.Ok(
-            new PaymentGatewayResponse(true, "Refunded.", authorization: responseCode)));
+        return Task.FromResult(Result<PaymentGatewayResponse>.Ok(new PaymentGatewayResponse(
+            true, "Bogus setup intent created.", GatewayConstants.Providers.Bogus,
+            setupIntentClientSecret: $"{GatewayConstants.Bogus.SetupIntentSecretPrefix}{Guid.NewGuid():N}")));
     }
 
-    private static Result<PaymentGatewayResponse> ProcessCard(string? card, string verb)
+    private Task<Result<PaymentGatewayResponse>> SimulateGatewayResponse(
+        decimal amount, object? source, GatewayOptions options, string action)
     {
-        var auth = Guid.NewGuid().ToString();
-        return card switch
-        {
-            TestCards.Success => new PaymentGatewayResponse(true, $"Payment {verb}.", authorization: auth),
-            TestCards.Declined => BogusGatewayResult.Errors.CardDeclined,
-            TestCards.InsufficientFunds => BogusGatewayResult.Errors.InsufficientFunds,
-            _ => BogusGatewayResult.Errors.UnknownCard
-        };
+        var cardNumber = source as string;
+        if (cardNumber == TestCards.Declined)
+            return Task.FromResult<Result<PaymentGatewayResponse>>(BogusGatewayResult.Errors.CardDeclined);
+        if (cardNumber == TestCards.InsufficientFunds)
+            return Task.FromResult<Result<PaymentGatewayResponse>>(BogusGatewayResult.Errors.InsufficientFunds);
+        if (cardNumber != TestCards.Success && cardNumber is not null)
+            return Task.FromResult<Result<PaymentGatewayResponse>>(BogusGatewayResult.Errors.UnknownCard);
+
+        return Task.FromResult(Result<PaymentGatewayResponse>.Ok(new PaymentGatewayResponse(
+            true, $"{action} captured.", GatewayConstants.Providers.Bogus,
+            authorization: $"auth_{Guid.NewGuid():N}")));
     }
 }
