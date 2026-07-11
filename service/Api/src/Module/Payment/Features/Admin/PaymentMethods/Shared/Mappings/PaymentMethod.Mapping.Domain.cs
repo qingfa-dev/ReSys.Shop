@@ -28,7 +28,10 @@ public static partial class PaymentMethodMapping
             providerKey: request.ProviderKey,
             autoCapture: request.AutoCapture,
             displayOn: request.DisplayOn,
-            presentation: request.Presentation);
+            presentation: request.Presentation,
+            settings: request.Settings,
+            preferences: request.Preferences,
+            webhookEnabled: request.WebhookEnabled);
     }
 
     /// <summary>Maps a partial-update request (PATCH) to an existing PaymentMethod domain entity.</summary>
@@ -41,6 +44,9 @@ public static partial class PaymentMethodMapping
             providerKey: request.ProviderKey,
             autoCapture: request.AutoCapture,
             displayOn: request.DisplayOn,
-            presentation: request.Presentation);
+            presentation: request.Presentation,
+            settings: request.Settings,
+            preferences: request.Preferences,
+            webhookEnabled: request.WebhookEnabled);
     }
 }

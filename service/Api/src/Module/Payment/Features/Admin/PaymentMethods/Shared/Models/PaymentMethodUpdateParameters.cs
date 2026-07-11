@@ -33,4 +33,13 @@ public abstract class PaymentMethodUpdateParameters
 
     /// <summary>Gets or sets whether the payment method is active.</summary>
     public bool? Active { get; init; }
+
+    /// <summary>Gets or sets the encrypted provider settings.</summary>
+    public Dictionary<string, string>? Settings { get; init; }
+
+    /// <summary>Gets or sets the non-sensitive behavioral preferences.</summary>
+    public Dictionary<string, string>? Preferences { get; init; }
+
+    /// <summary>Gets or sets whether webhooks are enabled for this payment method.</summary>
+    public bool? WebhookEnabled { get; init; }
 }
