@@ -1,0 +1,785 @@
+kind: BuildingBlockModule
+id: inventory
+name: Module.Inventory
+version: "1.0.0"
+status: stable
+schema_version: "3.0"
+
+meta:
+  name: Inventory Module
+  description: >
+    Inventory management — stock locations, stock items, reservations,
+    transfers, and movements. Provides availability checks, cart-level
+    reservation with TTL, order-level reservation with auto-expiry,
+    stock adjustments, restock with backorder fulfillment, and
+    inter-location transfers.
+  category: "Inventory | Domain Logic"
+  stability: Stable
+  dependencies: []
+
+principles:
+  - id: P1
+    name: Stock Invariants Are Domain Rules
+    description: >
+      Stock quantities must never go negative (except backorderable items),
+      reservations always transition through a defined state machine, and
+      every quantity change produces an auditable StockMovement record.
+    rationale: >
+      Without enforced invariants, stock counts drift from reality,
+      oversells become possible, and the audit trail breaks down.
+  - id: P2
+    name: Reservation Expiry Is Automatic
+    description: >
+      Expired reservations are reclaimed by a background sweep service,
+      not by consumer code. This keeps reservation lifecycle consistent
+      across all callers.
+    rationale: >
+      Manual expiry leads to leaked stock held by abandoned carts or
+      timed-out orders, reducing available inventory.
+  - id: P3
+    name: Location-Scoped Stock
+    description: >
+      Every stock item is scoped to a specific stock location. Availability
+      checks can aggregate across locations, but mutations are always
+      location-scoped.
+    rationale: >
+      Multi-location stock tracking prevents phantom availability where
+      stock appears available globally but is physically unreachable.
+
+features:
+  - id: F1
+    name: Stock Location Management
+    type: core
+    description: >
+      CRUD operations for physical and virtual stock locations including
+      default location designation and low-stock threshold configuration.
+  - id: F2
+    name: Stock Item Tracking
+    type: core
+    description: >
+      Per-variant, per-location stock quantity tracking with on-hand counts,
+      backorder flags, bulk adjustments, restock with backorder fulfillment,
+      and CSV import.
+  - id: F3
+    name: Stock Reservations
+    type: core
+    description: >
+      Order-level and cart-level stock reservations with configurable TTL,
+      automatic expiry via background sweep, and fulfillment/release lifecycle.
+  - id: F4
+    name: Stock Transfers
+    type: core
+    description: >
+      Inter-location inventory transfers with Draft-to-InTransit-to-Received
+      lifecycle, transfer items, and cancel support.
+  - id: F5
+    name: Stock Movements
+    type: utility
+    description: >
+      Immutable audit log of every quantity change with originator tracking,
+      previous-count snapshots, and action classification.
+  - id: F6
+    name: Storefront Availability
+    type: extension
+    description: >
+      Public availability checks for storefront consumers including
+      per-location and aggregate availability queries.
+
+abstractions:
+  - category: Domain Entities
+    order: 1
+    description: Core domain models representing inventory state and transitions.
+    items:
+      - id: A1
+        name: StockLocation
+        type: class
+        path: ./Domain/StockLocations/StockLocation.cs
+        description: >
+          Physical or virtual stock location where inventory is stored.
+          Supports default designation, low-stock thresholds, and soft deletion.
+        purpose: >
+          Anchors all stock items to a physical place; controls availability
+          aggregation and low-stock notifications.
+        contract: |
+          // Invariant: Active is true when IsDeleted is false
+          // Invariant: only one location has Default=true
+          // Contract: pre=name != null, post=Id != Guid.Empty
+      - id: A2
+        name: StockItem
+        type: class
+        path: ./Domain/StockLocations/StockItems/StockItem.cs
+        description: >
+          Tracks inventory quantity for a specific product variant at a
+          stock location. Supports on-hand counts and backorder flags.
+        purpose: >
+          Core unit of inventory quantity; every stock mutation operates
+          on a StockItem scoped to a location and variant.
+        contract: |
+          // Invariant: CountOnHand >= 0 (unless backorderable)
+          // Contract: pre=stockLocationId!=Guid.Empty && variantId!=Guid.Empty
+          // post=Id!=Guid.Empty
+      - id: A3
+        name: StockMovement
+        type: class
+        path: ./Domain/StockLocations/StockItems/StockMovements/StockMovement.cs
+        description: >
+          Immutable audit record of a quantity change for a stock item.
+          Captures the delta, previous on-hand, originator, and action type.
+        purpose: >
+          Provides full traceability for every stock quantity change;
+          enables audit queries and discrepancy investigations.
+        contract: |
+          // Invariant: Quantity != 0
+          // Invariant: OriginatorType is one of: Order, Transfer, Adjustment
+          // Contract: pre=stockItemId!=Guid.Empty, post=CreatedAtUtc is set
+      - id: A4
+        name: StockReservation
+        type: class
+        path: ./Domain/StockReservations/StockReservation.cs
+        description: >
+          Temporary reservation of stock quantity for an order or cart.
+          Tracks state through Reserved, Fulfilled, Released, and Expired.
+        purpose: >
+          Prevents overselling by holding stock for in-progress orders
+          and active shopping carts with a configurable TTL.
+        contract: |
+          // Invariant: Quantity > 0
+          // Invariant: State transitions Reserved -> Fulfilled | Released | Expired
+          // Contract: pre=variantId!=Guid.Empty && quantity>0
+          // post=ExpiresAtUtc is set for Reserved
+      - id: A5
+        name: StockTransfer
+        type: class
+        path: ./Domain/StockTransfers/StockTransfer.cs
+        description: >
+          Represents an inventory transfer between two stock locations.
+          Manages lifecycle through Draft, InTransit, Received, and Canceled states.
+        purpose: >
+          Enables physical stock movement between warehouses or stores
+          with full state tracking and item-level quantity management.
+        contract: |
+          // Invariant: SourceLocationId != DestinationLocationId
+          // Invariant: State transitions Draft -> InTransit -> Received | Canceled
+          // Contract: pre=source!=Guid.Empty && destination!=Guid.Empty
+          // post=Id!=Guid.Empty
+      - id: A6
+        name: TransferItem
+        type: class
+        path: ./Domain/StockTransfers/StockTransfer.cs
+        description: >
+          Single variant line item within a stock transfer, tracking
+          requested quantity and received quantity.
+        purpose: >
+          Enables item-level granularity within a transfer, allowing
+          partial receives and per-variant quantity tracking.
+      - id: A7
+        name: AvailabilityValidator
+        type: function
+        path: ./Domain/Stock/AvailabilityValidator.cs
+        description: >
+          Stateless validator that checks whether a requested quantity
+          can be fulfilled across active stock items and locations.
+        purpose: >
+          Centralizes availability logic so all callers — admin, storefront,
+          and reservation services — share the same validation rules.
+        methods:
+          - name: "IsAvailable(stockItems, quantity) → bool"
+            description: Checks whether total on-hand plus backorderable covers the request.
+          - name: "TotalAvailable(stockItems) → int"
+            description: Sums on-hand quantity across all active-location stock items.
+      - id: A8
+        name: ReservationState
+        type: enum
+        path: ./Domain/StockReservations/StockReservation.cs
+        description: >
+          Lifecycle states for a stock reservation: Reserved, Fulfilled,
+          Released, Expired.
+        purpose: >
+          Governs valid state transitions and prevents illegal reservation
+          lifecycle operations.
+
+  - category: Service Contracts
+    order: 2
+    description: Service abstractions consumed by feature handlers and other modules.
+    items:
+      - id: B1
+        name: IStockQuantityService
+        type: interface
+        path: ./Services/Abstractions/IStockQuantityService.cs
+        description: >
+          Decrement and increment stock quantities for a variant at a
+          specific location, recording StockMovement audit entries.
+        purpose: >
+          Provides atomic stock mutations with built-in audit trail;
+          used by order processing and manual adjustments.
+        methods:
+          - name: "DecrementStockAsync(variantId, quantity, stockLocationId, orderId) → Result"
+            description: Reduces stock and creates a negative-quantity StockMovement.
+          - name: "IncrementStockAsync(variantId, quantity, stockLocationId, orderId) → Result"
+            description: Increases stock and creates a positive-quantity StockMovement.
+      - id: B2
+        name: IStockAvailabilityService
+        type: interface
+        path: ./Services/Abstractions/IStockAvailabilityService.cs
+        description: >
+          Checks whether a requested quantity is available for a variant
+          at a specific location or across all locations.
+        purpose: >
+          Guards stock mutations by verifying availability before committing;
+          used by storefront and reservation flows.
+        methods:
+          - name: "IsAvailableAsync(variantId, quantity, stockLocationId) → bool"
+            description: Checks availability at a single stock location.
+          - name: "IsAvailableAnyLocationAsync(variantId, quantity) → bool"
+            description: Checks availability across all active stock locations.
+      - id: B3
+        name: IStockReservationService
+        type: interface
+        path: ./Services/Abstractions/IStockReservationService.cs
+        description: >
+          Order-level reservation lifecycle: reserve, release, expire,
+          and fulfill reservations with stock synchronization.
+        purpose: >
+          Manages the full reservation lifecycle for order processing,
+          including automatic expiry and stock restoration.
+        methods:
+          - name: "ReserveAsync(variantId, quantity, stockLocationId, orderId) → Result<StockReservation>"
+            description: Creates a time-limited reservation for an order.
+          - name: "ReleaseReservationsAsync(orderId) → void"
+            description: Releases all reservations for an order and restores stock.
+          - name: "FulfillReservationAsync(reservationId) → Result"
+            description: Marks a reservation as fulfilled after order completion.
+          - name: "ExpireReservationsAndRestoreStockAsync() → int"
+            description: Sweeps expired reservations and returns stock to available.
+      - id: B4
+        name: ICartReservationService
+        type: interface
+        path: ./Services/Abstractions/ICartReservationService.cs
+        description: >
+          Cart-level reservation with short TTL for active shopping sessions.
+          Supports reserve, release, and status queries by cart token.
+        purpose: >
+          Prevents overselling during checkout by holding stock while
+          customers actively shop; shorter TTL than order reservations.
+        methods:
+          - name: "ReserveForCartAsync(variantId, quantity, stockLocationId, cartToken) → Result<StockReservation>"
+            description: Creates a cart-scoped reservation with configurable TTL.
+          - name: "ReleaseCartReservationsAsync(cartToken) → void"
+            description: Releases all reservations for a cart token.
+          - name: "GetReservationsForCartAsync(cartToken) → List<(StockReservation, int)>"
+            description: Returns active reservations with remaining seconds for a cart.
+      - id: B5
+        name: IStockRestockService
+        type: interface
+        path: ./Services/Abstractions/IStockRestockService.cs
+        description: >
+          Restocks a stock item and automatically fulfills pending backorders
+          if any exist.
+        purpose: >
+          Single entry point for receiving new inventory that handles both
+          quantity increase and backorder fulfillment in one transaction.
+        methods:
+          - name: "RestockAsync(stockItemId, quantity, reference, reason) → Result<RestockResult>"
+            description: Adds stock and fulfills any pending backorders atomically.
+      - id: B6
+        name: IStockSummaryService
+        type: interface
+        path: ./Services/Abstractions/IStockSummaryService.cs
+        description: >
+          Returns consolidated per-variant stock summary across all
+          stock locations for admin dashboards and reporting.
+        purpose: >
+          Aggregates inventory data from multiple locations into a single
+          view for operational visibility.
+
+  - category: Service Implementations
+    order: 3
+    description: Concrete service implementations including the background expiry worker.
+    items:
+      - id: C1
+        name: StockQuantityService
+        type: class
+        path: ./Services/StockQuantityService.cs
+        description: >
+          Implements IStockQuantityService with transactional stock
+          decrement/increment and StockMovement recording.
+        purpose: >
+          Executes atomic stock mutations within a DB transaction,
+          ensuring quantity and movement records stay consistent.
+      - id: C2
+        name: StockAvailabilityService
+        type: class
+        path: ./Services/StockAvailabilityService.cs
+        description: >
+          Implements IStockAvailabilityService by querying stock items
+          and delegating to AvailabilityValidator.
+        purpose: >
+          Provides location-scoped and aggregate availability checks
+          backed by the shared domain validation logic.
+      - id: C3
+        name: StockReservationService
+        type: class
+        path: ./Services/StockReservationService.cs
+        description: >
+          Implements IStockReservationService with order-level reserve,
+          release, expire, and fulfill operations.
+        purpose: >
+          Manages the full order-level reservation lifecycle with
+          stock decrement on reserve and restoration on release/expire.
+      - id: C4
+        name: CartReservationService
+        type: class
+        path: ./Services/CartReservationService.cs
+        description: >
+          Implements ICartReservationService with cart-token-scoped
+          short-lived reservations and countdown tracking.
+        purpose: >
+          Holds stock during active shopping sessions without
+          impacting order-level reservation semantics.
+      - id: C5
+        name: StockRestockService
+        type: class
+        path: ./Services/StockRestockService.cs
+        description: >
+          Implements IStockRestockService, adding stock and fulfilling
+          pending backorders in a single transaction.
+        purpose: >
+          Simplifies receiving inventory by combining quantity increase
+          and backorder resolution into one operation.
+      - id: C6
+        name: StockSummaryService
+        type: class
+        path: ./Services/StockSummaryService.cs
+        description: >
+          Implements IStockSummaryService, querying and aggregating
+          stock data across all locations per variant.
+        purpose: >
+          Powers admin dashboards and reporting views with consolidated
+          per-variant inventory totals.
+      - id: C7
+        name: ReservationExpiryService
+        type: class
+        path: ./Services/ReservationExpiryService.cs
+        description: >
+          Background hosted service that periodically sweeps expired
+          reservations every 60 seconds and restores stock.
+        purpose: >
+          Automatically reclaims stock from abandoned carts and
+          timed-out order reservations without manual intervention.
+        notes: >
+          Registered as IHostedService via AddHostedService. Creates
+          a new DI scope per sweep cycle for clean DbContext usage.
+
+  - category: Feature Endpoints
+    order: 4
+    description: >
+      Vertical slice feature handlers following the CQRS pattern with
+      MediatR, FluentValidation, Carter, and Mapster.
+    items:
+      - id: D1
+        name: CreateStockLocation
+        type: handler
+        path: ./Features/Admin/StockLocations/Create/CreateStockLocation.cs
+        description: >
+          Creates a new stock location with full validation including
+          name, code, address, postal code, and phone constraints.
+        purpose: >
+          Entry point for adding new warehouse or store locations to
+          the inventory system.
+      - id: D2
+        name: GetPagedStockLocations
+        type: handler
+        path: ./Features/Admin/StockLocations/GetPaged/GetPagedStockLocations.cs
+        description: >
+          Returns a paginated list of stock locations with filtering
+          and sorting support.
+        purpose: >
+          Powers the admin stock locations list view with server-side
+          pagination for large location datasets.
+      - id: D3
+        name: UpdateStockLocation
+        type: handler
+        path: ./Features/Admin/StockLocations/Update/UpdateStockLocation.cs
+        description: >
+          Updates an existing stock location properties including
+          name, address, thresholds, and flags.
+        purpose: >
+          Allows administrators to modify location details and
+          operational parameters.
+      - id: D4
+        name: DeleteStockLocation
+        type: handler
+        path: ./Features/Admin/StockLocations/Delete/DeleteStockLocation.cs
+        description: >
+          Soft-deletes a stock location, removing it from active
+          availability calculations.
+        purpose: >
+          Decommissions a location without destroying historical
+          stock movement and transfer records.
+      - id: D5
+        name: SetDefaultStockLocation
+        type: handler
+        path: ./Features/Admin/StockLocations/SetDefault/SetDefaultStockLocation.cs
+        description: >
+          Designates a stock location as the default, ensuring only
+          one location holds this flag at a time.
+        purpose: >
+          Controls which location is used as the fallback for
+          stock operations when no location is specified.
+      - id: D6
+        name: GetStockLocationById
+        type: handler
+        path: ./Features/Admin/StockLocations/GetById/GetStockLocationById.cs
+        description: >
+          Returns detailed stock location data by identifier.
+        purpose: >
+          Powers the admin location detail view.
+      - id: D7
+        name: CreateStockTransfer
+        type: handler
+        path: ./Features/Admin/StockTransfers/Create/CreateStockTransfer.cs
+        description: >
+          Creates a new stock transfer between two locations in
+          Draft state with transfer items.
+        purpose: >
+          Initiates the inter-location stock movement workflow.
+      - id: D8
+        name: TransferStockTransfer
+        type: handler
+        path: ./Features/Admin/StockTransfers/Transfer/TransferStockTransfer.cs
+        description: >
+          Executes a stock transfer, transitioning from Draft to
+          InTransit state and decrementing source stock.
+        purpose: >
+          Commits the transfer and physically deducts stock from
+          the source location.
+      - id: D9
+        name: ReceiveStockTransfer
+        type: handler
+        path: ./Features/Admin/StockTransfers/Receive/ReceiveStockTransfer.cs
+        description: >
+          Receives items at the destination, transitioning from
+          InTransit to Received and incrementing destination stock.
+        purpose: >
+          Completes the transfer workflow by adding stock to the
+          destination location.
+      - id: D10
+        name: GetStockTransferPagedOrAll
+        type: handler
+        path: ./Features/Admin/StockTransfers/Get/Paged/GetStockTransferPagedOrAll.cs
+        description: >
+          Returns paginated or complete stock transfer list with
+          filtering and sorting.
+        purpose: >
+          Powers the admin transfers list view.
+      - id: D11
+        name: GetStockAvailability
+        type: handler
+        path: ./Features/Storefront/StockAvailability/Check/GetStockAvailability.cs
+        description: >
+          Public storefront endpoint that checks stock availability
+          for a variant across all active locations.
+        purpose: >
+          Allows storefront consumers to see real-time availability
+          before adding items to cart.
+      - id: D12
+        name: ReserveCartStock
+        type: handler
+        path: ./Features/Storefront/CartReservations/Reserve/ReserveCartStock.cs
+        description: >
+          Reserves stock for a cart item with configurable TTL,
+          decrementing available quantity.
+        purpose: >
+          Prevents overselling while customers are actively shopping
+          by holding stock during the session.
+      - id: D13
+        name: GetCartReservations
+        type: handler
+        path: ./Features/Storefront/CartReservations/Status/GetCartReservations.cs
+        description: >
+          Returns active stock reservations with remaining TTL for
+          the current shopping cart.
+        purpose: >
+          Allows the storefront to display reservation countdowns
+          and validate cart stock status.
+
+technical:
+  mechanisms:
+    - id: M1
+      name: Reservation Expiry Sweep
+      scope: "Background worker"
+      description: >
+        ReservationExpiryService runs every 60 seconds as a hosted service.
+        Each cycle creates a DI scope, calls ExpireReservationsAndRestoreStockAsync,
+        and logs the count of expired reservations. Exceptions are caught and
+        logged without stopping the sweep loop.
+      pattern: |
+        // ReservationExpiryService.ExecuteAsync (simplified)
+        while (!stoppingToken.IsCancellationRequested)
+        {
+            await Task.Delay(SweepInterval, stoppingToken);
+            using var scope = _scopeFactory.CreateScope();
+            var svc = scope.ServiceProvider.GetRequiredService<IStockReservationService>();
+            var expiredCount = await svc.ExpireReservationsAndRestoreStockAsync(stoppingToken);
+        }
+    - id: M2
+      name: Stock Movement Audit Trail
+      scope: "Stock mutation"
+      description: >
+        Every stock quantity change (decrement, increment, restock,
+        adjustment) produces a StockMovement record capturing the delta,
+        previous on-hand count, originator reference, and action type.
+        Movements are immutable after creation.
+      steps:
+        - "Service receives stock mutation request with originator context"
+        - "StockItem.CountOnHand is updated atomically within a transaction"
+        - "StockMovement record is created with quantity delta and previous count"
+        - "Both changes commit together — no partial updates"
+    - id: M3
+      name: Dual Reservation System
+      scope: "Reservation lifecycle"
+      description: >
+        Two separate reservation paths serve different consumers.
+        Cart reservations (ICartReservationService) use short TTLs and
+        cart tokens for anonymous sessions. Order reservations
+        (IStockReservationService) use longer TTLs and order IDs for
+        authenticated checkout flows.
+      steps: >
+        "Storefront adds to cart -> CartReservationService.ReserveForCartAsync (15min TTL)
+        Customer checks out -> StockReservationService.ReserveAsync (30min TTL)
+        Order placed -> FulfillReservationAsync
+        Cart abandoned -> ReservationExpiryService reclaims stock"
+
+anti_patterns:
+  - id: AP1
+    name: Direct Stock Mutation
+    severity: critical
+    avoid: >
+      Never modify StockItem.CountOnHand directly without going through
+      IStockQuantityService or IStockRestockService.
+    better_approach: >
+      Always use the service layer which ensures StockMovement records
+      are created and transactions are properly managed.
+    impact: >
+      Missing audit trail, stock count drift, inability to investigate
+      discrepancies.
+  - id: AP2
+    name: Skipping Location Scope
+    severity: high
+    avoid: >
+      Never query or mutate stock items without specifying a stock
+      location context.
+    better_approach: >
+      Always scope stock operations to a StockLocationId to prevent
+      cross-location quantity confusion.
+    impact: >
+      Phantom availability where stock appears accessible but is
+      physically in a different warehouse.
+  - id: AP3
+    name: Manual Reservation Cleanup
+    severity: medium
+    avoid: >
+      Never implement ad-hoc reservation expiry in feature handlers
+      or controllers instead of using ReservationExpiryService.
+    better_approach: >
+      Rely on the background sweep service for consistent expiry
+      behavior across all reservation types.
+    impact: >
+      Inconsistent expiry timing, race conditions, stock held
+      indefinitely by abandoned sessions.
+  - id: AP4
+    name: Cross-Module Stock Access
+    severity: high
+    avoid: >
+      Never reference Inventory domain entities or services directly
+      from other modules (Catalog, Ordering, etc.).
+    better_approach: >
+      Other modules should communicate via MediatR ISender or through
+      the Inventory service abstractions registered in DI.
+    impact: >
+      Module coupling, broken vertical slice isolation, circular
+      dependency risks.
+
+usage:
+  scenarios:
+    - id: S1
+      title: Check Availability Before Cart Addition
+      context: >
+        Storefront needs to verify a variant is in stock before allowing
+        a customer to add it to their cart.
+      pattern: |
+        var availability = serviceProvider.GetRequiredService<IStockAvailabilityService>();
+        var isAvailable = await availability.IsAvailableAnyLocationAsync(
+            variantId: variant.Id,
+            quantity: requestedQuantity);
+        if (!isAvailable)
+            return Result.Failure("Insufficient stock");
+      benefits:
+        - Prevents customers from adding out-of-stock items
+        - Checks across all active locations automatically
+    - id: S2
+      title: Reserve Stock During Checkout
+      context: >
+        Customer proceeds to checkout and stock must be held while
+        payment is processed to prevent overselling.
+      pattern: |
+        var reservation = serviceProvider.GetRequiredService<IStockReservationService>();
+        var result = await reservation.ReserveAsync(
+            variantId: orderLine.VariantId,
+            quantity: orderLine.Quantity,
+            stockLocationId: selectedLocation.Id,
+            orderId: order.Id,
+            ttlMinutes: 30);
+        result.Match(
+            onSuccess: r => logger.LogInformation("Reserved {Qty} for order {OrderId}", r.Quantity, order.Id),
+            onFailure: e => logger.LogWarning("Reservation failed: {Errors}", e));
+      benefits:
+        - Stock held atomically during payment processing
+        - Automatic expiry if payment fails or times out
+    - id: S3
+      title: Transfer Stock Between Locations
+      context: >
+        Administrator needs to move inventory from a warehouse to a
+        retail store location.
+      pattern: |
+        // 1. Create transfer (Draft state)
+        var create = await mediator.Send(new CreateStockTransfer.Command(request));
+        // 2. Execute transfer (Draft -> InTransit, source stock decremented)
+        await mediator.Send(new TransferStockTransfer.Command { Id = transferId });
+        // 3. Receive at destination (InTransit -> Received, dest stock incremented)
+        await mediator.Send(new ReceiveStockTransfer.Command { Id = transferId });
+      benefits:
+        - Full audit trail of inter-location movements
+        - Stock decremented only after transfer is committed
+    - id: S4
+      title: Restock and Fulfill Backorders
+      context: >
+        New shipment arrives and stock items with pending backorders
+        should be automatically fulfilled.
+      pattern: |
+        var restock = serviceProvider.GetRequiredService<IStockRestockService>();
+        var result = await restock.RestockAsync(
+            stockItemId: item.Id,
+            quantity: shipment.Quantity,
+            reference: shipment.PONumber,
+            reason: "PO-2026-0042 delivery");
+        // Backorders are fulfilled automatically in the same transaction
+      benefits:
+        - Single operation for restock and backorder fulfillment
+        - Atomic transaction ensures consistency
+
+testing:
+  strategies:
+    - id: TS1
+      title: Domain Unit Tests
+      objective: >
+        Verify domain entity invariants, state transitions, and validation
+        rules without any I/O or database dependencies.
+      scope: unit
+      notes: >
+        Test StockLocation validation rules, StockReservation state
+        machine, StockTransfer lifecycle, and AvailabilityValidator logic.
+    - id: TS2
+      title: Service Integration Tests
+      objective: >
+        Verify service implementations against an in-memory database
+        ensuring transaction boundaries and StockMovement creation.
+      scope: integration
+      notes: >
+        Use EF Core InMemory provider. Verify that stock mutations
+        produce correct StockMovement records and maintain quantity
+        consistency.
+
+file_structure: |
+  Inventory/
+  ├── Domain/
+  │   ├── Stock/
+  │   │   └── AvailabilityValidator.cs          # Stateless stock availability logic
+  │   ├── StockLocations/
+  │   │   ├── StockLocation.cs                  # Location entity (partial class)
+  │   │   ├── StockLocation.Constant.cs         # Default values and constants
+  │   │   ├── StockLocation.Loggers.cs          # Source-generated log methods
+  │   │   ├── StockLocation.Method.Activation.cs # Factory methods
+  │   │   ├── StockLocation.Method.cs           # Core domain methods
+  │   │   ├── StockLocation.Method.Default.cs   # Default location management
+  │   │   ├── StockLocation.Method.Deletion.cs  # Soft deletion logic
+  │   │   ├── StockLocation.Method.Query.cs     # Query helper methods
+  │   │   ├── StockLocation.Result.cs           # Result type definitions
+  │   │   ├── StockLocation.StoreScoped.cs      # Store-scoped behavior
+  │   │   ├── StockLocation.Validation.cs       # Validation rules
+  │   │   └── StockItems/
+  │   │       ├── StockItem.cs                  # Stock item entity
+  │   │       ├── StockItem.Constant.cs         # Default values
+  │   │       ├── StockItem.Loggers.cs          # Source-generated log methods
+  │   │       ├── StockItem.Method.Adjustment.cs # Quantity adjustment methods
+  │   │       ├── StockItem.Method.cs           # Core domain methods
+  │   │       ├── StockItem.Method.Query.cs     # Query helpers
+  │   │       ├── StockItem.Result.cs           # Result type definitions
+  │   │       ├── StockItem.Validation.cs       # Validation rules
+  │   │       └── StockMovements/
+  │   │           ├── StockMovement.cs          # Movement entity
+  │   │           ├── StockMovement.Constant.cs # Constants
+  │   │           ├── StockMovement.Loggers.cs  # Source-generated log methods
+  │   │           ├── StockMovement.Method.cs   # Domain methods
+  │   │           ├── StockMovement.Result.cs   # Result types
+  │   │           └── StockMovement.Validation.cs # Validation rules
+  │   ├── StockReservations/
+  │   │   ├── StockReservation.cs               # Reservation entity + ReservationState enum
+  │   │   ├── StockReservation.Constant.cs      # Constants
+  │   │   ├── StockReservation.Loggers.cs       # Source-generated log methods
+  │   │   ├── StockReservation.Method.cs        # Domain methods
+  │   │   ├── StockReservation.Result.cs        # Result types
+  │   │   └── StockReservation.Validation.cs   # Validation rules
+  │   └── StockTransfers/
+  │       ├── StockTransfer.cs                  # Transfer + TransferItem + TransferState enum
+  │       ├── StockTransfer.Constant.cs         # Constants
+  │       ├── StockTransfer.Extensions.cs       # Extension methods
+  │       ├── StockTransfer.Loggers.cs          # Source-generated log methods
+  │       ├── StockTransfer.Result.cs           # Result types
+  │       └── StockTransfer.Validation.cs      # Validation rules
+  ├── Features/
+  │   ├── Admin/
+  │   │   ├── StockLocations/
+  │   │   │   ├── Create/                       # Create stock location handler
+  │   │   │   ├── Delete/                       # Delete stock location handler
+  │   │   │   ├── GetById/                      # Get by ID handler
+  │   │   │   ├── GetPaged/                     # Get paged handler
+  │   │   │   ├── SetDefault/                   # Set default handler
+  │   │   │   ├── Shared/                       # Models, mappings, validators
+  │   │   │   └── Update/                       # Update handler
+  │   │   ├── StockItems/                       # Stock item CRUD features
+  │   │   ├── StockMovements/                   # Stock movement query features
+  │   │   ├── StockReservations/                # Stock reservation query features
+  │   │   └── StockTransfers/
+  │   │       ├── Create/                       # Create transfer handler
+  │   │       ├── Get/Paged/                    # Get paged transfers handler
+  │   │       ├── Receive/                      # Receive transfer handler
+  │   │       ├── Shared/                       # Models, mappings, validators
+  │   │       └── Transfer/                     # Execute transfer handler
+  │   ├── Shared/
+  │   │   ├── InventoryFeature.Admin.cs         # Admin route constants and permissions
+  │   │   ├── InventoryFeature.Storefront.cs    # Storefront route constants
+  │   │   └── InventoryFeature.Tags.cs          # OpenAPI tag definitions
+  │   └── Storefront/
+  │       ├── CartReservations/
+  │       │   ├── Reserve/                      # Reserve cart stock handler
+  │       │   └── Status/                       # Get cart reservations handler
+  │       └── StockAvailability/
+  │           └── Check/                        # Check availability handler
+  ├── Persistence/
+  │   ├── Configurations/                       # EF Core entity configurations
+  │   ├── Constants/
+  │   │   └── InventorySchema.cs                # Schema and table name constants
+  │   └── Seeders/                              # Data seeders for initial inventory
+  ├── Services/
+  │   ├── Abstractions/                         # Service interfaces
+  │   ├── Models/                               # Shared service DTOs
+  │   ├── CartReservationService.cs             # Cart-level reservation implementation
+  │   ├── ReservationExpiryService.cs           # Background expiry sweep worker
+  │   ├── StockAvailabilityService.cs           # Availability check implementation
+  │   ├── StockQuantityService.cs               # Stock mutation implementation
+  │   ├── StockReservationService.cs            # Order reservation implementation
+  │   ├── StockRestockService.cs                # Restock implementation
+  │   └── StockSummaryService.cs                # Summary aggregation implementation
+  ├── Inventory.Extension.cs                    # DI registration entry point
+  └── README.yaml                               # This documentation

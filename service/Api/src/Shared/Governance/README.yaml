@@ -1,0 +1,454 @@
+kind: BuildingBlockModule
+id: shared-governance
+name: Governance
+version: "1.0.0"
+status: implemented
+schema_version: "3.0"
+
+meta:
+  description: >
+    API governance — OpenAPI/Scalar documentation, JSON serialization conventions,
+    and FluentValidation registration. Provides a single composition entry-point
+    (AddGovernance / UseGovernance) that wires OpenAPI spec generation, Scalar
+    interactive UI, schema naming for nested/generic types, and assembly-scanned
+    FluentValidation validator registration into the host application pipeline.
+  namespace: Shared.Governance
+  layer: Shared
+  domain: infrastructure
+
+principles:
+  - id: P-1
+    name: Single entry-point composition
+    description: >
+      All governance services are registered and activated through exactly two
+      extension methods — AddGovernance for DI and UseGovernance for pipeline.
+      No consumer should call sub-extensions (AddOpenApiDocumentation,
+      AddFluentValidation) directly.
+  - id: P-2
+    name: Convention over configuration
+    description: >
+      JSON serialization, schema naming, and case conversion follow established
+      .NET and REST conventions. Callers may override but sensible defaults
+      are applied without explicit configuration.
+  - id: P-3
+    name: Fail-safe validation registration
+    description: >
+      FluentValidation validators are discovered via assembly scanning from the
+      entry assembly, Shared assembly, and any additional assemblies provided.
+      Missing validators do not fail startup — they simply are not registered.
+  - id: P-4
+    name: Deterministic schema naming
+    description: >
+      OpenAPI schema reference IDs are generated deterministically from CLR types
+      using a recursive naming algorithm that handles generics, nested types,
+      arrays, nullable types, and anonymous types — eliminating ambiguous schemas.
+  - id: P-5
+    name: Stateless extension methods
+    description: >
+      All public APIs are static extension methods with no shared mutable state.
+      They compose additively and can be called in any order without side effects.
+
+features:
+  - id: F-1
+    name: OpenAPI documentation pipeline
+    description: >
+      Configures ASP.NET OpenAPI with custom document transformers (title,
+      version, description) and a Bearer JWT security scheme so Scalar shows
+      an Authorize button. Maps the /api/scalar interactive reference UI
+      and the OpenAPI JSON endpoint.
+  - id: F-2
+    name: Schema reference ID generation
+    description: >
+      Generates unique, deterministic schema reference IDs for CLR types that
+      need disambiguation — nested types (e.g. PasswordLogin.Request), generic
+      envelopes (Result<T>), arrays, nullable wrappers, and anonymous types.
+      Returns null for inlinable types (primitives, collections, dictionaries).
+  - id: F-3
+    name: FluentValidation assembly scanning
+    description: >
+      Registers FluentValidation validators from the entry assembly, Shared
+      assembly, and any additional assemblies provided at configuration time.
+      Supports module-level validator registration without explicit wiring.
+  - id: F-4
+    name: Base64 and Base64Url encoding utilities
+    description: >
+      Provides string extension methods for Base64 and URL-safe Base64 (Base64Url)
+      encoding and decoding, including safe Try-prefixed variants that return
+      bool instead of throwing on invalid input.
+  - id: F-5
+    name: Case conversion utilities
+    description: >
+      String extension methods for converting between naming conventions:
+      PascalCase, camelCase, snake_case, and kebab-case. Handles edge cases
+      such as ALL_CAPS segments, leading separators, and already-cased input.
+  - id: F-6
+    name: EnumMember attribute helpers
+    description: >
+      Reflection-based helpers for reading [EnumMember(Value="...")] attributes
+      on enum fields, enabling serialization of custom enum string values
+      without hard-coded switch statements.
+  - id: F-7
+    name: Tuple-to-dictionary conversion
+    description: >
+      Converts a (string Key, object? Value)[] tuple array to an
+      IReadOnlyDictionary<string, object?> for metadata construction.
+
+abstractions:
+  - id: A-1
+    name: GovernanceExtension
+    type: static class
+    path: ./Governance.Extension.cs
+    description: >
+      Top-level composition class providing AddGovernance and UseGovernance
+      extension methods on WebApplicationBuilder and WebApplication.
+    purpose: >
+      Entry-point for wiring all governance services into the host application.
+      AddGovernance registers OpenAPI + FluentValidation; UseGovernance
+      maps OpenAPI endpoints and Scalar UI.
+  - id: A-2
+    name: OpenApiExtensions
+    type: static class
+    path: ./OpenApi/OpenApi.Extension.cs
+    description: >
+      Extension methods for registering OpenAPI documentation services
+      (AddOpenApiDocumentation) and enabling them in the pipeline
+      (UseOpenApiDocumentation).
+    purpose: >
+      Encapsulates OpenAPI + Scalar configuration so that GovernanceExtension
+      can delegate to it. Handles service registration and endpoint mapping.
+  - id: A-3
+    name: OpenApiOptionsSetup
+    type: static class
+    path: ./OpenApi/Options/OpenApiOption.Setup.cs
+    description: >
+      Extension method ConfigureCustomOptions on OpenApiOptions that applies
+      custom schema reference ID generation, document transformers (title,
+      version, description), and Bearer JWT security scheme configuration.
+    purpose: >
+      Central place for all OpenAPI option customization — schema naming,
+      document metadata, and security requirements.
+  - id: A-4
+    name: OpenApiOptionsConstant
+    type: static class
+    path: ./OpenApi/Options/OpenApiOption.Contant.cs
+    description: >
+      Contains const string values for OpenAPI document metadata (Title,
+      Version, Description) and the Scalar UI endpoint path.
+    purpose: >
+      Single source of truth for OpenAPI/Scalar configuration constants.
+      Avoids magic strings across setup and pipeline code.
+  - id: A-5
+    name: OpenApiSchemaNaming
+    type: internal static class
+    path: ./OpenApi/Options/OpenApiSchemaNaming.cs
+    description: >
+      Recursive algorithm that generates deterministic schema reference IDs
+      from CLR types. Handles generics, nested types, arrays, nullable types,
+      anonymous types, and circular references.
+    purpose: >
+      Ensures every complex CLR type gets a unique, human-readable schema ID
+      in the generated OpenAPI spec. Prevents ambiguous schema names for
+      nested and generic types.
+  - id: A-6
+    name: ValidationExtensions
+    type: static class
+    path: ./Validation/Validation.Extension.cs
+    description: >
+      Extension method AddFluentValidation on WebApplicationBuilder that
+      scans entry, executing, and additional assemblies for FluentValidation
+      validators and registers them in DI.
+    purpose: >
+      Automates validator discovery and registration so that feature modules
+      only need to define validators — no explicit registration code required.
+  - id: A-7
+    name: Base64Converter
+    type: static class
+    path: ./Conventions/Base64.Conveter.cs
+    description: >
+      String extension methods for Base64 and Base64Url encoding/decoding:
+      ToBase64, FromBase64, TryFromBase64, ToBase64Url, FromBase64Url,
+      TryFromBase64Url.
+    purpose: >
+      Provides safe, standard-compliant Base64 encoding utilities for token
+      handling, URL-safe identifiers, and payload encoding.
+  - id: A-8
+    name: CaseConverter
+    type: static class
+    path: ./Conventions/Case.Converter.cs
+    description: >
+      String extension methods for case conversion: ToPascalCase, ToCamelCase,
+      ToSnakeCase, ToKebabCase. Handles ALL_CAPS segments, separators, and
+      edge cases gracefully.
+    purpose: >
+      Enables consistent naming convention conversion across API payloads,
+      database columns, and internal identifiers.
+  - id: A-9
+    name: EnumExtensions
+    type: static class
+    path: ./Conventions/Enum.Converter.cs
+    description: >
+      Generic helpers for reading [EnumMember] attribute values from enum
+      fields: GetValues<TEnum>, FromEnumMemberValue<TEnum>, ToEnumMemberValue.
+    purpose: >
+      Supports serialization of enum values using their [EnumMember] custom
+      string values rather than the field name, enabling JSON-friendly enum
+      representations.
+  - id: A-10
+    name: DictionaryExtensions
+    type: static class
+    path: ./Conventions/Dictionary.Converter.cs
+    description: >
+      Extension method ToDictionary on (string Key, object? Value)[] tuple
+      arrays, converting them to IReadOnlyDictionary<string, object?>.
+    purpose: >
+      Convenience helper for constructing metadata dictionaries from inline
+      tuple literals.
+
+technical:
+  dependencies:
+    - name: Microsoft.AspNetCore.OpenApi
+      purpose: OpenAPI spec generation infrastructure
+    - name: Scalar.AspNetCore
+      purpose: Interactive API reference UI
+    - name: FluentValidation
+      purpose: Request validation framework
+    - name: FluentValidation.DependencyInjectionExtensions
+      purpose: Assembly scanning for validator registration
+  extensions:
+    - name: AddGovernance
+      target: WebApplicationBuilder
+      file: ./Governance.Extension.cs
+    - name: UseGovernance
+      target: WebApplication
+      file: ./Governance.Extension.cs
+    - name: AddOpenApiDocumentation
+      target: WebApplicationBuilder
+      file: ./OpenApi/OpenApi.Extension.cs
+    - name: UseOpenApiDocumentation
+      target: WebApplication
+      file: ./OpenApi/OpenApi.Extension.cs
+    - name: ConfigureCustomOptions
+      target: OpenApiOptions
+      file: ./OpenApi/Options/OpenApiOption.Setup.cs
+    - name: AddFluentValidation
+      target: WebApplicationBuilder
+      file: ./Validation/Validation.Extension.cs
+    - name: ToBase64
+      target: string
+      file: ./Conventions/Base64.Conveter.cs
+    - name: FromBase64
+      target: string
+      file: ./Conventions/Base64.Conveter.cs
+    - name: TryFromBase64
+      target: string
+      file: ./Conventions/Base64.Conveter.cs
+    - name: ToBase64Url
+      target: string
+      file: ./Conventions/Base64.Conveter.cs
+    - name: FromBase64Url
+      target: string
+      file: ./Conventions/Base64.Conveter.cs
+    - name: TryFromBase64Url
+      target: string
+      file: ./Conventions/Base64.Conveter.cs
+    - name: ToPascalCase
+      target: string?
+      file: ./Conventions/Case.Converter.cs
+    - name: ToCamelCase
+      target: string?
+      file: ./Conventions/Case.Converter.cs
+    - name: ToSnakeCase
+      target: string?
+      file: ./Conventions/Case.Converter.cs
+    - name: ToKebabCase
+      target: string?
+      file: ./Conventions/Case.Converter.cs
+    - name: GetValues<TEnum>
+      target: static method
+      file: ./Conventions/Enum.Converter.cs
+    - name: FromEnumMemberValue<TEnum>
+      target: static method
+      file: ./Conventions/Enum.Converter.cs
+    - name: ToEnumMemberValue
+      target: Enum
+      file: ./Conventions/Enum.Converter.cs
+    - name: ToDictionary
+      target: (string, object?)[] tuple array
+      file: ./Conventions/Dictionary.Converter.cs
+
+anti_patterns:
+  - id: AP-1
+    name: Bypassing composition entry-point
+    description: >
+      Do NOT call AddOpenApiDocumentation, UseOpenApiDocumentation, or
+      AddFluentValidation directly. Always use AddGovernance and UseGovernance
+      which compose these sub-services. Direct calls risk double-registration
+      and inconsistent configuration.
+  - id: AP-2
+    name: Hard-coding OpenAPI metadata
+    description: >
+      Do NOT hard-code API title, version, description, or Scalar endpoint
+      path in application code. Always read from OpenApiOptionsConstant to
+      maintain a single source of truth.
+  - id: AP-3
+    name: Ignoring schema reference ID nullability
+    description: >
+      Do NOT assume CreateSchemaReferenceId always returns a value. The
+      implementation returns null for inlinable types (primitives, collections,
+      dictionaries). Code that consumes schema IDs must handle null.
+  - id: AP-4
+    name: Passing null to extension methods
+    description: >
+      Do NOT pass null WebApplicationBuilder, WebApplication, or string
+      arguments to extension methods. All methods throw
+      ArgumentNullException.ThrowIfNull for null inputs.
+  - id: AP-5
+    name: Assuming assembly scanning coverage
+    description: >
+      Do NOT assume all validators are automatically discovered. If a validator
+      lives in an assembly not passed to AddGovernance via additionalAssemblies,
+      it will not be registered. Always pass module assemblies when needed.
+
+scenarios:
+  - id: S-1
+    name: Wire governance into host application
+    description: >
+      Register all governance services and enable OpenAPI/Scalar in the host.
+    steps:
+      - In Program.cs, call builder.AddGovernance() to register OpenAPI and FluentValidation
+      - Call app.UseGovernance() to map OpenAPI and Scalar endpoints
+      - Access Scalar UI at /api/scalar and OpenAPI JSON at /openapi/v1.json
+  - id: S-2
+    name: Register module-level FluentValidation validators
+    description: >
+      Ensure validators from a business module assembly are discovered.
+    steps:
+      - Pass the module assembly to AddGovernance: builder.AddGovernance(typeof(CatalogModule).Assembly)
+      - Validators in the Catalog assembly are now registered in DI
+  - id: S-3
+    name: Use case conversion utilities
+    description: >
+      Convert strings between naming conventions.
+    steps:
+      - '"hello_world".ToPascalCase() returns "HelloWorld"'
+      - '"HelloWorld".ToSnakeCase() returns "hello_world"'
+      - '"HelloWorld".ToKebabCase() returns "hello-world"'
+      - '"hello_world".ToCamelCase() returns "helloWorld"'
+  - id: S-4
+    name: Encode and decode Base64Url tokens
+    description: >
+      Use URL-safe Base64 encoding for token values.
+    steps:
+      - '"hello world".ToBase64Url() returns "aGVsbG8gd29ybGQ"'
+      - '"aGVsbG8gd29ybGQ".FromBase64Url() returns "hello world"'
+      - '"invalid".TryFromBase64Url(out var decoded) returns false'
+
+testing:
+  - id: TS-1
+    name: OpenAPI document generation
+    description: >
+      Verify that AddGovernance produces a valid OpenAPI document with correct
+      title, version, and Bearer security scheme.
+  - id: TS-2
+    name: Scalar UI endpoint availability
+    description: >
+      Confirm that UseGovernance maps the /api/scalar endpoint and returns
+      the Scalar reference page.
+  - id: TS-3
+    name: FluentValidation assembly scanning
+    description: >
+      Verify that validators from entry, Shared, and additional assemblies
+      are all registered. Create a test validator in a separate assembly,
+      pass it to AddGovernance, and confirm it is resolvable from DI.
+  - id: TS-4
+    name: Schema naming determinism
+    description: >
+      Assert that OpenApiSchemaNaming.GetSchemaReferenceId returns consistent
+      values for the same type across calls, and handles generics, nested
+      types, arrays, nullable types, and circular references without stack
+      overflow.
+  - id: TS-5
+    name: Case converter correctness
+    description: >
+      Unit test all four case converters with edge cases: ALL_CAPS input,
+      single character, empty string, null, already-cased input, mixed
+      separators.
+  - id: TS-6
+    name: Base64 round-trip
+    description: >
+      Verify that ToBase64/FromBase64 and ToBase64Url/FromBase64Url are
+      inverse operations. Test Try-prefixed variants return false on invalid
+      input and true on valid input.
+  - id: TS-7
+    name: EnumMember attribute round-trip
+    description: >
+      Verify GetValues, ToEnumMemberValue, and FromEnumMemberValue work
+      correctly for enums with [EnumMember] attributes and without.
+
+mechanisms:
+  - id: M-1
+    name: Extension method composition
+    description: >
+      GovernanceExtension.AddGovernance delegates to OpenApiExtensions.AddOpenApiDocumentation
+      and ValidationExtensions.AddFluentValidation. UseGovernance delegates to
+      OpenApiExtensions.UseOpenApiDocumentation. This two-layer composition keeps
+      the public API surface minimal while allowing internal sub-services to be
+      developed independently.
+  - id: M-2
+    name: Assembly scanning for validators
+    description: >
+      ValidationExtensions.AddFluentValidation calls AddValidatorsFromAssembly
+      for the entry assembly, executing assembly (Shared), and each additional
+      assembly. FluentValidation's built-in scanner discovers all
+      IValidator<T> implementations and registers them in DI.
+  - id: M-3
+    name: Recursive schema reference ID generation
+    description: >
+      OpenApiSchemaNaming.GetSchemaReferenceId recursively resolves a CLR type
+      to a deterministic string. It unwraps Nullable<T>, handles generic type
+      definitions (Appending "Of{args}"), nested types (prefixing with declaring
+      type name), arrays (prefixing "ArrayOf"), and anonymous types (prefixing
+      "AnonymousTypeOf"). A path list prevents infinite recursion on circular
+      generic references.
+  - id: M-4
+    name: OpenAPI document transformer pipeline
+    description: >
+      OpenApiOptionsSetup.ConfigureCustomOptions adds a document transformer
+      that sets Info metadata (title, version, description) and registers a
+      Bearer JWT security scheme with global security requirements, enabling
+      the Scalar UI's Authorize button.
+  - id: M-5
+    name: Nullable-aware case conversion
+    description: >
+      CaseConverter methods accept nullable string? input, returning
+      string.Empty for null or whitespace. This prevents NullReferenceException
+      in common property-name transformation scenarios.
+  - id: M-6
+    name: EnumMember reflection cache-free lookup
+    description: >
+      EnumExtensions performs reflection-based lookup of [EnumMember] attributes
+      on each call without caching. For high-frequency scenarios, callers should
+      cache results. This keeps the helper simple and allocation-free for
+      typical low-frequency enum conversion needs.
+
+file_structure:
+  description: >
+    The Governance pillar follows a flat top-level with subdirectories for each
+    concern area: OpenApi for documentation infrastructure, Validation for
+    FluentValidation wiring, and Conventions for serialization/string utilities.
+  structure: |
+    Governance/
+    ├── Governance.Extension.cs              # Top-level AddGovernance / UseGovernance composition
+    ├── OpenApi/
+    │   ├── OpenApi.Extension.cs             # AddOpenApiDocumentation / UseOpenApiDocumentation
+    │   └── Options/
+    │       ├── OpenApiOption.Contant.cs     # Title, Version, Description, Endpoint constants
+    │       ├── OpenApiOption.Setup.cs       # ConfigureCustomOptions (schema IDs, transformers, security)
+    │       └── OpenApiSchemaNaming.cs       # Deterministic schema reference ID algorithm
+    ├── Validation/
+    │   └── Validation.Extension.cs          # AddFluentValidation assembly scanning
+    └── Conventions/
+        ├── Base64.Conveter.cs               # Base64 / Base64Url encode/decode extensions
+        ├── Case.Converter.cs                # PascalCase, camelCase, snake_case, kebab-case converters
+        ├── Dictionary.Converter.cs          # Tuple array to IReadOnlyDictionary helper
+        └── Enum.Converter.cs                # EnumMember attribute reflection helpers

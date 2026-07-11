@@ -1,0 +1,732 @@
+# ════════════════════════════════════════════════════
+# Security Pillar Documentation (YAML)
+# Purpose:  Full security stack — JWT auth, Identity, authorization, CORS
+# Version:  1.0.0
+# Status:   stable
+# Schema:   3.0
+# Updated:  2026-07-11
+# ════════════════════════════════════════════════════
+
+kind: BuildingBlockModule
+id: shared-security
+name: Shared.Security
+version: "1.0.0"
+status: stable
+schema_version: "3.0"
+
+meta:
+  name: Security Pillar
+  description: >
+    Full security stack — JWT authentication, ASP.NET Identity, permission-based
+    authorization with policy providers, rate limiting, CORS, anti-forgery tokens,
+    security headers, external login providers (Google, Facebook, Microsoft),
+    guest sessions, and user/role management. Composes 7 sub-pillars into a
+    single AddSecurity() / UseSecurity() registration.
+  category: "Security | Cross-Cutting Infrastructure"
+  stability: Stable
+  dependencies:
+    - name: Microsoft.AspNetCore.Authentication.JwtBearer
+      version: "10.0.0"
+      scope: runtime
+    - name: Microsoft.AspNetCore.Identity
+      version: "10.0.0"
+      scope: runtime
+    - name: FluentValidation.DependencyInjectionExtensions
+      version: "11.11.0"
+      scope: runtime
+
+principles:
+  - id: P1
+    name: Composite Root Pattern
+    description: >
+      SecurityExtension.AddSecurity() composes all sub-pillar registrations.
+      UseSecurity() activates middleware in the correct pipeline order.
+      No sub-pillar is registered or used independently from the root.
+    rationale: >
+      Ensures a single, auditable entry point for the full security stack —
+      prevents partial or misordered configuration.
+  - id: P2
+    name: Result Objects, No Exceptions
+    description: >
+      All domain operations return Result<T> or Result. Exceptions are reserved
+      for unrecoverable infrastructure failures only. Permission checks, token
+      operations, and external login validation all surface errors via Result.
+    rationale: >
+      Consistent error handling across the entire security stack; caller
+      decides how to handle failures.
+  - id: P3
+    name: Options-Driven Configuration
+    description: >
+      Every sub-pillar with configurable behavior uses IOptions<T> bound to
+      configuration sections, validated via FluentValidation at startup.
+      Hardcoded defaults live in companion Constant classes.
+    rationale: >
+      Fail-fast on invalid config; environment-specific settings never leak
+      into code.
+  - id: P4
+    name: Cache-First Permission Resolution
+    description: >
+      Permission checks resolve through IPermissionCache to IPermissionStore
+      (database) tiers. Changes take effect on the next request after explicit
+      cache invalidation, not at next login.
+    rationale: >
+      Eliminates DB round-trip per request while keeping permission changes
+      near-real-time.
+  - id: P5
+    name: Strategy-Based External Providers
+    description: >
+      External OAuth providers implement IExternalLoginProvider. New providers
+      are added by implementing the interface and registering in DI — no changes
+      to existing code.
+    rationale: >
+      Open/closed principle — new providers don't risk breaking existing login flows.
+  - id: P6
+    name: Admin Bypass in Authorization
+    description: >
+      The PermissionRequirementAuthorizationHandler grants automatic success for
+      users in the Admin role without checking individual permissions.
+    rationale: >
+      Prevents accidental lockout of super-admin accounts and simplifies
+      emergency access.
+  - id: P7
+    name: SHA256-Only Token Storage
+    description: >
+      Refresh tokens are stored as SHA256 hashes only. Raw tokens are never
+      persisted. IRefreshTokenStore operates exclusively on token hashes.
+    rationale: >
+      Limits blast radius of database breaches — hashed tokens cannot be replayed.
+
+features:
+  - id: F1
+    name: JWT Bearer Authentication
+    type: core
+    description: >
+      Configures JWT bearer as the default authentication scheme with symmetric
+      key validation, issuer/audience validation, and zero clock skew.
+  - id: F2
+    name: Access Token Generation
+    type: core
+    description: >
+      IAccessTokenService generates signed JWT access tokens from a
+      TokenRequestModel containing UserId, Email, and FullName.
+  - id: F3
+    name: Refresh Token Lifecycle
+    type: core
+    description: >
+      Full refresh token lifecycle — generate, retrieve by hash, rotate with
+      family linking, revoke single or all-for-user. Token theft detection via
+      reuse detection. Token blacklist for logout revocation.
+  - id: F4
+    name: Current User Context
+    type: core
+    description: >
+      ICurrentUser resolves the authenticated user's identity (UserId, UserName,
+      Email, IsAuthenticated) and request metadata (IpAddress, SessionId, Device)
+      from HttpContext.
+  - id: F5
+    name: External OAuth Login
+    type: extension
+    description: >
+      Pluggable external login providers (Google, Facebook, Microsoft) with token
+      validation, user info extraction, and provider registry for frontend discovery.
+  - id: F6
+    name: Guest Session Management
+    type: extension
+    description: >
+      GuestSessionMiddleware issues a session cookie (X-Session-Id) to
+      unauthenticated visitors. Session ID available via ICurrentUser.SessionId.
+  - id: F7
+    name: Permission-Based Authorization
+    type: core
+    description: >
+      Custom IAuthorizationPolicyProvider resolves [HasPermission("identifier")]
+      attributes to AuthorizationPolicy on demand. PermissionRequirementAuthorizationHandler
+      evaluates permissions with cache-first resolution and Admin role bypass.
+  - id: F8
+    name: Permission Registry and Metadata
+    type: core
+    description: >
+      PermissionContext aggregates all feature metadata (10 domains) into a
+      static registry. PermissionMetadata represents a structured permission
+      with Domain.Category.Resource.Action format.
+  - id: F9
+    name: Permission Caching
+    type: core
+    description: >
+      IPermissionCache provides tiered caching (user-level + role-level) with
+      tag-based invalidation. Sliding TTL defaults to 5 minutes.
+  - id: F10
+    name: Permission Store
+    type: core
+    description: >
+      IPermissionStore persists role/user permission claims via EF Core.
+      Backs the cache with database truth for role-to-permission and
+      user-direct-permission assignments.
+  - id: F11
+    name: ASP.NET Identity Integration
+    type: core
+    description: >
+      Configures ASP.NET Core Identity with OWASP-aligned password policies
+      (12-char minimum, uppercase, lowercase, digit, special char, 3 unique chars),
+      lockout (5 attempts / 15 min), and data protection.
+  - id: F12
+    name: Identity Domain Entities
+    type: core
+    description: >
+      Full Identity domain model — User (IdentityUser<Guid> + IAuditable),
+      Role (IdentityRole<Guid> + IAuditable), UserRole, UserClaim, RoleClaim,
+      UserLogin, UserToken, UserPasskey, RefreshToken.
+  - id: F13
+    name: Role and User Seeders
+    type: extension
+    description: >
+      RoleSeeder seeds Admin/Manager/User roles with system-role protection
+      and permission claims. UserSeeder seeds admin, manager, and user accounts.
+  - id: F14
+    name: CORS Configuration
+    type: core
+    description: >
+      CORS policy configured from CorsSetting (origins, credentials). Supports
+      wildcard origin for development and explicit origin allowlist for production.
+  - id: F15
+    name: Security Headers Middleware
+    type: core
+    description: >
+      SecurityHeadersMiddleware appends configurable security headers
+      (X-Content-Type-Options, X-Frame-Options, Content-Security-Policy,
+      Referrer-Policy, Permissions-Policy) to every response.
+  - id: F16
+    name: Anti-Forgery Token System
+    type: extension
+    description: >
+      Configures ASP.NET antiforgery with custom header name, cookie settings.
+      Exposes GET /api/v1/antiforgery/token endpoint for SPA consumption.
+  - id: F17
+    name: Rate Limiting
+    type: core
+    description: >
+      Fixed-window rate limiting with IP-partitioned global limiter and named
+      policies (auth, register, forgot-password, payment). Returns 429 on rejection.
+
+abstractions:
+  - category: Authentication
+    order: 1
+    description: JWT tokens, current user context, external OAuth, and guest sessions.
+    items:
+      - id: A1
+        name: IAccessTokenService
+        type: interface
+        path: ./Authentication/Tokens/Services/Access/AccessToken.Service.Interface.cs
+        description: >
+          Service for generating signed JWT access tokens from user identity information.
+        purpose: >
+          Creates access tokens consumed by JWT bearer authentication middleware.
+      - id: A2
+        name: IRefreshTokenService
+        type: interface
+        path: ./Authentication/Tokens/Services/Refresh/RefreshToken.Service.Interface.cs
+        description: >
+          Service for managing refresh token lifecycle — generate, retrieve, rotate,
+          revoke single, revoke all for user.
+        purpose: >
+          Orchestrates refresh token operations with theft detection and token family tracking.
+      - id: A3
+        name: IRefreshTokenStore
+        type: interface
+        path: ./Authentication/Tokens/Services/Refresh/Store/IRefreshTokenStore.cs
+        description: >
+          Store abstraction for refresh token persistence — CRUD operations against
+          the RefreshToken entity via EF Core.
+        purpose: >
+          Provides data access layer for refresh token storage; operates exclusively
+          on SHA256 hashes.
+      - id: A4
+        name: ITokenTheftDetector
+        type: interface
+        path: ./Authentication/Tokens/Services/Refresh/Protections/TokenTheftDetector.Interface.cs
+        description: >
+          Detects refresh token reuse (potential theft), marks tokens as used,
+          and revokes all user tokens when reuse is detected.
+        purpose: >
+          Prevents token theft by detecting reuse of already-rotated refresh tokens.
+      - id: A5
+        name: ITokenBlacklistService
+        type: interface
+        path: ./Authentication/Tokens/Services/Refresh/Protections/TokenBlacklist.Service.Interface.cs
+        description: >
+          In-memory blacklist for JWT jti claims to support logout and immediate
+          token revocation.
+        purpose: >
+          Invalidates access tokens before natural expiry on logout or security events.
+      - id: A6
+        name: ICurrentUser
+        type: interface
+        path: ./Authentication/Contexts/Services/CurrentUser.Interface.cs
+        description: >
+          Resolves the current authenticated user's identity (UserId, UserName,
+          Email, IsAuthenticated) and request metadata (IpAddress, SessionId, Device)
+          from HttpContext.
+        purpose: >
+          Provides a domain-friendly accessor for user context across all handlers.
+      - id: A7
+        name: IExternalLoginProvider
+        type: interface
+        path: ./Authentication/External/Providers/Interface.ExternalProvider.cs
+        description: >
+          Strategy pattern interface for pluggable external OAuth login providers.
+          Validates ID tokens and returns ExternalUserInfo.
+        purpose: >
+          Enables adding new OAuth providers without modifying existing authentication code.
+      - id: A8
+        name: ExternalProviderRegistry
+        type: class
+        path: ./Authentication/External/Services/ExternalProvider.Service.cs
+        description: >
+          Registry that aggregates all registered IExternalLoginProvider implementations
+          and exposes available provider configurations to the frontend.
+        purpose: >
+          Single source of truth for available external login providers.
+      - id: A9
+        name: GuestSessionMiddleware
+        type: middleware
+        path: ./Authentication/Guest/GuestSessionMiddleware.cs
+        description: >
+          Middleware that issues a session cookie to unauthenticated visitors,
+          enabling guest cart and session persistence.
+        purpose: >
+          Provides anonymous session identity for storefront guest operations.
+      - id: A10
+        name: TokensExtensions
+        type: extension
+        path: ./Authentication/Tokens/Tokens.Extensions.cs
+        description: >
+          Entry point for JWT bearer configuration — clears claim mappings,
+          registers token services, configures TokenValidationParameters from JwtSettings.
+        purpose: >
+          Composes the full JWT authentication subsystem into the DI container.
+
+  - category: Authorization
+    order: 2
+    description: Permission-based authorization with policy providers, caching, and store.
+    items:
+      - id: B1
+        name: PermissionPolicyProvider
+        type: class
+        path: ./Authorization/Policies/Permission.PolicyProvider.cs
+        description: >
+          Custom IAuthorizationPolicyProvider that resolves permission-string policy
+          names to AuthorizationPolicy instances with PermissionRequirement.
+        purpose: >
+          Enables [HasPermission("domain.category.resource.action")] attribute on endpoints.
+      - id: B2
+        name: PermissionRequirementAuthorizationHandler
+        type: handler
+        path: ./Authorization/Requirements/Permission.Requirement.Handler.cs
+        description: >
+          Consolidated authorization handler that extracts userId from claims,
+          checks Admin bypass, resolves effective permissions via IPermissionService,
+          and evaluates the requirement.
+        purpose: >
+          Central authorization decision point — evaluates every permission-based policy.
+      - id: B3
+        name: IPermissionService
+        type: interface
+        path: ./Authorization/Permissions/Services/Permission.Service.Interface.cs
+        description: >
+          Central orchestrator for permission operations — effective user permissions
+          (cache-first), role permissions, batch add/remove for roles and users,
+          cache invalidation.
+        purpose: >
+          Single service for all permission CRUD and resolution — wraps
+          IPermissionCache and IPermissionStore.
+      - id: B4
+        name: IPermissionCache
+        type: interface
+        path: ./Authorization/Permissions/Caches/Permission.Cache.Interface.cs
+        description: >
+          Tiered permission cache (user-level + role-level) with tag-based
+          invalidation, sliding TTL, and global purge capability.
+        purpose: >
+          Eliminates DB round-trips for permission checks while supporting
+          near-real-time invalidation.
+      - id: B5
+        name: IPermissionStore
+        type: interface
+        path: ./Authorization/Permissions/Store/Permission.Store.Result.cs
+        description: >
+          Database-backed persistence for role/user permission claims via EF Core.
+          Source of truth behind the cache tier.
+        purpose: >
+          Provides durable permission storage that backs the caching layer.
+      - id: B6
+        name: PermissionContext
+        type: extension
+        path: ./Authorization/Registry/PermissionContext.cs
+        description: >
+          Static registry aggregating all feature metadata (10 domains) with lookup
+          by identifier and category. Provides IsKnown() for policy provider resolution.
+        purpose: >
+          Single source of truth for all known permission identifiers in the system.
+      - id: B7
+        name: PermissionMetadata
+        type: record
+        path: ./Identity/Domain/Permissions/PermissionMetadata.cs
+        description: >
+          Structured permission representation with Domain, Category, Resource, Action
+          fields and computed Identifier (d.c.r.a format). FluentValidation-validated.
+        purpose: >
+          Type-safe permission definition that prevents malformed permission strings
+          at construction time.
+
+  - category: Identity Domain
+    order: 3
+    description: ASP.NET Identity entities, schema, extensions, and seeders.
+    items:
+      - id: C1
+        name: User
+        type: class
+        path: ./Identity/Domain/Users/User.cs
+        description: >
+          User account entity extending IdentityUser<Guid> + IAuditable. Contains
+          FirstName, LastName, DateOfBirth, IsActive, sign-in tracking.
+        purpose: >
+          Core user identity entity persisted to the identity schema tables.
+      - id: C2
+        name: Role
+        type: class
+        path: ./Identity/Domain/Roles/Role.cs
+        description: >
+          Role entity extending IdentityRole<Guid> + IAuditable. Contains
+          Description, IsSystem flag (system roles cannot be modified/deleted).
+        purpose: >
+          Defines authorization roles with system-protection for seeded defaults.
+      - id: C3
+        name: RefreshToken
+        type: class
+        path: ./Identity/Domain/Tokens/RefreshToken.cs
+        description: >
+          Refresh token entity with SHA256 hash storage, TokenFamilyId for rotation
+          chains, revocation tracking, device/IP metadata.
+        purpose: >
+          Persists refresh token state with full audit trail for rotation and revocation.
+      - id: C4
+        name: IdentitySchema
+        type: extension
+        path: ./Identity/Domain/Shared/IdentitySchema.cs
+        description: >
+          Defines the Identity schema name and all table names in snake_case.
+        purpose: >
+          Centralizes table naming for EF Core identity configuration.
+      - id: C5
+        name: IdentityExtensions
+        type: extension
+        path: ./Identity/Identity.Extension.cs
+        description: >
+          Configures ASP.NET Core Identity with OWASP-aligned password/lockout policies,
+          data protection, EF Core stores, roles, sign-in manager.
+        purpose: >
+          Composes the full Identity subsystem into the DI container.
+      - id: C6
+        name: RoleSeeder
+        type: class
+        path: ./Identity/Seeders/Role.Seeder.cs
+        description: >
+          Idempotent seeder that creates Admin/Manager/User system roles with
+          RoleClaims (permission metadata).
+        purpose: >
+          Ensures default authorization roles exist in every environment.
+      - id: C7
+        name: UserSeeder
+        type: class
+        path: ./Identity/Seeders/User.Seeder.cs
+        description: >
+          Idempotent seeder that creates admin, manager, and user test accounts
+          with hashed passwords and role assignments.
+        purpose: >
+          Provides initial user accounts for development and testing.
+
+  - category: Security Infrastructure
+    order: 4
+    description: CORS, headers, anti-forgery, rate limiting, and root composition.
+    items:
+      - id: D1
+        name: AntiForgeryEndpoints
+        type: class
+        path: ./AntiForgery/Endpoints/AntiForgeryEndpoints.cs
+        description: >
+          Carter module exposing GET /api/v1/antiforgery/token endpoint for SPA consumption.
+        purpose: >
+          Provides a clean API surface for frontend applications to obtain antiforgery tokens.
+      - id: D2
+        name: CorsSetting
+        type: class
+        path: ./Cors/Options/CorsSetting.cs
+        description: >
+          CORS configuration — Origins array (supports "*" wildcard), AllowCredentials flag.
+        purpose: >
+          Makes CORS policy environment-configurable.
+      - id: D3
+        name: SecurityHeadersMiddleware
+        type: middleware
+        path: ./Headers/SecurityHeadersMiddleware.cs
+        description: >
+          Middleware that appends security headers to every HTTP response.
+        purpose: >
+          Enforces security headers across all responses without endpoint-level configuration.
+      - id: D4
+        name: RateLimitExtensions
+        type: extension
+        path: ./RateLimiting/RateLimit.Extensions.cs
+        description: >
+          Registers global fixed-window limiter (IP-partitioned) and named policies:
+          auth, register, forgot-password, payment.
+        purpose: >
+          Composes rate limiting into the pipeline with environment-appropriate policies.
+      - id: D5
+        name: SecurityExtension
+        type: extension
+        path: ./Security.Extension.cs
+        description: >
+          Root composition entry point — AddSecurity() composes all 7 sub-pillars,
+          UseSecurity() activates middleware in correct order.
+        purpose: >
+          Single entry point for the full security stack in the application builder.
+
+technical:
+  mechanisms:
+    - id: M1
+      name: Pipeline Middleware Order
+      scope: Application pipeline
+      description: >
+        The UseSecurity() method enforces middleware order:
+        SecurityHeaders (outermost) -> CORS -> Authentication -> Authorization -> RateLimiter.
+    - id: M2
+      name: Permission Identifier Format
+      scope: Authorization
+      description: >
+        Permissions follow the Domain.Category.Resource.Action convention
+        (e.g., catalog.catalog.products.view, ordering.ordering.orders.fulfill).
+        The PermissionContext static registry aggregates metadata from 10 feature classes.
+    - id: M3
+      name: Refresh Token Security
+      scope: Authentication/Tokens
+      description: >
+        Raw tokens are never stored — only SHA256 hashes. Token rotation links
+        tokens via ReplacedByTokenId forming a chain. TokenFamilyId groups all
+        rotated tokens from a single login. TokenTheftDetector revokes entire
+        family on reuse detection.
+    - id: M4
+      name: Default Role Permission Matrix
+      scope: Authorization/Identity
+      steps:
+        - "Admin — all permissions (PermissionContext.All)"
+        - "Manager — Catalog (read/update), Identity (view/read/assign/revoke/manage), Location, Profile, Ordering (view/read/update/fulfill/ship/refund/cancel), Inventory (view/read/update/adjust)"
+        - "User — Catalog (view/read), Profile, Ordering (view/read/cancel)"
+
+anti_patterns:
+  - id: AP1
+    name: Direct Permission Cache Access
+    severity: high
+    avoid: >
+      Never bypass IPermissionService to access IPermissionCache directly.
+      The service orchestrates multi-tier resolution and cache invalidation.
+    better_approach: >
+      Always use IPermissionService.GetEffectiveUserPermissionsAsync() for
+      permission checks.
+  - id: AP2
+    name: Raw Token Storage
+    severity: critical
+    avoid: >
+      Never store raw refresh tokens. Always use SHA256 hashes via IRefreshTokenStore.
+    better_approach: >
+      Hash tokens before persistence; IRefreshTokenStore operates on hashes exclusively.
+  - id: AP3
+    name: Bypassing FluentValidation
+    severity: high
+    avoid: >
+      Never construct PermissionMetadata, JwtSettings, CorsSetting, or any options
+      class without going through the validated binding pipeline.
+    better_approach: >
+      Use IOptions<T> with .ValidateFluentValidation() and .ValidateOnStart()
+      for all configuration.
+  - id: AP4
+    name: Exception-Based Error Handling
+    severity: high
+    avoid: >
+      Never throw exceptions for expected security failures (invalid credentials,
+      expired tokens, missing permissions). Use Result<T>.
+    better_approach: >
+      Return Result.Fail() or Result.Unauthorized() for all expected failure paths.
+  - id: AP5
+    name: Modifying System Roles
+    severity: critical
+    avoid: >
+      Never modify or delete roles with IsSystem=true (Admin, Manager, User).
+      These are seeded by RoleSeeder and referenced in authorization logic.
+    better_approach: >
+      Create custom roles for additional permission sets; extend via RoleClaims.
+  - id: AP6
+    name: Hardcoding Secrets
+    severity: critical
+    avoid: >
+      Never hardcode JWT secrets, API keys, or OAuth client secrets in code.
+      Use configuration and environment variables.
+    better_approach: >
+      Store secrets in user-secrets, environment variables, or a vault;
+      bind via IOptions<T>.
+
+usage:
+  scenarios:
+    - id: S1
+      title: Service Registration
+      context: Configuring the full security stack at application startup.
+      pattern: |
+        builder.AddSecurity();
+      benefits:
+        - Single call composes all 7 sub-pillars
+        - Fail-fast validation of all security settings
+    - id: S2
+      title: Endpoint Authorization
+      context: >
+        Protecting an endpoint with permission-based authorization.
+      pattern: |
+        [HasPermission("catalog.catalog.products.create")]
+        public async Task<IResult> CreateProduct(...)
+        {
+            // Only users with catalog.catalog.products.create permission reach here
+        }
+      benefits:
+        - Declarative permission checks via attributes
+        - Automatic cache-first resolution
+    - id: S3
+      title: External Login Provider
+      context: Adding a new OAuth provider.
+      pattern: |
+        public class TwitterExternalProvider : IExternalLoginProvider
+        {
+            public string Provider => "twitter";
+            public ProviderOption GetProviderConfig() => ...;
+            public Task<Result<ExternalUserInfo>> ValidateIdTokenAsync(
+                string idToken, CancellationToken ct) => ...;
+        }
+        builder.Services.AddScoped<IExternalLoginProvider, TwitterExternalProvider>();
+      benefits:
+        - Open/closed principle — no existing code changes
+        - Provider registered via DI automatically discovered
+
+testing:
+  strategies:
+    - id: TS1
+      title: Permission Resolution Integration Test
+      objective: >
+        Verify that permission checks resolve through cache-first tiers and
+        Admin role bypass works correctly.
+    - id: TS2
+      title: Token Lifecycle Unit Test
+      objective: >
+        Verify refresh token rotation, theft detection, and blacklist behavior
+        with mocked stores.
+
+file_structure: |
+  Security/
+  ├── Security.Extension.cs                         # Root composition: AddSecurity() + UseSecurity()
+  ├── AntiForgery/
+  │   ├── AntiForgery.Extensions.cs                 # AddAntiForgery()
+  │   ├── Endpoints/
+  │   │   ├── AntiForgeryEndpoints.cs               # GET /api/v1/antiforgery/token
+  │   │   └── TokenResponse.cs                      # Token + HeaderName response record
+  │   └── Options/
+  │       ├── AntiForgerySetting.cs                 # Config POCO
+  │       ├── AntiForgerySetting.Constant.cs        # Default values
+  │       ├── AntiForgerySetting.Result.cs          # Success/Failure messages
+  │       └── AntiForgerySetting.Validator.cs       # FluentValidation rules
+  ├── Authentication/
+  │   ├── Authentication.Extension.cs               # AddApplicationAuthentication()
+  │   ├── Contexts/
+  │   │   ├── Context.Extension.cs                  # AddAuthenticationContext()
+  │   │   └── Services/
+  │   │       ├── CurrentUser.Interface.cs          # ICurrentUser contract
+  │   │       └── CurrentUser.Implementaion.cs      # HttpContext-backed implementation
+  │   ├── External/
+  │   │   ├── ExternalLogin.Extensions.cs           # AddExternalAuthentication()
+  │   │   ├── Models/
+  │   │   │   ├── ExternalUser.Model.cs             # ExternalUserInfo record
+  │   │   │   └── ProviderOption.cs                 # Provider config record
+  │   │   ├── Providers/
+  │   │   │   ├── Interface.ExternalProvider.cs     # IExternalLoginProvider strategy
+  │   │   │   ├── Facebook/                         # FacebookExternalProvider
+  │   │   │   ├── Google/                           # GoogleExternalProvider
+  │   │   │   └── Microsoft/                        # MicrosoftExternalProvider
+  │   │   └── Services/
+  │   │       └── ExternalProvider.Service.cs       # ExternalProviderRegistry
+  │   ├── Guest/
+  │   │   ├── GuestSession.Extensions.cs            # AddGuestSession()
+  │   │   ├── GuestSessionMiddleware.cs             # Issues session cookie
+  │   │   └── Options/
+  │   │       ├── GuestSessionSetting.cs            # Config POCO
+  │   │       ├── GuestSessionSetting.Constant.cs
+  │   │       ├── GuestSessionSetting.Result.cs
+  │   │       └── GuestSessionSetting.Validator.cs
+  │   └── Tokens/
+  │       ├── Tokens.Extensions.cs                  # AddTokenAuthentication()
+  │       ├── Models/
+  │       │   ├── Token.Request.Model.cs
+  │       │   └── Token.Response.Model.cs
+  │       ├── Options/
+  │       │   ├── JwtSetting.cs                     # Config POCO
+  │       │   ├── JwtSetting.Constant.cs
+  │       │   ├── JwtSetting.Result.cs
+  │       │   └── JwtSetting.Validator.cs
+  │       └── Services/
+  │           ├── Access/                           # IAccessTokenService
+  │           └── Refresh/                          # IRefreshTokenService + Store + Protections
+  ├── Authorization/
+  │   ├── Authorization.Extension.cs               # AddApplicationAuthorization()
+  │   ├── Attributes/                              # HasPermission attribute
+  │   ├── Features/                                # 10 FeatureMetadata classes
+  │   ├── Options/
+  │   │   ├── AuthzSetting.cs
+  │   │   ├── AuthzSetting.Constant.cs
+  │   │   ├── AuthzSetting.Result.cs
+  │   │   └── AuthzSetting.Validator.cs
+  │   ├── Permissions/
+  │   │   ├── Caches/                              # IPermissionCache + impl
+  │   │   ├── Services/                            # IPermissionService + impl
+  │   │   └── Store/                               # IPermissionStore + impl
+  │   ├── Policies/                                # PermissionPolicyProvider
+  │   ├── Registry/                                # PermissionContext
+  │   └── Requirements/                            # PermissionRequirement + Handler
+  ├── Cors/
+  │   ├── Cors.Extension.cs                        # AddSecurityCors()
+  │   └── Options/
+  │       ├── CorsSetting.cs
+  │       ├── CorsSetting.Validator.cs
+  │       └── CorsSetting.Result.cs
+  ├── Headers/
+  │   ├── SecurityHeaders.Extensions.cs            # AddSecurityHeaders()
+  │   ├── SecurityHeadersMiddleware.cs
+  │   └── Options/
+  │       ├── SecurityHeadersSetting.cs
+  │       ├── SecurityHeadersSetting.Constant.cs
+  │       ├── SecurityHeadersSetting.Result.cs
+  │       └── SecurityHeadersSetting.Validator.cs
+  ├── Identity/
+  │   ├── Identity.Extension.cs                    # AddApplicationIdentity()
+  │   ├── Domain/
+  │   │   ├── Permissions/                         # PermissionMetadata
+  │   │   ├── Roles/                               # Role + Claims
+  │   │   ├── Shared/                              # IdentitySchema
+  │   │   ├── Tokens/                              # RefreshToken
+  │   │   └── Users/                               # User + Claims, Keys, Logins, Roles, Tokens
+  │   ├── Options/
+  │   │   └── IdentitySetting.Constant.cs
+  │   └── Seeders/
+  │       ├── Role.Seeder.cs
+  │       └── User.Seeder.cs
+  └── RateLimiting/
+      ├── RateLimit.Extensions.cs                  # AddRateLimiting()
+      └── Options/
+          ├── RateLimitSetting.cs
+          ├── RateLimitSetting.Constant.cs
+          ├── RateLimitSetting.Result.cs
+          └── RateLimitSetting.Validator.cs

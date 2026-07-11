@@ -1,0 +1,503 @@
+# ════════════════════════════════════════════════════
+# Shipping Module Documentation (YAML)
+# Purpose:  Shipping configuration — methods, rates, calculators
+# Version:  1.0.0
+# Status:   stable
+# Schema:   3.0
+# Updated:  2025-07-11
+# ════════════════════════════════════════════════════
+
+kind: BuildingBlockModule
+id: shipping
+name: Module.Shipping
+version: "1.0.0"
+status: stable
+schema_version: "3.0"
+
+meta:
+  name: Shipping Configuration Module
+  description: >
+    Manages shipping configuration for the ReSys.Shop platform.
+    Provides shipping methods (Standard, Express, Free), shipping rates
+    with weight-based and free-shipping threshold logic, and a calculator
+    engine for storefront cost computation. Exposes Admin CRUD endpoints
+    and Storefront query/calculate endpoints.
+  category: "Shipping | Domain Logic"
+  stability: Stable
+  dependencies:
+    - name: Npgsql.EntityFrameworkCore.PostgreSQL
+      version: "10.*"
+      scope: persistence
+    - name: Microsoft.AspNetCore.Authentication.JwtBearer
+      version: "10.*"
+      scope: auth
+    - name: OpenTelemetry.Extensions.Hosting
+      version: "1.*"
+      scope: observability
+
+principles:
+  - id: P1
+    name: Rate-Method Ownership
+    description: >
+      Every ShippingRate is owned by exactly one ShippingMethod. Rates
+      are never shared across methods.
+    rationale: >
+      Prevents ambiguous rate selection and keeps the calculator logic
+      simple — method lookup narrows candidates before rate matching.
+  - id: P2
+    name: Fail-Over Rate Selection
+    description: >
+      The calculator falls back from weight-matched rates to
+      unrestricted-weight rates to cheapest available rate.
+    rationale: >
+      Ensures customers always get a shipping quote even when their
+      order weight does not match any specific weight bracket.
+
+features:
+  - id: F1
+    name: Admin CRUD for Shipping Methods
+    type: core
+    description: >
+      Full lifecycle management of shipping methods: list, get by ID,
+      create, update, soft-delete, activate, and deactivate.
+  - id: F2
+    name: Admin CRUD for Shipping Rates
+    type: core
+    description: >
+      Full lifecycle management of shipping rates: list, get by ID,
+      create, update, and soft-delete.
+  - id: F3
+    name: Storefront Shipping Calculation
+    type: core
+    description: >
+      Calculates shipping cost for an order based on selected method,
+      order weight, and order total. Supports free-shipping thresholds.
+  - id: F4
+    name: Storefront Rate and Method Listing
+    type: extension
+    description: >
+      Read-only endpoints for storefront to list available shipping
+      methods and rates for checkout display.
+  - id: F5
+    name: Database Seeding
+    type: utility
+    description: >
+      Seeds default shipping methods (Standard, Express, Free) and
+      corresponding rates on application startup when tables are empty.
+
+abstractions:
+  - category: Domain Abstractions
+    order: 1
+    description: >
+      Core DDD entities, domain services, and supporting types for
+      shipping configuration.
+    items:
+      - id: A1
+        name: ShippingMethod
+        type: class
+        path: ./Domain/ShippingMethods/ShippingMethod.cs
+        description: >
+          Aggregate root representing a shipping method with name, code,
+          calculator type, tracking URL template, availability flag, and
+          sort position.
+        purpose: Defines available shipping options that customers can
+          select during checkout.
+      - id: A2
+        name: ShippingMethodExtensions
+        type: extension
+        path: ./Domain/ShippingMethods/ShippingMethod.Extensions.cs
+        description: >
+          Factory method (Create) and domain operations (Update,
+          BuildTrackingUrl, IsAvailableFor) for ShippingMethod.
+        purpose: Centralizes ShippingMethod creation and domain logic
+          outside the entity constructor.
+      - id: A3
+        name: ShippingMethodValidation
+        type: class
+        path: ./Domain/ShippingMethods/ShippingMethod.Validation.cs
+        description: >
+          FluentValidation extension methods for shipping method field
+          rules: name, code, calculator type, and tracking URL.
+        purpose: Enforces field-level constraints with typed error codes
+          from ShippingMethodResult.
+      - id: A4
+        name: ShippingMethodConstant
+        type: class
+        path: ./Domain/ShippingMethods/ShippingMethod.Constant.cs
+        description: >
+          Constants for field constraints, default values, and allowed
+          query fields (search, sort, filter) for ShippingMethod.
+        purpose: Single source of truth for ShippingMethod validation
+          limits and query field whitelists.
+      - id: A5
+        name: ShippingRate
+        type: class
+        path: ./Domain/ShippingRates/ShippingRate.cs
+        description: >
+          Entity representing a shipping rate tied to a ShippingMethod.
+          Includes cost, final price, display price, delivery range,
+          weight bounds, and free-shipping threshold.
+        purpose: Provides concrete pricing data for the shipping
+          calculator to select the best rate.
+      - id: A6
+        name: ShippingRateExtensions
+        type: extension
+        path: ./Domain/ShippingRates/ShippingRate.Extensions.cs
+        description: >
+          Factory method (Create) and domain operations (Update) for
+          ShippingRate.
+        purpose: Centralizes ShippingRate creation and update logic.
+      - id: A7
+        name: ShippingRateValidation
+        type: class
+        path: ./Domain/ShippingRates/ShippingRate.Validation.cs
+        description: >
+          FluentValidation extension methods for shipping rate field
+          rules: name, cost, delivery range, and weight bounds.
+        purpose: Enforces field-level constraints with typed error codes.
+      - id: A8
+        name: ShippingRateConstant
+        type: class
+        path: ./Domain/ShippingRates/ShippingRate.Constant.cs
+        description: >
+          Constants for field constraints, default values, and allowed
+          query fields (search, sort, filter) for ShippingRate.
+        purpose: Single source of truth for ShippingRate validation
+          limits and query field whitelists.
+      - id: A9
+        name: ShippingRateCalculator
+        type: class
+        path: ./Domain/Calculators/ShippingRateCalculator.cs
+        description: >
+          Static service that selects the best shipping rate for an
+          order. Queries rates by method, matches by weight bounds,
+          checks free-shipping thresholds, and falls back to cheapest.
+        purpose: Core shipping cost computation consumed by storefront
+          CalculateShipping feature.
+        contract: |
+          // Pre: dbContext != null, shippingMethodId valid
+          // Post: cost >= 0, isFree indicates zero-cost rate
+          // Throws: none — returns Result<(decimal, bool)>
+
+  - category: Feature Endpoints
+    order: 2
+    description: >
+      Vertical-slice feature endpoints and route constants organized
+      by Admin and Storefront boundaries.
+    items:
+      - id: B1
+        name: Admin Shipping Method Features
+        type: handler
+        path: ./Features/Admin/ShippingMethods/
+        description: >
+          CRUD endpoints for shipping methods: GetPaged, GetById, Create,
+          Update, Delete, Activate, Deactivate.
+        purpose: Admin API surface for managing shipping method
+          configuration.
+      - id: B2
+        name: Admin Shipping Rate Features
+        type: handler
+        path: ./Features/Admin/ShippingRates/
+        description: >
+          CRUD endpoints for shipping rates: GetPaged, GetById, Create,
+          Update, Delete.
+        purpose: Admin API surface for managing shipping rate
+          configuration.
+      - id: B3
+        name: Storefront CalculateShipping
+        type: handler
+        path: ./Features/Storefront/Shipping/Calculate/
+        description: >
+          Calculates shipping cost for a given order and selected method
+          by computing order weight from line items and delegating to
+          ShippingRateCalculator.
+        purpose: Customer-facing endpoint used during checkout to
+          display shipping cost.
+      - id: B4
+        name: Storefront GetShippingMethods
+        type: handler
+        path: ./Features/Storefront/Shipping/Methods/
+        description: >
+          Lists available shipping methods visible to customers.
+        purpose: Populates shipping method selection in checkout UI.
+      - id: B5
+        name: Storefront ListShippingRates
+        type: handler
+        path: ./Features/Storefront/Shipping/Rates/
+        description: >
+          Lists available shipping rates for checkout display.
+        purpose: Populates rate comparison in checkout UI.
+      - id: B6
+        name: ShippingFeature.Admin
+        type: class
+        path: ./Features/Shared/ShippingFeature.Admin.cs
+        description: >
+          Nested static classes defining Admin route constants and
+          permission metadata for all ShippingMethod and ShippingRate
+          endpoints.
+        purpose: Central route registry for admin API endpoints.
+      - id: B7
+        name: ShippingFeature.Storefront
+        type: class
+        path: ./Features/Shared/ShippingFeature.Storefront.cs
+        description: >
+          Nested static classes defining Storefront route constants for
+          shipping methods, rates, and calculate endpoints.
+        purpose: Central route registry for storefront API endpoints.
+      - id: B8
+        name: ShippingFeature.Tags
+        type: class
+        path: ./Features/Shared/ShippingFeature.Tags.cs
+        description: >
+          OpenAPI tag arrays for ShippingMethod, ShippingRate, and
+          Shipment endpoint groups.
+        purpose: Groups Swagger endpoints by shipping entity.
+
+  - category: Infrastructure and Persistence
+    order: 3
+    description: >
+      EF Core configurations, schema constants, data seeders, and
+      module composition root.
+    items:
+      - id: C1
+        name: ShippingSchema
+        type: class
+        path: ./Persistence/Constants/ShippingSchema.cs
+        description: >
+          Defines the "shipping" PostgreSQL schema name and snake_case
+          table names for ShippingMethods and ShippingRates.
+        purpose: Central schema and table name constants for all
+          persistence configurations.
+      - id: C2
+        name: ShippingMethodConfiguration
+        type: class
+        path: ./Persistence/Configurations/ShippingMethods/ShippingMethodConfiguration.cs
+        description: >
+          EF Core IEntityTypeConfiguration for ShippingMethod. Maps
+          properties to columns, enforces max lengths, sets defaults,
+          and creates a unique index on Code.
+        purpose: Defines the shipping_methods table schema.
+      - id: C3
+        name: ShippingRateConfiguration
+        type: class
+        path: ./Persistence/Configurations/ShippingRates/ShippingRateConfiguration.cs
+        description: >
+          EF Core IEntityTypeConfiguration for ShippingRate. Maps
+          properties to columns with decimal precision (18,2) for
+          monetary and weight fields.
+        purpose: Defines the shipping_rates table schema.
+      - id: C4
+        name: ShippingMethodSeeder
+        type: class
+        path: ./Persistence/Seeders/ShippingMethod.Seeder.cs
+        description: >
+          Seeds three default shipping methods (Standard, Express, Free)
+          with their respective calculator types.
+        purpose: Provides baseline shipping methods on fresh database.
+      - id: C5
+        name: ShippingRateSeeder
+        type: class
+        path: ./Persistence/Seeders/ShippingRate.Seeder.cs
+        description: >
+          Seeds default shipping rates for each method: Standard
+          ($5.99), Express ($14.99), Free ($9.99, $100 threshold).
+        purpose: Provides baseline shipping rates on fresh database.
+      - id: C6
+        name: ShippingExtension
+        type: extension
+        path: ./Shipping.Extension.cs
+        description: >
+          WebApplicationBuilder extension method that registers the
+          Shipping module services: ShippingMethodSeeder and
+          ShippingRateSeeder.
+        purpose: Composition root for Shipping module dependency
+          injection registration.
+
+technical:
+  mechanisms:
+    - id: M1
+      name: Rate Calculator Algorithm
+      scope: "Shipping cost computation"
+      description: >
+        Multi-stage rate selection: query all rates for a method ordered
+        by cost, filter by weight bounds, fall back to unrestricted
+        rates, then to cheapest available. Free-shipping threshold is
+        checked against order total.
+      steps:
+        - Query all rates for the shipping method, ordered by cost ascending
+        - Filter rates matching order weight via MinWeight/MaxWeight bounds
+        - Fall back to unrestricted-weight rates if no weight match
+        - Fall back to cheapest available rate if still no match
+        - Check free-shipping threshold on weight-matched rates
+        - Return (cost, isFree) tuple via Result monad
+    - id: M2
+      name: Postgres Schema Isolation
+      scope: "Persistence"
+      description: >
+        All Shipping tables live in a dedicated "shipping" PostgreSQL
+        schema, isolating them from other modules at the database level.
+      steps:
+        - ShippingSchema.Name defines the schema constant "shipping"
+        - Each IEntityTypeConfiguration maps to schema + table name
+        - Seeders respect schema boundaries during data initialization
+
+anti_patterns:
+  - id: AP1
+    name: Cross-Module Domain Reference
+    severity: critical
+    avoid: >
+      Importing or referencing Catalog, Ordering, or other module
+      domain entities directly from Shipping domain classes.
+    better_approach: >
+      Shipping domain should only depend on Shared abstractions. Use
+      IApplicationDbContext to query cross-module data within feature
+      handlers, not within domain classes.
+    impact: >
+      Violates the module isolation rule and creates circular
+      dependency risk.
+  - id: AP2
+    name: Hardcoding Shipping Rates
+    severity: high
+    avoid: >
+      Embedding rate values directly in feature handler code instead
+      of reading from the database.
+    better_approach: >
+      Always query ShippingRate entities via IApplicationDbContext.
+      Use seeders for initial data, but allow runtime management
+      through Admin endpoints.
+    impact: >
+      Makes rate changes require code deployments instead of admin
+      panel updates.
+  - id: AP3
+    name: Skipping Weight Fallback
+    severity: medium
+    avoid: >
+      Returning an error when no weight-matching rate exists without
+      attempting the unrestricted-rate and cheapest-rate fallbacks.
+    better_approach: >
+      Follow the three-stage fallback in ShippingRateCalculator:
+      weight-matched, unrestricted, cheapest available.
+    impact: >
+      Customers see no shipping option available when a valid rate
+      exists at a higher tier.
+
+usage:
+  scenarios:
+    - id: S1
+      title: Calculating Shipping Cost at Checkout
+      context: >
+        A customer has items in their cart and selects a shipping
+        method during checkout. The storefront needs to display the
+        shipping cost.
+      pattern: |
+        // Feature handler: CalculateShipping.CommandHandler
+        // 1. Look up ShippingMethod by request.ShippingMethodId
+        // 2. Load Order with LineItems to compute total weight
+        // 3. Query Variant weights for each line item
+        // 4. Call ShippingRateCalculator.CalculateAsync(...)
+        // 5. Return Response { Cost, IsFreeShipping, MethodName }
+        var calcResult = await ShippingRateCalculator.CalculateAsync(
+            dbContext,
+            request.ShippingMethodId,
+            orderWeight,
+            order.Total,
+            cancellationToken);
+      benefits:
+        - Weight-aware rate selection with free-shipping support
+        - Three-stage fallback ensures a rate is always returned
+    - id: S2
+      title: Managing Shipping Methods via Admin API
+      context: >
+        An admin user needs to create, update, activate, or
+        deactivate shipping methods through the back-office panel.
+      pattern: |
+        // Admin endpoints under api/shipping/shipping-methods
+        // POST   /                         — CreateShippingMethod
+        // GET    /                         — GetPagedShippingMethods
+        // GET    /{id}                     — GetShippingMethodById
+        // PUT    /{id}                     — UpdateShippingMethod
+        // DELETE /{id}                     — DeleteShippingMethod
+        // POST   /{id}/activate           — ActivateShippingMethod
+        // POST   /{id}/deactivate         — DeactivateShippingMethod
+      benefits:
+        - Full lifecycle management with permission-based access
+        - Soft-delete preserves historical data
+
+testing:
+  strategies:
+    - id: TS1
+      title: ShippingRateCalculator Unit Tests
+      objective: >
+        Verify rate selection logic: weight matching, fallback chain,
+        free-shipping threshold, and empty-rate edge cases.
+    - id: TS2
+      title: Admin Feature Handler Integration Tests
+      objective: >
+        Verify CRUD operations for shipping methods and rates against
+        a real PostgreSQL database with EF Core.
+
+file_structure: |
+  Shipping/
+  ├── Shipping.Extension.cs              # DI composition root
+  ├── Domain/
+  │   ├── README.md                       # Domain overview
+  │   ├── README.xml                      # Domain metadata
+  │   ├── Calculators/
+  │   │   └── ShippingRateCalculator.cs   # Rate selection algorithm
+  │   ├── ShippingMethods/
+  │   │   ├── ShippingMethod.cs           # Aggregate root entity
+  │   │   ├── ShippingMethod.Constant.cs  # Constraints and defaults
+  │   │   ├── ShippingMethod.Extensions.cs # Factory and domain ops
+  │   │   ├── ShippingMethod.Loggers.cs   # Structured log templates
+  │   │   ├── ShippingMethod.Result.cs    # Result error definitions
+  │   │   ├── ShippingMethod.Validation.cs # FluentValidation rules
+  │   │   ├── README.md                   # Aggregate overview
+  │   │   └── README.xml                  # Aggregate metadata
+  │   └── ShippingRates/
+  │       ├── ShippingRate.cs             # Entity
+  │       ├── ShippingRate.Constant.cs    # Constraints and defaults
+  │       ├── ShippingRate.Extensions.cs  # Factory and domain ops
+  │       ├── ShippingRate.Loggers.cs     # Structured log templates
+  │       ├── ShippingRate.Result.cs      # Result error definitions
+  │       ├── ShippingRate.Validation.cs  # FluentValidation rules
+  │       ├── README.md                   # Aggregate overview
+  │       └── README.xml                  # Aggregate metadata
+  ├── Features/
+  │   ├── Shared/
+  │   │   ├── ShippingFeature.Admin.cs    # Admin route constants
+  │   │   ├── ShippingFeature.Storefront.cs # Storefront route constants
+  │   │   └── ShippingFeature.Tags.cs     # OpenAPI tag arrays
+  │   ├── Admin/
+  │   │   ├── ShippingMethods/            # Admin Method CRUD
+  │   │   │   ├── Create/
+  │   │   │   ├── Update/
+  │   │   │   ├── Delete/
+  │   │   │   ├── Activate/
+  │   │   │   ├── Deactivate/
+  │   │   │   ├── Get/ById/
+  │   │   │   ├── Get/Paged/
+  │   │   │   └── Shared/                 # Validators, Mappings, Models
+  │   │   └── ShippingRates/              # Admin Rate CRUD
+  │   │       ├── Create/
+  │   │       ├── Update/
+  │   │       ├── Delete/
+  │   │       ├── Get/ById/
+  │   │       ├── Get/Paged/
+  │   │       └── Shared/                 # Validators, Mappings, Models
+  │   └── Storefront/
+  │       ├── Shipping/
+  │       │   ├── Calculate/              # Cost calculation endpoint
+  │       │   ├── Methods/                # Available methods listing
+  │       │   └── Rates/                  # Available rates listing
+  │       └── Shared/                     # Validators, Models
+  └── Persistence/
+      ├── Constants/
+      │   └── ShippingSchema.cs           # Schema and table names
+      ├── Configurations/
+      │   ├── ShippingMethods/
+      │   │   └── ShippingMethodConfiguration.cs
+      │   └── ShippingRates/
+      │       └── ShippingRateConfiguration.cs
+      └── Seeders/
+          ├── ShippingMethod.Seeder.cs    # Default method seed data
+          └── ShippingRate.Seeder.cs      # Default rate seed data

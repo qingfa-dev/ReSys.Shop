@@ -1,0 +1,705 @@
+kind: BuildingBlockModule
+id: catalog-module
+name: Module.Catalog
+version: "1.0.0"
+status: stable
+schema_version: "3.0"
+
+meta:
+  name: Catalog Module
+  description: >
+    Product catalog management for the ReSys.Shop e-commerce platform.
+    Manages products, variants, prices, images, taxonomies, option types,
+    and classifications. Provides both Admin (CRUD, lifecycle) and Storefront
+    (search, browse, filter) API surfaces. Supports AI-powered visual search
+    via image embeddings and automatic taxon classification via rule evaluation.
+  category: "Catalog Management | E-Commerce Domain"
+  stability: Stable
+  dependencies:
+    - name: Module.Shared
+      version: "1.0.0"
+      scope: runtime
+    - name: MediatR
+      version: "12.x"
+      scope: runtime
+    - name: FluentValidation
+      version: "11.x"
+      scope: runtime
+    - name: Mapster
+      version: "5.x"
+      scope: runtime
+    - name: Carter
+      version: "8.x"
+      scope: runtime
+    - name: Npgsql.EntityFrameworkCore.PostgreSQL
+      version: "10.x"
+      scope: runtime
+    - name: Pgvector
+      version: "0.3.x"
+      scope: runtime
+
+principles:
+  - id: P1
+    name: Domain Isolation
+    description: >
+      Catalog domain entities never reference other modules. All cross-module
+      communication flows through MediatR ISender.
+    rationale: >
+      Prevents circular dependencies and keeps the Catalog module independently
+      testable and replaceable within the modular monolith.
+  - id: P2
+    name: Vertical Slice Features
+    description: >
+      Every API action is a self-contained vertical slice with Handler, Request,
+      Response, Endpoint, and Validator split across files in a consistent folder
+      structure under Features/Admin or Features/Storefront.
+    rationale: >
+      Enables agents to locate and modify a single feature without navigating
+      unrelated code. Each slice is independently testable and deployable.
+  - id: P3
+    name: Result Objects Over Exceptions
+    description: >
+      All domain operations return Result<T> or Result. Exceptions are reserved
+      only for unrecoverable infrastructure failures.
+    rationale: >
+      Makes error handling explicit and composable. Prevents exception-driven
+      control flow that hides bugs and complicates testing.
+  - id: P4
+    name: Nested Set Taxonomy
+    description: >
+      Taxon hierarchy uses the Nested Set Model (Lft/Rgt/Depth) for efficient
+      subtree queries without recursive CTEs.
+    rationale: >
+      Read-heavy storefront mega-menus and category browsing benefit from O(1)
+      subtree checks. Writes are bounded by taxonomy admin frequency.
+
+features:
+  - id: F1
+    name: Product Lifecycle Management
+    type: core
+    description: >
+      Full CRUD for products with Draft/Active/Archived status lifecycle,
+      slug-based SEO routing, and fashion-specific metadata (style code,
+      season, material, care instructions, fit notes, department, gender).
+  - id: F2
+    name: Variant Management
+    type: core
+    description: >
+      Add, update, delete, and list product variants with SKU, barcode,
+      physical specs (weight, dimensions), and inventory tracking. Each product
+      has exactly one master variant.
+  - id: F3
+    name: Multi-Currency Pricing
+    type: core
+    description: >
+      Set, list, remove, and synchronize prices per variant with currency,
+      country ISO, compare-at amounts for sale pricing, and price history
+      tracking.
+  - id: F4
+    name: Taxonomy and Taxon Hierarchy
+    type: core
+    description: >
+      Manage classification trees (taxonomies) containing hierarchical taxon
+      nodes with nested-set ordering, permalinks, SEO metadata, images,
+      and automatic/manual product assignment.
+  - id: F5
+    name: Option Types and Values
+    type: core
+    description: >
+      Define product option types (Size, Color, Material) with filterable
+      values. Assign option types to products and option values to variants
+      to define the variant matrix.
+  - id: F6
+    name: Product Classification
+    type: core
+    description: >
+      Assign, revoke, and synchronize taxon classifications for products.
+      Supports both manual and automatic classification via taxon rules.
+  - id: F7
+    name: Variant Image Management
+    type: core
+    description: >
+      Upload, update, delete, and download variant images with metadata
+      (alt text, position, type classification). Supports multiple image
+      types: Default, Thumbnail, Square, Gallery, Search.
+  - id: F8
+    name: AI Image Embeddings
+    type: integration
+    description: >
+      Generate and regenerate vector embeddings for variant images using
+      the Fashion-CLIP inference sidecar. Enables visual similarity search
+      and search-by-image on the storefront.
+  - id: F9
+    name: Storefront Product Search
+    type: core
+    description: >
+      Unified product listing with text search, faceted filters (option types
+      and taxons), sorting, and pagination. Includes product detail pages,
+      availability matrices, related products, and similar products by image.
+  - id: F10
+    name: Automatic Taxon Classification
+    type: extension
+    description: >
+      Rule-based automatic product assignment to taxons. Taxon rules evaluate
+      product attributes (brand, category, price range) and auto-classify
+      products matching the criteria. Supports All/Any match policies.
+
+abstractions:
+  - category: Core Domain Entities
+    order: 1
+    description: Aggregate roots and entities defining the catalog domain model.
+    items:
+      - id: A1
+        name: Product
+        type: class
+        path: ./Domain/Products/Product.cs
+        description: >
+          Root aggregate representing a product in the catalog with name,
+          description, SEO metadata, fashion attributes, status lifecycle,
+          and relationships to variants, option types, and classifications.
+        purpose: >
+          Central entity for all catalog operations. Provides slug-based
+          routing, status transitions, and availability computation.
+        contract: |
+          // Status: Draft -> Active -> Archived
+          // Slug: unique, auto-generated from Name
+          // MasterVariant: always exists, non-deletable
+          // HasVariants: requires at least one OptionType
+          // AvailableOn <= DiscontinueOn when both set
+      - id: A2
+        name: Variant
+        type: class
+        path: ./Domain/Products/Variants/Variant.cs
+        description: >
+          Specific variation of a product (e.g., a particular size and color
+          combination) with SKU, barcode, physical specs, pricing, and
+          relationships to images, option values, and stock items.
+        purpose: >
+          Represents purchasable units. Exactly one master variant per product;
+          additional variants form the option matrix.
+        contract: |
+          // IsMaster: exactly one per Product
+          // Sku: unique across all variants
+          // TrackInventory: requires StockItem per location
+      - id: A3
+        name: Taxonomy
+        type: class
+        path: ./Domain/Taxonomies/Taxonomy.cs
+        description: >
+          Classification tree that organizes products into hierarchical taxons.
+          Contains ordered taxon nodes with position and soft-deletion support.
+        purpose: >
+          Defines category structures (e.g., "Categories", "Brands", "Tags")
+          used for storefront navigation and product filtering.
+      - id: A4
+        name: Taxon
+        type: class
+        path: ./Domain/Taxonomies/Taxons/Taxon.cs
+        description: >
+          Node within a taxonomy tree with nested-set ordering (Lft/Rgt/Depth),
+          permalink, SEO metadata, images, and optional automatic classification
+          via rules.
+        purpose: >
+          Enables hierarchical category browsing, mega-menu rendering, and
+          rule-based product assignment for dynamic collections.
+        contract: |
+          // Nested Set: Lft < Rgt, Depth >= 0
+          // IsRoot: ParentId == null
+          // IsLeaf: Children.Count == 0
+          // Automatic: when RulesMatchPolicy governs product assignment
+      - id: A5
+        name: OptionType
+        type: class
+        path: ./Domain/OptionTypes/OptionType.cs
+        description: >
+          Defines a selectable product attribute dimension (e.g., Size, Color)
+          with filterable flag, presentation name, and ordered option values.
+        purpose: >
+          Drives the variant matrix. Products reference option types; variants
+          reference option values to define unique combinations.
+        contract: |
+          // Name: required, max 100 chars
+          // Position: >= -1, controls display order
+          // Filterable: appears in storefront filter panel
+
+  - category: Supporting Domain Entities
+    order: 2
+    description: Value objects and join entities supporting the core aggregates.
+    items:
+      - id: B1
+        name: Classification
+        type: class
+        path: ./Domain/Products/Classifications/Classification.cs
+        description: >
+          Join entity linking a product to a taxon with position and automatic
+          flag indicating manual vs. rule-based assignment.
+        purpose: >
+          Enables many-to-many product-to-taxon relationships for categorization
+          and filtering.
+      - id: B2
+        name: Price
+        type: class
+        path: ./Domain/Products/Variants/Prices/Price.cs
+        description: >
+          Price point for a variant with amount, compare-at amount for sale
+          pricing, currency, country ISO, and default flag.
+        purpose: >
+          Supports multi-currency, multi-country pricing with sale detection
+          via compare-at comparison.
+        contract: |
+          // IsOnSale: CompareAtAmount > Amount
+          // Currency: ISO 4217 code
+          // CountryIso: nullable, for geo-specific pricing
+      - id: B3
+        name: VariantImage
+        type: class
+        path: ./Domain/Products/Variants/Images/VariantImage.cs
+        description: >
+          Image file associated with a variant storing metadata (dimensions,
+          format, size, alt text), storage path, and type classification.
+        purpose: >
+          Manages product imagery with type-based rendering (Default, Thumbnail,
+          Square, Gallery, Search) and accessibility metadata.
+      - id: B4
+        name: ImageEmbedding
+        type: class
+        path: ./Domain/Products/Variants/Images/Embeddings/ImageEmbedding.cs
+        description: >
+          Vector embedding generated by Fashion-CLIP for a specific variant
+          image, stored with model name, version, and pgvector compatibility.
+        purpose: >
+          Enables visual similarity search and search-by-image on the storefront
+          using cosine distance on pgvector indexes.
+      - id: B5
+        name: TaxonRule
+        type: class
+        path: ./Domain/Taxonomies/Taxons/Rules/TaxonRule.cs
+        description: >
+          Matching rule that determines which products are automatically assigned
+          to a taxon based on product attribute evaluation.
+        purpose: >
+          Powers automatic classification by evaluating product attributes against
+          configurable rule criteria with All/Any match policies.
+      - id: B6
+        name: ProductOptionType
+        type: class
+        path: ./Domain/Products/Options/ProductOptionType.cs
+        description: >
+          Join entity associating a product with an option type, controlling
+          which dimensions form the variant matrix.
+        purpose: >
+          Defines which option types apply to a product. Required before variants
+          can be created with specific option value combinations.
+      - id: B7
+        name: OptionValue
+        type: class
+        path: ./Domain/OptionTypes/Values/OptionValue.cs
+        description: >
+          Specific value within an option type (e.g., "Small", "Red") with
+          presentation name and ordered position.
+        purpose: >
+          Provides concrete selectable values that variants reference to define
+          their unique option combinations.
+
+  - category: Feature Route Metadata
+    order: 3
+    description: Static route definitions and permission metadata for Admin and Storefront APIs.
+    items:
+      - id: C1
+        name: CatalogFeature.Admin
+        type: class
+        path: ./Features/Shared/CatalogFeature.Admin.cs
+        description: >
+          Centralized Admin route constants and permission metadata for all
+          Catalog admin endpoints: Products, Variants, Prices, OptionTypes,
+          OptionValues, Taxonomies, Taxons, TaxonRules, Classifications,
+          and VariantImages.
+        purpose: >
+          Provides a single source of truth for API routes, descriptions,
+          summaries, and permission requirements across all admin features.
+      - id: C2
+        name: CatalogFeature.Storefront
+        type: class
+        path: ./Features/Shared/CatalogFeature.Storefront.cs
+        description: >
+          Centralized Storefront route constants for product listing, detail,
+          availability, related/similar products, image search, taxonomy trees,
+          taxon browsing, option types, and image display.
+        purpose: >
+          Provides a single source of truth for storefront API routes and
+          descriptions, ensuring consistent URL patterns.
+      - id: C3
+        name: CatalogFeature.Tags
+        type: class
+        path: ./Features/Shared/CatalogFeature.Tags.cs
+        description: >
+          OpenAPI tag arrays for each catalog entity type (OptionType,
+          OptionValue, Product, Variant, VariantImage, Taxonomy, Taxon).
+        purpose: >
+          Groups endpoints in Swagger UI for organized API documentation.
+
+  - category: Persistence Infrastructure
+    order: 4
+    description: EF Core schema definition, entity configurations, and seed data.
+    items:
+      - id: D1
+        name: CatalogSchema
+        type: class
+        path: ./Persistence/CatalogSchema.cs
+        description: >
+          Schema constants defining the "catalog" database schema name and all
+          table names (products, variants, prices, option_types, option_values,
+          taxonomies, taxa, taxon_rules, classifications, etc.).
+        purpose: >
+          Centralizes schema and table name constants for use across EF Core
+          configurations and raw SQL operations.
+      - id: D2
+        name: Catalog.Extensions
+        type: extension
+        path: ./Catalog.Extension.cs
+        description: >
+          Extension method AddCatalogModule that registers all Catalog module
+          services into the DI container: inference client, embedding
+          orchestrator, hierarchy service, auto-classification service, and
+          seeders.
+        purpose: >
+          Single entry point for Catalog module composition. Called from
+          Program.cs to wire up all module dependencies.
+        example: |
+          builder.AddCatalogModule();
+
+technical:
+  mechanisms:
+    - id: M1
+      name: Nested Set Taxonomy Hierarchy
+      scope: "Taxon tree operations"
+      steps:
+        - "Taxon nodes store Lft, Rgt, and Depth for nested-set ordering"
+        - "Subtree queries use Lft >= parent.Lft AND Rgt <= parent.Rgt"
+        - "Insert recalculates Lft/Rgt for all affected siblings"
+        - "TaxonHierarchyService validates, rebuilds, and generates permalinks"
+    - id: M2
+      name: Automatic Taxon Classification
+      scope: "Product-to-taxon assignment"
+      steps:
+        - "TaxonRuleEvaluator matches product attributes against TaxonRule criteria"
+        - "All/Any match policy determines logical combination of rules"
+        - "AutoClassificationService orchestrates rule evaluation and classification sync"
+        - "Classifications created with IsAutomatic=true for rule-based assignments"
+    - id: M3
+      name: Image Embedding Pipeline
+      scope: "Visual similarity search"
+      steps:
+        - "Admin uploads variant image via UploadVariantImage endpoint"
+        - "CreateImageEmbedding endpoint sends image to Fashion-CLIP sidecar"
+        - "512-dim vector stored in ImageEmbedding entity via pgvector"
+        - "Storefront Similar/SearchByImage queries use cosine distance"
+    - id: M4
+      name: Vertical Slice Feature Architecture
+      scope: "Feature organization"
+      steps:
+        - "Each feature action is a static partial class split across files"
+        - "Handler, Request, Response, Endpoint, Validator in dedicated files"
+        - "Admin routes under api/catalog, Storefront under api/storefront"
+        - "Carter minimal APIs wire endpoints; MediatR dispatches to handlers"
+
+anti_patterns:
+  - id: AP1
+    name: Cross-Module Direct References
+    severity: critical
+    avoid: >
+      Importing entities or services from other modules (e.g., Inventory,
+      Ordering) directly into Catalog code.
+    better_approach: >
+      Use MediatR ISender to dispatch commands/queries to other modules.
+      Catalog depends only on Module.Shared.
+    impact: >
+      Breaks module isolation, creates circular dependencies, and prevents
+      independent testing and deployment.
+  - id: AP2
+    name: Bypassing Vertical Slice Structure
+    severity: high
+    avoid: >
+      Placing feature logic in shared service classes or controller-style
+      god objects instead of individual feature folders.
+    better_approach: >
+      Each feature action gets its own folder under Features/Admin or
+      Features/Storefront with Handler, Request, Response, Endpoint,
+      and Validator files.
+    impact: >
+      Makes features harder to locate, modify, and test independently.
+      Increases merge conflicts and cognitive load.
+  - id: AP3
+    name: Throwing Exceptions for Business Errors
+    severity: high
+    avoid: >
+      Using throw new BadRequestException() or similar exception-based
+      error handling for expected business rule violations.
+    better_approach: >
+      Return Result<T> or Result with error codes. Exceptions are reserved
+      only for unrecoverable infrastructure failures.
+    impact: >
+      Hides expected error paths from callers, complicates error handling,
+      and makes integration testing unreliable.
+  - id: AP4
+    name: Direct Database Access in Feature Handlers
+    severity: high
+    avoid: >
+      Querying the database directly in feature handlers without going
+      through the domain layer or EF Core DbContext abstractions.
+    better_approach: >
+      Use EF Core DbContext or repository abstractions registered in DI.
+      Keep handlers focused on orchestration, not data access.
+    impact: >
+      Bypasses domain invariants, makes testing difficult, and creates
+      implicit coupling to persistence implementation.
+  - id: AP5
+    name: Mutating Domain Entity State Directly
+    severity: medium
+    avoid: >
+      Setting entity properties directly in feature handlers without
+      going through domain methods that enforce invariants.
+    better_approach: >
+      Use entity methods (e.g., product.Activate(), product.Discontinue())
+      that validate invariants before state transitions.
+    impact: >
+      Violates encapsulation, skips invariant validation, and creates
+      inconsistent entity state.
+
+usage:
+  scenarios:
+    - id: S1
+      title: Creating a New Product with Variants
+      context: >
+        Admin creates a new product, assigns option types, adds variants
+        with option values, sets prices, and uploads images.
+      pattern: |
+        // 1. Create product
+        POST /api/catalog/products { name, description, slug }
+
+        // 2. Assign option types (Size, Color)
+        POST /api/catalog/products/{id}/option-types/assign
+        { optionTypeIds: [size-id, color-id] }
+
+        // 3. Add variants with option values
+        POST /api/catalog/products/{id}/variants
+        { sku: "TSHIRT-RED-S", optionValues: [red-val, small-val] }
+
+        // 4. Set prices
+        POST /api/catalog/variants/{variantId}/prices
+        { amount: 29.99, currency: "USD" }
+
+        // 5. Upload images
+        POST /api/catalog/variants/{variantId}/images
+        Content-Type: multipart/form-data
+      benefits:
+        - Complete product setup in a single workflow
+        - Variants automatically inherit product option types
+    - id: S2
+      title: Browsing Products by Taxonomy
+      context: >
+        Storefront user navigates the mega-menu taxonomy tree, selects a
+        taxon, and views filtered products with sorting and pagination.
+      pattern: |
+        // 1. Get taxonomy tree for mega-menu
+        GET /api/storefront/taxonomies/{taxonomyId}
+
+        // 2. Get products by taxon with sorting
+        GET /api/storefront/taxons/{taxonId}/products
+        ?sort=price_asc&page=1&pageSize=24
+
+        // 3. Get product detail
+        GET /api/storefront/products/{slug}
+      benefits:
+        - Nested-set taxonomy enables O(1) subtree queries
+        - Faceted filters from option types narrow results
+    - id: S3
+      title: Visual Similarity Search
+      context: >
+        Customer uploads an image to find visually similar products
+        using AI-powered image embedding comparison.
+      pattern: |
+        // 1. Search by uploaded image
+        POST /api/storefront/search-by-image
+        Content-Type: multipart/form-data
+        Body: image=<binary>
+
+        // 2. Get similar products for a specific product
+        GET /api/storefront/products/{id}/similar
+      benefits:
+        - Fashion-CLIP embeddings enable visual discovery
+        - pgvector cosine distance for fast similarity matching
+
+testing:
+  strategies:
+    - id: TS1
+      title: Domain Entity Unit Tests
+      objective: >
+        Verify domain invariants, status transitions, slug generation,
+        and business rules in isolation without persistence.
+      scope: unit
+      code_example: |
+        [Fact]
+        public void Product_Activate_FromDraft_ShouldSucceed()
+        {
+          var product = Product.Create("Test", "Desc");
+          product.Activate();
+          product.Status.Should().Be(ProductStatus.Active);
+        }
+    - id: TS2
+      title: Feature Handler Integration Tests
+      objective: >
+        Verify feature handlers with in-memory EF Core database, testing
+        the full request-handler-response pipeline including validation.
+      scope: integration
+      code_example: |
+        [Fact]
+        public async Task CreateProduct_Handler_ShouldPersistAndReturn()
+        {
+          var handler = new CreateProduct.Handler(dbContext);
+          var result = await handler.Handle(new CreateProduct.Request { ... });
+          result.IsSuccess.Should().BeTrue();
+        }
+
+file_structure: |
+  Catalog/
+  ├── Catalog.Extension.cs                     # Module DI registration entry point
+  ├── Domain/
+  │   ├── OptionTypes/
+  │   │   ├── OptionType.cs                     # Option type aggregate root
+  │   │   ├── OptionType.Constant.cs            # Constants and defaults
+  │   │   ├── OptionType.Enumerate.cs           # OptionType enums
+  │   │   ├── OptionType.Loggers.cs             # Logger message definitions
+  │   │   ├── OptionType.Method.cs              # Domain methods
+  │   │   ├── OptionType.Result.cs              # Result type definitions
+  │   │   ├── OptionType.Validation.cs          # Business rule validators
+  │   │   └── Values/
+  │   │       ├── OptionValue.cs                # Option value entity
+  │   │       ├── OptionValue.Constant.cs       # Constants
+  │   │       ├── OptionValue.Extensions.cs     # Extension methods
+  │   │       ├── OptionValue.Feature.cs        # Feature flags
+  │   │       ├── OptionValue.Loggers.cs        # Logger messages
+  │   │       ├── OptionValue.Result.cs         # Result types
+  │   │       └── OptionValue.Validation.cs     # Validators
+  │   ├── Products/
+  │   │   ├── Product.cs                        # Product aggregate root
+  │   │   ├── Product.Constant.cs               # Constants and defaults
+  │   │   ├── Product.Enumerate.cs              # ProductStatus and enums
+  │   │   ├── Product.Loggers.cs                # Logger messages
+  │   │   ├── Product.Method.cs                 # Domain methods
+  │   │   ├── Product.Method.Availability.cs    # Availability computation
+  │   │   ├── Product.Method.Scopes.cs          # Query scopes
+  │   │   ├── Product.Method.Searchable.cs      # Search indexing
+  │   │   ├── Product.Method.Slugs.cs           # Slug generation
+  │   │   ├── Product.Method.Status.cs          # Status transitions
+  │   │   ├── Product.Result.cs                 # Result types
+  │   │   ├── Product.Validation.cs             # Validators
+  │   │   ├── Classifications/
+  │   │   │   ├── Classification.cs             # Product-taxon join entity
+  │   │   │   ├── Classification.Constant.cs
+  │   │   │   ├── Classification.Loggers.cs
+  │   │   │   ├── Classification.Method.cs
+  │   │   │   ├── Classification.Result.cs
+  │   │   │   └── Classification.Validation.cs
+  │   │   ├── Options/
+  │   │   │   ├── ProductOptionType.cs           # Product-option type join
+  │   │   │   ├── ProductOptionType.Constant.cs
+  │   │   │   ├── ProductOptionType.Loggers.cs
+  │   │   │   ├── ProductOptionType.Method.cs
+  │   │   │   ├── ProductOptionType.Result.cs
+  │   │   │   └── ProductOptionType.Validation.cs
+  │   │   └── Variants/
+  │   │       ├── Variant.cs                    # Variant entity
+  │   │       ├── Variant.Constant.cs
+  │   │       ├── Variant.Enumerate.cs
+  │   │       ├── Variant.Loggers.cs
+  │   │       ├── Variant.Method.cs
+  │   │       ├── Variant.Method.Physical.cs    # Weight/dimensions
+  │   │       ├── Variant.Method.Pricing.cs     # Price helpers
+  │   │       ├── Variant.Method.Status.cs
+  │   │       ├── Variant.Result.cs
+  │   │       ├── Variant.Validation.cs
+  │   │       ├── Images/
+  │   │       │   ├── VariantImage.cs           # Image entity
+  │   │       │   ├── VariantImage.Constant.cs
+  │   │       │   ├── VariantImage.Enumerate.cs
+  │   │       │   ├── VariantImage.Loggers.cs
+  │   │       │   ├── VariantImage.Method.cs
+  │   │       │   ├── VariantImage.Result.cs
+  │   │       │   ├── VariantImage.Validation.cs
+  │   │       │   └── Embeddings/
+  │   │       │       ├── ImageEmbedding.cs     # Vector embedding entity
+  │   │       │       ├── ImageEmbedding.Constant.cs
+  │   │       │       ├── ImageEmbedding.Method.cs
+  │   │       │       ├── ImageEmbedding.Result.cs
+  │   │       │       └── ImageEmbedding.Validation.cs
+  │   │       ├── Options/
+  │   │       │   ├── OptionValueVariant.cs     # Variant-option value join
+  │   │       │   ├── OptionValueVariant.Constant.cs
+  │   │       │   ├── OptionValueVariant.Loggers.cs
+  │   │       │   ├── OptionValueVariant.Method.cs
+  │   │       │   ├── OptionValueVariant.Result.cs
+  │   │       │   └── OptionValueVariant.Validation.cs
+  │   │       └── Prices/
+  │   │           ├── Price.cs                  # Price entity
+  │   │           ├── Price.Constant.cs
+  │   │           ├── Price.Method.cs
+  │   │           ├── Price.Result.cs
+  │   │           ├── Price.Validation.cs
+  │   │           ├── PriceHistory.cs           # Price history tracking
+  │   │           ├── PriceHistory.Constant.cs
+  │   │           ├── PriceHistory.Method.cs
+  │   │           └── PriceHistory.Result.cs
+  │   └── Taxonomies/
+  │       ├── Taxonomy.cs                       # Taxonomy aggregate root
+  │       ├── Taxonomy.Constant.cs
+  │       ├── Taxonomy.Extensions.cs
+  │       ├── Taxonomy.Loggers.cs
+  │       ├── Taxonomy.Result.cs
+  │       ├── Taxonomy.Validation.cs
+  │       └── Taxons/
+  │           ├── Taxon.cs                      # Taxon entity
+  │           ├── Taxon.Constant.cs
+  │           ├── Taxon.DisplayOn.cs
+  │           ├── Taxon.Enumerate.cs
+  │           ├── Taxon.Extensions.cs
+  │           ├── Taxon.Loggers.cs
+  │           ├── Taxon.Method.cs
+  │           ├── Taxon.Parameterizable.cs
+  │           ├── Taxon.Result.cs
+  │           ├── Taxon.Translatable.cs
+  │           ├── Taxon.Validation.cs
+  │           └── Rules/
+  │               ├── TaxonRule.cs              # Taxon matching rule entity
+  │               ├── TaxonRule.Constant.cs
+  │               ├── TaxonRule.Enumerate.cs
+  │               ├── TaxonRule.Extensions.cs
+  │               ├── TaxonRule.Loggers.cs
+  │               ├── TaxonRule.Result.cs
+  │               └── TaxonRule.Validation.cs
+  ├── Features/
+  │   ├── Shared/
+  │   │   ├── CatalogFeature.Admin.cs           # Admin route constants
+  │   │   ├── CatalogFeature.Storefront.cs      # Storefront route constants
+  │   │   └── CatalogFeature.Tags.cs            # OpenAPI tag definitions
+  │   ├── Admin/
+  │   │   ├── OptionTypes/                      # Admin option type CRUD
+  │   │   ├── Products/                         # Admin product CRUD + lifecycle
+  │   │   └── Taxonomies/                       # Admin taxonomy + taxon management
+  │   └── Storefront/
+  │       ├── Images/                           # Storefront image display
+  │       ├── OptionTypes/                      # Storefront option type listing
+  │       ├── Products/                         # Storefront product browse + search
+  │       ├── Taxonomies/                       # Storefront taxonomy tree
+  │       └── Taxons/                           # Storefront taxon browsing
+  └── Persistence/
+      ├── CatalogSchema.cs                      # Schema and table name constants
+      ├── Configurations/                       # EF Core entity configurations
+      │   ├── OptionTypes/                      # OptionType, OptionValue configs
+      │   ├── Products/                         # Product, Variant, Price, Image configs
+      │   └── Taxonomies/                       # Taxonomy, Taxon, TaxonRule configs
+      └── Seeders/                              # Seed data for development
+          ├── Option.Seeder.cs
+          ├── Product.Seeder.cs
+          ├── Taxon.Seeder.cs
+          └── Taxonomy.Seeder.cs

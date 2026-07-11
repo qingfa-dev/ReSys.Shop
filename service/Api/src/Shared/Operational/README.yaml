@@ -1,0 +1,912 @@
+# ════════════════════════════════════════════════════
+# Operational Pillar Documentation (YAML)
+# Purpose:  Cross-cutting operational infrastructure for persistence,
+#           file storage, notifications, background jobs, HTTP resilience,
+#           and webhooks.
+# Version:  1.0.0
+# Status:   stable
+# Schema:   3.0
+# Updated:  2026-07-11
+# ════════════════════════════════════════════════════
+
+kind: BuildingBlockModule
+id: shared-operational
+name: Shared.Operational
+version: "1.0.0"
+status: stable
+schema_version: "3.0"
+
+# ─────────────────────────────────────────────────────
+# META — identity, stability, dependencies
+# REQUIRED. Always first.
+# ─────────────────────────────────────────────────────
+meta:
+  name: Operational Infrastructure
+  description: >
+    Cross-cutting operational infrastructure providing persistence
+    (EF Core, DbContext, configurations, interceptors, seeders, specifications),
+    file storage (Local, S3), notifications (email, SMS, push, logging),
+    background jobs (Hangfire), HTTP resilience with correlation propagation,
+    and webhook delivery. Composes all sub-pillars via AddOperational and UseOperational.
+  category: "Infrastructure | Persistence | Messaging | Storage"
+  stability: Stable
+  dependencies:
+    - name: Microsoft.EntityFrameworkCore
+      version: "10.x"
+      scope: runtime
+    - name: Npgsql.EntityFrameworkCore.PostgreSQL
+      version: "10.x"
+      scope: runtime
+    - name: Pgvector.EntityFrameworkCore
+      version: "3.x"
+      scope: runtime
+    - name: Hangfire.AspNetCore
+      version: "1.8.x"
+      scope: runtime
+    - name: Hangfire.Redis.StackExchange
+      version: "1.9.x"
+      scope: runtime
+    - name: Microsoft.Extensions.Http.Resilience
+      version: "9.x"
+      scope: runtime
+    - name: FluentEmail.Core
+      version: "3.x"
+      scope: runtime
+    - name: FluentEmail.SendGrid
+      version: "3.x"
+      scope: runtime
+    - name: FluentEmail.Smtp
+      version: "3.x"
+      scope: runtime
+    - name: Sinch
+      version: "6.x"
+      scope: runtime
+    - name: nClam
+      version: "5.x"
+      scope: runtime
+    - name: SkiaSharp
+      version: "3.x"
+      scope: runtime
+    - name: Microsoft.AspNetCore.Identity.EntityFrameworkCore
+      version: "10.x"
+      scope: runtime
+
+# ─────────────────────────────────────────────────────
+# PRINCIPLES — design philosophies
+# ─────────────────────────────────────────────────────
+principles:
+  - id: P1
+    name: Unified Composition Root
+    description: >
+      A single AddOperational entry point composes all sub-pillars
+      in the correct dependency order, and UseOperational configures
+      the middleware pipeline.
+    rationale: >
+      Prevents subsystems from being registered out of order and
+      ensures every capability is wired consistently across hosts.
+  - id: P2
+    name: Provider Abstraction
+    description: >
+      Every external capability (storage, email, SMS, background jobs)
+      is behind an interface so the backing implementation can be
+      swapped without changing consumers.
+    rationale: >
+      Enables local-dev, staging, and production to use different
+      providers without conditional logic in business code.
+  - id: P3
+    name: Fail-Safe Operations
+    description: >
+      Domain operations return Result<T> instead of throwing exceptions.
+      Interceptors and services produce error results for recoverable
+      failures rather than propagating exceptions.
+    rationale: >
+      Callers can handle failures explicitly without try-catch
+      noise, and the system degrades gracefully under partial failure.
+  - id: P4
+    name: Configuration-Driven Defaults
+    description: >
+      Each sub-pillar reads its settings from appsettings via Options
+      binding with FluentValidation, and resolves Aspire connection
+      strings with fallback to defaults.
+    rationale: >
+      Removes hardcoded connection strings and ensures invalid
+      configuration is caught at startup rather than at runtime.
+
+# ─────────────────────────────────────────────────────
+# FEATURES — capability inventory
+# ─────────────────────────────────────────────────────
+features:
+  - id: F1
+    name: Persistence Layer
+    type: core
+    description: >
+      EF Core DbContext with Npgsql, pgvector support, snake_case
+      naming, auditable/soft-delete/versioning interceptors, seeders,
+      database initializer, and composable specification pipeline
+      for filtering, sorting, paging, and searching.
+  - id: F2
+    name: File Storage
+    type: core
+    description: >
+      Multi-provider file storage (Local disk, S3) with provider
+      abstraction, image processing (SkiaSharp), malware scanning
+      (nClam aggregate scanner), anti-forgery guards, and encryption helpers.
+  - id: F3
+    name: Notification System
+    type: core
+    description: >
+      Multi-channel notification dispatch (email via SendGrid/SMTP,
+      SMS via Sinch, logging) with template-based message construction,
+      hub routing, and FluentValidation on all settings.
+  - id: F4
+    name: Background Jobs
+    type: integration
+    description: >
+      Hangfire integration with Redis or in-memory storage, FluentValidation
+      on settings, automatic dashboard in development, and queue-based
+      job execution.
+  - id: F5
+    name: HTTP Resilience
+    type: core
+    description: >
+      Named HTTP client registration with correlation ID propagation,
+      configurable timeouts, default headers, and Microsoft resilience
+      pipeline integration.
+  - id: F6
+    name: Webhook Delivery
+    type: extension
+    description: >
+      Webhook subscription management, HMAC-signed delivery, background
+      sweep service for pending deliveries, and domain entities for
+      subscription and delivery tracking.
+
+# ─────────────────────────────────────────────────────
+# ABSTRACTIONS — component inventory
+# REQUIRED. Organized by sub-pillar category.
+# ─────────────────────────────────────────────────────
+abstractions:
+  # ═══════════════════════════════════════════════
+  # Category 1 — Persistence (A-prefix IDs)
+  # ═══════════════════════════════════════════════
+  - category: Persistence
+    order: 1
+    description: >
+      EF Core database context, interceptors, configurations, seeders,
+      initializer, and composable specification pipeline for queries.
+    items:
+      - id: A1
+        name: ApplicationDbContext
+        type: class
+        path: ./Persistence/Data/AppDbContext.cs
+        description: >
+          Primary DbContext inheriting IdentityDbContext with Npgsql,
+          pgvector, snake_case naming, and assembly-scanned configurations.
+        purpose: >
+          Central database access point that provides identity-aware
+          data access with automatic entity configuration discovery.
+      - id: A2
+        name: IApplicationDbContext
+        type: interface
+        path: ./Persistence/Data/AppDbContext.Wrapper.cs
+        description: >
+          Thin abstraction over ApplicationDbContext exposing Set<T>()
+          and SaveChangesAsync for testable data access.
+        purpose: >
+          Decouples business code from the concrete DbContext, enabling
+          in-memory substitution for unit tests.
+      - id: A3
+        name: PersistenceExtensions
+        type: extension
+        path: ./Persistence/Persistence.Extensions.cs
+        description: >
+          AddPersistence and AddNpgsqlDbContext extension methods that
+          register DbContext, interceptors, and connection string resolution.
+        purpose: >
+          Single-call persistence registration with Aspire-aware connection
+          string fallback and interceptor wiring.
+      - id: A4
+        name: AuditableInterceptor
+        type: class
+        path: ./Persistence/Interceptors/Auditable.Interceptor.cs
+        description: >
+          SaveChanges interceptor that automatically populates CreatedAt,
+          UpdatedAt, CreatedBy, and UpdatedBy audit fields.
+        purpose: >
+          Enforces consistent audit trail without manual field assignment
+          in every entity save operation.
+      - id: A5
+        name: SoftDeletableInterceptor
+        type: class
+        path: ./Persistence/Interceptors/SoftDeletable.Interceptor.cs
+        description: >
+          SaveChanges interceptor that converts deletes into soft-delete
+          updates by setting IsDeleted and DeletedAt fields.
+        purpose: >
+          Preserves data history and enables undelete while keeping
+          LINQ queries clean via global query filters.
+      - id: A6
+        name: VersionableInterceptor
+        type: class
+        path: ./Persistence/Interceptors/Versionable.Interceptor.cs
+        description: >
+          SaveChanges interceptor that manages optimistic concurrency
+          via row version tracking.
+        purpose: >
+          Prevents silent data loss from concurrent writes without
+          requiring manual concurrency token management.
+      - id: A7
+        name: DatabaseInitializer
+        type: class
+        path: ./Persistence/Initializers/DatabaseInitializer.cs
+        description: >
+          Hosted service that applies pending migrations and runs
+          registered seeders on application startup.
+        purpose: >
+          Ensures the database schema is current and seeded before
+          the application accepts traffic.
+      - id: A8
+        name: ISeeder / Seeder<T>
+        type: abstract
+        path: ./Persistence/Seeders/Seeder.Abstract.cs
+        description: >
+          Abstract base for database seeders with async SeedAsync method
+          and ShouldSeed predicate for conditional execution.
+        purpose: >
+          Standardizes seed logic so the initializer can discover and
+          run all seeders uniformly.
+      - id: A9
+        name: DatabaseOption
+        type: record
+        path: ./Persistence/Options/DatabaseOption.cs
+        description: >
+          Constants for connection string key names (Default, Aspire)
+          used in DbContext registration.
+        purpose: >
+          Centralizes connection string key resolution to prevent
+          magic strings across persistence configuration.
+      - id: A10
+        name: FilterModel
+        type: class
+        path: ./Persistence/Specifications/Filtering/Filter.Model.cs
+        description: >
+          Composable filter specification parsed from DSL, JSON, or
+          query-string with operator mapping and expression building.
+        purpose: >
+          Enables dynamic WHERE clause construction from API input
+          without hand-writing LINQ for every filter combination.
+      - id: A11
+        name: SortModel
+        type: class
+        path: ./Persistence/Specifications/Sorting/Sort.Model.cs
+        description: >
+          Immutable sort specification parsed from DSL, JSON, or
+          query-string with field whitelist validation.
+        purpose: >
+          Provides safe, validated ORDER BY clause construction from
+          untrusted API input.
+      - id: A12
+        name: PageModel
+        type: class
+        path: ./Persistence/Specifications/Paging/Page.Model.cs
+        description: >
+          Paging specification with page number, size bounds, skip/take
+          computation, and total count integration.
+        purpose: >
+          Standardizes pagination across all list endpoints with
+          safe defaults and upper-bound enforcement.
+
+  # ═══════════════════════════════════════════════
+  # Category 2 — File Storage (B-prefix IDs)
+  # ═══════════════════════════════════════════════
+  - category: File Storage
+    order: 2
+    description: >
+      Multi-provider file storage with security scanning, image
+      processing, and anti-forgery protection.
+    items:
+      - id: B1
+        name: IStorageProvider
+        type: interface
+        path: ./Storages/Providers/StorageProvider.Interface.cs
+        description: >
+          Contract for storage providers supporting upload, download,
+          delete, stat, list, and path resolution operations.
+        purpose: >
+          Abstracts the backing store so business code never depends
+          on S3 or local disk specifics.
+      - id: B2
+        name: LocalStorageProvider
+        type: class
+        path: ./Storages/Providers/Local.StorageProvider.Implementation.cs
+        description: >
+          File-based storage provider that persists objects to local
+          disk with configurable root path.
+        purpose: >
+          Provides zero-dependency file storage for development and
+          single-server deployments.
+      - id: B3
+        name: S3StorageProvider
+        type: class
+        path: ./Storages/Providers/S3.StorageProvider.Implementation.cs
+        description: >
+          AWS S3-compatible storage provider for cloud object storage.
+        purpose: >
+          Enables production-grade scalable file storage backed by
+          S3, MinIO, or any S3-compatible service.
+      - id: B4
+        name: IStorageService
+        type: interface
+        path: ./Storages/Services/Storage.Service.Interface.cs
+        description: >
+          High-level storage service orchestrating provider selection,
+          security enforcement, anti-forgery guards, and malware scanning.
+        purpose: >
+          Provides a single entry point for file operations that
+          enforces all security policies automatically.
+      - id: B5
+        name: StorageSecurityEnforcer
+        type: class
+        path: ./Storages/Security/Storage.SecurityEnforcer.Implementation.cs
+        description: >
+          Enforces file-type allowlists, size limits, and content
+          validation rules before storage operations.
+        purpose: >
+          Prevents malicious or oversized files from reaching the
+          backing store regardless of provider.
+      - id: B6
+        name: IImageProcessor
+        type: interface
+        path: ./Storages/Processing/ImageProcessor.Interface.cs
+        description: >
+          Image processing abstraction for resize, crop, and format
+          conversion using SkiaSharp.
+        purpose: >
+          Enables on-the-fly image transformations without external
+          CDN-side processing.
+      - id: B7
+        name: StorageSetting
+        type: record
+        path: ./Storages/Options/StorageSetting.cs
+        description: >
+          Configuration record binding Storage section with default
+          provider selection and per-provider sub-sections.
+        purpose: >
+          Centralizes all storage configuration with FluentValidation
+          for startup-time validation.
+
+  # ═══════════════════════════════════════════════
+  # Category 3 — Notifications (C-prefix IDs)
+  # ═══════════════════════════════════════════════
+  - category: Notifications
+    order: 3
+    description: >
+      Multi-channel notification dispatch with template management,
+      hub routing, and provider abstraction.
+    items:
+      - id: C1
+        name: INotificationService
+        type: interface
+        path: ./Notifications/Services/Notification.Service.Interface.cs
+        description: >
+          Orchestration interface for sending notifications via
+          validated message objects with template resolution.
+        purpose: >
+          Single entry point for all notification dispatch, ensuring
+          templates are resolved and channels validated before send.
+      - id: C2
+        name: INotificationHub
+        type: interface
+        path: ./Notifications/Hubs/Notification.Hub.Interface.cs
+        description: >
+          Hub interface that routes notification messages to the
+          correct channel provider (email, SMS, logging).
+        purpose: >
+          Decouples notification dispatch from channel-specific
+          delivery logic.
+      - id: C3
+        name: INotificationProvider
+        type: interface
+        path: ./Notifications/Providers/NotificationProvider.Interface.cs
+        description: >
+          Provider contract for delivering a single notification
+          through a specific channel (email, SMS, logging).
+        purpose: >
+          Enables adding new delivery providers without modifying
+          the hub or orchestration service.
+      - id: C4
+        name: NotificationMessage
+        type: record
+        path: ./Notifications/Models/Notification.Message.Model.cs
+        description: >
+          Immutable message model carrying use case, recipient,
+          content, parameters, and priority metadata.
+        purpose: >
+          Provides a strongly-typed, validated notification request
+          that carries all context for template resolution and dispatch.
+      - id: C5
+        name: NotificationDefinition / Templates
+        type: class
+        path: ./Notifications/Templates/NotificationDefinition.cs
+        description: >
+          Static template registry mapping use-case enums to channel,
+          format, and parameter definitions.
+        purpose: >
+          Prevents ad-hoc notification construction by requiring every
+          send to reference a pre-defined template.
+      - id: C6
+        name: NotificationSetting
+        type: record
+        path: ./Notifications/Options/NotificationSetting.cs
+        description: >
+          Root configuration record with channel sub-settings for
+          email, SMS, and provider-specific options.
+        purpose: >
+          Centralizes all notification configuration with FluentValidation
+          for startup-time validation.
+
+  # ═══════════════════════════════════════════════
+  # Category 4 — Infrastructure Utilities (D-prefix IDs)
+  # ═══════════════════════════════════════════════
+  - category: Infrastructure Utilities
+    order: 4
+    description: >
+      Background job scheduling, HTTP resilience, correlation propagation,
+      and webhook delivery.
+    items:
+      - id: D1
+        name: BackgroundJobExtensions
+        type: extension
+        path: ./Backgrounds/Background.Extension.cs
+        description: >
+          AddBackgroundJobs and UseBackgroundJobs extension methods
+          configuring Hangfire with Redis or in-memory storage.
+        purpose: >
+          Single-call Hangfire registration with Aspire-aware Redis
+          connection string resolution and dashboard setup.
+      - id: D2
+        name: BackgroundJobSetting
+        type: record
+        path: ./Backgrounds/Options/BackgroundJobSetting.cs
+        description: >
+          Configuration record for Hangfire with Enabled flag, Redis
+          toggle, dashboard path, and queue settings.
+        purpose: >
+          Enables toggling background jobs between Redis, in-memory,
+          and disabled modes via configuration.
+      - id: D3
+        name: HttpClientExtensions
+        type: extension
+        path: ./Http/Http.Extensions.cs
+        description: >
+          AddHttpClients and AddTypedHttpClient extension methods for
+          named and typed HTTP client registration with resilience.
+        purpose: >
+          Standardizes HTTP client setup with correlation ID propagation
+          and Microsoft resilience pipelines.
+      - id: D4
+        name: CorrelationIdPropagationHandler
+        type: handler
+        path: ./Http/CorrelationIdPropagationHandler.cs
+        description: >
+          DelegatingHandler that forwards the X-Correlation-Id header
+          from the inbound HTTP context to outbound requests.
+        purpose: >
+          Enables distributed tracing across service boundaries by
+          propagating correlation IDs automatically.
+      - id: D5
+        name: HttpOptions
+        type: record
+        path: ./Http/Options/HttpOptions.cs
+        description: >
+          Configuration record for named HTTP clients with base address,
+          timeouts, headers, and resilience pipeline toggles.
+        purpose: >
+          Centralizes HTTP client configuration with FluentValidation
+          and startup-time validation.
+      - id: D6
+        name: WebhooksExtensions
+        type: extension
+        path: ./Webhooks/Webhooks.Extensions.cs
+        description: >
+          AddWebhooks extension method registering webhook dispatcher,
+          HMAC signer, delivery job, and background sweep service.
+        purpose: >
+          Provides one-call webhook infrastructure setup with signed
+          delivery and background retry.
+      - id: D7
+        name: IWebhookDispatcher
+        type: interface
+        path: ./Webhooks/Services/IWebhookDispatcher.cs
+        description: >
+          Interface for dispatching webhook events to matching
+          subscriptions with HMAC signature generation.
+        purpose: >
+          Decouples webhook event emission from delivery mechanics
+          and signature generation.
+      - id: D8
+        name: WebhookDeliveryJob
+        type: class
+        path: ./Webhooks/Backgrounds/WebhookDeliveryJob.cs
+        description: >
+          Background job that sweeps pending webhook deliveries and
+          retries failed attempts with exponential backoff.
+        purpose: >
+          Ensures reliable webhook delivery without blocking the
+          calling thread or losing failed attempts.
+
+# ─────────────────────────────────────────────────────
+# TECHNICAL — internals and mechanisms
+# ─────────────────────────────────────────────────────
+technical:
+  mechanisms:
+    - id: M1
+      name: Sub-Pillar Composition Order
+      scope: "Service registration"
+      description: >
+        AddOperational composes sub-pillars in a fixed order:
+        Storage, Persistence, Notifications, BackgroundJobs,
+        HttpClients, Webhooks. This order respects dependency
+        chains where later pillars may depend on earlier ones.
+      pattern: |
+        public static WebApplicationBuilder AddOperational(
+            this WebApplicationBuilder builder,
+            params Assembly[] additionalAssemblies)
+        {
+            builder.AddStorage();
+            builder.AddPersistence(additionalAssemblies);
+            builder.AddNotifications();
+            builder.AddBackgroundJobs();
+            builder.AddHttpClients();
+            builder.AddWebhooks();
+            return builder;
+        }
+    - id: M2
+      name: Aspire Connection String Fallback
+      scope: "Database and cache configuration"
+      description: >
+        DbContext and Hangfire resolve connection strings by first
+        checking for Aspire-injected keys, then falling back to
+        default keys. This allows the same code to work with and
+        without Aspire orchestration.
+      pattern: |
+        var resolvedName = builder.Configuration
+            .GetConnectionString(DatabaseOption.Aspire) != null
+            ? DatabaseOption.Aspire
+            : DatabaseOption.Default;
+        string connectionString = builder.Configuration
+            .GetConnectionString(resolvedName);
+    - id: M3
+      name: Specification Pipeline
+      scope: "Query composition"
+      description: >
+        Filtering, Sorting, Paging, and Searching specifications
+        are composable. Each parses from multiple input surfaces
+        (DSL, JSON, query-string) and builds LINQ expressions
+        that chain onto IQueryable<T>.
+      steps:
+        - "Parse input into typed specification model (FilterModel, SortModel, etc.)"
+        - "Validate against allowed fields and business rules"
+        - "Build LINQ expression tree via ExpressionBuilder"
+        - "Apply expression to IQueryable via extension method"
+    - id: M4
+      name: Multi-Provider Storage Routing
+      scope: "File storage"
+      description: >
+        StorageService holds a dictionary of IStorageProvider instances
+        keyed by name. The default provider is configured in StorageSetting
+        and can be overridden per-request. Security enforcement and
+        malware scanning run before the provider is invoked.
+      steps: >
+        "Resolve provider from StorageSetting.DefaultProvider",
+        "Enforce security policies (type, size, content)",
+        "Run anti-forgery guard for upload integrity",
+        "Invoke provider UploadAsync/DownloadAsync"
+
+# ─────────────────────────────────────────────────────
+# ANTI-PATTERNS — what NOT to do
+# ─────────────────────────────────────────────────────
+anti_patterns:
+  - id: AP1
+    name: Bypassing Composition Root
+    severity: high
+    avoid: >
+      Registering persistence, storage, or notification services
+      individually instead of using AddOperational.
+    better_approach: >
+      Always use AddOperational to register all operational
+      sub-pillars in the correct order.
+    impact: >
+      Sub-pillars may be registered out of order, causing
+      missing dependencies or incorrect interceptor execution.
+  - id: AP2
+    name: Hardcoding Connection Strings
+    severity: critical
+    avoid: >
+      Writing connection strings directly in DbContext or
+      Hangfire configuration instead of using configuration.
+    better_approach: >
+      Use the Aspire-fallback pattern in Persistence.Extensions
+      or Background.JobExtensions to resolve connection strings.
+    impact: >
+      Prevents environment-specific configuration and creates
+      security risks from committed secrets.
+  - id: AP3
+    name: Direct DbContext Usage Without Interface
+    severity: medium
+    avoid: >
+      Injecting ApplicationDbContext directly into handlers
+      instead of IApplicationDbContext.
+    better_approach: >
+      Inject IApplicationDbContext to enable in-memory
+      substitution in unit tests.
+    impact: >
+      Unit tests require a real database or complex mocking,
+      slowing the test suite and reducing coverage.
+  - id: AP4
+    name: Skipping Interceptor Registration
+    severity: high
+    avoid: >
+      Creating a DbContext without calling AddPersistenceInterceptors,
+      which omits auditing, soft-delete, and versioning.
+    better_approach: >
+      Use AddPersistence or AddNpgsqlDbContext which automatically
+      register all interceptors.
+    impact: >
+      Audit fields are never populated, soft deletes become hard
+      deletes, and optimistic concurrency is not enforced.
+
+# ─────────────────────────────────────────────────────
+# USAGE — common patterns and scenarios
+# ─────────────────────────────────────────────────────
+usage:
+  scenarios:
+    - id: S1
+      title: Composing Operational Services
+      context: >
+        Use when setting up a new host (API, worker) that needs
+        persistence, storage, notifications, or background jobs.
+      pattern: |
+        // Program.cs — register all operational infrastructure
+        builder.AddOperational(typeof(CatalogModule).Assembly);
+
+        // Later in pipeline
+        app.UseOperational();
+      benefits:
+        - Single-call registration for all sub-pillars
+        - Correct dependency order guaranteed
+        - Aspire-aware connection string resolution
+    - id: S2
+      title: Registering a Module DbContext
+      context: >
+        Use when a business module needs its own DbContext with
+        the standard interceptors and Npgsql configuration.
+      pattern: |
+        // In module's extension method
+        builder.AddNpgsqlDbContext<ICatalogDbContext, CatalogDbContext>(
+            connectionName: "CatalogDb");
+      benefits:
+        - Automatic interceptor registration
+        - Consistent naming conventions and provider config
+        - Interface-based access for testability
+    - id: S3
+      title: Sending a Notification
+      context: >
+        Use when dispatching a notification through the template-based
+        system with multi-channel support.
+      pattern: |
+        var message = new NotificationMessage
+        {
+            UseCase = NotificationUseCase.OrderConfirmed,
+            Recipient = new NotificationRecipient { Email = "..." },
+            Context = new NotificationContext { OrderId = order.Id }
+        };
+        var result = await notificationService.SendAsync(message);
+      benefits:
+        - Template-driven ensures consistent messaging
+        - Channel routing handled by the hub
+        - FluentValidation catches misconfiguration at startup
+
+# ─────────────────────────────────────────────────────
+# FILE STRUCTURE — directory layout
+# REQUIRED. Always last.
+# ─────────────────────────────────────────────────────
+file_structure: |
+  Operational/
+  ├── Operational.Extension.cs              # AddOperational / UseOperational composition root
+  ├── Backgrounds/
+  │   ├── Background.Extension.cs           # AddBackgroundJobs / UseBackgroundJobs (Hangfire)
+  │   └── Options/
+  │       ├── BackgroundJobSetting.cs       # Hangfire configuration record
+  │       ├── BackgroundJobSetting.Constant.cs
+  │       └── BackgroundJobSetting.Result.cs
+  ├── Http/
+  │   ├── Http.Extensions.cs               # AddHttpClients / AddTypedHttpClient registration
+  │   ├── CorrelationIdPropagationHandler.cs # X-Correlation-Id forwarding handler
+  │   ├── ResilienceExtensions.cs           # Default resilience pipeline constant
+  │   └── Options/
+  │       ├── HttpOptions.cs               # Named client configuration record
+  │       ├── HttpOptions.Result.cs
+  │       ├── HttpOptions.Validator.cs
+  │       └── HttpConstant.cs
+  ├── Notifications/
+  │   ├── Notification.Extension.cs         # AddNotifications composition
+  │   ├── Channels/
+  │   │   ├── Emails/
+  │   │   │   ├── Options/                 # Email channel settings
+  │   │   │   └── Providers/               # SendGrid, SMTP providers
+  │   │   ├── Logging/
+  │   │   │   └── Providers/               # Development logging provider
+  │   │   └── Sms/
+  │   │       ├── Options/                 # SMS channel settings
+  │   │       └── Providers/               # Sinch provider
+  │   ├── Hubs/
+  │   │   ├── Notification.Hub.Interface.cs
+  │   │   ├── Notification.Hub.Implementation.cs
+  │   │   ├── Notification.Hub.Logger.cs
+  │   │   └── Notification.Hub.Result.cs
+  │   ├── Models/
+  │   │   ├── Notification.Message.Model.cs
+  │   │   ├── Notification.Content.Model.cs
+  │   │   ├── Notification.Context.Model.cs
+  │   │   ├── Notification.Recipient.Model.cs
+  │   │   ├── Notification.Attachment.Model.cs
+  │   │   ├── Notification.Metadata.Model.cs
+  │   │   ├── Notification.Parameter.Model.cs
+  │   │   ├── Notification.Message.Builder.cs
+  │   │   └── Notification.Result.cs
+  │   ├── Options/
+  │   │   ├── NotificationSetting.cs
+  │   │   ├── NotificationSetting.Constant.cs
+  │   │   ├── NotificationSetting.Result.cs
+  │   │   ├── NotificationSetting.Validator.cs
+  │   │   ├── Channels/
+  │   │   ├── Extensions/
+  │   │   └── Providers/
+  │   ├── Providers/
+  │   │   ├── NotificationProvider.Interface.cs
+  │   │   ├── NotificationProvider.Logger.cs
+  │   │   └── NotificationProvider.Result.cs
+  │   ├── Services/
+  │   │   ├── Notification.Service.Interface.cs
+  │   │   ├── Notification.Service.Implementation.cs
+  │   │   ├── Notification.Service.Loggers.cs
+  │   │   └── Notification.Service.Mappings.cs
+  │   ├── Store/
+  │   │   ├── NotificationStore.Channel.cs
+  │   │   ├── NotificationStore.Format.cs
+  │   │   ├── NotificationStore.Param.cs
+  │   │   ├── NotificationStore.PriorityLevel.cs
+  │   │   ├── NotificationStore.Template.cs
+  │   │   └── NotificationTemplateStyles.cs
+  │   └── Templates/
+  │       ├── NotificationDefinition.cs
+  │       ├── NotificationEnumerate.Channel.cs
+  │       ├── NotificationEnumerate.Format.cs
+  │       ├── NotificationEnumerate.Param.cs
+  │       ├── NotificationEnumerate.PriorityLevel.cs
+  │       └── NotificationEnumerate.Usecase.cs
+  ├── Persistence/
+  │   ├── Persistence.Extensions.cs         # AddPersistence / AddNpgsqlDbContext registration
+  │   ├── Configurations/
+  │   │   ├── DateTimes/
+  │   │   ├── Dictionaries/
+  │   │   ├── Enums/
+  │   │   ├── Models/
+  │   │   ├── Numbers/
+  │   │   └── Vectors/
+  │   ├── Data/
+  │   │   ├── AppDbContext.cs              # Primary IdentityDbContext with pgvector
+  │   │   └── AppDbContext.Wrapper.cs      # IApplicationDbContext interface
+  │   ├── Initializers/
+  │   │   ├── DatabaseInitializer.cs       # Migration + seeder runner hosted service
+  │   │   └── DatabaseInitializer.Logger.cs
+  │   ├── Interceptors/
+  │   │   ├── Auditable.Interceptor.cs     # Auto-populates CreatedAt/UpdatedAt
+  │   │   ├── SoftDeletable.Interceptor.cs # Converts deletes to soft-delete
+  │   │   ├── Versionable.Interceptor.cs   # Optimistic concurrency management
+  │   │   └── Interceptors.Extension.cs    # AddPersistenceInterceptors registration
+  │   ├── Options/
+  │   │   └── DatabaseOption.cs            # Connection string key constants
+  │   ├── Seeders/
+  │   │   ├── Seeder.Abstract.cs           # Base seeder with ShouldSeed predicate
+  │   │   ├── Seeder.Extension.cs
+  │   │   └── Seeder.Interface.cs
+  │   └── Specifications/
+  │       ├── Filtering/
+  │       │   ├── Filter.Model.cs
+  │       │   ├── Filter.Condition.cs
+  │       │   ├── Filter.Group.cs
+  │       │   ├── Expression/
+  │       │   ├── Extensions/
+  │       │   └── Parsing/
+  │       ├── Helpers/
+  │       ├── Paging/
+  │       │   ├── Page.Model.cs
+  │       │   ├── Page.Bounds.cs
+  │       │   ├── Extensions/
+  │       │   ├── Parsing/
+  │       │   └── README.yaml
+  │       ├── Querying/
+  │       │   ├── Querying.Model.cs
+  │       │   ├── Querying.Parameters.cs
+  │       │   └── Filtering.Parameters.cs
+  │       ├── Searching/
+  │       │   ├── Search.Model.cs
+  │       │   ├── Search.Term.cs
+  │       │   ├── Expression/
+  │       │   ├── Extensions/
+  │       │   └── Parsing/
+  │       └── Sorting/
+  │           ├── Sort.Model.cs
+  │           ├── Sort.Clause.cs
+  │           ├── Sort.Direction.cs
+  │           ├── Expression/
+  │           ├── Extensions/
+  │           ├── Parsing/
+  │           └── README.yaml
+  ├── Storages/
+  │   ├── Storage.Extensions.cs             # AddStorage / UseStorage composition
+  │   ├── Helpers/
+  │   │   ├── EncryptionHelper.cs
+  │   │   └── HashHelper.cs
+  │   ├── Models/
+  │   │   ├── Storage.Enum.cs
+  │   │   ├── Storage.Request.Model.cs
+  │   │   ├── Storage.Response.Model.cs
+  │   │   └── Storage.Result.cs
+  │   ├── Options/
+  │   │   ├── StorageSetting.cs
+  │   │   ├── StorageSetting.Constant.cs
+  │   │   ├── StorageSetting.Result.cs
+  │   │   └── StorageSetting.Validator.cs
+  │   ├── Processing/
+  │   │   ├── ImageProcessor.Interface.cs
+  │   │   ├── ImageProcessor.Implementation.cs
+  │   │   ├── ImageProcessor.Constants.cs
+  │   │   ├── ImageProcessor.Enum.cs
+  │   │   ├── ImageProcessor.Loggers.cs
+  │   │   └── ImageProcessor.Result.cs
+  │   ├── Providers/
+  │   │   ├── StorageProvider.Interface.cs  # IStorageProvider contract
+  │   │   ├── Local.StorageProvider.Implementation.cs
+  │   │   ├── Local.StorageProvider.Loggers.cs
+  │   │   ├── S3.StorageProvider.Implementation.cs
+  │   │   ├── S3.StorageProvider.Loggers.cs
+  │   │   └── Options/
+  │   ├── Security/
+  │   │   ├── Storage.SecurityEnforcer.Interface.cs
+  │   │   ├── Storage.SecurityEnforcer.Implementation.cs
+  │   │   ├── Storage.SecurityEnforcer.Constants.cs
+  │   │   ├── Storage.SecurityEnforcer.Loggers.cs
+  │   │   ├── Storage.SecurityEnforcer.Result.cs
+  │   │   ├── Guard/
+  │   │   ├── Options/
+  │   │   └── Scanners/
+  │   └── Services/
+  │       ├── Storage.Service.Interface.cs  # IStorageService contract
+  │       ├── Storage.Service.Implementation.cs
+  │       └── Storage.Service.Loggers.cs
+  ├── Webhooks/
+  │   ├── Webhooks.Extensions.cs           # AddWebhooks registration
+  │   ├── Backgrounds/
+  │   │   └── WebhookDeliveryJob.cs        # Pending delivery sweep job
+  │   ├── Domain/
+  │   │   ├── WebhookSubscription.cs
+  │   │   ├── WebhookSubscription.Constant.cs
+  │   │   ├── WebhookSubscription.Method.cs
+  │   │   ├── WebhookSubscription.Result.cs
+  │   │   ├── WebhookDelivery.cs
+  │   │   ├── WebhookDelivery.Constant.cs
+  │   │   ├── WebhookDelivery.Method.cs
+  │   │   ├── WebhookDelivery.Result.cs
+  │   │   ├── WebhookEnums.cs
+  │   │   └── WebhookUrlValidator.cs
+  │   ├── Persistence/
+  │   │   ├── WebhookSchema.cs
+  │   │   └── Configurations/
+  │   └── Services/
+  │       ├── IWebhookDispatcher.cs
+  │       ├── WebhookDispatcher.cs
+  │       ├── IWebhookSigner.cs
+  │       └── WebhookSigner.cs
+  └── README.yaml                          # This documentation

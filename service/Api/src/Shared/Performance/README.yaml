@@ -1,0 +1,545 @@
+kind: BuildingBlockModule
+id: performance-caching
+name: Shared.Performance
+version: "1.0.0"
+status: stable
+schema_version: "3.0"
+
+meta:
+  name: Performance — HybridCache + Redis Multi-Tier Caching
+  description: >
+    HybridCache + Redis multi-tier caching abstraction providing in-memory (L1),
+    distributed (L2), and hybrid caching layers. Centralizes cache configuration,
+    validation, and service registration for the entire application.
+  category: "Infrastructure | Caching"
+  stability: Stable
+  dependencies:
+    - name: Microsoft.Extensions.Caching.Hybrid
+      version: "10.0.0"
+      scope: runtime
+    - name: Microsoft.Extensions.Caching.StackExchangeRedis
+      version: "10.0.0"
+      scope: runtime
+    - name: StackExchange.Redis
+      version: "2.8.0"
+      scope: runtime
+    - name: FluentValidation
+      version: "11.0.0"
+      scope: runtime
+
+principles:
+  - id: P1
+    name: Graceful Degradation
+    description: >
+      Caching is globally toggleable via CachingSetting.Enabled; when disabled,
+      all operations bypass the cache and execute the factory directly.
+    rationale: >
+      Prevents cache infrastructure failures from blocking application startup
+      and allows safe feature-flag-based rollout.
+  - id: P2
+    name: Configuration-Driven Tiers
+    description: >
+      Each cache tier (Memory, Distributed, Hybrid) is independently configurable
+      with its own Enabled flag, expiration, and constraints.
+    rationale: >
+      Enables selective adoption of cache tiers without code changes; developers
+      can enable only the tiers needed for their deployment environment.
+  - id: P3
+    name: Fail-Safe Validation
+    description: >
+      All caching options are validated at startup via FluentValidation; missing
+      or invalid configuration fails fast with descriptive error codes.
+    rationale: >
+      Prevents runtime cache misses or connection failures caused by misconfigured
+      options that would otherwise silently fall back to defaults.
+  - id: P4
+    name: Aspire-First Connection Resolution
+    description: >
+      Connection strings are resolved with Aspire-managed names first, falling
+      back to standalone connection strings when Aspire is unavailable.
+    rationale: >
+      Supports both orchestrated (Aspire) and standalone deployment modes without
+      requiring configuration changes per environment.
+
+features:
+  - id: F1
+    name: Multi-Tier Cache Registration
+    type: core
+    description: >
+      Registers in-memory, distributed (Redis or memory fallback), and HybridCache
+      services via a single AddCaching() extension method with full option binding.
+    methods:
+      - name: "AddCaching(WebApplicationBuilder) → WebApplicationBuilder"
+        description: Registers all configured caching services based on CachingSetting options.
+  - id: F2
+    name: Cache Service Orchestration
+    type: core
+    description: >
+      ICacheService provides a simplified API over HybridCache for get-or-create,
+      set, remove, and tag-based bulk invalidation operations.
+    methods:
+      - name: "GetOrCreateAsync<T>(key, factory, options?, tags?) → ValueTask<T>"
+        description: Retrieve from cache or create via factory if missing.
+      - name: "SetAsync<T>(key, value, options?, tags?) → ValueTask"
+        description: Persist a value in the cache hierarchy.
+      - name: "RemoveAsync(key) → ValueTask"
+        description: Invalidate a specific cache entry across all tiers.
+      - name: "RemoveByTagAsync(tags) → ValueTask"
+        description: Bulk invalidate all entries associated with specified tags.
+  - id: F3
+    name: FluentValidation Options Binding
+    type: extension
+    description: >
+      CachingSetting options are validated at startup using FluentValidation with
+      structured error codes for each validation failure scenario.
+  - id: F4
+    name: Structured Logging
+    type: extension
+    description: >
+      CacheService emits structured log messages for cache hits, misses, sets,
+      removes, tag invalidations, and bypass events using source-generated loggers.
+
+abstractions:
+  - category: Extension Methods
+    order: 1
+    description: Entry points for registering caching infrastructure into the application pipeline.
+    items:
+      - id: A1
+        name: PerformanceExtension
+        type: extension
+        path: ./Performance.Extension.cs
+        description: >
+          Top-level extension that delegates to AddCaching() for performance
+          infrastructure registration.
+        purpose: >
+          Provides the AddPerformance() entry point for the Shared.Performance pillar,
+          composing all performance-related services.
+        example: |
+          builder.AddPerformance();
+      - id: A2
+        name: CachingExtensions
+        type: extension
+        path: ./Caching/Caching.Extension.cs
+        description: >
+          Registers caching services (Memory, Distributed, Hybrid) with full option
+          binding, validation, and connection string resolution.
+        purpose: >
+          Centralizes all caching DI registration into a single composable extension method.
+        methods:
+          - name: "AddCaching(WebApplicationBuilder) → WebApplicationBuilder"
+            description: Registers configured caching tiers and validates options at startup.
+
+  - category: Cache Service
+    order: 2
+    description: Orchestration layer wrapping HybridCache with a simplified, resilient API.
+    items:
+      - id: B1
+        name: ICacheService
+        type: interface
+        path: ./Caching/Wrappers/Caching.Service.Interface.cs
+        description: >
+          High-level orchestration interface for caching operations including
+          get-or-create, set, remove, and tag-based invalidation.
+        purpose: >
+          Abstracts HybridCache behind a simplified API that consumers inject
+          for all caching needs.
+        contract: |
+          // Contract: pre=key-not-null, post=cached-or-factory-result
+          // Invariant: when Enabled=false, factory executes directly without cache interaction
+          public interface ICacheService
+          {
+            ValueTask<T> GetOrCreateAsync<T>(string key, Func<CancellationToken, ValueTask<T>> factory, ...);
+            ValueTask SetAsync<T>(string key, T value, ...);
+            ValueTask RemoveAsync(string key, ...);
+            ValueTask RemoveByTagAsync(IEnumerable<string> tags, ...);
+            ValueTask RemoveByTagAsync(string tag, ...);
+          }
+        example: |
+          // Inject ICacheService and use for cached operations
+          var cached = await cacheService.GetOrCreateAsync(
+              $"product:{id}",
+              ct => dbContext.Products.FindAsync(id, ct),
+              options: new CachingEntryOption { Expiration = TimeSpan.FromMinutes(10) },
+              tags: ["products"]);
+      - id: B2
+        name: CacheService
+        type: class
+        path: ./Caching/Wrappers/Caching.Service.Implement.cs
+        description: >
+          Implementation of ICacheService leveraging .NET 10 HybridCache with L1 (Memory)
+          and L2 (Distributed) multi-tier caching.
+        purpose: >
+          Provides the concrete caching logic with graceful bypass when caching is disabled.
+        methods:
+          - name: "GetOrCreateAsync<T>(key, factory, options?, tags?, ct) → ValueTask<T>"
+            description: Retrieves from cache or executes factory and caches the result.
+          - name: "SetAsync<T>(key, value, options?, tags?, ct) → ValueTask"
+            description: Persists a value in the cache hierarchy.
+          - name: "RemoveAsync(key, ct) → ValueTask"
+            description: Invalidates a specific entry across all tiers.
+          - name: "RemoveByTagAsync(tags, ct) → ValueTask"
+            description: Bulk invalidates entries associated with specified tags.
+      - id: B3
+        name: CachingEntryOption
+        type: record
+        path: ./Caching/Wrappers/CachingEntryOption.cs
+        description: >
+          Configuration model for individual cache entries with expiration and
+          local cache expiration settings.
+        purpose: >
+          Allows per-operation cache TTL overrides when calling ICacheService methods.
+      - id: B4
+        name: CachingEntryOptionConverter
+        type: function
+        path: ./Caching/Wrappers/CachingEntryOption.Converter.cs
+        description: >
+          Extension method converting CachingEntryOption to HybridCacheEntryOptions.
+        purpose: >
+          Bridges the simplified option model to the underlying HybridCache API.
+
+  - category: Configuration Options
+    order: 3
+    description: Strongly-typed configuration classes bound to the Caching section of appsettings.
+    items:
+      - id: C1
+        name: CachingSetting
+        type: class
+        path: ./Caching/Options/CachingSetting.cs
+        description: >
+          Root configuration class for all caching tiers with global enable/disable toggle.
+        purpose: >
+          Single source of truth for caching configuration, bound from the Caching section.
+        contract: |
+          // Contract: Enabled=false disables all caching tiers
+          public sealed class CachingSetting
+          {
+            public const string SectionName = "Caching";
+            public bool Enabled { get; set; } = true;
+            public MemoryCacheSetting Memory { get; set; }
+            public DistributedCacheSetting Distributed { get; set; }
+            public HybridCacheSetting Hybrid { get; set; }
+          }
+      - id: C2
+        name: MemoryCacheSetting
+        type: class
+        path: ./Caching/Options/InMemory/MemoryCacheSetting.cs
+        description: >
+          L1 in-memory cache configuration with compaction percentage and size limits.
+        purpose: >
+          Configures the local in-memory cache tier used by HybridCache L1.
+      - id: C3
+        name: DistributedCacheSetting
+        type: class
+        path: ./Caching/Options/Distributed/DistributedCacheSetting.cs
+        description: >
+          L2 distributed cache configuration with provider type (Redis or SQL Server)
+          and connection string requirements.
+        purpose: >
+          Configures the distributed cache tier used by HybridCache L2.
+      - id: C4
+        name: HybridCacheSetting
+        type: class
+        path: ./Caching/Options/Hybrid/HybridCacheSetting.cs
+        description: >
+          HybridCache configuration with payload limits, key length constraints,
+          and default expiration settings.
+        purpose: >
+          Configures the HybridCache layer that combines L1 and L2 tiers.
+      - id: C5
+        name: CachingSettingValidator
+        type: class
+        path: ./Caching/Options/CachingSetting.Validator.cs
+        description: >
+          FluentValidation validator for CachingSetting with sub-option validation
+          and connection string requirement checks.
+        purpose: >
+          Ensures caching configuration is valid at startup, failing fast on misconfiguration.
+      - id: C6
+        name: CachingSettingConstant
+        type: class
+        path: ./Caching/Options/CachingSetting.Constant.cs
+        description: >
+          Constants for connection string key names (Aspire-managed and standalone).
+        purpose: >
+          Centralizes magic strings for connection string resolution.
+      - id: C7
+        name: CachingSettingResult
+        type: class
+        path: ./Caching/Options/CachingSetting.Result.cs
+        description: >
+          Structured error factories for caching validation failures.
+        purpose: >
+          Provides typed error codes and messages for configuration validation errors.
+
+  - category: Structured Logging
+    order: 4
+    description: Source-generated log messages for cache operations and diagnostics.
+    items:
+      - id: D1
+        name: CacheService.Loggers
+        type: class
+        path: ./Caching/Wrappers/Caching.Service.Loggers.cs
+        description: >
+          Source-generated logger methods for cache hits, misses, sets, removes,
+          tag invalidations, and bypass events.
+        purpose: >
+          Enables structured logging with consistent event IDs (194-199) for
+          cache operation observability.
+
+technical:
+  mechanisms:
+    - id: M1
+      name: Connection String Resolution
+      scope: "Startup configuration"
+      description: >
+        Resolves Redis connection strings with Aspire-managed names first
+        (from Infrastructures.Cache.Resource), falling back to standalone
+        connection strings (DefaultCaching).
+      steps:
+        - "Check Aspire-managed connection string (Infrastructures.Cache.Resource)"
+        - "If missing, check standalone connection string (DefaultCaching)"
+        - "If both missing, fall back to in-memory distributed cache"
+    - id: M2
+      name: Graceful Cache Bypass
+      scope: "Runtime operation"
+      description: >
+        When CachingSetting.Enabled is false, CacheService bypasses all cache
+        operations and executes the factory directly, logging a warning.
+      pattern: |
+        if (!cachingOptions.Value.Enabled)
+        {
+            Loggers.CacheBypassed(logger, key);
+            return await factory(cancellationToken);
+        }
+    - id: M3
+      name: Redis Connection Multiplexer
+      scope: "Distributed cache initialization"
+      description: >
+        Creates an explicit ConnectionMultiplexer for Redis telemetry instrumentation
+        and registers it as a singleton for reuse across the application.
+      pattern: |
+        ConnectionMultiplexer multiplexer = ConnectionMultiplexer.Connect(connectionString);
+        builder.Services.AddSingleton<IConnectionMultiplexer>(multiplexer);
+        builder.Services.AddStackExchangeRedisCache(options =>
+        {
+            options.ConnectionMultiplexerFactory = () => Task.FromResult<IConnectionMultiplexer>(multiplexer);
+        });
+
+anti_patterns:
+  - id: AP1
+    name: Direct HybridCache Usage
+    severity: medium
+    avoid: >
+      Inject HybridCache directly into feature handlers instead of ICacheService.
+    better_approach: >
+      Always inject ICacheService to benefit from graceful bypass, structured logging,
+      and consistent option handling.
+    impact: >
+      Bypasses cache disable logic and structured logging; harder to test and maintain.
+  - id: AP2
+    name: Hardcoded Cache Keys
+    severity: high
+    avoid: >
+      Use string literals for cache keys without a consistent naming convention.
+    better_approach: >
+      Use structured key patterns like $"{entityType}:{id}" and document key
+      conventions in the module README.
+    impact: >
+      Key collisions,难以 maintain, and impossible to perform bulk invalidation by tag.
+  - id: AP3
+    name: Ignoring Cache Validation Errors
+    severity: critical
+    avoid: >
+      Catch or suppress OptionsValidationException during startup for caching configuration.
+    better_approach: >
+      Let validation failures propagate; fix the configuration rather than
+      silently falling back to defaults.
+    impact: >
+      Silent misconfiguration leads to cache misses, memory pressure, or
+      connection failures in production.
+  - id: AP4
+    name: Mutating CachingEntryOption
+    severity: medium
+    avoid: >
+      Modify CachingEntryOption properties after passing to cache operations.
+    better_approach: >
+      Create new CachingEntryOption instances for each operation with different
+      TTL requirements.
+    impact: >
+      Race conditions and unexpected cache behavior under concurrent access.
+
+usage:
+  scenarios:
+    - id: S1
+      title: Register Caching Services
+      context: >
+        When setting up the application pipeline and need to configure all
+        caching infrastructure with validation.
+      pattern: |
+        // In Program.cs or startup configuration
+        builder.AddCaching();
+        
+        // Or via the top-level performance extension
+        builder.AddPerformance();
+      benefits:
+        - Single entry point for all caching registration
+        - Automatic option binding and validation
+        - Connection string resolution with Aspire fallback
+    - id: S2
+      title: Cache-Aside Pattern with GetOrCreateAsync
+      context: >
+        When you need to cache expensive database queries or API calls with
+        automatic factory execution on cache miss.
+      pattern: |
+        // Inject ICacheService
+        public class GetProductHandler(ICacheService cacheService) : IRequestHandler<GetProductRequest, Result<Product>>
+        {
+            public async Task<Result<Product>> Handle(GetProductRequest request, CancellationToken ct)
+            {
+                var product = await cacheService.GetOrCreateAsync(
+                    key: $"product:{request.Id}",
+                    factory: async cancellationToken =>
+                    {
+                        return await dbContext.Products.FindAsync(request.Id, cancellationToken);
+                    },
+                    options: new CachingEntryOption
+                    {
+                        Expiration = TimeSpan.FromMinutes(15),
+                        LocalCacheExpiration = TimeSpan.FromMinutes(5)
+                    },
+                    tags: new[] { "products" },
+                    cancellationToken: ct);
+        
+                return product is not null
+                    ? Result<Product>.Success(product)
+                    : Result<Product>.Failure(ProductErrors.NotFound(request.Id));
+            }
+        }
+      benefits:
+        - Automatic L1/L2 cache coordination
+        - Configurable per-entry TTL
+        - Tag-based bulk invalidation support
+    - id: S3
+      title: Tag-Based Cache Invalidation
+      context: >
+        When an entity update requires invalidating all cached representations
+        across different key patterns.
+      pattern: |
+        // After updating a product
+        await cacheService.RemoveByTagAsync("products");
+        
+        // Or invalidate multiple entity types
+        await cacheService.RemoveByTagAsync(new[] { "products", "inventory" });
+      benefits:
+        - Invalidate all related entries without knowing individual keys
+        - Cross-cutting invalidation across feature boundaries
+    - id: S4
+      title: Per-Operation Cache TTL Override
+      context: >
+        When different call sites need different expiration times for the
+        same cache key pattern.
+      pattern: |
+        // Short TTL for frequently changing data
+        await cacheService.GetOrCreateAsync(
+            "inventory:stock",
+            factory,
+            options: new CachingEntryOption { Expiration = TimeSpan.FromSeconds(30) });
+        
+        // Long TTL for stable reference data
+        await cacheService.GetOrCreateAsync(
+            "categories:all",
+            factory,
+            options: new CachingEntryOption { Expiration = TimeSpan.FromHours(24) });
+      benefits:
+        - Fine-grained TTL control without global configuration changes
+        - Supports diverse data freshness requirements
+
+testing:
+  strategies:
+    - id: TS1
+      title: Unit Test Cache Service with Disabled Caching
+      objective: >
+        Verify that CacheService correctly bypasses cache and executes factory
+        when CachingSetting.Enabled is false.
+      scope: unit
+      code_example: |
+        [Fact]
+        public async Task GetOrCreateAsync_CachingDisabled_ExecutesFactoryDirectly()
+        {
+            // Arrange
+            var options = Options.Create(new CachingSetting { Enabled = false });
+            var cacheService = new CacheService(null!, options, NullLogger<CacheService>.Instance);
+            var factoryCalled = false;
+        
+            // Act
+            var result = await cacheService.GetOrCreateAsync(
+                "key",
+                ct => { factoryCalled = true; return new ValueTask<string>("value"); });
+        
+            // Assert
+            result.Should().Be("value");
+            factoryCalled.Should().BeTrue();
+        }
+      notes: >
+        No HybridCache instance needed when caching is disabled; pass null.
+    - id: TS2
+      title: Integration Test with In-Memory Distributed Cache
+      objective: >
+        Verify cache hit/miss behavior using in-memory distributed cache fallback
+        when Redis is unavailable.
+      scope: integration
+      code_example: |
+        [Fact]
+        public async Task GetOrCreateAsync_CacheMiss_CallsFactoryAndCaches()
+        {
+            // Arrange
+            var services = new ServiceCollection();
+            services.AddMemoryCache();
+            services.AddDistributedMemoryCache();
+            services.AddHybridCache();
+            services.AddSingleton<ICacheService, CacheService>();
+            // ... configure CachingSetting with Enabled=true
+            var provider = services.BuildServiceProvider();
+            var cacheService = provider.GetRequiredService<ICacheService>();
+        
+            // Act
+            var result = await cacheService.GetOrCreateAsync(
+                "test-key",
+                ct => new ValueTask<int>(42));
+        
+            // Assert
+            result.Should().Be(42);
+        }
+
+file_structure: |
+  Performance/
+  ├── README.yaml                          # This documentation
+  ├── Performance.Extension.cs             # Top-level AddPerformance() extension
+  └── Caching/
+      ├── Caching.Extension.cs             # AddCaching() registration and config
+      ├── Options/
+      │   ├── CachingSetting.cs            # Root config class (SectionName, Enabled)
+      │   ├── CachingSetting.Constant.cs   # Connection string key constants
+      │   ├── CachingSetting.Result.cs     # Validation error factories
+      │   ├── CachingSetting.Validator.cs  # FluentValidation rules
+      │   ├── Distributed/
+      │   │   ├── DistributedCacheSetting.cs           # L2 config (Type, Expiration)
+      │   │   ├── DistributedCacheSetting.Constant.cs  # Valid provider types
+      │   │   ├── DistributedCacheSetting.Result.cs    # Validation errors
+      │   │   └── DistributedCacheSetting.Validator.cs # FluentValidation rules
+      │   ├── Hybrid/
+      │   │   ├── HybridCacheSetting.cs              # Hybrid config (Payload, KeyLength)
+      │   │   ├── HybridCacheSetting.Constant.cs    # Constraints and defaults
+      │   │   ├── HybridCacheSetting.Result.cs      # Validation errors
+      │   │   └── HybridCacheSetting.Validator.cs   # FluentValidation rules
+      │   └── InMemory/
+      │       ├── MemoryCacheSetting.cs            # L1 config (Compaction, SizeLimit)
+      │       ├── MemoryCacheSetting.Constant.cs   # Constraints and defaults
+      │       ├── MemoryCacheSetting.Result.cs     # Validation errors
+      │       └── MemoryCacheSetting.Validator.cs  # FluentValidation rules
+      └── Wrappers/
+          ├── Caching.Service.Interface.cs   # ICacheService contract
+          ├── Caching.Service.Implement.cs   # CacheService implementation
+          ├── Caching.Service.Loggers.cs     # Source-generated log messages
+          ├── CachingEntryOption.cs          # Per-entry cache options
+          └── CachingEntryOption.Converter.cs # Option-to-HybridCache bridge

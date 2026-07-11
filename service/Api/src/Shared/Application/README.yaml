@@ -1,0 +1,1208 @@
+kind: BuildingBlockModule
+id: shared-application
+name: Shared.Application
+version: "1.0.0"
+status: stable
+schema_version: "3.0"
+
+meta:
+  name: Application Building Block
+  description: >
+    Foundation layer for the Shared module providing CQRS abstractions
+    (MediatR), Result/Error models, domain base types (Entity, AggregateRoot,
+    ValueObject), cross-cutting concerns (Auditable, SoftDeletable, Sluggable,
+    Publishable, Parameterizable, Versionable, DisplayMoney), pipeline
+    behaviors (Exception, Logging, Validation), endpoint conventions via Carter,
+    descriptor models, and system abstractions for testable date/time and
+    runtime metadata.
+  category: "Application Infrastructure | CQRS | Domain Foundations"
+  stability: Stable
+  standards_alignment: "Evans DDD | SOLID | CQRS | Vertical Slice"
+  dependencies:
+    - name: MediatR
+      version: "12.*"
+      scope: runtime
+    - name: FluentValidation
+      version: "11.*"
+      scope: runtime
+    - name: Carter
+      version: "9.*"
+      scope: runtime
+    - name: Mapster
+      version: "7.*"
+      scope: runtime
+    - name: Slugify
+      version: "4.*"
+      scope: runtime
+
+principles:
+  - id: P1
+    name: Result Objects Over Exceptions
+    description: >
+      All domain operations return Result<T> or Result structs instead of
+      throwing exceptions. Exceptions are reserved for unrecoverable
+      infrastructure failures only.
+    rationale: >
+      Eliminates exception-driven control flow, makes error paths explicit
+      in method signatures, and allows pipeline behaviors to map failures
+      uniformly to HTTP responses.
+  - id: P2
+    name: Pipeline Behavior Ordering
+    description: >
+      MediatR pipeline behaviors execute in a defined outer-to-inner order:
+      Logging, Validation, ExceptionMapping. Each behavior wraps the next.
+    rationale: >
+      Guarantees consistent cross-cutting behavior execution regardless of
+      handler complexity, and prevents validation from running after
+      exceptions are already thrown.
+  - id: P3
+    name: Domain Concerns as Composable Interfaces
+    description: >
+      Cross-cutting domain behaviors (audit, soft delete, slug, publish,
+      version, parameterize) are defined as small focused interfaces with
+      companion static behavior classes and EF Core configurations.
+    rationale: >
+      Enables entities to opt into behaviors via interface implementation
+      while keeping concerns decoupled and independently testable.
+  - id: P4
+    name: Implicit Operator Ergonomics
+    description: >
+      Result, Error, and Descriptor types provide implicit conversion operators
+      so that values, errors, and strings flow naturally without explicit
+      wrapping at call sites.
+    rationale: >
+      Reduces ceremony in handler and endpoint code while maintaining full
+      type safety at the boundaries.
+  - id: P5
+    name: Testable System Abstractions
+    description: >
+      System clock and runtime metadata are accessed through ISystemDateTime
+      and ISystemInfo interfaces, never through static DateTimeOffset.UtcNow
+      or Environment calls directly.
+    rationale: >
+      Enables deterministic unit testing of time-dependent logic and
+      eliminates hidden coupling to the host environment.
+
+features:
+  - id: F1
+    name: CQRS Command and Query Abstractions
+    type: core
+    description: >
+      Typed marker interfaces (ICommand, ICommand<T>, IQuery<T>, IPagedQuery<T>)
+      and their handler contracts (ICommandHandler, IQueryHandler, IPagedQueryHandler)
+      that enforce Result-returning conventions for all CQRS operations.
+    api_highlight: "ICommand<TResponse> { } : IRequest<Result<TResponse>>"
+  - id: F2
+    name: Result and Error Model
+    type: core
+    description: >
+      Immutable record structs (Result, Result<T>, PagedResult<T>) and an Error
+      value type with HTTP-status-code-aware factory methods (Ok, Created,
+      BadRequest, NotFound, Validation, Conflict, Unexpected) for all
+      success and failure scenarios.
+    api_highlight: "Result<T> { Value, IsSuccess, StatusCode, Errors }"
+  - id: F3
+    name: Domain Base Types
+    type: core
+    description: >
+      Abstract base classes Entity<TId>, Entity, AggregateRoot, and ValueObject
+      implementing DDD identity semantics with equality-by-id for entities and
+      structural equality for value objects.
+    api_highlight: "Entity<TId> { Id, Equals, GetHashCode }"
+  - id: F4
+    name: Cross-Cutting Domain Concerns
+    type: core
+    description: >
+      Composable interfaces and static behavior classes for Auditable,
+      SoftDeletable, Sluggable, Publishable, Parameterizable, Versionable,
+      and DisplayMoney with matching EF Core entity configurations and
+      LINQ query extensions.
+  - id: F5
+    name: MediatR Pipeline Behaviors
+    type: core
+    description: >
+      Three ordered pipeline behaviors — LoggingBehavior (request lifecycle
+      logging), ValidationBehavior (FluentValidation integration), and
+      ExceptionMappingBehavior (unhandled exception to Error conversion) —
+      that wrap every MediatR request automatically.
+  - id: F6
+    name: HTTP Result Mapping
+    type: extension
+    description: >
+      Extension methods on Result, Result<T>, and PagedResult<T> that convert
+      domain results to ASP.NET Core IResult responses with correct HTTP status
+      codes, including ToCreatedResult, ToAcceptedResult, and ToNoContentResult.
+    methods:
+      - name: "ToResult(this Result)"
+        description: Maps Result to the appropriate IResult based on StatusCode.
+      - name: "ToResult<T>(this Result<T>)"
+        description: Maps typed Result to IResult.
+      - name: "ToCreatedResult<T>(this Result<T>, string)"
+        description: Maps to 201 Created with location URI.
+      - name: "ToNoContentResult(this Result)"
+        description: Maps to 204 NoContent on success.
+  - id: F7
+    name: Descriptor Models
+    type: utility
+    description: >
+      Immutable record structs Descriptor and OptionDescriptor<TValue> with
+      factory methods, implicit string/value operators, and fluent extension
+      methods for OpenAPI parameter documentation and enum-like option modeling.
+  - id: F8
+    name: System Abstractions
+    type: utility
+    description: >
+      ISystemDateTime and ISystemInfo interfaces providing testable access to
+      the current UTC time, application version, environment name, machine
+      name, and process ID without static coupling.
+
+abstractions:
+  - category: Domain Base Types
+    order: 1
+    description: >
+      Core DDD building blocks that all domain entities and value objects
+      derive from.
+    items:
+      - id: A1
+        name: Entity<TId>
+        type: abstract
+        path: ./Domain/Models/Entity.cs
+        description: >
+          Abstract base class for domain entities providing a typed unique
+          identifier and identity-based equality semantics.
+        purpose: >
+          Establishes the identity pattern for all domain entities so that
+          equality is based on Id rather than reference.
+        contract: |
+          // Contract: pre=TId is equatable, post=equality based on Id, not reference
+          public abstract class Entity<TId> : IEntity<TId>
+          {
+            public TId Id { get; set; }
+            public override bool Equals(object? obj);
+            public override int GetHashCode();
+          }
+      - id: A2
+        name: Entity
+        type: abstract
+        path: ./Domain/Models/Entity.cs
+        description: >
+          Default entity base class using Guid as the identifier type.
+          Automatically generates a new GUID on construction.
+        purpose: >
+          Provides a convenient base for entities that use Guid-primary-keys
+          without requiring explicit ID type declaration.
+        contract: |
+          // Contract: post=Id is auto-generated as new Guid on construction
+          public abstract class Entity : Entity<Guid>, IEntity { }
+      - id: A3
+        name: AggregateRoot
+        type: abstract
+        path: ./Domain/Models/AggregateRoot.cs
+        description: >
+          Base class for DDD aggregate roots, extending Entity with aggregate
+          boundary semantics.
+        purpose: >
+          Marks transactional consistency boundaries in the domain model so
+          that all changes to an aggregate root are persisted atomically.
+        contract: |
+          // Contract: aggregate root extends Entity<Guid> with no additional members
+          public abstract class AggregateRoot : Entity { }
+      - id: A4
+        name: ValueObject
+        type: abstract
+        path: ./Domain/Models/ValueObject.cs
+        description: >
+          Abstract base class for DDD value objects with structural equality
+          derived from GetEqualityComponents().
+        purpose: >
+          Enables immutable value types where identity is defined by attribute
+          composition rather than a unique identifier.
+        contract: |
+          // Invariant: Equality depends entirely on GetEqualityComponents()
+          public abstract class ValueObject
+          {
+            protected abstract IEnumerable<object?> GetEqualityComponents();
+          }
+      - id: A5
+        name: IEntity<TId>
+        type: interface
+        path: ./Domain/Concerns/Entities/Entity.cs
+        description: >
+          Contract for all domain entities with a typed unique identifier.
+        purpose: >
+          Defines the minimal identity contract that EF Core configurations
+          and LINQ extensions constrain against.
+        contract: |
+          // Contract: pre=TId is equatable, post=Id is unique and immutable
+          public interface IEntity<out TId> { TId Id { get; } }
+
+  - category: Domain Concerns
+    order: 2
+    description: >
+      Composable cross-cutting behaviors applied to domain entities via
+      interface implementation and static behavior helpers.
+    items:
+      - id: B1
+        name: IAuditable
+        type: interface
+        path: ./Domain/Concerns/Auditable/Auditable.cs
+        description: >
+          Defines audit tracking properties: CreatedAtUtc, CreatedBy,
+          ModifiedAtUtc, and ModifiedBy for entities that require a
+          full audit trail.
+        purpose: >
+          Enables automatic capture of who created or modified an entity
+          and when, providing a complete provenance history.
+        contract: |
+          // Invariant: CreatedAtUtc is set on first persist; ModifiedAtUtc tracks last write
+          public interface IAuditable
+          {
+            DateTimeOffset CreatedAtUtc { get; set; }
+            string? CreatedBy { get; set; }
+            DateTimeOffset? ModifiedAtUtc { get; set; }
+            string? ModifiedBy { get; set; }
+          }
+      - id: B2
+        name: AuditableBehavior
+        type: class
+        path: ./Domain/Concerns/Auditable/Auditable.Behavior.cs
+        description: >
+          Static helper methods (Create, CreateBy, Touch, TouchBy) that
+          populate IAuditable properties with current timestamps and user
+          context.
+        purpose: >
+          Centralizes audit timestamp logic so handlers and save-changes
+          interceptors share consistent behavior.
+        methods:
+          - name: "Create(IAuditable, DateTimeOffset?)"
+            description: Sets CreatedAtUtc and ModifiedAtUtc to now.
+          - name: "CreateBy(IAuditable, string, DateTimeOffset?)"
+            description: Sets all four audit fields including user identity.
+          - name: "Touch(IAuditable, DateTimeOffset?)"
+            description: Updates only ModifiedAtUtc to now.
+      - id: B3
+        name: ISoftDeletable
+        type: interface
+        path: ./Domain/Concerns/SoftDeletable/SoftDeletable.cs
+        description: >
+          Defines soft-delete properties: IsDeleted, DeletedAtUtc, and
+          DeletedBy for entities that should be logically deleted rather
+          than physically removed.
+        purpose: >
+          Enables soft deletion with a global query filter so deleted
+          entities are excluded from normal queries without data loss.
+        contract: |
+          // Invariant: IsDeleted=true excludes entity from default queries via global filter
+          public interface ISoftDeletable
+          {
+            bool IsDeleted { get; set; }
+            DateTimeOffset? DeletedAtUtc { get; set; }
+            string? DeletedBy { get; set; }
+          }
+      - id: B4
+        name: SoftDeletableBehavior
+        type: class
+        path: ./Domain/Concerns/SoftDeletable/SoftDeletable.Behavior.cs
+        description: >
+          Static helper methods (Delete, DeleteBy, Restore) that manage the
+          soft-delete lifecycle on ISoftDeletable entities.
+        purpose: >
+          Ensures consistent soft-delete state transitions and provides a
+          clean restore path that clears all deletion tracking.
+        methods:
+          - name: "Delete(ISoftDeletable, DateTimeOffset?)"
+            description: Marks entity as deleted with timestamp.
+          - name: "Restore(ISoftDeletable)"
+            description: Clears IsDeleted, DeletedAtUtc, and DeletedBy.
+      - id: B5
+        name: ISluggable
+        type: interface
+        path: ./Domain/Concerns/Sluggable/Sluggable.cs
+        description: >
+          Defines a Slug property for entities that require SEO-friendly
+          URL slugs generated from a source text.
+        purpose: >
+          Enables automatic slug generation and uniqueness checking for
+          catalog entities exposed via public URLs.
+      - id: B6
+        name: SluggableBehavior
+        type: class
+        path: ./Domain/Concerns/Sluggable/Sluggable.Behavior.cs
+        description: >
+          Static helper using Slugify to generate and assign URL-safe slugs
+          to ISluggable entities.
+        purpose: >
+          Centralizes slug generation logic with a single SlugHelper instance
+          to avoid repeated instantiation.
+      - id: B7
+        name: IPublishable
+        type: interface
+        path: ./Domain/Concerns/Publishable/Publishable.cs
+        description: >
+          Defines IsPublished and PublishedAtUtc for entities that have a
+          publish/draft lifecycle.
+        purpose: >
+          Enables content moderation and scheduled publishing by tracking
+          publication state and timestamp.
+      - id: B8
+        name: PublishableBehavior
+        type: class
+        path: ./Domain/Concerns/Publishable/Publishable.Behavior.cs
+        description: >
+          Static helper methods (Publish, Unpublish, IsActive) that manage
+          the publication lifecycle on IPublishable entities.
+        purpose: >
+          Ensures consistent publish state transitions and provides an
+          IsActive check that validates both flag and timestamp.
+      - id: B9
+        name: IParameterizable
+        type: interface
+        path: ./Domain/Concerns/Parameterizable/Parameterizable.cs
+        description: >
+          Defines Name and Presentation properties for entities that
+          represent configurable parameters with display labels.
+        purpose: >
+          Enables normalized storage and display of parameterized
+          configuration entities across the platform.
+      - id: B10
+        name: ParameterizableBehavior
+        type: class
+        path: ./Domain/Concerns/Parameterizable/Parameterizable.Behavior.cs
+        description: >
+          Static helper methods for normalizing parameter names to
+          snake_case and resolving Name/Presentation defaults.
+        purpose: >
+          Ensures consistent normalization so parameter names are
+          machine-readable while presentations are human-friendly.
+      - id: B11
+        name: IVersionable
+        type: interface
+        path: ./Domain/Concerns/Versionable/Versionable.cs
+        description: >
+          Defines a Version property for entities that require optimistic
+          concurrency control via a concurrency token.
+        purpose: >
+          Enables EF Core to detect concurrent modifications and reject
+          conflicting writes at the persistence layer.
+      - id: B12
+        name: DisplayMoney
+        type: class
+        path: ./Domain/Concerns/DisplayMoney/DisplayMoney.cs
+        description: >
+          Static utility with RoundToTwoPlaces for monetary display values
+          using MidpointRounding.AwayFromZero.
+        purpose: >
+          Provides consistent currency rounding for display purposes
+          without modifying stored precision.
+
+  - category: CQRS Abstractions
+    order: 3
+    description: >
+      MediatR-based command and query marker interfaces, handler contracts,
+      and Result/Error model types that enforce the Result-returning convention.
+    items:
+      - id: C1
+        name: ICommand
+        type: interface
+        path: ./Mediators/Commands/ICommand.cs
+        description: >
+          Marker interface for commands that do not return a response value,
+          resolving to a non-generic Result.
+        purpose: >
+          Enforces that all write operations return a Result with success/failure
+          status rather than throwing exceptions.
+        contract: |
+          // Contract: command returns Result (no typed value)
+          public interface ICommand : IRequest<Result>;
+      - id: C2
+        name: ICommand<TResponse>
+        type: interface
+        path: ./Mediators/Commands/ICommand.cs
+        description: >
+          Marker interface for commands that return a typed value on success,
+          resolving to Result<TResponse>.
+        purpose: >
+          Enables commands that create or transform entities to return the
+          created entity or computed value wrapped in a Result.
+        contract: |
+          // Contract: command returns Result<TResponse>
+          public interface ICommand<TResponse> : IRequest<Result<TResponse>>;
+      - id: C3
+        name: ICommandHandler<TCommand>
+        type: interface
+        path: ./Mediators/Commands/ICommandHandler.cs
+        description: >
+          Handler contract for commands that return a non-generic Result.
+        purpose: >
+          Constrains handler implementations to the Result-returning convention
+          and enables automatic MediatR handler registration.
+      - id: C4
+        name: ICommandHandler<TCommand, TResponse>
+        type: interface
+        path: ./Mediators/Commands/ICommandHandler.cs
+        description: >
+          Handler contract for commands that return a typed Result<TResponse>.
+        purpose: >
+          Constrains handler implementations to return typed Result values
+          that flow through pipeline behaviors.
+      - id: C5
+        name: IQuery<TResponse>
+        type: interface
+        path: ./Mediators/Queries/IQuery.cs
+        description: >
+          Marker interface for queries that return a typed Result<TResponse>.
+        purpose: >
+          Enforces that all read operations return Result-wrapped data
+          rather than raw values or exceptions.
+        contract: |
+          // Contract: query returns Result<TResponse>
+          public interface IQuery<TResponse> : IRequest<Result<TResponse>>;
+      - id: C6
+        name: IQueryHandler<TQuery, TResponse>
+        type: interface
+        path: ./Mediators/Queries/IQueryHandler.cs
+        description: >
+          Handler contract for queries that return Result<TResponse>.
+        purpose: >
+          Constrains query handlers to the typed Result convention.
+      - id: C7
+        name: IPagedQuery<TResponse>
+        type: interface
+        path: ./Mediators/Queries/IPagedQuery.cs
+        description: >
+          Marker interface for queries that return PagedResult<TResponse>
+          with pagination metadata.
+        purpose: >
+          Enables paginated read operations with consistent pagination
+          metadata (page, pageSize, totalCount, totalPages).
+      - id: C8
+        name: IPagedQueryHandler<TQuery, TResponse>
+        type: interface
+        path: ./Mediators/Queries/IPagedQueryHandler.cs
+        description: >
+          Handler contract for paged queries that return PagedResult<TResponse>.
+        purpose: >
+          Constrains paged query handlers to the PagedResult convention.
+      - id: C9
+        name: Result
+        type: record
+        path: ./Models/Results/Result.cs
+        description: >
+          Non-generic result struct carrying success/failure status, HTTP
+          status code, optional message, list of errors, and metadata dictionary.
+        purpose: >
+          Returned by operations that produce no value (commands) to signal
+          success or typed failure with full HTTP semantics.
+        methods:
+          - name: "Result.Ok(string?, (string,object?)[])"
+            description: Creates a 200 OK success result.
+          - name: "Result.Created(string?, (string,object?)[])"
+            description: Creates a 201 Created success result.
+          - name: "Result.BadRequest(string?, IReadOnlyCollection<Error>?, (string,object?)[])"
+            description: Creates a 400 Bad Request failure result.
+          - name: "Result.NotFound(string?, IReadOnlyCollection<Error>?, (string,object?)[])"
+            description: Creates a 404 Not Found failure result.
+          - name: "Result.Validation(string?, IReadOnlyCollection<Error>?, (string,object?)[])"
+            description: Creates a 422 Unprocessable Entity failure result.
+      - id: C10
+        name: Result<T>
+        type: record
+        path: ./Models/Results/ValueResult.cs
+        description: >
+          Generic result struct that carries a typed Value on success along
+          with the same error and metadata surface as the non-generic Result.
+        purpose: >
+          Returned by operations that produce a value (queries, creating
+          commands) to wrap the value in a type-safe Result envelope.
+        contract: |
+          // Contract: pre=T is the success value type; IsSuccess implies Value is valid
+          // Implicit: T value => Result<T>.Ok(value); Error => Result<T>.Failure(error)
+          public readonly partial record struct Result<T> : IResultRecord { }
+      - id: C11
+        name: PagedResult<T>
+        type: record
+        path: ./Models/Results/PagedResult.cs
+        description: >
+          Paginated result struct carrying Items, PageNumber, PageSize,
+          TotalCount, and computed TotalPages alongside the Result envelope.
+        purpose: >
+          Provides a consistent shape for all paginated API responses with
+          full pagination metadata for client-side rendering.
+      - id: C12
+        name: Error
+        type: record
+        path: ./Models/Errors/Error.cs
+        description: >
+          Immutable error value type with Code, Message, Type (HTTP status code),
+          and optional Metadata dictionary for structured error details.
+        purpose: >
+          Provides a machine-readable error model that carries its own HTTP
+          status code for automatic response mapping.
+        methods:
+          - name: "Error.Create(string, string, int, (string,object?)[])"
+            description: Creates an error with explicit type code.
+          - name: "Error.BadRequest(string, string)"
+            description: Creates a 400 error.
+          - name: "Error.NotFound(string, string)"
+            description: Creates a 404 error.
+          - name: "Error.Validation(string, string)"
+            description: Creates a 422 validation error.
+          - name: "Error.Unexpected(string, string)"
+            description: Creates a 500 internal error.
+      - id: C13
+        name: IResultRecord
+        type: interface
+        path: ./Models/Results/Result.Interface.cs
+        description: >
+          Common interface for Result, Result<T>, and PagedResult<T> enabling
+          pipeline behaviors to constrain on any result shape.
+        purpose: >
+          Allows pipeline behaviors to operate generically over all result
+          types without knowing the specific generic parameter.
+
+  - category: Cross-Cutting Infrastructure
+    order: 4
+    description: >
+      Pipeline behaviors, endpoint utilities, mappers, descriptors, and
+      system abstractions that cross-cut all CQRS operations.
+    items:
+      - id: D1
+        name: LoggingBehavior<TRequest, TResponse>
+        type: handler
+        path: ./Mediators/Behaviours/Logging/Logging.Behaviours.cs
+        description: >
+          Outermost pipeline behavior that logs request start, completion,
+          and failure using high-performance LoggerMessage source generators.
+        purpose: >
+          Provides automatic request lifecycle observability without
+          requiring handler-level logging boilerplate.
+      - id: D2
+        name: ValidationBehavior<TRequest, TResponse>
+        type: handler
+        path: ./Mediators/Behaviours/Validation/Validation.Behavior.cs
+        description: >
+          Pipeline behavior that resolves all IValidator<TRequest> instances
+          from DI and runs them in parallel before the handler executes.
+        purpose: >
+          Prevents invalid requests from reaching handlers and converts
+          FluentValidation failures to structured Error list results.
+      - id: D3
+        name: ExceptionMappingBehavior<TRequest, TResponse>
+        type: handler
+        path: ./Mediators/Behaviours/Exceptions/Exception.Behavior.cs
+        description: >
+          Innermost pipeline behavior that catches unhandled exceptions and
+          converts them to Error.Unexpected failure results.
+        purpose: >
+          Prevents exception leakage to the API layer by ensuring every
+          request returns a well-formed Result even on unexpected failures.
+      - id: D4
+        name: ResultHttpExtensions
+        type: extension
+        path: ./Extensions/Results/Result.Http.Extensions.cs
+        description: >
+          Extension methods that convert Result, Result<T>, and PagedResult<T>
+          to ASP.NET Core IResult responses with correct HTTP status codes.
+        purpose: >
+          Bridges the domain Result model to the HTTP response layer so
+          endpoints can return domain results directly.
+      - id: D5
+        name: OptionsBuilderExtensions
+        type: extension
+        path: ./Extensions/Validations/Option.Validation.Extension.cs
+        description: >
+          Extension method ValidateFluentValidation that integrates
+          FluentValidation with the .NET Options Pattern for startup
+          configuration validation.
+        purpose: >
+          Enables IOptions<T> validation at startup using FluentValidation
+          validators registered in DI instead of DataAnnotations.
+      - id: D6
+        name: EndpointExtension
+        type: extension
+        path: ./Endpoints/Endpoint.Extension.cs
+        description: >
+          Extension methods for registering and mapping Carter endpoint
+          modules from multiple assemblies.
+        purpose: >
+          Centralizes Carter module discovery and registration so each
+          module assembly is scanned automatically at startup.
+      - id: D7
+        name: IdentityResultMapper
+        type: extension
+        path: ./Mappings/IdentityResult.Mapper.cs
+        description: >
+          Extension methods that convert ASP.NET Identity IdentityResult
+          and IdentityError to Error and Result types.
+        purpose: >
+          Bridges the ASP.NET Identity result model to the domain Result
+          convention so Identity operations follow the same error handling.
+      - id: D8
+        name: ValidationResultMapper
+        type: extension
+        path: ./Mappings/ValidationResult.Mapper.cs
+        description: >
+          Extension methods that convert FluentValidation ValidationResult
+          and ValidationFailure to Error and Result types.
+        purpose: >
+          Bridges FluentValidation results to the domain Result convention
+          for manual validation scenarios outside the pipeline behavior.
+      - id: D9
+        name: Descriptor
+        type: record
+        path: ./Models/Descriptors/Descriptor.cs
+        description: >
+          Immutable record struct with Name, Description, and Example for
+          OpenAPI parameter documentation and enum-like option modeling.
+        purpose: >
+          Provides a typed alternative to raw strings for API parameter
+          descriptors with implicit string conversion.
+      - id: D10
+        name: OptionDescriptor<TValue>
+        type: record
+        path: ./Models/Descriptors/Descriptor.Option.cs
+        description: >
+          Generic record struct pairing a typed Value with a Descriptor
+          for strongly-typed option modeling.
+        purpose: >
+          Enables enum-like option sets with metadata that flow naturally
+          as their underlying value type via implicit conversion.
+      - id: D11
+        name: ISystemDateTime
+        type: interface
+        path: ./Systems/SystemDateTimes/SystemDateTime.Interface.cs
+        description: >
+          Provides UtcNow and Today properties for accessing the current
+          system time through an injectable abstraction.
+        purpose: >
+          Enables deterministic time-based unit testing by replacing the
+          system clock with a mock or frozen implementation.
+        contract: |
+          // Contract: UtcNow returns current UTC offset; Today returns current UTC date
+          public interface ISystemDateTime
+          {
+            DateTimeOffset UtcNow { get; }
+            DateTimeOffset Today { get; }
+          }
+      - id: D12
+        name: SystemDateTime
+        type: class
+        path: ./Systems/SystemDateTimes/SystemDateTime.Implementation.cs
+        description: >
+          Standard production implementation of ISystemDateTime delegating
+          to DateTimeOffset.UtcNow and DateTime.Today.
+        purpose: >
+          Provides the default clock behavior for production; replace
+          with a test double in unit tests.
+      - id: D13
+        name: ISystemInfo
+        type: interface
+        path: ./Systems/SystemInfos/SystemInfo.Interface.cs
+        description: >
+          Provides application metadata: ApplicationName, Version,
+          Environment, MachineName, and ProcessId.
+        purpose: >
+          Enables health checks and diagnostics to access runtime metadata
+          without static coupling to IHostEnvironment or System.Environment.
+      - id: D14
+        name: SystemInfo
+        type: class
+        path: ./Systems/SystemInfos/SystemInfo.Implementaion.cs
+        description: >
+          Production implementation of ISystemInfo resolving values from
+          IHostEnvironment and assembly metadata.
+        purpose: >
+          Provides a single source of truth for runtime metadata in
+          production; replace with a test double in unit tests.
+
+technical:
+  mechanisms:
+    - id: M1
+      name: Pipeline Behavior Execution Order
+      scope: "MediatR request pipeline"
+      description: >
+        Pipeline behaviors execute in outer-to-inner order: LoggingBehavior
+        wraps ValidationBehavior wraps ExceptionMappingBehavior wraps the
+        handler. Logging records timing, Validation runs FluentValidation
+        validators and short-circuits on failure, ExceptionMapping catches
+        unhandled exceptions and converts to Error results.
+      steps:
+        - "LoggingBehavior logs request start via HandlingRequest"
+        - "ValidationBehavior resolves IValidator<TRequest> from DI and runs in parallel"
+        - "ValidationBehavior returns Error.Validation list if any validator fails"
+        - "ExceptionMappingBehavior wraps handler in try/catch"
+        - "Handler executes"
+        - "LoggingBehavior logs success or failure based on response.IsSuccess"
+    - id: M2
+      name: Result-to-HTTP Status Code Mapping
+      scope: "HTTP response layer"
+      description: >
+        ResultHttpExtensions.MapFailureResult reads the StatusCode property
+        and maps to the appropriate ASP.NET Core TypedResults method. Status
+        codes 200-204 map to success responses; 400-504 map to typed error
+        responses with a safe non-generic Result payload.
+      pattern: |
+        statusCode switch
+        {
+          200 => TypedResults.Ok(result),
+          201 => TypedResults.Created(locationUri, result),
+          204 => TypedResults.NoContent(),
+          400 => TypedResults.BadRequest(safeResult),
+          404 => TypedResults.NotFound(safeResult),
+          409 => TypedResults.Conflict(safeResult),
+          422 => TypedResults.UnprocessableEntity(safeResult),
+          500 => TypedResults.InternalServerError(safeResult),
+          _ => TypedResults.Json(safeResult, statusCode: statusCode)
+        }
+    - id: M3
+      name: Error Implicit Conversion Chain
+      scope: "Result model"
+      description: >
+        Error structs flow to Result via implicit operators. When a handler
+        returns an Error, the implicit operator creates a Result.Failure
+        with the error's Type as StatusCode and its Message as the failure
+        description. Error[], List<Error>, and HashSet<Error> are also
+        implicitly convertible.
+      pattern: |
+        // Implicit: Error => Result
+        public static implicit operator Result(Error error)
+            => ToResult(error);
+
+        // Implicit: T value => Result<T>
+        public static implicit operator Result<T>(T value)
+            => Ok(value);
+    - id: M4
+      name: Soft-Delete Global Query Filter
+      scope: "EF Core persistence"
+      description: >
+        SoftDeletableConfiguration.Apply creates a lambda expression
+        e => !e.IsDeleted and attaches it as a global query filter via
+        HasQueryFilter. All queries automatically exclude soft-deleted
+        entities unless the filter is explicitly bypassed.
+      pattern: |
+        // SoftDeletableConfiguration.Apply<T>(builder)
+        builder.HasQueryFilter(CreateSoftDeletableFilter(type));
+        // Expression: e => !((SoftDeletable)e).IsDeleted
+
+anti_patterns:
+  - id: AP1
+    name: Throwing Exceptions for Business Logic
+    severity: critical
+    avoid: >
+      Never throw exceptions (NotFoundException, ValidationException, etc.)
+      from domain handlers to signal expected failure conditions.
+    bad_example: |
+      // ❌ Bad
+      if (product is null)
+          throw new NotFoundException("Product not found");
+      return Result.Ok(product);
+    better_approach: >
+      Return a Result.NotFound or Result.Validation failure so the pipeline
+      can map it to the correct HTTP response automatically.
+    good_example: |
+      // ✅ Good
+      if (product is null)
+          return Result.NotFound("Product not found");
+      return Result.Ok(product);
+    impact: >
+      Exceptions bypass the Result pipeline and produce 500 responses instead
+      of the intended 4xx status codes, breaking client error handling.
+  - id: AP2
+    name: Direct Static DateTime.UtcNow Usage
+    severity: high
+    avoid: >
+      Never call DateTimeOffset.UtcNow or DateTime.Now directly in handlers
+      or domain logic; always inject ISystemDateTime.
+    bad_example: |
+      // ❌ Bad
+      var now = DateTimeOffset.UtcNow;
+      entity.CreatedAtUtc = now;
+    better_approach: >
+      Inject ISystemDateTime via primary constructor and use UtcNow for
+      deterministic time behavior in tests.
+    good_example: |
+      // ✅ Good
+      entity.CreatedAtUtc = _systemDateTime.UtcNow;
+    impact: >
+      Time-dependent logic cannot be unit tested deterministically and
+      may produce flaky tests or timezone-related bugs in production.
+  - id: AP3
+    name: Bypassing Pipeline Validation
+    severity: high
+    avoid: >
+      Never implement manual FluentValidation calls in handlers when the
+      ValidationBehavior pipeline already resolves and runs validators.
+    bad_example: |
+      // ❌ Bad — duplicate validation
+      var validator = serviceProvider.GetRequiredService<IValidator<Command>>();
+      var result = await validator.ValidateAsync(command);
+    better_approach: >
+      Register FluentValidation validators in DI and let the
+      ValidationBehavior pipeline handle them automatically.
+    good_example: |
+      // ✅ Good — validation handled by pipeline
+      public class CreateProductHandler : ICommandHandler<CreateProductCommand, ProductDto>
+      {
+          // No manual validation — pipeline runs validators before this handler
+      }
+    impact: >
+      Duplicate validation logic increases maintenance cost and risks
+      validation rules diverging between manual and pipeline paths.
+  - id: AP4
+    name: Ignoring Result IsSuccess Check
+    severity: medium
+    avoid: >
+      Never access Result.Value without first checking IsSuccess, as
+      Value will be null/default on failure results.
+    bad_example: |
+      // ❌ Bad — may access null Value
+      var result = await _mediator.Send(query);
+      return result.Value.Name;
+    better_approach: >
+      Pattern-match or branch on IsSuccess before accessing Value, or
+      use the implicit conversion and let the endpoint handle failures.
+    good_example: |
+      // ✅ Good
+      var result = await _mediator.Send(query);
+      if (result.IsFailure)
+          return result.ToResult();
+      return result.Value.Name;
+    impact: >
+      NullReferenceException or incorrect response when the operation
+      fails silently and Value is left at its default value.
+  - id: AP5
+    name: Reusing IDs Across Documents
+    severity: medium
+    avoid: >
+      Never reuse an ID (A1, B2, P1, etc.) after removing an element from
+      a README.yaml. Assign the next unused number instead.
+    better_approach: >
+      Assign IDs sequentially and leave gaps when elements are removed.
+      Gaps are acceptable; duplicates are parse errors.
+    impact: >
+      AI agents and tooling will reference the wrong element, producing
+      incorrect documentation-driven code generation.
+
+usage:
+  scenarios:
+    - id: S1
+      title: Handling a Create Command
+      context: >
+        Use when implementing a CQRS command handler that creates a new
+        entity and should return the created entity on success or a
+        validation error on failure.
+      pattern: |
+        public record CreateProductCommand(string Name, decimal Price)
+            : ICommand<ProductDto>;
+
+        public class CreateProductHandler(
+            IAppDbContext dbContext,
+            ISystemDateTime systemDateTime)
+            : ICommandHandler<CreateProductCommand, ProductDto>
+        {
+            public async Task<Result<ProductDto>> Handle(
+                CreateProductCommand command,
+                CancellationToken cancellationToken)
+            {
+                // Validation handled by FluentValidation + pipeline
+                var product = new Product
+                {
+                    Name = command.Name,
+                    Price = command.Price
+                };
+
+                AuditableBehavior.Create(product, systemDateTime.UtcNow);
+                SluggableBehavior.ApplySlugging(product, command.Name);
+
+                dbContext.Products.Add(product);
+                await dbContext.SaveChangesAsync(cancellationToken);
+
+                return product.ToDto();
+            }
+        }
+      benefits:
+        - No try/catch needed — ExceptionMappingBehavior handles errors
+        - No manual validation — ValidationBehavior runs validators
+        - Consistent audit timestamps via AuditableBehavior
+        - Automatic slug generation via SluggableBehavior
+    - id: S2
+      title: Querying with Pagination
+      context: >
+        Use when implementing a paginated query handler that returns
+        a PagedResult with items, page metadata, and total count.
+      pattern: |
+        public record GetProductsQuery(int Page, int PageSize, string? Search)
+            : IPagedQuery<ProductDto>;
+
+        public class GetProductsHandler(IAppDbContext dbContext)
+            : IPagedQueryHandler<GetProductsQuery, ProductDto>
+        {
+            public async Task<PagedResult<ProductDto>> Handle(
+                GetProductsQuery query,
+                CancellationToken cancellationToken)
+            {
+                IQueryable<Product> products = dbContext.Products
+                    .AsNoTracking();
+
+                if (!string.IsNullOrEmpty(query.Search))
+                    products = products.Where(p => p.Name.Contains(query.Search));
+
+                long totalCount = await products.LongCountAsync(cancellationToken);
+
+                List<ProductDto> items = await products
+                    .Skip((query.Page - 1) * query.PageSize)
+                    .Take(query.PageSize)
+                    .Select(p => p.ToDto())
+                    .ToListAsync(cancellationToken);
+
+                return PagedResult<ProductDto>.Ok(
+                    items, query.Page, query.PageSize, totalCount);
+            }
+        }
+      benefits:
+        - Consistent pagination envelope for all list endpoints
+        - Client receives all metadata needed for pagination UI
+        - Error handling automatic via pipeline
+    - id: S3
+      title: Mapping Result to HTTP Response
+      context: >
+        Use when writing Carter endpoint handlers that return domain
+        Results directly as HTTP responses.
+      pattern: |
+        public class CreateProductEndpoint : ICarterModule
+        {
+            public void AddRoutes(IEndpointRouteBuilder app)
+            {
+                app.MapPost("/products", async (CreateProductCommand command, ISender sender) =>
+                {
+                    Result<ProductDto> result = await sender.Send(command);
+                    return result.ToResult();
+                });
+            }
+        }
+      benefits:
+        - Single-line mapping from Result to correct HTTP status code
+        - Automatic 400/404/409/422/500 responses on failure
+        - No manual switch/case on error types in endpoints
+    - id: S4
+      title: Applying Soft Delete with Restore
+      context: >
+        Use when implementing delete and restore operations for entities
+        that implement ISoftDeletable.
+      pattern: |
+        public class DeleteProductHandler(IAppDbContext dbContext)
+            : ICommandHandler<DeleteProductCommand>
+        {
+            public async Task<Result> Handle(
+                DeleteProductCommand command,
+                CancellationToken cancellationToken)
+            {
+                var product = await dbContext.Products
+                    .FindAsync(command.Id, cancellationToken);
+
+                if (product is null)
+                    return Result.NotFound("Product not found");
+
+                SoftDeletableBehavior.Delete(product);
+                await dbContext.SaveChangesAsync(cancellationToken);
+
+                return Result.NoContent();
+            }
+        }
+      benefits:
+        - Global query filter automatically excludes deleted entities
+        - Restore path clears all deletion tracking cleanly
+        - Audit trail preserved with deletion timestamp
+    - id: S5
+      title: Converting Identity Results to Domain Results
+      context: >
+        Use when ASP.NET Identity operations (register, change password)
+        need to return domain Result types instead of IdentityResult.
+      pattern: |
+        public class RegisterUserHandler(
+            UserManager<ApplicationUser> userManager)
+            : ICommandHandler<RegisterUserCommand, string>
+        {
+            public async Task<Result<string>> Handle(
+                RegisterUserCommand command,
+                CancellationToken cancellationToken)
+            {
+                var user = new ApplicationUser { Email = command.Email };
+                IdentityResult identityResult = await userManager
+                    .CreateAsync(user, command.Password);
+
+                if (identityResult.HasErrors())
+                    return identityResult.ToResult<string>();
+
+                return user.Id;
+            }
+        }
+      benefits:
+        - Unified error handling across Identity and domain operations
+        - Identity errors automatically include metadata
+        - Consistent Result shape for all authentication responses
+
+testing:
+  strategies:
+    - id: TS1
+      title: Unit Testing Handlers with Mocked Dependencies
+      objective: >
+        Verify handler logic in isolation by mocking ISystemDateTime,
+        IAppDbContext, and other dependencies using NSubstitute.
+      scope: unit
+      code_example: |
+        [Fact]
+        public async Task Handle_ValidCommand_ReturnsSuccess()
+        {
+            // Arrange
+            var systemDateTime = Substitute.For<ISystemDateTime>();
+            systemDateTime.UtcNow.Returns(new DateTimeOffset(2025, 1, 1, 0, 0, 0, TimeSpan.Zero));
+
+            var dbContext = Substitute.For<IAppDbContext>();
+            dbContext.Products.Returns(Substitute.For<DbSet<Product>>());
+
+            var handler = new CreateProductHandler(dbContext, systemDateTime);
+
+            // Act
+            var result = await handler.Handle(
+                new CreateProductCommand("Test Product", 29.99m),
+                CancellationToken.None);
+
+            // Assert
+            result.IsSuccess.Should().BeTrue();
+            result.Value.Should().NotBeNull();
+        }
+    - id: TS2
+      title: Testing Pipeline Behavior Ordering
+      objective: >
+        Verify that ValidationBehavior short-circuits before the handler
+        executes and that ExceptionMappingBehavior catches handler exceptions.
+      scope: unit
+      code_example: |
+        [Fact]
+        public async Task ValidationBehavior_InvalidRequest_ReturnsValidationErrors()
+        {
+            // Arrange
+            var validator = new Mock<IValidator<CreateProductCommand>>();
+            validator.Setup(v => v.ValidateAsync(It.IsAny<ValidationContext<CreateProductCommand>>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(new ValidationResult { Errors = { new ValidationFailure("Name", "Required") } });
+
+            var behavior = new ValidationBehavior<CreateProductCommand, Result<ProductDto>>(
+                [validator.Object], Substitute.For<ILogger<ValidationBehavior<CreateProductCommand, Result<ProductDto>>>>());
+
+            // Act
+            var result = await behavior.Handle(
+                new CreateProductCommand("", 0),
+                () => Task.FromResult(Result<ProductDto>.Ok(new ProductDto())),
+                CancellationToken.None);
+
+            // Assert
+            result.IsFailure.Should().BeTrue();
+            result.Errors.Should().Contain(e => e.Message == "Required");
+        }
+
+file_structure: |
+  Application/
+  ├── Application.Extension.cs                    # Root DI registration and pipeline setup
+  ├── Domain/
+  │   ├── Concerns/
+  │   │   ├── Auditable/
+  │   │   │   ├── Auditable.cs                    # IAuditable interface
+  │   │   │   ├── Auditable.Behavior.cs           # AuditableBehavior static helpers
+  │   │   │   ├── Auditable.Constant.cs           # MaxCreatedByLength, MaxModifiedByLength
+  │   │   │   └── Auditable.EntityConfiguration.cs # EF Core configuration for audit fields
+  │   │   ├── DisplayMoney/
+  │   │   │   └── DisplayMoney.cs                 # RoundToTwoPlaces utility
+  │   │   ├── Entities/
+  │   │   │   ├── Entity.cs                       # IEntity<TId>, IEntity interfaces
+  │   │   │   └── Entity.Configuration.cs         # EF Core entity key configuration
+  │   │   ├── Parameterizable/
+  │   │   │   ├── Parameterizable.cs              # IParameterizable interface
+  │   │   │   ├── Parameterizable.Behavior.cs     # Name normalization (snake_case)
+  │   │   │   ├── Parameterizable.Constant.cs     # MaxNameLength, MaxPresentationLength
+  │   │   │   └── Parameterizable.Extension.cs    # LINQ WhereNameEquals, WhereDuplicateName
+  │   │   ├── Publishable/
+  │   │   │   ├── Publishable.cs                  # IPublishable interface
+  │   │   │   └── Publishable.Behavior.cs         # Publish, Unpublish, IsActive
+  │   │   ├── Sluggable/
+  │   │   │   ├── Sluggable.cs                    # ISluggable interface
+  │   │   │   ├── Sluggable.Behavior.cs           # ApplySlugging via Slugify
+  │   │   │   ├── Sluggable.Constant.cs           # MaxSlugLength, slug regex pattern
+  │   │   │   ├── Sluggable.EntityConfiguration.cs # EF Core unique index on Slug
+  │   │   │   └── Sluggable.Extension.cs          # LINQ WhereSlugEquals, WhereDuplicateSlug
+  │   │   ├── SoftDeletable/
+  │   │   │   ├── SoftDeletable.cs                # ISoftDeletable interface
+  │   │   │   ├── SoftDeletable.Behavior.cs       # Delete, DeleteBy, Restore
+  │   │   │   ├── SoftDeletable.Constant.cs       # MaxDeletedByLength
+  │   │   │   └── SoftDeletable.EntityConfiguration.cs # Global query filter
+  │   │   └── Versionable/
+  │   │       ├── Versionable.cs                  # IVersionable interface
+  │   │       ├── Versionable.Constant.cs         # InitialVersion = 1
+  │   │       └── Versionable.EntityConfiguration.cs # Concurrency token
+  │   └── Models/
+  │       ├── AggregateRoot.cs                    # AggregateRoot base class
+  │       ├── Entity.cs                           # Entity<TId>, Entity base classes
+  │       └── ValueObject.cs                      # ValueObject base class
+  ├── Endpoints/
+  │   └── Endpoint.Extension.cs                   # Carter module registration
+  ├── Extensions/
+  │   ├── Results/
+  │   │   └── Result.Http.Extensions.cs           # Result to IResult HTTP mapping
+  │   └── Validations/
+  │       └── Option.Validation.Extension.cs      # FluentValidation + Options Pattern
+  ├── Mappings/
+  │   ├── IdentityResult.Mapper.cs                # IdentityResult to Error/Result
+  │   └── ValidationResult.Mapper.cs              # ValidationResult to Error/Result
+  ├── Mediators/
+  │   ├── Mediator.Extension.cs                   # MediatR registration + behaviors
+  │   ├── Commands/
+  │   │   ├── ICommand.cs                         # ICommand, ICommand<T> markers
+  │   │   └── ICommandHandler.cs                  # ICommandHandler contracts
+  │   ├── Queries/
+  │   │   ├── IQuery.cs                           # IQuery<T> marker
+  │   │   ├── IQueryHandler.cs                    # IQueryHandler contract
+  │   │   ├── IPagedQuery.cs                      # IPagedQuery<T> marker
+  │   │   └── IPagedQueryHandler.cs               # IPagedQueryHandler contract
+  │   └── Behaviours/
+  │       ├── Exceptions/
+  │       │   ├── Exception.Behavior.cs           # ExceptionMappingBehavior
+  │       │   └── Exception.Behavior.Loggers.cs   # Source-generated log methods
+  │       ├── Logging/
+  │       │   ├── Logging.Behaviours.cs           # LoggingBehavior
+  │       │   └── Logging.Behaviour.Logger.cs     # Source-generated log methods
+  │       └── Validation/
+  │           ├── Validation.Behavior.cs          # ValidationBehavior
+  │           └── Validation.Behavior.Loggers.cs  # Source-generated log methods
+  ├── Models/
+  │   ├── Descriptors/
+  │   │   ├── Descriptor.cs                       # Descriptor record struct
+  │   │   ├── Descriptor.Interface.cs             # IDescriptor interface
+  │   │   ├── Descriptor.Method.cs                # Named() factory
+  │   │   ├── Descriptor.Operator.cs              # Implicit string conversion
+  │   │   ├── Descriptor.Extension.cs             # Format, WithName, WithDescription
+  │   │   ├── Descriptor.Option.cs               # OptionDescriptor<TValue>
+  │   │   ├── Descriptor.Option.Method.cs         # Option() factory
+  │   │   └── Descriptor.Option.Operator.cs       # Implicit value conversion
+  │   ├── Errors/
+  │   │   ├── Error.cs                            # Error struct (Code, Message, Type)
+  │   │   ├── Error.Constant.cs                   # MaxCodeLength, patterns, metadata keys
+  │   │   ├── Error.Method.cs                     # BadRequest, NotFound, Validation factories
+  │   │   └── Error.Type.cs                       # ErrorType constants (400, 401, 404, etc.)
+  │   └── Results/
+  │       ├── Result.cs                           # Result struct
+  │       ├── Result.Constant.cs                  # StatusCodes, DefaultValues, Messages
+  │       ├── Result.Extension.cs                 # ResultExtensions (empty)
+  │       ├── Result.Interface.cs                 # IResultRecord interface
+  │       ├── Result.Method.cs                    # Ok, Created, BadRequest, etc. factories
+  │       ├── ValueResult.cs                      # Result<T> struct
+  │       ├── ValueResult.Method.cs               # Result<T> factory methods + operators
+  │       ├── PagedResult.cs                      # PagedResult<T> struct
+  │       └── PagedResult.Method.cs               # PagedResult<T> factory methods
+  └── Systems/
+      ├── Systems.Extension.cs                    # DI registration for system services
+      ├── SystemDateTimes/
+      │   ├── SystemDateTime.Interface.cs         # ISystemDateTime interface
+      │   └── SystemDateTime.Implementation.cs    # SystemDateTime production impl
+      └── SystemInfos/
+          ├── SystemInfo.Interface.cs             # ISystemInfo interface
+          └── SystemInfo.Implementaion.cs         # SystemInfo production impl
