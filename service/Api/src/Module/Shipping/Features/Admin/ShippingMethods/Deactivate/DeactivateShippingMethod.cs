@@ -1,3 +1,4 @@
+using Module.Ordering.Domain.Orders;
 using Module.Shipping.Domain.ShippingMethods;
 
 namespace Module.Shipping.Features.Admin.ShippingMethods.Deactivate;
@@ -16,6 +17,15 @@ public static partial class DeactivateShippingMethod
 
             if (method is null)
                 return ShippingMethodResult.Errors.NotFound;
+
+            var hasActiveOrders = await dbContext.Set<Order>()
+                .AnyAsync(o => o.ShippingMethodId == command.Id
+                    && o.Status != OrderStatus.Canceled
+                    && o.Status != OrderStatus.Expired,
+                cancellationToken);
+
+            if (hasActiveOrders)
+                return ShippingMethodResult.Failure.HasActiveOrders;
 
             method.AvailableToUsers = false;
 
