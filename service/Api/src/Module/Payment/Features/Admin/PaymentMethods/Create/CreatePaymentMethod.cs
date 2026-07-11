@@ -1,6 +1,5 @@
-using Module.Payment.Services.Abstractions;
-using Module.Payment.Services.Models;
-using Module.Payment.Services.Gateways;
+using IGatewayRegistry = Module.Payment.Services.Provider.IGatewayRegistry;
+
 using Module.Payment.Domain.PaymentMethods;
 using Module.Payment.Features.Admin.PaymentMethods.Shared.Mappings;
 

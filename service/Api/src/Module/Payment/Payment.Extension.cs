@@ -1,12 +1,15 @@
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 
-using Module.Payment.Services.Abstractions;
 using Module.Payment.Services.Models;
-using Module.Payment.Services.Gateways;
-using Module.Payment.Services.Webhooks;
+using Module.Payment.Services.Processing;
+using Module.Payment.Services.Webhook;
 using Module.Payment.Persistence.Seeders;
+
+using BogusGateway = Module.Payment.Services.Provider.Bogus.BogusGateway;
+using GatewayRegistry = Module.Payment.Services.Provider.GatewayRegistry;
+using IGatewayRegistry = Module.Payment.Services.Provider.IGatewayRegistry;
+using StripeGateway = Module.Payment.Services.Provider.Stripe.StripeGateway;
 
 using Shared.Operational.Security.Encryption;
 using Shared.Operational.Persistence.Configurations.Dictionaries;

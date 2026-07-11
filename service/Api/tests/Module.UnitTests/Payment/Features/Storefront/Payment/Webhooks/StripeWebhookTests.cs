@@ -1,5 +1,6 @@
 using Microsoft.Extensions.Logging;
-using Module.Payment.Services.Abstractions;
+using IStripeWebhookService = Module.Payment.Services.Webhook.IStripeWebhookService;
+
 using Module.Payment.Services.Models;
 using Module.Payment.Features.Storefront.Payment.Webhooks;
 using Stripe;
