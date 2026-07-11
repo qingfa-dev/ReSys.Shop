@@ -45,7 +45,7 @@ namespace Module.Payment.Features.Admin.Payments.Refund;
             };
 
             // [WIP-MVP] For MVP, always refund the full captured total. Partial refund is deferred to v1.x.
-            var refundAmount = payment.Amount;
+            var refundAmount = command.Request.Amount;
 
             // Refund: Attempt to refund via gateway.
             var refundResult = await payment.RefundAsync(gateway, options, refundAmount, cancellationToken);
@@ -60,7 +60,7 @@ namespace Module.Payment.Features.Admin.Payments.Refund;
                 Id = payment.Id,
                 Number = payment.Number,
                 Amount = payment.Amount,
-                RefundedAmount = command.Request.Amount,
+                RefundedAmount = refundAmount,
                 State = payment.State,
                 Message = refundResult.Message ?? string.Empty
             };
