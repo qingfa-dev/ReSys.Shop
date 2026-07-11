@@ -29,6 +29,7 @@ public static partial class GetProfilesPagedOrAll
                 return result.ToPagedResult();
             })
             .RequireAuthorization()
+            .HasPermission(ProfileFeature.Admin.Profiles.GetAll.Permission)
             .WithName(nameof(GetProfilesPagedOrAll))
             .WithTags(ProfileFeature.Tags.Profile)
             .WithSummary(ProfileFeature.Store.Profile.GetAll.Summary)
