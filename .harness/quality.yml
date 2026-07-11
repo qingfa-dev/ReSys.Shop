@@ -129,21 +129,6 @@ domains:
     notes: "Smaller module (2.7K LOC). Functional but less mature than Catalog/Ordering."
     last_reviewed: "2026-07-11"
 
-  Webhooks:
-    scores:
-      code_quality: B
-      test_coverage: D
-      documentation: B
-      observability: C
-      reliability: C
-      security: B
-    gaps:
-      - "Smallest module (643 LOC) — minimal test coverage"
-      - "Webhook delivery retry/backoff logic not tested"
-      - "Event bus (cross-module events) is new — integration patterns not validated"
-    notes: "Recently added module for cross-module event bus. Needs more test investment."
-    last_reviewed: "2026-07-11"
-
   Shared.Infrastructure:
     scores:
       code_quality: B
