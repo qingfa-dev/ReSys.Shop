@@ -1,4 +1,6 @@
+using Module.Inventory.Services.Abstractions;
 using Module.Ordering.Domain.Orders;
+using Module.Ordering.Features.Shared.Services;
 
 namespace Module.Ordering.Features.Admin.Orders.UpdateStatus;
 
@@ -10,7 +12,8 @@ namespace Module.Ordering.Features.Admin.Orders.UpdateStatus;
     public sealed class CommandHandler(
         IApplicationDbContext dbContext,
         ILogger<CommandHandler> logger,
-        ICurrentUser currentUser)
+        ICurrentUser currentUser,
+        IStockQuantityService stockChecker)
         : ICommandHandler<Command>
     {
         /// <summary>Handles the command.</summary>
@@ -34,17 +37,20 @@ namespace Module.Ordering.Features.Admin.Orders.UpdateStatus;
             // Update: Apply status transition.
             switch (request.Status)
             {
-                case OrderStatus.Placed when entity.Status == OrderStatus.Draft:
-                    // Update: Modify entity properties.
-                    entity.Status = OrderStatus.Placed;
-                    // Update: Modify entity properties.
-                    entity.CompletedAtUtc = DateTimeOffset.UtcNow;
-                    break;
                 case OrderStatus.Canceled when entity.Status != OrderStatus.Canceled:
-                    // Update: Modify entity properties.
+                    var wasPlaced = entity.Status == OrderStatus.Placed;
                     entity.Status = OrderStatus.Canceled;
-                    // Update: Modify entity properties.
                     entity.CanceledAtUtc = DateTimeOffset.UtcNow;
+                    entity.CanceledById = Guid.TryParse(currentUser.UserId, out var canceledBy) ? canceledBy : null;
+
+                    if (wasPlaced)
+                    {
+                        foreach (var li in entity.LineItems)
+                        {
+                            var orderInventory = new OrderInventoryService(entity, li, dbContext, stockChecker);
+                            await orderInventory.RemoveAsync(li.Quantity, cancellationToken);
+                        }
+                    }
                     break;
                 default:
                     return OrderResult.Errors.InvalidStatusTransition;
@@ -54,11 +60,7 @@ namespace Module.Ordering.Features.Admin.Orders.UpdateStatus;
             await dbContext.SaveChangesAsync(cancellationToken);
 
             // Log: Success.
-            if (entity.Status == OrderStatus.Placed)
-                // Log: Record operation outcome.
-                OrderLoggers.Placed(logger, Number: entity.Number, Id: entity.Id, ActionBy: currentUser.UserName);
-            else if (entity.Status == OrderStatus.Canceled)
-                // Log: Record operation outcome.
+            if (entity.Status == OrderStatus.Canceled)
                 OrderLoggers.Canceled(logger, Number: entity.Number, Id: entity.Id, ActionBy: currentUser.UserName);
 
             return Result.Ok();
