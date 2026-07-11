@@ -17,10 +17,21 @@ public static partial class RequestPasswordReset
 
     public class CommandHandler(
         UserManager<User> userManager,
+        ISystemDateTime dateTime,
         INotificationService notificationService,
         IOptions<NotificationSetting> NotificationSetting,
         ILogger<CommandHandler> logger) : ICommandHandler<Command>
     {
+        // Contract: pre=command!=null, post=result!=null, throws=DbUpdateException
+        /// <summary>
+        /// Initiates a password reset flow for the given email. Generates a password reset token,
+        /// updates the audit timestamp, and sends a reset-link notification. Silently returns NoContent
+        /// for unknown or inactive users to avoid leaking account existence.
+        /// </summary>
+        /// <param name="command">The command containing the user's email address.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>A NoContent result indicating the notification was sent or suppressed.</returns>
+        /// <exception cref="DbUpdateException">Thrown when the identity store fails to persist the audit timestamp.</exception>
         public async Task<Result> Handle(Command command, CancellationToken cancellationToken)
         {
             var request = command.Request;
@@ -39,9 +50,9 @@ public static partial class RequestPasswordReset
             var token = await userManager.GeneratePasswordResetTokenAsync(user);
             var resetPath = BuildConfirmPath(user.Id, token, user.Email!);
 
-            user.ModifiedAtUtc = DateTimeOffset.UtcNow;
+            user.ModifiedAtUtc = dateTime.UtcNow;
 
-            UserLoggers.Passwords.PasswordResetRequested(logger, UserId: user.Id, Email: user.Email!, Timestamp: DateTime.UtcNow);
+            UserLoggers.Passwords.PasswordResetRequested(logger, UserId: user.Id, Email: user.Email!, Timestamp: dateTime.UtcNow.DateTime);
 
             var updateResult = await userManager.UpdateAsync(user);
             if (!updateResult.Succeeded)

@@ -19,6 +19,15 @@ public static partial class ChangePassword
         INotificationService notificationService,
         ILogger<CommandHandler> logger) : ICommandHandler<Command>
     {
+        // Contract: pre=command!=null, post=result!=null, throws=DbUpdateException
+        /// <summary>
+        /// Changes the current user's password. Validates the current password, applies the new password via Identity,
+        /// records the audit timestamp, and sends a password-changed notification.
+        /// </summary>
+        /// <param name="command">The command containing current and new passwords.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>A result indicating success, or not-found/password-mismatch error.</returns>
+        /// <exception cref="DbUpdateException">Thrown when the identity store fails to persist the password change.</exception>
         public async Task<Result> Handle(Command command, CancellationToken cancellationToken)
         {
             var request = command.Request;
@@ -58,7 +67,7 @@ public static partial class ChangePassword
 
             if (result.IsSuccess)
             {
-                UserLoggers.Passwords.PasswordChanged(logger, user.Id, user.Email!, DateTime.UtcNow);
+                UserLoggers.Passwords.PasswordChanged(logger, user.Id, user.Email!, dateTime.UtcNow.DateTime);
             }
         }
     }
