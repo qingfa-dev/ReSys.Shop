@@ -21,7 +21,13 @@ public static partial class UpdateWebhookSubscription
             var request = command.Request;
 
             if (request.Url is not null)
+            {
+                var urlValidation = WebhookUrlValidator.ValidateUrl(request.Url);
+                if (urlValidation.IsFailure)
+                    return urlValidation.Errors;
+
                 subscription.Url = request.Url;
+            }
 
             if (request.Active is not null)
                 subscription.Active = request.Active.Value;
