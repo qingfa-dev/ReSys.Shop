@@ -1,6 +1,6 @@
+using Module.Ordering.Domain.Orders;
 using Module.Payment.Services.Abstractions;
 using Module.Payment.Services.Models;
-using Module.Payment.Services.Gateways;
 using Module.Payment.Domain.PaymentCaptures;
 
 namespace Module.Payment.Features.Storefront.Payment.Confirm;
@@ -23,6 +23,11 @@ public static partial class ConfirmPayment
             var payment = await dbContext.Set<PaymentCapture>()
                 .FirstOrDefaultAsync(p => p.Id == command.PaymentId, cancellationToken);
             if (payment is null)
+                return PaymentCaptureResult.Failure.NotFound;
+
+            var order = await dbContext.Set<Order>()
+                .FirstOrDefaultAsync(o => o.Id == payment.OrderId && o.UserId == userId, cancellationToken);
+            if (order is null)
                 return PaymentCaptureResult.Failure.NotFound;
 
             if (payment.State is not (PaymentRecordState.Processing or PaymentRecordState.Pending))
