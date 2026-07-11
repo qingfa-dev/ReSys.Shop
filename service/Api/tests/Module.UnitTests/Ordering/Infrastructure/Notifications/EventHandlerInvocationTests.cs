@@ -1,8 +1,6 @@
-using MediatR;
-
 using Module.Ordering.Domain.Orders;
 using Module.Ordering.Features.Admin.Orders.Cancel;
-using Module.Inventory.Services.Abstractions;
+using Shared.Application.Contracts.Inventory;
 
 using Shared.Operational.Notifications.Models;
 using Shared.Operational.Notifications.Services;

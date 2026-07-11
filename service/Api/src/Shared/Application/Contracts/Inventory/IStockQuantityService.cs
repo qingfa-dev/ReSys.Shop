@@ -1,4 +1,4 @@
-namespace Module.Inventory.Services.Abstractions;
+namespace Shared.Application.Contracts.Inventory;
 
 public interface IStockQuantityService
 {

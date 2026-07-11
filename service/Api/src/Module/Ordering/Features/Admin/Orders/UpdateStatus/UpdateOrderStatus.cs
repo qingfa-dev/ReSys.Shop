@@ -1,4 +1,4 @@
-using Module.Inventory.Services.Abstractions;
+using Shared.Application.Contracts.Inventory;
 using Module.Ordering.Domain.Orders;
 using Module.Ordering.Features.Shared.Services;
 
@@ -51,6 +51,10 @@ public static partial class UpdateOrderStatus
                             await orderInventory.RemoveAsync(li.Quantity, cancellationToken);
                         }
                     }
+                    break;
+                case OrderStatus.Placed when entity.Status == OrderStatus.Draft:
+                    entity.Status = OrderStatus.Placed;
+                    entity.CompletedAtUtc = DateTimeOffset.UtcNow;
                     break;
                 default:
                     return OrderResult.Errors.InvalidStatusTransition;
