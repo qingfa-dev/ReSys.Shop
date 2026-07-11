@@ -43,25 +43,25 @@ public static partial class ReceiveStockTransfer
                     .FirstOrDefaultAsync(si => si.VariantId == variantId
                         && si.StockLocationId == transfer.DestinationLocationId, cancellationToken);
 
-                if (destStockItem is not null)
-                {
-                    var previousCount = destStockItem.CountOnHand;
-                    destStockItem.CountOnHand += quantity;
-                    destStockItem.ModifiedAtUtc = DateTimeOffset.UtcNow;
+                if (destStockItem is null)
+                    return StockTransferResult.Failure.DestinationStockItemNotFound(variantId);
 
-                    var movementResult = StockMovementMethod.Create(
-                        stockItemId: destStockItem.Id,
-                        quantity: quantity,
-                        previousCountOnHand: previousCount,
-                        originatorType: "Transfer",
-                        originatorId: transfer.Id,
-                        reason: $"Received from transfer {transfer.Number}",
-                        action: "transfer_in",
-                        stockLocationId: transfer.DestinationLocationId);
+                var previousCount = destStockItem.CountOnHand;
+                destStockItem.CountOnHand += quantity;
+                destStockItem.ModifiedAtUtc = DateTimeOffset.UtcNow;
 
-                    if (movementResult.IsSuccess)
-                        dbContext.Set<StockMovement>().Add(movementResult.Value);
-                }
+                var movementResult = StockMovementMethod.Create(
+                    stockItemId: destStockItem.Id,
+                    quantity: quantity,
+                    previousCountOnHand: previousCount,
+                    originatorType: "Transfer",
+                    originatorId: transfer.Id,
+                    reason: $"Received from transfer {transfer.Number}",
+                    action: "transfer_in",
+                    stockLocationId: transfer.DestinationLocationId);
+
+                if (movementResult.IsSuccess)
+                    dbContext.Set<StockMovement>().Add(movementResult.Value);
             }
 
             await dbContext.SaveChangesAsync(cancellationToken);
