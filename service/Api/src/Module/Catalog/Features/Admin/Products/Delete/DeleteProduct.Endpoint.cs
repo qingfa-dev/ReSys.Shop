@@ -28,8 +28,7 @@ public static partial class DeleteProduct
             .WithSummary(CatalogFeature.Admin.Products.Delete.Summary)
             .WithDescription(CatalogFeature.Admin.Products.Delete.Description)
             .Produces<Result>()
-            .Produces<Result>(StatusCodes.Status404NotFound)
-            .Produces<Result>(StatusCodes.Status409Conflict);
+            .Produces<Result>(StatusCodes.Status404NotFound);
         }
     }
 }
