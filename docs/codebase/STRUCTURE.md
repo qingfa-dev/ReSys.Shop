@@ -3,25 +3,29 @@ Short summary
 Top-level layout and where to find key code.
 
 Repository layout (high level)
-- `service/Api/` — main backend projects: `Api`, `Module`, `Shared`, `Migrations`.
+- `service/Api/` — main backend projects: `Api` (host), `Module` (8 business modules), `Shared` (infrastructure), `Migrations`.
 - `infra/Aspire/` — AppHost orchestration projects (Aspire AppHost + service defaults).
-- `service/Embedding/` — Python embedding service (pyproject + uv files).
-- `app/` — front-end applications: `Admin`, `ReSys.Admin`, `Store`.
-- `ApiTests/` — HTTP and integration test collections and helpers.
+- `service/Embedding/` — Python FastAPI embedding sidecar.
+- `app/` — front-end applications: active `Admin` (pnpm), legacy `ReSys.Admin` (npm), and `Store`.
+- `ApiTests/` — HTTP test files for manual API testing.
 
 Projects & entry points
-- Solution: `ReSys.Shop.slnx` references `infra/Aspire/src/ReSys.AppHost/ReSys.AppHost.csproj` and backend projects under `service/Api/src/`.
-- Frontend dev entry: `app/Admin/index.html` and Vite configs under each app.
+- Solution: `ReSys.Shop.slnx` references AppHost and backend projects under `service/Api/src/`.
+- Backend entry: `service/Api/src/Api/Program.cs`.
+- Aspire entry: `infra/Aspire/src/ReSys.AppHost/AppHost.cs`.
+- Frontend dev entry: `app/Admin/index.html` and `app/Store/index.html` with Vite configs.
+- Python entry: `service/Embedding/src/main.py`.
 
 Evidence
-- [ReSys.Shop.slnx](ReSys.Shop.slnx)
-- [service/Api/src/Api/Api.csproj](service/Api/src/Api/Api.csproj)
-- [infra/Aspire/src/ReSys.AppHost/ReSys.AppHost.csproj](infra/Aspire/src/ReSys.AppHost/ReSys.AppHost.csproj)
-- [app/Admin/index.html](app/Admin/index.html)
-- [ApiTests/README.md](ApiTests/README.md)
+- `ReSys.Shop.slnx`
+- `service/Api/src/Api/Program.cs`
+- `infra/Aspire/src/ReSys.AppHost/AppHost.cs`
+- `app/Admin/index.html`, `app/Store/index.html`
+- `service/Embedding/src/main.py`
+- `ApiTests/README.md`
 
-[TODO]
-- Per-module README files are sparse; add focused READMEs per project if desired. Marked as [ASK USER] to prioritise.
+[ASK USER]
+- `app/ReSys.Admin/` is a legacy npm-based admin SPA. Is it still needed, or can it be removed now that `app/Admin/` is the active pnpm-based SPA?
 # Codebase Structure
 
 ## Core Sections (Required)
@@ -31,7 +35,7 @@ Evidence
 | Path | Purpose | Evidence |
 |------|---------|----------|
 | `service/Api/src/Api/` | .NET API host — Program.cs, middleware pipeline, config | `service/Api/src/Api/Program.cs` |
-| `service/Api/src/Module/` | Business logic — 9 modules: Catalog, Identity, Inventory, Location, Ordering, Payment, Profile, Shipping, Webhooks | `service/Api/src/Module/Module.csproj` |
+| `service/Api/src/Module/` | Business logic — 8 modules: Catalog, Identity, Inventory, Location, Ordering, Payment, Profile, Shipping | `service/Api/src/Module/Module.csproj` |
 | `service/Api/src/Shared/` | Shared infrastructure — persistence, auth, storage, caching, notifications, jobs | `service/Api/src/Shared/Shared.csproj` |
 | `service/Api/src/Migrations/` | EF Core migrations and database schema snapshots | `service/Api/src/Migrations/Api.Migrations.csproj` |
 | `service/Api/tests/` | .NET test projects — `Api.Tests` (integration), `Module.UnitTests`, `Shared.UnitTests` | `service/Api/tests/Api.Tests/Api.Tests.csproj` |
@@ -77,8 +81,7 @@ Evidence
 | `service/Api/src/Module/Payment/` | Payment intents, payment method management, refund processing, webhook handlers, BogusGateway (dev/testing) | Order fulfillment, shipping |
 | `service/Api/src/Module/Profile/` | User profiles, addresses, wishlists, notification preferences | Authentication/authorization logic, product data |
 | `service/Api/src/Module/Shipping/` | Shipping method CRUD, shipping rate management, rate calculation, address estimation | Payment processing, order fulfillment |
-| `service/Api/src/Module/Webhooks/` | Webhook subscription CRUD, webhook delivery, ECDSA signing, event bus for cross-module integration | Direct module-to-module references |
-| `service/Api/src/Migrations/` | EF Core migration files (.cs), schema snapshots, migration guide | Application logic, domain models |
+| `service/Api/src/Migrations/` | EF Core migration files (.cs), schema snapshots | Application logic, domain models |
 | `service/Embedding/` | Python ML inference (CLIP/Fashion-CLIP models), embedding generation API, image preprocessing, embedding caching | Business logic, database access, user management |
 | `app/Admin/` | Admin UI components, admin-specific views and stores | Storefront UI components, backend business logic |
 | `app/Store/` | Storefront UI components, customer-facing views, cart/catalog stores, checkout flow | Admin UI components, admin auth logic |
@@ -87,7 +90,7 @@ Evidence
 
 - File naming pattern (C#): PascalCase — e.g., `Country.Extensions.cs`, `GetProductDetail.cs`, `Catalog.Extension.cs`
 - File naming pattern (Vue/TS): PascalCase for components — e.g., `App.vue`, `HomeView.vue`; kebab-case for .http tests — e.g., `products.http`
-- Directory organization pattern: feature-first vertical slices — `Features/{Admin|Storefront|Store}/{FeatureName}/{Action}/` (e.g., `Features/Admin/Products/Variants/Images/Upload/`)
+- Directory organization pattern: feature-first vertical slices — `Features/{Admin|Storefront}/{FeatureName}/{Action}/` (e.g., `Features/Admin/Products/Variants/Images/Upload/`, `Features/Storefront/Cart/Checkout/`)
 - Domain layer separated: `Domain/{EntityName}/` with partial class files (e.g., `Domain/Products/Variants/Variant.cs`, `Variant.Extension.cs`, `Variant.Validation.cs`)
 - C# module entry: each module has `{Module}.Extension.cs` with `IServiceCollection` extension methods (e.g., `Catalog.Extension.cs`, `Identity.Extensions.cs`)
 - Import aliasing (frontend): `@` alias maps to `./src` in both Admin and Store SPAs — `app/Admin/vite.config.ts:13`, `app/Store/vite.config.ts:12`

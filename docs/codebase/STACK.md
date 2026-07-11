@@ -1,39 +1,37 @@
 Short summary
 
-This repository is primarily a C#/.NET (SDK 10.0.301) backend with Vue frontends and a small Python "embedding" service. Core infra references include PostgreSQL (pgvector), Redis, and Hangfire.
+This repository is a C#/.NET 10 (SDK 10.0.301) modular-monolith backend with two Vue 3 frontends and a Python FastAPI embedding sidecar. Core infrastructure includes PostgreSQL 17 with pgvector, Redis 7, Hangfire background jobs, and .NET Aspire local orchestration.
 
 Languages & runtimes
-- C# / .NET 10 (SDK in [global.json](global.json))
-- TypeScript / Vue (frontends under `app/Admin`, `app/Store`)
-- Python (embedding service in `service/Embedding`)
+- C# / .NET 10 (SDK pinned in `global.json`)
+- TypeScript / Vue 3 (frontends under `app/Admin`, `app/Store`)
+- Python 3.14+ (embedding service in `service/Embedding`)
 
 Frameworks & libraries
-- ASP.NET Core, EF Core, Migrations
-- MediatR / CQRS + Carter minimal APIs (see ARCHITECTURE.md)
-- Vue + Vite for admin/store frontends
+- ASP.NET Core, EF Core 10, Carter minimal APIs
+- MediatR 14.1 CQRS pipeline
+- Vue 3 + Vite 8 for both frontends
+- FastAPI + uvicorn for embedding sidecar
 
 Tooling
 - `dotnet` CLI (solution: `ReSys.Shop.slnx`)
-- `pnpm` for frontend packages (`app/Admin/package.json`)
-- `uv` for Python service (`service/Embedding/pyproject.toml`)
+- `pnpm` for frontend packages
+- `uv` for Python service
 
 Databases & infra
-- PostgreSQL (pgvector referenced in repo docs)
-- Redis (caching)
+- PostgreSQL 17 + pgvector (primary store)
+- Redis 7 (cache / Hangfire)
 - Hangfire (background jobs)
 
-# Evidence
-- [AGENTS.md](AGENTS.md)
-- [global.json](global.json)
-- [app/Admin/package.json](app/Admin/package.json)
-- [service/Embedding/pyproject.toml](service/Embedding/pyproject.toml)
-- [service/Api/src/Migrations](service/Api/src/Migrations)
+Evidence
+- `global.json`
+- `Directory.Packages.props`
+- `app/Admin/package.json`, `app/Store/package.json`
+- `service/Embedding/pyproject.toml`
+- `infra/Aspire/src/ReSys.AppHost/AppHost.cs`
 
-[Decision]
-- Deployment: Local with Aspire (team choice). Aspire AppHost under `infra/Aspire` is the local orchestrator used for development and local end-to-end runs. Evidence: `infra/Aspire/src/ReSys.AppHost` and `AGENTS.md`.
-
-[TODO]
-- Production deployment model (containers, orchestrator, cloud provider) is not present in the repo — document later when team chooses cloud/orchestrator.
+[ASK USER]
+- Production deployment model (containers, orchestrator, cloud provider) is not present in the repo — what is the team's target production runtime?
 # Technology Stack
 
 ## Core Sections (Required)
@@ -162,18 +160,18 @@ dotnet run --project infra/Aspire/src/ReSys.AppHost
 
 ### 5) Environment and Config
 
-- Config sources: `appsettings.json`, `appsettings.Development.json` (per environment), Aspire injects service discovery
-- Required env vars (from code and config):
-  - `ConnectionStrings__DefaultConnection` — PostgreSQL connection string (default in `appsettings.Development.json:8`)
+- Config sources: `appsettings.json`, `appsettings.Development.json` (per environment), Aspire service discovery, and environment variables
+- Required env vars are documented in `service/Api/src/Api/.env.template`:
+  - `ConnectionStrings__DefaultConnection` — PostgreSQL connection string
   - `Authentication__Jwt__Secret` — JWT signing secret
   - `Authentication__Google__ClientId` — Google OAuth client ID
   - `Storage__Providers__Local__LocalPath` — Local storage root path
-  - `VITE_API_URL` — Frontend API base URL (`app/Admin/.env.development`, `app/Store/.env.development`; Aspire overrides)
-  - `Cors__Origins` — Allowed CORS origins
+  - `Cors__Origins` / `Cors__AllowCredentials` — CORS settings
+  - `Notification__Channels__Email__*` — Email provider config
+  - `BackgroundJobs__CachingEnabled` — Hangfire Redis vs in-memory
   - `OTEL_EXPORTER_OTLP_ENDPOINT` — OpenTelemetry collector endpoint (optional)
-  - `Notification__Channels__Email__*` — Email notification provider config
-  - `BackgroundJobs__CachingEnabled` — Hangfire with Redis or in-memory
-- Deployment/runtime constraints: PostgreSQL 16+ with pgvector extension, Redis 7+, Docker for integration tests and Aspire, Python 3.14+ for embedding service
+- Frontend env vars: `VITE_API_URL` in `app/Admin/.env.development` and `app/Store/.env.development` (Aspire overrides this when orchestrating)
+- Deployment/runtime constraints: PostgreSQL 17 with pgvector extension, Redis 7+, Docker for integration tests and Aspire, Python 3.14+ for embedding service
 
 ### 6) Evidence
 
@@ -189,4 +187,6 @@ dotnet run --project infra/Aspire/src/ReSys.AppHost
 - `infra/Aspire/src/ReSys.ServiceDefaults/ReSys.ServiceDefaults.csproj` — Service defaults (OpenTelemetry, resilience)
 - `app/Admin/.env.development` — Frontend env vars
 - `app/Store/.env.development` — Frontend env vars
+- `service/Api/src/Api/.env.template` — Canonical dev env var template
 - `service/Api/src/Api/appsettings.Development.json` — Backend dev configuration
+- `service/Api/src/Api/appsettings.json` — Production-oriented base configuration

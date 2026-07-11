@@ -1,12 +1,9 @@
-using Hangfire;
-
 using Module.Inventory.Domain.Stock;
 using Module.Inventory.Domain.StockLocations.StockItems;
 using Module.Inventory.Domain.StockReservations;
 using Module.Inventory.Domain.StockLocations.StockItems.StockMovements;
 using Module.Ordering.Domain.Orders;
 using Module.Ordering.Features.Admin.Orders.Shared.Mappings;
-using Module.Ordering.Features.Storefront.Cart.Checkout.Jobs;
 using Module.Payment.Domain.PaymentCaptures;
 
 using Shared.Operational.Notifications.Models;
@@ -25,8 +22,7 @@ public static partial class CreateOrderFromCart
         IApplicationDbContext dbContext,
         ILogger<CommandHandler> logger,
         ICurrentUser currentUser,
-        INotificationService notificationService,
-        IBackgroundJobClient backgroundJobClient)
+        INotificationService notificationService)
         : ICommandHandler<Command, Response>
     {
         /// <summary>Validates checkout prerequisites, verifies payment, deducts stock, reserves inventory, places the order, publishes an event, and sends a notification.</summary>
@@ -145,13 +141,6 @@ public static partial class CreateOrderFromCart
             }
 
             await dbContext.SaveChangesAsync(cancellationToken);
-
-            // Enqueue: Fire-and-forget delivery of order.placed to configured webhook URLs.
-            // When Webhooks:Outbound:Enabled is false, OrderPlacedDeliveryJob skips immediately.
-            backgroundJobClient.Enqueue<OrderPlacedDeliveryJob>(j =>
-                j.RunAsync(cart.Id, cart.Number, cart.UserId!.Value, cart.Email,
-                    cart.Total, cart.Currency, cart.CompletedAtUtc!.Value,
-                    cancellationToken));
 
             // Notify: Send order confirmation email to customer.
             await SendOrderPlacedNotificationAsync(cart, cancellationToken);
