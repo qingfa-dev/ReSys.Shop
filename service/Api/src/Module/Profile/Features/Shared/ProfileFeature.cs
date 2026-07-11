@@ -1,3 +1,5 @@
+using Shared.Security.Identity.Domain.Permissions;
+
 namespace Module.Profile.Features.Shared;
 
 public static class ProfileFeature
@@ -188,6 +190,7 @@ public static class ProfileFeature
                 public const string Route = $"{BaseRoute}/all";
                 public const string Description = "Retrieve all user profiles with pagination and filtering";
                 public const string Summary = "Get all profiles";
+                public static readonly PermissionMetadata Permission = new("Profile", "Admin", "Profiles", "GetAll");
             }
 
             public static class Create
