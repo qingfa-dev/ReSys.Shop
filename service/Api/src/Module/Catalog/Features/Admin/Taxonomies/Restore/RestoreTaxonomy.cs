@@ -18,14 +18,15 @@ public static partial class RestoreTaxonomy
         : ICommandHandler<Command>
     {
         /// <summary>
-        /// Handles the request and returns a result.
+        /// Restores a soft-deleted taxonomy and its root taxon.
         /// </summary>
-        /// <param name="command">The command containing request data.</param>
+        /// <param name="command">The command containing the taxonomy ID.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
-        // Contract: pre=command!=null, post=result!=null
+        /// <exception cref="DbUpdateException">Thrown when persistence fails.</exception>
+        // Contract: pre=command.Id!=Guid.Empty, post=result.IsSuccess, throws=DbUpdateException
         public async Task<Result> Handle(Command command, CancellationToken cancellationToken)
         {
-            // Query: Find the existing taxonomy entity, including its associated taxons.
+            // Load: Fetch soft-deleted taxonomy with associated taxons
             var entity = await dbContext.Set<Taxonomy>()
                 .IgnoreQueryFilters()
                 .Include(x => x.Taxons)
@@ -33,16 +34,15 @@ public static partial class RestoreTaxonomy
             if (entity is null)
                 return TaxonomyResult.Errors.NotFound;
 
-            // Restore: Restore the taxonomy entity.
+            // Update: Restore taxonomy — undeletes entity and resets status
             var restoreResult = entity.Restore();
             if (restoreResult.IsFailure)
                 return restoreResult.Errors;
 
-            // Persist: Save the changes to the database.
             dbContext.Set<Taxonomy>().Update(entity);
             await dbContext.SaveChangesAsync(cancellationToken);
 
-            // Query: Restore the root taxon for this taxonomy.
+            // Trigger: Cascade restore to root taxon
             var rootTaxon = await dbContext.Set<Taxon>()
                 .IgnoreQueryFilters()
                 .FirstOrDefaultAsync(x => x.TaxonomyId == entity.Id && x.ParentId == null, cancellationToken);
@@ -51,7 +51,12 @@ public static partial class RestoreTaxonomy
                 await sender.Send(new RestoreTaxon.Command(entity.Id, rootTaxon.Id), cancellationToken);
             }
 
-            // Map: Return the restored response.
+            // Trigger: Cascade restore to all child taxons
+            foreach (var taxon in entity.Taxons.Where(t => t.IsDeleted))
+            {
+                await sender.Send(new RestoreTaxon.Command(entity.Id, taxon.Id), cancellationToken);
+            }
+
             return Result.Ok(TaxonomyResult.Success.Restored);
         }
     }
