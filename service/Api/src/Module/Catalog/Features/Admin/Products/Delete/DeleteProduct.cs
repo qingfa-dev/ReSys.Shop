@@ -39,6 +39,9 @@ public static partial class DeleteProduct
             if (entity is null)
                 return ProductResult.Errors.NotFound(command.Id);
 
+            if (entity.IsDeleted)
+                return ProductResult.Errors.AlreadyDeleted;
+
             // Remove: Soft-delete product via domain method
             var deleteResult = entity.Delete(currentUser.UserName ?? "System");
             if (deleteResult.IsFailure)
@@ -50,7 +53,6 @@ public static partial class DeleteProduct
                 variant.Delete(currentUser.UserName ?? "System");
             }
 
-            // Persist: Save soft-delete state to database
             dbContext.Set<Product>().Update(entity);
             await dbContext.SaveChangesAsync(cancellationToken);
 
