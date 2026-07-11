@@ -1,8 +1,6 @@
 using Microsoft.AspNetCore.Identity;
 
-using Module.Profile.Domain;
-using Module.Profile.Features.Store.Profile.Create;
-
+using Shared.Application.Contracts.Profile;
 using Shared.Operational.Notifications.Models;
 using Shared.Operational.Notifications.Services;
 using Shared.Operational.Notifications.Templates;
@@ -102,26 +100,27 @@ public static partial class ConfirmEmail
         {
             try
             {
-                var profileResult = await mediator.Send(new CreateProfile.Command(user.Id, new CreateProfile.Request
-                {
-                    FirstName = user.FirstName,
-                    LastName = user.LastName ?? string.Empty,
-                    Email = user.Email!
-                }), cancellationToken);
+                var profileResult = await mediator.Send(
+                    new CreateUserProfileCommand(
+                        user.Id,
+                        user.FirstName,
+                        user.LastName,
+                        user.Email!),
+                    cancellationToken);
 
                 if (profileResult.IsFailure)
                 {
                     var errors = string.Join("; ", profileResult.Errors.Select(e => $"{e.Code}: {e.Message}"));
-                    UserProfileLoggers.Management.ProfileCreationFailed(logger, user.Id, errors);
+                    UserLoggers.Profiles.ProfileCreationFailed(logger, user.Id, errors);
                 }
                 else
                 {
-                    UserProfileLoggers.Management.ProfileCreated(logger, user.Id, profileResult.Value.Id);
+                    UserLoggers.Profiles.ProfileCreated(logger, user.Id, profileResult.Value.ProfileId);
                 }
             }
             catch (Exception ex)
             {
-                UserProfileLoggers.Management.ProfileCreationFailed(logger, user.Id, ex.Message);
+                UserLoggers.Profiles.ProfileCreationFailed(logger, user.Id, ex.Message);
             }
         }
     }

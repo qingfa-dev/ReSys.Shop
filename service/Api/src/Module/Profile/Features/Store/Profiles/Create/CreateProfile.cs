@@ -1,9 +1,10 @@
 using Module.Profile.Domain;
-using Module.Profile.Features.Store.Profile.Shared.Mappings;
+using Module.Profile.Features.Store.Profiles.Shared.Mappings;
 
+using Shared.Application.Contracts.Profile;
 using Shared.Security.Identity.Domain.Users;
 
-namespace Module.Profile.Features.Store.Profile.Create;
+namespace Module.Profile.Features.Store.Profiles.Create;
 
 /// <summary>Creates a new user profile for an existing identity user.</summary>
 public static partial class CreateProfile
@@ -47,5 +48,28 @@ public static partial class CreateProfile
             await dbContext.SaveChangesAsync(cancellationToken);
             return profile.MapToDetail<Response>();
         }
+    }
+}
+
+public sealed class CreateUserProfileCommandHandler(
+    IApplicationDbContext dbContext)
+    : ICommandHandler<CreateUserProfileCommand, CreateUserProfileResult>
+{
+    public async Task<Result<CreateUserProfileResult>> Handle(
+        CreateUserProfileCommand command,
+        CancellationToken cancellationToken)
+    {
+        var inner = new CreateProfile.CommandHandler(dbContext);
+        var result = await inner.Handle(
+            new CreateProfile.Command(command.UserId, new CreateProfile.Request
+            {
+                FirstName = command.FirstName,
+                LastName = command.LastName ?? string.Empty,
+                Email = command.Email
+            }), cancellationToken);
+
+        return result.IsSuccess
+            ? new CreateUserProfileResult(result.Value.Id)
+            : result.Errors;
     }
 }
