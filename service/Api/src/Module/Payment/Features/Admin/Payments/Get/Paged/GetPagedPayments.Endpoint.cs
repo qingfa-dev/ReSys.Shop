@@ -9,10 +9,11 @@ public static partial class GetPagedPayments
         public void AddRoutes(IEndpointRouteBuilder app)
         {
             app.MapGet(PaymentFeature.Admin.Payments.GetAll.Route, async (
+                [AsParameters] QueryingParameters parameters,
                 ISender sender,
                 CancellationToken ct) =>
             {
-                var query = new Query(new QueryingParameters());
+                var query = new Query(parameters);
                 var result = await sender.Send(query, ct);
                 return result.ToPagedResult();
             })
