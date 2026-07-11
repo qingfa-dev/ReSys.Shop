@@ -1,8 +1,4 @@
 using Module.Payment.Services.Provider;
-
-using Module.Payment.Services.Processing;
-
-
 using Module.Payment.Domain.PaymentCaptures;
 
 namespace Module.Payment.Services.Processing;
@@ -127,6 +123,7 @@ public sealed class PaymentProcessingService : IPaymentProcessingService
         payment.AvsResponse = response.AvsResultCode;
         payment.CvvResponseCode = response.CvvResultCode;
         payment.CvvResponseMessage = response.CvvResultMessage;
+        payment.IntentClientSecret = response.ClientSecret;
     }
 
     private async Task<Result<PaymentProcessingResult>> AuthorizeAsync(PaymentCapture payment, IPaymentGatewayActionProvider gateway, GatewayOptions options, CancellationToken ct = default)

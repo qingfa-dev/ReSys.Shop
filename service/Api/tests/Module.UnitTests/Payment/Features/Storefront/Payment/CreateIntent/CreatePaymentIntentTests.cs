@@ -1,7 +1,5 @@
 using Module.Payment.Services.Abstractions;
 using Module.Payment.Services.Models;
-using Module.Payment.Services.Gateways;
-using Module.Payment.Domain.PaymentCaptures;
 using Module.Payment.Domain.PaymentMethods;
 using Module.Payment.Features.Storefront.Payment.CreateIntent;
 using Module.Ordering.Domain.Orders;
@@ -106,6 +104,33 @@ public class CreatePaymentIntentTests : IDisposable
             TestContext.Current.CancellationToken);
 
         result.IsFailure.Should().BeTrue();
+    }
+
+    [Fact(DisplayName = "Handler: Should return client secret when gateway provides one")]
+    public async Task Handle_Should_Return_ClientSecret()
+    {
+        _processingServiceMock.Setup(x => x.ProcessAsync(It.IsAny<PaymentCapture>(), It.IsAny<IPaymentGatewayActionProvider>(), It.IsAny<GatewayOptions>(), It.IsAny<CancellationToken>()))
+            .Callback<PaymentCapture, IPaymentGatewayActionProvider, GatewayOptions, CancellationToken>(
+                (p, _, _, _) => p.IntentClientSecret = "pi_secret_test123")
+            .ReturnsAsync(new PaymentProcessingResult());
+
+        var userId = Guid.Parse(_currentUserMock.Object.UserId!);
+        var order = OrderExtensions.Create("USD", userId, Guid.NewGuid()).Value;
+        order.Status = OrderStatus.Placed;
+        order.Total = 100.00m;
+        _dbContext.Set<Order>().Add(order);
+        await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
+
+        var pm = new PaymentMethod { Name = "Credit Card", Code = "credit_card", ProviderKey = "bogus", Active = true };
+        _dbContext.Set<PaymentMethod>().Add(pm);
+        await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
+
+        var result = await _handler.Handle(
+            new CreatePaymentIntent.Command(order.Id),
+            TestContext.Current.CancellationToken);
+
+        result.IsSuccess.Should().BeTrue();
+        result.Value.ClientSecret.Should().NotBeNullOrEmpty();
     }
 
     [Fact(DisplayName = "Handler: Should return failure when order not found")]
