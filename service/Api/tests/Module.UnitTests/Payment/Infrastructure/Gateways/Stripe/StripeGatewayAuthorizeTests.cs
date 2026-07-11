@@ -1,4 +1,5 @@
 using Microsoft.Extensions.Options;
+using Module.Payment.Domain.Gateways;
 using Module.Payment.Domain.PaymentCaptures;
 using Module.Payment.Infrastructure.Gateways.Stripe;
 

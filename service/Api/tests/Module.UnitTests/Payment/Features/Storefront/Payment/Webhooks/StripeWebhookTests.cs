@@ -1,4 +1,5 @@
 using Module.Payment.Features.Storefront.Payment.Webhooks;
+using Module.Payment.Infrastructure.Gateways.Stripe;
 
 using PaymentCapture = Module.Payment.Domain.PaymentCaptures.PaymentCapture;
 
