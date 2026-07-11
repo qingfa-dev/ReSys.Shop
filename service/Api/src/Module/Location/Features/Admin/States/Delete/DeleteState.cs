@@ -27,8 +27,11 @@ public static partial class DeleteState
             if (state is null)
                 return StateResult.Failure.NotFound;
 
-            // Remove: Delete the state from the database.
-            dbContext.Set<State>().Remove(entity: state);
+            // Soft-delete: Deactivate the state instead of hard-deleting
+            // (Address entities in Profile module reference state by code string, not FK)
+            var deactivateResult = state.Deactivate();
+            if (deactivateResult.IsFailure)
+                return deactivateResult.Errors;
 
             // Persist: Save changes to the database.
             await dbContext.SaveChangesAsync(cancellationToken: cancellationToken);
