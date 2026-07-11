@@ -41,6 +41,11 @@ public static class StockTransferResult
                 code: "StockTransfer.VariantNotInTransfer",
                 message: $"Variant {variantId} is not part of this transfer.");
 
+        public static Error DestinationStockItemNotFound(Guid variantId) =>
+            Error.NotFound(
+                code: "StockTransfer.DestinationStockItem.NotFound",
+                message: $"Destination stock item for variant {variantId} was not found at the destination location.");
+
         public static Error ReceivedExceedsTransferred(Guid variantId, int transferred, int attempted) =>
             Error.Validation(
                 code: "StockTransfer.ReceivedExceedsTransferred",
