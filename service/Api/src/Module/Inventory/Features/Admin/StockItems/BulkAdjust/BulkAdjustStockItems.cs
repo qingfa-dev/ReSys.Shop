@@ -21,44 +21,47 @@ public static partial class BulkAdjustStockItems
         /// <returns>A result indicating success.</returns>
         public async Task<Result> Handle(Command command, CancellationToken cancellationToken)
         {
-            // Contract: pre=command!=null, post=result!=null
             var request = command.Request;
 
-            // Check: Find the stock item.
-            var entity = await dbContext.Set<StockItem>()
-                .FirstOrDefaultAsync(x => x.Id == request.StockItemId, cancellationToken);
+            foreach (var item in request.Items)
+            {
+                var entity = await dbContext.Set<StockItem>()
+                    .FirstOrDefaultAsync(x => x.Id == item.StockItemId, cancellationToken);
 
-            if (entity is null)
-                return StockItemResult.Errors.NotFound(request.StockItemId);
+                if (entity is null)
+                    return StockItemResult.Errors.NotFound(item.StockItemId);
 
-            // Check: Record previous count for audit trail.
-            var previousCount = entity.CountOnHand;
+                var previousCount = entity.CountOnHand;
 
-            // Update: Apply the quantity change.
-            var result = entity.AdjustCountOnHand(request.Quantity, request.Reason);
-            if (result.IsFailure)
-                return result.Errors;
+                var affected = await dbContext.Set<StockItem>()
+                    .Where(x => x.Id == item.StockItemId)
+                    .ExecuteUpdateAsync(s => s
+                        .SetProperty(x => x.CountOnHand, x => x.CountOnHand + item.Quantity)
+                        .SetProperty(x => x.ModifiedAtUtc, DateTimeOffset.UtcNow),
+                    cancellationToken);
 
-            var movementResult = StockMovementMapping.MapToDomain(
-                stockItemId: entity.Id,
-                quantity: request.Quantity,
-                previousCountOnHand: previousCount,
-                originatorType: "Adjustment",
-                reason: request.Reason);
+                if (affected == 0)
+                    return StockItemResult.Errors.NotFound(item.StockItemId);
 
-            if (movementResult.IsFailure)
-                return movementResult.Errors;
+                var movementResult = StockMovementMapping.MapToDomain(
+                    stockItemId: item.StockItemId,
+                    quantity: item.Quantity,
+                    previousCountOnHand: previousCount,
+                    originatorType: "Adjustment",
+                    reason: request.Reason);
 
-            var movement = movementResult.Value;
-            movement.CreatedBy = currentUser.UserName;
-            // Persist: Record the stock movement.
-            dbContext.Set<StockMovement>().Add(movement);
+                if (movementResult.IsSuccess)
+                {
+                    var movement = movementResult.Value;
+                    movement.CreatedBy = currentUser.UserName;
+                    dbContext.Set<StockMovement>().Add(movement);
+                }
+
+                StockItemLoggers.Adjusted(logger, CountOnHand: previousCount + item.Quantity, Id: item.StockItemId, ActionBy: currentUser.UserName);
+            }
+
             await dbContext.SaveChangesAsync(cancellationToken);
 
-            // Log: Stock item adjusted.
-            StockItemLoggers.Adjusted(logger, CountOnHand: entity.CountOnHand, Id: entity.Id, ActionBy: currentUser.UserName);
-
-            // Map: Return success result.
             return Result.NoContent(StockItemResult.Success.BulkAdjusted);
         }
     }
