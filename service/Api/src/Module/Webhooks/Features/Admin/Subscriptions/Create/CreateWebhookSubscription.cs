@@ -16,6 +16,10 @@ public static partial class CreateWebhookSubscription
         {
             var request = command.Request;
 
+            var urlValidation = WebhookUrlValidator.ValidateUrl(request.Url);
+            if (urlValidation.IsFailure)
+                return urlValidation.Errors;
+
             var secretHash = Convert.ToHexString(
                 SHA256.HashData(Encoding.UTF8.GetBytes(request.Secret)));
 
