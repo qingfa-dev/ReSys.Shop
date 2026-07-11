@@ -3,22 +3,23 @@ Short summary
 High-level architecture observed from repo files and AGENTS.md.
 
 Architecture overview
-- Modular monolith split into projects: `Api` (host), `Module` (business logic), `Shared` (infrastructure), `Migrations`.
-- CQRS via MediatR patterns and handlers; HTTP endpoints implemented as Carter minimal API endpoints that delegate to MediatR handlers.
-- Pipeline behaviors: `LoggingBehavior → ValidationBehavior → ExceptionMappingBehavior` (described in AGENTS.md).
-- Aspire AppHost (under `infra/Aspire`) orchestrates local dev environment and runs the API + embedding + frontends.
+- Modular monolith split into projects: `Api` (host), `Module` (8 business modules), `Shared` (infrastructure), `Migrations`.
+- CQRS via MediatR; HTTP endpoints are Carter minimal API endpoints that delegate to MediatR handlers.
+- Pipeline behaviors: `LoggingBehavior → ValidationBehavior → ExceptionMappingBehavior`.
+- Aspire AppHost orchestrates PostgreSQL, Redis, API, embedding service, and both Vue frontends for local development.
 
 Data flow
-- HTTP endpoints (Carter) → MediatR commands/queries → Module handlers → EF Core repositories → PostgreSQL
-- Background jobs via Hangfire for asynchronous processing
+- HTTP request → Carter endpoint → MediatR pipeline behaviors → command/query handler → domain logic → EF Core / storage / external API → Mapster-mapped response
+- Background jobs via Hangfire for asynchronous processing (cart expiry, outbound webhooks, notifications)
 
 Evidence
-- [AGENTS.md](AGENTS.md)
-- [service/Api/src/Module](service/Api/src/Module)
-- [infra/Aspire/src/ReSys.AppHost/ReSys.AppHost.csproj](infra/Aspire/src/ReSys.AppHost/ReSys.AppHost.csproj)
+- `AGENTS.md`
+- `service/Api/src/Api/Program.cs`
+- `service/Api/src/Shared/Application/Mediators/Mediator.Extension.cs`
+- `infra/Aspire/src/ReSys.AppHost/AppHost.cs`
 
-[Decision]
-- Team decision: keep the modular monolith. Aspire remains the local orchestrator for development; long-term production decomposition is [TODO].
+[ASK USER]
+- Long-term production decomposition strategy is not defined — does the team intend to keep the modular monolith or extract modules to separate deployables?
 # Architecture
 
 ## Core Sections (Required)
@@ -26,7 +27,7 @@ Evidence
 ### 1) Architectural Style
 
 - Primary style: Modular monolith with CQRS vertical slices
-- Why this classification: The solution has a single API host (`Api.csproj`) that references a single `Module` project containing all business logic across 9 modules. Modules are organized as vertical slices under `Module/{ModuleName}/Features/{Admin|Storefront}/{Feature}/{Action}/`. Each module exposes itself via an `IServiceCollection` extension but modules never reference each other. This is enforced by build-time conventions, not the currently-disabled `ValidateVerticalSliceIsolation` target (`Directory.Build.targets:42-53`).
+- Why this classification: The solution has a single API host (`Api.csproj`) that references a single `Module` project containing all business logic across 8 modules. Modules are organized as vertical slices under `Module/{ModuleName}/Features/{Admin|Storefront}/{Feature}/{Action}/`. Each module exposes itself via an `IServiceCollection` extension but modules never reference each other. Cross-module communication is via MediatR `ISender`. Build-time enforcement of module isolation is currently disabled (`ValidateVerticalSliceIsolation` target gated with `Condition="false"` in `Directory.Build.targets:44`).
 - Primary constraints:
   - TreatWarningsAsErrors — any warning fails the build (`Directory.Build.props:17`)
   - Central Package Management — all NuGet versions in one file (`Directory.Packages.props:4`)
@@ -90,7 +91,7 @@ Evidence for each step:
 
 ### 5) Known Architectural Risks
 
-- **Module cross-reference enforcement is disabled**: `ValidateVerticalSliceIsolation` target in `Directory.Build.targets:44` is gated with `Condition="false"`. With 9 modules sharing a single assembly, module isolation relies on convention and code review, not build enforcement.
+- **Module cross-reference enforcement is disabled**: `ValidateVerticalSliceIsolation` target in `Directory.Build.targets:44` is gated with `Condition="false"`. With 8 modules sharing a single assembly, module isolation relies on convention and code review, not build enforcement.
 - **Monolith scaling**: All modules compile into a single deployable; scaling requires scaling the entire API instance. Background jobs (Hangfire) share the same process/connection pool unless externalized.
 - **Embedding service is a separate process**: The Python ML sidecar is not integrated into the .NET DI pipeline; the communication protocol (HTTP/gRPC) and failure handling need to be defined. The service exists but may not be fully operational (see CONCERNS.md).
 - **No API gateway or reverse proxy defined**: Frontends proxy `/api` to `localhost:5035` in dev; production routing strategy is not yet defined.
@@ -98,14 +99,13 @@ Evidence for each step:
 
 ### 6) Evidence
 
-- `service/Api/src/Api/Program.cs` — API entry point showing DI wiring order, middleware pipeline, 9 module registrations
+- `service/Api/src/Api/Program.cs` — API entry point showing DI wiring order, middleware pipeline, 8 module registrations
 - `service/Api/src/Shared/Application/Mediators/Mediator.Extension.cs` — MediatR registration with pipeline behaviors
 - `service/Api/src/Shared/Application/Endpoints/Endpoint.Extension.cs` — Carter endpoint discovery
 - `service/Api/src/Module/Catalog/Catalog.Extension.cs` — Module DI extension pattern (representative)
 - `service/Api/src/Module/Ordering/` — Ordering module with cart, checkout, orders, events
-- `service/Api/src/Module/Payment/` — Payment module with intents, methods, refunds, webhooks
+- `service/Api/src/Module/Payment/` — Payment module with intents, methods, refunds, Stripe webhook handler
 - `service/Api/src/Module/Shipping/` — Shipping module with methods, rates, calculation
-- `service/Api/src/Module/Webhooks/` — Webhooks module with subscriptions, delivery, signing
 - `Directory.Build.targets` — Architecture validation targets (layer dependency enforcement)
 - `service/Api/src/Shared/Application/Models/Results/` — Result object pattern implementations
 - `infra/Aspire/src/ReSys.AppHost/AppHost.cs` — Service topology (all services wired together)

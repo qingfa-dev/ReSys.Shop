@@ -1,6 +1,5 @@
 using Module.Inventory.Domain.StockLocations.StockItems;
 using Module.Inventory.Domain.StockLocations;
-using Hangfire;
 
 using Module.Ordering.Domain.Orders;
 using Module.Ordering.Features.Storefront.Cart.Checkout;
@@ -19,7 +18,6 @@ public class CreateOrderFromCartTests : IDisposable
     private readonly Mock<ICurrentUser> _currentUserMock;
     private readonly Mock<ILogger<CreateOrderFromCart.CommandHandler>> _loggerMock;
     private readonly Mock<INotificationService> _notificationServiceMock;
-    private readonly Mock<IBackgroundJobClient> _backgroundJobClientMock;
     private readonly CreateOrderFromCart.CommandHandler _handler;
 
     public CreateOrderFromCartTests()
@@ -44,9 +42,7 @@ public class CreateOrderFromCartTests : IDisposable
             .Setup(x => x.SendAsync(It.IsAny<NotificationMessage>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(Result.Ok());
 
-        _backgroundJobClientMock = new Mock<IBackgroundJobClient>();
-
-        _handler = new CreateOrderFromCart.CommandHandler(_dbContext, _loggerMock.Object, _currentUserMock.Object, _notificationServiceMock.Object, _backgroundJobClientMock.Object);
+        _handler = new CreateOrderFromCart.CommandHandler(_dbContext, _loggerMock.Object, _currentUserMock.Object, _notificationServiceMock.Object);
     }
 
     public void Dispose()

@@ -1,30 +1,32 @@
 Short summary
 
-External systems and integrations used or expected by the repo.
+External systems and integrations used by the repo.
 
 Databases & caches
-- PostgreSQL (pgvector mentioned) — primary persistence.
-- Redis — caching and session-like storage.
+- PostgreSQL 17 + pgvector — primary persistence and vector search.
+- Redis 7 — distributed cache, Hangfire job storage option.
 
 Messaging / background
-- Hangfire used for background jobs (referenced in AGENTS.md).
+- Hangfire for background jobs.
 
 Third-party services
-- Email: SendGrid/SMTP mentioned as notification options in AGENTS.md.
-- Storage: Local/S3/Azure storage abstraction noted in AGENTS.md.
+- Email: SendGrid/SMTP via FluentEmail.
+- SMS: Sinch.
+- Storage: Local/S3/Azure via `IStorageProvider` abstraction.
+- Payments: Stripe (package present; currently BogusGateway enabled in dev).
+- Auth: Google OAuth (Facebook/Microsoft configured but disabled).
+- Malware scanning: ClamAV via nClam.
 
-# Evidence
-- [AGENTS.md](AGENTS.md)
-- [service/Api/src/Shared](service/Api/src/Shared)
+Evidence
+- `AGENTS.md`
+- `infra/Aspire/src/ReSys.AppHost/AppHost.cs`
+- `service/Api/src/Shared/`
+- `service/Api/src/Api/appsettings.json`
+- `service/Api/src/Api/appsettings.Development.json`
+- `service/Api/src/Api/.env.template`
 
-[Decision]
-- Secrets management (team): Adopt local development secrets via environment files and Aspire user secrets as the primary development approach. Action: remove hardcoded secrets from committed `appsettings.Development.json`, add a `.env.template` / `.env.example` documenting required env vars, and prefer Aspire user secrets for per-developer credentials.
-
-[Done]
-- `.env.template` created at `service/Api/src/Api/.env.template` containing the canonical development environment variables discovered in `appsettings.Development.json`, SPA env files, and notification/storage configuration.
-
-[TODO]
-- Review `.env.template` values and sanitize any remaining hardcoded development secrets from `appsettings.Development.json` (e.g., remove dev JWT secret). Consider moving to Aspire user secrets for developers.
+[ASK USER]
+- The dev JWT secret and DB password are still hardcoded in `appsettings.Development.json`. Does the team want to move these to Aspire user secrets now, or keep the committed dev-only values?
 # External Integrations
 
 ## Core Sections (Required)
@@ -35,7 +37,7 @@ Third-party services
 |--------|---------------------------|---------|------------|-------------|----------|
 | PostgreSQL 17 + pgvector | Database | Primary data store; relational data + vector similarity search | Connection string | High | `infra/Aspire/src/ReSys.AppHost/AppHost.cs:8` |
 | Redis 7 | Cache / Queue | HybridCache backend; Hangfire job storage (optional) | Connection string | High | `infra/Aspire/src/ReSys.AppHost/AppHost.cs:12` |
-| Embedding Service (Python) | Internal API | Image vector embedding generation (Fashion-CLIP) | [TODO] — auth between services not defined | Medium | `infra/Aspire/src/ReSys.AppHost/AppHost.cs:18` |
+| Embedding Service (Python) | Internal API | Image vector embedding generation (Fashion-CLIP) | None within Aspire local network | Medium | `infra/Aspire/src/ReSys.AppHost/AppHost.cs:20-27` |
 | SendGrid | External API (email) | Transactional email delivery | API key | Medium | `Directory.Packages.props:81` |
 | SMTP | External (email) | Email fallback provider | Credentials / None | Medium | `Directory.Packages.props:82` |
 | Sinch | External API (SMS) | SMS notifications | API key | Low | `Directory.Packages.props:83` |
@@ -61,13 +63,14 @@ Third-party services
 
 - Credential sources:
   - Development: `appsettings.Development.json` (committed — contains hardcoded JWT secret and DB connection string)
+  - `service/Api/src/Api/.env.template` — documents required environment variables for development
   - Aspire: User Secrets (`UserSecretsId` in `infra/Aspire/src/ReSys.AppHost/ReSys.AppHost.csproj:8`)
   - Frontend: `.env.development` files (`VITE_API_URL`)
   - Standard .NET configuration pipeline: environment variables, `appsettings.{Environment}.json`
 - Hardcoding checks:
-  - **Dev JWT secret is hardcoded** in `service/Api/src/Api/appsettings.Development.json:11` (`ThisIsADevelopmentJwtSecretKeyThatIsLongEnough32!`)
+  - **Dev JWT secret is hardcoded** in `service/Api/src/Api/appsettings.Development.json:28` (`ThisIsADevelopmentJwtSecretKeyThatIsLongEnough32!`)
   - DB connection string is hardcoded in dev settings (`Host=localhost;Database=resys_shop;Username=postgres;Password=postgres`)
-  - No `.env.example` or `.env.template` exists for backend — `service/Api/src/Api/` has no env files
+  - Gateway provider settings encryption key is hardcoded in dev settings (`dev-encryption-key-32-chars-len!`)
 - Rotation or lifecycle notes: No automated rotation mechanism detected; JWT secret rotation would require manual config change and token invalidation
 
 ### 4) Reliability and Failure Behavior
@@ -110,4 +113,6 @@ Third-party services
 - `service/Api/src/Shared/Operational/Http/ResilienceExtensions.cs` — HTTP resilience pipeline
 - `service/Api/src/Shared/Security/Authentication/Authentication.Extension.cs` — JWT and OAuth configuration
 - `service/Api/src/Api/appsettings.Development.json` — Dev configuration (DB, JWT, storage, notifications, CORS)
+- `service/Api/src/Api/appsettings.json` — Production base configuration (rate limits, storage, caching, observability)
+- `service/Api/src/Api/.env.template` — Canonical dev env var documentation
 - `Directory.Packages.props` — All integration package references

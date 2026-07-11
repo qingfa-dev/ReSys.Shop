@@ -3,22 +3,24 @@ Short summary
 Testing strategies and frameworks observed in the repository.
 
 Test types & locations
-- Unit tests: `service/Api/tests/Module.UnitTests` and `Shared.UnitTests` use in-memory EF Core / Moq patterns.
+- Unit tests: `service/Api/tests/Module.UnitTests` and `Shared.UnitTests` use EF Core InMemory / Moq.
 - Integration tests: `service/Api/tests/Api.Tests` use Testcontainers (PostgreSQL + Redis) and require Docker.
-- HTTP tests: `ApiTests/` contains `.http` files for REST Client usage.
+- HTTP tests: `ApiTests/` contains `.http` files for manual REST Client usage.
+- Frontend tests: Vitest in `app/Admin/src/__tests__/` and `app/Store/src/__tests__/`.
+- Python tests: pytest in `service/Embedding/`.
 
 Commands
-- Build + test: `dotnet build` and `dotnet test` (AGENTS.md quick start commands).
+- Build + test: `dotnet build` and `dotnet test`.
 
 Evidence
-- [ApiTests/README.md](ApiTests/README.md)
-- [service/Api/tests/Api.Tests](service/Api/tests/Api.Tests)
-- [ReSys.Shop.slnx](ReSys.Shop.slnx)
+- `ApiTests/README.md`
+- `service/Api/tests/Api.Tests/Api.Tests.csproj`
+- `service/Api/tests/Module.UnitTests/Module.UnitTests.csproj`
+- `service/Api/tests/Shared.UnitTests/Shared.UnitTests.csproj`
+- `ReSys.Shop.slnx`
 
-[Decision / TODO]
-- CI: No CI/CD pipelines detected in the repo. Per your input, there is no time to set up CI now; document as deferred work. Recommendation: add a minimal GitHub Actions workflow to run `dotnet build` + `dotnet test` + frontend `pnpm` lint/test when time permits.
-
-- [TODO] Create a minimal CI workflow file (e.g. `.github/workflows/ci.yml`) to run builds and tests on PRs — deferred per team availability.
+[ASK USER]
+- No CI pipeline exists. What is the team's priority and preferred platform (GitHub Actions, Azure DevOps, etc.) for automated build/test?
 # Testing Patterns
 
 ## Core Sections (Required)
@@ -85,8 +87,8 @@ cd service/Embedding && uv run pytest
 
 | Scope | Covered? | Typical target | Notes |
 |-------|----------|----------------|-------|
-| Unit | Yes | Domain entity methods, validators, mappers, pipeline behaviors | `Module.UnitTests` and `Shared.UnitTests` — EF Core InMemory for data access, Moq for interfaces. ~380+ test files combined. |
-| Integration | Yes | Full API request/response flows, database interactions | `Api.Tests` — uses Testcontainers (PostgreSQL + Redis) with real infrastructure. DB state reset via Respawn per test class (~25 scenario files). |
+| Unit | Yes | Domain entity methods, validators, mappers, pipeline behaviors | `Module.UnitTests` and `Shared.UnitTests` — EF Core InMemory for data access, Moq for interfaces. ~750+ test classes (`*Tests.cs`) across all .NET test projects. |
+| Integration | Yes | Full API request/response flows, database interactions | `Api.Tests` — uses Testcontainers (PostgreSQL + Redis) with real infrastructure. DB state reset via Respawn per test class. |
 | E2E | No | Cross-service user journeys | [TODO] — No end-to-end tests covering Aspire-orchestrated multi-service flows (API + Embedding + Frontends) |
 | HTTP (manual) | Partial | API endpoints via .http files | `ApiTests/` directory with organized .http files for manual testing in REST Client. Requires running API with seeded data. |
 | Frontend component | Partial | Vue component rendering and store logic | Store SPA has `App.spec.ts` and `cart.store.spec.ts`; Admin SPA has only `App.spec.ts`. No comprehensive component test suite. |
