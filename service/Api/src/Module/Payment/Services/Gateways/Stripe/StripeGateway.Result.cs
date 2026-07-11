@@ -1,6 +1,6 @@
-using Module.Payment.Domain.Gateways;
+using Module.Payment.Services.Gateways;
 
-namespace Module.Payment.Features.Admin.PaymentMethods.Services.Gateways.Stripe;
+namespace Module.Payment.Services.Gateways.Stripe;
 
 public static class StripeGatewayResult
 {

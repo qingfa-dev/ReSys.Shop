@@ -1,4 +1,4 @@
-namespace Module.Payment.Domain.Gateways;
+namespace Module.Payment.Services.Gateways;
 
 public interface IWebhookHandler
 {

@@ -1,6 +1,6 @@
 using Module.Payment.Domain.PaymentCaptures;
 
-namespace Module.Payment.Features.Admin.Payments.Services.GatewayProcessing;
+namespace Module.Payment.Services.GatewayProcessing;
 
 public sealed record PaymentProcessingResult
 {

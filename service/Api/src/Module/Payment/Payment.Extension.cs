@@ -3,12 +3,12 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 
-using Module.Payment.Domain.Gateways;
-using Module.Payment.Features.Admin.PaymentMethods.Services.Gateways.Bogus;
-using Module.Payment.Features.Admin.PaymentMethods.Services.Gateways.Stripe;
-using Module.Payment.Features.Admin.PaymentMethods.Services.Gateways.Webhooks;
-using Module.Payment.Features.Admin.PaymentMethods.Services.Registry;
-using Module.Payment.Features.Admin.Payments.Services.GatewayProcessing;
+using Module.Payment.Services.Gateways;
+using Module.Payment.Services.Gateways.Bogus;
+using Module.Payment.Services.Gateways.Stripe;
+using Module.Payment.Services.Gateways.Webhooks;
+using Module.Payment.Services.Registry;
+using Module.Payment.Services.GatewayProcessing;
 using Module.Payment.Persistence.Seeders;
 
 using Shared.Operational.Security.Encryption;

@@ -1,4 +1,4 @@
-namespace Module.Payment.Domain.Gateways;
+namespace Module.Payment.Services.Gateways;
 
 /// <summary>Gateway-level contract values: provider keys, Stripe/Bogus domain strings, webhook events, response messages, error codes.</summary>
 public static class GatewayConstants

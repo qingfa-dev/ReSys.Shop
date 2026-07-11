@@ -1,5 +1,5 @@
 using Module.Ordering.Domain.Orders;
-using Module.Payment.Domain.Gateways;
+using Module.Payment.Services.Gateways;
 using Module.Payment.Domain.PaymentCaptures;
 using Module.Payment.Features.Storefront.Payment.Confirm;
 using PaymentCapture = Module.Payment.Domain.PaymentCaptures.PaymentCapture;
