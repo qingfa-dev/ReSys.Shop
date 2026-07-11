@@ -166,20 +166,6 @@ domains:
       - observability
     size_loc: 2770
 
-  - name: Webhooks
-    description: Webhook subscription management, delivery, and event bus for cross-module integration
-    path: service/Api/src/Module/Webhooks
-    layers:
-      types: service/Api/src/Module/Webhooks/Domain
-      config: service/Api/src/Module/Webhooks/Webhooks.Extension.cs
-      domain: service/Api/src/Module/Webhooks/Domain
-      features: service/Api/src/Module/Webhooks/Features
-    providers:
-      - persistence
-      - auth
-      - observability
-    size_loc: 643
-
   - name: Shared.Infrastructure
     description: Cross-cutting infrastructure backbone — persistence, auth, caching, storage, notifications, jobs
     path: service/Api/src/Shared

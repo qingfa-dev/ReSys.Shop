@@ -91,7 +91,7 @@ imports:
   banned_patterns:
     - "../../**/internal"
   module_cross_reference_patterns:
-    - "using Module\\.(Catalog|Identity|Inventory|Location|Ordering|Payment|Profile|Shipping|Webhooks)\\.(?!Shared)"
+    - "using Module\\.(Catalog|Identity|Inventory|Location|Ordering|Payment|Profile|Shipping)\\.(?!Shared)"
 
 testing:
   boundary_testing_required: true
