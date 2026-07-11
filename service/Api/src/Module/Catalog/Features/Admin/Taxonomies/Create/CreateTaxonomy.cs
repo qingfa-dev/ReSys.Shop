@@ -1,3 +1,4 @@
+using Module.Catalog.Domain.Products;
 using Module.Catalog.Domain.Taxonomies;
 using Module.Catalog.Features.Admin.Taxonomies.Shared.Mappings;
 using Module.Catalog.Features.Admin.Taxonomies.Taxons.Create;
@@ -11,41 +12,38 @@ namespace Module.Catalog.Features.Admin.Taxonomies.Create;
 /// </summary>
 public static partial class CreateTaxonomy
 {
-    // Command:
     public record Command(Request Request) : ICommand<Response>;
 
-    // Command Handler:
     public class CommandHandler(
         IApplicationDbContext dbContext,
         ISender sender
         ) : ICommandHandler<Command, Response>
     {
         /// <summary>
-        /// Handles the request and returns a result.
+        /// Creates a new taxonomy with a root taxon after validating name uniqueness.
         /// </summary>
-        /// <param name="command">The command containing request data.</param>
+        /// <param name="command">The command containing the taxonomy creation payload.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
-        // Contract: pre=command!=null, post=result!=null
+        /// <exception cref="DbUpdateException">Thrown when persistence fails.</exception>
+        // Contract: pre=command.Request!=null, post=result.Id!=null, throws=DbUpdateException
         public async Task<Result<Response>> Handle(Command command, CancellationToken cancellationToken)
         {
             var request = command.Request;
-            // Normalize: Apply any necessary normalization to the request data (e.g., trimming whitespace).
-            var normalizedName = ParameterizableBehavior.Normalize(request.Name);
 
-            // Validate: Ensure that a taxonomy with the same name does not already exist.
+            // Validate: Taxonomy name must be unique to prevent duplicate URL routes
+            var normalizedName = ParameterizableBehavior.Normalize(request.Name);
             var nameExists = await dbContext.Set<Taxonomy>()
                 .AnyAsync(x => x.Name == normalizedName, cancellationToken);
             if (nameExists)
                 return TaxonomyResult.Errors.DuplicateName;
 
-            // Create: Instantiate a new taxonomy entity from the request.
+            // Create: Instantiate a new taxonomy entity from the validated request
             var result = request.MapToDomain();
             if (result.IsFailure)
                 return result.Errors;
 
             var entity = result.Value;
 
-            // Persist: Add entity to database and save changes.
             dbContext.Set<Taxonomy>().Add(entity);
             await dbContext.SaveChangesAsync(cancellationToken);
 
@@ -54,7 +52,7 @@ public static partial class CreateTaxonomy
             {
                 Name = entity.Name,
                 Presentation = entity.Presentation,
-                Slug = entity.Name.ToLowerInvariant().Replace(' ', '-'),
+                Slug = ProductMethod.GenerateSlugFromName(entity.Name),
                 Position = 0
             };
             await sender.Send(new CreateTaxon.Command(entity.Id, taxonRequest), cancellationToken);
