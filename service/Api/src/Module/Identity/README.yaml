@@ -1,0 +1,798 @@
+# ════════════════════════════════════════════════════
+# Module.Identity Documentation (YAML)
+# Purpose:  User authentication and authorization
+# Version:  1.0.0
+# Status:   stable
+# Schema:   3.0
+# Updated:  2026-07-10
+# ════════════════════════════════════════════════════
+
+kind: BuildingBlockModule
+id: identity
+name: Module.Identity
+version: "1.0.0"
+status: stable
+schema_version: "3.0"
+
+meta:
+  name: Identity Module
+  description: >
+    User authentication and authorization module for the ReSys.Shop platform.
+    Manages users, roles, permissions, sessions, password lifecycle, email
+    verification, and external login providers. Has no Domain/ or Persistence/
+    directories — delegates all data access and entity management to
+    Shared.Security (ASP.NET Identity). The module is purely feature-driven,
+    exposing Admin and Store vertical slices via Carter minimal API endpoints.
+  category: "Authentication | Authorization | Identity"
+  stability: Stable
+  dependencies:
+    - name: Shared.Security
+      version: "local"
+      scope: runtime
+    - name: Microsoft.AspNetCore.Identity
+      version: "10.x"
+      scope: runtime
+    - name: Carter
+      version: "local"
+      scope: runtime
+    - name: MediatR
+      version: "local"
+      scope: runtime
+    - name: FluentValidation
+      version: "local"
+      scope: runtime
+    - name: Mapster
+      version: "local"
+      scope: runtime
+
+principles:
+  - id: P1
+    name: Feature-Only Module
+    description: >
+      Identity contains no Domain/ or Persistence/ layers. All entity models,
+      DbContext, and data access live in Shared.Security. The module provides
+      only feature slices (handlers, endpoints, validators, mappings).
+    rationale: >
+      Avoids duplication of ASP.NET Identity infrastructure and keeps
+      the module focused on orchestration and business rules.
+  - id: P2
+    name: Result Objects Over Exceptions
+    description: >
+      All feature handlers return Result<T> or Result. Domain errors use
+      typed failure constants (UserResult.Failure.*) rather than exceptions.
+    rationale: >
+      Enables explicit error flow control and makes failure modes visible
+      in the API contract without relying on middleware exception handling.
+  - id: P3
+    name: Vertical Slice Isolation
+    description: >
+      Each feature action (Create, Login, Reset, etc.) is a self-contained
+      static partial class split across Handler, Request, Response, Endpoint,
+      and Validator files. Features never reference each other.
+    rationale: >
+      Keeps features independently testable and replaceable. Cross-feature
+      communication goes through MediatR ISender only.
+
+features:
+  - id: F1
+    name: Password-Based Authentication
+    type: core
+    description: >
+      Authenticates store users via email, username, or phone number with
+      password verification. Issues JWT access and refresh tokens.
+  - id: F2
+    name: External Provider Authentication
+    type: integration
+    description: >
+      Authenticates store users via external identity providers (Google, etc.)
+      using ID tokens. Supports provider discovery and token-based authentication.
+  - id: F3
+    name: User Registration
+    type: core
+    description: >
+      Registers new store users via email with automatic email verification
+      token generation, welcome notification, and default role assignment.
+  - id: F4
+    name: Session Management
+    type: core
+    description: >
+      Provides session retrieval, token refresh, and logout (single device
+      or all devices) with refresh token revocation.
+  - id: F5
+    name: Password Lifecycle
+    type: core
+    description: >
+      Handles password change (authenticated), forgot password (reset token
+      via email), and reset password (token-based). Sends notification
+      on password change.
+  - id: F6
+    name: Email Lifecycle
+    type: core
+    description: >
+      Manages email change requests with verification, email confirmation
+      (triggers profile creation and welcome email), and resend verification.
+  - id: F7
+    name: Admin User Management
+    type: core
+    description: >
+      Full CRUD for user accounts including status toggle, role assignment/
+      revocation/sync, and permission assignment/revocation/sync. All
+      actions require admin permissions.
+  - id: F8
+    name: Admin Role Management
+    type: core
+    description: >
+      Full CRUD for roles with permission assignment, revocation, and sync.
+      Includes paged and by-ID retrieval.
+  - id: F9
+    name: Admin Permission Registry
+    type: extension
+    description: >
+      Read-only endpoint exposing all system permissions grouped by category
+      and resource from the in-memory PermissionContext registry.
+  - id: F10
+    name: Module Seeding
+    type: utility
+    description: >
+      Registers RoleSeeder and UserSeeder via IdentityExtensions to
+      bootstrap default roles and admin users on application startup.
+
+abstractions:
+  - category: Module Infrastructure
+    order: 1
+    description: Entry point and route metadata for the Identity module.
+    items:
+      - id: A1
+        name: IdentityExtensions
+        type: extension
+        path: ./Identity.Extensions.cs
+        description: >
+          Static extension method AddIdentityModule that registers the
+          RoleSeeder and UserSeeder into the DI container.
+        purpose: >
+          Provides the entry point for the API to compose the Identity
+          module's startup services into the WebApplicationBuilder.
+      - id: A2
+        name: IdentityFeature
+        type: class
+        path: ./Features/Identity.Feature.cs
+        description: >
+          Static class containing nested Route, Description, and Summary
+          constants for every Admin and Store endpoint. Also defines OpenAPI
+          tag arrays (User, Role, Permission, Authentication, Authorization)
+          and links Admin endpoints to their required PermissionMetadata.
+        purpose: >
+          Single source of truth for API route strings and metadata.
+          Ensures endpoint registration and documentation stay consistent.
+
+  - category: Store Authentication Features
+    order: 2
+    description: Customer-facing authentication, registration, session, and account lifecycle features.
+    items:
+      - id: B1
+        name: PasswordLogin
+        type: handler
+        path: ./Features/Store/Auth/Login/Password/PasswordLogin.cs
+        description: >
+          Authenticates a store user with email, username, or phone number
+          and password. Returns JWT access token and refresh token.
+        purpose: >
+          Primary login mechanism for store users. Supports flexible
+          credential input and account lockout on repeated failures.
+      - id: B2
+        name: ExternalAuthenticate
+        type: handler
+        path: ./Features/Store/Auth/Login/External/Authenticate/ExternalAuthenticate.cs
+        description: >
+          Authenticates a store user using an external provider ID token
+          (Google, etc.). Creates new user if not yet registered.
+        purpose: >
+          Enables social/OAuth login for store users without requiring
+          a separate registration step.
+      - id: B3
+        name: ExternalProviders
+        type: handler
+        path: ./Features/Store/Auth/Login/External/Providers/ExternalProviders.cs
+        description: >
+          Returns the list of configured external login providers and their
+          display metadata for the client-side login UI.
+        purpose: >
+          Allows the frontend to dynamically render available social
+          login buttons based on server configuration.
+      - id: B4
+        name: EmailRegister
+        type: handler
+        path: ./Features/Store/Auth/Register/EmailRegister.cs
+        description: >
+          Registers a new store user account via email. Generates email
+          verification token, assigns default role, sends welcome email,
+          and triggers Profile module to create a user profile.
+        purpose: >
+          Handles the complete registration flow including verification,
+          role assignment, notification, and cross-module profile creation.
+      - id: B5
+        name: Logout
+        type: handler
+        path: ./Features/Store/Auth/Logout/Logout.cs
+        description: >
+          Logs out the current user from the current device or all devices.
+          Revokes refresh tokens as needed.
+        purpose: >
+          Provides secure session termination with optional global logout
+          across all user sessions.
+      - id: B6
+        name: GetSession
+        type: handler
+        path: ./Features/Store/Auth/Sessions/Get/GetSession.cs
+        description: >
+          Retrieves the current authenticated user's session details.
+        purpose: >
+          Allows the frontend to validate and display the active session.
+      - id: B7
+        name: RefreshSession
+        type: handler
+        path: ./Features/Store/Auth/Sessions/Refresh/RefreshSession.cs
+        description: >
+          Refreshes an expired access token using a valid refresh token.
+        purpose: >
+          Enables seamless token renewal without requiring re-authentication.
+      - id: B8
+        name: ChangePassword
+        type: handler
+        path: ./Features/Store/Passwords/Change/ChangePassword.cs
+        description: >
+          Changes the authenticated user's password after verifying the
+          current password. Sends a password-changed notification email.
+        purpose: >
+          Allows users to update their password while authenticated.
+      - id: B9
+        name: RequestPasswordReset
+        type: handler
+        path: ./Features/Store/Passwords/Forgot/RequestPasswordReset.cs
+        description: >
+          Generates a password reset token for a user identified by email
+          and sends the reset link via notification service.
+        purpose: >
+          Initiates the forgot-password flow for unauthenticated users.
+      - id: B10
+        name: ResetPassword
+        type: handler
+        path: ./Features/Store/Passwords/Reset/ResetPassword.cs
+        description: >
+          Resets a user's password using a valid reset token from the
+          forgot-password email.
+        purpose: >
+          Completes the password reset flow without requiring authentication.
+      - id: B11
+        name: ChangeEmail
+        type: handler
+        path: ./Features/Store/Emails/Change/ChangeEmail.cs
+        description: >
+          Initiates an email change by generating a verification token
+          for the new email address.
+        purpose: >
+          Allows authenticated users to update their email address with
+          verification to prevent typos.
+      - id: B12
+        name: ConfirmEmail
+        type: handler
+        path: ./Features/Store/Emails/Confirm/ConfirmEmail.cs
+        description: >
+          Confirms an email address using a verification token. On initial
+          verification triggers welcome notification and Profile module
+          profile creation. Also handles email change confirmation.
+        purpose: >
+          Validates email ownership and bootstraps the user profile on
+          first confirmation.
+      - id: B13
+        name: ResendEmailVerification
+        type: handler
+        path: ./Features/Store/Emails/Resend/ResendEmailVerification.cs
+        description: >
+          Resends the email verification link for an unverified user account.
+        purpose: >
+          Allows users who did not receive or lost the initial verification
+          email to request a new one.
+      - id: B14
+        name: Auth.Request.Model
+        type: record
+        path: ./Features/Store/Shared/Models/Auth.Request.Model.cs
+        description: >
+          Shared request models for store authentication features
+          (login credentials, token models).
+        purpose: >
+          Avoids duplication of request DTOs across login and session features.
+      - id: B15
+        name: Auth.Response.Model
+        type: record
+        path: ./Features/Store/Shared/Models/Auth.Response.Model.cs
+        description: >
+          Shared response models for store authentication features
+          (token responses, session info).
+        purpose: >
+          Provides consistent response shapes across authentication endpoints.
+
+  - category: Admin User Management Features
+    order: 3
+    description: Admin-facing user CRUD, role, and permission management features.
+    items:
+      - id: C1
+        name: CreateUser
+        type: handler
+        path: ./Features/Admin/Users/Create/CreateUser.cs
+        description: >
+          Creates a new user account without a password. Generates a
+          password setup token for the admin-created user.
+        purpose: >
+          Allows admins to provision user accounts where the user sets
+          their password via a setup link.
+      - id: C2
+        name: GetUsersPagedOrAll
+        type: handler
+        path: ./Features/Admin/Users/GetPagedOrAll/GetUsersPagedOrAll.cs
+        description: >
+          Retrieves users with optional pagination, search, and filtering.
+        purpose: >
+          Provides the admin user list view with flexible query support.
+      - id: C3
+        name: GetUserById
+        type: handler
+        path: ./Features/Admin/Users/GetById/GetUserById.cs
+        description: >
+          Retrieves a single user by their unique identifier.
+        purpose: >
+          Supports the admin user detail view and edit forms.
+      - id: C4
+        name: UpdateUser
+        type: handler
+        path: ./Features/Admin/Users/Update/UpdateUser.cs
+        description: >
+          Updates an existing user's profile fields (name, email, phone, etc.).
+        purpose: >
+          Allows admins to correct or update user account information.
+      - id: C5
+        name: DeleteUser
+        type: handler
+        path: ./Features/Admin/Users/Delete/DeleteUser.cs
+        description: >
+          Deletes a user account. Prevents self-deletion for the current
+          authenticated admin.
+        purpose: >
+          Permanently removes a user from the system.
+      - id: C6
+        name: ToggleUserStatus
+        type: handler
+        path: ./Features/Admin/Users/Status/ToggleUserStatus.cs
+        description: >
+          Activates or deactivates a user account.
+        purpose: >
+          Enables admins to suspend or restore user access without deletion.
+      - id: C7
+        name: GetUserRoles
+        type: handler
+        path: ./Features/Admin/Users/Roles/Get/GetUserRoles.cs
+        description: >
+          Retrieves the roles currently assigned to a specific user.
+        purpose: >
+          Displays role membership in the admin user detail view.
+      - id: C8
+        name: AssignUserRoles
+        type: handler
+        path: ./Features/Admin/Users/Roles/Assign/AssignUserRoles.cs
+        description: >
+          Assigns one or more roles to a user.
+        purpose: >
+          Grants role-based access to users from the admin panel.
+      - id: C9
+        name: RevokeUserRoles
+        type: handler
+        path: ./Features/Admin/Users/Roles/Revoke/RevokeUserRoles.cs
+        description: >
+          Revokes one or more roles from a user.
+        purpose: >
+          Removes specific role assignments without affecting others.
+      - id: C10
+        name: SyncUserRoles
+        type: handler
+        path: ./Features/Admin/Users/Roles/Sync/SyncUserRoles.cs
+        description: >
+          Synchronizes a user's roles to match an exact set, adding
+          missing and removing extra assignments.
+        purpose: >
+          Atomic role assignment that replaces the full set in one operation.
+      - id: C11
+        name: GetUserPermissions
+        type: handler
+        path: ./Features/Admin/Users/Permissions/Get/GetUserPermissions.cs
+        description: >
+          Retrieves the direct permissions assigned to a specific user.
+        purpose: >
+          Displays direct permission grants in the admin user detail view.
+      - id: C12
+        name: AssignUserPermissions
+        type: handler
+        path: ./Features/Admin/Users/Permissions/Assign/AssignUserPermissions.cs
+        description: >
+          Assigns one or more direct permissions to a user.
+        purpose: >
+          Grants specific permissions outside of role-based assignment.
+      - id: C13
+        name: RevokeUserPermissions
+        type: handler
+        path: ./Features/Admin/Users/Permissions/Revoke/RevokeUserPermissions.cs
+        description: >
+          Revokes one or more direct permissions from a user.
+        purpose: >
+          Removes specific direct permission grants.
+      - id: C14
+        name: SyncUserPermissions
+        type: handler
+        path: ./Features/Admin/Users/Permissions/Sync/SyncUserPermissions.cs
+        description: >
+          Synchronizes a user's direct permissions to match an exact set.
+        purpose: >
+          Atomic permission assignment that replaces the full set in one operation.
+      - id: C15
+        name: User.Model.Request
+        type: record
+        path: ./Features/Admin/Users/Shared/Models/User.Model.Request.cs
+        description: >
+          Request models for admin user management features (create, update,
+          role/permission sync).
+        purpose: >
+          Centralizes admin user request DTOs for reuse across CRUD and
+          role/permission management features.
+      - id: C16
+        name: User.Model.Response
+        type: record
+        path: ./Features/Admin/Users/Shared/Models/User.Model.Response.cs
+        description: >
+          Response models for admin user management features (detail, list,
+          role/permission responses).
+        purpose: >
+          Provides consistent response shapes across admin user endpoints.
+
+  - category: Admin Role and Permission Features
+    order: 4
+    description: Admin-facing role CRUD, role permission management, and permission registry features.
+    items:
+      - id: D1
+        name: CreateRole
+        type: handler
+        path: ./Features/Admin/Roles/Create/CreateRole.cs
+        description: >
+          Creates a new role in the identity system.
+        purpose: >
+          Allows admins to define new roles for RBAC.
+      - id: D2
+        name: GetRolesPagedOrAll
+        type: handler
+        path: ./Features/Admin/Roles/Get/PagedOrAll/GetRolesPagedOrAll.cs
+        description: >
+          Retrieves roles with optional pagination and search.
+        purpose: >
+          Provides the admin role list view.
+      - id: D3
+        name: GetRoleById
+        type: handler
+        path: ./Features/Admin/Roles/Get/ById/GetRoleById.cs
+        description: >
+          Retrieves a single role by its unique identifier.
+        purpose: >
+          Supports the admin role detail view.
+      - id: D4
+        name: UpdateRole
+        type: handler
+        path: ./Features/Admin/Roles/Update/UpdateRole.cs
+        description: >
+          Updates an existing role's name and display name.
+        purpose: >
+          Allows admins to modify role metadata.
+      - id: D5
+        name: DeleteRole
+        type: handler
+        path: ./Features/Admin/Roles/Delete/DeleteRole.cs
+        description: >
+          Deletes a role from the identity system.
+        purpose: >
+          Permanently removes a role that is no longer needed.
+      - id: D6
+        name: GetRolePermissions
+        type: handler
+        path: ./Features/Admin/Roles/Permissions/Get/GetRolePermissions.cs
+        description: >
+          Retrieves the permissions currently assigned to a specific role.
+        purpose: >
+          Displays role permission grants in the admin role detail view.
+      - id: D7
+        name: AssignRolePermissions
+        type: handler
+        path: ./Features/Admin/Roles/Permissions/Assign/AssignRolePermissions.cs
+        description: >
+          Assigns one or more permissions to a role.
+        purpose: >
+          Grants specific permissions to a role for RBAC.
+      - id: D8
+        name: RevokeRolePermissions
+        type: handler
+        path: ./Features/Admin/Roles/Permissions/Revoke/RevokeRolePermissions.cs
+        description: >
+          Revokes one or more permissions from a role.
+        purpose: >
+          Removes specific permission grants from a role.
+      - id: D9
+        name: SyncRolePermissions
+        type: handler
+        path: ./Features/Admin/Roles/Permissions/Sync/SyncRolePermissions.cs
+        description: >
+          Synchronizes a role's permissions to match an exact set.
+        purpose: >
+          Atomic permission assignment that replaces the full set in one operation.
+      - id: D10
+        name: GetPermissions
+        type: handler
+        path: ./Features/Admin/Permissions/Get/GetPermissions.cs
+        description: >
+          Returns all defined system permissions from the in-memory
+          PermissionContext, grouped by category and resource.
+        purpose: >
+          Allows the admin UI to display available permissions for
+          assignment to users and roles.
+      - id: D11
+        name: Role.Model.Request
+        type: record
+        path: ./Features/Admin/Roles/Shared/Models/Role.Model.Request.cs
+        description: >
+          Request models for admin role management features.
+        purpose: >
+          Centralizes admin role request DTOs.
+      - id: D12
+        name: Role.Model.Response
+        type: record
+        path: ./Features/Admin/Roles/Shared/Models/Role.Model.Response.cs
+        description: >
+          Response models for admin role management features.
+        purpose: >
+          Provides consistent response shapes across admin role endpoints.
+      - id: D13
+        name: Permission.Model.Response
+        type: record
+        path: ./Features/Admin/Permissions/Shared/Models/Permission.Model.Response.cs
+        description: >
+          Response model for the permission registry endpoint, representing
+          a single permission with its metadata.
+        purpose: >
+          Provides the canonical permission response shape for admin UI rendering.
+
+technical:
+  mechanisms:
+    - id: M1
+      name: ASP.NET Identity Delegation
+      scope: "Data access and entity management"
+      description: >
+        Identity module has no Persistence/ or Domain/ layers. All entity
+        models (User, Role, Permission), DbContext (IApplicationDbContext),
+        and data access are provided by Shared.Security via ASP.NET Identity
+        UserManager and SignInManager. The module only orchestrates business
+        logic in feature handlers.
+      pattern: |
+        // Handler injects UserManager<User> and SignInManager<User>
+        // from Shared.Security, not from a local DbContext.
+        var user = await userManager.FindByIdAsync(id);
+    - id: M2
+      name: JWT Token Lifecycle
+      scope: "Authentication"
+      description: >
+        Access tokens are generated via IAccessTokenService and refresh
+        tokens via IRefreshTokenService from Shared.Security.Authentication.
+        Token pairs are issued on login, refreshed on session refresh, and
+        revoked on logout.
+      pattern: |
+        // Login flow:
+        var tokenResult = accessTokenService.GenerateToken(tokenRequest);
+        var refreshResult = await refreshTokenService.GenerateAsync(userId, ct);
+        // Logout flow:
+        await refreshTokenService.RevokeAsync(revokeRequest, ct);
+    - id: M3
+      name: Notification Integration
+      scope: "Email lifecycle and registration"
+      description: >
+        Email verification, password reset, password change, and welcome
+        notifications are sent via INotificationService from Shared.Operational.
+        Uses template-driven notification messages with typed parameters.
+      pattern: |
+        var message = NotificationMessageBuilder
+            .ForUseCase(NotificationUseCase.EmailVerificationRequested)
+            .To(recipient, NotificationChannel.Email)
+            .AddParam(NotificationParameterType.VerificationUrl, url);
+        await notificationService.SendAsync(message.Value, default);
+
+anti_patterns:
+  - id: AP1
+    name: Adding Domain or Persistence to Identity
+    severity: critical
+    avoid: >
+      Creating Domain/ or Persistence/ directories inside the Identity
+      module. The module must remain feature-only and delegate all data
+      access to Shared.Security.
+    better_approach: >
+      If new identity-related entities or data access patterns are needed,
+      extend Shared.Security's models and services instead.
+    impact: >
+      Violates the module boundary rules and duplicates ASP.NET Identity
+      infrastructure, leading to maintenance burden and inconsistency.
+  - id: AP2
+    name: Cross-Feature Direct Calls in Identity
+    severity: high
+    avoid: >
+      Calling one feature's handler directly from another feature (e.g.,
+      calling CreateUser from ConfirmEmail). Features must remain isolated.
+    better_approach: >
+      Use MediatR ISender to send commands/queries across features, or
+      extract shared logic into Shared if both features need it.
+    impact: >
+      Breaks vertical slice isolation, creates hidden dependencies, and
+      makes features harder to test and replace independently.
+  - id: AP3
+    name: Returning Exceptions Instead of Result in Handlers
+    severity: high
+    avoid: >
+      Throwing exceptions from feature handlers for expected business
+      errors (duplicate email, invalid credentials, not found).
+    better_approach: >
+      Return Result.Fail() or typed failure constants (UserResult.Failure.*)
+      to keep error flow explicit and visible in the API contract.
+    impact: >
+      Exceptions bypass the Result pipeline and force middleware-level
+      handling, making errors unpredictable and harder to test.
+
+usage:
+  scenarios:
+    - id: S1
+      title: User Login with Password
+      context: >
+        A store user submits email/username and password via the login form.
+      pattern: |
+        POST /api/store/identity/auth/login/password
+        {
+          "credential": "user@example.com",
+          "password": "SecureP@ss123"
+        }
+        Response: { "accessToken": "...", "refreshToken": "...", ... }
+    - id: S2
+      title: User Registration
+      context: >
+        A new customer creates an account via the registration form.
+      pattern: |
+        POST /api/store/identity/auth/register
+        {
+          "email": "newuser@example.com",
+          "userName": "newuser",
+          "firstName": "Jane",
+          "password": "SecureP@ss123"
+        }
+        Response: { "id": "...", "email": "...", "status": "Registered" }
+    - id: S3
+      title: Admin User Role Assignment
+      context: >
+        An admin assigns roles to a user via the admin panel.
+      pattern: |
+        POST /api/identity/users/{id}/roles/assign
+        {
+          "roleNames": ["Admin", "Manager"]
+        }
+        Response: 204 No Content
+    - id: S4
+      title: Password Reset Flow
+      context: >
+        A user forgot their password and requests a reset.
+      pattern: |
+        # Step 1: Request reset
+        POST /api/store/identity/passwords/forgot
+        { "email": "user@example.com" }
+
+        # Step 2: Reset with token from email
+        POST /api/store/identity/passwords/reset
+        { "userId": "...", "token": "...", "newPassword": "NewP@ss123" }
+    - id: S5
+      title: Token Refresh
+      context: >
+        The access token expired and the client refreshes the session.
+      pattern: |
+        POST /api/store/identity/auth/sessions/refresh
+        { "refreshToken": "..." }
+        Response: { "accessToken": "...", "accessTokenExpiresIn": 3600, ... }
+
+testing:
+  strategies:
+    - id: TS1
+      title: Feature Handler Unit Tests
+      objective: >
+        Verify each feature handler in isolation by mocking UserManager,
+        SignInManager, and notification services. Assert Result success/failure
+        paths, error codes, and response shapes.
+      scope: unit
+    - id: TS2
+      title: End-to-End Endpoint Tests
+      objective: >
+        Verify full HTTP request/response flow through Carter endpoints
+        including authentication middleware, validation, and response
+        serialization.
+      scope: integration
+
+file_structure: |
+  Identity/
+  ├── Identity.Extensions.cs                    # Module entry point (seeders registration)
+  ├── README.yaml                               # This documentation
+  └── Features/
+      ├── Identity.Feature.cs                   # Route constants, tags, and permission metadata
+      ├── Admin/
+      │   ├── Permissions/
+      │   │   ├── Get/
+      │   │   │   ├── GetPermissions.cs          # Query handler
+      │   │   │   └── GetPermissions.Endpoint.cs # Carter endpoint
+      │   │   └── Shared/
+      │   │       ├── Models/                    # Permission response/resource/group/category models
+      │   │       ├── Mappings/                  # Permission response mappings
+      │   │       ├── Validators/                # (reserved)
+      │   │       └── Docs/                      # (reserved)
+      │   ├── Roles/
+      │   │   ├── Create/                        # CreateRole feature
+      │   │   ├── Delete/                        # DeleteRole feature
+      │   │   ├── Get/
+      │   │   │   ├── ById/                      # GetRoleById feature
+      │   │   │   └── PagedOrAll/               # GetRolesPagedOrAll feature
+      │   │   ├── Update/                        # UpdateRole feature
+      │   │   ├── Permissions/
+      │   │   │   ├── Assign/                    # AssignRolePermissions feature
+      │   │   │   ├── Get/                       # GetRolePermissions feature
+      │   │   │   ├── Revoke/                    # RevokeRolePermissions feature
+      │   │   │   └── Sync/                      # SyncRolePermissions feature
+      │   │   └── Shared/
+      │   │       ├── Models/                    # Role request/response/parameters models
+      │   │       ├── Mappings/                  # Role domain and model mappings
+      │   │       └── Validators/                # Role validators
+      │   └── Users/
+      │       ├── Create/                        # CreateUser feature
+      │       ├── Delete/                        # DeleteUser feature
+      │       ├── GetById/                       # GetUserById feature
+      │       ├── GetPagedOrAll/                 # GetUsersPagedOrAll feature
+      │       ├── Status/                        # ToggleUserStatus feature
+      │       ├── Update/                        # UpdateUser feature
+      │       ├── Roles/
+      │       │   ├── Assign/                    # AssignUserRoles feature
+      │       │   ├── Get/                       # GetUserRoles feature
+      │       │   ├── Revoke/                    # RevokeUserRoles feature
+      │       │   └── Sync/                      # SyncUserRoles feature
+      │       ├── Permissions/
+      │       │   ├── Assign/                    # AssignUserPermissions feature
+      │       │   ├── Get/                       # GetUserPermissions feature
+      │       │   ├── Revoke/                    # RevokeUserPermissions feature
+      │       │   └── Sync/                      # SyncUserPermissions feature
+      │       └── Shared/
+      │           ├── Models/                    # User request/response/parameters models
+      │           ├── Mappings/                  # User domain and model mappings
+      │           └── Validators/                # User validators
+      └── Store/
+          ├── Shared/
+          │   └── Models/                        # Auth request/response models
+          ├── Auth/
+          │   ├── Login/
+          │   │   ├── Password/                  # PasswordLogin feature
+          │   │   └── External/
+          │   │       ├── Authenticate/          # ExternalAuthenticate feature
+          │   │       ├── Providers/             # ExternalProviders feature
+          │   │       └── Shared/Models/         # External auth models
+          │   ├── Register/                      # EmailRegister feature
+          │   ├── Logout/                        # Logout feature
+          │   └── Sessions/
+          │       ├── Get/                       # GetSession feature
+          │       └── Refresh/                   # RefreshSession feature
+          ├── Passwords/
+          │   ├── Change/                        # ChangePassword feature
+          │   ├── Forgot/                        # RequestPasswordReset feature
+          │   └── Reset/                         # ResetPassword feature
+          └── Emails/
+              ├── Change/                        # ChangeEmail feature
+              ├── Confirm/                       # ConfirmEmail feature
+              └── Resend/                        # ResendEmailVerification feature

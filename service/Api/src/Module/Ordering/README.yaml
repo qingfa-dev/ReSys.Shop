@@ -1,0 +1,907 @@
+kind: BuildingBlockModule
+id: ordering-module
+name: Modules.Ordering
+version: "1.0.0"
+status: stable
+schema_version: "3.0"
+
+meta:
+  name: Ordering Module
+  description: >
+    Order management — shopping cart lifecycle, checkout state machine,
+    order placement, line items, monetary adjustments, and order events.
+    Provides the aggregate root Order entity with sealed partial classes
+    ported from Spree Ruby concerns, a forward-only checkout state machine,
+    and a pluggable adjustment engine for promotions and taxes.
+  category: "Domain Logic"
+  stability: Stable
+  standards_alignment: "DDD tactical patterns, Vertical Slice Architecture"
+  dependencies:
+    - name: Module.Shared
+      version: "1.0.0"
+      scope: runtime
+    - name: Module.Catalog
+      version: "1.0.0"
+      scope: runtime
+    - name: Module.Inventory
+      version: "1.0.0"
+      scope: runtime
+    - name: Module.Payment
+      version: "1.0.0"
+      scope: runtime
+    - name: Module.Shipping
+      version: "1.0.0"
+      scope: runtime
+
+principles:
+  - id: P1
+    name: Sealed Partial Entity Pattern
+    description: >
+      Domain entities are sealed partial classes with one concern per file,
+      mirroring the Ruby concern mixin pattern for modular domain behavior.
+    rationale: >
+      Ruby concerns mix behavior across files; C# sealed partial classes
+      provide equivalent modularity without inheritance complexity or
+      external coupling.
+  - id: P2
+    name: Forward-Only Checkout State
+    description: >
+      CheckoutState advances exclusively forward (Address → Delivery →
+      Payment → Confirm → Complete); canceled or draft orders cannot
+      advance; Complete is terminal.
+    rationale: >
+      Prevents invalid state transitions that would corrupt order totals,
+      payment records, and shipment schedules.
+  - id: P3
+    name: Result Object over Exceptions
+    description: >
+      All domain operations return Result<T> or Result. Exceptions are
+      reserved for unrecoverable infrastructure failures only.
+    rationale: >
+      Eliminates exception-driven control flow; makes error paths explicit
+      and composable throughout the vertical slice handlers.
+  - id: P4
+    name: No Cross-Module References
+    description: >
+      Ordering module never references other business modules directly.
+      Cross-module coordination occurs via MediatR ISender or injected
+      service abstractions.
+    rationale: >
+      Preserves module isolation in the modular monolith; enables
+      independent testing and future service extraction.
+
+features:
+  - id: F1
+    name: Order Lifecycle Management
+    type: core
+    description: >
+      Create, finalize, cancel, approve, and resume orders with full
+      state machine enforcement via OrderExtensions factory methods.
+  - id: F2
+    name: Checkout State Machine
+    type: core
+    description: >
+      Forward-only checkout flow with dynamic step resolution, guard
+      methods (DeliveryRequired, PaymentRequired, AllowCancel), and
+      prerequisite validation for each state transition.
+  - id: F3
+    name: Shopping Cart Operations
+    type: core
+    description: >
+      Full cart CRUD: create, get, add items, remove items, update
+      quantities, empty, delete, associate with user, and validate
+      checkout readiness.
+  - id: F4
+    name: Adjustment Engine
+    type: core
+    description: >
+      Pluggable adjustment system with AdjusterBase template method,
+      eligibility tracking, open/closed state machine, and polymorphic
+      adjustment targets via IAdjustable.
+  - id: F5
+    name: Cart Merge Service
+    type: utility
+    description: >
+      Guest-to-user cart merge with line item deduplication by variant
+      and quantity accumulation via OrderMerger.
+  - id: F6
+    name: Admin Order Management
+    type: core
+    description: >
+      Full admin CRUD: create, get, cancel, approve, complete, resume,
+      update status/addresses/shipping, add/update/remove line items,
+      and soft-delete orders.
+  - id: F7
+    name: Cart Expiry Background Job
+    type: extension
+    description: >
+      Periodic background service that expires stale draft orders after
+      a configurable retention window via CartExpiryService and CartExpiryJob.
+  - id: F8
+    name: Order Event Publishing
+    type: integration
+    description: >
+      Publishes order lifecycle events (order.placed) via IOrderEventPublisher
+      with NullOrderEventPublisher default and WebhookOrderEventPublisher
+      production implementation.
+  - id: F9
+    name: Inventory Synchronization
+    type: integration
+    description: >
+      Coordinates stock decrement on shipment and increment on cancellation
+      via OrderInventoryService for completed orders.
+
+abstractions:
+  - category: Core Domain Entities
+    order: 1
+    description: Aggregate root and supporting entities for order lifecycle management.
+    items:
+      - id: A1
+        name: Order
+        type: class
+        path: ./Domain/Orders/Order.cs
+        description: >
+          Sealed partial aggregate root representing a customer order through
+          its entire lifecycle from draft to completed or canceled. Holds line
+          items, adjustments, payment records, addresses, and checkout state.
+        purpose: >
+          Central entity that all ordering operations act upon; enforces
+          domain invariants (Total >= 0, checkout state progression, immutability
+          of finalized orders).
+        contract: |
+          // Invariant: Total = ItemTotal + AdjustmentTotal + ShipmentTotal
+          // Invariant: CheckoutState progresses forward only
+          // Invariant: Finalized orders are immutable except Cancel
+          // Invariant: Total >= 0
+        related:
+          - id: A2
+            note: Checkout state machine partial
+          - id: A6
+            note: Line item aggregate child
+      - id: A2
+        name: Order.Checkout
+        type: class
+        path: ./Domain/Orders/Order.Checkout.cs
+        description: >
+          Checkout state machine partial with step resolution, guard methods
+          (DeliveryRequired, PaymentRequired, ConfirmationRequired, AllowCancel,
+          CanShip, Uneditable), and lifecycle callbacks.
+        purpose: >
+          Defines the checkout flow, transition guards, and hook callbacks
+          that enforce forward-only state progression.
+        contract: |
+          // Invariant: Checkout flow steps must always include 'complete'
+          // Invariant: CheckoutState advances forward only; canceled orders cannot advance
+        related:
+          - id: A1
+            note: Extends Order with checkout behavior
+      - id: A3
+        name: Order.AddressBook
+        type: class
+        path: ./Domain/Orders/Order.AddressBook.cs
+        description: >
+          Address cloning and billing/shipping ID assignment with identity
+          comparison for equality checks.
+        purpose: >
+          Manages billing and shipping address references on the order
+          with clone shortcuts for same-address scenarios.
+      - id: A4
+        name: Order.Extensions
+        type: extension
+        path: ./Domain/Orders/Order.Extensions.cs
+        description: >
+          Static factory method Create and state machine transitions:
+          AdvanceCheckout, Finalize, Cancel, Resume, Approve, Empty,
+          RecalculateTotals, IsPaid, UpdatePaymentState, and soft Delete.
+        purpose: >
+          Single entry point for all Order state mutations, ensuring
+          invariant enforcement before any state change.
+        contract: |
+          // Contract: pre=currency!=null&&storeId!=default, post=entity.Status==Draft
+        methods:
+          - name: "Create(currency, userId, storeId, id?, sessionId?) → Result<Order>"
+            description: Factory that creates a new Draft order with zero totals.
+          - name: "AdvanceCheckout(order) → Result"
+            description: Transitions order to the next checkout state.
+          - name: "Finalize(order) → Result"
+            description: Places the order; transitions to Placed status.
+          - name: "Cancel(order, canceledById) → Result"
+            description: Cancels a placed order with canceler tracking.
+          - name: "Resume(order) → Result"
+            description: Restores a canceled order to Placed status.
+          - name: "Approve(order, approvedById) → Result"
+            description: Approves a placed order with approver tracking.
+          - name: "RecalculateTotals(order)"
+            description: Recomputes all order totals from line items and adjustments.
+          - name: "Delete(order, deletedBy) → Result"
+            description: Soft-deletes the order by marking IsDeleted.
+      - id: A5
+        name: Order.Payments
+        type: class
+        path: ./Domain/Orders/Order.Payments.cs
+        description: >
+          Payment state tracking with unprocessed payment enumeration and
+          ProcessPayments loop that advances checkout-state payments.
+        purpose: >
+          Coordinates payment processing lifecycle within the order aggregate
+          without direct dependency on Payment module entities.
+      - id: A6
+        name: LineItem
+        type: class
+        path: ./Domain/LineItems/LineItem.cs
+        description: >
+          Sealed partial entity representing a single product variant line
+          within an order. Tracks quantity, unit price, total, adjustment
+          total, and currency with FK to Order and Variant.
+        purpose: >
+          Atomic unit of order contents; enforces per-item invariants
+          (Quantity >= 1, Total = Quantity * Price + AdjustmentTotal).
+        contract: |
+          // Invariant: Quantity >= 1
+          // Invariant: Total = (Quantity * Price) + AdjustmentTotal
+          // Invariant: CostPrice <= Price when set
+      - id: A7
+        name: Adjustment
+        type: class
+        path: ./Domain/Adjustments/Adjustment.cs
+        description: >
+          Sealed partial entity representing a monetary adjustment (discount,
+          tax, shipping) applied to an order or line item. Tracks eligible,
+          included, mandatory flags and open/closed lifecycle state.
+        purpose: >
+          Enables flexible pricing modifications with full audit trail and
+          state machine controlling when adjustments are mutable vs frozen.
+        contract: |
+          // Invariant: Open adjustments auto-recalculate
+          // Invariant: Closed adjustments are locked
+          // Invariant: Amount can be positive (charge) or negative (credit)
+      - id: A8
+        name: OrderStatus
+        type: enum
+        path: ./Domain/Orders/Order.Enumerate.cs
+        description: >
+          Order lifecycle statuses: Draft (0), Placed (1), Canceled (2),
+          and Expired (4).
+        purpose: >
+          Defines the finite set of order states consumed by the state
+          machine, persistence queries, and feature guards.
+      - id: A9
+        name: CheckoutState
+        type: enum
+        path: ./Domain/Orders/Order.Enumerate.cs
+        description: >
+          Checkout state machine progression: Address, Delivery, Payment,
+          Confirm, Complete.
+        purpose: >
+          Defines the forward-only checkout steps used by the state
+          machine resolution and guard methods.
+      - id: A10
+        name: IOrderEventPublisher
+        type: interface
+        path: ./Domain/Orders/Contracts/IOrderEventPublisher.cs
+        description: >
+          Contract for publishing order lifecycle events to external systems.
+          Single method PublishAsync(eventName, payload, ct).
+        purpose: >
+          Decouples order event publishing from the domain; allows null,
+          webhook, or message-broker implementations without domain changes.
+      - id: A11
+        name: IAdjustable
+        type: interface
+        path: ./Domain/Adjustments/IAdjustable.cs
+        description: >
+          Contract for entities that can have adjustments applied. Exposes
+          read-only Adjustments list; mutation via AdjustmentsUpdater only.
+        purpose: >
+          Polymorphic adjustment target enabling the same adjuster pipeline
+          to operate on Order, LineItem, or Shipment.
+      - id: A12
+        name: Order.Validation
+        type: function
+        path: ./Domain/Orders/Order.Validation.cs
+        description: >
+          FluentValidation extension methods enforcing checkout state
+          transition rules, finalize prerequisites, and cancel guards.
+        purpose: >
+          Centralizes all Order validation rules for reuse across feature
+          handlers and domain operations.
+      - id: A13
+        name: Adjustment.Validation
+        type: function
+        path: ./Domain/Adjustments/Adjustment.Validation.cs
+        description: >
+          FluentValidation rules for Adjustment entity ensuring required
+          fields and business rule compliance.
+        purpose: >
+          Validates adjustment invariants before persistence.
+
+  - category: Domain Services
+    order: 2
+    description: Stateless services that coordinate cross-cutting order business logic.
+    items:
+      - id: B1
+        name: OrderUpdater
+        type: class
+        path: ./Domain/Orders/Services/OrderUpdater.cs
+        description: >
+          Recalculates item count, all totals (payment, item, shipment,
+          adjustment), payment/shipment state, and persists modification
+          timestamp after any order mutation.
+        purpose: >
+          Central recalculation engine ensuring totals consistency across
+          all order mutations.
+        methods:
+          - name: "Update()"
+            description: Full recalculation of all totals and states.
+          - name: "UpdateTotals()"
+            description: Recalculates payment, item, shipment, and adjustment totals.
+          - name: "UpdatePaymentState()"
+            description: Derives payment state from payment records and outstanding balance.
+      - id: B2
+        name: OrderContents
+        type: class
+        path: ./Domain/Orders/Services/OrderContents.cs
+        description: >
+          Coordinates adding and removing line items with quantity merging
+          for duplicate variants. Fluent API for chaining Add/Remove/RemoveLineItem.
+        purpose: >
+          Cart modification entry point that handles variant deduplication
+          and quantity aggregation.
+        methods:
+          - name: "Add(lineItem, quantity) → OrderContents"
+            description: Adds a variant; merges with existing line item of same variant.
+          - name: "Remove(lineItem, quantity) → OrderContents"
+            description: Decrements quantity or removes line item if quantity reaches zero.
+          - name: "RemoveLineItem(lineItem) → OrderContents"
+            description: Removes an entire line item regardless of quantity.
+      - id: B3
+        name: OrderMerger
+        type: class
+        path: ./Domain/Orders/Services/OrderMerger.cs
+        description: >
+          Merges a guest cart into a user cart by combining matching line
+          items by variant ID and reassigning the user.
+        purpose: >
+          Handles guest-to-user cart consolidation on login, ensuring no
+          duplicate line items for the same variant.
+      - id: B4
+        name: OrderInventoryService
+        type: class
+        path: ./Features/Shared/Services/OrderInventoryService.cs
+        description: >
+          Synchronizes inventory units for completed orders when line item
+          quantities change. Handles stock decrement on shipment and
+          increment on return or cancellation.
+        purpose: >
+          Bridges the Ordering and Inventory modules via IStockQuantityService
+          for stock-level coordination on order state changes.
+      - id: B5
+        name: OrderResult
+        type: class
+        path: ./Domain/Orders/Order.Result.cs
+        description: >
+          Centralized success/error message factories for all Order operations.
+          Defines typed error codes for not-found, invalid transitions, and
+          business rule violations.
+        purpose: >
+          Single source of truth for order-related error shapes consumed by
+          all feature handlers and domain guards.
+      - id: B6
+        name: LineItemResult
+        type: class
+        path: ./Domain/LineItems/LineItem.Result.cs
+        description: >
+          Success/error message factories for LineItem operations including
+          variant-not-found, quantity-exceeds-max, and created responses.
+        purpose: >
+          Typed error responses for line item operations across cart and
+          admin features.
+      - id: B7
+        name: LineItemConstant
+        type: class
+        path: ./Domain/LineItems/LineItem.Constant.cs
+        description: >
+          Constraints, defaults, and query configuration constants for the
+          LineItem entity including MaxQuantity.
+        purpose: >
+          Centralizes line item business rules as named constants.
+      - id: B8
+        name: OrderConstant
+        type: class
+        path: ./Domain/Orders/Order.Constant.cs
+        description: >
+          Constraints, defaults, and query configuration for the Order entity
+          including default currency.
+        purpose: >
+          Centralizes order business rules and default values.
+
+  - category: Adjustments Engine
+    order: 3
+    description: Pluggable adjustment system for promotions, taxes, and shipping charges.
+    items:
+      - id: C1
+        name: AdjusterBase
+        type: abstract
+        path: ./Domain/Adjustments/Adjuster/AdjusterBase.cs
+        description: >
+          Abstract base class for adjustment calculators that update totals
+          during recalculation. Requires IAdjustable and totals dictionary.
+        purpose: >
+          Template method pattern for adjustment recalculation strategies;
+          subclasses implement Update() for specific adjustment types.
+      - id: C2
+        name: Adjustment.Method.State
+        type: function
+        path: ./Domain/Adjustments/Adjustment.Method.State.cs
+        description: >
+          State machine methods for Adjustment: Close, Open, MarkEligible,
+          MarkIneligible with state transition guards.
+        purpose: >
+          Controls when adjustments are mutable (open) vs frozen (closed)
+          for historical integrity.
+      - id: C3
+        name: Adjustment.Method.Factory
+        type: function
+        path: ./Domain/Adjustments/Adjustment.Method.Factory.cs
+        description: >
+          Factory methods for creating Adjustment instances with proper
+          default values and invariant enforcement.
+        purpose: >
+          Ensures all Adjustment entities are created in a valid initial state.
+      - id: C4
+        name: Adjustment.Constant
+        type: class
+        path: ./Domain/Adjustments/Adjustment.Constant.cs
+        description: >
+          Defaults and constraints for the Adjustment entity including
+          state values and precision rules.
+        purpose: >
+          Centralizes adjustment business rule constants.
+
+  - category: Infrastructure Adapters
+    order: 4
+    description: Event publishing, persistence configuration, and background services.
+    items:
+      - id: D1
+        name: NullOrderEventPublisher
+        type: class
+        path: ./Infrastructure/Events/NullOrderEventPublisher.cs
+        description: >
+          Default no-op implementation of IOrderEventPublisher. Discards
+          all events silently.
+        purpose: >
+          Safe default for development and testing; replaced by
+          WebhookOrderEventPublisher in production.
+      - id: D2
+        name: WebhookOrderEventPublisher
+        type: class
+        path: ./Infrastructure/Events/WebhookOrderEventPublisher.cs
+        description: >
+          Production implementation of IOrderEventPublisher that dispatches
+          events via IWebhookDispatcher with failure logging.
+        purpose: >
+          Connects order lifecycle events to the webhook infrastructure
+          for external system notification.
+      - id: D3
+        name: CartExpiryJob
+        type: class
+        path: ./Backgrounds/CartExpiryJob.cs
+        description: >
+          Background job that finds Draft orders older than the retention
+          window (default 7 days) and marks them as Expired with soft-delete.
+        purpose: >
+          Prevents stale draft orders from accumulating indefinitely in
+          the database.
+      - id: D4
+        name: CartExpiryService
+        type: class
+        path: ./Services/CartExpiryService.cs
+        description: >
+          BackgroundService host that runs CartExpiryJob on a configurable
+          interval (default 1 hour).
+        purpose: >
+          Hosts the cart expiry sweep as a long-running background service.
+      - id: D5
+        name: OrderingExtension
+        type: extension
+        path: ./Ordering.Extension.cs
+        description: >
+          Module registration entry point: registers IOrderEventPublisher,
+          CartExpiryJob, CartExpiryService, and data seeders into DI.
+        purpose: >
+          Single registration surface for all Ordering module services;
+          called from the API composition root.
+      - id: D6
+        name: OrderingSchema
+        type: class
+        path: ./Persistence/OrderingSchema.cs
+        description: >
+          PostgreSQL schema name and table name constants for the ordering
+          schema: orders, line_items, adjustments.
+        purpose: >
+          Centralizes schema and table names for EF Core configurations
+          and raw SQL queries.
+      - id: D7
+        name: OrderSeeder
+        type: class
+        path: ./Persistence/Seeders/Order.Seeder.cs
+        description: >
+          Seeds sample orders with line items, payments, and addresses
+          for development and testing environments.
+        purpose: >
+          Provides realistic order data for local development and
+          integration test fixtures.
+      - id: D8
+        name: PaymentSeeder
+        type: class
+        path: ./Persistence/Seeders/Payment.Seeder.cs
+        description: >
+          Seeds payment records associated with seeded orders.
+        purpose: >
+          Completes the payment state for seeded orders in dev/test.
+      - id: D9
+        name: Adjustment.Method.Eligible
+        type: function
+        path: ./Domain/Adjustments/Adjustment.Method.Eligible.cs
+        description: >
+          Eligibility flag methods for determining whether an adjustment
+          contributes to order totals.
+        purpose: >
+          Controls adjustment inclusion in total recalculation.
+
+technical:
+  mechanisms:
+    - id: M1
+      name: Checkout State Resolution
+      scope: "Core checkout flow"
+      description: >
+        ResolvedCheckoutSteps dynamically builds the step list by evaluating
+        DeliveryRequired (always true), PaymentRequired (Total > 0), and
+        ConfirmationRequired at query time. Steps are conditionally included
+        based on order state, not hardcoded.
+      pattern: |
+        // Order.Checkout.cs — ResolvedCheckoutSteps
+        var steps = new List<string>();
+        if (DeliveryRequired()) steps.Add("delivery");
+        if (PaymentRequired()) steps.Add("payment");
+        if (ConfirmationRequired()) steps.Add("confirm");
+        steps.Add("complete");
+        return [.. steps];
+    - id: M2
+      name: Cart Expiry Sweep
+      scope: "Background processing"
+      description: >
+        CartExpiryService runs as a BackgroundService on a 1-hour interval.
+        Each sweep creates a DI scope, resolves CartExpiryJob, and queries
+        for Draft orders older than 7 days. Matching orders are batch-updated
+        to Expired status with soft-delete in a single ExecuteUpdateAsync call.
+      steps:
+        - "CartExpiryService waits for sweep interval (1 hour default)"
+        - "Creates a new DI scope and resolves CartExpiryJob"
+        - "CartExpiryJob queries Draft orders older than retention window"
+        - "Batch-updates matching orders to Expired status with soft-delete"
+    - id: M3
+      name: Webhook Event Dispatch
+      scope: "Order lifecycle events"
+      description: >
+        Order events (order.placed) are published via IOrderEventPublisher.
+        The default NullOrderEventPublisher discards events; the production
+        WebhookOrderEventPublisher dispatches via IWebhookDispatcher and
+        logs failures without throwing.
+      pattern: |
+        // CreateOrderFromCart.cs — event publishing
+        await eventPublisher.PublishAsync("order.placed", new {
+          OrderId = cart.Id, OrderNumber = cart.Number,
+          UserId = cart.UserId, Email = cart.Email,
+          Total = cart.Total, Currency = cart.Currency
+        }, cancellationToken);
+
+anti_patterns:
+  - id: AP1
+    name: Direct Module-to-Module References
+    severity: critical
+    avoid: >
+      Importing entities from other business modules (Catalog, Inventory,
+      Payment, Shipping) directly in domain partials or extension methods.
+    better_approach: >
+      Use injected service abstractions or MediatR ISender for cross-module
+      coordination. Domain entities reference only Shared abstractions.
+    impact: >
+      Breaks module isolation; prevents independent testing and future
+      service extraction; creates circular dependency risk.
+  - id: AP2
+    name: Skipping OrderUpdater After Mutations
+    severity: high
+    avoid: >
+      Modifying line items, adjustments, or payment records without calling
+      OrderUpdater.Update() to recalculate totals.
+    better_approach: >
+      Always invoke OrderUpdater.Update() or RecalculateTotals() after any
+      mutation that affects order financial state.
+    impact: >
+      Stale totals cause incorrect payment amounts, shipping calculations,
+      and customer-facing price displays.
+  - id: AP3
+    name: Mutable Checkout Steps via Array Manipulation
+    severity: high
+    avoid: >
+      Adding or removing checkout steps by directly mutating the
+      DefaultCheckoutSteps array or ResolvedCheckoutSteps list.
+    better_approach: >
+      Use the query-based resolution pattern where steps are computed from
+      guard method results; extend behavior via IAdjustable or handler-level
+      validation instead.
+    impact: >
+      Causes state machine drift; invalid transitions can corrupt order
+      state and bypass business rule enforcement.
+  - id: AP4
+    name: Throwing Exceptions for Domain Errors
+    severity: medium
+    avoid: >
+      Using throw or exceptions to signal business rule violations such as
+      invalid state transitions or insufficient stock.
+    better_approach: >
+      Return Result.Failure() with typed error codes from OrderResult or
+      LineItemResult; reserve exceptions for infrastructure failures only.
+    impact: >
+      Exception-driven control flow is slower, harder to compose, and
+      makes error paths invisible to callers.
+
+usage:
+  scenarios:
+    - id: S1
+      title: Creating an Order via Checkout
+      context: >
+        When a customer completes all checkout steps and places their order
+        from the storefront.
+      pattern: |
+        // Find draft cart for current user
+        var cart = await dbContext.Set<Order>()
+            .Include(x => x.LineItems)
+            .Where(x => x.UserId == userId && x.Status == OrderStatus.Draft)
+            .FirstOrDefaultAsync(cancellationToken);
+
+        // Validate checkout prerequisites
+        if (cart.CheckoutState < CheckoutState.Confirm)
+            return OrderResult.Errors.CheckoutNotComplete;
+
+        // Place the order
+        cart.Status = OrderStatus.Placed;
+        cart.CheckoutState = CheckoutState.Complete;
+        cart.CompletedAtUtc = DateTimeOffset.UtcNow;
+        cart.Number = GenerateOrderNumber();
+
+        // Publish event and send notification
+        await eventPublisher.PublishAsync("order.placed", payload, ct);
+        await notificationService.SendAsync(notification, ct);
+      benefits:
+        - State machine ensures valid transitions only
+        - Totals automatically recalculated on finalize
+        - Event publishing decouples downstream notifications
+    - id: S2
+      title: Adding Items to a Shopping Cart
+      context: >
+        When a customer adds a product variant to their cart, either as
+        a new item or incrementing quantity of an existing line item.
+      pattern: |
+        // Resolve or create draft cart
+        var cart = await dbContext.Set<Order>()
+            .Where(x => (x.UserId == userId || x.SessionId == sessionId)
+                     && x.Status == OrderStatus.Draft)
+            .FirstOrDefaultAsync(cancellationToken);
+
+        // Check if variant already in cart
+        var existingLine = cart.LineItems
+            .FirstOrDefault(li => li.VariantId == request.VariantId);
+
+        if (existingLine is not null)
+        {
+            existingLine.Quantity += request.Quantity;
+            existingLine.Total = existingLine.Price * existingLine.Quantity;
+        }
+        else
+        {
+            var lineItem = LineItemMethod.Create(
+                cart.Id, request.VariantId, request.Quantity, variant.Price);
+            cart.LineItems.Add(lineItem.Value);
+        }
+        cart.RecalculateTotals();
+      benefits:
+        - Variant deduplication prevents duplicate line items
+        - Quantity accumulation handles repeat additions
+        - RecalculateTotals keeps financial state consistent
+    - id: S3
+      title: Admin Approving a Placed Order
+      context: >
+        When an administrator reviews and approves a customer order that
+        has been placed but not yet fulfilled.
+      pattern: |
+        var order = await dbContext.Set<Order>()
+            .FirstOrDefaultAsync(o => o.Id == command.Id, cancellationToken);
+
+        if (order is null)
+            return OrderResult.Errors.NotFound(command.Id);
+
+        var result = order.Approve(approvedById);
+        if (result.IsFailure)
+            return result.Errors;
+
+        order.ApprovedAtUtc = DateTimeOffset.UtcNow;
+        order.ModifiedAtUtc = DateTimeOffset.UtcNow;
+        await dbContext.SaveChangesAsync(cancellationToken);
+      benefits:
+        - Domain method enforces approval guard (cannot approve canceled orders)
+        - Approver identity and timestamp recorded for audit trail
+        - Result object makes failure path explicit for callers
+
+testing:
+  strategies:
+    - id: TS1
+      title: Order State Machine Unit Tests
+      objective: >
+        Verify all checkout state transitions are valid and invalid
+        transitions are rejected with correct error codes.
+      scope: unit
+      code_example: |
+        [Fact]
+        public void AdvanceCheckout_FromAddress_ToDelivery_WhenAddressesSet()
+        {
+            var order = OrderExtensions.Create("USD", userId, storeId).Value;
+            order.BillAddressId = addressId;
+            order.ShipAddressId = addressId;
+
+            var result = order.AdvanceCheckout();
+
+            result.IsSuccess.Should().BeTrue();
+            order.CheckoutState.Should().Be(CheckoutState.Delivery);
+        }
+
+        [Fact]
+        public void AdvanceCheckout_FromAddress_ToDelivery_WhenNoAddresses_Rejects()
+        {
+            var order = OrderExtensions.Create("USD", userId, storeId).Value;
+
+            var result = order.AdvanceCheckout();
+
+            result.IsFailure.Should().BeTrue();
+        }
+    - id: TS2
+      title: OrderTotals Recalculation Tests
+      objective: >
+        Ensure RecalculateTotals and OrderUpdater correctly compute
+        ItemTotal, AdjustmentTotal, Total, and OutstandingBalance
+        from line items and eligible adjustments.
+      scope: unit
+      code_example: |
+        [Fact]
+        public void RecalculateTotals_ComputesCorrectTotals()
+        {
+            var order = OrderExtensions.Create("USD", userId, storeId).Value;
+            order.LineItems.Add(CreateLineItem(price: 10m, qty: 2));
+            order.LineItems.Add(CreateLineItem(price: 5m, qty: 1));
+
+            order.RecalculateTotals();
+
+            order.ItemTotal.Should().Be(25m);
+            order.Total.Should().Be(25m);
+            order.ItemCount.Should().Be(3);
+        }
+    - id: TS3
+      title: Cart Expiry Job Integration Tests
+      objective: >
+        Verify CartExpiryJob correctly identifies and expires stale Draft
+        orders while leaving active orders untouched.
+      scope: integration
+      notes: >
+        Requires in-memory or test database with seeded Draft orders
+        of varying ages.
+
+file_structure: |
+  Ordering/
+  ├── Backgrounds/
+  │   └── CartExpiryJob.cs                      # Stale draft order expiry sweep
+  ├── Domain/
+  │   ├── Adjustments/
+  │   │   ├── Adjuster/
+  │   │   │   └── AdjusterBase.cs               # Abstract base for adjustment calculators
+  │   │   ├── Adjustment.cs                     # Adjustment aggregate entity
+  │   │   ├── Adjustment.Constant.cs            # Defaults, constraints, query config
+  │   │   ├── Adjustment.Loggers.cs             # Structured logging events
+  │   │   ├── Adjustment.Method.Eligible.cs     # Eligibility flag methods
+  │   │   ├── Adjustment.Method.Factory.cs      # Factory creation methods
+  │   │   ├── Adjustment.Method.State.cs        # Open/Close state machine
+  │   │   ├── Adjustment.Result.cs              # Success/error message factories
+  │   │   ├── Adjustment.Validation.cs          # FluentValidation rules
+  │   │   └── IAdjustable.cs                    # Polymorphic adjustment target interface
+  │   ├── LineItems/
+  │   │   ├── LineItem.cs                       # Order line item entity
+  │   │   ├── LineItem.Constant.cs              # MaxQuantity and query config
+  │   │   ├── LineItem.Loggers.cs               # Structured logging events
+  │   │   ├── LineItem.Method.Compute.cs        # Calculation methods
+  │   │   ├── LineItem.Method.Factory.cs        # Factory creation methods
+  │   │   ├── LineItem.Method.Quantity.cs       # Quantity management methods
+  │   │   ├── LineItem.Result.cs                # Success/error message factories
+  │   │   └── LineItem.Validation.cs            # FluentValidation rules
+  │   └── Orders/
+  │       ├── Contracts/
+  │       │   └── IOrderEventPublisher.cs       # Event publishing contract
+  │       ├── Services/
+  │       │   ├── OrderContents.cs              # Add/remove line items
+  │       │   ├── OrderMerger.cs                # Guest-to-user cart merge
+  │       │   └── OrderUpdater.cs               # Totals and state recalculation
+  │       ├── Order.cs                          # Aggregate root entity
+  │       ├── Order.AddressBook.cs              # Address cloning and assignment
+  │       ├── Order.Checkout.cs                 # Checkout state machine
+  │       ├── Order.Constant.cs                 # Defaults and constraints
+  │       ├── Order.CurrencyUpdater.cs          # Multi-currency homogenization
+  │       ├── Order.Enumerate.cs                # OrderStatus and CheckoutState enums
+  │       ├── Order.Extensions.cs               # Factory and state machine methods
+  │       ├── Order.Loggers.cs                  # Structured logging events
+  │       ├── Order.Payments.cs                 # Payment record coordination
+  │       ├── Order.Result.cs                   # Success/error message factories
+  │       └── Order.Validation.cs               # FluentValidation rules
+  ├── Features/
+  │   ├── Admin/
+  │   │   └── Orders/
+  │   │       ├── AddLineItem/                  # Add line item to order
+  │   │       ├── Approve/                      # Approve placed order
+  │   │       ├── Cancel/                       # Admin cancel order
+  │   │       ├── Complete/                     # Mark order as completed
+  │   │       ├── Create/                       # Admin create order
+  │   │       ├── Delete/                       # Soft-delete order
+  │   │       ├── Get/                          # Get order by ID, line items, paged
+  │   │       ├── RemoveLineItem/               # Remove line item from order
+  │   │       ├── Resume/                       # Resume canceled order
+  │   │       ├── Shared/                       # Models, mappings, validators
+  │   │       ├── Update/                       # Update order details
+  │   │       ├── UpdateBillAddress/            # Update billing address
+  │   │       ├── UpdateLineItem/               # Update line item on order
+  │   │       ├── UpdateShipAddress/            # Update shipping address
+  │   │       ├── UpdateShippingMethod/         # Update shipping method
+  │   │       └── UpdateStatus/                 # Update order status
+  │   ├── Shared/
+  │   │   ├── OrderingFeature.Admin.cs          # Admin route constants and permissions
+  │   │   ├── OrderingFeature.Storefront.cs     # Storefront route constants
+  │   │   ├── OrderingFeature.Tags.cs           # Feature tag constants
+  │   │   └── Services/
+  │   │       └── OrderInventoryService.cs      # Inventory synchronization service
+  │   └── Storefront/
+  │       ├── Cart/
+  │       │   ├── AddItem/                      # Add item to cart
+  │       │   ├── AssociateCart/                # Associate guest cart with user
+  │       │   ├── Checkout/                     # Create order from cart
+  │       │   ├── CreateCart/                   # Create new cart
+  │       │   ├── DeleteCart/                   # Delete cart
+  │       │   ├── EmptyCart/                    # Remove all cart items
+  │       │   ├── Get/                          # Get current cart
+  │       │   ├── RemoveItem/                   # Remove item from cart
+  │       │   ├── SelectShippingRate/           # Select shipping rate
+  │       │   ├── Shared/                       # Models, mappings, validators
+  │       │   ├── UpdateCheckout/               # Update checkout details
+  │       │   ├── UpdateItemQuantity/           # Update cart item quantity
+  │       │   └── ValidateCheckout/             # Validate checkout state
+  │       └── Orders/
+  │           ├── Cancel/                       # Customer cancel order
+  │           ├── Get/                          # Get customer order by ID
+  │           └── ListOrders/                   # List customer orders
+  ├── Infrastructure/
+  │   └── Events/
+  │       ├── NullOrderEventPublisher.cs        # No-op event publisher
+  │       └── WebhookOrderEventPublisher.cs     # Webhook-based event publisher
+  ├── Persistence/
+  │   ├── Configurations/
+  │   │   ├── Adjustments/
+  │   │   │   └── AdjustmentConfiguration.cs    # EF Core Adjustments config
+  │   │   ├── LineItems/
+  │   │   │   └── LineItemConfiguration.cs      # EF Core LineItems config
+  │   │   └── Orders/
+  │   │       └── OrderConfiguration.cs         # EF Core Orders config
+  │   ├── OrderingSchema.cs                     # Schema and table name constants
+  │   └── Seeders/
+  │       ├── Order.Seeder.cs                   # Sample order seed data
+  │       └── Payment.Seeder.cs                 # Sample payment seed data
+  ├── Services/
+  │   └── CartExpiryService.cs                  # Background service host for expiry job
+  ├── Ordering.Extension.cs                     # Module DI registration entry point
+  ├── README.md                                 # Human-readable summary
+  └── README.yaml                               # This documentation

@@ -1,0 +1,807 @@
+kind: BuildingBlockModule
+id: payment
+name: Payment
+version: "1.0.0"
+status: active
+schema_version: "3.0"
+
+meta:
+  description: >
+    Payment processing module managing the full payment lifecycle: payment
+    intents, methods, captures, refunds, voids, gateway integration (Stripe
+    and Bogus offline), and webhook handling. Ported from Spree::Payment
+    architecture with a state-machine-driven domain model.
+  domain: payment
+  size_loc: 4431
+  layer: business
+  dependencies:
+    modules:
+      - ordering
+    external:
+      - Stripe.net
+      - EntityFrameworkCore
+      - Carter
+      - MediatR
+      - FluentValidation
+      - Mapster
+  providers:
+    - persistence
+    - auth
+    - observability
+  tags:
+    - payment
+    - gateway
+    - stripe
+    - checkout
+
+principles:
+  - id: P-1
+    name: Gateway Abstraction
+    description: >
+      All gateway operations go through IPaymentGatewayActionProvider. Concrete
+      providers (StripeGateway, BogusGateway) live in Infrastructure/Gateways/.
+      Domain never references infrastructure implementations directly.
+    rationale: Enables swapping payment providers without touching domain logic.
+  - id: P-2
+    name: State Machine Integrity
+    description: >
+      PaymentRecord follows a strict state machine:
+      Checkout->Processing->Pending->Completed or ->Failed->Void->Invalid.
+      Every transition is enforced by the domain model; features never bypass
+      state validation.
+    rationale: Prevents illegal state transitions that could corrupt financial records.
+  - id: P-3
+    name: Result-Based Error Handling
+    description: >
+      All domain operations return Result<T> or Result. Exceptions are only
+      used for unrecoverable infrastructure failures (e.g., StripeException
+      in gateway adapters). Business errors use typed Error objects.
+    rationale: Makes failure paths explicit and testable without exception control flow.
+  - id: P-4
+    name: BogusGateway for Local Development
+    description: >
+      A UseBogusGateway configuration flag switches the registered
+      IPaymentGatewayActionProvider from StripeGateway to BogusGateway,
+      enabling offline payment testing without external network calls.
+    rationale: Eliminates dependency on Stripe sandbox during local development.
+  - id: P-5
+    name: Idempotency by Default
+    description: >
+      GatewayOptions includes an IdempotencyKey derived from the payment
+      number. All gateway calls forward this key to prevent duplicate
+      charges on retry.
+    rationale: Stripe and other gateways support idempotency keys to avoid double-processing.
+
+features:
+  - id: F-1
+    name: CreatePaymentIntent
+    type: command
+    layer: storefront
+    description: >
+      Creates a payment for an order, persists a PaymentRecord in Checkout
+      state, then delegates to the gateway for authorize or purchase based
+      on the payment method's AutoCapture setting. Returns client secret
+      for frontend confirmation.
+    path: ./Features/Storefront/Payment/CreateIntent
+    tags: [storefront, payment, intent]
+  - id: F-2
+    name: ConfirmPayment
+    type: command
+    layer: storefront
+    description: >
+      Confirms a payment transitioning from Processing or Pending to Completed.
+      Validates ownership via ICurrentUser and enforces state preconditions.
+    path: ./Features/Storefront/Payment/Confirm
+    tags: [storefront, payment, confirm]
+  - id: F-3
+    name: CreateSetupIntent
+    type: command
+    layer: storefront
+    description: >
+      Creates a Stripe SetupIntent for saving a payment method for future
+      use. Directly calls Stripe API via SetupIntentService.
+    path: ./Features/Storefront/Payment/SetupIntent
+    tags: [storefront, payment, setup-intent, stripe]
+  - id: F-4
+    name: ListPaymentMethods
+    type: query
+    layer: storefront
+    description: >
+      Returns active, non-deleted payment methods for the storefront. Supports
+      paging, sorting, and filtering via QueryingParameters.
+    path: ./Features/Storefront/Payment/Methods
+    tags: [storefront, payment-method, read]
+  - id: F-5
+    name: StripeWebhook
+    type: command
+    layer: storefront
+    description: >
+      Receives Stripe webhook events, validates the signature via
+      IStripeWebhookService, and dispatches by event type:
+      payment_intent.succeeded, payment_intent.payment_failed,
+      charge.refunded, charge.dispute.created.
+    path: ./Features/Storefront/Payment/Webhooks
+    tags: [storefront, webhook, stripe]
+  - id: F-6
+    name: GetPagedPayments
+    type: query
+    layer: admin
+    description: >
+      Retrieves a paged list of payments for the admin panel with sorting
+      and filtering by state, payment method, and order.
+    path: ./Features/Admin/Payments/Get/Paged
+    tags: [admin, payment, read, paging]
+  - id: F-7
+    name: GetPaymentById
+    type: query
+    layer: admin
+    description: >
+      Retrieves a single payment with full detail including response code,
+      intent client secret, and audit timestamps.
+    path: ./Features/Admin/Payments/Get/ById
+    tags: [admin, payment, read]
+  - id: F-8
+    name: CapturePayment
+    type: command
+    layer: admin
+    description: >
+      Captures a previously authorized payment via the gateway. Supports
+      partial captures — defaults to uncaptured amount when not specified.
+    path: ./Features/Admin/Payments/Capture
+    tags: [admin, payment, capture]
+  - id: F-9
+    name: VoidPayment
+    type: command
+    layer: admin
+    description: >
+      Voids an authorized payment before settlement via the gateway.
+      Transitions the payment to Void state.
+    path: ./Features/Admin/Payments/Void
+    tags: [admin, payment, void]
+  - id: F-10
+    name: RefundPayment
+    type: command
+    layer: admin
+    description: >
+      Refunds a captured payment via the gateway. Currently refunds the full
+      captured amount; partial refund is deferred to v1.x.
+    path: ./Features/Admin/Payments/Refund
+    tags: [admin, payment, refund]
+  - id: F-11
+    name: CreatePaymentMethod
+    type: command
+    layer: admin
+    description: >
+      Creates a new payment method with name, code, provider type, display
+      preferences, and optional gateway configuration.
+    path: ./Features/Admin/PaymentMethods/Create
+    tags: [admin, payment-method, create]
+  - id: F-12
+    name: GetPagedPaymentMethods
+    type: query
+    layer: admin
+    description: >
+      Retrieves a paged list of payment methods ordered by position and name.
+      Supports paging, sorting, and filtering.
+    path: ./Features/Admin/PaymentMethods/Get/Paged
+    tags: [admin, payment-method, read, paging]
+  - id: F-13
+    name: GetPaymentMethodById
+    type: query
+    layer: admin
+    description: >
+      Retrieves a single payment method with full detail.
+    path: ./Features/Admin/PaymentMethods/Get/ById
+    tags: [admin, payment-method, read]
+  - id: F-14
+    name: UpdatePaymentMethod
+    type: command
+    layer: admin
+    description: >
+      Updates an existing payment method's properties including name, code,
+      provider type, display preferences, and gateway configuration.
+    path: ./Features/Admin/PaymentMethods/Update
+    tags: [admin, payment-method, update]
+  - id: F-15
+    name: DeactivatePaymentMethod
+    type: command
+    layer: admin
+    description: >
+      Deactivates a payment method by setting Active to false. The method
+      is not deleted and can be reactivated.
+    path: ./Features/Admin/PaymentMethods/Deactivate
+    tags: [admin, payment-method, deactivate]
+  - id: F-16
+    name: DeletePaymentMethod
+    type: command
+    layer: admin
+    description: >
+      Soft-deletes a payment method via ISoftDeletable. The method is
+      marked as deleted but retained in the database.
+    path: ./Features/Admin/PaymentMethods/Delete
+    tags: [admin, payment-method, delete]
+
+abstractions:
+  - id: A-1
+    name: PaymentRecord
+    type: entity
+    path: ./Domain/Payments/PaymentRecord.cs
+    description: >
+      Core domain entity representing a payment transaction. Manages state
+      transitions, amounts, gateway response data, and audit fields.
+    purpose: >
+      Tracks the full lifecycle of a payment from checkout through completion,
+      failure, or void. Partial class split across Validation, Processing,
+      Extensions, Result, Loggers, Constant, and Enumerate files.
+    properties:
+      - Number (string) — unique payment identifier
+      - Amount (decimal) — payment amount
+      - State (PaymentRecordState) — current lifecycle state
+      - ResponseCode (string?) — gateway authorization code
+      - IntentClientSecret (string?) — Stripe client secret for frontend
+      - PaymentMethodId (Guid) — FK to payment method
+      - OrderId (Guid) — FK to order
+      - RefundedAmount (decimal) — total refunded amount
+  - id: A-2
+    name: PaymentRecordState
+    type: enum
+    path: ./Domain/Payments/PaymentRecord.Enumerate.cs
+    description: >
+      Enumerates all payment lifecycle states: Checkout, Processing, Pending,
+      Completed, Failed, Void, Invalid.
+    purpose: >
+      Defines the valid states for the payment state machine. Transitions
+      are enforced by PaymentValidation.IsValidTransition.
+    values:
+      - Checkout — initial state at creation
+      - Processing — gateway submission in progress
+      - Pending — authorized, awaiting capture
+      - Completed — fully captured or purchased
+      - Failed — declined or error from gateway
+      - Void — cancelled before settlement
+      - Invalid — terminal state for unrecoverable payments
+  - id: A-3
+    name: PaymentMethod
+    type: entity
+    path: ./Domain/PaymentMethods/PaymentMethod.cs
+    description: >
+      Represents a payment method (e.g., credit card, PayPal, bank transfer)
+      with provider configuration, display preferences, and soft-deletion.
+    purpose: >
+      Configures how payments are processed. Each method has a ProviderType
+      that maps to a gateway implementation. Supports webhook configuration
+      and display preferences for frontend/backend visibility.
+    properties:
+      - Name (string) — display name
+      - Code (string?) — machine-readable code
+      - ProviderType (string) — gateway provider type identifier
+      - Active (bool) — whether the method is available
+      - AutoCapture (bool) — whether payments auto-capture
+      - DisplayOn (DisplayOn) — visibility target
+      - Preferences (Dictionary) — gateway-specific key-value config
+      - WebhookUrl (string?) — webhook endpoint URL
+      - WebhookSecret (string?) — webhook signing secret
+  - id: A-4
+    name: DisplayOn
+    type: enum
+    path: ./Domain/PaymentMethods/PaymentMethod.Enumerate.cs
+    description: >
+      Controls where a payment method is displayed: Both, Frontend, Backend.
+    purpose: >
+      Filters payment methods for storefront vs admin contexts.
+  - id: A-5
+    name: IPaymentGatewayActionProvider
+    type: interface
+    path: ./Domain/Gateways/IPaymentGatewayActionProvider.cs
+    description: >
+      Defines the contract for all gateway operations: Authorize, Capture,
+      Purchase, Void, Cancel, Credit. Also exposes AutoCapture, SourceRequired,
+      and PaymentProfilesSupported properties.
+    purpose: >
+      Domain abstraction that decouples payment processing from concrete
+      gateway implementations. Concrete providers register via DI in
+      PaymentExtension.
+  - id: A-6
+    name: Gateway
+    type: abstract-class
+    path: ./Domain/Gateways/Gateway.cs
+    description: >
+      Abstract base class implementing IPaymentGatewayActionProvider. Ported
+      from Spree::Gateway. Provides ExchangeMultiplier, Actions, and
+      Options virtual properties.
+    purpose: >
+      Common base for all gateway implementations. Converts between
+      dollar and cent units via FromDollarToCentRate (100m).
+  - id: A-7
+    name: PaymentGatewayResponse
+    type: record
+    path: ./Domain/Gateways/PaymentGatewayResponse.cs
+    description: >
+      Immutable response wrapper from gateway operations. Contains Success,
+      Message, Authorization code, AVS/CVV results, and raw params.
+    purpose: >
+      Standardized response type returned by all gateway actions. Feature
+      handlers inspect Success and Authorization to determine state transitions.
+  - id: A-8
+    name: GatewayOptions
+    type: class
+    path: ./Domain/Payments/GatewayOptions.cs
+    description: >
+      Options hash sent to payment gateways. Ported from Spree::Payment::GatewayOptions.
+      Contains email, customer, order/payment identifiers, idempotency key,
+      and optional billing/shipping addresses.
+    purpose: >
+      Encapsulates all metadata needed by gateways to process a payment.
+      Constructed from PaymentRecord and Order data in feature handlers.
+  - id: A-9
+    name: PaymentFactory
+    type: static-class
+    path: ./Domain/Payments/PaymentRecord.Extensions.cs
+    description: >
+      Factory and state transition methods for PaymentRecord. Provides Create,
+      Process, Pend, Complete, Fail, Void, Invalidate, and async gateway
+      operations (ProcessAsync, AuthorizeAsync, PurchaseAsync, CaptureAsync,
+      VoidAsync, RefundAsync).
+    purpose: >
+      Central domain logic for payment lifecycle. All state transitions
+      enforce preconditions and return Result objects.
+  - id: A-10
+    name: PaymentProcessing
+    type: static-class
+    path: ./Domain/Payments/PaymentRecord.Processing.cs
+    description: >
+      Extension methods for gateway-delegated operations. Ported from
+      Spree::Payment::Processing concern. Handles authorize, purchase,
+      capture, void, cancel, and credit via IPaymentGatewayActionProvider.
+    purpose: >
+      Bridges the PaymentRecord entity to gateway actions, managing
+      preconditions, state transitions, and response recording.
+  - id: A-11
+    name: PaymentResult
+    type: static-class
+    path: ./Domain/Payments/PaymentRecord.Result.cs
+    description: >
+      Success message templates and Error definitions for all payment
+      domain operations. Includes validation, business, and gateway errors.
+    purpose: >
+      Centralized error catalog for the payment domain. All error codes
+      follow the pattern Payment.{Context}.{Detail}.
+  - id: A-12
+    name: StripeGateway
+    type: class
+    path: ./Infrastructure/Gateways/Stripe/StripeGateway.cs
+    description: >
+      Stripe payment gateway implementation. Handles PaymentIntent creation,
+      capture, void, cancel, and refund via Stripe.net SDK. Supports
+      idempotency keys and maps StripeException to typed errors.
+    purpose: >
+      Production payment gateway for live Stripe integration.
+  - id: A-13
+    name: BogusGateway
+    type: class
+    path: ./Infrastructure/Gateways/Bogus/BogusGateway.cs
+    description: >
+      Offline payment gateway for local development. Uses deterministic test
+      card numbers (4242424242424242 for success, 4000000000000002 for decline).
+      No external network calls.
+    purpose: >
+      Enables payment flow testing without Stripe sandbox dependency.
+      Registered when Payment:UseBogusGateway is true.
+  - id: A-14
+    name: StripeWebhookService
+    type: class
+    path: ./Infrastructure/Gateways/Stripe/StripeWebhookService.cs
+    description: >
+      Validates Stripe webhook signatures and parses event payloads. Uses
+      StripeOptions.WebhookSecret for signature verification.
+    purpose: >
+      Security layer for Stripe webhook processing. Prevents forged
+      webhook events from affecting payment state.
+  - id: A-15
+    name: StripeOptions
+    type: class
+    path: ./Infrastructure/Gateways/Stripe/StripeOptions.cs
+    description: >
+      Configuration POCO for Stripe: SecretKey, WebhookSecret, PublishableKey.
+    purpose: >
+      Bound from the "Stripe" configuration section via IOptions<StripeOptions>.
+  - id: A-16
+    name: BogusOptions
+    type: class
+    path: ./Infrastructure/Gateways/Bogus/BogusOptions.cs
+    description: >
+      Configuration POCO for BogusGateway: Enabled flag. Section name is
+      "Payment:Bogus".
+    purpose: >
+      Bound from the "Payment:Bogus" configuration section via IOptions<BogusOptions>.
+  - id: A-17
+    name: PaymentExtension
+    type: static-class
+    path: ./Payment.Extension.cs
+    description: >
+      DI registration entry point for the Payment module. Registers
+      StripeOptions, BogusOptions, gateway provider (Stripe or Bogus based
+      on config), StripeWebhookService, and PaymentMethodSeeder.
+    purpose: >
+      Composition root for the module. Called from Program.cs via
+      builder.AddPaymentModule().
+  - id: A-18
+    name: PaymentConfiguration
+    type: class
+    path: ./Persistence/Configurations/Payments/PaymentRecordConfiguration.cs
+    description: >
+      EF Core entity configuration for PaymentRecord. Maps to the
+      "payment.payment_records" table with precise decimal(18,2) amounts
+      and string-converted state enum.
+    purpose: >
+      Defines the database schema for payment records including
+      relationships to Order (cascade delete) and PaymentMethod (set null).
+  - id: A-19
+    name: PaymentMethodConfiguration
+    type: class
+    path: ./Persistence/Configurations/PaymentMethods/PaymentMethodConfiguration.cs
+    description: >
+      EF Core entity configuration for PaymentMethod. Maps to the
+      "payment.payment_methods" table with dictionary conversion for
+      Preferences column.
+    purpose: >
+      Defines the database schema for payment methods.
+  - id: A-20
+    name: PaymentSchema
+    type: static-class
+    path: ./Persistence/Constants/PaymentSchema.cs
+    description: >
+      Schema and table name constants. Schema is "payment". Table names
+      are snake_cased: payment_records, payment_methods.
+    purpose: >
+      Single source of truth for database naming conventions.
+  - id: A-21
+    name: PaymentMethodSeeder
+    type: class
+    path: ./Persistence/Seeders/PaymentMethod.Seeder.cs
+    description: >
+      Seeds initial payment methods: Credit Card (autoCapture=true),
+      PayPal, Bank Transfer (backend only). Runs at order 160.
+    purpose: >
+      Provides baseline payment methods for fresh database instances.
+  - id: A-22
+    name: PaymentFeature
+    type: static-class
+    path: ./Features/Shared
+    description: >
+      Route constants and permission metadata for all payment features.
+      Split into Admin, Storefront, and Tags partials.
+    purpose: >
+      Centralized route definitions ensuring consistent API paths and
+      permission checks across all payment endpoints.
+  - id: A-23
+    name: PaymentLoggers
+    type: static-class
+    path: ./Domain/Payments/PaymentRecord.Loggers.cs
+    description: >
+      High-performance source-generated loggers for payment lifecycle events.
+      Event IDs 3101-3105 cover Created, Completed, Voided, Failed, Captured.
+    purpose: >
+      Structured logging for payment operations with minimal allocation overhead.
+
+technical:
+  database:
+    schema: payment
+    tables:
+      - name: payment_records
+        entity: PaymentRecord
+        description: Stores all payment transactions
+        keys:
+          - column: id
+            type: uuid
+            constraint: primary_key
+        indexes:
+          - columns: [state]
+          - columns: [order_id]
+          - columns: [payment_method_id]
+          - columns: [created_at_utc]
+      - name: payment_methods
+        entity: PaymentMethod
+        description: Stores payment method configurations
+        keys:
+          - column: id
+            type: uuid
+            constraint: primary_key
+        indexes:
+          - columns: [active, is_deleted]
+          - columns: [position]
+  state_machine:
+    entity: PaymentRecord
+    states:
+      - Checkout
+      - Processing
+      - Pending
+      - Completed
+      - Failed
+      - Void
+      - Invalid
+    transitions:
+      - from: Checkout
+        to: Processing
+      - from: Processing
+        to: Pending
+      - from: Processing
+        to: Completed
+      - from: Processing
+        to: Failed
+      - from: Processing
+        to: Void
+      - from: Pending
+        to: Completed
+      - from: Pending
+        to: Failed
+      - from: Pending
+        to: Void
+      - from: Failed
+        to: Invalid
+      - from: Void
+        to: Invalid
+  gateway_operations:
+    - Authorize — reserve funds on payment source
+    - Capture — settle previously authorized funds
+    - Purchase — authorize + capture in one step
+    - Void — cancel authorization before settlement
+    - Cancel — void completed/captured payment
+    - Credit — issue refund against captured payment
+  external_integrations:
+    - name: Stripe
+      type: payment-gateway
+      sdk: Stripe.net
+      features: [payment-intents, setup-intents, webhooks, refunds]
+    - name: Stripe Webhooks
+      type: webhook-receiver
+      events:
+        - payment_intent.succeeded
+        - payment_intent.payment_failed
+        - charge.refunded
+        - charge.dispute.created
+  configuration_sections:
+    - path: Stripe
+      options: StripeOptions
+      keys: [SecretKey, WebhookSecret, PublishableKey]
+    - path: Payment:Bogus
+      options: BogusOptions
+      keys: [Enabled]
+    - path: Payment
+      keys: [UseBogusGateway]
+  dependencies:
+    modules:
+      - name: ordering
+        reason: PaymentRecord references Order entity for FK relationship
+    shared:
+      - Shared.Application.Domain.Concerns.Auditable (IAuditable)
+      - Shared.Application.Domain.Concerns.SoftDeletable (ISoftDeletable)
+      - Shared.Application.Domain.Concerns.Parameterizable (IParameterizable)
+      - Shared.Application.Domain.Models (Entity, Result, Error)
+      - Shared.Operational.Persistence.Configurations.Dictionaries (DictionaryValueConverter)
+      - Shared.Security.Authorization.Features (PermissionMetadata)
+      - Shared.Security.Identity.Domain.Permissions
+
+anti_patterns:
+  - id: AP-1
+    name: Direct Gateway Instantiation
+    description: >
+      Never instantiate StripeGateway or BogusGateway directly in feature
+      handlers. Always inject IPaymentGatewayActionProvider via DI.
+    consequence: Bypasses configuration, testing seams, and provider switching.
+  - id: AP-2
+    name: Bypassing State Machine
+    description: >
+      Never set PaymentRecord.State directly in feature handlers. Always use
+      PaymentFactory transition methods (Complete, Fail, Void) or async
+      gateway operations that enforce preconditions.
+    consequence: Creates inconsistent payment states and violates invariants.
+  - id: AP-3
+    name: Cross-Module Payment References
+    description: >
+      The Payment module references Ordering for the Order entity FK, but
+      never imports features, handlers, or infrastructure from Ordering.
+    consequence: Module coupling breaks the modular monolith boundary rules.
+  - id: AP-4
+    name: Skipping Idempotency Keys
+    description: >
+      Always include an IdempotencyKey in GatewayOptions when calling
+      gateway operations. Use the pattern "spree-{payment.Number}".
+    consequence: Duplicate charges may occur on network retries.
+  - id: AP-5
+    name: Exception-Based Error Handling
+    description: >
+      Domain operations must return Result objects, not throw exceptions.
+      Catch StripeException only in gateway adapter classes and map to
+      typed Error objects.
+    consequence: Exceptions bypass the Result pattern and make failures invisible to callers.
+
+usage:
+  registration: |
+    // Program.cs
+    builder.AddPaymentModule();
+  gateway_selection: |
+    // appsettings.json
+    {
+      "Payment": {
+        "UseBogusGateway": true
+      }
+    }
+  feature_invocation: |
+    // Create payment intent (storefront)
+    var result = await sender.Send(new CreatePaymentIntent.Command(orderId));
+
+    // Capture payment (admin)
+    var result = await sender.Send(new CapturePayment.Command(id, request));
+
+    // Process via domain
+    var processResult = await PaymentFactory.ProcessAsync(payment, gateway, options);
+  webhook_registration: |
+    // Stripe webhook endpoint
+    app.MapPost("/api/storefront/webhooks/stripe", async (string payload, string stripeSignature) =>
+    {
+        var result = await sender.Send(new StripeWebhook.Command(payload, stripeSignature));
+        return result.IsSuccess ? Results.Ok() : Results.BadRequest(result.Errors);
+    });
+  state_transitions: |
+    // Synchronous state transitions
+    payment.Process();     // Checkout -> Processing
+    payment.Complete();    // Processing/Pending -> Completed
+    payment.Fail();        // Checkout/Processing/Pending -> Failed
+    payment.Void();        // Processing/Pending -> Void
+
+    // Async gateway operations
+    await payment.ProcessAsync(gateway, options);
+    await payment.CaptureAsync(gateway, options, amount);
+    await payment.RefundAsync(gateway, options, amount);
+
+file_structure:
+  description: >
+    The Payment module follows the vertical slice architecture with Domain,
+    Features, Infrastructure, and Persistence layers. Domain contains entities,
+    enums, gateway abstractions, and business logic. Features are split into
+    Admin and Storefront with shared route/permission constants. Infrastructure
+    holds concrete gateway implementations. Persistence contains EF Core
+    configurations and seeders.
+  root: ./Payment
+  layout:
+    - path: ./Domain
+      description: Core domain entities, enums, gateway abstractions, business logic
+      children:
+        - path: ./Domain/Payments
+          description: PaymentRecord entity and state machine logic
+          files:
+            - PaymentRecord.cs
+            - PaymentRecord.Constant.cs
+            - PaymentRecord.Enumerate.cs
+            - PaymentRecord.Extensions.cs
+            - PaymentRecord.Loggers.cs
+            - PaymentRecord.Processing.cs
+            - PaymentRecord.Result.cs
+            - PaymentRecord.Validation.cs
+            - GatewayOptions.cs
+        - path: ./Domain/PaymentMethods
+          description: PaymentMethod entity and display configuration
+          files:
+            - PaymentMethod.cs
+            - PaymentMethod.Constant.cs
+            - PaymentMethod.Enumerate.cs
+            - PaymentMethod.Extensions.cs
+            - PaymentMethod.Loggers.cs
+            - PaymentMethod.Result.cs
+            - PaymentMethod.Validation.cs
+            - PaymentMethod.Webhooks.cs
+        - path: ./Domain/Gateways
+          description: Gateway abstractions and response types
+          files:
+            - IPaymentGatewayActionProvider.cs
+            - Gateway.cs
+            - PaymentGatewayResponse.cs
+    - path: ./Features
+      description: Vertical slice feature implementations
+      children:
+        - path: ./Features/Shared
+          description: Route constants and permission metadata
+          files:
+            - PaymentFeature.Admin.cs
+            - PaymentFeature.Storefront.cs
+            - PaymentFeature.Tags.cs
+        - path: ./Features/Admin
+          description: Admin payment and payment method management
+          children:
+            - path: ./Features/Admin/Payments
+              description: Payment CRUD and lifecycle operations
+              children:
+                - path: ./Features/Admin/Payments/Get/Paged
+                  files: [GetPagedPayments.cs, GetPagedPayments.Response.cs, GetPagedPayments.Endpoint.cs]
+                - path: ./Features/Admin/Payments/Get/ById
+                  files: [GetPaymentById.cs, GetPaymentById.Response.cs, GetPaymentById.Endpoint.cs]
+                - path: ./Features/Admin/Payments/Capture
+                  files: [CapturePayment.cs, CapturePayment.Validator.cs, CapturePayment.Response.cs, CapturePayment.Request.cs, CapturePayment.Endpoint.cs]
+                - path: ./Features/Admin/Payments/Void
+                  files: [VoidPayment.cs, VoidPayment.Validator.cs, VoidPayment.Response.cs, VoidPayment.Endpoint.cs]
+                - path: ./Features/Admin/Payments/Refund
+                  files: [RefundPayment.cs, RefundPayment.Validator.cs, RefundPayment.Response.cs, RefundPayment.Request.cs, RefundPayment.Endpoint.cs]
+                - path: ./Features/Admin/Payments/Shared
+                  description: Shared models, mappings, and validators
+                  children:
+                    - path: ./Features/Admin/Payments/Shared/Models
+                      files: [Payment.Model.Request.cs, Payment.Model.Response.cs, Payment.Model.Parameters.cs]
+                    - path: ./Features/Admin/Payments/Shared/Mappings
+                      files: [Payment.Mapping.Domain.cs, Payment.Mapping.Model.cs]
+                    - path: ./Features/Admin/Payments/Shared/Validators
+                      files: [Payment.Validator.cs]
+            - path: ./Features/Admin/PaymentMethods
+              description: Payment method CRUD and lifecycle operations
+              children:
+                - path: ./Features/Admin/PaymentMethods/Get/Paged
+                  files: [GetPagedPaymentMethods.cs, GetPagedPaymentMethods.Response.cs, GetPagedPaymentMethods.Endpoint.cs]
+                - path: ./Features/Admin/PaymentMethods/Get/ById
+                  files: [GetPaymentMethodById.cs, GetPaymentMethodById.Response.cs, GetPaymentMethodById.Endpoint.cs]
+                - path: ./Features/Admin/PaymentMethods/Create
+                  files: [CreatePaymentMethod.cs, CreatePaymentMethod.Validator.cs, CreatePaymentMethod.Response.cs, CreatePaymentMethod.Request.cs, CreatePaymentMethod.Endpoint.cs]
+                - path: ./Features/Admin/PaymentMethods/Update
+                  files: [UpdatePaymentMethod.cs, UpdatePaymentMethod.Validator.cs, UpdatePaymentMethod.Response.cs, UpdatePaymentMethod.Request.cs, UpdatePaymentMethod.Endpoint.cs]
+                - path: ./Features/Admin/PaymentMethods/Deactivate
+                  files: [DeactivatePaymentMethod.cs, DeactivatePaymentMethod.Endpoint.cs]
+                - path: ./Features/Admin/PaymentMethods/Delete
+                  files: [DeletePaymentMethod.cs, DeletePaymentMethod.Endpoint.cs]
+                - path: ./Features/Admin/PaymentMethods/Shared
+                  description: Shared models, mappings, and validators
+                  children:
+                    - path: ./Features/Admin/PaymentMethods/Shared/Models
+                      files: [PaymentMethod.Model.Request.cs, PaymentMethod.Model.Response.cs, PaymentMethod.Model.Parameters.cs, PaymentMethodUpdateRequest.cs, PaymentMethodUpdateParameters.cs]
+                    - path: ./Features/Admin/PaymentMethods/Shared/Mappings
+                      files: [PaymentMethod.Mapping.Domain.cs, PaymentMethod.Mapping.Model.cs]
+                    - path: ./Features/Admin/PaymentMethods/Shared/Validators
+                      files: [PaymentMethod.Validator.cs]
+        - path: ./Features/Storefront
+          description: Storefront payment operations
+          children:
+            - path: ./Features/Storefront/Payment
+              description: Customer-facing payment features
+              children:
+                - path: ./Features/Storefront/Payment/CreateIntent
+                  files: [CreatePaymentIntent.cs, CreatePaymentIntent.Validator.cs, CreatePaymentIntent.Response.cs, CreatePaymentIntent.Request.cs, CreatePaymentIntent.Endpoint.cs]
+                - path: ./Features/Storefront/Payment/Confirm
+                  files: [ConfirmPayment.cs, ConfirmPayment.Validator.cs, ConfirmPayment.Response.cs, ConfirmPayment.Request.cs, ConfirmPayment.Endpoint.cs]
+                - path: ./Features/Storefront/Payment/SetupIntent
+                  files: [CreateSetupIntent.cs, CreateSetupIntent.Validator.cs, CreateSetupIntent.Response.cs, CreateSetupIntent.Request.cs, CreateSetupIntent.Endpoint.cs]
+                - path: ./Features/Storefront/Payment/Methods
+                  files: [ListPaymentMethods.cs, ListPaymentMethods.Endpoint.cs]
+                - path: ./Features/Storefront/Payment/Webhooks
+                  files: [StripeWebhook.cs, StripeWebhook.Result.cs, StripeWebhook.Endpoint.cs]
+    - path: ./Infrastructure
+      description: Concrete gateway implementations
+      children:
+        - path: ./Infrastructure/Gateways/Stripe
+          description: Stripe payment gateway and webhook service
+          files:
+            - StripeGateway.cs
+            - StripeGateway.Result.cs
+            - StripeOptions.cs
+            - StripeWebhookService.cs
+        - path: ./Infrastructure/Gateways/Bogus
+          description: Offline test gateway for local development
+          files:
+            - BogusGateway.cs
+            - BogusGateway.Result.cs
+            - BogusOptions.cs
+    - path: ./Persistence
+      description: EF Core configurations and seeders
+      children:
+        - path: ./Persistence/Configurations
+          description: Entity type configurations
+          children:
+            - path: ./Persistence/Configurations/Payments
+              files: [PaymentRecordConfiguration.cs]
+            - path: ./Persistence/Configurations/PaymentMethods
+              files: [PaymentMethodConfiguration.cs]
+        - path: ./Persistence/Constants
+          description: Schema and table name constants
+          files: [PaymentSchema.cs]
+        - path: ./Persistence/Seeders
+          description: Initial data seeders
+          files: [PaymentMethod.Seeder.cs]
+    - path: ./Payment.Extension.cs
+      description: Module DI registration entry point

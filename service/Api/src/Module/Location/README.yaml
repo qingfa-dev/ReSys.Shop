@@ -1,0 +1,595 @@
+# ════════════════════════════════════════════════════
+# Location Module Documentation (YAML)
+# Purpose:  Geographic reference data — countries, states/provinces lookup
+# Version:  1.0.0
+# Status:   stable
+# Schema:   3.0
+# Updated:  2026-07-11
+# ════════════════════════════════════════════════════
+
+kind: BuildingBlockModule
+id: location
+name: Module.Location
+version: "1.0.0"
+status: stable
+schema_version: "3.0"
+
+meta:
+  name: Location Module
+  description: >
+    Geographic reference data module providing country and state/province
+    lookup backed by ISO 3166-1 and ISO 3166-2 standards. Supplies both
+    Admin (full CRUD) and Storefront (read-only) endpoints for address
+    forms, shipping validation, and regional configuration.
+  category: "Reference Data | Geographic | Domain"
+  stability: Stable
+  dependencies:
+    - name: EF Core
+      version: "10.x"
+      scope: runtime
+    - name: Npgsql.EntityFrameworkCore.PostgreSQL
+      version: "10.x"
+      scope: runtime
+    - name: FluentValidation
+      version: "11.x"
+      scope: runtime
+    - name: Mapster
+      version: "7.x"
+      scope: runtime
+
+principles:
+  - id: P1
+    name: ISO Standard Compliance
+    description: >
+      Country and state codes conform to ISO 3166-1 (alpha-2, alpha-3)
+      and ISO 3166-2 subdivision standards respectively.
+    rationale: >
+      Ensures interoperability with international address validation,
+      shipping providers, and payment gateways that expect ISO codes.
+  - id: P2
+    name: Reference Data Immutability
+    description: >
+      Location data is seeded at startup and treated as reference data.
+      Admin operations support create, update, and deactivate but not
+      arbitrary deletion of records with dependent state relationships.
+    rationale: >
+      Prevents orphaned foreign key references in shipping and ordering
+      modules that depend on valid country/state identifiers.
+  - id: P3
+    name: Functional Error Results
+    description: >
+      All domain operations return Result<T> or Result instead of
+      throwing exceptions. Validation, not-found, and conflict errors
+      are modeled as typed Error values.
+    rationale: >
+      Enables callers to handle failures explicitly without try/catch
+      control flow and integrates cleanly with CQRS pipeline behaviors.
+
+features:
+  - id: F1
+    name: Country CRUD
+    type: core
+    description: >
+      Full admin create, read, update, delete operations for countries
+      with ISO code uniqueness validation and cascade-safe deactivation.
+    api_highlight: "CreateCountry, GetCountryPagedOrAll, UpdateCountry, DeleteCountry"
+  - id: F2
+    name: State CRUD
+    type: core
+    description: >
+      Full admin create, read, update, delete operations for states
+      and provinces scoped to a parent country aggregate.
+    api_highlight: "CreateState, GetStatePagedOrAll, UpdateState, DeleteState"
+  - id: F3
+    name: Storefront Read API
+    type: extension
+    description: >
+      Read-only endpoints for storefront consumers to list and look up
+      countries and states by ID or ISO code without admin permissions.
+    api_highlight: "GetStorefrontCountryPagedOrAll, GetStorefrontStatePagedOrAll"
+  - id: F4
+    name: Reference Data Seeding
+    type: utility
+    description: >
+      Automatic database seeding of default countries (US, Vietnam) and
+      their states/provinces on first application startup.
+    api_highlight: "CountrySeeder, StateSeeder"
+  - id: F5
+    name: Structured Observability
+    type: extension
+    description: >
+      LoggerMessage source generators for country and state domain
+      events with deterministic EventId ranges for structured logging.
+    api_highlight: "CountryLoggers, StateLoggers"
+
+abstractions:
+  - category: Core DDD
+    order: 1
+    description: >
+      Domain aggregates, extensions, constants, results, and observability
+      types forming the geographic reference data model.
+    items:
+      - id: A1
+        name: Country
+        type: class
+        path: ./Domain/Countries/Country.cs
+        description: >
+          Represents a country entity mapped from ISO 3166-1 with name,
+          alpha-2/alpha-3 codes, calling code, and regional validation flags.
+        purpose: >
+          Aggregate root for the country bounded context providing the
+          canonical reference for address forms, shipping zones, and tax rules.
+        contract: |
+          // Implements Entity, IAuditable
+          // Properties: Name, IsoCode, Iso3Code, IsoName, CallingCode,
+          //             StatesRequired, ZipcodeRequired, IsActive
+          // Navigation: ICollection<State> States
+        top_use: >
+          Resolve country metadata by ISO code for address validation.
+      - id: A2
+        name: State
+        type: class
+        path: ./Domain/States/State.cs
+        description: >
+          Represents a state or province belonging to a country, with an
+          ISO 3166-2 subdivision abbreviation unique within its parent.
+        purpose: >
+          Child entity within the Country aggregate providing granular
+          geographic resolution for shipping and tax calculation.
+        contract: |
+          // Implements Entity, IAuditable
+          // Properties: Name, Abbreviation, CountryId, IsActive
+          // Navigation: Country Country
+        top_use: >
+          Look up state by abbreviation within a country for address forms.
+      - id: A3
+        name: CountryExtensions
+        type: extension
+        path: ./Domain/Countries/Country.Extensions.cs
+        description: >
+          Factory and mutation methods for Country including Create, Update,
+          Activate, Deactivate, and HasStates with invariant enforcement.
+        purpose: >
+          Centralizes domain logic so handlers remain thin and business
+          rules are testable in isolation.
+        methods:
+          - name: "Create(name, isoCode, iso3Code, isoName, ...)"
+            description: Factory method returning Result<Country> with validation.
+          - name: "Update(country, name?, isoName?, callingCode?, ...)"
+            description: Partial update with audit touch.
+          - name: "Deactivate(country)"
+            description: Deactivates country unless it has active states.
+      - id: A4
+        name: StateExtensions
+        type: extension
+        path: ./Domain/States/State.Extensions.cs
+        description: >
+          Factory and mutation methods for State including Create, Update,
+          Activate, and Deactivate with invariant enforcement.
+        purpose: >
+          Centralizes state domain logic for testability and consistency
+          with the Country extension pattern.
+        methods:
+          - name: "Create(name, abbreviation, countryId, ...)"
+            description: Factory method returning Result<State> with validation.
+          - name: "Update(state, name?, abbreviation?)"
+            description: Partial update with audit touch.
+      - id: A5
+        name: CountryConstant
+        type: class
+        path: ./Domain/Countries/Country.Constant.cs
+        description: >
+          Max-length constraints, query field allow-lists, and default
+          values for Country entity properties.
+        purpose: >
+          Single source of truth for Country validation limits and
+          Ransack search/sort/filter field configurations.
+      - id: A6
+        name: CountryResult
+        type: class
+        path: ./Domain/Countries/Country.Result.cs
+        description: >
+          Success messages and domain error definitions (NotFound,
+          IsoCodeDuplicate, CannotDeleteWithStates, etc.) for Country.
+        purpose: >
+          Typed error catalog enabling callers to match on specific
+          failure codes without string comparisons.
+      - id: A7
+        name: StateConstant
+        type: class
+        path: ./Domain/States/State.Constant.cs
+        description: >
+          Max-length constraints, query field allow-lists, and default
+          values for State entity properties.
+        purpose: >
+          Single source of truth for State validation limits and
+          Ransack search/sort/filter field configurations.
+      - id: A8
+        name: StateResult
+        type: class
+        path: ./Domain/States/State.Result.cs
+        description: >
+          Success messages and domain error definitions (NotFound,
+          AbbreviationDuplicate, CountryRequired, etc.) for State.
+        purpose: >
+          Typed error catalog enabling callers to match on specific
+          failure codes without string comparisons.
+      - id: A9
+        name: CountryLoggers
+        type: class
+        path: ./Domain/Countries/Country.Loggers.cs
+        description: >
+          LoggerMessage source generators for Country domain events
+          (Created, Updated, Activated, Deactivated) with EventId 2101-2104.
+        purpose: >
+          Provides zero-allocation structured logging for country lifecycle
+          events with deterministic EventId ranges.
+      - id: A10
+        name: StateLoggers
+        type: class
+        path: ./Domain/States/State.Loggers.cs
+        description: >
+          LoggerMessage source generators for State domain events
+          (Created, Updated, Activated, Deactivated) with EventId 2201-2204.
+        purpose: >
+          Provides zero-allocation structured logging for state lifecycle
+          events with deterministic EventId ranges.
+
+  - category: Feature Endpoints
+    order: 2
+    description: >
+      Vertical-slice CQRS feature actions for Admin and Storefront consumers
+      with route configuration and handler implementations.
+    items:
+      - id: B1
+        name: LocationFeature.Admin
+        type: class
+        path: ./Features/Shared/LocationFeature.Admin.cs
+        description: >
+          Route constants, tags, and permission metadata for all Admin
+          endpoints under api/locations/{countries|states}.
+        purpose: >
+          Centralizes Admin route definitions and permission requirements
+          so endpoints stay consistent and discoverable.
+      - id: B2
+        name: LocationFeature.Storefront
+        type: class
+        path: ./Features/Shared/LocationFeature.Storefront.cs
+        description: >
+          Route constants and tags for read-only Storefront endpoints
+          under api/store/locations/{countries|states}.
+        purpose: >
+          Centralizes Storefront route definitions for storefront SPA
+          consumers without admin permission requirements.
+      - id: B3
+        name: CreateCountry
+        type: handler
+        path: ./Features/Admin/Countries/Create/CreateCountry.cs
+        description: >
+          Command handler for creating a new country with ISO code
+          uniqueness validation.
+        purpose: >
+          Persists a new country entity after verifying no duplicate
+          ISO code exists in the system.
+        contract: |
+          // Command: CreateCountry.Command(Request) : ICommand<Response>
+          // Handler: validates IsoCode uniqueness, maps to domain, persists
+          // Returns: Result<Response> with Created status
+      - id: B4
+        name: GetCountryPagedOrAll
+        type: handler
+        path: ./Features/Admin/Countries/GetPagedOrAll/GetCountryPagedOrAll.cs
+        description: >
+          Query handler for retrieving countries with optional pagination,
+          search, sort, and filter via Ransack parameters.
+        purpose: >
+          Supports the Admin country list view with flexible querying.
+      - id: B5
+        name: DeleteCountry
+        type: handler
+        path: ./Features/Admin/Countries/Delete/DeleteCountry.cs
+        description: >
+          Command handler for soft-deleting a country, enforcing the
+          invariant that countries with existing states cannot be removed.
+        purpose: >
+          Prevents cascading data loss by blocking deletion of countries
+          that still have associated states.
+
+  - category: Persistence
+    order: 3
+    description: >
+      EF Core schema configuration, entity mappings, and data seeding.
+    items:
+      - id: C1
+        name: LocationSchema
+        type: class
+        path: ./Persistence/Location.Schema.cs
+        description: >
+          Defines the database schema name ("location") and table name
+          constants for countries and states using snake_case convention.
+        purpose: >
+          Single source of truth for schema and table names ensuring
+          consistency across EF Core configurations and raw SQL.
+      - id: C2
+        name: CountryConfiguration
+        type: class
+        path: ./Persistence/Configurations/Country.Configuration.cs
+        description: >
+          EF Core IEntityTypeConfiguration for Country defining column
+          constraints, defaults, and the one-to-many relationship to State.
+        purpose: >
+          Maps the Country aggregate to the countries table with correct
+          max lengths, required flags, and cascade delete behavior.
+      - id: C3
+        name: StateConfiguration
+        type: class
+        path: ./Persistence/Configurations/State.Configuration.cs
+        description: >
+          EF Core IEntityTypeConfiguration for State defining column
+          constraints and the many-to-one relationship back to Country.
+        purpose: >
+          Maps the State entity to the states table with correct max
+          lengths and cascade delete behavior from parent Country.
+      - id: C4
+        name: CountrySeeder
+        type: class
+        path: ./Persistence/Seeders/Country.Seeder.cs
+        description: >
+          Seeds default countries (US, Vietnam) on first startup when
+          the countries table is empty.
+        purpose: >
+          Ensures reference data is available for address forms and
+          state seeding without manual database setup.
+      - id: C5
+        name: StateSeeder
+        type: class
+        path: ./Persistence/Seeders/State.Seeder.cs
+        description: >
+          Seeds default states/provinces for US (50 states) and Vietnam
+          (63 provinces) on first startup when the states table is empty.
+        purpose: >
+          Provides immediate reference data for address forms and
+          shipping zone configuration.
+      - id: C6
+        name: LocationExtensions
+        type: extension
+        path: ./Locations.Extensions.cs
+        description: >
+          WebApplicationBuilder extension method that registers the
+          CountrySeeder and StateSeeder into the DI container.
+        purpose: >
+          Module entry point enabling AddLocationModule() composition
+          in the application startup pipeline.
+
+technical:
+  mechanisms:
+    - id: M1
+      name: ISO Code Uniqueness Enforcement
+      scope: "Country creation and update"
+      description: >
+        Country ISO codes (alpha-2) are validated for uniqueness
+        at the command handler level before persistence. The Country
+        constant defines max lengths (2 for IsoCode, 3 for Iso3Code)
+        aligned with ISO 3166-1 specifications.
+      steps:
+        - "Handler queries database for existing country with same IsoCode"
+        - "If found, returns CountryResult.Failure.IsoCodeDuplicate"
+        - "Otherwise, maps request to domain entity and persists"
+    - id: M2
+      name: Cascade-Safe Deactivation
+      scope: "Country deactivation"
+      description: >
+        A country cannot be deactivated if it has active states.
+        This invariant is enforced in CountryExtensions.Deactivate()
+        and prevents downstream modules from referencing deactivated
+        geographic data.
+      pattern: |
+        // Enforce: Cannot deactivate country with active states
+        if (country.States?.Any(s => s.IsActive) == true)
+            return CountryResult.Failure.HasActiveStates;
+        country.IsActive = false;
+    - id: M3
+      name: Ordered Seeder Pipeline
+      scope: "Database initialization"
+      description: >
+        Seeders execute in Order sequence (CountrySeeder=10, StateSeeder=20)
+        ensuring parent countries exist before states are created. Each
+        seeder checks for existing data before inserting.
+      pattern: |
+        // Order 10: CountrySeeder seeds US, Vietnam
+        // Order 20: StateSeeder depends on CountrySeeder output
+        // Both check HasDataAsync before inserting
+
+anti_patterns:
+  - id: AP1
+    name: Direct SQL Against Location Tables
+    severity: high
+    avoid: >
+      Bypass the module boundary by writing raw SQL queries against the
+      location.countries or location.states tables.
+    bad_example: "SELECT * FROM location.countries WHERE iso_code = 'US'"
+    better_approach: >
+      Use the module's public API endpoints or inject the DbContext
+      through the module's extension methods to access location data.
+    good_example: "await dbContext.Set<Country>().FirstOrDefaultAsync(c => c.IsoCode == isoCode)"
+    impact: >
+      Bypasses domain invariants and audit logging, risking data
+      inconsistency and making schema migrations brittle.
+  - id: AP2
+    name: Modifying Seeder Data Without Version Control
+    severity: medium
+    avoid: >
+      Editing the CountrySeeder or StateSeeder seed data without
+      treating it as a versioned migration. Seeders run idempotently
+      only when tables are empty.
+    better_approach: >
+      For new reference data, create a new seeder with a higher Order
+      value or use an admin endpoint. Never modify existing seed data
+      that has already been deployed.
+    impact: >
+      Existing deployments will not pick up seeder changes since
+      tables are already populated, leading to environment drift.
+  - id: AP3
+    name: Importing Batch Data Without Validation
+    severity: high
+    avoid: >
+      Using the CountryImport batch endpoint without validating ISO
+      codes against the ISO 3166-1 standard before submission.
+    better_approach: >
+      Validate all ISO codes client-side against the standard before
+      submitting the import batch. Maximum batch size is 1000 records.
+    impact: >
+      Invalid ISO codes persist in the database and cause downstream
+      failures in shipping and tax calculation modules.
+
+usage:
+  scenarios:
+    - id: S1
+      title: Resolve Country by ISO Code
+      context: >
+        Address forms and shipping calculators need to look up country
+        metadata (name, calling code, states required) from a 2-letter code.
+      pattern: |
+        // GET api/locations/countries/by-iso/{isoCode}
+        var result = await sender.Send(new GetCountryByIso.Query(isoCode));
+        result.Match(
+          onSuccess: country => PopulateForm(country),
+          onFailure: error => ShowNotFound(error)
+        );
+      benefits:
+        - Single lookup by standardized ISO code
+        - Returns full country metadata for form population
+        - Consistent across Admin and Storefront contexts
+    - id: S2
+      title: Create New Country via Admin
+      context: >
+        Administrators need to add a new country when expanding to a
+        new market that is not in the default seed data.
+      pattern: |
+        // POST api/locations/countries
+        var command = new CreateCountry.Command(new Request
+        {
+            Name = "Japan",
+            IsoCode = "JP",
+            Iso3Code = "JPN",
+            IsoName = "Japan",
+            CallingCode = "+81",
+            StatesRequired = true
+        });
+        var result = await sender.Send(command);
+        result.Match(
+          onSuccess: created => LogCountryCreated(created),
+          onFailure: error => HandleValidation(error)
+        );
+      benefits:
+        - ISO code uniqueness enforced at domain level
+        - Result-based error handling without exceptions
+        - Audit trail via IAuditable timestamps
+    - id: S3
+      title: List States for Country Dropdown
+      context: >
+        Storefront address forms need to populate a state/province
+        dropdown based on the selected country.
+      pattern: |
+        // GET api/store/locations/states?countryId={id}&isActive=true
+        var result = await sender.Send(
+          new GetStorefrontStatePagedOrAll.Query(parameters));
+        result.Match(
+          onSuccess: states => RenderDropdown(states.Items),
+          onFailure: error => ShowError(error)
+        );
+      benefits:
+        - Read-only Storefront endpoint requires no admin permissions
+        - Supports filtering by countryId and IsActive
+        - Consistent paginated response format
+
+testing:
+  strategies:
+    - id: TS1
+      title: Domain Invariant Unit Tests
+      objective: >
+        Verify that CountryExtensions and StateExtensions enforce
+        business rules (ISO code uniqueness, cascade deactivation)
+        without requiring database access.
+      scope: unit
+      code_example: |
+        [Fact]
+        public void Deactivate_CountryWithActiveStates_ReturnsFailure()
+        {
+            var country = CreateCountryWithActiveStates();
+            var result = country.Deactivate();
+            result.ShouldBeFailure(CountryResult.Failure.HasActiveStates);
+        }
+    - id: TS2
+      title: Feature Handler Integration Tests
+      objective: >
+        Verify that CreateCountry, DeleteCountry, and state operations
+        correctly validate inputs and persist through the real database.
+      scope: integration
+      code_example: |
+        [Fact]
+        public async Task CreateCountry_ValidRequest_PersistsAndReturnsCreated()
+        {
+            var command = new CreateCountry.Command(validRequest);
+            var result = await sender.Send(command);
+            result.ShouldBeSuccess();
+            result.Value.ShouldNotBeNull();
+        }
+
+file_structure: |
+  Location/
+  ├── Domain/
+  │   ├── Countries/
+  │   │   ├── Country.cs                     # Country aggregate root (ISO 3166-1)
+  │   │   ├── Country.Constant.cs            # Constraints, defaults, query allow-lists
+  │   │   ├── Country.Extensions.cs          # Create, Update, Activate, Deactivate
+  │   │   ├── Country.Loggers.cs             # LoggerMessage source generators
+  │   │   └── Country.Result.cs              # Success messages and error definitions
+  │   ├── States/
+  │   │   ├── State.cs                       # State entity (ISO 3166-2)
+  │   │   ├── State.Constant.cs              # Constraints, defaults, query allow-lists
+  │   │   ├── State.Extensions.cs            # Create, Update, Activate, Deactivate
+  │   │   ├── State.Loggers.cs               # LoggerMessage source generators
+  │   │   └── State.Result.cs                # Success messages and error definitions
+  │   ├── README.md                          # Domain overview
+  │   └── README.xml                         # XML documentation
+  ├── Features/
+  │   ├── Admin/
+  │   │   ├── Countries/
+  │   │   │   ├── Create/                    # CreateCountry CQRS feature
+  │   │   │   ├── Delete/                    # DeleteCountry CQRS feature
+  │   │   │   ├── GetById/                   # GetCountryById CQRS feature
+  │   │   │   ├── GetByIsoCode/              # GetCountryByIso CQRS feature
+  │   │   │   ├── GetPagedOrAll/             # GetCountryPagedOrAll CQRS feature
+  │   │   │   ├── Shared/                    # Mappings, Models, Validators
+  │   │   │   └── Update/                    # UpdateCountry CQRS feature
+  │   │   └── States/
+  │   │       ├── Create/                    # CreateState CQRS feature
+  │   │       ├── Delete/                    # DeleteState CQRS feature
+  │   │       ├── GetById/                   # GetStateById CQRS feature
+  │   │       ├── GetByIsoCode/              # GetStateByIso CQRS feature
+  │   │       ├── GetPagedOrAll/             # GetStatePagedOrAll CQRS feature
+  │   │       ├── Shared/                    # Mappings, Models, Validators
+  │   │       └── Update/                    # UpdateState CQRS feature
+  │   ├── Shared/
+  │   │   ├── LocationFeature.Admin.cs       # Admin routes and permission metadata
+  │   │   └── LocationFeature.Storefront.cs  # Storefront routes metadata
+  │   └── Store/
+  │       ├── Countries/
+  │       │   ├── GetById/                   # GetStorefrontCountryById
+  │       │   ├── GetByIsoCode/              # GetStorefrontCountryByIso
+  │       │   └── GetPagedOrAll/             # GetStorefrontCountryPagedOrAll
+  │       └── States/
+  │           ├── GetById/                   # GetStorefrontStateById
+  │           ├── GetByIsoCode/              # GetStorefrontStateByIso
+  │           └── GetPagedOrAll/             # GetStorefrontStatePagedOrAll
+  ├── Persistence/
+  │   ├── Configurations/
+  │   │   ├── Country.Configuration.cs      # EF Core mapping for Country
+  │   │   └── State.Configuration.cs        # EF Core mapping for State
+  │   ├── Seeders/
+  │   │   ├── Country.Seeder.cs              # Seeds US, Vietnam
+  │   │   └── State.Seeder.cs               # Seeds 50 US states, 63 VN provinces
+  │   └── Location.Schema.cs                # Schema and table name constants
+  ├── Locations.Extensions.cs               # AddLocationModule() entry point
+  └── README.yaml                           # This documentation
