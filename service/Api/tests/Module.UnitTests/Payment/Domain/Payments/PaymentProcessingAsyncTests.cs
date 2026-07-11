@@ -26,7 +26,7 @@ public class PaymentProcessingAsyncTests
 
     private static GatewayOptions CreateGatewayOptions(PaymentCapture payment)
     {
-        return new GatewayOptions(payment)
+        return new GatewayOptions
         {
             Email = "test@example.com",
             StatementDescriptorSuffix = "Test Order",
@@ -45,7 +45,7 @@ public class PaymentProcessingAsyncTests
     public async Task AuthorizeAsync_ShouldSucceed_WhenGatewayAuthorizes()
     {
         _gatewayMock.Setup(x => x.AuthorizeAsync(It.IsAny<decimal>(), It.IsAny<object?>(), It.IsAny<GatewayOptions>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new PaymentGatewayResponse(true, "Authorized", authorization: "auth-xyz"));
+            .ReturnsAsync(new PaymentGatewayResponse(true, "Authorized", "bogus", authorization: "auth-xyz"));
 
         var payment = CreatePayment();
         var options = CreateGatewayOptions(payment);
@@ -61,7 +61,7 @@ public class PaymentProcessingAsyncTests
     public async Task AuthorizeAsync_ShouldFail_WhenGatewayDeclines()
     {
         _gatewayMock.Setup(x => x.AuthorizeAsync(It.IsAny<decimal>(), It.IsAny<object?>(), It.IsAny<GatewayOptions>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new PaymentGatewayResponse(false, "Card declined"));
+            .ReturnsAsync(new PaymentGatewayResponse(false, "Card declined", "bogus"));
 
         var payment = CreatePayment();
         var options = CreateGatewayOptions(payment);
@@ -95,7 +95,7 @@ public class PaymentProcessingAsyncTests
     public async Task PurchaseAsync_ShouldSucceed_WhenGatewayPurchases()
     {
         _gatewayMock.Setup(x => x.PurchaseAsync(It.IsAny<decimal>(), It.IsAny<object?>(), It.IsAny<GatewayOptions>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new PaymentGatewayResponse(true, "Purchased", authorization: "pur-xyz"));
+            .ReturnsAsync(new PaymentGatewayResponse(true, "Purchased", "bogus", authorization: "pur-xyz"));
 
         var payment = CreatePayment();
         var options = CreateGatewayOptions(payment);
@@ -111,7 +111,7 @@ public class PaymentProcessingAsyncTests
     public async Task PurchaseAsync_ShouldFail_WhenGatewayDeclines()
     {
         _gatewayMock.Setup(x => x.PurchaseAsync(It.IsAny<decimal>(), It.IsAny<object?>(), It.IsAny<GatewayOptions>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new PaymentGatewayResponse(false, "Declined"));
+            .ReturnsAsync(new PaymentGatewayResponse(false, "Declined", "bogus"));
 
         var payment = CreatePayment();
         var options = CreateGatewayOptions(payment);
@@ -130,7 +130,7 @@ public class PaymentProcessingAsyncTests
     public async Task CaptureAsync_ShouldSucceed_OnFullCapture()
     {
         _gatewayMock.Setup(x => x.CaptureAsync(It.IsAny<decimal>(), It.IsAny<string?>(), It.IsAny<GatewayOptions>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new PaymentGatewayResponse(true, "Captured", authorization: "cap-xyz"));
+            .ReturnsAsync(new PaymentGatewayResponse(true, "Captured", "bogus", authorization: "cap-xyz"));
 
         var payment = CreatePayment();
         var options = CreateGatewayOptions(payment);
@@ -146,7 +146,7 @@ public class PaymentProcessingAsyncTests
     public async Task CaptureAsync_ShouldSucceed_OnPartialCapture()
     {
         _gatewayMock.Setup(x => x.CaptureAsync(It.IsAny<decimal>(), It.IsAny<string?>(), It.IsAny<GatewayOptions>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new PaymentGatewayResponse(true, "Captured"));
+            .ReturnsAsync(new PaymentGatewayResponse(true, "Captured", "bogus"));
 
         var payment = CreatePayment(100m);
         var options = CreateGatewayOptions(payment);
@@ -180,7 +180,7 @@ public class PaymentProcessingAsyncTests
     public async Task VoidTransactionAsync_ShouldSucceed_WhenGatewayVoids()
     {
         _gatewayMock.Setup(x => x.VoidAsync(It.IsAny<string?>(), It.IsAny<object?>(), It.IsAny<GatewayOptions>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new PaymentGatewayResponse(true, "Voided"));
+            .ReturnsAsync(new PaymentGatewayResponse(true, "Voided", "bogus"));
 
         var payment = CreatePayment();
         var options = CreateGatewayOptions(payment);
@@ -226,8 +226,8 @@ public class PaymentProcessingAsyncTests
     [Fact(DisplayName = "CancelAsync: Should cancel payment via gateway")]
     public async Task CancelAsync_ShouldSucceed_WhenGatewayCancels()
     {
-        _gatewayMock.Setup(x => x.CancelAsync(It.IsAny<string?>(), It.IsAny<object?>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new PaymentGatewayResponse(true, "Canceled"));
+        _gatewayMock.Setup(x => x.VoidAsync(It.IsAny<string?>(), It.IsAny<object?>(), It.IsAny<GatewayOptions>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new PaymentGatewayResponse(true, "Canceled", "bogus"));
 
         var payment = CreatePayment();
         payment.ResponseCode = "auth-123";
@@ -241,7 +241,7 @@ public class PaymentProcessingAsyncTests
     [Fact(DisplayName = "CancelAsync: Should fail when gateway cancel fails")]
     public async Task CancelAsync_ShouldFail_WhenGatewayFails()
     {
-        _gatewayMock.Setup(x => x.CancelAsync(It.IsAny<string?>(), It.IsAny<object?>(), It.IsAny<CancellationToken>()))
+        _gatewayMock.Setup(x => x.VoidAsync(It.IsAny<string?>(), It.IsAny<object?>(), It.IsAny<GatewayOptions>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(Error.Unexpected("Gateway.Error", "Cancel error"));
 
         var payment = CreatePayment();
@@ -259,8 +259,8 @@ public class PaymentProcessingAsyncTests
     [Fact(DisplayName = "CreditAsync: Should credit payment via gateway")]
     public async Task CreditAsync_ShouldSucceed_WhenGatewayCredits()
     {
-        _gatewayMock.Setup(x => x.CreditAsync(It.IsAny<decimal>(), It.IsAny<string?>(), It.IsAny<GatewayOptions>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new PaymentGatewayResponse(true, "Credited"));
+        _gatewayMock.Setup(x => x.RefundAsync(It.IsAny<decimal>(), It.IsAny<string?>(), It.IsAny<GatewayOptions>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new PaymentGatewayResponse(true, "Credited", "bogus"));
 
         var payment = CreatePayment();
         var options = CreateGatewayOptions(payment);
@@ -293,7 +293,7 @@ public class PaymentProcessingAsyncTests
     {
         _gatewayMock.Setup(x => x.AutoCapture).Returns(false);
         _gatewayMock.Setup(x => x.AuthorizeAsync(It.IsAny<decimal>(), It.IsAny<object?>(), It.IsAny<GatewayOptions>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new PaymentGatewayResponse(true, "Authorized"));
+            .ReturnsAsync(new PaymentGatewayResponse(true, "Authorized", "bogus"));
 
         var payment = CreatePayment();
         var options = CreateGatewayOptions(payment);
@@ -311,7 +311,7 @@ public class PaymentProcessingAsyncTests
     {
         _gatewayMock.Setup(x => x.AutoCapture).Returns(true);
         _gatewayMock.Setup(x => x.PurchaseAsync(It.IsAny<decimal>(), It.IsAny<object?>(), It.IsAny<GatewayOptions>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new PaymentGatewayResponse(true, "Purchased"));
+            .ReturnsAsync(new PaymentGatewayResponse(true, "Purchased", "bogus"));
 
         var payment = CreatePayment();
         var options = CreateGatewayOptions(payment);
@@ -334,7 +334,7 @@ public class PaymentProcessingAsyncTests
         var token = cts.Token;
 
         _gatewayMock.Setup(x => x.AuthorizeAsync(It.IsAny<decimal>(), It.IsAny<object?>(), It.IsAny<GatewayOptions>(), token))
-            .ReturnsAsync(new PaymentGatewayResponse(true, "Authorized"));
+            .ReturnsAsync(new PaymentGatewayResponse(true, "Authorized", "bogus"));
 
         var payment = CreatePayment();
         var options = CreateGatewayOptions(payment);

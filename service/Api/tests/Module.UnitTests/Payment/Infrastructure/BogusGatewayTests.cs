@@ -4,8 +4,6 @@ using Module.Payment.Domain.Gateways;
 using Module.Payment.Domain.PaymentCaptures;
 using Module.Payment.Infrastructure.Gateways.Bogus;
 
-using PaymentRecord = Module.Payment.Domain.PaymentCaptures.PaymentCapture;
-
 namespace Module.UnitTests.Payment.Infrastructure;
 
 public class BogusGatewayTests
@@ -14,8 +12,7 @@ public class BogusGatewayTests
 
     private static GatewayOptions CreateGatewayOptions()
     {
-        var payment = PaymentCaptureMethod.Create(10m, Guid.NewGuid(), Guid.NewGuid()).Value;
-        return new GatewayOptions(payment)
+        return new GatewayOptions
         {
             Email = "test@example.com",
             StatementDescriptorSuffix = "Test",
@@ -33,7 +30,7 @@ public class BogusGatewayTests
     {
         var gateway = CreateGateway();
         var response = await gateway.PurchaseAsync(
-            amountInCents: 1000m,
+            amount: 1000m,
             source: BogusGateway.TestCards.Success,
             options: CreateGatewayOptions());
         Assert.True(response.IsSuccess);
@@ -45,7 +42,7 @@ public class BogusGatewayTests
     {
         var gateway = CreateGateway();
         var response = await gateway.PurchaseAsync(
-            amountInCents: 1000m,
+            amount: 1000m,
             source: BogusGateway.TestCards.Declined,
             options: CreateGatewayOptions());
         Assert.True(response.IsFailure);
@@ -56,7 +53,7 @@ public class BogusGatewayTests
     {
         var gateway = CreateGateway();
         var response = await gateway.PurchaseAsync(
-            amountInCents: 1000m,
+            amount: 1000m,
             source: BogusGateway.TestCards.InsufficientFunds,
             options: CreateGatewayOptions());
         Assert.True(response.IsFailure);

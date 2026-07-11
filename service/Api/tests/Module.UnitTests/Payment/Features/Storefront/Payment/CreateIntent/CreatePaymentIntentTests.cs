@@ -16,6 +16,7 @@ public class CreatePaymentIntentTests : IDisposable
     private readonly ApplicationDbContext _dbContext;
     private readonly Mock<ICurrentUser> _currentUserMock;
     private readonly Mock<IPaymentGatewayActionProvider> _gatewayMock;
+    private readonly Mock<IGatewayRegistry> _gatewayRegistryMock;
     private readonly CreatePaymentIntent.CommandHandler _handler;
 
     public CreatePaymentIntentTests()
@@ -37,9 +38,13 @@ public class CreatePaymentIntentTests : IDisposable
         _gatewayMock = new Mock<IPaymentGatewayActionProvider>();
         _gatewayMock.Setup(x => x.AutoCapture).Returns(false);
         _gatewayMock.Setup(x => x.AuthorizeAsync(It.IsAny<decimal>(), It.IsAny<object?>(), It.IsAny<GatewayOptions>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new PaymentGatewayResponse(true, "Authorized"));
+            .ReturnsAsync(new PaymentGatewayResponse(true, "Authorized", "bogus"));
 
-        _handler = new CreatePaymentIntent.CommandHandler(_dbContext, _currentUserMock.Object, _gatewayMock.Object);
+        _gatewayRegistryMock = new Mock<IGatewayRegistry>();
+        _gatewayRegistryMock.Setup(x => x.GetGateway(It.IsAny<string>()))
+            .Returns(Result<IPaymentGatewayActionProvider>.Ok(_gatewayMock.Object));
+
+        _handler = new CreatePaymentIntent.CommandHandler(_dbContext, _currentUserMock.Object, _gatewayRegistryMock.Object);
     }
 
     public void Dispose()
@@ -51,7 +56,6 @@ public class CreatePaymentIntentTests : IDisposable
     [Fact(DisplayName = "Handler: Should create payment intent for an order")]
     public async Task Handle_ShouldCreatePayment_WhenOrderExists()
     {
-        // Arrange: Create order
         var userId = Guid.Parse(_currentUserMock.Object.UserId!);
         var order = OrderExtensions.Create("USD", userId, Guid.NewGuid()).Value;
         order.Status = OrderStatus.Placed;
@@ -59,17 +63,14 @@ public class CreatePaymentIntentTests : IDisposable
         _dbContext.Set<Order>().Add(order);
         await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 
-        // Arrange: Create a payment method
-        var pm = new PaymentMethod { Name = "Credit Card", Code = "credit_card", ProviderType = "stripe" };
+        var pm = new PaymentMethod { Name = "Credit Card", Code = "credit_card", ProviderKey = "stripe" };
         _dbContext.Set<PaymentMethod>().Add(pm);
         await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 
-        // Act
         var result = await _handler.Handle(
             new CreatePaymentIntent.Command(order.Id),
             TestContext.Current.CancellationToken);
 
-        // Assert
         result.IsSuccess.Should().BeTrue();
         result.Value.Should().NotBeNull();
         result.Value.Id.Should().NotBeEmpty();
@@ -88,7 +89,7 @@ public class CreatePaymentIntentTests : IDisposable
         _dbContext.Set<Order>().Add(order);
         await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 
-        var pm = new PaymentMethod { Name = "Credit Card", Code = "credit_card", ProviderType = "stripe" };
+        var pm = new PaymentMethod { Name = "Credit Card", Code = "credit_card", ProviderKey = "stripe" };
         _dbContext.Set<PaymentMethod>().Add(pm);
         await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 

@@ -1,3 +1,4 @@
+using Module.Payment.Domain.Gateways;
 using Module.Payment.Domain.PaymentMethods;
 using Module.Payment.Features.Admin.PaymentMethods.Create;
 
@@ -9,6 +10,7 @@ namespace Module.UnitTests.Payment.Features.Admin.PaymentMethods.Create;
 public class CreatePaymentMethodTests : IDisposable
 {
     private readonly ApplicationDbContext _dbContext;
+    private readonly Mock<IGatewayRegistry> _gatewayRegistryMock;
     private readonly CreatePaymentMethod.CommandHandler _handler;
 
     public CreatePaymentMethodTests()
@@ -18,7 +20,11 @@ public class CreatePaymentMethodTests : IDisposable
             .Options;
         ApplicationDbContext.AdditionalConfigurationsAssemblies = [typeof(PaymentMethod).Assembly];
         _dbContext = new ApplicationDbContext(options);
-        _handler = new CreatePaymentMethod.CommandHandler(_dbContext);
+
+        _gatewayRegistryMock = new Mock<IGatewayRegistry>();
+        _gatewayRegistryMock.Setup(x => x.IsRegistered(It.IsAny<string>())).Returns(true);
+
+        _handler = new CreatePaymentMethod.CommandHandler(_dbContext, _gatewayRegistryMock.Object);
     }
 
     public void Dispose() { _dbContext.Dispose(); GC.SuppressFinalize(this); }
@@ -29,7 +35,7 @@ public class CreatePaymentMethodTests : IDisposable
         var request = new CreatePaymentMethod.Request
         {
             Name = "Stripe",
-            ProviderType = "CreditCard",
+            ProviderKey = "CreditCard",
             AutoCapture = true
         };
         var result = await _handler.Handle(new CreatePaymentMethod.Command(request), TestContext.Current.CancellationToken);
