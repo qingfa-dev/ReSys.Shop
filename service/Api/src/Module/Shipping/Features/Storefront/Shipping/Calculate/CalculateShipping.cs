@@ -68,7 +68,7 @@ public static partial class CalculateShipping
                 ShippingMethodId = method.Id,
                 MethodName = method.Name,
                 Cost = cost,
-                Currency = "USD",
+                Currency = order?.Currency ?? "USD",
                 IsFreeShipping = isFree
             };
         }
