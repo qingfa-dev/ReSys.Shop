@@ -18,13 +18,17 @@ public static partial class ImportStockItems
         {
             var file = command.File;
             if (file is null || file.Length == 0)
-                return Error.Validation("StockItem.Import.FileRequired", "CSV file is required.");
+                return StockItemResult.Errors.ImportFileRequired;
+
+            const long MaxFileSize = 5_242_880; // 5 MB
+            if (file.Length > MaxFileSize)
+                return Error.Validation("StockItem.Import.FileTooLarge", "CSV file must not exceed 5 MB.");
 
             using var reader = new StreamReader(file.OpenReadStream());
             var header = await reader.ReadLineAsync(cancellationToken);
 
             if (string.IsNullOrWhiteSpace(header))
-                return Error.Validation("StockItem.Import.EmptyFile", "CSV file is empty.");
+                return StockItemResult.Errors.ImportEmptyFile;
 
             var errors = new List<string>();
             var created = 0;
