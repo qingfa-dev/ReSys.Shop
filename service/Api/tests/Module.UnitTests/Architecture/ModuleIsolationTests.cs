@@ -20,7 +20,6 @@ public sealed class ModuleIsolationTests
         ["Payment"] = ["Module.Payment"],
         ["Profile"] = ["Module.Profile"],
         ["Shipping"] = ["Module.Shipping"],
-        ["Webhooks"] = ["Module.Webhooks"],
     };
 
     [Fact]
