@@ -13,9 +13,19 @@ public static partial class ResetPassword
 
     public class CommandHandler(
         UserManager<User> userManager,
+        ISystemDateTime dateTime,
         INotificationService notificationService,
         ILogger<CommandHandler> logger) : ICommandHandler<Command>
     {
+        // Contract: pre=command!=null, post=result!=null, throws=DbUpdateException
+        /// <summary>
+        /// Resets a user's password using a password-reset token. Validates the token, applies the new password,
+        /// records the audit timestamp, and sends a confirmation notification.
+        /// </summary>
+        /// <param name="command">The command containing user ID, reset token, and new password.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>A result indicating success or an invalid-token error.</returns>
+        /// <exception cref="DbUpdateException">Thrown when the identity store fails to persist the password reset.</exception>
         public async Task<Result> Handle(Command command, CancellationToken cancellationToken)
         {
             var request = command.Request;
@@ -28,7 +38,7 @@ public static partial class ResetPassword
             if (!identityResult.Succeeded)
                 return identityResult.ToResult();
 
-            user.ModifiedAtUtc = DateTimeOffset.UtcNow;
+            user.ModifiedAtUtc = dateTime.UtcNow;
 
             var updateResult = await userManager.UpdateAsync(user);
             if (!updateResult.Succeeded)
@@ -50,7 +60,7 @@ public static partial class ResetPassword
 
             if (result.IsSuccess)
             {
-                UserLoggers.Passwords.PasswordReset(logger, user.Id, user.Email!, DateTime.UtcNow);
+                UserLoggers.Passwords.PasswordReset(logger, user.Id, user.Email!, dateTime.UtcNow.DateTime);
             }
         }
     }
