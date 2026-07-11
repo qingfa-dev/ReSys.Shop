@@ -64,6 +64,8 @@ public static partial class CreateProduct
             var addVariantResult = await sender.Send(
                 new AddVariant.Command(product.Id, variantRequest), cancellationToken);
 
+            if (addVariantResult.IsFailure)
+                return addVariantResult.Errors;
             product.MasterVariantId = addVariantResult.Value.Id;
             await dbContext.SaveChangesAsync(cancellationToken);
 
