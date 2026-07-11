@@ -36,4 +36,7 @@ public partial interface IPaymentGatewayActionProvider
 
     // Call: Gateway credit -- issues a refund/credit against a captured payment -- mirrors Ruby credit(amount, response_code, gateway_options)
     Task<Result<PaymentGatewayResponse>> CreditAsync(decimal amount, string? responseCode, GatewayOptions options, CancellationToken cancellationToken = default);
+
+    // Call: Retrieve payment intent status from gateway
+    Task<string> GetPaymentIntentStatusAsync(string paymentIntentId, CancellationToken cancellationToken = default);
 }

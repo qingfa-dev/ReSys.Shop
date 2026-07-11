@@ -50,7 +50,7 @@ public sealed class StripeGateway : Gateway
         if (string.IsNullOrEmpty(responseCode)) return StripeGatewayResult.Errors.CaptureMissingIntent;
         try
         {
-            var cap = new PaymentIntentCaptureOptions { AmountToCapture = (long)(amount * CentsMultiplier) };
+            var cap = new PaymentIntentCaptureOptions { AmountToCapture = (long)Math.Round(amount * CentsMultiplier, MidpointRounding.AwayFromZero) };
             var requestOptions = new RequestOptions { IdempotencyKey = options.IdempotencyKey ?? Guid.NewGuid().ToString() };
             var intent = await new PaymentIntentService().CaptureAsync(responseCode, cap, requestOptions, cancellationToken).ConfigureAwait(false);
             return new PaymentGatewayResponse(true, "Captured.", authorization: intent.Id);
@@ -58,16 +58,16 @@ public sealed class StripeGateway : Gateway
         catch (StripeException ex) { return MapStripeException(ex); }
     }
 
-    public override Task<Result<PaymentGatewayResponse>> VoidAsync(string? responseCode, object? source, GatewayOptions options, CancellationToken cancellationToken = default) => CancelPaymentIntentAsync(responseCode, cancellationToken);
+    public override Task<Result<PaymentGatewayResponse>> VoidAsync(string? responseCode, object? source, GatewayOptions options, CancellationToken cancellationToken = default) => CancelPaymentIntentAsync(responseCode, options, cancellationToken);
 
-    public override Task<Result<PaymentGatewayResponse>> CancelAsync(string? responseCode, object? payment, CancellationToken cancellationToken = default) => CancelPaymentIntentAsync(responseCode, cancellationToken);
+    public override Task<Result<PaymentGatewayResponse>> CancelAsync(string? responseCode, object? payment, CancellationToken cancellationToken = default) => CancelPaymentIntentAsync(responseCode, null, cancellationToken);
 
     public override async Task<Result<PaymentGatewayResponse>> CreditAsync(decimal amount, string? responseCode, GatewayOptions options, CancellationToken cancellationToken = default)
     {
         if (string.IsNullOrEmpty(responseCode)) return StripeGatewayResult.Errors.CreditMissingIntent;
         try
         {
-            var ro = new RefundCreateOptions { PaymentIntent = responseCode, Amount = (long)(amount * CentsMultiplier) };
+            var ro = new RefundCreateOptions { PaymentIntent = responseCode, Amount = (long)Math.Round(amount * CentsMultiplier, MidpointRounding.AwayFromZero) };
             var requestOptions = new RequestOptions { IdempotencyKey = options.IdempotencyKey ?? Guid.NewGuid().ToString() };
             var refund = await new RefundService().CreateAsync(ro, requestOptions, cancellationToken).ConfigureAwait(false);
             return new PaymentGatewayResponse(true, "Refunded.", authorization: refund.Id);
@@ -75,11 +75,18 @@ public sealed class StripeGateway : Gateway
         catch (StripeException ex) { return MapStripeException(ex); }
     }
 
+    public override async Task<string> GetPaymentIntentStatusAsync(string paymentIntentId, CancellationToken ct)
+    {
+        var requestOptions = new RequestOptions { IdempotencyKey = Guid.NewGuid().ToString() };
+        var intent = await new PaymentIntentService().GetAsync(paymentIntentId, null, requestOptions, ct);
+        return intent.Status;
+    }
+
     private static PaymentIntentCreateOptions CreatePaymentIntentOptions(decimal amountInCents, object? source, GatewayOptions options, bool autoCapture)
     {
         var o = new PaymentIntentCreateOptions
         {
-            Amount = (long)(amountInCents * CentsMultiplier),
+            Amount = (long)Math.Round(amountInCents * CentsMultiplier, MidpointRounding.AwayFromZero),
             Currency = GatewayOptions.Currency.ToLowerInvariant(),
             ConfirmationMethod = "manual",
             CaptureMethod = autoCapture ? "automatic" : "manual",
@@ -89,13 +96,13 @@ public sealed class StripeGateway : Gateway
         return o;
     }
 
-    private static async Task<Result<PaymentGatewayResponse>> CancelPaymentIntentAsync(string? responseCode, CancellationToken cancellationToken)
+    private static async Task<Result<PaymentGatewayResponse>> CancelPaymentIntentAsync(string? responseCode, GatewayOptions? options, CancellationToken cancellationToken)
     {
         if (string.IsNullOrEmpty(responseCode)) return StripeGatewayResult.Errors.CancelMissingIntent;
         try
         {
             var co = new PaymentIntentCancelOptions();
-            var requestOptions = new RequestOptions { IdempotencyKey = Guid.NewGuid().ToString() };
+            var requestOptions = new RequestOptions { IdempotencyKey = options?.IdempotencyKey ?? Guid.NewGuid().ToString() };
             var intent = await new PaymentIntentService().CancelAsync(responseCode, co, requestOptions, cancellationToken).ConfigureAwait(false);
             return new PaymentGatewayResponse(true, "Voided.", authorization: intent.Id);
         }
