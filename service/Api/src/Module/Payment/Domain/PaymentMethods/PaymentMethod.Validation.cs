@@ -21,13 +21,13 @@ public static class PaymentMethodValidation
             .WithMessage(PaymentMethodResult.Errors.CodeTooLong.Message);
     }
 
-    public static IRuleBuilderOptions<T, string?> ApplyProviderTypeRules<T>(this IRuleBuilder<T, string?> ruleBuilder)
+    public static IRuleBuilderOptions<T, string?> ApplyProviderKeyRules<T>(this IRuleBuilder<T, string?> ruleBuilder)
     {
         return ruleBuilder
             .NotEmpty()
             .WithErrorCode(PaymentMethodResult.Errors.ProviderTypeRequired.Code)
             .WithMessage(PaymentMethodResult.Errors.ProviderTypeRequired.Message)
-            .MaximumLength(PaymentMethodConstant.Constraints.MaxProviderTypeLength)
+            .MaximumLength(PaymentMethodConstant.Constraints.MaxProviderKeyLength)
             .WithErrorCode(PaymentMethodResult.Errors.ProviderTypeTooLong.Code)
             .WithMessage(PaymentMethodResult.Errors.ProviderTypeTooLong.Message);
     }

@@ -13,13 +13,14 @@ public sealed partial class PaymentMethod : Entity, IAuditable, IParameterizable
     public string Name { get; set; } = string.Empty;
     public string? Code { get; set; }
     public string? Description { get; set; }
-    public string ProviderType { get; set; } = string.Empty;
+    public string ProviderKey { get; set; } = string.Empty;
     public bool Active { get; set; } = PaymentMethodConstant.Defaults.Active;
     public bool AutoCapture { get; set; } = PaymentMethodConstant.Defaults.AutoCapture;
     public DisplayOn DisplayOn { get; set; } = DisplayOn.Both;
     public int Position { get; set; } = PaymentMethodConstant.Defaults.Position;
     public string? Presentation { get; set; }
     public Dictionary<string, string> Preferences { get; set; } = [];
+    public Dictionary<string, string> Settings { get; set; } = [];
     #endregion Properties
 
     #region Auditing
