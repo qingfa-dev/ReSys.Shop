@@ -10,7 +10,6 @@ public static partial class ConfirmPayment
         {
             app.MapPost(PaymentFeature.Storefront.Payment.Confirm.Route, async (
                 [FromRoute] Guid paymentId,
-                [FromBody] Request request,
                 ISender sender,
                 CancellationToken ct) =>
             {
