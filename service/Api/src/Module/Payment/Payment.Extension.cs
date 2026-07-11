@@ -7,7 +7,9 @@ using Module.Payment.Features.Admin.PaymentMethods.Services.Gateways.Bogus;
 using Module.Payment.Features.Admin.PaymentMethods.Services.Gateways.Stripe;
 using Module.Payment.Features.Admin.PaymentMethods.Services.Gateways.Webhooks;
 using Module.Payment.Features.Admin.PaymentMethods.Services.Registry;
+using Module.Payment.Features.Admin.Payments.Services.GatewayProcessing;
 using Module.Payment.Persistence.Seeders;
+
 using Shared.Operational.Security.Encryption;
 using Shared.Operational.Persistence.Configurations.Dictionaries;
 
@@ -63,6 +65,8 @@ public static class PaymentExtension
 
             return registry;
         });
+
+        services.AddScoped<IPaymentProcessingService, PaymentProcessingService>();
 
         services.AddSingleton<IWebhookHandler, StripeWebhookHandler>();
 

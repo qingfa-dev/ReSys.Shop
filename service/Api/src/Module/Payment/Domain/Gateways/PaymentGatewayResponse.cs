@@ -1,9 +1,8 @@
 namespace Module.Payment.Domain.Gateways;
 
+/// <summary>Gateway response data — success/failure carried by Result wrapper, not this record.</summary>
 public sealed record PaymentGatewayResponse
 {
-    public bool Success { get; }
-    public string Message { get; }
     public string Provider { get; }
     public string? Authorization { get; }
     public string? SetupIntentClientSecret { get; }
@@ -14,8 +13,6 @@ public sealed record PaymentGatewayResponse
     public Dictionary<string, object?> Properties { get; }
 
     public PaymentGatewayResponse(
-        bool success,
-        string message,
         string provider,
         string? authorization = null,
         string? setupIntentClientSecret = null,
@@ -25,8 +22,6 @@ public sealed record PaymentGatewayResponse
         string? cvvResultCode = null,
         string? cvvResultMessage = null)
     {
-        Success = success;
-        Message = message;
         Provider = provider;
         Authorization = authorization;
         SetupIntentClientSecret = setupIntentClientSecret;

@@ -71,7 +71,6 @@ Evidence for each step:
 | **Payment module** | Payment intents, payment methods, refunds, webhook handlers, BogusGateway (dev) | Order fulfillment, shipping | `service/Api/src/Module/Payment/` |
 | **Profile module** | User profiles, addresses, wishlists, notification preferences | Authentication/authorization, product data | `service/Api/src/Module/Profile/Profiles.Extensions.cs` |
 | **Shipping module** | Shipping methods, shipping rates, address normalization, rate calculation | Order fulfillment, payment | `service/Api/src/Module/Shipping/` |
-| **Webhooks module** | Webhook subscriptions, delivery, signing, events bus for cross-module integration | Module-to-module direct calls | `service/Api/src/Module/Webhooks/` |
 | **Migrations** | EF Core migration files, database schema snapshot, migration guide | Application logic, domain models | `service/Api/src/Migrations/Api.Migrations.csproj` |
 | **Embedding service** | Python ML inference (Fashion-CLIP), embedding generation API, image preprocessing, embedding caching | .NET business logic, database access, user management | `service/Embedding/src/main.py` |
 | **Aspire AppHost** | Service orchestration (PostgreSQL, Redis, API, Embedding, Admin SPA, Store SPA), service discovery, health checks, resilience | Application business logic | `infra/Aspire/src/ReSys.AppHost/AppHost.cs` |

@@ -1,5 +1,6 @@
 using Module.Payment.Domain.Gateways;
 using Module.Payment.Domain.PaymentCaptures;
+using Module.Payment.Features.Admin.Payments.Services.GatewayProcessing;
 
 using PaymentCapture = Module.Payment.Domain.PaymentCaptures.PaymentCapture;
 
@@ -9,7 +10,7 @@ public static partial class RefundPayment
 {
     public sealed record Command(Guid Id, Request Request) : ICommand<Response>;
 
-    public sealed class CommandHandler(IApplicationDbContext dbContext, IGatewayRegistry gatewayRegistry)
+    public sealed class CommandHandler(IApplicationDbContext dbContext, IGatewayRegistry gatewayRegistry, IPaymentProcessingService processingService)
         : ICommandHandler<Command, Response>
     {
         public async Task<Result<Response>> Handle(Command command, CancellationToken cancellationToken)
@@ -37,7 +38,7 @@ public static partial class RefundPayment
 
             var refundAmount = command.Request.Amount;
 
-            var refundResult = await payment.RefundAsync(gateway, options, refundAmount, cancellationToken);
+            var refundResult = await processingService.RefundAsync(payment, gateway, options, refundAmount, cancellationToken);
             if (refundResult.IsFailure)
                 return refundResult.Errors;
 

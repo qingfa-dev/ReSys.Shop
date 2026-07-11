@@ -125,36 +125,4 @@ public static partial class PaymentCaptureMethod
     }
     #endregion
 
-    #region Gateway Convenience Wrappers
-    public static Task<Result> VoidAsync(this PaymentCapture payment, IPaymentGatewayActionProvider gateway, GatewayOptions options, CancellationToken cancellationToken = default)
-    {
-        if (payment.State is PaymentRecordState.Void)
-            return Task.FromResult<Result>(PaymentCaptureResult.Failure.AlreadyVoided);
-
-        if (payment.State is not (PaymentRecordState.Processing or PaymentRecordState.Pending))
-            return Task.FromResult<Result>(PaymentCaptureResult.Failure.InvalidStateTransition(payment.State, PaymentRecordState.Void));
-
-        return VoidTransactionAsync(payment, gateway, options, null, cancellationToken);
-    }
-
-    public static async Task<Result> RefundAsync(this PaymentCapture payment, IPaymentGatewayActionProvider gateway, GatewayOptions options, decimal amount, CancellationToken cancellationToken = default)
-    {
-        if (!payment.CanRefund(amount))
-        {
-            if (payment.State is not PaymentRecordState.Completed)
-                return PaymentCaptureResult.Failure.InvalidStateTransition(payment.State, PaymentRecordState.Completed);
-
-            return PaymentCaptureResult.Failure.AmountExceedsAuthorized;
-        }
-
-        var result = await CreditAsync(payment, gateway, options, amount, cancellationToken).ConfigureAwait(false);
-        if (result.IsSuccess)
-        {
-            payment.RefundedAmount += amount;
-            payment.ModifiedAtUtc = DateTimeOffset.UtcNow;
-        }
-
-        return result;
-    }
-    #endregion
 }

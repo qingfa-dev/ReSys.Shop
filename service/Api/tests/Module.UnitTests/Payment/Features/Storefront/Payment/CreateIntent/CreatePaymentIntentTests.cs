@@ -1,3 +1,4 @@
+using Module.Payment.Features.Admin.Payments.Services.GatewayProcessing;
 using Module.Payment.Domain.Gateways;
 using Module.Payment.Domain.PaymentCaptures;
 using Module.Payment.Domain.PaymentMethods;
@@ -17,6 +18,8 @@ public class CreatePaymentIntentTests : IDisposable
     private readonly Mock<ICurrentUser> _currentUserMock;
     private readonly Mock<IPaymentGatewayActionProvider> _gatewayMock;
     private readonly Mock<IGatewayRegistry> _gatewayRegistryMock;
+
+    private readonly Mock<IPaymentProcessingService> _processingServiceMock;
     private readonly CreatePaymentIntent.CommandHandler _handler;
 
     public CreatePaymentIntentTests()
@@ -38,13 +41,17 @@ public class CreatePaymentIntentTests : IDisposable
         _gatewayMock = new Mock<IPaymentGatewayActionProvider>();
         _gatewayMock.Setup(x => x.AutoCapture).Returns(false);
         _gatewayMock.Setup(x => x.AuthorizeAsync(It.IsAny<decimal>(), It.IsAny<object?>(), It.IsAny<GatewayOptions>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new PaymentGatewayResponse(true, "Authorized", "bogus"));
+            .ReturnsAsync(new PaymentGatewayResponse("bogus"));
 
         _gatewayRegistryMock = new Mock<IGatewayRegistry>();
         _gatewayRegistryMock.Setup(x => x.GetGateway(It.IsAny<string>()))
             .Returns(Result<IPaymentGatewayActionProvider>.Ok(_gatewayMock.Object));
 
-        _handler = new CreatePaymentIntent.CommandHandler(_dbContext, _currentUserMock.Object, _gatewayRegistryMock.Object);
+
+        _processingServiceMock = new Mock<IPaymentProcessingService>();
+        _processingServiceMock.Setup(x => x.ProcessAsync(It.IsAny<PaymentCapture>(), It.IsAny<IPaymentGatewayActionProvider>(), It.IsAny<GatewayOptions>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Result.Ok());
+        _handler = new CreatePaymentIntent.CommandHandler(_dbContext, _currentUserMock.Object, _gatewayRegistryMock.Object, _processingServiceMock.Object);
     }
 
     public void Dispose()
