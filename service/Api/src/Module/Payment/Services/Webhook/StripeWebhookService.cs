@@ -1,5 +1,6 @@
-using Module.Payment.Services.Provider;
+using Module.Payment.Services.Models;
 using Module.Payment.Services.Provider.Stripe;
+using StripeSetting = Module.Payment.Services.Provider.Stripe.StripeSetting;
 
 using Microsoft.Extensions.Options;
 

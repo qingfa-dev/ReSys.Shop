@@ -1,5 +1,6 @@
 using FluentAssertions;
-using Module.Payment.Services.Models;
+using Module.Payment.Services.Provider;
+using Module.Payment.Services.Processing;
 
 namespace Module.UnitTests.Payment.Services.Models;
 
