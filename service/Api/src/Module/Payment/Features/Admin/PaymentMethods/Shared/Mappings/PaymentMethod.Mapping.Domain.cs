@@ -12,9 +12,10 @@ public static partial class PaymentMethodMapping
         return PaymentMethodExtensions.Create(
             name: request.Name,
             code: request.Code,
-            providerType: request.ProviderType,
+            providerKey: request.ProviderKey,
             autoCapture: request.AutoCapture,
-            displayOn: request.DisplayOn);
+            displayOn: request.DisplayOn,
+            settings: request.Settings);
     }
 
     /// <summary>Maps a request to an existing PaymentMethod domain entity (update).</summary>
@@ -24,7 +25,7 @@ public static partial class PaymentMethodMapping
             name: request.Name,
             code: request.Code,
             description: request.Description,
-            providerType: request.ProviderType,
+            providerKey: request.ProviderKey,
             autoCapture: request.AutoCapture,
             displayOn: request.DisplayOn,
             presentation: request.Presentation);
@@ -37,7 +38,7 @@ public static partial class PaymentMethodMapping
             name: request.Name,
             code: request.Code,
             description: request.Description,
-            providerType: request.ProviderType,
+            providerKey: request.ProviderKey,
             autoCapture: request.AutoCapture,
             displayOn: request.DisplayOn,
             presentation: request.Presentation);

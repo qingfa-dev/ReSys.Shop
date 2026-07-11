@@ -16,8 +16,8 @@ public abstract class PaymentMethodUpdateParameters
     /// <summary>Gets or sets the optional description.</summary>
     public string? Description { get; init; }
 
-    /// <summary>Gets or sets the provider type.</summary>
-    public string? ProviderType { get; init; }
+    /// <summary>Gets or sets the gateway provider key.</summary>
+    public string? ProviderKey { get; init; }
 
     /// <summary>Gets or sets whether auto-capture is enabled.</summary>
     public bool? AutoCapture { get; init; }

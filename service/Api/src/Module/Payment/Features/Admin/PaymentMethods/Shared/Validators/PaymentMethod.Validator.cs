@@ -12,7 +12,7 @@ public static class PaymentMethodValidator
         {
             RuleFor(x => x.Name).ApplyNameRules();
             RuleFor(x => x.Code).ApplyCodeRules();
-            RuleFor(x => x.ProviderType).ApplyProviderTypeRules();
+            RuleFor(x => x.ProviderKey).ApplyProviderKeyRules();
         }
     }
 

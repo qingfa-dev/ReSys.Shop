@@ -10,7 +10,7 @@ public static partial class CreatePaymentMethod
         {
             RuleFor(x => x.Request.Name).ApplyNameRules();
             RuleFor(x => x.Request.Code).ApplyCodeRules();
-            RuleFor(x => x.Request.ProviderType).ApplyProviderTypeRules();
+            RuleFor(x => x.Request.ProviderKey).ApplyProviderKeyRules();
         }
     }
 }
