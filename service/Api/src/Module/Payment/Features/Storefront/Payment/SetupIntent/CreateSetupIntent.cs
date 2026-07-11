@@ -1,60 +1,39 @@
-using DomainPaymentMethod = Module.Payment.Domain.PaymentMethods.PaymentMethod;
-
-using Stripe;
+using Module.Payment.Domain.Gateways;
+using Module.Payment.Domain.PaymentCaptures;
+using Module.Payment.Domain.PaymentMethods;
 
 namespace Module.Payment.Features.Storefront.Payment.SetupIntent;
 
-/// <summary>Creates a Stripe SetupIntent for saving a payment method for future use.</summary>
 public static partial class CreateSetupIntent
 {
     public sealed record Command(Guid PaymentMethodId) : ICommand<Response>;
 
     public sealed class CommandHandler(
-        IApplicationDbContext dbContext)
+        IApplicationDbContext dbContext,
+        IGatewayRegistry gatewayRegistry)
         : ICommandHandler<Command, Response>
     {
-        /// <summary>Validates the payment method exists, then creates a Stripe SetupIntent for tokenization.</summary>
-        /// <param name="command">The command containing the payment method ID to set up.</param>
-        /// <param name="cancellationToken">Propagates cancellation signal.</param>
-        /// <returns>A result containing the Stripe client secret or an error.</returns>
-        /// <exception cref="DbUpdateException">Thrown when database persistence fails.</exception>
         public async Task<Result<Response>> Handle(Command command, CancellationToken cancellationToken)
         {
-            // Contract: pre=paymentMethod!=null, post=clientSecret!=null, throws=DbUpdateException|StripeException
-            // Load: Payment method
-            var paymentMethod = await dbContext.Set<DomainPaymentMethod>()
+            var paymentMethod = await dbContext.Set<PaymentMethod>()
                 .FirstOrDefaultAsync(pm => pm.Id == command.PaymentMethodId && pm.Active && !pm.IsDeleted, cancellationToken);
-
-            // Check: Verify the payment method exists.
             if (paymentMethod is null)
-                return Domain.PaymentCaptures.PaymentCaptureResult.Failure.NotFound;
+                return PaymentCaptureResult.Failure.NotFound;
 
-            // Call: Create Stripe SetupIntent
-            try
+            var gatewayResult = gatewayRegistry.GetGateway(paymentMethod.ProviderKey);
+            if (gatewayResult.IsFailure)
+                return PaymentCaptureResult.Failure.ProviderNotRegistered(paymentMethod.ProviderKey);
+            var gateway = gatewayResult.Value;
+
+            var metadata = new Dictionary<string, string>
             {
-                var options = new SetupIntentCreateOptions
-                {
-                    Metadata = new Dictionary<string, string>
-                    {
-                        ["payment_method_id"] = paymentMethod.Id.ToString()
-                    }
-                };
+                [GatewayConstants.Metadata.PaymentMethodIdKey] = paymentMethod.Id.ToString()
+            };
 
-                var setupIntent = await new SetupIntentService().CreateAsync(options, null, cancellationToken).ConfigureAwait(false);
+            var setupResult = await gateway.CreateSetupIntentAsync(null, metadata, cancellationToken);
+            if (setupResult.IsFailure) return setupResult.Errors;
 
-                return new Response
-                {
-                    ClientSecret = setupIntent.ClientSecret
-                };
-            }
-            // Boundary: Dynamic Stripe error — code and message are runtime values from StripeException, cannot be predefined.
-            catch (StripeException ex)
-            {
-                var stripeError = ex.StripeError;
-                return Error.BadRequest(
-                    $"Stripe.{stripeError?.Code ?? "UnknownError"}",
-                    stripeError?.Message ?? ex.Message);
-            }
+            return new Response { ClientSecret = setupResult.Value.SetupIntentClientSecret! };
         }
     }
 }
