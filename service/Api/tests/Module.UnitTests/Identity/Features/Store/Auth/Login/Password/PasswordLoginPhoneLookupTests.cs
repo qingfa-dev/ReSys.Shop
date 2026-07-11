@@ -1,11 +1,9 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore;
 
 using Module.Identity.Features.Store.Auth.Login.Password;
 
-using Shared.Operational.Persistence.Data;
 using Shared.Security.Authentication.Tokens.Services.Access;
 using Shared.Security.Authentication.Tokens.Services.Refresh;
 using Shared.Security.Identity.Domain.Roles;

@@ -1,4 +1,3 @@
-using FluentAssertions;
 using Module.Identity.Features.Store.Auth.Register;
 using Shared.Governance.Conventions;
 
