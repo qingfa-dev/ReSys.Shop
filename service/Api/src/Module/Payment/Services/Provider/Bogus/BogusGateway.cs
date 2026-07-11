@@ -1,8 +1,4 @@
 using Microsoft.Extensions.Options;
-using Module.Payment.Services.Abstractions;
-using Module.Payment.Services.Provider;
-
-using Module.Payment.Services.Provider.Bogus;
 
 namespace Module.Payment.Services.Provider.Bogus;
 
@@ -76,6 +72,7 @@ public sealed class BogusGateway : Gateway
 
         return Task.FromResult(Result<PaymentGatewayResponse>.Ok(
             new PaymentGatewayResponse(GatewayConstants.Providers.Bogus,
-                authorization: $"auth_{Guid.NewGuid():N}")));
+                authorization: $"auth_{Guid.NewGuid():N}",
+                clientSecret: $"pi_fake_{Guid.NewGuid():N}_secret_{Guid.NewGuid():N}")));
     }
 }
