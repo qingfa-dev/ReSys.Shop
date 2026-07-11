@@ -116,13 +116,13 @@ public sealed partial class Order
     #pragma warning restore CA1822
 
     // Assign: Default addresses from user profile on entering address step
-    // TODO: Query Profiles module for user's default BillAddressId / ShipAddressId.
-    //       Profiles module is not yet implemented — skip for now.
-    #pragma warning disable CA1822 // Stub - Profiles module not yet implemented
-    internal void AssignDefaultAddresses()
+    internal void AssignDefaultAddresses(Guid? billAddressId, Guid? shipAddressId)
     {
+        if (BillAddressId is null && billAddressId is not null)
+            BillAddressId = billAddressId;
+        if (ShipAddressId is null && shipAddressId is not null)
+            ShipAddressId = shipAddressId;
     }
-    #pragma warning restore CA1822
 
     // Enforce: Ensure line item variants are not discontinued before completing checkout
     internal bool EnsureLineItemVariantsAreNotDiscontinued()
