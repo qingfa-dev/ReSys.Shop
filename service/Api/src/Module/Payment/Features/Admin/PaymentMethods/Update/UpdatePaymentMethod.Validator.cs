@@ -18,9 +18,9 @@ public static partial class UpdatePaymentMethod
                 RuleFor(x => x.Request.Code).ApplyCodeRules();
             });
 
-            When(x => x.Request.ProviderType is not null, () =>
+            When(x => x.Request.ProviderKey is not null, () =>
             {
-                RuleFor(x => x.Request.ProviderType).ApplyProviderTypeRules();
+                RuleFor(x => x.Request.ProviderKey).ApplyProviderKeyRules();
             });
         }
     }

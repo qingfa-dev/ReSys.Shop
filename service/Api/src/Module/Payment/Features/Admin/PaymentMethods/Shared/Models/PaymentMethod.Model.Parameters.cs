@@ -16,8 +16,11 @@ public abstract class PaymentMethodParameters
     /// <summary>Gets or sets the optional description.</summary>
     public string? Description { get; init; }
 
-    /// <summary>Gets or sets the provider type (e.g., StoreCredit, CreditCard).</summary>
-    public string ProviderType { get; init; } = string.Empty;
+    /// <summary>Gets or sets the gateway provider key (e.g., stripe, bogus).</summary>
+    public string ProviderKey { get; init; } = string.Empty;
+
+    /// <summary>Gets or sets the encrypted provider settings.</summary>
+    public Dictionary<string, string>? Settings { get; init; }
 
     /// <summary>Gets or sets whether auto-capture is enabled.</summary>
     public bool AutoCapture { get; init; }
