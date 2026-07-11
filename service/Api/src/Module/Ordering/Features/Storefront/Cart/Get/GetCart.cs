@@ -25,7 +25,7 @@ namespace Module.Ordering.Features.Storefront.Cart.Get;
             var sessionId = currentUser.IsAuthenticated ? null : currentUser.SessionId;
 
             if (userId is null && string.IsNullOrWhiteSpace(sessionId))
-                return new Response { Items = [], ItemTotal = 0, Total = 0, Currency = "USD", ItemCount = 0, CheckoutState = string.Empty };
+                return OrderResult.Errors.UserNotAuthenticated;
 
             // Query: Find the current user's active cart (Draft order).
             var cart = await dbContext.Set<Order>()
