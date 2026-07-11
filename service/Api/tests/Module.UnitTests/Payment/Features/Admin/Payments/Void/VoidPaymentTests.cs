@@ -40,7 +40,7 @@ public class VoidPaymentTests : IDisposable
 
         _processingServiceMock = new Mock<IPaymentProcessingService>();
         _processingServiceMock.Setup(x => x.VoidAsync(It.IsAny<PaymentCapture>(), It.IsAny<IPaymentGatewayActionProvider>(), It.IsAny<GatewayOptions>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(Result.Ok());
+            .ReturnsAsync(new PaymentProcessingResult());
         _handler = new VoidPayment.CommandHandler(_dbContext, _gatewayRegistryMock.Object, _processingServiceMock.Object);
     }
 
