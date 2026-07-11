@@ -7,7 +7,7 @@ public static class PaymentMethodConstant
         public const int MaxNameLength = 255;
         public const int MaxCodeLength = 50;
         public const int MaxDescriptionLength = 1000;
-        public const int MaxProviderTypeLength = 100;
+        public const int MaxProviderKeyLength = 50;
     }
 
     public static class Defaults
@@ -36,7 +36,7 @@ public static class PaymentMethodConstant
         public static readonly string[] AllowedFilterFields =
         [
             nameof(PaymentMethod.Active),
-            nameof(PaymentMethod.ProviderType),
+            nameof(PaymentMethod.ProviderKey),
             nameof(PaymentMethod.AutoCapture),
             nameof(PaymentMethod.DisplayOn),
             nameof(PaymentMethod.IsDeleted)
