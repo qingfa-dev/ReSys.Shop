@@ -85,6 +85,15 @@ public static partial class CreateOrderFromCart
             if (cart.LineItems.Count == 0)
                 return OrderResult.Errors.EmptyOrderCannotFinalize;
 
+            // Validate: Check for discontinued variants.
+            var discontinuedVariantIds = cart.LineItems
+                .Where(li => li.Variant is not null && li.Variant.DiscontinuedOn is not null)
+                .Select(li => li.VariantId)
+                .ToHashSet();
+
+            if (!cart.EnsureLineItemVariantsAreNotDiscontinued(discontinuedVariantIds))
+                return OrderResult.Errors.VariantDiscontinued;
+
             // Update: Place the order.
             cart.Status = OrderStatus.Placed;
             cart.CheckoutState = CheckoutState.Complete;
