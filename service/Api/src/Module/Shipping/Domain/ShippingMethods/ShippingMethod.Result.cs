@@ -83,4 +83,20 @@ public static class ShippingMethodResult
             message: "No shipping rate is available for this method.");
         #endregion Business
     }
+
+    /// <summary>
+    /// Contains precondition-failure error factories for shipping method operations.
+    /// </summary>
+    public static class Failure
+    {
+        /// <summary>Returns a conflict error when deactivating a method with active orders.</summary>
+        public static Error HasActiveOrders => Error.Conflict(
+            code: "ShippingMethod.Deactivate.HasActiveOrders",
+            message: "Cannot deactivate a shipping method that has active orders.");
+
+        /// <summary>Returns a conflict error when deleting a method with associated rates.</summary>
+        public static Error HasAssociatedRates => Error.Conflict(
+            code: "ShippingMethod.Delete.HasAssociatedRates",
+            message: "Cannot delete a shipping method with associated shipping rates.");
+    }
 }
