@@ -60,6 +60,7 @@ public static partial class CreatePaymentIntent
 
             var processResult = await processingService.ProcessAsync(payment, gateway, options, cancellationToken);
             if (processResult.IsFailure) return processResult.Errors;
+            // IntentClientSecret set by RecordGatewayResponse in PaymentProcessingService during ProcessAsync
 
             await dbContext.SaveChangesAsync(cancellationToken);
 
