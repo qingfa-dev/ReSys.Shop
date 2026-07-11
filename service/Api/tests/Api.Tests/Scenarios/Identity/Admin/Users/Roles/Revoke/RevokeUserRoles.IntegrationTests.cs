@@ -30,7 +30,7 @@ public sealed class RevokeUserRolesIntegrationTests(ApiFixture fixture) : Identi
         };
 
         using HttpRequestMessage revokeRequestMsg = IdentityTestHelper.CreateAdminRequest(
-            HttpMethod.Delete, $"/api/identity/users/{userId}/roles/revoke",
+            HttpMethod.Post, $"/api/identity/users/{userId}/roles/revoke",
             JsonContent.Create(revokeRequest));
 
         HttpResponseMessage response = await Client.SendAsync(revokeRequestMsg);
@@ -51,7 +51,7 @@ public sealed class RevokeUserRolesIntegrationTests(ApiFixture fixture) : Identi
         };
 
         using HttpRequestMessage adminRequest = IdentityTestHelper.CreateAdminRequest(
-            HttpMethod.Delete, $"/api/identity/users/{nonexistentId}/roles/revoke",
+            HttpMethod.Post, $"/api/identity/users/{nonexistentId}/roles/revoke",
             JsonContent.Create(request));
 
         HttpResponseMessage response = await Client.SendAsync(adminRequest);
@@ -72,7 +72,7 @@ public sealed class RevokeUserRolesIntegrationTests(ApiFixture fixture) : Identi
         };
 
         using HttpRequestMessage noAuthRequest = new HttpRequestMessage(
-            HttpMethod.Delete, $"/api/identity/users/{someId}/roles/revoke")
+            HttpMethod.Post, $"/api/identity/users/{someId}/roles/revoke")
         {
             Content = JsonContent.Create(request)
         };

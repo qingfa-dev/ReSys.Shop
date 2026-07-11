@@ -1,4 +1,4 @@
-namespace Module.Inventory.Services;
+namespace Module.Inventory.Services.Models;
 
 /// <summary>Result of a restock operation including backorder fulfillment details.</summary>
 public class RestockResult

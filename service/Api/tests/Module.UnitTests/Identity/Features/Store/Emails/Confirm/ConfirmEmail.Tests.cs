@@ -1,11 +1,9 @@
 using System.Text;
 
-using MediatR;
-
 using Microsoft.AspNetCore.Identity;
 
 using Module.Identity.Features.Store.Emails.Confirm;
-using Module.Profile.Features.Store.Profile.Create;
+using Module.Profile.Features.Store.Profiles.Create;
 using Module.UnitTests.Identity.Fixtures;
 
 using Shared.Operational.Notifications.Models;

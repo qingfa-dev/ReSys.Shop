@@ -1,6 +1,4 @@
-using Module.Payment.Services.Abstractions;
 using Module.Payment.Services.Models;
-using Module.Payment.Services.Gateways;
 using Module.Payment.Domain.PaymentMethods;
 
 namespace Module.Payment.Persistence.Seeders;

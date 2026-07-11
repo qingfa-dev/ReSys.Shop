@@ -56,7 +56,8 @@ app.UseHttpsRedirection();
 app.UseApplication();
 
 // Initialize: Apply pending migrations and run seeders before accepting traffic
+bool runMigrations = builder.Configuration.GetValue<bool>("DatabaseInitialization:RunMigrations");
 bool runSeeders = !app.Environment.IsProduction();
-await app.InitializeDatabaseAsync(runMigrations: true, runSeeders: runSeeders);
+await app.InitializeDatabaseAsync(runMigrations: runMigrations, runSeeders: runSeeders);
 
 await app.RunAsync();

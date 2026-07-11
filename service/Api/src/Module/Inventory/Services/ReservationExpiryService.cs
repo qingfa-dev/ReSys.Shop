@@ -26,7 +26,7 @@ public class ReservationExpiryService : BackgroundService
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
         // Log: Reservation expiry sweep started
-        _logger.LogInformation("Reservation expiry service started");
+        ReservationExpiryLoggers.ServiceStarted(_logger);
 
         while (!stoppingToken.IsCancellationRequested)
         {
@@ -52,17 +52,26 @@ public class ReservationExpiryService : BackgroundService
             catch (Exception ex)
             {
                 // Log: Non-fatal error during sweep — will retry on next interval
-                _logger.LogError(ex, "Error during reservation expiry sweep");
+                ReservationExpiryLoggers.SweepError(_logger, ex);
             }
         }
 
         // Log: Reservation expiry sweep stopped
-        _logger.LogInformation("Reservation expiry service stopped");
+        ReservationExpiryLoggers.ServiceStopped(_logger);
     }
 }
 
 public static partial class ReservationExpiryLoggers
 {
-    [Microsoft.Extensions.Logging.LoggerMessage(EventId = 2000, Level = Microsoft.Extensions.Logging.LogLevel.Information, Message = "Expired {Count} stock reservations and restored stock")]
-    public static partial void SweepCompleted(Microsoft.Extensions.Logging.ILogger logger, int Count);
+    [LoggerMessage(EventId = 2000, Level = LogLevel.Information, Message = "Expired {Count} stock reservations and restored stock")]
+    public static partial void SweepCompleted(ILogger logger, int Count);
+
+    [LoggerMessage(EventId = 2001, Level = LogLevel.Information, Message = "Reservation expiry service started")]
+    public static partial void ServiceStarted(ILogger logger);
+
+    [LoggerMessage(EventId = 2002, Level = LogLevel.Error, Message = "Error during reservation expiry sweep")]
+    public static partial void SweepError(ILogger logger, Exception ex);
+
+    [LoggerMessage(EventId = 2003, Level = LogLevel.Information, Message = "Reservation expiry service stopped")]
+    public static partial void ServiceStopped(ILogger logger);
 }

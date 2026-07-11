@@ -130,31 +130,12 @@ public sealed partial class Order
         return !LineItems.Any(li => discontinuedVariantIds.Contains(li.VariantId));
     }
 
-    // Enforce: Ensure all line items are in stock before completing checkout
-    // Note: Stock validation is performed in the CreateOrderFromCart handler.
-    //       This domain guard is retained for the state machine contract but delegates to handler-level checks.
-    [Obsolete("Stock validation is handled in CreateOrderFromCart handler")]
-    internal bool EnsureLineItemsAreInStock()
-    {
-        return true;
-    }
-
-    // Validate: Ensure line items are present before transitioning from cart
     internal bool EnsureLineItemsPresent()
     {
         if (LineItems.Count == 0)
         {
             return false;
         }
-        return true;
-    }
-
-    // Validate: Ensure available shipping rates exist
-    // Note: Shipping rate validation is performed in the UpdateCheckout handler.
-    //       This domain guard is retained for the state machine contract but delegates to handler-level checks.
-    [Obsolete("Shipping rate validation handled in UpdateCheckout handler")]
-    internal bool EnsureAvailableShippingRates()
-    {
         return true;
     }
 

@@ -1,5 +1,3 @@
-using Microsoft.EntityFrameworkCore;
-
 using Module.Inventory.Domain.StockReservations;
 using Module.Inventory.Features.Admin.StockReservations.Shared.Mappings;
 

@@ -1,9 +1,9 @@
 using Module.Profile.Domain;
-using Module.Profile.Features.Store.Profile.Shared.Mappings;
+using Module.Profile.Features.Store.Profiles.Shared.Mappings;
 
 using Shared.Operational.Persistence.Specifications.Paging.Extensions;
 
-namespace Module.Profile.Features.Store.Profile.Get.PagedOrAll;
+namespace Module.Profile.Features.Store.Profiles.Get.PagedOrAll;
 
 /// <summary>Retrieves all user profiles with pagination, filtering, and sorting.</summary>
 public static partial class GetProfilesPagedOrAll

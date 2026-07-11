@@ -1,5 +1,3 @@
-using Shared.Governance.Conventions;
-
 namespace Shared.Governance.Conventions;
 
 public static class DictionaryExtensions

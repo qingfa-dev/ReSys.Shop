@@ -1,8 +1,4 @@
-using Microsoft.EntityFrameworkCore;
-
 using Module.Profile.Domain.Wishlists;
-
-using Shared.Security.Identity.Domain.Users;
 
 namespace Module.Profile.Features.Store.Wishlists.RemoveItem;
 

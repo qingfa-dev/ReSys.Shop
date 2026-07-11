@@ -2,7 +2,7 @@ using Module.Inventory.Domain.StockLocations;
 using Module.Inventory.Domain.StockLocations.StockItems;
 using Module.Inventory.Features.Admin.StockItems.Shared.Mappings;
 using Module.Inventory.Features.Admin.StockItems.Shared.Models;
-using Module.Inventory.Services;
+using Module.Inventory.Services.Models;
 
 namespace Module.UnitTests.Inventory.Features.Admin.StockItems.Shared.Mappings;
 

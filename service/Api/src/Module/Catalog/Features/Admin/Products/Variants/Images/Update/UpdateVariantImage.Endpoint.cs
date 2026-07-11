@@ -1,6 +1,6 @@
 using Module.Catalog.Features.Shared;
 
-namespace Module.Catalog.Features.Admin.Products.Update;
+namespace Module.Catalog.Features.Admin.Products.Variants.Images.Update;
 
 public static partial class UpdateVariantImage
 {

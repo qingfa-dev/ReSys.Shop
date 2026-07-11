@@ -2,7 +2,7 @@ using Module.Catalog.Domain.Products.Variants.Images;
 using Module.Catalog.Features.Admin.Products.Variants.Images.Shared.Mappings;
 using Module.Catalog.Features.Admin.Products.Variants.Images.Shared.Models;
 
-namespace Module.Catalog.Features.Admin.Products.ListByVariant;
+namespace Module.Catalog.Features.Admin.Products.Variants.Images.ListByVariant;
 
 /// <summary>
 /// Defines the use case for listing images by variant.

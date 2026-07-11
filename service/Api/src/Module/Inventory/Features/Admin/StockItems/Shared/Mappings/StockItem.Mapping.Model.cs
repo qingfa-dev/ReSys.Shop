@@ -1,6 +1,6 @@
 using Module.Inventory.Domain.StockLocations.StockItems;
 using Module.Inventory.Features.Admin.StockItems.Shared.Models;
-using Module.Inventory.Services;
+using Module.Inventory.Services.Models;
 
 namespace Module.Inventory.Features.Admin.StockItems.Shared.Mappings;
 

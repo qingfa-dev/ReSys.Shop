@@ -1,6 +1,6 @@
-using Module.Profile.Features.Store.Profile.Shared.Models;
+using Module.Profile.Features.Store.Profiles.Shared.Models;
 
-namespace Module.Profile.Features.Store.Profile.Get.Detail;
+namespace Module.Profile.Features.Store.Profiles.Get.Detail;
 
 public static partial class GetProfile
 {

@@ -8,25 +8,17 @@ using Shared.Security.Identity.Domain.Users;
 
 using static Module.Identity.Features.Store.Auth.Logout.Logout;
 
-namespace Module.Tests.Identities.Features.Store.Auth.Logout;
+namespace Module.UnitTests.Identity.Features.Store.Auth.Logout;
 
 [Trait("Category", "Unit")]
 [Trait("Module", "Identity")]
 [Trait("Feature", "Logouts")]
 public class LogoutTests
 {
-    private readonly Mock<ICurrentUser> _currentUserMock;
-    private readonly Mock<IRefreshTokenService> _refreshTokenServiceMock;
-    private readonly Mock<UserManager<User>> _userManagerMock;
-    private readonly Mock<ILogger<Command>> _loggerMock;
-
-    public LogoutTests()
-    {
-        _currentUserMock = new Mock<ICurrentUser>();
-        _refreshTokenServiceMock = new Mock<IRefreshTokenService>();
-        _userManagerMock = IdentityMocks.CreateUserManagerMock<User>();
-        _loggerMock = new Mock<ILogger<Command>>();
-    }
+    private readonly Mock<ICurrentUser> _currentUserMock = new();
+    private readonly Mock<IRefreshTokenService> _refreshTokenServiceMock = new();
+    private readonly Mock<UserManager<User>> _userManagerMock = IdentityMocks.CreateUserManagerMock<User>();
+    private readonly Mock<ILogger<Command>> _loggerMock = new();
 
     private CommandHandler CreateHandler() => new(
         _currentUserMock.Object,

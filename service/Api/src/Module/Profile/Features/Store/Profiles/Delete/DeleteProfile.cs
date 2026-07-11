@@ -1,9 +1,8 @@
 using Module.Profile.Domain;
 
 using Shared.Application.Domain.Concerns.Auditable;
-using Shared.Security.Identity.Domain.Users;
 
-namespace Module.Profile.Features.Store.Profile.Delete;
+namespace Module.Profile.Features.Store.Profiles.Delete;
 
 /// <summary>Soft-deactivates the specified user's profile by marking it inactive.</summary>
 public static partial class DeleteProfile

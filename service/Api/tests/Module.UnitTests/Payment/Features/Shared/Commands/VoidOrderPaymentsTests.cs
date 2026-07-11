@@ -3,6 +3,8 @@ using Module.Payment.Features.Shared.Commands;
 using IPaymentGatewayActionProvider = Module.Payment.Services.Provider.IPaymentGatewayActionProvider;
 using IGatewayRegistry = Module.Payment.Services.Provider.IGatewayRegistry;
 using IPaymentProcessingService = Module.Payment.Services.Processing.IPaymentProcessingService;
+using PaymentProcessingResult = Module.Payment.Services.Processing.PaymentProcessingResult;
+using GatewayOptions = Module.Payment.Services.Provider.GatewayOptions;
 
 using Module.Payment.Services.Models;
 

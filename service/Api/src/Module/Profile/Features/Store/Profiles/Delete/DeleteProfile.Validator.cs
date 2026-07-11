@@ -1,4 +1,4 @@
-namespace Module.Profile.Features.Store.Profile.Delete;
+namespace Module.Profile.Features.Store.Profiles.Delete;
 
 public static partial class DeleteProfile
 {

@@ -6,7 +6,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 using Module.Catalog.Persistence;
 using Module.Location.Persistence;
-using Module.Ordering.Persistence.Constants;
+using Module.Ordering.Persistence;
 using Module.Profile.Persistence;
 
 using Npgsql;

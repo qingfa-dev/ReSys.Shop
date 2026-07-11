@@ -7,7 +7,7 @@ using Module.Catalog.Features.Admin.Products.Variants.Images.Embeddings.Shared.M
 
 namespace Module.Catalog.Features.Admin.Products.Variants.Images.Embeddings.Shared.Services;
 
-public sealed class EmbeddingOrchestrator : IEmbeddingOrchestrator
+public sealed partial class EmbeddingOrchestrator : IEmbeddingOrchestrator
 {
     private readonly IInferenceClient _inferenceClient;
     private readonly IApplicationDbContext _dbContext;
@@ -97,8 +97,7 @@ public sealed class EmbeddingOrchestrator : IEmbeddingOrchestrator
 
         await _dbContext.SaveChangesAsync(ct);
 
-        _logger.LogInformation("Embedding persisted for VariantImageId={VariantImageId} Model={ModelName} Id={EmbeddingId}",
-            variantImageId, modelName, embedding.Id);
+        Loggers.EmbeddingPersisted(_logger, variantImageId, modelName, embedding.Id);
 
         return Result<EmbeddingDetailResponse>.Ok(new EmbeddingDetailResponse
         {

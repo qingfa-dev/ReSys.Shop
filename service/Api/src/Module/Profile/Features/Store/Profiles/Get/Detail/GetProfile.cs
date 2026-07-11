@@ -1,9 +1,9 @@
 using Module.Profile.Domain;
-using Module.Profile.Features.Store.Profile.Shared.Mappings;
+using Module.Profile.Features.Store.Profiles.Shared.Mappings;
 
 using Shared.Security.Identity.Domain.Users;
 
-namespace Module.Profile.Features.Store.Profile.Get.Detail;
+namespace Module.Profile.Features.Store.Profiles.Get.Detail;
 
 /// <summary>Retrieves the full profile detail for the authenticated user.</summary>
 public static partial class GetProfile

@@ -1,7 +1,6 @@
 using Module.Inventory.Domain.StockLocations.StockItems;
 using Module.Inventory.Domain.StockLocations.StockItems.StockMovements;
 using Module.Inventory.Domain.StockReservations;
-using Shared.Security.Authentication.Contexts.Services;
 
 namespace Module.Inventory.Features.Admin.StockItems.Restock;
 

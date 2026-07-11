@@ -1,5 +1,4 @@
 using Module.Profile.Domain;
-using Module.Profile.Domain.Notifications;
 
 namespace Module.Profile.Features.Store.NotificationPreferences.Update;
 

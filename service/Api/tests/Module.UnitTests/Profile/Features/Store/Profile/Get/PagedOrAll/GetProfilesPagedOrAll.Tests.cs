@@ -1,5 +1,5 @@
 using Module.Profile.Domain;
-using Module.Profile.Features.Store.Profile.Get.PagedOrAll;
+using Module.Profile.Features.Store.Profiles.Get.PagedOrAll;
 using Module.UnitTests.Profile.Domain;
 
 namespace Module.UnitTests.Profile.Features.Store.Profile.Get.PagedOrAll;

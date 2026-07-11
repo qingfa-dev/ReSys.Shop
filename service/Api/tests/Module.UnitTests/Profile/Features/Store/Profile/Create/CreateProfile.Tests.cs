@@ -1,5 +1,5 @@
 using Module.Profile.Domain;
-using Module.Profile.Features.Store.Profile.Create;
+using Module.Profile.Features.Store.Profiles.Create;
 using Module.UnitTests.Profile.Domain;
 
 using Shared.Security.Identity.Domain.Users;

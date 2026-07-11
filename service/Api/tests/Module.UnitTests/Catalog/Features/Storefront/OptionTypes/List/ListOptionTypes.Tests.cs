@@ -2,7 +2,7 @@ using Module.Catalog.Domain.OptionTypes;
 using Module.Catalog.Domain.OptionTypes.Values;
 using Module.Catalog.Features.Storefront.OptionTypes.Get.All;
 
-namespace Module.UnitTests.Catalog.Features.Storefront.OptionTypes.Get.All;
+namespace Module.UnitTests.Catalog.Features.Storefront.OptionTypes.List;
 
 [Trait("Category", "Unit")]
 [Trait("Module", "Catalog")]

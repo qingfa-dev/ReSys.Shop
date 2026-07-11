@@ -1,8 +1,6 @@
 using Module.Profile.Domain;
-using Module.Profile.Features.Store.Profile.Update;
+using Module.Profile.Features.Store.Profiles.Update;
 using Module.UnitTests.Profile.Domain;
-
-using Moq;
 
 namespace Module.UnitTests.Profile.Features.Store.Profile.Update;
 

@@ -1,9 +1,9 @@
 using Module.Profile.Domain;
 using Module.Profile.Domain.Notifications;
 using Module.Profile.Domain.Preferences;
-using Module.Profile.Features.Store.Profile.Shared.Models;
+using Module.Profile.Features.Store.Profiles.Shared.Models;
 
-namespace Module.Profile.Features.Store.Profile.Shared.Validators;
+namespace Module.Profile.Features.Store.Profiles.Shared.Validators;
 
 public static partial class ProfileValidator
 {

@@ -33,35 +33,43 @@ public static class RateLimitExtensions
 
         RateLimitSetting setting = builder.Configuration.GetSection(RateLimitSetting.SectionName).Get<RateLimitSetting>() ?? new();
 
-        if (!setting.Enabled)
-            return builder;
-
         builder.Services.AddRateLimiter(options =>
         {
             options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
-            options.GlobalLimiter = PartitionedRateLimiter.Create<HttpContext, string>(httpContext =>
-                RateLimitPartition.GetFixedWindowLimiter(
-                    partitionKey: httpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown",
-                    factory: _ =>
-                    {
-                        var cfg = setting.Policies.GetValueOrDefault(DefaultPolicy, new RateLimitPolicyConfig());
-                        return new FixedWindowRateLimiterOptions
-                        {
-                            PermitLimit = cfg.PermitLimit,
-                            Window = TimeSpan.FromSeconds(cfg.WindowSeconds),
-                            QueueProcessingOrder = QueueProcessingOrder.OldestFirst,
-                            QueueLimit = 0,
-                            AutoReplenishment = true
-                        };
-                    }));
 
-            AddNamedPolicy(options, AuthPolicy, setting.Policies, ipPartition: true);
-            AddNamedPolicy(options, RegisterPolicy, setting.Policies, ipPartition: true);
-            AddNamedPolicy(options, ForgotPasswordPolicy, setting.Policies, ipPartition: true);
-            AddNamedPolicy(options, PaymentPolicy, setting.Policies, ipPartition: true, userPartition: true);
+            if (!setting.Enabled)
+                return;
+
+            ConfigurePolicies(options, setting);
+
+            return;
         });
 
         return builder;
+    }
+
+    private static void ConfigurePolicies(RateLimiterOptions options, RateLimitSetting setting)
+    {
+        options.GlobalLimiter = PartitionedRateLimiter.Create<HttpContext, string>(httpContext =>
+            RateLimitPartition.GetFixedWindowLimiter(
+                partitionKey: httpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown",
+                factory: _ =>
+                {
+                    var cfg = setting.Policies.GetValueOrDefault(DefaultPolicy, new RateLimitPolicyConfig());
+                    return new FixedWindowRateLimiterOptions
+                    {
+                        PermitLimit = cfg.PermitLimit,
+                        Window = TimeSpan.FromSeconds(cfg.WindowSeconds),
+                        QueueProcessingOrder = QueueProcessingOrder.OldestFirst,
+                        QueueLimit = 0,
+                        AutoReplenishment = true
+                    };
+                }));
+
+        AddNamedPolicy(options, AuthPolicy, setting.Policies, ipPartition: true);
+        AddNamedPolicy(options, RegisterPolicy, setting.Policies, ipPartition: true);
+        AddNamedPolicy(options, ForgotPasswordPolicy, setting.Policies, ipPartition: true);
+        AddNamedPolicy(options, PaymentPolicy, setting.Policies, ipPartition: true, userPartition: true);
     }
 
     private static void AddNamedPolicy(

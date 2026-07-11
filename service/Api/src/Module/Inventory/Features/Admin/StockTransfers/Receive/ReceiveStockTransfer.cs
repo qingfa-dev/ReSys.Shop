@@ -1,5 +1,3 @@
-using Microsoft.EntityFrameworkCore;
-
 using Module.Inventory.Domain.StockLocations.StockItems;
 using Module.Inventory.Domain.StockLocations.StockItems.StockMovements;
 using Module.Inventory.Domain.StockTransfers;

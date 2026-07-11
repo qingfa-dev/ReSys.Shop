@@ -1,5 +1,5 @@
-using Module.Profile.Features.Store.Profile.Shared.Models;
-using Module.Profile.Features.Store.Profile.Shared.Validators;
+using Module.Profile.Features.Store.Profiles.Shared.Models;
+using Module.Profile.Features.Store.Profiles.Shared.Validators;
 
 namespace Module.UnitTests.Profile.Features.Store.Profile.Shared.Validators;
 

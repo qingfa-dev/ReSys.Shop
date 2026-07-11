@@ -1,6 +1,6 @@
 
 using Module.Catalog.Domain.Products.Variants.Images;
-using Module.Catalog.Features.Admin.Products.Update;
+using Module.Catalog.Features.Admin.Products.Variants.Images.Update;
 
 namespace Module.UnitTests.Catalog.Features.Admin.Products.Variants.Images.Update;
 

@@ -6,7 +6,7 @@ using Shared.Security.Identity.Domain.Users;
 
 namespace Shared.Security.Authentication.External.Providers.Microsoft;
 
-public sealed class MicrosoftExternalProvider(
+public sealed partial class MicrosoftExternalProvider(
     IOptions<MicrosoftOptions> options,
     ILogger<MicrosoftExternalProvider> logger,
     IMicrosoftTokenValidator tokenValidator) : IExternalLoginProvider
@@ -44,7 +44,7 @@ public sealed class MicrosoftExternalProvider(
         }
         catch (Exception ex)
         {
-            _logger.LogWarning(ex, "Microsoft access token validation failed");
+            Loggers.TokenValidationError(_logger, ex);
             return UserResult.Failure.ExternalLoginTokenInvalid;
         }
     }

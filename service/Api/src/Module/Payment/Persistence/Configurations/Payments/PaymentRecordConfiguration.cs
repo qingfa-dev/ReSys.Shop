@@ -1,9 +1,7 @@
-using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Module.Ordering.Domain.Orders;
 using Module.Payment.Domain.PaymentCaptures;
 using Module.Payment.Domain.PaymentMethods;
-using Module.Payment.Persistence;
 
 namespace Module.Payment.Persistence.Configurations.Payments;
 

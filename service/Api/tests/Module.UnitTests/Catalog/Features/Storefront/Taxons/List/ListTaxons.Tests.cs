@@ -2,7 +2,7 @@ using Module.Catalog.Domain.Taxonomies;
 using Module.Catalog.Domain.Taxonomies.Taxons;
 using Module.Catalog.Features.Storefront.Taxons.Get.All;
 
-namespace Module.UnitTests.Catalog.Features.Storefront.Taxons.Get.All;
+namespace Module.UnitTests.Catalog.Features.Storefront.Taxons.List;
 
 [Trait("Category", "Unit")]
 [Trait("Module", "Catalog")]

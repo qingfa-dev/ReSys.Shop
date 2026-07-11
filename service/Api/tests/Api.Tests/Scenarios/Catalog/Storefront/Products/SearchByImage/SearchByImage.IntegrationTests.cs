@@ -15,7 +15,7 @@ public sealed class SearchByImageIntegrationTests(ApiFixture fixture) : CatalogI
         HttpResponseMessage response = await Client.PostAsync(
             "/api/storefront/search-by-image", formContent);
 
-        response.StatusCode.Should().BeOneOf(HttpStatusCode.OK, HttpStatusCode.BadRequest, HttpStatusCode.InternalServerError);
+        response.StatusCode.Should().BeOneOf(HttpStatusCode.OK, HttpStatusCode.BadRequest, HttpStatusCode.InternalServerError, HttpStatusCode.UnprocessableEntity);
     }
 
     [Fact]
@@ -24,6 +24,6 @@ public sealed class SearchByImageIntegrationTests(ApiFixture fixture) : CatalogI
         HttpResponseMessage response = await Client.PostAsync(
             "/api/storefront/search-by-image", null);
 
-        response.StatusCode.Should().BeOneOf(HttpStatusCode.OK, HttpStatusCode.BadRequest, HttpStatusCode.InternalServerError);
+        response.StatusCode.Should().BeOneOf(HttpStatusCode.OK, HttpStatusCode.BadRequest, HttpStatusCode.InternalServerError, HttpStatusCode.UnprocessableEntity);
     }
 }

@@ -4,9 +4,8 @@ using Module.Catalog.Domain.Products;
 using Module.Catalog.Domain.Products.Variants;
 using Module.Catalog.Domain.Products.Variants.Options;
 using Module.Catalog.Domain.Products.Variants.Prices;
-using Module.Catalog.Features.Storefront.Products.Get.Availability;
 
-namespace Module.UnitTests.Catalog.Features.Storefront.Products.Get.Availability;
+namespace Module.UnitTests.Catalog.Features.Storefront.Products.GetAvailability;
 
 [Trait("Category", "Unit")]
 [Trait("Module", "Catalog")]
@@ -14,7 +13,7 @@ namespace Module.UnitTests.Catalog.Features.Storefront.Products.Get.Availability
 public class GetProductAvailabilityTests : IDisposable
 {
     private readonly ApplicationDbContext _dbContext;
-    private readonly GetAvailability.QueryHandler _handler;
+    private readonly Module.Catalog.Features.Storefront.Products.Get.Availability.GetAvailability.QueryHandler _handler;
 
     public GetProductAvailabilityTests()
     {
@@ -25,7 +24,7 @@ public class GetProductAvailabilityTests : IDisposable
         ApplicationDbContext.AdditionalConfigurationsAssemblies = [typeof(Product).Assembly];
         _dbContext = new ApplicationDbContext(options);
 
-        _handler = new GetAvailability.QueryHandler(_dbContext);
+        _handler = new Module.Catalog.Features.Storefront.Products.Get.Availability.GetAvailability.QueryHandler(_dbContext);
     }
 
     public void Dispose()
@@ -54,7 +53,7 @@ public class GetProductAvailabilityTests : IDisposable
         _dbContext.Set<Product>().Add(product);
         await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 
-        var result = await _handler.Handle(new GetAvailability.Query(product.Id), TestContext.Current.CancellationToken);
+        var result = await _handler.Handle(new Module.Catalog.Features.Storefront.Products.Get.Availability.GetAvailability.Query(product.Id), TestContext.Current.CancellationToken);
 
         result.IsSuccess.Should().BeTrue();
         result.Value.Axes.Should().NotBeEmpty();
@@ -69,7 +68,7 @@ public class GetProductAvailabilityTests : IDisposable
         _dbContext.Set<Product>().Add(product);
         await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 
-        var result = await _handler.Handle(new GetAvailability.Query(product.Id), TestContext.Current.CancellationToken);
+        var result = await _handler.Handle(new Module.Catalog.Features.Storefront.Products.Get.Availability.GetAvailability.Query(product.Id), TestContext.Current.CancellationToken);
 
         result.IsSuccess.Should().BeTrue();
         result.Value.Axes.Should().BeEmpty();

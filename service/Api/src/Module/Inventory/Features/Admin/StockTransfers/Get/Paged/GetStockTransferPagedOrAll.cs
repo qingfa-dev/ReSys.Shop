@@ -1,5 +1,3 @@
-using Microsoft.EntityFrameworkCore;
-
 using Module.Inventory.Domain.StockTransfers;
 
 namespace Module.Inventory.Features.Admin.StockTransfers.Get.Paged;

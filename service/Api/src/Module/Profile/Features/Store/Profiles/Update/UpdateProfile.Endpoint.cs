@@ -1,6 +1,6 @@
 using Module.Profile.Features.Shared;
 
-namespace Module.Profile.Features.Store.Profile.Update;
+namespace Module.Profile.Features.Store.Profiles.Update;
 
 public static partial class UpdateProfile
 {
