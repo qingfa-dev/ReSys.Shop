@@ -1,6 +1,7 @@
 using Module.Inventory.Domain.StockLocations.StockItems;
 using Module.Inventory.Domain.StockLocations.StockItems.StockMovements;
 using Module.Inventory.Domain.StockReservations;
+using Shared.Security.Authentication.Contexts.Services;
 
 namespace Module.Inventory.Features.Admin.StockItems.Restock;
 
@@ -9,7 +10,10 @@ public static partial class RestockStockItem
 {
     public sealed record Command(Guid Id, Request Request) : ICommand<Response>;
 
-    public sealed class CommandHandler(IApplicationDbContext dbContext)
+    public sealed class CommandHandler(
+        IApplicationDbContext dbContext,
+        ICurrentUser currentUser,
+        ILogger<CommandHandler> logger)
         : ICommandHandler<Command, Response>
     {
         /// <summary>Executes the restock stock item command.</summary>
@@ -32,7 +36,6 @@ public static partial class RestockStockItem
             if (stockItem is null)
                 return StockItemResult.Errors.NotFound(stockItemId);
 
-            var previousCount = stockItem.CountOnHand;
             var totalFulfilled = 0;
             var fullyFulfilled = 0;
             var partiallyFulfilled = 0;
@@ -83,6 +86,7 @@ public static partial class RestockStockItem
                 }
             }
 
+            var previousCount = stockItem.CountOnHand;
             stockItem.CountOnHand += remaining;
             stockItem.ModifiedAtUtc = DateTimeOffset.UtcNow;
 
@@ -94,17 +98,15 @@ public static partial class RestockStockItem
                 reason: reason,
                 action: "restock");
 
-            Guid movementId;
-            if (restockMovement.IsSuccess)
-            {
-                dbContext.Set<StockMovement>().Add(restockMovement.Value);
-                movementId = restockMovement.Value.Id;
-            }
-            else
-            {
-                movementId = Guid.Empty;
-            }
+            if (restockMovement.IsFailure)
+                return restockMovement.Errors;
 
+            dbContext.Set<StockMovement>().Add(restockMovement.Value);
+            var movementId = restockMovement.Value.Id;
+
+            StockItemLoggers.Restocked(logger, Quantity: quantity, Id: stockItem.Id, ActionBy: currentUser.UserName);
+
+            stockItem.ModifiedBy = currentUser.UserName;
             await dbContext.SaveChangesAsync(cancellationToken);
 
             return new Response
