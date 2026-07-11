@@ -1,4 +1,4 @@
-using Module.Inventory.Services.Abstractions;
+using Shared.Application.Contracts.Inventory;
 using Module.Ordering.Domain.Orders;
 using Module.Ordering.Features.Admin.Orders.UpdateStatus;
 
