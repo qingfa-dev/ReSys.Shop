@@ -1,4 +1,5 @@
 using Module.Inventory.Domain.StockLocations.StockItems;
+using Module.Inventory.Domain.StockLocations.StockItems.StockMovements;
 using Module.Inventory.Domain.StockTransfers;
 
 namespace Module.Inventory.Features.Admin.StockTransfers.Cancel;
@@ -42,6 +43,17 @@ public static partial class CancelStockTransfer
                     {
                         stockItem.CountOnHand += item.Quantity;
                         stockItem.ModifiedAtUtc = DateTimeOffset.UtcNow;
+
+                        var movement = StockMovementMethod.Create(
+                            stockItemId: stockItem.Id,
+                            quantity: item.Quantity,
+                            previousCountOnHand: stockItem.CountOnHand - item.Quantity,
+                            originatorType: "Transfer",
+                            originatorId: transfer.Id,
+                            action: "transfer_canceled");
+
+                        if (movement.IsSuccess)
+                            dbContext.Set<StockMovement>().Add(movement.Value);
                     }
                 }
             }
