@@ -100,5 +100,20 @@ public static class OrderResult
         public static Error QuantityNotPositive => Error.Validation(
             code: "Order.Quantity.NotPositive",
             message: "Quantity must be greater than zero.");
+
+        /// <summary>Line items can only be removed from Draft orders.</summary>
+        public static Error InvalidStatusForLineItemRemove => Error.Validation(
+            code: "Order.RemoveLineItem.InvalidStatus",
+            message: "Line items can only be removed from Draft orders.");
+
+        /// <summary>Only Draft or Expired orders can be deleted.</summary>
+        public static Error InvalidStatusForDelete => Error.Validation(
+            code: "Order.Delete.InvalidStatus",
+            message: "Only Draft or Expired orders can be deleted.");
+
+        /// <summary>Order ID is required.</summary>
+        public static Error IdRequired => Error.Validation(
+            code: "Order.IdRequired",
+            message: "Order identifier is required.");
     }
 }
