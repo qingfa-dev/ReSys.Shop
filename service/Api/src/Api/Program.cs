@@ -33,7 +33,7 @@ builder.AddPerformance();
 builder.AddSecurity();
 builder.AddOperational(additionalAssemblies);
 
-// Configure: Add moudular
+// Configure: Add modular
 builder.AddLocationModule();
 builder.AddIdentityModule();
 builder.AddProfilesModule();
