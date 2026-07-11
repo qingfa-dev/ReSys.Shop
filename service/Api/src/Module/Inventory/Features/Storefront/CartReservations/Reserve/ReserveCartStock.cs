@@ -1,3 +1,5 @@
+using System.Data;
+
 using Module.Inventory.Domain.StockLocations.StockItems;
 using Module.Inventory.Domain.StockReservations;
 
@@ -26,39 +28,61 @@ public static partial class ReserveCartStock
             if (quantity <= 0)
                 return StockReservationResult.Errors.QuantityZero;
 
-            var stockItem = await dbContext.Set<StockItem>()
-                .FirstOrDefaultAsync(si => si.VariantId == variantId && si.StockLocationId == stockLocationId, cancellationToken);
+            await using var transaction = await dbContext.Database.BeginTransactionAsync(
+                IsolationLevel.Serializable, cancellationToken);
 
-            if (stockItem is null)
-                return StockReservationResult.Errors.InsufficientStock;
-
-            var reserved = await dbContext.Set<StockReservation>()
-                .Where(r => r.VariantId == variantId
-                            && r.StockLocationId == stockLocationId
-                            && r.State == ReservationState.Reserved
-                            && r.ExpiresAtUtc > DateTimeOffset.UtcNow)
-                .SumAsync(r => r.Quantity, cancellationToken);
-
-            var available = stockItem.CountOnHand - reserved;
-            if (available < quantity)
-                return StockReservationResult.Errors.InsufficientStock;
-
-            var result = StockReservationMethod.Reserve(variantId, quantity, stockLocationId, null, ttlMinutes, cartToken: cartToken);
-            if (result.IsFailure) return result.Errors;
-
-            var reservation = result.Value;
-            dbContext.Set<StockReservation>().Add(reservation);
-
-            await dbContext.SaveChangesAsync(cancellationToken);
-
-            return new Response
+            try
             {
-                Id = reservation.Id,
-                VariantId = reservation.VariantId,
-                Quantity = reservation.Quantity,
-                ExpiresAtUtc = reservation.ExpiresAtUtc!.Value,
-                State = reservation.State.ToString()
-            };
+                var stockItem = await dbContext.Set<StockItem>()
+                    .FromSqlRaw("SELECT * FROM inventory.stock_items WHERE variant_id = {0} AND stock_location_id = {1} FOR UPDATE",
+                        variantId, stockLocationId)
+                    .FirstOrDefaultAsync(cancellationToken);
+
+                if (stockItem is null)
+                {
+                    await transaction.RollbackAsync(cancellationToken);
+                    return StockReservationResult.Errors.InsufficientStock;
+                }
+
+                var reserved = await dbContext.Set<StockReservation>()
+                    .Where(r => r.VariantId == variantId
+                                && r.StockLocationId == stockLocationId
+                                && r.State == ReservationState.Reserved
+                                && r.ExpiresAtUtc > DateTimeOffset.UtcNow)
+                    .SumAsync(r => r.Quantity, cancellationToken);
+
+                var available = stockItem.CountOnHand - reserved;
+                if (available < quantity)
+                {
+                    await transaction.RollbackAsync(cancellationToken);
+                    return StockReservationResult.Errors.InsufficientStock;
+                }
+
+                var result = StockReservationMethod.Reserve(variantId, quantity, stockLocationId, null, ttlMinutes, cartToken: cartToken);
+                if (result.IsFailure)
+                {
+                    await transaction.RollbackAsync(cancellationToken);
+                    return result.Errors;
+                }
+
+                dbContext.Set<StockReservation>().Add(result.Value);
+                await dbContext.SaveChangesAsync(cancellationToken);
+                await transaction.CommitAsync(cancellationToken);
+
+                return new Response
+                {
+                    Id = result.Value.Id,
+                    VariantId = result.Value.VariantId,
+                    Quantity = result.Value.Quantity,
+                    ExpiresAtUtc = result.Value.ExpiresAtUtc!.Value,
+                    State = result.Value.State.ToString()
+                };
+            }
+            catch
+            {
+                await transaction.RollbackAsync(cancellationToken);
+                throw;
+            }
         }
     }
 }
