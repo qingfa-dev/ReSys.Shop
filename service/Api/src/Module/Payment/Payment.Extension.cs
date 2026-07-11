@@ -40,7 +40,7 @@ public static class PaymentExtension
         }
 
         // Register: Stripe webhook service
-        services.AddSingleton<IStripeWebhookService, StripeWebhookService>();
+        services.AddSingleton<IStripeWebhookService, StripeWebhookHandler>();
 
         // Register: Seeders
         builder.AddSeeder<PaymentMethodSeeder>();

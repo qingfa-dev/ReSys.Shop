@@ -4,7 +4,7 @@ using Stripe;
 
 namespace Module.Payment.Infrastructure.Gateways.Stripe;
 
-public sealed class StripeWebhookHandler : IWebhookHandler
+public sealed class StripeWebhookHandler : IWebhookHandler, IStripeWebhookService
 {
     private readonly StripeOptions _options;
 

@@ -22,7 +22,7 @@ public static partial class CancelOrderAdmin
         ICurrentUser currentUser,
         INotificationService notificationService,
         ILogger<CommandHandler> logger,
-        IPaymentGatewayActionProvider paymentGateway,
+        IGatewayRegistry gatewayRegistry,
         IStockQuantityService stockChecker) : ICommandHandler<Command, Response>
     {
         /// <summary>Voids payments, releases inventory for placed orders, persists the cancellation, and notifies the customer.</summary>
@@ -51,18 +51,25 @@ public static partial class CancelOrderAdmin
 
             foreach (var payment in payments)
             {
-                var options = new GatewayOptions(payment)
+                var gatewayResult = gatewayRegistry.GetGateway(payment.ProviderKey);
+                if (gatewayResult.IsFailure)
+                {
+                    logger.LogWarning("Failed to find gateway for payment {PaymentId} for order {OrderId}: {Errors}",
+                        payment.Id, order.Id, string.Join("; ", gatewayResult.Errors.Select(f => f.Message)));
+                    continue;
+                }
+                var gw = gatewayResult.Value;
+
+                var options = new GatewayOptions
                 {
                     Email = order.Email ?? string.Empty,
-                    StatementDescriptorSuffix = string.Empty,
                     Customer = order.Email ?? string.Empty,
-                    CustomerId = currentUser.UserId,
-                    Ip = currentUser.IpAddress,
                     OrderId = $"{order.Number}-{payment.Number}",
                     PaymentId = payment.Number,
-                    IdempotencyKey = $"spree-{payment.Number}"
+                    IdempotencyKey = GatewayConstants.Idempotency.ForPayment(payment.Number),
+                    StatementDescriptorSuffix = string.Empty,
                 };
-                var voidResult = await payment.VoidTransactionAsync(paymentGateway, options, cancellationToken: cancellationToken);
+                var voidResult = await payment.VoidTransactionAsync(gw, options, cancellationToken: cancellationToken);
                 if (voidResult.IsFailure)
                 {
                     logger.LogWarning("Failed to void payment {PaymentId} for order {OrderId}: {Errors}",
