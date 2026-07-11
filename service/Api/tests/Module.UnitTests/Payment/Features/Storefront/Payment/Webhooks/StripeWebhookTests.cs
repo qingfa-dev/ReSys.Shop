@@ -1,7 +1,8 @@
+using Microsoft.Extensions.Logging;
 using Module.Payment.Services.Abstractions;
-using Module.Payment.Services.Webhooks;
+using Module.Payment.Services.Models;
 using Module.Payment.Features.Storefront.Payment.Webhooks;
-using Module.Payment.Services.Gateways;
+using Stripe;
 
 using PaymentCapture = Module.Payment.Domain.PaymentCaptures.PaymentCapture;
 
@@ -14,6 +15,7 @@ public class StripeWebhookTests : IDisposable
 {
     private readonly ApplicationDbContext _dbContext;
     private readonly Mock<IStripeWebhookService> _webhookMock;
+    private readonly Mock<ILogger<StripeWebhook.CommandHandler>> _loggerMock;
     private readonly StripeWebhook.CommandHandler _handler;
 
     public StripeWebhookTests()
@@ -24,7 +26,8 @@ public class StripeWebhookTests : IDisposable
         _dbContext = new ApplicationDbContext(opts);
         _webhookMock = new Mock<IStripeWebhookService>();
         _webhookMock.Setup(x => x.ValidateSignature(It.IsAny<string>(), It.IsAny<string>())).Returns(true);
-        _handler = new StripeWebhook.CommandHandler(_dbContext, _webhookMock.Object);
+        _loggerMock = new Mock<ILogger<StripeWebhook.CommandHandler>>();
+        _handler = new StripeWebhook.CommandHandler(_dbContext, _webhookMock.Object, _loggerMock.Object);
     }
 
     public void Dispose() { _dbContext.Dispose(); GC.SuppressFinalize(this); }
@@ -53,5 +56,19 @@ public class StripeWebhookTests : IDisposable
         var result = await _handler.Handle(new StripeWebhook.Command("bad", "valid"), TestContext.Current.CancellationToken);
         result.IsFailure.Should().BeTrue();
         result.Errors[0].Code.Should().Be("Stripe.Webhook.InvalidPayload");
+    }
+
+    [Fact(DisplayName = "Webhook: charge dispute created returns success")]
+    public async Task Handle_DisputeCreated_Should_Return_Success()
+    {
+        var dispute = new Dispute { ChargeId = "ch_123", Reason = "fraudulent" };
+        var stripeEvent = new global::Stripe.Event
+        {
+            Type = GatewayConstants.WebhookEvents.Stripe.ChargeDisputeCreated,
+            Data = new global::Stripe.EventData { Object = dispute }
+        };
+        _webhookMock.Setup(x => x.ParseEvent(It.IsAny<string>())).Returns(stripeEvent);
+        var result = await _handler.Handle(new StripeWebhook.Command("{}", "valid"), TestContext.Current.CancellationToken);
+        result.IsSuccess.Should().BeTrue();
     }
 }
