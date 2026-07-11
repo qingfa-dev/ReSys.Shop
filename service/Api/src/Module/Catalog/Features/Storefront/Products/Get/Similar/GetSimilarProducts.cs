@@ -14,14 +14,15 @@ public static partial class GetSimilarProducts
         : ICommandHandler<Query, Response>
     {
         /// <summary>
-        /// Handles the request and returns a result.
+        /// Finds visually similar products using pgvector cosine distance on image embeddings.
         /// </summary>
-        /// <param name="request">The query containing request data.</param>
-        /// <param name="cancellationToken">The cancellation token.</param>
-        // Contract: pre=request!=null, post=result!=null
+        /// <param name="request">The query containing the product ID.</param>
+        /// <param name="cancellationToken">Propagates cancellation notification.</param>
+        /// <returns>A success result with the list of similar product variants.</returns>
+        // Contract: pre=request.Id!=Guid.Empty, post=result!=null
         public async Task<Result<Response>> Handle(Query request, CancellationToken cancellationToken)
         {
-            // Validate: Find the variant and its product.
+            // Load: Find the variant and its product.
             var variant = await dbContext.Set<Variant>()
                 .Include(x => x.Product)
                 .AsNoTracking()
@@ -30,7 +31,7 @@ public static partial class GetSimilarProducts
             if (variant is null || variant.Product is null)
                 return Result<Response>.NotFound();
 
-            // Query: Get the embedding vector for the variant's primary image.
+            // Load: Get the embedding vector for the variant's primary image.
             var queryVector = await dbContext.Set<ImageEmbedding>()
                 .Include(ie => ie.VariantImage)
                 .Where(ie => ie.VariantImage.VariantId == variant.Id)
@@ -40,14 +41,14 @@ public static partial class GetSimilarProducts
             if (queryVector is null)
                 return Result<Response>.Ok(new Response { Items = [] });
 
-            // Query: Find visually similar variants using cosine distance.
+            // Load: Find visually similar variants using cosine distance.
             // Using raw SQL for pgvector distance operator.
             var similarVariants = await dbContext.Set<Variant>()
                 .FromSqlRaw(@"
                     SELECT DISTINCT v.*
-                    FROM ""Variants"" v
-                    INNER JOIN ""VariantImages"" vi ON vi.""VariantId"" = v.""Id""
-                    INNER JOIN ""ImageEmbeddings"" ie ON ie.""VariantImageId"" = vi.""Id""
+                    FROM catalog.variants v
+                    INNER JOIN catalog.product_images vi ON vi.variant_id = v.id
+                    INNER JOIN catalog.product_image_embeddings ie ON ie.variant_image_id = vi.id
                     WHERE v.""ProductId"" != {0}
                       AND v.""IsDeleted"" = false
                       AND vi.""Type"" = 'Default'
@@ -56,6 +57,7 @@ public static partial class GetSimilarProducts
                     variant.ProductId, queryVector)
                 .Include(x => x.Product)
                 .Include(x => x.Prices)
+                .OrderBy(v => v.Position).ThenBy(v => v.IsMaster ? 0 : 1)
                 .AsNoTracking()
                 .ToListAsync(cancellationToken);
 
@@ -69,7 +71,7 @@ public static partial class GetSimilarProducts
                 Price = v.Price ?? 0
             }).ToList();
 
-            return new Response { Items = items };
+            return Result<Response>.Ok(new Response { Items = items });
         }
     }
 }
