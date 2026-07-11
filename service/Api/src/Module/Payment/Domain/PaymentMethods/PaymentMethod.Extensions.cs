@@ -1,6 +1,6 @@
 namespace Module.Payment.Domain.PaymentMethods;
 
-public static class PaymentMethodExtensions
+public static class PaymentMethodMethod
 {
     #region Factory Methods
     public static Result<PaymentMethod> Create(

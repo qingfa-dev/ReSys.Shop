@@ -1,24 +1,8 @@
 namespace Module.Payment.Domain.Gateways;
 
+/// <summary>Gateway-level contract values: provider keys, Stripe/Bogus domain strings, webhook events, response messages, error codes.</summary>
 public static class GatewayConstants
 {
-    public static class Constraints
-    {
-        public const int MaxProviderKeyLength = 50;
-        public const int MaxWebhookUrlLength = 500;
-        public const int MaxWebhookSecretLength = 500;
-        public const int MaxPaymentNumberLength = 50;
-        public const int MaxResponseCodeLength = 255;
-        public const int MaxAvsResponseLength = 255;
-        public const int MaxCvvCodeLength = 10;
-        public const int MaxCvvMessageLength = 255;
-        public const int MaxSourceTypeLength = 100;
-        public const int MaxIntentClientSecretLength = 500;
-        public const int MinSettingsEncryptionKeyLength = 32;
-        public const int Precision = 18;
-        public const int Scale = 2;
-    }
-
     public static class Providers
     {
         public const string Stripe = "stripe";
@@ -28,18 +12,6 @@ public static class GatewayConstants
     public static class Currency
     {
         public const string Usd = "USD";
-    }
-
-    public static class Amount
-    {
-        public const long CentsMultiplier = 100;
-    }
-
-    public static class PaymentNumber
-    {
-        public const string Prefix = "PAY-";
-        public const string DateFormat = "yyyyMMdd";
-        public const string Format = $"{Prefix}{{{DateFormat}}}-";
     }
 
     public static class Idempotency

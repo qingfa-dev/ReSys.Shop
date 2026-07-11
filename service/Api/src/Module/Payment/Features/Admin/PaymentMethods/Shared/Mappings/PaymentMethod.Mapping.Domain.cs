@@ -9,7 +9,7 @@ public static partial class PaymentMethodMapping
     /// <summary>Maps a request to a new PaymentMethod domain entity (create).</summary>
     public static Result<PaymentRecord> MapToDomain<T>(this T request) where T : Models.PaymentMethodRequest
     {
-        return PaymentMethodExtensions.Create(
+        return PaymentMethodMethod.Create(
             name: request.Name,
             code: request.Code,
             providerKey: request.ProviderKey,

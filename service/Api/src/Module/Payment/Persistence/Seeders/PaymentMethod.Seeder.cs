@@ -15,9 +15,9 @@ public sealed class PaymentMethodSeeder(IApplicationDbContext context) : Abstrac
 
         var methods = new[]
         {
-            PaymentMethodExtensions.Create(
+            PaymentMethodMethod.Create(
                 "Credit Card", "credit_card", GatewayConstants.Providers.Stripe, autoCapture: true),
-            PaymentMethodExtensions.Create(
+            PaymentMethodMethod.Create(
                 "Bank Transfer", "bank_transfer", GatewayConstants.Providers.Stripe,
                 displayOn: DisplayOn.Backend),
         };
