@@ -1,7 +1,7 @@
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Shared.Operational.Persistence.Health;
 
-namespace Shared.UnitTests.Shared;
+namespace Shared.UnitTests.Operational.Persistence.Health;
 
 [Trait("Category", "Unit")]
 [Trait("Module", "Shared")]
