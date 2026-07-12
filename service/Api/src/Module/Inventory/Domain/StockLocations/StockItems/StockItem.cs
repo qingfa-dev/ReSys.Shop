@@ -21,6 +21,8 @@ public sealed partial class StockItem : Entity, IAuditable
     public Guid StockLocationId { get; set; }
     /// <summary>Gets or sets the product variant identifier that this stock item tracks.</summary>
     public Guid VariantId { get; set; }
+    /// <summary>Concurrency token for optimistic locking — auto-managed by EF Core / PostgreSQL xid.</summary>
+    public uint RowVersion { get; set; }
     #endregion Properties
 
     #region Auditing

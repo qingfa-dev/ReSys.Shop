@@ -24,6 +24,9 @@ public class StockItemConfiguration : IEntityTypeConfiguration<StockItem>
 
         builder.Property(x => x.StockLocationId).IsRequired();
         builder.Property(x => x.VariantId).IsRequired();
+
+        builder.Property(x => x.RowVersion)
+            .IsRowVersion();
         #endregion
 
         #region Relationships

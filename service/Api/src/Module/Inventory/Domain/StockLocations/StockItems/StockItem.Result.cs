@@ -68,6 +68,11 @@ public static class StockItemResult
         public static Error AlreadyExists(Guid variantId, Guid locationId) => Error.Conflict(
             code: "StockItem.AlreadyExists",
             message: $"A StockItem already exists for Variant '{variantId}' at StockLocation '{locationId}'.");
+
+        /// <summary>Error when stock was modified by another transaction during checkout.</summary>
+        public static Error ConcurrencyConflict(Guid variantId) => Error.Conflict(
+            code: "StockItem.ConcurrencyConflict",
+            message: $"Stock for variant '{variantId}' was modified by another transaction. Retry checkout.");
         #endregion
 
         #region Import

@@ -1,5 +1,7 @@
 using System.Data;
 
+using Microsoft.EntityFrameworkCore;
+
 using Module.Catalog.Domain.Products.Variants;
 using Module.Inventory.Domain.StockLocations.StockItems;
 using Module.Inventory.Domain.StockReservations;
@@ -85,7 +87,7 @@ public static partial class CreateOrderFromCart
                     return OrderResult.Errors.PaymentAmountMismatch;
 
                 // Update: Mark payment state as paid.
-                cart.PaymentState = "paid";
+                cart.PaymentState = OrderConstant.PaymentState.Paid;
             }
 
             // Validate: Cart must contain at least one line item.
@@ -158,7 +160,17 @@ public static partial class CreateOrderFromCart
                         return StockItemResult.Errors.InsufficientStock;
                 }
 
-                await dbContext.SaveChangesAsync(cancellationToken);
+                try
+                {
+                    await dbContext.SaveChangesAsync(cancellationToken);
+                }
+                catch (DbUpdateConcurrencyException)
+                {
+                    await transaction.RollbackAsync(cancellationToken);
+                    return StockItemResult.Errors.ConcurrencyConflict(
+                        cart.LineItems.First().VariantId);
+                }
+
                 await transaction.CommitAsync(cancellationToken);
             }
             catch
