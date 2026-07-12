@@ -3,7 +3,7 @@ Short summary
 Known problems, technical debt and areas to watch (evidence-based).
 
 High-priority concerns
-- Dev JWT secret and DB credentials are hardcoded in committed `appsettings.Development.json`.
+- Dev JWT secret and gateway settings encryption key have been moved to dotnet user-secrets (id `resys.shop.api`); setup script: `service/Api/scripts/setup-dev-secrets.sh`. DB credentials for the local dev connection string still live in committed `appsettings.Development.json`.
 - No CI/CD pipeline; builds and tests run manually.
 - Module cross-reference build enforcement is disabled.
 - No Dockerfiles or production deployment definition.
@@ -28,7 +28,7 @@ Evidence
 
 | Severity | Concern | Evidence | Impact | Suggested action |
 |----------|---------|----------|--------|------------------|
-| High | Dev JWT secret hardcoded in committed config | `service/Api/src/Api/appsettings.Development.json:28` — `"Secret": "ThisIsADevelopmentJwtSecretKeyThatIsLongEnough32!"` | Anyone with repo access can forge valid JWT tokens in dev environment | Move to user secrets or env var; use the existing `.env.template` for documentation |
+| High | ~~Dev JWT secret hardcoded in committed config~~ | `service/Api/src/Api/appsettings.Development.json:31` — `Secret: ""` (was literal; moved to user-secrets) | Anyone with repo access can forge valid JWT tokens in dev environment | **Resolved** — see "Dev secrets" section below; user-secrets flow is the source of truth |
 | High | No CI/CD pipeline | Scan output: "No CI/CD pipelines detected" | No automated build verification, test execution, or lint enforcement before merge | Set up GitHub Actions / Azure DevOps workflow for build + test + lint |
 | High | Module cross-reference enforcement is disabled | `Directory.Build.targets:44` — `Condition="false"` on ValidateVerticalSliceIsolation | Module isolation depends solely on developer discipline; accidental cross-module references won't be caught at build time | Enable the validation target and fix any violations, or remove it to avoid false confidence |
 | High | No container images or Dockerfiles exist | README states "No Dockerfiles exist yet"; scan confirms no Dockerfiles found | Production deployment is undefined; no repeatable build artifact | Create Dockerfile for API service; define multi-stage build |
@@ -51,11 +51,16 @@ Evidence
 
 ### 3) Security Concerns
 
+#### Dev secrets
+- `Authentication:Jwt:Secret` and `GatewayProviders:SettingsEncryptionKey` are stored in dotnet user-secrets (id `resys.shop.api`).
+- Setup: `./service/Api/scripts/setup-dev-secrets.sh` (or set `JWT_SECRET` and `SETTINGS_ENCRYPTION_KEY` env vars first to override the auto-generated values).
+- Production deploys MUST set these via environment variables (`Authentication__Jwt__Secret`, `GatewayProviders__SettingsEncryptionKey`) — the host refuses to start in `Production` if the dev literal is detected.
+
 | Risk | OWASP category (if applicable) | Evidence | Current mitigation | Gap |
 |------|--------------------------------|----------|--------------------|-----|
-| Hardcoded JWT secret in committed config | A02:2021 — Cryptographic Failures | `service/Api/src/Api/appsettings.Development.json:28` — secret is plaintext in git-tracked file | Marked as development-only | Same secret may be accidentally used in production; no rotation mechanism |
+| Hardcoded JWT secret in committed config | A02:2021 — Cryptographic Failures | `service/Api/src/Api/appsettings.Development.json:31` — was literal; now empty string sourced from user-secrets | Validator added (`JwtSettingsValidator`) refuses to start in non-Development environments if dev literal is detected | **Resolved** — moved to user-secrets (id `resys.shop.api`); see "Dev secrets" section below |
 | Hardcoded DB credentials in dev config | A07:2021 — Identification/Authentication Failures | `appsettings.Development.json:24` — `Password=postgres` | Development-only | Leaked credentials if repo becomes public; local dev DB may use same creds as production |
-| Hardcoded gateway settings encryption key | A02:2021 — Cryptographic Failures | `appsettings.Development.json:3` — `SettingsEncryptionKey: "dev-encryption-key-32-chars-len!"` | Development-only | Encryption key in source weakens protection of payment gateway settings |
+| ~~Hardcoded gateway settings encryption key~~ | A02:2021 — Cryptographic Failures | `appsettings.Development.json:3` — was literal; now empty string sourced from user-secrets | None — moved to user-secrets | **Resolved** — moved to user-secrets (id `resys.shop.api`); see "Dev secrets" section below |
 | API rate limiting is present with named policies | A04:2021 — Insecure Design | `appsettings.json:76-83` — policies for default (100/min), auth (5/min), register (3/hour), forgot-password (3/hour), payment (30/min); `Program.cs` registers `UseRateLimiter()` | Rate limiter middleware registered | [TODO] — verify policies are enforced per-endpoint; confirm auth/register policies apply to correct endpoints |
 | CORS allows localhost origins in dev config | A05:2021 — Security Misconfiguration | `appsettings.Development.json:35-40` — `["http://localhost:5173", "http://localhost:4173", "http://localhost:3000"]` with `AllowCredentials: true` | Development-only | If dev config accidentally used in production, allows credentialed requests from any localhost origin |
 | Anti-forgery protection present but scope unknown | A01:2021 — Broken Access Control | `Shared/Security/AntiForgery/AntiForgery.Extensions.cs` | CSRF protection configured | [TODO] — scope not verified: which endpoints are protected, is it applied globally or selectively |
