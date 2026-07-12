@@ -75,4 +75,28 @@ public sealed class EncryptedDictionaryConverterTests
 
         fromEmpty.Count.Should().Be(0);
     }
+
+    [Fact(DisplayName = "EncryptedDictionaryConverter: GetService throws when Configure was never called (resolver null)")]
+    public void GetService_WhenConfigureNotCalled_Throws()
+    {
+        EncryptedDictionaryConverter.Configure(null!);
+
+        Action act = () => EncryptedDictionaryConverter.GetService();
+
+        act.Should().Throw<InvalidOperationException>()
+           .WithMessage("EncryptedDictionaryConverter.Configure() and ConfigureServiceProvider() must be called at startup.");
+    }
+
+    [Fact(DisplayName = "EncryptedDictionaryConverter: GetService throws when ConfigureServiceProvider was never called (service provider null)")]
+    public void GetService_WhenConfigureServiceProviderNotCalled_Throws()
+    {
+        var serviceProviderField = typeof(EncryptedDictionaryConverter)
+            .GetField("_serviceProvider", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static)!;
+        serviceProviderField.SetValue(null, null);
+
+        Action act = () => EncryptedDictionaryConverter.GetService();
+
+        act.Should().Throw<InvalidOperationException>()
+           .WithMessage("EncryptedDictionaryConverter.Configure() and ConfigureServiceProvider() must be called at startup.");
+    }
 }
