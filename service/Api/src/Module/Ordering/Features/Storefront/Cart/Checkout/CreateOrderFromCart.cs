@@ -99,7 +99,7 @@ public static partial class CreateOrderFromCart
             cart.Status = OrderStatus.Placed;
             cart.CheckoutState = CheckoutState.Complete;
             cart.CompletedAtUtc = DateTimeOffset.UtcNow;
-            cart.Number = GenerateOrderNumber();
+            cart.Number = OrderNumber.Generate(dbContext, out _);
 
             // Deduct: Atomic stock deduction with optimistic concurrency guard.
             // Each ExecuteUpdateAsync has a WHERE CountOnHand >= take guard;
@@ -154,11 +154,6 @@ public static partial class CreateOrderFromCart
 
             // Map: Return the created order as response.
             return Result<Response>.Created(cart.MapToDetail<Response>());
-        }
-
-        private static string GenerateOrderNumber()
-        {
-            return $"R{DateTimeOffset.UtcNow:yyyyMMdd}-{Guid.NewGuid().ToString()[..6].ToUpperInvariant()}";
         }
 
         private async Task SendOrderPlacedNotificationAsync(Order order, CancellationToken ct)
