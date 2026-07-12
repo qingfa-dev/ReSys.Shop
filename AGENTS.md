@@ -15,7 +15,7 @@ domain boundaries, principles, and quality baselines.
 
 ## Repository Map
 
-- `.harness/domains.yml` — 9 business domains + infrastructure + UI domains with layer maps
+- `.harness/domains.yml` — 8 business domains + infrastructure + UI domains with layer maps
 - `.harness/principles.yml` — golden principles with rationale and enforcement
 - `.harness/enforcement.yml` — naming, file limits, logging, import rules
 - `.harness/quality.yml` — per-domain quality scores (6 dimensions)
