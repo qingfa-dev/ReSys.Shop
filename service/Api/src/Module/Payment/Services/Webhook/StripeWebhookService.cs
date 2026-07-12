@@ -2,6 +2,7 @@ using Module.Payment.Services.Models;
 using Module.Payment.Services.Provider.Stripe;
 using StripeSetting = Module.Payment.Services.Provider.Stripe.StripeSetting;
 
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
 using Stripe;
@@ -11,6 +12,7 @@ namespace Module.Payment.Services.Webhook;
 public sealed class StripeWebhookHandler : IWebhookHandler, IStripeWebhookService
 {
     private readonly StripeSetting _options;
+    private readonly ILogger<StripeWebhookHandler> _logger;
 
     public string Provider => GatewayConstants.Providers.Stripe;
 
@@ -22,9 +24,10 @@ public sealed class StripeWebhookHandler : IWebhookHandler, IStripeWebhookServic
         GatewayConstants.WebhookEvents.Stripe.ChargeDisputeCreated
     ];
 
-    public StripeWebhookHandler(IOptions<StripeSetting> options)
+    public StripeWebhookHandler(IOptions<StripeSetting> options, ILogger<StripeWebhookHandler> logger)
     {
         _options = options.Value;
+        _logger = logger;
     }
 
     public Task<Result> HandleAsync(string eventType, string payload, CancellationToken ct = default)
@@ -51,7 +54,14 @@ public sealed class StripeWebhookHandler : IWebhookHandler, IStripeWebhookServic
 
     public Event? ParseEvent(string payload)
     {
-        try { return EventUtility.ParseEvent(payload); }
-        catch { return null; }
+        try
+        {
+            return EventUtility.ParseEvent(payload);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Stripe event parse failed: {Payload}", payload);
+            return null;
+        }
     }
 }
