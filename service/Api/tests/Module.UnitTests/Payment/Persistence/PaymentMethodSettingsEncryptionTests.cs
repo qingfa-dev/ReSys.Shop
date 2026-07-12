@@ -1,7 +1,9 @@
+using Microsoft.Extensions.DependencyInjection;
+
 using Module.Payment.Domain.PaymentMethods;
 
-using Shared.Operational.Security.Encryption;
 using Shared.Operational.Persistence.Configurations.Dictionaries;
+using Shared.Operational.Security.Encryption;
 
 namespace Module.UnitTests.Payment.Persistence;
 
@@ -15,7 +17,12 @@ public sealed class PaymentMethodSettingsEncryptionTests : IDisposable
     public PaymentMethodSettingsEncryptionTests()
     {
         var encryptionService = new AesEncryptionService("0123456789abcdef0123456789abcdef");
-        EncryptedDictionaryConverter.Configure(() => encryptionService);
+        var serviceProvider = new ServiceCollection()
+            .AddSingleton<IEncryptionService>(encryptionService)
+            .BuildServiceProvider();
+
+        EncryptedDictionaryConverter.Configure(sp => sp.GetRequiredService<IEncryptionService>());
+        EncryptedDictionaryConverter.ConfigureServiceProvider(serviceProvider);
 
         var options = new DbContextOptionsBuilder<ApplicationDbContext>()
             .UseInMemoryDatabase(Guid.NewGuid().ToString())

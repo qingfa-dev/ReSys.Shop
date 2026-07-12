@@ -1,3 +1,5 @@
+using Microsoft.Extensions.DependencyInjection;
+
 using Shared.Operational.Security.Encryption;
 using Shared.Operational.Persistence.Configurations.Dictionaries;
 
@@ -6,17 +8,18 @@ namespace Shared.UnitTests.Persistence.Converters;
 [Trait("Category", "Unit")]
 [Trait("Module", "Persistence")]
 [Trait("Feature", "EncryptedConverter")]
-public sealed class EncryptedDictionaryConverterTests : IDisposable
+public sealed class EncryptedDictionaryConverterTests
 {
-    private readonly IEncryptionService _encryptionService;
-
     public EncryptedDictionaryConverterTests()
     {
-        _encryptionService = new AesEncryptionService("0123456789abcdef0123456789abcdef");
-        EncryptedDictionaryConverter.Configure(() => _encryptionService);
-    }
+        var encryptionService = new AesEncryptionService("0123456789abcdef0123456789abcdef");
+        var serviceProvider = new ServiceCollection()
+            .AddSingleton<IEncryptionService>(encryptionService)
+            .BuildServiceProvider();
 
-    public void Dispose() => GC.SuppressFinalize(this);
+        EncryptedDictionaryConverter.Configure(sp => sp.GetRequiredService<IEncryptionService>());
+        EncryptedDictionaryConverter.ConfigureServiceProvider(serviceProvider);
+    }
 
     [Fact(DisplayName = "Roundtrip: write encrypted, read back decrypted")]
     public void Roundtrip_ShouldReturnOriginal()
@@ -71,17 +74,5 @@ public sealed class EncryptedDictionaryConverterTests : IDisposable
         var fromEmpty = (Dictionary<string, string>)converter.ConvertFromProvider("")!;
 
         fromEmpty.Count.Should().Be(0);
-    }
-
-    [Fact(DisplayName = "Unconfigured converter throws")]
-    public void Unconfigured_ShouldThrow()
-    {
-        EncryptedDictionaryConverter.Configure(null!);
-
-        var converter = new EncryptedDictionaryConverter();
-        var act = () => converter.ConvertToProvider(new Dictionary<string, string> { ["x"] = "y" });
-
-        act.Should().Throw<InvalidOperationException>()
-            .WithMessage("*Configure()*");
     }
 }

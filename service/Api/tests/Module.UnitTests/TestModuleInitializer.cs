@@ -1,6 +1,9 @@
 using System.Runtime.CompilerServices;
-using Shared.Operational.Security.Encryption;
+
+using Microsoft.Extensions.DependencyInjection;
+
 using Shared.Operational.Persistence.Configurations.Dictionaries;
+using Shared.Operational.Security.Encryption;
 
 namespace Module.UnitTests;
 
@@ -9,12 +12,11 @@ internal static class TestModuleInitializer
     [ModuleInitializer]
     internal static void Initialize()
     {
-        EncryptedDictionaryConverter.Configure(() => new TestEncryptionService());
-    }
-}
+        var serviceProvider = new ServiceCollection()
+            .AddSingleton<IEncryptionService>(new AesEncryptionService("0123456789abcdef0123456789abcdef"))
+            .BuildServiceProvider();
 
-internal sealed class TestEncryptionService : IEncryptionService
-{
-    public string Encrypt(string plaintext) => $"enc:{plaintext}";
-    public string Decrypt(string ciphertext) => ciphertext.StartsWith("enc:") ? ciphertext[4..] : ciphertext;
+        EncryptedDictionaryConverter.Configure(sp => sp.GetRequiredService<IEncryptionService>());
+        EncryptedDictionaryConverter.ConfigureServiceProvider(serviceProvider);
+    }
 }

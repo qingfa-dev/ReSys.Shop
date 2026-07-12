@@ -1,4 +1,5 @@
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 
 using Module.Payment.Services.Configuration;
@@ -14,8 +15,8 @@ using IGatewayRegistry = Module.Payment.Services.Provider.IGatewayRegistry;
 using StripeGateway = Module.Payment.Services.Provider.Stripe.StripeGateway;
 using StripeSetting = Module.Payment.Services.Provider.Stripe.StripeSetting;
 
-using Shared.Operational.Security.Encryption;
 using Shared.Operational.Persistence.Configurations.Dictionaries;
+using Shared.Operational.Security.Encryption;
 
 // @CAT-10 Boundary: Domain -> Infrastructure — do not import persistence concerns above this line
 namespace Module.Payment;
@@ -47,11 +48,7 @@ public static class PaymentExtension
             return new AesEncryptionService(gwOpts.Value.SettingsEncryptionKey!);
         });
 
-        EncryptedDictionaryConverter.Configure(() =>
-        {
-            var sp = builder.Services.BuildServiceProvider();
-            return sp.GetRequiredService<IEncryptionService>();
-        });
+        EncryptedDictionaryConverter.Configure(sp => sp.GetRequiredService<IEncryptionService>());
 
         services.AddTransient<StripeGateway>();
         services.AddTransient<BogusGateway>();
@@ -75,7 +72,32 @@ public static class PaymentExtension
         services.AddSingleton<IWebhookHandler, StripeWebhookHandler>();
         services.AddSingleton<IStripeWebhookService, StripeWebhookHandler>();
 
+        services.AddHostedService<EncryptedConverterServiceProviderInitializer>();
+
         builder.AddSeeder<PaymentMethodSeeder>();
         return builder;
+    }
+
+    /// <summary>
+    /// Captures the host's <see cref="IServiceProvider"/> after the host is built and
+    /// wires it into <see cref="EncryptedDictionaryConverter"/> so the value-converter
+    /// can resolve <see cref="IEncryptionService"/> lazily without a second root container.
+    /// </summary>
+    private sealed class EncryptedConverterServiceProviderInitializer : IHostedService
+    {
+        private readonly IServiceProvider _serviceProvider;
+
+        public EncryptedConverterServiceProviderInitializer(IServiceProvider serviceProvider)
+        {
+            _serviceProvider = serviceProvider;
+        }
+
+        public Task StartAsync(CancellationToken cancellationToken)
+        {
+            EncryptedDictionaryConverter.ConfigureServiceProvider(_serviceProvider);
+            return Task.CompletedTask;
+        }
+
+        public Task StopAsync(CancellationToken cancellationToken) => Task.CompletedTask;
     }
 }
