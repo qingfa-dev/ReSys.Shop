@@ -92,7 +92,9 @@ public static partial class ExternalAuthenticate
                     Email: userInfo.Email,
                     ActionBy: user.UserName!);
 
-                await CreateUserProfileAsync(user, cancellationToken);
+                var profileResult = await CreateUserProfileAsync(user, cancellationToken);
+                if (profileResult.IsFailure)
+                    return profileResult.Errors;
             }
             else
             {
@@ -152,7 +154,7 @@ public static partial class ExternalAuthenticate
             return $"{baseName}_{randomSuffix}";
         }
 
-        private async Task CreateUserProfileAsync(User user, CancellationToken cancellationToken)
+        private async Task<Result> CreateUserProfileAsync(User user, CancellationToken cancellationToken)
         {
             try
             {
@@ -165,17 +167,18 @@ public static partial class ExternalAuthenticate
 
                 if (profileResult.IsFailure)
                 {
-                    var errors = string.Join("; ", profileResult.Errors.Select(e => $"{e.Code}: {e.Message}"));
-                    UserProfileLoggers.Management.ProfileCreationFailed(logger, user.Id, errors);
+                    UserProfileLoggers.Management.ProfileCreationFailed(
+                        logger, user.Id, string.Join("; ", profileResult.Errors.Select(e => $"{e.Code}: {e.Message}")));
+                    return Result.Failure(UserResult.Failure.ProfileCreationFailed);
                 }
-                else
-                {
-                    UserProfileLoggers.Management.ProfileCreated(logger, user.Id, profileResult.Value.Id);
-                }
+
+                UserProfileLoggers.Management.ProfileCreated(logger, user.Id, profileResult.Value.Id);
+                return Result.Ok();
             }
             catch (Exception ex)
             {
                 UserProfileLoggers.Management.ProfileCreationFailed(logger, user.Id, ex.Message);
+                return Result.Failure(UserResult.Failure.ProfileCreationFailed);
             }
         }
     }

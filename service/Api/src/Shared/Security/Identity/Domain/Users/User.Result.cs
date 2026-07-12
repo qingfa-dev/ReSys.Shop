@@ -518,6 +518,13 @@ public static class UserResult
             code: "User.ExternalLogin.TokenInvalid",
             message: "The provided external authentication token is invalid or expired.");
 
+        /// <summary>
+        /// [External Login]: Profile creation failed
+        /// </summary>
+        public static Error ProfileCreationFailed => Error.Unexpected(
+            code: "Identity.ExternalLogin.ProfileCreationFailed",
+            message: "User profile could not be created. Please contact support.");
+
         #endregion
 
         #region Permissions
