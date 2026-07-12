@@ -65,7 +65,7 @@ public class AddToCartReservationTests : IDisposable
 
         _senderMock
             .Setup(x => x.Send(
-                It.IsAny<IRequest<Result<ReserveCartStock.Response>>>(),
+                It.Is<ReserveCartStock.Command>(c => c.Request.VariantId == variantId && c.Request.Quantity == 1),
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync(Result<ReserveCartStock.Response>.Ok(new ReserveCartStock.Response
             {
@@ -84,7 +84,7 @@ public class AddToCartReservationTests : IDisposable
         result.IsSuccess.Should().BeTrue();
         _senderMock.Verify(
             x => x.Send(
-                It.IsAny<IRequest<Result<ReserveCartStock.Response>>>(),
+                It.Is<ReserveCartStock.Command>(c => c.Request.VariantId == variantId && c.Request.Quantity == 1),
                 It.IsAny<CancellationToken>()),
             Times.Once);
     }
@@ -113,7 +113,7 @@ public class AddToCartReservationTests : IDisposable
 
         _senderMock
             .Setup(x => x.Send(
-                It.IsAny<IRequest<Result<ReserveCartStock.Response>>>(),
+                It.Is<ReserveCartStock.Command>(c => c.Request.VariantId == variantId && c.Request.Quantity == 1),
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync(StockReservationResult.Errors.InsufficientStock);
 
