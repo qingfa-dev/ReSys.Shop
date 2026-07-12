@@ -5,6 +5,7 @@ using Microsoft.Extensions.Options;
 using Module.Payment.Services.Configuration;
 using Module.Payment.Services.Processing;
 using Module.Payment.Services.Webhook;
+using Module.Payment.Features.Storefront.Payment.Webhooks;
 using Module.Payment.Persistence.Seeders;
 
 using BogusGateway = Module.Payment.Services.Provider.Bogus.BogusGateway;
@@ -69,8 +70,10 @@ public static class PaymentExtension
 
         services.AddScoped<IPaymentProcessingService, PaymentProcessingService>();
 
+        services.AddSingleton<IStripeWebhookService, StripeWebhookDispatcher>();
+        // IWebhookHandler is the legacy gateway dispatcher interface; keep the
+        // old handler bound for now — see plan TODO to remove in a follow-up.
         services.AddSingleton<IWebhookHandler, StripeWebhookHandler>();
-        services.AddSingleton<IStripeWebhookService, StripeWebhookHandler>();
 
         services.AddHostedService<EncryptedConverterServiceProviderInitializer>();
 
