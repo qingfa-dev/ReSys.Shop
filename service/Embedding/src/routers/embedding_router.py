@@ -1,9 +1,12 @@
 from fastapi import APIRouter, Request
 from fastapi import File as FastAPIFile
 from fastapi import UploadFile
+import os
 
 from embedding.schemas.requests import EmbeddingRequest, EmbeddingFromBytesRequest
 from embedding.schemas.responses import ModelListResult
+
+_MODEL_VERSION = os.getenv("EMBEDDING_MODEL_VERSION", "v1.0")
 
 router = APIRouter()
 
@@ -14,7 +17,7 @@ async def create_embedding(body: EmbeddingRequest):
     return {
         "value": {
             "vector": vector,
-            "model_version": "v1.0-stub",
+            "model_version": _MODEL_VERSION,
             "dimension": 512,
             "metadata": {"model": body.model},
         },
@@ -36,7 +39,7 @@ async def create_embedding_from_bytes(
     return {
         "value": {
             "vector": vector,
-            "model_version": "v1.0-stub",
+            "model_version": _MODEL_VERSION,
             "dimension": 512,
             "metadata": {"model": model},
         },
