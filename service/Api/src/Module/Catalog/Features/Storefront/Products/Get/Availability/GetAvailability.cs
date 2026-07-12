@@ -1,6 +1,7 @@
 using Module.Catalog.Domain.Products;
 using Module.Catalog.Domain.Products.Variants;
 using Module.Catalog.Features.Storefront.Products.Shared.Models;
+using Module.Inventory.Services;
 
 namespace Module.Catalog.Features.Storefront.Products.Get.Availability;
 
@@ -15,7 +16,9 @@ public static partial class GetAvailability
     /// Retrieves the style matrix availability grid for a product,
     /// computing per-variant stock status grouped by OptionType axes (Color x Size).
     /// </summary>
-    public sealed class QueryHandler(IApplicationDbContext dbContext)
+    public sealed class QueryHandler(
+        IApplicationDbContext dbContext,
+        IStockAvailabilityCalculator calculator)
         : IQueryHandler<Query, Response>
     {
         /// <summary>
@@ -70,24 +73,41 @@ public static partial class GetAvailability
                     .ToList(),
             }).ToList();
 
-            var cells = variants.Select(v =>
+            var variantIds = variants.Select(v => v.Id).Distinct().ToList();
+            var availableByVariant = await calculator.GetAvailableByVariantAsync(variantIds, cancellationToken);
+
+            var cells = new List<AvailabilityCell>(variants.Count);
+            foreach (var v in variants)
             {
                 var ovs = v.OptionValueVariants
                     .OrderBy(ov => ov.OptionValue?.OptionType?.Position)
                     .ToList();
 
                 var firstPrice = v.Prices.FirstOrDefault();
+                var available = availableByVariant.GetValueOrDefault(v.Id, 0);
 
-                return new AvailabilityCell
+                var snapshot = available == 0
+                    ? await calculator.GetForVariantAsync(v.Id, cancellationToken)
+                    : null;
+
+                var status = available switch
+                {
+                    > LowStockThreshold.Default => "in_stock",
+                    > 0 => "low_stock",
+                    _ when snapshot?.Backorderable == true => "backorderable",
+                    _ => "out_of_stock"
+                };
+
+                cells.Add(new AvailabilityCell
                 {
                     VariantId = v.Id,
                     OptionValue1Id = ovs.Count > 0 ? ovs[0].OptionValueId : Guid.Empty,
                     OptionValue2Id = ovs.Count > 1 ? ovs[1].OptionValueId : null,
-                    Status = firstPrice?.Amount > 0 ? "in_stock" : "unknown",
+                    Status = status,
                     Price = firstPrice?.Amount,
                     Currency = firstPrice?.Currency,
-                };
-            }).ToList();
+                });
+            }
 
             return Result<Response>.Ok(new Response
             {

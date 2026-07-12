@@ -4,6 +4,7 @@ using Module.Catalog.Domain.Products;
 using Module.Catalog.Domain.Products.Variants;
 using Module.Catalog.Domain.Products.Variants.Options;
 using Module.Catalog.Domain.Products.Variants.Prices;
+using Module.Inventory.Services;
 
 namespace Module.UnitTests.Catalog.Features.Storefront.Products.GetAvailability;
 
@@ -13,6 +14,7 @@ namespace Module.UnitTests.Catalog.Features.Storefront.Products.GetAvailability;
 public class GetProductAvailabilityTests : IDisposable
 {
     private readonly ApplicationDbContext _dbContext;
+    private readonly Mock<IStockAvailabilityCalculator> _calculator;
     private readonly Module.Catalog.Features.Storefront.Products.Get.Availability.GetAvailability.QueryHandler _handler;
 
     public GetProductAvailabilityTests()
@@ -23,8 +25,11 @@ public class GetProductAvailabilityTests : IDisposable
 
         ApplicationDbContext.AdditionalConfigurationsAssemblies = [typeof(Product).Assembly];
         _dbContext = new ApplicationDbContext(options);
+        _calculator = new Mock<IStockAvailabilityCalculator>();
+        _calculator.Setup(x => x.GetAvailableByVariantAsync(It.IsAny<IEnumerable<Guid>>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new Dictionary<Guid, int>());
 
-        _handler = new Module.Catalog.Features.Storefront.Products.Get.Availability.GetAvailability.QueryHandler(_dbContext);
+        _handler = new Module.Catalog.Features.Storefront.Products.Get.Availability.GetAvailability.QueryHandler(_dbContext, _calculator.Object);
     }
 
     public void Dispose()
