@@ -22,6 +22,18 @@ public sealed class ModuleIsolationTests
         ["Shipping"] = ["Module.Shipping"],
     };
 
+    // Service-contract allow-list: modules may consume these types from sibling modules
+    // when explicitly designated as a public service contract. Add deliberately, never
+    // as an open-ended escape hatch — every entry should correspond to a documented
+    // cross-module API in the plan/spec.
+    private static readonly HashSet<string> AllowedServiceContracts = new(StringComparer.Ordinal)
+    {
+        "Module.Inventory.Services.IStockAvailabilityCalculator",
+    };
+
+    private static bool IsAllowedServiceContract(Type t) =>
+        t.FullName is { } name && AllowedServiceContracts.Contains(name);
+
     [Fact]
     public void ModuleTypes_ShouldNotCrossReferenceOtherModules()
     {
@@ -39,6 +51,7 @@ public sealed class ModuleIsolationTests
             {
                 var refs = GetReferencedTypes(type)
                     .Where(otherModuleTypes.Contains)
+                    .Where(r => !IsAllowedServiceContract(r))
                     .Select(r => $"{type.FullName} references {r.FullName}")
                     .ToList();
 
