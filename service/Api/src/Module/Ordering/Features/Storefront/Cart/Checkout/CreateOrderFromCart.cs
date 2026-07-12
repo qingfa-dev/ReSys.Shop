@@ -37,7 +37,7 @@ public static partial class CreateOrderFromCart
             // Contract: pre=command!=null, post=result!=null, throws=DbUpdateException
             // Check: Resolve current user identifier.
             if (!Guid.TryParse(currentUser.UserId, out var userId))
-                return OrderResult.Failure.UserNotAuthenticated;
+                return OrderResult.Errors.UserNotAuthenticated;
 
             // Check: Find the current user's draft cart.
             var cart = await dbContext.Set<Order>()
@@ -46,30 +46,30 @@ public static partial class CreateOrderFromCart
                 .FirstOrDefaultAsync(cancellationToken);
 
             if (cart is null)
-                return OrderResult.Failure.NotFound(Guid.Empty);
+                return OrderResult.Errors.NotFound(Guid.Empty);
 
             // Validate: Checkout steps must be completed before placing order.
             if (cart.CheckoutState < CheckoutState.Confirm)
-                return OrderResult.Failure.CheckoutNotComplete;
+                return OrderResult.Errors.CheckoutNotComplete;
 
             // Validate: Billing and shipping addresses must be set before placement.
             if (cart.BillAddressId is null || cart.ShipAddressId is null)
-                return OrderResult.Failure.AddressRequired;
+                return OrderResult.Errors.AddressRequired;
 
             // Validate: Shipping method must be selected before placement.
             if (cart.ShippingMethodId is null)
-                return OrderResult.Failure.DeliveryMethodRequired;
+                return OrderResult.Errors.DeliveryMethodRequired;
 
             // Validate: Customer email required for order notifications.
             if (string.IsNullOrWhiteSpace(cart.Email))
-                return OrderResult.Failure.EmailRequired;
+                return OrderResult.Errors.EmailRequired;
 
             // Validate: Payment verification (skip for zero-total orders).
             if (cart.Total > 0m)
             {
                 var paymentIntentId = command.Request.PaymentIntentId;
                 if (string.IsNullOrWhiteSpace(paymentIntentId))
-                    return OrderResult.Failure.PaymentRequired;
+                    return OrderResult.Errors.PaymentRequired;
 
                 // Check: Verify payment capture exists and is completed.
                 var payment = await dbContext.Set<PaymentCapture>()
@@ -78,11 +78,11 @@ public static partial class CreateOrderFromCart
                                           && p.State == PaymentRecordState.Completed, cancellationToken);
 
                 if (payment is null)
-                    return OrderResult.Failure.PaymentFailed;
+                    return OrderResult.Errors.PaymentFailed;
 
                 // Validate: Payment amount must match order total.
                 if (payment.Amount != cart.Total)
-                    return OrderResult.Failure.PaymentAmountMismatch;
+                    return OrderResult.Errors.PaymentAmountMismatch;
 
                 // Update: Mark payment state as paid.
                 cart.PaymentState = "paid";
@@ -90,7 +90,7 @@ public static partial class CreateOrderFromCart
 
             // Validate: Cart must contain at least one line item.
             if (cart.LineItems.Count == 0)
-                return OrderResult.Failure.EmptyOrderCannotFinalize;
+                return OrderResult.Errors.EmptyOrderCannotFinalize;
 
             // Validate: Reject orders containing discontinued variants.
             var variantIds = cart.LineItems.Select(li => li.VariantId).ToList();
@@ -100,7 +100,7 @@ public static partial class CreateOrderFromCart
                 .ToHashSetAsync(cancellationToken);
 
             if (!cart.EnsureLineItemVariantsAreNotDiscontinued(discontinuedVariantIds))
-                return OrderResult.Failure.VariantDiscontinued;
+                return OrderResult.Errors.VariantDiscontinued;
 
             // Update: Place the order — set status, checkout state, timestamps, and order number.
             cart.Status = OrderStatus.Placed;

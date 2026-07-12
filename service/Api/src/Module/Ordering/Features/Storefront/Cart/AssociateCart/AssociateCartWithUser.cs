@@ -31,7 +31,7 @@ public static partial class AssociateCartWithUser
             // Contract: pre=command!=null, post=result!=null, throws=DbUpdateException
             var userId = Guid.TryParse(currentUser.UserId, out var parsedId) ? parsedId : Guid.Empty;
             if (userId == Guid.Empty)
-                return (Result<Response>)OrderResult.Failure.UserNotAuthenticated;
+                return (Result<Response>)OrderResult.Errors.UserNotAuthenticated;
 
             var sessionId = currentUser.SessionId;
 
@@ -41,7 +41,7 @@ public static partial class AssociateCartWithUser
                 .FirstOrDefaultAsync(o => o.Id == command.Request.GuestOrderId && o.UserId == null && o.SessionId == sessionId, cancellationToken);
 
             if (guestOrder is null)
-                return (Result<Response>)OrderResult.Failure.NotFound(command.Request.GuestOrderId);
+                return (Result<Response>)OrderResult.Errors.NotFound(command.Request.GuestOrderId);
 
             // Check: Find existing user cart — may or may not exist.
             var userOrder = await dbContext.Set<Order>()

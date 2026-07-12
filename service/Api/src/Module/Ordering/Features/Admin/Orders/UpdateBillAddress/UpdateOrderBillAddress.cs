@@ -20,11 +20,11 @@ public static partial class UpdateOrderBillAddress
             // Check: Find the order to update the billing address on.
             var order = await dbContext.Set<Order>().FirstOrDefaultAsync(o => o.Id == command.Id, cancellationToken);
             if (order is null)
-                return OrderResult.Failure.NotFound(command.Id);
+                return OrderResult.Errors.NotFound(command.Id);
 
             // Enforce: Only draft orders can have billing address modified.
             if (order.Status != OrderStatus.Draft)
-                return Error.Validation("Order.BillAddress.Update.NotDraft", "Only draft orders can have billing address modified.");
+                return OrderResult.Errors.NotDraftForBillAddress;
 
             // Update: Set the billing address from the request.
             order.BillAddressId = command.Request.AddressId;

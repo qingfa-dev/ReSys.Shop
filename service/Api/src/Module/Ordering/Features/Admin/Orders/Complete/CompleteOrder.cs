@@ -20,11 +20,11 @@ public static partial class CompleteOrder
             // Check: Find the order to complete.
             var order = await dbContext.Set<Order>().FirstOrDefaultAsync(o => o.Id == command.Id, cancellationToken);
             if (order is null)
-                return OrderResult.Failure.NotFound(command.Id);
+                return OrderResult.Errors.NotFound(command.Id);
 
             // Enforce: Only placed orders can be completed — prevents invalid state transitions.
             if (order.Status != OrderStatus.Placed)
-                return OrderResult.Failure.InvalidStatusTransition;
+                return OrderResult.Errors.InvalidStatusTransition;
 
             // Update: Finalize order lifecycle — set complete state and timestamps.
             order.CheckoutState = CheckoutState.Complete;

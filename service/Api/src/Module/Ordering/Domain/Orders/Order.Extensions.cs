@@ -60,7 +60,7 @@ public static class OrderExtensions
     {
         // Validate: Canceled orders cannot advance through checkout
         if (order.Status == OrderStatus.Canceled)
-            return OrderResult.Failure.InvalidStatusTransition;
+            return OrderResult.Errors.InvalidStatusTransition;
 
         // Compute: Determine next checkout state from current state
         var nextState = order.CheckoutState switch
@@ -75,15 +75,15 @@ public static class OrderExtensions
 
         // Validate: Current checkout state must not be terminal
         if (nextState is null)
-            return OrderResult.Failure.CannotAdvanceState;
+            return OrderResult.Errors.CannotAdvanceState;
 
         // Enforce: Delivery transition requires billing and shipping addresses
         if (nextState == CheckoutState.Delivery && (order.BillAddressId is null || order.ShipAddressId is null))
-            return OrderResult.Failure.AddressRequired;
+            return OrderResult.Errors.AddressRequired;
 
         // Enforce: Payment transition requires a selected delivery method
         if (nextState == CheckoutState.Payment && order.ShippingMethodId is null)
-            return OrderResult.Failure.DeliveryMethodRequired;
+            return OrderResult.Errors.DeliveryMethodRequired;
 
         // Enforce: Transition order checkout to next valid state
         order.CheckoutState = nextState.Value;
@@ -101,15 +101,15 @@ public static class OrderExtensions
     {
         // Validate: Canceled orders cannot be finalized
         if (order.Status == OrderStatus.Canceled)
-            return OrderResult.Failure.AlreadyCanceled;
+            return OrderResult.Errors.AlreadyCanceled;
 
         // Validate: Already placed orders cannot be re-finalized
         if (order.Status == OrderStatus.Placed)
-            return OrderResult.Failure.AlreadyFinalized;
+            return OrderResult.Errors.AlreadyFinalized;
 
         // Validate: Order must contain at least one line item to finalize
         if (order.LineItems.Count == 0)
-            return OrderResult.Failure.EmptyOrderCannotFinalize;
+            return OrderResult.Errors.EmptyOrderCannotFinalize;
 
         // Enforce: Transition order to placed status with completion timestamp
         order.Status = OrderStatus.Placed;
@@ -130,11 +130,11 @@ public static class OrderExtensions
     {
         // Validate: Already canceled orders cannot be canceled again
         if (order.Status == OrderStatus.Canceled)
-            return OrderResult.Failure.AlreadyCanceled;
+            return OrderResult.Errors.AlreadyCanceled;
 
         // Validate: Draft orders cannot be canceled
         if (order.Status == OrderStatus.Draft)
-            return OrderResult.Failure.InvalidStatusTransition;
+            return OrderResult.Errors.InvalidStatusTransition;
 
         // Enforce: Transition order to canceled status with timestamp and canceler
         order.Status = OrderStatus.Canceled;
@@ -153,7 +153,7 @@ public static class OrderExtensions
     {
         // Validate: Only canceled orders can be resumed
         if (order.Status != OrderStatus.Canceled)
-            return OrderResult.Failure.InvalidStatusTransition;
+            return OrderResult.Errors.InvalidStatusTransition;
 
         // Enforce: Restore order to placed status and clear cancellation metadata
         order.Status = OrderStatus.Placed;
@@ -174,7 +174,7 @@ public static class OrderExtensions
     {
         // Validate: Canceled orders cannot be approved
         if (order.Status == OrderStatus.Canceled)
-            return OrderResult.Failure.AlreadyCanceled;
+            return OrderResult.Errors.AlreadyCanceled;
 
         // Assign: Record the approving user identifier
         order.ApprovedById = approvedById;
@@ -192,7 +192,7 @@ public static class OrderExtensions
     {
         // Guard: Cannot empty an order that has already been finalized
         if (order.Status == OrderStatus.Placed)
-            return Result.Failure(OrderResult.Failure.InvalidStatusTransition);
+            return Result.Failure(OrderResult.Errors.InvalidStatusTransition);
 
         // Reset: Clear all line items, adjustments, and zero out totals
         order.LineItems.Clear();
@@ -298,25 +298,25 @@ public static class OrderExtensions
     public static Result CanAdvanceTo(this Order order, CheckoutState targetState)
     {
         if (order.Status == OrderStatus.Canceled)
-            return Result.Failure(OrderResult.Failure.InvalidStatusTransition);
+            return Result.Failure(OrderResult.Errors.InvalidStatusTransition);
 
         if (targetState <= order.CheckoutState)
-            return Result.Failure(OrderResult.Failure.CannotAdvanceState);
+            return Result.Failure(OrderResult.Errors.CannotAdvanceState);
 
         // Delivery requires billing and shipping addresses
         if (targetState >= CheckoutState.Delivery && order.CheckoutState < CheckoutState.Delivery
             && (order.BillAddressId is null || order.ShipAddressId is null))
-            return Result.Failure(OrderResult.Failure.AddressRequired);
+            return Result.Failure(OrderResult.Errors.AddressRequired);
 
         // Payment requires a shipping method
         if (targetState >= CheckoutState.Payment && order.CheckoutState < CheckoutState.Payment
             && order.ShippingMethodId is null)
-            return Result.Failure(OrderResult.Failure.DeliveryMethodRequired);
+            return Result.Failure(OrderResult.Errors.DeliveryMethodRequired);
 
         // Confirm requires at least one line item
         if (targetState >= CheckoutState.Confirm && order.CheckoutState < CheckoutState.Confirm
             && order.LineItems.Count == 0)
-            return Result.Failure(OrderResult.Failure.EmptyOrderCannotFinalize);
+            return Result.Failure(OrderResult.Errors.EmptyOrderCannotFinalize);
 
         return Result.Ok();
     }

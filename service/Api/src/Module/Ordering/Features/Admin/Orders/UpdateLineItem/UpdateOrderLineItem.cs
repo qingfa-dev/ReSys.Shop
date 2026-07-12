@@ -20,10 +20,10 @@ public static partial class UpdateOrderLineItem
             // Check: Find the parent order for status validation.
             var order = await dbContext.Set<Order>().FirstOrDefaultAsync(o => o.Id == command.OrderId, cancellationToken);
             if (order is null)
-                return OrderResult.Failure.NotFound(command.OrderId);
+                return OrderResult.Errors.NotFound(command.OrderId);
             // Enforce: Only draft orders can have line items modified.
             if (order.Status != OrderStatus.Draft)
-                return Error.Validation("Order.LineItem.Update.NotDraft", "Only draft orders can have line items modified.");
+                return OrderResult.Errors.NotDraftForLineItem;
 
             // Check: Find the line item scoped to its parent order.
             var lineItem = await dbContext.Set<LineItem>().FirstOrDefaultAsync(li => li.Id == command.LineItemId && li.OrderId == command.OrderId, cancellationToken);

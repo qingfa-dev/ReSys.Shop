@@ -20,7 +20,7 @@ public static partial class UpdateOrderShippingMethod
             // Check: Find the order to update the shipping method on.
             var order = await dbContext.Set<Order>().FirstOrDefaultAsync(o => o.Id == command.Id, cancellationToken);
             if (order is null)
-                return OrderResult.Failure.NotFound(command.Id);
+                return OrderResult.Errors.NotFound(command.Id);
 
             // Update: Assign the shipping method, reset shipment total, and recalculate all totals.
             order.ShippingMethodId = command.Request.ShippingMethodId;

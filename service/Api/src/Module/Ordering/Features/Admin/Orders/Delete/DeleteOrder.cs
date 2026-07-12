@@ -19,11 +19,11 @@ public static partial class DeleteOrder
             // Check: Find the order to delete.
             var order = await dbContext.Set<Order>().FirstOrDefaultAsync(o => o.Id == command.Id, cancellationToken);
             if (order is null)
-                return OrderResult.Failure.NotFound(command.Id);
+                return OrderResult.Errors.NotFound(command.Id);
 
             // Enforce: Cannot delete a placed order — only draft orders can be removed.
             if (order.Status is OrderStatus.Placed)
-                return OrderResult.Failure.InvalidStatusForDelete;
+                return OrderResult.Errors.InvalidStatusForDelete;
 
             // Update: Soft-delete — mark as deleted with timestamp instead of hard removal.
             order.IsDeleted = true;
@@ -31,7 +31,7 @@ public static partial class DeleteOrder
 
             await dbContext.SaveChangesAsync(cancellationToken);
 
-            return Result.Ok();
+            return Result.Ok(OrderResult.Success.Deleted(command.Id));
         }
     }
 }

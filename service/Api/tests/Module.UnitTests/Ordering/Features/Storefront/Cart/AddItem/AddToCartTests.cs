@@ -4,6 +4,7 @@ using Module.Catalog.Domain.Products.Variants;
 using Module.Inventory.Domain.StockLocations.StockItems;
 using Module.Inventory.Domain.StockLocations;
 using Module.Ordering.Domain.LineItems;
+using Module.Inventory.Features.Storefront.CartReservations.Reserve;
 using Module.Ordering.Domain.Orders;
 using Module.Ordering.Features.Storefront.Cart.AddItem;
 
@@ -15,6 +16,7 @@ namespace Module.UnitTests.Ordering.Features.Storefront.Cart.AddItem;
 public class AddToCartTests : IDisposable
 {
     private readonly ApplicationDbContext _dbContext;
+    private readonly Mock<ISender> _senderMock;
     private readonly Mock<ICurrentUser> _currentUserMock;
     private readonly Mock<ILogger<AddToCart.CommandHandler>> _loggerMock;
     private readonly Mock<IConfiguration> _configurationMock;
@@ -33,6 +35,14 @@ public class AddToCartTests : IDisposable
         ];
         _dbContext = new ApplicationDbContext(options);
 
+        _senderMock = new Mock<ISender>();
+        _senderMock
+            .Setup(x => x.Send(
+                It.IsAny<IRequest<Result<ReserveCartStock.Response>>>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Result<ReserveCartStock.Response>.Ok(
+                new ReserveCartStock.Response()));
+
         _currentUserMock = new Mock<ICurrentUser>();
         _currentUserMock.Setup(x => x.UserName).Returns("customer");
         _currentUserMock.Setup(x => x.UserId).Returns(Guid.NewGuid().ToString());
@@ -42,7 +52,7 @@ public class AddToCartTests : IDisposable
         _configurationMock = new Mock<IConfiguration>();
         _configurationMock.Setup(x => x["Ordering:DefaultCurrency"]).Returns("USD");
 
-        _handler = new AddToCart.CommandHandler(_dbContext, _loggerMock.Object, _currentUserMock.Object, _configurationMock.Object);
+        _handler = new AddToCart.CommandHandler(_dbContext, _loggerMock.Object, _currentUserMock.Object, _configurationMock.Object, _senderMock.Object);
     }
 
     public void Dispose()

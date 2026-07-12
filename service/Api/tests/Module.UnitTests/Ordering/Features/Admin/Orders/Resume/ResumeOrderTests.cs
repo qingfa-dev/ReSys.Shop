@@ -69,6 +69,6 @@ public class ResumeOrderTests : IDisposable
             TestContext.Current.CancellationToken);
 
         result.IsFailure.Should().BeTrue();
-        result.Errors[0].Code.Should().Be(OrderResult.Failure.NotFound(Guid.NewGuid()).Code);
+        result.Errors[0].Code.Should().Be(OrderResult.Errors.NotFound(Guid.NewGuid()).Code);
     }
 }

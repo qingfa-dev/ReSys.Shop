@@ -23,7 +23,7 @@ public static partial class UpdateCheckout
         {
             // Contract: pre=command!=null, post=result!=null, throws=DbUpdateException
             if (!Guid.TryParse(currentUser.UserId, out var userId))
-                return OrderResult.Failure.UserNotAuthenticated;
+                return OrderResult.Errors.UserNotAuthenticated;
 
             // Check: Find the user's draft cart with line items and adjustments.
             var cart = await dbContext.Set<Order>()
@@ -33,7 +33,7 @@ public static partial class UpdateCheckout
                 .FirstOrDefaultAsync(cancellationToken);
 
             if (cart is null)
-                return OrderResult.Failure.NotFound(Guid.Empty);
+                return OrderResult.Errors.NotFound(Guid.Empty);
 
             var req = command.Request;
             var addressChanged = req.ShipAddressId.HasValue && req.ShipAddressId != cart.ShipAddressId;

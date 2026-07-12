@@ -32,7 +32,7 @@ public static partial class CancelOrder
             // Contract: pre=command!=null, post=result!=null, throws=DbUpdateException
             // Check: Resolve current user identifier.
             if (!Guid.TryParse(currentUser.UserId, out var userId))
-                return OrderResult.Failure.UserNotAuthenticated;
+                return OrderResult.Errors.UserNotAuthenticated;
 
             // Check: Find the existing order scoped to current user.
             var entity = await dbContext.Set<Order>()
@@ -40,11 +40,11 @@ public static partial class CancelOrder
                 .FirstOrDefaultAsync(x => x.Id == command.Id && x.UserId == userId, cancellationToken);
 
             if (entity is null)
-                return OrderResult.Failure.NotFound(command.Id);
+                return OrderResult.Errors.NotFound(command.Id);
 
             // Validate: Cannot cancel already canceled orders.
             if (entity.Status == OrderStatus.Canceled)
-                return OrderResult.Failure.AlreadyCanceled;
+                return OrderResult.Errors.AlreadyCanceled;
 
             var wasPlaced = entity.Status == OrderStatus.Placed && entity.CompletedAtUtc.HasValue;
 

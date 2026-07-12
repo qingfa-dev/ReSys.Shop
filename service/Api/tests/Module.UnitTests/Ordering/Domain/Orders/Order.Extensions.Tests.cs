@@ -38,7 +38,7 @@ public class OrderExtensionsTests
         order.CheckoutState = CheckoutState.Address;
         var r = order.AdvanceCheckout();
         r.IsFailure.Should().BeTrue();
-        r.Errors[0].Should().Be(OrderResult.Failure.AddressRequired);
+        r.Errors[0].Should().Be(OrderResult.Errors.AddressRequired);
     }
 
     [Fact]
@@ -50,7 +50,7 @@ public class OrderExtensionsTests
         order.ShipAddressId = Guid.NewGuid();
         var r = order.AdvanceCheckout();
         r.IsFailure.Should().BeTrue();
-        r.Errors[0].Should().Be(OrderResult.Failure.DeliveryMethodRequired);
+        r.Errors[0].Should().Be(OrderResult.Errors.DeliveryMethodRequired);
     }
 
     [Fact]
@@ -73,7 +73,7 @@ public class OrderExtensionsTests
         order.CheckoutState = CheckoutState.Complete;
         var r = order.AdvanceCheckout();
         r.IsFailure.Should().BeTrue();
-        r.Errors[0].Should().Be(OrderResult.Failure.CannotAdvanceState);
+        r.Errors[0].Should().Be(OrderResult.Errors.CannotAdvanceState);
     }
 
     [Fact]
@@ -94,7 +94,7 @@ public class OrderExtensionsTests
         order.Status = OrderStatus.Canceled;
         var r = order.Finalize();
         r.IsFailure.Should().BeTrue();
-        r.Errors[0].Should().Be(OrderResult.Failure.AlreadyCanceled);
+        r.Errors[0].Should().Be(OrderResult.Errors.AlreadyCanceled);
     }
 
     [Fact]
@@ -105,7 +105,7 @@ public class OrderExtensionsTests
         order.Finalize();
         var r = order.Finalize();
         r.IsFailure.Should().BeTrue();
-        r.Errors[0].Should().Be(OrderResult.Failure.AlreadyFinalized);
+        r.Errors[0].Should().Be(OrderResult.Errors.AlreadyFinalized);
     }
 
     [Fact]
@@ -114,7 +114,7 @@ public class OrderExtensionsTests
         var order = OrderExtensions.Create("USD", null, Guid.NewGuid()).Value;
         var r = order.Finalize();
         r.IsFailure.Should().BeTrue();
-        r.Errors[0].Should().Be(OrderResult.Failure.EmptyOrderCannotFinalize);
+        r.Errors[0].Should().Be(OrderResult.Errors.EmptyOrderCannotFinalize);
     }
 
     [Fact]
@@ -143,7 +143,7 @@ public class OrderExtensionsTests
         order.Status = OrderStatus.Canceled;
         var r = order.Cancel(Guid.NewGuid());
         r.IsFailure.Should().BeTrue();
-        r.Errors[0].Should().Be(OrderResult.Failure.AlreadyCanceled);
+        r.Errors[0].Should().Be(OrderResult.Errors.AlreadyCanceled);
     }
 
     [Fact]

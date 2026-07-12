@@ -33,7 +33,7 @@ public static partial class CancelOrderAdmin
                 .Include(o => o.LineItems)
                 .FirstOrDefaultAsync(o => o.Id == command.Id, cancellationToken);
             if (order is null)
-                return OrderResult.Failure.NotFound(command.Id);
+                return OrderResult.Errors.NotFound(command.Id);
 
             var wasPlaced = order.Status == OrderStatus.Placed;
             Guid.TryParse(currentUser.UserId, out var userId);

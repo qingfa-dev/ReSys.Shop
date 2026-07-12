@@ -1,5 +1,3 @@
-using Module.Catalog.Domain.Products.Variants.Prices;
-
 namespace Module.Ordering.Domain.Orders;
 
 // Initialize: Default constraints and query configuration for Order entity
@@ -12,8 +10,8 @@ public static class OrderConstant
         public const int MaxCurrencyLength = 3;
         public const int MaxEmailLength = 255;
         public const int MaxSpecialInstructionsLength = 2000;
-        public const int Precision = PriceConstant.Constraints.Precision;
-        public const int Scale = PriceConstant.Constraints.Scale;
+        public const int Precision = 18;
+        public const int Scale = 2;
     }
 
     public static class Defaults

@@ -124,7 +124,7 @@ public class CreateOrderFromCartTests : IDisposable
 
         // Assert
         result.IsFailure.Should().BeTrue();
-        result.Errors[0].Code.Should().Be(OrderResult.Failure.EmptyOrderCannotFinalize.Code);
+        result.Errors[0].Code.Should().Be(OrderResult.Errors.EmptyOrderCannotFinalize.Code);
     }
 
     [Fact(DisplayName = "Handler: Should return failure when no cart exists")]
@@ -135,6 +135,6 @@ public class CreateOrderFromCartTests : IDisposable
 
         // Assert
         result.IsFailure.Should().BeTrue();
-        result.Errors[0].Code.Should().Be(OrderResult.Failure.NotFound(Guid.Empty).Code);
+        result.Errors[0].Code.Should().Be(OrderResult.Errors.NotFound(Guid.Empty).Code);
     }
 }

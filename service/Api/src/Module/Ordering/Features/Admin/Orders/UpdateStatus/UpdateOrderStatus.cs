@@ -30,7 +30,7 @@ public static partial class UpdateOrderStatus
                 .FirstOrDefaultAsync(x => x.Id == command.Id, cancellationToken);
 
             if (entity is null)
-                return OrderResult.Failure.NotFound(command.Id);
+                return OrderResult.Errors.NotFound(command.Id);
 
             var request = command.Request;
 
@@ -59,7 +59,7 @@ public static partial class UpdateOrderStatus
                     }
                     break;
                 default:
-                    return OrderResult.Failure.InvalidStatusTransition;
+                    return OrderResult.Errors.InvalidStatusTransition;
             }
 
             await dbContext.SaveChangesAsync(cancellationToken);
@@ -68,7 +68,7 @@ public static partial class UpdateOrderStatus
             if (entity.Status == OrderStatus.Canceled)
                 OrderLoggers.Canceled(logger, Number: entity.Number, Id: entity.Id, ActionBy: currentUser.UserName);
 
-            return Result.Ok();
+            return Result.Ok(OrderResult.Success.Updated(command.Id));
         }
     }
 }

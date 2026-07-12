@@ -25,7 +25,7 @@ public static partial class GetCart
             var sessionId = currentUser.IsAuthenticated ? null : currentUser.SessionId;
 
             if (userId is null && string.IsNullOrWhiteSpace(sessionId))
-                return OrderResult.Failure.UserNotAuthenticated;
+                return OrderResult.Errors.UserNotAuthenticated;
 
             // Check: Find the current user's active cart (Draft order).
             var cart = await dbContext.Set<Order>()

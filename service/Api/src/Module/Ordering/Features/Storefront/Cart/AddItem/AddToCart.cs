@@ -2,6 +2,7 @@ using Microsoft.Extensions.Configuration;
 
 using Module.Catalog.Domain.Products.Variants;
 using Module.Inventory.Domain.Stock;
+using Module.Inventory.Features.Storefront.CartReservations.Reserve;
 using Module.Inventory.Domain.StockLocations.StockItems;
 using Module.Ordering.Domain.LineItems;
 using Module.Ordering.Domain.Orders;
@@ -17,7 +18,8 @@ public static partial class AddToCart
         IApplicationDbContext dbContext,
         ILogger<CommandHandler> logger,
         ICurrentUser currentUser,
-        IConfiguration configuration)
+        IConfiguration configuration,
+        ISender sender)
         : ICommandHandler<Command, Response>
     {
         /// <summary>Adds a variant to the user's cart, creating a new cart or merging with an existing line item, with stock validation.</summary>
@@ -35,7 +37,7 @@ public static partial class AddToCart
             var sessionId = currentUser.IsAuthenticated ? null : currentUser.SessionId;
 
             if (userId is null && string.IsNullOrWhiteSpace(sessionId))
-                return OrderResult.Failure.UserNotAuthenticated;
+                return OrderResult.Errors.UserNotAuthenticated;
 
             // Check: Variant exists in catalog — reject unknown products.
             var variant = await dbContext.Set<Variant>()
@@ -71,6 +73,34 @@ public static partial class AddToCart
 
             if (!AvailabilityValidator.IsAvailable(stockItems, request.Quantity))
                 return StockItemResult.Errors.InsufficientStock;
+
+            // Reserve: Lock stock for the cart duration (30-min TTL).
+            var primaryLocation = stockItems
+                .Where(si => si.CountOnHand > 0)
+                .OrderByDescending(si => si.CountOnHand)
+                .FirstOrDefault();
+
+            if (primaryLocation is not null)
+            {
+                var cartToken = currentUser.IsAuthenticated
+                    ? currentUser.UserId!
+                    : currentUser.SessionId ?? string.Empty;
+
+                var reserveResult = await sender.Send(
+                    new ReserveCartStock.Command(
+                        new ReserveCartStock.Request
+                        {
+                            VariantId = request.VariantId,
+                            Quantity = request.Quantity,
+                            StockLocationId = primaryLocation.StockLocationId,
+                            TtlMinutes = 30
+                        },
+                        cartToken),
+                    cancellationToken);
+
+                if (reserveResult.IsFailure)
+                    return reserveResult.Errors;
+            }
 
             // Merge: Variant already in cart — add to existing line item quantity.
             var existingLine = cart.LineItems.FirstOrDefault(li => li.VariantId == request.VariantId);

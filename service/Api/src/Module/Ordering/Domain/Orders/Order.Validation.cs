@@ -21,8 +21,8 @@ public static class OrderValidation
                     _ => true
                 };
             })
-            .WithErrorCode(OrderResult.Failure.CannotAdvanceState.Code)
-            .WithMessage(OrderResult.Failure.CannotAdvanceState.Message);
+            .WithErrorCode(OrderResult.Errors.CannotAdvanceState.Code)
+            .WithMessage(OrderResult.Errors.CannotAdvanceState.Message);
     }
 
     public static IRuleBuilderOptions<T, OrderStatus> ApplyFinalizeRules<T>(
@@ -42,8 +42,8 @@ public static class OrderValidation
 
                 return o.Total >= 0;
             })
-            .WithErrorCode(OrderResult.Failure.EmptyOrderCannotFinalize.Code)
-            .WithMessage(OrderResult.Failure.EmptyOrderCannotFinalize.Message);
+            .WithErrorCode(OrderResult.Errors.EmptyOrderCannotFinalize.Code)
+            .WithMessage(OrderResult.Errors.EmptyOrderCannotFinalize.Message);
     }
 
     public static IRuleBuilderOptions<T, OrderStatus> ApplyCancelRules<T>(
@@ -57,7 +57,7 @@ public static class OrderValidation
 
                 return o.Status != OrderStatus.Canceled && o.Status != OrderStatus.Draft;
             })
-            .WithErrorCode(OrderResult.Failure.AlreadyCanceled.Code)
-            .WithMessage(OrderResult.Failure.AlreadyCanceled.Message);
+            .WithErrorCode(OrderResult.Errors.AlreadyCanceled.Code)
+            .WithMessage(OrderResult.Errors.AlreadyCanceled.Message);
     }
 }

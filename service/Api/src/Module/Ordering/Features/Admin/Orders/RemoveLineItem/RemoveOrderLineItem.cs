@@ -22,15 +22,15 @@ public static partial class RemoveOrderLineItem
 
             // Check: Find the parent order for status validation and recalculation.
             var order = await dbContext.Set<Order>().FirstOrDefaultAsync(o => o.Id == command.OrderId, cancellationToken);
-            if (order is null) return OrderResult.Failure.NotFound(command.OrderId);
+            if (order is null) return OrderResult.Errors.NotFound(command.OrderId);
             // Enforce: Only draft orders can have line items removed — placed orders are immutable.
-            if (order.Status != OrderStatus.Draft) return OrderResult.Failure.InvalidStatusForLineItemRemove;
+            if (order.Status != OrderStatus.Draft) return OrderResult.Errors.InvalidStatusForLineItemRemove;
             // Remove: Delete entity from database.
             dbContext.Set<LineItem>().Remove(lineItem);
             // Update: Recalculate order totals after removing the line item.
             order.RecalculateTotals();
             await dbContext.SaveChangesAsync(cancellationToken);
-            return Result.Ok();
+            return Result.Ok(LineItemResult.Success.Removed(command.LineItemId));
         }
     }
 }

@@ -20,11 +20,11 @@ public static partial class UpdateOrderAdmin
             // Check: Find the order to update.
             var order = await dbContext.Set<Order>().FirstOrDefaultAsync(o => o.Id == command.Id, cancellationToken);
             if (order is null)
-                return OrderResult.Failure.NotFound(command.Id);
+                return OrderResult.Errors.NotFound(command.Id);
 
             // Enforce: Only draft orders can be modified — prevents edits to placed orders.
             if (order.Status != OrderStatus.Draft)
-                return Error.Validation("Order.Update.NotDraft", "Only draft orders can be modified.");
+                return OrderResult.Errors.NotDraft;
 
             var req = command.Request;
 

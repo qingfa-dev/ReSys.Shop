@@ -12,8 +12,8 @@ public static partial class UpdateOrderAdmin
             // Validate: Order ID must not be empty.
             RuleFor(x => x.Id)
                 .NotEmpty()
-                .WithErrorCode(OrderResult.Failure.IdRequired.Code)
-                .WithMessage(OrderResult.Failure.IdRequired.Message);
+                .WithErrorCode(OrderResult.Errors.IdRequired.Code)
+                .WithMessage(OrderResult.Errors.IdRequired.Message);
 
             // Validate: Email format when a new email is provided.
             When(x => x.Request.Email is not null, () =>

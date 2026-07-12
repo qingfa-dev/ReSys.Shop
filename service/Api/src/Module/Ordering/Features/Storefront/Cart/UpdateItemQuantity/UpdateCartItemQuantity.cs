@@ -24,10 +24,10 @@ public static partial class UpdateCartItemQuantity
         {
             // Contract: pre=command!=null, post=result!=null, throws=DbUpdateException
             if (!Guid.TryParse(currentUser.UserId, out var userId))
-                return OrderResult.Failure.UserNotAuthenticated;
+                return OrderResult.Errors.UserNotAuthenticated;
 
             if (command.Request.Quantity <= 0 || command.Request.Quantity > LineItemConstant.MaxQuantity)
-                return OrderResult.Failure.QuantityNotPositive;
+                return OrderResult.Errors.QuantityNotPositive;
 
             // Check: Find the user's draft cart.
             var cart = await dbContext.Set<Order>()
@@ -36,7 +36,7 @@ public static partial class UpdateCartItemQuantity
                 .FirstOrDefaultAsync(cancellationToken);
 
             if (cart is null)
-                return OrderResult.Failure.NotFound(Guid.Empty);
+                return OrderResult.Errors.NotFound(Guid.Empty);
 
             var lineItem = cart.LineItems.FirstOrDefault(li => li.Id == command.LineItemId);
             if (lineItem is null)

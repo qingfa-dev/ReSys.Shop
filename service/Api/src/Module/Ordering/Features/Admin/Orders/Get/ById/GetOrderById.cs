@@ -25,7 +25,7 @@ public static partial class GetOrderById
                 .FirstOrDefaultAsync(x => x.Id == request.Id, cancellationToken);
 
             if (entity is null)
-                return OrderResult.Failure.NotFound(request.Id);
+                return OrderResult.Errors.NotFound(request.Id);
 
             // Map: Convert entity to response DTO.
             return entity.MapToDetail<Response>();

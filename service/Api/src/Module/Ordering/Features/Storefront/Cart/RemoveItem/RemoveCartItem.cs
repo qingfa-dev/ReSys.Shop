@@ -22,7 +22,7 @@ public static partial class RemoveCartItem
         {
             // Contract: pre=command!=null, post=result!=null, throws=DbUpdateException
             if (!Guid.TryParse(currentUser.UserId, out var userId))
-                return OrderResult.Failure.UserNotAuthenticated;
+                return OrderResult.Errors.UserNotAuthenticated;
 
             // Check: Find the user's draft cart.
             var cart = await dbContext.Set<Order>()
@@ -31,7 +31,7 @@ public static partial class RemoveCartItem
                 .FirstOrDefaultAsync(cancellationToken);
 
             if (cart is null)
-                return OrderResult.Failure.NotFound(Guid.Empty);
+                return OrderResult.Errors.NotFound(Guid.Empty);
 
             // Check: Find the line item within the cart's collection.
             var lineItem = cart.LineItems.FirstOrDefault(li => li.Id == command.LineItemId);
