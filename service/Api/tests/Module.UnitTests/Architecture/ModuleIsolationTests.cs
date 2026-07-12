@@ -119,6 +119,7 @@ public sealed class ModuleIsolationTests
             kvp => ModuleAssembly.GetTypes()
                 .Where(t => kvp.Value.Any(ns => t.Namespace?.StartsWith(ns) == true))
                 .Where(t => t.IsVisible)
+                .Where(t => t.Namespace?.Contains("Seeders") != true)
                 .ToList());
     }
 

@@ -37,6 +37,9 @@ public static partial class UpdateOrderStatus
             // Update: Apply status transition.
             switch (request.Status)
             {
+                case OrderStatus.Placed when entity.Status == OrderStatus.Draft:
+                    entity.Status = OrderStatus.Placed;
+                    break;
                 case OrderStatus.Canceled when entity.Status != OrderStatus.Canceled:
                     var wasPlaced = entity.Status == OrderStatus.Placed;
                     entity.Status = OrderStatus.Canceled;

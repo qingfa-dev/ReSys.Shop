@@ -73,6 +73,7 @@ public static class PaymentExtension
         services.AddScoped<IPaymentProcessingService, PaymentProcessingService>();
 
         services.AddSingleton<IWebhookHandler, StripeWebhookHandler>();
+        services.AddSingleton<IStripeWebhookService, StripeWebhookHandler>();
 
         builder.AddSeeder<PaymentMethodSeeder>();
         return builder;

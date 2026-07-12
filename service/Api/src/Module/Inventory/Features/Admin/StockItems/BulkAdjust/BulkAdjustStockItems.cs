@@ -35,15 +35,8 @@ public static partial class BulkAdjustStockItems
 
                 var previousCount = entity.CountOnHand;
 
-                var affected = await dbContext.Set<StockItem>()
-                    .Where(x => x.Id == item.StockItemId)
-                    .ExecuteUpdateAsync(s => s
-                        .SetProperty(x => x.CountOnHand, x => x.CountOnHand + item.Quantity)
-                        .SetProperty(x => x.ModifiedAtUtc, DateTimeOffset.UtcNow),
-                    cancellationToken);
-
-                if (affected == 0)
-                    return StockItemResult.Errors.NotFound(item.StockItemId);
+                entity.CountOnHand += item.Quantity;
+                entity.ModifiedAtUtc = DateTimeOffset.UtcNow;
 
                 var movementResult = StockMovementMapping.MapToDomain(
                     stockItemId: item.StockItemId,

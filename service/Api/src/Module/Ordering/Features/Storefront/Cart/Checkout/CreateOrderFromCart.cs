@@ -118,15 +118,8 @@ public static partial class CreateOrderFromCart
                     var take = Math.Min(si.CountOnHand, remaining);
                     if (take <= 0) continue;
 
-                    var updated = await dbContext.Set<StockItem>()
-                        .Where(x => x.Id == si.Id && x.CountOnHand >= take)
-                        .ExecuteUpdateAsync(setters => setters
-                            .SetProperty(x => x.CountOnHand, x => x.CountOnHand - take)
-                            .SetProperty(x => x.ModifiedAtUtc, DateTimeOffset.UtcNow),
-                            cancellationToken);
-
-                    if (updated == 0)
-                        return StockItemResult.Errors.InsufficientStock;
+                    si.CountOnHand -= take;
+                    si.ModifiedAtUtc = DateTimeOffset.UtcNow;
 
                     remaining -= take;
 

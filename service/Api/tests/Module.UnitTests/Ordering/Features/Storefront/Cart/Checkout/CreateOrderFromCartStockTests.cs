@@ -51,7 +51,7 @@ public class CreateOrderFromCartStockTests : IDisposable
         GC.SuppressFinalize(this);
     }
 
-    [Fact(DisplayName = "Stock: Should return insufficient stock when quantity exceeds stock", Skip = "Requires PostgreSQL — ExecuteUpdateAsync not supported by InMemory provider")]
+    [Fact(DisplayName = "Stock: Should return insufficient stock when quantity exceeds stock")]
     public async Task Handle_ShouldReturnInsufficientStock_WhenQuantityExceedsStock()
     {
         // Arrange: Seed location and limited stock
@@ -93,7 +93,7 @@ public class CreateOrderFromCartStockTests : IDisposable
         result.Errors[0].Code.Should().Be(StockItemResult.Errors.InsufficientStock.Code);
     }
 
-    [Fact(DisplayName = "Stock: Should return insufficient stock when concurrent checkouts exceed single item", Skip = "Requires PostgreSQL — ExecuteUpdateAsync not supported by InMemory provider")]
+    [Fact(DisplayName = "Stock: Should return insufficient stock when concurrent checkouts exceed single item")]
     public async Task Handle_Concurrent_Checkouts_Should_Not_Oversell()
     {
         // Arrange: Seed location and single unit of stock

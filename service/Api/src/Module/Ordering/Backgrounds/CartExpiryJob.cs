@@ -20,22 +20,18 @@ public sealed partial class CartExpiryJob
         var cutoff = DateTimeOffset.UtcNow.AddDays(-_afterDays);
         var expired = await _dbContext.Set<Order>()
             .Where(o => o.Status == OrderStatus.Draft && o.ModifiedAtUtc < cutoff && !o.IsDeleted)
-            .AsNoTracking()
-            .Select(o => new { o.Id, o.Status, o.ModifiedAtUtc, o.IsDeleted })
             .ToListAsync(ct);
 
         Loggers.Found(_logger, expired.Count, cutoff);
 
         foreach (var cart in expired)
         {
-            await _dbContext.Set<Order>()
-                .Where(o => o.Id == cart.Id)
-                .ExecuteUpdateAsync(s => s
-                    .SetProperty(o => o.Status, OrderStatus.Expired)
-                    .SetProperty(o => o.IsDeleted, true)
-                    .SetProperty(o => o.DeletedAtUtc, DateTimeOffset.UtcNow), ct);
+            cart.Status = OrderStatus.Expired;
+            cart.IsDeleted = true;
+            cart.DeletedAtUtc = DateTimeOffset.UtcNow;
         }
 
         Loggers.Completed(_logger, expired.Count);
+        await _dbContext.SaveChangesAsync(ct);
     }
 }

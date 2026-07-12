@@ -39,8 +39,8 @@ public class UpdateOrderStatusTests : IDisposable
         GC.SuppressFinalize(this);
     }
 
-    [Fact(DisplayName = "Handler: Should return failure when transitioning draft to placed")]
-    public async Task Handle_ShouldReturnFailure_WhenDraftToPlaced()
+    [Fact(DisplayName = "Handler: Should place a draft order when transitioning to placed")]
+    public async Task Handle_ShouldPlaceOrder_WhenDraftToPlaced()
     {
         // Arrange
         var order = OrderExtensions.Create("USD", userId: Guid.NewGuid(), storeId: Guid.Empty).Value;
@@ -55,7 +55,11 @@ public class UpdateOrderStatusTests : IDisposable
             TestContext.Current.CancellationToken);
 
         // Assert
-        result.IsFailure.Should().BeTrue();
+        result.IsSuccess.Should().BeTrue();
+
+        var persisted = await _dbContext.Set<Order>().FindAsync(new object[] { order.Id }, TestContext.Current.CancellationToken);
+        persisted.Should().NotBeNull();
+        persisted!.Status.Should().Be(OrderStatus.Placed);
     }
 
     [Fact(DisplayName = "Handler: Should cancel an order")]

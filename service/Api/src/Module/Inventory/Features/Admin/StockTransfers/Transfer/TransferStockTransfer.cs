@@ -44,17 +44,11 @@ public static partial class TransferStockTransfer
 
                 var previousCount = stockItem.CountOnHand;
 
-                var affected = await dbContext.Set<StockItem>()
-                    .Where(x => x.VariantId == item.VariantId
-                        && x.StockLocationId == transfer.SourceLocationId
-                        && x.CountOnHand >= item.Quantity)
-                    .ExecuteUpdateAsync(s => s
-                        .SetProperty(x => x.CountOnHand, x => x.CountOnHand - item.Quantity)
-                        .SetProperty(x => x.ModifiedAtUtc, DateTimeOffset.UtcNow),
-                    cancellationToken);
-
-                if (affected == 0)
+                if (stockItem.CountOnHand < item.Quantity)
                     return StockTransferResult.Failure.InsufficientStockAtSource;
+
+                stockItem.CountOnHand -= item.Quantity;
+                stockItem.ModifiedAtUtc = DateTimeOffset.UtcNow;
 
                 var movementResult = StockMovementMethod.Create(
                     stockItemId: stockItem.Id,

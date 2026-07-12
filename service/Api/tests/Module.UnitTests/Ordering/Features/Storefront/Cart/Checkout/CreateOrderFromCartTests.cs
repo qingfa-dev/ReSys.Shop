@@ -51,7 +51,7 @@ public class CreateOrderFromCartTests : IDisposable
         GC.SuppressFinalize(this);
     }
 
-    [Fact(DisplayName = "Handler: Should create order from cart successfully", Skip = "Requires PostgreSQL — ExecuteUpdateAsync not supported by InMemory provider")]
+    [Fact(DisplayName = "Handler: Should create order from cart successfully")]
     public async Task Handle_ShouldReturnSuccess_WhenCartHasItems()
     {
         // Arrange: Seed location and stock
