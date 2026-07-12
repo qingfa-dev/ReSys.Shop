@@ -16,14 +16,18 @@ public static partial class RemoveOrderLineItem
         public async Task<Result> Handle(Command command, CancellationToken cancellationToken)
         {
             // Contract: pre=command!=null, post=result!=null, throws=DbUpdateException
+            // Check: Find the line item scoped to its parent order.
             var lineItem = await dbContext.Set<LineItem>().FirstOrDefaultAsync(li => li.Id == command.LineItemId && li.OrderId == command.OrderId, cancellationToken);
             if (lineItem is null) return LineItemResult.Errors.NotFound(command.LineItemId);
 
+            // Check: Find the parent order for status validation and recalculation.
             var order = await dbContext.Set<Order>().FirstOrDefaultAsync(o => o.Id == command.OrderId, cancellationToken);
-            if (order is null) return OrderResult.Errors.NotFound(command.OrderId);
-            if (order.Status != OrderStatus.Draft) return OrderResult.Errors.InvalidStatusForLineItemRemove;
+            if (order is null) return OrderResult.Failure.NotFound(command.OrderId);
+            // Enforce: Only draft orders can have line items removed — placed orders are immutable.
+            if (order.Status != OrderStatus.Draft) return OrderResult.Failure.InvalidStatusForLineItemRemove;
             // Remove: Delete entity from database.
             dbContext.Set<LineItem>().Remove(lineItem);
+            // Update: Recalculate order totals after removing the line item.
             order.RecalculateTotals();
             await dbContext.SaveChangesAsync(cancellationToken);
             return Result.Ok();

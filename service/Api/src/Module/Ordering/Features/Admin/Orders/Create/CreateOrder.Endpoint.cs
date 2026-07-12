@@ -9,6 +9,7 @@ public static partial class CreateOrder
         {
             app.MapPost(OrderingFeature.Admin.Orders.Create.Route, async ([FromBody] Request request, ISender sender, CancellationToken ct) =>
             {
+                // Call: Dispatch CreateOrder command via MediatR.
                 var result = await sender.Send(new Command(request), ct);
                 return result.ToResult();
             })

@@ -13,6 +13,7 @@ public static partial class GetOrderLineItems
                 ISender sender,
                 CancellationToken ct) =>
             {
+                // Call: Dispatch GetOrderLineItems query via MediatR.
                 var result = await sender.Send(new Query(id, parameters), ct);
                 return result.ToPagedResult();
             })

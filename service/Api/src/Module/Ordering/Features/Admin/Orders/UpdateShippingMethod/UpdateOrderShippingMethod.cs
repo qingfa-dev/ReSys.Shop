@@ -17,12 +17,12 @@ public static partial class UpdateOrderShippingMethod
         public async Task<Result<Response>> Handle(Command command, CancellationToken cancellationToken)
         {
             // Contract: pre=command!=null, post=result!=null, throws=DbUpdateException
-            // Check: Order exists.
+            // Check: Find the order to update the shipping method on.
             var order = await dbContext.Set<Order>().FirstOrDefaultAsync(o => o.Id == command.Id, cancellationToken);
             if (order is null)
-                return OrderResult.Errors.NotFound(command.Id);
+                return OrderResult.Failure.NotFound(command.Id);
 
-            // Update: Set the shipping method and recalculate totals.
+            // Update: Assign the shipping method, reset shipment total, and recalculate all totals.
             order.ShippingMethodId = command.Request.ShippingMethodId;
             order.ShipmentTotal = 0;
             order.RecalculateTotals();

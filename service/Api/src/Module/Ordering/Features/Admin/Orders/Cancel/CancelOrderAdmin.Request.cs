@@ -4,6 +4,7 @@ public static partial class CancelOrderAdmin
 {
     public class Request
     {
+        /// <summary>Optional free-text reason for the cancellation — recorded for audit trail.</summary>
         public string? Reason { get; init; }
     }
 }

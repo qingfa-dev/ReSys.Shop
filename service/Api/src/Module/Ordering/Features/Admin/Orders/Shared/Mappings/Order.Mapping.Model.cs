@@ -3,9 +3,15 @@ using Module.Ordering.Features.Admin.Orders.Shared.Models;
 
 namespace Module.Ordering.Features.Admin.Orders.Shared.Mappings;
 
+/// <summary>Maps Order domain entities to response DTOs for the admin order features.</summary>
+// Boundary: Domain → Features — converts persisted entities to wire-format responses
 public static partial class OrderMapping
 {
-    // Map: Domain entity -> Detail response
+    /// <summary>Maps an Order entity to a detail response DTO with all order properties.</summary>
+    /// <typeparam name="T">The target response type (must inherit from OrderDetailResponse).</typeparam>
+    /// <param name="entity">The Order domain entity to map.</param>
+    /// <returns>A new response DTO populated from the entity.</returns>
+    // Map: Domain entity -> Detail response (full property transfer)
     public static T MapToDetail<T>(this Order entity) where T : OrderDetailResponse, new()
     {
         return new T
@@ -40,7 +46,11 @@ public static partial class OrderMapping
         };
     }
 
-    // Map: Domain entity -> List item response
+    /// <summary>Maps an Order entity to a list-item response DTO with summary properties.</summary>
+    /// <typeparam name="T">The target response type (must inherit from OrderListItemResponse).</typeparam>
+    /// <param name="entity">The Order domain entity to map.</param>
+    /// <returns>A new list-item response DTO populated from the entity.</returns>
+    // Map: Domain entity -> List item response (summary for grid views)
     public static T MapToListItem<T>(this Order entity) where T : OrderListItemResponse, new()
     {
         return new T

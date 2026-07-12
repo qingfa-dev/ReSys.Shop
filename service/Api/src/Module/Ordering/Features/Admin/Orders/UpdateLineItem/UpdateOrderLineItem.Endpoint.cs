@@ -9,6 +9,7 @@ public static partial class UpdateOrderLineItem
         {
             app.MapPut(OrderingFeature.Admin.Orders.UpdateLineItem.Route, async (Guid id, Guid lineItemId, [FromBody] Request request, ISender sender, CancellationToken ct) =>
             {
+                // Call: Dispatch UpdateOrderLineItem command via MediatR.
                 var result = await sender.Send(new Command(id, lineItemId, request), ct);
                 return result.ToResult();
             })

@@ -25,10 +25,11 @@ public static partial class AddOrderLineItem
 
             dbContext.Set<LineItem>().Add(lineItem);
 
-            // Update: Recalculate order totals.
+            // Check: Find the parent order to recalculate totals.
             var order = await dbContext.Set<Order>().FirstOrDefaultAsync(o => o.Id == command.OrderId, cancellationToken);
             if (order is not null)
             {
+                // Update: Recalculate order totals after adding line item.
                 order.RecalculateTotals();
             }
 

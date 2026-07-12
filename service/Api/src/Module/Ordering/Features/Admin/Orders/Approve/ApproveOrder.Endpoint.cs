@@ -10,6 +10,7 @@ public static partial class ApproveOrder
         {
             app.MapPost(OrderingFeature.Admin.Orders.Approve.Route, async (Guid id, ISender sender, CancellationToken ct) =>
             {
+                // Call: Dispatch ApproveOrder command via MediatR.
                 var result = await sender.Send(new Command(id), ct);
                 return result.ToResult();
             })

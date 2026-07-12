@@ -14,12 +14,15 @@ public static partial class GetOrderLineItems
         /// <returns>The paged line item list response.</returns>
         public async Task<PagedResult<Response>> Handle(Query request, CancellationToken cancellationToken)
         {
+            // Contract: pre=request!=null, post=result!=null
             var parameters = request.Parameters;
 
+            // Validate: Parse and validate paging/filtering parameters.
             var parseAll = parameters.ParseAll();
             if (parseAll.IsFailure)
                 return parseAll.Errors;
 
+            // Filter: Scoped to the parent order's line items.
             var query = dbContext.Set<LineItem>().AsNoTracking()
                 .Where(li => li.OrderId == request.OrderId)
                 .ApplyQuerying(parseAll.Value);

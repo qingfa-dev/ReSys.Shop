@@ -19,7 +19,7 @@ public static partial class CreateOrder
             // Contract: pre=command!=null, post=result!=null, throws=DbUpdateException
             var request = command.Request;
 
-            // Create: Map the request to a new Order entity.
+            // Create: Map the request to a new Order entity with default identifiers.
             var result = request.MapToDomain(userId: Guid.Empty, storeId: Guid.Empty);
             if (result.IsFailure)
                 return result.Errors;

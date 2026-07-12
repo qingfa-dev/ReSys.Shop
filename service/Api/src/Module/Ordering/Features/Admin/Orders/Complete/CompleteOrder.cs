@@ -17,13 +17,16 @@ public static partial class CompleteOrder
         public async Task<Result<Response>> Handle(Command command, CancellationToken cancellationToken)
         {
             // Contract: pre=command!=null, post=result!=null, throws=DbUpdateException
+            // Check: Find the order to complete.
             var order = await dbContext.Set<Order>().FirstOrDefaultAsync(o => o.Id == command.Id, cancellationToken);
             if (order is null)
-                return OrderResult.Errors.NotFound(command.Id);
+                return OrderResult.Failure.NotFound(command.Id);
 
+            // Enforce: Only placed orders can be completed — prevents invalid state transitions.
             if (order.Status != OrderStatus.Placed)
-                return OrderResult.Errors.InvalidStatusTransition;
+                return OrderResult.Failure.InvalidStatusTransition;
 
+            // Update: Finalize order lifecycle — set complete state and timestamps.
             order.CheckoutState = CheckoutState.Complete;
             order.CompletedAtUtc = DateTimeOffset.UtcNow;
             order.ModifiedAtUtc = DateTimeOffset.UtcNow;

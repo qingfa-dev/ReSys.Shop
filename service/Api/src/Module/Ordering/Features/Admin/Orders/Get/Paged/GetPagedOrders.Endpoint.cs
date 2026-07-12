@@ -13,6 +13,7 @@ public static partial class GetPagedOrders
                 ISender sender,
                 CancellationToken ct) =>
             {
+                // Call: Dispatch GetPagedOrders query via MediatR.
                 var query = new Query(parameters);
                 var result = await sender.Send(query, ct);
                 return result.ToPagedResult();

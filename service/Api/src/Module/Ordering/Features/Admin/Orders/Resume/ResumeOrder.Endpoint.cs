@@ -10,6 +10,7 @@ public static partial class ResumeOrder
         {
             app.MapPost(OrderingFeature.Admin.Orders.Resume.Route, async (Guid id, ISender sender, CancellationToken ct) =>
             {
+                // Call: Dispatch ResumeOrder command via MediatR.
                 var result = await sender.Send(new Command(id), ct);
                 return result.ToResult();
             })

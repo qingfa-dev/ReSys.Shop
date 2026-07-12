@@ -33,7 +33,7 @@ public static partial class CancelOrderAdmin
                 .Include(o => o.LineItems)
                 .FirstOrDefaultAsync(o => o.Id == command.Id, cancellationToken);
             if (order is null)
-                return OrderResult.Errors.NotFound(command.Id);
+                return OrderResult.Failure.NotFound(command.Id);
 
             var wasPlaced = order.Status == OrderStatus.Placed;
             Guid.TryParse(currentUser.UserId, out var userId);
@@ -41,18 +41,21 @@ public static partial class CancelOrderAdmin
             if (result.IsFailure)
                 return result.Errors;
 
+            // Call: Void pending payments via Payment module — fire-and-forget on failure.
             var voidResult = await sender.Send(
                 new Module.Payment.Features.Shared.Commands.VoidOrderPaymentsCommand(
                     order.Id, "Order cancelled by admin"),
                 cancellationToken);
             if (voidResult.IsFailure)
             {
+                // Log: Payment void failure is non-fatal — order is already cancelled.
                 logger.LogWarning("Failed to void payments for order {OrderId}: {Errors}",
                     order.Id, string.Join("; ", voidResult.Errors.Select(f => f.Message)));
             }
 
             if (wasPlaced)
             {
+                // Compensate: Release reserved inventory — order will not be fulfilled.
                 foreach (var lineItem in order.LineItems)
                 {
                     var orderInventory = new OrderInventoryService(order, lineItem, dbContext, stockChecker);
@@ -69,9 +72,11 @@ public static partial class CancelOrderAdmin
 
         private async Task SendOrderCanceledNotificationAsync(Order order, CancellationToken ct)
         {
+            // Skip: No email on order — nothing to notify.
             if (string.IsNullOrWhiteSpace(order.Email))
                 return;
 
+            // Notify: Send cancellation email with order number and customer name.
             var message = NotificationMessage.Create(
                 NotificationUseCase.OrderCancelled,
                 NotificationRecipient.Create(order.Email, order.Number),
@@ -80,6 +85,7 @@ public static partial class CancelOrderAdmin
                     (NotificationParameterType.OrderNumber, order.Number),
                     (NotificationParameterType.UserFirstName, order.Email.Split('@')[0])));
 
+            // Suppress: Notification failure must not block order cancellation — best-effort only.
             var result = await notificationService.SendAsync(message, ct);
             if (result.IsFailure)
             {

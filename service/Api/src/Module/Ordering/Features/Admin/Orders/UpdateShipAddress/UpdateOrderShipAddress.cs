@@ -17,15 +17,16 @@ public static partial class UpdateOrderShipAddress
         public async Task<Result<Response>> Handle(Command command, CancellationToken cancellationToken)
         {
             // Contract: pre=command!=null, post=result!=null, throws=DbUpdateException
-            // Check: Order exists and is in draft status.
+            // Check: Find the order to update the shipping address on.
             var order = await dbContext.Set<Order>().FirstOrDefaultAsync(o => o.Id == command.Id, cancellationToken);
             if (order is null)
-                return OrderResult.Errors.NotFound(command.Id);
+                return OrderResult.Failure.NotFound(command.Id);
 
+            // Enforce: Only draft orders can have shipping address modified.
             if (order.Status != OrderStatus.Draft)
                 return Error.Validation("Order.ShipAddress.Update.NotDraft", "Only draft orders can have shipping address modified.");
 
-            // Update: Set the shipping address.
+            // Update: Set the shipping address from the request.
             order.ShipAddressId = command.Request.AddressId;
             order.ModifiedAtUtc = DateTimeOffset.UtcNow;
 

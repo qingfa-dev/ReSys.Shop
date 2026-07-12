@@ -9,6 +9,7 @@ public static partial class DeleteOrder
         {
             app.MapDelete(OrderingFeature.Admin.Orders.Delete.Route, async (Guid id, ISender sender, CancellationToken ct) =>
             {
+                // Call: Dispatch DeleteOrder command via MediatR.
                 var result = await sender.Send(new Command(id), ct);
                 return result.ToResult();
             })

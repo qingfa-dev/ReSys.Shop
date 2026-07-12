@@ -11,7 +11,9 @@ public static partial class GetOrderLineItemById
         public Guid VariantId { get; init; }
         public int Quantity { get; init; }
         public decimal Price { get; init; }
+        /// <summary>Line item subtotal — quantity × price, before adjustments.</summary>
         public decimal Total { get; init; }
+        /// <summary>Cumulative adjustment value applied to this line item (discounts, surcharges).</summary>
         public decimal AdjustmentTotal { get; init; }
         public string Currency { get; init; } = string.Empty;
         public DateTimeOffset CreatedAtUtc { get; init; }
@@ -27,6 +29,8 @@ public static partial class GetOrderLineItemById
         /// <returns>The line item detail response.</returns>
         public async Task<Result<Response>> Handle(Query query, CancellationToken cancellationToken)
         {
+            // Contract: pre=query!=null, post=result!=null
+            // Check: Find the line item scoped to its parent order.
             var lineItem = await dbContext.Set<LineItem>()
                 .AsNoTracking()
                 .FirstOrDefaultAsync(

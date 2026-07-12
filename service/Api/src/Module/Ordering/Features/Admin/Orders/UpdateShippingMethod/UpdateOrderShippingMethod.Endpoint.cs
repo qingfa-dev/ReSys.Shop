@@ -9,6 +9,7 @@ public static partial class UpdateOrderShippingMethod
         {
             app.MapPut(OrderingFeature.Admin.Orders.UpdateShippingMethod.Route, async (Guid id, [FromBody] Request request, ISender sender, CancellationToken ct) =>
             {
+                // Call: Dispatch UpdateOrderShippingMethod command via MediatR.
                 var result = await sender.Send(new Command(id, request), ct);
                 return result.ToResult();
             })

@@ -14,6 +14,7 @@ public static partial class UpdateOrderStatus
                 ISender sender,
                 CancellationToken ct) =>
             {
+                // Call: Dispatch UpdateOrderStatus command via MediatR.
                 var command = new Command(id, request);
                 var result = await sender.Send(command, ct);
                 return result.ToResult();

@@ -10,6 +10,7 @@ public static partial class GetOrderLineItemById
         {
             app.MapGet(OrderingFeature.Admin.Orders.GetLineItemById.Route, async (Guid id, Guid lineItemId, ISender sender, CancellationToken ct) =>
             {
+                // Call: Dispatch GetOrderLineItemById query via MediatR.
                 var result = await sender.Send(new Query(id, lineItemId), ct);
                 return result.ToResult();
             })

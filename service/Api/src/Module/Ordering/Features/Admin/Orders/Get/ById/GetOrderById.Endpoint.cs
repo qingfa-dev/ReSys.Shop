@@ -13,6 +13,7 @@ public static partial class GetOrderById
                 ISender sender,
                 CancellationToken ct) =>
             {
+                // Call: Dispatch GetOrderById query via MediatR.
                 var query = new Query(id);
                 var result = await sender.Send(query, ct);
                 return result.ToResult();

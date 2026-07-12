@@ -9,6 +9,7 @@ public static partial class RemoveOrderLineItem
         {
             app.MapDelete(OrderingFeature.Admin.Orders.RemoveLineItem.Route, async (Guid id, Guid lineItemId, ISender sender, CancellationToken ct) =>
             {
+                // Call: Dispatch RemoveOrderLineItem command via MediatR.
                 var result = await sender.Send(new Command(id, lineItemId), ct);
                 return result.ToResult();
             })

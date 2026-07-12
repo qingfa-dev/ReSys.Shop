@@ -17,17 +17,18 @@ public static partial class UpdateOrderAdmin
         public async Task<Result<Response>> Handle(Command command, CancellationToken cancellationToken)
         {
             // Contract: pre=command!=null, post=result!=null, throws=DbUpdateException
-            // Check: Order exists and is in draft status.
+            // Check: Find the order to update.
             var order = await dbContext.Set<Order>().FirstOrDefaultAsync(o => o.Id == command.Id, cancellationToken);
             if (order is null)
-                return OrderResult.Errors.NotFound(command.Id);
+                return OrderResult.Failure.NotFound(command.Id);
 
+            // Enforce: Only draft orders can be modified — prevents edits to placed orders.
             if (order.Status != OrderStatus.Draft)
                 return Error.Validation("Order.Update.NotDraft", "Only draft orders can be modified.");
 
             var req = command.Request;
 
-            // Update: Apply partial changes (PATCH semantics).
+            // Update: Apply partial changes using PATCH semantics — only non-null values overwrite.
             if (req.Email is not null) order.Email = req.Email;
             if (req.SpecialInstructions is not null) order.SpecialInstructions = req.SpecialInstructions;
             if (req.BillAddressId.HasValue) order.BillAddressId = req.BillAddressId;

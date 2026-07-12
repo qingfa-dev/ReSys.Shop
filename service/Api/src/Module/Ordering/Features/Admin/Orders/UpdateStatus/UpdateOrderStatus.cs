@@ -24,30 +24,33 @@ public static partial class UpdateOrderStatus
         public async Task<Result> Handle(Command command, CancellationToken cancellationToken)
         {
             // Contract: pre=command!=null, post=result!=null, throws=DbUpdateException
-            // Check: Find the existing entity.
+            // Check: Find the order with line items for inventory operations.
             var entity = await dbContext.Set<Order>()
                 .Include(x => x.LineItems)
                 .FirstOrDefaultAsync(x => x.Id == command.Id, cancellationToken);
 
             if (entity is null)
-                return OrderResult.Errors.NotFound(command.Id);
+                return OrderResult.Failure.NotFound(command.Id);
 
             var request = command.Request;
 
-            // Update: Apply status transition.
+            // Update: Apply status transition based on target status.
             switch (request.Status)
             {
                 case OrderStatus.Placed when entity.Status == OrderStatus.Draft:
+                    // Update: Transition from Draft to Placed — no side effects.
                     entity.Status = OrderStatus.Placed;
                     break;
                 case OrderStatus.Canceled when entity.Status != OrderStatus.Canceled:
                     var wasPlaced = entity.Status == OrderStatus.Placed;
+                    // Update: Transition to Canceled — record who and when.
                     entity.Status = OrderStatus.Canceled;
                     entity.CanceledAtUtc = DateTimeOffset.UtcNow;
                     entity.CanceledById = Guid.TryParse(currentUser.UserId, out var canceledBy) ? canceledBy : null;
 
                     if (wasPlaced)
                     {
+                        // Compensate: Release reserved inventory — the order will not be fulfilled.
                         foreach (var li in entity.LineItems)
                         {
                             var orderInventory = new OrderInventoryService(entity, li, dbContext, stockChecker);
@@ -56,12 +59,12 @@ public static partial class UpdateOrderStatus
                     }
                     break;
                 default:
-                    return OrderResult.Errors.InvalidStatusTransition;
+                    return OrderResult.Failure.InvalidStatusTransition;
             }
 
             await dbContext.SaveChangesAsync(cancellationToken);
 
-            // Log: Record cancellation in audit log.
+            // Log: Record status transition in audit log for compliance trail.
             if (entity.Status == OrderStatus.Canceled)
                 OrderLoggers.Canceled(logger, Number: entity.Number, Id: entity.Id, ActionBy: currentUser.UserName);
 

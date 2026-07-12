@@ -6,6 +6,7 @@ public static partial class UpdateOrderLineItem
     {
         public Guid Id { get; init; }
         public int Quantity { get; init; }
+        /// <summary>Recalculated line item total after quantity change.</summary>
         public decimal Total { get; init; }
     }
 }

@@ -13,6 +13,7 @@ public static partial class UpdateOrderAdmin
                 ISender sender,
                 CancellationToken ct) =>
             {
+                // Call: Dispatch UpdateOrderAdmin command via MediatR.
                 var result = await sender.Send(new Command(id, request), ct);
                 return result.ToResult();
             })
