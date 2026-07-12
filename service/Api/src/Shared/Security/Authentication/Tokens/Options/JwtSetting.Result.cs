@@ -76,5 +76,9 @@ public static class JwtSettingsResult
         public static Error WeakSecretWarning => Error.Validation(
             code: "Jwt.Secret.Weak",
             message: "JWT secret appears to be weak or a default value. This should be changed for production environments.");
+
+        public static Error DevSecretNotAllowed => Error.Validation(
+            code: "Jwt.Secret.DevNotAllowed",
+            message: "JWT secret must not be the dev secret literal in non-Development environments. Configure a unique secret via user-secrets, environment variables, or a secret manager.");
     }
 }

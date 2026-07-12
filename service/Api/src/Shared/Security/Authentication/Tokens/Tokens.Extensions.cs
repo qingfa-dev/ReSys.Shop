@@ -1,9 +1,12 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Text;
 
+using FluentValidation;
+
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 
@@ -31,6 +34,12 @@ public static class TokensExtensions
     {
         // Clear: Default claim type mappings to preserve original claim names
         JwtSecurityTokenHandler.DefaultInboundClaimTypeMap.Clear();
+
+        // Register: JwtSettingsValidator bound to the host environment so the dev secret literal is
+        // refused in any non-Development environment. The explicit singleton overrides the
+        // auto-registered Scoped registration from AddValidatorsFromAssembly.
+        builder.Services.AddSingleton<IValidator<JwtSettings>>(sp =>
+            new JwtSettingsValidator(sp.GetRequiredService<IHostEnvironment>()));
 
         // Bind: Load and validate JWT settings with FluentValidation
         builder.Services.AddOptions<JwtSettings>()
