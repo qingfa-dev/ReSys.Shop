@@ -2,6 +2,7 @@ using Module.Inventory.Domain.StockLocations.StockItems;
 using Module.Inventory.Domain.StockLocations;
 using Module.Inventory.Domain.StockReservations;
 using Module.Inventory.Features.Storefront.StockAvailability.Check;
+using Module.Inventory.Services;
 
 namespace Module.UnitTests.Inventory.Features.Storefront.StockAvailability.Check;
 
@@ -22,7 +23,9 @@ public class GetStockAvailabilityTests : IDisposable
         ApplicationDbContext.AdditionalConfigurationsAssemblies = [typeof(StockItem).Assembly];
         _dbContext = new ApplicationDbContext(options);
 
-        _handler = new GetStockAvailability.QueryHandler(_dbContext);
+        _handler = new GetStockAvailability.QueryHandler(
+            _dbContext,
+            new StockAvailabilityCalculator(_dbContext));
     }
 
     public void Dispose()
