@@ -64,6 +64,9 @@ public sealed class ApiFactory : WebApplicationFactory<Program>
                 ["Notification:CustomerSupportLink"] = "http://localhost:5000/support",
                 ["Notification:UnsubscribeUrl"] = "http://localhost:5000/unsubscribe",
                 ["Notification:SurveyUrl"] = "http://localhost:5000/survey",
+                ["Notification:Channels:Email:FromEmail"] = "test@resys.shop",
+                ["Notification:Channels:Email:FromName"] = "test@resys.shop",
+                ["Notification:Channels:Sms:DefaultSenderNumber"] = "+12345678901",
 
                 ["GuestSession:CookieSecurePolicy"] = "SameAsRequest",
 
