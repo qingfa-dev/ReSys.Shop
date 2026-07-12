@@ -13,7 +13,7 @@ public static partial class AssociateCartWithUser
                 var result = await sender.Send(new Command(request), ct);
                 return result.ToResult();
             })
-            .RequireAuthorization()
+            .AllowAnonymous()
             .WithName(nameof(AssociateCartWithUser))
             .WithTags(OrderingFeature.Tags.Cart)
             .WithSummary(OrderingFeature.Storefront.Cart.Associate.Summary)

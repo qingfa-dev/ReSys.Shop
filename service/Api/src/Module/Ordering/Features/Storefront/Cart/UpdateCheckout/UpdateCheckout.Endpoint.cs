@@ -14,7 +14,7 @@ public static partial class UpdateCheckout
                 var result = await sender.Send(new Command(request), ct);
                 return result.ToResult();
             })
-            .RequireAuthorization()
+            .AllowAnonymous()
             .WithName(nameof(UpdateCheckout))
             .WithTags(OrderingFeature.Tags.Cart)
             .WithSummary(OrderingFeature.Storefront.Cart.Update.Summary)

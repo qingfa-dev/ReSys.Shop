@@ -13,7 +13,7 @@ public static partial class ValidateCheckout
                 var result = await sender.Send(new Command(), ct);
                 return result.ToResult();
             })
-            .RequireAuthorization()
+            .AllowAnonymous()
             .WithName(nameof(ValidateCheckout))
             .WithTags(OrderingFeature.Tags.Cart)
             .WithSummary(OrderingFeature.Storefront.Cart.Validate.Summary)

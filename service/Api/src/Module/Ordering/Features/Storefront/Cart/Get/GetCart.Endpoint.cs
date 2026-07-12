@@ -16,7 +16,7 @@ public static partial class GetCart
                 var result = await sender.Send(query, ct);
                 return result.ToResult();
             })
-            .RequireAuthorization()
+            .AllowAnonymous()
             .WithName(nameof(GetCart))
             .WithTags(OrderingFeature.Tags.Cart)
             .WithSummary(OrderingFeature.Storefront.Cart.Get.Summary)

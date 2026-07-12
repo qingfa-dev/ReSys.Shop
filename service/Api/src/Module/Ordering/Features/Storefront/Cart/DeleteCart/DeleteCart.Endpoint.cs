@@ -13,7 +13,7 @@ public static partial class DeleteCart
                 var result = await sender.Send(new Command(), ct);
                 return result.ToResult();
             })
-            .RequireAuthorization()
+            .AllowAnonymous()
             .WithName(nameof(DeleteCart))
             .WithTags(OrderingFeature.Tags.Cart)
             .WithSummary(OrderingFeature.Storefront.Cart.Delete.Summary)

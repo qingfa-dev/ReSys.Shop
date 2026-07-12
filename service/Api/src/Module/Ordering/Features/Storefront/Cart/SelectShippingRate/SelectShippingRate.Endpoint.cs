@@ -14,7 +14,7 @@ public static partial class SelectShippingRate
                 var result = await sender.Send(new Command(request), ct);
                 return result.ToResult();
             })
-            .RequireAuthorization()
+            .AllowAnonymous()
             .WithName(nameof(SelectShippingRate))
             .WithTags(OrderingFeature.Tags.Cart)
             .WithSummary(OrderingFeature.Storefront.Cart.SelectShippingRate.Summary)

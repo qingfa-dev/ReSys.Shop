@@ -17,7 +17,7 @@ public static partial class AddToCart
                 var result = await sender.Send(command, ct);
                 return result.ToResult();
             })
-            .RequireAuthorization()
+            .AllowAnonymous()
             .WithName(nameof(AddToCart))
             .WithTags(OrderingFeature.Tags.Cart)
             .WithSummary(OrderingFeature.Storefront.Cart.AddItem.Summary)

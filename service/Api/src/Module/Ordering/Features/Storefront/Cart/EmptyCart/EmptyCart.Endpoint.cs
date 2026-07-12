@@ -13,7 +13,7 @@ public static partial class EmptyCart
                 var result = await sender.Send(new Command(), ct);
                 return result.ToResult();
             })
-            .RequireAuthorization()
+            .AllowAnonymous()
             .WithName(nameof(EmptyCart))
             .WithTags(OrderingFeature.Tags.Cart)
             .WithSummary(OrderingFeature.Storefront.Cart.Empty.Summary)

@@ -14,7 +14,7 @@ public static partial class UpdateCartItemQuantity
                 var result = await sender.Send(new Command(lineItemId, request), ct);
                 return result.ToResult();
             })
-            .RequireAuthorization()
+            .AllowAnonymous()
             .WithName(nameof(UpdateCartItemQuantity))
             .WithTags(OrderingFeature.Tags.Cart)
             .WithSummary(OrderingFeature.Storefront.Cart.UpdateItemQuantity.Summary)

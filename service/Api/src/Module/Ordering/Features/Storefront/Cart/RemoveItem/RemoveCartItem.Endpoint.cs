@@ -14,7 +14,7 @@ public static partial class RemoveCartItem
                 var result = await sender.Send(new Command(lineItemId), ct);
                 return result.ToResult();
             })
-            .RequireAuthorization()
+            .AllowAnonymous()
             .WithName(nameof(RemoveCartItem))
             .WithTags(OrderingFeature.Tags.Cart)
             .WithSummary(OrderingFeature.Storefront.Cart.RemoveItem.Summary)
