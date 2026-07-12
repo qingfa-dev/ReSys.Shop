@@ -43,6 +43,9 @@ public sealed class ApiFixture : IAsyncLifetime
     public HttpClient Client => _factory?.CreateClient()
         ?? throw new InvalidOperationException("Factory not initialized");
 
+    public ApiFactory Factory => _factory
+        ?? throw new InvalidOperationException("Factory not initialized");
+
     public async ValueTask InitializeAsync()
     {
         ConfigureContainerRuntime();

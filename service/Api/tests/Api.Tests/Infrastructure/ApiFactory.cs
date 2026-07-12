@@ -68,7 +68,11 @@ public sealed class ApiFactory : WebApplicationFactory<Program>
                 ["AntiForgery:CookieName"] = "XSRF-TOKEN",
                 ["AntiForgery:CookieSecurePolicy"] = "SameAsRequest",
                 ["AntiForgery:CookieSameSite"] = "Strict",
-                ["AntiForgery:CookieHttpOnly"] = "true"
+                ["AntiForgery:CookieHttpOnly"] = "true",
+
+                ["GatewayProviders:SettingsEncryptionKey"] = "integration-test-encryption-key-32+bytes",
+                ["GatewayProviders:stripe:Enabled"] = "true",
+                ["GatewayProviders:stripe:WebhookSecret"] = "whsec_integration_test_secret_32+chars"
             });
         });
 
