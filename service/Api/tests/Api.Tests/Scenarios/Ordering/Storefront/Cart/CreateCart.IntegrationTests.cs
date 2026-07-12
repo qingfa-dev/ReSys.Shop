@@ -32,9 +32,16 @@ public sealed class CreateCartIntegrationTests(ApiFixture fixture) : OrderingInt
     }
 
     [Fact]
-    public async Task CreateCart_WithoutAuth_Returns401()
+    public async Task CreateCart_WithoutAuth_ReturnsCreated()
     {
         HttpResponseMessage response = await Client.PostAsJsonAsync("/api/storefront/cart", new { });
-        response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
+        ApiResponse result = await response.ReadApiResponseAsync();
+
+        result.IsSuccess.Should().BeTrue();
+        result.StatusCode.Should().Be(HttpStatusCode.Created);
+
+        string? setCookie = response.Headers.GetValues("Set-Cookie").FirstOrDefault();
+        setCookie.Should().NotBeNull();
+        setCookie.Should().Contain("Guest=");
     }
 }
