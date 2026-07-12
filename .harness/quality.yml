@@ -1,0 +1,207 @@
+version: "1.0"
+
+scale:
+  - A
+  - B
+  - C
+  - D
+  - F
+
+dimensions:
+  - code_quality
+  - test_coverage
+  - documentation
+  - observability
+  - reliability
+  - security
+
+review_cadence: quarterly
+
+domains:
+  Catalog:
+    scores:
+      code_quality: B
+      test_coverage: B
+      documentation: B
+      observability: B
+      reliability: B
+      security: B
+    gaps:
+      - "Some entity files exceed 500 lines (Variant.cs)"
+      - "Integration test coverage is good but could expand for storefront endpoints"
+      - "Image embedding pipeline (Embedding service) is stubs — vector search untested"
+    notes: "Largest and most mature module. Good vertical slice discipline. Module.Extension has 4 commits in 90 days — active development."
+    last_reviewed: "2026-07-13"
+
+  Inventory:
+    scores:
+      code_quality: B
+      test_coverage: C
+      documentation: B
+      observability: B
+      reliability: B
+      security: B
+    gaps:
+      - "Test coverage weaker than Catalog — fewer unit tests for reservation/transfer logic"
+      - "Some edge cases in stock reservation conflict resolution untested"
+    notes: "Solid structure. Not listed in README features — confirm if production-active or experimental."
+    last_reviewed: "2026-07-13"
+
+  Identity:
+    scores:
+      code_quality: B
+      test_coverage: A
+      documentation: B
+      observability: B
+      reliability: B
+      security: A
+    gaps:
+      - "Dev JWT secret moved to dotnet user-secrets (commit 37170ef7); JwtSettingsValidator rejects dev secrets in non-Development"
+      - "External OAuth providers (Google, Facebook, Microsoft) configured but untested in integration tests"
+    notes: "Well-tested module. Strong security boundaries (OWASP password policy, lockout, rate limiting)."
+    last_reviewed: "2026-07-13"
+
+  Location:
+    scores:
+      code_quality: A
+      test_coverage: A
+      documentation: A
+      observability: B
+      reliability: A
+      security: A
+    gaps:
+      - "No domain-level logging (simple CRUD — low risk)"
+    notes: "Small, clean module (3K LOC). Excellent integration test coverage. Low complexity."
+    last_reviewed: "2026-07-13"
+
+  Ordering:
+    scores:
+      code_quality: B
+      test_coverage: B
+      documentation: B
+      observability: B
+      reliability: B
+      security: B
+    gaps:
+      - "Complex state machine (Order.Status, CheckoutState transitions) — test coverage could be deeper"
+      - "Cart expiry background job exists but untested in isolation"
+    notes: "Feature-rich module (cart 13 actions, orders 16 actions). Good structure. No known production issues."
+    last_reviewed: "2026-07-13"
+
+  Payment:
+    scores:
+      code_quality: B
+      test_coverage: C
+      documentation: C
+      observability: C
+      reliability: C
+      security: B
+    gaps:
+      - "Uses BogusGateway for dev; StripeGateway code exists but Stripe integration tests not runnable in CI (needs real keys)"
+      - "Webhook handler idempotency not verified in integration tests"
+      - "Payment module has highest 90-day churn across both handler and test files"
+    notes: "Stripe.net package referenced, StripeGateway and StripeWebhookService exist. BogusGateway used in dev/test. Real Stripe integration is write-through but CI can't test it."
+    last_reviewed: "2026-07-13"
+
+  Profile:
+    scores:
+      code_quality: B
+      test_coverage: B
+      documentation: B
+      observability: B
+      reliability: B
+      security: B
+    gaps: []
+    notes: "Clean module. Address CRUD, wishlist, notification preferences. No notable gaps."
+    last_reviewed: "2026-07-13"
+
+  Shipping:
+    scores:
+      code_quality: B
+      test_coverage: C
+      documentation: C
+      observability: C
+      reliability: C
+      security: B
+    gaps:
+      - "Shipping rate calculation logic has limited test coverage"
+      - "Address normalization integration not tested"
+    notes: "Smaller module (2.7K LOC). Functional but less mature than Catalog/Ordering."
+    last_reviewed: "2026-07-13"
+
+  Shared.Infrastructure:
+    scores:
+      code_quality: B
+      test_coverage: A
+      documentation: B
+      observability: B
+      reliability: B
+      security: A
+    gaps:
+      - "High coupling — Shared references 30+ packages, any change affects all modules"
+      - "No splitting into separate infrastructure packages (Shared.Persistence, Shared.Auth, etc.)"
+    notes: "Well-tested (Shared.UnitTests has 28K LOC). Strong foundation but could benefit from decomposition."
+    last_reviewed: "2026-07-13"
+
+  Admin.SPA:
+    scores:
+      code_quality: B
+      test_coverage: C
+      documentation: B
+      observability: D
+      reliability: C
+      security: C
+    gaps:
+      - "Feature routes in feature modules not yet registered in main router"
+      - "Auth bootstrap is a no-op stub"
+      - "Frontend tests exist but coverage is low relative to app size (23K LOC)"
+      - "No frontend observability (no Sentry, no analytics)"
+    notes: "Mature UI with good component structure. Test foundation exists (Vitest) but coverage needs scaling."
+    last_reviewed: "2026-07-13"
+
+  Store.SPA:
+    scores:
+      code_quality: B
+      test_coverage: D
+      documentation: C
+      observability: D
+      reliability: B
+      security: C
+    gaps:
+      - "Only 2 test files covering 8 tests for ~550 LOC app"
+      - "No error boundaries or fallback UI for API failures"
+      - "No frontend observability"
+    notes: "Minimal but functional storefront. Good architecture for its size. Needs test and observability investment."
+    last_reviewed: "2026-07-13"
+
+  Embedding:
+    scores:
+      code_quality: C
+      test_coverage: D
+      documentation: C
+      observability: F
+      reliability: F
+      security: C
+    gaps:
+      - "All ML inference is stubs — returns dummy vectors, no model loaded"
+      - "Only health check endpoint is functional; embedding endpoints return dummy data"
+      - "No metrics, no tracing, no structured logging"
+      - "4 test cases for stub endpoints — no real inference tested"
+      - "Stale build/ directory with pre-built artifacts (build/lib/ and embedding.egg-info/)"
+    notes: "Stub implementation. Core infrastructure exists (FastAPI, schemas, routers) but no actual ML inference runs. WIP. build/lib/ and embedding.egg-info/ should be gitignored (tracked in AGENTS.md Known Issues)."
+    last_reviewed: "2026-07-13"
+
+  Aspire.Orchestration:
+    scores:
+      code_quality: B
+      test_coverage: F
+      documentation: B
+      observability: B
+      reliability: B
+      security: B
+    gaps:
+      - "No tests for Aspire orchestration (infra/Aspire/tests/ is empty)"
+      - "SMTP (Papercut) resource defined in constants but not wired in AppHost"
+      - "YARP API Gateway commented out as deferred"
+    notes: "Clean orchestration setup. 6 resources wired correctly. ServiceDefaults has strong OpenTelemetry config."
+    last_reviewed: "2026-07-13"

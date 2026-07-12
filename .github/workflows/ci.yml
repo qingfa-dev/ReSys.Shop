@@ -1,0 +1,65 @@
+name: CI
+
+on:
+  push:
+    branches: [dev, main]
+  pull_request:
+    branches: [dev, main]
+
+jobs:
+  dotnet-build:
+    name: .NET Build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          global-json-file: global.json
+      - run: dotnet build
+      - run: dotnet test service/Api/tests/Shared.UnitTests
+      - run: dotnet test service/Api/tests/Module.UnitTests
+
+  admin-lint-test:
+    name: Admin SPA (lint + test)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: app/Admin
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: app/Admin/package.json
+      - run: pnpm install
+      - run: pnpm run lint
+      - run: pnpm run test:unit
+
+  store-lint-test:
+    name: Store SPA (lint + test)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: app/Store
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: app/Store/package.json
+      - run: pnpm install
+      - run: pnpm run lint
+      - run: pnpm run test:unit
+
+  python-check:
+    name: Embedding (lint + test)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: service/Embedding
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+      - run: uv sync
+      - run: uv run ruff check .
+      - run: uv run pytest
