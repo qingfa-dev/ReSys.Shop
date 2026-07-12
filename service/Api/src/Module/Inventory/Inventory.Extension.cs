@@ -16,6 +16,7 @@ public static class InventoryExtension
         builder.Services.AddScoped<ICartReservationService, CartReservationService>();
         builder.Services.AddScoped<IStockRestockService, StockRestockService>();
         builder.Services.AddScoped<IStockSummaryService, StockSummaryService>();
+        builder.Services.AddScoped<IStockAvailabilityCalculator, StockAvailabilityCalculator>();
         builder.Services.AddHostedService<ReservationExpiryService>();
 
         builder.AddSeeder<StockLocationSeeder>();
