@@ -31,32 +31,35 @@ public static partial class AssociateCartWithUser
             // Contract: pre=command!=null, post=result!=null, throws=DbUpdateException
             var userId = Guid.TryParse(currentUser.UserId, out var parsedId) ? parsedId : Guid.Empty;
             if (userId == Guid.Empty)
-                return (Result<Response>)OrderResult.Errors.UserNotAuthenticated;
+                return (Result<Response>)OrderResult.Failure.UserNotAuthenticated;
 
             var sessionId = currentUser.SessionId;
 
+            // Check: Find the guest cart scoped to the current session.
             var guestOrder = await dbContext.Set<Order>()
                 .Include(o => o.LineItems)
                 .FirstOrDefaultAsync(o => o.Id == command.Request.GuestOrderId && o.UserId == null && o.SessionId == sessionId, cancellationToken);
 
             if (guestOrder is null)
-                return (Result<Response>)OrderResult.Errors.NotFound(command.Request.GuestOrderId);
+                return (Result<Response>)OrderResult.Failure.NotFound(command.Request.GuestOrderId);
 
+            // Check: Find existing user cart — may or may not exist.
             var userOrder = await dbContext.Set<Order>()
                 .Include(o => o.LineItems)
                 .FirstOrDefaultAsync(o => o.UserId == userId && o.Status == OrderStatus.Draft, cancellationToken);
 
             if (userOrder is null)
             {
-                // No existing user cart — assign guest cart to user
+                // Update: No existing user cart — reassign guest cart to authenticated user.
                 guestOrder.UserId = userId;
                 guestOrder.SessionId = null;
             }
             else
             {
-                // Merge guest cart into user cart
+                // Merge: Combine guest cart line items into user cart by variant.
                 var merger = new OrderMerger(userOrder);
                 merger.Merge(guestOrder, userId, discardMerged: true);
+                // Remove: Delete the now-empty guest cart.
                 dbContext.Set<Order>().Remove(guestOrder);
             }
 

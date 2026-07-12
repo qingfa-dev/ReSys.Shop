@@ -19,7 +19,7 @@ public static partial class SetDefaultStockLocation
                 .FirstOrDefaultAsync(x => x.Id == command.Id, cancellationToken);
 
             if (entity is null)
-                return StockLocationResult.Errors.NotFound;
+                return StockLocationResult.Failure.NotFound;
 
             var currentDefault = await dbContext.Set<StockLocation>()
                 .FirstOrDefaultAsync(x => x.Default && x.Id != command.Id, cancellationToken);

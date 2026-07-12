@@ -10,6 +10,7 @@ public static partial class ValidateCheckout
         {
             app.MapPost(OrderingFeature.Storefront.Cart.Validate.Route, async (ISender sender, CancellationToken ct) =>
             {
+                // Call: Dispatch validate-checkout command.
                 var result = await sender.Send(new Command(), ct);
                 return result.ToResult();
             })

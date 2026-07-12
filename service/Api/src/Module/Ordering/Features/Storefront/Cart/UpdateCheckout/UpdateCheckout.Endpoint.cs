@@ -11,6 +11,7 @@ public static partial class UpdateCheckout
             app.MapPut(OrderingFeature.Storefront.Cart.Update.Route, async (
                 [FromBody] Request request, ISender sender, CancellationToken ct) =>
             {
+                // Call: Dispatch update-checkout command.
                 var result = await sender.Send(new Command(request), ct);
                 return result.ToResult();
             })

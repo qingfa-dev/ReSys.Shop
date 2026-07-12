@@ -23,12 +23,12 @@ public static partial class CreatePaymentIntent
         public async Task<Result<Response>> Handle(Command command, CancellationToken cancellationToken)
         {
             if (!Guid.TryParse(currentUser.UserId, out var userId))
-                return OrderResult.Errors.NotFound(command.OrderId);
+                return OrderResult.Failure.NotFound(command.OrderId);
 
             var order = await dbContext.Set<Order>()
                 .FirstOrDefaultAsync(x => x.Id == command.OrderId && x.UserId == userId, cancellationToken);
             if (order is null)
-                return OrderResult.Errors.NotFound(command.OrderId);
+                return OrderResult.Failure.NotFound(command.OrderId);
 
             var paymentMethod = await dbContext.Set<PaymentMethod>()
                 .FirstOrDefaultAsync(c => c.Active && !c.IsDeleted, cancellationToken);

@@ -9,10 +9,10 @@ public static partial class StockLocationValidator
     {
         return ruleBuilder
             .NotEmpty()
-            .WithErrorCode(StockLocationResult.Errors.NameRequired.Code)
-            .WithMessage(StockLocationResult.Errors.NameRequired.Message)
+            .WithErrorCode(StockLocationResult.Failure.NameRequired.Code)
+            .WithMessage(StockLocationResult.Failure.NameRequired.Message)
             .MaximumLength(StockLocationConstant.Constraints.NameMaxLength)
-            .WithErrorCode(StockLocationResult.Errors.NameTooLong.Code)
-            .WithMessage(StockLocationResult.Errors.NameTooLong.Message);
+            .WithErrorCode(StockLocationResult.Failure.NameTooLong.Code)
+            .WithMessage(StockLocationResult.Failure.NameTooLong.Message);
     }
 }

@@ -25,7 +25,7 @@ public static partial class GetCart
             var sessionId = currentUser.IsAuthenticated ? null : currentUser.SessionId;
 
             if (userId is null && string.IsNullOrWhiteSpace(sessionId))
-                return OrderResult.Errors.UserNotAuthenticated;
+                return OrderResult.Failure.UserNotAuthenticated;
 
             // Check: Find the current user's active cart (Draft order).
             var cart = await dbContext.Set<Order>()
@@ -37,6 +37,7 @@ public static partial class GetCart
 
             if (cart is null)
             {
+                // Map: Return empty cart structure when no cart exists.
                 return new Response
                 {
                     Items = [],
@@ -48,6 +49,7 @@ public static partial class GetCart
                 };
             }
 
+            // Map: Enrich line items with variant details (name, SKU) from catalog.
             var variantIds = cart.LineItems.Select(li => li.VariantId).ToList();
             var variants = await dbContext.Set<Variant>()
                 .Where(v => variantIds.Contains(v.Id))

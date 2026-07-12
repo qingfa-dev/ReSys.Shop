@@ -23,7 +23,7 @@ public static class OrderResult
     /// <summary>
     /// Contains error failure factories for Order operations.
     /// </summary>
-    public static class Errors
+    public static class Failure
     {
         /// <summary>Returns a not-found failure for the specified order ID.</summary>
         public static Error NotFound(Guid id) => Error.NotFound(

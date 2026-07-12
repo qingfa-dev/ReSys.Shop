@@ -24,11 +24,12 @@ public static partial class ListCustomerOrders
             if (!Guid.TryParse(currentUser.UserId, out var userId))
                 return PagedResult<Response>.Create();
 
+            // Validate: Parse querying parameters (sort, filter, page).
             var parseAll = parameters.ParseAll();
             if (parseAll.IsFailure)
                 return parseAll.Errors;
 
-            // Check: Retrieve orders for current user (excluding drafts) with querying options.
+            // Filter: Exclude draft orders from customer order list.
             var pagedResult = await dbContext.Set<Order>()
                 .AsNoTracking()
                 .Where(o => o.UserId == userId && o.Status != OrderStatus.Draft)

@@ -13,6 +13,7 @@ public static partial class GetCart
                 CancellationToken ct) =>
             {
                 var query = new Query();
+                // Call: Dispatch get-cart query.
                 var result = await sender.Send(query, ct);
                 return result.ToResult();
             })

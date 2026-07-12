@@ -11,6 +11,7 @@ public static partial class SelectShippingRate
             app.MapPost(OrderingFeature.Storefront.Cart.SelectShippingRate.Route, async (
                 [FromBody] Request request, ISender sender, CancellationToken ct) =>
             {
+                // Call: Dispatch select-shipping-rate command.
                 var result = await sender.Send(new Command(request), ct);
                 return result.ToResult();
             })

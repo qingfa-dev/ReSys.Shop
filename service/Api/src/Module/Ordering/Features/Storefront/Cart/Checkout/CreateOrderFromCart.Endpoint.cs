@@ -14,6 +14,7 @@ public static partial class CreateOrderFromCart
                 CancellationToken ct) =>
             {
                 var command = new Command(request);
+                // Call: Dispatch create-order-from-cart command.
                 var result = await sender.Send(command, ct);
                 return result.ToResult();
             })

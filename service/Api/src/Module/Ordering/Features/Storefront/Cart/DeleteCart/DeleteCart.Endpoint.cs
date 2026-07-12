@@ -10,6 +10,7 @@ public static partial class DeleteCart
         {
             app.MapDelete(OrderingFeature.Storefront.Cart.Delete.Route, async (ISender sender, CancellationToken ct) =>
             {
+                // Call: Dispatch delete-cart command.
                 var result = await sender.Send(new Command(), ct);
                 return result.ToResult();
             })

@@ -10,6 +10,7 @@ public static partial class CreateCart
         {
             app.MapPost(OrderingFeature.Storefront.Cart.Create.Route, async (ISender sender, CancellationToken ct) =>
             {
+                // Call: Dispatch create-cart command.
                 var result = await sender.Send(new Command(), ct);
                 return result.ToResult();
             })

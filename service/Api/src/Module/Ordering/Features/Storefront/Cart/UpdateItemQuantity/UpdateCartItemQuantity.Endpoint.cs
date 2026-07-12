@@ -11,6 +11,7 @@ public static partial class UpdateCartItemQuantity
             app.MapPut(OrderingFeature.Storefront.Cart.UpdateItemQuantity.Route, async (
                 Guid lineItemId, [FromBody] Request request, ISender sender, CancellationToken ct) =>
             {
+                // Call: Dispatch update-cart-item-quantity command.
                 var result = await sender.Send(new Command(lineItemId, request), ct);
                 return result.ToResult();
             })

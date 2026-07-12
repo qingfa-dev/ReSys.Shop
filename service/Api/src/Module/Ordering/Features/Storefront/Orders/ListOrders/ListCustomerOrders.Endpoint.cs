@@ -13,6 +13,7 @@ public static partial class ListCustomerOrders
                 ISender sender,
                 CancellationToken ct) =>
             {
+                // Call: Dispatch list-customer-orders query.
                 var result = await sender.Send(new Query(parameters), ct);
                 return result.ToPagedResult();
             })

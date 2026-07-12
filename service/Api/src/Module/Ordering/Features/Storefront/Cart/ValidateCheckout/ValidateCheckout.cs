@@ -20,7 +20,7 @@ public static partial class ValidateCheckout
         {
             // Contract: pre=command!=null, post=result!=null
             if (!Guid.TryParse(currentUser.UserId, out var userId))
-                return OrderResult.Errors.UserNotAuthenticated;
+                return OrderResult.Failure.UserNotAuthenticated;
 
             // Check: Find the user's draft cart with line items.
             var cart = await dbContext.Set<Order>()
@@ -30,19 +30,23 @@ public static partial class ValidateCheckout
                 .FirstOrDefaultAsync(cancellationToken);
 
             if (cart is null)
-                return OrderResult.Errors.NotFound(Guid.Empty);
+                return OrderResult.Failure.NotFound(Guid.Empty);
 
+            // Validate: Cart must contain at least one line item.
             if (cart.LineItems.Count == 0)
-                return OrderResult.Errors.EmptyOrderCannotFinalize;
+                return OrderResult.Failure.EmptyOrderCannotFinalize;
 
+            // Validate: Billing and shipping addresses must be set.
             if (cart.BillAddressId is null || cart.ShipAddressId is null)
-                return OrderResult.Errors.AddressRequired;
+                return OrderResult.Failure.AddressRequired;
 
+            // Validate: Shipping method must be selected.
             if (cart.ShippingMethodId is null)
-                return OrderResult.Errors.DeliveryMethodRequired;
+                return OrderResult.Failure.DeliveryMethodRequired;
 
+            // Validate: Email address must be provided for notifications.
             if (string.IsNullOrWhiteSpace(cart.Email))
-                return OrderResult.Errors.EmailRequired;
+                return OrderResult.Failure.EmailRequired;
 
             return Result.Ok();
         }

@@ -10,6 +10,7 @@ public static partial class AssociateCartWithUser
         {
             app.MapPost(OrderingFeature.Storefront.Cart.Associate.Route, async ([FromBody] Request request, ISender sender, CancellationToken ct) =>
             {
+                // Call: Dispatch associate-cart command.
                 var result = await sender.Send(new Command(request), ct);
                 return result.ToResult();
             })

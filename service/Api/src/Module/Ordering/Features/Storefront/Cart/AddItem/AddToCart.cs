@@ -35,9 +35,9 @@ public static partial class AddToCart
             var sessionId = currentUser.IsAuthenticated ? null : currentUser.SessionId;
 
             if (userId is null && string.IsNullOrWhiteSpace(sessionId))
-                return OrderResult.Errors.UserNotAuthenticated;
+                return OrderResult.Failure.UserNotAuthenticated;
 
-            // Check: Variant exists in catalog.
+            // Check: Variant exists in catalog — reject unknown products.
             var variant = await dbContext.Set<Variant>()
                 .FirstOrDefaultAsync(x => x.Id == request.VariantId, cancellationToken);
 
@@ -53,6 +53,7 @@ public static partial class AddToCart
 
             if (cart is null)
             {
+                // Create: New draft cart with default currency from configuration.
                 var currency = configuration["Ordering:DefaultCurrency"] ?? "USD";
                 var createResult = OrderExtensions.Create(currency, userId, Guid.Empty, sessionId: sessionId, shipAddressId: null);
                 if (createResult.IsFailure)
@@ -71,12 +72,14 @@ public static partial class AddToCart
             if (!AvailabilityValidator.IsAvailable(stockItems, request.Quantity))
                 return StockItemResult.Errors.InsufficientStock;
 
-            // Check: Variant already in cart — merge quantities.
+            // Merge: Variant already in cart — add to existing line item quantity.
             var existingLine = cart.LineItems.FirstOrDefault(li => li.VariantId == request.VariantId);
             if (existingLine is not null)
             {
+                // Validate: Combined quantity must not exceed per-line maximum.
                 if (existingLine.Quantity + request.Quantity > LineItemConstant.MaxQuantity)
                     return LineItemResult.Errors.QuantityExceedsMax;
+                // Update: Increment existing line item quantity and recalculate.
                 existingLine.Quantity += request.Quantity;
                 existingLine.Total = existingLine.Price * existingLine.Quantity;
                 cart.RecalculateTotals();
@@ -84,7 +87,7 @@ public static partial class AddToCart
                 return Result<Response>.Ok(new Response { LineItemId = existingLine.Id });
             }
 
-            // Create: Add new line item to cart.
+            // Create: Add new line item to cart with variant price snapshot.
             var lineItem = LineItemMethod.Create(cart.Id, request.VariantId, request.Quantity, variant.Price ?? 0);
             if (lineItem.IsFailure)
                 return lineItem.Errors;

@@ -24,7 +24,7 @@ public static partial class EmptyCart
             var sessionId = currentUser.IsAuthenticated ? null : currentUser.SessionId;
 
             if (userId is null && string.IsNullOrWhiteSpace(sessionId))
-                return OrderResult.Errors.UserNotAuthenticated;
+                return OrderResult.Failure.UserNotAuthenticated;
 
             // Check: Find the user's draft cart with line items and adjustments.
             var cart = await dbContext.Set<Order>()
@@ -37,7 +37,7 @@ public static partial class EmptyCart
             if (cart is null)
                 return Result.Ok();
 
-            // Update: Clear all cart contents via domain logic.
+            // Update: Clear all cart contents via domain logic (removes line items and adjustments).
             var result = cart.Empty();
             if (result.IsFailure)
                 return result.Errors;

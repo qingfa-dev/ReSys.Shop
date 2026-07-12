@@ -4,6 +4,7 @@ public static partial class AddToCart
 {
     public class Response
     {
+        /// <summary>Identifier of the newly created line item.</summary>
         public Guid LineItemId { get; init; }
     }
 }

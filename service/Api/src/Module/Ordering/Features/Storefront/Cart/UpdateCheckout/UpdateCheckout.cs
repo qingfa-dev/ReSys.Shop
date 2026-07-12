@@ -23,7 +23,7 @@ public static partial class UpdateCheckout
         {
             // Contract: pre=command!=null, post=result!=null, throws=DbUpdateException
             if (!Guid.TryParse(currentUser.UserId, out var userId))
-                return OrderResult.Errors.UserNotAuthenticated;
+                return OrderResult.Failure.UserNotAuthenticated;
 
             // Check: Find the user's draft cart with line items and adjustments.
             var cart = await dbContext.Set<Order>()
@@ -33,11 +33,12 @@ public static partial class UpdateCheckout
                 .FirstOrDefaultAsync(cancellationToken);
 
             if (cart is null)
-                return OrderResult.Errors.NotFound(Guid.Empty);
+                return OrderResult.Failure.NotFound(Guid.Empty);
 
             var req = command.Request;
             var addressChanged = req.ShipAddressId.HasValue && req.ShipAddressId != cart.ShipAddressId;
 
+            // Update: Apply partial checkout field updates (email, addresses, instructions).
             if (req.Email is not null) cart.Email = req.Email;
             if (req.BillAddressId.HasValue) cart.BillAddressId = req.BillAddressId;
             if (req.ShipAddressId.HasValue) cart.ShipAddressId = req.ShipAddressId;
@@ -68,6 +69,7 @@ public static partial class UpdateCheckout
                 {
                     var (cost, _) = calcResult.Value;
 
+                    // Remove: Clear old shipping adjustments before adding replacement.
                     var existingShipping = cart.Adjustments
                         .Where(a => a.SourceType == "Shipping")
                         .ToList();
@@ -77,6 +79,7 @@ public static partial class UpdateCheckout
                         dbContext.Set<Adjustment>().Remove(adj);
                     }
 
+                    // Create: Add shipping adjustment with computed cost.
                     if (cost > 0)
                     {
                         var adjResult = AdjustmentMethod.Create(

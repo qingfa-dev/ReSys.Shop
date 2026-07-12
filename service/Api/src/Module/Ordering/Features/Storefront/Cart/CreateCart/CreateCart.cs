@@ -24,12 +24,14 @@ public static partial class CreateCart
             var storeId = Guid.Empty;
             var sessionId = currentUser.IsAuthenticated ? null : currentUser.SessionId;
 
+            // Check: Return existing draft cart if one already exists — avoids duplicates.
             var existingCart = await dbContext.Set<Order>()
                 .FirstOrDefaultAsync(x => (x.UserId == userId || x.SessionId == sessionId) && x.Status == OrderStatus.Draft, cancellationToken);
 
             if (existingCart is not null)
                 return Result<Response>.Ok(existingCart.MapToDetail<Response>());
 
+            // Create: New draft cart with default currency and session tracking.
             var createResult = OrderExtensions.Create("USD", userId, storeId, sessionId: sessionId);
             if (createResult.IsFailure) return (Result<Response>)createResult.Errors;
 

@@ -82,6 +82,6 @@ public class CreateStockLocationTests : IDisposable
 
         // Assert
         result.IsFailure.Should().BeTrue();
-        result.Errors[0]!.Code.Should().Be(StockLocationResult.Errors.DuplicateName.Code);
+        result.Errors[0]!.Code.Should().Be(StockLocationResult.Failure.DuplicateName.Code);
     }
 }

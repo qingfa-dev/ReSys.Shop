@@ -22,7 +22,7 @@ public static partial class GetCustomerOrder
             // Contract: pre=query!=null, post=result!=null
             // Check: Resolve current user identifier.
             if (!Guid.TryParse(currentUser.UserId, out var userId))
-                return (Result<Response>)OrderResult.Errors.NotFound(query.Id);
+                return (Result<Response>)OrderResult.Failure.NotFound(query.Id);
 
             // Check: Retrieve order by identifier scoped to current user.
             var entity = await dbContext.Set<Order>()
@@ -31,7 +31,7 @@ public static partial class GetCustomerOrder
                 .FirstOrDefaultAsync(x => x.Id == query.Id && x.UserId == userId, cancellationToken);
 
             if (entity is null)
-                return (Result<Response>)OrderResult.Errors.NotFound(query.Id);
+                return (Result<Response>)OrderResult.Failure.NotFound(query.Id);
 
             // Map: Convert entity to response DTO.
             return entity.MapToDetail<Response>();

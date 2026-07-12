@@ -14,6 +14,7 @@ public static partial class CancelOrder
                 CancellationToken ct) =>
             {
                 var command = new Command(id);
+                // Call: Dispatch cancel-order command.
                 var result = await sender.Send(command, ct);
                 return result.ToResult();
             })

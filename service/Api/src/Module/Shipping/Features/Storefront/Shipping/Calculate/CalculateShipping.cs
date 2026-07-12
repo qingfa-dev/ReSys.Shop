@@ -35,7 +35,7 @@ public static partial class CalculateShipping
                 .FirstOrDefaultAsync(o => o.Id == request.OrderId, cancellationToken);
 
             if (order is null)
-                return (Result<Response>)OrderResult.Errors.NotFound(request.OrderId);
+                return (Result<Response>)OrderResult.Failure.NotFound(request.OrderId);
 
             // Compute: Calculate order weight from line items.
             var variantIds = order.LineItems.Select(li => li.VariantId).Distinct().ToList();

@@ -17,7 +17,7 @@ public static partial class GetStockLocationById
                 .FirstOrDefaultAsync(x => x.Id == request.Id, cancellationToken);
 
             if (entity is null)
-                return StockLocationResult.Errors.NotFound;
+                return StockLocationResult.Failure.NotFound;
 
             return entity.MapToDetail<Response>();
         }

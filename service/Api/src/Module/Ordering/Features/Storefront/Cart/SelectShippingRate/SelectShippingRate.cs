@@ -23,7 +23,7 @@ public static partial class SelectShippingRate
         {
             // Contract: pre=command!=null, post=result!=null, throws=DbUpdateException
             if (!Guid.TryParse(currentUser.UserId, out var userId))
-                return OrderResult.Errors.UserNotAuthenticated;
+                return OrderResult.Failure.UserNotAuthenticated;
 
             // Check: Find the user's draft cart with line items and adjustments.
             var cart = await dbContext.Set<Order>()
@@ -33,7 +33,7 @@ public static partial class SelectShippingRate
                 .FirstOrDefaultAsync(cancellationToken);
 
             if (cart is null)
-                return OrderResult.Errors.NotFound(Guid.Empty);
+                return OrderResult.Failure.NotFound(Guid.Empty);
 
             // Update: Set shipping method on cart.
             cart.ShippingMethodId = command.Request.ShippingMethodId;

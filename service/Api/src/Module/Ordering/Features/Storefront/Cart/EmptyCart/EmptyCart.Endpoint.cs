@@ -10,6 +10,7 @@ public static partial class EmptyCart
         {
             app.MapPost(OrderingFeature.Storefront.Cart.Empty.Route, async (ISender sender, CancellationToken ct) =>
             {
+                // Call: Dispatch empty-cart command.
                 var result = await sender.Send(new Command(), ct);
                 return result.ToResult();
             })

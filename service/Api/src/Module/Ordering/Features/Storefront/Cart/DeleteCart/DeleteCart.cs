@@ -26,7 +26,7 @@ public static partial class DeleteCart
             if (userId is null && string.IsNullOrWhiteSpace(sessionId))
                 return Result.Ok();
 
-            // Check: Find the user's draft cart.
+            // Check: Find the user's draft cart by user ID or guest session.
             var cart = await dbContext.Set<Order>()
                 .Where(x => (x.UserId == userId && x.Status == OrderStatus.Draft)
                          || (x.SessionId == sessionId && x.Status == OrderStatus.Draft))
@@ -35,7 +35,7 @@ public static partial class DeleteCart
             if (cart is null)
                 return Result.Ok();
 
-            // Update: Soft-delete the cart with timestamp.
+            // Update: Soft-delete the cart with timestamp — preserves record for audit.
             cart.IsDeleted = true;
             cart.DeletedAtUtc = DateTimeOffset.UtcNow;
             await dbContext.SaveChangesAsync(cancellationToken);

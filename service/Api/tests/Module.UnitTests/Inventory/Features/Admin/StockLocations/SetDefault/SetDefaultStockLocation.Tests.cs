@@ -84,6 +84,6 @@ public class SetDefaultStockLocationTests : IDisposable
             TestContext.Current.CancellationToken);
 
         result.IsFailure.Should().BeTrue();
-        result.Errors[0]!.Code.Should().Be(StockLocationResult.Errors.NotFound.Code);
+        result.Errors[0]!.Code.Should().Be(StockLocationResult.Failure.NotFound.Code);
     }
 }

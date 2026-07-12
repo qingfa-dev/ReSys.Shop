@@ -28,7 +28,7 @@ public static partial class CreateStockLocation
                 .AnyAsync(x => x.Name == request.Name, cancellationToken);
 
             if (nameExists)
-                return StockLocationResult.Errors.DuplicateName;
+                return StockLocationResult.Failure.DuplicateName;
 
             // Create: Map the request to a new StockLocation entity.
             var result = request.MapToDomain();

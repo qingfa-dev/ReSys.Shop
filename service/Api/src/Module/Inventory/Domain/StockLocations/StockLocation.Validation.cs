@@ -6,15 +6,15 @@ public static class StockLocationValidation
     {
         return ruleBuilder
             .MaximumLength(StockLocationConstant.Constraints.AdminNameMaxLength)
-            .WithErrorCode(StockLocationResult.Errors.AdminNameTooLong.Code)
-            .WithMessage(StockLocationResult.Errors.AdminNameTooLong.Message);
+            .WithErrorCode(StockLocationResult.Failure.AdminNameTooLong.Code)
+            .WithMessage(StockLocationResult.Failure.AdminNameTooLong.Message);
     }
 
     public static IRuleBuilderOptions<T, string?> ApplyPresentationRules<T>(this IRuleBuilder<T, string?> ruleBuilder)
     {
         return ruleBuilder
             .MaximumLength(StockLocationConstant.Constraints.PresentationMaxLength)
-            .WithErrorCode(StockLocationResult.Errors.PresentationTooLong.Code)
-            .WithMessage(StockLocationResult.Errors.PresentationTooLong.Message);
+            .WithErrorCode(StockLocationResult.Failure.PresentationTooLong.Code)
+            .WithMessage(StockLocationResult.Failure.PresentationTooLong.Message);
     }
 }

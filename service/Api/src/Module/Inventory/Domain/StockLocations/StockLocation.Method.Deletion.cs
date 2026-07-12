@@ -8,7 +8,7 @@ public static partial class StockLocationMethod
             return Result.Ok();
 
         if (location.Active)
-            return StockLocationResult.Errors.CannotDeleteActive;
+            return StockLocationResult.Failure.CannotDeleteActive;
 
         location.IsDeleted = true;
         location.DeletedAtUtc = DateTimeOffset.UtcNow;

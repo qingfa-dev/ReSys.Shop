@@ -18,7 +18,7 @@ public static partial class StockLocationMethod
             return Result.Ok(StockLocationResult.Success.Deactivated);
 
         if (location.Default)
-            return StockLocationResult.Errors.CannotDeactivateDefault;
+            return StockLocationResult.Failure.CannotDeactivateDefault;
 
         location.Active = false;
 

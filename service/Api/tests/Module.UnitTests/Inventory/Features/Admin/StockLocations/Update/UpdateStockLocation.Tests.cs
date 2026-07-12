@@ -80,6 +80,6 @@ public class UpdateStockLocationTests : IDisposable
 
         // Assert
         result.IsFailure.Should().BeTrue();
-        result.Errors[0]!.Code.Should().Be(StockLocationResult.Errors.NotFound.Code);
+        result.Errors[0]!.Code.Should().Be(StockLocationResult.Failure.NotFound.Code);
     }
 }

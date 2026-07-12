@@ -32,7 +32,7 @@ public static partial class CancelOrder
             // Contract: pre=command!=null, post=result!=null, throws=DbUpdateException
             // Check: Resolve current user identifier.
             if (!Guid.TryParse(currentUser.UserId, out var userId))
-                return OrderResult.Errors.UserNotAuthenticated;
+                return OrderResult.Failure.UserNotAuthenticated;
 
             // Check: Find the existing order scoped to current user.
             var entity = await dbContext.Set<Order>()
@@ -40,11 +40,11 @@ public static partial class CancelOrder
                 .FirstOrDefaultAsync(x => x.Id == command.Id && x.UserId == userId, cancellationToken);
 
             if (entity is null)
-                return OrderResult.Errors.NotFound(command.Id);
+                return OrderResult.Failure.NotFound(command.Id);
 
             // Validate: Cannot cancel already canceled orders.
             if (entity.Status == OrderStatus.Canceled)
-                return OrderResult.Errors.AlreadyCanceled;
+                return OrderResult.Failure.AlreadyCanceled;
 
             var wasPlaced = entity.Status == OrderStatus.Placed && entity.CompletedAtUtc.HasValue;
 
@@ -54,7 +54,7 @@ public static partial class CancelOrder
             // Update: Record cancellation user identity.
             entity.CanceledById = currentUser.UserId is not null && Guid.TryParse(currentUser.UserId, out var canceledBy) ? canceledBy : null;
 
-            // Void: Cancel associated payments via MediatR.
+            // Call: Cancel associated payments via MediatR.
             var voidResult = await sender.Send(
                 new Module.Payment.Features.Shared.Commands.VoidOrderPaymentsCommand(
                     entity.Id, "Order cancelled by customer"),
@@ -65,6 +65,7 @@ public static partial class CancelOrder
                     entity.Id, string.Join("; ", voidResult.Errors.Select(f => f.Message)));
             }
 
+            // Compensate: Release inventory back to stock for previously placed orders.
             if (wasPlaced)
             {
                 foreach (var lineItem in entity.LineItems)
@@ -99,6 +100,7 @@ public static partial class CancelOrder
                     (NotificationParameterType.UserFirstName, order.Email.Split('@')[0])));
 
             var result = await notificationService.SendAsync(message, ct);
+            // Suppress: Notification failure does not roll back the cancellation.
             if (result.IsFailure)
             {
                 logger.LogWarning("Failed to send order canceled notification for order {OrderId}: {Errors}",

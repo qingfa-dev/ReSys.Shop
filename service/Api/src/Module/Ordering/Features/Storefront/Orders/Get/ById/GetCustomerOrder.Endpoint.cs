@@ -14,6 +14,7 @@ public static partial class GetCustomerOrder
                 CancellationToken ct) =>
             {
                 var query = new Query(id);
+                // Call: Dispatch get-customer-order query.
                 var result = await sender.Send(query, ct);
                 return result.ToResult();
             })

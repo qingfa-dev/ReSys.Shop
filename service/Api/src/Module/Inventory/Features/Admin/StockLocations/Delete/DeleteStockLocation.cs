@@ -19,13 +19,13 @@ public static partial class DeleteStockLocation
                 .FirstOrDefaultAsync(x => x.Id == command.Id, cancellationToken);
 
             if (entity is null)
-                return StockLocationResult.Errors.NotFound;
+                return StockLocationResult.Failure.NotFound;
 
             if (entity.Active)
-                return StockLocationResult.Errors.CannotDeleteActive;
+                return StockLocationResult.Failure.CannotDeleteActive;
 
             if (entity.Default)
-                return StockLocationResult.Errors.CannotDeactivateDefault;
+                return StockLocationResult.Failure.CannotDeactivateDefault;
 
             var deleteResult = entity.SoftDelete();
             if (deleteResult.IsFailure)

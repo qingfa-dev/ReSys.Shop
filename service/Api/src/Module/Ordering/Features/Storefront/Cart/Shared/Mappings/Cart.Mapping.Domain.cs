@@ -1,5 +1,6 @@
 namespace Module.Ordering.Features.Storefront.Cart.Shared.Mappings;
 
+// Boundary: Features → Domain — cart domain mapping.
 /// <summary>Cart domain mapping — cart creation uses OrderExtensions.Create directly.</summary>
 public static partial class CartMapping
 {

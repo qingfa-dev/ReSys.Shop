@@ -37,57 +37,62 @@ public static partial class CreateOrderFromCart
             // Contract: pre=command!=null, post=result!=null, throws=DbUpdateException
             // Check: Resolve current user identifier.
             if (!Guid.TryParse(currentUser.UserId, out var userId))
-                return OrderResult.Errors.UserNotAuthenticated;
+                return OrderResult.Failure.UserNotAuthenticated;
 
-            // Load: Find the current user's draft cart.
+            // Check: Find the current user's draft cart.
             var cart = await dbContext.Set<Order>()
                 .Include(x => x.LineItems)
                 .Where(x => x.UserId == userId && x.Status == OrderStatus.Draft)
                 .FirstOrDefaultAsync(cancellationToken);
 
             if (cart is null)
-                return OrderResult.Errors.NotFound(Guid.Empty);
+                return OrderResult.Failure.NotFound(Guid.Empty);
 
             // Validate: Checkout steps must be completed before placing order.
             if (cart.CheckoutState < CheckoutState.Confirm)
-                return OrderResult.Errors.CheckoutNotComplete;
+                return OrderResult.Failure.CheckoutNotComplete;
 
-            // Validate: Prerequisites for order placement.
+            // Validate: Billing and shipping addresses must be set before placement.
             if (cart.BillAddressId is null || cart.ShipAddressId is null)
-                return OrderResult.Errors.AddressRequired;
+                return OrderResult.Failure.AddressRequired;
 
+            // Validate: Shipping method must be selected before placement.
             if (cart.ShippingMethodId is null)
-                return OrderResult.Errors.DeliveryMethodRequired;
+                return OrderResult.Failure.DeliveryMethodRequired;
 
+            // Validate: Customer email required for order notifications.
             if (string.IsNullOrWhiteSpace(cart.Email))
-                return OrderResult.Errors.EmailRequired;
+                return OrderResult.Failure.EmailRequired;
 
             // Validate: Payment verification (skip for zero-total orders).
             if (cart.Total > 0m)
             {
                 var paymentIntentId = command.Request.PaymentIntentId;
                 if (string.IsNullOrWhiteSpace(paymentIntentId))
-                    return OrderResult.Errors.PaymentRequired;
+                    return OrderResult.Failure.PaymentRequired;
 
+                // Check: Verify payment capture exists and is completed.
                 var payment = await dbContext.Set<PaymentCapture>()
                     .FirstOrDefaultAsync(p => p.ResponseCode == paymentIntentId
                                           && p.OrderId == cart.Id
                                           && p.State == PaymentRecordState.Completed, cancellationToken);
 
                 if (payment is null)
-                    return OrderResult.Errors.PaymentFailed;
+                    return OrderResult.Failure.PaymentFailed;
 
+                // Validate: Payment amount must match order total.
                 if (payment.Amount != cart.Total)
-                    return OrderResult.Errors.PaymentAmountMismatch;
+                    return OrderResult.Failure.PaymentAmountMismatch;
 
+                // Update: Mark payment state as paid.
                 cart.PaymentState = "paid";
             }
 
-            // Validate: Cart has items.
+            // Validate: Cart must contain at least one line item.
             if (cart.LineItems.Count == 0)
-                return OrderResult.Errors.EmptyOrderCannotFinalize;
+                return OrderResult.Failure.EmptyOrderCannotFinalize;
 
-            // Validate: Check for discontinued variants.
+            // Validate: Reject orders containing discontinued variants.
             var variantIds = cart.LineItems.Select(li => li.VariantId).ToList();
             var discontinuedVariantIds = await dbContext.Set<Variant>()
                 .Where(v => variantIds.Contains(v.Id) && v.DiscontinuedOn != null)
@@ -95,25 +100,23 @@ public static partial class CreateOrderFromCart
                 .ToHashSetAsync(cancellationToken);
 
             if (!cart.EnsureLineItemVariantsAreNotDiscontinued(discontinuedVariantIds))
-                return OrderResult.Errors.VariantDiscontinued;
+                return OrderResult.Failure.VariantDiscontinued;
 
-            // Update: Place the order.
+            // Update: Place the order — set status, checkout state, timestamps, and order number.
             cart.Status = OrderStatus.Placed;
             cart.CheckoutState = CheckoutState.Complete;
             cart.CompletedAtUtc = DateTimeOffset.UtcNow;
             cart.Number = OrderNumber.Generate(dbContext, out _);
 
-            // Deduct: Atomic stock deduction with optimistic concurrency guard.
-            // Wrapped in a Serializable transaction so a partial mutation (e.g.
-            // a DbUpdateException after some stock items are deducted) rolls
-            // back the stock changes, the reservation inserts, and the
-            // movement inserts as a single unit.
+            // Explain: Serializable transaction ensures stock deduction, reservation creation,
+            // and movement logging are atomic — a partial failure rolls back all three.
             await using var transaction = await dbContext.BeginTransactionAsync(
                 IsolationLevel.Serializable, cancellationToken);
             try
             {
                 foreach (var lineItem in cart.LineItems)
                 {
+                    // Deduct: Consume stock from locations with highest on-hand first.
                     var stockItems = await dbContext.Set<StockItem>()
                         .Where(si => si.VariantId == lineItem.VariantId)
                         .OrderByDescending(si => si.CountOnHand)
@@ -126,15 +129,18 @@ public static partial class CreateOrderFromCart
                         var take = Math.Min(si.CountOnHand, remaining);
                         if (take <= 0) continue;
 
+                        // Update: Deduct stock from this location.
                         si.CountOnHand -= take;
                         si.ModifiedAtUtc = DateTimeOffset.UtcNow;
 
                         remaining -= take;
 
+                        // Create: Reserve stock for this order (30-day expiry).
                         var reservation = StockReservationMethod.Reserve(
                             si.VariantId, take, si.StockLocationId, cart.Id, 30).Value;
                         dbContext.Set<StockReservation>().Add(reservation);
 
+                        // Log: Record stock movement for audit trail.
                         var movementResult = StockMovementMethod.Create(
                             stockItemId: si.Id,
                             quantity: -take,
@@ -173,9 +179,11 @@ public static partial class CreateOrderFromCart
 
         private async Task SendOrderPlacedNotificationAsync(Order order, CancellationToken ct)
         {
+            // Skip: No email on order — nothing to notify.
             if (string.IsNullOrWhiteSpace(order.Email))
                 return;
 
+            // Notify: Send order confirmation with total and customer name.
             var message = NotificationMessage.Create(
                 NotificationUseCase.OrderConfirmed,
                 NotificationRecipient.Create(order.Email, order.Number),
@@ -185,6 +193,7 @@ public static partial class CreateOrderFromCart
                     (NotificationParameterType.OrderTotal, order.Total.ToString("F2", System.Globalization.CultureInfo.InvariantCulture)),
                     (NotificationParameterType.UserFirstName, order.Email.Split('@')[0])));
 
+            // Suppress: Notification failure must not block order placement — best-effort only.
             var result = await notificationService.SendAsync(message, ct);
             if (result.IsFailure)
             {
