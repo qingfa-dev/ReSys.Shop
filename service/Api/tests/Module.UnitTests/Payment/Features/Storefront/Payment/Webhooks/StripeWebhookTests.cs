@@ -1,39 +1,28 @@
-using Microsoft.Extensions.Logging;
+using Hangfire;
+
 using IStripeWebhookService = Module.Payment.Services.Webhook.IStripeWebhookService;
 
-using Module.Payment.Services.Provider;
-using Module.Payment.Services.Processing;
 using Module.Payment.Features.Storefront.Payment.Webhooks;
-using Module.Payment.Domain.PaymentCaptures;
 using Stripe;
-
-using PaymentCapture = Module.Payment.Domain.PaymentCaptures.PaymentCapture;
 
 namespace Module.UnitTests.Payment.Features.Storefront.Payment.Webhooks;
 
 [Trait("Category", "Unit")]
 [Trait("Module", "Payment")]
 [Trait("Feature", "StripeWebhook")]
-public class StripeWebhookTests : IDisposable
+public class StripeWebhookTests
 {
-    private readonly ApplicationDbContext _dbContext;
     private readonly Mock<IStripeWebhookService> _webhookMock;
-    private readonly Mock<ILogger<StripeWebhook.CommandHandler>> _loggerMock;
+    private readonly Mock<IBackgroundJobClient> _bgJobClientMock;
     private readonly StripeWebhook.CommandHandler _handler;
 
     public StripeWebhookTests()
     {
-        var opts = new DbContextOptionsBuilder<ApplicationDbContext>()
-            .UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
-        ApplicationDbContext.AdditionalConfigurationsAssemblies = [typeof(PaymentCapture).Assembly];
-        _dbContext = new ApplicationDbContext(opts);
         _webhookMock = new Mock<IStripeWebhookService>();
         _webhookMock.Setup(x => x.ValidateSignature(It.IsAny<string>(), It.IsAny<string>())).Returns(true);
-        _loggerMock = new Mock<ILogger<StripeWebhook.CommandHandler>>();
-        _handler = new StripeWebhook.CommandHandler(_dbContext, _webhookMock.Object, _loggerMock.Object);
+        _bgJobClientMock = new Mock<IBackgroundJobClient>();
+        _handler = new StripeWebhook.CommandHandler(_webhookMock.Object, _bgJobClientMock.Object);
     }
-
-    public void Dispose() { _dbContext.Dispose(); GC.SuppressFinalize(this); }
 
     [Fact(DisplayName = "Webhook: invalid signature returns failure")]
     public async Task Handle_ShouldFail_WhenInvalidSignature()
@@ -42,14 +31,6 @@ public class StripeWebhookTests : IDisposable
         var result = await _handler.Handle(new StripeWebhook.Command("{}", "invalid"), TestContext.Current.CancellationToken);
         result.IsFailure.Should().BeTrue();
         result.Errors[0].Code.Should().Be("Stripe.Webhook.InvalidSignature");
-    }
-
-    [Fact(DisplayName = "Webhook: unknown event returns success")]
-    public async Task Handle_ShouldSucceed_ForUnknownEvent()
-    {
-        _webhookMock.Setup(x => x.ParseEvent(It.IsAny<string>())).Returns(new global::Stripe.Event { Type = "unknown" });
-        var result = await _handler.Handle(new StripeWebhook.Command("{}", "valid"), TestContext.Current.CancellationToken);
-        result.IsSuccess.Should().BeTrue();
     }
 
     [Fact(DisplayName = "Webhook: unparseable payload returns failure")]
@@ -61,54 +42,16 @@ public class StripeWebhookTests : IDisposable
         result.Errors[0].Code.Should().Be("Stripe.Webhook.InvalidPayload");
     }
 
-    [Fact(DisplayName = "Webhook: charge dispute created returns success")]
-    public async Task Handle_DisputeCreated_Should_Return_Success()
+    [Fact(DisplayName = "Webhook: Returns Ok immediately after queueing")]
+    public async Task Handle_ShouldReturnOk_ForValidSignature()
     {
-        var dispute = new Dispute { ChargeId = "ch_123", Reason = "fraudulent" };
-        var stripeEvent = new global::Stripe.Event
-        {
-            Type = GatewayConstants.WebhookEvents.Stripe.ChargeDisputeCreated,
-            Data = new global::Stripe.EventData { Object = dispute }
-        };
-        _webhookMock.Setup(x => x.ParseEvent(It.IsAny<string>())).Returns(stripeEvent);
-        var result = await _handler.Handle(new StripeWebhook.Command("{}", "valid"), TestContext.Current.CancellationToken);
+        _webhookMock.Setup(x => x.ParseEvent(It.IsAny<string>()))
+            .Returns(new Event { Type = "payment_intent.succeeded" });
+
+        var result = await _handler.Handle(
+            new StripeWebhook.Command("{}", "sig"), CancellationToken.None);
+
         result.IsSuccess.Should().BeTrue();
-    }
-
-    [Fact(DisplayName = "Webhook: replayed payment_intent.succeeded is idempotent")]
-    public async Task Handle_ReplayedPaymentIntentSucceeded_IsIdempotent()
-    {
-        var orderId = Guid.NewGuid();
-        var intentId = "pi_test_123";
-        var payment = new PaymentCapture
-        {
-            Id = Guid.NewGuid(),
-            OrderId = orderId,
-            ResponseCode = intentId,
-            State = PaymentRecordState.Pending,
-            Amount = 100m
-        };
-        _dbContext.Set<PaymentCapture>().Add(payment);
-        await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
-
-        var stripeEvent = new global::Stripe.Event
-        {
-            Type = GatewayConstants.WebhookEvents.Stripe.PaymentIntentSucceeded,
-            Data = new global::Stripe.EventData
-            {
-                Object = new PaymentIntent { Id = intentId }
-            }
-        };
-        _webhookMock.Setup(x => x.ParseEvent(It.IsAny<string>())).Returns(stripeEvent);
-
-        var first = await _handler.Handle(new StripeWebhook.Command("{}", "valid"), TestContext.Current.CancellationToken);
-        var second = await _handler.Handle(new StripeWebhook.Command("{}", "valid"), TestContext.Current.CancellationToken);
-
-        first.IsSuccess.Should().BeTrue();
-        second.IsSuccess.Should().BeTrue();
-
-        var payments = await _dbContext.Set<PaymentCapture>().Where(p => p.OrderId == orderId).ToListAsync(TestContext.Current.CancellationToken);
-        payments.Should().HaveCount(1);
-        payments[0].State.Should().Be(PaymentRecordState.Completed);
+        result.StatusCode.Should().Be(200);
     }
 }

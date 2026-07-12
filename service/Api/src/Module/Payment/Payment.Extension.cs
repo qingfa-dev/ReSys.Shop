@@ -1,7 +1,9 @@
+using Hangfire;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 
+using Module.Payment.Backgrounds;
 using Module.Payment.Services.Configuration;
 using Module.Payment.Services.Processing;
 using Module.Payment.Services.Webhook;
@@ -69,6 +71,7 @@ public static class PaymentExtension
         });
 
         services.AddScoped<IPaymentProcessingService, PaymentProcessingService>();
+        services.AddScoped<ProcessStripeWebhookEventJob>();
 
         services.AddSingleton<IStripeWebhookService, StripeWebhookDispatcher>();
         // IWebhookHandler is the legacy gateway dispatcher interface; keep the
