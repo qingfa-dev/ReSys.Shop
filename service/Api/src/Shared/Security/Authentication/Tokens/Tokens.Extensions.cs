@@ -35,7 +35,8 @@ public static class TokensExtensions
         // Bind: Load and validate JWT settings with FluentValidation
         builder.Services.AddOptions<JwtSettings>()
             .BindConfiguration(JwtSettings.SectionName)
-            .ValidateFluentValidation();
+            .ValidateFluentValidation()
+            .ValidateOnStart();
 
         // Register: Refresh token persistence and protection services
         builder.Services.AddScoped<IRefreshTokenStore, RefreshTokenStore>();
