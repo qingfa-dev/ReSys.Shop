@@ -43,7 +43,8 @@ public static class BackgroundJobExtensions
         // Bind options and enable FluentValidation
         builder.Services.AddOptions<BackgroundJobSetting>()
             .BindConfiguration(BackgroundJobSetting.SectionName)
-            .ValidateFluentValidation();
+            .ValidateFluentValidation()
+            .ValidateOnStart();
 
         // No separate IValidateOptions registration needed
 
