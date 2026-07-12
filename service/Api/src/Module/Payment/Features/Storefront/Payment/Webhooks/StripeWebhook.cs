@@ -71,6 +71,10 @@ public static partial class StripeWebhook
             if (payment is null)
                 return Result.Ok();
 
+            // Guard: Idempotency — already-completed payments are no-ops
+            if (payment.State == PaymentRecordState.Completed)
+                return Result.Ok(PaymentCaptureResult.Success.AlreadyCompleted(payment.Number));
+
             var completeResult = payment.Complete();
             if (completeResult.IsFailure)
                 return completeResult.Errors;

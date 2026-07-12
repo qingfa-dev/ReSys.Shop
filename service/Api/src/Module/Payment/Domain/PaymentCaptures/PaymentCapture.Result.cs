@@ -18,6 +18,8 @@ public static class PaymentCaptureResult
         public static string Pended(string number) => $"Payment '{number}' was successfully pended.";
         /// <summary>Returns a success message for a completed payment.</summary>
         public static string Completed(string number) => $"Payment '{number}' was successfully completed.";
+        /// <summary>Returns a success message indicating the payment was already completed (idempotent replay).</summary>
+        public static string AlreadyCompleted(string number) => $"Payment '{number}' was already completed.";
         /// <summary>Returns a success message for a voided payment.</summary>
         public static string Voided(string number) => $"Payment '{number}' was successfully voided.";
         /// <summary>Returns a failure notification message.</summary>

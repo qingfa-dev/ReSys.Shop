@@ -4,6 +4,7 @@ using IStripeWebhookService = Module.Payment.Services.Webhook.IStripeWebhookServ
 using Module.Payment.Services.Provider;
 using Module.Payment.Services.Processing;
 using Module.Payment.Features.Storefront.Payment.Webhooks;
+using Module.Payment.Domain.PaymentCaptures;
 using Stripe;
 
 using PaymentCapture = Module.Payment.Domain.PaymentCaptures.PaymentCapture;
@@ -72,5 +73,42 @@ public class StripeWebhookTests : IDisposable
         _webhookMock.Setup(x => x.ParseEvent(It.IsAny<string>())).Returns(stripeEvent);
         var result = await _handler.Handle(new StripeWebhook.Command("{}", "valid"), TestContext.Current.CancellationToken);
         result.IsSuccess.Should().BeTrue();
+    }
+
+    [Fact(DisplayName = "Webhook: replayed payment_intent.succeeded is idempotent")]
+    public async Task Handle_ReplayedPaymentIntentSucceeded_IsIdempotent()
+    {
+        var orderId = Guid.NewGuid();
+        var intentId = "pi_test_123";
+        var payment = new PaymentCapture
+        {
+            Id = Guid.NewGuid(),
+            OrderId = orderId,
+            ResponseCode = intentId,
+            State = PaymentRecordState.Pending,
+            Amount = 100m
+        };
+        _dbContext.Set<PaymentCapture>().Add(payment);
+        await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
+
+        var stripeEvent = new global::Stripe.Event
+        {
+            Type = GatewayConstants.WebhookEvents.Stripe.PaymentIntentSucceeded,
+            Data = new global::Stripe.EventData
+            {
+                Object = new PaymentIntent { Id = intentId }
+            }
+        };
+        _webhookMock.Setup(x => x.ParseEvent(It.IsAny<string>())).Returns(stripeEvent);
+
+        var first = await _handler.Handle(new StripeWebhook.Command("{}", "valid"), TestContext.Current.CancellationToken);
+        var second = await _handler.Handle(new StripeWebhook.Command("{}", "valid"), TestContext.Current.CancellationToken);
+
+        first.IsSuccess.Should().BeTrue();
+        second.IsSuccess.Should().BeTrue();
+
+        var payments = await _dbContext.Set<PaymentCapture>().Where(p => p.OrderId == orderId).ToListAsync(TestContext.Current.CancellationToken);
+        payments.Should().HaveCount(1);
+        payments[0].State.Should().Be(PaymentRecordState.Completed);
     }
 }
