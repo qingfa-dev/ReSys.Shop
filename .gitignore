@@ -483,3 +483,4 @@ $RECYCLE.BIN/
 *.swp
 .worktrees
 app/ReSys.Admin/
+infra/Storage/demo/images/

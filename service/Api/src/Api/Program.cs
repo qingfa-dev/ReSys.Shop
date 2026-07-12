@@ -19,6 +19,7 @@ using Shared.Operational.Persistence.Initializers;
 using Shared.Performance;
 using Shared.Security;
 
+
 Assembly[] additionalAssemblies = [typeof(Module.IModuleMarker).Assembly];
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
@@ -52,7 +53,6 @@ app.UsePerformance();
 app.UseSecurity();
 app.UseOperational();
 app.UseObservability();
-app.UseHttpsRedirection();
 app.UseApplication();
 
 // Initialize: Apply pending migrations and run seeders before accepting traffic

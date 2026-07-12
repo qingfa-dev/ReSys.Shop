@@ -28,6 +28,6 @@ public class PaymentMethodConfiguration : IEntityTypeConfiguration<PaymentMethod
 
         builder.Property(x => x.Settings)
             .HasConversion<EncryptedDictionaryConverter>()
-            .HasColumnType("jsonb");
+            .HasColumnType("text");
     }
 }
