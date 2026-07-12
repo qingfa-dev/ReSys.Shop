@@ -73,37 +73,43 @@ public static class NotificationExtensions
         builder.Services.AddSingleton<IValidator<NotificationSetting>, NotificationSettingValidator>();
         builder.Services.AddOptions<NotificationSetting>()
             .BindConfiguration(NotificationSetting.Section)
-            .ValidateFluentValidation();
+            .ValidateFluentValidation()
+            .ValidateOnStart();
 
         // Register: Email channel settings with FluentValidation (access-time validation)
         builder.Services.AddSingleton<IValidator<EmailChannelSetting>, EmailChannelSettingValidator>();
         builder.Services.AddOptions<EmailChannelSetting>()
             .BindConfiguration(EmailChannelSetting.Section)
-            .ValidateFluentValidation();
+            .ValidateFluentValidation()
+            .ValidateOnStart();
 
         // Register: SMS channel settings with FluentValidation (access-time validation)
         builder.Services.AddSingleton<IValidator<SmsChannelSetting>, SmsChannelSettingValidator>();
         builder.Services.AddOptions<SmsChannelSetting>()
             .BindConfiguration(SmsChannelSetting.Section)
-            .ValidateFluentValidation();
+            .ValidateFluentValidation()
+            .ValidateOnStart();
 
         // Register: SendGrid provider settings with FluentValidation (access-time validation)
         builder.Services.AddSingleton<IValidator<SendGridProviderSetting>, SendGridProviderSettingValidator>();
         builder.Services.AddOptions<SendGridProviderSetting>()
             .BindConfiguration(SendGridProviderSetting.Section)
-            .ValidateFluentValidation();
+            .ValidateFluentValidation()
+            .ValidateOnStart();
 
         // Register: SMTP provider settings with FluentValidation (access-time validation)
         builder.Services.AddSingleton<IValidator<SmtpProviderSetting>, SmtpProviderSettingValidator>();
         builder.Services.AddOptions<SmtpProviderSetting>()
             .BindConfiguration(SmtpProviderSetting.Section)
-            .ValidateFluentValidation();
+            .ValidateFluentValidation()
+            .ValidateOnStart();
 
         // Register: Sinch provider settings with FluentValidation (access-time validation)
         builder.Services.AddSingleton<IValidator<SinchProviderSetting>, SinchProviderSettingValidator>();
         builder.Services.AddOptions<SinchProviderSetting>()
             .BindConfiguration(SinchProviderSetting.Section)
-            .ValidateFluentValidation();
+            .ValidateFluentValidation()
+            .ValidateOnStart();
 
         return builder;
     }
