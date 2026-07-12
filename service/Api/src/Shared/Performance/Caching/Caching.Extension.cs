@@ -39,7 +39,8 @@ public static class CachingExtensions
         // Initialize: Fluent options builder for caching configuration
         builder.Services.AddOptions<CachingSetting>()
             .BindConfiguration(CachingSetting.SectionName)
-            .ValidateFluentValidation();
+            .ValidateFluentValidation()
+            .ValidateOnStart();
         
         #endregion
 
