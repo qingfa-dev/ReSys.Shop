@@ -16,7 +16,8 @@ public static class GuestSessionExtensions
         builder.Services.AddSingleton<IValidator<GuestSessionSetting>, GuestSessionSettingValidator>();
         builder.Services.AddOptions<GuestSessionSetting>()
             .BindConfiguration(GuestSessionSetting.SectionName)
-            .ValidateFluentValidation();
+            .ValidateFluentValidation()
+            .ValidateOnStart();
 
         return builder;
     }
