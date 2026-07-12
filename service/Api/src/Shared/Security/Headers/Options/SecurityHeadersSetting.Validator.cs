@@ -6,14 +6,11 @@ public sealed class SecurityHeadersSettingValidator : AbstractValidator<Security
 {
     public SecurityHeadersSettingValidator()
     {
-        When(x => x.IsEnabled, () =>
-        {
-            RuleFor(x => x.XContentTypeOptions)
-                .NotEmpty()
-                .WithMessage("X-Content-Type-Options must not be empty when enabled.");
-
-            RuleFor(x => x.XFrameOptions).NotEmpty().WithErrorCode("SecurityHeaders.XFrameOptions.Required");
-            RuleFor(x => x.ReferrerPolicy).NotEmpty().WithErrorCode("SecurityHeaders.ReferrerPolicy.Required");
-        });
+        RuleFor(s => s.ContentSecurityPolicy)
+            .NotEmpty()
+            .WithMessage("SecurityHeaders:ContentSecurityPolicy is required.");
+        RuleFor(s => s.XFrameOptions)
+            .NotEmpty()
+            .WithMessage("SecurityHeaders:XFrameOptions is required.");
     }
 }

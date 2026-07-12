@@ -2,6 +2,8 @@ namespace Shared.Security.Headers.Options;
 
 public sealed class SecurityHeadersSetting
 {
+    public const string SectionName = "SecurityHeaders";
+
     public bool IsEnabled { get; set; } = SecurityHeadersSettingConstant.Defaults.IsEnabled;
 
     public string? XContentTypeOptions { get; set; } = SecurityHeadersSettingConstant.Defaults.XContentTypeOptions;

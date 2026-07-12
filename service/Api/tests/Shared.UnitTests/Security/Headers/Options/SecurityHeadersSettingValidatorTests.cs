@@ -1,4 +1,4 @@
-using FluentValidation.Results;
+using FluentValidation.TestHelper;
 
 using Shared.Security.Headers.Options;
 
@@ -11,23 +11,27 @@ public sealed class SecurityHeadersSettingValidatorTests
 {
     private readonly SecurityHeadersSettingValidator _validator = new();
 
-    [Fact(DisplayName = "Default options should pass validation")]
-    public void Validate_Defaults_ShouldPass()
+    [Fact(DisplayName = "Validator: passes when all values are non-empty")]
+    public void Valid_Passes()
     {
-        var options = new SecurityHeadersSetting();
-
-        ValidationResult result = _validator.Validate(options);
-
-        result.IsValid.Should().BeTrue();
+        var settings = new SecurityHeadersSetting
+        {
+            ContentSecurityPolicy = "default-src 'self'",
+            XFrameOptions = "DENY"
+        };
+        var result = _validator.TestValidate(settings);
+        result.ShouldNotHaveAnyValidationErrors();
     }
 
-    [Fact(DisplayName = "Disabled should pass validation")]
-    public void Validate_Disabled_ShouldPass()
+    [Fact(DisplayName = "Validator: warns on empty CSP")]
+    public void EmptyCsp_Fails()
     {
-        var options = new SecurityHeadersSetting { IsEnabled = false };
-
-        ValidationResult result = _validator.Validate(options);
-
-        result.IsValid.Should().BeTrue();
+        var settings = new SecurityHeadersSetting
+        {
+            ContentSecurityPolicy = "",
+            XFrameOptions = "DENY"
+        };
+        var result = _validator.TestValidate(settings);
+        result.ShouldHaveValidationErrorFor(s => s.ContentSecurityPolicy);
     }
 }
