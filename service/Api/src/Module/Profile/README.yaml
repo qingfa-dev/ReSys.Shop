@@ -1,9 +1,8 @@
 kind: BuildingBlockModule
-schema_version: "3.0"
-
-id: profile-module
-name: Profile
+id: profile
+name: Module.Profile
 version: "1.0.0"
+schema_version: "3.0"
 status: stable
 
 meta:
@@ -385,85 +384,4 @@ usage:
       - Shared.Application (domain abstractions, IAuditable)
       - Shared.Security.Identity (User entity, PermissionMetadata)
 
-file_structure:
-  id: TS-5
-  name: Module File Layout
-  description: |
-    Complete directory structure of the Profile module.
-  structure: |
-    Profile/
-    ├── Profiles.Extensions.cs
-    ├── Domain/
-    │   ├── UserProfile.cs
-    │   ├── UserProfile.Constant.cs
-    │   ├── UserProfile.Loggers.cs
-    │   ├── UserProfile.Method.cs
-    │   ├── UserProfile.Result.cs
-    │   ├── UserProfile.Validation.cs
-    │   ├── Addresses/
-    │   │   ├── Address.cs
-    │   │   ├── Address.Constant.cs
-    │   │   ├── Address.Enums.cs
-    │   │   ├── Address.Loggers.cs
-    │   │   ├── Address.Method.cs
-    │   │   ├── Address.Result.cs
-    │   │   └── Address.Validation.cs
-    │   ├── Notifications/
-    │   │   ├── NotificationPreferences.cs
-    │   │   ├── NotificationPreferences.Constant.cs
-    │   │   ├── NotificationPreferences.Extensions.cs
-    │   │   ├── NotificationPreferences.Loggers.cs
-    │   │   ├── NotificationPreferences.Result.cs
-    │   │   └── NotificationPreferences.Validation.cs
-    │   ├── Preferences/
-    │   │   ├── UserPreferences.cs
-    │   │   ├── UserPreference.Constant.cs
-    │   │   ├── UserPreference.Loggers.cs
-    │   │   ├── UserPreference.Method.cs
-    │   │   ├── UserPreference.Result.cs
-    │   │   └── UserPreference.Validation.cs
-    │   └── Wishlists/
-    │       ├── Wishlist.cs
-    │       ├── Wishlist.Constant.cs
-    │       ├── Wishlist.Loggers.cs
-    │       ├── Wishlist.Method.cs
-    │       ├── Wishlist.Result.cs
-    │       ├── Wishlist.Validation.cs
-    │       └── WishedItems/
-    ├── Features/
-    │   ├── Shared/
-    │   │   └── ProfileFeature.cs
-    │   └── Store/
-    │       ├── Addresses/
-    │       │   ├── Create/
-    │       │   ├── Delete/
-    │       │   ├── Get/
-    │       │   ├── Shared/
-    │       │   └── Update/
-    │       ├── NotificationPreferences/
-    │       │   ├── Get/
-    │       │   └── Update/
-    │       ├── Profiles/
-    │       │   ├── Create/
-    │       │   ├── Delete/
-    │       │   ├── Get/
-    │       │   ├── Shared/
-    │       │   └── Update/
-    │       └── Wishlists/
-    │           ├── AddItem/
-    │           ├── Create/
-    │           ├── Delete/
-    │           ├── Get/
-    │           ├── GetById/
-    │           ├── RemoveItem/
-    │           └── Update/
-    └── Persistence/
-        ├── Profile.Schema.cs
-        ├── Configurations/
-        │   ├── Address.Configuration.cs
-        │   ├── UserProfile.Configuration.cs
-        │   ├── Wishlist.Configuration.cs
-        │   └── WishedItem.Configuration.cs
-        └── Seeders/
-            ├── Address.Seeder.cs
-            └── UserProfile.Seeder.cs
+tree_file: docs/codebase/profile.tree.txt

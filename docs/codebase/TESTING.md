@@ -1,137 +1,115 @@
-Short summary
-
-Testing strategies and frameworks observed in the repository.
-
-Test types & locations
-- Unit tests: `service/Api/tests/Module.UnitTests` and `Shared.UnitTests` use EF Core InMemory / Moq.
-- Integration tests: `service/Api/tests/Api.Tests` use Testcontainers (PostgreSQL + Redis) and require Docker.
-- HTTP tests: `ApiTests/` contains `.http` files for manual REST Client usage.
-- Frontend tests: Vitest in `app/Admin/src/__tests__/` and `app/Store/src/__tests__/`.
-- Python tests: pytest in `service/Embedding/`.
-
-Commands
-- Build + test: `dotnet build` and `dotnet test`.
-
-Evidence
-- `ApiTests/README.md`
-- `service/Api/tests/Api.Tests/Api.Tests.csproj`
-- `service/Api/tests/Module.UnitTests/Module.UnitTests.csproj`
-- `service/Api/tests/Shared.UnitTests/Shared.UnitTests.csproj`
-- `ReSys.Shop.slnx`
-
-[ASK USER]
-- No CI pipeline exists. What is the team's priority and preferred platform (GitHub Actions, Azure DevOps, etc.) for automated build/test?
 # Testing Patterns
 
 ## Core Sections (Required)
 
 ### 1) Test Stack and Commands
 
-- Primary test frameworks:
-  - .NET: xUnit v3 (3.2.2) via Microsoft.Testing.Platform (`global.json:7`, `Directory.Packages.props:110`)
-  - Frontend: Vitest (4.1.9) (`app/Admin/package.json:56`, `app/Store/package.json:50`)
-  - Python: pytest (>=8) (`service/Embedding/pyproject.toml`)
-- Assertion/mocking tools:
-  - .NET: FluentAssertions (8.10.0), Moq (4.20.72) (`Directory.Packages.props:104-105`)
-  - Frontend: @vue/test-utils (2.4.11), jsdom for DOM simulation
-- Commands:
+- **Primary test framework (backend):** **xUnit v3** `3.2.2` + `xunit.runner.visualstudio 3.1.5` + `xunit.analyzers 1.27.0` (`Directory.Packages.props:110-112`); runner = `Microsoft.Testing.Platform` (`global.json:6-8`).
+- **Primary test framework (frontend):** **Vitest 4.1.9** (`app/Admin/package.json:65`, `app/Store/package.json:50`) with `jsdom 29.1.1` env (`app/Admin/vitest.config.ts:8-12`, `app/Store/vitest.config.ts:5-11`).
+- **Primary test framework (Python):** **pytest >=8** (`service/Embedding/pyproject.toml:53`).
+- **Assertion libraries:**
+  - Backend: `FluentAssertions 8.10.0` (`Directory.Packages.props:104`).
+  - Frontend: `expect` from `vitest`.
+  - Python: built-in `pytest` assertions.
+- **Mocking tools:**
+  - Backend: `Moq 4.20.72` (`Directory.Packages.props:105`).
+  - Integration: `Microsoft.AspNetCore.Mvc.Testing` (`WebApplicationFactory<Program>`), `Respawn 7.0.0` (DB checkpoint), `Testcontainers.PostgreSql 4.12.0`, `Testcontainers.Redis 4.12.0` (`Directory.Packages.props:101,107-109`).
+  - Frontend: `@vue/test-utils 2.4.11` (`mount`, global plugins), `@vitest/eslint-plugin 1.6.20` for lint hints.
+  - Python: `httpx >=0.28` for ASGI test client.
+- **Commands:**
+  ```bash
+  # Backend
+  dotnet build                                                       # warnings-as-errors
+  dotnet test service/Api/tests/Shared.UnitTests                     # Shared unit
+  dotnet test service/Api/tests/Module.UnitTests                     # Module unit
+  dotnet test service/Api/tests/Api.Tests                            # Integration (Testcontainers)
+  dotnet test /p:CollectCoverage=true                                # opt-in coverage
+  dotnet test --filter "FullyQualifiedName~Location"                 # scope by module
 
-```bash
-# Run all .NET tests (unit + integration)
-dotnet test
+  # Admin SPA
+  cd app/Admin && pnpm run test:unit                                 # vitest run
+  pnpm run lint
 
-# Unit tests only (fast, no Docker)
-dotnet test service/Api/tests/Module.UnitTests
+  # Store SPA
+  cd app/Store && pnpm run test:unit
+  pnpm run lint
 
-# Integration tests only (requires Docker)
-dotnet test service/Api/tests/Api.Tests
+  # Embedding
+  cd service/Embedding && uv run pytest
+  uv run ruff check .
 
-# Run filtered tests
-dotnet test --filter "FullyQualifiedName~Location"
-
-# Run tests with coverage
-dotnet test /p:CollectCoverage=true
-
-# Frontend — Admin SPA
-cd app/Admin && pnpm run test:unit
-
-# Frontend — Store SPA
-cd app/Store && pnpm run test:unit
-
-# Python embedding service
-cd service/Embedding && uv run pytest
-```
+  # Manual HTTP tests
+  # Open ApiTests/run-all.http in VS Code (REST Client) or JetBrains HTTP Client
+  ```
 
 ### 2) Test Layout
 
-- Test file placement pattern: Separate test projects (not co-located with source)
-  - .NET integration tests: `service/Api/tests/Api.Tests/` — organized as `Scenarios/{Module}/{Admin|Storefront}/{Feature}/`
-  - .NET unit tests: `service/Api/tests/Module.UnitTests/` — mirrors `Module/` structure (`Catalog/Features/{Admin|Storefront}/`, `Identity/`, `Location/`, etc.)
-  - .NET shared unit tests: `service/Api/tests/Shared.UnitTests/` — mirrors `Shared/` structure (`Application/`, `Governance/`, `Security/`, etc.)
-  - Frontend tests: `src/__tests__/` co-located within SPA projects — `app/Admin/src/__tests__/`, `app/Store/src/__tests__/`
-  - HTTP tests: `ApiTests/` — organized as `{Module}/{Admin|Storefront}/*.http`
-- Naming convention:
-  - .NET test classes: `*Tests.cs` or `*.Tests.cs` — e.g., `Country.Extensions.Tests.cs`, `GetProductDetail.Tests.cs`, `Country.Configuration.Tests.cs`
-  - .NET test files are typically co-located in feature folders with the format `{Action}.Tests.cs` — e.g., `Create/Country.Create.Tests.cs`
-  - Integration tests use `*.IntegrationTests.cs` pattern — e.g., `ListProducts.IntegrationTests.cs`
-  - Frontend test files: `*.spec.ts` — e.g., `App.spec.ts`, `cart.store.spec.ts`
-- Setup files and where they run:
-  - `GlobalUsing.cs` in each test project — shared usings for all test files
-  - `Api.Tests/Infrastructure/ApiIntegrationTestBase.cs` — base class for integration tests (provides `WebApplicationFactory`, Respawn DB reset)
-  - `Api.Tests/Infrastructure/ModuleIntegrationTestBase.cs` — base class for module-scoped integration tests
-  - `Api.Tests/Infrastructure/ApiCollection.cs` + `ApiFixture.cs` — shared test collection for xUnit
-  - `xunit.runner.json` in each test project — xUnit v3 configuration
-  - Frontend: `vitest.config.ts` per SPA project
+- **C# unit tests (Module / Shared):** Mirror the source tree under `service/Api/tests/Module.UnitTests/<Module>/Features/<Admin|Storefront>/<Feature>/<Action>/` (e.g. `Module.UnitTests/Catalog/Features/Admin/Products/Create/CreateProduct.Tests.cs:1-5`).
+- **C# integration tests:** `service/Api/tests/Api.Tests/Scenarios/<Concern>/...` (Catalog, Identity, Location, Ordering, Payment, Profile, Shipping, Webhooks, Shared, Host, AntiForgery) + `service/Api/tests/Api.Tests/Infrastructure/` for the shared harness.
+- **Frontend Admin tests:** Colocated `__tests__/` or `tests/` directories next to source — `app/Admin/src/features/auth/_tests/auth.{service,store}.spec.ts`, `app/Admin/src/features/catalog/products/tests/product.store.spec.ts`, `app/Admin/src/features/ordering/tests/order.{service,store}.spec.ts`, `app/Admin/src/shared/api/http/api.client.spec.ts`.
+- **Frontend Store tests:** `app/Store/src/__tests__/{App.spec.ts, cart.store.spec.ts}`.
+- **Python tests:** `service/Embedding/tests/` with `unit/`, `integration/`, `e2e/` subdirectories and top-level `test_*.py` files (`test_embedding.py`, `test_exception_handler.py`, `test_health.py`).
+- **Setup files:**
+  - Backend: `service/Api/tests/Api.Tests/ApiCollection.cs`, `ApiFixture.cs`, `ApiFactory.cs`, `ModuleIntegrationTestBase.cs`, `ApiIntegrationTestBase.cs`, `Auth/AuthTokenHelper.cs`, `Http/{HttpClientExtensions,ResponseHelper,ResultExtensions}.cs`, `AuthenticatedRequestExtensions.cs`.
+  - Frontend: `app/Admin/vitest.config.ts`, `app/Store/vitest.config.ts` (both extend `vite.config.ts`).
+  - Python: `service/Embedding/tests/conftest.py:1-9` (provides `client: TestClient`).
+- **Naming:**
+  - C#: `X.Tests.cs`, `X.Validator.Tests.cs` (mirror source file names).
+  - Frontend: `*.spec.ts`.
+  - Python: `test_*.py`.
 
 ### 3) Test Scope Matrix
 
 | Scope | Covered? | Typical target | Notes |
 |-------|----------|----------------|-------|
-| Unit | Yes | Domain entity methods, validators, mappers, pipeline behaviors | `Module.UnitTests` and `Shared.UnitTests` — EF Core InMemory for data access, Moq for interfaces. ~750+ test classes (`*Tests.cs`) across all .NET test projects. |
-| Integration | Yes | Full API request/response flows, database interactions | `Api.Tests` — uses Testcontainers (PostgreSQL + Redis) with real infrastructure. DB state reset via Respawn per test class. |
-| E2E | No | Cross-service user journeys | [TODO] — No end-to-end tests covering Aspire-orchestrated multi-service flows (API + Embedding + Frontends) |
-| HTTP (manual) | Partial | API endpoints via .http files | `ApiTests/` directory with organized .http files for manual testing in REST Client. Requires running API with seeded data. |
-| Frontend component | Partial | Vue component rendering and store logic | Store SPA has `App.spec.ts` and `cart.store.spec.ts`; Admin SPA has only `App.spec.ts`. No comprehensive component test suite. |
-| Python | Yes | Embedding service routes and logic | pytest with httpx for HTTP testing; [TODO] — exact coverage unknown, tests not inspected |
+| **Unit (backend)** | Yes | Handlers, validators, option-config classes. | `Module.UnitTests` & `Shared.UnitTests` use `Microsoft.EntityFrameworkCore.InMemory` (`*.csproj:18-20`); `ApplicationDbContext.AdditionalConfigurationsAssemblies` is set in the test base to scan module entity configs (`CreateProduct.Tests.cs:24`). |
+| **Unit (frontend)** | Yes | Pinia stores, services, axios client behaviour, smoke mount of `App.vue`. | `app/Store/src/__tests__/App.spec.ts:1-28` mounts with Pinia + router + Nuxt UI; `app/Admin/src/shared/api/http/api.client.spec.ts` exercises the axios interceptors. |
+| **Unit (Python)** | Yes | Routes, exception handlers, models. | `test_embedding.py`, `test_exception_handler.py`, `test_health.py` (existence per scan). |
+| **Integration (backend)** | Yes | API endpoints, JWT auth, anti-forgery, webhooks. Requires Docker for `Testcontainers.PostgreSql`. | `Api.Tests` projects use `WebApplicationFactory<Program>` + `Respawn` for DB resets. |
+| **Integration (Python)** | Yes | Full app via `TestClient`. | `service/Embedding/tests/conftest.py:1-9`. |
+| **E2E (Python)** | Folder present, content sparse | `service/Embedding/tests/e2e/` exists (existence per scan); coverage details `[TODO]`. | — |
+| **E2E (frontend)** | No | — | Vitest config explicitly excludes `e2e/**` (`app/Admin/vitest.config.ts:9`, `app/Store/vitest.config.ts:6`). |
+| **Manual API tests** | Yes | All endpoints, organized by module. | `ApiTests/` (49 `.http` files); top-level `run-all.http` orchestrates a flow. |
 
 ### 4) Mocking and Isolation Strategy
 
-- Main mocking approach:
-  - .NET: Moq for interface mocking, EF Core InMemory for database in unit tests (no real database)
-  - .NET integration tests: Real PostgreSQL and Redis via Testcontainers Docker containers
-  - Frontend: @vue/test-utils with jsdom for component mounting and DOM simulation
-- Isolation guarantees:
-  - Integration tests: DB state reset via **Respawn** per test class (`ApiIntegrationTestBase`), ensuring clean state for each test class
-  - Unit tests: EF Core InMemory database recreated per test (state not shared between tests)
-  - xUnit collections: `ApiCollection` groups tests sharing the same Testcontainers instance to avoid per-test container startup overhead
-- Common failure mode in tests: Integration tests require Docker to be running; without Docker, all `Api.Tests` will fail with container startup errors
+- **Backend unit-test mocks (Moq):** `Mock<ISender>` for nested command dispatch, `Mock<ILogger<T>>`, `Mock<ICurrentUser>`, `Mock<IOptions<T>>` as needed. `ApplicationDbContext` is created with `UseInMemoryDatabase(Guid.NewGuid().ToString())` so each test class has an isolated store. Example: `CreateProduct.Tests.cs:13-42`.
+- **Backend integration-test isolation:** `WebApplicationFactory<Program>` overrides config in-memory; the integration test host sets `Caching:* = false`, `BackgroundJobs:Enabled = false`, `Storage:Enabled = false`, `Storage:MalwareScanner:Enabled = false`, etc. (`service/Api/tests/Api.Tests/Infrastructure/ApiFactory.cs:32-85`). `services.RemoveAll<IHostedService>()` prevents the background DB initializer from running during tests (line 89). `Respawn` is used to checkpoint/reset the PostgreSQL DB between tests.
+- **Current-user stub:** `TestCurrentUser` exposes `AsyncLocal<Guid?>` so non-HTTP tests can switch the user between MediatR dispatches; falls back to `HttpContext` claims when AsyncLocal is unset (`ApiFactory.cs:98-189`).
+- **Hangfire disabled in tests** (`BackgroundJobs:Enabled = false`) so scheduled jobs don't run.
+- **Frontend test isolation:** Vitest uses `jsdom`; `mount(App, { global: { plugins: [createPinia(), router, ui] } })` provides a self-contained context.
+- **Common failure mode in tests:**
+  - `TestContext.Current.CancellationToken` is required on handler calls (xUnit v3 token; e.g. `CreateProduct.Tests.cs:54`); older xUnit signatures would fail. The `xunit1051` analyzer is suppressed for this reason (`Directory.Build.props:91`).
+  - `ApplicationDbContext.AdditionalConfigurationsAssemblies = [typeof(Product).Assembly]` must be set *before* the DbContext is used, otherwise the in-memory provider won't apply module entity configs (`CreateProduct.Tests.cs:24`).
+  - `MaximumKeyLength` / `MaximumPayloadBytes` constraints in `Caching.Hybrid` are not enforced in tests because caching is fully disabled.
 
 ### 5) Coverage and Quality Signals
 
-- Coverage tool + threshold:
-  - .NET: Coverlet (10.0.1) — coverage is **opt-in** (`/p:CollectCoverage=true`). Output format: Cobertura + JSON to `coverage/` directory (`Directory.Build.props:95-97`)
-  - Frontend: @vitest/coverage-v8 (4.1.7) — available but not yet configured with thresholds
-  - No minimum coverage threshold is enforced in CI (no CI pipeline exists)
-- Current reported coverage: [TODO] — no recent coverage reports available
-- Known gaps/flaky areas:
-  - Admin SPA has almost no tests (only placeholder `App.spec.ts`)
-  - Store SPA has minimal test coverage (2 spec files)
-  - Embedding service test coverage is unknown
-  - HTTP tests (.http files) are manual-only, not automated
-  - No E2E test infrastructure exists
-  - No CI pipeline to run tests automatically on push/PR
+- **Coverage tool:** `coverlet.collector 10.0.1` (`Directory.Packages.props:103`).
+- **Threshold:** No enforced threshold; coverage is opt-in (`/p:CollectCoverage=true`). Output format `cobertura,json` to `coverage/` directory (`Directory.Build.props:96-97`).
+- **Current reported coverage:** `[TODO]` — not measured in this codebase dump; commands above are how to opt in.
+- **Known gaps / flaky areas:**
+  - Integration tests require Docker (Testcontainers). On hosts without Docker, `dotnet test` on `Api.Tests` will fail.
+  - Two Payment test files are the highest-churn areas in the last 90 days (see `CONCERNS.md`).
+  - The embedding Python tests are minimal (`tests/test_*.py` + `conftest.py` only); broader unit/integration directories are mostly empty.
+  - The `.http` files in `ApiTests/` are *not* executed by any test runner — they're manual.
 
 ### 6) Evidence
 
-- `service/Api/tests/Api.Tests/Api.Tests.csproj` — Integration test project with Testcontainers + Respawn dependencies
-- `service/Api/tests/Module.UnitTests/Module.UnitTests.csproj` — Unit test project
-- `service/Api/tests/Shared.UnitTests/Shared.UnitTests.csproj` — Shared infrastructure unit tests
-- `service/Api/tests/Api.Tests/Infrastructure/ApiIntegrationTestBase.cs` — Integration test base class
-- `service/Api/tests/Api.Tests/Infrastructure/ApiFactory.cs` — WebApplicationFactory for API
-- `service/Api/tests/Api.Tests/Infrastructure/ApiFixture.cs` — Shared test collection fixture
-- `Directory.Build.props:87-98` — Test project auto-detection, coverage configuration, suppressed warnings
-- `global.json:6-8` — Test runner configuration (Microsoft.Testing.Platform)
-- `Directory.Packages.props:108-112` — Testcontainers, Respawn, xUnit versions
-- `app/Admin/vitest.config.ts` — Admin SPA test configuration
-- `app/Store/vitest.config.ts` — Store SPA test configuration
-- `ApiTests/README.md` — HTTP test documentation
+- `Directory.Packages.props:99-112` — testing dependency versions
+- `Directory.Build.props:70-118` — `IsTestProject` detection, InternalsVisibleTo, test project config, `CollectCoverage` toggle
+- `global.json:6-8` — `Microsoft.Testing.Platform` runner
+- `service/Api/tests/Api.Tests/Api.Tests.csproj:1-24` — integration test project
+- `service/Api/tests/Api.Tests/Infrastructure/ApiFactory.cs:1-189` — `WebApplicationFactory` with `TestCurrentUser`
+- `service/Api/tests/Module.UnitTests/Module.UnitTests.csproj:1-26` — unit test project
+- `service/Api/tests/Shared.UnitTests/Shared.UnitTests.csproj:1-25` — unit test project
+- `service/Api/tests/Module.UnitTests/Catalog/Features/Admin/Products/Create/CreateProduct.Tests.cs:1-92` — sample Moq-based unit test
+- `service/Api/tests/Api.Tests/Scenarios/HealthCheckTests.cs` (existence) — health-check integration test (added by commit `6d08980b`)
+- `app/Admin/vitest.config.ts:1-14`, `app/Store/vitest.config.ts:1-13` — frontend test config
+- `app/Store/src/__tests__/App.spec.ts:1-28` — frontend mount test pattern
+- `app/Admin/src/features/auth/_tests/auth.service.spec.ts` (existence) — frontend service test
+- `app/Admin/src/shared/api/http/api.client.spec.ts` (existence) — axios interceptor test
+- `service/Embedding/tests/conftest.py:1-9` — Python test fixture
+- `service/Embedding/tests/test_embedding.py`, `test_exception_handler.py`, `test_health.py` (existence) — Python tests
+- `service/Embedding/pyproject.toml:51-55` — pytest/httpx/ruff dev deps
+- `ApiTests/README.md:1-30`, `ApiTests/_shared/variables.http:1-20`, `ApiTests/Identity/Store/auth-login.http:1-15` — manual HTTP tests

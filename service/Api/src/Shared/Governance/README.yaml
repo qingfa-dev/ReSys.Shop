@@ -431,24 +431,4 @@ mechanisms:
       cache results. This keeps the helper simple and allocation-free for
       typical low-frequency enum conversion needs.
 
-file_structure:
-  description: >
-    The Governance pillar follows a flat top-level with subdirectories for each
-    concern area: OpenApi for documentation infrastructure, Validation for
-    FluentValidation wiring, and Conventions for serialization/string utilities.
-  structure: |
-    Governance/
-    ├── Governance.Extension.cs              # Top-level AddGovernance / UseGovernance composition
-    ├── OpenApi/
-    │   ├── OpenApi.Extension.cs             # AddOpenApiDocumentation / UseOpenApiDocumentation
-    │   └── Options/
-    │       ├── OpenApiOption.Contant.cs     # Title, Version, Description, Endpoint constants
-    │       ├── OpenApiOption.Setup.cs       # ConfigureCustomOptions (schema IDs, transformers, security)
-    │       └── OpenApiSchemaNaming.cs       # Deterministic schema reference ID algorithm
-    ├── Validation/
-    │   └── Validation.Extension.cs          # AddFluentValidation assembly scanning
-    └── Conventions/
-        ├── Base64.Conveter.cs               # Base64 / Base64Url encode/decode extensions
-        ├── Case.Converter.cs                # PascalCase, camelCase, snake_case, kebab-case converters
-        ├── Dictionary.Converter.cs          # Tuple array to IReadOnlyDictionary helper
-        └── Enum.Converter.cs                # EnumMember attribute reflection helpers
+tree_file: docs/codebase/shared.tree.txt

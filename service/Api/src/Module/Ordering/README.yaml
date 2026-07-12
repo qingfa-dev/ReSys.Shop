@@ -1,6 +1,6 @@
 kind: BuildingBlockModule
-id: ordering-module
-name: Modules.Ordering
+id: ordering
+name: Module.Ordering
 version: "1.0.0"
 status: stable
 schema_version: "3.0"
@@ -17,20 +17,20 @@ meta:
   stability: Stable
   standards_alignment: "DDD tactical patterns, Vertical Slice Architecture"
   dependencies:
-    - name: Module.Shared
-      version: "1.0.0"
+    - name: Shared
+      version: "local"
       scope: runtime
-    - name: Module.Catalog
-      version: "1.0.0"
+    - name: MediatR
+      version: "12.x"
       scope: runtime
-    - name: Module.Inventory
-      version: "1.0.0"
+    - name: FluentValidation
+      version: "11.x"
       scope: runtime
-    - name: Module.Payment
-      version: "1.0.0"
+    - name: Mapster
+      version: "5.x"
       scope: runtime
-    - name: Module.Shipping
-      version: "1.0.0"
+    - name: Carter
+      version: "8.x"
       scope: runtime
 
 principles:
@@ -796,112 +796,4 @@ testing:
         Requires in-memory or test database with seeded Draft orders
         of varying ages.
 
-file_structure: |
-  Ordering/
-  ├── Backgrounds/
-  │   └── CartExpiryJob.cs                      # Stale draft order expiry sweep
-  ├── Domain/
-  │   ├── Adjustments/
-  │   │   ├── Adjuster/
-  │   │   │   └── AdjusterBase.cs               # Abstract base for adjustment calculators
-  │   │   ├── Adjustment.cs                     # Adjustment aggregate entity
-  │   │   ├── Adjustment.Constant.cs            # Defaults, constraints, query config
-  │   │   ├── Adjustment.Loggers.cs             # Structured logging events
-  │   │   ├── Adjustment.Method.Eligible.cs     # Eligibility flag methods
-  │   │   ├── Adjustment.Method.Factory.cs      # Factory creation methods
-  │   │   ├── Adjustment.Method.State.cs        # Open/Close state machine
-  │   │   ├── Adjustment.Result.cs              # Success/error message factories
-  │   │   ├── Adjustment.Validation.cs          # FluentValidation rules
-  │   │   └── IAdjustable.cs                    # Polymorphic adjustment target interface
-  │   ├── LineItems/
-  │   │   ├── LineItem.cs                       # Order line item entity
-  │   │   ├── LineItem.Constant.cs              # MaxQuantity and query config
-  │   │   ├── LineItem.Loggers.cs               # Structured logging events
-  │   │   ├── LineItem.Method.Compute.cs        # Calculation methods
-  │   │   ├── LineItem.Method.Factory.cs        # Factory creation methods
-  │   │   ├── LineItem.Method.Quantity.cs       # Quantity management methods
-  │   │   ├── LineItem.Result.cs                # Success/error message factories
-  │   │   └── LineItem.Validation.cs            # FluentValidation rules
-  │   └── Orders/
-  │       ├── Contracts/
-  │       │   └── IOrderEventPublisher.cs       # Event publishing contract
-  │       ├── Services/
-  │       │   ├── OrderContents.cs              # Add/remove line items
-  │       │   ├── OrderMerger.cs                # Guest-to-user cart merge
-  │       │   └── OrderUpdater.cs               # Totals and state recalculation
-  │       ├── Order.cs                          # Aggregate root entity
-  │       ├── Order.AddressBook.cs              # Address cloning and assignment
-  │       ├── Order.Checkout.cs                 # Checkout state machine
-  │       ├── Order.Constant.cs                 # Defaults and constraints
-  │       ├── Order.CurrencyUpdater.cs          # Multi-currency homogenization
-  │       ├── Order.Enumerate.cs                # OrderStatus and CheckoutState enums
-  │       ├── Order.Extensions.cs               # Factory and state machine methods
-  │       ├── Order.Loggers.cs                  # Structured logging events
-  │       ├── Order.Payments.cs                 # Payment record coordination
-  │       ├── Order.Result.cs                   # Success/error message factories
-  │       └── Order.Validation.cs               # FluentValidation rules
-  ├── Features/
-  │   ├── Admin/
-  │   │   └── Orders/
-  │   │       ├── AddLineItem/                  # Add line item to order
-  │   │       ├── Approve/                      # Approve placed order
-  │   │       ├── Cancel/                       # Admin cancel order
-  │   │       ├── Complete/                     # Mark order as completed
-  │   │       ├── Create/                       # Admin create order
-  │   │       ├── Delete/                       # Soft-delete order
-  │   │       ├── Get/                          # Get order by ID, line items, paged
-  │   │       ├── RemoveLineItem/               # Remove line item from order
-  │   │       ├── Resume/                       # Resume canceled order
-  │   │       ├── Shared/                       # Models, mappings, validators
-  │   │       ├── Update/                       # Update order details
-  │   │       ├── UpdateBillAddress/            # Update billing address
-  │   │       ├── UpdateLineItem/               # Update line item on order
-  │   │       ├── UpdateShipAddress/            # Update shipping address
-  │   │       ├── UpdateShippingMethod/         # Update shipping method
-  │   │       └── UpdateStatus/                 # Update order status
-  │   ├── Shared/
-  │   │   ├── OrderingFeature.Admin.cs          # Admin route constants and permissions
-  │   │   ├── OrderingFeature.Storefront.cs     # Storefront route constants
-  │   │   ├── OrderingFeature.Tags.cs           # Feature tag constants
-  │   │   └── Services/
-  │   │       └── OrderInventoryService.cs      # Inventory synchronization service
-  │   └── Storefront/
-  │       ├── Cart/
-  │       │   ├── AddItem/                      # Add item to cart
-  │       │   ├── AssociateCart/                # Associate guest cart with user
-  │       │   ├── Checkout/                     # Create order from cart
-  │       │   ├── CreateCart/                   # Create new cart
-  │       │   ├── DeleteCart/                   # Delete cart
-  │       │   ├── EmptyCart/                    # Remove all cart items
-  │       │   ├── Get/                          # Get current cart
-  │       │   ├── RemoveItem/                   # Remove item from cart
-  │       │   ├── SelectShippingRate/           # Select shipping rate
-  │       │   ├── Shared/                       # Models, mappings, validators
-  │       │   ├── UpdateCheckout/               # Update checkout details
-  │       │   ├── UpdateItemQuantity/           # Update cart item quantity
-  │       │   └── ValidateCheckout/             # Validate checkout state
-  │       └── Orders/
-  │           ├── Cancel/                       # Customer cancel order
-  │           ├── Get/                          # Get customer order by ID
-  │           └── ListOrders/                   # List customer orders
-  ├── Infrastructure/
-  │   └── Events/
-  │       ├── NullOrderEventPublisher.cs        # No-op event publisher
-  │       └── WebhookOrderEventPublisher.cs     # Webhook-based event publisher
-  ├── Persistence/
-  │   ├── Configurations/
-  │   │   ├── Adjustments/
-  │   │   │   └── AdjustmentConfiguration.cs    # EF Core Adjustments config
-  │   │   ├── LineItems/
-  │   │   │   └── LineItemConfiguration.cs      # EF Core LineItems config
-  │   │   └── Orders/
-  │   │       └── OrderConfiguration.cs         # EF Core Orders config
-  │   ├── OrderingSchema.cs                     # Schema and table name constants
-  │   └── Seeders/
-  │       ├── Order.Seeder.cs                   # Sample order seed data
-  │       └── Payment.Seeder.cs                 # Sample payment seed data
-  ├── Services/
-  │   └── CartExpiryService.cs                  # Background service host for expiry job
-  ├── Ordering.Extension.cs                     # Module DI registration entry point
-  ├── README.md                                 # Human-readable summary
-  └── README.yaml                               # This documentation
+tree_file: docs/codebase/ordering.tree.txt

@@ -1,7 +1,0 @@
-## Ordering Module
-
-The Ordering module manages the complete order lifecycle — from draft cart through checkout state machine to completed or canceled order. It implements the core `Order` aggregate root as a sealed partial class with one file per Ruby concern (Checkout, AddressBook, CurrencyUpdater, Payments, StoreCredit, Digital, Webhooks), ensuring the business logic matches the proven Spree Commerce SDK behaviour exactly.
-
-Domain services include `OrderUpdater` (totals recalculation and payment/shipment state resolution), `OrderContents` (line item add/remove with inventory coordination), `OrderInventory` (inventory unit synchronisation for completed orders), and `OrderMerger` (guest-to-user cart merge with line item deduplication). The `AdjustmentsUpdater` and its `Adjuster` hierarchy (PromotionAdjuster, TaxAdjuster) handle the complex promotion conflict resolution and tax breakdown logic ported from Spree's Adjustable concern.
-
-A new composable Checkout engine (`CheckoutRegistry`, `CheckoutStep`, `CheckoutRequirement`, `DefaultCheckoutRequirements`) provides extension points for custom checkout steps and additional field-level requirements — all without subclassing the order entity. Supporting entities (`LineItem`, `DigitalLink`, `OrderPromotion`, `Adjustment`) round out the module with full audit trails, digital delivery support, and promotion tracking. All domain files follow the Code Commenting Standard v3.0 with CAT-1 through CAT-10 labels.
