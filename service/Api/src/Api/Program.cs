@@ -15,6 +15,7 @@ using Shared.Application;
 using Shared.Governance;
 using Shared.Observability;
 using Shared.Operational;
+using Shared.Operational.Persistence.Health;
 using Shared.Operational.Persistence.Initializers;
 using Shared.Performance;
 using Shared.Security;
@@ -43,6 +44,13 @@ builder.AddOrderingModule();
 builder.AddPaymentModule();
 builder.AddShippingModule();
 
+// Initialize: Register database init state, hosted service, and health check
+builder.Services.AddSingleton<IDatabaseInitializationState, DatabaseInitializationState>();
+builder.Services.AddSingleton<IDatabaseInitializer, DatabaseInitializerService>();
+builder.Services.AddHostedService<DatabaseInitializerHostedService>();
+builder.Services.AddHealthChecks()
+    .AddCheck<DatabaseInitializationHealthCheck>("database_initialization", tags: new[] { "ready" });
+
 WebApplication app = builder.Build();
 
 // Initialize: Map default health/liveness endpoints
@@ -54,10 +62,5 @@ app.UseSecurity();
 app.UseOperational();
 app.UseObservability();
 app.UseApplication();
-
-// Initialize: Apply pending migrations and run seeders before accepting traffic
-bool runMigrations = builder.Configuration.GetValue<bool>("DatabaseInitialization:RunMigrations");
-bool runSeeders = !app.Environment.IsProduction();
-await app.InitializeDatabaseAsync(runMigrations: runMigrations, runSeeders: runSeeders);
 
 await app.RunAsync();
