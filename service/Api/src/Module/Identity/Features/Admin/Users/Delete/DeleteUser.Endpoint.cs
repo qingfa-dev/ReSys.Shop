@@ -31,7 +31,7 @@ public static partial class DeleteUser
             .HasPermission(IdentityFeature.Admin.Users.Delete.Permission)
             .WithSummary(IdentityFeature.Admin.Users.Delete.Summary)
             .WithDescription(IdentityFeature.Admin.Users.Delete.Description)
-            .Produces<Result<Response>>()
+            .Produces<Result>()
             .Produces<Result>(StatusCodes.Status400BadRequest)
             .Produces<Result>(StatusCodes.Status401Unauthorized)
             .Produces<Result>(StatusCodes.Status404NotFound);

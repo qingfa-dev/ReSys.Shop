@@ -7,13 +7,13 @@ namespace Module.Catalog.Features.Admin.Taxonomies.Taxons.Rules.Delete;
 
 public static partial class DeleteTaxonRule
 {
-    public sealed record Command(Guid TaxonomyId, Guid TaxonId, Guid RuleId) : ICommand<Response>;
+    public sealed record Command(Guid TaxonomyId, Guid TaxonId, Guid RuleId) : ICommand;
 
     public sealed class CommandHandler(
         IApplicationDbContext dbContext,
         IAutoClassificationService autoClassificationService,
         ILogger<CommandHandler> logger)
-        : ICommandHandler<Command, Response>
+        : ICommandHandler<Command>
     {
         /// <summary>
         /// Deletes a taxon rule, persists the removal, and triggers auto-classification regeneration if the taxon is automatic.
@@ -23,7 +23,7 @@ public static partial class DeleteTaxonRule
         /// <returns>A success result indicating the rule was deleted.</returns>
         /// <exception cref="DbUpdateException">Thrown when the database update fails.</exception>
         // Contract: pre=command!=null, post=result!=null
-        public async Task<Result<Response>> Handle(Command command, CancellationToken cancellationToken)
+        public async Task<Result> Handle(Command command, CancellationToken cancellationToken)
         {
             var taxonomyId = command.TaxonomyId;
             var taxonId = command.TaxonId;
@@ -60,7 +60,7 @@ public static partial class DeleteTaxonRule
                 }
             }
 
-            return new Response(ruleId);
+            return Result.Ok(TaxonRuleResult.Success.Deleted(ruleId));
         }
     }
 }

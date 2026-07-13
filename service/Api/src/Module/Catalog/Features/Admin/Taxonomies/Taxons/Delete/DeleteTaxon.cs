@@ -11,14 +11,14 @@ namespace Module.Catalog.Features.Admin.Taxonomies.Taxons.Delete;
 /// </summary>
 public static partial class DeleteTaxon
 {
-    public sealed record Command(Guid TaxonomyId, Guid Id) : ICommand<Response>;
+    public sealed record Command(Guid TaxonomyId, Guid Id) : ICommand;
 
     public sealed class CommandHandler(
         IApplicationDbContext dbContext,
         ITaxonHierarchyService hierarchyService,
         IAutoClassificationService autoClassificationService,
         ILogger<CommandHandler> logger)
-        : ICommandHandler<Command, Response>
+        : ICommandHandler<Command>
     {
         /// <summary>
         /// Soft-deletes a taxon after verifying it has no child taxons.
@@ -26,8 +26,8 @@ public static partial class DeleteTaxon
         /// <param name="command">The command containing taxonomy ID and taxon ID.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <exception cref="DbUpdateException">Thrown when persistence fails.</exception>
-        // Contract: pre=command.TaxonomyId!=Guid.Empty && command.Id!=Guid.Empty, post=result.Id!=null, throws=DbUpdateException
-        public async Task<Result<Response>> Handle(Command command, CancellationToken cancellationToken)
+        // Contract: pre=command.TaxonomyId!=Guid.Empty && command.Id!=Guid.Empty, post=result!=null, throws=DbUpdateException
+        public async Task<Result> Handle(Command command, CancellationToken cancellationToken)
         {
             var taxonomyId = command.TaxonomyId;
             var id = command.Id;
@@ -77,7 +77,7 @@ public static partial class DeleteTaxon
                 await autoClassificationService.RegenerateForTaxonAsync(entity.Id, cancellationToken);
             }
 
-            return new Response(entity.Id);
+            return Result.Ok(TaxonResult.Success.Deleted);
         }
     }
 }

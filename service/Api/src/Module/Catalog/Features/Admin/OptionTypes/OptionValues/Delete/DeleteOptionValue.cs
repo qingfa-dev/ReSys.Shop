@@ -8,13 +8,13 @@ namespace Module.Catalog.Features.Admin.OptionTypes.OptionValues.Delete;
 /// </summary>
 public static partial class DeleteOptionValue
 {
-    public sealed record Command(Guid OptionTypeId, Guid Id) : ICommand<Response>;
+    public sealed record Command(Guid OptionTypeId, Guid Id) : ICommand;
 
     public sealed class CommandHandler(
         IApplicationDbContext dbContext,
         ICurrentUser currentUser,
         ILogger<CommandHandler> logger)
-        : ICommandHandler<Command, Response>
+        : ICommandHandler<Command>
     {
         /// <summary>
         /// Deletes an option value after confirming the parent option type exists.
@@ -22,8 +22,8 @@ public static partial class DeleteOptionValue
         /// <param name="command">The command containing the parent type ID and value ID.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <exception cref="DbUpdateException">Thrown when persistence fails.</exception>
-        // Contract: pre=command.OptionTypeId!=Guid.Empty && command.Id!=Guid.Empty, post=result.Id!=null, throws=DbUpdateException
-        public async Task<Result<Response>> Handle(Command command, CancellationToken cancellationToken)
+        // Contract: pre=command.OptionTypeId!=Guid.Empty && command.Id!=Guid.Empty, post=result!=null, throws=DbUpdateException
+        public async Task<Result> Handle(Command command, CancellationToken cancellationToken)
         {
             var optionTypeId = command.OptionTypeId;
 
@@ -47,7 +47,7 @@ public static partial class DeleteOptionValue
             OptionValueLoggers.Deleted(logger, Name: entity.Name, Id: entity.Id, OptionTypeId: entity.OptionTypeId, ActionBy: currentUser.UserName);
 
             // Map: Return deleted resource ID in response
-            return new Response(entity.Id);
+            return Result.Ok(OptionValueResult.Success.Deleted(entity.Id));
         }
     }
 }

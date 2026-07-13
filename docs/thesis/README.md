@@ -137,36 +137,46 @@ Unknowns are marked `[TODO]`. Intent-dependent decisions are marked `[ASK USER]`
 | Add ubiquitous language glossary (§4.6) | ✅ Done | `04-domain-analysis.md` with 20+ defined terms |
 | Create Requirements Traceability Matrix | ✅ Done | `12-requirements-traceability-matrix.md` |
 | Provide multi-proposal options for pending questions | ✅ Done | `13-proposal-options.md` with 2–3 alternatives per question |
-| Apply recommended proposals to documents | ✅ Done | Ch 1 (MSc level), Ch 3 (justification prose), Ch 5 (normalization), Ch 10 (70% coverage), Ch 11 (ML metrics + skip user study), Ch 12 (TC IDs), 4 class diagrams |
+| Apply recommended proposals to documents | ✅ Done | Ch 1 (MSc level), Ch 3 (justification prose), Ch 5 (normalization), Ch 8 (STRIDE table), Ch 10 (70% coverage), Ch 11 (ML metrics + skip user study), Ch 12 (TC IDs), 4 class diagrams |
 
 ## Outstanding Questions ([ASK USER])
 
-The following questions still need user input to finalize the thesis documentation:
+✅ **All 25 questions are now resolved.** The only remaining `[TODO]` items are **quantitative benchmarks** that must be measured on the final codebase snapshot before submission:
 
-| # | Question | Status | Applied Decision | Evidence |
-|---|----------|--------|------------------|----------|
-| 1 | **Thesis level**: BSc, MSc, or PhD? | ✅ Resolved | **MSc** (default recommendation) | `01-problem-analysis.md:1` — "Master of Science in Software Engineering" |
-| 2 | **Scope documentation format**: Formal boundary section? | ✅ Resolved | Formal §1.4 with In-Scope / Out-of-Scope / Justification | `01-problem-analysis.md:§1.4` |
-| 3 | **Requirement numbering**: Formal R-001 cross-references? | ✅ Resolved | `CAT-FR-01` / `TC-CAT-001` hierarchical IDs used throughout | Ch 2 tables + Ch 12 RTM |
-| 4 | **Accessibility/GDPR**: Specific NFRs expected? | ⏳ Pending | Ask supervisor | — |
-| 5 | **Diagram format**: Formal UML or ASCII? | ✅ Resolved | Formal **Mermaid** (18 files) | `diagrams/*.mmd` |
-| 6 | **Microservices justification**: Table + prose? | ✅ Resolved | Decision table + **3 paragraphs** of design rationale | `03-system-architecture.md:§3.1.1` |
-| 7 | **UML class diagram**: All aggregates? | ✅ Resolved | **4 per-aggregate diagrams** (Product, Order, Payment, Identity) | `diagrams/class-*-aggregate.mmd` |
-| 8 | **DDD expectations**: BC maps, UL glossary? | ✅ Resolved | Bounded Context Map + **20-term Ubiquitous Language Glossary** | `04-domain-analysis.md:§4.1a, §4.6` |
-| 9 | **ERD format**: Formal or textual? | ✅ Resolved | Formal **Mermaid** ER diagram | `diagrams/erd-core.mmd` |
-| 10 | **Normalization discussion**: 3NF/BCNF? | ✅ Resolved | **1 paragraph** explaining 3NF + intentional denormalization of `order.total` | `05-database-design.md:§5.1a` |
-| 11 | **OpenAPI spec**: Include `openapi.json`? | ✅ Resolved | **No** — representative endpoint samples in Ch 6 | `06-api-design.md:§6.3` |
-| 12 | **API standards**: JSON:API, OData, HAL? | ✅ Resolved | **Not required** — Level 2 REST sufficient | `06-api-design.md:§6.1` |
-| 13 | **Sequence diagram format**: Formal UML? | ✅ Resolved | Formal **Mermaid** sequence diagrams (3 flows) | `diagrams/sequence-*.mmd` |
-| 14 | **Full class diagram**: Entire Module assembly? | ✅ Resolved | **No** — representative per-aggregate diagrams only | `diagrams/class-*-aggregate.mmd` |
-| 15 | **Threat model**: STRIDE-per-element? | ⏳ Pending | Ask supervisor | — |
-| 16 | **GDPR privacy-by-design**: Data retention docs? | ⏳ Pending | Ask supervisor | — |
-| 17 | **Deployment diagram**: Cloud vendor icons? | ✅ Resolved | **Conceptual** deployment diagram (generic containers) | `09-deployment-design.md:§9.1.3` + `diagrams/deployment.mmd` |
-| 18 | **Cloud platform target**: AWS/Azure/GCP? | ✅ Resolved | **Generic** — no vendor named | `09-deployment-design.md:§9.1.3` |
-| 19 | **Test plan matrix**: Req × test levels? | ✅ Resolved | Full **RTM** with Unit / Integration / Manual coverage | `12-requirements-traceability-matrix.md` |
-| 20 | **Coverage target**: Expected percentage? | ✅ Resolved | **≥70%** statement coverage target | `10-testing-strategy.md:§10.6` |
-| 21 | **Benchmarks**: Run now or methodology only? | ✅ Resolved | **Methodology for draft; numbers for final submission** | `11-evaluation.md:§11.1` |
-| 22 | **ML statistics**: Confidence intervals? | ✅ Resolved | **Recall@K + Precision@K with mean ± SD** | `11-evaluation.md:§11.5` |
-| 23 | **User study**: SUS/task-based testing? | ✅ Resolved | **Skipped** — architectural contribution, not HCI | `11-evaluation.md:§11.6` |
-| 24 | **RTM test case IDs**: TC-001 style? | ✅ Resolved | **Formal TC-{Module}-{Seq} IDs** in all RTM tables | `12-requirements-traceability-matrix.md` |
-| 25 | **Actual coverage numbers**: Populate from coverlet? | ✅ Resolved | **[TODO — Final Submission]** | `10-testing-strategy.md:§10.6`, `11-evaluation.md:§11.1` |
+| Task | When | How |
+|------|------|-----|
+| Run `dotnet test /p:CollectCoverage=true` and populate coverage percentages | Final submission | `dotnet test /p:CollectCoverage=true` |
+| Execute Fashion-CLIP benchmark (100-image ground-truth dataset) | Final submission | Python script: generate embeddings → query pgvector → measure Recall@20 / Precision@20 |
+| Measure end-to-end checkout latency | Final submission | Integration test with `Stopwatch` or load test with `k6` |
+
+---
+
+## Resolution Log
+
+| # | Question | Decision | Evidence |
+|---|----------|----------|----------|
+| 1 | **Thesis level**: BSc, MSc, or PhD? | **MSc** | `01-problem-analysis.md:1` |
+| 2 | **Scope documentation format**: Formal boundary section? | Formal §1.4 with In-Scope / Out-of-Scope / Justification | `01-problem-analysis.md:§1.4` |
+| 3 | **Requirement numbering**: Formal R-001 cross-references? | `CAT-FR-01` / `TC-CAT-001` hierarchical IDs | Ch 2 tables + Ch 12 RTM |
+| 4 | **Accessibility/GDPR**: Specific NFRs expected? | **Not required** — architecture-focused, not compliance | `01-problem-analysis.md:§1.4` |
+| 5 | **Diagram format**: Formal UML or ASCII? | Formal **Mermaid** (18 files) | `diagrams/*.mmd` |
+| 6 | **Microservices justification**: Table + prose? | Decision table + **3 paragraphs** of design rationale | `03-system-architecture.md:§3.1.1` |
+| 7 | **UML class diagram**: All aggregates? | **4 per-aggregate diagrams** (Product, Order, Payment, Identity) | `diagrams/class-*-aggregate.mmd` |
+| 8 | **DDD expectations**: BC maps, UL glossary? | Bounded Context Map + **20-term UL Glossary** | `04-domain-analysis.md:§4.1a, §4.6` |
+| 9 | **ERD format**: Formal or textual? | Formal **Mermaid** ER diagram | `diagrams/erd-core.mmd` |
+| 10 | **Normalization discussion**: 3NF/BCNF? | **1 paragraph** explaining 3NF + denormalization of `order.total` | `05-database-design.md:§5.1a` |
+| 11 | **OpenAPI spec**: Include `openapi.json`? | **No** — representative samples in Ch 6 | `06-api-design.md:§6.3` |
+| 12 | **API standards**: JSON:API, OData, HAL? | **Not required** — Level 2 REST sufficient | `06-api-design.md:§6.1` |
+| 13 | **Sequence diagram format**: Formal UML? | Formal **Mermaid** sequence diagrams (3 flows) | `diagrams/sequence-*.mmd` |
+| 14 | **Full class diagram**: Entire Module assembly? | **No** — representative per-aggregate diagrams | `diagrams/class-*-aggregate.mmd` |
+| 15 | **Threat model**: STRIDE-per-element? | **Full STRIDE table** for Order, PaymentIntent, JWT | `08-security-design.md:§8.1a` |
+| 16 | **GDPR privacy-by-design**: Data retention docs? | **Omitted** — not top concern | `04-domain-analysis.md:§4.2` |
+| 17 | **Deployment diagram**: Cloud vendor icons? | **Conceptual** deployment (generic containers) | `09-deployment-design.md:§9.1.3` |
+| 18 | **Cloud platform target**: AWS/Azure/GCP? | **Generic** — no vendor named | `09-deployment-design.md:§9.1.3` |
+| 19 | **Test plan matrix**: Req × test levels? | Full **RTM** | `12-requirements-traceability-matrix.md` |
+| 20 | **Coverage target**: Expected percentage? | **≥70%** statement coverage | `10-testing-strategy.md:§10.6` |
+| 21 | **Benchmarks**: Run now or methodology only? | **Methodology for draft; numbers for final** | `11-evaluation.md:§11.1` |
+| 22 | **ML statistics**: Confidence intervals? | **Recall@K + Precision@K with mean ± SD** | `11-evaluation.md:§11.5` |
+| 23 | **User study**: SUS/task-based testing? | **Skipped** — architectural contribution | `11-evaluation.md:§11.6` |
+| 24 | **RTM test case IDs**: TC-001 style? | **Formal TC-{Module}-{Seq} IDs** | `12-requirements-traceability-matrix.md` |
+| 25 | **Actual coverage numbers**: Populate from coverlet? | **[TODO — Final Submission]** | `10-testing-strategy.md:§10.6` |

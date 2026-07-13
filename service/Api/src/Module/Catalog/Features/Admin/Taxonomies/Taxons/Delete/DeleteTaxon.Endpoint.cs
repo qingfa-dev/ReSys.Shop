@@ -23,7 +23,7 @@ public static partial class DeleteTaxon
             .HasPermission(CatalogFeature.Admin.Taxonomies.Taxons.Delete.Permission)
             .WithSummary(CatalogFeature.Admin.Taxonomies.Taxons.Delete.Summary)
             .WithDescription(CatalogFeature.Admin.Taxonomies.Taxons.Delete.Description)
-            .Produces<Result<Response>>()
+            .Produces<Result>()
             .Produces<Result>(StatusCodes.Status404NotFound)
             .Produces<Result>(StatusCodes.Status409Conflict);
         }

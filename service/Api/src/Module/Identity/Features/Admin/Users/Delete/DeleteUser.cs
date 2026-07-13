@@ -13,7 +13,7 @@ public static partial class DeleteUser
     /// Represents the command to delete an existing user.
     /// </summary>
     /// <param name="Request">The request containing the identifier of the user to delete.</param>
-    public sealed record Command(Request Request) : ICommand<Response>;
+    public sealed record Command(Request Request) : ICommand;
 
     /// <summary>
     /// Handles the <see cref="Command"/> to delete an existing user and their profile.
@@ -23,17 +23,17 @@ public static partial class DeleteUser
         ICurrentUser currentUser,
         ILogger<CommandHandler> logger
     )
-        : ICommandHandler<Command, Response>
+        : ICommandHandler<Command>
     {
         // Contract: pre=command!=null, post=result!=null, throws=DbUpdateException
         /// <summary>
-        /// Deletes a user account by ID. Blocks self-deletion. Logs the deletion and returns the deleted user's identity.
+        /// Deletes a user account by ID. Blocks self-deletion. Logs the deletion and returns success.
         /// </summary>
         /// <param name="command">The command with the user identifier.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns>A result containing the deleted user's ID and username, or unauthorized/self-delete/not-found error.</returns>
+        /// <returns>A result indicating success or an error.</returns>
         /// <exception cref="DbUpdateException">Thrown when the identity store fails to persist the deletion.</exception>
-        public async Task<Result<Response>> Handle(Command command, CancellationToken cancellationToken)
+        public async Task<Result> Handle(Command command, CancellationToken cancellationToken)
         {
             var request = command.Request;
 
@@ -47,9 +47,9 @@ public static partial class DeleteUser
             if (user is null)
                 return UserResult.Failure.NotFound;
 
-            var result = await userManager.DeleteAsync(user);
-            if (!result.Succeeded)
-                return result.ToResult<Response>();
+            var deleteResult = await userManager.DeleteAsync(user);
+            if (!deleteResult.Succeeded)
+                return deleteResult.ToResult();
 
             UserLoggers.Management.Deleted(logger,
                 UserName: user.UserName!,
@@ -57,7 +57,7 @@ public static partial class DeleteUser
                 UserId: user.Id,
                 ActionBy: currentUser.UserName);
 
-            return new Response(user.Id);
+            return Result.Ok(UserResult.Success.Deleted);
         }
     }
 }

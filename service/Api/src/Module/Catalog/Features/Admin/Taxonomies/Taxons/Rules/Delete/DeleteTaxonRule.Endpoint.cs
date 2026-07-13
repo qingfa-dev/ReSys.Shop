@@ -24,7 +24,7 @@ public static partial class DeleteTaxonRule
             .HasPermission(CatalogFeature.Admin.Taxonomies.Taxons.Rules.Delete.Permission)
             .WithSummary(CatalogFeature.Admin.Taxonomies.Taxons.Rules.Delete.Summary)
             .WithDescription(CatalogFeature.Admin.Taxonomies.Taxons.Rules.Delete.Description)
-            .Produces<Result<Response>>(StatusCodes.Status200OK)
+            .Produces<Result>()
             .Produces<Result>(StatusCodes.Status401Unauthorized)
             .Produces<Result>(StatusCodes.Status403Forbidden)
             .Produces<Result>(StatusCodes.Status404NotFound);

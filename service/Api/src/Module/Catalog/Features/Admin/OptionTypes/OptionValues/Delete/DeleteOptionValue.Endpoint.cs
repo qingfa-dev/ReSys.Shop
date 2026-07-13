@@ -23,7 +23,7 @@ public static partial class DeleteOptionValue
             .HasPermission(CatalogFeature.Admin.OptionTypes.OptionValues.Delete.Permission)
             .WithSummary(CatalogFeature.Admin.OptionTypes.OptionValues.Delete.Summary)
             .WithDescription(CatalogFeature.Admin.OptionTypes.OptionValues.Delete.Description)
-            .Produces<Result<Response>>()
+            .Produces<Result>()
             .Produces<Result>(StatusCodes.Status404NotFound);
         }
     }

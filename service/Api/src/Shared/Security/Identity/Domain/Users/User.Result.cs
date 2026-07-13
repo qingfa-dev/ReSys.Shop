@@ -87,6 +87,11 @@ public static class UserResult
         /// </summary>
         public const string GetProfile = "Profile retrieved successfully.";
 
+        /// <summary>
+        /// [Success]: Deleted
+        /// </summary>
+        public const string Deleted = "User deleted successfully.";
+
         #endregion
     }
 

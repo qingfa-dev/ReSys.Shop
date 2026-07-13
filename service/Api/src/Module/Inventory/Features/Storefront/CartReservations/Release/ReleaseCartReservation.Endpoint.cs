@@ -21,7 +21,7 @@ public static partial class ReleaseCartReservation
             .WithTags(InventoryFeature.Tags.StockReservation)
             .WithSummary(InventoryFeature.Storefront.CartReservations.Release.Summary)
             .WithDescription(InventoryFeature.Storefront.CartReservations.Release.Description)
-            .Produces<Result<Response>>()
+            .Produces<Result>()
             .Produces<Result>(StatusCodes.Status404NotFound);
         }
     }

@@ -4,12 +4,12 @@ namespace Module.Inventory.Features.Storefront.CartReservations.Release;
 
 public static partial class ReleaseCartReservation
 {
-    public sealed record Command(Guid ReservationId) : ICommand<Response>;
+    public sealed record Command(Guid ReservationId) : ICommand;
 
     public sealed class CommandHandler(IApplicationDbContext dbContext)
-        : ICommandHandler<Command, Response>
+        : ICommandHandler<Command>
     {
-        public async Task<Result<Response>> Handle(Command command, CancellationToken cancellationToken)
+        public async Task<Result> Handle(Command command, CancellationToken cancellationToken)
         {
             var reservation = await dbContext.Set<StockReservation>()
                 .FirstOrDefaultAsync(r => r.Id == command.ReservationId, cancellationToken);
@@ -26,7 +26,7 @@ public static partial class ReleaseCartReservation
 
             await dbContext.SaveChangesAsync(cancellationToken);
 
-            return new Response(reservation.Id);
+            return Result.Ok(StockReservationResult.Success.Released(reservation.Id));
         }
     }
 }

@@ -22,7 +22,7 @@ public static partial class DeleteOptionType
             .HasPermission(CatalogFeature.Admin.OptionTypes.Delete.Permission)
             .WithSummary(CatalogFeature.Admin.OptionTypes.Delete.Summary)
             .WithDescription(CatalogFeature.Admin.OptionTypes.Delete.Description)
-            .Produces<Result<Response>>()
+            .Produces<Result>()
             .Produces<Result>(StatusCodes.Status404NotFound)
             .Produces<Result>(StatusCodes.Status409Conflict);
         }
