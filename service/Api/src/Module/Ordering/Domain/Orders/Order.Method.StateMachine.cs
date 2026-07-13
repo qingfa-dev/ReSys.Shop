@@ -123,7 +123,7 @@ public static partial class OrderMethod
     /// <summary>
     /// Merges the other order into this order, combining matching line items by variant ID.
     /// </summary>
-    public static void Merge(this Order order, Order otherOrder, Guid? userId = null, bool discardMerged = true)
+    public static Result Merge(this Order order, Order otherOrder, Guid? userId = null, bool discardMerged = true)
     {
         foreach (var otherLineItem in otherOrder.LineItems)
         {
@@ -141,6 +141,7 @@ public static partial class OrderMethod
         {
             otherOrder.LineItems.Clear();
         }
+        return Result.Ok(OrderResult.Success.Merged(order.Id));
     }
 
     private static void HandleMerge(Order order, LineItem? currentLineItem, LineItem otherLineItem)

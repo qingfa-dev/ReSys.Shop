@@ -56,7 +56,9 @@ public static partial class AssociateCartWithUser
             else
             {
                 // Merge: Combine guest cart line items into user cart by variant.
-                userOrder.Merge(guestOrder, userId, discardMerged: true);
+                var mergeResult = userOrder.Merge(guestOrder, userId, discardMerged: true);
+                if (mergeResult.IsFailure)
+                    return (Result<Response>)mergeResult.Errors;
                 // Remove: Delete the now-empty guest cart.
                 dbContext.Set<Order>().Remove(guestOrder);
             }
