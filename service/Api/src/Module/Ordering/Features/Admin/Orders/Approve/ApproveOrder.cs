@@ -31,10 +31,6 @@ public static partial class ApproveOrder
             var approvedById = Guid.TryParse(currentUser.UserId, out var parsedId) ? parsedId : Guid.Empty;
             var result = order.Approve(approvedById);
             if (result.IsFailure) return (Result<Response>)result.Errors;
-
-            // Update: Record approval timestamp and modifier.
-            order.ApprovedAtUtc = DateTimeOffset.UtcNow;
-            order.ModifiedAtUtc = DateTimeOffset.UtcNow;
             await dbContext.SaveChangesAsync(cancellationToken);
 
             // Map: Return the approval response with approver details.
