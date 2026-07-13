@@ -1,5 +1,3 @@
-using Module.Ordering.Domain.Adjustments;
-
 namespace Module.Ordering.Domain.Orders;
 
 public static partial class OrderMethod
@@ -92,21 +90,6 @@ public static partial class OrderMethod
         return Result.Ok();
     }
 
-    // @CAT-5 Compute: Sum line item totals and adjustments (including line-item-level), include ShipmentTotal in Total, derive outstanding balance
-    public static void RecalculateTotals(this Order order)
-    {
-        order.ItemCount = order.LineItems.Sum(li => li.Quantity);
-        order.ItemTotal = order.LineItems.Sum(li => li.Total);
-        order.AdjustmentTotal =
-            order.LineItems.Sum(li => li.AdjustmentTotal) +
-            order.Adjustments.Where(a => a.Eligible).Sum(a => a.Amount);
-        order.ShipmentTotal = order.Adjustments
-            .Where(a => a.Eligible && a.SourceType == AdjustmentConstant.SourceTypes.Shipping)
-            .Sum(a => a.Amount);
-        order.Total = order.ItemTotal + order.ShipmentTotal + order.AdjustmentTotal;
-        order.OutstandingBalance = order.Total - order.PaymentTotal;
-    }
-
     /// <summary>
     /// Determines whether the order has been fully paid.
     /// </summary>
@@ -183,25 +166,6 @@ public static partial class OrderMethod
             return Result.Failure(OrderResult.Errors.EmptyOrderCannotFinalize);
 
         return Result.Ok();
-    }
-    #endregion
-
-    #region State Derivations
-    /// <summary>
-    /// Derives the order payment state from its outstanding balance and status.
-    /// </summary>
-    /// <param name="order">The order to derive payment state for.</param>
-    // @CAT-5 Compute: Derives payment state from status and balance: canceled+zero→"void", balance>0→"balance_due", balance<0→"credit_owed", else→"paid"
-    public static void UpdatePaymentState(this Order order)
-    {
-        if (order.Status == OrderStatus.Canceled && order.PaymentTotal == 0m)
-            order.PaymentState = OrderConstant.PaymentState.Void;
-        else if (order.OutstandingBalance > 0m)
-            order.PaymentState = OrderConstant.PaymentState.BalanceDue;
-        else if (order.OutstandingBalance < 0m)
-            order.PaymentState = OrderConstant.PaymentState.CreditOwed;
-        else
-            order.PaymentState = OrderConstant.PaymentState.Paid;
     }
     #endregion
 }
