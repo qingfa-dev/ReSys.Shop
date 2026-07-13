@@ -44,15 +44,15 @@ public static partial class GetUserPermissions
 
             var categories = PermissionContext.All
                 .GroupBy(p => p.Category)
-                .Select(categoryGroup => new Response.CategoryResponse
+                .Select(categoryGroup => new CategoryResponse
                 {
                     Category = categoryGroup.Key,
                     Resources = [.. categoryGroup
                         .GroupBy(p => p.Resource)
-                        .Select(resourceGroup => new Response.ResourceResponse
+                        .Select(resourceGroup => new ResourceResponse
                         {
                             Resource = resourceGroup.Key,
-                            Permissions = [.. resourceGroup.Select(permission => new Response.PermissionItemResponse
+                            Permissions = [.. resourceGroup.Select(permission => new PermissionItemResponse
                             {
                                 Identifier = permission.Identifier,
                                 Name = permission.Name,

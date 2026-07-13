@@ -1,4 +1,5 @@
 using Module.Ordering.Domain.Orders;
+using Module.Ordering.Features.Storefront.Orders.Shared.Mappings;
 
 namespace Module.Ordering.Features.Storefront.Orders.ListOrders;
 
@@ -35,15 +36,7 @@ public static partial class ListCustomerOrders
                 .Where(o => o.UserId == userId && o.Status != OrderStatus.Draft)
                 .OrderByDescending(o => o.CreatedAtUtc)
                 .ApplyQuerying(parseAll.Value)
-                .Select(o => new Response
-                {
-                    Id = o.Id,
-                    Number = o.Number,
-                    Status = o.Status,
-                    Total = o.Total,
-                    CreatedAtUtc = o.CreatedAtUtc
-                })
-                .ToPagedOrAllAsync(parseAll.Value, x => x, cancellationToken);
+                .ToPagedOrAllAsync(parseAll.Value, x => x.MapToStoreListItem<Response>(), cancellationToken);
 
             return pagedResult;
         }

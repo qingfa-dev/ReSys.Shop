@@ -6,6 +6,5 @@ public static partial class DeleteUser
     /// Represents the response contract for a deleted user.
     /// </summary>
     /// <param name="Id">The unique identifier of the deleted user.</param>
-    /// <param name="UserName">The username of the deleted user.</param>
-    public record Response(Guid Id, string UserName);
+    public sealed record Response(Guid Id);
 }

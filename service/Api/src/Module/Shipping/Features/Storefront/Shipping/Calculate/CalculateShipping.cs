@@ -62,14 +62,7 @@ public static partial class CalculateShipping
             var (cost, isFree) = calcResult.Value;
 
             // Map: Return shipping cost response with method details.
-            return new Response
-            {
-                ShippingMethodId = method.Id,
-                MethodName = method.Name,
-                Cost = cost,
-                Currency = order?.Currency ?? "USD",
-                IsFreeShipping = isFree
-            };
+            return new Response(method.Id, method.Name, cost, order?.Currency ?? "USD", isFree);
         }
     }
 }

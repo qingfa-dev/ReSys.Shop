@@ -4,7 +4,7 @@ namespace Module.Catalog.Features.Admin.Products.Variants.List;
 
 public static partial class ListVariantsByProduct
 {
-    public class Response
+    public sealed record Response
     {
         public List<Item> Items { get; init; } = [];
 

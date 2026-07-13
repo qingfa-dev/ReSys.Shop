@@ -1,12 +1,22 @@
 using PaymentCapture = Module.Payment.Domain.PaymentCaptures.PaymentCapture;
 
+using Module.Payment.Services.Provider;
 using Module.Payment.Features.Storefront.Payment.Shared.Models;
 
 namespace Module.Payment.Features.Storefront.Payment.Shared.Mappings;
 
-// Map: PaymentCapture → storefront response DTOs
+// Map: PaymentCapture/PaymentGatewayResponse → storefront response DTOs
 public static class PaymentStoreMapping
 {
+    public static T MapToStoreDetail<T>(this PaymentGatewayResponse response) where T : StorePaymentDetailResponse, new()
+    {
+        return new T
+        {
+            ClientSecret = response.SetupIntentClientSecret,
+        };
+    }
+
+
     public static T MapToStoreDetail<T>(this PaymentCapture payment) where T : StorePaymentDetailResponse, new()
     {
         return new T

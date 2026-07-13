@@ -77,7 +77,7 @@ public static partial class DeleteTaxon
                 await autoClassificationService.RegenerateForTaxonAsync(entity.Id, cancellationToken);
             }
 
-            return new Response { Id = entity.Id };
+            return new Response(entity.Id);
         }
     }
 }

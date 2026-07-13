@@ -47,7 +47,7 @@ public static partial class DeleteOptionValue
             OptionValueLoggers.Deleted(logger, Name: entity.Name, Id: entity.Id, OptionTypeId: entity.OptionTypeId, ActionBy: currentUser.UserName);
 
             // Map: Return deleted resource ID in response
-            return new Response { Id = entity.Id };
+            return new Response(entity.Id);
         }
     }
 }

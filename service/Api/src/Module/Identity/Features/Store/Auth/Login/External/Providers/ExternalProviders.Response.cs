@@ -4,5 +4,5 @@ namespace Module.Identity.Features.Store.Auth.Login.External.Providers;
 
 public static partial class ExternalProviders
 {
-    public record Response : ProviderOption;
+    public sealed record Response : ProviderOption;
 }

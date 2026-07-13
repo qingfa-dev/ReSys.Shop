@@ -1,4 +1,5 @@
 using Module.Payment.Domain.PaymentMethods;
+using Module.Payment.Features.Storefront.PaymentMethods.Shared.Mappings;
 
 namespace Module.Payment.Features.Storefront.Payment.Methods;
 
@@ -20,7 +21,7 @@ public static partial class ListPaymentMethods
             var pagedResult = await dbContext.Set<PaymentMethod>().AsNoTracking()
                 .Where(m => m.Active && !m.IsDeleted)
                 .ApplyQuerying(parsing.Value)
-                .Select(m => new Response { Id = m.Id, Name = m.Name, Description = m.Description })
+                .Select(m => m.MapToStoreListItem<Response>())
                 .ToPagedOrAllAsync(parsing.Value, x => x, cancellationToken);
 
             return pagedResult;

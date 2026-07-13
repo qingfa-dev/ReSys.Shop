@@ -24,18 +24,7 @@ public static partial class GetShippingMethods
                 .ToListAsync(cancellationToken);
 
             // Map: Return list of available shipping methods.
-            return new Response
-            {
-                Methods = methods.Select(m => new ShippingMethodDto
-                {
-                    Id = m.Id,
-                    Name = m.Name,
-                    AdminName = m.AdminName,
-                    Code = m.Code,
-                    CalculatorType = m.CalculatorType,
-                    Position = m.Position
-                }).ToList()
-            };
+            return new Response(methods.Select(m => new ShippingMethodDto(m.Id, m.Name, m.AdminName, m.Code, m.CalculatorType, m.Position)).ToList());
         }
     }
 }

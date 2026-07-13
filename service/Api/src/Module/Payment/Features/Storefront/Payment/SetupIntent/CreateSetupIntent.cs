@@ -3,6 +3,7 @@ using IGatewayRegistry = Module.Payment.Services.Provider.IGatewayRegistry;
 using Module.Payment.Services.Models;
 using Module.Payment.Domain.PaymentCaptures;
 using Module.Payment.Domain.PaymentMethods;
+using Module.Payment.Features.Storefront.Payment.Shared.Mappings;
 
 namespace Module.Payment.Features.Storefront.Payment.SetupIntent;
 
@@ -39,7 +40,7 @@ public static partial class CreateSetupIntent
             var setupResult = await gateway.CreateSetupIntentAsync(null, metadata, cancellationToken);
             if (setupResult.IsFailure) return setupResult.Errors;
 
-            return new Response { ClientSecret = setupResult.Value.SetupIntentClientSecret! };
+            return setupResult.Value.MapToStoreDetail<Response>();
         }
     }
 }

@@ -4,7 +4,7 @@ namespace Module.Inventory.Features.Admin.StockItems.Summary;
 
 public static partial class GetStockSummary
 {
-    public class Response : VariantStockSummary
+    public sealed record Response : VariantStockSummary
     {
         public Response() { }
 

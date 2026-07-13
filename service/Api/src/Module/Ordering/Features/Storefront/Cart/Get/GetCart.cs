@@ -37,7 +37,7 @@ public static partial class GetCart
                 .FirstOrDefaultAsync(cancellationToken);
 
             if (cart is null)
-                return new Response();
+                return CartMapping.EmptyCart<Response>();
 
             // Map: Enrich line items with variant details (name, SKU) from catalog.
             var variantIds = cart.LineItems.Select(li => li.VariantId).ToList();

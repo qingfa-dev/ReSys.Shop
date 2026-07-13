@@ -26,13 +26,7 @@ public static partial class ReleaseCartReservation
 
             await dbContext.SaveChangesAsync(cancellationToken);
 
-            return new Response
-            {
-                Id = reservation.Id,
-                VariantId = reservation.VariantId,
-                Quantity = reservation.Quantity,
-                State = reservation.State.ToString()
-            };
+            return new Response(reservation.Id);
         }
     }
 }

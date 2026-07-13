@@ -83,12 +83,7 @@ public static partial class EmailRegister
 
             await SendEmailVerificationNotificationAsync(user, request.Email, verificationUrl);
 
-            return new Response
-            {
-                UserId = user.Id,
-                Email = user.Email,
-                Message = UserResult.Success.Registered
-            };
+            return new Response(user.Id, user.Email!, UserResult.Success.Registered);
         }
 
         internal static string BuildVerificationPath(Guid userId, string token)

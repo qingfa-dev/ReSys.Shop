@@ -7,6 +7,12 @@ namespace Module.Ordering.Features.Storefront.Cart.Shared.Mappings;
 // Boundary: Features → Domain — maps Order entities to cart response DTOs
 public static partial class CartMapping
 {
+    public static T EmptyCart<T>() where T : CartDetailResponse, new()
+    {
+        return new T();
+    }
+
+
     public static T MapToDetail<T>(this Order entity) where T : CartDetailResponse, new()
     {
         return new T

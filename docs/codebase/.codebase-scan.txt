@@ -1,7 +1,20 @@
 
 === DIRECTORY TREE (max depth 3, source files only) ===
 .editorconfig
+.github
+.github/PULL_REQUEST_TEMPLATE.md
+.github/workflows
+.github/workflows/ci.yml
 .gitignore
+.harness
+.harness/config.yml
+.harness/domains.yml
+.harness/enforcement.yml
+.harness/knowledge.yml
+.harness/principles.yml
+.harness/quality.yml
+.harness/scripts
+.harness/scripts/verify-harness.py
 .idea
 .idea/.idea.ReSys.Shop
 .idea/.idea.ReSys.Shop/.idea
@@ -9,6 +22,81 @@
 .idea/.idea.ReSys.Shop/.idea/projectSettingsUpdater.xml
 .idea/.idea.ReSys.Shop/.idea/vcs.xml
 .idea/.idea.ReSys.Shop/.idea/workspace.xml
+.superpowers
+.superpowers/sdd
+.superpowers/sdd/.gitignore
+.superpowers/sdd/final-fix-report.md
+.superpowers/sdd/ph1-ep-brief.md
+.superpowers/sdd/ph1-ep-report.md
+.superpowers/sdd/ph1-report.md
+.superpowers/sdd/ph2-brief.md
+.superpowers/sdd/ph2-ep-brief.md
+.superpowers/sdd/ph2-ep-report.md
+.superpowers/sdd/ph2-report.md
+.superpowers/sdd/ph3-report.md
+.superpowers/sdd/ph3-req-brief.md
+.superpowers/sdd/ph3-req-report.md
+.superpowers/sdd/ph4-brief.md
+.superpowers/sdd/ph4-report.md
+.superpowers/sdd/ph4-resp-brief.md
+.superpowers/sdd/ph4-resp-report.md
+.superpowers/sdd/ph5-brief.md
+.superpowers/sdd/ph5-report.md
+.superpowers/sdd/ph6-brief.md
+.superpowers/sdd/ph6-report.md
+.superpowers/sdd/progress.md
+.superpowers/sdd/review-0345319a..bd042088.diff
+.superpowers/sdd/review-05a3c921..24455618.diff
+.superpowers/sdd/review-05a3c921..52434b42.diff
+.superpowers/sdd/review-05a3c921..a53f7004.diff
+.superpowers/sdd/review-1bd83710..58d2f88b.diff
+.superpowers/sdd/review-2bc8f443..1bd83710.diff
+.superpowers/sdd/review-52434b42..86ca8727.diff
+.superpowers/sdd/review-86ca8727..0345319a.diff
+.superpowers/sdd/review-887a77c7..a53f7004.diff
+.superpowers/sdd/review-bd042088..887a77c7.diff
+.superpowers/sdd/review-bfd03232..2bc8f443.diff
+.superpowers/sdd/review-cdbe21a3..a53f7004.diff
+.superpowers/sdd/review-d9a2abaa..bfd03232.diff
+.superpowers/sdd/review-final.diff
+.superpowers/sdd/review-task-1.diff
+.superpowers/sdd/review-task-2.diff
+.superpowers/sdd/review-task-3.diff
+.superpowers/sdd/review-task-4.diff
+.superpowers/sdd/review-task-5.diff
+.superpowers/sdd/task-1-base.txt
+.superpowers/sdd/task-1-brief.md
+.superpowers/sdd/task-1-report.md
+.superpowers/sdd/task-10-brief.md
+.superpowers/sdd/task-10-report.md
+.superpowers/sdd/task-11-brief.md
+.superpowers/sdd/task-11-report.md
+.superpowers/sdd/task-12-brief.md
+.superpowers/sdd/task-12-report.md
+.superpowers/sdd/task-14-brief.md
+.superpowers/sdd/task-14-report.md
+.superpowers/sdd/task-2-base.txt
+.superpowers/sdd/task-2-brief.md
+.superpowers/sdd/task-2-report.md
+.superpowers/sdd/task-3-base.txt
+.superpowers/sdd/task-3-brief.md
+.superpowers/sdd/task-3-fix-report.md
+.superpowers/sdd/task-3-report.md
+.superpowers/sdd/task-4-base.txt
+.superpowers/sdd/task-4-brief.md
+.superpowers/sdd/task-4-report.md
+.superpowers/sdd/task-5-base.txt
+.superpowers/sdd/task-5-brief.md
+.superpowers/sdd/task-5-report.md
+.superpowers/sdd/task-6-brief.md
+.superpowers/sdd/task-6-report.md
+.superpowers/sdd/task-7-brief.md
+.superpowers/sdd/task-7-report.md
+.superpowers/sdd/task-8-brief.md
+.superpowers/sdd/task-8-report.md
+.superpowers/sdd/task-9-brief.md
+.superpowers/sdd/task-9-report.md
+.worktrees
 AGENTS.md
 ApiTests
 ApiTests/Catalog
@@ -112,94 +200,6 @@ app/Admin/public
 app/Admin/public/favicon.ico
 app/Admin/src
 app/Admin/src/app
-app/Admin/src/assets
-app/Admin/src/auto-imports.d.ts
-app/Admin/src/features
-app/Admin/src/shared
-app/Admin/tsconfig.app.json
-app/Admin/tsconfig.json
-app/Admin/tsconfig.node.json
-app/Admin/tsconfig.vitest.json
-app/Admin/vite.config.ts
-app/Admin/vitest.config.ts
-app/ReSys.Admin
-app/ReSys.Admin/.editorconfig
-app/ReSys.Admin/.eslintcache
-app/ReSys.Admin/.gitattributes
-app/ReSys.Admin/.gitignore
-app/ReSys.Admin/.prettierrc.json
-app/ReSys.Admin/.vscode
-app/ReSys.Admin/.vscode/extensions.json
-app/ReSys.Admin/.vscode/settings.json
-app/ReSys.Admin/README.md
-app/ReSys.Admin/env.d.ts
-app/ReSys.Admin/eslint.config.ts
-app/ReSys.Admin/index.html
-app/ReSys.Admin/package-lock.json
-app/ReSys.Admin/package.json
-app/ReSys.Admin/postcss.config.ts
-app/ReSys.Admin/public
-app/ReSys.Admin/public/favicon.ico
-app/ReSys.Admin/src
-app/ReSys.Admin/src/app.vue
-app/ReSys.Admin/src/assets
-app/ReSys.Admin/src/features
-app/ReSys.Admin/src/layout
-app/ReSys.Admin/src/main.ts
-app/ReSys.Admin/src/router
-app/ReSys.Admin/src/shared
-app/ReSys.Admin/src/views
-app/ReSys.Admin/tailwind.config.js
-app/ReSys.Admin/tsconfig.app.json
-app/ReSys.Admin/tsconfig.json
-app/ReSys.Admin/tsconfig.node.json
-app/ReSys.Admin/vite.config.ts
-app/ReSys.Admin/vitest.config.ts
-app/Store
-app/Store/.editorconfig
-app/Store/.env.development
-app/Store/.gitattributes
-app/Store/.gitignore
-app/Store/.oxfmtrc.json
-app/Store/.oxlintrc.json
-app/Store/.vscode
-app/Store/.vscode/extensions.json
-app/Store/auto-imports.d.ts
-app/Store/components.d.ts
-app/Store/env.d.ts
-app/Store/eslint.config.ts
-app/Store/index.html
-app/Store/package.json
-app/Store/pnpm-lock.yaml
-app/Store/pnpm-workspace.yaml
-app/Store/public
-app/Store/public/favicon.ico
-app/Store/src
-app/Store/src/App.vue
-app/Store/src/__tests__
-app/Store/src/api.ts
-app/Store/src/assets
-app/Store/src/main.ts
-app/Store/src/router
-app/Store/src/stores
-app/Store/src/views
-app/Store/tsconfig.app.json
-app/Store/tsconfig.json
-app/Store/tsconfig.node.json
-app/Store/tsconfig.vitest.json
-app/Store/vite.config.ts
-app/Store/vitest.config.ts
-docs
-docs/codebase
-docs/codebase/.codebase-scan.txt
-dotnet-tools.json
-global.json
-guide
-guide/.gitkeep
-guide/code-commenting
-guide/code-commenting/CommentingRules.xml
-guide/code-commenting/README.md
-guide/code-commenting/SKILL.md
 
 === STACK DETECTION (manifest files) ===
 
@@ -249,7 +249,8 @@ No .env.example or .env.template found. Identify required environment variables 
 
 === TODO / FIXME / HACK (production code only, test dirs excluded) ===
 app/ReSys.Admin/src/features/ordering/fulfillment/services/fulfillment.service.ts:14: // TODO: Implement complex shipment creation (requires selecting stock location and inventory units)
-service/Api/src/Module/Payment/Payment.Extension.cs:75: // old handler bound for now — see plan TODO to remove in a follow-up.
+service/Api/src/Module/Payment/Payment.Extension.cs:79: // TODO(follow-up): Remove legacy StripeWebhookHandler — StripeWebhookDispatcher is the current impl
+service/Api/src/Module/Ordering/Domain/Orders/Order.Method.Checkout.cs:68: // TODO: Implement product-type-based delivery check (physical vs digital).
 guide/code-commenting/CommentingRules.xml:131: <AnswerYes>→ Use a TemporalMarker (TODO, FIXME, HACK, TEMP, DEADLINE, DEPRECATED, BREAKING).</AnswerYes>
 guide/code-commenting/CommentingRules.xml:131: <AnswerYes>→ Use a TemporalMarker (TODO, FIXME, HACK, TEMP, DEADLINE, DEPRECATED, BREAKING).</AnswerYes>
 guide/code-commenting/CommentingRules.xml:131: <AnswerYes>→ Use a TemporalMarker (TODO, FIXME, HACK, TEMP, DEADLINE, DEPRECATED, BREAKING).</AnswerYes>
@@ -263,77 +264,77 @@ guide/code-commenting/CommentingRules.xml:1340: <Task>Configure linting rules fo
 guide/code-commenting/CommentingRules.xml:1340: <Task>Configure linting rules for TODO/FIXME/BREAKING format enforcement.</Task>
 
 === GIT RECENT COMMITS (last 20) ===
-b750ee9d fix(security): propagate guest session ID to current request via HttpContext.Items
-350ceb95 chore(host): post-hygiene-plan-cleanup
-6d08980b test(host): verify /health/ready reports DB init state
-e6891d7e refactor(host): move database initialization to hosted service with health check
-da94985d feat(shared): add IDatabaseInitializationState and health check
-ce6a3000 refactor(ordering): use InProcessOrderEventPublisher in development
-42c4ef14 feat(ordering): add InProcessOrderEventPublisher via Channel<T>
-a91a8c15 chore(modules): delete empty Webhooks module tree
-d1b2ecb0 chore(shared): post-fail-fast-plan cleanup
-1b4f61e7 test(shared): add integration test for ValidateOnStart boot failures
-57d2bc50 fix(shared): validate notification settings on start (6 settings)
-19874542 fix(shared): validate BackgroundJobSetting on start
-e3854105 fix(shared): validate caching settings on start
-4ed7e488 fix(shared): validate GuestSessionSetting on start
-4a7cf430 fix(shared): validate AntiForgerySetting on start
-f371cd12 chore(security): post-plan-build-cleanup
-c42e34ba fix(security): surface external login profile-creation failures
-c8047a37 fix(security): bind SecurityHeadersSetting from configuration with fail-fast
-37170ef7 chore(security): move dev secrets to user-secrets, document setup
-770b6a06 feat(security): reject dev JWT secret in non-Development environments
+f9a53c26 chore: remove stale plan and spec files
+0e0a6229 refactor(payment): apply structured code commenting labels across Payment module
+12cea4c0 docs(ordering-shared): add doc comments and boundary labels to shared models
+72e62743 refactor(ordering-handlers): wrap 7 handler returns with success messages
+7ef59444 refactor(ordering-validators): migrate 20 validators to domain extensions and constants
+f181d06b refactor(ordering-domain): add error defs, fix validation patterns, add Guid overloads
+f6bca442 style(module): add trailing newline to GlobalUsing.cs
+89bd869d style(identity): add trailing newlines to all files
+02a2c7b5 style(catalog): add trailing newlines to all files
+30e8c3f3 style(shipping): add trailing newlines to all files
+926a508d style(profile): add trailing newlines to all files
+9130857c style(location): add trailing newlines to all files
+01651a29 style(inventory): add trailing newlines to all files
+3645b371 style(ordering): add trailing newlines to all files
+e118e4c4 fix(ordering): address final-review findings — xmin removal from migration, add spec tests, document dual expiry
+a53f7004 fix(ordering): real storeId in admin CreateOrder, load order before LineItem creation, validate checkout prerequisites before Finalize
+65b468f4 fix(ordering): guest session support in RemoveCartItem, consistent auth error in DeleteCart, remove stale VerifyAsync stub
+c7588a15 fix(ordering): use SetShippingMethod domain method, propagate shipping calc errors
+887a77c7 fix(ordering): move OrderNumber generation inside transaction, use RepeatableRead isolation
+bd042088 fix(ordering): add composite indexes on (UserId,Status) and (SessionId,Status); change LineItem-Variant FK to NoAction
 
 === HIGH-CHURN FILES (last 90 days, top 20) ===
+  25 service/Api/src/Module/Ordering/Features/Storefront/Cart/Checkout/CreateOrderFromCart.cs
+  18 service/Api/src/Module/Payment/Features/Storefront/Payment/Webhooks/StripeWebhook.cs
+  18 service/Api/src/Module/Payment/Payment.Extension.cs
+  18 service/Api/tests/Module.UnitTests/Payment/Features/Storefront/Payment/CreateIntent/CreatePaymentIntentTests.cs
   18 service/Api/src/Api/Program.cs
-  16 service/Api/src/Module/Ordering/Features/Storefront/Cart/Checkout/CreateOrderFromCart.cs
-  16 service/Api/src/Module/Payment/Payment.Extension.cs
-  15 service/Api/src/Module/Payment/Features/Storefront/Payment/Webhooks/StripeWebhook.cs
-  15 service/Api/tests/Module.UnitTests/Payment/Features/Storefront/Payment/CreateIntent/CreatePaymentIntentTests.cs
-  15 service/Api/src/Module/Payment/Features/Admin/Payments/Refund/RefundPayment.cs
+  16 service/Api/src/Module/Payment/Features/Admin/Payments/Refund/RefundPayment.cs
+  16 service/Api/src/Module/Ordering/Features/Storefront/Orders/Cancel/CancelOrder.cs
+  15 service/Api/tests/Module.UnitTests/Payment/Features/Storefront/Payment/Confirm/ConfirmPaymentTests.cs
+  15 service/Api/src/Module/Ordering/Features/Storefront/Cart/AssociateCart/AssociateCartWithUser.cs
+  15 service/Api/tests/Module.UnitTests/Payment/Features/Storefront/Payment/Webhooks/StripeWebhookTests.cs
+  14 service/Api/src/Module/Payment/Features/Storefront/Payment/Confirm/ConfirmPayment.cs
+  14 service/Api/src/Module/Payment/Features/Storefront/Payment/CreateIntent/CreatePaymentIntent.cs
+  14 service/Api/src/Module/Ordering/Domain/Orders/Order.Result.cs
+  14 service/Api/src/Module/Ordering/Ordering.Extension.cs
   14 service/Api/tests/Module.UnitTests/Payment/Features/Admin/Payments/Void/VoidPaymentTests.cs
-  14 service/Api/tests/Module.UnitTests/Payment/Features/Storefront/Payment/Confirm/ConfirmPaymentTests.cs
-  13 service/Api/tests/Module.UnitTests/Payment/Features/Storefront/Payment/Webhooks/StripeWebhookTests.cs
+  13 service/Api/src/Module/Ordering/Features/Admin/Orders/Cancel/CancelOrderAdmin.cs
+  13 service/Api/src/Module/Ordering/Features/Admin/Orders/UpdateStatus/UpdateOrderStatus.cs
+  13 service/Api/src/Api/appsettings.json
   13 service/Api/tests/Module.UnitTests/Payment/Features/Admin/Payments/Capture/CapturePaymentTests.cs
   13 service/Api/tests/Module.UnitTests/Payment/Features/Admin/Payments/Refund/RefundPaymentTests.cs
-  13 service/Api/src/Module/Payment/Features/Storefront/Payment/Confirm/ConfirmPayment.cs
-  12 service/Api/src/Api/appsettings.json
-  12 service/Api/tests/Module.UnitTests/Payment/Infrastructure/Gateways/Stripe/StripeGatewayAuthorizeTests.cs
-  12 service/Api/tests/Module.UnitTests/Payment/Infrastructure/Gateways/Stripe/StripeGatewayTests.cs
-  11 service/Api/src/Api/appsettings.Development.json
-  11 service/Api/src/Migrations/Migrations/ApplicationDbContextModelSnapshot.cs
-  11 service/Api/tests/Module.UnitTests/Payment/Infrastructure/BogusGatewayTests.cs
-  11 service/Api/src/Module/Payment/Features/Admin/Payments/Capture/CapturePayment.cs
-  11 service/Api/src/Module/Payment/Features/Admin/Payments/Void/VoidPayment.cs
 
 === MONOREPO SIGNALS ===
 No monorepo signals detected.
 
 === CODE METRICS ===
-Total files scanned: 3728
-Total lines of code: 224783
+Total files scanned: 3822
+Total lines of code: 230734
 
 Files by language:
-  C#: 2920
-  Other: 452
+  C#: 2957
+  Other: 508
   TypeScript: 285
-  Python: 70
+  Python: 71
   JavaScript: 1
 
 Top 10 largest files:
+.superpowers/sdd/review-cdbe21a3..a53f7004.diff: 3522.3KB
 app/ReSys.Admin/package-lock.json: 278.2KB
+.superpowers/sdd/review-bfd03232..2bc8f443.diff: 236.8KB
 app/Store/pnpm-lock.yaml: 236.6KB
+.superpowers/sdd/review-05a3c921..a53f7004.diff: 215.0KB
 app/Admin/pnpm-lock.yaml: 187.7KB
+.superpowers/sdd/review-0345319a..bd042088.diff: 165.1KB
+.superpowers/sdd/review-final.diff: 164.0KB
 service/Api/src/Migrations/Migrations/20260711090657_InitialCreate.Designer.cs: 152.7KB
-service/Api/src/Migrations/Migrations/20260712050728_FixPaymentMethodSettingsColumnType.Designer.cs: 151.5KB
-service/Api/src/Migrations/Migrations/ApplicationDbContextModelSnapshot.cs: 151.4KB
-service/Embedding/uv.lock: 149.3KB
-service/Api/src/Migrations/Migrations/20260711090657_InitialCreate.cs: 103.9KB
-service/Api/tests/Api.Tests/packages.lock.json: 67.3KB
-guide/code-commenting/CommentingRules.xml: 63.0KB
+service/Api/src/Migrations/Migrations/20260713131410_OrderingIndexAndFkFixes.Designer.cs: 152.0KB
 
 === CI/CD PIPELINES ===
-No CI/CD pipelines detected.
+CI/CD: GitHub Actions
 
 === CONTAINERS & ORCHESTRATION ===
 No containerization configs detected.

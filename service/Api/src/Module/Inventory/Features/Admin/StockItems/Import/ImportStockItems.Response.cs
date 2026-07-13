@@ -2,7 +2,7 @@ namespace Module.Inventory.Features.Admin.StockItems.Import;
 
 public static partial class ImportStockItems
 {
-    public record Response
+    public sealed record Response
     {
         public int Created { get; init; }
         public int Updated { get; init; }

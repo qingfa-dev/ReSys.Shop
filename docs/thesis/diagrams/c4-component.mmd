@@ -1,0 +1,56 @@
+```mermaid
+%% C4 Component Diagram — API Backend
+%% Based on Chapter 3 — System Architecture
+
+C4Component
+    title Component Diagram — API Backend (.NET 10)
+
+    Container(store_spa, "Store SPA", "Vue 3", "Customer frontend")
+    Container(admin_spa, "Admin SPA", "Vue 3", "Admin frontend")
+
+    Container_Boundary(api, "API Backend") {
+        Component(endpoints, "Carter Endpoints", "ICarterModule", "Minimal API route mapping; scans Module + Shared assemblies")
+        Component(pipeline, "MediatR Pipeline", "IPipelineBehavior", "Logging → Validation → Exception Mapping")
+        Component(handlers, "Feature Handlers", "ICommandHandler / IQueryHandler", "Vertical-slice handlers per feature action")
+        Component(db, "ApplicationDbContext", "EF Core 10", "Identity + app data; interceptors: Auditable, SoftDeletable, Versionable")
+        Component(spec, "Specification DSL", "IQueryable extensions", "Composable filtering, sorting, paging, full-text search")
+        Component(jwt, "JWT Auth", "ASP.NET Identity", "Access/refresh tokens, rotation, reuse detection, blacklist")
+        Component(perm, "Permission Provider", "IAuthorizationPolicyProvider", "Dynamic policy resolution: domain:category:action")
+        Component(storage, "Storage Service", "IStorageProvider", "Local / S3 strategy; security enforcer + anti-forgery guard")
+        Component(notify, "Notification Hub", "FluentEmail", "SendGrid / SMTP / Sinch with priority fallback")
+        Component(hangfire, "Hangfire", "BackgroundJob", "Cart expiry, webhook dispatch; Redis or in-memory storage")
+        Component(cache, "HybridCache", "IHybridCache", "L1 memory + L2 Redis; 5-minute default TTL")
+    }
+
+    ContainerDb(postgres, "PostgreSQL 17", "pgvector", "Primary database")
+    ContainerDb(redis, "Redis 7", "", "Cache + jobs")
+    Container(embedding, "Embedding Sidecar", "Python / FastAPI", "Fashion-CLIP inference")
+
+    Rel(store_spa, endpoints, "HTTP requests", "JSON / JWT Bearer")
+    Rel(admin_spa, endpoints, "HTTP requests", "JSON / JWT Bearer")
+    Rel(endpoints, pipeline, "sender.Send()", "MediatR dispatch")
+    Rel(pipeline, handlers, "Handle()", "Command / Query")
+    Rel(handlers, db, "SaveChanges / Query", "EF Core")
+    Rel(handlers, spec, "Build queries", "IQueryable")
+    Rel(handlers, jwt, "Validate / issue tokens", "ClaimsPrincipal")
+    Rel(handlers, perm, "Authorize", "PermissionRequirement")
+    Rel(handlers, storage, "Upload / retrieve", "Stream / URL")
+    Rel(handlers, notify, "Enqueue / send", "NotificationDefinition")
+    Rel(handlers, hangfire, "Schedule jobs", "BackgroundJobClient")
+    Rel(handlers, cache, "Get / set", "Cache key")
+    Rel(handlers, embedding, "POST /embeddings", "HTTP + JSON")
+    Rel(db, postgres, "SQL + vector queries", "Npgsql TCP")
+    Rel(cache, redis, "Distributed cache", "StackExchange.Redis")
+    Rel(hangfire, redis, "Job storage", "Hangfire.Redis")
+```
+
+## Diagram Description
+
+The Component diagram shows the internal structure of the API backend. Key patterns demonstrated:
+
+1. **Pipeline behaviors** as a decorator chain — cross-cutting concerns wrap every request.
+2. **Strategy pattern** — `IStorageProvider` (Local/S3), notification providers, and payment gateways are interchangeable.
+3. **Specification DSL** — declarative query composition keeps handlers clean.
+4. **HybridCache** — two-tier caching with automatic invalidation and fallback.
+
+**Evidence**: `Shared/Application/Mediators/Mediator.Extension.cs:46-50`, `Shared/Operational/Storages/Storage.Extensions.cs:1-115`

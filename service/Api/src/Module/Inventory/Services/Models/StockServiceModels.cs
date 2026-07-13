@@ -19,13 +19,13 @@ internal class BackorderFulfillmentResult
     public int PartiallyFulfilled { get; set; }
 }
 
-public class VariantStockSummary
+public record VariantStockSummary
 {
-    public Guid VariantId { get; set; }
-    public int TotalOnHand { get; set; }
-    public int TotalReserved { get; set; }
-    public int TotalAvailable { get; set; }
-    public List<LocationStockInfo> LocationBreakdown { get; set; } = [];
+    public Guid VariantId { get; init; }
+    public int TotalOnHand { get; init; }
+    public int TotalReserved { get; init; }
+    public int TotalAvailable { get; init; }
+    public List<LocationStockInfo> LocationBreakdown { get; init; } = [];
 }
 
 public class LocationStockInfo

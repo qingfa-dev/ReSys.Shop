@@ -23,18 +23,7 @@ public static partial class ListShippingRates
             var pagedResult = await dbContext.Set<ShippingRate>()
                 .AsNoTracking()
                 .ApplyQuerying(parsing.Value)
-                .Select(r => new Response
-                {
-                    Id = r.Id,
-                    ShippingMethodId = r.ShippingMethodId,
-                    Name = r.Name,
-                    Cost = r.Cost,
-                    FinalPrice = r.FinalPrice,
-                    DeliveryRange = r.DeliveryRange,
-                    MinWeight = r.MinWeight,
-                    MaxWeight = r.MaxWeight,
-                    FreeShippingThreshold = r.FreeShippingThreshold
-                })
+                .Select(r => new Response(r.Id, r.ShippingMethodId, r.Name, r.Cost, r.FinalPrice, r.DeliveryRange, r.MinWeight, r.MaxWeight, r.FreeShippingThreshold))
                 .ToPagedOrAllAsync(parsing.Value, x => x, cancellationToken);
 
             return pagedResult;

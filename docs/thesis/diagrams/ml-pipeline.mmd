@@ -1,0 +1,66 @@
+```mermaid
+%% ML Pipeline Diagram: Image Upload → Embedding → Search → Recommendations
+%% Based on Chapter 7 — Detailed Design
+
+graph LR
+    subgraph "Upload Phase"
+        USER["Customer / Admin"]
+        SPA["Vue SPA<br/>File input + preview"]
+        API_UPLOAD["API: Upload Image<br/>POST /api/catalog/.../images"]
+        STORAGE["Storage Provider<br/>Local / S3"]
+    end
+
+    subgraph "Embedding Generation Phase"
+        API_EMB["API: Request Embedding<br/>HTTP POST /embeddings"]
+        SIDE["Python Sidecar<br/>FastAPI + Uvicorn"]
+        PRE["Preprocessing<br/>Resize 224x224<br/>Normalize ImageNet"]
+        CLIP["Fashion-CLIP Model<br/>open-clip-torch"]
+        VECTOR["512-d Float Vector<br/>L2-normalized"]
+    end
+
+    subgraph "Persistence Phase"
+        PG[("PostgreSQL 17<br/>pgvector extension")]
+        IDX["IVFFlat / HNSW Index<br/>on embedding column"]
+    end
+
+    subgraph "Retrieval Phase"
+        SEARCH["Search by Image<br/>POST /search-by-image"]
+        SIM["Cosine Similarity<br/>ORDER BY <=> vector"]
+        TOPK["Top-K Results<br/>LIMIT 20"]
+        RECS["Recommendations<br/>Similar products +<br/>collaborative filtering"]
+    end
+
+    USER -->|Select image| SPA
+    SPA -->|Multipart upload| API_UPLOAD
+    API_UPLOAD -->|Store file| STORAGE
+    API_UPLOAD -->|Trigger embedding| API_EMB
+    API_EMB -->|HTTP| SIDE
+    SIDE --> PRE
+    PRE --> CLIP
+    CLIP --> VECTOR
+    SIDE -->|Return vector| API_EMB
+    API_EMB -->|INSERT| PG
+    PG --> IDX
+
+    USER -->|Upload query image| SEARCH
+    SEARCH -->|Forward to sidecar| API_EMB
+    API_EMB --> VECTOR
+    VECTOR -->|Query| SIM
+    SIM -->|Use index| IDX
+    SIM --> TOPK
+    TOPK --> RECS
+    RECS -->|Display| SPA
+```
+
+## Diagram Description
+
+The ML Pipeline diagram traces the full lifecycle of a product image from upload to recommendation:
+
+1. **Upload Phase** — Images are uploaded via the Vue SPA, validated (magic bytes, extension, size), and stored via the `IStorageProvider` abstraction.
+2. **Embedding Generation** — The Python sidecar receives the image, preprocesses it (resize to 224×224, normalize), and runs Fashion-CLIP inference to produce a 512-dimensional vector.
+3. **Persistence** — The vector is stored in PostgreSQL's `pgvector` column alongside the image metadata. An IVFFlat or HNSW index enables fast approximate nearest-neighbor search.
+4. **Retrieval** — When a customer uploads a query image, the same pipeline generates its embedding, and pgvector's cosine-similarity operator returns the top-K most visually similar products.
+
+**Future extension**: The pipeline can be augmented with collaborative filtering (user purchase history) to blend visual similarity with behavioral recommendations.
+
+**Evidence**: `service/Embedding/src/main.py:1-29`, `ImageEmbedding.Inference.cs:21-36`, `Vector.Configuration.cs`, `Shared/Operational/Storages/Storage.Extensions.cs`

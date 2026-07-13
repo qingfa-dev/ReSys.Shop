@@ -1,0 +1,57 @@
+```mermaid
+%% Sequence Diagram: Checkout (Critical Path)
+%% Based on Chapter 7 — Detailed Design
+
+sequenceDiagram
+    actor Customer
+    participant StoreSPA as Store SPA<br/>(Vue 3)
+    participant Carter as Carter Endpoint<br/>(CreateOrderFromCart.Endpoint)
+    participant Pipeline as MediatR Pipeline
+    participant Handler as CreateOrderFromCart<br/>CommandHandler
+    participant Db as ApplicationDbContext<br/>(EF Core + Transaction)
+    participant StockSvc as IStockQuantityService<br/>(Shared Contract)
+    participant Payment as Payment Gateway<br/>(Stripe / Bogus)
+    participant Hangfire as Hangfire<br/>(Background Jobs)
+
+    Customer->>StoreSPA: Review cart + click "Checkout"
+    StoreSPA->>Carter: POST /api/ordering/storefront/cart/checkout<br/>+ address + shipping + payment method
+    Carter->>Pipeline: sender.Send(new Command(...))
+    Pipeline->>Handler: Handle(Command)
+
+    Handler->>Db: BEGIN TRANSACTION<br/>IsolationLevel.RepeatableRead
+    Handler->>Db: Query cart + line items
+    Handler->>Db: Query stock for each variant
+    alt Stock insufficient
+        Handler-->>Pipeline: Result.Conflict("Stock insufficient")
+        Pipeline-->>Carter: 409 Conflict
+    else Stock OK
+        Handler->>Handler: Generate OrderNumber<br/>(inside transaction)
+        Handler->>Db: INSERT Order + LineItems
+        Handler->>Db: SaveChanges()
+
+        Handler->>Payment: CreatePaymentIntent(order.Total, currency)
+        Payment-->>Handler: clientSecret + paymentIntentId
+
+        Handler->>Db: INSERT PaymentIntent record
+        Handler->>Db: SaveChanges()
+
+        Handler->>Db: COMMIT TRANSACTION
+
+        Handler->>Hangfire: Enqueue order confirmation email
+        Handler-->>Pipeline: Result<Response>.Created(orderDto)
+        Pipeline-->>Carter: result
+        Carter-->>StoreSPA: 201 Created<br/>{orderId, orderNumber, clientSecret}
+    end
+```
+
+## Diagram Description
+
+The checkout sequence is the **highest-stakes business flow** in the system. Design decisions visible:
+
+1. **RepeatableRead isolation** — prevents phantom reads on inventory during high-concurrency checkout.
+2. **Order number generation inside transaction** — ensures uniqueness even with concurrent checkouts.
+3. **Payment intent creation inside transaction** — order and payment are ACID-consistent.
+4. **Hangfire for async work** — email confirmation is offloaded to a background job to reduce response latency.
+5. **Stock check before order creation** — prevents overselling.
+
+**Evidence**: `CreateOrderFromCart.cs`, `Order.cs`, `PaymentIntent.cs`, `git log: commit 887a77c7`

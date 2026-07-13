@@ -37,14 +37,14 @@ public static partial class GetUserRoles
             var userRoles = await userManager.GetRolesAsync(user);
             var userRolesSet = userRoles.ToHashSet(StringComparer.OrdinalIgnoreCase);
 
-            var roles = allRoles.Select(role => new Response.RoleItemResponse
+            var roles = allRoles.Select(role => new RoleItemResponse
             {
                 Name = role.Name!,
                 Description = role.Description,
                 IsAssigned = userRolesSet.Contains(role.Name!)
             }).ToList();
 
-            return new Response { Roles = roles };
+            return new Response(roles);
         }
     }
 }

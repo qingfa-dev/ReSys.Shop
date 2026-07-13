@@ -2,12 +2,12 @@ namespace Module.Catalog.Features.Storefront.Products.Get.Similar;
 
 public static partial class GetSimilarProducts
 {
-    public class Response
+    public sealed record Response
     {
         public List<SimilarProductItem> Items { get; init; } = [];
     }
 
-    public class SimilarProductItem
+    public sealed record SimilarProductItem
     {
         public Guid VariantId { get; init; }
         public Guid ProductId { get; init; }

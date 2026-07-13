@@ -40,12 +40,7 @@ public static partial class UpdateNotificationPreferences
             profile.Notifications = prefs.Value;
             await dbContext.SaveChangesAsync(cancellationToken);
 
-            return new Response
-            {
-                EnableSms = profile.Notifications.EnableSms,
-                EnableEmail = profile.Notifications.EnableEmail,
-                EnableNewsfeeds = profile.Notifications.EnableNewsfeeds
-            };
+            return new Response(profile.Notifications.EnableSms, profile.Notifications.EnableEmail, profile.Notifications.EnableNewsfeeds);
         }
     }
 }

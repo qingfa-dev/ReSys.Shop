@@ -1,3 +1,5 @@
+using Module.Payment.Domain.PaymentCaptures;
+
 namespace Module.Payment.Features.Admin.Payments.Capture;
 
 public static partial class CapturePayment
@@ -6,8 +8,8 @@ public static partial class CapturePayment
     {
         public Validator()
         {
-            RuleFor(x => x.Request.Amount)
-                .GreaterThan(0)
+            RuleFor(x => x.Request.Amount!.Value)
+                .ApplyAmountRules()
                 .When(x => x.Request.Amount.HasValue);
         }
     }

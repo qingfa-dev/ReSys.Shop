@@ -1,0 +1,47 @@
+```mermaid
+%% Bounded Context Map — ReSys.Shop (Context Mapping)
+%% Based on Chapter 4 — Domain Analysis
+%% Style: Domain-Driven Design Context Map (Vernon / Evans)
+
+graph TB
+    subgraph "ReSys.Shop Bounded Contexts"
+        CATALOG["🛍️ Catalog Context<br/>Products, Variants, Images,<br/>Taxonomies, Option Types,<br/>Classifications"]
+        ORDERING["📦 Ordering Context<br/>Carts, Orders, Line Items,<br/>Adjustments, Checkout"]
+        PAYMENT["💳 Payment Context<br/>Payment Intents, Captures,<br/>Refunds, Voids, Webhooks"]
+        INVENTORY["📊 Inventory Context<br/>Stock Locations, Items,<br/>Reservations, Transfers,<br/>Movements"]
+        IDENTITY["🔐 Identity Context<br/>Users, Roles, Permissions,<br/>JWT Tokens, OAuth"]
+        PROFILE["👤 Profile Context<br/>Addresses, Wishlists,<br/>Notification Preferences"]
+        SHIPPING["🚚 Shipping Context<br/>Methods, Rates,<br/>Calculators, Zones"]
+        LOCATION["🌍 Location Context<br/>Countries, States,<br/>ISO Codes"]
+    end
+
+    CATALOG -.->|"Published Language:<br/>ProductId, VariantId,<br/>Price, SKU"| ORDERING
+    CATALOG -.->|"Published Language:<br/>VariantId"| INVENTORY
+    ORDERING -.->|"Published Language:<br/>OrderId, Total,<br/>Currency"| PAYMENT
+    ORDERING -.->|"Published Language:<br/>OrderId, ShipmentTotal"| SHIPPING
+    INVENTORY -.->|"Published Language:<br/>StockItemId, Quantity"| ORDERING
+    IDENTITY -.->|"Published Language:<br/>UserId"| ORDERING
+    IDENTITY -.->|"Published Language:<br/>UserId"| PROFILE
+    LOCATION -.->|"Published Language:<br/>CountryId, StateId"| PROFILE
+    LOCATION -.->|"Published Language:<br/>CountryId, StateId"| SHIPPING
+    LOCATION -.->|"Published Language:<br/>CountryId, StateId"| ORDERING
+    PAYMENT -.->|"Published Language:<br/>PaymentIntentId,<br/>PaymentState"| ORDERING
+    SHIPPING -.->|"Published Language:<br/>ShippingMethodId,<br/>Rate"| ORDERING
+
+    style CATALOG fill:#e1f5fe
+    style ORDERING fill:#fff3e0
+    style PAYMENT fill:#e8f5e9
+    style INVENTORY fill:#fce4ec
+    style IDENTITY fill:#f3e5f5
+    style PROFILE fill:#e0f2f1
+    style SHIPPING fill:#fff8e1
+    style LOCATION fill:#e8eaf6
+```
+
+## Diagram Description
+
+This Context Map shows the **8 bounded contexts** of ReSys.Shop and the **Published Language** they share. All integration between contexts is via **in-process message dispatch** (MediatR `ISender`) — there are no direct namespace references.
+
+**Integration pattern**: **Conformist** — all contexts conform to the shared `Result<T>` type and `ICommand`/`IQuery` contracts defined in `Shared.Application`. This is a deliberate simplification: since all modules compile into one assembly, they share a ubiquitous technical language.
+
+**Evidence**: `AGENTS.md:10-12`, `Directory.Build.targets:42-53`, `Shared/Application/Mediators/`

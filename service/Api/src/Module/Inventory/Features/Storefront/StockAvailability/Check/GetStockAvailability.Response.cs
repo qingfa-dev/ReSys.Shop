@@ -2,7 +2,7 @@ namespace Module.Inventory.Features.Storefront.StockAvailability.Check;
 
 public static partial class GetStockAvailability
 {
-    public class Response
+    public sealed record Response
     {
         public Guid VariantId { get; init; }
         public int TotalOnHand { get; init; }

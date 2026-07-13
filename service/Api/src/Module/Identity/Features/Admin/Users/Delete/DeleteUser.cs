@@ -57,8 +57,7 @@ public static partial class DeleteUser
                 UserId: user.Id,
                 ActionBy: currentUser.UserName);
 
-            return new Response(user.Id,
-                user.UserName ?? string.Empty);
+            return new Response(user.Id);
         }
     }
 }
