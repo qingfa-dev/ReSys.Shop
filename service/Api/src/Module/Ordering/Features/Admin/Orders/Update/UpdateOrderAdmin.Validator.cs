@@ -15,12 +15,9 @@ public static partial class UpdateOrderAdmin
                 .WithErrorCode(OrderResult.Errors.IdRequired.Code)
                 .WithMessage(OrderResult.Errors.IdRequired.Message);
 
-            // Validate: Email format when a new email is provided.
             When(x => x.Request.Email is not null, () =>
             {
-                RuleFor(x => x.Request.Email).EmailAddress()
-                    .WithErrorCode(OrderResult.Errors.EmailInvalid.Code)
-                    .WithMessage(OrderResult.Errors.EmailInvalid.Message);
+                RuleFor(x => x.Request.Email).ApplyEmailRules();
             });
         }
     }
