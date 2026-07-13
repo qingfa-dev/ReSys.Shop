@@ -26,6 +26,7 @@ public class UpdateOrderStatusTests : IDisposable
 
         _currentUserMock = new Mock<ICurrentUser>();
         _currentUserMock.Setup(x => x.UserName).Returns("admin");
+        _currentUserMock.Setup(x => x.UserId).Returns(Guid.NewGuid().ToString());
 
         _loggerMock = new Mock<ILogger<UpdateOrderStatus.CommandHandler>>();
         _stockCheckerMock = new Mock<IStockQuantityService>();

@@ -92,6 +92,17 @@ public class OrderMethodTests
     }
 
     [Fact]
+    public void Cancel_WithEmptyUserId_ShouldFail()
+    {
+        var order = OrderMethod.Create("USD", null, Guid.NewGuid()).Value;
+        order.LineItems.Add(new() { Quantity = 1, Price = 10 });
+        order.Finalize();
+        var r = order.Cancel(Guid.Empty);
+        r.IsFailure.Should().BeTrue();
+        r.Errors[0].Should().Be(OrderResult.Errors.IdRequired);
+    }
+
+    [Fact]
     public void Empty_ShouldClearItemsAndTotals()
     {
         var order = OrderMethod.Create("USD", null, Guid.NewGuid()).Value;
@@ -102,6 +113,18 @@ public class OrderMethodTests
         r.IsSuccess.Should().BeTrue();
         order.LineItems.Should().BeEmpty();
         order.Total.Should().Be(0);
+    }
+
+    [Fact]
+    public void Empty_WhenCanceled_ShouldFail()
+    {
+        var order = OrderMethod.Create("USD", null, Guid.NewGuid()).Value;
+        order.LineItems.Add(new() { Quantity = 1, Price = 10 });
+        order.Finalize();
+        order.Cancel(Guid.NewGuid());
+        var r = order.Empty();
+        r.IsFailure.Should().BeTrue();
+        r.Errors[0].Should().Be(OrderResult.Errors.AlreadyCanceled);
     }
 
     [Fact]
@@ -268,6 +291,17 @@ public class OrderMethodTests
         var r = order.SetShippingMethod(Guid.NewGuid());
         r.IsSuccess.Should().BeTrue();
         order.ShipmentTotal.Should().Be(0m);
+    }
+
+    [Fact]
+    public void SetShippingMethod_WhenPlaced_ShouldFail()
+    {
+        var order = OrderMethod.Create("USD", null, Guid.NewGuid()).Value;
+        order.LineItems.Add(new() { Quantity = 1, Price = 10 });
+        order.Finalize();
+        var r = order.SetShippingMethod(Guid.NewGuid());
+        r.IsFailure.Should().BeTrue();
+        r.Errors[0].Should().Be(OrderResult.Errors.NotDraftForShipAddress);
     }
 
     [Fact]

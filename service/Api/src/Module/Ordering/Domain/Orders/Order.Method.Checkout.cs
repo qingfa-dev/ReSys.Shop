@@ -192,6 +192,10 @@ public static partial class OrderMethod
     /// </summary>
     public static Result SetShippingMethod(this Order order, Guid methodId)
     {
+        // Guard: Only draft orders can change shipping method
+        if (order.Status != OrderStatus.Draft)
+            return OrderResult.Errors.NotDraftForShipAddress;
+
         order.ShippingMethodId = methodId;
         order.ShipmentTotal = 0m;
         order.ModifiedAtUtc = DateTimeOffset.UtcNow;

@@ -35,6 +35,10 @@ public static partial class OrderMethod
     // Enforce: Only Placed orders can be canceled; cancellation is idempotent
     public static Result Cancel(this Order order, Guid canceledById)
     {
+        // Guard: Reject cancel with empty user identifier
+        if (canceledById == Guid.Empty)
+            return OrderResult.Errors.IdRequired;
+
         // Guard: Prevent double-cancel and cancel-from-draft transitions
         if (order.Status == OrderStatus.Canceled)
             return OrderResult.Errors.AlreadyCanceled;
@@ -90,6 +94,10 @@ public static partial class OrderMethod
         // Guard: Placed orders are immutable — reject empty operation
         if (order.Status == OrderStatus.Placed)
             return OrderResult.Errors.InvalidStatusTransition;
+
+        // Guard: Canceled orders cannot be emptied
+        if (order.Status == OrderStatus.Canceled)
+            return OrderResult.Errors.AlreadyCanceled;
 
         // Assign: Remove all line items and adjustments, reset all monetary fields to zero
         order.LineItems.Clear();
@@ -147,6 +155,9 @@ public static partial class OrderMethod
         {
             otherOrder.LineItems.Clear();
         }
+
+        order.RecalculateTotals();
+
         return Result.Ok(OrderResult.Success.Merged(order.Id));
     }
 
@@ -183,7 +194,9 @@ public static partial class OrderMethod
         order.CheckoutState = CheckoutState.Complete;
         order.CompletedAtUtc = DateTimeOffset.UtcNow;
         order.Number = orderNumber;
-        order.RecalculateTotals();
+        var recalcResult = order.RecalculateTotals();
+        if (recalcResult.IsFailure)
+            return recalcResult.Errors;
 
         return Result.Ok(OrderResult.Success.Finalized(order.Id));
     }
