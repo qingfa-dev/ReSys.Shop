@@ -47,7 +47,6 @@ public static partial class OrderMethod
     }
     #endregion
 
-    #region State Machine
     /// <summary>
     /// Advances the order to the next checkout state following the defined flow.
     /// </summary>
@@ -91,127 +90,6 @@ public static partial class OrderMethod
         order.CheckoutState = nextState.Value;
 
         return Result.Ok();
-    }
-
-    /// <summary>
-    /// Finalizes the order by transitioning it to Placed status.
-    /// </summary>
-    /// <param name="order">The order to finalize.</param>
-    /// <returns>A success result with the finalized order ID.</returns>
-    // @CAT-4 Enforce: Order must be in Confirm state and have at least one line item; cannot be canceled or already placed
-    public static Result Finalize(this Order order)
-    {
-        // Validate: Canceled orders cannot be finalized
-        if (order.Status == OrderStatus.Canceled)
-            return OrderResult.Errors.AlreadyCanceled;
-
-        // Validate: Already placed orders cannot be re-finalized
-        if (order.Status == OrderStatus.Placed)
-            return OrderResult.Errors.AlreadyFinalized;
-
-        // Validate: Order must contain at least one line item to finalize
-        if (order.LineItems.Count == 0)
-            return OrderResult.Errors.EmptyOrderCannotFinalize;
-
-        // Enforce: Transition order to placed status with completion timestamp
-        order.Status = OrderStatus.Placed;
-        order.CompletedAtUtc = DateTimeOffset.UtcNow;
-        order.RecalculateTotals();
-
-        return Result.Ok(OrderResult.Success.Finalized(order.Id));
-    }
-
-    /// <summary>
-    /// Cancels a placed order and records the canceler.
-    /// </summary>
-    /// <param name="order">The order to cancel.</param>
-    /// <param name="canceledById">The user identifier who canceled the order.</param>
-    /// <returns>A success result with the canceled order ID.</returns>
-    // @CAT-2 Guard: Already canceled orders and Draft orders cannot be canceled
-    public static Result Cancel(this Order order, Guid canceledById)
-    {
-        // Validate: Already canceled orders cannot be canceled again
-        if (order.Status == OrderStatus.Canceled)
-            return OrderResult.Errors.AlreadyCanceled;
-
-        // Validate: Draft orders cannot be canceled
-        if (order.Status == OrderStatus.Draft)
-            return OrderResult.Errors.InvalidStatusTransition;
-
-        // Enforce: Transition order to canceled status with timestamp and canceler
-        order.Status = OrderStatus.Canceled;
-        order.CanceledAtUtc = DateTimeOffset.UtcNow;
-        order.CanceledById = canceledById;
-
-        return Result.Ok(OrderResult.Success.Canceled(order.Id));
-    }
-
-    /// <summary>
-    /// Resumes a previously canceled order, restoring it to placed status.
-    /// </summary>
-    /// <param name="order">The order to resume.</param>
-    /// <returns>A success result with the resumed order ID.</returns>
-    public static Result Resume(this Order order)
-    {
-        // Validate: Only canceled orders can be resumed
-        if (order.Status != OrderStatus.Canceled)
-            return OrderResult.Errors.InvalidStatusTransition;
-
-        // Enforce: Restore order to placed status and clear cancellation metadata
-        order.Status = OrderStatus.Placed;
-        order.CanceledAtUtc = null;
-        order.CanceledById = null;
-        order.ModifiedAtUtc = DateTimeOffset.UtcNow;
-
-        return Result.Ok(OrderResult.Success.Resumed(order.Id));
-    }
-
-    /// <summary>
-    /// Approves a placed order and records the approver.
-    /// </summary>
-    /// <param name="order">The order to approve.</param>
-    /// <param name="approvedById">The user identifier who approved the order.</param>
-    /// <returns>A success result with the approved order ID.</returns>
-    public static Result Approve(this Order order, Guid approvedById)
-    {
-        // Validate: Canceled orders cannot be approved
-        if (order.Status == OrderStatus.Canceled)
-            return OrderResult.Errors.AlreadyCanceled;
-
-        // Guard: Already-approved orders cannot be approved again
-        if (order.ApprovedById.HasValue)
-            return OrderResult.Errors.AlreadyApproved;
-
-        // Assign: Record the approving user identifier
-        order.ApprovedById = approvedById;
-
-        return Result.Ok(OrderResult.Success.Approved(order.Id));
-    }
-
-    /// <summary>
-    /// Empties the order by clearing all line items, adjustments, and resetting totals to zero.
-    /// </summary>
-    /// <param name="order">The order to empty.</param>
-    /// <returns>A success result with the emptied order ID.</returns>
-    // @CAT-2 Guard: Cannot empty a finalized (Placed) order
-    public static Result Empty(this Order order)
-    {
-        // Guard: Cannot empty an order that has already been finalized
-        if (order.Status == OrderStatus.Placed)
-            return OrderResult.Errors.InvalidStatusTransition;
-
-        // Reset: Clear all line items, adjustments, and zero out totals
-        order.LineItems.Clear();
-        order.ItemCount = 0;
-        order.Adjustments.Clear();
-        order.ItemTotal = 0m;
-        order.AdjustmentTotal = 0m;
-        order.ShipmentTotal = 0m;
-        order.Total = 0m;
-        order.PaymentTotal = 0m;
-        order.OutstandingBalance = 0m;
-
-        return Result.Ok(OrderResult.Success.Emptied(order.Id));
     }
 
     // @CAT-5 Compute: Sum line item totals and adjustments (including line-item-level), include ShipmentTotal in Total, derive outstanding balance
@@ -272,30 +150,6 @@ public static partial class OrderMethod
     {
         return order.Approve(userId);
     }
-
-    /// <summary>
-    /// Soft-deletes the order by marking it as deleted.
-    /// </summary>
-    /// <param name="order">The order to delete.</param>
-    /// <param name="deletedBy">The identifier of the user performing the deletion.</param>
-    /// <returns>A Result indicating success.</returns>
-    public static Result Delete(this Order order, string deletedBy)
-    {
-        if (order.Status != OrderStatus.Draft && order.Status != OrderStatus.Expired)
-            return OrderResult.Errors.InvalidStatusForDelete;
-
-        if (order.IsDeleted)
-        {
-            return Result.Ok();
-        }
-
-        order.IsDeleted = true;
-        order.DeletedAtUtc = DateTimeOffset.UtcNow;
-        order.DeletedBy = deletedBy;
-
-        return Result.Ok();
-    }
-    #endregion
 
     #region State Validation
     /// <summary>
