@@ -42,17 +42,11 @@ public static partial class CancelOrder
             if (entity is null)
                 return OrderResult.Errors.NotFound(command.Id);
 
-            // Validate: Cannot cancel already canceled orders.
-            if (entity.Status == OrderStatus.Canceled)
-                return OrderResult.Errors.AlreadyCanceled;
-
             var wasPlaced = entity.Status == OrderStatus.Placed && entity.CompletedAtUtc.HasValue;
 
-            entity.Status = OrderStatus.Canceled;
-            // Update: Record cancellation timestamp.
-            entity.CanceledAtUtc = DateTimeOffset.UtcNow;
-            // Update: Record cancellation user identity.
-            entity.CanceledById = currentUser.UserId is not null && Guid.TryParse(currentUser.UserId, out var canceledBy) ? canceledBy : null;
+            var cancelResult = entity.Cancel(userId);
+            if (cancelResult.IsFailure)
+                return cancelResult.Errors;
 
             // Call: Cancel associated payments via MediatR.
             var voidResult = await sender.Send(

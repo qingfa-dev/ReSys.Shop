@@ -36,8 +36,9 @@ public static partial class DeleteCart
                 return Result.Ok();
 
             // Update: Soft-delete the cart with timestamp — preserves record for audit.
-            cart.IsDeleted = true;
-            cart.DeletedAtUtc = DateTimeOffset.UtcNow;
+            var deleteResult = cart.Delete(currentUser.UserName ?? "System");
+            if (deleteResult.IsFailure)
+                return deleteResult.Errors;
             await dbContext.SaveChangesAsync(cancellationToken);
 
             return Result.Ok();

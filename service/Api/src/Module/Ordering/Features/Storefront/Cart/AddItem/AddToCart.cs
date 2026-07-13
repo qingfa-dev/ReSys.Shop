@@ -111,8 +111,9 @@ public static partial class AddToCart
                 if (existingLine.Quantity + request.Quantity > LineItemConstant.MaxQuantity)
                     return LineItemResult.Errors.QuantityExceedsMax;
                 // Update: Increment existing line item quantity and recalculate.
-                existingLine.Quantity += request.Quantity;
-                existingLine.Total = existingLine.Price * existingLine.Quantity;
+                var updateResult = existingLine.UpdateQuantity(existingLine.Quantity + request.Quantity);
+                if (updateResult.IsFailure)
+                    return updateResult.Errors;
                 var recalcResult = cart.RecalculateTotals();
                 if (recalcResult.IsFailure)
                     return recalcResult.Errors;

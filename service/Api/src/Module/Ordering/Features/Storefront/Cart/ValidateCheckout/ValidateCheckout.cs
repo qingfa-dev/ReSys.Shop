@@ -33,7 +33,7 @@ public static partial class ValidateCheckout
                 return OrderResult.Errors.NotFound(Guid.Empty);
 
             // Validate: Cart must contain at least one line item.
-            if (cart.LineItems.Count == 0)
+            if (!cart.CheckoutAllowed())
                 return OrderResult.Errors.EmptyOrderCannotFinalize;
 
             // Validate: Billing and shipping addresses must be set.

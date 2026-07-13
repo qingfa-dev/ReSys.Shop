@@ -21,13 +21,10 @@ public static partial class DeleteOrder
             if (order is null)
                 return OrderResult.Errors.NotFound(command.Id);
 
-            // Enforce: Cannot delete a placed order — only draft orders can be removed.
-            if (order.Status is OrderStatus.Placed)
-                return OrderResult.Errors.InvalidStatusForDelete;
-
             // Update: Soft-delete — mark as deleted with timestamp instead of hard removal.
-            order.IsDeleted = true;
-            order.DeletedAtUtc = DateTimeOffset.UtcNow;
+            var deleteResult = order.Delete("System");
+            if (deleteResult.IsFailure)
+                return deleteResult.Errors;
 
             await dbContext.SaveChangesAsync(cancellationToken);
 

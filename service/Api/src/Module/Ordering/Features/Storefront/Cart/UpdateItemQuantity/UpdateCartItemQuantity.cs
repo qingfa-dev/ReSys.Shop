@@ -51,8 +51,9 @@ public static partial class UpdateCartItemQuantity
                 return StockItemResult.Errors.InsufficientStock;
 
             // Update: Modify quantity and total.
-            lineItem.Quantity = command.Request.Quantity;
-            lineItem.Total = lineItem.Price * command.Request.Quantity;
+            var updateResult = lineItem.UpdateQuantity(command.Request.Quantity);
+            if (updateResult.IsFailure)
+                return updateResult.Errors;
             var recalcResult = cart.RecalculateTotals();
             if (recalcResult.IsFailure)
                 return recalcResult.Errors;
