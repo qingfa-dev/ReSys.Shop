@@ -31,7 +31,7 @@ public static partial class RoleMapping
     /// <typeparam name="T">The type of the request DTO, which must inherit from <see cref="RoleRequest"/>.</typeparam>
     /// <param name="role">The <see cref="Role"/> entity to update.</param>
     /// <param name="request">The request DTO containing the updated data.</param>
-    public static void MapToDomain<T>(this  T request, Role role) where T : RoleRequest
+    public static void MapToDomain<T>(this T request, Role role) where T : RoleRequest
     {
         role.Name = request.Name;
         role.Description = request.Description;

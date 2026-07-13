@@ -12,7 +12,7 @@ public static partial class PasswordLogin
                 .ApplyUserCredentialRules();
             RuleFor(x => x.Request.Password)
                 .ApplyUserPasswordRules(
-                    requireMinLength: false, 
+                    requireMinLength: false,
                     requireStrongPassword: false);
         }
     }

@@ -20,7 +20,7 @@ public static partial class UserMapping
         if (result.IsFailure)
             return Result<User>.Validation(errors: result.Errors);
         var entity = result.Value;
-        
+
         AuditableBehavior.Create(entity: entity, atUtc: DateTimeOffset.UtcNow);
         return entity;
     }
@@ -37,7 +37,7 @@ public static partial class UserMapping
             phoneNumberConfirmed: request.PhoneNumberConfirmed);
         if (updateResult.IsFailure)
             return Result<User>.Validation(errors: updateResult.Errors);
-        
+
         AuditableBehavior.Touch(entity: user, atUtc: DateTimeOffset.UtcNow);
         return user;
     }
