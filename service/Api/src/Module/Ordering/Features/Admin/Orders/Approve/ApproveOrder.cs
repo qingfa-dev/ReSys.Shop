@@ -5,14 +5,6 @@ namespace Module.Ordering.Features.Admin.Orders.Approve;
 /// <summary>Transitions a placed order to approved state, recording the approver identity and timestamp for audit trail.</summary>
 public static partial class ApproveOrder
 {
-    public class Response
-    {
-        public Guid Id { get; init; }
-        /// <summary>Identity of the administrator who approved the order — null if approval was system-initiated.</summary>
-        public Guid? ApprovedById { get; init; }
-        /// <summary>UTC timestamp of when the approval was recorded.</summary>
-        public DateTimeOffset? ApprovedAtUtc { get; init; }
-    }
     public sealed record Command(Guid Id) : ICommand<Response>;
     public sealed class CommandHandler(IApplicationDbContext dbContext, ICurrentUser currentUser) : ICommandHandler<Command, Response>
     {

@@ -9,12 +9,6 @@ namespace Module.Ordering.Features.Admin.Orders.Resume;
 /// <summary>Resumes a previously canceled order.</summary>
 public static partial class ResumeOrder
 {
-    public class Response
-    {
-        public Guid Id { get; init; }
-        /// <summary>The order status after resume — restored from Canceled to its previous active state.</summary>
-        public OrderStatus Status { get; init; }
-    }
     public sealed record Command(Guid Id) : ICommand<Response>;
     public sealed class CommandHandler(
         IApplicationDbContext dbContext,

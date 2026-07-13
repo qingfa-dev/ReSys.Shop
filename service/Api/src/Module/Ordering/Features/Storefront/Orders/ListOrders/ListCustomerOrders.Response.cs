@@ -2,7 +2,7 @@ namespace Module.Ordering.Features.Storefront.Orders.ListOrders;
 
 public static partial class ListCustomerOrders
 {
-    public class Response
+    public sealed record Response
     {
         public Guid Id { get; init; }
         public string Number { get; init; } = null!;

@@ -5,20 +5,6 @@ namespace Module.Ordering.Features.Admin.Orders.Get.LineItemById;
 /// <summary>Retrieves a single line item by ID scoped to its parent order, returning a detail response DTO.</summary>
 public static partial class GetOrderLineItemById
 {
-    public class Response
-    {
-        public Guid Id { get; init; }
-        public Guid VariantId { get; init; }
-        public int Quantity { get; init; }
-        public decimal Price { get; init; }
-        /// <summary>Line item subtotal — quantity × price, before adjustments.</summary>
-        public decimal Total { get; init; }
-        /// <summary>Cumulative adjustment value applied to this line item (discounts, surcharges).</summary>
-        public decimal AdjustmentTotal { get; init; }
-        public string Currency { get; init; } = string.Empty;
-        public DateTimeOffset CreatedAtUtc { get; init; }
-    }
-
     public sealed record Query(Guid OrderId, Guid LineItemId) : IQuery<Response>;
 
     public sealed class QueryHandler(IApplicationDbContext dbContext) : IQueryHandler<Query, Response>

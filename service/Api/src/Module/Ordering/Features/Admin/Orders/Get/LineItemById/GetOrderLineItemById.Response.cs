@@ -1,5 +1,5 @@
-namespace Module.Ordering.Features.Admin.Orders.Get.LineItems;
-public static partial class GetOrderLineItems
+namespace Module.Ordering.Features.Admin.Orders.Get.LineItemById;
+public static partial class GetOrderLineItemById
 {
     public sealed record Response
     {

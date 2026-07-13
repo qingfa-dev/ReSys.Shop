@@ -10,12 +10,6 @@ public static partial class AssociateCartWithUser
         public Guid GuestOrderId { get; init; }
     }
 
-    public class Response
-    {
-        public Guid Id { get; init; }
-        public int ItemCount { get; init; }
-    }
-
     public sealed record Command(Request Request) : ICommand<Response>;
 
     public sealed class CommandHandler(IApplicationDbContext dbContext, ICurrentUser currentUser) : ICommandHandler<Command, Response>
