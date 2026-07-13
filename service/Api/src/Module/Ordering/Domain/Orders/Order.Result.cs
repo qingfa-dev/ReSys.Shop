@@ -35,6 +35,10 @@ public static class OrderResult
         public static string Merged(Guid id) => $"Order with ID '{id}' was successfully merged.";
         /// <summary>Checkout step was advanced.</summary>
         public static string CheckoutAdvanced(Guid id) => $"Order with ID '{id}' checkout step was advanced.";
+        /// <summary>Order totals were recalculated.</summary>
+        public static string Recalculated(Guid id) => $"Order with ID '{id}' totals were recalculated.";
+        /// <summary>Payment state was derived and updated.</summary>
+        public static string PaymentStateUpdated(Guid id) => $"Order with ID '{id}' payment state was updated.";
     }
 
     /// <summary>
