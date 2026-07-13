@@ -44,6 +44,11 @@ public class UpdateOrderStatusTests : IDisposable
     {
         // Arrange
         var order = OrderMethod.Create("USD", userId: Guid.NewGuid(), storeId: Guid.Empty).Value;
+        order.LineItems.Add(new() { Id = Guid.NewGuid(), Quantity = 1, Price = 10, VariantId = Guid.NewGuid(), OrderId = order.Id });
+        order.BillAddressId = Guid.NewGuid();
+        order.ShipAddressId = Guid.NewGuid();
+        order.ShippingMethodId = Guid.NewGuid();
+        order.Email = "test@test.com";
         _dbContext.Set<Order>().Add(order);
         await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 
