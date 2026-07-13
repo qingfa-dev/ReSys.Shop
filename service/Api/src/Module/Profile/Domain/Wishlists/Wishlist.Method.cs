@@ -125,7 +125,9 @@ public static class WishlistExtensions
             {
                 targetList.WishedItems.Add(new WishedItem
                 {
-                    VariantId = item.VariantId, Quantity = item.Quantity, WishlistId = targetList.Id
+                    VariantId = item.VariantId,
+                    Quantity = item.Quantity,
+                    WishlistId = targetList.Id
                 });
             }
         }

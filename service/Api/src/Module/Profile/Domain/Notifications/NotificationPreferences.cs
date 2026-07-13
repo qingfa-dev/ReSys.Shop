@@ -18,7 +18,9 @@ public sealed partial class NotificationPreferences : ValueObject
 
     public static NotificationPreferences Default => new()
     {
-        EnableSms = true, EnableEmail = true, EnableNewsfeeds = true
+        EnableSms = true,
+        EnableEmail = true,
+        EnableNewsfeeds = true
     };
 
     public static Result<NotificationPreferences> Create(

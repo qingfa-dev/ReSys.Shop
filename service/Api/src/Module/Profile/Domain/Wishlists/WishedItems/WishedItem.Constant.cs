@@ -1,5 +1,6 @@
 // Policy: Quantity constraints prevent negative or unrealistically large order amounts
 namespace Module.Profile.Domain.Wishlists.WishedItems;
+
 public static class WishedItemConstant
 {
     public static class Defaults
