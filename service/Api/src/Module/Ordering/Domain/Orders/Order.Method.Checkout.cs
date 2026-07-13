@@ -95,23 +95,9 @@ public sealed partial class Order
 
     #endregion
 
-    // Assign: Default addresses from user profile on entering address step
-    internal void AssignDefaultAddresses(Guid? billAddressId, Guid? shipAddressId)
-    {
-        if (BillAddressId is null && billAddressId is not null)
-            BillAddressId = billAddressId;
-        if (ShipAddressId is null && shipAddressId is not null)
-            ShipAddressId = shipAddressId;
-    }
-
     // Validate: Ensure none of the order's line item variants are discontinued
     internal bool EnsureLineItemVariantsAreNotDiscontinued(HashSet<Guid> discontinuedVariantIds)
     {
         return LineItems.All(li => !discontinuedVariantIds.Contains(li.VariantId));
-    }
-
-    internal bool EnsureLineItemsPresent()
-    {
-        return LineItems.Count > 0;
     }
 }
