@@ -39,7 +39,7 @@ public static partial class ListCustomerOrders
                 {
                     Id = o.Id,
                     Number = o.Number,
-                    Status = o.Status.ToString(),
+                    Status = o.Status,
                     Total = o.Total,
                     CreatedAtUtc = o.CreatedAtUtc
                 })

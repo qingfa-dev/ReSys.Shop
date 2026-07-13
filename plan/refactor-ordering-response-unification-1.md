@@ -3,13 +3,13 @@ goal: Eliminate per-feature scalar response types — unify all Cart/Order/LineI
 version: 1.0
 date_created: 2026-07-13
 last_updated: 2026-07-13
-status: 'Planned'
+status: 'Completed'
 tags: [refactor, ordering, models, unification, response-standardization]
 ---
 
 # Introduction
 
-![Status: Planned](https://img.shields.io/badge/status-Planned-blue)
+![Status: Completed](https://img.shields.io/badge/status-Completed-brightgreen)
 
 Replace 7 standalone per-feature scalar Response types with the shared model hierarchy. Every Cart feature returns `CartDetailResponse` (with Items). Every Admin Order feature returns `OrderDetailResponse`. Every LineItem feature returns `LineItemResponse`. Fix `CreateCart` which currently returns the wrong base (`OrderDetailResponse` instead of `CartDetailResponse`).
 
