@@ -178,6 +178,10 @@ public static partial class OrderMethod
         if (order.Status == OrderStatus.Canceled)
             return OrderResult.Errors.AlreadyCanceled;
 
+        // Guard: Already-approved orders cannot be approved again
+        if (order.ApprovedById.HasValue)
+            return OrderResult.Errors.AlreadyApproved;
+
         // Assign: Record the approving user identifier
         order.ApprovedById = approvedById;
 
