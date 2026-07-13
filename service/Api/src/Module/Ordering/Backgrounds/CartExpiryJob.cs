@@ -23,7 +23,9 @@ public sealed partial class CartExpiryJob
 
         // Filter: Draft carts not modified within the expiry window and not already soft-deleted
         var expired = await _dbContext.Set<Order>()
-            .Where(o => o.Status == OrderStatus.Draft && o.ModifiedAtUtc < cutoff && !o.IsDeleted)
+            .Where(o => o.Status == OrderStatus.Draft
+                && (o.ModifiedAtUtc == null || o.ModifiedAtUtc < cutoff)
+                && !o.IsDeleted)
             .ToListAsync(ct);
 
         // Log: Number of expired carts found for monitoring and alerting

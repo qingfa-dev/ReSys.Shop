@@ -19,6 +19,7 @@ public static class OrderingExtension
         // Register: Cart expiry background components
         builder.Services.AddScoped<Backgrounds.CartExpiryJob>();
         builder.Services.AddHostedService<Services.CartExpiryService>();
+        builder.Services.AddHostedService<Backgrounds.CartExpiryJobScheduler>();
 
         // Register: Seeders for development database initialization
         builder.AddSeeder<OrderSeeder>();
