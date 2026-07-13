@@ -1,3 +1,5 @@
+using Module.Ordering.Domain.Orders;
+
 namespace Module.Ordering.Features.Admin.Orders.Get.Paged;
 
 public static partial class GetPagedOrders
@@ -8,8 +10,8 @@ public static partial class GetPagedOrders
         {
             RuleFor(x => x.Parameters)
                 .NotNull()
-                .WithErrorCode("Order.Parameters.Required")
-                .WithMessage("Query parameters are required.");
+                .WithErrorCode(OrderResult.Errors.ParametersRequired.Code)
+                .WithMessage(OrderResult.Errors.ParametersRequired.Message);
         }
     }
 }

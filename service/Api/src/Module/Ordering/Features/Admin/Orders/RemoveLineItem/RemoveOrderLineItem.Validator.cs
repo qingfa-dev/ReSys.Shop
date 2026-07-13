@@ -1,3 +1,5 @@
+using Module.Ordering.Domain.Orders;
+
 namespace Module.Ordering.Features.Admin.Orders.RemoveLineItem;
 
 public static partial class RemoveOrderLineItem
@@ -8,13 +10,13 @@ public static partial class RemoveOrderLineItem
         {
             RuleFor(x => x.OrderId)
                 .NotEmpty()
-                .WithErrorCode("Order.Id.Required")
-                .WithMessage("Order ID is required.");
+                .WithErrorCode(OrderResult.Errors.IdRequired.Code)
+                .WithMessage(OrderResult.Errors.IdRequired.Message);
 
             RuleFor(x => x.LineItemId)
                 .NotEmpty()
-                .WithErrorCode("Order.LineItemId.Required")
-                .WithMessage("Line item ID is required.");
+                .WithErrorCode(OrderResult.Errors.LineItemIdRequired.Code)
+                .WithMessage(OrderResult.Errors.LineItemIdRequired.Message);
         }
     }
 }

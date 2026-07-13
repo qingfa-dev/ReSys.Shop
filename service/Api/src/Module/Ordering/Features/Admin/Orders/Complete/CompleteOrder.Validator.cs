@@ -1,3 +1,5 @@
+using Module.Ordering.Domain.Orders;
+
 namespace Module.Ordering.Features.Admin.Orders.Complete;
 
 public static partial class CompleteOrder
@@ -8,8 +10,8 @@ public static partial class CompleteOrder
         {
             RuleFor(x => x.Id)
                 .NotEmpty()
-                .WithErrorCode("Order.Id.Required")
-                .WithMessage("Order ID is required.");
+                .WithErrorCode(OrderResult.Errors.IdRequired.Code)
+                .WithMessage(OrderResult.Errors.IdRequired.Message);
         }
     }
 }

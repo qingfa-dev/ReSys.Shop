@@ -11,18 +11,12 @@ public static partial class OrderValidator
         public OrderParametersValidator()
         {
             // Validate: Currency must be a non-empty ISO code within max length.
-            RuleFor(x => x.Currency)
-                .NotEmpty()
-                .MaximumLength(OrderConstant.Constraints.MaxCurrencyLength)
-                .WithErrorCode(OrderResult.Errors.CurrencyInvalid.Code)
-                .WithMessage(OrderResult.Errors.CurrencyInvalid.Message);
+            RuleFor(x => x.Currency).ApplyCurrencyRules();
 
             // Validate: Email format checked only when a value is provided.
             RuleFor(x => x.Email)
-                .EmailAddress()
-                .When(x => !string.IsNullOrEmpty(x.Email))
-                .WithErrorCode(OrderResult.Errors.EmailInvalid.Code)
-                .WithMessage(OrderResult.Errors.EmailInvalid.Message);
+                .ApplyEmailRules()
+                .When(x => !string.IsNullOrEmpty(x.Email));
         }
     }
 

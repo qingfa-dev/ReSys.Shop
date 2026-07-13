@@ -15,9 +15,7 @@ public static partial class SelectShippingRate
 
             // Validate: Shipping method ID must not be empty.
             RuleFor(x => x.Request.ShippingMethodId)
-                .NotEmpty()
-                .WithErrorCode(OrderResult.Errors.DeliveryMethodRequired.Code)
-                .WithMessage(OrderResult.Errors.DeliveryMethodRequired.Message);
+                .ApplyShippingMethodIdRules();
         }
     }
 }

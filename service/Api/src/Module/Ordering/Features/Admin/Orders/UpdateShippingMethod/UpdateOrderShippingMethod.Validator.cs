@@ -1,3 +1,5 @@
+using Module.Ordering.Domain.Orders;
+
 namespace Module.Ordering.Features.Admin.Orders.UpdateShippingMethod;
 
 public static partial class UpdateOrderShippingMethod
@@ -8,20 +10,18 @@ public static partial class UpdateOrderShippingMethod
         {
             RuleFor(x => x.Id)
                 .NotEmpty()
-                .WithErrorCode("Order.Id.Required")
-                .WithMessage("Order ID is required.");
+                .WithErrorCode(OrderResult.Errors.IdRequired.Code)
+                .WithMessage(OrderResult.Errors.IdRequired.Message);
 
             RuleFor(x => x.Request)
                 .NotNull()
-                .WithErrorCode("Order.Request.Required")
-                .WithMessage("Request body is required.");
+                .WithErrorCode(OrderResult.Errors.RequestRequired.Code)
+                .WithMessage(OrderResult.Errors.RequestRequired.Message);
 
             When(x => x.Request is not null, () =>
             {
                 RuleFor(x => x.Request!.ShippingMethodId)
-                    .NotEmpty()
-                    .WithErrorCode("Order.ShippingMethodId.Required")
-                    .WithMessage("Shipping method ID is required.");
+                    .ApplyShippingMethodIdRules();
             });
         }
     }

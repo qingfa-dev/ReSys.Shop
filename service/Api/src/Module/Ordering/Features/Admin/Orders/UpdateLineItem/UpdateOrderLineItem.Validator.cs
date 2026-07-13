@@ -1,4 +1,5 @@
 using Module.Ordering.Domain.LineItems;
+using Module.Ordering.Domain.Orders;
 
 namespace Module.Ordering.Features.Admin.Orders.UpdateLineItem;
 
@@ -10,25 +11,23 @@ public static partial class UpdateOrderLineItem
         {
             RuleFor(x => x.OrderId)
                 .NotEmpty()
-                .WithErrorCode("Order.Id.Required")
-                .WithMessage("Order ID is required.");
+                .WithErrorCode(OrderResult.Errors.IdRequired.Code)
+                .WithMessage(OrderResult.Errors.IdRequired.Message);
 
             RuleFor(x => x.LineItemId)
                 .NotEmpty()
-                .WithErrorCode("Order.LineItemId.Required")
-                .WithMessage("Line item ID is required.");
+                .WithErrorCode(OrderResult.Errors.LineItemIdRequired.Code)
+                .WithMessage(OrderResult.Errors.LineItemIdRequired.Message);
 
             RuleFor(x => x.Request)
                 .NotNull()
-                .WithErrorCode("Order.Request.Required")
-                .WithMessage("Request body is required.");
+                .WithErrorCode(OrderResult.Errors.RequestRequired.Code)
+                .WithMessage(OrderResult.Errors.RequestRequired.Message);
 
             When(x => x.Request is not null, () =>
             {
                 RuleFor(x => x.Request!.Quantity)
-                    .InclusiveBetween(1, LineItemConstant.MaxQuantity)
-                    .WithErrorCode("Order.Quantity.Invalid")
-                    .WithMessage($"Quantity must be between 1 and {LineItemConstant.MaxQuantity}.");
+                    .ApplyQuantityRules();
             });
         }
     }

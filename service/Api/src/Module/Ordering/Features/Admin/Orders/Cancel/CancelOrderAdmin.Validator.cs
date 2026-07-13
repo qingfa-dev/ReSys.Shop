@@ -1,3 +1,5 @@
+using Module.Ordering.Domain.Orders;
+
 namespace Module.Ordering.Features.Admin.Orders.Cancel;
 
 public static partial class CancelOrderAdmin
@@ -8,20 +10,20 @@ public static partial class CancelOrderAdmin
         {
             RuleFor(x => x.Id)
                 .NotEmpty()
-                .WithErrorCode("Order.Id.Required")
-                .WithMessage("Order ID is required.");
+                .WithErrorCode(OrderResult.Errors.IdRequired.Code)
+                .WithMessage(OrderResult.Errors.IdRequired.Message);
 
             RuleFor(x => x.Request)
                 .NotNull()
-                .WithErrorCode("Order.Request.Required")
-                .WithMessage("Request body is required.");
+                .WithErrorCode(OrderResult.Errors.RequestRequired.Code)
+                .WithMessage(OrderResult.Errors.RequestRequired.Message);
 
             When(x => x.Request is not null, () =>
             {
                 RuleFor(x => x.Request!.Reason)
                     .MaximumLength(500)
-                    .WithErrorCode("Order.Reason.TooLong")
-                    .WithMessage("Cancellation reason must be 500 characters or fewer.");
+                    .WithErrorCode(OrderResult.Errors.ReasonTooLong.Code)
+                    .WithMessage(OrderResult.Errors.ReasonTooLong.Message);
             });
         }
     }
