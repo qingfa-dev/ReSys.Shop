@@ -9,7 +9,7 @@ public static partial class RemoveCartItem
         public void AddRoutes(IEndpointRouteBuilder app)
         {
             app.MapDelete(OrderingFeature.Storefront.Cart.RemoveItem.Route, async (
-                Guid lineItemId, ISender sender, CancellationToken ct) =>
+                [FromRoute] Guid lineItemId, ISender sender, CancellationToken ct) =>
             {
                 // Call: Dispatch remove-cart-item command.
                 var result = await sender.Send(new Command(lineItemId), ct);

@@ -9,7 +9,7 @@ public static partial class CreateOrderFromCart
         public void AddRoutes(IEndpointRouteBuilder app)
         {
             app.MapPost(OrderingFeature.Storefront.Cart.Checkout.Route, async (
-                Request request,
+                [FromBody] Request request,
                 ISender sender,
                 CancellationToken ct) =>
             {

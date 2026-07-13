@@ -7,7 +7,7 @@ public static partial class DeleteOrder
     {
         public void AddRoutes(IEndpointRouteBuilder app)
         {
-            app.MapDelete(OrderingFeature.Admin.Orders.Delete.Route, async (Guid id, ISender sender, CancellationToken ct) =>
+            app.MapDelete(OrderingFeature.Admin.Orders.Delete.Route, async ([FromRoute] Guid id, ISender sender, CancellationToken ct) =>
             {
                 // Call: Dispatch DeleteOrder command via MediatR.
                 var result = await sender.Send(new Command(id), ct);

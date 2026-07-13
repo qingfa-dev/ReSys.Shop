@@ -4,9 +4,9 @@ namespace Module.Ordering.Features.Storefront.Cart.Get;
 
 public static partial class GetCart
 {
-    public class Response
+    public sealed record Response
     {
-        public Guid? Id { get; init; }
+        public Guid Id { get; init; }
         public List<CartItem> Items { get; init; } = [];
         public decimal ItemTotal { get; init; }
         public decimal Total { get; init; }
@@ -15,7 +15,7 @@ public static partial class GetCart
         public string CheckoutState { get; init; } = string.Empty;
     }
 
-    public class CartItem
+    public sealed record CartItem
     {
         public Guid Id { get; init; }
         public Guid VariantId { get; init; }

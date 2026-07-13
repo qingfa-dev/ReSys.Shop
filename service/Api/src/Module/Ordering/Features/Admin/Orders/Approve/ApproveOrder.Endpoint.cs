@@ -8,7 +8,7 @@ public static partial class ApproveOrder
     {
         public void AddRoutes(IEndpointRouteBuilder app)
         {
-            app.MapPost(OrderingFeature.Admin.Orders.Approve.Route, async (Guid id, ISender sender, CancellationToken ct) =>
+            app.MapPost(OrderingFeature.Admin.Orders.Approve.Route, async ([FromRoute] Guid id, ISender sender, CancellationToken ct) =>
             {
                 // Call: Dispatch ApproveOrder command via MediatR.
                 var result = await sender.Send(new Command(id), ct);

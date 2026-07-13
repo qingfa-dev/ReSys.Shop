@@ -7,7 +7,7 @@ public static partial class AddOrderLineItem
     {
         public void AddRoutes(IEndpointRouteBuilder app)
         {
-            app.MapPost(OrderingFeature.Admin.Orders.AddLineItem.Route, async (Guid id, [FromBody] Request request, ISender sender, CancellationToken ct) =>
+            app.MapPost(OrderingFeature.Admin.Orders.AddLineItem.Route, async ([FromRoute] Guid id, [FromBody] Request request, ISender sender, CancellationToken ct) =>
             {
                 // Call: Dispatch AddOrderLineItem command via MediatR.
                 var result = await sender.Send(new Command(id, request), ct);

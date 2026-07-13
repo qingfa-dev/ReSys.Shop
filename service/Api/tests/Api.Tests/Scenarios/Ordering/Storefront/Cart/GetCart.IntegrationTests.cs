@@ -30,8 +30,7 @@ public sealed class GetCartIntegrationTests(ApiFixture fixture) : OrderingIntegr
         result.StatusCode.Should().Be(HttpStatusCode.OK);
         var value = result.DeserializeValue<CartGet.Response>();
         value.Should().NotBeNull();
-        value!.Id.Should().NotBeNull();
-        value.Items.Should().NotBeNull();
+        value!.Id.Should().NotBeEmpty();        value.Items.Should().NotBeNull();
         value.Currency.Should().Be("USD");
     }
 

@@ -8,7 +8,7 @@ public static partial class GetOrderLineItems
         public void AddRoutes(IEndpointRouteBuilder app)
         {
             app.MapGet(OrderingFeature.Admin.Orders.GetLineItems.Route, async (
-                Guid id,
+                [FromRoute] Guid id,
                 [AsParameters] QueryingParameters parameters,
                 ISender sender,
                 CancellationToken ct) =>

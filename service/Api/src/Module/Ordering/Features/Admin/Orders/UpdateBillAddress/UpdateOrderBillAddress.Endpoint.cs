@@ -7,7 +7,7 @@ public static partial class UpdateOrderBillAddress
     {
         public void AddRoutes(IEndpointRouteBuilder app)
         {
-            app.MapPut(OrderingFeature.Admin.Orders.UpdateBillAddress.Route, async (Guid id, [FromBody] Request request, ISender sender, CancellationToken ct) =>
+            app.MapPut(OrderingFeature.Admin.Orders.UpdateBillAddress.Route, async ([FromRoute] Guid id, [FromBody] Request request, ISender sender, CancellationToken ct) =>
             {
                 // Call: Dispatch UpdateOrderBillAddress command via MediatR.
                 var result = await sender.Send(new Command(id, request), ct);
