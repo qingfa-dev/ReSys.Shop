@@ -15,7 +15,9 @@ public static partial class OrderMethod
         order.ItemCount = order.LineItems.Sum(li => li.Quantity);
         order.ItemTotal = order.LineItems.Sum(li => li.Total);
 
-        // Compute: Combine line-item adjustments with order-level adjustments (only eligible entries)
+        // NOTE: LineItem.AdjustmentTotal is computed from line-item-level adjustments.
+        // Currently no code sets LineItem.AdjustmentTotal — line-item-level adjustment
+        // tracking is not yet implemented. This term will be 0 until that feature is built.
         order.AdjustmentTotal =
             order.LineItems.Sum(li => li.AdjustmentTotal) +
             order.Adjustments.Where(a => a.Eligible).Sum(a => a.Amount);

@@ -1,6 +1,7 @@
 namespace Module.Ordering.Domain.Orders;
 
 // Enumerate: Order lifecycle statuses — Draft, Placed, Canceled, Expired
+// Value 3 intentionally unused — reserved for future status
 public enum OrderStatus
 {
     Draft = 0,

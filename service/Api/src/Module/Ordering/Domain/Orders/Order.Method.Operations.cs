@@ -87,7 +87,8 @@ public static partial class OrderMethod
         return Result.Ok(OrderResult.Success.Updated(order.Id));
     }
 
-    // Compute: Total order weight from variant-weight lookup for shipping rate calculation
+    // Compute: Total order weight from variant-weight lookup for shipping rate calculation.
+    // Returns 0m for variants not found in the dictionary — caller should verify all variants mapped.
     public static decimal CalculateTotalWeight(this Order order, Dictionary<Guid, decimal> variantWeights)
     {
         return order.LineItems.Sum(li =>
