@@ -95,26 +95,6 @@ public sealed partial class Order
 
     #endregion
 
-    #region State Machine Callbacks
-
-    // Enforce: Cancel behavior — void/cancel payments, cancel shipments, send webhook
-    // Note: Payment voiding and shipment cancellation are handled by the CancelOrder handler.
-    //       Notifications are sent inline by the command handler via INotificationService.
-    #pragma warning disable CA1822 // Stub - handlers manage these side effects
-    internal void AfterCancel()
-    {
-    }
-    #pragma warning restore CA1822
-
-    // Enforce: Resume behavior — restart shipments, consider risk, send webhook
-    // Note: Shipment reactivation is handled by the ResumeOrder handler.
-    //       Notifications are sent inline by the command handler via INotificationService.
-    #pragma warning disable CA1822 // Stub - handlers manage these side effects
-    internal void AfterResume()
-    {
-    }
-    #pragma warning restore CA1822
-
     // Assign: Default addresses from user profile on entering address step
     internal void AssignDefaultAddresses(Guid? billAddressId, Guid? shipAddressId)
     {
@@ -127,17 +107,11 @@ public sealed partial class Order
     // Validate: Ensure none of the order's line item variants are discontinued
     internal bool EnsureLineItemVariantsAreNotDiscontinued(HashSet<Guid> discontinuedVariantIds)
     {
-        return !LineItems.Any(li => discontinuedVariantIds.Contains(li.VariantId));
+        return LineItems.All(li => !discontinuedVariantIds.Contains(li.VariantId));
     }
 
     internal bool EnsureLineItemsPresent()
     {
-        if (LineItems.Count == 0)
-        {
-            return false;
-        }
-        return true;
+        return LineItems.Count > 0;
     }
-
-    #endregion
 }
