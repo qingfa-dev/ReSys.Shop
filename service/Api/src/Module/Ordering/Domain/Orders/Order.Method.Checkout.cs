@@ -100,4 +100,27 @@ public sealed partial class Order
     {
         return LineItems.All(li => !discontinuedVariantIds.Contains(li.VariantId));
     }
+
+    internal Result ValidateCheckoutPrerequisites()
+    {
+        if (Status == OrderStatus.Canceled)
+            return OrderResult.Errors.InvalidStatusTransition;
+
+        if (CheckoutState < CheckoutState.Confirm)
+            return OrderResult.Errors.CheckoutNotComplete;
+
+        if (BillAddressId is null || ShipAddressId is null)
+            return OrderResult.Errors.AddressRequired;
+
+        if (ShippingMethodId is null)
+            return OrderResult.Errors.DeliveryMethodRequired;
+
+        if (string.IsNullOrWhiteSpace(Email))
+            return OrderResult.Errors.EmailRequired;
+
+        if (LineItems.Count == 0)
+            return OrderResult.Errors.EmptyOrderCannotFinalize;
+
+        return Result.Ok();
+    }
 }

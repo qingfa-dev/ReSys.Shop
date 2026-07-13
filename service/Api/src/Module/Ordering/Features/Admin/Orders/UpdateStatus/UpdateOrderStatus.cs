@@ -38,24 +38,20 @@ public static partial class UpdateOrderStatus
             switch (request.Status)
             {
                 case OrderStatus.Placed when entity.Status == OrderStatus.Draft:
-                    // Update: Transition from Draft to Placed — no side effects.
-                    entity.Status = OrderStatus.Placed;
+                    var finalizeResult = entity.Finalize();
+                    if (finalizeResult.IsFailure)
+                        return finalizeResult.Errors;
                     break;
-                case OrderStatus.Canceled when entity.Status != OrderStatus.Canceled:
-                    var wasPlaced = entity.Status == OrderStatus.Placed;
-                    // Update: Transition to Canceled — record who and when.
-                    entity.Status = OrderStatus.Canceled;
-                    entity.CanceledAtUtc = DateTimeOffset.UtcNow;
-                    entity.CanceledById = Guid.TryParse(currentUser.UserId, out var canceledBy) ? canceledBy : null;
+                case OrderStatus.Canceled when entity.Status == OrderStatus.Placed:
+                    var cancelResult = entity.Cancel(Guid.TryParse(currentUser.UserId, out var uid) ? uid : Guid.Empty);
+                    if (cancelResult.IsFailure)
+                        return cancelResult.Errors;
 
-                    if (wasPlaced)
+                    // Compensate: Release reserved inventory — the order will not be fulfilled.
+                    foreach (var li in entity.LineItems)
                     {
-                        // Compensate: Release reserved inventory — the order will not be fulfilled.
-                        foreach (var li in entity.LineItems)
-                        {
-                            var orderInventory = new OrderInventoryService(entity, li, dbContext, stockChecker);
-                            await orderInventory.RemoveAsync(li.Quantity, cancellationToken);
-                        }
+                        var orderInventory = new OrderInventoryService(entity, li, dbContext, stockChecker);
+                        await orderInventory.RemoveAsync(li.Quantity, cancellationToken);
                     }
                     break;
                 default:

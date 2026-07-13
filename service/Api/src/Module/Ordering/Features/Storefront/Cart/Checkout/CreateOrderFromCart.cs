@@ -51,22 +51,6 @@ public static partial class CreateOrderFromCart
             if (cart is null)
                 return OrderResult.Errors.NotFound(Guid.Empty);
 
-            // Validate: Checkout steps must be completed before placing order.
-            if (cart.CheckoutState < CheckoutState.Confirm)
-                return OrderResult.Errors.CheckoutNotComplete;
-
-            // Validate: Billing and shipping addresses must be set before placement.
-            if (cart.BillAddressId is null || cart.ShipAddressId is null)
-                return OrderResult.Errors.AddressRequired;
-
-            // Validate: Shipping method must be selected before placement.
-            if (cart.ShippingMethodId is null)
-                return OrderResult.Errors.DeliveryMethodRequired;
-
-            // Validate: Customer email required for order notifications.
-            if (string.IsNullOrWhiteSpace(cart.Email))
-                return OrderResult.Errors.EmailRequired;
-
             // Validate: Payment verification (skip for zero-total orders).
             if (cart.Total > 0m)
             {
@@ -87,7 +71,7 @@ public static partial class CreateOrderFromCart
                 if (payment.Amount != cart.Total)
                     return OrderResult.Errors.PaymentAmountMismatch;
 
-                // Update: Mark payment state as paid.
+                // TODO: replace with cart.MarkPaymentAsPaid() after Task 3
                 cart.PaymentState = OrderConstant.PaymentState.Paid;
             }
 
@@ -106,13 +90,12 @@ public static partial class CreateOrderFromCart
                 return OrderResult.Errors.VariantDiscontinued;
 
             // Update: Place the order — set status, checkout state, timestamps, and order number.
-            cart.Status = OrderStatus.Placed;
-            cart.CheckoutState = CheckoutState.Complete;
-            cart.CompletedAtUtc = DateTimeOffset.UtcNow;
             var numberResult = OrderNumber.Generate(dbContext);
             if (numberResult.IsFailure)
                 return numberResult.Errors;
-            cart.Number = numberResult.Value;
+            var placeResult = cart.Place(numberResult.Value);
+            if (placeResult.IsFailure)
+                return placeResult.Errors;
 
             // Explain: Serializable transaction ensures stock deduction, reservation creation,
             // and movement logging are atomic — a partial failure rolls back all three.

@@ -23,14 +23,9 @@ public static partial class CompleteOrder
                 return OrderResult.Errors.NotFound(command.Id);
 
             // Enforce: Only placed orders can be completed — prevents invalid state transitions.
-            if (order.Status != OrderStatus.Placed)
-                return OrderResult.Errors.InvalidStatusTransition;
-
-            // Update: Finalize order lifecycle — set complete state and timestamps.
-            order.CheckoutState = CheckoutState.Complete;
-            order.CompletedAtUtc = DateTimeOffset.UtcNow;
-            order.ModifiedAtUtc = DateTimeOffset.UtcNow;
-            order.ModifiedBy = currentUser.UserName;
+            var completeResult = order.Complete(currentUser.UserName ?? "System");
+            if (completeResult.IsFailure)
+                return (Result<Response>)completeResult.Errors;
 
             await dbContext.SaveChangesAsync(cancellationToken);
 

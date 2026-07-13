@@ -164,5 +164,39 @@ public static partial class OrderMethod
         }
     }
 
+    /// <summary>
+    /// Places the order: validates checkout prerequisites, transitions to Placed, assigns order number.
+    /// </summary>
+    public static Result Place(this Order order, string orderNumber)
+    {
+        var prerequisites = order.ValidateCheckoutPrerequisites();
+        if (prerequisites.IsFailure)
+            return prerequisites.Errors;
+
+        order.Status = OrderStatus.Placed;
+        order.CheckoutState = CheckoutState.Complete;
+        order.CompletedAtUtc = DateTimeOffset.UtcNow;
+        order.Number = orderNumber;
+        order.RecalculateTotals();
+
+        return Result.Ok(OrderResult.Success.Finalized(order.Id));
+    }
+
+    /// <summary>
+    /// Marks a placed order as complete.
+    /// </summary>
+    public static Result Complete(this Order order, string modifiedBy)
+    {
+        if (order.Status != OrderStatus.Placed)
+            return OrderResult.Errors.InvalidStatusTransition;
+
+        order.CheckoutState = CheckoutState.Complete;
+        order.CompletedAtUtc = DateTimeOffset.UtcNow;
+        order.ModifiedAtUtc = DateTimeOffset.UtcNow;
+        order.ModifiedBy = modifiedBy;
+
+        return Result.Ok(OrderResult.Success.Updated(order.Id));
+    }
+
     #endregion
 }
