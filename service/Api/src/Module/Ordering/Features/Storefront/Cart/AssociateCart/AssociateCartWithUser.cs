@@ -1,5 +1,4 @@
 using Module.Ordering.Domain.Orders;
-using Module.Ordering.Domain.Orders.Services;
 
 namespace Module.Ordering.Features.Storefront.Cart.AssociateCart;
 
@@ -57,8 +56,7 @@ public static partial class AssociateCartWithUser
             else
             {
                 // Merge: Combine guest cart line items into user cart by variant.
-                var merger = new OrderMerger(userOrder);
-                merger.Merge(guestOrder, userId, discardMerged: true);
+                userOrder.Merge(guestOrder, userId, discardMerged: true);
                 // Remove: Delete the now-empty guest cart.
                 dbContext.Set<Order>().Remove(guestOrder);
             }
