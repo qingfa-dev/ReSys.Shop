@@ -281,6 +281,9 @@ public static partial class OrderMethod
     /// <returns>A Result indicating success.</returns>
     public static Result Delete(this Order order, string deletedBy)
     {
+        if (order.Status != OrderStatus.Draft && order.Status != OrderStatus.Expired)
+            return OrderResult.Errors.InvalidStatusForDelete;
+
         if (order.IsDeleted)
         {
             return Result.Ok();
