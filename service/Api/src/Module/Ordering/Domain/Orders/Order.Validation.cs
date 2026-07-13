@@ -60,4 +60,76 @@ public static class OrderValidation
             .WithErrorCode(OrderResult.Errors.AlreadyCanceled.Code)
             .WithMessage(OrderResult.Errors.AlreadyCanceled.Message);
     }
+
+    public static IRuleBuilderOptions<T, string?> ApplyEmailRules<T>(
+        this IRuleBuilder<T, string?> ruleBuilder)
+    {
+        return ruleBuilder
+            .EmailAddress()
+            .WithErrorCode(OrderResult.Errors.EmailInvalid.Code)
+            .WithMessage(OrderResult.Errors.EmailInvalid.Message)
+            .MaximumLength(OrderConstant.Constraints.MaxEmailLength)
+            .WithErrorCode(OrderResult.Errors.EmailInvalid.Code)
+            .WithMessage(OrderResult.Errors.EmailInvalid.Message);
+    }
+
+    public static IRuleBuilderOptions<T, string> ApplyCurrencyRules<T>(
+        this IRuleBuilder<T, string> ruleBuilder)
+    {
+        return ruleBuilder
+            .NotEmpty()
+            .WithErrorCode(OrderResult.Errors.CurrencyInvalid.Code)
+            .WithMessage(OrderResult.Errors.CurrencyInvalid.Message)
+            .MaximumLength(OrderConstant.Constraints.MaxCurrencyLength)
+            .WithErrorCode(OrderResult.Errors.CurrencyInvalid.Code)
+            .WithMessage(OrderResult.Errors.CurrencyInvalid.Message);
+    }
+
+    public static IRuleBuilderOptions<T, Guid?> ApplyBillAddressIdRules<T>(
+        this IRuleBuilder<T, Guid?> ruleBuilder)
+    {
+        return ruleBuilder
+            .NotEmpty()
+            .WithErrorCode(OrderResult.Errors.BillAddressIdRequired.Code)
+            .WithMessage(OrderResult.Errors.BillAddressIdRequired.Message);
+    }
+
+    public static IRuleBuilderOptions<T, Guid?> ApplyShipAddressIdRules<T>(
+        this IRuleBuilder<T, Guid?> ruleBuilder)
+    {
+        return ruleBuilder
+            .NotEmpty()
+            .WithErrorCode(OrderResult.Errors.ShipAddressIdRequired.Code)
+            .WithMessage(OrderResult.Errors.ShipAddressIdRequired.Message);
+    }
+
+    public static IRuleBuilderOptions<T, Guid?> ApplyShippingMethodIdRules<T>(
+        this IRuleBuilder<T, Guid?> ruleBuilder)
+    {
+        return ruleBuilder
+            .NotEmpty()
+            .WithErrorCode(OrderResult.Errors.ShippingMethodIdRequired.Code)
+            .WithMessage(OrderResult.Errors.ShippingMethodIdRequired.Message);
+    }
+
+    public static IRuleBuilderOptions<T, string?> ApplySpecialInstructionsRules<T>(
+        this IRuleBuilder<T, string?> ruleBuilder)
+    {
+        return ruleBuilder
+            .MaximumLength(OrderConstant.Constraints.MaxSpecialInstructionsLength)
+            .WithErrorCode(OrderResult.Errors.NotesTooLong.Code)
+            .WithMessage(OrderResult.Errors.NotesTooLong.Message);
+    }
+
+    public static IRuleBuilderOptions<T, string?> ApplySessionIdRules<T>(
+        this IRuleBuilder<T, string?> ruleBuilder)
+    {
+        return ruleBuilder
+            .NotEmpty()
+            .WithErrorCode(OrderResult.Errors.SessionIdRequired.Code)
+            .WithMessage(OrderResult.Errors.SessionIdRequired.Message)
+            .MaximumLength(OrderConstant.Constraints.MaxSessionIdLength)
+            .WithErrorCode(OrderResult.Errors.SessionIdTooLong.Code)
+            .WithMessage(OrderResult.Errors.SessionIdTooLong.Message);
+    }
 }

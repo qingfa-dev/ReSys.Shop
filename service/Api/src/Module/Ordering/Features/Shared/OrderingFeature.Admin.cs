@@ -4,6 +4,7 @@ namespace Module.Ordering.Features.Shared;
 
 public static partial class OrderingFeature
 {
+    // Context: Admin API route and permission metadata for Ordering module — consumed by Carter endpoints and authorization
     public static class Admin
     {
         public const string Route = "api/ordering";

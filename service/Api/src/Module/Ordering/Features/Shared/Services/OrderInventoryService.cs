@@ -10,7 +10,8 @@ namespace Module.Ordering.Features.Shared.Services;
 /// Handles stock decrement on shipment and increment on return/cancellation.
 /// </summary>
 // Invariant: Order and LineItem must not be null; inventory unit count must match line item quantity
-// Boundary: Application → Data — queries StockItem/StockReservation/StockMovement via StockChecker
+// @CAT-10 Boundary: Ordering → Inventory — cross-module service; do not directly reference Inventory DbSets
+// @CAT-10 Boundary: Application → Data — queries StockItem/StockReservation/StockMovement via StockChecker
 public partial class OrderInventoryService
 {
     private readonly IApplicationDbContext _dbContext;
@@ -50,6 +51,7 @@ public partial class OrderInventoryService
 
         if (stockLocationId == Guid.Empty) return;
 
+        // Call: Inventory module — decrement stock for shipment fulfillment
         await _stockChecker.DecrementStockAsync(
             LineItem.VariantId,
             quantity,
@@ -70,6 +72,7 @@ public partial class OrderInventoryService
 
         if (stockLocationId == Guid.Empty) return;
 
+        // Call: Inventory module — increment stock for cancelled or returned order items
         await _stockChecker.IncrementStockAsync(
             LineItem.VariantId,
             unitsCount,

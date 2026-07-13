@@ -2,6 +2,7 @@ namespace Module.Ordering.Backgrounds;
 
 public sealed partial class CartExpiryJob
 {
+    // Log: Structured logging events for CartExpiryJob lifecycle
     public static partial class Loggers
     {
         [LoggerMessage(

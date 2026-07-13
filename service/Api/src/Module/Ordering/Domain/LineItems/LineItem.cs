@@ -8,6 +8,7 @@ namespace Module.Ordering.Domain.LineItems;
 /// Represents a single line item within an order, tracking quantity, pricing, and adjustments.
 /// </summary>
 // @CAT-10 Invariant: Quantity >= 1; Total = (Quantity * Price) + AdjustmentTotal; CostPrice <= Price when set
+// @CAT-10 Boundary: Domain → Persistence — EF Core entity; do not add persistence concerns to domain logic
 public sealed partial class LineItem : Entity, IAuditable
 {
     #region Properties

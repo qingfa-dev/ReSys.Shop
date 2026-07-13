@@ -4,6 +4,7 @@ using Module.Ordering.Domain.Adjustments;
 
 namespace Module.Ordering.Persistence.Configurations.Adjustments;
 
+// @CAT-10 Boundary: Persistence → Domain — reserved for EF Core materialization; do not add domain logic
 public class AdjustmentConfiguration : IEntityTypeConfiguration<Adjustment>
 {
     public void Configure(EntityTypeBuilder<Adjustment> builder)
@@ -13,6 +14,7 @@ public class AdjustmentConfiguration : IEntityTypeConfiguration<Adjustment>
         builder.HasKey(x => x.Id);
 
         #region Properties
+        // Initialize: Monetary precision matches AdjustmentConstant; type discriminators bounded to MaxTypeStrings
         builder.Property(x => x.Amount)
             .IsRequired()
             .HasPrecision(AdjustmentConstant.Constraints.MonetaryPrecision, AdjustmentConstant.Constraints.MonetaryScale);

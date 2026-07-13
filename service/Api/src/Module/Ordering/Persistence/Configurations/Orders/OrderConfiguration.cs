@@ -4,6 +4,7 @@ using Module.Ordering.Domain.Orders;
 
 namespace Module.Ordering.Persistence.Configurations.Orders;
 
+// @CAT-10 Boundary: Persistence → Domain — reserved for EF Core materialization; do not add domain logic
 public class OrderConfiguration : IEntityTypeConfiguration<Order>
 {
     public void Configure(EntityTypeBuilder<Order> builder)
@@ -13,6 +14,7 @@ public class OrderConfiguration : IEntityTypeConfiguration<Order>
         builder.HasKey(x => x.Id);
 
         #region Properties
+        // Initialize: OrderNumber with unique constraint — used as human-readable identifier in UI and invoices
         builder.Property(x => x.Number)
             .IsRequired()
             .HasMaxLength(OrderConstant.Constraints.MaxNumberLength);

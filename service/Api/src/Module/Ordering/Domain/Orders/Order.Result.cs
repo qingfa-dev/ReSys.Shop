@@ -39,6 +39,22 @@ public static class OrderResult
         public static string Recalculated(Guid id) => $"Order with ID '{id}' totals were recalculated.";
         /// <summary>Payment state was derived and updated.</summary>
         public static string PaymentStateUpdated(Guid id) => $"Order with ID '{id}' payment state was updated.";
+        /// <summary>Cart was created as a draft.</summary>
+        public static string CartCreated(Guid id) => $"Cart with ID '{id}' was successfully created.";
+        /// <summary>Cart contents were updated.</summary>
+        public static string CheckoutUpdated(Guid id) => $"Order with ID '{id}' checkout was updated.";
+        /// <summary>Line item was added to the order.</summary>
+        public static string ItemAdded(Guid id) => $"Line item was added to order with ID '{id}'.";
+        /// <summary>Line item was removed from the order.</summary>
+        public static string ItemRemoved(Guid id) => $"Line item was removed from order with ID '{id}'.";
+        /// <summary>Item quantity was updated.</summary>
+        public static string QuantityUpdated(Guid id) => $"Order with ID '{id}' item quantity was updated.";
+        /// <summary>Shipping rate was selected.</summary>
+        public static string ShippingRateSelected(Guid id) => $"Shipping rate was selected for order with ID '{id}'.";
+        /// <summary>Order status was updated.</summary>
+        public static string StatusUpdated(Guid id) => $"Order with ID '{id}' status was updated.";
+        /// <summary>Shipping method was updated.</summary>
+        public static string ShippingMethodUpdated(Guid id) => $"Shipping method was updated for order with ID '{id}'.";
     }
 
     /// <summary>
@@ -180,6 +196,36 @@ public static class OrderResult
         public static Error VariantDiscontinued => Error.Validation(
             code: "Order.VariantDiscontinued",
             message: "One or more items in your cart have been discontinued.");
+
+        /// <summary>Session ID is required for guest carts.</summary>
+        public static Error SessionIdRequired => Error.Validation(
+            code: "Order.SessionId.Required",
+            message: "Session ID is required for guest carts.");
+
+        /// <summary>Session ID exceeds the maximum length.</summary>
+        public static Error SessionIdTooLong => Error.Validation(
+            code: "Order.SessionId.TooLong",
+            message: $"Session ID cannot exceed {OrderConstant.Constraints.MaxSessionIdLength} characters.");
+
+        /// <summary>Billing address ID is required.</summary>
+        public static Error BillAddressIdRequired => Error.Validation(
+            code: "Order.BillAddressId.Required",
+            message: "Billing address ID is required.");
+
+        /// <summary>Shipping address ID is required.</summary>
+        public static Error ShipAddressIdRequired => Error.Validation(
+            code: "Order.ShipAddressId.Required",
+            message: "Shipping address ID is required.");
+
+        /// <summary>Shipping method ID is required.</summary>
+        public static Error ShippingMethodIdRequired => Error.Validation(
+            code: "Order.ShippingMethodId.Required",
+            message: "Shipping method ID is required.");
+
+        /// <summary>Notes exceed the maximum length.</summary>
+        public static Error NotesTooLong => Error.Validation(
+            code: "Order.SpecialInstructions.TooLong",
+            message: $"Notes cannot exceed {OrderConstant.Constraints.MaxSpecialInstructionsLength} characters.");
         #endregion
 
         #region OrderNumber

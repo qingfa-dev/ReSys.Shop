@@ -10,6 +10,7 @@ namespace Module.Ordering.Domain.Orders;
 /// Represents a customer order as the aggregate root in the ordering context.
 /// </summary>
 // @CAT-10 Invariant: Total = ItemTotal + AdjustmentTotal + ShipmentTotal; CheckoutState progresses forward; Finalized orders are immutable except Cancel; Total >= 0
+// @CAT-10 Boundary: Domain → Persistence — EF Core entity; do not add persistence concerns to domain logic
 public sealed partial class Order : Entity, IAuditable, ISoftDeletable
 {
     #region Properties

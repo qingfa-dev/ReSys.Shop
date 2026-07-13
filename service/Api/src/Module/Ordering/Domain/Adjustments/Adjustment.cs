@@ -6,7 +6,8 @@ namespace Module.Ordering.Domain.Adjustments;
 /// <summary>
 /// Represents an adjustment applied to an order or line item (e.g., discount, tax, shipping).
 /// </summary>
-    // @CAT-10 Invariant: Open adjustments auto-recalculate; Closed adjustments are locked; Amount can be positive (charge) or negative (credit)
+// @CAT-10 Invariant: Open adjustments auto-recalculate; Closed adjustments are locked; Amount can be positive (charge) or negative (credit)
+// @CAT-10 Boundary: Domain → Persistence — EF Core entity; do not add persistence concerns to domain logic
 public sealed partial class Adjustment : Entity, IAuditable
 {
     #region Properties

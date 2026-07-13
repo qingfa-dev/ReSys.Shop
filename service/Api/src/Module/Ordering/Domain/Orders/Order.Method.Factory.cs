@@ -4,6 +4,7 @@ public static partial class OrderMethod
 {
     #region Factory
 
+    // Create: New draft order with default pending status, zero totals, and UTC audit timestamp
     public static Result<Order> Create(
         string currency,
         Guid? userId,
@@ -12,6 +13,7 @@ public static partial class OrderMethod
         string? sessionId = null,
         Guid? shipAddressId = null)
     {
+        // Assign: Generate a unique temporary identifier for the draft — replaced with permanent number at Finalize
         var order = new Order
         {
             Id = id ?? Guid.NewGuid(),

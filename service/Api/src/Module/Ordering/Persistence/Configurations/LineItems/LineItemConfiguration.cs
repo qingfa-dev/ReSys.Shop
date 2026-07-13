@@ -5,6 +5,7 @@ using Module.Ordering.Domain.LineItems;
 
 namespace Module.Ordering.Persistence.Configurations.LineItems;
 
+// @CAT-10 Boundary: Persistence → Domain — reserved for EF Core materialization; do not add domain logic
 public class LineItemConfiguration : IEntityTypeConfiguration<LineItem>
 {
     public void Configure(EntityTypeBuilder<LineItem> builder)
@@ -14,6 +15,7 @@ public class LineItemConfiguration : IEntityTypeConfiguration<LineItem>
         builder.HasKey(x => x.Id);
 
         #region Properties
+        // Initialize: Quantity defaults to 1; monetary fields use shared precision/scale constants
         builder.Property(x => x.Quantity)
             .IsRequired()
             .HasDefaultValue(LineItemConstant.Defaults.Quantity);

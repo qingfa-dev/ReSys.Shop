@@ -1,5 +1,7 @@
 namespace Module.Ordering.Persistence;
 
+// Context: Schema and table name constants for the Ordering module — referenced by EF Core configurations and migrations
+// @CAT-10 Boundary: Persistence → Database — schema namespace for all Ordering module tables
 public static class OrderingSchema
 {
     public const string Name = "ordering";

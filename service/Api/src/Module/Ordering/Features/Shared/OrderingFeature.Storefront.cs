@@ -2,6 +2,7 @@ namespace Module.Ordering.Features.Shared;
 
 public static partial class OrderingFeature
 {
+    // Context: Storefront API route and description metadata for Ordering module — consumed by Carter endpoints and OpenAPI
     public static class Storefront
     {
         public const string Route = "api/storefront";

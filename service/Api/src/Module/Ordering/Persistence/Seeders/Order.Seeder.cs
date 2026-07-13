@@ -11,22 +11,26 @@ using Shared.Security.Identity.Domain.Users;
 
 namespace Module.Ordering.Persistence.Seeders;
 
+// Initialize: Seed sample orders with line items, payments, and shipping for development and testing
 public sealed class OrderSeeder(IApplicationDbContext context) : AbstractDataSeeder(context)
 {
     public override int Order => 190;
 
     public override async Task<Result> SeedAsync(CancellationToken cancellationToken)
     {
+        // Check: Skip seeding if order data already exists
         var hasData = await HasDataAsync<Order>(cancellationToken);
         if (hasData)
             return Result.Ok();
 
+        // Acquire: Fetch reference data needed for order creation (users, variants, addresses, shipping, payment)
         var users = await Context.Set<User>().ToListAsync(cancellationToken);
         var variants = await Context.Set<Variant>().Where(v => !v.IsDeleted).ToListAsync(cancellationToken);
         var addresses = await Context.Set<Address>().ToListAsync(cancellationToken);
         var shippingMethod = await Context.Set<ShippingMethod>().FirstOrDefaultAsync(sm => sm.Code == "standard", cancellationToken);
         var creditCard = await Context.Set<PaymentMethod>().FirstOrDefaultAsync(pm => pm.Code == "credit_card", cancellationToken);
 
+        // Validate: Skip seeding if required reference data is missing
         if (users.Count == 0 || variants.Count == 0 || addresses.Count == 0 || shippingMethod is null || creditCard is null)
             return Result.Ok();
 
@@ -38,6 +42,7 @@ public sealed class OrderSeeder(IApplicationDbContext context) : AbstractDataSee
         if (admin is null || user1 is null || user2 is null)
             return Result.Ok();
 
+        // Create: Seed orders for admin and test users with randomized line items and full payment lifecycle
         await CreateOrder(admin, "DICKY", "DY", shippingMethod, creditCard, storeId, addresses, variants, cancellationToken);
         await CreateOrder(user1, "USER1", "U1", shippingMethod, creditCard, storeId, addresses, variants, cancellationToken);
         await CreateOrder(user2, "USER2", "U2", shippingMethod, creditCard, storeId, addresses, variants, cancellationToken);
