@@ -137,7 +137,7 @@ Unknowns are marked `[TODO]`. Intent-dependent decisions are marked `[ASK USER]`
 | Add ubiquitous language glossary (§4.6) | ✅ Done | `04-domain-analysis.md` with 20+ defined terms |
 | Create Requirements Traceability Matrix | ✅ Done | `12-requirements-traceability-matrix.md` |
 | Provide multi-proposal options for pending questions | ✅ Done | `13-proposal-options.md` with 2–3 alternatives per question |
-| Apply recommended proposals to documents | ✅ Done | Ch 1 (MSc level), Ch 3 (justification prose), Ch 5 (normalization), Ch 8 (STRIDE table), Ch 10 (70% coverage), Ch 11 (ML metrics + skip user study), Ch 12 (TC IDs), 4 class diagrams |
+| Apply recommended proposals to documents | ✅ Done | Ch 1 (MSc level), Ch 3 (justification prose), Ch 5 (normalization), Ch 8 (controls table + deferred STRIDE), Ch 10 (70% coverage), Ch 11 (ML metrics + skip user study), Ch 12 (TC IDs), 4 class diagrams |
 
 ## Outstanding Questions ([ASK USER])
 
@@ -169,7 +169,7 @@ Unknowns are marked `[TODO]`. Intent-dependent decisions are marked `[ASK USER]`
 | 12 | **API standards**: JSON:API, OData, HAL? | **Not required** — Level 2 REST sufficient | `06-api-design.md:§6.1` |
 | 13 | **Sequence diagram format**: Formal UML? | Formal **Mermaid** sequence diagrams (3 flows) | `diagrams/sequence-*.mmd` |
 | 14 | **Full class diagram**: Entire Module assembly? | **No** — representative per-aggregate diagrams | `diagrams/class-*-aggregate.mmd` |
-| 15 | **Threat model**: STRIDE-per-element? | **Full STRIDE table** for Order, PaymentIntent, JWT | `08-security-design.md:§8.1a` |
+| 15 | **Threat model**: STRIDE-per-element? | **Defense-in-depth controls table** only; exhaustive STRIDE prepared but deferred unless examiner requests | `08-security-design.md:§8.1a` |
 | 16 | **GDPR privacy-by-design**: Data retention docs? | **Omitted** — not top concern | `04-domain-analysis.md:§4.2` |
 | 17 | **Deployment diagram**: Cloud vendor icons? | **Conceptual** deployment (generic containers) | `09-deployment-design.md:§9.1.3` |
 | 18 | **Cloud platform target**: AWS/Azure/GCP? | **Generic** — no vendor named | `09-deployment-design.md:§9.1.3` |

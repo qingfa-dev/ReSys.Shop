@@ -68,7 +68,7 @@ cd service/Embedding && uv run ruff check . && uv run pytest  # Python verificat
 - Dev JWT secret for non-Development environments is rejected by `JwtSettingsValidator` (commit `770b6a06`); dev secrets live in `dotnet user-secrets` (id `resys.shop.api`), bootstrapped via `service/Api/scripts/setup-dev-secrets.sh`
 - `app/ReSys.Admin/` is a legacy admin SPA (npm, older deps) — use `app/Admin/` (pnpm) instead
 - `ValidateVerticalSliceIsolation` build target is disabled (`Condition="false"` in `Directory.Build.targets:44`)
-- No CI/CD pipeline configured yet — add GH Actions workflow for `dotnet build`, `dotnet test`, frontend lint/test
+- CI/CD is partial — `.github/workflows/ci.yml` runs build, unit tests, and lint on PR/push, but integration tests (Testcontainers) and deployment are not yet automated
 - No Dockerfiles — Aspire manages containers for local dev only
 - `Embedding/build/lib/` contains stale build artifacts — should be gitignored
 - `.harness/domains.yml` LOC counts may drift from actual codebase — re-measure after significant changes

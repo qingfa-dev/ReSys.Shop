@@ -175,7 +175,7 @@ In-depth documentation lives in [`docs/codebase/`](docs/codebase/):
 - **Admin SPA** — Layout infrastructure (topbar, sidebar, breadcrumb) and auth routes are in place; feature views are being implemented
 - **Embedding service** — Module structure is defined; runtime imports are resolved; end-to-end verification pending
 - **Dockerfiles** — No container images yet; deployment uses CLI commands
-- **CI/CD** — No pipeline configured; builds and tests run manually
+- **CI/CD** — Partial pipeline (`.github/workflows/ci.yml`) runs build, unit tests, and lint on PR/push; integration tests and deployment are not yet automated
 
 ---
 

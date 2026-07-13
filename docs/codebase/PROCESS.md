@@ -20,7 +20,7 @@ Without periodic GC, agent-generated code drifts. GC targets three categories:
 | Category | What to look for | Frequency | Action |
 |----------|-----------------|-----------|--------|
 | **Pattern drift** | Files that don't match the vertical-slice naming (e.g. single `CreateProduct.cs` without split files) | Quarterly | Refactor to split or add to `quality.yml` gap list |
-| **Empty directories** | `Infrastructure/Gateways/{Stripe,Bogus}/`, `Webhooks/{Backgrounds,Domain,Persistence,Services}/` — dead/placeholder trees | Monthly | Remove or document intent in a feature plan |
+| **Empty directories** | `find service/Api/src/Module -type d -empty` — any newly empty trees introduced by refactoring | Monthly | Remove or document intent in a feature plan |
 | **Accumulated helpers** | Duplicate `string.IsNullOrEmpty` guards, duplicate `Result` factory methods, copy-pasted Loggers classes | Quarterly | Extract into `Shared/` abstractions |
 
 **GC sweep command**:

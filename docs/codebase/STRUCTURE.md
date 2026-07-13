@@ -27,7 +27,7 @@
 | `LICENSE` | MIT license | `LICENSE` (1.0 KB) |
 | `README.md` | Project intent, getting-started, stack, structure overview | `README.md:1-184` |
 
-> Note: `plan/`, `.harness/`, and `infra/Storage/` directories are referenced by `AGENTS.md` and `.gitignore` but are absent or empty on disk; see `CONCERNS.md` (`AGENTS.md:13-19` vs `ls -la /home/qingfa/Repos/ReSys.Shop/plan/`).
+> Note: `.harness/` exists with machine-readable domain boundaries and quality baselines. `plan/` contains implementation plan files. `infra/Storage/` remains absent on disk.
 
 ### 2) Entry Points
 

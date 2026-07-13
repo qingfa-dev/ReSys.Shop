@@ -16,52 +16,11 @@
 
 **Evidence**: `appsettings.json:30-155`, `Shared/Security/`
 
-## 8.1a STRIDE Threat Model
+## 8.1a Threat Model Approach
 
-A structured threat analysis was conducted on the three most critical system elements using the **STRIDE** methodology (Microsoft, 2003). For each element, the six threat categories are assessed and mapped to existing mitigations.
+**Decision**: The thesis documents a **defense-in-depth controls table** (§8.1) rather than an exhaustive per-element STRIDE analysis. The rationale is that the security contribution of this thesis is architectural — explicit error handling, permission-based authorization, and JWT token design — rather than a dedicated security research contribution. A full STRIDE threat model across all 18 entity types would add ~5 pages without advancing the primary thesis argument.
 
-### Order Entity (Ordering Context)
-
-| Threat | Risk | Current Mitigation | Gap |
-|--------|------|-------------------|-----|
-| **S**poofing | Attacker creates fake orders using stolen session or guest cookie | Guest session cookie (`HttpOnly`, `Secure`, `SameSite=Lax`); JWT Bearer auth for authenticated users; `ICurrentUser` context validated in every handler | None |
-| **T**ampering | Attacker modifies order total, line item prices, or status after creation | `Order` total is computed by domain method, not set directly; `Total = ItemTotal + AdjustmentTotal + ShipmentTotal` invariant enforced; RepeatableRead transaction during checkout prevents interleaved writes | None |
-| **R**epudiation | Customer or admin denies placing/canceling an order | `IAuditable` interceptor records `CreatedBy`, `ModifiedBy`, `CreatedAtUtc`, `ModifiedAtUtc` on every entity; `CanceledById` and `CanceledAtUtc` on Order | None |
-| **I**nfo Disclosure | Attacker views another user's order history | Orders are queried scoped by `UserId` or `SessionId` (composite indexes); `HasPermission` attribute on admin endpoints restricts cross-user access | None |
-| **D**oS | Attacker floods checkout endpoint with empty carts | Rate-limit policy `payment: 30/min`; cart validation rejects empty carts; no resource exhaustion from cart creation | None |
-| **E**levation | Attacker escalates from customer to admin to modify any order | Permission-based authorization: admin endpoints require `ordering:orders:cancel` permission; `PermissionPolicyProvider` enforces claim checks | None |
-
-### PaymentIntent Entity (Payment Context)
-
-| Threat | Risk | Current Mitigation | Gap |
-|--------|------|-------------------|-----|
-| **S**poofing | Attacker sends fake Stripe webhook to mark order as paid | Stripe webhook signature validation (`Stripe-Signature` header verified with `WebhookSecret`); invalid signature → `StripeWebhookResult.Errors.InvalidSignature` | None |
-| **T**ampering | Attacker modifies payment amount after intent creation | PaymentIntent `Amount` and `Currency` are set at creation and protected by EF Core change tracking; captured amount is recorded in `PaymentCapture` and cannot be altered post-capture | None |
-| **R**epudiation | Merchant or customer disputes payment/refund | `PaymentCapture` records `GatewayCaptureId`, `CreatedAtUtc`; all payment state transitions are auditable; `Order.PaymentState` tracks lifecycle | None |
-| **I**nfo Disclosure | Attacker obtains `ClientSecret` of another user's payment intent | `ClientSecret` is only returned to the authenticated user who owns the order (scoped by `UserId`); not stored in client-side logs | None |
-| **D**oS | Stripe webhook retry storm after timeout | `StripeWebhook.cs` processes synchronously (acknowledge quickly recommended in CONCERNS.md); no persistent queue starvation | ⚠️ Webhook should acknowledge immediately and enqueue to Hangfire |
-| **E**levation | Attacker captures/refunds a payment without admin rights | Admin endpoints (`CapturePayment`, `RefundPayment`, `VoidPayment`) require `payment:captures:create` permission; `HasPermission` enforced by `PermissionPolicyProvider` | None |
-
-### JWT Token (Authentication Context)
-
-| Threat | Risk | Current Mitigation | Gap |
-|--------|------|-------------------|-----|
-| **S**poofing | Attacker forges JWT access token | Signed with HS256 and `Authentication__Jwt__Secret` (32+ character random string); `JwtSettingsValidator` rejects weak/dev secrets in non-Development environments | None |
-| **T**ampering | Attacker modifies JWT claims (e.g., `sub` to another user ID) | HS256 signature verification rejects tampered tokens; ASP.NET Identity middleware validates signature before parsing claims | None |
-| **R**epudiation | User denies login or token refresh | `UserToken` table records every token issuance with timestamp and `TokenType`; refresh-token reuse detection flags anomalous patterns | None |
-| **I**nfo Disclosure | JWT secret leaked in source code or logs | Secret lives in `dotnet user-secrets` (dev) or environment variables (production); `appsettings.json` contains only `""` placeholder; `SensitiveHeaders` in observability config redacts `Authorization` from traces | None |
-| **D**oS | Attacker floods token refresh endpoint to exhaust Redis blacklist | Rate-limit policy `auth: 5/min` on login/refresh endpoints; Redis blacklist stores only revoked token `jti` (compact, O(1) lookup) | None |
-| **E**levation | Attacker obtains admin permissions by modifying JWT claims | Claims are derived from the database at token creation time (not client-supplied); `PermissionPolicyProvider` resolves permissions from claims, not from the token payload directly | None |
-
-### Threat Model Summary
-
-| Element | Total Threats | Mitigated | Gaps | Risk Level |
-|---------|--------------|-----------|------|------------|
-| **Order** | 6 | 6 | 0 | Low |
-| **PaymentIntent** | 6 | 5 | 1 (webhook async processing) | Low-Medium |
-| **JWT Token** | 6 | 6 | 0 | Low |
-
-**Design rationale**: The STRIDE analysis confirms that the layered security controls (§8.1) provide defense-in-depth against all major threat categories. The single identified gap — synchronous Stripe webhook processing — is documented as a performance concern in `CONCERNS.md` with a recommended refactor to asynchronous Hangfire processing.
+**If required by examiner**: A structured STRIDE analysis for the three most critical elements (Order, PaymentIntent, JWT Token) is prepared and can be appended as a supplementary document. It maps Spoofing, Tampering, Repudiation, Info Disclosure, DoS, and Elevation threats to the existing mitigations and identifies one gap (synchronous Stripe webhook processing, already tracked in `CONCERNS.md`).
 
 **Evidence**: `Shared/Security/Authentication/Tokens/Tokens.Extensions.cs:33-88`, `Module/Payment/Features/Storefront/Payment/Webhooks/StripeWebhook.cs:32-36`, `Shared/Security/Authorization/Policies/Permission.PolicyProvider.cs:1-31`, `CONCERNS.md:§2`
 

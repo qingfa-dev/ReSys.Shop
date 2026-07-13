@@ -42,6 +42,8 @@
   # Open ApiTests/run-all.http in VS Code (REST Client) or JetBrains HTTP Client
   ```
 
+- **CI automation:** `.github/workflows/ci.yml` runs `dotnet build`, `dotnet test` (unit only), `pnpm run lint && pnpm run test:unit` for both SPAs, and `uv run ruff check . && uv run pytest` on every PR/push to `dev` and `main`. Integration tests (Testcontainers) are **not** currently run in CI.
+
 ### 2) Test Layout
 
 - **C# unit tests (Module / Shared):** Mirror the source tree under `service/Api/tests/Module.UnitTests/<Module>/Features/<Admin|Storefront>/<Feature>/<Action>/` (e.g. `Module.UnitTests/Catalog/Features/Admin/Products/Create/CreateProduct.Tests.cs:1-5`).

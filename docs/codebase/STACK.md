@@ -139,6 +139,7 @@
 | vite 8.0.16 | Build/dev server | `app/Admin/package.json:63`, `app/Store/package.json:49` |
 | vue-tsc 3.3.5 | Type-check Vue SFCs | `app/Admin/package.json:66`, `app/Store/package.json:51` |
 | pytest >=8, httpx >=0.28, ruff >=0.15.20 | Embedding-side tests + lint | `service/Embedding/pyproject.toml:53-55` |
+| GitHub Actions CI (`ci.yml`) | PR/push automation: `dotnet build`, unit tests, frontend lint + test, Python lint + test | `.github/workflows/ci.yml:1-65` |
 | `.editorconfig` (root) | Cross-language formatting rules | `.editorconfig:1-389` |
 
 ### 4) Key Commands
@@ -185,7 +186,7 @@ dotnet run --project infra/Aspire/src/ReSys.AppHost
 - **Required env vars (from template):** `ConnectionStrings__DefaultConnection`, `Authentication__Jwt__Secret`, `Authentication__Google__ClientId`, `Cors__Origins`, `Cors__AllowCredentials`, `Storage__Providers__Local__LocalPath`, `Notification__Channels__Email__*`, `BackgroundJobs__CachingEnabled`, `OTEL_EXPORTER_OTLP_ENDPOINT`, `VITE_API_URL` — `service/Api/src/Api/.env.template:5-33`
 - **Frontend env files:** `app/Admin/.env.development`, `app/Store/.env.development` (Vite proxy target via `VITE_API_URL`, default `http://localhost:5035` per `app/Admin/vite.config.ts:51`)
 - **Launch profile ports:** `service/Api/src/Api/Properties/launchSettings.json:6-18` (http `http://localhost:5035`, https `https://localhost:7106`)
-- **Deployment/runtime constraints:** Aspire orchestrates locally; no Dockerfiles, no CI pipeline (`docs/codebase/.codebase-scan.txt:336-339`).
+- **Deployment/runtime constraints:** Aspire orchestrates locally; no Dockerfiles. CI pipeline (`ci.yml`) runs build + unit tests + lint on PR/push, but integration tests and deployment are not yet automated (`docs/codebase/.codebase-scan.txt:336-339`, `.github/workflows/ci.yml:1-65`).
 
 ### 6) Evidence
 

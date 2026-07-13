@@ -25,7 +25,7 @@ public class DeleteTaxonomyTests : IDisposable
 
         _senderMock = new Mock<ISender>();
         _senderMock.Setup(x => x.Send(It.IsAny<DeleteTaxon.Command>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(Result<DeleteTaxon.Response>.Ok(new DeleteTaxon.Response { Id = Guid.NewGuid() }));
+            .ReturnsAsync(Result.Ok(TaxonResult.Success.Deleted));
 
         _handler = new DeleteTaxonomy.CommandHandler(_dbContext, _senderMock.Object);
     }

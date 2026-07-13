@@ -63,7 +63,6 @@ public class DeleteTaxonTests : IDisposable
         var result = await _handler.Handle(new DeleteTaxon.Command(taxonomy.Id, taxon.Id), TestContext.Current.CancellationToken);
 
         result.IsSuccess.Should().BeTrue();
-        result.Value.Id.Should().Be(taxon.Id);
 
         var persisted = await _dbContext.Set<Taxon>()
             .IgnoreQueryFilters()

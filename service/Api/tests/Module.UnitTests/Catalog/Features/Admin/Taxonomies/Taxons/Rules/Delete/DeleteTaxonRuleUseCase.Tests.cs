@@ -55,8 +55,6 @@ public class DeleteTaxonRuleTests : IDisposable
         var result = await _handler.Handle(new DeleteTaxonRule.Command(taxonomy.Id, taxon.Id, rule.Id), TestContext.Current.CancellationToken);
 
         result.IsSuccess.Should().BeTrue();
-        result.Value.Id.Should().Be(rule.Id);
-
         var deleted = await _dbContext.Set<TaxonRule>().FindAsync([rule.Id], TestContext.Current.CancellationToken);
         deleted.Should().BeNull();
 

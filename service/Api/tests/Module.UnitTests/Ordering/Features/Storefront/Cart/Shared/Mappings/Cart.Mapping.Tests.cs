@@ -20,10 +20,23 @@ public class CartMappingTests
         response.Id.Should().Be(cart.Id);
     }
 
-    [Fact(
-        DisplayName = "MapToDetail: Enrich with real property mapping",
-        Skip = "CartMapping.MapToDetail<T> is a stub returning defaults. Enrich mapping first.")]
+    [Fact(DisplayName = "MapToDetail: Should map all properties from Order entity")]
     public void MapToDetail_ShouldMapAllProperties()
     {
+        var cart = OrderMethod.Create("USD", Guid.NewGuid(), Guid.Empty).Value;
+        cart.ItemTotal = 100m;
+        cart.Total = 120m;
+        cart.ItemCount = 3;
+        cart.CheckoutState = CheckoutState.Delivery;
+
+        var response = cart.MapToDetail<CartDetailResponse>();
+
+        response.Should().NotBeNull();
+        response.Id.Should().Be(cart.Id);
+        response.ItemTotal.Should().Be(100m);
+        response.Total.Should().Be(120m);
+        response.Currency.Should().Be("USD");
+        response.ItemCount.Should().Be(3);
+        response.CheckoutState.Should().Be("Delivery");
     }
 }

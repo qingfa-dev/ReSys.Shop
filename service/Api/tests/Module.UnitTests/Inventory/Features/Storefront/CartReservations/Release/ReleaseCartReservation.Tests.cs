@@ -70,7 +70,6 @@ public class ReleaseCartReservationTests : IDisposable
             TestContext.Current.CancellationToken);
 
         result.IsSuccess.Should().BeTrue();
-        result.Value.State.Should().Be("Released");
 
         var updated = await _dbContext.Set<StockReservation>().FindAsync([reservation.Id], TestContext.Current.CancellationToken);
         updated!.State.Should().Be(ReservationState.Released);

@@ -62,7 +62,6 @@ public class DeleteUserTests : IDisposable
 
         // Assert
         result.IsSuccess.Should().BeTrue();
-        result.Value.UserName.Should().Be("testuser");
 
         _userManagerMock.Verify(m => m.DeleteAsync(user), Times.Once);
     }
