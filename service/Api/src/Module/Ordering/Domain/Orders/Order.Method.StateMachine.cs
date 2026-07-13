@@ -156,7 +156,9 @@ public static partial class OrderMethod
             otherOrder.LineItems.Clear();
         }
 
-        order.RecalculateTotals();
+        var recalcResult = order.RecalculateTotals();
+        if (recalcResult.IsFailure)
+            return recalcResult.Errors;
 
         return Result.Ok(OrderResult.Success.Merged(order.Id));
     }
