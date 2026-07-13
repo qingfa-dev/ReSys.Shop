@@ -36,7 +36,9 @@ public static partial class UpdateOrderLineItem
                 return updateResult.Errors;
 
             // Update: Recalculate order totals after line item quantity change.
-            order.RecalculateTotals();
+            var recalcResult = order.RecalculateTotals();
+            if (recalcResult.IsFailure)
+                return recalcResult.Errors;
 
             await dbContext.SaveChangesAsync(cancellationToken);
 

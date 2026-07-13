@@ -113,7 +113,9 @@ public static partial class AddToCart
                 // Update: Increment existing line item quantity and recalculate.
                 existingLine.Quantity += request.Quantity;
                 existingLine.Total = existingLine.Price * existingLine.Quantity;
-                cart.RecalculateTotals();
+                var recalcResult = cart.RecalculateTotals();
+                if (recalcResult.IsFailure)
+                    return recalcResult.Errors;
                 await dbContext.SaveChangesAsync(cancellationToken);
                 return Result<Response>.Ok(new Response { LineItemId = existingLine.Id });
             }
@@ -126,7 +128,9 @@ public static partial class AddToCart
             var newItem = lineItem.Value;
 
             dbContext.Set<LineItem>().Add(newItem);
-            cart.RecalculateTotals();
+            var addRecalcResult = cart.RecalculateTotals();
+            if (addRecalcResult.IsFailure)
+                return addRecalcResult.Errors;
 
             await dbContext.SaveChangesAsync(cancellationToken);
 

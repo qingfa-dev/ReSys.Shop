@@ -25,7 +25,9 @@ public static partial class UpdateOrderShippingMethod
             // Update: Assign the shipping method, reset shipment total, and recalculate all totals.
             order.ShippingMethodId = command.Request.ShippingMethodId;
             order.ShipmentTotal = 0;
-            order.RecalculateTotals();
+            var recalcResult = order.RecalculateTotals();
+            if (recalcResult.IsFailure)
+                return recalcResult.Errors;
             order.ModifiedAtUtc = DateTimeOffset.UtcNow;
 
             await dbContext.SaveChangesAsync(cancellationToken);

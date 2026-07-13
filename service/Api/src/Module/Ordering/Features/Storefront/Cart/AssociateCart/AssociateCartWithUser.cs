@@ -62,7 +62,9 @@ public static partial class AssociateCartWithUser
             }
 
             var targetOrder = userOrder ?? guestOrder;
-            targetOrder.RecalculateTotals();
+            var recalcResult = targetOrder.RecalculateTotals();
+            if (recalcResult.IsFailure)
+                return recalcResult.Errors;
             await dbContext.SaveChangesAsync(cancellationToken);
 
             return new Response { Id = targetOrder.Id, ItemCount = targetOrder.ItemCount };

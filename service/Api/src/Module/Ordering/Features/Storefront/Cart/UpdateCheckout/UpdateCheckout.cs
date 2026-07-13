@@ -100,7 +100,9 @@ public static partial class UpdateCheckout
                 }
             }
 
-            cart.RecalculateTotals();
+            var recalcResult = cart.RecalculateTotals();
+            if (recalcResult.IsFailure)
+                return recalcResult.Errors;
             await dbContext.SaveChangesAsync(cancellationToken);
 
             return Result.Ok();

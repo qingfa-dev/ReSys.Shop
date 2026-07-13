@@ -30,7 +30,9 @@ public static partial class AddOrderLineItem
             if (order is not null)
             {
                 // Update: Recalculate order totals after adding line item.
-                order.RecalculateTotals();
+                var recalcResult = order.RecalculateTotals();
+                if (recalcResult.IsFailure)
+                    return recalcResult.Errors;
             }
 
             await dbContext.SaveChangesAsync(cancellationToken);

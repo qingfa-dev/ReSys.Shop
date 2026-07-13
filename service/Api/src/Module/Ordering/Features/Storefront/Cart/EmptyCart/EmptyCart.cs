@@ -42,7 +42,9 @@ public static partial class EmptyCart
             if (result.IsFailure)
                 return result.Errors;
 
-            cart.RecalculateTotals();
+            var recalcResult = cart.RecalculateTotals();
+            if (recalcResult.IsFailure)
+                return recalcResult.Errors;
             await dbContext.SaveChangesAsync(cancellationToken);
             return Result.Ok();
         }

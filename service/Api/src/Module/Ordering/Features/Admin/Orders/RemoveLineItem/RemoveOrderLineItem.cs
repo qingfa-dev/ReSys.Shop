@@ -28,7 +28,9 @@ public static partial class RemoveOrderLineItem
             // Remove: Delete entity from database.
             dbContext.Set<LineItem>().Remove(lineItem);
             // Update: Recalculate order totals after removing the line item.
-            order.RecalculateTotals();
+            var recalcResult = order.RecalculateTotals();
+            if (recalcResult.IsFailure)
+                return recalcResult.Errors;
             await dbContext.SaveChangesAsync(cancellationToken);
             return Result.Ok(LineItemResult.Success.Removed(command.LineItemId));
         }

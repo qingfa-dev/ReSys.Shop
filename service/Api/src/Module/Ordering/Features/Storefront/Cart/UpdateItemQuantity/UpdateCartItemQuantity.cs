@@ -53,7 +53,9 @@ public static partial class UpdateCartItemQuantity
             // Update: Modify quantity and total.
             lineItem.Quantity = command.Request.Quantity;
             lineItem.Total = lineItem.Price * command.Request.Quantity;
-            cart.RecalculateTotals();
+            var recalcResult = cart.RecalculateTotals();
+            if (recalcResult.IsFailure)
+                return recalcResult.Errors;
 
             await dbContext.SaveChangesAsync(cancellationToken);
 

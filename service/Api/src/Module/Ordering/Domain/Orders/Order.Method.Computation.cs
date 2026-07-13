@@ -6,7 +6,7 @@ public static partial class OrderMethod
 {
     #region Computations
 
-    public static void RecalculateTotals(this Order order)
+    public static Result RecalculateTotals(this Order order)
     {
         order.ItemCount = order.LineItems.Sum(li => li.Quantity);
         order.ItemTotal = order.LineItems.Sum(li => li.Total);
@@ -18,6 +18,7 @@ public static partial class OrderMethod
             .Sum(a => a.Amount);
         order.Total = order.ItemTotal + order.ShipmentTotal + order.AdjustmentTotal;
         order.OutstandingBalance = order.Total - order.PaymentTotal;
+        return Result.Ok(OrderResult.Success.Recalculated(order.Id));
     }
 
     public static void UpdatePaymentState(this Order order)

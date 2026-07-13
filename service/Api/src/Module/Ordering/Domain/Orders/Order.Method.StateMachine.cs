@@ -22,7 +22,9 @@ public static partial class OrderMethod
 
         order.Status = OrderStatus.Placed;
         order.CompletedAtUtc = DateTimeOffset.UtcNow;
-        order.RecalculateTotals();
+        var recalcResult = order.RecalculateTotals();
+        if (recalcResult.IsFailure)
+            return recalcResult.Errors;
 
         return Result.Ok(OrderResult.Success.Finalized(order.Id));
     }

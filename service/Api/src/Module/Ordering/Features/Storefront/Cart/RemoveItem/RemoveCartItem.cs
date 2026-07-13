@@ -42,7 +42,9 @@ public static partial class RemoveCartItem
             cart.LineItems.Remove(lineItem);
             dbContext.Set<Module.Ordering.Domain.LineItems.LineItem>().Remove(lineItem);
             // Update: Recalculate order totals after item removal.
-            cart.RecalculateTotals();
+            var recalcResult = cart.RecalculateTotals();
+            if (recalcResult.IsFailure)
+                return recalcResult.Errors;
             await dbContext.SaveChangesAsync(cancellationToken);
 
             return Result.Ok();
