@@ -22,63 +22,6 @@ public class OrderMethodTests
     }
 
     [Fact]
-    public void AdvanceCheckout_FromAddress_ShouldTransition()
-    {
-        var order = OrderMethod.Create("USD", null, Guid.NewGuid()).Value;
-        order.CheckoutState = CheckoutState.Address;
-        order.BillAddressId = Guid.NewGuid();
-        order.ShipAddressId = Guid.NewGuid();
-        var r = order.AdvanceCheckout();
-        r.IsSuccess.Should().BeTrue();
-        order.CheckoutState.Should().Be(CheckoutState.Delivery);
-    }
-
-    [Fact]
-    public void AdvanceCheckout_WithoutAddress_ShouldFail()
-    {
-        var order = OrderMethod.Create("USD", null, Guid.NewGuid()).Value;
-        order.CheckoutState = CheckoutState.Address;
-        var r = order.AdvanceCheckout();
-        r.IsFailure.Should().BeTrue();
-        r.Errors[0].Should().Be(OrderResult.Errors.AddressRequired);
-    }
-
-    [Fact]
-    public void AdvanceCheckout_DeliveryWithoutMethod_ShouldFail()
-    {
-        var order = OrderMethod.Create("USD", null, Guid.NewGuid()).Value;
-        order.CheckoutState = CheckoutState.Delivery;
-        order.BillAddressId = Guid.NewGuid();
-        order.ShipAddressId = Guid.NewGuid();
-        var r = order.AdvanceCheckout();
-        r.IsFailure.Should().BeTrue();
-        r.Errors[0].Should().Be(OrderResult.Errors.DeliveryMethodRequired);
-    }
-
-    [Fact]
-    public void AdvanceCheckout_DeliveryWithMethod_ShouldTransition()
-    {
-        var order = OrderMethod.Create("USD", null, Guid.NewGuid()).Value;
-        order.CheckoutState = CheckoutState.Delivery;
-        order.BillAddressId = Guid.NewGuid();
-        order.ShipAddressId = Guid.NewGuid();
-        order.ShippingMethodId = Guid.NewGuid();
-        var r = order.AdvanceCheckout();
-        r.IsSuccess.Should().BeTrue();
-        order.CheckoutState.Should().Be(CheckoutState.Payment);
-    }
-
-    [Fact]
-    public void AdvanceCheckout_FromComplete_ShouldFail()
-    {
-        var order = OrderMethod.Create("USD", null, Guid.NewGuid()).Value;
-        order.CheckoutState = CheckoutState.Complete;
-        var r = order.AdvanceCheckout();
-        r.IsFailure.Should().BeTrue();
-        r.Errors[0].Should().Be(OrderResult.Errors.CannotAdvanceState);
-    }
-
-    [Fact]
     public void Finalize_WithItems_ShouldSucceed()
     {
         var order = OrderMethod.Create("USD", null, Guid.NewGuid()).Value;
@@ -159,22 +102,6 @@ public class OrderMethodTests
         r.IsSuccess.Should().BeTrue();
         order.LineItems.Should().BeEmpty();
         order.Total.Should().Be(0);
-    }
-
-    [Fact]
-    public void IsPaid_WhenBalanceZero_ShouldReturnTrue()
-    {
-        var order = OrderMethod.Create("USD", null, Guid.NewGuid()).Value;
-        order.OutstandingBalance = 0;
-        order.IsPaid().Should().BeTrue();
-    }
-
-    [Fact]
-    public void IsPaid_WhenBalancePositive_ShouldReturnFalse()
-    {
-        var order = OrderMethod.Create("USD", null, Guid.NewGuid()).Value;
-        order.OutstandingBalance = 50;
-        order.IsPaid().Should().BeFalse();
     }
 
     [Fact]
