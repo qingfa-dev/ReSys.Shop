@@ -7,6 +7,7 @@ using Module.Payment.Domain.PaymentCaptures;
 using Module.Profile.Domain;
 using Module.Profile.Domain.Addresses;
 using Module.Shipping.Domain.ShippingMethods;
+
 using Shared.Security.Identity.Domain.Users;
 
 namespace Module.Ordering.Persistence.Seeders;

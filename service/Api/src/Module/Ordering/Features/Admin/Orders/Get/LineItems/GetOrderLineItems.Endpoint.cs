@@ -1,6 +1,7 @@
 using Module.Ordering.Features.Shared;
 
 namespace Module.Ordering.Features.Admin.Orders.Get.LineItems;
+
 public static partial class GetOrderLineItems
 {
     public class Endpoint : ICarterModule

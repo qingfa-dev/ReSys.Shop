@@ -1,6 +1,7 @@
 using Module.Ordering.Features.Shared;
 
 namespace Module.Ordering.Features.Admin.Orders.Delete;
+
 public static partial class DeleteOrder
 {
     public class Endpoint : ICarterModule

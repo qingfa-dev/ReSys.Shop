@@ -5,7 +5,7 @@ namespace Module.Ordering.Features.Admin.Orders.Create;
 public static partial class CreateOrder
 {
     public sealed record Request : OrderRequest
-{
-    public Guid StoreId { get; set; }
-}
+    {
+        public Guid StoreId { get; set; }
+    }
 }

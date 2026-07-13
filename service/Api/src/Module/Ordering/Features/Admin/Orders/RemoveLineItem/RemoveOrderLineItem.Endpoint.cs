@@ -1,6 +1,7 @@
 using Module.Ordering.Features.Shared;
 
 namespace Module.Ordering.Features.Admin.Orders.RemoveLineItem;
+
 public static partial class RemoveOrderLineItem
 {
     public class Endpoint : ICarterModule

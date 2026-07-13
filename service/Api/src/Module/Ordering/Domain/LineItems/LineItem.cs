@@ -1,5 +1,6 @@
 using Shared.Application.Domain.Concerns.Auditable;
 using Shared.Application.Domain.Models;
+
 using Module.Ordering.Domain.Orders;
 
 namespace Module.Ordering.Domain.LineItems;

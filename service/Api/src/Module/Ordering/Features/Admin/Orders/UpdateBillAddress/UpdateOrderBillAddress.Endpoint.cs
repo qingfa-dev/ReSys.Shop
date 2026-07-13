@@ -1,6 +1,7 @@
 using Module.Ordering.Features.Shared;
 
 namespace Module.Ordering.Features.Admin.Orders.UpdateBillAddress;
+
 public static partial class UpdateOrderBillAddress
 {
     public class Endpoint : ICarterModule

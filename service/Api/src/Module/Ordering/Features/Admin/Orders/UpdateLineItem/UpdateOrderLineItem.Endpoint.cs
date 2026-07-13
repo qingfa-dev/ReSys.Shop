@@ -1,6 +1,7 @@
 using Module.Ordering.Features.Shared;
 
 namespace Module.Ordering.Features.Admin.Orders.UpdateLineItem;
+
 public static partial class UpdateOrderLineItem
 {
     public class Endpoint : ICarterModule

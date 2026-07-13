@@ -1,6 +1,7 @@
 using Module.Ordering.Features.Shared;
 
 namespace Module.Ordering.Features.Admin.Orders.Cancel;
+
 public static partial class CancelOrderAdmin
 {
     public class Endpoint : ICarterModule
