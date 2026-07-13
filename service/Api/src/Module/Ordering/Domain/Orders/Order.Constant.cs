@@ -12,12 +12,16 @@ public static class OrderConstant
         public const int MaxSpecialInstructionsLength = 2000;
         public const int Precision = 18;
         public const int Scale = 2;
+        public const int MaxLineItems = 100;
+        public const int MaxAdjustments = 50;
     }
 
     public static class Defaults
     {
         public const string Currency = "USD";
         public const string CreatedBy = "System";
+        public const string PaymentState = "pending";
+        public const string ShipmentState = "pending";
     }
 
     public static class PaymentState

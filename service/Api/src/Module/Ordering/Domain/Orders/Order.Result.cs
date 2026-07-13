@@ -31,6 +31,10 @@ public static class OrderResult
         public static string Updated(Guid id) => $"Order with ID '{id}' was successfully updated.";
         /// <summary>Order was marked as completed.</summary>
         public static string Completed(Guid id, string by) => $"Order with ID '{id}' was completed by '{by}'.";
+        /// <summary>Guest cart was merged into user cart.</summary>
+        public static string Merged(Guid id) => $"Order with ID '{id}' was successfully merged.";
+        /// <summary>Checkout step was advanced.</summary>
+        public static string CheckoutAdvanced(Guid id) => $"Order with ID '{id}' checkout step was advanced.";
     }
 
     /// <summary>
@@ -70,16 +74,6 @@ public static class OrderResult
         public static Error AlreadyApproved => Error.Conflict(
             code: "Order.AlreadyApproved",
             message: "Order is already approved.");
-
-        /// <summary>Only placed orders can be completed.</summary>
-        public static Error CannotComplete => Error.Validation(
-            code: "Order.CannotComplete",
-            message: "Only placed orders can be completed.");
-
-        /// <summary>Only canceled orders can be resumed.</summary>
-        public static Error CannotResume => Error.Validation(
-            code: "Order.CannotResume",
-            message: "Only canceled orders can be resumed.");
 
         /// <summary>Only draft orders can be modified.</summary>
         public static Error NotDraft => Error.Validation(
@@ -123,30 +117,10 @@ public static class OrderResult
             code: "Order.DeliveryMethodRequired",
             message: "A delivery method must be selected before proceeding.");
 
-        /// <summary>A payment method must be selected before proceeding.</summary>
-        public static Error PaymentMethodRequired => Error.Validation(
-            code: "Order.PaymentMethodRequired",
-            message: "A payment method must be selected before proceeding.");
-
-        /// <summary>Order does not meet the minimum amount requirement.</summary>
-        public static Error MinimumOrderAmount => Error.Validation(
-            code: "Order.MinimumOrderAmount",
-            message: "Order does not meet the minimum amount requirement.");
-
         /// <summary>Cannot finalize an order with no items.</summary>
         public static Error EmptyOrderCannotFinalize => Error.Validation(
             code: "Order.EmptyOrderCannotFinalize",
             message: "Cannot finalize an order with no items.");
-
-        /// <summary>The selected shipping rate is not valid for this order.</summary>
-        public static Error ShippingRateInvalid => Error.Validation(
-            code: "Order.ShippingRate.Invalid",
-            message: "The selected shipping rate is not valid for this order.");
-
-        /// <summary>Cart session does not match the current user session.</summary>
-        public static Error CartSessionMismatch => Error.Conflict(
-            code: "Order.CartSession.Mismatch",
-            message: "Cart session does not match the current user session.");
 
         /// <summary>Email address is required for checkout.</summary>
         public static Error EmailRequired => Error.Validation(
@@ -209,6 +183,13 @@ public static class OrderResult
         public static Error OrderNumberGenerationFailed => Error.Validation(
             code: "Order.Number.GenerationFailed",
             message: "Failed to generate a unique order number after maximum retry attempts.");
+        #endregion
+
+        #region Constraints
+        /// <summary>Order has reached the maximum number of line items.</summary>
+        public static Error MaxLineItemsExceeded => Error.Validation(
+            code: "Order.LineItems.MaxExceeded",
+            message: $"Order cannot have more than {OrderConstant.Constraints.MaxLineItems} line items.");
         #endregion
 
         #region Auth
