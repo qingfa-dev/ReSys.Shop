@@ -4,7 +4,7 @@ namespace Module.Catalog.Features.Admin.OptionTypes.OptionValues.Update;
 
 public static partial class UpdateOptionValue
 {
-public record Response : OptionValueListItemResponse
+    public record Response : OptionValueListItemResponse
     {
     }
 }

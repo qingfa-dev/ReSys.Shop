@@ -4,5 +4,5 @@ namespace Module.Catalog.Features.Admin.Products.Update;
 
 public static partial class UpdateProduct
 {
-public record Response : ProductDetailResponse;
+    public record Response : ProductDetailResponse;
 }

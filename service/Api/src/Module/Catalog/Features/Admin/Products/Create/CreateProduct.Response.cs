@@ -4,5 +4,5 @@ namespace Module.Catalog.Features.Admin.Products.Create;
 
 public static partial class CreateProduct
 {
-public record Response : ProductDetailResponse;
+    public record Response : ProductDetailResponse;
 }

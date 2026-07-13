@@ -92,10 +92,10 @@ public partial class TaxonHierarchyService
     }
 
     private static Result DetectAndVerifySubtree(
-        Guid taxonId, int expectedDepth, 
+        Guid taxonId, int expectedDepth,
         Dictionary<Guid, Taxon> map,
         ILookup<Guid?, Taxon> childrenLookup,
-        HashSet<Guid> visited, 
+        HashSet<Guid> visited,
         HashSet<Guid> currentPath)
     {
         var taxon = map[taxonId];

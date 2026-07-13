@@ -4,7 +4,7 @@ namespace Module.Catalog.Features.Admin.Products.Update;
 
 public static partial class UpdateProduct
 {
-public record Request : ProductRequest
+    public record Request : ProductRequest
     {
         public string? Sku { get; init; }
         public new bool? TrackInventory { get; init; }

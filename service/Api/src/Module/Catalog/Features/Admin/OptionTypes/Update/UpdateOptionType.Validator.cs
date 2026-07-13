@@ -9,7 +9,7 @@ public static partial class UpdateOptionType
         public Validator()
         {
             RuleFor(x => x.Id).NotEmpty();
-            
+
             RuleFor(x => x.Request)
                 .ApplyOptionTypeParametersRules();
         }

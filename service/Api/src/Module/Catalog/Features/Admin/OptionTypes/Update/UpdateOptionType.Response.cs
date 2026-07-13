@@ -4,5 +4,5 @@ namespace Module.Catalog.Features.Admin.OptionTypes.Update;
 
 public static partial class UpdateOptionType
 {
-public record Response : OptionTypeDetailResponse;
+    public record Response : OptionTypeDetailResponse;
 }

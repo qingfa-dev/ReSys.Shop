@@ -8,6 +8,6 @@ public static partial class DeleteOptionValue
             EventId = 7,
             Level = LogLevel.Debug,
             Message = "[OptionValue.Deleted]: {Name} ({Id}) from option type {OptionTypeId} by {ActionBy}")]
-        public static partial void Deleted(ILogger logger, Guid Id, Guid OptionTypeId, string Name,  string? ActionBy);
+        public static partial void Deleted(ILogger logger, Guid Id, Guid OptionTypeId, string Name, string? ActionBy);
     }
 }

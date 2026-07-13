@@ -4,5 +4,5 @@ namespace Module.Catalog.Features.Storefront.OptionTypes.Get.All;
 
 public static partial class GetAllOptionTypes
 {
-public record Response : StoreOptionTypeResponse;
+    public record Response : StoreOptionTypeResponse;
 }

@@ -11,7 +11,7 @@ public static partial class GetProductDetail
 {
     public sealed record Query(string Slug) : IQuery<Response>;
 
-public record Response : StoreProductDetailResponse;
+    public record Response : StoreProductDetailResponse;
 
     public sealed class QueryHandler(
         IApplicationDbContext dbContext,

@@ -5,7 +5,7 @@ namespace Module.Catalog.Features.Admin.Products.Variants.Prices.Get;
 public static partial class ListPricesByVariant
 {
 
-    
+
     /// <summary>
     /// GET endpoint that lists prices for a variant with pagination.
     /// Route: api/catalog/products/variants/{variantId:guid}/prices

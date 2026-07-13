@@ -13,7 +13,7 @@ public static partial class GetRelatedProducts
 
     public record Parameters : QueryingParameters;
 
-public record Response : StoreProductListItemResponse;
+    public record Response : StoreProductListItemResponse;
 
     /// <summary>
     /// Retrieves related products for a given product using shared taxon strategy.

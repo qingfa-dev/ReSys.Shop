@@ -8,6 +8,6 @@ public static partial class ListVariantsByProduct
     {
         public List<Item> Items { get; init; } = [];
 
-public record Item : VariantDetailResponse;
+        public record Item : VariantDetailResponse;
     }
 }

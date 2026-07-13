@@ -4,5 +4,5 @@ namespace Module.Catalog.Features.Admin.OptionTypes.Get.ById;
 
 public static partial class GetOptionTypeById
 {
-public record Response : OptionTypeDetailResponse;
+    public record Response : OptionTypeDetailResponse;
 }

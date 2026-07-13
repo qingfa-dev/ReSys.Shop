@@ -4,5 +4,5 @@ namespace Module.Catalog.Features.Admin.OptionTypes.OptionValues.Get.Paged;
 
 public static partial class GetOptionValuesPaged
 {
-public record Response : OptionValueListItemResponse;
+    public record Response : OptionValueListItemResponse;
 }

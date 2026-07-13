@@ -4,5 +4,5 @@ namespace Module.Catalog.Features.Admin.Products.Variants.Update;
 
 public static partial class UpdateVariant
 {
-public record Response : VariantDetailResponse;
+    public record Response : VariantDetailResponse;
 }

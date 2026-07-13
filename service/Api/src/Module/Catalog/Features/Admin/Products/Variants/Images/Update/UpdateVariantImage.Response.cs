@@ -4,7 +4,7 @@ namespace Module.Catalog.Features.Admin.Products.Variants.Images.Update;
 
 public static partial class UpdateVariantImage
 {
-public sealed record Response : VariantImageDetailResponse
+    public sealed record Response : VariantImageDetailResponse
     {
     }
 }

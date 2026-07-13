@@ -4,5 +4,5 @@ namespace Module.Catalog.Features.Admin.Products.Discontinue;
 
 public static partial class DiscontinueProduct
 {
-public record Response : ProductDetailResponse;
+    public record Response : ProductDetailResponse;
 }

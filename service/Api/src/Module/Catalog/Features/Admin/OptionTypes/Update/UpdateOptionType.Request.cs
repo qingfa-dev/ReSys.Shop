@@ -4,7 +4,7 @@ namespace Module.Catalog.Features.Admin.OptionTypes.Update;
 
 public static partial class UpdateOptionType
 {
-public record Request : OptionTypeRequest
+    public record Request : OptionTypeRequest
     {
     }
 }

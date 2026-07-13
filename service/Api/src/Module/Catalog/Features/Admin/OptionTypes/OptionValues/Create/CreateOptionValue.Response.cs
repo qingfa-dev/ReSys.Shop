@@ -4,7 +4,7 @@ namespace Module.Catalog.Features.Admin.OptionTypes.OptionValues.Create;
 
 public static partial class CreateOptionValue
 {
-public record Response : OptionValueListItemResponse
+    public record Response : OptionValueListItemResponse
     {
     }
 }

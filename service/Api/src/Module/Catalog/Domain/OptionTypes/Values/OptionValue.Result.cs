@@ -16,49 +16,49 @@ public static class OptionValueResult
     {
         #region Validation
         /// <summary>Option type ID is required.</summary>
-        public static Error  OptionTypeIdRequired => Error.Validation(
+        public static Error OptionTypeIdRequired => Error.Validation(
             code: "OptionValue.OptionTypeId.Required",
             message: "Option type ID is required.");
 
         /// <summary>Name is required.</summary>
-        public static Error  NameRequired => Error.Validation(
+        public static Error NameRequired => Error.Validation(
             code: "OptionValue.Name.Required",
             message: "Name is required.");
 
         /// <summary>Name exceeds the maximum length.</summary>
-        public static Error  NameTooLong => Error.Validation(
+        public static Error NameTooLong => Error.Validation(
             code: "OptionValue.Name.TooLong",
             message: $"Name exceeds maximum length of {OptionValueConstant.Constraints.NameMaxLength} characters.");
 
         /// <summary>Presentation is required.</summary>
-        public static Error  PresentationRequired => Error.Validation(
+        public static Error PresentationRequired => Error.Validation(
             code: "OptionValue.Presentation.Required",
             message: "Presentation is required.");
 
         /// <summary>Presentation exceeds the maximum length.</summary>
-        public static Error  PresentationTooLong => Error.Validation(
+        public static Error PresentationTooLong => Error.Validation(
             code: "OptionValue.Presentation.TooLong",
             message: $"Presentation exceeds maximum length of {OptionValueConstant.Constraints.PresentationMaxLength} characters.");
 
         /// <summary>Position must be greater than or equal to the minimum.</summary>
-        public static Error  InvalidPosition => Error.Validation(
+        public static Error InvalidPosition => Error.Validation(
             code: "OptionValue.Position.Invalid",
             message: $"Position must be greater than or equal to {OptionValueConstant.Constraints.MinPosition}.");
         #endregion
 
         #region Business
         /// <summary>Option value was not found.</summary>
-        public static Error  NotFound => Error.NotFound(
+        public static Error NotFound => Error.NotFound(
             code: "OptionValue.NotFound",
             message: "Option value was not found.");
 
         /// <summary>Duplicate names found in the synchronization request.</summary>
-        public static Error  NameDuplicated => Error.Validation(
+        public static Error NameDuplicated => Error.Validation(
             code: "OptionValue.NameDuplicated",
             message: "Duplicate names found in the synchronization request.");
 
         /// <summary>Option value already exists for this option type.</summary>
-        public static Error  NameAlreadyExists => Error.Conflict(
+        public static Error NameAlreadyExists => Error.Conflict(
             code: "OptionValue.NameAlreadyExists",
             message: "Option value already exists for this option type.");
         #endregion

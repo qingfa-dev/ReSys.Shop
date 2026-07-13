@@ -473,127 +473,127 @@ public static partial class CatalogFeature
                         public static PermissionMetadata Permission => CatalogFeatureMetadata.Variants.ManagePrice;
                     }
 
-                public static class Sync
-                {
-                    public const string Route = $"{PriceBaseRoute}/sync";
-                    public const string Description = "Synchronize full price list for a variant (add/update/remove)";
-                    public const string Summary = "Sync variant prices";
-                    public static PermissionMetadata Permission => CatalogFeatureMetadata.Variants.ManagePrice;
-                }
-            }
-
-            public static class OptionValues
-            {
-                private const string OptionValueBaseRoute = $"{StandaloneBaseRoute}/{{variantId:guid}}/option-values";
-
-                public static class Get
-                {
-                    public const string Route = OptionValueBaseRoute;
-                    public const string Description = "Retrieve all option values with assignment status for a variant";
-                    public const string Summary = "Get variant option values";
-                    public static PermissionMetadata Permission => CatalogFeatureMetadata.VariantOptionValues.List;
-                }
-
-                public static class Assign
-                {
-                    public const string Route = $"{OptionValueBaseRoute}/assign";
-                    public const string Description = "Assign option values to a variant";
-                    public const string Summary = "Assign variant option values";
-                    public static PermissionMetadata Permission => CatalogFeatureMetadata.VariantOptionValues.Manage;
-                }
-
-                public static class Revoke
-                {
-                    public const string Route = $"{OptionValueBaseRoute}/revoke";
-                    public const string Description = "Revoke option values from a variant";
-                    public const string Summary = "Revoke variant option values";
-                    public static PermissionMetadata Permission => CatalogFeatureMetadata.VariantOptionValues.Manage;
-                }
-
-                public static class Sync
-                {
-                    public const string Route = $"{OptionValueBaseRoute}/sync";
-                    public const string Description = "Synchronize full set of option values for a variant";
-                    public const string Summary = "Sync variant option values";
-                    public static PermissionMetadata Permission => CatalogFeatureMetadata.VariantOptionValues.Manage;
-                }
-            }
-
-            public static class Images
-            {
-                private const string ImageBaseRoute = $"{StandaloneBaseRoute}/{{variantId:guid}}/images";
-                private const string StandaloneImageRoute = $"{StandaloneBaseRoute}/images";
-
-                public static class Upload
-                {
-                    public const string Route = ImageBaseRoute;
-                    public const string Description = "Upload a new image for a variant";
-                    public const string Summary = "Upload variant image";
-                    public static PermissionMetadata Permission => CatalogFeatureMetadata.VariantImages.Upload;
-                }
-
-                public static class GetAll
-                {
-                    public const string Route = ImageBaseRoute;
-                    public const string Description = "Retrieve all images for a variant";
-                    public const string Summary = "List variant images";
-                    public static PermissionMetadata Permission => CatalogFeatureMetadata.VariantImages.List;
-                }
-
-                public static class GetById
-                {
-                    public const string Route = $"{StandaloneImageRoute}/{{id:guid}}";
-                    public const string Description = "Retrieve a variant image by identifier";
-                    public const string Summary = "Get variant image by ID";
-                    public static PermissionMetadata Permission => CatalogFeatureMetadata.VariantImages.List;
-                }
-
-                public static class Update
-                {
-                    public const string Route = $"{StandaloneImageRoute}/{{id:guid}}";
-                    public const string Description = "Update variant image details (alt, position, type)";
-                    public const string Summary = "Update variant image";
-                    public static PermissionMetadata Permission => CatalogFeatureMetadata.VariantImages.Update;
-                }
-
-                public static class Delete
-                {
-                    public const string Route = $"{StandaloneImageRoute}/{{id:guid}}";
-                    public const string Description = "Delete a variant image";
-                    public const string Summary = "Delete variant image";
-                    public static PermissionMetadata Permission => CatalogFeatureMetadata.VariantImages.Delete;
-                }
-
-                public static class Download
-                {
-                    public const string Route = $"{StandaloneImageRoute}/{{id:guid}}/download";
-                    public const string Description = "Download the variant image file";
-                    public const string Summary = "Download variant image";
-                    public static PermissionMetadata Permission => CatalogFeatureMetadata.VariantImages.List;
-                }
-
-                public static class Embeddings
-                {
-                    private const string EmbeddingRoute = $"{StandaloneImageRoute}/{{id:guid}}/embeddings";
-
-                    public static class Create
+                    public static class Sync
                     {
-                        public const string Route = EmbeddingRoute;
-                        public const string Description = "Generate embedding for a variant image using the inference service";
-                        public const string Summary = "Create image embedding";
-                        public static PermissionMetadata Permission => CatalogFeatureMetadata.VariantImages.ManageEmbeddings;
-                    }
-
-                    public static class Regenerate
-                    {
-                        public const string Route = EmbeddingRoute;
-                        public const string Description = "Regenerate embedding for a variant image with a new model version";
-                        public const string Summary = "Regenerate image embedding";
-                        public static PermissionMetadata Permission => CatalogFeatureMetadata.VariantImages.ManageEmbeddings;
+                        public const string Route = $"{PriceBaseRoute}/sync";
+                        public const string Description = "Synchronize full price list for a variant (add/update/remove)";
+                        public const string Summary = "Sync variant prices";
+                        public static PermissionMetadata Permission => CatalogFeatureMetadata.Variants.ManagePrice;
                     }
                 }
+
+                public static class OptionValues
+                {
+                    private const string OptionValueBaseRoute = $"{StandaloneBaseRoute}/{{variantId:guid}}/option-values";
+
+                    public static class Get
+                    {
+                        public const string Route = OptionValueBaseRoute;
+                        public const string Description = "Retrieve all option values with assignment status for a variant";
+                        public const string Summary = "Get variant option values";
+                        public static PermissionMetadata Permission => CatalogFeatureMetadata.VariantOptionValues.List;
+                    }
+
+                    public static class Assign
+                    {
+                        public const string Route = $"{OptionValueBaseRoute}/assign";
+                        public const string Description = "Assign option values to a variant";
+                        public const string Summary = "Assign variant option values";
+                        public static PermissionMetadata Permission => CatalogFeatureMetadata.VariantOptionValues.Manage;
+                    }
+
+                    public static class Revoke
+                    {
+                        public const string Route = $"{OptionValueBaseRoute}/revoke";
+                        public const string Description = "Revoke option values from a variant";
+                        public const string Summary = "Revoke variant option values";
+                        public static PermissionMetadata Permission => CatalogFeatureMetadata.VariantOptionValues.Manage;
+                    }
+
+                    public static class Sync
+                    {
+                        public const string Route = $"{OptionValueBaseRoute}/sync";
+                        public const string Description = "Synchronize full set of option values for a variant";
+                        public const string Summary = "Sync variant option values";
+                        public static PermissionMetadata Permission => CatalogFeatureMetadata.VariantOptionValues.Manage;
+                    }
+                }
+
+                public static class Images
+                {
+                    private const string ImageBaseRoute = $"{StandaloneBaseRoute}/{{variantId:guid}}/images";
+                    private const string StandaloneImageRoute = $"{StandaloneBaseRoute}/images";
+
+                    public static class Upload
+                    {
+                        public const string Route = ImageBaseRoute;
+                        public const string Description = "Upload a new image for a variant";
+                        public const string Summary = "Upload variant image";
+                        public static PermissionMetadata Permission => CatalogFeatureMetadata.VariantImages.Upload;
+                    }
+
+                    public static class GetAll
+                    {
+                        public const string Route = ImageBaseRoute;
+                        public const string Description = "Retrieve all images for a variant";
+                        public const string Summary = "List variant images";
+                        public static PermissionMetadata Permission => CatalogFeatureMetadata.VariantImages.List;
+                    }
+
+                    public static class GetById
+                    {
+                        public const string Route = $"{StandaloneImageRoute}/{{id:guid}}";
+                        public const string Description = "Retrieve a variant image by identifier";
+                        public const string Summary = "Get variant image by ID";
+                        public static PermissionMetadata Permission => CatalogFeatureMetadata.VariantImages.List;
+                    }
+
+                    public static class Update
+                    {
+                        public const string Route = $"{StandaloneImageRoute}/{{id:guid}}";
+                        public const string Description = "Update variant image details (alt, position, type)";
+                        public const string Summary = "Update variant image";
+                        public static PermissionMetadata Permission => CatalogFeatureMetadata.VariantImages.Update;
+                    }
+
+                    public static class Delete
+                    {
+                        public const string Route = $"{StandaloneImageRoute}/{{id:guid}}";
+                        public const string Description = "Delete a variant image";
+                        public const string Summary = "Delete variant image";
+                        public static PermissionMetadata Permission => CatalogFeatureMetadata.VariantImages.Delete;
+                    }
+
+                    public static class Download
+                    {
+                        public const string Route = $"{StandaloneImageRoute}/{{id:guid}}/download";
+                        public const string Description = "Download the variant image file";
+                        public const string Summary = "Download variant image";
+                        public static PermissionMetadata Permission => CatalogFeatureMetadata.VariantImages.List;
+                    }
+
+                    public static class Embeddings
+                    {
+                        private const string EmbeddingRoute = $"{StandaloneImageRoute}/{{id:guid}}/embeddings";
+
+                        public static class Create
+                        {
+                            public const string Route = EmbeddingRoute;
+                            public const string Description = "Generate embedding for a variant image using the inference service";
+                            public const string Summary = "Create image embedding";
+                            public static PermissionMetadata Permission => CatalogFeatureMetadata.VariantImages.ManageEmbeddings;
+                        }
+
+                        public static class Regenerate
+                        {
+                            public const string Route = EmbeddingRoute;
+                            public const string Description = "Regenerate embedding for a variant image with a new model version";
+                            public const string Summary = "Regenerate image embedding";
+                            public static PermissionMetadata Permission => CatalogFeatureMetadata.VariantImages.ManageEmbeddings;
+                        }
+                    }
+                }
             }
-        }
         }
 
 

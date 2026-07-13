@@ -8,10 +8,10 @@ public static partial class TaxonomyMapping
     // Create:
     public static Result<Taxonomy> MapToDomain<T>(this T request) where T : TaxonomyRequest
     {
-    return TaxonomyExtensions.Create(
-        request.Name,
-        request.Presentation,
-        request.Position);
+        return TaxonomyExtensions.Create(
+            request.Name,
+            request.Presentation,
+            request.Position);
     }
 
     // Update:

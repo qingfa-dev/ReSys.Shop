@@ -11,7 +11,7 @@ public static partial class UpdateTaxon
         {
             RuleFor(x => x.TaxonomyId)
                 .ApplyTaxonomyIdRules();
-                
+
             RuleFor(x => x.Request)
                 .ApplyTaxonomyParametersRules();
         }

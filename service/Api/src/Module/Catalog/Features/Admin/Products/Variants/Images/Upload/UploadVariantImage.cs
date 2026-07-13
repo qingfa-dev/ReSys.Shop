@@ -63,9 +63,9 @@ public static partial class UploadVariantImage
             // Call: Storage service upload pipeline — validates, scans, encrypts, stores
             var uploadResult = await storageService.UploadAsync(
                 new UploadRequest(
-                    Key: $"{subdirectory}/{request.File.FileName}", 
+                    Key: $"{subdirectory}/{request.File.FileName}",
                     Content: stream,
-                    ContentType: request.File.ContentType, 
+                    ContentType: request.File.ContentType,
                     Options: options),
                 ct: cancellationToken);
             if (uploadResult.IsFailure)

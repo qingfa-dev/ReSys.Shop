@@ -56,4 +56,3 @@ public static partial class DeleteVariant
         }
     }
 }
-    
