@@ -82,6 +82,8 @@ public class OrderConfiguration : IEntityTypeConfiguration<Order>
         #region Indexes
         builder.HasIndex(x => x.Number).IsUnique();
         builder.HasIndex(x => x.SessionId);
+        builder.HasIndex(x => new { x.UserId, x.Status });
+        builder.HasIndex(x => new { x.SessionId, x.Status });
         #endregion
     }
 }
