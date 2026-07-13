@@ -209,18 +209,18 @@ public static partial class OrderMethod
         return Result.Ok(OrderResult.Success.Emptied(order.Id));
     }
 
-    /// <summary>
-    /// Recalculates all order totals from line items and adjustments.
-    /// </summary>
-    /// <param name="order">The order to recalculate.</param>
-    // @CAT-5 Compute: Sum line item totals, filter adjustments by eligibility and source type, derive outstanding balance
+    // @CAT-5 Compute: Sum line item totals and adjustments (including line-item-level), include ShipmentTotal in Total, derive outstanding balance
     public static void RecalculateTotals(this Order order)
     {
         order.ItemCount = order.LineItems.Sum(li => li.Quantity);
         order.ItemTotal = order.LineItems.Sum(li => li.Total);
-        order.AdjustmentTotal = order.Adjustments.Where(a => a.Eligible).Sum(a => a.Amount);
-        order.ShipmentTotal = order.Adjustments.Where(a => a.Eligible && a.SourceType == AdjustmentConstant.SourceTypes.Shipping).Sum(a => a.Amount);
-        order.Total = order.ItemTotal + order.AdjustmentTotal;
+        order.AdjustmentTotal =
+            order.LineItems.Sum(li => li.AdjustmentTotal) +
+            order.Adjustments.Where(a => a.Eligible).Sum(a => a.Amount);
+        order.ShipmentTotal = order.Adjustments
+            .Where(a => a.Eligible && a.SourceType == AdjustmentConstant.SourceTypes.Shipping)
+            .Sum(a => a.Amount);
+        order.Total = order.ItemTotal + order.ShipmentTotal + order.AdjustmentTotal;
         order.OutstandingBalance = order.Total - order.PaymentTotal;
     }
 
