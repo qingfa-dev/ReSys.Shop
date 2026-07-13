@@ -5,11 +5,6 @@ namespace Module.Ordering.Features.Storefront.Cart.AssociateCart;
 /// <summary>Associates a guest cart with the currently authenticated user, merging line items.</summary>
 public static partial class AssociateCartWithUser
 {
-    public class Request
-    {
-        public Guid GuestOrderId { get; init; }
-    }
-
     public sealed record Command(Request Request) : ICommand<Response>;
 
     public sealed class CommandHandler(IApplicationDbContext dbContext, ICurrentUser currentUser) : ICommandHandler<Command, Response>
