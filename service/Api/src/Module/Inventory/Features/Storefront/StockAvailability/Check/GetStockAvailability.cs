@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+
 using Module.Inventory.Domain.StockReservations;
 using Module.Inventory.Services;
 

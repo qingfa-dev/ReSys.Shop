@@ -24,5 +24,6 @@ public static class StockReservationValidation
         return ruleBuilder
             .Must(state => state is ReservationState.Reserved or ReservationState.Fulfilled or ReservationState.Released or ReservationState.Expired)
             .WithErrorCode(StockReservationResult.Errors.InvalidStateTransition.Code)
-            .WithMessage(StockReservationResult.Errors.InvalidStateTransition.Message);}
+            .WithMessage(StockReservationResult.Errors.InvalidStateTransition.Message);
+    }
 }
