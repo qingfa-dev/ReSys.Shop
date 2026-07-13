@@ -15,15 +15,6 @@ namespace Api.Migrations.Migrations
                 schema: "ordering",
                 table: "line_items");
 
-            migrationBuilder.AddColumn<uint>(
-                name: "xmin",
-                schema: "inventory",
-                table: "stock_item",
-                type: "xid",
-                rowVersion: true,
-                nullable: false,
-                defaultValue: 0u);
-
             migrationBuilder.CreateIndex(
                 name: "ix_orders_session_id_status",
                 schema: "ordering",
@@ -63,11 +54,6 @@ namespace Api.Migrations.Migrations
                 name: "ix_orders_user_id_status",
                 schema: "ordering",
                 table: "orders");
-
-            migrationBuilder.DropColumn(
-                name: "xmin",
-                schema: "inventory",
-                table: "stock_item");
 
             migrationBuilder.AddForeignKey(
                 name: "fk_line_items_variants_variant_id",
