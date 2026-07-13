@@ -67,7 +67,7 @@ public static partial class CancelOrderAdmin
 
             await SendOrderCanceledNotificationAsync(order, cancellationToken);
 
-            return order.MapToDetail<Response>();
+            return Result<Response>.Ok(order.MapToDetail<Response>(), OrderResult.Success.Canceled(order.Id));
         }
 
         private async Task SendOrderCanceledNotificationAsync(Order order, CancellationToken ct)

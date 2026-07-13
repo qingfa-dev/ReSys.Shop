@@ -44,7 +44,7 @@ public static partial class UpdateOrderLineItem
             await dbContext.SaveChangesAsync(cancellationToken);
 
             // Map: Return the updated order with full detail.
-            return order.MapToDetail<Response>();
+            return Result<Response>.Ok(order.MapToDetail<Response>(), LineItemResult.Success.Updated(command.LineItemId));
         }
     }
 }

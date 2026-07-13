@@ -37,7 +37,7 @@ public static partial class ResumeOrder
             // Notify: Send order confirmation to the customer's email.
             await SendOrderResumedNotificationAsync(order, cancellationToken);
 
-            return order.MapToDetail<Response>();
+            return Result<Response>.Ok(order.MapToDetail<Response>(), OrderResult.Success.Resumed(order.Id));
         }
 
         private async Task SendOrderResumedNotificationAsync(Order order, CancellationToken ct)

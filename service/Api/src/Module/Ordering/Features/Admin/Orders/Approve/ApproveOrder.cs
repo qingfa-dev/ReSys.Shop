@@ -27,7 +27,7 @@ public static partial class ApproveOrder
             await dbContext.SaveChangesAsync(cancellationToken);
 
             // Map: Return the approval response with full order detail.
-            return order.MapToDetail<Response>();
+            return Result<Response>.Ok(order.MapToDetail<Response>(), OrderResult.Success.Approved(order.Id));
         }
     }
 }
