@@ -1,16 +1,12 @@
-using Module.Payment.Domain.PaymentCaptures;
+using Module.Payment.Features.Admin.Payments.Shared.Models;
 
 namespace Module.Payment.Features.Admin.Payments.Refund;
 
 public static partial class RefundPayment
 {
-    public class Response
+    public record Response : PaymentDetailResponse
     {
-        public Guid Id { get; init; }
-        public string Number { get; init; } = string.Empty;
-        public decimal Amount { get; init; }
-        public decimal RefundedAmount { get; init; }
-        public PaymentRecordState State { get; init; }
-        public string Message { get; init; } = string.Empty;
+        public decimal RefundedAmount { get; set; }
+        public string Message { get; set; } = string.Empty;
     }
 }

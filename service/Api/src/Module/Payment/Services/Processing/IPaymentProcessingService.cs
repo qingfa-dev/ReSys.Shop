@@ -4,6 +4,7 @@ using Module.Payment.Domain.PaymentCaptures;
 
 namespace Module.Payment.Services.Processing;
 
+// Contract: pre=payment!=null && gateway!=null, post=Result<PaymentProcessingResult>
 public interface IPaymentProcessingService
 {
     Task<Result<PaymentProcessingResult>> ProcessAsync(PaymentCapture payment, IPaymentGatewayActionProvider gateway, GatewayOptions options, CancellationToken ct = default);

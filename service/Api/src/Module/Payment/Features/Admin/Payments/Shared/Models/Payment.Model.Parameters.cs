@@ -1,6 +1,6 @@
 namespace Module.Payment.Features.Admin.Payments.Shared.Models;
 
-public abstract class PaymentParameters
+public abstract record PaymentParameters
 {
     public decimal Amount { get; init; }
     public string Currency { get; init; } = string.Empty;

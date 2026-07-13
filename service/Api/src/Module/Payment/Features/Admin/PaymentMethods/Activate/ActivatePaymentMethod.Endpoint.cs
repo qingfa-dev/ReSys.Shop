@@ -1,3 +1,4 @@
+// Route: PATCH api/payment/payment-methods/{id}/activate — activate payment method
 using Module.Payment.Features.Shared;
 
 namespace Module.Payment.Features.Admin.PaymentMethods.Activate;

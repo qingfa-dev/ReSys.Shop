@@ -1,6 +1,8 @@
+// Route: GET api/storefront/payment/methods — list active payment methods
 using Module.Payment.Features.Shared;
 
 namespace Module.Payment.Features.Storefront.Payment.Methods;
+
 public static partial class ListPaymentMethods
 {
     public class Endpoint : ICarterModule

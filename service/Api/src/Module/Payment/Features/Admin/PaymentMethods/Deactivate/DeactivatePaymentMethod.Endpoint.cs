@@ -1,3 +1,4 @@
+// Route: PATCH api/payment/payment-methods/{id}/deactivate — deactivate payment method
 using Module.Payment.Features.Shared;
 
 namespace Module.Payment.Features.Admin.PaymentMethods.Deactivate;

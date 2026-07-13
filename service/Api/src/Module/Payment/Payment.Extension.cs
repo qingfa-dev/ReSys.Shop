@@ -1,4 +1,5 @@
 using Hangfire;
+
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
@@ -32,6 +33,7 @@ public static class PaymentExtension
     /// <param name="builder">The application builder.</param>
     /// <returns>The application builder for chaining.</returns>
     // @CAT-10 Boundary: Domain -> Infrastructure — do not import EF Core or repository types here
+    // Contract: post=GatewayRegistry, IPaymentProcessingService, and seeders registered
     public static WebApplicationBuilder AddPaymentModule(this WebApplicationBuilder builder)
     {
         var services = builder.Services;
@@ -74,8 +76,7 @@ public static class PaymentExtension
         services.AddScoped<ProcessStripeWebhookEventJob>();
 
         services.AddSingleton<IStripeWebhookService, StripeWebhookDispatcher>();
-        // IWebhookHandler is the legacy gateway dispatcher interface; keep the
-        // old handler bound for now — see plan TODO to remove in a follow-up.
+        // TODO(follow-up): Remove legacy StripeWebhookHandler — StripeWebhookDispatcher is the current impl
         services.AddSingleton<IWebhookHandler, StripeWebhookHandler>();
 
         services.AddHostedService<EncryptedConverterServiceProviderInitializer>();

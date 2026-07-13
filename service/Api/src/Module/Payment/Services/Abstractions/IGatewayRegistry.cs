@@ -1,3 +1,4 @@
+// Context: Legacy duplicate of Services.Provider.IGatewayRegistry
 namespace Module.Payment.Services.Abstractions;
 
 public interface IGatewayRegistry

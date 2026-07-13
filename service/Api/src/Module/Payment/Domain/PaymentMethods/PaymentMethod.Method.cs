@@ -3,6 +3,7 @@ namespace Module.Payment.Domain.PaymentMethods;
 public static class PaymentMethodMethod
 {
     #region Factory Methods
+    // Create: PaymentMethod entity with defaults and required fields
     public static Result<PaymentMethod> Create(
         string name,
         string? code,
@@ -33,6 +34,7 @@ public static class PaymentMethodMethod
     #endregion Factory Methods
 
     #region Methods
+    // Update: Apply partial field updates — null fields preserve existing values
     public static Result Update(this PaymentMethod method,
         string? name = null,
         string? code = null,
@@ -60,6 +62,7 @@ public static class PaymentMethodMethod
         return Result.Ok(PaymentMethodResult.Success.Updated(method.Name));
     }
 
+    // Update: Activate — idempotent if already active
     public static Result Activate(this PaymentMethod method)
     {
         if (method.Active)
@@ -73,6 +76,7 @@ public static class PaymentMethodMethod
         return Result.Ok(PaymentMethodResult.Success.Activated(method.Name));
     }
 
+    // Update: Deactivate — idempotent if already inactive
     public static Result Deactivate(this PaymentMethod method)
     {
         if (!method.Active)
@@ -86,6 +90,7 @@ public static class PaymentMethodMethod
         return Result.Ok(PaymentMethodResult.Success.Deactivated(method.Name));
     }
 
+    // Update: Replace preferences dictionary wholesale
     public static Result UpdatePreferences(this PaymentMethod method, Dictionary<string, string> preferences)
     {
         method.Preferences = preferences;
@@ -94,6 +99,7 @@ public static class PaymentMethodMethod
         return Result.Ok(PaymentMethodResult.Success.Updated(method.Name));
     }
 
+    // Compute: Build tracking URL from template in preferences — replaces :tracking placeholder
     public static string? BuildTrackingUrl(this PaymentMethod method, string tracking)
     {
         if (!method.Preferences.TryGetValue("tracking_url", out var template) || string.IsNullOrWhiteSpace(template))

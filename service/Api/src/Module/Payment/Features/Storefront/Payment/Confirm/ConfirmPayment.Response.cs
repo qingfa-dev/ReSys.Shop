@@ -1,15 +1,11 @@
-using Module.Payment.Domain.PaymentCaptures;
+using Module.Payment.Features.Storefront.Payment.Shared.Models;
 
 namespace Module.Payment.Features.Storefront.Payment.Confirm;
 
 public static partial class ConfirmPayment
 {
-    public class Response
+    public record Response : StorePaymentDetailResponse
     {
-        public Guid Id { get; init; }
-        public string Number { get; init; } = null!;
-        public decimal Amount { get; init; }
-        public PaymentRecordState State { get; init; }
-        public string Message { get; init; } = null!;
+        public string Message { get; set; } = string.Empty;
     }
 }

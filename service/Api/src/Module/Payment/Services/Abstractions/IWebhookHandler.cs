@@ -1,3 +1,4 @@
+// Context: Legacy duplicate of Services.Webhook.IWebhookHandler
 namespace Module.Payment.Services.Abstractions;
 
 public interface IWebhookHandler

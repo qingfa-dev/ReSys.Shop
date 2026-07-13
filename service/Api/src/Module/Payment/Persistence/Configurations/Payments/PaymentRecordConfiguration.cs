@@ -1,10 +1,12 @@
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+
 using Module.Ordering.Domain.Orders;
 using Module.Payment.Domain.PaymentCaptures;
 using Module.Payment.Domain.PaymentMethods;
 
 namespace Module.Payment.Persistence.Configurations.Payments;
 
+// Configure: PaymentCapture EF Core mapping — table, keys, properties, relationships
 public class PaymentConfiguration : IEntityTypeConfiguration<PaymentCapture>
 {
     public void Configure(EntityTypeBuilder<PaymentCapture> builder)

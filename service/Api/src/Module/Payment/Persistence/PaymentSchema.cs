@@ -3,6 +3,7 @@ using Module.Payment.Domain.PaymentCaptures;
 
 namespace Module.Payment.Persistence;
 
+// Context: EF Core schema — table names use snake_case convention
 public static class PaymentSchema
 {
     public const string Name = "payment";

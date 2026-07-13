@@ -55,7 +55,75 @@ public static class PaymentMethodResult
         public static Error DescriptionTooLong => Error.Validation(
             code: "PaymentMethod.Description.TooLong",
             message: $"Payment method description cannot exceed {PaymentMethodConstant.Constraints.MaxDescriptionLength} characters.");
-        #endregion Validation
+
+        #endregion
+
+        #region Code
+        /// <summary>Error indicating the payment method code is required.</summary>
+        public static Error CodeRequired => Error.Validation(
+            code: "PaymentMethod.Code.Required",
+            message: "Payment method code is required.");
+
+        /// <summary>Error indicating the payment method code has an invalid format.</summary>
+        public static Error CodeInvalid => Error.Validation(
+            code: "PaymentMethod.Code.Invalid",
+            message: "Payment method code must contain only alphanumeric characters, underscores, and hyphens.");
+        #endregion
+
+        #region Presentation
+        /// <summary>Error indicating the presentation text exceeds the maximum length.</summary>
+        public static Error PresentationTooLong => Error.Validation(
+            code: "PaymentMethod.Presentation.TooLong",
+            message: $"Payment method presentation cannot exceed {PaymentMethodConstant.Constraints.MaxPresentationLength} characters.");
+        #endregion
+
+        #region Position
+        /// <summary>Error indicating the position is out of range.</summary>
+        public static Error PositionOutOfRange => Error.Validation(
+            code: "PaymentMethod.Position.OutOfRange",
+            message: $"Payment method position must be between {PaymentMethodConstant.Constraints.MinPositionValue} and {PaymentMethodConstant.Constraints.MaxPositionValue}.");
+        #endregion
+
+        #region DisplayOn
+        /// <summary>Error indicating the display target is invalid.</summary>
+        public static Error DisplayOnInvalid => Error.Validation(
+            code: "PaymentMethod.DisplayOn.Invalid",
+            message: "Payment method display target is invalid.");
+        #endregion
+
+        #region Settings
+        /// <summary>Error indicating too many settings entries.</summary>
+        public static Error SettingsTooMany => Error.Validation(
+            code: "PaymentMethod.Settings.TooMany",
+            message: $"Payment method settings cannot exceed {PaymentMethodConstant.Constraints.MaxSettingsItems} entries.");
+
+        /// <summary>Error indicating a setting key exceeds the maximum length.</summary>
+        public static Error SettingKeyTooLong => Error.Validation(
+            code: "PaymentMethod.Settings.KeyTooLong",
+            message: $"Payment method setting key cannot exceed {PaymentMethodConstant.Constraints.MaxSettingsKeyLength} characters.");
+
+        /// <summary>Error indicating a setting value exceeds the maximum length.</summary>
+        public static Error SettingValueTooLong => Error.Validation(
+            code: "PaymentMethod.Settings.ValueTooLong",
+            message: $"Payment method setting value cannot exceed {PaymentMethodConstant.Constraints.MaxSettingsValueLength} characters.");
+        #endregion
+
+        #region Preferences
+        /// <summary>Error indicating too many preference entries.</summary>
+        public static Error PreferencesTooMany => Error.Validation(
+            code: "PaymentMethod.Preferences.TooMany",
+            message: $"Payment method preferences cannot exceed {PaymentMethodConstant.Constraints.MaxPreferencesItems} entries.");
+
+        /// <summary>Error indicating a preference key exceeds the maximum length.</summary>
+        public static Error PreferenceKeyTooLong => Error.Validation(
+            code: "PaymentMethod.Preferences.KeyTooLong",
+            message: $"Payment method preference key cannot exceed {PaymentMethodConstant.Constraints.MaxPreferencesKeyLength} characters.");
+
+        /// <summary>Error indicating a preference value exceeds the maximum length.</summary>
+        public static Error PreferenceValueTooLong => Error.Validation(
+            code: "PaymentMethod.Preferences.ValueTooLong",
+            message: $"Payment method preference value cannot exceed {PaymentMethodConstant.Constraints.MaxPreferencesValueLength} characters.");
+        #endregion
 
         #region Business
         /// <summary>Error indicating the payment method was not found.</summary>
@@ -86,6 +154,26 @@ public static class PaymentMethodResult
         public static Error HasActivePayments => Error.Conflict(
             code: "PaymentMethod.HasActivePayments",
             message: "Cannot delete the payment method because it has active payments.");
+
+        /// <summary>Error indicating the payment method is referenced by existing orders and cannot be deleted.</summary>
+        public static Error HasActiveOrders => Error.Conflict(
+            code: "PaymentMethod.HasActiveOrders",
+            message: "Cannot delete the payment method because it is referenced by active orders.");
+
+        /// <summary>Error indicating the payment method name already exists.</summary>
+        public static Error NameDuplicate => Error.Conflict(
+            code: "PaymentMethod.Name.Duplicate",
+            message: "A payment method with the same name already exists.");
+
+        /// <summary>Error indicating the update failed for an unexpected reason.</summary>
+        public static Error UpdateFailed(string reason) => Error.Unexpected(
+            code: "PaymentMethod.UpdateFailed",
+            message: $"Payment method update failed: {reason}.");
+
+        /// <summary>Error indicating the delete failed for an unexpected reason.</summary>
+        public static Error DeleteFailed(string reason) => Error.Unexpected(
+            code: "PaymentMethod.DeleteFailed",
+            message: $"Payment method delete failed: {reason}.");
         #endregion Business
     }
 }

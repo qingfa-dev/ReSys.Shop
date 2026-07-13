@@ -77,7 +77,7 @@ public class ConfirmPaymentTests : IDisposable
             TestContext.Current.CancellationToken);
 
         result.IsSuccess.Should().BeTrue();
-        result.Value.State.Should().Be(PaymentRecordState.Completed);
+        result.Value.State.Should().Be("Completed");
     }
 
     [Fact(DisplayName = "Handler: Should return failure when gateway status is not succeeded")]

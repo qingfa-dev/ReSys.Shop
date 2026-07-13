@@ -1,3 +1,4 @@
+// Context: Storefront API route constants and descriptions — consumed by Endpoint files
 namespace Module.Payment.Features.Shared;
 
 public sealed partial class PaymentFeature

@@ -3,6 +3,7 @@ namespace Module.Payment.Domain.PaymentCaptures;
 public static partial class PaymentCaptureMethod
 {
     #region Factory Methods
+    // Create: PaymentCapture entity with Checkout state and auto-generated number
     public static Result<PaymentCapture> Create(
         decimal amount,
         Guid paymentMethodId,

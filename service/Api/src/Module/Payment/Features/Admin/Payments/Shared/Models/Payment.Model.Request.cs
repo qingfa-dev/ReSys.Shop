@@ -1,3 +1,3 @@
 namespace Module.Payment.Features.Admin.Payments.Shared.Models;
 
-public class PaymentRequest : PaymentParameters { }
+public record PaymentRequest : PaymentParameters;

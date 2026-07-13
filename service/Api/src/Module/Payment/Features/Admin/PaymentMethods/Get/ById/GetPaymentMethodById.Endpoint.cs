@@ -1,3 +1,4 @@
+// Route: GET api/payment/payment-methods/{id} — get by ID
 using Module.Payment.Features.Shared;
 
 namespace Module.Payment.Features.Admin.PaymentMethods.Get.ById;

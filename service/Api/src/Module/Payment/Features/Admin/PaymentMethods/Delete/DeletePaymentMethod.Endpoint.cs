@@ -1,3 +1,4 @@
+// Route: DELETE api/payment/payment-methods/{id} — soft-delete
 using Module.Payment.Features.Shared;
 
 namespace Module.Payment.Features.Admin.PaymentMethods.Delete;

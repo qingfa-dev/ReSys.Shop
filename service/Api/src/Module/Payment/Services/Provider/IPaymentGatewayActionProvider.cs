@@ -1,5 +1,6 @@
 namespace Module.Payment.Services.Provider;
 
+// Contract: pre=amount>0 && options!=null, post=Result<PaymentGatewayResponse>
 public interface IPaymentGatewayActionProvider
 {
     string ProviderKey { get; }

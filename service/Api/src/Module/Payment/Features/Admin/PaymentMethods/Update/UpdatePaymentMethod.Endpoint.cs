@@ -1,3 +1,4 @@
+// Route: PUT api/payment/payment-methods/{id} — update payment method
 using Module.Payment.Features.Shared;
 
 namespace Module.Payment.Features.Admin.PaymentMethods.Update;

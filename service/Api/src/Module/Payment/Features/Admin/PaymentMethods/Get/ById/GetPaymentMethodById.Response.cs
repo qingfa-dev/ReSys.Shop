@@ -4,5 +4,5 @@ namespace Module.Payment.Features.Admin.PaymentMethods.Get.ById;
 
 public static partial class GetPaymentMethodById
 {
-    public class Response : PaymentMethodDetailResponse { }
+    public record Response : PaymentMethodDetailResponse;
 }

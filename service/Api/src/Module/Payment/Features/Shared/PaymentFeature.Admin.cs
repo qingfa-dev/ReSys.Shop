@@ -1,5 +1,6 @@
 using Shared.Security.Identity.Domain.Permissions;
 
+// Context: Admin API route constants, descriptions, and permission metadata — consumed by Endpoint files
 namespace Module.Payment.Features.Shared;
 
 public sealed partial class PaymentFeature

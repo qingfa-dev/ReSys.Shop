@@ -1,4 +1,4 @@
-using Module.Payment.Features.Admin.Payments.Shared.Validators;
+using Module.Payment.Features.Storefront.Payment.Shared.Validators;
 
 namespace Module.Payment.Features.Storefront.Payment.CreateIntent;
 
@@ -8,7 +8,7 @@ public static partial class CreatePaymentIntent
     {
         public Validator()
         {
-            RuleFor(x => x).ApplyPaymentParametersRules();
+            RuleFor(x => x.OrderId).NotEmpty();
         }
     }
 }

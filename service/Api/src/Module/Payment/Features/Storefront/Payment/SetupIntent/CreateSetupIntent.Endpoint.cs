@@ -1,3 +1,4 @@
+// Route: POST api/storefront/payment/setup-intent — create Stripe SetupIntent
 using Module.Payment.Features.Shared;
 
 namespace Module.Payment.Features.Storefront.Payment.SetupIntent;

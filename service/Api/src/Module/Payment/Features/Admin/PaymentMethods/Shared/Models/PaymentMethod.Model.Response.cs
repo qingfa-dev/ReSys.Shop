@@ -1,7 +1,7 @@
 namespace Module.Payment.Features.Admin.PaymentMethods.Shared.Models;
 
 /// <summary>Detail response for a payment method, including audit timestamps.</summary>
-public class PaymentMethodDetailResponse : PaymentMethodParameters
+public record PaymentMethodDetailResponse : PaymentMethodParameters
 {
     /// <summary>Gets or sets the unique identifier.</summary>
     public Guid Id { get; init; }
@@ -20,4 +20,9 @@ public class PaymentMethodDetailResponse : PaymentMethodParameters
 }
 
 /// <summary>List item response for a payment method.</summary>
-public class PaymentMethodListItemResponse : PaymentMethodDetailResponse { }
+public record PaymentMethodListItemResponse : PaymentMethodParameters
+{
+    public Guid Id { get; init; }
+    public DateTimeOffset CreatedAtUtc { get; set; }
+    public DateTimeOffset? ModifiedAtUtc { get; set; }
+}

@@ -1,5 +1,6 @@
 namespace Module.Payment.Services.Provider.Stripe;
 
+// Contract: Error factories for Stripe gateway operations — pre=responseCode!=null
 public static class StripeGatewayResult
 {
     public static class Errors

@@ -1,5 +1,7 @@
 using PaymentCapture = Module.Payment.Domain.PaymentCaptures.PaymentCapture;
 
+using PaymentMethod = Module.Payment.Domain.PaymentMethods.PaymentMethod;
+
 namespace Module.Payment.Features.Admin.Payments.Shared.Mappings;
 
 public static class PaymentModelMapping
@@ -9,11 +11,14 @@ public static class PaymentModelMapping
         return new T
         {
             Id = payment.Id,
+            Number = payment.Number,
             Amount = payment.Amount,
             Currency = string.Empty,
             OrderId = payment.OrderId,
             PaymentMethodId = payment.PaymentMethodId,
             State = payment.State.ToString(),
+            ResponseCode = payment.ResponseCode,
+            PaymentMethodName = payment.PaymentMethod?.Name,
             ClientSecret = payment.IntentClientSecret,
             CreatedAtUtc = payment.CreatedAtUtc,
             ModifiedAtUtc = payment.ModifiedAtUtc,

@@ -1,3 +1,4 @@
+// Route: POST api/storefront/payment/create-intent — create gateway payment intent
 using Module.Payment.Features.Shared;
 
 namespace Module.Payment.Features.Storefront.Payment.CreateIntent;

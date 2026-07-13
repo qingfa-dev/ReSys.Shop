@@ -1,5 +1,6 @@
 using Module.Payment.Services.Models;
 using Module.Payment.Services.Provider.Stripe;
+
 using StripeSetting = Module.Payment.Services.Provider.Stripe.StripeSetting;
 
 using Microsoft.Extensions.Logging;
@@ -9,6 +10,7 @@ using Stripe;
 
 namespace Module.Payment.Services.Webhook;
 
+// Context: Legacy webhook handler — use StripeWebhookDispatcher (Features) for current logic
 public sealed class StripeWebhookHandler : IWebhookHandler, IStripeWebhookService
 {
     private readonly StripeSetting _options;
@@ -30,8 +32,10 @@ public sealed class StripeWebhookHandler : IWebhookHandler, IStripeWebhookServic
         _logger = logger;
     }
 
+    // Webhook: Handle inbound Stripe event — checks webhook secret is configured
     public Task<Result> HandleAsync(string eventType, string payload, CancellationToken ct = default)
     {
+        // Check: Webhook secret must be configured before processing
         if (string.IsNullOrEmpty(_options.WebhookSecret))
             return Task.FromResult<Result>(Error.Validation(
                 "Stripe.WebhookSecret.NotConfigured",
@@ -40,6 +44,7 @@ public sealed class StripeWebhookHandler : IWebhookHandler, IStripeWebhookServic
         return Task.FromResult(Result.Ok());
     }
 
+    // Webhook: Validate HMAC-SHA256 signature against Stripe webhook secret
     public bool ValidateSignature(string payload, string stripeSignature)
     {
         if (string.IsNullOrEmpty(_options.WebhookSecret))
@@ -49,9 +54,12 @@ public sealed class StripeWebhookHandler : IWebhookHandler, IStripeWebhookServic
             EventUtility.ValidateSignature(payload, stripeSignature, _options.WebhookSecret);
             return true;
         }
+        // Suppress: StripeException on invalid signature — returns false without throwing
         catch (StripeException) { return false; }
     }
 
+    // Parse: Deserialize Stripe event JSON payload
+    // Catch: Exception → log and return null (malformed payload)
     public Event? ParseEvent(string payload)
     {
         try

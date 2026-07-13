@@ -1,8 +1,11 @@
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+
 using Module.Payment.Services.Models;
 using Module.Payment.Services.Webhook;
+
 using Stripe;
+
 using StripeSetting = Module.Payment.Services.Provider.Stripe.StripeSetting;
 
 namespace Module.Payment.Features.Storefront.Payment.Webhooks;
@@ -37,8 +40,10 @@ public sealed class StripeWebhookDispatcher : IStripeWebhookService
         _logger = logger;
     }
 
+    // Webhook: Dispatches Stripe event to handler via MediatR — signature validation happens in CommandHandler
     public async Task<Result> HandleAsync(string eventType, string payload, CancellationToken ct = default)
     {
+        // Check: Webhook secret must be configured
         if (string.IsNullOrEmpty(_options.WebhookSecret))
         {
             return Error.Validation(
@@ -46,14 +51,12 @@ public sealed class StripeWebhookDispatcher : IStripeWebhookService
                 "Stripe webhook secret is not configured.");
         }
 
-        // The real handler does its own signature validation against the header.
-        // We pass the raw payload and a placeholder signature marker; the gateway
-        // pipeline at the endpoint must inject the real Stripe-Signature header
-        // before reaching this dispatcher.
+        // Assume: Stripe-Signature header is injected by gateway pipeline before reaching dispatcher
         var result = await _sender.Send(new StripeWebhook.Command(payload, "stripe-signature"), ct);
         return result;
     }
 
+    // Webhook: Validate HMAC-SHA256 signature against Stripe webhook secret
     public bool ValidateSignature(string payload, string stripeSignature)
     {
         if (string.IsNullOrEmpty(_options.WebhookSecret)) return false;
@@ -62,6 +65,7 @@ public sealed class StripeWebhookDispatcher : IStripeWebhookService
             EventUtility.ValidateSignature(payload, stripeSignature, _options.WebhookSecret);
             return true;
         }
+        // Suppress: StripeException on invalid signature — returns false without throwing
         catch (StripeException ex)
         {
             _logger.LogWarning(ex, "Stripe signature validation failed");
@@ -69,8 +73,10 @@ public sealed class StripeWebhookDispatcher : IStripeWebhookService
         }
     }
 
+    // Parse: Deserialize Stripe event JSON — returns null if malformed
     public Event? ParseEvent(string payload)
     {
+        // Catch: Exception → log and return null (malformed payload)
         try { return EventUtility.ParseEvent(payload); }
         catch (Exception ex)
         {

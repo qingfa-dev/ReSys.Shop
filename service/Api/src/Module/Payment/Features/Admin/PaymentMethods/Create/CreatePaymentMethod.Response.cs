@@ -4,5 +4,5 @@ namespace Module.Payment.Features.Admin.PaymentMethods.Create;
 
 public static partial class CreatePaymentMethod
 {
-    public class Response : PaymentMethodDetailResponse { }
+    public record Response : PaymentMethodDetailResponse;
 }

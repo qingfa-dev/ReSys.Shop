@@ -1,6 +1,7 @@
 namespace Module.Payment.Services.Provider;
 
 /// <summary>Gateway-level contract values: provider keys, Stripe/Bogus domain strings, webhook events, response messages, error codes.</summary>
+// Context: Shared constants used across Provider, Processing, Webhook, and Feature layers
 public static class GatewayConstants
 {
     public static class Providers

@@ -1,5 +1,7 @@
 namespace Module.Payment.Services.Provider;
 
+// Contract: pre=amount>0 && options!=null, post=Result<PaymentGatewayResponse>
+// Invariant: AutoCapture==true for Stripe, false for manual gateways
 public abstract class Gateway : IPaymentGatewayActionProvider
 {
     protected const decimal FromDollarToCentRate = 100m;
@@ -28,6 +30,7 @@ public abstract class Gateway : IPaymentGatewayActionProvider
     public abstract Task<Result<PaymentGatewayResponse>> CreateSetupIntentAsync(
         string? customerId, Dictionary<string, string>? metadata, CancellationToken ct = default);
 
+    // Call: Default succeeds — subclasses may override for real status check
     public virtual Task<string> GetPaymentStatusAsync(
         string responseCode, CancellationToken ct = default)
         => Task.FromResult("succeeded");

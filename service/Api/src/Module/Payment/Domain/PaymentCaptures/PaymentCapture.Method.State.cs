@@ -3,6 +3,7 @@ namespace Module.Payment.Domain.PaymentCaptures;
 public static partial class PaymentCaptureMethod
 {
     #region State Transitions
+    // Update: Checkout → Processing — validates transition via CanTransitionTo
     public static Result Process(this PaymentCapture payment)
     {
         if (!CanTransitionTo(PaymentRecordState.Processing))
@@ -19,6 +20,7 @@ public static partial class PaymentCaptureMethod
         };
     }
 
+    // Update: Processing → Pending — requires state to be Processing
     public static Result Pend(this PaymentCapture payment)
     {
         if (payment.State is not PaymentRecordState.Processing)
@@ -29,6 +31,7 @@ public static partial class PaymentCaptureMethod
         return Result.Ok(PaymentCaptureResult.Success.Pended(payment.Number));
     }
 
+    // Update: Processing/Pending → Completed — idempotent if already completed
     public static Result Complete(this PaymentCapture payment)
     {
         if (payment.State is PaymentRecordState.Completed)
@@ -42,6 +45,7 @@ public static partial class PaymentCaptureMethod
         return Result.Ok(PaymentCaptureResult.Success.Completed(payment.Number));
     }
 
+    // Update: Checkout/Processing/Pending → Failed — idempotent if already failed
     public static Result Fail(this PaymentCapture payment)
     {
         if (payment.State is PaymentRecordState.Failed)
@@ -55,6 +59,7 @@ public static partial class PaymentCaptureMethod
         return Result.Ok(PaymentCaptureResult.Success.Failed(payment.Number));
     }
 
+    // Update: Processing/Pending → Void — idempotent if already voided
     public static Result Void(this PaymentCapture payment)
     {
         if (payment.State is PaymentRecordState.Void)
@@ -68,6 +73,7 @@ public static partial class PaymentCaptureMethod
         return Result.Ok(PaymentCaptureResult.Success.Voided(payment.Number));
     }
 
+    // Update: Failed/Void → Invalid — idempotent if already invalid
     public static Result Invalidate(this PaymentCapture payment)
     {
         if (payment.State is PaymentRecordState.Invalid)
@@ -83,16 +89,20 @@ public static partial class PaymentCaptureMethod
     #endregion
 
     #region Capture Logic
+    // Check: Credit/refund only allowed when state is Completed
     public static bool CreditAllowed(this PaymentCapture payment)
         => payment.State is PaymentRecordState.Completed;
 
+    // Compute: Amount remaining to capture — 0 if already completed
     public static decimal UncapturedAmount(this PaymentCapture payment)
         => payment.State is PaymentRecordState.Completed ? 0 : payment.Amount;
 
+    // Check: Can capture — state must be Processing/Pending and amount positive and <= total
     public static bool CanCapture(this PaymentCapture payment, decimal amount)
         => payment.State is PaymentRecordState.Processing or PaymentRecordState.Pending
            && amount > 0 && amount <= payment.Amount;
 
+    // Update: Capture amount — validates CanCapture precondition
     public static Result Capture(this PaymentCapture payment, decimal amount)
     {
         if (!payment.CanCapture(amount))
@@ -104,10 +114,12 @@ public static partial class PaymentCaptureMethod
         return Result.Ok(PaymentCaptureResult.Success.Captured(payment.Number, amount));
     }
 
+    // Check: Can refund — state must be Completed, amount positive and <= remaining
     public static bool CanRefund(this PaymentCapture payment, decimal amount)
         => payment.State is PaymentRecordState.Completed
            && amount > 0 && (payment.Amount - payment.RefundedAmount) >= amount;
 
+    // Update: Refund amount — validates CanRefund precondition, increments RefundedAmount
     public static Result Refund(this PaymentCapture payment, decimal amount)
     {
         if (!payment.CanRefund(amount))

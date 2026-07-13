@@ -17,9 +17,11 @@ public static partial class StripeWebhook
     {
         public async Task<Result> Handle(Command command, CancellationToken cancellationToken)
         {
+            // Webhook: Validate HMAC-SHA256 signature — reject if invalid
             if (!webhookService.ValidateSignature(command.Payload, command.StripeSignature))
                 return StripeWebhookResult.Errors.InvalidSignature;
 
+            // Defer: Enqueue background job for async processing — avoids blocking webhook response
             backgroundJobClient.Enqueue<ProcessStripeWebhookEventJob>(
                 job => job.ExecuteAsync(command.Payload, CancellationToken.None));
 

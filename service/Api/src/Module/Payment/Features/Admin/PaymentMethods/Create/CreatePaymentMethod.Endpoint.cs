@@ -1,3 +1,4 @@
+// Route: POST api/payment/payment-methods — create payment method
 using Module.Payment.Features.Shared;
 
 namespace Module.Payment.Features.Admin.PaymentMethods.Create;

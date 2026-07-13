@@ -1,3 +1,4 @@
+// Route: POST api/storefront/payment/confirm/{paymentId} — confirm payment after gateway
 using Module.Payment.Features.Shared;
 
 namespace Module.Payment.Features.Storefront.Payment.Confirm;

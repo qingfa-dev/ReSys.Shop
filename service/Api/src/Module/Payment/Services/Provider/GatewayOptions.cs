@@ -1,5 +1,6 @@
 namespace Module.Payment.Services.Provider;
 
+// Contract: Required fields Email, Customer, OrderId, PaymentId, IdempotencyKey must be non-null
 public sealed record GatewayOptions
 {
     public static string Currency => GatewayConstants.Currency.Usd;

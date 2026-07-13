@@ -16,9 +16,11 @@ public static partial class CreatePaymentMethod
         {
             var request = command.Request;
 
+            // Check: Provider must be registered before creating the method
             if (!gatewayRegistry.IsRegistered(request.ProviderKey))
                 return PaymentMethodResult.Errors.ProviderNotRegistered(request.ProviderKey);
 
+            // Map: Request → PaymentMethod domain entity
             var createResult = request.MapToDomain();
             if (createResult.IsFailure)
                 return createResult.Errors;
@@ -27,6 +29,7 @@ public static partial class CreatePaymentMethod
             dbContext.Set<PaymentMethod>().Add(method);
             await dbContext.SaveChangesAsync(cancellationToken);
 
+            // Map: PaymentMethod → response DTO
             return method.MapToDetail<Response>();
         }
     }

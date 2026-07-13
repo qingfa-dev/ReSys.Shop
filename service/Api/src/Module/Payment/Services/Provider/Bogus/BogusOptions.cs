@@ -1,5 +1,6 @@
 namespace Module.Payment.Services.Provider.Bogus;
 
+// Context: Binds from appSettings["GatewayProviders:bogus"] — enables BogusGateway registration
 public sealed class BogusSetting
 {
     public const string SectionName = GatewayConstants.Configuration.SectionName + ":" + GatewayConstants.Providers.Bogus;

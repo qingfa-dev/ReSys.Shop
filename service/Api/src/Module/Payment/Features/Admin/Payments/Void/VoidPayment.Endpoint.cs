@@ -1,3 +1,4 @@
+// Route: POST api/payment/payments/{id}/void — gateway void
 using Module.Payment.Features.Shared;
 
 namespace Module.Payment.Features.Admin.Payments.Void;

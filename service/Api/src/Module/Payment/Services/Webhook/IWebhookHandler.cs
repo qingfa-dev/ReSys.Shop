@@ -1,5 +1,6 @@
 namespace Module.Payment.Services.Webhook;
 
+// Contract: HandleAsync returns Result — eventType must be in SupportedEventTypes
 public interface IWebhookHandler
 {
     string Provider { get; }

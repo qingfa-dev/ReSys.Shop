@@ -1,3 +1,4 @@
+// Route: POST api/payment/payments/{id}/refund — gateway refund
 using Module.Payment.Features.Shared;
 
 namespace Module.Payment.Features.Admin.Payments.Refund;

@@ -9,14 +9,17 @@ public static partial class StripeWebhook
     {
         public void AddRoutes(IEndpointRouteBuilder app)
         {
+            // Webhook: POST /api/payments/stripe/webhook — raw body + Stripe-Signature header
             app.MapPost(PaymentFeature.Storefront.Payment.Webhooks.Stripe.Route, async (
                 HttpRequest request,
                 ISender sender,
                 CancellationToken ct) =>
             {
+                // Parse: Read raw body payload
                 using var reader = new StreamReader(request.Body);
                 var payload = await reader.ReadToEndAsync(ct);
 
+                // Check: Stripe-Signature header is required
                 var stripeSignature = request.Headers[GatewayConstants.Webhook.Headers.StripeSignature].FirstOrDefault();
                 if (string.IsNullOrEmpty(stripeSignature))
                     return Results.BadRequest(GatewayConstants.Webhook.Messages.MissingSignature);

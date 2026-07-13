@@ -1,6 +1,7 @@
 using Module.Payment.Domain.PaymentCaptures;
 using Module.Payment.Services.Models;
 
+// Context: Legacy duplicate of Services.Processing.IPaymentProcessingService
 namespace Module.Payment.Services.Abstractions;
 
 public interface IPaymentProcessingService

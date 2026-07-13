@@ -1,3 +1,5 @@
+using Module.Payment.Features.Admin.Payments.Shared.Mappings;
+
 using GatewayOptions = Module.Payment.Services.Provider.GatewayOptions;
 using IGatewayRegistry = Module.Payment.Services.Provider.IGatewayRegistry;
 using IPaymentProcessingService = Module.Payment.Services.Processing.IPaymentProcessingService;
@@ -9,6 +11,7 @@ using PaymentCapture = Module.Payment.Domain.PaymentCaptures.PaymentCapture;
 
 namespace Module.Payment.Features.Admin.Payments.Capture;
 
+// Contract: pre=command.Id valid, post=payment.CapturedAmount set || Result.IsFailure
 public static partial class CapturePayment
 {
     public sealed record Command(Guid Id, Request Request) : ICommand<Response>;
@@ -18,19 +21,24 @@ public static partial class CapturePayment
     {
         public async Task<Result<Response>> Handle(Command command, CancellationToken cancellationToken)
         {
+            // Load: Payment capture by ID
             var payment = await dbContext.Set<PaymentCapture>()
                 .FirstOrDefaultAsync(p => p.Id == command.Id, cancellationToken);
 
+            // Check: Payment must exist
             if (payment is null)
                 return PaymentCaptureResult.Failure.NotFound;
 
+            // Check: Gateway must be registered for the payment's provider
             var gatewayResult = gatewayRegistry.GetGateway(payment.ProviderKey);
             if (gatewayResult.IsFailure)
                 return PaymentCaptureResult.Failure.ProviderNotRegistered(payment.ProviderKey);
             var gateway = gatewayResult.Value;
 
+            // Compute: Capture amount — default to remaining uncaptured amount
             var captureAmount = command.Request.Amount ?? payment.UncapturedAmount();
 
+            // Build: Gateway options with idempotency key
             var options = new GatewayOptions
             {
                 Email = string.Empty,
@@ -41,21 +49,18 @@ public static partial class CapturePayment
                 StatementDescriptorSuffix = string.Empty,
             };
 
+            // Call: Gateway capture — PaymentProcessingService delegates to Stripe Capture
             var captureResult = await processingService.CaptureAsync(payment, gateway, options, captureAmount, cancellationToken);
             if (captureResult.IsFailure)
                 return captureResult.Errors;
 
             await dbContext.SaveChangesAsync(cancellationToken);
 
-            return new Response
-            {
-                Id = payment.Id,
-                Number = payment.Number,
-                Amount = payment.Amount,
-                CapturedAmount = captureAmount,
-                State = payment.State,
-                Message = captureResult.Message ?? string.Empty
-            };
+            // Map: Payment → response DTO
+            var response = payment.MapToDetail<Response>();
+            response.CapturedAmount = captureAmount;
+            response.Message = captureResult.Message ?? string.Empty;
+            return response;
         }
     }
 }

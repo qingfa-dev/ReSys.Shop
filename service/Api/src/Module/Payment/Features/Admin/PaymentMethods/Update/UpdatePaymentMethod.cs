@@ -14,21 +14,26 @@ public static partial class UpdatePaymentMethod
     {
         public async Task<Result<Response>> Handle(Command command, CancellationToken cancellationToken)
         {
+            // Load: Payment method by ID
             var method = await dbContext.Set<PaymentMethod>()
                 .FirstOrDefaultAsync(m => m.Id == command.Id, cancellationToken);
 
+            // Check: Payment method must exist
             if (method is null)
                 return PaymentMethodResult.Errors.NotFound;
 
+            // Check: Provider must be registered if changing provider
             if (command.Request.ProviderKey is not null && !gatewayRegistry.IsRegistered(command.Request.ProviderKey))
                 return PaymentMethodResult.Errors.ProviderNotRegistered(command.Request.ProviderKey);
 
+            // Update: Apply request fields to existing entity
             var result = command.Request.MapUpdateToDomain(method);
             if (result.IsFailure)
                 return result.Errors;
 
             await dbContext.SaveChangesAsync(cancellationToken);
 
+            // Map: PaymentMethod → response DTO
             return method.MapToDetail<Response>();
         }
     }

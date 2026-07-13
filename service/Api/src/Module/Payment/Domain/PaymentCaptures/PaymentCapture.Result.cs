@@ -52,7 +52,109 @@ public static class PaymentCaptureResult
         public static Error InvalidStateTransition(PaymentRecordState from, PaymentRecordState to) => Error.Validation(
             code: "Payment.State.InvalidTransition",
             message: $"Cannot transition payment from '{from}' to '{to}'.");
-        #endregion Validation
+        #endregion
+
+        #region Number
+        /// <summary>Error indicating the payment number is required.</summary>
+        public static Error NumberRequired => Error.Validation(
+            code: "Payment.Number.Required",
+            message: "Payment number is required.");
+
+        /// <summary>Error indicating the payment number exceeds the maximum length.</summary>
+        public static Error NumberTooLong => Error.Validation(
+            code: "Payment.Number.TooLong",
+            message: $"Payment number cannot exceed {PaymentConstant.Constraints.MaxNumberLength} characters.");
+
+        /// <summary>Error indicating the payment number format is invalid.</summary>
+        public static Error NumberInvalid => Error.Validation(
+            code: "Payment.Number.Invalid",
+            message: "Payment number format is invalid.");
+        #endregion
+
+        #region OrderId
+        /// <summary>Error indicating the order identifier is required.</summary>
+        public static Error OrderIdRequired => Error.Validation(
+            code: "Payment.OrderId.Required",
+            message: "Order identifier is required.");
+        #endregion
+
+        #region PaymentMethodId
+        /// <summary>Error indicating the payment method identifier is required.</summary>
+        public static Error PaymentMethodIdRequired => Error.Validation(
+            code: "Payment.PaymentMethodId.Required",
+            message: "Payment method identifier is required.");
+        #endregion
+
+        #region ProviderKey
+        /// <summary>Error indicating the provider key is required.</summary>
+        public static Error ProviderKeyRequired => Error.Validation(
+            code: "Payment.ProviderKey.Required",
+            message: "Provider key is required.");
+
+        /// <summary>Error indicating the provider key exceeds the maximum length.</summary>
+        public static Error ProviderKeyTooLong => Error.Validation(
+            code: "Payment.ProviderKey.TooLong",
+            message: $"Provider key cannot exceed {PaymentConstant.Constraints.MaxProviderKeyLength} characters.");
+        #endregion
+
+        #region SourceType
+        /// <summary>Error indicating the source type is required.</summary>
+        public static Error SourceTypeRequired => Error.Validation(
+            code: "Payment.SourceType.Required",
+            message: "Payment source type is required.");
+
+        /// <summary>Error indicating the source type exceeds the maximum length.</summary>
+        public static Error SourceTypeTooLong => Error.Validation(
+            code: "Payment.SourceType.TooLong",
+            message: $"Payment source type cannot exceed {PaymentConstant.Constraints.MaxSourceTypeLength} characters.");
+        #endregion
+
+        #region ResponseCode
+        /// <summary>Error indicating the response code exceeds the maximum length.</summary>
+        public static Error ResponseCodeTooLong => Error.Validation(
+            code: "Payment.ResponseCode.TooLong",
+            message: $"Response code cannot exceed {PaymentConstant.Constraints.MaxResponseCodeLength} characters.");
+        #endregion
+
+        #region AvsResponse
+        /// <summary>Error indicating the AVS response exceeds the maximum length.</summary>
+        public static Error AvsResponseTooLong => Error.Validation(
+            code: "Payment.AvsResponse.TooLong",
+            message: $"AVS response cannot exceed {PaymentConstant.Constraints.MaxAvsResponseLength} characters.");
+        #endregion
+
+        #region CvvCode
+        /// <summary>Error indicating the CVV code exceeds the maximum length.</summary>
+        public static Error CvvCodeTooLong => Error.Validation(
+            code: "Payment.CvvCode.TooLong",
+            message: $"CVV code cannot exceed {PaymentConstant.Constraints.MaxCvvCodeLength} characters.");
+        #endregion
+
+        #region CvvMessage
+        /// <summary>Error indicating the CVV message exceeds the maximum length.</summary>
+        public static Error CvvMessageTooLong => Error.Validation(
+            code: "Payment.CvvMessage.TooLong",
+            message: $"CVV message cannot exceed {PaymentConstant.Constraints.MaxCvvMessageLength} characters.");
+        #endregion
+
+        #region IntentClientSecret
+        /// <summary>Error indicating the client secret exceeds the maximum length.</summary>
+        public static Error ClientSecretTooLong => Error.Validation(
+            code: "Payment.ClientSecret.TooLong",
+            message: $"Client secret cannot exceed {PaymentConstant.Constraints.MaxIntentClientSecretLength} characters.");
+        #endregion
+
+        #region Currency
+        /// <summary>Error indicating the currency code is required.</summary>
+        public static Error CurrencyRequired => Error.Validation(
+            code: "Payment.Currency.Required",
+            message: "Currency code is required.");
+
+        /// <summary>Error indicating the currency code is invalid.</summary>
+        public static Error CurrencyInvalid => Error.Validation(
+            code: "Payment.Currency.Invalid",
+            message: "Currency code must be a valid ISO 4217 three-letter code.");
+        #endregion
 
         #region Business
         /// <summary>Error indicating the payment was not found.</summary>
@@ -104,7 +206,34 @@ public static class PaymentCaptureResult
         public static Error NotSucceeded => Error.Validation(
             code: "Payment.Confirm.NotSucceeded",
             message: "Payment has not succeeded at the gateway.");
+
+        /// <summary>Error indicating the refund amount exceeds the captured amount.</summary>
+        public static Error RefundAmountExceedsCaptured => Error.Validation(
+            code: "Payment.Refund.AmountExceedsCaptured",
+            message: "Refund amount cannot exceed the captured amount.");
+
+        /// <summary>Error indicating the order has an outstanding payment requirement.</summary>
+        public static Error OrderPaymentRequired => Error.Conflict(
+            code: "Payment.OrderPaymentRequired",
+            message: "Order requires a payment before proceeding.");
+
+        /// <summary>Error indicating the payment source was not found.</summary>
+        public static Error SourceNotFound => Error.NotFound(
+            code: "Payment.Source.NotFound",
+            message: "Payment source was not found.");
         #endregion Business
+
+        #region Gateway
+        /// <summary>Error indicating the gateway request timed out.</summary>
+        public static Error GatewayTimeout(string message) => Error.BadRequest(
+            code: "Payment.Gateway.Timeout",
+            message: message);
+
+        /// <summary>Error indicating the gateway is unavailable.</summary>
+        public static Error GatewayUnavailable(string message) => Error.BadRequest(
+            code: "Payment.Gateway.Unavailable",
+            message: message);
+        #endregion Gateway
 
         #region Gateway Response Errors (dynamic message)
         /// <summary>Gateway capture action failed.</summary>

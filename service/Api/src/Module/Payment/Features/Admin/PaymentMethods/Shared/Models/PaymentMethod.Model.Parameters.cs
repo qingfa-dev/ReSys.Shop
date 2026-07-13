@@ -5,7 +5,7 @@ namespace Module.Payment.Features.Admin.PaymentMethods.Shared.Models;
 /// <summary>
 /// Abstract base class for payment method-related parameters, providing common properties.
 /// </summary>
-public abstract class PaymentMethodParameters
+public abstract record PaymentMethodParameters
 {
     /// <summary>Gets or sets the display name of the payment method.</summary>
     public string Name { get; init; } = string.Empty;

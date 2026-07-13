@@ -1,5 +1,6 @@
 using Module.Payment.Services.Models;
 
+// Context: Legacy duplicate of Services.Provider.Gateway — kept for compatibility
 namespace Module.Payment.Services.Abstractions;
 
 public abstract class Gateway : IPaymentGatewayActionProvider

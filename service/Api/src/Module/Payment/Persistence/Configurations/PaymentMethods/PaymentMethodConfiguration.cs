@@ -1,10 +1,12 @@
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+
 using Module.Payment.Domain.PaymentMethods;
 
 using Shared.Operational.Persistence.Configurations.Dictionaries;
 
 namespace Module.Payment.Persistence.Configurations.PaymentMethods;
 
+// Configure: PaymentMethod EF Core mapping — table, keys, properties, converters
 public class PaymentMethodConfiguration : IEntityTypeConfiguration<PaymentMethod>
 {
     public void Configure(EntityTypeBuilder<PaymentMethod> builder)

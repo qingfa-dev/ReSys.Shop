@@ -1,8 +1,11 @@
 namespace Module.Payment.Features.Admin.Payments.Shared.Models;
 
-public class PaymentDetailResponse : PaymentParameters
+public record PaymentDetailResponse : PaymentParameters
 {
     public Guid Id { get; init; }
+    public string Number { get; init; } = string.Empty;
+    public string? ResponseCode { get; init; }
+    public string? PaymentMethodName { get; init; }
     public string? ClientSecret { get; init; }
     public DateTimeOffset CreatedAtUtc { get; init; }
     public DateTimeOffset? ModifiedAtUtc { get; init; }
@@ -10,7 +13,7 @@ public class PaymentDetailResponse : PaymentParameters
     public string? ModifiedBy { get; init; }
 }
 
-public class PaymentListItemResponse : PaymentParameters
+public record PaymentListItemResponse : PaymentParameters
 {
     public Guid Id { get; init; }
 }

@@ -17,10 +17,12 @@ public static partial class GetPagedPaymentMethods
         /// <returns>A paged result of payment method list items.</returns>
         public async Task<PagedResult<Response>> Handle(Query request, CancellationToken cancellationToken)
         {
+            // Parse: Query parameters — validates filters, sorting, pagination
             var parsing = request.Parameters.ParseAll();
             if (parsing.IsFailure)
                 return parsing.Errors;
 
+            // Load: Paged payment methods sorted by position then name
             var pagedResult = await dbContext.Set<PaymentMethod>()
                 .AsNoTracking()
                 .OrderBy(m => m.Position)

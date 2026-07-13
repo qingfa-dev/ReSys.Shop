@@ -1,3 +1,4 @@
+// Route: GET api/payment/payments — paged list
 using Module.Payment.Features.Shared;
 
 namespace Module.Payment.Features.Admin.Payments.Get.Paged;

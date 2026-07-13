@@ -1,3 +1,4 @@
+// Route: POST api/payment/payments/{id}/capture — gateway capture
 using Module.Payment.Features.Shared;
 
 namespace Module.Payment.Features.Admin.Payments.Capture;

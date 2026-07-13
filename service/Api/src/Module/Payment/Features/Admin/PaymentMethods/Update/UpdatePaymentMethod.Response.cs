@@ -4,5 +4,5 @@ namespace Module.Payment.Features.Admin.PaymentMethods.Update;
 
 public static partial class UpdatePaymentMethod
 {
-    public class Response : PaymentMethodDetailResponse { }
+    public record Response : PaymentMethodDetailResponse;
 }

@@ -1,5 +1,6 @@
 namespace Module.Payment.Services.Provider.Bogus;
 
+// Contract: Error factories for Bogus test-gateway — responses match known test cards
 public static class BogusGatewayResult
 {
     public static class Errors
