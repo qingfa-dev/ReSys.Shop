@@ -194,10 +194,11 @@ public static partial class OrderMethod
     {
         // Guard: Cannot empty an order that has already been finalized
         if (order.Status == OrderStatus.Placed)
-            return Result.Failure(OrderResult.Errors.InvalidStatusTransition);
+            return OrderResult.Errors.InvalidStatusTransition;
 
         // Reset: Clear all line items, adjustments, and zero out totals
         order.LineItems.Clear();
+        order.ItemCount = 0;
         order.Adjustments.Clear();
         order.ItemTotal = 0m;
         order.AdjustmentTotal = 0m;
