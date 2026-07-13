@@ -38,6 +38,9 @@ public static partial class UpdateOrderStatus
             switch (request.Status)
             {
                 case OrderStatus.Placed when entity.Status == OrderStatus.Draft:
+                    var prereqCheck = entity.ValidateCheckoutPrerequisites();
+                    if (prereqCheck.IsFailure)
+                        return prereqCheck.Errors;
                     var finalizeResult = entity.Finalize();
                     if (finalizeResult.IsFailure)
                         return finalizeResult.Errors;

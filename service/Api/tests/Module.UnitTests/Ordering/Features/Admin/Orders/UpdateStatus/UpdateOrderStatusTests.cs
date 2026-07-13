@@ -50,6 +50,7 @@ public class UpdateOrderStatusTests : IDisposable
         order.ShipAddressId = Guid.NewGuid();
         order.ShippingMethodId = Guid.NewGuid();
         order.Email = "test@test.com";
+        order.CheckoutState = CheckoutState.Confirm;
         _dbContext.Set<Order>().Add(order);
         await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 

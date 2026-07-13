@@ -17,16 +17,17 @@ public static partial class AddOrderLineItem
         public async Task<Result<Response>> Handle(Command command, CancellationToken cancellationToken)
         {
             // Contract: pre=command!=null, post=result!=null, throws=DbUpdateException
+            // Check: Load the order first before creating any line item.
+            var order = await dbContext.Set<Order>().FirstOrDefaultAsync(o => o.Id == command.OrderId, cancellationToken);
+            if (order is null)
+                return (Result<Response>)OrderResult.Errors.NotFound(command.OrderId);
+
             // Create: Build the line item from request data.
             var createResult = LineItemMethod.Create(command.OrderId, command.Request.VariantId, command.Request.Quantity, command.Request.Price);
             if (createResult.IsFailure)
                 return createResult.Errors;
 
             var lineItem = createResult.Value;
-
-            var order = await dbContext.Set<Order>().FirstOrDefaultAsync(o => o.Id == command.OrderId, cancellationToken);
-            if (order is null)
-                return (Result<Response>)OrderResult.Errors.NotFound(command.OrderId);
 
             var addResult = order.AddLineItem(lineItem);
             if (addResult.IsFailure)
