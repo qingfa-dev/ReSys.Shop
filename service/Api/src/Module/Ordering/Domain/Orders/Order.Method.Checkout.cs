@@ -100,27 +100,127 @@ public sealed partial class Order
     {
         return LineItems.All(li => !discontinuedVariantIds.Contains(li.VariantId));
     }
+}
 
-    internal Result ValidateCheckoutPrerequisites()
+public static partial class OrderMethod
+{
+    /// <summary>
+    /// Validates all checkout prerequisites are met before placing the order.
+    /// </summary>
+    public static Result ValidateCheckoutPrerequisites(this Order order)
     {
-        if (Status == OrderStatus.Canceled)
+        if (order.Status == OrderStatus.Canceled)
             return OrderResult.Errors.InvalidStatusTransition;
 
-        if (CheckoutState < CheckoutState.Confirm)
+        if (order.CheckoutState < CheckoutState.Confirm)
             return OrderResult.Errors.CheckoutNotComplete;
 
-        if (BillAddressId is null || ShipAddressId is null)
+        if (order.BillAddressId is null || order.ShipAddressId is null)
             return OrderResult.Errors.AddressRequired;
 
-        if (ShippingMethodId is null)
+        if (order.ShippingMethodId is null)
             return OrderResult.Errors.DeliveryMethodRequired;
 
-        if (string.IsNullOrWhiteSpace(Email))
+        if (string.IsNullOrWhiteSpace(order.Email))
             return OrderResult.Errors.EmailRequired;
 
-        if (LineItems.Count == 0)
+        if (order.LineItems.Count == 0)
             return OrderResult.Errors.EmptyOrderCannotFinalize;
 
         return Result.Ok();
     }
+
+    /// <summary>
+    /// Marks the order's payment as paid.
+    /// </summary>
+    public static Result MarkPaymentAsPaid(this Order order)
+    {
+        order.PaymentState = OrderConstant.PaymentState.Paid;
+        return Result.Ok(OrderResult.Success.Updated(order.Id));
+    }
+
+    /// <summary>
+    /// Updates checkout details on a Draft order. Null values are left unchanged.
+    /// </summary>
+    public static Result UpdateDetails(this Order order,
+        string? email, string? specialInstructions,
+        Guid? billAddressId, Guid? shipAddressId, Guid? shippingMethodId)
+    {
+        if (order.Status != OrderStatus.Draft)
+            return OrderResult.Errors.NotDraft;
+
+        if (email is not null) order.Email = email;
+        if (specialInstructions is not null) order.SpecialInstructions = specialInstructions;
+        if (billAddressId.HasValue) order.BillAddressId = billAddressId;
+        if (shipAddressId.HasValue) order.ShipAddressId = shipAddressId;
+        if (shippingMethodId.HasValue) order.ShippingMethodId = shippingMethodId;
+        order.ModifiedAtUtc = DateTimeOffset.UtcNow;
+
+        return Result.Ok(OrderResult.Success.Updated(order.Id));
+    }
+
+    /// <summary>
+    /// Sets the billing address on a Draft order.
+    /// </summary>
+    public static Result SetBillAddress(this Order order, Guid addressId)
+    {
+        if (order.Status != OrderStatus.Draft)
+            return OrderResult.Errors.NotDraftForBillAddress;
+
+        order.BillAddressId = addressId;
+        order.ModifiedAtUtc = DateTimeOffset.UtcNow;
+
+        return Result.Ok(OrderResult.Success.Updated(order.Id));
+    }
+
+    /// <summary>
+    /// Sets the shipping address on a Draft order.
+    /// </summary>
+    public static Result SetShipAddress(this Order order, Guid addressId)
+    {
+        if (order.Status != OrderStatus.Draft)
+            return OrderResult.Errors.NotDraftForShipAddress;
+
+        order.ShipAddressId = addressId;
+        order.ModifiedAtUtc = DateTimeOffset.UtcNow;
+
+        return Result.Ok(OrderResult.Success.Updated(order.Id));
+    }
+
+    /// <summary>
+    /// Sets the shipping method, resets shipment total, and recalculates.
+    /// </summary>
+    public static Result SetShippingMethod(this Order order, Guid methodId)
+    {
+        order.ShippingMethodId = methodId;
+        order.ShipmentTotal = 0m;
+        order.ModifiedAtUtc = DateTimeOffset.UtcNow;
+        order.RecalculateTotals();
+
+        return Result.Ok(OrderResult.Success.Updated(order.Id));
+    }
+
+    /// <summary>
+    /// Returns true if both billing and shipping addresses are set.
+    /// </summary>
+    public static bool HasAddresses(this Order order) =>
+        order.BillAddressId.HasValue && order.ShipAddressId.HasValue;
+
+    /// <summary>
+    /// Returns true if a shipping method is selected.
+    /// </summary>
+    public static bool HasShippingMethod(this Order order) =>
+        order.ShippingMethodId.HasValue;
+
+    /// <summary>
+    /// Returns true if the order has a non-empty email.
+    /// </summary>
+    public static bool HasEmail(this Order order) =>
+        !string.IsNullOrWhiteSpace(order.Email);
+
+    /// <summary>
+    /// Returns true if the order is in Draft status and line items can be modified.
+    /// </summary>
+    public static bool CanModifyLineItems(this Order order) =>
+        order.Status == OrderStatus.Draft;
 }
