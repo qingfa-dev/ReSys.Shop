@@ -21,20 +21,20 @@ public class OrderNumberTests : IDisposable
     public void Dispose() { _db.Dispose(); GC.SuppressFinalize(this); }
 
     [Fact(DisplayName = "Generate: returns well-formed order number")]
-    public void Generate_ReturnsWellFormed()
+    public async Task Generate_ReturnsWellFormed()
     {
-        var result = OrderNumber.Generate(_db);
+        var result = await OrderNumber.GenerateAsync(_db, TestContext.Current.CancellationToken);
         result.IsSuccess.Should().BeTrue();
         result.Value.Should().MatchRegex(@"^R\d{8}-[A-F0-9]{8}$");
     }
 
     [Fact(DisplayName = "Generate: 10000 calls produce no duplicates")]
-    public void Generate_10000Calls_NoDuplicates()
+    public async Task Generate_10000Calls_NoDuplicates()
     {
         var seen = new HashSet<string>();
         for (var i = 0; i < 10_000; i++)
         {
-            var result = OrderNumber.Generate(_db);
+            var result = await OrderNumber.GenerateAsync(_db, TestContext.Current.CancellationToken);
             result.IsSuccess.Should().BeTrue();
             seen.Add(result.Value).Should().BeTrue($"duplicate generated on iteration {i}: {result.Value}");
         }
@@ -43,7 +43,7 @@ public class OrderNumberTests : IDisposable
     [Fact(DisplayName = "Generate: retries when prefix collides")]
     public async Task Generate_RetriesOnCollision()
     {
-        var firstResult = OrderNumber.Generate(_db);
+        var firstResult = await OrderNumber.GenerateAsync(_db, TestContext.Current.CancellationToken);
         firstResult.IsSuccess.Should().BeTrue();
         var first = firstResult.Value;
 
@@ -57,7 +57,7 @@ public class OrderNumberTests : IDisposable
         });
         await _db.SaveChangesAsync(TestContext.Current.CancellationToken);
 
-        var secondResult = OrderNumber.Generate(_db);
+        var secondResult = await OrderNumber.GenerateAsync(_db, TestContext.Current.CancellationToken);
         secondResult.IsSuccess.Should().BeTrue();
         secondResult.Value.Should().NotBe(first);
     }
@@ -67,7 +67,7 @@ public class OrderNumberTests : IDisposable
     {
         for (var i = 0; i < 10_000; i++)
         {
-            var r = OrderNumber.Generate(_db);
+            var r = await OrderNumber.GenerateAsync(_db, TestContext.Current.CancellationToken);
             if (r.IsSuccess)
             {
                 _db.Set<OrderEntity>().Add(new OrderEntity

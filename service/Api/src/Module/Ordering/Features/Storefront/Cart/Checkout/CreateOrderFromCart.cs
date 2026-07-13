@@ -85,20 +85,20 @@ public static partial class CreateOrderFromCart
             if (!cart.EnsureLineItemVariantsAreNotDiscontinued(discontinuedVariantIds))
                 return OrderResult.Errors.VariantDiscontinued;
 
-            // Update: Place the order — set status, checkout state, timestamps, and order number.
-            var numberResult = OrderNumber.Generate(dbContext);
-            if (numberResult.IsFailure)
-                return numberResult.Errors;
-            var placeResult = cart.Place(numberResult.Value);
-            if (placeResult.IsFailure)
-                return placeResult.Errors;
-
-            // Explain: Serializable transaction ensures stock deduction, reservation creation,
-            // and movement logging are atomic — a partial failure rolls back all three.
+            // Explain: RepeatableRead ensures stock rows read for deduction are stable
+            // during the transaction — prevents stock double-deduction under concurrent checkouts.
             await using var transaction = await dbContext.BeginTransactionAsync(
-                IsolationLevel.Serializable, cancellationToken);
+                IsolationLevel.RepeatableRead, cancellationToken);
             try
             {
+                // Generate: Unique order number inside transaction so rollback doesn't leak numbers
+                var numberResult = await OrderNumber.GenerateAsync(dbContext, cancellationToken);
+                if (numberResult.IsFailure)
+                    return numberResult.Errors;
+                var placeResult = cart.Place(numberResult.Value);
+                if (placeResult.IsFailure)
+                    return placeResult.Errors;
+
                 foreach (var lineItem in cart.LineItems)
                 {
                     // Deduct: Consume stock from locations with highest on-hand first.
