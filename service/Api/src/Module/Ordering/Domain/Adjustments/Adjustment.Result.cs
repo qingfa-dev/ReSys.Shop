@@ -34,10 +34,35 @@ public static class AdjustmentResult
         #endregion
 
         #region Validation
+        /// <summary>Adjustment label is required.</summary>
+        public static Error LabelRequired => Error.Validation(
+            code: "Adjustment.Label.Required",
+            message: "Adjustment label is required.");
+
+        /// <summary>Adjustment label exceeds maximum length.</summary>
+        public static Error LabelTooLong => Error.Validation(
+            code: "Adjustment.Label.TooLong",
+            message: $"Adjustment label cannot exceed {AdjustmentConstant.Constraints.MaxLabelLength} characters.");
+
+        /// <summary>Adjustment amount is required.</summary>
+        public static Error AmountRequired => Error.Validation(
+            code: "Adjustment.Amount.Required",
+            message: "Adjustment amount is required.");
+
         /// <summary>Adjustment amount must be greater than or equal to zero.</summary>
         public static Error InvalidAmount => Error.Validation(
             code: "Adjustment.Amount.Invalid",
             message: "Adjustment amount must be greater than or equal to zero.");
+
+        /// <summary>Adjustment type is required.</summary>
+        public static Error TypeRequired => Error.Validation(
+            code: "Adjustment.Type.Required",
+            message: "Adjustment type is required.");
+
+        /// <summary>Adjustment type exceeds maximum length.</summary>
+        public static Error TypeTooLong => Error.Validation(
+            code: "Adjustment.Type.TooLong",
+            message: $"Adjustment type cannot exceed {AdjustmentConstant.Constraints.MaxTypeStrings} characters.");
 
         /// <summary>Adjustable entity reference is required.</summary>
         public static Error AdjustableRequired => Error.Validation(

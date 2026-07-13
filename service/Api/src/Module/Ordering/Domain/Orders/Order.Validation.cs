@@ -69,8 +69,8 @@ public static class OrderValidation
             .WithErrorCode(OrderResult.Errors.EmailInvalid.Code)
             .WithMessage(OrderResult.Errors.EmailInvalid.Message)
             .MaximumLength(OrderConstant.Constraints.MaxEmailLength)
-            .WithErrorCode(OrderResult.Errors.EmailInvalid.Code)
-            .WithMessage(OrderResult.Errors.EmailInvalid.Message);
+            .WithErrorCode(OrderResult.Errors.EmailTooLong.Code)
+            .WithMessage(OrderResult.Errors.EmailTooLong.Message);
     }
 
     public static IRuleBuilderOptions<T, string> ApplyCurrencyRules<T>(
@@ -81,12 +81,21 @@ public static class OrderValidation
             .WithErrorCode(OrderResult.Errors.CurrencyInvalid.Code)
             .WithMessage(OrderResult.Errors.CurrencyInvalid.Message)
             .MaximumLength(OrderConstant.Constraints.MaxCurrencyLength)
-            .WithErrorCode(OrderResult.Errors.CurrencyInvalid.Code)
-            .WithMessage(OrderResult.Errors.CurrencyInvalid.Message);
+            .WithErrorCode(OrderResult.Errors.CurrencyTooLong.Code)
+            .WithMessage(OrderResult.Errors.CurrencyTooLong.Message);
     }
 
     public static IRuleBuilderOptions<T, Guid?> ApplyBillAddressIdRules<T>(
         this IRuleBuilder<T, Guid?> ruleBuilder)
+    {
+        return ruleBuilder
+            .NotEmpty()
+            .WithErrorCode(OrderResult.Errors.BillAddressIdRequired.Code)
+            .WithMessage(OrderResult.Errors.BillAddressIdRequired.Message);
+    }
+
+    public static IRuleBuilderOptions<T, Guid> ApplyBillAddressIdRules<T>(
+        this IRuleBuilder<T, Guid> ruleBuilder)
     {
         return ruleBuilder
             .NotEmpty()
@@ -103,8 +112,26 @@ public static class OrderValidation
             .WithMessage(OrderResult.Errors.ShipAddressIdRequired.Message);
     }
 
+    public static IRuleBuilderOptions<T, Guid> ApplyShipAddressIdRules<T>(
+        this IRuleBuilder<T, Guid> ruleBuilder)
+    {
+        return ruleBuilder
+            .NotEmpty()
+            .WithErrorCode(OrderResult.Errors.ShipAddressIdRequired.Code)
+            .WithMessage(OrderResult.Errors.ShipAddressIdRequired.Message);
+    }
+
     public static IRuleBuilderOptions<T, Guid?> ApplyShippingMethodIdRules<T>(
         this IRuleBuilder<T, Guid?> ruleBuilder)
+    {
+        return ruleBuilder
+            .NotEmpty()
+            .WithErrorCode(OrderResult.Errors.ShippingMethodIdRequired.Code)
+            .WithMessage(OrderResult.Errors.ShippingMethodIdRequired.Message);
+    }
+
+    public static IRuleBuilderOptions<T, Guid> ApplyShippingMethodIdRules<T>(
+        this IRuleBuilder<T, Guid> ruleBuilder)
     {
         return ruleBuilder
             .NotEmpty()

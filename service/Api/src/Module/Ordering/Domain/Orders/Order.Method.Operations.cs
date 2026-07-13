@@ -70,7 +70,7 @@ public static partial class OrderMethod
 
         // Create: New shipping adjustment for the selected shipping method and rate
         var adjResult = AdjustmentMethod.Create(
-            label: $"Shipping",
+            label: AdjustmentConstant.Labels.Shipping,
             amount: cost,
             adjustableId: order.Id,
             adjustableType: AdjustmentConstant.AdjustableTypes.Order,

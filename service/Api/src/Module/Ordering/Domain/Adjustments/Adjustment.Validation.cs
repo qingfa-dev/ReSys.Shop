@@ -8,11 +8,11 @@ public static class AdjustmentValidation
     {
         return ruleBuilder
             .NotEmpty()
-            .WithErrorCode("Adjustment.Label.Required")
-            .WithMessage("Adjustment label is required.")
+            .WithErrorCode(AdjustmentResult.Errors.LabelRequired.Code)
+            .WithMessage(AdjustmentResult.Errors.LabelRequired.Message)
             .MaximumLength(AdjustmentConstant.Constraints.MaxLabelLength)
-            .WithErrorCode("Adjustment.Label.TooLong")
-            .WithMessage($"Adjustment label cannot exceed {AdjustmentConstant.Constraints.MaxLabelLength} characters.");
+            .WithErrorCode(AdjustmentResult.Errors.LabelTooLong.Code)
+            .WithMessage(AdjustmentResult.Errors.LabelTooLong.Message);
     }
 
     // Validate: Amount must be non-negative — negative adjustments are modelled as positive amounts on separate credit line items
@@ -20,11 +20,11 @@ public static class AdjustmentValidation
     {
         return ruleBuilder
             .NotEmpty()
-            .WithErrorCode("Adjustment.Amount.Required")
-            .WithMessage("Adjustment amount is required.")
+            .WithErrorCode(AdjustmentResult.Errors.AmountRequired.Code)
+            .WithMessage(AdjustmentResult.Errors.AmountRequired.Message)
             .GreaterThanOrEqualTo(0)
-            .WithErrorCode("Adjustment.Amount.Invalid")
-            .WithMessage("Adjustment amount must be greater than or equal to zero.");
+            .WithErrorCode(AdjustmentResult.Errors.InvalidAmount.Code)
+            .WithMessage(AdjustmentResult.Errors.InvalidAmount.Message);
     }
 
     // Validate: Type discriminator strings must be non-empty and within DB column width — used as polymorphic join keys
@@ -32,10 +32,10 @@ public static class AdjustmentValidation
     {
         return ruleBuilder
             .NotEmpty()
-            .WithErrorCode("Adjustment.Type.Required")
-            .WithMessage("Adjustment type is required.")
+            .WithErrorCode(AdjustmentResult.Errors.TypeRequired.Code)
+            .WithMessage(AdjustmentResult.Errors.TypeRequired.Message)
             .MaximumLength(AdjustmentConstant.Constraints.MaxTypeStrings)
-            .WithErrorCode("Adjustment.Type.TooLong")
-            .WithMessage($"Adjustment type cannot exceed {AdjustmentConstant.Constraints.MaxTypeStrings} characters.");
+            .WithErrorCode(AdjustmentResult.Errors.TypeTooLong.Code)
+            .WithMessage(AdjustmentResult.Errors.TypeTooLong.Message);
     }
 }

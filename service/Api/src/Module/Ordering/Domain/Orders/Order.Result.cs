@@ -1,3 +1,5 @@
+using Module.Ordering.Domain.LineItems;
+
 namespace Module.Ordering.Domain.Orders;
 
 /// <summary>
@@ -90,6 +92,21 @@ public static class OrderResult
             code: "Order.InvalidStatusTransition",
             message: "The requested status transition is not allowed.");
 
+        /// <summary>Only placed orders can be completed.</summary>
+        public static Error CannotComplete => Error.Validation(
+            code: "Order.CannotComplete",
+            message: "Only placed orders can be completed.");
+
+        /// <summary>Only canceled orders can be resumed.</summary>
+        public static Error CannotResume => Error.Validation(
+            code: "Order.CannotResume",
+            message: "Only canceled orders can be resumed.");
+
+        /// <summary>Cart session does not match the current user session.</summary>
+        public static Error CartSessionMismatch => Error.Conflict(
+            code: "Order.CartSession.Mismatch",
+            message: "Cart session does not match the current user session.");
+
         /// <summary>Order is already approved.</summary>
         public static Error AlreadyApproved => Error.Conflict(
             code: "Order.AlreadyApproved",
@@ -177,10 +194,20 @@ public static class OrderResult
             code: "Order.Email.Invalid",
             message: "Email address is not valid.");
 
+        /// <summary>Email address exceeds maximum length.</summary>
+        public static Error EmailTooLong => Error.Validation(
+            code: "Order.Email.TooLong",
+            message: $"Email address cannot exceed {OrderConstant.Constraints.MaxEmailLength} characters.");
+
         /// <summary>Currency code is not valid.</summary>
         public static Error CurrencyInvalid => Error.Validation(
             code: "Order.Currency.Invalid",
             message: "Currency must be a valid ISO code.");
+
+        /// <summary>Currency code exceeds maximum length.</summary>
+        public static Error CurrencyTooLong => Error.Validation(
+            code: "Order.Currency.TooLong",
+            message: $"Currency code must be at most {OrderConstant.Constraints.MaxCurrencyLength} characters.");
 
         /// <summary>Guest order ID is required.</summary>
         public static Error GuestIdRequired => Error.Validation(
@@ -189,8 +216,8 @@ public static class OrderResult
 
         /// <summary>Order ID is required.</summary>
         public static Error IdRequired => Error.Validation(
-            code: "Order.IdRequired",
-            message: "Order identifier is required.");
+            code: "Order.Id.Required",
+            message: "Order ID is required.");
 
         /// <summary>One or more line item variants are discontinued.</summary>
         public static Error VariantDiscontinued => Error.Validation(
@@ -222,10 +249,65 @@ public static class OrderResult
             code: "Order.ShippingMethodId.Required",
             message: "Shipping method ID is required.");
 
+        /// <summary>Request body is required.</summary>
+        public static Error RequestRequired => Error.Validation(
+            code: "Order.Request.Required",
+            message: "Request body is required.");
+
+        /// <summary>Line item ID is required.</summary>
+        public static Error LineItemIdRequired => Error.Validation(
+            code: "Order.LineItemId.Required",
+            message: "Line item ID is required.");
+
+        /// <summary>Variant ID is required.</summary>
+        public static Error VariantIdRequired => Error.Validation(
+            code: "Order.VariantId.Required",
+            message: "Variant ID is required.");
+
+        /// <summary>Quantity must be positive and within allowed range.</summary>
+        public static Error QuantityInvalid => Error.Validation(
+            code: "Order.Quantity.Invalid",
+            message: "Quantity must be positive and within allowed range.");
+
+        /// <summary>Price must be non-negative.</summary>
+        public static Error PriceInvalid => Error.Validation(
+            code: "Order.Price.Invalid",
+            message: "Price must be non-negative.");
+
+        /// <summary>Query parameters are required.</summary>
+        public static Error ParametersRequired => Error.Validation(
+            code: "Order.Parameters.Required",
+            message: "Query parameters are required.");
+
         /// <summary>Notes exceed the maximum length.</summary>
         public static Error NotesTooLong => Error.Validation(
             code: "Order.SpecialInstructions.TooLong",
             message: $"Notes cannot exceed {OrderConstant.Constraints.MaxSpecialInstructionsLength} characters.");
+
+        /// <summary>Cancellation reason exceeds maximum length.</summary>
+        public static Error ReasonTooLong => Error.Validation(
+            code: "Order.Reason.TooLong",
+            message: "Cancellation reason must be 500 characters or fewer.");
+
+        /// <summary>The selected shipping rate is not valid for this order.</summary>
+        public static Error ShippingRateInvalid => Error.Validation(
+            code: "Order.ShippingRate.Invalid",
+            message: "The selected shipping rate is not valid for this order.");
+
+        /// <summary>Cart request body is required.</summary>
+        public static Error CartRequestRequired => Error.Validation(
+            code: "Cart.Request.Required",
+            message: "Request body is required.");
+
+        /// <summary>Cart line item ID is required.</summary>
+        public static Error CartLineItemIdRequired => Error.Validation(
+            code: "Cart.LineItemId.Required",
+            message: "Line item ID is required.");
+
+        /// <summary>Cart quantity must be within allowed range.</summary>
+        public static Error CartQuantityInvalid => Error.Validation(
+            code: "Cart.Quantity.Invalid",
+            message: $"Quantity must be between 1 and {LineItemConstant.MaxQuantity}.");
         #endregion
 
         #region OrderNumber
