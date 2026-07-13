@@ -27,7 +27,6 @@ public sealed class CreateCartIntegrationTests(ApiFixture fixture) : OrderingInt
         var value = result.DeserializeValue<CartCreate.Response>();
         value.Should().NotBeNull();
         value!.Id.Should().NotBeEmpty();
-        value.Number.Should().NotBeNullOrEmpty();
         value.Currency.Should().Be("USD");
     }
 

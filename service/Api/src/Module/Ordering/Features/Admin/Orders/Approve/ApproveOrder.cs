@@ -1,4 +1,5 @@
 using Module.Ordering.Domain.Orders;
+using Module.Ordering.Features.Admin.Orders.Shared.Mappings;
 
 namespace Module.Ordering.Features.Admin.Orders.Approve;
 
@@ -25,8 +26,8 @@ public static partial class ApproveOrder
             if (result.IsFailure) return (Result<Response>)result.Errors;
             await dbContext.SaveChangesAsync(cancellationToken);
 
-            // Map: Return the approval response with approver details.
-            return new Response { Id = order.Id, ApprovedById = order.ApprovedById, ApprovedAtUtc = order.ApprovedAtUtc };
+            // Map: Return the approval response with full order detail.
+            return order.MapToDetail<Response>();
         }
     }
 }

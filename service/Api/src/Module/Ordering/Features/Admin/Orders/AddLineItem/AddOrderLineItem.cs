@@ -1,5 +1,6 @@
 using Module.Ordering.Domain.LineItems;
 using Module.Ordering.Domain.Orders;
+using Module.Ordering.Features.Admin.Orders.Shared.Mappings;
 namespace Module.Ordering.Features.Admin.Orders.AddLineItem;
 /// <summary>Adds a new line item to an existing order, creating the line item entity and recalculating order totals.</summary>
 public static partial class AddOrderLineItem
@@ -35,7 +36,7 @@ public static partial class AddOrderLineItem
 
             await dbContext.SaveChangesAsync(cancellationToken);
 
-            return Result<Response>.Created(new Response { Id = lineItem.Id, VariantId = lineItem.VariantId, Quantity = lineItem.Quantity, Total = lineItem.Total }, OrderResult.Success.ItemAdded(command.OrderId));
+            return Result<Response>.Created(order.MapToDetail<Response>(), OrderResult.Success.ItemAdded(command.OrderId));
         }
     }
 }

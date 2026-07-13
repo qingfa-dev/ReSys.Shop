@@ -1,4 +1,6 @@
+using Module.Catalog.Domain.Products.Variants;
 using Module.Ordering.Domain.Orders;
+using Module.Ordering.Features.Storefront.Cart.Shared.Mappings;
 
 namespace Module.Ordering.Features.Storefront.Cart.AssociateCart;
 
@@ -59,7 +61,13 @@ public static partial class AssociateCartWithUser
                 return recalcResult.Errors;
             await dbContext.SaveChangesAsync(cancellationToken);
 
-            return new Response { Id = targetOrder.Id, ItemCount = targetOrder.ItemCount };
+            var variantIds = targetOrder.LineItems.Select(li => li.VariantId).ToList();
+            var variantNames = await dbContext.Set<Variant>()
+                .Where(v => variantIds.Contains(v.Id))
+                .AsNoTracking()
+                .ToDictionaryAsync(v => v.Id, v => v.Sku ?? "", cancellationToken);
+
+            return targetOrder.MapToDetailWithItems<Response>(variantNames);
         }
     }
 }

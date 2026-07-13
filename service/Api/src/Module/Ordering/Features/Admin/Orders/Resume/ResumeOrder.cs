@@ -1,4 +1,5 @@
 using Module.Ordering.Domain.Orders;
+using Module.Ordering.Features.Admin.Orders.Shared.Mappings;
 
 using Shared.Operational.Notifications.Models;
 using Shared.Operational.Notifications.Services;
@@ -36,7 +37,7 @@ public static partial class ResumeOrder
             // Notify: Send order confirmation to the customer's email.
             await SendOrderResumedNotificationAsync(order, cancellationToken);
 
-            return new Response { Id = order.Id, Status = order.Status };
+            return order.MapToDetail<Response>();
         }
 
         private async Task SendOrderResumedNotificationAsync(Order order, CancellationToken ct)

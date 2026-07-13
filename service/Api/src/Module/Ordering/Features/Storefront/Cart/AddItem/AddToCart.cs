@@ -6,6 +6,7 @@ using Module.Inventory.Features.Storefront.CartReservations.Reserve;
 using Module.Inventory.Domain.StockLocations.StockItems;
 using Module.Ordering.Domain.LineItems;
 using Module.Ordering.Domain.Orders;
+using Module.Ordering.Features.Storefront.Cart.Shared.Mappings;
 
 namespace Module.Ordering.Features.Storefront.Cart.AddItem;
 
@@ -118,7 +119,12 @@ public static partial class AddToCart
                 if (recalcResult.IsFailure)
                     return recalcResult.Errors;
                 await dbContext.SaveChangesAsync(cancellationToken);
-                return Result<Response>.Ok(new Response { LineItemId = existingLine.Id });
+                var variantIds = cart.LineItems.Select(li => li.VariantId).ToList();
+                var variantNames = await dbContext.Set<Variant>()
+                    .Where(v => variantIds.Contains(v.Id))
+                    .AsNoTracking()
+                    .ToDictionaryAsync(v => v.Id, v => v.Sku ?? "", cancellationToken);
+                return Result<Response>.Ok(cart.MapToDetailWithItems<Response>(variantNames));
             }
 
             // Create: Add new line item to cart with variant price snapshot.
@@ -138,8 +144,14 @@ public static partial class AddToCart
             // Log: Record the new line item in audit log.
             LineItemLoggers.Created(logger, Id: newItem.Id, OrderId: cart.Id, VariantId: request.VariantId, ActionBy: currentUser.UserName);
 
+            var allVariantIds = cart.LineItems.Select(li => li.VariantId).ToList();
+            var allVariantNames = await dbContext.Set<Variant>()
+                .Where(v => allVariantIds.Contains(v.Id))
+                .AsNoTracking()
+                .ToDictionaryAsync(v => v.Id, v => v.Sku ?? "", cancellationToken);
+
             return Result<Response>.Created(
-                new Response { LineItemId = newItem.Id },
+                cart.MapToDetailWithItems<Response>(allVariantNames),
                 LineItemResult.Success.Created(newItem.Id));
         }
     }

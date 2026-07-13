@@ -1,5 +1,6 @@
+using Module.Catalog.Domain.Products.Variants;
 using Module.Ordering.Domain.Orders;
-using Module.Ordering.Features.Admin.Orders.Shared.Mappings;
+using Module.Ordering.Features.Storefront.Cart.Shared.Mappings;
 
 namespace Module.Ordering.Features.Storefront.Cart.CreateCart;
 
@@ -24,10 +25,18 @@ public static partial class CreateCart
 
             // Check: Return existing draft cart if one already exists — avoids duplicates.
             var existingCart = await dbContext.Set<Order>()
+                .Include(x => x.LineItems)
                 .FirstOrDefaultAsync(x => (x.UserId == userId || x.SessionId == sessionId) && x.Status == OrderStatus.Draft, cancellationToken);
 
             if (existingCart is not null)
-                return Result<Response>.Ok(existingCart.MapToDetail<Response>(), OrderResult.Success.CartCreated(existingCart.Id));
+            {
+                var variantIds = existingCart.LineItems.Select(li => li.VariantId).ToList();
+                var variantNames = await dbContext.Set<Variant>()
+                    .Where(v => variantIds.Contains(v.Id))
+                    .AsNoTracking()
+                    .ToDictionaryAsync(v => v.Id, v => v.Sku ?? "", cancellationToken);
+                return Result<Response>.Ok(existingCart.MapToDetailWithItems<Response>(variantNames), OrderResult.Success.CartCreated(existingCart.Id));
+            }
 
             // Create: New draft cart with default currency and session tracking.
             var createResult = OrderMethod.Create(OrderConstant.Defaults.Currency, userId, storeId, sessionId: sessionId);
@@ -37,7 +46,7 @@ public static partial class CreateCart
             dbContext.Set<Order>().Add(order);
             await dbContext.SaveChangesAsync(cancellationToken);
 
-            return Result<Response>.Created(order.MapToDetail<Response>(), OrderResult.Success.CartCreated(order.Id));
+            return Result<Response>.Created(order.MapToDetailWithItems<Response>(new Dictionary<Guid, string>()), OrderResult.Success.CartCreated(order.Id));
         }
     }
 }
