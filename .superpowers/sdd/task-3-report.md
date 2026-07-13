@@ -1,13 +1,7 @@
-# Task 3 Report: UpdatePaymentState → Result + update 1 caller
+# Task 3 Report — 10 Checkout Domain Methods
 
-**Status:** ✅ Complete
-
-**Commit:** `d6a2b4be` — `refactor: UpdatePaymentState returns Result, update 1 caller`
-
-**Build result:** 0W / 0E (succeeded)
-
-**Files changed (2):**
-- `Order.Method.Computation.cs` — signature `void`→`Result`, added `return Result.Ok(OrderResult.Success.PaymentStateUpdated(order.Id))`
-- `Order.Seeder.cs` — added comment `// Result unused — seeder writes domain state directly`
-
-**Concerns:** None.
+**Status:** ✅ Complete  
+**Commits:** `c6e80dac` — `feat: add 10 Checkout domain methods`  
+**Build result:** Build succeeded. 0 Warning(s), 0 Error(s)  
+**Concerns:** None  
+**Report path:** `.superpowers/sdd/task-3-report.md`
