@@ -4,5 +4,5 @@ namespace Module.Ordering.Features.Admin.Orders.Get.ById;
 
 public static partial class GetOrderById
 {
-    public record Response : OrderDetailResponse;
+    public sealed record Response : OrderDetailResponse;
 }

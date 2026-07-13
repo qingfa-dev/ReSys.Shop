@@ -1,5 +1,6 @@
 using Module.Catalog.Domain.Products.Variants;
 using Module.Ordering.Domain.Orders;
+using Module.Ordering.Features.Storefront.Cart.Shared.Mappings;
 
 namespace Module.Ordering.Features.Storefront.Cart.Get;
 
@@ -36,49 +37,16 @@ public static partial class GetCart
                 .FirstOrDefaultAsync(cancellationToken);
 
             if (cart is null)
-            {
-                // Map: Return empty cart structure when no cart exists.
-                return new Response
-                {
-                    Items = [],
-                    ItemTotal = 0,
-                    Total = 0,
-                    Currency = OrderConstant.Defaults.Currency,
-                    ItemCount = 0,
-                    CheckoutState = string.Empty
-                };
-            }
+                return new Response();
 
             // Map: Enrich line items with variant details (name, SKU) from catalog.
             var variantIds = cart.LineItems.Select(li => li.VariantId).ToList();
-            var variants = await dbContext.Set<Variant>()
+            var variantNames = await dbContext.Set<Variant>()
                 .Where(v => variantIds.Contains(v.Id))
                 .AsNoTracking()
-                .ToDictionaryAsync(v => v.Id, v => v, cancellationToken);
+                .ToDictionaryAsync(v => v.Id, v => v.Sku ?? "", cancellationToken);
 
-            return new Response
-            {
-                Id = cart.Id,
-                Items = cart.LineItems.Select(li =>
-                {
-                    variants.TryGetValue(li.VariantId, out var v);
-                    return new CartItem
-                    {
-                        Id = li.Id,
-                        VariantId = li.VariantId,
-                        VariantName = v?.Sku ?? "",
-                        Sku = v?.Sku ?? "",
-                        Quantity = li.Quantity,
-                        Price = li.Price,
-                        Total = li.Total
-                    };
-                }).ToList(),
-                ItemTotal = cart.ItemTotal,
-                Total = cart.Total,
-                Currency = cart.Currency,
-                ItemCount = cart.ItemCount,
-                CheckoutState = cart.CheckoutState.ToString()
-            };
+            return cart.MapToDetailWithItems<Response>(variantNames);
         }
     }
 }

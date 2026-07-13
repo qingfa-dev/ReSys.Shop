@@ -4,5 +4,5 @@ namespace Module.Ordering.Features.Admin.Orders.Get.Paged;
 
 public static partial class GetPagedOrders
 {
-    public record Response : OrderListItemResponse;
+    public sealed record Response : OrderListItemResponse;
 }

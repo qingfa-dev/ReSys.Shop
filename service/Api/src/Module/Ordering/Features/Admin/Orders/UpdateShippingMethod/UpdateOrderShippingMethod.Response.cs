@@ -4,5 +4,5 @@ namespace Module.Ordering.Features.Admin.Orders.UpdateShippingMethod;
 
 public static partial class UpdateOrderShippingMethod
 {
-    public record Response : OrderDetailResponse;
+    public sealed record Response : OrderDetailResponse;
 }

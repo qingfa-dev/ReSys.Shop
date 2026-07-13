@@ -4,5 +4,5 @@ namespace Module.Ordering.Features.Storefront.Orders.Get.ById;
 
 public static partial class GetCustomerOrder
 {
-    public record Response : OrderDetailResponse;
+    public sealed record Response : OrderDetailResponse;
 }

@@ -1,3 +1,4 @@
+using Module.Ordering.Domain.LineItems;
 using Module.Ordering.Domain.Orders;
 using Module.Ordering.Features.Storefront.Cart.Shared.Models;
 
@@ -16,5 +17,34 @@ public static partial class CartMapping
             ItemCount = entity.ItemCount,
             CheckoutState = entity.CheckoutState.ToString(),
         };
+    }
+
+    public static CartItem MapToCartItem(this LineItem lineItem, string variantName, string sku)
+    {
+        return new CartItem
+        {
+            Id = lineItem.Id,
+            VariantId = lineItem.VariantId,
+            VariantName = variantName,
+            Sku = sku,
+            Quantity = lineItem.Quantity,
+            Price = lineItem.Price,
+            Total = lineItem.Total,
+        };
+    }
+
+    public static T MapToDetailWithItems<T>(this Order entity, Dictionary<Guid, string> variantNames)
+        where T : CartDetailResponse, new()
+    {
+        var result = entity.MapToDetail<T>();
+        result = result with
+        {
+            Items = entity.LineItems.Select(li =>
+            {
+                variantNames.TryGetValue(li.VariantId, out var name);
+                return li.MapToCartItem(name ?? "", name ?? "");
+            }).ToList()
+        };
+        return result;
     }
 }

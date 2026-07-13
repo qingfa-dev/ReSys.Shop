@@ -1,3 +1,4 @@
+using Module.Ordering.Domain.LineItems;
 using Module.Ordering.Domain.Orders;
 using Module.Ordering.Features.Admin.Orders.Shared.Models;
 
@@ -68,6 +69,26 @@ public static partial class OrderMapping
             Email = entity.Email,
             CreatedAtUtc = entity.CreatedAtUtc,
             CompletedAtUtc = entity.CompletedAtUtc,
+        };
+    }
+
+    /// <summary>Maps a LineItem domain entity to a line item response DTO.</summary>
+    /// <typeparam name="T">The target response type (must inherit from LineItemResponse).</typeparam>
+    /// <param name="entity">The LineItem domain entity to map.</param>
+    /// <returns>A new line item response DTO populated from the entity.</returns>
+    // Map: Domain entity -> Line item response (full property transfer)
+    public static T MapToLineItemResponse<T>(this LineItem entity) where T : LineItemResponse, new()
+    {
+        return new T
+        {
+            Id = entity.Id,
+            VariantId = entity.VariantId,
+            Quantity = entity.Quantity,
+            Price = entity.Price,
+            Total = entity.Total,
+            AdjustmentTotal = entity.AdjustmentTotal,
+            Currency = entity.Currency,
+            CreatedAtUtc = entity.CreatedAtUtc,
         };
     }
 }

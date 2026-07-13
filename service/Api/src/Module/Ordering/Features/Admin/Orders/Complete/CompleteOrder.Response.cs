@@ -4,5 +4,5 @@ namespace Module.Ordering.Features.Admin.Orders.Complete;
 
 public static partial class CompleteOrder
 {
-    public record Response : OrderDetailResponse;
+    public sealed record Response : OrderDetailResponse;
 }

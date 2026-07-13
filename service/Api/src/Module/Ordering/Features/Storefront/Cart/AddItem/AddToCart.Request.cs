@@ -4,7 +4,7 @@ namespace Module.Ordering.Features.Storefront.Cart.AddItem;
 
 public static partial class AddToCart
 {
-    public record Request : CartParameters
+    public sealed record Request : CartParameters
     {
     }
 }

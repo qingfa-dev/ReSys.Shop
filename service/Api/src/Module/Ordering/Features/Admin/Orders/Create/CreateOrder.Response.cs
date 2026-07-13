@@ -4,5 +4,5 @@ namespace Module.Ordering.Features.Admin.Orders.Create;
 
 public static partial class CreateOrder
 {
-    public record Response : OrderDetailResponse;
+    public sealed record Response : OrderDetailResponse;
 }

@@ -39,3 +39,15 @@ public record OrderListItemResponse : OrderParameters
     public DateTimeOffset CreatedAtUtc { get; init; }
     public DateTimeOffset? CompletedAtUtc { get; init; }
 }
+
+public record LineItemResponse
+{
+    public Guid Id { get; init; }
+    public Guid VariantId { get; init; }
+    public int Quantity { get; init; }
+    public decimal Price { get; init; }
+    public decimal Total { get; init; }
+    public decimal AdjustmentTotal { get; init; }
+    public string Currency { get; init; } = string.Empty;
+    public DateTimeOffset CreatedAtUtc { get; init; }
+}

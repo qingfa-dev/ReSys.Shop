@@ -1,4 +1,5 @@
 using Module.Ordering.Domain.LineItems;
+using Module.Ordering.Features.Admin.Orders.Shared.Mappings;
 
 namespace Module.Ordering.Features.Admin.Orders.Get.LineItemById;
 
@@ -26,17 +27,7 @@ public static partial class GetOrderLineItemById
             if (lineItem is null)
                 return LineItemResult.Errors.NotFound(query.LineItemId);
 
-            return new Response
-            {
-                Id = lineItem.Id,
-                VariantId = lineItem.VariantId,
-                Quantity = lineItem.Quantity,
-                Price = lineItem.Price,
-                Total = lineItem.Total,
-                AdjustmentTotal = lineItem.AdjustmentTotal,
-                Currency = lineItem.Currency,
-                CreatedAtUtc = lineItem.CreatedAtUtc
-            };
+            return lineItem.MapToLineItemResponse<Response>();
         }
     }
 }

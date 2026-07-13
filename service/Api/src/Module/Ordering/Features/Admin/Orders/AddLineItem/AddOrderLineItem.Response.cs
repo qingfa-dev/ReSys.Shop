@@ -2,7 +2,7 @@ namespace Module.Ordering.Features.Admin.Orders.AddLineItem;
 
 public static partial class AddOrderLineItem
 {
-    public record Response
+    public sealed record Response
     {
         public Guid Id { get; init; }
         public Guid VariantId { get; init; }
