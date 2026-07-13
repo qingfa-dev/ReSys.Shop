@@ -1,6 +1,5 @@
 using Module.Ordering.Domain.Orders;
 using Module.Ordering.Features.Admin.Orders.Shared.Mappings;
-using Module.Ordering.Features.Admin.Orders.Shared.Models;
 
 namespace Module.Ordering.Features.Storefront.Cart.CreateCart;
 
@@ -8,7 +7,6 @@ namespace Module.Ordering.Features.Storefront.Cart.CreateCart;
 public static partial class CreateCart
 {
     public sealed record Command : ICommand<Response>;
-    public sealed record Response : OrderDetailResponse;
 
     public sealed class CommandHandler(IApplicationDbContext dbContext, ICurrentUser currentUser) : ICommandHandler<Command, Response>
     {
