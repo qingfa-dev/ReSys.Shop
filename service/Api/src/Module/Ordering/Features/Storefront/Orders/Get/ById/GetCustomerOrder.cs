@@ -31,7 +31,7 @@ public static partial class GetCustomerOrder
                 .FirstOrDefaultAsync(x => x.Id == query.Id && x.UserId == userId, cancellationToken);
 
             if (entity is null)
-                return (Result<Response>)OrderResult.Errors.NotFound(query.Id);
+                return OrderResult.Errors.NotFound(query.Id);
 
             // Map: Convert entity to response DTO.
             return entity.MapToDetail<Response>();

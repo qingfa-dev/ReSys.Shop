@@ -26,6 +26,8 @@ public static partial class OrderMethod
         if (recalcResult.IsFailure)
             return recalcResult.Errors;
 
+        order.CheckoutState = CheckoutState.Complete;
+
         return Result.Ok(OrderResult.Success.Finalized(order.Id));
     }
 
@@ -75,6 +77,8 @@ public static partial class OrderMethod
             return OrderResult.Errors.AlreadyApproved;
 
         order.ApprovedById = approvedById;
+        order.ApprovedAtUtc = DateTimeOffset.UtcNow;
+        order.ModifiedAtUtc = DateTimeOffset.UtcNow;
 
         return Result.Ok(OrderResult.Success.Approved(order.Id));
     }

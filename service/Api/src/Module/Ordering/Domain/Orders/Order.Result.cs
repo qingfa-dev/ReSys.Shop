@@ -196,6 +196,23 @@ public static class OrderResult
             message: $"Order cannot have more than {OrderConstant.Constraints.MaxLineItems} line items.");
         #endregion
 
+        #region Operations
+        /// <summary>Line item with the specified ID was not found on this order.</summary>
+        public static Error LineItemNotFound(Guid id) => Error.NotFound(
+            code: "Order.LineItem.NotFound",
+            message: $"Line item with ID '{id}' was not found on this order.");
+
+        /// <summary>Payment has not been confirmed by the gateway.</summary>
+        public static Error PaymentNotConfirmed => Error.Validation(
+            code: "Order.Payment.NotConfirmed",
+            message: "Payment has not been confirmed by the gateway.");
+
+        /// <summary>Shipping adjustment was not found on this order.</summary>
+        public static Error ShippingAdjustmentNotFound => Error.NotFound(
+            code: "Order.ShippingAdjustment.NotFound",
+            message: "Shipping adjustment was not found on this order.");
+        #endregion
+
         #region Auth
         /// <summary>User must be authenticated to perform this operation.</summary>
         public static Error UserNotAuthenticated => Error.Unauthorized(
