@@ -64,7 +64,7 @@ public static partial class SelectShippingRate
 
                 // Remove: Clear old shipping adjustments before adding replacement.
                 var existingShipping = cart.Adjustments
-                    .Where(a => a.SourceType == "Shipping")
+                    .Where(a => a.SourceType == AdjustmentConstant.SourceTypes.Shipping)
                     .ToList();
                 foreach (var adj in existingShipping)
                 {
@@ -76,12 +76,12 @@ public static partial class SelectShippingRate
                 if (cost > 0)
                 {
                     var adjResult = AdjustmentMethod.Create(
-                        label: "Shipping",
+                        label: AdjustmentConstant.Labels.Shipping,
                         amount: cost,
                         adjustableId: cart.Id,
-                        adjustableType: "Order",
+                        adjustableType: AdjustmentConstant.AdjustableTypes.Order,
                         sourceId: command.Request.ShippingMethodId,
-                        sourceType: "Shipping",
+                        sourceType: AdjustmentConstant.SourceTypes.Shipping,
                         orderId: cart.Id);
 
                     if (adjResult.IsSuccess)

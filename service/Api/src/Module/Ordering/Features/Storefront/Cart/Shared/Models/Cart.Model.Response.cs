@@ -1,3 +1,5 @@
+using Module.Ordering.Domain.Orders;
+
 namespace Module.Ordering.Features.Storefront.Cart.Shared.Models;
 
 /// <summary>Represents a single item in the cart with variant and pricing details.</summary>
@@ -31,7 +33,7 @@ public class CartDetailResponse : CartParameters
     /// <summary>Cart grand total including adjustments.</summary>
     public decimal Total { get; init; }
     /// <summary>Currency code (default: USD).</summary>
-    public string Currency { get; init; } = "USD";
+    public string Currency { get; init; } = OrderConstant.Defaults.Currency;
     /// <summary>Number of distinct line items.</summary>
     public int ItemCount { get; init; }
     /// <summary>Checkout readiness state (Draft, Ready, Invalid).</summary>

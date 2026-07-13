@@ -8,7 +8,8 @@ public static partial class EmptyCart
     {
         public void AddRoutes(IEndpointRouteBuilder app)
         {
-            app.MapPost(OrderingFeature.Storefront.Cart.Empty.Route, async (ISender sender, CancellationToken ct) =>
+            app.MapPost(OrderingFeature.Storefront.Cart.Empty.Route, 
+                async (ISender sender, CancellationToken ct) =>
             {
                 // Call: Dispatch empty-cart command.
                 var result = await sender.Send(new Command(), ct);

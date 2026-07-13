@@ -43,7 +43,7 @@ public static partial class GetCart
                     Items = [],
                     ItemTotal = 0,
                     Total = 0,
-                    Currency = "USD",
+                    Currency = OrderConstant.Defaults.Currency,
                     ItemCount = 0,
                     CheckoutState = string.Empty
                 };

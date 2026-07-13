@@ -46,7 +46,7 @@ public class CalculateShippingHandlerTests : IDisposable
         _dbContext.Set<Variant>().AddRange(variant1, variant2);
         await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 
-        var order = OrderExtensions.Create("USD", userId: Guid.NewGuid(), storeId: Guid.Empty).Value;
+        var order = OrderMethod.Create("USD", userId: Guid.NewGuid(), storeId: Guid.Empty).Value;
         order.Total = 100m;
         order.LineItems.Add(new Module.Ordering.Domain.LineItems.LineItem
         {
@@ -106,7 +106,7 @@ public class CalculateShippingHandlerTests : IDisposable
     [Fact(DisplayName = "Handler: Should return not found when method missing")]
     public async Task Handle_ShouldReturnNotFound_WhenMethodMissing()
     {
-        var order = OrderExtensions.Create("USD", userId: Guid.NewGuid(), storeId: Guid.Empty).Value;
+        var order = OrderMethod.Create("USD", userId: Guid.NewGuid(), storeId: Guid.Empty).Value;
         _dbContext.Set<Order>().Add(order);
         await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 

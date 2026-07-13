@@ -56,8 +56,8 @@ public static partial class AddToCart
             if (cart is null)
             {
                 // Create: New draft cart with default currency from configuration.
-                var currency = configuration["Ordering:DefaultCurrency"] ?? "USD";
-                var createResult = OrderExtensions.Create(currency, userId, Guid.Empty, sessionId: sessionId, shipAddressId: null);
+                var currency = configuration["Ordering:DefaultCurrency"] ?? OrderConstant.Defaults.Currency;
+                var createResult = OrderMethod.Create(currency, userId, Guid.Empty, sessionId: sessionId, shipAddressId: null);
                 if (createResult.IsFailure)
                     return createResult.Errors;
 
@@ -86,6 +86,7 @@ public static partial class AddToCart
                     ? currentUser.UserId!
                     : currentUser.SessionId ?? string.Empty;
 
+                const int CartReservationTtlMinutes = 30;
                 var reserveResult = await sender.Send(
                     new ReserveCartStock.Command(
                         new ReserveCartStock.Request
@@ -93,7 +94,7 @@ public static partial class AddToCart
                             VariantId = request.VariantId,
                             Quantity = request.Quantity,
                             StockLocationId = primaryLocation.StockLocationId,
-                            TtlMinutes = 30
+                            TtlMinutes = CartReservationTtlMinutes
                         },
                         cartToken),
                     cancellationToken);

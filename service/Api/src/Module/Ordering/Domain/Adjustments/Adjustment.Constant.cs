@@ -27,6 +27,25 @@ public static class AdjustmentConstant
         public const bool Mandatory = false;
         // Initialize: New adjustments start in "open" state — only closed adjustments are frozen for recalculation
         public const string State = "open";
+        // Initialize: System user identifier for auto-created adjustments (e.g. shipping)
+        public const string CreatedBy = "System";
+    }
+
+    public static class SourceTypes
+    {
+        public const string Shipping = "Shipping";
+    }
+
+    public static class AdjustableTypes
+    {
+        public const string Order = "Order";
+        public const string LineItem = "LineItem";
+        public const string Shipment = "Shipment";
+    }
+
+    public static class Labels
+    {
+        public const string Shipping = "Shipping";
     }
 
     public static class Query

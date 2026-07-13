@@ -52,6 +52,12 @@ public static class OrderConstant
         public const string Complete = "complete";
     }
 
+    public static class CancelReasons
+    {
+        public const string Customer = "Order cancelled by customer";
+        public const string Admin = "Order cancelled by admin";
+    }
+
     public static class StockAction
     {
         public const string Ship = "ship";

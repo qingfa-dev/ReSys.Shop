@@ -60,7 +60,7 @@ public class UpdateCartItemQuantityTests : IDisposable
         _dbContext.Set<StockItem>().Add(stockItem);
         await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 
-        var cart = OrderExtensions.Create("USD", _userId, Guid.Empty).Value;
+        var cart = OrderMethod.Create("USD", _userId, Guid.Empty).Value;
         cart.LineItems.Add(new Module.Ordering.Domain.LineItems.LineItem
         {
             Id = _lineItemId,
@@ -99,7 +99,7 @@ public class UpdateCartItemQuantityTests : IDisposable
         _dbContext.Set<StockItem>().Add(stockItem);
         await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 
-        var cart = OrderExtensions.Create("USD", _userId, Guid.Empty).Value;
+        var cart = OrderMethod.Create("USD", _userId, Guid.Empty).Value;
         cart.LineItems.Add(new Module.Ordering.Domain.LineItems.LineItem
         {
             Id = _lineItemId,
@@ -126,7 +126,7 @@ public class UpdateCartItemQuantityTests : IDisposable
     public async Task Handle_ShouldFail_WhenItemNotFound()
     {
         // Arrange: Create cart but no matching line item
-        var cart = OrderExtensions.Create("USD", _userId, Guid.Empty).Value;
+        var cart = OrderMethod.Create("USD", _userId, Guid.Empty).Value;
         _dbContext.Set<Order>().Add(cart);
         await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 

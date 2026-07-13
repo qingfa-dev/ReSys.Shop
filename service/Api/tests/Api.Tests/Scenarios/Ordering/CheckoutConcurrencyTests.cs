@@ -142,10 +142,10 @@ public sealed class CheckoutConcurrencyTests(ApiFixture fixture) : OrderingInteg
         using IServiceScope scope = Fixture.Factory.Services.CreateScope();
         IApplicationDbContext db = scope.ServiceProvider.GetRequiredService<IApplicationDbContext>();
 
-        // Use the public OrderExtensions.Create factory; then promote the
+        // Use the public OrderMethod.Create factory; then promote the
         // checkout state to Confirm and supply the address / shipping
         // fields that the CreateOrderFromCart handler validates.
-        Result<Order> orderResult = OrderExtensions.Create(
+        Result<Order> orderResult = OrderMethod.Create(
             currency: "USD",
             userId: userId,
             storeId: Guid.Empty,

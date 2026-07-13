@@ -6,17 +6,17 @@ public sealed partial class Order
     #region Checkout Steps
 
     // Invariant: Checkout flow steps must always include 'Complete'
-    public static readonly string[] DefaultCheckoutSteps = ["address", "delivery", "payment", "confirm", "complete"];
+    public static readonly string[] DefaultCheckoutSteps = [OrderConstant.CheckoutStep.Address, OrderConstant.CheckoutStep.Delivery, OrderConstant.CheckoutStep.Payment, OrderConstant.CheckoutStep.Confirm, OrderConstant.CheckoutStep.Complete];
 
     public string[] ResolvedCheckoutSteps
     {
         get
         {
             var steps = new List<string>();
-            if (DeliveryRequired()) steps.Add("delivery");
-            if (PaymentRequired()) steps.Add("payment");
-            if (ConfirmationRequired()) steps.Add("confirm");
-            steps.Add("complete");
+            if (DeliveryRequired()) steps.Add(OrderConstant.CheckoutStep.Delivery);
+            if (PaymentRequired()) steps.Add(OrderConstant.CheckoutStep.Payment);
+            if (ConfirmationRequired()) steps.Add(OrderConstant.CheckoutStep.Confirm);
+            steps.Add(OrderConstant.CheckoutStep.Complete);
             return [.. steps];
         }
     }
@@ -27,14 +27,14 @@ public sealed partial class Order
 
     // Compute: Map internal CheckoutState to customer-facing step; 'Address' is the initial display step
     public string CurrentCheckoutStep =>
-        CheckoutState == CheckoutState.Address ? "address" : CheckoutState.ToString().ToLowerInvariant();
+        CheckoutState == CheckoutState.Address ? OrderConstant.CheckoutStep.Address : CheckoutState.ToString().ToLowerInvariant();
 
     // Compute: Steps completed before the current step, excluding 'Complete'
     public string[] CompletedCheckoutSteps
     {
         get
         {
-            var steps = ResolvedCheckoutSteps.Where(s => s != "complete").ToList();
+            var steps = ResolvedCheckoutSteps.Where(s => s != OrderConstant.CheckoutStep.Complete).ToList();
             var idx = steps.IndexOf(CurrentCheckoutStep);
             return idx > 0 ? steps.Take(idx).ToArray() : [];
         }
@@ -83,7 +83,7 @@ public sealed partial class Order
     // Validate: Whether the order can be canceled
     public bool AllowCancel() =>
         Status == OrderStatus.Placed &&
-        (ShipmentState is null || ShipmentState is "ready" or "backorder" or "pending" or "canceled");
+        (ShipmentState is null || ShipmentState is OrderConstant.ShipmentState.Ready or OrderConstant.ShipmentState.Backorder or OrderConstant.ShipmentState.Pending or OrderConstant.ShipmentState.Canceled);
 
     // Validate: Whether the order can be shipped
     public bool CanShip() =>

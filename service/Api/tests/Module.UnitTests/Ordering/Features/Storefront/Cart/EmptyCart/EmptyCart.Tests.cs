@@ -38,7 +38,7 @@ public class EmptyCartTests : IDisposable
     [Fact(DisplayName = "Handler: Should empty cart")]
     public async Task Handle_ShouldEmptyCart_WhenCartExists()
     {
-        var cart = OrderExtensions.Create("USD", _userId, Guid.Empty).Value;
+        var cart = OrderMethod.Create("USD", _userId, Guid.Empty).Value;
         cart.LineItems.Add(new Module.Ordering.Domain.LineItems.LineItem
         {
             Id = Guid.NewGuid(), OrderId = cart.Id, VariantId = Guid.NewGuid(),

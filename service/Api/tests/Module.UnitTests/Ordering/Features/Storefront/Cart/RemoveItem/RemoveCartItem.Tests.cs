@@ -44,7 +44,7 @@ public class RemoveCartItemTests : IDisposable
     public async Task Handle_ShouldRemoveItem_WhenItemExists()
     {
         // Arrange: Seed cart with line item
-        var cart = OrderExtensions.Create("USD", _userId, Guid.Empty).Value;
+        var cart = OrderMethod.Create("USD", _userId, Guid.Empty).Value;
         var lineItem = new Module.Ordering.Domain.LineItems.LineItem
         {
             Id = Guid.NewGuid(),

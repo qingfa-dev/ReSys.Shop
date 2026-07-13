@@ -132,7 +132,7 @@ public class OrderMappingTests
 
     private static Order CreateOrder(Action<Order>? configure = null)
     {
-        var order = OrderExtensions.Create(
+        var order = OrderMethod.Create(
             currency: "USD",
             userId: Guid.NewGuid(),
             storeId: Guid.NewGuid()).Value;

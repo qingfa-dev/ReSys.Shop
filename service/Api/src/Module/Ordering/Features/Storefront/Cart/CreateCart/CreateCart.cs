@@ -32,7 +32,7 @@ public static partial class CreateCart
                 return Result<Response>.Ok(existingCart.MapToDetail<Response>());
 
             // Create: New draft cart with default currency and session tracking.
-            var createResult = OrderExtensions.Create("USD", userId, storeId, sessionId: sessionId);
+            var createResult = OrderMethod.Create(OrderConstant.Defaults.Currency, userId, storeId, sessionId: sessionId);
             if (createResult.IsFailure) return (Result<Response>)createResult.Errors;
 
             var order = createResult.Value;

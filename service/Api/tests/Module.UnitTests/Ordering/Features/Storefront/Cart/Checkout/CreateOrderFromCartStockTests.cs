@@ -66,7 +66,7 @@ public class CreateOrderFromCartStockTests : IDisposable
 
         // Arrange: Create a draft cart requesting more than the available stock
         var userId = Guid.Parse(_currentUserMock.Object.UserId!);
-        var cart = OrderExtensions.Create("USD", userId, Guid.Empty).Value;
+        var cart = OrderMethod.Create("USD", userId, Guid.Empty).Value;
         cart.CheckoutState = CheckoutState.Confirm;
         cart.BillAddressId = Guid.NewGuid();
         cart.ShipAddressId = Guid.NewGuid();
@@ -109,7 +109,7 @@ public class CreateOrderFromCartStockTests : IDisposable
         // Arrange: Create two draft carts, each requesting the single unit
         var userId = Guid.Parse(_currentUserMock.Object.UserId!);
 
-        var cart1 = OrderExtensions.Create("USD", userId, Guid.Empty).Value;
+        var cart1 = OrderMethod.Create("USD", userId, Guid.Empty).Value;
         cart1.CheckoutState = CheckoutState.Confirm;
         cart1.BillAddressId = Guid.NewGuid();
         cart1.ShipAddressId = Guid.NewGuid();
@@ -127,7 +127,7 @@ public class CreateOrderFromCartStockTests : IDisposable
         });
         _dbContext.Set<Order>().Add(cart1);
 
-        var cart2 = OrderExtensions.Create("USD", userId, Guid.Empty).Value;
+        var cart2 = OrderMethod.Create("USD", userId, Guid.Empty).Value;
         cart2.CheckoutState = CheckoutState.Confirm;
         cart2.BillAddressId = Guid.NewGuid();
         cart2.ShipAddressId = Guid.NewGuid();

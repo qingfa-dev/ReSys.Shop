@@ -19,8 +19,8 @@ public static partial class UpdateOrderAdmin
             When(x => x.Request.Email is not null, () =>
             {
                 RuleFor(x => x.Request.Email).EmailAddress()
-                    .WithErrorCode("Order.Email.Invalid")
-                    .WithMessage("Email address is not valid.");
+                    .WithErrorCode(OrderResult.Errors.EmailInvalid.Code)
+                    .WithMessage(OrderResult.Errors.EmailInvalid.Message);
             });
         }
     }

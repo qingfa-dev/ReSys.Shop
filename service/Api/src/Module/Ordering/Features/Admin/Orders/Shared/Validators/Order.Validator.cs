@@ -14,15 +14,15 @@ public static partial class OrderValidator
             RuleFor(x => x.Currency)
                 .NotEmpty()
                 .MaximumLength(OrderConstant.Constraints.MaxCurrencyLength)
-                .WithErrorCode("Order.Currency.Invalid")
-                .WithMessage($"Currency must be a valid ISO code (max {OrderConstant.Constraints.MaxCurrencyLength} chars).");
+                .WithErrorCode(OrderResult.Errors.CurrencyInvalid.Code)
+                .WithMessage(OrderResult.Errors.CurrencyInvalid.Message);
 
             // Validate: Email format checked only when a value is provided.
             RuleFor(x => x.Email)
                 .EmailAddress()
                 .When(x => !string.IsNullOrEmpty(x.Email))
-                .WithErrorCode("Order.Email.Invalid")
-                .WithMessage("Email address is not valid.");
+                .WithErrorCode(OrderResult.Errors.EmailInvalid.Code)
+                .WithMessage(OrderResult.Errors.EmailInvalid.Message);
         }
     }
 

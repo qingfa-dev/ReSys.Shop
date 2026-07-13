@@ -38,7 +38,7 @@ public class DeleteCartTests : IDisposable
     [Fact(DisplayName = "Handler: Should delete draft cart")]
     public async Task Handle_ShouldDeleteCart_WhenCartExists()
     {
-        var cart = OrderExtensions.Create("USD", _userId, Guid.Empty).Value;
+        var cart = OrderMethod.Create("USD", _userId, Guid.Empty).Value;
         _dbContext.Set<Order>().Add(cart);
         await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 

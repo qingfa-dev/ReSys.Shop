@@ -6,6 +6,7 @@ using Module.Catalog.Domain.Products.Variants;
 using Module.Inventory.Domain.StockLocations.StockItems;
 using Module.Inventory.Domain.StockReservations;
 using Module.Inventory.Domain.StockLocations.StockItems.StockMovements;
+using Module.Ordering.Domain.Adjustments;
 using Module.Ordering.Domain.Orders;
 using Module.Ordering.Features.Admin.Orders.Shared.Mappings;
 using Module.Payment.Domain.PaymentCaptures;
@@ -138,8 +139,9 @@ public static partial class CreateOrderFromCart
                         remaining -= take;
 
                         // Create: Reserve stock for this order (30-day expiry).
+                        const int StockReservationExpiryDays = 30;
                         var reservation = StockReservationMethod.Reserve(
-                            si.VariantId, take, si.StockLocationId, cart.Id, 30).Value;
+                            si.VariantId, take, si.StockLocationId, cart.Id, StockReservationExpiryDays).Value;
                         dbContext.Set<StockReservation>().Add(reservation);
 
                         // Log: Record stock movement for audit trail.
@@ -147,9 +149,9 @@ public static partial class CreateOrderFromCart
                             stockItemId: si.Id,
                             quantity: -take,
                             previousCountOnHand: si.CountOnHand,
-                            originatorType: "Order",
+                            originatorType: AdjustmentConstant.AdjustableTypes.Order,
                             originatorId: cart.Id,
-                            action: "ship",
+                            action: OrderConstant.StockAction.Ship,
                             createdBy: currentUser.UserName ?? "System");
 
                         if (movementResult.IsSuccess)

@@ -66,7 +66,7 @@ public class CreateOrderFromCartTests : IDisposable
 
         // Arrange: Create a draft cart with a line item
         var userId = Guid.Parse(_currentUserMock.Object.UserId!);
-        var cart = OrderExtensions.Create("USD", userId, Guid.Empty).Value;
+        var cart = OrderMethod.Create("USD", userId, Guid.Empty).Value;
         cart.CheckoutState = CheckoutState.Confirm;
         cart.BillAddressId = Guid.NewGuid();
         cart.ShipAddressId = Guid.NewGuid();
@@ -110,7 +110,7 @@ public class CreateOrderFromCartTests : IDisposable
     {
         // Arrange: Create empty draft cart (checkout prerequisites set but no items)
         var userId = Guid.Parse(_currentUserMock.Object.UserId!);
-        var cart = OrderExtensions.Create("USD", userId, Guid.Empty).Value;
+        var cart = OrderMethod.Create("USD", userId, Guid.Empty).Value;
         cart.CheckoutState = CheckoutState.Confirm;
         cart.BillAddressId = Guid.NewGuid();
         cart.ShipAddressId = Guid.NewGuid();

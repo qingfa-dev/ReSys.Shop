@@ -9,7 +9,7 @@ public class OrderCheckoutTests
     public void AssignDefaultAddresses_Should_Set_Addresses_When_Null()
     {
         var storeId = Guid.NewGuid();
-        var order = OrderExtensions.Create("USD", Guid.NewGuid(), storeId).Value;
+        var order = OrderMethod.Create("USD", Guid.NewGuid(), storeId).Value;
         var billId = Guid.NewGuid();
         var shipId = Guid.NewGuid();
 
@@ -25,7 +25,7 @@ public class OrderCheckoutTests
         var storeId = Guid.NewGuid();
         var existingBillId = Guid.NewGuid();
         var existingShipId = Guid.NewGuid();
-        var order = OrderExtensions.Create("USD", Guid.NewGuid(), storeId, shipAddressId: existingShipId).Value;
+        var order = OrderMethod.Create("USD", Guid.NewGuid(), storeId, shipAddressId: existingShipId).Value;
         order.BillAddressId = existingBillId;
 
         var newBillId = Guid.NewGuid();
@@ -41,7 +41,7 @@ public class OrderCheckoutTests
     public void AssignDefaultAddresses_Should_Not_Set_When_Null_Provided()
     {
         var storeId = Guid.NewGuid();
-        var order = OrderExtensions.Create("USD", Guid.NewGuid(), storeId).Value;
+        var order = OrderMethod.Create("USD", Guid.NewGuid(), storeId).Value;
 
         order.AssignDefaultAddresses(null, null);
 

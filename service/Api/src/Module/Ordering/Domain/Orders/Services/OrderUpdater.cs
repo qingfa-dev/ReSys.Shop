@@ -117,19 +117,19 @@ public partial class OrderUpdater
     {
         if (Order.Status == OrderStatus.Canceled && Order.PaymentTotal == 0m)
         {
-            Order.PaymentState = "void";
+            Order.PaymentState = OrderConstant.PaymentState.Void;
         }
         else if (Order.OutstandingBalance > 0m)
         {
-            Order.PaymentState = "balance_due";
+            Order.PaymentState = OrderConstant.PaymentState.BalanceDue;
         }
         else if (Order.OutstandingBalance < 0m)
         {
-            Order.PaymentState = "credit_owed";
+            Order.PaymentState = OrderConstant.PaymentState.CreditOwed;
         }
         else
         {
-            Order.PaymentState = "paid";
+            Order.PaymentState = OrderConstant.PaymentState.Paid;
         }
     }
 

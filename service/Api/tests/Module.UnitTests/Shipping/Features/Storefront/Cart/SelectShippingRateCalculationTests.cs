@@ -51,7 +51,7 @@ public class SelectShippingRateCalculationTests : IDisposable
         _dbContext.Set<Variant>().Add(variant);
         await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 
-        var order = OrderExtensions.Create("USD", _userId, Guid.Empty).Value;
+        var order = OrderMethod.Create("USD", _userId, Guid.Empty).Value;
         order.Total = 100m;
         order.LineItems.Add(new Module.Ordering.Domain.LineItems.LineItem
         {
@@ -92,7 +92,7 @@ public class SelectShippingRateCalculationTests : IDisposable
         _dbContext.Set<Variant>().Add(variant);
         await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 
-        var order = OrderExtensions.Create("USD", _userId, Guid.Empty).Value;
+        var order = OrderMethod.Create("USD", _userId, Guid.Empty).Value;
         order.Total = 100m;
         order.LineItems.Add(new Module.Ordering.Domain.LineItems.LineItem
         {

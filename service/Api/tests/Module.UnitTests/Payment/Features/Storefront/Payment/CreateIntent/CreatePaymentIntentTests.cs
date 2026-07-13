@@ -70,7 +70,7 @@ public class CreatePaymentIntentTests : IDisposable
     public async Task Handle_ShouldCreatePayment_WhenOrderExists()
     {
         var userId = Guid.Parse(_currentUserMock.Object.UserId!);
-        var order = OrderExtensions.Create("USD", userId, Guid.NewGuid()).Value;
+        var order = OrderMethod.Create("USD", userId, Guid.NewGuid()).Value;
         order.Status = OrderStatus.Placed;
         order.Total = 100.00m;
         _dbContext.Set<Order>().Add(order);
@@ -96,7 +96,7 @@ public class CreatePaymentIntentTests : IDisposable
             .ReturnsAsync(Error.BadRequest("Gateway.Declined", "Card declined."));
 
         var userId = Guid.Parse(_currentUserMock.Object.UserId!);
-        var order = OrderExtensions.Create("USD", userId, Guid.NewGuid()).Value;
+        var order = OrderMethod.Create("USD", userId, Guid.NewGuid()).Value;
         order.Status = OrderStatus.Placed;
         order.Total = 100.00m;
         _dbContext.Set<Order>().Add(order);
@@ -122,7 +122,7 @@ public class CreatePaymentIntentTests : IDisposable
             .ReturnsAsync(new PaymentProcessingResult());
 
         var userId = Guid.Parse(_currentUserMock.Object.UserId!);
-        var order = OrderExtensions.Create("USD", userId, Guid.NewGuid()).Value;
+        var order = OrderMethod.Create("USD", userId, Guid.NewGuid()).Value;
         order.Status = OrderStatus.Placed;
         order.Total = 100.00m;
         _dbContext.Set<Order>().Add(order);

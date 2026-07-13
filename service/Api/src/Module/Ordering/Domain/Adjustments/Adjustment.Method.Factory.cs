@@ -36,7 +36,7 @@ public static partial class AdjustmentMethod
             OrderId = orderId,
             // Assign: UTC timestamp + "System" principal — audit trail for all adjustments regardless of origin
             CreatedAtUtc = DateTimeOffset.UtcNow,
-            CreatedBy = "System"
+            CreatedBy = AdjustmentConstant.Defaults.CreatedBy
         };
     }
     #endregion

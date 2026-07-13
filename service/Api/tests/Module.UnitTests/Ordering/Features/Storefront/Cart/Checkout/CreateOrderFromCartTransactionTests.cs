@@ -5,16 +5,14 @@ using Module.Catalog.Domain.Products;
 using Module.Catalog.Domain.Products.Variants;
 using Module.Inventory.Domain.StockLocations;
 using Module.Inventory.Domain.StockLocations.StockItems;
+using Module.Ordering.Domain.LineItems;
 using Module.Ordering.Domain.Orders;
 using Module.Ordering.Features.Storefront.Cart.Checkout;
 
 using Shared.Operational.Notifications.Models;
 using Shared.Operational.Notifications.Services;
 
-using OrderEntity = Module.Ordering.Domain.Orders.Order;
-using OrderItemEntity = Module.Ordering.Domain.LineItems.LineItem;
-
-namespace Module.UnitTests.Ordering;
+namespace Module.UnitTests.Ordering.Features.Storefront.Cart.Checkout;
 
 [Trait("Category", "Unit")]
 [Trait("Module", "Ordering")]
@@ -27,7 +25,7 @@ public class CreateOrderFromCartTransactionTests
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
             .ConfigureWarnings(w => w.Ignore(InMemoryEventId.TransactionIgnoredWarning))
             .Options;
-        ApplicationDbContext.AdditionalConfigurationsAssemblies = [typeof(OrderEntity).Assembly];
+        ApplicationDbContext.AdditionalConfigurationsAssemblies = [typeof(Order).Assembly];
         var db = new ApplicationDbContext(opts);
 
         var userId = Guid.NewGuid();
@@ -53,7 +51,7 @@ public class CreateOrderFromCartTransactionTests
             CountOnHand = 5, Backorderable = false
         });
 
-        var cart = new OrderEntity
+        var cart = new Order
         {
             Id = Guid.NewGuid(), UserId = userId, Status = OrderStatus.Draft,
             Number = "SEED", Currency = "USD", Email = "u@e.com",
@@ -62,8 +60,8 @@ public class CreateOrderFromCartTransactionTests
             ShippingMethodId = Guid.NewGuid(),
             Total = 0m
         };
-        db.Set<OrderEntity>().Add(cart);
-        db.Set<OrderItemEntity>().Add(new OrderItemEntity
+        db.Set<Order>().Add(cart);
+        db.Set<LineItem>().Add(new LineItem
         {
             Id = Guid.NewGuid(), OrderId = cart.Id, VariantId = variantId, Quantity = 2
         });

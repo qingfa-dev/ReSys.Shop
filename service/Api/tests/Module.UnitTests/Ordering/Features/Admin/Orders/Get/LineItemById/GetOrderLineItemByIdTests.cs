@@ -32,7 +32,7 @@ public class GetOrderLineItemByIdTests : IDisposable
     [Fact(DisplayName = "Handler: Should return line item when found")]
     public async Task Handle_ShouldReturnLineItem_WhenFound()
     {
-        var order = OrderExtensions.Create("USD", userId: Guid.NewGuid(), storeId: Guid.Empty).Value;
+        var order = OrderMethod.Create("USD", userId: Guid.NewGuid(), storeId: Guid.Empty).Value;
         order.Status = OrderStatus.Placed;
         _dbContext.Set<Order>().Add(order);
         await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
@@ -54,7 +54,7 @@ public class GetOrderLineItemByIdTests : IDisposable
     [Fact(DisplayName = "Handler: Should return not found when line item missing")]
     public async Task Handle_ShouldReturnNotFound_WhenMissing()
     {
-        var order = OrderExtensions.Create("USD", userId: Guid.NewGuid(), storeId: Guid.Empty).Value;
+        var order = OrderMethod.Create("USD", userId: Guid.NewGuid(), storeId: Guid.Empty).Value;
         _dbContext.Set<Order>().Add(order);
         await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 

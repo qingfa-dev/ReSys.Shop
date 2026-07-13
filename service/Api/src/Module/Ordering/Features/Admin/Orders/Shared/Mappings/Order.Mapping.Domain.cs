@@ -17,7 +17,7 @@ public static partial class OrderMapping
     public static Result<Order> MapToDomain<T>(this T request, Guid userId, Guid storeId) where T : OrderRequest
     {
         // Create: Build order domain entity with configured defaults (currency, timestamps).
-        return OrderExtensions.Create(
+        return OrderMethod.Create(
             currency: request.Currency,
             userId: userId,
             storeId: storeId);

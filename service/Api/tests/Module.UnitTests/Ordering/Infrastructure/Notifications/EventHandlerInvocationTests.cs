@@ -48,7 +48,7 @@ public sealed class EventHandlerInvocationTests : IDisposable
     [Fact(DisplayName = "CancelOrderAdmin handler should send OrderCancelled notification")]
     public async Task CancelOrderAdmin_ShouldSendOrderCancelledNotification()
     {
-        var order = OrderExtensions.Create("USD", userId: Guid.NewGuid(), storeId: Guid.Empty).Value;
+        var order = OrderMethod.Create("USD", userId: Guid.NewGuid(), storeId: Guid.Empty).Value;
         order.Status = OrderStatus.Placed;
         order.CompletedAtUtc = DateTimeOffset.UtcNow;
         order.Email = "test@example.com";

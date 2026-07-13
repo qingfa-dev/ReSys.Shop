@@ -12,7 +12,7 @@ public class CartMappingTests
     [Fact(DisplayName = "MapToDetail: Should return default values (stub)")]
     public void MapToDetail_ShouldReturnDefaultValues()
     {
-        var cart = OrderExtensions.Create("USD", Guid.NewGuid(), Guid.Empty).Value;
+        var cart = OrderMethod.Create("USD", Guid.NewGuid(), Guid.Empty).Value;
 
         var response = cart.MapToDetail<CartDetailResponse>();
 

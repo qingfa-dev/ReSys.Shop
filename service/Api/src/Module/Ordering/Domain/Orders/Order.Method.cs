@@ -1,6 +1,8 @@
+using Module.Ordering.Domain.Adjustments;
+
 namespace Module.Ordering.Domain.Orders;
 
-public static class OrderExtensions
+public static partial class OrderMethod
 {
     #region Factory Methods
     /// <summary>
@@ -38,7 +40,7 @@ public static class OrderExtensions
             PaymentTotal = 0m,
             OutstandingBalance = 0m,
             CreatedAtUtc = DateTimeOffset.UtcNow,
-            CreatedBy = "System"
+            CreatedBy = OrderConstant.Defaults.CreatedBy
         };
 
         return order;
@@ -217,7 +219,7 @@ public static class OrderExtensions
         order.ItemCount = order.LineItems.Sum(li => li.Quantity);
         order.ItemTotal = order.LineItems.Sum(li => li.Total);
         order.AdjustmentTotal = order.Adjustments.Where(a => a.Eligible).Sum(a => a.Amount);
-        order.ShipmentTotal = order.Adjustments.Where(a => a.Eligible && a.SourceType == "Shipping").Sum(a => a.Amount);
+        order.ShipmentTotal = order.Adjustments.Where(a => a.Eligible && a.SourceType == AdjustmentConstant.SourceTypes.Shipping).Sum(a => a.Amount);
         order.Total = order.ItemTotal + order.AdjustmentTotal;
         order.OutstandingBalance = order.Total - order.PaymentTotal;
     }
@@ -331,13 +333,13 @@ public static class OrderExtensions
     public static void UpdatePaymentState(this Order order)
     {
         if (order.Status == OrderStatus.Canceled && order.PaymentTotal == 0m)
-            order.PaymentState = "void";
+            order.PaymentState = OrderConstant.PaymentState.Void;
         else if (order.OutstandingBalance > 0m)
-            order.PaymentState = "balance_due";
+            order.PaymentState = OrderConstant.PaymentState.BalanceDue;
         else if (order.OutstandingBalance < 0m)
-            order.PaymentState = "credit_owed";
+            order.PaymentState = OrderConstant.PaymentState.CreditOwed;
         else
-            order.PaymentState = "paid";
+            order.PaymentState = OrderConstant.PaymentState.Paid;
     }
     #endregion
 }

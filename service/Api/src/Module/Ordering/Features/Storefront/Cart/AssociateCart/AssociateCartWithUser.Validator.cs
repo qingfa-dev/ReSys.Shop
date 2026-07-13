@@ -1,3 +1,5 @@
+using Module.Ordering.Domain.Orders;
+
 namespace Module.Ordering.Features.Storefront.Cart.AssociateCart;
 
 public static partial class AssociateCartWithUser
@@ -10,8 +12,8 @@ public static partial class AssociateCartWithUser
             // Validate: Guest order ID must not be empty.
             RuleFor(x => x.Request.GuestOrderId)
                 .NotEmpty()
-                .WithErrorCode("Cart.GuestOrderId.Required")
-                .WithMessage("Guest order ID is required.");
+                .WithErrorCode(OrderResult.Errors.GuestIdRequired.Code)
+                .WithMessage(OrderResult.Errors.GuestIdRequired.Message);
         }
     }
 }

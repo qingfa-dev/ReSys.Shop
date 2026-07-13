@@ -5,19 +5,14 @@ namespace Module.Ordering.Domain.Orders.Services;
 /// <summary>
 /// Combines a guest cart into a user cart, merging line items and reassigning the user.
 /// </summary>
+/// <remarks>
+/// Creates a new OrderMerger for the specified order.
+/// </remarks>
+/// <param name="order">The target order to merge into.</param>
 // Invariant: Target Order must not be null; merged line items retain variant identity
-public partial class OrderMerger
+public partial class OrderMerger(Order order)
 {
-    public Order Order { get; }
-
-    /// <summary>
-    /// Creates a new OrderMerger for the specified order.
-    /// </summary>
-    /// <param name="order">The target order to merge into.</param>
-    public OrderMerger(Order order)
-    {
-        Order = order;
-    }
+    public Order Order { get; } = order;
 
     /// <summary>
     /// Merges the other order into this order, combining matching line items by variant ID.

@@ -76,7 +76,7 @@ features:
     type: core
     description: >
       Create, finalize, cancel, approve, and resume orders with full
-      state machine enforcement via OrderExtensions factory methods.
+      state machine enforcement via OrderMethod factory methods.
   - id: F2
     name: Checkout State Machine
     type: core
@@ -746,7 +746,7 @@ testing:
         [Fact]
         public void AdvanceCheckout_FromAddress_ToDelivery_WhenAddressesSet()
         {
-            var order = OrderExtensions.Create("USD", userId, storeId).Value;
+            var order = OrderMethod.Create("USD", userId, storeId).Value;
             order.BillAddressId = addressId;
             order.ShipAddressId = addressId;
 
@@ -759,7 +759,7 @@ testing:
         [Fact]
         public void AdvanceCheckout_FromAddress_ToDelivery_WhenNoAddresses_Rejects()
         {
-            var order = OrderExtensions.Create("USD", userId, storeId).Value;
+            var order = OrderMethod.Create("USD", userId, storeId).Value;
 
             var result = order.AdvanceCheckout();
 
@@ -776,7 +776,7 @@ testing:
         [Fact]
         public void RecalculateTotals_ComputesCorrectTotals()
         {
-            var order = OrderExtensions.Create("USD", userId, storeId).Value;
+            var order = OrderMethod.Create("USD", userId, storeId).Value;
             order.LineItems.Add(CreateLineItem(price: 10m, qty: 2));
             order.LineItems.Add(CreateLineItem(price: 5m, qty: 1));
 

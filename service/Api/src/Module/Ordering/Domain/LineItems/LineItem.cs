@@ -15,7 +15,7 @@ public sealed partial class LineItem : Entity, IAuditable
     public decimal Price { get; set; }
     public decimal Total { get; set; }
     public decimal AdjustmentTotal { get; set; }
-    public string Currency { get; set; } = "USD";
+    public string Currency { get; set; } = OrderConstant.Defaults.Currency;
     #endregion Properties
 
     #region Relationships

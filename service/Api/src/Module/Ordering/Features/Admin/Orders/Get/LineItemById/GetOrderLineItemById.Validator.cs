@@ -1,3 +1,5 @@
+using Module.Ordering.Domain.LineItems;
+
 namespace Module.Ordering.Features.Admin.Orders.Get.LineItemById;
 
 public static partial class GetOrderLineItemById
@@ -16,8 +18,8 @@ public static partial class GetOrderLineItemById
             // Validate: Line item ID must not be empty.
             RuleFor(x => x.LineItemId)
                 .NotEmpty()
-                .WithErrorCode("LineItem.Id.Required")
-                .WithMessage("Line item ID is required.");
+                .WithErrorCode(LineItemResult.Errors.IdRequired.Code)
+                .WithMessage(LineItemResult.Errors.IdRequired.Message);
         }
     }
 }

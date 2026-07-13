@@ -40,13 +40,13 @@ public class AssociateCartWithUserTests : IDisposable
     public async Task Handle_ShouldMergeGuestCartIntoUserCart()
     {
         // Arrange: user cart with 1 item
-        var userCart = OrderExtensions.Create("USD", _userId, Guid.Empty).Value;
+        var userCart = OrderMethod.Create("USD", _userId, Guid.Empty).Value;
         var lineItem1 = LineItemMethod.Create(userCart.Id, Guid.NewGuid(), 1, 10m).Value;
         userCart.LineItems.Add(lineItem1);
         _dbContext.Set<Order>().Add(userCart);
 
         // Arrange: guest cart with 2 items (one matching variant)
-        var guestCart = OrderExtensions.Create("USD", null, Guid.Empty).Value;
+        var guestCart = OrderMethod.Create("USD", null, Guid.Empty).Value;
         var matchingItem = LineItemMethod.Create(guestCart.Id, lineItem1.VariantId, 3, 10m).Value;
         var newItem = LineItemMethod.Create(guestCart.Id, Guid.NewGuid(), 2, 20m).Value;
         guestCart.LineItems.Add(matchingItem);

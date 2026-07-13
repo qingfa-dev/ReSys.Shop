@@ -66,7 +66,7 @@ public sealed class OrderSeeder(IApplicationDbContext context) : AbstractDataSee
         if (address is null)
             return;
 
-        var orderResult = OrderExtensions.Create("USD", user.Id, storeId);
+        var orderResult = OrderMethod.Create(OrderConstant.Defaults.Currency, user.Id, storeId);
         var order = orderResult.Value;
         order.BillAddressId = address.Id;
         order.ShipAddressId = address.Id;
