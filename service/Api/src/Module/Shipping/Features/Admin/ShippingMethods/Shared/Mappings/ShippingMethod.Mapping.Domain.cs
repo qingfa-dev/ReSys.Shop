@@ -1,4 +1,5 @@
 using Module.Shipping.Domain.ShippingMethods;
+
 using ShippingDomain = Module.Shipping.Domain.ShippingMethods.ShippingMethod;
 
 namespace Module.Shipping.Features.Admin.ShippingMethods.Shared.Mappings;

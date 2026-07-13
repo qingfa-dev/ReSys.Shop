@@ -1,4 +1,5 @@
 using Module.Shipping.Domain.ShippingRates;
+
 using RateDomain = Module.Shipping.Domain.ShippingRates.ShippingRate;
 
 namespace Module.Shipping.Features.Admin.ShippingRates.Shared.Mappings;
