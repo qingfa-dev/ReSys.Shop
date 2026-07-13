@@ -32,7 +32,7 @@ public static partial class RemoveOrderLineItem
 
             dbContext.Set<LineItem>().Remove(removeResult.Value);
             await dbContext.SaveChangesAsync(cancellationToken);
-            return Result.Ok(LineItemResult.Success.Removed(command.LineItemId));
+            return Result.Ok(OrderResult.Success.ItemRemoved(command.OrderId));
         }
     }
 }

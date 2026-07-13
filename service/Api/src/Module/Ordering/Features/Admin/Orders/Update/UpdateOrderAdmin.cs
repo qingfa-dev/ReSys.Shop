@@ -33,8 +33,7 @@ public static partial class UpdateOrderAdmin
 
             await dbContext.SaveChangesAsync(cancellationToken);
 
-            // Map: Return the updated entity as response.
-            return order.MapToDetail<Response>();
+            return Result<Response>.Ok(order.MapToDetail<Response>(), OrderResult.Success.Updated(order.Id));
         }
     }
 }

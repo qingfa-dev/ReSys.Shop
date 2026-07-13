@@ -66,7 +66,7 @@ public static partial class SelectShippingRate
             }
 
             await dbContext.SaveChangesAsync(cancellationToken);
-            return Result.Ok();
+            return Result.Ok(OrderResult.Success.ShippingRateSelected(cart.Id));
         }
     }
 }

@@ -41,7 +41,7 @@ public static partial class DeleteCart
                 return deleteResult.Errors;
             await dbContext.SaveChangesAsync(cancellationToken);
 
-            return Result.Ok();
+            return Result.Ok(OrderResult.Success.Deleted(cart.Id));
         }
     }
 }

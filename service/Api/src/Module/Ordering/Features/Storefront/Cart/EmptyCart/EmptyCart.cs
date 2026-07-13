@@ -46,7 +46,7 @@ public static partial class EmptyCart
             if (recalcResult.IsFailure)
                 return recalcResult.Errors;
             await dbContext.SaveChangesAsync(cancellationToken);
-            return Result.Ok();
+            return Result.Ok(OrderResult.Success.Emptied(cart.Id));
         }
     }
 }

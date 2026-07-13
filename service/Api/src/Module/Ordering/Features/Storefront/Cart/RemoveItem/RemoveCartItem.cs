@@ -46,7 +46,7 @@ public static partial class RemoveCartItem
             dbContext.Set<LineItem>().Remove(removeResult.Value);
             await dbContext.SaveChangesAsync(cancellationToken);
 
-            return Result.Ok();
+            return Result.Ok(OrderResult.Success.ItemRemoved(cart.Id));
         }
     }
 }

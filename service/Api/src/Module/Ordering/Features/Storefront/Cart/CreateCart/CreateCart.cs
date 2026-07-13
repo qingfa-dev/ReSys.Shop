@@ -29,7 +29,7 @@ public static partial class CreateCart
                 .FirstOrDefaultAsync(x => (x.UserId == userId || x.SessionId == sessionId) && x.Status == OrderStatus.Draft, cancellationToken);
 
             if (existingCart is not null)
-                return Result<Response>.Ok(existingCart.MapToDetail<Response>());
+                return Result<Response>.Ok(existingCart.MapToDetail<Response>(), OrderResult.Success.CartCreated(existingCart.Id));
 
             // Create: New draft cart with default currency and session tracking.
             var createResult = OrderMethod.Create(OrderConstant.Defaults.Currency, userId, storeId, sessionId: sessionId);
@@ -39,7 +39,7 @@ public static partial class CreateCart
             dbContext.Set<Order>().Add(order);
             await dbContext.SaveChangesAsync(cancellationToken);
 
-            return Result<Response>.Created(order.MapToDetail<Response>());
+            return Result<Response>.Created(order.MapToDetail<Response>(), OrderResult.Success.CartCreated(order.Id));
         }
     }
 }

@@ -29,8 +29,7 @@ public static partial class CreateOrder
             dbContext.Set<Order>().Add(order);
             await dbContext.SaveChangesAsync(cancellationToken);
 
-            // Map: Return the created entity as response.
-            return order.MapToDetail<Response>();
+            return Result<Response>.Created(order.MapToDetail<Response>(), OrderResult.Success.Created(order.Id));
         }
     }
 }

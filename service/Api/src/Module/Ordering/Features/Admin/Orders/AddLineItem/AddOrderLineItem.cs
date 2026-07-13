@@ -35,8 +35,7 @@ public static partial class AddOrderLineItem
 
             await dbContext.SaveChangesAsync(cancellationToken);
 
-            // Map: Return the created entity as response.
-            return new Response { Id = lineItem.Id, VariantId = lineItem.VariantId, Quantity = lineItem.Quantity, Total = lineItem.Total };
+            return Result<Response>.Created(new Response { Id = lineItem.Id, VariantId = lineItem.VariantId, Quantity = lineItem.Quantity, Total = lineItem.Total }, OrderResult.Success.ItemAdded(command.OrderId));
         }
     }
 }

@@ -79,7 +79,7 @@ public static partial class UpdateCheckout
                 return recalcResult.Errors;
             await dbContext.SaveChangesAsync(cancellationToken);
 
-            return Result.Ok();
+            return Result.Ok(OrderResult.Success.CheckoutUpdated(cart.Id));
         }
     }
 }
