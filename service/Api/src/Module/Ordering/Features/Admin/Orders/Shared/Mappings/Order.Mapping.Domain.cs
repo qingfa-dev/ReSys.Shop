@@ -22,4 +22,20 @@ public static partial class OrderMapping
             userId: userId,
             storeId: storeId);
     }
+
+    /// <summary>Maps an OrderRequest DTO to an existing Order domain entity using patch semantics.</summary>
+    /// <typeparam name="T">The request type (must inherit from OrderRequest).</typeparam>
+    /// <param name="request">The incoming order request DTO with fields to update.</param>
+    /// <param name="order">The existing Order entity to update.</param>
+    /// <returns>A Result indicating success or validation failure.</returns>
+    // Map: Request DTO -> existing Domain entity
+    public static Result MapToDomain<T>(this T request, Order order) where T : OrderRequest
+    {
+        return order.UpdateDetails(
+            email: request.Email,
+            specialInstructions: request.SpecialInstructions,
+            billAddressId: request.BillAddressId,
+            shipAddressId: request.ShipAddressId,
+            shippingMethodId: request.ShippingMethodId);
+    }
 }
