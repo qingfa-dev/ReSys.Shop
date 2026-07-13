@@ -111,7 +111,7 @@ public sealed class OrderSeeder(IApplicationDbContext context) : AbstractDataSee
             return;
         order.PaymentTotal = payment.Amount;
         order.OutstandingBalance = order.Total - order.PaymentTotal;
-        order.UpdatePaymentState();
+        order.UpdatePaymentState(); // Result unused — seeder writes domain state directly
 
         Context.Set<Order>().Add(order);
     }

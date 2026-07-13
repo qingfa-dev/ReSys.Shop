@@ -21,7 +21,7 @@ public static partial class OrderMethod
         return Result.Ok(OrderResult.Success.Recalculated(order.Id));
     }
 
-    public static void UpdatePaymentState(this Order order)
+    public static Result UpdatePaymentState(this Order order)
     {
         if (order.Status == OrderStatus.Canceled && order.PaymentTotal == 0m)
             order.PaymentState = OrderConstant.PaymentState.Void;
@@ -31,6 +31,8 @@ public static partial class OrderMethod
             order.PaymentState = OrderConstant.PaymentState.CreditOwed;
         else
             order.PaymentState = OrderConstant.PaymentState.Paid;
+
+        return Result.Ok(OrderResult.Success.PaymentStateUpdated(order.Id));
     }
 
     #endregion
