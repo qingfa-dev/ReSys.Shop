@@ -35,15 +35,6 @@ public partial class OrderInventoryService
         _stockChecker = stockChecker;
     }
 
-    /// <summary>
-    /// Verifies inventory unit counts match line item quantity and adjusts as needed.
-    /// </summary>
-    // Compute: Verify inventory unit counts match line item quantity; add or remove as needed.
-    public async Task VerifyAsync(CancellationToken cancellationToken = default)
-    {
-        if (!Order.CompletedAtUtc.HasValue) return;
-    }
-
     public async ValueTask AddToShipmentAsync(int quantity, CancellationToken cancellationToken = default)
     {
         // Determine stock location — use order's stock location or default first available

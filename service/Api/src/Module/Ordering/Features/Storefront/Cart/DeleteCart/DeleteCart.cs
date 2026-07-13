@@ -24,7 +24,7 @@ public static partial class DeleteCart
             var sessionId = currentUser.IsAuthenticated ? null : currentUser.SessionId;
 
             if (userId is null && string.IsNullOrWhiteSpace(sessionId))
-                return Result.Ok();
+                return OrderResult.Errors.UserNotAuthenticated;
 
             // Check: Find the user's draft cart by user ID or guest session.
             var cart = await dbContext.Set<Order>()

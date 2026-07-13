@@ -121,20 +121,6 @@ public class OrderInventoryServiceTests : IDisposable
         movement.Reason.Should().Be("sold");
     }
 
-    [Fact(DisplayName = "VerifyAsync: Should not modify stock when CompletedAtUtc is null")]
-    public async Task VerifyAsync_ShouldNotModifyStock_WhenNotCompleted()
-    {
-        var ct = TestContext.Current.CancellationToken;
-        var (order, lineItem) = CreateOrderWithLineItem(stockCountOnHand: 10);
-        var inventory = new OrderInventoryService(order, lineItem, _dbContext, _stockChecker);
-
-        await inventory.VerifyAsync(ct);
-
-        var stockItem = await _dbContext.Set<StockItem>()
-            .FirstAsync(si => si.VariantId == _variantId, ct);
-        stockItem.CountOnHand.Should().Be(10);
-    }
-
     [Fact(DisplayName = "RemoveAsync: Should not crash when no stock location exists")]
     public async Task RemoveAsync_ShouldNotCrash_WhenNoStockLocation()
     {
