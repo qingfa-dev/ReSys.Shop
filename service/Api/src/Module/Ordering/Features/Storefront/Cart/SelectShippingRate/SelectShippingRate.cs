@@ -34,9 +34,10 @@ public static partial class SelectShippingRate
             if (cart is null)
                 return OrderResult.Errors.NotFound(Guid.Empty);
 
-            // Update: Set shipping method on cart.
-            cart.ShippingMethodId = command.Request.ShippingMethodId;
-            cart.ModifiedAtUtc = DateTimeOffset.UtcNow;
+            // Update: Set shipping method on cart via domain method.
+            var methodResult = cart.SetShippingMethod(command.Request.ShippingMethodId);
+            if (methodResult.IsFailure)
+                return methodResult.Errors;
 
             // Compute: Calculate total order weight from variant weights.
             var variantIds = cart.LineItems.Select(li => li.VariantId).Distinct().ToList();
@@ -56,14 +57,13 @@ public static partial class SelectShippingRate
                 cart.Total,
                 cancellationToken);
 
-            if (calcResult.IsSuccess)
-            {
-                var (cost, _) = calcResult.Value;
-                // Replace: Use domain method to atomically replace shipping adjustments and recalculate totals.
-                var shippingResult = cart.ReplaceShippingAdjustment(cost, command.Request.ShippingMethodId);
-                if (shippingResult.IsFailure)
-                    return shippingResult.Errors;
-            }
+            if (calcResult.IsFailure)
+                return calcResult.Errors;
+
+            var (cost, _) = calcResult.Value;
+            var shippingResult = cart.ReplaceShippingAdjustment(cost, command.Request.ShippingMethodId);
+            if (shippingResult.IsFailure)
+                return shippingResult.Errors;
 
             await dbContext.SaveChangesAsync(cancellationToken);
             return Result.Ok(OrderResult.Success.ShippingRateSelected(cart.Id));
