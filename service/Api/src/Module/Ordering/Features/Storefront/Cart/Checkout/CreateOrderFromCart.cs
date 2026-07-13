@@ -109,7 +109,10 @@ public static partial class CreateOrderFromCart
             cart.Status = OrderStatus.Placed;
             cart.CheckoutState = CheckoutState.Complete;
             cart.CompletedAtUtc = DateTimeOffset.UtcNow;
-            cart.Number = OrderNumber.Generate(dbContext, out _);
+            var numberResult = OrderNumber.Generate(dbContext);
+            if (numberResult.IsFailure)
+                return numberResult.Errors;
+            cart.Number = numberResult.Value;
 
             // Explain: Serializable transaction ensures stock deduction, reservation creation,
             // and movement logging are atomic — a partial failure rolls back all three.
