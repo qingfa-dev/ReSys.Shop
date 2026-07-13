@@ -1,4 +1,3 @@
-using Module.Ordering.Domain.Adjustments;
 using Module.Ordering.Domain.Orders;
 using Module.Shipping.Domain.Calculators;
 
@@ -47,55 +46,24 @@ public static partial class SelectShippingRate
                 .ToListAsync(cancellationToken);
 
             var weightMap = variantWeights.ToDictionary(v => v.Id, v => v.Weight ?? 0m);
-            var orderWeight = cart.LineItems.Sum(li =>
-                weightMap.TryGetValue(li.VariantId, out var w) ? li.Quantity * w : 0m);
+            var totalWeight = cart.CalculateTotalWeight(weightMap);
 
             // Compute: Calculate shipping cost for the selected method.
             var calcResult = await ShippingRateCalculator.CalculateAsync(
                 dbContext,
                 command.Request.ShippingMethodId,
-                orderWeight,
+                totalWeight,
                 cart.Total,
                 cancellationToken);
 
             if (calcResult.IsSuccess)
             {
                 var (cost, _) = calcResult.Value;
-
-                // Remove: Clear old shipping adjustments before adding replacement.
-                var existingShipping = cart.Adjustments
-                    .Where(a => a.SourceType == AdjustmentConstant.SourceTypes.Shipping)
-                    .ToList();
-                foreach (var adj in existingShipping)
-                {
-                    cart.Adjustments.Remove(adj);
-                    dbContext.Set<Adjustment>().Remove(adj);
-                }
-
-                // Create: Add shipping adjustment with computed cost.
-                if (cost > 0)
-                {
-                    var adjResult = AdjustmentMethod.Create(
-                        label: AdjustmentConstant.Labels.Shipping,
-                        amount: cost,
-                        adjustableId: cart.Id,
-                        adjustableType: AdjustmentConstant.AdjustableTypes.Order,
-                        sourceId: command.Request.ShippingMethodId,
-                        sourceType: AdjustmentConstant.SourceTypes.Shipping,
-                        orderId: cart.Id);
-
-                    if (adjResult.IsSuccess)
-                    {
-                        cart.Adjustments.Add(adjResult.Value);
-                        dbContext.Set<Adjustment>().Add(adjResult.Value);
-                    }
-                }
+                // Replace: Use domain method to atomically replace shipping adjustments and recalculate totals.
+                var shippingResult = cart.ReplaceShippingAdjustment(cost, command.Request.ShippingMethodId);
+                if (shippingResult.IsFailure)
+                    return shippingResult.Errors;
             }
-
-            // Compute: Recalculate order totals regardless of calculator result.
-            var recalcResult = cart.RecalculateTotals();
-            if (recalcResult.IsFailure)
-                return recalcResult.Errors;
 
             await dbContext.SaveChangesAsync(cancellationToken);
             return Result.Ok();

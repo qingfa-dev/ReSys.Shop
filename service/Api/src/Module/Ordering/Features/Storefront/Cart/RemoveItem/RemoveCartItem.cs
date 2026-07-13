@@ -38,13 +38,12 @@ public static partial class RemoveCartItem
             if (lineItem is null)
                 return LineItemResult.Errors.NotFound(command.LineItemId);
 
-            // Remove: Detach entity from collection and delete from database.
-            cart.LineItems.Remove(lineItem);
-            dbContext.Set<Module.Ordering.Domain.LineItems.LineItem>().Remove(lineItem);
-            // Update: Recalculate order totals after item removal.
-            var recalcResult = cart.RecalculateTotals();
-            if (recalcResult.IsFailure)
-                return recalcResult.Errors;
+            // Remove: Use domain method to remove from collection and recalculate, then delete from database for EF tracking.
+            var removeResult = cart.RemoveLineItem(command.LineItemId);
+            if (removeResult.IsFailure)
+                return removeResult.Errors;
+
+            dbContext.Set<LineItem>().Remove(removeResult.Value);
             await dbContext.SaveChangesAsync(cancellationToken);
 
             return Result.Ok();

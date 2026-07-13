@@ -23,17 +23,15 @@ public static partial class AddOrderLineItem
 
             var lineItem = createResult.Value;
 
-            dbContext.Set<LineItem>().Add(lineItem);
-
-            // Check: Find the parent order to recalculate totals.
             var order = await dbContext.Set<Order>().FirstOrDefaultAsync(o => o.Id == command.OrderId, cancellationToken);
-            if (order is not null)
-            {
-                // Update: Recalculate order totals after adding line item.
-                var recalcResult = order.RecalculateTotals();
-                if (recalcResult.IsFailure)
-                    return recalcResult.Errors;
-            }
+            if (order is null)
+                return (Result<Response>)OrderResult.Errors.NotFound(command.OrderId);
+
+            var addResult = order.AddLineItem(lineItem);
+            if (addResult.IsFailure)
+                return (Result<Response>)addResult.Errors;
+
+            dbContext.Set<LineItem>().Add(addResult.Value);
 
             await dbContext.SaveChangesAsync(cancellationToken);
 

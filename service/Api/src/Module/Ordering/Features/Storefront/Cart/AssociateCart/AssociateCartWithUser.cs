@@ -49,9 +49,10 @@ public static partial class AssociateCartWithUser
 
             if (userOrder is null)
             {
-                // Update: No existing user cart — reassign guest cart to authenticated user.
-                guestOrder.UserId = userId;
-                guestOrder.SessionId = null;
+                // Update: No existing user cart — transfer ownership to authenticated user.
+                var transferResult = guestOrder.TransferOwnership(userId);
+                if (transferResult.IsFailure)
+                    return (Result<Response>)transferResult.Errors;
             }
             else
             {

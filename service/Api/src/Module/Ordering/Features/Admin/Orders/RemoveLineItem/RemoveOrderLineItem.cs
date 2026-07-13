@@ -25,12 +25,12 @@ public static partial class RemoveOrderLineItem
             if (order is null) return OrderResult.Errors.NotFound(command.OrderId);
             // Enforce: Only draft orders can have line items removed — placed orders are immutable.
             if (order.Status != OrderStatus.Draft) return OrderResult.Errors.InvalidStatusForLineItemRemove;
-            // Remove: Delete entity from database.
-            dbContext.Set<LineItem>().Remove(lineItem);
-            // Update: Recalculate order totals after removing the line item.
-            var recalcResult = order.RecalculateTotals();
-            if (recalcResult.IsFailure)
-                return recalcResult.Errors;
+            // Remove: Use domain method to remove from collection and recalculate, then delete from database for EF tracking.
+            var removeResult = order.RemoveLineItem(command.LineItemId);
+            if (removeResult.IsFailure)
+                return removeResult.Errors;
+
+            dbContext.Set<LineItem>().Remove(removeResult.Value);
             await dbContext.SaveChangesAsync(cancellationToken);
             return Result.Ok(LineItemResult.Success.Removed(command.LineItemId));
         }
