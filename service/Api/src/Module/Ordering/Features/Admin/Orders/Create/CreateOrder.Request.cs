@@ -4,5 +4,5 @@ namespace Module.Ordering.Features.Admin.Orders.Create;
 
 public static partial class CreateOrder
 {
-    public class Request : OrderRequest { }
+    public record Request : OrderRequest;
 }

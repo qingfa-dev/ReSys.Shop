@@ -8,7 +8,7 @@ namespace Module.Ordering.Features.Storefront.Cart.CreateCart;
 public static partial class CreateCart
 {
     public sealed record Command : ICommand<Response>;
-    public sealed class Response : OrderDetailResponse { }
+    public sealed record Response : OrderDetailResponse;
 
     public sealed class CommandHandler(IApplicationDbContext dbContext, ICurrentUser currentUser) : ICommandHandler<Command, Response>
     {

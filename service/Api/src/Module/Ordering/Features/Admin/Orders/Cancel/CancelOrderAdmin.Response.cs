@@ -4,5 +4,5 @@ namespace Module.Ordering.Features.Admin.Orders.Cancel;
 
 public static partial class CancelOrderAdmin
 {
-    public class Response : OrderDetailResponse { }
+    public record Response : OrderDetailResponse;
 }

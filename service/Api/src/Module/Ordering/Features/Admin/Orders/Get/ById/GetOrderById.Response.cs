@@ -4,5 +4,5 @@ namespace Module.Ordering.Features.Admin.Orders.Get.ById;
 
 public static partial class GetOrderById
 {
-    public class Response : OrderDetailResponse { }
+    public record Response : OrderDetailResponse;
 }

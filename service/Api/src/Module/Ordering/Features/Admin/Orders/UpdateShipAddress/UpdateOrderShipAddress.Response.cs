@@ -4,5 +4,5 @@ namespace Module.Ordering.Features.Admin.Orders.UpdateShipAddress;
 
 public static partial class UpdateOrderShipAddress
 {
-    public class Response : OrderDetailResponse { }
+    public record Response : OrderDetailResponse;
 }

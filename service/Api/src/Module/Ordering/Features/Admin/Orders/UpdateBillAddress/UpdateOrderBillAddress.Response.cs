@@ -4,5 +4,5 @@ namespace Module.Ordering.Features.Admin.Orders.UpdateBillAddress;
 
 public static partial class UpdateOrderBillAddress
 {
-    public class Response : OrderDetailResponse { }
+    public record Response : OrderDetailResponse;
 }

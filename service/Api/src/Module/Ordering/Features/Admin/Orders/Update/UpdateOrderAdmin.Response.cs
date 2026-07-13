@@ -4,5 +4,5 @@ namespace Module.Ordering.Features.Admin.Orders.Update;
 
 public static partial class UpdateOrderAdmin
 {
-    public class Response : OrderDetailResponse { }
+    public record Response : OrderDetailResponse;
 }

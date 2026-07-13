@@ -4,5 +4,5 @@ namespace Module.Ordering.Features.Storefront.Cart.Checkout;
 
 public static partial class CreateOrderFromCart
 {
-    public class Response : OrderDetailResponse { }
+    public record Response : OrderDetailResponse;
 }
