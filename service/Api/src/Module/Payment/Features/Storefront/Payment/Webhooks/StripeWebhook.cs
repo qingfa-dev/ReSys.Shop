@@ -20,10 +20,6 @@ public static partial class StripeWebhook
             if (!webhookService.ValidateSignature(command.Payload, command.StripeSignature))
                 return StripeWebhookResult.Errors.InvalidSignature;
 
-            var stripeEvent = webhookService.ParseEvent(command.Payload);
-            if (stripeEvent is null)
-                return StripeWebhookResult.Errors.InvalidPayload;
-
             backgroundJobClient.Enqueue<ProcessStripeWebhookEventJob>(
                 job => job.ExecuteAsync(command.Payload, CancellationToken.None));
 

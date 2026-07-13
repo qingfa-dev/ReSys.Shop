@@ -3,7 +3,6 @@ using Hangfire;
 using IStripeWebhookService = Module.Payment.Services.Webhook.IStripeWebhookService;
 
 using Module.Payment.Features.Storefront.Payment.Webhooks;
-using Stripe;
 
 namespace Module.UnitTests.Payment.Features.Storefront.Payment.Webhooks;
 
@@ -33,21 +32,9 @@ public class StripeWebhookTests
         result.Errors[0].Code.Should().Be("Stripe.Webhook.InvalidSignature");
     }
 
-    [Fact(DisplayName = "Webhook: unparseable payload returns failure")]
-    public async Task Handle_ShouldFail_WhenUnparseable()
-    {
-        _webhookMock.Setup(x => x.ParseEvent(It.IsAny<string>())).Returns((global::Stripe.Event?)null);
-        var result = await _handler.Handle(new StripeWebhook.Command("bad", "valid"), TestContext.Current.CancellationToken);
-        result.IsFailure.Should().BeTrue();
-        result.Errors[0].Code.Should().Be("Stripe.Webhook.InvalidPayload");
-    }
-
     [Fact(DisplayName = "Webhook: Returns Ok immediately after queueing")]
     public async Task Handle_ShouldReturnOk_ForValidSignature()
     {
-        _webhookMock.Setup(x => x.ParseEvent(It.IsAny<string>()))
-            .Returns(new Event { Type = "payment_intent.succeeded" });
-
         var result = await _handler.Handle(
             new StripeWebhook.Command("{}", "sig"), CancellationToken.None);
 
