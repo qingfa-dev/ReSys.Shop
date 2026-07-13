@@ -2,49 +2,6 @@ namespace Module.Ordering.Domain.Orders;
 
 public static partial class OrderMethod
 {
-    #region Factory Methods
-    /// <summary>
-    /// Creates a new Order with default status of Draft and initial zero totals.
-    /// </summary>
-    /// <param name="currency">ISO currency code.</param>
-    /// <param name="userId">Optional user identifier.</param>
-    /// <param name="storeId">Store identifier.</param>
-    /// <param name="id">Optional explicit order identifier; generated if null.</param>
-    /// <returns>A successful result containing the new Order.</returns>
-    // @CAT-10 Contract: pre=currency!=null&&storeId!=default, post=entity.Id!=null&&entity.Status==Draft, throws=ArgumentException
-    public static Result<Order> Create(
-        string currency,
-        Guid? userId,
-        Guid storeId,
-        Guid? id = null,
-        string? sessionId = null,
-        Guid? shipAddressId = null)
-    {
-        var order = new Order
-        {
-            Id = id ?? Guid.NewGuid(),
-            Number = $"DRAFT-{Guid.NewGuid():N}",
-            SessionId = sessionId,
-            Status = OrderStatus.Draft,
-            CheckoutState = CheckoutState.Address,
-            Currency = currency,
-            UserId = userId,
-            StoreId = storeId,
-            ShipAddressId = shipAddressId,
-            ItemTotal = 0m,
-            AdjustmentTotal = 0m,
-            ShipmentTotal = 0m,
-            Total = 0m,
-            PaymentTotal = 0m,
-            OutstandingBalance = 0m,
-            CreatedAtUtc = DateTimeOffset.UtcNow,
-            CreatedBy = OrderConstant.Defaults.CreatedBy
-        };
-
-        return order;
-    }
-    #endregion
-
     /// <summary>
     /// Advances the order to the next checkout state following the defined flow.
     /// </summary>
