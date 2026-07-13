@@ -204,6 +204,13 @@ public static class OrderResult
             message: "One or more items in your cart have been discontinued.");
         #endregion
 
+        #region OrderNumber
+        /// <summary>Failed to generate a unique order number after retries.</summary>
+        public static Error OrderNumberGenerationFailed => Error.Validation(
+            code: "Order.Number.GenerationFailed",
+            message: "Failed to generate a unique order number after maximum retry attempts.");
+        #endregion
+
         #region Auth
         /// <summary>User must be authenticated to perform this operation.</summary>
         public static Error UserNotAuthenticated => Error.Unauthorized(
