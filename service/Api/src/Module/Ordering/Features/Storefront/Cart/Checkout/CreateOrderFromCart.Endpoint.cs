@@ -24,7 +24,8 @@ public static partial class CreateOrderFromCart
             .WithSummary(OrderingFeature.Storefront.Cart.Checkout.Summary)
             .WithDescription(OrderingFeature.Storefront.Cart.Checkout.Description)
             .Produces<Result<Response>>()
-            .Produces<Result>(StatusCodes.Status400BadRequest);
+            .Produces<Result>(StatusCodes.Status400BadRequest)
+            .Produces<Result>(StatusCodes.Status404NotFound);
         }
     }
 }

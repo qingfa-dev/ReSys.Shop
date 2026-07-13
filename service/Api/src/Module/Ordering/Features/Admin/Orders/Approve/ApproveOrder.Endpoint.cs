@@ -20,6 +20,7 @@ public static partial class ApproveOrder
             .WithSummary(OrderingFeature.Admin.Orders.Approve.Summary)
             .WithDescription(OrderingFeature.Admin.Orders.Approve.Description)
             .Produces<Result<Response>>()
+            .Produces<Result>(StatusCodes.Status400BadRequest)
             .Produces<Result>(StatusCodes.Status404NotFound);
         }
     }

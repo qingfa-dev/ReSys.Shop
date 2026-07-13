@@ -19,7 +19,8 @@ public static partial class CreateCart
             .WithTags(OrderingFeature.Tags.Cart)
             .WithSummary(OrderingFeature.Storefront.Cart.Create.Summary)
             .WithDescription(OrderingFeature.Storefront.Cart.Create.Description)
-            .Produces<Result<Response>>();
+            .Produces<Result<Response>>()
+            .Produces<Result>(StatusCodes.Status400BadRequest);
         }
     }
 }

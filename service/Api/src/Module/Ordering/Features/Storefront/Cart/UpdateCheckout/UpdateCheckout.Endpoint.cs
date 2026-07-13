@@ -21,7 +21,8 @@ public static partial class UpdateCheckout
             .WithSummary(OrderingFeature.Storefront.Cart.Update.Summary)
             .WithDescription(OrderingFeature.Storefront.Cart.Update.Description)
             .Produces<Result>()
-            .Produces<Result>(StatusCodes.Status400BadRequest);
+            .Produces<Result>(StatusCodes.Status400BadRequest)
+            .Produces<Result>(StatusCodes.Status404NotFound);
         }
     }
 }

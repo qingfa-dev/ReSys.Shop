@@ -22,7 +22,9 @@ public static partial class ListCustomerOrders
             .WithTags(OrderingFeature.Tags.Order)
             .WithSummary(OrderingFeature.Storefront.Orders.List.Summary)
             .WithDescription(OrderingFeature.Storefront.Orders.List.Description)
-            .Produces<PagedResult<Response>>();
+            .Produces<PagedResult<Response>>()
+            .Produces<Result>(StatusCodes.Status400BadRequest)
+            .Produces<Result>(StatusCodes.Status401Unauthorized);
         }
     }
 }

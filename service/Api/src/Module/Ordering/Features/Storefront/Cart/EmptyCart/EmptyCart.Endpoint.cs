@@ -20,7 +20,8 @@ public static partial class EmptyCart
             .WithTags(OrderingFeature.Tags.Cart)
             .WithSummary(OrderingFeature.Storefront.Cart.Empty.Summary)
             .WithDescription(OrderingFeature.Storefront.Cart.Empty.Description)
-            .Produces<Result>();
+            .Produces<Result>()
+            .Produces<Result>(StatusCodes.Status400BadRequest);
         }
     }
 }

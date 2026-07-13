@@ -21,7 +21,8 @@ public static partial class SelectShippingRate
             .WithSummary(OrderingFeature.Storefront.Cart.SelectShippingRate.Summary)
             .WithDescription(OrderingFeature.Storefront.Cart.SelectShippingRate.Description)
             .Produces<Result>()
-            .Produces<Result>(StatusCodes.Status400BadRequest);
+            .Produces<Result>(StatusCodes.Status400BadRequest)
+            .Produces<Result>(StatusCodes.Status404NotFound);
         }
     }
 }

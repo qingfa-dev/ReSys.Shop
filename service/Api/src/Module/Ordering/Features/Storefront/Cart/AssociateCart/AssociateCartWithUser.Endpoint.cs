@@ -20,7 +20,8 @@ public static partial class AssociateCartWithUser
             .WithSummary(OrderingFeature.Storefront.Cart.Associate.Summary)
             .WithDescription(OrderingFeature.Storefront.Cart.Associate.Description)
             .Produces<Result<Response>>()
-            .Produces<Result>(StatusCodes.Status400BadRequest);
+            .Produces<Result>(StatusCodes.Status400BadRequest)
+            .Produces<Result>(StatusCodes.Status404NotFound);
         }
     }
 }

@@ -19,7 +19,8 @@ public static partial class ValidateCheckout
             .WithTags(OrderingFeature.Tags.Cart)
             .WithSummary(OrderingFeature.Storefront.Cart.Validate.Summary)
             .WithDescription(OrderingFeature.Storefront.Cart.Validate.Description)
-            .Produces<Result>();
+            .Produces<Result>()
+            .Produces<Result>(StatusCodes.Status400BadRequest);
         }
     }
 }

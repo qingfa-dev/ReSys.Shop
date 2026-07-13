@@ -22,7 +22,9 @@ public static partial class GetCart
             .WithTags(OrderingFeature.Tags.Cart)
             .WithSummary(OrderingFeature.Storefront.Cart.Get.Summary)
             .WithDescription(OrderingFeature.Storefront.Cart.Get.Description)
-            .Produces<Result<Response>>();
+            .Produces<Result<Response>>()
+            .Produces<Result>(StatusCodes.Status400BadRequest)
+            .Produces<Result>(StatusCodes.Status404NotFound);
         }
     }
 }
