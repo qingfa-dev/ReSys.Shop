@@ -22,13 +22,10 @@ public static partial class UpdateOrderBillAddress
             if (order is null)
                 return OrderResult.Errors.NotFound(command.Id);
 
-            // Enforce: Only draft orders can have billing address modified.
-            if (order.Status != OrderStatus.Draft)
-                return OrderResult.Errors.NotDraftForBillAddress;
-
             // Update: Set the billing address from the request.
-            order.BillAddressId = command.Request.AddressId;
-            order.ModifiedAtUtc = DateTimeOffset.UtcNow;
+            var addressResult = order.SetBillAddress(command.Request.AddressId);
+            if (addressResult.IsFailure)
+                return (Result<Response>)addressResult.Errors;
 
             await dbContext.SaveChangesAsync(cancellationToken);
 

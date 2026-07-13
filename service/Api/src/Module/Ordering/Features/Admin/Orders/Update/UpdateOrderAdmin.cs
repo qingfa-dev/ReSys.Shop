@@ -22,19 +22,14 @@ public static partial class UpdateOrderAdmin
             if (order is null)
                 return OrderResult.Errors.NotFound(command.Id);
 
-            // Enforce: Only draft orders can be modified — prevents edits to placed orders.
-            if (order.Status != OrderStatus.Draft)
-                return OrderResult.Errors.NotDraft;
-
             var req = command.Request;
 
             // Update: Apply partial changes using PATCH semantics — only non-null values overwrite.
-            if (req.Email is not null) order.Email = req.Email;
-            if (req.SpecialInstructions is not null) order.SpecialInstructions = req.SpecialInstructions;
-            if (req.BillAddressId.HasValue) order.BillAddressId = req.BillAddressId;
-            if (req.ShipAddressId.HasValue) order.ShipAddressId = req.ShipAddressId;
-            if (req.ShippingMethodId.HasValue) order.ShippingMethodId = req.ShippingMethodId;
-            order.ModifiedAtUtc = DateTimeOffset.UtcNow;
+            var updateResult = order.UpdateDetails(
+                req.Email, req.SpecialInstructions,
+                req.BillAddressId, req.ShipAddressId, req.ShippingMethodId);
+            if (updateResult.IsFailure)
+                return (Result<Response>)updateResult.Errors;
 
             await dbContext.SaveChangesAsync(cancellationToken);
 

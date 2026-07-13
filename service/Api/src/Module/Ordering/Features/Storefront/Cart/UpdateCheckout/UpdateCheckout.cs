@@ -39,11 +39,11 @@ public static partial class UpdateCheckout
             var addressChanged = req.ShipAddressId.HasValue && req.ShipAddressId != cart.ShipAddressId;
 
             // Update: Apply partial checkout field updates (email, addresses, instructions).
-            if (req.Email is not null) cart.Email = req.Email;
-            if (req.BillAddressId.HasValue) cart.BillAddressId = req.BillAddressId;
-            if (req.ShipAddressId.HasValue) cart.ShipAddressId = req.ShipAddressId;
-            if (req.SpecialInstructions is not null) cart.SpecialInstructions = req.SpecialInstructions;
-            cart.ModifiedAtUtc = DateTimeOffset.UtcNow;
+            var updateResult = cart.UpdateDetails(
+                req.Email, req.SpecialInstructions,
+                req.BillAddressId, req.ShipAddressId, null);
+            if (updateResult.IsFailure)
+                return updateResult.Errors;
 
             // Compute: Recalculate shipping cost when ship address changes and a method is selected.
             if (addressChanged && cart.ShippingMethodId.HasValue)
@@ -55,13 +55,12 @@ public static partial class UpdateCheckout
                     .ToListAsync(cancellationToken);
 
                 var weightMap = variantWeights.ToDictionary(v => v.Id, v => v.Weight ?? 0m);
-                var orderWeight = cart.LineItems.Sum(li =>
-                    weightMap.TryGetValue(li.VariantId, out var w) ? li.Quantity * w : 0m);
+                var totalWeight = cart.CalculateTotalWeight(weightMap);
 
                 var calcResult = await ShippingRateCalculator.CalculateAsync(
                     dbContext,
                     cart.ShippingMethodId.Value,
-                    orderWeight,
+                    totalWeight,
                     cart.Total,
                     cancellationToken);
 
@@ -69,34 +68,9 @@ public static partial class UpdateCheckout
                 {
                     var (cost, _) = calcResult.Value;
 
-                    // Remove: Clear old shipping adjustments before adding replacement.
-                    var existingShipping = cart.Adjustments
-                        .Where(a => a.SourceType == AdjustmentConstant.SourceTypes.Shipping)
-                        .ToList();
-                    foreach (var adj in existingShipping)
-                    {
-                        cart.Adjustments.Remove(adj);
-                        dbContext.Set<Adjustment>().Remove(adj);
-                    }
-
-                    // Create: Add shipping adjustment with computed cost.
-                    if (cost > 0)
-                    {
-                        var adjResult = AdjustmentMethod.Create(
-                            label: AdjustmentConstant.Labels.Shipping,
-                            amount: cost,
-                            adjustableId: cart.Id,
-                            adjustableType: AdjustmentConstant.AdjustableTypes.Order,
-                            sourceId: cart.ShippingMethodId.Value,
-                            sourceType: AdjustmentConstant.SourceTypes.Shipping,
-                            orderId: cart.Id);
-
-                        if (adjResult.IsSuccess)
-                        {
-                            cart.Adjustments.Add(adjResult.Value);
-                            dbContext.Set<Adjustment>().Add(adjResult.Value);
-                        }
-                    }
+                    var shippingResult = cart.ReplaceShippingAdjustment(cost, cart.ShippingMethodId.Value);
+                    if (shippingResult.IsFailure)
+                        return shippingResult.Errors;
                 }
             }
 

@@ -37,15 +37,15 @@ public static partial class ValidateCheckout
                 return OrderResult.Errors.EmptyOrderCannotFinalize;
 
             // Validate: Billing and shipping addresses must be set.
-            if (cart.BillAddressId is null || cart.ShipAddressId is null)
+            if (!cart.HasAddresses())
                 return OrderResult.Errors.AddressRequired;
 
             // Validate: Shipping method must be selected.
-            if (cart.ShippingMethodId is null)
+            if (!cart.HasShippingMethod())
                 return OrderResult.Errors.DeliveryMethodRequired;
 
             // Validate: Email address must be provided for notifications.
-            if (string.IsNullOrWhiteSpace(cart.Email))
+            if (!cart.HasEmail())
                 return OrderResult.Errors.EmailRequired;
 
             return Result.Ok();

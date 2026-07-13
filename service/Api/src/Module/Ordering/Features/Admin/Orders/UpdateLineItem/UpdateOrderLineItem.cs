@@ -22,7 +22,7 @@ public static partial class UpdateOrderLineItem
             if (order is null)
                 return OrderResult.Errors.NotFound(command.OrderId);
             // Enforce: Only draft orders can have line items modified.
-            if (order.Status != OrderStatus.Draft)
+            if (!order.CanModifyLineItems())
                 return OrderResult.Errors.NotDraftForLineItem;
 
             // Check: Find the line item scoped to its parent order.

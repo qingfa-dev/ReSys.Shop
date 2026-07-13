@@ -22,13 +22,10 @@ public static partial class UpdateOrderShipAddress
             if (order is null)
                 return OrderResult.Errors.NotFound(command.Id);
 
-            // Enforce: Only draft orders can have shipping address modified.
-            if (order.Status != OrderStatus.Draft)
-                return OrderResult.Errors.NotDraftForShipAddress;
-
             // Update: Set the shipping address from the request.
-            order.ShipAddressId = command.Request.AddressId;
-            order.ModifiedAtUtc = DateTimeOffset.UtcNow;
+            var addressResult = order.SetShipAddress(command.Request.AddressId);
+            if (addressResult.IsFailure)
+                return (Result<Response>)addressResult.Errors;
 
             await dbContext.SaveChangesAsync(cancellationToken);
 

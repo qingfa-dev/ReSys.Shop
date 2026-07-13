@@ -51,33 +51,29 @@ public static partial class CreateOrderFromCart
             if (cart is null)
                 return OrderResult.Errors.NotFound(Guid.Empty);
 
-            // Validate: Payment verification (skip for zero-total orders).
-            if (cart.Total > 0m)
-            {
-                var paymentIntentId = command.Request.PaymentIntentId;
-                if (string.IsNullOrWhiteSpace(paymentIntentId))
-                    return OrderResult.Errors.PaymentRequired;
+            // Validate: Checkout prerequisites (addresses, shipping method, email).
+            var prereqResult = cart.ValidateCheckoutPrerequisites();
+            if (prereqResult.IsFailure)
+                return prereqResult.Errors;
 
-                // Check: Verify payment capture exists and is completed.
-                var payment = await dbContext.Set<PaymentCapture>()
+            // Validate: Payment.
+            var paymentIntentId = command.Request.PaymentIntentId;
+            var payment = !string.IsNullOrWhiteSpace(paymentIntentId)
+                ? await dbContext.Set<PaymentCapture>()
                     .FirstOrDefaultAsync(p => p.ResponseCode == paymentIntentId
                                           && p.OrderId == cart.Id
-                                          && p.State == PaymentRecordState.Completed, cancellationToken);
+                                          && p.State == PaymentRecordState.Completed, cancellationToken)
+                : null;
 
-                if (payment is null)
-                    return OrderResult.Errors.PaymentFailed;
+            var paymentResult = cart.ValidatePayment(
+                payment?.Amount ?? 0m,
+                payment?.State == PaymentRecordState.Completed);
+            if (paymentResult.IsFailure)
+                return paymentResult.Errors;
 
-                // Validate: Payment amount must match order total.
-                if (payment.Amount != cart.Total)
-                    return OrderResult.Errors.PaymentAmountMismatch;
-
-                // TODO: replace with cart.MarkPaymentAsPaid() after Task 3
-                cart.PaymentState = OrderConstant.PaymentState.Paid;
-            }
-
-            // Validate: Cart must contain at least one line item.
-            if (cart.LineItems.Count == 0)
-                return OrderResult.Errors.EmptyOrderCannotFinalize;
+            var paymentMarkResult = cart.MarkPaymentAsPaid();
+            if (paymentMarkResult.IsFailure)
+                return paymentMarkResult.Errors;
 
             // Validate: Reject orders containing discontinued variants.
             var variantIds = cart.LineItems.Select(li => li.VariantId).ToList();

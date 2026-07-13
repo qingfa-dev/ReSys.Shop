@@ -23,12 +23,9 @@ public static partial class UpdateOrderShippingMethod
                 return OrderResult.Errors.NotFound(command.Id);
 
             // Update: Assign the shipping method, reset shipment total, and recalculate all totals.
-            order.ShippingMethodId = command.Request.ShippingMethodId;
-            order.ShipmentTotal = 0;
-            var recalcResult = order.RecalculateTotals();
-            if (recalcResult.IsFailure)
-                return recalcResult.Errors;
-            order.ModifiedAtUtc = DateTimeOffset.UtcNow;
+            var methodResult = order.SetShippingMethod(command.Request.ShippingMethodId);
+            if (methodResult.IsFailure)
+                return (Result<Response>)methodResult.Errors;
 
             await dbContext.SaveChangesAsync(cancellationToken);
 
