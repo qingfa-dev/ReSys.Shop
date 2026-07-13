@@ -163,7 +163,8 @@ public class OrderMethodTests
             OrderId = order.Id,
             CreatedBy = "test"
         });
-        order.RecalculateTotals();
+        var result = order.RecalculateTotals();
+        result.IsSuccess.Should().BeTrue();
         order.AdjustmentTotal.Should().Be(7m); // line item adj (2) + order adj (5)
         order.ItemTotal.Should().Be(10m);
         order.Total.Should().Be(17m);
