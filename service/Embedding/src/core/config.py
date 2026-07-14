@@ -20,12 +20,15 @@ def detect_project_root() -> Path:
     """
     Detects the project root directory by traversing up from the current file
     until a marker file (like pyproject.toml) is found.
+
+    Returns:
+        Path to the project root directory.
     """
     current = Path(__file__).resolve().parent
     for parent in [current] + list(current.parents):
         if (parent / "pyproject.toml").exists() or (parent / "uv.lock").exists():
             return parent
-    # Fallback to current working directory if no marker is found
+    # Fallback: Return CWD when no marker file found upstream
     return Path.cwd()
 
 # sidecar root directory for relative path resolution
@@ -53,6 +56,8 @@ class Settings(BaseSettings):
     Global application settings for the Inference service.
     Provides type-safe access to environment variables with validation.
     """
+    # Boundary: Config → Environment — do not add business logic here;
+    #            this class reads env vars and validates them only
 
     # ── Service Identity & Network ───────────────────────────────────────────────
     PROJECT_NAME: str = Field(
@@ -106,12 +111,6 @@ class Settings(BaseSettings):
         description="Default model name used when request does not specify one.",
         json_schema_extra={"example": "fashion_clip"}
     )
-    UPLOAD_DIR: str = Field(
-        default=str(SERVICE_ROOT / "uploads"),
-        description="Directory where uploaded images are stored locally.",
-        json_schema_extra={"example": "/app/uploads"}
-    )
-
     # ── SSL Certificate Configuration ─────────────────────────────────────────────
     SSL_CERT_FILE: Optional[str] = Field(
         default=None,
@@ -171,9 +170,11 @@ class Settings(BaseSettings):
     @field_validator("ENVIRONMENT", mode="before")
     @classmethod
     def validate_env_name(cls, v: str | Environment) -> Environment:
+        """Validate and normalize the environment name, accepting 'prod' as alias."""
         if isinstance(v, Environment):
             return v
 
+        # Normalize: Accept 'prod' as shorthand for 'production'
         v = v.lower()
         if v == "prod":
             return Environment.PRODUCTION
@@ -187,6 +188,7 @@ class Settings(BaseSettings):
     @field_validator("LOG_LEVEL", mode="before")
     @classmethod
     def validate_log_level(cls, v: str | LogLevel) -> LogLevel:
+        """Validate and normalize the log level string."""
         if isinstance(v, LogLevel):
             return v
 
@@ -200,6 +202,7 @@ class Settings(BaseSettings):
     @field_validator("RATE_LIMIT")
     @classmethod
     def validate_rate_limit(cls, v: str) -> str:
+        """Validate: Rate limit string matches expected format (e.g. '50/minute')."""
         import re
         if not re.match(r"^\d+\s*/\s*(second|minute|hour|day)$", v.lower()):
             raise ValueError("RATE_LIMIT must be in format 'N/minute', 'N/hour', etc.")
@@ -208,6 +211,7 @@ class Settings(BaseSettings):
     @field_validator("HUGGING_FACE_TOKEN")
     @classmethod
     def validate_hf_token(cls, v: Optional[str]) -> Optional[str]:
+        """Validate: HuggingFace token starts with 'hf_' prefix."""
         if v and not v.startswith("hf_"):
             raise ValueError("HUGGING_FACE_TOKEN must start with 'hf_'")
         return v
@@ -215,13 +219,14 @@ class Settings(BaseSettings):
     @field_validator("OTEL_EXPORTER_OTLP_ENDPOINT")
     @classmethod
     def validate_otlp_url(cls, v: str) -> str:
+        """Validate: OTLP endpoint begins with http:// or https://."""
         if v and not v.startswith(("http://", "https://")):
             raise ValueError("OTEL_EXPORTER_OTLP_ENDPOINT must start with http:// or https://")
         return v
 
     @model_validator(mode="after")
     def resolve_absolute_paths(self) -> "Settings":
-        """Ensures all directory paths are absolute and performance vars are set."""
+        """Enforce: All directory paths are absolute and numerical library thread vars are set."""
         self.ONNX_MODEL_DIR = str(Path(self.ONNX_MODEL_DIR).resolve())
 
         # Set environment variables for numerical libraries immediately
@@ -232,7 +237,11 @@ class Settings(BaseSettings):
         return self
 
     def verify_onnx_dir(self) -> bool:
-        """Helper to check if the ONNX directory is valid and exists."""
+        """Check: ONNX model directory exists and is a valid directory on disk.
+
+        Returns:
+            True if the directory exists and is a directory, False otherwise.
+        """
         path = Path(self.ONNX_MODEL_DIR)
         return path.exists() and path.is_dir()
 
