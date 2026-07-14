@@ -79,14 +79,6 @@ async def create_embedding(
     )
 
 
-@router.get(
-    "/models",
-    response_model=ValueResult[List[ModelMetadata]],
-    summary="List Available Models",
-    description="Returns metadata for both registered skills and discovered ONNX models."
-)
-
-
 @router.post(
     "/embeddings/bytes",
     response_model=ValueResult[EmbeddingResponse],
@@ -123,6 +115,14 @@ async def create_embedding_from_bytes(
         model_name=model,
         duration_ms=duration
     )
+
+
+@router.get(
+    "/models",
+    response_model=ValueResult[List[ModelMetadata]],
+    summary="List Available Models",
+    description="Returns metadata for both registered skills and discovered ONNX models."
+)
 async def list_models(key: str = Depends(verify_api_key)):
     """Dynamic discovery of all models including disk-based ONNX models."""
     all_meta = ModelRegistry.get_all_metadata().copy()
