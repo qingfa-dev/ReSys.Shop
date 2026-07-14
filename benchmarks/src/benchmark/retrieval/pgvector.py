@@ -26,6 +26,8 @@ Usage
 """
 from __future__ import annotations
 
+import time
+
 import numpy as np
 
 from benchmark.utils.logging import get_logger
@@ -114,6 +116,95 @@ class PgvectorRetriever:
         """
         with self._conn.cursor() as cur:
             cur.execute(sql, (product_id, label, embedding.tolist()))
+
+    def upsert_batch(
+        self,
+        product_ids: list[str],
+        labels: list[str],
+        embeddings: np.ndarray,
+    ) -> None:
+        """Batch insert or update product embeddings.
+
+        Args:
+            product_ids: List of product IDs.
+            labels:      List of labels (same length).
+            embeddings:  Float32 array of shape ``(N, D)``.
+        """
+        if self._conn is None:
+            raise RuntimeError("Call connect() first")
+        if len(product_ids) != len(labels) or len(product_ids) != len(embeddings):
+            raise ValueError("product_ids, labels, and embeddings must have the same length")
+
+        sql = f"""
+            INSERT INTO {self._table} ({self._id_col}, {self._label_col}, {self._embedding_col})
+            VALUES %s
+            ON CONFLICT ({self._id_col}) DO UPDATE
+                SET {self._embedding_col} = EXCLUDED.{self._embedding_col},
+                    {self._label_col}     = EXCLUDED.{self._label_col}
+        """
+        values = [
+            (pid, label, emb.tolist())
+            for pid, label, emb in zip(product_ids, labels, embeddings)
+        ]
+        with self._conn.cursor() as cur:
+            # Use execute_values for batch insert
+            args_str = ",".join(
+                cur.mogrify("(%s, %s, %s::vector)", v).decode("utf-8")
+                for v in values
+            )
+            full_sql = sql.replace("VALUES %s", f"VALUES {args_str}")
+            cur.execute(full_sql)
+
+    def clear_table(self) -> None:
+        """Delete all rows from the target table."""
+        if self._conn is None:
+            raise RuntimeError("Call connect() first")
+        with self._conn.cursor() as cur:
+            cur.execute(f"DELETE FROM {self._table}")
+        logger.info("Cleared table %s", self._table)
+
+    def build_index(self, dim: int, lists: int = 100) -> float:
+        """Build an IVFFlat index and return elapsed time in seconds.
+
+        Args:
+            dim:    Embedding dimension (512 or 768).
+            lists:  Number of IVF lists.
+
+        Returns:
+            Index build time in seconds.
+        """
+        if self._conn is None:
+            raise RuntimeError("Call connect() first")
+
+        index_name = f"idx_{self._table}_{dim}_{lists}"
+        with self._conn.cursor() as cur:
+            cur.execute(
+                f"""
+                DO $$
+                BEGIN
+                    IF EXISTS (
+                        SELECT 1 FROM pg_indexes
+                        WHERE indexname = '{index_name}'
+                    ) THEN
+                        DROP INDEX {index_name};
+                    END IF;
+                END $$;
+                """
+            )
+
+        t0 = time.perf_counter()
+        with self._conn.cursor() as cur:
+            cur.execute(
+                f"""
+                CREATE INDEX {index_name}
+                ON {self._table}
+                USING ivfflat ({self._embedding_col} vector_cosine_ops)
+                WITH (lists = {lists});
+                """
+            )
+        elapsed = time.perf_counter() - t0
+        logger.info("Built IVFFlat index %s in %.2f s", index_name, elapsed)
+        return elapsed
 
     def close(self) -> None:
         """Close the database connection."""
