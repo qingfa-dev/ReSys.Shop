@@ -276,6 +276,106 @@ def thesis(
     console.print(summary)
 
 
+# ── pipeline command ──────────────────────────────────────────────────────
+
+@app.command()
+def pipeline(
+    dataset_root: Annotated[Path, typer.Option("--dataset-root", "-d",
+        help="Path to the raw dataset directory.")] = Path("data/raw/deepfashion"),
+    models: Annotated[str, typer.Option("--models", "-m",
+        help="Comma-separated model keys, or 'all'.")] = "all",
+    folds: Annotated[int, typer.Option("--folds",
+        help="Number of cross-validation folds.")] = 3,
+    k: Annotated[str, typer.Option("--k",
+        help="Comma-separated K values for P@K / R@K.")] = "5,10,20",
+    batch_size: Annotated[int, typer.Option("--batch-size",
+        help="Images per forward pass.")] = 64,
+    no_cache: Annotated[bool, typer.Option("--no-cache",
+        help="Disable embedding cache.")] = False,
+    output: Annotated[Path, typer.Option("--output", "-o",
+        help="Root output directory.", show_default=True)] = Path("outputs/pipeline"),
+    device: Annotated[str, typer.Option("--device",
+        help="Device (cpu, cuda, mps, auto).", show_default=True)] = "auto",
+    seed: Annotated[int, typer.Option("--seed",
+        help="Random seed.", show_default=True)] = 42,
+    conn_string: Annotated[str, typer.Option("--conn-string",
+        help="PostgreSQL connection string.", show_default=True)] = "postgresql://benchmark:benchmark@localhost:5432/benchmark",
+    pg_lists: Annotated[int, typer.Option("--pg-lists",
+        help="IVFFlat lists parameter.", show_default=True)] = 100,
+    log_level: Annotated[str, typer.Option("--log-level", show_default=True)] = "INFO",
+) -> None:
+    """Run the production pipeline benchmark (thesis + pgvector).
+
+    Example::
+
+        uv run benchmark pipeline \\
+            --dataset-root data/raw/deepfashion \\
+            --models fashion-clip,resnet-50 \\
+            --folds 3
+    """
+    setup_logging(level=log_level, log_file=output / "logs" / "pipeline.log")
+
+    from benchmark.evaluation.pipeline import THESIS_MODEL_KEYS, PipelineRunner
+    from benchmark.reporting.pipeline import write_pipeline_json, write_pipeline_typst
+
+    model_keys = THESIS_MODEL_KEYS if models == "all" else [k.strip() for k in models.split(",")]
+    top_k = [int(v) for v in k.split(",")]
+
+    config_table = Table(title="Pipeline Benchmark Configuration", show_header=False)
+    config_table.add_column("Key", style="bold")
+    config_table.add_column("Value")
+    config_table.add_row("Models", ", ".join(model_keys))
+    config_table.add_row("Folds", str(folds))
+    config_table.add_row("K values", str(top_k))
+    config_table.add_row("Dataset root", str(dataset_root))
+    config_table.add_row("Batch size", str(batch_size))
+    config_table.add_row("Cache", "disabled" if no_cache else "enabled")
+    config_table.add_row("PGVector", conn_string.split("@")[-1])
+    config_table.add_row("PG lists", str(pg_lists))
+    config_table.add_row("Seed", str(seed))
+    console.print(config_table)
+
+    runner = PipelineRunner(
+        dataset_root=dataset_root,
+        output_dir=output,
+        k_values=top_k,
+        folds=folds,
+        seed=seed,
+        device=device,
+        use_cache=not no_cache,
+        batch_size=batch_size,
+        conn_string=conn_string,
+        pg_lists=pg_lists,
+    )
+    results = runner.run(model_keys=model_keys)
+
+    results_dir = output / "results"
+    results_dir.mkdir(parents=True, exist_ok=True)
+    out_path = results_dir / "pipeline_results.json"
+    out_path.write_text(json.dumps(results, indent=2))
+    console.print(f"\n[green]✓ Results written to {out_path}[/green]")
+
+    write_pipeline_typst(results, output_dir=output / "tables")
+    console.print(f"[green]✓ Typst tables written to {output / 'tables'}[/green]")
+
+    summary = Table(title="Pipeline Results", show_header=True, header_style="bold cyan")
+    summary.add_column("Model")
+    summary.add_column("mAP (mean ± SD)", justify="right")
+    summary.add_column("PG Recall@10", justify="right")
+    summary.add_column("Query Latency (ms)", justify="right")
+
+    for r in results:
+        agg = r.get("aggregate", {})
+        pm = r.get("production_metrics", {})
+        summary.add_row(
+            r["model_name"],
+            f"{agg.get('map', {}).get('mean', 0):.4f} ± {agg.get('map', {}).get('std', 0):.4f}",
+            f"{pm.get('pgvector_recall@10', {}).get('mean', 0):.4f}",
+            f"{pm.get('pgvector_query_latency_ms', {}).get('mean', 0):.1f}",
+        )
+    console.print(summary)
+
+
 # ── report command ────────────────────────────────────────────────────────────
 
 @app.command()
