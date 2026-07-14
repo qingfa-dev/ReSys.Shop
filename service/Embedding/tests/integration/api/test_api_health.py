@@ -26,7 +26,7 @@ class TestHealthEndpoint:
 
     def test_body_contains_service_name(self, client):
         body = client.get("/health").json()
-        assert body["service"] == "Inference"
+        assert body["service"] == "Embedding Service"
 
     def test_health_is_idempotent(self, client):
         """Multiple consecutive calls must all return 200."""

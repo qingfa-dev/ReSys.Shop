@@ -3,7 +3,11 @@ Specialized results, errors, and models for Inference operations.
 """
 from typing import Any, Dict, List, Optional
 
-from embedding.schemas.inferences.models import EmbeddingRequest, EmbeddingResponse, ModelMetadata
+from embedding.schemas.inferences.models import (  # noqa: F401
+    EmbeddingRequest,
+    EmbeddingResponse,
+    ModelMetadata,
+)
 from embedding.schemas.results.failure import Failure
 from embedding.schemas.results.result import ValueResult
 

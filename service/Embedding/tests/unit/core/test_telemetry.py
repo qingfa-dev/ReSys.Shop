@@ -46,7 +46,7 @@ def test_resource_attributes():
     provider = trace.get_tracer_provider()
     if hasattr(provider, "resource"):
         attrs = provider.resource.attributes
-        assert attrs[SERVICE_NAME] == "Inference"
+        assert attrs[SERVICE_NAME] == "Embedding Service"
         assert attrs[DEPLOYMENT_ENVIRONMENT] == "test"
 
 

@@ -21,12 +21,11 @@ Each test validates the full request → FastAPI → InferenceEngine → Embedde
   - Response metadata fields
 """
 import math
-import os
 from pathlib import Path
 
 import pytest
-
 from embedding.core.config import settings
+
 from tests.conftest import TEST_IMAGE_URL, TEST_IMAGE_URL_2
 
 pytestmark = [pytest.mark.integration]

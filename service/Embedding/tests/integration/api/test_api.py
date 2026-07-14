@@ -9,7 +9,7 @@ def test_health_check():
     """Verify the service is up and telemetry is initialized."""
     response = client.get("/health")
     assert response.status_code == 200
-    assert response.json()["service"] == "Inference"
+    assert response.json()["service"] == "Embedding Service"
 
 @pytest.mark.parametrize("model_name, expected_dim", [
     ("efficientnet_b0", 1280),

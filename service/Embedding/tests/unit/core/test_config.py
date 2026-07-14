@@ -13,7 +13,7 @@ from pydantic import ValidationError
 def test_settings_default_values():
     """Verify that default values are correctly populated (including .env.test overrides)."""
     s = Settings()
-    assert s.PROJECT_NAME == "Inference"
+    assert s.PROJECT_NAME == "Embedding Service"
     assert s.PORT == 8000
     assert s.ENVIRONMENT == Environment.TEST
     assert s.RATE_LIMIT == "30/minute"
