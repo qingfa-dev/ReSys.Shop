@@ -21,7 +21,9 @@ Each test validates the full request → FastAPI → InferenceEngine → Embedde
   - Response metadata fields
 """
 import math
+
 import pytest
+
 from tests.conftest import TEST_IMAGE_URL, TEST_IMAGE_URL_2
 
 pytestmark = [pytest.mark.integration]
@@ -136,27 +138,27 @@ def test_different_images_produce_different_vectors(authed_client, model_name):
 
 def test_list_models_returns_all_available_options(authed_client):
     """
-    Verifies that /inference/models discovers both registered skills 
+    Verifies that /inference/models discovers both registered skills
     and ONNX models on disk.
     """
     response = authed_client.get("/inference/models")
     assert response.status_code == 200
-    
+
     data = response.json()
     assert data["isSuccess"] is True
-    
+
     models = data["value"]
     model_ids = [m["id"] for m in models]
-    
+
     # Check: Basic skills are present
     assert "efficientnet_b0" in model_ids
     assert "clip_vit_b16" in model_ids
-    
+
     # Check: ONNX models are discovered (assuming they were exported)
     onnx_models = [m for m in models if m["is_onnx"]]
     assert len(onnx_models) > 0, "No ONNX models were discovered on disk"
     assert any(m["id"] == "onnx/efficientnet_b0" for m in onnx_models)
-    
+
     # Check: All models have valid dimensions
     for m in models:
         assert m["dimension"] > 0

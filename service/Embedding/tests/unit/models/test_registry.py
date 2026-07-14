@@ -2,8 +2,9 @@
 Unit tests for the ModelRegistry.
 """
 import pytest
-from embedding.models.registry import ModelRegistry
 from embedding.models.base import BaseEmbedder
+from embedding.models.registry import ModelRegistry
+
 
 @pytest.fixture(autouse=True)
 def clear_registry():
@@ -19,7 +20,7 @@ class FakeModel(BaseEmbedder):
 def test_registry_stores_and_retrieves_class():
     # Register
     ModelRegistry.register("fake")(FakeModel)
-    
+
     # Retrieve
     result = ModelRegistry.get_model_class("fake")
     assert result.is_success is True
@@ -39,7 +40,7 @@ def test_decorator_syntax():
     @ModelRegistry.register("decorator_test")
     class DecModel(BaseEmbedder):
         def _forward(self, image): pass
-        
+
     result = ModelRegistry.get_model_class("decorator_test")
     assert result.is_success is True
     assert result.value == DecModel

@@ -1,14 +1,15 @@
 """
 Pydantic schemas for image embedding requests and responses.
 """
+from typing import Any, Dict, List, Optional
+
 from pydantic import BaseModel, Field
-from typing import List, Optional, Any, Dict
 
 
 class EmbeddingRequest(BaseModel):
     """Request model for generating a high-dimensional vector embedding from an image."""
     image_url: str = Field(
-        ..., 
+        ...,
         description="The publicly accessible HTTP/HTTPS URL of the image to be processed.",
         json_schema_extra={"example": "https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&q=80&w=1000"}
     )
@@ -24,7 +25,9 @@ class EmbeddingResponse(BaseModel):
     vector: List[float] = Field(..., description="The L2-normalized numerical vector.")
     model_version: str = Field(..., description="The specific version of the model.")
     dimension: int = Field(..., description="The number of elements in the vector.")
-    metadata: Optional[Dict[str, Any]] = Field(default=None, description="Additional technical metadata.")
+    metadata: Optional[Dict[str, Any]] = Field(
+        default=None, description="Additional technical metadata."
+    )
 
 
 class ModelMetadata(BaseModel):
@@ -32,6 +35,13 @@ class ModelMetadata(BaseModel):
     id: str = Field(..., description="Unique model identifier used in requests.")
     name: str = Field(..., description="Human-readable name of the model.")
     dimension: int = Field(..., description="Output vector dimensionality.")
-    description: Optional[str] = Field(None, description="Brief explanation of the model's purpose.")
-    is_onnx: bool = Field(default=False, description="Whether this is an optimized ONNX model.")
-    tags: List[str] = Field(default_factory=list, description="Categorization tags (e.g. 'vision', 'semantic').")
+    description: Optional[str] = Field(
+        None, description="Brief explanation of the model's purpose."
+    )
+    is_onnx: bool = Field(
+        default=False, description="Whether this is an optimized ONNX model."
+    )
+    tags: List[str] = Field(
+        default_factory=list,
+        description="Categorization tags (e.g. 'vision', 'semantic').",
+    )

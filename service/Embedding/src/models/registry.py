@@ -2,9 +2,10 @@
 Centralized registry for inference model "skills".
 Allows dynamic registration and discovery of embedder implementations.
 """
-from typing import Dict, Type, List, Any, Optional
 import logging
-from embedding.schemas import ValueResult, RegistryResults
+from typing import Any, Dict, List, Optional, Type
+
+from embedding.schemas import RegistryResults, ValueResult
 
 logger = logging.getLogger(__name__)
 
@@ -36,7 +37,7 @@ class ModelRegistry:
         model_cls = cls._models.get(name)
         if not model_cls:
             return ValueResult.failure_value(RegistryResults.Errors.NotRegistered(name))
-        
+
         return RegistryResults.Success.Ok(model_cls)
 
     @classmethod

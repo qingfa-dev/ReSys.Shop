@@ -2,7 +2,6 @@
 Unified setup script for the inference service environment.
 Handles .env creation, dependency syncing, and model export.
 """
-import os
 import shutil
 import subprocess
 import sys
@@ -43,7 +42,7 @@ def setup_env_files():
         shutil.copy(template, target_env)
         print(f"{GREEN}✔ Created .env from template{RESET}")
     else:
-        print(f"ℹ .env already exists, skipping...")
+        print("ℹ .env already exists, skipping...")
 
 
 def sync_dependencies():
@@ -58,7 +57,7 @@ def export_models():
     if choice == "y":
         return run_command("uv run python scripts/export_onnx.py", "Exporting models to ONNX")
     else:
-        print(f"ℹ Skipping ONNX export.")
+        print("ℹ Skipping ONNX export.")
         return True
 
 
@@ -73,7 +72,9 @@ def main():
         sys.exit(1)
 
     if not export_models():
-        print(f"\n{YELLOW}⚠ Models could not be exported, but environment is otherwise ready.{RESET}")
+        print(
+            f"\n{YELLOW}⚠ Models could not be exported, but environment is otherwise ready.{RESET}"
+        )
 
     print(f"\n{GREEN}✔ Setup complete! You can now run the service with:{RESET}")
     print(f"  {YELLOW}uv run fastapi dev src/main.py{RESET}")

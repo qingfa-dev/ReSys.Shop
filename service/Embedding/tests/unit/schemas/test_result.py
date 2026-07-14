@@ -1,9 +1,8 @@
 """
 Unit tests for the Result / ValueResult monad.
 """
-import pytest
+from embedding.schemas import Failure, Result, ValueResult
 from PIL import Image
-from embedding.schemas import Result, ValueResult, Failure, FailureType
 
 
 class TestResult:

@@ -4,11 +4,11 @@ Integration tests — health and error-handling endpoints.
 These tests are fast (no model weights) and verify the service contract
 for ops tooling: load balancers, k8s probes, and Aspire dashboards.
 """
-import pytest
 from unittest.mock import MagicMock
 
-from embedding.schemas import Failure, ValueResult
+import pytest
 from embedding.api.routers.inference import get_engine
+from embedding.schemas import Failure, ValueResult
 
 pytestmark = pytest.mark.integration
 
@@ -63,7 +63,7 @@ class TestErrorPropagation:
         mock_engine.embed.return_value = ValueResult.failure_value(
             Failure.bad_request("Image.LoadError", "Connection refused")
         )
-        
+
         # Use FastAPI dependency overrides for reliable patching
         app.dependency_overrides[get_engine] = lambda: mock_engine
         try:
@@ -81,7 +81,7 @@ class TestErrorPropagation:
         mock_engine.embed.return_value = ValueResult.failure_value(
             Failure.internal_error("Inference.Error", "CUDA OOM")
         )
-        
+
         app.dependency_overrides[get_engine] = lambda: mock_engine
         try:
             response = authed_client.post(

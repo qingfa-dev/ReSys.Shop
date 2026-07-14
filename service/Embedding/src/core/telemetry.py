@@ -5,28 +5,34 @@ Automatically falls back to standard console logging if OTLP is unavailable.
 """
 import logging
 import os
-import sys
 import socket
-from typing import Optional
+import sys
 
-from opentelemetry import trace, metrics
-from opentelemetry.sdk.resources import Resource, SERVICE_NAME, DEPLOYMENT_ENVIRONMENT
-from opentelemetry.sdk.trace import TracerProvider
-from opentelemetry.sdk.trace.export import BatchSpanProcessor, ConsoleSpanExporter, SimpleSpanProcessor
-from opentelemetry.exporter.otlp.proto.grpc.trace_exporter import OTLPSpanExporter
-from opentelemetry.sdk.metrics import MeterProvider
-from opentelemetry.sdk.metrics.export import PeriodicExportingMetricReader, ConsoleMetricExporter
-from opentelemetry.exporter.otlp.proto.grpc.metric_exporter import OTLPMetricExporter
+from embedding.core.config import settings
+from opentelemetry import metrics, trace
 
 # Internal OTel logging imports
 from opentelemetry._logs import set_logger_provider
-from opentelemetry.sdk._logs import LoggerProvider
-from opentelemetry.sdk._logs.export import BatchLogRecordProcessor, SimpleLogRecordProcessor, ConsoleLogRecordExporter
 from opentelemetry.exporter.otlp.proto.grpc._log_exporter import OTLPLogExporter
+from opentelemetry.exporter.otlp.proto.grpc.metric_exporter import OTLPMetricExporter
+from opentelemetry.exporter.otlp.proto.grpc.trace_exporter import OTLPSpanExporter
 from opentelemetry.instrumentation.logging import LoggingInstrumentor
 from opentelemetry.instrumentation.logging.handler import LoggingHandler
-
-from embedding.core.config import settings
+from opentelemetry.sdk._logs import LoggerProvider
+from opentelemetry.sdk._logs.export import (
+    BatchLogRecordProcessor,
+    ConsoleLogRecordExporter,
+    SimpleLogRecordProcessor,
+)
+from opentelemetry.sdk.metrics import MeterProvider
+from opentelemetry.sdk.metrics.export import ConsoleMetricExporter, PeriodicExportingMetricReader
+from opentelemetry.sdk.resources import DEPLOYMENT_ENVIRONMENT, SERVICE_NAME, Resource
+from opentelemetry.sdk.trace import TracerProvider
+from opentelemetry.sdk.trace.export import (
+    BatchSpanProcessor,
+    ConsoleSpanExporter,
+    SimpleSpanProcessor,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -37,7 +43,7 @@ def is_otlp_available(endpoint: str) -> bool:
     """
     if not endpoint:
         return False
-    
+
     try:
         # Extract host and port
         host_port = endpoint.split("//")[-1].split("/") [0]
@@ -46,8 +52,8 @@ def is_otlp_available(endpoint: str) -> bool:
             port = int(port)
         else:
             host = host_port
-            port = 4317 
-            
+            port = 4317
+
         with socket.create_connection((host, port), timeout=1) as _:
             return True
     except (socket.error, ValueError, IndexError):
@@ -106,16 +112,30 @@ def _init_tracer(endpoint: str, resource: Resource, is_insecure: bool, otlp_enab
     if settings.ENVIRONMENT == "dev":
         provider.add_span_processor(SimpleSpanProcessor(ConsoleSpanExporter(out=sys.stdout)))
     if otlp_enabled:
-        provider.add_span_processor(BatchSpanProcessor(OTLPSpanExporter(endpoint=endpoint, insecure=is_insecure)))
+        provider.add_span_processor(
+            BatchSpanProcessor(
+                OTLPSpanExporter(endpoint=endpoint, insecure=is_insecure)
+            )
+        )
     trace.set_tracer_provider(provider)
 
 
 def _init_metrics(endpoint: str, resource: Resource, is_insecure: bool, otlp_enabled: bool):
     readers = []
     if settings.ENVIRONMENT == "dev":
-        readers.append(PeriodicExportingMetricReader(ConsoleMetricExporter(out=sys.stdout), export_interval_millis=60000))
+        readers.append(
+            PeriodicExportingMetricReader(
+                ConsoleMetricExporter(out=sys.stdout),
+                export_interval_millis=60000,
+            )
+        )
     if otlp_enabled:
-        readers.append(PeriodicExportingMetricReader(OTLPMetricExporter(endpoint=endpoint, insecure=is_insecure), export_interval_millis=60000))
+        readers.append(
+            PeriodicExportingMetricReader(
+                OTLPMetricExporter(endpoint=endpoint, insecure=is_insecure),
+                export_interval_millis=60000,
+            )
+        )
     if readers:
         metrics.set_meter_provider(MeterProvider(resource=resource, metric_readers=readers))
 
@@ -123,13 +143,22 @@ def _init_metrics(endpoint: str, resource: Resource, is_insecure: bool, otlp_ena
 def _init_logging(endpoint: str, resource: Resource, is_insecure: bool, otlp_enabled: bool):
     log_format = "%(asctime)s %(levelname)s [%(name)s] %(message)s"
     log_level = getattr(logging, settings.LOG_LEVEL.upper(), logging.INFO)
-    logging.basicConfig(level=log_level, format=log_format, handlers=[logging.StreamHandler(sys.stdout)], force=True)
+    logging.basicConfig(
+        level=log_level,
+        format=log_format,
+        handlers=[logging.StreamHandler(sys.stdout)],
+        force=True,
+    )
 
     provider = LoggerProvider(resource=resource)
     if settings.ENVIRONMENT == "dev":
         provider.add_log_record_processor(SimpleLogRecordProcessor(ConsoleLogRecordExporter(out=sys.stdout)))
     if otlp_enabled:
-        provider.add_log_record_processor(BatchLogRecordProcessor(OTLPLogExporter(endpoint=endpoint, insecure=is_insecure)))
+        provider.add_log_record_processor(
+            BatchLogRecordProcessor(
+                OTLPLogExporter(endpoint=endpoint, insecure=is_insecure)
+            )
+        )
     set_logger_provider(provider)
 
     LoggingInstrumentor().instrument(set_logging_format=False)

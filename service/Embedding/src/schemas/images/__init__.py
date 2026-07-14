@@ -2,8 +2,9 @@
 Specialized results and errors for Image operations.
 """
 from typing import Any
-from embedding.schemas.results.result import ValueResult
+
 from embedding.schemas.results.failure import Failure
+from embedding.schemas.results.result import ValueResult
 
 
 class ImageResults:
@@ -11,7 +12,7 @@ class ImageResults:
 
     class Success:
         """Success result factories for images."""
-        
+
         @staticmethod
         def Ok(value: Any) -> ValueResult[Any]:
             return ValueResult.ok_value(value)
@@ -26,6 +27,6 @@ class ImageResults:
         @staticmethod
         def UnsupportedType(type_name: str) -> Failure:
             return Failure.bad_request(
-                "Image.InputError", 
+                "Image.InputError",
                 f"Unsupported input type: {type_name}"
             )

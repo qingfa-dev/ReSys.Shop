@@ -2,8 +2,8 @@
 Unit tests for the Security and SSL resolution module.
 """
 import os
-import pytest
-from unittest.mock import patch, MagicMock
+from unittest.mock import patch
+
 from embedding.core.security import resolve_ssl_paths
 
 
@@ -36,9 +36,9 @@ def test_resolve_ssl_auto_discovery():
                     # The code checks key.pem, cert.key, private.key, etc.
                     def side_effect(path):
                         return path in ["/certs/cert.pem", "/certs/key.pem"]
-                    
+
                     mock_exists.side_effect = side_effect
-                    
+
                     # We also need to patch join since it's used to construct the candidate paths
                     with patch("os.path.join", side_effect=lambda a, b: f"{a}/{b}"):
                         with patch("src.core.config.settings.SSL_CERT_FILE", "/certs/cert.pem"):

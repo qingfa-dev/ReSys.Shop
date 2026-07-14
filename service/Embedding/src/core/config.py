@@ -5,11 +5,12 @@ This module defines the global settings for the FastAPI application using Pydant
 It handles environment variable loading from .env and .env.{environment} files,
 providing type-safe access and robust validation.
 """
-import os
 import logging
+import os
 from enum import Enum
-from typing import Optional, List
 from pathlib import Path
+from typing import List, Optional
+
 from pydantic import Field, field_validator, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
@@ -17,7 +18,7 @@ logger = logging.getLogger(__name__)
 
 def detect_project_root() -> Path:
     """
-    Detects the project root directory by traversing up from the current file 
+    Detects the project root directory by traversing up from the current file
     until a marker file (like pyproject.toml) is found.
     """
     current = Path(__file__).resolve().parent
@@ -52,7 +53,7 @@ class Settings(BaseSettings):
     Global application settings for the Inference service.
     Provides type-safe access to environment variables with validation.
     """
-    
+
     # ── Service Identity & Network ───────────────────────────────────────────────
     PROJECT_NAME: str = Field(
         default="Embedding Service",
@@ -60,23 +61,23 @@ class Settings(BaseSettings):
         json_schema_extra={"example": "inference-sidecar"}
     )
     PORT: int = Field(
-        default=8000, 
-        ge=1, 
+        default=8000,
+        ge=1,
         le=65535,
         description="The local network port the HTTP server binds to.",
         json_schema_extra={"example": 5002}
     )
     HTTPS_PORT: int = Field(
-        default=8001, 
-        ge=1, 
+        default=8001,
+        ge=1,
         le=65535,
         description="The local network port the HTTPS server binds to.",
         json_schema_extra={"example": 5003}
     )
-    
+
     # ── Security ──────────────────────────────────────────────────────────────────
     API_KEY: str = Field(
-        default="dev-key-must-be-long-enough", 
+        default="dev-key-must-be-long-enough",
         min_length=16,
         description="Shared secret for authenticating internal sidecar calls.",
         json_schema_extra={"example": "a-very-long-and-secure-random-key-12345"}
@@ -86,14 +87,14 @@ class Settings(BaseSettings):
         description="Global rate limit for embedding endpoints (e.g., '50/minute').",
         json_schema_extra={"example": "100/minute"}
     )
-    
+
     # ── External Integrations ─────────────────────────────────────────────────────
     HUGGING_FACE_TOKEN: Optional[str] = Field(
         default=None,
         description="Hugging Face Hub token for gated models (optional).",
         json_schema_extra={"example": "hf_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"}
     )
-    
+
     # ── Machine Learning Configuration ────────────────────────────────────────────
     ONNX_MODEL_DIR: str = Field(
         default=str(SERVICE_ROOT / "models"),
@@ -167,11 +168,11 @@ class Settings(BaseSettings):
     def validate_env_name(cls, v: str | Environment) -> Environment:
         if isinstance(v, Environment):
             return v
-            
+
         v = v.lower()
         if v == "prod":
             return Environment.PRODUCTION
-            
+
         try:
             return Environment(v)
         except ValueError:
@@ -183,7 +184,7 @@ class Settings(BaseSettings):
     def validate_log_level(cls, v: str | LogLevel) -> LogLevel:
         if isinstance(v, LogLevel):
             return v
-            
+
         v = v.upper()
         try:
             return LogLevel(v)
@@ -217,12 +218,12 @@ class Settings(BaseSettings):
     def resolve_absolute_paths(self) -> "Settings":
         """Ensures all directory paths are absolute and performance vars are set."""
         self.ONNX_MODEL_DIR = str(Path(self.ONNX_MODEL_DIR).resolve())
-        
+
         # Set environment variables for numerical libraries immediately
         os.environ["OMP_NUM_THREADS"] = str(self.OMP_NUM_THREADS)
         os.environ["MKL_NUM_THREADS"] = str(self.MKL_NUM_THREADS)
         os.environ["NUMEXPR_NUM_THREADS"] = str(self.NUMEXPR_NUM_THREADS)
-        
+
         return self
 
     def verify_onnx_dir(self) -> bool:

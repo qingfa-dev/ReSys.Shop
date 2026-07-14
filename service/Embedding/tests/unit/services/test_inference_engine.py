@@ -1,10 +1,12 @@
 """
 Unit tests for the InferenceEngine using the new Skill Registry.
 """
+from unittest.mock import patch
+
 import pytest
-from unittest.mock import patch, MagicMock
+from embedding.models import BaseEmbedder, ModelRegistry
 from embedding.services.inference_engine import InferenceEngine
-from embedding.models import ModelRegistry, BaseEmbedder
+
 
 @pytest.fixture(autouse=True)
 def clear_registry():
@@ -22,10 +24,10 @@ class MockSkill(BaseEmbedder):
 def test_engine_resolves_registered_skill():
     # Setup: Register a mock skill
     ModelRegistry.register("test_skill")(MockSkill)
-    
+
     engine = InferenceEngine()
     result = engine.get_embedder("test_skill")
-    
+
     assert result.is_success is True
     assert isinstance(result.value, MockSkill)
     # Check: Caching
@@ -40,7 +42,7 @@ def test_engine_returns_not_found_for_unsupported():
 def test_engine_fuzzy_matches_clip():
     # Setup: Ensure clip_vit_b16 is registered
     ModelRegistry.register("clip_vit_b16")(MockSkill)
-    
+
     engine = InferenceEngine()
     # Try fuzzy match
     result = engine.get_embedder("clip_something_else")
@@ -55,10 +57,10 @@ def test_engine_resolves_onnx_skill(mock_exists, mock_infer):
     ModelRegistry.register("onnx")(MockSkill)
     mock_exists.return_value = True
     mock_infer.return_value = 512
-    
+
     engine = InferenceEngine()
     result = engine.get_embedder("onnx/my_model")
-    
+
     assert result.is_success is True
     # In reality it would be an OnnxEmbedder, but we registered MockSkill as "onnx"
     assert isinstance(result.value, MockSkill)

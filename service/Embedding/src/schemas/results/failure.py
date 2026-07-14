@@ -2,7 +2,8 @@
 Failure models for standardized error reporting.
 """
 from enum import IntEnum
-from pydantic import BaseModel, Field, ConfigDict
+
+from pydantic import BaseModel, ConfigDict, Field
 
 
 class FailureType(IntEnum):
@@ -30,10 +31,29 @@ class Failure(BaseModel):
     model_config = ConfigDict(frozen=True)
 
     # Assign: Metadata properties
-    type: FailureType = Field(..., description="The high-level category of failure (e.g. NotFound, Conflict).")
-    code: str = Field(..., description="A stable, machine-readable error code.", json_schema_extra={"example": "Model.NotFound"})
-    description: str = Field(..., description="A detailed, human-readable description of what went wrong.", json_schema_extra={"example": "Model 'abc' could not be found."})
-    status_code: int = Field(default=400, description="The corresponding HTTP status code for this failure.", json_schema_extra={"example": 404})
+    type: FailureType = Field(
+        ...,
+        description="The high-level category of failure (e.g. NotFound, Conflict).",
+    )
+    code: str = Field(
+        ...,
+        description="A stable, machine-readable error code.",
+        json_schema_extra={"example": "Model.NotFound"},
+    )
+    description: str = Field(
+        ...,
+        description=(
+            "A detailed, human-readable description of what went wrong."
+        ),
+        json_schema_extra={"example": "Model 'abc' could not be found."},
+    )
+    status_code: int = Field(
+        default=400,
+        description=(
+            "The corresponding HTTP status code for this failure."
+        ),
+        json_schema_extra={"example": 404},
+    )
 
     @classmethod
     def validation(cls, code: str, description: str) -> "Failure":
@@ -58,12 +78,22 @@ class Failure(BaseModel):
     @classmethod
     def internal_error(cls, code: str, description: str) -> "Failure":
         """Creates an internal error failure (HTTP 500)."""
-        return cls(type=FailureType.InternalError, code=code, description=description, status_code=500)
+        return cls(
+            type=FailureType.InternalError,
+            code=code,
+            description=description,
+            status_code=500,
+        )
 
     @classmethod
     def unauthorized(cls, code: str, description: str) -> "Failure":
         """Creates an unauthorized failure (HTTP 401)."""
-        return cls(type=FailureType.Unauthorized, code=code, description=description, status_code=401)
+        return cls(
+            type=FailureType.Unauthorized,
+            code=code,
+            description=description,
+            status_code=401,
+        )
 
     @classmethod
     def forbidden(cls, code: str, description: str) -> "Failure":

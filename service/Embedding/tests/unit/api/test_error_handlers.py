@@ -1,26 +1,25 @@
 """
 Unit tests for Global Error Handlers.
 """
-import pytest
 from unittest.mock import MagicMock
-from fastapi import status
+
+import pytest
+from embedding.api.middleware.exception_handlers import (
+    global_exception_handler,
+    http_exception_handler,
+    validation_exception_handler,
+)
 from fastapi.exceptions import RequestValidationError
 from starlette.exceptions import HTTPException as StarletteHTTPException
-
-from embedding.api.middleware.exception_handlers import (
-    http_exception_handler, 
-    validation_exception_handler, 
-    global_exception_handler
-)
 
 
 @pytest.mark.asyncio
 async def test_http_exception_handler_404():
     request = MagicMock()
     exc = StarletteHTTPException(status_code=404, detail="Not Found")
-    
+
     response = await http_exception_handler(request, exc)
-    
+
     assert response.status_code == 404
     import json
     data = json.loads(response.body.decode())
@@ -36,12 +35,12 @@ async def test_validation_exception_handler():
         {"loc": ("body", "image_url"), "msg": "field required", "type": "value_error.missing"}
     ]
     exc = RequestValidationError(errors)
-    
+
     response = await validation_exception_handler(request, exc)
-    
+
     # Result.failure(failures) uses status_code of first failure (which is 400 for validation)
-    assert response.status_code == 400 
-    
+    assert response.status_code == 400
+
     import json
     data = json.loads(response.body.decode())
     assert data["failures"][0]["code"] == "Request.ValidationError"
@@ -52,9 +51,9 @@ async def test_validation_exception_handler():
 async def test_global_exception_handler():
     request = MagicMock()
     exc = RuntimeError("Something went wrong")
-    
+
     response = await global_exception_handler(request, exc)
-    
+
     assert response.status_code == 500
     import json
     data = json.loads(response.body.decode())

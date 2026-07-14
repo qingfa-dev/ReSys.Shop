@@ -2,21 +2,22 @@
 Security and SSL utilities for the inference service.
 Handles certificate resolution for secure communication across multiple sources.
 """
-import os
 import logging
+import os
 from typing import Optional, Tuple
+
 from embedding.core.config import settings
 
 logger = logging.getLogger(__name__)
 
 
 def resolve_ssl_paths(
-    cert_arg: Optional[str] = None, 
+    cert_arg: Optional[str] = None,
     key_arg: Optional[str] = None
 ) -> Tuple[Optional[str], Optional[str]]:
     """
     Resolves SSL certificate and private key paths.
-    
+
     Priority:
     1. CLI Arguments (explicit override)
     2. Aspire Environment Variables (managed orchestration)
@@ -33,7 +34,10 @@ def resolve_ssl_paths(
         or settings.SSL_CERT_FILE
         or (
             os.path.join(settings.SSL_CERT_DIR, "cert.pem")
-            if settings.SSL_CERT_DIR and os.path.exists(os.path.join(settings.SSL_CERT_DIR, "cert.pem"))
+            if settings.SSL_CERT_DIR
+            and os.path.exists(
+                os.path.join(settings.SSL_CERT_DIR, "cert.pem")
+            )
             else None
         )
     )

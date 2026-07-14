@@ -3,10 +3,9 @@ CLI tool to test the running Inference Service.
 Sends a request to the local API and prints the resulting embedding vector.
 """
 import argparse
-import httpx
 import json
-import sys
-from typing import Optional
+
+import httpx
 
 # ANSI colors
 GREEN = "\033[92m"
@@ -20,9 +19,9 @@ DEFAULT_IMAGE = "https://images.unsplash.com/photo-1517841905240-472988babdf9?au
 
 
 def test_inference(
-    image_url: str, 
-    model: str, 
-    api_url: str, 
+    image_url: str,
+    model: str,
+    api_url: str,
     api_key: str,
     verbose: bool = False
 ):
@@ -37,11 +36,11 @@ def test_inference(
     }
 
     print(f"{YELLOW}==> Testing model '{model}' with image: {image_url}{RESET}")
-    
+
     try:
         with httpx.Client(timeout=30.0) as client:
             response = client.post(api_url, json=payload, headers=headers)
-            
+
         if response.status_code == 200:
             data = response.json()
             if data.get("isSuccess"):
@@ -49,13 +48,13 @@ def test_inference(
                 vector = value["vector"]
                 dim = value["dimension"]
                 metadata = value.get("metadata", {})
-                
+
                 print(f"{GREEN}✔ Success!{RESET}")
                 print(f"  Dimension: {dim}")
                 print(f"  Model Version: {value['model_version']}")
                 if metadata:
                     print(f"  Processing Time: {metadata.get('processing_time_ms')}ms")
-                
+
                 if verbose:
                     print(f"  Vector (first 5 elements): {vector[:5]}...")
             else:
@@ -64,7 +63,7 @@ def test_inference(
         else:
             print(f"{RED}✘ HTTP Error {response.status_code}:{RESET}")
             print(response.text)
-            
+
     except httpx.ConnectError:
         print(f"{RED}✘ Error: Could not connect to the API at {api_url}.{RESET}")
         print("  Make sure the service is running (e.g., 'uv run fastapi dev src/main.py')")
@@ -76,7 +75,7 @@ def main():
     parser = argparse.ArgumentParser(description="Test the ReSys Inference API.")
     parser.add_argument("--image", default=DEFAULT_IMAGE, help="URL of the image to process.")
     parser.add_argument("--model", default="efficientnet_b0", help="Model ID to use.")
-    parser.add_argument("--url", default=DEFAULT_URL, help=f"API endpoint URL.")
+    parser.add_argument("--url", default=DEFAULT_URL, help="API endpoint URL.")
     parser.add_argument("--key", default=DEFAULT_KEY, help="X-API-Key header value.")
     parser.add_argument("--verbose", action="store_true", help="Print partial vector output.")
 

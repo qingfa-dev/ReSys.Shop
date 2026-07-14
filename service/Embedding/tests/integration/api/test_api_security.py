@@ -50,13 +50,16 @@ class TestApiKeyAuthentication:
         """Verify that security failures still return our standardized Result body."""
         payload = {"image_url": "http://example.com/img.jpg", "model": "efficientnet_b0"}
         response = client.post("/inference/embeddings", json=payload)
-        
+
         body = response.json()
         assert body["isSuccess"] is False
         assert body["statusCode"] == 403
         # In our global handler, 403 from FastAPI/Security returns a failure
         assert len(body["failures"]) > 0
-        assert any("Forbidden" in f["code"] or "Forbidden" in f["description"] for f in body["failures"])
+        assert any(
+            "Forbidden" in f["code"] or "Forbidden" in f["description"]
+            for f in body["failures"]
+        )
 
 
 class TestRequestValidation:

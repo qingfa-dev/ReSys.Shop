@@ -3,15 +3,13 @@ Unit tests for BaseEmbedder.
 Uses a MockEmbedder so no real model weights are downloaded.
 """
 import math
-import pytest
+from unittest.mock import MagicMock, patch
+
 import numpy as np
+import pytest
 import torch
-from PIL import Image
-from unittest.mock import patch, MagicMock
-
 from embedding.models.base import BaseEmbedder
-from embedding.schemas import ValueResult
-
+from PIL import Image
 
 # ── Test double ───────────────────────────────────────────────────────────────
 

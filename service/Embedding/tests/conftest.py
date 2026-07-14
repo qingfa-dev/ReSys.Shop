@@ -5,9 +5,11 @@ Environment variables are injected here, BEFORE any application module
 is imported.
 """
 import os
-import pytest
 from pathlib import Path
+
+import pytest
 from fastapi.testclient import TestClient
+
 
 # embedding/tests/conftest.py
 def find_artifacts_dir():
@@ -17,15 +19,15 @@ def find_artifacts_dir():
     # embedding/tests/conftest.py -> embedding/
     embedding_root = Path(__file__).resolve().parent.parent
     local_models = embedding_root / "models"
-    
+
     if local_models.exists():
         return local_models
-                
+
     # Fallback to environment variable if local models aren't found
     env_val = os.getenv("ONNX_MODEL_DIR")
     if env_val:
         return Path(env_val)
-        
+
     raise RuntimeError(
         f"Could not find local models directory at {local_models} or ONNX_MODEL_DIR env var."
     )

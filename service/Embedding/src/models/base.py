@@ -2,16 +2,16 @@
 Infrastructure base classes for Inference service.
 Defines the abstract BaseEmbedder with integrated Telemetry (Traces, Metrics, Logs).
 """
-import logging
 import io
+import logging
 import time
-import httpx
-from typing import Union, List, Any
 from pathlib import Path
-from PIL import Image
+from typing import Any, List, Union
 
-from embedding.schemas import ValueResult, Failure, ImageResults, InferenceResults
-from embedding.core.telemetry import get_tracer, get_meter
+import httpx
+from embedding.core.telemetry import get_meter, get_tracer
+from embedding.schemas import ImageResults, InferenceResults, ValueResult
+from PIL import Image
 
 logger = logging.getLogger(__name__)
 tracer = get_tracer(__name__)
@@ -60,7 +60,9 @@ class BaseEmbedder:
             self._device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         return self._device
 
-    def _load_image(self, image_input: Union[str, Path, bytes, Image.Image]) -> ValueResult[Image.Image]:
+    def _load_image(
+        self, image_input: Union[str, Path, bytes, Image.Image]
+    ) -> ValueResult[Image.Image]:
         """
         Loads an RGB PIL image with instrumentation.
         """
@@ -73,7 +75,7 @@ class BaseEmbedder:
                 if isinstance(image_input, (str, Path)):
                     input_str = str(image_input)
                     span.set_attribute("image.source", input_str)
-                    
+
                     if input_str.startswith(("http://", "https://")):
                         headers = {"User-Agent": "Mozilla/5.0 inference/1.0"}
                         with httpx.Client(timeout=10) as client:
@@ -104,7 +106,7 @@ class BaseEmbedder:
     def _normalize(self, features: Any) -> List[float]:
         """Standardizes the output vector using L2 normalization."""
         import numpy as np
-        
+
         # Extract features from various framework formats
         if hasattr(features, "image_embeds"):
             features = features.image_embeds
@@ -140,14 +142,16 @@ class BaseEmbedder:
             try:
                 with tracer.start_as_current_span(f"{self.name}.forward"):
                     raw_features = self._forward(img_result.value)
-                
+
                 # 3. Normalize
                 vector = self._normalize(raw_features)
-                
+
                 # Record Metrics
                 duration = (time.perf_counter() - start_inference) * 1000
-                inference_duration.record(duration, {"model": self.name, "device": str(self.device)})
-                
+                inference_duration.record(
+                    duration, {"model": self.name, "device": str(self.device)}
+                )
+
                 span.set_attribute("inference.duration_ms", duration)
                 return InferenceResults.Success.Ok(vector)
 

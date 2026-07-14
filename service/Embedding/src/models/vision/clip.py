@@ -2,9 +2,10 @@
 CLIP (Contrastive Language-Image Pre-Training) model implementations.
 """
 import logging
+
 import torch
-from embedding.models.base import BaseEmbedder
 from embedding.core.constants import Constants
+from embedding.models.base import BaseEmbedder
 from embedding.models.registry import ModelRegistry
 
 logger = logging.getLogger(__name__)
@@ -34,7 +35,7 @@ class CLIPEmbedder(BaseEmbedder):
             self._use_openai_clip = True
         except ImportError:
             # Fallback: Use HuggingFace Transformers
-            from transformers import CLIPProcessor, CLIPModel
+            from transformers import CLIPModel, CLIPProcessor
             model_id = "openai/clip-vit-base-patch32"
             self.processor = CLIPProcessor.from_pretrained(model_id)
             self.model = CLIPModel.from_pretrained(model_id).to(self.device)
@@ -79,7 +80,7 @@ class FashionCLIPEmbedder(BaseEmbedder):
         # Initialize: Metadata with 512 dimensions
         super().__init__("fashion_clip", Constants.Dimensions.FASHION_CLIP)
         try:
-            from transformers import CLIPProcessor, CLIPModel
+            from transformers import CLIPModel, CLIPProcessor
             model_id = "patrickjohncyh/fashion-clip"
             # Call: Load domain-specific weights from HuggingFace
             self.processor = CLIPProcessor.from_pretrained(model_id)

@@ -2,31 +2,29 @@
 Main entry point for the inference service.
 Initializes the FastAPI application and launches listeners (HTTP and optional HTTPS).
 """
-import os
 import argparse
 import multiprocessing
+import os
 from typing import Optional
 
-from fastapi import FastAPI
-from fastapi.middleware.cors import CORSMiddleware
-from opentelemetry.instrumentation.fastapi import FastAPIInstrumentor
-from slowapi import _rate_limit_exceeded_handler
-from slowapi.errors import RateLimitExceeded
-from scalar_fastapi import get_scalar_api_reference
-
-from fastapi.exceptions import RequestValidationError
-from starlette.exceptions import HTTPException as StarletteHTTPException
-
+from embedding.api.middleware.exception_handlers import (
+    global_exception_handler,
+    http_exception_handler,
+    validation_exception_handler,
+)
+from embedding.api.router import api_router
 from embedding.core.config import settings
-from embedding.core.telemetry import setup_telemetry
 from embedding.core.rate_limit import limiter
 from embedding.core.security import resolve_ssl_paths
-from embedding.api.router import api_router
-from embedding.api.middleware.exception_handlers import (
-    global_exception_handler, 
-    http_exception_handler, 
-    validation_exception_handler
-)
+from embedding.core.telemetry import setup_telemetry
+from fastapi import FastAPI
+from fastapi.exceptions import RequestValidationError
+from fastapi.middleware.cors import CORSMiddleware
+from opentelemetry.instrumentation.fastapi import FastAPIInstrumentor
+from scalar_fastapi import get_scalar_api_reference
+from slowapi import _rate_limit_exceeded_handler
+from slowapi.errors import RateLimitExceeded
+from starlette.exceptions import HTTPException as StarletteHTTPException
 
 
 def create_app() -> FastAPI:
@@ -46,7 +44,7 @@ def create_app() -> FastAPI:
     app.add_exception_handler(RequestValidationError, validation_exception_handler)
     app.add_exception_handler(StarletteHTTPException, http_exception_handler)
     app.add_exception_handler(Exception, global_exception_handler)
-    
+
     app.add_middleware(
         CORSMiddleware,
         allow_origins=settings.CORS_ORIGINS,
@@ -78,7 +76,7 @@ app = create_app()
 def run_instance(port: int, cert_path: Optional[str] = None, key_path: Optional[str] = None):
     """Launches a single Uvicorn instance."""
     import uvicorn
-    
+
     mode = "HTTPS" if cert_path and key_path else "HTTP"
     print(f"🚀 Starting {mode} listener on port {port}")
 
@@ -112,17 +110,17 @@ def main():
 
     # --- 2. Resolve SSL Artifacts ---
     cert_path, key_path = resolve_ssl_paths(args.ssl_cert, args.ssl_key)
-    
+
     ssl_available = (
-        cert_path and key_path 
-        and os.path.exists(cert_path) 
+        cert_path and key_path
+        and os.path.exists(cert_path)
         and os.path.exists(key_path)
     )
 
     # --- 3. Orchestration ---
     if ssl_available:
         print(f"🔐 SSL detected. Spawning dual listeners (HTTP:{h_port}, HTTPS:{s_port})")
-        
+
         p_http = multiprocessing.Process(target=run_instance, args=(h_port,))
         p_http.start()
 

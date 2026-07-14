@@ -2,9 +2,9 @@
 Rate limiting module for inference.
 Uses SlowAPI to provide endpoint-level rate protection.
 """
+from embedding.core.config import settings
 from slowapi import Limiter
 from slowapi.util import get_remote_address
-from embedding.core.config import settings
 
 # Initialize: Rate limiter using the remote client's address as the default key.
 # Note: In production environments behind load balancers, ensure 'X-Forwarded-For' is trusted.

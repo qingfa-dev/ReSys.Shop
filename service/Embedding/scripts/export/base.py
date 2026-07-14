@@ -1,10 +1,10 @@
 """
 Base utilities for model export.
 """
-import os
-import torch
 import warnings
 from pathlib import Path
+
+import torch
 
 # Suppress noisy warnings
 warnings.filterwarnings("ignore", category=torch.jit.TracerWarning)
@@ -20,7 +20,7 @@ EXPORT_ROOT = ROOT_DIR / "models"
 
 def verify_export(path: Path):
     """Checks if the exported model exists and has a reasonable size."""
-    if path.exists() and path.stat().st_size > 1024 * 1024: 
+    if path.exists() and path.stat().st_size > 1024 * 1024:
         print(f"✅ Verified: {path} ({path.stat().st_size / 1024 / 1024:.2f} MB)")
     else:
         raise FileNotFoundError(f"❌ Verification failed for {path}")

@@ -31,8 +31,9 @@ def test_constants_invalid_metadata_retrieval():
 
 def test_constants_are_frozen():
     """Verify that dataclasses are frozen (immutable)."""
-    import pytest
     from dataclasses import FrozenInstanceError
-    
+
+    import pytest
+
     with pytest.raises(FrozenInstanceError):
         Constants.Image.DEFAULT_SIZE = 512

@@ -2,18 +2,19 @@
 EfficientNet-B0 implementation for general visual feature extraction.
 """
 import logging
+
 import torch
-from torchvision import models, transforms
-from embedding.models.base import BaseEmbedder
 from embedding.core.constants import Constants
+from embedding.models.base import BaseEmbedder
 from embedding.models.registry import ModelRegistry
+from torchvision import models, transforms
 
 logger = logging.getLogger(__name__)
 
 @ModelRegistry.register(
-    "efficientnet_b0", 
+    "efficientnet_b0",
     metadata={
-        "name": "EfficientNet-B0", 
+        "name": "EfficientNet-B0",
         "dimension": Constants.Dimensions.EFFICIENTNET_B0,
         "description": "General purpose visual feature extractor.",
         "tags": ["vision", "efficientnet"]

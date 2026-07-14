@@ -1,25 +1,25 @@
 """
 Inference-related API endpoints.
 """
-import time
 import asyncio
-from typing import List
+import time
 from pathlib import Path
-from fastapi import APIRouter, Depends, File, Request, Response, status, Security, UploadFile
-from fastapi.security import APIKeyHeader
+from typing import List
 
-from embedding.schemas import (
-    ValueResult, 
-    InferenceResults, 
-    EmbeddingRequest, 
-    EmbeddingResponse, 
-    ModelMetadata
-)
-from embedding.services.inference_engine import InferenceEngine
 from embedding.core.config import settings
 from embedding.core.rate_limit import limiter
-from embedding.models.registry import ModelRegistry
 from embedding.models.onnx.utils import infer_onnx_dim
+from embedding.models.registry import ModelRegistry
+from embedding.schemas import (
+    EmbeddingRequest,
+    EmbeddingResponse,
+    InferenceResults,
+    ModelMetadata,
+    ValueResult,
+)
+from embedding.services.inference_engine import InferenceEngine
+from fastapi import APIRouter, Depends, File, Request, Response, Security, UploadFile, status
+from fastapi.security import APIKeyHeader
 
 router = APIRouter(tags=["inference"])
 
@@ -46,7 +46,7 @@ def get_engine() -> InferenceEngine:
 
 
 @router.post(
-    "/embeddings", 
+    "/embeddings",
     response_model=ValueResult[EmbeddingResponse],
     status_code=status.HTTP_200_OK,
     summary="Generate Image Embedding",
@@ -62,7 +62,7 @@ async def create_embedding(
 ):
     """Generates a high-dimensional vector embedding for the provided image URL."""
     start_time = time.time()
-    
+
     # Move CPU-intensive inference to a thread pool
     result = await asyncio.to_thread(engine.embed, body.image_url, body.model)
 
@@ -71,7 +71,7 @@ async def create_embedding(
         return result
 
     duration = (time.time() - start_time) * 1000
-    
+
     return InferenceResults.Success.Embedding(
         vector=result.value,
         model_name=body.model,
@@ -96,8 +96,8 @@ async def create_embedding_from_bytes(
     engine: InferenceEngine = Depends(get_engine),
 ):
     """Generates an embedding from a multipart image upload."""
-    import time as _time
     import asyncio as _asyncio
+    import time as _time
 
     start_time = _time.time()
     image_bytes = await image.read()
@@ -127,10 +127,11 @@ async def list_models(key: str = Depends(verify_api_key)):
     """Dynamic discovery of all models including disk-based ONNX models."""
     all_meta = ModelRegistry.get_all_metadata().copy()
     models = []
-    
+
     # 1. Add explicitly registered skills (PyTorch)
     for model_id, meta in all_meta.items():
-        if model_id == "onnx": continue # Skip the generic wrapper
+        if model_id == "onnx":
+            continue  # Skip the generic wrapper
         models.append(ModelMetadata(
             id=model_id,
             name=meta.get("name", model_id),
@@ -139,14 +140,15 @@ async def list_models(key: str = Depends(verify_api_key)):
             is_onnx=False,
             tags=meta.get("tags", [])
         ))
-    
+
     # 2. Discover ONNX models on disk
     onnx_root = Path(settings.ONNX_MODEL_DIR)
     if onnx_root.exists():
         # Look for model.onnx in subfolders
         for model_dir in onnx_root.iterdir():
-            if not model_dir.is_dir(): continue
-            
+            if not model_dir.is_dir():
+                continue
+
             onnx_file = model_dir / "model.onnx"
             if onnx_file.exists():
                 model_id = f"onnx/{model_dir.name}"
@@ -162,5 +164,5 @@ async def list_models(key: str = Depends(verify_api_key)):
                     ))
                 except Exception:
                     continue
-                    
+
     return InferenceResults.Success.Models(models)

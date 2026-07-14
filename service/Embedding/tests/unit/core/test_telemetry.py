@@ -2,12 +2,12 @@
 Unit tests for the Telemetry module.
 """
 import os
-import pytest
-from unittest.mock import patch, MagicMock
-from opentelemetry import trace, metrics
+from unittest.mock import patch
+
+from embedding.core.telemetry import get_meter, get_tracer, setup_telemetry
+from opentelemetry import metrics, trace
 from opentelemetry._logs import get_logger_provider
-from opentelemetry.sdk.resources import SERVICE_NAME, DEPLOYMENT_ENVIRONMENT
-from embedding.core.telemetry import setup_telemetry, get_tracer, get_meter
+from opentelemetry.sdk.resources import DEPLOYMENT_ENVIRONMENT, SERVICE_NAME
 
 
 def test_telemetry_initialization_standard():
@@ -17,15 +17,15 @@ def test_telemetry_initialization_standard():
         # We also need to patch settings to ensure it doesn't have a default that triggers OTLP
         with patch("src.core.config.settings.OTEL_EXPORTER_OTLP_ENDPOINT", ""):
             setup_telemetry()
-            
+
             # Verify Trace Provider
             tracer_provider = trace.get_tracer_provider()
             assert tracer_provider is not None
-            
+
             # Verify Meter Provider
             meter_provider = metrics.get_meter_provider()
             assert meter_provider is not None
-            
+
             # Verify Log Provider
             log_provider = get_logger_provider()
             assert log_provider is not None

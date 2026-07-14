@@ -2,8 +2,9 @@
 Specialized results and errors for Registry operations.
 """
 from typing import Any
-from embedding.schemas.results.result import ValueResult
+
 from embedding.schemas.results.failure import Failure
+from embedding.schemas.results.result import ValueResult
 
 
 class RegistryResults:
@@ -11,7 +12,7 @@ class RegistryResults:
 
     class Success:
         """Success result factories for registries."""
-        
+
         @staticmethod
         def Ok(value: Any) -> ValueResult[Any]:
             return ValueResult.ok_value(value)
@@ -22,6 +23,6 @@ class RegistryResults:
         @staticmethod
         def NotRegistered(skill_name: str) -> Failure:
             return Failure.internal_error(
-                "Registry.Error", 
+                "Registry.Error",
                 f"Skill implementation '{skill_name}' not registered."
             )

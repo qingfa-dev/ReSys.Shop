@@ -1,9 +1,9 @@
 """
 Main API router aggregator.
 """
-from fastapi import APIRouter
-from embedding.api.routers.system import router as system_router
 from embedding.api.routers.inference import router as inference_router
+from embedding.api.routers.system import router as system_router
+from fastapi import APIRouter
 
 api_router = APIRouter()
 

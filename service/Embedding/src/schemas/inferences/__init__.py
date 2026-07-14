@@ -1,10 +1,11 @@
 """
 Specialized results, errors, and models for Inference operations.
 """
-from typing import List, Any, Dict, Optional
-from embedding.schemas.results.result import ValueResult
+from typing import Any, Dict, List, Optional
+
+from embedding.schemas.inferences.models import EmbeddingResponse, ModelMetadata
 from embedding.schemas.results.failure import Failure
-from embedding.schemas.inferences.models import EmbeddingRequest, EmbeddingResponse, ModelMetadata
+from embedding.schemas.results.result import ValueResult
 
 
 class InferenceResults:
@@ -12,7 +13,7 @@ class InferenceResults:
 
     class Success:
         """Success result factories for inferences."""
-        
+
         @staticmethod
         def Ok(value: Any) -> ValueResult[Any]:
             return ValueResult.ok_value(value)
@@ -24,8 +25,8 @@ class InferenceResults:
 
         @staticmethod
         def Embedding(
-            vector: List[float], 
-            model_name: str, 
+            vector: List[float],
+            model_name: str,
             duration_ms: float,
             metadata: Optional[Dict[str, Any]] = None
         ) -> ValueResult[EmbeddingResponse]:
@@ -47,7 +48,7 @@ class InferenceResults:
         @staticmethod
         def ModelNotFound(model_name: str) -> Failure:
             return Failure.not_found(
-                "Model.NotFound", 
+                "Model.NotFound",
                 f"Model skill '{model_name}' is not supported."
             )
 
@@ -55,21 +56,21 @@ class InferenceResults:
         def OnnxNotFound(path_or_message: str) -> Failure:
             """ONNX file missing on disk or error detail."""
             return Failure.not_found(
-                "Model.NotFound", 
+                "Model.NotFound",
                 f"ONNX model not found: {path_or_message}"
             )
 
         @staticmethod
         def LoadError(model_name: str, detail: str) -> Failure:
             return Failure.internal_error(
-                "Model.LoadError", 
+                "Model.LoadError",
                 f"Failed to load model '{model_name}': {detail}"
             )
 
         @staticmethod
         def InferenceFailed(model_name: str, detail: str) -> Failure:
             return Failure.internal_error(
-                "Inference.Error", 
+                "Inference.Error",
                 f"[{model_name}] Inference failed: {detail}"
             )
 

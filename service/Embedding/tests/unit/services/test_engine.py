@@ -2,11 +2,10 @@
 Unit tests for InferenceEngine.
 Uses a Mocked ModelRegistry so no real models are instantiated.
 """
-import pytest
 from unittest.mock import MagicMock, patch
-from embedding.services.inference_engine import InferenceEngine
-from embedding.schemas import ValueResult, Failure, InferenceResults, ImageResults, RegistryResults
 
+from embedding.schemas import ImageResults, InferenceResults, RegistryResults, ValueResult
+from embedding.services.inference_engine import InferenceEngine
 
 # ── Helper ────────────────────────────────────────────────────────────────────
 
@@ -23,10 +22,15 @@ class TestGetEmbedder:
     def test_unsupported_model_returns_not_found_failure(self):
         engine = InferenceEngine()
         # Mock Registry to return failure
-        registry_failure = RegistryResults.Errors.NotRegistered("non_existent_model")
-        with patch("src.services.inference_engine.ModelRegistry.get_model_class", return_value=ValueResult.failure_value(registry_failure)):
+        registry_failure = RegistryResults.Errors.NotRegistered(
+            "non_existent_model"
+        )
+        with patch(
+            "src.services.inference_engine.ModelRegistry.get_model_class",
+            return_value=ValueResult.failure_value(registry_failure),
+        ):
             result = engine.get_embedder("non_existent_model")
-        
+
         assert result.is_success is False
         assert result.failures[0].code == "Model.NotFound"
         assert result.status_code == 404
@@ -39,7 +43,10 @@ class TestGetEmbedder:
 
         # Mock Registry to return Success with mock_cls
         registry_success = RegistryResults.Success.Ok(mock_cls)
-        with patch("src.services.inference_engine.ModelRegistry.get_model_class", return_value=registry_success):
+        with patch(
+            "src.services.inference_engine.ModelRegistry.get_model_class",
+            return_value=registry_success,
+        ):
             result = engine.get_embedder("any_model")
 
         assert result.is_success is True
@@ -47,13 +54,17 @@ class TestGetEmbedder:
         mock_cls.assert_called_once()
 
     def test_model_cached_after_first_load(self):
-        """The second call to get_embedder must return the cached instance, not reload from registry."""
+        """The second call to get_embedder must return \
+the cached instance, not reload from registry."""
         engine = InferenceEngine()
         mock_instance = MagicMock()
         mock_cls = MagicMock(return_value=mock_instance)
 
         registry_success = RegistryResults.Success.Ok(mock_cls)
-        with patch("src.services.inference_engine.ModelRegistry.get_model_class", return_value=registry_success) as mock_reg:
+        with patch(
+            "src.services.inference_engine.ModelRegistry.get_model_class",
+            return_value=registry_success,
+        ) as mock_reg:
             engine.get_embedder("cached_model")
             engine.get_embedder("cached_model")
 
@@ -64,9 +75,12 @@ class TestGetEmbedder:
         engine = InferenceEngine()
         # Model class instantiation raises
         mock_cls = MagicMock(side_effect=RuntimeError("CUDA OOM"))
-        
+
         registry_success = RegistryResults.Success.Ok(mock_cls)
-        with patch("src.services.inference_engine.ModelRegistry.get_model_class", return_value=registry_success):
+        with patch(
+            "src.services.inference_engine.ModelRegistry.get_model_class",
+            return_value=registry_success,
+        ):
             result = engine.get_embedder("broken_model")
 
         assert result.is_success is False
@@ -82,7 +96,7 @@ class TestGetEmbedder:
 
         mock_a = MagicMock()
         mock_b = MagicMock()
-        
+
         mock_cls_a = MagicMock(return_value=mock_a)
         mock_cls_b = MagicMock(return_value=mock_b)
 

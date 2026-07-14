@@ -4,14 +4,14 @@ Implements a singleton factory pattern with deep instrumentation (Traces, Metric
 """
 import logging
 import time
-from typing import Dict, Optional, List
 from pathlib import Path
+from typing import Dict, List
 
-from embedding.models import ModelRegistry, BaseEmbedder
-from embedding.models.onnx.utils import infer_onnx_dim
-from embedding.schemas import ValueResult, Failure, InferenceResults, RegistryResults
 from embedding.core.config import settings
-from embedding.core.telemetry import get_tracer, get_meter
+from embedding.core.telemetry import get_meter, get_tracer
+from embedding.models import BaseEmbedder, ModelRegistry
+from embedding.models.onnx.utils import infer_onnx_dim
+from embedding.schemas import InferenceResults, ValueResult
 
 logger = logging.getLogger(__name__)
 tracer = get_tracer(__name__)
@@ -86,7 +86,7 @@ class InferenceEngine:
                     duration = (time.perf_counter() - start_load) * 1000
                     model_load_duration.record(duration, {"model": model_name})
                     span.set_attribute("load.duration_ms", duration)
-                    
+
                     self._models[model_name] = instance
                     return InferenceResults.Success.Ok(instance)
 
@@ -118,14 +118,16 @@ class InferenceEngine:
             if legacy_path.exists():
                 model_path = legacy_path
             else:
-                return ValueResult.failure_value(InferenceResults.Errors.OnnxNotFound(str(model_path)))
-        
+                return ValueResult.failure_value(
+                    InferenceResults.Errors.OnnxNotFound(str(model_path))
+                )
+
         span.set_attribute("onnx.path", str(model_path))
-        
+
         registry_result = ModelRegistry.get_model_class("onnx")
         if not registry_result.is_success:
             return registry_result
-        
+
         onnx_cls = registry_result.value
         dim = infer_onnx_dim(str(model_path))
         return InferenceResults.Success.Ok(onnx_cls(str(model_path), dim=dim))
@@ -133,17 +135,19 @@ class InferenceEngine:
     def _load_torch_skill(self, model_name: str, span) -> ValueResult[BaseEmbedder]:
         """Helper to resolve and load a Torch skill from registry."""
         registry_result = ModelRegistry.get_model_class(model_name)
-        
+
         if not registry_result.is_success and "clip" in model_name and "fashion" not in model_name:
             registry_result = ModelRegistry.get_model_class("clip_vit_b16")
 
         if not registry_result.is_success:
             return ValueResult.failure_value(InferenceResults.Errors.ModelNotFound(model_name))
-        
+
         model_cls = registry_result.value
         return InferenceResults.Success.Ok(model_cls())
 
-    def embed(self, image_url: str, model_name: str = "efficientnet_b0") -> ValueResult[List[float]]:
+    def embed(
+        self, image_url: str, model_name: str = "efficientnet_b0"
+    ) -> ValueResult[List[float]]:
         """
         High-level interface to extract a normalized embedding with tracing.
         """
@@ -157,7 +161,9 @@ class InferenceEngine:
 
             return embedder_result.value.extract(image_url)
 
-    def embed_bytes(self, image_bytes: bytes, model_name: str = "efficientnet_b0") -> ValueResult[List[float]]:
+    def embed_bytes(
+        self, image_bytes: bytes, model_name: str = "efficientnet_b0"
+    ) -> ValueResult[List[float]]:
         """
         High-level interface to extract a normalized embedding from raw image bytes.
         """

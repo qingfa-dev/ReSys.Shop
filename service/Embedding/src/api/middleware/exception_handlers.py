@@ -4,12 +4,12 @@ Converts various exception types into standardized Result/Failure models.
 Follows the .NET BuildingBlocks error handling pattern.
 """
 import logging
-from fastapi import Request, status
-from fastapi.responses import JSONResponse
-from fastapi.exceptions import RequestValidationError
-from starlette.exceptions import HTTPException as StarletteHTTPException
 
-from embedding.schemas import Result, Failure, FailureType
+from embedding.schemas import Failure, FailureType, Result
+from fastapi import Request
+from fastapi.exceptions import RequestValidationError
+from fastapi.responses import JSONResponse
+from starlette.exceptions import HTTPException as StarletteHTTPException
 
 logger = logging.getLogger(__name__)
 
@@ -27,9 +27,9 @@ async def global_exception_handler(request: Request, exc: Exception):
     Catches all unhandled exceptions and returns a standardized 500 Internal Error Result.
     """
     logger.error("Unhandled exception: %s", str(exc), exc_info=True)
-    
+
     failure = Failure.internal_error(
-        "Server.Error", 
+        "Server.Error",
         "An unexpected error occurred while processing your request."
     )
     return create_error_response(Result.failure(failure))
@@ -75,5 +75,5 @@ async def validation_exception_handler(request: Request, exc: RequestValidationE
             code="Request.ValidationError",
             description=f"Validation failed at {loc}: {msg}"
         ))
-    
+
     return create_error_response(Result.failure(failures))

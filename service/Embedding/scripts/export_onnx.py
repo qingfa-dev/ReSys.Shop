@@ -10,11 +10,12 @@ from pathlib import Path
 sys.path.append(str(Path(__file__).parent.parent))
 
 from embedding.core.config import settings
+
 from scripts.export.vision import (
-    export_efficientnet, 
-    export_clip, 
-    export_fashion_clip, 
-    export_dinov2
+    export_clip,
+    export_dinov2,
+    export_efficientnet,
+    export_fashion_clip,
 )
 
 # Propagate Hugging Face token from settings to environment for transformers/huggingface_hub
@@ -25,7 +26,7 @@ if settings.HUGGING_FACE_TOKEN:
 
 def main():
     """Main export orchestration flow."""
-    print(f"🚀 Starting model export. Destination: models/")
+    print("🚀 Starting model export. Destination: models/")
     try:
         export_efficientnet()
         export_clip()

@@ -4,7 +4,9 @@ Verifies that the service correctly returns 429 Too Many Requests.
 """
 import pytest
 from embedding.core.config import settings
+
 from tests.conftest import TEST_IMAGE_URL
+
 
 @pytest.mark.integration
 class TestRateLimiting:
@@ -17,12 +19,12 @@ class TestRateLimiting:
             "image_url": TEST_IMAGE_URL,
             "model": "efficientnet_b0"
         }
-        
+
         # Increase limit count to ensure we hit it even if some requests were already made.
         # Default is 50/minute, so 100 should be plenty.
-        limit_count = 100 
+        limit_count = 100
         found_429 = False
-        
+
         for _ in range(limit_count):
             response = client.post("/inference/embeddings", json=payload, headers=headers)
             if response.status_code == 429:

@@ -2,11 +2,12 @@
 DINOv2 implementation for visual structure features.
 """
 import logging
+
 import torch
-from torchvision import transforms
-from embedding.models.base import BaseEmbedder
 from embedding.core.constants import Constants
+from embedding.models.base import BaseEmbedder
 from embedding.models.registry import ModelRegistry
+from torchvision import transforms
 
 logger = logging.getLogger(__name__)
 
@@ -38,7 +39,10 @@ class DINOEmbedder(BaseEmbedder):
 
         # Initialize: High-precision preprocessing
         self.preprocess = transforms.Compose([
-            transforms.Resize(Constants.Image.RESIZE_SIZE, interpolation=transforms.InterpolationMode.BICUBIC),
+            transforms.Resize(
+                Constants.Image.RESIZE_SIZE,
+                interpolation=transforms.InterpolationMode.BICUBIC,
+            ),
             transforms.CenterCrop(Constants.Image.DEFAULT_SIZE),
             transforms.ToTensor(),
             transforms.Normalize(mean=Constants.Image.MEAN, std=Constants.Image.STD),
