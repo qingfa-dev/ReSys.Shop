@@ -21,7 +21,7 @@ def make_mock_embedder(vector=None):
 class TestGetEmbedder:
     def test_unsupported_model_returns_not_found_failure(self):
         engine = InferenceEngine()
-        # Mock Registry to return failure
+        # Mock Registry to return error
         registry_failure = RegistryResults.Errors.NotRegistered(
             "non_existent_model"
         )
@@ -32,7 +32,7 @@ class TestGetEmbedder:
             result = engine.get_embedder("non_existent_model")
 
         assert result.is_success is False
-        assert result.failures[0].code == "Model.NotFound"
+        assert result.errors[0].code == "Model.NotFound"
         assert result.status_code == 404
 
     def test_supported_models_are_lazy_loaded(self):
@@ -84,7 +84,7 @@ the cached instance, not reload from registry."""
             result = engine.get_embedder("broken_model")
 
         assert result.is_success is False
-        assert result.failures[0].code == "Model.LoadError"
+        assert result.errors[0].code == "Model.LoadError"
         assert result.status_code == 500
 
     def test_each_engine_instance_has_isolated_cache(self):
@@ -130,15 +130,15 @@ class TestEmbed:
 
     def test_embed_propagates_get_embedder_failure(self):
         engine = InferenceEngine()
-        failure = InferenceResults.Errors.ModelNotFound("bad_model")
+        error = InferenceResults.Errors.ModelNotFound("bad_model")
 
         with patch.object(
-            engine, "get_embedder", return_value=ValueResult.failure_value(failure)
+            engine, "get_embedder", return_value=ValueResult.failure_value(error)
         ):
             result = engine.embed("http://example.com/img.jpg", "bad_model")
 
         assert result.is_success is False
-        assert result.failures[0].code == "Model.NotFound"
+        assert result.errors[0].code == "Model.NotFound"
 
     def test_embed_propagates_extract_failure(self):
         engine = InferenceEngine()
@@ -153,7 +153,7 @@ class TestEmbed:
             result = engine.embed("http://broken.invalid/img.jpg", "efficientnet_b0")
 
         assert result.is_success is False
-        assert result.failures[0].code == "Image.LoadError"
+        assert result.errors[0].code == "Image.LoadError"
 
     def test_embed_default_model_is_efficientnet(self):
         engine = InferenceEngine()

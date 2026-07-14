@@ -10,13 +10,13 @@ from embedding.schemas.inferences import (
     ModelMetadata,
 )
 from embedding.schemas.registries import RegistryResults
-from embedding.schemas.results import Failure, FailureType, Result, ValueResult
+from embedding.schemas.results import Error, ErrorType, Result, ValueResult
 
 __all__ = [
     "Result",
     "ValueResult",
-    "Failure",
-    "FailureType",
+    "Error",
+    "ErrorType",
     "InferenceResults",
     "ImageResults",
     "RegistryResults",

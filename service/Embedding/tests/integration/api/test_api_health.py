@@ -8,7 +8,7 @@ from unittest.mock import MagicMock
 
 import pytest
 from embedding.api.routers.inference import get_engine
-from embedding.schemas import Failure, ValueResult
+from embedding.schemas import Error, ValueResult
 
 pytestmark = pytest.mark.integration
 
@@ -53,7 +53,7 @@ class TestErrorPropagation:
         )
         body = response.json()
         assert body["isSuccess"] is False
-        assert body["failures"][0]["code"] == "Model.NotFound"
+        assert body["errors"][0]["code"] == "Model.NotFound"
 
     def test_bad_image_url_returns_4xx(self, app, authed_client):
         """
@@ -61,7 +61,7 @@ class TestErrorPropagation:
         """
         mock_engine = MagicMock()
         mock_engine.embed.return_value = ValueResult.failure_value(
-            Failure.bad_request("Image.LoadError", "Connection refused")
+            Error.bad_request("Image.LoadError", "Connection refused")
         )
 
         # Use FastAPI dependency overrides for reliable patching
@@ -72,14 +72,14 @@ class TestErrorPropagation:
                 json={"image_url": "http://invalid.invalid/img.jpg", "model": "efficientnet_b0"},
             )
             assert response.status_code == 400
-            assert response.json()["failures"][0]["code"] == "Image.LoadError"
+            assert response.json()["errors"][0]["code"] == "Image.LoadError"
         finally:
             app.dependency_overrides.clear()
 
     def test_internal_engine_error_returns_500(self, app, authed_client):
         mock_engine = MagicMock()
         mock_engine.embed.return_value = ValueResult.failure_value(
-            Failure.internal_error("Inference.Error", "CUDA OOM")
+            Error.internal_error("Inference.Error", "CUDA OOM")
         )
 
         app.dependency_overrides[get_engine] = lambda: mock_engine

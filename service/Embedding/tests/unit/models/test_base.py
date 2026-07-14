@@ -21,7 +21,7 @@ class MockEmbedder(BaseEmbedder):
 
 
 class BrokenEmbedder(BaseEmbedder):
-    """_forward raises an exception to simulate inference failure."""
+    """_forward raises an exception to simulate inference error."""
 
     def _forward(self, image: Image.Image):
         raise RuntimeError("GPU out of memory")
@@ -79,13 +79,13 @@ class TestLoadImage:
         e = MockEmbedder("m", 8)
         result = e._load_image("non_existent_file.jpg")
         assert result.is_success is False
-        assert result.failures[0].code == "Image.LoadError"
+        assert result.errors[0].code == "Image.LoadError"
 
     def test_load_unsupported_type_returns_failure(self):
         e = MockEmbedder("m", 8)
         result = e._load_image(12345)  # type: ignore
         assert result.is_success is False
-        assert result.failures[0].code == "Image.InputError"
+        assert result.errors[0].code == "Image.InputError"
 
     def test_load_url_success(self):
         """Mock HTTP so the test is fast and offline-safe."""
@@ -111,7 +111,7 @@ class TestLoadImage:
         with patch("httpx.Client.get", side_effect=httpx.ConnectError("timeout")):
             result = e._load_image("http://unreachable.invalid/img.jpg")
         assert result.is_success is False
-        assert result.failures[0].code == "Image.LoadError"
+        assert result.errors[0].code == "Image.LoadError"
 
 
 # ── Normalisation ─────────────────────────────────────────────────────────────
@@ -165,15 +165,15 @@ class TestExtract:
         e = MockEmbedder("m", 128)
         result = e.extract("definitely_not_a_real_file.jpg")
         assert result.is_success is False
-        assert "Image.LoadError" in result.failures[0].code
+        assert "Image.LoadError" in result.errors[0].code
 
     def test_extract_wraps_forward_exception_in_failure(self):
         e = BrokenEmbedder("broken", 8)
         img = Image.new("RGB", (10, 10))
         result = e.extract(img)
         assert result.is_success is False
-        assert result.failures[0].code == "Inference.Error"
-        assert "GPU out of memory" in result.failures[0].description
+        assert result.errors[0].code == "Inference.Error"
+        assert "GPU out of memory" in result.errors[0].description
 
     def test_forward_not_implemented_raises(self):
         """Calling _forward directly on the abstract base must raise NotImplementedError."""

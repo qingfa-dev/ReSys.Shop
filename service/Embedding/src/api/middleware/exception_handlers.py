@@ -5,7 +5,7 @@ Follows the .NET BuildingBlocks error handling pattern.
 """
 import logging
 
-from embedding.schemas import Failure, FailureType, Result
+from embedding.schemas import Error, ErrorType, Result
 from fastapi import Request
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
@@ -28,11 +28,11 @@ async def global_exception_handler(request: Request, exc: Exception):
     """
     logger.error("Unhandled exception: %s", str(exc), exc_info=True)
 
-    failure = Failure.internal_error(
+    error = Error.internal_error(
         "Server.Error",
         "An unexpected error occurred while processing your request."
     )
-    return create_error_response(Result.failure(failure))
+    return create_error_response(Result.failure(error))
 
 
 async def http_exception_handler(request: Request, exc: StarletteHTTPException):
@@ -41,39 +41,38 @@ async def http_exception_handler(request: Request, exc: StarletteHTTPException):
     """
     # Map status code to failure type
     if exc.status_code == 404:
-        ftype = FailureType.NotFound
+        ftype = ErrorType.NotFound
         code = "Route.NotFound"
     elif exc.status_code == 401:
-        ftype = FailureType.Unauthorized
+        ftype = ErrorType.Unauthorized
         code = "Auth.Unauthorized"
     elif exc.status_code == 403:
-        ftype = FailureType.Forbidden
+        ftype = ErrorType.Forbidden
         code = "Auth.Forbidden"
     else:
-        ftype = FailureType.Unexpected
+        ftype = ErrorType.Unexpected
         code = "Http.Error"
 
-    failure = Failure(
+    error = Error(
         type=ftype,
         code=code,
         description=str(exc.detail),
         status_code=exc.status_code
     )
-    return create_error_response(Result.failure(failure))
+    return create_error_response(Result.failure(error))
 
 
 async def validation_exception_handler(request: Request, exc: RequestValidationError):
     """
     Handles Pydantic validation errors (422 Unprocessable Entity).
     """
-    failures = []
-    for error in exc.errors():
-        # error['loc'] is a tuple like ('body', 'image_url')
-        loc = ".".join(str(x) for x in error["loc"])
-        msg = error["msg"]
-        failures.append(Failure.validation(
+    errors = []
+    for err in exc.errors():
+        loc = ".".join(str(x) for x in err["loc"])
+        msg = err["msg"]
+        errors.append(Error.validation(
             code="Request.ValidationError",
             description=f"Validation failed at {loc}: {msg}"
         ))
 
-    return create_error_response(Result.failure(failures))
+    return create_error_response(Result.failure(errors))

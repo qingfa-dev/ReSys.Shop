@@ -1,7 +1,7 @@
 """
 Unit tests for the Result / ValueResult monad.
 """
-from embedding.schemas import Failure, Result, ValueResult
+from embedding.schemas import Error, Result, ValueResult
 from PIL import Image
 
 
@@ -11,7 +11,7 @@ class TestResult:
         assert result.is_success is True
         assert result.status_code == 200
         assert result.message is None
-        assert result.failures == []
+        assert result.errors == []
 
     def test_ok_with_message(self):
         result = Result.ok(status_code=201, message="Created")
@@ -19,22 +19,22 @@ class TestResult:
         assert result.message == "Created"
 
     def test_failure_single(self):
-        fail = Failure.bad_request("E.Code", "desc")
+        fail = Error.bad_request("E.Code", "desc")
         result = Result.failure(fail)
         assert result.is_success is False
         assert result.status_code == 400
-        assert len(result.failures) == 1
-        assert result.failures[0].code == "E.Code"
+        assert len(result.errors) == 1
+        assert result.errors[0].code == "E.Code"
 
     def test_failure_list(self):
         fails = [
-            Failure.validation("V1", "first"),
-            Failure.validation("V2", "second"),
+            Error.validation("V1", "first"),
+            Error.validation("V2", "second"),
         ]
         result = Result.failure(fails)
         assert result.is_success is False
-        assert len(result.failures) == 2
-        # Status code is taken from the first failure
+        assert len(result.errors) == 2
+        # Status code is taken from the first error
         assert result.status_code == 400
 
     def test_failure_empty_list_defaults_status_code(self):
@@ -71,21 +71,21 @@ class TestValueResult:
         assert isinstance(result.value, Image.Image)
 
     def test_failure_value_sets_value_to_none(self):
-        fail = Failure.not_found("D.Missing", "not found")
+        fail = Error.not_found("D.Missing", "not found")
         result = ValueResult.failure_value(fail)
         assert result.is_success is False
         assert result.value is None
         assert result.status_code == 404
 
     def test_failure_value_from_list(self):
-        fails = [Failure.internal_error("E1", "a"), Failure.internal_error("E2", "b")]
+        fails = [Error.internal_error("E1", "a"), Error.internal_error("E2", "b")]
         result = ValueResult.failure_value(fails)
         assert result.is_success is False
-        assert len(result.failures) == 2
+        assert len(result.errors) == 2
         assert result.status_code == 500
 
     def test_is_success_false_has_no_value(self):
-        result = ValueResult.failure_value(Failure.validation("V", "bad"))
+        result = ValueResult.failure_value(Error.validation("V", "bad"))
         assert result.value is None
 
     def test_chaining_failure_propagation(self):
@@ -93,7 +93,7 @@ class TestValueResult:
         Simulates how failures are propagated across service layers:
         inner result fails → outer wraps the same failures.
         """
-        inner = ValueResult.failure_value(Failure.not_found("Inner.Missing", "not found"))
-        outer = ValueResult.failure_value(inner.failures)
+        inner = ValueResult.failure_value(Error.not_found("Inner.Missing", "not found"))
+        outer = ValueResult.failure_value(inner.errors)
         assert outer.is_success is False
-        assert outer.failures[0].code == "Inner.Missing"
+        assert outer.errors[0].code == "Inner.Missing"

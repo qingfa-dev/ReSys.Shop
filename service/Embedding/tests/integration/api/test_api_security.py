@@ -54,11 +54,11 @@ class TestApiKeyAuthentication:
         body = response.json()
         assert body["isSuccess"] is False
         assert body["statusCode"] == 403
-        # In our global handler, 403 from FastAPI/Security returns a failure
-        assert len(body["failures"]) > 0
+        # In our global handler, 403 from FastAPI/Security returns a error
+        assert len(body["errors"]) > 0
         assert any(
             "Forbidden" in f["code"] or "Forbidden" in f["description"]
-            for f in body["failures"]
+            for f in body["errors"]
         )
 
 
@@ -70,7 +70,7 @@ class TestRequestValidation:
         assert response.status_code == 400
         body = response.json()
         assert body["isSuccess"] is False
-        assert "Request.ValidationError" in body["failures"][0]["code"]
+        assert "Request.ValidationError" in body["errors"][0]["code"]
 
     def test_empty_body_returns_400(self, authed_client):
         response = authed_client.post("/embeddings", json={})

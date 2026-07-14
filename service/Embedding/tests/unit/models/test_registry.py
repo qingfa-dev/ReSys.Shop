@@ -29,7 +29,7 @@ def test_registry_stores_and_retrieves_class():
 def test_registry_returns_failure_for_unknown():
     result = ModelRegistry.get_model_class("unknown_skill_99")
     assert result.is_success is False
-    assert result.failures[0].code == "Registry.Error"
+    assert result.errors[0].code == "Registry.Error"
 
 def test_list_models_includes_registered():
     ModelRegistry.register("list_test")(FakeModel)

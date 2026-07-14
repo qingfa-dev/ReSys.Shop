@@ -135,7 +135,7 @@ class BaseEmbedder:
             # 1. Load Image
             img_result = self._load_image(image_input)
             if not img_result.is_success:
-                return ValueResult.failure_value(img_result.failures)
+                return ValueResult.failure_value(img_result.errors)
 
             # 2. Forward Pass (Inference)
             start_inference = time.perf_counter()

@@ -51,7 +51,7 @@ def assert_valid_embedding(data: dict, expected_dim: int):
     """Assert the full EmbeddingResponse contract."""
     assert data["isSuccess"] is True
     assert data["statusCode"] == 200
-    assert data["failures"] == []
+    assert data["errors"] == []
 
     val = data["value"]
     assert val["dimension"] == expected_dim, (

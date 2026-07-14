@@ -37,7 +37,7 @@ def test_engine_returns_not_found_for_unsupported():
     engine = InferenceEngine()
     result = engine.get_embedder("ghost_model")
     assert result.is_success is False
-    assert result.failures[0].code == "Model.NotFound"
+    assert result.errors[0].code == "Model.NotFound"
 
 def test_engine_fuzzy_matches_clip():
     # Setup: Ensure clip_vit_b16 is registered

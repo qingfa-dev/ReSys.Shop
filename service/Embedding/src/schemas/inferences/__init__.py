@@ -8,7 +8,7 @@ from embedding.schemas.inferences.models import (  # noqa: F401
     EmbeddingResponse,
     ModelMetadata,
 )
-from embedding.schemas.results.failure import Failure
+from embedding.schemas.results.error import Error
 from embedding.schemas.results.result import ValueResult
 
 
@@ -50,38 +50,38 @@ class InferenceResults:
         """Error result factories for inferences."""
 
         @staticmethod
-        def ModelNotFound(model_name: str) -> Failure:
-            return Failure.not_found(
+        def ModelNotFound(model_name: str) -> Error:
+            return Error.not_found(
                 "Model.NotFound",
                 f"Model skill '{model_name}' is not supported."
             )
 
         @staticmethod
-        def OnnxNotFound(path_or_message: str) -> Failure:
+        def OnnxNotFound(path_or_message: str) -> Error:
             """ONNX file missing on disk or error detail."""
-            return Failure.not_found(
+            return Error.not_found(
                 "Model.NotFound",
                 f"ONNX model not found: {path_or_message}"
             )
 
         @staticmethod
-        def LoadError(model_name: str, detail: str) -> Failure:
-            return Failure.internal_error(
+        def LoadError(model_name: str, detail: str) -> Error:
+            return Error.internal_error(
                 "Model.LoadError",
                 f"Failed to load model '{model_name}': {detail}"
             )
 
         @staticmethod
-        def InferenceFailed(model_name: str, detail: str) -> Failure:
-            return Failure.internal_error(
+        def InferenceFailed(model_name: str, detail: str) -> Error:
+            return Error.internal_error(
                 "Inference.Error",
                 f"[{model_name}] Inference failed: {detail}"
             )
 
         @staticmethod
-        def DeviceError(model_name: str, device: str, detail: str) -> Failure:
+        def DeviceError(model_name: str, device: str, detail: str) -> Error:
             """Hardware-specific failure (e.g. CUDA out of memory)."""
-            return Failure.internal_error(
+            return Error.internal_error(
                 "Inference.DeviceError",
                 f"[{model_name}] Hardware failure on {device}: {detail}"
             )

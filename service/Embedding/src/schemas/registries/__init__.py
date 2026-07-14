@@ -3,7 +3,7 @@ Specialized results and errors for Registry operations.
 """
 from typing import Any
 
-from embedding.schemas.results.failure import Failure
+from embedding.schemas.results.error import Error
 from embedding.schemas.results.result import ValueResult
 
 
@@ -21,8 +21,8 @@ class RegistryResults:
         """Error result factories for registries."""
 
         @staticmethod
-        def NotRegistered(skill_name: str) -> Failure:
-            return Failure.internal_error(
+        def NotRegistered(skill_name: str) -> Error:
+            return Error.internal_error(
                 "Registry.Error",
                 f"Skill implementation '{skill_name}' not registered."
             )

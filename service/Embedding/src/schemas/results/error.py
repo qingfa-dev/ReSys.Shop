@@ -6,7 +6,7 @@ from enum import IntEnum
 from pydantic import BaseModel, ConfigDict, Field
 
 
-class FailureType(IntEnum):
+class ErrorType(IntEnum):
     """
     Categorizes the type of failure for consistent handling across the system.
     Matches the BuildingBlocks.Models.FailureType enum in .NET.
@@ -22,7 +22,7 @@ class FailureType(IntEnum):
     Unexpected = 8
 
 
-class Failure(BaseModel):
+class Error(BaseModel):
     """
     Represents a specific error or failure that occurred during processing.
     Includes a type, machine-readable code, human-readable description, and status code.
@@ -31,7 +31,7 @@ class Failure(BaseModel):
     model_config = ConfigDict(frozen=True)
 
     # Assign: Metadata properties
-    type: FailureType = Field(
+    type: ErrorType = Field(
         ...,
         description="The high-level category of failure (e.g. NotFound, Conflict).",
     )
@@ -56,46 +56,46 @@ class Failure(BaseModel):
     )
 
     @classmethod
-    def validation(cls, code: str, description: str) -> "Failure":
+    def validation(cls, code: str, description: str) -> "Error":
         """Creates a validation failure (HTTP 400)."""
-        return cls(type=FailureType.Validation, code=code, description=description, status_code=400)
+        return cls(type=ErrorType.Validation, code=code, description=description, status_code=400)
 
     @classmethod
-    def conflict(cls, code: str, description: str) -> "Failure":
+    def conflict(cls, code: str, description: str) -> "Error":
         """Creates a conflict failure (HTTP 409)."""
-        return cls(type=FailureType.Conflict, code=code, description=description, status_code=409)
+        return cls(type=ErrorType.Conflict, code=code, description=description, status_code=409)
 
     @classmethod
-    def not_found(cls, code: str, description: str) -> "Failure":
+    def not_found(cls, code: str, description: str) -> "Error":
         """Creates a not found failure (HTTP 404)."""
-        return cls(type=FailureType.NotFound, code=code, description=description, status_code=404)
+        return cls(type=ErrorType.NotFound, code=code, description=description, status_code=404)
 
     @classmethod
-    def bad_request(cls, code: str, description: str) -> "Failure":
+    def bad_request(cls, code: str, description: str) -> "Error":
         """Creates a bad request failure (HTTP 400)."""
-        return cls(type=FailureType.BadRequest, code=code, description=description, status_code=400)
+        return cls(type=ErrorType.BadRequest, code=code, description=description, status_code=400)
 
     @classmethod
-    def internal_error(cls, code: str, description: str) -> "Failure":
+    def internal_error(cls, code: str, description: str) -> "Error":
         """Creates an internal error failure (HTTP 500)."""
         return cls(
-            type=FailureType.InternalError,
+            type=ErrorType.InternalError,
             code=code,
             description=description,
             status_code=500,
         )
 
     @classmethod
-    def unauthorized(cls, code: str, description: str) -> "Failure":
+    def unauthorized(cls, code: str, description: str) -> "Error":
         """Creates an unauthorized failure (HTTP 401)."""
         return cls(
-            type=FailureType.Unauthorized,
+            type=ErrorType.Unauthorized,
             code=code,
             description=description,
             status_code=401,
         )
 
     @classmethod
-    def forbidden(cls, code: str, description: str) -> "Failure":
+    def forbidden(cls, code: str, description: str) -> "Error":
         """Creates a forbidden failure (HTTP 403)."""
-        return cls(type=FailureType.Forbidden, code=code, description=description, status_code=403)
+        return cls(type=ErrorType.Forbidden, code=code, description=description, status_code=403)

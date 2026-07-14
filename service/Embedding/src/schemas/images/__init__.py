@@ -3,7 +3,7 @@ Specialized results and errors for Image operations.
 """
 from typing import Any
 
-from embedding.schemas.results.failure import Failure
+from embedding.schemas.results.error import Error
 from embedding.schemas.results.result import ValueResult
 
 
@@ -21,12 +21,12 @@ class ImageResults:
         """Error result factories for images."""
 
         @staticmethod
-        def LoadError(detail: str) -> Failure:
-            return Failure.bad_request("Image.LoadError", detail)
+        def LoadError(detail: str) -> Error:
+            return Error.bad_request("Image.LoadError", detail)
 
         @staticmethod
-        def UnsupportedType(type_name: str) -> Failure:
-            return Failure.bad_request(
+        def UnsupportedType(type_name: str) -> Error:
+            return Error.bad_request(
                 "Image.InputError",
                 f"Unsupported input type: {type_name}"
             )

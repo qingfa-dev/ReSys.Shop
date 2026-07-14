@@ -60,4 +60,4 @@ def test_invalid_model_returns_failure_result():
     data = response.json()
     # If the response is a ValueResult (isSuccess=False), it will have 'failures'
     assert data["isSuccess"] is False
-    assert data["failures"][0]["code"] == "Model.NotFound"
+    assert data["errors"][0]["code"] == "Model.NotFound"

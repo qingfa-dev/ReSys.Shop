@@ -3,7 +3,7 @@ Standardized Result models for unified response shapes.
 """
 from typing import Generic, List, Optional, TypeVar, Union
 
-from embedding.schemas.results.failure import Failure
+from embedding.schemas.results.error import Error
 from pydantic import BaseModel, ConfigDict, Field
 
 T = TypeVar("T")
@@ -12,7 +12,7 @@ T = TypeVar("T")
 class Result(BaseModel):
     """
     Base class for operation results, ensuring consistent response shapes across
-    Python and .NET stacks. On failure, contains one or more Failure objects.
+    Python and .NET stacks. On failure, contains one or more Error objects.
     """
     # Configure: Serialization and immutability settings
     model_config = ConfigDict(populate_by_name=True, arbitrary_types_allowed=True, frozen=True)
@@ -29,26 +29,26 @@ class Result(BaseModel):
     message: Optional[str] = Field(
         default=None, description="An optional summary message."
     )
-    failures: List[Failure] = Field(
+    errors: List[Error] = Field(
         default=[],
-        description="A list of failures, populated if isSuccess is False.",
+        description="A list of errors, populated if isSuccess is False.",
     )
 
     @classmethod
     def ok(cls, status_code: int = 200, message: Optional[str] = None) -> "Result":
         """Creates a successful result without a value."""
-        return cls(isSuccess=True, statusCode=status_code, message=message, failures=[])
+        return cls(isSuccess=True, statusCode=status_code, message=message, errors=[])
 
     @classmethod
     def failure(
         cls,
-        failure: Union[Failure, List[Failure]],
+        error: Union[Error, List[Error]],
         message: Optional[str] = None,
     ) -> "Result":
-        """Creates a failed result from one or more Failure objects."""
-        failures = [failure] if isinstance(failure, Failure) else failure
-        sc = failures[0].status_code if failures else 400
-        return cls(isSuccess=False, statusCode=sc, message=message, failures=failures)
+        """Creates a failed result from one or more Error objects."""
+        errors = [error] if isinstance(error, Error) else error
+        sc = errors[0].status_code if errors else 400
+        return cls(isSuccess=False, statusCode=sc, message=message, errors=errors)
 
 
 class ValueResult(Result, Generic[T]):
@@ -73,17 +73,17 @@ class ValueResult(Result, Generic[T]):
             isSuccess=True,
             statusCode=status_code,
             message=message,
-            failures=[],
+            errors=[],
             value=value,
         )
 
     @classmethod
     def failure_value(
         cls,
-        failure: Union[Failure, List[Failure]],
+        error: Union[Error, List[Error]],
         message: Optional[str] = None,
     ) -> "ValueResult[T]":
         """Creates a failed result, ensuring the value is set to None."""
-        failures = [failure] if isinstance(failure, Failure) else failure
-        sc = failures[0].status_code if failures else 400
-        return cls(isSuccess=False, statusCode=sc, message=message, failures=failures, value=None)
+        errors = [error] if isinstance(error, Error) else error
+        sc = errors[0].status_code if errors else 400
+        return cls(isSuccess=False, statusCode=sc, message=message, errors=errors, value=None)
