@@ -59,6 +59,11 @@ class DimensionConstants:
         default=768,
         metadata={"model": "Fashion-CLIP (ONNX)", "type": "optimized_embedding", "opset": 17}
     )
+    
+    RESNET50: int = field(
+        default=2048,
+        metadata={"model": "ResNet-50", "type": "cnn_baseline", "source": "torchvision"}
+    )
 
 
 @dataclass(frozen=True)
