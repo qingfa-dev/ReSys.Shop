@@ -106,6 +106,11 @@ class Settings(BaseSettings):
         description="Default model name used when request does not specify one.",
         json_schema_extra={"example": "fashion_clip"}
     )
+    UPLOAD_DIR: str = Field(
+        default=str(SERVICE_ROOT / "uploads"),
+        description="Directory where uploaded images are stored locally.",
+        json_schema_extra={"example": "/app/uploads"}
+    )
 
     # ── SSL Certificate Configuration ─────────────────────────────────────────────
     SSL_CERT_FILE: Optional[str] = Field(
