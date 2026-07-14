@@ -1,1 +1,0 @@
-"""Cache entry domain model."""

@@ -1,1 +1,0 @@
-"""SigLIP model implementation."""
