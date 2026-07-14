@@ -1,0 +1,27 @@
+# benchmark.yaml — top-level experiment configuration
+experiment:
+  name: "fashion-retrieval-benchmark"
+  version: "1.0.0"
+  seed: 42
+  k_values: [1, 5, 10, 20]
+  batch_size: 64
+  num_workers: 4
+
+models:
+  - fashion-clip
+  - clip-b32
+  - clip-l14
+  - siglip
+  - eva-clip
+
+dataset:
+  name: deepfashion
+  split: test
+  max_samples: null  # null = use full test set
+
+output:
+  base_dir: "outputs/"
+  save_embeddings: true
+  save_metrics: true
+  generate_report: true
+  report_formats: [json, csv, markdown, typst]

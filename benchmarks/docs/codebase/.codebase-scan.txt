@@ -1,0 +1,499 @@
+
+=== DIRECTORY TREE (max depth 3, source files only) ===
+.gitignore
+.python-version
+AGENTS.md
+Makefile
+PROJECT_COMPARISON.md
+README.md
+ReSys.Research
+ReSys.Research/.gitignore
+ReSys.Research/README.md
+ReSys.Research/data
+ReSys.Research/data/external
+ReSys.Research/data/interim
+ReSys.Research/data/processed
+ReSys.Research/db
+ReSys.Research/db/schema.sql
+ReSys.Research/docker-compose.yml
+ReSys.Research/docs
+ReSys.Research/docs/API_REFERENCE.md
+ReSys.Research/docs/RESEARCH_WORKFLOW.md
+ReSys.Research/docs/SCRIPTS_INDEX.md
+ReSys.Research/models
+ReSys.Research/notebooks
+ReSys.Research/notebooks/0.1-initial-exploration.py
+ReSys.Research/pyproject.toml
+ReSys.Research/references
+ReSys.Research/reports
+ReSys.Research/reports/figures
+ReSys.Research/scripts
+ReSys.Research/scripts/check_academic_alignment.py
+ReSys.Research/scripts/export_from_prod.py
+ReSys.Research/scripts/local_join_metadata.py
+ReSys.Research/scripts/populate_sandbox.py
+ReSys.Research/scripts/run_thesis_experiments.py
+ReSys.Research/scripts/step1_extract_features.py
+ReSys.Research/scripts/step2_evaluate_splits.py
+ReSys.Research/scripts/step3_generate_reports.py
+ReSys.Research/scripts/step4_benchmark_pgvector.py
+ReSys.Research/scripts/validate_hnsw_accuracy.py
+ReSys.Research/src
+ReSys.Research/src/core
+ReSys.Research/src/core/constants.py
+ReSys.Research/src/data
+ReSys.Research/src/data/loader.py
+ReSys.Research/src/evaluation
+ReSys.Research/src/evaluation/metrics.py
+ReSys.Research/src/evaluation/run_experiment.py
+ReSys.Research/src/features
+ReSys.Research/src/features/embedding.py
+ReSys.Research/src/models
+ReSys.Research/src/models/export_onnx.py
+ReSys.Research/src/search
+ReSys.Research/src/search/index.py
+ReSys.Research/src/visualization
+ReSys.Research/src/visualization/visualize.py
+ReSys.Research/temp_benchmark.csv
+ReSys.Research/uv.lock
+benchmarks.v001
+benchmarks.v001/.gitignore
+benchmarks.v001/.python-version
+benchmarks.v001/README.md
+benchmarks.v001/configs
+benchmarks.v001/configs/benchmark.yaml
+benchmarks.v001/configs/datasets.yaml
+benchmarks.v001/configs/docker.yaml
+benchmarks.v001/configs/hardware.yaml
+benchmarks.v001/configs/metrics.yaml
+benchmarks.v001/configs/models
+benchmarks.v001/configs/models/clip_vit_b32.yaml
+benchmarks.v001/configs/models/clip_vit_l14.yaml
+benchmarks.v001/configs/models/eva_clip.yaml
+benchmarks.v001/configs/models/fashion_clip.yaml
+benchmarks.v001/configs/models/siglip.yaml
+benchmarks.v001/data
+benchmarks.v001/data/cache
+benchmarks.v001/data/cache/.gitkeep
+benchmarks.v001/data/metadata
+benchmarks.v001/data/metadata/.gitkeep
+benchmarks.v001/data/processed
+benchmarks.v001/data/processed/.gitkeep
+benchmarks.v001/data/raw
+benchmarks.v001/data/raw/.gitkeep
+benchmarks.v001/data/splits
+benchmarks.v001/data/splits/.gitkeep
+benchmarks.v001/docs
+benchmarks.v001/docs/datasets.md
+benchmarks.v001/docs/hardware.md
+benchmarks.v001/docs/methodology.md
+benchmarks.v001/docs/metrics.md
+benchmarks.v001/docs/reproducibility.md
+benchmarks.v001/experiments
+benchmarks.v001/experiments/clip_b32
+benchmarks.v001/experiments/clip_b32/.gitkeep
+benchmarks.v001/experiments/clip_b32/config.yaml
+benchmarks.v001/experiments/clip_b32/results.json
+benchmarks.v001/experiments/clip_l14
+benchmarks.v001/experiments/clip_l14/.gitkeep
+benchmarks.v001/experiments/clip_l14/config.yaml
+benchmarks.v001/experiments/clip_l14/results.json
+benchmarks.v001/experiments/comparison
+benchmarks.v001/experiments/comparison/.gitkeep
+benchmarks.v001/experiments/comparison/config.yaml
+benchmarks.v001/experiments/eva_clip
+benchmarks.v001/experiments/eva_clip/.gitkeep
+benchmarks.v001/experiments/eva_clip/config.yaml
+benchmarks.v001/experiments/eva_clip/results.json
+benchmarks.v001/experiments/fashion_clip
+benchmarks.v001/experiments/fashion_clip/.gitkeep
+benchmarks.v001/experiments/fashion_clip/config.yaml
+benchmarks.v001/experiments/fashion_clip/results.json
+benchmarks.v001/experiments/siglip
+benchmarks.v001/experiments/siglip/.gitkeep
+benchmarks.v001/experiments/siglip/config.yaml
+benchmarks.v001/experiments/siglip/results.json
+benchmarks.v001/infra
+benchmarks.v001/infra/docker
+benchmarks.v001/infra/docker/.dockerignore
+benchmarks.v001/infra/docker/.env.example
+benchmarks.v001/infra/docker/Dockerfile
+benchmarks.v001/infra/docker/docker-compose.yml
+benchmarks.v001/infra/postgres
+benchmarks.v001/infra/postgres/init.sql
+benchmarks.v001/infra/postgres/wait-for-pg.sh
+benchmarks.v001/notebooks
+benchmarks.v001/notebooks/analysis.ipynb
+benchmarks.v001/notebooks/exploration.ipynb
+benchmarks.v001/notebooks/visualization.ipynb
+benchmarks.v001/outputs
+benchmarks.v001/outputs/embeddings
+benchmarks.v001/outputs/embeddings/.gitkeep
+benchmarks.v001/outputs/figures
+benchmarks.v001/outputs/figures/.gitkeep
+benchmarks.v001/outputs/logs
+benchmarks.v001/outputs/logs/.gitkeep
+benchmarks.v001/outputs/metrics
+benchmarks.v001/outputs/metrics/.gitkeep
+benchmarks.v001/outputs/reports
+benchmarks.v001/outputs/reports/.gitkeep
+benchmarks.v001/outputs/tables
+benchmarks.v001/outputs/tables/.gitkeep
+benchmarks.v001/pyproject.toml
+benchmarks.v001/scripts
+benchmarks.v001/scripts/benchmark.py
+benchmarks.v001/scripts/clean.py
+benchmarks.v001/scripts/download_dataset.py
+benchmarks.v001/scripts/preprocess.py
+benchmarks.v001/scripts/report.py
+benchmarks.v001/scripts/verify_extraction.py
+benchmarks.v001/src
+benchmarks.v001/src/benchmark
+benchmarks.v001/src/benchmark/__init__.py
+benchmarks.v001/src/benchmark/cli
+benchmarks.v001/src/benchmark/datasets
+benchmarks.v001/src/benchmark/embeddings
+benchmarks.v001/src/benchmark/evaluation
+benchmarks.v001/src/benchmark/metrics
+benchmarks.v001/src/benchmark/models
+benchmarks.v001/src/benchmark/reporting
+benchmarks.v001/src/benchmark/retrieval
+benchmarks.v001/src/benchmark/utils
+benchmarks.v001/src/tests
+benchmarks.v001/src/tests/__init__.py
+benchmarks.v001/src/tests/datasets
+benchmarks.v001/src/tests/integration
+benchmarks.v001/src/tests/metrics
+benchmarks.v001/src/tests/models
+benchmarks.v001/src/tests/reporting
+benchmarks.v001/uv.lock
+configs
+configs/benchmark.yaml
+configs/datasets.yaml
+configs/hardware.yaml
+configs/metrics.yaml
+configs/models
+configs/models/clip_vit_b32.yaml
+configs/models/clip_vit_l14.yaml
+configs/models/eva_clip.yaml
+configs/models/fashion_clip.yaml
+configs/models/siglip.yaml
+data
+data/cache
+data/cache/.gitkeep
+data/cache/fashionclip__temp-fashion-clip-test.npz
+data/metadata
+data/metadata/.gitkeep
+data/processed
+data/processed/.gitkeep
+data/raw
+data/raw/.gitkeep
+data/raw/fashion-product-images-small
+data/raw/fashion-product-images-small/images
+data/raw/fashion-product-images-small/myntradataset
+data/raw/fashion-product-images-small/splits
+data/raw/fashion-product-images-small/styles.csv
+data/splits
+data/splits/.gitkeep
+docs
+docs/codebase
+docs/codebase/.codebase-scan.txt
+docs/datasets.md
+docs/hardware.md
+
+=== STACK DETECTION (manifest files) ===
+
+--- Makefile ---
+SHELL := /bin/bash
+VENV := .venv
+PYTHON := $(VENV)/bin/python
+PIP := $(VENV)/bin/pip
+BENCH := $(VENV)/bin/benchmark
+
+DATA_ROOT ?= data/raw/fashion-product-images-small
+SPLIT_FILE ?= $(DATA_ROOT)/splits/test.json
+CSV ?= data/raw/fashion-product-images-small/styles.csv
+IMAGES_ROOT ?= data/raw/fashion-product-images-small/images
+DATASET_NAME ?= fashion-product-small
+DEVICE ?= cpu
+MODELS ?= all
+BATCH_SIZE ?= 64
+OUTPUT ?= outputs
+
+LABEL_FIELD ?= subCategory
+TRAIN_RATIO ?= 0.8
+SEED ?= 42
+NO_CACHE ?= false
+NO_LATENCY ?= false
+
+NO_CACHE_FLAG := $(if $(filter true,$(NO_CACHE)),--no-cache,)
+NO_LATENCY_FLAG := $(if $(filter true,$(NO_LATENCY)),--no-latency,)
+
+.PHONY: all help venv install prepare-fashion-product benchmark clean
+
+all: help
+
+help:
+	@printf "Available targets:\n"
+	@printf "  make venv                  Create the virtual environment and install package dependencies.\n"
+	@printf "  make install               Alias for make venv.\n"
+	@printf "  make prepare-fashion-product\n"
+	@printf "                            Convert the Kaggle Fashion Product Images Small dataset into the benchmark split format.\n"
+	@printf "  make benchmark             Run the benchmark on the prepared dataset.\n"
+	@printf "  make clean                 Remove the local virtual environment and build artifacts.\n"
+	@printf "\n"
+	@printf "Optional variables: DATA_ROOT, SPLIT_FILE, CSV, IMAGES_ROOT, DATASET_NAME, MODELS, DEVICE, BATCH_SIZE, OUTPUT, NO_CACHE, NO_LATENCY\n"
+
+venv:
+	test -d $(VENV) || python3 -m venv $(VENV)
+	$(PYTHON) -m pip install --upgrade pip setuptools wheel
+	$(PIP) install -e .
+
+install: venv
+
+prepare-fashion-product: venv
+	$(PYTHON) scripts/prepare_fashion_product.py \
+		--csv $(CSV) \
+		--images-root $(IMAGES_ROOT) \
+		--output-root $(DATA_ROOT) \
+		--label-field $(LABEL_FIELD) \
+		--train-ratio $(TRAIN_RATIO) \
+		--seed $(SEED)
+
+benchmark: venv
+	$(BENCH) benchmark \
+		--dataset-root $(DATA_ROOT) \
+		--split-file $(SPLIT_FILE) \
+		--name $(DATASET_NAME) \
+		--device $(DEVICE) \
+		--models $(MODELS) \
+		--batch-size $(BATCH_SIZE) \
+		$(NO_CACHE_FLAG) \
+		$(NO_LATENCY_FLAG) \
+		--output $(OUTPUT)
+
+clean:
+	rm -rf $(VENV) outputs
+
+--- pyproject.toml ---
+[project]
+name = "benchmark"
+version = "0.1.0"
+description = "One-shot model comparison for fashion product retrieval (Resys.FashionShop thesis)"
+requires-python = ">=3.12"
+dependencies = [
+    # ML / vision
+    "torch>=2.3",
+    "torchvision>=0.18",
+    "transformers>=4.41",
+    "open-clip-torch>=2.24",
+    "fashion-clip>=0.2",
+    # Data
+    "numpy>=1.26",
+    "Pillow>=10.3",
+    # Retrieval
+    "faiss-cpu>=1.8",
+    "psycopg[binary]>=3.1",
+    "pgvector>=0.2",
+    # Config / validation
+    "pydantic>=2.7",
+    "pydantic-settings>=2.3",
+    "PyYAML>=6.0",
+    # CLI / progress
+    "rich>=13.7",
+    "typer>=0.12",
+    "tqdm>=4.66",
+    # Reporting / charts
+    "matplotlib>=3.9",
+    "seaborn>=0.13",
+    "pandas>=2.2",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.2",
+    "pytest-cov>=5.0",
+]
+
+[project.scripts]
+benchmark = "benchmark.cli.main:app"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/benchmark"]
+
+[tool.pytest.ini_options]
+testpaths  = ["src/tests"]
+pythonpath = ["src"]
+addopts    = "-v --tb=short"
+
+[tool.ruff]
+line-length    = 100
+target-version = "py312"
+src            = ["src"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "SIM"]
+ignore = ["E501"]
+
+--- uv.lock ---
+version = 1
+revision = 3
+requires-python = ">=3.12"
+resolution-markers = [
+    "python_full_version >= '3.14' and sys_platform == 'win32'",
+    "python_full_version >= '3.14' and sys_platform == 'emscripten'",
+    "python_full_version >= '3.14' and sys_platform != 'emscripten' and sys_platform != 'win32'",
+    "python_full_version < '3.14' and sys_platform == 'win32'",
+    "python_full_version < '3.14' and sys_platform == 'emscripten'",
+    "python_full_version < '3.14' and sys_platform != 'emscripten' and sys_platform != 'win32'",
+]
+
+[[package]]
+name = "aiohappyeyeballs"
+version = "2.7.1"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/ce/f4/eec0465c2f67b2664688d0240b3212d5196fd89e741df67ddb81f8d35658/aiohappyeyeballs-2.7.1.tar.gz", hash = "sha256:065665c041c42a5938ed220bdcd7230f22527fbec085e1853d2402c8a3615d9d", size = 24757, upload-time = "2026-07-01T17:11:55.501Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/71/43/1947f06babed6b3f1d7f38b0c767f52df66bfb2bc10b468c4a7de9eceff2/aiohappyeyeballs-2.7.1-py3-none-any.whl", hash = "sha256:9243213661e29250eb41368e5daa826fc017156c3b8a11440826b2e3ed376472", size = 15038, upload-time = "2026-07-01T17:11:54.055Z" },
+]
+
+[[package]]
+name = "aiohttp"
+version = "3.14.1"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "aiohappyeyeballs" },
+    { name = "aiosignal" },
+    { name = "attrs" },
+    { name = "frozenlist" },
+    { name = "multidict" },
+    { name = "propcache" },
+    { name = "typing-extensions", marker = "python_full_version < '3.13'" },
+    { name = "yarl" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/82/78/8ea7308cac6934de8c74a14f3d5f65d1c89287426688be79538d0e5c013d/aiohttp-3.14.1.tar.gz", hash = "sha256:307f2cff90a764d329e77040603fa032db89c5c24fdad50c4c15334cba744035", size = 7955794, upload-time = "2026-06-07T21:09:35.529Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/1d/21/151624b51cd92553d95424daf4bf19f19ce9be9002d19253e7e7ce67197b/aiohttp-3.14.1-cp312-cp312-macosx_10_13_universal2.whl", hash = "sha256:d35143e27778b4bb0fb189562d7f275bff79c62ab8e98459717c0ea617ff2480", size = 757402, upload-time = "2026-06-07T21:06:40.311Z" },
+    { url = "https://files.pythonhosted.org/packages/c2/82/280619e0bd7bf2454987e19282616e84762255dd9c8468f62382e8c191f1/aiohttp-3.14.1-cp312-cp312-macosx_10_13_x86_64.whl", hash = "sha256:bcfb80a2cc36fba2534e5e5b5264dc7ae6fcd9bf15256da3e53d2f499e6fa29d", size = 512310, upload-time = "2026-06-07T21:06:42.207Z" },
+    { url = "https://files.pythonhosted.org/packages/55/b2/2aac325583aaa1353045f96dffa586d8a34e8322e14a7ba49cffeb103ab4/aiohttp-3.14.1-cp312-cp312-macosx_11_0_arm64.whl", hash = "sha256:27fd7c91e51729b4f7e1577865fa6d34c9adccbc39aabe9000285b48af9f0ec2", size = 512448, upload-time = "2026-06-07T21:06:43.813Z" },
+    { url = "https://files.pythonhosted.org/packages/8a/72/a60607cb849faa8af8a356c9329ea2eb6f395d49e82cc82ccba1fd8deb8f/aiohttp-3.14.1-cp312-cp312-manylinux2014_aarch64.manylinux_2_17_aarch64.manylinux_2_28_aarch64.whl", hash = "sha256:64c567bf9eaf664280116a8688f63016e6b32db2505908e2bdaca1b6438142f2", size = 1766854, upload-time = "2026-06-07T21:06:45.391Z" },
+    { url = "https://files.pythonhosted.org/packages/b5/d3/d9fe1c9ec7557ab4d0d82bebaa728c6418f0b93295ec2f4ab015f7710cc7/aiohttp-3.14.1-cp312-cp312-manylinux2014_armv7l.manylinux_2_17_armv7l.manylinux_2_31_armv7l.whl", hash = "sha256:f5e6ff2bdbb8f4cd3fbe41f99e25bbcd58e3bf9f13d3dd31a11e7917251cc77a", size = 1740884, upload-time = "2026-06-07T21:06:47.413Z" },
+    { url = "https://files.pythonhosted.org/packages/c1/dc/f2cecfaf9337ba3e63f181500814ff502aa3d00d9c7ec93a9d23d10a27b2/aiohttp-3.14.1-cp312-cp312-manylinux2014_ppc64le.manylinux_2_17_ppc64le.manylinux_2_28_ppc64le.whl", hash = "sha256:2f73e01dc37122325caf079982621262f96d74823c179038a82fddfc50359264", size = 1810034, upload-time = "2026-06-07T21:06:50.165Z" },
+    { url = "https://files.pythonhosted.org/packages/66/d7/2ff65c5e65c0d7476daf7e15c032e0805e36811185b9623e3238ad6c763e/aiohttp-3.14.1-cp312-cp312-manylinux2014_s390x.manylinux_2_17_s390x.manylinux_2_28_s390x.whl", hash = "sha256:bb2c0c80d431c0d03f2c7dbf125150fedd4f0de17366a7ca33f7ccb822391842", size = 1904054, upload-time = "2026-06-07T21:06:52.035Z" },
+    { url = "https://files.pythonhosted.org/packages/20/9c/d445818389df371f56d141d881153ba23183c4735a03f7356ffb43f7757d/aiohttp-3.14.1-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl", hash = "sha256:3e6fc1a85fa7194a1a7d19f44e8609180f4a8eb5fa4c7ed8b4355f080fad235c", size = 1790278, upload-time = "2026-06-07T21:06:54.049Z" },
+    { url = "https://files.pythonhosted.org/packages/4d/aa/bf04cb4d865fc6101c2229a294ad744973b72e513fdc5a6b791e6983d72a/aiohttp-3.14.1-cp312-cp312-manylinux_2_31_riscv64.manylinux_2_39_riscv64.whl", hash = "sha256:686b6c0d3911ec387b444ddf5dc62fb7f7c0a7d5186a7861626496a5ab4aff95", size = 1591795, upload-time = "2026-06-07T21:06:55.911Z" },
+    { url = "https://files.pythonhosted.org/packages/dc/b4/4dac0038960427ba832f6609dfb4ea5437d7fd80c72001b9e48f834f428b/aiohttp-3.14.1-cp312-cp312-musllinux_1_2_aarch64.whl", hash = "sha256:c6fa4dc7ad6f8109c70bb1499e589f76b0b792baf39f9b017eb92c8a81d0a199", size = 1728397, upload-time = "2026-06-07T21:06:57.777Z" },
+    { url = "https://files.pythonhosted.org/packages/2b/f9/7cd4e8ad7aa3b75f17d56bb5498dd604a93d4e6eece822ba0568c413fff0/aiohttp-3.14.1-cp312-cp312-musllinux_1_2_armv7l.whl", hash = "sha256:87a5eea1b2a5e21e1ebdbb33ad4165359189327e63fc4e4894693e7f821ac817", size = 1766504, upload-time = "2026-06-07T21:07:00.009Z" },
+    { url = "https://files.pythonhosted.org/packages/f9/df/fc01d9fcad0f73fed3f3d361f1f94f975947b50dff82919f6dc2bf4316cc/aiohttp-3.14.1-cp312-cp312-musllinux_1_2_ppc64le.whl", hash = "sha256:1c1421eb01d4fd608d88cc8290211d177a58532b55ad94076fb349c5bf467f0a", size = 1777806, upload-time = "2026-06-07T21:07:02.064Z" },
+    { url = "https://files.pythonhosted.org/packages/41/09/47e2d090bddcc8fb4ccb4c314aadc32d7c5d9bb55f50f6ad1c92fc15d501/aiohttp-3.14.1-cp312-cp312-musllinux_1_2_riscv64.whl", hash = "sha256:34b257ec41345c1e8f2df68fa908a7952f5de932723871eb633ecbbff396c9a4", size = 1580707, upload-time = "2026-06-07T21:07:03.942Z" },
+    { url = "https://files.pythonhosted.org/packages/3d/36/f1a4ce904ae0b6930cfe9afc96d0896f7ec1a620c400405d63783bb95a9c/aiohttp-3.14.1-cp312-cp312-musllinux_1_2_s390x.whl", hash = "sha256:de538791a80e5d862addbc183f70f0158ac9b9bb872bb147f1fd2a683691e087", size = 1798121, upload-time = "2026-06-07T21:07:05.987Z" },
+    { url = "https://files.pythonhosted.org/packages/70/0a/e0075ce9ca0279ee1d4f0c0b85f54fea02ebc83c3007651a72bece658fec/aiohttp-3.14.1-cp312-cp312-musllinux_1_2_x86_64.whl", hash = "sha256:6f71173be42d3241d428f760122febb748de0623f44308a6f120d0dd9ec572e3", size = 1767580, upload-time = "2026-06-07T21:07:07.873Z" },
+    { url = "https://files.pythonhosted.org/packages/3e/61/a0c0a8f327a9c52095cdd8e312391b00d3ed64ab6c72bb5c33d8ec251cf7/aiohttp-3.14.1-cp312-cp312-win32.whl", hash = "sha256:ec8dc383ee57ea3e883477dcca3f11b65d58199f1080acaf4cd6ad9a99698be4", size = 452771, upload-time = "2026-06-07T21:07:09.669Z" },
+    { url = "https://files.pythonhosted.org/packages/df/d9/ea367c75f16ac9c6cdc8febb25e8318fa21a2b1bc8d6514d4b2d890bface/aiohttp-3.14.1-cp312-cp312-win_amd64.whl", hash = "sha256:2aa92c87868cd13674989f9ee83e5f9f7ea4237589b728048e1f0c8f6caa3271", size = 479873, upload-time = "2026-06-07T21:07:11.538Z" },
+    { url = "https://files.pythonhosted.org/packages/03/64/8d96784a7851156db8a4c6c3f6f91042fdf39fb15a4cc38c8b3c14833c45/aiohttp-3.14.1-cp312-cp312-win_arm64.whl", hash = "sha256:2c840c90759922cb5e6dda94596e079a30fb5a5ba548e7e0dc00574703940847", size = 448073, upload-time = "2026-06-07T21:07:13.637Z" },
+    { url = "https://files.pythonhosted.org/packages/bc/97/bd137012dd97e1649162b099135a80e1fd59aaa807b2430fc448d1029aff/aiohttp-3.14.1-cp313-cp313-android_21_arm64_v8a.whl", hash = "sha256:b3a03285a7f9c7b016324574a6d92a1c895da6b978cb8f1deee3ac72bc6da178", size = 506882, upload-time = "2026-06-07T21:07:15.501Z" },
+    { url = "https://files.pythonhosted.org/packages/ef/79/e5cc690e9d922a66887ceeaca53a8ffd5a7b0be3816142b7abc433742d89/aiohttp-3.14.1-cp313-cp313-android_21_x86_64.whl", hash = "sha256:2a73f487ab8ef5abbb24b7aa9b73e98eaba9e9e031804ff2416f02eca315ccaf", size = 515270, upload-time = "2026-06-07T21:07:17.53Z" },
+    { url = "https://files.pythonhosted.org/packages/fe/22/a73ccbf9dbd6e26dda0b24d5fd5db7da92ee3383a79f47677ffb834c5c5b/aiohttp-3.14.1-cp313-cp313-ios_13_0_arm64_iphoneos.whl", hash = "sha256:915fbb7b41b115192259f8c9ae58f3ddc444d2b5579917270211858e606a4afd", size = 485841, upload-time = "2026-06-07T21:07:19.555Z" },
+    { url = "https://files.pythonhosted.org/packages/3b/b9/57ed8eaf596321c2ad747bd480fb1700dbd7177c60dfc9e4c187f629662e/aiohttp-3.14.1-cp313-cp313-ios_13_0_arm64_iphonesimulator.whl", hash = "sha256:7fb4bdf95b0561a79f259f9d28fbc109728c5ee7f27aff6391f0ca703a329abe", size = 492088, upload-time = "2026-06-07T21:07:21.581Z" },
+    { url = "https://files.pythonhosted.org/packages/78/c0/5ebe5270a7c140d7c6f79dcb018640225f14d406c149e4eec04a7d82fe71/aiohttp-3.14.1-cp313-cp313-ios_13_0_x86_64_iphonesimulator.whl", hash = "sha256:1b9748363260121d2927704f5d4fc498150669ca3ae93625986ee89c8f80dcd4", size = 501564, upload-time = "2026-06-07T21:07:23.388Z" },
+    { url = "https://files.pythonhosted.org/packages/75/7f/8cdaa24fc7983865e0915153b96a9ac5bcdd3548d64c5a27d17cecccad2d/aiohttp-3.14.1-cp313-cp313-macosx_10_13_universal2.whl", hash = "sha256:86a6dab78b0e43e2897a3bbe15745aa60dc5423ca437b7b0b164c069bf91b876", size = 751998, upload-time = "2026-06-07T21:07:25.046Z" },
+    { url = "https://files.pythonhosted.org/packages/b2/f4/c4227aacfacc5cb0cc2d119b65301d177912a6842cd64e120c47af76064f/aiohttp-3.14.1-cp313-cp313-macosx_10_13_x86_64.whl", hash = "sha256:4dfd6e47d3c44c2279907607f73a4240b88c69eb8b90da7e2441a8045dfd21da", size = 510918, upload-time = "2026-06-07T21:07:27.28Z" },
+    { url = "https://files.pythonhosted.org/packages/ab/01/a2d5f96cd4e74424864d30bc0a7e44d0a12dacdcfa91b5b2d1bd3dca6bf3/aiohttp-3.14.1-cp313-cp313-macosx_11_0_arm64.whl", hash = "sha256:317acd9f8602858dc7d59679812c376c7f0b97bcbbf16e0d6237f54141d8a8a6", size = 508657, upload-time = "2026-06-07T21:07:29.252Z" },
+    { url = "https://files.pythonhosted.org/packages/e8/ed/3c0fb5c500fdd8e7ebc10d1889c04384fffa1a9163eac1356088ca9da1b1/aiohttp-3.14.1-cp313-cp313-manylinux2014_aarch64.manylinux_2_17_aarch64.manylinux_2_28_aarch64.whl", hash = "sha256:bd869c427324e5cb15195793de951295710db28be7d818247f3097b4ab5d4b96", size = 1757907, upload-time = "2026-06-07T21:07:31.03Z" },
+    { url = "https://files.pythonhosted.org/packages/0b/ab/d4c924d9bd5be3050c226612413ce68cb54c70d2c31b661bfc8d9a5b6a70/aiohttp-3.14.1-cp313-cp313-manylinux2014_armv7l.manylinux_2_17_armv7l.manylinux_2_31_armv7l.whl", hash = "sha256:93b032b5ec3255473c143627d21a69ac74ae12f7f33974cb587c564d11b1066f", size = 1737565, upload-time = "2026-06-07T21:07:33.031Z" },
+    { url = "https://files.pythonhosted.org/packages/19/2a/37326821ff779084020cdc33224d20b19f42f4183a500ff92022a739eda7/aiohttp-3.14.1-cp313-cp313-manylinux2014_ppc64le.manylinux_2_17_ppc64le.manylinux_2_28_ppc64le.whl", hash = "sha256:f234b4deb12f3ad59127e037bc57c40c21e45b45282df7d3a55a0f409f595296", size = 1799018, upload-time = "2026-06-07T21:07:35.003Z" },
+    { url = "https://files.pythonhosted.org/packages/b3/4f/6e947ba73e4ce09070761c05ed3a8ceb7c21f5e46798671d8b2aac0e4626/aiohttp-3.14.1-cp313-cp313-manylinux2014_s390x.manylinux_2_17_s390x.manylinux_2_28_s390x.whl", hash = "sha256:9af6779bfb46abf124068327abcdf9ce95c9ef8287a3e8da76ccf2d0f16c28fa", size = 1894416, upload-time = "2026-06-07T21:07:36.956Z" },
+    { url = "https://files.pythonhosted.org/packages/9d/6e/dbf1d0625dc711fb2851f4f3c3055c39ed58bae92082d8c627dbe6013736/aiohttp-3.14.1-cp313-cp313-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl", hash = "sha256:faccab372e66bc76d5731525e7f1143c922271725b9d38c9f97edcc66266b451", size = 1783881, upload-time = "2026-06-07T21:07:39.063Z" },
+    { url = "https://files.pythonhosted.org/packages/44/c2/5e25098a67268ed369483ae7d1a58bd0a13d03aab860d2a0e4a6eb25b046/aiohttp-3.14.1-cp313-cp313-manylinux_2_31_riscv64.manylinux_2_39_riscv64.whl", hash = "sha256:f380468b09d2a81633ee863b0ec5648d364bd17bb8ecfb8c2f387f7ac1faf42c", size = 1587572, upload-time = "2026-06-07T21:07:41.058Z" },
+    { url = "https://files.pythonhosted.org/packages/2a/bd/cf9cee17e140f942a3de73e658a543aa8fbf35a5fc67a9d2538d52d77f0b/aiohttp-3.14.1-cp313-cp313-musllinux_1_2_aarch64.whl", hash = "sha256:97e704dcd26271f5bda3fa07c3ce0fb76d6d3f8659f4baa1a24442cc9ba177ca", size = 1722137, upload-time = "2026-06-07T21:07:43.014Z" },
+    { url = "https://files.pythonhosted.org/packages/89/6d/5684f8c59045c96f81a18cefbc1fbbd79d25b88f1c622f2a5c5c08fcb632/aiohttp-3.14.1-cp313-cp313-musllinux_1_2_armv7l.whl", hash = "sha256:269b76ac5394092b95bc4a098f4fc6c191c083c3bd12775d1e30e663132f6a09", size = 1755953, upload-time = "2026-06-07T21:07:45.933Z" },
+    { url = "https://files.pythonhosted.org/packages/a8/40/35caf3170f8359760740a7d9aa0fff2e344bef98e1d1186f5a0f6dec17e6/aiohttp-3.14.1-cp313-cp313-musllinux_1_2_ppc64le.whl", hash = "sha256:5c0b3e614340c889d575451696374c9d17affd54cd607ca0babed8f8c37b9397", size = 1766479, upload-time = "2026-06-07T21:07:48.047Z" },
+    { url = "https://files.pythonhosted.org/packages/6d/a1/b0c61e7a137f0d81de49a82023a6df73c3c16d6fefb0f8e4a93d21639002/aiohttp-3.14.1-cp313-cp313-musllinux_1_2_riscv64.whl", hash = "sha256:5663ee9257cfa1add7253a7da3035a02f31b6600ec48261585e1800a81533080", size = 1580077, upload-time = "2026-06-07T21:07:50.069Z" },
+    { url = "https://files.pythonhosted.org/packages/0b/41/194ea4623693009fcefebef7aef63c141754f153e9cd0d39d3b9e36c175c/aiohttp-3.14.1-cp313-cp313-musllinux_1_2_s390x.whl", hash = "sha256:603a2c834142172ffddc054067f5ec0ca65d57a0aa98a71bc81952573208e345", size = 1791688, upload-time = "2026-06-07T21:07:52.106Z" },
+    { url = "https://files.pythonhosted.org/packages/ba/45/4de841f005cfe1fd63e2a2fe011262c515e2a62aa6994b15947e7d717ac9/aiohttp-3.14.1-cp313-cp313-musllinux_1_2_x86_64.whl", hash = "sha256:cb21957bb8aca671c1765e32f58164cf0c50e6bf41c0bbbd16da20732ecaf588", size = 1761094, upload-time = "2026-06-07T21:07:54.113Z" },
+    { url = "https://files.pythonhosted.org/packages/e4/ae/dbce10533d3896d544d5053939ed75b7dc31a1b0973d959b1b5ae21028d6/aiohttp-3.14.1-cp313-cp313-win32.whl", hash = "sha256:e509a55f681e6158c20f70f102f9cf61fb20fbc382272bc6d94b7343f2582780", size = 452662, upload-time = "2026-06-07T21:07:56.06Z" },
+    { url = "https://files.pythonhosted.org/packages/7b/d9/0bf1a19362c32f06229da5e7ddfcec91f93474d6307f7a2d3135e9c674dc/aiohttp-3.14.1-cp313-cp313-win_amd64.whl", hash = "sha256:1ac8531b638959718e18c2207fbfe297819875da46a740b29dfa29beba64355a", size = 479748, upload-time = "2026-06-07T21:07:58.319Z" },
+    { url = "https://files.pythonhosted.org/packages/22/0a/62e7232dc9484fbec112ceb32efb6a624cc7994ec6e2b019286f17c4e8f2/aiohttp-3.14.1-cp313-cp313-win_arm64.whl", hash = "sha256:250d14af67f6b6a1a4a811049b1afa69d61d617fca6bf33149b3ab1a6dbcf7b8", size = 447723, upload-time = "2026-06-07T21:08:00.154Z" },
+    { url = "https://files.pythonhosted.org/packages/c4/a1/5fafa04e1ca91ddb47608699d60649c1c6db3cf41c99e78fc4056f9513db/aiohttp-3.14.1-cp314-cp314-android_24_arm64_v8a.whl", hash = "sha256:7c106c26852ca1c2047c6b80384f17100b4e439af276f21ef3d4e2f450ae7e15", size = 508531, upload-time = "2026-06-07T21:08:02.093Z" },
+    { url = "https://files.pythonhosted.org/packages/fa/2e/bfa02f699d87ffc86d5959270b28f1cb410add3ccaced8ed2e0b8a5238fc/aiohttp-3.14.1-cp314-cp314-android_24_x86_64.whl", hash = "sha256:20205f7f5ade7aaec9f4b500549bbc071b046453aed72f9c06dcab87896a83e8", size = 514718, upload-time = "2026-06-07T21:08:04.476Z" },
+
+[TRUNCATED] Showing first 80 of 2945 lines.
+
+=== ENTRY POINTS ===
+No common entry points found. Check 'main' or 'scripts.start' in manifest files above.
+
+=== LINTING AND FORMATTING CONFIG ===
+No linting or formatting config files found in project root.
+
+=== ENVIRONMENT VARIABLE TEMPLATES ===
+No .env.example or .env.template found. Identify required environment variables by searching the code and config for environment variable reads.
+
+=== TODO / FIXME / HACK (production code only, test dirs excluded) ===
+None found.
+
+=== GIT RECENT COMMITS (last 20) ===
+6a97a8b Improve benchmark CLI and Makefile workflow; add device-aware model registry and fix FashionCLIP embedding output extraction
+56496e3 lba
+
+=== HIGH-CHURN FILES (last 90 days, top 20) ===
+   2 src/benchmark/cli/benchmark.py
+   2 src/benchmark/evaluation/benchmark.py
+   2 src/benchmark/models/__init__.py
+   2 src/benchmark/models/fashion_clip.py
+   1 Makefile
+   1 scripts/prepare_fashion_product.py
+   1 .gitignore
+   1 .python-version
+   1 README.md
+   1 ReSys.Research/.gitignore
+   1 ReSys.Research/README.md
+   1 ReSys.Research/db/schema.sql
+   1 ReSys.Research/docker-compose.yml
+   1 ReSys.Research/docs/API_REFERENCE.md
+   1 ReSys.Research/docs/RESEARCH_WORKFLOW.md
+   1 ReSys.Research/docs/SCRIPTS_INDEX.md
+   1 ReSys.Research/notebooks/0.1-initial-exploration.py
+   1 ReSys.Research/pyproject.toml
+   1 ReSys.Research/scripts/check_academic_alignment.py
+   1 ReSys.Research/scripts/export_from_prod.py
+
+=== MONOREPO SIGNALS ===
+No monorepo signals detected.
+
+=== CODE METRICS ===
+Total files scanned: 89139
+Total lines of code: 57851
+
+Files by language:
+  Other: 88966
+  Python: 173
+
+Top 10 largest files:
+data/cache/fashionclip__temp-fashion-clip-test.npz: 16568.4KB
+data/raw/fashion-product-images-small/styles.csv: 4230.5KB
+data/raw/fashion-product-images-small/myntradataset/styles.csv: 4230.5KB
+data/raw/fashion-product-images-small/splits/train.json: 3353.5KB
+data/raw/fashion-product-images-small/splits/test.json: 838.2KB
+uv.lock: 539.7KB
+ReSys.Research/uv.lock: 506.4KB
+data/raw/fashion-product-images-small/images/54868.jpg: 111.3KB
+data/raw/fashion-product-images-small/myntradataset/images/54868.jpg: 111.3KB
+data/raw/fashion-product-images-small/images/8924.jpg: 107.8KB
+
+=== CI/CD PIPELINES ===
+No CI/CD pipelines detected.
+
+=== CONTAINERS & ORCHESTRATION ===
+No containerization configs detected.
+
+=== SECURITY & COMPLIANCE ===
+No security configs detected.
+
+=== PERFORMANCE & TESTING ===
+No performance testing configs detected.
+
+=== SCAN COMPLETE ===

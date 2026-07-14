@@ -1,0 +1,10 @@
+id: eva-clip
+name: "EVA-CLIP"
+class: "EvaClipModel"
+module: "benchmark.models.eva_clip"
+backbone: "EVA-02-L/14"
+embedding_dim: 768
+pretrained: "QuanSun/EVA-CLIP"
+batch_size: 32
+image_size: 224
+normalize_embeddings: true

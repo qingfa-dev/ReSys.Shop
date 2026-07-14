@@ -1,0 +1,251 @@
+"""Core evaluator — runs the full retrieval + metrics pipeline for one model."""
+
+from __future__ import annotations
+
+from dataclasses import dataclass, field
+
+import numpy as np
+
+from benchmark.datasets.loader import FashionDataset, Sample
+from benchmark.embeddings.generator import EmbeddingResult
+from benchmark.metrics import (
+    mean_average_precision,
+    mean_ndcg_at_k,
+    mean_precision_at_k,
+    mean_recall_at_k,
+    measure_latency,
+    measure_throughput,
+)
+from benchmark.models.base import EmbeddingModel
+from benchmark.retrieval.cosine import retrieve_batch
+from benchmark.utils.logging import get_logger
+from benchmark.utils.timing import LatencyStats
+
+logger = get_logger("evaluation.evaluator")
+
+
+@dataclass
+class ModelMetrics:
+    """Complete metric results for a single model run."""
+
+    model_name: str
+    dataset: str
+    k_values: list[int]
+
+    # Retrieval metrics keyed by k
+    precision: dict[int, float] = field(default_factory=dict)
+    recall: dict[int, float] = field(default_factory=dict)
+    ndcg: dict[int, float] = field(default_factory=dict)
+    map_score: float = 0.0
+
+    # Efficiency
+    latency: dict[str, float] = field(default_factory=dict)
+    throughput_per_sec: float = 0.0
+
+    def to_dict(self) -> dict:
+        return {
+            "model": self.model_name,
+            "dataset": self.dataset,
+            "map": round(self.map_score, 4),
+            "precision": {f"@{k}": round(v, 4) for k, v in self.precision.items()},
+            "recall": {f"@{k}": round(v, 4) for k, v in self.recall.items()},
+            "ndcg": {f"@{k}": round(v, 4) for k, v in self.ndcg.items()},
+            "latency_ms": self.latency,
+            "throughput_per_sec": round(self.throughput_per_sec, 2),
+        }
+
+
+class Evaluator:
+    """Runs the retrieval + metrics pipeline for an embedding result.
+
+    Usage::
+
+        evaluator = Evaluator(dataset=dataset, k_values=[1, 5, 10])
+        metrics = evaluator.evaluate(result, model=model)
+    """
+
+    def __init__(
+        self,
+        dataset: FashionDataset,
+        k_values: list[int] | None = None,
+        measure_efficiency: bool = True,
+        latency_warmup: int = 10,
+        latency_runs: int = 100,
+    ) -> None:
+        self.dataset = dataset
+        self.k_values = k_values or [1, 5, 10, 20]
+        self.measure_efficiency = measure_efficiency
+        self.latency_warmup = latency_warmup
+        self.latency_runs = latency_runs
+
+    def evaluate(
+        self,
+        result: EmbeddingResult,
+        model: EmbeddingModel | None = None,
+        dataset_name: str = "unknown",
+    ) -> ModelMetrics:
+        """Compute all metrics for ``result``.
+
+        Args:
+            result: Pre-generated embeddings with aligned sample list.
+            model: Loaded model, required if ``measure_efficiency=True``.
+            dataset_name: Label for the dataset (used in output).
+
+        Returns:
+            ``ModelMetrics`` with all scores populated.
+        """
+        logger.info("Evaluating %s on %s …", result.model_name, dataset_name)
+
+        embeddings = result.embeddings
+        samples = result.samples
+        labels = [s.label for s in samples]
+        label_set_per_query = [
+            {labels[j] for j in range(len(labels)) if labels[j] == labels[i] and j != i}
+            for i in range(len(labels))
+        ]
+        label_counts_per_query = [
+            sum(1 for j in range(len(labels)) if labels[j] == labels[i] and j != i)
+            for i in range(len(labels))
+        ]
+
+        max_k = max(self.k_values)
+        retrieved_indices = retrieve_batch(embeddings, embeddings, k=max_k, exclude_self=True)
+        retrieved_labels = [[labels[idx] for idx in row] for row in retrieved_indices]
+
+        metrics = ModelMetrics(
+            model_name=result.model_name,
+            dataset=dataset_name,
+            k_values=self.k_values,
+        )
+
+        for k in self.k_values:
+            metrics.precision[k] = mean_precision_at_k(retrieved_labels, label_set_per_query, k)
+            metrics.recall[k] = mean_recall_at_k(retrieved_labels, label_set_per_query, k,
+                                                  all_counts=label_counts_per_query)
+            metrics.ndcg[k] = mean_ndcg_at_k(retrieved_labels, label_set_per_query, k,
+                                              all_counts=label_counts_per_query)
+
+        metrics.map_score = mean_average_precision(
+            retrieved_labels, label_set_per_query,
+            all_counts=label_counts_per_query, k_cap=max_k,
+        )
+
+        if self.measure_efficiency and model is not None:
+            from PIL import Image
+
+            sample_images = []
+            for s in samples[:200]:
+                try:
+                    sample_images.append(Image.open(s.image_path).convert("RGB"))
+                except OSError:
+                    pass
+
+            if sample_images:
+                latency_stats = measure_latency(
+                    model,
+                    sample_images,
+                    warmup_runs=self.latency_warmup,
+                    benchmark_runs=self.latency_runs,
+                )
+                metrics.latency = latency_stats.to_dict()
+                metrics.throughput_per_sec = measure_throughput(model, sample_images)
+
+        logger.info(
+            "%s — mAP=%.4f  P@10=%.4f  R@10=%.4f",
+            result.model_name,
+            metrics.map_score,
+            metrics.precision.get(10, 0.0),
+            metrics.recall.get(10, 0.0),
+        )
+        return metrics
+
+    def evaluate_split(
+        self,
+        query_result: EmbeddingResult,
+        gallery_result: EmbeddingResult,
+        model: EmbeddingModel | None = None,
+        dataset_name: str = "unknown",
+    ) -> ModelMetrics:
+        """Compute retrieval metrics with proper query/gallery split.
+
+        Queries retrieve from a separate gallery set. This is the academically
+        correct protocol: no self-exclusion needed because query and gallery
+        are disjoint samples.
+
+        Args:
+            query_result:   Embeddings for the query split (Q, D).
+            gallery_result: Embeddings for the gallery split (G, D).
+            model:          Loaded model for latency measurement (optional).
+            dataset_name:   Label used in output files.
+
+        Returns:
+            ``ModelMetrics`` with all scores in [0, 1].
+        """
+        logger.info("Evaluating %s (split-aware) …", query_result.model_name)
+
+        q_embeddings = query_result.embeddings
+        g_embeddings = gallery_result.embeddings
+        q_samples = query_result.samples
+        g_samples = gallery_result.samples
+
+        g_labels = [s.label for s in g_samples]
+        q_labels = [s.label for s in q_samples]
+
+        relevance = [{lbl} for lbl in q_labels]
+        relevant_counts = [
+            sum(1 for gl in g_labels if gl == ql)
+            for ql in q_labels
+        ]
+
+        max_k = max(self.k_values)
+        retrieved_indices = retrieve_batch(
+            q_embeddings, g_embeddings, k=max_k, exclude_self=False
+        )
+        retrieved_labels: list[list[str]] = [
+            [g_labels[idx] for idx in row]
+            for row in retrieved_indices
+        ]
+
+        metrics = ModelMetrics(
+            model_name=query_result.model_name,
+            dataset=dataset_name,
+            k_values=self.k_values,
+        )
+
+        for k in self.k_values:
+            metrics.precision[k] = mean_precision_at_k(retrieved_labels, relevance, k)
+            metrics.recall[k] = mean_recall_at_k(retrieved_labels, relevance, k,
+                                                  all_counts=relevant_counts)
+            metrics.ndcg[k] = mean_ndcg_at_k(retrieved_labels, relevance, k,
+                                              all_counts=relevant_counts)
+
+        metrics.map_score = mean_average_precision(
+            retrieved_labels, relevance,
+            all_counts=relevant_counts, k_cap=max_k,
+        )
+
+        if self.measure_efficiency and model is not None:
+            from PIL import Image as PILImage
+            imgs: list[PILImage.Image] = []
+            for s in q_samples[:200]:
+                try:
+                    imgs.append(PILImage.open(s.image_path).convert("RGB"))
+                except OSError:
+                    pass
+            if imgs:
+                stats = measure_latency(
+                    model, imgs,
+                    warmup_runs=self.latency_warmup,
+                    benchmark_runs=self.latency_runs,
+                )
+                metrics.latency = stats.to_dict()
+                metrics.throughput_per_sec = measure_throughput(model, imgs)
+
+        logger.info(
+            "%s — mAP=%.4f  P@10=%.4f  R@10=%.4f",
+            query_result.model_name,
+            metrics.map_score,
+            metrics.precision.get(10, 0.0),
+            metrics.recall.get(10, 0.0),
+        )
+        return metrics

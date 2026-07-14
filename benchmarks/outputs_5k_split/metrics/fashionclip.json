@@ -1,0 +1,22 @@
+{
+  "model": "FashionCLIP",
+  "dataset": "fashion-product-small-5k-split",
+  "map": 0.9051,
+  "precision": {
+    "@1": 0.9479,
+    "@5": 0.9332,
+    "@10": 0.9249
+  },
+  "recall": {
+    "@1": 0.0038,
+    "@5": 0.0171,
+    "@10": 0.0319
+  },
+  "ndcg": {
+    "@1": 0.9479,
+    "@5": 0.9366,
+    "@10": 0.9299
+  },
+  "latency_ms": {},
+  "throughput_per_sec": 0.0
+}

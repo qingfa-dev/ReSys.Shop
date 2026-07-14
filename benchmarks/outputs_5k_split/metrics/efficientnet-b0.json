@@ -1,0 +1,22 @@
+{
+  "model": "EfficientNet-B0",
+  "dataset": "fashion-product-small-5k-split",
+  "map": 0.853,
+  "precision": {
+    "@1": 0.9181,
+    "@5": 0.8963,
+    "@10": 0.8825
+  },
+  "recall": {
+    "@1": 0.0034,
+    "@5": 0.0157,
+    "@10": 0.0284
+  },
+  "ndcg": {
+    "@1": 0.9181,
+    "@5": 0.9011,
+    "@10": 0.89
+  },
+  "latency_ms": {},
+  "throughput_per_sec": 0.0
+}

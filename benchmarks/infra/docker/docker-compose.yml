@@ -1,0 +1,106 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# Resys.FashionShop Benchmark — Docker Compose
+#
+# Services
+# ────────
+#   postgres   PostgreSQL 16 + pgvector extension (port 5432)
+#   benchmark  Python benchmark runner (depends on postgres)
+#
+# Quick start
+# ───────────
+#   # First-time setup: pull images and initialise the database
+#   docker compose up postgres --wait
+#
+#   # Run all models (dataset must be in ./data/raw/fashion-dataset/)
+#   docker compose run --rm benchmark benchmark \
+#     --dataset-root /app/data/raw/fashion-dataset
+#
+#   # Run a single model
+#   docker compose run --rm benchmark benchmark \
+#     --dataset-root /app/data/raw/fashion-dataset \
+#     --models fashion-clip
+#
+#   # Generate reports from cached results
+#   docker compose run --rm benchmark report
+#
+#   # Open a shell inside the benchmark container
+#   docker compose run --rm --entrypoint bash benchmark
+#
+#   # Tear down (preserves volumes)
+#   docker compose down
+#
+#   # Tear down + wipe all data
+#   docker compose down -v
+# ─────────────────────────────────────────────────────────────────────────────
+
+version: "3.9"
+
+services:
+
+  # ── PostgreSQL 16 + pgvector ───────────────────────────────────────────────
+  postgres:
+    image: pgvector/pgvector:pg16
+    container_name: resys-benchmark-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB:       ${POSTGRES_DB:-benchmark}
+      POSTGRES_USER:     ${POSTGRES_USER:-benchmark}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-benchmark}
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      # Persistent data volume
+      - pgdata:/var/lib/postgresql/data
+      # Initialisation SQL (runs once on first start)
+      - ./infra/postgres/init.sql:/docker-entrypoint-initdb.d/01_init.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-benchmark} -d ${POSTGRES_DB:-benchmark}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+
+  # ── Benchmark runner ───────────────────────────────────────────────────────
+  benchmark:
+    build:
+      context: .
+      dockerfile: infra/docker/Dockerfile
+      target: runtime
+    image: resys-benchmark:latest
+    container_name: resys-benchmark-runner
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      # Database connection (used by pgvector integration tests and CLI)
+      BENCHMARK_PG_DSN: >-
+        postgresql://${POSTGRES_USER:-benchmark}:${POSTGRES_PASSWORD:-benchmark}
+        @postgres:5432/${POSTGRES_DB:-benchmark}
+      # Paths inside the container (match volume mounts below)
+      BENCHMARK_DATASET_ROOT: /app/data/raw/fashion-dataset
+      BENCHMARK_OUTPUT_DIR:   /app/outputs
+      BENCHMARK_CACHE_DIR:    /app/data/cache
+      # Torch device: set to "cuda" if your host has NVIDIA GPU
+      BENCHMARK_DEVICE: ${BENCHMARK_DEVICE:-cpu}
+      # Suppress HuggingFace progress bars in batch runs
+      HF_HUB_DISABLE_PROGRESS_BARS: "1"
+      TOKENIZERS_PARALLELISM: "false"
+    volumes:
+      # Dataset: mount your local fashion-dataset here
+      - ${DATA_DIR:-./data}:/app/data
+      # Outputs: results, tables, figures persisted to host
+      - ${OUTPUT_DIR:-./outputs}:/app/outputs
+      # Model weight cache: avoids re-downloading on every run
+      - hf_cache:/root/.cache/huggingface
+      - torch_cache:/root/.cache/torch
+    # No long-running process — the benchmark exits after completion
+    profiles:
+      - run
+
+volumes:
+  pgdata:
+    driver: local
+  hf_cache:
+    driver: local
+  torch_cache:
+    driver: local

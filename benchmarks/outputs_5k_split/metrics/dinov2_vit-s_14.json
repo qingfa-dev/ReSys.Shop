@@ -1,0 +1,22 @@
+{
+  "model": "DINOv2 ViT-S/14",
+  "dataset": "fashion-product-small-5k-split",
+  "map": 0.8853,
+  "precision": {
+    "@1": 0.9353,
+    "@5": 0.9194,
+    "@10": 0.908
+  },
+  "recall": {
+    "@1": 0.0036,
+    "@5": 0.0169,
+    "@10": 0.031
+  },
+  "ndcg": {
+    "@1": 0.9353,
+    "@5": 0.923,
+    "@10": 0.914
+  },
+  "latency_ms": {},
+  "throughput_per_sec": 0.0
+}
