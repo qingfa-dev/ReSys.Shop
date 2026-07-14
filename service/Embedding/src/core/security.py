@@ -15,8 +15,7 @@ def resolve_ssl_paths(
     cert_arg: Optional[str] = None,
     key_arg: Optional[str] = None
 ) -> Tuple[Optional[str], Optional[str]]:
-    """
-    Resolves SSL certificate and private key paths.
+    """Resolves SSL certificate and private key paths from multiple sources.
 
     Priority:
     1. CLI Arguments (explicit override)
@@ -24,10 +23,15 @@ def resolve_ssl_paths(
     3. Configuration Settings (application defaults)
     4. Filesystem Convention (auto-discovery in cert directory)
 
+    Args:
+        cert_arg: Optional CLI-provided certificate path.
+        key_arg: Optional CLI-provided private key path.
+
     Returns:
         (cert_path, key_path) — either value may be None if not found.
     """
     # --- 1. Cert Path Resolution ---
+    # Check: Priority chain — CLI arg > Aspire env > config > auto-discover
     cert_path: Optional[str] = (
         cert_arg
         or os.getenv("ASPIRE_CERTIFICATE_PATH")
@@ -43,6 +47,7 @@ def resolve_ssl_paths(
     )
 
     # --- 2. Key Path Resolution ---
+    # Check: Priority chain — CLI arg > Aspire env > .NET env
     key_path: Optional[str] = (
         key_arg
         or os.getenv("ASPIRE_CERTIFICATE_KEY_PATH")
@@ -50,7 +55,7 @@ def resolve_ssl_paths(
     )
 
     # --- 3. Auto-Discovery Logic ---
-    # If cert is found but no explicit key, scan the cert's directory
+    # Guard: If cert found but no explicit key, scan the cert's directory for candidates
     if not key_path and cert_path and os.path.exists(cert_path):
         cert_dir = os.path.dirname(cert_path)
         cert_stem = os.path.splitext(os.path.basename(cert_path))[0]

@@ -28,7 +28,17 @@ api_key_header = APIKeyHeader(name="X-API-Key", auto_error=False)
 
 
 async def verify_api_key(api_key: str = Security(api_key_header)) -> str:
-    """Validates the sidecar API key."""
+    """Validate: Sidecar API key matches the configured secret.
+
+    Args:
+        api_key: The API key from the X-API-Key header.
+
+    Returns:
+        The validated API key string.
+
+    Raises:
+        HTTPException: With status 403 if the key does not match.
+    """
     if api_key != settings.API_KEY:
         from fastapi import HTTPException
         raise HTTPException(status_code=403, detail="Invalid API Key")
@@ -36,8 +46,10 @@ async def verify_api_key(api_key: str = Security(api_key_header)) -> str:
 
 
 def get_engine() -> InferenceEngine:
-    """Dependency provider for the InferenceEngine singleton."""
-    # Note: In a real app, this might be a singleton managed by the app state
+    """Dependency provider: Returns a cached InferenceEngine singleton.
+
+    Uses lru_cache(maxsize=1) to ensure a single instance per process.
+    """
     from functools import lru_cache
     @lru_cache(maxsize=1)
     def _get():
@@ -60,10 +72,21 @@ async def create_embedding(
     key: str = Depends(verify_api_key),
     engine: InferenceEngine = Depends(get_engine),
 ):
-    """Generates a high-dimensional vector embedding for the provided image URL."""
+    """Generates a high-dimensional vector embedding for the provided image URL.
+
+    Args:
+        request: FastAPI request object (injected by the framework).
+        body: The embedding request containing image_url and optional model.
+        response: FastAPI response object (injected, used to set status code).
+        key: Validated API key (injected by Depends).
+        engine: Cached InferenceEngine instance (injected by Depends).
+
+    Returns:
+        ValueResult containing EmbeddingResponse on success, or an error result.
+    """
     start_time = time.time()
 
-    # Move CPU-intensive inference to a thread pool
+    # Defer: Run CPU-intensive inference in a thread pool to avoid blocking the event loop
     result = await asyncio.to_thread(engine.embed, body.image_url, body.model)
 
     if not result.is_success:
@@ -95,13 +118,27 @@ async def create_embedding_from_bytes(
     key: str = Depends(verify_api_key),
     engine: InferenceEngine = Depends(get_engine),
 ):
-    """Generates an embedding from a multipart image upload."""
+    """Generates an embedding from a multipart image upload.
+
+    Args:
+        request: FastAPI request object (injected).
+        response: FastAPI response object (injected, used to set status code).
+        image: The uploaded image file (multipart form data).
+        model: Model identifier (default from settings.EMBEDDING_MODEL).
+        key: Validated API key (injected by Depends).
+        engine: Cached InferenceEngine instance (injected by Depends).
+
+    Returns:
+        ValueResult containing EmbeddingResponse on success, or an error result.
+    """
     import asyncio as _asyncio
     import time as _time
 
     start_time = _time.time()
+    # Read: Load uploaded file bytes into memory
     image_bytes = await image.read()
 
+    # Defer: Run CPU-intensive inference in a thread pool
     result = await _asyncio.to_thread(engine.embed_bytes, image_bytes, model)
 
     if not result.is_success:
@@ -124,14 +161,25 @@ async def create_embedding_from_bytes(
     description="Returns metadata for both registered skills and discovered ONNX models."
 )
 async def list_models(key: str = Depends(verify_api_key)):
-    """Dynamic discovery of all models including disk-based ONNX models."""
+    """Dynamic discovery of all models including disk-based ONNX models.
+
+    Combines explicitly registered PyTorch skills with ONNX models discovered
+    on disk under the configured ONNX_MODEL_DIR.
+
+    Args:
+        key: Validated API key (injected by Depends).
+
+    Returns:
+        ValueResult containing a list of ModelMetadata for all available models.
+    """
     all_meta = ModelRegistry.get_all_metadata().copy()
     models = []
 
     # 1. Add explicitly registered skills (PyTorch)
     for model_id, meta in all_meta.items():
         if model_id == "onnx":
-            continue  # Skip the generic wrapper
+            # Skip: Generic ONNX wrapper — not user-selectable directly
+            continue
         models.append(ModelMetadata(
             id=model_id,
             name=meta.get("name", model_id),
@@ -144,7 +192,7 @@ async def list_models(key: str = Depends(verify_api_key)):
     # 2. Discover ONNX models on disk
     onnx_root = Path(settings.ONNX_MODEL_DIR)
     if onnx_root.exists():
-        # Look for model.onnx in subfolders
+        # Discover: Scan subdirectories for model.onnx files
         for model_dir in onnx_root.iterdir():
             if not model_dir.is_dir():
                 continue
@@ -153,6 +201,7 @@ async def list_models(key: str = Depends(verify_api_key)):
             if onnx_file.exists():
                 model_id = f"onnx/{model_dir.name}"
                 try:
+                    # Read: Infer output dimension from ONNX graph metadata
                     dim = infer_onnx_dim(str(onnx_file))
                     models.append(ModelMetadata(
                         id=model_id,
@@ -163,6 +212,7 @@ async def list_models(key: str = Depends(verify_api_key)):
                         tags=["onnx", "optimized", "vision"]
                     ))
                 except Exception:
+                    # Suppress: Skip ONNX files that fail dimension inference
                     continue
 
     return InferenceResults.Success.Models(models)

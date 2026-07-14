@@ -38,14 +38,19 @@ logger = logging.getLogger(__name__)
 
 
 def is_otlp_available(endpoint: str) -> bool:
-    """
-    Empirically checks if the OTLP endpoint is reachable to avoid noisy gRPC errors.
+    """Check: OTLP gRPC endpoint is reachable to avoid noisy connection errors.
+
+    Args:
+        endpoint: The OTLP endpoint URL (e.g. http://localhost:4317).
+
+    Returns:
+        True if a socket connection succeeds within 1 second.
     """
     if not endpoint:
         return False
 
     try:
-        # Extract host and port
+        # Parse: Extract host and port from the endpoint URL
         host_port = endpoint.split("//")[-1].split("/") [0]
         if ":" in host_port:
             host, port = host_port.split(":")
@@ -61,15 +66,18 @@ def is_otlp_available(endpoint: str) -> bool:
 
 
 def setup_telemetry():
-    """
-    Orchestrates observability with dual-output support.
-    Always enables Console output; optionally adds OTLP if reachable.
+    """Orchestrates observability initialization with dual-output support.
+
+    Always enables Console output; optionally adds OTLP if the endpoint is reachable.
+    Initializes tracer, metrics, and logging providers.
     """
     # Uses the standardized setting name
     endpoint = settings.OTEL_EXPORTER_OTLP_ENDPOINT
+    # Check: Probe OTLP endpoint reachability before attempting connection
     otlp_enabled = is_otlp_available(endpoint)
 
     # 1. Resource Metadata
+    # Create: Shared resource with service identity and version
     resource = Resource.create({
         SERVICE_NAME: settings.PROJECT_NAME,
         DEPLOYMENT_ENVIRONMENT: settings.ENVIRONMENT,
@@ -77,6 +85,7 @@ def setup_telemetry():
     })
 
     # 2. Protocol Security
+    # Check: Determine if OTLP connection uses insecure gRPC
     if otlp_enabled:
         is_insecure = endpoint.startswith("http://")
         _setup_ssl_context(is_insecure)
@@ -84,6 +93,7 @@ def setup_telemetry():
         is_insecure = True
 
     # 3. Initialize Pillars
+    # Initialize: Tracer, metrics, and logging providers in order
     _init_tracer(endpoint, resource, is_insecure, otlp_enabled)
     _init_metrics(endpoint, resource, is_insecure, otlp_enabled)
     _init_logging(endpoint, resource, is_insecure, otlp_enabled)
@@ -95,9 +105,14 @@ def setup_telemetry():
 
 
 def _setup_ssl_context(is_insecure: bool):
-    """Configures SSL environment variables."""
+    """Configure SSL environment variables for secure gRPC when not using insecure mode.
+
+    Args:
+        is_insecure: If True, skip SSL configuration entirely.
+    """
     if is_insecure:
         return
+    # Resolve: OTLP certificate from env var or settings
     otlp_cert = os.getenv("OTEL_EXPORTER_OTLP_CERTIFICATE") or settings.SSL_CERT_FILE
     if otlp_cert:
         os.environ["GRPC_DEFAULT_SSL_ROOTS_FILE_PATH"] = otlp_cert
@@ -108,10 +123,21 @@ def _setup_ssl_context(is_insecure: bool):
 
 
 def _init_tracer(endpoint: str, resource: Resource, is_insecure: bool, otlp_enabled: bool):
+    """Initialize the OpenTelemetry trace provider with console and optional OTLP export.
+
+    Args:
+        endpoint: OTLP gRPC endpoint URL.
+        resource: Shared resource metadata for all signals.
+        is_insecure: Use insecure gRPC if True.
+        otlp_enabled: Enable OTLP exporter if True.
+    """
+    # Create: Tracer provider with service resource metadata
     provider = TracerProvider(resource=resource)
     if settings.ENVIRONMENT == "dev":
+        # Simple: Console span export for development visibility
         provider.add_span_processor(SimpleSpanProcessor(ConsoleSpanExporter(out=sys.stdout)))
     if otlp_enabled:
+        # Batch: OTLP span export for production telemetry pipeline
         provider.add_span_processor(
             BatchSpanProcessor(
                 OTLPSpanExporter(endpoint=endpoint, insecure=is_insecure)
@@ -121,8 +147,17 @@ def _init_tracer(endpoint: str, resource: Resource, is_insecure: bool, otlp_enab
 
 
 def _init_metrics(endpoint: str, resource: Resource, is_insecure: bool, otlp_enabled: bool):
+    """Initialize the OpenTelemetry meter provider with periodic console and OTLP export.
+
+    Args:
+        endpoint: OTLP gRPC endpoint URL.
+        resource: Shared resource metadata for all signals.
+        is_insecure: Use insecure gRPC if True.
+        otlp_enabled: Enable OTLP exporter if True.
+    """
     readers = []
     if settings.ENVIRONMENT == "dev":
+        # Periodic: Console metric export every 60 s for development
         readers.append(
             PeriodicExportingMetricReader(
                 ConsoleMetricExporter(out=sys.stdout),
@@ -130,6 +165,7 @@ def _init_metrics(endpoint: str, resource: Resource, is_insecure: bool, otlp_ena
             )
         )
     if otlp_enabled:
+        # Periodic: OTLP metric export every 60 s for production
         readers.append(
             PeriodicExportingMetricReader(
                 OTLPMetricExporter(endpoint=endpoint, insecure=is_insecure),
@@ -141,6 +177,17 @@ def _init_metrics(endpoint: str, resource: Resource, is_insecure: bool, otlp_ena
 
 
 def _init_logging(endpoint: str, resource: Resource, is_insecure: bool, otlp_enabled: bool):
+    """Initialize standard logging with OpenTelemetry log correlation.
+
+    Configures Python logging with structured format and attaches OTel log handler.
+    Also instruments uvicorn and fastapi loggers for unified output.
+
+    Args:
+        endpoint: OTLP gRPC endpoint URL.
+        resource: Shared resource metadata for all signals.
+        is_insecure: Use insecure gRPC if True.
+        otlp_enabled: Enable OTLP log export if True.
+    """
     log_format = "%(asctime)s %(levelname)s [%(name)s] %(message)s"
     log_level = getattr(logging, settings.LOG_LEVEL.upper(), logging.INFO)
     logging.basicConfig(
@@ -150,10 +197,12 @@ def _init_logging(endpoint: str, resource: Resource, is_insecure: bool, otlp_ena
         force=True,
     )
 
+    # Create: Logger provider with service resource
     provider = LoggerProvider(resource=resource)
     if settings.ENVIRONMENT == "dev":
         provider.add_log_record_processor(SimpleLogRecordProcessor(ConsoleLogRecordExporter(out=sys.stdout)))
     if otlp_enabled:
+        # Batch: OTLP log export for production log aggregation
         provider.add_log_record_processor(
             BatchLogRecordProcessor(
                 OTLPLogExporter(endpoint=endpoint, insecure=is_insecure)
@@ -161,6 +210,7 @@ def _init_logging(endpoint: str, resource: Resource, is_insecure: bool, otlp_ena
         )
     set_logger_provider(provider)
 
+    # Instrument: Attach OTel handler to root and framework loggers
     LoggingInstrumentor().instrument(set_logging_format=False)
     otel_handler = LoggingHandler(level=logging.NOTSET, logger_provider=provider)
     logging.getLogger().addHandler(otel_handler)
@@ -171,8 +221,10 @@ def _init_logging(endpoint: str, resource: Resource, is_insecure: bool, otlp_ena
 
 
 def get_tracer(name: str):
+    """Returns a named OpenTelemetry tracer instance for instrumentation."""
     return trace.get_tracer(name)
 
 
 def get_meter(name: str):
+    """Returns a named OpenTelemetry meter instance for metrics."""
     return metrics.get_meter(name)

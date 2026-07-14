@@ -8,7 +8,10 @@ from typing import Any, Dict, List
 
 @dataclass(frozen=True)
 class ImageConstants:
-    """Constants related to image preprocessing and dataset standards."""
+    """Constants related to image preprocessing and dataset standards.
+
+    Invariant: All instances are frozen — compile-time safe for concurrent access.
+    """
 
     MEAN: List[float] = field(
         default_factory=lambda: [0.485, 0.456, 0.406],
@@ -36,7 +39,10 @@ class ImageConstants:
 
 @dataclass(frozen=True)
 class DimensionConstants:
-    """Fixed output vector dimensions for supported machine learning models."""
+    """Fixed output vector dimensions for supported machine learning models.
+
+    Invariant: Values match the output dimension of each model's embedding layer.
+    """
 
     EFFICIENTNET_B0: int = field(
         default=1280,
@@ -79,7 +85,10 @@ class DimensionConstants:
 
 @dataclass(frozen=True)
 class OnnxConstants:
-    """Engineering constants for ONNX Runtime integration."""
+    """Engineering constants for ONNX Runtime integration.
+
+    Invariant: Values are frozen and match the ONNX opset version used during export.
+    """
 
     OPSET_VERSION: int = field(
         default=17,
@@ -102,9 +111,14 @@ class Constants:
 
     @classmethod
     def get_metadata(cls, group: str, field_name: str) -> Dict[str, Any]:
-        """
-        Retrieves metadata for a specific constant.
-        Example: Constants.get_metadata("Image", "MEAN")
+        """Retrieves metadata for a specific constant field.
+
+        Args:
+            group: The attribute name on Constants (e.g. 'Image', 'Dimensions').
+            field_name: The field name within the target dataclass (e.g. 'MEAN').
+
+        Returns:
+            Dict of metadata for the matched field, or empty dict if not found.
         """
         target_group = getattr(cls, group, None)
         if not target_group:

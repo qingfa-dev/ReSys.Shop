@@ -26,10 +26,13 @@ class DINOEmbedder(BaseEmbedder):
     """
 
     def __init__(self):
-        # Initialize: Metadata with 384 dimensions
+        """Initialize: Metadata with 384 dimensions, load DINOv2 via PyTorch Hub.
+
+        Sets up bicubic-resize preprocessing for self-supervised feature extraction.
+        """
         super().__init__("dinov2_vits14", Constants.Dimensions.DINOV2_VITS14)
 
-        # Call: Load self-supervised weights via PyTorch Hub
+        # Call: Load self-supervised weights from facebookresearch/dinov2 via PyTorch Hub
         self.model = torch.hub.load(
             "facebookresearch/dinov2",
             "dinov2_vits14",
@@ -37,7 +40,7 @@ class DINOEmbedder(BaseEmbedder):
         ).to(self.device)
         self.model.eval()
 
-        # Initialize: High-precision preprocessing
+        # Initialize: High-precision preprocessing with bicubic interpolation
         self.preprocess = transforms.Compose([
             transforms.Resize(
                 Constants.Image.RESIZE_SIZE,
@@ -49,9 +52,16 @@ class DINOEmbedder(BaseEmbedder):
         ])
 
     def _forward(self, image):
-        """Executes the DINOv2 forward pass."""
-        # Transform: Preprocess input
+        """Executes the DINOv2 forward pass.
+
+        Args:
+            image: Preprocessed PIL Image ready for inference.
+
+        Returns:
+            Raw self-supervised feature tensor from DINOv2.
+        """
+        # Transform: Preprocess input with bicubic resize, add batch dimension, move to device
         tensor = self.preprocess(image).unsqueeze(0).to(self.device)
         with torch.no_grad():
-            # Trigger: Self-supervised feature extraction
+            # Trigger: Self-supervised feature extraction via DINOv2 backbone
             return self.model(tensor)

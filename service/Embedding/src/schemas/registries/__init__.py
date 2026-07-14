@@ -15,6 +15,11 @@ class RegistryResults:
 
         @staticmethod
         def Ok(value: Any) -> ValueResult[Any]:
+            """Creates a generic success result for registry lookups.
+
+            Args:
+                value: The data payload (e.g. a model class).
+            """
             return ValueResult.ok_value(value)
 
     class Errors:
@@ -22,6 +27,11 @@ class RegistryResults:
 
         @staticmethod
         def NotRegistered(skill_name: str) -> Error:
+            """Creates an internal error for an unregistered model skill.
+
+            Args:
+                skill_name: The model identifier that was not found in the registry.
+            """
             return Error.internal_error(
                 "Registry.Error",
                 f"Skill implementation '{skill_name}' not registered."

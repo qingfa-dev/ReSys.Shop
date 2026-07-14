@@ -26,6 +26,8 @@ class Error(BaseModel):
     """
     Represents a specific error or failure that occurred during processing.
     Includes a type, machine-readable code, human-readable description, and status code.
+
+    Invariant: type and status_code are consistent (e.g. NotFound → 404, Validation → 400).
     """
     # Configure: Immutable model to prevent accidental modification
     model_config = ConfigDict(frozen=True)
@@ -57,27 +59,52 @@ class Error(BaseModel):
 
     @classmethod
     def validation(cls, code: str, description: str) -> "Error":
-        """Creates a validation failure (HTTP 400)."""
+        """Creates a validation failure (HTTP 400).
+
+        Args:
+            code: Machine-readable error code (e.g. 'Request.ValidationError').
+            description: Human-readable description of the validation issue.
+        """
         return cls(type=ErrorType.Validation, code=code, description=description, status_code=400)
 
     @classmethod
     def conflict(cls, code: str, description: str) -> "Error":
-        """Creates a conflict failure (HTTP 409)."""
+        """Creates a conflict failure (HTTP 409).
+
+        Args:
+            code: Machine-readable error code (e.g. 'Order.Conflict').
+            description: Human-readable description of the conflict.
+        """
         return cls(type=ErrorType.Conflict, code=code, description=description, status_code=409)
 
     @classmethod
     def not_found(cls, code: str, description: str) -> "Error":
-        """Creates a not found failure (HTTP 404)."""
+        """Creates a not found failure (HTTP 404).
+
+        Args:
+            code: Machine-readable error code (e.g. 'Model.NotFound').
+            description: Human-readable description of what was not found.
+        """
         return cls(type=ErrorType.NotFound, code=code, description=description, status_code=404)
 
     @classmethod
     def bad_request(cls, code: str, description: str) -> "Error":
-        """Creates a bad request failure (HTTP 400)."""
+        """Creates a bad request failure (HTTP 400).
+
+        Args:
+            code: Machine-readable error code (e.g. 'Image.TooLarge').
+            description: Human-readable description of the bad request.
+        """
         return cls(type=ErrorType.BadRequest, code=code, description=description, status_code=400)
 
     @classmethod
     def internal_error(cls, code: str, description: str) -> "Error":
-        """Creates an internal error failure (HTTP 500)."""
+        """Creates an internal error failure (HTTP 500).
+
+        Args:
+            code: Machine-readable error code (e.g. 'Server.Error').
+            description: Human-readable description of the internal error.
+        """
         return cls(
             type=ErrorType.InternalError,
             code=code,
@@ -87,7 +114,12 @@ class Error(BaseModel):
 
     @classmethod
     def unauthorized(cls, code: str, description: str) -> "Error":
-        """Creates an unauthorized failure (HTTP 401)."""
+        """Creates an unauthorized failure (HTTP 401).
+
+        Args:
+            code: Machine-readable error code (e.g. 'Auth.Unauthorized').
+            description: Human-readable description of the auth failure.
+        """
         return cls(
             type=ErrorType.Unauthorized,
             code=code,
@@ -97,5 +129,10 @@ class Error(BaseModel):
 
     @classmethod
     def forbidden(cls, code: str, description: str) -> "Error":
-        """Creates a forbidden failure (HTTP 403)."""
+        """Creates a forbidden failure (HTTP 403).
+
+        Args:
+            code: Machine-readable error code (e.g. 'Auth.Forbidden').
+            description: Human-readable description of the access denial.
+        """
         return cls(type=ErrorType.Forbidden, code=code, description=description, status_code=403)

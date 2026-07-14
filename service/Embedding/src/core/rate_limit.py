@@ -7,8 +7,8 @@ from slowapi import Limiter
 from slowapi.util import get_remote_address
 
 # Initialize: Rate limiter using the remote client's address as the default key.
-# Note: In production environments behind load balancers, ensure 'X-Forwarded-For' is trusted.
-# We use a memory-based storage by default which is suitable for sidecar deployment.
+# Assume: In production behind load balancers, ensure X-Forwarded-For is trusted.
+#          Memory-based storage is suitable for single-process sidecar deployment.
 limiter = Limiter(
     key_func=get_remote_address,
     default_limits=[settings.RATE_LIMIT]
@@ -16,7 +16,5 @@ limiter = Limiter(
 
 
 def get_limiter() -> Limiter:
-    """
-    Returns the configured limiter instance.
-    """
+    """Returns the configured limiter singleton instance."""
     return limiter

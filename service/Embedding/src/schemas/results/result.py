@@ -13,8 +13,10 @@ class Result(BaseModel):
     """
     Base class for operation results, ensuring consistent response shapes across
     Python and .NET stacks. On failure, contains one or more Error objects.
+
+    Invariant: success implies errors empty; failure implies at least one error entry.
     """
-    # Configure: Serialization and immutability settings
+    # Configure: Serialization by name, allow arbitrary types, enforce immutability
     model_config = ConfigDict(populate_by_name=True, arbitrary_types_allowed=True, frozen=True)
 
     # Assign: Core status fields
@@ -36,7 +38,15 @@ class Result(BaseModel):
 
     @classmethod
     def ok(cls, status_code: int = 200, message: Optional[str] = None) -> "Result":
-        """Creates a successful result without a value."""
+        """Creates a successful result without a value.
+
+        Args:
+            status_code: HTTP status code (default 200).
+            message: Optional human-readable summary.
+
+        Returns:
+            A new Result with is_success=True.
+        """
         return cls(isSuccess=True, statusCode=status_code, message=message, errors=[])
 
     @classmethod
@@ -45,7 +55,15 @@ class Result(BaseModel):
         error: Union[Error, List[Error]],
         message: Optional[str] = None,
     ) -> "Result":
-        """Creates a failed result from one or more Error objects."""
+        """Creates a failed result from one or more Error objects.
+
+        Args:
+            error: A single Error or list of errors describing the failure.
+            message: Optional human-readable summary.
+
+        Returns:
+            A new Result with is_success=False and the given errors.
+        """
         errors = [error] if isinstance(error, Error) else error
         sc = errors[0].status_code if errors else 400
         return cls(isSuccess=False, statusCode=sc, message=message, errors=errors)
@@ -54,6 +72,8 @@ class Result(BaseModel):
 class ValueResult(Result, Generic[T]):
     """
     Represents a result that contains a data value of type T on success.
+
+    Invariant: value is None when is_success is False; value is non-None when is_success is True.
     """
     # Assign: Success payload
     value: Optional[T] = Field(
@@ -68,7 +88,16 @@ class ValueResult(Result, Generic[T]):
         status_code: int = 200,
         message: Optional[str] = None,
     ) -> "ValueResult[T]":
-        """Creates a successful result containing the specified value."""
+        """Creates a successful result containing the specified value.
+
+        Args:
+            value: The data payload to include.
+            status_code: HTTP status code (default 200).
+            message: Optional human-readable summary.
+
+        Returns:
+            A new ValueResult with is_success=True and the given value.
+        """
         return cls(
             isSuccess=True,
             statusCode=status_code,
@@ -83,7 +112,15 @@ class ValueResult(Result, Generic[T]):
         error: Union[Error, List[Error]],
         message: Optional[str] = None,
     ) -> "ValueResult[T]":
-        """Creates a failed result, ensuring the value is set to None."""
+        """Creates a failed result, ensuring the value is set to None.
+
+        Args:
+            error: A single Error or list of errors describing the failure.
+            message: Optional human-readable summary.
+
+        Returns:
+            A new ValueResult with is_success=False, value=None, and the given errors.
+        """
         errors = [error] if isinstance(error, Error) else error
         sc = errors[0].status_code if errors else 400
         return cls(isSuccess=False, statusCode=sc, message=message, errors=errors, value=None)

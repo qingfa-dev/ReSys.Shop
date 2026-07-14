@@ -15,7 +15,14 @@ logger = logging.getLogger(__name__)
 
 
 def create_error_response(result: Result) -> JSONResponse:
-    """Helper to convert a Result failure into a JSONResponse."""
+    """Convert: Transform a Result failure into a FastAPI JSON response.
+
+    Args:
+        result: A failed Result object containing errors.
+
+    Returns:
+        JSONResponse with the status code and serialized content.
+    """
     return JSONResponse(
         status_code=result.status_code,
         content=result.model_dump(by_alias=True)
@@ -23,8 +30,14 @@ def create_error_response(result: Result) -> JSONResponse:
 
 
 async def global_exception_handler(request: Request, exc: Exception):
-    """
-    Catches all unhandled exceptions and returns a standardized 500 Internal Error Result.
+    """Catch: All unhandled exceptions — returns standardized 500 Internal Error Result.
+
+    Args:
+        request: The incoming HTTP request (unused but required by FastAPI).
+        exc: The unhandled exception instance.
+
+    Returns:
+        JSONResponse with status 500 and a Server.Error failure body.
     """
     logger.error("Unhandled exception: %s", str(exc), exc_info=True)
 
@@ -36,10 +49,19 @@ async def global_exception_handler(request: Request, exc: Exception):
 
 
 async def http_exception_handler(request: Request, exc: StarletteHTTPException):
+    """Catch: FastAPI/Starlette HTTPExceptions (e.g. 404, 405, 401, 403).
+
+    Maps the HTTP status code to the appropriate ErrorType and returns a
+    standardized Result failure body.
+
+    Args:
+        request: The incoming HTTP request (unused but required by FastAPI).
+        exc: The HTTPException with status code and detail.
+
+    Returns:
+        JSONResponse with the mapped status code and structured error body.
     """
-    Handles FastAPI/Starlette HTTPExceptions (e.g. 404, 405).
-    """
-    # Map status code to failure type
+    # Map: Translate HTTP status codes to domain ErrorType values
     if exc.status_code == 404:
         ftype = ErrorType.NotFound
         code = "Route.NotFound"
@@ -63,11 +85,21 @@ async def http_exception_handler(request: Request, exc: StarletteHTTPException):
 
 
 async def validation_exception_handler(request: Request, exc: RequestValidationError):
-    """
-    Handles Pydantic validation errors (422 Unprocessable Entity).
+    """Catch: Pydantic validation errors (422 Unprocessable Entity).
+
+    Iterates through each validation error, constructs a structured Error,
+    and returns a Result failure with all errors aggregated.
+
+    Args:
+        request: The incoming HTTP request (unused but required by FastAPI).
+        exc: The RequestValidationError with error details.
+
+    Returns:
+        JSONResponse with status 422 and a list of validation errors.
     """
     errors = []
     for err in exc.errors():
+        # Format: Join error location path into a dot-notation string
         loc = ".".join(str(x) for x in err["loc"])
         msg = err["msg"]
         errors.append(Error.validation(

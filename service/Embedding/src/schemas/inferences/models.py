@@ -7,7 +7,10 @@ from pydantic import BaseModel, Field
 
 
 class EmbeddingRequest(BaseModel):
-    """Request model for generating a high-dimensional vector embedding from an image."""
+    """Request model for generating a high-dimensional vector embedding from an image.
+
+    Invariant: image_url must be a valid HTTP/HTTPS URL; model defaults to efficientnet_b0.
+    """
     image_url: str = Field(
         ...,
         description="The publicly accessible HTTP/HTTPS URL of the image to be processed.",
@@ -21,7 +24,10 @@ class EmbeddingRequest(BaseModel):
 
 
 class EmbeddingResponse(BaseModel):
-    """Response model containing the generated vector embedding."""
+    """Response model containing the generated vector embedding.
+
+    Invariant: dimension equals len(vector); model_version is never None.
+    """
     vector: List[float] = Field(..., description="The L2-normalized numerical vector.")
     model_version: str = Field(..., description="The specific version of the model.")
     dimension: int = Field(..., description="The number of elements in the vector.")
@@ -31,7 +37,10 @@ class EmbeddingResponse(BaseModel):
 
 
 class ModelMetadata(BaseModel):
-    """Metadata describing an available machine learning model."""
+    """Metadata describing an available machine learning model.
+
+    Invariant: id is unique across all registered and discovered models.
+    """
     id: str = Field(..., description="Unique model identifier used in requests.")
     name: str = Field(..., description="Human-readable name of the model.")
     dimension: int = Field(..., description="Output vector dimensionality.")

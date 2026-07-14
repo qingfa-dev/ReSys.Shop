@@ -9,7 +9,11 @@ router = APIRouter(tags=["system"])
 
 @router.get("/health")
 async def health_check():
-    """Standardized health status for orchestration (Readiness)."""
+    """Standardized health status for orchestration (Readiness).
+
+    Returns:
+        Dict with status, service name, environment, and version.
+    """
     return {
         "status": "ok",
         "service": settings.PROJECT_NAME,
@@ -20,5 +24,9 @@ async def health_check():
 
 @router.get("/alive")
 async def liveness_probe():
-    """Liveness probe for orchestration (Alive)."""
+    """Liveness probe for orchestration (Alive).
+
+    Returns:
+        Dict with a status field set to 'alive'.
+    """
     return {"status": "alive"}
