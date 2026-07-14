@@ -141,7 +141,7 @@ class PgvectorRetriever:
 
         sql = f"""
             INSERT INTO {self._table} ({self._id_col}, {self._label_col}, {self._embedding_col})
-            VALUES %s
+            VALUES (%s, %s, %s::vector)
             ON CONFLICT ({self._id_col}) DO UPDATE
                 SET {self._embedding_col} = EXCLUDED.{self._embedding_col},
                     {self._label_col}     = EXCLUDED.{self._label_col}
@@ -151,13 +151,7 @@ class PgvectorRetriever:
             for pid, label, emb in zip(product_ids, labels, embeddings)
         ]
         with self._conn.cursor() as cur:
-            # Use execute_values for batch insert
-            args_str = ",".join(
-                cur.mogrify("(%s, %s, %s::vector)", v).decode("utf-8")
-                for v in values
-            )
-            full_sql = sql.replace("VALUES %s", f"VALUES {args_str}")
-            cur.execute(full_sql)
+            cur.executemany(sql, values)
 
     def clear_table(self) -> None:
         """Delete all rows from the target table."""

@@ -11,15 +11,14 @@ def test_upsert_batch():
     retriever._conn.cursor.return_value.__enter__ = lambda s: s
     retriever._conn.cursor.return_value.__exit__ = lambda *a: None
     cur = retriever._conn.cursor.return_value
-    cur.mogrify.return_value = b"(%s, %s, %s::vector)"
 
     ids = ["1", "2", "3"]
     labels = ["shirt", "jeans", "shoes"]
     embeddings = np.random.rand(3, 512).astype(np.float32)
 
     retriever.upsert_batch(ids, labels, embeddings)
-    assert cur.execute.call_count == 1
-    sql = cur.execute.call_args[0][0]
+    assert cur.executemany.call_count == 1
+    sql = cur.executemany.call_args[0][0]
     assert "INSERT INTO" in sql
     assert "ON CONFLICT" in sql
 

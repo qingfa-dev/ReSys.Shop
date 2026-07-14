@@ -249,10 +249,24 @@ class PipelineRunner:
         self, model, gallery_result, query_result, gallery_ds
     ) -> dict[str, Any]:
         """Ingest into pgvector, build index, query, measure recall + latency."""
+        dim = model.embedding_dim
+        table = f"products_{dim}" if dim != 768 else "product_embeddings_768"
+        # For 768-dim, use the init.sql table
+        if dim == 512:
+            table = "products_512"
+        elif dim == 768:
+            table = "product_embeddings_768"
+        elif dim == 1280:
+            table = "products_1280"
+        elif dim == 2048:
+            table = "products_2048"
+        else:
+            table = f"products_{dim}"
+
         try:
             with PgvectorRetriever(
                 conn_string=self.conn_string,
-                table="products",
+                table=table,
                 embedding_col="embedding",
                 id_col="id",
                 label_col="label",
