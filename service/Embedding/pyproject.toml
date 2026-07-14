@@ -6,22 +6,42 @@ build-backend = "setuptools.build_meta"
 name = "embedding"
 version = "0.1.0"
 description = "Embedding generation service for ReSys.Shop"
-requires-python = ">=3.14"
+requires-python = ">=3.12"
 dependencies = [
-    "fastapi>=0.115",
-    "uvicorn[standard]>=0.34",
+    "fastapi[standard]>=0.115.0",
+    "uvicorn>=0.20.0",
     "pydantic>=2.0",
-    "pydantic-settings>=2.0",
-    "torch>=2.0",
-    "torchvision>=0.18",          # ResNet-50, image transforms
-    "open-clip-torch>=1.0",        # Fashion-CLIP
-    "timm>=1.0",                   # EfficientNet-B0
-    "transformers>=4.40",          # CLIP-generic (HuggingFace)
-    "pillow>=10.0",                # Image processing
-    "numpy>=1.26",
-    "python-multipart>=0.0.32",
-    "psutil>=5.9",                 # Memory/CPU telemetry for evaluation
+    "pydantic-settings>=2.0.0",
+    "python-multipart>=0.0.6",
+    "httpx>=0.24.0",
+    "slowapi>=0.1.9",
+    "scalar-fastapi",
+    "torch>=2.0.0",
+    "torchvision>=0.15.0",
+    "numpy>=1.24.0",
+    "pillow>=10.0.0",
+    "transformers>=4.30.0",
+    "onnxruntime>=1.17.0",
+    "ftfy",
+    "regex",
+    "opentelemetry-api>=1.30.0",
+    "opentelemetry-sdk>=1.30.0",
+    "opentelemetry-exporter-otlp>=1.30.0",
+    "opentelemetry-instrumentation-fastapi>=0.51b0",
+    "opentelemetry-instrumentation-logging>=0.51b0",
+    "python-json-logger>=2.0.0",
+    "rich>=13.0.0",
+    "psutil>=5.9",
 ]
+
+[[tool.uv.index]]
+name = "pytorch-cpu"
+url = "https://download.pytorch.org/whl/cpu"
+explicit = true
+
+[tool.uv.sources]
+torch = { index = "pytorch-cpu" }
+torchvision = { index = "pytorch-cpu" }
 
 [tool.setuptools.package-dir]
 "embedding" = "src"
@@ -29,34 +49,46 @@ dependencies = [
 [tool.setuptools]
 packages = [
     "embedding",
-    "embedding.config",
-    "embedding.controllers",
-    "embedding.dependencies",
-    "embedding.infra",
-    "embedding.infra.cache",
-    "embedding.infra.models",
-    "embedding.infra.preprocessing",
-    "embedding.infra.storage",
-    "embedding.infra.utils",
-    "embedding.middleware",
+    "embedding.core",
+    "embedding.api",
+    "embedding.api.middleware",
+    "embedding.api.routers",
     "embedding.models",
-    "embedding.routers",
+    "embedding.models.onnx",
+    "embedding.models.vision",
     "embedding.schemas",
+    "embedding.schemas.results",
+    "embedding.schemas.inferences",
+    "embedding.schemas.images",
+    "embedding.schemas.registries",
     "embedding.services",
-    "embedding.services.gateways",
-    "embedding.utils",
 ]
 
 [tool.ruff]
 line-length = 100
-target-version = "py313"
+target-version = "py312"
 
 [tool.ruff.lint]
 select = ["E", "F", "W", "I"]
 
 [dependency-groups]
 dev = [
-    "pytest>=8",
+    "pytest>=8.0.0",
+    "pytest-env>=1.5.0",
+    "pytest-asyncio>=1.3.0",
     "httpx>=0.28",
     "ruff>=0.15.20",
+    "onnxscript",
 ]
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+asyncio_default_fixture_loop_scope = "function"
+env_files = ".env.test"
+testpaths = "tests"
+addopts = "-v --tb=short"
+markers = [
+    "integration: marks end-to-end tests that hit the full FastAPI stack"
+]
+log_cli = true
+log_cli_level = "WARNING"
