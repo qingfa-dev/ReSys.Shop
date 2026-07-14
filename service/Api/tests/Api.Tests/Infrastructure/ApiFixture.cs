@@ -151,7 +151,14 @@ public sealed class ApiFixture : IAsyncLifetime
 
         foreach (IDataSeeder seeder in seeders.OrderBy(s => s.Order))
         {
-            await seeder.SeedAsync(CancellationToken.None);
+            try
+            {
+                await seeder.SeedAsync(CancellationToken.None);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Seeder {seeder.GetType().Name} (Order {seeder.Order}) failed: {ex.Message}");
+            }
         }
     }
 

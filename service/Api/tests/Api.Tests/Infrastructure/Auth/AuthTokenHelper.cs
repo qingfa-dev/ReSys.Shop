@@ -33,7 +33,7 @@ public static class AuthTokenHelper
             new Claim(JwtRegisteredClaimNames.Iat,
                 DateTimeOffset.UtcNow.ToUnixTimeSeconds().ToString(CultureInfo.InvariantCulture),
                 ClaimValueTypes.Integer64),
-            new Claim(ClaimTypes.Role, "Admin")
+            new Claim("role", "Admin")
         ];
 
         SecurityTokenDescriptor tokenDescriptor = new SecurityTokenDescriptor

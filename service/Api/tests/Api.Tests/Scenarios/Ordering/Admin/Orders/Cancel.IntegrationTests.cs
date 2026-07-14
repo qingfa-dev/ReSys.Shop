@@ -3,32 +3,70 @@ using System.Net;
 using Api.Tests.Infrastructure;
 using Api.Tests.Infrastructure.Auth;
 
+using Microsoft.Extensions.DependencyInjection;
+
+using Module.Ordering.Domain.LineItems;
 using Module.Ordering.Domain.Orders;
 
-using CreateOrderResponse = Module.Ordering.Features.Admin.Orders.Create.CreateOrder.Response;
+using Shared.Operational.Persistence.Data;
+
 using CancelOrderResponse = Module.Ordering.Features.Admin.Orders.Cancel.CancelOrderAdmin.Response;
 
 namespace Api.Tests.Scenarios.Ordering.Admin.Orders;
 
 public sealed class CancelOrderIntegrationTests(ApiFixture fixture) : OrderingIntegrationTestBase(fixture)
 {
+    public record CreateProductResponse
+    {
+        public Guid Id { get; init; }
+        public Guid MasterVariantId { get; init; }
+    }
+
     [Fact]
     public async Task CancelOrder_WhenPlaced_ReturnsOk()
     {
+        var slug = $"cancel-test-{Guid.NewGuid():N}";
+        var createRequest = new
+        {
+            name = "Cancel Test Product",
+            slug,
+            description = "Test product for cancel order"
+        };
+
         HttpResponseMessage createResponse = await Client.PostAsAdminRawAsync(
-            "/api/ordering/orders", new { });
+            "/api/catalog/products", createRequest);
         ApiResponse createResult = await createResponse.ReadApiResponseAsync();
         createResult.IsSuccess.Should().BeTrue();
-        var created = createResult.DeserializeValue<CreateOrderResponse>();
+        var created = createResult.DeserializeValue<CreateProductResponse>();
         created.Should().NotBeNull();
 
-        HttpResponseMessage statusResponse = await Client.PutAsAdminRawAsync(
-            $"/api/ordering/orders/{created!.Id}/status",
-            new { status = (int)OrderStatus.Placed });
-        statusResponse.IsSuccessStatusCode.Should().BeTrue();
+        HttpResponseMessage activateResponse = await Client.PatchAsAdminRawAsync(
+            $"/api/catalog/products/{created!.Id}/activate");
+        activateResponse.IsSuccessStatusCode.Should().BeTrue();
+
+        Guid orderId;
+        using (var scope = Fixture.Factory.Services.CreateScope())
+        {
+            var dbContext = scope.ServiceProvider.GetRequiredService<IApplicationDbContext>();
+
+            var orderResult = OrderMethod.Create("USD", userId: null, Guid.Empty);
+            var order = orderResult.Value;
+
+            var lineResult = LineItemMethod.Create(order.Id, created.MasterVariantId, 1, 10m);
+            var lineItem = lineResult.Value;
+            order.LineItems.Add(lineItem);
+            dbContext.Set<LineItem>().Add(lineItem);
+
+            var finalizeResult = order.Finalize();
+            finalizeResult.IsSuccess.Should().BeTrue();
+
+            dbContext.Set<Order>().Add(order);
+            await dbContext.SaveChangesAsync();
+            orderId = order.Id;
+        }
 
         HttpResponseMessage response = await Client.PostAsAdminRawAsync(
-            $"/api/ordering/orders/{created!.Id}/cancel",
+            $"/api/ordering/orders/{orderId}/cancel",
             new { reason = "Test cancellation" });
         ApiResponse result = await response.ReadApiResponseAsync();
 
@@ -36,7 +74,7 @@ public sealed class CancelOrderIntegrationTests(ApiFixture fixture) : OrderingIn
         result.StatusCode.Should().Be(HttpStatusCode.OK);
         var value = result.DeserializeValue<CancelOrderResponse>();
         value.Should().NotBeNull();
-        value!.Id.Should().Be(created.Id);
+        value!.Id.Should().Be(orderId);
     }
 
     [Fact]

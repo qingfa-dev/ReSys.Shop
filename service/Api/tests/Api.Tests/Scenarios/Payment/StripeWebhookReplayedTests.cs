@@ -85,12 +85,17 @@ public sealed class StripeWebhookReplayedTests(ApiFixture fixture) : PaymentInte
         using (var scope = Fixture.Factory.Services.CreateScope())
         {
             var sender = scope.ServiceProvider.GetRequiredService<ISender>();
+            var job = scope.ServiceProvider.GetRequiredService<Module.Payment.Backgrounds.ProcessStripeWebhookEventJob>();
 
             var first = await sender.Send(new StripeWebhook.Command(payload, signature), TestContext.Current.CancellationToken);
-            var second = await sender.Send(new StripeWebhook.Command(payload, signature), TestContext.Current.CancellationToken);
-
             first.IsSuccess.Should().BeTrue(string.Join("; ", first.Errors.Select(e => e.Code + ": " + e.Message)));
+
+            await job.ExecuteAsync(payload, TestContext.Current.CancellationToken);
+
+            var second = await sender.Send(new StripeWebhook.Command(payload, signature), TestContext.Current.CancellationToken);
             second.IsSuccess.Should().BeTrue(string.Join("; ", second.Errors.Select(e => e.Code + ": " + e.Message)));
+
+            await job.ExecuteAsync(payload, TestContext.Current.CancellationToken);
         }
 
         using var verifyScope = Fixture.Factory.Services.CreateScope();

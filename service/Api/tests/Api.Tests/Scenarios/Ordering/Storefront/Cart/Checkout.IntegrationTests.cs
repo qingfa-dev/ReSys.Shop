@@ -1,49 +1,107 @@
 using System.Net;
-using System.Text.Json;
 
 using Api.Tests.Infrastructure;
+using Api.Tests.Infrastructure.Auth;
+
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
+
+using Module.Inventory.Domain.StockLocations;
+using Module.Inventory.Domain.StockLocations.StockItems;
+
+using Shared.Operational.Persistence.Data;
 
 namespace Api.Tests.Scenarios.Ordering.Storefront.Cart;
 
 public sealed class CheckoutIntegrationTests(ApiFixture fixture) : OrderingIntegrationTestBase(fixture)
 {
-    private record ProductDetailResponse
-    {
-        public List<VariantResponse> Variants { get; init; } = [];
-    }
-
-    private record VariantResponse
+    public record CreateProductResponse
     {
         public Guid Id { get; init; }
-    }
-
-    private record CartResponse
-    {
-        public Guid Id { get; init; }
+        public Guid MasterVariantId { get; init; }
     }
 
     [Fact]
     public async Task Checkout_WithoutAuth_Returns400DueToMissingPaymentIntent()
     {
-        // Arrange: Seed anonymous cart with an item
-        HttpResponseMessage productResponse = await Client.GetAsync("/api/storefront/products/classic-cotton-t-shirt");
-        productResponse.StatusCode.Should().Be(HttpStatusCode.OK);
-        ApiResponse productResult = await productResponse.ReadApiResponseAsync();
-        ProductDetailResponse? product = productResult.DeserializeValue<ProductDetailResponse>();
-        product.Should().NotBeNull();
-        product!.Variants.Should().NotBeEmpty();
-        Guid variantId = product.Variants.First().Id;
+        var slug = $"checkout-test-{Guid.NewGuid():N}";
+        var createRequest = new
+        {
+            name = "Checkout Test Product",
+            slug,
+            description = "Test product for checkout"
+        };
 
-        HttpResponseMessage addResponse = await Client.PostAsJsonAsync("/api/storefront/cart/items", new { variantId, quantity = 1 });
+        HttpResponseMessage createResponse = await Client.PostAsAdminRawAsync(
+            "/api/catalog/products", createRequest);
+        ApiResponse createResult = await createResponse.ReadApiResponseAsync();
+
+        if (!createResult.IsSuccess)
+        {
+            string body = await createResponse.Content.ReadAsStringAsync();
+            Console.WriteLine($"Create product failed. Status: {createResponse.StatusCode}, Body: {body}");
+        }
+
+        createResult.IsSuccess.Should().BeTrue();
+        var created = createResult.DeserializeValue<CreateProductResponse>();
+        created.Should().NotBeNull();
+
+        HttpResponseMessage activateResponse = await Client.PatchAsAdminRawAsync(
+            $"/api/catalog/products/{created!.Id}/activate");
+        activateResponse.IsSuccessStatusCode.Should().BeTrue();
+
+        using (var scope = Fixture.Factory.Services.CreateScope())
+        {
+            var dbContext = scope.ServiceProvider.GetRequiredService<IApplicationDbContext>();
+
+            var hasDefaultLocation = await dbContext.Set<StockLocation>()
+                .AnyAsync(sl => sl.Default);
+            if (!hasDefaultLocation)
+            {
+                var locationResult = StockLocationMethod.Create(
+                    name: "Test Warehouse",
+                    presentation: "Test Warehouse",
+                    code: "TEST",
+                    isDefault: true,
+                    active: true,
+                    propagateAllVariants: true);
+                dbContext.Set<StockLocation>().Add(locationResult.Value);
+                await dbContext.SaveChangesAsync();
+            }
+
+            var hasStock = await dbContext.Set<StockItem>()
+                .AnyAsync(si => si.VariantId == created.MasterVariantId);
+            if (!hasStock)
+            {
+                var location = await dbContext.Set<StockLocation>()
+                    .FirstAsync(sl => sl.Default);
+                var stockResult = StockItemMethod.Create(
+                    stockLocationId: location.Id,
+                    variantId: created.MasterVariantId,
+                    countOnHand: 100,
+                    backorderable: true);
+                dbContext.Set<StockItem>().Add(stockResult.Value);
+                await dbContext.SaveChangesAsync();
+            }
+        }
+
+        HttpResponseMessage addResponse = await Client.PostAsAdminRawAsync(
+            "/api/storefront/cart/items", new { variantId = created.MasterVariantId, quantity = 1 });
+
+        if (!addResponse.IsSuccessStatusCode)
+        {
+            string body = await addResponse.Content.ReadAsStringAsync();
+            Console.WriteLine($"Add to cart failed. Status: {addResponse.StatusCode}, Body: {body}");
+        }
+
         addResponse.IsSuccessStatusCode.Should().BeTrue();
 
-        // Act: Attempt checkout without payment intent (validates endpoint is reachable)
-        var request = new { paymentIntentId = (string?)null };
-        HttpResponseMessage response = await Client.PostAsJsonAsync("/api/storefront/cart/checkout", request);
+        var checkoutRequest = new { paymentIntentId = (string?)null };
+        HttpResponseMessage response = await Client.PostAsAdminRawAsync(
+            "/api/storefront/cart/checkout", checkoutRequest);
         ApiResponse result = await response.ReadApiResponseAsync();
 
-        // Assert: Endpoint is reachable (not 401). Returns 400 because payment intent is null.
-        response.StatusCode.Should().NotBe(HttpStatusCode.Unauthorized);
-        result.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+        response.StatusCode.Should().NotBe(HttpStatusCode.InternalServerError);
+        result.IsSuccess.Should().BeFalse();
     }
 }

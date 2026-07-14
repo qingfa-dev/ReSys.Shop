@@ -69,8 +69,10 @@ public sealed class ApiFactory : WebApplicationFactory<Program>
                 ["Notification:Channels:Email:FromEmail"] = "test@resys.shop",
                 ["Notification:Channels:Email:FromName"] = "test@resys.shop",
                 ["Notification:Channels:Email:Enabled"] = "false",
+                ["Notification:Channels:Sms:Enabled"] = "false",
                 ["Notification:Channels:Sms:DefaultSenderNumber"] = "+12345678901",
 
+                ["GuestSession:CookieName"] = "Guest",
                 ["GuestSession:CookieSecurePolicy"] = "SameAsRequest",
 
                 ["AntiForgery:HeaderName"] = "X-XSRF-TOKEN",
@@ -108,6 +110,20 @@ public sealed class ApiFactory : WebApplicationFactory<Program>
             services.RemoveAll<ICurrentUser>();
             services.AddTransient<ICurrentUser>(sp => new TestCurrentUser(
                 sp.GetRequiredService<IHttpContextAccessor>()));
+
+            // Replace the HybridCache-dependent TokenTheftDetector with a
+            // no-op stub. Caching is disabled in tests (Caching:Enabled=false)
+            // so HybridCache is not registered; the real detector fails DI
+            // resolution, which cascades to all consumers of IRefreshTokenService
+            // (every Identity auth handler).
+            services.RemoveAll<Shared.Security.Authentication.Tokens.Services.Refresh.Protections.ITokenTheftDetector>();
+            services.AddScoped<Shared.Security.Authentication.Tokens.Services.Refresh.Protections.ITokenTheftDetector>(
+                static _ => new Shared.Security.Authentication.Tokens.Services.Refresh.Protections.NoOpTokenTheftDetector());
+
+            // ITokenBlacklistService is kept as-is. It depends on ICacheService
+            // which is now unconditionally registered (CacheService uses
+            // IServiceProvider to lazily resolve HybridCache, so it works
+            // even when Caching:Enabled=false).
         });
     }
 
@@ -185,6 +201,7 @@ public sealed class ApiFactory : WebApplicationFactory<Program>
         public string? IpAddress => AmbientHttpContext?.Connection.RemoteIpAddress?.ToString() ?? "127.0.0.1";
 
         public string? SessionId => AmbientHttpContext?.Request.Cookies["Guest"]
+                                    ?? AmbientHttpContext?.Items["Guest"] as string
                                     ?? AmbientHttpContext?.Request.Headers["X-Session-Id"].FirstOrDefault();
 
         public string? Device => AmbientHttpContext?.Request.Headers.UserAgent.ToString() ?? "xUnit";
