@@ -44,8 +44,8 @@ def test_pipeline_runner_runs_all_folds(tmp_path: Path):
     ) as mock_pg:
         mock_registry.return_value = {"fake-model": fake_model}
         mock_pg_instance = MagicMock()
-        mock_pg_instance.connect = MagicMock()
-        mock_pg_instance.close = MagicMock()
+        mock_pg_instance.__enter__ = MagicMock(return_value=mock_pg_instance)
+        mock_pg_instance.__exit__ = MagicMock(return_value=None)
         mock_pg_instance.upsert_batch = MagicMock()
         mock_pg_instance.clear_table = MagicMock()
         mock_pg_instance.build_index = MagicMock(return_value=0.5)
