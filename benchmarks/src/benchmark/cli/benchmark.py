@@ -215,7 +215,7 @@ def thesis(
     setup_logging(level=log_level, log_file=output / "logs" / "thesis.log")
 
     from benchmark.evaluation.thesis import THESIS_MODEL_KEYS, ThesisRunner
-    from benchmark.reporting import write_comparison_json
+    from benchmark.reporting import write_comparison_json, write_thesis_tables
 
     model_keys = THESIS_MODEL_KEYS if models == "all" else [k.strip() for k in models.split(",")]
     top_k = [int(v) for v in k.split(",")]
@@ -250,6 +250,10 @@ def thesis(
     out_path = results_dir / "thesis_results.json"
     out_path.write_text(json.dumps(results, indent=2))
     console.print(f"\n[green]✓ Results written to {out_path}[/green]")
+
+    # Generate Typst tables
+    write_thesis_tables(results, output_dir=output / "tables")
+    console.print(f"[green]✓ Typst tables written to {output / 'tables'}[/green]")
 
     # Summary table
     summary = Table(title="Thesis Results (Aggregate)", show_header=True, header_style="bold cyan")

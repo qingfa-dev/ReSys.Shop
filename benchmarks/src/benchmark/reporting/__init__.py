@@ -1,0 +1,17 @@
+"""Report generation: JSON, CSV, Markdown, Typst tables, and charts."""
+
+from benchmark.reporting.charts import generate_all_charts
+from benchmark.reporting.csv import write_csv
+from benchmark.reporting.json import write_comparison_json, write_model_json
+from benchmark.reporting.markdown import write_markdown
+from benchmark.reporting.typst import write_all_tables, write_thesis_tables
+
+__all__ = [
+    "write_model_json",
+    "write_comparison_json",
+    "write_csv",
+    "write_markdown",
+    "write_all_tables",
+    "write_thesis_tables",
+    "generate_all_charts",
+]
