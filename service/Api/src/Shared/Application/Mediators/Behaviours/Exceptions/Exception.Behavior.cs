@@ -32,7 +32,8 @@ public sealed partial class ExceptionMappingBehavior<TRequest, TResponse>(
                 Loggers.UnhandledException(logger, typeof(TRequest).Name, ex);
             }
 
-            Error failure = Error.Unexpected(
+            Error failure = Error.FromException(
+                exception: ex,
                 code: $"{requestType}.Unexpected",
                 message: description);
 
