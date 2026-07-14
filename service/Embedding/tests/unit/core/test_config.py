@@ -13,13 +13,13 @@ from pydantic import ValidationError
 def test_settings_default_values():
     """Verify that default values are correctly populated (including .env.test overrides)."""
     s = Settings()
-    assert s.PROJECT_NAME == "inference"
-    assert s.PORT == 5002
+    assert s.PROJECT_NAME == "Inference"
+    assert s.PORT == 8000
     assert s.ENVIRONMENT == Environment.TEST
-    assert s.RATE_LIMIT == "50/minute"
+    assert s.RATE_LIMIT == "30/minute"
     # Note: .env.test sets this to empty
     assert s.OTEL_EXPORTER_OTLP_ENDPOINT == ""
-    assert "sidecar/models" in s.ONNX_MODEL_DIR.replace("\\", "/")
+    assert "Embedding/models" in s.ONNX_MODEL_DIR.replace("\\", "/")
 
 
 def test_port_validation_range():

@@ -12,21 +12,16 @@ from opentelemetry.sdk.resources import DEPLOYMENT_ENVIRONMENT, SERVICE_NAME
 
 def test_telemetry_initialization_standard():
     """Verify that setup_telemetry registers global providers even without OTLP."""
-    # Ensure any env var is cleared for standard test
     with patch.dict(os.environ, {"OTEL_EXPORTER_OTLP_ENDPOINT": ""}):
-        # We also need to patch settings to ensure it doesn't have a default that triggers OTLP
-        with patch("src.core.config.settings.OTEL_EXPORTER_OTLP_ENDPOINT", ""):
+        with patch("embedding.core.config.settings.OTEL_EXPORTER_OTLP_ENDPOINT", ""):
             setup_telemetry()
 
-            # Verify Trace Provider
             tracer_provider = trace.get_tracer_provider()
             assert tracer_provider is not None
 
-            # Verify Meter Provider
             meter_provider = metrics.get_meter_provider()
             assert meter_provider is not None
 
-            # Verify Log Provider
             log_provider = get_logger_provider()
             assert log_provider is not None
 
@@ -51,21 +46,19 @@ def test_resource_attributes():
     provider = trace.get_tracer_provider()
     if hasattr(provider, "resource"):
         attrs = provider.resource.attributes
-        assert attrs[SERVICE_NAME] == "inference"
+        assert attrs[SERVICE_NAME] == "Inference"
         assert attrs[DEPLOYMENT_ENVIRONMENT] == "test"
 
 
-@patch("src.core.telemetry.OTLPSpanExporter")
-@patch("src.core.telemetry.OTLPMetricExporter")
-@patch("src.core.telemetry.OTLPLogExporter")
-@patch("src.core.telemetry.is_otlp_available", return_value=True)
+@patch("embedding.core.telemetry.OTLPSpanExporter")
+@patch("embedding.core.telemetry.OTLPMetricExporter")
+@patch("embedding.core.telemetry.OTLPLogExporter")
+@patch("embedding.core.telemetry.is_otlp_available", return_value=True)
 def test_telemetry_with_otlp_endpoint(mock_avail, mock_log, mock_metric, mock_trace):
     """Verify that OTLP exporters are initialized when endpoint is present."""
-    # Ensure ENVIRONMENT is dev to trigger processors/readers
-    with patch("src.core.config.settings.ENVIRONMENT", "dev"):
+    with patch("embedding.core.config.settings.ENVIRONMENT", "dev"):
         with patch.dict(os.environ, {"OTEL_EXPORTER_OTLP_ENDPOINT": "http://localhost:4317"}):
-            # Also patch settings to match
-            with patch("src.core.config.settings.OTEL_EXPORTER_OTLP_ENDPOINT", "http://localhost:4317"):
+            with patch("embedding.core.config.settings.OTEL_EXPORTER_OTLP_ENDPOINT", "http://localhost:4317"):
                 setup_telemetry()
                 mock_trace.assert_called()
                 mock_metric.assert_called()

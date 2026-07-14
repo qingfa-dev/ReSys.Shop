@@ -9,7 +9,7 @@ def test_health_check():
     """Verify the service is up and telemetry is initialized."""
     response = client.get("/health")
     assert response.status_code == 200
-    assert response.json()["service"] == "inference"
+    assert response.json()["service"] == "Inference"
 
 @pytest.mark.parametrize("model_name, expected_dim", [
     ("efficientnet_b0", 1280),
@@ -25,8 +25,7 @@ def test_embeddings_real_models(model_name, expected_dim):
     }
     headers = {"X-API-Key": settings.API_KEY}
 
-    # Path updated to /inference/embeddings
-    response = client.post("/inference/embeddings", json=payload, headers=headers)
+    response = client.post("/embeddings", json=payload, headers=headers)
 
     assert response.status_code == 200
     data = response.json()
@@ -47,8 +46,7 @@ def test_embeddings_real_models(model_name, expected_dim):
 def test_embeddings_unauthorized():
     """Verify that requests without API keys are rejected."""
     payload = {"image_url": "http://test.com/img.jpg", "model": "efficientnet_b0"}
-    # Path updated to /inference/embeddings
-    response = client.post("/inference/embeddings", json=payload)
+    response = client.post("/embeddings", json=payload)
     assert response.status_code == 403
 
 def test_invalid_model_returns_failure_result():
@@ -56,8 +54,7 @@ def test_invalid_model_returns_failure_result():
     payload = {"image_url": "http://test.com/img.jpg", "model": "invalid_model_name"}
     headers = {"X-API-Key": settings.API_KEY}
 
-    # Path updated to /inference/embeddings
-    response = client.post("/inference/embeddings", json=payload, headers=headers)
+    response = client.post("/embeddings", json=payload, headers=headers)
 
     assert response.status_code == 404
     data = response.json()

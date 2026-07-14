@@ -12,7 +12,7 @@ from embedding.schemas import Failure, ValueResult
 
 pytestmark = pytest.mark.integration
 
-EMBED_URL = "/inference/embeddings"
+EMBED_URL = "/embeddings"
 
 
 class TestHealthEndpoint:
@@ -26,7 +26,7 @@ class TestHealthEndpoint:
 
     def test_body_contains_service_name(self, client):
         body = client.get("/health").json()
-        assert body["service"] == "inference"
+        assert body["service"] == "Inference"
 
     def test_health_is_idempotent(self, client):
         """Multiple consecutive calls must all return 200."""

@@ -20,13 +20,12 @@ class TestRateLimiting:
             "model": "efficientnet_b0"
         }
 
-        # Increase limit count to ensure we hit it even if some requests were already made.
-        # Default is 50/minute, so 100 should be plenty.
-        limit_count = 100
+        # Send enough requests to definitely exhaust the limit
+        limit_count = 200
         found_429 = False
 
         for _ in range(limit_count):
-            response = client.post("/inference/embeddings", json=payload, headers=headers)
+            response = client.post("/embeddings", json=payload, headers=headers)
             if response.status_code == 429:
                 found_429 = True
                 break

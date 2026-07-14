@@ -49,9 +49,9 @@ def test_engine_fuzzy_matches_clip():
     assert result.is_success is True
     assert isinstance(result.value, MockSkill)
 
-@patch("src.services.inference_engine.infer_onnx_dim")
+@patch("embedding.services.inference_engine.infer_onnx_dim")
 @patch("pathlib.Path.exists")
-@patch("src.core.config.settings.ONNX_MODEL_DIR", "/models")
+@patch("embedding.core.config.settings.ONNX_MODEL_DIR", "/models")
 def test_engine_resolves_onnx_skill(mock_exists, mock_infer):
     # Setup: Register ONNX skill
     ModelRegistry.register("onnx")(MockSkill)

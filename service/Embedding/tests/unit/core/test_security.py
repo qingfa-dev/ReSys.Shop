@@ -40,8 +40,8 @@ def test_resolve_ssl_auto_discovery():
                     mock_exists.side_effect = side_effect
 
                     # We also need to patch join since it's used to construct the candidate paths
-                    with patch("os.path.join", side_effect=lambda a, b: f"{a}/{b}"):
-                        with patch("src.core.config.settings.SSL_CERT_FILE", "/certs/cert.pem"):
+                    with patch("os.path.join", side_effect=lambda *args: "/".join(args)):
+                        with patch("embedding.core.config.settings.SSL_CERT_FILE", "/certs/cert.pem"):
                             cert, key = resolve_ssl_paths()
                             assert cert == "/certs/cert.pem"
                             assert key == "/certs/key.pem"
@@ -50,8 +50,8 @@ def test_resolve_ssl_auto_discovery():
 def test_resolve_ssl_none_if_missing():
     """Verify that None is returned if no sources are present."""
     with patch.dict(os.environ, {}, clear=True):
-        with patch("src.core.config.settings.SSL_CERT_FILE", None):
-            with patch("src.core.config.settings.SSL_CERT_DIR", None):
+        with patch("embedding.core.config.settings.SSL_CERT_FILE", None):
+            with patch("embedding.core.config.settings.SSL_CERT_DIR", None):
                 cert, key = resolve_ssl_paths()
                 assert cert is None
                 assert key is None
