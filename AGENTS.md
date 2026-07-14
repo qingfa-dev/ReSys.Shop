@@ -60,6 +60,7 @@ cd service/Embedding && uv run ruff check . && uv run pytest  # Python verificat
 - **`app/Admin/`** — Vue 3 Admin SPA (PrimeVue, Sakai theme, pnpm, Vite 8)
 - **`app/Store/`** — Vue 3 Storefront SPA (Nuxt UI, pnpm, Vite 8)
 - **`service/Embedding/`** — Python FastAPI ML sidecar (uv, Fashion-CLIP, torch)
+- **`benchmarks/`** — Python fashion image retrieval benchmark (11 models, 3 modes, thesis protocol) — see `benchmarks/AGENTS.md`
 - **`infra/Aspire/`** — orchestration (AppHost + ServiceDefaults)
 - **`ApiTests/`** — 49 `.http` files for manual endpoint testing
 
@@ -72,3 +73,4 @@ cd service/Embedding && uv run ruff check . && uv run pytest  # Python verificat
 - No Dockerfiles — Aspire manages containers for local dev only
 - `Embedding/build/lib/` contains stale build artifacts — should be gitignored
 - `.harness/domains.yml` LOC counts may drift from actual codebase — re-measure after significant changes
+- `benchmarks/docs/` has duplicate numbering (08- and 09- prefix collisions from stale docs)

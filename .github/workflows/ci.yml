@@ -63,3 +63,17 @@ jobs:
       - run: uv sync
       - run: uv run ruff check .
       - run: uv run pytest
+
+  benchmarks-check:
+    name: Benchmarks (lint + test + coverage)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: benchmarks
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+      - run: uv sync --extra dev
+      - run: uv run ruff check src/
+      - run: uv run pytest --ignore=src/tests/integration/ --cov=benchmark --cov-fail-under=60
+      - run: uv run benchmark --help

@@ -210,21 +210,25 @@ Dataset ──▶ Split ──▶ 3 folds ──┼─ Fold 1 ─┼──▶ Fo
 ### The Ground Truth Problem
 
 To measure accuracy, we need to define what "similar" means for the dataset.
-The benchmark uses a **category-based relevance rule**:
+The benchmark uses a **category + colour relevance rule**:
 
-> Two fashion products are similar if they share the same
-> `masterCategory` + `subCategory`.
+> Two fashion products are visually similar if they share the same
+> `masterCategory` + `subCategory` + `baseColour`.
 
 For example, in the Fashion Product Images Small dataset:
 - Product 1163: `Apparel/Topwear/T-shirt/Black`
-- Product 1165: `Apparel/Topwear/T-shirt/Blue`
+- Product 1165: `Apparel/Topwear/T-shirt/Black`
 
-Since both share `Apparel/Topwear`, they are treated as relevant to each other.
+Since both share `Apparel/Topwear/Black`, they are treated as relevant to each other.
 A good embedding model should place them close together.
 
-This is an imperfect ground truth — a black T-shirt and a blue T-shirt are indeed
-similar, but so are a blue T-shirt and blue sneakers (both blue, but different
-categories). The thesis explicitly acknowledges this limitation.
+Products in the same category but different colours are NOT relevant:
+- Product 1163: `Apparel/Topwear/Black` (black T-shirt)
+- Product 1400: `Apparel/Topwear/Blue` (blue T-shirt)
+→ NOT relevant — different colour means different visual appearance.
+
+This three-part key (category + colour) ensures the benchmark measures
+**visual similarity**, not mere taxonomic category membership.
 
 ### How Each Metric Answers a Specific Question
 
