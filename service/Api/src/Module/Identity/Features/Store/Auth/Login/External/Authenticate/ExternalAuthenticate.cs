@@ -178,7 +178,9 @@ public static partial class ExternalAuthenticate
             catch (Exception ex)
             {
                 UserProfileLoggers.Management.ProfileCreationFailed(logger, user.Id, ex.Message);
-                return Result.Failure(UserResult.Failure.ProfileCreationFailed);
+                return Result.Unexpected(
+                    exception: ex,
+                    errors: [UserResult.Failure.ProfileCreationFailed]);
             }
         }
     }

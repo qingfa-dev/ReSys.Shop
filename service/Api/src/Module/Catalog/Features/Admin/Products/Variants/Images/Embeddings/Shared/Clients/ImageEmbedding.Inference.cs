@@ -31,7 +31,9 @@ public class InferenceClient : IInferenceClient
         }
         catch (Exception ex)
         {
-            return ImageEmbeddingResult.Errors.CommunicationFailed(ex.Message);
+            return Result<EmbeddingResponse>.Unexpected(
+                exception: ex,
+                errors: [ImageEmbeddingResult.Errors.CommunicationFailed(ex.Message)]);
         }
     }
 
@@ -55,7 +57,9 @@ public class InferenceClient : IInferenceClient
         }
         catch (Exception ex)
         {
-            return ImageEmbeddingResult.Errors.CommunicationFailed(ex.Message);
+            return Result<EmbeddingResponse>.Unexpected(
+                exception: ex,
+                errors: [ImageEmbeddingResult.Errors.CommunicationFailed(ex.Message)]);
         }
     }
 
@@ -72,7 +76,9 @@ public class InferenceClient : IInferenceClient
         }
         catch (Exception ex)
         {
-            return ImageEmbeddingResult.Errors.CommunicationFailed(ex.Message);
+            return Result<List<ModelMetadata>>.Unexpected(
+                exception: ex,
+                errors: [ImageEmbeddingResult.Errors.CommunicationFailed(ex.Message)]);
         }
     }
 
