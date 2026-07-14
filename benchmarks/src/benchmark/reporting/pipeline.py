@@ -4,7 +4,6 @@ from __future__ import annotations
 import json
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Any
 
 from benchmark.reporting.typst import _AUTO_GEN_COMMENT, _fmt, _table_block
 from benchmark.utils.logging import get_logger
