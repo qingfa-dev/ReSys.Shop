@@ -48,7 +48,10 @@ public sealed partial class LoggingProvider(ILogger<LoggingProvider> logger, Not
         {
             NotificationProvider.Loggers.LogSendException(logger, Name, ex);
             // Degrade: Return failure result without rethrowing — non-critical provider
-            return Task.FromResult((Result)NotificationProviderResult.Failure.SendFailed(Name, ex.Message));
+            return Task.FromResult<Result>(
+                Result.Unexpected(
+                    exception: ex,
+                    errors: [NotificationProviderResult.Failure.SendFailed(Name, ex.Message)]));
         }
     }
 }
