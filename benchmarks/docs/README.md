@@ -13,6 +13,7 @@ Complete documentation for the ReSys.Shop fashion image retrieval benchmark.
 | [05 — Datasets](05-datasets.md) | Available datasets and how to prepare them |
 | [06 — Thesis Protocol](06-thesis-protocol.md) | The academic evaluation protocol for the CTU thesis |
 | [07 — References](07-references.md) | Academic papers, tools, and further reading |
+| [Directory Map](codebase/DIRECTORY_MAP.md) | Every folder and file explained with priorities |
 
 ## For New Users
 
