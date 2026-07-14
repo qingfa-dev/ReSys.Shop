@@ -1,14 +1,14 @@
 # Benchmarks — Agent Guide
 
-Fashion image retrieval benchmark for the CTU thesis. Python 3.12, 11 embedding models, 5 CLI commands. See `docs/` for deep dives and `.harness/` for machine-readable boundaries.
+Fashion image retrieval benchmark for the CTU thesis. Python 3.12, 11 embedding models, 5 CLI commands. See `docs/` for deep dives. Lives in monorepo — never import from sibling projects.
 
 ## Non-Negotiable Rules
 
-1. **Absolute imports only** — all imports use `benchmark.` prefix. No relative imports.
+1. **Absolute imports only** — all imports use `benchmark.` prefix. No relative imports. Never import from `service/`, `app/`, or other sibling directories.
 2. **Pure metrics** — files in `metrics/` must contain zero I/O. Functions accept arrays, return scalars.
 3. **TDD required** — new features need a test written first (RED), then implementation (GREEN), then commit.
 4. **Ruff lint before commit** — `uv run ruff check src/` must pass. Rules: E, F, I, UP, B, SIM.
-5. **Single model = one file** — add new models under `models/` with one adapter file each.
+5. **Single model = one file** — add new models under `models/` with one adapter file each; register in `__init__.py`.
 
 ## Repository Map
 
@@ -22,6 +22,12 @@ Fashion image retrieval benchmark for the CTU thesis. Python 3.12, 11 embedding 
 - `docs/codebase/TESTING.md` — test layout, mocking strategy, known gaps
 - `docs/codebase/CONCERNS.md` — risks, tech debt, thesis caveats
 - `docs/codebase/DIRECTORY_MAP.md` — full folder map with priorities
+
+## Setup
+
+```bash
+uv sync --extra dev          # Install deps + pytest (required for testing)
+```
 
 ## Verification
 
@@ -37,24 +43,26 @@ uv run benchmark --help              # CLI sanity
 
 ```bash
 uv run benchmark run     --dataset-root PATH --models MODEL [OPTIONS]  # One-shot comparison
-uv run benchmark thesis  --dataset-root PATH [OPTIONS]                 # 3-fold CV, in-memory
-uv run benchmark pipeline --dataset-root PATH [OPTIONS]               # CV + pgvector production
+uv run benchmark thesis  --dataset-root PATH [OPTIONS]                 # 3-fold CV, in-memory (no DB needed)
+uv run benchmark pipeline --dataset-root PATH [OPTIONS]               # CV + pgvector (needs PostgreSQL running)
 uv run benchmark report  --format typst [OPTIONS]                      # Regenerate reports
 uv run benchmark cache   list|stats|clear                               # Embedding cache mgmt
 ```
+
+Pipeline mode requires pgvector PostgreSQL (see `docs/08-replication-guide.md` §5). Pipeline gracefully degrades if unavailable — logs warning, returns zeros for pgvector metrics, exact cosine metrics still valid.
 
 ## Code Organization
 
 - `src/benchmark/models/` — 11 model adapters (FashionCLIP, ResNet-50, CLIP variants, etc.)
 - `src/benchmark/evaluation/` — BenchmarkRunner (one-shot), ThesisRunner (CV), PipelineRunner (pgvector)
 - `src/benchmark/datasets/` — FashionDataset, GroundTruth (stratified folds)
-- `src/benchmark/embeddings/` — EmbeddingGenerator + npz cache
+- `src/benchmark/embeddings/` — EmbeddingGenerator + npz cache (per model × fold × split)
 - `src/benchmark/metrics/` — P@K, R@K, mAP, nDCG, latency, recall_comparison
 - `src/benchmark/retrieval/` — Cosine (exact), FAISS, PGVector (batch ingestion, index, query)
 - `src/benchmark/reporting/` — JSON, CSV, Markdown, Typst (thesis + pipeline), charts
-- `src/benchmark/cli/` — Typer app with 5 commands
+- `src/benchmark/cli/` — Typer app with 5 commands (`benchmark.cli.benchmark:app`)
 - `src/tests/` — mirrored test structure (~125 tests)
-- `infra/` — PostgreSQL/pgvector init scripts
+- `infra/` — PostgreSQL/pgvector init scripts + container setup
 
 ## Known Issues
 
