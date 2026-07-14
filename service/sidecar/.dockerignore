@@ -1,0 +1,70 @@
+# =============================================================================
+# .dockerignore — Inference Service
+# Excludes unnecessary files from the Docker build context to reduce image
+# size and prevent secrets from leaking into the build.
+# =============================================================================
+
+# Python runtime artifacts
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+
+# Secrets and environment files (never bake these into images)
+.env
+.env.*
+!.env.template
+
+# Virtual environments (rebuilt inside Docker via uv)
+.venv/
+venv/
+ENV/
+env/
+
+# IDE and editor metadata
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+
+# Version control
+.git/
+.gitignore
+.gitattributes
+
+# Test files and coverage reports
+tests/
+.pytest_cache/
+.coverage
+htmlcov/
+*.cover
+
+# Documentation (not needed at runtime)
+*.md
+docs/
+
+# Development-only scripts
+scripts/
+
+# Build artifacts
+dist/
+build/
+*.egg-info/
+
+# Model files — these are mounted as a volume in production
+# (they are too large to bake into the image)
+models/
+
+# Python version pin (managed by uv/pyproject.toml)
+.python-version
+
+# run.py is not used in Docker — uvicorn is called directly
+run.py
+
+# Development specific
+.env.dev
+.env.test
