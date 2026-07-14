@@ -290,8 +290,6 @@ class PipelineRunner:
                     query_latencies.append((time.perf_counter() - t0) * 1000.0)
                     pgvector_results.append([r["id"] for r in results])
 
-                pgvector_indices = np.array(pgvector_results, dtype=np.int64)
-
                 exact_indices = retrieve_batch(
                     query_result.embeddings,
                     gallery_result.embeddings,
@@ -299,18 +297,14 @@ class PipelineRunner:
                     exclude_self=False,
                 )
 
-                id_to_idx = {pid: i for i, pid in enumerate(gallery_ids)}
+                id_to_idx = {str(pid): i for i, pid in enumerate(gallery_ids)}
                 pgvector_mapped = np.full_like(exact_indices, -1)
-                for i, row in enumerate(pgvector_indices):
-                    for j, pid in enumerate(row):
-                        if j < pgvector_mapped.shape[1]:
-                            pgvector_mapped[i, j] = id_to_idx.get(str(pid), -1)
+                for i, pgv_ids in enumerate(pgvector_results):
+                    for j, pgv_id in enumerate(pgv_ids):
+                        if j < pgvector_mapped.shape[1] and str(pgv_id) in id_to_idx:
+                            pgvector_mapped[i, j] = id_to_idx[str(pgv_id)]
 
-                valid_mask = pgvector_mapped >= 0
-                if not valid_mask.any():
-                    recall = {k: 0.0 for k in self.k_values}
-                else:
-                    recall = approximate_recall_at_k(pgvector_mapped, exact_indices, self.k_values)
+                recall = approximate_recall_at_k(pgvector_mapped, exact_indices, self.k_values)
 
                 return {
                     "index_build_time_s": round(index_time, 2),
