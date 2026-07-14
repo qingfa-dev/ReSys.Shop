@@ -145,7 +145,10 @@ internal sealed partial class ImageProcessor(ILogger<ImageProcessor> logger) : I
         {
             // Catch: SkiaSharp processing error — return InvalidImage failure
             Loggers.LogProcessingFailed(logger, ex.Message);
-            return Task.FromResult<Result<Stream>>(ImageProcessorResult.Failure.InvalidImage);
+            return Task.FromResult<Result<Stream>>(
+                Result<Stream>.Unexpected(
+                    exception: ex,
+                    errors: [ImageProcessorResult.Failure.InvalidImage]));
         }
     }
 

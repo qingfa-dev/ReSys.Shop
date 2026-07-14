@@ -88,7 +88,9 @@ internal sealed partial class StorageService(
             {
                 // Catch: hash failure blocks upload — content integrity cannot be verified
                 Loggers.LogHashFailed(logger, request.Key, ex.Message);
-                return StorageResult.Failure.HashFailed(ex.Message);
+                return Result<UploadResult>.Unexpected(
+                    exception: ex,
+                    errors: [StorageResult.Failure.HashFailed(ex.Message)]);
             }
         }
 
@@ -178,7 +180,9 @@ internal sealed partial class StorageService(
                 {
                     // Catch: encryption failure blocks upload — content would be stored in plaintext
                     Loggers.LogEncryptionFailed(logger, request.Key, ex.Message);
-                    return StorageResult.Failure.EncryptionFailed(ex.Message);
+                    return Result<UploadResult>.Unexpected(
+                        exception: ex,
+                        errors: [StorageResult.Failure.EncryptionFailed(ex.Message)]);
                 }
             }
         }
