@@ -13,8 +13,14 @@ dependencies = [
     "pydantic>=2.0",
     "pydantic-settings>=2.0",
     "torch>=2.0",
-    "open-clip-torch>=1.0",
+    "torchvision>=0.18",          # ResNet-50, image transforms
+    "open-clip-torch>=1.0",        # Fashion-CLIP
+    "timm>=1.0",                   # EfficientNet-B0
+    "transformers>=4.40",          # CLIP-generic (HuggingFace)
+    "pillow>=10.0",                # Image processing
+    "numpy>=1.26",
     "python-multipart>=0.0.32",
+    "psutil>=5.9",                 # Memory/CPU telemetry for evaluation
 ]
 
 [tool.setuptools.package-dir]

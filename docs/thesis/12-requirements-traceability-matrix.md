@@ -23,10 +23,11 @@ This matrix establishes **bidirectional traceability** between requirements, des
 | CAT-FR-03 | Taxonomy (hierarchical categories) | 4 (Domain), 5 (DB) | `Taxonomy.cs`, `Taxon.cs` | TC-CAT-002 | `ApiTests/Catalog/Admin/taxonomies.http` | ✅ Implemented |
 | CAT-FR-04 | Option types and values | 4 (Domain) | `OptionType.cs`, `OptionValue.cs` | TC-CAT-003 | `ApiTests/Catalog/Admin/option-types.http` | ✅ Implemented |
 | CAT-FR-05 | Variant image upload (Local/S3) | 3 (Arch), 6 (API), 8 (Security) | `UploadVariantImage.cs` | TC-CAT-004 | `ApiTests/Catalog/Admin/variant-images.http` | ✅ Implemented |
-| CAT-FR-06 | Fashion-CLIP embedding generation | 3 (Arch), 5 (DB), 7 (ML) | `ImageEmbedding.Inference.cs`, `Vector.Configuration.cs` | TC-CAT-005 | `test_embedding.py` | ✅ Implemented |
+| CAT-FR-06 | Pluggable ML sidecar generates embeddings for 4 models (Fashion-CLIP, ResNet-50, EfficientNet-B0, CLIP-generic) | 3 (Arch), 5 (DB), 7 (ML) | `ImageEmbedding.Inference.cs`, `Vector.Configuration.cs`, `embedding_service.py`, `base.py` | TC-CAT-005 | `test_embedding.py`, `test_model_registry.py` | ✅ Implemented |
 | CAT-FR-07 | Search by image (CBIR) | 3 (Arch), 5 (DB), 7 (Seq) | `SearchByImage handler` | TC-CAT-006 | `ApiTests/Catalog/Storefront/search-by-image.http` | ✅ Implemented |
 | CAT-FR-08 | Product status lifecycle (Draft→Active→Archived) | 4 (Domain), 4.4 (State) | `Product.cs:20`, `ProductStatus` enum | — | `[TODO] Unit test for status transition` | ✅ Implemented, ⚠️ Test pending |
 | CAT-FR-09 | Slug uniqueness | 4 (Domain), 5 (DB) | `CreateProduct.cs:41-43` (EF query + UK) | TC-CAT-001 | `CreateProduct.Tests.cs` | ✅ Implemented & Tested |
+| CAT-FR-10 | Embedding model configurable per deployment via `EMBEDDING_MODEL` env var | 3 (Arch), 7 (ML) | `settings.py:11`, `embedding_service.py:42` | TC-CAT-007 | `test_model_registry.py` | ✅ Implemented |
 
 ### Identity Module
 
@@ -110,6 +111,19 @@ This matrix establishes **bidirectional traceability** between requirements, des
 | NFR-09 | Multi-tier caching | 3 (Arch), 5 (DB) | `HybridCache`, `appsettings.json:104-122` | TC-NFR-009 | `ApiFactory.cs` disables cache in tests; manual perf test | ✅ Implemented |
 | NFR-10 | Background job reliability | 3 (Arch), 9 (Deploy) | `Hangfire`, `Background.Extension.cs:54-80` | TC-NFR-010 | Integration test: enqueue + verify job execution | ✅ Implemented |
 
+### Research / Evaluation Requirements (Thesis Contribution)
+
+These requirements are unique to the **dual-contribution** nature of the thesis (software architecture + ML model comparison). They trace the evaluation methodology in Chapter 11 to the implementation and planned experiments.
+
+| Req ID | Requirement | Design (Chapter) | Implementation | Test Case ID | Test | Status |
+|--------|-------------|------------------|----------------|--------------|------|--------|
+| RES-FR-01 | Sidecar supports runtime model swap without code changes | 3 (Arch), 7 (ML) | `embedding_service.py` registry + `BaseEmbeddingModel` | TC-RES-001 | Unit test: swap `EMBEDDING_MODEL` env → different model class loaded | ✅ Implemented |
+| RES-FR-02 | Ground-truth dataset protocol: 100 images, 10 categories, human-labeled similarity | 11 (Eval) | `docs/thesis/11-evaluation.md:§11.5.2` | TC-RES-002 | Manual dataset curation + inter-annotator agreement (κ≥0.75) | ⏳ Planned |
+| RES-FR-03 | Retrieval metrics computed per model: Precision@K, Recall@K, mAP | 11 (Eval) | `11-evaluation.md:§11.5.3` + Python benchmark script | TC-RES-003 | Automated benchmark: foreach model → compute metrics | ⏳ Planned |
+| RES-FR-04 | Operational metrics collected: embedding time, query latency, storage, RAM | 11 (Eval) | `encode_image()` telemetry (`elapsed_ms`), `psutil` memory probe | TC-RES-004 | Benchmark script records `time.perf_counter()` + `psutil` | ✅ Implemented (telemetry) |
+| RES-FR-05 | Statistical analysis: paired t-tests, Cohen's d, bootstrap 95% CI | 11 (Eval) | `11-evaluation.md:§11.5.7` + Python `scipy.stats` script | TC-RES-005 | Verify significance of Fashion-CLIP vs. each competitor | ⏳ Planned |
+| RES-NFR-01 | Reproducibility: pinned package versions, fixed random seed, documented hardware | 11 (Eval) | `pyproject.toml` exact versions, benchmark protocol in thesis | TC-RES-006 | Re-run benchmark on identical hardware → identical results | ✅ Implemented (version pins) |
+
 ---
 
 ## Coverage Summary
@@ -125,8 +139,9 @@ This matrix establishes **bidirectional traceability** between requirements, des
 | Profile | 2 | — | ⚠️ Minimal | ⚠️ None | ✅ 5 | ~25% |
 | Location | 1 | — | ✅ | ✅ | ✅ 4 | ~60% |
 | **Cross-cutting** | — | 10 | ✅ (Shared) | ✅ (Host/AntiForgery) | ✅ 8 | ~70% |
+| **Research / ML Evaluation** | 6 (RES-FR) | 1 (RES-NFR) | ✅ (model registry) | ⏳ (benchmark script) | — | N/A |
 
-**Legend**: ✅ = comprehensive / well-tested | ⚠️ = partial / gaps exist | ~% = estimated coverage (opt-in via `/p:CollectCoverage=true`)
+**Legend**: ✅ = comprehensive / well-tested | ⚠️ = partial / gaps exist | ⏳ = planned for final submission | ~% = estimated coverage (opt-in via `/p:CollectCoverage=true`)
 
 ---
 

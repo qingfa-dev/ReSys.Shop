@@ -30,23 +30,26 @@ Introduction
 ├─ Problem Statement → Chapter 1
 ├─ Objectives → Chapter 1
 └─ Contributions → Chapter 1 + Chapter 11
+  └─ Dual contribution: (a) Software Architecture + (b) ML Model Comparison
 
 Literature Review
-├─ E-commerce systems, CBIR, Recommendation systems → [External literature]
-└─ Deep learning, Vector databases → [External literature]
+├─ E-commerce systems, modular monoliths, vertical slices → [External literature]
+├─ CBIR, embedding models, fashion retrieval → [External literature]
+├─ Deep learning, Vision Transformers, CNNs → [External literature]
+└─ Vector databases, pgvector → [External literature]
 
 Requirements Analysis
 ├─ Functional requirements → Chapter 2
 ├─ Non-functional requirements → Chapter 2
-├─ Use cases → Chapter 2
+├─ Use cases → Chapter 2 (including Model Comparison Evaluation use case)
 └─ User roles → Chapter 2
 
 System Design
 ├─ Overall architecture → Chapter 3
 ├─ C4 diagrams → Chapter 3
 ├─ Technology stack → Chapter 3 + Chapter 5
-├─ Design patterns → Chapter 3
-└─ Data flow → Chapter 3 + Chapter 7
+├─ Design patterns (including embedding model Strategy) → Chapter 3
+└─ Data flow (including model comparison flow) → Chapter 3 + Chapter 7
 
 Domain Design
 ├─ Domain model → Chapter 4
@@ -57,21 +60,21 @@ Domain Design
 
 Detailed Design
 ├─ Sequence diagrams → Chapter 7
-├─ Class diagrams → Chapter 7
+├─ Class diagrams (including embedding model hierarchy) → Chapter 7
 ├─ API design → Chapter 6
 ├─ Database schema → Chapter 5
-└─ ML service workflow → Chapter 7
+└─ ML service workflow (multi-model sidecar) → Chapter 7
 
 Implementation
 ├─ Backend (.NET) → Chapters 3, 4, 5, 6, 7
 ├─ Frontend (Vue) → Chapters 3, 6
-├─ ML service (FastAPI) → Chapters 3, 5, 7
+├─ ML service (FastAPI, pluggable models) → Chapters 3, 5, 7
 └─ Infrastructure (Aspire) → Chapters 3, 9
 
 Testing and Evaluation
 ├─ Unit / integration / system testing → Chapter 10
 ├─ Performance testing → Chapter 11
-├─ ML evaluation (Recall@K, Precision@K) → Chapter 11
+├─ ML evaluation — Comparative study (4 models, mAP, statistical significance) → Chapter 11
 └─ Discussion → Chapter 11
 
 Conclusion and Future Work
@@ -95,6 +98,7 @@ Conclusion and Future Work
 | Class Diagram (Order Aggregate) | Chapter 4 | ✅ Formal Mermaid | [`diagrams/class-order-aggregate.mmd`](diagrams/class-order-aggregate.mmd) |
 | Class Diagram (Payment Aggregate) | Chapter 4 | ✅ Formal Mermaid | [`diagrams/class-payment-aggregate.mmd`](diagrams/class-payment-aggregate.mmd) |
 | Class Diagram (Identity Aggregate) | Chapter 4 | ✅ Formal Mermaid | [`diagrams/class-identity-aggregate.mmd`](diagrams/class-identity-aggregate.mmd) |
+| Class Diagram (Embedding Models — Strategy Pattern) | Chapter 7 | ✅ Formal Mermaid | [`diagrams/class-embedding-models.mmd`](diagrams/class-embedding-models.mmd) |
 | ERD (Core Business) | Chapter 5 | ✅ Formal Mermaid | [`diagrams/erd-core.mmd`](diagrams/erd-core.mmd) |
 | State Machine (Order) | Chapter 4 | ✅ Formal Mermaid | [`diagrams/state-order.mmd`](diagrams/state-order.mmd) |
 | State Machine (Payment) | Chapter 4 | ✅ Formal Mermaid | [`diagrams/state-payment.mmd`](diagrams/state-payment.mmd) |
@@ -131,13 +135,13 @@ Unknowns are marked `[TODO]`. Intent-dependent decisions are marked `[ASK USER]`
 
 | Action | Status | Evidence |
 |--------|--------|----------|
-| Generate formal Mermaid diagrams | ✅ Done | 18 `.mmd` files in `diagrams/` |
+| Generate formal Mermaid diagrams | ✅ Done | 19 `.mmd` files in `diagrams/` |
 | Add formal scope boundary section (§1.4) | ✅ Done | `01-problem-analysis.md` updated with Scope and Delimitations |
 | Add bounded context map (§4.1a) | ✅ Done | `04-domain-analysis.md` + `bounded-context-map.mmd` |
 | Add ubiquitous language glossary (§4.6) | ✅ Done | `04-domain-analysis.md` with 20+ defined terms |
 | Create Requirements Traceability Matrix | ✅ Done | `12-requirements-traceability-matrix.md` |
 | Provide multi-proposal options for pending questions | ✅ Done | `13-proposal-options.md` with 2–3 alternatives per question |
-| Apply recommended proposals to documents | ✅ Done | Ch 1 (MSc level), Ch 3 (justification prose), Ch 5 (normalization), Ch 8 (controls table + deferred STRIDE), Ch 10 (70% coverage), Ch 11 (ML metrics + skip user study), Ch 12 (TC IDs), 4 class diagrams |
+| Apply recommended proposals to documents | ✅ Done | Ch 1 (MSc level + dual contribution), Ch 2 (multi-model requirements), Ch 3 (model-agnostic flow + comparison flow), Ch 5 (normalization + variable dimensions), Ch 7 (Strategy pattern for embedding models), Ch 8 (controls table + deferred STRIDE), Ch 10 (70% coverage), Ch 11 (comparative ML study with mAP + statistical analysis), Ch 12 (TC IDs), 4 class diagrams |
 
 ## Outstanding Questions ([ASK USER])
 
@@ -146,7 +150,7 @@ Unknowns are marked `[TODO]`. Intent-dependent decisions are marked `[ASK USER]`
 | Task | When | How |
 |------|------|-----|
 | Run `dotnet test /p:CollectCoverage=true` and populate coverage percentages | Final submission | `dotnet test /p:CollectCoverage=true` |
-| Execute Fashion-CLIP benchmark (100-image ground-truth dataset) | Final submission | Python script: generate embeddings → query pgvector → measure Recall@20 / Precision@20 |
+| Execute **comparative ML benchmark** (4 models × 100-image ground-truth dataset) | Final submission | Python script: foreach model → generate embeddings → query pgvector → measure Precision@K, Recall@K, mAP, latency, storage |
 | Measure end-to-end checkout latency | Final submission | Integration test with `Stopwatch` or load test with `k6` |
 
 ---
@@ -176,7 +180,7 @@ Unknowns are marked `[TODO]`. Intent-dependent decisions are marked `[ASK USER]`
 | 19 | **Test plan matrix**: Req × test levels? | Full **RTM** | `12-requirements-traceability-matrix.md` |
 | 20 | **Coverage target**: Expected percentage? | **≥70%** statement coverage | `10-testing-strategy.md:§10.6` |
 | 21 | **Benchmarks**: Run now or methodology only? | **Methodology for draft; numbers for final** | `11-evaluation.md:§11.1` |
-| 22 | **ML statistics**: Confidence intervals? | **Recall@K + Precision@K with mean ± SD** | `11-evaluation.md:§11.5` |
+| 22 | **ML statistics**: Confidence intervals, significance testing? | **mAP + Precision@K + Recall@K with mean ± SD, paired t-tests, Cohen's d, bootstrap 95% CI** | `11-evaluation.md:§11.5` |
 | 23 | **User study**: SUS/task-based testing? | **Skipped** — architectural contribution | `11-evaluation.md:§11.6` |
 | 24 | **RTM test case IDs**: TC-001 style? | **Formal TC-{Module}-{Seq} IDs** | `12-requirements-traceability-matrix.md` |
 | 25 | **Actual coverage numbers**: Populate from coverlet? | **[TODO — Final Submission]** | `10-testing-strategy.md:§10.6` |

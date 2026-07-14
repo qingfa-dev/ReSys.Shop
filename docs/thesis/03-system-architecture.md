@@ -181,21 +181,46 @@ HTTP Request
 
 **Evidence**: `Program.cs:54-65`, `Mediator.Extension.cs:46-50`, `Validation.Behavior.cs:1-67`, `Exception.Behavior.cs:1-42`
 
-### 3.6.2 Image Search Flow (CBIR)
+### 3.6.2 Image Search Flow (CBIR — Model-Agnostic)
 
 ```
 User uploads image
   → Storefront SPA POST /api/catalog/storefront/search-by-image
     → Backend receives image bytes
       → HTTP POST to Python sidecar /embeddings (Aspire service discovery)
-        → Sidecar loads Fashion-CLIP model → generates 512-d vector
-      → Backend receives vector
-        → EF Core + pgvector: `ORDER BY embedding <=> @vector LIMIT 20`
+        → Sidecar loads configured model (Fashion-CLIP / ResNet-50 / EfficientNet-B0 / CLIP-generic)
+        → Sidecar generates vector (dimension varies: 512, 2048, 1280, 512)
+      → Backend receives vector + model_name
+        → EF Core + pgvector: `SELECT * FROM variant_images WHERE model_name = $1 ORDER BY embedding <=> $2 LIMIT 20`
       → Mapster maps results to Product DTOs
     → JSON response with similar products
 ```
 
+**Model abstraction**: The sidecar exposes `POST /embeddings` with a configurable `model` parameter (default from env var `EMBEDDING_MODEL`). Each model implements `BaseEmbeddingModel` with `encode_image()` → `np.ndarray`. The database stores `model_name` alongside each embedding to enable per-model indexing and comparison.
+
 **Evidence**: `ImageEmbedding.Inference.cs:21-36`, `Vector.Configuration.cs:1-30+`, `ApiTests/Catalog/Storefront/search-by-image.http`
+
+### 3.6.3 Model Comparison Flow (Evaluation)
+
+```
+Ground-truth dataset (100 images, 10 similarity groups)
+  → For each model in [Fashion-CLIP, ResNet-50, EfficientNet-B0, CLIP-generic]:
+    → Configure sidecar: EMBEDDING_MODEL=<model_name>
+    → Restart sidecar (model swap)
+    → Generate embeddings for all catalog images
+    → For each query image in ground-truth:
+      → POST /embeddings → receive vector
+      → Query pgvector top-20
+      → Compare retrieved variants against labeled group
+      → Record: Precision@20, Recall@20, latency_ms, vector_dim
+    → Compute mean ± SD across 100 queries
+  → Generate comparison table:
+    | Model | Precision@20 | Recall@20 | mAP | Embed Time | Storage |
+```
+
+**Evidence**: `11-evaluation.md:§11.5`
+
+### 3.6.4 Checkout Flow (Critical Path)
 
 ### 3.6.3 Checkout Flow (Critical Path)
 

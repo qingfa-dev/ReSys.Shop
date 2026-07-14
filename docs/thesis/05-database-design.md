@@ -136,7 +136,7 @@ The database uses **per-module schemas** to provide logical separation within th
 |-------|-------------|-------------|---------|
 | `catalog.products` | `id`, `name`, `slug`, `status`, `master_variant_id`, `available_on`, `discontinue_on`, `style_code`, `season_name` | `slug` unique | `[slug]`, `[status]` |
 | `catalog.variants` | `id`, `product_id`, `sku`, `is_master`, `price`, `cost_price`, `track_inventory`, `weight`, `height`, `width`, `depth` | `sku` unique, FK to `products` | `[product_id]`, `[sku]` |
-| `catalog.variant_images` | `id`, `variant_id`, `file_path`, `alt_text`, `position`, `embedding` | FK to `variants` | `[variant_id]`, `embedding USING ivfflat` (pgvector) |
+| `catalog.variant_images` | `id`, `variant_id`, `file_path`, `alt_text`, `position`, `embedding`, `model_name`, `vector_dim` | FK to `variants` | `[variant_id]`, `embedding USING ivfflat` (pgvector), `[model_name]` |
 
 ### 5.4.2 Order
 
@@ -160,21 +160,42 @@ The identity schema extends ASP.NET Identity with custom `User`, `Role`, and `Us
 ### 5.5.1 Vector Column Configuration
 
 ```csharp
-// From Vector.Configuration.cs
+// From Vector.Configuration.cs — updated for multi-model support
 builder.Entity<VariantImage>()
     .Property(v => v.Embedding)
-    .HasColumnType("vector(512)");  // Fashion-CLIP output dimension
+    .HasColumnType("vector(2048)");  // Max dimension across all models (ResNet-50 = 2048)
+    // Actual dimensions: Fashion-CLIP=512, ResNet-50=2048, EfficientNet-B0=1280, CLIP-generic=512
+
+builder.Entity<VariantImage>()
+    .Property(v => v.ModelName)
+    .HasMaxLength(50)
+    .HasDefaultValue("fashion-clip");  // Which model generated this embedding
+
+builder.Entity<VariantImage>()
+    .Property(v => v.VectorDim)
+    .HasDefaultValue(512);  // Actual dimension for this model's vector
 ```
 
-### 5.5.2 Similarity Query
+**Design decision**: A single `vector(2048)` column accommodates all models. Smaller vectors are right-padded with zeros (standard pgvector behavior). The `model_name` and `vector_dim` columns enable per-model filtering and indexing during evaluation.
+
+### 5.5.2 Similarity Query (Model-Specific)
 
 ```sql
+-- Query embeddings from a specific model (e.g., Fashion-CLIP)
 SELECT vi.*, v.sku, p.name
 FROM catalog.variant_images vi
 JOIN catalog.variants v ON vi.variant_id = v.id
 JOIN catalog.products p ON v.product_id = p.id
+WHERE vi.model_name = 'fashion-clip'
 ORDER BY vi.embedding <=> @query_embedding  -- cosine distance
 LIMIT 20;
+```
+
+**Per-model indexing**: During evaluation, separate IVF flat indexes are created per `model_name` to prevent cross-model interference:
+```sql
+CREATE INDEX idx_embedding_fashion_clip ON catalog.variant_images 
+USING ivfflat (embedding vector_cosine_ops) 
+WHERE model_name = 'fashion-clip';
 ```
 
 **Design decision**: Cosine similarity (`<=>` operator in pgvector) is used because Fashion-CLIP embeddings are normalized L2 vectors where cosine distance is equivalent to Euclidean distance and performs well for visual similarity.

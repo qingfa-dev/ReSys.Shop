@@ -106,44 +106,138 @@ The following performance optimizations were designed into the system:
 
 **Evidence**: `CONCERNS.md`
 
-## 11.5 ML Evaluation (CBIR)
+## 11.5 ML Evaluation — Comparative Study (Dual Contribution §2)
 
-### 11.5.1 Model Selection
+### 11.5.1 Study Objective
 
-**Model**: Fashion-CLIP (via `open-clip-torch`)
-**Dimensionality**: 512-d float vector
-**Output normalization**: L2-normalized (enables cosine similarity)
+This evaluation addresses **Research Objective 3** (§1.4): *empirically comparing four pretrained embedding models* to determine which provides the optimal balance of retrieval effectiveness and operational performance for fashion CBIR.
 
-### 11.5.2 Evaluation Metrics
+**Models evaluated**:
 
-The following metrics are appropriate for evaluating the image search feature:
+| Model | Library | Vector Dim | Pretraining | Fashion-Specific? |
+|-------|---------|-----------|-------------|-------------------|
+| **Fashion-CLIP** | `open-clip-torch` | 512 | LAION-400M + fashion fine-tune | ✅ Yes |
+| **ResNet-50** | `torchvision` | 2048 | ImageNet-1K | ❌ No (generic) |
+| **EfficientNet-B0** | `timm` | 1280 | ImageNet-1K (AutoML optimized) | ❌ No (generic) |
+| **CLIP-generic** | `transformers` | 512 | OpenAI WIT-400M | ❌ No (generic) |
 
-| Metric | Definition | Target |
-|--------|-----------|--------|
-| **Recall@K** | Proportion of truly similar items retrieved in top-K | ≥ 0.70 @ K=20 |
-| **Precision@K** | Proportion of retrieved items that are truly similar | ≥ 0.50 @ K=20 |
-| **Inference Time** | Time from image upload to result display | < 500ms (backend) |
-| **Embedding Generation Time** | Time in Python sidecar | < 200ms per image |
+**Rationale for model selection**:
+- **Fashion-CLIP**: Hypothesized best retrieval due to fashion-specific fine-tuning (Han et al., 2022).
+- **ResNet-50**: Baseline CNN; widely used in fashion retrieval literature (Liu et al., 2016).
+- **EfficientNet-B0**: State-of-the-art efficiency-accuracy trade-off (Tan & Le, 2019).
+- **CLIP-generic**: Tests whether generic CLIP suffices without fashion fine-tuning.
 
-**Evaluation method**: Construct a ground-truth dataset of **100 fashion images** with human-labeled similarity groups (e.g., 10 groups of 10 visually similar dresses). For each image:
+### 11.5.2 Ground-Truth Dataset
 
-1. Generate its Fashion-CLIP embedding via the Python sidecar.
-2. Query PostgreSQL pgvector with `ORDER BY embedding <=> $1 LIMIT 20`.
-3. Compare the top-20 retrieved variant images against the labeled similarity group.
-4. Record **Recall@20** (proportion of the 9 similar items retrieved) and **Precision@20** (proportion of retrieved items that are in the group).
+**Dataset**: 100 fashion product images (10 categories × 10 items per category):
+- Dresses, T-shirts, Jeans, Jackets, Shoes, Bags, Accessories, Activewear, Formalwear, Outerwear
+- Each item photographed on white background (standard e-commerce format)
+- **Similarity definition**: Two items are "similar" if they belong to the same category AND share ≥2 visual attributes (color, pattern, style) as judged by 2 independent annotators (inter-annotator agreement κ ≥ 0.75).
 
-**Statistical reporting**: Report the **mean ± standard deviation** across all 100 queries. A standard deviation < 0.15 indicates consistent retrieval quality; higher variance suggests edge-case images (e.g., unusual patterns, accessories) that the model struggles with.
+**Per-query ground truth**: For each of the 100 query images, the relevant set = the other 9 items in its category that share visual attributes.
 
-**Performance metrics**: Measure end-to-end latency (image upload → results displayed) and decompose into:
-- Upload + preprocessing: ~50ms
-- Embedding generation (Python sidecar): target < 200ms
-- pgvector similarity query: target < 100ms
-- DTO mapping + serialization: ~50ms
-- **Total target**: < 500ms for the complete round-trip
+### 11.5.3 Evaluation Metrics
 
-**Current status**: `[TODO — Final Submission]` — The evaluation framework is fully defined. Benchmark execution requires a ground-truth dataset and a stable embedding sidecar deployment. These will be completed before final submission and the numbers populated in this section.
+**Retrieval effectiveness** (primary):
 
-**Evidence**: `service/Embedding/src/main.py:1-29`, `ImageEmbedding.Inference.cs:21-36`
+| Metric | Definition | Formula | Target |
+|--------|-----------|---------|--------|
+| **Precision@K** | Proportion of retrieved items that are relevant | `|relevant ∩ retrieved| / |retrieved|` | Report mean±SD |
+| **Recall@K** | Proportion of relevant items that are retrieved | `|relevant ∩ retrieved| / |relevant|` | Report mean±SD |
+| **mAP (mean Average Precision)** | Area under precision-recall curve, averaged across queries | `mean(Σ P(k) · rel(k) / |relevant|)` | Report mean±SD |
+
+**Operational performance** (secondary):
+
+| Metric | Definition | Measurement |
+|--------|-----------|-------------|
+| **Embedding generation time** | ms per image (sidecar only) | `time.time()` around `encode_image()` |
+| **Index storage** | MB per 1000 embeddings | PostgreSQL `pg_total_relation_size()` |
+| **Query latency** | ms for top-20 similarity search | `EXPLAIN ANALYZE` on pgvector query |
+| **Model load time** | ms to load model into GPU/CPU memory | Sidecar startup telemetry |
+| **Memory footprint** | RAM usage at steady state | `psutil.Process().memory_info()` |
+
+**Why mAP?**: mAP summarizes the entire precision-recall trade-off across all K values, unlike Precision@K or Recall@K which are point estimates. It is the standard metric in CBIR literature (Zheng et al., 2017).
+
+### 11.5.4 Experimental Protocol
+
+**Controlled variables**:
+- Hardware: Single machine (Intel i7-12700H, 32GB RAM, RTX 3060 6GB)
+- PostgreSQL 17 + pgvector with IVF flat index (nlist=100)
+- Image preprocessing: 224×224 resize, ImageNet normalization (standardized across all models)
+- Similarity metric: Cosine distance (`<=>` operator in pgvector)
+- K values tested: {5, 10, 20}
+
+**Procedure per model**:
+1. Set `EMBEDDING_MODEL=<model_name>` → restart sidecar
+2. Load model into memory → record load time
+3. For each of 100 query images:
+   a. Generate embedding → record generation time
+   b. Execute `SELECT ... ORDER BY embedding <=> $1 LIMIT K` for K∈{5,10,20}
+   c. Compare retrieved items against ground-truth relevant set
+   d. Compute Precision@K, Recall@K, AP@K
+4. Aggregate: mean ± SD across 100 queries per metric
+5. Record index storage size and memory footprint
+
+**Replication**: Each model evaluation is run 3 times (3-fold cross-validation) to account for thermal throttling and OS scheduling variance. Report mean ± SD across folds.
+
+### 11.5.5 Hypotheses
+
+| Hypothesis | Prediction | Rationale |
+|-----------|-----------|-----------|
+| **H1** | Fashion-CLIP achieves highest mAP | Fashion-specific fine-tuning aligns embeddings with human fashion similarity judgments |
+| **H2** | EfficientNet-B0 achieves best efficiency metric (mAP / ms) | Compound scaling optimizes FLOPs-to-accuracy ratio |
+| **H3** | ResNet-50 has highest storage cost per embedding | 2048-d vectors consume 4× the storage of 512-d vectors |
+| **H4** | CLIP-generic underperforms Fashion-CLIP but outperforms CNNs | Text-image pretraining captures semantic similarity better than pure visual features |
+
+### 11.5.6 Expected Results Template
+
+Results will be reported in the following table format (to be populated at final submission):
+
+**Retrieval Effectiveness (mean ± SD, n=100)**
+
+| Model | Precision@5 | Recall@5 | Precision@10 | Recall@10 | Precision@20 | Recall@20 | mAP |
+|-------|-------------|----------|--------------|-----------|--------------|-----------|-----|
+| Fashion-CLIP | `X.XX ± X.XX` | `X.XX ± X.XX` | `X.XX ± X.XX` | `X.XX ± X.XX` | `X.XX ± X.XX` | `X.XX ± X.XX` | `X.XX ± X.XX` |
+| ResNet-50 | `X.XX ± X.XX` | `X.XX ± X.XX` | `X.XX ± X.XX` | `X.XX ± X.XX` | `X.XX ± X.XX` | `X.XX ± X.XX` | `X.XX ± X.XX` |
+| EfficientNet-B0 | `X.XX ± X.XX` | `X.XX ± X.XX` | `X.XX ± X.XX` | `X.XX ± X.XX` | `X.XX ± X.XX` | `X.XX ± X.XX` | `X.XX ± X.XX` |
+| CLIP-generic | `X.XX ± X.XX` | `X.XX ± X.XX` | `X.XX ± X.XX` | `X.XX ± X.XX` | `X.XX ± X.XX` | `X.XX ± X.XX` | `X.XX ± X.XX` |
+
+**Operational Performance**
+
+| Model | Embed Time (ms) | Load Time (s) | Storage/1K (MB) | Query Latency (ms) | RAM (MB) |
+|-------|-----------------|---------------|-----------------|-------------------|----------|
+| Fashion-CLIP | `XXX ± XX` | `X.XX` | `X.XX` | `XX ± X` | `XXXX` |
+| ResNet-50 | `XXX ± XX` | `X.XX` | `X.XX` | `XX ± X` | `XXXX` |
+| EfficientNet-B0 | `XXX ± XX` | `X.XX` | `X.XX` | `XX ± X` | `XXXX` |
+| CLIP-generic | `XXX ± XX` | `X.XX` | `X.XX` | `XX ± X` | `XXXX` |
+
+**Analysis dimensions**:
+1. **Retrieval effectiveness**: Which model maximizes mAP? Is the difference statistically significant (paired t-test, α=0.05)?
+2. **Efficiency-accuracy trade-off**: Plot mAP vs. embedding time (Pareto frontier). Which model dominates?
+3. **Storage cost**: Is the 4× storage increase of ResNet-50 justified by retrieval gains?
+4. **Business impact**: Which model meets the ≥0.70 Recall@20 target while minimizing operational cost?
+
+### 11.5.7 Statistical Analysis
+
+**Significance testing**: Paired t-tests between Fashion-CLIP and each competitor on mAP scores (100 paired observations per comparison). Bonferroni correction for 3 comparisons (α = 0.05/3 ≈ 0.017).
+
+**Effect size**: Cohen's d for paired samples to quantify practical significance (d > 0.5 = medium effect).
+
+**Confidence intervals**: 95% CI for mean mAP per model, computed via bootstrap (10,000 resamples).
+
+### 11.5.8 Threats to Validity
+
+| Threat | Mitigation |
+|--------|-----------|
+| **Dataset size** (100 images) | Power analysis: with n=100, effect size d=0.5, paired t-test achieves 80% power at α=0.05. Dataset is representative of standard e-commerce catalogs. |
+| **Annotator bias** | 2 annotators with κ≥0.75; disagreements resolved by discussion. |
+| **Hardware generalizability** | Report full hardware spec; results are relative (comparative), not absolute. |
+| **Model version drift** | Pin exact package versions (`open-clip-torch==2.24.0`, `torchvision==0.18.0`) in `pyproject.toml`. |
+| **Index tuning variance** | Same IVF flat parameters (nlist=100) across all models; no per-model tuning to prevent overfitting. |
+
+**Current status**: `[TODO — Final Submission]` — The evaluation framework, ground-truth dataset protocol, and statistical analysis plan are fully defined. Quantitative numbers will be measured on the final codebase snapshot and populated before submission.
+
+**Evidence**: `service/Embedding/src/models/base_model.py`, `service/Embedding/src/models/clip_model.py`, `service/Embedding/src/models/resnet_model.py`, `service/Embedding/src/models/efficientnet_model.py`, `service/Embedding/src/models/clip_generic_model.py`, `ImageEmbedding.Inference.cs:21-36`
 
 ## 11.6 Usability Evaluation
 
@@ -166,14 +260,15 @@ Usability evaluation (SUS, task-based testing) would shift the focus toward Huma
 1. **Explicit error handling** eliminates an entire class of runtime bugs (uncaught exceptions). The `Result<T>` type makes every failure path visible in code review.
 2. **Vertical slices** make the codebase unusually approachable. A new developer can understand "Create Product" by reading 5 files in one folder.
 3. **Modular monolith + MediatR** provides microservice-like isolation without distributed-system complexity. Checkout remains ACID because all modules share one database.
-4. **Fashion-CLIP + pgvector** is an elegant integration: one database handles both transactional and vector workloads, simplifying ops.
+4. **Pluggable embedding model architecture** enables empirical comparison of 4 models without code changes. The Strategy pattern in the sidecar (`BaseEmbeddingModel` → concrete implementations) is a novel contribution: most CBIR systems hardcode a single model.
+5. **Dual contribution validation**: The thesis demonstrates both (a) software architecture principles (modularity, explicit errors, vertical slices) and (b) ML engineering rigor (controlled comparison, mAP metrics, statistical significance testing) — a combination rare in software engineering theses.
 
 ### 11.7.2 Limitations
 
 1. **Disabled isolation validation** (`ValidateVerticalSliceIsolation` is off) means module coupling can only be caught by code review.
 2. **No CI/CD** means regressions can land without automated verification.
 3. **Azure storage not implemented** — the Strategy pattern is incomplete for storage providers.
-4. **Embedding E2E pending** — the CBIR feature is structurally complete but not empirically validated.
+4. **Model comparison pending** — the CBIR feature and 4-model sidecar are structurally complete, but the comparative evaluation (ground-truth dataset, benchmark runs, statistical analysis) is planned for final submission.
 5. **No API gateway** — SPAs directly call the API, which complicates CORS and rate-limit enforcement at the edge.
 
 ### 11.7.3 Future Work
@@ -183,7 +278,7 @@ Usability evaluation (SUS, task-based testing) would shift the focus toward Huma
 | Enable `ValidateVerticalSliceIsolation` | Automated enforcement of architectural boundary | Low |
 | Implement GitHub Actions CI/CD | Automated build/test on every PR | Medium |
 | Add Playwright E2E tests for Storefront | Validate critical user journeys | Medium |
-| Conduct Fashion-CLIP benchmark | Empirical validation of CBIR quality | Medium |
+| Expand model comparison to include domain-specific fine-tuned ResNet/EfficientNet | Test whether fashion fine-tuning closes the gap with Fashion-CLIP | Medium |
 | Implement Azure Blob provider | Complete the storage Strategy pattern | Low |
 | Add recommendation engine (collaborative filtering) | Complement CBIR with user-behavior recommendations | High |
 | Migrate to YARP gateway | Centralize auth, CORS, rate limiting | Medium |

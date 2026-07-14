@@ -34,6 +34,7 @@ public sealed class ApiFactory : WebApplicationFactory<Program>
             config.AddInMemoryCollection(new Dictionary<string, string?>
             {
                 ["ConnectionStrings:DefaultConnection"] = _connectionString,
+                ["ConnectionStrings:Cache"] = "localhost:6379",
 
                 ["Observability:UseAspireOTLPExporter"] = "false",
                 ["Observability:ExposeDetailedReport"] = "true",
@@ -43,6 +44,7 @@ public sealed class ApiFactory : WebApplicationFactory<Program>
                 ["Caching:Enabled"] = "false",
                 ["Caching:Memory:Enabled"] = "false",
                 ["Caching:Distributed:Enabled"] = "false",
+                ["Caching:Distributed:Required"] = "false",
                 ["Caching:Hybrid:Enabled"] = "false",
 
                 ["BackgroundJobs:Enabled"] = "false",
@@ -66,6 +68,7 @@ public sealed class ApiFactory : WebApplicationFactory<Program>
                 ["Notification:SurveyUrl"] = "http://localhost:5000/survey",
                 ["Notification:Channels:Email:FromEmail"] = "test@resys.shop",
                 ["Notification:Channels:Email:FromName"] = "test@resys.shop",
+                ["Notification:Channels:Email:Enabled"] = "false",
                 ["Notification:Channels:Sms:DefaultSenderNumber"] = "+12345678901",
 
                 ["GuestSession:CookieSecurePolicy"] = "SameAsRequest",

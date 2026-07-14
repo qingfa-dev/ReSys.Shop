@@ -104,7 +104,7 @@ LoggingBehavior<TRequest, TResponse>
 
 **Evidence**: `git log: commit 887a77c7`, `CreateOrderFromCart.cs`
 
-### 7.1.4 Sequence Diagram: Image Search (CBIR)
+### 7.1.4 Sequence Diagram: Image Search (CBIR — Model-Agnostic)
 
 ```
 ┌─────────┐  ┌─────────────┐  ┌──────────────────┐  ┌─────────────┐  ┌─────────────┐
@@ -117,14 +117,19 @@ LoggingBehavior<TRequest, TResponse>
      │              │ POST /search-by-image (multipart)       │                │
      │              │───────────────────>│                   │                │
      │              │                    │ Forward image bytes│                │
+     │              │                    │ + model=fashion-clip│                │
      │              │                    │──────────────────>│                │
-     │              │                    │                   │ Fashion-CLIP   │
-     │              │                    │                   │ inference      │
-     │              │                    │                   │ (torch)        │
+     │              │                    │                   │ Load Fashion-  │
+     │              │                    │                   │ CLIP model     │
+     │              │                    │                   │ (lazy init)    │
+     │              │                    │                   │ ↓              │
+     │              │                    │                   │ encode_image() │
      │              │                    │<──────────────────│                │
-     │              │                    │ 512-d vector      │                │
+     │              │                    │ vector + dim=512  │                │
+     │              │                    │ + model_name      │                │
      │              │                    │                   │                │
-     │              │                    │ SELECT ... ORDER BY embedding <=> $1 │
+     │              │                    │ SELECT ... WHERE model_name=$1      │
+     │              │                    │ ORDER BY embedding <=> $2 LIMIT 20 │
      │              │                    │─────────────────────────────────────>│
      │              │                    │                   │                │
      │              │                    │<─────────────────────────────────────│
@@ -133,6 +138,8 @@ LoggingBehavior<TRequest, TResponse>
      │ Results      │                    │                   │                │
      │<─────────────│                    │                   │                │
 ```
+
+**Model abstraction in sidecar**: The sidecar uses a **Strategy pattern** with a `BaseEmbeddingModel` abstract class. Each model (Fashion-CLIP, ResNet-50, EfficientNet-B0, CLIP-generic) is a concrete implementation loaded at runtime based on the `EMBEDDING_MODEL` environment variable. This enables swapping models without code changes.
 
 **Evidence**: `ImageEmbedding.Inference.cs:21-36`, `ApiTests/Catalog/Storefront/search-by-image.http`
 
@@ -185,7 +192,7 @@ LoggingBehavior<TRequest, TResponse>
 
 ## 7.3 ML Service Workflow
 
-The Python sidecar is a stateless FastAPI application that performs one primary function: image embedding generation.
+The Python sidecar is a stateless FastAPI application that performs one primary function: image embedding generation. It is architected for **pluggability**: multiple pretrained models can be swapped at runtime via environment variable, supporting the comparative evaluation in Chapter 11.
 
 ### 7.3.1 Architecture
 
@@ -194,13 +201,17 @@ service/Embedding/
 ├── src/
 │   ├── main.py              # FastAPI app, CORS, exception handlers
 │   ├── routers/
-│   │   ├── embedding_router.py   # POST /embeddings
+│   │   ├── embedding_router.py   # POST /embeddings (accepts model param)
 │   │   ├── health_router.py      # GET /health
-│   │   └── model_router.py       # GET /models
+│   │   └── model_router.py       # GET /models (lists available models)
 │   ├── services/
-│   │   └── embedding_service.py  # Fashion-CLIP inference
+│   │   └── embedding_service.py  # Delegates to BaseEmbeddingModel
 │   ├── models/
-│   │   └── clip_model.py         # Model loading, caching
+│   │   ├── base_model.py         # Abstract base: encode_image() → np.ndarray
+│   │   ├── clip_model.py         # Fashion-CLIP (open_clip) — 512-d
+│   │   ├── resnet_model.py       # ResNet-50 (torchvision) — 2048-d
+│   │   ├── efficientnet_model.py # EfficientNet-B0 (timm) — 1280-d
+│   │   └── clip_generic_model.py # CLIP-generic (transformers) — 512-d
 │   └── utils/
 │       └── image_preprocessing.py # Resize, normalize, tensor conversion
 └── tests/
@@ -209,14 +220,52 @@ service/Embedding/
     └── e2e/
 ```
 
-### 7.3.2 Embedding Generation Flow
+### 7.3.2 Embedding Model Class Hierarchy (Strategy Pattern)
 
-1. **Input**: Multipart image upload (JPEG/PNG/WebP)
-2. **Preprocessing**: Resize to 224×224, normalize with ImageNet stats, convert to PyTorch tensor
-3. **Inference**: `open_clip.encode_image()` → 512-dimensional float vector
-4. **Output**: JSON array `[0.0123, -0.0456, ...]` (512 elements)
+```
+┌────────────────────────────────────────────────────────────┐
+│                   BaseEmbeddingModel (ABC)                 │
+├────────────────────────────────────────────────────────────┤
+│ + model_name: str                                          │
+│ + vector_dim: int                                          │
+│ + __init__()                                               │
+│ + encode_image(image: PIL.Image) -> np.ndarray           │
+│ + warmup(): optional model preloading                      │
+└─────────────────────┬──────────────────────────────────────┘
+                      │ inherits
+         ┌────────────┼────────────┬────────────────┐
+         ▼            ▼            ▼                ▼
+┌─────────────┐ ┌──────────┐ ┌──────────────┐ ┌─────────────┐
+│ FashionCLIP │ │ ResNet50 │ │ EfficientNet │ │ CLIPGeneric │
+│  Model      │ │  Model   │ │    B0 Model  │ │    Model    │
+├─────────────┤ ├──────────┤ ├──────────────┤ ├─────────────┤
+│ open_clip   │ │ torchvision│ │ timm       │ │ transformers │
+│ 512-d       │ │ 2048-d    │ │  1280-d      │ │ 512-d        │
+└─────────────┘ └──────────┘ └──────────────┘ └─────────────┘
+```
 
-**Model**: Fashion-CLIP (pre-trained on fashion-specific image-text pairs) via `open-clip-torch` library.
+**Model selection at runtime**:
+```python
+# From embedding_service.py
+MODEL_REGISTRY = {
+    "fashion-clip": FashionCLIPModel,
+    "resnet50": ResNet50Model,
+    "efficientnet_b0": EfficientNetB0Model,
+    "clip": CLIPGenericModel,
+}
+
+def get_model() -> BaseEmbeddingModel:
+    model_name = os.getenv("EMBEDDING_MODEL", "fashion-clip")
+    return MODEL_REGISTRY[model_name]()
+```
+
+### 7.3.3 Embedding Generation Flow
+
+1. **Input**: Multipart image upload (JPEG/PNG/WebP) + optional `model` query parameter
+2. **Model resolution**: `embedding_service.py` reads `model` param or `EMBEDDING_MODEL` env var → instantiates correct `BaseEmbeddingModel` subclass
+3. **Preprocessing**: Model-specific preprocessing (e.g., Fashion-CLIP: 224×224; ResNet-50: 224×224; EfficientNet-B0: 224×224 with B0-specific normalization)
+4. **Inference**: `model.encode_image(image)` → `np.ndarray` (variable dimension: 512, 2048, or 1280)
+5. **Output**: JSON `{"embedding": [0.0123, ...], "model_name": "fashion-clip", "vector_dim": 512}`
 
 **Evidence**: `service/Embedding/src/main.py:1-29`, `service/Embedding/pyproject.toml:15-16`
 
@@ -229,6 +278,11 @@ service/Embedding/
 - `service/Api/src/Module/Ordering/Features/Storefront/Cart/Checkout/CreateOrderFromCart.cs` — checkout handler
 - `service/Api/src/Module/Catalog/Features/Admin/Products/Variants/Images/Embeddings/Shared/Clients/ImageEmbedding.Inference.cs` — embedding client
 - `service/Embedding/src/main.py:1-29` — Python service entry
+- `service/Embedding/src/models/base_model.py` — embedding model abstraction
+- `service/Embedding/src/models/clip_model.py` — Fashion-CLIP implementation
+- `service/Embedding/src/models/resnet_model.py` — ResNet-50 implementation
+- `service/Embedding/src/models/efficientnet_model.py` — EfficientNet-B0 implementation
+- `service/Embedding/src/models/clip_generic_model.py` — CLIP-generic implementation
 - `service/Api/src/Shared/Application/Models/Results/Result.cs:1-43` — Result type
 
 ---
