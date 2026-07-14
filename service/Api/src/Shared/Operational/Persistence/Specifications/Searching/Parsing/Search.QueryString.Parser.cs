@@ -48,7 +48,9 @@ internal static class SearchQueryStringParser
         }
         catch (Exception ex)
         {
-            return SearchingModelResult.Failure.InvalidQueryString(ex.Message);
+            return Result<SearchModel>.Unexpected(
+                exception: ex,
+                errors: [SearchingModelResult.Failure.InvalidQueryString(ex.Message)]);
         }
     }
 }

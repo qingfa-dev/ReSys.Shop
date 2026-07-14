@@ -69,7 +69,9 @@ internal static class SearchJsonParser
         }
         catch (Exception ex)
         {
-            return SearchingModelResult.Failure.InvalidJson(ex.Message);
+            return Result<SearchModel>.Unexpected(
+                exception: ex,
+                errors: [SearchingModelResult.Failure.InvalidJson(ex.Message)]);
         }
     }
 }
