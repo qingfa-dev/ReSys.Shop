@@ -134,6 +134,10 @@ class PgvectorRetriever:
             raise RuntimeError("Call connect() first")
         if len(product_ids) != len(labels) or len(product_ids) != len(embeddings):
             raise ValueError("product_ids, labels, and embeddings must have the same length")
+        if embeddings.ndim != 2:
+            raise ValueError("embeddings must be a 2D array of shape (N, D)")
+        if not product_ids:
+            return
 
         sql = f"""
             INSERT INTO {self._table} ({self._id_col}, {self._label_col}, {self._embedding_col})

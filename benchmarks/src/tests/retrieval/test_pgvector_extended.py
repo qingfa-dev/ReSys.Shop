@@ -1,6 +1,6 @@
 import numpy as np
 import pytest
-from unittest.mock import MagicMock, patch
+from unittest.mock import MagicMock
 
 from benchmark.retrieval.pgvector import PgvectorRetriever
 
@@ -22,3 +22,29 @@ def test_upsert_batch():
     sql = cur.execute.call_args[0][0]
     assert "INSERT INTO" in sql
     assert "ON CONFLICT" in sql
+
+
+def test_clear_table():
+    retriever = PgvectorRetriever(conn_string="postgresql://test@test/test")
+    retriever._conn = MagicMock()
+    retriever._conn.cursor.return_value.__enter__ = lambda s: s
+    retriever._conn.cursor.return_value.__exit__ = lambda *a: None
+    cur = retriever._conn.cursor.return_value
+
+    retriever.clear_table()
+    cur.execute.assert_called_once()
+    sql = cur.execute.call_args[0][0]
+    assert "DELETE FROM" in sql
+
+
+def test_build_index():
+    retriever = PgvectorRetriever(conn_string="postgresql://test@test/test")
+    retriever._conn = MagicMock()
+    retriever._conn.cursor.return_value.__enter__ = lambda s: s
+    retriever._conn.cursor.return_value.__exit__ = lambda *a: None
+    cur = retriever._conn.cursor.return_value
+
+    elapsed = retriever.build_index(512, 100)
+    assert cur.execute.call_count == 2
+    assert isinstance(elapsed, float)
+    assert elapsed >= 0
