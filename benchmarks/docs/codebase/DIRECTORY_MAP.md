@@ -65,6 +65,7 @@ Mirrors `src/benchmark/` structure:
 | `05-datasets.md` | dataset descriptions, formats |
 | `06-thesis-protocol.md` | §11.5 thesis evaluation protocol |
 | `07-references.md` | academic references |
+| `08-replication-guide.md` | step-by-step replication guide (thesis + pipeline + pgvector) |
 | `codebase/ARCHITECTURE.md` | architecture decisions |
 | `codebase/CONCERNS.md` | tech debt, risks |
 | `codebase/CONVENTIONS.md` | coding conventions |
