@@ -24,8 +24,6 @@ public static class CachingExtensions
     /// <summary>
     /// Registers caching services with the specified configuration.
     /// </summary>
-    /// <param name="services">The service collection to add services to.</param>
-    /// <param name="configuration">The configuration for retrieving settings.</param>
     /// <returns>The service collection for method chaining.</returns>
     /// <exception cref="OptionsValidationException">
     /// Thrown when caching options fail validation on startup.
@@ -49,9 +47,28 @@ public static class CachingExtensions
         // Check: Global enablement status for caching infrastructure
         CachingSetting cachingSetting = builder.Configuration.GetSection(CachingSetting.SectionName).Get<CachingSetting>() ?? new CachingSetting();
 
+        // Add: ICacheService always registered — CacheService checks CachingSetting.Enabled internally and no-ops when disabled.
+        // This ensures dependents (e.g. PermissionCache) are always resolvable regardless of caching configuration.
+        builder.Services.AddSingleton<ICacheService, CacheService>();
+
         if (!cachingSetting.Enabled)
         {
             return builder;
+        }
+
+        // Add: HybridCache layer combining L1 and L2 (optional — only registered when hybrid mode is enabled)
+        if (cachingSetting.Hybrid.Enabled)
+        {
+            builder.Services.AddHybridCache(options =>
+            {
+                options.MaximumPayloadBytes = cachingSetting.Hybrid.MaximumPayloadBytes;
+                options.MaximumKeyLength = cachingSetting.Hybrid.MaximumKeyLength;
+                options.DefaultEntryOptions = new CachingEntryOption
+                {
+                    Expiration = TimeSpan.FromMinutes(cachingSetting.Hybrid.DefaultExpirationMinutes),
+                    LocalCacheExpiration = TimeSpan.FromMinutes(cachingSetting.Memory.DefaultExpirationMinutes)
+                }.ToHybridCacheEntryOptions();
+            });
         }
 
         // Add: In-memory cache with configured compaction
@@ -99,24 +116,6 @@ public static class CachingExtensions
         {
             // Add: Distributed memory cache fallback
             builder.Services.AddDistributedMemoryCache();
-        }
-
-        // Add: HybridCache layer combining L1 and L2
-        if (cachingSetting.Hybrid.Enabled)
-        {
-            builder.Services.AddHybridCache(options =>
-            {
-                options.MaximumPayloadBytes = cachingSetting.Hybrid.MaximumPayloadBytes;
-                options.MaximumKeyLength = cachingSetting.Hybrid.MaximumKeyLength;
-                options.DefaultEntryOptions = new CachingEntryOption
-                {
-                    Expiration = TimeSpan.FromMinutes(cachingSetting.Hybrid.DefaultExpirationMinutes),
-                    LocalCacheExpiration = TimeSpan.FromMinutes(cachingSetting.Memory.DefaultExpirationMinutes)
-                }.ToHybridCacheEntryOptions();
-            });
-
-            // Add: Orchestration service for caching operations
-            builder.Services.AddSingleton<ICacheService, CacheService>();
         }
 
         #endregion
