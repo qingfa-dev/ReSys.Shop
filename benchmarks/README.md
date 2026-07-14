@@ -56,6 +56,12 @@ Dataset → Model → Embedding → Cache → Retrieval → Metrics → Report
 
 Adding a new model requires only one new file under `src/benchmark/models/`.
 
+## Documentation
+
+- **[Replication Guide](docs/08-replication-guide.md)** — step-by-step to reproduce all results
+- **[Benchmark Results](docs/09-benchmark-results.md)** — consolidated 5K pipeline + thesis results
+- **[Full Docs](docs/README.md)** — complete documentation index
+
 ## Outputs
 
 - `outputs/metrics/` — per-model JSON results

@@ -66,6 +66,7 @@ Mirrors `src/benchmark/` structure:
 | `06-thesis-protocol.md` | §11.5 thesis evaluation protocol |
 | `07-references.md` | academic references |
 | `08-replication-guide.md` | step-by-step replication guide (thesis + pipeline + pgvector) |
+| `09-benchmark-results.md` | consolidated benchmark results — 5K pipeline + 300-image thesis demo |
 | `codebase/ARCHITECTURE.md` | architecture decisions |
 | `codebase/CONCERNS.md` | tech debt, risks |
 | `codebase/CONVENTIONS.md` | coding conventions |

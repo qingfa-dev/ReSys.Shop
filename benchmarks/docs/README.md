@@ -14,6 +14,7 @@ Complete documentation for the ReSys.Shop fashion image retrieval benchmark.
 | [06 — Thesis Protocol](06-thesis-protocol.md) | The academic evaluation protocol for the CTU thesis |
 | [07 — References](07-references.md) | Academic papers, tools, and further reading |
 | [08 — Replication Guide](08-replication-guide.md) | Step-by-step to replicate all results (thesis + pipeline + pgvector) |
+| [09 — Results](09-benchmark-results.md) | Full benchmark results — pipeline (5K, pgvector) + thesis (in-memory) |
 | [Directory Map](codebase/DIRECTORY_MAP.md) | Every folder and file explained with priorities |
 
 ## For New Users

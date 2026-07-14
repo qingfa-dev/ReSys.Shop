@@ -1,0 +1,992 @@
+[
+  {
+    "image_path": "images/2243.jpg",
+    "label": "Apparel/Topwear",
+    "product_id": "2243"
+  },
+  {
+    "image_path": "images/2288.jpg",
+    "label": "Apparel/Topwear",
+    "product_id": "2288"
+  },
+  {
+    "image_path": "images/2627.jpg",
+    "label": "Footwear/Shoes",
+    "product_id": "2627"
+  },
+  {
+    "image_path": "images/2872.jpg",
+    "label": "Footwear/Shoes",
+    "product_id": "2872"
+  },
+  {
+    "image_path": "images/2886.jpg",
+    "label": "Footwear/Shoes",
+    "product_id": "2886"
+  },
+  {
+    "image_path": "images/3168.jpg",
+    "label": "Footwear/Shoes",
+    "product_id": "3168"
+  },
+  {
+    "image_path": "images/3365.jpg",
+    "label": "Apparel/Topwear",
+    "product_id": "3365"
+  },
+  {
+    "image_path": "images/3533.jpg",
+    "label": "Apparel/Topwear",
+    "product_id": "3533"
+  },
+  {
+    "image_path": "images/3701.jpg",
+    "label": "Apparel/Topwear",
+    "product_id": "3701"
+  },
+  {
+    "image_path": "images/3954.jpg",
+    "label": "Apparel/Topwear",
+    "product_id": "3954"
+  },
+  {
+    "image_path": "images/4140.jpg",
+    "label": "Footwear/Shoes",
+    "product_id": "4140"
+  },
+  {
+    "image_path": "images/4716.jpg",
+    "label": "Accessories/Watches",
+    "product_id": "4716"
+  },
+  {
+    "image_path": "images/4943.jpg",
+    "label": "Apparel/Topwear",
+    "product_id": "4943"
+  },
+  {
+    "image_path": "images/5630.jpg",
+    "label": "Footwear/Flip Flops",
+    "product_id": "5630"
+  },
+  {
+    "image_path": "images/5865.jpg",
+    "label": "Apparel/Topwear",
+    "product_id": "5865"
+  },
+  {
+    "image_path": "images/6041.jpg",
+    "label": "Apparel/Topwear",
+    "product_id": "6041"
+  },
+  {
+    "image_path": "images/6287.jpg",
+    "label": "Apparel/Topwear",
+    "product_id": "6287"
+  },
+  {
+    "image_path": "images/6425.jpg",
+    "label": "Footwear/Shoes",
+    "product_id": "6425"
+  },
+  {
+    "image_path": "images/6617.jpg",
+    "label": "Apparel/Topwear",
+    "product_id": "6617"
+  },
+  {
+    "image_path": "images/6628.jpg",
+    "label": "Footwear/Shoes",
+    "product_id": "6628"
+  },
+  {
+    "image_path": "images/6842.jpg",
+    "label": "Accessories/Shoe Accessories",
+    "product_id": "6842"
+  },
+  {
+    "image_path": "images/6889.jpg",
+    "label": "Apparel/Topwear",
+    "product_id": "6889"
+  },
+  {
+    "image_path": "images/7158.jpg",
+    "label": "Apparel/Topwear",
+    "product_id": "7158"
+  },
+  {
+    "image_path": "images/7167.jpg",
+    "label": "Apparel/Topwear",
+    "product_id": "7167"
+  },
+  {
+    "image_path": "images/7193.jpg",
+    "label": "Apparel/Bottomwear",
+    "product_id": "7193"
+  },
+  {
+    "image_path": "images/7731.jpg",
+    "label": "Footwear/Flip Flops",
+    "product_id": "7731"
+  },
+  {
+    "image_path": "images/7964.jpg",
+    "label": "Apparel/Topwear",
+    "product_id": "7964"
+  },
+  {
+    "image_path": "images/7990.jpg",
+    "label": "Apparel/Topwear",
+    "product_id": "7990"
+  },
+  {
+    "image_path": "images/8110.jpg",
+    "label": "Accessories/Watches",
+    "product_id": "8110"
+  },
+  {
+    "image_path": "images/8322.jpg",
+    "label": "Apparel/Topwear",
+    "product_id": "8322"
+  },
+  {
+    "image_path": "images/8779.jpg",
+    "label": "Apparel/Topwear",
+    "product_id": "8779"
+  },
+  {
+    "image_path": "images/9452.jpg",
+    "label": "Apparel/Topwear",
+    "product_id": "9452"
+  },
+  {
+    "image_path": "images/9660.jpg",
+    "label": "Apparel/Topwear",
+    "product_id": "9660"
+  },
+  {
+    "image_path": "images/9694.jpg",
+    "label": "Apparel/Topwear",
+    "product_id": "9694"
+  },
+  {
+    "image_path": "images/10257.jpg",
+    "label": "Apparel/Bottomwear",
+    "product_id": "10257"
+  },
+  {
+    "image_path": "images/10268.jpg",
+    "label": "Footwear/Shoes",
+    "product_id": "10268"
+  },
+  {
+    "image_path": "images/10633.jpg",
+    "label": "Footwear/Shoes",
+    "product_id": "10633"
+  },
+  {
+    "image_path": "images/10859.jpg",
+    "label": "Apparel/Topwear",
+    "product_id": "10859"
+  },
+  {
+    "image_path": "images/10866.jpg",
+    "label": "Apparel/Topwear",
+    "product_id": "10866"
+  },
+  {
+    "image_path": "images/11188.jpg",
+    "label": "Accessories/Watches",
+    "product_id": "11188"
+  },
+  {
+    "image_path": "images/11518.jpg",
+    "label": "Footwear/Shoes",
+    "product_id": "11518"
+  },
+  {
+    "image_path": "images/11527.jpg",
+    "label": "Apparel/Topwear",
+    "product_id": "11527"
+  },
+  {
+    "image_path": "images/12369.jpg",
+    "label": "Apparel/Topwear",
+    "product_id": "12369"
+  },
+  {
+    "image_path": "images/12500.jpg",
+    "label": "Apparel/Topwear",
+    "product_id": "12500"
+  },
+  {
+    "image_path": "images/12958.jpg",
+    "label": "Footwear/Shoes",
+    "product_id": "12958"
+  },
+  {
+    "image_path": "images/13042.jpg",
+    "label": "Footwear/Shoes",
+    "product_id": "13042"
+  },
+  {
+    "image_path": "images/13089.jpg",
+    "label": "Apparel/Topwear",
+    "product_id": "13089"
+  },
+  {
+    "image_path": "images/13284.jpg",
+    "label": "Apparel/Bottomwear",
+    "product_id": "13284"
+  },
+  {
+    "image_path": "images/13419.jpg",
+    "label": "Apparel/Topwear",
+    "product_id": "13419"
+  },
+  {
+    "image_path": "images/13841.jpg",
+    "label": "Accessories/Watches",
+    "product_id": "13841"
+  },
+  {
+    "image_path": "images/14055.jpg",
+    "label": "Apparel/Topwear",
+    "product_id": "14055"
+  },
+  {
+    "image_path": "images/14856.jpg",
+    "label": "Accessories/Wallets",
+    "product_id": "14856"
+  },
+  {
+    "image_path": "images/14869.jpg",
+    "label": "Accessories/Wallets",
+    "product_id": "14869"
+  },
+  {
+    "image_path": "images/15187.jpg",
+    "label": "Apparel/Topwear",
+    "product_id": "15187"
+  },
+  {
+    "image_path": "images/15341.jpg",
+    "label": "Apparel/Bottomwear",
+    "product_id": "15341"
+  },
+  {
+    "image_path": "images/15517.jpg",
+    "label": "Footwear/Shoes",
+    "product_id": "15517"
+  },
+  {
+    "image_path": "images/15528.jpg",
+    "label": "Apparel/Topwear",
+    "product_id": "15528"
+  },
+  {
+    "image_path": "images/15984.jpg",
+    "label": "Apparel/Topwear",
+    "product_id": "15984"
+  },
+  {
+    "image_path": "images/17072.jpg",
+    "label": "Accessories/Belts",
+    "product_id": "17072"
+  },
+  {
+    "image_path": "images/17240.jpg",
+    "label": "Apparel/Topwear",
+    "product_id": "17240"
+  },
+  {
+    "image_path": "images/17416.jpg",
+    "label": "Footwear/Shoes",
+    "product_id": "17416"
+  },
+  {
+    "image_path": "images/17624.jpg",
+    "label": "Apparel/Bottomwear",
+    "product_id": "17624"
+  },
+  {
+    "image_path": "images/18005.jpg",
+    "label": "Apparel/Bottomwear",
+    "product_id": "18005"
+  },
+  {
+    "image_path": "images/18237.jpg",
+    "label": "Apparel/Topwear",
+    "product_id": "18237"
+  },
+  {
+    "image_path": "images/18461.jpg",
+    "label": "Personal Care/Fragrance",
+    "product_id": "18461"
+  },
+  {
+    "image_path": "images/18653.jpg",
+    "label": "Footwear/Flip Flops",
+    "product_id": "18653"
+  },
+  {
+    "image_path": "images/18698.jpg",
+    "label": "Apparel/Innerwear",
+    "product_id": "18698"
+  },
+  {
+    "image_path": "images/19311.jpg",
+    "label": "Footwear/Shoes",
+    "product_id": "19311"
+  },
+  {
+    "image_path": "images/20052.jpg",
+    "label": "Accessories/Mufflers",
+    "product_id": "20052"
+  },
+  {
+    "image_path": "images/20099.jpg",
+    "label": "Apparel/Topwear",
+    "product_id": "20099"
+  },
+  {
+    "image_path": "images/20851.jpg",
+    "label": "Accessories/Bags",
+    "product_id": "20851"
+  },
+  {
+    "image_path": "images/21180.jpg",
+    "label": "Footwear/Flip Flops",
+    "product_id": "21180"
+  },
+  {
+    "image_path": "images/21948.jpg",
+    "label": "Accessories/Bags",
+    "product_id": "21948"
+  },
+  {
+    "image_path": "images/21977.jpg",
+    "label": "Accessories/Bags",
+    "product_id": "21977"
+  },
+  {
+    "image_path": "images/22153.jpg",
+    "label": "Footwear/Sandal",
+    "product_id": "22153"
+  },
+  {
+    "image_path": "images/22198.jpg",
+    "label": "Footwear/Shoes",
+    "product_id": "22198"
+  },
+  {
+    "image_path": "images/22395.jpg",
+    "label": "Apparel/Topwear",
+    "product_id": "22395"
+  },
+  {
+    "image_path": "images/22950.jpg",
+    "label": "Accessories/Watches",
+    "product_id": "22950"
+  },
+  {
+    "image_path": "images/23278.jpg",
+    "label": "Accessories/Watches",
+    "product_id": "23278"
+  },
+  {
+    "image_path": "images/23882.jpg",
+    "label": "Footwear/Shoes",
+    "product_id": "23882"
+  },
+  {
+    "image_path": "images/24062.jpg",
+    "label": "Apparel/Topwear",
+    "product_id": "24062"
+  },
+  {
+    "image_path": "images/24250.jpg",
+    "label": "Footwear/Shoes",
+    "product_id": "24250"
+  },
+  {
+    "image_path": "images/24406.jpg",
+    "label": "Apparel/Topwear",
+    "product_id": "24406"
+  },
+  {
+    "image_path": "images/25349.jpg",
+    "label": "Apparel/Innerwear",
+    "product_id": "25349"
+  },
+  {
+    "image_path": "images/25382.jpg",
+    "label": "Apparel/Innerwear",
+    "product_id": "25382"
+  },
+  {
+    "image_path": "images/25520.jpg",
+    "label": "Apparel/Topwear",
+    "product_id": "25520"
+  },
+  {
+    "image_path": "images/25712.jpg",
+    "label": "Accessories/Headwear",
+    "product_id": "25712"
+  },
+  {
+    "image_path": "images/26163.jpg",
+    "label": "Apparel/Bottomwear",
+    "product_id": "26163"
+  },
+  {
+    "image_path": "images/26538.jpg",
+    "label": "Footwear/Shoes",
+    "product_id": "26538"
+  },
+  {
+    "image_path": "images/26735.jpg",
+    "label": "Personal Care/Fragrance",
+    "product_id": "26735"
+  },
+  {
+    "image_path": "images/26960.jpg",
+    "label": "Apparel/Topwear",
+    "product_id": "26960"
+  },
+  {
+    "image_path": "images/26994.jpg",
+    "label": "Apparel/Bottomwear",
+    "product_id": "26994"
+  },
+  {
+    "image_path": "images/27045.jpg",
+    "label": "Accessories/Bags",
+    "product_id": "27045"
+  },
+  {
+    "image_path": "images/27277.jpg",
+    "label": "Apparel/Topwear",
+    "product_id": "27277"
+  },
+  {
+    "image_path": "images/27283.jpg",
+    "label": "Apparel/Topwear",
+    "product_id": "27283"
+  },
+  {
+    "image_path": "images/27421.jpg",
+    "label": "Apparel/Loungewear and Nightwear",
+    "product_id": "27421"
+  },
+  {
+    "image_path": "images/27879.jpg",
+    "label": "Apparel/Topwear",
+    "product_id": "27879"
+  },
+  {
+    "image_path": "images/28200.jpg",
+    "label": "Accessories/Eyewear",
+    "product_id": "28200"
+  },
+  {
+    "image_path": "images/28456.jpg",
+    "label": "Apparel/Bottomwear",
+    "product_id": "28456"
+  },
+  {
+    "image_path": "images/28469.jpg",
+    "label": "Apparel/Topwear",
+    "product_id": "28469"
+  },
+  {
+    "image_path": "images/28690.jpg",
+    "label": "Apparel/Topwear",
+    "product_id": "28690"
+  },
+  {
+    "image_path": "images/28831.jpg",
+    "label": "Apparel/Innerwear",
+    "product_id": "28831"
+  },
+  {
+    "image_path": "images/29319.jpg",
+    "label": "Accessories/Bags",
+    "product_id": "29319"
+  },
+  {
+    "image_path": "images/29584.jpg",
+    "label": "Apparel/Topwear",
+    "product_id": "29584"
+  },
+  {
+    "image_path": "images/29742.jpg",
+    "label": "Accessories/Bags",
+    "product_id": "29742"
+  },
+  {
+    "image_path": "images/29928.jpg",
+    "label": "Accessories/Watches",
+    "product_id": "29928"
+  },
+  {
+    "image_path": "images/30039.jpg",
+    "label": "Accessories/Watches",
+    "product_id": "30039"
+  },
+  {
+    "image_path": "images/30234.jpg",
+    "label": "Footwear/Flip Flops",
+    "product_id": "30234"
+  },
+  {
+    "image_path": "images/30462.jpg",
+    "label": "Apparel/Innerwear",
+    "product_id": "30462"
+  },
+  {
+    "image_path": "images/30496.jpg",
+    "label": "Apparel/Innerwear",
+    "product_id": "30496"
+  },
+  {
+    "image_path": "images/30650.jpg",
+    "label": "Apparel/Topwear",
+    "product_id": "30650"
+  },
+  {
+    "image_path": "images/30805.jpg",
+    "label": "Apparel/Topwear",
+    "product_id": "30805"
+  },
+  {
+    "image_path": "images/31120.jpg",
+    "label": "Apparel/Topwear",
+    "product_id": "31120"
+  },
+  {
+    "image_path": "images/31923.jpg",
+    "label": "Accessories/Bags",
+    "product_id": "31923"
+  },
+  {
+    "image_path": "images/32138.jpg",
+    "label": "Apparel/Innerwear",
+    "product_id": "32138"
+  },
+  {
+    "image_path": "images/32335.jpg",
+    "label": "Accessories/Watches",
+    "product_id": "32335"
+  },
+  {
+    "image_path": "images/32751.jpg",
+    "label": "Footwear/Shoes",
+    "product_id": "32751"
+  },
+  {
+    "image_path": "images/33445.jpg",
+    "label": "Accessories/Wallets",
+    "product_id": "33445"
+  },
+  {
+    "image_path": "images/33648.jpg",
+    "label": "Footwear/Sandal",
+    "product_id": "33648"
+  },
+  {
+    "image_path": "images/33822.jpg",
+    "label": "Footwear/Shoes",
+    "product_id": "33822"
+  },
+  {
+    "image_path": "images/34036.jpg",
+    "label": "Apparel/Topwear",
+    "product_id": "34036"
+  },
+  {
+    "image_path": "images/34452.jpg",
+    "label": "Footwear/Shoes",
+    "product_id": "34452"
+  },
+  {
+    "image_path": "images/34835.jpg",
+    "label": "Footwear/Shoes",
+    "product_id": "34835"
+  },
+  {
+    "image_path": "images/35322.jpg",
+    "label": "Accessories/Jewellery",
+    "product_id": "35322"
+  },
+  {
+    "image_path": "images/35574.jpg",
+    "label": "Footwear/Flip Flops",
+    "product_id": "35574"
+  },
+  {
+    "image_path": "images/35913.jpg",
+    "label": "Accessories/Bags",
+    "product_id": "35913"
+  },
+  {
+    "image_path": "images/36137.jpg",
+    "label": "Footwear/Shoes",
+    "product_id": "36137"
+  },
+  {
+    "image_path": "images/36934.jpg",
+    "label": "Personal Care/Fragrance",
+    "product_id": "36934"
+  },
+  {
+    "image_path": "images/37223.jpg",
+    "label": "Apparel/Topwear",
+    "product_id": "37223"
+  },
+  {
+    "image_path": "images/38402.jpg",
+    "label": "Accessories/Belts",
+    "product_id": "38402"
+  },
+  {
+    "image_path": "images/39140.jpg",
+    "label": "Apparel/Apparel Set",
+    "product_id": "39140"
+  },
+  {
+    "image_path": "images/39386.jpg",
+    "label": "Apparel/Bottomwear",
+    "product_id": "39386"
+  },
+  {
+    "image_path": "images/39524.jpg",
+    "label": "Accessories/Bags",
+    "product_id": "39524"
+  },
+  {
+    "image_path": "images/39716.jpg",
+    "label": "Apparel/Dress",
+    "product_id": "39716"
+  },
+  {
+    "image_path": "images/39943.jpg",
+    "label": "Footwear/Shoes",
+    "product_id": "39943"
+  },
+  {
+    "image_path": "images/40385.jpg",
+    "label": "Apparel/Topwear",
+    "product_id": "40385"
+  },
+  {
+    "image_path": "images/40527.jpg",
+    "label": "Accessories/Watches",
+    "product_id": "40527"
+  },
+  {
+    "image_path": "images/41859.jpg",
+    "label": "Footwear/Sandal",
+    "product_id": "41859"
+  },
+  {
+    "image_path": "images/41866.jpg",
+    "label": "Footwear/Sandal",
+    "product_id": "41866"
+  },
+  {
+    "image_path": "images/42042.jpg",
+    "label": "Footwear/Shoes",
+    "product_id": "42042"
+  },
+  {
+    "image_path": "images/42089.jpg",
+    "label": "Footwear/Shoes",
+    "product_id": "42089"
+  },
+  {
+    "image_path": "images/42270.jpg",
+    "label": "Footwear/Shoes",
+    "product_id": "42270"
+  },
+  {
+    "image_path": "images/42426.jpg",
+    "label": "Apparel/Topwear",
+    "product_id": "42426"
+  },
+  {
+    "image_path": "images/42614.jpg",
+    "label": "Accessories/Jewellery",
+    "product_id": "42614"
+  },
+  {
+    "image_path": "images/43164.jpg",
+    "label": "Accessories/Watches",
+    "product_id": "43164"
+  },
+  {
+    "image_path": "images/43958.jpg",
+    "label": "Footwear/Sandal",
+    "product_id": "43958"
+  },
+  {
+    "image_path": "images/43967.jpg",
+    "label": "Personal Care/Fragrance",
+    "product_id": "43967"
+  },
+  {
+    "image_path": "images/43993.jpg",
+    "label": "Personal Care/Fragrance",
+    "product_id": "43993"
+  },
+  {
+    "image_path": "images/44517.jpg",
+    "label": "Footwear/Flip Flops",
+    "product_id": "44517"
+  },
+  {
+    "image_path": "images/44528.jpg",
+    "label": "Footwear/Sandal",
+    "product_id": "44528"
+  },
+  {
+    "image_path": "images/44725.jpg",
+    "label": "Footwear/Flip Flops",
+    "product_id": "44725"
+  },
+  {
+    "image_path": "images/44970.jpg",
+    "label": "Accessories/Watches",
+    "product_id": "44970"
+  },
+  {
+    "image_path": "images/44984.jpg",
+    "label": "Accessories/Watches",
+    "product_id": "44984"
+  },
+  {
+    "image_path": "images/45258.jpg",
+    "label": "Accessories/Watches",
+    "product_id": "45258"
+  },
+  {
+    "image_path": "images/45856.jpg",
+    "label": "Apparel/Topwear",
+    "product_id": "45856"
+  },
+  {
+    "image_path": "images/46072.jpg",
+    "label": "Accessories/Belts",
+    "product_id": "46072"
+  },
+  {
+    "image_path": "images/46086.jpg",
+    "label": "Footwear/Shoes",
+    "product_id": "46086"
+  },
+  {
+    "image_path": "images/46885.jpg",
+    "label": "Footwear/Flip Flops",
+    "product_id": "46885"
+  },
+  {
+    "image_path": "images/47392.jpg",
+    "label": "Accessories/Bags",
+    "product_id": "47392"
+  },
+  {
+    "image_path": "images/47530.jpg",
+    "label": "Footwear/Shoes",
+    "product_id": "47530"
+  },
+  {
+    "image_path": "images/47957.jpg",
+    "label": "Accessories/Bags",
+    "product_id": "47957"
+  },
+  {
+    "image_path": "images/48123.jpg",
+    "label": "Accessories/Belts",
+    "product_id": "48123"
+  },
+  {
+    "image_path": "images/48311.jpg",
+    "label": "Accessories/Jewellery",
+    "product_id": "48311"
+  },
+  {
+    "image_path": "images/48781.jpg",
+    "label": "Accessories/Jewellery",
+    "product_id": "48781"
+  },
+  {
+    "image_path": "images/49005.jpg",
+    "label": "Accessories/Jewellery",
+    "product_id": "49005"
+  },
+  {
+    "image_path": "images/49461.jpg",
+    "label": "Footwear/Shoes",
+    "product_id": "49461"
+  },
+  {
+    "image_path": "images/49653.jpg",
+    "label": "Apparel/Topwear",
+    "product_id": "49653"
+  },
+  {
+    "image_path": "images/49839.jpg",
+    "label": "Footwear/Flip Flops",
+    "product_id": "49839"
+  },
+  {
+    "image_path": "images/50325.jpg",
+    "label": "Apparel/Topwear",
+    "product_id": "50325"
+  },
+  {
+    "image_path": "images/50573.jpg",
+    "label": "Apparel/Innerwear",
+    "product_id": "50573"
+  },
+  {
+    "image_path": "images/50587.jpg",
+    "label": "Apparel/Innerwear",
+    "product_id": "50587"
+  },
+  {
+    "image_path": "images/51031.jpg",
+    "label": "Apparel/Innerwear",
+    "product_id": "51031"
+  },
+  {
+    "image_path": "images/51455.jpg",
+    "label": "Apparel/Topwear",
+    "product_id": "51455"
+  },
+  {
+    "image_path": "images/51658.jpg",
+    "label": "Accessories/Watches",
+    "product_id": "51658"
+  },
+  {
+    "image_path": "images/51832.jpg",
+    "label": "Apparel/Innerwear",
+    "product_id": "51832"
+  },
+  {
+    "image_path": "images/52029.jpg",
+    "label": "Apparel/Topwear",
+    "product_id": "52029"
+  },
+  {
+    "image_path": "images/52472.jpg",
+    "label": "Apparel/Loungewear and Nightwear",
+    "product_id": "52472"
+  },
+  {
+    "image_path": "images/52486.jpg",
+    "label": "Apparel/Innerwear",
+    "product_id": "52486"
+  },
+  {
+    "image_path": "images/53130.jpg",
+    "label": "Footwear/Shoes",
+    "product_id": "53130"
+  },
+  {
+    "image_path": "images/53554.jpg",
+    "label": "Apparel/Innerwear",
+    "product_id": "53554"
+  },
+  {
+    "image_path": "images/54543.jpg",
+    "label": "Footwear/Shoes",
+    "product_id": "54543"
+  },
+  {
+    "image_path": "images/54588.jpg",
+    "label": "Apparel/Topwear",
+    "product_id": "54588"
+  },
+  {
+    "image_path": "images/54924.jpg",
+    "label": "Apparel/Bottomwear",
+    "product_id": "54924"
+  },
+  {
+    "image_path": "images/55001.jpg",
+    "label": "Personal Care/Lips",
+    "product_id": "55001"
+  },
+  {
+    "image_path": "images/55465.jpg",
+    "label": "Personal Care/Lips",
+    "product_id": "55465"
+  },
+  {
+    "image_path": "images/55491.jpg",
+    "label": "Personal Care/Lips",
+    "product_id": "55491"
+  },
+  {
+    "image_path": "images/55802.jpg",
+    "label": "Apparel/Loungewear and Nightwear",
+    "product_id": "55802"
+  },
+  {
+    "image_path": "images/56019.jpg",
+    "label": "Personal Care/Lips",
+    "product_id": "56019"
+  },
+  {
+    "image_path": "images/56214.jpg",
+    "label": "Accessories/Jewellery",
+    "product_id": "56214"
+  },
+  {
+    "image_path": "images/56489.jpg",
+    "label": "Personal Care/Nails",
+    "product_id": "56489"
+  },
+  {
+    "image_path": "images/56670.jpg",
+    "label": "Accessories/Watches",
+    "product_id": "56670"
+  },
+  {
+    "image_path": "images/56825.jpg",
+    "label": "Apparel/Topwear",
+    "product_id": "56825"
+  },
+  {
+    "image_path": "images/57100.jpg",
+    "label": "Apparel/Topwear",
+    "product_id": "57100"
+  },
+  {
+    "image_path": "images/58148.jpg",
+    "label": "Accessories/Headwear",
+    "product_id": "58148"
+  },
+  {
+    "image_path": "images/58183.jpg",
+    "label": "Accessories/Bags",
+    "product_id": "58183"
+  },
+  {
+    "image_path": "images/59051.jpg",
+    "label": "Footwear/Shoes",
+    "product_id": "59051"
+  },
+  {
+    "image_path": "images/59263.jpg",
+    "label": "Accessories/Watches",
+    "product_id": "59263"
+  },
+  {
+    "image_path": "images/59297.jpg",
+    "label": "Apparel/Topwear",
+    "product_id": "59297"
+  }
+]
