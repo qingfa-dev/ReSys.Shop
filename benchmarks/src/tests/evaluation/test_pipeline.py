@@ -25,6 +25,7 @@ def test_pipeline_runner_runs_all_folds(tmp_path: Path):
             "id": [str(i) for i in range(20)],
             "masterCategory": ["A"] * 10 + ["B"] * 10,
             "subCategory": ["X"] * 20,
+            "baseColour": ["Black"] * 20,
             "articleType": ["Shirt"] * 20,
             "image": [f"{i}.jpg" for i in range(20)],
         }

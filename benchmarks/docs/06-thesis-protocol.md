@@ -30,11 +30,12 @@ The thesis makes a claim: **Fashion-CLIP outperforms generic models for fashion 
 
 **Dataset:** Fashion Product Images Small (~5,000 images)
 
-**Ground truth rule:** Two images are relevant if they share `masterCategory` + `subCategory`.
+**Ground truth rule:** Two images are relevant (visually similar) if they share `masterCategory` + `subCategory` + `baseColour`. This ensures relevance captures both product type AND visual appearance (colour), not just taxonomic category membership.
 
 **Example:**
-- Black T-shirt (`Apparel`/`Topwear`) and blue T-shirt (`Apparel`/`Topwear`) → **relevant**
-- T-shirt (`Apparel`/`Topwear`) and sneaker (`Footwear`/`Shoes`) → **not relevant**
+- Black T-shirt (`Apparel`/`Topwear`/`Black`) and another black T-shirt (`Apparel`/`Topwear`/`Black`) → **relevant**
+- Black T-shirt (`Apparel`/`Topwear`/`Black`) and blue T-shirt (`Apparel`/`Topwear`/`Blue`) → **not relevant** (different colour)
+- White sneaker (`Footwear`/`Shoes`/`White`) and black sneaker (`Footwear`/`Shoes`/`Black`) → **not relevant** (different colour)
 
 ### Step 2: 3-Fold Cross-Validation
 

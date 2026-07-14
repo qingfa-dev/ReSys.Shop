@@ -24,6 +24,7 @@ def mock_dataset_root(tmp_path: Path) -> Path:
         "id": [str(i) for i in range(20)],
         "masterCategory": ["A"] * 10 + ["B"] * 10,
         "subCategory": ["X"] * 20,
+        "baseColour": ["Black"] * 20,
         "image": [f"{i}.jpg" for i in range(20)],
     })
     df.to_csv(root / "styles.csv", index=False)

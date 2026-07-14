@@ -18,7 +18,10 @@
 | **Low** | `service/Api/src/Migrations/Migrations/*Designer.cs` are huge (150 KB) — EF-generated. | `docs/codebase/.codebase-scan.txt:325-328` (largest files) | Slows diffs and reviews. | Unavoidable; consider `git config diff.suppressBlankEmpty` for `*.Designer.cs`. |
 | **Low** | Embedding service: `service/Embedding/build/lib/embedding/` (build artifacts) duplicates `src/embedding/`. | `docs/codebase/.codebase-scan.txt` (directory listing) | Disk + git bloat. | Already in [High] above — covered by the `build/` gitignore fix. |
 | **Low** | README claims the embedding service "runtime imports are resolved; end-to-end verification pending" (i.e. WIP). | `README.md:175-178` | The docs/codebase knowledge may shift when embedding completes. | Re-run `acquire-codebase-knowledge` after the embedding sidecar's E2E is verified. |
-| **Low** | AGENTS.md references `plan/` and `.harness/` directories that do not exist on disk. | `AGENTS.md:13-19` vs `ls -la plan/ .harness/` returns `---DONE---` (empty) | Stale agent instructions. | Either add those directories and contents, or update AGENTS.md. |
+| **Low** | `benchmarks/` has its own `docs/codebase/` subdirectory with separate documentation — risk of drift between main codebase docs and benchmark docs. | `benchmarks/docs/codebase/` (7 files mirroring main `docs/codebase/`) | Benchmark docs may describe outdated internal structure. | Treat benchmark docs as a snapshot; link to main docs or consolidate into one set. |
+| **Low** | `benchmarks/data/raw/` contains JSON style data files (~138K files) — massive on-disk footprint, not all needed for benchmarks. | `docs/codebase/.codebase-scan.txt:316` (138,504 total files) | Slow `git status` and clone times. | Add `benchmarks/data/raw/` to `.gitignore` or keep it out of the repo (already has its own `.gitignore` in `benchmarks/`). |
+| **Low** | Benchmark GPU dependencies (torch, torchvision) may be heavy on CI — no GPU CI runner documented. | `benchmarks/pyproject.toml:8-9` | GPU-dependent tests will fail on CPU-only CI. | Add a CPU-only test mode or skip GPU tests in CI. |
+| **Low** | `benchmarks/docs/codebase/.codebase-scan.txt` is a nested scan — could confuse tooling. | `benchmarks/docs/codebase/.codebase-scan.txt` (existence) | Misleading scan data. | Delete or add to `.gitignore`. |
 
 ### 2) Technical Debt
 
@@ -104,15 +107,21 @@ From the last 90 days of git history (top 20 churn — `docs/codebase/.codebase-
 
 ### 6) `[ASK USER]` Questions
 
-1. **[ASK USER]** Should `app/ReSys.Admin/` (the legacy npm-based admin SPA) be deleted, or is it intentionally preserved for reference? `.gitignore:154` already ignores it, so it's invisible to clean checkouts.
-2. **[ASK USER]** Should `service/Embedding/build/lib/` and `service/Embedding/embedding.egg-info/` be added to `.gitignore` (and the artifacts removed from history), or is the build directory expected to ship with the repo?
-3. **[ASK USER]** The email-provider folder `SendGird/` is a typo. The runtime section name `Notification:Channels:Email:Providers:SendGrids` is consistent in both `appsettings.json` and the code (`SendGrid.ProviderSetting.cs:12`), so dispatch works. Should the folder be renamed to `SendGrid/` to match? (No code changes needed; just a folder rename + namespace update.)
-4. **[ASK USER]** The `Storage.Providers.Azure` block exists in `appsettings.json` but no `AzureStorageProvider` class is registered. Should the block be removed, or is there a plan to implement it?
-5. **[ASK USER]** The `ValidateVerticalSliceIsolation` MSBuild target is disabled (`Condition="false"`). Should it be enabled (and any current cross-module references cleaned up), or kept disabled to permit some specific scenario?
-6. **[ASK USER]** Are the `Authentication.Facebook` and `Authentication.Microsoft` config blocks (`appsettings.json:48-57`) intentional placeholders, or should they be removed until implemented?
-7. **[ASK USER]** Is there a defined target version (e.g. v1.x) for the deferred YARP API gateway (`infra/Aspire/src/ReSys.AppHost/AppHost.cs:5-7`)? Should the `Yarp.ReverseProxy` and `Microsoft.Extensions.ServiceDiscovery.Yarp` packages be removed in the meantime?
-8. **[ASK USER]** The embedding sidecar's `README.md:175-178` states "end-to-end verification pending". Is there a target milestone, and is there a design doc or test plan I should reference when this is revisited?
-9. **[ASK USER]** Are there any SDLC/security policies (CODEOWNERS, threat model, SBOM, security.txt) that should be referenced or generated? `docs/codebase/.codebase-scan.txt:341` reports no security configs detected.
+1. **[RESOLVED]** Keep `app/ReSys.Admin/` — preserved for reference. Already gitignored.
+2. **[RESOLVED]** Add `service/Embedding/build/` and `service/Embedding/embedding.egg-info/` to `.gitignore` and remove from working tree. (Action: edit `.gitignore`, `git rm --cached` these paths.)
+3. **[RESOLVED]** Rename `SendGird/` → `SendGrid/` (folder + namespace). No runtime impact but fixes the typo.
+4. **[RESOLVED]** Keep `Storage.Providers.Azure` config block — Azure support planned but not yet implemented.
+5. **[RESOLVED]** Keep `ValidateVerticalSliceIsolation` disabled — not yet ready to enforce.
+6. **[RESOLVED]** Remove `Authentication.Facebook` and `Authentication.Microsoft` config blocks from `appsettings.json:48-57` — no plans to implement these IdPs.
+7. **[RESOLVED]** No defined target version for YARP gateway. Keep `Yarp.ReverseProxy` and `ServiceDiscovery.Yarp` packages for future use.
+8. **[RESOLVED]** No specific milestone for embedding E2E verification.
+9. **[RESOLVED]** No SDLC/security policies in place. Options worth considering:
+   - **CODEOWNERS** — `/.github/CODEOWNERS` file to auto-assign PR reviewers per directory (e.g. `service/Api/** @backend-team`, `app/Admin/** @frontend-team`)
+   - **SECURITY.md** — vulnerability disclosure policy (contact email, PGP key, scope, safe harbor statement)
+   - **SBOM (Software Bill of Materials)** — `dotnet CycloneDX` or `syft` to generate machine-readable inventory of all dependencies
+   - **Threat model** — lightweight STRIDE or attack-tree document for the payment/ordering/auth flows
+   - **Dependabot** — already has dependabot signals in scan (`docs/codebase/.codebase-scan.txt:341` shows no Dependabot config, but GitHub-native Dependabot security alerts are likely on by default for public repos)
+10. **[RESOLVED]** Keep `benchmarks/docs/codebase/` as standalone — don't consolidate into main `docs/codebase/`.
 
 ### 7) Evidence
 
@@ -134,4 +143,7 @@ From the last 90 days of git history (top 20 churn — `docs/codebase/.codebase-
 - `service/Embedding/embedding.egg-info/` — egg-info
 - `app/ReSys.Admin/` — legacy admin SPA
 - `README.md:1-184` — intent + WIP notes
-- `AGENTS.md:1-80` — agent guide (references `plan/`, `.harness/` which now exist on disk)
+- `AGENTS.md:1-80` — agent guide
+- `benchmarks/pyproject.toml:1-64` — benchmark deps
+- `benchmarks/docs/codebase/` — nested benchmark docs (risk of drift)
+- `benchmarks/.gitignore` — benchmarks gitignore (exists per `benchmarks/` listing)

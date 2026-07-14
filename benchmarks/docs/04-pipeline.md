@@ -55,15 +55,18 @@ Sample(
 
 **What happens:** Decide which images are "similar" to each other.
 
-**Rule:** Two images are relevant if they share the same `masterCategory` + `subCategory`.
+**Rule:** Two images are relevant if they share the same `masterCategory` + `subCategory` + `baseColour`. Fallback: if `subCategory` or `baseColour` is missing, fall back to the coarser grouping.
 
 **Example:**
 - Image 1163: `Apparel` / `Topwear` / `T-shirt` / `Black`
-- Image 1165: `Apparel` / `Topwear` / `T-shirt` / `Blue`
-- **Result:** 1163 and 1165 are relevant to each other (same master + sub category)
+- Image 1165: `Apparel` / `Topwear` / `T-shirt` / `Black`
+- **Result:** 1163 and 1165 are relevant to each other (same category + colour)
+
+- Image 1400: `Apparel` / `Topwear` / `T-shirt` / `Blue`
+- **Result:** NOT relevant to 1163 (different colour)
 
 - Image 2000: `Footwear` / `Shoes` / `Sneakers` / `White`
-- **Result:** 1163 and 2000 are NOT relevant
+- **Result:** NOT relevant to 1163 (different category AND colour)
 
 **Output:** A dictionary mapping each image ID to a set of relevant image IDs.
 

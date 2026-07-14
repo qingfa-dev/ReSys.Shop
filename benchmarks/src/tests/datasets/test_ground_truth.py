@@ -12,12 +12,27 @@ def test_build_relevance_sets():
         "id": ["1", "2", "3", "4"],
         "masterCategory": ["A", "A", "B", "B"],
         "subCategory": ["X", "X", "Y", "Y"],
+        "baseColour": ["Red", "Red", "Blue", "Blue"],
     })
     relevance = build_relevance_sets(df)
     assert relevance["1"] == {"2"}
     assert relevance["2"] == {"1"}
     assert relevance["3"] == {"4"}
     assert relevance["4"] == {"3"}
+
+
+def test_build_relevance_with_base_colour():
+    """Different colours within same category should NOT be relevant."""
+    df = pd.DataFrame({
+        "id": ["1", "2", "3"],
+        "masterCategory": ["A", "A", "A"],
+        "subCategory": ["X", "X", "X"],
+        "baseColour": ["Red", "Blue", "Red"],
+    })
+    relevance = build_relevance_sets(df)
+    assert relevance["1"] == {"3"}  # "A/X/Red"
+    assert relevance["3"] == {"1"}  # "A/X/Red"
+    assert relevance["2"] == set()  # "A/X/Blue" — no other blue items
 
 
 def test_build_relevance_fallback_to_master_only():
@@ -27,9 +42,8 @@ def test_build_relevance_fallback_to_master_only():
         "subCategory": ["X", pd.NA, "X"],
     })
     relevance = build_relevance_sets(df)
-    # Item 2 has NaN subCategory, so falls back to masterCategory only ("A")
-    # Items 1 and 3 have subCategory "X", so their key is "A/X"
-    # Therefore item 2 is only relevant to itself (excluded) — no other item has key "A"
+    # Item 2 has NaN subCategory; no baseColour → falls back to masterCategory only ("A")
+    # Items 1 and 3 have subCategory "X" but no baseColour → fall back to "A/X"
     assert relevance["2"] == set()  # no other item has pure masterCategory "A"
     # Items 1 and 3 share "A/X"
     assert relevance["1"] == {"3"}
@@ -41,6 +55,7 @@ def test_generate_splits(tmp_path: Path):
         "id": [f"{i}" for i in range(30)],
         "masterCategory": ["A"] * 15 + ["B"] * 15,
         "subCategory": ["X"] * 30,
+        "baseColour": ["Black"] * 30,
     })
     gt = GroundTruth(df, min_category_freq=5)
     splits = gt.generate_splits(n_splits=3, seed=42, output_dir=tmp_path)
@@ -54,6 +69,9 @@ def test_generate_splits(tmp_path: Path):
         train_ids = {s["product_id"] for s in train}
         test_ids = {s["product_id"] for s in test}
         assert not train_ids & test_ids
+        # Labels now include baseColour
+        for s in train + test:
+            assert s["label"] in ("A/X/Black", "B/X/Black")
 
 
 def test_ground_truth_missing_id_column():

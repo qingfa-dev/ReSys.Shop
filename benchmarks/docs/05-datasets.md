@@ -60,19 +60,25 @@ id,gender,masterCategory,subCategory,articleType,baseColour,season,year,usage,pr
 
 ### How We Use It for Ground Truth
 
-Two images are **relevant** (similar) if they share:
+Two images are **relevant** (visually similar) if they share:
 - Same `masterCategory` AND
-- Same `subCategory`
+- Same `subCategory` AND
+- Same `baseColour`
+
+This ensures the benchmark measures visual similarity, not just taxonomic category membership. Two T-shirts of the same colour are relevant; a black T-shirt and a blue T-shirt are not.
 
 **Example:**
-- Image 1163: `Apparel` + `Topwear` → T-shirt
-- Image 1165: `Apparel` + `Topwear` → T-shirt
+- Image 1163: `Apparel` + `Topwear` + `Black` → Black T-shirt
+- Image 1165: `Apparel` + `Topwear` + `Black` → Black T-shirt
 - **Result:** Relevant to each other
 
-- Image 1404: `Footwear` + `Shoes` → Shoe
-- **Result:** NOT relevant to 1163
+- Image 1400: `Apparel` + `Topwear` + `Blue` → Blue T-shirt
+- **Result:** NOT relevant to 1163 (different colour)
 
-**Fallback:** If `subCategory` is missing, use `masterCategory` only.
+- Image 1404: `Footwear` + `Shoes` + `Black` → Black Shoe
+- **Result:** NOT relevant to 1163 (different category)
+
+**Fallback:** If `subCategory` or `baseColour` is missing, fall back to the coarser grouping.
 
 ### Category Distribution
 

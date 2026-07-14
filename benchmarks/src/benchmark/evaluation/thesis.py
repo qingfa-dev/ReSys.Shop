@@ -84,7 +84,7 @@ class ThesisRunner:
             logger.error("styles.csv not found at %s", styles_csv)
             raise FileNotFoundError(f"styles.csv not found: {styles_csv}")
 
-        df = pd.read_csv(styles_csv)
+        df = pd.read_csv(styles_csv, on_bad_lines="warn")
         gt = GroundTruth(df, min_category_freq=10)
         splits = gt.generate_splits(
             n_splits=self.folds,

@@ -21,11 +21,16 @@ def build_relevance_sets(df: pd.DataFrame) -> dict[str, set[str]]:
     """Build a relevance set for each product ID.
 
     Two products are relevant if they share the same masterCategory +
-    subCategory. If subCategory is missing/NaN, fall back to masterCategory
-    only.
+    subCategory + baseColour. If subCategory or baseColour are missing/NaN,
+    fall back to the coarser grouping.
+
+    This three-part key ensures relevance captures visual similarity:
+    two products must be both the same *type* of item (category) and the
+    same *colour* to be considered similar — not just the same category.
 
     Args:
-        df: DataFrame with at least 'id', 'masterCategory', 'subCategory'.
+        df: DataFrame with at least 'id', 'masterCategory', 'subCategory',
+            'baseColour'.
 
     Returns:
         Dict mapping product_id -> set of relevant product_ids (excluding
@@ -34,7 +39,9 @@ def build_relevance_sets(df: pd.DataFrame) -> dict[str, set[str]]:
     df = df.copy()
     df["_relevance_key"] = df.apply(
         lambda row: (
-            f"{row['masterCategory']}/{row['subCategory']}"
+            f"{row['masterCategory']}/{row['subCategory']}/{row['baseColour']}"
+            if pd.notna(row.get("subCategory")) and pd.notna(row.get("baseColour"))
+            else f"{row['masterCategory']}/{row['subCategory']}"
             if pd.notna(row.get("subCategory"))
             else str(row["masterCategory"])
         ),
@@ -106,7 +113,9 @@ class GroundTruth:
             row["id"]: {
                 "image_path": f"images/{row['id']}.jpg",
                 "label": (
-                    f"{row['masterCategory']}/{row['subCategory']}"
+                    f"{row['masterCategory']}/{row['subCategory']}/{row['baseColour']}"
+                    if pd.notna(row.get("subCategory")) and pd.notna(row.get("baseColour"))
+                    else f"{row['masterCategory']}/{row['subCategory']}"
                     if pd.notna(row.get("subCategory"))
                     else str(row["masterCategory"])
                 ),

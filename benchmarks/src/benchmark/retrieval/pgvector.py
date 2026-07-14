@@ -68,6 +68,18 @@ class PgvectorRetriever:
         register_vector(self._conn)
         logger.info("Connected to pgvector at %s", self._conn_string.split("@")[-1])
 
+    def ping(self) -> None:
+        """Check connectivity by executing a lightweight query.
+
+        Raises:
+            RuntimeError: If ``connect()`` has not been called.
+        """
+        if self._conn is None:
+            raise RuntimeError("Not connected — call connect() first")
+        with self._conn.cursor() as cur:
+            cur.execute("SELECT 1")
+            cur.fetchone()
+
     def query(self, embedding: np.ndarray, top_k: int = 20) -> list[dict]:
         """Find the top-K nearest products.
 
