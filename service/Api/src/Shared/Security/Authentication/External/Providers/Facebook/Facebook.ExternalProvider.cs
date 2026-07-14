@@ -45,7 +45,9 @@ public sealed partial class FacebookExternalProvider(
         catch (Exception ex)
         {
             Loggers.TokenValidationError(_logger, ex);
-            return UserResult.Failure.ExternalLoginTokenInvalid;
+            return Result<ExternalUserInfo>.Unexpected(
+                exception: ex,
+                errors: [UserResult.Failure.ExternalLoginTokenInvalid]);
         }
     }
 }

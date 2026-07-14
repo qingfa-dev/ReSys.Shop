@@ -180,7 +180,9 @@ public sealed partial class PermissionStoreService(
         catch (Exception ex)
         {
             Loggers.LogBatchAddRolePermissionsFailed(_logger, roleId, ex.Message);
-            return PermissionStoreResult.Failure.Unexpected(PermissionStoreConstant.Patterns.BatchAddFailed, "Failed to batch add permissions to role.");
+            return Result.Unexpected(
+                exception: ex,
+                errors: [PermissionStoreResult.Failure.Unexpected(PermissionStoreConstant.Patterns.BatchAddFailed, "Failed to batch add permissions to role.")]);
         }
     }
 
@@ -208,7 +210,9 @@ public sealed partial class PermissionStoreService(
         catch (Exception ex)
         {
             Loggers.LogBatchRemoveRolePermissionsFailed(_logger, roleId, ex.Message);
-            return PermissionStoreResult.Failure.Unexpected(PermissionStoreConstant.Patterns.BatchRemoveFailed, "Failed to batch remove permissions from role.");
+            return Result.Unexpected(
+                exception: ex,
+                errors: [PermissionStoreResult.Failure.Unexpected(PermissionStoreConstant.Patterns.BatchRemoveFailed, "Failed to batch remove permissions from role.")]);
         }
     }
 
@@ -236,7 +240,9 @@ public sealed partial class PermissionStoreService(
         catch (Exception ex)
         {
             Loggers.LogBatchAddUserPermissionsFailed(_logger, userId, ex.Message);
-            return PermissionStoreResult.Failure.Unexpected(PermissionStoreConstant.Patterns.BatchAddFailed, "Failed to batch add direct permissions to user.");
+            return Result.Unexpected(
+                exception: ex,
+                errors: [PermissionStoreResult.Failure.Unexpected(PermissionStoreConstant.Patterns.BatchAddFailed, "Failed to batch add direct permissions to user.")]);
         }
     }
 
@@ -264,7 +270,9 @@ public sealed partial class PermissionStoreService(
         catch (Exception ex)
         {
             Loggers.LogBatchRemoveUserPermissionsFailed(_logger, userId, ex.Message);
-            return PermissionStoreResult.Failure.Unexpected(PermissionStoreConstant.Patterns.BatchRemoveFailed, "Failed to batch remove direct permissions from user.");
+            return Result.Unexpected(
+                exception: ex,
+                errors: [PermissionStoreResult.Failure.Unexpected(PermissionStoreConstant.Patterns.BatchRemoveFailed, "Failed to batch remove direct permissions from user.")]);
         }
     }
 

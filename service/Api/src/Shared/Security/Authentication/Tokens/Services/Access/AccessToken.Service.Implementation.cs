@@ -70,10 +70,12 @@ public class AccessTokenService(IOptions<JwtSettings> jwtOptions) : IAccessToken
                 ExpiresIn: new DateTimeOffset(expiration).ToUnixTimeSeconds()
             ));
         }
-        catch (Exception)
+        catch (Exception ex)
         {
             // Catch: Cryptographic failure must not propagate stack details to caller — generic error only, see TMT-TOK-002
-            return AccessTokenResult.Failure.GenerationFailed;
+            return Result<TokenResponseModel>.Unexpected(
+                exception: ex,
+                errors: [AccessTokenResult.Failure.GenerationFailed]);
         }
     }
 }

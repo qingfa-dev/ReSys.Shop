@@ -63,7 +63,9 @@ public partial class RefreshTokenService(
         {
             // Catch: token generation failure must not leak cryptographic details to caller
             Loggers.LogTokenGenerationFailed(logger, userId, ex);
-            return RefreshTokenResult.Failure.GenerationFailed;
+            return Result<RefreshTokenResponseModel>.Unexpected(
+                exception: ex,
+                errors: [RefreshTokenResult.Failure.GenerationFailed]);
         }
     }
 
@@ -262,7 +264,9 @@ public partial class RefreshTokenService(
         {
             // Catch: rotation failure must not orphan old token — caller may retry
             Loggers.LogTokenRotationFailed(logger, oldEntity.UserId, ex);
-            return RefreshTokenResult.Failure.RotationFailed;
+            return Result<RefreshTokenResponseModel>.Unexpected(
+                exception: ex,
+                errors: [RefreshTokenResult.Failure.RotationFailed]);
         }
     }
 

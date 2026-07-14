@@ -83,7 +83,9 @@ public sealed partial class TokenTheftDetector(
             {
                 // Catch: both cache and DB unavailable — failure is safer than false negative
                 Loggers.LogDbCheckFailed(logger, dbEx);
-                return RefreshTokenResult.Failure.TokenTheftDetectorFailure;
+                return Result<bool>.Unexpected(
+                    exception: dbEx,
+                    errors: [RefreshTokenResult.Failure.TokenTheftDetectorFailure]);
             }
         }
     }

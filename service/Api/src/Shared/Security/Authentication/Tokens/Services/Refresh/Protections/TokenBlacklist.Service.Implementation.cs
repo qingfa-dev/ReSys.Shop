@@ -40,7 +40,9 @@ public sealed partial class TokenBlacklistService(
         {
             // Catch: cache failure must not crash the request — return check-failed result
             Loggers.LogCheckBlacklistFailed(logger, ex);
-            return TokenBlacklistResult.Failure.BlacklistCheckFailed;
+            return Result.Unexpected(
+                exception: ex,
+                errors: [TokenBlacklistResult.Failure.BlacklistCheckFailed]);
         }
     }
 
@@ -88,7 +90,9 @@ public sealed partial class TokenBlacklistService(
         {
             // Catch: blacklist persistence failure must not block caller — log and return failure
             Loggers.LogBlacklistTokenFailed(logger, jti, ex);
-            return TokenBlacklistResult.Failure.BlacklistFailed;
+            return Result.Unexpected(
+                exception: ex,
+                errors: [TokenBlacklistResult.Failure.BlacklistFailed]);
         }
     }
 
