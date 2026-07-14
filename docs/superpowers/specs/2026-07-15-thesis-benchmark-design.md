@@ -13,7 +13,7 @@ Provide a single CLI invocation that produces all quantitative evidence required
 - 4 models × 3-fold cross-validation on the 5k Fashion Product Images Small dataset
 - Retrieval effectiveness: Precision@K, Recall@K, mAP (mean ± SD)
 - Operational performance: embedding time, load time, storage/1K, query latency, RAM
-- Statistical analysis: paired t-tests (Bonferroni corrected), Cohen's d, bootstrap 95% CI
+- Statistical analysis: descriptive statistics (mean ± SD), bootstrap 95% CI, and effect-size reporting (Cohen's d). Paired t-tests with Bonferroni correction are **omitted** because 3 folds provide insufficient power (n=3). This is a documented limitation.
 - Output: Typst tables, Pareto frontier chart, JSON with raw fold data + stats
 
 The general `benchmark benchmark` command remains unchanged.
@@ -40,7 +40,7 @@ The general `benchmark benchmark` command remains unchanged.
 │  └──────────────┘  └──────────────┘  └──────────────────────┘  │
 │                                                                 │
 │  New adapters: ResNet-50, CLIP-generic                          │
-│  New stats: paired t-test, Cohen's d, bootstrap CI              │
+│  New stats: Cohen's d, bootstrap CI (t-tests omitted — n=3)    │
 └─────────────────────────────────────────────────────────────────┘
 ```
 
@@ -55,7 +55,7 @@ The general `benchmark benchmark` command remains unchanged.
 | `cli/thesis.py` | `src/benchmark/cli/thesis.py` | Typer subcommand, argument parsing, config display |
 | `evaluation/thesis.py` | `src/benchmark/evaluation/thesis.py` | Orchestrates 4-model × 3-fold protocol, collects operational metrics |
 | `datasets/ground_truth.py` | `src/benchmark/datasets/ground_truth.py` | Parses `styles.csv`, builds relevance sets, generates stratified splits |
-| `evaluation/stats.py` | `src/benchmark/evaluation/stats.py` | Paired t-tests, Cohen's d, bootstrap 95% CI |
+| `evaluation/stats.py` | `src/benchmark/evaluation/stats.py` | Cohen's d, bootstrap 95% CI. Paired t-tests omitted due to n=3 underpowering. |
 | `reporting/thesis.py` | `src/benchmark/reporting/thesis.py` | Thesis-specific Typst tables, Pareto chart, summary JSON |
 | `models/resnet50.py` | `src/benchmark/models/resnet50.py` | ResNet-50 adapter (torchvision, 2048-D, ImageNet-1K) |
 | `models/clip_generic.py` | `src/benchmark/models/clip_generic.py` | Generic CLIP adapter (OpenAI `clip-vit-base-patch32`, 512-D) |
@@ -94,28 +94,28 @@ These models are included in the general registry and available via `benchmark b
 
 1. **Load metadata** — `styles.csv` → DataFrame with `id`, `masterCategory`, `subCategory`
 2. **Build ground truth** — relevance set per product = all products with same `masterCategory` + `subCategory` (excluding self). If `subCategory` is missing/NaN, fall back to `masterCategory` only.
-3. **Generate 3-fold splits** — stratified by `masterCategory`:
-   - Fold 0: train=fold_0_train.json (3333 samples), test=fold_0_test.json (1667 samples)
-   - Fold 1: train=fold_1_train.json, test=fold_1_test.json
-   - Fold 2: train=fold_2_train.json, test=fold_2_test.json
-   - Deterministic via `--seed` (default 42)
+3. **Generate 3-fold splits** — stratified by `masterCategory` with a minimum frequency threshold of 10 samples per category. Categories with fewer than 10 samples are grouped into an `"Other"` bucket before stratification:
+    - Fold 0: train=fold_0_train.json (~3333 samples), test=fold_0_test.json (~1667 samples)
+    - Fold 1: train=fold_1_train.json, test=fold_1_test.json
+    - Fold 2: train=fold_2_train.json, test=fold_2_test.json
+    - Deterministic via `--seed` (default 42)
 4. **Per fold, per model:**
    a. `model.load()` → record `load_time_ms`
    b. `EmbeddingGenerator.generate()` for train + test → cache as `(model.slug, fold_N_train/test)`
    c. `Evaluator.evaluate_split(query, gallery)` → per-query P@K, R@K, mAP, nDCG
-   d. `measure_latency()` on 200 samples → `LatencyStats` now includes `mean_ms` and `std_ms` fields. The thesis runner uses these values (not percentiles).
-   e. `measure_throughput()` → images/sec
-   f. Record operational metrics:
-      - `load_time_ms`: timer around `model.load()`
+    d. `measure_latency()` — 100 timed runs on a pool of 200 sample images → `LatencyStats` now includes `mean_ms` and `std_ms` fields. The thesis runner uses these values (not percentiles).
+    e. `measure_throughput()` — 10 batches of 64 images → images/sec
+    f. Record operational metrics:
+       - `load_time_ms`: timer around `model.load()`
        - `index_storage_mb`: total storage of all embeddings (`embeddings.nbytes / 1024 / 1024`). The Typst table computes "per 1K" by dividing by `(N / 1000)`.
-       - `ram_mb`: `psutil.Process().memory_info().rss / 1024 / 1024` after inference
-      - `query_latency_ms`: timed `PgvectorRetriever.query()` (optional, if PG available)
+       - `ram_mb`: peak RSS during inference, sampled via `psutil.Process().memory_info().rss / 1024 / 1024` while running `embed_batch()` on a 64-image batch
+       - `query_latency_ms`: timed `PgvectorRetriever.query()` (optional; if PGVector unavailable, report `"N/A"`)
 5. **Aggregate** — per model, per metric: mean ± SD across 3 folds
-6. **Statistical tests** —
-   - Paired t-test: Fashion-CLIP vs each competitor on fold-level mAP scores
-   - Bonferroni correction: α = 0.05 / 3 ≈ 0.017
-   - Cohen's d for effect size
-   - Bootstrap 95% CI for mean mAP (10,000 resamples)
+6. **Statistical analysis** —
+    - Descriptive statistics: mean ± SD reported for all metrics (primary reporting)
+    - Bootstrap 95% CI for mean mAP (10,000 resamples) — supplementary; noted as approximate due to small fold count
+    - Cohen's d (effect size) computed from fold-level mAP differences between Fashion-CLIP and each competitor
+    - **Omitted:** Paired t-tests with Bonferroni correction. With only 3 folds, the test is underpowered (cannot achieve 80% power at any realistic effect size). This is documented as a known limitation in the thesis text.
 7. **Generate outputs** —
    - `outputs/thesis/tables/thesis_results.typ` — all tables with mean ± SD
    - `outputs/thesis/figures/pareto_frontier.png` — mAP vs mean latency
@@ -155,18 +155,33 @@ These models are included in the general registry and available via `benchmark b
       }
     }
   },
-  "statistical_tests": {
-    "fashion-clip vs resnet-50": {
-      "metric": "map",
-      "paired_t_stat": 3.45,
-      "p_value": 0.012,
-      "p_value_bonferroni": 0.036,
-      "cohens_d": 1.23,
-      "significant": false
+  "statistical_analysis": {
+    "note": "Paired t-tests omitted — 3 folds provide insufficient power (n=3). Descriptive statistics (mean ± SD) are primary.",
+    "effect_sizes": {
+      "fashion-clip vs resnet-50": {
+        "metric": "map",
+        "cohens_d": 1.23
+      }
+    },
+    "bootstrap_ci": {
+      "fashion-clip": {
+        "map": {"mean": 0.8234, "ci_95": [0.8001, 0.8467]}
+      }
     }
   }
 }
 ```
+
+### 4.4 Deviation from Thesis Protocol §11.5.4
+
+The thesis §11.5.4 describes a protocol of **3 repeated runs on a 100-image dataset**. This design scales that to **3-fold cross-validation on the full 5k small dataset**.
+
+**Rationale:**
+- The 100-image dataset was a planning estimate for manual annotation. With category-based ground truth, the full 5k dataset is usable without annotation cost.
+- 5k samples provide more stable metric estimates (lower variance in P@K, R@K, mAP) than 100 samples.
+- 3-fold CV is methodologically stronger than repeated runs: it ensures every sample serves as both query and gallery, reducing sampling bias.
+
+**Acknowledged limitation:** The thesis originally planned paired t-tests on 100 query-level observations. With 3 folds, we have only 3 fold-level observations. Paired t-tests are therefore omitted; descriptive statistics (mean ± SD) are primary, with bootstrap CI and Cohen's d reported as supplementary. This deviation is explicitly documented in the thesis text.
 
 ---
 
@@ -178,9 +193,9 @@ These models are included in the general registry and available via `benchmark b
 | Missing images | Log warning, skip sample (existing behavior in `generator.py`) |
 | Model load failure | Fatal for that model — log error, continue with remaining models |
 | Cache read failure | Fallback to recompute (existing behavior) |
-| PGVector not available for query latency | Skip metric, log warning, continue |
+| PGVector not available for query latency | Report `"N/A"` in output tables; log warning; continue |
 | Fold with zero relevant items | Return 0.0 for AP (existing `map.py` behavior) |
-| Statistical test with < 2 folds | Skip test, log warning |
+| Bootstrap with < 3 folds | Skip CI computation; log warning |
 
 ---
 
@@ -189,7 +204,7 @@ These models are included in the general registry and available via `benchmark b
 | Test | Location | Coverage |
 |------|----------|----------|
 | Unit: Ground truth builder | `tests/datasets/test_ground_truth.py` | Parse CSV, relevance sets, stratified splits |
-| Unit: Statistical functions | `tests/evaluation/test_stats.py` | t-test, Cohen's d, bootstrap CI on synthetic data |
+| Unit: Statistical functions | `tests/evaluation/test_stats.py` | Cohen's d, bootstrap CI on synthetic data (t-tests omitted — n=3 underpowered) |
 | Unit: ResNet-50 adapter | `tests/models/test_resnet50.py` | Load, embed, output shape, normalisation |
 | Unit: CLIP-generic adapter | `tests/models/test_clip_generic.py` | Load, embed, output shape, normalisation |
 | Integration: End-to-end thesis run | `tests/integration/test_thesis.py` | Run on 10-image subset, verify JSON output schema |
@@ -231,9 +246,9 @@ Options:
 | Index storage / 1K | `embeddings.nbytes` calculation |
 | Query latency | `PgvectorRetriever` timed queries |
 | RAM footprint | `psutil.Process().memory_info()` |
-| Paired t-tests, Bonferroni | `evaluation/stats.py` |
 | Cohen's d | `evaluation/stats.py` |
 | Bootstrap 95% CI | `evaluation/stats.py` |
+| Paired t-tests, Bonferroni | **Omitted** — 3 folds provide insufficient power (documented limitation) |
 | Typst tables | `reporting/thesis.py` |
 | Pareto frontier plot | `reporting/thesis.py` |
 
@@ -253,6 +268,5 @@ Options:
 
 New runtime dependencies (add to `pyproject.toml`):
 - `psutil` — RAM measurement
-- `scipy` — t-tests (or implement manually to avoid heavy dep; preference: manual implementation using `statistics` module)
 
-No new dependencies if statistical tests are implemented manually. `scipy` is acceptable if already in the venv.
+No `scipy` required. Cohen's d and bootstrap CI are implemented manually using `statistics` and `numpy` only.
