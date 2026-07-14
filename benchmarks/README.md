@@ -56,11 +56,6 @@ Dataset → Model → Embedding → Cache → Retrieval → Metrics → Report
 
 Adding a new model requires only one new file under `src/benchmark/models/`.
 
-## Research extension
-
-The benchmark package now exposes research-friendly commands under the `research` subcommand.
-Use `uv run benchmark research extract-features`, `uv run benchmark research evaluate`, and `uv run benchmark research pgvector-benchmark` to build feature bundles, compute split-aware metrics, and validate PGVector search behavior.
-
 ## Outputs
 
 - `outputs/metrics/` — per-model JSON results

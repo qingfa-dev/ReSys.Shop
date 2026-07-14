@@ -402,10 +402,3 @@ def cache(
     else:
         console.print(f"[red]Unknown action '{action}'. Use: list | stats | clear[/red]")
         raise typer.Exit(code=1)
-
-
-# ── research subcommands ──────────────────────────────────────────────────────
-
-from benchmark.cli.research import app as research_app
-
-app.add_typer(research_app, name="research")

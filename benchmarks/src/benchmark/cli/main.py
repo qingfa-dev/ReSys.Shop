@@ -7,14 +7,12 @@ Usage:
   uv run benchmark thesis ...                (run thesis benchmark)
   uv run benchmark report ...                (regenerate reports)
   uv run benchmark cache ...                 (manage cache)
-  uv run benchmark research ...              (research commands)
 """
 from __future__ import annotations
 
 import typer
 
 from benchmark.cli.benchmark import app as benchmark_app
-from benchmark.cli.research import app as research_app
 
 app = typer.Typer(
     name="benchmark",
@@ -23,7 +21,6 @@ app = typer.Typer(
 )
 
 app.add_typer(benchmark_app, name="benchmark")
-app.add_typer(research_app, name="research")
 
 if __name__ == "__main__":
     app()

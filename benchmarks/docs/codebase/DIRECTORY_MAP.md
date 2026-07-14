@@ -27,14 +27,13 @@ All Python source code. Two sub-packages:
 
 | subfolder | files | purpose |
 |---|---|---|
-| `cli/` | `main.py`, `benchmark.py`, `research.py` | Typer CLI entry points. `main.py` composes sub-commands. `benchmark.py` has `run`, `thesis`, `report`, `cache`. `research.py` has research sub-commands. |
+| `cli/` | `main.py`, `benchmark.py` | Typer CLI entry points. `main.py` composes sub-commands. `benchmark.py` has `run`, `thesis`, `report`, `cache`. |
 | `datasets/` | `loader.py`, `ground_truth.py`, `transforms.py`, `validators.py` | Dataset loading, ground-truth building, image transforms, dataset validation. |
 | `embeddings/` | `generator.py`, `cache.py`, `storage.py` | Embedding generation, `.npz` cache, storage helpers. |
 | `evaluation/` | `evaluator.py`, `benchmark.py`, `thesis.py`, `stats.py`, `comparison.py` | Evaluation orchestration: one-shot (`benchmark.py`), thesis CV (`thesis.py`), metrics computation (`evaluator.py`), statistical analysis (`stats.py`), model ranking (`comparison.py`). |
 | `metrics/` | `precision.py`, `recall.py`, `map.py`, `ndcg.py`, `latency.py`, `throughput.py` | Pure metric implementations. All accept numpy arrays, return floats. |
 | `models/` | `base.py`, `registry.py`, `fashion_clip.py`, `clip_b32.py`, `clip_l14.py`, `clip_vit_b16.py`, `clip_generic.py`, `siglip.py`, `eva_clip.py`, `efficientnet_b0.py`, `resnet50.py`, `convnext_tiny.py`, `dinov2_vits14.py` | Model adapters. `base.py` = abstract class. `registry.py` = lazy registry. Each other file = one model adapter. |
 | `reporting/` | `json.py`, `csv.py`, `markdown.py`, `typst.py`, `charts.py` | Output generators. `typst.py` writes `.typ` files auto-included in thesis. |
-| `research/` | `feature_extraction.py`, `evaluation.py`, `datasets.py`, `db.py`, `reports.py` | Research extension commands: extract features, PGVector eval, dataset prep. |
 | `retrieval/` | `cosine.py`, `faiss.py`, `pgvector.py` | Retrieval backends: cosine similarity (numpy), FAISS (ANN), PGVector (postgres). |
 | `utils/` | `logging.py`, `timing.py`, `device.py`, `random_seed.py` | Cross-cutting: structured logging, latency measurement, device detection, seed setting. |
 
