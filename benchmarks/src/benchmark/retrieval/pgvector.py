@@ -179,6 +179,8 @@ class PgvectorRetriever:
         """
         if self._conn is None:
             raise RuntimeError("Call connect() first")
+        if not isinstance(lists, int) or lists <= 0:
+            raise ValueError(f"lists must be a positive integer, got {lists!r}")
 
         index_name = f"idx_{self._table}_{dim}_{lists}"
         with self._conn.cursor() as cur:

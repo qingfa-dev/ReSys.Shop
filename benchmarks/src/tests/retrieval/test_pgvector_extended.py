@@ -48,3 +48,13 @@ def test_build_index():
     assert cur.execute.call_count == 2
     assert isinstance(elapsed, float)
     assert elapsed >= 0
+
+
+def test_build_index_invalid_lists():
+    retriever = PgvectorRetriever(conn_string="postgresql://test@test/test")
+    retriever._conn = MagicMock()
+
+    with pytest.raises(ValueError, match="lists must be a positive integer"):
+        retriever.build_index(512, -1)
+    with pytest.raises(ValueError, match="lists must be a positive integer"):
+        retriever.build_index(512, "100")
