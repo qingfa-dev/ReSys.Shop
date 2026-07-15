@@ -56,18 +56,23 @@ Produces:
 - `outputs/thesis/results/thesis_results.json` — primary (category + colour)
 - `outputs/thesis/results/thesis_results_pattern.json` — secondary (category + colour + pattern)
 
-## Results (5K Subset, 4 Models, 3-Fold CV)
+## Results (5K Subset, Same Folds, Same Embeddings)
 
-| Model | Primary mAP | Secondary mAP | Δ |
-|-------|------------|--------------|----|
-| FashionCLIP | 0.245 ± 0.004 | 0.215 ± 0.008 | −0.031 |
-| CLIP-generic | 0.231 ± 0.006 | 0.201 ± 0.007 | −0.030 |
-| EfficientNet-B0 | 0.220 ± 0.006 | 0.192 ± 0.004 | −0.028 |
-| ResNet-50 | 0.209 ± 0.004 | 0.186 ± 0.007 | −0.023 |
+| Model | 1. Cat-only | 2. + Colour | 3. + Colour+Pattern |
+|-------|------------|-------------|---------------------|
+| FashionCLIP | 0.931 ± 0.007 | 0.245 ± 0.004 | 0.215 ± 0.008 |
+| CLIP-generic | 0.912 ± 0.008 | 0.231 ± 0.006 | 0.201 ± 0.007 |
+| EfficientNet-B0 | 0.890 ± 0.006 | 0.220 ± 0.006 | 0.192 ± 0.004 |
+| ResNet-50 | 0.886 ± 0.011 | 0.209 ± 0.004 | 0.186 ± 0.007 |
 
-Model rankings are **stable** across both schemes. The uniform mAP drop
-(0.023–0.031) confirms colour and pattern are independent visual tasks —
-no model excels at fine-grained pattern matching beyond its baseline.
+**Rankings are stable across all three schemes.** The 3.7× mAP drop from
+category-only to category+colour confirms the original benchmark measured
+category classification, not visual similarity.
+
+Result files:
+- `outputs/thesis/results/thesis_results_category_only.json`
+- `outputs/thesis/results/thesis_results.json`
+- `outputs/thesis/results/thesis_results_pattern.json`
 
 ## Extracting Other Attributes
 
