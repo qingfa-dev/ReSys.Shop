@@ -137,9 +137,6 @@ class InferenceEngine:
         """Helper to resolve and load a Torch skill from registry."""
         registry_result = ModelRegistry.get_model_class(model_name)
 
-        if not registry_result.is_success and "clip" in model_name and "fashion" not in model_name:
-            registry_result = ModelRegistry.get_model_class("clip_vit_b16")
-
         if not registry_result.is_success:
             return ValueResult.failure_value(InferenceResults.Errors.ModelNotFound(model_name))
 

@@ -39,15 +39,15 @@ def test_engine_returns_not_found_for_unsupported():
     assert result.is_success is False
     assert result.errors[0].code == "Model.NotFound"
 
-def test_engine_fuzzy_matches_clip():
-    # Setup: Ensure clip_vit_b16 is registered
+def test_engine_rejects_fuzzy_clip_match_after_fallback_removed():
+    """After fallback removal, unknown 'clip_*' names must fail explicitly."""
     ModelRegistry.register("clip_vit_b16")(MockSkill)
-
     engine = InferenceEngine()
-    # Try fuzzy match
     result = engine.get_embedder("clip_something_else")
-    assert result.is_success is True
-    assert isinstance(result.value, MockSkill)
+    assert result.is_success is False, (
+        "Fuzzy 'clip' fallback must not succeed — model should return NotFound"
+    )
+    assert result.errors[0].code == "Model.NotFound"
 
 @patch("embedding.services.inference_engine.infer_onnx_dim")
 @patch("pathlib.Path.exists")
