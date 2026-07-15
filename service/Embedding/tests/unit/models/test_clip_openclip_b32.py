@@ -18,4 +18,4 @@ class TestOpenClipB32Registration:
         result = engine.get_embedder("openclip-vit-b-32")
         assert result.is_success is True
         embedder = result.value
-        assert embedder.dimension == 512
+        assert embedder.dim == 512

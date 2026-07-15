@@ -8,12 +8,11 @@ from pathlib import Path
 from typing import Dict, List
 
 from embedding.core.config import settings
+from embedding.core.constants import Constants
 from embedding.core.telemetry import get_meter, get_tracer
 from embedding.models import BaseEmbedder, ModelRegistry
 from embedding.models.onnx.utils import infer_onnx_dim
 from embedding.schemas import InferenceResults, ValueResult
-
-from core.constants import Constants
 
 logger = logging.getLogger(__name__)
 tracer = get_tracer(__name__)
