@@ -197,36 +197,36 @@ This evaluation addresses **Research Objective 3** (§1.4): *empirically compari
 | **H3** | ResNet-50 has highest storage cost per embedding | 2048-d vectors consume 4× the storage of 512-d vectors |
 | **H4** | CLIP-generic underperforms Fashion-CLIP but outperforms CNNs | Text-image pretraining captures semantic similarity better than pure visual features |
 
-### 11.5.6 Results (Provisional)
+### 11.5.6 Results
 
-> ⚠️ **Caveat**: These results were generated with a 2-part ground truth (`masterCategory/subCategory` only, no `baseColour`). The benchmark code has since been updated to include `baseColour` in the relevance key to measure visual similarity more accurately. Re-running with the updated ground truth is pending. Additionally, P@20/R@20 values of 0.0 are under investigation — likely a retrieval or computation issue in the ThesisRunner pipeline.
+The three-scheme comparison (§11.5.6a) supersedes the original single-scheme
+format. All results below use the same 5,000-product enriched dataset, same
+3 folds (seed=42), same model embeddings.
 
-**Retrieval Effectiveness (mean ± SD, 3-fold CV, ~5,000 images)**
+**Retrieval Effectiveness (mean ± SD, 3-fold CV, 5,000 images)**
 
-| Model | Precision@5 | Recall@5 | Precision@10 | Recall@10 | mAP |
-|-------|-------------|----------|--------------|-----------|-----|
-| Fashion-CLIP | 0.792 ± 0.010 | 0.265 ± 0.021 | 0.710 ± 0.016 | 0.399 ± 0.028 | 0.746 ± 0.009 |
-| ResNet-50 | 0.741 ± 0.012 | 0.245 ± 0.015 | 0.683 ± 0.017 | 0.368 ± 0.024 | 0.715 ± 0.026 |
-| EfficientNet-B0 | 0.743 ± 0.010 | 0.250 ± 0.014 | 0.683 ± 0.014 | 0.370 ± 0.027 | 0.720 ± 0.016 |
-| CLIP-generic | 0.750 ± 0.023 | 0.249 ± 0.032 | 0.679 ± 0.022 | 0.381 ± 0.025 | 0.703 ± 0.022 |
+| Model | Precision@5 | Recall@5 | Precision@10 | Recall@10 | Precision@20 | Recall@20 | mAP |
+|-------|-------------|----------|--------------|-----------|--------------|-----------|-----|
+| FashionCLIP | 0.429 ± 0.003 | 0.065 ± 0.004 | 0.390 ± 0.002 | 0.104 ± 0.006 | 0.351 ± 0.002 | 0.167 ± 0.005 | **0.245 ± 0.004** |
+| CLIP-generic | 0.412 ± 0.005 | 0.057 ± 0.005 | 0.374 ± 0.003 | 0.095 ± 0.007 | 0.333 ± 0.003 | 0.152 ± 0.008 | 0.231 ± 0.006 |
+| EfficientNet-B0 | 0.393 ± 0.006 | 0.052 ± 0.004 | 0.363 ± 0.003 | 0.088 ± 0.005 | 0.327 ± 0.004 | 0.141 ± 0.005 | 0.220 ± 0.006 |
+| ResNet-50 | 0.382 ± 0.002 | 0.050 ± 0.002 | 0.349 ± 0.004 | 0.084 ± 0.002 | 0.315 ± 0.003 | 0.136 ± 0.005 | 0.209 ± 0.004 |
 
-**Cohen's d effect sizes (vs Fashion-CLIP on mAP)**:
-- ResNet-50: d = 1.78 (large — Fashion-CLIP substantially better)
-- EfficientNet-B0: d = 1.50 (large)
-- CLIP-generic: d = 1.77 (large)
+**Cohen's d effect sizes (vs Fashion-CLIP on mAP, n=3 folds)**:
+- ResNet-50: d = 9.00 (large — Fashion-CLIP substantially better)
+- EfficientNet-B0: d = 5.00 (large)
+- CLIP-generic: d = 2.80 (large)
 
-**Bootstrap 95% CI for Fashion-CLIP mAP**: [0.736, 0.754]
+**Bootstrap 95% CI for Fashion-CLIP mAP**: [0.241, 0.248]
 
 **Operational Performance (mean ± SD)**
 
-| Model | Embed Time (ms) | Load Time (s) | Storage (MB) † | Throughput (img/s) |
-|-------|-----------------|---------------|----------------|-------------------|
-| Fashion-CLIP | 84.4 ± 4.0 | 5.29 | 0.20 | 20.8 ± 0.6 |
-| ResNet-50 | 60.5 ± 2.2 | 0.36 | 0.78 | 13.8 ± 0.7 |
-| EfficientNet-B0 | 21.6 ± 1.6 | 0.12 | 0.49 | 35.6 ± 2.6 |
-| CLIP-generic | 105.6 ± 16.2 | 5.84 | 0.20 | 13.7 ± 1.1 |
-
-† Per-fold query set (~1,667 images). Multiply by ~2.0 for 1K-image normalisation.
+| Model | Embed Time (ms) | Load Time (s) | Storage (MB/1K) | Throughput (img/s) |
+|-------|-----------------|---------------|-----------------|-------------------|
+| Fashion-CLIP | 96.8 ± 6.8 | 5.26 | 1.95 | 18.5 ± 1.3 |
+| CLIP-generic | 86.6 ± 8.4 | 6.85 | 1.95 | 21.4 ± 0.3 |
+| EfficientNet-B0 | 37.8 ± 26.6 | 0.11 | 4.88 | 30.2 ± 13.5 |
+| ResNet-50 | 61.9 ± 5.8 | 0.37 | 7.81 | 13.5 ± 0.7 |
 
 **Example result data**: `benchmarks/outputs/thesis/results/thesis_results.json`
 
