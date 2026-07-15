@@ -151,6 +151,35 @@ principles:
       bad: |
         Domain/Product.cs  — 500-line file mixing data, methods, validation
 
+  - id: resilient-infrastructure-startup
+    name: Infrastructure dependencies must not block application startup
+    description: >
+      External infrastructure connections (Redis, databases, message brokers,
+      file storage) must use lazy initialization, retry policies, or health-check
+      gating — never eager synchronous connects during DI registration.
+      The application must start and serve health endpoints even when downstream
+      services are temporarily unavailable.
+    rationale: >
+      Eager connections at startup crash the entire application when a single
+      dependency is down. In containerized environments, transient failures are
+      expected during rolling restarts. Lazy initialization with retry keeps
+      the application alive and lets orchestration health checks determine liveness.
+    enforcement: lint
+    severity: error
+    examples:
+      good: |
+        // Lazy singleton — connection deferred to first use
+        builder.Services.AddSingleton<IConnectionMultiplexer>(_ =>
+        {
+            var options = ConfigurationOptions.Parse(connectionString);
+            options.AbortOnConnectFail = false;
+            return ConnectionMultiplexer.Connect(options);
+        });
+      bad: |
+        // Eager connect during DI registration — app crashes if Redis is down
+        ConnectionMultiplexer multiplexer = ConnectionMultiplexer.Connect(connectionString);
+        builder.Services.AddSingleton<IConnectionMultiplexer>(multiplexer);
+
   - id: structured-logging
     name: All operational logging uses structured loggers, not ad-hoc print
     description: >

@@ -140,8 +140,8 @@ domains:
     gaps:
       - "High coupling — Shared references 30+ packages, any change affects all modules"
       - "No splitting into separate infrastructure packages (Shared.Persistence, Shared.Auth, etc.)"
-    notes: "Well-tested (Shared.UnitTests has 28K LOC). Strong foundation but could benefit from decomposition."
-    last_reviewed: "2026-07-13"
+    notes: "Well-tested (Shared.UnitTests has 28K LOC). Strong foundation but could benefit from decomposition. Fixed eager Redis connect at startup (→ lazy singleton with AbortOnConnectFail=false, per resilient-infrastructure-startup principle)."
+    last_reviewed: "2026-07-15"
 
   Admin.SPA:
     scores:

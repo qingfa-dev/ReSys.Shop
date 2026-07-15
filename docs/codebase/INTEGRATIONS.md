@@ -68,6 +68,7 @@
 - **Database initialization:** `DatabaseInitializerHostedService` runs migrations on startup when `DatabaseInitialization.RunMigrations=true` (dev only — `appsettings.Development.json:3-5`); production expects migrations run out-of-band.
 - **Stripe webhook handling:** Signature validation first, then parse, then dispatch (`Module/Payment/Features/Storefront/Payment/Webhooks/StripeWebhook.cs:32-36`); invalid signature → `StripeWebhookResult.Errors.InvalidSignature`.
 - **Health checks:** Default `self` liveness check + Postgres + Redis + `database_initialization` (recently added — commit `e6891d7e` "refactor(host): move database initialization to hosted service with health check" + `da94985d` "feat(shared): add IDatabaseInitializationState and health check"). `MapDefaultEndpoints` exposes `/health` and `/alive` only in non-production (`Extensions.cs:114-131`).
+- **Redis connection:** Lazy singleton with `AbortOnConnectFail=false` — the app starts even if Redis is temporarily unavailable. Connection is deferred to first cache operation (`Shared/Performance/Caching/Caching.Extension.cs:97-107`).
 
 ### 5) Observability for Integrations
 

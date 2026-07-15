@@ -14,7 +14,7 @@ REPO_ROOT = SCRIPTS_DIR.parent.parent.parent
 
 def run_step(step_num: int, total: int, name: str, args: list[str]) -> int:
     print(f"\n{'='*60}\n  STEP {step_num}/{total}: {name}\n{'='*60}")
-    cmd = [sys.executable, str(SCRIPTS_DIR / name)] + args
+    cmd = ["uv", "run", "python", str(SCRIPTS_DIR / name)] + args
     result = subprocess.run(cmd)
     return result.returncode
 
