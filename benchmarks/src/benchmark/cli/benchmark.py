@@ -279,6 +279,10 @@ def thesis(
         help="Device (cpu, cuda, mps, auto).", show_default=True)] = "auto",
     seed: Annotated[int, typer.Option("--seed",
         help="Random seed.", show_default=True)] = MAGIC.SEED,
+    secondary_label: Annotated[str | None, typer.Option("--secondary-label",
+        help="Secondary label field for pattern-aware evaluation "
+             "(e.g., 'label_pattern'). When set, a second evaluation pass "
+             "produces thesis_results_pattern.json.")] = None,
     log_level: Annotated[str, typer.Option("--log-level", show_default=True)] = DFLT.LOG_LEVEL,
 ) -> None:
     """Run the thesis benchmark (k-fold cross-validation).
@@ -323,6 +327,7 @@ def thesis(
         device=device,
         use_cache=not no_cache,
         batch_size=batch_size,
+        secondary_label=secondary_label,
     )
     results = runner.run(model_keys=model_keys)
 
