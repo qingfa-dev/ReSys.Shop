@@ -13,15 +13,16 @@ from tqdm import tqdm
 
 API_KEY = "dev-key-must-be-long-enough"
 
+SCRIPTS_DIR = Path(__file__).resolve().parent
+
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="Generate image embeddings")
-    parser.add_argument("--json-dir", type=Path, required=True, help="Directory with demo_variant_images.json")
-    parser.add_argument("--storage", type=Path, required=True, help="Path to infra/Storage/demo")
+    parser.add_argument("--output", type=Path, default=SCRIPTS_DIR / "output", help="Output directory")
     parser.add_argument("--base-url", default="http://localhost:8000", help="Embedding service URL")
     args = parser.parse_args()
 
-    images_json = args.json_dir / "demo_variant_images.json"
+    images_json = args.output / "demo_variant_images.json"
     if not images_json.exists():
         print(f"ERROR: {images_json} not found"); sys.exit(1)
 
@@ -33,7 +34,7 @@ def main() -> None:
     embeddings: list[dict] = []
     for rec in tqdm(search_records, desc="Generating embeddings"):
         storage_path = rec["storage_path"]
-        image_path = args.storage / storage_path
+        image_path = args.output / storage_path
         if not image_path.exists():
             print(f"  WARN: {image_path} not found, skipping")
             continue
@@ -70,7 +71,7 @@ def main() -> None:
             print(f"  WARN: {storage_path}: {e}")
             continue
 
-    (args.json_dir / "demo_embeddings.json").write_text(json.dumps(embeddings, indent=2))
+    (args.output / "demo_embeddings.json").write_text(json.dumps(embeddings, indent=2))
     print(f"Written {len(embeddings)} embeddings")
 
 

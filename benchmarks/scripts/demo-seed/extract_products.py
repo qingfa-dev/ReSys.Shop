@@ -35,6 +35,8 @@ ARTICLE_PRICE_MAP: dict[str, float] = {
     "Churidar": 29.99, "Leggings": 24.99, "Capris": 29.99,
 }
 
+SCRIPTS_DIR = Path(__file__).resolve().parent
+
 
 def guid(entity_type: str, name: str) -> str:
     return str(uuid5(SEED_NAMESPACE, f"{entity_type}.{name}"))
@@ -65,7 +67,7 @@ def extract_sizes_from_json(dataset_path: Path, product_id: str) -> list[str]:
 def main() -> None:
     parser = argparse.ArgumentParser(description="Extract product seed data")
     parser.add_argument("--dataset", type=Path, required=True)
-    parser.add_argument("--output", type=Path, required=True)
+    parser.add_argument("--output", type=Path, default=SCRIPTS_DIR / "output")
     parser.add_argument("--count", type=int, default=200, help="Target number of product groups")
     args = parser.parse_args()
 

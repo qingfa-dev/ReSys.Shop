@@ -10,6 +10,8 @@ from pathlib import Path
 from PIL import Image
 from tqdm import tqdm
 
+SCRIPTS_DIR = Path(__file__).resolve().parent
+
 
 def resize_image(src: Path, dst: Path, size: int) -> bool:
     try:
@@ -26,16 +28,14 @@ def resize_image(src: Path, dst: Path, size: int) -> bool:
 def main() -> None:
     parser = argparse.ArgumentParser(description="Scale product images for demo")
     parser.add_argument("--dataset", type=Path, required=True, help="Path to fashion-product-images directory")
-    parser.add_argument("--storage", type=Path, required=True, help="Path to infra/Storage/demo")
-    parser.add_argument("--json-dir", type=Path, required=True, help="Directory with demo_variant_images.json")
+    parser.add_argument("--output", type=Path, default=SCRIPTS_DIR / "output", help="Output directory")
     args = parser.parse_args()
 
-    images_json = args.json_dir / "demo_variant_images.json"
+    images_json = args.output / "demo_variant_images.json"
     if not images_json.exists():
         print(f"ERROR: {images_json} not found; run extract_products.py first"); sys.exit(1)
 
     image_records = json.loads(images_json.read_text())
-    # Deduplicate by storage path
     seen: set[str] = set()
     unique: list[dict] = []
     for rec in image_records:
@@ -45,8 +45,8 @@ def main() -> None:
             unique.append(rec)
 
     source_dir = args.dataset / "images"
-    medium_dir = args.storage / "images" / "medium"
-    search_dir_224 = args.storage / "images" / "search" / "224"
+    medium_dir = args.output / "images" / "medium"
+    search_dir_224 = args.output / "images" / "search" / "224"
 
     ok = fail = 0
     for rec in tqdm(unique, desc="Processing images"):
@@ -58,13 +58,13 @@ def main() -> None:
             continue
 
         if "medium" in rec["storage_path"]:
-            dst = args.storage / rec["storage_path"]
+            dst = args.output / rec["storage_path"]
             if resize_image(src, dst, 512):
                 ok += 1
             else:
                 fail += 1
         elif "search" in rec["storage_path"]:
-            dst = args.storage / rec["storage_path"]
+            dst = args.output / rec["storage_path"]
             if resize_image(src, dst, 224):
                 ok += 1
             else:

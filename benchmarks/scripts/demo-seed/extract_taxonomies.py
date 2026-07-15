@@ -18,6 +18,8 @@ TAXONOMY_ARTICLE_TYPES_ID = str(uuid5(SEED_NAMESPACE, "taxonomy.article_types"))
 OPTION_TYPE_SIZE_ID = str(uuid5(SEED_NAMESPACE, "option_type.size"))
 OPTION_TYPE_COLOR_ID = str(uuid5(SEED_NAMESPACE, "option_type.color"))
 
+SCRIPTS_DIR = Path(__file__).resolve().parent
+
 
 def guid(entity_type: str, name: str) -> str:
     return str(uuid5(SEED_NAMESPACE, f"{entity_type}.{name}"))
@@ -138,7 +140,7 @@ def build_option_values_json(colors: set[str]) -> list[dict]:
 def main() -> None:
     parser = argparse.ArgumentParser(description="Extract taxonomy seed data from styles.csv")
     parser.add_argument("--dataset", type=Path, required=True, help="Path to fashion-product-images directory")
-    parser.add_argument("--output", type=Path, required=True, help="Output directory for JSON files")
+    parser.add_argument("--output", type=Path, default=SCRIPTS_DIR / "output", help="Output directory for JSON files")
     args = parser.parse_args()
 
     styles_csv = args.dataset / "styles.csv"

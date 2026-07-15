@@ -11,6 +11,8 @@ from uuid import uuid5, NAMESPACE_DNS
 
 SEED_NAMESPACE = uuid5(NAMESPACE_DNS, "resys.shop.demo-seed")
 
+SCRIPTS_DIR = Path(__file__).resolve().parent
+
 
 def guid(entity_type: str, name: str) -> str:
     return str(uuid5(SEED_NAMESPACE, f"{entity_type}.{name}"))
@@ -18,11 +20,11 @@ def guid(entity_type: str, name: str) -> str:
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="Extract stock seed data")
-    parser.add_argument("--json-dir", type=Path, required=True, help="Directory with demo_variants.json")
+    parser.add_argument("--output", type=Path, default=SCRIPTS_DIR / "output", help="Output directory")
     parser.add_argument("--seed", type=int, default=42, help="Random seed")
     args = parser.parse_args()
 
-    variants_json = args.json_dir / "demo_variants.json"
+    variants_json = args.output / "demo_variants.json"
     if not variants_json.exists():
         print(f"ERROR: {variants_json} not found"); sys.exit(1)
 
@@ -95,9 +97,9 @@ def main() -> None:
                 "action": "restock",
             })
 
-    (args.json_dir / "demo_stock_locations.json").write_text(json.dumps(locations, indent=2))
-    (args.json_dir / "demo_stock_items.json").write_text(json.dumps(stock_items, indent=2))
-    (args.json_dir / "demo_stock_movements.json").write_text(json.dumps(stock_movements, indent=2))
+    (args.output / "demo_stock_locations.json").write_text(json.dumps(locations, indent=2))
+    (args.output / "demo_stock_items.json").write_text(json.dumps(stock_items, indent=2))
+    (args.output / "demo_stock_movements.json").write_text(json.dumps(stock_movements, indent=2))
 
     print(f"Written {len(locations)} locations, {len(stock_items)} items, {len(stock_movements)} movements")
 
