@@ -34,6 +34,8 @@ public static class CatalogExtensions
         builder.AddSeeder<CatalogDemoSeeder>();
         builder.AddSeeder<CatalogEmbeddingSeeder>();
 
+        builder.Services.AddScoped<Module.Catalog.Persistence.Seeders.DemoJsonHelper>();
+
         return builder;
     }
 }

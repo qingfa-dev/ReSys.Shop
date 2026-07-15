@@ -4,7 +4,7 @@ using Module.Inventory.Domain.StockLocations.StockItems;
 
 namespace Module.Inventory.Persistence.Seeders;
 
-public sealed class InventoryStockItemSeeder(IApplicationDbContext context) : AbstractDataSeeder(context)
+public sealed class InventoryStockItemSeeder(IApplicationDbContext context, DemoJsonHelper jsonHelper) : AbstractDataSeeder(context)
 {
     public override int Order => 140;
 
@@ -14,7 +14,7 @@ public sealed class InventoryStockItemSeeder(IApplicationDbContext context) : Ab
         if (hasStockItems)
             return Result.Ok();
 
-        var json = DemoJsonHelper.LoadIfExists<DemoStockItemJson>("demo_stock_items.json");
+        var json = jsonHelper.LoadIfExists<DemoStockItemJson>("demo_stock_items.json");
         if (json is not null)
         {
             var locations = await Context.Set<StockLocation>().ToListAsync(cancellationToken);

@@ -3,7 +3,7 @@ using Module.Catalog.Domain.Taxonomies.Taxons;
 
 namespace Module.Catalog.Persistence.Seeders;
 
-public sealed class CatalogTaxonSeeder(IApplicationDbContext context) : AbstractDataSeeder(context)
+public sealed class CatalogTaxonSeeder(IApplicationDbContext context, DemoJsonHelper jsonHelper) : AbstractDataSeeder(context)
 {
     public override int Order => 120;
 
@@ -13,7 +13,7 @@ public sealed class CatalogTaxonSeeder(IApplicationDbContext context) : Abstract
         if (hasTaxons)
             return Result.Ok();
 
-        var json = DemoJsonHelper.LoadIfExists<DemoTaxonJson>("demo_taxons.json");
+        var json = jsonHelper.LoadIfExists<DemoTaxonJson>("demo_taxons.json");
         if (json is not null)
         {
             await SeedFromJsonAsync(json, cancellationToken);

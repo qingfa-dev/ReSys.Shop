@@ -3,7 +3,7 @@ using Module.Location.Domain.Countries;
 
 namespace Module.Inventory.Persistence.Seeders;
 
-public sealed class StockLocationSeeder(IApplicationDbContext context) : AbstractDataSeeder(context)
+public sealed class StockLocationSeeder(IApplicationDbContext context, DemoJsonHelper jsonHelper) : AbstractDataSeeder(context)
 {
     public override int Order => 100;
 
@@ -13,7 +13,7 @@ public sealed class StockLocationSeeder(IApplicationDbContext context) : Abstrac
         if (hasStockLocations)
             return Result.Ok();
 
-        var json = DemoJsonHelper.LoadIfExists<DemoStockLocationJson>("demo_stock_locations.json");
+        var json = jsonHelper.LoadIfExists<DemoStockLocationJson>("demo_stock_locations.json");
         if (json is not null)
         {
             var countries = await Context.Set<Country>().ToListAsync(cancellationToken);

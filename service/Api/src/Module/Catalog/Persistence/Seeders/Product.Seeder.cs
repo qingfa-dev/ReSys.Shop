@@ -11,7 +11,7 @@ using Module.Catalog.Domain.OptionTypes.Values;
 
 namespace Module.Catalog.Persistence.Seeders;
 
-public sealed class CatalogDemoSeeder(IApplicationDbContext context) : AbstractDataSeeder(context)
+public sealed class CatalogDemoSeeder(IApplicationDbContext context, DemoJsonHelper jsonHelper) : AbstractDataSeeder(context)
 {
     public override int Order => 130;
 
@@ -21,10 +21,10 @@ public sealed class CatalogDemoSeeder(IApplicationDbContext context) : AbstractD
         if (hasProducts)
             return Result.Ok();
 
-        var jsonProducts = DemoJsonHelper.LoadIfExists<DemoProductJson>("demo_products.json");
-        var jsonVariants = DemoJsonHelper.LoadIfExists<DemoVariantJson>("demo_variants.json");
-        var jsonImages = DemoJsonHelper.LoadIfExists<DemoVariantImageJson>("demo_variant_images.json");
-        var jsonAssignments = DemoJsonHelper.LoadIfExists<DemoOptionAssignmentJson>("demo_option_assignments.json");
+        var jsonProducts = jsonHelper.LoadIfExists<DemoProductJson>("demo_products.json");
+        var jsonVariants = jsonHelper.LoadIfExists<DemoVariantJson>("demo_variants.json");
+        var jsonImages = jsonHelper.LoadIfExists<DemoVariantImageJson>("demo_variant_images.json");
+        var jsonAssignments = jsonHelper.LoadIfExists<DemoOptionAssignmentJson>("demo_option_assignments.json");
 
         if (jsonProducts is not null && jsonVariants is not null)
         {

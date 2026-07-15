@@ -3,7 +3,7 @@ using Module.Catalog.Domain.OptionTypes.Values;
 
 namespace Module.Catalog.Persistence.Seeders;
 
-public sealed class CatalogOptionSeeder(IApplicationDbContext context) : AbstractDataSeeder(context)
+public sealed class CatalogOptionSeeder(IApplicationDbContext context, DemoJsonHelper jsonHelper) : AbstractDataSeeder(context)
 {
     public override int Order => 100;
 
@@ -13,8 +13,8 @@ public sealed class CatalogOptionSeeder(IApplicationDbContext context) : Abstrac
         if (hasOptionTypes)
             return Result.Ok();
 
-        var jsonTypes = DemoJsonHelper.LoadIfExists<DemoOptionTypeJson>("demo_option_types.json");
-        var jsonValues = DemoJsonHelper.LoadIfExists<DemoOptionValueJson>("demo_option_values.json");
+        var jsonTypes = jsonHelper.LoadIfExists<DemoOptionTypeJson>("demo_option_types.json");
+        var jsonValues = jsonHelper.LoadIfExists<DemoOptionValueJson>("demo_option_values.json");
 
         if (jsonTypes is not null && jsonValues is not null)
         {

@@ -2,7 +2,7 @@ using Module.Catalog.Domain.Taxonomies;
 
 namespace Module.Catalog.Persistence.Seeders;
 
-public sealed class CatalogTaxonomySeeder(IApplicationDbContext context) : AbstractDataSeeder(context)
+public sealed class CatalogTaxonomySeeder(IApplicationDbContext context, DemoJsonHelper jsonHelper) : AbstractDataSeeder(context)
 {
     public override int Order => 110;
 
@@ -12,7 +12,7 @@ public sealed class CatalogTaxonomySeeder(IApplicationDbContext context) : Abstr
         if (hasTaxonomies)
             return Result.Ok();
 
-        var json = DemoJsonHelper.LoadIfExists<DemoTaxonomyJson>("demo_taxonomies.json");
+        var json = jsonHelper.LoadIfExists<DemoTaxonomyJson>("demo_taxonomies.json");
         if (json is not null)
         {
             foreach (var t in json)

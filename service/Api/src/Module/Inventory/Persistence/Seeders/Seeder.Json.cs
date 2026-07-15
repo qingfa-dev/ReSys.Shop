@@ -1,28 +1,29 @@
 using System.Text.Json;
+using Microsoft.Extensions.Configuration;
 
 namespace Module.Inventory.Persistence.Seeders;
 
-public static class DemoJsonHelper
+public class DemoJsonHelper
 {
+    private readonly string _basePath;
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
         PropertyNameCaseInsensitive = true,
         PropertyNamingPolicy = JsonNamingPolicy.SnakeCaseLower,
     };
 
-    public static T[]? LoadIfExists<T>(string fileName)
+    public DemoJsonHelper(IConfiguration configuration)
     {
-        var basePath = AppContext.BaseDirectory;
-        var fullPath = Path.Combine(basePath, "Seeders", "Data", fileName);
+        _basePath = configuration.GetValue<string>("Seeders:DemoDataPath") ?? string.Empty;
+    }
+
+    public T[]? LoadIfExists<T>(string fileName)
+    {
+        var fullPath = Path.Combine(_basePath, fileName);
         if (!File.Exists(fullPath))
             return null;
 
         var json = File.ReadAllText(fullPath);
         return JsonSerializer.Deserialize<T[]>(json, JsonOptions);
-    }
-
-    public static string ResolveDataPath(string fileName)
-    {
-        return Path.Combine(AppContext.BaseDirectory, "Seeders", "Data", fileName);
     }
 }

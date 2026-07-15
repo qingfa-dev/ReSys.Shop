@@ -11,11 +11,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Content Include="Catalog\Persistence\Seeders\Data\*.json" CopyToOutputDirectory="PreserveNewest" LinkBase="Seeders\Data\" Condition="Exists('Catalog\Persistence\Seeders\Data\*.json')" />
-    <Content Include="Inventory\Persistence\Seeders\Data\*.json" CopyToOutputDirectory="PreserveNewest" LinkBase="Seeders\Data\" Condition="Exists('Inventory\Persistence\Seeders\Data\*.json')" />
-  </ItemGroup>
-
-  <ItemGroup>
     <ProjectReference Include="../Shared/Shared.csproj" />
   </ItemGroup>
 

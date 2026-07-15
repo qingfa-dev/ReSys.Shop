@@ -2,7 +2,7 @@ using Module.Catalog.Domain.Products.Variants.Images.Embeddings;
 
 namespace Module.Catalog.Persistence.Seeders;
 
-public sealed class CatalogEmbeddingSeeder(IApplicationDbContext context) : AbstractDataSeeder(context)
+public sealed class CatalogEmbeddingSeeder(IApplicationDbContext context, DemoJsonHelper jsonHelper) : AbstractDataSeeder(context)
 {
     public override int Order => 135;
 
@@ -12,7 +12,7 @@ public sealed class CatalogEmbeddingSeeder(IApplicationDbContext context) : Abst
         if (hasData)
             return Result.Ok();
 
-        var json = DemoJsonHelper.LoadIfExists<DemoEmbeddingJson>("demo_embeddings.json");
+        var json = jsonHelper.LoadIfExists<DemoEmbeddingJson>("demo_embeddings.json");
         if (json is null)
             return Result.Ok();
 
