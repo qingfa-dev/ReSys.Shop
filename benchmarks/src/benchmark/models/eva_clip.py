@@ -16,6 +16,7 @@ import open_clip
 import torch
 from PIL import Image
 
+from benchmark._constants import CLI_STR
 from benchmark.models.base import EmbeddingModel
 from benchmark.utils.device import resolve_device
 from benchmark.utils.logging import get_logger
@@ -30,7 +31,7 @@ _PRETRAINED = "merged2b_s8b_b131k"
 class EvaClipModel(EmbeddingModel):
     """EVA-CLIP EVA02-B/16 (BAAI, 512-D embeddings)."""
 
-    def __init__(self, device: str = "auto") -> None:
+    def __init__(self, device: str = CLI_STR.AUTO) -> None:
         self._device_pref = device
         self._model: open_clip.CLIP | None = None
         self._transform = None

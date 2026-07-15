@@ -17,10 +17,12 @@ from pathlib import Path
 from rich.console import Console
 from rich.logging import RichHandler
 
+from benchmark._constants import DFLT, FILE_ENCODING
+
 _console = Console(stderr=True)
 
 
-def setup_logging(level: str = "INFO", log_file: Path | None = None) -> logging.Logger:
+def setup_logging(level: str = DFLT.LOG_LEVEL, log_file: Path | None = None) -> logging.Logger:
     """Configure root logger with Rich console and optional file sink.
 
     Args:
@@ -36,7 +38,7 @@ def setup_logging(level: str = "INFO", log_file: Path | None = None) -> logging.
 
     if log_file is not None:
         log_file.parent.mkdir(parents=True, exist_ok=True)
-        fh = logging.FileHandler(log_file, encoding="utf-8")
+        fh = logging.FileHandler(log_file, encoding=FILE_ENCODING)
         fh.setFormatter(
             logging.Formatter(
                 "%(asctime)s %(levelname)-8s %(name)s — %(message)s",

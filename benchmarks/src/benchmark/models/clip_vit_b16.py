@@ -10,6 +10,7 @@ import torch
 from PIL import Image
 from transformers import CLIPModel, CLIPProcessor
 
+from benchmark._constants import CLI_STR
 from benchmark.models.base import EmbeddingModel
 from benchmark.utils.device import resolve_device
 from benchmark.utils.logging import get_logger
@@ -22,7 +23,7 @@ _HF_MODEL_ID = "openai/clip-vit-base-patch16"
 class ClipViTB16Model(EmbeddingModel):
     """CLIP ViT-B/16 adapter."""
 
-    def __init__(self, device: str = "auto") -> None:
+    def __init__(self, device: str = CLI_STR.AUTO) -> None:
         self._device_pref = device
         self._model: CLIPModel | None = None
         self._processor: CLIPProcessor | None = None

@@ -10,9 +10,9 @@ Edge cases:
 from __future__ import annotations
 
 import json
-from datetime import datetime, timezone
 from pathlib import Path
 
+from benchmark._constants import FILE_ENCODING, OUT
 from benchmark.reporting.typst import _AUTO_GEN_COMMENT, _fmt, _table_block
 from benchmark.utils.logging import get_logger
 
@@ -58,8 +58,8 @@ def write_pipeline_typst(
         col_headers=col_headers,
         data_rows=data_rows,
     )
-    path = output_dir / "pipeline_production.typ"
-    path.write_text(content, encoding="utf-8")
+    path = output_dir / OUT.PIPELINE_PRODUCTION_TYP
+    path.write_text(content, encoding=FILE_ENCODING)
     paths.append(path)
 
     logger.info("Pipeline Typst tables → %s", output_dir)
@@ -80,10 +80,10 @@ def write_pipeline_json(
         Path to written JSON file.
     """
     output_dir.mkdir(parents=True, exist_ok=True)
-    path = output_dir / "pipeline_results.json"
+    path = output_dir / OUT.PIPELINE_RESULTS
     path.write_text(
         json.dumps(results, indent=2),
-        encoding="utf-8",
+        encoding=FILE_ENCODING,
     )
     logger.info("Pipeline JSON results → %s", path)
     return path

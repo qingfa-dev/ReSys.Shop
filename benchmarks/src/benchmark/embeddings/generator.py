@@ -16,11 +16,11 @@ Edge cases:
 from __future__ import annotations
 
 from dataclasses import dataclass
-from pathlib import Path
 
 import numpy as np
 from tqdm import tqdm
 
+from benchmark._constants import MAGIC
 from benchmark.datasets.loader import FashionDataset, Sample
 from benchmark.embeddings import cache as embedding_cache
 from benchmark.models.base import EmbeddingModel
@@ -65,7 +65,7 @@ class EmbeddingGenerator:
         self,
         model: EmbeddingModel,
         dataset: FashionDataset,
-        batch_size: int = 64,
+        batch_size: int = MAGIC.BATCH_SIZE,
         use_cache: bool = True,
     ) -> None:
         self.model = model

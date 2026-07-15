@@ -126,19 +126,19 @@ class PLACEHOLDERS:
     BEST_MODEL_FALLBACK: str = "N/A"
 
 
-THESIS_MODEL_KEYS: list[str] = field(default_factory=lambda: [
+THESIS_MODEL_KEYS: list[str] = [
     "fashion-clip", "resnet-50", "efficientnet-b0", "clip-generic",
-])
+]
 
 FILE_ENCODING: str = "utf-8"
 
-PALETTE: list[str] = field(default_factory=lambda: [
+PALETTE: list[str] = [
     "#E63946",
     "#457B9D",
     "#1D3557",
     "#2A9D8F",
     "#E9C46A",
-])
+]
 
 
 @dataclass(frozen=True)

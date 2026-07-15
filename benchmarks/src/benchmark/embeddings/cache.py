@@ -22,15 +22,16 @@ from pathlib import Path
 
 import numpy as np
 
+from benchmark._constants import DFLT, PAT
 from benchmark.utils.logging import get_logger
 
 logger = get_logger("embeddings.cache")
 
-CACHE_DIR = Path("data/cache")
+CACHE_DIR = DFLT.CACHE_DIR
 
 
 def _npz_path(model_slug: str, dataset_name: str, cache_dir: Path = CACHE_DIR) -> Path:
-    return cache_dir / f"{model_slug}__{dataset_name}.npz"
+    return cache_dir / PAT.CACHE_NPZ.format(model_slug=model_slug, dataset_name=dataset_name)
 
 
 def exists(model_slug: str, dataset_name: str, cache_dir: Path = CACHE_DIR) -> bool:

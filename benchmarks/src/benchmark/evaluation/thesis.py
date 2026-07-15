@@ -1,32 +1,29 @@
 """ThesisRunner — orchestrates the 4-model x 3-fold evaluation protocol."""
 from __future__ import annotations
 
-import json
 import time
+from contextlib import suppress
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
 
-import numpy as np
 import pandas as pd
 import psutil
 from PIL import Image
 
+from benchmark._constants import CONST, MAGIC, SPLIT, THESIS_MODEL_KEYS
 from benchmark.datasets.ground_truth import GroundTruth
 from benchmark.datasets.loader import FashionDataset
 from benchmark.embeddings.generator import EmbeddingGenerator
-from benchmark.evaluation.evaluator import Evaluator, ModelMetrics
-from benchmark.evaluation.stats import aggregate_mean_std, bootstrap_ci, cohens_d
+from benchmark.evaluation.evaluator import Evaluator
+from benchmark.evaluation.stats import aggregate_mean_std, bootstrap_ci
 from benchmark.metrics.latency import measure_latency
 from benchmark.metrics.throughput import measure_throughput
 from benchmark.models import get_registry
 from benchmark.utils.logging import get_logger
-from benchmark.utils.timing import timed
 
 logger = get_logger("evaluation.thesis")
 
-
-THESIS_MODEL_KEYS = ["fashion-clip", "resnet-50", "efficientnet-b0", "clip-generic"]
 
 
 @dataclass
@@ -47,15 +44,15 @@ class ThesisRunner:
         dataset_root: Path,
         output_dir: Path = Path("outputs/thesis"),
         k_values: list[int] | None = None,
-        folds: int = 3,
-        seed: int = 42,
+        folds: int = MAGIC.N_FOLDS_DEFAULT,
+        seed: int = MAGIC.SEED,
         device: str = "auto",
         use_cache: bool = True,
-        batch_size: int = 64,
+        batch_size: int = MAGIC.BATCH_SIZE,
     ) -> None:
         self.dataset_root = dataset_root
         self.output_dir = output_dir
-        self.k_values = k_values or [5, 10, 20]
+        self.k_values = k_values or list(MAGIC.DEFAULT_THESIS_K_VALUES)
         self.folds = folds
         self.seed = seed
         self.device = device
@@ -87,7 +84,7 @@ class ThesisRunner:
 
         # Parse: Load metadata CSV and build stratified k-fold splits
         df = pd.read_csv(styles_csv, on_bad_lines="warn")
-        gt = GroundTruth(df, min_category_freq=10)
+        gt = GroundTruth(df, min_category_freq=MAGIC.MIN_CATEGORY_FREQ)
         splits = gt.generate_splits(
             n_splits=self.folds,
             seed=self.seed,
@@ -120,7 +117,7 @@ class ThesisRunner:
         # Profile: Time model weight loading (one-time cost across folds)
         t0 = time.perf_counter()
         model.load()
-        load_time_ms = (time.perf_counter() - t0) * 1000.0
+        load_time_ms = (time.perf_counter() - t0) * MAGIC.MS_CONVERSION
 
         # Batch: Evaluate each fold independently
         for fold_idx, (train_path, test_path) in enumerate(splits):
@@ -165,13 +162,13 @@ class ThesisRunner:
         query_ds = FashionDataset(
             dataset_root=self.dataset_root,
             split_file=test_path,
-            split="test",
+            split=SPLIT.TEST,
         )
         query_ds.load()
         gallery_ds = FashionDataset(
             dataset_root=self.dataset_root,
             split_file=train_path,
-            split="train",
+            split=SPLIT.TRAIN,
         )
         gallery_ds.load()
 
@@ -200,15 +197,15 @@ class ThesisRunner:
         )
 
         # Profile: Manual efficiency metrics (latency, throughput, RAM, storage)
-        sample_images = self._load_sample_images(query_ds.samples, max_n=200)
-        latency_stats = measure_latency(model, sample_images, warmup_runs=10, benchmark_runs=100)
-        throughput = measure_throughput(model, sample_images[:64], batch_size=64, num_batches=10)
+        sample_images = self._load_sample_images(query_ds.samples, max_n=MAGIC.MAX_LATENCY_SAMPLES)
+        latency_stats = measure_latency(model, sample_images, warmup_runs=MAGIC.WARMUP_RUNS, benchmark_runs=MAGIC.BENCHMARK_RUNS)
+        throughput = measure_throughput(model, sample_images[:MAGIC.BATCH_SIZE], batch_size=MAGIC.BATCH_SIZE, num_batches=10)
 
         # Profile: Measure peak RAM during batch inference
-        ram_mb = self._measure_peak_ram(model, sample_images[:64])
+        ram_mb = self._measure_peak_ram(model, sample_images[:MAGIC.BATCH_SIZE])
 
         # Compute: Embedding storage footprint for 1K images
-        total_storage_mb = query_result.embeddings.nbytes / (1024 * 1024)
+        total_storage_mb = query_result.embeddings.nbytes / CONST.BYTES_TO_MB
 
         return {
             "fold": fold_idx,
@@ -227,7 +224,7 @@ class ThesisRunner:
             "ram_mb": round(ram_mb, 2),
         }
 
-    def _load_sample_images(self, samples, max_n: int = 200) -> list[Image.Image]:
+    def _load_sample_images(self, samples, max_n: int = MAGIC.MAX_LATENCY_SAMPLES) -> list[Image.Image]:
         """Load up to max_n sample images for latency measurement.
 
         Args:
@@ -240,10 +237,8 @@ class ThesisRunner:
         # Filter: Load valid images — skip files with I/O errors
         images: list[Image.Image] = []
         for s in samples[:max_n]:
-            try:
+            with suppress(OSError):
                 images.append(Image.open(s.image_path).convert("RGB"))
-            except OSError:
-                pass
         return images
 
     def _measure_peak_ram(self, model, sample_images: list[Image.Image]) -> float:
@@ -264,4 +259,4 @@ class ThesisRunner:
         # Profile: Run batch inference and measure peak RSS
         model.embed_batch(sample_images)
         peak = process.memory_info().rss
-        return (peak - baseline) / (1024 * 1024)
+        return (peak - baseline) / CONST.BYTES_TO_MB

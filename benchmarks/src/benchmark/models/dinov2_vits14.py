@@ -10,6 +10,7 @@ import torch
 from PIL import Image
 from torchvision import transforms
 
+from benchmark._constants import CLI_STR
 from benchmark.models.base import EmbeddingModel
 from benchmark.utils.device import resolve_device
 from benchmark.utils.logging import get_logger
@@ -20,7 +21,7 @@ logger = get_logger("models.dinov2_vits14")
 class DinoV2ViTS14Model(EmbeddingModel):
     """DINOv2 ViT-S/14 model."""
 
-    def __init__(self, device: str = "auto") -> None:
+    def __init__(self, device: str = CLI_STR.AUTO) -> None:
         self._device_pref = device
         self._model: torch.nn.Module | None = None
         self._transform: transforms.Compose | None = None

@@ -15,8 +15,10 @@ import random
 
 import numpy as np
 
+from benchmark._constants import MAGIC
 
-def set_seed(seed: int = 42) -> None:
+
+def set_seed(seed: int = MAGIC.SEED) -> None:
     """Seed Python, NumPy, and PyTorch (if available) for reproducibility.
 
     Args:

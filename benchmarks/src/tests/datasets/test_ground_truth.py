@@ -60,7 +60,7 @@ def test_generate_splits(tmp_path: Path):
     gt = GroundTruth(df, min_category_freq=5)
     splits = gt.generate_splits(n_splits=3, seed=42, output_dir=tmp_path)
     assert len(splits) == 3
-    for fold_idx, (train_path, test_path) in enumerate(splits):
+    for _fold_idx, (train_path, test_path) in enumerate(splits):
         train = json.loads(train_path.read_text())
         test = json.loads(test_path.read_text())
         assert len(train) > 0

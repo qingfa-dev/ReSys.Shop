@@ -40,6 +40,7 @@ import time
 
 import numpy as np
 
+from benchmark._constants import FAISS_PARAMS
 from benchmark.utils.logging import get_logger
 
 logger = get_logger("retrieval.pgvector")
@@ -175,7 +176,7 @@ class PgvectorRetriever:
         """
         values = [
             (pid, label, emb.tolist())
-            for pid, label, emb in zip(product_ids, labels, embeddings)
+            for pid, label, emb in zip(product_ids, labels, embeddings, strict=True)
         ]
         with self._conn.cursor() as cur:
             cur.executemany(sql, values)
@@ -188,7 +189,7 @@ class PgvectorRetriever:
             cur.execute(f"DELETE FROM {self._table}")
         logger.info("Cleared table %s", self._table)
 
-    def build_index(self, dim: int, lists: int = 100) -> float:
+    def build_index(self, dim: int, lists: int = FAISS_PARAMS.N_LISTS) -> float:
         """Build an IVFFlat index and return elapsed time in seconds.
 
         Args:
@@ -239,7 +240,7 @@ class PgvectorRetriever:
             self._conn.close()
             self._conn = None
 
-    def __enter__(self) -> "PgvectorRetriever":
+    def __enter__(self) -> PgvectorRetriever:
         self.connect()
         return self
 

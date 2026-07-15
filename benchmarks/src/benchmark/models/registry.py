@@ -12,6 +12,7 @@ Nothing else needs to change.
 """
 from __future__ import annotations
 
+from benchmark._constants import CLI_STR
 from benchmark.models.base import EmbeddingModel
 from benchmark.models.clip_b32 import ClipB32Model
 from benchmark.models.clip_l14 import ClipL14Model
@@ -63,6 +64,6 @@ def get_models(keys: list[str] | None = None) -> list[EmbeddingModel]:
     Returns:
         List of ``EmbeddingModel`` instances.
     """
-    if keys is None or keys == ["all"]:
+    if keys is None or keys == [CLI_STR.ALL]:
         return list(MODELS.values())
     return [get_model(k) for k in keys]

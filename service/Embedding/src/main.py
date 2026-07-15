@@ -26,6 +26,8 @@ from slowapi import _rate_limit_exceeded_handler
 from slowapi.errors import RateLimitExceeded
 from starlette.exceptions import HTTPException as StarletteHTTPException
 
+from core.constants import Constants
+
 
 def create_app() -> FastAPI:
     """Application factory: Creates and configures the FastAPI application.
@@ -42,7 +44,7 @@ def create_app() -> FastAPI:
     # Create: FastAPI application with metadata and interactive docs
     app = FastAPI(
         title=settings.PROJECT_NAME,
-        version="1.0.0",
+        version=Constants.Strings.VERSION,
         description="High-performance Inference Service",
         docs_url="/docs",
         redoc_url="/redoc",

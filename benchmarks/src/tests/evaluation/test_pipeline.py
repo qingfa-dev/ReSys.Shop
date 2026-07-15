@@ -1,9 +1,7 @@
-import json
 from pathlib import Path
 from unittest.mock import MagicMock, patch
 
 import numpy as np
-import pytest
 
 from benchmark.evaluation.pipeline import PipelineRunner
 

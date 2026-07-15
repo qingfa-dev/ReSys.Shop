@@ -11,6 +11,7 @@ import torch
 from PIL import Image
 from torchvision import models, transforms
 
+from benchmark._constants import CLI_STR
 from benchmark.models.base import EmbeddingModel
 from benchmark.utils.device import resolve_device
 from benchmark.utils.logging import get_logger
@@ -21,7 +22,7 @@ logger = get_logger("models.convnext_tiny")
 class ConvNeXtTinyModel(EmbeddingModel):
     """ConvNeXt-Tiny — modern CNN with Transformer-inspired architecture."""
 
-    def __init__(self, device: str = "auto") -> None:
+    def __init__(self, device: str = CLI_STR.AUTO) -> None:
         self._device_pref = device
         self._model: torch.nn.Module | None = None
         self._transform: transforms.Compose | None = None

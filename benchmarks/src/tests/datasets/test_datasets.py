@@ -2,8 +2,6 @@
 from __future__ import annotations
 
 import json
-import shutil
-import tempfile
 from pathlib import Path
 
 import pytest
@@ -58,7 +56,7 @@ def test_iter_images(tmp_dataset):
     ds.load()
     images = list(ds.iter_images())
     assert len(images) == 4
-    for sample, img in images:
+    for _sample, img in images:
         assert img.mode == "RGB"
 
 

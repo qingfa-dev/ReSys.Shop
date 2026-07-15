@@ -34,6 +34,8 @@ from opentelemetry.sdk.trace.export import (
     SimpleSpanProcessor,
 )
 
+from core.constants import Constants
+
 logger = logging.getLogger(__name__)
 
 
@@ -81,7 +83,7 @@ def setup_telemetry():
     resource = Resource.create({
         SERVICE_NAME: settings.PROJECT_NAME,
         DEPLOYMENT_ENVIRONMENT: settings.ENVIRONMENT,
-        "service.version": "1.0.0",
+        "service.version": Constants.Strings.VERSION,
     })
 
     # 2. Protocol Security

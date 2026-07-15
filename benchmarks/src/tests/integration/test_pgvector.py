@@ -23,8 +23,8 @@ def _pg_dsn() -> str | None:
 
 def _psycopg_available() -> bool:
     try:
-        import psycopg          # noqa: F401
-        import pgvector         # noqa: F401
+        import pgvector  # noqa: F401
+        import psycopg  # noqa: F401
         return True
     except ImportError:
         return False

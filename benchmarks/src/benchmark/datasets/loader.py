@@ -11,12 +11,13 @@ Edge cases:
 from __future__ import annotations
 
 import json
+from collections.abc import Iterator
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Iterator
 
 from PIL import Image
 
+from benchmark._constants import FIELD, FILE_ENCODING, SPLIT
 from benchmark.utils.logging import get_logger
 
 logger = get_logger("datasets.loader")
@@ -58,7 +59,7 @@ class FashionDataset:
     - Call ``load()`` before accessing ``samples`` or ``iter_images``.
     """
 
-    def __init__(self, dataset_root: Path, split_file: Path, split: str = "test") -> None:
+    def __init__(self, dataset_root: Path, split_file: Path, split: str = SPLIT.TEST) -> None:
         self.dataset_root = dataset_root
         self.split_file = split_file
         self.split = split
@@ -71,12 +72,12 @@ class FashionDataset:
         instances with paths rooted at ``dataset_root``.
         """
         logger.info("Loading %s split from %s", self.split, self.split_file)
-        raw = json.loads(self.split_file.read_text(encoding="utf-8"))
+        raw = json.loads(self.split_file.read_text(encoding=FILE_ENCODING))
         self._samples = [
             Sample(
-                image_path=self.dataset_root / item["image_path"],
-                label=item["label"],
-                product_id=item["product_id"],
+                image_path=self.dataset_root / item[FIELD.IMAGE_PATH],
+                label=item[FIELD.LABEL],
+                product_id=item[FIELD.PRODUCT_ID],
                 split=self.split,
             )
             for item in raw

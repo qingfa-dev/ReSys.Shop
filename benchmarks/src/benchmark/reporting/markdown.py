@@ -9,9 +9,10 @@ Edge cases:
 """
 from __future__ import annotations
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 
+from benchmark._constants import DFLT, FILE_ENCODING, MAGIC, OUT, PLACEHOLDER
 from benchmark.evaluation.comparison import comparison_table, rank_models
 from benchmark.evaluation.evaluator import ModelMetrics
 from benchmark.utils.logging import get_logger
@@ -19,7 +20,7 @@ from benchmark.utils.logging import get_logger
 logger = get_logger("reporting.markdown")
 
 
-def _fmt(val: float | None, decimals: int = 4) -> str:
+def _fmt(val: float | None, decimals: int = MAGIC.METRIC_DECIMALS) -> str:
     """Format a float for Markdown display.
 
     Args:
@@ -30,14 +31,14 @@ def _fmt(val: float | None, decimals: int = 4) -> str:
         Formatted string or em-dash if val is None.
     """
     if val is None:
-        return "—"
+        return PLACEHOLDER.MISSING_MD
     return f"{val:.{decimals}f}"
 
 
 def write_markdown(
     all_metrics: list[ModelMetrics],
     k_values: list[int] | None = None,
-    output_dir: Path = Path("outputs/reports"),
+    output_dir: Path = DFLT.REPORTS_DIR,
     dataset_name: str = "Fashion Dataset",
 ) -> Path:
     """Write a Markdown benchmark summary.
@@ -55,17 +56,17 @@ def write_markdown(
     k_values = k_values or sorted({k for m in all_metrics for k in m.precision})
     ranked = rank_models(all_metrics, by="map")
     rows = comparison_table(ranked, k_values)
-    best = ranked[0].model_name if ranked else "N/A"
-    ts = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
+    best = ranked[0].model_name if ranked else PLACEHOLDER.BEST_MODEL_FALLBACK
+    ts = datetime.now(UTC).strftime("%Y-%m-%d %H:%M UTC")
 
     lines: list[str] = [
         f"# Fashion Retrieval Benchmark — {dataset_name}",
-        f"",
+        "",
         f"Generated: {ts}  ",
         f"Best model by mAP: **{best}**",
-        f"",
-        f"## Retrieval Metrics",
-        f"",
+        "",
+        "## Retrieval Metrics",
+        "",
     ]
 
     # Precision table
@@ -103,7 +104,7 @@ def write_markdown(
 
     lines.append("")
 
-    path = output_dir / "summary.md"
-    path.write_text("\n".join(lines), encoding="utf-8")
+    path = output_dir / OUT.MARKDOWN
+    path.write_text("\n".join(lines), encoding=FILE_ENCODING)
     logger.info("Markdown → %s", path)
     return path

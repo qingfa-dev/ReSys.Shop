@@ -4,6 +4,7 @@ Vision model export implementations.
 import torch
 from PIL import Image
 
+from core.constants import Constants
 from scripts.export.base import get_model_path, verify_export
 
 
@@ -24,7 +25,7 @@ def export_efficientnet():
         input_names=["input"],
         output_names=["output"],
         dynamic_axes={"input": {0: "batch"}, "output": {0: "batch"}},
-        opset_version=17,
+        opset_version=Constants.Onnx.OPSET_VERSION,
         dynamo=False
     )
     verify_export(output_path)
@@ -53,7 +54,7 @@ def export_clip():
         input_names=["pixel_values"],
         output_names=["last_hidden_state", "output"],
         dynamic_axes={"pixel_values": {0: "batch"}, "output": {0: "batch"}},
-        opset_version=17,
+        opset_version=Constants.Onnx.OPSET_VERSION,
         dynamo=False
     )
     verify_export(output_path)
@@ -82,7 +83,7 @@ def export_fashion_clip():
         input_names=["pixel_values"],
         output_names=["last_hidden_state", "output"],
         dynamic_axes={"pixel_values": {0: "batch"}, "output": {0: "batch"}},
-        opset_version=17,
+        opset_version=Constants.Onnx.OPSET_VERSION,
         dynamo=False
     )
     verify_export(output_path)
@@ -114,7 +115,7 @@ def export_dinov2():
         input_names=["input"],
         output_names=["output"],
         dynamic_axes={"input": {0: "batch"}, "output": {0: "batch"}},
-        opset_version=17,
+        opset_version=Constants.Onnx.OPSET_VERSION,
         dynamo=False
     )
     verify_export(output_path)

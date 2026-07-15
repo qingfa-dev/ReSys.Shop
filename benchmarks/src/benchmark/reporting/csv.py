@@ -14,6 +14,7 @@ from __future__ import annotations
 import csv
 from pathlib import Path
 
+from benchmark._constants import FILE_ENCODING, OUT
 from benchmark.evaluation.comparison import comparison_table, rank_models
 from benchmark.evaluation.evaluator import ModelMetrics
 from benchmark.utils.logging import get_logger
@@ -46,12 +47,12 @@ def write_csv(
 
     if not rows:
         logger.warning("No results to write")
-        return output_dir / "benchmark.csv"
+        return output_dir / OUT.CSV
 
-    path = output_dir / "benchmark.csv"
+    path = output_dir / OUT.CSV
     fieldnames = list(rows[0].keys())
 
-    with path.open("w", newline="", encoding="utf-8") as fh:
+    with path.open("w", newline="", encoding=FILE_ENCODING) as fh:
         writer = csv.DictWriter(fh, fieldnames=fieldnames)
         writer.writeheader()
         writer.writerows(rows)

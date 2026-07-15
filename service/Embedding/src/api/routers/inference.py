@@ -21,10 +21,12 @@ from embedding.services.inference_engine import InferenceEngine
 from fastapi import APIRouter, Depends, File, Request, Response, Security, UploadFile, status
 from fastapi.security import APIKeyHeader
 
+from core.constants import Constants
+
 router = APIRouter(tags=["inference"])
 
 # API Key header scheme for sidecar security
-api_key_header = APIKeyHeader(name="X-API-Key", auto_error=False)
+api_key_header = APIKeyHeader(name=Constants.Strings.X_API_KEY_HEADER, auto_error=False)
 
 
 async def verify_api_key(api_key: str = Security(api_key_header)) -> str:
@@ -197,7 +199,7 @@ async def list_models(key: str = Depends(verify_api_key)):
             if not model_dir.is_dir():
                 continue
 
-            onnx_file = model_dir / "model.onnx"
+            onnx_file = model_dir / Constants.Strings.ONNX_FILENAME
             if onnx_file.exists():
                 model_id = f"onnx/{model_dir.name}"
                 try:

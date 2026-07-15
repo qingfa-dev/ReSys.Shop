@@ -6,6 +6,8 @@ from pathlib import Path
 
 import torch
 
+from core.constants import Constants
+
 # Suppress noisy warnings
 warnings.filterwarnings("ignore", category=torch.jit.TracerWarning)
 warnings.filterwarnings("ignore", category=DeprecationWarning)
@@ -30,4 +32,4 @@ def get_model_path(model_name: str) -> Path:
     """Helper to create and return the model directory within artifacts."""
     path = EXPORT_ROOT / model_name
     path.mkdir(parents=True, exist_ok=True)
-    return path / "model.onnx"
+    return path / Constants.Strings.ONNX_FILENAME

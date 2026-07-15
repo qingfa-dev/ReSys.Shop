@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import json
-import tempfile
 from pathlib import Path
 
 import pytest
@@ -56,5 +55,5 @@ def test_iter_images(fake_dataset: tuple[Path, Path]) -> None:
     ds.load()
     pairs = list(ds.iter_images())
     assert len(pairs) == 5
-    for sample, image in pairs:
+    for _sample, image in pairs:
         assert isinstance(image, Image.Image)

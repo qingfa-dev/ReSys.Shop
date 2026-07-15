@@ -5,6 +5,7 @@ Follows the .NET BuildingBlocks error handling pattern.
 """
 import logging
 
+from embedding.core.constants import Constants
 from embedding.schemas import Error, ErrorType, Result
 from fastapi import Request
 from fastapi.exceptions import RequestValidationError
@@ -42,7 +43,7 @@ async def global_exception_handler(request: Request, exc: Exception):
     logger.error("Unhandled exception: %s", str(exc), exc_info=True)
 
     error = Error.internal_error(
-        "Server.Error",
+        Constants.Errors.SERVER_ERROR,
         "An unexpected error occurred while processing your request."
     )
     return create_error_response(Result.failure(error))
@@ -62,18 +63,18 @@ async def http_exception_handler(request: Request, exc: StarletteHTTPException):
         JSONResponse with the mapped status code and structured error body.
     """
     # Map: Translate HTTP status codes to domain ErrorType values
-    if exc.status_code == 404:
+    if exc.status_code == Constants.HttpStatus.NOT_FOUND:
         ftype = ErrorType.NotFound
-        code = "Route.NotFound"
-    elif exc.status_code == 401:
+        code = Constants.Errors.ROUTE_NOT_FOUND
+    elif exc.status_code == Constants.HttpStatus.UNAUTHORIZED:
         ftype = ErrorType.Unauthorized
-        code = "Auth.Unauthorized"
-    elif exc.status_code == 403:
+        code = Constants.Errors.AUTH_UNAUTHORIZED
+    elif exc.status_code == Constants.HttpStatus.FORBIDDEN:
         ftype = ErrorType.Forbidden
-        code = "Auth.Forbidden"
+        code = Constants.Errors.AUTH_FORBIDDEN
     else:
         ftype = ErrorType.Unexpected
-        code = "Http.Error"
+        code = Constants.Errors.HTTP_ERROR
 
     error = Error(
         type=ftype,
@@ -103,7 +104,7 @@ async def validation_exception_handler(request: Request, exc: RequestValidationE
         loc = ".".join(str(x) for x in err["loc"])
         msg = err["msg"]
         errors.append(Error.validation(
-            code="Request.ValidationError",
+            code=Constants.Errors.REQUEST_VALIDATION_ERROR,
             description=f"Validation failed at {loc}: {msg}"
         ))
 

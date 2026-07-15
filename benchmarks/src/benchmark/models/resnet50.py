@@ -10,6 +10,7 @@ import torch
 from PIL import Image
 from torchvision import models as tv_models
 
+from benchmark._constants import CLI_STR
 from benchmark.models.base import EmbeddingModel
 from benchmark.utils.device import resolve_device
 from benchmark.utils.logging import get_logger
@@ -20,7 +21,7 @@ logger = get_logger("models.resnet50")
 class ResNet50Model(EmbeddingModel):
     """ResNet-50 CNN baseline (2048-D embeddings)."""
 
-    def __init__(self, device: str = "auto") -> None:
+    def __init__(self, device: str = CLI_STR.AUTO) -> None:
         self._device_pref = device
         self._model: torch.nn.Module | None = None
         self._preprocess: torch.nn.Module | None = None

@@ -12,10 +12,12 @@ Edge cases:
 from __future__ import annotations
 
 import time
+from collections.abc import Generator
 from contextlib import contextmanager
 from dataclasses import dataclass, field
-from statistics import mean, median, quantiles, stdev
-from typing import Generator
+from statistics import mean, quantiles, stdev
+
+from benchmark._constants import MAGIC, STR
 
 
 @dataclass
@@ -45,10 +47,10 @@ class LatencyStats:
     def __post_init__(self) -> None:
         if not self.samples:
             raise ValueError("Cannot compute stats on empty sample list")
-        qs = quantiles(self.samples, n=100)
-        self.p50 = qs[49]
-        self.p95 = qs[94]
-        self.p99 = qs[98]
+        qs = quantiles(self.samples, n=MAGIC.N_QUANTILES)
+        self.p50 = qs[MAGIC.P50_INDEX]
+        self.p95 = qs[MAGIC.P95_INDEX]
+        self.p99 = qs[MAGIC.P99_INDEX]
         self.mean = mean(self.samples)
         self.std = stdev(self.samples) if len(self.samples) > 1 else 0.0
         self.min = min(self.samples)
@@ -62,14 +64,14 @@ class LatencyStats:
             ``p99_ms``, ``min_ms``, ``max_ms``, ``n_samples``.
         """
         return {
-            "mean_ms": round(self.mean, 3),
-            "std_ms": round(self.std, 3),
-            "p50_ms": round(self.p50, 3),
-            "p95_ms": round(self.p95, 3),
-            "p99_ms": round(self.p99, 3),
-            "min_ms": round(self.min, 3),
-            "max_ms": round(self.max, 3),
-            "n_samples": len(self.samples),
+            STR.MEAN_MS: round(self.mean, MAGIC.LATENCY_DECIMALS),
+            STR.STD_MS: round(self.std, MAGIC.LATENCY_DECIMALS),
+            STR.P50_MS: round(self.p50, MAGIC.LATENCY_DECIMALS),
+            STR.P95_MS: round(self.p95, MAGIC.LATENCY_DECIMALS),
+            STR.P99_MS: round(self.p99, MAGIC.LATENCY_DECIMALS),
+            STR.MIN_MS: round(self.min, MAGIC.LATENCY_DECIMALS),
+            STR.MAX_MS: round(self.max, MAGIC.LATENCY_DECIMALS),
+            STR.N_SAMPLES: len(self.samples),
         }
 
 
@@ -94,7 +96,7 @@ class Timer:
         try:
             yield
         finally:
-            elapsed_ms = (time.perf_counter() - start) * 1000.0
+            elapsed_ms = (time.perf_counter() - start) * MAGIC.MS_CONVERSION
             self._samples.append(elapsed_ms)
 
     def record(self, elapsed_ms: float) -> None:
@@ -137,5 +139,5 @@ def timed(label: str = "") -> Generator[dict[str, float], None, None]:
     try:
         yield result
     finally:
-        result["elapsed_ms"] = (time.perf_counter() - start) * 1000.0
-        result["label"] = label  # type: ignore[assignment]
+        result[STR.ELAPSED_MS] = (time.perf_counter() - start) * MAGIC.MS_CONVERSION
+        result[STR.LABEL] = label  # type: ignore[assignment]

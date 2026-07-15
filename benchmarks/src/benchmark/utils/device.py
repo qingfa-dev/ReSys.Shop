@@ -11,12 +11,15 @@ Edge cases:
 
 from __future__ import annotations
 
+import torch
+
+from benchmark._constants import CLI_STR
 from benchmark.utils.logging import get_logger
 
 logger = get_logger("utils.device")
 
 
-def resolve_device(preference: str = "auto") -> "torch.device":  # type: ignore[name-defined]
+def resolve_device(preference: str = CLI_STR.AUTO) -> torch.device:
     """Return the best available torch.device.
 
     Args:
@@ -28,7 +31,6 @@ def resolve_device(preference: str = "auto") -> "torch.device":  # type: ignore[
     Raises:
         RuntimeError: If the requested device is not available.
     """
-    import torch
 
     if preference == "cpu":
         logger.info("Device: CPU (forced)")

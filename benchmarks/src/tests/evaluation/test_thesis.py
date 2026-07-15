@@ -1,11 +1,10 @@
-import json
 from pathlib import Path
 from unittest.mock import MagicMock, patch
 
 import numpy as np
 import pytest
 
-from benchmark.evaluation.thesis import THESIS_MODEL_KEYS, ThesisRunner
+from benchmark.evaluation.thesis import ThesisRunner
 
 
 @pytest.fixture

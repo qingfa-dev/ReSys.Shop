@@ -10,6 +10,7 @@ Edge cases:
 """
 from __future__ import annotations
 
+from benchmark._constants import STR
 from benchmark.evaluation.evaluator import ModelMetrics
 
 
@@ -28,7 +29,7 @@ def rank_models(metrics_list: list[ModelMetrics], by: str = "map") -> list[Model
     Raises:
         ValueError: If ``by`` does not match a recognised sort key.
     """
-    if by == "map":
+    if by == STR.MAP:
         return sorted(metrics_list, key=lambda m: m.map_score, reverse=True)
 
     if by.startswith("precision@"):
@@ -40,8 +41,8 @@ def rank_models(metrics_list: list[ModelMetrics], by: str = "map") -> list[Model
         k = int(by.split("@")[1])
         return sorted(metrics_list, key=lambda m: m.recall.get(k, 0.0), reverse=True)
 
-    if by == "latency":
-        return sorted(metrics_list, key=lambda m: m.latency.get("p50_ms", float("inf")))
+    if by == STR.LATENCY:
+        return sorted(metrics_list, key=lambda m: m.latency.get(STR.P50_MS, float("inf")))
 
     raise ValueError(f"Unknown sort key '{by}'")
 
@@ -60,7 +61,7 @@ def comparison_table(metrics_list: list[ModelMetrics], k_values: list[int]) -> l
     """
     rows = []
     for m in metrics_list:
-        row: dict = {"model": m.model_name, "map": round(m.map_score, 4)}
+        row: dict = {STR.MODEL: m.model_name, STR.MAP: round(m.map_score, 4)}
         for k in k_values:
             row[f"p@{k}"] = round(m.precision.get(k, 0.0), 4)
             row[f"r@{k}"] = round(m.recall.get(k, 0.0), 4)

@@ -16,6 +16,7 @@ from __future__ import annotations
 
 import numpy as np
 
+from benchmark._constants import FAISS_PARAMS
 from benchmark.utils.logging import get_logger
 
 logger = get_logger("retrieval.faiss")
@@ -31,7 +32,7 @@ class FaissRetriever:
                      but more accurate; default 10).
     """
 
-    def __init__(self, dim: int, n_lists: int = 100, n_probe: int = 10) -> None:
+    def __init__(self, dim: int, n_lists: int = FAISS_PARAMS.N_LISTS, n_probe: int = FAISS_PARAMS.N_PROBE) -> None:
         self.dim = dim
         self.n_lists = n_lists
         self.n_probe = n_probe
@@ -55,7 +56,7 @@ class FaissRetriever:
         n = len(gallery_embeddings)
 
         # Fallback: IVFFlat requires at least 39 * n_lists vectors; otherwise use FlatIP
-        if n < self.n_lists * 39:
+        if n < self.n_lists * FAISS_PARAMS.IVFFLAT_MIN_FACTOR:
             logger.warning(
                 "Gallery too small for IVFFlat (n=%d, lists=%d) — using FlatIP",
                 n, self.n_lists,

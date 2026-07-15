@@ -5,13 +5,14 @@ import time
 
 from PIL import Image
 
+from benchmark._constants import MAGIC
 from benchmark.models.base import EmbeddingModel
 
 
 def measure_throughput(
     model: EmbeddingModel,
     sample_images: list[Image.Image],
-    batch_size: int = 64,
+    batch_size: int = MAGIC.BATCH_SIZE,
     num_batches: int = 10,
 ) -> float:
     """Measure batch throughput in images/second.

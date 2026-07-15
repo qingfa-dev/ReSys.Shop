@@ -65,6 +65,6 @@ def mean_recall_at_k(
     # Compute: Average per-query Recall@K
     scores = [
         recall_at_k(ret, rel, k, cnt)
-        for ret, rel, cnt in zip(all_retrieved, all_relevant, all_counts)
+        for ret, rel, cnt in zip(all_retrieved, all_relevant, all_counts, strict=True)
     ]
     return sum(scores) / len(scores)

@@ -19,8 +19,9 @@ Usage (split-aware)::
 """
 from __future__ import annotations
 
+from benchmark._constants import MAGIC
 from benchmark.datasets.loader import FashionDataset
-from benchmark.embeddings.generator import EmbeddingGenerator, EmbeddingResult
+from benchmark.embeddings.generator import EmbeddingGenerator
 from benchmark.embeddings.storage import save_embeddings
 from benchmark.evaluation.evaluator import Evaluator, ModelMetrics
 from benchmark.models import EmbeddingModel, get_registry
@@ -50,7 +51,7 @@ class BenchmarkRunner:
         self,
         dataset: FashionDataset,
         k_values: list[int] | None = None,
-        batch_size: int = 64,
+        batch_size: int = MAGIC.BATCH_SIZE,
         use_cache: bool = True,
         measure_efficiency: bool = True,
         save_embeddings: bool = True,
@@ -60,7 +61,7 @@ class BenchmarkRunner:
     ) -> None:
         self.dataset = dataset
         self.gallery_dataset = gallery_dataset
-        self.k_values = k_values or [1, 5, 10, 20]
+        self.k_values = k_values or list(MAGIC.DEFAULT_K_VALUES)
         self.batch_size = batch_size
         self.use_cache = use_cache
         self.measure_efficiency = measure_efficiency

@@ -15,6 +15,7 @@ Boundary: Models -> everything else — adapters implement EmbeddingModel;
 """
 from __future__ import annotations
 
+from benchmark._constants import CLI_STR
 from benchmark.models.base import EmbeddingModel
 
 # Registry factories — each returns a fresh instance on first access.
@@ -32,11 +33,11 @@ def _register() -> dict[str, EmbeddingModel]:
     from benchmark.models.clip_generic import ClipGenericModel
     from benchmark.models.clip_l14 import ClipL14Model
     from benchmark.models.clip_vit_b16 import ClipViTB16Model
-    from benchmark.models.eva_clip import EvaClipModel
     from benchmark.models.convnext_tiny import ConvNeXtTinyModel
-    from benchmark.models.efficientnet_b0 import EfficientNetB0Model
-    from benchmark.models.fashion_clip import FashionClipModel
     from benchmark.models.dinov2_vits14 import DinoV2ViTS14Model
+    from benchmark.models.efficientnet_b0 import EfficientNetB0Model
+    from benchmark.models.eva_clip import EvaClipModel
+    from benchmark.models.fashion_clip import FashionClipModel
     from benchmark.models.resnet50 import ResNet50Model
     from benchmark.models.siglip import SigLipModel
 
@@ -55,7 +56,7 @@ def _register() -> dict[str, EmbeddingModel]:
     }
 
 
-def get_registry(device: str = "auto") -> dict[str, EmbeddingModel]:
+def get_registry(device: str = CLI_STR.AUTO) -> dict[str, EmbeddingModel]:
     """Return a fresh registry of model instances for the requested device.
 
     Args:
@@ -69,10 +70,10 @@ def get_registry(device: str = "auto") -> dict[str, EmbeddingModel]:
     from benchmark.models.clip_l14 import ClipL14Model
     from benchmark.models.clip_vit_b16 import ClipViTB16Model
     from benchmark.models.convnext_tiny import ConvNeXtTinyModel
-    from benchmark.models.eva_clip import EvaClipModel
-    from benchmark.models.efficientnet_b0 import EfficientNetB0Model
-    from benchmark.models.fashion_clip import FashionClipModel
     from benchmark.models.dinov2_vits14 import DinoV2ViTS14Model
+    from benchmark.models.efficientnet_b0 import EfficientNetB0Model
+    from benchmark.models.eva_clip import EvaClipModel
+    from benchmark.models.fashion_clip import FashionClipModel
     from benchmark.models.resnet50 import ResNet50Model
     from benchmark.models.siglip import SigLipModel
 

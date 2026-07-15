@@ -11,10 +11,11 @@ Edge cases:
 """
 from __future__ import annotations
 
-import math
 from statistics import mean, stdev
 
 import numpy as np
+
+from benchmark._constants import MAGIC
 
 
 def aggregate_mean_std(values: list[float]) -> dict[str, float]:
@@ -31,7 +32,7 @@ def aggregate_mean_std(values: list[float]) -> dict[str, float]:
         return {"mean": 0.0, "std": 0.0}
     m = mean(values)
     s = stdev(values) if len(values) > 1 else 0.0
-    return {"mean": round(m, 4), "std": round(s, 4)}
+    return {"mean": round(m, MAGIC.METRIC_DECIMALS), "std": round(s, MAGIC.METRIC_DECIMALS)}
 
 
 def cohens_d(group_a: list[float], group_b: list[float]) -> float:
@@ -53,7 +54,7 @@ def cohens_d(group_a: list[float], group_b: list[float]) -> float:
     """
     if len(group_a) != len(group_b):
         raise ValueError("Groups must have the same length for paired Cohen's d")
-    differences = [a - b for a, b in zip(group_a, group_b)]
+    differences = [a - b for a, b in zip(group_a, group_b, strict=True)]
     if len(differences) < 2:
         return 0.0
     d_mean = mean(differences)
@@ -65,8 +66,8 @@ def cohens_d(group_a: list[float], group_b: list[float]) -> float:
 
 def bootstrap_ci(
     samples: list[float],
-    confidence: float = 0.95,
-    n_resamples: int = 10_000,
+    confidence: float = MAGIC.BOOTSTRAP_CONFIDENCE,
+    n_resamples: int = MAGIC.BOOTSTRAP_RESAMPLES,
     seed: int | None = None,
 ) -> tuple[float, float]:
     """Compute bootstrap confidence interval for the mean.
@@ -96,6 +97,6 @@ def bootstrap_ci(
     lower = (1 - confidence) / 2
     upper = 1 - lower
     return (
-        round(float(np.percentile(boot_means, lower * 100)), 4),
-        round(float(np.percentile(boot_means, upper * 100)), 4),
+        round(float(np.percentile(boot_means, lower * 100)), MAGIC.METRIC_DECIMALS),
+        round(float(np.percentile(boot_means, upper * 100)), MAGIC.METRIC_DECIMALS),
     )

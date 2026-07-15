@@ -83,6 +83,6 @@ def mean_average_precision(
     # Compute: Average per-query AP across all queries
     aps = [
         average_precision(ret, rel, cnt, k_cap)
-        for ret, rel, cnt in zip(all_retrieved, all_relevant, all_counts)
+        for ret, rel, cnt in zip(all_retrieved, all_relevant, all_counts, strict=True)
     ]
     return sum(aps) / len(aps)

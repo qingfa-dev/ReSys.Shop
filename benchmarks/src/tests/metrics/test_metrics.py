@@ -8,7 +8,6 @@ from benchmark.metrics.ndcg import ndcg_at_k
 from benchmark.metrics.precision import mean_precision_at_k, precision_at_k
 from benchmark.metrics.recall import mean_recall_at_k, recall_at_k
 
-
 # ── fixtures ──────────────────────────────────────────────────────────────────
 
 @pytest.fixture()

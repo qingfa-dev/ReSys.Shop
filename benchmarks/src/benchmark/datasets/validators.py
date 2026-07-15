@@ -10,8 +10,6 @@ Edge cases:
 """
 from __future__ import annotations
 
-from pathlib import Path
-
 from benchmark.datasets.loader import FashionDataset
 from benchmark.utils.logging import get_logger
 

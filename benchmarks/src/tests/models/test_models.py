@@ -1,10 +1,7 @@
 """Tests for the model registry and base class contract."""
 from __future__ import annotations
 
-import numpy as np
-import pytest
-
-from benchmark.models import REGISTRY, EmbeddingModel
+from benchmark.models import REGISTRY
 from benchmark.models.base import EmbeddingModel
 
 

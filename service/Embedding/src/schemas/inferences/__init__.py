@@ -3,6 +3,7 @@ Specialized results, errors, and models for Inference operations.
 """
 from typing import Any, Dict, List, Optional
 
+from embedding.core.constants import Constants
 from embedding.schemas.inferences.models import (  # noqa: F401
     EmbeddingRequest,
     EmbeddingResponse,
@@ -79,7 +80,7 @@ class InferenceResults:
                 model_name: The requested model identifier that was not found.
             """
             return Error.not_found(
-                "Model.NotFound",
+                Constants.Errors.MODEL_NOT_FOUND,
                 f"Model skill '{model_name}' is not supported."
             )
 
@@ -91,7 +92,7 @@ class InferenceResults:
                 path_or_message: File path or error detail describing what is missing.
             """
             return Error.not_found(
-                "Model.NotFound",
+                Constants.Errors.MODEL_NOT_FOUND,
                 f"ONNX model not found: {path_or_message}"
             )
 
@@ -104,7 +105,7 @@ class InferenceResults:
                 detail: Error details describing the failure.
             """
             return Error.internal_error(
-                "Model.LoadError",
+                Constants.Errors.MODEL_LOAD_ERROR,
                 f"Failed to load model '{model_name}': {detail}"
             )
 
@@ -117,7 +118,7 @@ class InferenceResults:
                 detail: Error details describing the failure.
             """
             return Error.internal_error(
-                "Inference.Error",
+                Constants.Errors.INFERENCE_ERROR,
                 f"[{model_name}] Inference failed: {detail}"
             )
 
@@ -131,6 +132,6 @@ class InferenceResults:
                 detail: Error details describing the hardware failure.
             """
             return Error.internal_error(
-                "Inference.DeviceError",
+                Constants.Errors.INFERENCE_DEVICE_ERROR,
                 f"[{model_name}] Hardware failure on {device}: {detail}"
             )

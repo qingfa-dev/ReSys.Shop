@@ -3,9 +3,8 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 
-import numpy as np
-
-from benchmark.datasets.loader import FashionDataset, Sample
+from benchmark._constants import MAGIC, STR
+from benchmark.datasets.loader import FashionDataset
 from benchmark.embeddings.generator import EmbeddingResult
 from benchmark.metrics import (
     mean_average_precision,
@@ -18,7 +17,6 @@ from benchmark.metrics import (
 from benchmark.models.base import EmbeddingModel
 from benchmark.retrieval.cosine import retrieve_batch
 from benchmark.utils.logging import get_logger
-from benchmark.utils.timing import LatencyStats
 
 logger = get_logger("evaluation.evaluator")
 
@@ -44,14 +42,14 @@ class ModelMetrics:
     def to_dict(self) -> dict:
         # Transform: Serialise metrics to flat dict for JSON output
         return {
-            "model": self.model_name,
-            "dataset": self.dataset,
-            "map": round(self.map_score, 4),
-            "precision": {f"@{k}": round(v, 4) for k, v in self.precision.items()},
-            "recall": {f"@{k}": round(v, 4) for k, v in self.recall.items()},
-            "ndcg": {f"@{k}": round(v, 4) for k, v in self.ndcg.items()},
-            "latency_ms": self.latency,
-            "throughput_per_sec": round(self.throughput_per_sec, 2),
+            STR.MODEL: self.model_name,
+            STR.DATASET: self.dataset,
+            STR.MAP: round(self.map_score, MAGIC.METRIC_DECIMALS),
+            STR.PRECISION: {f"@{k}": round(v, MAGIC.METRIC_DECIMALS) for k, v in self.precision.items()},
+            STR.RECALL: {f"@{k}": round(v, MAGIC.METRIC_DECIMALS) for k, v in self.recall.items()},
+            STR.NDCG: {f"@{k}": round(v, MAGIC.METRIC_DECIMALS) for k, v in self.ndcg.items()},
+            STR.LATENCY_MS: self.latency,
+            STR.THROUGHPUT: round(self.throughput_per_sec, 2),
         }
 
 
@@ -69,11 +67,11 @@ class Evaluator:
         dataset: FashionDataset,
         k_values: list[int] | None = None,
         measure_efficiency: bool = True,
-        latency_warmup: int = 10,
-        latency_runs: int = 100,
+        latency_warmup: int = MAGIC.WARMUP_RUNS,
+        latency_runs: int = MAGIC.BENCHMARK_RUNS,
     ) -> None:
         self.dataset = dataset
-        self.k_values = k_values or [1, 5, 10, 20]
+        self.k_values = k_values or list(MAGIC.DEFAULT_K_VALUES)
         self.measure_efficiency = measure_efficiency
         self.latency_warmup = latency_warmup
         self.latency_runs = latency_runs
@@ -137,15 +135,15 @@ class Evaluator:
 
         # Profile: Measure latency and throughput when model is provided
         if self.measure_efficiency and model is not None:
+            from contextlib import suppress
+
             from PIL import Image
 
             # Filter: Load sample images for latency measurement (skip corrupted files)
             sample_images = []
-            for s in samples[:200]:
-                try:
+            for s in samples[:MAGIC.MAX_LATENCY_SAMPLES]:
+                with suppress(OSError):
                     sample_images.append(Image.open(s.image_path).convert("RGB"))
-                except OSError:
-                    pass
 
             if sample_images:
                 latency_stats = measure_latency(
@@ -239,13 +237,13 @@ class Evaluator:
 
         # Profile: Measure latency and throughput when model is provided
         if self.measure_efficiency and model is not None:
+            from contextlib import suppress
+
             from PIL import Image as PILImage
             imgs: list[PILImage.Image] = []
-            for s in q_samples[:200]:
-                try:
+            for s in q_samples[:MAGIC.MAX_LATENCY_SAMPLES]:
+                with suppress(OSError):
                     imgs.append(PILImage.open(s.image_path).convert("RGB"))
-                except OSError:
-                    pass
             if imgs:
                 stats = measure_latency(
                     model, imgs,

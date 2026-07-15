@@ -14,7 +14,7 @@ def test_latency_stats_std():
 
 def test_latency_stats_std_single_sample():
     # quantiles() requires ≥2 samples — this is a pre-existing limitation
-    with pytest.raises(Exception):
+    with pytest.raises(ValueError):
         LatencyStats(samples=[42.0])
 
 

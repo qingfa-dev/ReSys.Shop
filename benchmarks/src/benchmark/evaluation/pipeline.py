@@ -9,6 +9,7 @@ from typing import Any
 import numpy as np
 import pandas as pd
 
+from benchmark._constants import CONST, FAISS_PARAMS, MAGIC, SPLIT, THESIS_MODEL_KEYS
 from benchmark.datasets.ground_truth import GroundTruth
 from benchmark.datasets.loader import FashionDataset
 from benchmark.embeddings.generator import EmbeddingGenerator
@@ -23,8 +24,6 @@ from benchmark.retrieval.pgvector import PgvectorRetriever
 from benchmark.utils.logging import get_logger
 
 logger = get_logger("evaluation.pipeline")
-
-THESIS_MODEL_KEYS = ["fashion-clip", "resnet-50", "efficientnet-b0", "clip-generic"]
 
 
 @dataclass
@@ -46,17 +45,17 @@ class PipelineRunner:
         dataset_root: Path,
         output_dir: Path = Path("outputs/pipeline"),
         k_values: list[int] | None = None,
-        folds: int = 3,
-        seed: int = 42,
+        folds: int = MAGIC.N_FOLDS_DEFAULT,
+        seed: int = MAGIC.SEED,
         device: str = "auto",
         use_cache: bool = True,
-        batch_size: int = 64,
+        batch_size: int = MAGIC.BATCH_SIZE,
         conn_string: str = "postgresql://benchmark:benchmark@localhost:5432/benchmark",
-        pg_lists: int = 100,
+        pg_lists: int = FAISS_PARAMS.N_LISTS,
     ) -> None:
         self.dataset_root = dataset_root
         self.output_dir = output_dir
-        self.k_values = k_values or [5, 10, 20]
+        self.k_values = k_values or list(MAGIC.DEFAULT_THESIS_K_VALUES)
         self.folds = folds
         self.seed = seed
         self.device = device
@@ -82,7 +81,7 @@ class PipelineRunner:
 
         # Parse: Load metadata CSV and build stratified k-fold splits
         df = pd.read_csv(styles_csv)
-        gt = GroundTruth(df, min_category_freq=10)
+        gt = GroundTruth(df, min_category_freq=MAGIC.MIN_CATEGORY_FREQ)
         splits = gt.generate_splits(
             n_splits=self.folds,
             seed=self.seed,
@@ -111,7 +110,7 @@ class PipelineRunner:
         # Profile: Time model weight loading
         t0 = time.perf_counter()
         model.load()
-        load_time_ms = (time.perf_counter() - t0) * 1000.0
+        load_time_ms = (time.perf_counter() - t0) * MAGIC.MS_CONVERSION
 
         # Batch: Evaluate each fold independently
         for fold_idx, (train_path, test_path) in enumerate(splits):
@@ -172,11 +171,11 @@ class PipelineRunner:
         """Evaluate one fold: exact cosine + pgvector pipeline."""
         # Create: Datasets from fold split files
         query_ds = FashionDataset(
-            dataset_root=self.dataset_root, split_file=test_path, split="test"
+            dataset_root=self.dataset_root, split_file=test_path, split=SPLIT.TEST
         )
         query_ds.load()
         gallery_ds = FashionDataset(
-            dataset_root=self.dataset_root, split_file=train_path, split="train"
+            dataset_root=self.dataset_root, split_file=train_path, split=SPLIT.TRAIN
         )
         gallery_ds.load()
 
@@ -212,33 +211,34 @@ class PipelineRunner:
         )
 
         # Profile: Manual efficiency metrics
+        from contextlib import suppress
+
         from PIL import Image
 
         sample_images = []
-        for s in query_ds.samples[:200]:
-            try:
+        for s in query_ds.samples[:MAGIC.MAX_LATENCY_SAMPLES]:
+            with suppress(OSError):
                 sample_images.append(Image.open(s.image_path).convert("RGB"))
-            except OSError:
-                pass
 
-        latency_stats = measure_latency(model, sample_images, warmup_runs=10, benchmark_runs=100)
+        latency_stats = measure_latency(model, sample_images, warmup_runs=MAGIC.WARMUP_RUNS, benchmark_runs=MAGIC.BENCHMARK_RUNS)
         throughput = measure_throughput(
-            model, sample_images[:64], batch_size=64, num_batches=10
+            model, sample_images[:MAGIC.BATCH_SIZE], batch_size=MAGIC.BATCH_SIZE, num_batches=10
         )
 
         # Profile: Peak RAM during batch inference
         import gc
+
         import psutil
 
         process = psutil.Process()
         gc.collect()
         baseline = process.memory_info().rss
-        model.embed_batch(sample_images[:64])
+        model.embed_batch(sample_images[:MAGIC.BATCH_SIZE])
         peak = process.memory_info().rss
-        ram_mb = (peak - baseline) / (1024 * 1024)
+        ram_mb = (peak - baseline) / CONST.BYTES_TO_MB
 
         # Compute: Storage footprint
-        total_storage_mb = query_result.embeddings.nbytes / (1024 * 1024)
+        total_storage_mb = query_result.embeddings.nbytes / CONST.BYTES_TO_MB
 
         fold_result = {
             "fold": fold_idx,

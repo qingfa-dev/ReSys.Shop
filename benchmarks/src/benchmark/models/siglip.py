@@ -15,6 +15,7 @@ import torch
 from PIL import Image
 from transformers import AutoModel, AutoProcessor
 
+from benchmark._constants import CLI_STR
 from benchmark.models.base import EmbeddingModel
 from benchmark.utils.device import resolve_device
 from benchmark.utils.logging import get_logger
@@ -27,7 +28,7 @@ _HF_MODEL_ID = "google/siglip-base-patch16-224"
 class SigLipModel(EmbeddingModel):
     """SigLIP ViT-B/16 (Google, 768-D embeddings)."""
 
-    def __init__(self, device: str = "auto") -> None:
+    def __init__(self, device: str = CLI_STR.AUTO) -> None:
         self._device_pref = device
         self._model: AutoModel | None = None
         self._processor: AutoProcessor | None = None

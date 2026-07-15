@@ -5,7 +5,7 @@ Provides the ``EmbeddingGenerator`` (batched inference with optional caching),
 output persistence).
 """
 
-from benchmark.embeddings.generator import EmbeddingGenerator, EmbeddingResult
 from benchmark.embeddings import cache, storage
+from benchmark.embeddings.generator import EmbeddingGenerator, EmbeddingResult
 
 __all__ = ["EmbeddingGenerator", "EmbeddingResult", "cache", "storage"]

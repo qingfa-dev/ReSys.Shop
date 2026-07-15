@@ -13,6 +13,7 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
+from benchmark._constants import FILE_ENCODING, OUT, PAT
 from benchmark.evaluation.evaluator import ModelMetrics
 from benchmark.utils.logging import get_logger
 
@@ -31,8 +32,8 @@ def write_model_json(metrics: ModelMetrics, output_dir: Path = Path("outputs/met
     """
     output_dir.mkdir(parents=True, exist_ok=True)
     slug = metrics.model_name.lower().replace(" ", "_").replace("/", "_")
-    path = output_dir / f"{slug}.json"
-    path.write_text(json.dumps(metrics.to_dict(), indent=2, ensure_ascii=False), encoding="utf-8")
+    path = output_dir / PAT.PER_MODEL_JSON.format(slug=slug)
+    path.write_text(json.dumps(metrics.to_dict(), indent=2, ensure_ascii=False), encoding=FILE_ENCODING)
     logger.info("JSON → %s", path)
     return path
 
@@ -51,8 +52,8 @@ def write_comparison_json(
         Path to the written ``benchmark.json`` file.
     """
     output_dir.mkdir(parents=True, exist_ok=True)
-    path = output_dir / "benchmark.json"
+    path = output_dir / OUT.COMPARISON_JSON
     data = [m.to_dict() for m in all_metrics]
-    path.write_text(json.dumps(data, indent=2, ensure_ascii=False), encoding="utf-8")
+    path.write_text(json.dumps(data, indent=2, ensure_ascii=False), encoding=FILE_ENCODING)
     logger.info("Comparison JSON → %s", path)
     return path

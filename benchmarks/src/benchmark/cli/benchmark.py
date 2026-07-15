@@ -24,6 +24,17 @@ import typer
 from rich.console import Console
 from rich.table import Table
 
+from benchmark._constants import (
+    CLI_STR,
+    DFLT,
+    EXIT,
+    FAISS_PARAMS,
+    FILE_ENCODING,
+    LOG,
+    MAGIC,
+    PLACEHOLDER,
+    SPLIT,
+)
 from benchmark.utils.logging import get_logger, setup_logging
 from benchmark.utils.random_seed import set_seed
 
@@ -41,32 +52,32 @@ logger = get_logger("cli")
 @app.command(name="run")
 def run(
     dataset_root: Annotated[Path, typer.Option("--dataset-root", "-d",
-        help="Path to the raw dataset directory.")] = Path("data/raw/deepfashion"),
+        help="Path to the raw dataset directory.")] = DFLT.DATASET_ROOT,
     split_file: Annotated[Path, typer.Option("--split-file", "-s",
-        help="JSON split file (see datasets/loader.py for format).")] = Path("data/splits/deepfashion/test.json"),
+        help="JSON split file (see datasets/loader.py for format).")] = DFLT.SPLIT_FILE,
     gallery_split_file: Annotated[Path | None, typer.Option("--gallery-split-file",
         help="Optional gallery/train split file. When provided, enables split-aware "
              "evaluation (query from --split-file, gallery from this file). "
              "Academically correct protocol for thesis results.")] = None,
     models: Annotated[str, typer.Option("--models", "-m",
-        help="Comma-separated model keys, or 'all'.")] = "all",
+        help="Comma-separated model keys, or 'all'.")] = CLI_STR.ALL,
     k: Annotated[str, typer.Option("--k",
         help="Comma-separated K values for P@K / R@K / nDCG@K.")] = "1,5,10,20",
     batch_size: Annotated[int, typer.Option("--batch-size",
-        help="Images per forward pass.")] = 64,
+        help="Images per forward pass.")] = MAGIC.BATCH_SIZE,
     no_cache: Annotated[bool, typer.Option("--no-cache",
         help="Disable embedding cache; always recompute.")] = False,
     no_latency: Annotated[bool, typer.Option("--no-latency",
         help="Skip latency / throughput measurement.")] = False,
     output: Annotated[Path, typer.Option("--output", "-o",
-        help="Root output directory.", show_default=True)] = Path("outputs"),
+        help="Root output directory.", show_default=True)] = DFLT.OUTPUTS_ROOT,
     dataset_name: Annotated[str, typer.Option("--dataset-name", "--name",
-        help="Dataset label used in reports and cache keys.", show_default=True)] = "deepfashion",
+        help="Dataset label used in reports and cache keys.", show_default=True)] = DFLT.DATASET_NAME,
     device: Annotated[str, typer.Option("--device",
         help="Device to run models on (cpu, cuda, mps, auto).", show_default=True)] = "auto",
     seed: Annotated[int, typer.Option("--seed",
-        help="Random seed for reproducibility.", show_default=True)] = 42,
-    log_level: Annotated[str, typer.Option("--log-level", show_default=True)] = "INFO",
+        help="Random seed for reproducibility.", show_default=True)] = MAGIC.SEED,
+    log_level: Annotated[str, typer.Option("--log-level", show_default=True)] = DFLT.LOG_LEVEL,
 ) -> None:
     """Run the full benchmark pipeline.
 
@@ -83,7 +94,7 @@ def run(
             --models fashion-clip,clip-b32 \\
             --k 1,5,10,20
     """
-    setup_logging(level=log_level, log_file=output / "logs" / "benchmark.log")
+    setup_logging(level=log_level, log_file=output / "logs" / LOG.RUN)
     set_seed(seed)
 
     from benchmark.datasets.loader import FashionDataset
@@ -91,21 +102,25 @@ def run(
     from benchmark.evaluation.benchmark import BenchmarkRunner
     from benchmark.models import REGISTRY
     from benchmark.reporting import (
-        generate_all_charts, write_all_tables,
-        write_comparison_json, write_csv, write_markdown, write_model_json,
+        generate_all_charts,
+        write_all_tables,
+        write_comparison_json,
+        write_csv,
+        write_markdown,
+        write_model_json,
     )
 
     # ── resolve model keys ────────────────────────────────────────────────────
     all_keys = list(REGISTRY.keys())
-    model_keys = all_keys if models == "all" else [k.strip() for k in models.split(",")]
+    model_keys = all_keys if models == CLI_STR.ALL else [k.strip() for k in models.split(",")]
     unknown = [k for k in model_keys if k not in REGISTRY]
     if unknown:
         console.print(f"[red]Unknown model keys: {unknown}[/red]")
         console.print(f"Available: {all_keys}")
-        raise typer.Exit(code=1)
+        raise typer.Exit(code=EXIT.EXIT_FAILURE)
+
 
     top_k = [int(v) for v in k.split(",")]
-
     # ── print run config ──────────────────────────────────────────────────────
     config_table = Table(title="Benchmark Configuration", show_header=False)
     config_table.add_column("Key", style="bold")
@@ -124,7 +139,7 @@ def run(
     console.print(config_table)
 
     # ── load dataset ──────────────────────────────────────────────────────────
-    dataset = FashionDataset(dataset_root=dataset_root, split_file=split_file, split="test")
+    dataset = FashionDataset(dataset_root=dataset_root, split_file=split_file, split=SPLIT.TEST)
     dataset.load()
 
     gallery_dataset: FashionDataset | None = None
@@ -132,7 +147,7 @@ def run(
         gallery_dataset = FashionDataset(
             dataset_root=dataset_root,
             split_file=gallery_split_file,
-            split="train",
+            split=SPLIT.TRAIN,
         )
         gallery_dataset.load()
 
@@ -183,7 +198,7 @@ def run(
             m.model_name,
             f"{m.map_score:.4f}",
             *[f"{m.precision.get(kv, 0):.4f}" for kv in top_k],
-            f"{m.latency.get('p50_ms', 0):.1f}" if m.latency else "—",
+            f"{m.latency.get('p50_ms', 0):.1f}" if m.latency else PLACEHOLDER.MISSING_MD,
         ]
         summary.add_row(*row)
 
@@ -196,24 +211,24 @@ def run(
 @app.command()
 def thesis(
     dataset_root: Annotated[Path, typer.Option("--dataset-root", "-d",
-        help="Path to the raw dataset directory.")] = Path("data/raw/deepfashion"),
+        help="Path to the raw dataset directory.")] = DFLT.DATASET_ROOT,
     models: Annotated[str, typer.Option("--models", "-m",
         help="Comma-separated model keys, or 'all'.")] = "all",
     folds: Annotated[int, typer.Option("--folds",
-        help="Number of cross-validation folds.")] = 3,
+        help="Number of cross-validation folds.")] = MAGIC.N_FOLDS_DEFAULT,
     k: Annotated[str, typer.Option("--k",
         help="Comma-separated K values for P@K / R@K.")] = "5,10,20",
     batch_size: Annotated[int, typer.Option("--batch-size",
-        help="Images per forward pass.")] = 64,
+        help="Images per forward pass.")] = MAGIC.BATCH_SIZE,
     no_cache: Annotated[bool, typer.Option("--no-cache",
         help="Disable embedding cache.")] = False,
     output: Annotated[Path, typer.Option("--output", "-o",
-        help="Root output directory.", show_default=True)] = Path("outputs/thesis"),
+        help="Root output directory.", show_default=True)] = DFLT.THESIS_DIR,
     device: Annotated[str, typer.Option("--device",
         help="Device (cpu, cuda, mps, auto).", show_default=True)] = "auto",
     seed: Annotated[int, typer.Option("--seed",
-        help="Random seed.", show_default=True)] = 42,
-    log_level: Annotated[str, typer.Option("--log-level", show_default=True)] = "INFO",
+        help="Random seed.", show_default=True)] = MAGIC.SEED,
+    log_level: Annotated[str, typer.Option("--log-level", show_default=True)] = DFLT.LOG_LEVEL,
 ) -> None:
     """Run the thesis benchmark (k-fold cross-validation).
 
@@ -228,12 +243,12 @@ def thesis(
             --models fashion-clip,resnet-50 \
             --folds 3
     """
-    setup_logging(level=log_level, log_file=output / "logs" / "thesis.log")
+    setup_logging(level=log_level, log_file=output / "logs" / LOG.THESIS)
 
     from benchmark.evaluation.thesis import THESIS_MODEL_KEYS, ThesisRunner
-    from benchmark.reporting import write_comparison_json, write_thesis_tables
+    from benchmark.reporting import write_thesis_tables
+    model_keys = THESIS_MODEL_KEYS if models == CLI_STR.ALL else [k.strip() for k in models.split(",")]
 
-    model_keys = THESIS_MODEL_KEYS if models == "all" else [k.strip() for k in models.split(",")]
     top_k = [int(v) for v in k.split(",")]
 
     config_table = Table(title="Thesis Benchmark Configuration", show_header=False)
@@ -297,28 +312,28 @@ def thesis(
 @app.command()
 def pipeline(
     dataset_root: Annotated[Path, typer.Option("--dataset-root", "-d",
-        help="Path to the raw dataset directory.")] = Path("data/raw/deepfashion"),
+        help="Path to the raw dataset directory.")] = DFLT.DATASET_ROOT,
     models: Annotated[str, typer.Option("--models", "-m",
         help="Comma-separated model keys, or 'all'.")] = "all",
     folds: Annotated[int, typer.Option("--folds",
-        help="Number of cross-validation folds.")] = 3,
+        help="Number of cross-validation folds.")] = MAGIC.N_FOLDS_DEFAULT,
     k: Annotated[str, typer.Option("--k",
         help="Comma-separated K values for P@K / R@K.")] = "5,10,20",
     batch_size: Annotated[int, typer.Option("--batch-size",
-        help="Images per forward pass.")] = 64,
+        help="Images per forward pass.")] = MAGIC.BATCH_SIZE,
     no_cache: Annotated[bool, typer.Option("--no-cache",
         help="Disable embedding cache.")] = False,
     output: Annotated[Path, typer.Option("--output", "-o",
-        help="Root output directory.", show_default=True)] = Path("outputs/pipeline"),
+        help="Root output directory.", show_default=True)] = DFLT.PIPELINE_DIR,
     device: Annotated[str, typer.Option("--device",
         help="Device (cpu, cuda, mps, auto).", show_default=True)] = "auto",
     seed: Annotated[int, typer.Option("--seed",
-        help="Random seed.", show_default=True)] = 42,
+        help="Random seed.", show_default=True)] = MAGIC.SEED,
     conn_string: Annotated[str, typer.Option("--conn-string",
-        help="PostgreSQL connection string.", show_default=True)] = "postgresql://benchmark:benchmark@localhost:5432/benchmark",
+        help="PostgreSQL connection string.", show_default=True)] = DFLT.CONN_STRING,
     pg_lists: Annotated[int, typer.Option("--pg-lists",
-        help="IVFFlat lists parameter.", show_default=True)] = 100,
-    log_level: Annotated[str, typer.Option("--log-level", show_default=True)] = "INFO",
+        help="IVFFlat lists parameter.", show_default=True)] = FAISS_PARAMS.N_LISTS,
+    log_level: Annotated[str, typer.Option("--log-level", show_default=True)] = DFLT.LOG_LEVEL,
 ) -> None:
     """Run the production pipeline benchmark (thesis + pgvector).
 
@@ -333,12 +348,12 @@ def pipeline(
             --models fashion-clip,resnet-50 \\
             --folds 3
     """
-    setup_logging(level=log_level, log_file=output / "logs" / "pipeline.log")
+    setup_logging(level=log_level, log_file=output / "logs" / LOG.PIPELINE)
 
     from benchmark.evaluation.pipeline import THESIS_MODEL_KEYS, PipelineRunner
-    from benchmark.reporting.pipeline import write_pipeline_json, write_pipeline_typst
+    from benchmark.reporting.pipeline import write_pipeline_typst
+    model_keys = THESIS_MODEL_KEYS if models == CLI_STR.ALL else [k.strip() for k in models.split(",")]
 
-    model_keys = THESIS_MODEL_KEYS if models == "all" else [k.strip() for k in models.split(",")]
     top_k = [int(v) for v in k.split(",")]
 
     config_table = Table(title="Pipeline Benchmark Configuration", show_header=False)
@@ -401,13 +416,13 @@ def pipeline(
 @app.command()
 def report(
     results_dir: Annotated[Path, typer.Option("--results-dir",
-        help="Directory containing per-model .json result files.")] = Path("outputs/metrics"),
+        help="Directory containing per-model .json result files.")] = DFLT.METRICS_DIR,
     format: Annotated[str, typer.Option("--format", "-f",
         help="csv | json | markdown | typst | charts | all")] = "all",
     k: Annotated[str, typer.Option("--k",
         help="Comma-separated K values to include in tables.")] = "1,5,10,20",
-    output: Annotated[Path, typer.Option("--output", "-o")] = Path("outputs"),
-    log_level: Annotated[str, typer.Option("--log-level")] = "INFO",
+    output: Annotated[Path, typer.Option("--output", "-o")] = DFLT.OUTPUTS_ROOT,
+    log_level: Annotated[str, typer.Option("--log-level")] = DFLT.LOG_LEVEL,
 ) -> None:
     """Re-generate reports from stored JSON metric files.
 
@@ -423,23 +438,26 @@ def report(
 
     from benchmark.evaluation.evaluator import ModelMetrics
     from benchmark.reporting import (
-        generate_all_charts, write_all_tables,
-        write_comparison_json, write_csv, write_markdown,
+        generate_all_charts,
+        write_all_tables,
+        write_comparison_json,
+        write_csv,
+        write_markdown,
     )
 
     # ── load stored metrics ───────────────────────────────────────────────────
     if not results_dir.exists():
         console.print(f"[red]Results directory not found: {results_dir}[/red]")
-        raise typer.Exit(code=1)
+        raise typer.Exit(code=EXIT.EXIT_FAILURE)
 
     json_files = sorted(results_dir.glob("*.json"))
     if not json_files:
         console.print(f"[red]No .json files found in {results_dir}[/red]")
-        raise typer.Exit(code=1)
+        raise typer.Exit(code=EXIT.EXIT_FAILURE)
 
     all_metrics: list[ModelMetrics] = []
     for jf in json_files:
-        raw = json.loads(jf.read_text(encoding="utf-8"))
+        raw = json.loads(jf.read_text(encoding=FILE_ENCODING))
         # Reconstruct ModelMetrics from the serialised dict
         m = ModelMetrics(
             model_name=raw["model"],
@@ -455,7 +473,7 @@ def report(
         all_metrics.append(m)
 
     top_k = [int(v) for v in k.split(",")]
-    fmts = {"csv", "json", "markdown", "typst", "charts"} if format == "all" else {format}
+    fmts = {CLI_STR.CSV, CLI_STR.JSON, CLI_STR.MARKDOWN, CLI_STR.TYPST, CLI_STR.CHARTS} if format == CLI_STR.ALL else {format}
 
     if "json" in fmts:
         write_comparison_json(all_metrics, output_dir=output / "reports")
@@ -495,7 +513,7 @@ def cache(
 
     effective_dir = cache_dir if cache_dir != Path("data/cache") else CACHE_DIR
 
-    if action == "list":
+    if action == CLI_STR.LIST:
         files = sorted(effective_dir.glob("*.npz")) if effective_dir.exists() else []
         if not files:
             console.print("Cache is empty.")
@@ -508,13 +526,13 @@ def cache(
             t.add_row(f.name, f"{size_mb:.1f} MB")
         console.print(t)
 
-    elif action == "stats":
+    elif action == CLI_STR.STATS:
         files = sorted(effective_dir.glob("*.npz")) if effective_dir.exists() else []
         total = sum(f.stat().st_size for f in files)
         console.print(f"Cache entries : {len(files)}")
         console.print(f"Total size    : {total / 1_048_576:.1f} MB")
 
-    elif action == "clear":
+    elif action == CLI_STR.CLEAR:
         import shutil
         if not effective_dir.exists():
             console.print("Cache is already empty.")
@@ -526,4 +544,4 @@ def cache(
 
     else:
         console.print(f"[red]Unknown action '{action}'. Use: list | stats | clear[/red]")
-        raise typer.Exit(code=1)
+        raise typer.Exit(code=EXIT.EXIT_FAILURE)

@@ -13,6 +13,8 @@ from embedding.models import BaseEmbedder, ModelRegistry
 from embedding.models.onnx.utils import infer_onnx_dim
 from embedding.schemas import InferenceResults, ValueResult
 
+from core.constants import Constants
+
 logger = logging.getLogger(__name__)
 tracer = get_tracer(__name__)
 meter = get_meter(__name__)
@@ -111,7 +113,7 @@ class InferenceEngine:
         """Helper to resolve and load an ONNX model."""
         model_id = model_name.removeprefix("onnx/")
         # Reverted to singular ONNX_MODEL_DIR
-        model_path = Path(settings.ONNX_MODEL_DIR) / model_id / "model.onnx"
+        model_path = Path(settings.ONNX_MODEL_DIR) / model_id / Constants.Strings.ONNX_FILENAME
 
         if not model_path.exists():
             legacy_path = Path(settings.ONNX_MODEL_DIR) / f"{model_id}.onnx"

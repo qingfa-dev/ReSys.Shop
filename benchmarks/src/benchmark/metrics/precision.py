@@ -47,6 +47,6 @@ def mean_precision_at_k(
     # Compute: Average per-query Precision@K
     scores = [
         precision_at_k(ret, rel, k)
-        for ret, rel in zip(all_retrieved, all_relevant)
+        for ret, rel in zip(all_retrieved, all_relevant, strict=True)
     ]
     return sum(scores) / len(scores)
