@@ -1,6 +1,7 @@
 """ThesisRunner — orchestrates the 4-model x 3-fold evaluation protocol."""
 from __future__ import annotations
 
+import json
 import time
 from contextlib import suppress
 from dataclasses import dataclass, field
@@ -49,6 +50,7 @@ class ThesisRunner:
         device: str = "auto",
         use_cache: bool = True,
         batch_size: int = MAGIC.BATCH_SIZE,
+        secondary_label: str | None = None,
     ) -> None:
         self.dataset_root = dataset_root
         self.output_dir = output_dir
@@ -58,7 +60,7 @@ class ThesisRunner:
         self.device = device
         self.use_cache = use_cache
         self.batch_size = batch_size
-        # Call: Initialise model registry for the target device
+        self._secondary_label = secondary_label
         self._registry = get_registry(device=device)
 
     def run(
@@ -76,13 +78,11 @@ class ThesisRunner:
         keys = model_keys or THESIS_MODEL_KEYS
         logger.info("Starting thesis benchmark: %d models, %d folds", len(keys), self.folds)
 
-        # Enforce: styles.csv must exist before proceeding
         styles_csv = self.dataset_root / "styles.csv"
         if not styles_csv.exists():
             logger.error("styles.csv not found at %s", styles_csv)
             raise FileNotFoundError(f"styles.csv not found: {styles_csv}")
 
-        # Parse: Load metadata CSV and build stratified k-fold splits
         df = pd.read_csv(styles_csv, on_bad_lines="warn")
         gt = GroundTruth(df, min_category_freq=MAGIC.MIN_CATEGORY_FREQ)
         splits = gt.generate_splits(
@@ -91,7 +91,6 @@ class ThesisRunner:
             output_dir=self.output_dir / "splits",
         )
 
-        # Batch: Evaluate each model independently across all folds
         results: list[dict[str, Any]] = []
         for key in keys:
             if key not in self._registry:
@@ -100,6 +99,15 @@ class ThesisRunner:
             model = self._registry[key]
             model_result = self._evaluate_model(model, splits)
             results.append(model_result)
+
+        if self._secondary_label:
+            logger.info("Running secondary evaluation with label field: %s", self._secondary_label)
+            secondary_results = self._run_with_label_field(keys, splits, self._secondary_label)
+            results_dir = self.output_dir / "results"
+            results_dir.mkdir(parents=True, exist_ok=True)
+            secondary_path = results_dir / "thesis_results_pattern.json"
+            secondary_path.write_text(json.dumps(secondary_results, indent=2))
+            logger.info("Secondary results -> %s", secondary_path)
 
         return results
 
@@ -205,6 +213,126 @@ class ThesisRunner:
         ram_mb = self._measure_peak_ram(model, sample_images[:MAGIC.BATCH_SIZE])
 
         # Compute: Embedding storage footprint for 1K images
+        total_storage_mb = query_result.embeddings.nbytes / CONST.BYTES_TO_MB
+
+        return {
+            "fold": fold_idx,
+            "map": round(metrics.map_score, 4),
+            "precision@5": round(metrics.precision.get(5, 0.0), 4),
+            "precision@10": round(metrics.precision.get(10, 0.0), 4),
+            "precision@20": round(metrics.precision.get(20, 0.0), 4),
+            "recall@5": round(metrics.recall.get(5, 0.0), 4),
+            "recall@10": round(metrics.recall.get(10, 0.0), 4),
+            "recall@20": round(metrics.recall.get(20, 0.0), 4),
+            "latency_mean_ms": round(latency_stats.mean, 2),
+            "latency_std_ms": round(latency_stats.std, 2),
+            "throughput_per_sec": round(throughput, 2),
+            "load_time_ms": round(load_time_ms, 2),
+            "index_storage_mb": round(total_storage_mb, 2),
+            "ram_mb": round(ram_mb, 2),
+        }
+
+    def _run_with_label_field(
+        self,
+        keys: list[str],
+        splits: list[tuple[Path, Path]],
+        label_field: str,
+    ) -> list[dict[str, Any]]:
+        """Evaluate all models using a specific label field from split JSON."""
+        results: list[dict[str, Any]] = []
+        for key in keys:
+            if key not in self._registry:
+                logger.error("Model %s not in registry, skipping", key)
+                continue
+            model = self._registry[key]
+            model_result = self._evaluate_model_with_field(
+                model, splits, label_field,
+            )
+            results.append(model_result)
+        return results
+
+    def _evaluate_model_with_field(
+        self,
+        model,
+        splits: list[tuple[Path, Path]],
+        label_field: str,
+    ) -> dict[str, Any]:
+        """Evaluate one model across all folds with a custom label field."""
+        logger.info("Evaluating %s [%s] ...", model.name, label_field)
+
+        fold_results: list[dict[str, Any]] = []
+        fold_map_scores: list[float] = []
+
+        t0 = time.perf_counter()
+        model.load()
+        load_time_ms = (time.perf_counter() - t0) * MAGIC.MS_CONVERSION
+
+        for fold_idx, (train_path, test_path) in enumerate(splits):
+            logger.info("  Fold %d ...", fold_idx)
+            fold_result = self._evaluate_fold_with_field(
+                model, train_path, test_path, fold_idx, load_time_ms, label_field,
+            )
+            fold_results.append(fold_result)
+            fold_map_scores.append(fold_result["map"])
+
+        aggregate: dict[str, dict[str, float]] = {}
+        metric_keys = ["map", "precision@5", "precision@10", "precision@20",
+                       "recall@5", "recall@10", "recall@20",
+                       "latency_mean_ms", "throughput_per_sec",
+                       "load_time_ms", "index_storage_mb", "ram_mb"]
+        for mk in metric_keys:
+            vals = [f[mk] for f in fold_results if mk in f]
+            if vals:
+                aggregate[mk] = aggregate_mean_std(vals)
+
+        if len(fold_map_scores) >= 3:
+            ci_lower, ci_upper = bootstrap_ci(fold_map_scores, seed=self.seed)
+            aggregate["map"]["ci_95"] = [ci_lower, ci_upper]
+
+        return {
+            "model_name": model.name,
+            "model_slug": model.slug,
+            "folds": fold_results,
+            "aggregate": aggregate,
+        }
+
+    def _evaluate_fold_with_field(
+        self, model, train_path, test_path, fold_idx, load_time_ms, label_field,
+    ) -> dict[str, Any]:
+        query_ds = FashionDataset(
+            dataset_root=self.dataset_root, split_file=test_path, split=SPLIT.TEST,
+        )
+        query_ds.load(label_field=label_field)
+        gallery_ds = FashionDataset(
+            dataset_root=self.dataset_root, split_file=train_path, split=SPLIT.TRAIN,
+        )
+        gallery_ds.load(label_field=label_field)
+
+        query_gen = EmbeddingGenerator(
+            model=model, dataset=query_ds,
+            batch_size=self.batch_size, use_cache=self.use_cache,
+        )
+        gallery_gen = EmbeddingGenerator(
+            model=model, dataset=gallery_ds,
+            batch_size=self.batch_size, use_cache=self.use_cache,
+        )
+        query_result = query_gen.generate(dataset_name=f"fold_{fold_idx}_test")
+        gallery_result = gallery_gen.generate(dataset_name=f"fold_{fold_idx}_train")
+
+        evaluator = Evaluator(
+            dataset=query_ds, k_values=self.k_values, measure_efficiency=False,
+        )
+        metrics = evaluator.evaluate_split(
+            query_result=query_result, gallery_result=gallery_result,
+            dataset_name=f"fold_{fold_idx}",
+        )
+
+        sample_images = self._load_sample_images(query_ds.samples, max_n=MAGIC.MAX_LATENCY_SAMPLES)
+        latency_stats = measure_latency(model, sample_images,
+                                         warmup_runs=MAGIC.WARMUP_RUNS, benchmark_runs=MAGIC.BENCHMARK_RUNS)
+        throughput = measure_throughput(model, sample_images[:MAGIC.BATCH_SIZE],
+                                         batch_size=MAGIC.BATCH_SIZE, num_batches=10)
+        ram_mb = self._measure_peak_ram(model, sample_images[:MAGIC.BATCH_SIZE])
         total_storage_mb = query_result.embeddings.nbytes / CONST.BYTES_TO_MB
 
         return {
