@@ -101,6 +101,24 @@ public static partial class DatabaseInitializer
         public static partial void LogFatalError(ILogger logger, Exception ex);
 
         [LoggerMessage(
+            EventId = 267,
+            Level = LogLevel.Warning,
+            Message = "Dropping all application schemas...")]
+        public static partial void LogDroppingSchemas(ILogger logger);
+
+        [LoggerMessage(
+            EventId = 268,
+            Level = LogLevel.Warning,
+            Message = "Failed to drop schema {Schema}: {Message}")]
+        public static partial void LogSchemaDropFailed(ILogger logger, string schema, string message);
+
+        [LoggerMessage(
+            EventId = 269,
+            Level = LogLevel.Information,
+            Message = "Application schemas dropped successfully.")]
+        public static partial void LogSchemasDropped(ILogger logger);
+
+        [LoggerMessage(
             EventId = 265,
             Level = LogLevel.Information,
             Message = "Migrations skipped (runMigrations=false).")]

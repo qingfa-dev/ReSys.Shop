@@ -1,5 +1,8 @@
+using System.Runtime.CompilerServices;
+
 using Microsoft.AspNetCore.Builder;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
 using Npgsql;
@@ -40,6 +43,14 @@ public static partial class DatabaseInitializer
         {
             using IServiceScope scope = services.CreateScope();
 
+            var configuration = scope.ServiceProvider.GetRequiredService<IConfiguration>();
+            bool dropSchemas = configuration.GetValue<bool>("DatabaseInitialization:DropSchemas");
+
+            if (dropSchemas)
+            {
+                await DropApplicationSchemasAsync(scope, logger);
+            }
+
             if (runMigrations)
             {
                 await RunMigrationsAsync(scope, logger);
@@ -63,6 +74,38 @@ public static partial class DatabaseInitializer
             Loggers.LogFatalError(logger, ex);
             throw;
         }
+    }
+
+    private static async Task DropApplicationSchemasAsync(IServiceScope scope, ILogger logger)
+    {
+        var dbContext = scope.ServiceProvider.GetRequiredService<IApplicationDbContext>();
+        if (dbContext is not DbContext efContext) return;
+
+        Loggers.LogDroppingSchemas(logger);
+
+        var schemas = new[] { "catalog", "inventory", "location", "payment", "shipping", "ordering", "profile", "identity" };
+        foreach (var schema in schemas)
+        {
+            try
+            {
+                await efContext.Database.ExecuteSqlAsync(
+                    FormattableStringFactory.Create($"DROP SCHEMA IF EXISTS {schema} CASCADE"));
+            }
+            catch (Exception ex)
+            {
+                Loggers.LogSchemaDropFailed(logger, schema, ex.Message);
+            }
+        }
+
+        // Also clear the EF migrations history so the new InitialCreate runs cleanly
+        try
+        {
+            await efContext.Database.ExecuteSqlAsync(
+                FormattableStringFactory.Create("DROP TABLE IF EXISTS \"__EFMigrationsHistory\" CASCADE"));
+        }
+        catch { /* table may not exist */ }
+
+        Loggers.LogSchemasDropped(logger);
     }
 
     private static async Task RunMigrationsAsync(IServiceScope scope, ILogger logger)
