@@ -25,7 +25,7 @@ from benchmark.utils.logging import get_logger
 logger = get_logger("datasets.ground_truth")
 
 
-def _normalize_colour(raw: str | float | None) -> str:
+def normalize_colour(raw: str | float | None) -> str:
     """Map a raw baseColour string to a broad visual colour group.
 
     The Fashion Product Images dataset uses 46 distinct colour labels
@@ -71,7 +71,7 @@ def build_relevance_sets(df: pd.DataFrame) -> dict[str, set[str]]:
     """Build a relevance set for each product ID.
 
     Two products are relevant if they share the same masterCategory +
-    subCategory + *normalised* colour (see :func:`_normalize_colour`).
+    subCategory + *normalised* colour (see :func:`normalize_colour`).
     If subCategory is missing/NaN, fall back to masterCategory only.
 
     Colour normalisation merges visually similar labels (e.g. ``"Blue"``,
@@ -91,7 +91,7 @@ def build_relevance_sets(df: pd.DataFrame) -> dict[str, set[str]]:
     """
     df = df.copy()
     if "baseColour" in df.columns:
-        df["_norm_colour"] = df["baseColour"].apply(_normalize_colour)
+        df["_norm_colour"] = df["baseColour"].apply(normalize_colour)
     else:
         df["_norm_colour"] = "Unknown"
     df["_relevance_key"] = df.apply(
@@ -179,7 +179,7 @@ class GroundTruth:
                 fold_indices[fold_idx].extend(cat_df.iloc[split]["id"].tolist())
 
         # Build full id -> metadata mapping
-        self.df["_norm_colour"] = (self.df["baseColour"].apply(_normalize_colour)
+        self.df["_norm_colour"] = (self.df["baseColour"].apply(normalize_colour)
                                      if "baseColour" in self.df.columns
                                      else "Unknown")
         meta_by_id = {
