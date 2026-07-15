@@ -1,5 +1,13 @@
-"""Dataset integrity validation."""
+"""Dataset integrity validation.
 
+Checks that all image paths referenced in a dataset's split file exist
+on disk. Used as a pre-flight check before running benchmarks.
+
+Edge cases:
+- Missing images produce warning-level error messages but do not
+  interrupt validation; the caller decides how to handle failures.
+- An empty dataset passes validation (zero errors).
+"""
 from __future__ import annotations
 
 from pathlib import Path
@@ -11,7 +19,15 @@ logger = get_logger("datasets.validators")
 
 
 def validate_dataset(dataset: FashionDataset) -> list[str]:
-    """Check all image paths exist and return a list of error messages."""
+    """Verify that all image paths in the dataset exist on disk.
+
+    Args:
+        dataset: A loaded ``FashionDataset`` instance.
+
+    Returns:
+        List of error messages for missing image files. Empty list means
+        all images are present.
+    """
     errors: list[str] = []
     for sample in dataset.samples:
         if not sample.image_path.exists():

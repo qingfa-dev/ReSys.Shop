@@ -1,4 +1,13 @@
-"""Torch device resolution with human-readable reporting."""
+"""Torch device resolution with human-readable reporting.
+
+Resolves the best available device (CUDA > MPS > CPU) and provides a
+single function used by all model adapters.
+
+Edge cases:
+- Preference ``"cuda"`` raises RuntimeError if no GPU is available.
+- Preference ``"mps"`` raises RuntimeError on non-Apple hardware.
+- ``"auto"`` silently degrades to CPU when no accelerator is found.
+"""
 
 from __future__ import annotations
 

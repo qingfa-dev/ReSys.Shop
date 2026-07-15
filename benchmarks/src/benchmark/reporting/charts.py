@@ -3,6 +3,15 @@
 Outputs land in ``outputs/figures/`` as ``.pdf`` (for Typst / LaTeX inclusion)
 and ``.png`` (for quick inspection and Markdown reports).
 
+Generates four chart types: Precision@K line chart, Recall@K line chart,
+latency grouped bar chart, and mAP horizontal bar chart.
+
+Edge cases:
+- Missing metrics (e.g. precision for a specific K) default to 0.0 in charts.
+- Empty results produce empty charts.
+- matplotlib and seaborn are imported lazily; ImportError gives a clear
+  install instruction.
+
 Requires: matplotlib, seaborn
 """
 from __future__ import annotations
@@ -26,10 +35,19 @@ _PALETTE = [
 
 
 def _setup_matplotlib() -> tuple:
-    """Import and configure matplotlib/seaborn lazily."""
+    """Import and configure matplotlib / seaborn lazily.
+
+    Sets the non-interactive ``Agg`` backend safe for headless servers.
+
+    Returns:
+        Tuple of ``(plt, sns)`` modules.
+
+    Raises:
+        ImportError: If matplotlib or seaborn is not installed.
+    """
     try:
         import matplotlib
-        matplotlib.use("Agg")  # non-interactive backend safe for servers
+        matplotlib.use("Agg")
         import matplotlib.pyplot as plt
         import seaborn as sns
     except ImportError as exc:
@@ -47,7 +65,16 @@ def generate_precision_chart(
     k_values: list[int] | None = None,
     output_dir: Path = Path("outputs/figures"),
 ) -> list[Path]:
-    """Line chart of Precision@K across K values for all models."""
+    """Line chart of Precision@K across K values for all models.
+
+    Args:
+        all_metrics: Results from ``BenchmarkRunner.run()``.
+        k_values: K cut-offs to plot. Defaults to all available.
+        output_dir: Destination for PDF and PNG output files.
+
+    Returns:
+        List of written file paths (PDF and PNG).
+    """
     plt, _ = _setup_matplotlib()
     output_dir.mkdir(parents=True, exist_ok=True)
     k_values = k_values or sorted({k for m in all_metrics for k in m.precision})
@@ -81,7 +108,16 @@ def generate_recall_chart(
     k_values: list[int] | None = None,
     output_dir: Path = Path("outputs/figures"),
 ) -> list[Path]:
-    """Line chart of Recall@K across K values."""
+    """Line chart of Recall@K across K values.
+
+    Args:
+        all_metrics: Results from ``BenchmarkRunner.run()``.
+        k_values: K cut-offs to plot. Defaults to all available.
+        output_dir: Destination for PDF and PNG output files.
+
+    Returns:
+        List of written file paths (PDF and PNG).
+    """
     plt, _ = _setup_matplotlib()
     output_dir.mkdir(parents=True, exist_ok=True)
     k_values = k_values or sorted({k for m in all_metrics for k in m.recall})
@@ -114,7 +150,15 @@ def generate_latency_chart(
     all_metrics: list[ModelMetrics],
     output_dir: Path = Path("outputs/figures"),
 ) -> list[Path]:
-    """Grouped bar chart of p50 / p95 / p99 latency per model."""
+    """Grouped bar chart of p50 / p95 / p99 latency per model.
+
+    Args:
+        all_metrics: Results from ``BenchmarkRunner.run()``.
+        output_dir: Destination for PDF and PNG output files.
+
+    Returns:
+        List of written file paths (PDF and PNG).
+    """
     plt, _ = _setup_matplotlib()
     import numpy as np
 
@@ -154,7 +198,15 @@ def generate_map_bar_chart(
     all_metrics: list[ModelMetrics],
     output_dir: Path = Path("outputs/figures"),
 ) -> list[Path]:
-    """Horizontal bar chart of mAP scores, sorted best-to-worst."""
+    """Horizontal bar chart of mAP scores, sorted best to worst.
+
+    Args:
+        all_metrics: Results from ``BenchmarkRunner.run()``.
+        output_dir: Destination for PDF and PNG output files.
+
+    Returns:
+        List of written file paths (PDF and PNG).
+    """
     plt, _ = _setup_matplotlib()
 
     output_dir.mkdir(parents=True, exist_ok=True)
@@ -190,6 +242,13 @@ def generate_all_charts(
     output_dir: Path = Path("outputs/figures"),
 ) -> list[Path]:
     """Generate precision, recall, latency, and mAP charts.
+
+    Convenience wrapper that runs all four chart generators in sequence.
+
+    Args:
+        all_metrics: Results from ``BenchmarkRunner.run()``.
+        k_values: K cut-offs to include in precision/recall charts.
+        output_dir: Destination directory.
 
     Returns:
         Flat list of all written file paths.

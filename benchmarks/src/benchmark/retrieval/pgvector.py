@@ -4,6 +4,16 @@ Runs cosine nearest-neighbour queries against a PostgreSQL table that has a
 ``pgvector`` column. Used for end-to-end integration tests against the actual
 ReSys.Shop database, not for the offline benchmark (use cosine.py for that).
 
+Edge cases:
+- Requires PostgreSQL 16+ with pgvector extension enabled at the database level.
+- Raises ImportError with install instructions when psycopg or pgvector is
+  not installed.
+- All public methods raise RuntimeError if connect() has not been called.
+- batch upsert validates that input arrays have matching lengths and that
+  embeddings is a 2D array; empty product_ids is a no-op.
+- build_index drops an existing index before recreating; passes back elapsed
+  time in seconds.
+
 Prerequisites
 -------------
 - PostgreSQL 16 with pgvector extension enabled
@@ -36,7 +46,12 @@ logger = get_logger("retrieval.pgvector")
 
 
 class PgvectorRetriever:
-    """Cosine nearest-neighbour retrieval via pgvector."""
+    """Cosine nearest-neighbour retrieval via pgvector.
+
+    Supports single and batch upsert, IVFFlat index building, and context
+    manager protocol. All public database operations raise RuntimeError if
+    connect() has not been called.
+    """
 
     def __init__(
         self,

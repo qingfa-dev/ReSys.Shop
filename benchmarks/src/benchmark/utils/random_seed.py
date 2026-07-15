@@ -1,4 +1,13 @@
-"""Reproducibility helpers — set all relevant RNG seeds in one call."""
+"""Reproducibility helpers — set all relevant RNG seeds in one call.
+
+Seeds Python's ``random``, NumPy, and PyTorch (if available) with a single
+integer. Ensures deterministic results across runs.
+
+Edge cases:
+- PyTorch seeding is optional — silently skipped if torch is not installed.
+- CUDA-specific seeding (``manual_seed_all``) is applied only when CUDA is
+  available.
+"""
 
 from __future__ import annotations
 

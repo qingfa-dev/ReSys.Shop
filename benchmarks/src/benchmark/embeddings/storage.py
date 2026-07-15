@@ -3,6 +3,10 @@
 Differs from ``cache.py`` (which is a transient speed-up cache keyed by model
 slug) in that ``storage.py`` is for durable, human-inspectable outputs written
 to ``outputs/embeddings/`` as part of the published benchmark record.
+
+Edge cases:
+- ``load_embeddings`` raises FileNotFoundError if no file exists for the slug.
+- ``list_stored`` returns an empty list when no output directory exists.
 """
 from __future__ import annotations
 

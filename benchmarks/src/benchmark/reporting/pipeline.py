@@ -1,4 +1,12 @@
-"""Pipeline-specific reporting for production benchmark results."""
+"""Pipeline-specific reporting for production benchmark results.
+
+Generates Typst tables and JSON dumps for the production pipeline mode
+that exercises the pgvector database backend.
+
+Edge cases:
+- Missing pipeline metrics default to ``---`` in Typst tables.
+- Empty results lists produce empty tables.
+"""
 from __future__ import annotations
 
 import json

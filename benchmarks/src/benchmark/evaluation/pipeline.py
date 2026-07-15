@@ -1,4 +1,4 @@
-"""PipelineRunner — full production pipeline: embedding → pgvector → query → evaluate."""
+"""PipelineRunner — full production pipeline: embedding -> pgvector -> query -> evaluate."""
 from __future__ import annotations
 
 import time
@@ -75,10 +75,12 @@ class PipelineRunner:
         keys = model_keys or THESIS_MODEL_KEYS
         logger.info("Starting pipeline benchmark: %d models, %d folds", len(keys), self.folds)
 
+        # Enforce: styles.csv must exist
         styles_csv = self.dataset_root / "styles.csv"
         if not styles_csv.exists():
             raise FileNotFoundError(f"styles.csv not found: {styles_csv}")
 
+        # Parse: Load metadata CSV and build stratified k-fold splits
         df = pd.read_csv(styles_csv)
         gt = GroundTruth(df, min_category_freq=10)
         splits = gt.generate_splits(
@@ -87,6 +89,7 @@ class PipelineRunner:
             output_dir=self.output_dir / "splits",
         )
 
+        # Batch: Evaluate each model independently
         results: list[dict[str, Any]] = []
         for key in keys:
             if key not in self._registry:
@@ -100,23 +103,26 @@ class PipelineRunner:
 
     def _evaluate_model(self, model, splits: list[tuple[Path, Path]]) -> dict[str, Any]:
         """Evaluate one model across all folds with production pipeline."""
-        logger.info("Evaluating %s …", model.name)
+        logger.info("Evaluating %s ...", model.name)
 
         fold_results: list[dict[str, Any]] = []
         prod_metrics_per_fold: list[dict[str, Any]] = []
 
+        # Profile: Time model weight loading
         t0 = time.perf_counter()
         model.load()
         load_time_ms = (time.perf_counter() - t0) * 1000.0
 
+        # Batch: Evaluate each fold independently
         for fold_idx, (train_path, test_path) in enumerate(splits):
-            logger.info("  Fold %d …", fold_idx)
+            logger.info("  Fold %d ...", fold_idx)
             fold_result, prod_metrics = self._evaluate_fold(
                 model, train_path, test_path, fold_idx, load_time_ms
             )
             fold_results.append(fold_result)
             prod_metrics_per_fold.append(prod_metrics)
 
+        # Aggregate: Compute mean +/- SD across folds for retrieval metrics
         aggregate: dict[str, dict[str, float]] = {}
         metric_keys = [
             "map",
@@ -137,6 +143,7 @@ class PipelineRunner:
             if vals:
                 aggregate[mk] = aggregate_mean_std(vals)
 
+        # Aggregate: Compute mean +/- SD across folds for production metrics
         prod_aggregate: dict[str, dict[str, float]] = {}
         prod_keys = [
             "index_build_time_s",
@@ -163,6 +170,7 @@ class PipelineRunner:
         self, model, train_path: Path, test_path: Path, fold_idx: int, load_time_ms: float
     ) -> tuple[dict[str, Any], dict[str, Any]]:
         """Evaluate one fold: exact cosine + pgvector pipeline."""
+        # Create: Datasets from fold split files
         query_ds = FashionDataset(
             dataset_root=self.dataset_root, split_file=test_path, split="test"
         )
@@ -172,6 +180,7 @@ class PipelineRunner:
         )
         gallery_ds.load()
 
+        # Transform: Generate embeddings for query and gallery
         query_gen = EmbeddingGenerator(
             model=model,
             dataset=query_ds,
@@ -187,6 +196,7 @@ class PipelineRunner:
         query_result = query_gen.generate(dataset_name=f"fold_{fold_idx}_test")
         gallery_result = gallery_gen.generate(dataset_name=f"fold_{fold_idx}_train")
 
+        # Compute: Split-aware retrieval metrics (exact cosine)
         evaluator = Evaluator(
             dataset=query_ds, k_values=self.k_values, measure_efficiency=False
         )
@@ -196,10 +206,12 @@ class PipelineRunner:
             dataset_name=f"fold_{fold_idx}",
         )
 
+        # Call: pgvector pipeline — ingest, index, query, measure recall
         prod_metrics = self._run_pgvector_pipeline(
             model, gallery_result, query_result, gallery_ds
         )
 
+        # Profile: Manual efficiency metrics
         from PIL import Image
 
         sample_images = []
@@ -214,8 +226,8 @@ class PipelineRunner:
             model, sample_images[:64], batch_size=64, num_batches=10
         )
 
+        # Profile: Peak RAM during batch inference
         import gc
-
         import psutil
 
         process = psutil.Process()
@@ -225,6 +237,7 @@ class PipelineRunner:
         peak = process.memory_info().rss
         ram_mb = (peak - baseline) / (1024 * 1024)
 
+        # Compute: Storage footprint
         total_storage_mb = query_result.embeddings.nbytes / (1024 * 1024)
 
         fold_result = {
@@ -248,10 +261,19 @@ class PipelineRunner:
     def _run_pgvector_pipeline(
         self, model, gallery_result, query_result, gallery_ds
     ) -> dict[str, Any]:
-        """Ingest into pgvector, build index, query, measure recall + latency."""
+        """Ingest into pgvector, build index, query, measure recall + latency.
+
+        Args:
+            model: Embedding model (used for dimension).
+            gallery_result: EmbeddingResult for the gallery/train set.
+            query_result: EmbeddingResult for the query/test set.
+            gallery_ds: Gallery FashionDataset (for product IDs and labels).
+
+        Returns:
+            Dict of production metrics (index time, query latency, recall@K).
+        """
+        # Explain: Map embedding dimension to pgvector table name
         dim = model.embedding_dim
-        table = f"products_{dim}" if dim != 768 else "product_embeddings_768"
-        # For 768-dim, use the init.sql table
         if dim == 512:
             table = "products_512"
         elif dim == 768:
@@ -264,6 +286,7 @@ class PipelineRunner:
             table = f"products_{dim}"
 
         try:
+            # Call: Open pgvector connection with context manager for auto-close
             with PgvectorRetriever(
                 conn_string=self.conn_string,
                 table=table,
@@ -271,17 +294,20 @@ class PipelineRunner:
                 id_col="id",
                 label_col="label",
             ) as retriever:
-
+                # Purge: Clear existing data from the table
                 retriever.clear_table()
 
+                # Call: Batch ingest gallery embeddings into pgvector
                 gallery_ids = [s.product_id for s in gallery_ds.samples]
                 gallery_labels = [getattr(s, "label", "unknown") for s in gallery_ds.samples]
                 t0 = time.perf_counter()
                 retriever.upsert_batch(gallery_ids, gallery_labels, gallery_result.embeddings)
                 ingestion_time = time.perf_counter() - t0
 
+                # Build: IVFFlat index for approximate search
                 index_time = retriever.build_index(dim=model.embedding_dim, lists=self.pg_lists)
 
+                # Query: Run pgvector approximate search for each query embedding
                 pgvector_results = []
                 query_latencies = []
                 for emb in query_result.embeddings:
@@ -290,6 +316,7 @@ class PipelineRunner:
                     query_latencies.append((time.perf_counter() - t0) * 1000.0)
                     pgvector_results.append([r["id"] for r in results])
 
+                # Compute: Exact cosine retrieval for recall comparison
                 exact_indices = retrieve_batch(
                     query_result.embeddings,
                     gallery_result.embeddings,
@@ -297,6 +324,7 @@ class PipelineRunner:
                     exclude_self=False,
                 )
 
+                # Transform: Map pgvector string IDs back to gallery index positions
                 id_to_idx = {str(pid): i for i, pid in enumerate(gallery_ids)}
                 pgvector_mapped = np.full_like(exact_indices, -1)
                 for i, pgv_ids in enumerate(pgvector_results):
@@ -304,6 +332,7 @@ class PipelineRunner:
                         if j < pgvector_mapped.shape[1] and str(pgv_id) in id_to_idx:
                             pgvector_mapped[i, j] = id_to_idx[str(pgv_id)]
 
+                # Compute: Approximate recall@K comparing pgvector vs exact cosine
                 recall = approximate_recall_at_k(pgvector_mapped, exact_indices, self.k_values)
 
                 return {
@@ -315,6 +344,7 @@ class PipelineRunner:
                     "ingestion_time_s": round(ingestion_time, 2),
                 }
         except Exception as exc:
+            # Degrade: pgvector unavailable — return zero metrics and log warning
             logger.warning("PGVector not available: %s", exc)
             return {
                 "index_build_time_s": 0.0,

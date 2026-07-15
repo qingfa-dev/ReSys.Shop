@@ -1,4 +1,12 @@
-"""Cosine similarity retrieval over in-memory numpy embedding matrices."""
+"""Cosine similarity retrieval over in-memory numpy embedding matrices.
+
+Provides exact nearest-neighbour search via dot-product on L2-normalised
+vectors. Used as the ground-truth retrieval baseline for all benchmarks.
+
+Edge cases:
+- k <= 0 returns an empty array.
+- Fewer gallery items than K returns all available items.
+- Self-mask falls back to argmax when self_idx is not provided."""
 
 from __future__ import annotations
 
@@ -50,7 +58,8 @@ def top_k_indices(
     if k <= 0:
         return np.array([], dtype=np.int64)
 
-    # argpartition then sort is O(N + k log k) vs argsort's O(N log N)
+    # Explain: argpartition + partial sort is O(N + k log k); full argsort would be O(N log N).
+    #          For large galleries this avoids sorting the entire similarity vector.
     top_idx = np.argpartition(sims, -k)[-k:]
     return top_idx[np.argsort(sims[top_idx])[::-1]]
 

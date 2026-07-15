@@ -67,6 +67,7 @@ class BenchmarkRunner:
         self._save_embeddings = save_embeddings
         self.dataset_name = dataset_name
         self.device = device
+        # Call: Initialise model registry for the target device
         self._registry = get_registry(device=device)
         self._evaluator = Evaluator(
             dataset=dataset,
@@ -94,9 +95,11 @@ class BenchmarkRunner:
             len(keys), self.k_values, self.mode,
         )
 
+        # Batch: Iterate through models sequentially (each generates embeddings independently)
         results: list[ModelMetrics] = []
         for key in keys:
             model: EmbeddingModel = self._registry[key]
+            # Profile: Time each model's end-to-end evaluation
             with timed(label=key) as t:
                 if self.gallery_dataset is not None:
                     metrics = self._run_split(model)
@@ -112,6 +115,7 @@ class BenchmarkRunner:
 
     def _run_self(self, model: EmbeddingModel) -> ModelMetrics:
         """Self-retrieval: query and gallery from the same embedding set."""
+        # Transform: Generate embeddings for the full dataset
         generator = EmbeddingGenerator(
             model=model,
             dataset=self.dataset,
@@ -120,6 +124,7 @@ class BenchmarkRunner:
         )
         result = generator.generate(dataset_name=self.dataset_name)
 
+        # Cache: Persist embeddings to outputs/embeddings/ for reproducibility
         if self._save_embeddings:
             ids = [s.product_id for s in result.samples]
             save_embeddings(result.embeddings, ids, model_slug=model.slug)
@@ -134,6 +139,7 @@ class BenchmarkRunner:
         """Split-aware: query from test, gallery from separate train set."""
         assert self.gallery_dataset is not None
 
+        # Transform: Generate embeddings for query and gallery datasets
         query_gen = EmbeddingGenerator(
             model=model,
             dataset=self.dataset,
@@ -154,6 +160,7 @@ class BenchmarkRunner:
             dataset_name=f"{self.dataset_name}__gallery"
         )
 
+        # Cache: Persist both query and gallery embeddings
         if self._save_embeddings:
             save_embeddings(
                 query_result.embeddings,

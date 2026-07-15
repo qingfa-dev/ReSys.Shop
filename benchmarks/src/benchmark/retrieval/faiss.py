@@ -3,6 +3,13 @@
 Use this when the gallery is large (>100 k items) and cosine.py becomes slow.
 FAISS IVFFlat gives sub-linear search time with minimal accuracy loss.
 
+Edge cases:
+- Falls back to exact FlatIP when the gallery is too small for IVFFlat.
+- Requires float32 input; raises a runtime error if build() is not called
+  before querying.
+- ImportError is raised with a clear install instruction when faiss is
+  not available.
+
 Install: ``pip install faiss-cpu``  (or ``faiss-gpu`` for CUDA)
 """
 from __future__ import annotations
@@ -47,7 +54,7 @@ class FaissRetriever:
         assert gallery_embeddings.dtype == np.float32, "FAISS requires float32"
         n = len(gallery_embeddings)
 
-        # For small galleries fall back to exact flat search
+        # Fallback: IVFFlat requires at least 39 * n_lists vectors; otherwise use FlatIP
         if n < self.n_lists * 39:
             logger.warning(
                 "Gallery too small for IVFFlat (n=%d, lists=%d) — using FlatIP",

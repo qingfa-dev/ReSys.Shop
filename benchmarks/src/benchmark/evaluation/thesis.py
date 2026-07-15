@@ -1,4 +1,4 @@
-"""ThesisRunner — orchestrates the 4-model × 3-fold evaluation protocol."""
+"""ThesisRunner — orchestrates the 4-model x 3-fold evaluation protocol."""
 from __future__ import annotations
 
 import json
@@ -61,6 +61,7 @@ class ThesisRunner:
         self.device = device
         self.use_cache = use_cache
         self.batch_size = batch_size
+        # Call: Initialise model registry for the target device
         self._registry = get_registry(device=device)
 
     def run(
@@ -78,12 +79,13 @@ class ThesisRunner:
         keys = model_keys or THESIS_MODEL_KEYS
         logger.info("Starting thesis benchmark: %d models, %d folds", len(keys), self.folds)
 
-        # 1. Load metadata and build splits
+        # Enforce: styles.csv must exist before proceeding
         styles_csv = self.dataset_root / "styles.csv"
         if not styles_csv.exists():
             logger.error("styles.csv not found at %s", styles_csv)
             raise FileNotFoundError(f"styles.csv not found: {styles_csv}")
 
+        # Parse: Load metadata CSV and build stratified k-fold splits
         df = pd.read_csv(styles_csv, on_bad_lines="warn")
         gt = GroundTruth(df, min_category_freq=10)
         splits = gt.generate_splits(
@@ -92,6 +94,7 @@ class ThesisRunner:
             output_dir=self.output_dir / "splits",
         )
 
+        # Batch: Evaluate each model independently across all folds
         results: list[dict[str, Any]] = []
         for key in keys:
             if key not in self._registry:
@@ -109,23 +112,24 @@ class ThesisRunner:
         splits: list[tuple[Path, Path]],
     ) -> dict[str, Any]:
         """Evaluate one model across all folds."""
-        logger.info("Evaluating %s …", model.name)
+        logger.info("Evaluating %s ...", model.name)
 
         fold_results: list[dict[str, Any]] = []
         fold_map_scores: list[float] = []
 
-        # Load model once, time it
+        # Profile: Time model weight loading (one-time cost across folds)
         t0 = time.perf_counter()
         model.load()
         load_time_ms = (time.perf_counter() - t0) * 1000.0
 
+        # Batch: Evaluate each fold independently
         for fold_idx, (train_path, test_path) in enumerate(splits):
-            logger.info("  Fold %d …", fold_idx)
+            logger.info("  Fold %d ...", fold_idx)
             fold_result = self._evaluate_fold(model, train_path, test_path, fold_idx, load_time_ms)
             fold_results.append(fold_result)
             fold_map_scores.append(fold_result["map"])
 
-        # Aggregate
+        # Aggregate: Compute mean +/- SD across folds for each metric
         aggregate: dict[str, dict[str, float]] = {}
         metric_keys = ["map", "precision@5", "precision@10", "precision@20",
                        "recall@5", "recall@10", "recall@20",
@@ -136,7 +140,7 @@ class ThesisRunner:
             if vals:
                 aggregate[mk] = aggregate_mean_std(vals)
 
-        # Bootstrap CI for mAP
+        # Compute: Bootstrap 95% CI for mAP when enough folds exist
         if len(fold_map_scores) >= 3:
             ci_lower, ci_upper = bootstrap_ci(fold_map_scores, seed=self.seed)
             aggregate["map"]["ci_95"] = [ci_lower, ci_upper]
@@ -157,6 +161,7 @@ class ThesisRunner:
         load_time_ms: float,
     ) -> dict[str, Any]:
         """Evaluate one model on one fold."""
+        # Create: Datasets from fold split files
         query_ds = FashionDataset(
             dataset_root=self.dataset_root,
             split_file=test_path,
@@ -170,7 +175,7 @@ class ThesisRunner:
         )
         gallery_ds.load()
 
-        # Generate embeddings
+        # Transform: Generate embeddings for query and gallery sets
         query_gen = EmbeddingGenerator(
             model=model, dataset=query_ds,
             batch_size=self.batch_size, use_cache=self.use_cache,
@@ -182,11 +187,11 @@ class ThesisRunner:
         query_result = query_gen.generate(dataset_name=f"fold_{fold_idx}_test")
         gallery_result = gallery_gen.generate(dataset_name=f"fold_{fold_idx}_train")
 
-        # Evaluate
+        # Compute: Split-aware retrieval metrics
         evaluator = Evaluator(
             dataset=query_ds,
             k_values=self.k_values,
-            measure_efficiency=False,  # we measure manually below
+            measure_efficiency=False,
         )
         metrics = evaluator.evaluate_split(
             query_result=query_result,
@@ -194,15 +199,15 @@ class ThesisRunner:
             dataset_name=f"fold_{fold_idx}",
         )
 
-        # Efficiency metrics
+        # Profile: Manual efficiency metrics (latency, throughput, RAM, storage)
         sample_images = self._load_sample_images(query_ds.samples, max_n=200)
         latency_stats = measure_latency(model, sample_images, warmup_runs=10, benchmark_runs=100)
         throughput = measure_throughput(model, sample_images[:64], batch_size=64, num_batches=10)
 
-        # RAM (peak during batch inference)
+        # Profile: Measure peak RAM during batch inference
         ram_mb = self._measure_peak_ram(model, sample_images[:64])
 
-        # Storage
+        # Compute: Embedding storage footprint for 1K images
         total_storage_mb = query_result.embeddings.nbytes / (1024 * 1024)
 
         return {
@@ -223,7 +228,16 @@ class ThesisRunner:
         }
 
     def _load_sample_images(self, samples, max_n: int = 200) -> list[Image.Image]:
-        """Load up to max_n sample images for latency measurement."""
+        """Load up to max_n sample images for latency measurement.
+
+        Args:
+            samples: List of samples with image_path attributes.
+            max_n: Maximum number of images to load.
+
+        Returns:
+            List of RGB PIL Images (corrupted files are skipped).
+        """
+        # Filter: Load valid images — skip files with I/O errors
         images: list[Image.Image] = []
         for s in samples[:max_n]:
             try:
@@ -233,13 +247,21 @@ class ThesisRunner:
         return images
 
     def _measure_peak_ram(self, model, sample_images: list[Image.Image]) -> float:
-        """Measure peak RSS during a batch inference."""
+        """Measure peak RSS during a batch inference.
+
+        Args:
+            model: Loaded embedding model.
+            sample_images: Pool of images for batch forward pass.
+
+        Returns:
+            Peak RSS delta in MB.
+        """
         process = psutil.Process()
-        # Force garbage collection to get clean baseline
+        # Explain: GC before measurement to get clean baseline RSS
         import gc
         gc.collect()
         baseline = process.memory_info().rss
-        # Run batch inference
+        # Profile: Run batch inference and measure peak RSS
         model.embed_batch(sample_images)
         peak = process.memory_info().rss
         return (peak - baseline) / (1024 * 1024)

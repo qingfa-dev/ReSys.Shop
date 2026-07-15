@@ -1,6 +1,6 @@
 """Typst table generator — auto-embeds benchmark results into the thesis.
 
-Output files land in ``outputs/tables/`` and can be included directly:
+Output files land in ``outputs/tables/`` and can be included directly::
 
     // In thesis/chapters/results.typ
     #include "../../benchmarks/outputs/tables/precision.typ"
@@ -11,6 +11,11 @@ Output files land in ``outputs/tables/`` and can be included directly:
 
 Every table is wrapped in a Typst ``#figure`` with a caption so it gets
 auto-numbered and appears in the list of tables.
+
+Edge cases:
+- Missing metric values render as ``---`` in table cells.
+- Empty results lists produce empty tables.
+- Auto-generated comment at the top of each file warns against manual edits.
 """
 from __future__ import annotations
 
@@ -31,6 +36,15 @@ _AUTO_GEN_COMMENT = (
 
 
 def _fmt(val: float | None, decimals: int = 4) -> str:
+    """Format a float for Typst table display.
+
+    Args:
+        val: Numeric value or None.
+        decimals: Number of decimal places.
+
+    Returns:
+        Formatted string or ``"---"`` if val is None.
+    """
     if val is None:
         return "---"
     return f"{val:.{decimals}f}"
@@ -42,7 +56,17 @@ def _table_block(
     col_headers: list[str],
     data_rows: list[list[str]],
 ) -> str:
-    """Build a complete Typst #figure + #table block."""
+    """Build a complete Typst ``#figure`` + ``#table`` block.
+
+    Args:
+        caption: Figure caption text.
+        label: Typst label for cross-referencing (e.g. ``"tab:precision"``).
+        col_headers: Column header strings (rendered in bold).
+        data_rows: List of rows, each a list of cell strings.
+
+    Returns:
+        A string containing the complete Typst markup for the figure.
+    """
     n_cols = len(col_headers)
     align_spec = "(left,) + (center,) * " + str(n_cols - 1)
     header_cells = ", ".join(f"[*{h}*]" for h in col_headers)
@@ -72,7 +96,16 @@ def write_precision_table(
     k_values: list[int] | None = None,
     output_dir: Path = Path("outputs/tables"),
 ) -> Path:
-    """Write ``precision.typ`` with Precision@K and mAP columns."""
+    """Write ``precision.typ`` with Precision@K and mAP columns.
+
+    Args:
+        all_metrics: Results from ``BenchmarkRunner.run()``.
+        k_values: K cut-offs. Defaults to all available.
+        output_dir: Destination directory.
+
+    Returns:
+        Path to the written ``.typ`` file.
+    """
     output_dir.mkdir(parents=True, exist_ok=True)
     k_values = k_values or sorted({k for m in all_metrics for k in m.precision})
     ranked = rank_models(all_metrics, by="map")
@@ -103,7 +136,16 @@ def write_recall_table(
     k_values: list[int] | None = None,
     output_dir: Path = Path("outputs/tables"),
 ) -> Path:
-    """Write ``recall.typ`` with Recall@K columns."""
+    """Write ``recall.typ`` with Recall@K columns.
+
+    Args:
+        all_metrics: Results from ``BenchmarkRunner.run()``.
+        k_values: K cut-offs. Defaults to all available.
+        output_dir: Destination directory.
+
+    Returns:
+        Path to the written ``.typ`` file.
+    """
     output_dir.mkdir(parents=True, exist_ok=True)
     k_values = k_values or sorted({k for m in all_metrics for k in m.recall})
     ranked = rank_models(all_metrics, by="map")
@@ -133,7 +175,16 @@ def write_ndcg_table(
     k_values: list[int] | None = None,
     output_dir: Path = Path("outputs/tables"),
 ) -> Path:
-    """Write ``ndcg.typ`` with nDCG@K columns."""
+    """Write ``ndcg.typ`` with nDCG@K columns.
+
+    Args:
+        all_metrics: Results from ``BenchmarkRunner.run()``.
+        k_values: K cut-offs. Defaults to all available.
+        output_dir: Destination directory.
+
+    Returns:
+        Path to the written ``.typ`` file.
+    """
     output_dir.mkdir(parents=True, exist_ok=True)
     k_values = k_values or sorted({k for m in all_metrics for k in m.ndcg})
     ranked = rank_models(all_metrics, by="map")
@@ -162,7 +213,15 @@ def write_latency_table(
     all_metrics: list[ModelMetrics],
     output_dir: Path = Path("outputs/tables"),
 ) -> Path:
-    """Write ``latency.typ`` with p50/p95/p99 and throughput columns."""
+    """Write ``latency.typ`` with p50/p95/p99 and throughput columns.
+
+    Args:
+        all_metrics: Results from ``BenchmarkRunner.run()``.
+        output_dir: Destination directory.
+
+    Returns:
+        Path to the written ``.typ`` file.
+    """
     output_dir.mkdir(parents=True, exist_ok=True)
     ranked = rank_models(all_metrics, by="latency")
 
@@ -194,7 +253,15 @@ def write_map_summary_table(
     all_metrics: list[ModelMetrics],
     output_dir: Path = Path("outputs/tables"),
 ) -> Path:
-    """Write ``map_summary.typ`` — a compact ranked mAP overview table."""
+    """Write ``map_summary.typ`` — a compact ranked mAP overview table.
+
+    Args:
+        all_metrics: Results from ``BenchmarkRunner.run()``.
+        output_dir: Destination directory.
+
+    Returns:
+        Path to the written ``.typ`` file.
+    """
     output_dir.mkdir(parents=True, exist_ok=True)
     ranked = rank_models(all_metrics, by="map")
 

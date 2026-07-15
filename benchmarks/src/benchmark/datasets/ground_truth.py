@@ -1,7 +1,14 @@
 """Ground-truth builder and stratified split generator.
 
-Parses styles.csv, builds relevance sets, and generates k-fold stratified
-splits for the thesis benchmark protocol.
+Parses styles.csv, builds relevance sets based on category + colour keys,
+and generates k-fold stratified splits for the thesis benchmark protocol.
+
+Edge cases:
+- Missing or NaN subCategory / baseColour fall back to coarser grouping.
+- Categories with fewer than ``min_category_freq`` samples are grouped into
+  ``"Other"`` to avoid tiny strata.
+- Self-relevance (a product being relevant to itself) is excluded from
+  each relevance set.
 """
 from __future__ import annotations
 
@@ -29,14 +36,15 @@ def build_relevance_sets(df: pd.DataFrame) -> dict[str, set[str]]:
     same *colour* to be considered similar — not just the same category.
 
     Args:
-        df: DataFrame with at least 'id', 'masterCategory', 'subCategory',
-            'baseColour'.
+        df: DataFrame with at least ``'id'``, ``'masterCategory'``,
+            ``'subCategory'``, ``'baseColour'`` columns.
 
     Returns:
         Dict mapping product_id -> set of relevant product_ids (excluding
         self).
     """
     df = df.copy()
+    # Assign a hierarchical relevance key with fallbacks for missing fields
     df["_relevance_key"] = df.apply(
         lambda row: (
             f"{row['masterCategory']}/{row['subCategory']}/{row['baseColour']}"
@@ -61,12 +69,24 @@ def build_relevance_sets(df: pd.DataFrame) -> dict[str, set[str]]:
 
 @dataclass
 class GroundTruth:
-    """Handles metadata loading, relevance building, and stratified splits."""
+    """Handles metadata loading, relevance building, and stratified splits.
+
+    Attributes:
+        df: Product metadata DataFrame with ``id`` and ``masterCategory``
+            columns.
+        min_category_freq: Minimum samples per category. Rare categories are
+            grouped into ``"Other"``.
+    """
 
     df: pd.DataFrame
     min_category_freq: int = 10
 
     def __post_init__(self) -> None:
+        """Validate input and group rare categories into ``"Other"``.
+
+        Raises:
+            ValueError: If the ``id`` column is missing from the DataFrame.
+        """
         if "id" not in self.df.columns:
             raise ValueError("styles.csv must contain an 'id' column")
         # Group rare categories into "Other"
@@ -84,6 +104,9 @@ class GroundTruth:
         output_dir: Path = Path("outputs/thesis/splits"),
     ) -> list[tuple[Path, Path]]:
         """Generate stratified k-fold splits and save as JSON.
+
+        Shuffles indices within each category stratum to preserve class
+        distribution across folds, then writes train/test JSON files.
 
         Args:
             n_splits: Number of folds.

@@ -1,4 +1,13 @@
-"""Structured logging configuration for the benchmark."""
+"""Structured logging configuration for the benchmark.
+
+Configures root logger with Rich console output (stderr) and optional
+file sink for persistent records. All loggers in the project are children
+of the ``benchmark`` namespace.
+
+Edge cases:
+- Log level defaults to INFO if the string is not a recognised level name.
+- File handler creates parent directories if they do not exist.
+"""
 
 from __future__ import annotations
 
@@ -12,7 +21,15 @@ _console = Console(stderr=True)
 
 
 def setup_logging(level: str = "INFO", log_file: Path | None = None) -> logging.Logger:
-    """Configure root logger with Rich console + optional file sink."""
+    """Configure root logger with Rich console and optional file sink.
+
+    Args:
+        level: Log level string (``"DEBUG"``, ``"INFO"``, ``"WARNING"``, etc.).
+        log_file: Optional path to a log file. Parent directories are created.
+
+    Returns:
+        The root ``benchmark`` logger instance.
+    """
     handlers: list[logging.Handler] = [
         RichHandler(console=_console, rich_tracebacks=True, markup=True, show_path=False)
     ]
@@ -39,5 +56,12 @@ def setup_logging(level: str = "INFO", log_file: Path | None = None) -> logging.
 
 
 def get_logger(name: str) -> logging.Logger:
-    """Return a child logger under the benchmark namespace."""
+    """Return a child logger under the ``benchmark`` namespace.
+
+    Args:
+        name: Dot-separated sub-namespace, e.g. ``"evaluation.thesis"``.
+
+    Returns:
+        Logger instance for ``benchmark.{name}``.
+    """
     return logging.getLogger(f"benchmark.{name}")

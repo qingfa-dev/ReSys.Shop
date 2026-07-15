@@ -10,6 +10,11 @@ Public API used by ``generator.py``
 - ``save(model_slug, dataset_name, ids, embeddings)``  → Path
 - ``load(model_slug, dataset_name)``  → (ids: list[str], embeddings: ndarray)
 - ``CACHE_DIR``  exposed for the CLI ``cache`` command
+
+Edge cases:
+- ``load()`` raises FileNotFoundError when no cache entry exists.
+- ``exists()`` returns False for non-existent cache entries; no exception.
+- Legacy wrapper functions maintain backward compatibility for existing code.
 """
 from __future__ import annotations
 

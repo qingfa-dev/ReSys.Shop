@@ -7,6 +7,11 @@ Workflow
 
 The generator is the only place in the pipeline that touches raw images,
 keeping the evaluator and reporters free of I/O concerns.
+
+Edge cases:
+- Corrupt or missing images are logged and skipped within each batch.
+- An all-skipped batch produces no embedding rows (empty batch skipped).
+- Cache alignment warns when cached IDs do not fully match dataset samples.
 """
 from __future__ import annotations
 
@@ -26,17 +31,35 @@ logger = get_logger("embeddings.generator")
 
 @dataclass
 class EmbeddingResult:
-    """Output of ``EmbeddingGenerator.generate``."""
+    """Output of ``EmbeddingGenerator.generate``.
+
+    Attributes:
+        model_name: Human-readable model name.
+        model_slug: Filesystem-safe model identifier.
+        dataset_name: Logical name of the source dataset.
+        embeddings: Float32 array of shape ``(N, D)``, L2-normalised.
+        samples: Sample list aligned 1-to-1 with embedding rows.
+    """
 
     model_name: str
     model_slug: str
     dataset_name: str
-    embeddings: np.ndarray          # shape (N, D), float32, L2-normalised
-    samples: list[Sample]           # aligned 1-to-1 with embeddings rows
+    embeddings: np.ndarray
+    samples: list[Sample]
 
 
 class EmbeddingGenerator:
-    """Generates (or loads from cache) embeddings for a FashionDataset."""
+    """Generates (or loads from cache) embeddings for a FashionDataset.
+
+    Batches image loading and model inference, with optional disk cache
+    keyed by model slug + dataset name.
+
+    Args:
+        model: The embedding model adapter to use.
+        dataset: The dataset to generate embeddings for.
+        batch_size: Number of images per inference batch (default 64).
+        use_cache: Whether to read/write the disk cache.
+    """
 
     def __init__(
         self,
@@ -113,11 +136,11 @@ class EmbeddingGenerator:
             if not images:
                 continue
 
-            batch_emb = self.model.embed_batch(images)  # (B, D)
+            batch_emb = self.model.embed_batch(images)
             all_samples.extend(valid_samples)
             all_embeddings.append(batch_emb)
 
-        embeddings = np.concatenate(all_embeddings, axis=0)  # (N, D)
+        embeddings = np.concatenate(all_embeddings, axis=0)
 
         if self.use_cache:
             ids = [s.product_id for s in all_samples]

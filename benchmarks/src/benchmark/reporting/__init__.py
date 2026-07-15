@@ -1,4 +1,9 @@
-"""Report generation: JSON, CSV, Markdown, Typst tables, and charts."""
+"""Report generation: JSON, CSV, Markdown, Typst tables, and charts.
+
+Exports the primary report-writing functions for benchmark results.
+Each sub-module handles a specific output format. All write functions
+accept an ``output_dir`` parameter defaulting to ``outputs/`` subfolders.
+"""
 
 from benchmark.reporting.charts import generate_all_charts
 from benchmark.reporting.csv import write_csv

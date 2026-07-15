@@ -1,4 +1,8 @@
-"""Evaluation pipeline: evaluator, benchmark runner, comparison utilities."""
+"""Evaluation pipeline: evaluator, benchmark runner, and cross-model comparison.
+
+Exports the primary evaluation interfaces: ``Evaluator`` for per-query scoring,
+``BenchmarkRunner`` for one-shot model comparison, ``rank_models`` and
+``comparison_table`` for leaderboard construction."""
 
 from benchmark.evaluation.benchmark import BenchmarkRunner
 from benchmark.evaluation.comparison import comparison_table, rank_models

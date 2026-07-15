@@ -1,4 +1,12 @@
-"""Markdown report writer — human-readable summary with tables."""
+"""Markdown report writer — human-readable summary with tables.
+
+Generates a Markdown document with precision, recall, nDCG, and latency
+tables for quick inspection or inclusion in GitHub issues / PRs.
+
+Edge cases:
+- Missing metric values render as an em-dash (``—``).
+- Empty results produce a report with "N/A" as best model.
+"""
 from __future__ import annotations
 
 from datetime import datetime, timezone
@@ -12,6 +20,15 @@ logger = get_logger("reporting.markdown")
 
 
 def _fmt(val: float | None, decimals: int = 4) -> str:
+    """Format a float for Markdown display.
+
+    Args:
+        val: Numeric value or None.
+        decimals: Number of decimal places.
+
+    Returns:
+        Formatted string or em-dash if val is None.
+    """
     if val is None:
         return "—"
     return f"{val:.{decimals}f}"

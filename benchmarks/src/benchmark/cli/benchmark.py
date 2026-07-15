@@ -4,8 +4,15 @@ Commands
 --------
 run         Run embedding + retrieval + metric evaluation for one or more models.
 thesis      Run the thesis benchmark (4 models × 3-fold CV).
+pipeline    Run the production pipeline benchmark (thesis + pgvector).
 report      Generate JSON / CSV / Markdown / Typst reports from stored results.
 cache       Inspect or clear the embedding cache.
+
+Edge cases:
+- Unknown model keys print error with available keys and exit with code 1.
+- Missing image paths are logged as warnings but do not abort the run.
+- Cache directory operations handle non-existent directories gracefully.
+- Results directory not found during ``report`` exits with code 1.
 """
 from __future__ import annotations
 
@@ -62,6 +69,11 @@ def run(
     log_level: Annotated[str, typer.Option("--log-level", show_default=True)] = "INFO",
 ) -> None:
     """Run the full benchmark pipeline.
+
+    Loads the dataset, generates embeddings (or loads from cache), runs
+    exact cosine retrieval, and computes Precision@K, Recall@K, nDCG,
+    mAP, latency, and throughput. Produces JSON, CSV, Markdown, Typst
+    tables, and matplotlib charts.
 
     Example::
 
@@ -203,7 +215,11 @@ def thesis(
         help="Random seed.", show_default=True)] = 42,
     log_level: Annotated[str, typer.Option("--log-level", show_default=True)] = "INFO",
 ) -> None:
-    """Run the thesis benchmark (4 models × 3-fold CV).
+    """Run the thesis benchmark (k-fold cross-validation).
+
+    Runs stratified cross-validation with the given number of folds,
+    computing aggregate metrics (mean ± SD) and generating Typst tables
+    suitable for inclusion in the thesis document.
 
     Example::
 
@@ -306,6 +322,10 @@ def pipeline(
 ) -> None:
     """Run the production pipeline benchmark (thesis + pgvector).
 
+    Extends the thesis protocol by also ingesting embeddings into a
+    pgvector database, building an IVFFlat index, and measuring query
+    latency and recall from the database backend.
+
     Example::
 
         uv run benchmark pipeline \\
@@ -391,7 +411,9 @@ def report(
 ) -> None:
     """Re-generate reports from stored JSON metric files.
 
-    Useful when you want to change table formatting without re-running inference.
+    Loads per-model JSON files from the metrics directory and regenerates
+    CSV, JSON comparison, Markdown, Typst tables, and/or charts. Useful
+    when you want to change table formatting without re-running inference.
 
     Example::
 
@@ -459,6 +481,9 @@ def cache(
         help="Cache directory.")] = Path("data/cache"),
 ) -> None:
     """Inspect or clear the embedding cache.
+
+    Lists cached npz files with sizes, shows aggregate stats, or
+    clears all cache entries from the cache directory.
 
     Examples::
 

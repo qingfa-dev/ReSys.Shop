@@ -1,5 +1,4 @@
 """Core evaluator — runs the full retrieval + metrics pipeline for one model."""
-
 from __future__ import annotations
 
 from dataclasses import dataclass, field
@@ -43,6 +42,7 @@ class ModelMetrics:
     throughput_per_sec: float = 0.0
 
     def to_dict(self) -> dict:
+        # Transform: Serialise metrics to flat dict for JSON output
         return {
             "model": self.model_name,
             "dataset": self.dataset,
@@ -78,6 +78,7 @@ class Evaluator:
         self.latency_warmup = latency_warmup
         self.latency_runs = latency_runs
 
+    # Contract: pre=result.embeddings != None, post=returns ModelMetrics with all fields
     def evaluate(
         self,
         result: EmbeddingResult,
@@ -94,10 +95,11 @@ class Evaluator:
         Returns:
             ``ModelMetrics`` with all scores populated.
         """
-        logger.info("Evaluating %s on %s …", result.model_name, dataset_name)
+        logger.info("Evaluating %s on %s ...", result.model_name, dataset_name)
 
         embeddings = result.embeddings
         samples = result.samples
+        # Transform: Build relevance sets — each query has a set of same-label items (excl self)
         labels = [s.label for s in samples]
         label_set_per_query = [
             {labels[j] for j in range(len(labels)) if labels[j] == labels[i] and j != i}
@@ -108,6 +110,7 @@ class Evaluator:
             for i in range(len(labels))
         ]
 
+        # Compute: Retrieve top-K via exact cosine similarity (self-retrieval)
         max_k = max(self.k_values)
         retrieved_indices = retrieve_batch(embeddings, embeddings, k=max_k, exclude_self=True)
         retrieved_labels = [[labels[idx] for idx in row] for row in retrieved_indices]
@@ -118,6 +121,7 @@ class Evaluator:
             k_values=self.k_values,
         )
 
+        # Compute: Precision@K, Recall@K, nDCG@K for each K value
         for k in self.k_values:
             metrics.precision[k] = mean_precision_at_k(retrieved_labels, label_set_per_query, k)
             metrics.recall[k] = mean_recall_at_k(retrieved_labels, label_set_per_query, k,
@@ -125,14 +129,17 @@ class Evaluator:
             metrics.ndcg[k] = mean_ndcg_at_k(retrieved_labels, label_set_per_query, k,
                                               all_counts=label_counts_per_query)
 
+        # Compute: mAP across all queries capped at max_k
         metrics.map_score = mean_average_precision(
             retrieved_labels, label_set_per_query,
             all_counts=label_counts_per_query, k_cap=max_k,
         )
 
+        # Profile: Measure latency and throughput when model is provided
         if self.measure_efficiency and model is not None:
             from PIL import Image
 
+            # Filter: Load sample images for latency measurement (skip corrupted files)
             sample_images = []
             for s in samples[:200]:
                 try:
@@ -159,6 +166,7 @@ class Evaluator:
         )
         return metrics
 
+    # Contract: pre=query_result.samples disjoint from gallery_result.samples
     def evaluate_split(
         self,
         query_result: EmbeddingResult,
@@ -181,22 +189,25 @@ class Evaluator:
         Returns:
             ``ModelMetrics`` with all scores in [0, 1].
         """
-        logger.info("Evaluating %s (split-aware) …", query_result.model_name)
+        logger.info("Evaluating %s (split-aware) ...", query_result.model_name)
 
         q_embeddings = query_result.embeddings
         g_embeddings = gallery_result.embeddings
         q_samples = query_result.samples
         g_samples = gallery_result.samples
 
+        # Transform: Build relevance from gallery labels for each query
         g_labels = [s.label for s in g_samples]
         q_labels = [s.label for s in q_samples]
 
+        # Explain: Each query has exactly one relevant label in split-aware mode
         relevance = [{lbl} for lbl in q_labels]
         relevant_counts = [
             sum(1 for gl in g_labels if gl == ql)
             for ql in q_labels
         ]
 
+        # Compute: Retrieve top-K from gallery using query embeddings
         max_k = max(self.k_values)
         retrieved_indices = retrieve_batch(
             q_embeddings, g_embeddings, k=max_k, exclude_self=False
@@ -212,6 +223,7 @@ class Evaluator:
             k_values=self.k_values,
         )
 
+        # Compute: Precision@K, Recall@K, nDCG@K for each K value
         for k in self.k_values:
             metrics.precision[k] = mean_precision_at_k(retrieved_labels, relevance, k)
             metrics.recall[k] = mean_recall_at_k(retrieved_labels, relevance, k,
@@ -219,11 +231,13 @@ class Evaluator:
             metrics.ndcg[k] = mean_ndcg_at_k(retrieved_labels, relevance, k,
                                               all_counts=relevant_counts)
 
+        # Compute: mAP across all queries capped at max_k
         metrics.map_score = mean_average_precision(
             retrieved_labels, relevance,
             all_counts=relevant_counts, k_cap=max_k,
         )
 
+        # Profile: Measure latency and throughput when model is provided
         if self.measure_efficiency and model is not None:
             from PIL import Image as PILImage
             imgs: list[PILImage.Image] = []

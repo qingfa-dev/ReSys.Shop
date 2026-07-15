@@ -1,4 +1,14 @@
-"""CSV report writer — one row per model, all metrics as flat columns."""
+"""CSV report writer — one row per model, all metrics as flat columns.
+
+Generates a flat CSV table with columns for model name, mAP, Precision@K,
+Recall@K, nDCG@K, latency percentiles, and throughput. Sorted by mAP.
+
+Edge cases:
+- Empty results list writes a warning log and returns the output path
+  without writing any data.
+- Missing metric values (e.g. unavailable latency percentiles) are omitted
+  from the output rather than filled with a sentinel.
+"""
 from __future__ import annotations
 
 import csv
