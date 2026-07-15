@@ -1,3 +1,4 @@
+using Microsoft.EntityFrameworkCore;
 using Module.Catalog.Domain.Taxonomies.Taxons;
 
 namespace Module.Catalog.Persistence.Seeders;
@@ -15,14 +16,30 @@ public sealed class CatalogTaxonSeeder(IApplicationDbContext context, DemoJsonHe
         if (json is null)
             return Result.Ok();
 
+        var usedSlugs = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        var existingSlugs = await Context.Set<Taxon>()
+            .Select(t => t.Slug)
+            .ToListAsync(cancellationToken);
+        foreach (var s in existingSlugs)
+            usedSlugs.Add(s);
+
         foreach (var item in json)
         {
+            var slug = item.Slug;
+            var original = slug;
+            int suffix = 2;
+            while (!usedSlugs.Add(slug))
+            {
+                slug = $"{original}-{suffix}";
+                suffix++;
+            }
+
             Guid? parentId = string.IsNullOrEmpty(item.ParentId) ? null : Guid.Parse(item.ParentId);
             var result = TaxonMethod.Create(
                 taxonomyId: Guid.Parse(item.TaxonomyId), parentId: parentId,
                 name: item.Name, presentation: item.Presentation ?? item.Name,
                 description: null, position: item.Position,
-                slug: item.Slug, metaTitle: null, metaDescription: null, metaKeywords: null,
+                slug: slug, metaTitle: null, metaDescription: null, metaKeywords: null,
                 automatic: false, rulesMatchPolicy: null, sortOrder: null, hideFromNav: false,
                 imageUrl: null, squareImageUrl: null);
 
