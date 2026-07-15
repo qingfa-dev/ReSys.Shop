@@ -8,7 +8,7 @@ namespace Module.Catalog.Features.Storefront.Products.SearchByImage;
 
 public static partial class SearchByImage
 {
-    public sealed record Command(IFormFile Image) : ICommand<Response>;
+    public sealed record Command(Request Request) : ICommand<Response>;
 
     public sealed class QueryHandler(
         IApplicationDbContext dbContext,
@@ -27,10 +27,10 @@ public static partial class SearchByImage
         // Contract: pre=command!=null, post=result!=null
         public async Task<Result<Response>> Handle(Command command, CancellationToken cancellationToken)
         {
-            var image = command.Image;
+            var image = command.Request.Image;
 
             if (image is null || image.Length == 0)
-                return new Response { Items = [] };
+                return new Response();
 
             const long MaxFileSize = 10_485_760; // 10 MB
             if (image.Length > MaxFileSize)
@@ -67,21 +67,24 @@ public static partial class SearchByImage
                 .AsNoTracking()
                 .ToListAsync(cancellationToken);
 
-            var items = similarVariants.Select(v =>
-            {
-                var primaryImage = v.VariantImages.FirstOrDefault();
-                return new SearchResultItem
-                {
-                    VariantId = v.Id,
-                    ProductId = v.ProductId,
-                    ProductName = v.Product?.Name ?? string.Empty,
-                    Sku = v.Sku ?? string.Empty,
-                    Price = v.Price ?? 0,
-                    ImageUrl = primaryImage?.Url
-                };
-            }).ToList();
+            var items = similarVariants.Select(MapToItem).ToList();
 
+            // No domain entity to map from — Response wraps List<SearchResultItem> directly
             return new Response { Items = items };
         }
+    }
+
+    private static SearchResultItem MapToItem(Variant v)
+    {
+        var primaryImage = v.VariantImages.FirstOrDefault();
+        return new SearchResultItem
+        {
+            VariantId = v.Id,
+            ProductId = v.ProductId,
+            ProductName = v.Product?.Name ?? string.Empty,
+            Sku = v.Sku ?? string.Empty,
+            Price = v.Price ?? 0,
+            ImageUrl = primaryImage?.Url
+        };
     }
 }
