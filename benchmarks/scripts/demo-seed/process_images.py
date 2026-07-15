@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import sys
 from pathlib import Path
 
 from PIL import Image
@@ -31,7 +32,7 @@ def main() -> None:
 
     images_json = args.json_dir / "demo_variant_images.json"
     if not images_json.exists():
-        print(f"ERROR: {images_json} not found; run extract_products.py first"); return
+        print(f"ERROR: {images_json} not found; run extract_products.py first"); sys.exit(1)
 
     image_records = json.loads(images_json.read_text())
     # Deduplicate by storage path

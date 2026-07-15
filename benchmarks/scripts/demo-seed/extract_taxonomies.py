@@ -5,6 +5,7 @@ from __future__ import annotations
 import argparse
 import csv
 import json
+import sys
 from pathlib import Path
 from uuid import uuid5, NAMESPACE_DNS
 
@@ -75,11 +76,6 @@ def build_taxons_json(
     })
 
     root_brand_id = guid("taxon", "brands_root")
-    taxons.append({
-        "id": root_brand_id, "taxonomy_id": TAXONOMY_BRANDS_ID,
-        "parent_id": None, "name": "Brands", "presentation": "All Brands",
-        "slug": "brands", "depth": 0, "lft": 1, "position": 0,
-    })
     brand_lft = 2
     for brand in sorted(brands):
         b_id = guid("taxon", f"brand.{brand}")
@@ -91,14 +87,13 @@ def build_taxons_json(
             "depth": 1, "lft": brand_lft, "rgt": brand_lft + 1, "position": 0,
         })
         brand_lft += 2
-    taxons.append({"_update_parent": root_brand_id, "rgt": brand_lft})
+    taxons.append({
+        "id": root_brand_id, "taxonomy_id": TAXONOMY_BRANDS_ID,
+        "parent_id": None, "name": "Brands", "presentation": "All Brands",
+        "slug": "brands", "depth": 0, "lft": 1, "rgt": brand_lft, "position": 0,
+    })
 
     root_at_id = guid("taxon", "article_types_root")
-    taxons.append({
-        "id": root_at_id, "taxonomy_id": TAXONOMY_ARTICLE_TYPES_ID,
-        "parent_id": None, "name": "Article Types", "presentation": "All Article Types",
-        "slug": "article-types", "depth": 0, "lft": 1, "position": 0,
-    })
     at_lft = 2
     for atype in sorted(article_types):
         at_id = guid("taxon", f"article_type.{atype}")
@@ -110,7 +105,11 @@ def build_taxons_json(
             "depth": 1, "lft": at_lft, "rgt": at_lft + 1, "position": 0,
         })
         at_lft += 2
-    taxons.append({"_update_parent": root_at_id, "rgt": at_lft})
+    taxons.append({
+        "id": root_at_id, "taxonomy_id": TAXONOMY_ARTICLE_TYPES_ID,
+        "parent_id": None, "name": "Article Types", "presentation": "All Article Types",
+        "slug": "article-types", "depth": 0, "lft": 1, "rgt": at_lft, "position": 0,
+    })
 
     return taxons
 
@@ -144,7 +143,7 @@ def main() -> None:
 
     styles_csv = args.dataset / "styles.csv"
     if not styles_csv.exists():
-        print(f"ERROR: {styles_csv} not found"); return
+        print(f"ERROR: {styles_csv} not found"); sys.exit(1)
 
     master_categories: set[str] = set()
     sub_categories: dict[str, set[str]] = {}

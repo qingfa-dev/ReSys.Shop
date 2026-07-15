@@ -5,7 +5,7 @@ from __future__ import annotations
 import argparse
 import csv
 import json
-import random
+import sys
 from collections import defaultdict
 from pathlib import Path
 from uuid import uuid5, NAMESPACE_DNS
@@ -71,7 +71,7 @@ def main() -> None:
 
     styles_csv = args.dataset / "styles.csv"
     if not styles_csv.exists():
-        print(f"ERROR: {styles_csv} not found"); return
+        print(f"ERROR: {styles_csv} not found"); sys.exit(1)
 
     groups: dict[str, list[dict]] = defaultdict(list)
     with open(styles_csv, encoding="utf-8") as f:

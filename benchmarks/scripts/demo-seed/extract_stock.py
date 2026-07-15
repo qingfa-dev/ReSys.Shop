@@ -5,6 +5,7 @@ from __future__ import annotations
 import argparse
 import json
 import random
+import sys
 from pathlib import Path
 from uuid import uuid5, NAMESPACE_DNS
 
@@ -23,7 +24,7 @@ def main() -> None:
 
     variants_json = args.json_dir / "demo_variants.json"
     if not variants_json.exists():
-        print(f"ERROR: {variants_json} not found"); return
+        print(f"ERROR: {variants_json} not found"); sys.exit(1)
 
     random.seed(args.seed)
     variants = json.loads(variants_json.read_text())

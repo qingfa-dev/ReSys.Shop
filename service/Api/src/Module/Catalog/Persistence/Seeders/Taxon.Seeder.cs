@@ -26,9 +26,6 @@ public sealed class CatalogTaxonSeeder(IApplicationDbContext context) : Abstract
 
     private async Task SeedFromJsonAsync(DemoTaxonJson[] items, CancellationToken ct)
     {
-        var taxonMap = new Dictionary<string, Taxon>();
-        var pendingRgt = new Dictionary<string, int>();
-
         foreach (var item in items)
         {
             Guid? parentId = string.IsNullOrEmpty(item.ParentId) ? null : Guid.Parse(item.ParentId);
@@ -48,7 +45,6 @@ public sealed class CatalogTaxonSeeder(IApplicationDbContext context) : Abstract
             taxon.CreatedAtUtc = DateTimeOffset.UtcNow;
             taxon.CreatedBy = "System";
 
-            taxonMap[item.Id] = taxon;
             Context.Set<Taxon>().Add(taxon);
         }
 

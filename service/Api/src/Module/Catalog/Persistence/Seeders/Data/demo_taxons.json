@@ -668,21 +668,7 @@
     "slug": "brands",
     "depth": 0,
     "lft": 1,
-    "position": 0
-  },
-  {
-    "_update_parent": "2276d09b-79bd-59cf-8635-fbf72cbd2e73",
-    "rgt": 2
-  },
-  {
-    "id": "392d3641-d782-5ade-beb3-8bc9171ad546",
-    "taxonomy_id": "1b75ae38-2ae4-5839-bab1-1c77de26d616",
-    "parent_id": null,
-    "name": "Article Types",
-    "presentation": "All Article Types",
-    "slug": "article-types",
-    "depth": 0,
-    "lft": 1,
+    "rgt": 2,
     "position": 0
   },
   {
@@ -2402,7 +2388,15 @@
     "position": 0
   },
   {
-    "_update_parent": "392d3641-d782-5ade-beb3-8bc9171ad546",
-    "rgt": 288
+    "id": "392d3641-d782-5ade-beb3-8bc9171ad546",
+    "taxonomy_id": "1b75ae38-2ae4-5839-bab1-1c77de26d616",
+    "parent_id": null,
+    "name": "Article Types",
+    "presentation": "All Article Types",
+    "slug": "article-types",
+    "depth": 0,
+    "lft": 1,
+    "rgt": 288,
+    "position": 0
   }
 ]
