@@ -3,6 +3,8 @@
 # Exit 0 if all pass, 1 if any violation found.
 set -euo pipefail
 
+command -v rg &>/dev/null || { echo "FATAL: ripgrep (rg) not found. Install it first."; exit 1; }
+
 MODULE_DIR="service/Api/src/Module"
 FAIL=0
 GREEN='\033[0;32m'
@@ -48,9 +50,6 @@ fi
 
 # AC-005: No Command with IFormFile directly
 echo "--- AC-005: IFormFile must be wrapped in Request, not Command ---"
-violations=$(rg -n 'sealed record Command\(' -g '*.cs' "$MODULE_DIR" \
-  | xargs -I{} sh -c 'echo "{}" | rg -q "IFormFile" && echo "{}" || true' || true)
-# Simpler: find sealed record Command lines that also have IFormFile in the same file
 IFORM_FILE_VIOLATIONS=0
 while IFS= read -r line; do
   file=$(echo "$line" | cut -d: -f1)
