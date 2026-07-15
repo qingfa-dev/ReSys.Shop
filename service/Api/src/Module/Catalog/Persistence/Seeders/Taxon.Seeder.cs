@@ -11,183 +11,81 @@ public sealed class CatalogTaxonSeeder(IApplicationDbContext context) : Abstract
     {
         var hasTaxons = await HasDataAsync<Taxon>(cancellationToken);
         if (hasTaxons)
+            return Result.Ok();
+
+        var json = DemoJsonHelper.LoadIfExists<DemoTaxonJson>("demo_taxons.json");
+        if (json is not null)
         {
+            await SeedFromJsonAsync(json, cancellationToken);
             return Result.Ok();
         }
 
-        var categoriesTaxonomy = await Context.Set<Taxonomy>()
-            .FirstOrDefaultAsync(t => t.Name == "Categories", cancellationToken);
-
-        var brandsTaxonomy = await Context.Set<Taxonomy>()
-            .FirstOrDefaultAsync(t => t.Name == "Brands", cancellationToken);
-
-        if (categoriesTaxonomy is null || brandsTaxonomy is null)
-        {
-            return Result.Ok();
-        }
-
-        var rootCategories = CreateRootTaxon(
-            taxonomyId: categoriesTaxonomy.Id,
-            parentId: null,
-            name: "Categories",
-            presentation: "All Categories",
-            slug: "categories",
-            lft: 1, rgt: 8, depth: 0);
-
-        var men = CreateChildTaxon(
-            taxonomyId: categoriesTaxonomy.Id,
-            parentId: rootCategories.Id,
-            name: "Men",
-            presentation: "Men",
-            slug: "men",
-            lft: 2, rgt: 3, depth: 1);
-
-        var women = CreateChildTaxon(
-            taxonomyId: categoriesTaxonomy.Id,
-            parentId: rootCategories.Id,
-            name: "Women",
-            presentation: "Women",
-            slug: "women",
-            lft: 4, rgt: 5, depth: 1);
-
-        var accessories = CreateChildTaxon(
-            taxonomyId: categoriesTaxonomy.Id,
-            parentId: rootCategories.Id,
-            name: "Accessories",
-            presentation: "Accessories",
-            slug: "accessories",
-            lft: 6, rgt: 7, depth: 1);
-
-        var rootBrands = CreateRootTaxon(
-            taxonomyId: brandsTaxonomy.Id,
-            parentId: null,
-            name: "Brands",
-            presentation: "All Brands",
-            slug: "brands",
-            lft: 1, rgt: 12, depth: 0);
-
-        var nike = CreateChildTaxon(
-            taxonomyId: brandsTaxonomy.Id,
-            parentId: rootBrands.Id,
-            name: "Nike",
-            presentation: "Nike",
-            slug: "nike",
-            lft: 2, rgt: 3, depth: 1);
-
-        var adidas = CreateChildTaxon(
-            taxonomyId: brandsTaxonomy.Id,
-            parentId: rootBrands.Id,
-            name: "Adidas",
-            presentation: "Adidas",
-            slug: "adidas",
-            lft: 4, rgt: 5, depth: 1);
-
-        var zara = CreateChildTaxon(
-            taxonomyId: brandsTaxonomy.Id,
-            parentId: rootBrands.Id,
-            name: "Zara",
-            presentation: "Zara",
-            slug: "zara",
-            lft: 6, rgt: 7, depth: 1);
-
-        var hm = CreateChildTaxon(
-            taxonomyId: brandsTaxonomy.Id,
-            parentId: rootBrands.Id,
-            name: "H&M",
-            presentation: "H&M",
-            slug: "h-m",
-            lft: 8, rgt: 9, depth: 1);
-
-        var uniqlo = CreateChildTaxon(
-            taxonomyId: brandsTaxonomy.Id,
-            parentId: rootBrands.Id,
-            name: "Uniqlo",
-            presentation: "Uniqlo",
-            slug: "uniqlo",
-            lft: 10, rgt: 11, depth: 1);
-
-        Context.Set<Taxon>().AddRange(
-            rootCategories, men, women, accessories,
-            rootBrands, nike, adidas, zara, hm, uniqlo);
-
-        await Context.SaveChangesAsync(cancellationToken);
-
+        await SeedHardcodedAsync(cancellationToken);
         return Result.Ok();
     }
 
-    private static Taxon CreateRootTaxon(
-        Guid taxonomyId,
-        Guid? parentId,
-        string name,
-        string presentation,
-        string slug,
-        int lft,
-        int rgt,
-        int depth)
+    private async Task SeedFromJsonAsync(DemoTaxonJson[] items, CancellationToken ct)
     {
-        var result = TaxonMethod.Create(
-            taxonomyId: taxonomyId,
-            parentId: parentId,
-            name: name,
-            presentation: presentation,
-            description: null,
-            position: 0,
-            slug: slug,
-            metaTitle: null,
-            metaDescription: null,
-            metaKeywords: null,
-            automatic: false,
-            rulesMatchPolicy: null,
-            sortOrder: null,
-            hideFromNav: false,
-            imageUrl: null,
-            squareImageUrl: null);
+        var taxonMap = new Dictionary<string, Taxon>();
+        var pendingRgt = new Dictionary<string, int>();
 
+        foreach (var item in items)
+        {
+            Guid? parentId = string.IsNullOrEmpty(item.ParentId) ? null : Guid.Parse(item.ParentId);
+            var result = TaxonMethod.Create(
+                taxonomyId: Guid.Parse(item.TaxonomyId), parentId: parentId,
+                name: item.Name, presentation: item.Presentation ?? item.Name,
+                description: null, position: item.Position,
+                slug: item.Slug, metaTitle: null, metaDescription: null, metaKeywords: null,
+                automatic: false, rulesMatchPolicy: null, sortOrder: null, hideFromNav: false,
+                imageUrl: null, squareImageUrl: null);
+
+            var taxon = result.Value;
+            taxon.Id = Guid.Parse(item.Id);
+            taxon.Lft = item.Lft;
+            taxon.Rgt = item.Rgt;
+            taxon.Depth = item.Depth;
+            taxon.CreatedAtUtc = DateTimeOffset.UtcNow;
+            taxon.CreatedBy = "System";
+
+            taxonMap[item.Id] = taxon;
+            Context.Set<Taxon>().Add(taxon);
+        }
+
+        await Context.SaveChangesAsync(ct);
+    }
+
+    private async Task SeedHardcodedAsync(CancellationToken ct)
+    {
+        var categoriesTaxonomy = await Context.Set<Taxonomy>().FirstOrDefaultAsync(t => t.Name == "Categories", ct);
+        var brandsTaxonomy = await Context.Set<Taxonomy>().FirstOrDefaultAsync(t => t.Name == "Brands", ct);
+        if (categoriesTaxonomy is null || brandsTaxonomy is null) return;
+
+        var rootCategories = CreateTaxon(categoriesTaxonomy.Id, null, "Categories", "All Categories", "categories", 1, 8, 0);
+        var men = CreateTaxon(categoriesTaxonomy.Id, rootCategories.Id, "Men", "Men", "men", 2, 3, 1);
+        var women = CreateTaxon(categoriesTaxonomy.Id, rootCategories.Id, "Women", "Women", "women", 4, 5, 1);
+        var accessories = CreateTaxon(categoriesTaxonomy.Id, rootCategories.Id, "Accessories", "Accessories", "accessories", 6, 7, 1);
+
+        var rootBrands = CreateTaxon(brandsTaxonomy.Id, null, "Brands", "All Brands", "brands", 1, 12, 0);
+        var nike = CreateTaxon(brandsTaxonomy.Id, rootBrands.Id, "Nike", "Nike", "nike", 2, 3, 1);
+        var adidas = CreateTaxon(brandsTaxonomy.Id, rootBrands.Id, "Adidas", "Adidas", "adidas", 4, 5, 1);
+        var zara = CreateTaxon(brandsTaxonomy.Id, rootBrands.Id, "Zara", "Zara", "zara", 6, 7, 1);
+        var hm = CreateTaxon(brandsTaxonomy.Id, rootBrands.Id, "H&M", "H&M", "h-m", 8, 9, 1);
+        var uniqlo = CreateTaxon(brandsTaxonomy.Id, rootBrands.Id, "Uniqlo", "Uniqlo", "uniqlo", 10, 11, 1);
+
+        Context.Set<Taxon>().AddRange(rootCategories, men, women, accessories, rootBrands, nike, adidas, zara, hm, uniqlo);
+        await Context.SaveChangesAsync(ct);
+    }
+
+    private static Taxon CreateTaxon(Guid taxonomyId, Guid? parentId, string name, string presentation, string slug, int lft, int rgt, int depth)
+    {
+        var result = TaxonMethod.Create(taxonomyId, parentId, name, presentation, null, 0, slug, null, null, null, false, null, null, false, null, null);
         var taxon = result.Value;
-        taxon.Lft = lft;
-        taxon.Rgt = rgt;
-        taxon.Depth = depth;
-        taxon.CreatedAtUtc = DateTimeOffset.UtcNow;
-        taxon.CreatedBy = "System";
-
+        taxon.Lft = lft; taxon.Rgt = rgt; taxon.Depth = depth;
+        taxon.CreatedAtUtc = DateTimeOffset.UtcNow; taxon.CreatedBy = "System";
         return taxon;
     }
 
-    private static Taxon CreateChildTaxon(
-        Guid taxonomyId,
-        Guid? parentId,
-        string name,
-        string presentation,
-        string slug,
-        int lft,
-        int rgt,
-        int depth)
-    {
-        var result = TaxonMethod.Create(
-            taxonomyId: taxonomyId,
-            parentId: parentId,
-            name: name,
-            presentation: presentation,
-            description: null,
-            position: 0,
-            slug: slug,
-            metaTitle: null,
-            metaDescription: null,
-            metaKeywords: null,
-            automatic: false,
-            rulesMatchPolicy: null,
-            sortOrder: null,
-            hideFromNav: false,
-            imageUrl: null,
-            squareImageUrl: null);
-
-        var taxon = result.Value;
-        taxon.Lft = lft;
-        taxon.Rgt = rgt;
-        taxon.Depth = depth;
-        taxon.CreatedAtUtc = DateTimeOffset.UtcNow;
-        taxon.CreatedBy = "System";
-
-        return taxon;
-    }
+    private record DemoTaxonJson(string Id, string TaxonomyId, string? ParentId, string Name, string? Presentation,
+        string Slug, int Depth, int Lft, int Rgt, int Position);
 }
