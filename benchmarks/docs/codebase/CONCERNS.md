@@ -9,11 +9,11 @@
 | High | pgvector IVFFlat dimension limit prevents ResNet-50 indexing | `src/benchmark/retrieval/pgvector.py:L170` — `build_index()` called with 2048-d vectors; pgvector caps at 2000 | ResNet-50 production metrics unavailable (0.0 for all pgvector fields). Pipeline gracefully degrades. | Use HNSW index for >2000-dim models, or document as known limitation |
 | Medium | No cache invalidation mechanism | `src/benchmark/embeddings/cache.py` — cache key is `model_slug + dataset_name`, no content hash | If dataset content changes but name stays same, stale embeddings silently used | Add dataset checksum to cache key or document `--no-cache` as required after data changes |
 | Medium | Models never unloaded from memory | `src/benchmark/models/base.py` — no `unload()` method; runners process models sequentially | Memory pressure on large runs; potential GPU OOM on smaller cards | Add explicit `unload()` to EmbeddingModel or `torch.cuda.empty_cache()` between models |
-| Medium | RAM measurement unreliable | `PipelineRunner._measure_peak_ram()` uses `psutil` RSS delta; reports 0.0 or negative on some systems | RAM column in thesis tables unreliable. Cannot verify H3 weight claims without trustworthy RAM data. | Measure RAM externally (e.g., `nvidia-smi` for GPU, `/proc/pid/status` for CPU) or remove from claims |
-| Low | No production-grade observability | No APM, Prometheus, health checks | Hard to monitor pipeline health in production | Add structured metrics export if benchmark is deployed as service |
-| Low | `samples` property masks empty vs. not-loaded | `src/benchmark/datasets/loader.py:L99-101` — raises RuntimeError on empty list | Cannot distinguish genuinely empty dataset from unloaded state | Guard with `hasattr(self, '_loaded')` boolean flag |
-| Low | O(N²) relevance set in self-retrieval | `src/benchmark/evaluation/evaluator.py:L101-103` — double-loop over all samples | Acceptable at 5K scale; degrades at 44K+ | Pre-build `{label: set(indices)}` dict for O(N) construction |
-| Low | Stale `MODELS` dict in registry.py | `src/benchmark/models/registry.py:L29-35` — 5 models vs 11 in `__init__.py` | Confusion if old code references legacy registry | Remove or sync; document `get_registry()` as preferred API |
+| Medium | RAM measurement unreliable | `ThesisRunner._measure_peak_ram()` — resolved by subtracting `.shared` from `.rss` for process-private memory | RAM column now reports private memory (excludes shared libs). Still noisier than `/proc/self/status` but directionally correct on all systems. | Measure RAM externally for thesis claims if precision matters |
+| Low | No production-grade observability | No APM, Prometheus, health checks | Hard to monitor pipeline health in production | WON'T FIX — not a production service |
+| Low | ~~`samples` property masks empty vs. not-loaded~~ ✅ | `src/benchmark/datasets/loader.py:L99-101` — fixed: use `hasattr(self, "_loaded")` flag | FIXED | — |
+| Low | ~~O(N²) relevance set in self-retrieval~~ ✅ | `src/benchmark/evaluation/evaluator.py:L100-109` — fixed: `defaultdict(set)` pre-build in O(N) | FIXED | — |
+| Low | ~~Stale `MODELS` dict in registry.py~~ ✅ | `src/benchmark/models/registry.py` — deleted (orphan file, zero imports) | FIXED | — |
 
 ### 2) Technical Debt
 
@@ -67,14 +67,15 @@ All previous questions resolved in the 2026-07-16 documentation review. See `COD
 ### 8) Evidence
 
 - `src/benchmark/retrieval/pgvector.py:L206` — IVFFlat dimension limit issue
-- `src/benchmark/evaluation/pipeline.py:L235-245` — RAM measurement
-- `src/benchmark/embeddings/cache.py:L27` — cache key formula
-- `src/benchmark/evaluation/pipeline.py:L80` — sequential model loop
-- `src/benchmark/retrieval/cosine.py:L68-70` — per-query retrieval loop
+- `src/benchmark/evaluation/thesis.py:L372-390` — RAM measurement (rss - shared)
+- `src/benchmark/evaluation/pipeline.py:L228-238` — pipeline RAM measurement
+- `src/benchmark/embeddings/cache.py:L33` — cache key formula (no checksum)
+- `src/benchmark/evaluation/pipeline.py:L80` — sequential model loop (no unload)
+- `src/benchmark/retrieval/cosine.py:L67-69` — per-query retrieval loop
+- `src/benchmark/evaluation/evaluator.py:L100-109` — relevance set O(N) using defaultdict
 - `src/benchmark/evaluation/pipeline.py:L248-333` — graceful pgvector degradation
-- `src/benchmark/datasets/ground_truth.py` — category+colour ground truth, `_build_sample_meta` pattern support
-- `src/benchmark/datasets/loader.py:L99-101` — `samples` property empty-vs-unloaded conflate
-- `src/benchmark/evaluation/evaluator.py:L101-103` — O(N²) relevance set construction
-- `src/benchmark/models/registry.py:L29-35` — stale 5-model registry
+- `src/benchmark/datasets/ground_truth.py` — category+colour ground truth, `_build_sample_meta`
+- `src/benchmark/datasets/loader.py:L92-101` — `_loaded` flag for empty-vs-unloaded
+- `src/benchmark/evaluation/evaluator.py:L100-109` — relevance set O(N) via defaultdict
 - `src/benchmark/evaluation/thesis.py:L114-297` — duplicated primary/secondary eval methods
 - `docs/codebase/CODE_REVIEW.md` — full code review: 3 bugs, 4 perf risks, 6 nits

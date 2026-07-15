@@ -383,8 +383,8 @@ class ThesisRunner:
         # Explain: GC before measurement to get clean baseline RSS
         import gc
         gc.collect()
-        baseline = process.memory_info().rss
+        baseline = process.memory_info().rss - process.memory_info().shared
         # Profile: Run batch inference and measure peak RSS
         model.embed_batch(sample_images)
-        peak = process.memory_info().rss
+        peak = process.memory_info().rss - process.memory_info().shared
         return (peak - baseline) / CONST.BYTES_TO_MB

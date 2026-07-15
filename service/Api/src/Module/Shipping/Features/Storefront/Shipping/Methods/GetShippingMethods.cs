@@ -24,6 +24,7 @@ public static partial class GetShippingMethods
                 .ToListAsync(cancellationToken);
 
             // Map: Return list of available shipping methods.
+            // EXCEPTION: no domain entity — maps from domain ShippingMethod entities to DTOs
             return new Response(methods.Select(m => new ShippingMethodDto(m.Id, m.Name, m.AdminName, m.Code, m.CalculatorType, m.Position)).ToList());
         }
     }

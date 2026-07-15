@@ -63,6 +63,7 @@ public static partial class CalculateShipping
             var (cost, isFree) = calcResult.Value;
 
             // Map: Return shipping cost response with method details.
+            // EXCEPTION: no domain entity — calculation result composed from ShippingMethod and Order
             return new Response(method.Id, method.Name, cost, order?.Currency ?? SystemCurrencyConstant.Defaults.Code, isFree);
         }
     }

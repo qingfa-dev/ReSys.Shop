@@ -88,6 +88,7 @@ class FashionDataset:
             for item in raw
         ]
         logger.info("Loaded %d samples", len(self._samples))
+        self._loaded = True
 
     @property
     def samples(self) -> list[Sample]:
@@ -96,7 +97,7 @@ class FashionDataset:
         Raises:
             RuntimeError: If ``load()`` has not been called yet.
         """
-        if not self._samples:
+        if not hasattr(self, "_loaded"):
             raise RuntimeError("Call load() before accessing samples")
         return self._samples
 

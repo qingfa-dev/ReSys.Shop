@@ -27,7 +27,13 @@ public static partial class GetNotificationPreferences
             if (profile is null)
                 return UserProfileResult.Failure.NotFound;
 
-            return new Response(profile.Notifications.EnableSms, profile.Notifications.EnableEmail, profile.Notifications.EnableNewsfeeds);
+            // EXCEPTION: no domain entity — maps from domain NotificationPreferences values
+            return new Response
+            {
+                EnableSms = profile.Notifications.EnableSms,
+                EnableEmail = profile.Notifications.EnableEmail,
+                EnableNewsfeeds = profile.Notifications.EnableNewsfeeds
+            };
         }
     }
 }
