@@ -2,6 +2,7 @@ namespace Module.Inventory.Features.Storefront.StockAvailability.Check;
 
 public static partial class GetStockAvailability
 {
+    // EXCEPTION: availability aggregate response — composite of stock item + reservation data
     public sealed record Response
     {
         public Guid VariantId { get; init; }

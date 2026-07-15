@@ -8,7 +8,7 @@ namespace Module.Inventory.Features.Storefront.StockAvailability.Check;
 /// <summary>Checks stock availability for a variant across locations, accounting for active reservations and cart-specific holds.</summary>
 public static partial class GetStockAvailability
 {
-    public sealed record Query(Guid VariantId, string? CartToken = null) : IQuery<Response>;
+    public sealed record Query(Request Request) : IQuery<Response>;
 
     public sealed class QueryHandler(
         IApplicationDbContext dbContext,
@@ -20,14 +20,15 @@ public static partial class GetStockAvailability
         /// <returns>A result with the availability information.</returns>
         public async Task<Result<Response>> Handle(Query request, CancellationToken cancellationToken)
         {
-            var snapshot = await calculator.GetForVariantAsync(request.VariantId, cancellationToken);
+            var req = request.Request;
+            var snapshot = await calculator.GetForVariantAsync(req.VariantId, cancellationToken);
 
             var cartReserved = 0;
-            if (!string.IsNullOrEmpty(request.CartToken))
+            if (!string.IsNullOrEmpty(req.CartToken))
             {
                 cartReserved = await dbContext.Set<StockReservation>()
-                    .Where(r => r.VariantId == request.VariantId
-                                && r.CartToken == request.CartToken
+                    .Where(r => r.VariantId == req.VariantId
+                                && r.CartToken == req.CartToken
                                 && r.State == ReservationState.Reserved
                                 && r.ExpiresAtUtc > DateTimeOffset.UtcNow)
                     .SumAsync(r => r.Quantity, cancellationToken);
@@ -35,9 +36,10 @@ public static partial class GetStockAvailability
 
             var availableToCart = Math.Max(snapshot.TotalAvailable - cartReserved, 0);
 
+            // EXCEPTION: availability aggregate — no single domain entity to map from
             return new Response
             {
-                VariantId = request.VariantId,
+                VariantId = req.VariantId,
                 TotalOnHand = snapshot.TotalOnHand,
                 TotalReserved = snapshot.TotalReserved,
                 CartReserved = cartReserved,
