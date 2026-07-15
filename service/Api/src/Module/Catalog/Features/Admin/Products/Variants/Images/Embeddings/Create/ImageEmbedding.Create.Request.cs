@@ -4,6 +4,7 @@ public static partial class CreateEmbedding
 {
     public sealed record Request
     {
-        public string ModelName { get; init; } = string.Empty;
+        public Guid VariantImageId { get; init; }
+        public required string ModelName { get; init; }
     }
 }
