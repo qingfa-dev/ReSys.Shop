@@ -45,7 +45,7 @@
 | ruff | Linter (E, F, I, UP, B, SIM rules) | `pyproject.toml:L56-63` |
 | hatchling | Build system / wheel builder | `pyproject.toml:L45-47` |
 | uv | Package manager / lockfile | `uv.lock` |
-| podman | Container runtime for pgvector PostgreSQL | `infra/postgres/`, `infra/docker/` |
+| podman | Container runtime for pgvector PostgreSQL | `infra/postgres/init.sql` |
 
 ### 4) Key Commands
 
@@ -79,7 +79,7 @@ uv run ruff check src/
 
 - Config sources: `pyproject.toml`, `configs/benchmark.yaml`, `configs/datasets.yaml`, `configs/hardware.yaml`, `configs/metrics.yaml`, `configs/models/*.yaml`
 - Required env vars: None required (all configurable via CLI). pgvector connection string has default `postgresql://benchmark:benchmark@localhost:5432/benchmark`
-- Deployment/runtime constraints: Python 3.12+. ML models require internet on first run for weight download (~5 GB). GPU recommended for realistic latency benchmarks. pgvector requires PostgreSQL 16 + pgvector extension via Docker/Podman.
+- Deployment/runtime constraints: Python 3.12+. ML models require internet on first run for weight download (~5 GB). GPU recommended for realistic latency benchmarks (sm_75+, 4GB+ VRAM). pgvector requires PostgreSQL 16 + pgvector extension via Podman (or Docker).
 
 ### 6) Evidence
 

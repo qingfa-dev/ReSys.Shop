@@ -20,7 +20,7 @@
 | `scripts/` | Standalone scripts: dataset download, preprocessing, benchmark, report, clean | `scripts/download_dataset.py` |
 | `configs/` | YAML configuration files (benchmark, datasets, hardware, metrics, per-model) | `configs/benchmark.yaml` |
 | `data/` | Datasets, embedding cache, splits (gitignored except `.gitkeep`) | `data/cache/.gitkeep` |
-| `infra/` | PostgreSQL Docker/Podman configs and init scripts | `infra/postgres/init.sql` |
+| `infra/` | PostgreSQL Podman/Docker configs + init scripts | `infra/postgres/init.sql` |
 | `docs/` | Project documentation (9 numbered guides + codebase docs) | `docs/README.md` |
 | `outputs/` | Runtime outputs: metrics, reports, tables, figures, embeddings, logs (gitignored) | Created at runtime |
 | `experiments/` | Per-model ad-hoc experiment notebooks | `experiments/fashion_clip/` |

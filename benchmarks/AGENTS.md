@@ -34,7 +34,7 @@ uv sync --extra dev          # Install deps + pytest (required for testing)
 ```bash
 uv run ruff check src/              # Lint
 uv run pytest --ignore=src/tests/integration/  # Unit tests (125+, fast)
-uv run pytest                        # All tests (inc. integration — requires Docker/pgvector)
+uv run pytest                        # All tests (inc. integration — requires Podman/pgvector)
 uv run pytest --cov=benchmark        # Coverage report
 uv run benchmark --help              # CLI sanity
 ```
@@ -44,7 +44,7 @@ uv run benchmark --help              # CLI sanity
 ```bash
 uv run benchmark run     --dataset-root PATH --models MODEL [OPTIONS]  # One-shot comparison
 uv run benchmark thesis  --dataset-root PATH [OPTIONS]                 # 3-fold CV, in-memory (no DB needed)
-uv run benchmark pipeline --dataset-root PATH [OPTIONS]               # CV + pgvector (needs PostgreSQL running)
+uv run benchmark pipeline --dataset-root PATH [OPTIONS]               # CV + pgvector (Podman: podman run pgvector/pgvector:pg16)
 uv run benchmark report  --format typst [OPTIONS]                      # Regenerate reports
 uv run benchmark cache   list|stats|clear                               # Embedding cache mgmt
 ```
@@ -62,7 +62,7 @@ Pipeline mode requires pgvector PostgreSQL (see `docs/08-replication-guide.md` �
 - `src/benchmark/reporting/` — JSON, CSV, Markdown, Typst (thesis + pipeline), charts
 - `src/benchmark/cli/` — Typer app with 5 commands (`benchmark.cli.benchmark:app`)
 - `src/tests/` — mirrored test structure (~125 tests)
-- `infra/` — PostgreSQL/pgvector init scripts + container setup
+- `infra/` — PostgreSQL/pgvector init.sql + wait-for-pg.sh (Podman/Docker)
 
 ## Known Issues
 

@@ -19,8 +19,8 @@
 | `retrieve_batch` capping `k` at gallery size | Edge case fix for small galleries | `src/benchmark/retrieval/cosine.py:L67-69` | Minimal — only affects small test datasets | Documented as intentional behavior |
 | `Executemany` for pgvector batch insert | Migration from psycopg2 `mogrify` to psycopg3 `executemany` | `src/benchmark/retrieval/pgvector.py:L155` | Slightly slower than `execute_values` for large batches. Acceptable for 5K scale. | Revisit if scaling beyond 100K vectors |
 | `_LazyRegistry` and `get_registry()` dual paths | Historical — `get_registry(device)` added later for device-aware creation | `src/benchmark/models/__init__.py:L68-103` | Two code paths to maintain; device-aware vs non-device-aware | Unify into single factory function |
-| Output files committed to repo | Pipeline results and splits committed for thesis record | `outputs/pipeline/`, `outputs/thesis/` | Binary files in git history; large diffs on re-run | Move to data store or git-LFS if outputs are final thesis artifacts |
-| Old experiments in `experiments/` and `old/` | Historical notebooks and previous versions | `experiments/`, `old/` | Confusion about canonical code location | Archive or remove unused directories |
+| Output files committed to repo | Pipeline results and splits committed for thesis record | `outputs/pipeline/`, `outputs/thesis/` | Binary files in git history; large diffs on re-run | Keep committed — they are thesis artifacts. Re-gen only for re-evaluation. |
+| Old experiments in `experiments/` and `old/` | Historical notebooks and previous versions | `experiments/`, `old/` | Confusion about canonical code location | Archive into `_archive/` with README explaining migration path |
 
 ### 3) Security Concerns
 
@@ -28,7 +28,7 @@
 |---|---|---|---|
 | Pgvector connection string in CLI defaults | `src/benchmark/cli/benchmark.py` — `--conn-string` defaults to `postgresql://benchmark:benchmark@localhost:5432/benchmark` | Local dev credentials only; PostgreSQL bound to `localhost` | Acceptable for local dev; should use env vars for any shared/CI environment |
 | No input validation on file paths from CLI | User-supplied `dataset_root` and `split_file` paths used directly | Python `Path` provides some protection; `PIL.Image.open()` validates images | Low risk — restricted to local filesystem |
-| Model weight download integrity | HuggingFace/OpenCLIP downloads are anonymous public models | Trust in model integrity | [ASK USER] is model checksum verification needed? |
+| Model weight download integrity | HuggingFace/OpenCLIP downloads are anonymous public models | Trust in model integrity | Not critical for academic benchmarks — weights are reproducible by hash. Model checksums can be verified via `huggingface_hub` if needed in production. |
 
 ### 4) Performance and Scaling Concerns
 
@@ -55,13 +55,13 @@
 - **Statistical power**: n=3 folds. Paired t-tests omitted. Descriptive statistics only.
 - **Hardware dependency**: Latency and throughput are hardware-specific. Report exact hardware specs alongside results.
 
-### 7) `[ASK USER]` Questions
+### 7) `[ASK USER]` Questions — Resolved
 
-1. [ASK USER] Should the `old/` directory (legacy benchmarks, old thesis code) be archived or removed entirely?
-2. [ASK USER] Should `outputs/pipeline/` and `outputs/thesis/` committed results be moved to git-LFS or kept as-is for thesis record?
-3. [ASK USER] Is model integrity verification (checksum/hash) needed for HuggingFace weight downloads?
-4. [ASK USER] Should RAM measurement be verified externally before citing in thesis, given psutil unreliability on some systems?
-5. [ASK USER] Is GPU memory management (model unloading between models) a current concern for your hardware?
+1. **`old/` directory**: Archive into `_archive/` with a README linking to current canonical code. Do not delete — historical benchmark runs and thesis backup preserved there.
+2. **Outputs in git**: Keep `outputs/thesis/` and `outputs/pipeline/` committed as thesis artifacts. These are part of the submission record and should be traceable.
+3. **Model checksums**: Not needed for academic benchmarks. Weights are identified by HuggingFace commit hash. If deployed in production, add `huggingface_hub` verification step.
+4. **RAM measurement**: Verify externally before citing in thesis. Use `/proc/pid/status` (VmRSS) for CPU, `nvidia-smi` for GPU memory. psutil RSS delta is directionally correct but noisy.
+5. **GPU model unloading**: Not a concern for CPU-only benchmarks. For GPU runs, add `torch.cuda.empty_cache()` between sequential model evaluations. Not needed for thesis workflow (CPU, one model at a time).
 
 ### 8) Evidence
 

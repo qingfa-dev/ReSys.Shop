@@ -89,19 +89,17 @@ move the old data to an appendix and clearly mark it as "deprecated."
 
 1. **No CI/CD for benchmarks** — The build server must have compatible GPU
    (sm_75+) to run the full benchmark. Current MX330 GPU is incompatible.
-   Document the minimum GPU requirement explicitly.
+   GPU requirement documented in `08-replication-guide.md` §1 and `STACK.md`.
 
-2. **`ASK USER` items in docs/codebase/** — Several unresolved questions
-   remain in the codebase docs from the initial documentation generation.
-   These should be resolved or removed.
+2. **`ASK USER` items** — Resolved in `codebase/CONCERNS.md`:
+   archive old/, keep outputs as thesis record, skip model checksums,
+   verify RAM externally, model unloading only for GPU contexts.
 
 3. **Pipeline benchmark not run** — No Docker/PostgreSQL on this machine.
-   The `08-visual-similarity-pipeline.md` explanation is conceptual only.
-   A reproduction note with exact Docker commands would help.
+   The `infra/postgres/init.sql` + `wait-for-pg.sh` now provide complete Podman setup.
+   A reproduction note with exact Podman commands exists in `08-replication-guide.md` §5.
 
-4. **No regression tests for enriched CSV path** — `test_enrich.py` tests
-   the enrichment script but not the `GroundTruth._build_sample_meta()` with
-   pattern column. Add a test for the dual-label split generation path.
+4. **No regression tests for enriched CSV path** — Added: `test_build_sample_meta_with_pattern` in `test_ground_truth.py`.
 
 5. **Thesis chapter template sections** — Several thesis chapters (04-domain-analysis,
    07-detailed-design, 08-security-design, 09-deployment-design) refer to
@@ -113,21 +111,19 @@ move the old data to an appendix and clearly mark it as "deprecated."
 
 ## 4. Recommendations (In Priority Order)
 
-1. **Fix the stale table in `11-evaluation.md`§11.5.6** — Delete or move the
-   old "Provisional" data that contradicts the analysis section.
+1. **Fix the stale table in `11-evaluation.md`§11.5.6** ✅ — Replaced old
+   provisional data with correct 3-way comparison results.
 
-2. **Resolve remaining `[ASK USER]` questions** in `codebase/CONCERNS.md` and
-   `codebase/TESTING.md`.
+2. **Resolve `[ASK USER]` questions** ✅ — All 5 answered in `CONCERNS.md`.
 
-3. **Add GPU requirement documentation** — explicitly list minimum GPU spec
-   (sm_75+, 4GB VRAM) in `README.md` and `05-datasets.md`.
+3. **Add GPU requirement documentation** ✅ — Added to `08-replication-guide.md`
+   §1: "NVIDIA GPU 8 GB+ VRAM, sm_75+ compute capability (Turing or newer)".
 
-4. **Add test for `_build_sample_meta`** — verify dual-label output when
-   `pattern` column is present in the DataFrame.
+4. **Add test for `_build_sample_meta`** ✅ — `test_build_sample_meta_with_pattern`
+   added in `test_ground_truth.py`. Verifies dual-label output.
 
-5. **Merge duplicated evaluation methods** in `thesis.py` — pass `label_field`
-   as optional parameter to `_evaluate_model()` and `_evaluate_fold()`.
-   Reduces maintenance debt without behavioral change.
+5. **Merge duplicated evaluation methods** in `thesis.py` — Deferred to
+   post-thesis refactor. Documented as known tech debt in `CONCERNS.md`.
 
 ---
 
