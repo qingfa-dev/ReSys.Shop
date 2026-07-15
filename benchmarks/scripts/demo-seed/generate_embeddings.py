@@ -1,89 +1,139 @@
 #!/usr/bin/env python
-"""Generate image embeddings via the Embedding sidecar for search-type images."""
+"""Generate image embeddings using local PyTorch models."""
 from __future__ import annotations
 
 import argparse
 import json
-import sys
 from pathlib import Path
-from urllib.parse import urljoin
 
-import httpx
+import numpy as np
+import torch
+from PIL import Image
 from tqdm import tqdm
 
-API_KEY = "dev-key-must-be-long-enough"
-
 SCRIPTS_DIR = Path(__file__).resolve().parent
+DEFAULT_MODELS = ["fashion_clip", "efficientnet_b0", "clip_vit_b16", "dinov2_vits14"]
+
+
+def load_model(model_id: str):
+    if model_id == "fashion_clip":
+        from transformers import CLIPModel, CLIPProcessor
+        model = CLIPModel.from_pretrained("patrickjohncyh/fashion-clip")
+        processor = CLIPProcessor.from_pretrained("patrickjohncyh/fashion-clip")
+        model.eval()
+        def embed(img):
+            inputs = processor(images=img, return_tensors="pt")
+            with torch.no_grad():
+                return model.get_image_features(**inputs).pooler_output.squeeze().numpy()
+        return embed, 512, "patrickjohncyh/fashion-clip"
+
+    elif model_id == "efficientnet_b0":
+        from torchvision.models import efficientnet_b0, EfficientNet_B0_Weights
+        weights = EfficientNet_B0_Weights.DEFAULT
+        model = efficientnet_b0(weights=weights)
+        model.classifier = torch.nn.Identity()
+        model.eval()
+        preprocess = weights.transforms()
+        def embed(img):
+            tensor = preprocess(img).unsqueeze(0)
+            with torch.no_grad():
+                return model(tensor).squeeze().numpy()
+        return embed, 1280, "torchvision/efficientnet_b0"
+
+    elif model_id == "clip_vit_b16":
+        from transformers import CLIPModel, CLIPProcessor
+        model = CLIPModel.from_pretrained("openai/clip-vit-base-patch32")
+        processor = CLIPProcessor.from_pretrained("openai/clip-vit-base-patch32")
+        model.eval()
+        def embed(img):
+            inputs = processor(images=img, return_tensors="pt")
+            with torch.no_grad():
+                return model.get_image_features(**inputs).pooler_output.squeeze().numpy()
+        return embed, 512, "openai/clip-vit-base-patch32"
+
+    elif model_id == "dinov2_vits14":
+        model = torch.hub.load("facebookresearch/dinov2", "dinov2_vits14")
+        model.eval()
+        from torchvision import transforms
+        preprocess = transforms.Compose([
+            transforms.Resize(256, interpolation=transforms.InterpolationMode.BICUBIC),
+            transforms.CenterCrop(224),
+            transforms.ToTensor(),
+            transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
+        ])
+        def embed(img):
+            tensor = preprocess(img).unsqueeze(0)
+            with torch.no_grad():
+                return model(tensor).squeeze().numpy()
+        return embed, 384, "facebook/dinov2-vits14"
+
+    else:
+        raise ValueError(f"Unknown model: {model_id}")
+
+
+def normalize(vector: np.ndarray) -> list[float]:
+    norm = np.linalg.norm(vector)
+    if norm == 0:
+        return vector.tolist()
+    return (vector / norm).tolist()
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(description="Generate image embeddings")
-    parser.add_argument("--output", type=Path, default=SCRIPTS_DIR / "output", help="Output directory")
-    parser.add_argument("--base-url", default="http://localhost:8000", help="Embedding service URL")
+    parser = argparse.ArgumentParser(description="Generate image embeddings locally")
+    parser.add_argument("--output", type=Path, default=SCRIPTS_DIR / "output")
+    parser.add_argument("--models", nargs="+", default=DEFAULT_MODELS)
     args = parser.parse_args()
 
     images_json = args.output / "demo_variant_images.json"
     if not images_json.exists():
-        print(f"ERROR: {images_json} not found"); sys.exit(1)
+        print(f"ERROR: {images_json} not found; run extract_products.py first")
+        return
 
     records = json.loads(images_json.read_text())
     search_records = [r for r in records if r.get("type") == "Search"]
 
-    headers = {"X-API-Key": API_KEY}
+    if not search_records:
+        print("No search images found. Skipping embedding generation.")
+        return
 
-    try:
-        resp = httpx.get(urljoin(args.base_url, "/models"), headers=headers, timeout=10)
-        if resp.status_code == 200 and resp.json().get("isSuccess"):
-            models = [m["id"] for m in resp.json()["value"]]
-        else:
-            models = ["fashion_clip", "efficientnet_b0", "clip_vit_b16", "dinov2_vits14"]
-    except Exception:
-        models = ["fashion_clip", "efficientnet_b0", "clip_vit_b16", "dinov2_vits14"]
+    print(f"Generating embeddings for {len(search_records)} search images")
+    print(f"Models: {args.models}")
 
-    print(f"Using models: {models}")
+    all_embeddings: list[dict] = []
 
-    embeddings: list[dict] = []
-    for rec in tqdm(search_records, desc="Generating embeddings"):
-        storage_path = rec["storage_path"]
-        image_path = args.output / storage_path
-        if not image_path.exists():
-            print(f"  WARN: {image_path} not found, skipping")
+    for model_id in args.models:
+        print(f"\n--- Loading model: {model_id} ---")
+        try:
+            embed_fn, dimension, version = load_model(model_id)
+        except Exception as e:
+            print(f"  WARN: Cannot load {model_id}: {e}. Skipping.")
             continue
 
-        for model_name in models:
-            try:
-                with open(image_path, "rb") as f:
-                    files = {"image": (image_path.name, f, "image/jpeg")}
-                    data = {"model": model_name}
-                    resp = httpx.post(
-                        urljoin(args.base_url, "/embeddings/bytes"),
-                        headers=headers, files=files, data=data, timeout=30,
-                    )
-                if resp.status_code != 200:
-                    print(f"  WARN: Embedding API returned {resp.status_code} for {storage_path} ({model_name})")
-                    continue
-                result = resp.json()
-                if not result.get("isSuccess"):
-                    print(f"  WARN: Embedding failed for {storage_path} ({model_name}): {result.get('errors')}")
-                    continue
-                value = result["value"]
-                embeddings.append({
-                    "variant_image_id": rec["id"],
-                    "model_name": model_name,
-                    "model_version": value["model_version"],
-                    "vector": value["vector"],
-                    "dimensions": value["dimension"],
-                })
-            except httpx.ConnectError:
-                print("ERROR: Cannot connect to embedding service. Is it running?")
-                print("  Start with: cd service/Embedding && uv run python src/main.py")
-                sys.exit(1)
-            except Exception as e:
-                print(f"  WARN: {storage_path} ({model_name}): {e}")
+        for rec in tqdm(search_records, desc=f"  {model_id}"):
+            img_path = args.output / rec["storage_path"]
+            if not img_path.exists():
                 continue
 
-    (args.output / "demo_embeddings.json").write_text(json.dumps(embeddings, indent=2))
-    print(f"Written {len(embeddings)} embeddings")
+            try:
+                img = Image.open(img_path).convert("RGB")
+                vector = embed_fn(img)
+                all_embeddings.append({
+                    "variant_image_id": rec["id"],
+                    "model_name": model_id,
+                    "model_version": version,
+                    "vector": normalize(vector),
+                    "dimensions": dimension,
+                })
+            except Exception as e:
+                print(f"  WARN: {rec['storage_path']}: {e}")
+                continue
+
+        del embed_fn
+        if torch.cuda.is_available():
+            torch.cuda.empty_cache()
+
+    (args.output / "demo_embeddings.json").write_text(json.dumps(all_embeddings, indent=2))
+    print(f"\nWritten {len(all_embeddings)} embeddings for {len(search_records)} images × {len(args.models)} models")
 
 
 if __name__ == "__main__":

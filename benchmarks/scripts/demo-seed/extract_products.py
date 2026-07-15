@@ -68,7 +68,7 @@ def main() -> None:
     parser = argparse.ArgumentParser(description="Extract product seed data")
     parser.add_argument("--dataset", type=Path, required=True)
     parser.add_argument("--output", type=Path, default=SCRIPTS_DIR / "output")
-    parser.add_argument("--count", type=int, default=2000, help="Target number of product groups")
+    parser.add_argument("--count", type=int, default=1000, help="Target number of product groups")
     parser.add_argument("--display-size", type=int, default=512)
     parser.add_argument("--search-size", type=int, default=224)
     parser.add_argument("--force", action="store_true")

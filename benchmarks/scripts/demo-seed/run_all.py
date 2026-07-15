@@ -21,15 +21,15 @@ def run_step(step_num: int, total: int, name: str, args: list[str]) -> int:
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="Run the full demo seed ETL pipeline")
-    parser.add_argument("--count", type=int, default=2000, help="Target number of product groups")
+    parser.add_argument("--count", type=int, default=1000, help="Target number of product groups")
     parser.add_argument("--dataset", type=Path,
                         default=REPO_ROOT / "benchmarks" / "data" / "raw" / "fashion-product-images")
     parser.add_argument("--output", type=Path,
                         default=SCRIPTS_DIR / "output")
     parser.add_argument("--storage", type=Path,
                         default=REPO_ROOT / "infra" / "Storage" / "demo")
-    parser.add_argument("--base-url", default="http://localhost:8000")
-    parser.add_argument("--skip-embeddings", action="store_true")
+    parser.add_argument("--embedding-mode", choices=["skip", "job", "direct"], default="direct",
+                        help="How to generate embeddings: skip (none), job (Hangfire), direct (local PyTorch)")
     parser.add_argument("--deploy", action="store_true")
     parser.add_argument("--display-size", default="512")
     parser.add_argument("--search-size", default="224")
@@ -46,8 +46,8 @@ def main() -> None:
                                "--display-size", args.display_size, "--search-size", args.search_size]),
     ]
 
-    if not args.skip_embeddings:
-        steps.append(("generate_embeddings.py", ["--output", str(args.output), "--base-url", args.base_url]))
+    if args.embedding_mode == "direct":
+        steps.append(("generate_embeddings.py", ["--output", str(args.output)]))
 
     steps.append(("extract_stock.py", ["--output", str(args.output)] + force_args))
 
@@ -86,6 +86,9 @@ def main() -> None:
                 print(f"  {label:.<40} {summary_files[label]:>6}")
             else:
                 print(f"  {label:.<40} {len(data):>6}")
+
+    if args.embedding_mode == "job":
+        print(f"\n  Embedding mode: JOB — run 'dotnet run' to enqueue Hangfire jobs")
 
 
 if __name__ == "__main__":
