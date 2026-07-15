@@ -22,7 +22,14 @@ def main() -> None:
     parser = argparse.ArgumentParser(description="Extract stock seed data")
     parser.add_argument("--output", type=Path, default=SCRIPTS_DIR / "output", help="Output directory")
     parser.add_argument("--seed", type=int, default=42, help="Random seed")
+    parser.add_argument("--force", action="store_true")
     args = parser.parse_args()
+
+    output_file = args.output / "demo_stock_locations.json"
+    if output_file.exists() and not args.force:
+        print(f"Output already exists: {output_file}")
+        print("Use --force to overwrite.")
+        sys.exit(1)
 
     variants_json = args.output / "demo_variants.json"
     if not variants_json.exists():

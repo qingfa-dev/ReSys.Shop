@@ -69,7 +69,16 @@ def main() -> None:
     parser.add_argument("--dataset", type=Path, required=True)
     parser.add_argument("--output", type=Path, default=SCRIPTS_DIR / "output")
     parser.add_argument("--count", type=int, default=2000, help="Target number of product groups")
+    parser.add_argument("--display-size", type=int, default=512)
+    parser.add_argument("--search-size", type=int, default=224)
+    parser.add_argument("--force", action="store_true")
     args = parser.parse_args()
+
+    output_file = args.output / "demo_products.json"
+    if output_file.exists() and not args.force:
+        print(f"Output already exists: {output_file}")
+        print("Use --force to overwrite.")
+        sys.exit(1)
 
     styles_csv = args.dataset / "styles.csv"
     if not styles_csv.exists():
@@ -160,17 +169,18 @@ def main() -> None:
                 "type": "Default",
             })
 
-            search_img_id = guid("variant_image", f"{display_name}.{vi}.search")
-            images.append({
-                "id": search_img_id,
-                "variant_id": variant_id,
-                "content_type": "image/jpeg",
-                "file_name": f"{benchmark_id}.jpg",
-                "storage_path": f"images/search/224/{benchmark_id}.jpg",
-                "position": 1,
-                "alt": display_name[:500],
-                "type": "Search",
-            })
+            if vi == 0:
+                search_img_id = guid("variant_image", f"{display_name}.{vi}.search")
+                images.append({
+                    "id": search_img_id,
+                    "variant_id": variant_id,
+                    "content_type": "image/jpeg",
+                    "file_name": f"{benchmark_id}.jpg",
+                    "storage_path": f"images/search/{args.search_size}/{benchmark_id}.jpg",
+                    "position": 1,
+                    "alt": display_name[:500],
+                    "type": "Search",
+                })
 
             products[-1]["master_variant_id"] = master_variant_id
 

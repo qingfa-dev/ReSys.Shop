@@ -30,11 +30,32 @@ def resize_image(src: Path, dst: Path, size: int) -> bool:
         return False
 
 
+def parse_size(value: str) -> int:
+    """Parse '512' or 'model:fashion_clip' into pixel size."""
+    if value.startswith("model:"):
+        model_id = value.split(":", 1)[1]
+        if model_id not in MODEL_INPUT_SIZES:
+            print(f"ERROR: Unknown model '{model_id}'. Known: {list(MODEL_INPUT_SIZES.keys())}")
+            sys.exit(1)
+        return MODEL_INPUT_SIZES[model_id]
+    try:
+        return int(value)
+    except ValueError:
+        print(f"ERROR: Invalid size '{value}'. Use integer pixels or 'model:<id>'.")
+        sys.exit(1)
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description="Scale product images for demo")
     parser.add_argument("--dataset", type=Path, required=True, help="Path to fashion-product-images directory")
     parser.add_argument("--output", type=Path, default=SCRIPTS_DIR / "output", help="Output directory")
+    parser.add_argument("--display-size", default="512", help="Display image size (px) or model:<id>")
+    parser.add_argument("--search-size", default="224", help="Search image size (px) or model:<id>")
     args = parser.parse_args()
+
+    display_size = parse_size(args.display_size)
+    search_size = parse_size(args.search_size)
+    print(f"Display size: {display_size}px | Search size: {search_size}px")
 
     images_json = args.output / "demo_variant_images.json"
     if not images_json.exists():
@@ -50,36 +71,35 @@ def main() -> None:
             unique.append(rec)
 
     source_dir = args.dataset / "images"
-    medium_dir = args.output / "images" / "medium"
-
-    sizes = set(MODEL_INPUT_SIZES.values())
-    for size in sizes:
-        search_dir = args.output / "images" / "search" / str(size)
-        search_dir.mkdir(parents=True, exist_ok=True)
-
     ok = fail = 0
-    for rec in tqdm(unique, desc="Processing images"):
-        fname = rec["file_name"]
-        src = source_dir / fname
+
+    medium_imgs = [r for r in unique if "images/medium/" in r["storage_path"]]
+    print(f"\n--- Processing {len(medium_imgs)} display images at {display_size}px ---")
+    for rec in tqdm(medium_imgs, desc="Display"):
+        src = source_dir / rec["file_name"]
         if not src.exists():
             print(f"  WARN: {src} not found, skipping")
             fail += 1
             continue
+        dst = args.output / rec["storage_path"]
+        if resize_image(src, dst, display_size):
+            ok += 1
+        else:
+            fail += 1
 
-        if "medium" in rec["storage_path"]:
-            dst = args.output / rec["storage_path"]
-            if resize_image(src, dst, 512):
-                ok += 1
-            else:
-                fail += 1
-        elif "search" in rec["storage_path"]:
-            for size in sizes:
-                dst = args.output / "images" / "search" / str(size) / fname
-                if resize_image(src, dst, size):
-                    ok += 1
-                else:
-                    fail += 1
-                    break
+    search_imgs = [r for r in unique if "images/search/" in r["storage_path"]]
+    print(f"\n--- Processing {len(search_imgs)} search images at {search_size}px ---")
+    for rec in tqdm(search_imgs, desc="Search"):
+        src = source_dir / rec["file_name"]
+        if not src.exists():
+            print(f"  WARN: {src} not found, skipping")
+            fail += 1
+            continue
+        dst = args.output / rec["storage_path"]
+        if resize_image(src, dst, search_size):
+            ok += 1
+        else:
+            fail += 1
 
     print(f"Done: {ok} images processed, {fail} failures")
 

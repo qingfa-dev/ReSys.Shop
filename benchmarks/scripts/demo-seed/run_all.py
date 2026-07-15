@@ -12,8 +12,8 @@ SCRIPTS_DIR = Path(__file__).resolve().parent
 REPO_ROOT = SCRIPTS_DIR.parent.parent.parent
 
 
-def run_step(name: str, args: list[str]) -> int:
-    print(f"\n{'='*60}\n  STEP: {name}\n{'='*60}")
+def run_step(step_num: int, total: int, name: str, args: list[str]) -> int:
+    print(f"\n{'='*60}\n  STEP {step_num}/{total}: {name}\n{'='*60}")
     cmd = [sys.executable, str(SCRIPTS_DIR / name)] + args
     result = subprocess.run(cmd)
     return result.returncode
@@ -31,21 +31,29 @@ def main() -> None:
     parser.add_argument("--base-url", default="http://localhost:8000")
     parser.add_argument("--skip-embeddings", action="store_true")
     parser.add_argument("--deploy", action="store_true")
+    parser.add_argument("--display-size", default="512")
+    parser.add_argument("--search-size", default="224")
+    parser.add_argument("--force", action="store_true")
     args = parser.parse_args()
 
+    force_args = ["--force"] if args.force else []
+
     steps = [
-        ("extract_taxonomies.py", ["--dataset", str(args.dataset), "--output", str(args.output)]),
-        ("extract_products.py", ["--dataset", str(args.dataset), "--output", str(args.output), "--count", str(args.count)]),
-        ("process_images.py", ["--dataset", str(args.dataset), "--output", str(args.output)]),
+        ("extract_taxonomies.py", ["--dataset", str(args.dataset), "--output", str(args.output)] + force_args),
+        ("extract_products.py", ["--dataset", str(args.dataset), "--output", str(args.output), "--count", str(args.count),
+                                 "--display-size", args.display_size, "--search-size", args.search_size] + force_args),
+        ("process_images.py", ["--dataset", str(args.dataset), "--output", str(args.output),
+                               "--display-size", args.display_size, "--search-size", args.search_size]),
     ]
 
     if not args.skip_embeddings:
         steps.append(("generate_embeddings.py", ["--output", str(args.output), "--base-url", args.base_url]))
 
-    steps.append(("extract_stock.py", ["--output", str(args.output)]))
+    steps.append(("extract_stock.py", ["--output", str(args.output)] + force_args))
 
-    for script_name, script_args in steps:
-        rc = run_step(script_name, script_args)
+    total_steps = len(steps)
+    for i, (script_name, script_args) in enumerate(steps, 1):
+        rc = run_step(i, total_steps, script_name, script_args)
         if rc != 0 and script_name != "generate_embeddings.py":
             print(f"\nERROR: {script_name} failed with code {rc}")
             sys.exit(rc)
@@ -55,10 +63,29 @@ def main() -> None:
         shutil.copytree(args.output / "images", args.storage / "images", dirs_exist_ok=True)
         print(f"Deployed images to {args.storage / 'images'}")
 
-    print(f"\nDone. JSON data written to {args.output}")
-    print(f"Images written to {args.output / 'images'}")
-    if args.deploy:
-        print(f"Images deployed to {args.storage / 'images'}")
+    print(f"\n{'='*60}")
+    print("  PIPELINE COMPLETE")
+    print(f"{'='*60}")
+    import json as _json
+    summary_files = {
+        "Products": "demo_products.json",
+        "Variants": "demo_variants.json",
+        "Total Images": "demo_variant_images.json",
+        "Option Assignments": "demo_option_assignments.json",
+        "Taxons": "demo_taxons.json",
+        "Embeddings": "demo_embeddings.json",
+        "Stock Items": "demo_stock_items.json",
+        "Stock Locations": "demo_stock_locations.json",
+    }
+    for label, fname in summary_files.items():
+        fp = args.output / fname
+        if fp.exists():
+            data = _json.loads(fp.read_text())
+            if isinstance(data, dict):
+                summary_files[label] = sum(len(v) if isinstance(v, list) else 1 for v in data.values())
+                print(f"  {label:.<40} {summary_files[label]:>6}")
+            else:
+                print(f"  {label:.<40} {len(data):>6}")
 
 
 if __name__ == "__main__":

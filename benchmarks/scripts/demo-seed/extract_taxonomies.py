@@ -141,7 +141,14 @@ def main() -> None:
     parser = argparse.ArgumentParser(description="Extract taxonomy seed data from styles.csv")
     parser.add_argument("--dataset", type=Path, required=True, help="Path to fashion-product-images directory")
     parser.add_argument("--output", type=Path, default=SCRIPTS_DIR / "output", help="Output directory for JSON files")
+    parser.add_argument("--force", action="store_true")
     args = parser.parse_args()
+
+    output_file = args.output / "demo_taxonomies.json"
+    if output_file.exists() and not args.force:
+        print(f"Output already exists: {output_file}")
+        print("Use --force to overwrite.")
+        sys.exit(1)
 
     styles_csv = args.dataset / "styles.csv"
     if not styles_csv.exists():
