@@ -52,16 +52,21 @@ public static partial class SearchByImage
             var embedding = inferenceResult.Value;
             var queryVector = new Vector(embedding.Vector.ToArray());
 
+            var modelName = command.Request.Model ?? DefaultModel;
+            var topK = command.Request.TopK > 0 ? command.Request.TopK : 20;
+
             var similarVariants = await dbContext.Set<Variant>()
                 .FromSqlRaw(@"
-                    SELECT DISTINCT v.*
+                    SELECT DISTINCT ON (v.id) v.*
                     FROM catalog.variants v
                     INNER JOIN catalog.product_images vi ON vi.variant_id = v.id
                     INNER JOIN catalog.product_image_embeddings ie ON ie.variant_image_id = vi.id
                     WHERE v.is_deleted = false
-                    ORDER BY ie.vector <=> {0}::vector
-                    LIMIT 20",
-                    queryVector)
+                      AND vi.type = 'Default'
+                      AND ie.model_name = {1}
+                    ORDER BY v.id, ie.vector <=> {0}::vector
+                    LIMIT {2}",
+                    queryVector, modelName, topK)
                 .Include(x => x.Product)
                 .Include(x => x.VariantImages)
                 .AsNoTracking()
