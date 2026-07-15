@@ -95,9 +95,9 @@ public static partial class AddToCart
                             VariantId = request.VariantId,
                             Quantity = request.Quantity,
                             StockLocationId = primaryLocation.StockLocationId,
-                            TtlMinutes = CartReservationTtlMinutes
-                        },
-                        cartToken),
+                            TtlMinutes = CartReservationTtlMinutes,
+                            CartToken = cartToken
+                        }),
                     cancellationToken);
 
                 if (reserveResult.IsFailure)

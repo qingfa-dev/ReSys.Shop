@@ -8,7 +8,7 @@ namespace Module.Inventory.Features.Storefront.CartReservations.Reserve;
 /// <summary>Reserves stock for a cart item using a serializable transaction to prevent oversell.</summary>
 public static partial class ReserveCartStock
 {
-    public sealed record Command(Request Request, string CartToken) : ICommand<Response>;
+    public sealed record Command(Request Request) : ICommand<Response>;
 
     public sealed class CommandHandler(IApplicationDbContext dbContext)
         : ICommandHandler<Command, Response>
@@ -24,7 +24,7 @@ public static partial class ReserveCartStock
             var variantId = command.Request.VariantId;
             var quantity = command.Request.Quantity;
             var stockLocationId = command.Request.StockLocationId!.Value;
-            var cartToken = command.CartToken;
+            var cartToken = command.Request.CartToken;
             var ttlMinutes = command.Request.TtlMinutes;
 
             if (quantity <= 0)
@@ -69,6 +69,7 @@ public static partial class ReserveCartStock
                 await dbContext.SaveChangesAsync(cancellationToken);
                 await transaction.CommitAsync(cancellationToken);
 
+                // EXCEPTION: reservation aggregate — no single domain entity
                 return new Response
                 {
                     Id = result.Value.Id,

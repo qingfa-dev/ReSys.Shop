@@ -19,7 +19,8 @@ public static partial class ReserveCartStock
                     ?? httpContext.User.FindFirst("cart_token")?.Value
                     ?? Guid.NewGuid().ToString("N");
 
-                var command = new Command(request, cartToken);
+                request.CartToken = cartToken;
+                var command = new Command(request);
                 var result = await sender.Send(command, ct);
                 return result.ToResult();
             })

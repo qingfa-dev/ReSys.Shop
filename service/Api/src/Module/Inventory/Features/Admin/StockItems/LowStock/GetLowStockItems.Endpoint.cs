@@ -15,7 +15,7 @@ public static partial class GetLowStockItems
                 ISender sender,
                 CancellationToken ct) =>
             {
-                var query = new Query(locationId, threshold);
+                var query = new Query(new Request { LocationId = locationId, Threshold = threshold });
                 var result = await sender.Send(query, ct);
                 return result.ToResult();
             })
