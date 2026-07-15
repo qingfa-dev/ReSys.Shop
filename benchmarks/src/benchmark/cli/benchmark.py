@@ -47,6 +47,57 @@ console = Console()
 logger = get_logger("cli")
 
 
+# ── enrich command ──────────────────────────────────────────────────────
+
+@app.command()
+def enrich(
+    json_styles: Annotated[Path, typer.Option("--json-styles",
+        help="Directory of per-product JSON files from the full Kaggle dataset.",
+        exists=True, file_okay=False, dir_okay=True)] = ...,
+    csv: Annotated[Path, typer.Option("--csv",
+        help="CSV with id, subCategory, baseColour columns.",
+        exists=True, file_okay=True, dir_okay=False)] = ...,
+    output: Annotated[Path, typer.Option("--output", "-o",
+        help="Output directory for enriched dataset.")] = Path("data/raw/fashion-enriched"),
+    subset: Annotated[int, typer.Option("--subset",
+        help="Limit to first N products (0 = all).")] = 0,
+    folds: Annotated[int, typer.Option("--folds",
+        help="Number of cross-validation folds.")] = MAGIC.N_FOLDS_DEFAULT,
+    seed: Annotated[int, typer.Option("--seed",
+        help="Random seed.")] = MAGIC.SEED,
+) -> None:
+    """Enrich dataset with visual attributes from JSON articleAttributes.
+
+    Merges the CSV product metadata with per-product JSON files from the
+    full Kaggle Fashion Product Images dataset, extracting
+    ``articleAttributes.Pattern`` for a secondary (pattern-aware) relevance
+    scheme.  Produces dual-label split JSON files with both ``label``
+    (primary) and ``label_pattern`` (secondary) fields.
+
+    Example::
+
+        uv run benchmark enrich \\
+            --json-styles data/raw/fashion-product-images/styles/ \\
+            --csv data/raw/fashion-product-images-small/styles.csv \\
+            --output data/raw/fashion-enriched-5k \\
+            --subset 5000
+    """
+    import subprocess
+    import sys
+
+    cmd = [
+        sys.executable, str(Path(__file__).resolve().parent.parent.parent.parent / "scripts" / "enrich_dataset.py"),
+        "--json-styles", str(json_styles),
+        "--csv", str(csv),
+        "--output", str(output),
+        "--subset", str(subset),
+        "--folds", str(folds),
+        "--seed", str(seed),
+    ]
+    result = subprocess.run(cmd, capture_output=False)
+    if result.returncode != 0:
+        raise typer.Exit(code=EXIT.EXIT_FAILURE)
+
 # ── run command ─────────────────────────────────────────────────────────
 
 @app.command(name="run")
