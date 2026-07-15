@@ -32,6 +32,7 @@ public static class CatalogExtensions
         builder.AddSeeder<CatalogTaxonomySeeder>();
         builder.AddSeeder<CatalogTaxonSeeder>();
         builder.AddSeeder<CatalogDemoSeeder>();
+        builder.AddSeeder<CatalogEmbeddingSeeder>();
 
         return builder;
     }
