@@ -23,6 +23,7 @@ from benchmark.utils.logging import get_logger
 
 logger = get_logger("models.fashion_clip")
 
+# Context: FashionCLIP fine-tuned on 700k+ fashion image-text pairs (Coveo)
 _HF_MODEL_ID = "patrickjohncyh/fashion-clip"
 
 
@@ -44,7 +45,8 @@ class FashionClipModel(EmbeddingModel):
         return 512
 
     def load(self) -> None:
-        logger.info("Loading %s from %s …", self.name, _HF_MODEL_ID)
+        # Call: Download FashionCLIP weights from HuggingFace hub
+        logger.info("Loading %s from %s ...", self.name, _HF_MODEL_ID)
         self._device = resolve_device(self._device_pref)
         self._processor = CLIPProcessor.from_pretrained(_HF_MODEL_ID)
         self._model = CLIPModel.from_pretrained(_HF_MODEL_ID).to(self._device)
@@ -56,14 +58,17 @@ class FashionClipModel(EmbeddingModel):
 
     @torch.inference_mode()
     def embed_batch(self, images: list[Image.Image]) -> np.ndarray:
+        # Compute: Encode images through CLIP vision encoder with L2 normalisation
         self.ensure_loaded()
         inputs = self._processor(images=images, return_tensors="pt", padding=True)
         inputs = {k: v.to(self._device) for k, v in inputs.items()}
         features = self._model.get_image_features(**inputs)
+        # Normalise: Handle tuple vs pooler_output depending on transformers version
         if isinstance(features, tuple):
             features = features[0]
         elif hasattr(features, "pooler_output"):
             features = features.pooler_output
 
+        # Normalise: L2-normalise to unit length for cosine similarity
         features = features / features.norm(dim=-1, keepdim=True)
         return features.cpu().float().numpy()

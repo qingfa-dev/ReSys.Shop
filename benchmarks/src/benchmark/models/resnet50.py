@@ -1,7 +1,7 @@
 """ResNet-50 adapter for benchmark evaluation.
 
 ResNet-50 is a classic CNN baseline (He et al., 2016). This adapter removes
- the final classification head and returns L2-normalized features.
+the final classification head and returns L2-normalized features.
 """
 from __future__ import annotations
 
@@ -35,10 +35,12 @@ class ResNet50Model(EmbeddingModel):
         return 2048
 
     def load(self) -> None:
-        logger.info("Loading %s …", self.name)
+        # Call: Download ResNet-50 ImageNet weights from torchvision
+        logger.info("Loading %s ...", self.name)
         self._device = resolve_device(self._device_pref)
         weights = tv_models.ResNet50_Weights.DEFAULT
         self._model = tv_models.resnet50(weights=weights)
+        # Transform: Remove classification head — output raw features instead of logits
         self._model.fc = torch.nn.Identity()
         self._model = self._model.to(self._device)
         self._model.eval()
@@ -50,9 +52,11 @@ class ResNet50Model(EmbeddingModel):
 
     @torch.inference_mode()
     def embed_batch(self, images: list[Image.Image]) -> np.ndarray:
+        # Compute: Extract features through ResNet-50 backbone with L2 normalisation
         self.ensure_loaded()
         assert self._preprocess is not None and self._model is not None
         tensors = torch.stack([self._preprocess(img) for img in images]).to(self._device)
         features = self._model(tensors)
+        # Normalise: L2-normalise to unit length for cosine similarity
         features = features / features.norm(dim=-1, keepdim=True)
         return features.cpu().float().numpy()

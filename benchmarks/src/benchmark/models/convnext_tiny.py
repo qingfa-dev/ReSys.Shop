@@ -36,12 +36,15 @@ class ConvNeXtTinyModel(EmbeddingModel):
         return 768
 
     def load(self) -> None:
-        logger.info("Loading %s …", self.name)
+        # Call: Download ConvNeXt-Tiny ImageNet weights from torchvision
+        logger.info("Loading %s ...", self.name)
         self._device = resolve_device(self._device_pref)
         self._model = models.convnext_tiny(weights=models.ConvNeXt_Tiny_Weights.IMAGENET1K_V1)
+        # Transform: Remove classification head — flatten features for retrieval
         self._model.classifier = torch.nn.Flatten(start_dim=1)
         self._model = self._model.to(self._device)
         self._model.eval()
+        # Create: ImageNet normalisation pipeline (resize, centre crop, normalise)
         self._transform = transforms.Compose([
             transforms.Resize(256),
             transforms.CenterCrop(224),
@@ -56,9 +59,11 @@ class ConvNeXtTinyModel(EmbeddingModel):
 
     @torch.inference_mode()
     def embed_batch(self, images: list[Image.Image]) -> np.ndarray:
+        # Compute: Extract features through ConvNeXt backbone with L2 normalisation
         self.ensure_loaded()
         assert self._transform is not None and self._model is not None
         tensors = torch.stack([self._transform(img) for img in images]).to(self._device)
         features = self._model(tensors)
+        # Normalise: L2-normalise to unit length for cosine similarity
         features = features / features.norm(dim=-1, keepdim=True)
         return features.cpu().float().numpy()

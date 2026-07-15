@@ -1,5 +1,4 @@
 """Batch throughput measurement (images / second)."""
-
 from __future__ import annotations
 
 import time
@@ -28,12 +27,15 @@ def measure_throughput(
     """
     n = len(sample_images)
     total_images = 0
+    # Profile: Wall-clock measurement across multiple batches
     t0 = time.perf_counter()
 
+    # Batch: Run multiple batched forward passes for stable average
     for b in range(num_batches):
         batch = [sample_images[(b * batch_size + i) % n] for i in range(batch_size)]
         model.embed_batch(batch)
         total_images += batch_size
 
+    # Compute: Total images divided by elapsed wall-clock time
     elapsed = time.perf_counter() - t0
     return total_images / elapsed if elapsed > 0 else 0.0

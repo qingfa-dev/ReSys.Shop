@@ -36,12 +36,15 @@ class EfficientNetB0Model(EmbeddingModel):
         return 1280
 
     def load(self) -> None:
-        logger.info("Loading %s …", self.name)
+        # Call: Download EfficientNet-B0 ImageNet weights from torchvision
+        logger.info("Loading %s ...", self.name)
         self._device = resolve_device(self._device_pref)
         self._model = models.efficientnet_b0(weights=models.EfficientNet_B0_Weights.IMAGENET1K_V1)
+        # Transform: Remove classification head — output raw features instead of logits
         self._model.classifier = torch.nn.Identity()
         self._model = self._model.to(self._device)
         self._model.eval()
+        # Create: ImageNet normalisation pipeline (resize, centre crop, normalise)
         self._transform = transforms.Compose([
             transforms.Resize(256),
             transforms.CenterCrop(224),
@@ -56,9 +59,11 @@ class EfficientNetB0Model(EmbeddingModel):
 
     @torch.inference_mode()
     def embed_batch(self, images: list[Image.Image]) -> np.ndarray:
+        # Compute: Extract features through EfficientNet-B0 backbone with L2 normalisation
         self.ensure_loaded()
         assert self._transform is not None and self._model is not None
         tensors = torch.stack([self._transform(img) for img in images]).to(self._device)
         features = self._model(tensors)
+        # Normalise: L2-normalise to unit length for cosine similarity
         features = features / features.norm(dim=-1, keepdim=True)
         return features.cpu().float().numpy()

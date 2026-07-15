@@ -6,7 +6,7 @@ Adding a new model requires exactly three steps:
      ``load``, and ``embed``
   3. Register an instance in ``REGISTRY`` inside ``__init__.py``
 
-The benchmark pipeline (generator → retriever → evaluator → reporter)
+The benchmark pipeline (generator -> retriever -> evaluator -> reporter)
 never changes when new models are added.
 """
 from __future__ import annotations
@@ -17,6 +17,8 @@ import numpy as np
 from PIL import Image
 
 
+# Invariant: embed(img) always returns L2-normalised float32 vector
+#            of length embedding_dim for every subclass
 class EmbeddingModel(ABC):
     """Strategy interface for image embedding models.
 
@@ -41,6 +43,10 @@ class EmbeddingModel(ABC):
     def embedding_dim(self) -> int:
         """Dimension of the output embedding vector."""
 
+    # Contract: pre=model not yet loaded, post=model loaded on target device,
+    #           throws=RuntimeError if device unavailable
+    # AgentHint: Subclasses must implement pre/post conditions to tolerate
+    #            missing GPU; do NOT throw unconditionally
     @abstractmethod
     def load(self) -> None:
         """Download weights and initialise the model on the target device.
@@ -48,12 +54,13 @@ class EmbeddingModel(ABC):
         Called once by ``ensure_loaded()``. Must be idempotent.
         """
 
+    # Contract: pre=image is RGB PIL, post=return float32 shape (D,) L2-norm=1
     @abstractmethod
     def embed(self, image: Image.Image) -> np.ndarray:
         """Return a normalised float32 embedding for a single PIL image.
 
         Args:
-            image: An RGB PIL image (any size — the adapter handles resizing).
+            image: An RGB PIL image (any size - the adapter handles resizing).
 
         Returns:
             1-D float32 numpy array of shape ``(embedding_dim,)``, L2-normalised.
@@ -61,6 +68,7 @@ class EmbeddingModel(ABC):
 
     # ── optional override ─────────────────────────────────────────────────
 
+    # Contract: pre=len(images) > 0, post=return float32 shape (N, D) L2-normalised
     def embed_batch(self, images: list[Image.Image]) -> np.ndarray:
         """Embed a batch of images.
 

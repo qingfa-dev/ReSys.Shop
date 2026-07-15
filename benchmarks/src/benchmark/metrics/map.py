@@ -28,19 +28,24 @@ def average_precision(
     Returns:
         AP in [0, 1]. Returns 0 if no relevant items exist.
     """
+    # Assume: relevant_count defaults to label set size when caller
+    #         has no pre-computed gallery counts
     if relevant_count is None:
         relevant_count = len(relevant_labels)
 
+    # Validate: No relevant items means zero AP
     if relevant_count == 0:
         return 0.0
 
+    # Compute: Denominator capped at k_cap for AP@K semantics
     denominator = relevant_count
     if k_cap is not None and k_cap < denominator:
         denominator = k_cap
 
+    # Compute: Running sum of precision at each relevant-hit rank
     hits = 0
     running_sum = 0.0
-    # When k_cap is set, only consider the top-k_cap results
+    # Explain: Only top-k_cap results matter when denominator is capped
     search_window = retrieved_labels[:k_cap] if k_cap is not None else retrieved_labels
     for rank, label in enumerate(search_window, start=1):
         if label in relevant_labels:
@@ -68,11 +73,14 @@ def mean_average_precision(
     Returns:
         mAP in [0, 1].
     """
+    # Validate: Empty retrieval set returns zero
     if not all_retrieved:
         return 0.0
+    # Assume: Default per-query counts from set sizes
     if all_counts is None:
         all_counts = [len(s) for s in all_relevant]
 
+    # Compute: Average per-query AP across all queries
     aps = [
         average_precision(ret, rel, cnt, k_cap)
         for ret, rel, cnt in zip(all_retrieved, all_relevant, all_counts)

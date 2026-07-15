@@ -1,9 +1,7 @@
 """Per-image latency measurement for embedding models."""
-
 from __future__ import annotations
 
 import time
-from dataclasses import asdict
 
 import numpy as np
 from PIL import Image
@@ -30,16 +28,18 @@ def measure_latency(
         ``LatencyStats`` with p50/p95/p99 in milliseconds.
     """
     n = len(sample_images)
-    # Warmup
+    # Profile: Warmup forward passes to stabilise GPU compute cache
     for i in range(warmup_runs):
         model.embed(sample_images[i % n])
 
-    # Timed runs
+    # Profile: Timed forward passes for latency distribution
     samples_ms: list[float] = []
     for i in range(benchmark_runs):
         img = sample_images[i % n]
         t0 = time.perf_counter()
         model.embed(img)
+        # Compute: Elapsed wall-clock time in milliseconds
         samples_ms.append((time.perf_counter() - t0) * 1000.0)
 
+    # Aggregate: Compute p50/p95/p99/mean/std from raw samples
     return LatencyStats(samples=samples_ms)

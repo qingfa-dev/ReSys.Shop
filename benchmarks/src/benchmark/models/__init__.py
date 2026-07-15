@@ -6,9 +6,12 @@ can be imported in environments where torch / transformers are not installed
 
 To add a new model:
   1. Create ``models/<name>.py`` subclassing ``EmbeddingModel``
-  2. Add a factory function to ``_FACTORIES`` below
+  2. Add a factory entry in ``_register()`` and ``get_registry()`` below
 
 Nothing else in the pipeline needs to change.
+
+Boundary: Models -> everything else — adapters implement EmbeddingModel;
+          the pipeline never imports model-specific types.
 """
 from __future__ import annotations
 
@@ -20,7 +23,11 @@ _FACTORIES: dict[str, type] = {}  # populated by _register()
 
 
 def _register() -> dict[str, EmbeddingModel]:
-    """Import and instantiate all adapters (deferred until first use)."""
+    """Import and instantiate all adapters (deferred until first use).
+
+    AgentHint: Add new model entries here AND in get_registry();
+               keep both in the same alphabetical order for diff clarity.
+    """
     from benchmark.models.clip_b32 import ClipB32Model
     from benchmark.models.clip_generic import ClipGenericModel
     from benchmark.models.clip_l14 import ClipL14Model
@@ -49,7 +56,14 @@ def _register() -> dict[str, EmbeddingModel]:
 
 
 def get_registry(device: str = "auto") -> dict[str, EmbeddingModel]:
-    """Return a fresh registry of model instances for the requested device."""
+    """Return a fresh registry of model instances for the requested device.
+
+    Args:
+        device: Target device string (auto, cpu, cuda, mps).
+
+    Returns:
+        Dict mapping model keys to initialised model instances on the device.
+    """
     from benchmark.models.clip_b32 import ClipB32Model
     from benchmark.models.clip_generic import ClipGenericModel
     from benchmark.models.clip_l14 import ClipL14Model
@@ -78,11 +92,17 @@ def get_registry(device: str = "auto") -> dict[str, EmbeddingModel]:
 
 
 class _LazyRegistry(dict):
-    """Dict that builds itself on first access."""
+    """Dict that builds itself on first access.
+
+    Prevents torch/transformers imports at module load time so that
+    reporting and CLI packages can import the registry even when
+    ML dependencies are not installed.
+    """
 
     _built: bool = False
 
     def _build(self) -> None:
+        # Defer: Populate on first access — avoids import on module load
         if not self._built:
             self.update(_register())
             self._built = True

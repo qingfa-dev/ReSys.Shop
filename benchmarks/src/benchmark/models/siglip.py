@@ -42,7 +42,8 @@ class SigLipModel(EmbeddingModel):
         return 768
 
     def load(self) -> None:
-        logger.info("Loading %s from %s …", self.name, _HF_MODEL_ID)
+        # Call: Download Google SigLIP weights from HuggingFace hub
+        logger.info("Loading %s from %s ...", self.name, _HF_MODEL_ID)
         self._device = resolve_device(self._device_pref)
         self._processor = AutoProcessor.from_pretrained(_HF_MODEL_ID)
         self._model = AutoModel.from_pretrained(_HF_MODEL_ID).to(self._device)
@@ -54,12 +55,13 @@ class SigLipModel(EmbeddingModel):
 
     @torch.inference_mode()
     def embed_batch(self, images: list[Image.Image]) -> np.ndarray:
+        # Compute: Encode through SigLIP vision model with L2 normalisation
         self.ensure_loaded()
         inputs = self._processor(images=images, return_tensors="pt", padding=True)
         inputs = {k: v.to(self._device) for k, v in inputs.items()}
-        # SigLIP exposes image features via the vision model
+        # Explain: SigLIP exposes image features via vision_model.pooler_output (CLS token)
         vision_out = self._model.vision_model(**inputs)
-        # Use the pooled output (CLS token)
-        features = vision_out.pooler_output  # (B, 768)
+        features = vision_out.pooler_output
+        # Normalise: L2-normalise to unit length for cosine similarity
         features = features / features.norm(dim=-1, keepdim=True)
         return features.cpu().float().numpy()

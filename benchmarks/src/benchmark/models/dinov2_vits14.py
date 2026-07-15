@@ -35,11 +35,13 @@ class DinoV2ViTS14Model(EmbeddingModel):
         return 384
 
     def load(self) -> None:
-        logger.info("Loading %s …", self.name)
+        # Call: Download DINOv2 ViT-S/14 weights from torch.hub (Facebook Research)
+        logger.info("Loading %s ...", self.name)
         self._device = resolve_device(self._device_pref)
         self._model = torch.hub.load("facebookresearch/dinov2", "dinov2_vits14", pretrained=True)
         self._model = self._model.to(self._device)
         self._model.eval()
+        # Create: ImageNet normalisation pipeline (resize, centre crop, normalise)
         self._transform = transforms.Compose([
             transforms.Resize(256),
             transforms.CenterCrop(224),
@@ -54,13 +56,16 @@ class DinoV2ViTS14Model(EmbeddingModel):
 
     @torch.inference_mode()
     def embed_batch(self, images: list[Image.Image]) -> np.ndarray:
+        # Compute: Extract features through DINOv2 backbone with L2 normalisation
         self.ensure_loaded()
         assert self._transform is not None and self._model is not None
         tensors = torch.stack([self._transform(img) for img in images]).to(self._device)
         features = self._model.forward(tensors)
+        # Normalise: Handle image_embeds vs pooler_output depending on transformers version
         if hasattr(features, "image_embeds"):
             features = features.image_embeds
         elif hasattr(features, "pooler_output"):
             features = features.pooler_output
+        # Normalise: L2-normalise to unit length for cosine similarity
         features = features / features.norm(dim=-1, keepdim=True)
         return features.cpu().float().numpy()
