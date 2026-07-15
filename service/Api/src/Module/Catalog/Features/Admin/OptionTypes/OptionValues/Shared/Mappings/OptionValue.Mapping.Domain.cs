@@ -7,7 +7,7 @@ public static partial class OptionValueMapping
 {
     public static Result<OptionValue> MapToDomain<T>(this T request, Guid optionTypeId) where T : OptionValueRequest
     {
-        return OptionValueExtensions.Create(
+        return OptionValueMethod.Create(
             optionTypeId,
             request.Name,
             request.Presentation,

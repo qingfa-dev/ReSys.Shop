@@ -50,7 +50,7 @@ public class TaxonomyStoreMappingTests
 
     private static Taxonomy CreateTaxonomy()
     {
-        var taxResult = TaxonomyExtensions.Create("Categories", "Categories", position: 1);
+        var taxResult = TaxonomyMethod.Create("Categories", "Categories", position: 1);
         taxResult.IsSuccess.Should().BeTrue();
         var taxonomy = taxResult.Value;
 

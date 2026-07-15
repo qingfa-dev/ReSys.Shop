@@ -43,7 +43,7 @@ public class UpdateTaxonRuleTests : IDisposable
     [Fact(DisplayName = "Handler: Should update rule successfully when taxon is non-automatic")]
     public async Task Handle_ShouldReturnSuccess_WhenTaxonNotAutomatic()
     {
-        var taxonomy = TaxonomyExtensions.Create("Categories", "Categories", 0).Value;
+        var taxonomy = TaxonomyMethod.Create("Categories", "Categories", 0).Value;
         var taxon = TaxonMethod.Create(taxonomy.Id, null, "Shirts", "Shirts", null, 0, "shirts", null, null, null, false, null, null, false, null, null).Value;
         var rule = TaxonRuleExtensions.Create(taxon.Id, TaxonRuleType.ProductName, TaxonRuleMatchPolicy.IsEqualTo, "Old");
 
@@ -78,7 +78,7 @@ public class UpdateTaxonRuleTests : IDisposable
     [Fact(DisplayName = "Handler: Should update rule and trigger auto-classification when taxon is automatic")]
     public async Task Handle_ShouldTriggerAutoClassification_WhenTaxonIsAutomatic()
     {
-        var taxonomy = TaxonomyExtensions.Create("Categories", "Categories", 0).Value;
+        var taxonomy = TaxonomyMethod.Create("Categories", "Categories", 0).Value;
         var taxon = TaxonMethod.Create(taxonomy.Id, null, "Shirts", "Shirts", null, 0, "shirts", null, null, null, true, null, null, false, null, null).Value;
         var rule = TaxonRuleExtensions.Create(taxon.Id, TaxonRuleType.ProductName, TaxonRuleMatchPolicy.IsEqualTo, "Old");
 
@@ -115,7 +115,7 @@ public class UpdateTaxonRuleTests : IDisposable
     [Fact(DisplayName = "Handler: Should return failure when rule not found")]
     public async Task Handle_ShouldReturnFailure_WhenRuleNotFound()
     {
-        var taxonomy = TaxonomyExtensions.Create("Categories", "Categories", 0).Value;
+        var taxonomy = TaxonomyMethod.Create("Categories", "Categories", 0).Value;
         var taxon = TaxonMethod.Create(taxonomy.Id, null, "Shirts", "Shirts", null, 0, "shirts", null, null, null, false, null, null, false, null, null).Value;
 
         _dbContext.Set<Taxonomy>().Add(taxonomy);
@@ -133,7 +133,7 @@ public class UpdateTaxonRuleTests : IDisposable
     [Fact(DisplayName = "Handler: Should not propagate exception when auto-classification throws")]
     public async Task Handle_ShouldNotPropagate_WhenAutoClassificationThrows()
     {
-        var taxonomy = TaxonomyExtensions.Create("Categories", "Categories", 0).Value;
+        var taxonomy = TaxonomyMethod.Create("Categories", "Categories", 0).Value;
         var taxon = TaxonMethod.Create(taxonomy.Id, null, "Shirts", "Shirts", null, 0, "shirts", null, null, null, true, null, null, false, null, null).Value;
         var rule = TaxonRuleExtensions.Create(taxon.Id, TaxonRuleType.ProductName, TaxonRuleMatchPolicy.IsEqualTo, "Old");
 
@@ -160,8 +160,8 @@ public class UpdateTaxonRuleTests : IDisposable
     [Fact(DisplayName = "Handler: Should return taxon-not-found when taxon belongs to different taxonomy")]
     public async Task Handle_ShouldReturnFailure_WhenTaxonIdMismatch()
     {
-        var taxonomy = TaxonomyExtensions.Create("Categories", "Categories", 0).Value;
-        var otherTaxonomy = TaxonomyExtensions.Create("Brands", "Brands", 0).Value;
+        var taxonomy = TaxonomyMethod.Create("Categories", "Categories", 0).Value;
+        var otherTaxonomy = TaxonomyMethod.Create("Brands", "Brands", 0).Value;
         var taxon = TaxonMethod.Create(otherTaxonomy.Id, null, "Shirts", "Shirts", null, 0, "shirts", null, null, null, false, null, null, false, null, null).Value;
 
         _dbContext.Set<Taxonomy>().AddRange(taxonomy, otherTaxonomy);

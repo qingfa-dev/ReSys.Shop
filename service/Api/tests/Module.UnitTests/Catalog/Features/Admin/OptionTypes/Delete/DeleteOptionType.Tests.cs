@@ -72,7 +72,7 @@ public class DeleteOptionTypeTests : IDisposable
         // Arrange
         var result = OptionTypeMethod.Create("HasValues", "P");
         var entity = result.Value;
-        entity.OptionValues.Add(OptionValueExtensions.Create(entity.Id, "V1", "V1").Value);
+        entity.OptionValues.Add(OptionValueMethod.Create(entity.Id, "V1", "V1").Value);
         _dbContext.Set<OptionType>().Add(entity);
         await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 

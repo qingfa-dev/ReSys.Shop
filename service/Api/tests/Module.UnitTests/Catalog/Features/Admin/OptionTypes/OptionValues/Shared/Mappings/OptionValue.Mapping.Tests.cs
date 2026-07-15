@@ -36,7 +36,7 @@ public class OptionValueMappingTests
     [Fact(DisplayName = "ToDomain (Update): Should update existing entity from request")]
     public void ToDomain_Update_ShouldUpdateEntity()
     {
-        var entity = OptionValueExtensions.Create(
+        var entity = OptionValueMethod.Create(
             Guid.NewGuid(), "Old", "Old Color", 0).Value;
 
         var request = new OptionValueRequest

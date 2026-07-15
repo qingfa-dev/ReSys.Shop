@@ -39,7 +39,7 @@ public class RestoreTaxonomyTests : IDisposable
     [Fact(DisplayName = "Handler: Should restore taxonomy successfully")]
     public async Task Handle_ShouldReturnSuccess_WhenValid()
     {
-        var entity = TaxonomyExtensions.Create("Categories", "Presentation", 0).Value;
+        var entity = TaxonomyMethod.Create("Categories", "Presentation", 0).Value;
         entity.Delete();
         _dbContext.Set<Taxonomy>().Add(entity);
         await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
@@ -65,7 +65,7 @@ public class RestoreTaxonomyTests : IDisposable
     public async Task Handle_ShouldRestoreRootTaxonViaSender_WhenRootExists()
     {
         var ct = TestContext.Current.CancellationToken;
-        var entity = TaxonomyExtensions.Create("Categories", "Presentation", 0).Value;
+        var entity = TaxonomyMethod.Create("Categories", "Presentation", 0).Value;
         entity.Delete();
         _dbContext.Set<Taxonomy>().Add(entity);
         await _dbContext.SaveChangesAsync(ct);
@@ -93,7 +93,7 @@ public class RestoreTaxonomyTests : IDisposable
     public async Task Handle_ShouldNotCallSender_WhenNoRootTaxon()
     {
         var ct = TestContext.Current.CancellationToken;
-        var entity = TaxonomyExtensions.Create("Categories", "Presentation", 0).Value;
+        var entity = TaxonomyMethod.Create("Categories", "Presentation", 0).Value;
         entity.Delete();
         _dbContext.Set<Taxonomy>().Add(entity);
         await _dbContext.SaveChangesAsync(ct);

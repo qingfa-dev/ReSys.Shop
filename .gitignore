@@ -485,3 +485,4 @@ $RECYCLE.BIN/
 app/ReSys.Admin/
 infra/Storage/demo/images/
 benchmarks/old/
+benchmarks/scripts/demo-seed/output/

@@ -46,7 +46,7 @@ public class RestoreTaxonTests : IDisposable
     [Fact(DisplayName = "Handler: Should restore taxon successfully")]
     public async Task Handle_ShouldReturnSuccess_WhenValid()
     {
-        var taxonomy = TaxonomyExtensions.Create("Categories", "Categories", 0).Value;
+        var taxonomy = TaxonomyMethod.Create("Categories", "Categories", 0).Value;
         var parent = TaxonMethod.Create(taxonomy.Id, null, "Root", "Root", null, 0, "root", null, null, null, false, null, null, false, null, null).Value;
         var taxon = TaxonMethod.Create(taxonomy.Id, parent.Id, "Shirts", "Shirts", null, 1, "shirts", null, null, null, false, null, null, false, null, null).Value;
         taxon.Delete();
@@ -77,7 +77,7 @@ public class RestoreTaxonTests : IDisposable
     [Fact(DisplayName = "Handler: Should return failure when taxon not found")]
     public async Task Handle_ShouldReturnFailure_WhenNotFound()
     {
-        var taxonomy = TaxonomyExtensions.Create("Categories", "Categories", 0).Value;
+        var taxonomy = TaxonomyMethod.Create("Categories", "Categories", 0).Value;
         _dbContext.Set<Taxonomy>().Add(taxonomy);
         await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 
@@ -90,7 +90,7 @@ public class RestoreTaxonTests : IDisposable
     [Fact(DisplayName = "Handler: Should restore non-deleted taxon gracefully (idempotent)")]
     public async Task Handle_ShouldReturnSuccess_WhenAlreadyActive()
     {
-        var taxonomy = TaxonomyExtensions.Create("Categories", "Categories", 0).Value;
+        var taxonomy = TaxonomyMethod.Create("Categories", "Categories", 0).Value;
         var parent = TaxonMethod.Create(taxonomy.Id, null, "Root", "Root", null, 0, "root", null, null, null, false, null, null, false, null, null).Value;
         var taxon = TaxonMethod.Create(taxonomy.Id, parent.Id, "Shirts", "Shirts", null, 1, "shirts", null, null, null, false, null, null, false, null, null).Value;
 

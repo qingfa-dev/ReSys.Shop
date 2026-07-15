@@ -47,7 +47,7 @@ public class TaxonHierarchyRebuildTests : IDisposable
     {
         // Arrange
         var ct = TestContext.Current.CancellationToken;
-        var taxonomy = TaxonomyExtensions.Create("Categories", "Categories", 0).Value;
+        var taxonomy = TaxonomyMethod.Create("Categories", "Categories", 0).Value;
         var root = TaxonMethod.Create(taxonomy.Id, null, "Categories", "Categories", null, 0, "categories", null, null, null, false, null, null, false, null, null).Value;
         var child = TaxonMethod.Create(taxonomy.Id, root.Id, "Shirts", "Shirts", null, 0, "shirts", null, null, null, false, null, null, false, null, null).Value;
         
@@ -85,7 +85,7 @@ public class TaxonHierarchyRebuildTests : IDisposable
     {
         // Arrange
         var ct = TestContext.Current.CancellationToken;
-        var taxonomy = TaxonomyExtensions.Create("Cat", "Cat", 0).Value;
+        var taxonomy = TaxonomyMethod.Create("Cat", "Cat", 0).Value;
         var root = TaxonMethod.Create(taxonomy.Id, null, "Cat", "Cat", null, 0, "cat", null, null, null, false, null, null, false, null, null).Value;
         var branch1 = TaxonMethod.Create(taxonomy.Id, root.Id, "B1", "B1", null, 0, "b1", null, null, null, false, null, null, false, null, null).Value;
         var branch2 = TaxonMethod.Create(taxonomy.Id, root.Id, "B2", "B2", null, 1, "b2", null, null, null, false, null, null, false, null, null).Value;
@@ -135,7 +135,7 @@ public class TaxonHierarchyRebuildTests : IDisposable
     {
         // Arrange
         var ct = TestContext.Current.CancellationToken;
-        var taxonomy = TaxonomyExtensions.Create("Cat", "Cat", 0).Value;
+        var taxonomy = TaxonomyMethod.Create("Cat", "Cat", 0).Value;
         var root = TaxonMethod.Create(taxonomy.Id, null, "Cat", "Cat", null, 0, "cat", null, null, null, false, null, null, false, null, null).Value;
         
         root.Lft = 0; root.Rgt = 0;
@@ -184,7 +184,7 @@ public class TaxonHierarchyRebuildTests : IDisposable
     public async Task RebuildHierarchy_ShouldHandleSingleRoot()
     {
         var ct = TestContext.Current.CancellationToken;
-        var taxonomy = TaxonomyExtensions.Create("Categories", "Categories", 0).Value;
+        var taxonomy = TaxonomyMethod.Create("Categories", "Categories", 0).Value;
         var root = TaxonMethod.Create(taxonomy.Id, null, "Categories", "Categories", null, 0, "categories", null, null, null, false, null, null, false, null, null).Value;
         
         root.Lft = 0; root.Rgt = 0;

@@ -68,7 +68,7 @@ public class CreateTaxonomyTests : IDisposable
     [Fact(DisplayName = "Handler: Should return failure when name is duplicate")]
     public async Task Handle_ShouldReturnFailure_WhenNameIsDuplicate()
     {
-        var existing = TaxonomyExtensions.Create("Categories", "Existing", 0).Value;
+        var existing = TaxonomyMethod.Create("Categories", "Existing", 0).Value;
         _dbContext.Set<Taxonomy>().Add(existing);
         await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 

@@ -36,8 +36,8 @@ public class GetVariantOptionValuesTests : IDisposable
     public async Task Handle_ShouldReturnAllOptionValues_WithIsAssigned()
     {
         var optionType = OptionTypeMethod.Create("Color", "Color").Value;
-        var assignedValue = OptionValueExtensions.Create(optionType.Id, "Red", "Red").Value;
-        var unassignedValue = OptionValueExtensions.Create(optionType.Id, "Blue", "Blue").Value;
+        var assignedValue = OptionValueMethod.Create(optionType.Id, "Red", "Red").Value;
+        var unassignedValue = OptionValueMethod.Create(optionType.Id, "Blue", "Blue").Value;
         var variant = VariantMethod.Create(Guid.NewGuid(), "SKU-001", isMaster: true).Value;
         var junction = OptionValueVariantMethod.Create(variant.Id, assignedValue.Id).Value;
 
