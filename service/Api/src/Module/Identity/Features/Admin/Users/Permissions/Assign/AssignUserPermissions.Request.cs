@@ -5,6 +5,7 @@ public static partial class AssignUserPermissions
     /// <summary>
     /// Represents the request contract for assigning direct permissions to a user.
     /// </summary>
+    // EXCEPTION: feature-specific collection request — no domain entity base
     public record Request
     {
         /// <summary>

@@ -5,6 +5,7 @@ public static partial class AssignRolePermissions
     /// <summary>
     /// Represents the request contract for assigning permissions to a role.
     /// </summary>
+    // EXCEPTION: feature-specific collection request — no domain entity base
     public record Request
     {
         /// <summary>

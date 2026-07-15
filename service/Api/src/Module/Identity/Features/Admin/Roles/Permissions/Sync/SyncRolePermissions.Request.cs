@@ -5,6 +5,7 @@ public static partial class SyncRolePermissions
     /// <summary>
     /// Represents the request to synchronize all permissions for a specific role.
     /// </summary>
+    // EXCEPTION: feature-specific collection request — no domain entity base
     public record Request
     {
         /// <summary>

@@ -6,6 +6,7 @@ public static partial class SyncUserPermissions
     /// Represents the request contract for synchronizing direct permissions for a user.
     /// This will replace the user's current direct permissions with the specified list.
     /// </summary>
+    // EXCEPTION: feature-specific collection request — no domain entity base
     public record Request
     {
         /// <summary>
