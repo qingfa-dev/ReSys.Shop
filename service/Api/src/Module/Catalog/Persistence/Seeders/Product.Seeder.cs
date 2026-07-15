@@ -57,6 +57,12 @@ public sealed class CatalogDemoSeeder(IApplicationDbContext context, DemoJsonHel
 
             product.MasterVariantId = Guid.Parse(pj.MasterVariantId);
 
+            product.StyleCode = pj.StyleCode;
+            product.SeasonName = pj.SeasonName;
+            product.MaterialComposition = pj.MaterialComposition;
+            product.CareInstructions = pj.CareInstructions;
+            product.Department = pj.Department;
+
             Context.Set<Product>().Add(product);
 
             if (colorTypeId is not null && sizeTypeId is not null)
@@ -77,6 +83,7 @@ public sealed class CatalogDemoSeeder(IApplicationDbContext context, DemoJsonHel
                 barcode: vj.Barcode, id: Guid.Parse(vj.Id));
             var variant = variantResult.Value;
             variant.Price = vj.Price;
+            variant.HsCode = vj.HsCode;
 
             var priceResult = PriceMethod.Create(amount: vj.Price, currency: "USD", variantId: variant.Id);
             var price = priceResult.Value!;
@@ -123,9 +130,11 @@ public sealed class CatalogDemoSeeder(IApplicationDbContext context, DemoJsonHel
     }
 
     private record DemoProductJson(string Id, string Name, string Slug, string Description, string Status,
-        string GenderTarget, string MetaTitle, string MetaKeywords, string MasterVariantId);
+        string GenderTarget, string MetaTitle, string MetaKeywords, string MasterVariantId,
+        string? StyleCode, string? SeasonName, string? MaterialComposition, string? CareInstructions,
+        string? Department);
     private record DemoVariantJson(string Id, string ProductId, string Sku, bool IsMaster, int Position,
-        decimal Price, string? Barcode);
+        decimal Price, string? Barcode, string? HsCode);
     private record DemoVariantImageJson(string Id, string VariantId, string ContentType, string FileName,
         string StoragePath, int Position, string Alt, string Type);
     private record DemoOptionAssignmentJson(string VariantId, string OptionValueName, string OptionTypeId);
