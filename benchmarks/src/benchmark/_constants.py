@@ -117,6 +117,8 @@ class DATASET_FIELDS:
     MASTER_CATEGORY: str = "masterCategory"
     SUB_CATEGORY: str = "subCategory"
     BASE_COLOUR: str = "baseColour"
+    SECONDARY_LABEL: str = "label_pattern"
+    PATTERN: str = "pattern"
 
 
 @dataclass(frozen=True)
