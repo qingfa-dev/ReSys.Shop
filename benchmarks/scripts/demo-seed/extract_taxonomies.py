@@ -40,6 +40,18 @@ def build_taxons_json(
     article_types: set[str],
 ) -> list[dict]:
     taxons: list[dict] = []
+    used_slugs: set[str] = {"categories", "brands", "article-types"}
+
+    def make_slug(name: str) -> str:
+        slug = name.lower().replace(" ", "-").replace("&", "and").replace(",", "")
+        original = slug
+        i = 2
+        while slug in used_slugs:
+            slug = f"{original}-{i}"
+            i += 1
+        used_slugs.add(slug)
+        return slug
+
     lft = 1
 
     root_cat_id = guid("taxon", "categories_root")
@@ -47,12 +59,12 @@ def build_taxons_json(
 
     for master_cat in sorted(master_categories):
         mc_id = guid("taxon", f"cat.{master_cat}")
-        mc_slug = master_cat.lower().replace(" ", "-").replace("&", "and")
+        mc_slug = make_slug(master_cat)
         mc_lft = lft
         lft += 1
         for sub_cat in sorted(sub_categories.get(master_cat, set())):
             sc_id = guid("taxon", f"cat.{master_cat}.{sub_cat}")
-            sc_slug = sub_cat.lower().replace(" ", "-").replace("&", "and")
+            sc_slug = make_slug(sub_cat)
             taxons.append({
                 "id": sc_id, "taxonomy_id": TAXONOMY_CATEGORIES_ID,
                 "parent_id": mc_id, "name": sub_cat,
@@ -81,7 +93,7 @@ def build_taxons_json(
     brand_lft = 2
     for brand in sorted(brands):
         b_id = guid("taxon", f"brand.{brand}")
-        b_slug = brand.lower().replace(" ", "-").replace("&", "and").replace(",", "")
+        b_slug = make_slug(brand)
         taxons.append({
             "id": b_id, "taxonomy_id": TAXONOMY_BRANDS_ID,
             "parent_id": root_brand_id, "name": brand,
@@ -99,7 +111,7 @@ def build_taxons_json(
     at_lft = 2
     for atype in sorted(article_types):
         at_id = guid("taxon", f"article_type.{atype}")
-        at_slug = atype.lower().replace(" ", "-").replace("&", "and")
+        at_slug = make_slug(atype)
         taxons.append({
             "id": at_id, "taxonomy_id": TAXONOMY_ARTICLE_TYPES_ID,
             "parent_id": root_at_id, "name": atype,
