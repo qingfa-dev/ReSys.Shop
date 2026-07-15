@@ -1,3 +1,5 @@
+using Shared.Application.Domain.Currencies;
+
 namespace Module.Ordering.Domain.Orders;
 
 // Initialize: Default constraints and query configuration for Order entity
@@ -7,18 +9,18 @@ public static class OrderConstant
     {
         public const int MaxNumberLength = 50;
         public const int MaxSessionIdLength = 100;
-        public const int MaxCurrencyLength = 3;
+        public const int MaxCurrencyLength = SystemCurrencyConstant.Constraints.MaxCodeLength;
         public const int MaxEmailLength = 255;
         public const int MaxSpecialInstructionsLength = 2000;
-        public const int Precision = 18;
-        public const int Scale = 2;
+        public const int Precision = SystemCurrencyConstant.Constraints.MonetaryPrecision;
+        public const int Scale = SystemCurrencyConstant.Constraints.MonetaryScale;
         public const int MaxLineItems = 100;
         public const int MaxAdjustments = 50;
     }
 
     public static class Defaults
     {
-        public const string Currency = "USD";
+        public const string Currency = SystemCurrencyConstant.Defaults.Code;
         public const string CreatedBy = "System";
         public const string PaymentState = "pending";
         public const string ShipmentState = "pending";

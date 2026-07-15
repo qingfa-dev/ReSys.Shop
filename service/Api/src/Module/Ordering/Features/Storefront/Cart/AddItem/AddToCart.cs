@@ -1,6 +1,6 @@
-using Microsoft.Extensions.Configuration;
-
 using Module.Catalog.Domain.Products.Variants;
+
+using Shared.Application.Systems.SystemInfos;
 using Module.Inventory.Domain.Stock;
 using Module.Inventory.Features.Storefront.CartReservations.Reserve;
 using Module.Inventory.Domain.StockLocations.StockItems;
@@ -19,7 +19,7 @@ public static partial class AddToCart
         IApplicationDbContext dbContext,
         ILogger<CommandHandler> logger,
         ICurrentUser currentUser,
-        IConfiguration configuration,
+        ISystemInfo systemInfo,
         ISender sender)
         : ICommandHandler<Command, Response>
     {
@@ -56,8 +56,8 @@ public static partial class AddToCart
 
             if (cart is null)
             {
-                // Create: New draft cart with default currency from configuration.
-                var currency = configuration["Ordering:DefaultCurrency"] ?? OrderConstant.Defaults.Currency;
+                // Create: New draft cart with default currency from system info.
+                var currency = systemInfo.DefaultCurrency;
                 var createResult = OrderMethod.Create(currency, userId, Guid.Empty, sessionId: sessionId, shipAddressId: null);
                 if (createResult.IsFailure)
                     return createResult.Errors;

@@ -1,3 +1,5 @@
+using Shared.Application.Domain.Currencies;
+
 namespace Module.Payment.Services.Provider;
 
 /// <summary>Gateway-level contract values: provider keys, Stripe/Bogus domain strings, webhook events, response messages, error codes.</summary>
@@ -12,7 +14,7 @@ public static class GatewayConstants
 
     public static class Currency
     {
-        public const string Usd = "USD";
+        public const string Usd = SystemCurrencyConstant.Defaults.Code;
     }
 
     public static class Idempotency

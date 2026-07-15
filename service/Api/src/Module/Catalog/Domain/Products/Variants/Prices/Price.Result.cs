@@ -1,3 +1,5 @@
+using Shared.Application.Domain.Currencies;
+
 namespace Module.Catalog.Domain.Products.Variants.Prices;
 
 public static class PriceResult
@@ -37,7 +39,7 @@ public static class PriceResult
         /// <summary>Currency exceeds the maximum length.</summary>
         public static Error CurrencyTooLong => Error.Validation(
             code: "Price.Currency.TooLong",
-            message: $"Currency cannot exceed {PriceConstant.Constraints.CurrencyMaxLength} characters.");
+            message: $"Currency cannot exceed {SystemCurrencyConstant.Constraints.MaxCodeLength} characters.");
 
         /// <summary>Country ISO code is invalid.</summary>
         public static Error InvalidCountryIso => Error.Validation(

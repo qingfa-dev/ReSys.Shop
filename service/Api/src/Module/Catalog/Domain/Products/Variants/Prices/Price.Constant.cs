@@ -1,21 +1,23 @@
+using Shared.Application.Domain.Currencies;
+
 namespace Module.Catalog.Domain.Products.Variants.Prices;
 
 public static class PriceConstant
 {
     public static class Constraints
     {
-        public const int CurrencyMaxLength = 3;
+        public const int CurrencyMaxLength = SystemCurrencyConstant.Constraints.MaxCodeLength;
         public const int CountryIsoMaxLength = 2;
         public const decimal MinAmount = 0m;
         public const decimal MinCompareAtAmount = 0m;
-        public const int Precision = 18;
-        public const int Scale = 2;
+        public const int Precision = SystemCurrencyConstant.Constraints.MonetaryPrecision;
+        public const int Scale = SystemCurrencyConstant.Constraints.MonetaryScale;
         public const int MaxPriceListsPerVariant = 10;
     }
 
     public static class Default
     {
-        public const string Currency = "USD";
+        public const string Currency = SystemCurrencyConstant.Defaults.Code;
         public const bool IsDefault = false;
     }
 

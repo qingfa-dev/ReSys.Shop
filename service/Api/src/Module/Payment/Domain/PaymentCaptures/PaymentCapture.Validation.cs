@@ -1,3 +1,5 @@
+using Shared.Application.Domain.Currencies;
+
 namespace Module.Payment.Domain.PaymentCaptures;
 
 // CAT-1 Validate: FluentValidation rule extensions for PaymentCapture fields
@@ -125,7 +127,7 @@ public static class PaymentCaptureValidation
             .NotEmpty()
             .WithErrorCode(PaymentCaptureResult.Failure.CurrencyRequired.Code)
             .WithMessage(PaymentCaptureResult.Failure.CurrencyRequired.Message)
-            .Length(PaymentConstant.Constraints.MaxCurrencyLength)
+            .Length(SystemCurrencyConstant.Constraints.MaxCodeLength)
             .WithErrorCode(PaymentCaptureResult.Failure.CurrencyInvalid.Code)
             .WithMessage(PaymentCaptureResult.Failure.CurrencyInvalid.Message);
     }

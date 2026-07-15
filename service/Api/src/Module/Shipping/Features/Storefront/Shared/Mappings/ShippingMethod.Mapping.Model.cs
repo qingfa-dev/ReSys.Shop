@@ -1,4 +1,5 @@
 using Module.Shipping.Domain.ShippingMethods;
+using Shared.Application.Domain.Currencies;
 
 namespace Module.Shipping.Features.Storefront.Shared.Mappings;
 
@@ -12,7 +13,7 @@ public static partial class ShippingMethodMapping
             MethodName = entity.Name,
             Description = entity.AdminName ?? string.Empty,
             Cost = 0m,
-            Currency = "USD",
+            Currency = SystemCurrencyConstant.Defaults.Code,
             IsActive = entity.AvailableToUsers,
             CreatedAtUtc = entity.CreatedAtUtc,
             ModifiedAtUtc = entity.ModifiedAtUtc,
@@ -29,7 +30,7 @@ public static partial class ShippingMethodMapping
             MethodName = entity.Name,
             Description = entity.AdminName ?? string.Empty,
             Cost = 0m,
-            Currency = "USD",
+            Currency = SystemCurrencyConstant.Defaults.Code,
             IsActive = entity.AvailableToUsers,
         };
     }
