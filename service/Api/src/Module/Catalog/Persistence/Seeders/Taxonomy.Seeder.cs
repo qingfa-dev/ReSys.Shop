@@ -13,22 +13,16 @@ public sealed class CatalogTaxonomySeeder(IApplicationDbContext context, DemoJso
             return Result.Ok();
 
         var json = jsonHelper.LoadIfExists<DemoTaxonomyJson>("demo_taxonomies.json");
-        if (json is not null)
-        {
-            foreach (var t in json)
-            {
-                var result = TaxonomyExtensions.Create(
-                    name: t.Name, presentation: t.Presentation,
-                    position: t.Position, id: Guid.Parse(t.Id));
-                Context.Set<Taxonomy>().Add(result.Value);
-            }
-            await Context.SaveChangesAsync(cancellationToken);
+        if (json is null)
             return Result.Ok();
-        }
 
-        var categoriesResult = TaxonomyExtensions.Create(name: "Categories", presentation: "Departments", position: 0, id: Guid.NewGuid());
-        var brandsResult = TaxonomyExtensions.Create(name: "Brands", presentation: "Brands", position: 1, id: Guid.NewGuid());
-        Context.Set<Taxonomy>().AddRange(categoriesResult.Value, brandsResult.Value);
+        foreach (var t in json)
+        {
+            var result = TaxonomyMethod.Create(
+                name: t.Name, presentation: t.Presentation,
+                position: t.Position, id: Guid.Parse(t.Id));
+            Context.Set<Taxonomy>().Add(result.Value);
+        }
         await Context.SaveChangesAsync(cancellationToken);
         return Result.Ok();
     }

@@ -1,5 +1,4 @@
 using Module.Catalog.Domain.Products;
-using Module.Catalog.Domain.Products.Classifications;
 using Module.Catalog.Domain.Products.Options;
 using Module.Catalog.Domain.Products.Variants;
 using Module.Catalog.Domain.Products.Variants.Images;
@@ -26,13 +25,10 @@ public sealed class CatalogDemoSeeder(IApplicationDbContext context, DemoJsonHel
         var jsonImages = jsonHelper.LoadIfExists<DemoVariantImageJson>("demo_variant_images.json");
         var jsonAssignments = jsonHelper.LoadIfExists<DemoOptionAssignmentJson>("demo_option_assignments.json");
 
-        if (jsonProducts is not null && jsonVariants is not null)
-        {
-            await SeedFromJsonAsync(jsonProducts, jsonVariants, jsonImages, jsonAssignments, cancellationToken);
+        if (jsonProducts is null || jsonVariants is null)
             return Result.Ok();
-        }
 
-        await SeedHardcodedAsync(cancellationToken);
+        await SeedFromJsonAsync(jsonProducts, jsonVariants, jsonImages, jsonAssignments, cancellationToken);
         return Result.Ok();
     }
 
@@ -124,63 +120,6 @@ public sealed class CatalogDemoSeeder(IApplicationDbContext context, DemoJsonHel
             }
             await Context.SaveChangesAsync(ct);
         }
-    }
-
-    private async Task SeedHardcodedAsync(CancellationToken ct)
-    {
-        // Existing hardcoded seeder logic preserved verbatim
-        var menTaxon = await Context.Set<Taxon>().FirstOrDefaultAsync(t => t.Slug == "men", ct);
-        var womenTaxon = await Context.Set<Taxon>().FirstOrDefaultAsync(t => t.Slug == "women", ct);
-        var accessoriesTaxon = await Context.Set<Taxon>().FirstOrDefaultAsync(t => t.Slug == "accessories", ct);
-        if (menTaxon is null && womenTaxon is null && accessoriesTaxon is null) return;
-
-        await SeedProductWithVariants(("Classic Cotton T-Shirt", "classic-cotton-t-shirt", "A comfortable classic cotton t-shirt.", "Classic Cotton T-Shirt", "t-shirt, cotton", menTaxon, "TEE-CTN-001-MSTR", "TEE-CTN-001-MSTR-BAR", 29.99m, null, [("S", "TEE-CTN-001-S"), ("M", "TEE-CTN-001-M"), ("L", "TEE-CTN-001-L"), ("XL", "TEE-CTN-001-XL")]), ct);
-        await SeedProductWithVariants(("Slim Fit Jeans", "slim-fit-jeans", "Modern slim-fit jeans.", "Slim Fit Jeans", "jeans, denim", menTaxon, "JNS-SLM-001-MSTR", "JNS-SLM-001-MSTR-BAR", 79.99m, null, [("30", "JNS-SLM-001-30"), ("32", "JNS-SLM-001-32"), ("34", "JNS-SLM-001-34")]), ct);
-        await SeedProductWithVariants(("Floral Summer Dress", "floral-summer-dress", "Light and breezy floral dress.", "Floral Summer Dress", "dress, floral", womenTaxon, "DRS-FLR-001-MSTR", "DRS-FLR-001-MSTR-BAR", 59.99m, 49.99m, [("S", "DRS-FLR-001-S"), ("M", "DRS-FLR-001-M"), ("L", "DRS-FLR-001-L")]), ct);
-        await SeedProductWithoutSizes(("Leather Tote Bag", "leather-tote-bag", "Handcrafted genuine leather tote bag.", "Leather Tote Bag", "bag, tote", accessoriesTaxon, "BAG-LEA-001", "BAG-LEA-001-BAR", 129.99m), ct);
-        await SeedProductWithVariants(("Running Sneakers", "running-sneakers", "Lightweight performance running shoes.", "Running Sneakers", "sneakers, running", menTaxon, "SNK-RUN-001-MSTR", "SNK-RUN-001-MSTR-BAR", 89.99m, 74.99m, [("8", "SNK-RUN-001-8"), ("9", "SNK-RUN-001-9"), ("10", "SNK-RUN-001-10")]), ct);
-        await Context.SaveChangesAsync(ct);
-    }
-
-    private async Task SeedProductWithVariants((string Name, string Slug, string Description, string MetaTitle, string MetaKeywords, Taxon? Taxon, string MasterSku, string MasterBarcode, decimal Price, decimal? CompareAtPrice, (string Size, string Sku)[]? Sizes) seed, CancellationToken ct)
-    {
-        if (seed.Taxon is null) return;
-        var productId = Guid.NewGuid(); var variantId = Guid.NewGuid();
-        var productResult = ProductMethod.Create(seed.Name, seed.Slug, seed.Description, ProductStatus.Active, DateTimeOffset.UtcNow, seed.MetaTitle, seed.Description, seed.MetaKeywords, id: productId);
-        var product = productResult.Value; product.GenderTarget = seed.Taxon.Name;
-        var masterResult = VariantMethod.Create(productId, seed.MasterSku, true, 0, seed.MasterBarcode, id: variantId);
-        var masterVariant = masterResult.Value; masterVariant.Price = seed.Price;
-        var masterPriceResult = PriceMethod.Create(seed.Price, "USD", variantId, seed.CompareAtPrice, "US");
-        masterPriceResult.Value!.IsDefault = true;
-        var classificationResult = ClassificationMethod.Create(productId, seed.Taxon.Id, 0);
-        product.Variants.Add(masterVariant); product.MasterVariantId = variantId;
-        product.Classifications.Add(classificationResult.Value);
-        Context.Set<Product>().Add(product); Context.Set<Variant>().Add(masterVariant); Context.Set<Price>().Add(masterPriceResult.Value);
-        int pos = 1;
-        foreach (var (size, sku) in seed.Sizes!)
-        {
-            var childVariantId = Guid.NewGuid();
-            var childResult = VariantMethod.Create(productId, sku, false, pos, $"{sku}-BAR", id: childVariantId);
-            var childVariant = childResult.Value; childVariant.Price = seed.Price;
-            var childPriceResult = PriceMethod.Create(seed.Price, "USD", childVariantId, seed.CompareAtPrice, "US");
-            product.Variants.Add(childVariant); Context.Set<Variant>().Add(childVariant); Context.Set<Price>().Add(childPriceResult.Value); pos++;
-        }
-    }
-
-    private async Task SeedProductWithoutSizes((string Name, string Slug, string Description, string MetaTitle, string MetaKeywords, Taxon? Taxon, string MasterSku, string MasterBarcode, decimal Price) seed, CancellationToken ct)
-    {
-        if (seed.Taxon is null) return;
-        var productId = Guid.NewGuid(); var variantId = Guid.NewGuid();
-        var productResult = ProductMethod.Create(seed.Name, seed.Slug, seed.Description, ProductStatus.Active, DateTimeOffset.UtcNow, seed.MetaTitle, seed.Description, seed.MetaKeywords, id: productId);
-        var product = productResult.Value; product.GenderTarget = "Unisex";
-        var variantResult = VariantMethod.Create(productId, seed.MasterSku, true, 0, seed.MasterBarcode, id: variantId);
-        var variant = variantResult.Value; variant.Price = seed.Price;
-        var priceResult = PriceMethod.Create(seed.Price, "USD", variantId, compareAtAmount: null, "US");
-        priceResult.Value!.IsDefault = true;
-        var classificationResult = ClassificationMethod.Create(productId, seed.Taxon.Id, 0);
-        product.Variants.Add(variant); product.MasterVariantId = variantId;
-        product.Classifications.Add(classificationResult.Value);
-        Context.Set<Product>().Add(product); Context.Set<Variant>().Add(variant); Context.Set<Price>().Add(priceResult.Value);
     }
 
     private record DemoProductJson(string Id, string Name, string Slug, string Description, string Status,
