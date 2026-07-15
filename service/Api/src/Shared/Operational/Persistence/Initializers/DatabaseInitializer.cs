@@ -189,6 +189,12 @@ public static partial class DatabaseInitializer
                     seederName,
                     seederEx.GetType().Name,
                     seederEx.Message);
+
+                var dbContext = scope.ServiceProvider.GetService<IApplicationDbContext>();
+                if (dbContext is DbContext efContext)
+                {
+                    efContext.ChangeTracker.Clear();
+                }
             }
         }
 
