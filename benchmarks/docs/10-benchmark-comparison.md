@@ -14,10 +14,11 @@ this" feature?**
 We ran three experiments with different configurations:
 
 | Experiment | Dataset | Ground truth rule | Retrieval method | What it measures |
-|---|---|---|---|---|
+|---|---|---|---|---|---|
 | **A. Old Thesis** | 44K images | Same category (any T-shirt ≈ any T-shirt) | NumPy in-memory | Category prediction (easy) |
 | **B. Old Pipeline** | 44K images | Same category | PostgreSQL + pgvector | Production-like retrieval |
-| **C. New Thesis** | 5K images | Same category **+ same colour group** | NumPy in-memory | **Visual similarity** (hard) |
+| **C. New Thesis** | 5K images | Same category **+ same colour group** | NumPy in-memory | Visual similarity |
+| **D. Enriched Thesis** | 5K images | Same category **+ colour + pattern** | NumPy in-memory | Fine-grained visual similarity |
 
 **Key finding**: When we switched from "same category" to "same category + same
 colour" as the definition of "similar," the best model's accuracy dropped from
@@ -28,14 +29,14 @@ was measuring the wrong thing. The new rule actually measures visual similarity.
 is 2.6× faster while being nearly as accurate. For production, start with
 FashionCLIP; switch to EfficientNet-B0 if latency is critical.
 
-### Quick Decision Matrix
+### Quick Decision Matrix (Primary + Pattern Results)
 
-| If you need... | Use this model | Why |
-|---|---|---|
-| Best accuracy (visual similarity) | FashionCLIP | 24.5% mAP, best colour+type matching |
-| Best speed | EfficientNet-B0 | 37.8ms/image, 30.2 images/sec, 0.220 mAP |
-| Best storage efficiency | FashionCLIP | 512-d vectors, 1.95 MB per 1K images |
-| Easiest to deploy | CLIP-generic | 512-d vectors, good accuracy, lots of docs |
+| If you need... | Use | Primary mAP | Pattern mAP | Why |
+|---|---|---|---|---|
+| Best accuracy | FashionCLIP | **0.245** | **0.215** | Leads both schemes |
+| Best speed | EfficientNet-B0 | 0.220 | 0.192 | 37.8ms/image, 30.2/s |
+| Open-source | CLIP-generic | 0.231 | 0.201 | 2nd in both, no license issues |
+| NOT recommended | ResNet-50 | 0.209 | 0.186 | Last in both, 4× storage |
 
 ---
 
@@ -159,12 +160,16 @@ choice — while Navy and Black are both dark, they are distinct colour categori
 
 ### 3.1 Retrieval Effectiveness (mAP — primary metric)
 
-| Model | A. Old Thesis (mAP) | B. Old Pipeline (mAP) | C. New Thesis (mAP) |
-|-------|--------------------|-----------------------|---------------------|
-| FashionCLIP | 0.746 ± 0.009 | 0.879 ± 0.002 | **0.245 ± 0.004** |
-| CLIP-generic | 0.703 ± 0.022 | 0.834 ± 0.004 | **0.231 ± 0.006** |
-| EfficientNet-B0 | 0.720 ± 0.016 | 0.816 ± 0.001 | **0.220 ± 0.006** |
-| ResNet-50 | 0.715 ± 0.026 | 0.812 ± 0.005 | **0.209 ± 0.004** |
+| Model | C. mAP (cat+colour) | D. mAP (cat+colour+pattern) | Δ | Rank change |
+|-------|---------------------|------------------------------|---|-------------|
+| FashionCLIP | 0.245 ± 0.004 | **0.215 ± 0.008** | −0.031 | 1 → 1 |
+| CLIP-generic | 0.231 ± 0.006 | 0.201 ± 0.007 | −0.030 | 2 → 2 |
+| EfficientNet-B0 | 0.220 ± 0.006 | 0.192 ± 0.004 | −0.028 | 3 → 3 |
+| ResNet-50 | 0.209 ± 0.004 | 0.186 ± 0.007 | −0.023 | 4 → 4 |
+
+**Finding**: Rankings are **stable** — FashionCLIP leads both schemes.
+The uniform mAP drop confirms colour and pattern are orthogonal visual tasks
+at current embedding quality.
 
 **What this means (non-ML)**: In experiment A, FashionCLIP scored 74.6% — meaning
 about 75% of its top results were correct. But "correct" meant "in the same

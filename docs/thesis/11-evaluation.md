@@ -231,10 +231,37 @@ This evaluation addresses **Research Objective 3** (§1.4): *empirically compari
 **Example result data**: `benchmarks/outputs/thesis/results/thesis_results.json`
 
 **Analysis dimensions**:
-1. **Retrieval effectiveness**: Fashion-CLIP leads with mAP = 0.746 ± 0.009. Cohen's d effect sizes (1.50–1.78) confirm large, practically significant differences vs all competitors.
-2. **Efficiency-accuracy trade-off**: EfficientNet-B0 achieves 3.9× lower latency (21.6 ms vs 84.4 ms) at only 0.026 mAP penalty vs Fashion-CLIP — potentially the Pareto-optimal choice for latency-sensitive deployments.
-3. **Storage cost**: ResNet-50's 2048-d vectors consume 3.9× more storage per embedding than 512-d models (0.78 MB vs 0.20 MB per fold-query set), with lower mAP (0.715). The storage premium is not justified.
-4. **Business impact**: All models achieve Precision@5 > 0.74 (74% of top-5 results are colour/category matches). EfficientNet-B0 offers the best latency–accuracy balance for production. Recall@20 values are under investigation (currently 0.0 in this provisional run).
+1. **Retrieval effectiveness**: Fashion-CLIP leads primary (0.245) and secondary (0.215). Rankings are stable — pattern matching doesn't change model ordering.
+2. **Efficiency-accuracy trade-off**: EfficientNet-B0 is 2.6× faster (37.8 vs 96.8 ms) at 0.025 primary mAP penalty. Dominates Pareto frontier.
+3. **Storage cost**: ResNet-50 stores 4.0× more (7.81 vs 1.95 MB/1K) with lowest mAP.
+4. **Pattern-aware generalisation**: All models drop 0.023–0.031 mAP under pattern constraint. FashionCLIP maintains lead, confirming domain-tuned CLIP generalises best.
+
+### 11.5.6a Pattern-Aware Secondary Evaluation (Enriched Dataset)
+
+Adding `articleAttributes.Pattern` from per-product JSON metadata as a
+secondary relevance criterion produces a second set of results (n=5,000,
+3-fold CV, `benchmark enrich` → `benchmark thesis --secondary-label label_pattern`):
+
+| Model | Primary mAP | Secondary mAP | Δ | P@5 (sec) | R@10 (sec) |
+|-------|------------|--------------|----|-----------|-------------|
+| FashionCLIP | 0.245 ± 0.004 | **0.215 ± 0.008** | −0.031 | 0.379 | 0.104 |
+| CLIP-generic | 0.231 ± 0.006 | 0.201 ± 0.007 | −0.030 | 0.361 | 0.095 |
+| EfficientNet-B0 | 0.220 ± 0.006 | 0.192 ± 0.004 | −0.028 | 0.347 | 0.089 |
+| ResNet-50 | 0.209 ± 0.004 | 0.186 ± 0.007 | −0.023 | 0.333 | 0.095 |
+
+**Finding**: Model rankings are **stable** across both evaluation schemes.
+FashionCLIP retains its #1 position; CLIP-generic stays #2; ResNet-50 stays
+#4. The consistent ranking under a stricter visual constraint strengthens the
+conclusion that FashionCLIP is the optimal model for fashion CBIR.
+
+The uniform mAP drop (0.023–0.031) suggests colour and pattern discrimination
+are orthogonal visual tasks at the embedding level — no model "cracks"
+fine-grained pattern matching significantly better than others, pointing to a
+current frontier limitation of pre-trained vision encoders.
+
+**Result files**:
+- `outputs/thesis/results/thesis_results.json` (primary)
+- `outputs/thesis/results/thesis_results_pattern.json` (secondary)
 
 ### 11.5.7 Statistical Analysis
 

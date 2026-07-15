@@ -52,6 +52,23 @@ uv run benchmark thesis \
     --folds 3 --seed 42 --device cpu
 ```
 
+Produces:
+- `outputs/thesis/results/thesis_results.json` — primary (category + colour)
+- `outputs/thesis/results/thesis_results_pattern.json` — secondary (category + colour + pattern)
+
+## Results (5K Subset, 4 Models, 3-Fold CV)
+
+| Model | Primary mAP | Secondary mAP | Δ |
+|-------|------------|--------------|----|
+| FashionCLIP | 0.245 ± 0.004 | 0.215 ± 0.008 | −0.031 |
+| CLIP-generic | 0.231 ± 0.006 | 0.201 ± 0.007 | −0.030 |
+| EfficientNet-B0 | 0.220 ± 0.006 | 0.192 ± 0.004 | −0.028 |
+| ResNet-50 | 0.209 ± 0.004 | 0.186 ± 0.007 | −0.023 |
+
+Model rankings are **stable** across both schemes. The uniform mAP drop
+(0.023–0.031) confirms colour and pattern are independent visual tasks —
+no model excels at fine-grained pattern matching beyond its baseline.
+
 ## Extracting Other Attributes
 
 The enrichment script extracts `articleAttributes.Pattern` by default.

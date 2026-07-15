@@ -144,6 +144,33 @@ class GroundTruth:
             self.df.loc[self.df["masterCategory"].isin(rare), "masterCategory"] = "Other"
             logger.info("Grouped %d rare categories into 'Other'", len(rare))
 
+    @staticmethod
+    def _build_sample_meta(row: pd.Series, has_pattern: bool) -> dict[str, str]:
+        """Build the metadata entry for one product in a split file.
+
+        Always produces ``label`` (category + colour).  When ``has_pattern``
+        is True and the row contains a ``pattern`` value other than
+        ``"Unknown"``, also produces ``label_pattern`` (category + colour +
+        pattern).  Products with missing pattern fall back to the same value
+        as ``label``.
+        """
+        if pd.notna(row.get("subCategory")):
+            base = f"{row['masterCategory']}/{row['subCategory']}/{row['_norm_colour']}"
+        else:
+            base = str(row["masterCategory"])
+
+        meta: dict[str, str] = {
+            "image_path": PAT.IMAGE_PATH.format(product_id=row["id"]),
+            "label": base,
+            "product_id": str(row["id"]),
+        }
+
+        if has_pattern:
+            pat = str(row.get("pattern", "Unknown"))
+            meta["label_pattern"] = f"{base}/{pat}" if pat != "Unknown" else base
+
+        return meta
+
     def generate_splits(
         self,
         n_splits: int = MAGIC.N_FOLDS_DEFAULT,
@@ -182,16 +209,9 @@ class GroundTruth:
         self.df["_norm_colour"] = (self.df["baseColour"].apply(normalize_colour)
                                      if "baseColour" in self.df.columns
                                      else "Unknown")
+        has_pattern = "pattern" in self.df.columns
         meta_by_id = {
-            row["id"]: {
-                "image_path": PAT.IMAGE_PATH.format(product_id=row['id']),
-                "label": (
-                    f"{row['masterCategory']}/{row['subCategory']}/{row['_norm_colour']}"
-                    if pd.notna(row.get("subCategory"))
-                    else str(row["masterCategory"])
-                ),
-                "product_id": str(row["id"]),
-            }
+            row["id"]: self._build_sample_meta(row, has_pattern)
             for _, row in self.df.iterrows()
         }
 
