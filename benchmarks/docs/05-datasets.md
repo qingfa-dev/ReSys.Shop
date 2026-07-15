@@ -222,6 +222,21 @@ Ensure `--dataset-root` points to the folder **containing** `images/` and `style
 
 ---
 
+### Enriched Dataset (JSON Attributes)
+
+To unlock visual attributes beyond the CSV (Pattern, Sleeve Length, Fabric), use:
+
+```bash
+uv run benchmark enrich \
+    --json-styles data/raw/fashion-product-images/styles/ \
+    --csv data/raw/fashion-product-images-small/styles.csv \
+    --output data/raw/fashion-enriched-5k \
+    --subset 5000
+```
+
+This produces `fashion-enriched-5k/` with `styles.csv` (enriched), `splits/`
+(dual-label JSON), and an `images/` symlink.  See [11 — Enriched Dataset](11-enriched-dataset.md).
+
 ## Alternative Datasets
 
 The benchmark can theoretically work with any dataset that provides:

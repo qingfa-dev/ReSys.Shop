@@ -30,7 +30,7 @@ The thesis makes a claim: **Fashion-CLIP outperforms generic models for fashion 
 
 **Dataset:** Fashion Product Images Small (~5,000 images)
 
-**Ground truth rule:** Two images are relevant (visually similar) if they share `masterCategory` + `subCategory` + `baseColour`. This ensures relevance captures both product type AND visual appearance (colour), not just taxonomic category membership.
+**Ground truth rule:** Two images are relevant (visually similar) if they share `masterCategory` + `subCategory` + **normalized** `baseColour`. The dataset uses 46 distinct colour labels (e.g., "Blue", "Navy Blue", "Turquoise Blue") which are normalized into 12 broad colour groups for perceptual visual matching.
 
 **Example:**
 - Black T-shirt (`Apparel`/`Topwear`/`Black`) and another black T-shirt (`Apparel`/`Topwear`/`Black`) → **relevant**
@@ -208,6 +208,26 @@ The thesis includes tables in this format (to be populated with actual numbers):
 2. **Efficiency-accuracy trade-off:** Which model dominates the Pareto frontier?
 3. **Storage cost:** Is ResNet-50's 4× storage justified by retrieval gains?
 4. **Business impact:** Which model meets the ≥0.70 Recall@20 target while minimizing operational cost?
+
+### Dual-Label Evaluation
+
+When using the enriched dataset (`benchmark enrich`), pass `--secondary-label label_pattern`
+to run a second evaluation pass comparing subCategory/colour vs subCategory/colour/pattern:
+
+```bash
+uv run benchmark thesis \
+    --dataset-root data/raw/fashion-enriched-5k \
+    --secondary-label label_pattern \
+    --folds 3
+```
+
+This produces two result files:
+- `thesis_results.json` — primary evaluation (category + colour)
+- `thesis_results_pattern.json` — secondary evaluation (category + colour + pattern)
+
+The secondary evaluation reuses model embeddings from the primary pass
+(no re-inference).  Comparing the two reveals whether model rankings
+change when pattern awareness is required.
 
 ## Threats to Validity
 
