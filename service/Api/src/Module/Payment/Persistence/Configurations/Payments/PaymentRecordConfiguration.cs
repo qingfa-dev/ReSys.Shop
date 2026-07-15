@@ -11,7 +11,7 @@ public class PaymentConfiguration : IEntityTypeConfiguration<PaymentCapture>
 {
     public void Configure(EntityTypeBuilder<PaymentCapture> builder)
     {
-        builder.ToTable(PaymentSchema.TableNames.PaymentRecords, PaymentSchema.Name);
+        builder.ToTable(PaymentSchema.TableNames.PaymentCaptures, PaymentSchema.Name);
         builder.HasKey(x => x.Id);
         builder.Property(x => x.Number).IsRequired().HasMaxLength(PaymentConstant.Constraints.MaxPaymentNumberLength);
         builder.Property(x => x.Amount).HasPrecision(PaymentConstant.Constraints.Precision, PaymentConstant.Constraints.Scale);
