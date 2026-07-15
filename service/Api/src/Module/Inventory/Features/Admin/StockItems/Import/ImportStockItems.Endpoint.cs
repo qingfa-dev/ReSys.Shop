@@ -13,7 +13,8 @@ public static partial class ImportStockItems
                 ISender sender,
                 CancellationToken ct) =>
             {
-                var command = new Command(file);
+                var request = new Request { File = file };
+                var command = new Command(request);
                 var result = await sender.Send(command, ct);
                 return result.ToResult();
             })
