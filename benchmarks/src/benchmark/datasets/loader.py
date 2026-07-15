@@ -65,18 +65,23 @@ class FashionDataset:
         self.split = split
         self._samples: list[Sample] = []
 
-    def load(self) -> None:
+    def load(self, label_field: str = FIELD.LABEL) -> None:
         """Parse the split JSON and build the internal sample list.
 
         Reads the split file as UTF-8 JSON, then constructs ``Sample``
         instances with paths rooted at ``dataset_root``.
+
+        Args:
+            label_field: JSON key for the relevance label. Defaults to
+                ``"label"``.  Set to ``"label_pattern"`` for the secondary
+                (pattern-aware) evaluation pass.
         """
-        logger.info("Loading %s split from %s", self.split, self.split_file)
+        logger.info("Loading %s split from %s (label=%s)", self.split, self.split_file, label_field)
         raw = json.loads(self.split_file.read_text(encoding=FILE_ENCODING))
         self._samples = [
             Sample(
                 image_path=self.dataset_root / item[FIELD.IMAGE_PATH],
-                label=item[FIELD.LABEL],
+                label=item[label_field],
                 product_id=item[FIELD.PRODUCT_ID],
                 split=self.split,
             )
