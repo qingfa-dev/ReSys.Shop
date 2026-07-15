@@ -42,7 +42,7 @@ namespace Api.Migrations.Migrations
                 .Annotation("Npgsql:PostgresExtension:vector", ",,");
 
             migrationBuilder.CreateTable(
-                name: "country",
+                name: "countries",
                 schema: "location",
                 columns: table => new
                 {
@@ -62,7 +62,7 @@ namespace Api.Migrations.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("pk_country", x => x.id);
+                    table.PrimaryKey("pk_countries", x => x.id);
                 });
 
             migrationBuilder.CreateTable(
@@ -134,7 +134,7 @@ namespace Api.Migrations.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "payment_method",
+                name: "payment_methods",
                 schema: "payment",
                 columns: table => new
                 {
@@ -149,7 +149,7 @@ namespace Api.Migrations.Migrations
                     position = table.Column<int>(type: "integer", nullable: false, defaultValue: 0),
                     presentation = table.Column<string>(type: "text", nullable: true),
                     preferences = table.Column<string>(type: "jsonb", nullable: false),
-                    settings = table.Column<string>(type: "jsonb", nullable: false),
+                    settings = table.Column<string>(type: "text", nullable: false),
                     created_at_utc = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
                     modified_at_utc = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: true),
                     created_by = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: true),
@@ -161,7 +161,7 @@ namespace Api.Migrations.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("pk_payment_method", x => x.id);
+                    table.PrimaryKey("pk_payment_methods", x => x.id);
                 });
 
             migrationBuilder.CreateTable(
@@ -224,7 +224,7 @@ namespace Api.Migrations.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "shipping_method",
+                name: "shipping_methods",
                 schema: "shipping",
                 columns: table => new
                 {
@@ -248,11 +248,11 @@ namespace Api.Migrations.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("pk_shipping_method", x => x.id);
+                    table.PrimaryKey("pk_shipping_methods", x => x.id);
                 });
 
             migrationBuilder.CreateTable(
-                name: "shipping_rate",
+                name: "shipping_rates",
                 schema: "shipping",
                 columns: table => new
                 {
@@ -274,11 +274,11 @@ namespace Api.Migrations.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("pk_shipping_rate", x => x.id);
+                    table.PrimaryKey("pk_shipping_rates", x => x.id);
                 });
 
             migrationBuilder.CreateTable(
-                name: "stock_location",
+                name: "stock_locations",
                 schema: "inventory",
                 columns: table => new
                 {
@@ -312,11 +312,11 @@ namespace Api.Migrations.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("pk_stock_location", x => x.id);
+                    table.PrimaryKey("pk_stock_locations", x => x.id);
                 });
 
             migrationBuilder.CreateTable(
-                name: "stock_reservation",
+                name: "stock_reservations",
                 schema: "inventory",
                 columns: table => new
                 {
@@ -337,7 +337,7 @@ namespace Api.Migrations.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("pk_stock_reservation", x => x.id);
+                    table.PrimaryKey("pk_stock_reservations", x => x.id);
                 });
 
             migrationBuilder.CreateTable(
@@ -403,7 +403,7 @@ namespace Api.Migrations.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "state",
+                name: "states",
                 schema: "location",
                 columns: table => new
                 {
@@ -419,12 +419,12 @@ namespace Api.Migrations.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("pk_state", x => x.id);
+                    table.PrimaryKey("pk_states", x => x.id);
                     table.ForeignKey(
-                        name: "fk_state_country_country_id",
+                        name: "fk_states_countries_country_id",
                         column: x => x.country_id,
                         principalSchema: "location",
-                        principalTable: "country",
+                        principalTable: "countries",
                         principalColumn: "id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -492,7 +492,7 @@ namespace Api.Migrations.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "payment_capture",
+                name: "payment_captures",
                 schema: "payment",
                 columns: table => new
                 {
@@ -515,30 +515,23 @@ namespace Api.Migrations.Migrations
                     created_at_utc = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
                     modified_at_utc = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: true),
                     created_by = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: true),
-                    modified_by = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: true),
-                    order_id1 = table.Column<Guid>(type: "uuid", nullable: true)
+                    modified_by = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: true)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("pk_payment_capture", x => x.id);
+                    table.PrimaryKey("pk_payment_captures", x => x.id);
                     table.ForeignKey(
-                        name: "fk_payment_capture_order_order_id",
+                        name: "fk_payment_captures_orders_order_id",
                         column: x => x.order_id,
                         principalSchema: "ordering",
                         principalTable: "orders",
                         principalColumn: "id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "fk_payment_capture_orders_order_id1",
-                        column: x => x.order_id1,
-                        principalSchema: "ordering",
-                        principalTable: "orders",
-                        principalColumn: "id");
-                    table.ForeignKey(
-                        name: "fk_payment_capture_payment_method_payment_method_id",
+                        name: "fk_payment_captures_payment_methods_payment_method_id",
                         column: x => x.payment_method_id,
                         principalSchema: "payment",
-                        principalTable: "payment_method",
+                        principalTable: "payment_methods",
                         principalColumn: "id",
                         onDelete: ReferentialAction.SetNull);
                 });
@@ -636,7 +629,35 @@ namespace Api.Migrations.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "stock_transfer",
+                name: "stock_items",
+                schema: "inventory",
+                columns: table => new
+                {
+                    id = table.Column<Guid>(type: "uuid", nullable: false),
+                    count_on_hand = table.Column<int>(type: "integer", nullable: false, defaultValue: 0),
+                    backorderable = table.Column<bool>(type: "boolean", nullable: false, defaultValue: false),
+                    stock_location_id = table.Column<Guid>(type: "uuid", nullable: false),
+                    variant_id = table.Column<Guid>(type: "uuid", nullable: false),
+                    xmin = table.Column<uint>(type: "xid", rowVersion: true, nullable: false),
+                    created_at_utc = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
+                    modified_at_utc = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: true),
+                    created_by = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: true),
+                    modified_by = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("pk_stock_items", x => x.id);
+                    table.ForeignKey(
+                        name: "fk_stock_items_stock_location_stock_location_id",
+                        column: x => x.stock_location_id,
+                        principalSchema: "inventory",
+                        principalTable: "stock_locations",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "stock_transfers",
                 schema: "inventory",
                 columns: table => new
                 {
@@ -653,19 +674,19 @@ namespace Api.Migrations.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("pk_stock_transfer", x => x.id);
+                    table.PrimaryKey("pk_stock_transfers", x => x.id);
                     table.ForeignKey(
-                        name: "fk_stock_transfer_stock_location_destination_location_id",
+                        name: "fk_stock_transfers_stock_locations_destination_location_id",
                         column: x => x.destination_location_id,
                         principalSchema: "inventory",
-                        principalTable: "stock_location",
+                        principalTable: "stock_locations",
                         principalColumn: "id",
                         onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
-                        name: "fk_stock_transfer_stock_location_source_location_id",
+                        name: "fk_stock_transfers_stock_locations_source_location_id",
                         column: x => x.source_location_id,
                         principalSchema: "inventory",
-                        principalTable: "stock_location",
+                        principalTable: "stock_locations",
                         principalColumn: "id",
                         onDelete: ReferentialAction.Restrict);
                 });
@@ -943,8 +964,7 @@ namespace Api.Migrations.Migrations
                         column: x => x.variant_id,
                         principalSchema: "catalog",
                         principalTable: "variants",
-                        principalColumn: "id",
-                        onDelete: ReferentialAction.SetNull);
+                        principalColumn: "id");
                 });
 
             migrationBuilder.CreateTable(
@@ -1038,15 +1058,19 @@ namespace Api.Migrations.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "stock_item",
+                name: "stock_movements",
                 schema: "inventory",
                 columns: table => new
                 {
                     id = table.Column<Guid>(type: "uuid", nullable: false),
-                    count_on_hand = table.Column<int>(type: "integer", nullable: false, defaultValue: 0),
-                    backorderable = table.Column<bool>(type: "boolean", nullable: false, defaultValue: false),
-                    stock_location_id = table.Column<Guid>(type: "uuid", nullable: false),
-                    variant_id = table.Column<Guid>(type: "uuid", nullable: false),
+                    quantity = table.Column<int>(type: "integer", nullable: false),
+                    previous_count_on_hand = table.Column<int>(type: "integer", nullable: false),
+                    action = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: true),
+                    stock_item_id = table.Column<Guid>(type: "uuid", nullable: false),
+                    stock_location_id = table.Column<Guid>(type: "uuid", nullable: true),
+                    originator_id = table.Column<Guid>(type: "uuid", nullable: true),
+                    originator_type = table.Column<string>(type: "character varying(200)", maxLength: 200, nullable: true),
+                    reason = table.Column<string>(type: "character varying(500)", maxLength: 500, nullable: true),
                     created_at_utc = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
                     modified_at_utc = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: true),
                     created_by = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: true),
@@ -1054,25 +1078,25 @@ namespace Api.Migrations.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("pk_stock_item", x => x.id);
+                    table.PrimaryKey("pk_stock_movements", x => x.id);
                     table.ForeignKey(
-                        name: "fk_stock_item_stock_location_stock_location_id",
-                        column: x => x.stock_location_id,
+                        name: "fk_stock_movements_stock_items_stock_item_id",
+                        column: x => x.stock_item_id,
                         principalSchema: "inventory",
-                        principalTable: "stock_location",
+                        principalTable: "stock_items",
                         principalColumn: "id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "fk_stock_item_variant_variant_id",
-                        column: x => x.variant_id,
-                        principalSchema: "catalog",
-                        principalTable: "variants",
+                        name: "fk_stock_movements_stock_locations_stock_location_id",
+                        column: x => x.stock_location_id,
+                        principalSchema: "inventory",
+                        principalTable: "stock_locations",
                         principalColumn: "id",
                         onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
-                name: "transfer_item",
+                name: "transfer_items",
                 schema: "inventory",
                 columns: table => new
                 {
@@ -1084,12 +1108,12 @@ namespace Api.Migrations.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("pk_transfer_item", x => x.id);
+                    table.PrimaryKey("pk_transfer_items", x => x.id);
                     table.ForeignKey(
-                        name: "fk_transfer_item_stock_transfer_stock_transfer_id",
+                        name: "fk_transfer_items_stock_transfers_stock_transfer_id",
                         column: x => x.stock_transfer_id,
                         principalSchema: "inventory",
-                        principalTable: "stock_transfer",
+                        principalTable: "stock_transfers",
                         principalColumn: "id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -1192,44 +1216,6 @@ namespace Api.Migrations.Migrations
                         column: x => x.variant_image_id,
                         principalSchema: "catalog",
                         principalTable: "product_images",
-                        principalColumn: "id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "stock_movement",
-                schema: "inventory",
-                columns: table => new
-                {
-                    id = table.Column<Guid>(type: "uuid", nullable: false),
-                    quantity = table.Column<int>(type: "integer", nullable: false),
-                    previous_count_on_hand = table.Column<int>(type: "integer", nullable: false),
-                    action = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: true),
-                    stock_item_id = table.Column<Guid>(type: "uuid", nullable: false),
-                    stock_location_id = table.Column<Guid>(type: "uuid", nullable: true),
-                    originator_id = table.Column<Guid>(type: "uuid", nullable: true),
-                    originator_type = table.Column<string>(type: "character varying(200)", maxLength: 200, nullable: true),
-                    reason = table.Column<string>(type: "character varying(500)", maxLength: 500, nullable: true),
-                    created_at_utc = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
-                    modified_at_utc = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: true),
-                    created_by = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: true),
-                    modified_by = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("pk_stock_movement", x => x.id);
-                    table.ForeignKey(
-                        name: "fk_stock_movement_stock_item_stock_item_id",
-                        column: x => x.stock_item_id,
-                        principalSchema: "inventory",
-                        principalTable: "stock_item",
-                        principalColumn: "id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "fk_stock_movement_stock_location_stock_location_id",
-                        column: x => x.stock_location_id,
-                        principalSchema: "inventory",
-                        principalTable: "stock_location",
                         principalColumn: "id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -1410,27 +1396,33 @@ namespace Api.Migrations.Migrations
                 column: "session_id");
 
             migrationBuilder.CreateIndex(
+                name: "ix_orders_session_id_status",
+                schema: "ordering",
+                table: "orders",
+                columns: new[] { "session_id", "status" });
+
+            migrationBuilder.CreateIndex(
+                name: "ix_orders_user_id_status",
+                schema: "ordering",
+                table: "orders",
+                columns: new[] { "user_id", "status" });
+
+            migrationBuilder.CreateIndex(
                 name: "ix_passkeys_user_id",
                 schema: "identity",
                 table: "passkeys",
                 column: "user_id");
 
             migrationBuilder.CreateIndex(
-                name: "ix_payment_capture_order_id",
+                name: "ix_payment_captures_order_id",
                 schema: "payment",
-                table: "payment_capture",
+                table: "payment_captures",
                 column: "order_id");
 
             migrationBuilder.CreateIndex(
-                name: "ix_payment_capture_order_id1",
+                name: "ix_payment_captures_payment_method_id",
                 schema: "payment",
-                table: "payment_capture",
-                column: "order_id1");
-
-            migrationBuilder.CreateIndex(
-                name: "ix_payment_capture_payment_method_id",
-                schema: "payment",
-                table: "payment_capture",
+                table: "payment_captures",
                 column: "payment_method_id");
 
             migrationBuilder.CreateIndex(
@@ -1503,59 +1495,53 @@ namespace Api.Migrations.Migrations
                 unique: true);
 
             migrationBuilder.CreateIndex(
-                name: "ix_shipping_method_code",
+                name: "ix_shipping_methods_code",
                 schema: "shipping",
-                table: "shipping_method",
+                table: "shipping_methods",
                 column: "code",
                 unique: true);
 
             migrationBuilder.CreateIndex(
-                name: "ix_state_country_id",
+                name: "ix_states_country_id",
                 schema: "location",
-                table: "state",
+                table: "states",
                 column: "country_id");
 
             migrationBuilder.CreateIndex(
-                name: "ix_stock_item_stock_location_id_variant_id",
+                name: "ix_stock_items_stock_location_id_variant_id",
                 schema: "inventory",
-                table: "stock_item",
+                table: "stock_items",
                 columns: new[] { "stock_location_id", "variant_id" },
                 unique: true);
 
             migrationBuilder.CreateIndex(
-                name: "ix_stock_item_variant_id",
+                name: "ix_stock_movements_stock_item_id",
                 schema: "inventory",
-                table: "stock_item",
-                column: "variant_id");
-
-            migrationBuilder.CreateIndex(
-                name: "ix_stock_movement_stock_item_id",
-                schema: "inventory",
-                table: "stock_movement",
+                table: "stock_movements",
                 column: "stock_item_id");
 
             migrationBuilder.CreateIndex(
-                name: "ix_stock_movement_stock_location_id",
+                name: "ix_stock_movements_stock_location_id",
                 schema: "inventory",
-                table: "stock_movement",
+                table: "stock_movements",
                 column: "stock_location_id");
 
             migrationBuilder.CreateIndex(
-                name: "ix_stock_transfer_destination_location_id",
+                name: "ix_stock_transfers_destination_location_id",
                 schema: "inventory",
-                table: "stock_transfer",
+                table: "stock_transfers",
                 column: "destination_location_id");
 
             migrationBuilder.CreateIndex(
-                name: "ix_stock_transfer_source_location_id",
+                name: "ix_stock_transfers_source_location_id",
                 schema: "inventory",
-                table: "stock_transfer",
+                table: "stock_transfers",
                 column: "source_location_id");
 
             migrationBuilder.CreateIndex(
-                name: "ix_stock_transfer_state",
+                name: "ix_stock_transfers_state",
                 schema: "inventory",
-                table: "stock_transfer",
+                table: "stock_transfers",
                 column: "state");
 
             migrationBuilder.CreateIndex(
@@ -1584,9 +1570,9 @@ namespace Api.Migrations.Migrations
                 column: "taxon_id");
 
             migrationBuilder.CreateIndex(
-                name: "ix_transfer_item_stock_transfer_id",
+                name: "ix_transfer_items_stock_transfer_id",
                 schema: "inventory",
-                table: "transfer_item",
+                table: "transfer_items",
                 column: "stock_transfer_id");
 
             migrationBuilder.CreateIndex(
@@ -1711,7 +1697,7 @@ namespace Api.Migrations.Migrations
                 schema: "identity");
 
             migrationBuilder.DropTable(
-                name: "payment_capture",
+                name: "payment_captures",
                 schema: "payment");
 
             migrationBuilder.DropTable(
@@ -1735,23 +1721,23 @@ namespace Api.Migrations.Migrations
                 schema: "identity");
 
             migrationBuilder.DropTable(
-                name: "shipping_method",
+                name: "shipping_methods",
                 schema: "shipping");
 
             migrationBuilder.DropTable(
-                name: "shipping_rate",
+                name: "shipping_rates",
                 schema: "shipping");
 
             migrationBuilder.DropTable(
-                name: "state",
+                name: "states",
                 schema: "location");
 
             migrationBuilder.DropTable(
-                name: "stock_movement",
+                name: "stock_movements",
                 schema: "inventory");
 
             migrationBuilder.DropTable(
-                name: "stock_reservation",
+                name: "stock_reservations",
                 schema: "inventory");
 
             migrationBuilder.DropTable(
@@ -1759,7 +1745,7 @@ namespace Api.Migrations.Migrations
                 schema: "catalog");
 
             migrationBuilder.DropTable(
-                name: "transfer_item",
+                name: "transfer_items",
                 schema: "inventory");
 
             migrationBuilder.DropTable(
@@ -1791,7 +1777,7 @@ namespace Api.Migrations.Migrations
                 schema: "ordering");
 
             migrationBuilder.DropTable(
-                name: "payment_method",
+                name: "payment_methods",
                 schema: "payment");
 
             migrationBuilder.DropTable(
@@ -1799,11 +1785,11 @@ namespace Api.Migrations.Migrations
                 schema: "catalog");
 
             migrationBuilder.DropTable(
-                name: "country",
+                name: "countries",
                 schema: "location");
 
             migrationBuilder.DropTable(
-                name: "stock_item",
+                name: "stock_items",
                 schema: "inventory");
 
             migrationBuilder.DropTable(
@@ -1811,7 +1797,7 @@ namespace Api.Migrations.Migrations
                 schema: "catalog");
 
             migrationBuilder.DropTable(
-                name: "stock_transfer",
+                name: "stock_transfers",
                 schema: "inventory");
 
             migrationBuilder.DropTable(
@@ -1835,7 +1821,7 @@ namespace Api.Migrations.Migrations
                 schema: "catalog");
 
             migrationBuilder.DropTable(
-                name: "stock_location",
+                name: "stock_locations",
                 schema: "inventory");
 
             migrationBuilder.DropTable(
