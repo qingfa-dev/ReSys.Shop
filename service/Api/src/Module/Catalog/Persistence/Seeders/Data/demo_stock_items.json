@@ -1,0 +1,380 @@
+[
+  {
+    "id": "1352cddf-74ed-5321-b02d-a3eb8052f770",
+    "variant_id": "4421958a-2af2-5611-9e58-9866f3e89381",
+    "stock_location_code": "MAIN",
+    "count_on_hand": 5,
+    "backorderable": true
+  },
+  {
+    "id": "2cee0923-ac8e-5988-bd41-e92ac527442f",
+    "variant_id": "4421958a-2af2-5611-9e58-9866f3e89381",
+    "stock_location_code": "EAST",
+    "count_on_hand": 2,
+    "backorderable": true
+  },
+  {
+    "id": "32bbc5b8-51f4-5836-bc51-fb1148c3d899",
+    "variant_id": "4421958a-2af2-5611-9e58-9866f3e89381",
+    "stock_location_code": "EXPRESS",
+    "count_on_hand": 1,
+    "backorderable": true
+  },
+  {
+    "id": "da3b0531-4014-54c7-973b-3b36a8dc1685",
+    "variant_id": "b09a3d34-e020-56b0-b4a1-fb066f703cfc",
+    "stock_location_code": "MAIN",
+    "count_on_hand": 199,
+    "backorderable": true
+  },
+  {
+    "id": "7b49aa76-300e-5583-ace9-ec9d639c9934",
+    "variant_id": "b09a3d34-e020-56b0-b4a1-fb066f703cfc",
+    "stock_location_code": "EAST",
+    "count_on_hand": 79,
+    "backorderable": true
+  },
+  {
+    "id": "36d0f78c-e550-506c-b7d3-f8dfd6f40810",
+    "variant_id": "b09a3d34-e020-56b0-b4a1-fb066f703cfc",
+    "stock_location_code": "EXPRESS",
+    "count_on_hand": 49,
+    "backorderable": true
+  },
+  {
+    "id": "854a5f3a-d600-597f-a5a1-c7e0ce68bc25",
+    "variant_id": "febd1b20-a491-51a7-ba9a-fc56c1a6b738",
+    "stock_location_code": "MAIN",
+    "count_on_hand": 80,
+    "backorderable": true
+  },
+  {
+    "id": "6b32ab99-ebd8-54d6-9739-7219155b7f78",
+    "variant_id": "febd1b20-a491-51a7-ba9a-fc56c1a6b738",
+    "stock_location_code": "EAST",
+    "count_on_hand": 32,
+    "backorderable": true
+  },
+  {
+    "id": "5b1e702c-7518-5686-be54-13586c89193a",
+    "variant_id": "febd1b20-a491-51a7-ba9a-fc56c1a6b738",
+    "stock_location_code": "EXPRESS",
+    "count_on_hand": 20,
+    "backorderable": true
+  },
+  {
+    "id": "4c3fe45f-6b91-58d3-806f-75e9e0c4e11e",
+    "variant_id": "dce49b91-919b-5734-aeb5-41bebba46160",
+    "stock_location_code": "MAIN",
+    "count_on_hand": 72,
+    "backorderable": true
+  },
+  {
+    "id": "f291eb18-a229-55b5-8b99-b1146a4b63cd",
+    "variant_id": "dce49b91-919b-5734-aeb5-41bebba46160",
+    "stock_location_code": "EAST",
+    "count_on_hand": 28,
+    "backorderable": true
+  },
+  {
+    "id": "0bedfe0d-6deb-5409-bcf1-234a455f7c9d",
+    "variant_id": "dce49b91-919b-5734-aeb5-41bebba46160",
+    "stock_location_code": "EXPRESS",
+    "count_on_hand": 18,
+    "backorderable": true
+  },
+  {
+    "id": "b167fa2d-604c-5fb5-8742-bef93758ebdc",
+    "variant_id": "f62335ce-1562-5598-b3e4-94c5fee50cba",
+    "stock_location_code": "MAIN",
+    "count_on_hand": 67,
+    "backorderable": true
+  },
+  {
+    "id": "61d30ab7-dfad-5e04-a2c0-0932ec8fbbcc",
+    "variant_id": "f62335ce-1562-5598-b3e4-94c5fee50cba",
+    "stock_location_code": "EAST",
+    "count_on_hand": 26,
+    "backorderable": true
+  },
+  {
+    "id": "f6bad26c-2434-50a5-9b34-61a4ff14f845",
+    "variant_id": "f62335ce-1562-5598-b3e4-94c5fee50cba",
+    "stock_location_code": "EXPRESS",
+    "count_on_hand": 16,
+    "backorderable": true
+  },
+  {
+    "id": "40bd04ad-9921-58a7-8ddc-53912ddb3b5a",
+    "variant_id": "25e2493b-e9dd-5de8-b6ea-34f338c02574",
+    "stock_location_code": "MAIN",
+    "count_on_hand": 1,
+    "backorderable": true
+  },
+  {
+    "id": "f8021dc0-daed-56b0-a4f2-89270934d112",
+    "variant_id": "cd3dc8b4-b346-58fa-9cb1-3eae8dddb3dc",
+    "stock_location_code": "MAIN",
+    "count_on_hand": 5,
+    "backorderable": true
+  },
+  {
+    "id": "834be4fc-1259-5efb-88ce-09b0eef43912",
+    "variant_id": "cd3dc8b4-b346-58fa-9cb1-3eae8dddb3dc",
+    "stock_location_code": "EAST",
+    "count_on_hand": 2,
+    "backorderable": true
+  },
+  {
+    "id": "9b04c331-1e01-58f7-a3e5-7b3d0587d493",
+    "variant_id": "cd3dc8b4-b346-58fa-9cb1-3eae8dddb3dc",
+    "stock_location_code": "EXPRESS",
+    "count_on_hand": 1,
+    "backorderable": true
+  },
+  {
+    "id": "4f9a1a20-e8c6-5ea1-b27f-7b573e7af991",
+    "variant_id": "a4ef7726-f898-51ff-a51a-7146e2464a7c",
+    "stock_location_code": "MAIN",
+    "count_on_hand": 36,
+    "backorderable": true
+  },
+  {
+    "id": "68553077-65c4-5dbf-b358-6a489b0e4a1b",
+    "variant_id": "a4ef7726-f898-51ff-a51a-7146e2464a7c",
+    "stock_location_code": "EAST",
+    "count_on_hand": 14,
+    "backorderable": true
+  },
+  {
+    "id": "17ad7a87-8a7f-5225-a3a7-51f917f37fa2",
+    "variant_id": "a4ef7726-f898-51ff-a51a-7146e2464a7c",
+    "stock_location_code": "EXPRESS",
+    "count_on_hand": 9,
+    "backorderable": true
+  },
+  {
+    "id": "1552b285-5e5d-51a5-9ddb-2f5dae3e6e5c",
+    "variant_id": "7f92bad4-b6e8-59f8-b4dd-82efe429a5e3",
+    "stock_location_code": "MAIN",
+    "count_on_hand": 183,
+    "backorderable": true
+  },
+  {
+    "id": "f29a5c74-6d91-5b47-9b76-e686d6f57261",
+    "variant_id": "7f92bad4-b6e8-59f8-b4dd-82efe429a5e3",
+    "stock_location_code": "EAST",
+    "count_on_hand": 73,
+    "backorderable": true
+  },
+  {
+    "id": "decf8f80-6401-5cdf-93bc-fe9710d0a65e",
+    "variant_id": "7f92bad4-b6e8-59f8-b4dd-82efe429a5e3",
+    "stock_location_code": "EXPRESS",
+    "count_on_hand": 45,
+    "backorderable": true
+  },
+  {
+    "id": "86ae0ccc-a176-56ff-a02c-2780de6948f3",
+    "variant_id": "a8e03772-fa99-5ef4-bb2c-28080a0c17fc",
+    "stock_location_code": "MAIN",
+    "count_on_hand": 199,
+    "backorderable": true
+  },
+  {
+    "id": "9c2d1ad0-d318-5d1b-acda-b310094135d8",
+    "variant_id": "a8e03772-fa99-5ef4-bb2c-28080a0c17fc",
+    "stock_location_code": "EAST",
+    "count_on_hand": 79,
+    "backorderable": true
+  },
+  {
+    "id": "faf41ffc-7da0-5e76-ae19-118b31f598b2",
+    "variant_id": "a8e03772-fa99-5ef4-bb2c-28080a0c17fc",
+    "stock_location_code": "EXPRESS",
+    "count_on_hand": 49,
+    "backorderable": true
+  },
+  {
+    "id": "27b1d769-a6e2-5ba3-b81b-000c773d1e12",
+    "variant_id": "3434ff77-477d-5ab0-9bab-d4926d511b63",
+    "stock_location_code": "MAIN",
+    "count_on_hand": 149,
+    "backorderable": true
+  },
+  {
+    "id": "bf4d95f7-2e49-5394-8bfc-6fd3c69e51fa",
+    "variant_id": "3434ff77-477d-5ab0-9bab-d4926d511b63",
+    "stock_location_code": "EAST",
+    "count_on_hand": 59,
+    "backorderable": true
+  },
+  {
+    "id": "88931885-54a9-59b6-bc13-8d2585ccb003",
+    "variant_id": "3434ff77-477d-5ab0-9bab-d4926d511b63",
+    "stock_location_code": "EXPRESS",
+    "count_on_hand": 37,
+    "backorderable": true
+  },
+  {
+    "id": "555a27e9-24d2-5771-9b5b-b57410f3ca20",
+    "variant_id": "591f6e8a-092a-5d85-b247-931cfc8c8dcc",
+    "stock_location_code": "MAIN",
+    "count_on_hand": 32,
+    "backorderable": true
+  },
+  {
+    "id": "cc2c8630-709c-5469-89f3-3ca8d3457920",
+    "variant_id": "591f6e8a-092a-5d85-b247-931cfc8c8dcc",
+    "stock_location_code": "EAST",
+    "count_on_hand": 12,
+    "backorderable": true
+  },
+  {
+    "id": "c7a3a36e-dc01-532e-8ad7-79080393afd8",
+    "variant_id": "591f6e8a-092a-5d85-b247-931cfc8c8dcc",
+    "stock_location_code": "EXPRESS",
+    "count_on_hand": 8,
+    "backorderable": true
+  },
+  {
+    "id": "877665a9-3090-5f7f-aa5d-6017a314d7b7",
+    "variant_id": "93fe44ae-c70e-57ef-99ea-914834b830a5",
+    "stock_location_code": "MAIN",
+    "count_on_hand": 4,
+    "backorderable": true
+  },
+  {
+    "id": "85dd9bca-931d-5add-8a9e-daea566f2332",
+    "variant_id": "93fe44ae-c70e-57ef-99ea-914834b830a5",
+    "stock_location_code": "EAST",
+    "count_on_hand": 1,
+    "backorderable": true
+  },
+  {
+    "id": "959f0af4-7181-54e2-8ad4-98c4c0f1da84",
+    "variant_id": "93fe44ae-c70e-57ef-99ea-914834b830a5",
+    "stock_location_code": "EXPRESS",
+    "count_on_hand": 1,
+    "backorderable": true
+  },
+  {
+    "id": "ac3c92e6-c5f2-5058-a631-63be3fdada85",
+    "variant_id": "dee9364f-864a-5242-b4ad-cdaecf7b2bbf",
+    "stock_location_code": "MAIN",
+    "count_on_hand": 3,
+    "backorderable": true
+  },
+  {
+    "id": "b3a614a0-7723-5b79-a77d-fac7ceae4f65",
+    "variant_id": "dee9364f-864a-5242-b4ad-cdaecf7b2bbf",
+    "stock_location_code": "EAST",
+    "count_on_hand": 1,
+    "backorderable": true
+  },
+  {
+    "id": "2b4b15e3-beaa-54f4-a38a-a430a5e84767",
+    "variant_id": "7942d300-6842-5acb-8184-fcd24e114f9b",
+    "stock_location_code": "MAIN",
+    "count_on_hand": 17,
+    "backorderable": true
+  },
+  {
+    "id": "509546b7-26ec-5916-ac84-ecac7972207e",
+    "variant_id": "7942d300-6842-5acb-8184-fcd24e114f9b",
+    "stock_location_code": "EAST",
+    "count_on_hand": 6,
+    "backorderable": true
+  },
+  {
+    "id": "1b893794-d7b8-5661-a60c-ba5d5793fc5b",
+    "variant_id": "7942d300-6842-5acb-8184-fcd24e114f9b",
+    "stock_location_code": "EXPRESS",
+    "count_on_hand": 4,
+    "backorderable": true
+  },
+  {
+    "id": "54a1b1ee-c17a-5fd9-b2b8-0f60f888e69b",
+    "variant_id": "7041e2da-7041-5976-93ae-b6255a635ef8",
+    "stock_location_code": "MAIN",
+    "count_on_hand": 65,
+    "backorderable": true
+  },
+  {
+    "id": "dfa63e17-12e9-5c3f-905e-8dedd72d342a",
+    "variant_id": "7041e2da-7041-5976-93ae-b6255a635ef8",
+    "stock_location_code": "EAST",
+    "count_on_hand": 26,
+    "backorderable": true
+  },
+  {
+    "id": "49572059-9233-5be1-88e7-b1b638d19591",
+    "variant_id": "7041e2da-7041-5976-93ae-b6255a635ef8",
+    "stock_location_code": "EXPRESS",
+    "count_on_hand": 16,
+    "backorderable": true
+  },
+  {
+    "id": "315e7965-89ee-5ba1-8859-37893d59b135",
+    "variant_id": "2653338c-dbbf-5734-bd67-6bd4694bb97e",
+    "stock_location_code": "MAIN",
+    "count_on_hand": 69,
+    "backorderable": true
+  },
+  {
+    "id": "497af5e4-defc-5bc7-b7b7-6f36535c9076",
+    "variant_id": "2653338c-dbbf-5734-bd67-6bd4694bb97e",
+    "stock_location_code": "EAST",
+    "count_on_hand": 27,
+    "backorderable": true
+  },
+  {
+    "id": "5a266e62-91b7-597f-b2d8-1b94faabb7e2",
+    "variant_id": "2653338c-dbbf-5734-bd67-6bd4694bb97e",
+    "stock_location_code": "EXPRESS",
+    "count_on_hand": 17,
+    "backorderable": true
+  },
+  {
+    "id": "3203aed5-5aa8-549a-a6e3-238b31e0e16e",
+    "variant_id": "5f86ae34-a283-58b3-83d2-df2c1b1bb9d2",
+    "stock_location_code": "MAIN",
+    "count_on_hand": 139,
+    "backorderable": true
+  },
+  {
+    "id": "913231f2-5a20-5c8a-bb65-f0a2bd52b904",
+    "variant_id": "5f86ae34-a283-58b3-83d2-df2c1b1bb9d2",
+    "stock_location_code": "EAST",
+    "count_on_hand": 55,
+    "backorderable": true
+  },
+  {
+    "id": "d8b7ceb8-ad5c-5fb0-b9e7-0112ab289e02",
+    "variant_id": "5f86ae34-a283-58b3-83d2-df2c1b1bb9d2",
+    "stock_location_code": "EXPRESS",
+    "count_on_hand": 34,
+    "backorderable": true
+  },
+  {
+    "id": "f43a83f7-931c-5bcb-a4ee-c5e1b7d5e5e4",
+    "variant_id": "b3de62c4-706b-5738-b243-68d12247c2a6",
+    "stock_location_code": "MAIN",
+    "count_on_hand": 4,
+    "backorderable": true
+  },
+  {
+    "id": "e677611a-934d-5d17-aa81-6388537fc020",
+    "variant_id": "b3de62c4-706b-5738-b243-68d12247c2a6",
+    "stock_location_code": "EAST",
+    "count_on_hand": 1,
+    "backorderable": true
+  },
+  {
+    "id": "782d3596-9468-5dc2-b9b3-062e461b932d",
+    "variant_id": "b3de62c4-706b-5738-b243-68d12247c2a6",
+    "stock_location_code": "EXPRESS",
+    "count_on_hand": 1,
+    "backorderable": true
+  }
+]

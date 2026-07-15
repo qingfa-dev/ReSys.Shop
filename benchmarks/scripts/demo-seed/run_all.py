@@ -8,7 +8,7 @@ import sys
 from pathlib import Path
 
 SCRIPTS_DIR = Path(__file__).resolve().parent
-REPO_ROOT = SCRIPTS_DIR.parent.parent
+REPO_ROOT = SCRIPTS_DIR.parent.parent.parent
 
 
 def run_step(name: str, args: list[str]) -> int:

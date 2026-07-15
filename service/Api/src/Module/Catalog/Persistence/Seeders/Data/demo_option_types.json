@@ -1,0 +1,16 @@
+[
+  {
+    "id": "4c236a6f-851b-5980-80f7-c39035bf6116",
+    "name": "Size",
+    "presentation": "Size",
+    "position": 0,
+    "filterable": true
+  },
+  {
+    "id": "afc0d948-7438-55a4-9f19-ec6197f97226",
+    "name": "Color",
+    "presentation": "Color",
+    "position": 1,
+    "filterable": true
+  }
+]
