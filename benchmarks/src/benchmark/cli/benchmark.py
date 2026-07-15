@@ -2,6 +2,7 @@
 
 Commands
 --------
+enrich      Build enriched dataset from raw JSON metadata + CSV.
 run         Run embedding + retrieval + metric evaluation for one or more models.
 thesis      Run the thesis benchmark (4 models × 3-fold CV).
 pipeline    Run the production pipeline benchmark (thesis + pgvector).
