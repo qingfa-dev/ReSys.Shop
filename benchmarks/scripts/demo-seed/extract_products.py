@@ -5,6 +5,7 @@ from __future__ import annotations
 import argparse
 import csv
 import json
+import re
 import sys
 from collections import defaultdict
 from pathlib import Path
@@ -64,6 +65,53 @@ def extract_sizes_from_json(dataset_path: Path, product_id: str) -> list[str]:
         return []
 
 
+def extract_material_and_care(html: str | None) -> tuple[str | None, str | None]:
+    if not html:
+        return None, None
+    cleaned = re.sub(r'<[^>]+>', ' ', html)
+    cleaned = re.sub(r'\s+', ' ', cleaned).strip()
+    material = None
+    care = None
+    if 'Wash Care' in cleaned:
+        idx = cleaned.index('Wash Care')
+        care = cleaned[idx:].strip()[:500]
+    for keyword in ['Material', 'Fabric', 'Cotton', 'Polyester']:
+        if keyword.lower() in cleaned.lower():
+            material = cleaned[:200].strip()[:200]
+            break
+    return material or None, care
+
+
+def extract_product_metadata(benchmark_id: str, dataset_path: Path) -> dict:
+    json_path = dataset_path / "styles" / f"{benchmark_id}.json"
+    result: dict = {
+        "brand_name": None,
+        "season": None,
+        "material_composition": None,
+        "care_instructions": None,
+        "article_attributes": None,
+        "style_images": None,
+        "article_number": None,
+    }
+    if not json_path.exists():
+        return result
+    try:
+        data = json.loads(json_path.read_text())
+        d = data.get("data", {}) or {}
+        result["brand_name"] = d.get("brandName")
+        result["season"] = d.get("season")
+        result["article_attributes"] = d.get("articleAttributes")
+        result["style_images"] = d.get("styleImages")
+        result["article_number"] = d.get("articleNumber")
+
+        desc = d.get("productDescriptors", {}).get("description", {}).get("value", "")
+        if desc:
+            result["material_composition"], result["care_instructions"] = extract_material_and_care(desc)
+    except Exception:
+        pass
+    return result
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description="Extract product seed data")
     parser.add_argument("--dataset", type=Path, required=True)
@@ -105,6 +153,12 @@ def main() -> None:
         first = rows[0]
         article = first.get("articleType", "").strip()
         price = ARTICLE_PRICE_MAP.get(article, 39.99)
+        benchmark_id = first.get("id", "").strip()
+        meta = extract_product_metadata(benchmark_id, args.dataset)
+        brand = first.get("brandName", "").strip()
+        brand_initials = "".join([w[0] for w in brand.split() if w]).upper() if brand else "XX"
+        style_code = f"{brand_initials}-{article[:10]}".upper()
+        department = first.get("masterCategory", "").strip()
 
         slug = display_name.lower().replace(" ", "-").replace("'", "").replace("&", "and")[:200]
         slug = slug.rstrip("-")
@@ -113,11 +167,16 @@ def main() -> None:
             "id": product_id,
             "name": display_name[:255],
             "slug": slug[:255],
-            "description": f"{display_name} — {article} by {first.get('brandName', '').strip() or 'Unknown Brand'}"[:2000],
+            "description": f"{display_name} — {article} by {brand or 'Unknown Brand'}"[:2000],
             "status": "Active",
             "gender_target": first.get("gender", "").strip() or "Unisex",
             "meta_title": display_name[:100],
-            "meta_keywords": f"{article}, {first.get('brandName', '').strip()}, {first.get('masterCategory', '').strip()}"[:255],
+            "meta_keywords": f"{article}, {brand}, {department}"[:255],
+            "style_code": style_code[:100],
+            "season_name": meta.get("season"),
+            "department": department[:100] if department else None,
+            "material_composition": meta.get("material_composition"),
+            "care_instructions": meta.get("care_instructions"),
         })
 
         master_variant_id = None
@@ -133,6 +192,8 @@ def main() -> None:
             for s in sizes:
                 all_sizes.add(s)
 
+            hs_code_an = meta.get("article_number")
+            hs_code = hs_code_an[:20] if hs_code_an else None
             variants.append({
                 "id": variant_id,
                 "product_id": product_id,
@@ -140,6 +201,7 @@ def main() -> None:
                 "is_master": vi == 0,
                 "position": vi,
                 "price": price,
+                "hs_code": hs_code,
                 "barcode": f"{sku}-BAR",
             })
 
@@ -181,6 +243,22 @@ def main() -> None:
                     "alt": display_name[:500],
                     "type": "Search",
                 })
+
+                gallery_labels = ["back", "front"]
+                for gi, gl in enumerate(gallery_labels):
+                    s_images = meta.get("style_images")
+                    if s_images and gl in s_images:
+                        gallery_img_id = guid("variant_image", f"{display_name}.{vi}.{gl}")
+                        images.append({
+                            "id": gallery_img_id,
+                            "variant_id": variant_id,
+                            "content_type": "image/jpeg",
+                            "file_name": f"{benchmark_id}.jpg",
+                            "storage_path": f"images/medium/{benchmark_id}.jpg",
+                            "position": 2 + gi,
+                            "alt": f"{display_name} ({gl} view)"[:500],
+                            "type": "Gallery",
+                        })
 
             products[-1]["master_variant_id"] = master_variant_id
 
