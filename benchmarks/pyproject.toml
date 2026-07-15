@@ -15,6 +15,7 @@ dependencies = [
     "Pillow>=10.3",
     # Retrieval
     "faiss-cpu>=1.8",
+    "httpx>=0.24.0",
     "psycopg[binary]>=3.1",
     "pgvector>=0.2",
     # Config / validation
