@@ -4,13 +4,13 @@ version: 3.0
 date_created: 2026-07-15
 last_updated: 2026-07-15
 owner: Platform
-status: "Planned"
+status: "Completed"
 tags: ["feature", "data", "refactor"]
 ---
 
 # Introduction
 
-![Status: planned](https://img.shields.io/badge/status-planned-blue)
+![Status: planned](https://img.shields.io/badge/status-completed-brightgreen)
 
 V3 refines the demo-seed ETL pipeline with explicit resize arguments (by pixel or by model name),
 reduces search/embedding scope to master variants only (1 per product), adds duplicate detection,
