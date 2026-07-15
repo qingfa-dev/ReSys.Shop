@@ -52,6 +52,6 @@ Overall clean. Three real bugs, one performance risk, rest are nits and duplicat
 
 🔴 `infra/postgres/init.sql` and `infra/postgres/wait-for-pg.sh` referenced in docs but do not exist under benchmarks/. Create them or point to monorepo `infra/`.
 
-🔴 CONCERNS.md contains 5 `[ASK USER]` questions unresolved. Answer them: archive old/, keep outputs as-is, skip model checksums, verify RAM externally, no model unloading needed for CPU.
+🔴 CONCERNS.md [ASK USER] items — resolved ✅ (archive old/, keep outputs, skip checksums, verify RAM, model unloading GPU-only).
 
 🔵 31 Docker references across docs — all should say Podman (primary) / Docker (fallback), not Docker (primary).

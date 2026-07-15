@@ -32,7 +32,7 @@ uv run pytest --cov=benchmark --cov-report=term
 
 | Directory | What it tests | Example files |
 |---|---|---|
-| `datasets/` | Dataset loader, ground-truth builder | `test_loader.py`, `test_ground_truth.py` |
+| `datasets/` | Dataset loader, ground-truth builder, label_field, _build_sample_meta | `test_loader.py`, `test_ground_truth.py`, `test_loader_label_field.py` |
 | `evaluation/` | ThesisRunner, PipelineRunner, stats | `test_thesis.py`, `test_pipeline.py`, `test_stats.py` |
 | `integration/` | PGVector end-to-end (requires Podman) | `test_pgvector.py` |
 | `metrics/` | P@K, R@K, mAP, nDCG, recall comparison | `test_map.py`, `test_recall_comparison.py` |
@@ -63,7 +63,7 @@ uv run pytest --cov=benchmark --cov-report=term
 ### 5) Coverage and Quality Signals
 
 - Coverage tool: `pytest-cov` configured but no threshold enforced.
-- Current test count: 125+ tests (excluding skipped integration tests).
+- Current test count: 145 tests (excluding skipped integration tests).
 - Known gaps:
   - `embeddings/` (generator, cache) — no unit tests (relies on integration tests via pipeline)
   - `retrieval/cosine.py` — no tests for `retrieve_batch` or `top_k_indices`

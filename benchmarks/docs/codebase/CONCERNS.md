@@ -11,6 +11,9 @@
 | Medium | Models never unloaded from memory | `src/benchmark/models/base.py` — no `unload()` method; runners process models sequentially | Memory pressure on large runs; potential GPU OOM on smaller cards | Add explicit `unload()` to EmbeddingModel or `torch.cuda.empty_cache()` between models |
 | Medium | RAM measurement unreliable | `PipelineRunner._measure_peak_ram()` uses `psutil` RSS delta; reports 0.0 or negative on some systems | RAM column in thesis tables unreliable. Cannot verify H3 weight claims without trustworthy RAM data. | Measure RAM externally (e.g., `nvidia-smi` for GPU, `/proc/pid/status` for CPU) or remove from claims |
 | Low | No production-grade observability | No APM, Prometheus, health checks | Hard to monitor pipeline health in production | Add structured metrics export if benchmark is deployed as service |
+| Low | `samples` property masks empty vs. not-loaded | `src/benchmark/datasets/loader.py:L99-101` — raises RuntimeError on empty list | Cannot distinguish genuinely empty dataset from unloaded state | Guard with `hasattr(self, '_loaded')` boolean flag |
+| Low | O(N²) relevance set in self-retrieval | `src/benchmark/evaluation/evaluator.py:L101-103` — double-loop over all samples | Acceptable at 5K scale; degrades at 44K+ | Pre-build `{label: set(indices)}` dict for O(N) construction |
+| Low | Stale `MODELS` dict in registry.py | `src/benchmark/models/registry.py:L29-35` — 5 models vs 11 in `__init__.py` | Confusion if old code references legacy registry | Remove or sync; document `get_registry()` as preferred API |
 
 ### 2) Technical Debt
 
@@ -19,6 +22,7 @@
 | `retrieve_batch` capping `k` at gallery size | Edge case fix for small galleries | `src/benchmark/retrieval/cosine.py:L67-69` | Minimal — only affects small test datasets | Documented as intentional behavior |
 | `Executemany` for pgvector batch insert | Migration from psycopg2 `mogrify` to psycopg3 `executemany` | `src/benchmark/retrieval/pgvector.py:L155` | Slightly slower than `execute_values` for large batches. Acceptable for 5K scale. | Revisit if scaling beyond 100K vectors |
 | `_LazyRegistry` and `get_registry()` dual paths | Historical — `get_registry(device)` added later for device-aware creation | `src/benchmark/models/__init__.py:L68-103` | Two code paths to maintain; device-aware vs non-device-aware | Unify into single factory function |
+| Duplicated thesis eval methods | Spec-mandated separation between primary and secondary label evaluation | `src/benchmark/evaluation/thesis.py:L114-297` (4 near-identical methods) | Maintenance burden; 90% code duplication between `_evaluate_model` and `_evaluate_model_with_field` | Post-thesis refactor: pass `label_field=None` as optional parameter |
 | Output files committed to repo | Pipeline results and splits committed for thesis record | `outputs/pipeline/`, `outputs/thesis/` | Binary files in git history; large diffs on re-run | Keep committed — they are thesis artifacts. Re-gen only for re-evaluation. |
 | Old experiments in `experiments/` and `old/` | Historical notebooks and previous versions | `experiments/`, `old/` | Confusion about canonical code location | Archive into `_archive/` with README explaining migration path |
 
@@ -42,10 +46,11 @@
 ### 5) Fragile/High-Churn Areas
 
 | Area | Why fragile | Safe change strategy |
-|---|---|---|
+|------|-------------|----------------------|
 | `src/benchmark/models/__init__.py` | Every model addition requires editing both `_register()` and `get_registry()` | Single-source model list with dual generation |
-| `src/benchmark/evaluation/pipeline.py` | 333 lines — ties embedding, evaluation, and pgvector; hard to test individual phases | Extract pgvector phase to separate method (already done: `_run_pgvector_pipeline`) |
-| `src/benchmark/cli/benchmark.py` | 5 CLI commands in one file; shared imports and setup | Consider splitting per-command CLI files when >8 commands |
+| `src/benchmark/evaluation/pipeline.py` | 357 lines — ties embedding, evaluation, and pgvector; hard to test individual phases | Extract pgvector phase to separate method (already done: `_run_pgvector_pipeline`) |
+| `src/benchmark/cli/benchmark.py` | 6 CLI commands in one file; shared imports and setup | Consider splitting per-command CLI files when >8 commands |
+| `src/benchmark/datasets/ground_truth.py` | High commit churn from ground truth evolution (cat-only→cat+colour→cat+colour+pattern) | Now stable; 3-way comparison complete. Lock relevance scheme for thesis. |
 
 ### 6) Caveats for Thesis Claims
 
@@ -55,13 +60,9 @@
 - **Statistical power**: n=3 folds. Paired t-tests omitted. Descriptive statistics only.
 - **Hardware dependency**: Latency and throughput are hardware-specific. Report exact hardware specs alongside results.
 
-### 7) `[ASK USER]` Questions — Resolved
+### 6) `[ASK USER]` Questions — Resolved ✅
 
-1. **`old/` directory**: Archive into `_archive/` with a README linking to current canonical code. Do not delete — historical benchmark runs and thesis backup preserved there.
-2. **Outputs in git**: Keep `outputs/thesis/` and `outputs/pipeline/` committed as thesis artifacts. These are part of the submission record and should be traceable.
-3. **Model checksums**: Not needed for academic benchmarks. Weights are identified by HuggingFace commit hash. If deployed in production, add `huggingface_hub` verification step.
-4. **RAM measurement**: Verify externally before citing in thesis. Use `/proc/pid/status` (VmRSS) for CPU, `nvidia-smi` for GPU memory. psutil RSS delta is directionally correct but noisy.
-5. **GPU model unloading**: Not a concern for CPU-only benchmarks. For GPU runs, add `torch.cuda.empty_cache()` between sequential model evaluations. Not needed for thesis workflow (CPU, one model at a time).
+All previous questions resolved in the 2026-07-16 documentation review. See `CODE_REVIEW.md` for remaining actionable findings.
 
 ### 8) Evidence
 
@@ -71,4 +72,9 @@
 - `src/benchmark/evaluation/pipeline.py:L80` — sequential model loop
 - `src/benchmark/retrieval/cosine.py:L68-70` — per-query retrieval loop
 - `src/benchmark/evaluation/pipeline.py:L248-333` — graceful pgvector degradation
-- `src/benchmark/datasets/ground_truth.py` — category-based ground truth
+- `src/benchmark/datasets/ground_truth.py` — category+colour ground truth, `_build_sample_meta` pattern support
+- `src/benchmark/datasets/loader.py:L99-101` — `samples` property empty-vs-unloaded conflate
+- `src/benchmark/evaluation/evaluator.py:L101-103` — O(N²) relevance set construction
+- `src/benchmark/models/registry.py:L29-35` — stale 5-model registry
+- `src/benchmark/evaluation/thesis.py:L114-297` — duplicated primary/secondary eval methods
+- `docs/codebase/CODE_REVIEW.md` — full code review: 3 bugs, 4 perf risks, 6 nits

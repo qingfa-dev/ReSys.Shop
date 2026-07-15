@@ -10,6 +10,13 @@
 
 ### 2) System Flow
 
+**Enrich mode** (`benchmark enrich` — JSON metadata → enriched CSV):
+```text
+[CLI: benchmark.py enrich cmd] → [enrich_dataset.py: parse 44K JSON files]
+  → [extract articleAttributes.Pattern] → [build enriched styles.csv]
+  → [GroundTruth: generate_splits with dual-label (label + label_pattern)]
+```
+
 **Thesis mode** (`benchmark thesis` — 3-fold CV, in-memory exact search):
 ```text
 [CLI: benchmark.py thesis cmd] → [GroundTruth: ground_truth.py → stratified splits]
@@ -73,5 +80,8 @@
 - `src/benchmark/evaluation/benchmark.py:L39-109` — BenchmarkRunner (one-shot)
 - `src/benchmark/datasets/ground_truth.py` — Ground truth builder with stratified splits
 - `src/benchmark/retrieval/pgvector.py` — PgvectorRetriever with batch ingestion and indexing
+- `src/benchmark/cli/benchmark.py` — Typer app with 6 commands
+- `src/benchmark/cli/benchmark.py` — CLI entry point
 - `src/benchmark/retrieval/cosine.py` — In-memory cosine retrieval
 - `src/benchmark/models/__init__.py:L68-103` — Lazy registry
+- `scripts/enrich_dataset.py` — Enriched dataset builder (JSON → CSV)
