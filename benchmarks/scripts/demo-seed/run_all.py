@@ -21,7 +21,7 @@ def run_step(name: str, args: list[str]) -> int:
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="Run the full demo seed ETL pipeline")
-    parser.add_argument("--count", type=int, default=200, help="Target number of product groups")
+    parser.add_argument("--count", type=int, default=2000, help="Target number of product groups")
     parser.add_argument("--dataset", type=Path,
                         default=REPO_ROOT / "benchmarks" / "data" / "raw" / "fashion-product-images")
     parser.add_argument("--output", type=Path,

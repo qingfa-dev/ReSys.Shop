@@ -68,7 +68,7 @@ def main() -> None:
     parser = argparse.ArgumentParser(description="Extract product seed data")
     parser.add_argument("--dataset", type=Path, required=True)
     parser.add_argument("--output", type=Path, default=SCRIPTS_DIR / "output")
-    parser.add_argument("--count", type=int, default=200, help="Target number of product groups")
+    parser.add_argument("--count", type=int, default=2000, help="Target number of product groups")
     args = parser.parse_args()
 
     styles_csv = args.dataset / "styles.csv"

@@ -10,6 +10,11 @@ from pathlib import Path
 from PIL import Image
 from tqdm import tqdm
 
+MODEL_INPUT_SIZES: dict[str, int] = {
+    "efficientnet_b0": 224, "clip_vit_b16": 224, "fashion_clip": 224,
+    "dinov2_vits14": 224,
+}
+
 SCRIPTS_DIR = Path(__file__).resolve().parent
 
 
@@ -46,7 +51,11 @@ def main() -> None:
 
     source_dir = args.dataset / "images"
     medium_dir = args.output / "images" / "medium"
-    search_dir_224 = args.output / "images" / "search" / "224"
+
+    sizes = set(MODEL_INPUT_SIZES.values())
+    for size in sizes:
+        search_dir = args.output / "images" / "search" / str(size)
+        search_dir.mkdir(parents=True, exist_ok=True)
 
     ok = fail = 0
     for rec in tqdm(unique, desc="Processing images"):
@@ -64,11 +73,13 @@ def main() -> None:
             else:
                 fail += 1
         elif "search" in rec["storage_path"]:
-            dst = args.output / rec["storage_path"]
-            if resize_image(src, dst, 224):
-                ok += 1
-            else:
-                fail += 1
+            for size in sizes:
+                dst = args.output / "images" / "search" / str(size) / fname
+                if resize_image(src, dst, size):
+                    ok += 1
+                else:
+                    fail += 1
+                    break
 
     print(f"Done: {ok} images processed, {fail} failures")
 

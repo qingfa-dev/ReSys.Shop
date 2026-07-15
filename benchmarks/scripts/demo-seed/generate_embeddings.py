@@ -31,6 +31,17 @@ def main() -> None:
 
     headers = {"X-API-Key": API_KEY}
 
+    try:
+        resp = httpx.get(urljoin(args.base_url, "/models"), headers=headers, timeout=10)
+        if resp.status_code == 200 and resp.json().get("isSuccess"):
+            models = [m["id"] for m in resp.json()["value"]]
+        else:
+            models = ["fashion_clip", "efficientnet_b0", "clip_vit_b16", "dinov2_vits14"]
+    except Exception:
+        models = ["fashion_clip", "efficientnet_b0", "clip_vit_b16", "dinov2_vits14"]
+
+    print(f"Using models: {models}")
+
     embeddings: list[dict] = []
     for rec in tqdm(search_records, desc="Generating embeddings"):
         storage_path = rec["storage_path"]
@@ -39,37 +50,37 @@ def main() -> None:
             print(f"  WARN: {image_path} not found, skipping")
             continue
 
-        model_name = "fashion_clip"
-        try:
-            with open(image_path, "rb") as f:
-                files = {"image": (image_path.name, f, "image/jpeg")}
-                data = {"model": model_name}
-                resp = httpx.post(
-                    urljoin(args.base_url, "/embeddings/bytes"),
-                    headers=headers, files=files, data=data, timeout=30,
-                )
-            if resp.status_code != 200:
-                print(f"  WARN: Embedding API returned {resp.status_code} for {storage_path}")
+        for model_name in models:
+            try:
+                with open(image_path, "rb") as f:
+                    files = {"image": (image_path.name, f, "image/jpeg")}
+                    data = {"model": model_name}
+                    resp = httpx.post(
+                        urljoin(args.base_url, "/embeddings/bytes"),
+                        headers=headers, files=files, data=data, timeout=30,
+                    )
+                if resp.status_code != 200:
+                    print(f"  WARN: Embedding API returned {resp.status_code} for {storage_path} ({model_name})")
+                    continue
+                result = resp.json()
+                if not result.get("isSuccess"):
+                    print(f"  WARN: Embedding failed for {storage_path} ({model_name}): {result.get('errors')}")
+                    continue
+                value = result["value"]
+                embeddings.append({
+                    "variant_image_id": rec["id"],
+                    "model_name": model_name,
+                    "model_version": value["model_version"],
+                    "vector": value["vector"],
+                    "dimensions": value["dimension"],
+                })
+            except httpx.ConnectError:
+                print("ERROR: Cannot connect to embedding service. Is it running?")
+                print("  Start with: cd service/Embedding && uv run python src/main.py")
+                sys.exit(1)
+            except Exception as e:
+                print(f"  WARN: {storage_path} ({model_name}): {e}")
                 continue
-            result = resp.json()
-            if not result.get("isSuccess"):
-                print(f"  WARN: Embedding failed for {storage_path}: {result.get('errors')}")
-                continue
-            value = result["value"]
-            embeddings.append({
-                "variant_image_id": rec["id"],
-                "model_name": model_name,
-                "model_version": value["model_version"],
-                "vector": value["vector"],
-                "dimensions": value["dimension"],
-            })
-        except httpx.ConnectError:
-            print("ERROR: Cannot connect to embedding service. Is it running?")
-            print("  Start with: cd service/Embedding && uv run python src/main.py")
-            sys.exit(1)
-        except Exception as e:
-            print(f"  WARN: {storage_path}: {e}")
-            continue
 
     (args.output / "demo_embeddings.json").write_text(json.dumps(embeddings, indent=2))
     print(f"Written {len(embeddings)} embeddings")
