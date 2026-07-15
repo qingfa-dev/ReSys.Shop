@@ -58,6 +58,7 @@ public static partial class RefreshSession
             if (tokenResult.IsFailure)
                 return tokenResult.Errors;
 
+            // EXCEPTION: auth token response — no domain entity
             return new Response
             {
                 AccessToken = tokenResult.Value.Token,

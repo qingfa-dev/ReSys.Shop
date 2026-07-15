@@ -138,6 +138,7 @@ public static partial class ExternalAuthenticate
                 IpAddress: currentUser.IpAddress,
                 ActionBy: user.UserName!);
 
+            // EXCEPTION: auth token response — no domain entity
             return new Response
             {
                 AccessToken = tokenResult.Value.Token,

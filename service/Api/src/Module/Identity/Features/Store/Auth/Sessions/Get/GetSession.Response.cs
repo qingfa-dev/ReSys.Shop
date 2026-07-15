@@ -1,8 +1,8 @@
+using Module.Identity.Features.Store.Shared.Models;
+
 namespace Module.Identity.Features.Store.Auth.Sessions.Get;
 
 public static partial class GetSession
 {
-    // ============ RESPONSE ============
-    public sealed record Response(Guid Id, string[]? Roles, string[]? Permissions);
-
+    public sealed record Response : SessionResponseModel;
 }
