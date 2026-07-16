@@ -1,18 +1,3 @@
-import apiClient from '@/shared/api/http/api.client'
-import type { ApiResult } from '@/shared/api/types/api.types'
-import type { SalesSummary, InventorySummary, CatalogSummary, RecentActivityResponse, DashboardQuery } from '../types/report.types'
-
-export const reportsApi = {
-  async getSalesSummary(params: DashboardQuery = {}): Promise<ApiResult<SalesSummary>> {
-    return apiClient.get('admin/dashboard/sales-summary', { params })
-  },
-  async getInventorySummary(): Promise<ApiResult<InventorySummary>> {
-    return apiClient.get('admin/dashboard/inventory-summary')
-  },
-  async getCatalogSummary(): Promise<ApiResult<CatalogSummary>> {
-    return apiClient.get('admin/dashboard/catalog-summary')
-  },
-  async getRecentActivity(limit: number = 10): Promise<ApiResult<RecentActivityResponse>> {
-    return apiClient.get('admin/dashboard/recent-activity', { params: { limit } })
-  },
-}
+// All endpoints removed — no backend routes exist.
+// Re-add when Dashboard module endpoints are added to backend.
+export const reportsApi = {}
