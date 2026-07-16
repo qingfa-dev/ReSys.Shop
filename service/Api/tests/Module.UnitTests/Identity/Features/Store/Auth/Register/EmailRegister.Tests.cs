@@ -48,7 +48,7 @@ public class EmailRegisterTests
         string firstName = "John",
         string? lastName = null,
         string? phone = null) => new(
-        new EmailRegister.Request(email, userName, password, firstName, lastName, phone));
+        new EmailRegister.Request { Email = email, UserName = userName, Password = password, FirstName = firstName, LastName = lastName, Phone = phone });
 
     private void SetUpEmailNotTaken() =>
         _userManagerMock.Setup(x => x.FindByEmailAsync(It.IsAny<string>())).ReturnsAsync((User?)null);

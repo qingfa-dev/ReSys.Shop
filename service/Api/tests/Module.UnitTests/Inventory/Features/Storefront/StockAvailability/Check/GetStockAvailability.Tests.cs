@@ -52,7 +52,7 @@ public class GetStockAvailabilityTests : IDisposable
 
         // Act
         var result = await _handler.Handle(
-            new GetStockAvailability.Query(variantId),
+            new GetStockAvailability.Query(new GetStockAvailability.Request { VariantId = variantId }),
             TestContext.Current.CancellationToken);
 
         // Assert
@@ -73,7 +73,7 @@ public class GetStockAvailabilityTests : IDisposable
 
         // Act
         var result = await _handler.Handle(
-            new GetStockAvailability.Query(variantId),
+            new GetStockAvailability.Query(new GetStockAvailability.Request { VariantId = variantId }),
             TestContext.Current.CancellationToken);
 
         // Assert
@@ -102,7 +102,7 @@ public class GetStockAvailabilityTests : IDisposable
 
         // Act
         var result = await _handler.Handle(
-            new GetStockAvailability.Query(variantId),
+            new GetStockAvailability.Query(new GetStockAvailability.Request { VariantId = variantId }),
             TestContext.Current.CancellationToken);
 
         // Assert
@@ -131,7 +131,7 @@ public class GetStockAvailabilityTests : IDisposable
 
         // Act
         var result = await _handler.Handle(
-            new GetStockAvailability.Query(variantId),
+            new GetStockAvailability.Query(new GetStockAvailability.Request { VariantId = variantId }),
             TestContext.Current.CancellationToken);
 
         // Assert
@@ -160,7 +160,7 @@ public class GetStockAvailabilityTests : IDisposable
 
         // Act
         var result = await _handler.Handle(
-            new GetStockAvailability.Query(variantId),
+            new GetStockAvailability.Query(new GetStockAvailability.Request { VariantId = variantId }),
             TestContext.Current.CancellationToken);
 
         // Assert
@@ -187,7 +187,7 @@ public class GetStockAvailabilityTests : IDisposable
 
         // Act
         var result = await _handler.Handle(
-            new GetStockAvailability.Query(variantId),
+            new GetStockAvailability.Query(new GetStockAvailability.Request { VariantId = variantId }),
             TestContext.Current.CancellationToken);
 
         // Assert: AvailableCount should be 0, not -3

@@ -5,6 +5,8 @@ using ReSys.ServiceDefaults.Constants;
 // [WIP-MVP] YARP API gateway is deferred to v1.x. The Services.Gateway constant is defined
 // in ReSys.ServiceDefaults but not registered as a resource here. Frontends call the API
 // directly via VITE_API_URL. See docs/superpowers/specs/2026-07-07-mvp-cut-design.md.
+// CORS origins are injected via Cors__Origins__N env vars from the admin/store SPA endpoints.
+// Fallback in Cors.Extension.cs allows any localhost origin via SetIsOriginAllowed.
 
 IDistributedApplicationBuilder builder = DistributedApplication.CreateBuilder(args);
 
@@ -26,23 +28,27 @@ var embedding = builder.AddUvicornApp(
     .WithHttpEndpoint(targetPort: 8000, name: "http")
     .WithExternalHttpEndpoints();
 
+IResourceBuilder<ViteAppResource> store = builder.AddViteApp(Application.Store, "../../../../app/Store")
+    .WithPnpm()
+    .WithHttpEndpoint(targetPort: 5173);
+
+IResourceBuilder<ViteAppResource> admin = builder.AddViteApp(Application.Admin, "../../../../app/Admin")
+    .WithPnpm()
+    .WithHttpEndpoint(targetPort: 5174);
+
 IResourceBuilder<ProjectResource> api = builder.AddProject<Projects.Api>(Services.Api)
     .WithReference(database)
     .WithReference(redis)
     .WithReference(embedding)
-    .WithEnvironment("ASPNETCORE_ENVIRONMENT", "Development");
+    .WithEnvironment("ASPNETCORE_ENVIRONMENT", "Development")
+    .WithEnvironment("Cors__Origins__0", admin.GetEndpoint("http"))
+    .WithEnvironment("Cors__Origins__1", store.GetEndpoint("http"));
 
-IResourceBuilder<ViteAppResource> store = builder.AddViteApp(Application.Store, "../../../../app/Store")
-    .WithPnpm()
-    .WithHttpEndpoint(targetPort: 5173)
-    .WithEnvironment("VITE_API_URL", api.GetEndpoint("http"))
+store.WithEnvironment("VITE_API_URL", api.GetEndpoint("http"))
     .WithReference(api)
     .WaitFor(api);
 
-IResourceBuilder<ViteAppResource> admin = builder.AddViteApp(Application.Admin, "../../../../app/Admin")
-    .WithPnpm()
-    .WithHttpEndpoint(targetPort: 5174)
-    .WithEnvironment("VITE_API_URL", api.GetEndpoint("http"))
+admin.WithEnvironment("VITE_API_URL", api.GetEndpoint("http"))
     .WithReference(api)
     .WaitFor(api);
 

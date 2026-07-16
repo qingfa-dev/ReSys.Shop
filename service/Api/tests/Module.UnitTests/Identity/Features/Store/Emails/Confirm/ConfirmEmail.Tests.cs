@@ -67,7 +67,7 @@ public class ConfirmEmailTests
     {
         var handler = CreateHandler();
         var command = new ConfirmEmail.Command(
-            new ConfirmEmail.Request(Guid.NewGuid(), "invalid-base64!!!", null));
+            new ConfirmEmail.Request { UserId = Guid.NewGuid(), Token = "invalid-base64!!!", NewEmail = null });
 
         var result = await handler.Handle(command, TestContext.Current.CancellationToken);
 
@@ -81,7 +81,7 @@ public class ConfirmEmailTests
     {
         var handler = CreateHandler();
         var command = new ConfirmEmail.Command(
-            new ConfirmEmail.Request(Guid.NewGuid(), ValidBase64("valid-token"), "invalid-base64!!!"));
+            new ConfirmEmail.Request { UserId = Guid.NewGuid(), Token = ValidBase64("valid-token"), NewEmail = "invalid-base64!!!" });
 
         var result = await handler.Handle(command, TestContext.Current.CancellationToken);
 
@@ -99,7 +99,7 @@ public class ConfirmEmailTests
 
         var handler = CreateHandler();
         var command = new ConfirmEmail.Command(
-            new ConfirmEmail.Request(Guid.NewGuid(), ValidBase64("valid-token"), null));
+            new ConfirmEmail.Request { UserId = Guid.NewGuid(), Token = ValidBase64("valid-token"), NewEmail = null });
 
         var result = await handler.Handle(command, TestContext.Current.CancellationToken);
 
@@ -119,7 +119,7 @@ public class ConfirmEmailTests
 
         var handler = CreateHandler();
         var command = new ConfirmEmail.Command(
-            new ConfirmEmail.Request(user.Id, ValidBase64("valid-token"), null));
+            new ConfirmEmail.Request { UserId = user.Id, Token = ValidBase64("valid-token"), NewEmail = null });
 
         var result = await handler.Handle(command, TestContext.Current.CancellationToken);
 
@@ -155,7 +155,7 @@ public class ConfirmEmailTests
 
         var handler = CreateHandler();
         var command = new ConfirmEmail.Command(
-            new ConfirmEmail.Request(user.Id, ValidBase64("valid-token"), null));
+            new ConfirmEmail.Request { UserId = user.Id, Token = ValidBase64("valid-token"), NewEmail = null });
 
         var result = await handler.Handle(command, TestContext.Current.CancellationToken);
 
@@ -195,7 +195,7 @@ public class ConfirmEmailTests
 
         var handler = CreateHandler();
         var command = new ConfirmEmail.Command(
-            new ConfirmEmail.Request(user.Id, ValidBase64("valid-token"), null));
+            new ConfirmEmail.Request { UserId = user.Id, Token = ValidBase64("valid-token"), NewEmail = null });
 
         await handler.Handle(command, TestContext.Current.CancellationToken);
 
@@ -221,7 +221,7 @@ public class ConfirmEmailTests
 
         var handler = CreateHandler();
         var command = new ConfirmEmail.Command(
-            new ConfirmEmail.Request(user.Id, ValidBase64("valid-token"), null));
+            new ConfirmEmail.Request { UserId = user.Id, Token = ValidBase64("valid-token"), NewEmail = null });
 
         var result = await handler.Handle(command, TestContext.Current.CancellationToken);
 
@@ -250,7 +250,7 @@ public class ConfirmEmailTests
 
         var handler = CreateHandler();
         var command = new ConfirmEmail.Command(
-            new ConfirmEmail.Request(user.Id, ValidBase64("valid-token"), null));
+            new ConfirmEmail.Request { UserId = user.Id, Token = ValidBase64("valid-token"), NewEmail = null });
 
         var result = await handler.Handle(command, TestContext.Current.CancellationToken);
 
@@ -283,7 +283,7 @@ public class ConfirmEmailTests
 
         var handler = CreateHandler();
         var command = new ConfirmEmail.Command(
-            new ConfirmEmail.Request(user.Id, ValidBase64("valid-token"), validNewEmail));
+            new ConfirmEmail.Request { UserId = user.Id, Token = ValidBase64("valid-token"), NewEmail = validNewEmail });
 
         var result = await handler.Handle(command, TestContext.Current.CancellationToken);
 
@@ -316,7 +316,7 @@ public class ConfirmEmailTests
 
         var handler = CreateHandler();
         var command = new ConfirmEmail.Command(
-            new ConfirmEmail.Request(user.Id, ValidBase64("valid-token"), validNewEmail));
+            new ConfirmEmail.Request { UserId = user.Id, Token = ValidBase64("valid-token"), NewEmail = validNewEmail });
 
         var result = await handler.Handle(command, TestContext.Current.CancellationToken);
 
@@ -346,7 +346,7 @@ public class ConfirmEmailTests
 
         var handler = CreateHandler();
         var command = new ConfirmEmail.Command(
-            new ConfirmEmail.Request(user.Id, ValidBase64("valid-token"), validNewEmail));
+            new ConfirmEmail.Request { UserId = user.Id, Token = ValidBase64("valid-token"), NewEmail = validNewEmail });
 
         var result = await handler.Handle(command, TestContext.Current.CancellationToken);
 

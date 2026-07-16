@@ -45,7 +45,7 @@ public class RequestPasswordResetTests
             .Setup(x => x.FindByEmailAsync(It.IsAny<string>()))
             .ReturnsAsync((User?)null);
 
-        var command = new RequestPasswordReset.Command(new RequestPasswordReset.Request("notfound@example.com"));
+        var command = new RequestPasswordReset.Command(new RequestPasswordReset.Request { Email = "notfound@example.com" });
 
         var result = await _handler.Handle(command, TestContext.Current.CancellationToken);
 
@@ -65,7 +65,7 @@ public class RequestPasswordResetTests
             .Setup(x => x.FindByEmailAsync(user.Email!))
             .ReturnsAsync(user);
 
-        var command = new RequestPasswordReset.Command(new RequestPasswordReset.Request(user.Email!));
+        var command = new RequestPasswordReset.Command(new RequestPasswordReset.Request { Email = user.Email! });
 
         var result = await _handler.Handle(command, TestContext.Current.CancellationToken);
 
@@ -91,7 +91,7 @@ public class RequestPasswordResetTests
             .Setup(x => x.UpdateAsync(user))
             .ReturnsAsync(IdentityResult.Success);
 
-        var command = new RequestPasswordReset.Command(new RequestPasswordReset.Request(user.Email!));
+        var command = new RequestPasswordReset.Command(new RequestPasswordReset.Request { Email = user.Email! });
 
         var result = await _handler.Handle(command, TestContext.Current.CancellationToken);
 
@@ -119,7 +119,7 @@ public class RequestPasswordResetTests
             .Setup(x => x.UpdateAsync(user))
             .ReturnsAsync(IdentityResult.Failed(new IdentityError { Code = "UpdateFailed", Description = "Failed" }));
 
-        var command = new RequestPasswordReset.Command(new RequestPasswordReset.Request(user.Email!));
+        var command = new RequestPasswordReset.Command(new RequestPasswordReset.Request { Email = user.Email! });
 
         var result = await _handler.Handle(command, TestContext.Current.CancellationToken);
 

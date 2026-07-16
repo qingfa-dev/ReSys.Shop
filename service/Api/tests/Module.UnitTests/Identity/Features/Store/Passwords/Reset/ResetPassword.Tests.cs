@@ -42,7 +42,7 @@ public class ResetPasswordTests
             .Setup(x => x.FindByIdAsync(It.IsAny<string>()))
             .ReturnsAsync((User?)null);
 
-        var command = new ResetPassword.Command(new ResetPassword.Request(Guid.NewGuid(), "valid-token", "NewPass1!"));
+        var command = new ResetPassword.Command(new ResetPassword.Request { UserId = Guid.NewGuid(), Token = "valid-token", NewPassword = "NewPass1!" });
 
         var result = await _handler.Handle(command, TestContext.Current.CancellationToken);
 
@@ -65,7 +65,7 @@ public class ResetPasswordTests
             .Setup(x => x.ResetPasswordAsync(user, "valid-token", "NewPass1!"))
             .ReturnsAsync(IdentityResult.Failed(new IdentityError { Code = "InvalidToken", Description = "Invalid token." }));
 
-        var command = new ResetPassword.Command(new ResetPassword.Request(user.Id, "valid-token", "NewPass1!"));
+        var command = new ResetPassword.Command(new ResetPassword.Request { UserId = user.Id, Token = "valid-token", NewPassword = "NewPass1!" });
 
         var result = await _handler.Handle(command, TestContext.Current.CancellationToken);
 
@@ -90,7 +90,7 @@ public class ResetPasswordTests
             .Setup(x => x.UpdateAsync(user))
             .ReturnsAsync(IdentityResult.Success);
 
-        var command = new ResetPassword.Command(new ResetPassword.Request(user.Id, "valid-token", "NewPass1!"));
+        var command = new ResetPassword.Command(new ResetPassword.Request { UserId = user.Id, Token = "valid-token", NewPassword = "NewPass1!" });
 
         var result = await _handler.Handle(command, TestContext.Current.CancellationToken);
 
@@ -116,7 +116,7 @@ public class ResetPasswordTests
             .Setup(x => x.UpdateAsync(user))
             .ReturnsAsync(IdentityResult.Failed(new IdentityError { Code = "UpdateFailed", Description = "Failed to update." }));
 
-        var command = new ResetPassword.Command(new ResetPassword.Request(user.Id, "valid-token", "NewPass1!"));
+        var command = new ResetPassword.Command(new ResetPassword.Request { UserId = user.Id, Token = "valid-token", NewPassword = "NewPass1!" });
 
         var result = await _handler.Handle(command, TestContext.Current.CancellationToken);
 

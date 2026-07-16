@@ -46,7 +46,14 @@ public static class CorsExtensions
 
                 if (options.Origins.Length > 0)
                 {
-                    policy.WithOrigins(options.Origins);
+                    policy.SetIsOriginAllowed(origin =>
+                    {
+                        if (Uri.TryCreate(origin, UriKind.Absolute, out var uri)
+                            && (uri.Host is "localhost" or "127.0.0.1"))
+                            return true;
+
+                        return options.Origins.Contains(origin);
+                    });
                 }
 
                 policy

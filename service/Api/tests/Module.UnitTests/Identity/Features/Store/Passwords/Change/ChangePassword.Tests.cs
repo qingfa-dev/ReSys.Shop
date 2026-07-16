@@ -48,7 +48,7 @@ public class ChangePasswordTests
         _userManagerMock.Setup(x => x.FindByIdAsync(It.IsAny<string>()))
             .ReturnsAsync((User?)null);
 
-        var command = new ChangePassword.Command(new ChangePassword.Request("OldPass1!", "NewPass1!"));
+        var command = new ChangePassword.Command(new ChangePassword.Request { CurrentPassword = "OldPass1!", NewPassword = "NewPass1!" });
 
         var result = await _handler.Handle(command, TestContext.Current.CancellationToken);
 
@@ -66,7 +66,7 @@ public class ChangePasswordTests
         _userManagerMock.Setup(x => x.CheckPasswordAsync(user, "WrongPass1!"))
             .ReturnsAsync(false);
 
-        var command = new ChangePassword.Command(new ChangePassword.Request("WrongPass1!", "NewPass1!"));
+        var command = new ChangePassword.Command(new ChangePassword.Request { CurrentPassword = "WrongPass1!", NewPassword = "NewPass1!" });
 
         var result = await _handler.Handle(command, TestContext.Current.CancellationToken);
 
@@ -88,7 +88,7 @@ public class ChangePasswordTests
         _userManagerMock.Setup(x => x.ChangePasswordAsync(user, It.IsAny<string>(), It.IsAny<string>()))
             .ReturnsAsync(IdentityResult.Failed(new IdentityError { Code = "Error", Description = "Failed" }));
 
-        var command = new ChangePassword.Command(new ChangePassword.Request("OldPass1!", "NewPass1!"));
+        var command = new ChangePassword.Command(new ChangePassword.Request { CurrentPassword = "OldPass1!", NewPassword = "NewPass1!" });
 
         var result = await _handler.Handle(command, TestContext.Current.CancellationToken);
 
@@ -114,7 +114,7 @@ public class ChangePasswordTests
         _userManagerMock.Setup(x => x.UpdateAsync(user))
             .ReturnsAsync(IdentityResult.Success);
 
-        var command = new ChangePassword.Command(new ChangePassword.Request("OldPass1!", "NewPass1!"));
+        var command = new ChangePassword.Command(new ChangePassword.Request { CurrentPassword = "OldPass1!", NewPassword = "NewPass1!" });
 
         var result = await _handler.Handle(command, TestContext.Current.CancellationToken);
 
@@ -141,7 +141,7 @@ public class ChangePasswordTests
         _userManagerMock.Setup(x => x.UpdateAsync(user))
             .ReturnsAsync(IdentityResult.Failed(new IdentityError { Code = "Error", Description = "Update failed" }));
 
-        var command = new ChangePassword.Command(new ChangePassword.Request("OldPass1!", "NewPass1!"));
+        var command = new ChangePassword.Command(new ChangePassword.Request { CurrentPassword = "OldPass1!", NewPassword = "NewPass1!" });
 
         var result = await _handler.Handle(command, TestContext.Current.CancellationToken);
 
@@ -170,7 +170,7 @@ public class ChangePasswordTests
         _userManagerMock.Setup(x => x.UpdateAsync(user))
             .ReturnsAsync(IdentityResult.Success);
 
-        var command = new ChangePassword.Command(new ChangePassword.Request("OldPass1!", "NewPass1!"));
+        var command = new ChangePassword.Command(new ChangePassword.Request { CurrentPassword = "OldPass1!", NewPassword = "NewPass1!" });
 
         await _handler.Handle(command, TestContext.Current.CancellationToken);
 

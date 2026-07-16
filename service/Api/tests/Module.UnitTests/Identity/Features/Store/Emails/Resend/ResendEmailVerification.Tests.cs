@@ -47,7 +47,7 @@ public class ResendEmailVerificationTests
             .ReturnsAsync((User?)null);
 
         var handler = CreateHandler();
-        var command = new ResendEmailVerification.Command(new ResendEmailVerification.Request("nonexistent@test.com"));
+        var command = new ResendEmailVerification.Command(new ResendEmailVerification.Request { Email = "nonexistent@test.com" });
 
         var result = await handler.Handle(command, TestContext.Current.CancellationToken);
 
@@ -65,7 +65,7 @@ public class ResendEmailVerificationTests
             .ReturnsAsync(user);
 
         var handler = CreateHandler();
-        var command = new ResendEmailVerification.Command(new ResendEmailVerification.Request("confirmed@test.com"));
+        var command = new ResendEmailVerification.Command(new ResendEmailVerification.Request { Email = "confirmed@test.com" });
 
         var result = await handler.Handle(command, TestContext.Current.CancellationToken);
 
@@ -94,7 +94,7 @@ public class ResendEmailVerificationTests
 
 
         var handler = CreateHandler();
-        var command = new ResendEmailVerification.Command(new ResendEmailVerification.Request("unverified@test.com"));
+        var command = new ResendEmailVerification.Command(new ResendEmailVerification.Request { Email = "unverified@test.com" });
 
         var result = await handler.Handle(command, TestContext.Current.CancellationToken);
 
@@ -122,7 +122,7 @@ public class ResendEmailVerificationTests
             .ReturnsAsync(IdentityResult.Failed(new IdentityError { Code = "UpdateFailed", Description = "Update failed" }));
 
         var handler = CreateHandler();
-        var command = new ResendEmailVerification.Command(new ResendEmailVerification.Request("unverified@test.com"));
+        var command = new ResendEmailVerification.Command(new ResendEmailVerification.Request { Email = "unverified@test.com" });
 
         var result = await handler.Handle(command, TestContext.Current.CancellationToken);
 
@@ -153,7 +153,7 @@ public class ResendEmailVerificationTests
 
 
         var handler = CreateHandler();
-        var command = new ResendEmailVerification.Command(new ResendEmailVerification.Request("unverified@test.com"));
+        var command = new ResendEmailVerification.Command(new ResendEmailVerification.Request { Email = "unverified@test.com" });
 
         await handler.Handle(command, TestContext.Current.CancellationToken);
 
@@ -183,7 +183,7 @@ public class ResendEmailVerificationTests
 
 
         var handler = CreateHandler();
-        var command = new ResendEmailVerification.Command(new ResendEmailVerification.Request("unverified@test.com"));
+        var command = new ResendEmailVerification.Command(new ResendEmailVerification.Request { Email = "unverified@test.com" });
 
         await handler.Handle(command, TestContext.Current.CancellationToken);
 
@@ -213,7 +213,7 @@ public class ResendEmailVerificationTests
 
 
         var handler = CreateHandler();
-        var command = new ResendEmailVerification.Command(new ResendEmailVerification.Request("unverified@test.com"));
+        var command = new ResendEmailVerification.Command(new ResendEmailVerification.Request { Email = "unverified@test.com" });
 
         await handler.Handle(command, TestContext.Current.CancellationToken);
 
@@ -241,7 +241,7 @@ public class ResendEmailVerificationTests
             .ReturnsAsync(IdentityResult.Success);
 
         var handler = CreateHandler();
-        var command = new ResendEmailVerification.Command(new ResendEmailVerification.Request("unverified@test.com"));
+        var command = new ResendEmailVerification.Command(new ResendEmailVerification.Request { Email = "unverified@test.com" });
 
         await handler.Handle(command, TestContext.Current.CancellationToken);
 

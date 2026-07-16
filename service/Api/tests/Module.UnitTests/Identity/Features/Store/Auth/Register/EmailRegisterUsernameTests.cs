@@ -54,11 +54,7 @@ public class EmailRegisterUsernameTests
 
         var handler = CreateHandler();
         var result = await handler.Handle(new EmailRegister.Command(
-            new EmailRegister.Request(
-                Email: "new@example.com",
-                UserName: "existinguser",
-                Password: "Password123!",
-                FirstName: "New")), default);
+            new EmailRegister.Request { Email = "new@example.com", UserName = "existinguser", Password = "Password123!", FirstName = "New" }), default);
 
         result.IsFailure.Should().BeTrue();
     }

@@ -47,7 +47,7 @@ public class ChangeEmailTests
             .ReturnsAsync((User?)null);
 
         var handler = CreateHandler();
-        var command = new ChangeEmail.Command(new ChangeEmail.Request("newemail@test.com", "Password1!"));
+        var command = new ChangeEmail.Command(new ChangeEmail.Request { NewEmail = "newemail@test.com", Password = "Password1!" });
 
         var result = await handler.Handle(command, TestContext.Current.CancellationToken);
 
@@ -67,7 +67,7 @@ public class ChangeEmailTests
             .ReturnsAsync(false);
 
         var handler = CreateHandler();
-        var command = new ChangeEmail.Command(new ChangeEmail.Request("newemail@test.com", "WrongPassword"));
+        var command = new ChangeEmail.Command(new ChangeEmail.Request { NewEmail = "newemail@test.com", Password = "WrongPassword" });
 
         var result = await handler.Handle(command, TestContext.Current.CancellationToken);
 
@@ -93,7 +93,7 @@ public class ChangeEmailTests
             .ReturnsAsync(existingUser);
 
         var handler = CreateHandler();
-        var command = new ChangeEmail.Command(new ChangeEmail.Request("existing@test.com", "Password1!"));
+        var command = new ChangeEmail.Command(new ChangeEmail.Request { NewEmail = "existing@test.com", Password = "Password1!" });
 
         var result = await handler.Handle(command, TestContext.Current.CancellationToken);
 
@@ -123,7 +123,7 @@ public class ChangeEmailTests
 
 
         var handler = CreateHandler();
-        var command = new ChangeEmail.Command(new ChangeEmail.Request("newemail@test.com", "Password1!"));
+        var command = new ChangeEmail.Command(new ChangeEmail.Request { NewEmail = "newemail@test.com", Password = "Password1!" });
 
         var result = await handler.Handle(command, TestContext.Current.CancellationToken);
 
@@ -151,7 +151,7 @@ public class ChangeEmailTests
             .ReturnsAsync(IdentityResult.Success);
 
         var handler = CreateHandler();
-        var command = new ChangeEmail.Command(new ChangeEmail.Request("newemail@test.com", "Password1!"));
+        var command = new ChangeEmail.Command(new ChangeEmail.Request { NewEmail = "newemail@test.com", Password = "Password1!" });
 
         await handler.Handle(command, TestContext.Current.CancellationToken);
 
@@ -181,7 +181,7 @@ public class ChangeEmailTests
             .ReturnsAsync(IdentityResult.Failed(new IdentityError { Code = "UpdateFailed", Description = "Update failed" }));
 
         var handler = CreateHandler();
-        var command = new ChangeEmail.Command(new ChangeEmail.Request("newemail@test.com", "Password1!"));
+        var command = new ChangeEmail.Command(new ChangeEmail.Request { NewEmail = "newemail@test.com", Password = "Password1!" });
 
         var result = await handler.Handle(command, TestContext.Current.CancellationToken);
 
@@ -212,7 +212,7 @@ public class ChangeEmailTests
 
 
         var handler = CreateHandler();
-        var command = new ChangeEmail.Command(new ChangeEmail.Request("current@test.com", "Password1!"));
+        var command = new ChangeEmail.Command(new ChangeEmail.Request { NewEmail = "current@test.com", Password = "Password1!" });
 
         var result = await handler.Handle(command, TestContext.Current.CancellationToken);
 
@@ -262,7 +262,7 @@ public class ChangeEmailTests
 
 
         var handler = CreateHandler();
-        var command = new ChangeEmail.Command(new ChangeEmail.Request("newemail@test.com", "Password1!"));
+        var command = new ChangeEmail.Command(new ChangeEmail.Request { NewEmail = "newemail@test.com", Password = "Password1!" });
 
         var result = await handler.Handle(command, TestContext.Current.CancellationToken);
 
