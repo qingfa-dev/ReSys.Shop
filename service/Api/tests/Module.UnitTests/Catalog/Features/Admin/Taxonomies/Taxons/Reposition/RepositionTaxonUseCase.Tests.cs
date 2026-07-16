@@ -48,7 +48,7 @@ public class RepositionTaxonTests : IDisposable
     [Fact(DisplayName = "Handler: Should reposition taxon successfully")]
     public async Task Handle_ShouldReturnSuccess_WhenValid()
     {
-        var taxonomy = TaxonomyExtensions.Create("Categories", "Categories", 0).Value;
+        var taxonomy = TaxonomyMethod.Create("Categories", "Categories", 0).Value;
         var root = TaxonMethod.Create(taxonomy.Id, null, "Root", "Root", null, 0, "root", null, null, null, false, null, null, false, null, null).Value;
         var taxon = TaxonMethod.Create(taxonomy.Id, root.Id, "Shirts", "Shirts", null, 1, "shirts", null, null, null, false, null, null, false, null, null).Value;
         var otherParent = TaxonMethod.Create(taxonomy.Id, root.Id, "Clothes", "Clothes", null, 2, "clothes", null, null, null, false, null, null, false, null, null).Value;
@@ -77,7 +77,7 @@ public class RepositionTaxonTests : IDisposable
     [Fact(DisplayName = "Handler: Should return success early when same parent and position")]
     public async Task Handle_ShouldReturnSuccess_WhenNoChange()
     {
-        var taxonomy = TaxonomyExtensions.Create("Cat", "Cat", 0).Value;
+        var taxonomy = TaxonomyMethod.Create("Cat", "Cat", 0).Value;
         var root = TaxonMethod.Create(taxonomy.Id, null, "Root", "Root", null, 0, "root", null, null, null, false, null, null, false, null, null).Value;
         var taxon = TaxonMethod.Create(taxonomy.Id, root.Id, "Shirts", "Shirts", null, 1, "shirts", null, null, null, false, null, null, false, null, null).Value;
         _dbContext.Set<Taxonomy>().Add(taxonomy);
@@ -105,7 +105,7 @@ public class RepositionTaxonTests : IDisposable
     [Fact(DisplayName = "Handler: Should return failure when taxon not found")]
     public async Task Handle_ShouldReturnFailure_WhenTaxonNotFound()
     {
-        var taxonomy = TaxonomyExtensions.Create("Cat", "Cat", 0).Value;
+        var taxonomy = TaxonomyMethod.Create("Cat", "Cat", 0).Value;
         _dbContext.Set<Taxonomy>().Add(taxonomy);
         await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 
@@ -118,7 +118,7 @@ public class RepositionTaxonTests : IDisposable
     [Fact(DisplayName = "Handler: Should return failure when root locked")]
     public async Task Handle_ShouldReturnFailure_WhenRootLocked()
     {
-        var taxonomy = TaxonomyExtensions.Create("Cat", "Cat", 0).Value;
+        var taxonomy = TaxonomyMethod.Create("Cat", "Cat", 0).Value;
         var root = TaxonMethod.Create(taxonomy.Id, null, "Root", "Root", null, 0, "root", null, null, null, false, null, null, false, null, null).Value;
         _dbContext.Set<Taxonomy>().Add(taxonomy);
         _dbContext.Set<Taxon>().Add(root);
@@ -133,7 +133,7 @@ public class RepositionTaxonTests : IDisposable
     [Fact(DisplayName = "Handler: Should return failure when parent not found")]
     public async Task Handle_ShouldReturnFailure_WhenParentNotFound()
     {
-        var taxonomy = TaxonomyExtensions.Create("Cat", "Cat", 0).Value;
+        var taxonomy = TaxonomyMethod.Create("Cat", "Cat", 0).Value;
         var root = TaxonMethod.Create(taxonomy.Id, null, "Root", "Root", null, 0, "root", null, null, null, false, null, null, false, null, null).Value;
         var taxon = TaxonMethod.Create(taxonomy.Id, root.Id, "Shirts", "Shirts", null, 1, "shirts", null, null, null, false, null, null, false, null, null).Value;
         _dbContext.Set<Taxonomy>().Add(taxonomy);
@@ -154,11 +154,11 @@ public class RepositionTaxonTests : IDisposable
     [Fact(DisplayName = "Handler: Should return failure when parent taxonomy mismatch")]
     public async Task Handle_ShouldReturnFailure_WhenParentTaxonomyMismatch()
     {
-        var taxonomy = TaxonomyExtensions.Create("Cat 1", "Cat 1", 0).Value;
+        var taxonomy = TaxonomyMethod.Create("Cat 1", "Cat 1", 0).Value;
         var root1 = TaxonMethod.Create(taxonomy.Id, null, "Root 1", "Root 1", null, 0, "root-1", null, null, null, false, null, null, false, null, null).Value;
         var taxon = TaxonMethod.Create(taxonomy.Id, root1.Id, "Shirts", "Shirts", null, 1, "shirts", null, null, null, false, null, null, false, null, null).Value;
 
-        var otherTaxonomy = TaxonomyExtensions.Create("Cat 2", "Cat 2", 0).Value;
+        var otherTaxonomy = TaxonomyMethod.Create("Cat 2", "Cat 2", 0).Value;
         var root2 = TaxonMethod.Create(otherTaxonomy.Id, null, "Root 2", "Root 2", null, 0, "root-2", null, null, null, false, null, null, false, null, null).Value;
 
         _dbContext.Set<Taxonomy>().AddRange(taxonomy, otherTaxonomy);
@@ -179,7 +179,7 @@ public class RepositionTaxonTests : IDisposable
     [Fact(DisplayName = "Handler: Should return failure when self-parenting")]
     public async Task Handle_ShouldReturnFailure_WhenSelfParenting()
     {
-        var taxonomy = TaxonomyExtensions.Create("Categories", "Categories", 0).Value;
+        var taxonomy = TaxonomyMethod.Create("Categories", "Categories", 0).Value;
         var root = TaxonMethod.Create(taxonomy.Id, null, "Root", "Root", null, 0, "root", null, null, null, false, null, null, false, null, null).Value;
         var taxon = TaxonMethod.Create(taxonomy.Id, root.Id, "Shirts", "Shirts", null, 1, "shirts", null, null, null, false, null, null, false, null, null).Value;
 

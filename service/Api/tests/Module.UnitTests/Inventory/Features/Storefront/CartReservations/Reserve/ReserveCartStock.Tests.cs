@@ -64,9 +64,9 @@ public class ReserveCartStockTests : IDisposable
                 VariantId = _variantId,
                 StockLocationId = _stockLocationId,
                 Quantity = quantity,
-                TtlMinutes = ttlMinutes
-            },
-            _cartToken);
+                TtlMinutes = ttlMinutes,
+                CartToken = _cartToken
+            });
     }
 
     [Fact(DisplayName = "Handler: Should create reservation with CartToken")]

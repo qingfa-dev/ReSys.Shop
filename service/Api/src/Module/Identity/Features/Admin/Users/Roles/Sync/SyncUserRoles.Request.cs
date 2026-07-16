@@ -6,6 +6,7 @@ public static partial class SyncUserRoles
     /// Represents the request contract for synchronizing a user's roles.
     /// This will replace the user's current roles with the specified list.
     /// </summary>
+    // EXCEPTION: feature-specific collection request — no domain entity base
     public record Request
     {
         /// <summary>

@@ -11,6 +11,7 @@ from enum import Enum
 from pathlib import Path
 from typing import List, Optional
 
+from embedding.core.constants import Constants
 from pydantic import Field, field_validator, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
@@ -66,16 +67,16 @@ class Settings(BaseSettings):
         json_schema_extra={"example": "inference-sidecar"}
     )
     PORT: int = Field(
-        default=8000,
-        ge=1,
-        le=65535,
+        default=Constants.Defaults.PORT,
+        ge=Constants.Constraints.PORT_MIN,
+        le=Constants.Constraints.PORT_MAX,
         description="The local network port the HTTP server binds to.",
         json_schema_extra={"example": 5002}
     )
     HTTPS_PORT: int = Field(
-        default=8001,
-        ge=1,
-        le=65535,
+        default=Constants.Defaults.HTTPS_PORT,
+        ge=Constants.Constraints.PORT_MIN,
+        le=Constants.Constraints.PORT_MAX,
         description="The local network port the HTTPS server binds to.",
         json_schema_extra={"example": 5003}
     )
@@ -83,7 +84,7 @@ class Settings(BaseSettings):
     # ── Security ──────────────────────────────────────────────────────────────────
     API_KEY: str = Field(
         default="dev-key-must-be-long-enough",
-        min_length=16,
+        min_length=Constants.Constraints.API_KEY_MIN_LENGTH,
         description="Shared secret for authenticating internal sidecar calls.",
         json_schema_extra={"example": "a-very-long-and-secure-random-key-12345"}
     )
@@ -151,17 +152,23 @@ class Settings(BaseSettings):
 
     # ── Performance ──────────────────────────────────────────────────────────────
     OMP_NUM_THREADS: int = Field(
-        default=4, ge=1, le=128,
+        default=Constants.Defaults.OMP_NUM_THREADS,
+        ge=Constants.Constraints.THREAD_COUNT_MIN,
+        le=Constants.Constraints.THREAD_COUNT_MAX,
         description="Number of threads for OpenMP (CPU-parallelism).",
         json_schema_extra={"example": 8}
     )
     MKL_NUM_THREADS: int = Field(
-        default=4, ge=1, le=128,
+        default=Constants.Defaults.MKL_NUM_THREADS,
+        ge=Constants.Constraints.THREAD_COUNT_MIN,
+        le=Constants.Constraints.THREAD_COUNT_MAX,
         description="Number of threads for Intel MKL.",
         json_schema_extra={"example": 8}
     )
     NUMEXPR_NUM_THREADS: int = Field(
-        default=4, ge=1, le=128,
+        default=Constants.Defaults.NUMEXPR_NUM_THREADS,
+        ge=Constants.Constraints.THREAD_COUNT_MIN,
+        le=Constants.Constraints.THREAD_COUNT_MAX,
         description="Number of threads for NumExpr.",
         json_schema_extra={"example": 8}
     )

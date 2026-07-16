@@ -76,6 +76,23 @@ class CLIPEmbedder(BaseEmbedder):
 
 
 @ModelRegistry.register(
+    "openclip-vit-b-32",
+    metadata={
+        "name": "OpenCLIP ViT-B/32",
+        "dimension": Constants.Dimensions.CLIP_VIT_B16,
+        "description": "OpenCLIP ViT-B/32 for general semantic visual features.",
+        "tags": ["vision", "semantic", "clip", "openclip"]
+    }
+)
+class OpenClipB32Embedder(CLIPEmbedder):
+    """OpenCLIP ViT-B/32 — reuses CLIPEmbedder with B/32 variant."""
+
+    def __init__(self):
+        super().__init__(variant="ViT-B/32")
+        self.name = "openclip-vit-b-32"
+
+
+@ModelRegistry.register(
     "fashion_clip",
     metadata={
         "name": "Fashion-CLIP",

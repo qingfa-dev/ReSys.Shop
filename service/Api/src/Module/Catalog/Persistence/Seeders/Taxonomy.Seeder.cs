@@ -2,7 +2,7 @@ using Module.Catalog.Domain.Taxonomies;
 
 namespace Module.Catalog.Persistence.Seeders;
 
-public sealed class CatalogTaxonomySeeder(IApplicationDbContext context) : AbstractDataSeeder(context)
+public sealed class CatalogTaxonomySeeder(IApplicationDbContext context, DemoJsonHelper jsonHelper) : AbstractDataSeeder(context)
 {
     public override int Order => 110;
 
@@ -10,25 +10,22 @@ public sealed class CatalogTaxonomySeeder(IApplicationDbContext context) : Abstr
     {
         var hasTaxonomies = await HasDataAsync<Taxonomy>(cancellationToken);
         if (hasTaxonomies)
-        {
             return Result.Ok();
+
+        var json = jsonHelper.LoadIfExists<DemoTaxonomyJson>("demo_taxonomies.json");
+        if (json is null)
+            return Result.Ok();
+
+        foreach (var t in json)
+        {
+            var result = TaxonomyMethod.Create(
+                name: t.Name, presentation: t.Presentation,
+                position: t.Position, id: Guid.Parse(t.Id));
+            Context.Set<Taxonomy>().Add(result.Value);
         }
-
-        var categoriesResult = TaxonomyExtensions.Create(
-            name: "Categories",
-            presentation: "Departments",
-            position: 0,
-            id: Guid.NewGuid());
-
-        var brandsResult = TaxonomyExtensions.Create(
-            name: "Brands",
-            presentation: "Brands",
-            position: 1,
-            id: Guid.NewGuid());
-
-        Context.Set<Taxonomy>().AddRange(categoriesResult.Value, brandsResult.Value);
         await Context.SaveChangesAsync(cancellationToken);
-
         return Result.Ok();
     }
+
+    private record DemoTaxonomyJson(string Id, string Name, string Presentation, int Position);
 }

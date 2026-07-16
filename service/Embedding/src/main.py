@@ -14,6 +14,7 @@ from embedding.api.middleware.exception_handlers import (
 )
 from embedding.api.router import api_router
 from embedding.core.config import settings
+from embedding.core.constants import Constants
 from embedding.core.rate_limit import limiter
 from embedding.core.security import resolve_ssl_paths
 from embedding.core.telemetry import setup_telemetry
@@ -42,7 +43,7 @@ def create_app() -> FastAPI:
     # Create: FastAPI application with metadata and interactive docs
     app = FastAPI(
         title=settings.PROJECT_NAME,
-        version="1.0.0",
+        version=Constants.Strings.VERSION,
         description="High-performance Inference Service",
         docs_url="/docs",
         redoc_url="/redoc",

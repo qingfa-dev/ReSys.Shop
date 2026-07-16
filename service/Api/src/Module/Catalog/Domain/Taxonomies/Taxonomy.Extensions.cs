@@ -4,7 +4,7 @@ using Shared.Application.Domain.Concerns.Parameterizable;
 
 namespace Module.Catalog.Domain.Taxonomies;
 
-public static class TaxonomyExtensions
+public static class TaxonomyMethod
 {
     #region Factory Methods
     /// <summary>

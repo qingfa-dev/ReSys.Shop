@@ -47,7 +47,7 @@ public class TaxonHierarchyPermalinksTests : IDisposable
     {
         // Arrange
         var ct = TestContext.Current.CancellationToken;
-        var taxonomy = TaxonomyExtensions.Create("Clothing", "Clothing", 0).Value;
+        var taxonomy = TaxonomyMethod.Create("Clothing", "Clothing", 0).Value;
         var root = TaxonMethod.Create(taxonomy.Id, null, "Mens", "Mens", null, 0, "mens", null, null, null, false, null, null, false, null, null).Value;
         var child = TaxonMethod.Create(taxonomy.Id, root.Id, "Shirts", "Shirts", null, 0, "shirts", null, null, null, false, null, null, false, null, null).Value;
         
@@ -87,7 +87,7 @@ public class TaxonHierarchyPermalinksTests : IDisposable
     {
         // Arrange
         var ct = TestContext.Current.CancellationToken;
-        var taxonomy = TaxonomyExtensions.Create("Clothing", "Clothing", 0).Value;
+        var taxonomy = TaxonomyMethod.Create("Clothing", "Clothing", 0).Value;
         var root = TaxonMethod.Create(taxonomy.Id, null, "Mens", "Mens", null, 0, "mens", null, null, null, false, null, null, false, null, null).Value;
         var child = TaxonMethod.Create(taxonomy.Id, root.Id, "Shirts", "Shirts", null, 0, "shirts", null, null, null, false, null, null, false, null, null).Value;
         
@@ -141,7 +141,7 @@ public class TaxonHierarchyPermalinksTests : IDisposable
     public async Task RegeneratePermalinks_ShouldHandlePrimaryRoot()
     {
         var ct = TestContext.Current.CancellationToken;
-        var taxonomy = TaxonomyExtensions.Create("Categories", "Categories", 0).Value;
+        var taxonomy = TaxonomyMethod.Create("Categories", "Categories", 0).Value;
         var root = TaxonMethod.Create(taxonomy.Id, null, "Categories", "Categories", null, 0, "categories", null, null, null, false, null, null, false, null, null).Value;
         
         root.Lft = 1; root.Rgt = 2;

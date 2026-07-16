@@ -8,6 +8,7 @@ from pathlib import Path
 from typing import Dict, List
 
 from embedding.core.config import settings
+from embedding.core.constants import Constants
 from embedding.core.telemetry import get_meter, get_tracer
 from embedding.models import BaseEmbedder, ModelRegistry
 from embedding.models.onnx.utils import infer_onnx_dim
@@ -111,7 +112,7 @@ class InferenceEngine:
         """Helper to resolve and load an ONNX model."""
         model_id = model_name.removeprefix("onnx/")
         # Reverted to singular ONNX_MODEL_DIR
-        model_path = Path(settings.ONNX_MODEL_DIR) / model_id / "model.onnx"
+        model_path = Path(settings.ONNX_MODEL_DIR) / model_id / Constants.Strings.ONNX_FILENAME
 
         if not model_path.exists():
             legacy_path = Path(settings.ONNX_MODEL_DIR) / f"{model_id}.onnx"
@@ -135,9 +136,6 @@ class InferenceEngine:
     def _load_torch_skill(self, model_name: str, span) -> ValueResult[BaseEmbedder]:
         """Helper to resolve and load a Torch skill from registry."""
         registry_result = ModelRegistry.get_model_class(model_name)
-
-        if not registry_result.is_success and "clip" in model_name and "fashion" not in model_name:
-            registry_result = ModelRegistry.get_model_class("clip_vit_b16")
 
         if not registry_result.is_success:
             return ValueResult.failure_value(InferenceResults.Errors.ModelNotFound(model_name))

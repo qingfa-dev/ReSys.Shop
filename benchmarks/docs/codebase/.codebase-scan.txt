@@ -1,0 +1,449 @@
+
+=== DIRECTORY TREE (max depth 3, source files only) ===
+.gitignore
+.pytest_cache
+.pytest_cache/.gitignore
+.pytest_cache/CACHEDIR.TAG
+.pytest_cache/README.md
+.pytest_cache/v
+.pytest_cache/v/cache
+.pytest_cache/v/cache/lastfailed
+.pytest_cache/v/cache/nodeids
+.python-version
+.ruff_cache
+.ruff_cache/.gitignore
+.ruff_cache/0.15.21
+.ruff_cache/0.15.21/12282604975342271144
+.ruff_cache/0.15.21/429207775640525658
+.ruff_cache/0.15.21/6605252986811350459
+.ruff_cache/0.15.21/8234655029412910985
+.ruff_cache/0.15.21/8608227357260863720
+.ruff_cache/CACHEDIR.TAG
+.superpowers
+.superpowers/sdd
+AGENTS.md
+PROJECT_COMPARISON.md
+README.md
+configs
+configs/benchmark.yaml
+configs/datasets.yaml
+configs/hardware.yaml
+configs/metrics.yaml
+configs/models
+configs/models/clip_vit_b32.yaml
+configs/models/clip_vit_l14.yaml
+configs/models/eva_clip.yaml
+configs/models/fashion_clip.yaml
+configs/models/siglip.yaml
+data
+data/cache
+data/cache/.gitkeep
+data/cache/clip-generic__fold_0_test.npz
+data/cache/clip-generic__fold_0_train.npz
+data/cache/clip-generic__fold_1_test.npz
+data/cache/clip-generic__fold_1_train.npz
+data/cache/clip-generic__fold_2_test.npz
+data/cache/clip-generic__fold_2_train.npz
+data/cache/efficientnet-b0__fold_0_test.npz
+data/cache/efficientnet-b0__fold_0_train.npz
+data/cache/efficientnet-b0__fold_1_test.npz
+data/cache/efficientnet-b0__fold_1_train.npz
+data/cache/efficientnet-b0__fold_2_test.npz
+data/cache/efficientnet-b0__fold_2_train.npz
+data/cache/fashionclip__fold_0_test.npz
+data/cache/fashionclip__fold_0_train.npz
+data/cache/fashionclip__fold_1_test.npz
+data/cache/fashionclip__fold_1_train.npz
+data/cache/fashionclip__fold_2_test.npz
+data/cache/fashionclip__fold_2_train.npz
+data/cache/resnet-50__fold_0_test.npz
+data/cache/resnet-50__fold_0_train.npz
+data/cache/resnet-50__fold_1_test.npz
+data/cache/resnet-50__fold_1_train.npz
+data/cache/resnet-50__fold_2_test.npz
+data/cache/resnet-50__fold_2_train.npz
+data/metadata
+data/metadata/.gitkeep
+data/processed
+data/processed/.gitkeep
+data/raw
+data/raw/.gitkeep
+data/raw/fashion-5k
+data/raw/fashion-5k/images
+data/raw/fashion-5k/styles.csv
+data/raw/fashion-enriched-5k
+data/raw/fashion-enriched-5k/images
+data/raw/fashion-enriched-5k/splits
+data/raw/fashion-enriched-5k/styles.csv
+data/raw/fashion-product-images
+data/raw/fashion-product-images/images
+data/raw/fashion-product-images/images.csv
+data/raw/fashion-product-images/styles
+data/raw/fashion-product-images/styles.csv
+data/raw/fashion-product-images-small
+data/raw/fashion-product-images-small/images
+data/raw/fashion-product-images-small/splits
+data/raw/fashion-product-images-small/styles.csv
+data/splits
+data/splits/.gitkeep
+docs
+docs/01-overview.md
+docs/02-models.md
+docs/03-metrics.md
+docs/04-pipeline.md
+docs/05-datasets.md
+docs/06-thesis-protocol.md
+docs/07-references.md
+docs/08-replication-guide.md
+docs/09-benchmark-results.md
+docs/09-visual-similarity-attributes.md
+docs/10-benchmark-comparison.md
+docs/10-visual-similarity-pipeline.md
+docs/11-documentation-review.md
+docs/11-enriched-dataset.md
+docs/12-final-review.md
+docs/README.md
+docs/codebase
+docs/codebase/.codebase-scan.txt
+docs/codebase/ARCHITECTURE.md
+docs/codebase/CODE_REVIEW.md
+docs/codebase/CONCERNS.md
+docs/codebase/CONVENTIONS.md
+docs/codebase/DIRECTORY_MAP.md
+docs/codebase/INTEGRATIONS.md
+docs/codebase/STACK.md
+docs/codebase/STRUCTURE.md
+docs/codebase/TESTING.md
+docs/superpowers
+docs/superpowers/plans
+docs/superpowers/plans/2026-07-15-enriched-benchmark.md
+docs/superpowers/specs
+docs/superpowers/specs/2026-07-15-enriched-benchmark-design.md
+experiments
+experiments/clip_b32
+experiments/clip_b32/.gitkeep
+experiments/clip_b32/config.yaml
+experiments/clip_b32/results.json
+experiments/clip_l14
+experiments/clip_l14/.gitkeep
+experiments/clip_l14/config.yaml
+experiments/clip_l14/results.json
+experiments/comparison
+experiments/comparison/.gitkeep
+experiments/comparison/config.yaml
+experiments/eva_clip
+experiments/eva_clip/.gitkeep
+experiments/eva_clip/config.yaml
+experiments/eva_clip/results.json
+experiments/fashion_clip
+experiments/fashion_clip/.gitkeep
+experiments/fashion_clip/config.yaml
+experiments/fashion_clip/results.json
+experiments/siglip
+experiments/siglip/.gitkeep
+experiments/siglip/config.yaml
+experiments/siglip/results.json
+infra
+infra/postgres
+infra/postgres/init.sql
+infra/postgres/wait-for-pg.sh
+old
+old/ReSys.ML
+old/ReSys.ML/.coveragerc
+old/ReSys.ML/.env
+old/ReSys.ML/.env.example
+old/ReSys.ML/.env.test
+old/ReSys.ML/.github
+old/ReSys.ML/.github/copilot-instructions.md
+old/ReSys.ML/.gitignore
+old/ReSys.ML/.pytest_cache
+old/ReSys.ML/.pytest_cache/.gitignore
+old/ReSys.ML/.pytest_cache/CACHEDIR.TAG
+old/ReSys.ML/.pytest_cache/v
+old/ReSys.ML/.vscode
+old/ReSys.ML/.vscode/settings.json
+old/ReSys.ML/Dockerfile
+old/ReSys.ML/Makefile
+old/ReSys.ML/README.md
+old/ReSys.ML/data
+old/ReSys.ML/data/uploads
+old/ReSys.ML/docker-compose.thesis.yml
+old/ReSys.ML/docker-compose.yml
+old/ReSys.ML/docs
+old/ReSys.ML/docs/ARCHITECTURE_STANDARD.md
+old/ReSys.ML/docs/api.md
+old/ReSys.ML/docs/architecture.md
+old/ReSys.ML/docs/setup.md
+old/ReSys.ML/experiment.log
+old/ReSys.ML/local-cert.pem
+old/ReSys.ML/ml.log
+old/ReSys.ML/ml_err.log
+old/ReSys.ML/ml_start.log
+old/ReSys.ML/pyproject.test.toml
+old/ReSys.ML/pyproject.toml
+old/ReSys.ML/pytest.ini
+old/ReSys.ML/research
+old/ReSys.ML/research/README.md
+old/ReSys.ML/research/__init__.py
+old/ReSys.ML/research/api
+old/ReSys.ML/research/docs
+old/ReSys.ML/research/etl
+old/ReSys.ML/research/evaluation
+old/ReSys.ML/research/results
+old/ReSys.ML/research/scripts
+old/ReSys.ML/research/search.py
+old/ReSys.ML/research/tests
+old/ReSys.ML/research/tools
+old/ReSys.ML/results
+old/ReSys.ML/results/runs
+old/ReSys.ML/results/thesis_validation
+old/ReSys.ML/run-ml.bat
+old/ReSys.ML/run-ml.sh
+old/ReSys.ML/run-research.ps1
+
+=== STACK DETECTION (manifest files) ===
+
+--- pyproject.toml ---
+[project]
+name = "benchmark"
+version = "0.1.0"
+description = "One-shot model comparison for fashion product retrieval (Resys.FashionShop thesis)"
+requires-python = ">=3.12"
+dependencies = [
+    # ML / vision
+    "torch>=2.3",
+    "torchvision>=0.18",
+    "transformers>=4.41",
+    "open-clip-torch>=2.24",
+    "fashion-clip>=0.2",
+    # Data
+    "numpy>=1.26",
+    "Pillow>=10.3",
+    # Retrieval
+    "faiss-cpu>=1.8",
+    "httpx>=0.24.0",
+    "psycopg[binary]>=3.1",
+    "pgvector>=0.2",
+    # Config / validation
+    "pydantic>=2.7",
+    "pydantic-settings>=2.3",
+    "PyYAML>=6.0",
+    # CLI / progress
+    "rich>=13.7",
+    "typer>=0.12",
+    "tqdm>=4.66",
+    # System / monitoring
+    "psutil>=6.0",
+    # Reporting / charts
+    "matplotlib>=3.9",
+    "seaborn>=0.13",
+    "pandas>=2.2",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.2",
+    "pytest-cov>=5.0",
+]
+
+[project.scripts]
+benchmark = "benchmark.cli.benchmark:app"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/benchmark"]
+
+[tool.pytest.ini_options]
+testpaths  = ["src/tests"]
+pythonpath = ["src", "."]
+addopts    = "-v --tb=short"
+
+[tool.ruff]
+line-length    = 100
+target-version = "py312"
+src            = ["src"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "SIM"]
+ignore = ["E501"]
+
+--- uv.lock ---
+version = 1
+revision = 3
+requires-python = ">=3.12"
+resolution-markers = [
+    "python_full_version >= '3.14' and sys_platform == 'win32'",
+    "python_full_version >= '3.14' and sys_platform == 'emscripten'",
+    "python_full_version >= '3.14' and sys_platform != 'emscripten' and sys_platform != 'win32'",
+    "python_full_version < '3.14' and sys_platform == 'win32'",
+    "python_full_version < '3.14' and sys_platform == 'emscripten'",
+    "python_full_version < '3.14' and sys_platform != 'emscripten' and sys_platform != 'win32'",
+]
+
+[[package]]
+name = "aiohappyeyeballs"
+version = "2.7.1"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/ce/f4/eec0465c2f67b2664688d0240b3212d5196fd89e741df67ddb81f8d35658/aiohappyeyeballs-2.7.1.tar.gz", hash = "sha256:065665c041c42a5938ed220bdcd7230f22527fbec085e1853d2402c8a3615d9d", size = 24757, upload-time = "2026-07-01T17:11:55.501Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/71/43/1947f06babed6b3f1d7f38b0c767f52df66bfb2bc10b468c4a7de9eceff2/aiohappyeyeballs-2.7.1-py3-none-any.whl", hash = "sha256:9243213661e29250eb41368e5daa826fc017156c3b8a11440826b2e3ed376472", size = 15038, upload-time = "2026-07-01T17:11:54.055Z" },
+]
+
+[[package]]
+name = "aiohttp"
+version = "3.14.1"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "aiohappyeyeballs" },
+    { name = "aiosignal" },
+    { name = "attrs" },
+    { name = "frozenlist" },
+    { name = "multidict" },
+    { name = "propcache" },
+    { name = "typing-extensions", marker = "python_full_version < '3.13'" },
+    { name = "yarl" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/82/78/8ea7308cac6934de8c74a14f3d5f65d1c89287426688be79538d0e5c013d/aiohttp-3.14.1.tar.gz", hash = "sha256:307f2cff90a764d329e77040603fa032db89c5c24fdad50c4c15334cba744035", size = 7955794, upload-time = "2026-06-07T21:09:35.529Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/1d/21/151624b51cd92553d95424daf4bf19f19ce9be9002d19253e7e7ce67197b/aiohttp-3.14.1-cp312-cp312-macosx_10_13_universal2.whl", hash = "sha256:d35143e27778b4bb0fb189562d7f275bff79c62ab8e98459717c0ea617ff2480", size = 757402, upload-time = "2026-06-07T21:06:40.311Z" },
+    { url = "https://files.pythonhosted.org/packages/c2/82/280619e0bd7bf2454987e19282616e84762255dd9c8468f62382e8c191f1/aiohttp-3.14.1-cp312-cp312-macosx_10_13_x86_64.whl", hash = "sha256:bcfb80a2cc36fba2534e5e5b5264dc7ae6fcd9bf15256da3e53d2f499e6fa29d", size = 512310, upload-time = "2026-06-07T21:06:42.207Z" },
+    { url = "https://files.pythonhosted.org/packages/55/b2/2aac325583aaa1353045f96dffa586d8a34e8322e14a7ba49cffeb103ab4/aiohttp-3.14.1-cp312-cp312-macosx_11_0_arm64.whl", hash = "sha256:27fd7c91e51729b4f7e1577865fa6d34c9adccbc39aabe9000285b48af9f0ec2", size = 512448, upload-time = "2026-06-07T21:06:43.813Z" },
+    { url = "https://files.pythonhosted.org/packages/8a/72/a60607cb849faa8af8a356c9329ea2eb6f395d49e82cc82ccba1fd8deb8f/aiohttp-3.14.1-cp312-cp312-manylinux2014_aarch64.manylinux_2_17_aarch64.manylinux_2_28_aarch64.whl", hash = "sha256:64c567bf9eaf664280116a8688f63016e6b32db2505908e2bdaca1b6438142f2", size = 1766854, upload-time = "2026-06-07T21:06:45.391Z" },
+    { url = "https://files.pythonhosted.org/packages/b5/d3/d9fe1c9ec7557ab4d0d82bebaa728c6418f0b93295ec2f4ab015f7710cc7/aiohttp-3.14.1-cp312-cp312-manylinux2014_armv7l.manylinux_2_17_armv7l.manylinux_2_31_armv7l.whl", hash = "sha256:f5e6ff2bdbb8f4cd3fbe41f99e25bbcd58e3bf9f13d3dd31a11e7917251cc77a", size = 1740884, upload-time = "2026-06-07T21:06:47.413Z" },
+    { url = "https://files.pythonhosted.org/packages/c1/dc/f2cecfaf9337ba3e63f181500814ff502aa3d00d9c7ec93a9d23d10a27b2/aiohttp-3.14.1-cp312-cp312-manylinux2014_ppc64le.manylinux_2_17_ppc64le.manylinux_2_28_ppc64le.whl", hash = "sha256:2f73e01dc37122325caf079982621262f96d74823c179038a82fddfc50359264", size = 1810034, upload-time = "2026-06-07T21:06:50.165Z" },
+    { url = "https://files.pythonhosted.org/packages/66/d7/2ff65c5e65c0d7476daf7e15c032e0805e36811185b9623e3238ad6c763e/aiohttp-3.14.1-cp312-cp312-manylinux2014_s390x.manylinux_2_17_s390x.manylinux_2_28_s390x.whl", hash = "sha256:bb2c0c80d431c0d03f2c7dbf125150fedd4f0de17366a7ca33f7ccb822391842", size = 1904054, upload-time = "2026-06-07T21:06:52.035Z" },
+    { url = "https://files.pythonhosted.org/packages/20/9c/d445818389df371f56d141d881153ba23183c4735a03f7356ffb43f7757d/aiohttp-3.14.1-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl", hash = "sha256:3e6fc1a85fa7194a1a7d19f44e8609180f4a8eb5fa4c7ed8b4355f080fad235c", size = 1790278, upload-time = "2026-06-07T21:06:54.049Z" },
+    { url = "https://files.pythonhosted.org/packages/4d/aa/bf04cb4d865fc6101c2229a294ad744973b72e513fdc5a6b791e6983d72a/aiohttp-3.14.1-cp312-cp312-manylinux_2_31_riscv64.manylinux_2_39_riscv64.whl", hash = "sha256:686b6c0d3911ec387b444ddf5dc62fb7f7c0a7d5186a7861626496a5ab4aff95", size = 1591795, upload-time = "2026-06-07T21:06:55.911Z" },
+    { url = "https://files.pythonhosted.org/packages/dc/b4/4dac0038960427ba832f6609dfb4ea5437d7fd80c72001b9e48f834f428b/aiohttp-3.14.1-cp312-cp312-musllinux_1_2_aarch64.whl", hash = "sha256:c6fa4dc7ad6f8109c70bb1499e589f76b0b792baf39f9b017eb92c8a81d0a199", size = 1728397, upload-time = "2026-06-07T21:06:57.777Z" },
+    { url = "https://files.pythonhosted.org/packages/2b/f9/7cd4e8ad7aa3b75f17d56bb5498dd604a93d4e6eece822ba0568c413fff0/aiohttp-3.14.1-cp312-cp312-musllinux_1_2_armv7l.whl", hash = "sha256:87a5eea1b2a5e21e1ebdbb33ad4165359189327e63fc4e4894693e7f821ac817", size = 1766504, upload-time = "2026-06-07T21:07:00.009Z" },
+    { url = "https://files.pythonhosted.org/packages/f9/df/fc01d9fcad0f73fed3f3d361f1f94f975947b50dff82919f6dc2bf4316cc/aiohttp-3.14.1-cp312-cp312-musllinux_1_2_ppc64le.whl", hash = "sha256:1c1421eb01d4fd608d88cc8290211d177a58532b55ad94076fb349c5bf467f0a", size = 1777806, upload-time = "2026-06-07T21:07:02.064Z" },
+    { url = "https://files.pythonhosted.org/packages/41/09/47e2d090bddcc8fb4ccb4c314aadc32d7c5d9bb55f50f6ad1c92fc15d501/aiohttp-3.14.1-cp312-cp312-musllinux_1_2_riscv64.whl", hash = "sha256:34b257ec41345c1e8f2df68fa908a7952f5de932723871eb633ecbbff396c9a4", size = 1580707, upload-time = "2026-06-07T21:07:03.942Z" },
+    { url = "https://files.pythonhosted.org/packages/3d/36/f1a4ce904ae0b6930cfe9afc96d0896f7ec1a620c400405d63783bb95a9c/aiohttp-3.14.1-cp312-cp312-musllinux_1_2_s390x.whl", hash = "sha256:de538791a80e5d862addbc183f70f0158ac9b9bb872bb147f1fd2a683691e087", size = 1798121, upload-time = "2026-06-07T21:07:05.987Z" },
+    { url = "https://files.pythonhosted.org/packages/70/0a/e0075ce9ca0279ee1d4f0c0b85f54fea02ebc83c3007651a72bece658fec/aiohttp-3.14.1-cp312-cp312-musllinux_1_2_x86_64.whl", hash = "sha256:6f71173be42d3241d428f760122febb748de0623f44308a6f120d0dd9ec572e3", size = 1767580, upload-time = "2026-06-07T21:07:07.873Z" },
+    { url = "https://files.pythonhosted.org/packages/3e/61/a0c0a8f327a9c52095cdd8e312391b00d3ed64ab6c72bb5c33d8ec251cf7/aiohttp-3.14.1-cp312-cp312-win32.whl", hash = "sha256:ec8dc383ee57ea3e883477dcca3f11b65d58199f1080acaf4cd6ad9a99698be4", size = 452771, upload-time = "2026-06-07T21:07:09.669Z" },
+    { url = "https://files.pythonhosted.org/packages/df/d9/ea367c75f16ac9c6cdc8febb25e8318fa21a2b1bc8d6514d4b2d890bface/aiohttp-3.14.1-cp312-cp312-win_amd64.whl", hash = "sha256:2aa92c87868cd13674989f9ee83e5f9f7ea4237589b728048e1f0c8f6caa3271", size = 479873, upload-time = "2026-06-07T21:07:11.538Z" },
+    { url = "https://files.pythonhosted.org/packages/03/64/8d96784a7851156db8a4c6c3f6f91042fdf39fb15a4cc38c8b3c14833c45/aiohttp-3.14.1-cp312-cp312-win_arm64.whl", hash = "sha256:2c840c90759922cb5e6dda94596e079a30fb5a5ba548e7e0dc00574703940847", size = 448073, upload-time = "2026-06-07T21:07:13.637Z" },
+    { url = "https://files.pythonhosted.org/packages/bc/97/bd137012dd97e1649162b099135a80e1fd59aaa807b2430fc448d1029aff/aiohttp-3.14.1-cp313-cp313-android_21_arm64_v8a.whl", hash = "sha256:b3a03285a7f9c7b016324574a6d92a1c895da6b978cb8f1deee3ac72bc6da178", size = 506882, upload-time = "2026-06-07T21:07:15.501Z" },
+    { url = "https://files.pythonhosted.org/packages/ef/79/e5cc690e9d922a66887ceeaca53a8ffd5a7b0be3816142b7abc433742d89/aiohttp-3.14.1-cp313-cp313-android_21_x86_64.whl", hash = "sha256:2a73f487ab8ef5abbb24b7aa9b73e98eaba9e9e031804ff2416f02eca315ccaf", size = 515270, upload-time = "2026-06-07T21:07:17.53Z" },
+    { url = "https://files.pythonhosted.org/packages/fe/22/a73ccbf9dbd6e26dda0b24d5fd5db7da92ee3383a79f47677ffb834c5c5b/aiohttp-3.14.1-cp313-cp313-ios_13_0_arm64_iphoneos.whl", hash = "sha256:915fbb7b41b115192259f8c9ae58f3ddc444d2b5579917270211858e606a4afd", size = 485841, upload-time = "2026-06-07T21:07:19.555Z" },
+    { url = "https://files.pythonhosted.org/packages/3b/b9/57ed8eaf596321c2ad747bd480fb1700dbd7177c60dfc9e4c187f629662e/aiohttp-3.14.1-cp313-cp313-ios_13_0_arm64_iphonesimulator.whl", hash = "sha256:7fb4bdf95b0561a79f259f9d28fbc109728c5ee7f27aff6391f0ca703a329abe", size = 492088, upload-time = "2026-06-07T21:07:21.581Z" },
+    { url = "https://files.pythonhosted.org/packages/78/c0/5ebe5270a7c140d7c6f79dcb018640225f14d406c149e4eec04a7d82fe71/aiohttp-3.14.1-cp313-cp313-ios_13_0_x86_64_iphonesimulator.whl", hash = "sha256:1b9748363260121d2927704f5d4fc498150669ca3ae93625986ee89c8f80dcd4", size = 501564, upload-time = "2026-06-07T21:07:23.388Z" },
+    { url = "https://files.pythonhosted.org/packages/75/7f/8cdaa24fc7983865e0915153b96a9ac5bcdd3548d64c5a27d17cecccad2d/aiohttp-3.14.1-cp313-cp313-macosx_10_13_universal2.whl", hash = "sha256:86a6dab78b0e43e2897a3bbe15745aa60dc5423ca437b7b0b164c069bf91b876", size = 751998, upload-time = "2026-06-07T21:07:25.046Z" },
+    { url = "https://files.pythonhosted.org/packages/b2/f4/c4227aacfacc5cb0cc2d119b65301d177912a6842cd64e120c47af76064f/aiohttp-3.14.1-cp313-cp313-macosx_10_13_x86_64.whl", hash = "sha256:4dfd6e47d3c44c2279907607f73a4240b88c69eb8b90da7e2441a8045dfd21da", size = 510918, upload-time = "2026-06-07T21:07:27.28Z" },
+    { url = "https://files.pythonhosted.org/packages/ab/01/a2d5f96cd4e74424864d30bc0a7e44d0a12dacdcfa91b5b2d1bd3dca6bf3/aiohttp-3.14.1-cp313-cp313-macosx_11_0_arm64.whl", hash = "sha256:317acd9f8602858dc7d59679812c376c7f0b97bcbbf16e0d6237f54141d8a8a6", size = 508657, upload-time = "2026-06-07T21:07:29.252Z" },
+    { url = "https://files.pythonhosted.org/packages/e8/ed/3c0fb5c500fdd8e7ebc10d1889c04384fffa1a9163eac1356088ca9da1b1/aiohttp-3.14.1-cp313-cp313-manylinux2014_aarch64.manylinux_2_17_aarch64.manylinux_2_28_aarch64.whl", hash = "sha256:bd869c427324e5cb15195793de951295710db28be7d818247f3097b4ab5d4b96", size = 1757907, upload-time = "2026-06-07T21:07:31.03Z" },
+    { url = "https://files.pythonhosted.org/packages/0b/ab/d4c924d9bd5be3050c226612413ce68cb54c70d2c31b661bfc8d9a5b6a70/aiohttp-3.14.1-cp313-cp313-manylinux2014_armv7l.manylinux_2_17_armv7l.manylinux_2_31_armv7l.whl", hash = "sha256:93b032b5ec3255473c143627d21a69ac74ae12f7f33974cb587c564d11b1066f", size = 1737565, upload-time = "2026-06-07T21:07:33.031Z" },
+    { url = "https://files.pythonhosted.org/packages/19/2a/37326821ff779084020cdc33224d20b19f42f4183a500ff92022a739eda7/aiohttp-3.14.1-cp313-cp313-manylinux2014_ppc64le.manylinux_2_17_ppc64le.manylinux_2_28_ppc64le.whl", hash = "sha256:f234b4deb12f3ad59127e037bc57c40c21e45b45282df7d3a55a0f409f595296", size = 1799018, upload-time = "2026-06-07T21:07:35.003Z" },
+    { url = "https://files.pythonhosted.org/packages/b3/4f/6e947ba73e4ce09070761c05ed3a8ceb7c21f5e46798671d8b2aac0e4626/aiohttp-3.14.1-cp313-cp313-manylinux2014_s390x.manylinux_2_17_s390x.manylinux_2_28_s390x.whl", hash = "sha256:9af6779bfb46abf124068327abcdf9ce95c9ef8287a3e8da76ccf2d0f16c28fa", size = 1894416, upload-time = "2026-06-07T21:07:36.956Z" },
+    { url = "https://files.pythonhosted.org/packages/9d/6e/dbf1d0625dc711fb2851f4f3c3055c39ed58bae92082d8c627dbe6013736/aiohttp-3.14.1-cp313-cp313-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl", hash = "sha256:faccab372e66bc76d5731525e7f1143c922271725b9d38c9f97edcc66266b451", size = 1783881, upload-time = "2026-06-07T21:07:39.063Z" },
+    { url = "https://files.pythonhosted.org/packages/44/c2/5e25098a67268ed369483ae7d1a58bd0a13d03aab860d2a0e4a6eb25b046/aiohttp-3.14.1-cp313-cp313-manylinux_2_31_riscv64.manylinux_2_39_riscv64.whl", hash = "sha256:f380468b09d2a81633ee863b0ec5648d364bd17bb8ecfb8c2f387f7ac1faf42c", size = 1587572, upload-time = "2026-06-07T21:07:41.058Z" },
+    { url = "https://files.pythonhosted.org/packages/2a/bd/cf9cee17e140f942a3de73e658a543aa8fbf35a5fc67a9d2538d52d77f0b/aiohttp-3.14.1-cp313-cp313-musllinux_1_2_aarch64.whl", hash = "sha256:97e704dcd26271f5bda3fa07c3ce0fb76d6d3f8659f4baa1a24442cc9ba177ca", size = 1722137, upload-time = "2026-06-07T21:07:43.014Z" },
+    { url = "https://files.pythonhosted.org/packages/89/6d/5684f8c59045c96f81a18cefbc1fbbd79d25b88f1c622f2a5c5c08fcb632/aiohttp-3.14.1-cp313-cp313-musllinux_1_2_armv7l.whl", hash = "sha256:269b76ac5394092b95bc4a098f4fc6c191c083c3bd12775d1e30e663132f6a09", size = 1755953, upload-time = "2026-06-07T21:07:45.933Z" },
+    { url = "https://files.pythonhosted.org/packages/a8/40/35caf3170f8359760740a7d9aa0fff2e344bef98e1d1186f5a0f6dec17e6/aiohttp-3.14.1-cp313-cp313-musllinux_1_2_ppc64le.whl", hash = "sha256:5c0b3e614340c889d575451696374c9d17affd54cd607ca0babed8f8c37b9397", size = 1766479, upload-time = "2026-06-07T21:07:48.047Z" },
+    { url = "https://files.pythonhosted.org/packages/6d/a1/b0c61e7a137f0d81de49a82023a6df73c3c16d6fefb0f8e4a93d21639002/aiohttp-3.14.1-cp313-cp313-musllinux_1_2_riscv64.whl", hash = "sha256:5663ee9257cfa1add7253a7da3035a02f31b6600ec48261585e1800a81533080", size = 1580077, upload-time = "2026-06-07T21:07:50.069Z" },
+    { url = "https://files.pythonhosted.org/packages/0b/41/194ea4623693009fcefebef7aef63c141754f153e9cd0d39d3b9e36c175c/aiohttp-3.14.1-cp313-cp313-musllinux_1_2_s390x.whl", hash = "sha256:603a2c834142172ffddc054067f5ec0ca65d57a0aa98a71bc81952573208e345", size = 1791688, upload-time = "2026-06-07T21:07:52.106Z" },
+    { url = "https://files.pythonhosted.org/packages/ba/45/4de841f005cfe1fd63e2a2fe011262c515e2a62aa6994b15947e7d717ac9/aiohttp-3.14.1-cp313-cp313-musllinux_1_2_x86_64.whl", hash = "sha256:cb21957bb8aca671c1765e32f58164cf0c50e6bf41c0bbbd16da20732ecaf588", size = 1761094, upload-time = "2026-06-07T21:07:54.113Z" },
+    { url = "https://files.pythonhosted.org/packages/e4/ae/dbce10533d3896d544d5053939ed75b7dc31a1b0973d959b1b5ae21028d6/aiohttp-3.14.1-cp313-cp313-win32.whl", hash = "sha256:e509a55f681e6158c20f70f102f9cf61fb20fbc382272bc6d94b7343f2582780", size = 452662, upload-time = "2026-06-07T21:07:56.06Z" },
+    { url = "https://files.pythonhosted.org/packages/7b/d9/0bf1a19362c32f06229da5e7ddfcec91f93474d6307f7a2d3135e9c674dc/aiohttp-3.14.1-cp313-cp313-win_amd64.whl", hash = "sha256:1ac8531b638959718e18c2207fbfe297819875da46a740b29dfa29beba64355a", size = 479748, upload-time = "2026-06-07T21:07:58.319Z" },
+    { url = "https://files.pythonhosted.org/packages/22/0a/62e7232dc9484fbec112ceb32efb6a624cc7994ec6e2b019286f17c4e8f2/aiohttp-3.14.1-cp313-cp313-win_arm64.whl", hash = "sha256:250d14af67f6b6a1a4a811049b1afa69d61d617fca6bf33149b3ab1a6dbcf7b8", size = 447723, upload-time = "2026-06-07T21:08:00.154Z" },
+    { url = "https://files.pythonhosted.org/packages/c4/a1/5fafa04e1ca91ddb47608699d60649c1c6db3cf41c99e78fc4056f9513db/aiohttp-3.14.1-cp314-cp314-android_24_arm64_v8a.whl", hash = "sha256:7c106c26852ca1c2047c6b80384f17100b4e439af276f21ef3d4e2f450ae7e15", size = 508531, upload-time = "2026-06-07T21:08:02.093Z" },
+    { url = "https://files.pythonhosted.org/packages/fa/2e/bfa02f699d87ffc86d5959270b28f1cb410add3ccaced8ed2e0b8a5238fc/aiohttp-3.14.1-cp314-cp314-android_24_x86_64.whl", hash = "sha256:20205f7f5ade7aaec9f4b500549bbc071b046453aed72f9c06dcab87896a83e8", size = 514718, upload-time = "2026-06-07T21:08:04.476Z" },
+
+[TRUNCATED] Showing first 80 of 2949 lines.
+
+=== ENTRY POINTS ===
+No common entry points found. Check 'main' or 'scripts.start' in manifest files above.
+
+=== LINTING AND FORMATTING CONFIG ===
+No linting or formatting config files found in project root.
+
+=== ENVIRONMENT VARIABLE TEMPLATES ===
+No .env.example or .env.template found. Identify required environment variables by searching the code and config for environment variable reads.
+
+=== TODO / FIXME / HACK (production code only, test dirs excluded) ===
+data/raw/fashion-product-images/styles/11018.json:1: {"notification":{},"meta":{"code":200,"requestId":"bfbd558e-ef29-4b34-8eb6-9aec3645d68c"},"data":{"id":11018,"price":1195,"discountedPrice":1195,"styleType":"P","productTypeId":310,"articleNumber":"WRSH1592","visualTag":"","productDisplayName":"Wrangler Women Check Red Shirt","variantName":"CHECK SHACKET","myntraRating":1,"catalogAddDate":1452251737,"brandName":"Wrangler","ageGroup":"Adults-Women","gender":"Women","baseColour":"Red","colour1":"White","colour2":"NA","fashionType":"Fashion","season":"Fall","year":"2011","usage":"Casual","vat":5.5,"displayCategories":"Shirts,Sale and Clearance,Casual Wear","weight":"0","navigationId":1157,"landingPageUrl":"Shirts/Wrangler/Wrangler-Women-Check-Red-Shirt/11018/buy","articleAttributes":{"Fit":"Regular Fit","Pattern":"Checked","Body or Garment Size":"Garment Measurements in","Sleeve Length":"Three-Quarter Sleeves","Fabric":"Cotton","Collar":"Spread Collar"},"crossLinks":[{"key":"More Shirts by Wrangler","value":"shirts?f=brand:Wrangler::gender:women"},{"key":"More Red Shirts","value":"shirts?f=colour:Red::gender:women"},{"key":"More Shirts","value":"shirts?f=gender:women"}],"brandUserProfile":{"uidx":"b55b498e.8a78.4f5b.847d.1e76c1a0707bTQB0qVwNqO","bio":"Wrangler empowers you to discover your free spirit","name":"Wrangler","image":"http://assets.myntassets.com/assets/images/2016/7/4/11467612995985-12474-10gj7up.jpg","publicProfileId":"Wrangler.India","imageJsonEntryMap":{"1":"{\"id\":17582431,\"createdBy\":\"b55b498e.8a78.4f5b.847d.1e76c1a0707bTQB0qVwNqO\",\"createdOn\":1472711641000,\"lastModifiedOn\":1472711641000,\"version\":0,\"format\":\"JPEG\",\"isCompressed\":false,\"resolution\":\"720X544\",\"aspectRatio\":\"45:34\",\"viewtype\":\"front\",\"client_id\":4,\"client_description\":\"video_migration_script\",\"client_reference_id\":\"17582431\",\"imgs\":{\"S3\":{\"id\":30599348,\"relativePath\":\"assets/images/2016/9/1/11472711641193-18820-apix1u.jpg\",\"size\":99643,\"domain\":\"http://myntra.myntassets.com/\",\"securedDomain\":\"https://myntrawebimages.s3.amazonaws.com/\",\"resolutionFormula\":\"assets/images/2016/9/1/11472711641193-18820-apix1u_($width)_($height).jpg\",\"path\":\"http://myntra.myntassets.com/assets/images/2016/9/1/11472711641193-18820-apix1u.jpg\",\"storedUploaderType\":\"S3\",\"servingUploaderType\":\"S3\"},\"CL\":{\"id\":30599347,\"relativePath\":\"assets/images/2016/9/1/11472711641193-18820-apix1u.jpg\",\"size\":99643,\"domain\":\"http://assets.myntassets.com/\",\"securedDomain\":\"https://secureassets.myntassets.com/\",\"resolutionFormula\":\"h_($height),q_($qualityPercentage),w_($width)/v1/assets/images/2016/9/1/11472711641193-18820-apix1u.jpg\",\"path\":\"http://assets.myntassets.com/assets/images/2016/9/1/11472711641193-18820-apix1u.jpg\",\"storedUploaderType\":\"CL\",\"servingUploaderType\":\"CL\"}},\"path\":\"assets/images/2016/9/1/11472711641193-18820-apix1u.jpg\",\"securedDomain\":\"https://secureassets.myntassets.com/\",\"domain\":\"http://assets.myntassets.com/\",\"storedUploaderType\":\"CL\",\"servingUploaderType\":\"CL\",\"resolutionFormula\":\"h_($height),q_($qualityPercentage),w_($width)/v1/assets/images/2016/9/1/11472711641193-18820-apix1u.jpg\"}","3":"http://assets.myntassets.com/assets/images/2016/9/1/11472711641193-18820-apix1u.jpg"},"tagsMap":"{\"roles\":[],\"labels\":[],\"myntraVerified\":true,\"invited\":true}"},"codEnabled":true,"colours":{"colors":{"11019":{"dre_landing_page_url":"Shirts/Wrangler/Wrangler-Women-Check-Purple-Shirt/11019/buy","styleid":11019,"global_attr_colour1":"White","global_attr_base_colour":"Purple","search_image":"http://assets.myntassets.com/v1/images/style/properties/39193d8d95330a2f6c2a03d3794d180f_images.jpg"}}},"styleImages":{"default":{"imageURL":"http://assets.myntassets.com/v1/images/style/properties/f91ffdd2bf7612ef8aed779660fc46c9_images.jpg","resolutions":{"1080X1440Xmini":"http://assets.myntassets.com/h_1440,q_95,w_1080/v1/images/style/properties/f91ffdd2bf7612ef8aed779660fc46c9_images_mini.jpg","48X64":"http://assets.myntassets.com/h_64,q_95,w_48/v1/images/style/properties/f91ffdd2bf7612ef8aed779660fc46c9_images.jpg","1080X1440":"http://assets.myntassets.com/h_1440,q_95,w_1080/v1/images/style/properties/f91ffdd2bf7612ef8aed779660fc46c9_images.jpg","150X200":"http://assets.myntassets.com/h_200,q_95,w_150/v1/images/style/properties/f91ffdd2bf7612ef8aed779660fc46c9_images.jpg","360X480":"http://assets.myntassets.com/h_480,q_95,w_360/v1/images/style/properties/f91ffdd2bf7612ef8aed779660fc46c9_images.jpg","180X240":"http://assets.myntassets.com/h_240,q_95,w_180/v1/images/style/properties/f91ffdd2bf7612ef8aed779660fc46c9_images.jpg","360X480Xmini":"http://assets.myntassets.com/h_480,q_95,w_360/v1/images/style/properties/f91ffdd2bf7612ef8aed779660fc46c9_images_mini.jpg","180X240Xmini":"http://assets.myntassets.com/h_240,q_95,w_180/v1/images/style/properties/f91ffdd2bf7612ef8aed779660fc46c9_images_mini.jpg","150X200Xmini":"http://assets.myntassets.com/h_200,q_95,w_150/v1/images/style/properties/f91ffdd2bf7612ef8aed779660fc46c9_images_mini.jpg","48X64Xmini":"http://assets.myntassets.com/h_64,q_95,w_48/v1/images/style/properties/f91ffdd2bf7612ef8aed779660fc46c9_images_mini.jpg","125X161":"http://assets.myntassets.com/h_161,q_95,w_125/v1/images/style/properties/f91ffdd2bf7612ef8aed779660fc46c9_images.jpg","125X161Xmini":"http://assets.myntassets.com/h_161,q_95,w_125/v1/images/style/properties/f91ffdd2bf7612ef8aed779660fc46c9_images_mini.jpg"},"imageType":"default"},"size_representation":"http://assets.myntassets.com/assets/images/sizechart/2016/12/14/11481690794651-shirt_women.png","search":{"imageURL":"http://assets.myntassets.com/v1/images/style/properties/f91ffdd2bf7612ef8aed779660fc46c9_images.jpg","resolutions":{"1080X1440Xmini":"http://assets.myntassets.com/h_1440,q_95,w_1080/v1/images/style/properties/f91ffdd2bf7612ef8aed779660fc46c9_images_mini.jpg","48X64":"http://assets.myntassets.com/h_64,q_95,w_48/v1/images/style/properties/f91ffdd2bf7612ef8aed779660fc46c9_images.jpg","1080X1440":"http://assets.myntassets.com/h_1440,q_95,w_1080/v1/images/style/properties/f91ffdd2bf7612ef8aed779660fc46c9_images.jpg","150X200":"http://assets.myntassets.com/h_200,q_95,w_150/v1/images/style/properties/f91ffdd2bf7612ef8aed779660fc46c9_images.jpg","360X480":"http://assets.myntassets.com/h_480,q_95,w_360/v1/images/style/properties/f91ffdd2bf7612ef8aed779660fc46c9_images.jpg","180X240":"http://assets.myntassets.com/h_240,q_95,w_180/v1/images/style/properties/f91ffdd2bf7612ef8aed779660fc46c9_images.jpg","360X480Xmini":"http://assets.myntassets.com/h_480,q_95,w_360/v1/images/style/properties/f91ffdd2bf7612ef8aed779660fc46c9_images_mini.jpg","180X240Xmini":"http://assets.myntassets.com/h_240,q_95,w_180/v1/images/style/properties/f91ffdd2bf7612ef8aed779660fc46c9_images_mini.jpg","150X200Xmini":"http://assets.myntassets.com/h_200,q_95,w_150/v1/images/style/properties/f91ffdd2bf7612ef8aed779660fc46c9_images_mini.jpg","48X64Xmini":"http://assets.myntassets.com/h_64,q_95,w_48/v1/images/style/properties/f91ffdd2bf7612ef8aed779660fc46c9_images_mini.jpg","125X161":"http://assets.myntassets.com/h_161,q_95,w_125/v1/images/style/properties/f91ffdd2bf7612ef8aed779660fc46c9_images.jpg","125X161Xmini":"http://assets.myntassets.com/h_161,q_95,w_125/v1/images/style/properties/f91ffdd2bf7612ef8aed779660fc46c9_images_mini.jpg"},"imageType":"search"},"back":{"imageURL":"http://assets.myntassets.com/v1/images/style/properties/6d87d6505625bcca652051a3ab81406c_images.jpg","resolutions":{"1080X1440Xmini":"http://assets.myntassets.com/h_1440,q_95,w_1080/v1/images/style/properties/6d87d6505625bcca652051a3ab81406c_images_mini.jpg","48X64":"http://assets.myntassets.com/h_64,q_95,w_48/v1/images/style/properties/6d87d6505625bcca652051a3ab81406c_images.jpg","1080X1440":"http://assets.myntassets.com/h_1440,q_95,w_1080/v1/images/style/properties/6d87d6505625bcca652051a3ab81406c_images.jpg","150X200":"http://assets.myntassets.com/h_200,q_95,w_150/v1/images/style/properties/6d87d6505625bcca652051a3ab81406c_images.jpg","360X480":"http://assets.myntassets.com/h_480,q_95,w_360/v1/images/style/properties/6d87d6505625bcca652051a3ab81406c_images.jpg","180X240":"http://assets.myntassets.com/h_240,q_95,w_180/v1/images/style/properties/6d87d6505625bcca652051a3ab81406c_images.jpg","360X480Xmini":"http://assets.myntassets.com/h_480,q_95,w_360/v1/images/style/properties/6d87d6505625bcca652051a3ab81406c_images_mini.jpg","180X240Xmini":"http://assets.myntassets.com/h_240,q_95,w_180/v1/images/style/properties/6d87d6505625bcca652051a3ab81406c_images_mini.jpg","150X200Xmini":"http://assets.myntassets.com/h_200,q_95,w_150/v1/images/style/properties/6d87d6505625bcca652051a3ab81406c_images_mini.jpg","48X64Xmini":"http://assets.myntassets.com/h_64,q_95,w_48/v1/images/style/properties/6d87d6505625bcca652051a3ab81406c_images_mini.jpg","125X161":"http://assets.myntassets.com/h_161,q_95,w_125/v1/images/style/properties/6d87d6505625bcca652051a3ab81406c_images.jpg","125X161Xmini":"http://assets.myntassets.com/h_161,q_95,w_125/v1/images/style/properties/6d87d6505625bcca652051a3ab81406c_images_mini.jpg"},"imageType":"back"},"left":{"imageURL":"http://assets.myntassets.com/v1/images/style/properties/df604de198c01ed0d43939b16e7422bd_images.jpg","resolutions":{"1080X1440Xmini":"http://assets.myntassets.com/h_1440,q_95,w_1080/v1/images/style/properties/df604de198c01ed0d43939b16e7422bd_images_mini.jpg","48X64":"http://assets.myntassets.com/h_64,q_95,w_48/v1/images/style/properties/df604de198c01ed0d43939b16e7422bd_images.jpg","1080X1440":"http://assets.myntassets.com/h_1440,q_95,w_1080/v1/images/style/properties/df604de198c01ed0d43939b16e7422bd_images.jpg","150X200":"http://assets.myntassets.com/h_200,q_95,w_150/v1/images/style/properties/df604de198c01ed0d43939b16e7422bd_images.jpg","360X480":"http://assets.myntassets.com/h_480,q_95,w_360/v1/images/style/properties/df604de198c01ed0d43939b16e7422bd_images.jpg","180X240":"http://assets.myntassets.com/h_240,q_95,w_180/v1/images/style/properties/df604de198c01ed0d43939b16e7422bd_images.jpg","360X480Xmini":"http://assets.myntassets.com/h_480,q_95,w_360/v1/images/style/properties/df604de198c01ed0d43939b16e7422bd_images_mini.jpg","180X240Xmini":"http://assets.myntassets.com/h_240,q_95,w_180/v1/images/style/properties/df604de198c01ed0d43939b16e7422bd_images_mini.jpg","150X200Xmini":"http://assets.myntassets.com/h_200,q_95,w_150/v1/images/style/properties/df604de198c01ed0d43939b16e7422bd_images_mini.jpg","48X64Xmini":"http://assets.myntassets.com/h_64,q_95,w_48/v1/images/style/properties/df604de198c01ed0d43939b16e7422bd_images_mini.jpg","125X161":"http://assets.myntassets.com/h_161,q_95,w_125/v1/images/style/properties/df604de198c01ed0d43939b16e7422bd_images.jpg","125X161Xmini":"http://assets.myntassets.com/h_161,q_95,w_125/v1/images/style/properties/df604de198c01ed0d43939b16e7422bd_images_mini.jpg"},"imageType":"left"},"front":{"imageURL":"http://assets.myntassets.com/v1/images/style/properties/ff1c9c46a7f7676c563917c5badfeb7d_images.jpg","resolutions":{"1080X1440Xmini":"http://assets.myntassets.com/h_1440,q_95,w_1080/v1/images/style/properties/ff1c9c46a7f7676c563917c5badfeb7d_images_mini.jpg","48X64":"http://assets.myntassets.com/h_64,q_95,w_48/v1/images/style/properties/ff1c9c46a7f7676c563917c5badfeb7d_images.jpg","1080X1440":"http://assets.myntassets.com/h_1440,q_95,w_1080/v1/images/style/properties/ff1c9c46a7f7676c563917c5badfeb7d_images.jpg","150X200":"http://assets.myntassets.com/h_200,q_95,w_150/v1/images/style/properties/ff1c9c46a7f7676c563917c5badfeb7d_images.jpg","360X480":"http://assets.myntassets.com/h_480,q_95,w_360/v1/images/style/properties/ff1c9c46a7f7676c563917c5badfeb7d_images.jpg","180X240":"http://assets.myntassets.com/h_240,q_95,w_180/v1/images/style/properties/ff1c9c46a7f7676c563917c5badfeb7d_images.jpg","360X480Xmini":"http://assets.myntassets.com/h_480,q_95,w_360/v1/images/style/properties/ff1c9c46a7f7676c563917c5badfeb7d_images_mini.jpg","180X240Xmini":"http://assets.myntassets.com/h_240,q_95,w_180/v1/images/style/properties/ff1c9c46a7f7676c563917c5badfeb7d_images_mini.jpg","150X200Xmini":"http://assets.myntassets.com/h_200,q_95,w_150/v1/images/style/properties/ff1c9c46a7f7676c563917c5badfeb7d_images_mini.jpg","48X64Xmini":"http://assets.myntassets.com/h_64,q_95,w_48/v1/images/style/properties/ff1c9c46a7f7676c563917c5badfeb7d_images_mini.jpg","125X161":"http://assets.myntassets.com/h_161,q_95,w_125/v1/images/style/properties/ff1c9c46a7f7676c563917c5badfeb7d_images.jpg","125X161Xmini":"http://assets.myntassets.com/h_161,q_95,w_125/v1/images/style/properties/ff1c9c46a7f7676c563917c5badfeb7d_images_mini.jpg"},"imageType":"front"},"right":{"imageURL":"http://assets.myntassets.com/v1/images/style/properties/07f832f12e4b958584eee74f1e691aa8_images.jpg","resolutions":{"1080X1440Xmini":"http://assets.myntassets.com/h_1440,q_95,w_1080/v1/images/style/properties/07f832f12e4b958584eee74f1e691aa8_images_mini.jpg","48X64":"http://assets.myntassets.com/h_64,q_95,w_48/v1/images/style/properties/07f832f12e4b958584eee74f1e691aa8_images.jpg","1080X1440":"http://assets.myntassets.com/h_1440,q_95,w_1080/v1/images/style/properties/07f832f12e4b958584eee74f1e691aa8_images.jpg","150X200":"http://assets.myntassets.com/h_200,q_95,w_150/v1/images/style/properties/07f832f12e4b958584eee74f1e691aa8_images.jpg","360X480":"http://assets.myntassets.com/h_480,q_95,w_360/v1/images/style/properties/07f832f12e4b958584eee74f1e691aa8_images.jpg","180X240":"http://assets.myntassets.com/h_240,q_95,w_180/v1/images/style/properties/07f832f12e4b958584eee74f1e691aa8_images.jpg","360X480Xmini":"http://assets.myntassets.com/h_480,q_95,w_360/v1/images/style/properties/07f832f12e4b958584eee74f1e691aa8_images_mini.jpg","180X240Xmini":"http://assets.myntassets.com/h_240,q_95,w_180/v1/images/style/properties/07f832f12e4b958584eee74f1e691aa8_images_mini.jpg","150X200Xmini":"http://assets.myntassets.com/h_200,q_95,w_150/v1/images/style/properties/07f832f12e4b958584eee74f1e691aa8_images_mini.jpg","48X64Xmini":"http://assets.myntassets.com/h_64,q_95,w_48/v1/images/style/properties/07f832f12e4b958584eee74f1e691aa8_images_mini.jpg","125X161":"http://assets.myntassets.com/h_161,q_95,w_125/v1/images/style/properties/07f832f12e4b958584eee74f1e691aa8_images.jpg","125X161Xmini":"http://assets.myntassets.com/h_161,q_95,w_125/v1/images/style/properties/07f832f12e4b958584eee74f1e691aa8_images_mini.jpg"},"imageType":"right"}},"lookGoodAlbum":{},"style360Images":{},"masterCategory":{"id":9,"typeName":"Apparel","active":true,"socialSharingEnabled":true,"isReturnable":true,"isExchangeable":true,"pickupEnabled":true,"isTryAndBuyEnabled":true},"subCategory":{"id":31,"typeName":"Topwear","active":true,"socialSharingEnabled":true,"isReturnable":true,"isExchangeable":true,"pickupEnabled":true,"isTryAndBuyEnabled":true},"articleType":{"id":85,"typeName":"Shirts","active":true,"socialSharingEnabled":true,"isReturnable":true,"isExchangeable":true,"pickupEnabled":true,"isTryAndBuyEnabled":true,"isMyntsEnabled":true,"serviceabilityDisclaimer":{"title":"","desc":""}},"isEMIEnabled":true,"otherFlags":[{"dataType":"BOOLEAN","name":"isFragile","value":"false"},{"dataType":"BOOLEAN","name":"isTryAndBuyEnabled","value":"true"},{"dataType":"BOOLEAN","name":"isHazmat","value":"false"},{"dataType":"BOOLEAN","name":"isJewellery","value":"false"},{"dataType":"BOOLEAN","name":"isReturnable","value":"true"},{"dataType":"BOOLEAN","name":"isExchangeable","value":"true"},{"dataType":"BOOLEAN","name":"active","value":"true"},{"dataType":"BOOLEAN","name":"socialSharingEnabled","value":"true"},{"dataType":"BOOLEAN","name":"pickupEnabled","value":"true"},{"dataType":"BOOLEAN","name":"isLarge","value":"false"},{"dataType":"BOOLEAN","name":"codEnabled","value":"true"}],"articleDisplayAttr":{"id":85,"core":{"order":"0","display":"2","pdtDetail":"1","pdtDeliveryOptions":"2","pdtSimilar":"2","pdtLike":"2"},"social":{"order":"1","display":"2","userLikes":"1","styleNotes":"2","crossSell":"1"},"explore":{"display":"2","crosslink":"1","similar":"1","order":"2"}},"productDescriptors":{"description":{"descriptorType":"description","value":"<p><strong>Composition</strong><br /> Red and white checked shirt made of 100% cotton, with three-fourth cuff sleeves, has a split neckline with a tipped collar and full front button placket, two flap chest pockets on the chest and two pockets on the waist, and a curved hemline<br /> <br /> <span style=\"font-style: normal; font-weight: bold;\">Fitting<br /> </span><span style=\"font-style: normal; font-weight: normal;\">Comfort<br /> <br /> </span><span style=\"font-style: normal; font-weight: bold;\">Wash care<br /> </span><span style=\"font-style: normal; font-weight: normal;\">only hand wash in cold water using a mild detergent<br /> Wash dark colours separately<br /> Do not bleach, wring or tumble dry<br /> Flat dry in shade<br /> Mild iron, and do not iron on print/embellishment/embroidery<br /> <br /> Perfect on style and great in comfort, this checked shirt from wrangler makes for a great casual wear. The long sleeves create a feel of casual comfort, while the fabric keeps you fresh and comfortable all day. Team this with slim Fit jeans and sandals and ooze style.<br /> <br /> </span><span style=\"font-style: italic; font-weight: normal;\">Model statistics<br /> </span><span style=\"font-style: normal; font-weight: normal;\">The model wears size M in shirts<br /> Height-5.7\", Chest-33\", Waist-26&rdquo;<br /> </span></p>"}},"styleOptions":[{"id":44070,"name":"Size","value":"S","unifiedSize":"S","unifiedSizeValue":"S","unifiedSizeScale":"","allSize":"S","skuId":45804,"skuAvailabilityDetailMap":{},"warehouseIdToItemCountMap":{},"inventoryCount":0,"available":false,"active":true},{"id":44069,"name":"Size","value":"M","unifiedSize":"M","unifiedSizeValue":"M","unifiedSizeScale":"","allSize":"M","skuId":45805,"skuAvailabilityDetailMap":{},"warehouseIdToItemCountMap":{},"inventoryCount":0,"available":false,"active":true},{"id":44068,"name":"Size","value":"L","unifiedSize":"L","unifiedSizeValue":"L","unifiedSizeScale":"","allSize":"L","skuId":45806,"skuAvailabilityDetailMap":{},"warehouseIdToItemCountMap":{},"inventoryCount":0,"available":false,"active":true},{"id":44067,"name":"Size","value":"XL","unifiedSize":"XL","unifiedSizeValue":"XL","unifiedSizeScale":"","allSize":"XL","skuId":45839,"skuAvailabilityDetailMap":{},"warehouseIdToItemCountMap":{},"inventoryCount":0,"available":false,"active":true},{"id":44066,"name":"Size","value":"XXL","unifiedSize":"XXL","unifiedSizeValue":"XXL","unifiedSizeScale":"","allSize":"XXL","skuId":45888,"skuAvailabilityDetailMap":{},"warehouseIdToItemCountMap":{},"inventoryCount":0,"available":false,"active":true}]}}
+data/raw/fashion-product-images/styles/11019.json:1: {"notification":{},"meta":{"code":200,"requestId":"5cdc2765-3dd9-46be-a9f4-78e52ea11d23"},"data":{"id":11019,"price":1195,"discountedPrice":1195,"styleType":"P","productTypeId":310,"articleNumber":"WRSH1593","visualTag":"","productDisplayName":"Wrangler Women Check Purple Shirt","variantName":"CHECK SHACKET","myntraRating":1,"catalogAddDate":1452251737,"brandName":"Wrangler","ageGroup":"Adults-Women","gender":"Women","baseColour":"Purple","colour1":"White","colour2":"NA","fashionType":"Fashion","season":"Fall","year":"2011","usage":"Casual","vat":5.5,"displayCategories":"Shirts,Sale and Clearance,Casual Wear","weight":"0","navigationId":1157,"landingPageUrl":"Shirts/Wrangler/Wrangler-Women-Check-Purple-Shirt/11019/buy","articleAttributes":{"Fit":"Regular Fit","Pattern":"Checked","Body or Garment Size":"Garment Measurements in","Sleeve Length":"Three-Quarter Sleeves","Fabric":"Cotton","Collar":"Spread Collar"},"crossLinks":[{"key":"More Shirts by Wrangler","value":"shirts?f=brand:Wrangler::gender:women"},{"key":"More Purple Shirts","value":"shirts?f=colour:Purple::gender:women"},{"key":"More Shirts","value":"shirts?f=gender:women"}],"brandUserProfile":{"uidx":"b55b498e.8a78.4f5b.847d.1e76c1a0707bTQB0qVwNqO","bio":"Wrangler empowers you to discover your free spirit","name":"Wrangler","image":"http://assets.myntassets.com/assets/images/2016/7/4/11467612995985-12474-10gj7up.jpg","publicProfileId":"Wrangler.India","imageJsonEntryMap":{"1":"{\"id\":17582431,\"createdBy\":\"b55b498e.8a78.4f5b.847d.1e76c1a0707bTQB0qVwNqO\",\"createdOn\":1472711641000,\"lastModifiedOn\":1472711641000,\"version\":0,\"format\":\"JPEG\",\"isCompressed\":false,\"resolution\":\"720X544\",\"aspectRatio\":\"45:34\",\"viewtype\":\"front\",\"client_id\":4,\"client_description\":\"video_migration_script\",\"client_reference_id\":\"17582431\",\"imgs\":{\"S3\":{\"id\":30599348,\"relativePath\":\"assets/images/2016/9/1/11472711641193-18820-apix1u.jpg\",\"size\":99643,\"domain\":\"http://myntra.myntassets.com/\",\"securedDomain\":\"https://myntrawebimages.s3.amazonaws.com/\",\"resolutionFormula\":\"assets/images/2016/9/1/11472711641193-18820-apix1u_($width)_($height).jpg\",\"path\":\"http://myntra.myntassets.com/assets/images/2016/9/1/11472711641193-18820-apix1u.jpg\",\"storedUploaderType\":\"S3\",\"servingUploaderType\":\"S3\"},\"CL\":{\"id\":30599347,\"relativePath\":\"assets/images/2016/9/1/11472711641193-18820-apix1u.jpg\",\"size\":99643,\"domain\":\"http://assets.myntassets.com/\",\"securedDomain\":\"https://secureassets.myntassets.com/\",\"resolutionFormula\":\"h_($height),q_($qualityPercentage),w_($width)/v1/assets/images/2016/9/1/11472711641193-18820-apix1u.jpg\",\"path\":\"http://assets.myntassets.com/assets/images/2016/9/1/11472711641193-18820-apix1u.jpg\",\"storedUploaderType\":\"CL\",\"servingUploaderType\":\"CL\"}},\"path\":\"assets/images/2016/9/1/11472711641193-18820-apix1u.jpg\",\"securedDomain\":\"https://secureassets.myntassets.com/\",\"domain\":\"http://assets.myntassets.com/\",\"storedUploaderType\":\"CL\",\"servingUploaderType\":\"CL\",\"resolutionFormula\":\"h_($height),q_($qualityPercentage),w_($width)/v1/assets/images/2016/9/1/11472711641193-18820-apix1u.jpg\"}","3":"http://assets.myntassets.com/assets/images/2016/9/1/11472711641193-18820-apix1u.jpg"},"tagsMap":"{\"roles\":[],\"labels\":[],\"myntraVerified\":true,\"invited\":true}"},"codEnabled":true,"colours":{"colors":{"11018":{"dre_landing_page_url":"Shirts/Wrangler/Wrangler-Women-Check-Red-Shirt/11018/buy","styleid":11018,"global_attr_colour1":"White","global_attr_base_colour":"Red","search_image":"http://assets.myntassets.com/v1/images/style/properties/f91ffdd2bf7612ef8aed779660fc46c9_images.jpg"}}},"styleImages":{"default":{"imageURL":"http://assets.myntassets.com/v1/images/style/properties/39193d8d95330a2f6c2a03d3794d180f_images.jpg","resolutions":{"1080X1440Xmini":"http://assets.myntassets.com/h_1440,q_95,w_1080/v1/images/style/properties/39193d8d95330a2f6c2a03d3794d180f_images_mini.jpg","48X64":"http://assets.myntassets.com/h_64,q_95,w_48/v1/images/style/properties/39193d8d95330a2f6c2a03d3794d180f_images.jpg","1080X1440":"http://assets.myntassets.com/h_1440,q_95,w_1080/v1/images/style/properties/39193d8d95330a2f6c2a03d3794d180f_images.jpg","150X200":"http://assets.myntassets.com/h_200,q_95,w_150/v1/images/style/properties/39193d8d95330a2f6c2a03d3794d180f_images.jpg","360X480":"http://assets.myntassets.com/h_480,q_95,w_360/v1/images/style/properties/39193d8d95330a2f6c2a03d3794d180f_images.jpg","180X240":"http://assets.myntassets.com/h_240,q_95,w_180/v1/images/style/properties/39193d8d95330a2f6c2a03d3794d180f_images.jpg","360X480Xmini":"http://assets.myntassets.com/h_480,q_95,w_360/v1/images/style/properties/39193d8d95330a2f6c2a03d3794d180f_images_mini.jpg","180X240Xmini":"http://assets.myntassets.com/h_240,q_95,w_180/v1/images/style/properties/39193d8d95330a2f6c2a03d3794d180f_images_mini.jpg","150X200Xmini":"http://assets.myntassets.com/h_200,q_95,w_150/v1/images/style/properties/39193d8d95330a2f6c2a03d3794d180f_images_mini.jpg","48X64Xmini":"http://assets.myntassets.com/h_64,q_95,w_48/v1/images/style/properties/39193d8d95330a2f6c2a03d3794d180f_images_mini.jpg","125X161":"http://assets.myntassets.com/h_161,q_95,w_125/v1/images/style/properties/39193d8d95330a2f6c2a03d3794d180f_images.jpg","125X161Xmini":"http://assets.myntassets.com/h_161,q_95,w_125/v1/images/style/properties/39193d8d95330a2f6c2a03d3794d180f_images_mini.jpg"},"imageType":"default"},"size_representation":"http://assets.myntassets.com/assets/images/sizechart/2016/12/14/11481690794651-shirt_women.png","search":{"imageURL":"http://assets.myntassets.com/v1/images/style/properties/39193d8d95330a2f6c2a03d3794d180f_images.jpg","resolutions":{"1080X1440Xmini":"http://assets.myntassets.com/h_1440,q_95,w_1080/v1/images/style/properties/39193d8d95330a2f6c2a03d3794d180f_images_mini.jpg","48X64":"http://assets.myntassets.com/h_64,q_95,w_48/v1/images/style/properties/39193d8d95330a2f6c2a03d3794d180f_images.jpg","1080X1440":"http://assets.myntassets.com/h_1440,q_95,w_1080/v1/images/style/properties/39193d8d95330a2f6c2a03d3794d180f_images.jpg","150X200":"http://assets.myntassets.com/h_200,q_95,w_150/v1/images/style/properties/39193d8d95330a2f6c2a03d3794d180f_images.jpg","360X480":"http://assets.myntassets.com/h_480,q_95,w_360/v1/images/style/properties/39193d8d95330a2f6c2a03d3794d180f_images.jpg","180X240":"http://assets.myntassets.com/h_240,q_95,w_180/v1/images/style/properties/39193d8d95330a2f6c2a03d3794d180f_images.jpg","360X480Xmini":"http://assets.myntassets.com/h_480,q_95,w_360/v1/images/style/properties/39193d8d95330a2f6c2a03d3794d180f_images_mini.jpg","180X240Xmini":"http://assets.myntassets.com/h_240,q_95,w_180/v1/images/style/properties/39193d8d95330a2f6c2a03d3794d180f_images_mini.jpg","150X200Xmini":"http://assets.myntassets.com/h_200,q_95,w_150/v1/images/style/properties/39193d8d95330a2f6c2a03d3794d180f_images_mini.jpg","48X64Xmini":"http://assets.myntassets.com/h_64,q_95,w_48/v1/images/style/properties/39193d8d95330a2f6c2a03d3794d180f_images_mini.jpg","125X161":"http://assets.myntassets.com/h_161,q_95,w_125/v1/images/style/properties/39193d8d95330a2f6c2a03d3794d180f_images.jpg","125X161Xmini":"http://assets.myntassets.com/h_161,q_95,w_125/v1/images/style/properties/39193d8d95330a2f6c2a03d3794d180f_images_mini.jpg"},"imageType":"search"},"back":{"imageURL":"http://assets.myntassets.com/v1/images/style/properties/b74f0c42789a3964b8596f1e357618a7_images.jpg","resolutions":{"1080X1440Xmini":"http://assets.myntassets.com/h_1440,q_95,w_1080/v1/images/style/properties/b74f0c42789a3964b8596f1e357618a7_images_mini.jpg","48X64":"http://assets.myntassets.com/h_64,q_95,w_48/v1/images/style/properties/b74f0c42789a3964b8596f1e357618a7_images.jpg","1080X1440":"http://assets.myntassets.com/h_1440,q_95,w_1080/v1/images/style/properties/b74f0c42789a3964b8596f1e357618a7_images.jpg","150X200":"http://assets.myntassets.com/h_200,q_95,w_150/v1/images/style/properties/b74f0c42789a3964b8596f1e357618a7_images.jpg","360X480":"http://assets.myntassets.com/h_480,q_95,w_360/v1/images/style/properties/b74f0c42789a3964b8596f1e357618a7_images.jpg","180X240":"http://assets.myntassets.com/h_240,q_95,w_180/v1/images/style/properties/b74f0c42789a3964b8596f1e357618a7_images.jpg","360X480Xmini":"http://assets.myntassets.com/h_480,q_95,w_360/v1/images/style/properties/b74f0c42789a3964b8596f1e357618a7_images_mini.jpg","180X240Xmini":"http://assets.myntassets.com/h_240,q_95,w_180/v1/images/style/properties/b74f0c42789a3964b8596f1e357618a7_images_mini.jpg","150X200Xmini":"http://assets.myntassets.com/h_200,q_95,w_150/v1/images/style/properties/b74f0c42789a3964b8596f1e357618a7_images_mini.jpg","48X64Xmini":"http://assets.myntassets.com/h_64,q_95,w_48/v1/images/style/properties/b74f0c42789a3964b8596f1e357618a7_images_mini.jpg","125X161":"http://assets.myntassets.com/h_161,q_95,w_125/v1/images/style/properties/b74f0c42789a3964b8596f1e357618a7_images.jpg","125X161Xmini":"http://assets.myntassets.com/h_161,q_95,w_125/v1/images/style/properties/b74f0c42789a3964b8596f1e357618a7_images_mini.jpg"},"imageType":"back"},"left":{"imageURL":"http://assets.myntassets.com/v1/images/style/properties/3d8f4067aeded67e3925f0c2862f479b_images.jpg","resolutions":{"1080X1440Xmini":"http://assets.myntassets.com/h_1440,q_95,w_1080/v1/images/style/properties/3d8f4067aeded67e3925f0c2862f479b_images_mini.jpg","48X64":"http://assets.myntassets.com/h_64,q_95,w_48/v1/images/style/properties/3d8f4067aeded67e3925f0c2862f479b_images.jpg","1080X1440":"http://assets.myntassets.com/h_1440,q_95,w_1080/v1/images/style/properties/3d8f4067aeded67e3925f0c2862f479b_images.jpg","150X200":"http://assets.myntassets.com/h_200,q_95,w_150/v1/images/style/properties/3d8f4067aeded67e3925f0c2862f479b_images.jpg","360X480":"http://assets.myntassets.com/h_480,q_95,w_360/v1/images/style/properties/3d8f4067aeded67e3925f0c2862f479b_images.jpg","180X240":"http://assets.myntassets.com/h_240,q_95,w_180/v1/images/style/properties/3d8f4067aeded67e3925f0c2862f479b_images.jpg","360X480Xmini":"http://assets.myntassets.com/h_480,q_95,w_360/v1/images/style/properties/3d8f4067aeded67e3925f0c2862f479b_images_mini.jpg","180X240Xmini":"http://assets.myntassets.com/h_240,q_95,w_180/v1/images/style/properties/3d8f4067aeded67e3925f0c2862f479b_images_mini.jpg","150X200Xmini":"http://assets.myntassets.com/h_200,q_95,w_150/v1/images/style/properties/3d8f4067aeded67e3925f0c2862f479b_images_mini.jpg","48X64Xmini":"http://assets.myntassets.com/h_64,q_95,w_48/v1/images/style/properties/3d8f4067aeded67e3925f0c2862f479b_images_mini.jpg","125X161":"http://assets.myntassets.com/h_161,q_95,w_125/v1/images/style/properties/3d8f4067aeded67e3925f0c2862f479b_images.jpg","125X161Xmini":"http://assets.myntassets.com/h_161,q_95,w_125/v1/images/style/properties/3d8f4067aeded67e3925f0c2862f479b_images_mini.jpg"},"imageType":"left"},"front":{"imageURL":"http://assets.myntassets.com/v1/images/style/properties/78c356c55cc2d9fa324f974fdf139e3b_images.jpg","resolutions":{"1080X1440Xmini":"http://assets.myntassets.com/h_1440,q_95,w_1080/v1/images/style/properties/78c356c55cc2d9fa324f974fdf139e3b_images_mini.jpg","48X64":"http://assets.myntassets.com/h_64,q_95,w_48/v1/images/style/properties/78c356c55cc2d9fa324f974fdf139e3b_images.jpg","1080X1440":"http://assets.myntassets.com/h_1440,q_95,w_1080/v1/images/style/properties/78c356c55cc2d9fa324f974fdf139e3b_images.jpg","150X200":"http://assets.myntassets.com/h_200,q_95,w_150/v1/images/style/properties/78c356c55cc2d9fa324f974fdf139e3b_images.jpg","360X480":"http://assets.myntassets.com/h_480,q_95,w_360/v1/images/style/properties/78c356c55cc2d9fa324f974fdf139e3b_images.jpg","180X240":"http://assets.myntassets.com/h_240,q_95,w_180/v1/images/style/properties/78c356c55cc2d9fa324f974fdf139e3b_images.jpg","360X480Xmini":"http://assets.myntassets.com/h_480,q_95,w_360/v1/images/style/properties/78c356c55cc2d9fa324f974fdf139e3b_images_mini.jpg","180X240Xmini":"http://assets.myntassets.com/h_240,q_95,w_180/v1/images/style/properties/78c356c55cc2d9fa324f974fdf139e3b_images_mini.jpg","150X200Xmini":"http://assets.myntassets.com/h_200,q_95,w_150/v1/images/style/properties/78c356c55cc2d9fa324f974fdf139e3b_images_mini.jpg","48X64Xmini":"http://assets.myntassets.com/h_64,q_95,w_48/v1/images/style/properties/78c356c55cc2d9fa324f974fdf139e3b_images_mini.jpg","125X161":"http://assets.myntassets.com/h_161,q_95,w_125/v1/images/style/properties/78c356c55cc2d9fa324f974fdf139e3b_images.jpg","125X161Xmini":"http://assets.myntassets.com/h_161,q_95,w_125/v1/images/style/properties/78c356c55cc2d9fa324f974fdf139e3b_images_mini.jpg"},"imageType":"front"},"right":{"imageURL":"http://assets.myntassets.com/v1/images/style/properties/c04fdb6576d524e41c16bdad156e75f4_images.jpg","resolutions":{"1080X1440Xmini":"http://assets.myntassets.com/h_1440,q_95,w_1080/v1/images/style/properties/c04fdb6576d524e41c16bdad156e75f4_images_mini.jpg","48X64":"http://assets.myntassets.com/h_64,q_95,w_48/v1/images/style/properties/c04fdb6576d524e41c16bdad156e75f4_images.jpg","1080X1440":"http://assets.myntassets.com/h_1440,q_95,w_1080/v1/images/style/properties/c04fdb6576d524e41c16bdad156e75f4_images.jpg","150X200":"http://assets.myntassets.com/h_200,q_95,w_150/v1/images/style/properties/c04fdb6576d524e41c16bdad156e75f4_images.jpg","360X480":"http://assets.myntassets.com/h_480,q_95,w_360/v1/images/style/properties/c04fdb6576d524e41c16bdad156e75f4_images.jpg","180X240":"http://assets.myntassets.com/h_240,q_95,w_180/v1/images/style/properties/c04fdb6576d524e41c16bdad156e75f4_images.jpg","360X480Xmini":"http://assets.myntassets.com/h_480,q_95,w_360/v1/images/style/properties/c04fdb6576d524e41c16bdad156e75f4_images_mini.jpg","180X240Xmini":"http://assets.myntassets.com/h_240,q_95,w_180/v1/images/style/properties/c04fdb6576d524e41c16bdad156e75f4_images_mini.jpg","150X200Xmini":"http://assets.myntassets.com/h_200,q_95,w_150/v1/images/style/properties/c04fdb6576d524e41c16bdad156e75f4_images_mini.jpg","48X64Xmini":"http://assets.myntassets.com/h_64,q_95,w_48/v1/images/style/properties/c04fdb6576d524e41c16bdad156e75f4_images_mini.jpg","125X161":"http://assets.myntassets.com/h_161,q_95,w_125/v1/images/style/properties/c04fdb6576d524e41c16bdad156e75f4_images.jpg","125X161Xmini":"http://assets.myntassets.com/h_161,q_95,w_125/v1/images/style/properties/c04fdb6576d524e41c16bdad156e75f4_images_mini.jpg"},"imageType":"right"}},"lookGoodAlbum":{},"style360Images":{},"masterCategory":{"id":9,"typeName":"Apparel","active":true,"socialSharingEnabled":true,"isReturnable":true,"isExchangeable":true,"pickupEnabled":true,"isTryAndBuyEnabled":true},"subCategory":{"id":31,"typeName":"Topwear","active":true,"socialSharingEnabled":true,"isReturnable":true,"isExchangeable":true,"pickupEnabled":true,"isTryAndBuyEnabled":true},"articleType":{"id":85,"typeName":"Shirts","active":true,"socialSharingEnabled":true,"isReturnable":true,"isExchangeable":true,"pickupEnabled":true,"isTryAndBuyEnabled":true,"isMyntsEnabled":true,"serviceabilityDisclaimer":{"title":"","desc":""}},"isEMIEnabled":true,"otherFlags":[{"dataType":"BOOLEAN","name":"isFragile","value":"false"},{"dataType":"BOOLEAN","name":"isTryAndBuyEnabled","value":"true"},{"dataType":"BOOLEAN","name":"isHazmat","value":"false"},{"dataType":"BOOLEAN","name":"isJewellery","value":"false"},{"dataType":"BOOLEAN","name":"isReturnable","value":"true"},{"dataType":"BOOLEAN","name":"isExchangeable","value":"true"},{"dataType":"BOOLEAN","name":"active","value":"true"},{"dataType":"BOOLEAN","name":"socialSharingEnabled","value":"true"},{"dataType":"BOOLEAN","name":"pickupEnabled","value":"true"},{"dataType":"BOOLEAN","name":"isLarge","value":"false"},{"dataType":"BOOLEAN","name":"codEnabled","value":"true"}],"articleDisplayAttr":{"id":85,"core":{"order":"0","display":"2","pdtDetail":"1","pdtDeliveryOptions":"2","pdtSimilar":"2","pdtLike":"2"},"social":{"order":"1","display":"2","userLikes":"1","styleNotes":"2","crossSell":"1"},"explore":{"display":"2","crosslink":"1","similar":"1","order":"2"}},"productDescriptors":{"description":{"descriptorType":"description","value":"<p><strong>Composition</strong><br /> Purple and white checked shirt made of 100% cotton, with three-fourth cuff sleeves, has a split neckline with a tipped collar and full front button placket, two flap chest pockets on the chest and two pockets on the waist, and a curved hemline<br /> <br /> <span style=\"font-style: normal; font-weight: bold;\">Fitting<br /> </span><span style=\"font-style: normal; font-weight: normal;\">Comfort<br /> <br /> </span><span style=\"font-style: normal; font-weight: bold;\">Wash care<br /> </span><span style=\"font-style: normal; font-weight: normal;\">only hand wash in cold water using a mild detergent<br /> Wash dark colours separately<br /> Do not bleach, wring or tumble dry<br /> Flat dry in shade<br /> Mild iron, and do not iron on print/embellishment/embroidery<br /> <br /> Perfect on style and great in comfort, this checked shirt from wrangler makes for a great casual wear. The long sleeves create a feel of casual comfort, while the fabric keeps you fresh and comfortable all day. Team this with slim Fit jeans and sandals and ooze style.<br /> <br /> </span><span style=\"font-style: italic; font-weight: normal;\">Model statistics<br /> </span><span style=\"font-style: normal; font-weight: normal;\">The model wears size M in shirts<br /> Height-5.7\", Chest-33\", Waist-26&rdquo;<br /> </span></p>"}},"styleOptions":[{"id":44075,"name":"Size","value":"S","unifiedSize":"S","unifiedSizeValue":"S","unifiedSizeScale":"","allSize":"S","skuId":46201,"skuAvailabilityDetailMap":{},"warehouseIdToItemCountMap":{},"inventoryCount":0,"available":false,"active":true},{"id":44074,"name":"Size","value":"M","unifiedSize":"M","unifiedSizeValue":"M","unifiedSizeScale":"","allSize":"M","skuId":46202,"skuAvailabilityDetailMap":{},"warehouseIdToItemCountMap":{},"inventoryCount":0,"available":false,"active":true},{"id":44073,"name":"Size","value":"L","unifiedSize":"L","unifiedSizeValue":"L","unifiedSizeScale":"","allSize":"L","skuId":46203,"skuAvailabilityDetailMap":{},"warehouseIdToItemCountMap":{},"inventoryCount":0,"available":false,"active":true},{"id":44072,"name":"Size","value":"XL","unifiedSize":"XL","unifiedSizeValue":"XL","unifiedSizeScale":"","allSize":"XL","skuId":46204,"skuAvailabilityDetailMap":{},"warehouseIdToItemCountMap":{},"inventoryCount":0,"available":false,"active":true},{"id":44071,"name":"Size","value":"XXL","unifiedSize":"XXL","unifiedSizeValue":"XXL","unifiedSizeScale":"","allSize":"XXL","skuId":46205,"skuAvailabilityDetailMap":{},"warehouseIdToItemCountMap":{},"inventoryCount":0,"available":false,"active":true}]}}
+
+=== GIT RECENT COMMITS (last 20) ===
+9edbb34e fix(Catalog): extract inline fields to Request record in RegenerateEmbedding
+09374734 fix(Catalog): wrap IFormFile in Request, add mapping method for SearchByImage
+2992b657 docs: full review + Docker→Podman + resolve gaps
+ffdc8e9d fix(ci): add name field to convention check step
+fd075a02 ci: add feature convention check to dotnet-build job
+17ced5cb fix(ci): remove dead code, add rg guard to convention check script
+12e540b6 ci: add feature convention enforcement script
+a1eb56eb docs: fix stale data in Chapter 11 + add final methodology review
+dd9479aa docs: unified 3-way comparison (cat-only, cat+colour, cat+colour+pattern) on same 5K dataset
+2b9e104e docs: add pattern-aware secondary evaluation results + fix dual-label split generation
+00a2bffd feat(shared): consolidate currency value objects and add DefaultCurrency to ISystemInfo
+0316ed89 docs: enriched dataset + dual-label documentation
+d5fe299e feat: add --secondary-label flag to thesis CLI
+7821db9a feat: add secondary label evaluation to ThesisRunner
+37a668a5 feat: add benchmark enrich CLI command
+840b53e4 feat: add enrichment script for JSON articleAttributes
+5e85faf6 feat: add label_field parameter to FashionDataset.load()
+77599abf refactor: rename _normalize_colour to public normalize_colour
+fd9eebdb refactor: extract ~400 hardcoded values into named constants; fix 16 lint errors
+20ae2a0c feat: 1000 products with 4000 direct embeddings (4 models)
+
+=== HIGH-CHURN FILES (last 90 days, top 20) ===
+  25 service/Api/src/Module/Ordering/Features/Storefront/Cart/Checkout/CreateOrderFromCart.cs
+  19 service/Api/src/Api/appsettings.Development.json
+  18 service/Api/src/Module/Payment/Features/Storefront/Payment/Webhooks/StripeWebhook.cs
+  18 service/Api/src/Module/Payment/Payment.Extension.cs
+  18 service/Api/tests/Module.UnitTests/Payment/Features/Storefront/Payment/CreateIntent/CreatePaymentIntentTests.cs
+  18 service/Api/src/Api/Program.cs
+  16 service/Api/src/Module/Payment/Features/Admin/Payments/Refund/RefundPayment.cs
+  16 service/Api/src/Module/Ordering/Features/Storefront/Orders/Cancel/CancelOrder.cs
+  15 service/Api/src/Api/appsettings.json
+  15 service/Api/src/Module/Ordering/Domain/Orders/Order.Result.cs
+  15 service/Api/tests/Module.UnitTests/Payment/Features/Storefront/Payment/Confirm/ConfirmPaymentTests.cs
+  15 service/Api/src/Module/Ordering/Features/Storefront/Cart/AssociateCart/AssociateCartWithUser.cs
+  15 service/Api/tests/Module.UnitTests/Payment/Features/Storefront/Payment/Webhooks/StripeWebhookTests.cs
+  14 service/Api/src/Module/Payment/Features/Storefront/Payment/Confirm/ConfirmPayment.cs
+  14 service/Api/src/Module/Payment/Features/Storefront/Payment/CreateIntent/CreatePaymentIntent.cs
+  14 service/Api/src/Module/Ordering/Ordering.Extension.cs
+  14 service/Api/tests/Module.UnitTests/Payment/Features/Admin/Payments/Void/VoidPaymentTests.cs
+  13 service/Api/src/Migrations/Migrations/ApplicationDbContextModelSnapshot.cs
+  13 service/Api/src/Module/Ordering/Features/Admin/Orders/Cancel/CancelOrderAdmin.cs
+  13 service/Api/src/Module/Ordering/Features/Admin/Orders/UpdateStatus/UpdateOrderStatus.cs
+
+=== MONOREPO SIGNALS ===
+No monorepo signals detected.
+
+=== CODE METRICS ===
+Total files scanned: 138552
+Total lines of code: 501788
+
+Files by language:
+  Other: 138237
+  Python: 315
+
+Top 10 largest files:
+data/cache/resnet-50__fold_2_train.npz: 107374.0KB
+scripts/demo-seed/output/demo_embeddings.json: 75002.5KB
+data/cache/efficientnet-b0__fold_0_test.npz: 67951.7KB
+data/cache/resnet-50__fold_2_test.npz: 53786.4KB
+data/cache/efficientnet-b0__fold_0_train.npz: 15156.4KB
+data/cache/efficientnet-b0__fold_1_train.npz: 15124.7KB
+data/cache/efficientnet-b0__fold_2_train.npz: 15102.7KB
+old/_thesis/thesis.pdf: 12368.1KB
+data/cache/resnet-50__fold_0_train.npz: 11897.4KB
+data/cache/resnet-50__fold_1_train.npz: 11888.1KB
+
+=== CI/CD PIPELINES ===
+No CI/CD pipelines detected.
+
+=== CONTAINERS & ORCHESTRATION ===
+No containerization configs detected.
+
+=== SECURITY & COMPLIANCE ===
+No security configs detected.
+
+=== PERFORMANCE & TESTING ===
+No performance testing configs detected.
+
+=== SCAN COMPLETE ===

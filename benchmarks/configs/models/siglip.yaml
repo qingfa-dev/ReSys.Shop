@@ -1,0 +1,10 @@
+id: siglip
+name: "SigLIP"
+class: "SigLipModel"
+module: "benchmark.models.siglip"
+backbone: "ViT-B/16"
+embedding_dim: 768
+pretrained: "google/siglip-base-patch16-224"
+batch_size: 64
+image_size: 224
+normalize_embeddings: true

@@ -2,6 +2,7 @@ namespace Module.Catalog.Features.Admin.Products.Variants.OptionValues.Get;
 
 public static partial class GetVariantOptionValues
 {
+    // EXCEPTION: collection wrapper — inner OptionValueItem fields incompatible with OptionValueDetailResponse (different property names + IsAssigned)
     public sealed record Response
     {
         public List<OptionValueItem> Items { get; init; } = [];

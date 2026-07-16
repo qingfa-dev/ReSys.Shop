@@ -33,7 +33,7 @@ public class TaxonomyMappingTests
     {
         var request = new TaxonomyRequest { Name = "New Category", Presentation = "New Display", Position = 10 };
 
-        var entity = TaxonomyExtensions.Create("Old Name", "Old Presentation", 0).Value;
+        var entity = TaxonomyMethod.Create("Old Name", "Old Presentation", 0).Value;
 
         var result = request.MapToDomain(entity);
 
@@ -46,7 +46,7 @@ public class TaxonomyMappingTests
     [Fact(DisplayName = "MapToDetail: Should map Taxonomy entity to TaxonomyDetailResponse")]
     public void MapToDetail_ShouldMapEntityToResponse()
     {
-        var entity = TaxonomyExtensions.Create("Category", "Category Display", 1).Value;
+        var entity = TaxonomyMethod.Create("Category", "Category Display", 1).Value;
 
         var result = entity.MapToDetail<TaxonomyDetailResponse>();
 
@@ -62,7 +62,7 @@ public class TaxonomyMappingTests
     [Fact(DisplayName = "MapToListItem: Should map Taxonomy entity to TaxonomyListItemResponse")]
     public void MapToListItem_ShouldMapEntityToResponse()
     {
-        var entity = TaxonomyExtensions.Create("Category", "Category Display", 5).Value;
+        var entity = TaxonomyMethod.Create("Category", "Category Display", 5).Value;
 
         var result = entity.MapToListItem<TaxonomyListItemResponse>();
 
@@ -106,7 +106,7 @@ public class TaxonomyMappingTests
     public void MapToListItem_ShouldIncludeTaxonsCount_WhenEntityHasChildren()
     {
         var taxonomyId = Guid.NewGuid();
-        var entity = TaxonomyExtensions.Create("Category", "Display", 5).Value;
+        var entity = TaxonomyMethod.Create("Category", "Display", 5).Value;
         typeof(Taxonomy).GetProperty("Id")!.SetValue(entity, taxonomyId);
 
         var child1 = TaxonMethod.Create(taxonomyId, null, "Child1", "Child1", null, 0, "child1", null, null, null, false, null, null, false, null, null).Value;
@@ -123,7 +123,7 @@ public class TaxonomyMappingTests
     [Fact(DisplayName = "MapToDomain (Update): Should preserve presentation when request presentation is null")]
     public void MapToDomain_Update_ShouldPreservePresentation_WhenNull()
     {
-        var entity = TaxonomyExtensions.Create("Original", "Original Display", 5).Value;
+        var entity = TaxonomyMethod.Create("Original", "Original Display", 5).Value;
 
         var request = new TaxonomyRequest { Presentation = null! };
 

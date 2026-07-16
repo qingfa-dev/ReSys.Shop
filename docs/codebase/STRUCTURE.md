@@ -17,6 +17,7 @@
 | `app/Admin/` | Vue 3 + PrimeVue admin SPA (pnpm) | `app/Admin/package.json:1-71` |
 | `app/Store/` | Vue 3 + Nuxt UI storefront SPA (pnpm) | `app/Store/package.json:1-56` |
 | `app/ReSys.Admin/` | Legacy admin SPA (npm-based, marked for replacement by `app/Admin/`) | `README.md:177`, `.gitignore:154` (`app/ReSys.Admin/`) |
+| `benchmarks/` | Standalone Python package for ML benchmark comparison — 8 vision models, FAISS + pgvector retrieval, thesis + pipeline CLI modes | `benchmarks/pyproject.toml:1-64`, `benchmarks/src/benchmark/cli/benchmark.py:1-504` |
 | `ApiTests/` | 49 `.http` files for manual endpoint testing (VS Code REST Client / JetBrains HTTP Client) | `ApiTests/README.md:1-30` |
 | `docs/codebase/` | This documentation set (created by `acquire-codebase-knowledge`) | `README.md:158-168` |
 | `guide/code-commenting/` | Internal commenting-style guide (XML-based) — referenced by `guide/code-commenting/README.md` | `guide/code-commenting/CommentingRules.xml:1-1340` (file size 63 KB) |
@@ -38,6 +39,8 @@
 - **Store SPA:** `app/Store/src/main.ts` (entry per scan, exact contents not re-read but matches `app/Admin/src/app/main.ts` pattern).
 - **Backend tests:** `service/Api/tests/Api.Tests/Api.Tests.csproj` (xUnit v3 + `Microsoft.AspNetCore.Mvc.Testing` + Testcontainers), `service/Api/tests/Module.UnitTests/Module.UnitTests.csproj`, `service/Api/tests/Shared.UnitTests/Shared.UnitTests.csproj`.
 - **Embedding tests:** `service/Embedding/tests/conftest.py:1-9` provides a `TestClient` fixture; `service/Embedding/tests/test_*.py` files exist (see scan).
+- **Benchmarks CLI:** `benchmarks/src/benchmark/cli/benchmark.py:1-504` — Typer CLI with `run`, `thesis`, `pipeline`, `report`, `cache` subcommands; registered as `benchmark` console_script in `benchmarks/pyproject.toml:43`.
+- **Benchmarks tests:** `benchmarks/src/tests/` — pytest with conftest; 29 test files across cli/, datasets/, evaluation/, integration/, metrics/, models/, reporting/, retrieval/, utils/.
 - **Manual API tests:** `ApiTests/run-all.http` is a top-level orchestration file; per-module `.http` files in `ApiTests/<Module>/{Admin|Store|Storefront}/`.
 - **Selection mechanism:** Aspire is the documented single-command orchestrator (`README.md:73-75`). The `Program.cs` builds + runs the `Api` project when `dotnet run --project service/Api/src/Api` is invoked; the SPAs are run individually (`pnpm run dev`) or via Aspire.
 
@@ -54,6 +57,8 @@
 | `app/Store/src/{api.ts, router/, stores/, views/, __tests__/}` | App entry, single `api.ts` (likely axios instance — contents not re-read), router config, Pinia stores (`cart.ts`, `catalog.ts`), views (`HomeView`, `ProductsView`, `ProductDetailView`, `CartView`, `CheckoutView`), Vitest specs. | Re-exporting component libraries directly inside stores (a thin pattern). |
 | `infra/Aspire/src/ReSys.AppHost/` | Orchestration only (resource graph). | Business code; runtime infrastructure for tests. |
 | `infra/Aspire/src/ReSys.ServiceDefaults/` | Service-defaults shared by all services (OTel, health, resilience, discovery). | Domain logic. |
+| `benchmarks/` | ML model comparison: `src/benchmark/cli/` (CLI), `src/benchmark/models/` (model wrappers), `src/benchmark/datasets/` (data loading + ground truth), `src/benchmark/embeddings/` (generation + caching), `src/benchmark/retrieval/` (FAISS + pgvector + cosine), `src/benchmark/metrics/` (P@K, R@K, mAP, nDCG, latency), `src/benchmark/evaluation/` (runners), `src/benchmark/reporting/` (JSON, CSV, Markdown, Typst, charts). | Any dependency on the ReSys.Shop .NET backend or `service/Embedding/` sidecar. Benchmarks is standalone. |
+| `benchmarks/docs/` | Benchmark-specific documentation (overview, models, metrics, pipeline, datasets, thesis protocol, replication guide, results). | Codebase-wide docs. |
 
 Per `Directory.Build.targets:5-39`, the project also enforces (via MSBuild targets) that:
 - `.Domain` projects cannot reference `.Infrastructure` or `.Application`.
@@ -76,6 +81,7 @@ Per `Directory.Build.targets:5-39`, the project also enforces (via MSBuild targe
 - **Test naming (backend):** `<Type>.Tests.cs` and `<Type>.Validator.Tests.cs` mirroring source files (e.g. `service/Api/tests/Module.UnitTests/Catalog/Features/Admin/Products/Create/CreateProduct.Tests.cs:1-5`).
 - **Test naming (frontend):** `*.spec.ts` colocated (e.g. `app/Admin/src/features/auth/_tests/auth.service.spec.ts`, `app/Store/src/__tests__/cart.store.spec.ts`).
 - **HTTP test files:** `ApiTests/<Module>/{Admin|Store|Storefront}/<concern>.http`; per-file section headers use `### <Description>` (see `ApiTests/Identity/Store/auth-login.http:1-15`).
+- **Benchmarks Python:** `src/benchmark/<domain>/<file>.py`; model files as `<model_key>.py` (e.g. `fashion_clip.py`, `clip_b32.py`); tests colocated in `src/tests/<domain>/test_*.py`; CLI via `benchmarks/src/benchmark/cli/benchmark.py` with `@app.command()` decorators.
 
 ### 5) Evidence
 
@@ -93,5 +99,8 @@ Per `Directory.Build.targets:5-39`, the project also enforces (via MSBuild targe
 - `app/Admin/tsconfig.app.json:1-18`, `app/Store/tsconfig.app.json:11` — `@/*` path alias
 - `app/Store/src/__tests__/App.spec.ts:1-28` — Store test layout
 - `ApiTests/README.md:1-30`, `ApiTests/_shared/variables.http:1-20` — HTTP test layout
+- `benchmarks/pyproject.toml:1-64`, `benchmarks/README.md:1-70` — benchmark package + docs
+- `benchmarks/src/benchmark/cli/benchmark.py:1-504` — CLI entry point
+- `benchmarks/src/tests/` — 29 test files across 8 domains
 - `docs/codebase/.codebase-scan.txt` — full file/dir enumeration
 - `ReSys.Shop.slnx:1-30` — solution layout

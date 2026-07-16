@@ -14,7 +14,7 @@ public static partial class GetStockAvailability
                 ISender sender,
                 CancellationToken ct) =>
             {
-                var query = new Query(variantId, cartToken);
+                var query = new Query(new Request { VariantId = variantId, CartToken = cartToken });
                 var result = await sender.Send(query, ct);
                 return result.ToResult();
             })

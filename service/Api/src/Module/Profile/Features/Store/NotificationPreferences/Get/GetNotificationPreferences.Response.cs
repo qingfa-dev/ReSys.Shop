@@ -1,6 +1,8 @@
+using Module.Profile.Features.Store.Profiles.Shared.Models;
+
 namespace Module.Profile.Features.Store.NotificationPreferences.Get;
 
 public static partial class GetNotificationPreferences
 {
-    public sealed record Response(bool EnableSms, bool EnableEmail, bool EnableNewsfeeds);
+    public sealed record Response : ProfileNotificationPreferences;
 }

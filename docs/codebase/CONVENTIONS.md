@@ -68,6 +68,7 @@
 - **Frontend module-boundary enforcement:** `eslint-plugin-boundaries` with the `shared | features | app` element map (`app/Admin/eslint.config.ts:32-54`).
 - **TS path alias:** `@/*` → `./src/*` (`app/Admin/tsconfig.app.json:11`, `app/Store/tsconfig.app.json:11`); Vite alias mirror (`app/Admin/vite.config.ts:43-47`).
 - **Python imports:** Standard `from embedding.<package> import …` (e.g. `service/Embedding/src/main.py:4-8`); packages listed in `pyproject.toml:23-42` map to the `src/` directory via `tool.setuptools.package-dir` (`pyproject.toml:20-21`).
+- **Python (benchmarks):** `from benchmark.<package> import …` using absolute imports; `from __future__ import annotations` at top of all modules; line-length 100, target-version py312; ruff selects `["E", "F", "I", "UP", "B", "SIM"]` (`benchmarks/pyproject.toml:57-64`).
 
 ### 4) Error and Logging Conventions
 
@@ -91,6 +92,7 @@
 - **Test file naming (C#):** `<Subject>.Tests.cs` and `<Subject>.Validator.Tests.cs`, located under `service/Api/tests/Module.UnitTests/<Module>/Features/<Admin|Storefront>/<Feature>/<Action>/` mirroring production path. Example: `service/Api/tests/Module.UnitTests/Catalog/Features/Admin/Products/Create/CreateProduct.Tests.cs:1-5`.
 - **Test file naming (frontend):** `*.spec.ts` colocated with the unit. Admin uses `__tests__/` (e.g. `app/Admin/src/features/auth/_tests/auth.service.spec.ts`) *or* inline `tests/` folders (e.g. `app/Admin/src/features/ordering/tests/order.service.spec.ts`, `app/Admin/src/features/catalog/products/tests/product.store.spec.ts`). Store uses `__tests__/` (e.g. `app/Store/src/__tests__/App.spec.ts`).
 - **Test file naming (Python):** `test_*.py` (pytest discovery), in `service/Embedding/tests/` (unit, integration, e2e subdirs).
+- **Test file naming (benchmarks):** `test_*.py` colocated in `benchmarks/src/tests/<domain>/` (cli, datasets, evaluation, integration, metrics, models, reporting, retrieval, utils); pytest via `pythonpath = ["src"]` in `benchmarks/pyproject.toml:54`.
 - **Test scope (C#):** `Module.UnitTests` and `Shared.UnitTests` are pure unit tests using `Microsoft.EntityFrameworkCore.InMemory` (`service/Api/tests/Module.UnitTests/Module.UnitTests.csproj:18-20`); `Api.Tests` is integration (`Microsoft.AspNetCore.Mvc.Testing` + `Testcontainers.PostgreSql` + `Respawn`, `service/Api/tests/Api.Tests/Api.Tests.csproj:15-18`).
 - **Test framework:** xUnit v3 (`xunit.v3 3.2.2`, runner.visualstudio 3.1.5, analyzers 1.27.0) with `Microsoft.NET.Test.Sdk 18.7.0`, `Microsoft.Testing.Platform` as the test runner (`global.json:6-8`), `TestingPlatformDotnetTestSupport=true` per test csproj, `FluentAssertions 8.10.0`, `Moq 4.20.72` (`Directory.Packages.props:102-112`).
 - **Test traits:** Each unit test class is annotated with `[Trait("Category", "Unit")]`, `[Trait("Module", "Catalog")]`, `[Trait("Feature", "ProductCreate")]` (e.g. `CreateProduct.Tests.cs:7-9`).
@@ -118,6 +120,7 @@
 - `app/Admin/src/shared/api/http/api.client.ts:1-92` — axios client w/ response unwrap + token refresh
 - `app/Store/src/__tests__/App.spec.ts:1-28`, `app/Store/vitest.config.ts:1-13` — Store test pattern
 - `service/Embedding/pyproject.toml:44-49` — Python lint config
+- `benchmarks/pyproject.toml:57-64` — benchmark lint config
 - `service/Api/tests/Module.UnitTests/Catalog/Features/Admin/Products/Create/CreateProduct.Tests.cs:1-60+` — C# unit test
 - `service/Api/tests/Api.Tests/Infrastructure/ApiFactory.cs:1-189` — integration test factory
 - `ApiTests/Identity/Store/auth-login.http:1-15`, `ApiTests/_shared/variables.http:1-20` — HTTP test conventions

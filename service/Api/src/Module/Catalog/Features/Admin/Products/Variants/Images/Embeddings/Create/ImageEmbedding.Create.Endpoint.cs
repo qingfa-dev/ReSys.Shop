@@ -20,7 +20,7 @@ public static partial class CreateEmbedding
                     ? VariantImageConstant.Defaults.DefaultEmbeddingModel
                     : request.ModelName;
 
-                var command = new Command(id, modelName);
+                var command = new Command(new Request { VariantImageId = id, ModelName = modelName });
                 var result = await sender.Send(command, ct);
                 return result.ToResult();
             })

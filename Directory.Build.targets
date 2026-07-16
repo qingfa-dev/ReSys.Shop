@@ -41,7 +41,7 @@
   <!-- 4. VERTICAL SLICE ISOLATION: Prevent modules from referencing each other -->
   <Target Name="ValidateVerticalSliceIsolation"
           BeforeTargets="BeforeBuild;ResolveProjectReferences"
-          Condition="false"> <!-- Enable by setting to 'true' -->
+          Condition="true">
     <ItemGroup>
       <ForbiddenRef Include="@(ProjectReference)"
         Condition="$(MSBuildProjectName.Contains('.Module.')) AND

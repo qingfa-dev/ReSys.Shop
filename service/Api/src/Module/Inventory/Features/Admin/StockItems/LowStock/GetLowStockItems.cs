@@ -5,7 +5,7 @@ namespace Module.Inventory.Features.Admin.StockItems.LowStock;
 /// <summary>Handles retrieval of stock items below their location's low-stock threshold.</summary>
 public static partial class GetLowStockItems
 {
-    public sealed record Query(Guid? LocationId, int? Threshold) : IQuery<List<Response>>;
+    public sealed record Query(Request Request) : IQuery<List<Response>>;
 
     public sealed class QueryHandler(IApplicationDbContext dbContext)
         : IQueryHandler<Query, List<Response>>
@@ -23,8 +23,8 @@ public static partial class GetLowStockItems
                 .Where(si => si.StockLocation != null && !si.StockLocation.IsDeleted && si.StockLocation.Active)
                 .AsQueryable();
 
-            if (request.LocationId.HasValue)
-                query = query.Where(si => si.StockLocationId == request.LocationId.Value);
+            if (request.Request.LocationId.HasValue)
+                query = query.Where(si => si.StockLocationId == request.Request.LocationId.Value);
 
             var items = await query.ToListAsync(cancellationToken);
 
@@ -32,7 +32,7 @@ public static partial class GetLowStockItems
             var results = items
                 .Where(si =>
                 {
-                    var threshold = request.Threshold ?? si.StockLocation!.LowStockThreshold;
+                    var threshold = request.Request.Threshold ?? si.StockLocation!.LowStockThreshold;
                     return si.CountOnHand <= threshold;
                 })
                 .Select(si => new Response
@@ -42,7 +42,7 @@ public static partial class GetLowStockItems
                     StockLocationId = si.StockLocationId,
                     LocationName = si.StockLocation!.Name,
                     CountOnHand = si.CountOnHand,
-                    Threshold = request.Threshold ?? si.StockLocation.LowStockThreshold,
+                    Threshold = request.Request.Threshold ?? si.StockLocation.LowStockThreshold,
                     Backorderable = si.Backorderable,
                     Status = si.CountOnHand == 0 ? "out_of_stock" : "low"
                 })

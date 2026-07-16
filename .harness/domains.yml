@@ -243,3 +243,18 @@ domains:
       config: infra/Aspire/src/ReSys.ServiceDefaults
     providers: []
     size_loc: 238
+
+  - name: Benchmarks
+    description: Python fashion image retrieval benchmark — 11 embedding models, 3 benchmark modes (one-shot, thesis CV, pgvector pipeline), Typst/JSON/CSV reporting
+    path: benchmarks
+    layers:
+      types: benchmarks/src/benchmark/models
+      config: benchmarks/configs
+      domain: benchmarks/src/benchmark/datasets
+      service: benchmarks/src/benchmark/evaluation
+      features: benchmarks/src/benchmark/metrics
+      api: benchmarks/src/benchmark/cli
+      persistence: benchmarks/src/benchmark/embeddings
+    providers:
+      - observability
+    size_loc: 6200

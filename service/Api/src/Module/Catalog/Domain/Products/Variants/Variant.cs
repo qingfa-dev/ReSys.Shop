@@ -39,10 +39,6 @@ public sealed partial class Variant : Entity, ISoftDeletable
     public DimensionUnit? DimensionsUnit { get; set; }
     #endregion Physical Specs
 
-    #region Media
-    public Guid? PrimaryMediaId { get; set; }
-    #endregion Media
-
     #region Pricing
     public decimal? Price { get; set; } = VariantConstant.Defaults.Price;
     public decimal? CostPrice { get; set; } = VariantConstant.Defaults.CostPrice;

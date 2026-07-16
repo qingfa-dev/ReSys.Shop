@@ -64,6 +64,7 @@ public static partial class GetUserPermissions
                 })
                 .ToList();
 
+            // EXCEPTION: composite permission response — no single domain entity
             return new Response { Categories = categories };
         }
     }

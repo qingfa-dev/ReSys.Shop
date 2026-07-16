@@ -1,0 +1,4 @@
+experiment:
+  model: siglip
+  dataset: deepfashion
+  seed: 42

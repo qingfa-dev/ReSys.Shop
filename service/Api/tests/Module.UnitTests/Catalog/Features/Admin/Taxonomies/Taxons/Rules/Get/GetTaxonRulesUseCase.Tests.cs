@@ -34,7 +34,7 @@ public class GetTaxonRulesTests : IDisposable
     [Fact(DisplayName = "Handler: Should return all rules for taxon ordered by Type")]
     public async Task Handle_ShouldReturnRules_WhenTaxonExists()
     {
-        var taxonomy = TaxonomyExtensions.Create("Categories", "Categories", 0).Value;
+        var taxonomy = TaxonomyMethod.Create("Categories", "Categories", 0).Value;
         var taxon = TaxonMethod.Create(taxonomy.Id, null, "Shirts", "Shirts", null, 0, "shirts", null, null, null, false, null, null, false, null, null).Value;
 
         var rule1 = TaxonRuleExtensions.Create(taxon.Id, TaxonRuleType.ProductPrice, TaxonRuleMatchPolicy.GreaterThan, "10.00");
@@ -56,7 +56,7 @@ public class GetTaxonRulesTests : IDisposable
     [Fact(DisplayName = "Handler: Should return empty list when no rules exist")]
     public async Task Handle_ShouldReturnEmptyList_WhenNoRules()
     {
-        var taxonomy = TaxonomyExtensions.Create("Categories", "Categories", 0).Value;
+        var taxonomy = TaxonomyMethod.Create("Categories", "Categories", 0).Value;
         var taxon = TaxonMethod.Create(taxonomy.Id, null, "Shirts", "Shirts", null, 0, "shirts", null, null, null, false, null, null, false, null, null).Value;
 
         _dbContext.Set<Taxonomy>().Add(taxonomy);
@@ -81,7 +81,7 @@ public class GetTaxonRulesTests : IDisposable
     [Fact(DisplayName = "Handler: Should map rule properties correctly in response")]
     public async Task Handle_ShouldMapRuleProperties_WhenRulesExist()
     {
-        var taxonomy = TaxonomyExtensions.Create("Categories", "Categories", 0).Value;
+        var taxonomy = TaxonomyMethod.Create("Categories", "Categories", 0).Value;
         var taxon = TaxonMethod.Create(taxonomy.Id, null, "Shirts", "Shirts", null, 0, "shirts", null, null, null, false, null, null, false, null, null).Value;
         var rule = TaxonRuleExtensions.Create(taxon.Id, TaxonRuleType.ProductSku, TaxonRuleMatchPolicy.Contains, "ABC");
 

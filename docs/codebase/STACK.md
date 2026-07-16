@@ -14,6 +14,7 @@
 | Frontend (Admin) | Vue 3.5 + TypeScript 6 + Vite 8 + pnpm | `app/Admin/package.json:1-71` |
 | Frontend (Store) | Vue 3.5 + TypeScript 6 + Vite 8 + pnpm | `app/Store/package.json:1-56` |
 | ML sidecar | Python 3.14+ with `uv` (FastAPI + open-clip-torch) | `service/Embedding/pyproject.toml:9-18` |
+| ML benchmarks | Python 3.12+ with `uv` (Torch, open-clip, FAISS, pgvector, Typer) | `benchmarks/pyproject.toml:1-64` |
 | Orchestration | .NET Aspire 13.4 (AppHost + ServiceDefaults) | `infra/Aspire/src/ReSys.AppHost/AppHost.cs:1-49`, `Directory.Packages.props:11` |
 | Database | PostgreSQL 17 with pgvector (image used: `pgvector/pgvector:pg17-trixie` optimized image) | `infra/Aspire/src/ReSys.AppHost/AppHost.cs:11-12` |
 | Cache / Job store | Redis 7 (HybridCache, Hangfire) | `infra/Aspire/src/ReSys.AppHost/AppHost.cs:14-15`, `Directory.Packages.props:60-79` |
@@ -114,6 +115,23 @@
 | open-clip-torch | >=1.0 | Fashion-CLIP model | `service/Embedding/pyproject.toml:16` |
 | python-multipart | >=0.0.32 | Multipart upload parsing | `service/Embedding/pyproject.toml:17` |
 
+#### 2.6 ML benchmarks — Python (standalone)
+
+| Dependency | Version | Role | Evidence |
+|------------|---------|------|----------|
+| torch | >=2.3 | Inference runtime | `benchmarks/pyproject.toml:8` |
+| torchvision | >=0.18 | Image transforms | `benchmarks/pyproject.toml:9` |
+| transformers | >=4.41 | HuggingFace model loading | `benchmarks/pyproject.toml:10` |
+| open-clip-torch | >=2.24 | CLIP models | `benchmarks/pyproject.toml:11` |
+| fashion-clip | >=0.2 | FashionCLIP model | `benchmarks/pyproject.toml:12` |
+| faiss-cpu | >=1.8 | Vector similarity search | `benchmarks/pyproject.toml:17` |
+| psycopg[binary] | >=3.1 | PostgreSQL driver | `benchmarks/pyproject.toml:18` |
+| pgvector | >=0.2 | pgvector extension client | `benchmarks/pyproject.toml:19` |
+| typer | >=0.12 | CLI framework (4 subcommands) | `benchmarks/pyproject.toml:26` |
+| rich | >=13.7 | Terminal formatting | `benchmarks/pyproject.toml:25` |
+| pandas | >=2.2 | Data analysis | `benchmarks/pyproject.toml:33` |
+| matplotlib + seaborn | >=3.9 / >=0.13 | Chart generation | `benchmarks/pyproject.toml:31-32` |
+
 ### 3) Development Toolchain
 
 | Tool | Purpose | Evidence |
@@ -139,6 +157,8 @@
 | vite 8.0.16 | Build/dev server | `app/Admin/package.json:63`, `app/Store/package.json:49` |
 | vue-tsc 3.3.5 | Type-check Vue SFCs | `app/Admin/package.json:66`, `app/Store/package.json:51` |
 | pytest >=8, httpx >=0.28, ruff >=0.15.20 | Embedding-side tests + lint | `service/Embedding/pyproject.toml:53-55` |
+| pytest >=8.2, pytest-cov >=5.0 | Benchmarks test runner | `benchmarks/pyproject.toml:38-39` |
+| ruff (benchmark) | Python lint for benchmarks | `benchmarks/pyproject.toml:57-64` |
 | GitHub Actions CI (`ci.yml`) | PR/push automation: `dotnet build`, unit tests, frontend lint + test, Python lint + test | `.github/workflows/ci.yml:1-65` |
 | `.editorconfig` (root) | Cross-language formatting rules | `.editorconfig:1-389` |
 
@@ -167,6 +187,14 @@ cd app/Store && pnpm install && pnpm run dev && pnpm run test:unit
 cd service/Embedding && uv sync
 uv run uvicorn embedding.main:app --reload
 uv run ruff check .
+uv run pytest
+
+# Benchmarks (Python)
+cd benchmarks && uv sync
+uv run benchmark run --models all --dataset-root data/raw/deepfashion
+uv run benchmark thesis --folds 3
+uv run benchmark pipeline --folds 3
+uv run benchmark report --format all
 uv run pytest
 
 # One-command orchestration (Aspire)
@@ -200,6 +228,8 @@ dotnet run --project infra/Aspire/src/ReSys.AppHost
 - `service/Api/src/Shared/Shared.csproj` (cross-cutting infra) — `service/Api/src/Shared/Shared.csproj:1-72`
 - `service/Api/src/Migrations/Api.Migrations.csproj` (EF migrations, exists per `ReSys.Shop.slnx:218`)
 - `service/Embedding/pyproject.toml` (Python deps) — `service/Embedding/pyproject.toml:1-56`
+- `benchmarks/pyproject.toml` (benchmark deps) — `benchmarks/pyproject.toml:1-64`
+- `benchmarks/README.md` (benchmark overview) — `benchmarks/README.md:1-70`
 - `app/Admin/package.json` (Admin SPA deps) — `app/Admin/package.json:1-71`
 - `app/Store/package.json` (Store SPA deps) — `app/Store/package.json:1-56`
 - `infra/Aspire/src/ReSys.AppHost/AppHost.cs` (Aspire wiring) — `infra/Aspire/src/ReSys.AppHost/AppHost.cs:1-49`

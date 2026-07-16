@@ -94,14 +94,22 @@ public static class CachingExtensions
             }
             else
             {
-                // Create: Explicit ConnectionMultiplexer for telemetry instrumentation
-                ConnectionMultiplexer multiplexer = ConnectionMultiplexer.Connect(connectionString);
-                builder.Services.AddSingleton<IConnectionMultiplexer>(multiplexer);
+                // Register: IConnectionMultiplexer as lazy singleton — connection is deferred
+                // to first use so the application can start when Redis is temporarily unavailable.
+                // AbortOnConnectFail=false prevents Connect() from throwing; the multiplexer will
+                // keep retrying in the background and become usable once Redis recovers.
+                builder.Services.AddSingleton<IConnectionMultiplexer>(_ =>
+                {
+                    var configOptions = ConfigurationOptions.Parse(connectionString);
+                    configOptions.AbortOnConnectFail = false;
+                    configOptions.ConnectTimeout = 5000;
+                    return ConnectionMultiplexer.Connect(configOptions);
+                });
 
-                // Add: Redis cache registration using ConnectionMultiplexerFactory
+                // Add: Redis cache — StackExchangeRedisCache connects lazily on first cache operation
                 builder.Services.AddStackExchangeRedisCache(options =>
                 {
-                    options.ConnectionMultiplexerFactory = () => Task.FromResult<IConnectionMultiplexer>(multiplexer);
+                    options.Configuration = connectionString;
                 });
 
                 // Initialize: Configure instance name for cache key isolation

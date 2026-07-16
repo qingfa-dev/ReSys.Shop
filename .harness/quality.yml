@@ -140,8 +140,8 @@ domains:
     gaps:
       - "High coupling — Shared references 30+ packages, any change affects all modules"
       - "No splitting into separate infrastructure packages (Shared.Persistence, Shared.Auth, etc.)"
-    notes: "Well-tested (Shared.UnitTests has 28K LOC). Strong foundation but could benefit from decomposition."
-    last_reviewed: "2026-07-13"
+    notes: "Well-tested (Shared.UnitTests has 28K LOC). Strong foundation but could benefit from decomposition. Fixed eager Redis connect at startup (→ lazy singleton with AbortOnConnectFail=false, per resilient-infrastructure-startup principle)."
+    last_reviewed: "2026-07-15"
 
   Admin.SPA:
     scores:
@@ -205,3 +205,20 @@ domains:
       - "YARP API Gateway commented out as deferred"
     notes: "Clean orchestration setup. 6 resources wired correctly. ServiceDefaults has strong OpenTelemetry config."
     last_reviewed: "2026-07-13"
+
+  Benchmarks:
+    scores:
+      code_quality: B
+      test_coverage: B
+      documentation: A
+      observability: C
+      reliability: B
+      security: B
+    gaps:
+      - "No CI pipeline — lint and tests must be run manually"
+      - "No automated boundary enforcement (21 modules, documented but unenforced)"
+      - "pgvector IVFFlat capped at 2000 dims — ResNet-50 production metrics unavailable"
+      - "RAM measurement via psutil unreliable on some systems"
+      - "No model unload mechanism — GPU memory accumulates across sequential runs"
+    notes: "Comprehensive docs (9 guides + 7 codebase docs). 125+ tests across 14 test files. 3 benchmark modes operational. Strong self-documenting codebase. CI pipeline added (lint + test + coverage @60%). Needs boundary enforcement to reach full Level 2."
+    last_reviewed: "2026-07-15"

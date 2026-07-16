@@ -26,6 +26,9 @@
 | **Aspire service discovery** | Internal service-to-service | HTTP client `AddServiceDiscovery()` enables scheme-based discovery. | N/A | High (internal) | `infra/Aspire/src/ReSys.ServiceDefaults/Extensions.cs:30-39` |
 | **Papercut SMTP (Aspire community)** | Dev SMTP server | Local dev email receiver when running under Aspire. | N/A | Low (dev) | `Directory.Packages.props:25` |
 | **Scalar** | API reference UI | Interactive OpenAPI explorer at `/scalar/v1`. | N/A | Low | `service/Api/src/Shared/Governance/OpenApi/OpenApi.Extension.cs:54-62`, `Directory.Packages.props:53` |
+| **pgvector (benchmarks)** | Vector DB (pgvector extension) | Standalone PostgreSQL for benchmark retrieval tests. Benchmarks own their own connection (`postgresql://benchmark:benchmark@localhost:5432/benchmark`) via `--conn-string` CLI flag. | N/A (TCP) | Medium | `benchmarks/src/benchmark/retrieval/pgvector.py:1-232`, `benchmarks/src/benchmark/cli/benchmark.py:301-303` |
+| **FAISS (benchmarks — in-process)** | In-process vector index | IVFFlat approximate nearest-neighbor retrieval for benchmarks. | N/A | Medium | `benchmarks/pyproject.toml:17`, `benchmarks/src/benchmark/retrieval/faiss.py` |
+| **HuggingFace (benchmarks)** | External model hub | Download pretrained models (CLIP, SigLIP, EVA-CLIP, EfficientNet, ConvNeXt, ResNet) via `transformers` and `open-clip-torch`. | N/A (public) | Medium | `benchmarks/pyproject.toml:10-11`, `benchmarks/src/benchmark/models/*.py` |
 
 ### 2) Data Stores
 
@@ -65,6 +68,7 @@
 - **Database initialization:** `DatabaseInitializerHostedService` runs migrations on startup when `DatabaseInitialization.RunMigrations=true` (dev only — `appsettings.Development.json:3-5`); production expects migrations run out-of-band.
 - **Stripe webhook handling:** Signature validation first, then parse, then dispatch (`Module/Payment/Features/Storefront/Payment/Webhooks/StripeWebhook.cs:32-36`); invalid signature → `StripeWebhookResult.Errors.InvalidSignature`.
 - **Health checks:** Default `self` liveness check + Postgres + Redis + `database_initialization` (recently added — commit `e6891d7e` "refactor(host): move database initialization to hosted service with health check" + `da94985d` "feat(shared): add IDatabaseInitializationState and health check"). `MapDefaultEndpoints` exposes `/health` and `/alive` only in non-production (`Extensions.cs:114-131`).
+- **Redis connection:** Lazy singleton with `AbortOnConnectFail=false` — the app starts even if Redis is temporarily unavailable. Connection is deferred to first cache operation (`Shared/Performance/Caching/Caching.Extension.cs:97-107`).
 
 ### 5) Observability for Integrations
 
@@ -105,3 +109,7 @@
 - `service/Api/scripts/setup-dev-secrets.sh` — dev secret bootstrapper
 - `service/Api/src/Shared/Observability/Correlation/CorrelationMiddleware.cs` — correlation propagation
 - `service/Api/tests/Api.Tests/Infrastructure/ApiFactory.cs:1-189` — integration test wiring
+- `benchmarks/pyproject.toml:1-64` — benchmark dependencies (torch, faiss, pgvector, open-clip, transformers)
+- `benchmarks/src/benchmark/retrieval/pgvector.py:1-232` — pgvector retrieval client
+- `benchmarks/src/benchmark/retrieval/faiss.py` — FAISS retrieval client
+- `benchmarks/src/benchmark/cli/benchmark.py:301-303` — pgvector connection string config

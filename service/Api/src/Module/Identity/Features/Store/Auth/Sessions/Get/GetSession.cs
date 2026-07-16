@@ -41,7 +41,13 @@ public static partial class GetSession
 
             var permissions = await permissionService.GetEffectiveUserPermissionsAsync(user.Id, cancellationToken);
 
-            var response = new Response(user.Id, roles.ToArray(), permissions.IsSuccess ? [.. permissions.Value] : []);
+            // EXCEPTION: session response — composite from user, roles, and permissions
+            var response = new Response
+            {
+                Id = user.Id,
+                Roles = roles.ToArray(),
+                Permissions = permissions.IsSuccess ? [.. permissions.Value] : []
+            };
 
             return response;
         }

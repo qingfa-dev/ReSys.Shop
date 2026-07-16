@@ -1,0 +1,10 @@
+id: clip-l14
+name: "CLIP ViT-L/14"
+class: "ClipL14Model"
+module: "benchmark.models.clip_l14"
+backbone: "ViT-L/14"
+embedding_dim: 768
+pretrained: "openai/clip-vit-large-patch14"
+batch_size: 32
+image_size: 224
+normalize_embeddings: true

@@ -1,3 +1,5 @@
+using Shared.Application.Domain.Currencies;
+
 namespace Module.Catalog.Domain.Products.Variants.Prices;
 
 public static class PriceValidation
@@ -25,7 +27,7 @@ public static class PriceValidation
             .NotEmpty()
             .WithErrorCode(PriceResult.Errors.CurrencyRequired.Code)
             .WithMessage(PriceResult.Errors.CurrencyRequired.Message)
-            .MaximumLength(PriceConstant.Constraints.CurrencyMaxLength)
+            .MaximumLength(SystemCurrencyConstant.Constraints.MaxCodeLength)
             .WithErrorCode(PriceResult.Errors.CurrencyTooLong.Code)
             .WithMessage(PriceResult.Errors.CurrencyTooLong.Message);
     }

@@ -1,9 +1,10 @@
 using Module.Inventory.Domain.StockLocations.StockItems;
 using Module.Inventory.Domain.StockLocations.StockItems.StockMovements;
+using Module.Inventory.Domain.StockLocations;
 
 namespace Module.Inventory.Persistence.Seeders;
 
-public sealed class InventoryStockMovementSeeder(IApplicationDbContext context) : AbstractDataSeeder(context)
+public sealed class InventoryStockMovementSeeder(IApplicationDbContext context, DemoJsonHelper jsonHelper) : AbstractDataSeeder(context)
 {
     public override int Order => 150;
 
@@ -13,28 +14,33 @@ public sealed class InventoryStockMovementSeeder(IApplicationDbContext context) 
         if (hasMovements)
             return Result.Ok();
 
-        var stockItems = await Context.Set<StockItem>()
-            .Where(si => si.CountOnHand > 0)
-            .ToListAsync(cancellationToken);
-
-        if (stockItems.Count == 0)
+        var json = jsonHelper.LoadIfExists<DemoStockMovementJson>("demo_stock_movements.json");
+        if (json is null)
             return Result.Ok();
 
-        foreach (var stockItem in stockItems)
+        var stockItems = await Context.Set<StockItem>().ToListAsync(cancellationToken);
+        var locations = await Context.Set<StockLocation>().ToListAsync(cancellationToken);
+
+        foreach (var m in json)
         {
-            var movementResult = StockMovementMethod.Create(
-                stockItemId: stockItem.Id,
-                quantity: stockItem.CountOnHand,
-                previousCountOnHand: 0,
-                originatorType: "Adjustment",
-                reason: "Initial stock seeding");
+            var location = locations.FirstOrDefault(l => l.Code == m.StockLocationCode);
+            if (location is null) continue;
+            var stockItem = stockItems.FirstOrDefault(si =>
+                si.VariantId == Guid.Parse(m.VariantId) && si.StockLocationId == location.Id);
+            if (stockItem is null) continue;
 
-            if (movementResult.IsSuccess)
-                Context.Set<StockMovement>().Add(movementResult.Value);
+            var result = StockMovementMethod.Create(
+                stockItemId: stockItem.Id, quantity: m.Quantity,
+                previousCountOnHand: m.PreviousCountOnHand,
+                originatorType: m.OriginatorType, reason: m.Reason,
+                action: m.Action, stockLocationId: location.Id);
+            if (result.IsSuccess)
+                Context.Set<StockMovement>().Add(result.Value);
         }
-
         await Context.SaveChangesAsync(cancellationToken);
-
         return Result.Ok();
     }
+
+    private record DemoStockMovementJson(string VariantId, string StockLocationCode, int Quantity,
+        int PreviousCountOnHand, string OriginatorType, string Reason, string Action);
 }

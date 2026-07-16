@@ -7,6 +7,7 @@ from pathlib import Path
 from typing import List
 
 from embedding.core.config import settings
+from embedding.core.constants import Constants
 from embedding.core.rate_limit import limiter
 from embedding.models.onnx.utils import infer_onnx_dim
 from embedding.models.registry import ModelRegistry
@@ -24,7 +25,7 @@ from fastapi.security import APIKeyHeader
 router = APIRouter(tags=["inference"])
 
 # API Key header scheme for sidecar security
-api_key_header = APIKeyHeader(name="X-API-Key", auto_error=False)
+api_key_header = APIKeyHeader(name=Constants.Strings.X_API_KEY_HEADER, auto_error=False)
 
 
 async def verify_api_key(api_key: str = Security(api_key_header)) -> str:
@@ -197,7 +198,7 @@ async def list_models(key: str = Depends(verify_api_key)):
             if not model_dir.is_dir():
                 continue
 
-            onnx_file = model_dir / "model.onnx"
+            onnx_file = model_dir / Constants.Strings.ONNX_FILENAME
             if onnx_file.exists():
                 model_id = f"onnx/{model_dir.name}"
                 try:

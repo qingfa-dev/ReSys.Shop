@@ -45,6 +45,7 @@ public static partial class DeleteRole
 
             RoleLoggers.Management.Deleted(logger, RoleName: role.Name!, RoleId: role.Id);
 
+            // EXCEPTION: deleted role response — no domain entity after deletion
             return new Response { Id = role.Id, Name = role.Name ?? string.Empty };
         }
     }

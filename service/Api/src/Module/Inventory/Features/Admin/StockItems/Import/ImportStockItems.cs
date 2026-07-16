@@ -6,7 +6,7 @@ namespace Module.Inventory.Features.Admin.StockItems.Import;
 
 public static partial class ImportStockItems
 {
-    public sealed record Command(IFormFile File) : ICommand<Response>;
+    public sealed record Command(Request Request) : ICommand<Response>;
 
     public sealed class CommandHandler(
         IApplicationDbContext dbContext,
@@ -16,7 +16,7 @@ public static partial class ImportStockItems
     {
         public async Task<Result<Response>> Handle(Command command, CancellationToken cancellationToken)
         {
-            var file = command.File;
+            var file = command.Request.File;
             if (file is null || file.Length == 0)
                 return StockItemResult.Errors.ImportFileRequired;
 
@@ -118,6 +118,7 @@ public static partial class ImportStockItems
                 "[StockItem.Import]: Created {Created}, Updated {Updated}, Failed {Failed}",
                 created, updated, errors.Count);
 
+            // EXCEPTION: import aggregate counts — no domain entity
             return new Response
             {
                 Created = created,

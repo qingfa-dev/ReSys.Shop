@@ -1,12 +1,16 @@
 using Module.Catalog.Domain.Products;
-using Module.Catalog.Domain.Products.Classifications;
+using Module.Catalog.Domain.Products.Options;
 using Module.Catalog.Domain.Products.Variants;
+using Module.Catalog.Domain.Products.Variants.Images;
+using Module.Catalog.Domain.Products.Variants.Options;
 using Module.Catalog.Domain.Products.Variants.Prices;
 using Module.Catalog.Domain.Taxonomies.Taxons;
+using Module.Catalog.Domain.OptionTypes;
+using Module.Catalog.Domain.OptionTypes.Values;
 
 namespace Module.Catalog.Persistence.Seeders;
 
-public sealed class CatalogDemoSeeder(IApplicationDbContext context) : AbstractDataSeeder(context)
+public sealed class CatalogDemoSeeder(IApplicationDbContext context, DemoJsonHelper jsonHelper) : AbstractDataSeeder(context)
 {
     public override int Order => 130;
 
@@ -16,237 +20,122 @@ public sealed class CatalogDemoSeeder(IApplicationDbContext context) : AbstractD
         if (hasProducts)
             return Result.Ok();
 
-        var menTaxon = await Context.Set<Taxon>().FirstOrDefaultAsync(t => t.Slug == "men", cancellationToken);
-        var womenTaxon = await Context.Set<Taxon>().FirstOrDefaultAsync(t => t.Slug == "women", cancellationToken);
-        var accessoriesTaxon = await Context.Set<Taxon>().FirstOrDefaultAsync(t => t.Slug == "accessories", cancellationToken);
+        var jsonProducts = jsonHelper.LoadIfExists<DemoProductJson>("demo_products.json");
+        var jsonVariants = jsonHelper.LoadIfExists<DemoVariantJson>("demo_variants.json");
+        var jsonImages = jsonHelper.LoadIfExists<DemoVariantImageJson>("demo_variant_images.json");
+        var jsonAssignments = jsonHelper.LoadIfExists<DemoOptionAssignmentJson>("demo_option_assignments.json");
 
-        if (menTaxon is null && womenTaxon is null && accessoriesTaxon is null)
+        if (jsonProducts is null || jsonVariants is null)
             return Result.Ok();
 
-        await SeedProductWithVariants(new ProductSeed(
-            Name: "Classic Cotton T-Shirt",
-            Slug: "classic-cotton-t-shirt",
-            Description: "A comfortable classic cotton t-shirt perfect for everyday wear. Made from 100% organic cotton with a relaxed fit.",
-            MetaTitle: "Classic Cotton T-Shirt",
-            MetaKeywords: "t-shirt, cotton, classic, casual",
-            Taxon: menTaxon,
-            MasterSku: "TEE-CTN-001-MSTR",
-            MasterBarcode: "TEE-CTN-001-MSTR-BAR",
-            Price: 29.99m,
-            Sizes: [("S", "TEE-CTN-001-S"), ("M", "TEE-CTN-001-M"), ("L", "TEE-CTN-001-L"), ("XL", "TEE-CTN-001-XL")]
-        ), cancellationToken);
-
-        await SeedProductWithVariants(new ProductSeed(
-            Name: "Slim Fit Jeans",
-            Slug: "slim-fit-jeans",
-            Description: "Modern slim-fit jeans crafted from stretch denim for all-day comfort. Features a classic five-pocket design.",
-            MetaTitle: "Slim Fit Jeans",
-            MetaKeywords: "jeans, denim, slim-fit, pants",
-            Taxon: menTaxon,
-            MasterSku: "JNS-SLM-001-MSTR",
-            MasterBarcode: "JNS-SLM-001-MSTR-BAR",
-            Price: 79.99m,
-            Sizes: [("30", "JNS-SLM-001-30"), ("32", "JNS-SLM-001-32"), ("34", "JNS-SLM-001-34")]
-        ), cancellationToken);
-
-        await SeedProductWithVariants(new ProductSeed(
-            Name: "Floral Summer Dress",
-            Slug: "floral-summer-dress",
-            Description: "A light and breezy floral print dress perfect for warm days. Features adjustable straps and a flowing A-line silhouette.",
-            MetaTitle: "Floral Summer Dress",
-            MetaKeywords: "dress, floral, summer, women",
-            Taxon: womenTaxon,
-            MasterSku: "DRS-FLR-001-MSTR",
-            MasterBarcode: "DRS-FLR-001-MSTR-BAR",
-            Price: 59.99m,
-            CompareAtPrice: 49.99m,
-            Sizes: [("S", "DRS-FLR-001-S"), ("M", "DRS-FLR-001-M"), ("L", "DRS-FLR-001-L")]
-        ), cancellationToken);
-
-        await SeedProductWithoutSizes(new ProductSeed(
-            Name: "Leather Tote Bag",
-            Slug: "leather-tote-bag",
-            Description: "Handcrafted genuine leather tote bag with gold-tone hardware. Features a spacious main compartment and interior zip pocket.",
-            MetaTitle: "Leather Tote Bag",
-            MetaKeywords: "bag, tote, leather, accessories",
-            Taxon: accessoriesTaxon,
-            MasterSku: "BAG-LEA-001",
-            MasterBarcode: "BAG-LEA-001-BAR",
-            Price: 129.99m
-        ), cancellationToken);
-
-        await SeedProductWithVariants(new ProductSeed(
-            Name: "Running Sneakers",
-            Slug: "running-sneakers",
-            Description: "Lightweight performance running shoes with responsive cushioning and breathable mesh upper. Designed for road running.",
-            MetaTitle: "Running Sneakers",
-            MetaKeywords: "sneakers, running, shoes, athletic",
-            Taxon: menTaxon,
-            MasterSku: "SNK-RUN-001-MSTR",
-            MasterBarcode: "SNK-RUN-001-MSTR-BAR",
-            Price: 89.99m,
-            CompareAtPrice: 74.99m,
-            Sizes: [("8", "SNK-RUN-001-8"), ("9", "SNK-RUN-001-9"), ("10", "SNK-RUN-001-10")]
-        ), cancellationToken);
-
-        await Context.SaveChangesAsync(cancellationToken);
-
+        await SeedFromJsonAsync(jsonProducts, jsonVariants, jsonImages, jsonAssignments, cancellationToken);
         return Result.Ok();
     }
 
-    private async Task SeedProductWithVariants(ProductSeed seed, CancellationToken ct)
+    private async Task SeedFromJsonAsync(
+        DemoProductJson[] products, DemoVariantJson[] variants,
+        DemoVariantImageJson[]? images, DemoOptionAssignmentJson[]? assignments, CancellationToken ct)
     {
-        if (seed.Taxon is null)
-            return;
+        var optionValues = await Context.Set<OptionValue>().ToListAsync(ct);
+        var optionTypes = await Context.Set<OptionType>().ToListAsync(ct);
 
-        var productId = Guid.NewGuid();
-        var variantId = Guid.NewGuid();
+        var colorTypeId = optionTypes.FirstOrDefault(o => o.Name == "Color")?.Id;
+        var sizeTypeId = optionTypes.FirstOrDefault(o => o.Name == "Size")?.Id;
 
-        var productResult = ProductMethod.Create(
-            name: seed.Name,
-            slug: seed.Slug,
-            description: seed.Description,
-            status: ProductStatus.Active,
-            availableOn: DateTimeOffset.UtcNow,
-            metaTitle: seed.MetaTitle,
-            metaDescription: seed.Description,
-            metaKeywords: seed.MetaKeywords,
-            id: productId);
+        var taxonLookup = await Context.Set<Taxon>()
+            .Where(t => !t.IsDeleted).ToDictionaryAsync(t => t.Slug, ct);
 
-        var product = productResult.Value;
-        product.GenderTarget = seed.Taxon.Name;
-
-        var masterResult = VariantMethod.Create(
-            productId: productId,
-            sku: seed.MasterSku,
-            isMaster: true,
-            position: 0,
-            barcode: seed.MasterBarcode,
-            id: variantId);
-
-        var masterVariant = masterResult.Value;
-        masterVariant.Price = seed.Price;
-
-        var masterPriceResult = PriceMethod.Create(
-            amount: seed.Price,
-            currency: "USD",
-            variantId: variantId,
-            compareAtAmount: seed.CompareAtPrice,
-            countryIso: "US");
-
-        var masterPrice = masterPriceResult.Value!;
-        masterPrice.IsDefault = true;
-
-        var classificationResult = ClassificationMethod.Create(
-            productId: productId,
-            taxonId: seed.Taxon.Id,
-            position: 0);
-
-        product.Variants.Add(masterVariant);
-        product.MasterVariantId = variantId;
-        product.Classifications.Add(classificationResult.Value);
-
-        Context.Set<Product>().Add(product);
-        Context.Set<Variant>().Add(masterVariant);
-        Context.Set<Price>().Add(masterPrice);
-
-        int pos = 1;
-        foreach (var (size, sku) in seed.Sizes!)
+        foreach (var pj in products)
         {
-            var childVariantId = Guid.NewGuid();
-            var childResult = VariantMethod.Create(
-                productId: productId,
-                sku: sku,
-                isMaster: false,
-                position: pos,
-                barcode: $"{sku}-BAR",
-                id: childVariantId);
+            var productResult = ProductMethod.Create(
+                name: pj.Name, slug: pj.Slug, description: pj.Description,
+                status: ProductStatus.Active, availableOn: DateTimeOffset.UtcNow,
+                metaTitle: pj.MetaTitle, metaDescription: pj.Description,
+                metaKeywords: pj.MetaKeywords, id: Guid.Parse(pj.Id));
+            var product = productResult.Value;
+            product.GenderTarget = pj.GenderTarget;
 
-            var childVariant = childResult.Value;
-            childVariant.Price = seed.Price;
+            product.MasterVariantId = Guid.Parse(pj.MasterVariantId);
 
-            var childPriceResult = PriceMethod.Create(
-                amount: seed.Price,
-                currency: "USD",
-                variantId: childVariantId,
-                compareAtAmount: seed.CompareAtPrice,
-                countryIso: "US");
+            product.StyleCode = pj.StyleCode;
+            product.SeasonName = pj.SeasonName;
+            product.MaterialComposition = pj.MaterialComposition;
+            product.CareInstructions = pj.CareInstructions;
+            product.Department = pj.Department;
 
-            var childPrice = childPriceResult.Value!;
-            product.Variants.Add(childVariant);
-            Context.Set<Variant>().Add(childVariant);
-            Context.Set<Price>().Add(childPrice);
-            pos++;
+            Context.Set<Product>().Add(product);
+
+            if (colorTypeId is not null && sizeTypeId is not null)
+            {
+                var potColor = ProductOptionTypeMethod.Create(product.Id, colorTypeId.Value, 0);
+                Context.Set<ProductOptionType>().Add(potColor.Value);
+                var potSize = ProductOptionTypeMethod.Create(product.Id, sizeTypeId.Value, 1);
+                Context.Set<ProductOptionType>().Add(potSize.Value);
+            }
+        }
+        await Context.SaveChangesAsync(ct);
+
+        foreach (var vj in variants)
+        {
+            var variantResult = VariantMethod.Create(
+                productId: Guid.Parse(vj.ProductId), sku: vj.Sku,
+                isMaster: vj.IsMaster, position: vj.Position,
+                barcode: vj.Barcode, id: Guid.Parse(vj.Id));
+            var variant = variantResult.Value;
+            variant.Price = vj.Price;
+            variant.HsCode = vj.HsCode;
+
+            var priceResult = PriceMethod.Create(amount: vj.Price, currency: "USD", variantId: variant.Id);
+            var price = priceResult.Value!;
+            price.IsDefault = true;
+
+            Context.Set<Variant>().Add(variant);
+            Context.Set<Price>().Add(price);
+        }
+        await Context.SaveChangesAsync(ct);
+
+        if (images is not null)
+        {
+            foreach (var img in images)
+            {
+                var type = img.Type == "Search" ? VariantImageType.Search : VariantImageType.Default;
+                var imgResult = VariantImageMethod.Create(
+                    contentType: img.ContentType, fileName: img.FileName,
+                    fileSize: 1, url: string.Empty, storagePath: img.StoragePath,
+                    position: img.Position, alt: img.Alt, type: type,
+                    variantId: Guid.Parse(img.VariantId));
+                var image = imgResult.Value;
+                image.Id = Guid.Parse(img.Id);
+                Context.Set<VariantImage>().Add(image);
+            }
+            await Context.SaveChangesAsync(ct);
+        }
+
+        if (assignments is not null)
+        {
+            foreach (var a in assignments)
+            {
+                var ov = optionValues.FirstOrDefault(v =>
+                    v.Name.Equals(a.OptionValueName, StringComparison.OrdinalIgnoreCase) &&
+                    v.OptionTypeId == Guid.Parse(a.OptionTypeId));
+                if (ov is null) continue;
+
+                var assocResult = OptionValueVariantMethod.Create(
+                    Guid.Parse(a.VariantId), ov.Id);
+                if (assocResult.IsSuccess)
+                    Context.Set<OptionValueVariant>().Add(assocResult.Value);
+            }
+            await Context.SaveChangesAsync(ct);
         }
     }
 
-    private async Task SeedProductWithoutSizes(ProductSeed seed, CancellationToken ct)
-    {
-        if (seed.Taxon is null)
-            return;
-
-        var productId = Guid.NewGuid();
-        var variantId = Guid.NewGuid();
-
-        var productResult = ProductMethod.Create(
-            name: seed.Name,
-            slug: seed.Slug,
-            description: seed.Description,
-            status: ProductStatus.Active,
-            availableOn: DateTimeOffset.UtcNow,
-            metaTitle: seed.MetaTitle,
-            metaDescription: seed.Description,
-            metaKeywords: seed.MetaKeywords,
-            id: productId);
-
-        var product = productResult.Value;
-        product.GenderTarget = "Unisex";
-
-        var variantResult = VariantMethod.Create(
-            productId: productId,
-            sku: seed.MasterSku,
-            isMaster: true,
-            position: 0,
-            barcode: seed.MasterBarcode,
-            id: variantId);
-
-        var variant = variantResult.Value;
-        variant.Price = seed.Price;
-
-        var priceResult = PriceMethod.Create(
-            amount: seed.Price,
-            currency: "USD",
-            variantId: variantId,
-            compareAtAmount: seed.CompareAtPrice,
-            countryIso: "US");
-
-        var price = priceResult.Value;
-        price.IsDefault = true;
-
-        var classificationResult = ClassificationMethod.Create(
-            productId: productId,
-            taxonId: seed.Taxon.Id,
-            position: 0);
-
-        product.Variants.Add(variant);
-        product.MasterVariantId = variantId;
-        product.Classifications.Add(classificationResult.Value);
-
-        Context.Set<Product>().Add(product);
-        Context.Set<Variant>().Add(variant);
-        Context.Set<Price>().Add(price);
-    }
-
-    private sealed record ProductSeed(
-        string Name,
-        string Slug,
-        string Description,
-        string MetaTitle,
-        string MetaKeywords,
-        Taxon? Taxon,
-        string MasterSku,
-        string MasterBarcode,
-        decimal Price,
-        decimal? CompareAtPrice = null,
-        (string Size, string Sku)[]? Sizes = null);
+    private record DemoProductJson(string Id, string Name, string Slug, string Description, string Status,
+        string GenderTarget, string MetaTitle, string MetaKeywords, string MasterVariantId,
+        string? StyleCode, string? SeasonName, string? MaterialComposition, string? CareInstructions,
+        string? Department);
+    private record DemoVariantJson(string Id, string ProductId, string Sku, bool IsMaster, int Position,
+        decimal Price, string? Barcode, string? HsCode);
+    private record DemoVariantImageJson(string Id, string VariantId, string ContentType, string FileName,
+        string StoragePath, int Position, string Alt, string Type);
+    private record DemoOptionAssignmentJson(string VariantId, string OptionValueName, string OptionTypeId);
 }

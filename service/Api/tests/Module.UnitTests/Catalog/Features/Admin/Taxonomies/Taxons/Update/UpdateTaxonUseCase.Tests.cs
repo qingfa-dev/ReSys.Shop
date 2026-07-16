@@ -48,7 +48,7 @@ public class UpdateTaxonTests : IDisposable
     [Fact(DisplayName = "Handler: Should update taxon successfully")]
     public async Task Handle_ShouldReturnSuccess_WhenValid()
     {
-        var taxonomy = TaxonomyExtensions.Create("Categories", "Categories", 0).Value;
+        var taxonomy = TaxonomyMethod.Create("Categories", "Categories", 0).Value;
         var taxon = TaxonMethod.Create(taxonomy.Id, null, "Shirts", "Shirts", null, 0, "shirts", null, null, null, false, null, null, false, null, null).Value;
         _dbContext.Set<Taxonomy>().Add(taxonomy);
         _dbContext.Set<Taxon>().Add(taxon);
@@ -84,7 +84,7 @@ public class UpdateTaxonTests : IDisposable
     [Fact(DisplayName = "Handler: Should return failure when taxon not found")]
     public async Task Handle_ShouldReturnFailure_WhenTaxonNotFound()
     {
-        var taxonomy = TaxonomyExtensions.Create("Cat", "Cat", 0).Value;
+        var taxonomy = TaxonomyMethod.Create("Cat", "Cat", 0).Value;
         _dbContext.Set<Taxonomy>().Add(taxonomy);
         await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 
@@ -97,7 +97,7 @@ public class UpdateTaxonTests : IDisposable
     [Fact(DisplayName = "Handler: Should return failure when root taxon locked")]
     public async Task Handle_ShouldReturnFailure_WhenRootLocked()
     {
-        var taxonomy = TaxonomyExtensions.Create("Categories", "Categories", 0).Value;
+        var taxonomy = TaxonomyMethod.Create("Categories", "Categories", 0).Value;
         var root = TaxonMethod.Create(taxonomy.Id, null, "Root", "Root", null, 0, "root", null, null, null, false, null, null, false, null, null).Value;
         var other = TaxonMethod.Create(taxonomy.Id, null, "Other", "Other", null, 1, "other", null, null, null, false, null, null, false, null, null).Value;
         _dbContext.Set<Taxonomy>().Add(taxonomy);
@@ -119,7 +119,7 @@ public class UpdateTaxonTests : IDisposable
     [Fact(DisplayName = "Handler: Should return failure when self-parenting")]
     public async Task Handle_ShouldReturnFailure_WhenSelfParenting()
     {
-        var taxonomy = TaxonomyExtensions.Create("Cat", "Cat", 0).Value;
+        var taxonomy = TaxonomyMethod.Create("Cat", "Cat", 0).Value;
         var root = TaxonMethod.Create(taxonomy.Id, null, "Root", "Root", null, 0, "root", null, null, null, false, null, null, false, null, null).Value;
         var taxon = TaxonMethod.Create(taxonomy.Id, root.Id, "Shirts", "Shirts", null, 1, "shirts", null, null, null, false, null, null, false, null, null).Value;
         _dbContext.Set<Taxonomy>().Add(taxonomy);
@@ -140,7 +140,7 @@ public class UpdateTaxonTests : IDisposable
     [Fact(DisplayName = "Handler: Should return failure when sibling with same name exists")]
     public async Task Handle_ShouldReturnFailure_WhenDuplicateName()
     {
-        var taxonomy = TaxonomyExtensions.Create("Cat", "Cat", 0).Value;
+        var taxonomy = TaxonomyMethod.Create("Cat", "Cat", 0).Value;
         var parent = TaxonMethod.Create(taxonomy.Id, null, "Root", "Root", null, 0, "root", null, null, null, false, null, null, false, null, null).Value;
         var taxon = TaxonMethod.Create(taxonomy.Id, parent.Id, "Shirts", "Shirts", null, 1, "shirts", null, null, null, false, null, null, false, null, null).Value;
         var sibling = TaxonMethod.Create(taxonomy.Id, parent.Id, "Other", "Other", null, 2, "other", null, null, null, false, null, null, false, null, null).Value;
@@ -163,7 +163,7 @@ public class UpdateTaxonTests : IDisposable
     [Fact(DisplayName = "Handler: Should return failure when descendant validation fails during parent change")]
     public async Task Handle_ShouldReturnFailure_WhenDescendantValidationFails()
     {
-        var taxonomy = TaxonomyExtensions.Create("Cat", "Cat", 0).Value;
+        var taxonomy = TaxonomyMethod.Create("Cat", "Cat", 0).Value;
         var root = TaxonMethod.Create(taxonomy.Id, null, "Root", "Root", null, 0, "root", null, null, null, false, null, null, false, null, null).Value;
         var taxon = TaxonMethod.Create(taxonomy.Id, root.Id, "Shirts", "Shirts", null, 1, "shirts", null, null, null, false, null, null, false, null, null).Value;
         var other = TaxonMethod.Create(taxonomy.Id, root.Id, "Other", "Other", null, 2, "other", null, null, null, false, null, null, false, null, null).Value;

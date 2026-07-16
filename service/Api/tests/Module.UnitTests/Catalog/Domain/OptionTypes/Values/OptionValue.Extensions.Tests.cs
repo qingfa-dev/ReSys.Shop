@@ -15,7 +15,7 @@ public class OptionValueExtensionsTests
         var optionTypeId = Guid.NewGuid();
         var id = Guid.NewGuid();
 
-        var result = OptionValueExtensions.Create(optionTypeId, name, presentation, position, id);
+        var result = OptionValueMethod.Create(optionTypeId, name, presentation, position, id);
         var optionValue = result.Value;
 
         result.IsSuccess.Should().BeTrue();
@@ -30,7 +30,7 @@ public class OptionValueExtensionsTests
     [Fact(DisplayName = "Create: Should generate new ID when none is provided")]
     public void Create_WithoutId_ShouldGenerateNewId()
     {
-        var result = OptionValueExtensions.Create(Guid.NewGuid(), "Green", "Green");
+        var result = OptionValueMethod.Create(Guid.NewGuid(), "Green", "Green");
 
         result.IsSuccess.Should().BeTrue();
         result.Value.Id.Should().NotBe(Guid.Empty);
@@ -41,7 +41,7 @@ public class OptionValueExtensionsTests
     [InlineData("Another Name", "Another Presentation", -1)]
     public void Update_WithValidParameters_ShouldUpdateProperties(string newName, string newPresentation, int newPosition)
     {
-        var optionValue = OptionValueExtensions.Create(Guid.NewGuid(), "Old Name", "Old Presentation").Value;
+        var optionValue = OptionValueMethod.Create(Guid.NewGuid(), "Old Name", "Old Presentation").Value;
 
         var result = optionValue.Update(newName, newPresentation, newPosition);
 

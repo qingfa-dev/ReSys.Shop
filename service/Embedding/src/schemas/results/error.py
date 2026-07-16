@@ -3,6 +3,7 @@ Failure models for standardized error reporting.
 """
 from enum import IntEnum
 
+from embedding.core.constants import Constants
 from pydantic import BaseModel, ConfigDict, Field
 
 
@@ -65,7 +66,12 @@ class Error(BaseModel):
             code: Machine-readable error code (e.g. 'Request.ValidationError').
             description: Human-readable description of the validation issue.
         """
-        return cls(type=ErrorType.Validation, code=code, description=description, status_code=400)
+        return cls(
+            type=ErrorType.Validation,
+            code=code,
+            description=description,
+            status_code=Constants.HttpStatus.BAD_REQUEST,
+        )
 
     @classmethod
     def conflict(cls, code: str, description: str) -> "Error":
@@ -75,7 +81,12 @@ class Error(BaseModel):
             code: Machine-readable error code (e.g. 'Order.Conflict').
             description: Human-readable description of the conflict.
         """
-        return cls(type=ErrorType.Conflict, code=code, description=description, status_code=409)
+        return cls(
+            type=ErrorType.Conflict,
+            code=code,
+            description=description,
+            status_code=Constants.HttpStatus.CONFLICT,
+        )
 
     @classmethod
     def not_found(cls, code: str, description: str) -> "Error":
@@ -85,7 +96,12 @@ class Error(BaseModel):
             code: Machine-readable error code (e.g. 'Model.NotFound').
             description: Human-readable description of what was not found.
         """
-        return cls(type=ErrorType.NotFound, code=code, description=description, status_code=404)
+        return cls(
+            type=ErrorType.NotFound,
+            code=code,
+            description=description,
+            status_code=Constants.HttpStatus.NOT_FOUND,
+        )
 
     @classmethod
     def bad_request(cls, code: str, description: str) -> "Error":
@@ -95,7 +111,12 @@ class Error(BaseModel):
             code: Machine-readable error code (e.g. 'Image.TooLarge').
             description: Human-readable description of the bad request.
         """
-        return cls(type=ErrorType.BadRequest, code=code, description=description, status_code=400)
+        return cls(
+            type=ErrorType.BadRequest,
+            code=code,
+            description=description,
+            status_code=Constants.HttpStatus.BAD_REQUEST,
+        )
 
     @classmethod
     def internal_error(cls, code: str, description: str) -> "Error":
@@ -109,7 +130,7 @@ class Error(BaseModel):
             type=ErrorType.InternalError,
             code=code,
             description=description,
-            status_code=500,
+            status_code=Constants.HttpStatus.INTERNAL_ERROR,
         )
 
     @classmethod
@@ -124,7 +145,7 @@ class Error(BaseModel):
             type=ErrorType.Unauthorized,
             code=code,
             description=description,
-            status_code=401,
+            status_code=Constants.HttpStatus.UNAUTHORIZED,
         )
 
     @classmethod
@@ -135,4 +156,9 @@ class Error(BaseModel):
             code: Machine-readable error code (e.g. 'Auth.Forbidden').
             description: Human-readable description of the access denial.
         """
-        return cls(type=ErrorType.Forbidden, code=code, description=description, status_code=403)
+        return cls(
+            type=ErrorType.Forbidden,
+            code=code,
+            description=description,
+            status_code=Constants.HttpStatus.FORBIDDEN,
+        )

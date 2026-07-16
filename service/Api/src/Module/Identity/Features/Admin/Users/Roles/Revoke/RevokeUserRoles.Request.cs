@@ -5,6 +5,7 @@ public static partial class RevokeUserRoles
     /// <summary>
     /// Represents the request contract for revoking roles from a user.
     /// </summary>
+    // EXCEPTION: feature-specific collection request — no domain entity base
     public record Request
     {
         /// <summary>

@@ -1,0 +1,10 @@
+id: fashion-clip
+name: "FashionCLIP"
+class: "FashionClipModel"
+module: "benchmark.models.fashion_clip"
+backbone: "ViT-B/32"
+embedding_dim: 512
+pretrained: "patrickjohncyh/fashion-clip"
+batch_size: 64
+image_size: 224
+normalize_embeddings: true

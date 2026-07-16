@@ -34,9 +34,9 @@ public class GetTaxonomiesPagedTests : IDisposable
     {
         // Arrange
         _dbContext.Set<Taxonomy>().AddRange(
-            TaxonomyExtensions.Create("Tax 1", "Presentation 1", 0).Value,
-            TaxonomyExtensions.Create("Tax 2", "Presentation 2", 1).Value,
-            TaxonomyExtensions.Create("Tax 3", "Presentation 3", 2).Value
+            TaxonomyMethod.Create("Tax 1", "Presentation 1", 0).Value,
+            TaxonomyMethod.Create("Tax 2", "Presentation 2", 1).Value,
+            TaxonomyMethod.Create("Tax 3", "Presentation 3", 2).Value
         );
         await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 
@@ -60,8 +60,8 @@ public class GetTaxonomiesPagedTests : IDisposable
     {
         // Arrange
         _dbContext.Set<Taxonomy>().AddRange(
-            TaxonomyExtensions.Create("Apple", "Apple", 0).Value,
-            TaxonomyExtensions.Create("Banana", "Banana", 1).Value
+            TaxonomyMethod.Create("Apple", "Apple", 0).Value,
+            TaxonomyMethod.Create("Banana", "Banana", 1).Value
         );
         await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 
@@ -84,9 +84,9 @@ public class GetTaxonomiesPagedTests : IDisposable
     {
         // Arrange
         _dbContext.Set<Taxonomy>().AddRange(
-            TaxonomyExtensions.Create("B", "B", 0).Value,
-            TaxonomyExtensions.Create("A", "A", 1).Value,
-            TaxonomyExtensions.Create("C", "C", 2).Value
+            TaxonomyMethod.Create("B", "B", 0).Value,
+            TaxonomyMethod.Create("A", "A", 1).Value,
+            TaxonomyMethod.Create("C", "C", 2).Value
         );
         await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 
@@ -122,10 +122,10 @@ public class GetTaxonomiesPagedTests : IDisposable
     public async Task Handle_ShouldReturnFilteredAndSorted()
     {
         _dbContext.Set<Taxonomy>().AddRange(
-            TaxonomyExtensions.Create("Lambda", "First", 0).Value,
-            TaxonomyExtensions.Create("Gamma", "Second", 1).Value,
-            TaxonomyExtensions.Create("Beta", "Third", 2).Value,
-            TaxonomyExtensions.Create("Alpha", "Fourth", 3).Value
+            TaxonomyMethod.Create("Lambda", "First", 0).Value,
+            TaxonomyMethod.Create("Gamma", "Second", 1).Value,
+            TaxonomyMethod.Create("Beta", "Third", 2).Value,
+            TaxonomyMethod.Create("Alpha", "Fourth", 3).Value
         );
         await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 
@@ -150,9 +150,9 @@ public class GetTaxonomiesPagedTests : IDisposable
     public async Task Handle_ShouldReturnAll_WhenPageSizeExceedsTotal()
     {
         _dbContext.Set<Taxonomy>().AddRange(
-            TaxonomyExtensions.Create("A", "A", 0).Value,
-            TaxonomyExtensions.Create("B", "B", 1).Value,
-            TaxonomyExtensions.Create("C", "C", 2).Value
+            TaxonomyMethod.Create("A", "A", 0).Value,
+            TaxonomyMethod.Create("B", "B", 1).Value,
+            TaxonomyMethod.Create("C", "C", 2).Value
         );
         await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 

@@ -1,0 +1,6 @@
+# hardware.yaml
+hardware:
+  device: "auto"  # auto | cpu | cuda | mps
+  precision: "float32"  # float32 | float16 | bfloat16
+  compile_model: false
+  benchmark_mode: true  # torch.backends.cudnn.benchmark

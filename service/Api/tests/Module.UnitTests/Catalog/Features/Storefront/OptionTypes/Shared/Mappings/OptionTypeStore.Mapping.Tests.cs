@@ -56,11 +56,11 @@ public class OptionTypeStoreMappingTests
         typeResult.IsSuccess.Should().BeTrue();
         var optionType = typeResult.Value;
 
-        var val1Result = OptionValueExtensions.Create(optionType.Id, "Red", "Red", position: 1);
+        var val1Result = OptionValueMethod.Create(optionType.Id, "Red", "Red", position: 1);
         val1Result.IsSuccess.Should().BeTrue();
         optionType.OptionValues.Add(val1Result.Value);
 
-        var val2Result = OptionValueExtensions.Create(optionType.Id, "Blue", "Blue", position: 2);
+        var val2Result = OptionValueMethod.Create(optionType.Id, "Blue", "Blue", position: 2);
         val2Result.IsSuccess.Should().BeTrue();
         optionType.OptionValues.Add(val2Result.Value);
 

@@ -9,6 +9,7 @@ from pathlib import Path
 from typing import Any, List, Union
 
 import httpx
+from embedding.core.constants import Constants
 from embedding.core.telemetry import get_meter, get_tracer
 from embedding.schemas import ImageResults, InferenceResults, ValueResult
 from PIL import Image
@@ -103,7 +104,7 @@ class BaseEmbedder:
                     if input_str.startswith(("http://", "https://")):
                         # Call: Download remote image via HTTP with User-Agent header
                         headers = {"User-Agent": "Mozilla/5.0 inference/1.0"}
-                        with httpx.Client(timeout=10) as client:
+                        with httpx.Client(timeout=Constants.Constraints.HTTP_TIMEOUT) as client:
                             response = client.get(input_str, headers=headers)
                             response.raise_for_status()
                             img = Image.open(io.BytesIO(response.content)).convert("RGB")
@@ -162,7 +163,7 @@ class BaseEmbedder:
         # Compute: L2 norm then divide, with epsilon to avoid division by zero
         features = features.flatten()
         norm = np.linalg.norm(features)
-        return (features / (norm + 1e-9)).tolist()
+        return (features / (norm + Constants.Constraints.L2_EPSILON)).tolist()
 
     def extract(self, image_input: Union[str, bytes]) -> ValueResult[List[float]]:
         """Public interface for embedding extraction with full observability.

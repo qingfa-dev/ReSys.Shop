@@ -9,6 +9,7 @@ import socket
 import sys
 
 from embedding.core.config import settings
+from embedding.core.constants import Constants
 from opentelemetry import metrics, trace
 
 # Internal OTel logging imports
@@ -81,7 +82,7 @@ def setup_telemetry():
     resource = Resource.create({
         SERVICE_NAME: settings.PROJECT_NAME,
         DEPLOYMENT_ENVIRONMENT: settings.ENVIRONMENT,
-        "service.version": "1.0.0",
+        "service.version": Constants.Strings.VERSION,
     })
 
     # 2. Protocol Security

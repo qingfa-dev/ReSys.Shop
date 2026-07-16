@@ -71,6 +71,7 @@ HTTP request
 | `service/Embedding` | FastAPI app exposing `/embeddings`, `/models`, `/health`; stateless; uses Fashion-CLIP via `open-clip-torch`. | Any state about the .NET backend. | `service/Embedding/src/main.py:1-29`, `service/Embedding/src/routers/embedding_router.py` |
 | `app/Admin/src/{app, shared, features}` | Vue 3 SPA; `app/` = providers/router/auth bootstrap; `shared/` = api client (axios), services, composables, locales, config; `features/<name>/` = per-domain UI. Module boundaries enforced by `eslint-plugin-boundaries`. | Direct feature-to-feature imports. | `app/Admin/eslint.config.ts:32-54` |
 | `app/Store/src/{api.ts, router/, stores/, views/, __tests__/}` | Vue 3 + Nuxt UI storefront. `api.ts` likely axios singleton (file exists per scan). Pinia stores for `cart`, `catalog`. | — | `app/Store/src/router/index.ts`, `app/Store/src/stores/cart.ts` |
+| `benchmarks/src/benchmark/` | Standalone ML benchmark: 8 vision models, 3 retrieval backends (FAISS/IVFFlat, pgvector/IVFFlat, cosine), dataset loaders, metrics (P@K, R@K, mAP, nDCG, latency, throughput), reporting (JSON, CSV, Markdown, Typst, charts), and CLI (Typer: `run`, `thesis`, `pipeline`, `report`, `cache`). | Any dependency on the .NET backend (`service/Api/`) or embedding sidecar (`service/Embedding/`). | `benchmarks/pyproject.toml:1-64`, `benchmarks/src/benchmark/cli/benchmark.py:1-504`, `benchmarks/src/benchmark/evaluation/thesis.py`, `benchmarks/src/benchmark/evaluation/pipeline.py` |
 
 ### 4) Reused Patterns
 
@@ -124,3 +125,5 @@ HTTP request
 - `service/Embedding/src/main.py:1-29` — Python embedding entry
 - `app/Admin/eslint.config.ts:1-57` — frontend module boundary enforcement
 - `app/Admin/src/shared/api/http/api.client.ts:1-92` — axios client with token refresh + result unwrap
+- `benchmarks/pyproject.toml:1-64` — benchmark package manifest
+- `benchmarks/src/benchmark/cli/benchmark.py:1-504` — benchmark CLI+retrieval+reporting pipeline

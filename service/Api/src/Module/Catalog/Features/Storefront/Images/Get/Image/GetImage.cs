@@ -8,6 +8,7 @@ public static partial class GetImage
 {
     public sealed record Query(Guid Id) : IQuery<Response>;
 
+    // EXCEPTION: image serving response — no domain entity
     public sealed record Response
     {
         public string FullPath { get; init; } = string.Empty;

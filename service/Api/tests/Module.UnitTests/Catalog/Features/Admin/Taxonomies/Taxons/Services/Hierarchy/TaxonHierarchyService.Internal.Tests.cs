@@ -48,7 +48,7 @@ public class TaxonHierarchyInternalTests : IDisposable
     public async Task GetTaxonomyOrFailure_ShouldReturnTaxonomy_WhenExists()
     {
         // Arrange
-        var taxonomy = TaxonomyExtensions.Create("Test", "Test", 0).Value;
+        var taxonomy = TaxonomyMethod.Create("Test", "Test", 0).Value;
         _dbContext.Set<Taxonomy>().Add(taxonomy);
         await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 
@@ -75,7 +75,7 @@ public class TaxonHierarchyInternalTests : IDisposable
     public async Task GetTaxonOrFailure_ShouldReturnTaxon_WhenExists()
     {
         // Arrange
-        var taxo = TaxonomyExtensions.Create("T", "T", 0).Value;
+        var taxo = TaxonomyMethod.Create("T", "T", 0).Value;
         var taxon = TaxonMethod.Create(taxo.Id, null, "T1", "T1", null, 0, "t1", null, null, null, false, null, null, false, null, null).Value;
         _dbContext.Set<Taxonomy>().Add(taxo);
         _dbContext.Set<Taxon>().Add(taxon);
@@ -93,7 +93,7 @@ public class TaxonHierarchyInternalTests : IDisposable
     public async Task GetTaxonOrFailure_ShouldReturnFailure_WhenMismatch()
     {
         // Arrange
-        var taxo = TaxonomyExtensions.Create("T", "T", 0).Value;
+        var taxo = TaxonomyMethod.Create("T", "T", 0).Value;
         var otherTaxoId = Guid.NewGuid();
         var taxon = TaxonMethod.Create(taxo.Id, null, "T1", "T1", null, 0, "t1", null, null, null, false, null, null, false, null, null).Value;
         _dbContext.Set<Taxonomy>().Add(taxo);
@@ -112,7 +112,7 @@ public class TaxonHierarchyInternalTests : IDisposable
     public async Task LoadTaxonTree_ShouldLoadFullTree()
     {
         // Arrange
-        var taxo = TaxonomyExtensions.Create("T", "T", 0).Value;
+        var taxo = TaxonomyMethod.Create("T", "T", 0).Value;
         var root = TaxonMethod.Create(taxo.Id, null, "Root", "Root", null, 0, "root", null, null, null, false, null, null, false, null, null).Value;
         var child = TaxonMethod.Create(taxo.Id, root.Id, "Child", "Child", null, 0, "child", null, null, null, false, null, null, false, null, null).Value;
         
@@ -137,7 +137,7 @@ public class TaxonHierarchyInternalTests : IDisposable
     public async Task LoadTaxonTree_ShouldLoadSubtree()
     {
         // Arrange
-        var taxo = TaxonomyExtensions.Create("T", "T", 0).Value;
+        var taxo = TaxonomyMethod.Create("T", "T", 0).Value;
         var root = TaxonMethod.Create(taxo.Id, null, "Root", "Root", null, 0, "root", null, null, null, false, null, null, false, null, null).Value;
         var branch = TaxonMethod.Create(taxo.Id, root.Id, "Branch", "Branch", null, 0, "branch", null, null, null, false, null, null, false, null, null).Value;
         var leaf = TaxonMethod.Create(taxo.Id, branch.Id, "Leaf", "Leaf", null, 0, "leaf", null, null, null, false, null, null, false, null, null).Value;
