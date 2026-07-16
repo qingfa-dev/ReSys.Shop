@@ -9,7 +9,7 @@ namespace Module.Catalog.Features.Storefront.Products.Get.Similar;
 /// </summary>
 public static partial class GetSimilarProducts
 {
-    public sealed record Query(Guid Id) : ICommand<Response>;
+    public sealed record Query(Guid Id, int TopK = 20) : ICommand<Response>;
 
     public sealed class QueryHandler(IApplicationDbContext dbContext)
         : ICommandHandler<Query, Response>
@@ -57,8 +57,8 @@ public static partial class GetSimilarProducts
                       AND vi.type = 'Default'
                       AND ie.model_name = {2}
                     ORDER BY v.id, ie.vector <=> {1}::vector
-                    LIMIT 20",
-                    variant.ProductId, embeddingData.Vector, embeddingData.ModelName)
+                    LIMIT {3}",
+                    variant.ProductId, embeddingData.Vector, embeddingData.ModelName, request.TopK)
                 .Include(x => x.Product)
                 .Include(x => x.Prices)
                 .OrderBy(v => v.Position).ThenBy(v => v.IsMaster ? 0 : 1)

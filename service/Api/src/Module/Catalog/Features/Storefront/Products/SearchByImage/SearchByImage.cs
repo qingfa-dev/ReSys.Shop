@@ -43,8 +43,10 @@ public static partial class SearchByImage
             await image.CopyToAsync(ms, cancellationToken);
             var imageBytes = ms.ToArray();
 
+            var modelName = command.Request.Model ?? DefaultModel;
+
             var inferenceResult = await inferenceClient.CreateEmbeddingFromBytesAsync(
-                imageBytes, image.ContentType, DefaultModel, cancellationToken);
+                imageBytes, image.ContentType, modelName, cancellationToken);
 
             if (inferenceResult.IsFailure)
                 return inferenceResult.Errors;
@@ -52,7 +54,6 @@ public static partial class SearchByImage
             var embedding = inferenceResult.Value;
             var queryVector = new Vector(embedding.Vector.ToArray());
 
-            var modelName = command.Request.Model ?? DefaultModel;
             var topK = command.Request.TopK > 0 ? command.Request.TopK : 20;
 
             var similarVariants = await dbContext.Set<Variant>()
