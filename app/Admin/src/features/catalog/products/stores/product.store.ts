@@ -2,7 +2,6 @@ import { defineStore } from 'pinia';
 import { ref } from 'vue';
 import { useToast } from '@/shared/composables/toast.use';
 import { usePagedList } from '@/shared/composables/paged-list.use';
-import { apiClient } from '@/shared/api';
 import { productService } from '../services/product.service';
 import type { 
   ProductSummary, 
@@ -13,7 +12,6 @@ import type {
   ProductClassification,
   ProductImage
 } from '../types/product.types';
-import type { ApiResult } from '@/shared/api/types/api.types';
 
 export const useProductStore = defineStore('product', () => {
   const { showToast } = useToast();
@@ -88,7 +86,7 @@ export const useProductStore = defineStore('product', () => {
   async function fetchClassifications(productId: string) {
     loading.value = true;
     try {
-        const result = await apiClient.get(`/admin/catalog/products/${productId}/classifications`) as unknown as ApiResult<any>;
+        const result = await productService.getClassifications(productId)
         if (result.success && result.data) {
             current_classifications.value = result.data;
         }
@@ -101,7 +99,7 @@ export const useProductStore = defineStore('product', () => {
   async function updateClassifications(productId: string, data: any) {
     submitting.value = true;
     try {
-        const result = await apiClient.put(`/admin/catalog/products/${productId}/classifications`, data) as unknown as ApiResult<any>;
+        const result = await productService.syncClassifications(productId, data)
         if (result.success) {
             showToast('success', 'Updated', 'Classifications saved');
             await fetchClassifications(productId);

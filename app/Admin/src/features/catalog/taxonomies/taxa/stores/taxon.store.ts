@@ -97,7 +97,7 @@ export const useTaxonStore = defineStore('taxon', () => {
 
     }
 
-    const result = await taxonService.getTaxons(params);
+    const result = await taxonService.list(taxonomyId, params);
 
     if (result.success && result.data) {
 
@@ -125,7 +125,7 @@ export const useTaxonStore = defineStore('taxon', () => {
 
     error.value = null;
 
-    const result = await taxonService.create({ ...request, taxonomyId: taxonomyId } as CreateTaxonRequest);
+    const result = await taxonService.create(taxonomyId, { ...request });
 
     if (result.success) {
 
@@ -151,7 +151,7 @@ export const useTaxonStore = defineStore('taxon', () => {
 
     error.value = null;
 
-    const result = await taxonService.update(taxonId, { ...request, taxonomyId: taxonomyId });
+    const result = await taxonService.update(taxonomyId, taxonId, { ...request });
 
     if (result.success) {
 
@@ -177,7 +177,7 @@ export const useTaxonStore = defineStore('taxon', () => {
 
     error.value = null;
 
-    const result = await taxonService.delete(taxonId);
+    const result = await taxonService.delete(taxonomyId, taxonId);
 
     if (result.success) {
 
@@ -205,7 +205,7 @@ export const useTaxonStore = defineStore('taxon', () => {
 
     error.value = null;
 
-    const result = await taxonService.getRules(taxonId);
+    const result = await taxonService.getRules(taxonomyId, taxonId);
 
     if (result.success && result.data) {
 
@@ -231,7 +231,7 @@ export const useTaxonStore = defineStore('taxon', () => {
 
     error.value = null;
 
-    const result = await taxonService.addRule(taxonId, request);
+    const result = await taxonService.addRule(taxonomyId, taxonId, request);
 
     if (result.success) {
 
@@ -257,7 +257,7 @@ export const useTaxonStore = defineStore('taxon', () => {
 
     error.value = null;
 
-    const result = await taxonService.updateRule(taxonId, ruleId, request);
+    const result = await taxonService.updateRule(taxonomyId, taxonId, ruleId, request);
 
     if (result.success) {
 
@@ -283,7 +283,7 @@ export const useTaxonStore = defineStore('taxon', () => {
 
     error.value = null;
 
-    const result = await taxonService.deleteRule(taxonId, ruleId);
+    const result = await taxonService.deleteRule(taxonomyId, taxonId, ruleId);
 
     if (result.success) {
 
@@ -309,7 +309,7 @@ export const useTaxonStore = defineStore('taxon', () => {
 
     error.value = null;
 
-    const result = await taxonService.regenerateProducts(taxonId);
+    const result = await taxonService.regenerateProducts(taxonomyId, taxonId);
 
     if (!result.success) {
 

@@ -1,21 +1,17 @@
-import { createModuleApi, apiClient } from '@/shared/api'
+import apiClient from '@/shared/api/http/api.client'
+import { CATALOG } from '@/shared/api/constants'
 import type { ApiResult } from '@/shared/api/types/api.types'
 import type { ServerQueryingParameters } from '@/shared/api/types/query-params.types'
 import type { ProductDetail, ProductSummary, CreateProductRequest, UpdateProductRequest } from '../products/types/product.types'
 import type { VariantDetail, VariantSummary, CreateVariantRequest, UpdateVariantRequest } from '../products/types/variant.types'
-import type { OptionTypeDetail } from '../option-types/types/option-type.types'
-import type { OptionValueListItem, UpdateOptionValuePositionsRequest } from '../option-types/option-values/types/option-value.types'
+import type { OptionTypeDetail, OptionTypeListItem } from '../option-types/types/option-type.types'
+import type { OptionValueListItem } from '../option-types/option-values/types/option-value.types'
 import type { PropertyTypeDetail } from '../property-types/types/property-type.types'
-import type { TaxonomyDetail, TaxonomyListItem } from '../taxonomies/types/taxonomy.types'
-import type { TaxonDetail, TaxonListItem, CreateTaxonRequest, UpdateTaxonRequest, TaxonRuleListItem, CreateTaxonRuleRequest, UpdateTaxonRuleRequest } from '../taxonomies/taxa/types/taxon.types'
-import type { CatalogSummary } from '../dashboard/types/catalog-dashboard.types'
-import { CATALOG } from '@/shared/api/constants'
-
-const catalog = createModuleApi<ProductDetail>({ basePath: CATALOG })
+import type { TaxonomyDetail, TaxonomyListItem, CreateTaxonomyRequest, UpdateTaxonomyRequest } from '../taxonomies/types/taxonomy.types'
+import type { TaxonDetail, TaxonListItem, TaxonTreeItem, CreateTaxonRequest, UpdateTaxonRequest, TaxonRuleListItem, CreateTaxonRuleRequest, UpdateTaxonRuleRequest } from '../taxonomies/taxa/types/taxon.types'
 
 export const catalogApi = {
   products: {
-    ...catalog,
     async list(params?: ServerQueryingParameters): Promise<ApiResult<ProductSummary[]>> {
       return apiClient.get(`${CATALOG}/products`, { params })
     },
@@ -23,8 +19,7 @@ export const catalogApi = {
       return apiClient.get(`${CATALOG}/products/${id}`)
     },
     async create(data: CreateProductRequest): Promise<ApiResult<ProductDetail>> {
-      const payload = { ...data, presentation: (data as any).presentation || data.name }
-      return apiClient.post(`${CATALOG}/products`, payload)
+      return apiClient.post(`${CATALOG}/products`, data)
     },
     async update(id: string, data: UpdateProductRequest): Promise<ApiResult<ProductDetail>> {
       return apiClient.put(`${CATALOG}/products/${id}`, data)
@@ -32,113 +27,183 @@ export const catalogApi = {
     async delete(id: string): Promise<ApiResult<void>> {
       return apiClient.delete(`${CATALOG}/products/${id}`)
     },
-
-    getOptionTypes(productId: string): Promise<ApiResult<any[]>> {
-      return apiClient.get(`${CATALOG}/products/option-types`, { params: { productId } })
+    async activate(id: string): Promise<ApiResult<void>> {
+      return apiClient.patch(`${CATALOG}/products/${id}/activate`)
     },
-    updateOptionTypes(productId: string, optionTypeIds: string[]): Promise<ApiResult<void>> {
-      return apiClient.put(`${CATALOG}/products/option-types`, { productId, optionTypeIds })
+    async discontinue(id: string): Promise<ApiResult<void>> {
+      return apiClient.patch(`${CATALOG}/products/${id}/discontinue`)
     },
-    getProperties(productId: string): Promise<ApiResult<any[]>> {
-      return apiClient.get(`${CATALOG}/products/properties`, { params: { productId } })
+    async getOptionTypes(productId: string): Promise<ApiResult<OptionTypeDetail[]>> {
+      return apiClient.get(`${CATALOG}/products/${productId}/option-types`)
     },
-    updateProperties(productId: string, properties: any[]): Promise<ApiResult<void>> {
-      return apiClient.put(`${CATALOG}/products/properties`, { productId, properties })
+    async syncOptionTypes(productId: string, optionTypeIds: string[]): Promise<ApiResult<void>> {
+      return apiClient.put(`${CATALOG}/products/${productId}/option-types/sync`, { optionTypeIds })
     },
-    getImages(productId: string): Promise<ApiResult<any[]>> {
-      return apiClient.get(`${CATALOG}/products/images`, { params: { productId } })
+    async getClassifications(productId: string): Promise<ApiResult<any[]>> {
+      return apiClient.get(`${CATALOG}/products/${productId}/classifications`)
     },
-    uploadImage(productId: string, file: File, role: number, alt?: string): Promise<ApiResult<any>> {
-      const formData = new FormData()
-      formData.append('file', file)
-      let url = `${CATALOG}/products/images?productId=${productId}&role=${role}`
-      if (alt) url += `&alt=${encodeURIComponent(alt)}`
-      return apiClient.post(url, formData, { headers: { 'Content-Type': 'multipart/form-data' } })
-    },
-    updateImage(productId: string, imageId: string, role: number, alt: string): Promise<ApiResult<void>> {
-      return apiClient.put(`${CATALOG}/products/images/${imageId}?productId=${productId}`, { role, alt, position: 0 })
-    },
-    deleteImage(productId: string, imageId: string): Promise<ApiResult<void>> {
-      return apiClient.delete(`${CATALOG}/products/images/${imageId}`, { params: { productId } })
+    async syncClassifications(productId: string, data: { taxonIds: string[]; mainTaxonId?: string }): Promise<ApiResult<void>> {
+      return apiClient.put(`${CATALOG}/products/${productId}/classifications/sync`, data)
     },
   },
 
   variants: {
-    ...createModuleApi<VariantDetail>({ basePath: `${CATALOG}/variants` }),
+    async getById(id: string): Promise<ApiResult<VariantDetail>> {
+      return apiClient.get(`${CATALOG}/products/variants/${id}`)
+    },
     async listByProductId(productId: string): Promise<ApiResult<VariantSummary[]>> {
-      return apiClient.get(`${CATALOG}/products/${productId}/variants`) as unknown as Promise<ApiResult<VariantSummary[]>>
+      return apiClient.get(`${CATALOG}/products/${productId}/variants`)
     },
     async create(productId: string, data: CreateVariantRequest): Promise<ApiResult<VariantDetail>> {
-      return apiClient.post(`${CATALOG}/products/${productId}/variants`, data) as unknown as Promise<ApiResult<VariantDetail>>
+      return apiClient.post(`${CATALOG}/products/${productId}/variants`, data)
     },
-    async setMaster(id: string): Promise<ApiResult<void>> {
-      return apiClient.post(`${CATALOG}/variants/${id}/set-master`) as unknown as Promise<ApiResult<void>>
+    async update(id: string, data: UpdateVariantRequest): Promise<ApiResult<VariantDetail>> {
+      return apiClient.put(`${CATALOG}/products/variants/${id}`, data)
     },
-    async updateOptionValues(id: string, optionValueIds: string[]): Promise<ApiResult<void>> {
-      return apiClient.put(`${CATALOG}/variants/${id}/option-values`, { optionValueIds }) as unknown as Promise<ApiResult<void>>
+    async delete(id: string): Promise<ApiResult<void>> {
+      return apiClient.delete(`${CATALOG}/products/variants/${id}`)
+    },
+    async listPrices(variantId: string): Promise<ApiResult<any[]>> {
+      return apiClient.get(`${CATALOG}/products/variants/${variantId}/prices`)
+    },
+    async setPrice(variantId: string, data: { amount: number; currency: string }): Promise<ApiResult<any>> {
+      return apiClient.post(`${CATALOG}/products/variants/${variantId}/prices`, data)
+    },
+    async deletePrice(variantId: string, priceId: string): Promise<ApiResult<void>> {
+      return apiClient.delete(`${CATALOG}/products/variants/${variantId}/prices/${priceId}`)
+    },
+    async syncPrices(variantId: string, prices: Array<{ amount: number; currency: string }>): Promise<ApiResult<void>> {
+      return apiClient.post(`${CATALOG}/products/variants/${variantId}/prices/sync`, prices)
+    },
+    async syncOptionValues(variantId: string, optionValueIds: string[]): Promise<ApiResult<void>> {
+      return apiClient.put(`${CATALOG}/products/variants/${variantId}/option-values/sync`, { optionValueIds })
+    },
+    async listImages(variantId: string): Promise<ApiResult<any[]>> {
+      return apiClient.get(`${CATALOG}/products/variants/${variantId}/images`)
+    },
+    async uploadImage(variantId: string, file: File, role?: number): Promise<ApiResult<any>> {
+      const formData = new FormData()
+      formData.append('file', file)
+      let url = `${CATALOG}/products/variants/${variantId}/images`
+      if (role !== undefined) url += `?role=${role}`
+      return apiClient.post(url, formData, { headers: { 'Content-Type': 'multipart/form-data' } })
+    },
+    async deleteImage(imageId: string): Promise<ApiResult<void>> {
+      return apiClient.delete(`${CATALOG}/products/variants/images/${imageId}`)
+    },
+    async updateImage(imageId: string, data: { alt?: string; role?: number }): Promise<ApiResult<void>> {
+      return apiClient.put(`${CATALOG}/products/variants/images/${imageId}`, data)
     },
   },
 
-  optionTypes: createModuleApi<OptionTypeDetail>({ basePath: `${CATALOG}/option-types` }),
-
-  optionValues: {
-    ...createModuleApi<OptionValueListItem>({ basePath: `${CATALOG}/option-values` }),
-    async reorder(data: UpdateOptionValuePositionsRequest): Promise<ApiResult<void>> {
-      return apiClient.put(`${CATALOG}/option-values/positions`, data)
+  optionTypes: {
+    async list(params?: ServerQueryingParameters): Promise<ApiResult<OptionTypeListItem[]>> {
+      return apiClient.get(`${CATALOG}/option-types`, { params })
+    },
+    async getById(id: string): Promise<ApiResult<OptionTypeDetail>> {
+      return apiClient.get(`${CATALOG}/option-types/${id}`)
+    },
+    async create(data: { name: string; presentation: string; filterable?: boolean; position?: number }): Promise<ApiResult<OptionTypeDetail>> {
+      return apiClient.post(`${CATALOG}/option-types`, data)
+    },
+    async update(id: string, data: Partial<{ name: string; presentation: string; filterable: boolean; position: number }>): Promise<ApiResult<OptionTypeDetail>> {
+      return apiClient.put(`${CATALOG}/option-types/${id}`, data)
+    },
+    async delete(id: string): Promise<ApiResult<void>> {
+      return apiClient.delete(`${CATALOG}/option-types/${id}`)
+    },
+    async listValues(optionTypeId: string, params?: ServerQueryingParameters): Promise<ApiResult<OptionValueListItem[]>> {
+      return apiClient.get(`${CATALOG}/option-types/${optionTypeId}/values`, { params })
+    },
+    async createValue(optionTypeId: string, data: { name: string; presentation: string; position?: number }): Promise<ApiResult<OptionValueListItem>> {
+      return apiClient.post(`${CATALOG}/option-types/${optionTypeId}/values`, data)
+    },
+    async updateValue(optionTypeId: string, valueId: string, data: { name?: string; presentation?: string; position?: number }): Promise<ApiResult<OptionValueListItem>> {
+      return apiClient.put(`${CATALOG}/option-types/${optionTypeId}/values/${valueId}`, data)
+    },
+    async deleteValue(optionTypeId: string, valueId: string): Promise<ApiResult<void>> {
+      return apiClient.delete(`${CATALOG}/option-types/${optionTypeId}/values/${valueId}`)
     },
   },
 
-  propertyTypes: createModuleApi<PropertyTypeDetail>({ basePath: `${CATALOG}/property-types` }),
+  propertyTypes: {
+    async list(params?: ServerQueryingParameters): Promise<ApiResult<PropertyTypeDetail[]>> {
+      return apiClient.get(`${CATALOG}/property-types`, { params })
+    },
+    async getById(id: string): Promise<ApiResult<PropertyTypeDetail>> {
+      return apiClient.get(`${CATALOG}/property-types/${id}`)
+    },
+    async create(data: { name: string; presentation: string; kind?: number; filterable?: boolean }): Promise<ApiResult<PropertyTypeDetail>> {
+      return apiClient.post(`${CATALOG}/property-types`, data)
+    },
+    async update(id: string, data: Partial<{ name: string; presentation: string; kind: number; filterable: boolean }>): Promise<ApiResult<PropertyTypeDetail>> {
+      return apiClient.put(`${CATALOG}/property-types/${id}`, data)
+    },
+    async delete(id: string): Promise<ApiResult<void>> {
+      return apiClient.delete(`${CATALOG}/property-types/${id}`)
+    },
+  },
 
   taxonomies: {
-    ...createModuleApi<TaxonomyDetail>({ basePath: `${CATALOG}/taxonomies` }),
     async list(params?: ServerQueryingParameters): Promise<ApiResult<TaxonomyListItem[]>> {
       return apiClient.get(`${CATALOG}/taxonomies`, { params })
     },
-  },
-
-  taxons: {
-    async getTaxons(params?: ServerQueryingParameters): Promise<ApiResult<TaxonListItem[]>> {
-      return apiClient.get(`${CATALOG}/taxons`, { params })
+    async getById(id: string): Promise<ApiResult<TaxonomyDetail>> {
+      return apiClient.get(`${CATALOG}/taxonomies/${id}`)
     },
-    async getTree(params?: ServerQueryingParameters): Promise<ApiResult<any>> {
-      return apiClient.get(`${CATALOG}/taxons/tree`, { params })
+    async create(data: CreateTaxonomyRequest): Promise<ApiResult<TaxonomyDetail>> {
+      return apiClient.post(`${CATALOG}/taxonomies`, data)
     },
-    async getById(taxonId: string): Promise<ApiResult<TaxonDetail>> {
-      return apiClient.get(`${CATALOG}/taxons/${taxonId}`)
+    async update(id: string, data: UpdateTaxonomyRequest): Promise<ApiResult<TaxonomyDetail>> {
+      return apiClient.put(`${CATALOG}/taxonomies/${id}`, data)
     },
-    async create(request: CreateTaxonRequest): Promise<ApiResult<TaxonDetail>> {
-      return apiClient.post(`${CATALOG}/taxons`, request)
+    async delete(id: string): Promise<ApiResult<void>> {
+      return apiClient.delete(`${CATALOG}/taxonomies/${id}`)
     },
-    async update(taxonId: string, request: UpdateTaxonRequest): Promise<ApiResult<TaxonDetail>> {
-      return apiClient.put(`${CATALOG}/taxons/${taxonId}`, request)
+    async restore(id: string): Promise<ApiResult<void>> {
+      return apiClient.patch(`${CATALOG}/taxonomies/${id}/restore`)
     },
-    async delete(taxonId: string): Promise<ApiResult<void>> {
-      return apiClient.delete(`${CATALOG}/taxons/${taxonId}`)
+    async listTaxons(taxonomyId: string, params?: ServerQueryingParameters & { includeLeavesOnly?: boolean }): Promise<ApiResult<TaxonListItem[]>> {
+      return apiClient.get(`${CATALOG}/taxonomies/${taxonomyId}/taxons`, { params })
     },
-    async getRules(taxonId: string): Promise<ApiResult<TaxonRuleListItem[]>> {
-      return apiClient.get(`${CATALOG}/taxons/${taxonId}/rules`)
+    async getTaxonTree(taxonomyId: string): Promise<ApiResult<TaxonTreeItem[]>> {
+      return apiClient.get(`${CATALOG}/taxonomies/${taxonomyId}/taxons/tree`)
     },
-    async addRule(taxonId: string, request: CreateTaxonRuleRequest): Promise<ApiResult<TaxonRuleListItem>> {
-      return apiClient.post(`${CATALOG}/taxons/${taxonId}/rules`, request)
+    async getTaxonById(taxonomyId: string, taxonId: string): Promise<ApiResult<TaxonDetail>> {
+      return apiClient.get(`${CATALOG}/taxonomies/${taxonomyId}/taxons/${taxonId}`)
     },
-    async updateRule(taxonId: string, ruleId: string, request: UpdateTaxonRuleRequest): Promise<ApiResult<TaxonRuleListItem>> {
-      return apiClient.put(`${CATALOG}/taxons/${taxonId}/rules/${ruleId}`, request)
+    async createTaxon(taxonomyId: string, data: CreateTaxonRequest): Promise<ApiResult<TaxonDetail>> {
+      return apiClient.post(`${CATALOG}/taxonomies/${taxonomyId}/taxons`, data)
     },
-    async deleteRule(taxonId: string, ruleId: string): Promise<ApiResult<void>> {
-      return apiClient.delete(`${CATALOG}/taxons/${taxonId}/rules/${ruleId}`)
+    async updateTaxon(taxonomyId: string, taxonId: string, data: UpdateTaxonRequest): Promise<ApiResult<TaxonDetail>> {
+      return apiClient.put(`${CATALOG}/taxonomies/${taxonomyId}/taxons/${taxonId}`, data)
     },
-    async regenerateProducts(taxonId: string): Promise<ApiResult<void>> {
-      return apiClient.post(`${CATALOG}/taxons/${taxonId}/rules/regenerate`, {})
+    async deleteTaxon(taxonomyId: string, taxonId: string): Promise<ApiResult<void>> {
+      return apiClient.delete(`${CATALOG}/taxonomies/${taxonomyId}/taxons/${taxonId}`)
     },
-    async getProductPreview(taxonId: string, params?: { page?: number, pageSize?: number }): Promise<ApiResult<any>> {
-      return apiClient.get(`${CATALOG}/taxons/${taxonId}/preview`, { params })
+    async repositionTaxon(taxonomyId: string, taxonId: string, position: number): Promise<ApiResult<void>> {
+      return apiClient.post(`${CATALOG}/taxonomies/${taxonomyId}/taxons/${taxonId}/reposition`, { position })
     },
-  },
-
-  dashboard: {
-    async getSummary(): Promise<ApiResult<CatalogSummary>> {
-      return apiClient.get('/admin/dashboard/catalog-summary')
+    async restoreTaxon(taxonomyId: string, taxonId: string): Promise<ApiResult<void>> {
+      return apiClient.patch(`${CATALOG}/taxonomies/${taxonomyId}/taxons/${taxonId}/restore`)
+    },
+    async listTaxonRules(taxonomyId: string, taxonId: string): Promise<ApiResult<TaxonRuleListItem[]>> {
+      return apiClient.get(`${CATALOG}/taxonomies/${taxonomyId}/taxons/${taxonId}/rules`)
+    },
+    async createTaxonRule(taxonomyId: string, taxonId: string, data: CreateTaxonRuleRequest): Promise<ApiResult<TaxonRuleListItem>> {
+      return apiClient.post(`${CATALOG}/taxonomies/${taxonomyId}/taxons/${taxonId}/rules`, data)
+    },
+    async updateTaxonRule(taxonomyId: string, taxonId: string, ruleId: string, data: UpdateTaxonRuleRequest): Promise<ApiResult<TaxonRuleListItem>> {
+      return apiClient.put(`${CATALOG}/taxonomies/${taxonomyId}/taxons/${taxonId}/rules/${ruleId}`, data)
+    },
+    async deleteTaxonRule(taxonomyId: string, taxonId: string, ruleId: string): Promise<ApiResult<void>> {
+      return apiClient.delete(`${CATALOG}/taxonomies/${taxonomyId}/taxons/${taxonId}/rules/${ruleId}`)
+    },
+    async syncTaxonRules(taxonomyId: string, taxonId: string, rules: CreateTaxonRuleRequest[]): Promise<ApiResult<void>> {
+      return apiClient.post(`${CATALOG}/taxonomies/${taxonomyId}/taxons/${taxonId}/rules/sync`, rules)
+    },
+    async regenerateTaxonProducts(taxonomyId: string, taxonId: string): Promise<ApiResult<void>> {
+      return apiClient.post(`${CATALOG}/taxonomies/${taxonomyId}/taxons/${taxonId}/rules/regenerate`)
     },
   },
 }

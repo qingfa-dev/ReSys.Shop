@@ -1,5 +1,4 @@
 import { catalogApi } from '../../services/catalog.api'
-import type { ProductDetail, CreateProductRequest, UpdateProductRequest, ProductSearchParams } from '../types/product.types'
 
 export const productService = {
   list: catalogApi.products.list,
@@ -7,12 +6,10 @@ export const productService = {
   create: catalogApi.products.create,
   update: catalogApi.products.update,
   delete: catalogApi.products.delete,
+  activate: catalogApi.products.activate,
+  discontinue: catalogApi.products.discontinue,
   getOptionTypes: catalogApi.products.getOptionTypes,
-  updateOptionTypes: catalogApi.products.updateOptionTypes,
-  getProperties: catalogApi.products.getProperties,
-  updateProperties: catalogApi.products.updateProperties,
-  getImages: catalogApi.products.getImages,
-  uploadImage: catalogApi.products.uploadImage,
-  updateImage: catalogApi.products.updateImage,
-  deleteImage: catalogApi.products.deleteImage,
+  syncOptionTypes: catalogApi.products.syncOptionTypes,
+  getClassifications: catalogApi.products.getClassifications,
+  syncClassifications: catalogApi.products.syncClassifications,
 }

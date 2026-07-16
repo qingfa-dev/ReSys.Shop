@@ -1,7 +1,8 @@
 import { defineStore } from 'pinia';
-import { ref, watch, computed } from 'vue';
+import { ref, computed } from 'vue';
 import { useToast } from '@/shared/composables/toast.use';
 import { taxonomyService } from '../services/taxonomy.service';
+import { catalogApi } from '../../services/catalog.api';
 import type { 
   TaxonomyListItem, 
   TaxonomyDetail, 
@@ -9,8 +10,6 @@ import type {
   CreateTaxonomyRequest, 
   UpdateTaxonomyRequest 
 } from '../types/taxonomy.types';
-import apiClient from '@/shared/api/http/api.client';
-import type { ApiResult } from '@/shared/api/types/api.types';
 
 export const useTaxonomyStore = defineStore('taxonomy', () => {
   const { showToast } = useToast();
@@ -123,7 +122,7 @@ export const useTaxonomyStore = defineStore('taxonomy', () => {
     loading.value = true;
     error.value = null;
     try {
-        const result = (await apiClient.post(`/admin/catalog/taxonomies/${id}/rebuild`)) as unknown as ApiResult<void>;
+        const result = await catalogApi.taxonomies.restore(id)
         if (result.success) {
             showToast('success', 'Rebuilt', 'Taxonomy tree successfully rebuilt');
         } else if (!result.success) {
