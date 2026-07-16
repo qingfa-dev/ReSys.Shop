@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia';
 import { ref } from 'vue';
+import { reportService } from '../services/report.service';
 import type { SalesSummary, InventorySummary, CatalogSummary, ActivityItem } from '../types/report.types';
 
 export const useReportStore = defineStore('report', () => {
@@ -10,7 +11,17 @@ export const useReportStore = defineStore('report', () => {
   const is_loading = ref(false);
 
   async function fetchDashboardData() {
-    // No backend endpoint — re-add when Dashboard module endpoints are added
+    is_loading.value = true;
+    try {
+      const { data } = await reportService.fetchDashboard();
+      const value = data.value;
+      sales.value = { ...value.sales };
+      inventory.value = { ...value.inventory };
+      catalog.value = { ...value.catalog };
+      activities.value = value.recentActivities;
+    } finally {
+      is_loading.value = false;
+    }
   }
 
   return { sales, inventory, catalog, activities, is_loading, fetchDashboardData };
