@@ -5,9 +5,9 @@ import { PROFILES } from '@/shared/api/constants'
 
 export const profileApi = {
   async get(): Promise<ApiResult<Profile>> {
-    return apiClient.get(PROFILES)
+    return apiClient.get(`${PROFILES}/profiles`)
   },
   async update(data: ProfileUpdateRequest): Promise<ApiResult<Profile>> {
-    return apiClient.put(PROFILES, data)
+    return apiClient.put(`${PROFILES}/profiles`, data)
   },
 }
