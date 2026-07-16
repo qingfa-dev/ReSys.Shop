@@ -10,10 +10,10 @@
 - Commands:
 
 ```bash
-# Run all tests (skip integration tests needing Docker)
+# Run all tests (skip integration tests needing pgvector)
 uv run pytest --ignore=src/tests/integration/test_pgvector.py
 
-# Run all tests including integration (requires Docker/pgvector)
+# Run all tests including integration (requires Podman/pgvector)
 uv run pytest
 
 # Run specific module
@@ -32,9 +32,9 @@ uv run pytest --cov=benchmark --cov-report=term
 
 | Directory | What it tests | Example files |
 |---|---|---|
-| `datasets/` | Dataset loader, ground-truth builder | `test_loader.py`, `test_ground_truth.py` |
+| `datasets/` | Dataset loader, ground-truth builder, label_field, _build_sample_meta | `test_loader.py`, `test_ground_truth.py`, `test_loader_label_field.py` |
 | `evaluation/` | ThesisRunner, PipelineRunner, stats | `test_thesis.py`, `test_pipeline.py`, `test_stats.py` |
-| `integration/` | PGVector end-to-end (requires Docker) | `test_pgvector.py` |
+| `integration/` | PGVector end-to-end (requires Podman) | `test_pgvector.py` |
 | `metrics/` | P@K, R@K, mAP, nDCG, recall comparison | `test_map.py`, `test_recall_comparison.py` |
 | `models/` | Registry, base contract, per-model adapters | `test_registry.py`, `test_resnet50.py`, `test_clip_generic.py` |
 | `reporting/` | JSON, CSV, Markdown, Typst, pipeline Typst | `test_reporting.py`, `test_typst.py`, `test_pipeline_reporting.py` |
@@ -47,7 +47,7 @@ uv run pytest --cov=benchmark --cov-report=term
 | Scope | Covered? | Typical target | Notes |
 |---|---|---|---|
 | Unit | Yes — 15 files | `metrics/`, `models/` (base contract), `recall_comparison` | Pure functions, dummy models, synthetic data |
-| Integration | Partial — 1 file | `integration/test_pgvector.py` (requires Docker) | Mostly skipped due to missing `ping()` attribute on PgvectorRetriever |
+| Integration | Partial — 1 file | `integration/test_pgvector.py` (requires Podman/pgvector) | Mostly skipped; `ping()` attribute check on PgvectorRetriever |
 | Pipeline | Yes — 2 files | `evaluation/test_thesis.py`, `evaluation/test_pipeline.py` | Mocked model + mocked pgvector; tests 3-fold flow end-to-end |
 | CLI | Yes — 1 file | `cli/test_pipeline_command.py` | Typer CliRunner with `--help` assertions |
 | E2E | No | N/A | No end-to-end tests across all 4 models on real hardware |
@@ -63,7 +63,7 @@ uv run pytest --cov=benchmark --cov-report=term
 ### 5) Coverage and Quality Signals
 
 - Coverage tool: `pytest-cov` configured but no threshold enforced.
-- Current test count: 125+ tests (excluding skipped integration tests).
+- Current test count: 145 tests (excluding skipped integration tests).
 - Known gaps:
   - `embeddings/` (generator, cache) — no unit tests (relies on integration tests via pipeline)
   - `retrieval/cosine.py` — no tests for `retrieve_batch` or `top_k_indices`

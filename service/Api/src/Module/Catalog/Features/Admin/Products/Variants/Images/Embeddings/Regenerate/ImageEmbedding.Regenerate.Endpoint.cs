@@ -21,7 +21,12 @@ public static partial class RegenerateEmbedding
                     : request.ModelName;
                 var modelVersion = request?.ModelVersion ?? string.Empty;
 
-                var command = new Command(id, modelName, modelVersion);
+                var command = new Command(new Request
+                {
+                    VariantImageId = id,
+                    ModelName = modelName,
+                    ModelVersion = modelVersion
+                });
                 var result = await sender.Send(command, ct);
                 return result.ToResult();
             })

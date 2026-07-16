@@ -11,9 +11,10 @@ public static partial class GetSimilarProducts
             app.MapGet(CatalogFeature.Storefront.Products.Get.Similar.Route, async (
                 [FromRoute] Guid id,
                 ISender sender,
-                CancellationToken ct) =>
+                CancellationToken ct,
+                [FromQuery] int topK = 20) =>
             {
-                var query = new Query(id);
+                var query = new Query(id, topK);
                 var result = await sender.Send(query, ct);
                 return result.ToResult();
             })

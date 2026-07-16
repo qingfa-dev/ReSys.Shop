@@ -78,3 +78,48 @@ def test_ground_truth_missing_id_column():
     df = pd.DataFrame({"masterCategory": ["A"]})
     with pytest.raises(ValueError, match="styles.csv must contain an 'id' column"):
         GroundTruth(df)
+
+
+def test_build_sample_meta_with_pattern():
+    from benchmark.datasets.ground_truth import GroundTruth, normalize_colour
+
+    norm = normalize_colour("Navy Blue")
+    row = pd.Series({
+        "id": "123",
+        "masterCategory": "Apparel",
+        "subCategory": "Tshirts",
+        "baseColour": "Navy Blue",
+        "_norm_colour": norm,
+        "pattern": "Solid",
+    })
+    meta = GroundTruth._build_sample_meta(row, has_pattern=True)
+    assert meta["label"] == f"Apparel/Tshirts/{norm}"
+    assert meta["label_pattern"] == f"Apparel/Tshirts/{norm}/Solid"
+    assert meta["product_id"] == "123"
+    assert meta["image_path"] == "images/123.jpg"
+
+
+def test_build_sample_meta_pattern_unknown_fallback():
+    row = pd.Series({
+        "id": "456",
+        "masterCategory": "Footwear",
+        "subCategory": "Sneakers",
+        "baseColour": "Black",
+        "_norm_colour": "Black",
+        "pattern": "Unknown",
+    })
+    meta = GroundTruth._build_sample_meta(row, has_pattern=True)
+    assert meta["label_pattern"] == meta["label"]
+
+
+def test_build_sample_meta_no_pattern_column():
+    row = pd.Series({
+        "id": "789",
+        "masterCategory": "Accessories",
+        "subCategory": "Belts",
+        "baseColour": "Brown",
+        "_norm_colour": "Brown/Yellow",
+    })
+    meta = GroundTruth._build_sample_meta(row, has_pattern=False)
+    assert "label_pattern" not in meta
+    assert "label" in meta

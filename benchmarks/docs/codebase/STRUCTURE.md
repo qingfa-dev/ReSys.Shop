@@ -7,7 +7,7 @@
 | Path | Purpose | Evidence |
 |------|---------|----------|
 | `src/benchmark/` | Main benchmark package (source code) | `pyproject.toml:L50` |
-| `src/benchmark/cli/` | Typer CLI commands (`run`, `thesis`, `pipeline`, `report`, `cache`) | `src/benchmark/cli/benchmark.py` |
+| `src/benchmark/cli/` | Typer CLI commands (`enrich`, `run`, `thesis`, `pipeline`, `report`, `cache`) | `src/benchmark/cli/benchmark.py` |
 | `src/benchmark/models/` | Model adapters (11 models: FashionCLIP, CLIP variants, SigLIP, EVA-CLIP, ResNet-50, EfficientNet-B0, CLIP-generic, ConvNeXt, DINOv2) | `src/benchmark/models/__init__.py` |
 | `src/benchmark/datasets/` | Dataset loading (`FashionDataset`), ground-truth builder (`GroundTruth`), image transforms, validation | `src/benchmark/datasets/loader.py` |
 | `src/benchmark/embeddings/` | Embedding generation (`EmbeddingGenerator`), `.npz` cache, durable storage | `src/benchmark/embeddings/generator.py` |
@@ -17,10 +17,10 @@
 | `src/benchmark/reporting/` | Report generators: JSON, CSV, Markdown, Typst, pipeline Typst, matplotlib charts | `src/benchmark/reporting/__init__.py` |
 | `src/benchmark/utils/` | Shared utilities: logging, device resolution, timing, random seed | `src/benchmark/utils/logging.py` |
 | `src/tests/` | Test suite (datasets, evaluation, metrics, models, reporting, retrieval, cli, integration, utils) | `pyproject.toml:L52` |
-| `scripts/` | Standalone scripts: dataset download, preprocessing, benchmark, report, clean | `scripts/download_dataset.py` |
+| `scripts/` | Standalone scripts: dataset download, preprocessing, enrich, benchmark, report, clean, demo-seed | `scripts/download_dataset.py`, `scripts/enrich_dataset.py` |
 | `configs/` | YAML configuration files (benchmark, datasets, hardware, metrics, per-model) | `configs/benchmark.yaml` |
 | `data/` | Datasets, embedding cache, splits (gitignored except `.gitkeep`) | `data/cache/.gitkeep` |
-| `infra/` | PostgreSQL Docker/Podman configs and init scripts | `infra/postgres/init.sql` |
+| `infra/` | PostgreSQL Podman/Docker configs + init scripts | `infra/postgres/init.sql` |
 | `docs/` | Project documentation (9 numbered guides + codebase docs) | `docs/README.md` |
 | `outputs/` | Runtime outputs: metrics, reports, tables, figures, embeddings, logs (gitignored) | Created at runtime |
 | `experiments/` | Per-model ad-hoc experiment notebooks | `experiments/fashion_clip/` |
@@ -29,7 +29,7 @@
 ### 2) Entry Points
 
 - Main runtime entry: `src/benchmark/cli/benchmark.py` — Typer app registered as `benchmark` CLI via `pyproject.toml:L42` (`benchmark = "benchmark.cli.benchmark:app"`)
-- CLI commands: `run` (one-shot), `thesis` (3-fold CV), `pipeline` (pgvector), `report` (regenerate), `cache` (manage)
+- CLI commands: `enrich` (build enriched dataset), `run` (one-shot), `thesis` (3-fold CV), `pipeline` (pgvector), `report` (regenerate), `cache` (manage)
 - How entry is selected: `pyproject.toml` `[project.scripts]` maps `benchmark` to `benchmark.cli.benchmark:app`. Invoked via `uv run benchmark <command>`
 
 ### 3) Module Boundaries
@@ -59,6 +59,6 @@
 - `src/benchmark/` — package tree
 - `pyproject.toml:L42` — CLI entry point
 - `pyproject.toml:L50` — wheel package source
-- `src/benchmark/cli/benchmark.py` — Typer app with 5 commands
+- `src/benchmark/cli/benchmark.py` — Typer app with 6 commands
 - `src/benchmark/models/__init__.py` — 11-model registry
 - `src/tests/` — mirrored test structure

@@ -4,7 +4,8 @@ public static partial class RegenerateEmbedding
 {
     public sealed record Request
     {
-        public string ModelName { get; init; } = string.Empty;
-        public string ModelVersion { get; init; } = string.Empty;
+        public Guid VariantImageId { get; init; }
+        public required string ModelName { get; init; }
+        public required string ModelVersion { get; init; }
     }
 }

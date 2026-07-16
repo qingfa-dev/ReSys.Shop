@@ -1,4 +1,5 @@
 using Module.Catalog.Domain.Products.Variants;
+using Module.Catalog.Domain.Products.Variants.Images;
 using Module.Catalog.Domain.Products.Variants.Images.Embeddings;
 
 namespace Module.Catalog.Features.Storefront.Products.Get.Similar;
@@ -8,7 +9,7 @@ namespace Module.Catalog.Features.Storefront.Products.Get.Similar;
 /// </summary>
 public static partial class GetSimilarProducts
 {
-    public sealed record Query(Guid Id) : ICommand<Response>;
+    public sealed record Query(Guid Id, int TopK = 20) : ICommand<Response>;
 
     public sealed class QueryHandler(IApplicationDbContext dbContext)
         : ICommandHandler<Query, Response>
@@ -31,30 +32,33 @@ public static partial class GetSimilarProducts
             if (variant is null || variant.Product is null)
                 return Result<Response>.NotFound();
 
-            // Load: Get the embedding vector for the variant's primary image.
-            var queryVector = await dbContext.Set<ImageEmbedding>()
+            const string similarityModel = VariantImageConstant.Defaults.DefaultSimilarityModel;
+
+            // Load: Get the embedding vector and its model name for the variant's primary image.
+            var embeddingData = await dbContext.Set<ImageEmbedding>()
                 .Include(ie => ie.VariantImage)
-                .Where(ie => ie.VariantImage.VariantId == variant.Id)
-                .Select(ie => ie.Vector)
+                .Where(ie => ie.VariantImage.VariantId == variant.Id
+                          && ie.ModelName == similarityModel)
+                .Select(ie => new { ie.Vector, ie.ModelName })
                 .FirstOrDefaultAsync(cancellationToken);
 
-            if (queryVector is null)
+            if (embeddingData is null)
                 return Result<Response>.Ok(new Response { Items = [] });
 
-            // Load: Find visually similar variants using cosine distance.
-            // Using raw SQL for pgvector distance operator.
+            // Load: Find visually similar variants using pgvector cosine distance.
             var similarVariants = await dbContext.Set<Variant>()
                 .FromSqlRaw(@"
-                    SELECT DISTINCT v.*
+                    SELECT DISTINCT ON (v.id) v.*
                     FROM catalog.variants v
                     INNER JOIN catalog.product_images vi ON vi.variant_id = v.id
                     INNER JOIN catalog.product_image_embeddings ie ON ie.variant_image_id = vi.id
-                    WHERE v.""ProductId"" != {0}
-                      AND v.""IsDeleted"" = false
-                      AND vi.""Type"" = 'Default'
-                    ORDER BY ie.""Vector"" <=> {1}::vector
-                    LIMIT 20",
-                    variant.ProductId, queryVector)
+                    WHERE v.is_deleted = false
+                      AND v.product_id != {0}
+                      AND vi.type = 'Default'
+                      AND ie.model_name = {2}
+                    ORDER BY v.id, ie.vector <=> {1}::vector
+                    LIMIT {3}",
+                    variant.ProductId, embeddingData.Vector, embeddingData.ModelName, request.TopK)
                 .Include(x => x.Product)
                 .Include(x => x.Prices)
                 .OrderBy(v => v.Position).ThenBy(v => v.IsMaster ? 0 : 1)

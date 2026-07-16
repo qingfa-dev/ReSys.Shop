@@ -6,14 +6,15 @@ namespace Module.Catalog.Features.Admin.Products.Variants.Images.Embeddings.Crea
 
 public static partial class CreateEmbedding
 {
-    public sealed record Command(Guid VariantImageId, string ModelName) : ICommand<EmbeddingDetailResponse>;
+    public sealed record Command(Request Request) : ICommand<EmbeddingDetailResponse>;
 
     public sealed class CommandHandler(IEmbeddingOrchestrator orchestrator)
         : ICommandHandler<Command, EmbeddingDetailResponse>
     {
         public async Task<Result<EmbeddingDetailResponse>> Handle(Command command, CancellationToken cancellationToken)
         {
-            var result = await orchestrator.GenerateAndPersistAsync(command.VariantImageId, command.ModelName, cancellationToken);
+            var request = command.Request;
+            var result = await orchestrator.GenerateAndPersistAsync(request.VariantImageId, request.ModelName, cancellationToken);
             if (result.IsFailure)
                 return result.Errors;
 

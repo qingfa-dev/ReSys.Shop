@@ -2,9 +2,7 @@ namespace Module.Identity.Features.Admin.Users.Roles.Assign;
 
 public static partial class AssignUserRoles
 {
-    /// <summary>
-    /// Represents the request contract for assigning roles to a user.
-    /// </summary>
+    // EXCEPTION: feature-specific collection request — no domain entity base
     public record Request
     {
         /// <summary>

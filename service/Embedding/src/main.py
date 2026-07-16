@@ -14,6 +14,7 @@ from embedding.api.middleware.exception_handlers import (
 )
 from embedding.api.router import api_router
 from embedding.core.config import settings
+from embedding.core.constants import Constants
 from embedding.core.rate_limit import limiter
 from embedding.core.security import resolve_ssl_paths
 from embedding.core.telemetry import setup_telemetry
@@ -25,8 +26,6 @@ from scalar_fastapi import get_scalar_api_reference
 from slowapi import _rate_limit_exceeded_handler
 from slowapi.errors import RateLimitExceeded
 from starlette.exceptions import HTTPException as StarletteHTTPException
-
-from core.constants import Constants
 
 
 def create_app() -> FastAPI:

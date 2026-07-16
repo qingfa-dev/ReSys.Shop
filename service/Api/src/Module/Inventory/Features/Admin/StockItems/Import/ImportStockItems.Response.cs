@@ -1,12 +1,8 @@
+using Module.Inventory.Features.Admin.StockItems.Shared.Models;
+
 namespace Module.Inventory.Features.Admin.StockItems.Import;
 
 public static partial class ImportStockItems
 {
-    public sealed record Response
-    {
-        public int Created { get; init; }
-        public int Updated { get; init; }
-        public int Failed { get; init; }
-        public List<string> Errors { get; init; } = [];
-    }
+    public sealed record Response : ImportStockItemsResponseBase;
 }

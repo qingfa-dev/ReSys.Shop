@@ -1,3 +1,5 @@
+using Shared.Application.Domain.Currencies;
+
 namespace Module.Ordering.Domain.Orders;
 
 // Validate: FluentValidation extension methods enforcing Order invariants
@@ -76,13 +78,7 @@ public static class OrderValidation
     public static IRuleBuilderOptions<T, string> ApplyCurrencyRules<T>(
         this IRuleBuilder<T, string> ruleBuilder)
     {
-        return ruleBuilder
-            .NotEmpty()
-            .WithErrorCode(OrderResult.Errors.CurrencyInvalid.Code)
-            .WithMessage(OrderResult.Errors.CurrencyInvalid.Message)
-            .MaximumLength(OrderConstant.Constraints.MaxCurrencyLength)
-            .WithErrorCode(OrderResult.Errors.CurrencyTooLong.Code)
-            .WithMessage(OrderResult.Errors.CurrencyTooLong.Message);
+        return SystemCurrencyValidation.ApplyCurrencyRules(ruleBuilder);
     }
 
     public static IRuleBuilderOptions<T, Guid?> ApplyBillAddressIdRules<T>(

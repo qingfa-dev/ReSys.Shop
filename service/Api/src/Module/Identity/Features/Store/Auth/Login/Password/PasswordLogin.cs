@@ -74,6 +74,7 @@ public static partial class PasswordLogin
 
             UserLoggers.Auth.LoginSucceeded(logger, UserId: user.Id, IpAddress: currentUser.IpAddress, ActionBy: user.UserName!);
 
+            // EXCEPTION: auth token response — no domain entity
             return new Response()
             {
                 AccessToken = tokenResult.Value.Token,

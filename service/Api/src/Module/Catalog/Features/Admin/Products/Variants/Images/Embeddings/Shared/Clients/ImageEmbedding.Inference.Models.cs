@@ -1,4 +1,5 @@
 using System.Text.Json.Serialization;
+using Module.Catalog.Domain.Products.Variants.Images;
 
 namespace Module.Catalog.Features.Admin.Products.Variants.Images.Embeddings.Shared.Clients;
 
@@ -8,7 +9,7 @@ public class EmbeddingRequest
     public string ImageUrl { get; set; } = string.Empty;
 
     [JsonPropertyName("model")]
-    public string Model { get; set; } = "efficientnet_b0";
+    public string Model { get; set; } = VariantImageConstant.Defaults.DefaultEmbeddingModel;
 }
 
 public class EmbeddingResponse

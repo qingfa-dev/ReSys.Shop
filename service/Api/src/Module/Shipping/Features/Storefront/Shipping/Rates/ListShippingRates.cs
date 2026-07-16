@@ -23,6 +23,7 @@ public static partial class ListShippingRates
             var pagedResult = await dbContext.Set<ShippingRate>()
                 .AsNoTracking()
                 .ApplyQuerying(parsing.Value)
+                // EXCEPTION: no domain entity — maps from domain ShippingRate entity
                 .Select(r => new Response(r.Id, r.ShippingMethodId, r.Name, r.Cost, r.FinalPrice, r.DeliveryRange, r.MinWeight, r.MaxWeight, r.FreeShippingThreshold))
                 .ToPagedOrAllAsync(parsing.Value, x => x, cancellationToken);
 

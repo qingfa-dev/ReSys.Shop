@@ -9,11 +9,11 @@ public static partial class SearchByImage
         public void AddRoutes(IEndpointRouteBuilder app)
         {
             app.MapPost(CatalogFeature.Storefront.Products.Get.SearchByImage.Route, async (
-                IFormFile image,
+                [FromForm] Request request,
                 ISender sender,
                 CancellationToken ct) =>
             {
-                var command = new Command(image);
+                var command = new Command(request);
                 var result = await sender.Send(command, ct);
                 return result.ToResult();
             })

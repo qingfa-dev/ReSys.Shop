@@ -16,6 +16,8 @@ jobs:
         with:
           global-json-file: global.json
       - run: dotnet build
+      - name: Check feature conventions
+        run: bash scripts/check-feature-conventions.sh
       - run: dotnet test service/Api/tests/Shared.UnitTests
       - run: dotnet test service/Api/tests/Module.UnitTests
 

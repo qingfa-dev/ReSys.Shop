@@ -9,11 +9,10 @@ from pathlib import Path
 from typing import Any, List, Union
 
 import httpx
+from embedding.core.constants import Constants
 from embedding.core.telemetry import get_meter, get_tracer
 from embedding.schemas import ImageResults, InferenceResults, ValueResult
 from PIL import Image
-
-from core.constants import Constants
 
 logger = logging.getLogger(__name__)
 tracer = get_tracer(__name__)

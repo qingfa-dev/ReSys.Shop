@@ -7,6 +7,7 @@ from pathlib import Path
 from typing import List
 
 from embedding.core.config import settings
+from embedding.core.constants import Constants
 from embedding.core.rate_limit import limiter
 from embedding.models.onnx.utils import infer_onnx_dim
 from embedding.models.registry import ModelRegistry
@@ -20,8 +21,6 @@ from embedding.schemas import (
 from embedding.services.inference_engine import InferenceEngine
 from fastapi import APIRouter, Depends, File, Request, Response, Security, UploadFile, status
 from fastapi.security import APIKeyHeader
-
-from core.constants import Constants
 
 router = APIRouter(tags=["inference"])
 

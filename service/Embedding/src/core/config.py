@@ -11,10 +11,9 @@ from enum import Enum
 from pathlib import Path
 from typing import List, Optional
 
+from embedding.core.constants import Constants
 from pydantic import Field, field_validator, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
-
-from core.constants import Constants
 
 logger = logging.getLogger(__name__)
 

@@ -3,6 +3,7 @@
 using System.Data;
 
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
@@ -31,6 +32,7 @@ public class DatabaseInitializerTests
     {
         ServiceCollection services = new();
         services.AddSingleton<ILoggerFactory>(LoggerFactory.Create(b => { }));
+        services.AddSingleton<IConfiguration>(new ConfigurationBuilder().AddInMemoryCollection().Build());
         configure(services);
         return services.BuildServiceProvider();
     }
@@ -46,6 +48,7 @@ public class DatabaseInitializerTests
         Mock<ILoggerFactory> factoryMock = new();
         factoryMock.Setup(f => f.CreateLogger(It.IsAny<string>())).Returns(loggerMock.Object);
         services.AddSingleton<ILoggerFactory>(factoryMock.Object);
+        services.AddSingleton<IConfiguration>(new ConfigurationBuilder().AddInMemoryCollection().Build());
 
         configure(services);
 

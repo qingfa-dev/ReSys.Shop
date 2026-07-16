@@ -53,17 +53,17 @@ public static class VariantImageConstant
         public const string SigLipBase = "siglip-vit-b-16";
 
         // Fashion-specific
-        public const string FashionClip = "fashion-clip-v1";
+        public const string FashionClip = "fashion_clip";
         public const string DeepFashion = "deepfashion-embed-v2";
 
         // Visual similarity
-        public const string DinoV2Small = "dinov2-vit-small";
+        public const string DinoV2Small = "dinov2_vits14";
         public const string DinoV2Base = "dinov2-vit-base";
         public const string Ibot = "ibot-vit-base";
         public const string SwinBase = "swin-base";
 
         // Edge / fast
         public const string ConvNextTiny = "convnext-v2-tiny";
-        public const string EfficientNetB0 = "efficientnet-b0";
+        public const string EfficientNetB0 = "efficientnet_b0";
     }
 }

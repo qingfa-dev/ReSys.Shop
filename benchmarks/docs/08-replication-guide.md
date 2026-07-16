@@ -13,7 +13,7 @@ Complete, step-by-step guide to replicate all benchmark results from scratch.
 | 8 GB RAM | 16 GB RAM |
 | 4 CPU cores | 8 CPU cores |
 | 20 GB free disk | 50 GB free disk (model weights ~5 GB cached) |
-| CPU-only works | NVIDIA GPU 8 GB+ VRAM (10× faster) |
+| CPU-only works (slow) | NVIDIA GPU 8 GB+ VRAM, sm_75+ (Turing or newer) |
 
 ### Software
 
@@ -24,7 +24,7 @@ python --version  # ≥ 3.12
 # uv package manager
 curl -LsSf https://astral.sh/uv/install.sh | sh
 
-# Podman or Docker (for pgvector)
+# Podman (or Docker fallback — for pgvector)
 podman --version  # or: docker --version
 
 # Git
@@ -128,7 +128,7 @@ uv run benchmark thesis \
 
 | device | runtime |
 |---|---|
-| NVIDIA GPU (8 GB) | 30–60 min |
+| NVIDIA GPU (8 GB, sm_75+) | 30–60 min |
 | CPU (8 cores) | 2–4 hours |
 | CPU (4 cores) | 4–6 hours |
 
@@ -183,7 +183,7 @@ This mode extends the thesis protocol with production-database metrics: vector i
 
 ### 5.1 Start PostgreSQL + pgvector
 
-#### Option A: Podman (preferred on most Linux)
+#### Option A: Podman (recommended)
 
 ```bash
 podman run -d \
@@ -196,7 +196,7 @@ podman run -d \
   docker.io/pgvector/pgvector:pg16
 ```
 
-#### Option B: Docker
+#### Option B: Docker (fallback)
 
 ```bash
 docker run -d \
@@ -206,8 +206,10 @@ docker run -d \
   -e POSTGRES_DB=benchmark \
   -p 5432:5432 \
   -v $(pwd)/infra/postgres/init.sql:/docker-entrypoint-initdb.d/init.sql \
-  pgvector/pgvector:pg16
+  docker.io/pgvector/pgvector:pg16
 ```
+
+The init.sql creates `products_512`, `products_768`, `products_1280`, `products_2048` tables and the `benchmark_runs` tracking table automatically on first start.
 
 #### Wait for PostgreSQL
 
@@ -227,17 +229,16 @@ podman exec pgvector-benchmark psql -U benchmark -d benchmark \
   -c "SELECT extname, extversion FROM pg_extension WHERE extname='vector';"
 ```
 
-### 5.2 Create Pipeline Tables
+### 5.2 Verify Tables
 
-The `init.sql` creates schema tables (`product_embeddings_512`, `product_embeddings_768`, `benchmark_runs`, etc.), but the pipeline needs per-dimension tables:
+The `init.sql` creates all needed tables automatically. Verify:
 
 ```bash
-podman exec pgvector-benchmark psql -U benchmark -d benchmark <<SQL
-CREATE TABLE IF NOT EXISTS products_512  (id TEXT PRIMARY KEY, label TEXT NOT NULL, embedding vector(512));
-CREATE TABLE IF NOT EXISTS products_1280 (id TEXT PRIMARY KEY, label TEXT NOT NULL, embedding vector(1280));
-CREATE TABLE IF NOT EXISTS products_2048 (id TEXT PRIMARY KEY, label TEXT NOT NULL, embedding vector(2048));
-SQL
+podman exec pgvector-benchmark psql -U benchmark -d benchmark \
+  -c "\dt products_*"
 ```
+
+Expected output: `products_512`, `products_768`, `products_1280`, `products_2048`.
 
 ### 5.3 Run Pipeline Benchmark
 
@@ -356,7 +357,7 @@ tail -n +2 /tmp/thesis_5k/styles.csv | head -5000 | while IFS=, read -r id rest;
 done
 echo "  Created $(ls /tmp/thesis_5k/images/ | wc -l) images"
 
-echo "=== 2. Starting pgvector ==="
+echo "=== 2. Starting pgvector (Podman) ==="
 podman run -d --name pgvector-benchmark --replace \
   -e POSTGRES_USER=benchmark -e POSTGRES_PASSWORD=benchmark \
   -e POSTGRES_DB=benchmark -p 5432:5432 \
@@ -364,12 +365,8 @@ podman run -d --name pgvector-benchmark --replace \
   docker.io/pgvector/pgvector:pg16
 ./infra/postgres/wait-for-pg.sh
 
-echo "=== 3. Creating pipeline tables ==="
-podman exec pgvector-benchmark psql -U benchmark -d benchmark <<SQL
-CREATE TABLE IF NOT EXISTS products_512  (id TEXT PRIMARY KEY, label TEXT NOT NULL, embedding vector(512));
-CREATE TABLE IF NOT EXISTS products_1280 (id TEXT PRIMARY KEY, label TEXT NOT NULL, embedding vector(1280));
-CREATE TABLE IF NOT EXISTS products_2048 (id TEXT PRIMARY KEY, label TEXT NOT NULL, embedding vector(2048));
-SQL
+echo "=== 3. Verifying tables ==="
+podman exec pgvector-benchmark psql -U benchmark -d benchmark -c "\dt products_*"
 
 echo "=== 4. Running pipeline benchmark ==="
 uv run benchmark pipeline \
@@ -404,6 +401,7 @@ Run the table creation SQL in §5.2.
 ResNet-50 (2048-d) exceeds pgvector's IVFFlat dimension limit. The pipeline gracefully degrades — ResNet-50 pgvector metrics show 0.0. Exact cosine metrics are still valid. Workarounds:
 1. Use HNSW index instead (no dimension limit) — not yet in pipeline
 2. Exclude ResNet-50 from pipeline: `--models fashion-clip,clip-generic,efficientnet-b0`
+3. The init.sql `products_2048` table is created but IVFFlat index build will fail at runtime
 
 ### "out of memory" during embedding generation
 

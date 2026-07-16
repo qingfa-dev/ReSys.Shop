@@ -45,7 +45,7 @@ Mirrors `src/benchmark/` structure:
 |---|---|
 | `datasets/` | `loader.py`, `ground_truth.py` |
 | `evaluation/` | `stats.py`, `thesis.py` |
-| `integration/` | `pgvector.py` (requires Docker) |
+| `integration/` | `pgvector.py` (requires Podman) |
 | `metrics/` | `precision.py`, `recall.py`, `map.py`, `ndcg.py` |
 | `models/` | `base.py`, `registry.py`, all model adapters |
 | `reporting/` | `json.py`, `csv.py`, `markdown.py`, `typst.py` |
@@ -151,7 +151,7 @@ Historical outputs (committed for reference):
 
 | subfolder | purpose |
 |---|---|
-| `docker/` | Docker configs for containerized runs |
+| `infra/` | PostgreSQL init scripts + Podman/Docker setup |
 | `postgres/` | PostgreSQL / PGVector setup |
 
 ---

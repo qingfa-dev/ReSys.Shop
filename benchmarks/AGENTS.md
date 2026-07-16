@@ -1,6 +1,6 @@
 # Benchmarks — Agent Guide
 
-Fashion image retrieval benchmark for the CTU thesis. Python 3.12, 11 embedding models, 5 CLI commands. See `docs/` for deep dives. Lives in monorepo — never import from sibling projects.
+Fashion image retrieval benchmark for the CTU thesis. Python 3.12, 11 embedding models, 6 CLI commands. See `docs/` for deep dives. Lives in monorepo — never import from sibling projects.
 
 ## Non-Negotiable Rules
 
@@ -14,6 +14,8 @@ Fashion image retrieval benchmark for the CTU thesis. Python 3.12, 11 embedding 
 
 - `docs/08-replication-guide.md` — step-by-step to reproduce all results (start here)
 - `docs/09-benchmark-results.md` — consolidated 5K pipeline + thesis results
+- `docs/10-benchmark-comparison.md` — 3-way comparison (category-only → cat+colour → cat+colour+pattern)
+- `docs/11-enriched-dataset.md` — enriched dataset usage + dual-label evaluation
 - `docs/06-thesis-protocol.md` — §11.5 academic evaluation protocol
 - `docs/codebase/ARCHITECTURE.md` — 3 benchmark modes, layer flow, patterns
 - `docs/codebase/STRUCTURE.md` — directory map, entry points, module boundaries
@@ -33,8 +35,8 @@ uv sync --extra dev          # Install deps + pytest (required for testing)
 
 ```bash
 uv run ruff check src/              # Lint
-uv run pytest --ignore=src/tests/integration/  # Unit tests (125+, fast)
-uv run pytest                        # All tests (inc. integration — requires Docker/pgvector)
+uv run pytest --ignore=src/tests/integration/  # Unit tests (145, fast)
+uv run pytest                        # All tests (inc. integration — requires Podman/pgvector)
 uv run pytest --cov=benchmark        # Coverage report
 uv run benchmark --help              # CLI sanity
 ```
@@ -42,9 +44,10 @@ uv run benchmark --help              # CLI sanity
 ## CLI Commands
 
 ```bash
+uv run benchmark enrich  --dataset-root PATH --n-samples 5000   # Build enriched dataset (JSON → CSV + dual-label splits)
 uv run benchmark run     --dataset-root PATH --models MODEL [OPTIONS]  # One-shot comparison
 uv run benchmark thesis  --dataset-root PATH [OPTIONS]                 # 3-fold CV, in-memory (no DB needed)
-uv run benchmark pipeline --dataset-root PATH [OPTIONS]               # CV + pgvector (needs PostgreSQL running)
+uv run benchmark pipeline --dataset-root PATH [OPTIONS]               # CV + pgvector (Podman: podman run pgvector/pgvector:pg16)
 uv run benchmark report  --format typst [OPTIONS]                      # Regenerate reports
 uv run benchmark cache   list|stats|clear                               # Embedding cache mgmt
 ```
@@ -60,9 +63,9 @@ Pipeline mode requires pgvector PostgreSQL (see `docs/08-replication-guide.md` �
 - `src/benchmark/metrics/` — P@K, R@K, mAP, nDCG, latency, recall_comparison
 - `src/benchmark/retrieval/` — Cosine (exact), FAISS, PGVector (batch ingestion, index, query)
 - `src/benchmark/reporting/` — JSON, CSV, Markdown, Typst (thesis + pipeline), charts
-- `src/benchmark/cli/` — Typer app with 5 commands (`benchmark.cli.benchmark:app`)
-- `src/tests/` — mirrored test structure (~125 tests)
-- `infra/` — PostgreSQL/pgvector init scripts + container setup
+- `src/benchmark/cli/` — Typer app with 6 commands (`benchmark.cli.benchmark:app`)
+- `src/tests/` — mirrored test structure (~145 tests)
+- `infra/` — PostgreSQL/pgvector init.sql + wait-for-pg.sh (Podman/Docker)
 
 ## Known Issues
 

@@ -1,6 +1,7 @@
 using Module.Ordering.Domain.Orders;
 using Module.Shipping.Domain.Calculators;
 using Module.Shipping.Domain.ShippingMethods;
+using Shared.Application.Domain.Currencies;
 
 namespace Module.Shipping.Features.Storefront.Shipping.Calculate;
 /// <summary>Calculates shipping cost for a given order and shipping method based on weight.</summary>
@@ -62,7 +63,8 @@ public static partial class CalculateShipping
             var (cost, isFree) = calcResult.Value;
 
             // Map: Return shipping cost response with method details.
-            return new Response(method.Id, method.Name, cost, order?.Currency ?? "USD", isFree);
+            // EXCEPTION: no domain entity — calculation result composed from ShippingMethod and Order
+            return new Response(method.Id, method.Name, cost, order?.Currency ?? SystemCurrencyConstant.Defaults.Code, isFree);
         }
     }
 }

@@ -97,16 +97,17 @@ class Evaluator:
 
         embeddings = result.embeddings
         samples = result.samples
-        # Transform: Build relevance sets — each query has a set of same-label items (excl self)
+        # Transform: Build relevance sets — pre-build {label: {indices}} then O(1) per query
+        from collections import defaultdict
         labels = [s.label for s in samples]
+        label_to_indices: dict[str, set[int]] = defaultdict(set)
+        for idx, lbl in enumerate(labels):
+            label_to_indices[lbl].add(idx)
         label_set_per_query = [
-            {labels[j] for j in range(len(labels)) if labels[j] == labels[i] and j != i}
-            for i in range(len(labels))
+            label_to_indices[lbl] - {i}
+            for i, lbl in enumerate(labels)
         ]
-        label_counts_per_query = [
-            sum(1 for j in range(len(labels)) if labels[j] == labels[i] and j != i)
-            for i in range(len(labels))
-        ]
+        label_counts_per_query = [len(s) for s in label_set_per_query]
 
         # Compute: Retrieve top-K via exact cosine similarity (self-retrieval)
         max_k = max(self.k_values)

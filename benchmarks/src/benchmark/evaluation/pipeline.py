@@ -232,9 +232,9 @@ class PipelineRunner:
 
         process = psutil.Process()
         gc.collect()
-        baseline = process.memory_info().rss
+        baseline = process.memory_info().rss - process.memory_info().shared
         model.embed_batch(sample_images[:MAGIC.BATCH_SIZE])
-        peak = process.memory_info().rss
+        peak = process.memory_info().rss - process.memory_info().shared
         ram_mb = (peak - baseline) / CONST.BYTES_TO_MB
 
         # Compute: Storage footprint

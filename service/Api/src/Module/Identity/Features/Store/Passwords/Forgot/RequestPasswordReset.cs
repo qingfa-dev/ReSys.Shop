@@ -11,6 +11,7 @@ namespace Module.Identity.Features.Store.Passwords.Forgot;
 
 public static partial class RequestPasswordReset
 {
+    // EXCEPTION: minimal confirmation message — no domain entity
     public record Response(string Message);
 
     public record Command(Request Request) : ICommand;

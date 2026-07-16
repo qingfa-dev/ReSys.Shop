@@ -9,6 +9,7 @@ import socket
 import sys
 
 from embedding.core.config import settings
+from embedding.core.constants import Constants
 from opentelemetry import metrics, trace
 
 # Internal OTel logging imports
@@ -33,8 +34,6 @@ from opentelemetry.sdk.trace.export import (
     ConsoleSpanExporter,
     SimpleSpanProcessor,
 )
-
-from core.constants import Constants
 
 logger = logging.getLogger(__name__)
 

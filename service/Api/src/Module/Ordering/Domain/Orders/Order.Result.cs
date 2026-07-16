@@ -1,4 +1,5 @@
 using Module.Ordering.Domain.LineItems;
+using Shared.Application.Domain.Currencies;
 
 namespace Module.Ordering.Domain.Orders;
 
@@ -207,7 +208,7 @@ public static class OrderResult
         /// <summary>Currency code exceeds maximum length.</summary>
         public static Error CurrencyTooLong => Error.Validation(
             code: "Order.Currency.TooLong",
-            message: $"Currency code must be at most {OrderConstant.Constraints.MaxCurrencyLength} characters.");
+            message: $"Currency code must be at most {SystemCurrencyConstant.Constraints.MaxCodeLength} characters.");
 
         /// <summary>Guest order ID is required.</summary>
         public static Error GuestIdRequired => Error.Validation(

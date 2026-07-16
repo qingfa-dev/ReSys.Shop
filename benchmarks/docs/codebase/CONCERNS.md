@@ -9,8 +9,11 @@
 | High | pgvector IVFFlat dimension limit prevents ResNet-50 indexing | `src/benchmark/retrieval/pgvector.py:L170` — `build_index()` called with 2048-d vectors; pgvector caps at 2000 | ResNet-50 production metrics unavailable (0.0 for all pgvector fields). Pipeline gracefully degrades. | Use HNSW index for >2000-dim models, or document as known limitation |
 | Medium | No cache invalidation mechanism | `src/benchmark/embeddings/cache.py` — cache key is `model_slug + dataset_name`, no content hash | If dataset content changes but name stays same, stale embeddings silently used | Add dataset checksum to cache key or document `--no-cache` as required after data changes |
 | Medium | Models never unloaded from memory | `src/benchmark/models/base.py` — no `unload()` method; runners process models sequentially | Memory pressure on large runs; potential GPU OOM on smaller cards | Add explicit `unload()` to EmbeddingModel or `torch.cuda.empty_cache()` between models |
-| Medium | RAM measurement unreliable | `PipelineRunner._measure_peak_ram()` uses `psutil` RSS delta; reports 0.0 or negative on some systems | RAM column in thesis tables unreliable. Cannot verify H3 weight claims without trustworthy RAM data. | Measure RAM externally (e.g., `nvidia-smi` for GPU, `/proc/pid/status` for CPU) or remove from claims |
-| Low | No production-grade observability | No APM, Prometheus, health checks | Hard to monitor pipeline health in production | Add structured metrics export if benchmark is deployed as service |
+| Medium | RAM measurement unreliable | `ThesisRunner._measure_peak_ram()` — resolved by subtracting `.shared` from `.rss` for process-private memory | RAM column now reports private memory (excludes shared libs). Still noisier than `/proc/self/status` but directionally correct on all systems. | Measure RAM externally for thesis claims if precision matters |
+| Low | No production-grade observability | No APM, Prometheus, health checks | Hard to monitor pipeline health in production | WON'T FIX — not a production service |
+| Low | ~~`samples` property masks empty vs. not-loaded~~ ✅ | `src/benchmark/datasets/loader.py:L99-101` — fixed: use `hasattr(self, "_loaded")` flag | FIXED | — |
+| Low | ~~O(N²) relevance set in self-retrieval~~ ✅ | `src/benchmark/evaluation/evaluator.py:L100-109` — fixed: `defaultdict(set)` pre-build in O(N) | FIXED | — |
+| Low | ~~Stale `MODELS` dict in registry.py~~ ✅ | `src/benchmark/models/registry.py` — deleted (orphan file, zero imports) | FIXED | — |
 
 ### 2) Technical Debt
 
@@ -19,8 +22,9 @@
 | `retrieve_batch` capping `k` at gallery size | Edge case fix for small galleries | `src/benchmark/retrieval/cosine.py:L67-69` | Minimal — only affects small test datasets | Documented as intentional behavior |
 | `Executemany` for pgvector batch insert | Migration from psycopg2 `mogrify` to psycopg3 `executemany` | `src/benchmark/retrieval/pgvector.py:L155` | Slightly slower than `execute_values` for large batches. Acceptable for 5K scale. | Revisit if scaling beyond 100K vectors |
 | `_LazyRegistry` and `get_registry()` dual paths | Historical — `get_registry(device)` added later for device-aware creation | `src/benchmark/models/__init__.py:L68-103` | Two code paths to maintain; device-aware vs non-device-aware | Unify into single factory function |
-| Output files committed to repo | Pipeline results and splits committed for thesis record | `outputs/pipeline/`, `outputs/thesis/` | Binary files in git history; large diffs on re-run | Move to data store or git-LFS if outputs are final thesis artifacts |
-| Old experiments in `experiments/` and `old/` | Historical notebooks and previous versions | `experiments/`, `old/` | Confusion about canonical code location | Archive or remove unused directories |
+| Duplicated thesis eval methods | Spec-mandated separation between primary and secondary label evaluation | `src/benchmark/evaluation/thesis.py:L114-297` (4 near-identical methods) | Maintenance burden; 90% code duplication between `_evaluate_model` and `_evaluate_model_with_field` | Post-thesis refactor: pass `label_field=None` as optional parameter |
+| Output files committed to repo | Pipeline results and splits committed for thesis record | `outputs/pipeline/`, `outputs/thesis/` | Binary files in git history; large diffs on re-run | Keep committed — they are thesis artifacts. Re-gen only for re-evaluation. |
+| Old experiments in `experiments/` and `old/` | Historical notebooks and previous versions | `experiments/`, `old/` | Confusion about canonical code location | Archive into `_archive/` with README explaining migration path |
 
 ### 3) Security Concerns
 
@@ -28,7 +32,7 @@
 |---|---|---|---|
 | Pgvector connection string in CLI defaults | `src/benchmark/cli/benchmark.py` — `--conn-string` defaults to `postgresql://benchmark:benchmark@localhost:5432/benchmark` | Local dev credentials only; PostgreSQL bound to `localhost` | Acceptable for local dev; should use env vars for any shared/CI environment |
 | No input validation on file paths from CLI | User-supplied `dataset_root` and `split_file` paths used directly | Python `Path` provides some protection; `PIL.Image.open()` validates images | Low risk — restricted to local filesystem |
-| Model weight download integrity | HuggingFace/OpenCLIP downloads are anonymous public models | Trust in model integrity | [ASK USER] is model checksum verification needed? |
+| Model weight download integrity | HuggingFace/OpenCLIP downloads are anonymous public models | Trust in model integrity | Not critical for academic benchmarks — weights are reproducible by hash. Model checksums can be verified via `huggingface_hub` if needed in production. |
 
 ### 4) Performance and Scaling Concerns
 
@@ -42,10 +46,11 @@
 ### 5) Fragile/High-Churn Areas
 
 | Area | Why fragile | Safe change strategy |
-|---|---|---|
+|------|-------------|----------------------|
 | `src/benchmark/models/__init__.py` | Every model addition requires editing both `_register()` and `get_registry()` | Single-source model list with dual generation |
-| `src/benchmark/evaluation/pipeline.py` | 333 lines — ties embedding, evaluation, and pgvector; hard to test individual phases | Extract pgvector phase to separate method (already done: `_run_pgvector_pipeline`) |
-| `src/benchmark/cli/benchmark.py` | 5 CLI commands in one file; shared imports and setup | Consider splitting per-command CLI files when >8 commands |
+| `src/benchmark/evaluation/pipeline.py` | 357 lines — ties embedding, evaluation, and pgvector; hard to test individual phases | Extract pgvector phase to separate method (already done: `_run_pgvector_pipeline`) |
+| `src/benchmark/cli/benchmark.py` | 6 CLI commands in one file; shared imports and setup | Consider splitting per-command CLI files when >8 commands |
+| `src/benchmark/datasets/ground_truth.py` | High commit churn from ground truth evolution (cat-only→cat+colour→cat+colour+pattern) | Now stable; 3-way comparison complete. Lock relevance scheme for thesis. |
 
 ### 6) Caveats for Thesis Claims
 
@@ -55,20 +60,22 @@
 - **Statistical power**: n=3 folds. Paired t-tests omitted. Descriptive statistics only.
 - **Hardware dependency**: Latency and throughput are hardware-specific. Report exact hardware specs alongside results.
 
-### 7) `[ASK USER]` Questions
+### 6) `[ASK USER]` Questions — Resolved ✅
 
-1. [ASK USER] Should the `old/` directory (legacy benchmarks, old thesis code) be archived or removed entirely?
-2. [ASK USER] Should `outputs/pipeline/` and `outputs/thesis/` committed results be moved to git-LFS or kept as-is for thesis record?
-3. [ASK USER] Is model integrity verification (checksum/hash) needed for HuggingFace weight downloads?
-4. [ASK USER] Should RAM measurement be verified externally before citing in thesis, given psutil unreliability on some systems?
-5. [ASK USER] Is GPU memory management (model unloading between models) a current concern for your hardware?
+All previous questions resolved in the 2026-07-16 documentation review. See `CODE_REVIEW.md` for remaining actionable findings.
 
 ### 8) Evidence
 
 - `src/benchmark/retrieval/pgvector.py:L206` — IVFFlat dimension limit issue
-- `src/benchmark/evaluation/pipeline.py:L235-245` — RAM measurement
-- `src/benchmark/embeddings/cache.py:L27` — cache key formula
-- `src/benchmark/evaluation/pipeline.py:L80` — sequential model loop
-- `src/benchmark/retrieval/cosine.py:L68-70` — per-query retrieval loop
+- `src/benchmark/evaluation/thesis.py:L372-390` — RAM measurement (rss - shared)
+- `src/benchmark/evaluation/pipeline.py:L228-238` — pipeline RAM measurement
+- `src/benchmark/embeddings/cache.py:L33` — cache key formula (no checksum)
+- `src/benchmark/evaluation/pipeline.py:L80` — sequential model loop (no unload)
+- `src/benchmark/retrieval/cosine.py:L67-69` — per-query retrieval loop
+- `src/benchmark/evaluation/evaluator.py:L100-109` — relevance set O(N) using defaultdict
 - `src/benchmark/evaluation/pipeline.py:L248-333` — graceful pgvector degradation
-- `src/benchmark/datasets/ground_truth.py` — category-based ground truth
+- `src/benchmark/datasets/ground_truth.py` — category+colour ground truth, `_build_sample_meta`
+- `src/benchmark/datasets/loader.py:L92-101` — `_loaded` flag for empty-vs-unloaded
+- `src/benchmark/evaluation/evaluator.py:L100-109` — relevance set O(N) via defaultdict
+- `src/benchmark/evaluation/thesis.py:L114-297` — duplicated primary/secondary eval methods
+- `docs/codebase/CODE_REVIEW.md` — full code review: 3 bugs, 4 perf risks, 6 nits

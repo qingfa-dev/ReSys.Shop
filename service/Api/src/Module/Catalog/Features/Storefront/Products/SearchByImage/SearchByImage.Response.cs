@@ -2,6 +2,7 @@ namespace Module.Catalog.Features.Storefront.Products.SearchByImage;
 
 public static partial class SearchByImage
 {
+    // EXCEPTION: search result collection — composite of Variant + embedding data
     public sealed record Response
     {
         public string? Message { get; init; }

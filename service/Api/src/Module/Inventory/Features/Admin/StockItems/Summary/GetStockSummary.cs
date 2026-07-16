@@ -1,6 +1,6 @@
 using Module.Inventory.Domain.StockLocations.StockItems;
 using Module.Inventory.Domain.StockReservations;
-using Module.Inventory.Services.Models;
+using Module.Inventory.Features.Admin.StockItems.Shared.Models;
 
 namespace Module.Inventory.Features.Admin.StockItems.Summary;
 
@@ -47,7 +47,7 @@ public static partial class GetStockSummary
                     {
                         var reserved = locationReservations.GetValueOrDefault(si.StockLocationId, 0);
                         var available = si.CountOnHand - reserved;
-                        return new LocationStockInfo
+                        return new LocationBreakdownItem
                         {
                             LocationId = si.StockLocationId,
                             LocationName = si.StockLocation?.Name ?? "Unknown",
@@ -62,7 +62,7 @@ public static partial class GetStockSummary
                     var totalReserved = locationBreakdown.Sum(l => l.Reserved);
                     var totalAvailable = locationBreakdown.Sum(l => l.Available);
 
-                    return new VariantStockSummary
+                    return new Response
                     {
                         VariantId = g.Key,
                         TotalOnHand = totalOnHand,
@@ -73,7 +73,7 @@ public static partial class GetStockSummary
                 })
                 .ToList();
 
-            return grouped.Select(x => new Response(x)).ToList();
+            return grouped.ToList();
         }
     }
 }

@@ -1,30 +1,27 @@
 using System.Diagnostics;
 using System.Reflection;
 
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
+
+using Shared.Application.Domain.Currencies;
 
 namespace Shared.Application.Systems.SystemInfos;
 
-/// <summary>
-/// Standard implementation of <see cref="ISystemInfo"/>.
-/// </summary>
-public sealed class SystemInfo(IHostEnvironment environment) : ISystemInfo
+public sealed class SystemInfo(IHostEnvironment environment, IConfiguration configuration) : ISystemInfo
 {
     private static readonly FileVersionInfo AssemblyVersion =
         FileVersionInfo.GetVersionInfo(Assembly.GetExecutingAssembly().Location);
 
-    /// <inheritdoc />
-    public string ApplicationName => environment.ApplicationName; // Receive: Application name from host
+    public string ApplicationName => environment.ApplicationName;
 
-    /// <inheritdoc />
-    public string Version => AssemblyVersion.ProductVersion ?? "1.0.0"; // Receive: Version from assembly metadata
+    public string Version => AssemblyVersion.ProductVersion ?? "1.0.0";
 
-    /// <inheritdoc />
-    public string Environment => environment.EnvironmentName; // Receive: Current environment name
+    public string Environment => environment.EnvironmentName;
 
-    /// <inheritdoc />
-    public string MachineName => System.Environment.MachineName; // Receive: Local machine name
+    public string MachineName => System.Environment.MachineName;
 
-    /// <inheritdoc />
-    public int ProcessId => System.Environment.ProcessId; // Receive: OS process identifier
+    public int ProcessId => System.Environment.ProcessId;
+
+    public string DefaultCurrency => configuration["System:DefaultCurrency"] ?? SystemCurrencyConstant.Defaults.Code;
 }
