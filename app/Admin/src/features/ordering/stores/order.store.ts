@@ -10,7 +10,6 @@ import type {
   CreateOrderRequest, 
   AddOrderItemRequest, 
   UpdateAddressesRequest,
-  RefundPaymentRequest
 } from '../types/order.types';
 
 export const useOrderStore = defineStore('order', () => {
@@ -68,21 +67,26 @@ export const useOrderStore = defineStore('order', () => {
   async function updateOrderAddresses(id: string, data: UpdateAddressesRequest) {
     submitting.value = true;
     try {
-      const result = await orderService.updateAddresses(id, data);
-      if (result.success) {
-        showToast('success', 'Success', 'Addresses updated');
-        await fetchOrderById(id);
+      if (data.shippingAddress) {
+        const shipResult = await orderService.updateShipAddress(id, data.shippingAddress);
+        if (!shipResult.success) return shipResult;
       }
-      return result;
+      if (data.billingAddress) {
+        const billResult = await orderService.updateBillAddress(id, data.billingAddress);
+        if (!billResult.success) return billResult;
+      }
+      showToast('success', 'Success', 'Addresses updated');
+      await fetchOrderById(id);
+      return { success: true, data: null } as any;
     } finally {
       submitting.value = false;
     }
   }
 
-  async function advanceOrderState(id: string) {
+  async function advanceOrderState(id: string, status: string) {
     submitting.value = true;
     try {
-      const result = await orderService.updateState(id);
+      const result = await orderService.updateStatus(id, status);
       if (result.success) {
         showToast('success', 'Success', 'Order state advanced');
         await fetchOrderById(id);
@@ -96,38 +100,10 @@ export const useOrderStore = defineStore('order', () => {
   async function cancelOrder(id: string, reason?: string) {
     submitting.value = true;
     try {
-      const result = await orderService.cancelOrder(id, reason);
+      const result = await orderService.cancel(id, reason);
       if (result.success) {
         showToast('success', 'Success', 'Order canceled');
         await fetchOrderById(id);
-      }
-      return result;
-    } finally {
-      submitting.value = false;
-    }
-  }
-
-  async function cancelShipment(orderId: string, shipmentId: string) {
-    submitting.value = true;
-    try {
-      const result = await orderService.cancelShipment(orderId, shipmentId);
-      if (result.success) {
-        showToast('success', 'Success', 'Shipment canceled');
-        await fetchOrderById(orderId);
-      }
-      return result;
-    } finally {
-      submitting.value = false;
-    }
-  }
-
-  async function refundPayment(orderId: string, paymentId: string, data: RefundPaymentRequest) {
-    submitting.value = true;
-    try {
-      const result = await orderService.refundPayment(orderId, paymentId, data);
-      if (result.success) {
-        showToast('success', 'Success', 'Payment refunded');
-        await fetchOrderById(orderId);
       }
       return result;
     } finally {
@@ -150,7 +126,5 @@ export const useOrderStore = defineStore('order', () => {
     updateOrderAddresses,
     advanceOrderState,
     cancelOrder,
-    cancelShipment,
-    refundPayment
   };
 });

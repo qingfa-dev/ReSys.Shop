@@ -8,6 +8,7 @@ vi.mock('@/shared/api/http/api.client', () => ({
   default: {
     get: vi.fn(),
     post: vi.fn(),
+    put: vi.fn(),
   },
 }))
 
@@ -25,7 +26,7 @@ describe('OrderService', () => {
 
       const result = await orderService.list(params)
 
-      expect(apiClient.get).toHaveBeenCalledWith('/admin/orders', { params })
+      expect(apiClient.get).toHaveBeenCalledWith('api/ordering/orders', { params })
       expect(result).toEqual(mockResponse)
     })
   })
@@ -39,26 +40,27 @@ describe('OrderService', () => {
 
       const result = await orderService.getById(id)
 
-      expect(apiClient.get).toHaveBeenCalledWith(`/admin/orders/${id}`)
+      expect(apiClient.get).toHaveBeenCalledWith('api/ordering/orders/order-id')
       expect(result).toEqual(mockResponse)
     })
   })
 
-  describe('updateState (advance)', () => {
-    it('should call api.post to advance endpoint', async () => {
+  describe('updateStatus', () => {
+    it('should call api.put to status endpoint', async () => {
       const id = 'order-id'
+      const status = 'Processing'
       const mockResponse = { data: {}, success: true }
 
-      vi.mocked(apiClient.post).mockResolvedValue(mockResponse)
+      vi.mocked(apiClient.put).mockResolvedValue(mockResponse)
 
-      const result = await orderService.updateState(id)
+      const result = await orderService.updateStatus(id, status)
 
-      expect(apiClient.post).toHaveBeenCalledWith(`/admin/orders/${id}/advance`)
+      expect(apiClient.put).toHaveBeenCalledWith('api/ordering/orders/order-id/status', { status })
       expect(result).toEqual(mockResponse)
     })
   })
 
-  describe('cancelOrder', () => {
+  describe('cancel', () => {
     it('should call api.post with reason', async () => {
       const id = 'order-id'
       const reason = 'Out of stock'
@@ -66,9 +68,24 @@ describe('OrderService', () => {
 
       vi.mocked(apiClient.post).mockResolvedValue(mockResponse)
 
-      const result = await orderService.cancelOrder(id, reason)
+      const result = await orderService.cancel(id, reason)
 
-      expect(apiClient.post).toHaveBeenCalledWith(`/admin/orders/${id}/cancel`, { reason })
+      expect(apiClient.post).toHaveBeenCalledWith('api/ordering/orders/order-id/cancel', { reason })
+      expect(result).toEqual(mockResponse)
+    })
+  })
+
+  describe('addItem', () => {
+    it('should call api.post to line-items endpoint', async () => {
+      const id = 'order-id'
+      const data = { variantId: 'v-1', quantity: 2 }
+      const mockResponse = { data: {}, success: true }
+
+      vi.mocked(apiClient.post).mockResolvedValue(mockResponse)
+
+      const result = await orderService.addItem(id, data)
+
+      expect(apiClient.post).toHaveBeenCalledWith('api/ordering/orders/order-id/line-items', data)
       expect(result).toEqual(mockResponse)
     })
   })

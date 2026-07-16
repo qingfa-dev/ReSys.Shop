@@ -1,43 +1,70 @@
-import { createModuleApi, apiClient } from '@/shared/api'
+import apiClient from '@/shared/api/http/api.client'
+import { ORDERS } from '@/shared/api/constants'
 import type { ApiResult } from '@/shared/api/types/api.types'
 import type { ServerQueryingParameters } from '@/shared/api/types/query-params.types'
-import type { OrderListItem, OrderDetail, CreateOrderRequest, AddOrderItemRequest, UpdateAddressesRequest, CancelOrderRequest, CreateShipmentRequest, RefundPaymentRequest } from '../types/order.types'
-import { ORDERS } from '@/shared/api/constants'
+import type { OrderListItem, OrderDetail, CreateOrderRequest, AddOrderItemRequest, CancelOrderRequest } from '../types/order.types'
 
 export const orderingApi = {
   orders: {
-    ...createModuleApi<OrderDetail, CreateOrderRequest>({ basePath: ORDERS }),
-
     async list(params?: ServerQueryingParameters): Promise<ApiResult<OrderListItem[]>> {
-      return apiClient.get(ORDERS, { params })
+      return apiClient.get(`${ORDERS}/orders`, { params })
     },
-    async createShipment(orderId: string, data: CreateShipmentRequest): Promise<ApiResult<void>> {
-      return apiClient.post(`${ORDERS}/${orderId}/shipments`, data)
+    async getById(id: string): Promise<ApiResult<OrderDetail>> {
+      return apiClient.get(`${ORDERS}/orders/${id}`)
     },
-    async cancelShipment(orderId: string, shipmentId: string): Promise<ApiResult<void>> {
-      return apiClient.delete(`${ORDERS}/${orderId}/shipments/${shipmentId}`)
+    async create(data: CreateOrderRequest): Promise<ApiResult<OrderDetail>> {
+      return apiClient.post(`${ORDERS}/orders`, data)
     },
-    async addItem(id: string, data: AddOrderItemRequest): Promise<ApiResult<void>> {
-      return apiClient.post(`${ORDERS}/${id}/items`, data)
+    async update(id: string, data: Partial<CreateOrderRequest>): Promise<ApiResult<OrderDetail>> {
+      return apiClient.put(`${ORDERS}/orders/${id}`, data)
     },
-    async updateAddresses(id: string, data: UpdateAddressesRequest): Promise<ApiResult<void>> {
-      return apiClient.put(`${ORDERS}/${id}/addresses`, data)
+    async delete(id: string): Promise<ApiResult<void>> {
+      return apiClient.delete(`${ORDERS}/orders/${id}`)
     },
-    async updateState(id: string): Promise<ApiResult<void>> {
-      return apiClient.post(`${ORDERS}/${id}/advance`)
+    // State transitions
+    async updateStatus(id: string, status: string): Promise<ApiResult<void>> {
+      return apiClient.put(`${ORDERS}/orders/${id}/status`, { status })
     },
-    async cancelOrder(id: string, reason?: string): Promise<ApiResult<void>> {
-      const data: CancelOrderRequest = { reason }
-      return apiClient.post(`${ORDERS}/${id}/cancel`, data)
+    async cancel(id: string, reason?: string): Promise<ApiResult<void>> {
+      return apiClient.post(`${ORDERS}/orders/${id}/cancel`, { reason } as CancelOrderRequest)
     },
-    async refundPayment(orderId: string, paymentId: string, data: RefundPaymentRequest): Promise<ApiResult<void>> {
-      return apiClient.post(`${ORDERS}/${orderId}/payments/${paymentId}/refund`, data)
+    async complete(id: string): Promise<ApiResult<void>> {
+      return apiClient.post(`${ORDERS}/orders/${id}/complete`)
+    },
+    async approve(id: string): Promise<ApiResult<void>> {
+      return apiClient.post(`${ORDERS}/orders/${id}/approve`)
+    },
+    async resume(id: string): Promise<ApiResult<void>> {
+      return apiClient.post(`${ORDERS}/orders/${id}/resume`)
+    },
+    // Addresses
+    async updateShipAddress(id: string, address: Record<string, unknown>): Promise<ApiResult<void>> {
+      return apiClient.put(`${ORDERS}/orders/${id}/ship-address`, address)
+    },
+    async updateBillAddress(id: string, address: Record<string, unknown>): Promise<ApiResult<void>> {
+      return apiClient.put(`${ORDERS}/orders/${id}/bill-address`, address)
+    },
+    async updateShippingMethod(id: string, shippingMethodId: string): Promise<ApiResult<void>> {
+      return apiClient.put(`${ORDERS}/orders/${id}/shipping-method`, { shippingMethodId })
+    },
+    // Line items
+    async listLineItems(id: string): Promise<ApiResult<any[]>> {
+      return apiClient.get(`${ORDERS}/orders/${id}/line-items`)
+    },
+    async addLineItem(id: string, data: AddOrderItemRequest): Promise<ApiResult<void>> {
+      return apiClient.post(`${ORDERS}/orders/${id}/line-items`, data)
+    },
+    async updateLineItem(id: string, lineItemId: string, data: { quantity?: number }): Promise<ApiResult<void>> {
+      return apiClient.put(`${ORDERS}/orders/${id}/line-items/${lineItemId}`, data)
+    },
+    async removeLineItem(id: string, lineItemId: string): Promise<ApiResult<void>> {
+      return apiClient.delete(`${ORDERS}/orders/${id}/line-items/${lineItemId}`)
     },
   },
 
   fulfillments: {
     async getQueue(params?: ServerQueryingParameters): Promise<ApiResult<OrderListItem[]>> {
-      return apiClient.get(ORDERS, { params: { ...params, state: 'Processing' } })
+      return apiClient.get(`${ORDERS}/orders`, { params: { ...params, state: 'Processing' } })
     },
   },
 }

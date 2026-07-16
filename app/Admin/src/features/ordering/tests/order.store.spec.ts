@@ -10,7 +10,7 @@ vi.mock('../services/order.service', () => ({
   orderService: {
     list: vi.fn(),
     getById: vi.fn(),
-    updateState: vi.fn(),
+    updateStatus: vi.fn(),
   }
 }));
 
@@ -63,11 +63,12 @@ describe('OrderStore', () => {
   });
 
   describe('advanceOrderState', () => {
-    it('calls service and re-fetches order on success', async () => {
+    it('calls service with status and re-fetches order on success', async () => {
       const store = useOrderStore();
       const orderId = '1';
+      const status = 'Processing';
       
-      vi.mocked(orderService.updateState).mockResolvedValue({
+      vi.mocked(orderService.updateStatus).mockResolvedValue({
         success: true,
         data: null as any
       });
@@ -78,9 +79,9 @@ describe('OrderStore', () => {
         data: { id: orderId, state: 'Advanced' } as any
       });
 
-      await store.advanceOrderState(orderId);
+      await store.advanceOrderState(orderId, status);
 
-      expect(orderService.updateState).toHaveBeenCalledWith(orderId);
+      expect(orderService.updateStatus).toHaveBeenCalledWith(orderId, status);
       expect(orderService.getById).toHaveBeenCalledWith(orderId);
       expect(store.submitting).toBe(false);
     });
