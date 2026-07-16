@@ -12,11 +12,10 @@ export interface RefreshRequest {
 }
 
 export interface AuthenticationResponse {
-  access_token: string
-  access_token_expires_at: number | string
-  refresh_token: string
-  refresh_token_expires_at: number | string
-  token_type?: string
+  accessToken: string
+  accessTokenExpiresIn: number
+  refreshToken: string
+  refreshTokenExpiresIn: number
 }
 
 export interface UserProfile {

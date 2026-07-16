@@ -71,10 +71,10 @@ describe('AuthStore', () => {
       const store = useAuthStore()
       const mockLoginResponse = {
         data: {
-          access_token: 'new-access',
-          refresh_token: 'new-refresh',
-          access_token_expires_at: '2026-01-01',
-          refresh_token_expires_at: '2026-01-02',
+          accessToken: 'new-access',
+          accessTokenExpiresIn: 3600,
+          refreshToken: 'new-refresh',
+          refreshTokenExpiresIn: 86400,
         },
         success: true as const,
       }
@@ -136,10 +136,10 @@ describe('AuthStore', () => {
       const store = useAuthStore()
       const mockRefreshResponse = {
         data: {
-          access_token: 'fresh-access',
-          refresh_token: 'fresh-refresh',
-          access_token_expires_at: '2026-01-01',
-          refresh_token_expires_at: '2026-01-02',
+          accessToken: 'fresh-access',
+          accessTokenExpiresIn: 3600,
+          refreshToken: 'fresh-refresh',
+          refreshTokenExpiresIn: 86400,
         },
         success: true as const,
       }

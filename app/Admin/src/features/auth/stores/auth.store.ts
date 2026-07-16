@@ -23,11 +23,11 @@ export const useAuthStore = defineStore('auth', () => {
     });
 
     function setTokens(response: AuthenticationResponse) {
-        accessToken.value = response.access_token;
-        refreshToken.value = response.refresh_token;
+        accessToken.value = response.accessToken;
+        refreshToken.value = response.refreshToken;
         
-        localStorage.setItem('accessToken', response.access_token);
-        localStorage.setItem('refreshToken', response.refresh_token);
+        localStorage.setItem('accessToken', response.accessToken);
+        localStorage.setItem('refreshToken', response.refreshToken);
     }
 
     function clearTokens() {
@@ -82,7 +82,7 @@ export const useAuthStore = defineStore('auth', () => {
             
             if (result.success && result.data) {
                 setTokens(result.data);
-                return result.data.access_token;
+                return result.data.accessToken;
             }
             // If refresh fails (logic handled in result check or catch)
             clearTokens();
