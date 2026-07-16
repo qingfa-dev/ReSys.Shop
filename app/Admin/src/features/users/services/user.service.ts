@@ -1,27 +1,3 @@
 import { identityApi } from '../../identity/services/identity.api'
 
-export const userService = {
-  list: identityApi.users.list,
-  getById: identityApi.users.getById,
-  create: identityApi.users.create,
-  update: identityApi.users.update,
-  delete: identityApi.users.delete,
-  listAdmins: identityApi.users.listAdmins,
-  getAdminDetail: identityApi.users.getAdminDetail,
-  createAdmin: identityApi.users.createAdmin,
-  updateAdmin: identityApi.users.updateAdmin,
-  deleteAdmin: identityApi.users.deleteAdmin,
-  updateAdminStatus: identityApi.users.updateStatus,
-  updateStaffProfile: identityApi.users.updateStaffProfile,
-  resetPassword: identityApi.users.resetPassword,
-  unlockAccount: identityApi.users.unlockAccount,
-  verifyAccount: identityApi.users.verifyAccount,
-  getUserRoles: identityApi.users.getRoles,
-  assignRole: identityApi.users.assignRole,
-  unassignRole: identityApi.users.unassignRole,
-  syncUserRoles: identityApi.users.syncRoles,
-  getUserPermissions: identityApi.users.getPermissions,
-  assignPermission: identityApi.users.assignPermission,
-  unassignPermission: identityApi.users.unassignPermission,
-  listCustomers: identityApi.users.listCustomers,
-}
+export const userService = identityApi.users

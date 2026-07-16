@@ -1,76 +1,68 @@
-import { createModuleApi, apiClient } from '@/shared/api'
+import apiClient from '@/shared/api/http/api.client'
+import { IDENTITY } from '@/shared/api/constants'
 import type { ApiResult } from '@/shared/api/types/api.types'
 import type { ServerQueryingParameters } from '@/shared/api/types/query-params.types'
 import type { AdminUserSummary, CustomerSummary, CreateAdminUserRequest, UpdateAdminUserRequest } from '../../users/types/user.types'
 import type { RoleSummary, CreateRoleRequest, UpdateRoleRequest } from '../../users/types/user.types'
 import type { PermissionSummary } from '../../users/types/user.types'
-import { IDENTITY } from '@/shared/api/constants'
 
 export const identityApi = {
   users: {
-    ...createModuleApi<AdminUserSummary>({ basePath: IDENTITY + '/users' }),
-
-    async listAdmins(params?: ServerQueryingParameters): Promise<ApiResult<AdminUserSummary[]>> {
+    async list(params?: ServerQueryingParameters): Promise<ApiResult<AdminUserSummary[]>> {
       return apiClient.get(`${IDENTITY}/users`, { params })
     },
-    async getAdminDetail(id: string): Promise<ApiResult<AdminUserSummary>> {
+    async listCustomers(params?: ServerQueryingParameters): Promise<ApiResult<CustomerSummary[]>> {
+      return apiClient.get(`${IDENTITY}/users`, { params: { ...params, role: 'Storefront.Customer' } })
+    },
+    async getById(id: string): Promise<ApiResult<AdminUserSummary>> {
       return apiClient.get(`${IDENTITY}/users/${id}`)
     },
-    async createAdmin(data: CreateAdminUserRequest): Promise<ApiResult<AdminUserSummary>> {
+    async create(data: CreateAdminUserRequest): Promise<ApiResult<AdminUserSummary>> {
       return apiClient.post(`${IDENTITY}/users`, data)
     },
-    async updateAdmin(id: string, data: UpdateAdminUserRequest): Promise<ApiResult<AdminUserSummary>> {
+    async update(id: string, data: UpdateAdminUserRequest): Promise<ApiResult<AdminUserSummary>> {
       return apiClient.put(`${IDENTITY}/users/${id}`, data)
     },
-    async deleteAdmin(id: string): Promise<ApiResult<void>> {
+    async delete(id: string): Promise<ApiResult<void>> {
       return apiClient.delete(`${IDENTITY}/users/${id}`)
     },
-
-    updateStatus(id: string, isActive: boolean): Promise<ApiResult<void>> {
+    async updateStatus(id: string, isActive: boolean): Promise<ApiResult<void>> {
       return apiClient.patch(`${IDENTITY}/users/${id}/status`, { isActive })
     },
-    updateStaffProfile(id: string, data: Record<string, unknown>): Promise<ApiResult<void>> {
-      return apiClient.put(`${IDENTITY}/users/${id}/staff-profile`, data)
-    },
-    resetPassword(id: string, data: Record<string, unknown>): Promise<ApiResult<void>> {
-      return apiClient.post(`${IDENTITY}/users/${id}/reset-password`, data)
-    },
-    unlockAccount(id: string): Promise<ApiResult<void>> {
-      return apiClient.post(`${IDENTITY}/users/${id}/unlock`)
-    },
-    verifyAccount(id: string, data: Record<string, unknown>): Promise<ApiResult<void>> {
-      return apiClient.post(`${IDENTITY}/users/${id}/verify`, data)
-    },
-    getRoles(id: string): Promise<ApiResult<string[]>> {
+
+    // Roles
+    async getRoles(id: string): Promise<ApiResult<string[]>> {
       return apiClient.get(`${IDENTITY}/users/${id}/roles`)
     },
-    assignRole(id: string, roleName: string): Promise<ApiResult<void>> {
-      return apiClient.post(`${IDENTITY}/users/${id}/roles`, { roleName })
+    async assignRole(id: string, roleName: string): Promise<ApiResult<void>> {
+      return apiClient.post(`${IDENTITY}/users/${id}/roles/assign`, { roleName })
     },
-    unassignRole(id: string, roleName: string): Promise<ApiResult<void>> {
-      return apiClient.delete(`${IDENTITY}/users/${id}/roles/${roleName}`)
+    async revokeRole(id: string, roleName: string): Promise<ApiResult<void>> {
+      return apiClient.post(`${IDENTITY}/users/${id}/roles/revoke`, { roleName })
     },
-    syncRoles(id: string, roleNames: string[]): Promise<ApiResult<void>> {
-      return apiClient.put(`${IDENTITY}/users/${id}/roles`, { roleNames })
+    async syncRoles(id: string, roleNames: string[]): Promise<ApiResult<void>> {
+      return apiClient.patch(`${IDENTITY}/users/${id}/roles/sync`, { roleNames })
     },
-    getPermissions(id: string): Promise<ApiResult<string[]>> {
+
+    // Permissions
+    async getPermissions(id: string): Promise<ApiResult<string[]>> {
       return apiClient.get(`${IDENTITY}/users/${id}/permissions`)
     },
-    assignPermission(id: string, permissionName: string): Promise<ApiResult<void>> {
-      return apiClient.post(`${IDENTITY}/users/${id}/permissions`, { permissionName })
+    async assignPermission(id: string, permissionName: string): Promise<ApiResult<void>> {
+      return apiClient.post(`${IDENTITY}/users/${id}/permissions/assign`, { permissionName })
     },
-    unassignPermission(id: string, permissionName: string): Promise<ApiResult<void>> {
-      return apiClient.delete(`${IDENTITY}/users/${id}/permissions/${permissionName}`)
+    async revokePermission(id: string, permissionName: string): Promise<ApiResult<void>> {
+      return apiClient.delete(`${IDENTITY}/users/${id}/permissions/revoke`, { data: { permissionName } })
     },
-    async listCustomers(params: ServerQueryingParameters): Promise<ApiResult<CustomerSummary[]>> {
-      const searchParams = { ...params, role: 'Storefront.Customer' }
-      return apiClient.get(`${IDENTITY}/users`, { params: searchParams })
+    async syncPermissions(id: string, permissionNames: string[]): Promise<ApiResult<void>> {
+      return apiClient.put(`${IDENTITY}/users/${id}/permissions/sync`, { permissionNames })
     },
   },
 
   roles: {
-    ...createModuleApi<RoleSummary>({ basePath: IDENTITY + '/roles' }),
-
+    async list(params?: ServerQueryingParameters): Promise<ApiResult<RoleSummary[]>> {
+      return apiClient.get(`${IDENTITY}/roles`, { params })
+    },
     async getById(id: string): Promise<ApiResult<RoleSummary>> {
       return apiClient.get(`${IDENTITY}/roles/${id}`)
     },
@@ -84,25 +76,24 @@ export const identityApi = {
       return apiClient.delete(`${IDENTITY}/roles/${id}`)
     },
 
-    getUsersInRole(roleName: string, params?: ServerQueryingParameters): Promise<ApiResult<any[]>> {
-      return apiClient.get(`${IDENTITY}/roles/${roleName}/users`, { params })
+    // Permissions
+    async getPermissions(id: string): Promise<ApiResult<string[]>> {
+      return apiClient.get(`${IDENTITY}/roles/${id}/permissions`)
     },
-    assignPermission(id: string, permissionName: string): Promise<ApiResult<void>> {
-      return apiClient.post(`${IDENTITY}/roles/${id}/permissions`, { permissionName })
+    async assignPermission(id: string, permissionName: string): Promise<ApiResult<void>> {
+      return apiClient.put(`${IDENTITY}/roles/${id}/permissions/assign`, { permissionName })
     },
-    syncPermissions(id: string, permissionNames: string[]): Promise<ApiResult<void>> {
-      return apiClient.put(`${IDENTITY}/roles/${id}/permissions`, { permissionNames })
+    async revokePermission(id: string, permissionName: string): Promise<ApiResult<void>> {
+      return apiClient.delete(`${IDENTITY}/roles/${id}/permissions/revoke`, { data: { permissionName } })
     },
-    unassignPermission(id: string, permissionName: string): Promise<ApiResult<void>> {
-      return apiClient.delete(`${IDENTITY}/roles/${id}/permissions/${permissionName}`)
+    async syncPermissions(id: string, permissionNames: string[]): Promise<ApiResult<void>> {
+      return apiClient.patch(`${IDENTITY}/roles/${id}/permissions/sync`, { permissionNames })
     },
   },
 
   permissions: {
-    ...createModuleApi<PermissionSummary>({ basePath: IDENTITY + '/permissions' }),
-
-    getSelect(params?: ServerQueryingParameters): Promise<ApiResult<any[]>> {
-      return apiClient.get(`${IDENTITY}/permissions/select`, { params })
+    async list(params?: ServerQueryingParameters): Promise<ApiResult<PermissionSummary[]>> {
+      return apiClient.get(`${IDENTITY}/permissions`, { params })
     },
   },
 }
