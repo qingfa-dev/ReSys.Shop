@@ -2,6 +2,8 @@ import { createRouter, createWebHistory } from 'vue-router'
 import AppLayout from '@/app/layout/main.layout.vue'
 import { useAuthStore } from '@/features/auth/stores/auth.store'
 import { errorRoutes } from '@/features/error/error.routes'
+import { catalogRoutes } from '@/features/catalog/catalog.routes'
+import { reportsRoutes } from '@/features/reports/reports.routes'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -11,6 +13,8 @@ const router = createRouter({
     { path: '/', component: AppLayout, meta: { breadcrumb: 'navigation.home' }, children: [
       { path: '', name: 'home', redirect: { name: 'reports.dashboard' } },
       { path: 'profile', name: 'profile', component: () => import('@/features/auth/views/Profile.view.vue'), meta: { breadcrumb: 'My Profile' } },
+      catalogRoutes,
+      reportsRoutes,
     ]},
   ],
 })
