@@ -34,7 +34,7 @@ export interface DashboardResponse {
 }
 
 export const reportService = {
-  fetchDashboard(): Promise<AxiosResponse<{ value: DashboardResponse }>> {
-    return apiClient.get('/api/dashboard')
+  fetchDashboard(): Promise<AxiosResponse<DashboardResponse>> {
+    return apiClient.get('/dashboard')
   },
 }

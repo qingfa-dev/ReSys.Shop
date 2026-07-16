@@ -12,15 +12,23 @@ export {}
 /* prettier-ignore */
 declare module 'vue' {
   export interface GlobalComponents {
+    Avatar: typeof import('primevue/avatar')['default']
+    Badge: typeof import('primevue/badge')['default']
     Button: typeof import('primevue/button')['default']
     Card: typeof import('primevue/card')['default']
+    Chart: typeof import('primevue/chart')['default']
+    Column: typeof import('primevue/column')['default']
     ConfirmDialog: typeof import('primevue/confirmdialog')['default']
+    DataTable: typeof import('primevue/datatable')['default']
+    IconField: typeof import('primevue/iconfield')['default']
+    InputIcon: typeof import('primevue/inputicon')['default']
     InputSwitch: typeof import('primevue/inputswitch')['default']
     InputText: typeof import('primevue/inputtext')['default']
     OverlayPanel: typeof import('primevue/overlaypanel')['default']
     Password: typeof import('primevue/password')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
+    Select: typeof import('primevue/select')['default']
     Tag: typeof import('primevue/tag')['default']
     Toast: typeof import('primevue/toast')['default']
   }
@@ -31,15 +39,23 @@ declare module 'vue' {
 
 // For TSX support
 declare global {
+  const Avatar: typeof import('primevue/avatar')['default']
+  const Badge: typeof import('primevue/badge')['default']
   const Button: typeof import('primevue/button')['default']
   const Card: typeof import('primevue/card')['default']
+  const Chart: typeof import('primevue/chart')['default']
+  const Column: typeof import('primevue/column')['default']
   const ConfirmDialog: typeof import('primevue/confirmdialog')['default']
+  const DataTable: typeof import('primevue/datatable')['default']
+  const IconField: typeof import('primevue/iconfield')['default']
+  const InputIcon: typeof import('primevue/inputicon')['default']
   const InputSwitch: typeof import('primevue/inputswitch')['default']
   const InputText: typeof import('primevue/inputtext')['default']
   const OverlayPanel: typeof import('primevue/overlaypanel')['default']
   const Password: typeof import('primevue/password')['default']
   const RouterLink: typeof import('vue-router')['RouterLink']
   const RouterView: typeof import('vue-router')['RouterView']
+  const Select: typeof import('primevue/select')['default']
   const Tag: typeof import('primevue/tag')['default']
   const Toast: typeof import('primevue/toast')['default']
 }

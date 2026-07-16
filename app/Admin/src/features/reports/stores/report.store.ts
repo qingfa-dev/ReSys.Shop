@@ -14,11 +14,10 @@ export const useReportStore = defineStore('report', () => {
     is_loading.value = true;
     try {
       const { data } = await reportService.fetchDashboard();
-      const value = data.value;
-      sales.value = { ...value.sales };
-      inventory.value = { ...value.inventory };
-      catalog.value = { ...value.catalog };
-      activities.value = value.recentActivities;
+      sales.value = { ...data.sales };
+      inventory.value = { ...data.inventory };
+      catalog.value = { ...data.catalog };
+      activities.value = data.recentActivities;
     } finally {
       is_loading.value = false;
     }

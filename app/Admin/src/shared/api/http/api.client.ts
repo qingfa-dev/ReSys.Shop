@@ -3,10 +3,8 @@ import type { ServerResult, ServerPagedResult } from '../types/result.types'
 import { parseApiError } from '../utils/api.utils'
 import { refreshTokens } from './refresh-handler'
 
-const apiBaseUrl = import.meta.env.VITE_API_URL ? `${import.meta.env.VITE_API_URL}/api` : '/api'
-
 const apiClient: AxiosInstance = axios.create({
-  baseURL: apiBaseUrl,
+  baseURL: '/api',
   headers: {
     'Content-Type': 'application/json',
   },
