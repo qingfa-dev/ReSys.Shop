@@ -1,99 +1,100 @@
 import apiClient from '@/shared/api/http/api.client'
+import { INVENTORY } from '@/shared/api/constants'
 import type { ApiResult } from '@/shared/api/types/api.types'
 import type { ServerQueryingParameters } from '@/shared/api/types/query-params.types'
-import type { StockItem, StockItemDetail, StockLocation, StockLocationDetail, InventoryUnit, InventoryUnitSearchParams, StockMovement, StockMovementSearchParams, StockTransfer, StockTransferDetail, InventorySearchParams, StockAdjustmentRequest, StockAuditRequest, CreateStockLocationRequest, CreateStockTransferRequest } from '../types/inventory.types'
+import type { StockItem, StockItemDetail, StockLocation, StockLocationDetail, InventoryUnit, StockMovement, StockTransfer, StockTransferDetail, StockAdjustmentRequest, CreateStockLocationRequest, CreateStockTransferRequest, InventorySearchParams } from '../types/inventory.types'
 
 export const inventoryApi = {
   stocks: {
     async list(params: InventorySearchParams): Promise<ApiResult<StockItem[]>> {
-      return apiClient.get('/inventories/stocks', { params })
+      return apiClient.get(`${INVENTORY}/stock-items`, { params })
     },
     async getById(id: string): Promise<ApiResult<StockItemDetail>> {
-      return apiClient.get(`/inventories/stocks/${id}`)
+      return apiClient.get(`${INVENTORY}/stock-items/${id}`)
     },
-    async adjust(id: string, data: StockAdjustmentRequest): Promise<ApiResult<void>> {
-      return apiClient.post(`/inventories/stocks/${id}/adjust`, data)
+    async create(data: { variantId: string; stockLocationId: string; countOnHand?: number }): Promise<ApiResult<StockItemDetail>> {
+      return apiClient.post(`${INVENTORY}/stock-items`, data)
     },
-    async audit(id: string, data: StockAuditRequest): Promise<ApiResult<void>> {
-      return apiClient.post(`/inventories/stocks/${id}/audit`, data)
-    },
-    async updateBackorderPolicy(id: string, backorderable: boolean, limit: number): Promise<ApiResult<void>> {
-      return apiClient.put(`/inventories/stocks/${id}/backorder-policy`, { backorderable, backorder_limit: limit })
+    async update(id: string, data: { countOnHand?: number; backorderable?: boolean; backorderLimit?: number }): Promise<ApiResult<void>> {
+      return apiClient.put(`${INVENTORY}/stock-items/${id}`, data)
     },
     async delete(id: string): Promise<ApiResult<void>> {
-      return apiClient.delete(`/inventories/stocks/${id}`)
+      return apiClient.delete(`${INVENTORY}/stock-items/${id}`)
     },
-  },
-
-  units: {
-    async list(params: InventoryUnitSearchParams): Promise<ApiResult<InventoryUnit[]>> {
-      return apiClient.get('/inventories/units', { params })
+    async restock(id: string, data: StockAdjustmentRequest): Promise<ApiResult<void>> {
+      return apiClient.post(`${INVENTORY}/stock-items/${id}/restock`, data)
     },
-    async getById(id: string): Promise<ApiResult<InventoryUnit>> {
-      return apiClient.get(`/inventories/units/${id}`)
+    async getLowStock(params?: ServerQueryingParameters): Promise<ApiResult<StockItem[]>> {
+      return apiClient.get(`${INVENTORY}/stock-items/low-stock`, { params })
     },
-    async updateSerialNumber(id: string, serialNumber: string): Promise<ApiResult<void>> {
-      return apiClient.patch(`/inventories/units/${id}/serial-number`, { serial_number: serialNumber })
+    async getSummary(): Promise<ApiResult<any>> {
+      return apiClient.get(`${INVENTORY}/stock-items/summary`)
     },
-    async markDamaged(id: string): Promise<ApiResult<void>> {
-      return apiClient.patch(`/inventories/units/${id}/damaged`)
-    },
-    async restore(id: string): Promise<ApiResult<void>> {
-      return apiClient.post(`/inventories/units/${id}/restore`)
-    },
-  },
-
-  movements: {
-    async list(params: StockMovementSearchParams): Promise<ApiResult<StockMovement[]>> {
-      return apiClient.get('/inventories/movements', { params })
+    async bulkAdjust(data: { items: Array<{ id: string; quantity: number; type: number }> }): Promise<ApiResult<void>> {
+      return apiClient.post(`${INVENTORY}/stock-items/bulk-adjust`, data)
     },
   },
 
   locations: {
-    async list(params: InventorySearchParams): Promise<ApiResult<StockLocation[]>> {
-      return apiClient.get('/inventories/locations', { params })
-    },
-    async getTree(): Promise<ApiResult<any[]>> {
-      return apiClient.get('/inventories/locations/tree')
+    async list(params: ServerQueryingParameters): Promise<ApiResult<StockLocation[]>> {
+      return apiClient.get(`${INVENTORY}/stock-locations`, { params })
     },
     async getById(id: string): Promise<ApiResult<StockLocationDetail>> {
-      return apiClient.get(`/inventories/locations/${id}`)
+      return apiClient.get(`${INVENTORY}/stock-locations/${id}`)
     },
     async create(data: CreateStockLocationRequest): Promise<ApiResult<StockLocationDetail>> {
-      return apiClient.post('/inventories/locations', data)
+      return apiClient.post(`${INVENTORY}/stock-locations`, data)
     },
     async update(id: string, data: Partial<CreateStockLocationRequest>): Promise<ApiResult<StockLocationDetail>> {
-      return apiClient.put(`/inventories/locations/${id}`, data)
+      return apiClient.put(`${INVENTORY}/stock-locations/${id}`, data)
     },
     async delete(id: string): Promise<ApiResult<void>> {
-      return apiClient.delete(`/inventories/locations/${id}`)
+      return apiClient.delete(`${INVENTORY}/stock-locations/${id}`)
     },
-    async toggleStatus(id: string, activate: boolean): Promise<ApiResult<void>> {
-      return apiClient.patch(`/inventories/locations/${id}/toggle-status`, null, { params: { activate } })
+    async setDefault(id: string): Promise<ApiResult<void>> {
+      return apiClient.put(`${INVENTORY}/stock-locations/${id}/default`)
+    },
+  },
+
+  reservations: {
+    async list(params: ServerQueryingParameters): Promise<ApiResult<InventoryUnit[]>> {
+      return apiClient.get(`${INVENTORY}/stock-reservations`, { params })
+    },
+    async getById(id: string): Promise<ApiResult<InventoryUnit>> {
+      return apiClient.get(`${INVENTORY}/stock-reservations/${id}`)
+    },
+    async cancel(id: string): Promise<ApiResult<void>> {
+      return apiClient.post(`${INVENTORY}/stock-reservations/${id}/cancel`)
     },
   },
 
   transfers: {
-    async list(params: InventorySearchParams): Promise<ApiResult<StockTransfer[]>> {
-      return apiClient.get('/inventories/transfers', { params })
+    async list(params: ServerQueryingParameters): Promise<ApiResult<StockTransfer[]>> {
+      return apiClient.get(`${INVENTORY}/stock-transfers`, { params })
     },
     async getById(id: string): Promise<ApiResult<StockTransferDetail>> {
-      return apiClient.get(`/inventories/transfers/${id}`)
+      return apiClient.get(`${INVENTORY}/stock-transfers/${id}`)
     },
     async create(data: CreateStockTransferRequest): Promise<ApiResult<StockTransferDetail>> {
-      return apiClient.post('/inventories/transfers', data)
+      return apiClient.post(`${INVENTORY}/stock-transfers`, data)
     },
-    async addItem(id: string, variantId: string, quantity: number): Promise<ApiResult<void>> {
-      return apiClient.post(`/inventories/transfers/${id}/items`, { variant_id: variantId, quantity })
-    },
-    async ship(id: string): Promise<ApiResult<void>> {
-      return apiClient.post(`/inventories/transfers/${id}/ship`)
+    async transfer(id: string): Promise<ApiResult<void>> {
+      return apiClient.post(`${INVENTORY}/stock-transfers/${id}/transfer`)
     },
     async receive(id: string): Promise<ApiResult<void>> {
-      return apiClient.post(`/inventories/transfers/${id}/receive`)
+      return apiClient.post(`${INVENTORY}/stock-transfers/${id}/receive`)
     },
     async cancel(id: string): Promise<ApiResult<void>> {
-      return apiClient.post(`/inventories/transfers/${id}/cancel`)
+      return apiClient.post(`${INVENTORY}/stock-transfers/${id}/cancel`)
+    },
+  },
+
+  movements: {
+    async list(params: ServerQueryingParameters): Promise<ApiResult<StockMovement[]>> {
+      return apiClient.get(`${INVENTORY}/stock-movements`, { params })
+    },
+    async getById(id: string): Promise<ApiResult<StockMovement>> {
+      return apiClient.get(`${INVENTORY}/stock-movements/${id}`)
     },
   },
 }

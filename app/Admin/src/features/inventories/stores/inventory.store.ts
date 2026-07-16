@@ -14,10 +14,9 @@ export const useInventoryStore = defineStore('inventory', () => {
   // --- STATE ---
   const stocks = ref<StockItem[]>([]);
   const locations = ref<StockLocation[]>([]);
-  const locationTree = ref<any[]>([]);
   const transfers = ref<StockTransfer[]>([]);
   const units = ref<InventoryUnit[]>([]);
-  
+
   const loading = ref(false);
   const totalStocks = ref(0);
   const totalLocations = ref(0);
@@ -81,11 +80,6 @@ export const useInventoryStore = defineStore('inventory', () => {
     }
   }
 
-  async function toggleLocationStatus(id: string, activate: boolean) {
-    const result = await inventoryService.toggleLocationStatus(id, activate);
-    return result;
-  }
-
   async function fetchTransfers(params: InventorySearchParams = {}) {
     loading.value = true;
     transferQuery.value = { ...transferQuery.value, ...params };
@@ -105,7 +99,7 @@ export const useInventoryStore = defineStore('inventory', () => {
     loading.value = true;
     unitQuery.value = { ...unitQuery.value, ...params };
     try {
-      const result = await inventoryService.listInventoryUnits(unitQuery.value);
+      const result = await inventoryService.listReservations(unitQuery.value);
       if (result.success && result.data) {
         units.value = result.data;
         totalUnits.value = result.meta?.totalCount || 0;
@@ -116,23 +110,9 @@ export const useInventoryStore = defineStore('inventory', () => {
     }
   }
 
-  async function fetchLocationTree() {
-    loading.value = true;
-    try {
-      const result = await inventoryService.getLocationTree();
-      if (result.success && result.data) {
-        locationTree.value = result.data;
-      }
-      return result;
-    } finally {
-      loading.value = false;
-    }
-  }
-
   return {
     stocks,
     locations,
-    locationTree,
     transfers,
     units,
     loading,
@@ -147,8 +127,6 @@ export const useInventoryStore = defineStore('inventory', () => {
     inventoryService,
     fetchStocks,
     fetchLocations,
-    fetchLocationTree,
-    toggleLocationStatus,
     fetchTransfers,
     fetchUnits
   };
