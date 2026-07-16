@@ -9,7 +9,7 @@ export async function refreshTokens(): Promise<boolean> {
   }
 
   try {
-    const refreshResponse = await axios.post('/api/auth/session/refresh', {
+    const refreshResponse = await axios.post('/api/store/identity/auth/sessions/refresh', {
       refreshToken: token,
     })
 

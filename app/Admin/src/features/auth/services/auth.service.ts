@@ -2,6 +2,10 @@ import apiClient from '@/shared/api/http/api.client'
 import type { ApiResult } from '@/shared/api/types/api.types'
 import type { LoginRequest, RefreshRequest, AuthenticationResponse } from '../types/auth.types'
 
+// NOTE: Backend has no admin auth endpoints yet.
+// Admin auth uses storefront identity routes as a temporary bridge.
+// Full admin auth endpoints should be added to the Identity module.
+// See: docs/superpowers/plans/2026-07-16-admin-api-service-correction.md §4.1
 const BASE_URL = '/auth'
 
 export interface ChangePasswordRequest {
