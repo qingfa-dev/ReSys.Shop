@@ -6,7 +6,7 @@ import type { LoginRequest, RefreshRequest, AuthenticationResponse } from '../ty
 // Admin auth uses storefront identity routes as a temporary bridge.
 // Full admin auth endpoints should be added to the Identity module.
 // See: docs/superpowers/plans/2026-07-16-admin-api-service-correction.md §4.1
-const BASE_URL = '/auth'
+const BASE_URL = '/store/identity/auth'
 
 export interface ChangePasswordRequest {
     current_password: string;
@@ -19,7 +19,7 @@ export const authService = {
    * Authenticates the user with credentials.
    */
     async login(request: LoginRequest): Promise<ApiResult<AuthenticationResponse>> {
-        return await apiClient.post(`${BASE_URL}/login`, request) as any;
+        return await apiClient.post(`${BASE_URL}/login/password`, request) as any;
     },
 
     /**
@@ -27,14 +27,14 @@ export const authService = {
      * Note: This rotates the refresh token.
      */
     async refresh(request: RefreshRequest): Promise<ApiResult<AuthenticationResponse>> {
-        return await apiClient.post(`${BASE_URL}/session/refresh`, request) as any;
+        return await apiClient.post(`${BASE_URL}/sessions/refresh`, request) as any;
     },
 
     /**
      * Logs out the user (invalidates the session on the server).
      */
     async logout(): Promise<ApiResult<void>> {
-        return await apiClient.post(`${BASE_URL}/session/logout`, {}) as any;
+        return await apiClient.post(`${BASE_URL}/logout`, {}) as any;
     },
 
     async getProfile(): Promise<ApiResult<any>> {

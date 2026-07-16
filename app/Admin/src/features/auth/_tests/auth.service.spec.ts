@@ -32,7 +32,7 @@ describe('AuthService', () => {
 
       const result = await authService.login(mockRequest)
 
-      expect(apiClient.post).toHaveBeenCalledWith('/auth/login', mockRequest)
+      expect(apiClient.post).toHaveBeenCalledWith('/store/identity/auth/login/password', mockRequest)
       expect(result).toEqual(mockResponse)
     })
   })
@@ -46,7 +46,7 @@ describe('AuthService', () => {
 
       const result = await authService.refresh(mockRequest)
 
-      expect(apiClient.post).toHaveBeenCalledWith('/auth/session/refresh', mockRequest)
+      expect(apiClient.post).toHaveBeenCalledWith('/store/identity/auth/sessions/refresh', mockRequest)
       expect(result).toEqual(mockResponse)
     })
   })
@@ -57,7 +57,7 @@ describe('AuthService', () => {
 
       await authService.logout()
 
-      expect(apiClient.post).toHaveBeenCalledWith('/auth/session/logout', {})
+      expect(apiClient.post).toHaveBeenCalledWith('/store/identity/auth/logout', {})
     })
   })
 })
