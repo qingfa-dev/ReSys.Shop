@@ -90,13 +90,6 @@ export const useTaxonStore = defineStore('taxon', () => {
     error.value = null;
 
     const params: TaxonQuery = { ...query };
-
-    if (taxonomyId && taxonomyId !== 'root') {
-
-        params.taxonomyId = [taxonomyId];
-
-    }
-
     const result = await taxonService.list(taxonomyId, params);
 
     if (result.success && result.data) {
