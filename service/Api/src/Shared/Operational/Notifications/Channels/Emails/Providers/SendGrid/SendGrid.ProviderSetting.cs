@@ -1,7 +1,7 @@
 using Shared.Operational.Notifications.Channels.Emails.Options;
 using Shared.Operational.Notifications.Options.Providers;
 
-namespace Shared.Operational.Notifications.Channels.Emails.Providers.SendGird;
+namespace Shared.Operational.Notifications.Channels.Emails.Providers.SendGrid;
 
 /// <summary>
 /// Configuration settings for the SendGrid email provider.
@@ -9,7 +9,7 @@ namespace Shared.Operational.Notifications.Channels.Emails.Providers.SendGird;
 public sealed class SendGridProviderSetting : BaseProviderSetting
 {
     /// <inheritdoc />
-    public static new string Section => $"{EmailChannelSetting.Section}:Providers:SendGrids";
+        public static new string Section => $"{EmailChannelSetting.Section}:Providers:SendGrid";
 
     /// <inheritdoc />
     public new int Priority { get; set; } = 2;

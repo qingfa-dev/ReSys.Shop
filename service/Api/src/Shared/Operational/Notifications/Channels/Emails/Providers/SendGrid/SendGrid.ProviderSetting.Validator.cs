@@ -1,6 +1,6 @@
 using FluentValidation;
 
-namespace Shared.Operational.Notifications.Channels.Emails.Providers.SendGird;
+namespace Shared.Operational.Notifications.Channels.Emails.Providers.SendGrid;
 
 /// <summary>Validates SendGrid provider configuration settings.</summary>
 public sealed class SendGridProviderSettingValidator : AbstractValidator<SendGridProviderSetting>

@@ -19,9 +19,12 @@ import vueDevTools from 'vite-plugin-vue-devtools'
 
 const pkg = JSON.parse(readFileSync(fileURLToPath(new URL('./package.json', import.meta.url)), 'utf-8'))
 
+const aspireApiUrl = process.env.services__api__https__0 || process.env.services__api__http__0
+
 export default defineConfig({
   define: {
     __APP_VERSION__: JSON.stringify(pkg.version),
+    ...(aspireApiUrl ? { 'import.meta.env.VITE_API_URL': JSON.stringify(aspireApiUrl) } : {}),
   },
   plugins: [
     tailwind(),
@@ -48,7 +51,7 @@ export default defineConfig({
   server: {
     port: 5173,
     proxy: {
-      '/api': { target: process.env.VITE_API_URL || 'http://localhost:5035', changeOrigin: true },
+      '/api': { target: aspireApiUrl || process.env.VITE_API_URL || 'http://localhost:5035', changeOrigin: true, secure: false },
     },
   },
 })

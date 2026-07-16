@@ -1,4 +1,4 @@
-import { apiClient } from '@/shared/api/http/api-client'
+import apiClient from '@/shared/api/http/api.client'
 import type { AxiosResponse } from 'axios'
 
 export interface DashboardResponse {

@@ -29,8 +29,8 @@ public class LoggingBehaviorTests
         result.IsSuccess.Should().BeTrue();
 
         logger.Entries.Should().HaveCount(2);
-        logger.Entries.Should().Contain(e => e.Level == LogLevel.Information && e.Message.Contains("Handling request TestRequest"));
-        logger.Entries.Should().Contain(e => e.Level == LogLevel.Information && e.Message.Contains("Request TestRequest succeeded"));
+        logger.Entries.Should().Contain(e => e.Level == LogLevel.Debug && e.Message.Contains("Handling request TestRequest"));
+        logger.Entries.Should().Contain(e => e.Level == LogLevel.Debug && e.Message.Contains("Request TestRequest succeeded"));
     }
 
     [Fact(DisplayName = "Should log start and success when Result<T> request succeeds")]
@@ -51,8 +51,8 @@ public class LoggingBehaviorTests
         result.IsSuccess.Should().BeTrue();
 
         logger.Entries.Should().HaveCount(2);
-        logger.Entries.Should().Contain(e => e.Level == LogLevel.Information && e.Message.Contains("Handling request TestRequestWithGenericResult"));
-        logger.Entries.Should().Contain(e => e.Level == LogLevel.Information && e.Message.Contains("Request TestRequestWithGenericResult succeeded"));
+        logger.Entries.Should().Contain(e => e.Level == LogLevel.Debug && e.Message.Contains("Handling request TestRequestWithGenericResult"));
+        logger.Entries.Should().Contain(e => e.Level == LogLevel.Debug && e.Message.Contains("Request TestRequestWithGenericResult succeeded"));
     }
 
     #endregion
@@ -75,7 +75,7 @@ public class LoggingBehaviorTests
         result.IsFailure.Should().BeTrue();
 
         logger.Entries.Should().HaveCount(2);
-        logger.Entries.Should().Contain(e => e.Level == LogLevel.Information && e.Message.Contains("Handling request TestRequest"));
+        logger.Entries.Should().Contain(e => e.Level == LogLevel.Debug && e.Message.Contains("Handling request TestRequest"));
         logger.Entries.Should().Contain(e => e.Level == LogLevel.Error && e.Message.Contains("Request TestRequest failed with Errors: Test error description"));
     }
 

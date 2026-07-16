@@ -3,7 +3,7 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 
 using Shared.Operational.Notifications.Providers;
 
-namespace Shared.Operational.Notifications.Channels.Emails.Providers.SendGird;
+namespace Shared.Operational.Notifications.Channels.Emails.Providers.SendGrid;
 
 /// <summary>Registers the SendGrid notification provider with the DI container.</summary>
 public static class SendGridProviderExtensions

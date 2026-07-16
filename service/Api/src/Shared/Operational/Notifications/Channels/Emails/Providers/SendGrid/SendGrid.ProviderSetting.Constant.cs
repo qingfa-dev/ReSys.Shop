@@ -1,4 +1,4 @@
-namespace Shared.Operational.Notifications.Channels.Emails.Providers.SendGird;
+namespace Shared.Operational.Notifications.Channels.Emails.Providers.SendGrid;
 
 /// <summary>Constants and constraints for SendGrid provider configuration.</summary>
 public static class SendGridProviderSettingConstant
@@ -13,7 +13,7 @@ public static class SendGridProviderSettingConstant
     /// <summary>Default configuration values for the SendGrid provider.</summary>
     public static class Defaults
     {
-        public const string Section = "Notification:Channels:Email:Providers:SendGrids";
+        public const string Section = "Notification:Channels:Email:Providers:SendGrid";
         public const int Priority = 2;
     }
 

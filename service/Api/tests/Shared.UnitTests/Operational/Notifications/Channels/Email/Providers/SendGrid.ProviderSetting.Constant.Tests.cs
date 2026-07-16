@@ -1,4 +1,4 @@
-using Shared.Operational.Notifications.Channels.Emails.Providers.SendGird;
+using Shared.Operational.Notifications.Channels.Emails.Providers.SendGrid;
 
 namespace Shared.UnitTests.Operational.Notifications.Channels.Email.Providers;
 
@@ -10,7 +10,7 @@ public sealed class SendGridProviderSettingConstantTests
     [Fact(DisplayName = "Defaults should have expected values")]
     public void Defaults_ShouldHaveExpectedValues()
     {
-        SendGridProviderSettingConstant.Defaults.Section.Should().Be("Notification:Channels:Email:Providers:SendGrids");
+        SendGridProviderSettingConstant.Defaults.Section.Should().Be("Notification:Channels:Email:Providers:SendGrid");
         SendGridProviderSettingConstant.Defaults.Priority.Should().Be(2);
     }
 

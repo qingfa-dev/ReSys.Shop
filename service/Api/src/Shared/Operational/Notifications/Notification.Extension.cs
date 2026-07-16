@@ -6,7 +6,7 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 
 using Shared.Application.Extensions.Validations;
 using Shared.Operational.Notifications.Channels.Emails.Options;
-using Shared.Operational.Notifications.Channels.Emails.Providers.SendGird;
+using Shared.Operational.Notifications.Channels.Emails.Providers.SendGrid;
 using Shared.Operational.Notifications.Channels.Emails.Providers.Smtp;
 using Shared.Operational.Notifications.Channels.Logging.Providers;
 using Shared.Operational.Notifications.Channels.Sms.Options;

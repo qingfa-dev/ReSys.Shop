@@ -1,4 +1,4 @@
-namespace Shared.Operational.Notifications.Channels.Emails.Providers.SendGird;
+namespace Shared.Operational.Notifications.Channels.Emails.Providers.SendGrid;
 
 /// <summary>Error definitions for SendGrid provider configuration validation.</summary>
 public static class SendGridProviderSettingResult

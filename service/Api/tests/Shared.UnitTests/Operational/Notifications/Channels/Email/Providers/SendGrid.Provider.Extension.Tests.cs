@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Builder;
 
-using Shared.Operational.Notifications.Channels.Emails.Providers.SendGird;
+using Shared.Operational.Notifications.Channels.Emails.Providers.SendGrid;
 using Shared.Operational.Notifications.Providers;
 
 namespace Shared.UnitTests.Operational.Notifications.Channels.Email.Providers;

@@ -11,7 +11,7 @@ using Shared.Operational.Notifications.Templates;
 
 using Attachment = FluentEmail.Core.Models.Attachment;
 
-namespace Shared.Operational.Notifications.Channels.Emails.Providers.SendGird;
+namespace Shared.Operational.Notifications.Channels.Emails.Providers.SendGrid;
 
 /// <summary>Sends email notifications via the SendGrid API.</summary>
 public sealed partial class SendGridProvider(

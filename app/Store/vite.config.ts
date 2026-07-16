@@ -6,7 +6,12 @@ import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import vueJsx from '@vitejs/plugin-vue-jsx'
 
+const aspireApiUrl = process.env.services__api__https__0 || process.env.services__api__http__0
+
 export default defineConfig({
+  define: aspireApiUrl ? {
+    'import.meta.env.VITE_API_URL': JSON.stringify(aspireApiUrl)
+  } : {},
   plugins: [
     tailwind(),
     vue(),
@@ -28,7 +33,7 @@ export default defineConfig({
   server: {
     port: 5174,
     proxy: {
-      '/api': { target: process.env.VITE_API_URL || 'http://localhost:5035', changeOrigin: true },
+      '/api': { target: aspireApiUrl || process.env.VITE_API_URL || 'http://localhost:5035', changeOrigin: true, secure: false },
     },
   },
 })

@@ -37,7 +37,9 @@ public static class LoggingExtension
 
     public static WebApplication UseObservabilityLogging(this WebApplication app)
     {
-        app.UseHttpLogging();
+        app.UseWhen(
+            context => !context.Request.Path.StartsWithSegments("/health"),
+            builder => builder.UseHttpLogging());
 
         return app;
     }

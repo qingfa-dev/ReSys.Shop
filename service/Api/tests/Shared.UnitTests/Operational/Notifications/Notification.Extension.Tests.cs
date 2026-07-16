@@ -7,7 +7,7 @@ using Microsoft.Extensions.Options;
 
 using Shared.Operational.Notifications;
 using Shared.Operational.Notifications.Channels.Emails.Options;
-using Shared.Operational.Notifications.Channels.Emails.Providers.SendGird;
+using Shared.Operational.Notifications.Channels.Emails.Providers.SendGrid;
 using Shared.Operational.Notifications.Channels.Emails.Providers.Smtp;
 using Shared.Operational.Notifications.Channels.Logging.Providers;
 using Shared.Operational.Notifications.Channels.Sms.Options;
