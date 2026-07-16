@@ -31,7 +31,7 @@ const loadHierarchy = async () => {
         
         // Fetch tree for each taxonomy
         for (const tax of taxonomies.value) {
-            const result = (await apiClient.get(`/admin/catalog/taxons/tree?taxonomy_id=${tax.id}`)) as unknown as ApiResult<any>;
+            const result = (await apiClient.get(`catalog/taxonomies/${tax.id}/taxons/tree`)) as unknown as ApiResult<any>;
             if (result.success && result.data) {
                 trees.value[tax.id] = result.data.tree.map(mapNode);
             }

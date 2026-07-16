@@ -14,4 +14,8 @@ export const orderService = {
   updateStatus: orderingApi.orders.updateStatus,
   updateShipAddress: orderingApi.orders.updateShipAddress,
   updateBillAddress: orderingApi.orders.updateBillAddress,
+  createShipment: async (_orderId: string, _data: unknown) => {
+    console.warn('createShipment: no backend route exists. See spec/spec-design-admin-api-services.md')
+    return { success: false, error: { detail: 'Not implemented — no backend route' } } as const
+  },
 }
