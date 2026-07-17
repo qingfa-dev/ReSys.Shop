@@ -27,4 +27,31 @@ public static class UserProfileConstant
     {
         public static readonly string[] Values = ["Male", "Female", "Non-binary", "Prefer not to say"];
     }
+
+    public static class Query
+    {
+        public static readonly string[] AllowedSearchFields =
+        [
+            nameof(UserProfile.FirstName),
+            nameof(UserProfile.LastName),
+            nameof(UserProfile.Email),
+            nameof(UserProfile.Bio)
+        ];
+
+        public static readonly string[] AllowedSortFields =
+        [
+            nameof(UserProfile.FirstName),
+            nameof(UserProfile.LastName),
+            nameof(UserProfile.CreatedAtUtc),
+            nameof(UserProfile.ModifiedAtUtc)
+        ];
+
+        public static readonly string[] AllowedFilterFields =
+        [
+            nameof(UserProfile.Gender),
+            nameof(UserProfile.IsActive),
+            nameof(UserProfile.CreatedAtUtc),
+            nameof(UserProfile.ModifiedAtUtc)
+        ];
+    }
 }
