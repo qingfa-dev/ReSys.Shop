@@ -25,36 +25,37 @@ public static class StateConstant
         public const bool IsActive = true;
     }
 
-    // Ransack: Allowed searchable attributes for state list queries
-    public static readonly string[] AllowedSearchFields =
-    [
-        nameof(State.Name),
-        nameof(State.Abbreviation),
-        nameof(State.CountryId),
-        nameof(State.CreatedBy),
-        nameof(State.ModifiedBy)
-    ];
+    // Query: Allowed fields for state list queries
+    public static class Query
+    {
+        public static readonly string[] AllowedSearchFields =
+        [
+            nameof(State.Name),
+            nameof(State.Abbreviation),
+            nameof(State.CountryId),
+            nameof(State.CreatedBy),
+            nameof(State.ModifiedBy)
+        ];
 
-    // Sort: Allowed sort fields for state list queries
-    public static readonly string[] AllowedSortFields =
-    [
-        nameof(State.Name),
-        nameof(State.Abbreviation),
-        nameof(State.CountryId),
-        nameof(State.CreatedAtUtc),
-        nameof(State.ModifiedAtUtc),
-        nameof(State.IsActive)
-    ];
+        public static readonly string[] AllowedSortFields =
+        [
+            nameof(State.Name),
+            nameof(State.Abbreviation),
+            nameof(State.CountryId),
+            nameof(State.CreatedAtUtc),
+            nameof(State.ModifiedAtUtc),
+            nameof(State.IsActive)
+        ];
 
-    // Filter: Allowed filter fields for state list queries
-    public static readonly string[] AllowedFilterFields =
-    [
-        nameof(State.Name),
-        nameof(State.Abbreviation),
-        nameof(State.CountryId),
-        nameof(State.IsActive),
-        nameof(State.CreatedAtUtc),
-        nameof(State.ModifiedAtUtc),
-        "Country.Name"
-    ];
+        public static readonly string[] AllowedFilterFields =
+        [
+            nameof(State.Name),
+            nameof(State.Abbreviation),
+            nameof(State.CountryId),
+            nameof(State.IsActive),
+            nameof(State.CreatedAtUtc),
+            nameof(State.ModifiedAtUtc),
+            "Country.Name"
+        ];
+    }
 }
