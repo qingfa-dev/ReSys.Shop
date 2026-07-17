@@ -3,6 +3,8 @@ import { ref, onMounted, computed } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useToast } from '@/shared/composables/toast.use';
 import { useI18n } from 'vue-i18n';
+import PageShell from '@/shared/components/PageShell.Component.vue'
+import PageHeader from '@/shared/components/PageHeader.Component.vue'
 import { userService } from '../services/user.service';
 import { roleService } from '../services/role.service';
 import type { CreateAdminUserRequest, UpdateAdminUserRequest } from '../types/User.Request.Type';
@@ -103,24 +105,23 @@ async function onSubmit() {
 </script>
 
 <template>
-    <Card>
-        <div class="flex items-center gap-4 mb-8">
-            <Button icon="pi pi-arrow-left" text rounded @click="router.back()" />
-            <div>
-                <h1 class="text-3xl font-black uppercase tracking-tighter text-surface-900 dark:text-surface-0">
-                    {{ isEditMode ? 'Edit Staff' : 'Invite Staff' }}
-                </h1>
-                <p class="text-surface-500">
-                    {{ isEditMode ? 'Update staff member details and permissions.' : 'Create a new staff account.' }}
-                </p>
-            </div>
-        </div>
+    <PageShell maxWidth="4xl">
+        <PageHeader
+            :title="isEditMode ? 'Edit Staff' : 'Invite Staff'"
+            :description="isEditMode ? 'Update staff member details and permissions.' : 'Create a new staff account.'"
+            back
+        >
+            <template #actions>
+                <Button :label="t('common.cancel')" severity="secondary" text @click="router.back()" />
+                <Button type="submit" form="staffForm" :label="isEditMode ? 'Save Changes' : 'Send Invitation'" :loading="submitting" icon="pi pi-check" />
+            </template>
+        </PageHeader>
 
         <div v-if="loading" class="flex justify-center p-12">
             <ProgressSpinner />
         </div>
 
-        <form v-else @submit.prevent="onSubmit" class="flex flex-col gap-6">
+        <form v-else id="staffForm" @submit.prevent="onSubmit" class="flex flex-col gap-6">
             <!-- Identity Info -->
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div class="field">
@@ -170,11 +171,6 @@ async function onSubmit() {
                     <label for="isActive" class="cursor-pointer">{{ form.isActive ? 'Active' : 'Inactive' }}</label>
                 </div>
             </div>
-
-            <div class="flex justify-end gap-3 mt-4">
-                <Button :label="t('common.cancel')" severity="secondary" text @click="router.back()" />
-                <Button type="submit" :label="isEditMode ? 'Save Changes' : 'Send Invitation'" :loading="submitting" icon="pi pi-check" />
-            </div>
         </form>
-</Card>
+    </PageShell>
 </template>

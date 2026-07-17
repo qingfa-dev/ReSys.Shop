@@ -6,6 +6,8 @@ import { useProductStore } from '@/features/catalog/products/stores/product.stor
 import { useFormatter } from '@/shared/composables/formatter.use';
 import { useI18n } from 'vue-i18n';
 import { useToast } from '@/shared/composables/toast.use';
+import PageShell from '@/shared/components/PageShell.Component.vue'
+import PageHeader from '@/shared/components/PageHeader.Component.vue'
 import type { CreateOrderRequest } from '../types/Order.Request.Type';
 import type { ProductSummary } from '@/features/catalog/products/types/Product.Response.Type';
 import type { VariantSummary } from '@/features/catalog/products/types/Variant.Response.Type';
@@ -130,14 +132,8 @@ const onSubmit = async () => {
 </script>
 
 <template>
-    <div class="p-6 max-w-4xl mx-auto">
-        <div class="flex items-center gap-4 mb-8">
-            <Button icon="pi pi-arrow-left" text rounded @click="router.back()" class="bg-surface-100 dark:bg-surface-800" />
-            <div>
-                <h1 class="text-4xl font-black uppercase tracking-tighter text-surface-900 dark:text-surface-0">Create Manual Order</h1>
-                <p class="text-surface-500">Enter customer details and add items to generate a new order.</p>
-            </div>
-        </div>
+    <PageShell maxWidth="4xl">
+        <PageHeader back title="Create Manual Order" description="Enter customer details and add items to generate a new order." />
 
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
             <!-- Left: Form -->
@@ -251,5 +247,5 @@ const onSubmit = async () => {
                 </div>
             </div>
         </Dialog>
-    </div>
+    </PageShell>
 </template>

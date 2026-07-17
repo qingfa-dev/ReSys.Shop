@@ -3,6 +3,8 @@ import { ref, onMounted, computed } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useToast } from '@/shared/composables/toast.use';
 import { useI18n } from 'vue-i18n';
+import PageShell from '@/shared/components/PageShell.Component.vue'
+import PageHeader from '@/shared/components/PageHeader.Component.vue'
 import { roleService } from '../../services/role.service';
 import { permissionService } from '../../services/permission.service';
 import type { PermissionSummary } from '../../permissions/types/Permission.Response.Type';
@@ -66,21 +68,15 @@ async function onSave() {
 </script>
 
 <template>
-    <Card>
-        <div class="flex items-center justify-between mb-8">
-            <div class="flex items-center gap-4">
-                <Button icon="pi pi-arrow-left" text rounded @click="router.back()" />
-                <div>
-                    <h1 class="text-3xl font-black uppercase tracking-tighter text-surface-900 dark:text-surface-0">
-                        Manage Permissions
-                    </h1>
-                    <p class="text-surface-500">
-                        Assign permissions to role <span class="font-bold text-primary">{{ roleName }}</span>
-                    </p>
-                </div>
-            </div>
-            <Button :label="t('roles.actions.save_permissions')" icon="pi pi-check" @click="onSave" :loading="saving" severity="primary" />
-        </div>
+    <PageShell maxWidth="4xl">
+        <PageHeader back title="Manage Permissions" description="Assign permissions to role">
+            <template #badge>
+                <span class="font-bold text-primary">{{ roleName }}</span>
+            </template>
+            <template #actions>
+                <Button :label="t('roles.actions.save_permissions')" icon="pi pi-check" @click="onSave" :loading="saving" severity="primary" />
+            </template>
+        </PageHeader>
 
         <div v-if="loading" class="flex justify-center p-12">
             <ProgressSpinner />
@@ -105,5 +101,5 @@ async function onSave() {
                 </template>
             </PickList>
         </div>
-</Card>
+    </PageShell>
 </template>

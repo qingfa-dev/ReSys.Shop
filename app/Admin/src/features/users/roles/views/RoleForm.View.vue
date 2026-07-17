@@ -3,6 +3,8 @@ import { ref, onMounted, computed } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useToast } from '@/shared/composables/toast.use';
 import { useI18n } from 'vue-i18n';
+import PageShell from '@/shared/components/PageShell.Component.vue'
+import PageHeader from '@/shared/components/PageHeader.Component.vue'
 import { roleService } from '../../services/role.service';
 import type { CreateRoleRequest, UpdateRoleRequest } from '../types/Role.Request.Type';
 
@@ -87,18 +89,12 @@ async function onSubmit() {
 </script>
 
 <template>
-    <Card>
-        <div class="flex items-center gap-4 mb-8">
-            <Button icon="pi pi-arrow-left" text rounded @click="router.back()" />
-            <div>
-                <h1 class="text-3xl font-black uppercase tracking-tighter text-surface-900 dark:text-surface-0">
-                    {{ isEditMode ? 'Edit Role' : 'Create Role' }}
-                </h1>
-                <p class="text-surface-500">
-                    {{ isEditMode ? 'Update role details.' : 'Define a new system role.' }}
-                </p>
-            </div>
-        </div>
+    <PageShell maxWidth="4xl">
+        <PageHeader
+            :title="isEditMode ? 'Edit Role' : 'Create Role'"
+            :description="isEditMode ? 'Update role details.' : 'Define a new system role.'"
+            back
+        />
 
         <div v-if="loading" class="flex justify-center p-12">
             <ProgressSpinner />
@@ -137,5 +133,5 @@ async function onSubmit() {
                 <Button type="submit" :label="isEditMode ? 'Save Changes' : 'Create Role'" :loading="submitting" icon="pi pi-check" />
             </div>
         </form>
-</Card>
+    </PageShell>
 </template>

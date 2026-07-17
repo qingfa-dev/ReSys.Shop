@@ -4,7 +4,8 @@ import { useRouter } from 'vue-router';
 import { useInventoryStore } from '../stores/inventory.store';
 import { useToast } from '@/shared/composables/toast.use';
 import { useI18n } from 'vue-i18n';
-import AppBreadcrumb from '@/shared/components/Breadcrumb.Component.vue';
+import PageShell from '@/shared/components/PageShell.Component.vue'
+import PageHeader from '@/shared/components/PageHeader.Component.vue'
 import LocationSelector from '../components/LocationSelector.Component.vue';
 import type { CreateStockTransferRequest } from '../types/StockTransfer.Request.Type';
 
@@ -42,18 +43,8 @@ async function onSubmit() {
 </script>
 
 <template>
-    <div class="p-6 max-w-2xl mx-auto">
-        <AppBreadcrumb />
-        
-        <div class="flex items-center gap-4 mt-4 mb-8">
-            <Button icon="pi pi-arrow-left" text rounded severity="secondary" @click="router.back()" class="bg-surface-100 dark:bg-surface-800" />
-            <div>
-                <h2 class="text-4xl font-black tracking-tighter text-surface-900 dark:text-surface-50 m-0">
-                    {{ t('inventory.titles.create_transfer') }}
-                </h2>
-                <p class="text-sm text-surface-500 m-0">{{ t('inventory.descriptions.transfers') }}</p>
-            </div>
-        </div>
+    <PageShell maxWidth="2xl">
+        <PageHeader back :title="t('inventory.titles.create_transfer')" :description="t('inventory.descriptions.transfers')" />
 
         <Card class="rounded-3xl shadow-sm border-none bg-surface-0 dark:bg-surface-900">
             <template #content>
@@ -80,5 +71,5 @@ async function onSubmit() {
                 </form>
             </template>
         </Card>
-    </div>
+    </PageShell>
 </template>
