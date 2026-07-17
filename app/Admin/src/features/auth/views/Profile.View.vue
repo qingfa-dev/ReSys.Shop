@@ -5,6 +5,7 @@ import type { ChangePasswordParameters } from '../types/ChangePassword.Parameter
 import { useToast } from '@/shared/composables/toast.use';
 import { useFormatter } from '@/shared/composables/formatter.use';
 import { useI18n } from 'vue-i18n';
+import PageShell from '@/shared/components/PageShell.Component.vue';
 
 const { t } = useI18n();
 const { showToast } = useToast();
@@ -67,7 +68,7 @@ async function onChangePassword() {
 </script>
 
 <template>
-    <div class="space-y-8">
+    <PageShell :card="false" gap>
         <div v-if="loading" class="flex justify-center py-20">
             <ProgressSpinner style="width: 40px; height: 40px" />
         </div>
@@ -194,5 +195,5 @@ async function onChangePassword() {
                 </div>
             </div>
         </template>
-    </div>
+    </PageShell>
 </template>

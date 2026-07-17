@@ -4,7 +4,8 @@ import { useRoute, useRouter } from 'vue-router';
 import { useInventoryStore } from '../stores/inventory.store';
 import { useToast } from '@/shared/composables/toast.use';
 import { useI18n } from 'vue-i18n';
-import AppBreadcrumb from '@/shared/components/Breadcrumb.Component.vue';
+import PageShell from '@/shared/components/PageShell.Component.vue';
+import PageHeader from '@/shared/components/PageHeader.Component.vue';
 import LocationSelector from '../components/LocationSelector.Component.vue';
 import type { CreateStockLocationRequest } from '../types/StockLocation.Request.Type';
 
@@ -127,20 +128,8 @@ onMounted(() => {
 </script>
 
 <template>
-    <div :class="[hideHeader ? 'p-0' : 'p-6 max-w-4xl mx-auto']">
-        <template v-if="!hideHeader">
-            <AppBreadcrumb />
-            
-            <div class="flex items-center gap-4 mt-4 mb-8">
-                <Button icon="pi pi-arrow-left" text rounded severity="secondary" @click="router.back()" class="bg-surface-100 dark:bg-surface-800" />
-                <div>
-                    <h2 class="text-4xl font-black tracking-tighter text-surface-900 dark:text-surface-50 m-0">
-                        {{ isEdit ? 'Edit Location' : t('inventory.titles.create_location') }}
-                    </h2>
-                    <p class="text-sm text-surface-500 m-0">{{ t('inventory.descriptions.locations') }}</p>
-                </div>
-            </div>
-        </template>
+    <PageShell maxWidth="4xl">
+        <PageHeader back :title="isEdit ? 'Edit Location' : t('inventory.titles.create_location')" :description="t('inventory.descriptions.locations')" />
 
         <div v-if="loading" class="flex justify-center p-20">
             <ProgressSpinner />
@@ -222,5 +211,5 @@ onMounted(() => {
                 </Card>
             </div>
         </form>
-    </div>
+    </PageShell>
 </template>

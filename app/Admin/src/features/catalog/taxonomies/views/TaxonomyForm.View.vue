@@ -7,7 +7,6 @@ import { toTypedSchema } from '@vee-validate/zod'
 import { TaxonomySchema } from '../schemas/Taxonomy.Schema'
 import { useTaxonomyStore } from '../stores/taxonomy.store'
 import { useToast } from '@/shared/composables/toast.use'
-import AppBreadcrumb from '@/shared/components/Breadcrumb.Component.vue'
 
 const { t } = useI18n()
 

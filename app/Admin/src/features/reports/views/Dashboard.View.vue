@@ -4,6 +4,8 @@ import { useReportStore } from '../stores/report.store';
 import { storeToRefs } from 'pinia';
 import { useFormatter } from '@/shared/composables/formatter.use';
 import { useI18n } from 'vue-i18n';
+import PageShell from '@/shared/components/PageShell.Component.vue';
+import PageHeader from '@/shared/components/PageHeader.Component.vue';
 
 const { t } = useI18n();
 
@@ -82,26 +84,19 @@ const getActivityColor = (type: string) => {
 </script>
 
 <template>
-    <div class="flex flex-col gap-8">
-        <!-- Page Header -->
-        <Card class="border-none shadow-none bg-transparent">
-            <template #content>
-                <div class="flex items-center justify-between">
-                    <div>
-                        <h1 class="text-3xl font-bold text-surface-900 dark:text-surface-0">{{ t('navigation.dashboard') }}</h1>
-                        <p class="mt-1 text-surface-500 dark:text-surface-400">Real-time performance overview</p>
-                    </div>
-                    <Button
-                        icon="pi pi-refresh"
-                        severity="secondary"
-                        text
-                        rounded
-                        :loading="is_loading"
-                        @click="store.fetchDashboardData()"
-                    />
-                </div>
+    <PageShell :card="false" gap>
+        <PageHeader :title="t('navigation.dashboard')" description="Real-time performance overview">
+            <template #actions>
+                <Button
+                    icon="pi pi-refresh"
+                    severity="secondary"
+                    text
+                    rounded
+                    :loading="is_loading"
+                    @click="store.fetchDashboardData()"
+                />
             </template>
-        </Card>
+        </PageHeader>
 
         <!-- Revenue Chart -->
         <Card v-if="chartData" class="border border-surface-100 dark:border-surface-800 shadow-sm">
@@ -294,5 +289,5 @@ const getActivityColor = (type: string) => {
                 </Card>
             </div>
         </div>
-    </div>
+    </PageShell>
 </template>

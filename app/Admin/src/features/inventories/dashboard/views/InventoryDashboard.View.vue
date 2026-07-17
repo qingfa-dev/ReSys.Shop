@@ -3,6 +3,8 @@ import { onMounted } from 'vue'
 import { useInventoryDashboardStore } from '../stores/inventory-dashboard.store'
 import { storeToRefs } from 'pinia'
 import { useI18n } from 'vue-i18n'
+import PageShell from '@/shared/components/PageShell.Component.vue'
+import PageHeader from '@/shared/components/PageHeader.Component.vue'
 
 const { t } = useI18n()
 
@@ -15,15 +17,8 @@ onMounted(async () => {
 </script>
 
 <template>
-  <div class="p-6">
-    <div class="mb-8">
-      <h2 class="text-3xl font-black tracking-tight text-surface-900 dark:text-surface-50">
-        Inventory Dashboard
-      </h2>
-      <p class="text-surface-500 dark:text-surface-400">
-        Stock levels, locations, and recent movements.
-      </p>
-    </div>
+  <PageShell>
+    <PageHeader title="Inventory Dashboard" description="Stock levels, locations, and recent movements." />
 
     <div v-if="loading && !data" class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-6 mb-8">
       <Skeleton v-for="i in 6" :key="i" height="100px" class="rounded-2xl" />
@@ -69,5 +64,5 @@ onMounted(async () => {
         </Column>
       </DataTable>
     </div>
-  </div>
+  </PageShell>
 </template>

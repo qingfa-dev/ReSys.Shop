@@ -7,7 +7,7 @@ import { toTypedSchema } from '@vee-validate/zod';
 import { CreateProductSchema } from '../schemas/CreateProduct.Schema';
 import { useProductStore } from '../stores/product.store';
 import { storeToRefs } from 'pinia';
-import AppBreadcrumb from '@/shared/components/Breadcrumb.Component.vue';
+import PageShell from '@/shared/components/PageShell.Component.vue';
 import PageHeader from '@/shared/components/PageHeader.Component.vue';
 import MetadataManager from '@/shared/components/MetadataManager.Component.vue';
 import ProductImageManager from '../components/ProductImageManager.Component.vue';
@@ -122,8 +122,7 @@ const onSubmit = handleSubmit(async (values) => {
 </script>
 
 <template>
-    <div class="p-6 max-w-6xl mx-auto">
-        <AppBreadcrumb />
+    <PageShell maxWidth="6xl">
         <PageHeader
           :title="isEdit ? (name || 'Edit Product') : t('catalog.products.titles.create')"
           :description="isEdit ? t('catalog.products.descriptions.edit') : t('catalog.products.descriptions.create')"
@@ -135,9 +134,7 @@ const onSubmit = handleSubmit(async (values) => {
           </template>
         </PageHeader>
 
-        <Card class="border-none shadow-sm rounded-3xl bg-surface-0 dark:bg-surface-900 overflow-hidden">
-            <template #content>
-                <Tabs v-model:value="activeTab">
+        <Tabs v-model:value="activeTab">
                     <TabList scrollable>
                         <Tab :value="0">
                             <div class="flex items-center gap-2">
@@ -317,9 +314,7 @@ const onSubmit = handleSubmit(async (values) => {
                         </TabPanel>
                     </TabPanels>
                 </Tabs>
-            </template>
-        </Card>
-    </div>
+    </PageShell>
 </template>
 
 <style scoped>

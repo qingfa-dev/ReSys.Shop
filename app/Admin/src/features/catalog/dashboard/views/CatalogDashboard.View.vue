@@ -5,6 +5,8 @@ import { useRouter } from 'vue-router';
 import { useCatalogDashboardStore } from '../stores/catalog-dashboard.store';
 import { storeToRefs } from 'pinia';
 import { useFormatter } from '@/shared/composables/formatter.use';
+import PageShell from '@/shared/components/PageShell.Component.vue';
+import PageHeader from '@/shared/components/PageHeader.Component.vue';
 
 const { t } = useI18n();
 const router = useRouter();
@@ -22,11 +24,8 @@ const navigateToOptionTypes = () => router.push({ name: 'catalog.option-types.li
 </script>
 
 <template>
-    <div class="p-6">
-        <div class="mb-8">
-            <h2 class="text-3xl font-black tracking-tight text-surface-900 dark:text-surface-50">Catalog Dashboard</h2>
-            <p class="text-surface-500 dark:text-surface-400">High-level overview of your product catalog and taxonomies.</p>
-        </div>
+    <PageShell>
+        <PageHeader title="Catalog Dashboard" description="High-level overview of your product catalog and taxonomies." />
 
         <div v-if="loading && !summary" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
             <Skeleton v-for="i in 3" :key="i" height="100px" class="rounded-2xl"></Skeleton>
@@ -130,5 +129,5 @@ const navigateToOptionTypes = () => router.push({ name: 'catalog.option-types.li
                 </div>
             </div>
         </div>
-    </div>
+    </PageShell>
 </template>

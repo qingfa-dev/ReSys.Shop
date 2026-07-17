@@ -6,7 +6,6 @@ import { useTaxonStore } from '../stores/taxon.store'
 import { useTaxonomyStore } from '../../stores/taxonomy.store'
 import { storeToRefs } from 'pinia'
 import { useApiErrorHandler } from '@/shared/composables/api-error-handler.use'
-import AppBreadcrumb from '@/shared/components/Breadcrumb.Component.vue'
 import { useToast } from '@/shared/composables/toast.use'
 import { useConfirm } from 'primevue/useconfirm'
 import type { TaxonListItem } from '../types/Taxon.Response.Type'
@@ -83,7 +82,6 @@ const goBack = () => router.push({ name: 'catalog.taxonomies.list' })
 <template>
   <div class="flex flex-col h-full">
     <div class="p-6 pb-0 max-w-full">
-        <AppBreadcrumb />
         <div class="flex items-center justify-between mt-4 mb-6">
             <div class="flex items-center gap-4">
                 <Button icon="pi pi-arrow-left" text rounded severity="secondary" @click="goBack" class="bg-surface-100 dark:bg-surface-800" />

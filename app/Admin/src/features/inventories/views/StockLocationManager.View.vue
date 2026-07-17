@@ -5,7 +5,6 @@ import { useInventoryStore } from '../stores/inventory.store'
 import { storeToRefs } from 'pinia'
 import { useI18n } from 'vue-i18n'
 import { useApiErrorHandler } from '@/shared/composables/api-error-handler.use'
-import AppBreadcrumb from '@/shared/components/Breadcrumb.Component.vue'
 import { useToast } from '@/shared/composables/toast.use'
 import { useConfirm } from 'primevue/useconfirm'
 
@@ -72,7 +71,6 @@ const goBack = () => router.push({ name: 'inventory.stocks.list' })
   <div class="flex flex-col h-full">
     <!-- Header -->
     <div class="p-6 pb-0 max-w-full">
-      <AppBreadcrumb />
       <div class="flex items-center justify-between mt-4 mb-6">
         <div class="flex items-center gap-4">
           <Button icon="pi pi-arrow-left" text rounded severity="secondary" @click="goBack"

@@ -3,6 +3,8 @@ import { onMounted } from 'vue'
 import { useOrderingDashboardStore } from '../stores/ordering-dashboard.store'
 import { storeToRefs } from 'pinia'
 import { useI18n } from 'vue-i18n'
+import PageShell from '@/shared/components/PageShell.Component.vue'
+import PageHeader from '@/shared/components/PageHeader.Component.vue'
 
 const store = useOrderingDashboardStore()
 const { t } = useI18n()
@@ -14,15 +16,8 @@ onMounted(async () => {
 </script>
 
 <template>
-  <div class="p-6">
-    <div class="mb-8">
-        <h2 class="text-3xl font-black tracking-tight text-surface-900 dark:text-surface-50">
-        {{ t('ordering.titles.dashboard') }}
-      </h2>
-      <p class="text-surface-500 dark:text-surface-400">
-        {{ t('ordering.descriptions.dashboard') }}
-      </p>
-    </div>
+  <PageShell>
+    <PageHeader :title="t('ordering.titles.dashboard')" :description="t('ordering.descriptions.dashboard')" />
 
     <div v-if="loading && !data" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6 mb-8">
       <Skeleton v-for="i in 5" :key="i" height="100px" class="rounded-2xl" />
@@ -87,5 +82,5 @@ onMounted(async () => {
         </div>
       </div>
     </div>
-  </div>
+  </PageShell>
 </template>
