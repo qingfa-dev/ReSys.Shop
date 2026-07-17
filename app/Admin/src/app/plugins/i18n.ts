@@ -28,7 +28,7 @@ const i18n = createI18n({
       roles: rolesEn,
       location: locationEn,
       profile: profileEn,
-      ...errorEn,
+      error: errorEn,
       reports: reportsEn,
     },
   },

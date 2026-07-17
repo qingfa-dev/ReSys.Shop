@@ -60,7 +60,7 @@ async function onChangePassword() {
         passwordForm.value = { currentPassword: '', newPassword: '', confirmNewPassword: '' };
     } else {
         const errMsg = result.errors?.[0]?.message || 'Failed to update password';
-        showToast('error', 'Error', errMsg);
+        showToast('error', t('common.error'), errMsg);
     }
     submitting.value = false;
 }
