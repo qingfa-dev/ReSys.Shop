@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Identity;
 
+using DomainRoles = Module.Identity.Domain.Roles;
 using Module.Identity.Features.Admin.Roles.Shared.Mappings;
 
 using Shared.Operational.Persistence.Specifications.Paging.Extensions;
@@ -27,7 +28,10 @@ public static partial class GetRolesPagedOrAll
         {
             var parameters = request.Parameters;
 
-            var parsing = parameters.ParseAll();
+            var parsing = parameters.ParseAll(
+                allowedFilterFields: DomainRoles.RoleConstant.Query.AllowedFilterFields.ToHashSet(StringComparer.OrdinalIgnoreCase),
+                allowedSearchFields: DomainRoles.RoleConstant.Query.AllowedSearchFields.ToHashSet(StringComparer.OrdinalIgnoreCase),
+                allowedSortFields: DomainRoles.RoleConstant.Query.AllowedSortFields.ToHashSet(StringComparer.OrdinalIgnoreCase));
             if (parsing.IsFailure)
                 return PagedResult<Response>.Create(errors: parsing.Errors);
 

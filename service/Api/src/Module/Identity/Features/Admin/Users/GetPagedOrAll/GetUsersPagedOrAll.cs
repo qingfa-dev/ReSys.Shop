@@ -1,3 +1,4 @@
+using DomainUsers = Module.Identity.Domain.Users;
 using Module.Identity.Features.Admin.Users.Shared.Mappings;
 
 using Shared.Security.Identity.Domain.Users;
@@ -23,7 +24,10 @@ public static partial class GetUsersPagedOrAll
         {
             var parameters = request.Parameters;
 
-            var parsing = parameters.ParseAll();
+            var parsing = parameters.ParseAll(
+                allowedFilterFields: DomainUsers.UserConstant.Query.AllowedFilterFields.ToHashSet(StringComparer.OrdinalIgnoreCase),
+                allowedSearchFields: DomainUsers.UserConstant.Query.AllowedSearchFields.ToHashSet(StringComparer.OrdinalIgnoreCase),
+                allowedSortFields: DomainUsers.UserConstant.Query.AllowedSortFields.ToHashSet(StringComparer.OrdinalIgnoreCase));
             if (parsing.IsFailure)
                 return parsing.Errors;
 
