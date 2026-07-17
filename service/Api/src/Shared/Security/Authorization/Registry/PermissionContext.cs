@@ -151,8 +151,6 @@ public static class PermissionContext
             "optiontypes", "Option Types", "Option type definition resource.");
         public static readonly OptionDescriptor<string> OptionTypesOptionValues = OptionDescriptor<string>.Option(
             "optiontypes_optionvalues", "Option Type Values", "Option type value resource.");
-        public static readonly OptionDescriptor<string> PropertyTypes = OptionDescriptor<string>.Option(
-            "propertytypes", "Property Types", "Property type definition resource.");
         public static readonly OptionDescriptor<string> Orders = OptionDescriptor<string>.Option(
             "orders", "Orders", "Order resource.");
         public static readonly OptionDescriptor<string> Fulfillment = OptionDescriptor<string>.Option(

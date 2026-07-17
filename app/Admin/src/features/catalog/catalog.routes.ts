@@ -126,31 +126,6 @@ export const catalogRoutes: RouteRecordRaw = {
       component: () => import('@/features/catalog/option-types/option-values/views/OptionValueList.View.vue'),
       meta: { breadcrumb: 'Option Values' },
     },
-    {
-      path: 'property-types',
-      meta: { breadcrumb: 'Property Types' },
-      children: [
-        {
-          path: '',
-          name: 'catalog.property-types.list',
-          component: () =>
-            import('@/features/catalog/property-types/views/PropertyTypeList.View.vue'),
-        },
-        {
-          path: 'create',
-          name: 'catalog.property-types.create',
-          component: () =>
-            import('@/features/catalog/property-types/views/PropertyTypeForm.View.vue'),
-          meta: { breadcrumb: 'Create' },
-        },
-        {
-          path: ':id/edit',
-          name: 'catalog.property-types.edit',
-          component: () =>
-            import('@/features/catalog/property-types/views/PropertyTypeForm.View.vue'),
-          meta: { breadcrumb: 'Edit' },
-        },
-      ],
-    },
+
   ],
 }

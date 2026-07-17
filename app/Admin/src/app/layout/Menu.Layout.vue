@@ -39,14 +39,7 @@ const model = ref<MenuItem[]>([
           { label: 'Values', icon: 'pi pi-fw pi-th-large', to: { name: 'catalog.option-values.list' } },
         ],
       },
-      {
-        label: 'Property Types',
-        icon: 'pi pi-fw pi-tags',
-        items: [
-          { label: 'List', icon: 'pi pi-fw pi-list', to: { name: 'catalog.property-types.list' } },
-          { label: 'Add New', icon: 'pi pi-fw pi-plus-circle', to: { name: 'catalog.property-types.create' } },
-        ],
-      },
+
     ],
   },
   {

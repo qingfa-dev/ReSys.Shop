@@ -33,12 +33,4 @@ export const productService = {
   async updateOptionTypes(_productId: string, _optionTypeIds: string[]): Promise<ServerResult<void>> {
     return { isSuccess: true, statusCode: 200, errors: [], message: null, metadata: null, value: undefined }
   },
-
-  // Property methods — no backend endpoint
-  async getProperties(_productId: string): Promise<ServerPagedResult<Record<string, unknown>>> {
-    return { isSuccess: true, statusCode: 200, errors: [], message: null, metadata: null, items: [], page: 1, pageSize: 0, totalCount: 0 }
-  },
-  async updateProperties(_productId: string, _properties: Record<string, unknown>[]): Promise<ServerResult<void>> {
-    return { isSuccess: true, statusCode: 200, errors: [], message: null, metadata: null, value: undefined }
-  },
 }

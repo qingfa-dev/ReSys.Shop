@@ -181,9 +181,9 @@ Backend has 4 price endpoints at `/products/variants/{variantId}/prices` — fro
 - All CRUD operations use wrong path — backend scopes option-values under **option-types** (`/option-types/{optionTypeId}/values`). Frontend treats them as flat CRUD at `/option-values`.
 - `reorder`: no backend equivalent. Add or remove.
 
-#### PropertyTypes
+#### PropertyTypes (removed)
 
-✅ All routes correct when `CATALOG = api/catalog` — backend has `/api/catalog/property-types` endpoints.
+PropertyTypes feature was scaffolded but never implemented on the backend. No domain entity, database table, migration, or API endpoints exist. The feature was removed from both frontend and backend. See `plan/drop-property-type-admin-1.md`.
 
 #### Taxonomies
 

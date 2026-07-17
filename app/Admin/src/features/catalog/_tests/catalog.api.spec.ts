@@ -4,7 +4,6 @@ import { productRepository } from '../products/repositories/product.repository'
 import { variantRepository } from '../products/repositories/variant.repository'
 import { optionTypeRepository } from '../option-types/repositories/option-type.repository'
 import { optionValueRepository } from '../option-types/option-values/repositories/option-value.repository'
-import { propertyTypeRepository } from '../property-types/repositories/property-type.repository'
 import { taxonomyRepository } from '../taxonomies/repositories/taxonomy.repository'
 import { taxonRepository } from '../taxonomies/taxa/repositories/taxon.repository'
 
@@ -59,13 +58,6 @@ describe('optionValueRepository', () => {
   it('listByOptionTypeId calls correct nested route', async () => {
     await optionValueRepository.listByOptionTypeId('ot-1', { page: 1 })
     expect(apiClient.get).toHaveBeenCalledWith('api/catalog/option-types/ot-1/values', expect.any(Object))
-  })
-})
-
-describe('propertyTypeRepository', () => {
-  it('list calls correct route', async () => {
-    await propertyTypeRepository.list({ page: 1 })
-    expect(apiClient.get).toHaveBeenCalledWith('api/catalog/property-types', expect.any(Object))
   })
 })
 

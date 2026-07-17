@@ -29,7 +29,6 @@ public static class ProductStoreMapping
                 .Where(v => !v.IsDeleted)
                 .Select(v => v.MapToStoreVariant())
                 .ToList(),
-            Properties = [],
             Taxons = entity.Classifications
                 .Select(c => new StoreProductTaxonResponse
                 {

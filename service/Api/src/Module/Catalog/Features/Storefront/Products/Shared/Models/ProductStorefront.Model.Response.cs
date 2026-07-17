@@ -7,7 +7,6 @@ public record StoreProductDetailResponse : ProductDetailResponse
     public StoreProductVariantResponse? MasterVariant { get; init; }
     public List<StoreProductVariantResponse> Variants { get; init; } = [];
     public List<StoreProductImageResponse> Images { get; init; } = [];
-    public List<StoreProductPropertyResponse> Properties { get; init; } = [];
     public List<StoreProductTaxonResponse> Taxons { get; init; } = [];
 }
 
@@ -38,13 +37,6 @@ public class StoreProductImageResponse
     public string? Alt { get; init; }
     public int Position { get; init; }
     public string ContentType { get; init; } = string.Empty;
-}
-
-public class StoreProductPropertyResponse
-{
-    public string Name { get; init; } = string.Empty;
-    public string? Value { get; init; }
-    public bool ShowProperty { get; init; }
 }
 
 public class StoreProductTaxonResponse

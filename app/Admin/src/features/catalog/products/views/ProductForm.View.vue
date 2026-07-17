@@ -12,7 +12,6 @@ import MetadataManager from '@/shared/components/MetadataManager.Component.vue';
 import ProductImageManager from '../components/ProductImageManager.Component.vue';
 import ProductVariantManager from '../components/ProductVariantManager.Component.vue';
 import ProductClassificationManager from '../components/ProductClassificationManager.Component.vue';
-import ProductPropertyManager from '../components/ProductPropertyManager.Component.vue';
 import ProductOptionTypeManager from '../components/ProductOptionTypeManager.Component.vue';
 import ProductInventoryManager from '../components/ProductInventoryManager.Component.vue';
 import type { ProductDetail } from '../types/Product.Response.Type';
@@ -270,10 +269,6 @@ const onSubmit = handleSubmit(async (values) => {
 
                         <TabPanel :value="4" v-if="isEdit">
                             <ProductClassificationManager :productId="productId" />
-                        </TabPanel>
-
-                        <TabPanel :value="8" v-if="isEdit">
-                            <ProductPropertyManager :productId="productId" />
                         </TabPanel>
 
                         <TabPanel :value="5">
