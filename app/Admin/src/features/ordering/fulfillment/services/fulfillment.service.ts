@@ -1,8 +1,8 @@
-import { orderingApi } from '../../services/ordering.api'
+import { orderingRepository } from '../../repository/ordering.repository'
 
 export const fulfillmentService = {
-  getQueue: orderingApi.fulfillments.getQueue,
+  getQueue: orderingRepository.fulfillments.getQueue,
   async markAsShipped(id: string, _trackingNumber?: string): Promise<any> {
-    return orderingApi.orders.complete(id)
+    return orderingRepository.orders.complete(id)
   },
 }

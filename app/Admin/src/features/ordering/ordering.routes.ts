@@ -5,6 +5,12 @@ export const orderingRoutes: RouteRecordRaw = {
   meta: { breadcrumb: 'Orders' },
   children: [
     {
+      path: '',
+      name: 'ordering.dashboard',
+      component: () => import('./dashboard/views/OrderingDashboard.View.vue'),
+      meta: { breadcrumb: 'Overview' },
+    },
+    {
       path: 'orders',
       name: 'ordering.orders.list',
       component: () => import('@/features/ordering/views/OrderList.View.vue'),
