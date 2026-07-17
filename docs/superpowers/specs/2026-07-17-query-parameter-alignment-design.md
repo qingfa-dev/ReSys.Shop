@@ -28,6 +28,7 @@ The codebase has two sides that have drifted apart:
 | Enforcement | Strict — `ParseAll()` returns errors on invalid fields (HTTP 400) |
 | Custom handler params | Kept separate from DSL (e.g., Products `Status`/`TaxonId`/`Season` remain as dedicated query params) |
 | Consumer side | API + admin SPA only; storefront SPA not affected by these changes |
+| i18n safety | Query parameter values (sort/filter/search field names) are API identifiers, not user-visible strings. Must NEVER go through `t()` or any translation function |
 
 ## Sections
 
@@ -150,6 +151,25 @@ Follow existing pattern (OptionValues, PropertyTypes): pass `searchFields` only 
 searchFields: globalFilter.value ? ['Name', 'Description', 'Slug'] : undefined
 ```
 
+### 4d. I18n Safety — Query Parameters vs Display Strings
+
+Query parameters (sort fields, filter fields, search fields) are **API identifiers** — PascalCase or camelCase property names on .NET entities. They must never pass through Vue I18n's `t()` function. This separation already exists in the current codebase and must be preserved.
+
+| Concern | Language | Goes through `t()`? |
+|---|---|---|
+| Column `field` attribute | Entity property name (camelCase) | **No** |
+| `searchFields` array elements | Entity property name (PascalCase) | **No** |
+| `QueryBuilder.where(field, op, val)` — field argument | Entity property name (PascalCase) | **No** |
+| `QueryBuilder.where(field, op, val)` — value argument | User input (any language) | **No** — passed as-is |
+| `search` text | User input (any language) | **No** — passed as-is |
+| Column `:header` attribute | Display string | **Yes** — `t('catalog.products.table.name')` |
+| Filter placeholder text | Display string | **Yes** |
+| Labels, titles, buttons | Display string | **Yes** |
+
+**Rule:** Any string sent in a query parameter (`searchFields`, `filter`, `search`, `sort`) is an API contract value — it is a PascalCase entity property name or raw user input. Never use `t()` to produce it.
+
+**Verification:** The existing codebase already follows this rule. All `field="..."`, `builder.where('...')`, and `searchFields` arrays use hardcoded PascalCase/camelCase. The `searchFields` additions in Section 4a follow the same pattern — they use PascalCase property names from the API's `Constant.Query.AllowedSearchFields`.
+
 ### 5. Admin — Dead Query Parameter Cleanup
 
 Remove fields from TypeScript `Query.Type` files that are defined but never sent by any view:
@@ -199,3 +219,4 @@ Payment (PaymentCapture, PaymentMethod), Shipping (ShippingRate, ShippingMethod)
 - **Storefront breakage:** Storefront SPA queries may break if they send invalid sort/filter fields. Assessed: low — storefront uses different endpoints with narrower queries. But verify with a storefront build after implementation.
 - **Test failures:** Existing unit tests may stub handlers with field names not in Constant.Query. Each test fix is one-line (align the mock field to an allowed one).
 - **Performance:** `ParseAll()` with whitelists adds HashSet lookups per filter/sort/search field. Negligible — O(n) on the number of clauses (typically <5).
+- **I18n regression:** If any `searchFields` array, sort field string, or `QueryBuilder.where()` field argument accidentally uses `t()` instead of a hardcoded PascalCase string, API validation will reject it with 400 because translated values won't match entity property names. Verified: all existing code already uses hardcoded identifiers. The additions in Section 4a follow the same pattern.
