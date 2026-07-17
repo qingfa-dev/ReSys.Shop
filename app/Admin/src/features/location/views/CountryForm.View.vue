@@ -6,6 +6,7 @@ import { CountrySchema as countryCreateSchema } from '../schemas/Country.Schema'
 import { useCountryStore } from '../stores/country.store'
 import { useToast } from '@/shared/composables/toast.use'
 import type { Country } from '../types/Country.Response.Type'
+import { useI18n } from 'vue-i18n'
 
 const props = withDefaults(defineProps<{
   visible: boolean
@@ -21,6 +22,7 @@ const emit = defineEmits<{
 }>()
 
 const store = useCountryStore()
+const { t } = useI18n()
 const { showToast } = useToast()
 
 const { defineField, errors, handleSubmit: submitForm, setValues, resetForm } = useForm({

@@ -2,8 +2,10 @@
 import { onMounted } from 'vue'
 import { useOrderingDashboardStore } from '../stores/ordering-dashboard.store'
 import { storeToRefs } from 'pinia'
+import { useI18n } from 'vue-i18n'
 
 const store = useOrderingDashboardStore()
+const { t } = useI18n()
 const { data, loading } = storeToRefs(store)
 
 onMounted(async () => {

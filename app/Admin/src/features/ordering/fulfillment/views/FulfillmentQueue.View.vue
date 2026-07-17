@@ -4,8 +4,10 @@ import { useFulfillmentStore } from '../stores/fulfillment.store';
 import { storeToRefs } from 'pinia';
 import { useFormatter } from '@/shared/composables/formatter.use';
 import { useRouter } from 'vue-router';
+import { useI18n } from 'vue-i18n';
 
 const store = useFulfillmentStore();
+const { t } = useI18n();
 const { queue, loading } = storeToRefs(store);
 const { formatDate } = useFormatter();
 const router = useRouter();

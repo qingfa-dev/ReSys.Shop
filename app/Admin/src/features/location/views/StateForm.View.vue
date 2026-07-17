@@ -8,6 +8,7 @@ import { useCountryStore } from '../stores/country.store'
 import { useToast } from '@/shared/composables/toast.use'
 import { storeToRefs } from 'pinia'
 import type { State } from '../types/State.Response.Type'
+import { useI18n } from 'vue-i18n'
 
 const props = withDefaults(defineProps<{
   visible: boolean
@@ -24,6 +25,7 @@ const emit = defineEmits<{
 
 const stateStore = useStateStore()
 const countryStore = useCountryStore()
+const { t } = useI18n()
 const { items: countries } = storeToRefs(countryStore)
 const { showToast } = useToast()
 

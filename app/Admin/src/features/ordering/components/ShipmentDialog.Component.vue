@@ -5,6 +5,7 @@ import { orderService } from '../services/order.service';
 import LocationSelector from '@/features/inventories/components/LocationSelector.Component.vue';
 import type { OrderDetail } from '../types/Order.Response.Type';
 import type { CreateShipmentRequest } from '../types/Order.Request.Type';
+import { useI18n } from 'vue-i18n';
 
 const props = defineProps<{
     order: OrderDetail;
@@ -12,6 +13,7 @@ const props = defineProps<{
 
 const emit = defineEmits(['updated', 'close']);
 
+const { t } = useI18n();
 const { showToast } = useToast();
 const visible = ref(true);
 const loading = ref(false);

@@ -6,8 +6,10 @@ import { useConfirm } from 'primevue/useconfirm'
 import { useToast } from '@/shared/composables/toast.use'
 import type { Country } from '../types/Country.Response.Type'
 import CountryForm from './CountryForm.View.vue'
+import { useI18n } from 'vue-i18n'
 
 const store = useCountryStore()
+const { t } = useI18n()
 const { items, loading, totalRecords } = storeToRefs(store)
 const confirm = useConfirm()
 const { showToast } = useToast()

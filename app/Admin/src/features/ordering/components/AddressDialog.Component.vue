@@ -2,6 +2,7 @@
 import { ref, onMounted } from 'vue';
 import type { AddressDetail } from '../types/Order.Response.Type';
 import type { UpdateAddressesRequest } from '../types/Order.Request.Type';
+import { useI18n } from 'vue-i18n';
 
 const props = defineProps<{
     shippingAddress?: AddressDetail;
@@ -12,6 +13,8 @@ const emit = defineEmits<{
     (e: 'save', data: UpdateAddressesRequest): void;
     (e: 'close'): void;
 }>();
+
+const { t } = useI18n();
 
 const shipAddr = ref<Partial<AddressDetail>>({
     firstName: '',

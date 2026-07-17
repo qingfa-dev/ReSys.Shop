@@ -3,6 +3,7 @@ import { ref } from 'vue';
 import type { PaymentDetail } from '../types/Order.Response.Type';
 import type { RefundPaymentRequest } from '../fulfillment/types/Fulfillment.Request.Type';
 import { useFormatter } from '@/shared/composables/formatter.use';
+import { useI18n } from 'vue-i18n';
 
 const props = defineProps<{
     payment: PaymentDetail;
@@ -13,6 +14,7 @@ const emit = defineEmits<{
     (e: 'close'): void;
 }>();
 
+const { t } = useI18n();
 const { formatCurrency } = useFormatter();
 
 const amount = ref(props.payment.amountCents / 100);

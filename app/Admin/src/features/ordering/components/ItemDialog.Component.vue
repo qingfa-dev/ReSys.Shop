@@ -3,6 +3,7 @@ import { ref } from 'vue';
 import { useProductStore } from '@/features/catalog/products/stores/product.store';
 import { useFormatter } from '@/shared/composables/formatter.use';
 import type { AddOrderItemRequest } from '../types/Order.Request.Type';
+import { useI18n } from 'vue-i18n';
 
 const emit = defineEmits<{
     (e: 'save', data: AddOrderItemRequest): void;
@@ -10,6 +11,7 @@ const emit = defineEmits<{
 }>();
 
 const productStore = useProductStore();
+const { t } = useI18n();
 const { formatCurrency } = useFormatter();
 
 const quantity = ref(1);

@@ -13,12 +13,14 @@ import ShipmentDialog from '../components/ShipmentDialog.Component.vue';
 import AddressDialog from '../components/AddressDialog.Component.vue';
 import ItemDialog from '../components/ItemDialog.Component.vue';
 import RefundDialog from '../components/RefundDialog.Component.vue';
+import { useI18n } from 'vue-i18n';
 
 const route = useRoute();
 const router = useRouter();
 const store = useOrderStore();
 const confirm = useConfirm();
 const { current_order, loading, submitting } = storeToRefs(store);
+const { t } = useI18n();
 const { formatCurrency } = useFormatter();
 const { handleApiResult } = useApiErrorHandler();
 

@@ -68,7 +68,7 @@
   "placeholders": {
     "search": "Search by name or email...",
     "name": "e.g. John Doe",
-    "email": "e.g. john@resys.shop"
+    "email": "e.g. john\\@resys.shop"
   },
   "messages": {
     "create_success": "User invited successfully.",

@@ -4,6 +4,7 @@ import { useRouter } from 'vue-router';
 import { useOrderStore } from '../stores/order.store';
 import { useProductStore } from '@/features/catalog/products/stores/product.store';
 import { useFormatter } from '@/shared/composables/formatter.use';
+import { useI18n } from 'vue-i18n';
 import { useToast } from '@/shared/composables/toast.use';
 import type { CreateOrderRequest } from '../types/Order.Request.Type';
 import type { ProductSummary } from '@/features/catalog/products/types/Product.Response.Type';
@@ -17,6 +18,7 @@ const router = useRouter();
 const orderStore = useOrderStore();
 const productStore = useProductStore();
 const { formatCurrency } = useFormatter();
+const { t } = useI18n();
 const { showToast } = useToast();
 
 const loading = ref(false);
