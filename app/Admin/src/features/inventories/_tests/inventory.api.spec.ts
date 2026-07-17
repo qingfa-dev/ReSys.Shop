@@ -22,17 +22,17 @@ describe('StockRepository', () => {
 describe('LocationRepository', () => {
   it('list calls correct route', async () => {
     await locationRepository.list({ page: 1 })
-    expect(apiClient.get).toHaveBeenCalledWith('api/inventory/locations', { params: { page: 1 } })
+    expect(apiClient.get).toHaveBeenCalledWith('api/inventory/stock-locations', { params: { page: 1 } })
   })
 })
 
 describe('TransferRepository', () => {
   it('transfer calls correct route', async () => {
     await transferRepository.transfer('tid-1')
-    expect(apiClient.post).toHaveBeenCalledWith('api/inventory/transfers/tid-1/transfer')
+    expect(apiClient.post).toHaveBeenCalledWith('api/inventory/stock-transfers/tid-1/transfer')
   })
   it('receive calls correct route', async () => {
     await transferRepository.receive('tid-1')
-    expect(apiClient.post).toHaveBeenCalledWith('api/inventory/transfers/tid-1/receive')
+    expect(apiClient.post).toHaveBeenCalledWith('api/inventory/stock-transfers/tid-1/receive')
   })
 })
