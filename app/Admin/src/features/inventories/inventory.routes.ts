@@ -5,6 +5,12 @@ export const inventoryRoutes: RouteRecordRaw = {
   meta: { breadcrumb: 'Inventory' },
   children: [
     {
+      path: '',
+      name: 'inventory.dashboard',
+      component: () => import('./dashboard/views/InventoryDashboard.View.vue'),
+      meta: { breadcrumb: 'Overview' },
+    },
+    {
       path: 'stocks',
       name: 'inventory.stocks.list',
       component: () => import('./views/StockItemList.View.vue'),
