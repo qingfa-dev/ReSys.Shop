@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { TaxonomySchema } from '../schemas/taxonomy.schema'
+import { TaxonomySchema } from '../schemas/Taxonomy.Schema'
 
 describe('TaxonomySchema', () => {
   it('should validate a correct taxonomy', () => {
