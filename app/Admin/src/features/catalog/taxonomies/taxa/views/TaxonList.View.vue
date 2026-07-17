@@ -6,7 +6,8 @@ import { useTaxonStore } from '../stores/taxon.store'
 import { useTaxonomyStore } from '../../stores/taxonomy.store'
 import { storeToRefs } from 'pinia'
 import { useApiErrorHandler } from '@/shared/composables/api-error-handler.use'
-import AppBreadcrumb from '@/shared/components/Breadcrumb.Component.vue'
+import PageShell from '@/shared/components/PageShell.Component.vue'
+import PageHeader from '@/shared/components/PageHeader.Component.vue'
 import { useToast } from '@/shared/composables/toast.use'
 import { useConfirm } from 'primevue/useconfirm'
 import { FilterMatchMode } from '@primevue/core/api'
@@ -100,32 +101,26 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="p-6">
-    <AppBreadcrumb />
-    
-    <div class="flex flex-col items-start justify-between gap-4 mb-8 md:flex-row md:items-center">
-      <div>
-        <h2 class="text-3xl font-black tracking-tight text-surface-900 dark:text-surface-50">
-          {{ t('catalog.taxa.titles.manager') || 'Category List' }}
-        </h2>
-        <div class="flex items-center gap-2 mt-1">
-          <span class="text-surface-500 dark:text-surface-400">
-            {{ t('catalog.taxa.descriptions.manager') }}
-          </span>
-          <Badge :value="totalRecords" severity="info" class="ml-2" />
-        </div>
-      </div>
-      <Button 
-        :label="t('catalog.taxa.actions.add_taxon')" 
-        icon="pi pi-plus" 
-        @click="router.push({ name: 'catalog.taxa.create', params: { taxonomyId: taxonomies[0]?.value || 'root' } })"
-        class="px-4 shadow-lg rounded-xl"
-        :disabled="taxonomies.length === 0"
-      />
-    </div>
+  <PageShell>
+    <PageHeader
+      :title="t('catalog.taxa.titles.manager') || 'Category List'"
+      :description="t('catalog.taxa.descriptions.manager')"
+    >
+      <template #badge>
+        <Badge :value="totalRecords" severity="info" />
+      </template>
+      <template #actions>
+        <Button 
+          :label="t('catalog.taxa.actions.add_taxon')" 
+          icon="pi pi-plus" 
+          @click="router.push({ name: 'catalog.taxa.create', params: { taxonomyId: taxonomies[0]?.value || 'root' } })"
+          class="px-4 shadow-lg rounded-xl"
+          :disabled="taxonomies.length === 0"
+        />
+      </template>
+    </PageHeader>
 
-    <div class="overflow-hidden border shadow-sm bg-surface-0 dark:bg-surface-900 rounded-2xl border-surface-100 dark:border-surface-800">
-      <DataTable
+    <DataTable
         v-model:filters="filters"
         :value="items"
         :loading="loading"
@@ -211,6 +206,5 @@ onMounted(() => {
           </template>
         </Column>
       </DataTable>
-    </div>
-  </div>
+  </PageShell>
 </template>

@@ -14,7 +14,8 @@ import type {
 import { useToast } from '@/shared/composables/toast.use';
 import { useFormatter } from '@/shared/composables/formatter.use';
 import { QueryBuilder } from '@/shared/utils/query-builder.utils';
-import AppBreadcrumb from '@/shared/components/Breadcrumb.Component.vue';
+import PageShell from '@/shared/components/PageShell.Component.vue'
+import PageHeader from '@/shared/components/PageHeader.Component.vue'
 import type { TaxonomyListItem } from '../types/Taxonomy.Response.Type';
 
 const { t } = useI18n();
@@ -118,17 +119,12 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="card">
-    <div class="flex flex-col md:flex-row md:items-center justify-between mb-6 gap-4">
-      <div>
-        <h2 class="text-3xl font-black tracking-tight text-surface-900 dark:text-surface-50 mb-2">
-          {{ t('catalog.taxonomies.titles.list') }}
-        </h2>
-        <div class="text-muted-color font-medium">
-          {{ t('catalog.taxonomies.descriptions.list') }}
-        </div>
-      </div>
-      <div class="flex gap-2">
+  <PageShell>
+    <PageHeader
+      :title="t('catalog.taxonomies.titles.list')"
+      :description="t('catalog.taxonomies.descriptions.list')"
+    >
+      <template #actions>
         <Button 
           :label="t('catalog.taxonomies.actions.create')" 
           icon="pi pi-plus" 
@@ -136,11 +132,10 @@ onMounted(() => {
           class="px-4 shadow-lg rounded-xl"
         />
         <Button icon="pi pi-refresh" severity="secondary" outlined @click="loadTaxonomies" :loading="loading" />
-      </div>
-    </div>
+      </template>
+    </PageHeader>
 
-    <div class="overflow-hidden border shadow-sm bg-surface-0 dark:bg-surface-900 rounded-2xl border-surface-100 dark:border-surface-800">
-      <DataTable
+    <DataTable
         v-model:filters="filters"
         :value="taxonomies"
         :loading="loading"
@@ -209,6 +204,5 @@ onMounted(() => {
           </template>
         </Column>
       </DataTable>
-    </div>
-  </div>
+  </PageShell>
 </template>

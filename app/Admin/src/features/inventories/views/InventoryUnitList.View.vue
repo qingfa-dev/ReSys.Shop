@@ -4,7 +4,8 @@ import { useInventoryStore } from '../stores/inventory.store';
 import { storeToRefs } from 'pinia';
 import { useFormatter } from '@/shared/composables/formatter.use';
 import { useI18n } from 'vue-i18n';
-import AppBreadcrumb from '@/shared/components/Breadcrumb.Component.vue';
+import PageShell from '@/shared/components/PageShell.Component.vue'
+import PageHeader from '@/shared/components/PageHeader.Component.vue'
 import { FilterMatchMode } from '@primevue/core/api';
 import type { DataTablePageEvent, DataTableSortEvent, DataTableFilterMeta } from 'primevue/datatable';
 import type { InventoryUnit } from '../types/InventoryUnit.Response.Type';
@@ -47,20 +48,13 @@ const getStatusSeverity = (state: string) => {
 </script>
 
 <template>
-    <div class="p-6 max-w-7xl mx-auto">
-        <AppBreadcrumb />
-        
-        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mt-4 mb-8">
-            <div>
-                <h2 class="text-4xl font-black tracking-tighter text-surface-900 dark:text-surface-50 m-0">
-                    Serialized Units
-                </h2>
-                <p class="text-surface-500 m-0">Track individual items by serial number and lifecycle state.</p>
-            </div>
-        </div>
+    <PageShell maxWidth="7xl">
+        <PageHeader
+          title="Serialized Units"
+          description="Track individual items by serial number and lifecycle state."
+        />
 
-        <div class="overflow-hidden border shadow-sm bg-surface-0 dark:bg-surface-900 rounded-3xl border-surface-100 dark:border-surface-800">
-            <DataTable 
+        <DataTable 
                 :value="units" 
                 :loading="loading" 
                 :lazy="true" 
@@ -120,6 +114,5 @@ const getStatusSeverity = (state: string) => {
                     </template>
                 </Column>
             </DataTable>
-        </div>
-    </div>
+    </PageShell>
 </template>

@@ -9,13 +9,13 @@ import { useForm } from 'vee-validate'
 import { toTypedSchema } from '@vee-validate/zod'
 import { z } from 'zod'
 import PageHeader from '@/shared/components/PageHeader.Component.vue'
+import PageShell from '@/shared/components/PageShell.Component.vue'
 import { OptionValueSchema } from '../schemas/OptionValue.Schema'
 import { FilterMatchMode, FilterOperator } from '@primevue/core/api'
 import type { DataTablePageEvent, DataTableSortEvent, DataTableFilterMeta } from 'primevue/datatable'
 import { useToast } from '@/shared/composables/toast.use'
 import { useConfirm } from 'primevue/useconfirm'
 import { useApiErrorHandler } from '@/shared/composables/api-error-handler.use'
-import AppBreadcrumb from '@/shared/components/Breadcrumb.Component.vue'
 import { QueryBuilder } from '@/shared/utils/query-builder.utils'
 import type { OptionValueListItem } from '../types/OptionValue.Response.Type'
 
@@ -202,8 +202,7 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="p-6">
-    <AppBreadcrumb />
+  <PageShell>
     <PageHeader
       :title="t('catalog.option_values.titles.list')"
       :description="t('catalog.option_values.descriptions.list')"
@@ -220,8 +219,7 @@ onMounted(() => {
       </template>
     </PageHeader>
 
-    <div class="overflow-hidden border shadow-sm bg-surface-0 dark:bg-surface-900 rounded-2xl border-surface-100 dark:border-surface-800">
-      <DataTable
+    <DataTable
         v-model:filters="filters"
         :value="items"
         :loading="loading"
@@ -306,7 +304,6 @@ onMounted(() => {
           </template>
         </Column>
       </DataTable>
-    </div>
 
     <Dialog v-model:visible="showDialog" :header="isEditing ? 'Edit Option Value' : 'Add Option Value'" :modal="true" :style="{ width: '450px' }">
       <form @submit="onFormSubmit" class="flex flex-col gap-4 mt-2">
@@ -347,5 +344,5 @@ onMounted(() => {
         </div>
       </form>
     </Dialog>
-  </div>
+  </PageShell>
 </template>

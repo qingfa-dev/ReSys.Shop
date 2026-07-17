@@ -8,7 +8,8 @@ import { FilterMatchMode, FilterOperator } from '@primevue/core/api'
 import type { DataTablePageEvent, DataTableSortEvent, DataTableFilterMeta } from 'primevue/datatable'
 import { useToast } from '@/shared/composables/toast.use'
 import { useConfirm } from 'primevue/useconfirm'
-import AppBreadcrumb from '@/shared/components/Breadcrumb.Component.vue'
+import PageShell from '@/shared/components/PageShell.Component.vue'
+import PageHeader from '@/shared/components/PageHeader.Component.vue'
 import { QueryBuilder } from '@/shared/utils/query-builder.utils'
 import type { OptionTypeListItem } from '../types/OptionType.Response.Type'
 
@@ -111,31 +112,25 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="p-6">
-    <AppBreadcrumb />
-    
-    <div class="flex flex-col items-start justify-between gap-4 mb-8 md:flex-row md:items-center">
-      <div>
-        <h2 class="text-3xl font-black tracking-tight text-surface-900 dark:text-surface-50">
-          {{ t('catalog.option_types.titles.list') }}
-        </h2>
-        <div class="flex items-center gap-2 mt-1">
-          <span class="text-surface-500 dark:text-surface-400">
-            {{ t('catalog.option_types.descriptions.list') }}
-          </span>
-          <Badge :value="totalRecords" severity="info" class="ml-2" />
-        </div>
-      </div>
-      <Button 
-        :label="t('catalog.option_types.actions.create')" 
-        icon="pi pi-plus" 
-        @click="createItem"
-        class="px-4 shadow-lg rounded-xl"
-      />
-    </div>
+  <PageShell>
+    <PageHeader
+      :title="t('catalog.option_types.titles.list')"
+      :description="t('catalog.option_types.descriptions.list')"
+    >
+      <template #badge>
+        <Badge :value="totalRecords" severity="info" />
+      </template>
+      <template #actions>
+        <Button 
+          :label="t('catalog.option_types.actions.create')" 
+          icon="pi pi-plus" 
+          @click="createItem"
+          class="px-4 shadow-lg rounded-xl"
+        />
+      </template>
+    </PageHeader>
 
-    <div class="overflow-hidden border shadow-sm bg-surface-0 dark:bg-surface-900 rounded-2xl border-surface-100 dark:border-surface-800">
-      <DataTable
+    <DataTable
         v-model:filters="filters"
         :value="items"
         :loading="loading"
@@ -225,6 +220,5 @@ onMounted(() => {
           </template>
         </Column>
       </DataTable>
-    </div>
-  </div>
+  </PageShell>
 </template>
