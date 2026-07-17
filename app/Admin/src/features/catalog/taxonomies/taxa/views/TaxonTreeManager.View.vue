@@ -54,7 +54,7 @@ const openEdit = (node: TaxonListItem) => {
 }
 
 const confirmDelete = (node: TaxonListItem) => {
-  const messageStr = (t('catalog.taxa.confirm.delete_message') || 'Delete "{name}"?').replace('{name}', node.presentation);
+  const messageStr = t('catalog.taxa.confirm.delete_message').replace('{name}', node.presentation);
 
   confirm.require({
     message: messageStr,

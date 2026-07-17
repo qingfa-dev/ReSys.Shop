@@ -34,7 +34,7 @@ const openEdit = (id: string) => {
 }
 
 const confirmDelete = (item: TaxonomyListItem) => {
-  const messageStr = (t('catalog.taxonomies.confirm.delete_message') || 'Delete "{name}"?').replace('{name}', item.name);
+  const messageStr = t('catalog.taxonomies.confirm.delete_message').replace('{name}', item.name);
   
   confirm.require({
     message: messageStr,

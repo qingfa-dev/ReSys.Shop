@@ -91,7 +91,7 @@ const clearFilters = () => {
 };
 
 const confirmDelete = (taxonomy: TaxonomyListItem) => {
-  const messageStr = (t('catalog.taxonomies.confirm.delete_message') || 'Delete "{name}"?').replace('{name}', taxonomy.name);
+  const messageStr = t('catalog.taxonomies.confirm.delete_message').replace('{name}', taxonomy.name);
   
   confirm.require({
     message: messageStr,

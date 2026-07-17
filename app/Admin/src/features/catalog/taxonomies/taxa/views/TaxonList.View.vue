@@ -79,7 +79,7 @@ const clearFilters = () => {
 
 const confirmDelete = (item: TaxonListItem) => {
   confirm.require({
-    message: (t('catalog.taxa.confirm.delete_message') || 'Delete "{name}"?').replace('{name}', item.presentation),
+    message: t('catalog.taxa.confirm.delete_message').replace('{name}', item.presentation),
     header: t('catalog.taxa.confirm.delete_header'),
     icon: 'pi pi-exclamation-triangle',
     rejectLabel: t('catalog.taxa.actions.cancel'),
