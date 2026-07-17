@@ -5,10 +5,10 @@ import { useTaxonStore } from '../stores/taxon.store'
 import { storeToRefs } from 'pinia'
 import { useForm } from 'vee-validate'
 import { toTypedSchema } from '@vee-validate/zod'
-import { TaxonRuleSchema } from '../schemas/taxon.schema'
+import { TaxonRuleSchema } from '../../schemas/TaxonRule.Schema'
 import { useApiErrorHandler } from '@/shared/composables/api-error-handler.use'
 import { useToast } from '@/shared/composables/toast.use'
-import type { TaxonRuleListItem } from '../types/taxon.domain.types'
+import type { TaxonRuleListItem } from '../types/TaxonRule.Response.Type'
 
 const { t } = useI18n()
 

@@ -2,8 +2,8 @@ import apiClient from '@/shared/api/http/api.client'
 import { CATALOG } from '@/shared/api/constants'
 import type { ServerResult } from '@/shared/api/types/result.types'
 import type { ServerQueryingParameters } from '@/shared/api/types/query.types'
-import type { TaxonomyDetail, TaxonomyListItem } from '../taxonomies/types/taxonomy.domain.types'
-import type { CreateTaxonomyRequest, UpdateTaxonomyRequest } from '../taxonomies/types/taxonomy.request.types'
+import type { TaxonomyDetail, TaxonomyListItem } from '../taxonomies/types/Taxonomy.Response.Type'
+import type { CreateTaxonomyRequest, UpdateTaxonomyRequest } from '../taxonomies/types/Taxonomy.Request.Type'
 
 export const taxonomyRepository = {
   list: (params?: ServerQueryingParameters): Promise<ServerResult<TaxonomyListItem[]>> =>

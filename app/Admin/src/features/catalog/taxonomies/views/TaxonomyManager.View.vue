@@ -8,7 +8,7 @@ import { useApiErrorHandler } from '@/shared/composables/api-error-handler.use'
 import AppBreadcrumb from '@/shared/components/Breadcrumb.Component.vue'
 import { useToast } from '@/shared/composables/toast.use'
 import { useConfirm } from 'primevue/useconfirm'
-import type { TaxonomyListItem } from '../types/taxonomy.domain.types'
+import type { TaxonomyListItem } from '../types/Taxonomy.Response.Type'
 
 const { t } = useI18n()
 const route = useRoute()

@@ -6,14 +6,10 @@ import type {
   TaxonDetail,
   TaxonListItem,
   TaxonTreeItem,
-  TaxonRuleListItem,
-} from "../taxonomies/taxa/types/taxon.domain.types";
-import type {
-  CreateTaxonRequest,
-  UpdateTaxonRequest,
-  CreateTaxonRuleRequest,
-  UpdateTaxonRuleRequest,
-} from "../taxonomies/taxa/types/taxon.request.types";
+} from "../taxonomies/taxa/types/Taxon.Response.Type";
+import type { TaxonRuleListItem } from "../taxonomies/taxa/types/TaxonRule.Response.Type";
+import type { CreateTaxonRequest, UpdateTaxonRequest } from "../taxonomies/taxa/types/Taxon.Request.Type";
+import type { CreateTaxonRuleRequest, UpdateTaxonRuleRequest } from "../taxonomies/taxa/types/TaxonRule.Request.Type";
 
 export const taxonRepository = {
   listByTaxonomyId: (

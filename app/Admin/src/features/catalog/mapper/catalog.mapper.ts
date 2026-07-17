@@ -3,8 +3,8 @@ import type { VariantSummary, VariantDetail } from '../products/types/variant.do
 import type { OptionTypeDetail, OptionTypeListItem } from '../option-types/types/option-type.domain.types'
 import type { OptionValueListItem } from '../option-types/option-values/types/option-value.domain.types'
 import type { PropertyTypeDetail } from '../property-types/types/property-type.domain.types'
-import type { TaxonomyDetail, TaxonomyListItem } from '../taxonomies/types/taxonomy.domain.types'
-import type { TaxonDetail, TaxonListItem, TaxonTreeItem } from '../taxonomies/taxa/types/taxon.domain.types'
+import type { TaxonomyDetail, TaxonomyListItem } from '../taxonomies/types/Taxonomy.Response.Type'
+import type { TaxonDetail, TaxonListItem, TaxonTreeItem } from '../taxonomies/taxa/types/Taxon.Response.Type'
 
 export function mapProductSummary(data: ProductSummary): ProductSummary {
   return data

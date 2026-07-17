@@ -15,7 +15,7 @@ import { useToast } from '@/shared/composables/toast.use';
 import { useFormatter } from '@/shared/composables/formatter.use';
 import { QueryBuilder } from '@/shared/utils/query-builder.utils';
 import AppBreadcrumb from '@/shared/components/Breadcrumb.Component.vue';
-import type { TaxonomyListItem } from '../types/taxonomy.domain.types';
+import type { TaxonomyListItem } from '../types/Taxonomy.Response.Type';
 
 const { t } = useI18n();
 
