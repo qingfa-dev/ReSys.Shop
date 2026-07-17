@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { PropertyTypeSchema } from '../schemas/property-type.schema';
-import { PropertyKind } from '../types/property-kind';
+import { PropertyKind } from '../types/property-type.domain.types';
 
 describe('PropertyTypeSchema', () => {
   it('should validate a correct property type', () => {

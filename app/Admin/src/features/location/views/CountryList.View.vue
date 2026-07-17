@@ -4,7 +4,7 @@ import { useCountryStore } from '../stores/country.store'
 import { storeToRefs } from 'pinia'
 import { useConfirm } from 'primevue/useconfirm'
 import { useToast } from '@/shared/composables/toast.use'
-import type { Country } from '../types/country.types'
+import type { Country } from '../types/location.domain.types'
 import CountryForm from './CountryForm.View.vue'
 
 const store = useCountryStore()
@@ -49,7 +49,7 @@ const confirmDelete = (item: Country) => {
     acceptProps: { severity: 'danger' },
     accept: async () => {
       const result = await store.deleteCountry(item.id)
-      if (result.success) {
+      if (result.isSuccess) {
         showToast('success', 'Deleted', 'Country removed.')
       }
     },

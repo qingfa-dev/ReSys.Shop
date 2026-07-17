@@ -1,51 +1,60 @@
-import apiClient from '@/shared/api/http/api.client'
-import type { ApiResult } from '@/shared/api/types/api.types'
-import type { LoginRequest, RefreshRequest, AuthenticationResponse } from '../types/auth.types'
+import { authRepository } from "../repository/auth.repository";
+import { mapAuthResponse, mapJwtToProfile } from "../mapper/auth.mapper";
+import type { ServerResult } from "@/shared/api/types/result.types";
+import type { LoginRequest } from "../types/auth.request.types";
+import type { AuthenticationResponse } from "../types/auth.response.types";
+import type { UserProfile } from "../types/auth.domain.types";
+import type { ChangePasswordFormData } from "../types/auth.model.types";
 
-// NOTE: Backend has no admin auth endpoints yet.
-// Admin auth uses storefront identity routes as a temporary bridge.
-// Full admin auth endpoints should be added to the Identity module.
-// See: docs/superpowers/plans/2026-07-16-admin-api-service-correction.md §4.1
-const BASE_URL = '/store/identity/auth'
-
-export interface ChangePasswordRequest {
-    current_password: string;
-    new_password: string;
-    confirm_new_password: string;
+function handleResult<T, R>(result: ServerResult<T>, mapper: (data: T) => R): ServerResult<R> {
+  if (result.isSuccess) {
+    return { ...result, value: mapper(result.value) };
+  }
+  return result as unknown as ServerResult<R>;
 }
 
 export const authService = {
-  /**
-   * Authenticates the user with credentials.
-   */
-    async login(request: LoginRequest): Promise<ApiResult<AuthenticationResponse>> {
-        return await apiClient.post(`${BASE_URL}/login/password`, request) as any;
-    },
+  async login(request: LoginRequest): Promise<ServerResult<AuthenticationResponse>> {
+    const result = await authRepository.login(request);
+    return handleResult(result, mapAuthResponse);
+  },
 
-    /**
-     * Refreshes the access token using the refresh token.
-     * Note: This rotates the refresh token.
-     */
-    async refresh(request: RefreshRequest): Promise<ApiResult<AuthenticationResponse>> {
-        return await apiClient.post(`${BASE_URL}/sessions/refresh`, request) as any;
-    },
+  async refresh(request: {
+    refreshToken: string;
+    rememberMe?: boolean;
+  }): Promise<ServerResult<AuthenticationResponse>> {
+    const result = await authRepository.refresh(request);
+    return handleResult(result, mapAuthResponse);
+  },
 
-    /**
-     * Logs out the user (invalidates the session on the server).
-     */
-    async logout(): Promise<ApiResult<void>> {
-        return await apiClient.post(`${BASE_URL}/logout`, {}) as any;
-    },
+  async logout(): Promise<ServerResult<void>> {
+    return authRepository.logout();
+  },
 
-    async getProfile(): Promise<ApiResult<any>> {
-        return apiClient.get('/account/profile');
-    },
+  async getProfile(): Promise<ServerResult<Partial<UserProfile>>> {
+    const result = await authRepository.getProfile();
+    return handleResult(result, (data) => ({
+      id: String(data.id || ""),
+      email: String(data.email || ""),
+      fullName: String(data.fullName || data.full_name || ""),
+      roles: Array.isArray(data.roles) ? data.roles.map(String) : [],
+    }));
+  },
 
-    async updateProfile(data: any): Promise<ApiResult<void>> {
-        return apiClient.put('/account/profile', data);
-    },
+  async updateProfile(data: Record<string, unknown>): Promise<ServerResult<void>> {
+    return authRepository.updateProfile(data);
+  },
 
-    async changePassword(data: ChangePasswordRequest): Promise<ApiResult<void>> {
-        return apiClient.post(`${BASE_URL}/password/change`, data);
+  async changePassword(data: ChangePasswordFormData): Promise<ServerResult<void>> {
+    return authRepository.changePassword(data);
+  },
+
+  getProfileFromToken(token: string): UserProfile | null {
+    try {
+      const claims = JSON.parse(atob(token.split(".")[1] as string));
+      return mapJwtToProfile(claims) as UserProfile;
+    } catch {
+      return null;
     }
+  },
 };

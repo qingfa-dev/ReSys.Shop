@@ -4,10 +4,10 @@ import { useProductStore } from '../stores/product.store';
 import { useTaxonomyStore } from '@/features/catalog/taxonomies/stores/taxonomy.store';
 import { storeToRefs } from 'pinia';
 import { useApiErrorHandler } from '@/shared/composables/api-error-handler.use';
+import type { ServerResult } from '@/shared/api/types/result.types';
 import { useToast } from '@/shared/composables/toast.use';
-import type { ApiResult } from '@/shared/api/types/api.types';
 import apiClient from '@/shared/api/http/api.client';
-import type { ProductClassification } from '../types/product.types';
+import type { ProductClassification } from '../types/product.domain.types';
 
 const props = defineProps<{
     productId: string;
@@ -31,9 +31,10 @@ const loadHierarchy = async () => {
         
         // Fetch tree for each taxonomy
         for (const tax of taxonomies.value) {
-            const result = (await apiClient.get(`catalog/taxonomies/${tax.id}/taxons/tree`)) as unknown as ApiResult<any>;
-            if (result.success && result.data) {
-                trees.value[tax.id] = result.data.tree.map(mapNode);
+            const res = await apiClient.get(`catalog/taxonomies/${tax.id}/taxons/tree`);
+            const result = res.data as ServerResult<any>;
+            if (result.isSuccess && result.value) {
+                trees.value[tax.id] = result.value.map(mapNode);
             }
         }
     } finally {
@@ -66,11 +67,11 @@ const onToggleTaxon = async (taxonId: string) => {
     }
 
     const result = (await productStore.updateClassifications(props.productId, {
-        taxon_ids: newIds,
-        main_taxon_id: current_classifications.value.find((c: ProductClassification) => c.isMain)?.taxonId
-    })) as unknown as ApiResult<any>;
+        taxonIds: newIds,
+        mainTaxonId: current_classifications.value.find((c: ProductClassification) => c.isMain)?.taxonId
+    }));
     
-    if (result.success) {
+    if (result.isSuccess) {
         showToast('success', 'Updated', 'Classifications synchronized');
     } else {
         handleApiResult(result);
@@ -79,11 +80,11 @@ const onToggleTaxon = async (taxonId: string) => {
 
 const onSetMain = async (taxonId: string) => {
     const result = (await productStore.updateClassifications(props.productId, {
-        taxon_ids: current_classifications.value.map((c: ProductClassification) => c.taxonId),
-        main_taxon_id: taxonId
-    })) as unknown as ApiResult<any>;
+        taxonIds: current_classifications.value.map((c: ProductClassification) => c.taxonId),
+        mainTaxonId: taxonId
+    }));
     
-    if (result.success) {
+    if (result.isSuccess) {
         showToast('success', 'Updated', 'Main category updated');
     } else {
         handleApiResult(result);

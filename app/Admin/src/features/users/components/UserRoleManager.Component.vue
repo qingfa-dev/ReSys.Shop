@@ -3,7 +3,7 @@ import { ref, onMounted } from 'vue';
 import { useToast } from '@/shared/composables/toast.use';
 import { roleService } from '../services/role.service';
 import { userService } from '../services/user.service';
-import type { RoleSummary } from '../types/user.types';
+import type { RoleSummary } from '../types/user.domain.types';
 
 const props = defineProps<{
     userId: string;
@@ -26,8 +26,8 @@ async function loadRoles() {
     loading.value = true;
     try {
         const res = await roleService.list({ pageSize: 100 });
-        if (res.success && res.data) {
-            const allRoles = res.data;
+        if (res.isSuccess && res.value) {
+            const allRoles = res.value;
             
             // Map names to objects
             selection.value[1] = allRoles.filter((r: RoleSummary) => props.assignedRoles.includes(r.name));
@@ -43,7 +43,7 @@ async function onSave() {
     try {
         const roleNames = selection.value[1].map((r: RoleSummary) => r.name);
         const res = await userService.syncUserRoles(props.userId, roleNames);
-        if (res.success) {
+        if (res.isSuccess) {
             showToast('success', 'Success', 'User roles updated');
             emit('updated');
         }

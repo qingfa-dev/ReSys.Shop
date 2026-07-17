@@ -1,8 +1,9 @@
 import { defineStore } from 'pinia';
 import { ref, computed } from 'vue';
 import { authService } from '../services/auth.service';
-import type { LoginRequest, AuthenticationResponse } from '../types/auth.types';
-import type { ApiResult } from '@/shared/api/types/api.types';
+import type { LoginRequest } from '../types/auth.request.types';
+import type { AuthenticationResponse } from '../types/auth.response.types';
+import type { ServerResult } from '@/shared/api/types/result.types';
 import { jwtDecode } from 'jwt-decode';
 
 export const useAuthStore = defineStore('auth', () => {
@@ -38,21 +39,21 @@ export const useAuthStore = defineStore('auth', () => {
         localStorage.removeItem('refreshToken');
     }
 
-    async function login(payload: LoginRequest): Promise<ApiResult<AuthenticationResponse>> {
+    async function login(payload: LoginRequest): Promise<ServerResult<AuthenticationResponse>> {
         loading.value = true;
         const result = await authService.login(payload);
         
-        if (result.success && result.data) {
-            setTokens(result.data);
+        if (result.isSuccess) {
+            setTokens(result.value);
         }
         
         loading.value = false;
         return result;
     }
 
-    async function logout(): Promise<ApiResult<void>> {
+    async function logout(): Promise<ServerResult<void>> {
         loading.value = true;
-        let result: ApiResult<void> = { success: true, data: undefined as any };
+        let result: ServerResult<void> = { isSuccess: true, statusCode: 200, errors: [], message: null, metadata: null, value: undefined as any };
 
         try {
             // Attempt server-side logout
@@ -61,7 +62,7 @@ export const useAuthStore = defineStore('auth', () => {
             }
         } catch (e) {
             console.error('Logout failed', e);
-            result = { success: false, error: { title: 'Logout Failed', statusCode: 500, message: 'Logout Failed', detail: 'Logout Failed', isSuccess: false, errors: {}, error_code: undefined }, data: null as any };
+            result = { isSuccess: false, statusCode: 500, errors: [{ code: 'logout_failed', message: 'Logout Failed', type: 0, metadata: null }], message: 'Logout Failed', metadata: null, value: null as any };
         } finally {
             clearTokens();
             loading.value = false;
@@ -80,9 +81,9 @@ export const useAuthStore = defineStore('auth', () => {
                 refreshToken: refreshToken.value
             });
             
-            if (result.success && result.data) {
-                setTokens(result.data);
-                return result.data.accessToken;
+            if (result.isSuccess) {
+                setTokens(result.value);
+                return result.value.accessToken;
             }
             // If refresh fails (logic handled in result check or catch)
             clearTokens();

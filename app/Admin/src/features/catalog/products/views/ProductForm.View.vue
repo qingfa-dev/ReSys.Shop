@@ -4,7 +4,7 @@ import { useI18n } from 'vue-i18n';
 import { useRoute, useRouter } from 'vue-router';
 import { useForm } from 'vee-validate';
 import { toTypedSchema } from '@vee-validate/zod';
-import { createProductSchema } from '../schemas/product.schemas';
+import { createProductSchema, type CreateProductInput } from '../schemas/product.schemas';
 import { useProductStore } from '../stores/product.store';
 import { storeToRefs } from 'pinia';
 import AppBreadcrumb from '@/shared/components/Breadcrumb.Component.vue';
@@ -15,6 +15,8 @@ import ProductClassificationManager from '../components/ProductClassificationMan
 import ProductPropertyManager from '../components/ProductPropertyManager.Component.vue';
 import ProductOptionTypeManager from '../components/ProductOptionTypeManager.Component.vue';
 import ProductInventoryManager from '../components/ProductInventoryManager.Component.vue';
+import type { ProductDetail } from '../types/product.domain.types';
+import type { CreateProductRequest, UpdateProductRequest } from '../types/product.request.types';
 
 const { t } = useI18n();
 const route = useRoute();
@@ -60,8 +62,8 @@ const [metaKeywords] = defineField('metaKeywords');
 
 const isActive = ref(true);
 const isVisible = ref(true);
-const public_metadata = ref<Record<string, any>>({});
-const private_metadata = ref<Record<string, any>>({});
+const public_metadata = ref<Record<string, string>>({});
+const private_metadata = ref<Record<string, string>>({});
 
 const generateSlug = () => {
     if (!name.value || (isEdit.value && slug.value)) return;
@@ -71,8 +73,8 @@ const generateSlug = () => {
 onMounted(async () => {
     if (isEdit.value) {
         const result = await store.fetchProductById(productId.value);
-        if (result.success && current_product.value) {
-            const p = current_product.value as any;
+        if (result.isSuccess && current_product.value) {
+            const p: ProductDetail = current_product.value;
             isActive.value = p.status === 'Active';
             isVisible.value = true;
             setValues({
@@ -95,8 +97,8 @@ onMounted(async () => {
     }
 });
 
-const onSubmit = handleSubmit(async (values: any) => {
-    const payload = {
+const onSubmit = handleSubmit(async (values: CreateProductInput) => {
+    const payload: CreateProductRequest = {
         name: values.name,
         slug: values.slug,
         description: values.description,
@@ -109,11 +111,11 @@ const onSubmit = handleSubmit(async (values: any) => {
     };
 
     if (isEdit.value) {
-        const result = await store.updateProduct(productId.value, payload as any);
-        if (result?.success) router.push({ name: 'catalog.products.list' });
+        const result = await store.updateProduct(productId.value, payload);
+        if (result?.isSuccess) router.push({ name: 'catalog.products.list' });
     } else {
-        const result = await store.createProduct(payload as any);
-        if (result?.success) router.push({ name: 'catalog.products.list' });
+        const result = await store.createProduct(payload);
+        if (result?.isSuccess) router.push({ name: 'catalog.products.list' });
     }
 });
 </script>

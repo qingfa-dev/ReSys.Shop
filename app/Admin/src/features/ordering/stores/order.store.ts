@@ -3,14 +3,9 @@ import { ref } from 'vue';
 import { useToast } from '@/shared/composables/toast.use';
 import { usePagedList } from '@/shared/composables/paged-list.use';
 import { orderService } from '../services/order.service';
-import type { 
-  OrderListItem, 
-  OrderDetail, 
-  OrderSearchParams, 
-  CreateOrderRequest, 
-  AddOrderItemRequest, 
-  UpdateAddressesRequest,
-} from '../types/order.types';
+import type { ServerResult } from '@/shared/api/types/result.types';
+import type { OrderListItem, OrderDetail } from '../types/order.domain.types';
+import type { OrderSearchParams, CreateOrderRequest, AddOrderItemRequest, UpdateAddressesRequest } from '../types/order.request.types';
 
 export const useOrderStore = defineStore('order', () => {
   const { showToast } = useToast();
@@ -28,8 +23,8 @@ export const useOrderStore = defineStore('order', () => {
     error.value = null;
     try {
       const result = await orderService.getById(id);
-      if (result.success && result.data) {
-        current_order.value = result.data;
+      if (result.isSuccess) {
+        current_order.value = result.value;
       }
       return result;
     } finally {
@@ -41,7 +36,7 @@ export const useOrderStore = defineStore('order', () => {
     submitting.value = true;
     try {
       const result = await orderService.create(data);
-      if (result.success) {
+      if (result.isSuccess) {
         showToast('success', 'Success', 'Order created successfully');
       }
       return result;
@@ -54,7 +49,7 @@ export const useOrderStore = defineStore('order', () => {
     submitting.value = true;
     try {
       const result = await orderService.addItem(id, data);
-      if (result.success) {
+      if (result.isSuccess) {
         showToast('success', 'Success', 'Item added to order');
         await fetchOrderById(id);
       }
@@ -69,15 +64,15 @@ export const useOrderStore = defineStore('order', () => {
     try {
       if (data.shippingAddress) {
         const shipResult = await orderService.updateShipAddress(id, data.shippingAddress);
-        if (!shipResult.success) return shipResult;
+        if (!shipResult.isSuccess) return shipResult;
       }
       if (data.billingAddress) {
         const billResult = await orderService.updateBillAddress(id, data.billingAddress);
-        if (!billResult.success) return billResult;
+        if (!billResult.isSuccess) return billResult;
       }
       showToast('success', 'Success', 'Addresses updated');
       await fetchOrderById(id);
-      return { success: true, data: null } as any;
+      return { isSuccess: true, statusCode: 200, errors: [], message: null, metadata: null, value: null };
     } finally {
       submitting.value = false;
     }
@@ -87,7 +82,7 @@ export const useOrderStore = defineStore('order', () => {
     submitting.value = true;
     try {
       const result = await orderService.updateStatus(id, status || 'next');
-      if (result.success) {
+      if (result.isSuccess) {
         showToast('success', 'Success', 'Order state advanced');
         await fetchOrderById(id);
       }
@@ -101,7 +96,7 @@ export const useOrderStore = defineStore('order', () => {
     submitting.value = true;
     try {
       const result = await orderService.cancel(id, reason);
-      if (result.success) {
+      if (result.isSuccess) {
         showToast('success', 'Success', 'Order canceled');
         await fetchOrderById(id);
       }
@@ -111,12 +106,12 @@ export const useOrderStore = defineStore('order', () => {
     }
   }
 
-  async function refundPayment(_orderId: string, _paymentId: string, _data: Record<string, unknown>): Promise<any> {
-    return { success: true };
+  async function refundPayment(_orderId: string, _paymentId: string, _data: Record<string, unknown>): Promise<ServerResult<void>> {
+    return { isSuccess: true, statusCode: 200, errors: [], message: null, metadata: null, value: undefined };
   }
 
-  async function cancelShipment(_orderId: string, _shipmentId: string): Promise<any> {
-    return { success: true };
+  async function cancelShipment(_orderId: string, _shipmentId: string): Promise<ServerResult<void>> {
+    return { isSuccess: true, statusCode: 200, errors: [], message: null, metadata: null, value: undefined };
   }
 
   return {

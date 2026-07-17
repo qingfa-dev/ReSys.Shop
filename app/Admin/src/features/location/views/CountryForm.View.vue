@@ -5,7 +5,7 @@ import { toTypedSchema } from '@vee-validate/zod'
 import { countryCreateSchema } from '../schemas/country.schema'
 import { useCountryStore } from '../stores/country.store'
 import { useToast } from '@/shared/composables/toast.use'
-import type { Country } from '../types/country.types'
+import type { Country } from '../types/location.domain.types'
 
 const props = withDefaults(defineProps<{
   visible: boolean
@@ -54,13 +54,13 @@ watch(() => props.visible, (val) => {
 const onFormSubmit = submitForm(async (values) => {
   if (props.isEdit && props.item) {
     const result = await store.updateCountry(props.item.id, values)
-    if (result.success) {
+    if (result.isSuccess) {
       showToast('success', 'Updated', 'Country updated successfully')
       emit('saved')
     }
   } else {
     const result = await store.createCountry(values)
-    if (result.success) {
+    if (result.isSuccess) {
       showToast('success', 'Created', 'Country created successfully')
       emit('saved')
     }

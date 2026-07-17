@@ -2,8 +2,8 @@ import { defineStore } from 'pinia';
 import { useToast } from '@/shared/composables/toast.use';
 import { usePagedList } from '@/shared/composables/paged-list.use';
 import { fulfillmentService } from '@/features/ordering/fulfillment/services/fulfillment.service';
-import type { OrderListItem } from '../../types/order.types';
-import type { ServerQueryingParameters } from '@/shared/api/types/query-params.types';
+import type { OrderListItem } from '../../types/order.domain.types';
+import type { ServerQueryingParameters } from '@/shared/api/types/query.types';
 
 export const useFulfillmentStore = defineStore('fulfillment', () => {
   const { showToast } = useToast();
@@ -17,11 +17,11 @@ export const useFulfillmentStore = defineStore('fulfillment', () => {
     loading.value = true;
     try {
       const result = await fulfillmentService.markAsShipped(id, trackingNumber);
-      if (result.success) {
+      if (result.isSuccess) {
         showToast('success', 'Shipped', 'Order marked as shipped');
         await fetchQueue();
       } else {
-        showToast('error', 'Error', result.error.title || 'Failed to ship');
+        showToast('error', 'Error', result.errors?.[0]?.message || 'Failed to ship');
       }
       return result;
     } finally {

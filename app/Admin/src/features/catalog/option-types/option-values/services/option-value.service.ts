@@ -1,31 +1,36 @@
-import { catalogApi } from '../../../services/catalog.api'
-import type { OptionValueListItem, CreateOptionValueRequest, UpdateOptionValueRequest, UpdateOptionValuePositionsRequest } from '../types/option-value.types'
-import type { ApiResult } from '@/shared/api/types/api.types'
+import { optionValueRepository } from '../../../repository/option-value.repository'
+import type { OptionValueListItem } from '../types/option-value.domain.types'
+import type { CreateOptionValueRequest, UpdateOptionValueRequest, UpdateOptionValuePositionsRequest } from '../types/option-value.request.types'
+import type { ServerResult, ServerPagedResult } from '@/shared/api/types/result.types'
 
 export const optionValueService = {
-  async list(query: { optionTypeId?: string } & Record<string, unknown>): Promise<ApiResult<OptionValueListItem[]>> {
+  async list(query: { optionTypeId?: string } & Record<string, unknown>): Promise<ServerPagedResult<OptionValueListItem>> {
     const { optionTypeId, ...params } = query
-    if (!optionTypeId) return { success: true, data: [] }
-    return catalogApi.optionTypes.listValues(optionTypeId, params)
+    if (!optionTypeId) return { isSuccess: true, statusCode: 200, errors: [], message: null, metadata: null, items: [], page: 1, pageSize: 0, totalCount: 0 }
+    return optionValueRepository.listByOptionTypeId(optionTypeId, params) as unknown as Promise<ServerPagedResult<OptionValueListItem>>
   },
   getById: (_optionTypeId: string, _id: string) => {
-    throw new Error('Use catalogApi.optionTypes directly — requires optionTypeId')
+    throw new Error('Use optionValueRepository directly — requires optionTypeId')
   },
-  async create(data: CreateOptionValueRequest): Promise<ApiResult<OptionValueListItem>> {
+  async create(data: CreateOptionValueRequest): Promise<ServerResult<OptionValueListItem>> {
     const { optionTypeId, ...payload } = data
-    return catalogApi.optionTypes.createValue(optionTypeId, payload)
+    return optionValueRepository.create(optionTypeId, payload)
   },
-  async update(optionTypeId: string, valueId: string, data: UpdateOptionValueRequest): Promise<ApiResult<OptionValueListItem>> {
-    return catalogApi.optionTypes.updateValue(optionTypeId, valueId, data)
+  async update(optionTypeId: string, valueId: string, data: UpdateOptionValueRequest): Promise<ServerResult<OptionValueListItem>> {
+    return optionValueRepository.update(optionTypeId, valueId, data)
   },
-  async delete(optionTypeId: string, valueId: string): Promise<ApiResult<void>> {
-    return catalogApi.optionTypes.deleteValue(optionTypeId, valueId)
+  async delete(optionTypeId: string, valueId: string): Promise<ServerResult<void>> {
+    return optionValueRepository.delete(optionTypeId, valueId)
   },
-  async reorder(data: UpdateOptionValuePositionsRequest): Promise<ApiResult<void>> {
+  async reorder(data: UpdateOptionValuePositionsRequest): Promise<ServerResult<void>> {
     const { optionTypeId, positions } = data
-    return catalogApi.optionTypes.listValues(optionTypeId, {}).then(() => ({
-      success: true as const,
-      data: undefined,
+    return optionValueRepository.listByOptionTypeId(optionTypeId, {}).then(() => ({
+      isSuccess: true,
+      statusCode: 200,
+      errors: [],
+      message: null,
+      metadata: null,
+      value: undefined,
     }))
   },
 }

@@ -1,5 +1,5 @@
 import apiClient from '@/shared/api/http/api.client';
-import type { ApiResult } from '@/shared/api/types/api.types';
+import type { ServerResult } from '@/shared/api/types/result.types';
 
 export interface GlobalSearchResult {
     type: 'Product' | 'Order' | 'User';
@@ -14,7 +14,7 @@ export interface GlobalSearchResponse {
 }
 
 export const searchService = {
-    async search(query: string, limit: number = 10): Promise<ApiResult<GlobalSearchResponse>> {
-        return apiClient.get('/admin/search', { params: { q: query, limit } });
+    async search(query: string, limit: number = 10): Promise<ServerResult<GlobalSearchResponse>> {
+        return apiClient.get('/admin/search', { params: { q: query, limit } }).then(res => res.data as ServerResult<GlobalSearchResponse>);
     }
 };

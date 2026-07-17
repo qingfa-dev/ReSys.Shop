@@ -16,7 +16,7 @@ import { useConfirm } from 'primevue/useconfirm'
 import { useApiErrorHandler } from '@/shared/composables/api-error-handler.use'
 import AppBreadcrumb from '@/shared/components/Breadcrumb.Component.vue'
 import { QueryBuilder } from '@/shared/utils/query-builder.utils'
-import type { OptionValueListItem } from '../types/option-value.types'
+import type { OptionValueListItem } from '../types/option-value.domain.types'
 
 const { t } = useI18n()
 
@@ -92,7 +92,7 @@ const onFormSubmit = handleFormSubmit(async (values) => {
         ? await store.update(editingId.value, values)
         : await store.create(values.optionTypeId, values)
     
-    if (result.success) {
+    if (result.isSuccess) {
         showToast('success', t('common.success') || 'Success', (isEditing.value ? t('catalog.option_values.messages.update_success') : t('catalog.option_values.messages.create_success')) || 'Success')
         showDialog.value = false
         store.fetchList()
@@ -110,8 +110,9 @@ const filters = ref<DataTableFilterMeta>({
 
 const loadItems = async () => {
   const typesResult = await typeStore.fetchList({ pageSize: 100 })
-  if (typesResult.success && typesResult.data) {
-      optionTypes.value = typesResult.data.map(t => ({ label: t.presentation || t.name, value: t.id }))
+  const data = typesResult.isSuccess ? 'items' in typesResult ? typesResult.items : typesResult.value : []
+  if (data) {
+      optionTypes.value = data.map(t => ({ label: t.presentation || t.name, value: t.id }))
   }
 
   if (route.query.optionTypeId) {
@@ -179,7 +180,7 @@ const confirmDelete = (item: OptionValueListItem) => {
     acceptProps: { severity: 'danger' },
     accept: async () => {
       const result = await store.remove(item.id)
-      if (result.success) {
+      if (result.isSuccess) {
         showToast('success', t('common.success') || 'Success', t('catalog.option_values.messages.delete_success') || 'Option value deleted')
         store.fetchList()
       }

@@ -10,8 +10,8 @@ import { useToast } from '@/shared/composables/toast.use'
 import { useConfirm } from 'primevue/useconfirm'
 import AppBreadcrumb from '@/shared/components/Breadcrumb.Component.vue'
 import { QueryBuilder } from '@/shared/utils/query-builder.utils'
-import type { PropertyTypeListItem } from '../types/property-type.types'
-import { PropertyKindOptions } from '../types/property-kind'
+import type { PropertyTypeListItem } from '../types/property-type.domain.types'
+import { PropertyKindOptions } from '../types/property-type.domain.types'
 
 const { t } = useI18n()
 const router = useRouter()
@@ -97,8 +97,7 @@ const confirmDelete = (item: PropertyTypeListItem) => {
     acceptProps: { severity: 'danger' },
     accept: async () => {
       const result = await store.remove(item.id)
-      if (result.success) {
-        showToast('success', t('common.success') || 'Success', t('catalog.property_types.messages.delete_success') || 'Deleted')
+      if (result.isSuccess) {
       } else {
         showToast('error', t('common.error') || 'Error', 'Failed to delete property type')
       }

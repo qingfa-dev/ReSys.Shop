@@ -4,7 +4,7 @@ import { useRoute, useRouter } from 'vue-router';
 import { useToast } from '@/shared/composables/toast.use';
 import { useFormatter } from '@/shared/composables/formatter.use';
 import { userService } from '../services/user.service';
-import type { AdminUserSummary } from '../types/user.types';
+import type { AdminUserSummary } from '../types/user.domain.types';
 import { useI18n } from 'vue-i18n';
 import AppBreadcrumb from '@/shared/components/Breadcrumb.Component.vue';
 import UserRoleManager from '../components/UserRoleManager.Component.vue';
@@ -32,8 +32,8 @@ async function loadData() {
     loading.value = true;
     try {
         const res = await userService.getById(userId.value);
-        if (res.success && res.data) {
-            user.value = res.data;
+        if (res.isSuccess && res.value) {
+            user.value = res.value;
             await loadPermissions();
         } else {
             showToast('error', 'Error', 'Failed to load customer details');
@@ -46,8 +46,8 @@ async function loadData() {
 
 async function loadPermissions() {
     const res = await userService.getUserPermissions(userId.value);
-    if (res.success && res.data) {
-        permissionList.value = res.data;
+    if (res.isSuccess && res.value) {
+        permissionList.value = res.value;
     }
 }
 
@@ -55,7 +55,7 @@ async function onToggleStatus() {
     if (!user.value) return;
     const newStatus = !user.value.isActive;
     const res = await userService.updateAdminStatus(userId.value, newStatus);
-    if (res.success) {
+    if (res.isSuccess) {
         user.value.isActive = newStatus;
         showToast('success', 'Status Updated', `Customer is now ${newStatus ? 'active' : 'inactive'}`);
     }

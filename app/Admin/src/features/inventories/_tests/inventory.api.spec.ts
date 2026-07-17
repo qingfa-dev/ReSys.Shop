@@ -1,30 +1,38 @@
 import { describe, it, expect, vi } from 'vitest'
 import apiClient from '@/shared/api/http/api.client'
-import { inventoryApi } from '../services/inventory.api'
+import { stockRepository } from '../repository/stock.repository'
+import { locationRepository } from '../repository/location.repository'
+import { transferRepository } from '../repository/transfer.repository'
 
 vi.mock('@/shared/api/http/api.client', () => ({
   default: { get: vi.fn(), post: vi.fn(), put: vi.fn(), patch: vi.fn(), delete: vi.fn() }
 }))
 
-describe('inventoryApi', () => {
-  it('stocks.list calls correct route', async () => {
-    await inventoryApi.stocks.list({ page: 1 })
-    expect(apiClient.get).toHaveBeenCalledWith('api/inventory/stock-items', expect.any(Object))
+describe('StockRepository', () => {
+  it('list calls correct route', async () => {
+    await stockRepository.list({ page: 1 })
+    expect(apiClient.get).toHaveBeenCalledWith('api/inventory/stock-items', { params: { page: 1 } })
   })
-  it('stocks.restock calls correct route', async () => {
-    await inventoryApi.stocks.restock('sid-1', { quantity: 10, type: 0 })
-    expect(apiClient.post).toHaveBeenCalledWith('api/inventory/stock-items/sid-1/restock', expect.any(Object))
+  it('restock calls correct route', async () => {
+    await stockRepository.restock('sid-1', { quantity: 10, type: 0 })
+    expect(apiClient.post).toHaveBeenCalledWith('api/inventory/stock-items/sid-1/restock', { quantity: 10, type: 0 })
   })
-  it('locations.list calls correct route', async () => {
-    await inventoryApi.locations.list({ page: 1 })
-    expect(apiClient.get).toHaveBeenCalledWith('api/inventory/stock-locations', expect.any(Object))
+})
+
+describe('LocationRepository', () => {
+  it('list calls correct route', async () => {
+    await locationRepository.list({ page: 1 })
+    expect(apiClient.get).toHaveBeenCalledWith('api/inventory/stock-locations', { params: { page: 1 } })
   })
-  it('transfers.transfer calls correct route', async () => {
-    await inventoryApi.transfers.transfer('tid-1')
-    expect(apiClient.post).toHaveBeenCalledWith('api/inventory/stock-transfers/tid-1/transfer')
+})
+
+describe('TransferRepository', () => {
+  it('transfer calls correct route', async () => {
+    await transferRepository.transfer('tid-1')
+    expect(apiClient.post).toHaveBeenCalledWith('api/inventory/stock-transfers/tid-1/transfer', undefined)
   })
-  it('transfers.receive calls correct route', async () => {
-    await inventoryApi.transfers.receive('tid-1')
-    expect(apiClient.post).toHaveBeenCalledWith('api/inventory/stock-transfers/tid-1/receive')
+  it('receive calls correct route', async () => {
+    await transferRepository.receive('tid-1')
+    expect(apiClient.post).toHaveBeenCalledWith('api/inventory/stock-transfers/tid-1/receive', undefined)
   })
 })

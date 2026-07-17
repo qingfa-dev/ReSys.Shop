@@ -6,7 +6,7 @@ import { useToast } from '@/shared/composables/toast.use';
 import { useI18n } from 'vue-i18n';
 import AppBreadcrumb from '@/shared/components/Breadcrumb.Component.vue';
 import LocationSelector from '../components/LocationSelector.Component.vue';
-import type { CreateStockLocationRequest } from '../types/inventory.types';
+import type { CreateStockLocationRequest } from '../types/inventory.request.types';
 
 const { t } = useI18n();
 
@@ -55,27 +55,27 @@ async function loadLocation() {
     loading.value = true;
     try {
         const res = await store.inventoryService.getLocationDetail(locationId.value);
-        if (res.success && res.data) {
+        if (res.isSuccess && res.value) {
             form.value = {
-                name: res.data.name,
-                code: res.data.code,
-                presentation: res.data.presentation || '',
+                name: res.value.name,
+                code: res.value.code,
+                presentation: res.value.presentation || '',
                 type: 0, // Need to map enum if necessary, backend might use string
-                isDefault: res.data.isDefault,
+                isDefault: res.value.isDefault,
                 address: {
-                    address1: res.data.address.address1,
-                    address2: res.data.address.address2 || '',
-                    city: res.data.address.city,
-                    zipCode: res.data.address.zipCode,
-                    countryCode: res.data.address.countryCode,
-                    stateCode: res.data.address.stateCode || '',
-                    phone: res.data.address.phone || '',
-                    firstName: res.data.address.firstName || '',
-                    lastName: res.data.address.lastName || '',
-                    company: res.data.address.company || ''
+                    address1: res.value.address.address1,
+                    address2: res.value.address.address2 || '',
+                    city: res.value.address.city,
+                    zipCode: res.value.address.zipCode,
+                    countryCode: res.value.address.countryCode,
+                    stateCode: res.value.address.stateCode || '',
+                    phone: res.value.address.phone || '',
+                    firstName: res.value.address.firstName || '',
+                    lastName: res.value.address.lastName || '',
+                    company: res.value.address.company || ''
                 }
             };
-            parentId.value = (res.data as any).parent_id;
+            parentId.value = (res.value as any).parent_id;
         }
     } finally {
         loading.value = false;
@@ -94,15 +94,15 @@ async function onSubmit() {
             ? await store.inventoryService.updateLocation(locationId.value, payload)
             : await store.inventoryService.createLocation(payload);
             
-        if (res.success) {
+        if (res.isSuccess) {
             showToast('success', 'Success', isEdit.value ? 'Location updated' : t('inventory.messages.create_location_success') || 'Location created');
             await store.fetchLocationTree();
             await store.fetchLocations();
             
             if (props.hideHeader) {
                 // If in manager, we might want to just stay here or redirect to edit of new item
-                if (!isEdit.value && res.data) {
-                    router.push({ name: 'inventory.locations.edit', params: { id: res.data.id } });
+                if (!isEdit.value && res.value) {
+                    router.push({ name: 'inventory.locations.edit', params: { id: res.value.id } });
                 }
             } else {
                 router.push({ name: 'inventory.locations.list' });

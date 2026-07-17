@@ -15,7 +15,7 @@ import { useToast } from '@/shared/composables/toast.use';
 import { useFormatter } from '@/shared/composables/formatter.use';
 import { QueryBuilder } from '@/shared/utils/query-builder.utils';
 import AppBreadcrumb from '@/shared/components/Breadcrumb.Component.vue';
-import type { TaxonomyListItem } from '../types/taxonomy.types';
+import type { TaxonomyListItem } from '../types/taxonomy.domain.types';
 
 const { t } = useI18n();
 
@@ -104,7 +104,7 @@ const confirmDelete = (taxonomy: TaxonomyListItem) => {
     },
     accept: async () => {
       const result = await store.deleteTaxonomy(taxonomy.id);
-      if (result.success) {
+      if (result.isSuccess) {
         showToast('success', t('common.success') || 'Deleted', t('catalog.taxonomies.messages.delete_success') || 'Taxonomy removed.');
       }
     },

@@ -2,7 +2,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { setActivePinia, createPinia } from 'pinia';
 import { usePropertyTypeStore } from '../stores/property-type.store';
 import { propertyTypeService } from '../services/property-type.service';
-import { PropertyKind } from '../types/property-kind';
+import { PropertyKind } from '../types/property-type.domain.types';
 
 vi.mock('../services/property-type.service', () => ({
   propertyTypeService: {

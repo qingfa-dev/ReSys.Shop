@@ -4,7 +4,7 @@ import { useToast } from '@/shared/composables/toast.use';
 import { useConfirm } from 'primevue/useconfirm';
 import { useFormatter } from '@/shared/composables/formatter.use';
 import { userService } from '../services/user.service';
-import type { AdminUserSummary } from '../types/user.types';
+import type { AdminUserSummary } from '../types/user.domain.types';
 import { useI18n } from 'vue-i18n';
 
 const props = defineProps<{
@@ -29,7 +29,7 @@ async function onResetPassword() {
         accept: async () => {
             const newPassword = Math.random().toString(36).slice(-10); // Generate simple temp password
             const res = await userService.resetPassword(props.user.id, { new_password: newPassword });
-            if (res.success) {
+            if (res.isSuccess) {
                 confirm.require({
                     message: `Password has been reset to: ${newPassword}. Please provide this to the user.`,
                     header: 'New Password',
@@ -46,7 +46,7 @@ async function onUnlock() {
     loading.value = true;
     try {
         const res = await userService.unlockAccount(props.user.id);
-        if (res.success) {
+        if (res.isSuccess) {
             showToast('success', 'Success', (t('users.messages.unlock_success') as string) || 'Account unlocked');
             emit('updated');
         }
@@ -59,7 +59,7 @@ async function onVerify() {
     loading.value = true;
     try {
         const res = await userService.verifyAccount(props.user.id, { verifyEmail: true, verifyPhone: true });
-        if (res.success) {
+        if (res.isSuccess) {
             showToast('success', 'Success', (t('users.messages.verify_success') as string) || 'Account verified');
             emit('updated');
         }

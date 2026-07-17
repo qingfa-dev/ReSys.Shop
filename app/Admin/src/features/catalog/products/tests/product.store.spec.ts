@@ -42,10 +42,16 @@ describe('ProductStore', () => {
     const mockData = [{ id: '1', name: 'Product A' }] as any;
     
     vi.mocked(productService.list).mockResolvedValue({
-      success: true,
-      data: mockData,
-      meta: { totalCount: 1 } as any
-    });
+      isSuccess: true,
+      statusCode: 200,
+      errors: [],
+      message: null,
+      metadata: null,
+      items: mockData,
+      page: 1,
+      pageSize: 10,
+      totalCount: 1,
+    } as any);
 
     await store.fetchProducts();
 
@@ -58,10 +64,16 @@ describe('ProductStore', () => {
     const store = useProductStore();
     
     vi.mocked(productService.list).mockResolvedValue({
-      success: false,
-      error: { title: 'Network Error', statusCode: 500, message: 'Network Error', detail: 'Network Error', isSuccess: false, errors: {}, error_code: undefined },
-      data: null as any
-    });
+      isSuccess: false,
+      statusCode: 500,
+      errors: [{ code: 'Error', message: 'Network Error', type: 4, metadata: null }],
+      message: 'Network Error',
+      metadata: null,
+      items: [],
+      page: 1,
+      pageSize: 10,
+      totalCount: 0,
+    } as any);
 
     await store.fetchProducts();
 

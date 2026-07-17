@@ -12,7 +12,7 @@ import { useConfirm } from 'primevue/useconfirm'
 import { FilterMatchMode } from '@primevue/core/api'
 import type { DataTablePageEvent, DataTableSortEvent, DataTableFilterMeta } from 'primevue/datatable'
 import { QueryBuilder } from '@/shared/utils/query-builder.utils'
-import type { TaxonListItem } from '../types/taxon.types'
+import type { TaxonListItem } from '../types/taxon.domain.types'
 
 const { t } = useI18n()
 const route = useRoute()
@@ -40,8 +40,8 @@ const lazyParams = ref({
 
 const loadItems = async () => {
   const taxResult = await taxonomyStore.fetchTaxonomies({ pageSize: 100 })
-  if (taxResult.success && taxResult.data) {
-      taxonomies.value = taxResult.data.map(tx => ({ label: tx.presentation || tx.name, value: tx.id }))
+  if (taxResult.isSuccess && taxResult.value) {
+      taxonomies.value = taxResult.value.map(tx => ({ label: tx.presentation || tx.name, value: tx.id }))
   }
 
   await fetchPagedData()
@@ -87,7 +87,7 @@ const confirmDelete = (item: TaxonListItem) => {
     acceptProps: { severity: 'danger' },
     accept: async () => {
       const result = await store.deleteTaxon(item.taxonomyId, item.id)
-      if (result.success) {
+      if (result.isSuccess) {
         showToast('success', 'Deleted', t('catalog.taxa.messages.delete_success') || 'Category deleted')
       }
     }

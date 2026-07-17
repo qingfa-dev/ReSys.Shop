@@ -8,7 +8,6 @@ import { productService } from '../../services/product.service';
 import { variantService } from '../../services/variant.service';
 import { useToast } from '@/shared/composables/toast.use';
 import apiClient from '@/shared/api/http/api.client';
-import type { ApiResult } from '@/shared/api/types/api.types';
 
 const { t } = useI18n();
 
@@ -36,13 +35,13 @@ const loadOptionData = async () => {
     loading.value = true;
     try {
         const response = await productService.getOptionTypes(props.productId);
-        if (response.success && response.data) {
-            assignedOptionTypes.value = response.data;
+        if (response.isSuccess && response.value) {
+            assignedOptionTypes.value = response.value;
 
             for (const type of assignedOptionTypes.value) {
                 const valResponse = await optionValueStore.fetchValues(type.id);
-                if (valResponse.success && valResponse.data) {
-                    type.availableValues = valResponse.data;
+                if (valResponse.isSuccess && valResponse.items) {
+                    type.availableValues = valResponse.items;
                     if (!selectedValues.value[type.id]) {
                         selectedValues.value[type.id] = [];
                     }
@@ -55,7 +54,7 @@ const loadOptionData = async () => {
 };
 
 const generateCombinations = () => {
-    const activeTypes = assignedOptionTypes.value.filter(t => {
+    const activeTypes = assignedOptionTypes.value.filter((t: any) => {
         const values = selectedValues.value[t.id];
         return values && values.length > 0;
     });
@@ -68,7 +67,7 @@ const generateCombinations = () => {
     const firstTypeValues = selectedValues.value[activeTypes[0].id];
     if (!firstTypeValues) return;
 
-    let combinations: any[][] = firstTypeValues.map(v => [v]);
+    let combinations: any[][] = firstTypeValues.map((v: any) => [v]);
 
     for (let i = 1; i < activeTypes.length; i++) {
         const typeId = activeTypes[i].id;
@@ -79,7 +78,7 @@ const generateCombinations = () => {
         const nextCombinations: any[][] = [];
 
         combinations.forEach(existingCombo => {
-            values.forEach(val => {
+            values.forEach((val: any) => {
                 nextCombinations.push([...existingCombo, val]);
             });
         });
@@ -87,7 +86,7 @@ const generateCombinations = () => {
         combinations = nextCombinations;
     }
 
-    generatedPreview.value = combinations.map(combo => {
+    generatedPreview.value = combinations.map((combo: any[]) => {
         const nameSuffix = combo.map(v => v.presentation || v.name).join(' / ');
         const skuSuffix = combo.map(v => (v.name || '').toUpperCase().substring(0, 3)).join('-');
         
@@ -131,8 +130,8 @@ const confirmGeneration = async () => {
                 trackInventory: true
             });
 
-            if (createRes.success && createRes.data) {
-                const variantId = createRes.data.id;
+            if (createRes.isSuccess && createRes.value) {
+                const variantId = createRes.value.id;
                 await variantService.updateOptionValues(variantId, payload.option_values);
                 successCount++;
             } else {

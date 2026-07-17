@@ -8,7 +8,7 @@ import { useApiErrorHandler } from '@/shared/composables/api-error-handler.use'
 import AppBreadcrumb from '@/shared/components/Breadcrumb.Component.vue'
 import { useToast } from '@/shared/composables/toast.use'
 import { useConfirm } from 'primevue/useconfirm'
-import type { TaxonomyListItem } from '../types/taxonomy.types'
+import type { TaxonomyListItem } from '../types/taxonomy.domain.types'
 
 const { t } = useI18n()
 const route = useRoute()
@@ -45,7 +45,7 @@ const confirmDelete = (item: TaxonomyListItem) => {
     acceptProps: { severity: 'danger' },
     accept: async () => {
       const result = await store.deleteTaxonomy(item.id)
-      if (result.success) {
+      if (result.isSuccess) {
         showToast('success', 'Deleted', t('catalog.taxonomies.messages.delete_success') || 'Taxonomy removed')
         if (selectedId.value === item.id) {
             router.push({ name: 'catalog.taxonomies.list' })

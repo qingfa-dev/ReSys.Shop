@@ -70,13 +70,17 @@ describe('AuthStore', () => {
     it('login should call service and set tokens', async () => {
       const store = useAuthStore()
       const mockLoginResponse = {
-        data: {
+        isSuccess: true,
+        statusCode: 200,
+        errors: [],
+        message: null,
+        metadata: null,
+        value: {
           accessToken: 'new-access',
           accessTokenExpiresIn: 3600,
           refreshToken: 'new-refresh',
           refreshTokenExpiresIn: 86400,
         },
-        success: true as const,
       }
 
       vi.mocked(authService.login).mockResolvedValue(mockLoginResponse)
@@ -93,7 +97,7 @@ describe('AuthStore', () => {
       localStorage.setItem('accessToken', 'token')
       const store = useAuthStore()
 
-      vi.mocked(authService.logout).mockResolvedValue({ success: true, data: undefined })
+      vi.mocked(authService.logout).mockResolvedValue({ isSuccess: true, statusCode: 200, errors: [], message: null, metadata: null, value: undefined })
 
       await store.logout()
 
@@ -105,9 +109,12 @@ describe('AuthStore', () => {
     it('login should handle failure correctly', async () => {
       const store = useAuthStore()
       const mockErrorResponse = {
-        success: false as const,
-        error: { title: 'Invalid credentials', statusCode: 400, message: 'Invalid credentials', detail: 'Invalid credentials', isSuccess: false, errors: {}, error_code: undefined },
-        data: null as any,
+        isSuccess: false,
+        statusCode: 400,
+        errors: [{ code: 'invalid_credentials', message: 'Invalid credentials', type: 0, metadata: null }],
+        message: 'Invalid credentials',
+        metadata: null,
+        value: null as any,
       }
 
       vi.mocked(authService.login).mockResolvedValue(mockErrorResponse)
@@ -115,7 +122,7 @@ describe('AuthStore', () => {
       const result = await store.login({ credential: 'user', password: 'bad-pwd' })
 
       expect(store.accessToken).toBeNull()
-      expect(result.success).toBe(false)
+      expect(result.isSuccess).toBe(false)
     })
 
     it('logout should clear tokens even if API fails', async () => {
@@ -135,15 +142,19 @@ describe('AuthStore', () => {
       localStorage.setItem('refreshToken', 'old-refresh')
       const store = useAuthStore()
       const mockRefreshResponse = {
-        data: {
+        isSuccess: true,
+        statusCode: 200,
+        errors: [],
+        message: null,
+        metadata: null,
+        value: {
           accessToken: 'fresh-access',
           accessTokenExpiresIn: 3600,
           refreshToken: 'fresh-refresh',
           refreshTokenExpiresIn: 86400,
         },
-        success: true as const,
       }
-
+ 
       vi.mocked(authService.refresh).mockResolvedValue(mockRefreshResponse)
 
       const result = await store.refreshSession()

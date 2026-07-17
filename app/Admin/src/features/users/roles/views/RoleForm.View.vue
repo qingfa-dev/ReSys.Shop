@@ -3,7 +3,7 @@ import { ref, onMounted, computed } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useToast } from '@/shared/composables/toast.use';
 import { roleService } from '../../services/role.service';
-import type { CreateRoleRequest, UpdateRoleRequest } from '../../types/user.types';
+import type { CreateRoleRequest, UpdateRoleRequest } from '../../types/user.request.types';
 
 const route = useRoute();
 const router = useRouter();
@@ -36,8 +36,8 @@ onMounted(async () => {
 
 async function loadRole() {
     const res = await roleService.getById(roleId.value);
-    if (res.success && res.data) {
-        const role = res.data;
+    if (res.isSuccess && res.value) {
+        const role = res.value;
         form.value = {
             name: role.name,
             displayName: role.displayName || '',
@@ -61,7 +61,7 @@ async function onSubmit() {
                 priority: form.value.priority
             };
             const res = await roleService.update(roleId.value, updateData);
-            if (res.success) {
+            if (res.isSuccess) {
                 showToast('success', 'Success', 'Role updated successfully');
                 router.push({ name: 'roles-list' });
             }
@@ -73,7 +73,7 @@ async function onSubmit() {
                 priority: form.value.priority
             };
             const res = await roleService.create(createData);
-            if (res.success) {
+            if (res.isSuccess) {
                 showToast('success', 'Success', 'Role created successfully');
                 router.push({ name: 'roles-list' });
             }

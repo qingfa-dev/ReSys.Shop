@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
 import { permissionService } from '../../services/permission.service';
-import type { PermissionSummary } from '../../types/user.types';
+import type { PermissionSummary } from '../../types/user.domain.types';
 import type { DataTablePageEvent } from 'primevue/datatable';
 
 const permissions = ref<PermissionSummary[]>([]);
@@ -21,9 +21,9 @@ async function fetchPermissions() {
     loading.value = true;
     try {
         const res = await permissionService.list(query.value);
-        if (res.success && res.data) {
-            permissions.value = res.data;
-            totalRecords.value = res.meta?.totalCount || 0;
+        if (res.isSuccess && res.value) {
+            permissions.value = res.value;
+            totalRecords.value = res.value.length || 0;
         }
     } finally {
         loading.value = false;

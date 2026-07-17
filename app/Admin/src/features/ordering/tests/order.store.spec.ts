@@ -32,10 +32,16 @@ describe('OrderStore', () => {
       const mockData = [{ id: '1', number: 'ORD-1' }] as any;
       
       vi.mocked(orderService.list).mockResolvedValue({
-        success: true,
-        data: mockData,
-        meta: { totalCount: 1 } as any
-      });
+        isSuccess: true,
+        statusCode: 200,
+        errors: [],
+        message: null,
+        metadata: null,
+        items: mockData,
+        page: 1,
+        pageSize: 10,
+        totalCount: 1,
+      } as any);
 
       await store.fetchOrders();
 
@@ -51,9 +57,13 @@ describe('OrderStore', () => {
       const mockOrder = { id: '1', number: 'ORD-1', line_items: [] } as any;
       
       vi.mocked(orderService.getById).mockResolvedValue({
-        success: true,
-        data: mockOrder
-      });
+        isSuccess: true,
+        statusCode: 200,
+        errors: [],
+        message: null,
+        metadata: null,
+        value: mockOrder,
+      } as any);
 
       await store.fetchOrderById('1');
 
@@ -69,14 +79,22 @@ describe('OrderStore', () => {
       const status = 'Processing';
       
       vi.mocked(orderService.updateStatus).mockResolvedValue({
-        success: true,
-        data: null as any
-      });
+        isSuccess: true,
+        statusCode: 200,
+        errors: [],
+        message: null,
+        metadata: null,
+        value: undefined,
+      } as any);
 
       // Mock fetchOrderById call that happens after update
       vi.mocked(orderService.getById).mockResolvedValue({
-        success: true,
-        data: { id: orderId, state: 'Advanced' } as any
+        isSuccess: true,
+        statusCode: 200,
+        errors: [],
+        message: null,
+        metadata: null,
+        value: { id: orderId, state: 'Advanced' } as any,
       });
 
       await store.advanceOrderState(orderId, status);

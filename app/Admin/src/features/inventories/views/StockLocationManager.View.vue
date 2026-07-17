@@ -8,7 +8,7 @@ import { useApiErrorHandler } from '@/shared/composables/api-error-handler.use'
 import AppBreadcrumb from '@/shared/components/Breadcrumb.Component.vue'
 import { useToast } from '@/shared/composables/toast.use'
 import { useConfirm } from 'primevue/useconfirm'
-import type { StockLocation } from '../types/inventory.types'
+import type { StockLocation } from '../types/inventory.domain.types'
 
 const { t } = useI18n()
 
@@ -52,7 +52,7 @@ const confirmDelete = (node: any) => {
     acceptProps: { severity: 'danger' },
     accept: async () => {
       const result = await store.inventoryService.deleteLocation(node.id)
-      if (result.success) {
+      if (result.isSuccess) {
         showToast('success', 'Deleted', t('inventory.messages.delete_location_success') || 'Location removed')
         await store.fetchLocationTree()
         await store.fetchLocations()

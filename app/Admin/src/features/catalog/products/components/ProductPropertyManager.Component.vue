@@ -4,8 +4,7 @@ import { usePropertyTypeStore } from '@/features/catalog/property-types/stores/p
 import { useApiErrorHandler } from '@/shared/composables/api-error-handler.use';
 import { useToast } from '@/shared/composables/toast.use';
 import { productService } from '../services/product.service';
-import type { ApiResult } from '@/shared/api/types/api.types';
-import type { ProductProperty } from '../types/product.types';
+import type { ProductProperty } from '../types/product.domain.types';
 
 const props = defineProps<{
     productId: string;
@@ -29,8 +28,8 @@ const loadData = async () => {
     try {
         // 1. Get current properties for this product
         const result = await productService.getProperties(props.productId);
-        if (result.success && result.data) {
-            productProperties.value = result.data;
+        if (result.isSuccess && result.items) {
+            productProperties.value = result.items as unknown as ProductProperty[];
         }
 
         // 2. Get all available property types

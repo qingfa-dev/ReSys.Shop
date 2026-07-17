@@ -2,14 +2,9 @@ import { defineStore } from 'pinia';
 import { ref, computed } from 'vue';
 import { useToast } from '@/shared/composables/toast.use';
 import { taxonomyService } from '../services/taxonomy.service';
-import { catalogApi } from '../../services/catalog.api';
-import type { 
-  TaxonomyListItem, 
-  TaxonomyDetail, 
-  TaxonomyQuery, 
-  CreateTaxonomyRequest, 
-  UpdateTaxonomyRequest 
-} from '../types/taxonomy.types';
+import { taxonomyRepository } from '../../repository/taxonomy.repository';
+import type { TaxonomyListItem, TaxonomyDetail } from '../types/taxonomy.domain.types'
+import type { TaxonomyQuery, CreateTaxonomyRequest, UpdateTaxonomyRequest } from '../types/taxonomy.request.types'
 
 export const useTaxonomyStore = defineStore('taxonomy', () => {
   const { showToast } = useToast();
@@ -39,11 +34,11 @@ export const useTaxonomyStore = defineStore('taxonomy', () => {
 
     try {
       const result = await taxonomyService.list(query.value);
-      if (result.success && result.data) {
-        taxonomies.value = result.data;
-        totalRecords.value = result.meta?.totalCount || 0;
-      } else if (!result.success) {
-        error.value = result.error.detail || 'Failed to fetch taxonomies';
+      if (result.isSuccess && result.value) {
+        taxonomies.value = result.value;
+        totalRecords.value = result.value.length || 0;
+      } else if (!result.isSuccess) {
+        error.value = result.errors?.[0]?.message || 'Failed to fetch taxonomies';
       }
       return result;
     } finally {
@@ -56,10 +51,10 @@ export const useTaxonomyStore = defineStore('taxonomy', () => {
     error.value = null;
     try {
       const result = await taxonomyService.getById(id);
-      if (result.success && result.data) {
-        current_taxonomy.value = result.data;
-      } else if (!result.success) {
-        error.value = result.error.detail || 'Failed to fetch taxonomy';
+      if (result.isSuccess && result.value) {
+        current_taxonomy.value = result.value;
+      } else if (!result.isSuccess) {
+        error.value = result.errors?.[0]?.message || 'Failed to fetch taxonomy';
       }
       return result;
     } finally {
@@ -72,11 +67,11 @@ export const useTaxonomyStore = defineStore('taxonomy', () => {
     error.value = null;
     try {
       const result = await taxonomyService.create(data);
-      if (result.success) {
+      if (result.isSuccess) {
         showToast('success', 'Created', 'Taxonomy created successfully');
         await fetchTaxonomies();
-      } else if (!result.success) {
-        error.value = result.error.detail || 'Failed to create taxonomy';
+      } else if (!result.isSuccess) {
+        error.value = result.errors?.[0]?.message || 'Failed to create taxonomy';
       }
       return result;
     } finally {
@@ -89,11 +84,11 @@ export const useTaxonomyStore = defineStore('taxonomy', () => {
     error.value = null;
     try {
       const result = await taxonomyService.update(id, data);
-      if (result.success) {
+      if (result.isSuccess) {
         showToast('success', 'Updated', 'Taxonomy updated successfully');
         await fetchTaxonomies();
-      } else if (!result.success) {
-        error.value = result.error.detail || 'Failed to update taxonomy';
+      } else if (!result.isSuccess) {
+        error.value = result.errors?.[0]?.message || 'Failed to update taxonomy';
       }
       return result;
     } finally {
@@ -106,11 +101,11 @@ export const useTaxonomyStore = defineStore('taxonomy', () => {
     error.value = null;
     try {
       const result = await taxonomyService.delete(id);
-      if (result.success) {
+      if (result.isSuccess) {
         showToast('success', 'Deleted', 'Taxonomy removed successfully');
         await fetchTaxonomies();
-      } else if (!result.success) {
-        error.value = result.error.detail || 'Failed to delete taxonomy';
+      } else if (!result.isSuccess) {
+        error.value = result.errors?.[0]?.message || 'Failed to delete taxonomy';
       }
       return result;
     } finally {
@@ -122,11 +117,11 @@ export const useTaxonomyStore = defineStore('taxonomy', () => {
     loading.value = true;
     error.value = null;
     try {
-        const result = await catalogApi.taxonomies.restore(id)
-        if (result.success) {
+        const result = await taxonomyRepository.restore(id)
+        if (result.isSuccess) {
             showToast('success', 'Rebuilt', 'Taxonomy tree successfully rebuilt');
-        } else if (!result.success) {
-            error.value = result.error.detail || 'Failed to rebuild taxonomy';
+        } else if (!result.isSuccess) {
+            error.value = result.errors?.[0]?.message || 'Failed to rebuild taxonomy';
         }
         return result;
     } finally {

@@ -12,7 +12,7 @@ import { OptionValueSchema } from '@/features/catalog/option-types/option-values
 import { useApiErrorHandler } from '@/shared/composables/api-error-handler.use'
 import AppBreadcrumb from '@/shared/components/Breadcrumb.Component.vue'
 import { useToast } from '@/shared/composables/toast.use'
-import type { OptionValueListItem } from '@/features/catalog/option-types/option-values/types/option-value.types'
+import type { OptionValueListItem } from '@/features/catalog/option-types/option-values/types/option-value.domain.types'
 import MetadataManager from '@/shared/components/MetadataManager.Component.vue'
 
 const { t } = useI18n()
@@ -98,7 +98,7 @@ const onValueSubmit = handleValueSubmit(async (formValues) => {
       ? await valueStore.update(editingValueId.value, formValues)
       : await valueStore.create(itemId.value, formValues)
 
-  if (result.success) {
+  if (result.isSuccess) {
     showToast(
       'success',
       t('common.success') || 'Success',
@@ -115,7 +115,7 @@ const onValueSubmit = handleValueSubmit(async (formValues) => {
 
 const deleteValue = async (val: OptionValueListItem) => {
   const result = await valueStore.remove(val.id)
-  if (result.success) {
+  if (result.isSuccess) {
     showToast(
       'success',
       t('common.success') || 'Success',
@@ -136,12 +136,12 @@ const loadItem = async () => {
   const result = await store.fetchById(itemId.value)
   const handled = handleApiResult(result, { genericError: 'Failed to load option type' })
 
-  if (handled && result.data) {
+  if (handled && result.value) {
     setValues({
-      name: result.data.name,
-      presentation: result.data.presentation,
-      position: result.data.position,
-      filterable: result.data.filterable,
+      name: result.value.name,
+      presentation: result.value.presentation,
+      position: result.value.position,
+      filterable: result.value.filterable,
     })
 
     await valueStore.fetchValues(itemId.value)
@@ -171,8 +171,8 @@ const onSubmit = handleSubmit(async (formValues) => {
     errorTitle: t('common.error'),
   })
 
-  if (handled && !isEdit.value && result.data) {
-    router.push({ name: 'catalog.option-types.edit', params: { id: result.data.id } })
+  if (handled && !isEdit.value && result.value) {
+    router.push({ name: 'catalog.option-types.edit', params: { id: result.value.id } })
   }
   store.fetchList({ pageSize: 100 })
 })

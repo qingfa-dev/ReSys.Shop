@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { PropertyKind } from '../types/property-kind';
+import { PropertyKind } from '../types/property-type.domain.types';
 
 export const PropertyTypeSchema = z.object({
   name: z.string().min(1, 'Name is required').max(100),

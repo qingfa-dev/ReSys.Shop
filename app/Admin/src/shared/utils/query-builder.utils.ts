@@ -1,4 +1,4 @@
-import type { ServerQueryingParameters, SearchMode, SortDirection } from '../api/types/query-params.types'
+import type { ServerQueryingParameters, SearchMode, SortDirection } from '../api/types/query.types'
 
 export type FilterOperator = '=' | '!=' | '>' | '<' | '>=' | '<=' | '!*' | '*' | '^' | '$';
 

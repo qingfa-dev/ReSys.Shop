@@ -8,7 +8,7 @@ import { toTypedSchema } from '@vee-validate/zod'
 import { TaxonRuleSchema } from '../schemas/taxon.schema'
 import { useApiErrorHandler } from '@/shared/composables/api-error-handler.use'
 import { useToast } from '@/shared/composables/toast.use'
-import type { TaxonRuleListItem } from '../types/taxon.types'
+import type { TaxonRuleListItem } from '../types/taxon.domain.types'
 
 const { t } = useI18n()
 
@@ -93,7 +93,7 @@ const onRuleSubmit = handleRuleSubmit(async (formValues) => {
         )
       : await taxonStore.addRule(props.taxonomyId, props.taxonId, formValues)
 
-  if (result.success) {
+  if (result.isSuccess) {
     showToast(
       'success',
       t('common.success') || 'Success',
@@ -111,7 +111,7 @@ const onRuleSubmit = handleRuleSubmit(async (formValues) => {
 
 const deleteRule = async (rule: TaxonRuleListItem) => {
   const result = await taxonStore.deleteRule(props.taxonomyId, props.taxonId, rule.id)
-  if (result.success) {
+  if (result.isSuccess) {
     showToast(
       'success',
       t('common.success') || 'Success',
@@ -123,7 +123,7 @@ const deleteRule = async (rule: TaxonRuleListItem) => {
 
 const regenerate = async () => {
   const result = await taxonStore.regenerateProducts(props.taxonomyId, props.taxonId)
-  if (result.success) {
+  if (result.isSuccess) {
     showToast(
       'success',
       t('common.success') || 'Success',

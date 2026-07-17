@@ -9,7 +9,7 @@ import { toTypedSchema } from '@vee-validate/zod'
 import { PropertyTypeSchema } from '../schemas/property-type.schema'
 import { useApiErrorHandler } from '@/shared/composables/api-error-handler.use'
 import AppBreadcrumb from '@/shared/components/Breadcrumb.Component.vue'
-import { PropertyKind, PropertyKindOptions } from '../types/property-kind'
+import { PropertyKind, PropertyKindOptions } from '../types/property-type.domain.types'
 import MetadataManager from '@/shared/components/MetadataManager.Component.vue'
 
 const { t } = useI18n()
@@ -53,16 +53,16 @@ const loadItem = async () => {
   const result = await store.fetchById(itemId.value)
   const handled = handleApiResult(result, { genericError: 'Failed to load property type' })
 
-  if (handled && result.data) {
+  if (handled && result.value) {
     setValues({
-      name: result.data.name,
-      presentation: result.data.presentation,
-      kind: result.data.kind,
-      position: result.data.position,
-      filterable: result.data.filterable
+      name: result.value.name,
+      presentation: result.value.presentation,
+      kind: result.value.kind,
+      position: result.value.position,
+      filterable: result.value.filterable
     })
-    publicMetadata.value = result.data.publicMetadata || {}
-    privateMetadata.value = result.data.privateMetadata || {}
+    publicMetadata.value = result.value.publicMetadata || {}
+    privateMetadata.value = result.value.privateMetadata || {}
   } else if (!handled) {
     router.push({ name: 'catalog.property-types.list' })
   }

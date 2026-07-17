@@ -38,7 +38,7 @@ async function onSubmit() {
     loading.value = true;
     try {
         const res = await inventoryService.adjustStock(props.stockItemId, form.value);
-        if (res.success) {
+        if (res.isSuccess) {
             showToast('success', 'Success', t('inventory.messages.adjust_success') || 'Stock adjusted');
             emit('updated');
             emit('close');

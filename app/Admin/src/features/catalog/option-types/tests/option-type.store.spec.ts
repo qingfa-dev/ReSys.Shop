@@ -27,9 +27,15 @@ describe('OptionTypeStore', () => {
         { id: '1', name: 'Color', presentation: 'Color', position: 1, filterable: true }
       ];
       const mockResponse = {
-        success: true,
-        data: mockData,
-        meta: { totalCount: 1, page_count: 1 }
+        isSuccess: true,
+        statusCode: 200,
+        errors: [],
+        message: null,
+        metadata: null,
+        items: mockData,
+        page: 1,
+        pageSize: 10,
+        totalCount: 1,
       };
 
       vi.mocked(optionTypeService.list).mockResolvedValue(mockResponse as any);
@@ -44,7 +50,17 @@ describe('OptionTypeStore', () => {
 
     it('should handle errors gracefully', async () => {
       const store = useOptionTypeStore();
-      vi.mocked(optionTypeService.list).mockResolvedValue({ success: false, error: { title: 'Err' } } as any);
+      vi.mocked(optionTypeService.list).mockResolvedValue({
+        isSuccess: false,
+        statusCode: 500,
+        errors: [{ code: 'Error', message: 'Err', type: 4, metadata: null }],
+        message: 'Err',
+        metadata: null,
+        items: [],
+        page: 1,
+        pageSize: 10,
+        totalCount: 0,
+      } as any);
 
       await store.fetchList();
 
@@ -57,7 +73,7 @@ describe('OptionTypeStore', () => {
     it('should fetch detail and set currentItem', async () => {
       const store = useOptionTypeStore();
       const mockItem = { id: '1', name: 'Size', presentation: 'Size', optionValues: [] };
-      vi.mocked(optionTypeService.getById).mockResolvedValue({ success: true, data: mockItem } as any);
+      vi.mocked(optionTypeService.getById).mockResolvedValue({ isSuccess: true, statusCode: 200, errors: [], message: null, metadata: null, value: mockItem } as any);
 
       await store.fetchById('1');
 
@@ -70,12 +86,12 @@ describe('OptionTypeStore', () => {
     it('create should call service', async () => {
       const store = useOptionTypeStore();
       const newItem = { name: 'New', presentation: 'New', position: 0, filterable: false };
-      vi.mocked(optionTypeService.create).mockResolvedValue({ success: true, data: { ...newItem, id: '123' } } as any);
+      vi.mocked(optionTypeService.create).mockResolvedValue({ isSuccess: true, statusCode: 200, errors: [], message: null, metadata: null, value: { ...newItem, id: '123' } } as any);
 
       const result = await store.create(newItem);
 
       expect(optionTypeService.create).toHaveBeenCalledWith(newItem);
-      expect(result.success).toBe(true);
+      expect(result.isSuccess).toBe(true);
     });
 
     it('remove should update list state on success', async () => {
@@ -83,7 +99,7 @@ describe('OptionTypeStore', () => {
       store.items = [{ id: '1', name: 'A' } as any, { id: '2', name: 'B' } as any];
       store.totalRecords = 2;
 
-      vi.mocked(optionTypeService.delete).mockResolvedValue({ success: true } as any);
+      vi.mocked(optionTypeService.delete).mockResolvedValue({ isSuccess: true, statusCode: 200, errors: [], message: null, metadata: null, value: undefined } as any);
 
       await store.remove('1');
 

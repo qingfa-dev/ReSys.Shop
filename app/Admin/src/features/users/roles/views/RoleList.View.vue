@@ -5,7 +5,7 @@ import { useToast } from '@/shared/composables/toast.use';
 import { useConfirm } from 'primevue/useconfirm';
 import { roleService } from '../../services/role.service';
 import AppBreadcrumb from '@/shared/components/Breadcrumb.Component.vue';
-import type { RoleSummary } from '../../types/user.types';
+import type { RoleSummary } from '../../types/user.domain.types';
 import type { DataTablePageEvent } from 'primevue/datatable';
 
 const router = useRouter();
@@ -28,9 +28,9 @@ async function fetchRoles() {
     loading.value = true;
     try {
         const res = await roleService.list(query.value);
-        if (res.success && res.data) {
-            roles.value = res.data;
-            totalRecords.value = res.meta?.totalCount || 0;
+        if (res.isSuccess && res.value) {
+            roles.value = res.value;
+            totalRecords.value = res.value.length || 0;
         }
     } finally {
         loading.value = false;
@@ -51,7 +51,7 @@ const confirmDelete = (role: RoleSummary) => {
         acceptClass: 'p-button-danger',
         accept: async () => {
             const res = await roleService.delete(role.id);
-            if (res.success) {
+            if (res.isSuccess) {
                 showToast('success', 'Deleted', 'Role deleted successfully');
                 fetchRoles();
             }

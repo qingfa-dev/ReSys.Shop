@@ -1,3 +1,3 @@
-import { catalogApi } from '../../services/catalog.api'
+import { propertyTypeRepository } from '../../repository/property-type.repository'
 
-export const propertyTypeService = catalogApi.propertyTypes
+export const propertyTypeService = propertyTypeRepository

@@ -30,8 +30,15 @@ describe('OptionValueStore', () => {
       ];
       
       vi.mocked(optionValueService.list).mockResolvedValue({
-        success: true,
-        data: mockData
+        isSuccess: true,
+        statusCode: 200,
+        errors: [],
+        message: null,
+        metadata: null,
+        items: mockData,
+        page: 1,
+        pageSize: 50,
+        totalCount: mockData.length,
       } as any);
 
       await store.fetchValues('type-123');
@@ -48,9 +55,15 @@ describe('OptionValueStore', () => {
       const mockData = [{ id: '1', name: 'Blue', presentation: 'Blue', position: 0 }];
       
       vi.mocked(optionValueService.list).mockResolvedValue({
-        success: true,
-        data: mockData,
-        meta: { totalCount: 1 } as any
+        isSuccess: true,
+        statusCode: 200,
+        errors: [],
+        message: null,
+        metadata: null,
+        items: mockData,
+        page: 1,
+        pageSize: 10,
+        totalCount: 1,
       } as any);
 
       await store.fetchList({ search: 'Blue' });
@@ -67,14 +80,18 @@ describe('OptionValueStore', () => {
       const store = useOptionValueStore();
       const newData = { name: 'Large', presentation: 'L', position: 3 };
       vi.mocked(optionValueService.create).mockResolvedValue({
-        success: true,
-        data: { ...newData, id: '3', optionTypeId: 'type-123' }
+        isSuccess: true,
+        statusCode: 200,
+        errors: [],
+        message: null,
+        metadata: null,
+        value: { ...newData, id: '3', optionTypeId: 'type-123' },
       } as any);
 
       const result = await store.create('type-123', newData);
 
       expect(optionValueService.create).toHaveBeenCalledWith({ ...newData, optionTypeId: 'type-123' });
-      expect(result.success).toBe(true);
+      expect(result.isSuccess).toBe(true);
       expect(store.values).toContainEqual(expect.objectContaining({ id: '3' }));
     });
 
@@ -84,8 +101,12 @@ describe('OptionValueStore', () => {
       
       const updatedData = { name: 'Small Updated', presentation: 'S!', position: 1 };
       vi.mocked(optionValueService.update).mockResolvedValue({
-        success: true,
-        data: { id: '1', optionTypeId: 'type-123', ...updatedData }
+        isSuccess: true,
+        statusCode: 200,
+        errors: [],
+        message: null,
+        metadata: null,
+        value: { id: '1', optionTypeId: 'type-123', ...updatedData },
       } as any);
 
       await store.update('1', updatedData);
@@ -97,7 +118,7 @@ describe('OptionValueStore', () => {
       const store = useOptionValueStore();
       store.values = [{ id: '1', name: 'A' } as any, { id: '2', name: 'B' } as any];
 
-      vi.mocked(optionValueService.delete).mockResolvedValue({ success: true } as any);
+      vi.mocked(optionValueService.delete).mockResolvedValue({ isSuccess: true, statusCode: 200, errors: [], message: null, metadata: null, value: undefined } as any);
 
       await store.remove('1');
 

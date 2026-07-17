@@ -1,3 +1,3 @@
-import { identityApi } from '../../identity/services/identity.api'
+import { roleRepository } from '../../identity/repository/role.repository'
 
-export const roleService = identityApi.roles
+export const roleService = roleRepository

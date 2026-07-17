@@ -40,10 +40,12 @@ describe('TaxonomyStore', () => {
     const mockData = [{ id: '1', name: 'Categories' }] as any;
     
     vi.mocked(taxonomyService.list).mockResolvedValue({
-      success: true,
-      data: mockData,
-      meta: { totalCount: 1 } as any
-    });
+      isSuccess: true,
+      items: mockData,
+      page: 1,
+      pageSize: 10,
+      totalCount: 1,
+    } as any);
 
     await store.fetchTaxonomies();
 

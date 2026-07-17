@@ -38,11 +38,11 @@ onMounted(async () => {
   store.clearCurrent()
   if (isEdit.value) {
     const result = await store.fetchTaxonomyById(itemId.value)
-    if (result.success && result.data) {
+    if (result.isSuccess && result.value) {
       setValues({
-        name: result.data.name,
-        presentation: result.data.presentation || '',
-        position: result.data.position,
+        name: result.value.name,
+        presentation: result.value.presentation || '',
+        position: result.value.position,
       })
 
     }
@@ -58,14 +58,14 @@ const onFormSubmit = submitForm(async (values) => {
     ? await store.updateTaxonomy(itemId.value, payload)
     : await store.createTaxonomy(payload)
 
-  if (result.success) {
+  if (result.isSuccess) {
     showToast(
       'success',
       t('common.success') || 'Success',
       (isEdit.value ? t('catalog.taxonomies.messages.update_success') : t('catalog.taxonomies.messages.create_success')) || 'Success',
     )
-    if (!isEdit.value && result.data) {
-        router.push({ name: 'catalog.taxonomies.edit', params: { id: result.data.id } })
+    if (!isEdit.value && result.value) {
+        router.push({ name: 'catalog.taxonomies.edit', params: { id: result.value.id } })
     }
     store.fetchTaxonomies({ pageSize: 100 })
   }

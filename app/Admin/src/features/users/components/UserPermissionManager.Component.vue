@@ -3,7 +3,7 @@ import { ref, onMounted } from 'vue';
 import { useToast } from '@/shared/composables/toast.use';
 import { permissionService } from '../services/permission.service';
 import { userService } from '../services/user.service';
-import type { PermissionSummary } from '../types/user.types';
+import type { PermissionSummary } from '../types/user.domain.types';
 
 const props = defineProps<{
     userId: string;
@@ -26,8 +26,8 @@ async function loadPermissions() {
     loading.value = true;
     try {
         const res = await permissionService.list({ pageSize: 1000 });
-        if (res.success && res.data) {
-            const allPerms = res.data;
+        if (res.isSuccess && res.value) {
+            const allPerms = res.value;
             
             selection.value[1] = allPerms.filter((p: PermissionSummary) => props.initialPermissions.includes(p.identifier));
             selection.value[0] = allPerms.filter((p: PermissionSummary) => !props.initialPermissions.includes(p.identifier));

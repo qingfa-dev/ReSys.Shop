@@ -1,3 +1,3 @@
-import { catalogApi } from '../../services/catalog.api'
+import { optionTypeRepository } from '../../repository/option-type.repository'
 
-export const optionTypeService = catalogApi.optionTypes
+export const optionTypeService = optionTypeRepository

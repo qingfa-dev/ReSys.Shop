@@ -9,7 +9,7 @@ import { useApiErrorHandler } from '@/shared/composables/api-error-handler.use'
 import AppBreadcrumb from '@/shared/components/Breadcrumb.Component.vue'
 import { useToast } from '@/shared/composables/toast.use'
 import { useConfirm } from 'primevue/useconfirm'
-import type { TaxonListItem } from '../types/taxon.types'
+import type { TaxonListItem } from '../types/taxon.domain.types'
 
 const { t } = useI18n()
 const route = useRoute()
@@ -65,7 +65,7 @@ const confirmDelete = (node: TaxonListItem) => {
     acceptProps: { severity: 'danger' },
     accept: async () => {
       const result = await taxonStore.deleteTaxon(taxonomyId.value, node.id)
-      if (result.success) {
+      if (result.isSuccess) {
         showToast('success', 'Deleted', t('catalog.taxa.messages.delete_success') || 'Category removed')
         if (selectedTaxonId.value === node.id) {
             router.push({ name: 'catalog.taxa.manager', params: { taxonomyId: taxonomyId.value } })

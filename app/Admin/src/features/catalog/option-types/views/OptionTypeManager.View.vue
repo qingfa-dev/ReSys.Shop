@@ -8,7 +8,7 @@ import { useApiErrorHandler } from '@/shared/composables/api-error-handler.use'
 import AppBreadcrumb from '@/shared/components/Breadcrumb.Component.vue'
 import { useToast } from '@/shared/composables/toast.use'
 import { useConfirm } from 'primevue/useconfirm'
-import type { OptionTypeListItem } from '../types/option-type.types'
+import type { OptionTypeListItem } from '../types/option-type.domain.types'
 
 const { t } = useI18n()
 const route = useRoute()
@@ -43,7 +43,7 @@ const confirmDelete = (item: OptionTypeListItem) => {
     acceptProps: { severity: 'danger' },
     accept: async () => {
       const result = await store.remove(item.id)
-      if (result.success) {
+      if (result.isSuccess) {
         showToast('success', 'Deleted', t('catalog.option_types.messages.delete_success') || 'Option type removed')
         if (selectedId.value === item.id) {
             router.push({ name: 'catalog.option-types.list' })

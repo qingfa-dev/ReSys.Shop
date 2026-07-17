@@ -1,6 +1,24 @@
-import { profileApi } from './profile.api'
+import { profileRepository } from '../repository/profile.repository'
+import { mapProfileResponse } from '../mapper/profile.mapper'
+import type { ServerResult } from '@/shared/api/types/result.types'
+import type { Profile } from '../types/profile.domain.types'
+import type { ProfileUpdateRequest } from '../types/profile.request.types'
+
+function handleResult(result: ServerResult<Profile>): ServerResult<Profile> {
+  if (result.isSuccess) {
+    return { ...result, value: mapProfileResponse(result.value) }
+  }
+  return result
+}
 
 export const profileService = {
-  getProfile: profileApi.get,
-  updateProfile: profileApi.update,
+  async getProfile(): Promise<ServerResult<Profile>> {
+    const result = await profileRepository.get()
+    return handleResult(result)
+  },
+
+  async updateProfile(data: ProfileUpdateRequest): Promise<ServerResult<Profile>> {
+    const result = await profileRepository.update(data)
+    return handleResult(result)
+  },
 }

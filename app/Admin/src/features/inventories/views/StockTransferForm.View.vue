@@ -6,7 +6,7 @@ import { useToast } from '@/shared/composables/toast.use';
 import { useI18n } from 'vue-i18n';
 import AppBreadcrumb from '@/shared/components/Breadcrumb.Component.vue';
 import LocationSelector from '../components/LocationSelector.Component.vue';
-import type { CreateStockTransferRequest } from '../types/inventory.types';
+import type { CreateStockTransferRequest } from '../types/inventory.request.types';
 
 const { t } = useI18n();
 
@@ -30,9 +30,9 @@ async function onSubmit() {
     loading.value = true;
     try {
         const res = await store.inventoryService.createTransfer(form.value);
-        if (res.success && res.data) {
+        if (res.isSuccess && res.value) {
             showToast('success', 'Success', t('inventory.messages.create_transfer_success') || 'Transfer created');
-            router.push({ name: 'inventory.transfers.detail', params: { id: res.data.id } });
+            router.push({ name: 'inventory.transfers.detail', params: { id: res.value.id } });
         }
     } finally {
         loading.value = false;

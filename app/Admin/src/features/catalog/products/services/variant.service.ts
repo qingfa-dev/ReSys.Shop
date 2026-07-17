@@ -1,10 +1,10 @@
-import { catalogApi } from '../../services/catalog.api'
+import { variantRepository } from '../../repository/variant.repository'
 
 export const variantService = {
-    getById: catalogApi.variants.getById,
-    listByProductId: catalogApi.variants.listByProductId,
-    create: catalogApi.variants.create,
-    update: catalogApi.variants.update,
-    delete: catalogApi.variants.delete,
-    updateOptionValues: catalogApi.variants.syncOptionValues,
+    getById: variantRepository.getById,
+    listByProductId: variantRepository.listByProductId,
+    create: variantRepository.create,
+    update: variantRepository.update,
+    delete: variantRepository.delete,
+    updateOptionValues: variantRepository.syncOptionValues,
 }

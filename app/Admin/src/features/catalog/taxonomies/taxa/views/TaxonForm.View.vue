@@ -15,7 +15,8 @@ import MetadataManager from '@/shared/components/MetadataManager.Component.vue'
 import TaxonRulesManagerComponent from '../components/TaxonRulesManager.Component.vue'
 import TaxonProductsPreviewComponent from '../components/TaxonProductsPreview.Component.vue'
 import { taxonService } from '../services/taxon.service'
-import type { TaxonDetail } from '../types/taxon.types'
+import type { TaxonDetail } from '../types/taxon.domain.types'
+import type { CreateTaxonRequest } from '../types/taxon.request.types'
 
 const { t } = useI18n()
 const route = useRoute()
@@ -35,7 +36,7 @@ const parentIdParam = computed(() => route.query.parentId as string)
 const activeTab = ref(0)
 const actionLoading = ref(false)
 const initialLoading = ref(false)
-const previewRef = ref<any>(null)
+const previewRef = ref<InstanceType<typeof TaxonProductsPreviewComponent> | null>(null)
 
 const { defineField, handleSubmit, errors, setValues, resetForm, values: formValues } = useForm({
   validationSchema: toTypedSchema(TaxonSchema),
@@ -70,8 +71,8 @@ const [metaTitle] = defineField('metaTitle')
 const [metaDescription] = defineField('metaDescription')
 const [metaKeywords] = defineField('metaKeywords')
 
-const public_metadata = ref<Record<string, any>>({})
-const private_metadata = ref<Record<string, any>>({})
+const public_metadata = ref<Record<string, string>>({})
+const private_metadata = ref<Record<string, string>>({})
 
 const generateSlug = () => {
   if (!name.value || (isEdit.value && slug.value)) return
@@ -90,25 +91,25 @@ const loadData = async () => {
 
   if (isEdit.value) {
     const result = await taxonService.getById(taxonomyId.value, taxonId.value)
-    if (result.success && result.data) {
+    if (result.isSuccess && result.value) {
       setValues({
-        taxonomyId: result.data.taxonomyId,
-        name: result.data.name,
-        presentation: result.data.presentation,
-        description: result.data.description || '',
-        slug: result.data.slug,
-        position: result.data.position,
-        hideFromNav: result.data.hideFromNav,
-        parentId: result.data.parentId as any,
-        automatic: result.data.automatic,
-        rulesMatchPolicy: result.data.rulesMatchPolicy as any,
-        sortOrder: result.data.sortOrder,
-        metaTitle: result.data.metaTitle || '',
-        metaDescription: result.data.metaDescription || '',
-        metaKeywords: result.data.metaKeywords || '',
+        taxonomyId: result.value.taxonomyId,
+        name: result.value.name,
+        presentation: result.value.presentation,
+        description: result.value.description || '',
+        slug: result.value.slug,
+        position: result.value.position,
+        hideFromNav: result.value.hideFromNav,
+        parentId: result.value.parentId ?? null,
+        automatic: result.value.automatic,
+        rulesMatchPolicy: result.value.rulesMatchPolicy as 'all' | 'any',
+        sortOrder: result.value.sortOrder,
+        metaTitle: result.value.metaTitle || '',
+        metaDescription: result.value.metaDescription || '',
+        metaKeywords: result.value.metaKeywords || '',
       })
       
-      if (result.data.automatic) {
+      if (result.value.automatic) {
         await taxonStore.fetchRules(taxonomyId.value, taxonId.value)
       }
     } else {
@@ -147,7 +148,7 @@ onMounted(() => {
   loadData()
 })
 
-const onFormSubmit = handleSubmit(async (values: any) => {
+const onFormSubmit = handleSubmit(async (values: CreateTaxonRequest) => {
   actionLoading.value = true
   const payload = {
     ...values,
@@ -157,7 +158,7 @@ const onFormSubmit = handleSubmit(async (values: any) => {
     ? await taxonStore.updateTaxon(taxonomyId.value, taxonId.value, payload)
     : await taxonStore.addTaxon(taxonomyId.value, payload)
 
-  if (result.success) {
+  if (result.isSuccess) {
     showToast(
       'success',
       t('common.success') || 'Success',
@@ -165,8 +166,8 @@ const onFormSubmit = handleSubmit(async (values: any) => {
         ? t('catalog.taxa.messages.update_success')
         : t('catalog.taxa.messages.create_success')) || 'Success',
     )
-    if (!isEdit.value && result.data) {
-        router.push({ name: 'catalog.taxa.edit', params: { taxonomyId: taxonomyId.value, id: result.data.id } })
+    if (!isEdit.value && result.value) {
+        router.push({ name: 'catalog.taxa.edit', params: { taxonomyId: taxonomyId.value, id: result.value.id } })
     } else {
         taxonStore.fetchTaxons(taxonomyId.value)
     }

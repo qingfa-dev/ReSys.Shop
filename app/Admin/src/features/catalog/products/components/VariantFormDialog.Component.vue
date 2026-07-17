@@ -6,8 +6,15 @@ import { toTypedSchema } from '@vee-validate/zod';
 import * as z from 'zod';
 import { productService } from '../services/product.service';
 import { optionValueService } from '@/features/catalog/option-types/option-values/services/option-value.service';
-import type { OptionValueQuery } from '@/features/catalog/option-types/option-values/types/option-value.types';
-import type { VariantDetail } from '../types/variant.types';
+import type { OptionValueQuery } from '@/features/catalog/option-types/option-values/types/option-value.request.types';
+import type { OptionValueListItem } from '@/features/catalog/option-types/option-values/types/option-value.domain.types';
+import type { OptionTypeDetail } from '@/features/catalog/option-types/types/option-type.domain.types';
+import type { VariantDetail } from '../types/variant.domain.types';
+import type { CreateVariantRequest } from '../types/variant.request.types';
+
+interface AssignedOptionType extends OptionTypeDetail {
+  values: OptionValueListItem[];
+}
 
 const { t } = useI18n();
 
@@ -19,7 +26,7 @@ const props = defineProps<{
 
 const emit = defineEmits<{
     (e: 'update:modelValue', value: boolean): void;
-    (e: 'save', data: any): void;
+    (e: 'save', data: CreateVariantRequest): void;
 }>();
 
 const isEdit = computed(() => !!props.variant);
@@ -28,7 +35,7 @@ const visible = computed({
     set: (val) => emit('update:modelValue', val)
 });
 
-const assignedOptionTypes = ref<any[]>([]);
+const assignedOptionTypes = ref<AssignedOptionType[]>([]);
 const selectedOptionValues = ref<Record<string, string>>({});
 const loadingOptions = ref(false);
 
@@ -61,15 +68,15 @@ const fetchOptions = async () => {
     loadingOptions.value = true;
     try {
         const res = await productService.getOptionTypes(props.productId);
-        if (res.success && res.data) {
-            const types = res.data;
+        if (res.isSuccess && res.value) {
+            const types = res.value;
             for (const type of types) {
                 const valRes = await optionValueService.list({ optionTypeId: type.id });
-                if (valRes.success && valRes.data) {
-                    (type as unknown as Record<string, unknown>).values = valRes.data;
+                if (valRes.isSuccess && valRes.items) {
+                    (type as unknown as Record<string, unknown>).values = valRes.items;
                 }
             }
-            assignedOptionTypes.value = types;
+            assignedOptionTypes.value = types as AssignedOptionType[];
         }
     } finally {
         loadingOptions.value = false;
@@ -96,7 +103,7 @@ watch([() => props.variant, assignedOptionTypes], ([newVariant, types]) => {
         if (newVariant.optionValueIds && types.length > 0) {
             newVariant.optionValueIds.forEach((id: string) => {
                 types.forEach(type => {
-                    if (type.values && type.values.some((v: any) => v.id === id)) {
+                    if (type.values && type.values.some((v: OptionValueListItem) => v.id === id)) {
                         mapped[type.id] = id;
                     }
                 });
@@ -112,11 +119,16 @@ watch([() => props.variant, assignedOptionTypes], ([newVariant, types]) => {
 const onSubmit = handleSubmit((values) => {
     const optionValueIds = Object.values(selectedOptionValues.value).filter(v => !!v);
     
-    emit('save', {
-        ...values,
+    const payload: CreateVariantRequest = {
+        sku: values.sku,
+        price: values.price,
+        trackInventory: values.trackInventory,
+        barcode: values.barcode ?? undefined,
+        weight: values.weight,
         optionValueIds: optionValueIds,
-        productId: props.productId
-    });
+        productId: props.productId,
+    };
+    emit('save', payload);
 });
 </script>
 

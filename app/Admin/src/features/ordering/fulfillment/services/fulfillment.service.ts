@@ -1,8 +1,9 @@
-import { orderingRepository } from '../../repository/ordering.repository'
+import { fulfillmentRepository } from '../../repository/fulfillment.repository'
+import { orderRepository } from '../../repository/order.repository'
 
 export const fulfillmentService = {
-  getQueue: orderingRepository.fulfillments.getQueue,
+  getQueue: fulfillmentRepository.getQueue,
   async markAsShipped(id: string, _trackingNumber?: string): Promise<any> {
-    return orderingRepository.orders.complete(id)
+    return orderRepository.complete(id)
   },
 }

@@ -4,7 +4,6 @@ import { useOptionTypeStore } from '@/features/catalog/option-types/stores/optio
 import { useApiErrorHandler } from '@/shared/composables/api-error-handler.use';
 import { useToast } from '@/shared/composables/toast.use';
 import { productService } from '../services/product.service';
-import type { ApiResult } from '@/shared/api/types/api.types';
 
 const props = defineProps<{
     productId: string;
@@ -31,8 +30,8 @@ const loadData = async () => {
 
         // 2. Get currently assigned option types for this product
         const result = await productService.getOptionTypes(props.productId);
-        if (result.success && result.data) {
-            selectedOptionTypes.value = result.data.map((ot: any) => ot.id);
+        if (result.isSuccess && result.value) {
+            selectedOptionTypes.value = result.value.map((ot: any) => ot.id);
         }
     } finally {
         loading.value = false;

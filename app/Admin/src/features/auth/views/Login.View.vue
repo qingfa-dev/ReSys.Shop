@@ -48,7 +48,7 @@ const onSubmit = handleSubmit(async (formValues) => {
     errorTitle: t('common.error'),
     genericError: t('auth.messages.login_failed'),
   })
-  if (handled && result.success) {
+  if (handled && result.isSuccess) {
     router.push('/')
   }
 })

@@ -6,9 +6,11 @@ import type {
   StockLocation,
   StockTransfer,
   InventoryUnit,
+} from '../types/inventory.domain.types';
+import type {
   InventorySearchParams,
   InventoryUnitSearchParams
-} from '../types/inventory.types';
+} from '../types/inventory.request.types';
 
 export const useInventoryStore = defineStore('inventory', () => {
   // --- STATE ---
@@ -55,9 +57,9 @@ export const useInventoryStore = defineStore('inventory', () => {
     stockQuery.value = { ...stockQuery.value, ...params };
     try {
       const result = await inventoryService.listStocks(stockQuery.value);
-      if (result.success && result.data) {
-        stocks.value = result.data;
-        totalStocks.value = result.meta?.totalCount || 0;
+      if (result.isSuccess) {
+        stocks.value = result.items;
+        totalStocks.value = result.totalCount || 0;
       }
       return result;
     } finally {
@@ -70,9 +72,9 @@ export const useInventoryStore = defineStore('inventory', () => {
     locationQuery.value = { ...locationQuery.value, ...params };
     try {
       const result = await inventoryService.listLocations(locationQuery.value);
-      if (result.success && result.data) {
-        locations.value = result.data;
-        totalLocations.value = result.meta?.totalCount || 0;
+      if (result.isSuccess) {
+        locations.value = result.items;
+        totalLocations.value = result.totalCount || 0;
       }
       return result;
     } finally {
@@ -85,9 +87,9 @@ export const useInventoryStore = defineStore('inventory', () => {
     transferQuery.value = { ...transferQuery.value, ...params };
     try {
       const result = await inventoryService.listTransfers(transferQuery.value);
-      if (result.success && result.data) {
-        transfers.value = result.data;
-        totalTransfers.value = result.meta?.totalCount || 0;
+      if (result.isSuccess) {
+        transfers.value = result.items;
+        totalTransfers.value = result.totalCount || 0;
       }
       return result;
     } finally {
@@ -100,9 +102,9 @@ export const useInventoryStore = defineStore('inventory', () => {
     unitQuery.value = { ...unitQuery.value, ...params };
     try {
       const result = await inventoryService.listReservations(unitQuery.value);
-      if (result.success && result.data) {
-        units.value = result.data;
-        totalUnits.value = result.meta?.totalCount || 0;
+      if (result.isSuccess) {
+        units.value = result.items;
+        totalUnits.value = result.totalCount || 0;
       }
       return result;
     } finally {

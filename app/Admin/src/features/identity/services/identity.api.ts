@@ -1,98 +1,97 @@
 import apiClient from '@/shared/api/http/api.client'
 import { IDENTITY } from '@/shared/api/constants'
-import type { ApiResult } from '@/shared/api/types/api.types'
-import type { ServerQueryingParameters } from '@/shared/api/types/query-params.types'
-import type { AdminUserSummary, CustomerSummary, CreateAdminUserRequest, UpdateAdminUserRequest } from '../../users/types/user.types'
-import type { RoleSummary, CreateRoleRequest, UpdateRoleRequest } from '../../users/types/user.types'
-import type { PermissionSummary } from '../../users/types/user.types'
+import type { ServerResult, ServerPagedResult } from '@/shared/api/types/result.types'
+import type { ServerQueryingParameters } from '@/shared/api/types/query.types'
+import type { AdminUserSummary, CustomerSummary, RoleSummary, PermissionSummary } from '../../users/types/user.domain.types'
+import type { CreateAdminUserRequest, UpdateAdminUserRequest, CreateRoleRequest, UpdateRoleRequest } from '../../users/types/user.request.types'
 
 export const identityApi = {
   users: {
-    async list(params?: ServerQueryingParameters): Promise<ApiResult<AdminUserSummary[]>> {
+    async list(params?: ServerQueryingParameters): Promise<ServerPagedResult<AdminUserSummary>> {
       return apiClient.get(`${IDENTITY}/users`, { params })
     },
-    async listCustomers(params?: ServerQueryingParameters): Promise<ApiResult<CustomerSummary[]>> {
+    async listCustomers(params?: ServerQueryingParameters): Promise<ServerPagedResult<CustomerSummary>> {
       return apiClient.get(`${IDENTITY}/users`, { params: { ...params, role: 'Storefront.Customer' } })
     },
-    async getById(id: string): Promise<ApiResult<AdminUserSummary>> {
+    async getById(id: string): Promise<ServerResult<AdminUserSummary>> {
       return apiClient.get(`${IDENTITY}/users/${id}`)
     },
-    async create(data: CreateAdminUserRequest): Promise<ApiResult<AdminUserSummary>> {
+    async create(data: CreateAdminUserRequest): Promise<ServerResult<AdminUserSummary>> {
       return apiClient.post(`${IDENTITY}/users`, data)
     },
-    async update(id: string, data: UpdateAdminUserRequest): Promise<ApiResult<AdminUserSummary>> {
+    async update(id: string, data: UpdateAdminUserRequest): Promise<ServerResult<AdminUserSummary>> {
       return apiClient.put(`${IDENTITY}/users/${id}`, data)
     },
-    async delete(id: string): Promise<ApiResult<void>> {
+    async delete(id: string): Promise<ServerResult<void>> {
       return apiClient.delete(`${IDENTITY}/users/${id}`)
     },
-    async updateStatus(id: string, isActive: boolean): Promise<ApiResult<void>> {
+    async updateStatus(id: string, isActive: boolean): Promise<ServerResult<void>> {
       return apiClient.patch(`${IDENTITY}/users/${id}/status`, { isActive })
     },
 
     // Roles
-    async getRoles(id: string): Promise<ApiResult<string[]>> {
+    async getRoles(id: string): Promise<ServerResult<string[]>> {
       return apiClient.get(`${IDENTITY}/users/${id}/roles`)
     },
-    async assignRole(id: string, roleName: string): Promise<ApiResult<void>> {
+    async assignRole(id: string, roleName: string): Promise<ServerResult<void>> {
       return apiClient.post(`${IDENTITY}/users/${id}/roles/assign`, { roleName })
     },
-    async revokeRole(id: string, roleName: string): Promise<ApiResult<void>> {
+    async revokeRole(id: string, roleName: string): Promise<ServerResult<void>> {
       return apiClient.post(`${IDENTITY}/users/${id}/roles/revoke`, { roleName })
     },
-    async syncRoles(id: string, roleNames: string[]): Promise<ApiResult<void>> {
+    async syncRoles(id: string, roleNames: string[]): Promise<ServerResult<void>> {
       return apiClient.patch(`${IDENTITY}/users/${id}/roles/sync`, { roleNames })
     },
 
     // Permissions
-    async getPermissions(id: string): Promise<ApiResult<string[]>> {
+    async getPermissions(id: string): Promise<ServerResult<string[]>> {
       return apiClient.get(`${IDENTITY}/users/${id}/permissions`)
     },
-    async assignPermission(id: string, permissionName: string): Promise<ApiResult<void>> {
+    async assignPermission(id: string, permissionName: string): Promise<ServerResult<void>> {
       return apiClient.post(`${IDENTITY}/users/${id}/permissions/assign`, { permissionName })
     },
-    async revokePermission(id: string, permissionName: string): Promise<ApiResult<void>> {
+    async revokePermission(id: string, permissionName: string): Promise<ServerResult<void>> {
       return apiClient.delete(`${IDENTITY}/users/${id}/permissions/revoke`, { data: { permissionName } })
     },
-    async syncPermissions(id: string, permissionNames: string[]): Promise<ApiResult<void>> {
+    async syncPermissions(id: string, permissionNames: string[]): Promise<ServerResult<void>> {
       return apiClient.put(`${IDENTITY}/users/${id}/permissions/sync`, { permissionNames })
     },
   },
 
   roles: {
-    async list(params?: ServerQueryingParameters): Promise<ApiResult<RoleSummary[]>> {
+    async list(params?: ServerQueryingParameters): Promise<ServerPagedResult<RoleSummary>> {
       return apiClient.get(`${IDENTITY}/roles`, { params })
     },
-    async getById(id: string): Promise<ApiResult<RoleSummary>> {
+    async getById(id: string): Promise<ServerResult<RoleSummary>> {
       return apiClient.get(`${IDENTITY}/roles/${id}`)
     },
-    async create(data: CreateRoleRequest): Promise<ApiResult<RoleSummary>> {
+    async create(data: CreateRoleRequest): Promise<ServerResult<RoleSummary>> {
       return apiClient.post(`${IDENTITY}/roles`, data)
     },
-    async update(id: string, data: UpdateRoleRequest): Promise<ApiResult<RoleSummary>> {
+    async update(id: string, data: UpdateRoleRequest): Promise<ServerResult<RoleSummary>> {
       return apiClient.put(`${IDENTITY}/roles/${id}`, data)
     },
-    async delete(id: string): Promise<ApiResult<void>> {
+    async delete(id: string): Promise<ServerResult<void>> {
       return apiClient.delete(`${IDENTITY}/roles/${id}`)
     },
 
     // Permissions
-    async getPermissions(id: string): Promise<ApiResult<string[]>> {
+    async getPermissions(id: string): Promise<ServerResult<string[]>> {
       return apiClient.get(`${IDENTITY}/roles/${id}/permissions`)
     },
-    async assignPermission(id: string, permissionName: string): Promise<ApiResult<void>> {
+    async assignPermission(id: string, permissionName: string): Promise<ServerResult<void>> {
       return apiClient.put(`${IDENTITY}/roles/${id}/permissions/assign`, { permissionName })
     },
-    async revokePermission(id: string, permissionName: string): Promise<ApiResult<void>> {
+    async revokePermission(id: string, permissionName: string): Promise<ServerResult<void>> {
       return apiClient.delete(`${IDENTITY}/roles/${id}/permissions/revoke`, { data: { permissionName } })
     },
-    async syncPermissions(id: string, permissionNames: string[]): Promise<ApiResult<void>> {
+    async syncPermissions(id: string, permissionNames: string[]): Promise<ServerResult<void>> {
       return apiClient.patch(`${IDENTITY}/roles/${id}/permissions/sync`, { permissionNames })
     },
   },
 
   permissions: {
-    async list(params?: ServerQueryingParameters): Promise<ApiResult<PermissionSummary[]>> {
+    async list(params?: ServerQueryingParameters): Promise<ServerPagedResult<PermissionSummary>> {
       return apiClient.get(`${IDENTITY}/permissions`, { params })
     },
   },

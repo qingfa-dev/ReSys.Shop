@@ -3,8 +3,7 @@ import { ref, onMounted } from 'vue';
 import { useApiErrorHandler } from '@/shared/composables/api-error-handler.use';
 import { useToast } from '@/shared/composables/toast.use';
 import apiClient from '@/shared/api/http/api.client';
-import type { ApiResult } from '@/shared/api/types/api.types';
-import type { ProductImage } from '../types/product.types';
+import type { ProductImage } from '../types/product.domain.types';
 import ProductImageUploader from './images/ProductImageUploader.Component.vue';
 import ProductImageList from './images/ProductImageList.Component.vue';
 import { productService } from '../services/product.service';
@@ -23,8 +22,8 @@ const loadImages = async () => {
     loading.value = true;
     try {
         const result = await productService.getImages(props.productId);
-        if (result.success && result.data) {
-            images.value = result.data;
+        if (result.isSuccess && result.items) {
+            images.value = result.items;
         }
     } finally {
         loading.value = false;
@@ -35,8 +34,7 @@ const handleUpload = async (payload: { file: File, role: number, alt: string, on
     try {
         const result = await productService.uploadImage(props.productId, payload.file, payload.role, payload.alt);
         
-        if (result.success) {
-            showToast('success', 'Uploaded', 'Image uploaded successfully');
+        if (result.isSuccess) {
             payload.onSuccess();
             await loadImages();
         } else {
@@ -49,7 +47,7 @@ const handleUpload = async (payload: { file: File, role: number, alt: string, on
 
 const onDelete = async (id: string) => {
     const result = await productService.deleteImage(id);
-    if (result.success) {
+    if (result.isSuccess) {
         showToast('success', 'Deleted', 'Image removed');
         await loadImages();
     } else {
@@ -61,7 +59,7 @@ const onUpdateImage = async (payload: { id: string, role: number, alt: string })
     try {
         const result = await productService.updateImage(payload.id, { alt: payload.alt, role: payload.role });
 
-        if (result.success) {
+        if (result.isSuccess) {
             showToast('success', 'Updated', 'Image details updated');
             await loadImages();
         } else {

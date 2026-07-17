@@ -6,12 +6,14 @@ import { productService } from '../services/product.service';
 import type { 
   ProductSummary, 
   ProductDetail, 
-  ProductSearchParams, 
-  CreateProductRequest, 
-  UpdateProductRequest,
   ProductClassification,
   ProductImage
-} from '../types/product.types';
+} from '../types/product.domain.types';
+import type { 
+  ProductSearchParams, 
+  CreateProductRequest, 
+  UpdateProductRequest
+} from '../types/product.request.types';
 
 export const useProductStore = defineStore('product', () => {
   const { showToast } = useToast();
@@ -32,8 +34,8 @@ export const useProductStore = defineStore('product', () => {
     error.value = null;
     try {
       const result = await productService.getById(id);
-      if (result.success && result.data) {
-        current_product.value = result.data;
+      if (result.isSuccess && result.value) {
+        current_product.value = result.value;
       }
       return result;
     } finally {
@@ -45,7 +47,7 @@ export const useProductStore = defineStore('product', () => {
     submitting.value = true;
     try {
       const result = await productService.create(data);
-      if (result.success) {
+      if (result.isSuccess) {
         showToast('success', 'Created', 'Product created successfully');
         await fetchProducts();
       }
@@ -59,7 +61,7 @@ export const useProductStore = defineStore('product', () => {
     submitting.value = true;
     try {
       const result = await productService.update(id, data);
-      if (result.success) {
+      if (result.isSuccess) {
         showToast('success', 'Updated', 'Product updated successfully');
         await fetchProducts();
       }
@@ -73,7 +75,7 @@ export const useProductStore = defineStore('product', () => {
     loading.value = true;
     try {
       const result = await productService.delete(id);
-      if (result.success) {
+      if (result.isSuccess) {
         showToast('success', 'Deleted', 'Product removed successfully');
         await fetchProducts();
       }
@@ -87,8 +89,8 @@ export const useProductStore = defineStore('product', () => {
     loading.value = true;
     try {
         const result = await productService.getClassifications(productId)
-        if (result.success && result.data) {
-            current_classifications.value = result.data;
+        if (result.isSuccess && result.value) {
+            current_classifications.value = result.value;
         }
         return result;
     } finally {
@@ -96,11 +98,11 @@ export const useProductStore = defineStore('product', () => {
     }
   }
 
-  async function updateClassifications(productId: string, data: any) {
+  async function updateClassifications(productId: string, data: { taxonIds: string[]; mainTaxonId?: string }) {
     submitting.value = true;
     try {
         const result = await productService.syncClassifications(productId, data)
-        if (result.success) {
+        if (result.isSuccess) {
             showToast('success', 'Updated', 'Classifications saved');
             await fetchClassifications(productId);
         }

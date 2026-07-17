@@ -1,94 +1,99 @@
-import axios, { type AxiosInstance, type AxiosError, type AxiosResponse, type InternalAxiosRequestConfig } from 'axios'
-import type { ServerResult, ServerPagedResult } from '../types/result.types'
-import { parseApiError } from '../utils/api.utils'
-import { refreshTokens } from './refresh-handler'
+import axios, {
+  type AxiosInstance,
+  type AxiosError,
+  type AxiosResponse,
+  type InternalAxiosRequestConfig,
+} from "axios";
+import type { ServerResult, ServerPagedResult } from "../types/result.types";
+import { parseApiError } from "../utils/api.utils";
+import { refreshTokens } from "./refresh-handler";
 
-const apiBaseUrl = import.meta.env.VITE_API_URL ? `${import.meta.env.VITE_API_URL}/api` : '/api'
+const apiBaseUrl = import.meta.env.VITE_API_URL ? `${import.meta.env.VITE_API_URL}/api` : "/api";
 
 const apiClient: AxiosInstance = axios.create({
   baseURL: apiBaseUrl,
   headers: {
-    'Content-Type': 'application/json',
+    "Content-Type": "application/json",
   },
   paramsSerializer: {
     indexes: null,
   },
-})
+});
 
 apiClient.interceptors.request.use(
   (config: InternalAxiosRequestConfig) => {
-    const token = localStorage.getItem('accessToken')
+    const token = localStorage.getItem("accessToken");
     if (token && config.headers) {
-      config.headers.Authorization = `Bearer ${token}`
+      config.headers.Authorization = `Bearer ${token}`;
     }
-    return config
+    return config;
   },
   (error) => {
-    return Promise.reject(error)
+    return Promise.reject(error);
   },
-)
+);
 
 apiClient.interceptors.response.use(
   (response) => {
-    const body = response.data as Record<string, unknown>
-
-    if (body && typeof body === 'object') {
-      if ('items' in body && Array.isArray(body.items)) {
-        const paged = body as unknown as ServerPagedResult<unknown>
-        return {
-          data: paged.items,
-          meta: {
-            page: paged.page,
-            pageSize: paged.pageSize,
-            totalCount: paged.totalCount,
-            totalPages: Math.ceil(paged.totalCount / paged.pageSize),
-          },
-          success: true,
-        } as unknown as AxiosResponse
-      }
-
-      if ('value' in body) {
-        return {
-          data: (body as unknown as ServerResult<unknown>).value,
-          success: true,
-        } as unknown as AxiosResponse
-      }
-    }
-
-    return {
-      data: body,
-      success: true,
-    } as unknown as AxiosResponse
+    return response;
   },
   async (error: AxiosError) => {
-    const originalRequest = error.config as InternalAxiosRequestConfig & { _retry?: boolean }
-    const apiError = parseApiError(error)
+    const originalRequest = error.config as InternalAxiosRequestConfig & { _retry?: boolean };
+    const apiError = parseApiError(error);
 
     if (apiError.statusCode === 401 && originalRequest && !originalRequest._retry) {
-      console.warn('Session expired. Attempting to refresh token...')
+      console.warn("Session expired. Attempting to refresh token...");
 
-      if (originalRequest.url?.includes('/auth/session/refresh')) {
-        return Promise.resolve({ data: null, success: false, error: apiError })
+      if (originalRequest.url?.includes("/auth/session/refresh")) {
+        return Promise.resolve({
+          data: {
+            isSuccess: false,
+            statusCode: 401,
+            errors: [
+              {
+                code: "UNAUTHORIZED",
+                message: apiError.detail || "Unauthorized",
+                type: 0,
+                metadata: null,
+              },
+            ],
+            message: apiError.title,
+            metadata: null,
+            value: null,
+          } as ServerResult<null>,
+        } as AxiosResponse);
       }
 
-      originalRequest._retry = true
+      originalRequest._retry = true;
 
-      const refreshed = await refreshTokens()
+      const refreshed = await refreshTokens();
       if (refreshed) {
-        const newToken = localStorage.getItem('accessToken')
+        const newToken = localStorage.getItem("accessToken");
         if (newToken && originalRequest.headers) {
-          originalRequest.headers.Authorization = `Bearer ${newToken}`
+          originalRequest.headers.Authorization = `Bearer ${newToken}`;
         }
-        return apiClient(originalRequest)
+        return apiClient(originalRequest);
       }
     }
 
     return Promise.resolve({
-      data: null,
-      success: false,
-      error: apiError,
-    })
+      data: {
+        isSuccess: false,
+        statusCode: apiError.statusCode,
+        errors: [
+          {
+            code: apiError.error_code || "ERROR",
+            message: apiError.detail || apiError.title || "Request failed",
+            type: 0,
+            metadata: null,
+          },
+        ],
+        message: apiError.title,
+        metadata: null,
+        value: null,
+      } as ServerResult<null>,
+    } as AxiosResponse);
   },
-)
+);
 
-export default apiClient
+export default apiClient;

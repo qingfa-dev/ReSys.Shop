@@ -7,7 +7,7 @@ import { useToast } from '@/shared/composables/toast.use';
 import { useFormatter } from '@/shared/composables/formatter.use';
 import { useI18n } from 'vue-i18n';
 import AppBreadcrumb from '@/shared/components/Breadcrumb.Component.vue';
-import type { StockTransferDetail } from '../types/inventory.types';
+import type { StockTransferDetail } from '../types/inventory.domain.types';
 
 const { t } = useI18n();
 
@@ -33,8 +33,8 @@ async function loadTransfer() {
     loading.value = true;
     try {
         const res = await store.inventoryService.getTransferDetail(transferId.value);
-        if (res.success && res.data) {
-            transfer.value = res.data;
+        if (res.isSuccess && res.value) {
+            transfer.value = res.value;
         }
     } finally {
         loading.value = false;
@@ -43,8 +43,9 @@ async function loadTransfer() {
 
 const onSearchProduct = async (event: { query: string }) => {
     const res = await productStore.fetchProducts({ search: event.query, pageSize: 5 });
-    if (res.success && res.data) {
-        productResults.value = res.data;
+    if (res.isSuccess) {
+        const data = 'items' in res ? res.items : res.value;
+        if (data) productResults.value = data;
     }
 };
 
@@ -53,7 +54,7 @@ async function onAddItem() {
     processing.value = true;
     try {
         const res = await store.inventoryService.addTransferItem(transferId.value, selectedProduct.value.id, quantity.value);
-        if (res.success) {
+        if (res.isSuccess) {
             showToast('success', 'Success', 'Item added to transfer');
             itemDialog.value = false;
             selectedProduct.value = null;
@@ -69,7 +70,7 @@ async function onShip() {
     processing.value = true;
     try {
         const res = await store.inventoryService.shipTransfer(transferId.value);
-        if (res.success) {
+        if (res.isSuccess) {
             showToast('success', 'Success', t('inventory.messages.create_transfer_success') || 'Transfer shipped');
             await loadTransfer();
         }
@@ -82,7 +83,7 @@ async function onReceive() {
     processing.value = true;
     try {
         const res = await store.inventoryService.receiveTransfer(transferId.value);
-        if (res.success) {
+        if (res.isSuccess) {
             showToast('success', 'Success', 'Stock received at destination');
             await loadTransfer();
         }

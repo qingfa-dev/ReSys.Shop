@@ -4,7 +4,6 @@ import { useProductStore } from '../stores/product.store';
 import { useTaxonomyStore } from '@/features/catalog/taxonomies/stores/taxonomy.store';
 import { storeToRefs } from 'pinia';
 import { useApiErrorHandler } from '@/shared/composables/api-error-handler.use';
-import type { ApiResult } from '@/shared/api/types/api.types';
 
 const props = defineProps<{
     productId: string;
@@ -33,17 +32,17 @@ const onToggleTaxon = async (taxonId: string) => {
     }
 
     const result = (await productStore.updateClassifications(props.productId, {
-        taxon_ids: newIds,
-        main_taxon_id: current_classifications.value.find((c: any) => c.isMain)?.taxonId
-    })) as unknown as ApiResult<any>;
+        taxonIds: newIds,
+        mainTaxonId: current_classifications.value.find((c: any) => c.isMain)?.taxonId
+    }));
     handleApiResult(result);
 };
 
 const onSetMain = async (taxonId: string) => {
     const result = (await productStore.updateClassifications(props.productId, {
-        taxon_ids: current_classifications.value.map((c: any) => c.taxonId),
-        main_taxon_id: taxonId
-    })) as unknown as ApiResult<any>;
+        taxonIds: current_classifications.value.map((c: any) => c.taxonId),
+        mainTaxonId: taxonId
+    }));
     handleApiResult(result);
 };
 </script>

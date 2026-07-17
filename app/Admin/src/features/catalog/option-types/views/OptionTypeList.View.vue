@@ -10,7 +10,7 @@ import { useToast } from '@/shared/composables/toast.use'
 import { useConfirm } from 'primevue/useconfirm'
 import AppBreadcrumb from '@/shared/components/Breadcrumb.Component.vue'
 import { QueryBuilder } from '@/shared/utils/query-builder.utils'
-import type { OptionTypeListItem } from '../types/option-type.types'
+import type { OptionTypeListItem } from '../types/option-type.domain.types'
 
 const { t } = useI18n()
 const router = useRouter()
@@ -96,7 +96,7 @@ const confirmDelete = (item: OptionTypeListItem) => {
     acceptProps: { severity: 'danger' },
     accept: async () => {
       const result = await store.remove(item.id)
-      if (result.success) {
+      if (result.isSuccess) {
         showToast('success', t('common.success') || 'Success', t('catalog.option_types.messages.delete_success') || 'Deleted successfully')
       } else {
         showToast('error', t('common.error') || 'Error', 'Failed to delete option type')

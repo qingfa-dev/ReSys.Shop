@@ -1,6 +1,14 @@
 <script setup lang="ts">
 import { ref } from 'vue'
-defineProps<{ item: any }>()
+
+interface MenuItem {
+  label: string
+  icon?: string
+  command?: () => unknown
+  items?: MenuItem[]
+}
+
+defineProps<{ item: MenuItem }>()
 const expanded = ref(false)
 </script>
 <template>

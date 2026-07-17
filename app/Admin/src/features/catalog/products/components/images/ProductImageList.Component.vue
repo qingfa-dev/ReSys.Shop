@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import { useI18n } from 'vue-i18n';
-import type { ProductImage } from '../../types/product.types';
+import type { ProductImage } from '../../types/product.domain.types';
 
 const { t } = useI18n();
 

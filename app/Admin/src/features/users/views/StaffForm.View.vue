@@ -4,7 +4,7 @@ import { useRoute, useRouter } from 'vue-router';
 import { useToast } from '@/shared/composables/toast.use';
 import { userService } from '../services/user.service';
 import { roleService } from '../services/role.service';
-import type { CreateAdminUserRequest, UpdateAdminUserRequest } from '../types/user.types';
+import type { CreateAdminUserRequest, UpdateAdminUserRequest } from '../types/user.request.types';
 
 const route = useRoute();
 const router = useRouter();
@@ -39,8 +39,8 @@ onMounted(async () => {
 
 async function fetchRoles() {
     const res = await roleService.list({ pageSize: 100 });
-    if (res.success && res.data) {
-        roleOptions.value = res.data.map(r => ({
+    if (res.isSuccess && res.value) {
+        roleOptions.value = res.value.map(r => ({
             label: r.displayName || r.name,
             value: r.name
         }));
@@ -49,8 +49,8 @@ async function fetchRoles() {
 
 async function loadUser() {
     const res = await userService.getById(userId.value);
-    if (res.success && res.data) {
-        const user = res.data;
+    if (res.isSuccess && res.value) {
+        const user = res.value;
         form.value = {
             email: user.email,
             firstName: user.firstName || '',
@@ -75,7 +75,7 @@ async function onSubmit() {
                 isActive: form.value.isActive
             };
             const res = await userService.update(userId.value, updateData);
-            if (res.success) {
+            if (res.isSuccess) {
                 showToast('success', 'Success', 'Staff member updated successfully');
                 router.push({ name: 'admin-users' });
             }
@@ -88,7 +88,7 @@ async function onSubmit() {
                 password: form.value.password
             };
             const res = await userService.create(createData);
-            if (res.success) {
+            if (res.isSuccess) {
                 showToast('success', 'Success', 'Staff member invited successfully');
                 router.push({ name: 'admin-users' });
             }

@@ -32,10 +32,19 @@ import { computed } from 'vue'
 import { useAuthStore } from '@/features/auth/stores/auth.store'
 import { storeToRefs } from 'pinia'
 
+interface JwtPayload {
+  sub?: string
+  name?: string
+  roleNames?: string[]
+  roles?: string[]
+  permissions?: string[]
+  [key: string]: unknown
+}
+
 const authStore = useAuthStore()
 const { user } = storeToRefs(authStore)
-const userData = computed(() => user.value as Record<string, unknown> | null)
+const userData = computed(() => user.value as JwtPayload | null)
 const userName = computed(() => String(userData.value?.name ?? userData.value?.sub ?? '—'))
-const rolesCount = computed(() => ((userData.value?.roleNames ?? userData.value?.roles) as any[] | undefined)?.length ?? 0)
-const permissionsCount = computed(() => ((userData.value?.permissions as any[] | undefined)?.length ?? 0))
+const rolesCount = computed(() => (userData.value?.roleNames ?? userData.value?.roles)?.length ?? 0)
+const permissionsCount = computed(() => userData.value?.permissions?.length ?? 0)
 </script>

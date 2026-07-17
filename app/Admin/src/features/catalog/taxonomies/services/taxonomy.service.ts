@@ -1,3 +1,3 @@
-import { catalogApi } from '../../services/catalog.api'
+import { taxonomyRepository } from '../../repository/taxonomy.repository'
 
-export const taxonomyService = catalogApi.taxonomies
+export const taxonomyService = taxonomyRepository

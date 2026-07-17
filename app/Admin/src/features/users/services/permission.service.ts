@@ -1,3 +1,3 @@
-import { identityApi } from '../../identity/services/identity.api'
+import { permissionRepository } from '../../identity/repository/permission.repository'
 
-export const permissionService = identityApi.permissions
+export const permissionService = permissionRepository

@@ -8,6 +8,27 @@ import { inventoryService } from '@/features/inventories/services/inventory.serv
 import { variantService } from '../services/variant.service';
 import StockMovementTimeline from '@/features/inventories/components/StockMovementTimeline.Component.vue';
 import StockAdjustmentDialog from '@/features/inventories/components/StockAdjustmentDialog.Component.vue';
+interface InventoryVariantOption {
+  name: string;
+  items: string;
+}
+
+interface InventoryVariant {
+  id: string;
+  sku: string;
+  options: InventoryVariantOption[];
+}
+
+interface InventoryStockItem {
+  id: string;
+  variantId: string;
+  sku: string;
+  variant_name: string;
+  stock_location_name: string;
+  quantity_on_hand: number;
+  quantity_reserved?: number;
+  backorderable: boolean;
+}
 
 const { t } = useI18n();
 
@@ -19,25 +40,25 @@ const { handleApiResult } = useApiErrorHandler();
 const { showToast } = useToast();
 const { formatCurrency } = useFormatter();
 
-const variants = ref<any[]>([]);
-const stockItems = ref<any[]>([]);
+const variants = ref<InventoryVariant[]>([]);
+const stockItems = ref<InventoryStockItem[]>([]);
 const loading = ref(false);
 
 const historyDrawer = ref(false);
 const adjustDialog = ref(false);
-const selectedStockItem = ref<any>(null);
+const selectedStockItem = ref<InventoryStockItem | null>(null);
 
 const loadData = async () => {
     loading.value = true;
     try {
         const varResult = await variantService.listByProductId(props.productId);
-        if (varResult.success && varResult.data) {
-            variants.value = varResult.data || [];
+        if (varResult.isSuccess && varResult.value) {
+            variants.value = (varResult.value || []) as unknown as InventoryVariant[];
         }
 
         const stockResult = await inventoryService.listStocks({ filter: `Variant.ProductId=${props.productId}` });
-        if (stockResult.success && stockResult.data) {
-            stockItems.value = stockResult.data || [];
+        if (stockResult.isSuccess && stockResult.items) {
+            stockItems.value = stockResult.items as unknown as InventoryStockItem[];
         }
     } finally {
         loading.value = false;
@@ -45,15 +66,15 @@ const loadData = async () => {
 };
 
 const getStockForVariant = (variantId: string) => {
-    return stockItems.value.filter(si => si.variant_id === variantId);
+    return stockItems.value.filter((si: InventoryStockItem) => si.variantId === variantId);
 };
 
-const showHistory = (data: any) => {
+const showHistory = (data: InventoryStockItem) => {
     selectedStockItem.value = data;
     historyDrawer.value = true;
 };
 
-const showAdjust = (data: any) => {
+const showAdjust = (data: InventoryStockItem) => {
     selectedStockItem.value = data;
     adjustDialog.value = true;
 };
@@ -84,7 +105,7 @@ onMounted(() => {
                     <div class="flex flex-col">
                         <span class="font-bold text-lg">{{ variant.sku }}</span>
                         <div class="flex gap-2 mt-1">
-                            <Tag v-for="(opt, idx) in variant.options || []" :key="idx" :value="`${opt.name}: ${opt.value}`" severity="secondary" class="text-xs" />
+                            <Tag v-for="(opt, idx) in variant.options || []" :key="idx" :value="`${opt.name}: ${opt.items}`" severity="secondary" class="text-xs" />
                         </div>
                     </div>
                 </div>
@@ -123,9 +144,9 @@ onMounted(() => {
 
         <StockAdjustmentDialog 
             v-if="adjustDialog" 
-            :stockItemId="selectedStockItem.id" 
-            :sku="selectedStockItem.sku" 
-            :variantName="selectedStockItem.variant_name" 
+            :stockItemId="selectedStockItem!.id" 
+            :sku="selectedStockItem!.sku" 
+            :variantName="selectedStockItem!.variant_name" 
             @updated="loadData" 
             @close="adjustDialog = false" 
         />

@@ -1,4 +1,5 @@
-import type { ApiResult } from '@/shared/api/types/api.types'
+import type { ServerResult } from '@/shared/api/types/result.types'
+import { mapToErrors } from '@/shared/api/types/api.types'
 import { parseApiError } from '@/shared/api/utils/api.utils'
 import { useToast } from './toast.use'
 
@@ -41,7 +42,7 @@ export function useApiErrorHandler() {
         setErrors(formErrors)
       }
 
-      const isGenericDetail = apiError.detail?.toLowerCase().includes('one or more validation errors')
+      const isGenericDetail = apiError.detail?.toLowerCase()?.includes('one or more validation errors') ?? false
       const toastDetail =
         (isGenericDetail && unmappedMessages.length > 0)
           ? unmappedMessages.join('. ')
@@ -66,7 +67,7 @@ export function useApiErrorHandler() {
   }
 
   const handleApiResult = <T>(
-    result: ApiResult<T>,
+    result: ServerResult<T>,
     options?: {
       setErrors?: (errors: Record<string, string | undefined>) => void
       fieldNames?: string[]
@@ -76,17 +77,27 @@ export function useApiErrorHandler() {
       genericError?: string
     },
   ) => {
-    if (result.success) {
+    if (result.isSuccess) {
       if (options?.successMessage) {
         showToast('success', options.successTitle || 'Success', options.successMessage)
       }
       return true
     }
 
-    handleFormErrors(result.error, options?.setErrors, options?.fieldNames || [], {
-      errorTitle: options?.errorTitle,
-      genericError: options?.genericError,
-    })
+    handleFormErrors(
+      {
+        statusCode: result.statusCode,
+        title: result.message,
+        message: result.message,
+        detail: result.message,
+        isSuccess: result.isSuccess,
+        errors: mapToErrors(result.errors),
+        error_code: undefined,
+      },
+      options?.setErrors,
+      options?.fieldNames || [],
+      { errorTitle: options?.errorTitle, genericError: options?.genericError },
+    )
     return false
   }
 

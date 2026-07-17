@@ -4,7 +4,7 @@ import { useRoute, useRouter } from 'vue-router';
 import { useToast } from '@/shared/composables/toast.use';
 import { roleService } from '../../services/role.service';
 import { permissionService } from '../../services/permission.service';
-import type { PermissionSummary } from '../../types/user.types';
+import type { PermissionSummary } from '../../types/user.domain.types';
 
 const route = useRoute();
 const router = useRouter();
@@ -22,8 +22,8 @@ onMounted(async () => {
     try {
         // 1. Get Role details (using list workaround again or I should fix service)
         const rolesRes = await roleService.list({ pageSize: 100 });
-        if (rolesRes.success && rolesRes.data) {
-            const role = rolesRes.data.find(r => r.id === roleId.value);
+        if (rolesRes.isSuccess && rolesRes.value) {
+            const role = rolesRes.value.find(r => r.id === roleId.value);
             if (role) {
                 roleName.value = role.displayName || role.name;
                 
@@ -31,8 +31,8 @@ onMounted(async () => {
                 // We use a large page size to get all. Ideally we should have a non-paged endpoint or search.
                 const permsRes = await permissionService.list({ pageSize: 1000 });
                 
-                if (permsRes.success && permsRes.data) {
-                    const allPerms = permsRes.data;
+                if (permsRes.isSuccess && permsRes.value) {
+                    const allPerms = permsRes.value;
                     
                     // Temporary: I will assume I can get them.
                     // If not, this view will need backend work.
@@ -53,7 +53,7 @@ async function onSave() {
     try {
         const permissionNames = selection.value[1].map(p => p.identifier);
         const res = await roleService.syncPermissions(roleId.value, permissionNames);
-        if (res.success) {
+        if (res.isSuccess) {
             showToast('success', 'Saved', 'Permissions updated successfully');
             router.back();
         }

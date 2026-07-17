@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
 import { inventoryService } from '../services/inventory.service';
-import type { StockMovement } from '../types/inventory.types';
+import type { StockMovement } from '../types/inventory.domain.types';
 import { useFormatter } from '@/shared/composables/formatter.use';
 
 const props = defineProps<{
@@ -20,8 +20,8 @@ const fetchMovements = async () => {
     loading.value = true;
     try {
         const res = await inventoryService.listMovements({ pageSize: 50 } as any);
-        if (res.success && res.data) {
-            movements.value = res.data;
+        if (res.isSuccess && res.items) {
+            movements.value = res.items;
         }
     } finally {
         loading.value = false;

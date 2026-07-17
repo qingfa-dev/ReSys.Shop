@@ -6,6 +6,8 @@ import { storeToRefs } from 'pinia';
 import { useFormatter } from '@/shared/composables/formatter.use';
 import { useApiErrorHandler } from '@/shared/composables/api-error-handler.use';
 import { useConfirm } from 'primevue/useconfirm';
+import type { PaymentDetail } from '../types/order.domain.types';
+import type { UpdateAddressesRequest, AddOrderItemRequest, RefundPaymentRequest } from '../types/order.request.types';
 import ShipmentDialog from '../components/ShipmentDialog.Component.vue';
 import AddressDialog from '../components/AddressDialog.Component.vue';
 import ItemDialog from '../components/ItemDialog.Component.vue';
@@ -25,11 +27,11 @@ const showShipmentDialog = ref(false);
 const showAddressDialog = ref(false);
 const showItemDialog = ref(false);
 const showRefundDialog = ref(false);
-const selectedPayment = ref<any>(null);
+const selectedPayment = ref<PaymentDetail | null>(null);
 
 onMounted(async () => {
     const result = await store.fetchOrderById(orderId);
-    if (!result.success) {
+    if (!result.isSuccess) {
         handleApiResult(result);
     }
 });
@@ -40,28 +42,28 @@ const onAdvance = async () => {
     handleApiResult(result);
 };
 
-const onSaveAddresses = async (data: any) => {
+const onSaveAddresses = async (data: UpdateAddressesRequest) => {
     const result = await store.updateOrderAddresses(orderId, data);
-    if (result.success) {
+    if (result.isSuccess) {
         showAddressDialog.value = false;
         await store.fetchOrderById(orderId);
     }
     handleApiResult(result);
 };
 
-const onAddItem = async (data: any) => {
+const onAddItem = async (data: AddOrderItemRequest) => {
     const result = await store.addOrderItem(orderId, data);
-    if (result.success) {
+    if (result.isSuccess) {
         showItemDialog.value = false;
         await store.fetchOrderById(orderId);
     }
     handleApiResult(result);
 };
 
-const onRefund = async (data: any) => {
+const onRefund = async (data: RefundPaymentRequest) => {
     if (!selectedPayment.value) return;
-    const result = await store.refundPayment(orderId, selectedPayment.value.id, data);
-    if (result.success) {
+    const result = await store.refundPayment(orderId, selectedPayment.value.id, data as unknown as Record<string, unknown>);
+    if (result.isSuccess) {
         showRefundDialog.value = false;
         selectedPayment.value = null;
         await store.fetchOrderById(orderId);

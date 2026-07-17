@@ -8,6 +8,9 @@ import { useConfirm } from 'primevue/useconfirm';
 import { variantService } from '../services/variant.service';
 import VariantGenerationDialog from './dialogs/VariantGenerationDialog.Component.vue';
 import VariantFormDialog from './VariantFormDialog.Component.vue';
+import type { VariantSummary, VariantDetail } from '../types/variant.domain.types';
+import type { CreateVariantRequest } from '../types/variant.request.types';
+import type { ServerResult } from '@/shared/api/types/result.types';
 
 const { t } = useI18n();
 
@@ -20,18 +23,18 @@ const { showToast } = useToast();
 const { formatCurrency } = useFormatter();
 const confirm = useConfirm();
 
-const variants = ref<any[]>([]);
+const variants = ref<VariantSummary[]>([]);
 const loading = ref(false);
 const showGenerator = ref(false);
 const showForm = ref(false);
-const selectedVariant = ref<any | null>(null);
+const selectedVariant = ref<VariantDetail | null>(null);
 
 const loadVariants = async () => {
     loading.value = true;
     try {
         const result = await variantService.listByProductId(props.productId);
-        if (result.success && result.data) {
-            variants.value = result.data || [];
+        if (result.isSuccess && result.value) {
+            variants.value = result.value || [];
         }
     } finally {
         loading.value = false;
@@ -43,12 +46,12 @@ const openCreate = () => {
     showForm.value = true;
 };
 
-const openEdit = async (variant: any) => {
+const openEdit = async (variant: VariantSummary) => {
     loading.value = true;
     try {
         const result = await variantService.getById(variant.id);
-        if (result.success && result.data) {
-            selectedVariant.value = result.data;
+        if (result.isSuccess && result.value) {
+            selectedVariant.value = result.value;
             showForm.value = true;
         }
     } finally {
@@ -56,9 +59,9 @@ const openEdit = async (variant: any) => {
     }
 };
 
-const onSaveVariant = async (data: any) => {
+const onSaveVariant = async (data: CreateVariantRequest) => {
     try {
-        let result: any;
+        let result: ServerResult<VariantDetail>;
         if (selectedVariant.value) {
             result = await variantService.update(selectedVariant.value.id, data);
         } else {
@@ -75,9 +78,9 @@ const onSaveVariant = async (data: any) => {
     }
 };
 
-const onDelete = (variant: any) => {
+const onDelete = (variant: VariantSummary) => {
     confirm.require({
-        message: (t('catalog.products.confirm.delete_message') || '').replace('{name}', variant.sku),
+        message: (t('catalog.products.confirm.delete_message') || '').replace('{name}', variant.sku ?? ''),
         header: t('catalog.products.confirm.delete_header'),
         icon: 'pi pi-exclamation-triangle',
         acceptClass: 'p-button-danger',

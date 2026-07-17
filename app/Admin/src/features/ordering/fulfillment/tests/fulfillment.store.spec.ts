@@ -28,10 +28,16 @@ describe('FulfillmentStore', () => {
       const mockData = [{ id: '1', number: 'ORD-1' }] as any;
       
       vi.mocked(fulfillmentService.getQueue).mockResolvedValue({
-        success: true,
-        data: mockData,
-        meta: { totalCount: 1 } as any
-      });
+        isSuccess: true,
+        statusCode: 200,
+        errors: [],
+        message: null,
+        metadata: null,
+        items: mockData,
+        page: 1,
+        pageSize: 50,
+        totalCount: 1,
+      } as any);
 
       await store.fetchQueue();
 
@@ -47,14 +53,25 @@ describe('FulfillmentStore', () => {
       const orderId = '1';
       
       vi.mocked(fulfillmentService.markAsShipped).mockResolvedValue({
-        success: true,
-        data: null as any
-      });
+        isSuccess: true,
+        statusCode: 200,
+        errors: [],
+        message: null,
+        metadata: null,
+        value: undefined,
+      } as any);
 
       vi.mocked(fulfillmentService.getQueue).mockResolvedValue({
-        success: true,
-        data: []
-      });
+        isSuccess: true,
+        statusCode: 200,
+        errors: [],
+        message: null,
+        metadata: null,
+        items: [],
+        page: 1,
+        pageSize: 50,
+        totalCount: 0,
+      } as any);
 
       await store.shipOrder(orderId, 'TRK-123');
 
@@ -67,9 +84,12 @@ describe('FulfillmentStore', () => {
       const orderId = '1';
       
       vi.mocked(fulfillmentService.markAsShipped).mockResolvedValue({
-        success: false,
-        data: null,
-        error: { title: 'Invalid inventory units' }
+        isSuccess: false,
+        statusCode: 500,
+        errors: [{ code: 'Error', message: 'Invalid inventory units', type: 4, metadata: null }],
+        message: 'Invalid inventory units',
+        metadata: null,
+        value: undefined,
       } as any);
 
       await store.shipOrder(orderId, 'TRK-123');

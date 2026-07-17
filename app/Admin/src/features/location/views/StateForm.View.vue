@@ -7,7 +7,7 @@ import { useStateStore } from '../stores/state.store'
 import { useCountryStore } from '../stores/country.store'
 import { useToast } from '@/shared/composables/toast.use'
 import { storeToRefs } from 'pinia'
-import type { State } from '../types/state.types'
+import type { State } from '../types/location.domain.types'
 
 const props = withDefaults(defineProps<{
   visible: boolean
@@ -58,13 +58,13 @@ watch(() => props.visible, (val) => {
 const onFormSubmit = submitForm(async (values) => {
   if (props.isEdit && props.item) {
     const result = await stateStore.updateState(props.item.id, values)
-    if (result.success) {
+    if (result.isSuccess) {
       showToast('success', 'Updated', 'State updated successfully')
       emit('saved')
     }
   } else {
     const result = await stateStore.createState(values)
-    if (result.success) {
+    if (result.isSuccess) {
       showToast('success', 'Created', 'State created successfully')
       emit('saved')
     }

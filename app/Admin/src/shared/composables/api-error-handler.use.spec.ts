@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { useApiErrorHandler } from './api-error-handler.use'
-import type { ApiResult } from '@/shared/api/types/api.types'
+import type { ServerResult } from '@/shared/api/types/result.types'
 
 const mockShowToast = vi.fn()
 vi.mock('./toast.use', () => ({
@@ -76,10 +76,13 @@ describe('useApiErrorHandler - Edge Cases', () => {
 
   it('should prioritize apiError over custom locales', () => {
     const { handleApiResult } = useApiErrorHandler()
-    const result: ApiResult<unknown> = {
-      success: false,
-      data: null,
-      error: { statusCode: 500, title: 'Server Error', detail: 'Actual error', message: 'Server Error', isSuccess: false, errors: {}, error_code: undefined },
+    const result: ServerResult<unknown> = {
+      isSuccess: false,
+      statusCode: 500,
+      errors: [{ code: 'ServerError', message: 'Server Error', type: 4, metadata: null }],
+      message: 'Server Error',
+      metadata: null,
+      value: null,
     }
 
     handleApiResult(result, {
@@ -87,15 +90,18 @@ describe('useApiErrorHandler - Edge Cases', () => {
       genericError: 'Custom Detail',
     })
 
-    expect(mockShowToast).toHaveBeenCalledWith('error', 'Server Error', 'Actual error')
+    expect(mockShowToast).toHaveBeenCalledWith('warn', 'Server Error', 'Server Error')
   })
 
   it('should use custom locales as fallback when apiError fields are missing', () => {
     const { handleApiResult } = useApiErrorHandler()
-    const result: ApiResult<unknown> = {
-      success: false,
-      data: null,
-      error: { statusCode: 500, title: null, detail: null, message: null, isSuccess: false, errors: {}, error_code: undefined },
+    const result: ServerResult<unknown> = {
+      isSuccess: false,
+      statusCode: 500,
+      errors: [],
+      message: null,
+      metadata: null,
+      value: null,
     }
 
     handleApiResult(result, {
@@ -121,7 +127,7 @@ describe('useApiErrorHandler - Edge Cases', () => {
 
   it('should handle handleApiResult without options', () => {
     const { handleApiResult } = useApiErrorHandler()
-    const result: ApiResult<unknown> = { success: true, data: {} }
+    const result: ServerResult<unknown> = { isSuccess: true, statusCode: 200, errors: [], message: null, metadata: null, value: {} }
 
     expect(handleApiResult(result)).toBe(true)
     expect(mockShowToast).not.toHaveBeenCalled()

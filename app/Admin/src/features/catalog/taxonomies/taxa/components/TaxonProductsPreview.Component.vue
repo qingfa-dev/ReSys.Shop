@@ -25,9 +25,9 @@ const loadPreview = async () => {
     pageSize: pageSize.value
   })
   
-  if (result.success && result.data) {
-    products.value = result.data.items
-    totalRecords.value = result.data.total_count
+  if (result.isSuccess && result.value) {
+    products.value = result.value.items
+    totalRecords.value = result.value.total_count
   } else {
     handleApiResult(result)
   }

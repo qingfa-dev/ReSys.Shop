@@ -2,7 +2,7 @@ import { defineStore } from 'pinia'
 import { ref } from 'vue'
 import { useToast } from '@/shared/composables/toast.use'
 import { stateService } from '../services/state.service'
-import type { State } from '../types/state.types'
+import type { State } from '../types/location.domain.types'
 
 export const useStateStore = defineStore('state', () => {
   const { showToast } = useToast()
@@ -14,11 +14,11 @@ export const useStateStore = defineStore('state', () => {
   async function fetchStates(params?: Record<string, unknown>) {
     loading.value = true
     const result = await stateService.list(params)
-    if (result.success) {
-      items.value = result.data
-      totalRecords.value = result.meta?.totalCount ?? result.data.length
+    if (result.isSuccess) {
+      items.value = result.items
+      totalRecords.value = result.totalCount ?? result.items.length
     } else {
-      showToast('error', 'Error', result.error?.detail || 'Failed to load states')
+      showToast('error', 'Error', result.errors?.[0]?.message || 'Failed to load states')
     }
     loading.value = false
     return result
@@ -31,10 +31,10 @@ export const useStateStore = defineStore('state', () => {
     return result
   }
 
-  async function createState(data: import('../types/state.types').StateCreateRequest) {
+  async function createState(data: import('../types/location.request.types').StateCreateRequest) {
     submitting.value = true
     const result = await stateService.create(data)
-    if (result.success) {
+    if (result.isSuccess) {
       showToast('success', 'Created', 'State created successfully')
       await fetchStates()
     }
@@ -42,10 +42,10 @@ export const useStateStore = defineStore('state', () => {
     return result
   }
 
-  async function updateState(id: string, data: import('../types/state.types').StateUpdateRequest) {
+  async function updateState(id: string, data: import('../types/location.request.types').StateUpdateRequest) {
     submitting.value = true
     const result = await stateService.update(id, data)
-    if (result.success) {
+    if (result.isSuccess) {
       showToast('success', 'Updated', 'State updated successfully')
       await fetchStates()
     }
@@ -56,7 +56,7 @@ export const useStateStore = defineStore('state', () => {
   async function deleteState(id: string) {
     loading.value = true
     const result = await stateService.delete(id)
-    if (result.success) {
+    if (result.isSuccess) {
       showToast('success', 'Deleted', 'State removed successfully')
       items.value = items.value.filter(i => i.id !== id)
       totalRecords.value--

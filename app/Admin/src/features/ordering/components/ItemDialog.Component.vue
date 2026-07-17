@@ -2,7 +2,7 @@
 import { ref } from 'vue';
 import { useProductStore } from '@/features/catalog/products/stores/product.store';
 import { useFormatter } from '@/shared/composables/formatter.use';
-import type { AddOrderItemRequest } from '../types/order.types';
+import type { AddOrderItemRequest } from '../types/order.request.types';
 
 const emit = defineEmits<{
     (e: 'save', data: AddOrderItemRequest): void;
@@ -25,8 +25,9 @@ const onSearchProduct = async (event: { query: string }) => {
     productsLoading.value = true;
     try {
         const res = await productStore.fetchProducts({ search: event.query, pageSize: 5 });
-        if (res.success && res.data) {
-            productResults.value = res.data;
+        if (res.isSuccess) {
+            const data = 'items' in res ? res.items : res.value;
+            if (data) productResults.value = data;
         }
     } finally {
         productsLoading.value = false;

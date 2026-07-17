@@ -5,7 +5,13 @@ import { useOrderStore } from '../stores/order.store';
 import { useProductStore } from '@/features/catalog/products/stores/product.store';
 import { useFormatter } from '@/shared/composables/formatter.use';
 import { useToast } from '@/shared/composables/toast.use';
-import type { CreateOrderRequest } from '../types/order.types';
+import type { CreateOrderRequest } from '../types/order.request.types';
+import type { ProductSummary } from '@/features/catalog/products/types/product.domain.types';
+import type { VariantSummary } from '@/features/catalog/products/types/variant.domain.types';
+
+interface OrderVariantSummary extends VariantSummary {
+  option_values?: Array<{ id: string; value: string; presentation?: string }>;
+}
 
 const router = useRouter();
 const orderStore = useOrderStore();
@@ -20,65 +26,54 @@ const selectedItems = ref<Array<{ variantId: string; sku: string; name: string; 
 
 // Product Search for adding items
 const productsLoading = ref(false);
-const productResults = ref<any[]>([]);
-const selectedProduct = ref<any>(null);
+const productResults = ref<ProductSummary[]>([]);
+const selectedProduct = ref<ProductSummary | null>(null);
 
 // Variant Selection
 const showVariantDialog = ref(false);
-const currentProductVariants = ref<any[]>([]);
-const selectedVariant = ref<any>(null);
+const currentProductVariants = ref<OrderVariantSummary[]>([]);
+const selectedVariant = ref<OrderVariantSummary | null>(null);
 
 const onSearchProduct = async (event: { query: string }) => {
     productsLoading.value = true;
     try {
         const res = await productStore.fetchProducts({ search: event.query, pageSize: 5 });
-        if (res.success && res.data) {
-            productResults.value = res.data;
+        if (res.isSuccess) {
+            const data = 'items' in res ? res.items : res.value;
+            if (data) productResults.value = data;
         }
     } finally {
         productsLoading.value = false;
     }
 };
 
-const onProductSelect = async (product: any) => {
-    // 1. Fetch variants for this product
+const onProductSelect = async (product: ProductSummary) => {
     productsLoading.value = true;
     try {
-        // Need to use variantService here ideally, or fetch via product store if available.
-        // Assuming we can use productStore to fetch details or we might need to import variantService.
-        // Let's import variantService.
-        // But for now, let's assume we fetch product details which might include variants?
-        // Actually productStore.fetchProductById updates current_product.
-        
-        // Let's use a direct call to variantService if possible or add it to imports.
-        // Since I can't add imports easily with replace, I'll rely on productStore to fetch details
-        // if it includes variants. Storefront mapping does, Admin usually does too.
-        
         await productStore.fetchProductById(product.id);
-        if (productStore.current_product && (productStore.current_product as any).variants) {
-             currentProductVariants.value = (productStore.current_product as any).variants;
+        if (productStore.current_product) {
+             currentProductVariants.value = productStore.current_product.variants;
              if (currentProductVariants.value.length === 1) {
-                 // Auto-select if only one
-                 addVariantToOrder(currentProductVariants.value[0], product);
+                 addVariantToOrder(currentProductVariants.value[0]!, product);
              } else {
                  showVariantDialog.value = true;
              }
         }
     } finally {
         productsLoading.value = false;
-        selectedProduct.value = null; // Reset search input
+        selectedProduct.value = null;
     }
 };
 
-const addVariantToOrder = (variant: any, product: any) => {
+const addVariantToOrder = (variant: VariantSummary, product: ProductSummary) => {
     const existing = selectedItems.value.find(i => i.variantId === variant.id);
     if (existing) {
         existing.quantity++;
     } else {
         selectedItems.value.push({
             variantId: variant.id,
-            sku: variant.sku,
-            name: `${product.name} - ${variant.sku}`, // or better name construction
+            sku: variant.sku ?? '',
+            name: `${product.name} - ${variant.sku ?? ''}`,
             price: variant.price,
             quantity: 1
         });
@@ -89,6 +84,12 @@ const addVariantToOrder = (variant: any, product: any) => {
 const onAddVariant = () => {
     if (selectedVariant.value && productStore.current_product) {
         addVariantToOrder(selectedVariant.value, productStore.current_product);
+    }
+};
+
+const addVariantFromDialog = (variant: OrderVariantSummary) => {
+    if (productStore.current_product) {
+        addVariantToOrder(variant, productStore.current_product);
     }
 };
 
@@ -120,7 +121,7 @@ const onSubmit = async () => {
     const result = await orderStore.createOrder(payload);
     loading.value = false;
 
-    if (result.success) {
+    if (result.isSuccess) {
         router.push({ name: 'ordering.orders.list' });
     }
 };
@@ -235,10 +236,10 @@ const onSubmit = async () => {
                 <p class="text-sm text-surface-500">Please select the specific variant to add.</p>
                 <div v-for="variant in currentProductVariants" :key="variant.id" 
                      class="flex justify-between items-center p-3 border rounded-xl cursor-pointer hover:bg-surface-50 dark:hover:bg-surface-800"
-                     @click="addVariantToOrder(variant, productStore.current_product)"
+                     @click="addVariantFromDialog(variant)"
                 >
                     <div class="flex flex-col">
-                        <span class="font-bold font-mono">{{ variant.sku }}</span>
+                        <span class="font-bold font-mono">{{ variant.sku ?? '' }}</span>
                         <!-- Display options if available -->
                         <div class="flex gap-1 mt-1" v-if="variant.option_values">
                             <Tag v-for="opt in variant.option_values" :key="opt.id" :value="opt.value" severity="secondary" class="text-xs" />

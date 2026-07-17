@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, onMounted, computed } from 'vue';
-import { authService, type ChangePasswordRequest } from '../services/auth.service';
+import { authService } from '../services/auth.service';
+import type { ChangePasswordFormData } from '../types/auth.model.types';
 import { useToast } from '@/shared/composables/toast.use';
 import { useFormatter } from '@/shared/composables/formatter.use';
 
@@ -11,7 +12,7 @@ const user = ref<any>(null);
 const loading = ref(false);
 const submitting = ref(false);
 
-const passwordForm = ref<ChangePasswordRequest>({
+const passwordForm = ref<ChangePasswordFormData>({
     current_password: '',
     new_password: '',
     confirm_new_password: ''
@@ -27,8 +28,8 @@ const notifications = ref({
 onMounted(async () => {
     loading.value = true;
     const result = await authService.getProfile();
-    if (result.success && result.data) {
-        user.value = result.data;
+    if (result.isSuccess && result.value) {
+        user.value = result.value;
     } else {
         showToast('error', 'Error', 'Failed to load user profile');
     }
@@ -52,11 +53,11 @@ async function onChangePassword() {
     }
     submitting.value = true;
     const result = await authService.changePassword(passwordForm.value);
-    if (result.success) {
+    if (result.isSuccess) {
         showToast('success', 'Success', 'Password updated successfully');
         passwordForm.value = { current_password: '', new_password: '', confirm_new_password: '' };
     } else {
-        const errMsg = result.error?.message || 'Failed to update password';
+        const errMsg = result.errors?.[0]?.message || 'Failed to update password';
         showToast('error', 'Error', errMsg);
     }
     submitting.value = false;

@@ -42,7 +42,7 @@ watch(profile, (val) => {
 
 const onFormSubmit = submitForm(async (values) => {
   const result = await store.updateProfile(values)
-  if (result.success) {
+  if (result.isSuccess) {
     showToast('success', 'Updated', 'Profile updated successfully')
   }
 })
