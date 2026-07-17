@@ -4,7 +4,7 @@ import { useCountryStore } from '../stores/country.store'
 import { storeToRefs } from 'pinia'
 import { useConfirm } from 'primevue/useconfirm'
 import { useToast } from '@/shared/composables/toast.use'
-import type { Country } from '../types/location.domain.types'
+import type { Country } from '../types/Country.Response.Type'
 import CountryForm from './CountryForm.View.vue'
 
 const store = useCountryStore()

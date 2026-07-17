@@ -2,7 +2,8 @@ import { defineStore } from 'pinia'
 import { ref } from 'vue'
 import { useToast } from '@/shared/composables/toast.use'
 import { countryService } from '../services/country.service'
-import type { Country } from '../types/location.domain.types'
+import type { Country } from '../types/Country.Response.Type'
+import type { CreateCountryRequest, UpdateCountryRequest } from '../types/Country.Request.Type'
 
 export const useCountryStore = defineStore('country', () => {
   const { showToast } = useToast()
@@ -31,7 +32,7 @@ export const useCountryStore = defineStore('country', () => {
     return result
   }
 
-  async function createCountry(data: import('../types/location.request.types').CountryCreateRequest) {
+  async function createCountry(data: CreateCountryRequest) {
     submitting.value = true
     const result = await countryService.create(data)
     if (result.isSuccess) {
@@ -42,7 +43,7 @@ export const useCountryStore = defineStore('country', () => {
     return result
   }
 
-  async function updateCountry(id: string, data: import('../types/location.request.types').CountryUpdateRequest) {
+  async function updateCountry(id: string, data: UpdateCountryRequest) {
     submitting.value = true
     const result = await countryService.update(id, data)
     if (result.isSuccess) {

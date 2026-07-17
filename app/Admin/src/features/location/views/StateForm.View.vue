@@ -2,12 +2,12 @@
 import { watch } from 'vue'
 import { useForm } from 'vee-validate'
 import { toTypedSchema } from '@vee-validate/zod'
-import { stateCreateSchema } from '../schemas/state.schema'
+import { StateSchema as stateCreateSchema } from '../schemas/State.Schema'
 import { useStateStore } from '../stores/state.store'
 import { useCountryStore } from '../stores/country.store'
 import { useToast } from '@/shared/composables/toast.use'
 import { storeToRefs } from 'pinia'
-import type { State } from '../types/location.domain.types'
+import type { State } from '../types/State.Response.Type'
 
 const props = withDefaults(defineProps<{
   visible: boolean

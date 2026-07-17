@@ -1,4 +1,5 @@
-import type { Country, State } from '../types/location.domain.types'
+import type { Country } from '../types/Country.Response.Type'
+import type { State } from '../types/State.Response.Type'
 
 export function mapCountryResponse(data: Country): Country {
   return data

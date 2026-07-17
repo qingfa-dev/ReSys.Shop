@@ -2,7 +2,8 @@ import { defineStore } from 'pinia'
 import { ref } from 'vue'
 import { useToast } from '@/shared/composables/toast.use'
 import { stateService } from '../services/state.service'
-import type { State } from '../types/location.domain.types'
+import type { State } from '../types/State.Response.Type'
+import type { CreateStateRequest, UpdateStateRequest } from '../types/State.Request.Type'
 
 export const useStateStore = defineStore('state', () => {
   const { showToast } = useToast()
@@ -31,7 +32,7 @@ export const useStateStore = defineStore('state', () => {
     return result
   }
 
-  async function createState(data: import('../types/location.request.types').StateCreateRequest) {
+  async function createState(data: CreateStateRequest) {
     submitting.value = true
     const result = await stateService.create(data)
     if (result.isSuccess) {
@@ -42,7 +43,7 @@ export const useStateStore = defineStore('state', () => {
     return result
   }
 
-  async function updateState(id: string, data: import('../types/location.request.types').StateUpdateRequest) {
+  async function updateState(id: string, data: UpdateStateRequest) {
     submitting.value = true
     const result = await stateService.update(id, data)
     if (result.isSuccess) {
