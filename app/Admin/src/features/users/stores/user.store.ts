@@ -2,8 +2,9 @@ import { defineStore } from 'pinia';
 import { ref } from 'vue';
 import { useToast } from '@/shared/composables/toast.use';
 import { userService } from '../services/user.service';
-import type { AdminUserSummary, CustomerSummary } from '../types/user.domain.types'
-import type { UserSearchParams, CreateAdminUserRequest, UpdateAdminUserRequest } from '../types/user.request.types';
+import type { AdminUserSummary, CustomerSummary } from '../types/User.Response.Type'
+import type { UserQuery } from '../types/User.Query.Type'
+import type { CreateAdminUserRequest, UpdateAdminUserRequest } from '../types/User.Request.Type';
 
 export const useUserStore = defineStore('user', () => {
   const { showToast } = useToast();
@@ -15,7 +16,7 @@ export const useUserStore = defineStore('user', () => {
   const submitting = ref(false);
   const error = ref<string | null>(null);
 
-  const query = ref<UserSearchParams>({
+  const query = ref<UserQuery>({
     page: 1,
     pageSize: 10,
     search: '',
@@ -25,7 +26,7 @@ export const useUserStore = defineStore('user', () => {
   const totalRecords = ref(0);
 
   // --- ACTIONS ---
-  async function fetchAdmins(params: UserSearchParams = {}) {
+  async function fetchAdmins(params: UserQuery = {}) {
     loading.value = true;
     query.value = { ...query.value, ...params };
     try {
@@ -40,7 +41,7 @@ export const useUserStore = defineStore('user', () => {
     }
   }
 
-  async function fetchCustomers(params: UserSearchParams = {}) {
+  async function fetchCustomers(params: UserQuery = {}) {
     loading.value = true;
     query.value = { ...query.value, ...params };
     try {

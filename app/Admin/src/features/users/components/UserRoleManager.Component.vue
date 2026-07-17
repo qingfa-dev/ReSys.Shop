@@ -3,7 +3,7 @@ import { ref, onMounted } from 'vue';
 import { useToast } from '@/shared/composables/toast.use';
 import { roleService } from '../services/role.service';
 import { userService } from '../services/user.service';
-import type { RoleSummary } from '../types/user.domain.types';
+import type { RoleSummary } from '../roles/types/Role.Response.Type';
 
 const props = defineProps<{
     userId: string;

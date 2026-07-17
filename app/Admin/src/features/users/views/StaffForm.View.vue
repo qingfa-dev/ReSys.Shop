@@ -4,7 +4,7 @@ import { useRoute, useRouter } from 'vue-router';
 import { useToast } from '@/shared/composables/toast.use';
 import { userService } from '../services/user.service';
 import { roleService } from '../services/role.service';
-import type { CreateAdminUserRequest, UpdateAdminUserRequest } from '../types/user.request.types';
+import type { CreateAdminUserRequest, UpdateAdminUserRequest } from '../types/User.Request.Type';
 
 const route = useRoute();
 const router = useRouter();
@@ -85,7 +85,8 @@ async function onSubmit() {
                 firstName: form.value.firstName,
                 lastName: form.value.lastName,
                 role: form.value.role,
-                password: form.value.password
+                password: form.value.password,
+                isActive: true
             };
             const res = await userService.create(createData);
             if (res.isSuccess) {

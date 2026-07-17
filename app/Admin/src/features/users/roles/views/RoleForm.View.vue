@@ -3,7 +3,7 @@ import { ref, onMounted, computed } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useToast } from '@/shared/composables/toast.use';
 import { roleService } from '../../services/role.service';
-import type { CreateRoleRequest, UpdateRoleRequest } from '../../types/user.request.types';
+import type { CreateRoleRequest, UpdateRoleRequest } from '../types/Role.Request.Type';
 
 const route = useRoute();
 const router = useRouter();

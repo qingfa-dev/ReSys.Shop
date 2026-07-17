@@ -2,8 +2,8 @@ import apiClient from '@/shared/api/http/api.client'
 import { IDENTITY } from '@/shared/api/constants'
 import type { ServerResult } from '@/shared/api/types/result.types'
 import type { ServerQueryingParameters } from '@/shared/api/types/query.types'
-import type { AdminUserSummary, CustomerSummary } from '../../users/types/user.domain.types'
-import type { CreateAdminUserRequest, UpdateAdminUserRequest } from '../../users/types/user.request.types'
+import type { AdminUserSummary, CustomerSummary } from '../../users/types/User.Response.Type'
+import type { CreateAdminUserRequest, UpdateAdminUserRequest } from '../../users/types/User.Request.Type'
 
 export const userRepository = {
   list: (params?: ServerQueryingParameters): Promise<ServerResult<AdminUserSummary[]>> =>

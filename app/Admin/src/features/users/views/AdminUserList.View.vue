@@ -9,7 +9,7 @@ import { useI18n } from 'vue-i18n';
 import AppBreadcrumb from '@/shared/components/Breadcrumb.Component.vue';
 import { FilterMatchMode } from '@primevue/core/api';
 import type { DataTablePageEvent, DataTableSortEvent, DataTableFilterMeta } from 'primevue/datatable';
-import type { AdminUserSummary } from '../types/user.domain.types';
+import type { AdminUserSummary } from '../types/User.Response.Type';
 
 const store = useUserStore();
 const { admins, loading, totalRecords, query } = storeToRefs(store);

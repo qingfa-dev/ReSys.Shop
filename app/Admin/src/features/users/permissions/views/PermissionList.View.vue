@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
 import { permissionService } from '../../services/permission.service';
-import type { PermissionSummary } from '../../types/user.domain.types';
+import type { PermissionSummary } from '../types/Permission.Response.Type';
 import type { DataTablePageEvent } from 'primevue/datatable';
 
 const permissions = ref<PermissionSummary[]>([]);

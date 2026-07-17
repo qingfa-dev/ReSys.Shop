@@ -3,7 +3,7 @@ import { ref, onMounted } from 'vue';
 import { useToast } from '@/shared/composables/toast.use';
 import { permissionService } from '../services/permission.service';
 import { userService } from '../services/user.service';
-import type { PermissionSummary } from '../types/user.domain.types';
+import type { PermissionSummary } from '../permissions/types/Permission.Response.Type';
 
 const props = defineProps<{
     userId: string;

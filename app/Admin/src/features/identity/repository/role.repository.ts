@@ -2,8 +2,8 @@ import apiClient from '@/shared/api/http/api.client'
 import { IDENTITY } from '@/shared/api/constants'
 import type { ServerResult } from '@/shared/api/types/result.types'
 import type { ServerQueryingParameters } from '@/shared/api/types/query.types'
-import type { RoleSummary } from '../../users/types/user.domain.types'
-import type { CreateRoleRequest, UpdateRoleRequest } from '../../users/types/user.request.types'
+import type { RoleSummary } from '../../users/roles/types/Role.Response.Type'
+import type { CreateRoleRequest, UpdateRoleRequest } from '../../users/roles/types/Role.Request.Type'
 
 export const roleRepository = {
   list: (params?: ServerQueryingParameters): Promise<ServerResult<RoleSummary[]>> =>

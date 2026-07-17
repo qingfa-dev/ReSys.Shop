@@ -4,7 +4,7 @@ import { useRoute, useRouter } from 'vue-router';
 import { useToast } from '@/shared/composables/toast.use';
 import { roleService } from '../../services/role.service';
 import { permissionService } from '../../services/permission.service';
-import type { PermissionSummary } from '../../types/user.domain.types';
+import type { PermissionSummary } from '../../permissions/types/Permission.Response.Type';
 
 const route = useRoute();
 const router = useRouter();

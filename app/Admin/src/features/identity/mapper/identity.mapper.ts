@@ -1,4 +1,6 @@
-import type { AdminUserSummary, CustomerSummary, RoleSummary, PermissionSummary } from '../../users/types/user.domain.types'
+import type { AdminUserSummary, CustomerSummary } from '../../users/types/User.Response.Type'
+import type { RoleSummary } from '../../users/roles/types/Role.Response.Type'
+import type { PermissionSummary } from '../../users/permissions/types/Permission.Response.Type'
 
 export function mapAdminUserSummary(dto: AdminUserSummary): AdminUserSummary {
   return dto

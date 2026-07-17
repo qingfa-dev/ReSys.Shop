@@ -2,8 +2,11 @@ import apiClient from '@/shared/api/http/api.client'
 import { IDENTITY } from '@/shared/api/constants'
 import type { ServerResult, ServerPagedResult } from '@/shared/api/types/result.types'
 import type { ServerQueryingParameters } from '@/shared/api/types/query.types'
-import type { AdminUserSummary, CustomerSummary, RoleSummary, PermissionSummary } from '../../users/types/user.domain.types'
-import type { CreateAdminUserRequest, UpdateAdminUserRequest, CreateRoleRequest, UpdateRoleRequest } from '../../users/types/user.request.types'
+import type { AdminUserSummary, CustomerSummary } from '../../users/types/User.Response.Type'
+import type { RoleSummary } from '../../users/roles/types/Role.Response.Type'
+import type { PermissionSummary } from '../../users/permissions/types/Permission.Response.Type'
+import type { CreateAdminUserRequest, UpdateAdminUserRequest } from '../../users/types/User.Request.Type'
+import type { CreateRoleRequest, UpdateRoleRequest } from '../../users/roles/types/Role.Request.Type'
 
 export const identityApi = {
   users: {

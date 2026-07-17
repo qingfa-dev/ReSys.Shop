@@ -5,7 +5,7 @@ import { useToast } from '@/shared/composables/toast.use';
 import { useConfirm } from 'primevue/useconfirm';
 import { roleService } from '../../services/role.service';
 import AppBreadcrumb from '@/shared/components/Breadcrumb.Component.vue';
-import type { RoleSummary } from '../../types/user.domain.types';
+import type { RoleSummary } from '../types/Role.Response.Type';
 import type { DataTablePageEvent } from 'primevue/datatable';
 
 const router = useRouter();

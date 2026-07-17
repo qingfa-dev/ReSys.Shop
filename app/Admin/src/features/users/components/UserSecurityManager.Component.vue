@@ -4,7 +4,7 @@ import { useToast } from '@/shared/composables/toast.use';
 import { useConfirm } from 'primevue/useconfirm';
 import { useFormatter } from '@/shared/composables/formatter.use';
 import { userService } from '../services/user.service';
-import type { AdminUserSummary } from '../types/user.domain.types';
+import type { AdminUserSummary } from '../types/User.Response.Type';
 import { useI18n } from 'vue-i18n';
 
 const props = defineProps<{
