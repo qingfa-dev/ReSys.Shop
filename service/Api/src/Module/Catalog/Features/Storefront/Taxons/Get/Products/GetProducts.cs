@@ -45,7 +45,10 @@ public static partial class GetProducts
                 .AsNoTracking();
 
             // Parse: Validate and parse querying parameters
-            var parsing = parameters.ParseAll();
+            var parsing = parameters.ParseAll(
+                allowedFilterFields: ProductConstant.Query.AllowedFilterFields,
+                allowedSearchFields: ProductConstant.Query.AllowedSearchFields,
+                allowedSortFields: ProductConstant.Query.AllowedSortFields);
             if (parsing.IsFailure)
                 return parsing.Errors;
 

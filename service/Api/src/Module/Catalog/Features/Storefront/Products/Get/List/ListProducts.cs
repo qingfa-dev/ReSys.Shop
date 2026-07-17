@@ -42,16 +42,10 @@ public static partial class ListProducts
                     query = query.Where(predicate);
             }
 
-            var allowedSearchFields = new HashSet<string>(StringComparer.OrdinalIgnoreCase) { "Name", "Slug", "Description" };
-            var allowedSortFields = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
-            {
-                "Name", "Slug", "AvailableOn", "CreatedAtUtc", "Variants.Prices.Amount"
-            };
-
             var parsing = parameters.ParseAll(
-                StorefrontProductFilterAliases.CanonicalFields,
-                allowedSearchFields,
-                allowedSortFields);
+                allowedFilterFields: ProductConstant.Query.AllowedFilterFields,
+                allowedSearchFields: ProductConstant.Query.AllowedSearchFields,
+                allowedSortFields: ProductConstant.Query.AllowedSortFields);
             if (parsing.IsFailure)
                 return parsing.Errors;
 

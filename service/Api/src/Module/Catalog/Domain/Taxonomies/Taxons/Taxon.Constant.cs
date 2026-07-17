@@ -33,23 +33,23 @@ public static class TaxonConstant
 
     public static class Query
     {
-        public static readonly string[] AllowedSearchFields =
-        [
+        public static IReadOnlySet<string> AllowedSearchFields { get; } = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+        {
             nameof(Taxon.Name),
             nameof(Taxon.Presentation),
             nameof(Taxon.Slug)
-        ];
+        };
 
-        public static readonly string[] AllowedSortFields =
-        [
+        public static IReadOnlySet<string> AllowedSortFields { get; } = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+        {
             nameof(Taxon.Name),
             nameof(Taxon.Presentation),
             nameof(Taxon.Position),
             nameof(Taxon.Depth)
-        ];
+        };
 
-        public static readonly string[] AllowedFilterFields =
-        [
+        public static IReadOnlySet<string> AllowedFilterFields { get; } = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+        {
             nameof(Taxon.Name),
             nameof(Taxon.Presentation),
             nameof(Taxon.Slug),
@@ -57,6 +57,6 @@ public static class TaxonConstant
             nameof(Taxon.Lft),
             nameof(Taxon.Rgt),
             nameof(Taxon.Depth)
-        ];
+        };
     }
 }

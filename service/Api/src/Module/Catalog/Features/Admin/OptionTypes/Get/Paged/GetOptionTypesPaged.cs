@@ -25,7 +25,10 @@ public static partial class GetOptionTypesPaged
             var parameters = request.Parameters;
 
             // Parse: Validate and parse querying parameters for pagination, filtering, and sorting
-            var parseAll = parameters.ParseAll();
+            var parseAll = parameters.ParseAll(
+                allowedFilterFields: OptionTypeConstant.Query.AllowedFilterFields,
+                allowedSearchFields: OptionTypeConstant.Query.AllowedSearchFields,
+                allowedSortFields: OptionTypeConstant.Query.AllowedSortFields);
             if (parseAll.IsFailure)
                 return parseAll.Errors;
 

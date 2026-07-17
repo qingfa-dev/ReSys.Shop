@@ -28,7 +28,10 @@ public static partial class GetAllOptionTypes
                 .AsNoTracking();
 
             // Parse: Validate and parse querying parameters
-            var parsing = parameters.ParseAll();
+            var parsing = parameters.ParseAll(
+                allowedFilterFields: OptionTypeConstant.Query.AllowedFilterFields,
+                allowedSearchFields: OptionTypeConstant.Query.AllowedSearchFields,
+                allowedSortFields: OptionTypeConstant.Query.AllowedSortFields);
             if (parsing.IsFailure)
                 return parsing.Errors;
 

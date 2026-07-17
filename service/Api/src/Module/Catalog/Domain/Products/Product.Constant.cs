@@ -38,8 +38,8 @@ public static class ProductConstant
     /// </summary>
     public static class Query
     {
-        public static readonly string[] AllowedSearchFields =
-        [
+        public static IReadOnlySet<string> AllowedSearchFields { get; } = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+        {
             nameof(Product.Name),
             nameof(Product.Description),
             nameof(Product.Slug),
@@ -47,26 +47,26 @@ public static class ProductConstant
             nameof(Product.SeasonName),
             nameof(Product.Department),
             nameof(Product.GenderTarget)
-        ];
+        };
 
-        public static readonly string[] AllowedSortFields =
-        [
+        public static IReadOnlySet<string> AllowedSortFields { get; } = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+        {
             nameof(Product.Name),
             nameof(Product.CreatedAtUtc),
             nameof(Product.ModifiedAtUtc),
-            nameof(Product.AvailableOn)
-        ];
+            nameof(Product.AvailableOn),
+            "Variants.Prices.Amount"
+        };
 
-        public static readonly string[] AllowedFilterFields =
-        [
+        public static IReadOnlySet<string> AllowedFilterFields { get; } = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+        {
             nameof(Product.Status),
             nameof(Product.IsDeleted),
             nameof(Product.CreatedAtUtc),
             nameof(Product.AvailableOn),
             nameof(Product.StyleCode),
             nameof(Product.SeasonName),
-            nameof(Product.Department),
-            nameof(Product.AvailableOn)
-        ];
+            nameof(Product.Department)
+        };
     }
 }

@@ -26,7 +26,10 @@ public static partial class GetTaxonomiesPaged
 
             // Load: Start with the base set of taxonomies.
             // Parse: Validate and parse querying parameters
-            var parsing = parameters.ParseAll();
+            var parsing = parameters.ParseAll(
+                allowedFilterFields: TaxonomyConstant.Query.AllowedFilterFields,
+                allowedSearchFields: TaxonomyConstant.Query.AllowedSearchFields,
+                allowedSortFields: TaxonomyConstant.Query.AllowedSortFields);
             if (parsing.IsFailure)
                 return parsing.Errors;
 

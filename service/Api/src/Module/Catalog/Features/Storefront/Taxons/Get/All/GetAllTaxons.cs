@@ -39,7 +39,10 @@ public static partial class GetAllTaxons
                 query = query.Where(t => t.TaxonomyId == parameters.TaxonomyId.Value);
 
             // Parse: Validate and parse querying parameters
-            var parsing = parameters.ParseAll();
+            var parsing = parameters.ParseAll(
+                allowedFilterFields: TaxonConstant.Query.AllowedFilterFields,
+                allowedSearchFields: TaxonConstant.Query.AllowedSearchFields,
+                allowedSortFields: TaxonConstant.Query.AllowedSortFields);
             if (parsing.IsFailure)
                 return parsing.Errors;
 

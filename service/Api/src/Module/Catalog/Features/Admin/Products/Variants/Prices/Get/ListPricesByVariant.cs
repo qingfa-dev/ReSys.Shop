@@ -42,7 +42,10 @@ public static partial class ListPricesByVariant
 
             // Paginate: Apply query options and return paged or all results
             // Parse: Validate and parse querying parameters
-            var parsing = parameters.ParseAll();
+            var parsing = parameters.ParseAll(
+                allowedFilterFields: PriceConstant.Query.AllowedFilterFields,
+                allowedSearchFields: PriceConstant.Query.AllowedSearchFields,
+                allowedSortFields: PriceConstant.Query.AllowedSortFields);
             if (parsing.IsFailure)
                 return parsing.Errors;
 

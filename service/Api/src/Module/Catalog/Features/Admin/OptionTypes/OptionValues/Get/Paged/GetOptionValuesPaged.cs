@@ -23,7 +23,10 @@ public static partial class GetOptionValuesPaged
         public async Task<PagedResult<Response>> Handle(Query request, CancellationToken cancellationToken)
         {
             // Parse: Validate and parse querying parameters
-            var parametersResult = request.Parameters.ParseAll();
+            var parametersResult = request.Parameters.ParseAll(
+                allowedFilterFields: OptionValueConstant.Query.AllowedFilterFields,
+                allowedSearchFields: OptionValueConstant.Query.AllowedSearchFields,
+                allowedSortFields: OptionValueConstant.Query.AllowedSortFields);
 
             // Load: Retrieve option values, apply filtering/sorting, and project to paged result
             if (parametersResult.IsFailure)

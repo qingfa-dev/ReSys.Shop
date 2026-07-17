@@ -28,26 +28,26 @@ public static class PriceConstant
 
     public static class Query
     {
-        public static readonly string[] AllowedSearchFields =
-        [
+        public static IReadOnlySet<string> AllowedSearchFields { get; } = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+        {
             nameof(Price.Currency),
             nameof(Price.CountryIso)
-        ];
+        };
 
-        public static readonly string[] AllowedSortFields =
-        [
+        public static IReadOnlySet<string> AllowedSortFields { get; } = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+        {
             nameof(Price.Amount),
             nameof(Price.Currency),
             nameof(Price.CompareAtAmount)
-        ];
+        };
 
-        public static readonly string[] AllowedFilterFields =
-        [
+        public static IReadOnlySet<string> AllowedFilterFields { get; } = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+        {
             nameof(Price.Currency),
             nameof(Price.CountryIso),
             nameof(Price.IsDefault),
             nameof(Price.PriceListId),
             nameof(Price.CompareAtAmount)
-        ];
+        };
     }
 }
