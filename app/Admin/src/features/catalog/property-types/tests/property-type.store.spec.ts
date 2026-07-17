@@ -2,7 +2,6 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { setActivePinia, createPinia } from 'pinia';
 import { usePropertyTypeStore } from '../stores/property-type.store';
 import { propertyTypeService } from '../services/property-type.service';
-import { PropertyKind } from '../types/property-type.domain.types';
 
 vi.mock('../services/property-type.service', () => ({
   propertyTypeService: {
@@ -22,8 +21,8 @@ describe('PropertyTypeStore', () => {
 
   it('should fetch list successfully', async () => {
     const store = usePropertyTypeStore();
-    const mockData = [{ id: '1', name: 'Material', presentation: 'Mat', kind: PropertyKind.String, position: 0, filterable: false }];
-    vi.mocked(propertyTypeService.list).mockResolvedValue({ success: true, data: mockData, meta: { totalCount: 1 } } as any);
+    const mockData = [{ id: '1', name: 'Material', presentation: 'Mat', kind: 'String', position: 0, filterable: false }];
+    vi.mocked(propertyTypeService.list).mockResolvedValue({ isSuccess: true, value: mockData } as any);
 
     await store.fetchList();
 
@@ -34,7 +33,7 @@ describe('PropertyTypeStore', () => {
   it('should fetch by id successfully', async () => {
     const store = usePropertyTypeStore();
     const mockItem = { id: '1', name: 'Material' };
-    vi.mocked(propertyTypeService.getById).mockResolvedValue({ success: true, data: mockItem } as any);
+    vi.mocked(propertyTypeService.getById).mockResolvedValue({ isSuccess: true, value: mockItem } as any);
 
     await store.fetchById('1');
 

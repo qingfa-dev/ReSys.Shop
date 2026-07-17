@@ -1,13 +1,12 @@
 import { describe, it, expect } from 'vitest';
-import { PropertyTypeSchema } from '../schemas/property-type.schema';
-import { PropertyKind } from '../types/property-type.domain.types';
+import { PropertyTypeSchema } from '../schemas/PropertyType.Schema';
 
 describe('PropertyTypeSchema', () => {
   it('should validate a correct property type', () => {
     const validData = {
       name: 'material',
       presentation: 'Material',
-      kind: PropertyKind.String,
+      kind: 'String' as const,
       position: 1,
       filterable: true
     };
@@ -24,6 +23,6 @@ describe('PropertyTypeSchema', () => {
   it('should default to String kind', () => {
     const minimalData = { name: 'n', presentation: 'p' };
     const result = PropertyTypeSchema.parse(minimalData);
-    expect(result.kind).toBe(PropertyKind.String);
+    expect(result.kind).toBe('String');
   });
 });

@@ -6,10 +6,10 @@ import { usePropertyTypeStore } from '../stores/property-type.store'
 import { storeToRefs } from 'pinia'
 import { useForm } from 'vee-validate'
 import { toTypedSchema } from '@vee-validate/zod'
-import { PropertyTypeSchema } from '../schemas/property-type.schema'
+import { PropertyTypeSchema } from '../schemas/PropertyType.Schema'
 import { useApiErrorHandler } from '@/shared/composables/api-error-handler.use'
 import AppBreadcrumb from '@/shared/components/Breadcrumb.Component.vue'
-import { PropertyKind, PropertyKindOptions } from '../types/property-type.domain.types'
+import { PropertyKindOptions } from '../types/PropertyType.Response.Type'
 import MetadataManager from '@/shared/components/MetadataManager.Component.vue'
 
 const { t } = useI18n()
@@ -30,7 +30,7 @@ const { defineField, handleSubmit, errors, setValues, setErrors, values } = useF
   initialValues: {
     name: '',
     presentation: '',
-    kind: PropertyKind.String,
+    kind: 'String' as const,
     position: 0,
     filterable: false
   },

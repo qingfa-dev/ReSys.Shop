@@ -10,8 +10,8 @@ import { useToast } from '@/shared/composables/toast.use'
 import { useConfirm } from 'primevue/useconfirm'
 import AppBreadcrumb from '@/shared/components/Breadcrumb.Component.vue'
 import { QueryBuilder } from '@/shared/utils/query-builder.utils'
-import type { PropertyTypeListItem } from '../types/property-type.domain.types'
-import { PropertyKindOptions } from '../types/property-type.domain.types'
+import type { PropertyTypeListItem } from '../types/PropertyType.Response.Type'
+import { PropertyKindOptions } from '../types/PropertyType.Response.Type'
 
 const { t } = useI18n()
 const router = useRouter()
@@ -105,7 +105,7 @@ const confirmDelete = (item: PropertyTypeListItem) => {
   })
 }
 
-const getKindLabel = (kind: number) => {
+const getKindLabel = (kind: string) => {
     return PropertyKindOptions.find(o => o.value === kind)?.label || 'Unknown'
 }
 

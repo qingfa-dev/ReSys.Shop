@@ -2,8 +2,9 @@ import { defineStore } from 'pinia';
 import { ref } from 'vue';
 import { usePagedList } from '@/shared/composables/paged-list.use';
 import { propertyTypeService } from '../services/property-type.service';
-import type { PropertyTypeListItem, PropertyTypeDetail } from '../types/property-type.domain.types'
-import type { CreatePropertyTypeRequest, UpdatePropertyTypeRequest, PropertyTypeQuery } from '../types/property-type.request.types'
+import type { PropertyTypeListItem, PropertyTypeDetail } from '../types/PropertyType.Response.Type'
+import type { CreatePropertyTypeRequest, UpdatePropertyTypeRequest } from '../types/PropertyType.Request.Type'
+import type { PropertyTypeQuery } from '../types/PropertyType.Query.Type'
 import type { ServerResult } from '@/shared/api/types/result.types'
 
 export const usePropertyTypeStore = defineStore('property-type', () => {
