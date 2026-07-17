@@ -18,7 +18,10 @@ public static partial class GetPagedPaymentMethods
         public async Task<PagedResult<Response>> Handle(Query request, CancellationToken cancellationToken)
         {
             // Parse: Query parameters — validates filters, sorting, pagination
-            var parsing = request.Parameters.ParseAll();
+            var parsing = request.Parameters.ParseAll(
+                allowedFilterFields: PaymentMethodConstant.Query.AllowedFilterFields.ToHashSet(StringComparer.OrdinalIgnoreCase),
+                allowedSearchFields: PaymentMethodConstant.Query.AllowedSearchFields.ToHashSet(StringComparer.OrdinalIgnoreCase),
+                allowedSortFields: PaymentMethodConstant.Query.AllowedSortFields.ToHashSet(StringComparer.OrdinalIgnoreCase));
             if (parsing.IsFailure)
                 return parsing.Errors;
 

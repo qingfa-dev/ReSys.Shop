@@ -26,5 +26,7 @@ public static class StockReservationConstant
             nameof(StockReservation.ExpiresAtUtc),
             nameof(StockReservation.CreatedAtUtc)
         ];
+
+        public static readonly string[] AllowedSearchFields = [];
     }
 }

@@ -22,7 +22,10 @@ public static partial class GetProfilesPagedOrAll
         {
             var parameters = request.Parameters;
 
-            var parsing = parameters.ParseAll();
+            var parsing = parameters.ParseAll(
+                allowedFilterFields: UserProfileConstant.Query.AllowedFilterFields.ToHashSet(StringComparer.OrdinalIgnoreCase),
+                allowedSearchFields: UserProfileConstant.Query.AllowedSearchFields.ToHashSet(StringComparer.OrdinalIgnoreCase),
+                allowedSortFields: UserProfileConstant.Query.AllowedSortFields.ToHashSet(StringComparer.OrdinalIgnoreCase));
             if (parsing.IsFailure)
                 return PagedResult<Response>.Create(errors: parsing.Errors);
 

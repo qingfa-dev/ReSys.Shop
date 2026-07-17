@@ -29,5 +29,7 @@ public static class LineItemConstant
             nameof(LineItem.OrderId),
             nameof(LineItem.VariantId)
         ];
+
+        public static readonly string[] AllowedSearchFields = [];
     }
 }

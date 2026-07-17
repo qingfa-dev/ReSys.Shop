@@ -19,7 +19,10 @@ public static partial class GetPagedOrders
         {
             // Contract: pre=request!=null, post=result!=null
             // Validate: Parse and validate paging/filtering/sorting parameters.
-            var parsing = request.Parameters.ParseAll();
+            var parsing = request.Parameters.ParseAll(
+                allowedFilterFields: OrderConstant.Query.AllowedFilterFields.ToHashSet(StringComparer.OrdinalIgnoreCase),
+                allowedSearchFields: OrderConstant.Query.AllowedSearchFields.ToHashSet(StringComparer.OrdinalIgnoreCase),
+                allowedSortFields: OrderConstant.Query.AllowedSortFields.ToHashSet(StringComparer.OrdinalIgnoreCase));
             if (parsing.IsFailure)
                 return parsing.Errors;
 

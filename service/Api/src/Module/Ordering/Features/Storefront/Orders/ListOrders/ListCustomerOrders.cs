@@ -26,7 +26,10 @@ public static partial class ListCustomerOrders
                 return PagedResult<Response>.Create();
 
             // Validate: Parse querying parameters (sort, filter, page).
-            var parseAll = parameters.ParseAll();
+            var parseAll = parameters.ParseAll(
+                allowedFilterFields: OrderConstant.Query.AllowedFilterFields.ToHashSet(StringComparer.OrdinalIgnoreCase),
+                allowedSearchFields: OrderConstant.Query.AllowedSearchFields.ToHashSet(StringComparer.OrdinalIgnoreCase),
+                allowedSortFields: OrderConstant.Query.AllowedSortFields.ToHashSet(StringComparer.OrdinalIgnoreCase));
             if (parseAll.IsFailure)
                 return parseAll.Errors;
 

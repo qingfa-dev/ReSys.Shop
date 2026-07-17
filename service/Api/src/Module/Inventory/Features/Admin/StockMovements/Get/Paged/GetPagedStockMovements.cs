@@ -33,7 +33,10 @@ public static partial class GetPagedStockMovements
                 query = query.Where(m => m.StockLocationId == parameters.StockLocationId.Value);
 
             // Parse: Validate and parse querying parameters for pagination, filtering, and sorting
-            var parseAll = parameters.ParseAll();
+            var parseAll = parameters.ParseAll(
+                allowedFilterFields: StockMovementConstant.Query.AllowedFilterFields.ToHashSet(StringComparer.OrdinalIgnoreCase),
+                allowedSearchFields: StockMovementConstant.Query.AllowedSearchFields.ToHashSet(StringComparer.OrdinalIgnoreCase),
+                allowedSortFields: StockMovementConstant.Query.AllowedSortFields.ToHashSet(StringComparer.OrdinalIgnoreCase));
             if (parseAll.IsFailure)
                 return parseAll.Errors;
 
