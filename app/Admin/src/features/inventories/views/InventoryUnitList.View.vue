@@ -3,11 +3,13 @@ import { onMounted, ref } from 'vue';
 import { useInventoryStore } from '../stores/inventory.store';
 import { storeToRefs } from 'pinia';
 import { useFormatter } from '@/shared/composables/formatter.use';
-import { inventoryLocales as t } from '../locales/inventory.locales';
-import AppBreadcrumb from '@/shared/components/breadcrumb.component.vue';
+import { useI18n } from 'vue-i18n';
+import AppBreadcrumb from '@/shared/components/Breadcrumb.Component.vue';
 import { FilterMatchMode } from '@primevue/core/api';
 import type { DataTablePageEvent, DataTableSortEvent, DataTableFilterMeta } from 'primevue/datatable';
 import type { InventoryUnit } from '../types/inventory.types';
+
+const { t } = useI18n();
 
 const store = useInventoryStore();
 const { units, loading, totalUnits, unitQuery } = storeToRefs(store);
@@ -82,7 +84,7 @@ const getStatusSeverity = (state: string) => {
                     </div>
                 </template>
 
-                <Column field="sku" :header="t.table.sku" sortable>
+                <Column field="sku" :header="t('inventory.table.sku')" sortable>
                     <template #body="{ data }">
                         <span class="font-mono text-xs font-bold">{{ data.sku }}</span>
                     </template>
@@ -97,7 +99,7 @@ const getStatusSeverity = (state: string) => {
                     </template>
                 </Column>
 
-                <Column field="state" :header="t.table.status" sortable class="text-center">
+                <Column field="state" :header="t('inventory.table.status')" sortable class="text-center">
                     <template #body="{ data }">
                         <Tag :value="data.state" :severity="getStatusSeverity(data.state)" rounded class="px-3" />
                     </template>
@@ -109,7 +111,7 @@ const getStatusSeverity = (state: string) => {
                     </template>
                 </Column>
 
-                <Column :header="t.table.actions" class="w-24 text-right" frozen alignFrozen="right">
+                <Column :header="t('inventory.table.actions')" class="w-24 text-right" frozen alignFrozen="right">
                     <template #body="{ data }">
                         <div class="flex justify-end gap-1">
                             <Button icon="pi pi-pencil" severity="secondary" text rounded v-tooltip.top="'Edit Serial'" />

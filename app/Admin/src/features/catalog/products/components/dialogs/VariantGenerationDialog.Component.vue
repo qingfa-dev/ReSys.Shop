@@ -1,14 +1,16 @@
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue';
+import { useI18n } from 'vue-i18n';
 import { useOptionTypeStore } from '@/features/catalog/option-types/stores/option-type.store';
 import { useOptionValueStore } from '@/features/catalog/option-types/option-values/stores/option-value.store';
 import { useProductStore } from '../../stores/product.store';
 import { productService } from '../../services/product.service';
 import { variantService } from '../../services/variant.service';
-import { productLocales as t } from '../../locales/product.locales';
 import { useToast } from '@/shared/composables/toast.use';
 import apiClient from '@/shared/api/http/api.client';
 import type { ApiResult } from '@/shared/api/types/api.types';
+
+const { t } = useI18n();
 
 const props = defineProps<{
     productId: string;
@@ -26,34 +28,21 @@ const activeStep = ref(0);
 const loading = ref(false);
 const generating = ref(false);
 
-// State for the wizard
 const assignedOptionTypes = ref<any[]>([]);
-const selectedValues = ref<Record<string, any[]>>({}); // Key: OptionTypeID, Value: List of OptionValue objects
+const selectedValues = ref<Record<string, any[]>>({});
 const generatedPreview = ref<any[]>([]);
-
-// --- STEP 1: LOAD & SELECT ---
 
 const loadOptionData = async () => {
     loading.value = true;
     try {
-        // 1. Get assigned types from product store or API
         const response = await productService.getOptionTypes(props.productId);
         if (response.success && response.data) {
-            // We need full details (presentation, id)
-            // The API might return just IDs or summaries. Let's hydrate from the store if needed or use what's returned.
-            // Assuming API returns { id, name, presentation }
             assignedOptionTypes.value = response.data;
 
-            // 2. Load values for each type
             for (const type of assignedOptionTypes.value) {
-                // If not already in store, fetch. The store action 'fetchValues' populates 'values' ref.
-                // But we need values for *multiple* types simultaneously.
-                // Ideally, we fetch from API directly here to avoid store conflicts or use a tailored service method.
                 const valResponse = await optionValueStore.fetchValues(type.id);
-                // We'll store them locally for selection
                 if (valResponse.success && valResponse.data) {
                     type.availableValues = valResponse.data;
-                    // Default: Select all? Or select none. Let's select none.
                     if (!selectedValues.value[type.id]) {
                         selectedValues.value[type.id] = [];
                     }
@@ -65,10 +54,7 @@ const loadOptionData = async () => {
     }
 };
 
-// --- STEP 2: PREVIEW ---
-
 const generateCombinations = () => {
-    // 1. Filter out types that have NO values selected
     const activeTypes = assignedOptionTypes.value.filter(t => {
         const values = selectedValues.value[t.id];
         return values && values.length > 0;
@@ -79,14 +65,11 @@ const generateCombinations = () => {
         return;
     }
 
-    // 2. Cartesian Product
-    // Start with the values of the first type
     const firstTypeValues = selectedValues.value[activeTypes[0].id];
     if (!firstTypeValues) return;
 
     let combinations: any[][] = firstTypeValues.map(v => [v]);
 
-    // Iterate through the remaining types
     for (let i = 1; i < activeTypes.length; i++) {
         const typeId = activeTypes[i].id;
         const values = selectedValues.value[typeId];
@@ -104,17 +87,15 @@ const generateCombinations = () => {
         combinations = nextCombinations;
     }
 
-    // 3. Map to Preview Objects
     generatedPreview.value = combinations.map(combo => {
-        // Generate a name/sku suffix
         const nameSuffix = combo.map(v => v.presentation || v.name).join(' / ');
         const skuSuffix = combo.map(v => (v.name || '').toUpperCase().substring(0, 3)).join('-');
         
         return {
             name_suffix: nameSuffix,
             sku_suffix: skuSuffix,
-            price_offset: 0, // Could allow editing this in preview
-            options: combo // The actual values to link
+            price_offset: 0,
+            options: combo
         };
     });
 };
@@ -130,16 +111,12 @@ const prevStep = () => {
     activeStep.value = 0;
 };
 
-// --- STEP 3: EXECUTE ---
-
 const confirmGeneration = async () => {
     generating.value = true;
     let successCount = 0;
     let failCount = 0;
 
     try {
-        // We will loop and create variants one by one.
-        // A bulk endpoint would be better for performance, but this is safer without backend changes.
         for (const variant of generatedPreview.value) {
             const payload = {
                 productId: props.productId,
@@ -148,9 +125,6 @@ const confirmGeneration = async () => {
                 option_values: variant.options.map((o: any) => o.id),
             };
 
-            // Strategy: Create Variant -> Add Option Values
-            
-            // 1. Create
             const createRes = await variantService.create(props.productId, {
                 sku: payload.sku,
                 price: payload.price,
@@ -158,7 +132,6 @@ const confirmGeneration = async () => {
             });
 
             if (createRes.success && createRes.data) {
-                // 2. Link Options
                 const variantId = createRes.data.id;
                 await variantService.updateOptionValues(variantId, payload.option_values);
                 successCount++;
@@ -201,14 +174,12 @@ watch(() => props.visible, (val) => {
         :closable="!generating"
     >
         <div class="flex flex-col gap-6">
-            <!-- Stepper / Info -->
             <div class="flex items-center gap-4 text-sm text-surface-500 mb-2">
                 <span :class="{'font-bold text-primary': activeStep === 0}">1. Select Options</span>
                 <i class="pi pi-chevron-right text-xs"></i>
                 <span :class="{'font-bold text-primary': activeStep === 1}">2. Preview & Generate</span>
             </div>
 
-            <!-- STEP 1 -->
             <div v-if="activeStep === 0" class="flex flex-col gap-6">
                 <p class="text-sm text-surface-600 m-0">
                     Select the option values you want to combine. A variant will be created for every possible combination.
@@ -239,7 +210,6 @@ watch(() => props.visible, (val) => {
                 </div>
             </div>
 
-            <!-- STEP 2 -->
             <div v-if="activeStep === 1" class="flex flex-col gap-4">
                 <div class="flex items-center justify-between">
                     <span class="font-bold">Preview</span>

@@ -1,18 +1,19 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
 import { usePropertyTypeStore } from '../stores/property-type.store'
 import { storeToRefs } from 'pinia'
-import { propertyTypeLocales } from '../locales/property-type.locales'
 import { FilterMatchMode, FilterOperator } from '@primevue/core/api'
 import type { DataTablePageEvent, DataTableSortEvent, DataTableFilterMeta } from 'primevue/datatable'
 import { useToast } from '@/shared/composables/toast.use'
 import { useConfirm } from 'primevue/useconfirm'
-import AppBreadcrumb from '@/shared/components/breadcrumb.component.vue'
+import AppBreadcrumb from '@/shared/components/Breadcrumb.Component.vue'
 import { QueryBuilder } from '@/shared/utils/query-builder.utils'
 import type { PropertyTypeListItem } from '../types/property-type.types'
 import { PropertyKindOptions } from '../types/property-kind'
 
+const { t } = useI18n()
 const router = useRouter()
 const store = usePropertyTypeStore()
 const { items, loading, totalRecords, params: query } = storeToRefs(store)
@@ -89,17 +90,17 @@ const editItem = (id: string) => {
 const confirmDelete = (item: PropertyTypeListItem) => {
   confirm.require({
     message: `Are you sure you want to delete "${item.name}"?`,
-    header: propertyTypeLocales.common?.warning || 'Warning',
+    header: t('common.warning') || 'Warning',
     icon: 'pi pi-exclamation-triangle',
-    rejectLabel: propertyTypeLocales.actions?.cancel,
-    acceptLabel: propertyTypeLocales.actions?.delete,
+    rejectLabel: t('catalog.property_types.actions.cancel'),
+    acceptLabel: t('catalog.property_types.actions.delete'),
     acceptProps: { severity: 'danger' },
     accept: async () => {
       const result = await store.remove(item.id)
       if (result.success) {
-        showToast('success', propertyTypeLocales.common?.success || 'Success', propertyTypeLocales.messages?.delete_success || 'Deleted')
+        showToast('success', t('common.success') || 'Success', t('catalog.property_types.messages.delete_success') || 'Deleted')
       } else {
-        showToast('error', propertyTypeLocales.common?.error || 'Error', 'Failed to delete property type')
+        showToast('error', t('common.error') || 'Error', 'Failed to delete property type')
       }
     }
   })
@@ -117,22 +118,22 @@ onMounted(() => {
 <template>
   <Card>
     <template #content>
-      <AppBreadcrumb :locales="propertyTypeLocales" />
+      <AppBreadcrumb />
     
     <div class="flex flex-col items-start justify-between gap-4 mb-8 md:flex-row md:items-center">
       <div>
         <h2 class="text-3xl font-black tracking-tight text-surface-900 dark:text-surface-50">
-          {{ propertyTypeLocales.titles?.list }}
+          {{ t('catalog.property_types.titles.list') }}
         </h2>
         <div class="flex items-center gap-2 mt-1">
           <span class="text-surface-500 dark:text-surface-400">
-            {{ propertyTypeLocales.descriptions?.list }}
+            {{ t('catalog.property_types.descriptions.list') }}
           </span>
           <Badge :value="totalRecords" severity="info" class="ml-2" />
         </div>
       </div>
       <Button 
-        :label="propertyTypeLocales.actions?.create" 
+        :label="t('catalog.property_types.actions.create')" 
         icon="pi pi-plus" 
         @click="createItem"
         class="px-4 shadow-lg rounded-xl"
@@ -184,31 +185,31 @@ onMounted(() => {
         <template #empty>
           <div class="flex flex-col items-center justify-center py-20 text-surface-400">
             <i class="mb-4 text-6xl pi pi-box opacity-20"></i>
-            <p class="text-xl font-medium">{{ propertyTypeLocales.messages?.empty_list }}</p>
+            <p class="text-xl font-medium">{{ t('catalog.property_types.messages.empty_list') }}</p>
           </div>
         </template>
 
-        <Column field="name" :header="propertyTypeLocales.table?.name" sortable>
+        <Column field="name" :header="t('catalog.property_types.table.name')" sortable>
           <template #body="{ data }">
             <span class="font-bold text-surface-900 dark:text-surface-0">{{ data.name }}</span>
           </template>
         </Column>
 
-        <Column field="presentation" :header="propertyTypeLocales.table?.presentation" sortable></Column>
+        <Column field="presentation" :header="t('catalog.property_types.table.presentation')" sortable></Column>
 
-        <Column field="kind" :header="propertyTypeLocales.table?.kind" sortable>
+        <Column field="kind" :header="t('catalog.property_types.table.kind')" sortable>
             <template #body="{ data }">
                 <Tag :value="getKindLabel(data.kind)" severity="info" />
             </template>
         </Column>
 
-        <Column field="position" :header="propertyTypeLocales.table?.position" sortable class="w-24 text-center">
+        <Column field="position" :header="t('catalog.property_types.table.position')" sortable class="w-24 text-center">
             <template #body="{ data }">
                 <Badge :value="data.position" severity="secondary" />
             </template>
         </Column>
 
-        <Column field="filterable" :header="propertyTypeLocales.table?.filterable" sortable dataType="boolean" class="w-32 text-center">
+        <Column field="filterable" :header="t('catalog.property_types.table.filterable')" sortable dataType="boolean" class="w-32 text-center">
           <template #body="{ data }">
             <i class="pi" :class="{'pi-check-circle text-green-500': data.filterable, 'pi-times-circle text-surface-400': !data.filterable}"></i>
           </template>

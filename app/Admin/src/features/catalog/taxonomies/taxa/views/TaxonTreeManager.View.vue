@@ -1,16 +1,17 @@
 <script setup lang="ts">
 import { onMounted, computed, ref, watch } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { useRoute, useRouter } from 'vue-router'
 import { useTaxonStore } from '../stores/taxon.store'
 import { useTaxonomyStore } from '../../stores/taxonomy.store'
 import { storeToRefs } from 'pinia'
-import { taxonLocales } from '../locales/taxon.locales'
 import { useApiErrorHandler } from '@/shared/composables/api-error-handler.use'
-import AppBreadcrumb from '@/shared/components/breadcrumb.component.vue'
+import AppBreadcrumb from '@/shared/components/Breadcrumb.Component.vue'
 import { useToast } from '@/shared/composables/toast.use'
 import { useConfirm } from 'primevue/useconfirm'
 import type { TaxonListItem } from '../types/taxon.types'
 
+const { t } = useI18n()
 const route = useRoute()
 const router = useRouter()
 const confirm = useConfirm()
@@ -24,7 +25,6 @@ const { showToast } = useToast()
 const taxonomyId = computed(() => route.params.taxonomyId as string)
 const selectedTaxonId = computed(() => route.params.id as string)
 
-// --- STATE ---
 const viewMode = ref<'tree' | 'list'>('tree')
 
 const loadHierarchy = async () => {
@@ -37,8 +37,6 @@ const loadHierarchy = async () => {
 watch(taxonomyId, () => {
     loadHierarchy()
 }, { immediate: true })
-
-// --- TAXON NAVIGATION ---
 
 const openNew = (parent?: TaxonListItem) => {
   router.push({
@@ -56,19 +54,19 @@ const openEdit = (node: TaxonListItem) => {
 }
 
 const confirmDelete = (node: TaxonListItem) => {
-  const messageStr = (taxonLocales.confirm?.delete_message as string || 'Delete "{name}"?').replace('{name}', node.presentation);
+  const messageStr = (t('catalog.taxa.confirm.delete_message') || 'Delete "{name}"?').replace('{name}', node.presentation);
 
   confirm.require({
     message: messageStr,
-    header: taxonLocales.confirm?.delete_header as string || 'Confirm Deletion',
+    header: t('catalog.taxa.confirm.delete_header') || 'Confirm Deletion',
     icon: 'pi pi-exclamation-triangle',
-    rejectLabel: taxonLocales.actions?.cancel,
-    acceptLabel: taxonLocales.actions?.delete_taxon,
+    rejectLabel: t('catalog.taxa.actions.cancel'),
+    acceptLabel: t('catalog.taxa.actions.delete_taxon'),
     acceptProps: { severity: 'danger' },
     accept: async () => {
       const result = await taxonStore.deleteTaxon(taxonomyId.value, node.id)
       if (result.success) {
-        showToast('success', 'Deleted', taxonLocales.messages?.delete_success || 'Category removed')
+        showToast('success', 'Deleted', t('catalog.taxa.messages.delete_success') || 'Category removed')
         if (selectedTaxonId.value === node.id) {
             router.push({ name: 'catalog.taxa.manager', params: { taxonomyId: taxonomyId.value } })
         }
@@ -84,9 +82,8 @@ const goBack = () => router.push({ name: 'catalog.taxonomies.list' })
 
 <template>
   <div class="flex flex-col h-full">
-    <!-- Header -->
     <div class="p-6 pb-0 max-w-full">
-        <AppBreadcrumb :locales="taxonLocales" />
+        <AppBreadcrumb />
         <div class="flex items-center justify-between mt-4 mb-6">
             <div class="flex items-center gap-4">
                 <Button icon="pi pi-arrow-left" text rounded severity="secondary" @click="goBack" class="bg-surface-100 dark:bg-surface-800" />
@@ -94,25 +91,23 @@ const goBack = () => router.push({ name: 'catalog.taxonomies.list' })
                     <h2 class="text-3xl font-black tracking-tighter text-surface-900 dark:text-surface-50 m-0">
                         {{ taxonomy?.presentation }}
                     </h2>
-                    <p class="text-sm text-surface-500 m-0">{{ taxonLocales.descriptions?.manager }}</p>
+                    <p class="text-sm text-surface-500 m-0">{{ t('catalog.taxa.descriptions.manager') }}</p>
                 </div>
             </div>
             <div class="flex items-center gap-2">
-                <Button :label="taxonLocales.actions?.create_root" icon="pi pi-plus" size="small" class="rounded-xl shadow-lg" @click="openNew()" />
+                <Button :label="t('catalog.taxa.actions.create_root')" icon="pi pi-plus" size="small" class="rounded-xl shadow-lg" @click="openNew()" />
                 <Button icon="pi pi-refresh" severity="secondary" text rounded @click="taxonStore.fetchTaxons(taxonomyId)" :loading="loading" />
             </div>
         </div>
     </div>
 
-    <!-- Manager Layout -->
     <div class="flex flex-1 gap-6 p-6 pt-0 overflow-hidden min-h-[600px]">
-        <!-- Sidebar (Tree) -->
         <div class="w-1/3 min-w-[320px] flex flex-col">
             <Card class="flex-1 border-none shadow-sm rounded-3xl bg-surface-0 dark:bg-surface-900 overflow-hidden flex flex-col">
                 <template #content>
                     <div class="flex flex-col h-full">
                         <div class="p-4 border-b border-surface-100 dark:border-surface-800 flex items-center justify-between">
-                            <span class="font-bold text-xs uppercase tracking-widest text-surface-400">{{ taxonLocales.messages?.hierarchy_view }}</span>
+                            <span class="font-bold text-xs uppercase tracking-widest text-surface-400">{{ t('catalog.taxa.messages.hierarchy_view') }}</span>
                             <Badge :value="taxonStore.currentTaxons.length" severity="secondary" />
                         </div>
 
@@ -138,7 +133,7 @@ const goBack = () => router.push({ name: 'catalog.taxonomies.list' })
                                             <span class="truncate font-medium text-sm">{{ node.presentation }}</span>
                                         </div>
                                         <div class="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity shrink-0">
-                                            <Button icon="pi pi-plus" text rounded size="small" severity="secondary" @click.stop="openNew(node)" v-tooltip.top="taxonLocales.actions?.add_taxon" />
+                                            <Button icon="pi pi-plus" text rounded size="small" severity="secondary" @click.stop="openNew(node)" v-tooltip.top="t('catalog.taxa.actions.add_taxon')" />
                                             <Button icon="pi pi-trash" text rounded size="small" severity="danger" @click.stop="confirmDelete(node)" />
                                         </div>
                                     </div>
@@ -147,8 +142,8 @@ const goBack = () => router.push({ name: 'catalog.taxonomies.list' })
 
                             <div v-if="taxonTree.length === 0 && !loading" class="flex flex-col items-center justify-center py-20 text-center px-4">
                                 <i class="pi pi-folder-open text-4xl text-surface-200 mb-4"></i>
-                                <p class="text-surface-400 text-sm italic">{{ taxonLocales.messages?.no_categories }}</p>
-                                <Button :label="taxonLocales.actions?.create_root" text size="small" @click="openNew()" />
+                                <p class="text-surface-400 text-sm italic">{{ t('catalog.taxa.messages.no_categories') }}</p>
+                                <Button :label="t('catalog.taxa.actions.create_root')" text size="small" @click="openNew()" />
                             </div>
                         </div>
                     </div>
@@ -156,15 +151,14 @@ const goBack = () => router.push({ name: 'catalog.taxonomies.list' })
             </Card>
         </div>
 
-        <!-- Main Content (Form) -->
         <div class="flex-1 overflow-hidden flex flex-col">
             <div v-if="route.name === 'catalog.taxa.manager'" class="flex-1 flex flex-col items-center justify-center bg-surface-50/50 dark:bg-surface-950/20 rounded-3xl border-2 border-dashed border-surface-200 dark:border-surface-800">
                 <div class="w-20 h-20 rounded-full bg-surface-100 dark:bg-surface-800 flex items-center justify-center mb-6">
                     <i class="pi pi-sitemap text-4xl text-surface-300"></i>
                 </div>
-                <h3 class="text-xl font-bold text-surface-700 dark:text-surface-200">{{ taxonLocales.messages?.select_category }}</h3>
+                <h3 class="text-xl font-bold text-surface-700 dark:text-surface-200">{{ t('catalog.taxa.messages.select_category') }}</h3>
                 <p class="text-surface-500 text-center max-w-xs px-4 mt-2">
-                    {{ taxonLocales.messages?.select_category_desc }}
+                    {{ t('catalog.taxa.messages.select_category_desc') }}
                 </p>
             </div>
             <RouterView v-else :key="route.fullPath" />

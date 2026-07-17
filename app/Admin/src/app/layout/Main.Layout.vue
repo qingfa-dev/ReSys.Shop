@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { useLayout } from './composables/layout.composable'
-import AppTopbar from './topbar.layout.vue'
-import AppSidebar from './sidebar.layout.vue'
-import AppFooter from './footer.layout.vue'
+import AppTopbar from './Topbar.Layout.vue'
+import AppSidebar from './Sidebar.Layout.vue'
+import AppFooter from './Footer.Layout.vue'
 import { RouterView } from 'vue-router'
 const { isDarkMode, toggleDarkMode, sidebarActive, toggleSidebar } = useLayout()
 </script>

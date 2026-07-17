@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue';
+import { useI18n } from 'vue-i18n';
 import { useForm } from 'vee-validate';
 import { toTypedSchema } from '@vee-validate/zod';
 import * as z from 'zod';
@@ -7,9 +8,8 @@ import { productService } from '../services/product.service';
 import { optionValueService } from '@/features/catalog/option-types/option-values/services/option-value.service';
 import type { OptionValueQuery } from '@/features/catalog/option-types/option-values/types/option-value.types';
 import type { VariantDetail } from '../types/variant.types';
-import { productLocales, type ProductLocales } from '../locales/product.locales';
 
-const t = productLocales as ProductLocales;
+const { t } = useI18n();
 
 const props = defineProps<{
     modelValue: boolean;
@@ -29,7 +29,7 @@ const visible = computed({
 });
 
 const assignedOptionTypes = ref<any[]>([]);
-const selectedOptionValues = ref<Record<string, string>>({}); // TypeID -> ValueID
+const selectedOptionValues = ref<Record<string, string>>({});
 const loadingOptions = ref(false);
 
 const schema = z.object({
@@ -60,15 +60,13 @@ const [weight] = defineField('weight');
 const fetchOptions = async () => {
     loadingOptions.value = true;
     try {
-        // 1. Get assigned types for this product
         const res = await productService.getOptionTypes(props.productId);
         if (res.success && res.data) {
             const types = res.data;
-            // 2. Fetch values for each type using the correct service
             for (const type of types) {
-                const valRes = await optionValueService.list({ optionTypeId: type.id } as OptionValueQuery);
+                const valRes = await optionValueService.list({ optionTypeId: type.id });
                 if (valRes.success && valRes.data) {
-                    type.values = valRes.data;
+                    (type as unknown as Record<string, unknown>).values = valRes.data;
                 }
             }
             assignedOptionTypes.value = types;
@@ -94,7 +92,6 @@ watch([() => props.variant, assignedOptionTypes], ([newVariant, types]) => {
             weight: newVariant.weight,
         });
         
-        // Map existing options to selection
         const mapped: Record<string, string> = {};
         if (newVariant.optionValueIds && types.length > 0) {
             newVariant.optionValueIds.forEach((id: string) => {
@@ -124,7 +121,7 @@ const onSubmit = handleSubmit((values) => {
 </script>
 
 <template>
-    <Dialog v-model:visible="visible" modal :header="isEdit ? t.variants?.form?.edit_variant : t.variants?.form?.new_variant" class="w-full max-w-lg">
+    <Dialog v-model:visible="visible" modal :header="isEdit ? t('catalog.products.variants.form.edit_variant') : t('catalog.products.variants.form.new_variant')" class="w-full max-w-lg">
         <div class="flex flex-col gap-6 pt-4">
             <div class="flex flex-col gap-2">
                 <label class="font-bold text-xs uppercase tracking-wider text-surface-500 ml-1">SKU</label>
@@ -132,9 +129,8 @@ const onSubmit = handleSubmit((values) => {
                 <small class="text-red-500" v-if="errors.sku">{{ errors.sku }}</small>
             </div>
 
-            <!-- Option Values Selection -->
             <div v-if="!variant?.isMaster && assignedOptionTypes.length > 0" class="flex flex-col gap-4 p-4 bg-surface-50 dark:bg-surface-800/50 rounded-2xl border border-surface-200 dark:border-surface-700">
-                <span class="font-bold text-xs uppercase tracking-wider text-surface-500">{{ t.variants?.form?.attributes }}</span>
+                <span class="font-bold text-xs uppercase tracking-wider text-surface-500">{{ t('catalog.products.variants.form.attributes') }}</span>
                 <div v-for="type in assignedOptionTypes" :key="type.id" class="flex flex-col gap-1">
                     <label class="text-xs font-medium">{{ type.presentation || type.name }}</label>
                     <Select v-model="selectedOptionValues[type.id]" :options="type.values" optionLabel="presentation" optionValue="id" placeholder="Select..." class="w-full" />
@@ -143,33 +139,33 @@ const onSubmit = handleSubmit((values) => {
 
             <div class="grid grid-cols-2 gap-4">
                 <div class="flex flex-col gap-2">
-                    <label class="font-bold text-xs uppercase tracking-wider text-surface-500 ml-1">{{ t.labels?.price }}</label>
+                    <label class="font-bold text-xs uppercase tracking-wider text-surface-500 ml-1">{{ t('catalog.products.labels.price') }}</label>
                     <InputNumber v-model="price" mode="currency" currency="USD" locale="en-US" class="w-full" :invalid="!!errors.price" />
                     <small class="text-red-500" v-if="errors.price">{{ errors.price }}</small>
                 </div>
                 <div class="flex flex-col gap-2">
-                    <label class="font-bold text-xs uppercase tracking-wider text-surface-500 ml-1">{{ t.labels?.weight }}</label>
+                    <label class="font-bold text-xs uppercase tracking-wider text-surface-500 ml-1">{{ t('catalog.products.labels.weight') }}</label>
                     <InputNumber v-model="weight" mode="decimal" :minFractionDigits="2" class="w-full" />
                 </div>
             </div>
 
             <div class="flex flex-col gap-2">
-                <label class="font-bold text-xs uppercase tracking-wider text-surface-500 ml-1">{{ t.variants?.form?.barcode }}</label>
+                <label class="font-bold text-xs uppercase tracking-wider text-surface-500 ml-1">{{ t('catalog.products.variants.form.barcode') }}</label>
                 <InputText v-model="barcode" class="w-full" />
             </div>
 
             <div class="flex items-center justify-between p-4 bg-surface-50 dark:bg-surface-800 rounded-xl border border-surface-100 dark:border-surface-700">
                 <div class="flex flex-col">
-                    <span class="font-bold text-sm">{{ t.variants?.form?.track_inventory }}</span>
-                    <span class="text-xs text-surface-500">{{ t.variants?.form?.track_inventory_desc }}</span>
+                    <span class="font-bold text-sm">{{ t('catalog.products.variants.form.track_inventory') }}</span>
+                    <span class="text-xs text-surface-500">{{ t('catalog.products.variants.form.track_inventory_desc') }}</span>
                 </div>
                 <ToggleSwitch v-model="trackInventory" />
             </div>
         </div>
 
         <template #footer>
-            <Button :label="t.actions?.cancel" text severity="secondary" @click="visible = false" />
-            <Button :label="isEdit ? t.actions?.save : t.actions?.new" icon="pi pi-check" @click="onSubmit" />
+            <Button :label="t('catalog.products.actions.cancel')" text severity="secondary" @click="visible = false" />
+            <Button :label="isEdit ? t('catalog.products.actions.save') : t('catalog.products.actions.new')" icon="pi pi-check" @click="onSubmit" />
         </template>
     </Dialog>
 </template>

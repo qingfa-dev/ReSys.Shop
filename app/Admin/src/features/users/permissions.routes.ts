@@ -9,7 +9,7 @@ export const permissionsRoutes: RouteRecordRaw = {
         {
             path: '',
             name: 'permissions-list',
-            component: () => import('./permissions/views/permission-list.view.vue'),
+            component: () => import('./permissions/views/PermissionList.View.vue'),
             meta: {
                 breadcrumb: 'List'
             }

@@ -1,43 +1,14 @@
 <script setup lang="ts">
 import { computed } from 'vue';
 import { useRoute } from 'vue-router';
-import { generalLocales } from '@/shared/locales/general.locales';
+import { useI18n } from 'vue-i18n';
 
-interface Props {
-  locales?: Record<string, unknown>;
-}
-
-const props = defineProps<Props>();
+const { t } = useI18n();
 const route = useRoute();
 
 const resolveLabel = (key: string): string => {
   if (!key) return '';
-  
-  const parts = key.split('.');
-  
-  let current: unknown = props.locales;
-  for (const part of parts) {
-    if (current && typeof current === 'object' && part in (current as Record<string, unknown>)) {
-      current = (current as Record<string, unknown>)[part];
-    } else {
-      current = null;
-      break;
-    }
-  }
-  
-  if (current && typeof current === 'string') return current;
-
-  current = generalLocales;
-  for (const part of parts) {
-    if (current && typeof current === 'object' && part in (current as Record<string, unknown>)) {
-      current = (current as Record<string, unknown>)[part];
-    } else {
-      current = null;
-      break;
-    }
-  }
-
-  return typeof current === 'string' ? current : key;
+  return t(key);
 };
 
 const breadcrumbs = computed(() => {

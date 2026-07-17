@@ -3,12 +3,14 @@ import { onMounted, computed, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useInventoryStore } from '../stores/inventory.store'
 import { storeToRefs } from 'pinia'
-import { inventoryLocales as t } from '../locales/inventory.locales'
+import { useI18n } from 'vue-i18n'
 import { useApiErrorHandler } from '@/shared/composables/api-error-handler.use'
-import AppBreadcrumb from '@/shared/components/breadcrumb.component.vue'
+import AppBreadcrumb from '@/shared/components/Breadcrumb.Component.vue'
 import { useToast } from '@/shared/composables/toast.use'
 import { useConfirm } from 'primevue/useconfirm'
 import type { StockLocation } from '../types/inventory.types'
+
+const { t } = useI18n()
 
 const route = useRoute()
 const router = useRouter()
@@ -39,19 +41,19 @@ const openEdit = (node: any) => {
 }
 
 const confirmDelete = (node: any) => {
-  const messageStr = (t.confirm?.delete_message as string || 'Delete "{name}"?').replace('{name}', node.name);
+  const messageStr = t('inventory.confirm.delete_message', { name: node.name });
   
   confirm.require({
     message: messageStr,
-    header: t.confirm?.delete_header as string || 'Confirm Deletion',
+    header: t('inventory.confirm.delete_header'),
     icon: 'pi pi-exclamation-triangle',
-    rejectLabel: t.actions?.cancel,
-    acceptLabel: t.actions?.delete,
+    rejectLabel: t('inventory.actions.cancel'),
+    acceptLabel: t('inventory.actions.delete'),
     acceptProps: { severity: 'danger' },
     accept: async () => {
       const result = await store.inventoryService.deleteLocation(node.id)
       if (result.success) {
-        showToast('success', 'Deleted', t.messages?.delete_location_success || 'Location removed')
+        showToast('success', 'Deleted', t('inventory.messages.delete_location_success') || 'Location removed')
         await store.fetchLocationTree()
         await store.fetchLocations()
         if (selectedId.value === node.id) {
@@ -77,13 +79,13 @@ const goBack = () => router.push({ name: 'inventory.stocks.list' })
                 <Button icon="pi pi-arrow-left" text rounded severity="secondary" @click="goBack" class="bg-surface-100 dark:bg-surface-800" />
                 <div>
                     <h2 class="text-3xl font-black tracking-tighter text-surface-900 dark:text-surface-50 m-0">
-                        {{ t.titles?.locations }}
+                        {{ t('inventory.titles.locations') }}
                     </h2>
-                    <p class="text-sm text-surface-500 m-0">{{ t.descriptions?.manager }}</p>
+                    <p class="text-sm text-surface-500 m-0">{{ t('inventory.descriptions.manager') }}</p>
                 </div>
             </div>
             <div class="flex items-center gap-2">
-                <Button :label="t.actions?.new_location" icon="pi pi-plus" size="small" class="rounded-xl shadow-lg" @click="openNew()" />
+                <Button :label="t('inventory.actions.new_location')" icon="pi pi-plus" size="small" class="rounded-xl shadow-lg" @click="openNew()" />
                 <Button icon="pi pi-refresh" severity="secondary" text rounded @click="store.fetchLocationTree()" :loading="loading" />
             </div>
         </div>
@@ -97,7 +99,7 @@ const goBack = () => router.push({ name: 'inventory.stocks.list' })
                 <template #content>
                     <div class="flex flex-col h-full">
                         <div class="p-4 border-b border-surface-100 dark:border-surface-800 flex items-center justify-between">
-                            <span class="font-bold text-xs uppercase tracking-widest text-surface-400">{{ t.messages?.hierarchy_view }}</span>
+                            <span class="font-bold text-xs uppercase tracking-widest text-surface-400">{{ t('inventory.messages.hierarchy_view') }}</span>
                             <Badge :value="locations.length" severity="secondary" />
                         </div>
                         
@@ -108,7 +110,7 @@ const goBack = () => router.push({ name: 'inventory.stocks.list' })
                             
                             <Tree
                                 v-else
-                                :value="locationTree"
+                                :value="locationTree as any"
                                 selectionMode="single"
                                 :pt="{ root: { class: 'bg-transparent border-none p-0' } }"
                             >
@@ -123,7 +125,7 @@ const goBack = () => router.push({ name: 'inventory.stocks.list' })
                                             <span class="truncate font-medium text-sm">{{ node.name }}</span>
                                         </div>
                                         <div class="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity shrink-0">
-                                            <Button icon="pi pi-plus" text rounded size="small" severity="secondary" @click.stop="openNew(node)" v-tooltip.top="t.actions?.add_child" />
+                                            <Button icon="pi pi-plus" text rounded size="small" severity="secondary" @click.stop="openNew(node)" v-tooltip.top="t('inventory.actions.add_child')" />
                                             <Button icon="pi pi-trash" text rounded size="small" severity="danger" @click.stop="confirmDelete(node)" />
                                         </div>
                                     </div>
@@ -132,8 +134,8 @@ const goBack = () => router.push({ name: 'inventory.stocks.list' })
 
                             <div v-if="locationTree.length === 0 && !loading" class="flex flex-col items-center justify-center py-20 text-center px-4">
                                 <i class="pi pi-building text-4xl text-surface-200 mb-4"></i>
-                                <p class="text-surface-400 text-sm italic">{{ t.messages?.no_locations }}</p>
-                                <Button :label="t.actions?.new_location" text size="small" @click="openNew()" />
+                                <p class="text-surface-400 text-sm italic">{{ t('inventory.messages.no_locations') }}</p>
+                                <Button :label="t('inventory.actions.new_location')" text size="small" @click="openNew()" />
                             </div>
                         </div>
                     </div>
@@ -150,9 +152,9 @@ const goBack = () => router.push({ name: 'inventory.stocks.list' })
                 <div class="w-20 h-20 rounded-full bg-surface-100 dark:bg-surface-800 flex items-center justify-center mb-6">
                     <i class="pi pi-sitemap text-4xl text-surface-300"></i>
                 </div>
-                <h3 class="text-xl font-bold text-surface-700 dark:text-surface-200">{{ t.messages?.select_location }}</h3>
+                <h3 class="text-xl font-bold text-surface-700 dark:text-surface-200">{{ t('inventory.messages.select_location') }}</h3>
                 <p class="text-surface-500 text-center max-w-xs px-4 mt-2">
-                    {{ t.messages?.select_location_desc }}
+                    {{ t('inventory.messages.select_location_desc') }}
                 </p>
             </div>
             <RouterView v-else :key="route.fullPath" />

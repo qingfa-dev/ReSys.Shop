@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue';
+import { useI18n } from 'vue-i18n';
 import { useProductStore } from '../stores/product.store';
 import { storeToRefs } from 'pinia';
 import { useRouter } from 'vue-router';
 import { useConfirm } from 'primevue/useconfirm';
-import { productLocales as t } from '../locales/product.locales';
 import { FilterMatchMode, FilterOperator as PrimeFilterOperator } from '@primevue/core/api';
 import type {
   DataTablePageEvent,
@@ -14,8 +14,10 @@ import type {
 import { useToast } from '@/shared/composables/toast.use';
 import { useFormatter } from '@/shared/composables/formatter.use';
 import { QueryBuilder, type FilterOperator } from '@/shared/utils/query-builder.utils';
-import AppBreadcrumb from '@/shared/components/breadcrumb.component.vue';
+import AppBreadcrumb from '@/shared/components/Breadcrumb.Component.vue';
 import type { ProductSummary } from '../types/product.types';
+
+const { t } = useI18n();
 
 // --- STORE & ROUTING ---
 const store = useProductStore();
@@ -105,21 +107,21 @@ const clearFilters = () => {
 };
 
 const confirmDelete = (product: ProductSummary) => {
-  const messageStr = (t.confirm?.delete_message as string || 'Delete "{name}"?').replace('{name}', product.name);
+  const messageStr = (t('catalog.products.confirm.delete_message') || 'Delete "{name}"?').replace('{name}', product.name);
   
   confirm.require({
     message: messageStr,
-    header: t.confirm?.delete_header as string || 'Confirm Delete',
+    header: t('catalog.products.confirm.delete_header') || 'Confirm Delete',
     icon: 'pi pi-exclamation-triangle',
-    rejectLabel: t.confirm?.reject_label as string || 'Cancel',
+    rejectLabel: t('catalog.products.confirm.reject_label') || 'Cancel',
     acceptProps: {
-      label: t.confirm?.accept_label as string || 'Delete',
+      label: t('catalog.products.confirm.accept_label') || 'Delete',
       severity: 'danger',
     },
     accept: async () => {
       const result = await store.deleteProduct(product.id);
       if (result.success) {
-        showToast('success', t.common?.success || 'Deleted', t.messages?.delete_success || 'Product removed.');
+        showToast('success', t('common.success') || 'Deleted', t('catalog.products.messages.delete_success') || 'Product removed.');
       }
     },
   });
@@ -133,15 +135,15 @@ onMounted(() => {
 <template>
   <Card>
     <template #content>
-      <AppBreadcrumb :locales="t" />
+      <AppBreadcrumb />
     <div class="flex flex-col items-start justify-between gap-4 mb-8 md:flex-row md:items-center">
       <div>
         <h2 class="text-3xl font-black tracking-tight text-surface-900 dark:text-surface-50">
-          {{ t.titles.list }}
+          {{ t('catalog.products.titles.list') }}
         </h2>
         <div class="flex items-center gap-2 mt-1">
           <span class="text-surface-500 dark:text-surface-400">
-            {{ t.descriptions?.list }}
+            {{ t('catalog.products.descriptions.list') }}
           </span>
           <Badge :value="totalRecords" severity="info" class="ml-2"></Badge>
         </div>
@@ -157,7 +159,7 @@ onMounted(() => {
           v-tooltip.top="'Refresh'"
         />
         <Button
-          :label="t.actions.new"
+          :label="t('catalog.products.actions.new')"
           icon="pi pi-plus"
           @click="router.push({ name: 'catalog.products.create' })"
           class="px-4 shadow-lg rounded-xl"
@@ -195,7 +197,7 @@ onMounted(() => {
               <InputIcon class="pi pi-search" />
               <InputText
                 v-model="(filters.global as any).value"
-                :placeholder="t.placeholders?.search"
+                :placeholder="t('catalog.products.placeholders.search')"
                 @keyup.enter="onFilter"
                 class="w-full rounded-xl"
               />
@@ -204,7 +206,7 @@ onMounted(() => {
             <Button
               type="button"
               icon="pi pi-filter-slash"
-              :label="t.table?.clear_filter"
+              :label="t('catalog.products.table.clear_filter')"
               outlined
               @click="clearFilters"
               class="w-full rounded-xl md:w-auto"
@@ -215,11 +217,11 @@ onMounted(() => {
         <template #empty>
           <div class="flex flex-col items-center justify-center py-20 text-surface-400">
             <i class="mb-4 text-6xl pi pi-shopping-bag opacity-20"></i>
-            <p class="text-xl font-medium">{{ t.messages?.empty_list }}</p>
+            <p class="text-xl font-medium">{{ t('catalog.products.messages.empty_list') }}</p>
           </div>
         </template>
 
-        <Column field="imageUrl" :header="t.table?.preview" class="w-24">
+        <Column field="imageUrl" :header="t('catalog.products.table.preview')" class="w-24">
           <template #body="{ data }">
             <div class="w-14 h-14 rounded-xl overflow-hidden border border-surface-100 dark:border-surface-700 bg-surface-50 flex items-center justify-center">
                 <Image v-if="data.imageUrl" :src="data.imageUrl" :alt="data.name" preview imageClass="w-full h-full object-cover" />
@@ -228,16 +230,16 @@ onMounted(() => {
           </template>
         </Column>
 
-        <Column field="name" :header="t.table?.name" sortable filter>
+        <Column field="name" :header="t('catalog.products.table.name')" sortable filter>
             <template #body="{ data }">
                 <span class="font-bold text-surface-900 dark:text-surface-0">{{ data.name }}</span>
             </template>
             <template #filter="{ filterModel, filterCallback }">
-                <InputText v-model="filterModel.value" type="text" @keydown.enter="filterCallback()" class="p-column-filter" :placeholder="t.placeholders?.name" />
+                <InputText v-model="filterModel.value" type="text" @keydown.enter="filterCallback()" class="p-column-filter" :placeholder="t('catalog.products.placeholders.name')" />
             </template>
         </Column>
 
-        <Column field="sku" :header="t.table?.sku" sortable filter>
+        <Column field="sku" :header="t('catalog.products.table.sku')" sortable filter>
             <template #body="{ data }">
                 <span class="font-mono text-xs uppercase tracking-widest text-surface-500">{{ data.sku || '-' }}</span>
             </template>
@@ -246,7 +248,7 @@ onMounted(() => {
             </template>
         </Column>
 
-        <Column field="price" :header="t.table?.price" sortable>
+        <Column field="price" :header="t('catalog.products.table.price')" sortable>
             <template #body="{ data }">
                 <span class="font-black">{{ formatCurrency(data.price) }}</span>
             </template>
@@ -258,13 +260,13 @@ onMounted(() => {
             </template>
         </Column>
 
-        <Column field="status" :header="t.table?.status">
+        <Column field="status" :header="t('catalog.products.table.status')">
             <template #body="{ data }">
                 <Tag :value="data.status" :severity="data.status === 'Active' ? 'success' : 'secondary'" rounded class="font-bold px-3" />
             </template>
         </Column>
 
-        <Column :header="t.table?.actions" class="w-32 text-right" frozen alignFrozen="right">
+        <Column :header="t('catalog.products.table.actions')" class="w-32 text-right" frozen alignFrozen="right">
           <template #body="{ data }">
             <div class="flex justify-end gap-1">
               <Button icon="pi pi-pencil" severity="secondary" text rounded @click="router.push({ name: 'catalog.products.edit', params: { id: data.id } })" />

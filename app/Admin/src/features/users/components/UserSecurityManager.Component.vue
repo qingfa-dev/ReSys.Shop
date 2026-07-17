@@ -5,7 +5,7 @@ import { useConfirm } from 'primevue/useconfirm';
 import { useFormatter } from '@/shared/composables/formatter.use';
 import { userService } from '../services/user.service';
 import type { AdminUserSummary } from '../types/user.types';
-import { userLocales as t } from '../locales/user.locales';
+import { useI18n } from 'vue-i18n';
 
 const props = defineProps<{
     user: AdminUserSummary;
@@ -16,13 +16,14 @@ const emit = defineEmits(['updated']);
 const { showToast } = useToast();
 const confirm = useConfirm();
 const { formatDate } = useFormatter();
+const { t } = useI18n();
 
 const loading = ref(false);
 
 async function onResetPassword() {
     confirm.require({
-        message: t.confirm.reset_password_message,
-        header: t.confirm.reset_password_header,
+        message: t('users.confirm.reset_password_message'),
+        header: t('users.confirm.reset_password_header'),
         icon: 'pi pi-exclamation-triangle',
         acceptProps: { label: 'Reset', severity: 'danger' },
         accept: async () => {
@@ -46,7 +47,7 @@ async function onUnlock() {
     try {
         const res = await userService.unlockAccount(props.user.id);
         if (res.success) {
-            showToast('success', 'Success', t.messages.unlock_success || 'Account unlocked');
+            showToast('success', 'Success', (t('users.messages.unlock_success') as string) || 'Account unlocked');
             emit('updated');
         }
     } finally {
@@ -59,7 +60,7 @@ async function onVerify() {
     try {
         const res = await userService.verifyAccount(props.user.id, { verifyEmail: true, verifyPhone: true });
         if (res.success) {
-            showToast('success', 'Success', t.messages.verify_success || 'Account verified');
+            showToast('success', 'Success', (t('users.messages.verify_success') as string) || 'Account verified');
             emit('updated');
         }
     } finally {
@@ -72,27 +73,27 @@ async function onVerify() {
     <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
         <!-- Status Section -->
         <div class="flex flex-col gap-6">
-            <h3 class="text-xl font-bold m-0">{{ t.security.status_title }}</h3>
+            <h3 class="text-xl font-bold m-0">{{ t('users.security.status_title') }}</h3>
             
             <div class="bg-surface-50 dark:bg-surface-900 p-6 rounded-2xl border border-surface-100 dark:border-surface-800 flex flex-col gap-4">
                 <div class="flex justify-between items-center pb-4 border-b border-surface-200 dark:border-surface-700">
-                    <span class="text-surface-500 font-medium">{{ t.security.lockout_end }}</span>
+                    <span class="text-surface-500 font-medium">{{ t('users.security.lockout_end') }}</span>
                     <span class="font-bold" v-if="user.lockoutEnd">{{ formatDate(user.lockoutEnd) }}</span>
                     <Tag v-else value="None" severity="success" rounded />
                 </div>
                 
                 <div class="flex justify-between items-center pb-4 border-b border-surface-200 dark:border-surface-700">
-                    <span class="text-surface-500 font-medium">{{ t.security.failed_attempts }}</span>
+                    <span class="text-surface-500 font-medium">{{ t('users.security.failed_attempts') }}</span>
                     <Badge :value="user.accessFailedCount || 0" :severity="(user.accessFailedCount || 0) > 0 ? 'warning' : 'secondary'" />
                 </div>
 
                 <div class="flex justify-between items-center pb-4 border-b border-surface-200 dark:border-surface-700">
-                    <span class="text-surface-500 font-medium">{{ t.security.email_verified }}</span>
+                    <span class="text-surface-500 font-medium">{{ t('users.security.email_verified') }}</span>
                     <Tag :value="user.emailConfirmed ? 'Verified' : 'Pending'" :severity="user.emailConfirmed ? 'success' : 'warning'" rounded />
                 </div>
 
                 <div class="flex justify-between items-center">
-                    <span class="text-surface-500 font-medium">{{ t.security.phone_verified }}</span>
+                    <span class="text-surface-500 font-medium">{{ t('users.security.phone_verified') }}</span>
                     <Tag :value="user.phoneNumberConfirmed ? 'Verified' : 'Pending'" :severity="user.phoneNumberConfirmed ? 'success' : 'warning'" rounded />
                 </div>
             </div>
@@ -100,11 +101,11 @@ async function onVerify() {
 
         <!-- Actions Section -->
         <div class="flex flex-col gap-6">
-            <h3 class="text-xl font-bold m-0">{{ t.security.actions_title }}</h3>
+            <h3 class="text-xl font-bold m-0">{{ t('users.security.actions_title') }}</h3>
             <div class="flex flex-col gap-3">
-                <Button :label="t.actions.reset_password" icon="pi pi-key" severity="danger" outlined class="w-full justify-start rounded-xl" @click="onResetPassword" />
-                <Button :label="t.actions.unlock" icon="pi pi-lock-open" severity="warning" outlined class="w-full justify-start rounded-xl" @click="onUnlock" :disabled="!user.lockoutEnd" />
-                <Button :label="t.actions.verify" icon="pi pi-check-circle" severity="success" outlined class="w-full justify-start rounded-xl" @click="onVerify" :disabled="user.emailConfirmed && user.phoneNumberConfirmed" />
+                <Button :label="t('users.actions.reset_password')" icon="pi pi-key" severity="danger" outlined class="w-full justify-start rounded-xl" @click="onResetPassword" />
+                <Button :label="t('users.actions.unlock')" icon="pi pi-lock-open" severity="warning" outlined class="w-full justify-start rounded-xl" @click="onUnlock" :disabled="!user.lockoutEnd" />
+                <Button :label="t('users.actions.verify')" icon="pi pi-check-circle" severity="success" outlined class="w-full justify-start rounded-xl" @click="onVerify" :disabled="user.emailConfirmed && user.phoneNumberConfirmed" />
             </div>
         </div>
     </div>

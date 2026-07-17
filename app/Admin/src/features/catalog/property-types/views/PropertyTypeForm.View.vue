@@ -1,17 +1,18 @@
 <script setup lang="ts">
 import { onMounted, computed, ref } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { useRoute, useRouter } from 'vue-router'
 import { usePropertyTypeStore } from '../stores/property-type.store'
 import { storeToRefs } from 'pinia'
 import { useForm } from 'vee-validate'
 import { toTypedSchema } from '@vee-validate/zod'
 import { PropertyTypeSchema } from '../schemas/property-type.schema'
-import { propertyTypeLocales } from '../locales/property-type.locales'
 import { useApiErrorHandler } from '@/shared/composables/api-error-handler.use'
-import AppBreadcrumb from '@/shared/components/breadcrumb.component.vue'
+import AppBreadcrumb from '@/shared/components/Breadcrumb.Component.vue'
 import { PropertyKind, PropertyKindOptions } from '../types/property-kind'
-import MetadataManager from '@/shared/components/metadata-manager.component.vue'
+import MetadataManager from '@/shared/components/MetadataManager.Component.vue'
 
+const { t } = useI18n()
 const route = useRoute()
 const router = useRouter()
 const store = usePropertyTypeStore()
@@ -21,7 +22,6 @@ const { handleApiResult } = useApiErrorHandler()
 const isEdit = computed(() => route.params.id !== undefined)
 const itemId = computed(() => route.params.id as string)
 
-// Metadata state
 const publicMetadata = ref<Record<string, any>>({})
 const privateMetadata = ref<Record<string, any>>({})
 
@@ -82,11 +82,11 @@ const onSubmit = handleSubmit(async (formValues) => {
   const handled = handleApiResult(result, {
     setErrors,
     fieldNames: Object.keys(values),
-    successTitle: propertyTypeLocales.common?.success,
+    successTitle: t('common.success'),
     successMessage: isEdit.value 
-        ? propertyTypeLocales.messages?.update_success 
-        : propertyTypeLocales.messages?.create_success,
-    errorTitle: propertyTypeLocales.common?.error,
+        ? t('catalog.property_types.messages.update_success')
+        : t('catalog.property_types.messages.create_success'),
+    errorTitle: t('common.error'),
   })
 
   if (handled) {
@@ -106,25 +106,25 @@ const cancel = () => {
 <template>
   <div class="max-w-4xl p-6 mx-auto">
     <div class="mb-6">
-      <AppBreadcrumb :locales="propertyTypeLocales" />
+      <AppBreadcrumb />
 
       <div class="flex flex-col justify-between gap-4 md:flex-row md:items-center">
         <div class="flex items-center gap-4">
           <Button icon="pi pi-arrow-left" text rounded severity="secondary" @click="cancel" class="bg-surface-100 dark:bg-surface-800" />
           <div>
             <h2 class="text-3xl font-black tracking-tight text-surface-900 dark:text-surface-50">
-              {{ isEdit ? propertyTypeLocales.titles?.edit : propertyTypeLocales.titles?.create }}
+              {{ isEdit ? t('catalog.property_types.titles.edit') : t('catalog.property_types.titles.create') }}
             </h2>
             <p class="text-sm text-surface-500 dark:text-surface-400">
-              {{ isEdit ? 'Update existing property type details' : propertyTypeLocales.descriptions?.create }}
+              {{ isEdit ? 'Update existing property type details' : t('catalog.property_types.descriptions.create') }}
             </p>
           </div>
         </div>
         <div class="flex gap-2">
-          <Button :label="propertyTypeLocales.actions?.cancel" severity="secondary" text @click="cancel" />
+          <Button :label="t('catalog.property_types.actions.cancel')" severity="secondary" text @click="cancel" />
           <Button 
             type="button"
-            :label="isEdit ? propertyTypeLocales.actions?.save_edit : propertyTypeLocales.actions?.save_create" 
+            :label="isEdit ? t('catalog.property_types.actions.save_edit') : t('catalog.property_types.actions.save_create')" 
             icon="pi pi-check" 
             :loading="loading" 
             @click="onSubmit"
@@ -144,40 +144,40 @@ const cancel = () => {
                 <form @submit="onSubmit" class="flex flex-col gap-6 mt-4">
                     <Card class="border-none shadow-sm rounded-2xl bg-surface-0 dark:bg-surface-900">
                         <template #title>
-                            <span class="text-xl font-bold text-surface-800 dark:text-surface-50">{{ propertyTypeLocales.titles?.basic_info }}</span>
+                            <span class="text-xl font-bold text-surface-800 dark:text-surface-50">{{ t('catalog.property_types.titles.basic_info') }}</span>
                         </template>
                         <template #content>
                             <div class="flex flex-col gap-6 pt-2">
                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                                     <div class="flex flex-col gap-2">
-                                        <label for="name" class="font-bold text-surface-700 dark:text-surface-200">{{ propertyTypeLocales.labels?.name }}</label>
-                                        <InputText id="name" v-model="name" class="w-full rounded-xl" :invalid="!!errors.name" :placeholder="propertyTypeLocales.placeholders?.name" />
+                                        <label for="name" class="font-bold text-surface-700 dark:text-surface-200">{{ t('catalog.property_types.labels.name') }}</label>
+                                        <InputText id="name" v-model="name" class="w-full rounded-xl" :invalid="!!errors.name" :placeholder="t('catalog.property_types.placeholders.name')" />
                                         <small class="text-red-500 font-medium" v-if="errors.name">{{ errors.name }}</small>
                                     </div>
 
                                     <div class="flex flex-col gap-2">
-                                        <label for="presentation" class="font-bold text-surface-700 dark:text-surface-200">{{ propertyTypeLocales.labels?.presentation }}</label>
-                                        <InputText id="presentation" v-model="presentation" class="w-full rounded-xl" :invalid="!!errors.presentation" :placeholder="propertyTypeLocales.placeholders?.presentation" />
+                                        <label for="presentation" class="font-bold text-surface-700 dark:text-surface-200">{{ t('catalog.property_types.labels.presentation') }}</label>
+                                        <InputText id="presentation" v-model="presentation" class="w-full rounded-xl" :invalid="!!errors.presentation" :placeholder="t('catalog.property_types.placeholders.presentation')" />
                                         <small class="text-red-500 font-medium" v-if="errors.presentation">{{ errors.presentation }}</small>
                                     </div>
                                 </div>
 
                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                                     <div class="flex flex-col gap-2">
-                                        <label for="kind" class="font-bold text-surface-700 dark:text-surface-200">{{ propertyTypeLocales.labels?.kind }}</label>
+                                        <label for="kind" class="font-bold text-surface-700 dark:text-surface-200">{{ t('catalog.property_types.labels.kind') }}</label>
                                         <Select id="kind" v-model="kind" :options="PropertyKindOptions" optionLabel="label" optionValue="value" class="w-full rounded-xl" :invalid="!!errors.kind" />
                                         <small class="text-red-500 font-medium" v-if="errors.kind">{{ errors.kind }}</small>
                                     </div>
 
                                     <div class="flex flex-col gap-2">
-                                        <label for="position" class="font-bold text-surface-700 dark:text-surface-200">{{ propertyTypeLocales.labels?.position }}</label>
+                                        <label for="position" class="font-bold text-surface-700 dark:text-surface-200">{{ t('catalog.property_types.labels.position') }}</label>
                                         <InputNumber id="position" v-model="position" class="w-full rounded-xl" :invalid="!!errors.position" showButtons :min="0" />
                                         <small class="text-red-500 font-medium" v-if="errors.position">{{ errors.position }}</small>
                                     </div>
                                 </div>
 
                                 <div class="flex flex-col gap-2">
-                                    <label class="font-bold text-surface-700 dark:text-surface-200">{{ propertyTypeLocales.labels?.filterable }}</label>
+                                    <label class="font-bold text-surface-700 dark:text-surface-200">{{ t('catalog.property_types.labels.filterable') }}</label>
                                     <div class="flex items-center gap-2">
                                         <ToggleSwitch v-model="filterable" />
                                         <span class="text-sm text-surface-500">{{ filterable ? 'Enabled' : 'Disabled' }}</span>

@@ -1,14 +1,16 @@
 <script setup lang="ts">
 import { ref } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { useTaxonStore } from '../stores/taxon.store'
 import { storeToRefs } from 'pinia'
 import { useForm } from 'vee-validate'
 import { toTypedSchema } from '@vee-validate/zod'
 import { TaxonRuleSchema } from '../schemas/taxon.schema'
-import { taxonLocales } from '../locales/taxon.locales'
 import { useApiErrorHandler } from '@/shared/composables/api-error-handler.use'
 import { useToast } from '@/shared/composables/toast.use'
 import type { TaxonRuleListItem } from '../types/taxon.types'
+
+const { t } = useI18n()
 
 const props = defineProps<{
   taxonomyId: string
@@ -94,10 +96,10 @@ const onRuleSubmit = handleRuleSubmit(async (formValues) => {
   if (result.success) {
     showToast(
       'success',
-      taxonLocales.common?.success || 'Success',
+      t('common.success') || 'Success',
       (isEditingRule.value
-        ? taxonLocales.messages?.rule_update_success
-        : taxonLocales.messages?.rule_create_success) || 'Success',
+        ? t('catalog.taxa.messages.rule_update_success')
+        : t('catalog.taxa.messages.rule_create_success')) || 'Success',
     )
     showRuleDialog.value = false
     emit('updated')
@@ -112,8 +114,8 @@ const deleteRule = async (rule: TaxonRuleListItem) => {
   if (result.success) {
     showToast(
       'success',
-      taxonLocales.common?.success || 'Success',
-      taxonLocales.messages?.rule_delete_success || 'Rule removed',
+      t('common.success') || 'Success',
+      t('catalog.taxa.messages.rule_delete_success') || 'Rule removed',
     )
     emit('updated')
   }
@@ -124,8 +126,8 @@ const regenerate = async () => {
   if (result.success) {
     showToast(
       'success',
-      taxonLocales.common?.success || 'Success',
-      taxonLocales.messages?.regenerate_success || 'Task started',
+      t('common.success') || 'Success',
+      t('catalog.taxa.messages.regenerate_success') || 'Task started',
     )
     emit('updated')
   }
@@ -137,12 +139,12 @@ const regenerate = async () => {
     <div class="flex items-center justify-between">
       <div>
         <h3 class="text-lg font-bold text-surface-900 dark:text-surface-0">
-          {{ taxonLocales.titles?.rules }}
+          {{ t('catalog.taxa.titles.rules') }}
         </h3>
-        <p class="text-sm text-surface-500">{{ taxonLocales.descriptions?.rules }}</p>
+        <p class="text-sm text-surface-500">{{ t('catalog.taxa.descriptions.rules') }}</p>
       </div>
       <Button
-        :label="taxonLocales.actions?.add_rule"
+        :label="t('catalog.taxa.actions.add_rule')"
         icon="pi pi-plus"
         size="small"
         outlined
@@ -154,10 +156,10 @@ const regenerate = async () => {
         <div class="w-12 h-12 rounded-full bg-surface-100 dark:bg-surface-800 flex items-center justify-center mb-3">
             <i class="pi pi-filter-slash text-surface-400 text-xl"></i>
         </div>
-        <p class="text-surface-500 font-medium">{{ (taxonLocales.messages as any).empty_rules || 'No dynamic rules defined yet.' }}</p>
-        <p class="text-xs text-surface-400 mt-1 mb-4">{{ (taxonLocales.descriptions as any).rules_empty || 'Add rules to automatically assign products to this category.' }}</p>
+        <p class="text-surface-500 font-medium">{{ t('catalog.taxa.messages.empty_rules') || 'No dynamic rules defined yet.' }}</p>
+        <p class="text-xs text-surface-400 mt-1 mb-4">{{ t('catalog.taxa.descriptions.rules_empty') || 'Add rules to automatically assign products to this category.' }}</p>
         <Button
-            :label="taxonLocales.actions?.add_rule"
+            :label="t('catalog.taxa.actions.add_rule')"
             icon="pi pi-plus"
             size="small"
             outlined
@@ -167,7 +169,7 @@ const regenerate = async () => {
 
     <div v-else class="flex flex-col gap-4">
         <DataTable :value="currentRules" class="border-none rounded-xl overflow-hidden shadow-sm bg-surface-0 dark:bg-surface-900" size="small">
-          <Column field="type" :header="(taxonLocales.labels as any).rule_type_header || 'Property'">
+          <Column field="type" :header="t('catalog.taxa.labels.rule_type_header') || 'Property'">
             <template #body="{ data }">
               <div class="flex items-center gap-2">
                   <div class="w-2 h-2 rounded-full bg-primary"></div>
@@ -177,14 +179,14 @@ const regenerate = async () => {
               </div>
             </template>
           </Column>
-          <Column field="matchPolicy" :header="(taxonLocales.labels as any).rule_policy_header || 'Condition'">
+          <Column field="matchPolicy" :header="t('catalog.taxa.labels.rule_policy_header') || 'Condition'">
             <template #body="{ data }">
               <span class="text-[11px] px-2 py-0.5 rounded-full bg-surface-100 dark:bg-surface-800 text-surface-500 border border-surface-200 dark:border-surface-700">
                 {{ data.matchPolicy.replace(/_/g, ' ') }}
               </span>
             </template>
           </Column>
-          <Column field="value" :header="taxonLocales.labels?.rule_value">
+          <Column field="value" :header="t('catalog.taxa.labels.rule_value')">
             <template #body="{ data }">
               <span class="font-mono text-xs font-bold text-primary">{{ data.value }}</span>
             </template>
@@ -220,13 +222,13 @@ const regenerate = async () => {
       </div>
       <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 relative z-10">
         <div class="flex flex-col gap-1">
-          <span class="text-base font-black text-primary tracking-tight">{{ (taxonLocales.titles as any).regenerate }}</span>
+          <span class="text-base font-black text-primary tracking-tight">{{ t('catalog.taxa.titles.regenerate') }}</span>
           <p class="text-xs text-surface-600 dark:text-surface-400 max-w-md">
-            {{ (taxonLocales.descriptions as any).rules_matching }}
+            {{ t('catalog.taxa.descriptions.rules_matching') }}
           </p>
         </div>
         <Button
-          :label="taxonLocales.actions?.regenerate"
+          :label="t('catalog.taxa.actions.regenerate')"
           icon="pi pi-refresh"
           severity="primary"
           class="rounded-xl px-6 shadow-lg shadow-primary/20 whitespace-nowrap"
@@ -236,7 +238,6 @@ const regenerate = async () => {
       </div>
     </div>
 
-    <!-- Rule Dialog -->
     <Dialog
       v-model:visible="showRuleDialog"
       :header="isEditingRule ? 'Edit Rule' : 'Add Rule'"
@@ -246,7 +247,7 @@ const regenerate = async () => {
     >
       <form @submit="onRuleSubmit" class="flex flex-col gap-6 mt-4">
         <div class="flex flex-col gap-2">
-          <label class="font-bold text-sm text-surface-700 dark:text-surface-300">{{ taxonLocales.labels?.rule_type }}</label>
+          <label class="font-bold text-sm text-surface-700 dark:text-surface-300">{{ t('catalog.taxa.labels.rule_type') }}</label>
           <Select
             v-model="rType"
             :options="ruleTypeOptions"
@@ -257,7 +258,7 @@ const regenerate = async () => {
         </div>
 
         <div class="flex flex-col gap-2">
-          <label class="font-bold text-sm text-surface-700 dark:text-surface-300">{{ taxonLocales.labels?.rule_policy }}</label>
+          <label class="font-bold text-sm text-surface-700 dark:text-surface-300">{{ t('catalog.taxa.labels.rule_policy') }}</label>
           <Select
             v-model="rPolicy"
             :options="matchPolicyOptions"
@@ -268,10 +269,10 @@ const regenerate = async () => {
         </div>
 
         <div class="flex flex-col gap-2">
-          <label class="font-bold text-sm text-surface-700 dark:text-surface-300">{{ taxonLocales.labels?.rule_value }}</label>
+          <label class="font-bold text-sm text-surface-700 dark:text-surface-300">{{ t('catalog.taxa.labels.rule_value') }}</label>
           <InputText
             v-model="rValue"
-            :placeholder="taxonLocales.placeholders?.rule_value"
+            :placeholder="t('catalog.taxa.placeholders.rule_value')"
             class="w-full rounded-xl"
           />
         </div>

@@ -3,12 +3,14 @@ import { onMounted, ref } from 'vue';
 import { useInventoryStore } from '../stores/inventory.store';
 import { storeToRefs } from 'pinia';
 import { useFormatter } from '@/shared/composables/formatter.use';
-import { inventoryLocales as t } from '../locales/inventory.locales';
-import AppBreadcrumb from '@/shared/components/breadcrumb.component.vue';
-import StockMovementTimeline from '../components/StockMovementTimeline.vue';
-import StockAdjustmentDialog from '../components/StockAdjustmentDialog.vue';
+import { useI18n } from 'vue-i18n';
+import AppBreadcrumb from '@/shared/components/Breadcrumb.Component.vue';
+import StockMovementTimeline from '../components/StockMovementTimeline.Component.vue';
+import StockAdjustmentDialog from '../components/StockAdjustmentDialog.Component.vue';
 import { FilterMatchMode } from '@primevue/core/api';
 import type { DataTablePageEvent, DataTableSortEvent, DataTableFilterMeta } from 'primevue/datatable';
+
+const { t } = useI18n();
 
 const store = useInventoryStore();
 const { stocks, loading, totalStocks, stockQuery } = storeToRefs(store);
@@ -83,12 +85,12 @@ const toggleLowStock = () => {
                 <div class="flex items-center justify-between p-4">
                     <div class="flex flex-col gap-1">
                         <div class="flex items-center gap-3">
-                            <span class="text-xl font-bold">{{ t.titles.list }}</span>
+                            <span class="text-xl font-bold">{{ t('inventory.titles.list') }}</span>
                             <Badge :value="totalStocks" severity="info" />
                         </div>
-                        <span class="text-sm text-surface-500">{{ t.descriptions?.list }}</span>
+                        <span class="text-sm text-surface-500">{{ t('inventory.descriptions.list') }}</span>
                     </div>
-                    <Button :label="t.actions.new_transfer" icon="pi pi-arrow-right-arrow-left" severity="secondary" outlined class="rounded-xl" />
+                    <Button :label="t('inventory.actions.new_transfer')" icon="pi pi-arrow-right-arrow-left" severity="secondary" outlined class="rounded-xl" />
                 </div>
             </template>
             <template #content>
@@ -120,7 +122,7 @@ const toggleLowStock = () => {
                                 <InputIcon class="pi pi-search" />
                                 <InputText
                                     v-model="(filters.global as any).value"
-                                    :placeholder="t.placeholders?.search"
+                                    :placeholder="t('inventory.placeholders.search')"
                                     @keyup.enter="onFilter"
                                     class="w-full rounded-xl"
                                 />
@@ -138,7 +140,7 @@ const toggleLowStock = () => {
                                 <Button
                                     type="button"
                                     icon="pi pi-filter-slash"
-                                    :label="t.table?.clear_filter"
+                                    :label="t('inventory.table.clear_filter')"
                                     outlined
                                     @click="clearFilters"
                                     class="rounded-xl"
@@ -150,23 +152,23 @@ const toggleLowStock = () => {
                     <template #empty>
                         <div class="flex flex-col items-center justify-center py-20 text-surface-400">
                             <i class="mb-4 text-6xl pi pi-box opacity-20"></i>
-                            <p class="text-xl font-medium">{{ t.messages.empty_list }}</p>
+                            <p class="text-xl font-medium">{{ t('inventory.messages.empty_list') }}</p>
                         </div>
                     </template>
 
-                    <Column field="sku" :header="t.table.sku" sortable>
+                    <Column field="sku" :header="t('inventory.table.sku')" sortable>
                         <template #body="{ data }">
                             <span class="font-mono text-xs uppercase tracking-widest font-bold">{{ data.sku }}</span>
                         </template>
                     </Column>
 
-                    <Column field="variant_name" :header="t.table.product" sortable>
+                    <Column field="variant_name" :header="t('inventory.table.product')" sortable>
                         <template #body="{ data }">
                             <span class="font-bold text-surface-900 dark:text-surface-0">{{ data.variant_name }}</span>
                         </template>
                     </Column>
 
-                    <Column field="stock_location_name" :header="t.table.location" sortable>
+                    <Column field="stock_location_name" :header="t('inventory.table.location')" sortable>
                         <template #body="{ data }">
                             <div class="flex items-center gap-2">
                                 <i class="pi pi-building text-surface-400"></i>
@@ -175,19 +177,19 @@ const toggleLowStock = () => {
                         </template>
                     </Column>
 
-                    <Column field="countOnHand" :header="t.table.on_hand" sortable class="text-center">
+                    <Column field="countOnHand" :header="t('inventory.table.on_hand')" sortable class="text-center">
                         <template #body="{ data }">
                             <span class="font-black text-lg">{{ data.countOnHand }}</span>
                         </template>
                     </Column>
 
-                    <Column field="quantityReserved" :header="t.table.reserved" sortable class="text-center">
+                    <Column field="quantityReserved" :header="t('inventory.table.reserved')" sortable class="text-center">
                         <template #body="{ data }">
                             <span class="text-surface-500">{{ data.quantityReserved }}</span>
                         </template>
                     </Column>
 
-                    <Column field="countAvailable" :header="t.table.available" sortable class="text-center">
+                    <Column field="countAvailable" :header="t('inventory.table.available')" sortable class="text-center">
                         <template #body="{ data }">
                             <Tag :value="data.countAvailable" 
                                  :severity="data.countAvailable > 10 ? 'success' : (data.countAvailable > 0 ? 'warning' : 'danger')" 
@@ -195,7 +197,7 @@ const toggleLowStock = () => {
                         </template>
                     </Column>
 
-                    <Column :header="t.table.actions" class="w-32 text-right" frozen alignFrozen="right">
+                    <Column :header="t('inventory.table.actions')" class="w-32 text-right" frozen alignFrozen="right">
                         <template #body="{ data }">
                             <div class="flex justify-end gap-1">
                                 <Button icon="pi pi-cog" severity="secondary" text rounded v-tooltip.top="'Adjust Stock'" @click="showAdjust(data)" />

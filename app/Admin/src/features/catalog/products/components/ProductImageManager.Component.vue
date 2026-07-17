@@ -5,8 +5,8 @@ import { useToast } from '@/shared/composables/toast.use';
 import apiClient from '@/shared/api/http/api.client';
 import type { ApiResult } from '@/shared/api/types/api.types';
 import type { ProductImage } from '../types/product.types';
-import ProductImageUploader from './images/ProductImageUploader.vue';
-import ProductImageList from './images/ProductImageList.vue';
+import ProductImageUploader from './images/ProductImageUploader.Component.vue';
+import ProductImageList from './images/ProductImageList.Component.vue';
 import { productService } from '../services/product.service';
 
 const props = defineProps<{
@@ -48,7 +48,7 @@ const handleUpload = async (payload: { file: File, role: number, alt: string, on
 };
 
 const onDelete = async (id: string) => {
-    const result = await productService.deleteImage(props.productId, id);
+    const result = await productService.deleteImage(id);
     if (result.success) {
         showToast('success', 'Deleted', 'Image removed');
         await loadImages();
@@ -59,7 +59,7 @@ const onDelete = async (id: string) => {
 
 const onUpdateImage = async (payload: { id: string, role: number, alt: string }) => {
     try {
-        const result = await productService.updateImage(props.productId, payload.id, payload.role, payload.alt);
+        const result = await productService.updateImage(payload.id, { alt: payload.alt, role: payload.role });
 
         if (result.success) {
             showToast('success', 'Updated', 'Image details updated');

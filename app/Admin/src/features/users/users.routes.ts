@@ -10,7 +10,7 @@ export const usersRoutes: RouteRecordRaw = {
         {
           path: '',
           name: 'admin-users',
-          component: () => import('./views/admin-user-list.view.vue'),
+          component: () => import('./views/AdminUserList.View.vue'),
           meta: {
             breadcrumb: 'Staff'
           }
@@ -18,7 +18,7 @@ export const usersRoutes: RouteRecordRaw = {
         {
           path: 'create',
           name: 'admin-user-create',
-          component: () => import('./views/staff-form.view.vue'),
+          component: () => import('./views/StaffForm.View.vue'),
           meta: {
             breadcrumb: 'Invite Staff'
           }
@@ -26,7 +26,7 @@ export const usersRoutes: RouteRecordRaw = {
         {
           path: ':id',
           name: 'admin-user-detail',
-          component: () => import('./views/staff-detail.view.vue'),
+          component: () => import('./views/StaffDetail.View.vue'),
           meta: {
             breadcrumb: 'Staff Details'
           }
@@ -34,7 +34,7 @@ export const usersRoutes: RouteRecordRaw = {
         {
           path: ':id/edit',
           name: 'admin-user-edit',
-          component: () => import('./views/staff-form.view.vue'),
+          component: () => import('./views/StaffForm.View.vue'),
           meta: {
             breadcrumb: 'Edit Staff'
           }
@@ -47,7 +47,7 @@ export const usersRoutes: RouteRecordRaw = {
         {
           path: '',
           name: 'customer-users',
-          component: () => import('./views/customer-list.view.vue'),
+          component: () => import('./views/CustomerList.View.vue'),
           meta: {
             breadcrumb: 'Customers'
           }
@@ -55,7 +55,7 @@ export const usersRoutes: RouteRecordRaw = {
         {
           path: ':id',
           name: 'customer-detail',
-          component: () => import('./views/customer-detail.view.vue'), // Placeholder
+          component: () => import('./views/CustomerDetail.View.vue'), // Placeholder
           meta: {
             breadcrumb: 'Customer Details'
           }

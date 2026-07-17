@@ -1,15 +1,16 @@
 <script setup lang="ts">
 import { onMounted, computed, ref, watch } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { useRoute, useRouter } from 'vue-router'
 import { useTaxonomyStore } from '../stores/taxonomy.store'
 import { storeToRefs } from 'pinia'
-import { taxonomyLocales as t } from '../locales/taxonomy.locales'
 import { useApiErrorHandler } from '@/shared/composables/api-error-handler.use'
-import AppBreadcrumb from '@/shared/components/breadcrumb.component.vue'
+import AppBreadcrumb from '@/shared/components/Breadcrumb.Component.vue'
 import { useToast } from '@/shared/composables/toast.use'
 import { useConfirm } from 'primevue/useconfirm'
 import type { TaxonomyListItem } from '../types/taxonomy.types'
 
+const { t } = useI18n()
 const route = useRoute()
 const router = useRouter()
 const confirm = useConfirm()
@@ -33,19 +34,19 @@ const openEdit = (id: string) => {
 }
 
 const confirmDelete = (item: TaxonomyListItem) => {
-  const messageStr = (t.confirm?.delete_message as string || 'Delete "{name}"?').replace('{name}', item.name);
+  const messageStr = (t('catalog.taxonomies.confirm.delete_message') || 'Delete "{name}"?').replace('{name}', item.name);
   
   confirm.require({
     message: messageStr,
-    header: t.confirm?.delete_header as string || 'Confirm Deletion',
+    header: t('catalog.taxonomies.confirm.delete_header') || 'Confirm Deletion',
     icon: 'pi pi-exclamation-triangle',
-    rejectLabel: t.actions?.cancel,
-    acceptLabel: t.actions?.delete,
+    rejectLabel: t('catalog.taxonomies.actions.cancel'),
+    acceptLabel: t('catalog.taxonomies.actions.delete'),
     acceptProps: { severity: 'danger' },
     accept: async () => {
       const result = await store.deleteTaxonomy(item.id)
       if (result.success) {
-        showToast('success', 'Deleted', t.messages?.delete_success || 'Taxonomy removed')
+        showToast('success', 'Deleted', t('catalog.taxonomies.messages.delete_success') || 'Taxonomy removed')
         if (selectedId.value === item.id) {
             router.push({ name: 'catalog.taxonomies.list' })
         }
@@ -61,29 +62,26 @@ const goBack = () => router.push({ name: 'catalog.dashboard' })
 
 <template>
   <div class="flex flex-col h-full">
-    <!-- Header -->
     <div class="p-6 pb-0 max-w-full">
-        <AppBreadcrumb :locales="t" />
+        <AppBreadcrumb />
         <div class="flex items-center justify-between mt-4 mb-6">
             <div class="flex items-center gap-4">
                 <Button icon="pi pi-arrow-left" text rounded severity="secondary" @click="goBack" class="bg-surface-100 dark:bg-surface-800" />
                 <div>
                     <h2 class="text-3xl font-black tracking-tighter text-surface-900 dark:text-surface-50 m-0">
-                        {{ t.titles?.list }}
+                        {{ t('catalog.taxonomies.titles.list') }}
                     </h2>
-                    <p class="text-sm text-surface-500 m-0">{{ t.descriptions?.list }}</p>
+                    <p class="text-sm text-surface-500 m-0">{{ t('catalog.taxonomies.descriptions.list') }}</p>
                 </div>
             </div>
             <div class="flex items-center gap-2">
-                <Button :label="t.actions?.create" icon="pi pi-plus" size="small" class="rounded-xl shadow-lg" @click="openNew()" />
+                <Button :label="t('catalog.taxonomies.actions.create')" icon="pi pi-plus" size="small" class="rounded-xl shadow-lg" @click="openNew()" />
                 <Button icon="pi pi-refresh" severity="secondary" text rounded @click="store.fetchTaxonomies({ pageSize: 100 })" :loading="loading" />
             </div>
         </div>
     </div>
 
-    <!-- Manager Layout -->
     <div class="flex flex-1 gap-6 p-6 pt-0 overflow-hidden min-h-[600px]">
-        <!-- Sidebar (List) -->
         <div class="w-1/3 min-w-[320px] flex flex-col">
             <Card class="flex-1 border-none shadow-sm rounded-3xl bg-surface-0 dark:bg-surface-900 overflow-hidden flex flex-col">
                 <template #content>
@@ -133,7 +131,6 @@ const goBack = () => router.push({ name: 'catalog.dashboard' })
             </Card>
         </div>
 
-        <!-- Main Content (Form) -->
         <div class="flex-1 overflow-hidden flex flex-col">
             <RouterView :key="route.fullPath" />
         </div>

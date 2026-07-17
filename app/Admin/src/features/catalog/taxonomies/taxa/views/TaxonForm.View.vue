@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { onMounted, computed, ref, watch } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { useRoute, useRouter } from 'vue-router'
 import { useTaxonStore } from '../stores/taxon.store'
 import { useTaxonomyStore } from '../../stores/taxonomy.store'
@@ -7,17 +8,16 @@ import { storeToRefs } from 'pinia'
 import { useForm } from 'vee-validate'
 import { toTypedSchema } from '@vee-validate/zod'
 import { TaxonSchema } from '../schemas/taxon.schema'
-import { taxonLocales } from '../locales/taxon.locales'
 import { useApiErrorHandler } from '@/shared/composables/api-error-handler.use'
 import { useToast } from '@/shared/composables/toast.use'
-import AppBreadcrumb from '@/shared/components/breadcrumb.component.vue'
-import MetadataManager from '@/shared/components/metadata-manager.component.vue'
-import TaxonRulesManagerComponent from '../components/taxon-rules-manager.component.vue'
-import TaxonProductsPreviewComponent from '../components/taxon-products-preview.component.vue'
+import AppBreadcrumb from '@/shared/components/Breadcrumb.Component.vue'
+import MetadataManager from '@/shared/components/MetadataManager.Component.vue'
+import TaxonRulesManagerComponent from '../components/TaxonRulesManager.Component.vue'
+import TaxonProductsPreviewComponent from '../components/TaxonProductsPreview.Component.vue'
 import { taxonService } from '../services/taxon.service'
 import type { TaxonDetail } from '../types/taxon.types'
 
-const t = taxonLocales as any
+const { t } = useI18n()
 const route = useRoute()
 const router = useRouter()
 const taxonStore = useTaxonStore()
@@ -37,7 +37,6 @@ const actionLoading = ref(false)
 const initialLoading = ref(false)
 const previewRef = ref<any>(null)
 
-// --- FORM SETUP ---
 const { defineField, handleSubmit, errors, setValues, resetForm, values: formValues } = useForm({
   validationSchema: toTypedSchema(TaxonSchema),
   initialValues: {
@@ -90,7 +89,7 @@ const loadData = async () => {
   }
 
   if (isEdit.value) {
-    const result = await taxonService.getById(taxonId.value)
+    const result = await taxonService.getById(taxonomyId.value, taxonId.value)
     if (result.success && result.data) {
       setValues({
         taxonomyId: result.data.taxonomyId,
@@ -161,16 +160,15 @@ const onFormSubmit = handleSubmit(async (values: any) => {
   if (result.success) {
     showToast(
       'success',
-      t.common?.success || 'Success',
+      t('common.success') || 'Success',
       (isEdit.value
-        ? t.messages?.update_success
-        : t.messages?.create_success) || 'Success',
+        ? t('catalog.taxa.messages.update_success')
+        : t('catalog.taxa.messages.create_success')) || 'Success',
     )
     if (!isEdit.value && result.data) {
-        // Redirect to edit to allow adding rules if it's automatic
         router.push({ name: 'catalog.taxa.edit', params: { taxonomyId: taxonomyId.value, id: result.data.id } })
     } else {
-        taxonStore.fetchTaxons(taxonomyId.value) // Refresh sidebar
+        taxonStore.fetchTaxons(taxonomyId.value)
     }
   } else {
     handleApiResult(result)
@@ -194,20 +192,19 @@ const goBack = () => router.push({ name: 'catalog.taxa.manager', params: { taxon
     </div>
 
     <div v-else class="flex flex-col h-full">
-        <!-- Compact Header for Split View -->
         <div class="flex items-center justify-between mb-4 bg-surface-0 dark:bg-surface-900 p-4 rounded-2xl border border-surface-100 dark:border-surface-800 shadow-sm">
             <div class="flex items-center gap-3 overflow-hidden">
                 <div v-if="!initialLoading" class="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center text-primary shrink-0">
                     <i :class="isEdit ? 'pi pi-pencil' : 'pi pi-plus'"></i>
                 </div>
                 <div v-if="!initialLoading" class="overflow-hidden">
-                    <h3 class="text-lg font-black tracking-tight m-0 truncate">{{ isEdit ? presentation : t.titles?.create }}</h3>
-                    <p class="text-xs text-surface-500 m-0 truncate">{{ isEdit ? t.descriptions?.automation_edit : t.descriptions?.automation_create }}</p>
+                    <h3 class="text-lg font-black tracking-tight m-0 truncate">{{ isEdit ? presentation : t('catalog.taxa.titles.create') }}</h3>
+                    <p class="text-xs text-surface-500 m-0 truncate">{{ isEdit ? t('catalog.taxa.descriptions.automation_edit') : t('catalog.taxa.descriptions.automation_create') }}</p>
                 </div>
             </div>
             <div class="flex items-center gap-2 shrink-0">
                 <Button 
-                    :label="isEdit ? t.actions?.save : t.actions?.create" 
+                    :label="isEdit ? t('catalog.taxa.actions.save') : t('catalog.taxa.actions.create')" 
                     icon="pi pi-check" 
                     class="rounded-xl px-6 shadow-lg shadow-primary/20" 
                     :loading="actionLoading"
@@ -221,17 +218,9 @@ const goBack = () => router.push({ name: 'catalog.taxa.manager', params: { taxon
             <div class="flex flex-col h-full">
                 <Tabs v-model:value="activeTab" class="flex-1 flex flex-col overflow-hidden">
                     <TabList class="shrink-0">
-                        <Tab :value="0">{{ t.tabs?.general }}</Tab>
-                        <!-- Automation and Preview tabs hidden for now -->
-                        <!-- <Tab :value="1">
-                            <div class="flex items-center gap-2">
-                                <span>{{ t.tabs?.automation }}</span>
-                                <Badge v-if="automatic" :value="currentRules.length" severity="warn" size="small" />
-                            </div>
-                        </Tab>
-                        <Tab :value="2" v-if="automatic">{{ t.tabs?.preview }}</Tab> -->
-                        <Tab :value="3">{{ t.tabs?.seo }}</Tab>
-                        <Tab :value="4">{{ t.tabs?.metadata }}</Tab>
+                        <Tab :value="0">{{ t('catalog.taxa.tabs.general') }}</Tab>
+                        <Tab :value="3">{{ t('catalog.taxa.tabs.seo') }}</Tab>
+                        <Tab :value="4">{{ t('catalog.taxa.tabs.metadata') }}</Tab>
                     </TabList>
 
                     <TabPanels class="flex-1 overflow-y-auto p-6 scrollbar-thin">
@@ -239,71 +228,58 @@ const goBack = () => router.push({ name: 'catalog.taxa.manager', params: { taxon
                             <div class="flex flex-col gap-6">
                                 <div class="grid grid-cols-1 gap-6">
                                     <div class="flex flex-col gap-2">
-                                        <label class="font-bold text-xs uppercase tracking-wider text-surface-500">{{ t.labels?.name }}</label>
+                                        <label class="font-bold text-xs uppercase tracking-wider text-surface-500">{{ t('catalog.taxa.labels.name') }}</label>
                                         <InputText v-model="name" class="w-full rounded-xl h-11" :invalid="!!errors.name" @blur="generateSlug" />
                                         <small class="text-red-500" v-if="errors.name">{{ errors.name }}</small>
                                     </div>
 
                                     <div class="flex flex-col gap-2">
-                                        <label class="font-bold text-xs uppercase tracking-wider text-surface-500">{{ t.labels?.presentation }}</label>
+                                        <label class="font-bold text-xs uppercase tracking-wider text-surface-500">{{ t('catalog.taxa.labels.presentation') }}</label>
                                         <InputText v-model="presentation" class="w-full rounded-xl h-11" :invalid="!!errors.presentation" />
                                         <small class="text-red-500" v-if="errors.presentation">{{ errors.presentation }}</small>
                                     </div>
 
                                     <div class="grid grid-cols-2 gap-4">
                                         <div class="flex flex-col gap-2">
-                                            <label class="font-bold text-xs uppercase tracking-wider text-surface-500">{{ t.labels?.slug }}</label>
+                                            <label class="font-bold text-xs uppercase tracking-wider text-surface-500">{{ t('catalog.taxa.labels.slug') }}</label>
                                             <InputText v-model="slug" class="w-full font-mono text-sm rounded-xl h-11" :invalid="!!errors.slug" />
                                         </div>
                                         <div class="flex flex-col gap-2">
-                                            <label class="font-bold text-xs uppercase tracking-wider text-surface-500">{{ t.labels?.position }}</label>
+                                            <label class="font-bold text-xs uppercase tracking-wider text-surface-500">{{ t('catalog.taxa.labels.position') }}</label>
                                             <InputNumber v-model="position" showButtons :min="0" class="w-full rounded-xl overflow-hidden" inputClass="h-11" />
                                         </div>
                                     </div>
 
                                     <div class="flex flex-col gap-2">
-                                        <label class="font-bold text-xs uppercase tracking-wider text-surface-500">{{ t.labels?.description }}</label>
+                                        <label class="font-bold text-xs uppercase tracking-wider text-surface-500">{{ t('catalog.taxa.labels.description') }}</label>
                                         <Textarea v-model="description" rows="3" class="w-full rounded-xl" />
                                     </div>
 
                                     <div class="p-4 bg-surface-50 dark:bg-surface-800/50 rounded-2xl border border-surface-100 dark:border-surface-800 flex items-center justify-between mt-2">
-                                        <span class="font-bold text-sm">{{ t.labels?.hide_from_nav }}</span>
+                                        <span class="font-bold text-sm">{{ t('catalog.taxa.labels.hide_from_nav') }}</span>
                                         <ToggleSwitch v-model="hideFromNav" />
                                     </div>
-
-                                    <!-- Automatic Collection hidden for now -->
-                                    <!-- <div class="p-4 bg-amber-50 dark:bg-amber-900/10 rounded-2xl border border-amber-100 dark:border-amber-900/30 flex items-center justify-between mt-2">
-                                        <div class="flex items-center gap-3">
-                                            <i class="pi pi-bolt text-amber-600"></i>
-                                            <span class="font-bold text-sm">{{ t.labels?.automatic }}</span>
-                                        </div>
-                                        <ToggleSwitch v-model="automatic" />
-                                    </div> -->
                                 </div>
                             </div>
                         </TabPanel>
 
-                        <!-- Automation and Preview TabPanels hidden for now -->
-                        <!-- <TabPanel :value="1"> ... </TabPanel> -->
-                        <!-- <TabPanel :value="2"> ... </TabPanel> -->
-
                         <TabPanel :value="3">
                             <div class="flex flex-col gap-6">
                                 <div class="flex flex-col gap-2">
-                                    <label class="font-bold text-xs uppercase text-surface-500">{{ t.labels?.meta_title }}</label>
-                                    <InputText v-model="metaTitle" class="w-full rounded-xl" :placeholder="t.placeholders?.meta_title" />
+                                    <label class="font-bold text-xs uppercase text-surface-500">{{ t('catalog.taxa.labels.meta_title') }}</label>
+                                    <InputText v-model="metaTitle" class="w-full rounded-xl" :placeholder="t('catalog.taxa.placeholders.meta_title')" />
                                 </div>
                                 <div class="flex flex-col gap-2">
-                                    <label class="font-bold text-xs uppercase text-surface-500">{{ t.labels?.meta_description }}</label>
-                                    <Textarea v-model="metaDescription" rows="3" class="w-full rounded-xl" :placeholder="t.placeholders?.meta_description" />
+                                    <label class="font-bold text-xs uppercase text-surface-500">{{ t('catalog.taxa.labels.meta_description') }}</label>
+                                    <Textarea v-model="metaDescription" rows="3" class="w-full rounded-xl" :placeholder="t('catalog.taxa.placeholders.meta_description')" />
                                 </div>
                             </div>
                         </TabPanel>
 
                         <TabPanel :value="4">
                             <div class="flex flex-col gap-8">
-                                <MetadataManager v-model="public_metadata" :title="t.labels?.public_metadata" />
-                                <MetadataManager v-model="private_metadata" :title="t.labels?.private_metadata" />
+                                <MetadataManager v-model="public_metadata" :title="t('catalog.taxa.labels.public_metadata')" />
+                                <MetadataManager v-model="private_metadata" :title="t('catalog.taxa.labels.private_metadata')" />
                             </div>
                         </TabPanel>
                     </TabPanels>

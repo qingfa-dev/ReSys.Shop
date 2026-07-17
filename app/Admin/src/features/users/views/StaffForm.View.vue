@@ -173,6 +173,5 @@ async function onSubmit() {
                 <Button type="submit" :label="isEditMode ? 'Save Changes' : 'Send Invitation'" :loading="submitting" icon="pi pi-check" />
             </div>
         </form>
-    </template>
 </Card>
 </template>

@@ -7,24 +7,24 @@ export const orderingRoutes: RouteRecordRaw = {
     {
       path: 'orders',
       name: 'ordering.orders.list',
-      component: () => import('@/features/ordering/views/order-list.view.vue'),
+      component: () => import('@/features/ordering/views/OrderList.View.vue'),
     },
     {
       path: 'orders/create',
       name: 'ordering.orders.create',
-      component: () => import('@/features/ordering/views/order-form.view.vue'),
+      component: () => import('@/features/ordering/views/OrderForm.View.vue'),
       meta: { breadcrumb: 'Create Order' },
     },
     {
       path: 'orders/:id',
       name: 'ordering.orders.detail',
-      component: () => import('@/features/ordering/views/order-detail.view.vue'),
+      component: () => import('@/features/ordering/views/OrderDetail.View.vue'),
       meta: { breadcrumb: 'Detail' },
     },
     {
       path: 'fulfillment',
       name: 'ordering.fulfillment.queue',
-      component: () => import('@/features/ordering/fulfillment/views/fulfillment-queue.view.vue'),
+      component: () => import('@/features/ordering/fulfillment/views/FulfillmentQueue.View.vue'),
       meta: { breadcrumb: 'Fulfillment' },
     },
   ],

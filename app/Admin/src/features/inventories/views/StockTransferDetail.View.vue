@@ -5,9 +5,11 @@ import { useInventoryStore } from '../stores/inventory.store';
 import { useProductStore } from '@/features/catalog/products/stores/product.store';
 import { useToast } from '@/shared/composables/toast.use';
 import { useFormatter } from '@/shared/composables/formatter.use';
-import { inventoryLocales as t } from '../locales/inventory.locales';
-import AppBreadcrumb from '@/shared/components/breadcrumb.component.vue';
+import { useI18n } from 'vue-i18n';
+import AppBreadcrumb from '@/shared/components/Breadcrumb.Component.vue';
 import type { StockTransferDetail } from '../types/inventory.types';
+
+const { t } = useI18n();
 
 const route = useRoute();
 const router = useRouter();
@@ -68,7 +70,7 @@ async function onShip() {
     try {
         const res = await store.inventoryService.shipTransfer(transferId.value);
         if (res.success) {
-            showToast('success', 'Success', t.messages?.create_transfer_success || 'Transfer shipped');
+            showToast('success', 'Success', t('inventory.messages.create_transfer_success') || 'Transfer shipped');
             await loadTransfer();
         }
     } finally {
@@ -122,8 +124,8 @@ onMounted(() => {
                 </div>
             </div>
             <div class="flex items-center gap-3">
-                <Button v-if="transfer.state === 'Draft'" :label="t.actions?.ship" icon="pi pi-send" class="rounded-xl px-6" :loading="processing" @click="onShip" />
-                <Button v-if="transfer.state === 'InTransit'" :label="t.actions?.receive" icon="pi pi-download" severity="success" class="rounded-xl px-6" :loading="processing" @click="onReceive" />
+                <Button v-if="transfer.state === 'Draft'" :label="t('inventory.actions.ship')" icon="pi pi-send" class="rounded-xl px-6" :loading="processing" @click="onShip" />
+                <Button v-if="transfer.state === 'InTransit'" :label="t('inventory.actions.receive')" icon="pi pi-download" severity="success" class="rounded-xl px-6" :loading="processing" @click="onReceive" />
             </div>
         </div>
 
@@ -138,7 +140,7 @@ onMounted(() => {
                     <template #title>
                         <div class="flex justify-between items-center p-4">
                             <span class="text-xl font-black uppercase tracking-tight">Merchandise</span>
-                            <Button v-if="transfer.state === 'Draft'" :label="t.actions?.add" icon="pi pi-plus" size="small" text @click="itemDialog = true" />
+                            <Button v-if="transfer.state === 'Draft'" :label="t('inventory.actions.add')" icon="pi pi-plus" size="small" text @click="itemDialog = true" />
                         </div>
                     </template>
                     <template #content>

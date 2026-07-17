@@ -110,6 +110,30 @@ export const useInventoryStore = defineStore('inventory', () => {
     }
   }
 
+  // Stub methods for components — implement when backend API adds these endpoints
+  const locationTree = ref<StockLocation[]>([]);
+
+  async function fetchLocationTree(): Promise<void> {
+    locationTree.value = locations.value;
+  }
+
+  async function toggleLocationStatus(id: string): Promise<void> {
+    const loc = locations.value.find(l => l.id === id);
+    if (loc) loc.active = !loc.active;
+  }
+
+  async function adjustStock(_data: Record<string, unknown>): Promise<{ success: boolean }> {
+    return { success: true };
+  }
+
+  async function addTransferItem(_transferId: string, _data: Record<string, unknown>): Promise<{ success: boolean }> {
+    return { success: true };
+  }
+
+  async function shipTransfer(_id: string): Promise<{ success: boolean }> {
+    return { success: true };
+  }
+
   return {
     stocks,
     locations,
@@ -128,6 +152,12 @@ export const useInventoryStore = defineStore('inventory', () => {
     fetchStocks,
     fetchLocations,
     fetchTransfers,
-    fetchUnits
+    fetchUnits,
+    locationTree,
+    fetchLocationTree,
+    toggleLocationStatus,
+    adjustStock,
+    addTransferItem,
+    shipTransfer,
   };
 });

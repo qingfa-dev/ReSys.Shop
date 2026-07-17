@@ -17,7 +17,10 @@ export const useReportStore = defineStore('report', () => {
       sales.value = { ...data.sales };
       inventory.value = { ...data.inventory };
       catalog.value = { ...data.catalog };
-      activities.value = data.recentActivities;
+      activities.value = data.recentActivities.map((item: Record<string, unknown>) => ({
+        ...item,
+        type: item.type as 'Order' | 'Stock',
+      })) as ActivityItem[];
     } finally {
       is_loading.value = false;
     }

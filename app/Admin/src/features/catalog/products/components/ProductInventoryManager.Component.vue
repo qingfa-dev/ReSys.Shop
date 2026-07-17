@@ -1,15 +1,15 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
+import { useI18n } from 'vue-i18n';
 import { useApiErrorHandler } from '@/shared/composables/api-error-handler.use';
 import { useToast } from '@/shared/composables/toast.use';
 import { useFormatter } from '@/shared/composables/formatter.use';
 import { inventoryService } from '@/features/inventories/services/inventory.service';
 import { variantService } from '../services/variant.service';
-import { productLocales, type ProductLocales } from '../locales/product.locales';
-import StockMovementTimeline from '@/features/inventories/components/StockMovementTimeline.vue';
-import StockAdjustmentDialog from '@/features/inventories/components/StockAdjustmentDialog.vue';
+import StockMovementTimeline from '@/features/inventories/components/StockMovementTimeline.Component.vue';
+import StockAdjustmentDialog from '@/features/inventories/components/StockAdjustmentDialog.Component.vue';
 
-const t = productLocales as ProductLocales;
+const { t } = useI18n();
 
 const props = defineProps<{
     productId: string;
@@ -23,7 +23,6 @@ const variants = ref<any[]>([]);
 const stockItems = ref<any[]>([]);
 const loading = ref(false);
 
-// Sub-component state
 const historyDrawer = ref(false);
 const adjustDialog = ref(false);
 const selectedStockItem = ref<any>(null);
@@ -31,13 +30,11 @@ const selectedStockItem = ref<any>(null);
 const loadData = async () => {
     loading.value = true;
     try {
-        // 1. Load Variants using Service
         const varResult = await variantService.listByProductId(props.productId);
         if (varResult.success && varResult.data) {
             variants.value = varResult.data || [];
         }
 
-        // 2. Load Stock Items using inventoryService
         const stockResult = await inventoryService.listStocks({ filter: `Variant.ProductId=${props.productId}` });
         if (stockResult.success && stockResult.data) {
             stockItems.value = stockResult.data || [];
@@ -69,8 +66,8 @@ onMounted(() => {
 <template>
     <div class="flex flex-col gap-6">
         <div>
-            <h3 class="text-lg font-bold m-0">{{ t.inventory_table?.title }}</h3>
-            <p class="text-sm text-surface-500 m-0">{{ t.descriptions?.inventory_management }}</p>
+            <h3 class="text-lg font-bold m-0">{{ t('catalog.products.inventory_table.title') }}</h3>
+            <p class="text-sm text-surface-500 m-0">{{ t('catalog.products.descriptions.inventory_management') }}</p>
         </div>
 
         <div v-if="loading" class="flex justify-center py-12">
@@ -78,7 +75,7 @@ onMounted(() => {
         </div>
 
         <div v-else-if="variants.length === 0" class="text-center py-8 text-surface-500 italic">
-            {{ t.variants?.empty }}
+            {{ t('catalog.products.variants.empty') }}
         </div>
 
         <div v-else class="flex flex-col gap-6">
@@ -95,17 +92,17 @@ onMounted(() => {
                 <div class="p-0">
                     <DataTable :value="getStockForVariant(variant.id)" size="small" class="border-none">
                         <template #empty>
-                            <div class="p-4 text-center text-sm text-surface-400">{{ t.inventory_table?.no_records }}</div>
+                            <div class="p-4 text-center text-sm text-surface-400">{{ t('catalog.products.inventory_table.no_records') }}</div>
                         </template>
-                        <Column field="stock_location_name" :header="t.inventory_table?.location"></Column>
-                        <Column field="quantity_on_hand" :header="t.inventory_table?.on_hand" class="text-right font-mono font-bold"></Column>
-                        <Column field="quantity_reserved" :header="t.inventory_table?.reserved" class="text-right font-mono text-orange-500"></Column>
-                        <Column :header="t.inventory_table?.available" class="text-right font-mono text-green-600">
+                        <Column field="stock_location_name" :header="t('catalog.products.inventory_table.location')"></Column>
+                        <Column field="quantity_on_hand" :header="t('catalog.products.inventory_table.on_hand')" class="text-right font-mono font-bold"></Column>
+                        <Column field="quantity_reserved" :header="t('catalog.products.inventory_table.reserved')" class="text-right font-mono text-orange-500"></Column>
+                        <Column :header="t('catalog.products.inventory_table.available')" class="text-right font-mono text-green-600">
                             <template #body="{ data }">
                                 {{ data.quantity_on_hand - data.quantity_reserved }}
                             </template>
                         </Column>
-                        <Column field="backorderable" :header="t.inventory_table?.backorder" class="text-center">
+                        <Column field="backorderable" :header="t('catalog.products.inventory_table.backorder')" class="text-center">
                             <template #body="{ data }">
                                 <i v-if="data.backorderable" class="pi pi-check text-green-500"></i>
                                 <i v-else class="pi pi-times text-surface-400"></i>
@@ -124,7 +121,6 @@ onMounted(() => {
             </div>
         </div>
 
-        <!-- Dialogs & Drawers -->
         <StockAdjustmentDialog 
             v-if="adjustDialog" 
             :stockItemId="selectedStockItem.id" 

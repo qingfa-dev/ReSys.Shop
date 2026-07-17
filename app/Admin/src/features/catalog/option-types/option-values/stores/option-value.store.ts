@@ -3,9 +3,9 @@ import { ref } from 'vue';
 import { optionValueService } from '../services/option-value.service';
 import type { 
   OptionValueListItem,
+  OptionValueQuery,
   CreateOptionValueRequest,
   UpdateOptionValueRequest,
-  OptionValueQuery,
   ApiResult
 } from '../types/option-value.types';
 
@@ -25,7 +25,7 @@ export const useOptionValueStore = defineStore('option-value', () => {
 
   async function fetchValues(optionTypeId: string, queryParams?: Partial<OptionValueQuery>) {
     loading.value = true;
-    const result = await optionValueService.list({ ...queryParams, optionTypeId } as OptionValueQuery);
+    const result = await optionValueService.list({ ...queryParams, optionTypeId } as any);
     if (result.success && result.data) {
       values.value = result.data;
       values.value.sort((a, b) => a.position - b.position);
@@ -64,7 +64,8 @@ export const useOptionValueStore = defineStore('option-value', () => {
 
   async function update(id: string, request: UpdateOptionValueRequest): Promise<ApiResult<OptionValueListItem>> {
     loading.value = true;
-    const result = await optionValueService.update(id, request);
+    const optionTypeId = request.optionTypeId || values.value.find(v => v.id === id)?.optionTypeId || '';
+    const result = await optionValueService.update(optionTypeId, id, request);
     if (result.success && result.data) {
       const idx = values.value.findIndex(v => v.id === id);
       if (idx !== -1) {
@@ -78,7 +79,8 @@ export const useOptionValueStore = defineStore('option-value', () => {
 
   async function remove(id: string): Promise<ApiResult<void>> {
     loading.value = true;
-    const result = await optionValueService.delete(id);
+    const optionTypeId = values.value.find(v => v.id === id)?.optionTypeId || '';
+    const result = await optionValueService.delete(optionTypeId, id);
     if (result.success) {
       values.value = values.value.filter(v => v.id !== id);
     }

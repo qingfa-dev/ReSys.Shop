@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import { ref } from 'vue';
+import { useI18n } from 'vue-i18n';
 import type { ProductImage } from '../../types/product.types';
-import { productLocales } from '../../locales/product.locales';
 
-const t = productLocales as any;
+const { t } = useI18n();
 
 const props = defineProps<{
     images: ProductImage[];
@@ -13,7 +13,7 @@ const emit = defineEmits(['update-image', 'delete']);
 
 const viewMode = ref<'grid' | 'list'>('grid');
 const editingImage = ref<ProductImage | null>(null);
-const editForm = ref({ role: 3, alt: '' }); // 3 = Gallery
+const editForm = ref({ role: 3, alt: '' });
 
 const viewOptions = [
     { icon: 'pi pi-th-large', value: 'grid' },
@@ -21,23 +21,21 @@ const viewOptions = [
 ];
 
 const roles = [
-    { label: t.images?.roles?.primary, value: 0, desc: t.images?.roles?.desc_primary },
-    { label: t.images?.roles?.thumbnail, value: 1, desc: t.images?.roles?.desc_thumbnail },
-    { label: t.images?.roles?.square, value: 2, desc: t.images?.roles?.desc_square },
-    { label: t.images?.roles?.gallery, value: 3, desc: t.images?.roles?.desc_gallery },
-    { label: t.images?.roles?.search, value: 4, desc: t.images?.roles?.desc_search }
+    { label: t('catalog.products.images.roles.primary'), value: 0, desc: t('catalog.products.images.roles.desc_primary') },
+    { label: t('catalog.products.images.roles.thumbnail'), value: 1, desc: t('catalog.products.images.roles.desc_thumbnail') },
+    { label: t('catalog.products.images.roles.square'), value: 2, desc: t('catalog.products.images.roles.desc_square') },
+    { label: t('catalog.products.images.roles.gallery'), value: 3, desc: t('catalog.products.images.roles.desc_gallery') },
+    { label: t('catalog.products.images.roles.search'), value: 4, desc: t('catalog.products.images.roles.desc_search') }
 ];
 
 const getRoleLabel = (roleVal: any) => {
-    // Handle both string (legacy/store) and int (api)
     if (typeof roleVal === 'string') return roleVal;
     const r = roles.find(x => x.value === roleVal);
-    return r ? r.label : t.images?.roles?.gallery;
+    return r ? r.label : t('catalog.products.images.roles.gallery');
 };
 
 const openEdit = (image: ProductImage) => {
     editingImage.value = image;
-    // Ensure we map role correctly (if it comes as string "Default" map to 0, if 0 keep 0)
     let rVal = image.role as unknown as number;
     if (typeof image.role === 'string') {
         const map: Record<string, number> = { 'Default': 0, 'Thumbnail': 1, 'Square': 2, 'Gallery': 3, 'Search': 4 };
@@ -80,10 +78,10 @@ const saveEdit = () => {
                 </div>
                 
                 <div v-if="image.role === 0" class="absolute top-3 left-3 px-3 py-1 bg-primary text-white text-[10px] font-black uppercase tracking-widest rounded-full shadow-lg z-10 pointer-events-none">
-                    {{ t.images?.roles?.primary }}
+                    {{ t('catalog.products.images.roles.primary') }}
                 </div>
                 <div v-else-if="image.role === 4" class="absolute top-3 left-3 px-3 py-1 bg-blue-500 text-white text-[10px] font-black uppercase tracking-widest rounded-full shadow-lg z-10 pointer-events-none">
-                    {{ t.images?.roles?.search }}
+                    {{ t('catalog.products.images.roles.search') }}
                 </div>
                 <div v-else-if="image.role !== 3" class="absolute top-3 left-3 px-3 py-1 bg-surface-900 text-white text-[10px] font-black uppercase tracking-widest rounded-full shadow-lg z-10 pointer-events-none">
                     {{ getRoleLabel(image.role) }}
@@ -104,15 +102,15 @@ const saveEdit = () => {
                         <Image :src="data.url" preview imageClass="w-12 h-12 rounded object-cover border" />
                     </template>
                 </Column>
-                <Column field="role" :header="t.images?.role_label">
+                <Column field="role" :header="t('catalog.products.images.role_label')">
                     <template #body="{ data }">
-                        <Tag v-if="data.role === 0" :value="t.images?.roles?.primary" severity="primary" />
-                        <Tag v-else-if="data.role === 4" :value="t.images?.roles?.search" severity="info" />
-                        <Tag v-else-if="data.role === 3" :value="t.images?.roles?.gallery" severity="secondary" />
+                        <Tag v-if="data.role === 0" :value="t('catalog.products.images.roles.primary')" severity="primary" />
+                        <Tag v-else-if="data.role === 4" :value="t('catalog.products.images.roles.search')" severity="info" />
+                        <Tag v-else-if="data.role === 3" :value="t('catalog.products.images.roles.gallery')" severity="secondary" />
                         <Tag v-else :value="getRoleLabel(data.role)" severity="warning" />
                     </template>
                 </Column>
-                <Column field="alt" :header="t.images?.alt_text">
+                <Column field="alt" :header="t('catalog.products.images.alt_text')">
                     <template #body="{ data }">
                         <span v-if="data.alt">{{ data.alt }}</span>
                         <span v-else class="text-surface-400 italic">No alt text</span>
@@ -130,22 +128,22 @@ const saveEdit = () => {
         </div>
 
         <!-- Edit Dialog -->
-        <Dialog :visible="!!editingImage" :header="t.images?.edit_title" modal :style="{ width: '400px' }" @update:visible="val => !val && (editingImage = null)">
+        <Dialog :visible="!!editingImage" :header="t('catalog.products.images.edit_title')" modal :style="{ width: '400px' }" @update:visible="val => !val && (editingImage = null)">
             <div class="flex flex-col gap-6" v-if="editingImage">
                 <div class="flex flex-col gap-2">
-                    <label class="font-bold text-sm">{{ t.images?.role_label }}</label>
+                    <label class="font-bold text-sm">{{ t('catalog.products.images.role_label') }}</label>
                     <SelectButton v-model="editForm.role" :options="roles" optionLabel="label" optionValue="value" :allowEmpty="false" />
                     <small class="text-surface-500">{{ roles.find(r => r.value === editForm.role)?.desc }}</small>
                 </div>
                 
                 <div class="flex flex-col gap-2">
-                    <label class="font-bold text-sm">{{ t.images?.alt_text }}</label>
-                    <InputText v-model="editForm.alt" :placeholder="t.images?.alt_placeholder" />
+                    <label class="font-bold text-sm">{{ t('catalog.products.images.alt_text') }}</label>
+                    <InputText v-model="editForm.alt" :placeholder="t('catalog.products.images.alt_placeholder')" />
                 </div>
             </div>
             <template #footer>
-                <Button :label="t.actions?.cancel" text severity="secondary" @click="editingImage = null" />
-                <Button :label="t.actions?.save" icon="pi pi-check" @click="saveEdit" />
+                <Button :label="t('catalog.products.actions.cancel')" text severity="secondary" @click="editingImage = null" />
+                <Button :label="t('catalog.products.actions.save')" icon="pi pi-check" @click="saveEdit" />
             </template>
         </Dialog>
     </div>

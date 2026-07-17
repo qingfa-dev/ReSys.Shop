@@ -13,6 +13,9 @@ export const userService = {
   updateAdminStatus: identityApi.users.updateStatus,
   syncUserRoles: identityApi.users.syncRoles,
   unassignPermission: identityApi.users.revokePermission,
+  assignPermission: async (_id: string, _permissionName: string) => {
+    return { success: false, error: { detail: 'Not implemented — no backend route' } } as const
+  },
   resetPassword: async (_id: string, _data: { new_password: string }) => {
     console.warn('resetPassword: no backend route exists. See spec/spec-design-admin-api-services.md')
     return { success: false, error: { detail: 'Not implemented — no backend route' } } as const

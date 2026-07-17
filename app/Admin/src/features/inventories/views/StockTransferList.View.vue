@@ -4,10 +4,12 @@ import { useInventoryStore } from '../stores/inventory.store';
 import { storeToRefs } from 'pinia';
 import { useRouter } from 'vue-router';
 import { useFormatter } from '@/shared/composables/formatter.use';
-import { inventoryLocales as t } from '../locales/inventory.locales';
-import AppBreadcrumb from '@/shared/components/breadcrumb.component.vue';
+import { useI18n } from 'vue-i18n';
+import AppBreadcrumb from '@/shared/components/Breadcrumb.Component.vue';
 import { FilterMatchMode } from '@primevue/core/api';
 import type { DataTablePageEvent, DataTableSortEvent, DataTableFilterMeta } from 'primevue/datatable';
+
+const { t } = useI18n();
 
 const store = useInventoryStore();
 const { transfers, loading, totalTransfers, transferQuery } = storeToRefs(store);
@@ -44,12 +46,12 @@ const getStatusSeverity = (state: string) => {
                 <div class="flex items-center justify-between p-4">
                     <div class="flex flex-col gap-1">
                         <div class="flex items-center gap-3">
-                            <span class="text-xl font-bold">{{ t.titles.transfers }}</span>
+                            <span class="text-xl font-bold">{{ t('inventory.titles.transfers') }}</span>
                             <Badge :value="totalTransfers" severity="info" />
                         </div>
-                        <span class="text-sm text-surface-500">{{ t.descriptions?.transfers }}</span>
+                        <span class="text-sm text-surface-500">{{ t('inventory.descriptions.transfers') }}</span>
                     </div>
-                    <Button :label="t.actions.new_transfer" icon="pi pi-plus" severity="primary" class="rounded-xl" @click="router.push({ name: 'inventory.transfers.create' })" />
+                    <Button :label="t('inventory.actions.new_transfer')" icon="pi pi-plus" severity="primary" class="rounded-xl" @click="router.push({ name: 'inventory.transfers.create' })" />
                 </div>
             </template>
             <template #content>
@@ -74,13 +76,13 @@ const getStatusSeverity = (state: string) => {
                         </div>
                     </template>
 
-                    <Column field="referenceNumber" :header="t.table.reference">
+                    <Column field="referenceNumber" :header="t('inventory.table.reference')">
                         <template #body="{ data }">
                             <span class="font-mono font-bold">{{ data.referenceNumber }}</span>
                         </template>
                     </Column>
 
-                    <Column :header="t.table.location">
+                    <Column :header="t('inventory.table.location')">
                         <template #body="{ data }">
                             <div class="flex items-center gap-3">
                                 <span class="font-medium">{{ data.sourceLocationName }}</span>
@@ -90,7 +92,7 @@ const getStatusSeverity = (state: string) => {
                         </template>
                     </Column>
 
-                    <Column field="state" :header="t.table.status" class="text-center">
+                    <Column field="state" :header="t('inventory.table.status')" class="text-center">
                         <template #body="{ data }">
                             <Tag :value="data.state" :severity="getStatusSeverity(data.state)" rounded class="px-3" />
                         </template>
@@ -102,7 +104,7 @@ const getStatusSeverity = (state: string) => {
                         </template>
                     </Column>
 
-                    <Column :header="t.table.actions" class="w-24 text-right">
+                    <Column :header="t('inventory.table.actions')" class="w-24 text-right">
                         <template #body="{ data }">
                             <Button icon="pi pi-eye" text rounded severity="secondary" v-tooltip.top="'View Details'" @click="router.push({ name: 'inventory.transfers.detail', params: { id: data.id } })" />
                         </template>

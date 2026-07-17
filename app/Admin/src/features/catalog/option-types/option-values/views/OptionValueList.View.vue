@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { onMounted, ref, watch, computed } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { useRoute, useRouter } from 'vue-router'
 import { useOptionValueStore } from '@/features/catalog/option-types/option-values/stores/option-value.store'
 import { useOptionTypeStore } from '@/features/catalog/option-types/stores/option-type.store'
@@ -13,18 +14,16 @@ import type { DataTablePageEvent, DataTableSortEvent, DataTableFilterMeta } from
 import { useToast } from '@/shared/composables/toast.use'
 import { useConfirm } from 'primevue/useconfirm'
 import { useApiErrorHandler } from '@/shared/composables/api-error-handler.use'
-import AppBreadcrumb from '@/shared/components/breadcrumb.component.vue'
+import AppBreadcrumb from '@/shared/components/Breadcrumb.Component.vue'
 import { QueryBuilder } from '@/shared/utils/query-builder.utils'
 import type { OptionValueListItem } from '../types/option-value.types'
-import { optionValueLocales } from '../locales/option-value.locales'
-import type { FeatureLocales } from '@/shared/locales/locale.types'
 
-const t = optionValueLocales as Required<FeatureLocales>
+const { t } = useI18n()
 
 const route = useRoute()
 const router = useRouter()
 const store = useOptionValueStore()
-const typeStore = useOptionTypeStore() // To fetch options for the filter dropdown
+const typeStore = useOptionTypeStore()
 const { items, loading, totalRecords, query } = storeToRefs(store)
 const { showToast } = useToast()
 const { handleApiResult } = useApiErrorHandler()
@@ -32,7 +31,6 @@ const confirm = useConfirm()
 
 const optionTypes = ref<{label: string, value: string}[]>([])
 
-// --- FORM & DIALOG LOGIC ---
 const showDialog = ref(false)
 const isEditing = ref(false)
 const editingId = ref<string | null>(null)
@@ -66,7 +64,6 @@ const openNew = () => {
     editingId.value = null
     resetFormFields()
     
-    // Default to active filter or first available option type
     const activeFilterId = (filters.value.optionTypeId as { value: any }).value
     if (activeFilterId) {
         optionTypeId.value = activeFilterId
@@ -96,9 +93,9 @@ const onFormSubmit = handleFormSubmit(async (values) => {
         : await store.create(values.optionTypeId, values)
     
     if (result.success) {
-        showToast('success', t.common.success || 'Success', (isEditing.value ? t.messages.update_success : t.messages.create_success) || 'Success')
+        showToast('success', t('common.success') || 'Success', (isEditing.value ? t('catalog.option_values.messages.update_success') : t('catalog.option_values.messages.create_success')) || 'Success')
         showDialog.value = false
-        store.fetchList() // Refresh list
+        store.fetchList()
     } else {
         handleApiResult(result)
     }
@@ -108,17 +105,15 @@ const onFormSubmit = handleFormSubmit(async (values) => {
 const filters = ref<DataTableFilterMeta>({
   global: { value: null, matchMode: FilterMatchMode.CONTAINS },
   name: { operator: FilterOperator.AND, constraints: [{ value: null, matchMode: FilterMatchMode.CONTAINS }] },
-  optionTypeId: { value: null, matchMode: FilterMatchMode.EQUALS } // Simple value filter for dropdown
+  optionTypeId: { value: null, matchMode: FilterMatchMode.EQUALS }
 })
 
 const loadItems = async () => {
-  // Load option types first for defaults/filters
   const typesResult = await typeStore.fetchList({ pageSize: 100 })
   if (typesResult.success && typesResult.data) {
       optionTypes.value = typesResult.data.map(t => ({ label: t.presentation || t.name, value: t.id }))
   }
 
-  // Check for pre-filter in route
   if (route.query.optionTypeId) {
       filters.value.optionTypeId = { value: route.query.optionTypeId as string, matchMode: FilterMatchMode.EQUALS }
       query.value.optionTypeId = route.query.optionTypeId as string
@@ -152,11 +147,6 @@ const onFilter = () => {
   if (nameFilter.constraints[0]?.value) {
     builder.where('Name', '*', nameFilter.constraints[0].value)
   }
-
-  // We pass optionTypeId directly to the API param, not as a filter string usually, 
-  // but if we want to use the builder:
-  // Since the service listFlat takes OptionValueQuery which has explicit `optionTypeId` prop,
-  // we should map it there.
   
   const built = builder.build()
   
@@ -164,7 +154,7 @@ const onFilter = () => {
     search: globalFilter.value || undefined,
     searchFields: globalFilter.value ? ['Name', 'Presentation'] : undefined,
     filter: built.filter,
-    optionTypeId: typeFilterValue || undefined, // Pass explicit param
+    optionTypeId: typeFilterValue || undefined,
     page: 1
   })
 }
@@ -176,29 +166,27 @@ const clearFilters = () => {
     optionTypeId: { value: null, matchMode: FilterMatchMode.EQUALS }
   }
   onFilter()
-  // Clear route query to reflect cleared state
   router.replace({ query: {} })
 }
 
 const confirmDelete = (item: OptionValueListItem) => {
   confirm.require({
     message: `Are you sure you want to delete "${item.name}"?`,
-    header: t.common.warning || 'Warning',
+    header: t('common.warning') || 'Warning',
     icon: 'pi pi-exclamation-triangle',
-    rejectLabel: t.actions.cancel,
-    acceptLabel: t.actions.delete,
+    rejectLabel: t('catalog.option_values.actions.cancel'),
+    acceptLabel: t('catalog.option_values.actions.delete'),
     acceptProps: { severity: 'danger' },
     accept: async () => {
       const result = await store.remove(item.id)
       if (result.success) {
-        showToast('success', t.common.success || 'Success', t.messages.delete_success || 'Option value deleted')
-        store.fetchList() // Refresh list
+        showToast('success', t('common.success') || 'Success', t('catalog.option_values.messages.delete_success') || 'Option value deleted')
+        store.fetchList()
       }
     }
   })
 }
 
-// Watch for route changes to update filter if navigating from outside
 watch(() => route.query.optionTypeId, (newVal) => {
     if (newVal && newVal !== (filters.value.optionTypeId as any).value) {
         filters.value.optionTypeId = { value: newVal as string, matchMode: FilterMatchMode.EQUALS }
@@ -213,16 +201,16 @@ onMounted(() => {
 
 <template>
   <div class="p-6">
-    <AppBreadcrumb :locales="t" />
+    <AppBreadcrumb />
     
     <div class="flex flex-col items-start justify-between gap-4 mb-8 md:flex-row md:items-center">
       <div>
         <h2 class="text-3xl font-black tracking-tight text-surface-900 dark:text-surface-50">
-          {{ t.titles.list }}
+          {{ t('catalog.option_values.titles.list') }}
         </h2>
         <div class="flex items-center gap-2 mt-1">
           <span class="text-surface-500 dark:text-surface-400">
-            {{ t.descriptions.list }}
+            {{ t('catalog.option_values.descriptions.list') }}
           </span>
           <Badge :value="totalRecords" severity="info" class="ml-2" />
         </div>
@@ -260,18 +248,17 @@ onMounted(() => {
                 <InputIcon class="pi pi-search" />
                 <InputText 
                     v-model="(filters.global as any).value" 
-                    :placeholder="t.placeholders.search" 
+                    :placeholder="t('catalog.option_values.placeholders.search')" 
                     @keyup.enter="onFilter" 
                     class="w-full rounded-xl"
                 />
                 </IconField>
-                <!-- Option Type Filter (Quick Access) -->
                 <Select 
                     v-model="(filters.optionTypeId as any).value" 
                     :options="optionTypes" 
                     optionLabel="label" 
                     optionValue="value" 
-                    :placeholder="t.placeholders.option_type" 
+                    :placeholder="t('catalog.option_values.placeholders.option_type')" 
                     showClear
                     @change="onFilter"
                     class="w-full md:w-48 rounded-xl"
@@ -281,7 +268,7 @@ onMounted(() => {
             <Button 
               type="button" 
               icon="pi pi-filter-slash" 
-              :label="t.table.clear_filter" 
+              :label="t('catalog.option_values.table.clear_filter')" 
               outlined 
               @click="clearFilters" 
               class="w-full rounded-xl md:w-auto"
@@ -292,22 +279,22 @@ onMounted(() => {
         <template #empty>
           <div class="flex flex-col items-center justify-center py-20 text-surface-400">
             <i class="mb-4 text-6xl pi pi-list opacity-20"></i>
-            <p class="text-xl font-medium">{{ t.messages.empty_list }}</p>
+            <p class="text-xl font-medium">{{ t('catalog.option_values.messages.empty_list') }}</p>
           </div>
         </template>
 
-        <Column field="name" :header="t.table.name" sortable>
+        <Column field="name" :header="t('catalog.option_values.table.name')" sortable>
           <template #body="{ data }">
             <span class="font-bold text-surface-900 dark:text-surface-0">{{ data.name }}</span>
           </template>
           <template #filter="{ filterModel, filterCallback }">
-            <InputText v-model="filterModel.value" type="text" @keydown.enter="filterCallback()" class="p-column-filter" :placeholder="t.table.filter_placeholder" />
+            <InputText v-model="filterModel.value" type="text" @keydown.enter="filterCallback()" class="p-column-filter" :placeholder="t('catalog.option_values.table.filter_placeholder')" />
           </template>
         </Column>
 
-        <Column field="presentation" :header="t.table.presentation" sortable></Column>
+        <Column field="presentation" :header="t('catalog.option_values.table.presentation')" sortable></Column>
 
-        <Column field="position" :header="t.table.position" sortable class="w-24 text-center">
+        <Column field="position" :header="t('catalog.option_values.table.position')" sortable class="w-24 text-center">
             <template #body="{ data }">
                 <Badge :value="data.position" severity="secondary" />
             </template>
@@ -324,37 +311,36 @@ onMounted(() => {
       </DataTable>
     </div>
 
-    <!-- Add/Edit Value Dialog -->
     <Dialog v-model:visible="showDialog" :header="isEditing ? 'Edit Option Value' : 'Add Option Value'" :modal="true" :style="{ width: '450px' }">
       <form @submit="onFormSubmit" class="flex flex-col gap-4 mt-2">
         <div class="flex flex-col gap-2">
-          <label class="font-bold text-sm">{{ t.labels.option_type }}</label>
+          <label class="font-bold text-sm">{{ t('catalog.option_values.labels.option_type') }}</label>
           <Select 
             v-model="optionTypeId" 
             :options="optionTypes" 
             optionLabel="label" 
             optionValue="value" 
             class="w-full"
-            :placeholder="t.placeholders.option_type"
+            :placeholder="t('catalog.option_values.placeholders.option_type')"
             :disabled="isEditing"
           />
           <small class="text-red-500" v-if="formErrors.optionTypeId">{{ formErrors.optionTypeId }}</small>
         </div>
 
         <div class="flex flex-col gap-2">
-          <label for="vName" class="font-bold text-sm">{{ t.labels.name }}</label>
-          <InputText id="vName" v-model="name" class="w-full" :invalid="!!formErrors.name" :placeholder="t.placeholders.name" />
+          <label for="vName" class="font-bold text-sm">{{ t('catalog.option_values.labels.name') }}</label>
+          <InputText id="vName" v-model="name" class="w-full" :invalid="!!formErrors.name" :placeholder="t('catalog.option_values.placeholders.name')" />
           <small class="text-red-500" v-if="formErrors.name">{{ formErrors.name }}</small>
         </div>
 
         <div class="flex flex-col gap-2">
-          <label for="vPresentation" class="font-bold text-sm">{{ t.labels.presentation }}</label>
-          <InputText id="vPresentation" v-model="presentation" class="w-full" :invalid="!!formErrors.presentation" :placeholder="t.placeholders.presentation" />
+          <label for="vPresentation" class="font-bold text-sm">{{ t('catalog.option_values.labels.presentation') }}</label>
+          <InputText id="vPresentation" v-model="presentation" class="w-full" :invalid="!!formErrors.presentation" :placeholder="t('catalog.option_values.placeholders.presentation')" />
           <small class="text-red-500" v-if="formErrors.presentation">{{ formErrors.presentation }}</small>
         </div>
 
         <div class="flex flex-col gap-2">
-          <label for="vPosition" class="font-bold text-sm">{{ t.labels.position }}</label>
+          <label for="vPosition" class="font-bold text-sm">{{ t('catalog.option_values.labels.position') }}</label>
           <InputNumber id="vPosition" v-model="position" class="w-full" showButtons :min="0" />
         </div>
 

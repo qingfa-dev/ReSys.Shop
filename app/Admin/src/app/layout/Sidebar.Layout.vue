@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import AppMenu from './menu.layout.vue'
+import AppMenu from './Menu.Layout.vue'
 defineProps<{ active: boolean }>()
 defineEmits<{ close: [] }>()
 </script>

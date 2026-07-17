@@ -1,12 +1,12 @@
 <script setup lang="ts">
 import { onMounted, ref, watch } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { useRoute, useRouter } from 'vue-router'
 import { useTaxonStore } from '../stores/taxon.store'
 import { useTaxonomyStore } from '../../stores/taxonomy.store'
 import { storeToRefs } from 'pinia'
-import { taxonLocales } from '../locales/taxon.locales'
 import { useApiErrorHandler } from '@/shared/composables/api-error-handler.use'
-import AppBreadcrumb from '@/shared/components/breadcrumb.component.vue'
+import AppBreadcrumb from '@/shared/components/Breadcrumb.Component.vue'
 import { useToast } from '@/shared/composables/toast.use'
 import { useConfirm } from 'primevue/useconfirm'
 import { FilterMatchMode } from '@primevue/core/api'
@@ -14,7 +14,7 @@ import type { DataTablePageEvent, DataTableSortEvent, DataTableFilterMeta } from
 import { QueryBuilder } from '@/shared/utils/query-builder.utils'
 import type { TaxonListItem } from '../types/taxon.types'
 
-const t = taxonLocales
+const { t } = useI18n()
 const route = useRoute()
 const router = useRouter()
 const store = useTaxonStore()
@@ -39,7 +39,6 @@ const lazyParams = ref({
 })
 
 const loadItems = async () => {
-  // Load taxonomies for filter
   const taxResult = await taxonomyStore.fetchTaxonomies({ pageSize: 100 })
   if (taxResult.success && taxResult.data) {
       taxonomies.value = taxResult.data.map(tx => ({ label: tx.presentation || tx.name, value: tx.id }))
@@ -80,16 +79,16 @@ const clearFilters = () => {
 
 const confirmDelete = (item: TaxonListItem) => {
   confirm.require({
-    message: (t.confirm?.delete_message as string || 'Delete "{name}"?').replace('{name}', item.presentation),
-    header: t.confirm?.delete_header as string || 'Warning',
+    message: (t('catalog.taxa.confirm.delete_message') || 'Delete "{name}"?').replace('{name}', item.presentation),
+    header: t('catalog.taxa.confirm.delete_header') || 'Warning',
     icon: 'pi pi-exclamation-triangle',
-    rejectLabel: t.actions?.cancel,
-    acceptLabel: t.actions?.delete_taxon,
+    rejectLabel: t('catalog.taxa.actions.cancel'),
+    acceptLabel: t('catalog.taxa.actions.delete_taxon'),
     acceptProps: { severity: 'danger' },
     accept: async () => {
       const result = await store.deleteTaxon(item.taxonomyId, item.id)
       if (result.success) {
-        showToast('success', 'Deleted', t.messages?.delete_success || 'Category deleted')
+        showToast('success', 'Deleted', t('catalog.taxa.messages.delete_success') || 'Category deleted')
       }
     }
   })
@@ -102,22 +101,22 @@ onMounted(() => {
 
 <template>
   <div class="p-6">
-    <AppBreadcrumb :locales="t" />
+    <AppBreadcrumb />
     
     <div class="flex flex-col items-start justify-between gap-4 mb-8 md:flex-row md:items-center">
       <div>
         <h2 class="text-3xl font-black tracking-tight text-surface-900 dark:text-surface-50">
-          {{ t.titles?.manager || 'Category List' }}
+          {{ t('catalog.taxa.titles.manager') || 'Category List' }}
         </h2>
         <div class="flex items-center gap-2 mt-1">
           <span class="text-surface-500 dark:text-surface-400">
-            {{ t.descriptions?.manager }}
+            {{ t('catalog.taxa.descriptions.manager') }}
           </span>
           <Badge :value="totalRecords" severity="info" class="ml-2" />
         </div>
       </div>
       <Button 
-        :label="t.actions?.add_taxon" 
+        :label="t('catalog.taxa.actions.add_taxon')" 
         icon="pi pi-plus" 
         @click="router.push({ name: 'catalog.taxa.create', params: { taxonomyId: taxonomies[0]?.value || 'root' } })"
         class="px-4 shadow-lg rounded-xl"
@@ -147,7 +146,7 @@ onMounted(() => {
                 <InputIcon class="pi pi-search" />
                 <InputText 
                     v-model="(filters.global as any).value" 
-                    :placeholder="t.placeholders?.search || 'Search...'" 
+                    :placeholder="t('catalog.taxa.placeholders.search') || 'Search...'" 
                     @keyup.enter="onFilter" 
                     class="w-full rounded-xl"
                 />
@@ -178,11 +177,11 @@ onMounted(() => {
         <template #empty>
           <div class="flex flex-col items-center justify-center py-20 text-surface-400">
             <i class="mb-4 text-6xl pi pi-tags opacity-20"></i>
-            <p class="text-xl font-medium">{{ t.messages?.empty_tree }}</p>
+            <p class="text-xl font-medium">{{ t('catalog.taxa.messages.empty_tree') }}</p>
           </div>
         </template>
 
-        <Column field="presentation" :header="t.labels?.presentation">
+        <Column field="presentation" :header="t('catalog.taxa.labels.presentation')">
           <template #body="{ data }">
             <div class="flex flex-col">
                 <span class="font-bold text-surface-900 dark:text-surface-0">{{ data.presentation }}</span>
@@ -191,7 +190,7 @@ onMounted(() => {
           </template>
         </Column>
 
-        <Column field="name" :header="t.labels?.name">
+        <Column field="name" :header="t('catalog.taxa.labels.name')">
             <template #body="{ data }">
                 <span class="font-mono text-xs">{{ data.name }}</span>
             </template>

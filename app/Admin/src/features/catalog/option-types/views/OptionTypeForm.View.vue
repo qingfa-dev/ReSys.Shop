@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { onMounted, computed, ref } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { useRoute, useRouter } from 'vue-router'
 import { useOptionTypeStore } from '../stores/option-type.store'
 import { useOptionValueStore } from '@/features/catalog/option-types/option-values/stores/option-value.store'
@@ -8,13 +9,13 @@ import { useForm } from 'vee-validate'
 import { toTypedSchema } from '@vee-validate/zod'
 import { OptionTypeSchema } from '../schemas/option-type.schema'
 import { OptionValueSchema } from '@/features/catalog/option-types/option-values/schemas/option-value.schema'
-import { optionTypeLocales } from '../locales/option-type.locales'
 import { useApiErrorHandler } from '@/shared/composables/api-error-handler.use'
-import AppBreadcrumb from '@/shared/components/breadcrumb.component.vue'
+import AppBreadcrumb from '@/shared/components/Breadcrumb.Component.vue'
 import { useToast } from '@/shared/composables/toast.use'
 import type { OptionValueListItem } from '@/features/catalog/option-types/option-values/types/option-value.types'
-import MetadataManager from '@/shared/components/metadata-manager.component.vue'
+import MetadataManager from '@/shared/components/MetadataManager.Component.vue'
 
+const { t } = useI18n()
 const route = useRoute()
 const router = useRouter()
 const store = useOptionTypeStore()
@@ -29,11 +30,9 @@ const itemId = computed(() => route.params.id as string)
 
 const activeTab = ref(0)
 
-// Metadata state
 const publicMetadata = ref<Record<string, any>>({})
 const privateMetadata = ref<Record<string, any>>({})
 
-// Option Type Form
 const { defineField, handleSubmit, errors, setValues, setErrors, values } = useForm({
   validationSchema: toTypedSchema(OptionTypeSchema),
   initialValues: {
@@ -50,7 +49,6 @@ const [presentation] = defineField('presentation')
 const [position] = defineField('position')
 const [filterable] = defineField('filterable')
 
-// Option Value Dialog Logic
 const showValueDialog = ref(false)
 const isEditingValue = ref(false)
 const editingValueId = ref<string | null>(null)
@@ -103,10 +101,10 @@ const onValueSubmit = handleValueSubmit(async (formValues) => {
   if (result.success) {
     showToast(
       'success',
-      optionTypeLocales.common?.success || 'Success',
+      t('common.success') || 'Success',
       (isEditingValue.value
-        ? optionTypeLocales.messages?.value_update_success
-        : optionTypeLocales.messages?.value_create_success) || 'Success',
+        ? t('catalog.option_types.messages.value_update_success')
+        : t('catalog.option_types.messages.value_create_success')) || 'Success',
     )
     showValueDialog.value = false
   } else {
@@ -120,8 +118,8 @@ const deleteValue = async (val: OptionValueListItem) => {
   if (result.success) {
     showToast(
       'success',
-      optionTypeLocales.common?.success || 'Success',
-      optionTypeLocales.messages?.value_delete_success || 'Value removed',
+      t('common.success') || 'Success',
+      t('catalog.option_types.messages.value_delete_success') || 'Value removed',
     )
   }
 }
@@ -146,7 +144,6 @@ const loadItem = async () => {
       filterable: result.data.filterable,
     })
 
-    // Load values independently
     await valueStore.fetchValues(itemId.value)
   } else if (!handled) {
     router.push({ name: 'catalog.option-types.list' })
@@ -167,17 +164,17 @@ const onSubmit = handleSubmit(async (formValues) => {
   const handled = handleApiResult(result, {
     setErrors,
     fieldNames: Object.keys(values),
-    successTitle: optionTypeLocales.common?.success,
+    successTitle: t('common.success'),
     successMessage: isEdit.value
-      ? optionTypeLocales.messages?.update_success
-      : optionTypeLocales.messages?.create_success,
-    errorTitle: optionTypeLocales.common?.error,
+      ? t('catalog.option_types.messages.update_success')
+      : t('catalog.option_types.messages.create_success'),
+    errorTitle: t('common.error'),
   })
 
   if (handled && !isEdit.value && result.data) {
     router.push({ name: 'catalog.option-types.edit', params: { id: result.data.id } })
   }
-  store.fetchList({ pageSize: 100 }) // Refresh sidebar
+  store.fetchList({ pageSize: 100 })
 })
 
 onMounted(() => {
@@ -191,20 +188,19 @@ const cancel = () => {
 
 <template>
   <div class="flex flex-col h-full overflow-hidden">
-    <!-- Compact Header for Split View -->
     <div class="flex items-center justify-between mb-4 bg-surface-0 dark:bg-surface-900 p-4 rounded-2xl border border-surface-100 dark:border-surface-800 shadow-sm">
         <div class="flex items-center gap-3 overflow-hidden">
             <div class="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center text-primary shrink-0">
                 <i :class="isEdit ? 'pi pi-pencil' : 'pi pi-plus'"></i>
             </div>
             <div class="overflow-hidden">
-                <h3 class="text-lg font-black tracking-tight m-0 truncate">{{ isEdit ? (presentation || 'Edit Option Type') : optionTypeLocales.titles?.create }}</h3>
-                <p class="text-xs text-surface-500 m-0 truncate">{{ isEdit ? 'Updating configuration and values' : optionTypeLocales.descriptions?.create }}</p>
+                <h3 class="text-lg font-black tracking-tight m-0 truncate">{{ isEdit ? (presentation || 'Edit Option Type') : t('catalog.option_types.titles.create') }}</h3>
+                <p class="text-xs text-surface-500 m-0 truncate">{{ isEdit ? 'Updating configuration and values' : t('catalog.option_types.descriptions.create') }}</p>
             </div>
         </div>
         <div class="flex items-center gap-2 shrink-0">
             <Button 
-                :label="isEdit ? optionTypeLocales.actions?.save_edit : optionTypeLocales.actions?.save_create" 
+                :label="isEdit ? t('catalog.option_types.actions.save_edit') : t('catalog.option_types.actions.save_create')" 
                 icon="pi pi-check" 
                 class="rounded-xl px-6 shadow-lg shadow-primary/20" 
                 :loading="loading"
@@ -228,24 +224,24 @@ const cancel = () => {
                         <div class="flex flex-col gap-6">
                             <div class="grid grid-cols-1 gap-6">
                                 <div class="flex flex-col gap-2">
-                                    <label for="name" class="font-bold text-xs uppercase tracking-wider text-surface-500 ml-1">{{ optionTypeLocales.labels?.name }}</label>
-                                    <InputText id="name" v-model="name" class="w-full rounded-xl h-11" :invalid="!!errors.name" :placeholder="optionTypeLocales.placeholders?.name" />
+                                    <label for="name" class="font-bold text-xs uppercase tracking-wider text-surface-500 ml-1">{{ t('catalog.option_types.labels.name') }}</label>
+                                    <InputText id="name" v-model="name" class="w-full rounded-xl h-11" :invalid="!!errors.name" :placeholder="t('catalog.option_types.placeholders.name')" />
                                     <small class="text-red-500" v-if="errors.name">{{ errors.name }}</small>
                                 </div>
 
                                 <div class="flex flex-col gap-2">
-                                    <label for="presentation" class="font-bold text-xs uppercase tracking-wider text-surface-500 ml-1">{{ optionTypeLocales.labels?.presentation }}</label>
-                                    <InputText id="presentation" v-model="presentation" class="w-full rounded-xl h-11" :invalid="!!errors.presentation" :placeholder="optionTypeLocales.placeholders?.presentation" />
+                                    <label for="presentation" class="font-bold text-xs uppercase tracking-wider text-surface-500 ml-1">{{ t('catalog.option_types.labels.presentation') }}</label>
+                                    <InputText id="presentation" v-model="presentation" class="w-full rounded-xl h-11" :invalid="!!errors.presentation" :placeholder="t('catalog.option_types.placeholders.presentation')" />
                                     <small class="text-red-500" v-if="errors.presentation">{{ errors.presentation }}</small>
                                 </div>
 
                                 <div class="grid grid-cols-2 gap-4">
                                     <div class="flex flex-col gap-2">
-                                        <label for="position" class="font-bold text-xs uppercase tracking-wider text-surface-500 ml-1">{{ optionTypeLocales.labels?.position }}</label>
+                                        <label for="position" class="font-bold text-xs uppercase tracking-wider text-surface-500 ml-1">{{ t('catalog.option_types.labels.position') }}</label>
                                         <InputNumber id="position" v-model="position" showButtons :min="0" class="w-full rounded-xl overflow-hidden" inputClass="h-11" />
                                     </div>
                                     <div class="flex flex-col gap-2">
-                                        <label class="font-bold text-xs uppercase tracking-wider text-surface-500 ml-1">{{ optionTypeLocales.labels?.filterable }}</label>
+                                        <label class="font-bold text-xs uppercase tracking-wider text-surface-500 ml-1">{{ t('catalog.option_types.labels.filterable') }}</label>
                                         <div class="flex items-center gap-2 h-11">
                                             <ToggleSwitch v-model="filterable" />
                                             <span class="text-xs text-surface-500">{{ filterable ? 'Visible in filters' : 'Internal only' }}</span>
@@ -261,12 +257,12 @@ const cancel = () => {
                         <div class="flex flex-col gap-4">
                             <div class="flex items-center justify-between">
                                 <span class="text-sm font-bold text-surface-500 uppercase tracking-widest">Defined Values</span>
-                                <Button :label="optionTypeLocales.actions?.add_value" icon="pi pi-plus" size="small" text @click="openNewValue" />
+                                <Button :label="t('catalog.option_types.actions.add_value')" icon="pi pi-plus" size="small" text @click="openNewValue" />
                             </div>
                             <DataTable :value="optionValues" :loading="valueLoading" size="small" scrollable rowHover class="rounded-2xl border border-surface-100 dark:border-surface-800 overflow-hidden">
-                                <Column field="name" :header="optionTypeLocales.labels?.value_name" class="font-bold text-xs"></Column>
-                                <Column field="presentation" :header="optionTypeLocales.labels?.value_presentation" class="text-xs"></Column>
-                                <Column field="position" :header="optionTypeLocales.labels?.position" class="w-20 text-center">
+                                <Column field="name" :header="t('catalog.option_types.labels.value_name')" class="font-bold text-xs"></Column>
+                                <Column field="presentation" :header="t('catalog.option_types.labels.value_presentation')" class="text-xs"></Column>
+                                <Column field="position" :header="t('catalog.option_types.labels.position')" class="w-20 text-center">
                                     <template #body="{ data }">
                                         <Badge :value="data.position" severity="secondary" />
                                     </template>
@@ -299,23 +295,22 @@ const cancel = () => {
         </template>
     </Card>
 
-    <!-- Option Value Dialog -->
     <Dialog v-model:visible="showValueDialog" :header="isEditingValue ? 'Edit Value' : 'Add Value'" :modal="true" :style="{ width: '400px' }" class="rounded-3xl shadow-2xl">
       <form @submit="onValueSubmit" class="flex flex-col gap-4 mt-2">
         <div class="flex flex-col gap-2">
-          <label for="vName" class="font-bold text-xs uppercase text-surface-500">{{ optionTypeLocales.labels?.value_name }}</label>
-          <InputText id="vName" v-model="vName" class="w-full rounded-xl h-11" :invalid="!!valueErrors.name" :placeholder="optionTypeLocales.placeholders?.value_name" />
+          <label for="vName" class="font-bold text-xs uppercase text-surface-500">{{ t('catalog.option_types.labels.value_name') }}</label>
+          <InputText id="vName" v-model="vName" class="w-full rounded-xl h-11" :invalid="!!valueErrors.name" :placeholder="t('catalog.option_types.placeholders.value_name')" />
           <small class="text-red-500" v-if="valueErrors.name">{{ valueErrors.name }}</small>
         </div>
 
         <div class="flex flex-col gap-2">
-          <label for="vPresentation" class="font-bold text-xs uppercase text-surface-500">{{ optionTypeLocales.labels?.value_presentation }}</label>
-          <InputText id="vPresentation" v-model="vPresentation" class="w-full rounded-xl h-11" :invalid="!!valueErrors.presentation" :placeholder="optionTypeLocales.placeholders?.value_presentation" />
+          <label for="vPresentation" class="font-bold text-xs uppercase text-surface-500">{{ t('catalog.option_types.labels.value_presentation') }}</label>
+          <InputText id="vPresentation" v-model="vPresentation" class="w-full rounded-xl h-11" :invalid="!!valueErrors.presentation" :placeholder="t('catalog.option_types.placeholders.value_presentation')" />
           <small class="text-red-500" v-if="valueErrors.presentation">{{ valueErrors.presentation }}</small>
         </div>
 
         <div class="flex flex-col gap-2">
-          <label for="vPosition" class="font-bold text-xs uppercase text-surface-500">{{ optionTypeLocales.labels?.position }}</label>
+          <label for="vPosition" class="font-bold text-xs uppercase text-surface-500">{{ t('catalog.option_types.labels.position') }}</label>
           <InputNumber id="vPosition" v-model="vPosition" class="w-full rounded-xl overflow-hidden" inputClass="h-11" showButtons :min="0" />
         </div>
 

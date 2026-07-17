@@ -1,15 +1,15 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
+import { useI18n } from 'vue-i18n';
 import { useApiErrorHandler } from '@/shared/composables/api-error-handler.use';
 import { useToast } from '@/shared/composables/toast.use';
 import { useFormatter } from '@/shared/composables/formatter.use';
 import { useConfirm } from 'primevue/useconfirm';
 import { variantService } from '../services/variant.service';
-import VariantGenerationDialog from './dialogs/VariantGenerationDialog.vue';
-import VariantFormDialog from './VariantFormDialog.vue';
-import { productLocales, type ProductLocales } from '../locales/product.locales';
+import VariantGenerationDialog from './dialogs/VariantGenerationDialog.Component.vue';
+import VariantFormDialog from './VariantFormDialog.Component.vue';
 
-const t = productLocales as ProductLocales;
+const { t } = useI18n();
 
 const props = defineProps<{
     productId: string;
@@ -44,7 +44,6 @@ const openCreate = () => {
 };
 
 const openEdit = async (variant: any) => {
-    // Fetch full detail including option_value_ids
     loading.value = true;
     try {
         const result = await variantService.getById(variant.id);
@@ -78,8 +77,8 @@ const onSaveVariant = async (data: any) => {
 
 const onDelete = (variant: any) => {
     confirm.require({
-        message: (t.confirm?.delete_message as string || '').replace('{name}', variant.sku),
-        header: t.confirm?.delete_header,
+        message: (t('catalog.products.confirm.delete_message') || '').replace('{name}', variant.sku),
+        header: t('catalog.products.confirm.delete_header'),
         icon: 'pi pi-exclamation-triangle',
         acceptClass: 'p-button-danger',
         accept: async () => {
@@ -105,22 +104,22 @@ onMounted(() => {
     <div class="flex flex-col gap-6">
         <div class="flex items-center justify-between">
             <div>
-                <h3 class="text-lg font-bold m-0">{{ t.variants?.sku_variants }}</h3>
-                <p class="text-sm text-surface-500 m-0">{{ t.variants?.sku_desc }}</p>
+                <h3 class="text-lg font-bold m-0">{{ t('catalog.products.variants.sku_variants') }}</h3>
+                <p class="text-sm text-surface-500 m-0">{{ t('catalog.products.variants.sku_desc') }}</p>
             </div>
             <div class="flex gap-2">
-                <Button :label="t.variants?.generate" icon="pi pi-bolt" outlined severity="warn" class="rounded-xl" @click="showGenerator = true" />
-                <Button :label="t.actions?.new" icon="pi pi-plus" class="rounded-xl" @click="openCreate" />
+                <Button :label="t('catalog.products.variants.generate')" icon="pi pi-bolt" outlined severity="warn" class="rounded-xl" @click="showGenerator = true" />
+                <Button :label="t('catalog.products.actions.new')" icon="pi pi-plus" class="rounded-xl" @click="openCreate" />
             </div>
         </div>
 
         <div class="overflow-hidden border border-surface-100 dark:border-surface-800 rounded-2xl bg-surface-0 dark:bg-surface-900 shadow-sm">
             <DataTable :value="variants" :loading="loading" class="p-datatable-sm" rowHover>
                 <template #empty>
-                    <div class="py-12 text-center text-surface-400 italic">{{ t.variants?.empty }}</div>
+                    <div class="py-12 text-center text-surface-400 italic">{{ t('catalog.products.variants.empty') }}</div>
                 </template>
 
-                <Column field="sku" :header="t.table?.sku">
+                <Column field="sku" :header="t('catalog.products.table.sku')">
                     <template #body="{ data }">
                         <div class="flex items-center gap-2">
                             <span class="font-mono text-xs font-bold">{{ data.sku }}</span>
@@ -135,12 +134,12 @@ onMounted(() => {
                         </div>
                     </template>
                 </Column>
-                <Column field="price" :header="t.table?.price" class="text-right">
+                <Column field="price" :header="t('catalog.products.table.price')" class="text-right">
                     <template #body="{ data }">
                         <span class="font-black">{{ formatCurrency(data.price) }}</span>
                     </template>
                 </Column>
-                <Column field="status" :header="t.table?.status" class="text-center w-24">
+                <Column field="status" :header="t('catalog.products.table.status')" class="text-center w-24">
                     <template #body="{ data }">
                         <Tag :value="data.status || 'Active'" :severity="(data.status || 'Active') === 'Active' ? 'success' : 'secondary'" rounded class="text-[10px]" />
                     </template>

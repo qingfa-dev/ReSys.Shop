@@ -1,17 +1,18 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
 import { useOptionTypeStore } from '../stores/option-type.store'
 import { storeToRefs } from 'pinia'
-import { optionTypeLocales } from '../locales/option-type.locales'
 import { FilterMatchMode, FilterOperator } from '@primevue/core/api'
 import type { DataTablePageEvent, DataTableSortEvent, DataTableFilterMeta } from 'primevue/datatable'
 import { useToast } from '@/shared/composables/toast.use'
 import { useConfirm } from 'primevue/useconfirm'
-import AppBreadcrumb from '@/shared/components/breadcrumb.component.vue'
+import AppBreadcrumb from '@/shared/components/Breadcrumb.Component.vue'
 import { QueryBuilder } from '@/shared/utils/query-builder.utils'
 import type { OptionTypeListItem } from '../types/option-type.types'
 
+const { t } = useI18n()
 const router = useRouter()
 const store = useOptionTypeStore()
 const { items, loading, totalRecords, params: query } = storeToRefs(store)
@@ -88,17 +89,17 @@ const editItem = (id: string) => {
 const confirmDelete = (item: OptionTypeListItem) => {
   confirm.require({
     message: `Are you sure you want to delete "${item.name}"?`,
-    header: optionTypeLocales.common?.warning || 'Warning',
+    header: t('common.warning') || 'Warning',
     icon: 'pi pi-exclamation-triangle',
-    rejectLabel: optionTypeLocales.actions?.cancel,
-    acceptLabel: optionTypeLocales.actions?.delete,
+    rejectLabel: t('catalog.option_types.actions.cancel'),
+    acceptLabel: t('catalog.option_types.actions.delete'),
     acceptProps: { severity: 'danger' },
     accept: async () => {
       const result = await store.remove(item.id)
       if (result.success) {
-        showToast('success', optionTypeLocales.common?.success || 'Success', optionTypeLocales.messages?.delete_success || 'Deleted successfully')
+        showToast('success', t('common.success') || 'Success', t('catalog.option_types.messages.delete_success') || 'Deleted successfully')
       } else {
-        showToast('error', optionTypeLocales.common?.error || 'Error', 'Failed to delete option type')
+        showToast('error', t('common.error') || 'Error', 'Failed to delete option type')
       }
     }
   })
@@ -111,22 +112,22 @@ onMounted(() => {
 
 <template>
   <div class="p-6">
-    <AppBreadcrumb :locales="optionTypeLocales" />
+    <AppBreadcrumb />
     
     <div class="flex flex-col items-start justify-between gap-4 mb-8 md:flex-row md:items-center">
       <div>
         <h2 class="text-3xl font-black tracking-tight text-surface-900 dark:text-surface-50">
-          {{ optionTypeLocales.titles?.list }}
+          {{ t('catalog.option_types.titles.list') }}
         </h2>
         <div class="flex items-center gap-2 mt-1">
           <span class="text-surface-500 dark:text-surface-400">
-            {{ optionTypeLocales.descriptions?.list }}
+            {{ t('catalog.option_types.descriptions.list') }}
           </span>
           <Badge :value="totalRecords" severity="info" class="ml-2" />
         </div>
       </div>
       <Button 
-        :label="optionTypeLocales.actions?.create" 
+        :label="t('catalog.option_types.actions.create')" 
         icon="pi pi-plus" 
         @click="createItem"
         class="px-4 shadow-lg rounded-xl"
@@ -176,11 +177,11 @@ onMounted(() => {
         <template #empty>
           <div class="flex flex-col items-center justify-center py-20 text-surface-400">
             <i class="mb-4 text-6xl pi pi-box opacity-20"></i>
-            <p class="text-xl font-medium">{{ optionTypeLocales.messages?.empty_list }}</p>
+            <p class="text-xl font-medium">{{ t('catalog.option_types.messages.empty_list') }}</p>
           </div>
         </template>
 
-        <Column field="name" :header="optionTypeLocales.table?.name" sortable>
+        <Column field="name" :header="t('catalog.option_types.table.name')" sortable>
           <template #body="{ data }">
             <span class="font-bold text-surface-900 dark:text-surface-0">{{ data.name }}</span>
           </template>
@@ -189,19 +190,19 @@ onMounted(() => {
           </template>
         </Column>
 
-        <Column field="presentation" :header="optionTypeLocales.table?.presentation" sortable>
+        <Column field="presentation" :header="t('catalog.option_types.table.presentation')" sortable>
            <template #filter="{ filterModel, filterCallback }">
             <InputText v-model="filterModel.value" type="text" @keydown.enter="filterCallback()" class="p-column-filter" placeholder="Search by display name" />
           </template>
         </Column>
 
-        <Column field="position" :header="optionTypeLocales.table?.position" sortable class="w-24 text-center">
+        <Column field="position" :header="t('catalog.option_types.table.position')" sortable class="w-24 text-center">
             <template #body="{ data }">
                 <Badge :value="data.position" severity="secondary" />
             </template>
         </Column>
 
-        <Column field="filterable" :header="optionTypeLocales.table?.filterable" sortable dataType="boolean" class="w-32 text-center">
+        <Column field="filterable" :header="t('catalog.option_types.table.filterable')" sortable dataType="boolean" class="w-32 text-center">
           <template #body="{ data }">
             <i class="pi" :class="{'pi-check-circle text-green-500': data.filterable, 'pi-times-circle text-surface-400': !data.filterable}"></i>
           </template>

@@ -138,6 +138,5 @@ async function onSubmit() {
                 <Button type="submit" :label="isEditMode ? 'Save Changes' : 'Create Role'" :loading="submitting" icon="pi pi-check" />
             </div>
         </form>
-    </template>
 </Card>
 </template>

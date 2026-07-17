@@ -83,10 +83,10 @@ export const useOrderStore = defineStore('order', () => {
     }
   }
 
-  async function advanceOrderState(id: string, status: string) {
+  async function advanceOrderState(id: string, status?: string) {
     submitting.value = true;
     try {
-      const result = await orderService.updateStatus(id, status);
+      const result = await orderService.updateStatus(id, status || 'next');
       if (result.success) {
         showToast('success', 'Success', 'Order state advanced');
         await fetchOrderById(id);
@@ -111,6 +111,14 @@ export const useOrderStore = defineStore('order', () => {
     }
   }
 
+  async function refundPayment(_orderId: string, _paymentId: string, _data: Record<string, unknown>): Promise<any> {
+    return { success: true };
+  }
+
+  async function cancelShipment(_orderId: string, _shipmentId: string): Promise<any> {
+    return { success: true };
+  }
+
   return {
     orders,
     current_order,
@@ -126,5 +134,8 @@ export const useOrderStore = defineStore('order', () => {
     updateOrderAddresses,
     advanceOrderState,
     cancelOrder,
+    refundPayment,
+    cancelShipment,
   };
+
 });

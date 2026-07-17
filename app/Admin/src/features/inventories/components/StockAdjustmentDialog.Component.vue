@@ -2,7 +2,9 @@
 import { ref } from 'vue';
 import { inventoryService } from '../services/inventory.service';
 import { useToast } from '@/shared/composables/toast.use';
-import { inventoryLocales as t } from '../locales/inventory.locales';
+import { useI18n } from 'vue-i18n';
+
+const { t } = useI18n();
 
 const props = defineProps<{
     stockItemId: string;
@@ -37,7 +39,7 @@ async function onSubmit() {
     try {
         const res = await inventoryService.adjustStock(props.stockItemId, form.value);
         if (res.success) {
-            showToast('success', 'Success', t.messages?.adjust_success || 'Stock adjusted');
+            showToast('success', 'Success', t('inventory.messages.adjust_success') || 'Stock adjusted');
             emit('updated');
             emit('close');
         }
@@ -48,7 +50,7 @@ async function onSubmit() {
 </script>
 
 <template>
-    <Dialog v-model:visible="visible" :header="t.titles.adjust" modal class="w-full max-w-lg" @hide="emit('close')">
+    <Dialog v-model:visible="visible" :header="t('inventory.titles.adjust')" modal class="w-full max-w-lg" @hide="emit('close')">
         <div class="flex flex-col gap-6 py-4">
             <div class="bg-surface-50 dark:bg-surface-900 p-4 rounded-2xl border border-surface-100 dark:border-surface-800">
                 <span class="text-xs font-mono uppercase text-surface-400">{{ sku }}</span>
@@ -57,31 +59,31 @@ async function onSubmit() {
 
             <div class="grid grid-cols-2 gap-4">
                 <div class="flex flex-col gap-2">
-                    <label class="font-bold text-sm">{{ t.labels?.quantity }}</label>
+                    <label class="font-bold text-sm">{{ t('inventory.labels.quantity') }}</label>
                     <InputNumber v-model="form.quantity" showButtons :min="-10000" :max="10000" class="w-full" />
                 </div>
 
             </div>
 
             <div class="flex flex-col gap-2">
-                <label class="font-bold text-sm">{{ t.table.type }}</label>
+                <label class="font-bold text-sm">{{ t('inventory.table.type') }}</label>
                 <Dropdown v-model="form.type" :options="typeOptions" optionLabel="label" optionValue="value" class="w-full" />
             </div>
 
             <div class="flex flex-col gap-2">
-                <label class="font-bold text-sm">{{ t.labels?.reason }}</label>
+                <label class="font-bold text-sm">{{ t('inventory.labels.reason') }}</label>
                 <Textarea v-model="form.reason" rows="2" class="w-full" />
             </div>
 
             <div class="flex flex-col gap-2">
-                <label class="font-bold text-sm">{{ t.table.reference }}</label>
+                <label class="font-bold text-sm">{{ t('inventory.table.reference') }}</label>
                 <InputText v-model="form.reference" placeholder="PO #, Order ID, etc." class="w-full" />
             </div>
         </div>
 
         <template #footer>
             <Button label="Cancel" severity="secondary" text @click="emit('close')" />
-            <Button :label="t.actions.save" icon="pi pi-check" :loading="loading" @click="onSubmit" />
+            <Button :label="t('inventory.actions.save')" icon="pi pi-check" :loading="loading" @click="onSubmit" />
         </template>
     </Dialog>
 </template>

@@ -103,6 +103,5 @@ async function onSave() {
                 </template>
             </PickList>
         </div>
-    </template>
 </Card>
 </template>

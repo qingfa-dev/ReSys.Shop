@@ -6,10 +6,10 @@ import { storeToRefs } from 'pinia';
 import { useFormatter } from '@/shared/composables/formatter.use';
 import { useApiErrorHandler } from '@/shared/composables/api-error-handler.use';
 import { useConfirm } from 'primevue/useconfirm';
-import ShipmentDialog from '../components/ShipmentDialog.vue';
-import AddressDialog from '../components/AddressDialog.vue';
-import ItemDialog from '../components/ItemDialog.vue';
-import RefundDialog from '../components/RefundDialog.vue';
+import ShipmentDialog from '../components/ShipmentDialog.Component.vue';
+import AddressDialog from '../components/AddressDialog.Component.vue';
+import ItemDialog from '../components/ItemDialog.Component.vue';
+import RefundDialog from '../components/RefundDialog.Component.vue';
 
 const route = useRoute();
 const router = useRouter();

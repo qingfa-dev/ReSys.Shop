@@ -6,7 +6,7 @@ import { storeToRefs } from 'pinia'
 import { useConfirm } from 'primevue/useconfirm'
 import { useToast } from '@/shared/composables/toast.use'
 import type { State } from '../types/state.types'
-import StateForm from './StateForm.view.vue'
+import StateForm from './StateForm.View.vue'
 
 const stateStore = useStateStore()
 const countryStore = useCountryStore()

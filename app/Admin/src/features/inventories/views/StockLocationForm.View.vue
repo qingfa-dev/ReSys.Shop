@@ -3,10 +3,12 @@ import { ref, onMounted, computed } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useInventoryStore } from '../stores/inventory.store';
 import { useToast } from '@/shared/composables/toast.use';
-import { inventoryLocales as t } from '../locales/inventory.locales';
-import AppBreadcrumb from '@/shared/components/breadcrumb.component.vue';
-import LocationSelector from '../components/LocationSelector.vue';
+import { useI18n } from 'vue-i18n';
+import AppBreadcrumb from '@/shared/components/Breadcrumb.Component.vue';
+import LocationSelector from '../components/LocationSelector.Component.vue';
 import type { CreateStockLocationRequest } from '../types/inventory.types';
+
+const { t } = useI18n();
 
 const props = defineProps({
     hideHeader: {
@@ -93,7 +95,7 @@ async function onSubmit() {
             : await store.inventoryService.createLocation(payload);
             
         if (res.success) {
-            showToast('success', 'Success', isEdit.value ? 'Location updated' : t.messages?.create_location_success || 'Location created');
+            showToast('success', 'Success', isEdit.value ? 'Location updated' : t('inventory.messages.create_location_success') || 'Location created');
             await store.fetchLocationTree();
             await store.fetchLocations();
             
@@ -127,9 +129,9 @@ onMounted(() => {
                 <Button icon="pi pi-arrow-left" text rounded severity="secondary" @click="router.back()" class="bg-surface-100 dark:bg-surface-800" />
                 <div>
                     <h2 class="text-4xl font-black tracking-tighter text-surface-900 dark:text-surface-50 m-0">
-                        {{ isEdit ? 'Edit Location' : t.titles.create_location }}
+                        {{ isEdit ? 'Edit Location' : t('inventory.titles.create_location') }}
                     </h2>
-                    <p class="text-sm text-surface-500 m-0">{{ t.descriptions?.locations }}</p>
+                    <p class="text-sm text-surface-500 m-0">{{ t('inventory.descriptions.locations') }}</p>
                 </div>
             </div>
         </template>
@@ -146,11 +148,11 @@ onMounted(() => {
                     <template #content>
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div class="flex flex-col gap-2">
-                                <label class="font-bold text-sm">{{ t.labels?.name }}</label>
+                                <label class="font-bold text-sm">{{ t('inventory.labels.name') }}</label>
                                 <InputText v-model="form.name" required class="w-full rounded-xl" />
                             </div>
                             <div class="flex flex-col gap-2">
-                                <label class="font-bold text-sm">{{ t.labels?.code }}</label>
+                                <label class="font-bold text-sm">{{ t('inventory.labels.code') }}</label>
                                 <InputText v-model="form.code" required class="w-full font-mono rounded-xl" :disabled="isEdit" />
                             </div>
                             <div class="flex flex-col gap-2 md:col-span-2">
@@ -167,19 +169,19 @@ onMounted(() => {
                     <template #content>
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div class="flex flex-col gap-2 md:col-span-2">
-                                <label class="font-bold text-sm">{{ t.labels?.address }}</label>
+                                <label class="font-bold text-sm">{{ t('inventory.labels.address') }}</label>
                                 <InputText v-model="form.address.address1" required class="w-full rounded-xl" />
                             </div>
                             <div class="flex flex-col gap-2">
-                                <label class="font-bold text-sm">{{ t.labels?.city }}</label>
+                                <label class="font-bold text-sm">{{ t('inventory.labels.city') }}</label>
                                 <InputText v-model="form.address.city" required class="w-full rounded-xl" />
                             </div>
                             <div class="flex flex-col gap-2">
-                                <label class="font-bold text-sm">{{ t.labels?.zip }}</label>
+                                <label class="font-bold text-sm">{{ t('inventory.labels.zip') }}</label>
                                 <InputText v-model="form.address.zipCode" required class="w-full rounded-xl" />
                             </div>
                             <div class="flex flex-col gap-2">
-                                <label class="font-bold text-sm">{{ t.labels?.country }}</label>
+                                <label class="font-bold text-sm">{{ t('inventory.labels.country') }}</label>
                                 <InputText v-model="form.address.countryCode" required class="w-full rounded-xl" maxlength="2" placeholder="e.g. US" />
                             </div>
                         </div>
@@ -199,7 +201,7 @@ onMounted(() => {
 
                             <div class="flex items-center justify-between p-4 bg-surface-50 dark:bg-surface-800/50 rounded-2xl border border-surface-100 dark:border-surface-800">
                                 <div class="flex flex-col">
-                                    <span class="font-bold text-sm">{{ t.labels?.is_default }}</span>
+                                    <span class="font-bold text-sm">{{ t('inventory.labels.is_default') }}</span>
                                     <small class="text-surface-500">Fallback for inventory logic</small>
                                 </div>
                                 <ToggleSwitch v-model="form.isDefault" />
@@ -207,7 +209,7 @@ onMounted(() => {
 
                             <Divider />
 
-                            <Button type="submit" :label="isEdit ? t.actions.save : t.actions.new_location" icon="pi pi-check" class="w-full h-12 rounded-xl" :loading="submitting" />
+                            <Button type="submit" :label="isEdit ? t('inventory.actions.save') : t('inventory.actions.new_location')" icon="pi pi-check" class="w-full h-12 rounded-xl" :loading="submitting" />
                             <Button v-if="!hideHeader" label="Cancel" severity="secondary" text class="w-full" @click="router.back()" />
                         </div>
                     </template>

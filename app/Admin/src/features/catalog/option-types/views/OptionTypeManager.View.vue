@@ -1,15 +1,16 @@
 <script setup lang="ts">
 import { onMounted, computed, ref, watch } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { useRoute, useRouter } from 'vue-router'
 import { useOptionTypeStore } from '../stores/option-type.store'
 import { storeToRefs } from 'pinia'
-import { optionTypeLocales as t } from '../locales/option-type.locales'
 import { useApiErrorHandler } from '@/shared/composables/api-error-handler.use'
-import AppBreadcrumb from '@/shared/components/breadcrumb.component.vue'
+import AppBreadcrumb from '@/shared/components/Breadcrumb.Component.vue'
 import { useToast } from '@/shared/composables/toast.use'
 import { useConfirm } from 'primevue/useconfirm'
 import type { OptionTypeListItem } from '../types/option-type.types'
 
+const { t } = useI18n()
 const route = useRoute()
 const router = useRouter()
 const confirm = useConfirm()
@@ -35,15 +36,15 @@ const openEdit = (id: string) => {
 const confirmDelete = (item: OptionTypeListItem) => {
   confirm.require({
     message: `Are you sure you want to delete "${item.name}"?`,
-    header: t.common?.warning || 'Warning',
+    header: t('common.warning') || 'Warning',
     icon: 'pi pi-exclamation-triangle',
-    rejectLabel: t.actions?.cancel,
-    acceptLabel: t.actions?.delete,
+    rejectLabel: t('catalog.option_types.actions.cancel'),
+    acceptLabel: t('catalog.option_types.actions.delete'),
     acceptProps: { severity: 'danger' },
     accept: async () => {
       const result = await store.remove(item.id)
       if (result.success) {
-        showToast('success', 'Deleted', t.messages?.delete_success || 'Option type removed')
+        showToast('success', 'Deleted', t('catalog.option_types.messages.delete_success') || 'Option type removed')
         if (selectedId.value === item.id) {
             router.push({ name: 'catalog.option-types.list' })
         }
@@ -59,29 +60,26 @@ const goBack = () => router.push({ name: 'catalog.dashboard' })
 
 <template>
   <div class="flex flex-col h-full">
-    <!-- Header -->
     <div class="p-6 pb-0 max-w-full">
-        <AppBreadcrumb :locales="t" />
+        <AppBreadcrumb />
         <div class="flex items-center justify-between mt-4 mb-6">
             <div class="flex items-center gap-4">
                 <Button icon="pi pi-arrow-left" text rounded severity="secondary" @click="goBack" class="bg-surface-100 dark:bg-surface-800" />
                 <div>
                     <h2 class="text-3xl font-black tracking-tighter text-surface-900 dark:text-surface-50 m-0">
-                        {{ t.titles?.list }}
+                        {{ t('catalog.option_types.titles.list') }}
                     </h2>
-                    <p class="text-sm text-surface-500 m-0">{{ t.descriptions?.list }}</p>
+                    <p class="text-sm text-surface-500 m-0">{{ t('catalog.option_types.descriptions.list') }}</p>
                 </div>
             </div>
             <div class="flex items-center gap-2">
-                <Button :label="t.actions?.create" icon="pi pi-plus" size="small" class="rounded-xl shadow-lg" @click="openNew()" />
+                <Button :label="t('catalog.option_types.actions.create')" icon="pi pi-plus" size="small" class="rounded-xl shadow-lg" @click="openNew()" />
                 <Button icon="pi pi-refresh" severity="secondary" text rounded @click="store.fetchList({ pageSize: 100 })" :loading="loading" />
             </div>
         </div>
     </div>
 
-    <!-- Manager Layout -->
     <div class="flex flex-1 gap-6 p-6 pt-0 overflow-hidden min-h-[600px]">
-        <!-- Sidebar (List) -->
         <div class="w-1/3 min-w-[320px] flex flex-col">
             <Card class="flex-1 border-none shadow-sm rounded-3xl bg-surface-0 dark:bg-surface-900 overflow-hidden flex flex-col">
                 <template #content>
@@ -130,7 +128,6 @@ const goBack = () => router.push({ name: 'catalog.dashboard' })
             </Card>
         </div>
 
-        <!-- Main Content (Form) -->
         <div class="flex-1 overflow-hidden flex flex-col">
             <RouterView :key="route.fullPath" />
         </div>

@@ -1,22 +1,22 @@
 <script setup lang="ts">
 import { onMounted, computed, ref } from 'vue';
+import { useI18n } from 'vue-i18n';
 import { useRoute, useRouter } from 'vue-router';
 import { useForm } from 'vee-validate';
 import { toTypedSchema } from '@vee-validate/zod';
 import { createProductSchema } from '../schemas/product.schemas';
 import { useProductStore } from '../stores/product.store';
 import { storeToRefs } from 'pinia';
-import AppBreadcrumb from '@/shared/components/breadcrumb.component.vue';
-import MetadataManager from '@/shared/components/metadata-manager.component.vue';
-import ProductImageManager from '../components/ProductImageManager.vue';
-import ProductVariantManager from '../components/ProductVariantManager.vue';
-import ProductClassificationManager from '../components/ProductClassificationManager.vue';
-import ProductPropertyManager from '../components/ProductPropertyManager.vue';
-import ProductOptionTypeManager from '../components/ProductOptionTypeManager.vue';
-import ProductInventoryManager from '../components/ProductInventoryManager.vue';
-import { productLocales, type ProductLocales } from '../locales/product.locales';
+import AppBreadcrumb from '@/shared/components/Breadcrumb.Component.vue';
+import MetadataManager from '@/shared/components/MetadataManager.Component.vue';
+import ProductImageManager from '../components/ProductImageManager.Component.vue';
+import ProductVariantManager from '../components/ProductVariantManager.Component.vue';
+import ProductClassificationManager from '../components/ProductClassificationManager.Component.vue';
+import ProductPropertyManager from '../components/ProductPropertyManager.Component.vue';
+import ProductOptionTypeManager from '../components/ProductOptionTypeManager.Component.vue';
+import ProductInventoryManager from '../components/ProductInventoryManager.Component.vue';
 
-const t = productLocales as ProductLocales;
+const { t } = useI18n();
 const route = useRoute();
 const router = useRouter();
 const store = useProductStore();
@@ -63,7 +63,6 @@ const isVisible = ref(true);
 const public_metadata = ref<Record<string, any>>({});
 const private_metadata = ref<Record<string, any>>({});
 
-// Auto-generate slug from name
 const generateSlug = () => {
     if (!name.value || (isEdit.value && slug.value)) return;
     slug.value = name.value.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
@@ -121,23 +120,23 @@ const onSubmit = handleSubmit(async (values: any) => {
 
 <template>
     <div class="p-6 max-w-6xl mx-auto">
-        <AppBreadcrumb :locales="t" />
+        <AppBreadcrumb />
         
         <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mt-4 mb-8">
             <div class="flex items-center gap-4">
                 <Button icon="pi pi-arrow-left" text rounded severity="secondary" @click="router.back()" class="bg-surface-100 dark:bg-surface-800" />
                 <div>
                     <h2 class="text-4xl font-black tracking-tighter text-surface-900 dark:text-surface-50 m-0">
-                        {{ isEdit ? (name || 'Edit Product') : t.titles?.create }}
+                        {{ isEdit ? (name || 'Edit Product') : t('catalog.products.titles.create') }}
                     </h2>
                     <p class="text-sm text-surface-500 m-0">
-                        {{ isEdit ? t.descriptions?.edit : t.descriptions?.create }}
+                        {{ isEdit ? t('catalog.products.descriptions.edit') : t('catalog.products.descriptions.create') }}
                     </p>
                 </div>
             </div>
             <div class="flex items-center gap-3">
-                <Button :label="t.actions?.cancel" severity="secondary" outlined @click="router.back()" class="rounded-xl px-6" />
-                <Button :label="isEdit ? t.actions?.save : t.actions?.new" icon="pi pi-check" class="rounded-xl px-8 shadow-xl shadow-primary/20" :loading="submitting" @click="onSubmit" />
+                <Button :label="t('catalog.products.actions.cancel')" severity="secondary" outlined @click="router.back()" class="rounded-xl px-6" />
+                <Button :label="isEdit ? t('catalog.products.actions.save') : t('catalog.products.actions.new')" icon="pi pi-check" class="rounded-xl px-8 shadow-xl shadow-primary/20" :loading="submitting" @click="onSubmit" />
             </div>
         </div>
 
@@ -148,13 +147,13 @@ const onSubmit = handleSubmit(async (values: any) => {
                         <Tab :value="0">
                             <div class="flex items-center gap-2">
                                 <i class="pi pi-info-circle"></i>
-                                <span>{{ t.tabs?.general }}</span>
+                                <span>{{ t('catalog.products.tabs.general') }}</span>
                             </div>
                         </Tab>
                         <Tab :value="1" v-if="isEdit">
                             <div class="flex items-center gap-2">
                                 <i class="pi pi-images"></i>
-                                <span>{{ t.tabs?.images }}</span>
+                                <span>{{ t('catalog.products.tabs.images') }}</span>
                             </div>
                         </Tab>
                         <Tab :value="2" v-if="isEdit">
@@ -166,13 +165,13 @@ const onSubmit = handleSubmit(async (values: any) => {
                         <Tab :value="3" v-if="isEdit">
                             <div class="flex items-center gap-2">
                                 <i class="pi pi-clone"></i>
-                                <span>{{ t.tabs?.variants }}</span>
+                                <span>{{ t('catalog.products.tabs.variants') }}</span>
                             </div>
                         </Tab>
                         <Tab :value="4" v-if="isEdit">
                             <div class="flex items-center gap-2">
                                 <i class="pi pi-tags"></i>
-                                <span>{{ t.tabs?.categories }}</span>
+                                <span>{{ t('catalog.products.tabs.categories') }}</span>
                             </div>
                         </Tab>
                         <Tab :value="8" v-if="isEdit">
@@ -184,19 +183,19 @@ const onSubmit = handleSubmit(async (values: any) => {
                         <Tab :value="5">
                             <div class="flex items-center gap-2">
                                 <i class="pi pi-box"></i>
-                                <span>{{ t.tabs?.inventory }}</span>
+                                <span>{{ t('catalog.products.tabs.inventory') }}</span>
                             </div>
                         </Tab>
                         <Tab :value="6">
                             <div class="flex items-center gap-2">
                                 <i class="pi pi-search"></i>
-                                <span>{{ t.tabs?.seo }}</span>
+                                <span>{{ t('catalog.products.tabs.seo') }}</span>
                             </div>
                         </Tab>
                         <Tab :value="7">
                             <div class="flex items-center gap-2">
                                 <i class="pi pi-database"></i>
-                                <span>{{ t.tabs?.metadata }}</span>
+                                <span>{{ t('catalog.products.tabs.metadata') }}</span>
                             </div>
                         </Tab>
                     </TabList>
@@ -206,12 +205,12 @@ const onSubmit = handleSubmit(async (values: any) => {
                             <div class="flex flex-col gap-8">
                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
                                     <div class="flex flex-col gap-2">
-                                        <label class="font-bold text-xs uppercase tracking-wider text-surface-500 ml-1">{{ t.labels?.name }}</label>
+                                        <label class="font-bold text-xs uppercase tracking-wider text-surface-500 ml-1">{{ t('catalog.products.labels.name') }}</label>
                                         <InputText v-model="name" class="w-full rounded-2xl h-12 px-4" :invalid="!!errors.name" @blur="generateSlug" />
                                         <small class="text-red-500 ml-1" v-if="errors.name">{{ errors.name }}</small>
                                     </div>
                                     <div class="flex flex-col gap-2">
-                                        <label class="font-bold text-xs uppercase tracking-wider text-surface-500 ml-1">{{ t.labels?.slug }}</label>
+                                        <label class="font-bold text-xs uppercase tracking-wider text-surface-500 ml-1">{{ t('catalog.products.labels.slug') }}</label>
                                         <InputText v-model="slug" class="w-full rounded-2xl h-12 px-4 font-mono text-sm" :invalid="!!errors.slug" />
                                         <small class="text-red-500 ml-1" v-if="errors.slug">{{ errors.slug }}</small>
                                     </div>
@@ -219,19 +218,19 @@ const onSubmit = handleSubmit(async (values: any) => {
 
                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
                                     <div class="flex flex-col gap-2">
-                                        <label class="font-bold text-xs uppercase tracking-wider text-surface-500 ml-1">{{ t.labels?.sku }}</label>
+                                        <label class="font-bold text-xs uppercase tracking-wider text-surface-500 ml-1">{{ t('catalog.products.labels.sku') }}</label>
                                         <InputText v-model="sku" class="w-full rounded-2xl h-12 px-4 font-mono" :invalid="!!errors.sku" />
                                         <small class="text-red-500 ml-1" v-if="errors.sku">{{ errors.sku }}</small>
                                     </div>
                                     <div class="flex flex-col gap-2">
-                                        <label class="font-bold text-xs uppercase tracking-wider text-surface-500 ml-1">{{ t.labels?.price }}</label>
+                                        <label class="font-bold text-xs uppercase tracking-wider text-surface-500 ml-1">{{ t('catalog.products.labels.price') }}</label>
                                         <InputNumber v-model="price" mode="currency" currency="USD" locale="en-US" class="w-full rounded-2xl h-12 overflow-hidden" inputClass="px-4" :invalid="!!errors.price" />
                                         <small class="text-red-500 ml-1" v-if="errors.price">{{ errors.price }}</small>
                                     </div>
                                 </div>
 
                                 <div class="flex flex-col gap-2">
-                                    <label class="font-bold text-xs uppercase tracking-wider text-surface-500 ml-1">{{ t.labels?.description }}</label>
+                                    <label class="font-bold text-xs uppercase tracking-wider text-surface-500 ml-1">{{ t('catalog.products.labels.description') }}</label>
                                     <Textarea v-model="description" rows="5" class="w-full rounded-2xl p-4" />
                                 </div>
 
@@ -278,19 +277,19 @@ const onSubmit = handleSubmit(async (values: any) => {
                             <div class="flex flex-col gap-8">
                                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
                                     <div class="flex flex-col gap-2">
-                                        <label class="font-bold text-xs uppercase text-surface-500 ml-1">{{ t.labels?.weight }}</label>
+                                        <label class="font-bold text-xs uppercase text-surface-500 ml-1">{{ t('catalog.products.labels.weight') }}</label>
                                         <InputNumber v-model="weight" mode="decimal" :minFractionDigits="2" class="w-full rounded-2xl h-12 overflow-hidden" inputClass="px-4" />
                                     </div>
                                     <div class="flex flex-col gap-2">
-                                        <label class="font-bold text-xs uppercase text-surface-500 ml-1">{{ t.labels?.height }}</label>
+                                        <label class="font-bold text-xs uppercase text-surface-500 ml-1">{{ t('catalog.products.labels.height') }}</label>
                                         <InputNumber v-model="height" mode="decimal" class="w-full rounded-2xl h-12 overflow-hidden" inputClass="px-4" />
                                     </div>
                                     <div class="flex flex-col gap-2">
-                                        <label class="font-bold text-xs uppercase text-surface-500 ml-1">{{ t.labels?.width }}</label>
+                                        <label class="font-bold text-xs uppercase text-surface-500 ml-1">{{ t('catalog.products.labels.width') }}</label>
                                         <InputNumber v-model="width" mode="decimal" class="w-full rounded-2xl h-12 overflow-hidden" inputClass="px-4" />
                                     </div>
                                     <div class="flex flex-col gap-2">
-                                        <label class="font-bold text-xs uppercase text-surface-500 ml-1">{{ t.labels?.depth }}</label>
+                                        <label class="font-bold text-xs uppercase text-surface-500 ml-1">{{ t('catalog.products.labels.depth') }}</label>
                                         <InputNumber v-model="depth" mode="decimal" class="w-full rounded-2xl h-12 overflow-hidden" inputClass="px-4" />
                                     </div>
                                 </div>
@@ -304,15 +303,15 @@ const onSubmit = handleSubmit(async (values: any) => {
                         <TabPanel :value="6">
                             <div class="flex flex-col gap-8 max-w-3xl">
                                 <div class="flex flex-col gap-2">
-                                    <label class="font-bold text-xs uppercase text-surface-500 ml-1">{{ t.labels?.meta_title }}</label>
+                                    <label class="font-bold text-xs uppercase text-surface-500 ml-1">{{ t('catalog.products.labels.meta_title') }}</label>
                                     <InputText v-model="metaTitle" class="w-full rounded-2xl h-12 px-4" />
                                 </div>
                                 <div class="flex flex-col gap-2">
-                                    <label class="font-bold text-xs uppercase text-surface-500 ml-1">{{ t.labels?.meta_description }}</label>
+                                    <label class="font-bold text-xs uppercase text-surface-500 ml-1">{{ t('catalog.products.labels.meta_description') }}</label>
                                     <Textarea v-model="metaDescription" rows="3" class="w-full rounded-2xl p-4" />
                                 </div>
                                 <div class="flex flex-col gap-2">
-                                    <label class="font-bold text-xs uppercase text-surface-500 ml-1">{{ t.labels?.meta_keywords }}</label>
+                                    <label class="font-bold text-xs uppercase text-surface-500 ml-1">{{ t('catalog.products.labels.meta_keywords') }}</label>
                                     <InputText v-model="metaKeywords" class="w-full rounded-2xl h-12 px-4" />
                                 </div>
                             </div>
@@ -320,9 +319,9 @@ const onSubmit = handleSubmit(async (values: any) => {
 
                         <TabPanel :value="7">
                             <div class="flex flex-col gap-12">
-                                <MetadataManager v-model="public_metadata" :title="t.labels?.public_metadata" />
+                                <MetadataManager v-model="public_metadata" :title="t('catalog.products.labels.public_metadata')" />
                                 <Divider />
-                                <MetadataManager v-model="private_metadata" :title="t.labels?.private_metadata" />
+                                <MetadataManager v-model="private_metadata" :title="t('catalog.products.labels.private_metadata')" />
                             </div>
                         </TabPanel>
                     </TabPanels>

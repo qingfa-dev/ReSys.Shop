@@ -5,8 +5,8 @@ import { storeToRefs } from 'pinia';
 import { useRouter } from 'vue-router';
 import { useConfirm } from 'primevue/useconfirm';
 import { useFormatter } from '@/shared/composables/formatter.use';
-import { userLocales as t } from '../locales/user.locales';
-import AppBreadcrumb from '@/shared/components/breadcrumb.component.vue';
+import { useI18n } from 'vue-i18n';
+import AppBreadcrumb from '@/shared/components/Breadcrumb.Component.vue';
 import { FilterMatchMode } from '@primevue/core/api';
 import type { DataTablePageEvent, DataTableSortEvent, DataTableFilterMeta } from 'primevue/datatable';
 import type { AdminUserSummary } from '../types/user.types';
@@ -16,6 +16,7 @@ const { admins, loading, totalRecords, query } = storeToRefs(store);
 const router = useRouter();
 const confirm = useConfirm();
 const { formatDate } = useFormatter();
+const { t } = useI18n();
 
 const filters = ref<DataTableFilterMeta>({
   global: { value: query.value.search || null, matchMode: FilterMatchMode.CONTAINS },
@@ -59,15 +60,15 @@ const clearFilters = () => {
 };
 
 const confirmDelete = (user: AdminUserSummary) => {
-    const messageStr = (t.confirm?.delete_message as string).replace('{email}', user.email);
+    const messageStr = t('users.confirm.delete_message').replace('{email}', user.email);
 
     confirm.require({
         message: messageStr,
-        header: t.confirm?.delete_header as string,
+        header: t('users.confirm.delete_header'),
         icon: 'pi pi-exclamation-triangle',
-        rejectLabel: t.confirm?.reject_label as string,
+        rejectLabel: t('users.confirm.reject_label'),
         acceptProps: {
-            label: t.confirm?.accept_label as string,
+            label: t('users.confirm.accept_label'),
             severity: 'danger',
         },
         accept: async () => {
@@ -79,18 +80,18 @@ const confirmDelete = (user: AdminUserSummary) => {
 
 <template>
   <div class="p-6">
-    <AppBreadcrumb :locales="t" />
+    <AppBreadcrumb />
     <Card class="rounded-3xl shadow-sm border-none bg-surface-0 dark:bg-surface-900 overflow-hidden">
       <template #title>
         <div class="flex items-center justify-between p-4">
           <div class="flex flex-col gap-1">
             <div class="flex items-center gap-3">
-              <span class="text-xl font-bold">{{ t.titles.list }}</span>
+              <span class="text-xl font-bold">{{ t('users.titles.list') }}</span>
               <Badge :value="totalRecords" severity="info" />
             </div>
-            <span class="text-sm text-surface-500">{{ t.descriptions?.list }}</span>
+            <span class="text-sm text-surface-500">{{ t('users.descriptions.list') }}</span>
           </div>
-          <Button :label="t.actions.new" icon="pi pi-user-plus" severity="primary" class="rounded-xl" />
+          <Button :label="t('users.actions.new')" icon="pi pi-user-plus" severity="primary" class="rounded-xl" />
         </div>
       </template>
       <template #content>
@@ -122,7 +123,7 @@ const confirmDelete = (user: AdminUserSummary) => {
                 <InputIcon class="pi pi-search" />
                 <InputText
                   v-model="(filters.global as any).value"
-                  :placeholder="t.placeholders?.search"
+                  :placeholder="t('users.placeholders.search')"
                   @keyup.enter="onFilter"
                   class="w-full rounded-xl"
                 />
@@ -130,7 +131,7 @@ const confirmDelete = (user: AdminUserSummary) => {
               <Button
                 type="button"
                 icon="pi pi-filter-slash"
-                :label="t.table?.clear_filter"
+                :label="t('users.table.clear_filter')"
                 outlined
                 @click="clearFilters"
                 class="rounded-xl"
@@ -141,11 +142,11 @@ const confirmDelete = (user: AdminUserSummary) => {
           <template #empty>
             <div class="flex flex-col items-center justify-center py-20 text-surface-400">
               <i class="mb-4 text-6xl pi pi-users opacity-20"></i>
-              <p class="text-xl font-medium">{{ t.messages?.empty_list }}</p>
+              <p class="text-xl font-medium">{{ t('users.messages.empty_list') }}</p>
             </div>
           </template>
 
-          <Column field="fullName" :header="t.table?.user" sortable>
+          <Column field="fullName" :header="t('users.table.user')" sortable>
             <template #body="{ data }">
               <div class="flex flex-col">
                 <span class="font-bold text-surface-900 dark:text-surface-0">{{ data.fullName || 'Incomplete Profile' }}</span>
@@ -154,7 +155,7 @@ const confirmDelete = (user: AdminUserSummary) => {
             </template>
           </Column>
 
-          <Column field="roleNames" :header="t.table?.roles">
+          <Column field="roleNames" :header="t('users.table.roles')">
             <template #body="{ data }">
               <div class="flex gap-1">
                 <Tag v-for="r in data.roleNames" :key="r" :value="r" severity="info" class="text-[9px] font-black uppercase" />
@@ -162,19 +163,19 @@ const confirmDelete = (user: AdminUserSummary) => {
             </template>
           </Column>
 
-          <Column field="isActive" :header="t.table?.status">
+          <Column field="isActive" :header="t('users.table.status')">
             <template #body="{ data }">
               <Tag :value="data.isActive ? 'Active' : 'Inactive'" :severity="data.isActive ? 'success' : 'secondary'" rounded class="font-bold px-3" />
             </template>
           </Column>
 
-          <Column field="createdAtUtc" :header="t.table?.joined" sortable>
+          <Column field="createdAtUtc" :header="t('users.table.joined')" sortable>
             <template #body="{ data }">
               <span class="text-sm">{{ formatDate(data.createdAtUtc) }}</span>
             </template>
           </Column>
 
-          <Column :header="t.table?.actions" class="w-32 text-right" frozen alignFrozen="right">
+          <Column :header="t('users.table.actions')" class="w-32 text-right" frozen alignFrozen="right">
             <template #body="{ data }">
               <div class="flex justify-end gap-1">
                 <Button icon="pi pi-eye" severity="secondary" text rounded @click="router.push({ name: 'admin-user-detail', params: { id: data.id } })" />

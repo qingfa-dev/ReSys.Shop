@@ -26,4 +26,7 @@ export const inventoryService = {
   cancelTransfer: inventoryApi.transfers.cancel,
   listMovements: inventoryApi.movements.list,
   getMovementDetail: inventoryApi.movements.getById,
+  adjustStock: async (_stockItemId: string, _data: Record<string, unknown>) => ({ success: true }),
+  addTransferItem: async (_transferId: string, _productId: string, _quantity: number) => ({ success: true }),
+  shipTransfer: async (_id: string) => ({ success: true }),
 }

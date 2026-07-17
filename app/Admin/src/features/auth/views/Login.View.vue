@@ -6,8 +6,10 @@ import { storeToRefs } from 'pinia'
 import { useForm } from 'vee-validate'
 import { toTypedSchema } from '@vee-validate/zod'
 import { LoginSchema } from '../schemas/auth.schema'
-import { authLocales } from '../locales/auth.locales'
+import { useI18n } from 'vue-i18n'
 import { useApiErrorHandler } from '@/shared/composables/api-error-handler.use'
+
+const { t } = useI18n()
 
 const router = useRouter()
 const authStore = useAuthStore()
@@ -41,10 +43,10 @@ const onSubmit = handleSubmit(async (formValues) => {
   const handled = handleApiResult(result, {
     setErrors,
     fieldNames: Object.keys(values),
-    successTitle: authLocales.titles?.welcome,
-    successMessage: authLocales.messages?.login_success,
-    errorTitle: authLocales.common?.error,
-    genericError: authLocales.messages?.login_failed,
+    successTitle: t('auth.titles.welcome'),
+    successMessage: t('auth.messages.login_success'),
+    errorTitle: t('common.error'),
+    genericError: t('auth.messages.login_failed'),
   })
   if (handled && result.success) {
     router.push('/')
@@ -67,7 +69,7 @@ const fillSeedCredentials = () => {
         <h1 class="brand-wordmark">
           <span class="brand-resys">ReSys</span><span class="brand-dot">.</span><span class="brand-shop">Shop</span>
         </h1>
-        <p class="brand-subtitle">{{ authLocales.titles?.app_subtitle }}</p>
+        <p class="brand-subtitle">{{ t('auth.titles.app_subtitle') }}</p>
       </div>
 
       <!-- Divider -->
@@ -80,12 +82,12 @@ const fillSeedCredentials = () => {
       <!-- Form -->
       <form @submit="onSubmit" class="login-form" novalidate>
         <div class="field">
-          <label for="credential">{{ authLocales.labels?.credential }}</label>
+          <label for="credential">{{ t('auth.labels.credential') }}</label>
           <input
             id="credential"
             v-model="credential"
             type="text"
-            :placeholder="authLocales.placeholders?.credential"
+            :placeholder="t('auth.placeholders.credential')"
             class="text-input"
             :class="{ 'has-value': values.credential, 'has-error': !!errors.credential }"
             :disabled="loading"
@@ -98,13 +100,13 @@ const fillSeedCredentials = () => {
         </div>
 
         <div class="field">
-          <label for="password">{{ authLocales.labels?.password }}</label>
+          <label for="password">{{ t('auth.labels.password') }}</label>
           <div class="password-wrapper">
             <input
               id="password"
               v-model="password"
               type="password"
-              :placeholder="authLocales.placeholders?.password"
+              :placeholder="t('auth.placeholders.password')"
               class="text-input"
               :class="{ 'has-value': values.password, 'has-error': !!errors.password }"
               :disabled="loading"
@@ -120,9 +122,9 @@ const fillSeedCredentials = () => {
           <label class="checkbox-label">
             <input type="checkbox" v-model="rememberMe" :disabled="loading" class="checkbox" />
             <span class="checkbox-faux"></span>
-            <span class="checkbox-text">{{ authLocales.labels?.remember_me }}</span>
+            <span class="checkbox-text">{{ t('auth.labels.remember_me') }}</span>
           </label>
-          <a href="#" class="forgot-link">{{ authLocales.labels?.forgot_password }}</a>
+          <a href="#" class="forgot-link">{{ t('auth.labels.forgot_password') }}</a>
         </div>
 
         <button
@@ -130,7 +132,7 @@ const fillSeedCredentials = () => {
           class="submit-btn"
           :disabled="loading"
         >
-          <span v-if="!loading" class="submit-text">{{ authLocales.labels?.sign_in }}</span>
+          <span v-if="!loading" class="submit-text">{{ t('auth.labels.sign_in') }}</span>
           <span v-if="!loading" class="submit-arrow">
             <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
               <path d="M3 9h12M10 4l5 5-5 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
@@ -165,7 +167,7 @@ const fillSeedCredentials = () => {
         </Transition>
       </div>
 
-      <p class="copyright">{{ authLocales.messages?.copyright?.replace('{year}', new Date().getFullYear().toString()) }}</p>
+      <p class="copyright">{{ t('auth.messages.copyright', { year: new Date().getFullYear().toString() }) }}</p>
     </div>
   </div>
 </template>

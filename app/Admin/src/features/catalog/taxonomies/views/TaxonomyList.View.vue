@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue';
+import { useI18n } from 'vue-i18n';
 import { useTaxonomyStore } from '../stores/taxonomy.store';
 import { storeToRefs } from 'pinia';
 import { useRouter } from 'vue-router';
 import { useConfirm } from 'primevue/useconfirm';
-import { taxonomyLocales } from '../locales/taxonomy.locales';
 import { FilterMatchMode, FilterOperator as PrimeFilterOperator } from '@primevue/core/api';
 import type {
   DataTablePageEvent,
@@ -14,23 +14,17 @@ import type {
 import { useToast } from '@/shared/composables/toast.use';
 import { useFormatter } from '@/shared/composables/formatter.use';
 import { QueryBuilder } from '@/shared/utils/query-builder.utils';
-import AppBreadcrumb from '@/shared/components/breadcrumb.component.vue';
-import type { FeatureLocales } from '@/shared/locales/locale.types';
+import AppBreadcrumb from '@/shared/components/Breadcrumb.Component.vue';
 import type { TaxonomyListItem } from '../types/taxonomy.types';
 
-// --- LOCALES & ALIASES ---
-const t = taxonomyLocales as Required<FeatureLocales>;
+const { t } = useI18n();
 
-// --- STORE & ROUTING ---
 const store = useTaxonomyStore();
 const { taxonomies, loading, totalRecords, query } = storeToRefs(store);
 const router = useRouter();
 const confirm = useConfirm();
 const { showToast } = useToast();
 
-/**
- * PrimeVue Filter Configuration
- */
 const filters = ref<DataTableFilterMeta>({
   global: { value: query.value.search || null, matchMode: FilterMatchMode.CONTAINS },
   name: {
@@ -38,8 +32,6 @@ const filters = ref<DataTableFilterMeta>({
     constraints: [{ value: null, matchMode: FilterMatchMode.CONTAINS }],
   }
 });
-
-// --- DATA ACTIONS ---
 
 const loadTaxonomies = async () => {
   await store.fetchTaxonomies();
@@ -99,21 +91,21 @@ const clearFilters = () => {
 };
 
 const confirmDelete = (taxonomy: TaxonomyListItem) => {
-  const messageStr = (t.confirm?.delete_message as string || 'Delete "{name}"?').replace('{name}', taxonomy.name);
+  const messageStr = (t('catalog.taxonomies.confirm.delete_message') || 'Delete "{name}"?').replace('{name}', taxonomy.name);
   
   confirm.require({
     message: messageStr,
-    header: t.confirm?.delete_header as string || 'Confirm Deletion',
+    header: t('catalog.taxonomies.confirm.delete_header') || 'Confirm Deletion',
     icon: 'pi pi-exclamation-triangle',
-    rejectLabel: t.actions?.cancel,
+    rejectLabel: t('catalog.taxonomies.actions.cancel'),
     acceptProps: {
-      label: t.actions?.delete,
+      label: t('catalog.taxonomies.actions.delete'),
       severity: 'danger',
     },
     accept: async () => {
       const result = await store.deleteTaxonomy(taxonomy.id);
       if (result.success) {
-        showToast('success', t.common?.success || 'Deleted', t.messages?.delete_success || 'Taxonomy removed.');
+        showToast('success', t('common.success') || 'Deleted', t('catalog.taxonomies.messages.delete_success') || 'Taxonomy removed.');
       }
     },
   });
@@ -129,15 +121,15 @@ onMounted(() => {
     <div class="flex flex-col md:flex-row md:items-center justify-between mb-6 gap-4">
       <div>
         <h2 class="text-3xl font-black tracking-tight text-surface-900 dark:text-surface-50 mb-2">
-          {{ t.titles.list }}
+          {{ t('catalog.taxonomies.titles.list') }}
         </h2>
         <div class="text-muted-color font-medium">
-          {{ t.descriptions.list }}
+          {{ t('catalog.taxonomies.descriptions.list') }}
         </div>
       </div>
       <div class="flex gap-2">
         <Button 
-          :label="t.actions.create" 
+          :label="t('catalog.taxonomies.actions.create')" 
           icon="pi pi-plus" 
           @click="createItem"
           class="px-4 shadow-lg rounded-xl"
@@ -171,7 +163,7 @@ onMounted(() => {
               <InputIcon class="pi pi-search" />
               <InputText
                 v-model="(filters.global as any).value"
-                :placeholder="t.placeholders?.search || 'Search...'"
+                :placeholder="t('catalog.taxonomies.placeholders.search') || 'Search...'"
                 @keyup.enter="onFilter"
                 class="w-full rounded-xl"
               />
@@ -182,34 +174,34 @@ onMounted(() => {
         <template #empty>
           <div class="flex flex-col items-center justify-center py-20 text-surface-400">
             <i class="mb-4 text-6xl pi pi-sitemap opacity-20"></i>
-            <p class="text-xl font-medium">{{ t.messages.empty_list }}</p>
+            <p class="text-xl font-medium">{{ t('catalog.taxonomies.messages.empty_list') }}</p>
           </div>
         </template>
 
-        <Column field="name" :header="t.table.name" sortable filter>
+        <Column field="name" :header="t('catalog.taxonomies.table.name')" sortable filter>
             <template #body="{ data }">
                 <span class="font-bold text-surface-900 dark:text-surface-0">{{ data.name }}</span>
             </template>
         </Column>
 
-        <Column field="presentation" :header="t.table.presentation" sortable>
+        <Column field="presentation" :header="t('catalog.taxonomies.table.presentation')" sortable>
             <template #body="{ data }">
                 <span class="font-medium text-surface-600 dark:text-surface-300">{{ data.presentation || '-' }}</span>
             </template>
         </Column>
 
-        <Column field="taxonsCount" :header="t.table.taxons" sortable class="text-center">
+        <Column field="taxonsCount" :header="t('catalog.taxonomies.table.taxons')" sortable class="text-center">
             <template #body="{ data }">
                 <Badge :value="data.taxonsCount" severity="secondary" class="font-bold" />
             </template>
         </Column>
 
-        <Column field="position" :header="t.table.position" sortable class="text-center"></Column>
+        <Column field="position" :header="t('catalog.taxonomies.table.position')" sortable class="text-center"></Column>
 
-        <Column :header="t.table.actions" class="w-48 text-right" frozen alignFrozen="right">
+        <Column :header="t('catalog.taxonomies.table.actions')" class="w-48 text-right" frozen alignFrozen="right">
           <template #body="{ data }">
             <div class="flex justify-end gap-1">
-              <Button icon="pi pi-sitemap" :label="t.actions.manage_tree" text rounded severity="info" size="small" v-tooltip.top="'Manage Tree'" @click="router.push({ name: 'catalog.taxa.manager', params: { taxonomyId: data.id } })" />
+              <Button icon="pi pi-sitemap" :label="t('catalog.taxonomies.actions.manage_tree')" text rounded severity="info" size="small" v-tooltip.top="'Manage Tree'" @click="router.push({ name: 'catalog.taxa.manager', params: { taxonomyId: data.id } })" />
               <Button icon="pi pi-pencil" severity="secondary" text rounded @click="router.push({ name: 'catalog.taxonomies.edit', params: { id: data.id } })" />
               <Button icon="pi pi-trash" severity="danger" text rounded @click="confirmDelete(data)" />
             </div>

@@ -3,7 +3,9 @@ import { onMounted, ref } from 'vue';
 import { useInventoryStore } from '../stores/inventory.store';
 import { storeToRefs } from 'pinia';
 import { useRouter } from 'vue-router';
-import { inventoryLocales as t } from '../locales/inventory.locales';
+import { useI18n } from 'vue-i18n';
+
+const { t } = useI18n();
 
 const store = useInventoryStore();
 const { locations, locationTree, loading } = storeToRefs(store);
@@ -17,7 +19,7 @@ onMounted(async () => {
 });
 
 const onToggleStatus = async (id: string, current: boolean) => {
-    await store.toggleLocationStatus(id, !current);
+    await store.toggleLocationStatus(id);
     await store.fetchLocations();
     await store.fetchLocationTree();
 };
@@ -70,7 +72,7 @@ const onToggleStatus = async (id: string, current: boolean) => {
 
         <!-- Tree View -->
         <div v-else class="flex-1 overflow-hidden border shadow-sm bg-surface-0 dark:bg-surface-900 rounded-3xl border-surface-100 dark:border-surface-800">
-            <TreeTable :value="locationTree" class="p-treetable-sm h-full" scrollable scrollHeight="flex">
+            <TreeTable :value="locationTree as any" class="p-treetable-sm h-full" scrollable scrollHeight="flex">
                 <Column field="name" header="Location Name" expander></Column>
                 <Column field="code" header="Code">
                     <template #body="{ node }">

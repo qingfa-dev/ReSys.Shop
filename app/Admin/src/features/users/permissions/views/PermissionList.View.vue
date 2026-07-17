@@ -83,6 +83,5 @@ const onPage = (event: DataTablePageEvent) => {
                 <Column field="description" header="Description" class="text-surface-500"></Column>
             </DataTable>
         </div>
-    </template>
 </Card>
 </template>

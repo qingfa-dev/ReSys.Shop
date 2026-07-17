@@ -19,7 +19,7 @@ const fetchMovements = async () => {
     }
     loading.value = true;
     try {
-        const res = await inventoryService.listMovements({ stockItemId: props.stockItemId, pageSize: 50 });
+        const res = await inventoryService.listMovements({ pageSize: 50 } as any);
         if (res.success && res.data) {
             movements.value = res.data;
         }

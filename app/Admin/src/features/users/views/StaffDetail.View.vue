@@ -5,16 +5,17 @@ import { useToast } from '@/shared/composables/toast.use';
 import { useFormatter } from '@/shared/composables/formatter.use';
 import { userService } from '../services/user.service';
 import type { AdminUserSummary } from '../types/user.types';
-import { userLocales as t } from '../locales/user.locales';
-import AppBreadcrumb from '@/shared/components/breadcrumb.component.vue';
-import UserRoleManager from '../components/UserRoleManager.vue';
-import UserPermissionManager from '../components/UserPermissionManager.vue';
-import UserSecurityManager from '../components/UserSecurityManager.vue';
+import { useI18n } from 'vue-i18n';
+import AppBreadcrumb from '@/shared/components/Breadcrumb.Component.vue';
+import UserRoleManager from '../components/UserRoleManager.Component.vue';
+import UserPermissionManager from '../components/UserPermissionManager.Component.vue';
+import UserSecurityManager from '../components/UserSecurityManager.Component.vue';
 
 const route = useRoute();
 const router = useRouter();
 const { showToast } = useToast();
 const { formatDate } = useFormatter();
+const { t } = useI18n();
 
 const userId = computed(() => route.params.id as string);
 const user = ref<AdminUserSummary | null>(null);
@@ -67,7 +68,7 @@ async function onToggleStatus() {
 
 <template>
     <div class="p-6 max-w-6xl mx-auto">
-        <AppBreadcrumb :locales="t" />
+        <AppBreadcrumb />
         
         <div v-if="user" class="flex flex-col md:flex-row md:items-center justify-between gap-4 mt-4 mb-8">
             <div class="flex items-center gap-4">
@@ -84,7 +85,7 @@ async function onToggleStatus() {
             </div>
             <div class="flex items-center gap-3">
                 <Button :label="user.isActive ? 'Deactivate' : 'Activate'" :severity="user.isActive ? 'danger' : 'success'" outlined icon="pi pi-power-off" @click="onToggleStatus" class="rounded-xl px-6" />
-                <Button :label="t.actions.edit" icon="pi pi-pencil" class="rounded-xl px-8 shadow-xl shadow-primary/20" @click="onEdit" />
+                <Button :label="t('users.actions.edit')" icon="pi pi-pencil" class="rounded-xl px-8 shadow-xl shadow-primary/20" @click="onEdit" />
             </div>
         </div>
 
@@ -95,25 +96,25 @@ async function onToggleStatus() {
                         <Tab :value="0">
                             <div class="flex items-center gap-2">
                                 <i class="pi pi-user"></i>
-                                <span>{{ t.tabs.details }}</span>
+                                <span>{{ t('users.tabs.details') }}</span>
                             </div>
                         </Tab>
                         <Tab :value="1">
                             <div class="flex items-center gap-2">
                                 <i class="pi pi-shield"></i>
-                                <span>{{ t.tabs.roles }}</span>
+                                <span>{{ t('users.tabs.roles') }}</span>
                             </div>
                         </Tab>
                         <Tab :value="2">
                             <div class="flex items-center gap-2">
                                 <i class="pi pi-key"></i>
-                                <span>{{ t.tabs.permissions }}</span>
+                                <span>{{ t('users.tabs.permissions') }}</span>
                             </div>
                         </Tab>
                         <Tab :value="3">
                             <div class="flex items-center gap-2">
                                 <i class="pi pi-lock"></i>
-                                <span>{{ t.tabs.security }}</span>
+                                <span>{{ t('users.tabs.security') }}</span>
                             </div>
                         </Tab>
                     </TabList>
@@ -180,7 +181,7 @@ async function onToggleStatus() {
 
         <div v-else-if="loading" class="flex flex-col items-center justify-center p-20">
             <ProgressSpinner />
-            <p class="mt-4 text-surface-500">{{ t.messages.loading }}</p>
+            <p class="mt-4 text-surface-500">{{ t('users.messages.loading') }}</p>
         </div>
     </div>
 </template>

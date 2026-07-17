@@ -3,7 +3,7 @@ import { onMounted, ref } from 'vue';
 import { useOrderStore } from '../stores/order.store';
 import { storeToRefs } from 'pinia';
 import { useRouter } from 'vue-router';
-import { orderLocales } from '../locales/order.locales';
+import { useI18n } from 'vue-i18n';
 import { FilterMatchMode, FilterOperator as PrimeFilterOperator } from '@primevue/core/api';
 import type {
   DataTablePageEvent,
@@ -12,11 +12,10 @@ import type {
 } from 'primevue/datatable';
 import { useFormatter } from '@/shared/composables/formatter.use';
 import { QueryBuilder } from '@/shared/utils/query-builder.utils';
-import AppBreadcrumb from '@/shared/components/breadcrumb.component.vue';
-import type { FeatureLocales } from '@/shared/locales/locale.types';
+import AppBreadcrumb from '@/shared/components/Breadcrumb.Component.vue';
 
 // --- LOCALES & ALIASES ---
-const t = orderLocales as Required<FeatureLocales>;
+const { t } = useI18n();
 
 // --- STORE & ROUTING ---
 const store = useOrderStore();
@@ -120,16 +119,16 @@ onMounted(() => {
 
 <template>
   <div class="p-6">
-    <AppBreadcrumb :locales="t" />
+    <AppBreadcrumb />
     <Card class="rounded-3xl shadow-sm border-none bg-surface-0 dark:bg-surface-900 overflow-hidden">
       <template #title>
         <div class="flex items-center justify-between p-4">
           <div class="flex flex-col gap-1">
             <div class="flex items-center gap-3">
-              <span class="text-xl font-bold">{{ t.titles.list }}</span>
+              <span class="text-xl font-bold">{{ t('ordering.titles.list') }}</span>
               <Badge :value="totalRecords" severity="info" />
             </div>
-            <span class="text-sm text-surface-500">{{ t.descriptions?.list }}</span>
+            <span class="text-sm text-surface-500">{{ t('ordering.descriptions.list') }}</span>
           </div>
           <Button label="New Order" icon="pi pi-plus" severity="primary" class="rounded-xl" @click="router.push({ name: 'ordering.orders.create' })" />
         </div>
@@ -164,7 +163,7 @@ onMounted(() => {
                 <InputIcon class="pi pi-search" />
                 <InputText
                   v-model="(filters.global as any).value"
-                  :placeholder="t.placeholders?.search"
+                  :placeholder="t('ordering.placeholders.search')"
                   @keyup.enter="onFilter"
                   class="w-full rounded-xl"
                 />
@@ -172,7 +171,7 @@ onMounted(() => {
               <Button
                 type="button"
                 icon="pi pi-filter-slash"
-                :label="t.table?.clear_filter"
+                :label="t('ordering.table.clear_filter')"
                 outlined
                 @click="clearFilters"
                 class="rounded-xl"
@@ -180,7 +179,7 @@ onMounted(() => {
             </div>
           </template>
 
-          <Column field="number" :header="t.table.number" sortable filter>
+          <Column field="number" :header="t('ordering.table.number')" sortable filter>
             <template #body="{ data }">
               <span class="font-black text-primary cursor-pointer hover:underline" @click="router.push({ name: 'ordering.orders.detail', params: { id: data.id } })">
                 {{ data.number }}
@@ -188,7 +187,7 @@ onMounted(() => {
             </template>
           </Column>
 
-          <Column field="email" :header="t.table.customer" sortable>
+          <Column field="email" :header="t('ordering.table.customer')" sortable>
             <template #body="{ data }">
               <div class="flex flex-col">
                 <span class="font-bold">{{ data.email || 'Guest' }}</span>
@@ -196,25 +195,25 @@ onMounted(() => {
             </template>
           </Column>
 
-          <Column field="createdAtUtc" :header="t.table.date" sortable>
+          <Column field="createdAtUtc" :header="t('ordering.table.date')" sortable>
             <template #body="{ data }">
               <span class="text-sm font-medium">{{ formatDate(data.createdAtUtc) }}</span>
             </template>
           </Column>
 
-          <Column field="totalCents" :header="t.table.total" sortable>
+          <Column field="totalCents" :header="t('ordering.table.total')" sortable>
             <template #body="{ data }">
               <span class="font-black text-lg">{{ formatCurrency(data.totalCents / 100) }}</span>
             </template>
           </Column>
 
-          <Column field="state" :header="t.table.status" filter>
+          <Column field="state" :header="t('ordering.table.status')" filter>
             <template #body="{ data }">
               <Tag :value="data.state" :severity="getStatusSeverity(data.state)" rounded class="font-black px-3" />
             </template>
           </Column>
 
-          <Column :header="t.table.actions" class="w-32 text-right" frozen alignFrozen="right">
+          <Column :header="t('ordering.table.actions')" class="w-32 text-right" frozen alignFrozen="right">
             <template #body="{ data }">
               <Button icon="pi pi-eye" severity="secondary" text rounded @click="router.push({ name: 'ordering.orders.detail', params: { id: data.id } })" />
             </template>

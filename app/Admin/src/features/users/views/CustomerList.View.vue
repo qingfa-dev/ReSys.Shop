@@ -4,8 +4,8 @@ import { useUserStore } from '../stores/user.store';
 import { storeToRefs } from 'pinia';
 import { useRouter } from 'vue-router';
 import { useFormatter } from '@/shared/composables/formatter.use';
-import { userLocales as t } from '../locales/user.locales';
-import AppBreadcrumb from '@/shared/components/breadcrumb.component.vue';
+import { useI18n } from 'vue-i18n';
+import AppBreadcrumb from '@/shared/components/Breadcrumb.Component.vue';
 import { FilterMatchMode } from '@primevue/core/api';
 import type { DataTablePageEvent, DataTableSortEvent, DataTableFilterMeta } from 'primevue/datatable';
 
@@ -13,6 +13,7 @@ const store = useUserStore();
 const { customers, loading, totalRecords, query } = storeToRefs(store);
 const router = useRouter();
 const { formatCurrency, formatDate } = useFormatter();
+const { t } = useI18n();
 
 const filters = ref<DataTableFilterMeta>({
   global: { value: query.value.search || null, matchMode: FilterMatchMode.CONTAINS },
@@ -55,14 +56,14 @@ const clearFilters = () => {
 <template>
     <Card>
         <template #content>
-            <AppBreadcrumb :locales="t" />
+            <AppBreadcrumb />
         
         <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mt-4 mb-8">
             <div>
                 <h2 class="text-4xl font-black tracking-tighter text-surface-900 dark:text-surface-50 m-0">
-                    {{ t.titles.customers }}
+                    {{ t('users.titles.customers') }}
                 </h2>
-                <p class="text-surface-500 m-0">{{ t.descriptions?.customers }}</p>
+                <p class="text-surface-500 m-0">{{ t('users.descriptions.customers') }}</p>
             </div>
             <div class="flex items-center gap-2">
                 <Badge :value="totalRecords" severity="info" class="px-3" />
@@ -99,7 +100,7 @@ const clearFilters = () => {
                             <InputIcon class="pi pi-search" />
                             <InputText
                                 v-model="(filters.global as any).value"
-                                :placeholder="t.placeholders?.search"
+                                :placeholder="t('users.placeholders.search')"
                                 @keyup.enter="onFilter"
                                 class="w-full rounded-xl"
                             />
@@ -108,7 +109,7 @@ const clearFilters = () => {
                         <Button
                             type="button"
                             icon="pi pi-filter-slash"
-                            :label="t.table?.clear_filter"
+                            :label="t('users.table.clear_filter')"
                             outlined
                             @click="clearFilters"
                             class="w-full rounded-xl md:w-auto"
@@ -116,7 +117,7 @@ const clearFilters = () => {
                     </div>
                 </template>
 
-                <Column field="fullName" :header="t.table?.user" sortable>
+                <Column field="fullName" :header="t('users.table.user')" sortable>
                     <template #body="{ data }">
                         <div class="flex flex-col">
                             <span class="font-bold text-surface-900 dark:text-surface-0">{{ data.fullName || 'Anonymous' }}</span>
@@ -137,19 +138,19 @@ const clearFilters = () => {
                     </template>
                 </Column>
 
-                <Column field="createdAtUtc" :header="t.table?.joined" sortable>
+                <Column field="createdAtUtc" :header="t('users.table.joined')" sortable>
                     <template #body="{ data }">
                         <span class="text-sm">{{ formatDate(data.createdAtUtc) }}</span>
                     </template>
                 </Column>
 
-                <Column field="isActive" :header="t.table?.status">
+                <Column field="isActive" :header="t('users.table.status')">
                     <template #body="{ data }">
                         <Tag :value="data.isActive ? 'Active' : 'Inactive'" :severity="data.isActive ? 'success' : 'secondary'" rounded class="font-bold px-3" />
                     </template>
                 </Column>
 
-                <Column :header="t.table?.actions" class="w-32 text-right" frozen alignFrozen="right">
+                <Column :header="t('users.table.actions')" class="w-32 text-right" frozen alignFrozen="right">
                     <template #body="{ data }">
                         <Button icon="pi pi-eye" text rounded @click="router.push({ name: 'customer-detail', params: { id: data.id } })" />
                     </template>

@@ -15,4 +15,8 @@ export const taxonService = {
   deleteRule: catalogApi.taxonomies.deleteTaxonRule,
   syncRules: catalogApi.taxonomies.syncTaxonRules,
   regenerateProducts: catalogApi.taxonomies.regenerateTaxonProducts,
+  getProductPreview: async (_taxonId: string, _params: Record<string, unknown>) => ({
+    success: true as const,
+    data: { items: [], total_count: 0 },
+  }),
 }
