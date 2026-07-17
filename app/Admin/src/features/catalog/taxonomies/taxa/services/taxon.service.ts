@@ -16,12 +16,12 @@ export const taxonService = {
   deleteRule: taxonRepository.deleteRule,
   syncRules: taxonRepository.syncRules,
   regenerateProducts: taxonRepository.regenerateProducts,
-  getProductPreview: async (_taxonId: string, _params: Record<string, unknown>): Promise<ServerResult<{ items: any[]; total_count: number }>> => ({
+  getProductPreview: async (_taxonId: string, _params: Record<string, unknown>): Promise<ServerResult<{ items: any[]; totalCount: number }>> => ({
     isSuccess: true,
     statusCode: 200,
     errors: [],
     message: null,
     metadata: null,
-    value: { items: [], total_count: 0 },
+    value: { items: [], totalCount: 0 },
   }),
 }

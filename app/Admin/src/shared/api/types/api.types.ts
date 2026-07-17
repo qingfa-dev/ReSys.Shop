@@ -15,7 +15,7 @@ export interface FailureResult {
     message: string | null
     detail: string | null
     errors: Record<string, string[]>
-    error_code: string | undefined
+    errorCode: string | undefined
   }
 }
 

@@ -91,9 +91,9 @@ const generateCombinations = () => {
         const skuSuffix = combo.map(v => (v.name || '').toUpperCase().substring(0, 3)).join('-');
         
         return {
-            name_suffix: nameSuffix,
-            sku_suffix: skuSuffix,
-            price_offset: 0,
+            nameSuffix: nameSuffix,
+            skuSuffix: skuSuffix,
+            priceOffset: 0,
             options: combo
         };
     });
@@ -119,9 +119,9 @@ const confirmGeneration = async () => {
         for (const variant of generatedPreview.value) {
             const payload = {
                 productId: props.productId,
-                sku: `${productStore.current_product?.sku || 'SKU'}-${variant.sku_suffix}`,
+                sku: `${productStore.current_product?.sku || 'SKU'}-${variant.skuSuffix}`,
                 price: productStore.current_product?.price || 0,
-                option_values: variant.options.map((o: any) => o.id),
+                optionValues: variant.options.map((o: any) => o.id),
             };
 
             const createRes = await variantService.create(props.productId, {
@@ -220,12 +220,12 @@ watch(() => props.visible, (val) => {
                     <DataTable :value="generatedPreview" size="small" stripedRows>
                         <Column header="Name">
                             <template #body="{ data }">
-                                <span class="font-medium">{{ data.name_suffix }}</span>
+                                <span class="font-medium">{{ data.nameSuffix }}</span>
                             </template>
                         </Column>
                         <Column header="Generated SKU">
                             <template #body="{ data }">
-                                <span class="font-mono text-xs">{{ productStore.current_product?.sku }}-{{ data.sku_suffix }}</span>
+                                <span class="font-mono text-xs">{{ productStore.current_product?.sku }}-{{ data.skuSuffix }}</span>
                             </template>
                         </Column>
                     </DataTable>

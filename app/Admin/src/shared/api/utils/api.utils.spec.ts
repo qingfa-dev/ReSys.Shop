@@ -11,7 +11,7 @@ describe('parseApiError - Edge Cases', () => {
       detail: 'An unexpected error occurred.',
       isSuccess: false,
       errors: {},
-      error_code: undefined,
+      errorCode: undefined,
     })
   })
 
@@ -23,7 +23,7 @@ describe('parseApiError - Edge Cases', () => {
       detail: 'An unexpected error occurred.',
       isSuccess: false,
       errors: {},
-      error_code: undefined,
+      errorCode: undefined,
     })
   })
 
@@ -82,7 +82,7 @@ describe('parseApiError - Edge Cases', () => {
     expect(result.statusCode).toBe(409)
     expect(result.title).toBe('Conflict')
     expect(result.detail).toBe('Already exists')
-    expect(result.error_code).toBe('Duplicate')
+    expect(result.errorCode).toBe('Duplicate')
   })
 
   it('should handle snake_case error_code', () => {
@@ -92,7 +92,7 @@ describe('parseApiError - Edge Cases', () => {
       },
     }
     const result = parseApiError(error)
-    expect(result.error_code).toBe('some_code')
+    expect(result.errorCode).toBe('some_code')
   })
 
   it('should be idempotent and return already parsed errors', () => {
@@ -100,13 +100,13 @@ describe('parseApiError - Edge Cases', () => {
       statusCode: 400,
       title: 'Already Parsed',
       detail: 'Details here',
-      error_code: 'CODE',
+      errorCode: 'CODE',
     }
     const result = parseApiError(parsedError)
     expect(result.statusCode).toBe(400)
     expect(result.title).toBe('Already Parsed')
     expect(result.detail).toBe('Details here')
-    expect(result.error_code).toBe('CODE')
+    expect(result.errorCode).toBe('CODE')
   })
 
   it('should convert ServerError[] to Record<string, string[]>', () => {

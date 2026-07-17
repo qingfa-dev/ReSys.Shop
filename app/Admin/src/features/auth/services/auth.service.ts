@@ -1,30 +1,21 @@
 import { authRepository } from "../repositories/auth.repository";
-import { mapAuthResponse, mapJwtToProfile } from "../mappers/auth.mapper";
+import { mapJwtToProfile } from "../mappers/auth.mapper";
 import type { ServerResult } from "@/shared/api/types/result.types";
 import type { LoginRequest } from "../types/Login.Request.Type";
 import type { AuthenticationResponse } from "../types/Login.Response.Type";
 import type { UserProfile } from "../types/Login.Response.Type";
 import type { ChangePasswordRequest } from "../types/ChangePassword.Request.Type";
 
-function handleResult<T, R>(result: ServerResult<T>, mapper: (data: T) => R): ServerResult<R> {
-  if (result.isSuccess) {
-    return { ...result, value: mapper(result.value) };
-  }
-  return result as unknown as ServerResult<R>;
-}
-
 export const authService = {
   async login(request: LoginRequest): Promise<ServerResult<AuthenticationResponse>> {
-    const result = await authRepository.login(request);
-    return handleResult(result, mapAuthResponse);
+    return authRepository.login(request) as Promise<ServerResult<AuthenticationResponse>>;
   },
 
   async refresh(request: {
     refreshToken: string;
     rememberMe?: boolean;
   }): Promise<ServerResult<AuthenticationResponse>> {
-    const result = await authRepository.refresh(request);
-    return handleResult(result, mapAuthResponse);
+    return authRepository.refresh(request) as Promise<ServerResult<AuthenticationResponse>>;
   },
 
   async logout(): Promise<ServerResult<void>> {
@@ -33,12 +24,17 @@ export const authService = {
 
   async getProfile(): Promise<ServerResult<Partial<UserProfile>>> {
     const result = await authRepository.getProfile();
-    return handleResult(result, (data) => ({
-      id: String(data.id || ""),
-      email: String(data.email || ""),
-      fullName: String(data.fullName || data.full_name || ""),
-      roles: Array.isArray(data.roles) ? data.roles.map(String) : [],
-    }));
+    if (!result.isSuccess) return result as ServerResult<Partial<UserProfile>>;
+    const value = result.value as Record<string, unknown>;
+    return {
+      ...result,
+      value: {
+        id: String(value.id || value.Id || ""),
+        email: String(value.email || value.Email || ""),
+        fullName: String(value.fullName || value.FullName || ""),
+        roles: Array.isArray(value.roles) ? value.roles.map(String) : [],
+      } as Partial<UserProfile>,
+    };
   },
 
   async updateProfile(data: Record<string, unknown>): Promise<ServerResult<void>> {

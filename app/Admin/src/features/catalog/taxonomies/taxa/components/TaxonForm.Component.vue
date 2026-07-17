@@ -110,8 +110,8 @@ watch(
 const onSubmit = handleSubmit((values) => {
   emit('submit', {
     ...values,
-    public_metadata: public_metadata.value,
-    private_metadata: private_metadata.value,
+    publicMetadata: public_metadata.value,
+    privateMetadata: private_metadata.value,
   })
 })
 </script>

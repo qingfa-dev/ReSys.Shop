@@ -1,6 +1,6 @@
 import apiClient from '@/shared/api/http/api.client'
 import type { ServerResult } from '@/shared/api/types/result.types'
-import type { AuthDto } from '../mappers/auth.mapper'
+import type { AuthenticationResponse } from '../types/Login.Response.Type'
 import type { LoginRequest } from '../types/Login.Request.Type'
 import type { ChangePasswordRequest } from '../types/ChangePassword.Request.Type'
 
@@ -11,14 +11,14 @@ function path(sub: string): string {
 }
 
 export const authRepository = {
-  async login(request: LoginRequest): Promise<ServerResult<AuthDto>> {
+  async login(request: LoginRequest): Promise<ServerResult<AuthenticationResponse>> {
     const res = await apiClient.post(path('login/password'), request)
-    return res.data as ServerResult<AuthDto>
+    return res.data as ServerResult<AuthenticationResponse>
   },
 
-  async refresh(request: { refreshToken: string; rememberMe?: boolean }): Promise<ServerResult<AuthDto>> {
+  async refresh(request: { refreshToken: string; rememberMe?: boolean }): Promise<ServerResult<AuthenticationResponse>> {
     const res = await apiClient.post(path('sessions/refresh'), request)
-    return res.data as ServerResult<AuthDto>
+    return res.data as ServerResult<AuthenticationResponse>
   },
 
   async logout(): Promise<ServerResult<void>> {
@@ -38,9 +38,9 @@ export const authRepository = {
 
   async changePassword(data: ChangePasswordRequest): Promise<ServerResult<void>> {
     const res = await apiClient.post(path('password/change'), {
-      current_password: data.currentPassword,
-      new_password: data.newPassword,
-      confirm_new_password: data.confirmNewPassword,
+      currentPassword: data.currentPassword,
+      newPassword: data.newPassword,
+      confirmNewPassword: data.confirmNewPassword,
     })
     return res.data as ServerResult<void>
   },

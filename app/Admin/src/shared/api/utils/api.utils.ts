@@ -7,7 +7,7 @@ export interface ParsedApiError {
   detail: string | null
   isSuccess: boolean
   errors: Record<string, string[]>
-  error_code: string | undefined
+  errorCode: string | undefined
 }
 
 function convertServerErrors(errors: unknown): Record<string, string[]> {
@@ -39,7 +39,7 @@ export function parseApiError(error: unknown): ParsedApiError {
       detail: 'An unexpected error occurred.',
       isSuccess: false,
       errors: {},
-      error_code: undefined,
+      errorCode: undefined,
     }
   }
 
@@ -73,7 +73,7 @@ export function parseApiError(error: unknown): ParsedApiError {
         detail: detail ?? null,
         isSuccess: isSuccess ?? false,
         errors: convertServerErrors(rawErrors),
-        error_code: errorCode,
+        errorCode: errorCode,
       }
     }
 
@@ -85,7 +85,7 @@ export function parseApiError(error: unknown): ParsedApiError {
         detail: axiosError.message || 'Network Error. Please check your internet connection.',
         isSuccess: false,
         errors: {},
-        error_code: undefined,
+        errorCode: undefined,
       }
     }
   }
@@ -100,7 +100,7 @@ export function parseApiError(error: unknown): ParsedApiError {
       detail: (e.detail as string | undefined) ?? null,
       isSuccess: (e.isSuccess ?? false) as boolean,
       errors: convertServerErrors(rawErrors),
-      error_code: (e.error_code ?? e.errorCode) as string | undefined,
+      errorCode: (e.error_code ?? e.errorCode) as string | undefined,
     }
   }
 
@@ -111,6 +111,6 @@ export function parseApiError(error: unknown): ParsedApiError {
     detail: null,
     isSuccess: false,
     errors: {},
-    error_code: undefined,
+    errorCode: undefined,
   }
 }

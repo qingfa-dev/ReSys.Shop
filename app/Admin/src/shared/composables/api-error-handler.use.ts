@@ -49,13 +49,13 @@ export function useApiErrorHandler() {
           : (apiError.detail || (unmappedMessages.length > 0 ? unmappedMessages.join('. ') : (locales?.genericError || 'Validation Error')))
 
       const baseTitle = apiError.title || locales?.errorTitle || 'Error'
-      const toastTitle = apiError.error_code ? `${baseTitle} (${apiError.error_code})` : baseTitle
+      const toastTitle = apiError.errorCode ? `${baseTitle} (${apiError.errorCode})` : baseTitle
 
       showToast('warn', toastTitle, toastDetail)
     } else {
       const severity = apiError.statusCode && apiError.statusCode < 500 ? 'warn' : 'error'
       const baseTitle = apiError.title || locales?.errorTitle || 'Error'
-      const toastTitle = apiError.error_code ? `${baseTitle} (${apiError.error_code})` : baseTitle
+      const toastTitle = apiError.errorCode ? `${baseTitle} (${apiError.errorCode})` : baseTitle
       const toastDetail = apiError.detail || locales?.genericError || 'An unexpected error occurred.'
 
       console.log(
@@ -92,7 +92,7 @@ export function useApiErrorHandler() {
         detail: result.message,
         isSuccess: result.isSuccess,
         errors: mapToErrors(result.errors),
-        error_code: undefined,
+        errorCode: undefined,
       },
       options?.setErrors,
       options?.fieldNames || [],

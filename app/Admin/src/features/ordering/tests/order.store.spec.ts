@@ -60,7 +60,7 @@ describe('OrderStore', () => {
   describe('fetchOrderById', () => {
     it('sets current_order after successful fetch', async () => {
       const store = useOrderStore();
-      const mockOrder = { id: '1', number: 'ORD-1', line_items: [] } as any;
+      const mockOrder = { id: '1', number: 'ORD-1', lineItems: [] } as any;
       
       vi.mocked(orderService.getById).mockResolvedValue({
         isSuccess: true,

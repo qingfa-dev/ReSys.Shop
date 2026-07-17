@@ -131,12 +131,12 @@ describe('QueryBuilder', () => {
     expect(params.pageSize).toBe(100);
   });
 
-  it('should verify snake_case property paths in filter string', () => {
+  it('should verify camelCase property paths in filter string', () => {
     const builder = new QueryBuilder()
-      .where('category_name', '=', 'Electronics')
-      .where('is_active', '=', true);
+      .where('categoryName', '=', 'Electronics')
+      .where('isActive', '=', true);
 
-    expect(builder.build().filter).toBe('category_name=Electronics,is_active=true');
+    expect(builder.build().filter).toBe('categoryName=Electronics,isActive=true');
   });
 
   it('should handle boolean and date formatting in filters', () => {

@@ -4,9 +4,10 @@ import axios, {
   type AxiosResponse,
   type InternalAxiosRequestConfig,
 } from "axios";
-import type { ServerResult, ServerPagedResult } from "../types/result.types";
+import type { ServerResult } from "../types/result.types";
 import { parseApiError } from "../utils/api.utils";
 import { refreshTokens } from "./refresh-handler";
+import { toCamelCaseKeys } from "@/shared/mapper/mapper.utils";
 
 const apiBaseUrl = import.meta.env.VITE_API_URL ? `${import.meta.env.VITE_API_URL}/api` : "/api";
 
@@ -35,6 +36,9 @@ apiClient.interceptors.request.use(
 
 apiClient.interceptors.response.use(
   (response) => {
+    if (response.data && typeof response.data === 'object') {
+      response.data = toCamelCaseKeys(response.data as Record<string, unknown>)
+    }
     return response;
   },
   async (error: AxiosError) => {
@@ -82,7 +86,7 @@ apiClient.interceptors.response.use(
         statusCode: apiError.statusCode,
         errors: [
           {
-            code: apiError.error_code || "ERROR",
+            code: apiError.errorCode || "ERROR",
             message: apiError.detail || apiError.title || "Request failed",
             type: 0,
             metadata: null,

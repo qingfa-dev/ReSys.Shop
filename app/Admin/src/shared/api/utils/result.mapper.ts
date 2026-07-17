@@ -15,7 +15,7 @@ export interface FailureResult {
     message: string | null
     detail: string | null
     errors: Record<string, string[]>
-    error_code: string | undefined
+    errorCode: string | undefined
   }
 }
 
@@ -60,7 +60,7 @@ export function resultToMapped<T>(result: ServerResult<T>): MappedResult<T> {
       message: result.message,
       detail: null,
       errors: mapToErrors(result.errors),
-      error_code: result.errors[0]?.code,
+      errorCode: result.errors[0]?.code,
     },
   }
 }
@@ -87,7 +87,7 @@ export function pagedResultToMapped<T>(result: ServerPagedResult<T>): MappedResu
       message: result.message,
       detail: null,
       errors: mapToErrors(result.errors),
-      error_code: result.errors[0]?.code,
+      errorCode: result.errors[0]?.code,
     },
   }
 }

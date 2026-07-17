@@ -11,7 +11,7 @@ vi.mock('../utils/api.utils', () => ({
     detail: 'Mock Detail',
     isSuccess: false,
     errors: {},
-    error_code: undefined,
+      errorCode: undefined,
   })),
 }))
 
@@ -111,7 +111,7 @@ describe('apiClient', () => {
       detail: null,
       isSuccess: false,
       errors: {},
-      error_code: undefined,
+    errorCode: undefined,
     })
 
     const mockError = {

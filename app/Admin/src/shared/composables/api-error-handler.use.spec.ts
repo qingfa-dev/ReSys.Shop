@@ -21,13 +21,13 @@ describe('useApiErrorHandler - Edge Cases', () => {
     expect(setErrors).not.toHaveBeenCalled()
   })
 
-  it('should include error_code in the toast title', () => {
+  it('should include errorCode in the toast title', () => {
     const { handleFormErrors } = useApiErrorHandler()
     const apiError = {
       statusCode: 409,
       title: 'Conflict',
       detail: 'Already exists',
-      error_code: 'DuplicateName',
+      errorCode: 'DuplicateName',
     }
 
     handleFormErrors(apiError, undefined, [])

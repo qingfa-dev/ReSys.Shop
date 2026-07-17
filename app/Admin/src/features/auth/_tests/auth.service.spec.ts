@@ -26,10 +26,10 @@ describe('AuthService', () => {
           message: null,
           metadata: null,
           value: {
-            access_token: 'access',
-            access_token_expires_in: 3600,
-            refresh_token: 'refresh',
-            refresh_token_expires_in: 86400,
+            accessToken: 'access',
+            accessTokenExpiresIn: 3600,
+            refreshToken: 'refresh',
+            refreshTokenExpiresIn: 86400,
           },
         },
       }
@@ -54,7 +54,7 @@ describe('AuthService', () => {
           errors: [],
           message: null,
           metadata: null,
-          value: { access_token: 'new-access', access_token_expires_in: 3600, refresh_token: 'new-refresh', refresh_token_expires_in: 86400 },
+          value: { accessToken: 'new-access', accessTokenExpiresIn: 3600, refreshToken: 'new-refresh', refreshTokenExpiresIn: 86400 },
         },
       }
 

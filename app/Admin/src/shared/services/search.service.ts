@@ -6,7 +6,7 @@ export interface GlobalSearchResult {
     id: string;
     title: string;
     subtitle: string;
-    route_name: string;
+    routeName: string;
 }
 
 export interface GlobalSearchResponse {

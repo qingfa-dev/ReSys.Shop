@@ -16,8 +16,8 @@ export async function refreshTokens(): Promise<boolean> {
     const body = refreshResponse.data as Record<string, unknown>
     if (body && 'value' in body) {
       const value = (body as unknown as ServerResult<Record<string, unknown>>).value
-      const accessToken = value['access_token'] as string
-      const newRefreshToken = value['refresh_token'] as string
+      const accessToken = value.accessToken as string
+      const newRefreshToken = value.refreshToken as string
 
       localStorage.setItem('accessToken', accessToken)
       localStorage.setItem('refreshToken', newRefreshToken)

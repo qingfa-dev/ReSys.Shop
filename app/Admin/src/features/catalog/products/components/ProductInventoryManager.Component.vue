@@ -23,10 +23,10 @@ interface InventoryStockItem {
   id: string;
   variantId: string;
   sku: string;
-  variant_name: string;
-  stock_location_name: string;
-  quantity_on_hand: number;
-  quantity_reserved?: number;
+  variantName: string;
+  stockLocationName: string;
+  quantityOnHand: number;
+  quantityReserved?: number;
   backorderable: boolean;
 }
 
@@ -115,12 +115,12 @@ onMounted(() => {
                         <template #empty>
                             <div class="p-4 text-center text-sm text-surface-400">{{ t('catalog.products.inventory_table.no_records') }}</div>
                         </template>
-                        <Column field="stock_location_name" :header="t('catalog.products.inventory_table.location')"></Column>
-                        <Column field="quantity_on_hand" :header="t('catalog.products.inventory_table.on_hand')" class="text-right font-mono font-bold"></Column>
-                        <Column field="quantity_reserved" :header="t('catalog.products.inventory_table.reserved')" class="text-right font-mono text-orange-500"></Column>
+                        <Column field="stockLocationName" :header="t('catalog.products.inventory_table.location')"></Column>
+                        <Column field="quantityOnHand" :header="t('catalog.products.inventory_table.on_hand')" class="text-right font-mono font-bold"></Column>
+                        <Column field="quantityReserved" :header="t('catalog.products.inventory_table.reserved')" class="text-right font-mono text-orange-500"></Column>
                         <Column :header="t('catalog.products.inventory_table.available')" class="text-right font-mono text-green-600">
                             <template #body="{ data }">
-                                {{ data.quantity_on_hand - data.quantity_reserved }}
+                                {{ data.quantityOnHand - data.quantityReserved }}
                             </template>
                         </Column>
                         <Column field="backorderable" :header="t('catalog.products.inventory_table.backorder')" class="text-center">
@@ -146,7 +146,7 @@ onMounted(() => {
             v-if="adjustDialog" 
             :stockItemId="selectedStockItem!.id" 
             :sku="selectedStockItem!.sku" 
-            :variantName="selectedStockItem!.variant_name" 
+            :variantName="selectedStockItem!.variantName" 
             @updated="loadData" 
             @close="adjustDialog = false" 
         />
