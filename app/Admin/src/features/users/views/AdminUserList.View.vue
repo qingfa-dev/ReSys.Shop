@@ -146,7 +146,7 @@ const confirmDelete = (user: AdminUserSummary) => {
             </div>
           </template>
 
-          <Column field="fullName" :header="t('users.table.user')" sortable>
+          <Column field="fullName" :header="t('users.table.user')">
             <template #body="{ data }">
               <div class="flex flex-col">
                 <span class="font-bold text-surface-900 dark:text-surface-0">{{ data.fullName || 'Incomplete Profile' }}</span>

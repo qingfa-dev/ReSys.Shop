@@ -24,7 +24,7 @@ const form = ref<CreateStockTransferRequest>({
 
 async function onSubmit() {
     if (form.value.sourceLocationId === form.value.destinationLocationId) {
-        showToast('error', 'Error', t('inventory.messages.source_destination_same'));
+        showToast('error', t('common.error'), t('inventory.messages.source_destination_same'));
         return;
     }
 
@@ -32,7 +32,7 @@ async function onSubmit() {
     try {
         const res = await store.inventoryService.createTransfer(form.value);
         if (res.isSuccess && res.value) {
-            showToast('success', 'Success', t('inventory.messages.create_transfer_success'));
+            showToast('success', t('common.success'), t('inventory.messages.create_transfer_success'));
             router.push({ name: 'inventory.transfers.detail', params: { id: res.value.id } });
         }
     } finally {

@@ -34,7 +34,7 @@ export const useProductStore = defineStore("product", () => {
     page: 1,
     pageSize: 10,
     search: "",
-    sort: ["-created_at"],
+    sort: ["-createdAtUtc"],
   });
 
   async function fetchProductById(id: string) {

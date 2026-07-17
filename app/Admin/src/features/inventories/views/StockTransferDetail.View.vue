@@ -55,7 +55,7 @@ async function onAddItem() {
     try {
         const res = await store.inventoryService.addTransferItem(transferId.value, selectedProduct.value.id, quantity.value);
         if (res.isSuccess) {
-            showToast('success', 'Success', t('inventory.messages.item_added_to_transfer'));
+            showToast('success', t('common.success'), t('inventory.messages.item_added_to_transfer'));
             itemDialog.value = false;
             selectedProduct.value = null;
             quantity.value = 1;
@@ -71,7 +71,7 @@ async function onShip() {
     try {
         const res = await store.inventoryService.shipTransfer(transferId.value);
         if (res.isSuccess) {
-            showToast('success', 'Success', t('inventory.messages.transfer_shipped'));
+            showToast('success', t('common.success'), t('inventory.messages.transfer_shipped'));
             await loadTransfer();
         }
     } finally {
@@ -84,7 +84,7 @@ async function onReceive() {
     try {
         const res = await store.inventoryService.receiveTransfer(transferId.value);
         if (res.isSuccess) {
-            showToast('success', 'Success', t('inventory.messages.stock_received'));
+            showToast('success', t('common.success'), t('inventory.messages.stock_received'));
             await loadTransfer();
         }
     } finally {

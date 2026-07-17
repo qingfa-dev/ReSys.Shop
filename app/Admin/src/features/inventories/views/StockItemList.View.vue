@@ -162,13 +162,13 @@ const toggleLowStock = () => {
                         </template>
                     </Column>
 
-                    <Column field="variant_name" :header="t('inventory.table.product')" sortable>
+                    <Column field="variant_name" :header="t('inventory.table.product')">
                         <template #body="{ data }">
                             <span class="font-bold text-surface-900 dark:text-surface-0">{{ data.variant_name }}</span>
                         </template>
                     </Column>
 
-                    <Column field="stock_location_name" :header="t('inventory.table.location')" sortable>
+                    <Column field="stock_location_name" :header="t('inventory.table.location')">
                         <template #body="{ data }">
                             <div class="flex items-center gap-2">
                                 <i class="pi pi-building text-surface-400"></i>
@@ -183,13 +183,13 @@ const toggleLowStock = () => {
                         </template>
                     </Column>
 
-                    <Column field="quantityReserved" :header="t('inventory.table.reserved')" sortable class="text-center">
+                    <Column field="quantityReserved" :header="t('inventory.table.reserved')" class="text-center">
                         <template #body="{ data }">
                             <span class="text-surface-500">{{ data.quantityReserved }}</span>
                         </template>
                     </Column>
 
-                    <Column field="countAvailable" :header="t('inventory.table.available')" sortable class="text-center">
+                    <Column field="countAvailable" :header="t('inventory.table.available')" class="text-center">
                         <template #body="{ data }">
                             <Tag :value="data.countAvailable" 
                                  :severity="data.countAvailable > 10 ? 'success' : (data.countAvailable > 0 ? 'warning' : 'danger')" 

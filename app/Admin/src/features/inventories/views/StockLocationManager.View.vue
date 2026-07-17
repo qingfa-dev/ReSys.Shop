@@ -53,7 +53,7 @@ const confirmDelete = (node: any) => {
     accept: async () => {
       const result = await store.inventoryService.deleteLocation(node.id)
       if (result.isSuccess) {
-        showToast('success', 'Deleted', t('inventory.messages.delete_location_success'))
+        showToast('success', t('common.deleted'), t('inventory.messages.delete_location_success'))
         await store.fetchLocationTree()
         await store.fetchLocations()
         if (selectedId.value === node.id) {

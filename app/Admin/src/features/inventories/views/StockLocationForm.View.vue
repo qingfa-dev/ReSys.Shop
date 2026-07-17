@@ -101,7 +101,7 @@ async function onSubmit() {
             : await store.inventoryService.createLocation(payload);
             
         if (res.isSuccess) {
-            showToast('success', 'Success', isEdit.value ? t('inventory.messages.location_updated') : t('inventory.messages.location_created'));
+            showToast('success', t('common.success'), isEdit.value ? t('inventory.messages.location_updated') : t('inventory.messages.location_created'));
             await store.fetchLocationTree();
             await store.fetchLocations();
             

@@ -36,10 +36,6 @@ const filters = ref<DataTableFilterMeta>({
     operator: PrimeFilterOperator.AND,
     constraints: [{ value: null, matchMode: FilterMatchMode.CONTAINS }],
   },
-  sku: {
-    operator: PrimeFilterOperator.AND,
-    constraints: [{ value: null, matchMode: FilterMatchMode.CONTAINS }],
-  }
 });
 
 // --- DATA ACTIONS ---
@@ -70,16 +66,10 @@ const onSort = (event: DataTableSortEvent) => {
 const onFilter = () => {
   const globalFilter = filters.value.global as { value: string | null };
   const nameFilter = filters.value.name as { constraints: { value: string | null }[] };
-  const skuFilter = filters.value.sku as { constraints: { value: string | null }[] };
-
   const builder = new QueryBuilder();
 
   if (nameFilter.constraints[0]?.value) {
     builder.where('Name', '*', nameFilter.constraints[0].value);
-  }
-  
-  if (skuFilter.constraints[0]?.value) {
-    builder.where('Sku', '*', skuFilter.constraints[0].value);
   }
 
   const built = builder.build();
@@ -98,10 +88,6 @@ const clearFilters = () => {
       operator: PrimeFilterOperator.AND,
       constraints: [{ value: null, matchMode: FilterMatchMode.CONTAINS }],
     },
-    sku: {
-      operator: PrimeFilterOperator.AND,
-      constraints: [{ value: null, matchMode: FilterMatchMode.CONTAINS }],
-    }
   };
   onFilter();
 };
@@ -239,7 +225,7 @@ onMounted(() => {
             </template>
         </Column>
 
-        <Column field="sku" :header="t('catalog.products.table.sku')" sortable filter>
+        <Column field="sku" :header="t('catalog.products.table.sku')" filter>
             <template #body="{ data }">
                 <span class="font-mono text-xs uppercase tracking-widest text-surface-500">{{ data.sku || '-' }}</span>
             </template>
@@ -248,7 +234,7 @@ onMounted(() => {
             </template>
         </Column>
 
-        <Column field="price" :header="t('catalog.products.table.price')" sortable>
+        <Column field="price" :header="t('catalog.products.table.price')">
             <template #body="{ data }">
                 <span class="font-black">{{ formatCurrency(data.price) }}</span>
             </template>

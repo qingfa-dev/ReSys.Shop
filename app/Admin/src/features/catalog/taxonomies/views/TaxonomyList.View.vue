@@ -190,7 +190,7 @@ onMounted(() => {
             </template>
         </Column>
 
-        <Column field="taxonsCount" :header="t('catalog.taxonomies.table.taxons')" sortable class="text-center">
+        <Column field="taxonsCount" :header="t('catalog.taxonomies.table.taxons')" class="text-center">
             <template #body="{ data }">
                 <Badge :value="data.taxonsCount" severity="secondary" class="font-bold" />
             </template>
