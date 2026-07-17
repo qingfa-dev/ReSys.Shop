@@ -6,7 +6,8 @@ import { useProductStore } from '@/features/catalog/products/stores/product.stor
 import { useToast } from '@/shared/composables/toast.use';
 import { useFormatter } from '@/shared/composables/formatter.use';
 import { useI18n } from 'vue-i18n';
-import AppBreadcrumb from '@/shared/components/Breadcrumb.Component.vue';
+import PageShell from '@/shared/components/PageShell.Component.vue';
+import PageHeader from '@/shared/components/PageHeader.Component.vue';
 import type { StockTransferDetail } from '../types/StockTransfer.Response.Type';
 
 const { t } = useI18n();
@@ -108,27 +109,18 @@ onMounted(() => {
 </script>
 
 <template>
-    <div class="p-6 max-w-6xl mx-auto">
-        <AppBreadcrumb />
-        
-        <div v-if="transfer" class="flex flex-col md:flex-row md:items-center justify-between gap-4 mt-4 mb-8">
-            <div class="flex items-center gap-4">
-                <Button icon="pi pi-arrow-left" text rounded severity="secondary" @click="router.back()" class="bg-surface-100 dark:bg-surface-800" />
-                <div class="flex flex-col">
-                    <div class="flex items-center gap-3">
-                        <h2 class="text-4xl font-black tracking-tighter text-surface-900 dark:text-surface-50 m-0">
-                            {{ transfer.referenceNumber }}
-                        </h2>
-                        <Tag :value="transfer.state" :severity="getStatusSeverity(transfer.state)" rounded class="font-bold px-3" />
-                    </div>
-                    <p class="text-sm text-surface-500 m-0">Initiated on {{ formatDate(transfer.createdAtUtc) }}</p>
-                </div>
-            </div>
-            <div class="flex items-center gap-3">
-                <Button v-if="transfer.state === 'Draft'" :label="t('inventory.actions.ship')" icon="pi pi-send" class="rounded-xl px-6" :loading="processing" @click="onShip" />
-                <Button v-if="transfer.state === 'InTransit'" :label="t('inventory.actions.receive')" icon="pi pi-download" severity="success" class="rounded-xl px-6" :loading="processing" @click="onReceive" />
-            </div>
-        </div>
+    <PageShell :card="false" gap maxWidth="6xl">
+        <template v-if="transfer">
+            <PageHeader back :title="transfer.referenceNumber" :description="'Initiated on ' + formatDate(transfer.createdAtUtc)">
+                <template #badge>
+                    <Tag :value="transfer.state" :severity="getStatusSeverity(transfer.state)" rounded class="font-bold px-3" />
+                </template>
+                <template #actions>
+                    <Button v-if="transfer.state === 'Draft'" :label="t('inventory.actions.ship')" icon="pi pi-send" class="rounded-xl px-6" :loading="processing" @click="onShip" />
+                    <Button v-if="transfer.state === 'InTransit'" :label="t('inventory.actions.receive')" icon="pi pi-download" severity="success" class="rounded-xl px-6" :loading="processing" @click="onReceive" />
+                </template>
+            </PageHeader>
+        </template>
 
         <div v-if="loading" class="flex justify-center p-20">
             <ProgressSpinner />
@@ -234,5 +226,5 @@ onMounted(() => {
                 <Button :label="t('inventory.actions.add_to_transfer')" icon="pi pi-plus" :loading="processing" @click="onAddItem" />
             </template>
         </Dialog>
-    </div>
+    </PageShell>
 </template>

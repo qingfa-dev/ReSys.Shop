@@ -46,30 +46,26 @@ async function onSubmit() {
     <PageShell maxWidth="2xl">
         <PageHeader back :title="t('inventory.titles.create_transfer')" :description="t('inventory.descriptions.transfers')" />
 
-        <Card class="rounded-3xl shadow-sm border-none bg-surface-0 dark:bg-surface-900">
-            <template #content>
-                <form @submit.prevent="onSubmit" class="flex flex-col gap-6">
-                    <div class="flex flex-col gap-2">
-                        <label class="font-bold text-sm">{{ t('inventory.labels.source') }}</label>
-                        <LocationSelector v-model="form.sourceLocationId" placeholder="Select Source Warehouse" />
-                    </div>
+        <form @submit.prevent="onSubmit" class="flex flex-col gap-6">
+            <div class="flex flex-col gap-2">
+                <label class="font-bold text-sm">{{ t('inventory.labels.source') }}</label>
+                <LocationSelector v-model="form.sourceLocationId" placeholder="Select Source Warehouse" />
+            </div>
 
-                    <div class="flex flex-col gap-2">
-                        <label class="font-bold text-sm">{{ t('inventory.labels.destination') }}</label>
-                        <LocationSelector v-model="form.destinationLocationId" placeholder="Select Destination Warehouse" />
-                    </div>
+            <div class="flex flex-col gap-2">
+                <label class="font-bold text-sm">{{ t('inventory.labels.destination') }}</label>
+                <LocationSelector v-model="form.destinationLocationId" placeholder="Select Destination Warehouse" />
+            </div>
 
-                    <div class="flex flex-col gap-2">
-                        <label class="font-bold text-sm">{{ t('inventory.labels.reason') }}</label>
-                        <Textarea v-model="form.reason" rows="3" class="w-full rounded-2xl p-4" placeholder="Optional notes for this movement..." />
-                    </div>
+            <div class="flex flex-col gap-2">
+                <label class="font-bold text-sm">{{ t('inventory.labels.reason') }}</label>
+                <Textarea v-model="form.reason" rows="3" class="w-full rounded-2xl p-4" placeholder="Optional notes for this movement..." />
+            </div>
 
-                    <div class="flex justify-end gap-3 mt-4">
-                        <Button :label="t('inventory.actions.cancel')" severity="secondary" text @click="router.back()" />
-                        <Button type="submit" :label="t('inventory.actions.new_transfer')" icon="pi pi-check" :loading="loading" class="rounded-xl px-8" />
-                    </div>
-                </form>
-            </template>
-        </Card>
+            <div class="flex justify-end gap-3 mt-4">
+                <Button :label="t('inventory.actions.cancel')" severity="secondary" text @click="router.back()" />
+                <Button type="submit" :label="t('inventory.actions.new_transfer')" icon="pi pi-check" :loading="loading" class="rounded-xl px-8" />
+            </div>
+        </form>
     </PageShell>
 </template>

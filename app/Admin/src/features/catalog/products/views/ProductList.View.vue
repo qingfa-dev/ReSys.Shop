@@ -14,7 +14,8 @@ import type {
 import { useToast } from '@/shared/composables/toast.use';
 import { useFormatter } from '@/shared/composables/formatter.use';
 import { QueryBuilder, type FilterOperator } from '@/shared/utils/query-builder.utils';
-import AppBreadcrumb from '@/shared/components/Breadcrumb.Component.vue';
+import PageShell from '@/shared/components/PageShell.Component.vue';
+import PageHeader from '@/shared/components/PageHeader.Component.vue';
 import type { ProductSummary } from '../types/Product.Response.Type';
 
 const { t } = useI18n();
@@ -120,22 +121,12 @@ onMounted(() => {
 </script>
 
 <template>
-  <Card>
-    <template #content>
-      <AppBreadcrumb />
-    <div class="flex flex-col items-start justify-between gap-4 mb-8 md:flex-row md:items-center">
-      <div>
-        <h2 class="text-3xl font-black tracking-tight text-surface-900 dark:text-surface-50">
-          {{ t('catalog.products.titles.list') }}
-        </h2>
-        <div class="flex items-center gap-2 mt-1">
-          <span class="text-surface-500 dark:text-surface-400">
-            {{ t('catalog.products.descriptions.list') }}
-          </span>
-          <Badge :value="totalRecords" severity="info" class="ml-2"></Badge>
-        </div>
-      </div>
-      <div class="flex w-full gap-3 md:w-auto">
+  <PageShell>
+    <PageHeader :title="t('catalog.products.titles.list')" :description="t('catalog.products.descriptions.list')">
+      <template #badge>
+        <Badge :value="totalRecords" severity="info" class="ml-2"></Badge>
+      </template>
+      <template #actions>
         <Button
           icon="pi pi-refresh"
           severity="secondary"
@@ -151,118 +142,115 @@ onMounted(() => {
           @click="router.push({ name: 'catalog.products.create' })"
           class="px-4 shadow-lg rounded-xl"
         />
-      </div>
-    </div>
+      </template>
+    </PageHeader>
 
-    <div class="overflow-hidden border shadow-sm bg-surface-0 dark:bg-surface-900 rounded-2xl border-surface-100 dark:border-surface-800">
-      <DataTable
-        v-model:filters="filters"
-        :value="products"
-        :loading="loading"
-        :totalRecords="totalRecords"
-        :lazy="true"
-        @page="onPage"
-        @sort="onSort"
-        @filter="onFilter"
-        :paginator="true"
-        :rows="query.pageSize || 10"
-        :first="((query.page || 1) - 1) * (query.pageSize || 10)"
-        :sortField="query.sort?.[0]?.replace(/^-/, '')"
-        :sortOrder="query.sort?.[0]?.startsWith('-') ? -1 : 1"
-        filterDisplay="menu"
-        removableSort
-        scrollable
-        rowHover
-        stripedRows
-        showGridlines
-        dataKey="id"
-        breakpoint="960px"
-      >
-        <template #header>
-          <div class="flex flex-col items-center justify-between gap-4 md:flex-row">
-            <IconField iconPosition="left" class="w-full md:w-72">
-              <InputIcon class="pi pi-search" />
-              <InputText
-                v-model="(filters.global as any).value"
-                :placeholder="t('catalog.products.placeholders.search')"
-                @keyup.enter="onFilter"
-                class="w-full rounded-xl"
-              />
-            </IconField>
-
-            <Button
-              type="button"
-              icon="pi pi-filter-slash"
-              :label="t('catalog.products.table.clear_filter')"
-              outlined
-              @click="clearFilters"
-              class="w-full rounded-xl md:w-auto"
+    <DataTable
+      v-model:filters="filters"
+      :value="products"
+      :loading="loading"
+      :totalRecords="totalRecords"
+      :lazy="true"
+      @page="onPage"
+      @sort="onSort"
+      @filter="onFilter"
+      :paginator="true"
+      :rows="query.pageSize || 10"
+      :first="((query.page || 1) - 1) * (query.pageSize || 10)"
+      :sortField="query.sort?.[0]?.replace(/^-/, '')"
+      :sortOrder="query.sort?.[0]?.startsWith('-') ? -1 : 1"
+      filterDisplay="menu"
+      removableSort
+      scrollable
+      rowHover
+      stripedRows
+      showGridlines
+      dataKey="id"
+      breakpoint="960px"
+    >
+      <template #header>
+        <div class="flex flex-col items-center justify-between gap-4 md:flex-row">
+          <IconField iconPosition="left" class="w-full md:w-72">
+            <InputIcon class="pi pi-search" />
+            <InputText
+              v-model="(filters.global as any).value"
+              :placeholder="t('catalog.products.placeholders.search')"
+              @keyup.enter="onFilter"
+              class="w-full rounded-xl"
             />
+          </IconField>
+
+          <Button
+            type="button"
+            icon="pi pi-filter-slash"
+            :label="t('catalog.products.table.clear_filter')"
+            outlined
+            @click="clearFilters"
+            class="w-full rounded-xl md:w-auto"
+          />
+        </div>
+      </template>
+
+      <template #empty>
+        <div class="flex flex-col items-center justify-center py-20 text-surface-400">
+          <i class="mb-4 text-6xl pi pi-shopping-bag opacity-20"></i>
+          <p class="text-xl font-medium">{{ t('catalog.products.messages.empty_list') }}</p>
+        </div>
+      </template>
+
+      <Column field="imageUrl" :header="t('catalog.products.table.preview')" class="w-24">
+        <template #body="{ data }">
+          <div class="w-14 h-14 rounded-xl overflow-hidden border border-surface-100 dark:border-surface-700 bg-surface-50 flex items-center justify-center">
+              <Image v-if="data.imageUrl" :src="data.imageUrl" :alt="data.name" preview imageClass="w-full h-full object-cover" />
+              <i v-else class="pi pi-image text-surface-300 text-xl"></i>
           </div>
         </template>
+      </Column>
 
-        <template #empty>
-          <div class="flex flex-col items-center justify-center py-20 text-surface-400">
-            <i class="mb-4 text-6xl pi pi-shopping-bag opacity-20"></i>
-            <p class="text-xl font-medium">{{ t('catalog.products.messages.empty_list') }}</p>
+      <Column field="name" :header="t('catalog.products.table.name')" sortable filter>
+          <template #body="{ data }">
+              <span class="font-bold text-surface-900 dark:text-surface-0">{{ data.name }}</span>
+          </template>
+          <template #filter="{ filterModel, filterCallback }">
+              <InputText v-model="filterModel.value" type="text" @keydown.enter="filterCallback()" class="p-column-filter" :placeholder="t('catalog.products.placeholders.name')" />
+          </template>
+      </Column>
+
+      <Column field="sku" :header="t('catalog.products.table.sku')" filter>
+          <template #body="{ data }">
+              <span class="font-mono text-xs uppercase tracking-widest text-surface-500">{{ data.sku || '-' }}</span>
+          </template>
+          <template #filter="{ filterModel, filterCallback }">
+              <InputText v-model="filterModel.value" type="text" @keydown.enter="filterCallback()" class="p-column-filter" placeholder="Search SKU" />
+          </template>
+      </Column>
+
+      <Column field="price" :header="t('catalog.products.table.price')">
+          <template #body="{ data }">
+              <span class="font-black">{{ formatCurrency(data.price) }}</span>
+          </template>
+      </Column>
+
+      <Column field="variantsCount" :header="t('catalog.products.table.variants')" class="text-center w-24">
+          <template #body="{ data }">
+              <Badge :value="data.variantsCount" severity="secondary" />
+          </template>
+      </Column>
+
+      <Column field="status" :header="t('catalog.products.table.status')">
+          <template #body="{ data }">
+              <Tag :value="data.status" :severity="data.status === 'Active' ? 'success' : 'secondary'" rounded class="font-bold px-3" />
+          </template>
+      </Column>
+
+      <Column :header="t('catalog.products.table.actions')" class="w-32 text-right" frozen alignFrozen="right">
+        <template #body="{ data }">
+          <div class="flex justify-end gap-1">
+            <Button icon="pi pi-pencil" severity="secondary" text rounded @click="router.push({ name: 'catalog.products.edit', params: { id: data.id } })" />
+            <Button icon="pi pi-trash" severity="danger" text rounded @click="confirmDelete(data)" />
           </div>
         </template>
-
-        <Column field="imageUrl" :header="t('catalog.products.table.preview')" class="w-24">
-          <template #body="{ data }">
-            <div class="w-14 h-14 rounded-xl overflow-hidden border border-surface-100 dark:border-surface-700 bg-surface-50 flex items-center justify-center">
-                <Image v-if="data.imageUrl" :src="data.imageUrl" :alt="data.name" preview imageClass="w-full h-full object-cover" />
-                <i v-else class="pi pi-image text-surface-300 text-xl"></i>
-            </div>
-          </template>
-        </Column>
-
-        <Column field="name" :header="t('catalog.products.table.name')" sortable filter>
-            <template #body="{ data }">
-                <span class="font-bold text-surface-900 dark:text-surface-0">{{ data.name }}</span>
-            </template>
-            <template #filter="{ filterModel, filterCallback }">
-                <InputText v-model="filterModel.value" type="text" @keydown.enter="filterCallback()" class="p-column-filter" :placeholder="t('catalog.products.placeholders.name')" />
-            </template>
-        </Column>
-
-        <Column field="sku" :header="t('catalog.products.table.sku')" filter>
-            <template #body="{ data }">
-                <span class="font-mono text-xs uppercase tracking-widest text-surface-500">{{ data.sku || '-' }}</span>
-            </template>
-            <template #filter="{ filterModel, filterCallback }">
-                <InputText v-model="filterModel.value" type="text" @keydown.enter="filterCallback()" class="p-column-filter" placeholder="Search SKU" />
-            </template>
-        </Column>
-
-        <Column field="price" :header="t('catalog.products.table.price')">
-            <template #body="{ data }">
-                <span class="font-black">{{ formatCurrency(data.price) }}</span>
-            </template>
-        </Column>
-
-        <Column field="variantsCount" :header="t('catalog.products.table.variants')" class="text-center w-24">
-            <template #body="{ data }">
-                <Badge :value="data.variantsCount" severity="secondary" />
-            </template>
-        </Column>
-
-        <Column field="status" :header="t('catalog.products.table.status')">
-            <template #body="{ data }">
-                <Tag :value="data.status" :severity="data.status === 'Active' ? 'success' : 'secondary'" rounded class="font-bold px-3" />
-            </template>
-        </Column>
-
-        <Column :header="t('catalog.products.table.actions')" class="w-32 text-right" frozen alignFrozen="right">
-          <template #body="{ data }">
-            <div class="flex justify-end gap-1">
-              <Button icon="pi pi-pencil" severity="secondary" text rounded @click="router.push({ name: 'catalog.products.edit', params: { id: data.id } })" />
-              <Button icon="pi pi-trash" severity="danger" text rounded @click="confirmDelete(data)" />
-            </div>
-          </template>
-        </Column>
-      </DataTable>
-    </div>
-  </template>
-</Card>
+      </Column>
+    </DataTable>
+  </PageShell>
 </template>

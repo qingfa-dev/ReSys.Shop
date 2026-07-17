@@ -6,7 +6,8 @@ import { useFormatter } from '@/shared/composables/formatter.use';
 import { userService } from '../services/user.service';
 import type { AdminUserSummary } from '../types/User.Response.Type';
 import { useI18n } from 'vue-i18n';
-import AppBreadcrumb from '@/shared/components/Breadcrumb.Component.vue';
+import PageShell from '@/shared/components/PageShell.Component.vue';
+import PageHeader from '@/shared/components/PageHeader.Component.vue';
 import UserRoleManager from '../components/UserRoleManager.Component.vue';
 import UserPermissionManager from '../components/UserPermissionManager.Component.vue';
 import UserSecurityManager from '../components/UserSecurityManager.Component.vue';
@@ -63,133 +64,124 @@ async function onToggleStatus() {
 </script>
 
 <template>
-    <div class="p-6 max-w-6xl mx-auto">
-        <AppBreadcrumb />
-        
-        <div v-if="user" class="flex flex-col md:flex-row md:items-center justify-between gap-4 mt-4 mb-8">
-            <div class="flex items-center gap-4">
-                <Button icon="pi pi-arrow-left" text rounded severity="secondary" @click="router.back()" class="bg-surface-100 dark:bg-surface-800" />
-                <div class="flex flex-col">
-                    <div class="flex items-center gap-3">
-                        <h2 class="text-4xl font-black tracking-tighter text-surface-900 dark:text-surface-50 m-0">
-                            {{ user.fullName || 'Customer Profile' }}
-                        </h2>
-                        <Tag :value="user.isActive ? 'Active' : 'Inactive'" :severity="user.isActive ? 'success' : 'secondary'" rounded class="font-bold px-3" />
-                    </div>
-                    <p class="text-sm text-surface-500 m-0 font-mono">{{ user.email }}</p>
-                </div>
-            </div>
-            <div class="flex items-center gap-3">
-                <Button :label="user.isActive ? 'Deactivate' : 'Activate'" :severity="user.isActive ? 'danger' : 'success'" outlined icon="pi pi-power-off" @click="onToggleStatus" class="rounded-xl px-6" />
-            </div>
-        </div>
+    <PageShell :card="false" gap maxWidth="6xl">
+        <template v-if="user">
+            <PageHeader back :title="user.fullName || 'Customer Profile'" :description="user.email">
+                <template #badge>
+                    <Tag :value="user.isActive ? 'Active' : 'Inactive'" :severity="user.isActive ? 'success' : 'secondary'" rounded class="font-bold px-3" />
+                </template>
+                <template #actions>
+                    <Button :label="user.isActive ? 'Deactivate' : 'Activate'" :severity="user.isActive ? 'danger' : 'success'" outlined icon="pi pi-power-off" @click="onToggleStatus" class="rounded-xl px-6" />
+                </template>
+            </PageHeader>
 
-        <Card class="border-none shadow-sm rounded-3xl bg-surface-0 dark:bg-surface-900 overflow-hidden" v-if="user">
-            <template #content>
-                <Tabs v-model:value="activeTab">
-                    <TabList>
-                        <Tab :value="0">
-                            <div class="flex items-center gap-2">
-                                <i class="pi pi-user"></i>
-                                <span>{{ t('users.tabs.details') }}</span>
-                            </div>
-                        </Tab>
-                        <Tab :value="1">
-                            <div class="flex items-center gap-2">
-                                <i class="pi pi-shopping-bag"></i>
-                                <span>Commerce</span>
-                            </div>
-                        </Tab>
-                        <Tab :value="2">
-                            <div class="flex items-center gap-2">
-                                <i class="pi pi-shield"></i>
-                                <span>{{ t('users.tabs.roles') }}</span>
-                            </div>
-                        </Tab>
-                        <Tab :value="3">
-                            <div class="flex items-center gap-2">
-                                <i class="pi pi-key"></i>
-                                <span>{{ t('users.tabs.permissions') }}</span>
-                            </div>
-                        </Tab>
-                        <Tab :value="4">
-                            <div class="flex items-center gap-2">
-                                <i class="pi pi-lock"></i>
-                                <span>{{ t('users.tabs.security') }}</span>
-                            </div>
-                        </Tab>
-                    </TabList>
+            <Card class="border-none shadow-sm rounded-3xl bg-surface-0 dark:bg-surface-900 overflow-hidden">
+                <template #content>
+                    <Tabs v-model:value="activeTab">
+                        <TabList>
+                            <Tab :value="0">
+                                <div class="flex items-center gap-2">
+                                    <i class="pi pi-user"></i>
+                                    <span>{{ t('users.tabs.details') }}</span>
+                                </div>
+                            </Tab>
+                            <Tab :value="1">
+                                <div class="flex items-center gap-2">
+                                    <i class="pi pi-shopping-bag"></i>
+                                    <span>Commerce</span>
+                                </div>
+                            </Tab>
+                            <Tab :value="2">
+                                <div class="flex items-center gap-2">
+                                    <i class="pi pi-shield"></i>
+                                    <span>{{ t('users.tabs.roles') }}</span>
+                                </div>
+                            </Tab>
+                            <Tab :value="3">
+                                <div class="flex items-center gap-2">
+                                    <i class="pi pi-key"></i>
+                                    <span>{{ t('users.tabs.permissions') }}</span>
+                                </div>
+                            </Tab>
+                            <Tab :value="4">
+                                <div class="flex items-center gap-2">
+                                    <i class="pi pi-lock"></i>
+                                    <span>{{ t('users.tabs.security') }}</span>
+                                </div>
+                            </Tab>
+                        </TabList>
 
-                    <TabPanels class="p-6">
-                        <!-- Details Panel -->
-                        <TabPanel :value="0">
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-12">
-                                <div class="flex flex-col gap-6">
-                                    <h3 class="text-lg font-bold uppercase tracking-wide text-surface-500 m-0">Customer Information</h3>
-                                    <div class="flex flex-col gap-4">
-                                        <div class="flex flex-col">
-                                            <label class="text-xs text-surface-400 uppercase font-bold mb-1">First Name</label>
-                                            <span class="text-lg font-medium">{{ user.firstName || '-' }}</span>
+                        <TabPanels class="p-6">
+                            <!-- Details Panel -->
+                            <TabPanel :value="0">
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-12">
+                                    <div class="flex flex-col gap-6">
+                                        <h3 class="text-lg font-bold uppercase tracking-wide text-surface-500 m-0">Customer Information</h3>
+                                        <div class="flex flex-col gap-4">
+                                            <div class="flex flex-col">
+                                                <label class="text-xs text-surface-400 uppercase font-bold mb-1">First Name</label>
+                                                <span class="text-lg font-medium">{{ user.firstName || '-' }}</span>
+                                            </div>
+                                            <div class="flex flex-col">
+                                                <label class="text-xs text-surface-400 uppercase font-bold mb-1">Last Name</label>
+                                                <span class="text-lg font-medium">{{ user.lastName || '-' }}</span>
+                                            </div>
+                                            <div class="flex flex-col">
+                                                <label class="text-xs text-surface-400 uppercase font-bold mb-1">Phone Number</label>
+                                                <span class="text-lg font-medium font-mono">{{ user.phoneNumber || 'Not Provided' }}</span>
+                                            </div>
                                         </div>
-                                        <div class="flex flex-col">
-                                            <label class="text-xs text-surface-400 uppercase font-bold mb-1">Last Name</label>
-                                            <span class="text-lg font-medium">{{ user.lastName || '-' }}</span>
-                                        </div>
-                                        <div class="flex flex-col">
-                                            <label class="text-xs text-surface-400 uppercase font-bold mb-1">Phone Number</label>
-                                            <span class="text-lg font-medium font-mono">{{ user.phoneNumber || 'Not Provided' }}</span>
+                                    </div>
+                                    <div class="flex flex-col gap-6">
+                                        <h3 class="text-lg font-bold uppercase tracking-wide text-surface-500 m-0">Registration Details</h3>
+                                        <div class="flex flex-col gap-4">
+                                            <div class="flex flex-col">
+                                                <label class="text-xs text-surface-400 uppercase font-bold mb-1">Registered Since</label>
+                                                <span class="text-lg font-medium">{{ formatDate(user.createdAtUtc) }}</span>
+                                            </div>
+                                            <div class="flex justify-between items-center bg-surface-50 dark:bg-surface-800 p-4 rounded-xl">
+                                                <span class="text-sm font-bold">Email Status</span>
+                                                <Tag :value="user.emailConfirmed ? 'Verified' : 'Unverified'" :severity="user.emailConfirmed ? 'success' : 'warning'" />
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
-                                <div class="flex flex-col gap-6">
-                                    <h3 class="text-lg font-bold uppercase tracking-wide text-surface-500 m-0">Registration Details</h3>
-                                    <div class="flex flex-col gap-4">
-                                        <div class="flex flex-col">
-                                            <label class="text-xs text-surface-400 uppercase font-bold mb-1">Registered Since</label>
-                                            <span class="text-lg font-medium">{{ formatDate(user.createdAtUtc) }}</span>
-                                        </div>
-                                        <div class="flex justify-between items-center bg-surface-50 dark:bg-surface-800 p-4 rounded-xl">
-                                            <span class="text-sm font-bold">Email Status</span>
-                                            <Tag :value="user.emailConfirmed ? 'Verified' : 'Unverified'" :severity="user.emailConfirmed ? 'success' : 'warning'" />
-                                        </div>
-                                    </div>
+                            </TabPanel>
+
+                            <!-- Commerce Panel (Placeholder for history) -->
+                            <TabPanel :value="1">
+                                <div class="flex flex-col items-center justify-center p-20 text-surface-400">
+                                    <i class="pi pi-shopping-cart text-6xl opacity-20 mb-4"></i>
+                                    <p class="text-xl font-medium">Order History is coming soon.</p>
+                                    <p class="text-sm">Comprehensive customer shopping metrics will be displayed here.</p>
                                 </div>
-                            </div>
-                        </TabPanel>
+                            </TabPanel>
 
-                        <!-- Commerce Panel (Placeholder for history) -->
-                        <TabPanel :value="1">
-                            <div class="flex flex-col items-center justify-center p-20 text-surface-400">
-                                <i class="pi pi-shopping-cart text-6xl opacity-20 mb-4"></i>
-                                <p class="text-xl font-medium">Order History is coming soon.</p>
-                                <p class="text-sm">Comprehensive customer shopping metrics will be displayed here.</p>
-                            </div>
-                        </TabPanel>
+                            <!-- Roles Panel -->
+                            <TabPanel :value="2">
+                                <UserRoleManager :userId="user.id" :assignedRoles="user.roleNames" @updated="loadData" />
+                            </TabPanel>
 
-                        <!-- Roles Panel -->
-                        <TabPanel :value="2">
-                            <UserRoleManager :userId="user.id" :assignedRoles="user.roleNames" @updated="loadData" />
-                        </TabPanel>
+                            <!-- Permissions Panel -->
+                            <TabPanel :value="3">
+                                <UserPermissionManager :userId="user.id" :initialPermissions="permissionList" @updated="loadData" />
+                            </TabPanel>
 
-                        <!-- Permissions Panel -->
-                        <TabPanel :value="3">
-                            <UserPermissionManager :userId="user.id" :initialPermissions="permissionList" @updated="loadData" />
-                        </TabPanel>
-
-                        <!-- Security Panel -->
-                        <TabPanel :value="4">
-                            <UserSecurityManager :user="user" @updated="loadData" />
-                        </TabPanel>
-                    </TabPanels>
-                </Tabs>
-            </template>
-        </Card>
+                            <!-- Security Panel -->
+                            <TabPanel :value="4">
+                                <UserSecurityManager :user="user" @updated="loadData" />
+                            </TabPanel>
+                        </TabPanels>
+                    </Tabs>
+                </template>
+            </Card>
+        </template>
 
         <div v-else-if="loading" class="flex flex-col items-center justify-center p-20">
             <ProgressSpinner />
             <p class="mt-4 text-surface-500">{{ t('users.messages.loading') }}</p>
         </div>
-    </div>
+    </PageShell>
 </template>
 
 <style scoped>

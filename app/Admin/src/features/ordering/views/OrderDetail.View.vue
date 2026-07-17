@@ -14,6 +14,8 @@ import AddressDialog from '../components/AddressDialog.Component.vue';
 import ItemDialog from '../components/ItemDialog.Component.vue';
 import RefundDialog from '../components/RefundDialog.Component.vue';
 import { useI18n } from 'vue-i18n';
+import PageShell from '@/shared/components/PageShell.Component.vue';
+import PageHeader from '@/shared/components/PageHeader.Component.vue';
 
 const route = useRoute();
 const router = useRouter();
@@ -112,36 +114,33 @@ const getStatusSeverity = (status: string) => {
 </script>
 
 <template>
-    <div class="flex flex-col gap-6 p-6">
-        <!-- Header -->
-        <div class="flex justify-between items-center mb-4">
-            <div class="flex items-center gap-4">
-                <Button icon="pi pi-arrow-left" text rounded @click="router.back()" class="bg-surface-100 dark:bg-surface-800" />
-                <h1 class="text-3xl font-black uppercase tracking-tighter" v-if="current_order">
-                    Order {{ current_order.number }}
-                </h1>
-            </div>
-            <div class="flex items-center gap-3" v-if="current_order">
-                <Button 
-                    :label="t('ordering.actions.advance_status')" 
-                    icon="pi pi-arrow-right" 
-                    :loading="submitting"
-                    @click="onAdvance"
-                    v-if="current_order.state !== 'Complete' && current_order.state !== 'Canceled'"
-                    class="rounded-xl px-6"
-                />
-                <Button 
-                    :label="t('ordering.actions.cancel_order')" 
-                    icon="pi pi-times" 
-                    severity="danger" 
-                    outlined
-                    @click="onCancel"
-                    v-if="current_order.state !== 'Complete' && current_order.state !== 'Canceled'"
-                    class="rounded-xl px-6"
-                />
-                <Tag :value="current_order.state" :severity="getStatusSeverity(current_order.state)" class="px-4 py-2 text-lg font-bold rounded-xl" />
-            </div>
-        </div>
+    <PageShell :card="false" gap>
+        <template v-if="current_order">
+            <PageHeader back :title="'Order ' + current_order.number">
+                <template #badge>
+                    <Tag :value="current_order.state" :severity="getStatusSeverity(current_order.state)" class="px-4 py-2 text-lg font-bold rounded-xl" />
+                </template>
+                <template #actions>
+                    <Button 
+                        :label="t('ordering.actions.advance_status')" 
+                        icon="pi pi-arrow-right" 
+                        :loading="submitting"
+                        @click="onAdvance"
+                        v-if="current_order.state !== 'Complete' && current_order.state !== 'Canceled'"
+                        class="rounded-xl px-6"
+                    />
+                    <Button 
+                        :label="t('ordering.actions.cancel_order')" 
+                        icon="pi pi-times" 
+                        severity="danger" 
+                        outlined
+                        @click="onCancel"
+                        v-if="current_order.state !== 'Complete' && current_order.state !== 'Canceled'"
+                        class="rounded-xl px-6"
+                    />
+                </template>
+            </PageHeader>
+        </template>
 
         <div v-if="loading && !current_order" class="flex justify-center py-20">
             <ProgressSpinner />
@@ -391,7 +390,7 @@ const getStatusSeverity = (status: string) => {
             @save="onRefund"
             @close="showRefundDialog = false; selectedPayment = null"
         />
-    </div>
+    </PageShell>
 </template>
 
 <style scoped>
