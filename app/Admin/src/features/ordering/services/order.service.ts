@@ -1,4 +1,4 @@
-import { orderRepository } from '../repository/order.repository'
+import { orderRepository } from '../orders/repositories/order.repository'
 import type { ServerResult } from '@/shared/api/types/result.types'
 
 export const orderService = {

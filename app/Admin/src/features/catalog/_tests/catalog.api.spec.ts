@@ -1,20 +1,20 @@
 import { describe, it, expect, vi } from 'vitest'
 import apiClient from '@/shared/api/http/api.client'
-import { productRepository } from '../repository/product.repository'
-import { variantRepository } from '../repository/variant.repository'
-import { optionTypeRepository } from '../repository/option-type.repository'
-import { optionValueRepository } from '../repository/option-value.repository'
-import { propertyTypeRepository } from '../repository/property-type.repository'
-import { taxonomyRepository } from '../repository/taxonomy.repository'
-import { taxonRepository } from '../repository/taxon.repository'
+import { productRepository } from '../products/repositories/product.repository'
+import { variantRepository } from '../products/repositories/variant.repository'
+import { optionTypeRepository } from '../option-types/repositories/option-type.repository'
+import { optionValueRepository } from '../option-types/option-values/repositories/option-value.repository'
+import { propertyTypeRepository } from '../property-types/repositories/property-type.repository'
+import { taxonomyRepository } from '../taxonomies/repositories/taxonomy.repository'
+import { taxonRepository } from '../taxonomies/taxa/repositories/taxon.repository'
 
 vi.mock('@/shared/api/http/api.client', () => ({
   default: {
-    get: vi.fn(),
-    post: vi.fn(),
-    put: vi.fn(),
-    patch: vi.fn(),
-    delete: vi.fn(),
+    get: vi.fn().mockResolvedValue({ data: {} }),
+    post: vi.fn().mockResolvedValue({ data: {} }),
+    put: vi.fn().mockResolvedValue({ data: {} }),
+    patch: vi.fn().mockResolvedValue({ data: {} }),
+    delete: vi.fn().mockResolvedValue({ data: {} }),
   }
 }))
 
@@ -25,7 +25,7 @@ describe('productRepository', () => {
   })
   it('getById calls correct route', async () => {
     await productRepository.getById('guid-1')
-    expect(apiClient.get).toHaveBeenCalledWith('api/catalog/products/guid-1', expect.any(Object))
+    expect(apiClient.get).toHaveBeenCalledWith('api/catalog/products/guid-1')
   })
   it('create calls correct route', async () => {
     await productRepository.create({ name: 'Test', slug: 'test', price: 10, trackInventory: true })
@@ -44,7 +44,7 @@ describe('variantRepository', () => {
   })
   it('getById calls correct route', async () => {
     await variantRepository.getById('var-1')
-    expect(apiClient.get).toHaveBeenCalledWith('api/catalog/products/variants/var-1', expect.any(Object))
+    expect(apiClient.get).toHaveBeenCalledWith('api/catalog/products/variants/var-1')
   })
 })
 

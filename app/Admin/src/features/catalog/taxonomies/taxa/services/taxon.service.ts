@@ -1,4 +1,4 @@
-import { taxonRepository } from '../../../repository/taxon.repository'
+import { taxonRepository } from '../repositories/taxon.repository'
 import type { ServerResult } from '@/shared/api/types/result.types'
 
 export const taxonService = {

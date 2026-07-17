@@ -1,4 +1,4 @@
-import { userRepository } from '../../identity/repository/user.repository'
+import { userRepository } from '../repositories/user.repository'
 import type { ServerQueryingParameters } from '@/shared/api/types/query.types'
 import type { ServerResult } from '@/shared/api/types/result.types'
 import type { AdminUserSummary, CustomerSummary } from '../types/User.Response.Type'

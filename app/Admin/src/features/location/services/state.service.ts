@@ -1,5 +1,5 @@
-import { locationRepository } from '../repository/location.repository'
-import { mapStateResponse } from '../mapper/location.mapper'
+import { stateRepository } from '../states/repositories/state.repository'
+import { mapStateResponse } from '../states/mappers/state.mapper'
 import type { ServerResult, ServerPagedResult } from '@/shared/api/types/result.types'
 import type { ServerQueryingParameters } from '@/shared/api/types/query.types'
 import type { State } from '../types/State.Response.Type'
@@ -7,15 +7,15 @@ import type { CreateStateRequest, UpdateStateRequest } from '../types/State.Requ
 
 export const stateService = {
   list(params?: ServerQueryingParameters): Promise<ServerPagedResult<State>> {
-    return locationRepository.states.list(params)
+    return stateRepository.list(params)
   },
 
   getById(id: string): Promise<ServerResult<State>> {
-    return locationRepository.states.getById(id)
+    return stateRepository.getById(id)
   },
 
   async create(data: CreateStateRequest): Promise<ServerResult<State>> {
-    const result = await locationRepository.states.create(data)
+    const result = await stateRepository.create(data)
     if (result.isSuccess) {
       return { ...result, value: mapStateResponse(result.value) }
     }
@@ -23,7 +23,7 @@ export const stateService = {
   },
 
   async update(id: string, data: UpdateStateRequest): Promise<ServerResult<State>> {
-    const result = await locationRepository.states.update(id, data)
+    const result = await stateRepository.update(id, data)
     if (result.isSuccess) {
       return { ...result, value: mapStateResponse(result.value) }
     }
@@ -31,6 +31,6 @@ export const stateService = {
   },
 
   delete(id: string): Promise<ServerResult<void>> {
-    return locationRepository.states.delete(id)
+    return stateRepository.delete(id)
   },
 }

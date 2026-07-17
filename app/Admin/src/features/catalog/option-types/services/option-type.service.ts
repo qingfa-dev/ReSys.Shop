@@ -1,3 +1,3 @@
-import { optionTypeRepository } from '../../repository/option-type.repository'
+import { optionTypeRepository } from '../repositories/option-type.repository'
 
 export const optionTypeService = optionTypeRepository

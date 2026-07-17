@@ -1,11 +1,11 @@
 import { describe, it, expect, vi } from 'vitest'
 import apiClient from '@/shared/api/http/api.client'
-import { stockRepository } from '../repository/stock.repository'
-import { locationRepository } from '../repository/location.repository'
-import { transferRepository } from '../repository/transfer.repository'
+import { stockRepository } from '../stock-items/repositories/stock.repository'
+import { locationRepository } from '../stock-locations/repositories/location.repository'
+import { transferRepository } from '../stock-transfers/repositories/transfer.repository'
 
 vi.mock('@/shared/api/http/api.client', () => ({
-  default: { get: vi.fn(), post: vi.fn(), put: vi.fn(), patch: vi.fn(), delete: vi.fn() }
+  default: { get: vi.fn().mockResolvedValue({ data: {} }), post: vi.fn().mockResolvedValue({ data: {} }), put: vi.fn().mockResolvedValue({ data: {} }), patch: vi.fn().mockResolvedValue({ data: {} }), delete: vi.fn().mockResolvedValue({ data: {} }) }
 }))
 
 describe('StockRepository', () => {
@@ -22,17 +22,17 @@ describe('StockRepository', () => {
 describe('LocationRepository', () => {
   it('list calls correct route', async () => {
     await locationRepository.list({ page: 1 })
-    expect(apiClient.get).toHaveBeenCalledWith('api/inventory/stock-locations', { params: { page: 1 } })
+    expect(apiClient.get).toHaveBeenCalledWith('api/inventory/locations', { params: { page: 1 } })
   })
 })
 
 describe('TransferRepository', () => {
   it('transfer calls correct route', async () => {
     await transferRepository.transfer('tid-1')
-    expect(apiClient.post).toHaveBeenCalledWith('api/inventory/stock-transfers/tid-1/transfer', undefined)
+    expect(apiClient.post).toHaveBeenCalledWith('api/inventory/transfers/tid-1/transfer')
   })
   it('receive calls correct route', async () => {
     await transferRepository.receive('tid-1')
-    expect(apiClient.post).toHaveBeenCalledWith('api/inventory/stock-transfers/tid-1/receive', undefined)
+    expect(apiClient.post).toHaveBeenCalledWith('api/inventory/transfers/tid-1/receive')
   })
 })

@@ -1,5 +1,5 @@
-import { locationRepository } from '../repository/location.repository'
-import { mapCountryResponse } from '../mapper/location.mapper'
+import { countryRepository } from '../countries/repositories/country.repository'
+import { mapCountryResponse } from '../countries/mappers/country.mapper'
 import type { ServerResult, ServerPagedResult } from '@/shared/api/types/result.types'
 import type { ServerQueryingParameters } from '@/shared/api/types/query.types'
 import type { Country } from '../types/Country.Response.Type'
@@ -7,15 +7,15 @@ import type { CreateCountryRequest, UpdateCountryRequest } from '../types/Countr
 
 export const countryService = {
   list(params?: ServerQueryingParameters): Promise<ServerPagedResult<Country>> {
-    return locationRepository.countries.list(params)
+    return countryRepository.list(params)
   },
 
   getById(id: string): Promise<ServerResult<Country>> {
-    return locationRepository.countries.getById(id)
+    return countryRepository.getById(id)
   },
 
   async create(data: CreateCountryRequest): Promise<ServerResult<Country>> {
-    const result = await locationRepository.countries.create(data)
+    const result = await countryRepository.create(data)
     if (result.isSuccess) {
       return { ...result, value: mapCountryResponse(result.value) }
     }
@@ -23,7 +23,7 @@ export const countryService = {
   },
 
   async update(id: string, data: UpdateCountryRequest): Promise<ServerResult<Country>> {
-    const result = await locationRepository.countries.update(id, data)
+    const result = await countryRepository.update(id, data)
     if (result.isSuccess) {
       return { ...result, value: mapCountryResponse(result.value) }
     }
@@ -31,6 +31,6 @@ export const countryService = {
   },
 
   delete(id: string): Promise<ServerResult<void>> {
-    return locationRepository.countries.delete(id)
+    return countryRepository.delete(id)
   },
 }

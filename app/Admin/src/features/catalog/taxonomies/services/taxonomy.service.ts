@@ -1,3 +1,3 @@
-import { taxonomyRepository } from '../../repository/taxonomy.repository'
+import { taxonomyRepository } from '../repositories/taxonomy.repository'
 
 export const taxonomyService = taxonomyRepository

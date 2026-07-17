@@ -1,3 +1,3 @@
-import { roleRepository } from '../../identity/repository/role.repository'
+import { roleRepository } from '../roles/repositories/role.repository'
 
 export const roleService = roleRepository

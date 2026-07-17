@@ -1,5 +1,5 @@
-import { authRepository } from "../repository/auth.repository";
-import { mapAuthResponse, mapJwtToProfile } from "../mapper/auth.mapper";
+import { authRepository } from "../repositories/auth.repository";
+import { mapAuthResponse, mapJwtToProfile } from "../mappers/auth.mapper";
 import type { ServerResult } from "@/shared/api/types/result.types";
 import type { LoginRequest } from "../types/Login.Request.Type";
 import type { AuthenticationResponse } from "../types/Login.Response.Type";

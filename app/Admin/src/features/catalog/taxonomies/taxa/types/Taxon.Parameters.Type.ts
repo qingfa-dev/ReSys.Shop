@@ -1,3 +1,3 @@
-import type { TaxonParameters } from '../../schemas/Taxon.Schema'
+import type { TaxonParameters } from "../../schemas/Taxon.Schema";
 
-export type { TaxonParameters }
+export type { TaxonParameters };

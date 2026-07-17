@@ -1,10 +1,10 @@
 import { describe, it, expect, vi } from 'vitest'
 import apiClient from '@/shared/api/http/api.client'
-import { orderRepository } from '../repository/order.repository'
-import { fulfillmentRepository } from '../repository/fulfillment.repository'
+import { orderRepository } from '../orders/repositories/order.repository'
+import { fulfillmentRepository } from '../fulfillment/repositories/fulfillment.repository'
 
 vi.mock('@/shared/api/http/api.client', () => ({
-  default: { get: vi.fn(), post: vi.fn(), put: vi.fn(), delete: vi.fn() }
+  default: { get: vi.fn().mockResolvedValue({ data: {} }), post: vi.fn().mockResolvedValue({ data: {} }), put: vi.fn().mockResolvedValue({ data: {} }), delete: vi.fn().mockResolvedValue({ data: {} }) }
 }))
 
 describe('OrderRepository', () => {
@@ -30,7 +30,7 @@ describe('OrderRepository', () => {
   })
   it('listLineItems calls correct route', async () => {
     await orderRepository.listLineItems('ord-1')
-    expect(apiClient.get).toHaveBeenCalledWith('api/ordering/orders/ord-1/line-items', { params: undefined })
+    expect(apiClient.get).toHaveBeenCalledWith('api/ordering/orders/ord-1/line-items')
   })
   it('addLineItem calls correct route', async () => {
     await orderRepository.addLineItem('ord-1', { variantId: 'v-1', quantity: 2 })
@@ -50,15 +50,15 @@ describe('OrderRepository', () => {
   })
   it('complete calls correct route', async () => {
     await orderRepository.complete('ord-1')
-    expect(apiClient.post).toHaveBeenCalledWith('api/ordering/orders/ord-1/complete', undefined)
+    expect(apiClient.post).toHaveBeenCalledWith('api/ordering/orders/ord-1/complete')
   })
   it('approve calls correct route', async () => {
     await orderRepository.approve('ord-1')
-    expect(apiClient.post).toHaveBeenCalledWith('api/ordering/orders/ord-1/approve', undefined)
+    expect(apiClient.post).toHaveBeenCalledWith('api/ordering/orders/ord-1/approve')
   })
   it('resume calls correct route', async () => {
     await orderRepository.resume('ord-1')
-    expect(apiClient.post).toHaveBeenCalledWith('api/ordering/orders/ord-1/resume', undefined)
+    expect(apiClient.post).toHaveBeenCalledWith('api/ordering/orders/ord-1/resume')
   })
   it('updateStatus calls correct route', async () => {
     await orderRepository.updateStatus('ord-1', 'Processing')

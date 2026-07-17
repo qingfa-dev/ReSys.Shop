@@ -1,21 +1,18 @@
-import { defineStore } from 'pinia';
-import { ref } from 'vue';
-import { useToast } from '@/shared/composables/toast.use';
-import { usePagedList } from '@/shared/composables/paged-list.use';
-import { productService } from '../services/product.service';
-import type { 
-  ProductSummary, 
-  ProductDetail, 
+import { defineStore } from "pinia";
+import { ref } from "vue";
+import { useToast } from "@/shared/composables/toast.use";
+import { usePagedList } from "@/shared/composables/paged-list.use";
+import { productService } from "../services/product.service";
+import type {
+  ProductSummary,
+  ProductDetail,
   ProductClassification,
-  ProductImage
-} from '../types/Product.Response.Type';
-import type { 
-  CreateProductRequest, 
-  UpdateProductRequest
-} from '../types/Product.Request.Type';
-import type { ProductQuery } from '../types/Product.Query.Type';
+  ProductImage,
+} from "../types/Product.Response.Type";
+import type { CreateProductRequest, UpdateProductRequest } from "../types/Product.Request.Type";
+import type { ProductQuery } from "../types/Product.Query.Type";
 
-export const useProductStore = defineStore('product', () => {
+export const useProductStore = defineStore("product", () => {
   const { showToast } = useToast();
 
   // --- STATE ---
@@ -24,10 +21,19 @@ export const useProductStore = defineStore('product', () => {
   const current_images = ref<ProductImage[]>([]);
   const submitting = ref(false);
 
-  const { items: products, totalRecords, params: query, fetch: fetchProducts, loading, error } = usePagedList<ProductSummary, ProductQuery>(
-    (p) => productService.list(p),
-    { page: 1, pageSize: 10, search: '', sort: ['-created_at'] },
-  );
+  const {
+    items: products,
+    totalRecords,
+    params: query,
+    fetch: fetchProducts,
+    loading,
+    error,
+  } = usePagedList<ProductSummary, ProductQuery>((p) => productService.list(p), {
+    page: 1,
+    pageSize: 10,
+    search: "",
+    sort: ["-created_at"],
+  });
 
   async function fetchProductById(id: string) {
     loading.value = true;
@@ -48,7 +54,7 @@ export const useProductStore = defineStore('product', () => {
     try {
       const result = await productService.create(data);
       if (result.isSuccess) {
-        showToast('success', 'Created', 'Product created successfully');
+        showToast("success", "Created", "Product created successfully");
         await fetchProducts();
       }
       return result;
@@ -62,7 +68,7 @@ export const useProductStore = defineStore('product', () => {
     try {
       const result = await productService.update(id, data);
       if (result.isSuccess) {
-        showToast('success', 'Updated', 'Product updated successfully');
+        showToast("success", "Updated", "Product updated successfully");
         await fetchProducts();
       }
       return result;
@@ -76,7 +82,7 @@ export const useProductStore = defineStore('product', () => {
     try {
       const result = await productService.delete(id);
       if (result.isSuccess) {
-        showToast('success', 'Deleted', 'Product removed successfully');
+        showToast("success", "Deleted", "Product removed successfully");
         await fetchProducts();
       }
       return result;
@@ -88,27 +94,30 @@ export const useProductStore = defineStore('product', () => {
   async function fetchClassifications(productId: string) {
     loading.value = true;
     try {
-        const result = await productService.getClassifications(productId)
-        if (result.isSuccess && result.value) {
-            current_classifications.value = result.value;
-        }
-        return result;
+      const result = await productService.getClassifications(productId);
+      if (result.isSuccess && result.value) {
+        current_classifications.value = result.value;
+      }
+      return result;
     } finally {
-        loading.value = false;
+      loading.value = false;
     }
   }
 
-  async function updateClassifications(productId: string, data: { taxonIds: string[]; mainTaxonId?: string }) {
+  async function updateClassifications(
+    productId: string,
+    data: { taxonIds: string[]; mainTaxonId?: string },
+  ) {
     submitting.value = true;
     try {
-        const result = await productService.syncClassifications(productId, data)
-        if (result.isSuccess) {
-            showToast('success', 'Updated', 'Classifications saved');
-            await fetchClassifications(productId);
-        }
-        return result;
+      const result = await productService.syncClassifications(productId, data);
+      if (result.isSuccess) {
+        showToast("success", "Updated", "Classifications saved");
+        await fetchClassifications(productId);
+      }
+      return result;
     } finally {
-        submitting.value = false;
+      submitting.value = false;
     }
   }
 
@@ -127,6 +136,6 @@ export const useProductStore = defineStore('product', () => {
     updateProduct,
     deleteProduct,
     fetchClassifications,
-    updateClassifications
+    updateClassifications,
   };
 });

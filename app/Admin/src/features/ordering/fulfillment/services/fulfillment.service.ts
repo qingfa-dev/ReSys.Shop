@@ -1,5 +1,5 @@
-import { fulfillmentRepository } from '../../repository/fulfillment.repository'
-import { orderRepository } from '../../repository/order.repository'
+import { fulfillmentRepository } from '../repositories/fulfillment.repository'
+import { orderRepository } from '../../orders/repositories/order.repository'
 
 export const fulfillmentService = {
   getQueue: fulfillmentRepository.getQueue,

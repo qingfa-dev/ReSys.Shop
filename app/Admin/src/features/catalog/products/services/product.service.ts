@@ -1,4 +1,4 @@
-import { productRepository } from '../../repository/product.repository'
+import { productRepository } from '../repositories/product.repository'
 import type { ServerResult, ServerPagedResult } from '@/shared/api/types/result.types'
 import type { ProductImage } from '../types/Product.Response.Type'
 

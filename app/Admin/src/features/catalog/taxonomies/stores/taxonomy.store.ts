@@ -2,7 +2,7 @@ import { defineStore } from 'pinia';
 import { ref, computed } from 'vue';
 import { useToast } from '@/shared/composables/toast.use';
 import { taxonomyService } from '../services/taxonomy.service';
-import { taxonomyRepository } from '../../repository/taxonomy.repository';
+import { taxonomyRepository } from '../repositories/taxonomy.repository';
 import type { TaxonomyListItem, TaxonomyDetail } from '../types/Taxonomy.Response.Type'
 import type { TaxonomyQuery } from '../types/Taxonomy.Query.Type'
 import type { CreateTaxonomyRequest, UpdateTaxonomyRequest } from '../types/Taxonomy.Request.Type'

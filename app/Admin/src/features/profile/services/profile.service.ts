@@ -1,5 +1,5 @@
-import { profileRepository } from '../repository/profile.repository'
-import { mapProfileResponse } from '../mapper/profile.mapper'
+import { profileRepository } from '../repositories/profile.repository'
+import { mapProfileResponse } from '../mappers/profile.mapper'
 import type { ServerResult } from '@/shared/api/types/result.types'
 import type { Profile } from '../types/Profile.Response.Type'
 import type { ProfileUpdateRequest } from '../types/Profile.Request.Type'
