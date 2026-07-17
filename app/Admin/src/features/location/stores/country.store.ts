@@ -1,12 +1,14 @@
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
 import { useToast } from '@/shared/composables/toast.use'
+import { useI18n } from 'vue-i18n'
 import { countryService } from '../services/country.service'
 import type { Country } from '../types/Country.Response.Type'
 import type { CreateCountryRequest, UpdateCountryRequest } from '../types/Country.Request.Type'
 
 export const useCountryStore = defineStore('country', () => {
   const { showToast } = useToast()
+  const { t } = useI18n()
   const items = ref<Country[]>([])
   const loading = ref(false)
   const submitting = ref(false)
@@ -19,7 +21,7 @@ export const useCountryStore = defineStore('country', () => {
       items.value = result.items
       totalRecords.value = result.totalCount ?? result.items.length
     } else {
-      showToast('error', 'Error', result.errors?.[0]?.message || 'Failed to load countries')
+      showToast('error', t('common.error'), result.errors?.[0]?.message || t('location.messages.load_error'))
     }
     loading.value = false
     return result
@@ -36,7 +38,7 @@ export const useCountryStore = defineStore('country', () => {
     submitting.value = true
     const result = await countryService.create(data)
     if (result.isSuccess) {
-      showToast('success', 'Created', 'Country created successfully')
+      showToast('success', t('common.created'), t('location.messages.create_success'))
       await fetchCountries()
     }
     submitting.value = false
@@ -47,7 +49,7 @@ export const useCountryStore = defineStore('country', () => {
     submitting.value = true
     const result = await countryService.update(id, data)
     if (result.isSuccess) {
-      showToast('success', 'Updated', 'Country updated successfully')
+      showToast('success', t('common.updated'), t('location.messages.update_success'))
       await fetchCountries()
     }
     submitting.value = false
@@ -58,7 +60,7 @@ export const useCountryStore = defineStore('country', () => {
     loading.value = true
     const result = await countryService.delete(id)
     if (result.isSuccess) {
-      showToast('success', 'Deleted', 'Country removed successfully')
+      showToast('success', t('common.deleted'), t('location.messages.delete_success'))
       items.value = items.value.filter(i => i.id !== id)
       totalRecords.value--
     }

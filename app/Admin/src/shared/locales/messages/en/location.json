@@ -1,0 +1,27 @@
+{
+  "titles": {
+    "countries": "Countries",
+    "states": "States / Provinces"
+  },
+  "labels": {
+    "name": "Name",
+    "calling_code": "Calling Code",
+    "active": "Active",
+    "abbreviation": "Abbreviation",
+    "country": "Country"
+  },
+  "actions": {
+    "new_country": "New Country",
+    "new_state": "New State"
+  },
+  "messages": {
+    "load_error": "Failed to load countries",
+    "create_success": "Country created successfully",
+    "update_success": "Country updated successfully",
+    "delete_success": "Country removed successfully",
+    "state_load_error": "Failed to load states",
+    "state_create_success": "State created successfully",
+    "state_update_success": "State updated successfully",
+    "state_delete_success": "State removed successfully"
+  }
+}

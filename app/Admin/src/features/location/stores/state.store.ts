@@ -1,12 +1,14 @@
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
 import { useToast } from '@/shared/composables/toast.use'
+import { useI18n } from 'vue-i18n'
 import { stateService } from '../services/state.service'
 import type { State } from '../types/State.Response.Type'
 import type { CreateStateRequest, UpdateStateRequest } from '../types/State.Request.Type'
 
 export const useStateStore = defineStore('state', () => {
   const { showToast } = useToast()
+  const { t } = useI18n()
   const items = ref<State[]>([])
   const loading = ref(false)
   const submitting = ref(false)
@@ -19,7 +21,7 @@ export const useStateStore = defineStore('state', () => {
       items.value = result.items
       totalRecords.value = result.totalCount ?? result.items.length
     } else {
-      showToast('error', 'Error', result.errors?.[0]?.message || 'Failed to load states')
+      showToast('error', t('common.error'), result.errors?.[0]?.message || t('location.messages.state_load_error'))
     }
     loading.value = false
     return result
@@ -36,7 +38,7 @@ export const useStateStore = defineStore('state', () => {
     submitting.value = true
     const result = await stateService.create(data)
     if (result.isSuccess) {
-      showToast('success', 'Created', 'State created successfully')
+      showToast('success', t('common.created'), t('location.messages.state_create_success'))
       await fetchStates()
     }
     submitting.value = false
@@ -47,7 +49,7 @@ export const useStateStore = defineStore('state', () => {
     submitting.value = true
     const result = await stateService.update(id, data)
     if (result.isSuccess) {
-      showToast('success', 'Updated', 'State updated successfully')
+      showToast('success', t('common.updated'), t('location.messages.state_update_success'))
       await fetchStates()
     }
     submitting.value = false
@@ -58,7 +60,7 @@ export const useStateStore = defineStore('state', () => {
     loading.value = true
     const result = await stateService.delete(id)
     if (result.isSuccess) {
-      showToast('success', 'Deleted', 'State removed successfully')
+      showToast('success', t('common.deleted'), t('location.messages.state_delete_success'))
       items.value = items.value.filter(i => i.id !== id)
       totalRecords.value--
     }

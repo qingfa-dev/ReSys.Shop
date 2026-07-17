@@ -55,7 +55,7 @@ const confirmDelete = (item: State) => {
     accept: async () => {
       const result = await stateStore.deleteState(item.id)
       if (result.isSuccess) {
-        showToast('success', 'Deleted', 'State removed.')
+        showToast('success', t('common.deleted'), t('location.messages.state_delete_success'))
       }
     },
   })
@@ -97,7 +97,7 @@ onMounted(async () => {
           :showClear="true"
           @change="filterByCountry"
         />
-        <Button label="New State" icon="pi pi-plus" @click="openCreate" class="px-4 shadow-lg rounded-xl" />
+        <Button :label="t('location.actions.new_state')" icon="pi pi-plus" @click="openCreate" class="px-4 shadow-lg rounded-xl" />
       </div>
     </div>
 
@@ -122,25 +122,25 @@ onMounted(async () => {
           </div>
         </template>
 
-        <Column field="name" header="Name" sortable>
+        <Column field="name" :header="t('location.labels.name')" sortable>
           <template #body="{ data }">
             <span class="font-bold text-surface-900 dark:text-surface-0">{{ data.name }}</span>
           </template>
         </Column>
 
-        <Column field="abbreviation" header="Abbreviation" sortable class="text-center">
+        <Column field="abbreviation" :header="t('location.labels.abbreviation')" sortable class="text-center">
           <template #body="{ data }">
             <Tag :value="data.abbreviation" severity="info" />
           </template>
         </Column>
 
-        <Column field="countryId" header="Country" sortable>
+        <Column field="countryId" :header="t('location.labels.country')" sortable>
           <template #body="{ data }">
             <span>{{ countries.find(c => c.id === data.countryId)?.name || data.countryId }}</span>
           </template>
         </Column>
 
-        <Column field="isActive" header="Active" dataType="boolean" class="w-24 text-center">
+        <Column field="isActive" :header="t('location.labels.active')" dataType="boolean" class="w-24 text-center">
           <template #body="{ data }">
             <i class="pi" :class="{'pi-check-circle text-green-500': data.isActive, 'pi-times-circle text-surface-400': !data.isActive}"></i>
           </template>

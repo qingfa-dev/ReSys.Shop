@@ -50,7 +50,7 @@ const confirmDelete = (item: Country) => {
     accept: async () => {
       const result = await store.deleteCountry(item.id)
       if (result.isSuccess) {
-        showToast('success', 'Deleted', 'Country removed.')
+        showToast('success', t('common.deleted'), t('location.messages.delete_success'))
       }
     },
   })
@@ -66,13 +66,13 @@ onMounted(() => {
     <template #content>
       <div class="flex flex-col items-start justify-between gap-4 mb-8 md:flex-row md:items-center">
       <div>
-        <h2 class="text-3xl font-black tracking-tight text-surface-900 dark:text-surface-50">Countries</h2>
+        <h2 class="text-3xl font-black tracking-tight text-surface-900 dark:text-surface-50">{{ t('location.titles.countries') }}</h2>
         <div class="flex items-center gap-2 mt-1">
           <span class="text-surface-500 dark:text-surface-400">Manage countries and regions</span>
           <Badge :value="totalRecords" severity="info" class="ml-2" />
         </div>
       </div>
-      <Button label="New Country" icon="pi pi-plus" @click="openCreate" class="px-4 shadow-lg rounded-xl" />
+      <Button :label="t('location.actions.new_country')" icon="pi pi-plus" @click="openCreate" class="px-4 shadow-lg rounded-xl" />
     </div>
 
     <div class="overflow-hidden border shadow-sm bg-surface-0 dark:bg-surface-900 rounded-2xl border-surface-100 dark:border-surface-800">
@@ -96,7 +96,7 @@ onMounted(() => {
           </div>
         </template>
 
-        <Column field="name" header="Name" sortable>
+        <Column field="name" :header="t('location.labels.name')" sortable>
           <template #body="{ data }">
             <span class="font-bold text-surface-900 dark:text-surface-0">{{ data.name }}</span>
           </template>
@@ -108,13 +108,13 @@ onMounted(() => {
           </template>
         </Column>
 
-        <Column field="callingCode" header="Calling Code" sortable class="text-center">
+        <Column field="callingCode" :header="t('location.labels.calling_code')" sortable class="text-center">
           <template #body="{ data }">
             <span class="font-mono">{{ data.callingCode || '-' }}</span>
           </template>
         </Column>
 
-        <Column field="isActive" header="Active" dataType="boolean" class="w-24 text-center">
+        <Column field="isActive" :header="t('location.labels.active')" dataType="boolean" class="w-24 text-center">
           <template #body="{ data }">
             <i class="pi" :class="{'pi-check-circle text-green-500': data.isActive, 'pi-times-circle text-surface-400': !data.isActive}"></i>
           </template>

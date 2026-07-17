@@ -59,13 +59,13 @@ const onFormSubmit = submitForm(async (values) => {
   if (props.isEdit && props.item) {
     const result = await stateStore.updateState(props.item.id, values)
     if (result.isSuccess) {
-      showToast('success', 'Updated', 'State updated successfully')
+      showToast('success', t('common.updated'), t('location.messages.state_update_success'))
       emit('saved')
     }
   } else {
     const result = await stateStore.createState(values)
     if (result.isSuccess) {
-      showToast('success', 'Created', 'State created successfully')
+      showToast('success', t('common.created'), t('location.messages.state_create_success'))
       emit('saved')
     }
   }
@@ -89,19 +89,19 @@ const onCancel = () => {
   >
     <form @submit="onFormSubmit" class="flex flex-col gap-5 py-2">
       <div class="flex flex-col gap-2">
-        <label for="name" class="font-bold text-xs uppercase tracking-wider text-surface-500 ml-1">Name</label>
+        <label for="name" class="font-bold text-xs uppercase tracking-wider text-surface-500 ml-1">{{ t('location.labels.name') }}</label>
         <InputText id="name" v-model="name" placeholder="State name" :invalid="!!errors.name" class="rounded-xl h-11" />
         <small class="text-red-500 ml-1" v-if="errors.name">{{ errors.name }}</small>
       </div>
 
       <div class="flex flex-col gap-2">
-        <label for="abbreviation" class="font-bold text-xs uppercase tracking-wider text-surface-500 ml-1">Abbreviation</label>
+        <label for="abbreviation" class="font-bold text-xs uppercase tracking-wider text-surface-500 ml-1">{{ t('location.labels.abbreviation') }}</label>
         <InputText id="abbreviation" v-model="abbreviation" placeholder="CA" class="rounded-xl h-11 uppercase" :invalid="!!errors.abbreviation" />
         <small class="text-red-500 ml-1" v-if="errors.abbreviation">{{ errors.abbreviation }}</small>
       </div>
 
       <div class="flex flex-col gap-2">
-        <label for="countryId" class="font-bold text-xs uppercase tracking-wider text-surface-500 ml-1">Country</label>
+        <label for="countryId" class="font-bold text-xs uppercase tracking-wider text-surface-500 ml-1">{{ t('location.labels.country') }}</label>
         <Select
           id="countryId"
           v-model="countryId"
@@ -116,7 +116,7 @@ const onCancel = () => {
       </div>
 
       <div class="flex flex-col gap-2">
-        <label class="font-bold text-xs uppercase tracking-wider text-surface-500 ml-1">Active</label>
+        <label class="font-bold text-xs uppercase tracking-wider text-surface-500 ml-1">{{ t('location.labels.active') }}</label>
         <div class="flex items-center gap-2 ml-1">
           <ToggleSwitch v-model="isActive" />
           <span class="text-sm text-surface-500">{{ isActive ? 'Enabled' : 'Disabled' }}</span>
@@ -125,7 +125,7 @@ const onCancel = () => {
     </form>
 
     <template #footer>
-      <Button label="Cancel" severity="secondary" text @click="onCancel" class="rounded-xl" />
+      <Button :label="t('common.cancel')" severity="secondary" text @click="onCancel" class="rounded-xl" />
       <Button
         :label="isEdit ? 'Update' : 'Create'"
         icon="pi pi-check"

@@ -6,6 +6,7 @@ import inventoryEn from "@/shared/locales/messages/en/inventory.json";
 import orderingEn from "@/shared/locales/messages/en/ordering.json";
 import usersEn from "@/shared/locales/messages/en/users.json";
 import rolesEn from "@/shared/locales/messages/en/roles.json";
+import locationEn from "@/shared/locales/messages/en/location.json";
 
 export type MessageSchema = typeof generalEn;
 
@@ -22,6 +23,7 @@ const i18n = createI18n({
       ordering: orderingEn,
       users: usersEn,
       roles: rolesEn,
+      location: locationEn,
     },
   },
 });
