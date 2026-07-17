@@ -7,7 +7,7 @@ import { useApiErrorHandler } from '@/shared/composables/api-error-handler.use';
 import type { ServerResult } from '@/shared/api/types/result.types';
 import { useToast } from '@/shared/composables/toast.use';
 import apiClient from '@/shared/api/http/api.client';
-import type { ProductClassification } from '../types/product.domain.types';
+import type { ProductClassification } from '../types/Product.Response.Type';
 
 const props = defineProps<{
     productId: string;

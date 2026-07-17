@@ -15,7 +15,7 @@ import { useToast } from '@/shared/composables/toast.use';
 import { useFormatter } from '@/shared/composables/formatter.use';
 import { QueryBuilder, type FilterOperator } from '@/shared/utils/query-builder.utils';
 import AppBreadcrumb from '@/shared/components/Breadcrumb.Component.vue';
-import type { ProductSummary } from '../types/product.domain.types';
+import type { ProductSummary } from '../types/Product.Response.Type';
 
 const { t } = useI18n();
 

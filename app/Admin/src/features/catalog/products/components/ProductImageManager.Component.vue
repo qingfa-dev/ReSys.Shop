@@ -3,7 +3,7 @@ import { ref, onMounted } from 'vue';
 import { useApiErrorHandler } from '@/shared/composables/api-error-handler.use';
 import { useToast } from '@/shared/composables/toast.use';
 import apiClient from '@/shared/api/http/api.client';
-import type { ProductImage } from '../types/product.domain.types';
+import type { ProductImage } from '../types/Product.Response.Type';
 import ProductImageUploader from './images/ProductImageUploader.Component.vue';
 import ProductImageList from './images/ProductImageList.Component.vue';
 import { productService } from '../services/product.service';

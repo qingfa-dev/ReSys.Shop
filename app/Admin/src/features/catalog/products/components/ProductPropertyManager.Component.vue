@@ -4,7 +4,7 @@ import { usePropertyTypeStore } from '@/features/catalog/property-types/stores/p
 import { useApiErrorHandler } from '@/shared/composables/api-error-handler.use';
 import { useToast } from '@/shared/composables/toast.use';
 import { productService } from '../services/product.service';
-import type { ProductProperty } from '../types/product.domain.types';
+import type { ProductProperty } from '../types/Product.Response.Type';
 
 const props = defineProps<{
     productId: string;
@@ -49,12 +49,12 @@ const onAddProperty = async () => {
     saving.value = true;
     try {
         const currentProps = productProperties.value.map(p => ({
-            property_type_id: p.property_type_id,
+            propertyTypeId: p.propertyTypeId,
             value: p.value
         }));
 
         currentProps.push({
-            property_type_id: selectedPropertyTypeId.value,
+            propertyTypeId: selectedPropertyTypeId.value,
             value: propertyValue.value
         });
 
@@ -73,9 +73,9 @@ const onAddProperty = async () => {
 
 const onRemoveProperty = async (propertyTypeId: string) => {
     const newProps = productProperties.value
-        .filter(p => p.property_type_id !== propertyTypeId)
+        .filter(p => p.propertyTypeId !== propertyTypeId)
         .map(p => ({
-            property_type_id: p.property_type_id,
+            propertyTypeId: p.propertyTypeId,
             value: p.value
         }));
 
@@ -136,10 +136,10 @@ onMounted(() => {
         <div v-else class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div v-for="prop in productProperties" :key="prop.id" class="flex items-center justify-between p-4 bg-surface-0 dark:bg-surface-900 border border-surface-100 dark:border-surface-800 rounded-2xl shadow-sm group">
                 <div class="flex flex-col overflow-hidden">
-                    <span class="text-[10px] font-black uppercase tracking-widest text-surface-400 leading-none mb-1">{{ prop.property_type_presentation }}</span>
+                    <span class="text-[10px] font-black uppercase tracking-widest text-surface-400 leading-none mb-1">{{ prop.propertyTypePresentation }}</span>
                     <span class="font-bold text-surface-900 dark:text-surface-0 truncate">{{ prop.value }}</span>
                 </div>
-                <Button icon="pi pi-trash" severity="danger" text rounded size="small" @click="onRemoveProperty(prop.property_type_id)" class="opacity-0 group-hover:opacity-100 transition-opacity" />
+                <Button icon="pi pi-trash" severity="danger" text rounded size="small" @click="onRemoveProperty(prop.propertyTypeId)" class="opacity-0 group-hover:opacity-100 transition-opacity" />
             </div>
         </div>
     </div>

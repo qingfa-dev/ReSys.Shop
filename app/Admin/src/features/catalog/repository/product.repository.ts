@@ -2,8 +2,8 @@ import apiClient from '@/shared/api/http/api.client'
 import { CATALOG } from '@/shared/api/constants'
 import type { ServerResult } from '@/shared/api/types/result.types'
 import type { ServerQueryingParameters } from '@/shared/api/types/query.types'
-import type { ProductClassification, ProductDetail, ProductSummary } from '../products/types/product.domain.types'
-import type { CreateProductRequest, UpdateProductRequest } from '../products/types/product.request.types'
+import type { ProductClassification, ProductDetail, ProductSummary } from '../products/types/Product.Response.Type'
+import type { CreateProductRequest, UpdateProductRequest } from '../products/types/Product.Request.Type'
 import type { OptionTypeDetail } from '../option-types/types/OptionType.Response.Type'
 
 export const productRepository = {

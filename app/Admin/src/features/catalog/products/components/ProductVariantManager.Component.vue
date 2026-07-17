@@ -8,8 +8,8 @@ import { useConfirm } from 'primevue/useconfirm';
 import { variantService } from '../services/variant.service';
 import VariantGenerationDialog from './dialogs/VariantGenerationDialog.Component.vue';
 import VariantFormDialog from './VariantFormDialog.Component.vue';
-import type { VariantSummary, VariantDetail } from '../types/variant.domain.types';
-import type { CreateVariantRequest } from '../types/variant.request.types';
+import type { VariantSummary, VariantDetail } from '../types/Variant.Response.Type';
+import type { CreateVariantRequest } from '../types/Variant.Request.Type';
 import type { ServerResult } from '@/shared/api/types/result.types';
 
 const { t } = useI18n();

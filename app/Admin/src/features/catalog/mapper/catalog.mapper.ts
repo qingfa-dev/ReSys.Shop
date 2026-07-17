@@ -1,5 +1,5 @@
-import type { ProductSummary, ProductDetail } from '../products/types/product.domain.types'
-import type { VariantSummary, VariantDetail } from '../products/types/variant.domain.types'
+import type { ProductSummary, ProductDetail } from '../products/types/Product.Response.Type'
+import type { VariantSummary, VariantDetail } from '../products/types/Variant.Response.Type'
 import type { OptionTypeDetail, OptionTypeListItem } from '../option-types/types/OptionType.Response.Type'
 import type { OptionValueListItem } from '../option-types/option-values/types/OptionValue.Response.Type'
 import type { PropertyTypeDetail } from '../property-types/types/PropertyType.Response.Type'

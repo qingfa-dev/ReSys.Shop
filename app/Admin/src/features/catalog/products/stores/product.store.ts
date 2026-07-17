@@ -8,12 +8,12 @@ import type {
   ProductDetail, 
   ProductClassification,
   ProductImage
-} from '../types/product.domain.types';
+} from '../types/Product.Response.Type';
 import type { 
-  ProductSearchParams, 
   CreateProductRequest, 
   UpdateProductRequest
-} from '../types/product.request.types';
+} from '../types/Product.Request.Type';
+import type { ProductQuery } from '../types/Product.Query.Type';
 
 export const useProductStore = defineStore('product', () => {
   const { showToast } = useToast();
@@ -24,7 +24,7 @@ export const useProductStore = defineStore('product', () => {
   const current_images = ref<ProductImage[]>([]);
   const submitting = ref(false);
 
-  const { items: products, totalRecords, params: query, fetch: fetchProducts, loading, error } = usePagedList<ProductSummary, ProductSearchParams>(
+  const { items: products, totalRecords, params: query, fetch: fetchProducts, loading, error } = usePagedList<ProductSummary, ProductQuery>(
     (p) => productService.list(p),
     { page: 1, pageSize: 10, search: '', sort: ['-created_at'] },
   );

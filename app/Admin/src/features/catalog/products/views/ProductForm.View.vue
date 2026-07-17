@@ -4,7 +4,7 @@ import { useI18n } from 'vue-i18n';
 import { useRoute, useRouter } from 'vue-router';
 import { useForm } from 'vee-validate';
 import { toTypedSchema } from '@vee-validate/zod';
-import { createProductSchema, type CreateProductInput } from '../schemas/product.schemas';
+import { CreateProductSchema } from '../schemas/CreateProduct.Schema';
 import { useProductStore } from '../stores/product.store';
 import { storeToRefs } from 'pinia';
 import AppBreadcrumb from '@/shared/components/Breadcrumb.Component.vue';
@@ -15,8 +15,8 @@ import ProductClassificationManager from '../components/ProductClassificationMan
 import ProductPropertyManager from '../components/ProductPropertyManager.Component.vue';
 import ProductOptionTypeManager from '../components/ProductOptionTypeManager.Component.vue';
 import ProductInventoryManager from '../components/ProductInventoryManager.Component.vue';
-import type { ProductDetail } from '../types/product.domain.types';
-import type { CreateProductRequest, UpdateProductRequest } from '../types/product.request.types';
+import type { ProductDetail } from '../types/Product.Response.Type';
+import type { CreateProductRequest, UpdateProductRequest } from '../types/Product.Request.Type';
 
 const { t } = useI18n();
 const route = useRoute();
@@ -30,7 +30,7 @@ const productId = computed(() => route.params.id as string);
 const activeTab = ref(0);
 
 const { defineField, handleSubmit, errors, setValues } = useForm({
-    validationSchema: toTypedSchema(createProductSchema),
+    validationSchema: toTypedSchema(CreateProductSchema),
     initialValues: {
         name: '',
         slug: '',
@@ -97,7 +97,7 @@ onMounted(async () => {
     }
 });
 
-const onSubmit = handleSubmit(async (values: CreateProductInput) => {
+const onSubmit = handleSubmit(async (values) => {
     const payload: CreateProductRequest = {
         name: values.name,
         slug: values.slug,

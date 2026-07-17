@@ -9,8 +9,8 @@ import { optionValueService } from '@/features/catalog/option-types/option-value
 import type { OptionValueQuery } from '@/features/catalog/option-types/option-values/types/OptionValue.Query.Type';
 import type { OptionValueListItem } from '@/features/catalog/option-types/option-values/types/OptionValue.Response.Type';
 import type { OptionTypeDetail } from '@/features/catalog/option-types/types/OptionType.Response.Type';
-import type { VariantDetail } from '../types/variant.domain.types';
-import type { CreateVariantRequest } from '../types/variant.request.types';
+import type { VariantDetail } from '../types/Variant.Response.Type';
+import type { CreateVariantRequest } from '../types/Variant.Request.Type';
 
 interface AssignedOptionType extends OptionTypeDetail {
   values: OptionValueListItem[];
