@@ -1,0 +1,43 @@
+{
+  "titles": {
+    "my_profile": "My Profile",
+    "profile_info": "Profile Details",
+    "account_info": "Account Info",
+    "details": "Account Details",
+    "password": "Change Password",
+    "notifications": "Notifications"
+  },
+  "descriptions": {
+    "manage": "Manage your profile information."
+  },
+  "labels": {
+    "first_name": "First Name",
+    "last_name": "Last Name",
+    "phone": "Phone",
+    "full_name": "Full Name",
+    "email": "Email",
+    "username": "Username",
+    "joined": "Joined On",
+    "current_password": "Current Password",
+    "new_password": "New Password",
+    "confirm_password": "Confirm New Password"
+  },
+  "actions": {
+    "save_profile": "Save Profile",
+    "update_password": "Update Password"
+  },
+  "notifications": {
+    "email": "Email Notifications",
+    "email_desc": "Receive email updates about your account and orders.",
+    "order_updates": "Order Updates",
+    "order_updates_desc": "Get notified when your order status changes.",
+    "marketing": "Marketing",
+    "marketing_desc": "Receive promotional offers and newsletters.",
+    "security": "Security Alerts",
+    "security_desc": "Important security notifications about your account."
+  },
+  "messages": {
+    "load_error": "Failed to load profile",
+    "update_success": "Profile updated successfully"
+  }
+}

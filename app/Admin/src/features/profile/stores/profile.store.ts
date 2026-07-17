@@ -1,11 +1,13 @@
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { useToast } from '@/shared/composables/toast.use'
 import { profileService } from '../services/profile.service'
 import type { Profile } from '../types/Profile.Response.Type'
 
 export const useProfileStore = defineStore('profile', () => {
   const { showToast } = useToast()
+  const { t } = useI18n()
   const profile = ref<Profile | null>(null)
   const loading = ref(false)
   const submitting = ref(false)
@@ -16,7 +18,7 @@ export const useProfileStore = defineStore('profile', () => {
     if (result.isSuccess) {
       profile.value = result.value
     } else {
-      showToast('error', 'Error', result.errors?.[0]?.message || 'Failed to load profile')
+      showToast('error', t('common.error'), result.errors?.[0]?.message || t('profile.messages.load_error'))
     }
     loading.value = false
     return result
@@ -27,7 +29,7 @@ export const useProfileStore = defineStore('profile', () => {
     const result = await profileService.updateProfile(data)
     if (result.isSuccess) {
       profile.value = result.value
-      showToast('success', 'Updated', 'Profile updated successfully')
+      showToast('success', t('common.updated'), t('profile.messages.update_success'))
     }
     submitting.value = false
     return result

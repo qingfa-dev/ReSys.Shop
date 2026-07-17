@@ -5,6 +5,7 @@ import { toTypedSchema } from '@vee-validate/zod'
 import { z } from 'zod'
 import { useProfileStore } from '../stores/profile.store'
 import { storeToRefs } from 'pinia'
+import { useI18n } from 'vue-i18n'
 import { useToast } from '@/shared/composables/toast.use'
 
 const profileSchema = z.object({
@@ -15,6 +16,7 @@ const profileSchema = z.object({
 
 const store = useProfileStore()
 const { profile, loading, submitting } = storeToRefs(store)
+const { t } = useI18n()
 const { showToast } = useToast()
 
 const { defineField, errors, handleSubmit: submitForm, setValues, resetForm } = useForm({
@@ -43,7 +45,7 @@ watch(profile, (val) => {
 const onFormSubmit = submitForm(async (values) => {
   const result = await store.updateProfile(values)
   if (result.isSuccess) {
-    showToast('success', 'Updated', 'Profile updated successfully')
+    showToast('success', t('common.updated'), t('profile.messages.update_success'))
   }
 })
 
@@ -55,8 +57,8 @@ onMounted(() => {
 <template>
   <div class="p-6 max-w-4xl mx-auto">
     <div class="mb-8">
-      <h1 class="text-3xl font-black uppercase tracking-tighter text-surface-900 dark:text-surface-0">My Profile</h1>
-      <p class="text-surface-500">Manage your profile information.</p>
+      <h1 class="text-3xl font-black uppercase tracking-tighter text-surface-900 dark:text-surface-0">{{ t('profile.titles.my_profile') }}</h1>
+      <p class="text-surface-500">{{ t('profile.descriptions.manage') }}</p>
     </div>
 
     <div v-if="loading" class="flex justify-center p-20">
@@ -68,12 +70,12 @@ onMounted(() => {
         <div class="bg-surface-0 dark:bg-surface-900 p-6 rounded-3xl border border-surface-100 dark:border-surface-800 shadow-sm">
           <h3 class="text-lg font-bold mb-6 flex items-center gap-2">
             <i class="pi pi-user text-primary"></i>
-            Profile Details
+            {{ t('profile.titles.profile_info') }}
           </h3>
 
           <div class="flex flex-col gap-4 mb-6">
             <div class="flex flex-col">
-              <span class="text-xs font-bold uppercase tracking-widest text-surface-400">Email</span>
+              <span class="text-xs font-bold uppercase tracking-widest text-surface-400">{{ t('profile.labels.email') }}</span>
               <span class="text-lg font-medium font-mono">{{ profile.email }}</span>
             </div>
           </div>
@@ -81,26 +83,26 @@ onMounted(() => {
           <form @submit="onFormSubmit" class="flex flex-col gap-4">
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div class="flex flex-col gap-2">
-                <label for="firstName" class="font-bold text-sm">First Name</label>
+                <label for="firstName" class="font-bold text-sm">{{ t('profile.labels.first_name') }}</label>
                 <InputText id="firstName" v-model="firstName" class="w-full rounded-xl" :invalid="!!errors.firstName" />
                 <small class="text-red-500 font-medium" v-if="errors.firstName">{{ errors.firstName }}</small>
               </div>
               <div class="flex flex-col gap-2">
-                <label for="lastName" class="font-bold text-sm">Last Name</label>
+                <label for="lastName" class="font-bold text-sm">{{ t('profile.labels.last_name') }}</label>
                 <InputText id="lastName" v-model="lastName" class="w-full rounded-xl" :invalid="!!errors.lastName" />
                 <small class="text-red-500 font-medium" v-if="errors.lastName">{{ errors.lastName }}</small>
               </div>
             </div>
 
             <div class="flex flex-col gap-2">
-              <label for="phoneNumber" class="font-bold text-sm">Phone</label>
+                <label for="phoneNumber" class="font-bold text-sm">{{ t('profile.labels.phone') }}</label>
               <InputText id="phoneNumber" v-model="phoneNumber" class="w-full rounded-xl" :invalid="!!errors.phoneNumber" />
               <small class="text-red-500 font-medium" v-if="errors.phoneNumber">{{ errors.phoneNumber }}</small>
             </div>
 
             <Button
               type="submit"
-              label="Save Profile"
+              :label="t('profile.actions.save_profile')"
               icon="pi pi-check"
               class="mt-2 rounded-xl"
               :loading="submitting"
@@ -113,20 +115,20 @@ onMounted(() => {
         <div class="bg-surface-0 dark:bg-surface-900 p-6 rounded-3xl border border-surface-100 dark:border-surface-800 shadow-sm">
           <h3 class="text-lg font-bold mb-6 flex items-center gap-2">
             <i class="pi pi-info-circle text-primary"></i>
-            Account Info
+            {{ t('profile.titles.account_info') }}
           </h3>
           <div class="flex flex-col gap-4">
             <div class="flex flex-col">
-              <span class="text-xs font-bold uppercase tracking-widest text-surface-400">Email</span>
+              <span class="text-xs font-bold uppercase tracking-widest text-surface-400">{{ t('profile.labels.email') }}</span>
               <span class="text-lg font-medium font-mono">{{ profile.email }}</span>
             </div>
             <div class="flex flex-col">
-              <span class="text-xs font-bold uppercase tracking-widest text-surface-400">Full Name</span>
+              <span class="text-xs font-bold uppercase tracking-widest text-surface-400">{{ t('profile.labels.full_name') }}</span>
               <span class="text-lg font-medium">{{ profile.firstName }} {{ profile.lastName }}</span>
             </div>
             <div class="flex flex-col">
-              <span class="text-xs font-bold uppercase tracking-widest text-surface-400">Phone</span>
-              <span class="text-lg font-medium">{{ profile.phoneNumber || 'N/A' }}</span>
+              <span class="text-xs font-bold uppercase tracking-widest text-surface-400">{{ t('profile.labels.phone') }}</span>
+              <span class="text-lg font-medium">{{ profile.phoneNumber || t('common.not_applicable') }}</span>
             </div>
           </div>
         </div>
