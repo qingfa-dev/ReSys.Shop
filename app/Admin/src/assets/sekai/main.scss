@@ -1,0 +1,33 @@
+// --- src/assets/sekai/main.scss ---
+// Entry point for all custom Sekai (Sakai-derived) styles.
+// Architecture layers (in order):
+//   1. Abstracts — CSS custom properties mapping PrimeVue v4 --p-* design tokens
+//   2. Vendors   — PrimeIcons font CSS
+//   3. Base      — Global resets (core) and typography scale
+//   4. Layout    — Structural components (topbar, sidebar/menu, footer, main,
+//                  responsive helpers, utility classes)
+// Depends on: sass, primeicons, @primevue/themes (runtime design tokens)
+// ---
+
+// 1. Abstracts - Logic only, no CSS output
+@use 'abstracts/variables/common' as *;
+
+// 2. Vendors - External libraries
+@use 'primeicons/primeicons.css';
+
+// 3. Base - Global resets and base typography
+@use 'base/core';
+@use 'base/typography';
+
+// 4. Layout - Structural components
+@use 'layout/topbar';
+@use 'layout/menu';
+@use 'layout/footer';
+@use 'layout/main';
+@use 'layout/responsive';
+@use 'layout/utils';
+@use 'layout/preloading';
+
+// 5. Extras - Utility styles for code blocks and flag icons
+@use 'extras/extras';
+

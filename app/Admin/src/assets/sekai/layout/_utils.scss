@@ -1,0 +1,33 @@
+// --- _utils.scss ---
+// Utility classes for the Sekai layout.
+// .clearfix — float clearing (kept for legacy compatibility).
+// .card — reusable container with PrimeVue surface background.
+// .p-toast — position offset for toast notifications.
+// Prefer Tailwind utilities for one-off styles.
+// Derived from primefaces/sakai-assets/layout/_utils.scss.
+// ---
+
+.clearfix:after {
+    content: ' ';
+    display: block;
+    clear: both;
+}
+
+.card {
+    background: var(--surface-card);
+    padding: 2rem;
+    margin-bottom: 2rem;
+    border-radius: var(--content-border-radius);
+
+    &:last-child {
+        margin-bottom: 0;
+    }
+}
+
+.p-toast {
+    &.p-toast-top-right,
+    &.p-toast-top-left,
+    &.p-toast-top-center {
+        top: 100px;
+    }
+}

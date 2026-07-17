@@ -1,0 +1,142 @@
+// --- _menu.scss ---
+// Fixed sidebar navigation (20rem wide, z-index 999) with nested
+// submenus. Active route highlighting uses --p-primary-color and
+// --primary-50 for background. Submenu expand/collapse uses Vue
+// transition classes (.layout-submenu-enter/leave) with max-height
+// animation. Focus ring uses inset box-shadow from --p-focus-ring-shadow.
+// Derived from PrimeFaces Sakai Vue template.
+// ---
+
+.layout-sidebar {
+    position: fixed;
+    width: 20rem;
+    height: calc(100vh - 8rem);
+    z-index: 999;
+    overflow-y: auto;
+    user-select: none;
+    top: 6rem;
+    left: 2rem;
+    transition:
+        transform var(--layout-section-transition-duration),
+        left var(--layout-section-transition-duration);
+    background-color: var(--surface-overlay);
+    border-radius: var(--content-border-radius);
+    padding: 0.5rem 1.5rem;
+}
+
+.layout-menu {
+    margin: 0;
+    padding: 0;
+    list-style-type: none;
+
+    .layout-root-menuitem {
+        > .layout-menuitem-root-text {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            font-weight: 800;
+            color: var(--surface-400);
+            margin: 1.5rem 0 0.5rem 0;
+            letter-spacing: 0.1em;
+        }
+    }
+
+    li.active-menuitem {
+        > a {
+            .layout-submenu-toggler {
+                transform: rotate(-180deg);
+            }
+        }
+    }
+
+    ul {
+        margin: 0;
+        padding: 0;
+        list-style-type: none;
+
+        a {
+            display: flex;
+            align-items: center;
+            position: relative;
+            outline: 0 none;
+            color: var(--p-text-color);
+            cursor: pointer;
+            padding: 0.75rem 1rem;
+            border-radius: var(--content-border-radius);
+            transition: background-color var(--element-transition-duration), box-shadow var(--element-transition-duration);
+
+            .layout-menuitem-icon {
+                margin-right: 0.75rem;
+                font-size: 1.1rem;
+                color: var(--surface-500);
+            }
+
+            .layout-submenu-toggler {
+                font-size: 0.75rem;
+                margin-left: auto;
+                transition: transform var(--element-transition-duration);
+            }
+
+            &.active-route {
+                font-weight: 700;
+                color: var(--p-primary-color);
+                background-color: var(--primary-50);
+                
+                .layout-menuitem-icon {
+                    color: var(--p-primary-color);
+                }
+            }
+
+            &:hover {
+                background-color: var(--surface-hover);
+            }
+
+            &:focus {
+                outline-offset: -1px;
+                box-shadow: inset var(--p-focus-ring-shadow);
+            }
+        }
+
+        // Standard Sakai Nesting Logic
+        ul {
+            padding: 0;
+            margin: 0;
+            list-style-type: none;
+            overflow: hidden;
+
+            li {
+                a {
+                    padding-left: 2rem;
+                }
+
+                li {
+                    a {
+                        padding-left: 3rem;
+                    }
+                }
+            }
+        }
+    }
+}
+
+/* Submenu Transitions */
+.layout-submenu-enter-from,
+.layout-submenu-leave-to {
+    max-height: 0;
+    opacity: 0;
+}
+
+.layout-submenu-enter-to,
+.layout-submenu-leave-from {
+    max-height: 1000px;
+    opacity: 1;
+}
+
+.layout-submenu-leave-active {
+    overflow: hidden;
+    transition: max-height 0.45s cubic-bezier(0, 1, 0, 1), opacity 0.45s;
+}
+
+.layout-submenu-enter-active {
+    overflow: hidden;
+    transition: max-height 1s ease-in-out, opacity 0.5s;
+}

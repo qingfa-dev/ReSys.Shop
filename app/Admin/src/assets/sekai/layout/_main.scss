@@ -1,0 +1,21 @@
+// --- _main.scss ---
+// Flex-column content area between the fixed topbar and footer.
+// .layout-main-container spans the full viewport height and reserves
+// 6rem top padding for the fixed topbar. The margin-left shift
+// (controlled by _responsive.scss) accommodates the static sidebar.
+// Derived from PrimeFaces Sakai Vue template.
+// ---
+
+.layout-main-container {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    justify-content: space-between;
+    padding: 6rem 2rem 0 2rem;
+    transition: margin-left var(--layout-section-transition-duration);
+}
+
+.layout-main {
+    flex: 1 1 auto;
+    padding-bottom: 2rem;
+}

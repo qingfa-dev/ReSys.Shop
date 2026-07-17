@@ -1,0 +1,8 @@
+export const CATALOG = 'api/catalog'
+export const IDENTITY = 'api/identity'
+export const LOCATIONS = 'api/locations'
+export const PROFILES = 'api/profiles'
+export const INVENTORY = 'api/inventory'
+export const ORDERS = 'api/ordering'
+export const PAYMENTS = 'api/payment'
+export const SHIPPING = 'api/shipping'
