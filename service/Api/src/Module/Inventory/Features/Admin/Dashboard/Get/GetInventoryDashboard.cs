@@ -56,7 +56,7 @@ public static partial class GetInventoryDashboard
                 : 0;
 
             var recentMovements = await dbContext.Set<StockMovement>()
-                .Where(sm => locationIds.Contains(sm.StockLocationId ?? Guid.Empty) || sm.StockLocationId == null)
+                .Where(sm => sm.StockLocationId == null || locationIds.Contains(sm.StockLocationId.Value))
                 .OrderByDescending(sm => sm.CreatedAtUtc)
                 .Take(10)
                 .Select(sm => new RecentMovementData(

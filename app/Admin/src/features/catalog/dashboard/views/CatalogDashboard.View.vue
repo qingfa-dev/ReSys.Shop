@@ -27,7 +27,7 @@ const navigateToOptionTypes = () => router.push({ name: 'catalog.option-types.li
         </div>
 
         <div v-if="loading && !summary" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-            <Skeleton v-for="i in 4" :key="i" height="100px" class="rounded-2xl"></Skeleton>
+            <Skeleton v-for="i in 3" :key="i" height="100px" class="rounded-2xl"></Skeleton>
         </div>
 
         <div v-else-if="summary" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
