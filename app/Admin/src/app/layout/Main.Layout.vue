@@ -2,7 +2,6 @@
 import { useLayout } from './composables/layout.composable'
 import { computed, watch, ref } from 'vue'
 import { RouterView } from 'vue-router'
-import ConfirmDialog from 'primevue/confirmdialog'
 import AppTopbar from './Topbar.Layout.vue'
 import AppFooter from './Footer.Layout.vue'
 import AppSidebar from './Sidebar.Layout.vue'
@@ -74,7 +73,6 @@ const isOutsideClicked = (event: MouseEvent) => {
     <FloatingConfigurator />
     <div class="layout-mask animate-fadein" @click="hideMobileMenu" />
   </div>
-  <ConfirmDialog />
 </template>
 
 <style lang="scss" scoped>

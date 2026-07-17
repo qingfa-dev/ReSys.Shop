@@ -51,7 +51,7 @@ function goTo(to: string) {
       @focus="overlayVisible = true"
       @keydown.escape="overlayVisible = false"
     />
-    <OverlayPanel ref="op" :visible="overlayVisible" @hide="overlayVisible = false">
+    <OverlayPanel :visible="overlayVisible" @hide="overlayVisible = false">
       <div class="flex flex-col gap-2" style="min-width: 280px">
         <div
           v-for="result in searchResults"
