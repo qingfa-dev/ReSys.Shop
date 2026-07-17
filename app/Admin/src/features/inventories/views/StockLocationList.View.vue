@@ -28,7 +28,7 @@ const onToggleStatus = async (id: string, current: boolean) => {
 <template>
     <div class="h-full flex flex-col">
         <div class="flex items-center justify-between mb-6">
-            <h3 class="text-xl font-bold text-surface-700 dark:text-surface-200 m-0">Overview</h3>
+            <h3 class="text-xl font-bold text-surface-700 dark:text-surface-200 m-0">{{ t('inventory.titles.overview') }}</h3>
             <div class="flex items-center gap-3">
                 <SelectButton v-model="viewMode" :options="['grid', 'tree']" aria-labelledby="basic">
                     <template #option="slotProps">
@@ -65,7 +65,7 @@ const onToggleStatus = async (id: string, current: boolean) => {
                     <Button icon="pi pi-pencil" text rounded severity="secondary" v-tooltip.top="'Edit Details'" @click="router.push({ name: 'inventory.locations.edit', params: { id: loc.id } })" />
                     <Button icon="pi pi-power-off" text rounded :severity="loc.active ? 'danger' : 'success'" @click="onToggleStatus(loc.id, loc.active)" />
                     <div class="flex-grow"></div>
-                    <Button label="Inventory" icon="pi pi-box" text size="small" class="font-bold" />
+                    <Button :label="t('inventory.titles.inventory')" icon="pi pi-box" text size="small" class="font-bold" />
                 </div>
             </div>
         </div>
@@ -73,20 +73,20 @@ const onToggleStatus = async (id: string, current: boolean) => {
         <!-- Tree View -->
         <div v-else class="flex-1 overflow-hidden border shadow-sm bg-surface-0 dark:bg-surface-900 rounded-3xl border-surface-100 dark:border-surface-800">
             <TreeTable :value="locationTree as any" class="p-treetable-sm h-full" scrollable scrollHeight="flex">
-                <Column field="name" header="Location Name" expander></Column>
-                <Column field="code" header="Code">
+                <Column field="name" :header="t('inventory.table.location_name')" expander></Column>
+                <Column field="code" :header="t('inventory.table.code')">
                     <template #body="{ node }">
                         <span class="font-mono text-xs uppercase">{{ node.data.code }}</span>
                     </template>
                 </Column>
-                <Column field="type" header="Type"></Column>
-                <Column field="active" header="Status" class="text-center">
+                <Column field="type" :header="t('inventory.table.type')"></Column>
+                <Column field="active" :header="t('inventory.table.status')" class="text-center">
                     <template #body="{ node }">
                         <Tag :value="node.data.active ? 'Active' : 'Inactive'" 
                              :severity="node.data.active ? 'success' : 'secondary'" rounded class="text-[10px] font-black" />
                     </template>
                 </Column>
-                <Column header="Actions" class="w-24">
+                <Column :header="t('inventory.table.actions')" class="w-24">
                     <template #body="{ node }">
                         <Button icon="pi pi-pencil" text rounded severity="secondary" @click="router.push({ name: 'inventory.locations.edit', params: { id: node.data.id } })" />
                     </template>

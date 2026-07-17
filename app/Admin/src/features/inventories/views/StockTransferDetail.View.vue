@@ -55,7 +55,7 @@ async function onAddItem() {
     try {
         const res = await store.inventoryService.addTransferItem(transferId.value, selectedProduct.value.id, quantity.value);
         if (res.isSuccess) {
-            showToast('success', 'Success', 'Item added to transfer');
+            showToast('success', 'Success', t('inventory.messages.item_added_to_transfer'));
             itemDialog.value = false;
             selectedProduct.value = null;
             quantity.value = 1;
@@ -71,7 +71,7 @@ async function onShip() {
     try {
         const res = await store.inventoryService.shipTransfer(transferId.value);
         if (res.isSuccess) {
-            showToast('success', 'Success', t('inventory.messages.create_transfer_success') || 'Transfer shipped');
+            showToast('success', 'Success', t('inventory.messages.transfer_shipped'));
             await loadTransfer();
         }
     } finally {
@@ -84,7 +84,7 @@ async function onReceive() {
     try {
         const res = await store.inventoryService.receiveTransfer(transferId.value);
         if (res.isSuccess) {
-            showToast('success', 'Success', 'Stock received at destination');
+            showToast('success', 'Success', t('inventory.messages.stock_received'));
             await loadTransfer();
         }
     } finally {
@@ -140,7 +140,7 @@ onMounted(() => {
                 <Card class="rounded-3xl shadow-sm border-none bg-surface-0 dark:bg-surface-900 overflow-hidden">
                     <template #title>
                         <div class="flex justify-between items-center p-4">
-                            <span class="text-xl font-black uppercase tracking-tight">Merchandise</span>
+                            <span class="text-xl font-black uppercase tracking-tight">{{ t('inventory.titles.merchandise') }}</span>
                             <Button v-if="transfer.state === 'Draft'" :label="t('inventory.actions.add')" icon="pi pi-plus" size="small" text @click="itemDialog = true" />
                         </div>
                     </template>
@@ -149,7 +149,7 @@ onMounted(() => {
                             <template #empty>
                                 <div class="p-8 text-center text-surface-400 italic">No items added to this transfer yet.</div>
                             </template>
-                            <Column header="Product">
+                            <Column :header="t('inventory.table.product')">
                                 <template #body="{ data }">
                                     <div class="flex flex-col">
                                         <span class="font-bold text-surface-900 dark:text-surface-0">{{ data.variantName }}</span>
@@ -157,7 +157,7 @@ onMounted(() => {
                                     </div>
                                 </template>
                             </Column>
-                            <Column field="quantity" header="Quantity" class="text-right font-mono font-bold"></Column>
+                            <Column field="quantity" :header="t('inventory.table.quantity')" class="text-right font-mono font-bold"></Column>
                             <Column class="w-12 text-right" v-if="transfer.state === 'Draft'">
                                 <template #body>
                                     <Button icon="pi pi-trash" severity="danger" text rounded />
@@ -195,7 +195,7 @@ onMounted(() => {
                             </div>
 
                             <div class="flex flex-col gap-2">
-                                <span class="text-xs font-black uppercase tracking-widest text-surface-500">Destination</span>
+                                <span class="text-xs font-black uppercase tracking-widest text-surface-500">{{ t('inventory.titles.destination') }}</span>
                                 <div class="flex items-center gap-3">
                                     <div class="w-10 h-10 rounded-xl bg-primary/20 flex items-center justify-center text-primary">
                                         <i class="pi pi-map-marker"></i>
@@ -210,7 +210,7 @@ onMounted(() => {
         </div>
 
         <!-- Add Item Dialog -->
-        <Dialog v-model:visible="itemDialog" header="Add Transfer Item" modal class="w-full max-w-lg">
+        <Dialog v-model:visible="itemDialog" :header="t('inventory.titles.add_transfer_item')" modal class="w-full max-w-lg">
             <div class="flex flex-col gap-6 py-4">
                 <div class="flex flex-col gap-2">
                     <label class="font-bold text-sm">Search Product</label>
@@ -230,8 +230,8 @@ onMounted(() => {
                 </div>
             </div>
             <template #footer>
-                <Button label="Cancel" severity="secondary" text @click="itemDialog = false" />
-                <Button label="Add to Transfer" icon="pi pi-plus" :loading="processing" @click="onAddItem" />
+                <Button :label="t('inventory.actions.cancel')" severity="secondary" text @click="itemDialog = false" />
+                <Button :label="t('inventory.actions.add_to_transfer')" icon="pi pi-plus" :loading="processing" @click="onAddItem" />
             </template>
         </Dialog>
     </div>

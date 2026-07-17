@@ -90,7 +90,7 @@ const getStatusSeverity = (state: string) => {
                     </template>
                 </Column>
 
-                <Column field="serial_number" header="Serial Number" sortable>
+                <Column field="serial_number" :header="t('inventory.table.serial_number')" sortable>
                     <template #body="{ data }">
                         <span v-if="data.serial_number" class="font-mono text-sm bg-surface-100 dark:bg-surface-800 px-2 py-1 rounded">
                             {{ data.serial_number }}
@@ -105,7 +105,7 @@ const getStatusSeverity = (state: string) => {
                     </template>
                 </Column>
 
-                <Column field="created_at" header="Registered" sortable>
+                <Column field="created_at" :header="t('inventory.table.registered')" sortable>
                     <template #body="{ data }">
                         <span class="text-sm">{{ formatDate(data.created_at) }}</span>
                     </template>

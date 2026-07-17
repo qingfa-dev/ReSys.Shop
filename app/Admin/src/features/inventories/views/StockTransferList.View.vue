@@ -98,7 +98,7 @@ const getStatusSeverity = (state: string) => {
                         </template>
                     </Column>
 
-                    <Column field="createdAtUtc" header="Initiated">
+                    <Column field="createdAtUtc" :header="t('inventory.table.initiated')">
                         <template #body="{ data }">
                             <span class="text-sm">{{ formatDate(data.createdAtUtc) }}</span>
                         </template>

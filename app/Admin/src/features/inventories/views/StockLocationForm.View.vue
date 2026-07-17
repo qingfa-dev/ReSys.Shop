@@ -101,7 +101,7 @@ async function onSubmit() {
             : await store.inventoryService.createLocation(payload);
             
         if (res.isSuccess) {
-            showToast('success', 'Success', isEdit.value ? 'Location updated' : t('inventory.messages.create_location_success') || 'Location created');
+            showToast('success', 'Success', isEdit.value ? t('inventory.messages.location_updated') : t('inventory.messages.location_created'));
             await store.fetchLocationTree();
             await store.fetchLocations();
             
@@ -150,7 +150,7 @@ onMounted(() => {
             <div class="lg:col-span-2 flex flex-col gap-6">
                 <!-- Basic Info -->
                 <Card class="rounded-3xl shadow-sm border-none bg-surface-0 dark:bg-surface-900 overflow-hidden">
-                    <template #title><span class="text-sm font-black uppercase tracking-widest text-surface-400">Identification</span></template>
+                    <template #title><span class="text-sm font-black uppercase tracking-widest text-surface-400">{{ t('inventory.titles.identification') }}</span></template>
                     <template #content>
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div class="flex flex-col gap-2">
@@ -216,7 +216,7 @@ onMounted(() => {
                             <Divider />
 
                             <Button type="submit" :label="isEdit ? t('inventory.actions.save') : t('inventory.actions.new_location')" icon="pi pi-check" class="w-full h-12 rounded-xl" :loading="submitting" />
-                            <Button v-if="!hideHeader" label="Cancel" severity="secondary" text class="w-full" @click="router.back()" />
+                            <Button v-if="!hideHeader" :label="t('inventory.actions.cancel')" severity="secondary" text class="w-full" @click="router.back()" />
                         </div>
                     </template>
                 </Card>

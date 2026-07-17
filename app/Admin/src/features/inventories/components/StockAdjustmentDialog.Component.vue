@@ -39,7 +39,7 @@ async function onSubmit() {
     try {
         const res = await inventoryService.adjustStock(props.stockItemId, form.value);
         if (res.isSuccess) {
-            showToast('success', 'Success', t('inventory.messages.adjust_success') || 'Stock adjusted');
+            showToast('success', 'Success', t('inventory.messages.adjust_success'));
             emit('updated');
             emit('close');
         }
@@ -82,7 +82,7 @@ async function onSubmit() {
         </div>
 
         <template #footer>
-            <Button label="Cancel" severity="secondary" text @click="emit('close')" />
+            <Button :label="t('inventory.actions.cancel')" severity="secondary" text @click="emit('close')" />
             <Button :label="t('inventory.actions.save')" icon="pi pi-check" :loading="loading" @click="onSubmit" />
         </template>
     </Dialog>

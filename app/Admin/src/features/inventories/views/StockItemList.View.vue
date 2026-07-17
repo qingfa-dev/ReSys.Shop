@@ -220,7 +220,7 @@ const toggleLowStock = () => {
         />
 
         <!-- History Side Panel -->
-        <Drawer v-model:visible="historyDrawer" position="right" header="Stock Movement History" class="w-full md:w-[500px]">
+        <Drawer v-model:visible="historyDrawer" position="right" :header="t('inventory.titles.stock_movement_history')" class="w-full md:w-[500px]">
             <template #header>
                 <div class="flex flex-col gap-1">
                     <h3 class="text-xl font-black m-0">Movement History</h3>
