@@ -74,6 +74,7 @@ const onFilter = () => {
 
   store.fetchTaxonomies({
     search: globalFilter.value || undefined,
+    searchFields: globalFilter.value ? ['Name', 'Presentation'] : undefined,
     filter: built.filter,
     page: 1,
   });

@@ -63,7 +63,7 @@ const onFilter = () => {
   
   store.fetchList({
     search: globalFilter.value || undefined,
-    searchFields: globalFilter.value ? ['Name', 'Presentation', 'Description'] : undefined,
+    searchFields: globalFilter.value ? ['Name', 'Presentation'] : undefined,
     filter: built.filter,
     page: 1
   })

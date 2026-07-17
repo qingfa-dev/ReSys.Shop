@@ -7,7 +7,6 @@ import { useI18n } from 'vue-i18n';
 import AppBreadcrumb from '@/shared/components/Breadcrumb.Component.vue';
 import StockMovementTimeline from '../components/StockMovementTimeline.Component.vue';
 import StockAdjustmentDialog from '../components/StockAdjustmentDialog.Component.vue';
-import { FilterMatchMode } from '@primevue/core/api';
 import type { DataTablePageEvent, DataTableSortEvent, DataTableFilterMeta } from 'primevue/datatable';
 
 const { t } = useI18n();
@@ -16,9 +15,7 @@ const store = useInventoryStore();
 const { stocks, loading, totalStocks, stockQuery } = storeToRefs(store);
 const { formatDate } = useFormatter();
 
-const filters = ref<DataTableFilterMeta>({
-  global: { value: stockQuery.value.search || null, matchMode: FilterMatchMode.CONTAINS },
-});
+const filters = ref<DataTableFilterMeta>({});
 
 const historyDrawer = ref(false);
 const adjustDialog = ref(false);
@@ -56,17 +53,11 @@ const onSort = (event: DataTableSortEvent) => {
 };
 
 const onFilter = () => {
-    const globalFilter = filters.value.global as { value: string | null };
-    store.fetchStocks({
-        search: globalFilter.value || undefined,
-        page: 1,
-    });
+    store.fetchStocks({ page: 1 });
 };
 
 const clearFilters = () => {
-    filters.value = {
-        global: { value: null, matchMode: FilterMatchMode.CONTAINS },
-    };
+    filters.value = {};
     stockQuery.value.lowStock = false;
     onFilter();
 };
@@ -118,15 +109,6 @@ const toggleLowStock = () => {
                 >
                     <template #header>
                         <div class="flex items-center justify-between gap-4">
-                            <IconField iconPosition="left" class="w-full md:w-72">
-                                <InputIcon class="pi pi-search" />
-                                <InputText
-                                    v-model="(filters.global as any).value"
-                                    :placeholder="t('inventory.placeholders.search')"
-                                    @keyup.enter="onFilter"
-                                    class="w-full rounded-xl"
-                                />
-                            </IconField>
                             <div class="flex items-center gap-2">
                                 <Button
                                     type="button"

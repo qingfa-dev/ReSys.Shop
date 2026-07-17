@@ -76,6 +76,7 @@ const onFilter = () => {
 
   store.fetchProducts({
     search: globalFilter.value || undefined,
+    searchFields: globalFilter.value ? ['Name', 'Description', 'Slug', 'StyleCode'] : undefined,
     filter: built.filter,
     page: 1,
   });

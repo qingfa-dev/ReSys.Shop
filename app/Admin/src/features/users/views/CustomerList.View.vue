@@ -41,6 +41,7 @@ const onFilter = () => {
     const globalFilter = filters.value.global as { value: string | null };
     store.fetchCustomers({
         search: globalFilter.value || undefined,
+        searchFields: globalFilter.value ? ['UserName', 'Email', 'FirstName', 'LastName'] : undefined,
         page: 1,
     });
 };

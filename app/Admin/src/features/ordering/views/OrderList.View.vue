@@ -82,6 +82,7 @@ const onFilter = () => {
 
   store.fetchOrders({
     search: globalFilter.value || undefined,
+    searchFields: globalFilter.value ? ['Number', 'Email'] : undefined,
     filter: built.filter,
     page: 1,
   });
