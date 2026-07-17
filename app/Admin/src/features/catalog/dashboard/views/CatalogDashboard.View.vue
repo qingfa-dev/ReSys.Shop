@@ -72,18 +72,6 @@ const navigateToOptionTypes = () => router.push({ name: 'catalog.option-types.li
                 </div>
             </div>
 
-            <!-- Digital Products Card -->
-            <div class="p-6 bg-surface-0 dark:bg-surface-900 border border-surface-100 dark:border-surface-800 rounded-2xl shadow-sm flex flex-col justify-between">
-                <div class="flex items-center justify-between mb-4">
-                    <div class="w-12 h-12 flex items-center justify-center rounded-xl bg-cyan-50 dark:bg-cyan-900/20 text-cyan-600">
-                        <i class="pi pi-cloud-download text-xl"></i>
-                    </div>
-                </div>
-                <div>
-                    <span class="block text-surface-500 dark:text-surface-400 text-sm font-medium mb-1">Digital Assets</span>
-                    <span class="text-3xl font-black text-surface-900 dark:text-surface-0 leading-none">{{ summary.totalDigitalProducts }}</span>
-                </div>
-            </div>
         </div>
 
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -95,7 +83,7 @@ const navigateToOptionTypes = () => router.push({ name: 'catalog.option-types.li
                         <Button label="View All" text size="small" @click="navigateToProducts" />
                     </div>
                     <div class="p-0">
-                        <DataTable :value="summary?.recentlyAdded" class="p-datatable-sm border-none">
+                            <DataTable :value="summary?.recentProducts" class="p-datatable-sm border-none">
                             <Column field="name" header="Product Name">
                                 <template #body="{ data }">
                                     <span class="font-bold text-surface-900 dark:text-surface-0">{{ data.name }}</span>

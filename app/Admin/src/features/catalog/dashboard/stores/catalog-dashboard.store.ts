@@ -1,23 +1,20 @@
 import { defineStore } from 'pinia';
 import { ref } from 'vue';
-
-interface DashboardSummary {
-  totalProducts: number;
-  activeProducts: number;
-  totalVariants: number;
-  totalTaxonomies: number;
-  totalTaxons: number;
-  totalDigitalProducts: number;
-  recentlyAdded: Array<{ id: string; name: string; slug: string; createdAtUtc: string }>;
-}
+import { catalogDashboardService } from '../services/catalog-dashboard.service';
+import type { CatalogDashboardResponse } from '../services/catalog-dashboard.service';
 
 export const useCatalogDashboardStore = defineStore('catalog-dashboard', () => {
-  const summary = ref<DashboardSummary | null>(null);
+  const summary = ref<CatalogDashboardResponse | null>(null);
   const loading = ref(false);
 
   async function fetchSummary() {
-    // No backend endpoint — re-add when backend adds GET api/catalog/dashboard/summary
-    loading.value = false;
+    loading.value = true;
+    try {
+      const { data } = await catalogDashboardService.fetchDashboard();
+      summary.value = { ...data };
+    } finally {
+      loading.value = false;
+    }
   }
 
   return { summary, loading, fetchSummary };
