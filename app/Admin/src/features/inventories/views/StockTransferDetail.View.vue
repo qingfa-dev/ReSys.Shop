@@ -7,7 +7,7 @@ import { useToast } from '@/shared/composables/toast.use';
 import { useFormatter } from '@/shared/composables/formatter.use';
 import { useI18n } from 'vue-i18n';
 import AppBreadcrumb from '@/shared/components/Breadcrumb.Component.vue';
-import type { StockTransferDetail } from '../types/inventory.domain.types';
+import type { StockTransferDetail } from '../types/StockTransfer.Response.Type';
 
 const { t } = useI18n();
 

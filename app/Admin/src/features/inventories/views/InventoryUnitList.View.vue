@@ -7,7 +7,7 @@ import { useI18n } from 'vue-i18n';
 import AppBreadcrumb from '@/shared/components/Breadcrumb.Component.vue';
 import { FilterMatchMode } from '@primevue/core/api';
 import type { DataTablePageEvent, DataTableSortEvent, DataTableFilterMeta } from 'primevue/datatable';
-import type { InventoryUnit } from '../types/inventory.domain.types';
+import type { InventoryUnit } from '../types/InventoryUnit.Response.Type';
 
 const { t } = useI18n();
 

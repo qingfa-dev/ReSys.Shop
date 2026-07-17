@@ -6,7 +6,7 @@ import { useToast } from '@/shared/composables/toast.use';
 import { useI18n } from 'vue-i18n';
 import AppBreadcrumb from '@/shared/components/Breadcrumb.Component.vue';
 import LocationSelector from '../components/LocationSelector.Component.vue';
-import type { CreateStockTransferRequest } from '../types/inventory.request.types';
+import type { CreateStockTransferRequest } from '../types/StockTransfer.Request.Type';
 
 const { t } = useI18n();
 
@@ -18,7 +18,8 @@ const loading = ref(false);
 const form = ref<CreateStockTransferRequest>({
     sourceLocationId: '',
     destinationLocationId: '',
-    reason: ''
+    reason: '',
+    items: []
 });
 
 async function onSubmit() {

@@ -8,7 +8,7 @@ import { useApiErrorHandler } from '@/shared/composables/api-error-handler.use'
 import AppBreadcrumb from '@/shared/components/Breadcrumb.Component.vue'
 import { useToast } from '@/shared/composables/toast.use'
 import { useConfirm } from 'primevue/useconfirm'
-import type { StockLocation } from '../types/inventory.domain.types'
+import type { StockLocation } from '../types/StockLocation.Response.Type'
 
 const { t } = useI18n()
 

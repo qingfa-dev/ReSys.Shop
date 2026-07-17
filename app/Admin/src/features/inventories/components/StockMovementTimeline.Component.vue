@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
 import { inventoryService } from '../services/inventory.service';
-import type { StockMovement } from '../types/inventory.domain.types';
+import type { StockMovement } from '../types/StockMovement.Response.Type';
 import { useFormatter } from '@/shared/composables/formatter.use';
 
 const props = defineProps<{

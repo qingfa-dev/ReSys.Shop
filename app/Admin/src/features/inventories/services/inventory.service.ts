@@ -6,22 +6,15 @@ import { movementRepository } from '../repository/movement.repository'
 import { mapStockItem, mapStockLocation, mapStockTransfer, mapInventoryUnit, mapStockMovement } from '../mapper/inventory.mapper'
 import type { ServerResult, ServerPagedResult } from '@/shared/api/types/result.types'
 import type { ServerQueryingParameters } from '@/shared/api/types/query.types'
-import type {
-  StockItem,
-  StockItemDetail,
-  StockLocation,
-  StockLocationDetail,
-  InventoryUnit,
-  StockMovement,
-  StockTransfer,
-  StockTransferDetail,
-} from '../types/inventory.domain.types'
-import type {
-  StockAdjustmentRequest,
-  CreateStockLocationRequest,
-  CreateStockTransferRequest,
-  InventorySearchParams,
-} from '../types/inventory.request.types'
+import type { StockItem, StockItemDetail } from '../types/StockItem.Response.Type'
+import type { StockLocation, StockLocationDetail } from '../types/StockLocation.Response.Type'
+import type { InventoryUnit } from '../types/InventoryUnit.Response.Type'
+import type { StockMovement } from '../types/StockMovement.Response.Type'
+import type { StockTransfer, StockTransferDetail } from '../types/StockTransfer.Response.Type'
+import type { StockAdjustmentRequest } from '../types/StockItem.Request.Type'
+import type { CreateStockLocationRequest } from '../types/StockLocation.Request.Type'
+import type { CreateStockTransferRequest } from '../types/StockTransfer.Request.Type'
+import type { StockItemQuery } from '../types/StockItem.Query.Type'
 
 function applyMap<T, R>(data: T, mapper: (d: any) => R): R {
   return mapper(data) as R
@@ -32,7 +25,7 @@ function applyMapArray<T, R>(data: T[], mapper: (d: any) => R): R[] {
 }
 
 export const inventoryService = {
-  async listStocks(params: InventorySearchParams): Promise<ServerPagedResult<StockItem>> {
+  async listStocks(params: StockItemQuery): Promise<ServerPagedResult<StockItem>> {
     const result = await stockRepository.list(params)
     return result.isSuccess ? { ...result, items: applyMapArray(result.items, mapStockItem) } : result as unknown as ServerPagedResult<StockItem>
   },

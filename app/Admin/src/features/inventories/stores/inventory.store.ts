@@ -1,16 +1,13 @@
 import { defineStore } from 'pinia';
 import { ref } from 'vue';
 import { inventoryService } from '../services/inventory.service';
-import type {
-  StockItem,
-  StockLocation,
-  StockTransfer,
-  InventoryUnit,
-} from '../types/inventory.domain.types';
-import type {
-  InventorySearchParams,
-  InventoryUnitSearchParams
-} from '../types/inventory.request.types';
+import type { InventoryUnit } from '../types/InventoryUnit.Response.Type';
+import type { StockItem } from '../types/StockItem.Response.Type';
+import type { StockLocation } from '../types/StockLocation.Response.Type';
+import type { StockTransfer } from '../types/StockTransfer.Response.Type';
+import type { StockItemQuery } from '../types/StockItem.Query.Type';
+import type { InventoryUnitQuery } from '../types/InventoryUnit.Query.Type';
+import type { ServerQueryingParameters } from '@/shared/api/types/query.types';
 
 export const useInventoryStore = defineStore('inventory', () => {
   // --- STATE ---
@@ -25,26 +22,26 @@ export const useInventoryStore = defineStore('inventory', () => {
   const totalTransfers = ref(0);
   const totalUnits = ref(0);
 
-  const stockQuery = ref<InventorySearchParams>({
+  const stockQuery = ref<StockItemQuery>({
     page: 1,
     pageSize: 10,
     search: '',
     sort: ['-countOnHand']
   });
 
-  const locationQuery = ref<InventorySearchParams>({
+  const locationQuery = ref<ServerQueryingParameters>({
     page: 1,
     pageSize: 20,
     sort: ['name']
   });
 
-  const transferQuery = ref<InventorySearchParams>({
+  const transferQuery = ref<ServerQueryingParameters>({
     page: 1,
     pageSize: 10,
     sort: ['-createdAtUtc']
   });
 
-  const unitQuery = ref<InventoryUnitSearchParams>({
+  const unitQuery = ref<InventoryUnitQuery>({
     page: 1,
     pageSize: 20,
     sort: ['-createdAtUtc']
@@ -52,7 +49,7 @@ export const useInventoryStore = defineStore('inventory', () => {
 
   // --- ACTIONS ---
 
-  async function fetchStocks(params: InventorySearchParams = {}) {
+  async function fetchStocks(params: StockItemQuery = {}) {
     loading.value = true;
     stockQuery.value = { ...stockQuery.value, ...params };
     try {
@@ -67,7 +64,7 @@ export const useInventoryStore = defineStore('inventory', () => {
     }
   }
 
-  async function fetchLocations(params: InventorySearchParams = {}) {
+  async function fetchLocations(params: ServerQueryingParameters = {}) {
     loading.value = true;
     locationQuery.value = { ...locationQuery.value, ...params };
     try {
@@ -82,7 +79,7 @@ export const useInventoryStore = defineStore('inventory', () => {
     }
   }
 
-  async function fetchTransfers(params: InventorySearchParams = {}) {
+  async function fetchTransfers(params: ServerQueryingParameters = {}) {
     loading.value = true;
     transferQuery.value = { ...transferQuery.value, ...params };
     try {
@@ -97,7 +94,7 @@ export const useInventoryStore = defineStore('inventory', () => {
     }
   }
 
-  async function fetchUnits(params: InventoryUnitSearchParams = {}) {
+  async function fetchUnits(params: InventoryUnitQuery = {}) {
     loading.value = true;
     unitQuery.value = { ...unitQuery.value, ...params };
     try {

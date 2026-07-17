@@ -1,4 +1,8 @@
-import type { StockItem, StockItemDetail, StockLocation, StockLocationDetail, StockTransfer, StockTransferDetail, InventoryUnit, StockMovement } from '../types/inventory.domain.types'
+import type { StockItem, StockItemDetail } from '../types/StockItem.Response.Type'
+import type { StockLocation, StockLocationDetail } from '../types/StockLocation.Response.Type'
+import type { StockTransfer, StockTransferDetail } from '../types/StockTransfer.Response.Type'
+import type { InventoryUnit } from '../types/InventoryUnit.Response.Type'
+import type { StockMovement } from '../types/StockMovement.Response.Type'
 
 export function mapStockItem<T extends StockItem>(data: T): T {
   return data

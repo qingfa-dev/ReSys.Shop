@@ -6,7 +6,7 @@ import { useToast } from '@/shared/composables/toast.use';
 import { useI18n } from 'vue-i18n';
 import AppBreadcrumb from '@/shared/components/Breadcrumb.Component.vue';
 import LocationSelector from '../components/LocationSelector.Component.vue';
-import type { CreateStockLocationRequest } from '../types/inventory.request.types';
+import type { CreateStockLocationRequest } from '../types/StockLocation.Request.Type';
 
 const { t } = useI18n();
 
@@ -30,15 +30,20 @@ const submitting = ref(false);
 const form = ref<CreateStockLocationRequest>({
     name: '',
     code: '',
-    presentation: '',
-    type: 0, // Warehouse
+    type: 0,
     isDefault: false,
-    address: {
-        address1: '',
-        city: '',
-        zipCode: '',
-        countryCode: 'US'
-    }
+    active: true,
+    address1: '',
+    address2: '',
+    city: '',
+    zipCode: '',
+    countryCode: 'US',
+    stateCode: '',
+    phone: '',
+    backorderableDefault: false,
+    propagateAllVariants: false,
+    notifyOnLowStock: false,
+    position: 0,
 });
 
 // Note: Ensure parentId is handled
@@ -57,23 +62,24 @@ async function loadLocation() {
         const res = await store.inventoryService.getLocationDetail(locationId.value);
         if (res.isSuccess && res.value) {
             form.value = {
+                ...form.value,
                 name: res.value.name,
                 code: res.value.code,
-                presentation: res.value.presentation || '',
-                type: 0, // Need to map enum if necessary, backend might use string
+                type: 0,
                 isDefault: res.value.isDefault,
-                address: {
-                    address1: res.value.address.address1,
-                    address2: res.value.address.address2 || '',
-                    city: res.value.address.city,
-                    zipCode: res.value.address.zipCode,
-                    countryCode: res.value.address.countryCode,
-                    stateCode: res.value.address.stateCode || '',
-                    phone: res.value.address.phone || '',
-                    firstName: res.value.address.firstName || '',
-                    lastName: res.value.address.lastName || '',
-                    company: res.value.address.company || ''
-                }
+                active: res.value.active,
+                address1: res.value.address.address1,
+                address2: res.value.address.address2 || '',
+                city: res.value.address.city,
+                zipCode: res.value.address.zipCode,
+                countryCode: res.value.address.countryCode,
+                stateCode: res.value.address.stateCode || '',
+                phone: res.value.address.phone || '',
+                backorderableDefault: res.value.backorderableDefault ?? false,
+                propagateAllVariants: res.value.propagateAllVariants ?? false,
+                notifyOnLowStock: res.value.notifyOnLowStock ?? false,
+                lowStockThreshold: res.value.lowStockThreshold,
+                position: res.value.position ?? 0,
             };
             parentId.value = (res.value as any).parent_id;
         }
@@ -170,19 +176,19 @@ onMounted(() => {
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div class="flex flex-col gap-2 md:col-span-2">
                                 <label class="font-bold text-sm">{{ t('inventory.labels.address') }}</label>
-                                <InputText v-model="form.address.address1" required class="w-full rounded-xl" />
+                                <InputText v-model="form.address1" required class="w-full rounded-xl" />
                             </div>
                             <div class="flex flex-col gap-2">
                                 <label class="font-bold text-sm">{{ t('inventory.labels.city') }}</label>
-                                <InputText v-model="form.address.city" required class="w-full rounded-xl" />
+                                <InputText v-model="form.city" required class="w-full rounded-xl" />
                             </div>
                             <div class="flex flex-col gap-2">
                                 <label class="font-bold text-sm">{{ t('inventory.labels.zip') }}</label>
-                                <InputText v-model="form.address.zipCode" required class="w-full rounded-xl" />
+                                <InputText v-model="form.zipCode" required class="w-full rounded-xl" />
                             </div>
                             <div class="flex flex-col gap-2">
                                 <label class="font-bold text-sm">{{ t('inventory.labels.country') }}</label>
-                                <InputText v-model="form.address.countryCode" required class="w-full rounded-xl" maxlength="2" placeholder="e.g. US" />
+                                <InputText v-model="form.countryCode" required class="w-full rounded-xl" maxlength="2" placeholder="e.g. US" />
                             </div>
                         </div>
                     </template>
