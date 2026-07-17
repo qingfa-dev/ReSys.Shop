@@ -1,5 +1,6 @@
 import { defineStore } from "pinia";
 import { ref } from "vue";
+import { useI18n } from 'vue-i18n';
 import { useToast } from "@/shared/composables/toast.use";
 import { usePagedList } from "@/shared/composables/paged-list.use";
 import { productService } from "../services/product.service";
@@ -14,6 +15,7 @@ import type { ProductQuery } from "../types/Product.Query.Type";
 
 export const useProductStore = defineStore("product", () => {
   const { showToast } = useToast();
+  const { t } = useI18n();
 
   // --- STATE ---
   const current_product = ref<ProductDetail | null>(null);
@@ -54,7 +56,7 @@ export const useProductStore = defineStore("product", () => {
     try {
       const result = await productService.create(data);
       if (result.isSuccess) {
-        showToast("success", "Created", "Product created successfully");
+        showToast("success", t('common.created'), t('catalog.products.messages.create_success'));
         await fetchProducts();
       }
       return result;
@@ -68,7 +70,7 @@ export const useProductStore = defineStore("product", () => {
     try {
       const result = await productService.update(id, data);
       if (result.isSuccess) {
-        showToast("success", "Updated", "Product updated successfully");
+        showToast("success", t('common.updated'), t('catalog.products.messages.update_success'));
         await fetchProducts();
       }
       return result;
@@ -82,7 +84,7 @@ export const useProductStore = defineStore("product", () => {
     try {
       const result = await productService.delete(id);
       if (result.isSuccess) {
-        showToast("success", "Deleted", "Product removed successfully");
+        showToast("success", t('common.deleted'), t('catalog.products.messages.delete_success'));
         await fetchProducts();
       }
       return result;
@@ -112,7 +114,7 @@ export const useProductStore = defineStore("product", () => {
     try {
       const result = await productService.syncClassifications(productId, data);
       if (result.isSuccess) {
-        showToast("success", "Updated", "Classifications saved");
+        showToast("success", t('common.updated'), t('catalog.products.messages.classifications_saved'));
         await fetchClassifications(productId);
       }
       return result;

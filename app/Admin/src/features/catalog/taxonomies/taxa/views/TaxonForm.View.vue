@@ -161,10 +161,10 @@ const onFormSubmit = handleSubmit(async (values: CreateTaxonRequest) => {
   if (result.isSuccess) {
     showToast(
       'success',
-      t('common.success') || 'Success',
-      (isEdit.value
+      t('common.success'),
+      isEdit.value
         ? t('catalog.taxa.messages.update_success')
-        : t('catalog.taxa.messages.create_success')) || 'Success',
+        : t('catalog.taxa.messages.create_success'),
     )
     if (!isEdit.value && result.value) {
         router.push({ name: 'catalog.taxa.edit', params: { taxonomyId: taxonomyId.value, id: result.value.id } })

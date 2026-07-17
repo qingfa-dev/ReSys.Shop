@@ -69,12 +69,12 @@ const onSaveVariant = async (data: CreateVariantRequest) => {
         }
 
         if (handleApiResult(result)) {
-            showToast('success', 'Success', `Variant ${selectedVariant.value ? 'updated' : 'created'} successfully`);
+            showToast('success', t('common.success'), selectedVariant.value ? t('catalog.products.variants.messages.update_success') : t('catalog.products.variants.messages.create_success'));
             showForm.value = false;
             await loadVariants();
         }
     } catch (e) {
-        showToast('error', 'Error', 'Failed to save variant');
+        showToast('error', t('common.error'), t('catalog.products.variants.messages.save_failed'));
     }
 };
 
@@ -88,11 +88,11 @@ const onDelete = (variant: VariantSummary) => {
             try {
                 const result = await variantService.delete(variant.id);
                 if (handleApiResult(result)) {
-                    showToast('success', 'Deleted', 'Variant removed');
+                    showToast('success', t('common.deleted'), t('catalog.products.variants.messages.delete_success'));
                     await loadVariants();
                 }
             } catch (e) {
-                showToast('error', 'Error', 'Failed to delete variant');
+                showToast('error', t('common.error'), t('catalog.products.variants.messages.delete_failed'));
             }
         }
     });

@@ -96,10 +96,10 @@ const onRuleSubmit = handleRuleSubmit(async (formValues) => {
   if (result.isSuccess) {
     showToast(
       'success',
-      t('common.success') || 'Success',
-      (isEditingRule.value
+      t('common.success'),
+      isEditingRule.value
         ? t('catalog.taxa.messages.rule_update_success')
-        : t('catalog.taxa.messages.rule_create_success')) || 'Success',
+        : t('catalog.taxa.messages.rule_create_success'),
     )
     showRuleDialog.value = false
     emit('updated')
@@ -114,8 +114,8 @@ const deleteRule = async (rule: TaxonRuleListItem) => {
   if (result.isSuccess) {
     showToast(
       'success',
-      t('common.success') || 'Success',
-      t('catalog.taxa.messages.rule_delete_success') || 'Rule removed',
+      t('common.success'),
+      t('catalog.taxa.messages.rule_delete_success'),
     )
     emit('updated')
   }
@@ -126,8 +126,8 @@ const regenerate = async () => {
   if (result.isSuccess) {
     showToast(
       'success',
-      t('common.success') || 'Success',
-      t('catalog.taxa.messages.regenerate_success') || 'Task started',
+      t('common.success'),
+      t('catalog.taxa.messages.regenerate_success'),
     )
     emit('updated')
   }
@@ -280,13 +280,13 @@ const regenerate = async () => {
         <div class="flex justify-end gap-2 mt-4">
           <Button
             type="button"
-            label="Cancel"
+            :label="t('common.cancel')"
             severity="secondary"
             text
             @click="showRuleDialog = false"
             class="rounded-xl"
           />
-          <Button type="submit" label="Save Rule" icon="pi pi-check" :loading="actionLoading" class="rounded-xl px-6" />
+          <Button type="submit" :label="t('catalog.taxa.actions.add_rule')" icon="pi pi-check" :loading="actionLoading" class="rounded-xl px-6" />
         </div>
       </form>
     </Dialog>

@@ -88,7 +88,7 @@ const confirmDelete = (item: TaxonListItem) => {
     accept: async () => {
       const result = await store.deleteTaxon(item.taxonomyId, item.id)
       if (result.isSuccess) {
-        showToast('success', 'Deleted', t('catalog.taxa.messages.delete_success') || 'Category deleted')
+        showToast('success', t('common.deleted'), t('catalog.taxa.messages.delete_success'))
       }
     }
   })
@@ -166,7 +166,7 @@ onMounted(() => {
             <Button 
               type="button" 
               icon="pi pi-filter-slash" 
-              label="Clear" 
+              :label="t('catalog.taxa.table.clear_filter')" 
               outlined 
               @click="clearFilters" 
               class="w-full rounded-xl md:w-auto"
@@ -196,7 +196,7 @@ onMounted(() => {
             </template>
         </Column>
 
-        <Column field="productCount" header="Products" class="text-center">
+        <Column field="productCount" :header="t('catalog.taxa.table.products')" class="text-center">
             <template #body="{ data }">
                 <Badge :value="data.productCount" severity="secondary" />
             </template>

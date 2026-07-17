@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { taxonService } from '../services/taxon.service'
 import { useApiErrorHandler } from '@/shared/composables/api-error-handler.use'
 import { useFormatter } from '@/shared/composables/formatter.use'
@@ -11,6 +12,7 @@ const props = defineProps<{
 
 const { handleApiResult } = useApiErrorHandler()
 const { formatCurrency } = useFormatter()
+const { t } = useI18n()
 
 const products = ref<any[]>([])
 const loading = ref(false)
@@ -77,7 +79,7 @@ defineExpose({
                 </div>
             </template>
 
-            <Column field="imageUrl" header="Preview" class="w-20">
+            <Column field="imageUrl" :header="t('catalog.products.table.preview')" class="w-20">
                 <template #body="{ data }">
                     <div class="w-10 h-10 rounded-lg overflow-hidden border border-surface-100 dark:border-surface-700 bg-surface-50 flex items-center justify-center">
                         <img v-if="data.imageUrl" :src="data.imageUrl" :alt="data.name" class="w-full h-full object-cover" />
@@ -86,7 +88,7 @@ defineExpose({
                 </template>
             </Column>
 
-            <Column field="name" header="Product Name">
+            <Column field="name" :header="t('catalog.products.table.name')">
                 <template #body="{ data }">
                     <span class="font-bold text-surface-900 dark:text-surface-0">{{ data.name }}</span>
                 </template>
@@ -94,13 +96,13 @@ defineExpose({
 
             <Column field="sku" header="SKU" class="font-mono text-xs uppercase text-surface-500"></Column>
 
-            <Column field="price" header="Price" class="text-right">
+            <Column field="price" :header="t('catalog.products.table.price')" class="text-right">
                 <template #body="{ data }">
                     <span class="font-black">{{ formatCurrency(data.price) }}</span>
                 </template>
             </Column>
 
-            <Column field="status" header="Status" class="text-center w-24">
+            <Column field="status" :header="t('catalog.products.table.status')" class="text-center w-24">
                 <template #body="{ data }">
                     <Tag :value="data.status" :severity="data.status === 'Active' ? 'success' : 'secondary'" rounded class="text-[10px]" />
                 </template>

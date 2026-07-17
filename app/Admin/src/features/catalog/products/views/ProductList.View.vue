@@ -121,7 +121,7 @@ const confirmDelete = (product: ProductSummary) => {
     accept: async () => {
       const result = await store.deleteProduct(product.id);
       if (result.isSuccess) {
-        showToast('success', t('common.success') || 'Deleted', t('catalog.products.messages.delete_success') || 'Product removed.');
+        showToast('success', t('common.success'), t('catalog.products.messages.delete_success'));
       }
     },
   });
@@ -254,7 +254,7 @@ onMounted(() => {
             </template>
         </Column>
 
-        <Column field="variantsCount" header="Variants" class="text-center w-24">
+        <Column field="variantsCount" :header="t('catalog.products.table.variants')" class="text-center w-24">
             <template #body="{ data }">
                 <Badge :value="data.variantsCount" severity="secondary" />
             </template>

@@ -44,7 +44,7 @@ const confirmDelete = (item: OptionTypeListItem) => {
     accept: async () => {
       const result = await store.remove(item.id)
       if (result.isSuccess) {
-        showToast('success', 'Deleted', t('catalog.option_types.messages.delete_success') || 'Option type removed')
+        showToast('success', t('common.deleted'), t('catalog.option_types.messages.delete_success'))
         if (selectedId.value === item.id) {
             router.push({ name: 'catalog.option-types.list' })
         }

@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
+import { useI18n } from 'vue-i18n';
 import { useApiErrorHandler } from '@/shared/composables/api-error-handler.use';
 import { useToast } from '@/shared/composables/toast.use';
 import apiClient from '@/shared/api/http/api.client';
@@ -14,6 +15,7 @@ const props = defineProps<{
 
 const { handleApiResult } = useApiErrorHandler();
 const { showToast } = useToast();
+const { t } = useI18n();
 
 const images = ref<ProductImage[]>([]);
 const loading = ref(false);
@@ -41,14 +43,14 @@ const handleUpload = async (payload: { file: File, role: number, alt: string, on
             handleApiResult(result);
         }
     } catch (e) {
-        showToast('error', 'Error', 'Upload failed');
+        showToast('error', t('common.error'), t('catalog.products.images.messages.upload_failed'));
     }
 };
 
 const onDelete = async (id: string) => {
     const result = await productService.deleteImage(id);
     if (result.isSuccess) {
-        showToast('success', 'Deleted', 'Image removed');
+        showToast('success', t('common.deleted'), t('catalog.products.images.messages.delete_success'));
         await loadImages();
     } else {
         handleApiResult(result);
@@ -60,13 +62,13 @@ const onUpdateImage = async (payload: { id: string, role: number, alt: string })
         const result = await productService.updateImage(payload.id, { alt: payload.alt, role: payload.role });
 
         if (result.isSuccess) {
-            showToast('success', 'Updated', 'Image details updated');
+            showToast('success', t('common.updated'), t('catalog.products.images.messages.update_success'));
             await loadImages();
         } else {
             handleApiResult(result);
         }
     } catch (e) {
-        showToast('error', 'Error', 'Failed to update image');
+        showToast('error', t('common.error'), t('catalog.products.images.messages.update_failed'));
     }
 };
 

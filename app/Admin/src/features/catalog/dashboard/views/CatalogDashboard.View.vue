@@ -1,10 +1,12 @@
 <script setup lang="ts">
 import { onMounted } from 'vue';
+import { useI18n } from 'vue-i18n';
 import { useRouter } from 'vue-router';
 import { useCatalogDashboardStore } from '../stores/catalog-dashboard.store';
 import { storeToRefs } from 'pinia';
 import { useFormatter } from '@/shared/composables/formatter.use';
 
+const { t } = useI18n();
 const router = useRouter();
 const store = useCatalogDashboardStore();
 const { summary, loading } = storeToRefs(store);
@@ -80,16 +82,16 @@ const navigateToOptionTypes = () => router.push({ name: 'catalog.option-types.li
                 <div class="bg-surface-0 dark:bg-surface-900 border border-surface-100 dark:border-surface-800 rounded-2xl shadow-sm overflow-hidden">
                     <div class="p-6 border-b border-surface-100 dark:border-surface-800 flex justify-between items-center">
                         <h3 class="text-xl font-bold m-0">Recently Added Products</h3>
-                        <Button label="View All" text size="small" @click="navigateToProducts" />
+                        <Button :label="t('catalog.actions.view_all')" text size="small" @click="navigateToProducts" />
                     </div>
                     <div class="p-0">
                             <DataTable :value="summary?.recentProducts" class="p-datatable-sm border-none">
-                            <Column field="name" header="Product Name">
+                            <Column field="name" :header="t('catalog.products.table.name')">
                                 <template #body="{ data }">
                                     <span class="font-bold text-surface-900 dark:text-surface-0">{{ data.name }}</span>
                                 </template>
                             </Column>
-                            <Column field="createdAtUtc" header="Added On">
+                            <Column field="createdAtUtc" :header="t('catalog.products.table.added_on')">
                                 <template #body="{ data }">
                                     <span class="text-sm text-surface-500">{{ formatDate(data.createdAtUtc) }}</span>
                                 </template>
@@ -112,9 +114,9 @@ const navigateToOptionTypes = () => router.push({ name: 'catalog.option-types.li
                 <div class="bg-surface-0 dark:bg-surface-900 border border-surface-100 dark:border-surface-800 rounded-2xl shadow-sm p-6 h-full">
                     <h3 class="text-xl font-bold mb-6">Catalog Actions</h3>
                     <div class="flex flex-col gap-3">
-                        <Button label="Create New Product" icon="pi pi-plus" class="w-full rounded-xl py-3 justify-start" @click="router.push({ name: 'catalog.products.create' })" />
-                        <Button label="Add Taxonomy" icon="pi pi-plus" severity="secondary" outlined class="w-full rounded-xl py-3 justify-start" @click="router.push({ name: 'catalog.taxonomies.create' })" />
-                        <Button label="Manage Option Types" icon="pi pi-list" severity="secondary" outlined class="w-full rounded-xl py-3 justify-start" @click="navigateToOptionTypes" />
+                        <Button :label="t('catalog.products.actions.new')" icon="pi pi-plus" class="w-full rounded-xl py-3 justify-start" @click="router.push({ name: 'catalog.products.create' })" />
+                        <Button :label="t('catalog.taxonomies.actions.create')" icon="pi pi-plus" severity="secondary" outlined class="w-full rounded-xl py-3 justify-start" @click="router.push({ name: 'catalog.taxonomies.create' })" />
+                        <Button :label="t('catalog.option_types.actions.manage')" icon="pi pi-list" severity="secondary" outlined class="w-full rounded-xl py-3 justify-start" @click="navigateToOptionTypes" />
                         
                         <Divider class="my-4" />
                         

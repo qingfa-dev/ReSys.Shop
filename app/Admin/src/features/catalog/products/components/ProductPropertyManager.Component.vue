@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
+import { useI18n } from 'vue-i18n';
 import { usePropertyTypeStore } from '@/features/catalog/property-types/stores/property-type.store';
 import { useApiErrorHandler } from '@/shared/composables/api-error-handler.use';
 import { useToast } from '@/shared/composables/toast.use';
@@ -13,6 +14,7 @@ const props = defineProps<{
 const propertyTypeStore = usePropertyTypeStore();
 const { handleApiResult } = useApiErrorHandler();
 const { showToast } = useToast();
+const { t } = useI18n();
 
 const productProperties = ref<ProductProperty[]>([]);
 const availablePropertyTypes = ref<any[]>([]);
@@ -61,7 +63,7 @@ const onAddProperty = async () => {
         const result = await productService.updateProperties(props.productId, currentProps);
 
         if (handleApiResult(result)) {
-            showToast('success', 'Added', 'Property assigned to product');
+            showToast('success', t('common.saved'), t('catalog.products.messages.property_assigned'));
             propertyValue.value = '';
             selectedPropertyTypeId.value = null;
             await loadData();
@@ -82,7 +84,7 @@ const onRemoveProperty = async (propertyTypeId: string) => {
     const result = await productService.updateProperties(props.productId, newProps);
     
     if (handleApiResult(result)) {
-        showToast('success', 'Removed', 'Property removed');
+        showToast('success', t('common.removed'), t('catalog.products.messages.property_removed'));
         await loadData();
     }
 };
@@ -116,7 +118,7 @@ onMounted(() => {
                     />
                 </div>
                 <div class="flex flex-col gap-2 flex-1">
-                    <label class="text-xs font-bold ml-1">Value</label>
+                    <label class="text-xs font-bold ml-1">{{ t('catalog.products.labels.value') }}</label>
                     <InputText v-model="propertyValue" placeholder="e.g. 100% Cotton, 5000mAh" class="w-full rounded-xl" @keyup.enter="onAddProperty" />
                 </div>
                 <Button label="Add Property" icon="pi pi-plus" @click="onAddProperty" :loading="saving" :disabled="!selectedPropertyTypeId || !propertyValue" class="rounded-xl px-6" />

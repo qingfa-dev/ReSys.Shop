@@ -105,7 +105,7 @@ const confirmDelete = (taxonomy: TaxonomyListItem) => {
     accept: async () => {
       const result = await store.deleteTaxonomy(taxonomy.id);
       if (result.isSuccess) {
-        showToast('success', t('common.success') || 'Deleted', t('catalog.taxonomies.messages.delete_success') || 'Taxonomy removed.');
+        showToast('success', t('common.success'), t('catalog.taxonomies.messages.delete_success'));
       }
     },
   });

@@ -93,7 +93,7 @@ const onFormSubmit = handleFormSubmit(async (values) => {
         : await store.create(values.optionTypeId, values)
     
     if (result.isSuccess) {
-        showToast('success', t('common.success') || 'Success', (isEditing.value ? t('catalog.option_values.messages.update_success') : t('catalog.option_values.messages.create_success')) || 'Success')
+        showToast('success', t('common.success'), isEditing.value ? t('catalog.option_values.messages.update_success') : t('catalog.option_values.messages.create_success'))
         showDialog.value = false
         store.fetchList()
     } else {
@@ -181,7 +181,7 @@ const confirmDelete = (item: OptionValueListItem) => {
     accept: async () => {
       const result = await store.remove(item.id)
       if (result.isSuccess) {
-        showToast('success', t('common.success') || 'Success', t('catalog.option_values.messages.delete_success') || 'Option value deleted')
+        showToast('success', t('common.success'), t('catalog.option_values.messages.delete_success'))
         store.fetchList()
       }
     }
@@ -217,7 +217,7 @@ onMounted(() => {
         </div>
       </div>
       <Button 
-        label="Add Value" 
+        :label="t('catalog.option_values.actions.add_value')" 
         icon="pi pi-plus" 
         @click="openNew"
         class="px-4 shadow-lg rounded-xl"
@@ -346,8 +346,8 @@ onMounted(() => {
         </div>
 
         <div class="flex justify-end gap-2 mt-4">
-          <Button type="button" label="Cancel" severity="secondary" text @click="showDialog = false" />
-          <Button type="submit" label="Save" icon="pi pi-check" :loading="submitting" />
+          <Button type="button" :label="t('common.cancel')" severity="secondary" text @click="showDialog = false" />
+          <Button type="submit" :label="t('common.save')" icon="pi pi-check" :loading="submitting" />
         </div>
       </form>
     </Dialog>

@@ -101,10 +101,10 @@ const onValueSubmit = handleValueSubmit(async (formValues) => {
   if (result.isSuccess) {
     showToast(
       'success',
-      t('common.success') || 'Success',
-      (isEditingValue.value
+      t('common.success'),
+      isEditing.value
         ? t('catalog.option_types.messages.value_update_success')
-        : t('catalog.option_types.messages.value_create_success')) || 'Success',
+        : t('catalog.option_types.messages.value_create_success'),
     )
     showValueDialog.value = false
   } else {
@@ -118,8 +118,8 @@ const deleteValue = async (val: OptionValueListItem) => {
   if (result.isSuccess) {
     showToast(
       'success',
-      t('common.success') || 'Success',
-      t('catalog.option_types.messages.value_delete_success') || 'Value removed',
+      t('common.success'),
+      t('catalog.option_types.messages.value_delete_success'),
     )
   }
 }
@@ -216,7 +216,7 @@ const cancel = () => {
                 <TabList class="shrink-0">
                     <Tab :value="0">Basic Details</Tab>
                     <Tab v-if="isEdit" :value="1">Option Values</Tab>
-                    <Tab :value="2">Metadata</Tab>
+                    <Tab :value="2">{{ t('catalog.option_types.tabs.metadata') }}</Tab>
                 </TabList>
 
                 <TabPanels class="flex-1 overflow-y-auto p-6 scrollbar-thin">

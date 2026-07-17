@@ -19,7 +19,9 @@
       "categories": "Categories",
       "inventory": "Inventory",
       "seo": "SEO",
-      "metadata": "Metadata"
+      "metadata": "Metadata",
+      "options": "Options",
+      "specifications": "Specifications"
     },
     "descriptions": {
       "list": "Manage your product catalog, pricing and stock.",
@@ -52,6 +54,12 @@
         "desc_square": "1:1 ratio optimized for feeds.",
         "desc_gallery": "Standard image shown in the product gallery carousel.",
         "desc_search": "Optimized for semantic search results. Replaces existing search."
+      },
+      "messages": {
+        "upload_failed": "Upload failed",
+        "delete_success": "Image removed",
+        "update_success": "Image details updated",
+        "update_failed": "Failed to update image"
       }
     },
     "variants": {
@@ -67,7 +75,8 @@
         "no_options_desc": "Please go to the \"Options\" tab and assign types (e.g. Size, Color) first.",
         "preview": "Preview",
         "combinations": "{count} Variants",
-        "confirm_btn": "Generate Variants"
+        "confirm_btn": "Generate Variants",
+        "generated": "Created {count} variants."
       },
       "form": {
         "new_variant": "New Variant",
@@ -76,6 +85,14 @@
         "track_inventory": "Track Inventory",
         "track_inventory_desc": "Enable stock tracking for this variant",
         "barcode": "Barcode / GTIN"
+      },
+      "messages": {
+        "create_success": "Variant created successfully",
+        "update_success": "Variant updated successfully",
+        "delete_success": "Variant removed",
+        "save_failed": "Failed to save variant",
+        "delete_failed": "Failed to delete variant",
+        "generation_failed": "Failed to generate some variants."
       }
     },
     "inventory_table": {
@@ -95,7 +112,9 @@
       "price": "Price",
       "status": "Status",
       "actions": "Actions",
-      "clear_filter": "Clear Filters"
+      "clear_filter": "Clear Filters",
+      "variants": "Variants",
+      "added_on": "Added On"
     },
     "labels": {
       "name": "Product Name",
@@ -117,7 +136,9 @@
       "meta_keywords": "Meta Keywords",
       "public_metadata": "Public Metadata",
       "private_metadata": "Private Metadata",
-      "actions": "Actions"
+      "actions": "Actions",
+      "searchable": "Searchable",
+      "value": "Value"
     },
     "actions": {
       "new": "New Product",
@@ -137,13 +158,21 @@
       "update_success": "Product updated successfully.",
       "delete_success": "Product removed successfully.",
       "empty_list": "No products found matching your criteria.",
-      "loading": "Loading products..."
+      "loading": "Loading products...",
+      "classifications_saved": "Classifications saved",
+      "property_assigned": "Property assigned to product",
+      "property_removed": "Property removed"
     },
     "confirm": {
       "delete_header": "Confirm Delete",
       "delete_message": "Are you sure you want to delete \"{name}\"? This action cannot be undone.",
       "accept_label": "Delete",
       "reject_label": "Cancel"
+    },
+    "option_types": {
+      "messages": {
+        "update_success": "Product option types updated successfully"
+      }
     }
   },
   "option_types": {
@@ -189,7 +218,8 @@
       "cancel": "Cancel",
       "save_create": "Create Option Type",
       "save_edit": "Update Option Type",
-      "add_value": "Add Value"
+      "add_value": "Add Value",
+      "manage": "Manage Option Types"
     },
     "messages": {
       "create_success": "Option Type created successfully.",
@@ -199,7 +229,11 @@
       "value_update_success": "Option value updated.",
       "value_delete_success": "Option value removed.",
       "empty_list": "No option types found.",
-      "loading": "Loading option types..."
+      "loading": "Loading option types...",
+      "delete_error": "Failed to delete option type"
+    },
+    "tabs": {
+      "metadata": "Metadata"
     }
   },
   "option_values": {
@@ -239,7 +273,8 @@
     },
     "actions": {
       "delete": "Delete",
-      "cancel": "Cancel"
+      "cancel": "Cancel",
+      "add_value": "Add Value"
     }
   },
   "property_types": {
@@ -270,7 +305,8 @@
       "kind": "Type",
       "position": "Pos",
       "filterable": "Filterable",
-      "actions": "Actions"
+      "actions": "Actions",
+      "clear_filter": "Clear Filters"
     },
     "actions": {
       "create": "New Property Type",
@@ -285,7 +321,11 @@
       "update_success": "Property Type updated successfully.",
       "delete_success": "Property Type deleted successfully.",
       "empty_list": "No property types found.",
-      "loading": "Loading property types..."
+      "loading": "Loading property types...",
+      "delete_error": "Failed to delete property type"
+    },
+    "tabs": {
+      "metadata": "Metadata"
     }
   },
   "taxonomies": {
@@ -338,7 +378,8 @@
       "update_success": "Taxonomy updated successfully.",
       "delete_success": "Taxonomy deleted successfully.",
       "empty_list": "No taxonomies found.",
-      "loading": "Loading taxonomies..."
+      "loading": "Loading taxonomies...",
+      "rebuilt_success": "Taxonomy tree successfully rebuilt"
     },
     "confirm": {
       "delete_header": "Confirm Deletion",
@@ -417,6 +458,10 @@
       "meta_description": "Brief summary for search results...",
       "meta_keywords": "keyword1, keyword2..."
     },
+    "table": {
+      "clear_filter": "Clear Filters",
+      "products": "Products"
+    },
     "actions": {
       "add_taxon": "Add Category",
       "edit_taxon": "Edit",
@@ -452,5 +497,8 @@
       "delete_header": "Confirm Deletion",
       "delete_message": "Are you sure you want to delete \"{name}\"? This cannot be undone."
     }
+  },
+  "actions": {
+    "view_all": "View All"
   }
 }

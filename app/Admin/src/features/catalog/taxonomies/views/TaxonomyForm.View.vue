@@ -61,8 +61,8 @@ const onFormSubmit = submitForm(async (values) => {
   if (result.isSuccess) {
     showToast(
       'success',
-      t('common.success') || 'Success',
-      (isEdit.value ? t('catalog.taxonomies.messages.update_success') : t('catalog.taxonomies.messages.create_success')) || 'Success',
+      t('common.success'),
+      isEdit.value ? t('catalog.taxonomies.messages.update_success') : t('catalog.taxonomies.messages.create_success'),
     )
     if (!isEdit.value && result.value) {
         router.push({ name: 'catalog.taxonomies.edit', params: { id: result.value.id } })

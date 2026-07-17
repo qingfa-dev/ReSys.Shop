@@ -137,7 +137,7 @@ const cancel = () => {
     <Tabs value="0">
         <TabList>
             <Tab value="0">Basic Details</Tab>
-            <Tab value="1">Metadata</Tab>
+            <Tab value="1">{{ t('catalog.property_types.tabs.metadata') }}</Tab>
         </TabList>
         <TabPanels>
             <TabPanel value="0">

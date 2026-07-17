@@ -97,9 +97,9 @@ const confirmDelete = (item: OptionTypeListItem) => {
     accept: async () => {
       const result = await store.remove(item.id)
       if (result.isSuccess) {
-        showToast('success', t('common.success') || 'Success', t('catalog.option_types.messages.delete_success') || 'Deleted successfully')
+        showToast('success', t('common.success'), t('catalog.option_types.messages.delete_success'))
       } else {
-        showToast('error', t('common.error') || 'Error', 'Failed to delete option type')
+        showToast('error', t('common.error'), t('catalog.option_types.messages.delete_error'))
       }
     }
   })

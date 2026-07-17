@@ -140,13 +140,13 @@ const confirmGeneration = async () => {
             }
         }
 
-        showToast('success', 'Generation Complete', `Created ${successCount} variants.`);
+        showToast('success', t('common.success'), t('catalog.products.variants.wizard.generated', { count: successCount }));
         emit('generated');
         close();
 
     } catch (e) {
         console.error(e);
-        showToast('error', 'Error', 'Failed to generate some variants.');
+        showToast('error', t('common.error'), t('catalog.products.variants.messages.generation_failed'));
     } finally {
         generating.value = false;
     }

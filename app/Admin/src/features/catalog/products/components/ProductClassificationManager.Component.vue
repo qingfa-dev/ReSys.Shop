@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue';
+import { useI18n } from 'vue-i18n';
 import { useProductStore } from '../stores/product.store';
 import { useTaxonomyStore } from '@/features/catalog/taxonomies/stores/taxonomy.store';
 import { storeToRefs } from 'pinia';
@@ -19,6 +20,7 @@ const { current_classifications } = storeToRefs(productStore);
 const { taxonomies } = storeToRefs(taxonomyStore);
 const { handleApiResult } = useApiErrorHandler();
 const { showToast } = useToast();
+const { t } = useI18n();
 
 const loading = ref(false);
 const trees = ref<Record<string, any[]>>({});
@@ -72,7 +74,7 @@ const onToggleTaxon = async (taxonId: string) => {
     }));
     
     if (result.isSuccess) {
-        showToast('success', 'Updated', 'Classifications synchronized');
+        showToast('success', t('common.updated'), t('catalog.products.messages.classifications_saved'));
     } else {
         handleApiResult(result);
     }
@@ -85,7 +87,7 @@ const onSetMain = async (taxonId: string) => {
     }));
     
     if (result.isSuccess) {
-        showToast('success', 'Updated', 'Main category updated');
+        showToast('success', t('common.updated'), 'Main category updated');
     } else {
         handleApiResult(result);
     }
@@ -98,7 +100,7 @@ const isMain = (taxonId: string) => current_classifications.value.some((c: Produ
 <template>
     <div class="flex flex-col gap-6">
         <div>
-            <h3 class="text-lg font-bold m-0">Categorization</h3>
+            <h3 class="text-lg font-bold m-0">{{ t('catalog.products.titles.classifications') }}</h3>
             <p class="text-sm text-surface-500 m-0">Assign this product to hierarchical categories across multiple taxonomies.</p>
         </div>
 

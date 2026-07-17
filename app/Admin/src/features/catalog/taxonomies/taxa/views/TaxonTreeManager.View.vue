@@ -66,7 +66,7 @@ const confirmDelete = (node: TaxonListItem) => {
     accept: async () => {
       const result = await taxonStore.deleteTaxon(taxonomyId.value, node.id)
       if (result.isSuccess) {
-        showToast('success', 'Deleted', t('catalog.taxa.messages.delete_success') || 'Category removed')
+        showToast('success', t('common.deleted'), t('catalog.taxa.messages.delete_success'))
         if (selectedTaxonId.value === node.id) {
             router.push({ name: 'catalog.taxa.manager', params: { taxonomyId: taxonomyId.value } })
         }

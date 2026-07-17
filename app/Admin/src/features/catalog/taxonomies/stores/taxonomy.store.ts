@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia';
 import { ref, computed } from 'vue';
+import { useI18n } from 'vue-i18n';
 import { useToast } from '@/shared/composables/toast.use';
 import { taxonomyService } from '../services/taxonomy.service';
 import { taxonomyRepository } from '../repositories/taxonomy.repository';
@@ -9,6 +10,7 @@ import type { CreateTaxonomyRequest, UpdateTaxonomyRequest } from '../types/Taxo
 
 export const useTaxonomyStore = defineStore('taxonomy', () => {
   const { showToast } = useToast();
+  const { t } = useI18n();
 
   // --- STATE ---
   const taxonomies = ref<TaxonomyListItem[]>([]);
@@ -69,7 +71,7 @@ export const useTaxonomyStore = defineStore('taxonomy', () => {
     try {
       const result = await taxonomyService.create(data);
       if (result.isSuccess) {
-        showToast('success', 'Created', 'Taxonomy created successfully');
+        showToast('success', t('common.created'), t('catalog.taxonomies.messages.create_success'));
         await fetchTaxonomies();
       } else if (!result.isSuccess) {
         error.value = result.errors?.[0]?.message || 'Failed to create taxonomy';
@@ -86,7 +88,7 @@ export const useTaxonomyStore = defineStore('taxonomy', () => {
     try {
       const result = await taxonomyService.update(id, data);
       if (result.isSuccess) {
-        showToast('success', 'Updated', 'Taxonomy updated successfully');
+        showToast('success', t('common.updated'), t('catalog.taxonomies.messages.update_success'));
         await fetchTaxonomies();
       } else if (!result.isSuccess) {
         error.value = result.errors?.[0]?.message || 'Failed to update taxonomy';
@@ -103,7 +105,7 @@ export const useTaxonomyStore = defineStore('taxonomy', () => {
     try {
       const result = await taxonomyService.delete(id);
       if (result.isSuccess) {
-        showToast('success', 'Deleted', 'Taxonomy removed successfully');
+        showToast('success', t('common.deleted'), t('catalog.taxonomies.messages.delete_success'));
         await fetchTaxonomies();
       } else if (!result.isSuccess) {
         error.value = result.errors?.[0]?.message || 'Failed to delete taxonomy';
@@ -120,7 +122,7 @@ export const useTaxonomyStore = defineStore('taxonomy', () => {
     try {
         const result = await taxonomyRepository.restore(id)
         if (result.isSuccess) {
-            showToast('success', 'Rebuilt', 'Taxonomy tree successfully rebuilt');
+            showToast('success', t('common.success'), t('catalog.taxonomies.messages.rebuilt_success'));
         } else if (!result.isSuccess) {
             error.value = result.errors?.[0]?.message || 'Failed to rebuild taxonomy';
         }

@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
+import { useI18n } from 'vue-i18n';
 import { useOptionTypeStore } from '@/features/catalog/option-types/stores/option-type.store';
 import { useApiErrorHandler } from '@/shared/composables/api-error-handler.use';
 import { useToast } from '@/shared/composables/toast.use';
@@ -12,6 +13,7 @@ const props = defineProps<{
 const optionTypeStore = useOptionTypeStore();
 const { handleApiResult } = useApiErrorHandler();
 const { showToast } = useToast();
+const { t } = useI18n();
 
 const availableOptionTypes = ref<any[]>([]);
 const selectedOptionTypes = ref<string[]>([]);
@@ -44,7 +46,7 @@ const onSave = async () => {
         const result = await productService.updateOptionTypes(props.productId, selectedOptionTypes.value);
 
         if (handleApiResult(result)) {
-            showToast('success', 'Updated', 'Product option types updated successfully');
+            showToast('success', t('common.updated'), t('catalog.products.option_types.messages.update_success'));
         }
     } finally {
         saving.value = false;

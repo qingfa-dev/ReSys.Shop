@@ -162,7 +162,7 @@ const onSubmit = handleSubmit(async (values) => {
                         <Tab :value="2" v-if="isEdit">
                             <div class="flex items-center gap-2">
                                 <i class="pi pi-list"></i>
-                                <span>Options</span>
+                                <span>{{ t('catalog.products.tabs.options') }}</span>
                             </div>
                         </Tab>
                         <Tab :value="3" v-if="isEdit">
@@ -180,7 +180,7 @@ const onSubmit = handleSubmit(async (values) => {
                         <Tab :value="8" v-if="isEdit">
                             <div class="flex items-center gap-2">
                                 <i class="pi pi-cog"></i>
-                                <span>Specifications</span>
+                                <span>{{ t('catalog.products.tabs.specifications') }}</span>
                             </div>
                         </Tab>
                         <Tab :value="5">
@@ -247,7 +247,7 @@ const onSubmit = handleSubmit(async (values) => {
                                     </div>
                                     <div class="p-6 bg-surface-50 dark:bg-surface-800/50 rounded-3xl border border-surface-100 dark:border-surface-800 flex items-center justify-between">
                                         <div class="flex flex-col">
-                                            <span class="font-bold text-surface-900 dark:text-surface-0">Searchable</span>
+                                            <span class="font-bold text-surface-900 dark:text-surface-0">{{ t('catalog.products.labels.searchable') }}</span>
                                             <p class="text-xs text-surface-500 m-0">Can be found via global search.</p>
                                         </div>
                                         <ToggleSwitch v-model="isVisible" />

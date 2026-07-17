@@ -99,7 +99,7 @@ const confirmDelete = (item: PropertyTypeListItem) => {
       const result = await store.remove(item.id)
       if (result.isSuccess) {
       } else {
-        showToast('error', t('common.error') || 'Error', 'Failed to delete property type')
+        showToast('error', t('common.error'), t('catalog.property_types.messages.delete_error'))
       }
     }
   })
@@ -173,7 +173,7 @@ onMounted(() => {
             <Button 
               type="button" 
               icon="pi pi-filter-slash" 
-              label="Clear" 
+              :label="t('catalog.property_types.table.clear_filter')" 
               outlined 
               @click="clearFilters" 
               class="w-full rounded-xl md:w-auto"

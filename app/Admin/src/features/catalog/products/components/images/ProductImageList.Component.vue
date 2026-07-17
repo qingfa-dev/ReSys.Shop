@@ -97,7 +97,7 @@ const saveEdit = () => {
         <!-- List View -->
         <div v-else class="border border-surface-200 dark:border-surface-700 rounded-xl overflow-hidden">
             <DataTable :value="images" stripedRows size="small">
-                <Column header="Preview" class="w-24">
+                <Column :header="t('catalog.products.table.preview')" class="w-24">
                     <template #body="{ data }">
                         <Image :src="data.url" preview imageClass="w-12 h-12 rounded object-cover border" />
                     </template>
@@ -116,7 +116,7 @@ const saveEdit = () => {
                         <span v-else class="text-surface-400 italic">No alt text</span>
                     </template>
                 </Column>
-                <Column header="Actions" class="w-32 text-right">
+                <Column :header="t('catalog.products.table.actions')" class="w-32 text-right">
                     <template #body="{ data }">
                         <div class="flex justify-end gap-2">
                             <Button icon="pi pi-pencil" text rounded severity="secondary" size="small" @click="openEdit(data)" />

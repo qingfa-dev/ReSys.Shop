@@ -46,7 +46,7 @@ const confirmDelete = (item: TaxonomyListItem) => {
     accept: async () => {
       const result = await store.deleteTaxonomy(item.id)
       if (result.isSuccess) {
-        showToast('success', 'Deleted', t('catalog.taxonomies.messages.delete_success') || 'Taxonomy removed')
+        showToast('success', t('common.deleted'), t('catalog.taxonomies.messages.delete_success'))
         if (selectedId.value === item.id) {
             router.push({ name: 'catalog.taxonomies.list' })
         }
