@@ -4,7 +4,9 @@ import { authService } from '../services/auth.service';
 import type { ChangePasswordParameters } from '../types/ChangePassword.Parameters.Type';
 import { useToast } from '@/shared/composables/toast.use';
 import { useFormatter } from '@/shared/composables/formatter.use';
+import { useI18n } from 'vue-i18n';
 
+const { t } = useI18n();
 const { showToast } = useToast();
 const { formatDate } = useFormatter();
 
@@ -31,7 +33,7 @@ onMounted(async () => {
     if (result.isSuccess && result.value) {
         user.value = result.value;
     } else {
-        showToast('error', 'Error', 'Failed to load user profile');
+        showToast('error', t('common.error'), t('profile.messages.load_error'));
     }
     loading.value = false;
 });
@@ -48,13 +50,13 @@ const initials = computed(() => {
 
 async function onChangePassword() {
     if (passwordForm.value.newPassword !== passwordForm.value.confirmNewPassword) {
-        showToast('error', 'Validation Error', 'New passwords do not match');
+        showToast('error', t('common.error'), t('auth.messages.password_mismatch'));
         return;
     }
     submitting.value = true;
     const result = await authService.changePassword(passwordForm.value);
     if (result.isSuccess) {
-        showToast('success', 'Success', 'Password updated successfully');
+        showToast('success', t('common.success'), t('profile.messages.password_updated'));
         passwordForm.value = { currentPassword: '', newPassword: '', confirmNewPassword: '' };
     } else {
         const errMsg = result.errors?.[0]?.message || 'Failed to update password';
@@ -95,25 +97,25 @@ async function onChangePassword() {
                     <template #title>
                         <div class="flex items-center gap-2">
                             <i class="pi pi-user text-primary"></i>
-                            <span>Account Details</span>
+                            {{ t('auth.labels.account_details') }}
                         </div>
                     </template>
                     <template #content>
                         <div class="flex flex-col gap-4">
                             <div>
-                                <span class="text-xs font-bold uppercase tracking-widest text-surface-400">Full Name</span>
+                                <span class="text-xs font-bold uppercase tracking-widest text-surface-400">{{ t('profile.labels.full_name') }}</span>
                                 <p class="text-lg font-medium">{{ user.fullName || 'N/A' }}</p>
                             </div>
                             <div>
-                                <span class="text-xs font-bold uppercase tracking-widest text-surface-400">Email Address</span>
+                                <span class="text-xs font-bold uppercase tracking-widest text-surface-400">{{ t('profile.labels.email') }}</span>
                                 <p class="text-lg font-medium font-mono">{{ user.email }}</p>
                             </div>
                             <div>
-                                <span class="text-xs font-bold uppercase tracking-widest text-surface-400">Username</span>
+                                <span class="text-xs font-bold uppercase tracking-widest text-surface-400">{{ t('profile.labels.username') }}</span>
                                 <p class="text-lg font-medium">{{ user.userName || 'N/A' }}</p>
                             </div>
                             <div>
-                                <span class="text-xs font-bold uppercase tracking-widest text-surface-400">Joined On</span>
+                                <span class="text-xs font-bold uppercase tracking-widest text-surface-400">{{ t('profile.labels.joined') }}</span>
                                 <p class="text-lg font-medium">{{ formatDate(user.createdAtUtc) }}</p>
                             </div>
                         </div>
@@ -126,24 +128,24 @@ async function onChangePassword() {
                         <template #title>
                             <div class="flex items-center gap-2">
                                 <i class="pi pi-lock text-primary"></i>
-                                <span>Change Password</span>
+                                {{ t('profile.titles.password') }}
                             </div>
                         </template>
                         <template #content>
                             <form @submit.prevent="onChangePassword" class="flex flex-col gap-4">
                                 <div class="flex flex-col gap-2">
-                                    <label class="font-bold text-sm">Current Password</label>
+                                    <label class="font-bold text-sm">{{ t('auth.labels.current_password') }}</label>
                                     <Password v-model="passwordForm.currentPassword" toggleMask class="w-full" inputClass="w-full" required />
                                 </div>
                                 <div class="flex flex-col gap-2">
-                                    <label class="font-bold text-sm">New Password</label>
+                                    <label class="font-bold text-sm">{{ t('auth.labels.new_password') }}</label>
                                     <Password v-model="passwordForm.newPassword" toggleMask class="w-full" inputClass="w-full" required />
                                 </div>
                                 <div class="flex flex-col gap-2">
-                                    <label class="font-bold text-sm">Confirm New Password</label>
+                                    <label class="font-bold text-sm">{{ t('auth.labels.confirm_password') }}</label>
                                     <Password v-model="passwordForm.confirmNewPassword" toggleMask class="w-full" inputClass="w-full" :feedback="false" required />
                                 </div>
-                                <Button type="submit" label="Update Password" icon="pi pi-check" class="mt-2" :loading="submitting" />
+                                <Button type="submit" :label="t('auth.actions.update_password')" icon="pi pi-check" class="mt-2" :loading="submitting" />
                             </form>
                         </template>
                     </Card>

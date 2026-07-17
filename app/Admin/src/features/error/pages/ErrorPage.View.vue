@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { useRouter } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 
+const { t } = useI18n()
 const router = useRouter()
 </script>
 
@@ -28,13 +30,13 @@ const router = useRouter()
 
       <div class="flex gap-4 justify-center">
         <Button
-          label="Try Again"
+          :label="t('error.server_error.action_retry')"
           icon="pi pi-refresh"
           severity="secondary"
           @click="router.go(-1)"
         />
         <Button
-          label="Go to Dashboard"
+          :label="t('error.server_error.action_home')"
           icon="pi pi-home"
           @click="router.push('/')"
         />

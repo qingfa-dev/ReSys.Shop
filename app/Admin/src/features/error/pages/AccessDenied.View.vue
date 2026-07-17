@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { useRouter } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 
+const { t } = useI18n()
 const router = useRouter()
 </script>
 
@@ -28,7 +30,7 @@ const router = useRouter()
       </p>
 
       <Button
-        label="Back to Dashboard"
+        :label="t('error.access_denied.action')"
         icon="pi pi-home"
         @click="router.push('/')"
       />

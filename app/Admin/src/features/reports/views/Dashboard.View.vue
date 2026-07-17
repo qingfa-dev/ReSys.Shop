@@ -3,6 +3,9 @@ import { onMounted, computed } from 'vue';
 import { useReportStore } from '../stores/report.store';
 import { storeToRefs } from 'pinia';
 import { useFormatter } from '@/shared/composables/formatter.use';
+import { useI18n } from 'vue-i18n';
+
+const { t } = useI18n();
 
 const store = useReportStore();
 const { sales, inventory, catalog, activities, is_loading } = storeToRefs(store);
@@ -85,7 +88,7 @@ const getActivityColor = (type: string) => {
             <template #content>
                 <div class="flex items-center justify-between">
                     <div>
-                        <h1 class="text-3xl font-bold text-surface-900 dark:text-surface-0">Dashboard</h1>
+                        <h1 class="text-3xl font-bold text-surface-900 dark:text-surface-0">{{ t('navigation.dashboard') }}</h1>
                         <p class="mt-1 text-surface-500 dark:text-surface-400">Real-time performance overview</p>
                     </div>
                     <Button
@@ -135,7 +138,7 @@ const getActivityColor = (type: string) => {
                 <template #content>
                     <div class="flex items-start justify-between">
                         <div class="flex flex-col gap-2">
-                            <span class="text-sm font-medium text-surface-500 dark:text-surface-400">Revenue</span>
+                            <span class="text-sm font-medium text-surface-500 dark:text-surface-400">{{ t('reports.labels.revenue') }}</span>
                             <span class="text-3xl font-bold text-surface-900 dark:text-surface-0">{{ formatCurrency(sales?.totalRevenue || 0) }}</span>
                         </div>
                         <div class="flex items-center justify-center w-12 h-12 rounded-lg bg-green-50 dark:bg-green-500/10">
@@ -200,7 +203,7 @@ const getActivityColor = (type: string) => {
                             responsiveLayout="scroll"
                             class="p-datatable-sm -mx-4 -mb-4"
                         >
-                            <Column field="title" header="Order" :style="{ minWidth: '12rem' }">
+                            <Column field="title" :header="t('ordering.table.order_number')" :style="{ minWidth: '12rem' }">
                                 <template #body="{ data }">
                                     <div class="flex items-center gap-3">
                                         <Avatar
@@ -216,12 +219,12 @@ const getActivityColor = (type: string) => {
                                     </div>
                                 </template>
                             </Column>
-                            <Column field="timestamp" header="Date" :style="{ minWidth: '8rem' }">
+                            <Column field="timestamp" :header="t('ordering.table.date')" :style="{ minWidth: '8rem' }">
                                 <template #body="{ data }">
                                     <span class="text-sm text-surface-600 dark:text-surface-300">{{ formatDate(data.timestamp) }}</span>
                                 </template>
                             </Column>
-                            <Column field="status" header="Status" :style="{ minWidth: '8rem' }">
+                            <Column field="status" :header="t('ordering.table.status')" :style="{ minWidth: '8rem' }">
                                 <template #body="{ data }">
                                     <Tag
                                         :value="data.status"
@@ -247,7 +250,7 @@ const getActivityColor = (type: string) => {
             <div class="lg:col-span-1">
                 <Card class="border border-surface-100 dark:border-surface-800 shadow-sm">
                     <template #title>
-                        <span class="text-lg font-semibold text-surface-700 dark:text-surface-100">Activity</span>
+                        <span class="text-lg font-semibold text-surface-700 dark:text-surface-100">{{ t('reports.labels.activity') }}</span>
                     </template>
                     <template #content>
                         <div class="flex flex-col gap-4 -mx-4 -mb-4">

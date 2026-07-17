@@ -8,6 +8,8 @@ import usersEn from "@/shared/locales/messages/en/users.json";
 import rolesEn from "@/shared/locales/messages/en/roles.json";
 import locationEn from "@/shared/locales/messages/en/location.json";
 import profileEn from "@/shared/locales/messages/en/profile.json";
+import errorEn from "@/shared/locales/messages/en/error.json";
+import reportsEn from "@/shared/locales/messages/en/reports.json";
 
 export type MessageSchema = typeof generalEn;
 
@@ -26,6 +28,8 @@ const i18n = createI18n({
       roles: rolesEn,
       location: locationEn,
       profile: profileEn,
+      ...errorEn,
+      reports: reportsEn,
     },
   },
 });

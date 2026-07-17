@@ -13,13 +13,13 @@
       </Card>
       <Card>
         <template #content>
-          <p class="text-sm text-color-secondary">Roles</p>
+          <p class="text-sm text-color-secondary">{{ t('roles.titles.list') }}</p>
           <p class="text-lg font-semibold">{{ rolesCount }}</p>
         </template>
       </Card>
       <Card>
         <template #content>
-          <p class="text-sm text-color-secondary">Permissions</p>
+          <p class="text-sm text-color-secondary">{{ t('roles.titles.permissions') }}</p>
           <p class="text-lg font-semibold">{{ permissionsCount }}</p>
         </template>
       </Card>
@@ -31,6 +31,9 @@
 import { computed } from 'vue'
 import { useAuthStore } from '@/features/auth/stores/auth.store'
 import { storeToRefs } from 'pinia'
+import { useI18n } from 'vue-i18n'
+
+const { t } = useI18n()
 
 interface JwtPayload {
   sub?: string

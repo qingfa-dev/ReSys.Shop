@@ -38,6 +38,7 @@
   },
   "messages": {
     "load_error": "Failed to load profile",
-    "update_success": "Profile updated successfully"
+    "update_success": "Profile updated successfully",
+    "password_updated": "Password updated successfully"
   }
 }
