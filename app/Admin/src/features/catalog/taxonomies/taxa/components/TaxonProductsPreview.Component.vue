@@ -29,7 +29,7 @@ const loadPreview = async () => {
   
   if (result.isSuccess && result.value) {
     products.value = result.value.items
-    totalRecords.value = result.value.total_count
+    totalRecords.value = result.value.totalCount
   } else {
     handleApiResult(result)
   }
@@ -82,7 +82,7 @@ defineExpose({
             <Column field="imageUrl" :header="t('catalog.products.table.preview')" class="w-20">
                 <template #body="{ data }">
                     <div class="w-10 h-10 rounded-lg overflow-hidden border border-surface-100 dark:border-surface-700 bg-surface-50 flex items-center justify-center">
-                        <img v-if="data.imageUrl" :src="data.imageUrl" :alt="data.name" class="w-full h-full object-cover" />
+                        <Image v-if="data.imageUrl" :src="data.imageUrl" preview class="w-full h-full object-cover" />
                         <i v-else class="pi pi-image text-surface-300"></i>
                     </div>
                 </template>

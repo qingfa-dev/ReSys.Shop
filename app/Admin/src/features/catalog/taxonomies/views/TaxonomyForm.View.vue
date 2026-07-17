@@ -110,13 +110,13 @@ const onFormSubmit = submitForm(async (values) => {
                                 <div class="flex flex-col gap-2">
                                     <label for="name" class="font-bold text-xs uppercase tracking-wider text-surface-500 ml-1">{{ t('catalog.taxonomies.labels.name') }}</label>
                                     <InputText id="name" v-model="name" :placeholder="t('catalog.taxonomies.placeholders.name')" :invalid="!!errors.name" class="rounded-xl h-11" />
-                                    <small class="text-red-500 ml-1" v-if="errors.name">{{ errors.name }}</small>
+                                    <small class="p-error" v-if="errors.name">{{ errors.name }}</small>
                                 </div>
 
                                 <div class="flex flex-col gap-2">
                                     <label for="presentation" class="font-bold text-xs uppercase tracking-wider text-surface-500 ml-1">{{ t('catalog.taxonomies.labels.presentation') }}</label>
                                     <InputText id="presentation" v-model="presentation" :placeholder="t('catalog.taxonomies.placeholders.presentation')" :invalid="!!errors.presentation" class="rounded-xl h-11" />
-                                    <small class="text-red-500 ml-1" v-if="errors.presentation">{{ errors.presentation }}</small>
+                                    <small class="p-error" v-if="errors.presentation">{{ errors.presentation }}</small>
                                 </div>
 
                                 <div class="flex flex-col gap-2">
@@ -141,17 +141,11 @@ const onFormSubmit = submitForm(async (values) => {
 :deep(.p-tabs-list) {
     border-bottom: 1px solid var(--p-surface-100);
 }
-.dark :deep(.p-tabs-list) {
-    border-bottom-color: var(--p-surface-800);
-}
 .scrollbar-thin::-webkit-scrollbar {
     width: 4px;
 }
 .scrollbar-thin::-webkit-scrollbar-thumb {
     background: var(--p-surface-200);
     border-radius: 4px;
-}
-.dark .scrollbar-thin::-webkit-scrollbar-thumb {
-    background: var(--p-surface-700);
 }
 </style>

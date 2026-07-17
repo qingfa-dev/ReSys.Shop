@@ -231,13 +231,13 @@ const goBack = () => router.push({ name: 'catalog.taxa.manager', params: { taxon
                                     <div class="flex flex-col gap-2">
                                         <label class="font-bold text-xs uppercase tracking-wider text-surface-500">{{ t('catalog.taxa.labels.name') }}</label>
                                         <InputText v-model="name" class="w-full rounded-xl h-11" :invalid="!!errors.name" @blur="generateSlug" />
-                                        <small class="text-red-500" v-if="errors.name">{{ errors.name }}</small>
+                                        <small class="p-error" v-if="errors.name">{{ errors.name }}</small>
                                     </div>
 
                                     <div class="flex flex-col gap-2">
                                         <label class="font-bold text-xs uppercase tracking-wider text-surface-500">{{ t('catalog.taxa.labels.presentation') }}</label>
                                         <InputText v-model="presentation" class="w-full rounded-xl h-11" :invalid="!!errors.presentation" />
-                                        <small class="text-red-500" v-if="errors.presentation">{{ errors.presentation }}</small>
+                                        <small class="p-error" v-if="errors.presentation">{{ errors.presentation }}</small>
                                     </div>
 
                                     <div class="grid grid-cols-2 gap-4">
@@ -305,17 +305,11 @@ const goBack = () => router.push({ name: 'catalog.taxa.manager', params: { taxon
 :deep(.p-tabs-list) {
     border-bottom: 1px solid var(--p-surface-100);
 }
-.dark :deep(.p-tabs-list) {
-    border-bottom-color: var(--p-surface-800);
-}
 .scrollbar-thin::-webkit-scrollbar {
     width: 4px;
 }
 .scrollbar-thin::-webkit-scrollbar-thumb {
     background: var(--p-surface-200);
     border-radius: 4px;
-}
-.dark .scrollbar-thin::-webkit-scrollbar-thumb {
-    background: var(--p-surface-700);
 }
 </style>

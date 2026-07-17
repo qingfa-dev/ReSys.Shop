@@ -4,6 +4,8 @@ import { useI18n } from 'vue-i18n';
 import { permissionService } from '../../services/permission.service';
 import type { PermissionSummary } from '../types/Permission.Response.Type';
 import type { DataTablePageEvent } from 'primevue/datatable';
+import PageShell from '@/shared/components/PageShell.Component.vue';
+import PageHeader from '@/shared/components/PageHeader.Component.vue';
 
 const { t } = useI18n();
 
@@ -41,13 +43,8 @@ const onPage = (event: DataTablePageEvent) => {
 </script>
 
 <template>
-    <Card>
-        <div class="flex justify-between items-center mb-8">
-            <div>
-                <h1 class="text-3xl font-black uppercase tracking-tighter text-surface-900 dark:text-surface-0">{{ t('roles.titles.permissions') }}</h1>
-                <p class="text-surface-500">View available system permissions.</p>
-            </div>
-        </div>
+    <PageShell>
+        <PageHeader :title="t('roles.titles.permissions')" description="View available system permissions." />
 
         <div class="overflow-hidden border border-surface-100 dark:border-surface-800 rounded-2xl shadow-sm">
             <DataTable 
@@ -86,5 +83,5 @@ const onPage = (event: DataTablePageEvent) => {
                 <Column field="description" :header="t('roles.permissions.table.description')" class="text-surface-500"></Column>
             </DataTable>
         </div>
-</Card>
+    </PageShell>
 </template>

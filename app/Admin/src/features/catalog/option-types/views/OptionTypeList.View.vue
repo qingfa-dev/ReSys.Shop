@@ -228,24 +228,3 @@ onMounted(() => {
     </div>
   </div>
 </template>
-
-<style scoped>
-:deep(.p-datatable-header) {
-  background: transparent;
-  padding: 1rem;
-}
-:deep(.p-datatable-thead > tr > th) {
-  background: var(--p-content-background);
-  color: var(--p-text-color);
-  font-size: 0.875rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.025em;
-  padding: 1rem 1.5rem;
-  border-bottom: 2px solid var(--p-primary-color);
-}
-:deep(.p-datatable-tbody > tr > td) {
-  padding: 1rem 1.5rem;
-  border-bottom: 1px solid var(--p-content-border-color);
-}
-</style>

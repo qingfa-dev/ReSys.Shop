@@ -12,7 +12,8 @@ import type {
 } from 'primevue/datatable';
 import { useFormatter } from '@/shared/composables/formatter.use';
 import { QueryBuilder } from '@/shared/utils/query-builder.utils';
-import AppBreadcrumb from '@/shared/components/Breadcrumb.Component.vue';
+import PageShell from '@/shared/components/PageShell.Component.vue';
+import PageHeader from '@/shared/components/PageHeader.Component.vue';
 
 // --- LOCALES & ALIASES ---
 const { t } = useI18n();
@@ -119,23 +120,16 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="p-6">
-    <AppBreadcrumb />
-    <Card class="rounded-3xl shadow-sm border-none bg-surface-0 dark:bg-surface-900 overflow-hidden">
-      <template #title>
-        <div class="flex items-center justify-between p-4">
-          <div class="flex flex-col gap-1">
-            <div class="flex items-center gap-3">
-              <span class="text-xl font-bold">{{ t('ordering.titles.list') }}</span>
-              <Badge :value="totalRecords" severity="info" />
-            </div>
-            <span class="text-sm text-surface-500">{{ t('ordering.descriptions.list') }}</span>
-          </div>
-          <Button :label="t('ordering.actions.new_order')" icon="pi pi-plus" severity="primary" class="rounded-xl" @click="router.push({ name: 'ordering.orders.create' })" />
-        </div>
+  <PageShell>
+    <PageHeader :title="t('ordering.titles.list')" :description="t('ordering.descriptions.list')">
+      <template #badge>
+        <Badge :value="totalRecords" severity="info" />
       </template>
-      <template #content>
-        <DataTable 
+      <template #actions>
+        <Button :label="t('ordering.actions.new_order')" icon="pi pi-plus" severity="primary" class="rounded-xl" @click="router.push({ name: 'ordering.orders.create' })" />
+      </template>
+    </PageHeader>
+    <DataTable 
             :value="orders" 
             :loading="loading" 
             lazy 
@@ -220,28 +214,5 @@ onMounted(() => {
             </template>
           </Column>
         </DataTable>
-      </template>
-    </Card>
-  </div>
+  </PageShell>
 </template>
-
-<style scoped>
-:deep(.p-datatable-header) {
-  background: transparent;
-  padding: 1rem;
-}
-:deep(.p-datatable-thead > tr > th) {
-  background: var(--p-content-background);
-  color: var(--p-text-color);
-  font-size: 0.875rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.025em;
-  padding: 1rem 1.5rem;
-  border-bottom: 2px solid var(--p-primary-color);
-}
-:deep(.p-datatable-tbody > tr > td) {
-  padding: 1rem 1.5rem;
-  border-bottom: 1px solid var(--p-content-border-color);
-}
-</style>

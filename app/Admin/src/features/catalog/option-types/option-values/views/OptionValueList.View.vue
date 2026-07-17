@@ -8,6 +8,7 @@ import { storeToRefs } from 'pinia'
 import { useForm } from 'vee-validate'
 import { toTypedSchema } from '@vee-validate/zod'
 import { z } from 'zod'
+import PageHeader from '@/shared/components/PageHeader.Component.vue'
 import { OptionValueSchema } from '../schemas/OptionValue.Schema'
 import { FilterMatchMode, FilterOperator } from '@primevue/core/api'
 import type { DataTablePageEvent, DataTableSortEvent, DataTableFilterMeta } from 'primevue/datatable'
@@ -203,26 +204,21 @@ onMounted(() => {
 <template>
   <div class="p-6">
     <AppBreadcrumb />
-    
-    <div class="flex flex-col items-start justify-between gap-4 mb-8 md:flex-row md:items-center">
-      <div>
-        <h2 class="text-3xl font-black tracking-tight text-surface-900 dark:text-surface-50">
-          {{ t('catalog.option_values.titles.list') }}
-        </h2>
-        <div class="flex items-center gap-2 mt-1">
-          <span class="text-surface-500 dark:text-surface-400">
-            {{ t('catalog.option_values.descriptions.list') }}
-          </span>
-          <Badge :value="totalRecords" severity="info" class="ml-2" />
-        </div>
-      </div>
-      <Button 
-        :label="t('catalog.option_values.actions.add_value')" 
-        icon="pi pi-plus" 
-        @click="openNew"
-        class="px-4 shadow-lg rounded-xl"
-      />
-    </div>
+    <PageHeader
+      :title="t('catalog.option_values.titles.list')"
+      :description="t('catalog.option_values.descriptions.list')"
+    >
+      <template #badge>
+        <Badge :value="totalRecords" severity="info" />
+      </template>
+      <template #actions>
+        <Button
+          :label="t('catalog.option_values.actions.add_value')"
+          icon="pi pi-plus"
+          @click="openNew"
+        />
+      </template>
+    </PageHeader>
 
     <div class="overflow-hidden border shadow-sm bg-surface-0 dark:bg-surface-900 rounded-2xl border-surface-100 dark:border-surface-800">
       <DataTable
@@ -325,19 +321,19 @@ onMounted(() => {
             :placeholder="t('catalog.option_values.placeholders.option_type')"
             :disabled="isEditing"
           />
-          <small class="text-red-500" v-if="formErrors.optionTypeId">{{ formErrors.optionTypeId }}</small>
+          <small class="p-error" v-if="formErrors.optionTypeId">{{ formErrors.optionTypeId }}</small>
         </div>
 
         <div class="flex flex-col gap-2">
           <label for="vName" class="font-bold text-sm">{{ t('catalog.option_values.labels.name') }}</label>
           <InputText id="vName" v-model="name" class="w-full" :invalid="!!formErrors.name" :placeholder="t('catalog.option_values.placeholders.name')" />
-          <small class="text-red-500" v-if="formErrors.name">{{ formErrors.name }}</small>
+          <small class="p-error" v-if="formErrors.name">{{ formErrors.name }}</small>
         </div>
 
         <div class="flex flex-col gap-2">
           <label for="vPresentation" class="font-bold text-sm">{{ t('catalog.option_values.labels.presentation') }}</label>
           <InputText id="vPresentation" v-model="presentation" class="w-full" :invalid="!!formErrors.presentation" :placeholder="t('catalog.option_values.placeholders.presentation')" />
-          <small class="text-red-500" v-if="formErrors.presentation">{{ formErrors.presentation }}</small>
+          <small class="p-error" v-if="formErrors.presentation">{{ formErrors.presentation }}</small>
         </div>
 
         <div class="flex flex-col gap-2">

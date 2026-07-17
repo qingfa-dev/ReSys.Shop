@@ -150,7 +150,4 @@ const isMain = (taxonId: string) => current_classifications.value.some((c: Produ
     border-left: 1px dashed var(--p-surface-200);
     margin-left: 0.75rem;
 }
-.dark :deep(.p-tree-node-children) {
-    border-left-color: var(--p-surface-800);
-}
 </style>

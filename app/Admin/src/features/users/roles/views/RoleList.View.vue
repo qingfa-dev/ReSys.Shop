@@ -5,7 +5,8 @@ import { useToast } from '@/shared/composables/toast.use';
 import { useConfirm } from 'primevue/useconfirm';
 import { useI18n } from 'vue-i18n';
 import { roleService } from '../../services/role.service';
-import AppBreadcrumb from '@/shared/components/Breadcrumb.Component.vue';
+import PageShell from '@/shared/components/PageShell.Component.vue';
+import PageHeader from '@/shared/components/PageHeader.Component.vue';
 import type { RoleSummary } from '../types/Role.Response.Type';
 import type { DataTablePageEvent } from 'primevue/datatable';
 
@@ -63,23 +64,16 @@ const confirmDelete = (role: RoleSummary) => {
 </script>
 
 <template>
-    <div class="p-6">
-        <AppBreadcrumb :locales="{ titles: { list: 'Roles' }, descriptions: { list: 'Manage system roles and access control.' } }" />
-        <Card class="rounded-3xl shadow-sm border-none bg-surface-0 dark:bg-surface-900 overflow-hidden">
-            <template #title>
-                <div class="flex items-center justify-between p-4">
-                    <div class="flex flex-col gap-1">
-                        <div class="flex items-center gap-3">
-                            <span class="text-xl font-bold">{{ t('roles.titles.list') }}</span>
-                            <Badge :value="totalRecords" severity="info" />
-                        </div>
-                        <span class="text-sm text-surface-500">Manage system roles and access control.</span>
-                    </div>
-                    <Button :label="t('roles.actions.create')" icon="pi pi-plus" severity="primary" class="rounded-xl" @click="router.push({ name: 'role-create' })" />
-                </div>
+    <PageShell>
+        <PageHeader :title="t('roles.titles.list')" description="Manage system roles and access control.">
+            <template #badge>
+                <Badge :value="totalRecords" severity="info" />
             </template>
-            <template #content>
-                <DataTable 
+            <template #actions>
+                <Button :label="t('roles.actions.create')" icon="pi pi-plus" severity="primary" class="rounded-xl" @click="router.push({ name: 'role-create' })" />
+            </template>
+        </PageHeader>
+        <DataTable 
                     :value="roles" 
                     :loading="loading" 
                     lazy 
@@ -135,7 +129,5 @@ const confirmDelete = (role: RoleSummary) => {
                         </template>
                     </Column>
                 </DataTable>
-            </template>
-        </Card>
-    </div>
+    </PageShell>
 </template>

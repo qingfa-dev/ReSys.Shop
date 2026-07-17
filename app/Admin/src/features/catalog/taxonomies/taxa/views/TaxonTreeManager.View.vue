@@ -178,17 +178,11 @@ const goBack = () => router.push({ name: 'catalog.taxonomies.list' })
     border-left: 1px dashed var(--p-surface-200);
     margin-left: 0.75rem;
 }
-.dark :deep(.p-tree-node-children) {
-    border-left-color: var(--p-surface-800);
-}
 .scrollbar-thin::-webkit-scrollbar {
     width: 4px;
 }
 .scrollbar-thin::-webkit-scrollbar-thumb {
     background: var(--p-surface-200);
     border-radius: 4px;
-}
-.dark .scrollbar-thin::-webkit-scrollbar-thumb {
-    background: var(--p-surface-700);
 }
 </style>

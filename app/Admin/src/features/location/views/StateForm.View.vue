@@ -93,13 +93,13 @@ const onCancel = () => {
       <div class="flex flex-col gap-2">
         <label for="name" class="font-bold text-xs uppercase tracking-wider text-surface-500 ml-1">{{ t('location.labels.name') }}</label>
         <InputText id="name" v-model="name" placeholder="State name" :invalid="!!errors.name" class="rounded-xl h-11" />
-        <small class="text-red-500 ml-1" v-if="errors.name">{{ errors.name }}</small>
+        <small class="p-error" v-if="errors.name">{{ errors.name }}</small>
       </div>
 
       <div class="flex flex-col gap-2">
         <label for="abbreviation" class="font-bold text-xs uppercase tracking-wider text-surface-500 ml-1">{{ t('location.labels.abbreviation') }}</label>
         <InputText id="abbreviation" v-model="abbreviation" placeholder="CA" class="rounded-xl h-11 uppercase" :invalid="!!errors.abbreviation" />
-        <small class="text-red-500 ml-1" v-if="errors.abbreviation">{{ errors.abbreviation }}</small>
+        <small class="p-error" v-if="errors.abbreviation">{{ errors.abbreviation }}</small>
       </div>
 
       <div class="flex flex-col gap-2">
@@ -114,7 +114,7 @@ const onCancel = () => {
           class="rounded-xl"
           :invalid="!!errors.countryId"
         />
-        <small class="text-red-500 ml-1" v-if="errors.countryId">{{ errors.countryId }}</small>
+        <small class="p-error" v-if="errors.countryId">{{ errors.countryId }}</small>
       </div>
 
       <div class="flex flex-col gap-2">

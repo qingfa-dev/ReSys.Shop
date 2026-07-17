@@ -129,7 +129,7 @@ onMounted(() => {
 <template>
     <div :class="[hideHeader ? 'p-0' : 'p-6 max-w-4xl mx-auto']">
         <template v-if="!hideHeader">
-            <AppBreadcrumb :locales="t" />
+            <AppBreadcrumb />
             
             <div class="flex items-center gap-4 mt-4 mb-8">
                 <Button icon="pi pi-arrow-left" text rounded severity="secondary" @click="router.back()" class="bg-surface-100 dark:bg-surface-800" />
@@ -202,7 +202,7 @@ onMounted(() => {
                         <div class="flex flex-col gap-6">
                             <div class="flex flex-col gap-2">
                                 <label class="font-bold text-sm">Location Type</label>
-                                <Dropdown v-model="form.type" :options="typeOptions" optionLabel="label" optionValue="value" class="w-full rounded-xl" />
+                                <Select v-model="form.type" :options="typeOptions" optionLabel="label" optionValue="value" class="w-full rounded-xl" />
                             </div>
 
                             <div class="flex items-center justify-between p-4 bg-surface-50 dark:bg-surface-800/50 rounded-2xl border border-surface-100 dark:border-surface-800">

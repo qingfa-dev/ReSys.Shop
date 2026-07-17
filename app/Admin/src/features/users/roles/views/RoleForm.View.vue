@@ -127,13 +127,10 @@ async function onSubmit() {
                 <small class="text-surface-500">Higher priority roles override lower ones in some contexts.</small>
             </div>
 
-            <div v-if="isSystemRole" class="bg-yellow-50 dark:bg-yellow-900/20 p-4 rounded-xl border border-yellow-200 dark:border-yellow-800 flex items-start gap-3">
-                <i class="pi pi-lock text-yellow-600 dark:text-yellow-400 mt-1"></i>
-                <div class="text-sm">
-                    <span class="font-bold text-yellow-800 dark:text-yellow-200 block">System Role</span>
-                    <span class="text-yellow-700 dark:text-yellow-300">This is a built-in system role. Some properties cannot be modified.</span>
-                </div>
-            </div>
+            <Message v-if="isSystemRole" severity="warn" variant="simple" :closable="false">
+                <i class="pi pi-lock mr-2"></i>
+                <span class="font-bold">System Role</span> — This is a built-in system role. Some properties cannot be modified.
+            </Message>
 
             <div class="flex justify-end gap-3 mt-4">
                 <Button :label="t('common.cancel')" severity="secondary" text @click="router.back()" />

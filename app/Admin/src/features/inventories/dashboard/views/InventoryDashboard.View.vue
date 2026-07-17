@@ -40,7 +40,7 @@ onMounted(async () => {
       </div>
       <div class="rounded-2xl border border-surface-200 dark:border-surface-700 p-5 bg-surface-0 dark:bg-surface-900">
         <p class="text-sm text-surface-500 dark:text-surface-400">Out of Stock</p>
-        <p class="text-3xl font-bold mt-2 text-red-500">{{ data.outOfStockCount.toLocaleString() }}</p>
+        <p class="text-3xl font-bold mt-2 text-pink-500">{{ data.outOfStockCount.toLocaleString() }}</p>
       </div>
       <div class="rounded-2xl border border-surface-200 dark:border-surface-700 p-5 bg-surface-0 dark:bg-surface-900">
         <p class="text-sm text-surface-500 dark:text-surface-400">Low Stock</p>

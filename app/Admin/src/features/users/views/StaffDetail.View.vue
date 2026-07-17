@@ -190,7 +190,4 @@ async function onToggleStatus() {
 :deep(.p-tabs-list) {
     border-bottom: 1px solid var(--p-surface-100);
 }
-.dark :deep(.p-tabs-list) {
-    border-bottom-color: var(--p-surface-800);
-}
 </style>

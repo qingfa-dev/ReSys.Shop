@@ -8,6 +8,7 @@ import { CreateProductSchema } from '../schemas/CreateProduct.Schema';
 import { useProductStore } from '../stores/product.store';
 import { storeToRefs } from 'pinia';
 import AppBreadcrumb from '@/shared/components/Breadcrumb.Component.vue';
+import PageHeader from '@/shared/components/PageHeader.Component.vue';
 import MetadataManager from '@/shared/components/MetadataManager.Component.vue';
 import ProductImageManager from '../components/ProductImageManager.Component.vue';
 import ProductVariantManager from '../components/ProductVariantManager.Component.vue';
@@ -123,24 +124,16 @@ const onSubmit = handleSubmit(async (values) => {
 <template>
     <div class="p-6 max-w-6xl mx-auto">
         <AppBreadcrumb />
-        
-        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mt-4 mb-8">
-            <div class="flex items-center gap-4">
-                <Button icon="pi pi-arrow-left" text rounded severity="secondary" @click="router.back()" class="bg-surface-100 dark:bg-surface-800" />
-                <div>
-                    <h2 class="text-4xl font-black tracking-tighter text-surface-900 dark:text-surface-50 m-0">
-                        {{ isEdit ? (name || 'Edit Product') : t('catalog.products.titles.create') }}
-                    </h2>
-                    <p class="text-sm text-surface-500 m-0">
-                        {{ isEdit ? t('catalog.products.descriptions.edit') : t('catalog.products.descriptions.create') }}
-                    </p>
-                </div>
-            </div>
-            <div class="flex items-center gap-3">
-                <Button :label="t('catalog.products.actions.cancel')" severity="secondary" outlined @click="router.back()" class="rounded-xl px-6" />
-                <Button :label="isEdit ? t('catalog.products.actions.save') : t('catalog.products.actions.new')" icon="pi pi-check" class="rounded-xl px-8 shadow-xl shadow-primary/20" :loading="submitting" @click="onSubmit" />
-            </div>
-        </div>
+        <PageHeader
+          :title="isEdit ? (name || 'Edit Product') : t('catalog.products.titles.create')"
+          :description="isEdit ? t('catalog.products.descriptions.edit') : t('catalog.products.descriptions.create')"
+          back
+        >
+          <template #actions>
+            <Button :label="t('catalog.products.actions.cancel')" severity="secondary" outlined @click="router.back()" class="rounded-xl px-6" />
+            <Button :label="isEdit ? t('catalog.products.actions.save') : t('catalog.products.actions.new')" icon="pi pi-check" class="rounded-xl px-8" :loading="submitting" @click="onSubmit" />
+          </template>
+        </PageHeader>
 
         <Card class="border-none shadow-sm rounded-3xl bg-surface-0 dark:bg-surface-900 overflow-hidden">
             <template #content>
@@ -209,12 +202,12 @@ const onSubmit = handleSubmit(async (values) => {
                                     <div class="flex flex-col gap-2">
                                         <label class="font-bold text-xs uppercase tracking-wider text-surface-500 ml-1">{{ t('catalog.products.labels.name') }}</label>
                                         <InputText v-model="name" class="w-full rounded-2xl h-12 px-4" :invalid="!!errors.name" @blur="generateSlug" />
-                                        <small class="text-red-500 ml-1" v-if="errors.name">{{ errors.name }}</small>
+                                        <small class="p-error" v-if="errors.name">{{ errors.name }}</small>
                                     </div>
                                     <div class="flex flex-col gap-2">
                                         <label class="font-bold text-xs uppercase tracking-wider text-surface-500 ml-1">{{ t('catalog.products.labels.slug') }}</label>
                                         <InputText v-model="slug" class="w-full rounded-2xl h-12 px-4 font-mono text-sm" :invalid="!!errors.slug" />
-                                        <small class="text-red-500 ml-1" v-if="errors.slug">{{ errors.slug }}</small>
+                                        <small class="p-error" v-if="errors.slug">{{ errors.slug }}</small>
                                     </div>
                                 </div>
 
@@ -222,12 +215,12 @@ const onSubmit = handleSubmit(async (values) => {
                                     <div class="flex flex-col gap-2">
                                         <label class="font-bold text-xs uppercase tracking-wider text-surface-500 ml-1">{{ t('catalog.products.labels.sku') }}</label>
                                         <InputText v-model="sku" class="w-full rounded-2xl h-12 px-4 font-mono" :invalid="!!errors.sku" />
-                                        <small class="text-red-500 ml-1" v-if="errors.sku">{{ errors.sku }}</small>
+                                        <small class="p-error" v-if="errors.sku">{{ errors.sku }}</small>
                                     </div>
                                     <div class="flex flex-col gap-2">
                                         <label class="font-bold text-xs uppercase tracking-wider text-surface-500 ml-1">{{ t('catalog.products.labels.price') }}</label>
                                         <InputNumber v-model="price" mode="currency" currency="USD" locale="en-US" class="w-full rounded-2xl h-12 overflow-hidden" inputClass="px-4" :invalid="!!errors.price" />
-                                        <small class="text-red-500 ml-1" v-if="errors.price">{{ errors.price }}</small>
+                                        <small class="p-error" v-if="errors.price">{{ errors.price }}</small>
                                     </div>
                                 </div>
 
@@ -333,9 +326,6 @@ const onSubmit = handleSubmit(async (values) => {
 :deep(.p-tablist-tab-list) {
     padding: 0 0.5rem;
     border-bottom: 1px solid var(--p-surface-100);
-}
-.dark :deep(.p-tablist-tab-list) {
-    border-bottom-color: var(--p-surface-800);
 }
 :deep(.p-tabpanel) {
     padding: 0;

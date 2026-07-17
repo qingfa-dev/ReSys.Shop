@@ -48,7 +48,7 @@ const getStatusSeverity = (state: string) => {
 
 <template>
     <div class="p-6 max-w-7xl mx-auto">
-        <AppBreadcrumb :locales="t" />
+        <AppBreadcrumb />
         
         <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mt-4 mb-8">
             <div>
@@ -123,20 +123,3 @@ const getStatusSeverity = (state: string) => {
         </div>
     </div>
 </template>
-
-<style scoped>
-:deep(.p-datatable-thead > tr > th) {
-  background: var(--p-content-background);
-  color: var(--p-text-color);
-  font-size: 0.875rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.025em;
-  padding: 1rem 1.5rem;
-  border-bottom: 2px solid var(--p-primary-color);
-}
-:deep(.p-datatable-tbody > tr > td) {
-  padding: 1rem 1.5rem;
-  border-bottom: 1px solid var(--p-content-border-color);
-}
-</style>

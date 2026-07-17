@@ -226,13 +226,13 @@ const cancel = () => {
                                 <div class="flex flex-col gap-2">
                                     <label for="name" class="font-bold text-xs uppercase tracking-wider text-surface-500 ml-1">{{ t('catalog.option_types.labels.name') }}</label>
                                     <InputText id="name" v-model="name" class="w-full rounded-xl h-11" :invalid="!!errors.name" :placeholder="t('catalog.option_types.placeholders.name')" />
-                                    <small class="text-red-500" v-if="errors.name">{{ errors.name }}</small>
+                                    <small class="p-error" v-if="errors.name">{{ errors.name }}</small>
                                 </div>
 
                                 <div class="flex flex-col gap-2">
                                     <label for="presentation" class="font-bold text-xs uppercase tracking-wider text-surface-500 ml-1">{{ t('catalog.option_types.labels.presentation') }}</label>
                                     <InputText id="presentation" v-model="presentation" class="w-full rounded-xl h-11" :invalid="!!errors.presentation" :placeholder="t('catalog.option_types.placeholders.presentation')" />
-                                    <small class="text-red-500" v-if="errors.presentation">{{ errors.presentation }}</small>
+                                    <small class="p-error" v-if="errors.presentation">{{ errors.presentation }}</small>
                                 </div>
 
                                 <div class="grid grid-cols-2 gap-4">
@@ -300,13 +300,13 @@ const cancel = () => {
         <div class="flex flex-col gap-2">
           <label for="vName" class="font-bold text-xs uppercase text-surface-500">{{ t('catalog.option_types.labels.value_name') }}</label>
           <InputText id="vName" v-model="vName" class="w-full rounded-xl h-11" :invalid="!!valueErrors.name" :placeholder="t('catalog.option_types.placeholders.value_name')" />
-          <small class="text-red-500" v-if="valueErrors.name">{{ valueErrors.name }}</small>
+          <small class="p-error" v-if="valueErrors.name">{{ valueErrors.name }}</small>
         </div>
 
         <div class="flex flex-col gap-2">
           <label for="vPresentation" class="font-bold text-xs uppercase text-surface-500">{{ t('catalog.option_types.labels.value_presentation') }}</label>
           <InputText id="vPresentation" v-model="vPresentation" class="w-full rounded-xl h-11" :invalid="!!valueErrors.presentation" :placeholder="t('catalog.option_types.placeholders.value_presentation')" />
-          <small class="text-red-500" v-if="valueErrors.presentation">{{ valueErrors.presentation }}</small>
+          <small class="p-error" v-if="valueErrors.presentation">{{ valueErrors.presentation }}</small>
         </div>
 
         <div class="flex flex-col gap-2">
@@ -327,9 +327,6 @@ const cancel = () => {
 :deep(.p-tabs-list) {
     border-bottom: 1px solid var(--p-surface-100);
 }
-.dark :deep(.p-tabs-list) {
-    border-bottom-color: var(--p-surface-800);
-}
 .scrollbar-thin::-webkit-scrollbar {
     width: 4px;
 }
@@ -337,24 +334,5 @@ const cancel = () => {
     background: var(--p-surface-200);
     border-radius: 4px;
 }
-.dark .scrollbar-thin::-webkit-scrollbar-thumb {
-    background: var(--p-surface-700);
-}
 </style>
 
-<style scoped>
-:deep(.p-datatable-thead > tr > th) {
-  background: var(--p-surface-50);
-  font-size: 0.75rem;
-  text-transform: uppercase;
-  font-weight: 700;
-  padding: 0.75rem 1rem;
-}
-:deep(.p-datatable-tbody > tr > td) {
-  padding: 0.75rem 1rem;
-}
-
-.dark :deep(.p-datatable-thead > tr > th) {
-  background: var(--p-surface-800);
-}
-</style>

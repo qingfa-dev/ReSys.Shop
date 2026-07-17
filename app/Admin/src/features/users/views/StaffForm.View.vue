@@ -166,7 +166,7 @@ async function onSubmit() {
             <div v-if="isEditMode" class="field">
                 <label class="font-bold block mb-2">Account Status</label>
                 <div class="flex items-center gap-3">
-                    <InputSwitch v-model="form.isActive" inputId="isActive" />
+                    <ToggleSwitch v-model="form.isActive" inputId="isActive" />
                     <label for="isActive" class="cursor-pointer">{{ form.isActive ? 'Active' : 'Inactive' }}</label>
                 </div>
             </div>

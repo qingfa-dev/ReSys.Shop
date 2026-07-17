@@ -89,13 +89,13 @@ const onCancel = () => {
       <div class="flex flex-col gap-2">
         <label for="name" class="font-bold text-xs uppercase tracking-wider text-surface-500 ml-1">{{ t('location.labels.name') }}</label>
         <InputText id="name" v-model="name" placeholder="Country name" :invalid="!!errors.name" class="rounded-xl h-11" />
-        <small class="text-red-500 ml-1" v-if="errors.name">{{ errors.name }}</small>
+        <small class="p-error" v-if="errors.name">{{ errors.name }}</small>
       </div>
 
       <div class="flex flex-col gap-2">
         <label for="isoCode" class="font-bold text-xs uppercase tracking-wider text-surface-500 ml-1">ISO Code</label>
         <InputText id="isoCode" v-model="isoCode" placeholder="US" maxlength="2" class="rounded-xl h-11 uppercase" :invalid="!!errors.isoCode" />
-        <small class="text-red-500 ml-1" v-if="errors.isoCode">{{ errors.isoCode }}</small>
+        <small class="p-error" v-if="errors.isoCode">{{ errors.isoCode }}</small>
       </div>
 
       <div class="flex flex-col gap-2">

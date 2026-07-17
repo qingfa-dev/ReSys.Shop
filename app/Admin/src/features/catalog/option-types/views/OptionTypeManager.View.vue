@@ -143,7 +143,4 @@ const goBack = () => router.push({ name: 'catalog.dashboard' })
     background: var(--p-surface-200);
     border-radius: 4px;
 }
-.dark .scrollbar-thin::-webkit-scrollbar-thumb {
-    background: var(--p-surface-700);
-}
 </style>

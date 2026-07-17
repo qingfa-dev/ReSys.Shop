@@ -5,7 +5,8 @@ import { storeToRefs } from 'pinia';
 import { useRouter } from 'vue-router';
 import { useFormatter } from '@/shared/composables/formatter.use';
 import { useI18n } from 'vue-i18n';
-import AppBreadcrumb from '@/shared/components/Breadcrumb.Component.vue';
+import PageShell from '@/shared/components/PageShell.Component.vue';
+import PageHeader from '@/shared/components/PageHeader.Component.vue';
 import { FilterMatchMode } from '@primevue/core/api';
 import type { DataTablePageEvent, DataTableSortEvent, DataTableFilterMeta } from 'primevue/datatable';
 
@@ -39,23 +40,16 @@ const getStatusSeverity = (state: string) => {
 </script>
 
 <template>
-    <div class="p-6 max-w-7xl mx-auto">
-        <AppBreadcrumb :locales="t" />
-        <Card class="rounded-3xl shadow-sm border-none bg-surface-0 dark:bg-surface-900 overflow-hidden">
-            <template #title>
-                <div class="flex items-center justify-between p-4">
-                    <div class="flex flex-col gap-1">
-                        <div class="flex items-center gap-3">
-                            <span class="text-xl font-bold">{{ t('inventory.titles.transfers') }}</span>
-                            <Badge :value="totalTransfers" severity="info" />
-                        </div>
-                        <span class="text-sm text-surface-500">{{ t('inventory.descriptions.transfers') }}</span>
-                    </div>
-                    <Button :label="t('inventory.actions.new_transfer')" icon="pi pi-plus" severity="primary" class="rounded-xl" @click="router.push({ name: 'inventory.transfers.create' })" />
-                </div>
+    <PageShell maxWidth="7xl">
+        <PageHeader :title="t('inventory.titles.transfers')" :description="t('inventory.descriptions.transfers')">
+            <template #badge>
+                <Badge :value="totalTransfers" severity="info" />
             </template>
-            <template #content>
-                <DataTable 
+            <template #actions>
+                <Button :label="t('inventory.actions.new_transfer')" icon="pi pi-plus" severity="primary" class="rounded-xl" @click="router.push({ name: 'inventory.transfers.create' })" />
+            </template>
+        </PageHeader>
+        <DataTable 
                     :value="transfers" 
                     :loading="loading" 
                     :lazy="true" 
@@ -110,24 +104,5 @@ const getStatusSeverity = (state: string) => {
                         </template>
                     </Column>
                 </DataTable>
-            </template>
-        </Card>
-    </div>
+    </PageShell>
 </template>
-
-<style scoped>
-:deep(.p-datatable-thead > tr > th) {
-  background: var(--p-content-background);
-  color: var(--p-text-color);
-  font-size: 0.875rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.025em;
-  padding: 1rem 1.5rem;
-  border-bottom: 2px solid var(--p-primary-color);
-}
-:deep(.p-datatable-tbody > tr > td) {
-  padding: 1rem 1.5rem;
-  border-bottom: 1px solid var(--p-content-border-color);
-}
-</style>

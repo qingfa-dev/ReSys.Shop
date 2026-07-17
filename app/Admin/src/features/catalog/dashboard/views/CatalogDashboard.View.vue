@@ -36,7 +36,7 @@ const navigateToOptionTypes = () => router.push({ name: 'catalog.option-types.li
             <!-- Products Card -->
             <div class="p-6 bg-surface-0 dark:bg-surface-900 border border-surface-100 dark:border-surface-800 rounded-2xl shadow-sm flex flex-col justify-between hover:border-primary transition-colors cursor-pointer" @click="navigateToProducts">
                 <div class="flex items-center justify-between mb-4">
-                    <div class="w-12 h-12 flex items-center justify-center rounded-xl bg-blue-50 dark:bg-blue-900/20 text-blue-600">
+                    <div class="w-12 h-12 flex items-center justify-center rounded-xl bg-primary/10 text-primary">
                         <i class="pi pi-shopping-bag text-xl"></i>
                     </div>
                     <span class="text-sm font-bold text-green-500">{{ summary.activeProducts }} Active</span>
@@ -50,7 +50,7 @@ const navigateToOptionTypes = () => router.push({ name: 'catalog.option-types.li
             <!-- Variants Card -->
             <div class="p-6 bg-surface-0 dark:bg-surface-900 border border-surface-100 dark:border-surface-800 rounded-2xl shadow-sm flex flex-col justify-between">
                 <div class="flex items-center justify-between mb-4">
-                    <div class="w-12 h-12 flex items-center justify-center rounded-xl bg-purple-50 dark:bg-purple-900/20 text-purple-600">
+                    <div class="w-12 h-12 flex items-center justify-center rounded-xl bg-primary/10 text-primary">
                         <i class="pi pi-clone text-xl"></i>
                     </div>
                 </div>
@@ -63,7 +63,7 @@ const navigateToOptionTypes = () => router.push({ name: 'catalog.option-types.li
             <!-- Categories Card -->
             <div class="p-6 bg-surface-0 dark:bg-surface-900 border border-surface-100 dark:border-surface-800 rounded-2xl shadow-sm flex flex-col justify-between hover:border-primary transition-colors cursor-pointer" @click="navigateToTaxonomies">
                 <div class="flex items-center justify-between mb-4">
-                    <div class="w-12 h-12 flex items-center justify-center rounded-xl bg-orange-50 dark:bg-orange-900/20 text-orange-600">
+                    <div class="w-12 h-12 flex items-center justify-center rounded-xl bg-primary/10 text-primary">
                         <i class="pi pi-sitemap text-xl"></i>
                     </div>
                     <span class="text-sm font-bold text-surface-500">{{ summary.totalTaxonomies }} Roots</span>
@@ -132,12 +132,3 @@ const navigateToOptionTypes = () => router.push({ name: 'catalog.option-types.li
         </div>
     </div>
 </template>
-
-<style scoped>
-:deep(.p-datatable-thead > tr > th) {
-    background: transparent;
-    font-size: 0.75rem;
-    text-transform: uppercase;
-    font-weight: 700;
-}
-</style>

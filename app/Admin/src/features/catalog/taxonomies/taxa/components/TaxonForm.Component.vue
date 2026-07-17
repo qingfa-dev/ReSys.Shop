@@ -133,7 +133,7 @@ const onSubmit = handleSubmit((values) => {
                   {{ t('catalog.taxa.labels.name') }}
                 </label>
                 <InputText v-model="name" class="w-full rounded-xl" :invalid="!!errors.name" @blur="generateSlug" />
-                <small class="text-red-500" v-if="errors.name">{{ errors.name }}</small>
+                <small class="p-error" v-if="errors.name">{{ errors.name }}</small>
               </div>
 
               <div class="flex flex-col gap-2">
@@ -141,7 +141,7 @@ const onSubmit = handleSubmit((values) => {
                   {{ t('catalog.taxa.labels.presentation') }}
                 </label>
                 <InputText v-model="presentation" class="w-full rounded-xl" :invalid="!!errors.presentation" />
-                <small class="text-red-500" v-if="errors.presentation">{{ errors.presentation }}</small>
+                <small class="p-error" v-if="errors.presentation">{{ errors.presentation }}</small>
               </div>
             </div>
 
@@ -151,7 +151,7 @@ const onSubmit = handleSubmit((values) => {
                   {{ t('catalog.taxa.labels.slug') }}
                 </label>
                 <InputText v-model="slug" class="w-full font-mono text-sm rounded-xl" :invalid="!!errors.slug" />
-                <small class="text-red-500" v-if="errors.slug">{{ errors.slug }}</small>
+                <small class="p-error" v-if="errors.slug">{{ errors.slug }}</small>
               </div>
 
               <div class="flex flex-col gap-2">

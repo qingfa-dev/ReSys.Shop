@@ -67,7 +67,7 @@ async function onSubmit() {
 
             <div class="flex flex-col gap-2">
                 <label class="font-bold text-sm">{{ t('inventory.table.type') }}</label>
-                <Dropdown v-model="form.type" :options="typeOptions" optionLabel="label" optionValue="value" class="w-full" />
+                <Select v-model="form.type" :options="typeOptions" optionLabel="label" optionValue="value" class="w-full" />
             </div>
 
             <div class="flex flex-col gap-2">

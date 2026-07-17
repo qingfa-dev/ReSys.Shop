@@ -89,7 +89,7 @@ const executeUpload = () => {
                 
                 <div v-else class="flex flex-col gap-4 w-full">
                     <div class="relative w-full aspect-video rounded-xl overflow-hidden border border-surface-200 dark:border-surface-700 bg-surface-900 flex items-center justify-center group">
-                        <img :src="filePreview || ''" class="max-w-full max-h-full object-contain" />
+                        <Image :src="filePreview || ''" preview class="max-w-full max-h-full object-contain" />
                         <Button icon="pi pi-times" rounded severity="danger" class="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity" @click="clearSelection" />
                     </div>
                     

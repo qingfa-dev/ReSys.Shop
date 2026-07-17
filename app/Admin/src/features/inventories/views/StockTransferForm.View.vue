@@ -43,7 +43,7 @@ async function onSubmit() {
 
 <template>
     <div class="p-6 max-w-2xl mx-auto">
-        <AppBreadcrumb :locales="t" />
+        <AppBreadcrumb />
         
         <div class="flex items-center gap-4 mt-4 mb-8">
             <Button icon="pi pi-arrow-left" text rounded severity="secondary" @click="router.back()" class="bg-surface-100 dark:bg-surface-800" />

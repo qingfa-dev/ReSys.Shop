@@ -133,7 +133,7 @@ const confirmGeneration = async () => {
 
             if (createRes.isSuccess && createRes.value) {
                 const variantId = createRes.value.id;
-                await variantService.updateOptionValues(variantId, payload.option_values);
+                await variantService.updateOptionValues(variantId, payload.optionValues);
                 successCount++;
             } else {
                 failCount++;

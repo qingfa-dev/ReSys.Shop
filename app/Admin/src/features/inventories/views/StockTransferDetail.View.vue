@@ -109,7 +109,7 @@ onMounted(() => {
 
 <template>
     <div class="p-6 max-w-6xl mx-auto">
-        <AppBreadcrumb :locales="t" />
+        <AppBreadcrumb />
         
         <div v-if="transfer" class="flex flex-col md:flex-row md:items-center justify-between gap-4 mt-4 mb-8">
             <div class="flex items-center gap-4">

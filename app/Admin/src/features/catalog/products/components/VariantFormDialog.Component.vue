@@ -139,7 +139,7 @@ const onSubmit = handleSubmit((values) => {
             <div class="flex flex-col gap-2">
                 <label class="font-bold text-xs uppercase tracking-wider text-surface-500 ml-1">SKU</label>
                 <InputText v-model="sku" class="w-full" :invalid="!!errors.sku" />
-                <small class="text-red-500" v-if="errors.sku">{{ errors.sku }}</small>
+                <small class="p-error" v-if="errors.sku">{{ errors.sku }}</small>
             </div>
 
             <div v-if="!variant?.isMaster && assignedOptionTypes.length > 0" class="flex flex-col gap-4 p-4 bg-surface-50 dark:bg-surface-800/50 rounded-2xl border border-surface-200 dark:border-surface-700">
@@ -154,7 +154,7 @@ const onSubmit = handleSubmit((values) => {
                 <div class="flex flex-col gap-2">
                     <label class="font-bold text-xs uppercase tracking-wider text-surface-500 ml-1">{{ t('catalog.products.labels.price') }}</label>
                     <InputNumber v-model="price" mode="currency" currency="USD" locale="en-US" class="w-full" :invalid="!!errors.price" />
-                    <small class="text-red-500" v-if="errors.price">{{ errors.price }}</small>
+                    <small class="p-error" v-if="errors.price">{{ errors.price }}</small>
                 </div>
                 <div class="flex flex-col gap-2">
                     <label class="font-bold text-xs uppercase tracking-wider text-surface-500 ml-1">{{ t('catalog.products.labels.weight') }}</label>

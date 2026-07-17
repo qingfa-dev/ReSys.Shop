@@ -69,7 +69,7 @@ async function onChangePassword() {
 <template>
     <div class="space-y-8">
         <div v-if="loading" class="flex justify-center py-20">
-            <i class="pi pi-spin pi-spinner text-4xl text-primary"></i>
+            <ProgressSpinner style="width: 40px; height: 40px" />
         </div>
 
         <template v-else-if="user">
@@ -165,28 +165,28 @@ async function onChangePassword() {
                                         <p class="font-medium text-surface-900 dark:text-surface-0">Email Notifications</p>
                                         <p class="text-sm text-surface-500">Receive email updates about your account</p>
                                     </div>
-                                    <InputSwitch v-model="notifications.email_notifications" />
+                                    <ToggleSwitch v-model="notifications.email_notifications" />
                                 </div>
                                 <div class="flex items-center justify-between">
                                     <div>
                                         <p class="font-medium text-surface-900 dark:text-surface-0">Order Updates</p>
                                         <p class="text-sm text-surface-500">Get notified about order status changes</p>
                                     </div>
-                                    <InputSwitch v-model="notifications.order_updates" />
+                                    <ToggleSwitch v-model="notifications.order_updates" />
                                 </div>
                                 <div class="flex items-center justify-between">
                                     <div>
                                         <p class="font-medium text-surface-900 dark:text-surface-0">Marketing</p>
                                         <p class="text-sm text-surface-500">Receive promotional offers and news</p>
                                     </div>
-                                    <InputSwitch v-model="notifications.marketing" />
+                                    <ToggleSwitch v-model="notifications.marketing" />
                                 </div>
                                 <div class="flex items-center justify-between">
                                     <div>
                                         <p class="font-medium text-surface-900 dark:text-surface-0">Security Alerts</p>
                                         <p class="text-sm text-surface-500">Important security notifications about your account</p>
                                     </div>
-                                    <InputSwitch v-model="notifications.security_alerts" />
+                                    <ToggleSwitch v-model="notifications.security_alerts" />
                                 </div>
                             </div>
                         </template>

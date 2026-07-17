@@ -7,6 +7,8 @@ import { useToast } from '@/shared/composables/toast.use'
 import type { Country } from '../types/Country.Response.Type'
 import CountryForm from './CountryForm.View.vue'
 import { useI18n } from 'vue-i18n'
+import PageShell from '@/shared/components/PageShell.Component.vue'
+import PageHeader from '@/shared/components/PageHeader.Component.vue'
 
 const store = useCountryStore()
 const { t } = useI18n()
@@ -64,18 +66,15 @@ onMounted(() => {
 </script>
 
 <template>
-  <Card>
-    <template #content>
-      <div class="flex flex-col items-start justify-between gap-4 mb-8 md:flex-row md:items-center">
-      <div>
-        <h2 class="text-3xl font-black tracking-tight text-surface-900 dark:text-surface-50">{{ t('location.titles.countries') }}</h2>
-        <div class="flex items-center gap-2 mt-1">
-          <span class="text-surface-500 dark:text-surface-400">Manage countries and regions</span>
-          <Badge :value="totalRecords" severity="info" class="ml-2" />
-        </div>
-      </div>
-      <Button :label="t('location.actions.new_country')" icon="pi pi-plus" @click="openCreate" class="px-4 shadow-lg rounded-xl" />
-    </div>
+  <PageShell>
+    <PageHeader :title="t('location.titles.countries')" description="Manage countries and regions">
+      <template #badge>
+        <Badge :value="totalRecords" severity="info" class="ml-2" />
+      </template>
+      <template #actions>
+        <Button :label="t('location.actions.new_country')" icon="pi pi-plus" @click="openCreate" class="px-4 shadow-lg rounded-xl" />
+      </template>
+    </PageHeader>
 
     <div class="overflow-hidden border shadow-sm bg-surface-0 dark:bg-surface-900 rounded-2xl border-surface-100 dark:border-surface-800">
       <DataTable
@@ -140,27 +139,5 @@ onMounted(() => {
       @close="onDialogClose"
       @saved="onSaved"
     />
-  </template>
-</Card>
+  </PageShell>
 </template>
-
-<style scoped>
-:deep(.p-datatable-header) {
-  background: transparent;
-  padding: 1rem;
-}
-:deep(.p-datatable-thead > tr > th) {
-  background: var(--p-content-background);
-  color: var(--p-text-color);
-  font-size: 0.875rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.025em;
-  padding: 1rem 1.5rem;
-  border-bottom: 2px solid var(--p-primary-color);
-}
-:deep(.p-datatable-tbody > tr > td) {
-  padding: 1rem 1.5rem;
-  border-bottom: 1px solid var(--p-content-border-color);
-}
-</style>

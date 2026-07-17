@@ -22,7 +22,7 @@ onMounted(async () => {
 </script>
 
 <template>
-    <Dropdown 
+    <Select 
         :modelValue="modelValue" 
         @update:modelValue="emit('update:modelValue', $event)"
         @change="emit('change', $event)"
@@ -44,5 +44,5 @@ onMounted(async () => {
                 </div>
             </div>
         </template>
-    </Dropdown>
+    </Select>
 </template>

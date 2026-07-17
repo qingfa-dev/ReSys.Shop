@@ -5,6 +5,8 @@ import { storeToRefs } from 'pinia';
 import { useFormatter } from '@/shared/composables/formatter.use';
 import { useRouter } from 'vue-router';
 import { useI18n } from 'vue-i18n';
+import PageShell from '@/shared/components/PageShell.Component.vue';
+import PageHeader from '@/shared/components/PageHeader.Component.vue';
 
 const store = useFulfillmentStore();
 const { t } = useI18n();
@@ -22,12 +24,8 @@ const shipOrder = (id: string) => {
 </script>
 
 <template>
-    <Card>
-        <template #content>
-            <div class="flex justify-between items-center mb-6">
-            <h1 class="text-2xl font-bold">{{ t('ordering.titles.fulfillment_queue') }}</h1>
-            <p class="text-surface-500">{{ t('ordering.descriptions.fulfillment_queue') }}</p>
-        </div>
+    <PageShell>
+        <PageHeader :title="t('ordering.titles.fulfillment_queue')" :description="t('ordering.descriptions.fulfillment_queue')" />
 
         <DataTable :value="queue" :loading="loading" dataKey="id" stripedRows showGridlines>
             <Column field="number" :header="t('ordering.table.order_number')">
@@ -51,6 +49,5 @@ const shipOrder = (id: string) => {
                 </template>
             </Column>
         </DataTable>
-    </template>
-</Card>
+    </PageShell>
 </template>
