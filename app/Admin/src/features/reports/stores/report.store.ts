@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia';
 import { ref } from 'vue';
 import { reportService } from '../services/report.service';
-import type { SalesSummary, InventorySummary, CatalogSummary, ActivityItem } from '../types/report.domain.types';
+import type { SalesSummary, InventorySummary, CatalogSummary, ActivityItem } from '../types/Report.Response.Type';
 
 export const useReportStore = defineStore('report', () => {
   const sales = ref<SalesSummary | null>(null);

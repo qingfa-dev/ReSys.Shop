@@ -1,7 +1,7 @@
 import apiClient from '@/shared/api/http/api.client'
 import type { ServerResult } from '@/shared/api/types/result.types'
-import type { Profile } from '../types/profile.domain.types'
-import type { ProfileUpdateRequest } from '../types/profile.request.types'
+import type { Profile } from '../types/Profile.Response.Type'
+import type { ProfileUpdateRequest } from '../types/Profile.Request.Type'
 import { PROFILES } from '@/shared/api/constants'
 
 export const profileRepository = {

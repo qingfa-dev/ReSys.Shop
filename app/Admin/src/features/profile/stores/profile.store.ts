@@ -2,7 +2,7 @@ import { defineStore } from 'pinia'
 import { ref } from 'vue'
 import { useToast } from '@/shared/composables/toast.use'
 import { profileService } from '../services/profile.service'
-import type { Profile } from '../types/profile.domain.types'
+import type { Profile } from '../types/Profile.Response.Type'
 
 export const useProfileStore = defineStore('profile', () => {
   const { showToast } = useToast()
@@ -22,7 +22,7 @@ export const useProfileStore = defineStore('profile', () => {
     return result
   }
 
-  async function updateProfile(data: import('../types/profile.request.types').ProfileUpdateRequest) {
+  async function updateProfile(data: import('../types/Profile.Request.Type').ProfileUpdateRequest) {
     submitting.value = true
     const result = await profileService.updateProfile(data)
     if (result.isSuccess) {

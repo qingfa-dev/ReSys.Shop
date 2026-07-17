@@ -1,4 +1,4 @@
-import type { Profile } from '../types/profile.domain.types'
+import type { Profile } from '../types/Profile.Response.Type'
 
 export function mapProfileResponse(dto: Profile): Profile {
   return {
