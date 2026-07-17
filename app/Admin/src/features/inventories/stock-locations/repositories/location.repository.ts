@@ -6,7 +6,7 @@ import type { StockLocation, StockLocationDetail } from '../../types/StockLocati
 import type { CreateStockLocationRequest } from '../../types/StockLocation.Request.Type'
 
 function path(sub?: string): string {
-  return `${INVENTORY}/locations${sub ? `/${sub}` : ''}`
+  return `${INVENTORY}/stock-locations${sub ? `/${sub}` : ''}`
 }
 
 export const locationRepository = {

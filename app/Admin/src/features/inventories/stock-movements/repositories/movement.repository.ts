@@ -5,7 +5,7 @@ import type { ServerQueryingParameters } from '@/shared/api/types/query.types'
 import type { StockMovement } from '../../types/StockMovement.Response.Type'
 
 function path(sub?: string): string {
-  return `${INVENTORY}/movements${sub ? `/${sub}` : ''}`
+  return `${INVENTORY}/stock-movements${sub ? `/${sub}` : ''}`
 }
 
 export const movementRepository = {

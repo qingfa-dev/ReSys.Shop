@@ -6,7 +6,7 @@ import type { StockTransfer, StockTransferDetail } from '../../types/StockTransf
 import type { CreateStockTransferRequest } from '../../types/StockTransfer.Request.Type'
 
 function path(sub?: string): string {
-  return `${INVENTORY}/transfers${sub ? `/${sub}` : ''}`
+  return `${INVENTORY}/stock-transfers${sub ? `/${sub}` : ''}`
 }
 
 export const transferRepository = {

@@ -5,7 +5,7 @@ import type { ServerQueryingParameters } from '@/shared/api/types/query.types'
 import type { InventoryUnit } from '../../types/InventoryUnit.Response.Type'
 
 function path(sub?: string): string {
-  return `${INVENTORY}/reservations${sub ? `/${sub}` : ''}`
+  return `${INVENTORY}/stock-reservations${sub ? `/${sub}` : ''}`
 }
 
 export const reservationRepository = {
