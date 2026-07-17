@@ -4,13 +4,13 @@ version: 1.0
 date_created: 2026-07-17
 last_updated: 2026-07-17
 owner: Admin
-status: In progress
+status: Completed
 tags: refactor, auth, token, admin
 ---
 
 # Introduction
 
-![Status: In progress](https://img.shields.io/badge/status-In_progress-yellow)
+![Status: Completed](https://img.shields.io/badge/status-Completed-brightgreen)
 
 The backend auth API returns token fields in snake_case (`access_token`, `refresh_token`, `access_token_expires_in`, `refresh_token_expires_in`). The client-side code uses camelCase (`accessToken`, `refreshToken`, `accessTokenExpiresIn`, `refreshTokenExpiresIn`). An `auth.mapper.ts` converts snake_case DTOs to camelCase via `mapAuthResponse()`, but `refresh-handler.ts` bypasses the mapper and accesses camelCase property names directly on the raw server response — causing token refresh to silently fail. This plan fixes the inconsistency and eliminates the duplicate `AuthDto` interface.
 
@@ -33,10 +33,10 @@ The backend auth API returns token fields in snake_case (`access_token`, `refres
 
 | Task | Description | Completed | Date |
 |------|-------------|-----------|------|
-| TASK-001 | Change `body.value.accessToken` → `body.value.access_token` in `src/shared/api/http/refresh-handler.ts:18` | | |
-| TASK-002 | Change `body.value.refreshToken` → `body.value.refresh_token` in `src/shared/api/http/refresh-handler.ts:18` | | |
-| TASK-003 | Run `pnpm run lint` to verify zero new errors | | |
-| TASK-004 | Commit: `fix(admin): use snake_case field access in refresh handler` | | |
+| TASK-001 | Change `body.value.accessToken` → `body.value.access_token` in `src/shared/api/http/refresh-handler.ts:18` | ✅ | 2026-07-17 |
+| TASK-002 | Change `body.value.refreshToken` → `body.value.refresh_token` in `src/shared/api/http/refresh-handler.ts:18` | ✅ | 2026-07-17 |
+| TASK-003 | Run `pnpm run lint` to verify zero new errors | ✅ | 2026-07-17 |
+| TASK-004 | Commit: `fix(admin): use snake_case field access in refresh handler` | ✅ | 2026-07-17 |
 
 ### Implementation Phase 2 — Eliminate duplicate AuthDto
 
@@ -44,10 +44,10 @@ The backend auth API returns token fields in snake_case (`access_token`, `refres
 
 | Task | Description | Completed | Date |
 |------|-------------|-----------|------|
-| TASK-005 | Add `import type { AuthDto } from '../mappers/auth.mapper'` to `src/features/auth/repositories/auth.repository.ts` | | |
-| TASK-006 | Remove local `interface AuthDto` definition (lines 6-11) from repository | | |
-| TASK-007 | Verify `pnpm run test:unit -- src/features/auth/` passes | | |
-| TASK-008 | Commit: `refactor(admin): import AuthDto from mapper, remove duplicate` | | |
+| TASK-005 | Add `import type { AuthDto } from '../mappers/auth.mapper'` to `src/features/auth/repositories/auth.repository.ts` | ✅ | 2026-07-17 |
+| TASK-006 | Remove local `interface AuthDto` definition (lines 6-11) from repository | ✅ | 2026-07-17 |
+| TASK-007 | Verify `pnpm run test:unit -- src/features/auth/` passes | ✅ | 2026-07-17 |
+| TASK-008 | Commit: `refactor(admin): import AuthDto from mapper, remove duplicate` | ✅ | 2026-07-17 |
 
 ## 3. Alternatives
 
