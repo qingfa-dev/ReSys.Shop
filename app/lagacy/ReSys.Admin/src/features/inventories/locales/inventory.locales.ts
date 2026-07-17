@@ -1,0 +1,134 @@
+import type { FeatureLocales } from '@/shared/locales/locale.types';
+
+export interface InventoryLocales extends FeatureLocales {
+  table: {
+    sku: string;
+    product: string;
+    location: string;
+    on_hand: string;
+    reserved: string;
+    available: string;
+    status: string;
+    reference: string;
+    type: string;
+    actions: string;
+    clear_filter: string;
+  };
+  actions: {
+    adjust: string;
+    audit: string;
+    transfer: string;
+    new_location: string;
+    new_transfer: string;
+    ship: string;
+    receive: string;
+    save: string;
+    cancel: string;
+    add: string;
+    add_child: string;
+    delete: string;
+  };
+  messages: {
+    adjust_success: string;
+    audit_success: string;
+    create_location_success: string;
+    create_transfer_success: string;
+    delete_location_success: string;
+    loading: string;
+    empty_list: string;
+    select_location: string;
+    select_location_desc: string;
+    hierarchy_view: string;
+    no_locations: string;
+  };
+  confirm?: {
+    delete_header: string;
+    delete_message: string;
+  };
+}
+
+export const inventoryLocales: InventoryLocales = {
+  titles: {
+    list: 'Inventory Stock',
+    locations: 'Stock Locations',
+    transfers: 'Stock Transfers',
+    adjust: 'Adjust Stock',
+    audit: 'Audit Inventory',
+    create_location: 'New Warehouse',
+    create_transfer: 'Initiate Transfer',
+  },
+  descriptions: {
+    list: 'Overview of stock levels across all products and locations.',
+    locations: 'Manage warehouses, retail stores, and fulfillment centers.',
+    transfers: 'Move merchandise between inventory locations.',
+    manager: 'Configure your physical and logical storage hierarchy.',
+  },
+  table: {
+    sku: 'SKU',
+    product: 'Product',
+    location: 'Location',
+    on_hand: 'On Hand',
+    reserved: 'Reserved',
+    available: 'Available',
+    status: 'Status',
+    reference: 'Reference',
+    type: 'Type',
+    actions: 'Actions',
+    clear_filter: 'Clear Filters'
+  },
+  labels: {
+    name: 'Location Name',
+    code: 'Code (Unique)',
+    is_default: 'Default Location',
+    source: 'Source Location',
+    destination: 'Destination Location',
+    reason: 'Reason / Note',
+    quantity: 'Quantity',
+    unit_cost: 'Unit Cost',
+    address: 'Street Address',
+    city: 'City',
+    zip: 'ZIP Code',
+    country: 'Country',
+  },
+  actions: {
+    adjust: 'Adjust',
+    audit: 'Audit',
+    transfer: 'Transfer',
+    new_location: 'Add Location',
+    new_transfer: 'New Transfer',
+    ship: 'Ship Transfer',
+    receive: 'Receive Items',
+    save: 'Save',
+    cancel: 'Cancel',
+    add: 'Add Item',
+    add_child: 'Add Child Location',
+    delete: 'Delete Location',
+  },
+  placeholders: {
+    search: 'Search by SKU or product...',
+    location_search: 'Search locations...',
+    transfer_search: 'Search references...',
+  },
+  messages: {
+    adjust_success: 'Stock level updated successfully.',
+    audit_success: 'Inventory audit completed.',
+    create_location_success: 'New location registered.',
+    create_transfer_success: 'Stock transfer initiated.',
+    delete_location_success: 'Location removed successfully.',
+    loading: 'Synchronizing inventory...',
+    empty_list: 'No inventory records found.',
+    select_location: 'Location Manager',
+    select_location_desc: 'Select a location from the hierarchy to edit its details or manage its children.',
+    hierarchy_view: 'Location Hierarchy',
+    no_locations: 'No root locations defined.',
+  },
+  confirm: {
+    delete_header: 'Confirm Deletion',
+    delete_message: 'Are you sure you want to delete "{name}"? This action cannot be undone if there are no active stock items.',
+  },
+  common: {
+    success: 'Success',
+    error: 'Error',
+    warning: 'Warning',
+  }
+};
