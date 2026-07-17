@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia';
 import { ref } from 'vue';
 import { useToast } from '@/shared/composables/toast.use';
+import { useI18n } from 'vue-i18n';
 import { userService } from '../services/user.service';
 import type { AdminUserSummary, CustomerSummary } from '../types/User.Response.Type'
 import type { UserQuery } from '../types/User.Query.Type'
@@ -8,6 +9,7 @@ import type { CreateAdminUserRequest, UpdateAdminUserRequest } from '../types/Us
 
 export const useUserStore = defineStore('user', () => {
   const { showToast } = useToast();
+  const { t } = useI18n();
 
   // --- STATE ---
   const admins = ref<AdminUserSummary[]>([]);
@@ -61,7 +63,7 @@ export const useUserStore = defineStore('user', () => {
     try {
       const result = await userService.create(data);
       if (result.isSuccess) {
-        showToast('success', 'Created', 'Staff account created');
+        showToast('success', t('common.created'), t('users.messages.create_success'));
         await fetchAdmins();
       }
       return result;
@@ -75,7 +77,7 @@ export const useUserStore = defineStore('user', () => {
     try {
       const result = await userService.delete(id);
       if (result.isSuccess) {
-        showToast('success', 'Deleted', 'Staff account removed');
+        showToast('success', t('common.deleted'), t('users.messages.delete_success'));
         await fetchAdmins();
       }
       return result;

@@ -126,13 +126,13 @@ const clearFilters = () => {
                     </template>
                 </Column>
 
-                <Column field="ordersCount" header="Orders" sortable class="text-center">
+                <Column field="ordersCount" :header="t('users.table.orders')" sortable class="text-center">
                     <template #body="{ data }">
                         <Badge :value="data.ordersCount || 0" severity="secondary" class="font-bold" />
                     </template>
                 </Column>
 
-                <Column field="totalSpent" header="Total Spent" sortable>
+                <Column field="totalSpent" :header="t('users.table.total_spent')" sortable>
                     <template #body="{ data }">
                         <span class="font-black text-primary">{{ formatCurrency((data.totalSpent || 0) / 100) }}</span>
                     </template>

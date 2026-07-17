@@ -47,7 +47,7 @@ async function onUnlock() {
     try {
         const res = await userService.unlockAccount(props.user.id);
         if (res.isSuccess) {
-            showToast('success', 'Success', (t('users.messages.unlock_success') as string) || 'Account unlocked');
+            showToast('success', t('common.success'), t('users.messages.unlock_success') as string);
             emit('updated');
         }
     } finally {
@@ -60,7 +60,7 @@ async function onVerify() {
     try {
         const res = await userService.verifyAccount(props.user.id, { verifyEmail: true, verifyPhone: true });
         if (res.isSuccess) {
-            showToast('success', 'Success', (t('users.messages.verify_success') as string) || 'Account verified');
+            showToast('success', t('common.success'), t('users.messages.verify_success') as string);
             emit('updated');
         }
     } finally {

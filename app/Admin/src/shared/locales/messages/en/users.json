@@ -2,6 +2,7 @@
   "titles": {
     "list": "Staff Management",
     "customers": "Customer Management",
+    "customer_detail": "Customer Detail",
     "create": "Invite Staff",
     "edit": "Edit User",
     "basic_info": "User Details",
@@ -26,7 +27,9 @@
     "status": "Status",
     "joined": "Joined",
     "actions": "Actions",
-    "clear_filter": "Clear Filters"
+    "clear_filter": "Clear Filters",
+    "orders": "Orders",
+    "total_spent": "Total Spent"
   },
   "labels": {
     "full_name": "Full Name",
@@ -35,7 +38,9 @@
     "status": "Status",
     "username": "Username",
     "first_name": "First Name",
-    "last_name": "Last Name"
+    "last_name": "Last Name",
+    "phone": "Phone",
+    "joined": "Joined"
   },
   "actions": {
     "new": "Invite Staff",
@@ -45,7 +50,9 @@
     "edit": "Edit Profile",
     "reset_password": "Reset Password",
     "unlock": "Unlock Account",
-    "verify": "Verify Account"
+    "verify": "Verify Account",
+    "save_roles": "Save Changes",
+    "save_permissions": "Save Changes"
   },
   "security": {
     "status_title": "Account Security Status",
@@ -70,6 +77,12 @@
     "reset_password_success": "Password has been reset successfully.",
     "unlock_success": "Account has been unlocked.",
     "verify_success": "Account verification updated.",
+    "status_updated": "User is now {status}",
+    "customer_detail_error": "Failed to load customer details",
+    "customer_load_error": "Failed to load customers",
+    "load_error": "Failed to load user details",
+    "roles_updated": "User roles updated",
+    "permissions_updated": "Direct permissions updated",
     "empty_list": "No users found matching your criteria.",
     "loading": "Loading users..."
   },

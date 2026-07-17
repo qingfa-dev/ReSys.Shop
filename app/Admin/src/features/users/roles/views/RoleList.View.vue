@@ -3,6 +3,7 @@ import { ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { useToast } from '@/shared/composables/toast.use';
 import { useConfirm } from 'primevue/useconfirm';
+import { useI18n } from 'vue-i18n';
 import { roleService } from '../../services/role.service';
 import AppBreadcrumb from '@/shared/components/Breadcrumb.Component.vue';
 import type { RoleSummary } from '../types/Role.Response.Type';
@@ -10,6 +11,7 @@ import type { DataTablePageEvent } from 'primevue/datatable';
 
 const router = useRouter();
 const { showToast } = useToast();
+const { t } = useI18n();
 const confirm = useConfirm();
 
 const roles = ref<RoleSummary[]>([]);
@@ -52,7 +54,7 @@ const confirmDelete = (role: RoleSummary) => {
         accept: async () => {
             const res = await roleService.delete(role.id);
             if (res.isSuccess) {
-                showToast('success', 'Deleted', 'Role deleted successfully');
+                showToast('success', t('common.deleted'), t('roles.messages.delete_success'));
                 fetchRoles();
             }
         }
@@ -68,12 +70,12 @@ const confirmDelete = (role: RoleSummary) => {
                 <div class="flex items-center justify-between p-4">
                     <div class="flex flex-col gap-1">
                         <div class="flex items-center gap-3">
-                            <span class="text-xl font-bold">Roles</span>
+                            <span class="text-xl font-bold">{{ t('roles.titles.list') }}</span>
                             <Badge :value="totalRecords" severity="info" />
                         </div>
                         <span class="text-sm text-surface-500">Manage system roles and access control.</span>
                     </div>
-                    <Button label="Create Role" icon="pi pi-plus" severity="primary" class="rounded-xl" @click="router.push({ name: 'role-create' })" />
+                    <Button :label="t('roles.actions.create')" icon="pi pi-plus" severity="primary" class="rounded-xl" @click="router.push({ name: 'role-create' })" />
                 </div>
             </template>
             <template #content>
@@ -91,7 +93,7 @@ const confirmDelete = (role: RoleSummary) => {
                     stripedRows
                     showGridlines
                 >
-                    <Column field="name" header="Role Name" sortable>
+                    <Column field="name" :header="t('roles.table.name')" sortable>
                         <template #body="{ data }">
                             <div class="flex flex-col">
                                 <span class="font-bold">{{ data.displayName || data.name }}</span>
@@ -100,13 +102,13 @@ const confirmDelete = (role: RoleSummary) => {
                         </template>
                     </Column>
 
-                    <Column field="priority" header="Priority" sortable>
+                    <Column field="priority" :header="t('roles.table.priority')" sortable>
                         <template #body="{ data }">
                             <Badge :value="data.priority" severity="info" />
                         </template>
                     </Column>
 
-                    <Column field="userCount" header="Users">
+                    <Column field="userCount" :header="t('roles.table.users')">
                         <template #body="{ data }">
                             <div class="flex items-center gap-2">
                                 <i class="pi pi-users text-surface-400"></i>
@@ -115,7 +117,7 @@ const confirmDelete = (role: RoleSummary) => {
                         </template>
                     </Column>
                     
-                    <Column header="Type">
+                    <Column :header="t('roles.table.type')">
                         <template #body="{ data }">
                             <Tag v-if="data.isSystem" value="System" severity="warning" icon="pi pi-lock" rounded />
                             <Tag v-else value="Custom" severity="secondary" rounded />
@@ -123,7 +125,7 @@ const confirmDelete = (role: RoleSummary) => {
                         </template>
                     </Column>
 
-                    <Column header="Actions" class="w-48 text-right">
+                    <Column :header="t('roles.table.actions')" class="w-48 text-right">
                         <template #body="{ data }">
                             <div class="flex justify-end gap-1">
                                 <Button icon="pi pi-shield" text rounded v-tooltip.top="'Permissions'" @click="router.push({ name: 'role-permissions', params: { id: data.id } })" />

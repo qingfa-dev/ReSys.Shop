@@ -1,8 +1,11 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
+import { useI18n } from 'vue-i18n';
 import { permissionService } from '../../services/permission.service';
 import type { PermissionSummary } from '../types/Permission.Response.Type';
 import type { DataTablePageEvent } from 'primevue/datatable';
+
+const { t } = useI18n();
 
 const permissions = ref<PermissionSummary[]>([]);
 const loading = ref(false);
@@ -41,7 +44,7 @@ const onPage = (event: DataTablePageEvent) => {
     <Card>
         <div class="flex justify-between items-center mb-8">
             <div>
-                <h1 class="text-3xl font-black uppercase tracking-tighter text-surface-900 dark:text-surface-0">Permissions</h1>
+                <h1 class="text-3xl font-black uppercase tracking-tighter text-surface-900 dark:text-surface-0">{{ t('roles.titles.permissions') }}</h1>
                 <p class="text-surface-500">View available system permissions.</p>
             </div>
         </div>
@@ -70,17 +73,17 @@ const onPage = (event: DataTablePageEvent) => {
                     </div>
                 </template>
                 
-                <Column field="module" header="Module"></Column>
+                <Column field="module" :header="t('roles.permissions.table.module')"></Column>
 
-                <Column field="name" header="Permission Key" class="font-mono text-sm max-w-[200px] truncate"></Column>
+                <Column field="name" :header="t('roles.permissions.table.key')" class="font-mono text-sm max-w-[200px] truncate"></Column>
 
-                <Column field="displayName" header="Name">
+                <Column field="displayName" :header="t('roles.permissions.table.name')">
                     <template #body="{ data }">
                         <span class="font-bold">{{ data.displayName }}</span>
                     </template>
                 </Column>
 
-                <Column field="description" header="Description" class="text-surface-500"></Column>
+                <Column field="description" :header="t('roles.permissions.table.description')" class="text-surface-500"></Column>
             </DataTable>
         </div>
 </Card>

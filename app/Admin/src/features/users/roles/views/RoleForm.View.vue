@@ -2,12 +2,14 @@
 import { ref, onMounted, computed } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useToast } from '@/shared/composables/toast.use';
+import { useI18n } from 'vue-i18n';
 import { roleService } from '../../services/role.service';
 import type { CreateRoleRequest, UpdateRoleRequest } from '../types/Role.Request.Type';
 
 const route = useRoute();
 const router = useRouter();
 const { showToast } = useToast();
+const { t } = useI18n();
 
 const isEditMode = computed(() => !!route.params.id);
 const roleId = computed(() => route.params.id as string);
@@ -46,7 +48,7 @@ async function loadRole() {
         };
         isSystemRole.value = role.isSystem;
     } else {
-        showToast('error', 'Error', 'Failed to load role details');
+        showToast('error', t('common.error'), t('roles.messages.load_error'));
         router.push({ name: 'roles-list' });
     }
 }
@@ -62,7 +64,7 @@ async function onSubmit() {
             };
             const res = await roleService.update(roleId.value, updateData);
             if (res.isSuccess) {
-                showToast('success', 'Success', 'Role updated successfully');
+                showToast('success', t('common.success'), t('roles.messages.update_success'));
                 router.push({ name: 'roles-list' });
             }
         } else {
@@ -74,7 +76,7 @@ async function onSubmit() {
             };
             const res = await roleService.create(createData);
             if (res.isSuccess) {
-                showToast('success', 'Success', 'Role created successfully');
+                showToast('success', t('common.success'), t('roles.messages.create_success'));
                 router.push({ name: 'roles-list' });
             }
         }
@@ -115,12 +117,12 @@ async function onSubmit() {
             </div>
 
             <div class="field">
-                <label for="description" class="font-bold block mb-2">Description</label>
+                <label for="description" class="font-bold block mb-2">{{ t('roles.labels.description') }}</label>
                 <Textarea id="description" v-model="form.description" class="w-full" rows="3" />
             </div>
 
             <div class="field">
-                <label for="priority" class="font-bold block mb-2">Priority</label>
+                <label for="priority" class="font-bold block mb-2">{{ t('roles.labels.priority') }}</label>
                 <InputNumber id="priority" v-model="form.priority" class="w-full" :min="0" showButtons />
                 <small class="text-surface-500">Higher priority roles override lower ones in some contexts.</small>
             </div>
@@ -134,7 +136,7 @@ async function onSubmit() {
             </div>
 
             <div class="flex justify-end gap-3 mt-4">
-                <Button label="Cancel" severity="secondary" text @click="router.back()" />
+                <Button :label="t('common.cancel')" severity="secondary" text @click="router.back()" />
                 <Button type="submit" :label="isEditMode ? 'Save Changes' : 'Create Role'" :loading="submitting" icon="pi pi-check" />
             </div>
         </form>

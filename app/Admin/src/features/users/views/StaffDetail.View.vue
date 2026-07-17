@@ -36,7 +36,7 @@ async function loadData() {
             user.value = res.value;
             await loadPermissions();
         } else {
-            showToast('error', 'Error', 'Failed to load user details');
+            showToast('error', t('common.error'), t('users.messages.load_error'));
             router.push({ name: 'admin-users' });
         }
     } finally {
@@ -61,7 +61,7 @@ async function onToggleStatus() {
     const res = await userService.updateAdminStatus(userId.value, newStatus);
     if (res.isSuccess) {
         user.value.isActive = newStatus;
-        showToast('success', 'Status Updated', `User is now ${newStatus ? 'active' : 'inactive'}`);
+        showToast('success', t('common.saved'), t('users.messages.status_updated', { status: newStatus ? 'active' : 'inactive' }));
     }
 }
 </script>
@@ -127,7 +127,7 @@ async function onToggleStatus() {
                                     <h3 class="text-lg font-bold uppercase tracking-wide text-surface-500 m-0">Basic Information</h3>
                                     <div class="flex flex-col gap-4">
                                         <div class="flex flex-col">
-                                            <label class="text-xs text-surface-400 uppercase font-bold mb-1">Username</label>
+                                            <label class="text-xs text-surface-400 uppercase font-bold mb-1">{{ t('users.labels.username') }}</label>
                                             <span class="text-lg font-medium">{{ user.userName || '-' }}</span>
                                         </div>
                                         <div class="flex flex-col">

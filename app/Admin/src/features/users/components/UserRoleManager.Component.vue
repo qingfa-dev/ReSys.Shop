@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
 import { useToast } from '@/shared/composables/toast.use';
+import { useI18n } from 'vue-i18n';
 import { roleService } from '../services/role.service';
 import { userService } from '../services/user.service';
 import type { RoleSummary } from '../roles/types/Role.Response.Type';
@@ -13,6 +14,7 @@ const props = defineProps<{
 const emit = defineEmits(['updated']);
 
 const { showToast } = useToast();
+const { t } = useI18n();
 const loading = ref(false);
 const saving = ref(false);
 
@@ -44,7 +46,7 @@ async function onSave() {
         const roleNames = selection.value[1].map((r: RoleSummary) => r.name);
         const res = await userService.syncUserRoles(props.userId, roleNames);
         if (res.isSuccess) {
-            showToast('success', 'Success', 'User roles updated');
+            showToast('success', t('common.success'), t('users.messages.roles_updated'));
             emit('updated');
         }
     } finally {
@@ -60,7 +62,7 @@ async function onSave() {
                 <h3 class="text-xl font-bold m-0">Role Assignment</h3>
                 <p class="text-sm text-surface-500 m-0">Manage roles that define this user's primary permissions.</p>
             </div>
-            <Button label="Save Changes" icon="pi pi-check" @click="onSave" :loading="saving" />
+            <Button :label="t('users.actions.save_roles')" icon="pi pi-check" @click="onSave" :loading="saving" />
         </div>
 
         <div v-if="loading" class="flex justify-center p-12">

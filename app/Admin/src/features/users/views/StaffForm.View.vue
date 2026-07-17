@@ -2,6 +2,7 @@
 import { ref, onMounted, computed } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useToast } from '@/shared/composables/toast.use';
+import { useI18n } from 'vue-i18n';
 import { userService } from '../services/user.service';
 import { roleService } from '../services/role.service';
 import type { CreateAdminUserRequest, UpdateAdminUserRequest } from '../types/User.Request.Type';
@@ -9,6 +10,7 @@ import type { CreateAdminUserRequest, UpdateAdminUserRequest } from '../types/Us
 const route = useRoute();
 const router = useRouter();
 const { showToast } = useToast();
+const { t } = useI18n();
 
 const isEditMode = computed(() => !!route.params.id);
 const userId = computed(() => route.params.id as string);
@@ -59,7 +61,7 @@ async function loadUser() {
             isActive: user.isActive
         };
     } else {
-        showToast('error', 'Error', 'Failed to load user details');
+        showToast('error', t('common.error'), t('users.messages.load_error'));
         router.push({ name: 'admin-users' });
     }
 }
@@ -76,7 +78,7 @@ async function onSubmit() {
             };
             const res = await userService.update(userId.value, updateData);
             if (res.isSuccess) {
-                showToast('success', 'Success', 'Staff member updated successfully');
+                showToast('success', t('common.success'), t('users.messages.update_success'));
                 router.push({ name: 'admin-users' });
             }
         } else {
@@ -90,7 +92,7 @@ async function onSubmit() {
             };
             const res = await userService.create(createData);
             if (res.isSuccess) {
-                showToast('success', 'Success', 'Staff member invited successfully');
+                showToast('success', t('common.success'), t('users.messages.create_success'));
                 router.push({ name: 'admin-users' });
             }
         }
@@ -170,7 +172,7 @@ async function onSubmit() {
             </div>
 
             <div class="flex justify-end gap-3 mt-4">
-                <Button label="Cancel" severity="secondary" text @click="router.back()" />
+                <Button :label="t('common.cancel')" severity="secondary" text @click="router.back()" />
                 <Button type="submit" :label="isEditMode ? 'Save Changes' : 'Send Invitation'" :loading="submitting" icon="pi pi-check" />
             </div>
         </form>

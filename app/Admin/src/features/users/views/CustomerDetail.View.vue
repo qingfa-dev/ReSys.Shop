@@ -36,7 +36,7 @@ async function loadData() {
             user.value = res.value;
             await loadPermissions();
         } else {
-            showToast('error', 'Error', 'Failed to load customer details');
+            showToast('error', t('common.error'), t('users.messages.customer_detail_error'));
             router.push({ name: 'customer-users' });
         }
     } finally {
@@ -57,7 +57,7 @@ async function onToggleStatus() {
     const res = await userService.updateAdminStatus(userId.value, newStatus);
     if (res.isSuccess) {
         user.value.isActive = newStatus;
-        showToast('success', 'Status Updated', `Customer is now ${newStatus ? 'active' : 'inactive'}`);
+        showToast('success', t('common.saved'), t('users.messages.status_updated', { status: newStatus ? 'active' : 'inactive' }));
     }
 }
 </script>

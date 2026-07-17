@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
 import { useToast } from '@/shared/composables/toast.use';
+import { useI18n } from 'vue-i18n';
 import { permissionService } from '../services/permission.service';
 import { userService } from '../services/user.service';
 import type { PermissionSummary } from '../permissions/types/Permission.Response.Type';
@@ -13,6 +14,7 @@ const props = defineProps<{
 const emit = defineEmits(['updated']);
 
 const { showToast } = useToast();
+const { t } = useI18n();
 const loading = ref(false);
 const saving = ref(false);
 
@@ -55,7 +57,7 @@ async function onSave() {
             await userService.unassignPermission(props.userId, name);
         }
 
-        showToast('success', 'Success', 'Direct permissions updated');
+        showToast('success', t('common.success'), t('users.messages.permissions_updated'));
         emit('updated');
     } finally {
         saving.value = false;
@@ -70,7 +72,7 @@ async function onSave() {
                 <h3 class="text-xl font-bold m-0">Direct Permissions</h3>
                 <p class="text-sm text-surface-500 m-0">Assign specific overrides that apply regardless of assigned roles.</p>
             </div>
-            <Button label="Save Changes" icon="pi pi-check" @click="onSave" :loading="saving" />
+            <Button :label="t('users.actions.save_permissions')" icon="pi pi-check" @click="onSave" :loading="saving" />
         </div>
 
         <div v-if="loading" class="flex justify-center p-12">
@@ -79,8 +81,8 @@ async function onSave() {
 
         <PickList v-else v-model="selection" dataKey="identifier" breakpoint="1400px" 
                   :showSourceControls="false" :showTargetControls="false">
-            <template #sourceheader> Available </template>
-            <template #targetheader> Assigned </template>
+            <template #sourceheader> {{ t('roles.picklist.available') }} </template>
+            <template #targetheader> {{ t('roles.picklist.assigned') }} </template>
             <template #item="slotProps">
                 <div class="flex flex-col p-2">
                     <span class="font-bold text-xs">{{ slotProps.item.name }}</span>

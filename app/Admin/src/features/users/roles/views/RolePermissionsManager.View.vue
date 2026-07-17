@@ -2,6 +2,7 @@
 import { ref, onMounted, computed } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useToast } from '@/shared/composables/toast.use';
+import { useI18n } from 'vue-i18n';
 import { roleService } from '../../services/role.service';
 import { permissionService } from '../../services/permission.service';
 import type { PermissionSummary } from '../../permissions/types/Permission.Response.Type';
@@ -9,6 +10,7 @@ import type { PermissionSummary } from '../../permissions/types/Permission.Respo
 const route = useRoute();
 const router = useRouter();
 const { showToast } = useToast();
+const { t } = useI18n();
 
 const roleId = computed(() => route.params.id as string);
 const loading = ref(false);
@@ -54,7 +56,7 @@ async function onSave() {
         const permissionNames = selection.value[1].map(p => p.identifier);
         const res = await roleService.syncPermissions(roleId.value, permissionNames);
         if (res.isSuccess) {
-            showToast('success', 'Saved', 'Permissions updated successfully');
+            showToast('success', t('common.saved'), t('roles.messages.permissions_updated'));
             router.back();
         }
     } finally {
@@ -77,7 +79,7 @@ async function onSave() {
                     </p>
                 </div>
             </div>
-            <Button label="Save Changes" icon="pi pi-check" @click="onSave" :loading="saving" severity="primary" />
+            <Button :label="t('roles.actions.save_permissions')" icon="pi pi-check" @click="onSave" :loading="saving" severity="primary" />
         </div>
 
         <div v-if="loading" class="flex justify-center p-12">
