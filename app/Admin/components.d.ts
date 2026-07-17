@@ -33,6 +33,7 @@ declare module 'vue' {
     InputSwitch: typeof import('primevue/inputswitch')['default']
     InputText: typeof import('primevue/inputtext')['default']
     MultiSelect: typeof import('primevue/multiselect')['default']
+    OverlayPanel: typeof import('primevue/overlaypanel')['default']
     Panel: typeof import('primevue/panel')['default']
     Password: typeof import('primevue/password')['default']
     PickList: typeof import('primevue/picklist')['default']
@@ -56,6 +57,7 @@ declare module 'vue' {
     TreeTable: typeof import('primevue/treetable')['default']
   }
   export interface GlobalDirectives {
+    StyleClass: typeof import('primevue/styleclass')['default']
     Tooltip: typeof import('primevue/tooltip')['default']
   }
 }
@@ -83,6 +85,7 @@ declare global {
   const InputSwitch: typeof import('primevue/inputswitch')['default']
   const InputText: typeof import('primevue/inputtext')['default']
   const MultiSelect: typeof import('primevue/multiselect')['default']
+  const OverlayPanel: typeof import('primevue/overlaypanel')['default']
   const Panel: typeof import('primevue/panel')['default']
   const Password: typeof import('primevue/password')['default']
   const PickList: typeof import('primevue/picklist')['default']
