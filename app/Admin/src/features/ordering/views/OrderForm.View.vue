@@ -5,9 +5,9 @@ import { useOrderStore } from '../stores/order.store';
 import { useProductStore } from '@/features/catalog/products/stores/product.store';
 import { useFormatter } from '@/shared/composables/formatter.use';
 import { useToast } from '@/shared/composables/toast.use';
-import type { CreateOrderRequest } from '../types/order.request.types';
-import type { ProductSummary } from '@/features/catalog/products/types/product.domain.types';
-import type { VariantSummary } from '@/features/catalog/products/types/variant.domain.types';
+import type { CreateOrderRequest } from '../types/Order.Request.Type';
+import type { ProductSummary } from '@/features/catalog/products/types/Product.Response.Type';
+import type { VariantSummary } from '@/features/catalog/products/types/Variant.Response.Type';
 
 interface OrderVariantSummary extends VariantSummary {
   option_values?: Array<{ id: string; value: string; presentation?: string }>;

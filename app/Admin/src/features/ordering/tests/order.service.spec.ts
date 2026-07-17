@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { orderService } from '../services/order.service'
 import apiClient from '@/shared/api/http/api.client'
-import type { OrderSearchParams } from '../types/order.request.types'
+import type { OrderQuery } from '../types/Order.Query.Type'
 
 // Mock apiClient
 vi.mock('@/shared/api/http/api.client', () => ({
@@ -19,7 +19,7 @@ describe('OrderService', () => {
 
   describe('list', () => {
     it('should call api.get with correct endpoint and params', async () => {
-      const params: OrderSearchParams = { search: 'ORD-1', page: 1 }
+      const params: OrderQuery = { search: 'ORD-1', page: 1 }
       const serverResult = { isSuccess: true, statusCode: 200, errors: [], message: null, metadata: null, value: [] }
 
       vi.mocked(apiClient.get).mockResolvedValue({ data: serverResult })

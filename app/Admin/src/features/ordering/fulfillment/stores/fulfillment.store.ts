@@ -2,7 +2,7 @@ import { defineStore } from 'pinia';
 import { useToast } from '@/shared/composables/toast.use';
 import { usePagedList } from '@/shared/composables/paged-list.use';
 import { fulfillmentService } from '@/features/ordering/fulfillment/services/fulfillment.service';
-import type { OrderListItem } from '../../types/order.domain.types';
+import type { OrderListItem } from '../../types/Order.Response.Type';
 import type { ServerQueryingParameters } from '@/shared/api/types/query.types';
 
 export const useFulfillmentStore = defineStore('fulfillment', () => {

@@ -17,7 +17,7 @@ describe('OrderRepository', () => {
     expect(apiClient.get).toHaveBeenCalledWith('api/ordering/orders/ord-1')
   })
   it('create calls correct route', async () => {
-    await orderRepository.create({ email: 'test@test.com', lineItems: [] })
+    await orderRepository.create({ email: 'test@test.com', currency: 'USD', lineItems: [{ variantId: 'v-1', quantity: 1 }] })
     expect(apiClient.post).toHaveBeenCalledWith('api/ordering/orders', expect.any(Object))
   })
   it('update calls correct route', async () => {

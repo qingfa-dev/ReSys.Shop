@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref } from 'vue';
-import type { PaymentDetail } from '../types/order.domain.types';
-import type { RefundPaymentRequest } from '../types/order.request.types';
+import type { PaymentDetail } from '../types/Order.Response.Type';
+import type { RefundPaymentRequest } from '../fulfillment/types/Fulfillment.Request.Type';
 import { useFormatter } from '@/shared/composables/formatter.use';
 
 const props = defineProps<{

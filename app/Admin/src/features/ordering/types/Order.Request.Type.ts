@@ -1,0 +1,22 @@
+import type { OrderParameters } from '../schemas/Order.Schema'
+
+export type CreateOrderRequest = OrderParameters
+
+export interface AddOrderItemRequest {
+  variantId: string
+  quantity: number
+}
+
+export interface UpdateAddressesRequest {
+  shippingAddress?: Partial<OrderParameters['shippingAddress']>
+  billingAddress?: Partial<OrderParameters['billingAddress']>
+}
+
+export interface CancelOrderRequest {
+  reason?: string
+}
+
+export interface CreateShipmentRequest {
+  stockLocationId: string
+  inventoryUnitIds: string[]
+}

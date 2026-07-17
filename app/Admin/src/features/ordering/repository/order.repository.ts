@@ -2,8 +2,8 @@ import apiClient from '@/shared/api/http/api.client'
 import { ORDERS } from '@/shared/api/constants'
 import type { ServerResult } from '@/shared/api/types/result.types'
 import type { ServerQueryingParameters } from '@/shared/api/types/query.types'
-import type { OrderListItem, OrderDetail } from '../types/order.domain.types'
-import type { CreateOrderRequest, AddOrderItemRequest } from '../types/order.request.types'
+import type { OrderListItem, OrderDetail } from '../types/Order.Response.Type'
+import type { CreateOrderRequest, AddOrderItemRequest } from '../types/Order.Request.Type'
 
 interface OrderLineItem {
   id: string

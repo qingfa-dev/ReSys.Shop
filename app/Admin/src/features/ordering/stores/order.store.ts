@@ -4,8 +4,9 @@ import { useToast } from '@/shared/composables/toast.use';
 import { usePagedList } from '@/shared/composables/paged-list.use';
 import { orderService } from '../services/order.service';
 import type { ServerResult } from '@/shared/api/types/result.types';
-import type { OrderListItem, OrderDetail } from '../types/order.domain.types';
-import type { OrderSearchParams, CreateOrderRequest, AddOrderItemRequest, UpdateAddressesRequest } from '../types/order.request.types';
+import type { OrderListItem, OrderDetail } from '../types/Order.Response.Type';
+import type { OrderQuery } from '../types/Order.Query.Type';
+import type { CreateOrderRequest, AddOrderItemRequest, UpdateAddressesRequest } from '../types/Order.Request.Type';
 
 export const useOrderStore = defineStore('order', () => {
   const { showToast } = useToast();
@@ -13,7 +14,7 @@ export const useOrderStore = defineStore('order', () => {
   const current_order = ref<OrderDetail | null>(null);
   const submitting = ref(false);
 
-  const { items: orders, totalRecords, params: query, fetch: fetchOrders, loading, error } = usePagedList<OrderListItem, OrderSearchParams>(
+  const { items: orders, totalRecords, params: query, fetch: fetchOrders, loading, error } = usePagedList<OrderListItem, OrderQuery>(
     (p) => orderService.list(p),
     { page: 1, pageSize: 10, search: '', state: '', sort: ['-createdAtUtc'] },
   );

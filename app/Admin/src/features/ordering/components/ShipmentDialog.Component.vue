@@ -3,8 +3,8 @@ import { ref, computed } from 'vue';
 import { useToast } from '@/shared/composables/toast.use';
 import { orderService } from '../services/order.service';
 import LocationSelector from '@/features/inventories/components/LocationSelector.Component.vue';
-import type { OrderDetail } from '../types/order.domain.types';
-import type { CreateShipmentRequest } from '../types/order.request.types';
+import type { OrderDetail } from '../types/Order.Response.Type';
+import type { CreateShipmentRequest } from '../types/Order.Request.Type';
 
 const props = defineProps<{
     order: OrderDetail;

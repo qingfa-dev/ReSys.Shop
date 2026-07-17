@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
-import type { AddressDetail } from '../types/order.domain.types';
-import type { UpdateAddressesRequest } from '../types/order.request.types';
+import type { AddressDetail } from '../types/Order.Response.Type';
+import type { UpdateAddressesRequest } from '../types/Order.Request.Type';
 
 const props = defineProps<{
     shippingAddress?: AddressDetail;

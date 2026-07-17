@@ -2,7 +2,7 @@
 import { ref } from 'vue';
 import { useProductStore } from '@/features/catalog/products/stores/product.store';
 import { useFormatter } from '@/shared/composables/formatter.use';
-import type { AddOrderItemRequest } from '../types/order.request.types';
+import type { AddOrderItemRequest } from '../types/Order.Request.Type';
 
 const emit = defineEmits<{
     (e: 'save', data: AddOrderItemRequest): void;
