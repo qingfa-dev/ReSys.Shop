@@ -107,15 +107,15 @@ const clearFilters = () => {
 };
 
 const confirmDelete = (product: ProductSummary) => {
-  const messageStr = (t('catalog.products.confirm.delete_message') || 'Delete "{name}"?').replace('{name}', product.name);
+  const messageStr = t('catalog.products.confirm.delete_message').replace('{name}', product.name);
   
   confirm.require({
     message: messageStr,
-    header: t('catalog.products.confirm.delete_header') || 'Confirm Delete',
+    header: t('catalog.products.confirm.delete_header'),
     icon: 'pi pi-exclamation-triangle',
-    rejectLabel: t('catalog.products.confirm.reject_label') || 'Cancel',
+    rejectLabel: t('catalog.products.confirm.reject_label'),
     acceptProps: {
-      label: t('catalog.products.confirm.accept_label') || 'Delete',
+      label: t('catalog.products.confirm.accept_label'),
       severity: 'danger',
     },
     accept: async () => {

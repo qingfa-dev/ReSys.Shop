@@ -89,7 +89,7 @@ const editItem = (id: string) => {
 const confirmDelete = (item: OptionTypeListItem) => {
   confirm.require({
     message: `Are you sure you want to delete "${item.name}"?`,
-    header: t('common.warning') || 'Warning',
+    header: t('common.warning'),
     icon: 'pi pi-exclamation-triangle',
     rejectLabel: t('catalog.option_types.actions.cancel'),
     acceptLabel: t('catalog.option_types.actions.delete'),

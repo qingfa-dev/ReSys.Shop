@@ -80,7 +80,7 @@ const onSaveVariant = async (data: CreateVariantRequest) => {
 
 const onDelete = (variant: VariantSummary) => {
     confirm.require({
-        message: (t('catalog.products.confirm.delete_message') || '').replace('{name}', variant.sku ?? ''),
+        message: t('catalog.products.confirm.delete_message').replace('{name}', variant.sku ?? ''),
         header: t('catalog.products.confirm.delete_header'),
         icon: 'pi pi-exclamation-triangle',
         acceptClass: 'p-button-danger',

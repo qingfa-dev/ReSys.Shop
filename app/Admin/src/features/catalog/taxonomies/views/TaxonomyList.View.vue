@@ -95,7 +95,7 @@ const confirmDelete = (taxonomy: TaxonomyListItem) => {
   
   confirm.require({
     message: messageStr,
-    header: t('catalog.taxonomies.confirm.delete_header') || 'Confirm Deletion',
+    header: t('catalog.taxonomies.confirm.delete_header'),
     icon: 'pi pi-exclamation-triangle',
     rejectLabel: t('catalog.taxonomies.actions.cancel'),
     acceptProps: {

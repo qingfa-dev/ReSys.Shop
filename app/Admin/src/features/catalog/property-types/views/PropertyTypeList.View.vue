@@ -90,7 +90,7 @@ const editItem = (id: string) => {
 const confirmDelete = (item: PropertyTypeListItem) => {
   confirm.require({
     message: `Are you sure you want to delete "${item.name}"?`,
-    header: t('common.warning') || 'Warning',
+    header: t('common.warning'),
     icon: 'pi pi-exclamation-triangle',
     rejectLabel: t('catalog.property_types.actions.cancel'),
     acceptLabel: t('catalog.property_types.actions.delete'),

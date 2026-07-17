@@ -58,7 +58,7 @@ const confirmDelete = (node: TaxonListItem) => {
 
   confirm.require({
     message: messageStr,
-    header: t('catalog.taxa.confirm.delete_header') || 'Confirm Deletion',
+    header: t('catalog.taxa.confirm.delete_header'),
     icon: 'pi pi-exclamation-triangle',
     rejectLabel: t('catalog.taxa.actions.cancel'),
     acceptLabel: t('catalog.taxa.actions.delete_taxon'),

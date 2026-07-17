@@ -173,7 +173,7 @@ const clearFilters = () => {
 const confirmDelete = (item: OptionValueListItem) => {
   confirm.require({
     message: `Are you sure you want to delete "${item.name}"?`,
-    header: t('common.warning') || 'Warning',
+    header: t('common.warning'),
     icon: 'pi pi-exclamation-triangle',
     rejectLabel: t('catalog.option_values.actions.cancel'),
     acceptLabel: t('catalog.option_values.actions.delete'),

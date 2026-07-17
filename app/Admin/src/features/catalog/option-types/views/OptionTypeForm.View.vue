@@ -102,7 +102,7 @@ const onValueSubmit = handleValueSubmit(async (formValues) => {
     showToast(
       'success',
       t('common.success'),
-      isEditing.value
+      isEditingValue.value
         ? t('catalog.option_types.messages.value_update_success')
         : t('catalog.option_types.messages.value_create_success'),
     )
