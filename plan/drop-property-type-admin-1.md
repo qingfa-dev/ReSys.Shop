@@ -2,13 +2,13 @@
 goal: Drop property_type concept from Admin SPA and backend
 version: 1.0
 date_created: 2026-07-17
-status: 'In progress'
+status: 'Completed'
 tags: [feature, removal, catalog, admin, frontend, backend]
 ---
 
 # Introduction
 
-![Status: In progress](https://img.shields.io/badge/status-In%20progress-yellow)
+![Status: Completed](https://img.shields.io/badge/status-Completed-brightgreen)
 
 Remove the `property_type` / `property-types` concept from the Admin SPA and backend. This feature is scaffolded but non-functional — the frontend has full CRUD views, store, repository, and types, but there is no backend domain entity, database table, migration, or API handler. The repository calls `api/catalog/property-types` which returns 404. Product integration (`ProductPropertyManager`) calls stubbed `getProperties`/`updateProperties` that return empty results. Backend has only permission definitions and an unused storefront response model.
 

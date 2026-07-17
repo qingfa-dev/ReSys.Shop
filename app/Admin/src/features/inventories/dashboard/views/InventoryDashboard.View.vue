@@ -17,7 +17,7 @@ onMounted(async () => {
 </script>
 
 <template>
-  <PageShell>
+  <PageShell maxWidth="7xl">
     <PageHeader title="Inventory Dashboard" description="Stock levels, locations, and recent movements." />
 
     <div v-if="loading && !data" class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-6 mb-8">

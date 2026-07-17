@@ -64,7 +64,7 @@ const confirmDelete = (role: RoleSummary) => {
 </script>
 
 <template>
-    <PageShell>
+    <PageShell maxWidth="7xl">
         <PageHeader :title="t('roles.titles.list')" description="Manage system roles and access control.">
             <template #badge>
                 <Badge :value="totalRecords" severity="info" />

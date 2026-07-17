@@ -89,7 +89,7 @@ async function onSubmit() {
 </script>
 
 <template>
-    <PageShell maxWidth="4xl">
+    <PageShell maxWidth="7xl">
         <PageHeader
             :title="isEditMode ? 'Edit Role' : 'Create Role'"
             :description="isEditMode ? 'Update role details.' : 'Define a new system role.'"

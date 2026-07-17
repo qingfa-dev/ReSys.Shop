@@ -101,7 +101,7 @@ onMounted(() => {
 </script>
 
 <template>
-  <PageShell>
+  <PageShell maxWidth="7xl">
     <PageHeader
       :title="t('catalog.taxa.titles.manager') || 'Category List'"
       :description="t('catalog.taxa.descriptions.manager')"

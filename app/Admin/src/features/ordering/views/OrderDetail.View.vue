@@ -114,7 +114,7 @@ const getStatusSeverity = (status: string) => {
 </script>
 
 <template>
-    <PageShell :card="false" gap>
+    <PageShell :card="false" gap maxWidth="7xl">
         <template v-if="current_order">
             <PageHeader back :title="'Order ' + current_order.number">
                 <template #badge>

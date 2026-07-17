@@ -24,7 +24,7 @@ const navigateToOptionTypes = () => router.push({ name: 'catalog.option-types.li
 </script>
 
 <template>
-    <PageShell>
+    <PageShell maxWidth="7xl">
         <PageHeader title="Catalog Dashboard" description="High-level overview of your product catalog and taxonomies." />
 
         <div v-if="loading && !summary" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">

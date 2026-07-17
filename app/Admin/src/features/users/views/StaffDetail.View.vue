@@ -68,7 +68,7 @@ async function onToggleStatus() {
 </script>
 
 <template>
-    <PageShell :card="false" gap maxWidth="6xl">
+    <PageShell :card="false" gap maxWidth="7xl">
         <template v-if="user">
             <PageHeader back :title="user.fullName || 'Staff Member'" :description="user.email">
                 <template #badge>

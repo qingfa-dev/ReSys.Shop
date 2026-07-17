@@ -68,7 +68,7 @@ async function onChangePassword() {
 </script>
 
 <template>
-    <PageShell :card="false" gap>
+    <PageShell :card="false" gap maxWidth="7xl">
         <div v-if="loading" class="flex justify-center py-20">
             <ProgressSpinner style="width: 40px; height: 40px" />
         </div>

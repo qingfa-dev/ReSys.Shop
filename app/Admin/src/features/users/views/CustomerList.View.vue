@@ -56,7 +56,7 @@ const clearFilters = () => {
 </script>
 
 <template>
-    <PageShell>
+    <PageShell maxWidth="7xl">
         <PageHeader :title="t('users.titles.customers')" :description="t('users.descriptions.customers')">
             <template #actions>
                 <div class="flex items-center gap-2">

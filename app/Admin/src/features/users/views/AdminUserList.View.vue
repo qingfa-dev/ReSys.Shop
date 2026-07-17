@@ -81,7 +81,7 @@ const confirmDelete = (user: AdminUserSummary) => {
 </script>
 
 <template>
-  <PageShell>
+  <PageShell maxWidth="7xl">
     <PageHeader :title="t('users.titles.list')" :description="t('users.descriptions.list')">
       <template #badge>
         <Badge :value="totalRecords" severity="info" />

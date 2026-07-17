@@ -119,7 +119,7 @@ onMounted(() => {
 </script>
 
 <template>
-  <PageShell>
+  <PageShell maxWidth="7xl">
     <PageHeader
       :title="t('catalog.taxonomies.titles.list')"
       :description="t('catalog.taxonomies.descriptions.list')"

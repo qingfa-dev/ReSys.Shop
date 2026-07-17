@@ -68,7 +68,7 @@ async function onSave() {
 </script>
 
 <template>
-    <PageShell maxWidth="4xl">
+    <PageShell maxWidth="7xl">
         <PageHeader back title="Manage Permissions" description="Assign permissions to role">
             <template #badge>
                 <span class="font-bold text-primary">{{ roleName }}</span>

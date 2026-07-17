@@ -43,7 +43,7 @@ const onPage = (event: DataTablePageEvent) => {
 </script>
 
 <template>
-    <PageShell>
+    <PageShell maxWidth="7xl">
         <PageHeader :title="t('roles.titles.permissions')" description="View available system permissions." />
 
         <div class="overflow-hidden border border-surface-100 dark:border-surface-800 rounded-2xl shadow-sm">

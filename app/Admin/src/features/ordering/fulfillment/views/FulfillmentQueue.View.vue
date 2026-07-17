@@ -24,7 +24,7 @@ const shipOrder = (id: string) => {
 </script>
 
 <template>
-    <PageShell>
+    <PageShell maxWidth="7xl">
         <PageHeader :title="t('ordering.titles.fulfillment_queue')" :description="t('ordering.descriptions.fulfillment_queue')" />
 
         <DataTable :value="queue" :loading="loading" dataKey="id" stripedRows showGridlines>

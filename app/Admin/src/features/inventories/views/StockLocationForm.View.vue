@@ -128,7 +128,7 @@ onMounted(() => {
 </script>
 
 <template>
-    <PageShell maxWidth="4xl">
+    <PageShell maxWidth="7xl">
         <PageHeader back :title="isEdit ? 'Edit Location' : t('inventory.titles.create_location')" :description="t('inventory.descriptions.locations')" />
 
         <div v-if="loading" class="flex justify-center p-20">

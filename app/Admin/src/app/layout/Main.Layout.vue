@@ -75,10 +75,3 @@ const isOutsideClicked = (event: MouseEvent) => {
   </div>
 </template>
 
-<style lang="scss" scoped>
-:global(.p-toast.p-component.p-toast-top-right),
-:global(.p-toast.p-component.p-toast-top-left),
-:global(.p-toast.p-component.p-toast-top-center) {
-  top: 5rem;
-}
-</style>

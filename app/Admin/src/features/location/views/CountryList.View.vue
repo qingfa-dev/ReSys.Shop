@@ -66,7 +66,7 @@ onMounted(() => {
 </script>
 
 <template>
-  <PageShell>
+  <PageShell maxWidth="7xl">
     <PageHeader :title="t('location.titles.countries')" description="Manage countries and regions">
       <template #badge>
         <Badge :value="totalRecords" severity="info" class="ml-2" />
@@ -76,61 +76,59 @@ onMounted(() => {
       </template>
     </PageHeader>
 
-    <div class="overflow-hidden border shadow-sm bg-surface-0 dark:bg-surface-900 rounded-2xl border-surface-100 dark:border-surface-800">
-      <DataTable
-        :value="items"
-        :loading="loading"
-        lazy
-        paginator
-        :rows="10"
-        removableSort
-        scrollable
-        rowHover
-        stripedRows
-        showGridlines
-        dataKey="id"
-      >
-        <template #empty>
-          <div class="flex flex-col items-center justify-center py-20 text-surface-400">
-            <i class="mb-4 text-6xl pi pi-flag opacity-20"></i>
-            <p class="text-xl font-medium">No countries found</p>
+    <DataTable
+      :value="items"
+      :loading="loading"
+      lazy
+      paginator
+      :rows="10"
+      removableSort
+      scrollable
+      rowHover
+      stripedRows
+      showGridlines
+      dataKey="id"
+    >
+      <template #empty>
+        <div class="flex flex-col items-center justify-center py-20 text-surface-400">
+          <i class="mb-4 text-6xl pi pi-flag opacity-20"></i>
+          <p class="text-xl font-medium">No countries found</p>
+        </div>
+      </template>
+
+      <Column field="name" :header="t('location.labels.name')" sortable>
+        <template #body="{ data }">
+          <span class="font-bold text-surface-900 dark:text-surface-0">{{ data.name }}</span>
+        </template>
+      </Column>
+
+      <Column field="isoCode" header="ISO Code" sortable class="text-center">
+        <template #body="{ data }">
+          <Tag :value="data.isoCode" severity="info" />
+        </template>
+      </Column>
+
+      <Column field="callingCode" :header="t('location.labels.calling_code')" sortable class="text-center">
+        <template #body="{ data }">
+          <span class="font-mono">{{ data.callingCode || '-' }}</span>
+        </template>
+      </Column>
+
+      <Column field="isActive" :header="t('location.labels.active')" dataType="boolean" class="w-24 text-center">
+        <template #body="{ data }">
+          <i class="pi" :class="{'pi-check-circle text-green-500': data.isActive, 'pi-times-circle text-surface-400': !data.isActive}"></i>
+        </template>
+      </Column>
+
+      <Column class="w-32 text-right" frozen alignFrozen="right">
+        <template #body="{ data }">
+          <div class="flex justify-end gap-1">
+            <Button icon="pi pi-pencil" severity="secondary" text rounded @click="openEdit(data)" />
+            <Button icon="pi pi-trash" severity="danger" text rounded @click="confirmDelete(data)" />
           </div>
         </template>
-
-        <Column field="name" :header="t('location.labels.name')" sortable>
-          <template #body="{ data }">
-            <span class="font-bold text-surface-900 dark:text-surface-0">{{ data.name }}</span>
-          </template>
-        </Column>
-
-        <Column field="isoCode" header="ISO Code" sortable class="text-center">
-          <template #body="{ data }">
-            <Tag :value="data.isoCode" severity="info" />
-          </template>
-        </Column>
-
-        <Column field="callingCode" :header="t('location.labels.calling_code')" sortable class="text-center">
-          <template #body="{ data }">
-            <span class="font-mono">{{ data.callingCode || '-' }}</span>
-          </template>
-        </Column>
-
-        <Column field="isActive" :header="t('location.labels.active')" dataType="boolean" class="w-24 text-center">
-          <template #body="{ data }">
-            <i class="pi" :class="{'pi-check-circle text-green-500': data.isActive, 'pi-times-circle text-surface-400': !data.isActive}"></i>
-          </template>
-        </Column>
-
-        <Column class="w-32 text-right" frozen alignFrozen="right">
-          <template #body="{ data }">
-            <div class="flex justify-end gap-1">
-              <Button icon="pi pi-pencil" severity="secondary" text rounded @click="openEdit(data)" />
-              <Button icon="pi pi-trash" severity="danger" text rounded @click="confirmDelete(data)" />
-            </div>
-          </template>
-        </Column>
-      </DataTable>
-    </div>
+      </Column>
+    </DataTable>
 
     <CountryForm
       v-model:visible="dialogVisible"

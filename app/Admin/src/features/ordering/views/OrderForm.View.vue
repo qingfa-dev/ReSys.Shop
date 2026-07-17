@@ -132,7 +132,7 @@ const onSubmit = async () => {
 </script>
 
 <template>
-    <PageShell maxWidth="4xl">
+    <PageShell maxWidth="7xl">
         <PageHeader back title="Create Manual Order" description="Enter customer details and add items to generate a new order." />
 
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">

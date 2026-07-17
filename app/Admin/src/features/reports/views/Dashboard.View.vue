@@ -84,7 +84,7 @@ const getActivityColor = (type: string) => {
 </script>
 
 <template>
-    <PageShell :card="false" gap>
+    <PageShell :card="false" gap maxWidth="7xl">
         <PageHeader :title="t('navigation.dashboard')" description="Real-time performance overview">
             <template #actions>
                 <Button

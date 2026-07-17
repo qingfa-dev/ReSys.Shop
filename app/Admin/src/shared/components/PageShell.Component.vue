@@ -1,7 +1,5 @@
 <script setup lang="ts">
-import { computed } from 'vue'
-
-const props = withDefaults(defineProps<{
+withDefaults(defineProps<{
   maxWidth?: '2xl' | '4xl' | '6xl' | '7xl' | 'none'
   card?: boolean
   gap?: boolean
@@ -11,22 +9,19 @@ const props = withDefaults(defineProps<{
   gap: false,
 })
 
-const maxWidthClass = computed(() => {
-  switch (props.maxWidth) {
-    case '2xl': return 'max-w-2xl mx-auto'
-    case '4xl': return 'max-w-4xl mx-auto'
-    case '6xl': return 'max-w-6xl mx-auto'
-    case '7xl': return 'max-w-7xl mx-auto'
-    default: return ''
-  }
-})
+const MAX_WIDTH_CLASS: Record<string, string> = {
+  '2xl': 'max-w-2xl mx-auto',
+  '4xl': 'max-w-4xl mx-auto',
+  '6xl': 'max-w-6xl mx-auto',
+  '7xl': 'max-w-7xl mx-auto',
+}
 </script>
 
 <template>
   <div
     class="p-6"
     :class="[
-      maxWidthClass,
+      MAX_WIDTH_CLASS[maxWidth] || '',
       !card && gap ? 'flex flex-col gap-6' : '',
     ]"
   >

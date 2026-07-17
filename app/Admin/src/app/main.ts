@@ -9,7 +9,6 @@ import App from "./App.vue";
 import router from "./router";
 import { installAuthBootstrap } from "./auth/auth-bootstrap";
 import i18n from "./plugins/i18n";
-import "primeicons/primeicons.css";
 import "@/assets/tailwind.css";
 import "@/assets/scss/main.scss";
 

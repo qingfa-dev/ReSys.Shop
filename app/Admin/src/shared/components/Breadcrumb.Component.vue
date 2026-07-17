@@ -31,19 +31,19 @@ const breadcrumbs = computed(() => {
     <ol class="inline-flex items-center space-x-1 md:space-x-3">
       <li v-for="(item, index) in breadcrumbs" :key="index" class="inline-flex items-center">
         <div class="flex items-center">
-          <i v-if="index > 0" class="pi pi-chevron-right text-surface-400 mx-2 text-[10px]"></i>
+          <i v-if="index > 0" class="pi pi-chevron-right text-surface-400 mx-2 text-xs"></i>
           
           <router-link
             v-if="!item.active"
             :to="item.to"
             class="transition-colors text-surface-500 hover:text-primary dark:text-surface-400 flex items-center"
           >
-            <i v-if="index === 0" class="mr-2 pi pi-home text-[12px]"></i>
+            <i v-if="index === 0" class="mr-2 pi pi-home text-sm"></i>
             {{ item.label }}
           </router-link>
           
           <span v-else class="font-bold text-primary flex items-center">
-            <i v-if="index === 0" class="mr-2 pi pi-home text-[12px]"></i>
+            <i v-if="index === 0" class="mr-2 pi pi-home text-sm"></i>
             {{ item.label }}
           </span>
         </div>

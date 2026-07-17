@@ -121,7 +121,7 @@ onMounted(() => {
 </script>
 
 <template>
-  <PageShell>
+  <PageShell maxWidth="7xl">
     <PageHeader :title="t('catalog.products.titles.list')" :description="t('catalog.products.descriptions.list')">
       <template #badge>
         <Badge :value="totalRecords" severity="info" class="ml-2"></Badge>

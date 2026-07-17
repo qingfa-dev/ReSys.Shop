@@ -105,7 +105,7 @@ async function onSubmit() {
 </script>
 
 <template>
-    <PageShell maxWidth="4xl">
+    <PageShell maxWidth="7xl">
         <PageHeader
             :title="isEditMode ? 'Edit Staff' : 'Invite Staff'"
             :description="isEditMode ? 'Update staff member details and permissions.' : 'Create a new staff account.'"

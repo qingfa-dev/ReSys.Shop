@@ -43,7 +43,7 @@ async function onSubmit() {
 </script>
 
 <template>
-    <PageShell maxWidth="2xl">
+    <PageShell maxWidth="7xl">
         <PageHeader back :title="t('inventory.titles.create_transfer')" :description="t('inventory.descriptions.transfers')" />
 
         <form @submit.prevent="onSubmit" class="flex flex-col gap-6">

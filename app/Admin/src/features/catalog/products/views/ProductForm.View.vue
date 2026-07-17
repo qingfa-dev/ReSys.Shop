@@ -122,7 +122,7 @@ const onSubmit = handleSubmit(async (values) => {
 </script>
 
 <template>
-    <PageShell maxWidth="6xl">
+    <PageShell maxWidth="7xl">
         <PageHeader
           :title="isEdit ? (name || 'Edit Product') : t('catalog.products.titles.create')"
           :description="isEdit ? t('catalog.products.descriptions.edit') : t('catalog.products.descriptions.create')"

@@ -26,7 +26,7 @@ describe('OrderService', () => {
 
       const result = await orderService.list(params)
 
-      expect(apiClient.get).toHaveBeenCalledWith('api/ordering/orders', { params })
+      expect(apiClient.get).toHaveBeenCalledWith('ordering/orders', { params })
       expect(result).toEqual(serverResult)
     })
   })
@@ -40,7 +40,7 @@ describe('OrderService', () => {
 
       const result = await orderService.getById(id)
 
-      expect(apiClient.get).toHaveBeenCalledWith('api/ordering/orders/order-id')
+      expect(apiClient.get).toHaveBeenCalledWith('ordering/orders/order-id')
       expect(result).toEqual(serverResult)
     })
   })
@@ -55,7 +55,7 @@ describe('OrderService', () => {
 
       const result = await orderService.updateStatus(id, status)
 
-      expect(apiClient.put).toHaveBeenCalledWith('api/ordering/orders/order-id/status', { status })
+      expect(apiClient.put).toHaveBeenCalledWith('ordering/orders/order-id/status', { status })
       expect(result).toEqual(serverResult)
     })
   })
@@ -70,7 +70,7 @@ describe('OrderService', () => {
 
       const result = await orderService.cancel(id, reason)
 
-      expect(apiClient.post).toHaveBeenCalledWith('api/ordering/orders/order-id/cancel', { reason })
+      expect(apiClient.post).toHaveBeenCalledWith('ordering/orders/order-id/cancel', { reason })
       expect(result).toEqual(serverResult)
     })
   })
@@ -85,7 +85,7 @@ describe('OrderService', () => {
 
       const result = await orderService.addItem(id, data)
 
-      expect(apiClient.post).toHaveBeenCalledWith('api/ordering/orders/order-id/line-items', data)
+      expect(apiClient.post).toHaveBeenCalledWith('ordering/orders/order-id/line-items', data)
       expect(result).toEqual(serverResult)
     })
   })

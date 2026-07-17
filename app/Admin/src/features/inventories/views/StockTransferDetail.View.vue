@@ -109,7 +109,7 @@ onMounted(() => {
 </script>
 
 <template>
-    <PageShell :card="false" gap maxWidth="6xl">
+    <PageShell :card="false" gap maxWidth="7xl">
         <template v-if="transfer">
             <PageHeader back :title="transfer.referenceNumber" :description="'Initiated on ' + formatDate(transfer.createdAtUtc)">
                 <template #badge>
