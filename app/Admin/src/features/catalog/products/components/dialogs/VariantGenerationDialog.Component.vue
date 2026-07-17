@@ -127,6 +127,7 @@ const confirmGeneration = async () => {
             const createRes = await variantService.create(props.productId, {
                 sku: payload.sku,
                 price: payload.price,
+                position: 0,
                 trackInventory: true
             });
 

@@ -122,6 +122,7 @@ const onSubmit = handleSubmit((values) => {
     const payload: CreateVariantRequest = {
         sku: values.sku,
         price: values.price,
+        position: 0,
         trackInventory: values.trackInventory,
         barcode: values.barcode ?? undefined,
         weight: values.weight,

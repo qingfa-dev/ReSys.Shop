@@ -28,7 +28,7 @@ describe('productRepository', () => {
     expect(apiClient.get).toHaveBeenCalledWith('api/catalog/products/guid-1', expect.any(Object))
   })
   it('create calls correct route', async () => {
-    await productRepository.create({ name: 'Test', price: 10 })
+    await productRepository.create({ name: 'Test', slug: 'test', price: 10, trackInventory: true })
     expect(apiClient.post).toHaveBeenCalledWith('api/catalog/products', expect.any(Object))
   })
   it('delete calls correct route', async () => {

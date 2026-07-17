@@ -104,6 +104,7 @@ const onSubmit = handleSubmit(async (values) => {
         description: values.description,
         price: values.price,
         sku: values.sku,
+        trackInventory: true,
         weight: values.weight,
         height: values.height,
         width: values.width,
