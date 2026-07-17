@@ -8,7 +8,7 @@ import { storeToRefs } from 'pinia'
 import { useForm } from 'vee-validate'
 import { toTypedSchema } from '@vee-validate/zod'
 import { z } from 'zod'
-import { OptionValueSchema } from '../schemas/option-value.schema'
+import { OptionValueSchema } from '../schemas/OptionValue.Schema'
 import { FilterMatchMode, FilterOperator } from '@primevue/core/api'
 import type { DataTablePageEvent, DataTableSortEvent, DataTableFilterMeta } from 'primevue/datatable'
 import { useToast } from '@/shared/composables/toast.use'
@@ -16,7 +16,7 @@ import { useConfirm } from 'primevue/useconfirm'
 import { useApiErrorHandler } from '@/shared/composables/api-error-handler.use'
 import AppBreadcrumb from '@/shared/components/Breadcrumb.Component.vue'
 import { QueryBuilder } from '@/shared/utils/query-builder.utils'
-import type { OptionValueListItem } from '../types/option-value.domain.types'
+import type { OptionValueListItem } from '../types/OptionValue.Response.Type'
 
 const { t } = useI18n()
 

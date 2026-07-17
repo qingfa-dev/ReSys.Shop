@@ -8,7 +8,7 @@ import { useApiErrorHandler } from '@/shared/composables/api-error-handler.use'
 import AppBreadcrumb from '@/shared/components/Breadcrumb.Component.vue'
 import { useToast } from '@/shared/composables/toast.use'
 import { useConfirm } from 'primevue/useconfirm'
-import type { OptionTypeListItem } from '../types/option-type.domain.types'
+import type { OptionTypeListItem } from '../types/OptionType.Response.Type'
 
 const { t } = useI18n()
 const route = useRoute()

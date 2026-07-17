@@ -10,7 +10,7 @@ import { useToast } from '@/shared/composables/toast.use'
 import { useConfirm } from 'primevue/useconfirm'
 import AppBreadcrumb from '@/shared/components/Breadcrumb.Component.vue'
 import { QueryBuilder } from '@/shared/utils/query-builder.utils'
-import type { OptionTypeListItem } from '../types/option-type.domain.types'
+import type { OptionTypeListItem } from '../types/OptionType.Response.Type'
 
 const { t } = useI18n()
 const router = useRouter()

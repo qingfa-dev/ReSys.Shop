@@ -6,9 +6,9 @@ import { toTypedSchema } from '@vee-validate/zod';
 import * as z from 'zod';
 import { productService } from '../services/product.service';
 import { optionValueService } from '@/features/catalog/option-types/option-values/services/option-value.service';
-import type { OptionValueQuery } from '@/features/catalog/option-types/option-values/types/option-value.request.types';
-import type { OptionValueListItem } from '@/features/catalog/option-types/option-values/types/option-value.domain.types';
-import type { OptionTypeDetail } from '@/features/catalog/option-types/types/option-type.domain.types';
+import type { OptionValueQuery } from '@/features/catalog/option-types/option-values/types/OptionValue.Query.Type';
+import type { OptionValueListItem } from '@/features/catalog/option-types/option-values/types/OptionValue.Response.Type';
+import type { OptionTypeDetail } from '@/features/catalog/option-types/types/OptionType.Response.Type';
 import type { VariantDetail } from '../types/variant.domain.types';
 import type { CreateVariantRequest } from '../types/variant.request.types';
 

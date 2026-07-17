@@ -2,7 +2,7 @@ import apiClient from '@/shared/api/http/api.client'
 import { CATALOG } from '@/shared/api/constants'
 import type { ServerResult } from '@/shared/api/types/result.types'
 import type { ServerQueryingParameters } from '@/shared/api/types/query.types'
-import type { OptionValueListItem } from '../option-types/option-values/types/option-value.domain.types'
+import type { OptionValueListItem } from '../option-types/option-values/types/OptionValue.Response.Type'
 
 export const optionValueRepository = {
   listByOptionTypeId: (optionTypeId: string, params?: ServerQueryingParameters): Promise<ServerResult<OptionValueListItem[]>> =>

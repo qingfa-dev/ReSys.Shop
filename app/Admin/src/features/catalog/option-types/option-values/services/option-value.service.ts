@@ -1,6 +1,6 @@
 import { optionValueRepository } from '../../../repository/option-value.repository'
-import type { OptionValueListItem } from '../types/option-value.domain.types'
-import type { CreateOptionValueRequest, UpdateOptionValueRequest, UpdateOptionValuePositionsRequest } from '../types/option-value.request.types'
+import type { OptionValueListItem } from '../types/OptionValue.Response.Type'
+import type { CreateOptionValueRequest, UpdateOptionValueRequest, UpdateOptionValuePositionsRequest } from '../types/OptionValue.Request.Type'
 import type { ServerResult, ServerPagedResult } from '@/shared/api/types/result.types'
 
 export const optionValueService = {

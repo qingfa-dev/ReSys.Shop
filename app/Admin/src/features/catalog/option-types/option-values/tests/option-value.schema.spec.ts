@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { OptionValueSchema } from '../schemas/option-value.schema';
+import { OptionValueSchema } from '../schemas/OptionValue.Schema';
 
 describe('OptionValueSchema', () => {
   it('should validate a correct option value', () => {

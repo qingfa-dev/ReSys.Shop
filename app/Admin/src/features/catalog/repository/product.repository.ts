@@ -4,7 +4,7 @@ import type { ServerResult } from '@/shared/api/types/result.types'
 import type { ServerQueryingParameters } from '@/shared/api/types/query.types'
 import type { ProductClassification, ProductDetail, ProductSummary } from '../products/types/product.domain.types'
 import type { CreateProductRequest, UpdateProductRequest } from '../products/types/product.request.types'
-import type { OptionTypeDetail } from '../option-types/types/option-type.domain.types'
+import type { OptionTypeDetail } from '../option-types/types/OptionType.Response.Type'
 
 export const productRepository = {
   list: (params?: ServerQueryingParameters): Promise<ServerResult<ProductSummary[]>> =>

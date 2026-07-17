@@ -5,7 +5,7 @@ import type { ServerQueryingParameters } from "@/shared/api/types/query.types";
 import type {
   OptionTypeDetail,
   OptionTypeListItem,
-} from "../option-types/types/option-type.domain.types";
+} from "../option-types/types/OptionType.Response.Type";
 
 export const optionTypeRepository = {
   list: (params?: ServerQueryingParameters): Promise<ServerResult<OptionTypeListItem[]>> =>

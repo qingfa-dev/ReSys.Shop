@@ -7,12 +7,12 @@ import { useOptionValueStore } from '@/features/catalog/option-types/option-valu
 import { storeToRefs } from 'pinia'
 import { useForm } from 'vee-validate'
 import { toTypedSchema } from '@vee-validate/zod'
-import { OptionTypeSchema } from '../schemas/option-type.schema'
-import { OptionValueSchema } from '@/features/catalog/option-types/option-values/schemas/option-value.schema'
+import { OptionTypeSchema } from '../schemas/OptionType.Schema'
+import { OptionValueSchema } from '@/features/catalog/option-types/option-values/schemas/OptionValue.Schema'
 import { useApiErrorHandler } from '@/shared/composables/api-error-handler.use'
 import AppBreadcrumb from '@/shared/components/Breadcrumb.Component.vue'
 import { useToast } from '@/shared/composables/toast.use'
-import type { OptionValueListItem } from '@/features/catalog/option-types/option-values/types/option-value.domain.types'
+import type { OptionValueListItem } from '@/features/catalog/option-types/option-values/types/OptionValue.Response.Type'
 import MetadataManager from '@/shared/components/MetadataManager.Component.vue'
 
 const { t } = useI18n()
