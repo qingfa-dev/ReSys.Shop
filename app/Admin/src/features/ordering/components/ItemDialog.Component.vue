@@ -56,7 +56,7 @@ const onSelectVariant = (variant: any) => {
 </script>
 
 <template>
-    <Dialog header="Add Item to Order" visible modal class="w-full max-w-xl" @update:visible="$emit('close')">
+    <Dialog :header="t('ordering.actions.add_to_order')" visible modal class="w-full max-w-xl" @update:visible="$emit('close')">
         <div class="flex flex-col gap-6 py-4">
             <div class="flex flex-col gap-2">
                 <label class="font-bold text-sm">Search Product</label>
@@ -83,7 +83,7 @@ const onSelectVariant = (variant: any) => {
             </div>
 
             <div class="flex flex-col gap-2">
-                <label class="font-bold text-sm">Quantity</label>
+                <label class="font-bold text-sm">{{ t('ordering.labels.quantity') }}</label>
                 <InputNumber v-model="quantity" showButtons buttonLayout="horizontal" :min="1" class="w-full" inputClass="h-12 text-center" />
             </div>
 
@@ -112,7 +112,7 @@ const onSelectVariant = (variant: any) => {
 
         <template #footer>
             <div class="flex justify-end pt-4 border-t border-surface-100 dark:border-surface-800">
-                <Button label="Cancel" severity="secondary" text @click="$emit('close')" />
+                <Button :label="t('common.cancel')" severity="secondary" text @click="$emit('close')" />
             </div>
         </template>
     </Dialog>

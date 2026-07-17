@@ -63,11 +63,11 @@ const onSave = () => {
 </script>
 
 <template>
-    <Dialog header="Edit Order Addresses" visible modal class="w-full max-w-4xl" @update:visible="$emit('close')">
+    <Dialog :header="t('ordering.actions.update_addresses')" visible modal class="w-full max-w-4xl" @update:visible="$emit('close')">
         <div class="grid grid-cols-1 md:grid-cols-2 gap-8 py-4">
             <!-- Shipping -->
             <div class="flex flex-col gap-4">
-                <h3 class="font-black uppercase tracking-widest text-surface-400 text-sm">Shipping Address</h3>
+                <h3 class="font-black uppercase tracking-widest text-surface-400 text-sm">{{ t('ordering.labels.shipping_address') }}</h3>
                 <div class="grid grid-cols-2 gap-3">
                     <div class="flex flex-col gap-1">
                         <label class="text-xs font-bold">First Name</label>
@@ -105,7 +105,7 @@ const onSave = () => {
             <!-- Billing -->
             <div class="flex flex-col gap-4">
                 <div class="flex justify-between items-center">
-                    <h3 class="font-black uppercase tracking-widest text-surface-400 text-sm">Billing Address</h3>
+                    <h3 class="font-black uppercase tracking-widest text-surface-400 text-sm">{{ t('ordering.labels.billing_address') }}</h3>
                     <div class="flex items-center gap-2">
                         <Checkbox v-model="sameAsShipping" :binary="true" inputId="same" />
                         <label for="same" class="text-xs font-bold cursor-pointer">Same as shipping</label>
@@ -154,8 +154,8 @@ const onSave = () => {
 
         <template #footer>
             <div class="flex justify-end gap-3 pt-4 border-t border-surface-100 dark:border-surface-800">
-                <Button label="Cancel" severity="secondary" text @click="$emit('close')" />
-                <Button label="Update Addresses" icon="pi pi-check" @click="onSave" class="rounded-xl" />
+                <Button :label="t('common.cancel')" severity="secondary" text @click="$emit('close')" />
+                <Button :label="t('ordering.actions.update_addresses')" icon="pi pi-check" @click="onSave" class="rounded-xl" />
             </div>
         </template>
     </Dialog>

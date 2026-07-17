@@ -3,11 +3,21 @@
     "list": "Orders",
     "detail": "Order Detail",
     "items": "Order Items",
-    "logistics": "Logistics",
-    "customer": "Customer Info"
+    "logistics": "Logistics & Shipments",
+    "customer": "Customer Info",
+    "audit_log": "Audit Log",
+    "customer_communication": "Customer & Communication",
+    "financials": "Financials",
+    "cancel_shipment": "Cancel Shipment",
+    "confirm_cancellation": "Confirm Cancellation",
+    "fulfillment_queue": "Fulfillment Queue",
+    "dashboard": "Ordering Dashboard",
+    "select_variant": "Select Variant"
   },
   "descriptions": {
-    "list": "Manage customer orders, fulfillment and status history."
+    "list": "Manage customer orders, fulfillment and status history.",
+    "fulfillment_queue": "Orders ready for picking and packing.",
+    "dashboard": "Overview of orders, revenue, and fulfillment."
   },
   "table": {
     "number": "Order #",
@@ -16,7 +26,12 @@
     "total": "Total",
     "status": "Status",
     "actions": "Actions",
-    "clear_filter": "Clear Filters"
+    "clear_filter": "Clear Filters",
+    "order_number": "Order #",
+    "product": "Product",
+    "price": "Price",
+    "qty": "Qty",
+    "sku": "SKU"
   },
   "labels": {
     "number": "Order Number",
@@ -26,12 +41,35 @@
     "discount": "Discount",
     "total": "Total",
     "shipping_address": "Shipping Address",
-    "payment_method": "Payment & Carrier"
+    "billing_address": "Billing Address",
+    "payment_method": "Payment & Carrier",
+    "currency": "Currency",
+    "account": "Account",
+    "method": "Method",
+    "amount": "Amount",
+    "reason": "Reason",
+    "quantity": "Quantity",
+    "city": "City"
   },
   "actions": {
     "view": "View Details",
-    "cancel": "Cancel Order",
-    "ship": "Mark as Shipped"
+    "cancel": "Cancel",
+    "ship": "Mark as Shipped",
+    "new_order": "New Order",
+    "advance_status": "Advance Status",
+    "cancel_order": "Cancel Order",
+    "add_item": "Add Item",
+    "view_profile": "View Profile",
+    "track_package": "Track Package",
+    "create_manual_shipment": "Create Manual Shipment",
+    "refund": "Refund",
+    "capture_payment": "Capture Manual Payment",
+    "create_shipment": "Create Shipment",
+    "process_refund": "Process Refund",
+    "add_to_order": "Add Item to Order",
+    "update_addresses": "Update Addresses",
+    "ship_order": "Ship Order",
+    "create_order": "Create Order"
   },
   "placeholders": {
     "search": "Search by Order # or Customer...",
@@ -39,6 +77,54 @@
   },
   "messages": {
     "empty_list": "No orders found matching your criteria.",
-    "loading": "Loading orders..."
+    "loading": "Loading orders...",
+    "order_created": "Order created successfully",
+    "item_added": "Item added to order",
+    "addresses_updated": "Addresses updated",
+    "state_advanced": "Order state advanced",
+    "order_canceled": "Order canceled",
+    "shipment_created": "Shipment created successfully",
+    "refund_processed": "Refund processed",
+    "shipped": "Order marked as shipped",
+    "ship_failed": "Failed to ship",
+    "customer_email_required": "Customer email is required",
+    "items_required": "Please add at least one item",
+    "warehouse_required": "Please select a source warehouse.",
+    "items_to_ship_required": "Please select at least one item to ship.",
+    "item_added_to_transfer": "Item added to transfer",
+    "transfer_shipped": "Transfer shipped",
+    "stock_received": "Stock received at destination",
+    "cancel_shipment_confirm": "Are you sure you want to cancel this shipment? Inventory units will be released.",
+    "cancel_order_confirm": "Are you sure you want to cancel this order?",
+    "no_shipping_address": "No shipping address provided.",
+    "no_billing_address": "No billing address provided.",
+    "no_history": "No history events recorded.",
+    "no_shipments": "No shipments generated.",
+    "no_payments": "No payments captured.",
+    "no_items": "No items added to this order yet."
+  },
+  "panels": {
+    "audit_log": "Audit Log",
+    "customer_communication": "Customer & Communication",
+    "logistics": "Logistics & Shipments",
+    "financials": "Financials"
+  },
+  "tabs": {
+    "general": "General"
+  },
+  "status_labels": {
+    "draft": "Draft",
+    "placed": "Placed",
+    "canceled": "Canceled",
+    "expired": "Expired"
+  },
+  "dashboard": {
+    "total_orders": "Total Orders",
+    "pending_fulfillment": "Pending Fulfillment",
+    "todays_orders": "Today's Orders",
+    "avg_order_value": "Avg. Order Value",
+    "total_revenue": "Total Revenue",
+    "recent_orders": "Recent Orders",
+    "status_breakdown": "Status Breakdown"
   }
 }

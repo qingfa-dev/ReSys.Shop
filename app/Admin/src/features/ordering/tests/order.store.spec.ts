@@ -20,6 +20,12 @@ vi.mock('@/shared/composables/toast.use', () => ({
   })
 }));
 
+vi.mock('vue-i18n', () => ({
+  useI18n: () => ({
+    t: (key: string) => key,
+  }),
+}));
+
 describe('OrderStore', () => {
   beforeEach(() => {
     setActivePinia(createPinia());

@@ -14,11 +14,11 @@ onMounted(async () => {
 <template>
   <div class="p-6">
     <div class="mb-8">
-      <h2 class="text-3xl font-black tracking-tight text-surface-900 dark:text-surface-50">
-        Ordering Dashboard
+        <h2 class="text-3xl font-black tracking-tight text-surface-900 dark:text-surface-50">
+        {{ t('ordering.titles.dashboard') }}
       </h2>
       <p class="text-surface-500 dark:text-surface-400">
-        Overview of orders, revenue, and fulfillment.
+        {{ t('ordering.descriptions.dashboard') }}
       </p>
     </div>
 
@@ -28,58 +28,58 @@ onMounted(async () => {
 
     <div v-else-if="data" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6 mb-8">
       <div class="rounded-2xl border border-surface-200 dark:border-surface-700 p-5 bg-surface-0 dark:bg-surface-900">
-        <p class="text-sm text-surface-500 dark:text-surface-400">Total Orders</p>
+        <p class="text-sm text-surface-500 dark:text-surface-400">{{ t('ordering.dashboard.total_orders') }}</p>
         <p class="text-3xl font-bold mt-2">{{ data.totalOrders.toLocaleString() }}</p>
       </div>
       <div class="rounded-2xl border border-surface-200 dark:border-surface-700 p-5 bg-surface-0 dark:bg-surface-900">
-        <p class="text-sm text-surface-500 dark:text-surface-400">Pending Fulfillment</p>
+        <p class="text-sm text-surface-500 dark:text-surface-400">{{ t('ordering.dashboard.pending_fulfillment') }}</p>
         <p class="text-3xl font-bold mt-2">{{ data.pendingFulfillment.toLocaleString() }}</p>
       </div>
       <div class="rounded-2xl border border-surface-200 dark:border-surface-700 p-5 bg-surface-0 dark:bg-surface-900">
-        <p class="text-sm text-surface-500 dark:text-surface-400">Today's Orders</p>
+        <p class="text-sm text-surface-500 dark:text-surface-400">{{ t('ordering.dashboard.todays_orders') }}</p>
         <p class="text-3xl font-bold mt-2">{{ data.todayOrders.toLocaleString() }}</p>
       </div>
       <div class="rounded-2xl border border-surface-200 dark:border-surface-700 p-5 bg-surface-0 dark:bg-surface-900">
-        <p class="text-sm text-surface-500 dark:text-surface-400">Avg. Order Value</p>
+        <p class="text-sm text-surface-500 dark:text-surface-400">{{ t('ordering.dashboard.avg_order_value') }}</p>
         <p class="text-3xl font-bold mt-2">${{ data.averageOrderValue.toFixed(2) }}</p>
       </div>
       <div class="rounded-2xl border border-surface-200 dark:border-surface-700 p-5 bg-surface-0 dark:bg-surface-900">
-        <p class="text-sm text-surface-500 dark:text-surface-400">Total Revenue</p>
+        <p class="text-sm text-surface-500 dark:text-surface-400">{{ t('ordering.dashboard.total_revenue') }}</p>
         <p class="text-3xl font-bold mt-2">${{ data.totalRevenue.toLocaleString() }}</p>
       </div>
     </div>
 
     <div v-if="data" class="grid grid-cols-1 lg:grid-cols-3 gap-6">
       <div class="lg:col-span-2">
-        <h3 class="text-lg font-semibold mb-3">Recent Orders</h3>
+        <h3 class="text-lg font-semibold mb-3">{{ t('ordering.dashboard.recent_orders') }}</h3>
         <DataTable :value="data.recentOrders" class="text-sm" stripedRows>
-          <Column field="number" header="Order #" />
-          <Column field="status" header="Status" />
-          <Column field="total" header="Total">
+          <Column field="number" :header="t('ordering.table.order_number')" />
+          <Column field="status" :header="t('ordering.table.status')" />
+          <Column field="total" :header="t('ordering.table.total')">
             <template #body="{ data: row }">${{ row.total.toFixed(2) }}</template>
           </Column>
-          <Column field="createdAtUtc" header="Date">
+          <Column field="createdAtUtc" :header="t('ordering.table.date')">
             <template #body="{ data: row }">{{ new Date(row.createdAtUtc).toLocaleDateString() }}</template>
           </Column>
         </DataTable>
       </div>
       <div>
-        <h3 class="text-lg font-semibold mb-3">Status Breakdown</h3>
+        <h3 class="text-lg font-semibold mb-3">{{ t('ordering.dashboard.status_breakdown') }}</h3>
         <div class="space-y-2">
           <div class="flex justify-between text-sm">
-            <span>Draft</span>
+            <span>{{ t('ordering.status_labels.draft') }}</span>
             <span class="font-semibold">{{ data.statusBreakdown.draft }}</span>
           </div>
           <div class="flex justify-between text-sm">
-            <span>Placed</span>
+            <span>{{ t('ordering.status_labels.placed') }}</span>
             <span class="font-semibold">{{ data.statusBreakdown.placed }}</span>
           </div>
           <div class="flex justify-between text-sm">
-            <span>Canceled</span>
+            <span>{{ t('ordering.status_labels.canceled') }}</span>
             <span class="font-semibold">{{ data.statusBreakdown.canceled }}</span>
           </div>
           <div class="flex justify-between text-sm">
-            <span>Expired</span>
+            <span>{{ t('ordering.status_labels.expired') }}</span>
             <span class="font-semibold">{{ data.statusBreakdown.expired }}</span>
           </div>
         </div>

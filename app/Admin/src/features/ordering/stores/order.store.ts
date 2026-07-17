@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia';
 import { ref } from 'vue';
+import { useI18n } from 'vue-i18n';
 import { useToast } from '@/shared/composables/toast.use';
 import { usePagedList } from '@/shared/composables/paged-list.use';
 import { orderService } from '../services/order.service';
@@ -10,6 +11,7 @@ import type { CreateOrderRequest, AddOrderItemRequest, UpdateAddressesRequest } 
 
 export const useOrderStore = defineStore('order', () => {
   const { showToast } = useToast();
+  const { t } = useI18n();
 
   const current_order = ref<OrderDetail | null>(null);
   const submitting = ref(false);
@@ -38,7 +40,7 @@ export const useOrderStore = defineStore('order', () => {
     try {
       const result = await orderService.create(data);
       if (result.isSuccess) {
-        showToast('success', 'Success', 'Order created successfully');
+        showToast('success', t('common.success'), t('ordering.messages.order_created'));
       }
       return result;
     } finally {
@@ -51,7 +53,7 @@ export const useOrderStore = defineStore('order', () => {
     try {
       const result = await orderService.addItem(id, data);
       if (result.isSuccess) {
-        showToast('success', 'Success', 'Item added to order');
+        showToast('success', t('common.success'), t('ordering.messages.item_added'));
         await fetchOrderById(id);
       }
       return result;
@@ -71,7 +73,7 @@ export const useOrderStore = defineStore('order', () => {
         const billResult = await orderService.updateBillAddress(id, data.billingAddress);
         if (!billResult.isSuccess) return billResult;
       }
-      showToast('success', 'Success', 'Addresses updated');
+      showToast('success', t('common.success'), t('ordering.messages.addresses_updated'));
       await fetchOrderById(id);
       return { isSuccess: true, statusCode: 200, errors: [], message: null, metadata: null, value: null };
     } finally {
@@ -84,7 +86,7 @@ export const useOrderStore = defineStore('order', () => {
     try {
       const result = await orderService.updateStatus(id, status || 'next');
       if (result.isSuccess) {
-        showToast('success', 'Success', 'Order state advanced');
+        showToast('success', t('common.success'), t('ordering.messages.state_advanced'));
         await fetchOrderById(id);
       }
       return result;
@@ -98,7 +100,7 @@ export const useOrderStore = defineStore('order', () => {
     try {
       const result = await orderService.cancel(id, reason);
       if (result.isSuccess) {
-        showToast('success', 'Success', 'Order canceled');
+        showToast('success', t('common.success'), t('ordering.messages.order_canceled'));
         await fetchOrderById(id);
       }
       return result;

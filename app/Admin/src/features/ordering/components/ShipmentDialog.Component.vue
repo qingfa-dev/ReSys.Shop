@@ -40,11 +40,11 @@ const availableUnits = computed(() => {
 
 const onSubmit = async () => {
     if (!stockLocationId.value) {
-        showToast('error', 'Error', 'Please select a source warehouse.');
+        showToast('error', t('common.error'), t('ordering.messages.warehouse_required'));
         return;
     }
     if (selectedUnitIds.value.length === 0) {
-        showToast('error', 'Error', 'Please select at least one item to ship.');
+        showToast('error', t('common.error'), t('ordering.messages.items_to_ship_required'));
         return;
     }
 
@@ -56,7 +56,7 @@ const onSubmit = async () => {
         };
         const res = await orderService.createShipment(props.order.id, payload);
         if (res.isSuccess) {
-            showToast('success', 'Success', 'Shipment created successfully');
+            showToast('success', t('common.success'), t('ordering.messages.shipment_created'));
             emit('updated');
             emit('close');
         }
@@ -67,7 +67,7 @@ const onSubmit = async () => {
 </script>
 
 <template>
-    <Dialog v-model:visible="visible" header="Create Shipment" modal class="w-full max-w-3xl" @hide="emit('close')">
+    <Dialog v-model:visible="visible" :header="t('ordering.actions.create_shipment')" modal class="w-full max-w-3xl" @hide="emit('close')">
         <div class="flex flex-col gap-6 py-4">
             <div class="flex flex-col gap-2">
                 <label class="font-bold text-sm">Ship From</label>
@@ -79,16 +79,16 @@ const onSubmit = async () => {
                 <div class="border rounded-xl overflow-hidden">
                     <DataTable :value="availableUnits" v-model:selection="selectedUnitIds" dataKey="id">
                         <Column selectionMode="multiple" headerStyle="width: 3rem"></Column>
-                        <Column field="sku" header="SKU" />
-                        <Column field="state" header="Status" />
+                        <Column field="sku" :header="t('ordering.table.sku')" />
+                        <Column field="state" :header="t('ordering.table.status')" />
                     </DataTable>
                 </div>
             </div>
         </div>
 
         <template #footer>
-            <Button label="Cancel" severity="secondary" text @click="emit('close')" />
-            <Button label="Create Shipment" icon="pi pi-check" :loading="loading" @click="onSubmit" />
+            <Button :label="t('common.cancel')" severity="secondary" text @click="emit('close')" />
+            <Button :label="t('ordering.actions.create_shipment')" icon="pi pi-check" :loading="loading" @click="onSubmit" />
         </template>
     </Dialog>
 </template>

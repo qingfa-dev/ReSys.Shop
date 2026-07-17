@@ -130,7 +130,7 @@ onMounted(() => {
             </div>
             <span class="text-sm text-surface-500">{{ t('ordering.descriptions.list') }}</span>
           </div>
-          <Button label="New Order" icon="pi pi-plus" severity="primary" class="rounded-xl" @click="router.push({ name: 'ordering.orders.create' })" />
+          <Button :label="t('ordering.actions.new_order')" icon="pi pi-plus" severity="primary" class="rounded-xl" @click="router.push({ name: 'ordering.orders.create' })" />
         </div>
       </template>
       <template #content>

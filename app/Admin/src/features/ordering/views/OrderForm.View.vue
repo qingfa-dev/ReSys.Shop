@@ -103,11 +103,11 @@ const subtotal = computed(() => {
 
 const onSubmit = async () => {
     if (!email.value) {
-        showToast('error', 'Error', 'Customer email is required');
+        showToast('error', t('common.error'), t('ordering.messages.customer_email_required'));
         return;
     }
     if (selectedItems.value.length === 0) {
-        showToast('error', 'Error', 'Please add at least one item');
+        showToast('error', t('common.error'), t('ordering.messages.items_required'));
         return;
     }
 
@@ -149,7 +149,7 @@ const onSubmit = async () => {
                                 <InputText v-model="email" placeholder="john@example.com" class="w-full h-12 px-4 rounded-xl" />
                             </div>
                             <div class="flex flex-col gap-2">
-                                <label class="font-bold text-sm">Currency</label>
+                                <label class="font-bold text-sm">{{ t('ordering.labels.currency') }}</label>
                                 <SelectButton v-model="currency" :options="['USD', 'EUR', 'GBP']" />
                             </div>
                         </div>
@@ -159,7 +159,7 @@ const onSubmit = async () => {
                 <Card class="rounded-3xl shadow-sm border-none bg-surface-0 dark:bg-surface-900 overflow-hidden">
                     <template #title>
                         <div class="flex justify-between items-center p-4">
-                            <span class="text-lg font-black uppercase tracking-widest text-surface-400">Order Items</span>
+                            <span class="text-lg font-black uppercase tracking-widest text-surface-400">{{ t('ordering.titles.items') }}</span>
                         </div>
                     </template>
                     <template #content>
@@ -187,17 +187,17 @@ const onSubmit = async () => {
                         </div>
 
                         <DataTable :value="selectedItems" class="p-datatable-sm" v-if="selectedItems.length > 0" stripedRows showGridlines>
-                            <Column header="Product">
+                            <Column :header="t('ordering.table.product')">
                                 <template #body="{ data }">
                                     <span class="font-bold">{{ data.name }}</span>
                                 </template>
                             </Column>
-                            <Column header="Qty" class="w-24">
+                            <Column :header="t('ordering.table.qty')" class="w-24">
                                 <template #body="{ data }">
                                     <InputNumber v-model="data.quantity" showButtons buttonLayout="horizontal" :min="1" inputClass="w-12 text-center" />
                                 </template>
                             </Column>
-                            <Column header="Price">
+                            <Column :header="t('ordering.table.price')">
                                 <template #body="{ data }">{{ formatCurrency(data.price) }}</template>
                             </Column>
                             <Column class="w-12">
@@ -207,7 +207,7 @@ const onSubmit = async () => {
                             </Column>
                         </DataTable>
                         <div v-else class="text-center py-12 border-2 border-dashed border-surface-100 dark:border-surface-800 rounded-3xl text-surface-400">
-                            No items added to this order yet.
+                            {{ t('ordering.messages.no_items') }}
                         </div>
                     </template>
                 </Card>
@@ -220,18 +220,18 @@ const onSubmit = async () => {
                         <div class="flex flex-col gap-4 p-4">
                             <span class="text-xs font-black uppercase tracking-widest text-surface-500">Order Summary</span>
                             <div class="flex justify-between items-center mt-4">
-                                <span class="text-3xl font-black">Total</span>
+                                <span class="text-3xl font-black">{{ t('ordering.labels.total') }}</span>
                                 <span class="text-4xl font-black text-primary">{{ formatCurrency(subtotal) }}</span>
                             </div>
-                            <Button label="Create Order" icon="pi pi-check" class="w-full h-14 mt-6 rounded-2xl shadow-xl shadow-primary/20" :loading="loading" @click="onSubmit" />
-                            <Button label="Cancel" severity="secondary" text class="w-full rounded-2xl" @click="router.back()" />
+                            <Button :label="t('ordering.actions.create_order')" icon="pi pi-check" class="w-full h-14 mt-6 rounded-2xl shadow-xl shadow-primary/20" :loading="loading" @click="onSubmit" />
+                            <Button :label="t('common.cancel')" severity="secondary" text class="w-full rounded-2xl" @click="router.back()" />
                         </div>
                     </template>
                 </Card>
             </div>
         </div>
 
-        <Dialog v-model:visible="showVariantDialog" header="Select Variant" modal class="w-full max-w-lg">
+        <Dialog v-model:visible="showVariantDialog" :header="t('ordering.titles.select_variant')" modal class="w-full max-w-lg">
             <div class="flex flex-col gap-4 py-4">
                 <p class="text-sm text-surface-500">Please select the specific variant to add.</p>
                 <div v-for="variant in currentProductVariants" :key="variant.id" 
