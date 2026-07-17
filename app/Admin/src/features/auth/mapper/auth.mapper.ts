@@ -1,4 +1,4 @@
-import type { AuthenticationResponse } from '../types/auth.response.types'
+import type { AuthenticationResponse } from '../types/Login.Response.Type'
 
 export interface AuthDto {
   access_token: string

@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { authService } from '../services/auth.service'
 import apiClient from '@/shared/api/http/api.client'
-import type { LoginRequest } from '../types/auth.request.types'
+import type { LoginRequest } from '../types/Login.Request.Type'
 
 // Mock apiClient
 vi.mock('@/shared/api/http/api.client', () => ({
@@ -17,7 +17,7 @@ describe('AuthService', () => {
 
   describe('login', () => {
     it('should call api.post with correct params and return data', async () => {
-      const mockRequest: LoginRequest = { credential: 'user', password: 'password' }
+      const mockRequest: LoginRequest = { credential: 'user', password: 'password', rememberMe: false }
       const mockResponse = {
         data: {
           isSuccess: true,

@@ -1,8 +1,8 @@
 import { defineStore } from 'pinia';
 import { ref, computed } from 'vue';
 import { authService } from '../services/auth.service';
-import type { LoginRequest } from '../types/auth.request.types';
-import type { AuthenticationResponse } from '../types/auth.response.types';
+import type { LoginRequest } from '../types/Login.Request.Type';
+import type { AuthenticationResponse } from '../types/Login.Response.Type';
 import type { ServerResult } from '@/shared/api/types/result.types';
 import { jwtDecode } from 'jwt-decode';
 

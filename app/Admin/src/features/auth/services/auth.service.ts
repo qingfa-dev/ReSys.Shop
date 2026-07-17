@@ -1,10 +1,10 @@
 import { authRepository } from "../repository/auth.repository";
 import { mapAuthResponse, mapJwtToProfile } from "../mapper/auth.mapper";
 import type { ServerResult } from "@/shared/api/types/result.types";
-import type { LoginRequest } from "../types/auth.request.types";
-import type { AuthenticationResponse } from "../types/auth.response.types";
-import type { UserProfile } from "../types/auth.domain.types";
-import type { ChangePasswordFormData } from "../types/auth.model.types";
+import type { LoginRequest } from "../types/Login.Request.Type";
+import type { AuthenticationResponse } from "../types/Login.Response.Type";
+import type { UserProfile } from "../types/Login.Response.Type";
+import type { ChangePasswordRequest } from "../types/ChangePassword.Request.Type";
 
 function handleResult<T, R>(result: ServerResult<T>, mapper: (data: T) => R): ServerResult<R> {
   if (result.isSuccess) {
@@ -45,7 +45,7 @@ export const authService = {
     return authRepository.updateProfile(data);
   },
 
-  async changePassword(data: ChangePasswordFormData): Promise<ServerResult<void>> {
+  async changePassword(data: ChangePasswordRequest): Promise<ServerResult<void>> {
     return authRepository.changePassword(data);
   },
 

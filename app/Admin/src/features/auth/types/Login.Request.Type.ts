@@ -1,6 +1,6 @@
-import type { LoginFormData } from './auth.model.types'
+import type { LoginParameters } from '../schemas/Login.Schema'
 
-export type LoginRequest = LoginFormData & {
+export type LoginRequest = LoginParameters & {
   ipAddress?: string
 }
 

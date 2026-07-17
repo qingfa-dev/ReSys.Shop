@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, onMounted, computed } from 'vue';
 import { authService } from '../services/auth.service';
-import type { ChangePasswordFormData } from '../types/auth.model.types';
+import type { ChangePasswordParameters } from '../types/ChangePassword.Parameters.Type';
 import { useToast } from '@/shared/composables/toast.use';
 import { useFormatter } from '@/shared/composables/formatter.use';
 
@@ -12,10 +12,10 @@ const user = ref<any>(null);
 const loading = ref(false);
 const submitting = ref(false);
 
-const passwordForm = ref<ChangePasswordFormData>({
-    current_password: '',
-    new_password: '',
-    confirm_new_password: ''
+const passwordForm = ref<ChangePasswordParameters>({
+    currentPassword: '',
+    newPassword: '',
+    confirmNewPassword: ''
 });
 
 const notifications = ref({
@@ -47,7 +47,7 @@ const initials = computed(() => {
 });
 
 async function onChangePassword() {
-    if (passwordForm.value.new_password !== passwordForm.value.confirm_new_password) {
+    if (passwordForm.value.newPassword !== passwordForm.value.confirmNewPassword) {
         showToast('error', 'Validation Error', 'New passwords do not match');
         return;
     }
@@ -55,7 +55,7 @@ async function onChangePassword() {
     const result = await authService.changePassword(passwordForm.value);
     if (result.isSuccess) {
         showToast('success', 'Success', 'Password updated successfully');
-        passwordForm.value = { current_password: '', new_password: '', confirm_new_password: '' };
+        passwordForm.value = { currentPassword: '', newPassword: '', confirmNewPassword: '' };
     } else {
         const errMsg = result.errors?.[0]?.message || 'Failed to update password';
         showToast('error', 'Error', errMsg);
@@ -133,15 +133,15 @@ async function onChangePassword() {
                             <form @submit.prevent="onChangePassword" class="flex flex-col gap-4">
                                 <div class="flex flex-col gap-2">
                                     <label class="font-bold text-sm">Current Password</label>
-                                    <Password v-model="passwordForm.current_password" toggleMask class="w-full" inputClass="w-full" required />
+                                    <Password v-model="passwordForm.currentPassword" toggleMask class="w-full" inputClass="w-full" required />
                                 </div>
                                 <div class="flex flex-col gap-2">
                                     <label class="font-bold text-sm">New Password</label>
-                                    <Password v-model="passwordForm.new_password" toggleMask class="w-full" inputClass="w-full" required />
+                                    <Password v-model="passwordForm.newPassword" toggleMask class="w-full" inputClass="w-full" required />
                                 </div>
                                 <div class="flex flex-col gap-2">
                                     <label class="font-bold text-sm">Confirm New Password</label>
-                                    <Password v-model="passwordForm.confirm_new_password" toggleMask class="w-full" inputClass="w-full" :feedback="false" required />
+                                    <Password v-model="passwordForm.confirmNewPassword" toggleMask class="w-full" inputClass="w-full" :feedback="false" required />
                                 </div>
                                 <Button type="submit" label="Update Password" icon="pi pi-check" class="mt-2" :loading="submitting" />
                             </form>

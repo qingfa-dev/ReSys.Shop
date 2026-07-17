@@ -1,6 +1,7 @@
 import apiClient from '@/shared/api/http/api.client'
 import type { ServerResult } from '@/shared/api/types/result.types'
-import type { LoginRequest } from '../types/auth.request.types'
+import type { LoginRequest } from '../types/Login.Request.Type'
+import type { ChangePasswordRequest } from '../types/ChangePassword.Request.Type'
 
 interface AuthDto {
   access_token: string
@@ -41,8 +42,12 @@ export const authRepository = {
     return res.data as ServerResult<void>
   },
 
-  async changePassword(data: { current_password: string; new_password: string; confirm_new_password: string }): Promise<ServerResult<void>> {
-    const res = await apiClient.post(path('password/change'), data)
+  async changePassword(data: ChangePasswordRequest): Promise<ServerResult<void>> {
+    const res = await apiClient.post(path('password/change'), {
+      current_password: data.currentPassword,
+      new_password: data.newPassword,
+      confirm_new_password: data.confirmNewPassword,
+    })
     return res.data as ServerResult<void>
   },
 }

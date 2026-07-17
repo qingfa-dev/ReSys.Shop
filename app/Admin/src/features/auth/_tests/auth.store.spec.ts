@@ -85,9 +85,9 @@ describe('AuthStore', () => {
 
       vi.mocked(authService.login).mockResolvedValue(mockLoginResponse)
 
-      await store.login({ credential: 'user', password: 'pwd' })
+      await store.login({ credential: 'user', password: 'pwd', rememberMe: false })
 
-      expect(authService.login).toHaveBeenCalledWith({ credential: 'user', password: 'pwd' })
+      expect(authService.login).toHaveBeenCalledWith({ credential: 'user', password: 'pwd', rememberMe: false })
       expect(store.accessToken).toBe('new-access')
       expect(store.refreshToken).toBe('new-refresh')
       expect(localStorage.getItem('accessToken')).toBe('new-access')
@@ -119,7 +119,7 @@ describe('AuthStore', () => {
 
       vi.mocked(authService.login).mockResolvedValue(mockErrorResponse)
 
-      const result = await store.login({ credential: 'user', password: 'bad-pwd' })
+      const result = await store.login({ credential: 'user', password: 'bad-pwd', rememberMe: false })
 
       expect(store.accessToken).toBeNull()
       expect(result.isSuccess).toBe(false)
