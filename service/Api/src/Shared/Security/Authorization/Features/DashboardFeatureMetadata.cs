@@ -47,6 +47,30 @@ public static class DashboardFeatureMetadata
         public static IReadOnlyList<PermissionMetadata> All => [Audit];
     }
 
+    public static class Catalog
+    {
+        public static readonly PermissionMetadata List = PermissionMetadataMethod.For(
+            PermissionContext.Domains.Admin, PermissionContext.Categories.Dashboard, PermissionContext.Resources.CatalogDb, PermissionContext.Actions.List);
+
+        public static IReadOnlyList<PermissionMetadata> All => [List];
+    }
+
+    public static class Orders
+    {
+        public static readonly PermissionMetadata List = PermissionMetadataMethod.For(
+            PermissionContext.Domains.Admin, PermissionContext.Categories.Dashboard, PermissionContext.Resources.Sales, PermissionContext.Actions.List);
+
+        public static IReadOnlyList<PermissionMetadata> All => [List];
+    }
+
+    public static class Inventory
+    {
+        public static readonly PermissionMetadata List = PermissionMetadataMethod.For(
+            PermissionContext.Domains.Admin, PermissionContext.Categories.Dashboard, PermissionContext.Resources.InventoryDb, PermissionContext.Actions.List);
+
+        public static IReadOnlyList<PermissionMetadata> All => [List];
+    }
+
     public static IReadOnlyList<PermissionMetadata> All =>
     [
         .. Sales.All,
@@ -54,5 +78,8 @@ public static class DashboardFeatureMetadata
         .. CatalogDb.All,
         .. Activity.All,
         .. Logs.All,
+        .. Catalog.All,
+        .. Orders.All,
+        .. Inventory.All,
     ];
 }
