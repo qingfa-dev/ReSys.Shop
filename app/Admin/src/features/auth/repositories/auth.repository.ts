@@ -1,14 +1,8 @@
 import apiClient from '@/shared/api/http/api.client'
 import type { ServerResult } from '@/shared/api/types/result.types'
+import type { AuthDto } from '../mappers/auth.mapper'
 import type { LoginRequest } from '../types/Login.Request.Type'
 import type { ChangePasswordRequest } from '../types/ChangePassword.Request.Type'
-
-interface AuthDto {
-  access_token: string
-  access_token_expires_in: number
-  refresh_token: string
-  refresh_token_expires_in: number
-}
 
 const BASE_URL = '/store/identity/auth'
 
