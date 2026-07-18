@@ -7,9 +7,9 @@ import AppMenu from './Menu.Layout.vue'
 const authStore = useAuthStore()
 const router = useRouter()
 
-const user = computed(() => authStore.user as Record<string, unknown> | null)
-const userDisplayName = computed(() => (user.value?.name as string) || 'Admin')
-const userEmail = computed(() => (user.value?.email as string) || '')
+const user = computed(() => authStore.user)
+const userDisplayName = computed(() => (typeof user.value?.name === 'string' ? user.value.name : 'Admin'))
+const userEmail = computed(() => (typeof user.value?.email === 'string' ? user.value.email : ''))
 const userInitials = computed(() => {
   const name = userDisplayName.value
   return name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2)

@@ -31,7 +31,7 @@ const filters = ref<DataTableFilterMeta>({
   global: { value: query.value.search || null, matchMode: FilterMatchMode.CONTAINS },
 });
 
-const columns: ColumnDef<ProductSummaryModel>[] = [
+const columns: ColumnDef[] = [
   { field: 'name', header: t('catalog.products.table.name'), sortable: true },
   { field: 'variantsCount', header: t('catalog.products.table.variants'), class: 'text-center w-24' },
   { field: 'statusLabel', header: t('catalog.products.table.status') },

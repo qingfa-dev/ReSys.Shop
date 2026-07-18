@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted } from 'vue'
+import { computed, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { usePaymentStore } from '../stores/payment.store'
@@ -11,6 +11,7 @@ import { PaymentStateMap } from '@/shared/utils/enums'
 import PageShell from '@/shared/components/PageShell.Component.vue'
 import PageHeader from '@/shared/components/PageHeader.Component.vue'
 import DetailField from '@/shared/components/DetailField.Component.vue'
+import StatusBadge from '@/shared/components/StatusBadge.Component.vue'
 
 const { t } = useI18n()
 const route = useRoute()
@@ -31,13 +32,13 @@ onMounted(async () => {
   }
 })
 
-const statusSeverity: Record<number, string> = {
-  0: 'warn',
-  1: 'success',
-  2: 'danger',
-  4: 'secondary',
-  8: 'info',
-}
+const paymentStatusMap = computed(() => ({
+  0: { label: 'Pending', severity: 'warn' as const },
+  1: { label: 'Completed', severity: 'success' as const },
+  2: { label: 'Failed', severity: 'danger' as const },
+  4: { label: 'Refunded', severity: 'info' as const },
+  8: { label: 'Voided', severity: 'secondary' as const },
+}))
 
 function onCapture() {
   confirm.require({
@@ -103,12 +104,7 @@ function onRefund() {
         :description="`#${current.id}`"
       >
         <template #badge>
-          <Tag
-            :value="current.statusLabel"
-            :severity="statusSeverity[current.status] || 'secondary'"
-            rounded
-            class="px-4 py-2 text-lg font-bold"
-          />
+          <StatusBadge :status="current.status" :status-map="paymentStatusMap" />
         </template>
         <template #actions>
           <Button

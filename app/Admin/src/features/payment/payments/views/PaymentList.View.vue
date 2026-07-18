@@ -29,6 +29,7 @@ function onPage(event: DataTablePageEvent) {
 function onSort(event: DataTableSortEvent) {
   store.fetchItems({ sort: event.sortField ? [`${event.sortOrder === -1 ? '-' : ''}${event.sortField}`] : undefined })
 }
+function onFilter() { store.fetchItems({}) }
 function refresh() { store.fetchItems({}) }
 
 onMounted(() => store.fetchItems({}))
@@ -51,6 +52,7 @@ onMounted(() => store.fetchItems({}))
       :show-create-button="false"
       @page="onPage"
       @sort="onSort"
+      @filter="onFilter"
       @refresh="refresh"
     >
       <template #row-actions="{ data }">

@@ -7,7 +7,7 @@ import { useI18n } from 'vue-i18n'
 import PageShell from '@/shared/components/PageShell.Component.vue'
 import PageHeader from '@/shared/components/PageHeader.Component.vue'
 import DataTableShell from '@/shared/components/DataTableShell.Component.vue'
-import type { DataTablePageEvent } from 'primevue/datatable'
+import type { DataTablePageEvent, DataTableSortEvent } from 'primevue/datatable'
 import type { StockMovement } from '../types/stock-movement.response.type'
 import type { ColumnDef } from '@/shared/components/DataTableShell.Component.vue'
 
@@ -18,6 +18,8 @@ const loading = ref(false)
 const totalCount = ref(0)
 const page = ref(1)
 const pageSize = ref(10)
+const sortField = ref<string>()
+const sortOrder = ref<number>()
 const { formatDate } = useFormatter()
 
 const movementTypes: Record<number, string> = {
@@ -37,7 +39,11 @@ const columns: ColumnDef[] = [
 
 async function fetchMovements() {
   loading.value = true
-  const result = await movementService.listMovements({ page: page.value, pageSize: pageSize.value })
+  const result = await movementService.listMovements({
+    page: page.value,
+    pageSize: pageSize.value,
+    sort: sortField.value ? [`${sortOrder.value === -1 ? '-' : ''}${sortField.value}`] : undefined,
+  })
   if (result.isSuccess) {
     movements.value = result.items ?? []
     totalCount.value = result.totalCount ?? 0
@@ -50,6 +56,16 @@ onMounted(() => fetchMovements())
 function onPage(event: DataTablePageEvent) {
   page.value = event.page !== undefined ? event.page + 1 : 1
   pageSize.value = event.rows
+  fetchMovements()
+}
+
+function onSort(event: DataTableSortEvent) {
+  sortField.value = event.sortField ?? undefined
+  sortOrder.value = event.sortOrder ?? undefined
+  fetchMovements()
+}
+
+function onFilter() {
   fetchMovements()
 }
 </script>
@@ -69,6 +85,8 @@ function onPage(event: DataTablePageEvent) {
       emptyIcon="pi pi-history"
       emptyTitle="No movements found"
       @page="onPage"
+      @sort="onSort"
+      @filter="onFilter"
       @refresh="fetchMovements"
     >
       <template #row-actions="{ data }">
