@@ -3,7 +3,7 @@ export interface PaymentListItem {
   orderId: string
   amount: number
   currency: string
-  status: string
+  status: number
   methodName: string
   createdAtUtc: string
 }

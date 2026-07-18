@@ -1,16 +1,16 @@
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
 import { paymentMethodService } from '../services/payment-method.service'
-import type { PaymentMethodListItem, PaymentMethodDetail } from '../types/PaymentMethod.Response.Type'
+import type { PaymentMethodListItemModel, PaymentMethodDetailModel } from '../types/payment-method.model.type'
 import type { ServerQueryingParameters } from '@/shared/api/types/query.types'
 
 export const usePaymentMethodStore = defineStore('paymentMethod', () => {
-  const items = ref<PaymentMethodListItem[]>([])
-  const current = ref<PaymentMethodDetail | null>(null)
+  const items = ref<PaymentMethodListItemModel[]>([])
+  const current = ref<PaymentMethodDetailModel | null>(null)
   const loading = ref(false)
   const totalRecords = ref(0)
 
-  const query = ref<ServerQueryingParameters>({ page: 1, pageSize: 20, sort: ['displayOrder'] })
+  const query = ref<ServerQueryingParameters>({ page: 1, pageSize: 20, sort: ['position'] })
 
   async function fetchItems(params?: ServerQueryingParameters) {
     loading.value = true

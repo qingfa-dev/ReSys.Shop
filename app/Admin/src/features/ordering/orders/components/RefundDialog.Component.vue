@@ -1,12 +1,15 @@
 <script setup lang="ts">
 import { ref } from 'vue';
-import type { PaymentDetail } from '../types/Order.Response.Type';
-import type { RefundPaymentRequest } from '../../fulfillment/types/Fulfillment.Request.Type';
+import type { RefundPaymentRequest } from '../../fulfillment/types/fulfillment.request.type';
 import { useFormatter } from '@/shared/composables/formatter.use';
 import { useI18n } from 'vue-i18n';
 
 const props = defineProps<{
-    payment: PaymentDetail;
+    payment: {
+        id: string;
+        amount: number;
+        methodName: string;
+    };
 }>();
 
 const emit = defineEmits<{
@@ -17,12 +20,12 @@ const emit = defineEmits<{
 const { t } = useI18n();
 const { formatCurrency } = useFormatter();
 
-const amount = ref(props.payment.amountCents / 100);
+const amount = ref(props.payment.amount);
 const reason = ref('Customer requested cancellation');
 
 const onSave = () => {
     emit('save', {
-        amountCents: Math.round(amount.value * 100),
+        amountCents: Math.round(amount.value * 100),  // TODO: update when backend supports decimal
         reason: reason.value
     });
 };
@@ -34,17 +37,17 @@ const onSave = () => {
             <div class="p-4 bg-surface-50 dark:bg-surface-800 rounded-2xl border border-surface-100 dark:border-surface-700">
                 <div class="flex justify-between items-center mb-2">
                     <span class="text-xs font-black uppercase tracking-widest text-surface-400">{{ t('ordering.labels.amount') }}</span>
-                    <span class="font-bold">{{ formatCurrency(payment.amountCents / 100) }}</span>
+                    <span class="font-bold">{{ formatCurrency(payment.amount) }}</span>
                 </div>
                 <div class="flex justify-between items-center">
                     <span class="text-xs font-black uppercase tracking-widest text-surface-400">{{ t('ordering.labels.method') }}</span>
-                    <Tag :value="payment.methodType" severity="secondary" class="text-[10px]" />
+                    <Tag :value="payment.methodName" severity="secondary" class="text-[10px]" />
                 </div>
             </div>
 
             <div class="flex flex-col gap-2">
                 <label class="font-bold text-sm">Refund Amount</label>
-                <InputNumber v-model="amount" mode="currency" currency="USD" locale="en-US" class="w-full" inputClass="h-12" :max="payment.amountCents / 100" />
+                <InputNumber v-model="amount" mode="currency" currency="USD" locale="en-US" class="w-full" inputClass="h-12" :max="payment.amount" />
                 <small class="text-surface-500">Partial refunds are supported.</small>
             </div>
 

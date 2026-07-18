@@ -40,8 +40,8 @@ const shipOrder = (id: string) => {
                     <span>{{ data.email || 'Guest' }}</span>
                 </template>
             </Column>
-            <Column field="created_at" :header="t('ordering.table.date')">
-                <template #body="{ data }">{{ formatDate(data.created_at) }}</template>
+            <Column field="createdAtUtc" :header="t('ordering.table.date')">
+                <template #body="{ data }">{{ formatDate(data.createdAtUtc) }}</template>
             </Column>
             <Column :header="t('ordering.table.actions')">
                 <template #body="{ data }">

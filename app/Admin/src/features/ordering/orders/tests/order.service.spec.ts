@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { orderService } from '../services/order.service'
 import apiClient from '@/shared/api/http/api.client'
-import type { OrderQuery } from '../types/Order.Query.Type'
+import type { OrderQuery } from '../types/order.query.type'
 
 // Mock apiClient
 vi.mock('@/shared/api/http/api.client', () => ({

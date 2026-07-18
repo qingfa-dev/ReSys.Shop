@@ -2,8 +2,8 @@ import apiClient from '@/shared/api/http/api.client'
 import { PAYMENTS } from '@/shared/api/constants'
 import type { ServerPagedResult, ServerResult } from '@/shared/api/types/result.types'
 import type { ServerQueryingParameters } from '@/shared/api/types/query.types'
-import type { PaymentListItem, PaymentDetail } from '../types/Payment.Response.Type'
-import type { CapturePaymentRequest, RefundPaymentRequest } from '../types/Payment.Request.Type'
+import type { PaymentListItem, PaymentDetail } from '../types/payment.response.type'
+import type { CapturePaymentRequest, RefundPaymentRequest } from '../types/payment.request.type'
 
 function paymentsPath(sub?: string): string {
   return `${PAYMENTS}/payments${sub ? `/${sub}` : ''}`

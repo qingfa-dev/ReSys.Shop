@@ -1,4 +1,4 @@
-import type { OrderParameters } from '../schemas/Order.Schema'
+import type { OrderParameters } from '../schemas/order.schema'
 
 export type CreateOrderRequest = OrderParameters
 

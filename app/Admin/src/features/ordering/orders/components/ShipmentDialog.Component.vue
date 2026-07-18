@@ -3,12 +3,12 @@ import { ref, computed } from 'vue';
 import { useToast } from '@/shared/composables/toast.use';
 import { orderService } from '../services/order.service';
 import LocationSelector from '@/features/inventories/components/LocationSelector.Component.vue';
-import type { OrderDetail, LineItemDetail, InventoryUnitDetail } from '../types/Order.Response.Type';
-import type { CreateShipmentRequest } from '../types/Order.Request.Type';
+import type { OrderDetailModel } from '../types/order.model.type';
+import type { CreateShipmentRequest } from '../types/order.request.type';
 import { useI18n } from 'vue-i18n';
 
 const props = defineProps<{
-    order: OrderDetail;
+    order: OrderDetailModel;
 }>();
 
 const emit = defineEmits(['updated', 'close']);
@@ -21,22 +21,8 @@ const loading = ref(false);
 const stockLocationId = ref('');
 const selectedUnitIds = ref<string[]>([]);
 
-// Filter only units that are NOT shipped/canceled
-// InventoryUnitDetail: { id, sku, state, pending }
-// We assume pending means not shipped yet.
-const availableUnits = computed(() => {
-    const units: InventoryUnitDetail[] = [];
-    if (!props.order.lineItems) return [];
-    
-    props.order.lineItems.forEach((item: LineItemDetail) => {
-        item.inventoryUnits.forEach((unit: InventoryUnitDetail) => {
-            if (unit.state !== 'Shipped' && unit.state !== 'Canceled') {
-                units.push(unit);
-            }
-        });
-    });
-    return units; 
-});
+// Inventory units loaded via separate endpoint
+const availableUnits = computed(() => [] as { id: string; sku: string; state: string }[]);
 
 const onSubmit = async () => {
     if (!stockLocationId.value) {

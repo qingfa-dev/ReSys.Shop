@@ -2,8 +2,10 @@
 import { ref } from 'vue';
 import { useProductStore } from '@/features/catalog/products/stores/product.store';
 import { useFormatter } from '@/shared/composables/formatter.use';
-import type { AddOrderItemRequest } from '../types/Order.Request.Type';
-import type { ProductSummary } from '@/features/catalog/products/types/Product.Response.Type';
+import type { AddOrderItemRequest } from '../types/order.request.type';
+import type { ProductSummaryModel } from '@/features/catalog/products/types/product.model.type';
+import type { VariantSummary } from '@/features/catalog/products/variants/types/variant.response.type';
+import { variantService } from '@/features/catalog/products/variants/services/variant.service';
 import { useI18n } from 'vue-i18n';
 
 interface OrderVariant {
@@ -21,8 +23,8 @@ const { formatCurrency } = useFormatter();
 
 const quantity = ref(1);
 const productsLoading = ref(false);
-const productResults = ref<ProductSummary[]>([]);
-const selectedProduct = ref<ProductSummary | null>(null);
+const productResults = ref<ProductSummaryModel[]>([]);
+const selectedProduct = ref<ProductSummaryModel | null>(null);
 
 // Variant Selection
 const showVariantList = ref(false);
@@ -41,12 +43,12 @@ const onSearchProduct = async (event: { query: string }) => {
     }
 };
 
-const onProductSelect = async (product: ProductSummary) => {
+const onProductSelect = async (product: ProductSummaryModel) => {
     productsLoading.value = true;
     try {
-        await productStore.fetchProductById(product.id);
-        if (productStore.current_product) {
-             currentProductVariants.value = productStore.current_product.variants as unknown as OrderVariant[];
+        const varRes = await variantService.listByProductId(product.id);
+        if (varRes.isSuccess && varRes.value) {
+             currentProductVariants.value = varRes.value as unknown as OrderVariant[];
              showVariantList.value = true;
         }
     } finally {

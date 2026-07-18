@@ -2,8 +2,8 @@ import apiClient from '@/shared/api/http/api.client'
 import { ORDERS } from '@/shared/api/constants'
 import type { ServerPagedResult, ServerResult } from '@/shared/api/types/result.types'
 import type { ServerQueryingParameters } from '@/shared/api/types/query.types'
-import type { OrderListItem, OrderDetail } from '../types/Order.Response.Type'
-import type { CreateOrderRequest, AddOrderItemRequest, CancelOrderRequest, UpdateLineItemRequest, UpdateOrderStatusRequest, UpdateShippingMethodRequest, UpdateAddressesRequest } from '../types/Order.Request.Type'
+import type { OrderListItem, OrderDetail } from '../types/order.response.type'
+import type { CreateOrderRequest, AddOrderItemRequest, CancelOrderRequest, UpdateLineItemRequest, UpdateOrderStatusRequest, UpdateShippingMethodRequest, UpdateAddressesRequest } from '../types/order.request.type'
 
 interface OrderLineItem {
   id: string

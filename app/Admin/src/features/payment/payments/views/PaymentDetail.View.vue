@@ -17,8 +17,8 @@ onMounted(() => store.fetchById(route.params.id as string))
   <div v-else-if="current">
     <h2>Payment {{ current.id }}</h2>
     <p>Order: {{ current.orderId }}</p>
-    <p>Amount: {{ current.amount }} {{ current.currency }}</p>
-    <p>Status: {{ current.status }}</p>
+    <p>Amount: {{ current.amountDisplay }}</p>
+    <p>Status: {{ current.statusLabel }}</p>
     <p>Method: {{ current.methodName }}</p>
     <div class="actions">
       <Button label="Capture" @click="store.capture(current.id)" />

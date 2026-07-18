@@ -34,7 +34,7 @@ const filters = ref<DataTableFilterMeta>({
     operator: PrimeFilterOperator.AND,
     constraints: [{ value: null, matchMode: FilterMatchMode.CONTAINS }],
   },
-  state: {
+  status: {
     operator: PrimeFilterOperator.AND,
     constraints: [{ value: null, matchMode: FilterMatchMode.EQUALS }],
   }
@@ -68,7 +68,7 @@ const onSort = (event: DataTableSortEvent) => {
 const onFilter = () => {
   const globalValue = getFilterValue(filters.value, 'global') as string | null;
   const numberFilter = filters.value.number as { constraints: { value: string | null }[] };
-  const stateFilter = filters.value.state as { constraints: { value: string | null }[] };
+  const stateFilter = filters.value.status as { constraints: { value: string | null }[] };
 
   const builder = new QueryBuilder();
 
@@ -97,7 +97,7 @@ const clearFilters = () => {
       operator: PrimeFilterOperator.AND,
       constraints: [{ value: null, matchMode: FilterMatchMode.CONTAINS }],
     },
-    state: {
+    status: {
       operator: PrimeFilterOperator.AND,
       constraints: [{ value: null, matchMode: FilterMatchMode.EQUALS }],
     }
@@ -105,12 +105,13 @@ const clearFilters = () => {
   onFilter();
 };
 
-const getStatusSeverity = (status: string) => {
-    switch (status?.toLowerCase()) {
-        case 'complete': return 'success';
-        case 'processing': return 'info';
-        case 'canceled': return 'danger';
-        case 'payment_required': return 'warn';
+import { OrderStatusMap } from '@/shared/utils/enums';
+
+const getStatusSeverity = (status: number) => {
+    switch (status) {
+        case 1: return 'success';
+        case 2: return 'danger';
+        case 4: return 'warn';
         default: return 'secondary';
     }
 };
@@ -197,15 +198,15 @@ onMounted(() => {
             </template>
           </Column>
 
-          <Column field="totalCents" :header="t('ordering.table.total')" sortable>
+          <Column field="total" :header="t('ordering.table.total')" sortable>
             <template #body="{ data }">
-              <span class="font-black text-lg">{{ formatCurrency(data.totalCents / 100) }}</span>
+              <span class="font-black text-lg">{{ data.totalDisplay }}</span>
             </template>
           </Column>
 
-          <Column field="state" :header="t('ordering.table.status')" filter>
+          <Column field="status" :header="t('ordering.table.status')" filter>
             <template #body="{ data }">
-              <Tag :value="data.state" :severity="getStatusSeverity(data.state)" rounded class="font-black px-3" />
+              <Tag :value="data.statusLabel" :severity="getStatusSeverity(data.status)" rounded class="font-black px-3" />
             </template>
           </Column>
 

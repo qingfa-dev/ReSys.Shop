@@ -1,12 +1,12 @@
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
 import { shippingRateService } from '../services/shipping-rate.service'
-import type { ShippingRateListItem, ShippingRateDetail } from '../types/ShippingRate.Response.Type'
+import type { ShippingRateListItemModel, ShippingRateDetailModel } from '../types/shipping-rate.model.type'
 import type { ServerQueryingParameters } from '@/shared/api/types/query.types'
 
 export const useShippingRateStore = defineStore('shippingRate', () => {
-  const items = ref<ShippingRateListItem[]>([])
-  const current = ref<ShippingRateDetail | null>(null)
+  const items = ref<ShippingRateListItemModel[]>([])
+  const current = ref<ShippingRateDetailModel | null>(null)
   const loading = ref(false)
   const totalRecords = ref(0)
   const query = ref<ServerQueryingParameters>({ page: 1, pageSize: 20 })

@@ -1,3 +1,3 @@
-export type { ShippingRateParameters } from './ShippingRate.Parameters.Type'
-export type { ShippingRateListItem, ShippingRateDetail } from './ShippingRate.Response.Type'
-export type { CreateShippingRateRequest, UpdateShippingRateRequest } from './ShippingRate.Request.Type'
+export type { ShippingRateParameters } from './shipping-rate.parameters.type'
+export type { ShippingRateListItem, ShippingRateDetail } from './shipping-rate.response.type'
+export type { CreateShippingRateRequest, UpdateShippingRateRequest } from './shipping-rate.request.type'

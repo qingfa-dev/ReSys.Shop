@@ -15,9 +15,11 @@ onMounted(() => store.fetchItems())
   <DataTable :value="items" :loading="loading" :totalRecords="totalRecords" dataKey="id">
     <Column field="orderId" header="Order" />
     <Column field="amount" header="Amount">
-      <template #body="{ data }">{{ data.amount }} {{ data.currency }}</template>
+      <template #body="{ data }">{{ data.amountDisplay }}</template>
     </Column>
-    <Column field="status" header="Status" />
+    <Column field="status" header="Status">
+      <template #body="{ data }">{{ data.statusLabel }}</template>
+    </Column>
     <Column field="methodName" header="Method" />
     <Column field="createdAtUtc" header="Date" />
   </DataTable>

@@ -2,8 +2,8 @@ import apiClient from '@/shared/api/http/api.client'
 import { PAYMENTS } from '@/shared/api/constants'
 import type { ServerPagedResult, ServerResult } from '@/shared/api/types/result.types'
 import type { ServerQueryingParameters } from '@/shared/api/types/query.types'
-import type { PaymentMethodListItem, PaymentMethodDetail } from '../types/PaymentMethod.Response.Type'
-import type { CreatePaymentMethodRequest, UpdatePaymentMethodRequest } from '../types/PaymentMethod.Request.Type'
+import type { PaymentMethodListItem, PaymentMethodDetail } from '../types/payment-method.response.type'
+import type { CreatePaymentMethodRequest, UpdatePaymentMethodRequest } from '../types/payment-method.request.type'
 
 function methodsPath(sub?: string): string {
   return `${PAYMENTS}/payment-methods${sub ? `/${sub}` : ''}`

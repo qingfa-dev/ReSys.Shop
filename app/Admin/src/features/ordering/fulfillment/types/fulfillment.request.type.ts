@@ -1,4 +1,4 @@
-import type { FulfillmentParameters } from '../schemas/Fulfillment.Schema'
+import type { FulfillmentParameters } from '../schemas/fulfillment.schema'
 
 export type CreateFulfillmentRequest = FulfillmentParameters
 

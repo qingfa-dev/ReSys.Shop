@@ -1,3 +1,3 @@
-import type { ShippingRateParameters } from './ShippingRate.Parameters.Type'
+import type { ShippingRateParameters } from './shipping-rate.parameters.type'
 export type CreateShippingRateRequest = ShippingRateParameters
 export type UpdateShippingRateRequest = Partial<CreateShippingRateRequest>

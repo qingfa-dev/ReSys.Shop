@@ -1,12 +1,11 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
-import type { AddressDetail } from '../types/Order.Response.Type';
-import type { UpdateAddressesRequest } from '../types/Order.Request.Type';
+import type { UpdateAddressesRequest } from '../types/order.request.type';
 import { useI18n } from 'vue-i18n';
 
 const props = defineProps<{
-    shippingAddress?: AddressDetail;
-    billingAddress?: AddressDetail;
+    shipAddressId?: string | null;
+    billAddressId?: string | null;
 }>();
 
 const emit = defineEmits<{
@@ -16,7 +15,7 @@ const emit = defineEmits<{
 
 const { t } = useI18n();
 
-const shipAddr = ref<Partial<AddressDetail>>({
+const shipAddr = ref({
     firstName: '',
     lastName: '',
     address1: '',
@@ -26,7 +25,7 @@ const shipAddr = ref<Partial<AddressDetail>>({
     countryCode: 'US'
 });
 
-const billAddr = ref<Partial<AddressDetail>>({
+const billAddr = ref({
     firstName: '',
     lastName: '',
     address1: '',
@@ -39,21 +38,7 @@ const billAddr = ref<Partial<AddressDetail>>({
 const sameAsShipping = ref(true);
 
 onMounted(() => {
-    if (props.shippingAddress) {
-        shipAddr.value = { ...props.shippingAddress };
-    }
-    if (props.billingAddress) {
-        billAddr.value = { ...props.billingAddress };
-        
-        // Simple check if they are the same
-        const s = props.shippingAddress;
-        const b = props.billingAddress;
-        if (s && b && s.address1 === b.address1 && s.zipCode === b.zipCode) {
-            sameAsShipping.value = true;
-        } else {
-            sameAsShipping.value = false;
-        }
-    }
+    // Address details loaded via separate endpoint
 });
 
 const onSave = () => {

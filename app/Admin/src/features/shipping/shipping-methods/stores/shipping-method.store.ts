@@ -1,15 +1,15 @@
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
 import { shippingMethodService } from '../services/shipping-method.service'
-import type { ShippingMethodListItem, ShippingMethodDetail } from '../types/ShippingMethod.Response.Type'
+import type { ShippingMethodListItemModel, ShippingMethodDetailModel } from '../types/shipping-method.model.type'
 import type { ServerQueryingParameters } from '@/shared/api/types/query.types'
 
 export const useShippingMethodStore = defineStore('shippingMethod', () => {
-  const items = ref<ShippingMethodListItem[]>([])
-  const current = ref<ShippingMethodDetail | null>(null)
+  const items = ref<ShippingMethodListItemModel[]>([])
+  const current = ref<ShippingMethodDetailModel | null>(null)
   const loading = ref(false)
   const totalRecords = ref(0)
-  const query = ref<ServerQueryingParameters>({ page: 1, pageSize: 20, sort: ['displayOrder'] })
+  const query = ref<ServerQueryingParameters>({ page: 1, pageSize: 20, sort: ['name'] })
 
   async function fetchItems(params?: ServerQueryingParameters) {
     loading.value = true

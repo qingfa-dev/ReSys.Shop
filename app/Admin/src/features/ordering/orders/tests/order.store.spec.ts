@@ -1,12 +1,9 @@
-/**
- * Order Store Unit Tests
- */
 import { setActivePinia, createPinia } from 'pinia';
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { useOrderStore } from '../stores/order.store';
 import { orderService } from '../services/order.service';
 import { createMockPagedResult, createMockResult } from '@/shared/test/mock-types';
-import type { OrderListItem, OrderDetail } from '../types/Order.Response.Type';
+import type { OrderListItemModel, OrderDetailModel } from '../types/order.model.type';
 
 vi.mock('../services/order.service', () => ({
   orderService: {
@@ -28,6 +25,31 @@ vi.mock('vue-i18n', () => ({
   }),
 }));
 
+function makeOrderListItem(overrides: Partial<OrderListItemModel> = {}): OrderListItemModel {
+  return {
+    id: '1', number: 'ORD-1', status: 0, checkoutState: 0, currency: 'USD', email: null,
+    itemCount: 0, itemTotal: 0, total: 0, outstandingBalance: 0,
+    paymentState: null, shipmentState: null, createdAtUtc: '', userId: null, storeId: null,
+    totalDisplay: '$0.00', statusLabel: 'Draft', paymentStateLabel: null, shipmentStateLabel: null,
+    ...overrides,
+  }
+}
+
+function makeOrderDetail(overrides: Partial<OrderDetailModel> = {}): OrderDetailModel {
+  return {
+    id: '1', number: 'ORD-1', status: 0, checkoutState: 0, currency: 'USD', email: null,
+    specialInstructions: null, billAddressId: null, shipAddressId: null, shippingMethodId: null,
+    itemTotal: 0, adjustmentTotal: 0, shipmentTotal: 0, total: 0, paymentTotal: 0, outstandingBalance: 0,
+    paymentState: null, shipmentState: null, userId: null, storeId: null, itemCount: 0,
+    approvedById: null, approvedAtUtc: null, completedAtUtc: null, canceledAtUtc: null,
+    createdAtUtc: '', modifiedAtUtc: null,
+    totalDisplay: '$0.00', itemTotalDisplay: '$0.00', shipmentTotalDisplay: '$0.00',
+    adjustmentTotalDisplay: '$0.00', outstandingBalanceDisplay: '$0.00',
+    statusLabel: 'Draft', paymentStateLabel: null, shipmentStateLabel: null,
+    ...overrides,
+  }
+}
+
 describe('OrderStore', () => {
   beforeEach(() => {
     setActivePinia(createPinia());
@@ -37,8 +59,8 @@ describe('OrderStore', () => {
   describe('fetchOrders', () => {
     it('updates state after successful fetch', async () => {
       const store = useOrderStore();
-      const mockData: OrderListItem[] = [{ id: '1', number: 'ORD-1', state: '', currency: '', totalCents: 0, totalDisplay: '', createdAtUtc: '' }];
-      
+      const mockData = [makeOrderListItem()];
+
       vi.mocked(orderService.list).mockResolvedValue(createMockPagedResult(mockData));
 
       await store.fetchOrders();
@@ -52,8 +74,8 @@ describe('OrderStore', () => {
   describe('fetchOrderById', () => {
     it('sets current_order after successful fetch', async () => {
       const store = useOrderStore();
-      const mockOrder: OrderDetail = { id: '1', number: 'ORD-1', state: '', currency: '', totalCents: 0, totalDisplay: '', createdAtUtc: '', itemTotalCents: 0, itemTotalDisplay: '', shipmentTotalCents: 0, shipmentTotalDisplay: '', lineItems: [], payments: [], shipments: [], history: [] };
-      
+      const mockOrder = makeOrderDetail();
+
       vi.mocked(orderService.getById).mockResolvedValue(createMockResult(mockOrder));
 
       await store.fetchOrderById('1');
@@ -68,11 +90,10 @@ describe('OrderStore', () => {
       const store = useOrderStore();
       const orderId = '1';
       const status = 'Processing';
-      
+
       vi.mocked(orderService.updateStatus).mockResolvedValue(createMockResult<void>(undefined));
 
-      // Mock fetchOrderById call that happens after update
-      const updatedOrder: OrderDetail = { id: orderId, state: 'Advanced', number: '', currency: '', totalCents: 0, totalDisplay: '', createdAtUtc: '', itemTotalCents: 0, itemTotalDisplay: '', shipmentTotalCents: 0, shipmentTotalDisplay: '', lineItems: [], payments: [], shipments: [], history: [] };
+      const updatedOrder = makeOrderDetail({ id: orderId });
       vi.mocked(orderService.getById).mockResolvedValue(createMockResult(updatedOrder));
 
       await store.advanceOrderState(orderId, status);

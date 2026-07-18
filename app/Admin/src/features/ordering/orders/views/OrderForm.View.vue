@@ -6,11 +6,12 @@ import { useProductStore } from '@/features/catalog/products/stores/product.stor
 import { useFormatter } from '@/shared/composables/formatter.use';
 import { useI18n } from 'vue-i18n';
 import { useToast } from '@/shared/composables/toast.use';
+import { variantService } from '@/features/catalog/products/variants/services/variant.service';
 import PageShell from '@/shared/components/PageShell.Component.vue'
 import PageHeader from '@/shared/components/PageHeader.Component.vue'
-import type { CreateOrderRequest } from '../types/Order.Request.Type';
-import type { ProductSummary } from '@/features/catalog/products/types/Product.Response.Type';
-import type { VariantSummary } from '@/features/catalog/products/variants/types/Variant.Response.Type';
+import type { CreateOrderRequest } from '../types/order.request.type';
+import type { ProductSummaryModel } from '@/features/catalog/products/types/product.model.type';
+import type { VariantSummary } from '@/features/catalog/products/variants/types/variant.response.type';
 
 interface OrderVariantSummary extends VariantSummary {
   option_values?: Array<{ id: string; value: string; presentation?: string }>;
@@ -30,8 +31,8 @@ const selectedItems = ref<Array<{ variantId: string; sku: string; name: string; 
 
 // Product Search for adding items
 const productsLoading = ref(false);
-const productResults = ref<ProductSummary[]>([]);
-const selectedProduct = ref<ProductSummary | null>(null);
+const productResults = ref<ProductSummaryModel[]>([]);
+const selectedProduct = ref<ProductSummaryModel | null>(null);
 
 // Variant Selection
 const showVariantDialog = ref(false);
@@ -51,12 +52,12 @@ const onSearchProduct = async (event: { query: string }) => {
     }
 };
 
-const onProductSelect = async (product: ProductSummary) => {
+const onProductSelect = async (product: ProductSummaryModel) => {
     productsLoading.value = true;
     try {
-        await productStore.fetchProductById(product.id);
-        if (productStore.current_product) {
-             currentProductVariants.value = productStore.current_product.variants;
+        const varRes = await variantService.listByProductId(product.id);
+        if (varRes.isSuccess && varRes.value) {
+             currentProductVariants.value = varRes.value as unknown as OrderVariantSummary[];
              if (currentProductVariants.value.length === 1) {
                  addVariantToOrder(currentProductVariants.value[0]!, product);
              } else {
@@ -69,7 +70,7 @@ const onProductSelect = async (product: ProductSummary) => {
     }
 };
 
-const addVariantToOrder = (variant: VariantSummary, product: ProductSummary) => {
+const addVariantToOrder = (variant: VariantSummary, product: ProductSummaryModel) => {
     const existing = selectedItems.value.find(i => i.variantId === variant.id);
     if (existing) {
         existing.quantity++;
