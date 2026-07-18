@@ -2,8 +2,8 @@ import apiClient from '@/shared/api/http/api.client'
 import { LOCATIONS } from '@/shared/api/constants'
 import type { ServerResult, ServerPagedResult } from '@/shared/api/types/result.types'
 import type { ServerQueryingParameters } from '@/shared/api/types/query.types'
-import type { Country } from '../../types/Country.Response.Type'
-import type { CreateCountryRequest, UpdateCountryRequest } from '../../types/Country.Request.Type'
+import type { Country } from '../types/Country.Response.Type'
+import type { CreateCountryRequest, UpdateCountryRequest } from '../types/Country.Request.Type'
 
 function path(sub?: string): string {
   return `${LOCATIONS}/countries${sub ? `/${sub}` : ''}`

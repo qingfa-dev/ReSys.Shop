@@ -1,5 +1,5 @@
-import { countryRepository } from '../countries/repositories/country.repository'
-import { mapCountryResponse } from '../countries/mappers/country.mapper'
+import { countryRepository } from '../api/country.api'
+import { mapCountryResponse } from '../mappers/country.mapper'
 import type { ServerResult, ServerPagedResult } from '@/shared/api/types/result.types'
 import type { ServerQueryingParameters } from '@/shared/api/types/query.types'
 import type { Country } from '../types/Country.Response.Type'

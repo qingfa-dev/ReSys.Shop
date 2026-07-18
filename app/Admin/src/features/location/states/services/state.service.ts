@@ -1,5 +1,5 @@
-import { stateRepository } from '../states/repositories/state.repository'
-import { mapStateResponse } from '../states/mappers/state.mapper'
+import { stateRepository } from '../api/state.api'
+import { mapStateResponse } from '../mappers/state.mapper'
 import type { ServerResult, ServerPagedResult } from '@/shared/api/types/result.types'
 import type { ServerQueryingParameters } from '@/shared/api/types/query.types'
 import type { State } from '../types/State.Response.Type'

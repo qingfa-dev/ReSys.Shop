@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue'
 import { useStateStore } from '../stores/state.store'
-import { useCountryStore } from '../stores/country.store'
+import { useCountryStore } from '../../countries/stores/country.store'
 import { storeToRefs } from 'pinia'
 import { useConfirm } from 'primevue/useconfirm'
 import { useToast } from '@/shared/composables/toast.use'
