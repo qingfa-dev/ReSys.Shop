@@ -1,17 +1,18 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { mount } from '@vue/test-utils'
+import PrimeVue from 'primevue/config'
+import { useConfirm } from 'primevue/useconfirm'
 
-const requireMock = vi.fn()
-
-vi.mock('primevue/useconfirm', () => ({
-  useConfirm: () => ({ require: requireMock }),
-}))
+vi.mock('primevue/useconfirm')
 
 import ConfirmButton from '../ConfirmButton.Component.vue'
 
 describe('ConfirmButton', () => {
   beforeEach(() => {
-    requireMock.mockClear()
+    vi.clearAllMocks()
+    vi.mocked(useConfirm).mockReturnValue({
+      require: vi.fn(),
+    } as any)
   })
 
   it('renders trigger button', () => {
@@ -28,7 +29,7 @@ describe('ConfirmButton', () => {
       global: { stubs: { Button: { template: '<button><slot /></button>' } } },
     })
     await wrapper.find('button').trigger('click')
-    expect(requireMock).toHaveBeenCalledOnce()
+    expect(vi.mocked(useConfirm)().require).toHaveBeenCalledOnce()
   })
 
   it('passes message and header to confirm.require', async () => {
@@ -37,7 +38,7 @@ describe('ConfirmButton', () => {
       global: { stubs: { Button: { template: '<button><slot /></button>' } } },
     })
     await wrapper.find('button').trigger('click')
-    expect(requireMock).toHaveBeenCalledWith(
+    expect(vi.mocked(useConfirm)().require).toHaveBeenCalledWith(
       expect.objectContaining({
         header: 'Delete item',
         message: 'This action cannot be undone.',
@@ -46,15 +47,23 @@ describe('ConfirmButton', () => {
   })
 
   it('emits confirm when accept callback fires', async () => {
+    let acceptFn: (() => void) | null = null
+    vi.mocked(useConfirm).mockReturnValue({
+      require: vi.fn((opts: any) => {
+        acceptFn = opts.accept
+      }),
+    } as any)
+
     const wrapper = mount(ConfirmButton, {
-      props: { header: 'Delete', message: 'Sure?' },
-      global: { stubs: { Button: { template: '<button><slot /></button>' } } },
+      props: { header: 'Delete', message: 'Are you sure?', severity: 'danger' },
+      global: { plugins: [PrimeVue] },
     })
 
     await wrapper.find('button').trigger('click')
-
-    const callArgs = requireMock.mock.calls[0]?.[0] as Record<string, unknown>
-    const acceptFn = callArgs?.accept as () => void
     expect(acceptFn).toBeDefined()
+
+    acceptFn!()
+
+    expect(wrapper.emitted('confirm')).toBeTruthy()
   })
 })
