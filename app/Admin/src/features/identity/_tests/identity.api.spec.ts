@@ -1,6 +1,6 @@
 import { describe, it, expect, vi } from 'vitest'
 import apiClient from '@/shared/api/http/api.client'
-import { identityApi } from '../services/identity.api'
+import { identityApi } from '../api/identity.api'
 
 vi.mock('@/shared/api/http/api.client', () => ({
   default: { get: vi.fn(), post: vi.fn(), put: vi.fn(), patch: vi.fn(), delete: vi.fn() }
