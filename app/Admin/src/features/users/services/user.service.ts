@@ -25,10 +25,11 @@ export const userService = {
   getUserPermissions: userRepository.getPermissions,
   updateAdminStatus: userRepository.updateStatus,
   syncUserRoles: userRepository.syncRoles,
+  assignRole: userRepository.assignRole,
+  revokeRole: userRepository.revokeRole,
+  syncPermissions: userRepository.syncPermissions,
   unassignPermission: userRepository.revokePermission,
-  assignPermission: async (_id: string, _permissionName: string): Promise<ServerResult<void>> => {
-    return { isSuccess: false, statusCode: 501, errors: [{ code: 'not_implemented', message: 'Not implemented — no backend route', type: 0, metadata: null }], message: 'Not implemented — no backend route', metadata: null, value: undefined }
-  },
+  assignPermission: userRepository.assignPermission,
   resetPassword: async (_id: string, _data: { new_password: string }): Promise<ServerResult<void>> => {
     console.warn('resetPassword: no backend route exists. See spec/spec-design-admin-api-services.md')
     return { isSuccess: false, statusCode: 501, errors: [{ code: 'not_implemented', message: 'Not implemented — no backend route', type: 0, metadata: null }], message: 'Not implemented — no backend route', metadata: null, value: undefined }

@@ -51,7 +51,7 @@ async function onSave() {
 
         // Note: We execute sequentially for now. Better to use Promise.all if backend handles it.
         for (const name of toAdd) {
-            await userService.assignPermission(props.userId, name);
+            await userService.assignPermission(props.userId, { permissionName: name });
         }
         for (const name of toRemove) {
             await userService.unassignPermission(props.userId, { permissionName: name });
