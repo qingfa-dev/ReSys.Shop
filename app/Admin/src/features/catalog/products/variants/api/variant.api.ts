@@ -33,4 +33,7 @@ export const variantRepository = {
 
   syncOptionValues: (variantId: string, optionValueIds: string[]): Promise<ServerResult<void>> =>
     apiClient.put(`${CATALOG}/variants/${variantId}/option-values/sync`, { optionValueIds }).then(res => res.data as ServerResult<void>),
+
+  listVariantOptionValues: (variantId: string): Promise<ServerResult<string[]>> =>
+    apiClient.get(`${CATALOG}/variants/${variantId}/option-values`).then(res => res.data as ServerResult<string[]>),
 }
