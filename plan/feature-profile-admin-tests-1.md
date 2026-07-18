@@ -4,13 +4,13 @@ version: 1.0
 date_created: 2026-07-18
 last_updated: 2026-07-18
 owner: Platform
-status: 'Planned'
+status: 'Completed'
 tags: feature, testing, profile, admin, unit-tests
 ---
 
 # Introduction
 
-![Status: Planned](https://img.shields.io/badge/status-Planned-blue)
+![Status: Completed](https://img.shields.io/badge/status-Completed-brightgreen)
 
 The Admin Profile feature set at `service/Api/src/Module/Profile/Features/Admin/Profiles/` has 4 complete vertical-slice features (CreateUserProfile, GetUserProfile, UpdateUserProfile, DeleteUserProfile) with zero unit tests. The Store-side equivalents have full coverage (~10 handler test files). This plan covers implementing handler-level unit tests for all 4 Admin features, following the established Store test pattern.
 
@@ -33,10 +33,10 @@ The Admin Profile feature set at `service/Api/src/Module/Profile/Features/Admin/
 
 | Task | Description | Completed | Date |
 |------|-------------|-----------|------|
-| TASK-001 | Create `tests/Module.UnitTests/Profile/Features/Admin/Profiles/CreateUserProfile/CreateUserProfile.Tests.cs` with `IDisposable`, in-memory DB, `User` seeding, handler instantiation | |  |
-| TASK-002 | Test `Handle_ShouldCreateProfile_WhenUserExists` — valid request, user exists, no existing profile → success, profile persisted with correct fields | |  |
-| TASK-003 | Test `Handle_ShouldFail_WhenUserNotFound` — non-existent `UserId` → returns `UserProfileResult.Failure.UserNotFound` | |  |
-| TASK-004 | Test `Handle_ShouldFail_WhenProfileAlreadyExists` — user exists with profile already → returns `UserProfileResult.Failure.AlreadyExists` | |  |
+| TASK-001 | Create `tests/Module.UnitTests/Profile/Features/Admin/Profiles/CreateUserProfile/CreateUserProfile.Tests.cs` with `IDisposable`, in-memory DB, `User` seeding, handler instantiation | ✅ | 2026-07-18 |
+| TASK-002 | Test `Handle_ShouldCreateProfile_WhenUserExists` — valid request, user exists, no existing profile → success, profile persisted with correct fields | ✅ | 2026-07-18 |
+| TASK-003 | Test `Handle_ShouldFail_WhenUserNotFound` — non-existent `UserId` → returns `UserProfileResult.Failure.UserNotFound` | ✅ | 2026-07-18 |
+| TASK-004 | Test `Handle_ShouldFail_WhenProfileAlreadyExists` — user exists with profile already → returns `UserProfileResult.Failure.AlreadyExists` | ✅ | 2026-07-18 |
 
 ### Implementation Phase 2: GetUserProfile Tests
 
@@ -44,10 +44,10 @@ The Admin Profile feature set at `service/Api/src/Module/Profile/Features/Admin/
 
 | Task | Description | Completed | Date |
 |------|-------------|-----------|------|
-| TASK-005 | Create `tests/Module.UnitTests/Profile/Features/Admin/Profiles/GetUserProfile/GetUserProfile.Tests.cs` | |  |
-| TASK-006 | Test `Handle_ShouldReturnProfile_WhenUserAndProfileExist` — seed both `User` and `UserProfile`, query by `UserId` → success with mapped response | |  |
-| TASK-007 | Test `Handle_ShouldFail_WhenUserNotFound` — non-existent `UserId` → `UserProfileResult.Failure.UserNotFound` | |  |
-| TASK-008 | Test `Handle_ShouldFail_WhenProfileNotFound` — existing user but no profile → `UserProfileResult.Failure.NotFound` | |  |
+| TASK-005 | Create `tests/Module.UnitTests/Profile/Features/Admin/Profiles/GetUserProfile/GetUserProfile.Tests.cs` | ✅ | 2026-07-18 |
+| TASK-006 | Test `Handle_ShouldReturnProfile_WhenUserAndProfileExist` — seed both `User` and `UserProfile`, query by `UserId` → success with mapped response | ✅ | 2026-07-18 |
+| TASK-007 | Test `Handle_ShouldFail_WhenUserNotFound` — non-existent `UserId` → `UserProfileResult.Failure.UserNotFound` | ✅ | 2026-07-18 |
+| TASK-008 | Test `Handle_ShouldFail_WhenProfileNotFound` — existing user but no profile → `UserProfileResult.Failure.NotFound` | ✅ | 2026-07-18 |
 
 ### Implementation Phase 3: UpdateUserProfile Tests
 
@@ -55,9 +55,9 @@ The Admin Profile feature set at `service/Api/src/Module/Profile/Features/Admin/
 
 | Task | Description | Completed | Date |
 |------|-------------|-----------|------|
-| TASK-009 | Create `tests/Module.UnitTests/Profile/Features/Admin/Profiles/UpdateUserProfile/UpdateUserProfile.Tests.cs` | |  |
-| TASK-010 | Test `Handle_ShouldUpdateExistingProfile` — existing profile, valid update request → fields updated in DB, response matches | |  |
-| TASK-011 | Test `Handle_ShouldCreateProfile_WhenNotExists` — upsert behavior: no existing profile → new profile created and returned | |  |
+| TASK-009 | Create `tests/Module.UnitTests/Profile/Features/Admin/Profiles/UpdateUserProfile/UpdateUserProfile.Tests.cs` | ✅ | 2026-07-18 |
+| TASK-010 | Test `Handle_ShouldUpdateExistingProfile` — existing profile, valid update request → fields updated in DB, response matches | ✅ | 2026-07-18 |
+| TASK-011 | Test `Handle_ShouldCreateProfile_WhenNotExists` — upsert behavior: no existing profile → new profile created and returned | ✅ | 2026-07-18 |
 
 ### Implementation Phase 4: DeleteUserProfile Tests
 
@@ -65,9 +65,9 @@ The Admin Profile feature set at `service/Api/src/Module/Profile/Features/Admin/
 
 | Task | Description | Completed | Date |
 |------|-------------|-----------|------|
-| TASK-012 | Create `tests/Module.UnitTests/Profile/Features/Admin/Profiles/DeleteUserProfile/DeleteUserProfile.Tests.cs` | |  |
-| TASK-013 | Test `Handle_ShouldSoftDeleteProfile` — existing active profile → `IsActive = false`, `ModifiedAtUtc` touched, returns success | |  |
-| TASK-014 | Test `Handle_ShouldFail_WhenProfileNotFound` — non-existent `UserId` → `UserProfileResult.Failure.NotFound` | |  |
+| TASK-012 | Create `tests/Module.UnitTests/Profile/Features/Admin/Profiles/DeleteUserProfile/DeleteUserProfile.Tests.cs` | ✅ | 2026-07-18 |
+| TASK-013 | Test `Handle_ShouldSoftDeleteProfile` — existing active profile → `IsActive = false`, `ModifiedAtUtc` touched, returns success | ✅ | 2026-07-18 |
+| TASK-014 | Test `Handle_ShouldFail_WhenProfileNotFound` — non-existent `UserId` → `UserProfileResult.Failure.NotFound` | ✅ | 2026-07-18 |
 
 ## 3. Alternatives
 

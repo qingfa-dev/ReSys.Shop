@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed, watch } from 'vue';
+import { ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useOptionTypeStore } from '@/features/catalog/option-types/stores/option-type.store';
 import { useOptionValueStore } from '@/features/catalog/option-types/option-values/stores/option-value.store';
@@ -7,7 +7,6 @@ import { useProductStore } from '../../stores/product.store';
 import { productService } from '../../services/product.service';
 import { variantService } from '../../services/variant.service';
 import { useToast } from '@/shared/composables/toast.use';
-import apiClient from '@/shared/api/http/api.client';
 import type { OptionTypeDetail } from '@/features/catalog/option-types/types/OptionType.Response.Type';
 import type { OptionValueListItem } from '@/features/catalog/option-types/option-values/types/OptionValue.Response.Type';
 
@@ -30,7 +29,6 @@ const emit = defineEmits(['update:visible', 'generated']);
 
 const { showToast } = useToast();
 const productStore = useProductStore();
-const optionTypeStore = useOptionTypeStore();
 const optionValueStore = useOptionValueStore();
 
 const activeStep = ref(0);
@@ -68,7 +66,7 @@ const generateCombinations = () => {
         const values = selectedValues.value[t.id];
         return values && values.length > 0;
     });
-    
+
     if (activeTypes.length === 0) {
         generatedPreview.value = [];
         return;
@@ -82,7 +80,7 @@ const generateCombinations = () => {
     for (let i = 1; i < activeTypes.length; i++) {
         const typeId = activeTypes[i].id;
         const values = selectedValues.value[typeId];
-        
+
         if (!values || values.length === 0) continue;
 
         const nextCombinations: OptionValueListItem[][] = [];
@@ -99,7 +97,7 @@ const generateCombinations = () => {
     generatedPreview.value = combinations.map((combo: OptionValueListItem[]) => {
         const nameSuffix = combo.map(v => v.presentation || v.name).join(' / ');
         const skuSuffix = combo.map(v => (v.name || '').toUpperCase().substring(0, 3)).join('-');
-        
+
         return {
             nameSuffix: nameSuffix,
             skuSuffix: skuSuffix,
@@ -175,11 +173,11 @@ watch(() => props.visible, (val) => {
 </script>
 
 <template>
-    <Dialog 
-        :visible="visible" 
-        @update:visible="$emit('update:visible', $event)" 
-        modal 
-        header="Generate Variants" 
+    <Dialog
+        :visible="visible"
+        @update:visible="$emit('update:visible', $event)"
+        modal
+        header="Generate Variants"
         :style="{ width: '800px' }"
         :closable="!generating"
     >
@@ -196,7 +194,7 @@ watch(() => props.visible, (val) => {
                 </p>
 
                 <div v-if="loading" class="flex justify-center py-8"><ProgressSpinner /></div>
-                
+
                 <div v-else-if="assignedOptionTypes.length === 0" class="p-6 text-center bg-surface-50 rounded-xl border border-dashed">
                     <p class="font-bold">No Option Types Assigned</p>
                     <p class="text-sm mt-2">Please go to the "Options" tab and assign types (e.g. Size, Color) first.</p>
@@ -208,11 +206,11 @@ watch(() => props.visible, (val) => {
                             <span class="font-bold">{{ type.presentation || type.name }}</span>
                             <span class="text-xs text-surface-500">{{ (selectedValues[type.id]?.length || 0) }} selected</span>
                         </div>
-                        <MultiSelect 
-                            v-model="selectedValues[type.id]" 
-                            :options="type.availableValues" 
-                            optionLabel="presentation" 
-                            placeholder="Select values..." 
+                        <MultiSelect
+                            v-model="selectedValues[type.id]"
+                            :options="type.availableValues"
+                            optionLabel="presentation"
+                            placeholder="Select values..."
                             display="chip"
                             class="w-full"
                         />
