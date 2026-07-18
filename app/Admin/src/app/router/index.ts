@@ -18,8 +18,6 @@ const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
     ...errorRoutes,
-    rolesRoutes,
-    permissionsRoutes,
     { path: '/login', name: 'login', component: () => import('@/features/auth/views/Login.View.vue'), meta: { public: true } },
     { path: '/', component: AppLayout, meta: { breadcrumb: 'navigation.home' }, children: [
       { path: '', name: 'home', redirect: { name: 'reports.dashboard' } },
@@ -33,6 +31,8 @@ const router = createRouter({
       locationRoutes,
       addressesRoutes,
       usersRoutes,
+      rolesRoutes,
+      permissionsRoutes,
     ]},
   ],
 })
