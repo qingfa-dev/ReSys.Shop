@@ -5,7 +5,8 @@
     "account_info": "Account Info",
     "details": "Account Details",
     "password": "Change Password",
-    "notifications": "Notifications"
+    "notifications": "Notifications",
+    "addresses": "Addresses"
   },
   "descriptions": {
     "manage": "Manage your profile information."
@@ -20,7 +21,12 @@
     "joined": "Joined On",
     "current_password": "Current Password",
     "new_password": "New Password",
-    "confirm_password": "Confirm New Password"
+    "confirm_password": "Confirm New Password",
+    "address": "Address",
+    "city": "City",
+    "state": "State",
+    "country": "Country",
+    "default": "Default"
   },
   "actions": {
     "save_profile": "Save Profile",
@@ -36,10 +42,14 @@
     "security": "Security Alerts",
     "security_desc": "Important security notifications about your account."
   },
+  "placeholders": {
+    "select_user": "Select a user..."
+  },
   "messages": {
     "load_error": "Failed to load profile",
     "update_success": "Profile updated successfully",
-    "password_updated": "Password updated successfully"
+    "password_updated": "Password updated successfully",
+    "select_user_to_view_addresses": "Select a user to view their addresses"
   },
   "validation": {
     "first_name": {
