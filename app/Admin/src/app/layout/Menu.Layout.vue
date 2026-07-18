@@ -46,6 +46,7 @@ const model = ref<MenuItem[]>([
     label: 'Inventory',
     items: [
       { label: 'Stock Items', icon: 'pi pi-fw pi-box', to: { name: 'inventory.stocks.list' } },
+      { label: 'Import', icon: 'pi pi-fw pi-file-import', to: { name: 'inventory.stocks.import' } },
       { label: 'Stock Units', icon: 'pi pi-fw pi-cubes', to: { name: 'inventory.units.list' } },
       { label: 'Locations', icon: 'pi pi-fw pi-building', to: { name: 'inventory.locations.list' } },
       { label: 'Movements', icon: 'pi pi-fw pi-history', to: { name: 'inventory.movements.list' } },

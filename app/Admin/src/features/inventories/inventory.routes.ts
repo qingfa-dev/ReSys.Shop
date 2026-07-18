@@ -17,6 +17,12 @@ export const inventoryRoutes: RouteRecordRaw = {
       meta: { breadcrumb: 'Stock Levels' }
     },
     {
+      path: 'stocks/import',
+      name: 'inventory.stocks.import',
+      component: () => import('./stock-items/views/StockImport.View.vue'),
+      meta: { breadcrumb: 'Import Stock' },
+    },
+    {
       path: 'units',
       name: 'inventory.units.list',
       component: () => import('./inventory-units/views/InventoryUnitList.View.vue'),

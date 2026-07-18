@@ -13,7 +13,9 @@
     "overview": "Overview",
     "identification": "Identification",
     "inventory": "Inventory",
-    "add_transfer_item": "Add Transfer Item"
+    "add_transfer_item": "Add Transfer Item",
+    "import_stock": "Import Stock",
+    "stock_movements": "Stock Movements"
   },
   "descriptions": {
     "list": "Overview of stock levels across all products and locations.",
@@ -55,7 +57,8 @@
     "address": "Street Address",
     "city": "City",
     "zip": "ZIP Code",
-    "country": "Country"
+    "country": "Country",
+    "selected_file": "Selected File"
   },
   "actions": {
     "adjust": "Adjust",
@@ -71,7 +74,9 @@
     "add_child": "Add Child Location",
     "delete": "Delete Location",
     "add_to_transfer": "Add to Transfer",
-    "back": "Back"
+    "back": "Back",
+    "choose_file": "Choose CSV File",
+    "import": "Import Stock"
   },
   "placeholders": {
     "search": "Search by SKU or product...",
@@ -97,7 +102,9 @@
     "location_created": "Location created",
     "source_destination_same": "Source and destination cannot be the same.",
     "load_error": "Failed to load inventory",
-    "load_states_error": "Failed to load states"
+    "load_states_error": "Failed to load states",
+    "import_stock_csv_info": "Upload a CSV file with stock item data. The file must contain SKU, quantity, and location columns.",
+    "import_success": "Stock items imported successfully."
   },
   "confirm": {
     "delete_header": "Confirm Deletion",
