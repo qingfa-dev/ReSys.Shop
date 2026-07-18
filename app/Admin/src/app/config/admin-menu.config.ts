@@ -7,6 +7,7 @@ export interface MenuItem {
   to?: RouteLocationRaw
   items?: MenuItem[]
   permission?: string
+  visible?: boolean
   separator?: boolean
   badge?: string | number
   class?: string

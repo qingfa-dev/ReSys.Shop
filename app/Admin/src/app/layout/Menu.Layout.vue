@@ -6,8 +6,9 @@ import { computed } from 'vue'
 
 const authStore = useAuthStore()
 
-function groupHasVisibleItems(items: { permission?: string }[]): boolean {
+function groupHasVisibleItems(items: typeof adminMenuConfig[0]['items']): boolean {
   return items.some(item => {
+    if (item.visible === false) return false
     if (!item.permission) return true
     return authStore.session?.user?.permissions?.includes(item.permission) ?? false
   })

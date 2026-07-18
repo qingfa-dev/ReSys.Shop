@@ -98,7 +98,7 @@ const itemClick = (event: Event, item: MenuItem) => {
 <template>
   <template v-if="hasPermission">
     <li :class="{ 'layout-root-menuitem': root, 'active-menuitem': active || isActive }">
-      <div v-if="root" class="layout-menuitem-root-text">
+      <div v-if="root && item.visible !== false" class="layout-menuitem-root-text">
         {{ item.label }}
         <span v-if="item.badge" class="ml-auto">
           <Badge :value="item.badge" severity="info" size="small" />
@@ -106,7 +106,7 @@ const itemClick = (event: Event, item: MenuItem) => {
       </div>
 
       <a
-        v-if="!root && item.items"
+        v-if="!root && item.items && item.visible !== false"
         :href="item.url"
         @click="itemClick($event, item)"
         :class="[item.class, { 'active-route': isActive }]"
@@ -122,7 +122,7 @@ const itemClick = (event: Event, item: MenuItem) => {
       </a>
 
       <router-link
-        v-if="!root && item.to && !item.items"
+        v-if="!root && item.to && !item.items && item.visible !== false"
         @click="itemClick($event, item)"
         exactActiveClass="active-route"
         :class="[item.class]"
@@ -136,7 +136,7 @@ const itemClick = (event: Event, item: MenuItem) => {
         </span>
       </router-link>
 
-      <Transition v-if="item.items" name="layout-submenu">
+      <Transition v-if="item.items && item.visible !== false" name="layout-submenu">
         <ul v-show="root ? true : active || isActive" class="layout-submenu">
           <AppMenuItem
             v-for="(child, i) in item.items"
