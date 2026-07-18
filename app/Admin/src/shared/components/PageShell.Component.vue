@@ -26,7 +26,9 @@ const MAX_WIDTH_CLASS: Record<string, string> = {
     ]"
   >
     <Card v-if="card">
-      <slot />
+      <template #content>
+        <slot />
+      </template>
     </Card>
     <slot v-else />
   </div>

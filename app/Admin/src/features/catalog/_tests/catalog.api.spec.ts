@@ -6,6 +6,7 @@ import { optionTypeRepository } from '../option-types/repositories/option-type.r
 import { optionValueRepository } from '../option-types/option-values/repositories/option-value.repository'
 import { taxonomyRepository } from '../taxonomies/repositories/taxonomy.repository'
 import { taxonRepository } from '../taxonomies/taxa/repositories/taxon.repository'
+import type { CreateVariantRequest } from '../products/types/Variant.Request.Type'
 
 vi.mock('@/shared/api/http/api.client', () => ({
   default: {
@@ -38,7 +39,7 @@ describe('productRepository', () => {
 
 describe('variantRepository', () => {
   it('create calls correct route', async () => {
-    await variantRepository.create('prod-1', { sku: 'TST', price: 10 } as any)
+    await variantRepository.create('prod-1', { sku: 'TST', price: 10 } as unknown as CreateVariantRequest)
     expect(apiClient.post).toHaveBeenCalledWith('catalog/products/prod-1/variants', expect.any(Object))
   })
   it('getById calls correct route', async () => {

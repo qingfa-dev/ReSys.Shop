@@ -2,6 +2,7 @@
 import { ref, onMounted, computed } from 'vue';
 import { authService } from '../services/auth.service';
 import type { ChangePasswordParameters } from '../types/ChangePassword.Parameters.Type';
+import type { UserProfile } from '../types/Login.Response.Type';
 import { useToast } from '@/shared/composables/toast.use';
 import { useFormatter } from '@/shared/composables/formatter.use';
 import { useI18n } from 'vue-i18n';
@@ -11,7 +12,7 @@ const { t } = useI18n();
 const { showToast } = useToast();
 const { formatDate } = useFormatter();
 
-const user = ref<any>(null);
+const user = ref<Partial<UserProfile> | null>(null);
 const loading = ref(false);
 const submitting = ref(false);
 

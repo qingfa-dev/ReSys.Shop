@@ -8,7 +8,7 @@ import { storeToRefs } from 'pinia'
 import { useApiErrorHandler } from '@/shared/composables/api-error-handler.use'
 import { useToast } from '@/shared/composables/toast.use'
 import { useConfirm } from 'primevue/useconfirm'
-import type { TaxonListItem } from '../types/Taxon.Response.Type'
+import type { TaxonListItem, TaxonTreeItem } from '../types/Taxon.Response.Type'
 
 const { t } = useI18n()
 const route = useRoute()
@@ -120,7 +120,7 @@ const goBack = () => router.push({ name: 'catalog.taxonomies.list' })
                                 selectionMode="single"
                                 :pt="{ root: { class: 'bg-transparent border-none p-0' } }"
                             >
-                                <template #default="{ node }: { node: any }">
+                                <template #default="{ node }: { node: TaxonTreeItem }">
                                     <div
                                         class="flex items-center justify-between w-full p-2 rounded-xl group cursor-pointer transition-colors"
                                         :class="{ 'bg-primary/10 text-primary': selectedTaxonId === node.id, 'hover:bg-surface-100 dark:hover:bg-surface-800': selectedTaxonId !== node.id }"

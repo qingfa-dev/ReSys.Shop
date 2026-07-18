@@ -5,6 +5,7 @@ import { taxonService } from '../services/taxon.service'
 import { useApiErrorHandler } from '@/shared/composables/api-error-handler.use'
 import { useFormatter } from '@/shared/composables/formatter.use'
 import type { DataTablePageEvent } from 'primevue/datatable'
+import type { ProductSummary } from '@/features/catalog/products/types/Product.Response.Type'
 
 const props = defineProps<{
   taxonId: string
@@ -14,7 +15,7 @@ const { handleApiResult } = useApiErrorHandler()
 const { formatCurrency } = useFormatter()
 const { t } = useI18n()
 
-const products = ref<any[]>([])
+const products = ref<ProductSummary[]>([])
 const loading = ref(false)
 const totalRecords = ref(0)
 const page = ref(1)

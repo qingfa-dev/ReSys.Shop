@@ -7,12 +7,12 @@ const props = defineProps<{
     emptyMessage?: string;
 }>();
 
-const modelValue = defineModel<Record<string, any>>({ default: () => ({}) });
+const modelValue = defineModel<Record<string, unknown>>({ default: () => ({}) });
 
 interface MetadataEntry {
     id: number;
     key: string;
-    value: any;
+    value: unknown;
     isNew?: boolean;
 }
 
@@ -30,7 +30,7 @@ const initialize = () => {
 };
 
 const sync = () => {
-    const result: Record<string, any> = {};
+    const result: Record<string, unknown> = {};
     entries.value.forEach(entry => {
         if (entry.key.trim()) {
             let val = entry.value;

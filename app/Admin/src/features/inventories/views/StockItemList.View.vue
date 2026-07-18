@@ -9,6 +9,7 @@ import PageHeader from '@/shared/components/PageHeader.Component.vue';
 import StockMovementTimeline from '../components/StockMovementTimeline.Component.vue';
 import StockAdjustmentDialog from '../components/StockAdjustmentDialog.Component.vue';
 import type { DataTablePageEvent, DataTableSortEvent, DataTableFilterMeta } from 'primevue/datatable';
+import type { StockItem } from '../types/StockItem.Response.Type';
 
 const { t } = useI18n();
 
@@ -20,17 +21,17 @@ const filters = ref<DataTableFilterMeta>({});
 
 const historyDrawer = ref(false);
 const adjustDialog = ref(false);
-const selectedStockItem = ref<any>(null);
+const selectedStockItem = ref<StockItem | null>(null);
 const selectedStockId = ref<string | undefined>(undefined);
 const selectedSku = ref('');
 
-const showHistory = (data: any) => {
+const showHistory = (data: StockItem) => {
     selectedStockId.value = data.id;
     selectedSku.value = data.sku;
     historyDrawer.value = true;
 };
 
-const showAdjust = (data: any) => {
+const showAdjust = (data: StockItem) => {
     selectedStockItem.value = data;
     adjustDialog.value = true;
 };

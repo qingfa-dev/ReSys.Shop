@@ -10,6 +10,7 @@ import type {
   DataTableSortEvent,
   DataTableFilterMeta,
 } from 'primevue/datatable';
+import { getFilterValue } from '@/shared/api/types/filter.types';
 import { useFormatter } from '@/shared/composables/formatter.use';
 import { QueryBuilder } from '@/shared/utils/query-builder.utils';
 import PageShell from '@/shared/components/PageShell.Component.vue';
@@ -65,7 +66,7 @@ const onSort = (event: DataTableSortEvent) => {
 };
 
 const onFilter = () => {
-  const globalFilter = filters.value.global as { value: string | null };
+  const globalValue = getFilterValue(filters.value, 'global') as string | null;
   const numberFilter = filters.value.number as { constraints: { value: string | null }[] };
   const stateFilter = filters.value.state as { constraints: { value: string | null }[] };
 
@@ -82,8 +83,8 @@ const onFilter = () => {
   const built = builder.build();
 
   store.fetchOrders({
-    search: globalFilter.value || undefined,
-    searchFields: globalFilter.value ? ['Number', 'Email'] : undefined,
+    search: globalValue || undefined,
+    searchFields: globalValue ? ['Number', 'Email'] : undefined,
     filter: built.filter,
     page: 1,
   });
@@ -157,7 +158,7 @@ onMounted(() => {
               <IconField iconPosition="left" class="w-full md:w-72">
                 <InputIcon class="pi pi-search" />
                 <InputText
-                  v-model="(filters.global as any).value"
+                  v-model="(filters.global as { value: string | null }).value"
                   :placeholder="t('ordering.placeholders.search')"
                   @keyup.enter="onFilter"
                   class="w-full rounded-xl"

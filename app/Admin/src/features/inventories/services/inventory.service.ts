@@ -10,7 +10,7 @@ import { mapInventoryUnit } from '../inventory-units/mappers/inventory-unit.mapp
 import { mapStockMovement } from '../stock-movements/mappers/stock-movement.mapper'
 import type { ServerResult, ServerPagedResult } from '@/shared/api/types/result.types'
 import type { ServerQueryingParameters } from '@/shared/api/types/query.types'
-import type { StockItem, StockItemDetail } from '../types/StockItem.Response.Type'
+import type { StockItem, StockItemDetail, StockSummary } from '../types/StockItem.Response.Type'
 import type { StockLocation, StockLocationDetail } from '../types/StockLocation.Response.Type'
 import type { InventoryUnit } from '../types/InventoryUnit.Response.Type'
 import type { StockMovement } from '../types/StockMovement.Response.Type'
@@ -20,11 +20,11 @@ import type { CreateStockLocationRequest } from '../types/StockLocation.Request.
 import type { CreateStockTransferRequest } from '../types/StockTransfer.Request.Type'
 import type { StockItemQuery } from '../types/StockItem.Query.Type'
 
-function applyMap<T, R>(data: T, mapper: (d: any) => R): R {
+function applyMap<T, R>(data: T, mapper: (d: T) => R): R {
   return mapper(data) as R
 }
 
-function applyMapArray<T, R>(data: T[], mapper: (d: any) => R): R[] {
+function applyMapArray<T, R>(data: T[], mapper: (d: T) => R): R[] {
   return data.map(d => mapper(d) as R)
 }
 
@@ -61,8 +61,8 @@ export const inventoryService = {
     return result as unknown as ServerPagedResult<StockItem>
   },
 
-  async getStockSummary(): Promise<ServerResult<any>> {
-    return stockRepository.getSummary() as unknown as Promise<ServerResult<any>>
+  async getStockSummary(): Promise<ServerResult<StockSummary[]>> {
+    return stockRepository.getSummary() as unknown as Promise<ServerResult<StockSummary[]>>
   },
 
   async bulkAdjust(data: { items: Array<{ id: string; quantity: number; type: number }> }): Promise<ServerResult<void>> {

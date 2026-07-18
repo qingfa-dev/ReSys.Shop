@@ -1,5 +1,6 @@
 import { taxonRepository } from '../repositories/taxon.repository'
 import type { ServerResult } from '@/shared/api/types/result.types'
+import type { ProductSummary } from '@/features/catalog/products/types/Product.Response.Type'
 
 export const taxonService = {
   list: taxonRepository.listByTaxonomyId,
@@ -16,7 +17,7 @@ export const taxonService = {
   deleteRule: taxonRepository.deleteRule,
   syncRules: taxonRepository.syncRules,
   regenerateProducts: taxonRepository.regenerateProducts,
-  getProductPreview: async (_taxonId: string, _params: Record<string, unknown>): Promise<ServerResult<{ items: any[]; totalCount: number }>> => ({
+  getProductPreview: async (_taxonId: string, _params: Record<string, unknown>): Promise<ServerResult<{ items: ProductSummary[]; totalCount: number }>> => ({
     isSuccess: true,
     statusCode: 200,
     errors: [],

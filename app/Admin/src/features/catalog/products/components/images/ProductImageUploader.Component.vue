@@ -26,7 +26,7 @@ const roles = [
     { label: t('catalog.products.images.roles.search'), value: 4 }
 ];
 
-const handleFileSelect = (event: any) => {
+const handleFileSelect = (event: { files: File[] }) => {
     const file = event.files[0];
     if (file) {
         currentFile.value = file;

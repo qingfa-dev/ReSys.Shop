@@ -2,6 +2,8 @@ import { setActivePinia, createPinia } from 'pinia';
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { useFulfillmentStore } from '../stores/fulfillment.store';
 import { fulfillmentService } from '../services/fulfillment.service';
+import { createMockResult, createMockErrorResult } from '@/shared/test/mock-types';
+import type { OrderListItem } from '../../types/Order.Response.Type';
 
 vi.mock('../services/fulfillment.service', () => ({
   fulfillmentService: {
@@ -31,19 +33,9 @@ describe('FulfillmentStore', () => {
   describe('fetchQueue', () => {
     it('updates queue after successful fetch', async () => {
       const store = useFulfillmentStore();
-      const mockData = [{ id: '1', number: 'ORD-1' }] as any;
+      const mockData: OrderListItem[] = [{ id: '1', number: 'ORD-1', state: '', currency: '', totalCents: 0, totalDisplay: '', createdAtUtc: '' }];
       
-      vi.mocked(fulfillmentService.getQueue).mockResolvedValue({
-        isSuccess: true,
-        statusCode: 200,
-        errors: [],
-        message: null,
-        metadata: null,
-        items: mockData,
-        page: 1,
-        pageSize: 50,
-        totalCount: 1,
-      } as any);
+      vi.mocked(fulfillmentService.getQueue).mockResolvedValue(createMockResult(mockData));
 
       await store.fetchQueue();
 
@@ -58,26 +50,9 @@ describe('FulfillmentStore', () => {
       const store = useFulfillmentStore();
       const orderId = '1';
       
-      vi.mocked(fulfillmentService.markAsShipped).mockResolvedValue({
-        isSuccess: true,
-        statusCode: 200,
-        errors: [],
-        message: null,
-        metadata: null,
-        value: undefined,
-      } as any);
+      vi.mocked(fulfillmentService.markAsShipped).mockResolvedValue(createMockResult<void>(undefined));
 
-      vi.mocked(fulfillmentService.getQueue).mockResolvedValue({
-        isSuccess: true,
-        statusCode: 200,
-        errors: [],
-        message: null,
-        metadata: null,
-        items: [],
-        page: 1,
-        pageSize: 50,
-        totalCount: 0,
-      } as any);
+      vi.mocked(fulfillmentService.getQueue).mockResolvedValue(createMockResult<OrderListItem[]>([]));
 
       await store.shipOrder(orderId, 'TRK-123');
 
@@ -89,14 +64,9 @@ describe('FulfillmentStore', () => {
       const store = useFulfillmentStore();
       const orderId = '1';
       
-      vi.mocked(fulfillmentService.markAsShipped).mockResolvedValue({
-        isSuccess: false,
-        statusCode: 500,
-        errors: [{ code: 'Error', message: 'Invalid inventory units', type: 4, metadata: null }],
-        message: 'Invalid inventory units',
-        metadata: null,
-        value: undefined,
-      } as any);
+      vi.mocked(fulfillmentService.markAsShipped).mockResolvedValue(
+        createMockErrorResult<void>({ statusCode: 500, errors: [{ code: 'Error', message: 'Invalid inventory units', type: 4, metadata: null }], message: 'Invalid inventory units' })
+      );
 
       await store.shipOrder(orderId, 'TRK-123');
 

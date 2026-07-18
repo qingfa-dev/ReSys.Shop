@@ -82,7 +82,7 @@ async function loadLocation() {
                 lowStockThreshold: res.value.lowStockThreshold,
                 position: res.value.position ?? 0,
             };
-            parentId.value = (res.value as any).parent_id;
+            parentId.value = (res.value as { parentId?: string | null }).parentId ?? null;
         }
     } finally {
         loading.value = false;

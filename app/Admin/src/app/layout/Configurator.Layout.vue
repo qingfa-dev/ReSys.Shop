@@ -207,7 +207,7 @@ function onPresetChange() {
         <span class="text-sm text-muted-color font-semibold">Menu Mode</span>
         <SelectButton
           v-model="menuMode"
-          @change="(e: any) => changeMenuMode(e.value)"
+          @change="(e: { value: string }) => changeMenuMode(e.value)"
           :options="menuModeOptions"
           :allowEmpty="false"
           optionLabel="label"

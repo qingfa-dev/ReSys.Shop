@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { useRouter } from 'vue-router'
+import type { VNode } from 'vue'
 
 const router = useRouter()
 
@@ -10,8 +11,8 @@ defineProps<{
 }>()
 
 defineSlots<{
-  badge?(): any
-  actions?(): any
+  badge?(): VNode[]
+  actions?(): VNode[]
 }>()
 
 function goBack() {

@@ -6,101 +6,70 @@
 
 | Path | Purpose | Evidence |
 |------|---------|----------|
-| `service/Api/src/Api/` | ASP.NET Core host — composition root, `Program.cs`, appsettings, launch settings | `service/Api/src/Api/Program.cs:1-66`, `service/Api/src/Api/Api.csproj:1-34` |
-| `service/Api/src/Module/` | All 8 business modules in one assembly (`Module.Catalog`, `Module.Identity`, `Module.Inventory`, `Module.Location`, `Module.Ordering`, `Module.Payment`, `Module.Profile`, `Module.Shipping`); each one is a `partial` namespace aggregated via its `*.Extension.cs` | `service/Api/src/Module/Module.csproj:1-21`; per-module files: `Module.Catalog/Catalog.Extension.cs:1-38`, `Module.Ordering/Ordering.Extension.cs`, `Module.Identity/Identity.Extensions.cs`, `Module.Inventory/Inventory.Extension.cs`, `Module.Location/Locations.Extensions.cs`, `Module.Payment/Payment.Extension.cs`, `Module.Profile/Profiles.Extensions.cs`, `Module.Shipping/Shipping.Extension.cs` |
-| `service/Api/src/Shared/` | Cross-cutting infrastructure: Application (mediators/endpoints/contracts), Governance (OpenAPI, conventions, validation), Observability, Operational (backgrounds, http, notifications, persistence, storages, webhooks), Performance (caching), Security (authn, authz, identity, anti-forgery, CORS, rate limiting, headers) | `service/Api/src/Shared/Shared.csproj:1-72`; dir contents enumerated in `docs/codebase/.codebase-scan.txt` |
-| `service/Api/src/Migrations/` | EF Core migrations assembly (`Api.Migrations`) | `ReSys.Shop.slnx:218`, migrations in `service/Api/src/Migrations/Migrations/` |
-| `service/Api/tests/` | xUnit v3 test projects: `Api.Tests` (integration), `Module.UnitTests`, `Shared.UnitTests` | `service/Api/tests/*/*.csproj` |
-| `service/Embedding/` | Python FastAPI ML sidecar (Fashion-CLIP) — `pyproject.toml`, `src/embedding/...`, `tests/` | `service/Embedding/pyproject.toml:1-56`, `service/Embedding/src/main.py:1-29` |
-| `infra/Aspire/src/ReSys.AppHost/` | .NET Aspire distributed application host (Postgres + Redis + API + 2 SPAs + Embedding) | `infra/Aspire/src/ReSys.AppHost/AppHost.cs:1-49` |
-| `infra/Aspire/src/ReSys.ServiceDefaults/` | Aspire service defaults (OTel, health, resilience, service discovery) shared by all services | `infra/Aspire/src/ReSys.ServiceDefaults/Extensions.cs:1-132` |
-| `app/Admin/` | Vue 3 + PrimeVue admin SPA (pnpm) | `app/Admin/package.json:1-71` |
-| `app/Store/` | Vue 3 + Nuxt UI storefront SPA (pnpm) | `app/Store/package.json:1-56` |
-| `app/ReSys.Admin/` | Legacy admin SPA (npm-based, marked for replacement by `app/Admin/`) | `README.md:177`, `.gitignore:154` (`app/ReSys.Admin/`) |
-| `benchmarks/` | Standalone Python package for ML benchmark comparison — 8 vision models, FAISS + pgvector retrieval, thesis + pipeline CLI modes | `benchmarks/pyproject.toml:1-64`, `benchmarks/src/benchmark/cli/benchmark.py:1-504` |
-| `ApiTests/` | 49 `.http` files for manual endpoint testing (VS Code REST Client / JetBrains HTTP Client) | `ApiTests/README.md:1-30` |
-| `docs/codebase/` | This documentation set (created by `acquire-codebase-knowledge`) | `README.md:158-168` |
-| `guide/code-commenting/` | Internal commenting-style guide (XML-based) — referenced by `guide/code-commenting/README.md` | `guide/code-commenting/CommentingRules.xml:1-1340` (file size 63 KB) |
-| `Directory.Build.props` / `Directory.Build.targets` / `Directory.Packages.props` / `global.json` / `dotnet-tools.json` | Centralized build, package, SDK, and tool config | as cited in `STACK.md` |
-| `ReSys.Shop.slnx` | XML solution file enumerating the 8 .NET projects + 3 test projects + 2 Aspire projects | `ReSys.Shop.slnx:1-30` |
-| `.editorconfig` (root) | Cross-language formatting/naming rules | `.editorconfig:1-389` |
-| `AGENTS.md` | AI agent entry guide (module list, conventions summary, verification commands) | `AGENTS.md:1-80` |
-| `LICENSE` | MIT license | `LICENSE` (1.0 KB) |
-| `README.md` | Project intent, getting-started, stack, structure overview | `README.md:1-184` |
-
-> Note: `.harness/` exists with machine-readable domain boundaries and quality baselines. `plan/` contains implementation plan files. `infra/Storage/` remains absent on disk.
+| `service/` | All server-side code (.NET API + Python ML) | Solution file `ReSys.Shop.slnx` |
+| `service/Api/src/Api/` | Thin ASP.NET host: Program.cs, appsettings, startup | `Api.csproj` references Module + Shared + Migrations |
+| `service/Api/src/Module/` | 8 business modules (single assembly, no cross-references) | `Module.csproj` depends only on Shared |
+| `service/Api/src/Shared/` | Cross-cutting infrastructure (no dependency on Module) | `Shared.csproj` references ReSys.ServiceDefaults |
+| `service/Api/src/Migrations/` | EF Core migrations (separate assembly) | `Api.Migrations.csproj` references Shared + Module |
+| `service/Api/tests/` | 3 test projects: Module.UnitTests, Shared.UnitTests, Api.Tests | `ReSys.Shop.slnx` |
+| `service/Embedding/` | Python FastAPI ML sidecar (Fashion-CLIP, ONNX) | `pyproject.toml` |
+| `app/Admin/` | Vue 3 Admin SPA (PrimeVue + Sakai theme) | `package.json` |
+| `app/Store/` | Vue 3 Storefront SPA (Nuxt UI) | `package.json` |
+| `app/legacy/ReSys.Admin/` | Legacy admin SPA (deprecated, use app/Admin) | Directory exists, gitignored |
+| `infra/Aspire/` | .NET Aspire orchestration (AppHost + ServiceDefaults) | `ReSys.AppHost.csproj` |
+| `benchmarks/` | Python fashion image retrieval benchmarks (11 models) | `pyproject.toml` |
+| `docs/codebase/` | Architecture and process documentation | `ARCHITECTURE.md`, `STACK.md`, etc. |
+| `guide/` | Coding guidelines (code commenting) | `guide/code-commenting/CommentingRules.xml` |
+| `plan/` | Implementation plans | AGENTS.md reference |
+| `.harness/` | Agent-first engineering harness (domain boundaries, principles) | `.harness/domains.yml`, `.harness/principles.yml` |
+| `.github/workflows/` | CI pipeline (build, test, lint for all stacks) | `.github/workflows/ci.yml` |
+| `ApiTests/` | 49 `.http` files for manual endpoint testing | AGENTS.md reference |
 
 ### 2) Entry Points
 
-- **Main backend host (ASP.NET Core):** `service/Api/src/Api/Program.cs:26-66` — `WebApplication.CreateBuilder(args)` → `builder.AddServiceDefaults()`, `AddObservability()`, `AddApplication([Module])`, `AddGovernance([Module])`, `AddPerformance()`, `AddSecurity()`, `AddOperational([Module])`, then per-module `AddXxxModule()` extension calls, then `app.MapDefaultEndpoints()`, `app.UseGovernance()`, `app.UsePerformance()`, `app.UseSecurity()`, `app.UseOperational()`, `app.UseObservability()`, `app.UseApplication()`, `await app.RunAsync()`.
-- **Aspire AppHost:** `infra/Aspire/src/ReSys.AppHost/AppHost.cs:9-49` — `DistributedApplication.CreateBuilder(args)`; registers Postgres (with `pgvector` image), Redis, `Api` project reference, Uvicorn Embedding app, Vite Store (port 5173), Vite Admin (port 5174).
-- **Python embedding service:** `service/Embedding/src/main.py:10-29` — `app = FastAPI(...)` with CORS, exception handlers, and three routers: `health_router`, `embedding_router` (prefix `/embeddings`), `model_router`.
-- **Admin SPA:** `app/Admin/src/app/main.ts:15-22` (`createApp(App)` → Pinia, PrimeVue (Aura preset), Toast, Confirmation, StyleClass, auth bootstrap, router, mount).
-- **Store SPA:** `app/Store/src/main.ts` (entry per scan, exact contents not re-read but matches `app/Admin/src/app/main.ts` pattern).
-- **Backend tests:** `service/Api/tests/Api.Tests/Api.Tests.csproj` (xUnit v3 + `Microsoft.AspNetCore.Mvc.Testing` + Testcontainers), `service/Api/tests/Module.UnitTests/Module.UnitTests.csproj`, `service/Api/tests/Shared.UnitTests/Shared.UnitTests.csproj`.
-- **Embedding tests:** `service/Embedding/tests/conftest.py:1-9` provides a `TestClient` fixture; `service/Embedding/tests/test_*.py` files exist (see scan).
-- **Benchmarks CLI:** `benchmarks/src/benchmark/cli/benchmark.py:1-504` — Typer CLI with `run`, `thesis`, `pipeline`, `report`, `cache` subcommands; registered as `benchmark` console_script in `benchmarks/pyproject.toml:43`.
-- **Benchmarks tests:** `benchmarks/src/tests/` — pytest with conftest; 29 test files across cli/, datasets/, evaluation/, integration/, metrics/, models/, reporting/, retrieval/, utils/.
-- **Manual API tests:** `ApiTests/run-all.http` is a top-level orchestration file; per-module `.http` files in `ApiTests/<Module>/{Admin|Store|Storefront}/`.
-- **Selection mechanism:** Aspire is the documented single-command orchestrator (`README.md:73-75`). The `Program.cs` builds + runs the `Api` project when `dotnet run --project service/Api/src/Api` is invoked; the SPAs are run individually (`pnpm run dev`) or via Aspire.
+- **Main .NET entry**: `service/Api/src/Api/Program.cs` — composed via `builder.Add<Module>()` extension methods, reads appsettings
+- **Secondary entry**: `infra/Aspire/src/ReSys.AppHost/AppHost.cs` — Aspire orchestrator starts PostgreSQL, Redis, Embedding service, .NET API, and both Vite SPAs
+- **Embedding entry**: `service/Embedding/embedding/main.py` — FastAPI app (referenced by AppHost as `embedding.main:app`)
+- **Admin SPA entry**: `app/Admin/index.html` + Vite (`pnpm run dev`)
+- **Store SPA entry**: `app/Store/index.html` + Vite (`pnpm run dev`)
+- **Benchmarks entry**: `benchmarks/src/benchmark/cli/benchmark.py` — CLI via Typer (`uv run benchmark`)
 
 ### 3) Module Boundaries
 
 | Boundary | What belongs here | What must not be here |
 |----------|-------------------|------------------------|
-| `service/Api/src/Api/` (`Api` project) | Composition root: reference all modules + Shared + Migrations, define `Program.cs`/`appsettings.*`, register middleware. | Domain logic, EF entities, business handlers. (Project reference direction: `Api` → `Module`, `Shared`, `Migrations`.) |
-| `service/Api/src/Module/<Name>/` | One namespace per module, vertical slices under `Features/{Admin|Storefront}/{Feature}/{Action}/` files (`*.cs`, `*.Endpoint.cs`, `*.Request.cs`, `*.Response.cs`, `*.Validator.cs`); module entry `<Name>.Extension.cs`; `Domain/`, `Persistence/` (DbContext config, schema name, seeders). | Cross-module references (`ValidateVerticalSliceIsolation` exists but is `Condition="false"` — currently a warning, not an error — `Directory.Build.targets:44-53`). No direct references to other `Module.<X>` namespaces. |
-| `service/Api/src/Shared/` | Application abstractions (`ICommand`, `IQuery`, `Result`, `Error`, endpoints), Governance, Observability, Operational (persistence, storage, notifications, backgrounds, http, webhooks), Performance (caching), Security (auth/authz/anti-forgery/CORS/headers/identity/rate limiting). | Anything module-specific; only the `Shared.Marker` interface marks the assembly (`service/Api/src/Shared/Shared.Marker.cs:1-3`). |
-| `service/Api/src/Migrations/Migrations/` | `DbContext` snapshot + versioned EF migrations. | Module business code; references the entity types via `ApplicationDbContext`. |
-| `service/Embedding/src/embedding/` | FastAPI routers, controllers, services, models, schemas, infra (cache, models, preprocessing, storage, utils), middleware, utils. | Domain state of any backend module — the sidecar is stateless and called via HTTP. |
-| `app/Admin/src/{app,shared,features}/` | `app/` = bootstrap + router; `shared/` = reusable (`api/http/`, `services/`, `components/`, `composables/`, `config/`, `locales/`, `utils/`); `features/<name>/` = per-domain UI (auth, catalog, identity, inventories, location, ordering, profile, reports, users, dashboard, error). Boundaries enforced by `eslint-plugin-boundaries` (`app/Admin/eslint.config.ts:32-54`: `shared ⊥ features,app`; `features ⊥ features,app`; `app → shared,features`). | Cross-feature imports; direct feature-to-feature coupling. |
-| `app/Store/src/{api.ts, router/, stores/, views/, __tests__/}` | App entry, single `api.ts` (likely axios instance — contents not re-read), router config, Pinia stores (`cart.ts`, `catalog.ts`), views (`HomeView`, `ProductsView`, `ProductDetailView`, `CartView`, `CheckoutView`), Vitest specs. | Re-exporting component libraries directly inside stores (a thin pattern). |
-| `infra/Aspire/src/ReSys.AppHost/` | Orchestration only (resource graph). | Business code; runtime infrastructure for tests. |
-| `infra/Aspire/src/ReSys.ServiceDefaults/` | Service-defaults shared by all services (OTel, health, resilience, discovery). | Domain logic. |
-| `benchmarks/` | ML model comparison: `src/benchmark/cli/` (CLI), `src/benchmark/models/` (model wrappers), `src/benchmark/datasets/` (data loading + ground truth), `src/benchmark/embeddings/` (generation + caching), `src/benchmark/retrieval/` (FAISS + pgvector + cosine), `src/benchmark/metrics/` (P@K, R@K, mAP, nDCG, latency), `src/benchmark/evaluation/` (runners), `src/benchmark/reporting/` (JSON, CSV, Markdown, Typst, charts). | Any dependency on the ReSys.Shop .NET backend or `service/Embedding/` sidecar. Benchmarks is standalone. |
-| `benchmarks/docs/` | Benchmark-specific documentation (overview, models, metrics, pipeline, datasets, thesis protocol, replication guide, results). | Codebase-wide docs. |
+| `Shared/` | Cross-cutting abstractions: Application (Result, Entity, Mediators), Security, Performance, Operational, Observability, Governance | Must not depend on any Module code |
+| `Module/` | 8 business domains: Catalog, Identity, Inventory, Location, Ordering, Payment, Profile, Shipping | Modules must not reference each other (verified by build target) |
+| `Api/` | Thin composition root: Program.cs, appsettings, startup wiring | No business logic |
+| `Migrations/` | EF Core migration files and DbContext snapshot | No business logic |
+| `Embedding/` | ML inference: image embedding generation, model hosting, ONNX optimization | No business logic |
 
-Per `Directory.Build.targets:5-39`, the project also enforces (via MSBuild targets) that:
-- `.Domain` projects cannot reference `.Infrastructure` or `.Application`.
-- `.Application` projects cannot reference `.Infrastructure`.
-- `.Api` / `.Web` projects get a *warning* (not error) for direct `.Infrastructure` references.
+**Module internal boundaries** (each of 8 modules follows this structure):
 
-> The actual backend uses no per-module `.Domain`/`.Application`/`.Infrastructure` sub-assemblies; everything is a single `Module` assembly. So those targets are dormant unless a project is renamed to match the suffix.
+| Sub-boundary | What belongs here | What must not be here |
+|-------------|-------------------|------------------------|
+| `{Module}/Domain/` | Aggregate roots, value objects, domain methods returning Result<T>, enums, validation, error factories | No EF Core, no persistence, no API concerns |
+| `{Module}/Features/` | Vertical slice feature files: Handler, Endpoint, Request, Response, Validator (static partial class) | No direct module-to-module references (use ISender) |
+| `{Module}/Persistence/` | EF Core entity configurations + seeders | No domain logic |
+| `{Module}/Backgrounds/` | Hangfire background job handlers | No domain logic |
+| `{Module}/Services/` | Domain service interfaces and implementations | No cross-module DI |
 
 ### 4) Naming and Organization Rules
 
-- **C# file naming:** `static partial class` is split across `Name.cs` (handler/command), `Name.Endpoint.cs`, `Name.Request.cs`, `Name.Response.cs`, `Name.Validator.cs` — see `service/Api/src/Module/Catalog/Features/Admin/Products/Create/` (5 files, all sharing `public static partial class CreateProduct`).
-- **Feature directory layout:** `Features/{Admin|Storefront}/{Feature}/{Action}/` — e.g. `Module/Ordering/Features/Storefront/Cart/Checkout/CreateOrderFromCart.{cs,Endpoint.cs,Request.cs,Response.cs,Validator.cs}` (`service/Api/src/Module/Ordering/Features/Storefront/Cart/Checkout/`).
-- **Domain types:** `Domain/<Aggregate>/<Type>.cs` (split into `Type.Constant.cs`, `Type.Enumerate.cs`, `Type.Method.cs`, `Type.Result.cs`, `Type.Validation.cs`, `Type.Loggers.cs` for large aggregates; e.g. `Module/Ordering/Domain/Orders/Order.{cs,Constant.cs,Checkout.cs,...}`).
-- **Persistence:** `Persistence/SchemaName.cs`, `Persistence/Configurations/<Aggregate>/...`, `Persistence/Seeders/...` per module (e.g. `Module/Catalog/Persistence/CatalogSchema.cs:1-31`).
-- **Module entry point:** `<Name>.Extension.cs` exporting `Add<Name>Module(this WebApplicationBuilder builder)`; referenced by `service/Api/src/Api/Program.cs:38-45`.
-- **Project markers:** `Module/Module.Marker.cs` defines `public interface IModuleMarker;` (used to discover the assembly in `Program.cs:24`); `Shared/Shared.Marker.cs` defines `ISharedMarker`.
-- **Frontend Admin:** kebab-case in path (`features/catalog/products/`), PascalCase in Vue component names (`ProductStore`, `ProductService`). Lint rule `eslint-plugin-boundaries` enforces `shared` / `features` / `app` separation (`app/Admin/eslint.config.ts:32-54`).
-- **Frontend Store:** `views/*View.vue` (`HomeView.vue`, `CartView.vue`, etc.); `stores/cart.ts` Pinia store; `__tests__/*.spec.ts`.
-- **TS path alias:** `@/*` → `./src/*` for both SPAs (`app/Admin/tsconfig.app.json:11`, `app/Store/tsconfig.app.json:11`); Vite `resolve.alias` mirrors (`app/Admin/vite.config.ts:44-46`).
-- **Test naming (backend):** `<Type>.Tests.cs` and `<Type>.Validator.Tests.cs` mirroring source files (e.g. `service/Api/tests/Module.UnitTests/Catalog/Features/Admin/Products/Create/CreateProduct.Tests.cs:1-5`).
-- **Test naming (frontend):** `*.spec.ts` colocated (e.g. `app/Admin/src/features/auth/_tests/auth.service.spec.ts`, `app/Store/src/__tests__/cart.store.spec.ts`).
-- **HTTP test files:** `ApiTests/<Module>/{Admin|Store|Storefront}/<concern>.http`; per-file section headers use `### <Description>` (see `ApiTests/Identity/Store/auth-login.http:1-15`).
-- **Benchmarks Python:** `src/benchmark/<domain>/<file>.py`; model files as `<model_key>.py` (e.g. `fashion_clip.py`, `clip_b32.py`); tests colocated in `src/tests/<domain>/test_*.py`; CLI via `benchmarks/src/benchmark/cli/benchmark.py` with `@app.command()` decorators.
+- **File naming**: PascalCase for all C# files (e.g., `Order.cs`, `CreateOrderFromCart.cs`, `ICommand.cs`)
+- **Directory naming**: PascalCase domain names (e.g., `Catalog/`, `Ordering/`, `Payment/`), PascalCase subdirectories (e.g., `Features/Admin/Orders/Cancel/`)
+- **Directory organization**: By feature (vertical slice), not by layer. Each feature action gets its own directory under `Features/{Admin|Storefront}/{Domain}/{Action}/`
+- **CS file per concern**: Handler in `{Action}.cs`, endpoint in `{Action}.Endpoint.cs`, request DTO in `{Action}.Request.cs`, response DTO in `{Action}.Response.cs`, validator in `{Action}.Validator.cs`
+- **TypeScript path aliases**: `@/*` → `./src/*` in both SPAs (`tsconfig.app.json`)
+- **Test file placement**: Mirror source structure under `tests/{Project}/`. Test files are NOT co-located with source — they live in separate test projects.
 
 ### 5) Evidence
 
-- `service/Api/src/Api/Program.cs:1-66` — composition root
-- `service/Api/src/Api/Api.csproj:1-34`, `service/Api/src/Module/Module.csproj:1-21`, `service/Api/src/Shared/Shared.csproj:1-72` — projects and dependencies
-- `service/Api/src/Module/<Name>/<Name>.Extension.cs` — per-module DI registration
-- `service/Api/src/Module/Catalog/Features/Admin/Products/Create/*.cs` — vertical-slice file pattern
-- `service/Api/src/Module/Catalog/Features/Shared/CatalogFeature.{Admin,Storefront,Tags}.cs` — feature metadata constants
-- `service/Api/src/Shared/Application/Mediators/Mediator.Extension.cs:28-55` — MediatR pipeline registration
-- `service/Api/src/Shared/Application/Endpoints/Endpoint.Extension.cs:13-49` — Carter module discovery
-- `infra/Aspire/src/ReSys.AppHost/AppHost.cs:9-49` — Aspire resource graph
-- `infra/Aspire/src/ReSys.ServiceDefaults/Extensions.cs:19-132` — Aspire service defaults
-- `service/Embedding/src/main.py:1-29` — Python embedding service entry
-- `app/Admin/src/app/main.ts:1-23`, `app/Admin/vite.config.ts:1-54`, `app/Admin/eslint.config.ts:1-57` — Admin SPA bootstrap, Vite, ESLint
-- `app/Admin/tsconfig.app.json:1-18`, `app/Store/tsconfig.app.json:11` — `@/*` path alias
-- `app/Store/src/__tests__/App.spec.ts:1-28` — Store test layout
-- `ApiTests/README.md:1-30`, `ApiTests/_shared/variables.http:1-20` — HTTP test layout
-- `benchmarks/pyproject.toml:1-64`, `benchmarks/README.md:1-70` — benchmark package + docs
-- `benchmarks/src/benchmark/cli/benchmark.py:1-504` — CLI entry point
-- `benchmarks/src/tests/` — 29 test files across 8 domains
-- `docs/codebase/.codebase-scan.txt` — full file/dir enumeration
-- `ReSys.Shop.slnx:1-30` — solution layout
+- `ReSys.Shop.slnx` — solution structure
+- `service/Api/src/Api/Program.cs` — composition root
+- `service/Api/src/Module/` — 8-module layout
+- `service/Api/src/Shared/` — shared infrastructure layout
+- `app/Admin/tsconfig.app.json` — `@/` → `./src/` alias
+- `app/Store/tsconfig.app.json` — `@/` → `./src/` alias
+- `.gitignore` — legacy admin exclusion
+- `infra/Aspire/src/ReSys.AppHost/AppHost.cs` — Aspire orchestration composition

@@ -7,6 +7,7 @@ import { useI18n } from 'vue-i18n'
 import { useApiErrorHandler } from '@/shared/composables/api-error-handler.use'
 import { useToast } from '@/shared/composables/toast.use'
 import { useConfirm } from 'primevue/useconfirm'
+import type { TreeNode } from 'primevue/tree'
 
 const { t } = useI18n()
 
@@ -27,18 +28,22 @@ onMounted(async () => {
   }
 })
 
-const openNew = (parent?: any) => {
+interface LocationTreeNode {
+  id: string; name: string; parentId?: string | null; children?: LocationTreeNode[]
+}
+
+const openNew = (parent?: LocationTreeNode) => {
   router.push({
     name: 'inventory.locations.create',
     query: parent ? { parentId: parent.id } : {}
   })
 }
 
-const openEdit = (node: any) => {
+const openEdit = (node: LocationTreeNode) => {
   router.push({ name: 'inventory.locations.edit', params: { id: node.id } })
 }
 
-const confirmDelete = (node: any) => {
+const confirmDelete = (node: LocationTreeNode) => {
   const messageStr = t('inventory.confirm.delete_message', { name: node.name });
 
   confirm.require({
@@ -111,9 +116,9 @@ const goBack = () => router.push({ name: 'inventory.stocks.list' })
                   <ProgressSpinner style="width: 40px; height: 40px" />
                 </div>
 
-                <Tree v-else :value="locationTree as any" selectionMode="single"
+                <Tree v-else :value="locationTree as TreeNode[]" selectionMode="single"
                   :pt="{ root: { class: 'bg-transparent border-none p-0' } }">
-                  <template #default="{ node }: { node: any }">
+                  <template #default="{ node }: { node: TreeNode }">
                     <div
                       class="flex items-center justify-between w-full p-2 rounded-xl group cursor-pointer transition-colors"
                       :class="{ 'bg-primary/10 text-primary': selectedId === node.id, 'hover:bg-surface-100 dark:hover:bg-surface-800': selectedId !== node.id }"

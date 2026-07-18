@@ -16,7 +16,7 @@ const props = defineProps<{
 }>()
 
 const emit = defineEmits<{
-  (e: 'submit', values: any): void
+  (e: 'submit', values: Record<string, unknown>): void
   (e: 'cancel'): void
 }>()
 
@@ -52,8 +52,8 @@ const [metaTitle] = defineField('metaTitle')
 const [metaDescription] = defineField('metaDescription')
 const [metaKeywords] = defineField('metaKeywords')
 
-const public_metadata = ref<Record<string, any>>({})
-const private_metadata = ref<Record<string, any>>({})
+const public_metadata = ref<Record<string, unknown>>({})
+const private_metadata = ref<Record<string, unknown>>({})
 
 const generateSlug = () => {
   if (!name.value || (props.initialData && slug.value)) return
@@ -75,9 +75,9 @@ watch(
         slug: newData.slug,
         position: newData.position,
         hideFromNav: newData.hideFromNav,
-        parentId: newData.parentId as any,
+        parentId: newData.parentId as string | null,
         automatic: newData.automatic,
-        rulesMatchPolicy: newData.rulesMatchPolicy as any,
+        rulesMatchPolicy: newData.rulesMatchPolicy as string,
         sortOrder: newData.sortOrder,
         metaTitle: newData.metaTitle || '',
         metaDescription: newData.metaDescription || '',

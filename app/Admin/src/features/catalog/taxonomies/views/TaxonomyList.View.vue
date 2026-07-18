@@ -11,6 +11,7 @@ import type {
   DataTableSortEvent,
   DataTableFilterMeta,
 } from 'primevue/datatable';
+import { getFilterValue } from '@/shared/api/types/filter.types';
 import { useToast } from '@/shared/composables/toast.use';
 import { useFormatter } from '@/shared/composables/formatter.use';
 import { QueryBuilder } from '@/shared/utils/query-builder.utils';
@@ -62,7 +63,7 @@ const onSort = (event: DataTableSortEvent) => {
 };
 
 const onFilter = () => {
-  const globalFilter = filters.value.global as { value: string | null };
+  const globalValue = getFilterValue(filters.value, 'global') as string | null;
   const nameFilter = filters.value.name as { constraints: { value: string | null }[] };
 
   const builder = new QueryBuilder();
@@ -74,8 +75,8 @@ const onFilter = () => {
   const built = builder.build();
 
   store.fetchTaxonomies({
-    search: globalFilter.value || undefined,
-    searchFields: globalFilter.value ? ['Name', 'Presentation'] : undefined,
+    search: globalValue || undefined,
+    searchFields: globalValue ? ['Name', 'Presentation'] : undefined,
     filter: built.filter,
     page: 1,
   });
@@ -158,7 +159,7 @@ onMounted(() => {
             <IconField iconPosition="left" class="w-full md:w-72">
               <InputIcon class="pi pi-search" />
               <InputText
-                v-model="(filters.global as any).value"
+                v-model="(filters.global as { value: string | null }).value"
                 :placeholder="t('catalog.taxonomies.placeholders.search') || 'Search...'"
                 @keyup.enter="onFilter"
                 class="w-full rounded-xl"

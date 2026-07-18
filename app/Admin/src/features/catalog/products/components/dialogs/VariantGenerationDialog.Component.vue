@@ -8,6 +8,16 @@ import { productService } from '../../services/product.service';
 import { variantService } from '../../services/variant.service';
 import { useToast } from '@/shared/composables/toast.use';
 import apiClient from '@/shared/api/http/api.client';
+import type { OptionTypeDetail } from '@/features/catalog/option-types/types/OptionType.Response.Type';
+import type { OptionValueListItem } from '@/features/catalog/option-types/option-values/types/OptionValue.Response.Type';
+
+interface AssignedOptionType extends OptionTypeDetail {
+  availableValues?: OptionValueListItem[]
+}
+
+interface PreviewVariant {
+  nameSuffix: string; skuSuffix: string; priceOffset: number; options: { id: string; name: string; presentation: string }[]
+}
 
 const { t } = useI18n();
 
@@ -27,9 +37,9 @@ const activeStep = ref(0);
 const loading = ref(false);
 const generating = ref(false);
 
-const assignedOptionTypes = ref<any[]>([]);
-const selectedValues = ref<Record<string, any[]>>({});
-const generatedPreview = ref<any[]>([]);
+const assignedOptionTypes = ref<AssignedOptionType[]>([]);
+const selectedValues = ref<Record<string, OptionValueListItem[]>>({});
+const generatedPreview = ref<PreviewVariant[]>([]);
 
 const loadOptionData = async () => {
     loading.value = true;
@@ -54,7 +64,7 @@ const loadOptionData = async () => {
 };
 
 const generateCombinations = () => {
-    const activeTypes = assignedOptionTypes.value.filter((t: any) => {
+    const activeTypes = assignedOptionTypes.value.filter((t: AssignedOptionType) => {
         const values = selectedValues.value[t.id];
         return values && values.length > 0;
     });
@@ -67,7 +77,7 @@ const generateCombinations = () => {
     const firstTypeValues = selectedValues.value[activeTypes[0].id];
     if (!firstTypeValues) return;
 
-    let combinations: any[][] = firstTypeValues.map((v: any) => [v]);
+    let combinations: OptionValueListItem[][] = firstTypeValues.map((v: OptionValueListItem) => [v]);
 
     for (let i = 1; i < activeTypes.length; i++) {
         const typeId = activeTypes[i].id;
@@ -75,10 +85,10 @@ const generateCombinations = () => {
         
         if (!values || values.length === 0) continue;
 
-        const nextCombinations: any[][] = [];
+        const nextCombinations: OptionValueListItem[][] = [];
 
         combinations.forEach(existingCombo => {
-            values.forEach((val: any) => {
+            values.forEach((val: OptionValueListItem) => {
                 nextCombinations.push([...existingCombo, val]);
             });
         });
@@ -86,7 +96,7 @@ const generateCombinations = () => {
         combinations = nextCombinations;
     }
 
-    generatedPreview.value = combinations.map((combo: any[]) => {
+    generatedPreview.value = combinations.map((combo: OptionValueListItem[]) => {
         const nameSuffix = combo.map(v => v.presentation || v.name).join(' / ');
         const skuSuffix = combo.map(v => (v.name || '').toUpperCase().substring(0, 3)).join('-');
         
@@ -121,7 +131,7 @@ const confirmGeneration = async () => {
                 productId: props.productId,
                 sku: `${productStore.current_product?.sku || 'SKU'}-${variant.skuSuffix}`,
                 price: productStore.current_product?.price || 0,
-                optionValues: variant.options.map((o: any) => o.id),
+                optionValues: variant.options.map((o: { id: string }) => o.id),
             };
 
             const createRes = await variantService.create(props.productId, {

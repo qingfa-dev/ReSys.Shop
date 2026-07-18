@@ -2,6 +2,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 import apiClient from './api.client'
 import { parseApiError } from '../utils/api.utils'
 import type { AxiosResponse } from 'axios'
+import type { ServerResult } from '../types/result.types'
 
 vi.mock('../utils/api.utils', () => ({
   parseApiError: vi.fn((err) => ({
@@ -22,7 +23,7 @@ describe('apiClient', () => {
   beforeEach(() => {
     vi.clearAllMocks()
 
-    const responseInterceptor = (apiClient.interceptors.response as any).handlers[0]
+    const responseInterceptor = (apiClient.interceptors.response as unknown as { handlers: Array<{ fulfilled: (response: AxiosResponse) => unknown; rejected: (error: unknown) => Promise<unknown> }> }).handlers[0]
 
     if (!responseInterceptor) {
       throw new Error('Response interceptor not found')
@@ -86,7 +87,7 @@ describe('apiClient', () => {
       },
     }
 
-    const result = await errorInterceptor(mockError) as any
+    const result = await errorInterceptor(mockError) as unknown as { data: ServerResult<null> }
 
     expect(parseApiError).toHaveBeenCalledWith(mockError)
     expect(result).toMatchObject({

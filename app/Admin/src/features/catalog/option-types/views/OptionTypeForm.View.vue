@@ -29,8 +29,8 @@ const itemId = computed(() => route.params.id as string)
 
 const activeTab = ref(0)
 
-const publicMetadata = ref<Record<string, any>>({})
-const privateMetadata = ref<Record<string, any>>({})
+const publicMetadata = ref<Record<string, unknown>>({})
+const privateMetadata = ref<Record<string, unknown>>({})
 
 const { defineField, handleSubmit, errors, setValues, setErrors, values } = useForm({
   validationSchema: toTypedSchema(OptionTypeSchema),

@@ -15,7 +15,7 @@ const { handleApiResult } = useApiErrorHandler();
 const { showToast } = useToast();
 const { t } = useI18n();
 
-const availableOptionTypes = ref<any[]>([]);
+const availableOptionTypes = ref<{ label: string; value: string }[]>([]);
 const selectedOptionTypes = ref<string[]>([]);
 const loading = ref(false);
 const saving = ref(false);
@@ -33,7 +33,7 @@ const loadData = async () => {
         // 2. Get currently assigned option types for this product
         const result = await productService.getOptionTypes(props.productId);
         if (result.isSuccess && result.value) {
-            selectedOptionTypes.value = result.value.map((ot: any) => ot.id);
+            selectedOptionTypes.value = result.value.map((ot: { id: string }) => ot.id);
         }
     } finally {
         loading.value = false;

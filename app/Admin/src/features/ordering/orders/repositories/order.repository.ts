@@ -63,6 +63,9 @@ export const orderRepository = {
   listLineItems(id: string): Promise<ServerResult<OrderLineItem[]>> {
     return apiClient.get(ordersPath(`${id}/line-items`)).then(res => res.data as ServerResult<OrderLineItem[]>)
   },
+  getLineItemById(id: string, lineItemId: string): Promise<ServerResult<OrderLineItem>> {
+    return apiClient.get(ordersPath(`${id}/line-items/${lineItemId}`)).then(res => res.data as ServerResult<OrderLineItem>)
+  },
   addLineItem(id: string, data: AddOrderItemRequest): Promise<ServerResult<void>> {
     return apiClient.post(ordersPath(`${id}/line-items`), data).then(res => res.data as ServerResult<void>)
   },

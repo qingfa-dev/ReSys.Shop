@@ -13,6 +13,7 @@ import { useConfirm } from 'primevue/useconfirm'
 import { FilterMatchMode } from '@primevue/core/api'
 import type { DataTablePageEvent, DataTableSortEvent, DataTableFilterMeta } from 'primevue/datatable'
 import { QueryBuilder } from '@/shared/utils/query-builder.utils'
+import { getFilterValue } from '@/shared/api/types/filter.types'
 import type { TaxonListItem } from '../types/Taxon.Response.Type'
 
 const { t } = useI18n()
@@ -65,8 +66,8 @@ const onPage = (event: DataTablePageEvent) => {
 
 const onFilter = () => {
   lazyParams.value.page = 1
-  lazyParams.value.search = (filters.value.global as any).value
-  lazyParams.value.taxonomyId = (filters.value.taxonomyId as any).value
+  lazyParams.value.search = getFilterValue(filters.value, 'global') as string ?? ''
+  lazyParams.value.taxonomyId = getFilterValue(filters.value, 'taxonomyId') as string | undefined
   fetchPagedData()
 }
 
@@ -140,14 +141,14 @@ onMounted(() => {
                 <IconField iconPosition="left" class="w-full md:w-64">
                 <InputIcon class="pi pi-search" />
                 <InputText 
-                    v-model="(filters.global as any).value" 
+                    v-model="(filters.global as { value: string | null }).value" 
                     :placeholder="t('catalog.taxa.placeholders.search') || 'Search...'" 
                     @keyup.enter="onFilter" 
                     class="w-full rounded-xl"
                 />
                 </IconField>
                 <Select 
-                    v-model="(filters.taxonomyId as any).value" 
+                    v-model="(filters.taxonomyId as { value: string | null }).value" 
                     :options="taxonomies" 
                     optionLabel="label" 
                     optionValue="value" 

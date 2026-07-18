@@ -4,6 +4,9 @@ import { useAuthStore } from '../stores/auth.store'
 import { authService } from '../services/auth.service'
 
 // Mock dependencies
+import { createMockErrorResult } from '@/shared/test/mock-types'
+import type { AuthenticationResponse } from '../types/Login.Response.Type'
+
 vi.mock('../services/auth.service', () => ({
   authService: {
     login: vi.fn(),
@@ -108,14 +111,11 @@ describe('AuthStore', () => {
 
     it('login should handle failure correctly', async () => {
       const store = useAuthStore()
-      const mockErrorResponse = {
-        isSuccess: false,
+      const mockErrorResponse = createMockErrorResult<AuthenticationResponse | null>({
         statusCode: 400,
         errors: [{ code: 'invalid_credentials', message: 'Invalid credentials', type: 0, metadata: null }],
         message: 'Invalid credentials',
-        metadata: null,
-        value: null as any,
-      }
+      })
 
       vi.mocked(authService.login).mockResolvedValue(mockErrorResponse)
 

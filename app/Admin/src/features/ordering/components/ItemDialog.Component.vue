@@ -3,7 +3,12 @@ import { ref } from 'vue';
 import { useProductStore } from '@/features/catalog/products/stores/product.store';
 import { useFormatter } from '@/shared/composables/formatter.use';
 import type { AddOrderItemRequest } from '../types/Order.Request.Type';
+import type { ProductSummary } from '@/features/catalog/products/types/Product.Response.Type';
 import { useI18n } from 'vue-i18n';
+
+interface OrderVariant {
+  id: string; sku: string; price: number; option_values?: { id: string; value: string }[]
+}
 
 const emit = defineEmits<{
     (e: 'save', data: AddOrderItemRequest): void;
@@ -16,12 +21,12 @@ const { formatCurrency } = useFormatter();
 
 const quantity = ref(1);
 const productsLoading = ref(false);
-const productResults = ref<any[]>([]);
-const selectedProduct = ref<any>(null);
+const productResults = ref<ProductSummary[]>([]);
+const selectedProduct = ref<ProductSummary | null>(null);
 
 // Variant Selection
 const showVariantList = ref(false);
-const currentProductVariants = ref<any[]>([]);
+const currentProductVariants = ref<OrderVariant[]>([]);
 
 const onSearchProduct = async (event: { query: string }) => {
     productsLoading.value = true;
@@ -36,12 +41,12 @@ const onSearchProduct = async (event: { query: string }) => {
     }
 };
 
-const onProductSelect = async (product: any) => {
+const onProductSelect = async (product: ProductSummary) => {
     productsLoading.value = true;
     try {
         await productStore.fetchProductById(product.id);
-        if (productStore.current_product && (productStore.current_product as any).variants) {
-             currentProductVariants.value = (productStore.current_product as any).variants;
+        if (productStore.current_product) {
+             currentProductVariants.value = productStore.current_product.variants as unknown as OrderVariant[];
              showVariantList.value = true;
         }
     } finally {
@@ -49,7 +54,7 @@ const onProductSelect = async (product: any) => {
     }
 };
 
-const onSelectVariant = (variant: any) => {
+const onSelectVariant = (variant: OrderVariant) => {
     emit('save', {
         variantId: variant.id,
         quantity: quantity.value

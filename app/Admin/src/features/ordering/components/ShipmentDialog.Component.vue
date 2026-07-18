@@ -3,7 +3,7 @@ import { ref, computed } from 'vue';
 import { useToast } from '@/shared/composables/toast.use';
 import { orderService } from '../services/order.service';
 import LocationSelector from '@/features/inventories/components/LocationSelector.Component.vue';
-import type { OrderDetail } from '../types/Order.Response.Type';
+import type { OrderDetail, LineItemDetail, InventoryUnitDetail } from '../types/Order.Response.Type';
 import type { CreateShipmentRequest } from '../types/Order.Request.Type';
 import { useI18n } from 'vue-i18n';
 
@@ -25,17 +25,15 @@ const selectedUnitIds = ref<string[]>([]);
 // InventoryUnitDetail: { id, sku, state, pending }
 // We assume pending means not shipped yet.
 const availableUnits = computed(() => {
-    const units: any[] = [];
+    const units: InventoryUnitDetail[] = [];
     if (!props.order.lineItems) return [];
     
-    props.order.lineItems.forEach((item: any) => {
-        if (item.inventory_units) {
-            item.inventory_units.forEach((unit: any) => {
-                if (unit.state !== 'Shipped' && unit.state !== 'Canceled') {
-                    units.push(unit);
-                }
-            });
-        }
+    props.order.lineItems.forEach((item: LineItemDetail) => {
+        item.inventoryUnits.forEach((unit: InventoryUnitDetail) => {
+            if (unit.state !== 'Shipped' && unit.state !== 'Canceled') {
+                units.push(unit);
+            }
+        });
     });
     return units; 
 });

@@ -30,4 +30,8 @@ export const countryRepository = {
     const res = await apiClient.delete(path(id))
     return res.data as ServerResult<void>
   },
+  async getByIso(isoCode: string): Promise<ServerResult<Country>> {
+    const res = await apiClient.get(path(`by-iso/${isoCode}`))
+    return res.data as ServerResult<Country>
+  },
 }

@@ -1,8 +1,5 @@
 import { userRepository } from '../repositories/user.repository'
-import type { ServerQueryingParameters } from '@/shared/api/types/query.types'
 import type { ServerResult } from '@/shared/api/types/result.types'
-import type { AdminUserSummary, CustomerSummary } from '../types/User.Response.Type'
-import type { CreateAdminUserRequest, UpdateAdminUserRequest } from '../types/User.Request.Type'
 
 export const userService = {
   list: userRepository.list,

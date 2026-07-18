@@ -13,6 +13,7 @@ import PageShell from '@/shared/components/PageShell.Component.vue'
 import { OptionValueSchema } from '../schemas/OptionValue.Schema'
 import { FilterMatchMode, FilterOperator } from '@primevue/core/api'
 import type { DataTablePageEvent, DataTableSortEvent, DataTableFilterMeta } from 'primevue/datatable'
+import { getFilterValue } from '@/shared/api/types/filter.types'
 import { useToast } from '@/shared/composables/toast.use'
 import { useConfirm } from 'primevue/useconfirm'
 import { useApiErrorHandler } from '@/shared/composables/api-error-handler.use'
@@ -65,7 +66,7 @@ const openNew = () => {
     editingId.value = null
     resetFormFields()
     
-    const activeFilterId = (filters.value.optionTypeId as { value: any }).value
+    const activeFilterId = getFilterValue(filters.value, 'optionTypeId') as string | null
     if (activeFilterId) {
         optionTypeId.value = activeFilterId
     } else if (optionTypes.value.length > 0 && optionTypes.value[0]) {
@@ -140,9 +141,9 @@ const onSort = (event: DataTableSortEvent) => {
 }
 
 const onFilter = () => {
-  const globalFilter = filters.value.global as { value: string | null }
+  const globalValue = getFilterValue(filters.value, 'global') as string | null
   const nameFilter = filters.value.name as { constraints: { value: string | null }[] }
-  const typeFilterValue = (filters.value.optionTypeId as { value: any }).value
+  const typeFilterValue = getFilterValue(filters.value, 'optionTypeId') as string | null
 
   const builder = new QueryBuilder()
   
@@ -153,8 +154,8 @@ const onFilter = () => {
   const built = builder.build()
   
   store.fetchList({
-    search: globalFilter.value || undefined,
-    searchFields: globalFilter.value ? ['Name', 'Presentation'] : undefined,
+    search: globalValue || undefined,
+    searchFields: globalValue ? ['Name', 'Presentation'] : undefined,
     filter: built.filter,
     optionTypeId: typeFilterValue || undefined,
     page: 1
@@ -190,7 +191,7 @@ const confirmDelete = (item: OptionValueListItem) => {
 }
 
 watch(() => route.query.optionTypeId, (newVal) => {
-    if (newVal && newVal !== (filters.value.optionTypeId as any).value) {
+    if (newVal && newVal !== getFilterValue(filters.value, 'optionTypeId')) {
         filters.value.optionTypeId = { value: newVal as string, matchMode: FilterMatchMode.EQUALS }
         onFilter()
     }
@@ -242,14 +243,14 @@ onMounted(() => {
                 <IconField iconPosition="left" class="w-full md:w-64">
                 <InputIcon class="pi pi-search" />
                 <InputText 
-                    v-model="(filters.global as any).value" 
+                    v-model="(filters.global as { value: string | null }).value" 
                     :placeholder="t('catalog.option_values.placeholders.search')" 
                     @keyup.enter="onFilter" 
                     class="w-full rounded-xl"
                 />
                 </IconField>
                 <Select 
-                    v-model="(filters.optionTypeId as any).value" 
+                    v-model="(filters.optionTypeId as { value: string | null }).value" 
                     :options="optionTypes" 
                     optionLabel="label" 
                     optionValue="value" 

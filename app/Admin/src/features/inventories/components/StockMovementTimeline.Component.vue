@@ -2,6 +2,7 @@
 import { ref, onMounted } from 'vue';
 import { inventoryService } from '../services/inventory.service';
 import type { StockMovement } from '../types/StockMovement.Response.Type';
+import type { ServerQueryingParameters } from '@/shared/api/types/query.types';
 import { useFormatter } from '@/shared/composables/formatter.use';
 
 const props = defineProps<{
@@ -19,7 +20,7 @@ const fetchMovements = async () => {
     }
     loading.value = true;
     try {
-        const res = await inventoryService.listMovements({ pageSize: 50 } as any);
+        const res = await inventoryService.listMovements({ pageSize: 50 } as ServerQueryingParameters);
         if (res.isSuccess && res.items) {
             movements.value = res.items;
         }

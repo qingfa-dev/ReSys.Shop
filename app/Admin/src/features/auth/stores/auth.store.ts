@@ -53,7 +53,7 @@ export const useAuthStore = defineStore('auth', () => {
 
     async function logout(): Promise<ServerResult<void>> {
         loading.value = true;
-        let result: ServerResult<void> = { isSuccess: true, statusCode: 200, errors: [], message: null, metadata: null, value: undefined as any };
+        let result: ServerResult<void> = { isSuccess: true, statusCode: 200, errors: [], message: null, metadata: null, value: undefined as never };
 
         try {
             // Attempt server-side logout
@@ -62,7 +62,7 @@ export const useAuthStore = defineStore('auth', () => {
             }
         } catch (e) {
             console.error('Logout failed', e);
-            result = { isSuccess: false, statusCode: 500, errors: [{ code: 'logout_failed', message: 'Logout Failed', type: 0, metadata: null }], message: 'Logout Failed', metadata: null, value: null as any };
+            result = { isSuccess: false, statusCode: 500, errors: [{ code: 'logout_failed', message: 'Logout Failed', type: 0, metadata: null }], message: 'Logout Failed', metadata: null, value: null as never };
         } finally {
             clearTokens();
             loading.value = false;

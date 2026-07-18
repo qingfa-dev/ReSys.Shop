@@ -28,7 +28,7 @@ const roles = [
     { label: t('catalog.products.images.roles.search'), value: 4, desc: t('catalog.products.images.roles.desc_search') }
 ];
 
-const getRoleLabel = (roleVal: any) => {
+const getRoleLabel = (roleVal: number | string) => {
     if (typeof roleVal === 'string') return roleVal;
     const r = roles.find(x => x.value === roleVal);
     return r ? r.label : t('catalog.products.images.roles.gallery');

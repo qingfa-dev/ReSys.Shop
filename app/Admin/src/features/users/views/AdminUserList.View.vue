@@ -10,6 +10,7 @@ import PageShell from '@/shared/components/PageShell.Component.vue';
 import PageHeader from '@/shared/components/PageHeader.Component.vue';
 import { FilterMatchMode } from '@primevue/core/api';
 import type { DataTablePageEvent, DataTableSortEvent, DataTableFilterMeta } from 'primevue/datatable';
+import { getFilterValue } from '@/shared/api/types/filter.types';
 import type { AdminUserSummary } from '../types/User.Response.Type';
 
 const store = useUserStore();
@@ -46,10 +47,10 @@ const onSort = (event: DataTableSortEvent) => {
 };
 
 const onFilter = () => {
-    const globalFilter = filters.value.global as { value: string | null };
+    const globalValue = getFilterValue(filters.value, 'global') as string | null;
     store.fetchAdmins({
-        search: globalFilter.value || undefined,
-        searchFields: globalFilter.value ? ['UserName', 'Email', 'FirstName', 'LastName'] : undefined,
+        search: globalValue || undefined,
+        searchFields: globalValue ? ['UserName', 'Email', 'FirstName', 'LastName'] : undefined,
         page: 1,
     });
 };
@@ -117,7 +118,7 @@ const confirmDelete = (user: AdminUserSummary) => {
               <IconField iconPosition="left" class="w-full md:w-72">
                 <InputIcon class="pi pi-search" />
                 <InputText
-                  v-model="(filters.global as any).value"
+                  v-model="(filters.global as { value: string | null }).value"
                   :placeholder="t('users.placeholders.search')"
                   @keyup.enter="onFilter"
                   class="w-full rounded-xl"

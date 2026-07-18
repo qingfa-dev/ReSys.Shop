@@ -22,7 +22,7 @@ export const useOptionValueStore = defineStore('option-value', () => {
 
   async function fetchValues(optionTypeId: string, queryParams?: Partial<OptionValueQuery>) {
     loading.value = true;
-    const result = await optionValueService.list({ ...queryParams, optionTypeId } as any);
+    const result = await optionValueService.list({ ...queryParams, optionTypeId } as OptionValueQuery);
     if (result.isSuccess) {
       values.value = result.items;
       values.value.sort((a, b) => a.position - b.position);

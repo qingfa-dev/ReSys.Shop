@@ -9,6 +9,7 @@ import { useI18n } from 'vue-i18n';
 import PageShell from '@/shared/components/PageShell.Component.vue';
 import PageHeader from '@/shared/components/PageHeader.Component.vue';
 import type { StockTransferDetail } from '../types/StockTransfer.Response.Type';
+import type { ProductSummary } from '@/features/catalog/products/types/Product.Response.Type';
 
 const { t } = useI18n();
 
@@ -26,8 +27,8 @@ const processing = ref(false);
 
 // Add Item Logic
 const itemDialog = ref(false);
-const selectedProduct = ref<any>(null);
-const productResults = ref<any[]>([]);
+const selectedProduct = ref<ProductSummary | null>(null);
+const productResults = ref<ProductSummary[]>([]);
 const quantity = ref(1);
 
 async function loadTransfer() {

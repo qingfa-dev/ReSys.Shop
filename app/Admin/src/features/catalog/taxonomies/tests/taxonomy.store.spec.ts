@@ -5,6 +5,8 @@ import { setActivePinia, createPinia } from 'pinia';
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { useTaxonomyStore } from '../stores/taxonomy.store';
 import { taxonomyService } from '../services/taxonomy.service';
+import { createMockResult } from '@/shared/test/mock-types';
+import type { TaxonomyListItem } from '../types/Taxonomy.Response.Type';
 
 vi.mock('../services/taxonomy.service', () => ({
   taxonomyService: {
@@ -37,16 +39,9 @@ describe('TaxonomyStore', () => {
 
   it('updates state after successful fetch', async () => {
     const store = useTaxonomyStore();
-    const mockData = [{ id: '1', name: 'Categories' }] as any;
+    const mockData: TaxonomyListItem[] = [{ id: '1', name: 'Categories', presentation: null, position: 1, taxonsCount: 0, createdAtUtc: '', modifiedAtUtc: '' }];
     
-    vi.mocked(taxonomyService.list).mockResolvedValue({
-      isSuccess: true,
-      value: mockData,
-      statusCode: 200,
-      errors: [],
-      message: null,
-      metadata: null,
-    } as any);
+    vi.mocked(taxonomyService.list).mockResolvedValue(createMockResult(mockData));
 
     await store.fetchTaxonomies();
 

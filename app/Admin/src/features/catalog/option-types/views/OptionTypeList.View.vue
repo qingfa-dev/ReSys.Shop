@@ -6,6 +6,7 @@ import { useOptionTypeStore } from '../stores/option-type.store'
 import { storeToRefs } from 'pinia'
 import { FilterMatchMode, FilterOperator } from '@primevue/core/api'
 import type { DataTablePageEvent, DataTableSortEvent, DataTableFilterMeta } from 'primevue/datatable'
+import { getFilterValue } from '@/shared/api/types/filter.types'
 import { useToast } from '@/shared/composables/toast.use'
 import { useConfirm } from 'primevue/useconfirm'
 import PageShell from '@/shared/components/PageShell.Component.vue'
@@ -46,7 +47,7 @@ const onSort = (event: DataTableSortEvent) => {
 }
 
 const onFilter = () => {
-  const globalFilter = filters.value.global as { value: string | null }
+  const globalValue = getFilterValue(filters.value, 'global') as string | null
   const nameFilter = filters.value.name as { constraints: { value: string | null }[] }
   const presentationFilter = filters.value.presentation as { constraints: { value: string | null }[] }
 
@@ -63,8 +64,8 @@ const onFilter = () => {
   const built = builder.build()
   
   store.fetchList({
-    search: globalFilter.value || undefined,
-    searchFields: globalFilter.value ? ['Name', 'Presentation'] : undefined,
+    search: globalValue || undefined,
+    searchFields: globalValue ? ['Name', 'Presentation'] : undefined,
     filter: built.filter,
     page: 1
   })
@@ -152,7 +153,7 @@ onMounted(() => {
             <IconField iconPosition="left" class="w-full md:w-72">
               <InputIcon class="pi pi-search" />
               <InputText 
-                v-model="(filters.global as any).value" 
+                v-model="(filters.global as { value: string | null }).value" 
                 placeholder="Search..." 
                 @keyup.enter="onFilter" 
                 class="w-full rounded-xl"

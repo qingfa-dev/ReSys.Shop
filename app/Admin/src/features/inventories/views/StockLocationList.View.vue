@@ -4,6 +4,7 @@ import { useInventoryStore } from '../stores/inventory.store';
 import { storeToRefs } from 'pinia';
 import { useRouter } from 'vue-router';
 import { useI18n } from 'vue-i18n';
+import type { TreeNode } from 'primevue/tree'
 
 const { t } = useI18n();
 
@@ -72,7 +73,7 @@ const onToggleStatus = async (id: string, current: boolean) => {
 
         <!-- Tree View -->
         <div v-else class="flex-1 overflow-hidden border shadow-sm bg-surface-0 dark:bg-surface-900 rounded-3xl border-surface-100 dark:border-surface-800">
-            <TreeTable :value="locationTree as any" class="p-treetable-sm h-full" scrollable scrollHeight="flex">
+            <TreeTable :value="locationTree as TreeNode[]" class="p-treetable-sm h-full" scrollable scrollHeight="flex">
                 <Column field="name" :header="t('inventory.table.location_name')" expander></Column>
                 <Column field="code" :header="t('inventory.table.code')">
                     <template #body="{ node }">

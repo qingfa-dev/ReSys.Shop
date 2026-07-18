@@ -100,18 +100,20 @@ public static class ProfileFeature
         {
             private const string BaseRoute = $"{StoreRoute}/notification-preferences";
 
-            public static class Get
+        public static class Get
             {
                 public const string Route = BaseRoute;
-                public const string Description = "Retrieve the authenticated user's notification preferences";
-                public const string Summary = "Get notification preferences";
+                public const string Description = "Retrieve the authenticated user's profile";
+                public const string Summary = "Get profile";
+                public static PermissionMetadata Permission => ProfileFeatureMetadata.UserProfile.Read;
             }
 
-            public static class Update
+        public static class Update
             {
                 public const string Route = BaseRoute;
-                public const string Description = "Update the authenticated user's notification preferences";
-                public const string Summary = "Update notification preferences";
+                public const string Description = "Update the authenticated user's profile";
+                public const string Summary = "Update profile";
+                public static PermissionMetadata Permission => ProfileFeatureMetadata.UserProfile.Update;
             }
         }
 
@@ -133,11 +135,12 @@ public static class ProfileFeature
                 public const string Summary = "Get wishlist by ID";
             }
 
-            public static class Create
+        public static class Create
             {
                 public const string Route = BaseRoute;
-                public const string Description = "Create a new wishlist";
-                public const string Summary = "Create wishlist";
+                public const string Description = "Create a new profile for the authenticated user";
+                public const string Summary = "Create profile";
+                public static PermissionMetadata Permission => ProfileFeatureMetadata.UserProfile.Create;
             }
 
             public static class Update
@@ -183,6 +186,7 @@ public static class ProfileFeature
                 public const string Route = BaseRoute;
                 public const string Description = "Retrieve the authenticated user's profile";
                 public const string Summary = "Get profile";
+                public static PermissionMetadata Permission => ProfileFeatureMetadata.UserProfile.Read;
             }
 
             public static class GetAll
@@ -198,6 +202,7 @@ public static class ProfileFeature
                 public const string Route = BaseRoute;
                 public const string Description = "Create a new profile for the authenticated user";
                 public const string Summary = "Create profile";
+                public static PermissionMetadata Permission => ProfileFeatureMetadata.UserProfile.Create;
             }
 
             public static class Update
@@ -205,6 +210,7 @@ public static class ProfileFeature
                 public const string Route = BaseRoute;
                 public const string Description = "Update the authenticated user's profile";
                 public const string Summary = "Update profile";
+                public static PermissionMetadata Permission => ProfileFeatureMetadata.UserProfile.Update;
             }
 
             public static class Delete
@@ -212,6 +218,7 @@ public static class ProfileFeature
                 public const string Route = BaseRoute;
                 public const string Description = "Deactivate the authenticated user's profile";
                 public const string Summary = "Delete profile";
+                public static PermissionMetadata Permission => ProfileFeatureMetadata.UserProfile.Delete;
             }
         }
 
