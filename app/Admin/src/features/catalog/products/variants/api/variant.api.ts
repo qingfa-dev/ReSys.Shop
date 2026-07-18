@@ -1,8 +1,8 @@
 import apiClient from '@/shared/api/http/api.client'
 import { CATALOG } from '@/shared/api/constants'
 import type { ServerResult } from '@/shared/api/types/result.types'
-import type { VariantDetail, VariantSummary } from '../types/Variant.Response.Type'
-import type { CreateVariantRequest, UpdateVariantRequest } from '../types/Variant.Request.Type'
+import type { VariantDetail, VariantSummary } from '../../types/Variant.Response.Type'
+import type { CreateVariantRequest, UpdateVariantRequest } from '../../types/Variant.Request.Type'
 
 interface PriceRecord {
   id: string

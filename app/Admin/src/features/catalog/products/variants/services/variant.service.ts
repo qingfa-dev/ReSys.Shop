@@ -1,4 +1,4 @@
-import { variantRepository } from '../repositories/variant.repository'
+import { variantRepository } from '../api/variant.api'
 
 export const variantService = {
     getById: variantRepository.getById,
