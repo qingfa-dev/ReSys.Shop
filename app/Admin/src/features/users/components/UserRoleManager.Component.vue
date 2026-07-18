@@ -2,7 +2,7 @@
 import { ref, onMounted } from 'vue';
 import { useToast } from '@/shared/composables/toast.use';
 import { useI18n } from 'vue-i18n';
-import { roleService } from '../services/role.service';
+import { roleService } from '../roles/services/role.service';
 import { userService } from '../services/user.service';
 import type { RoleSummary } from '../roles/types/Role.Response.Type';
 

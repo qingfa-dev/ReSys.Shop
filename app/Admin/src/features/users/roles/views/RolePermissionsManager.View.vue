@@ -5,8 +5,8 @@ import { useToast } from '@/shared/composables/toast.use';
 import { useI18n } from 'vue-i18n';
 import PageShell from '@/shared/components/PageShell.Component.vue'
 import PageHeader from '@/shared/components/PageHeader.Component.vue'
-import { roleService } from '../../services/role.service';
-import { permissionService } from '../../services/permission.service';
+import { roleService } from '../services/role.service';
+import { permissionService } from '../../permissions/services/permission.service';
 import type { PermissionSummary } from '../../permissions/types/Permission.Response.Type';
 
 const route = useRoute();

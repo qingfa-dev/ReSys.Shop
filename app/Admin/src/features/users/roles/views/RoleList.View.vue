@@ -4,7 +4,7 @@ import { useRouter } from 'vue-router';
 import { useToast } from '@/shared/composables/toast.use';
 import { useConfirm } from 'primevue/useconfirm';
 import { useI18n } from 'vue-i18n';
-import { roleService } from '../../services/role.service';
+import { roleService } from '../services/role.service';
 import PageShell from '@/shared/components/PageShell.Component.vue';
 import PageHeader from '@/shared/components/PageHeader.Component.vue';
 import type { RoleSummary } from '../types/Role.Response.Type';

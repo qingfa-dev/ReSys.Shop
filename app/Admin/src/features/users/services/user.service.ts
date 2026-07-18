@@ -1,4 +1,4 @@
-import { userRepository } from '../repositories/user.repository'
+import { userRepository } from '../api/user.api'
 import type { ServerResult } from '@/shared/api/types/result.types'
 
 export const userService = {

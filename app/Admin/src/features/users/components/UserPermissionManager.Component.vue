@@ -2,7 +2,7 @@
 import { ref, onMounted } from 'vue';
 import { useToast } from '@/shared/composables/toast.use';
 import { useI18n } from 'vue-i18n';
-import { permissionService } from '../services/permission.service';
+import { permissionService } from '../permissions/services/permission.service';
 import { userService } from '../services/user.service';
 import type { PermissionSummary } from '../permissions/types/Permission.Response.Type';
 
