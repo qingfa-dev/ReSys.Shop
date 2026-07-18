@@ -7,13 +7,16 @@ import { useFormatter } from '@/shared/composables/formatter.use';
 import { useApiErrorHandler } from '@/shared/composables/api-error-handler.use';
 import { useConfirm } from 'primevue/useconfirm';
 import { OrderStatusMap } from '@/shared/utils/enums';
+import { orderService } from '../services/order.service';
 import type { UpdateAddressesRequest, AddOrderItemRequest } from '../types/order.request.type';
 import type { RefundPaymentRequest } from '../../fulfillment/types/fulfillment.request.type';
+import type { OrderLineItem } from '../api/order.api';
 import AddressDialog from '../components/AddressDialog.Component.vue';
 import ItemDialog from '../components/ItemDialog.Component.vue';
 import { useI18n } from 'vue-i18n';
 import PageShell from '@/shared/components/PageShell.Component.vue';
 import PageHeader from '@/shared/components/PageHeader.Component.vue';
+import InputNumber from 'primevue/inputnumber';
 
 const route = useRoute();
 const router = useRouter();
@@ -29,11 +32,29 @@ const cancelReason = ref('');
 const showAddressDialog = ref(false);
 const showItemDialog = ref(false);
 
+const lineItems = ref<OrderLineItem[]>([]);
+const loadingLineItems = ref(false);
+const editingLineItemId = ref<string | null>(null);
+const editingQuantity = ref(1);
+
+async function loadLineItems() {
+  loadingLineItems.value = true;
+  try {
+    const result = await orderService.listLineItems(orderId);
+    if (result.isSuccess) {
+      lineItems.value = result.items;
+    }
+  } finally {
+    loadingLineItems.value = false;
+  }
+}
+
 onMounted(async () => {
     const result = await store.fetchOrderById(orderId);
     if (!result.isSuccess) {
         handleApiResult(result);
     }
+    await loadLineItems();
 });
 
 const onAdvance = async () => {
@@ -56,6 +77,7 @@ const onAddItem = async (data: AddOrderItemRequest) => {
     if (result.isSuccess) {
         showItemDialog.value = false;
         await store.fetchOrderById(orderId);
+        await loadLineItems();
     }
     handleApiResult(result);
 };
@@ -81,6 +103,43 @@ const getStatusSeverity = (status: number) => {
         default: return 'secondary';
     }
 };
+
+const onResume = async () => {
+  const result = await store.resumeOrder(orderId);
+  handleApiResult(result);
+  if (result.isSuccess) await loadLineItems();
+};
+
+function startEditLineItem(lineItem: OrderLineItem) {
+  editingLineItemId.value = lineItem.id;
+  editingQuantity.value = lineItem.quantity;
+}
+
+function cancelEditLineItem() {
+  editingLineItemId.value = null;
+}
+
+async function saveEditLineItem() {
+  if (!editingLineItemId.value) return;
+  const result = await store.updateLineItem(orderId, editingLineItemId.value, { quantity: editingQuantity.value });
+  editingLineItemId.value = null;
+  handleApiResult(result);
+  if (result.isSuccess) await loadLineItems();
+}
+
+async function onRemoveLineItem(lineItemId: string) {
+  confirm.require({
+    message: t('ordering.messages.remove_line_item_confirm'),
+    header: t('ordering.titles.confirm_remove'),
+    icon: 'pi pi-exclamation-triangle',
+    acceptClass: 'p-button-danger',
+    accept: async () => {
+      const result = await store.removeLineItem(orderId, lineItemId);
+      handleApiResult(result);
+      if (result.isSuccess) await loadLineItems();
+    }
+  });
+}
 </script>
 
 <template>
@@ -108,6 +167,15 @@ const getStatusSeverity = (status: number) => {
                     v-if="current_order.status !== 1 && current_order.status !== 2"
                         class="rounded-xl px-6"
                     />
+                <Button
+                    :label="t('ordering.actions.resume_order')"
+                    icon="pi pi-undo"
+                    severity="warn"
+                    outlined
+                    @click="onResume"
+                    v-if="current_order.status === 2"
+                    class="rounded-xl px-6"
+                />
                 </template>
             </PageHeader>
         </template>
@@ -135,8 +203,60 @@ const getStatusSeverity = (status: number) => {
                         </div>
                     </template>
                     <template #content>
-                        <div class="text-center py-8 text-surface-400 italic">
-                            Line items loaded via separate endpoint.
+                        <DataTable :value="lineItems" stripedRows class="text-sm" v-if="lineItems.length">
+                            <Column field="sku" :header="t('ordering.table.sku')" />
+                            <Column field="name" :header="t('ordering.table.product')" />
+                            <Column :header="t('ordering.table.qty')">
+                                <template #body="slotProps">
+                                    <div v-if="editingLineItemId === slotProps.data.id" class="flex items-center gap-2">
+                                        <InputNumber v-model="editingQuantity" :min="1" size="small" style="width: 80px" />
+                                        <Button icon="pi pi-check" size="small" rounded text severity="success" @click="saveEditLineItem" />
+                                        <Button icon="pi pi-times" size="small" rounded text severity="danger" @click="cancelEditLineItem" />
+                                    </div>
+                                    <span v-else>{{ slotProps.data.quantity }}</span>
+                                </template>
+                            </Column>
+                            <Column :header="t('ordering.table.price')">
+                                <template #body="slotProps">
+                                    {{ formatCurrency(slotProps.data.unitPriceCents / 100) }}
+                                </template>
+                            </Column>
+                            <Column header="Total">
+                                <template #body="slotProps">
+                                    <span class="font-bold">{{ formatCurrency(slotProps.data.totalPriceCents / 100) }}</span>
+                                </template>
+                            </Column>
+                            <Column :header="t('ordering.table.actions')">
+                                <template #body="slotProps">
+                                    <div class="flex gap-1">
+                                        <Button
+                                            v-if="editingLineItemId !== slotProps.data.id"
+                                            icon="pi pi-pencil"
+                                            size="small"
+                                            rounded
+                                            text
+                                            severity="secondary"
+                                            @click="startEditLineItem(slotProps.data)"
+                                            :disabled="current_order.status === 2"
+                                        />
+                                        <Button
+                                            icon="pi pi-trash"
+                                            size="small"
+                                            rounded
+                                            text
+                                            severity="danger"
+                                            @click="onRemoveLineItem(slotProps.data.id)"
+                                            :disabled="current_order.status === 2"
+                                        />
+                                    </div>
+                                </template>
+                            </Column>
+                        </DataTable>
+                        <div v-else-if="!loadingLineItems" class="text-center py-8 text-surface-400 italic">
+                            {{ t('ordering.messages.no_items') }}
+                        </div>
+                        <div v-else class="text-center py-8">
+                            <ProgressSpinner style="width: 24px; height: 24px" />
                         </div>
 
                         <div class="flex flex-col gap-3 mt-6 pt-6 border-t border-surface-100 dark:border-surface-800 max-w-sm ml-auto">

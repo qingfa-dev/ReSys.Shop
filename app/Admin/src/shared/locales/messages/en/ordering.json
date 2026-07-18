@@ -12,7 +12,8 @@
     "confirm_cancellation": "Confirm Cancellation",
     "fulfillment_queue": "Fulfillment Queue",
     "dashboard": "Ordering Dashboard",
-    "select_variant": "Select Variant"
+    "select_variant": "Select Variant",
+    "confirm_remove": "Confirm Removal"
   },
   "descriptions": {
     "list": "Manage customer orders, fulfillment and status history.",
@@ -69,7 +70,10 @@
     "add_to_order": "Add Item to Order",
     "update_addresses": "Update Addresses",
     "ship_order": "Ship Order",
-    "create_order": "Create Order"
+    "create_order": "Create Order",
+    "resume_order": "Resume Order",
+    "edit": "Edit",
+    "delete": "Delete"
   },
   "placeholders": {
     "search": "Search by Order # or Customer...",
@@ -96,6 +100,10 @@
     "stock_received": "Stock received at destination",
     "cancel_shipment_confirm": "Are you sure you want to cancel this shipment? Inventory units will be released.",
     "cancel_order_confirm": "Are you sure you want to cancel this order?",
+    "remove_line_item_confirm": "Are you sure you want to remove this item from the order?",
+    "order_resumed": "Order resumed successfully",
+    "line_item_updated": "Line item updated",
+    "line_item_removed": "Line item removed",
     "no_shipping_address": "No shipping address provided.",
     "no_billing_address": "No billing address provided.",
     "no_history": "No history events recorded.",

@@ -117,6 +117,48 @@ export const useOrderStore = defineStore('order', () => {
     return { isSuccess: true, statusCode: 200, errors: [], message: null, metadata: null, value: undefined };
   }
 
+  async function resumeOrder(id: string) {
+    submitting.value = true;
+    try {
+      const result = await orderService.resume(id);
+      if (result.isSuccess) {
+        showToast('success', t('common.success'), t('ordering.messages.order_resumed'));
+        await fetchOrderById(id);
+      }
+      return result;
+    } finally {
+      submitting.value = false;
+    }
+  }
+
+  async function updateLineItem(orderId: string, _lineItemId: string, data: { quantity: number }) {
+    submitting.value = true;
+    try {
+      const result = await orderService.updateLineItem(orderId, _lineItemId, data);
+      if (result.isSuccess) {
+        showToast('success', t('common.success'), t('ordering.messages.line_item_updated'));
+        await fetchOrderById(orderId);
+      }
+      return result;
+    } finally {
+      submitting.value = false;
+    }
+  }
+
+  async function removeLineItem(orderId: string, _lineItemId: string) {
+    submitting.value = true;
+    try {
+      const result = await orderService.removeLineItem(orderId, _lineItemId);
+      if (result.isSuccess) {
+        showToast('success', t('common.success'), t('ordering.messages.line_item_removed'));
+        await fetchOrderById(orderId);
+      }
+      return result;
+    } finally {
+      submitting.value = false;
+    }
+  }
+
   return {
     orders,
     current_order,
@@ -134,6 +176,9 @@ export const useOrderStore = defineStore('order', () => {
     cancelOrder,
     refundPayment,
     cancelShipment,
+    resumeOrder,
+    updateLineItem,
+    removeLineItem,
   };
 
 });

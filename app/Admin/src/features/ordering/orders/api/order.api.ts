@@ -7,7 +7,7 @@ import type { CreateOrderRequest, AddOrderItemRequest, CancelOrderRequest, Updat
 import type { OrderListItemModel, OrderDetailModel } from '../types/order.model.type'
 import { mapOrderListItem, mapOrderDetail } from '../mappers/order.mapper'
 
-interface OrderLineItem {
+export interface OrderLineItem {
   id: string
   orderId: string
   variantId: string
