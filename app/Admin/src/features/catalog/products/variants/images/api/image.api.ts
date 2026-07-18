@@ -29,4 +29,19 @@ export const imageApi = {
     apiClient
       .delete(`${CATALOG}/variants/images/${imageId}`)
       .then((res) => res.data as ServerResult<void>),
+
+  getById: (imageId: string): Promise<ServerResult<VariantImage>> =>
+    apiClient
+      .get(`${CATALOG}/variants/images/${imageId}`)
+      .then((res) => res.data as ServerResult<VariantImage>),
+
+  download: (imageId: string): Promise<Blob> =>
+    apiClient
+      .get(`${CATALOG}/variants/images/${imageId}/download`, { responseType: 'blob' })
+      .then((res) => res.data as Blob),
+
+  generateEmbedding: (imageId: string): Promise<ServerResult<void>> =>
+    apiClient
+      .post(`${CATALOG}/variants/images/${imageId}/embeddings`)
+      .then((res) => res.data as ServerResult<void>),
 };
