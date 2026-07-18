@@ -2,7 +2,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { setActivePinia, createPinia } from 'pinia';
 import { useOptionTypeStore } from '../stores/option-type.store';
 import { optionTypeService } from '../services/option-type.service';
-import { createMockResult, createMockErrorResult } from '@/shared/test/mock-types';
+import { createMockPagedResult, createMockResult, createMockErrorResult } from '@/shared/test/mock-types';
 import type { OptionTypeListItem } from '../types/OptionType.Response.Type';
 
 // Mock service
@@ -28,7 +28,7 @@ describe('OptionTypeStore', () => {
       const mockData = [
         { id: '1', name: 'Color', presentation: 'Color', position: 1, filterable: true }
       ];
-      vi.mocked(optionTypeService.list).mockResolvedValue(createMockResult(mockData));
+      vi.mocked(optionTypeService.list).mockResolvedValue(createMockPagedResult(mockData));
 
       await store.fetchList();
 
@@ -41,7 +41,7 @@ describe('OptionTypeStore', () => {
     it('should handle errors gracefully', async () => {
       const store = useOptionTypeStore();
       vi.mocked(optionTypeService.list).mockResolvedValue(
-        createMockErrorResult<OptionTypeListItem[]>({ statusCode: 500, errors: [{ code: 'Error', message: 'Err', type: 4, metadata: null }], message: 'Err' })
+        createMockErrorResult<OptionTypeListItem[]>({ statusCode: 500, errors: [{ code: 'Error', message: 'Err', type: 4, metadata: null }], message: 'Err' }) as any
       );
 
       await store.fetchList();

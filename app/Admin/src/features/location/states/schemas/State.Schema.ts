@@ -1,10 +1,12 @@
 import { z } from 'zod'
 
-export const StateSchema = z.object({
-  name: z.string().min(1, 'State name is required').max(100, 'State name must not exceed 100 characters'),
-  abbreviation: z.string().min(1, 'Abbreviation is required').max(10, 'Abbreviation must not exceed 10 characters'),
-  countryId: z.string().uuid('Invalid country').min(1, 'Country is required'),
+export function createStateSchema(t: (key: string, args?: Record<string, unknown>) => string) {
+  return z.object({
+  name: z.string().min(1, t('location.validation.name.required')).max(100, t('location.validation.name.max_length')),
+  abbreviation: z.string().min(1, t('location.validation.abbreviation.required')).max(10, t('location.validation.abbreviation.max_length')),
+  countryId: z.string().uuid(t('location.validation.country.invalid')).min(1, t('location.validation.country.required')),
   isActive: z.boolean().default(true),
 })
+}
 
-export type StateParameters = z.infer<typeof StateSchema>
+export type StateParameters = z.infer<ReturnType<typeof createStateSchema>>

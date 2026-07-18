@@ -3,7 +3,7 @@ import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { useFulfillmentStore } from '../stores/fulfillment.store';
 import { fulfillmentService } from '../services/fulfillment.service';
 import { createMockResult, createMockErrorResult } from '@/shared/test/mock-types';
-import type { OrderListItem } from '../../types/Order.Response.Type';
+import type { OrderListItem } from '../../orders/types/Order.Response.Type';
 
 vi.mock('../services/fulfillment.service', () => ({
   fulfillmentService: {

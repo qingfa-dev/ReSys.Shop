@@ -5,7 +5,7 @@ import { setActivePinia, createPinia } from 'pinia';
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { useTaxonomyStore } from '../stores/taxonomy.store';
 import { taxonomyService } from '../services/taxonomy.service';
-import { createMockResult } from '@/shared/test/mock-types';
+import { createMockPagedResult } from '@/shared/test/mock-types';
 import type { TaxonomyListItem } from '../types/Taxonomy.Response.Type';
 
 vi.mock('../services/taxonomy.service', () => ({
@@ -41,7 +41,7 @@ describe('TaxonomyStore', () => {
     const store = useTaxonomyStore();
     const mockData: TaxonomyListItem[] = [{ id: '1', name: 'Categories', presentation: null, position: 1, taxonsCount: 0, createdAtUtc: '', modifiedAtUtc: '' }];
     
-    vi.mocked(taxonomyService.list).mockResolvedValue(createMockResult(mockData));
+    vi.mocked(taxonomyService.list).mockResolvedValue(createMockPagedResult(mockData));
 
     await store.fetchTaxonomies();
 

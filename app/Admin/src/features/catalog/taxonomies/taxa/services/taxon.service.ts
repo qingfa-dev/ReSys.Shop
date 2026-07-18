@@ -1,4 +1,4 @@
-import { taxonRepository } from '../repositories/taxon.repository'
+import { taxonRepository } from '../api/taxon.api'
 import type { ServerResult } from '@/shared/api/types/result.types'
 import type { ProductSummary } from '@/features/catalog/products/types/Product.Response.Type'
 

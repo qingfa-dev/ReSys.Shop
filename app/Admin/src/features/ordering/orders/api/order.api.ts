@@ -1,9 +1,9 @@
 import apiClient from '@/shared/api/http/api.client'
 import { ORDERS } from '@/shared/api/constants'
-import type { ServerResult } from '@/shared/api/types/result.types'
+import type { ServerPagedResult, ServerResult } from '@/shared/api/types/result.types'
 import type { ServerQueryingParameters } from '@/shared/api/types/query.types'
-import type { OrderListItem, OrderDetail } from '../../types/Order.Response.Type'
-import type { CreateOrderRequest, AddOrderItemRequest } from '../../types/Order.Request.Type'
+import type { OrderListItem, OrderDetail } from '../types/Order.Response.Type'
+import type { CreateOrderRequest, AddOrderItemRequest } from '../types/Order.Request.Type'
 
 interface OrderLineItem {
   id: string
@@ -21,8 +21,8 @@ function ordersPath(sub?: string): string {
 }
 
 export const orderRepository = {
-  list(params?: ServerQueryingParameters): Promise<ServerResult<OrderListItem[]>> {
-    return apiClient.get(ordersPath(), { params }).then(res => res.data as ServerResult<OrderListItem[]>)
+  list(params?: ServerQueryingParameters): Promise<ServerPagedResult<OrderListItem>> {
+    return apiClient.get(ordersPath(), { params }).then(res => res.data as ServerPagedResult<OrderListItem>)
   },
   getById(id: string): Promise<ServerResult<OrderDetail>> {
     return apiClient.get(ordersPath(id)).then(res => res.data as ServerResult<OrderDetail>)
@@ -60,8 +60,8 @@ export const orderRepository = {
   updateShippingMethod(id: string, shippingMethodId: string): Promise<ServerResult<void>> {
     return apiClient.put(ordersPath(`${id}/shipping-method`), { shippingMethodId }).then(res => res.data as ServerResult<void>)
   },
-  listLineItems(id: string): Promise<ServerResult<OrderLineItem[]>> {
-    return apiClient.get(ordersPath(`${id}/line-items`)).then(res => res.data as ServerResult<OrderLineItem[]>)
+  listLineItems(id: string): Promise<ServerPagedResult<OrderLineItem>> {
+    return apiClient.get(ordersPath(`${id}/line-items`)).then(res => res.data as ServerPagedResult<OrderLineItem>)
   },
   getLineItemById(id: string, lineItemId: string): Promise<ServerResult<OrderLineItem>> {
     return apiClient.get(ordersPath(`${id}/line-items/${lineItemId}`)).then(res => res.data as ServerResult<OrderLineItem>)

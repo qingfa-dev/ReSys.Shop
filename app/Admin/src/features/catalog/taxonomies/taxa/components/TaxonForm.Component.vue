@@ -3,7 +3,7 @@ import { ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useForm } from 'vee-validate'
 import { toTypedSchema } from '@vee-validate/zod'
-import { TaxonSchema } from '../../schemas/Taxon.Schema'
+import { createTaxonSchema } from '../../schemas/Taxon.Schema'
 import MetadataManager from '@/shared/components/MetadataManager.Component.vue'
 import type { TaxonDetail } from '../types/Taxon.Response.Type'
 
@@ -21,7 +21,7 @@ const emit = defineEmits<{
 }>()
 
 const { defineField, handleSubmit, errors, setValues, resetForm, values: formValues } = useForm({
-  validationSchema: toTypedSchema(TaxonSchema),
+  validationSchema: toTypedSchema(createTaxonSchema(t)),
   initialValues: {
     taxonomyId: props.taxonomyId,
     name: '',

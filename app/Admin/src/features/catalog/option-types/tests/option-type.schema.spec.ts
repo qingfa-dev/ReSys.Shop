@@ -1,5 +1,8 @@
 import { describe, it, expect } from 'vitest';
-import { OptionTypeSchema } from '../schemas/OptionType.Schema';
+import { createOptionTypeSchema } from '../schemas/OptionType.Schema';
+
+const t = (key: string) => key;
+const OptionTypeSchema = createOptionTypeSchema(t);
 
 describe('OptionTypeSchema', () => {
   it('should validate a correct option type', () => {

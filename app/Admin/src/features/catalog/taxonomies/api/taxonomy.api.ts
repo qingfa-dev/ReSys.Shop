@@ -1,6 +1,6 @@
 import apiClient from "@/shared/api/http/api.client";
 import { CATALOG } from "@/shared/api/constants";
-import type { ServerResult } from "@/shared/api/types/result.types";
+import type { ServerPagedResult, ServerResult } from "@/shared/api/types/result.types";
 import type { ServerQueryingParameters } from "@/shared/api/types/query.types";
 import type { TaxonomyDetail, TaxonomyListItem } from "../types/Taxonomy.Response.Type";
 import type {
@@ -9,10 +9,10 @@ import type {
 } from "../types/Taxonomy.Request.Type";
 
 export const taxonomyRepository = {
-  list: (params?: ServerQueryingParameters): Promise<ServerResult<TaxonomyListItem[]>> =>
+  list: (params?: ServerQueryingParameters): Promise<ServerPagedResult<TaxonomyListItem>> =>
     apiClient
       .get(`${CATALOG}/taxonomies`, { params })
-      .then((res) => res.data as ServerResult<TaxonomyListItem[]>),
+      .then((res) => res.data as ServerPagedResult<TaxonomyListItem>),
 
   getById: (id: string): Promise<ServerResult<TaxonomyDetail>> =>
     apiClient

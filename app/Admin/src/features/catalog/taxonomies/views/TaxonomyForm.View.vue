@@ -4,7 +4,7 @@ import { useI18n } from 'vue-i18n'
 import { useRoute, useRouter } from 'vue-router'
 import { useForm } from 'vee-validate'
 import { toTypedSchema } from '@vee-validate/zod'
-import { TaxonomySchema } from '../schemas/Taxonomy.Schema'
+import { createTaxonomySchema } from '../schemas/Taxonomy.Schema'
 import { useTaxonomyStore } from '../stores/taxonomy.store'
 import { useToast } from '@/shared/composables/toast.use'
 
@@ -21,7 +21,7 @@ const itemId = computed(() => route.params.id as string)
 const activeTab = ref(0)
 
 const { defineField, errors, handleSubmit: submitForm, setValues } = useForm({
-  validationSchema: toTypedSchema(TaxonomySchema),
+  validationSchema: toTypedSchema(createTaxonomySchema(t)),
   initialValues: {
     name: '',
     presentation: '',

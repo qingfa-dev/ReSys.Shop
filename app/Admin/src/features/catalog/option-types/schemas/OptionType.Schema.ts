@@ -1,25 +1,27 @@
 import { z } from 'zod'
 
-export const OptionTypeSchema = z.object({
+export function createOptionTypeSchema(t: (key: string, args?: Record<string, unknown>) => string) {
+  return z.object({
   name: z
     .string()
-    .min(1, 'Name is required')
-    .max(100, 'Name must not exceed 100 characters'),
+    .min(1, t('catalog.validation.name.required'))
+    .max(100, t('catalog.validation.name.max_length')),
   presentation: z
     .string()
-    .min(1, 'Presentation is required')
-    .max(100, 'Presentation must not exceed 100 characters'),
+    .min(1, t('catalog.validation.presentation.required'))
+    .max(100, t('catalog.validation.presentation.max_length')),
   description: z
     .string()
-    .max(500, 'Description must not exceed 500 characters')
+    .max(500, t('catalog.validation.description.max_length'))
     .optional()
     .nullable(),
   filterable: z.boolean().default(false),
   position: z
     .number()
-    .int('Position must be a whole number')
-    .min(0, 'Position must be non-negative')
+    .int(t('catalog.validation.position.whole'))
+    .min(0, t('catalog.validation.position.min'))
     .default(0),
 })
+}
 
-export type OptionTypeParameters = z.infer<typeof OptionTypeSchema>
+export type OptionTypeParameters = z.infer<ReturnType<typeof createOptionTypeSchema>>

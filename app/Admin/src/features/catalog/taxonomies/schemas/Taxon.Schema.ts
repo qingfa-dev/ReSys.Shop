@@ -1,11 +1,12 @@
 import { z } from 'zod'
 
-export const TaxonSchema = z.object({
-  taxonomyId: z.string().uuid('Taxonomy is required'),
-  name: z.string().min(1, 'Name is required').max(100),
-  presentation: z.string().min(1, 'Presentation is required').max(100),
+export function createTaxonSchema(t: (key: string, args?: Record<string, unknown>) => string) {
+  return z.object({
+  taxonomyId: z.string().uuid(t('catalog.validation.taxonomy.required')),
+  name: z.string().min(1, t('catalog.validation.name.required')).max(100),
+  presentation: z.string().min(1, t('catalog.validation.presentation.required')).max(100),
   description: z.string().max(500).optional().nullable(),
-  slug: z.string().min(1, 'Slug is required').max(100),
+  slug: z.string().min(1, t('catalog.validation.slug.required')).max(100),
   position: z.number().int().min(0).default(0),
   hideFromNav: z.boolean().default(false),
   parentId: z.string().uuid().optional().nullable(),
@@ -16,5 +17,6 @@ export const TaxonSchema = z.object({
   metaDescription: z.string().max(255).optional().nullable(),
   metaKeywords: z.string().max(255).optional().nullable(),
 })
+}
 
-export type TaxonParameters = z.infer<typeof TaxonSchema>
+export type TaxonParameters = z.infer<ReturnType<typeof createTaxonSchema>>

@@ -1,13 +1,13 @@
 import apiClient from '@/shared/api/http/api.client'
 import { IDENTITY } from '@/shared/api/constants'
-import type { ServerResult } from '@/shared/api/types/result.types'
+import type { ServerPagedResult, ServerResult } from '@/shared/api/types/result.types'
 import type { ServerQueryingParameters } from '@/shared/api/types/query.types'
 import type { RoleSummary } from '../types/Role.Response.Type'
 import type { CreateRoleRequest, UpdateRoleRequest } from '../types/Role.Request.Type'
 
 export const roleRepository = {
-  list: (params?: ServerQueryingParameters): Promise<ServerResult<RoleSummary[]>> =>
-    apiClient.get(`${IDENTITY}/roles`, { params }).then(res => res.data as ServerResult<RoleSummary[]>),
+  list: (params?: ServerQueryingParameters): Promise<ServerPagedResult<RoleSummary>> =>
+    apiClient.get(`${IDENTITY}/roles`, { params }).then(res => res.data as ServerPagedResult<RoleSummary>),
 
   getById: (id: string): Promise<ServerResult<RoleSummary>> =>
     apiClient.get(`${IDENTITY}/roles/${id}`).then(res => res.data as ServerResult<RoleSummary>),

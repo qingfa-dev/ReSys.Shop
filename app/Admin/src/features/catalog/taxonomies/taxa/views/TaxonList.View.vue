@@ -42,8 +42,8 @@ const lazyParams = ref({
 
 const loadItems = async () => {
   const taxResult = await taxonomyStore.fetchTaxonomies({ pageSize: 100 })
-  if (taxResult.isSuccess && taxResult.value) {
-      taxonomies.value = taxResult.value.map(tx => ({ label: tx.presentation || tx.name, value: tx.id }))
+  if (taxResult.isSuccess && taxResult.items) {
+      taxonomies.value = taxResult.items.map(tx => ({ label: tx.presentation || tx.name, value: tx.id }))
   }
 
   await fetchPagedData()

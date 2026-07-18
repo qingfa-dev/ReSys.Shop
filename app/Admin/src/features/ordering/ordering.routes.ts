@@ -13,18 +13,18 @@ export const orderingRoutes: RouteRecordRaw = {
     {
       path: 'orders',
       name: 'ordering.orders.list',
-      component: () => import('@/features/ordering/views/OrderList.View.vue'),
+      component: () => import('@/features/ordering/orders/views/OrderList.View.vue'),
     },
     {
       path: 'orders/create',
       name: 'ordering.orders.create',
-      component: () => import('@/features/ordering/views/OrderForm.View.vue'),
+      component: () => import('@/features/ordering/orders/views/OrderForm.View.vue'),
       meta: { breadcrumb: 'Create Order' },
     },
     {
       path: 'orders/:id',
       name: 'ordering.orders.detail',
-      component: () => import('@/features/ordering/views/OrderDetail.View.vue'),
+      component: () => import('@/features/ordering/orders/views/OrderDetail.View.vue'),
       meta: { breadcrumb: 'Detail' },
     },
     {

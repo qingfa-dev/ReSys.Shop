@@ -7,7 +7,7 @@ import { useTaxonomyStore } from '../../stores/taxonomy.store'
 import { storeToRefs } from 'pinia'
 import { useForm } from 'vee-validate'
 import { toTypedSchema } from '@vee-validate/zod'
-import { TaxonSchema } from '../../schemas/Taxon.Schema'
+import { createTaxonSchema } from '../../schemas/Taxon.Schema'
 import { useApiErrorHandler } from '@/shared/composables/api-error-handler.use'
 import { useToast } from '@/shared/composables/toast.use'
 import MetadataManager from '@/shared/components/MetadataManager.Component.vue'
@@ -38,7 +38,7 @@ const initialLoading = ref(false)
 const previewRef = ref<InstanceType<typeof TaxonProductsPreviewComponent> | null>(null)
 
 const { defineField, handleSubmit, errors, setValues, resetForm, values: formValues } = useForm({
-  validationSchema: toTypedSchema(TaxonSchema),
+  validationSchema: toTypedSchema(createTaxonSchema(t)),
   initialValues: {
     taxonomyId: taxonomyId.value,
     name: '',

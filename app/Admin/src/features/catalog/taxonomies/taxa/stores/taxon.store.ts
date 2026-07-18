@@ -58,10 +58,10 @@ export const useTaxonStore = defineStore("taxon", () => {
     const params: TaxonQuery = { ...query };
     const result = await taxonService.list(taxonomyId, params);
 
-    if (result.isSuccess && result.value) {
-      currentTaxons.value = result.value;
+    if (result.isSuccess && result.items) {
+      currentTaxons.value = result.items;
 
-      totalRecords.value = result.value.length;
+      totalRecords.value = result.totalCount || 0;
     } else if (!result.isSuccess) {
       error.value = result.errors?.[0]?.message || "Failed to fetch taxons";
     }
@@ -134,8 +134,8 @@ export const useTaxonStore = defineStore("taxon", () => {
 
     const result = await taxonService.getRules(taxonomyId, taxonId);
 
-    if (result.isSuccess && result.value) {
-      currentRules.value = result.value;
+    if (result.isSuccess && result.items) {
+      currentRules.value = result.items;
     } else if (!result.isSuccess) {
       error.value = result.errors?.[0]?.message || "Failed to fetch rules";
     }

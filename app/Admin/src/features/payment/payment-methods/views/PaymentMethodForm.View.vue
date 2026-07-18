@@ -1,17 +1,19 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { useRoute, useRouter } from 'vue-router'
 import { usePaymentMethodStore } from '../stores/payment-method.store'
 import { paymentMethodService } from '../services/payment-method.service'
 import { useForm } from 'vee-validate'
 import { toTypedSchema } from '@vee-validate/zod'
-import { PaymentMethodSchema } from '../schemas/PaymentMethod.Schema'
+import { createPaymentMethodSchema } from '../schemas/PaymentMethod.Schema'
 import InputText from 'primevue/inputtext'
 import InputSwitch from 'primevue/inputswitch'
 import InputNumber from 'primevue/inputnumber'
 import Textarea from 'primevue/textarea'
 import Button from 'primevue/button'
 
+const { t } = useI18n()
 const route = useRoute()
 const router = useRouter()
 const store = usePaymentMethodStore()
@@ -19,7 +21,7 @@ const isEdit = !!route.params.id
 const submitting = ref(false)
 
 const { handleSubmit, errors } = useForm({
-  validationSchema: toTypedSchema(PaymentMethodSchema),
+  validationSchema: toTypedSchema(createPaymentMethodSchema(t)),
 })
 
 onMounted(async () => {

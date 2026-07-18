@@ -1,4 +1,4 @@
-import { profileRepository } from '../repositories/profile.repository'
+import { profileRepository } from '../api/profile.api'
 import { mapProfileResponse } from '../mappers/profile.mapper'
 import type { ServerResult } from '@/shared/api/types/result.types'
 import type { Profile } from '../types/Profile.Response.Type'

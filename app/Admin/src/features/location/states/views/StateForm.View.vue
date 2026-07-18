@@ -2,7 +2,7 @@
 import { watch } from 'vue'
 import { useForm } from 'vee-validate'
 import { toTypedSchema } from '@vee-validate/zod'
-import { StateSchema as stateCreateSchema } from '../schemas/State.Schema'
+import { createStateSchema } from '../schemas/State.Schema'
 import { useStateStore } from '../stores/state.store'
 import { useCountryStore } from '../../countries/stores/country.store'
 import { useToast } from '@/shared/composables/toast.use'
@@ -30,7 +30,7 @@ const { items: countries } = storeToRefs(countryStore)
 const { showToast } = useToast()
 
 const { defineField, errors, handleSubmit: submitForm, setValues, resetForm } = useForm({
-  validationSchema: toTypedSchema(stateCreateSchema),
+  validationSchema: toTypedSchema(createStateSchema(t)),
   initialValues: {
     name: '',
     abbreviation: '',

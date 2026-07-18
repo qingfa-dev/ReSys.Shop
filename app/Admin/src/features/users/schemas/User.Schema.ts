@@ -1,14 +1,16 @@
 import { z } from 'zod'
 
-export const UserSchema = z.object({
-  email: z.string().email('Invalid email format').min(1, 'Email is required').max(255, 'Email must not exceed 255 characters'),
-  firstName: z.string().min(1, 'First name is required').max(100, 'First name must not exceed 100 characters'),
-  lastName: z.string().min(1, 'Last name is required').max(100, 'Last name must not exceed 100 characters'),
-  role: z.array(z.string()).min(1, 'At least one role must be assigned'),
-  password: z.string().min(6, 'Password must be at least 6 characters').max(128, 'Password must not exceed 128 characters').optional(),
-  phoneNumber: z.string().max(30, 'Phone number must not exceed 30 characters').optional(),
+export function createUserSchema(t: (key: string, args?: Record<string, unknown>) => string) {
+  return z.object({
+  email: z.string().email(t('ordering.validation.email.invalid')).min(1, t('ordering.validation.email.required')).max(255, t('users.validation.email.max_length')),
+  firstName: z.string().min(1, t('ordering.validation.first_name.required')).max(100, t('profile.validation.first_name.max_length')),
+  lastName: z.string().min(1, t('ordering.validation.last_name.required')).max(100, t('profile.validation.last_name.max_length')),
+  role: z.array(z.string()).min(1, t('users.validation.roles.min_one')),
+  password: z.string().min(6, t('users.validation.password.min_length')).max(128, t('auth.validation.password.max_length')).optional(),
+  phoneNumber: z.string().max(30, t('profile.validation.phone.max_length')).optional(),
   emailConfirmed: z.boolean().optional(),
   isActive: z.boolean().optional().default(true),
 })
+}
 
-export type UserParameters = z.infer<typeof UserSchema>
+export type UserParameters = z.infer<ReturnType<typeof createUserSchema>>

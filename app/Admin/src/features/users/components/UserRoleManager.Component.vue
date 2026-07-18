@@ -28,8 +28,8 @@ async function loadRoles() {
     loading.value = true;
     try {
         const res = await roleService.list({ pageSize: 100 });
-        if (res.isSuccess && res.value) {
-            const allRoles = res.value;
+        if (res.isSuccess && res.items) {
+            const allRoles = res.items;
             
             // Map names to objects
             selection.value[1] = allRoles.filter((r: RoleSummary) => props.assignedRoles.includes(r.name));

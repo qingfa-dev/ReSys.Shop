@@ -1,8 +1,10 @@
 import { z } from 'zod'
 
-export const ManageClassificationsSchema = z.object({
-  taxonIds: z.array(z.string().uuid('Invalid taxon ID')).min(1, 'At least one taxon must be selected'),
-  mainTaxonId: z.string().uuid('Invalid taxon ID').optional().nullable(),
+export function createManageClassificationsSchema(t: (key: string, args?: Record<string, unknown>) => string) {
+  return z.object({
+  taxonIds: z.array(z.string().uuid(t('catalog.validation.taxon_id.invalid'))).min(1, t('catalog.validation.option_type_ids.min')),
+  mainTaxonId: z.string().uuid(t('catalog.validation.taxon_id.invalid')).optional().nullable(),
 })
+}
 
-export type ManageClassificationsParameters = z.infer<typeof ManageClassificationsSchema>
+export type ManageClassificationsParameters = z.infer<ReturnType<typeof createManageClassificationsSchema>>

@@ -33,9 +33,9 @@ export const useUserStore = defineStore('user', () => {
     query.value = { ...query.value, ...params };
     try {
       const result = await userService.list(query.value);
-      if (result.isSuccess && result.value) {
-        admins.value = result.value;
-        totalRecords.value = result.value.length || 0;
+      if (result.isSuccess && result.items) {
+        admins.value = result.items;
+        totalRecords.value = result.totalCount || 0;
       }
       return result;
     } finally {
@@ -48,9 +48,9 @@ export const useUserStore = defineStore('user', () => {
     query.value = { ...query.value, ...params };
     try {
       const result = await userService.listCustomers(query.value);
-      if (result.isSuccess && result.value) {
-        customers.value = result.value;
-        totalRecords.value = result.value.length || 0;
+      if (result.isSuccess && result.items) {
+        customers.value = result.items;
+        totalRecords.value = result.totalCount || 0;
       }
       return result;
     } finally {

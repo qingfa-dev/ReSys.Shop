@@ -26,8 +26,8 @@ onMounted(async () => {
     try {
         // 1. Get Role details (using list workaround again or I should fix service)
         const rolesRes = await roleService.list({ pageSize: 100 });
-        if (rolesRes.isSuccess && rolesRes.value) {
-            const role = rolesRes.value.find(r => r.id === roleId.value);
+        if (rolesRes.isSuccess && rolesRes.items) {
+            const role = rolesRes.items.find(r => r.id === roleId.value);
             if (role) {
                 roleName.value = role.displayName || role.name;
                 

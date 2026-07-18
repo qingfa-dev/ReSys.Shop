@@ -1,6 +1,6 @@
 import apiClient from "@/shared/api/http/api.client";
 import { CATALOG } from "@/shared/api/constants";
-import type { ServerResult } from "@/shared/api/types/result.types";
+import type { ServerPagedResult, ServerResult } from "@/shared/api/types/result.types";
 import type { ServerQueryingParameters } from "@/shared/api/types/query.types";
 import type {
   TaxonDetail,
@@ -15,10 +15,10 @@ export const taxonRepository = {
   listByTaxonomyId: (
     taxonomyId: string,
     params?: ServerQueryingParameters & { includeLeavesOnly?: boolean },
-  ): Promise<ServerResult<TaxonListItem[]>> =>
+  ): Promise<ServerPagedResult<TaxonListItem>> =>
     apiClient
       .get(`${CATALOG}/taxonomies/${taxonomyId}/taxons`, { params })
-      .then((res) => res.data as ServerResult<TaxonListItem[]>),
+      .then((res) => res.data as ServerPagedResult<TaxonListItem>),
 
   getTree: (taxonomyId: string): Promise<ServerResult<TaxonTreeItem[]>> =>
     apiClient
@@ -63,10 +63,10 @@ export const taxonRepository = {
       .patch(`${CATALOG}/taxonomies/${taxonomyId}/taxons/${taxonId}/restore`)
       .then((res) => res.data as ServerResult<void>),
 
-  listRules: (taxonomyId: string, taxonId: string): Promise<ServerResult<TaxonRuleListItem[]>> =>
+  listRules: (taxonomyId: string, taxonId: string): Promise<ServerPagedResult<TaxonRuleListItem>> =>
     apiClient
       .get(`${CATALOG}/taxonomies/${taxonomyId}/taxons/${taxonId}/rules`)
-      .then((res) => res.data as ServerResult<TaxonRuleListItem[]>),
+      .then((res) => res.data as ServerPagedResult<TaxonRuleListItem>),
 
   createRule: (
     taxonomyId: string,

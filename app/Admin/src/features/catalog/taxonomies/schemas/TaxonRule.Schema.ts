@@ -1,9 +1,11 @@
 import { z } from 'zod'
 
-export const TaxonRuleSchema = z.object({
-  type: z.string().min(1, 'Rule type is required'),
-  value: z.string().min(1, 'Value is required'),
-  matchPolicy: z.string().min(1, 'Match policy is required'),
+export function createTaxonRuleSchema(t: (key: string, args?: Record<string, unknown>) => string) {
+  return z.object({
+  type: z.string().min(1, t('catalog.validation.rule_type.required')),
+  value: z.string().min(1, t('catalog.validation.value.required')),
+  matchPolicy: z.string().min(1, t('catalog.validation.match_policy.required')),
 })
+}
 
-export type TaxonRuleParameters = z.infer<typeof TaxonRuleSchema>
+export type TaxonRuleParameters = z.infer<ReturnType<typeof createTaxonRuleSchema>>

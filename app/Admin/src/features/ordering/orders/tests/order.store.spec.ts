@@ -5,7 +5,7 @@ import { setActivePinia, createPinia } from 'pinia';
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { useOrderStore } from '../stores/order.store';
 import { orderService } from '../services/order.service';
-import { createMockResult } from '@/shared/test/mock-types';
+import { createMockPagedResult, createMockResult } from '@/shared/test/mock-types';
 import type { OrderListItem, OrderDetail } from '../types/Order.Response.Type';
 
 vi.mock('../services/order.service', () => ({
@@ -39,7 +39,7 @@ describe('OrderStore', () => {
       const store = useOrderStore();
       const mockData: OrderListItem[] = [{ id: '1', number: 'ORD-1', state: '', currency: '', totalCents: 0, totalDisplay: '', createdAtUtc: '' }];
       
-      vi.mocked(orderService.list).mockResolvedValue(createMockResult(mockData));
+      vi.mocked(orderService.list).mockResolvedValue(createMockPagedResult(mockData));
 
       await store.fetchOrders();
 

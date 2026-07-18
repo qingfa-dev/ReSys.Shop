@@ -1,16 +1,16 @@
 import apiClient from '@/shared/api/http/api.client'
 import { IDENTITY } from '@/shared/api/constants'
-import type { ServerResult } from '@/shared/api/types/result.types'
+import type { ServerPagedResult, ServerResult } from '@/shared/api/types/result.types'
 import type { ServerQueryingParameters } from '@/shared/api/types/query.types'
 import type { AdminUserSummary, CustomerSummary } from '../types/User.Response.Type'
 import type { CreateAdminUserRequest, UpdateAdminUserRequest } from '../types/User.Request.Type'
 
 export const userRepository = {
-  list: (params?: ServerQueryingParameters): Promise<ServerResult<AdminUserSummary[]>> =>
-    apiClient.get(`${IDENTITY}/users`, { params }).then(res => res.data as ServerResult<AdminUserSummary[]>),
+  list: (params?: ServerQueryingParameters): Promise<ServerPagedResult<AdminUserSummary>> =>
+    apiClient.get(`${IDENTITY}/users`, { params }).then(res => res.data as ServerPagedResult<AdminUserSummary>),
 
-  listCustomers: (params?: ServerQueryingParameters): Promise<ServerResult<CustomerSummary[]>> =>
-    apiClient.get(`${IDENTITY}/users`, { params: { ...params, role: 'Storefront.Customer' } }).then(res => res.data as ServerResult<CustomerSummary[]>),
+  listCustomers: (params?: ServerQueryingParameters): Promise<ServerPagedResult<CustomerSummary>> =>
+    apiClient.get(`${IDENTITY}/users`, { params: { ...params, role: 'Storefront.Customer' } }).then(res => res.data as ServerPagedResult<CustomerSummary>),
 
   getById: (id: string): Promise<ServerResult<AdminUserSummary>> =>
     apiClient.get(`${IDENTITY}/users/${id}`).then(res => res.data as ServerResult<AdminUserSummary>),

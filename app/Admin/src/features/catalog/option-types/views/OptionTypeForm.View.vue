@@ -7,8 +7,8 @@ import { useOptionValueStore } from '@/features/catalog/option-types/option-valu
 import { storeToRefs } from 'pinia'
 import { useForm } from 'vee-validate'
 import { toTypedSchema } from '@vee-validate/zod'
-import { OptionTypeSchema } from '../schemas/OptionType.Schema'
-import { OptionValueSchema } from '@/features/catalog/option-types/option-values/schemas/OptionValue.Schema'
+import { createOptionTypeSchema } from '../schemas/OptionType.Schema'
+import { createOptionValueSchema } from '@/features/catalog/option-types/option-values/schemas/OptionValue.Schema'
 import { useApiErrorHandler } from '@/shared/composables/api-error-handler.use'
 import { useToast } from '@/shared/composables/toast.use'
 import type { OptionValueListItem } from '@/features/catalog/option-types/option-values/types/OptionValue.Response.Type'
@@ -33,7 +33,7 @@ const publicMetadata = ref<Record<string, unknown>>({})
 const privateMetadata = ref<Record<string, unknown>>({})
 
 const { defineField, handleSubmit, errors, setValues, setErrors, values } = useForm({
-  validationSchema: toTypedSchema(OptionTypeSchema),
+  validationSchema: toTypedSchema(createOptionTypeSchema(t)),
   initialValues: {
     name: '',
     presentation: '',
@@ -60,7 +60,7 @@ const {
   setValues: setValueFields,
   resetForm: resetValueForm,
 } = useForm({
-  validationSchema: toTypedSchema(OptionValueSchema),
+  validationSchema: toTypedSchema(createOptionValueSchema(t)),
   initialValues: {
     name: '',
     presentation: '',

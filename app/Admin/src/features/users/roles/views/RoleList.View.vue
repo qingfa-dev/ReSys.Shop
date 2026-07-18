@@ -31,9 +31,9 @@ async function fetchRoles() {
     loading.value = true;
     try {
         const res = await roleService.list(query.value);
-        if (res.isSuccess && res.value) {
-            roles.value = res.value;
-            totalRecords.value = res.value.length || 0;
+        if (res.isSuccess && res.items) {
+            roles.value = res.items;
+            totalRecords.value = res.totalCount || 0;
         }
     } finally {
         loading.value = false;

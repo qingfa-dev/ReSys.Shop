@@ -3,7 +3,7 @@ import { ref, computed } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useToast } from '@/shared/composables/toast.use';
 import { taxonomyService } from '../services/taxonomy.service';
-import { taxonomyRepository } from '../repositories/taxonomy.repository';
+import { taxonomyRepository } from '../api/taxonomy.api';
 import type { TaxonomyListItem, TaxonomyDetail } from '../types/Taxonomy.Response.Type'
 import type { TaxonomyQuery } from '../types/Taxonomy.Query.Type'
 import type { CreateTaxonomyRequest, UpdateTaxonomyRequest } from '../types/Taxonomy.Request.Type'
@@ -37,9 +37,9 @@ export const useTaxonomyStore = defineStore('taxonomy', () => {
 
     try {
       const result = await taxonomyService.list(query.value);
-      if (result.isSuccess && result.value) {
-        taxonomies.value = result.value;
-        totalRecords.value = result.value.length || 0;
+      if (result.isSuccess && result.items) {
+        taxonomies.value = result.items;
+        totalRecords.value = result.totalCount || 0;
       } else if (!result.isSuccess) {
         error.value = result.errors?.[0]?.message || 'Failed to fetch taxonomies';
       }

@@ -1,17 +1,19 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { useRoute, useRouter } from 'vue-router'
 import { useShippingMethodStore } from '../stores/shipping-method.store'
 import { shippingMethodService } from '../services/shipping-method.service'
 import { useForm } from 'vee-validate'
 import { toTypedSchema } from '@vee-validate/zod'
-import { ShippingMethodSchema } from '../schemas/ShippingMethod.Schema'
+import { createShippingMethodSchema } from '../schemas/ShippingMethod.Schema'
 import InputText from 'primevue/inputtext'
 import InputSwitch from 'primevue/inputswitch'
 import InputNumber from 'primevue/inputnumber'
 import Textarea from 'primevue/textarea'
 import Button from 'primevue/button'
 
+const { t } = useI18n()
 const route = useRoute()
 const router = useRouter()
 const store = useShippingMethodStore()
@@ -19,7 +21,7 @@ const isEdit = !!route.params.id
 const submitting = ref(false)
 
 const { handleSubmit, errors } = useForm({
-  validationSchema: toTypedSchema(ShippingMethodSchema),
+  validationSchema: toTypedSchema(createShippingMethodSchema(t)),
 })
 
 onMounted(async () => {

@@ -1,15 +1,17 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { useRoute, useRouter } from 'vue-router'
 import { useShippingRateStore } from '../stores/shipping-rate.store'
 import { shippingRateService } from '../services/shipping-rate.service'
 import { useForm } from 'vee-validate'
 import { toTypedSchema } from '@vee-validate/zod'
-import { ShippingRateSchema } from '../schemas/ShippingRate.Schema'
+import { createShippingRateSchema } from '../schemas/ShippingRate.Schema'
 import InputText from 'primevue/inputtext'
 import InputNumber from 'primevue/inputnumber'
 import Button from 'primevue/button'
 
+const { t } = useI18n()
 const route = useRoute()
 const router = useRouter()
 const store = useShippingRateStore()
@@ -17,7 +19,7 @@ const isEdit = !!route.params.id
 const submitting = ref(false)
 
 const { handleSubmit, errors } = useForm({
-  validationSchema: toTypedSchema(ShippingRateSchema),
+  validationSchema: toTypedSchema(createShippingRateSchema(t)),
 })
 
 onMounted(async () => {

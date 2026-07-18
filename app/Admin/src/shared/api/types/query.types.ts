@@ -1,33 +1,34 @@
 export interface PagingParams {
-  page?: number
-  pageSize?: number
+  page?: number;
+  pageSize?: number;
 }
 
-export type SortDirection = 'asc' | 'desc'
+export type SortDirection = "asc" | "desc";
 
 export interface SortClause {
-  field: string
-  direction?: SortDirection
-  nulls?: 'first' | 'last'
+  field: string;
+  direction?: SortDirection;
+  nulls?: "first" | "last";
 }
 
 export interface SortParams {
-  sort?: string[]
+  sort?: string[];
 }
 
-export type SearchMode = 'any' | 'all'
+export type SearchMode = "any" | "all";
 
 export interface SearchParams {
-  search?: string
-  searchFields?: string[]
-  searchMode?: SearchMode
+  search?: string;
+  searchFields?: string[];
+  searchMode?: SearchMode;
 }
 
 export interface FilterParams {
-  filter?: string
+  filter?: string;
 }
 
-export interface ServerQueryingParameters extends PagingParams, SortParams, SearchParams, FilterParams {}
+export interface ServerQueryingParameters
+  extends PagingParams, SortParams, SearchParams, FilterParams {}
 
 /** @deprecated Use `ServerQueryingParameters` instead */
-export type QueryParams = ServerQueryingParameters
+export type QueryParams = ServerQueryingParameters;

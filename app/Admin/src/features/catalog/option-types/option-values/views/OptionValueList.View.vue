@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted, ref, watch, computed } from 'vue'
+import { onMounted, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRoute, useRouter } from 'vue-router'
 import { useOptionValueStore } from '@/features/catalog/option-types/option-values/stores/option-value.store'
@@ -10,7 +10,7 @@ import { toTypedSchema } from '@vee-validate/zod'
 import { z } from 'zod'
 import PageHeader from '@/shared/components/PageHeader.Component.vue'
 import PageShell from '@/shared/components/PageShell.Component.vue'
-import { OptionValueSchema } from '../schemas/OptionValue.Schema'
+import { createOptionValueSchema } from '../schemas/OptionValue.Schema'
 import { FilterMatchMode, FilterOperator } from '@primevue/core/api'
 import type { DataTablePageEvent, DataTableSortEvent, DataTableFilterMeta } from 'primevue/datatable'
 import { getFilterValue } from '@/shared/api/types/filter.types'
@@ -31,22 +31,22 @@ const { showToast } = useToast()
 const { handleApiResult } = useApiErrorHandler()
 const confirm = useConfirm()
 
-const optionTypes = ref<{label: string, value: string}[]>([])
+const optionTypes = ref<{ label: string, value: string }[]>([])
 
 const showDialog = ref(false)
 const isEditing = ref(false)
 const editingId = ref<string | null>(null)
 const submitting = ref(false)
 
-const { 
-  defineField, 
-  handleSubmit: handleFormSubmit, 
-  errors: formErrors, 
-  setValues: setFormValues, 
+const {
+  defineField,
+  handleSubmit: handleFormSubmit,
+  errors: formErrors,
+  setValues: setFormValues,
   resetForm: resetFormFields
 } = useForm({
-  validationSchema: toTypedSchema(OptionValueSchema.extend({
-      optionTypeId: z.string().min(1, 'Option type is required')
+  validationSchema: toTypedSchema(createOptionValueSchema(t).extend({
+    optionTypeId: z.string().min(1, 'Option type is required')
   })),
   initialValues: {
     name: '',
@@ -62,46 +62,46 @@ const [position] = defineField('position')
 const [optionTypeId] = defineField('optionTypeId')
 
 const openNew = () => {
-    isEditing.value = false
-    editingId.value = null
-    resetFormFields()
-    
-    const activeFilterId = getFilterValue(filters.value, 'optionTypeId') as string | null
-    if (activeFilterId) {
-        optionTypeId.value = activeFilterId
-    } else if (optionTypes.value.length > 0 && optionTypes.value[0]) {
-        optionTypeId.value = optionTypes.value[0].value
-    }
-    
-    showDialog.value = true
+  isEditing.value = false
+  editingId.value = null
+  resetFormFields()
+
+  const activeFilterId = getFilterValue(filters.value, 'optionTypeId') as string | null
+  if (activeFilterId) {
+    optionTypeId.value = activeFilterId
+  } else if (optionTypes.value.length > 0 && optionTypes.value[0]) {
+    optionTypeId.value = optionTypes.value[0].value
+  }
+
+  showDialog.value = true
 }
 
 const openEdit = (val: OptionValueListItem) => {
-    isEditing.value = true
-    editingId.value = val.id
-    setFormValues({
-        name: val.name,
-        presentation: val.presentation,
-        position: val.position,
-        optionTypeId: val.optionTypeId
-    })
-    showDialog.value = true
+  isEditing.value = true
+  editingId.value = val.id
+  setFormValues({
+    name: val.name,
+    presentation: val.presentation,
+    position: val.position,
+    optionTypeId: val.optionTypeId
+  })
+  showDialog.value = true
 }
 
 const onFormSubmit = handleFormSubmit(async (values) => {
-    submitting.value = true
-    const result = isEditing.value && editingId.value
-        ? await store.update(editingId.value, values)
-        : await store.create(values.optionTypeId, values)
-    
-    if (result.isSuccess) {
-        showToast('success', t('common.success'), isEditing.value ? t('catalog.option_values.messages.update_success') : t('catalog.option_values.messages.create_success'))
-        showDialog.value = false
-        store.fetchList()
-    } else {
-        handleApiResult(result)
-    }
-    submitting.value = false
+  submitting.value = true
+  const result = isEditing.value && editingId.value
+    ? await store.update(editingId.value, values)
+    : await store.create(values.optionTypeId, values)
+
+  if (result.isSuccess) {
+    showToast('success', t('common.success'), isEditing.value ? t('catalog.option_values.messages.update_success') : t('catalog.option_values.messages.create_success'))
+    showDialog.value = false
+    store.fetchList()
+  } else {
+    handleApiResult(result)
+  }
+  submitting.value = false
 })
 
 const filters = ref<DataTableFilterMeta>({
@@ -114,14 +114,14 @@ const loadItems = async () => {
   const typesResult = await typeStore.fetchList({ pageSize: 100 })
   const data = typesResult.isSuccess ? 'items' in typesResult ? typesResult.items : typesResult.value : []
   if (data) {
-      optionTypes.value = data.map(t => ({ label: t.presentation || t.name, value: t.id }))
+    optionTypes.value = data.map(t => ({ label: t.presentation || t.name, value: t.id }))
   }
 
   if (route.query.optionTypeId) {
-      filters.value.optionTypeId = { value: route.query.optionTypeId as string, matchMode: FilterMatchMode.EQUALS }
-      query.value.optionTypeId = route.query.optionTypeId as string
+    filters.value.optionTypeId = { value: route.query.optionTypeId as string, matchMode: FilterMatchMode.EQUALS }
+    query.value.optionTypeId = route.query.optionTypeId as string
   }
-  
+
   await store.fetchList()
 }
 
@@ -146,13 +146,13 @@ const onFilter = () => {
   const typeFilterValue = getFilterValue(filters.value, 'optionTypeId') as string | null
 
   const builder = new QueryBuilder()
-  
+
   if (nameFilter.constraints[0]?.value) {
     builder.where('Name', '*', nameFilter.constraints[0].value)
   }
-  
+
   const built = builder.build()
-  
+
   store.fetchList({
     search: globalValue || undefined,
     searchFields: globalValue ? ['Name', 'Presentation'] : undefined,
@@ -191,10 +191,10 @@ const confirmDelete = (item: OptionValueListItem) => {
 }
 
 watch(() => route.query.optionTypeId, (newVal) => {
-    if (newVal && newVal !== getFilterValue(filters.value, 'optionTypeId')) {
-        filters.value.optionTypeId = { value: newVal as string, matchMode: FilterMatchMode.EQUALS }
-        onFilter()
-    }
+  if (newVal && newVal !== getFilterValue(filters.value, 'optionTypeId')) {
+    filters.value.optionTypeId = { value: newVal as string, matchMode: FilterMatchMode.EQUALS }
+    onFilter()
+  }
 })
 
 onMounted(() => {
@@ -204,133 +204,95 @@ onMounted(() => {
 
 <template>
   <PageShell maxWidth="7xl">
-    <PageHeader
-      :title="t('catalog.option_values.titles.list')"
-      :description="t('catalog.option_values.descriptions.list')"
-    >
+    <PageHeader :title="t('catalog.option_values.titles.list')"
+      :description="t('catalog.option_values.descriptions.list')">
       <template #badge>
         <Badge :value="totalRecords" severity="info" />
       </template>
       <template #actions>
-        <Button
-          :label="t('catalog.option_values.actions.add_value')"
-          icon="pi pi-plus"
-          @click="openNew"
-        />
+        <Button :label="t('catalog.option_values.actions.add_value')" icon="pi pi-plus" @click="openNew" />
       </template>
     </PageHeader>
 
-    <DataTable
-        v-model:filters="filters"
-        :value="items"
-        :loading="loading"
-        :totalRecords="totalRecords"
-        lazy
-        paginator
-        :rows="query.pageSize"
-        :first="((query.page || 1) - 1) * (query.pageSize || 10)"
-        @page="onPage"
-        @sort="onSort"
-        @filter="onFilter"
-        filterDisplay="menu"
-        removableSort
-        scrollable
-        rowHover
-      >
-        <template #header>
-          <div class="flex flex-col items-center justify-between gap-4 md:flex-row">
-            <div class="flex gap-2 w-full md:w-auto">
-                <IconField iconPosition="left" class="w-full md:w-64">
-                <InputIcon class="pi pi-search" />
-                <InputText 
-                    v-model="(filters.global as { value: string | null }).value" 
-                    :placeholder="t('catalog.option_values.placeholders.search')" 
-                    @keyup.enter="onFilter" 
-                    class="w-full rounded-xl"
-                />
-                </IconField>
-                <Select 
-                    v-model="(filters.optionTypeId as { value: string | null }).value" 
-                    :options="optionTypes" 
-                    optionLabel="label" 
-                    optionValue="value" 
-                    :placeholder="t('catalog.option_values.placeholders.option_type')" 
-                    showClear
-                    @change="onFilter"
-                    class="w-full md:w-48 rounded-xl"
-                />
-            </div>
-            
-            <Button 
-              type="button" 
-              icon="pi pi-filter-slash" 
-              :label="t('catalog.option_values.table.clear_filter')" 
-              outlined 
-              @click="clearFilters" 
-              class="w-full rounded-xl md:w-auto"
-            />
+    <DataTable v-model:filters="filters" :value="items" :loading="loading" :totalRecords="totalRecords" lazy paginator
+      :rows="query.pageSize" :first="((query.page || 1) - 1) * (query.pageSize || 10)" @page="onPage" @sort="onSort"
+      @filter="onFilter" filterDisplay="menu" removableSort scrollable rowHover>
+      <template #header>
+        <div class="flex flex-col items-center justify-between gap-4 md:flex-row">
+          <div class="flex gap-2 w-full md:w-auto">
+            <IconField iconPosition="left" class="w-full md:w-64">
+              <InputIcon class="pi pi-search" />
+              <InputText v-model="(filters.global as { value: string | null }).value"
+                :placeholder="t('catalog.option_values.placeholders.search')" @keyup.enter="onFilter"
+                class="w-full rounded-xl" />
+            </IconField>
+            <Select v-model="(filters.optionTypeId as { value: string | null }).value" :options="optionTypes"
+              optionLabel="label" optionValue="value" :placeholder="t('catalog.option_values.placeholders.option_type')"
+              showClear @change="onFilter" class="w-full md:w-48 rounded-xl" />
+          </div>
+
+          <Button type="button" icon="pi pi-filter-slash" :label="t('catalog.option_values.table.clear_filter')"
+            outlined @click="clearFilters" class="w-full rounded-xl md:w-auto" />
+        </div>
+      </template>
+
+      <template #empty>
+        <div class="flex flex-col items-center justify-center py-20 text-surface-400">
+          <i class="mb-4 text-6xl pi pi-list opacity-20"></i>
+          <p class="text-xl font-medium">{{ t('catalog.option_values.messages.empty_list') }}</p>
+        </div>
+      </template>
+
+      <Column field="name" :header="t('catalog.option_values.table.name')" sortable>
+        <template #body="{ data }">
+          <span class="font-bold text-surface-900 dark:text-surface-0">{{ data.name }}</span>
+        </template>
+        <template #filter="{ filterModel, filterCallback }">
+          <InputText v-model="filterModel.value" type="text" @keydown.enter="filterCallback()" class="p-column-filter"
+            :placeholder="t('catalog.option_values.table.filter_placeholder')" />
+        </template>
+      </Column>
+
+      <Column field="presentation" :header="t('catalog.option_values.table.presentation')" sortable></Column>
+
+      <Column field="position" :header="t('catalog.option_values.table.position')" sortable class="w-24 text-center">
+        <template #body="{ data }">
+          <Badge :value="data.position" severity="secondary" />
+        </template>
+      </Column>
+
+      <Column class="w-32 text-right">
+        <template #body="{ data }">
+          <div class="flex justify-end gap-1">
+            <Button icon="pi pi-pencil" severity="secondary" text rounded @click="openEdit(data)" />
+            <Button icon="pi pi-trash" severity="danger" text rounded @click="confirmDelete(data)" />
           </div>
         </template>
+      </Column>
+    </DataTable>
 
-        <template #empty>
-          <div class="flex flex-col items-center justify-center py-20 text-surface-400">
-            <i class="mb-4 text-6xl pi pi-list opacity-20"></i>
-            <p class="text-xl font-medium">{{ t('catalog.option_values.messages.empty_list') }}</p>
-          </div>
-        </template>
-
-        <Column field="name" :header="t('catalog.option_values.table.name')" sortable>
-          <template #body="{ data }">
-            <span class="font-bold text-surface-900 dark:text-surface-0">{{ data.name }}</span>
-          </template>
-          <template #filter="{ filterModel, filterCallback }">
-            <InputText v-model="filterModel.value" type="text" @keydown.enter="filterCallback()" class="p-column-filter" :placeholder="t('catalog.option_values.table.filter_placeholder')" />
-          </template>
-        </Column>
-
-        <Column field="presentation" :header="t('catalog.option_values.table.presentation')" sortable></Column>
-
-        <Column field="position" :header="t('catalog.option_values.table.position')" sortable class="w-24 text-center">
-            <template #body="{ data }">
-                <Badge :value="data.position" severity="secondary" />
-            </template>
-        </Column>
-
-        <Column class="w-32 text-right">
-          <template #body="{ data }">
-            <div class="flex justify-end gap-1">
-              <Button icon="pi pi-pencil" severity="secondary" text rounded @click="openEdit(data)" />
-              <Button icon="pi pi-trash" severity="danger" text rounded @click="confirmDelete(data)" />
-            </div>
-          </template>
-        </Column>
-      </DataTable>
-
-    <Dialog v-model:visible="showDialog" :header="isEditing ? 'Edit Option Value' : 'Add Option Value'" :modal="true" :style="{ width: '450px' }">
+    <Dialog v-model:visible="showDialog" :header="isEditing ? 'Edit Option Value' : 'Add Option Value'" :modal="true"
+      :style="{ width: '450px' }">
       <form @submit="onFormSubmit" class="flex flex-col gap-4 mt-2">
         <div class="flex flex-col gap-2">
           <label class="font-bold text-sm">{{ t('catalog.option_values.labels.option_type') }}</label>
-          <Select 
-            v-model="optionTypeId" 
-            :options="optionTypes" 
-            optionLabel="label" 
-            optionValue="value" 
-            class="w-full"
-            :placeholder="t('catalog.option_values.placeholders.option_type')"
-            :disabled="isEditing"
-          />
+          <Select v-model="optionTypeId" :options="optionTypes" optionLabel="label" optionValue="value" class="w-full"
+            :placeholder="t('catalog.option_values.placeholders.option_type')" :disabled="isEditing" />
           <small class="p-error" v-if="formErrors.optionTypeId">{{ formErrors.optionTypeId }}</small>
         </div>
 
         <div class="flex flex-col gap-2">
           <label for="vName" class="font-bold text-sm">{{ t('catalog.option_values.labels.name') }}</label>
-          <InputText id="vName" v-model="name" class="w-full" :invalid="!!formErrors.name" :placeholder="t('catalog.option_values.placeholders.name')" />
+          <InputText id="vName" v-model="name" class="w-full" :invalid="!!formErrors.name"
+            :placeholder="t('catalog.option_values.placeholders.name')" />
           <small class="p-error" v-if="formErrors.name">{{ formErrors.name }}</small>
         </div>
 
         <div class="flex flex-col gap-2">
-          <label for="vPresentation" class="font-bold text-sm">{{ t('catalog.option_values.labels.presentation') }}</label>
-          <InputText id="vPresentation" v-model="presentation" class="w-full" :invalid="!!formErrors.presentation" :placeholder="t('catalog.option_values.placeholders.presentation')" />
+          <label for="vPresentation" class="font-bold text-sm">{{ t('catalog.option_values.labels.presentation')
+            }}</label>
+          <InputText id="vPresentation" v-model="presentation" class="w-full" :invalid="!!formErrors.presentation"
+            :placeholder="t('catalog.option_values.placeholders.presentation')" />
           <small class="p-error" v-if="formErrors.presentation">{{ formErrors.presentation }}</small>
         </div>
 

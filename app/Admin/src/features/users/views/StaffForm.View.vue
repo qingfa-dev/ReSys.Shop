@@ -43,8 +43,8 @@ onMounted(async () => {
 
 async function fetchRoles() {
     const res = await roleService.list({ pageSize: 100 });
-    if (res.isSuccess && res.value) {
-        roleOptions.value = res.value.map(r => ({
+    if (res.isSuccess && res.items) {
+        roleOptions.value = res.items.map(r => ({
             label: r.displayName || r.name,
             value: r.name
         }));

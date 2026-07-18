@@ -5,7 +5,7 @@ import { useTaxonStore } from '../stores/taxon.store'
 import { storeToRefs } from 'pinia'
 import { useForm } from 'vee-validate'
 import { toTypedSchema } from '@vee-validate/zod'
-import { TaxonRuleSchema } from '../../schemas/TaxonRule.Schema'
+import { createTaxonRuleSchema } from '../../schemas/TaxonRule.Schema'
 import { useApiErrorHandler } from '@/shared/composables/api-error-handler.use'
 import { useToast } from '@/shared/composables/toast.use'
 import type { TaxonRuleListItem } from '../types/TaxonRule.Response.Type'
@@ -38,7 +38,7 @@ const {
   setValues: setRuleFields,
   resetForm: resetRuleForm,
 } = useForm({
-  validationSchema: toTypedSchema(TaxonRuleSchema),
+  validationSchema: toTypedSchema(createTaxonRuleSchema(t)),
   initialValues: { type: 'product_name', matchPolicy: 'is_equal_to', value: '' },
 })
 

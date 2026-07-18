@@ -8,7 +8,7 @@ import { useApiErrorHandler } from '@/shared/composables/api-error-handler.use';
 import { useConfirm } from 'primevue/useconfirm';
 import type { PaymentDetail } from '../types/Order.Response.Type';
 import type { UpdateAddressesRequest, AddOrderItemRequest } from '../types/Order.Request.Type';
-import type { RefundPaymentRequest } from '../fulfillment/types/Fulfillment.Request.Type';
+import type { RefundPaymentRequest } from '../../fulfillment/types/Fulfillment.Request.Type';
 import ShipmentDialog from '../components/ShipmentDialog.Component.vue';
 import AddressDialog from '../components/AddressDialog.Component.vue';
 import ItemDialog from '../components/ItemDialog.Component.vue';

@@ -1,29 +1,36 @@
 import { z } from 'zod'
 
-export const AddressSchema = z.object({
-  firstName: z.string().min(1, 'First name is required').max(100, 'First name must not exceed 100 characters'),
-  lastName: z.string().min(1, 'Last name is required').max(100, 'Last name must not exceed 100 characters'),
-  address1: z.string().min(1, 'Address is required').max(200, 'Address must not exceed 200 characters'),
-  address2: z.string().max(200, 'Address must not exceed 200 characters').optional(),
-  city: z.string().min(1, 'City is required').max(100, 'City must not exceed 100 characters'),
-  zipCode: z.string().min(1, 'ZIP code is required').max(20, 'ZIP code must not exceed 20 characters'),
-  countryCode: z.string().length(2, 'Country code must be 2 characters'),
-  stateCode: z.string().max(10, 'State code must not exceed 10 characters').optional(),
-  phone: z.string().max(30, 'Phone must not exceed 30 characters').optional(),
-  company: z.string().max(100, 'Company must not exceed 100 characters').optional(),
-})
+export function createAddressSchema(t: (key: string, args?: Record<string, unknown>) => string) {
+  return z.object({
+    firstName: z.string().min(1, t('ordering.validation.first_name.required')).max(100, t('ordering.validation.first_name.max_length')),
+    lastName: z.string().min(1, t('ordering.validation.last_name.required')).max(100, t('ordering.validation.last_name.max_length')),
+    address1: z.string().min(1, t('ordering.validation.address.required')).max(200, t('ordering.validation.address.max_length')),
+    address2: z.string().max(200, t('ordering.validation.address.max_length')).optional(),
+    city: z.string().min(1, t('ordering.validation.city.required')).max(100, t('ordering.validation.city.max_length')),
+    zipCode: z.string().min(1, t('ordering.validation.zip.required')).max(20, t('ordering.validation.zip.max_length')),
+    countryCode: z.string().length(2, t('ordering.validation.country_code.length')),
+    stateCode: z.string().max(10, t('ordering.validation.state_code.max_length')).optional(),
+    phone: z.string().max(30, t('ordering.validation.phone.max_length')).optional(),
+    company: z.string().max(100, t('ordering.validation.company.max_length')).optional(),
+  })
+}
 
-export const LineItemSchema = z.object({
-  variantId: z.string().uuid('Invalid variant'),
-  quantity: z.number().int('Quantity must be a whole number').min(1, 'Quantity must be at least 1'),
-})
+export function createLineItemSchema(t: (key: string, args?: Record<string, unknown>) => string) {
+  return z.object({
+    variantId: z.string().uuid(t('ordering.validation.variant.invalid')),
+    quantity: z.number().int(t('ordering.validation.quantity.whole')).min(1, t('ordering.validation.quantity.min_one')),
+  })
+}
 
-export const OrderSchema = z.object({
-  email: z.string().email('Invalid email format').min(1, 'Email is required'),
-  currency: z.string().length(3, 'Currency must be a 3-letter code').default('USD'),
-  lineItems: z.array(LineItemSchema).min(1, 'At least one item is required'),
-  shippingAddress: AddressSchema.optional(),
-  billingAddress: AddressSchema.optional(),
-})
+export function createOrderSchema(t: (key: string, args?: Record<string, unknown>) => string) {
+  const addressSchema = createAddressSchema(t)
+  return z.object({
+    email: z.string().email(t('ordering.validation.email.invalid')).min(1, t('ordering.validation.email.required')),
+    currency: z.string().length(3, t('ordering.validation.currency.length')).default('USD'),
+    lineItems: z.array(createLineItemSchema(t)).min(1, t('ordering.validation.items.min_one')),
+    shippingAddress: addressSchema.optional(),
+    billingAddress: addressSchema.optional(),
+  })
+}
 
-export type OrderParameters = z.infer<typeof OrderSchema>
+export type OrderParameters = z.infer<ReturnType<typeof createOrderSchema>>

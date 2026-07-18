@@ -1,17 +1,14 @@
 import apiClient from "@/shared/api/http/api.client";
 import { CATALOG } from "@/shared/api/constants";
-import type { ServerResult } from "@/shared/api/types/result.types";
+import type { ServerPagedResult, ServerResult } from "@/shared/api/types/result.types";
 import type { ServerQueryingParameters } from "@/shared/api/types/query.types";
-import type {
-  OptionTypeDetail,
-  OptionTypeListItem,
-} from "../types/OptionType.Response.Type";
+import type { OptionTypeDetail, OptionTypeListItem } from "../types/OptionType.Response.Type";
 
 export const optionTypeRepository = {
-  list: (params?: ServerQueryingParameters): Promise<ServerResult<OptionTypeListItem[]>> =>
+  list: (params?: ServerQueryingParameters): Promise<ServerPagedResult<OptionTypeListItem>> =>
     apiClient
       .get(`${CATALOG}/option-types`, { params })
-      .then((res) => res.data as ServerResult<OptionTypeListItem[]>),
+      .then((res) => res.data as ServerPagedResult<OptionTypeListItem>),
 
   getById: (id: string): Promise<ServerResult<OptionTypeDetail>> =>
     apiClient

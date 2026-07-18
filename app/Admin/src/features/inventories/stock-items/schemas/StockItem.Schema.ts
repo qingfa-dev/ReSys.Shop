@@ -1,10 +1,12 @@
 import { z } from 'zod'
 
-export const StockAdjustmentSchema = z.object({
-  quantity: z.number().int('Quantity must be a whole number'),
-  type: z.number().int('Type is required').min(0, 'Invalid adjustment type'),
-  reason: z.string().max(500, 'Reason must not exceed 500 characters').optional(),
-  reference: z.string().max(100, 'Reference must not exceed 100 characters').optional(),
+export function createStockAdjustmentSchema(t: (key: string, args?: Record<string, unknown>) => string) {
+  return z.object({
+  quantity: z.number().int(t('inventory.validation.quantity.whole')),
+  type: z.number().int(t('inventory.validation.type.required')).min(0, t('inventory.validation.type.invalid')),
+  reason: z.string().max(500, t('inventory.validation.reason.max_length')).optional(),
+  reference: z.string().max(100, t('inventory.validation.reference.max_length')).optional(),
 })
+}
 
-export type StockAdjustmentParameters = z.infer<typeof StockAdjustmentSchema>
+export type StockAdjustmentParameters = z.infer<ReturnType<typeof createStockAdjustmentSchema>>

@@ -1,5 +1,5 @@
-import { fulfillmentRepository } from '../repositories/fulfillment.repository'
-import { orderRepository } from '../../orders/repositories/order.repository'
+import { fulfillmentRepository } from '../api/fulfillment.api'
+import { orderRepository } from '../../orders/api/order.api'
 import type { ServerResult } from '@/shared/api/types/result.types'
 
 export const fulfillmentService = {
