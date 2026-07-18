@@ -14,6 +14,7 @@ export const orderingRoutes: RouteRecordRaw = {
       path: 'orders',
       name: 'ordering.orders.list',
       component: () => import('@/features/ordering/orders/views/OrderList.View.vue'),
+      meta: { breadcrumb: 'All Orders' },
     },
     {
       path: 'orders/create',

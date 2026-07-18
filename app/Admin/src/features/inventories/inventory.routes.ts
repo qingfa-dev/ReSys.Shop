@@ -35,6 +35,12 @@ export const inventoryRoutes: RouteRecordRaw = {
       meta: { breadcrumb: 'Stock Movements' },
     },
     {
+      path: 'movements/:id',
+      name: 'inventory.movements.detail',
+      component: () => import('./stock-movements/views/StockMovementDetail.View.vue'),
+      meta: { breadcrumb: 'Movement Detail' },
+    },
+    {
       path: 'locations',
       meta: { breadcrumb: 'Warehouses' },
       component: () => import('./stock-locations/views/StockLocationManager.View.vue'),
@@ -43,6 +49,7 @@ export const inventoryRoutes: RouteRecordRaw = {
           path: '',
           name: 'inventory.locations.list',
           component: () => import('./stock-locations/views/StockLocationList.View.vue'),
+          meta: { breadcrumb: 'All Locations' },
         },
         {
           path: 'create',

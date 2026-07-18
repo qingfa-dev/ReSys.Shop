@@ -11,3 +11,16 @@
     flex: 1 1 auto;
     padding-bottom: 2rem;
 }
+
+.layout-main-enter-active,
+.layout-main-leave-active {
+  transition: opacity 0.15s ease, transform 0.15s ease;
+}
+.layout-main-enter-from {
+  opacity: 0;
+  transform: translateY(8px);
+}
+.layout-main-leave-to {
+  opacity: 0;
+  transform: translateY(-8px);
+}

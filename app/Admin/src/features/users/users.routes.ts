@@ -6,12 +6,12 @@ export const usersRoutes: RouteRecordRaw = {
   children: [
     {
       path: 'staff',
+      meta: { breadcrumb: 'Staff' },
       children: [
         {
           path: '',
           name: 'users.staff.list',
           component: () => import('./views/AdminUserList.View.vue'),
-          meta: { breadcrumb: 'Staff' },
         },
         {
           path: 'create',
@@ -35,12 +35,12 @@ export const usersRoutes: RouteRecordRaw = {
     },
     {
       path: 'customers',
+      meta: { breadcrumb: 'Customers' },
       children: [
         {
           path: '',
           name: 'users.customers.list',
           component: () => import('./views/CustomerList.View.vue'),
-          meta: { breadcrumb: 'Customers' },
         },
         {
           path: ':id',

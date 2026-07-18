@@ -65,7 +65,9 @@ const isOutsideClicked = (event: MouseEvent) => {
     <div class="layout-main-container">
       <div class="layout-main">
         <AppBreadcrumb />
-        <router-view />
+        <Transition name="layout-main" mode="out-in">
+  <router-view />
+</Transition>
       </div>
       <AppFooter />
     </div>
