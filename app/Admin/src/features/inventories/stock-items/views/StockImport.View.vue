@@ -51,6 +51,7 @@ const handleImport = async () => {
                 accept=".csv"
                 :auto="false"
                 :disabled="uploading"
+                :chooseLabel="t('inventory.actions.choose_file')"
                 @select="onFileSelect"
                 @remove="onFileRemove"
             />

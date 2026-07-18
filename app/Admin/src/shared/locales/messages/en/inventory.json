@@ -104,7 +104,8 @@
     "load_error": "Failed to load inventory",
     "load_states_error": "Failed to load states",
     "import_stock_csv_info": "Upload a CSV file with stock item data. The file must contain SKU, quantity, and location columns.",
-    "import_success": "Stock items imported successfully."
+    "import_success": "Stock items imported successfully.",
+    "no_movements": "No movement history found."
   },
   "confirm": {
     "delete_header": "Confirm Deletion",

@@ -3,6 +3,7 @@ import { onMounted, ref } from 'vue';
 import { movementService } from '../services/movement.service';
 import { useFormatter } from '@/shared/composables/formatter.use';
 import { useI18n } from 'vue-i18n';
+import { useToast } from 'primevue/usetoast';
 import PageShell from '@/shared/components/PageShell.Component.vue';
 import PageHeader from '@/shared/components/PageHeader.Component.vue';
 import type { DataTablePageEvent } from 'primevue/datatable';
@@ -30,6 +31,9 @@ async function fetchMovements() {
   if (result.isSuccess) {
     movements.value = result.items ?? [];
     totalCount.value = result.totalCount ?? 0;
+  } else {
+    const toast = useToast();
+    toast.add({ severity: 'error', summary: t('common.error'), detail: t('common.load_error'), life: 5000 });
   }
   loading.value = false;
 }
@@ -63,7 +67,7 @@ function onPage(event: DataTablePageEvent) {
       <template #empty>
         <div class="flex flex-col items-center justify-center py-20 text-surface-400">
           <i class="mb-4 text-6xl pi pi-history opacity-20"></i>
-          <p class="text-xl font-medium">No movement history found.</p>
+          <p class="text-xl font-medium">{{ t('inventory.messages.no_movements') }}</p>
         </div>
       </template>
 
