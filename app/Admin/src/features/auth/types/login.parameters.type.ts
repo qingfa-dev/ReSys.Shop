@@ -1,3 +1,3 @@
-import type { LoginParameters } from '../schemas/Login.Schema'
+import type { LoginParameters } from '../schemas/login.schema'
 
 export type { LoginParameters }

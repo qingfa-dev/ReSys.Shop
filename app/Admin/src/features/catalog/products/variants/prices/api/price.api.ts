@@ -1,8 +1,8 @@
 import apiClient from '@/shared/api/http/api.client'
 import { CATALOG } from '@/shared/api/constants'
 import type { ServerPagedResult, ServerResult } from '@/shared/api/types/result.types'
-import type { PriceRecord } from '../types/Price.Response.Type'
-import type { SetVariantPriceRequest } from '../types/Price.Request.Type'
+import type { PriceRecord } from '../types/price.response.type'
+import type { SetVariantPriceRequest } from '../types/price.request.type'
 
 export const priceApi = {
   listPrices: (variantId: string): Promise<ServerPagedResult<PriceRecord>> =>

@@ -1,11 +1,11 @@
 import { defineStore } from "pinia";
 import { ref, computed } from "vue";
 import { taxonService } from "../services/taxon.service";
-import type { TaxonListItem, TaxonTreeItem } from "../types/Taxon.Response.Type";
-import type { TaxonRuleListItem } from "../types/TaxonRule.Response.Type";
-import type { CreateTaxonRequest, UpdateTaxonRequest } from "../types/Taxon.Request.Type";
-import type { TaxonQuery } from "../types/Taxon.Query.Type";
-import type { CreateTaxonRuleRequest, UpdateTaxonRuleRequest } from "../types/TaxonRule.Request.Type";
+import type { TaxonListItem, TaxonTreeItem } from "../types/taxon.response.type";
+import type { TaxonRuleListItem } from "../types/taxon-rule.response.type";
+import type { CreateTaxonRequest, UpdateTaxonRequest } from "../types/taxon.request.type";
+import type { TaxonQuery } from "../types/taxon.query.type";
+import type { CreateTaxonRuleRequest, UpdateTaxonRuleRequest } from "../types/taxon-rule.request.type";
 
 export const useTaxonStore = defineStore("taxon", () => {
   const currentTaxons = ref<TaxonListItem[]>([]);

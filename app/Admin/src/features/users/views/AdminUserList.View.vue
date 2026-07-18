@@ -11,7 +11,7 @@ import PageHeader from '@/shared/components/PageHeader.Component.vue';
 import { FilterMatchMode } from '@primevue/core/api';
 import type { DataTablePageEvent, DataTableSortEvent, DataTableFilterMeta } from 'primevue/datatable';
 import { getFilterValue } from '@/shared/api/types/filter.types';
-import type { AdminUserSummary } from '../types/User.Response.Type';
+import type { AdminUserSummary } from '../types/user.response.type';
 
 const store = useUserStore();
 const { admins, loading, totalRecords, query } = storeToRefs(store);
@@ -147,14 +147,6 @@ const confirmDelete = (user: AdminUserSummary) => {
               <div class="flex flex-col">
                 <span class="font-bold text-surface-900 dark:text-surface-0">{{ data.fullName || 'Incomplete Profile' }}</span>
                 <small class="font-mono text-[10px] text-surface-500 uppercase tracking-widest">{{ data.email }}</small>
-              </div>
-            </template>
-          </Column>
-
-          <Column field="roleNames" :header="t('users.table.roles')">
-            <template #body="{ data }">
-              <div class="flex gap-1">
-                <Tag v-for="r in data.roleNames" :key="r" :value="r" severity="info" class="text-[9px] font-black uppercase" />
               </div>
             </template>
           </Column>

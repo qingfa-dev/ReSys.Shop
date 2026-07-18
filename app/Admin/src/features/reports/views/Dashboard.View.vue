@@ -18,14 +18,14 @@ onMounted(() => {
 });
 
 const chartData = computed(() => {
-    if (!sales.value?.trendHistory) return null;
+    if (!sales.value?.dailySales?.length) return null;
     
     return {
-        labels: sales.value.trendHistory.map(h => new Date(h.date).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })),
+        labels: sales.value.dailySales.map(h => new Date(h.date).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })),
         datasets: [
             {
                 label: 'Revenue',
-                data: sales.value.trendHistory.map(h => h.revenue),
+                data: sales.value.dailySales.map(h => h.revenue),
                 fill: true,
                 borderColor: '#3b82f6',
                 tension: 0.4,
@@ -120,7 +120,7 @@ const getActivityColor = (type: string) => {
                     <div class="flex items-start justify-between">
                         <div class="flex flex-col gap-2">
                             <span class="text-sm font-medium text-surface-500 dark:text-surface-400">Total Orders</span>
-                            <span class="text-3xl font-bold text-surface-900 dark:text-surface-0">{{ sales?.orderCount || 0 }}</span>
+                            <span class="text-3xl font-bold text-surface-900 dark:text-surface-0">{{ sales?.totalOrders || 0 }}</span>
                         </div>
                         <div class="flex items-center justify-center w-12 h-12 rounded-lg bg-primary/10">
                             <i class="pi pi-shopping-bag text-xl text-primary"></i>
@@ -134,7 +134,7 @@ const getActivityColor = (type: string) => {
                     <div class="flex items-start justify-between">
                         <div class="flex flex-col gap-2">
                             <span class="text-sm font-medium text-surface-500 dark:text-surface-400">{{ t('reports.labels.revenue') }}</span>
-                            <span class="text-3xl font-bold text-surface-900 dark:text-surface-0">{{ formatCurrency(sales?.totalRevenue || 0) }}</span>
+                            <span class="text-3xl font-bold text-surface-900 dark:text-surface-0">{{ formatCurrency(sales?.totalSales || 0) }}</span>
                         </div>
                         <div class="flex items-center justify-center w-12 h-12 rounded-lg bg-primary/10">
                             <i class="pi pi-dollar text-xl text-primary"></i>

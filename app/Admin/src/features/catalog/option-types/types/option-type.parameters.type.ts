@@ -1,2 +1,2 @@
-import type { OptionTypeParameters } from '../schemas/OptionType.Schema'
+import type { OptionTypeParameters } from '../schemas/option-type.schema'
 export type { OptionTypeParameters }

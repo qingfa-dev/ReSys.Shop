@@ -5,7 +5,7 @@ import { useAuthStore } from '../stores/auth.store'
 import { storeToRefs } from 'pinia'
 import { useForm } from 'vee-validate'
 import { toTypedSchema } from '@vee-validate/zod'
-import { createLoginSchema } from '../schemas/Login.Schema'
+import { createLoginSchema } from '../schemas/login.schema'
 import { useI18n } from 'vue-i18n'
 import { useApiErrorHandler } from '@/shared/composables/api-error-handler.use'
 

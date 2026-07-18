@@ -1,8 +1,8 @@
-import type { ProfileParameters } from '../schemas/Profile.Schema'
+import type { ProfileParameters } from '../schemas/profile.schema'
 
 export type ProfileUpdateRequest = ProfileParameters & {
   preferences?: ProfilePreferences
   notifications?: NotificationPreferences
 }
 
-import type { ProfilePreferences, NotificationPreferences } from './Profile.Response.Type'
+import type { ProfilePreferences, NotificationPreferences } from './profile.response.type'

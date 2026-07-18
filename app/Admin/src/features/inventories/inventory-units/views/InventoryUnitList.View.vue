@@ -8,7 +8,7 @@ import PageShell from '@/shared/components/PageShell.Component.vue'
 import PageHeader from '@/shared/components/PageHeader.Component.vue'
 import { FilterMatchMode } from '@primevue/core/api';
 import type { DataTablePageEvent, DataTableSortEvent, DataTableFilterMeta } from 'primevue/datatable';
-import type { InventoryUnit } from '../types/InventoryUnit.Response.Type';
+import type { InventoryUnit } from '../types/inventory-unit.response.type';
 
 const { t } = useI18n();
 
@@ -34,15 +34,27 @@ const onSort = (event: DataTableSortEvent) => {
     });
 };
 
-const getStatusSeverity = (state: string) => {
+const getStatusSeverity = (state: number) => {
     switch (state) {
-        case 'Available': return 'success';
-        case 'Reserved': return 'info';
-        case 'Shipped': return 'secondary';
-        case 'Damaged': return 'danger';
-        case 'Returned': return 'warning';
-        case 'Sold': return 'contrast';
+        case 0: return 'success';
+        case 1: return 'info';
+        case 2: return 'secondary';
+        case 3: return 'danger';
+        case 4: return 'warning';
+        case 5: return 'contrast';
         default: return 'secondary';
+    }
+};
+
+const statusLabel = (state: number) => {
+    switch (state) {
+        case 0: return 'Available';
+        case 1: return 'Reserved';
+        case 2: return 'Shipped';
+        case 3: return 'Damaged';
+        case 4: return 'Returned';
+        case 5: return 'Sold';
+        default: return 'Unknown';
     }
 };
 </script>
@@ -78,30 +90,21 @@ const getStatusSeverity = (state: string) => {
                     </div>
                 </template>
 
-                <Column field="sku" :header="t('inventory.table.sku')" sortable>
+                <Column field="stockItemId" header="Stock Item" sortable>
                     <template #body="{ data }">
-                        <span class="font-mono text-xs font-bold">{{ data.sku }}</span>
-                    </template>
-                </Column>
-
-                <Column field="serial_number" :header="t('inventory.table.serial_number')" sortable>
-                    <template #body="{ data }">
-                        <span v-if="data.serial_number" class="font-mono text-sm bg-surface-100 dark:bg-surface-800 px-2 py-1 rounded">
-                            {{ data.serial_number }}
-                        </span>
-                        <span v-else class="text-surface-400 italic">Not Assigned</span>
+                        <span class="font-mono text-xs font-bold">{{ data.stockItemId }}</span>
                     </template>
                 </Column>
 
                 <Column field="state" :header="t('inventory.table.status')" sortable class="text-center">
                     <template #body="{ data }">
-                        <Tag :value="data.state" :severity="getStatusSeverity(data.state)" rounded class="px-3" />
+                        <Tag :value="statusLabel(data.state)" :severity="getStatusSeverity(data.state)" rounded class="px-3" />
                     </template>
                 </Column>
 
-                <Column field="created_at" :header="t('inventory.table.registered')" sortable>
+                <Column field="createdAtUtc" :header="t('inventory.table.registered')" sortable>
                     <template #body="{ data }">
-                        <span class="text-sm">{{ formatDate(data.created_at) }}</span>
+                        <span class="text-sm">{{ formatDate(data.createdAtUtc) }}</span>
                     </template>
                 </Column>
 

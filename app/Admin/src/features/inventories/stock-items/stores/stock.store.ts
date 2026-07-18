@@ -1,8 +1,8 @@
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
 import { stockService } from '../services/stock.service'
-import type { StockItem } from '../types/StockItem.Response.Type'
-import type { StockItemQuery } from '../types/StockItem.Query.Type'
+import type { StockItem } from '../types/stock-item.response.type'
+import type { StockItemQuery } from '../types/stock-item.query.type'
 
 export const useStockStore = defineStore('stock', () => {
   const items = ref<StockItem[]>([])

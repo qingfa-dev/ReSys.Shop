@@ -1,2 +1,2 @@
-import type { VariantParameters } from '../schemas/Variant.Schema'
+import type { VariantParameters } from '../schemas/variant.schema'
 export type { VariantParameters }

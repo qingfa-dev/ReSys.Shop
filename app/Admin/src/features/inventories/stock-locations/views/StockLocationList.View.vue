@@ -48,23 +48,23 @@ const onToggleStatus = async (id: string, current: boolean) => {
                         <span class="text-[10px] font-black uppercase tracking-widest text-surface-400">{{ loc.code }}</span>
                         <h3 class="text-xl font-black m-0 tracking-tight">{{ loc.name }}</h3>
                     </div>
-                    <Tag :value="loc.active ? 'Active' : 'Inactive'" 
-                         :severity="loc.active ? 'success' : 'secondary'" rounded class="px-3 text-[10px] font-black" />
+                    <Tag :value="loc.isActive ? 'Active' : 'Inactive'" 
+                         :severity="loc.isActive ? 'success' : 'secondary'" rounded class="px-3 text-[10px] font-black" />
                 </div>
 
                 <div class="flex items-center gap-2 text-surface-500 text-sm">
                     <i class="pi pi-map-marker text-xs"></i>
-                    <span>{{ loc.city }}, {{ loc.countryCode }}</span>
+                    <span>{{ loc.city }}, {{ loc.country }}</span>
                 </div>
 
                 <div class="flex items-center gap-2">
                     <Badge v-if="loc.isDefault" value="Primary" severity="info" class="text-[10px] font-black" />
-                    <Tag :value="loc.type" severity="secondary" class="text-[10px] font-black" />
+                    <Tag :value="loc.code" severity="secondary" class="text-[10px] font-black" />
                 </div>
 
                 <div class="flex gap-2 mt-4 pt-4 border-t border-surface-50 dark:border-surface-800">
                     <Button icon="pi pi-pencil" text rounded severity="secondary" v-tooltip.top="'Edit Details'" @click="router.push({ name: 'inventory.locations.edit', params: { id: loc.id } })" />
-                    <Button icon="pi pi-power-off" text rounded :severity="loc.active ? 'danger' : 'success'" @click="onToggleStatus(loc.id, loc.active)" />
+                    <Button icon="pi pi-power-off" text rounded :severity="loc.isActive ? 'danger' : 'success'" @click="onToggleStatus(loc.id, loc.isActive)" />
                     <div class="flex-grow"></div>
                     <Button :label="t('inventory.titles.inventory')" icon="pi pi-box" text size="small" class="font-bold" />
                 </div>
@@ -80,11 +80,11 @@ const onToggleStatus = async (id: string, current: boolean) => {
                         <span class="font-mono text-xs uppercase">{{ node.data.code }}</span>
                     </template>
                 </Column>
-                <Column field="type" :header="t('inventory.table.type')"></Column>
-                <Column field="active" :header="t('inventory.table.status')" class="text-center">
+                <Column field="city" header="City"></Column>
+                <Column field="isActive" :header="t('inventory.table.status')" class="text-center">
                     <template #body="{ node }">
-                        <Tag :value="node.data.active ? 'Active' : 'Inactive'" 
-                             :severity="node.data.active ? 'success' : 'secondary'" rounded class="text-[10px] font-black" />
+                        <Tag :value="node.data.isActive ? 'Active' : 'Inactive'" 
+                             :severity="node.data.isActive ? 'success' : 'secondary'" rounded class="text-[10px] font-black" />
                     </template>
                 </Column>
                 <Column :header="t('inventory.table.actions')" class="w-24">

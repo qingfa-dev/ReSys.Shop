@@ -1,5 +1,5 @@
 import { z } from 'zod'
-import { createCreateProductSchema } from './CreateProduct.Schema'
+import { createCreateProductSchema } from './create-product.schema'
 export function createUpdateProductSchema(t: (key: string, args?: Record<string, unknown>) => string) {
   return createCreateProductSchema(t).partial()
 }

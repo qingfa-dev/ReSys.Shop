@@ -2,7 +2,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { setActivePinia, createPinia } from 'pinia';
 import { useTaxonStore } from '../stores/taxon.store';
 import { taxonService } from '../services/taxon.service';
-import type { TaxonListItem } from '../types/Taxon.Response.Type';
+import type { TaxonListItem } from '../types/taxon.response.type';
 
 vi.mock('../services/taxon.service', () => ({
   taxonService: {

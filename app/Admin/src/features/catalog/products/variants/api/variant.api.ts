@@ -1,21 +1,32 @@
 import apiClient from '@/shared/api/http/api.client'
 import { CATALOG } from '@/shared/api/constants'
 import type { ServerResult } from '@/shared/api/types/result.types'
-import type { VariantDetail, VariantSummary } from '../types/Variant.Response.Type'
-import type { CreateVariantRequest, UpdateVariantRequest } from '../types/Variant.Request.Type'
+import type { VariantDetail, VariantSummary } from '../types/variant.response.type'
+import type { CreateVariantRequest, UpdateVariantRequest } from '../types/variant.request.type'
+import { mapValue } from '@/shared/utils/transform'
+import { decimalToDisplay } from '@/shared/utils/currency'
+import type { VariantSummaryModel, VariantDetailModel } from '../types/variant.model.type'
 
 export const variantRepository = {
-  getById: (id: string): Promise<ServerResult<VariantDetail>> =>
-    apiClient.get(`${CATALOG}/variants/${id}`).then(res => res.data as ServerResult<VariantDetail>),
+  getById: async (id: string): Promise<ServerResult<VariantDetailModel>> => {
+    const result = await apiClient.get(`${CATALOG}/variants/${id}`).then(res => res.data as ServerResult<VariantDetail>)
+    return mapValue(result, d => ({ ...d, priceDisplay: decimalToDisplay(d.price) }))
+  },
 
-  listByProductId: (productId: string): Promise<ServerResult<VariantSummary[]>> =>
-    apiClient.get(`${CATALOG}/products/${productId}/variants`).then(res => res.data as ServerResult<VariantSummary[]>),
+  listByProductId: async (productId: string): Promise<ServerResult<VariantSummaryModel[]>> => {
+    const result = await apiClient.get(`${CATALOG}/products/${productId}/variants`).then(res => res.data as ServerResult<VariantSummary[]>)
+    return mapValue(result, items => items.map(d => ({ ...d, priceDisplay: decimalToDisplay(d.price) })))
+  },
 
-  create: (productId: string, data: CreateVariantRequest): Promise<ServerResult<VariantDetail>> =>
-    apiClient.post(`${CATALOG}/products/${productId}/variants`, data).then(res => res.data as ServerResult<VariantDetail>),
+  create: async (productId: string, data: CreateVariantRequest): Promise<ServerResult<VariantDetailModel>> => {
+    const result = await apiClient.post(`${CATALOG}/products/${productId}/variants`, data).then(res => res.data as ServerResult<VariantDetail>)
+    return mapValue(result, d => ({ ...d, priceDisplay: decimalToDisplay(d.price) }))
+  },
 
-  update: (id: string, data: UpdateVariantRequest): Promise<ServerResult<VariantDetail>> =>
-    apiClient.put(`${CATALOG}/variants/${id}`, data).then(res => res.data as ServerResult<VariantDetail>),
+  update: async (id: string, data: UpdateVariantRequest): Promise<ServerResult<VariantDetailModel>> => {
+    const result = await apiClient.put(`${CATALOG}/variants/${id}`, data).then(res => res.data as ServerResult<VariantDetail>)
+    return mapValue(result, d => ({ ...d, priceDisplay: decimalToDisplay(d.price) }))
+  },
 
   delete: (id: string): Promise<ServerResult<void>> =>
     apiClient.delete(`${CATALOG}/variants/${id}`).then(res => res.data as ServerResult<void>),

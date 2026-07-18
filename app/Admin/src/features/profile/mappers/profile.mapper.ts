@@ -1,8 +1,7 @@
-import type { Profile } from '../types/Profile.Response.Type'
+import type { Profile } from '../types/profile.response.type'
 
 export function mapProfileResponse(dto: Profile): Profile {
   return {
-    ...dto,
     id: dto.id,
     email: dto.email,
     firstName: dto.firstName,
@@ -15,7 +14,7 @@ export function mapProfileResponse(dto: Profile): Profile {
     preferences: dto.preferences,
     notifications: dto.notifications,
     isActive: dto.isActive,
-    acceptsEmailMarketing: dto.acceptsEmailMarketing,
+    acceptsEmailMarketing: dto.acceptsEmailMarketing ?? false,
     createdAtUtc: dto.createdAtUtc,
     modifiedAtUtc: dto.modifiedAtUtc,
   }

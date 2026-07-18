@@ -1,12 +1,26 @@
 import { userRepository } from '../api/user.api'
-import type { ServerResult } from '@/shared/api/types/result.types'
+import type { ServerResult, ServerPagedResult } from '@/shared/api/types/result.types'
+import type { AdminUserSummaryModel } from '../types/user.model.type'
 
 export const userService = {
-  list: userRepository.list,
+  async list(...args: Parameters<typeof userRepository.list>): Promise<ServerPagedResult<AdminUserSummaryModel>> {
+    return userRepository.list(...args)
+  },
+
   listCustomers: userRepository.listCustomers,
-  getById: userRepository.getById,
-  create: userRepository.create,
-  update: userRepository.update,
+
+  async getById(...args: Parameters<typeof userRepository.getById>): Promise<ServerResult<AdminUserSummaryModel>> {
+    return userRepository.getById(...args)
+  },
+
+  async create(...args: Parameters<typeof userRepository.create>): Promise<ServerResult<AdminUserSummaryModel>> {
+    return userRepository.create(...args)
+  },
+
+  async update(...args: Parameters<typeof userRepository.update>): Promise<ServerResult<AdminUserSummaryModel>> {
+    return userRepository.update(...args)
+  },
+
   delete: userRepository.delete,
   getUserPermissions: userRepository.getPermissions,
   updateAdminStatus: userRepository.updateStatus,

@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
 import { permissionService } from '../services/permission.service'
-import type { PermissionSummary } from '../types/Permission.Response.Type'
+import type { PermissionSummary } from '../types/permission.response.type'
 
 export const usePermissionStore = defineStore('permission', () => {
   const items = ref<PermissionSummary[]>([])

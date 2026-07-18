@@ -2,21 +2,28 @@ import apiClient from '@/shared/api/http/api.client'
 import { IDENTITY } from '@/shared/api/constants'
 import type { ServerPagedResult, ServerResult } from '@/shared/api/types/result.types'
 import type { ServerQueryingParameters } from '@/shared/api/types/query.types'
-import type { RoleSummary } from '../types/Role.Response.Type'
-import type { CreateRoleRequest, UpdateRoleRequest, AssignRolePermissionRequest, RevokeRolePermissionRequest, SyncRolePermissionsRequest } from '../types/Role.Request.Type'
-
+import type { RoleSummary } from '../types/role.response.type'
+import type { CreateRoleRequest, UpdateRoleRequest, AssignRolePermissionRequest, RevokeRolePermissionRequest, SyncRolePermissionsRequest } from '../types/role.request.type'
 export const roleRepository = {
-  list: (params?: ServerQueryingParameters): Promise<ServerPagedResult<RoleSummary>> =>
-    apiClient.get(`${IDENTITY}/roles`, { params }).then(res => res.data as ServerPagedResult<RoleSummary>),
+  async list(params?: ServerQueryingParameters): Promise<ServerPagedResult<RoleSummary>> {
+    const res = await apiClient.get(`${IDENTITY}/roles`, { params })
+    return res.data as ServerPagedResult<RoleSummary>
+  },
 
-  getById: (id: string): Promise<ServerResult<RoleSummary>> =>
-    apiClient.get(`${IDENTITY}/roles/${id}`).then(res => res.data as ServerResult<RoleSummary>),
+  async getById(id: string): Promise<ServerResult<RoleSummary>> {
+    const res = await apiClient.get(`${IDENTITY}/roles/${id}`)
+    return res.data as ServerResult<RoleSummary>
+  },
 
-  create: (data: CreateRoleRequest): Promise<ServerResult<RoleSummary>> =>
-    apiClient.post(`${IDENTITY}/roles`, data).then(res => res.data as ServerResult<RoleSummary>),
+  async create(data: CreateRoleRequest): Promise<ServerResult<RoleSummary>> {
+    const res = await apiClient.post(`${IDENTITY}/roles`, data)
+    return res.data as ServerResult<RoleSummary>
+  },
 
-  update: (id: string, data: UpdateRoleRequest): Promise<ServerResult<RoleSummary>> =>
-    apiClient.put(`${IDENTITY}/roles/${id}`, data).then(res => res.data as ServerResult<RoleSummary>),
+  async update(id: string, data: UpdateRoleRequest): Promise<ServerResult<RoleSummary>> {
+    const res = await apiClient.put(`${IDENTITY}/roles/${id}`, data)
+    return res.data as ServerResult<RoleSummary>
+  },
 
   delete: (id: string): Promise<ServerResult<void>> =>
     apiClient.delete(`${IDENTITY}/roles/${id}`).then(res => res.data as ServerResult<void>),

@@ -7,7 +7,7 @@ import { storeToRefs } from 'pinia'
 import { useApiErrorHandler } from '@/shared/composables/api-error-handler.use'
 import { useToast } from '@/shared/composables/toast.use'
 import { useConfirm } from 'primevue/useconfirm'
-import type { OptionTypeListItem } from '../types/OptionType.Response.Type'
+import type { OptionTypeListItem } from '../types/option-type.response.type'
 
 const { t } = useI18n()
 const route = useRoute()

@@ -6,7 +6,7 @@ import { optionTypeRepository } from '../option-types/api/option-type.api'
 import { optionValueRepository } from '../option-types/option-values/api/option-value.api'
 import { taxonomyRepository } from '../taxonomies/api/taxonomy.api'
 import { taxonRepository } from '../taxonomies/taxa/api/taxon.api'
-import type { CreateVariantRequest } from '../products/variants/types/Variant.Request.Type'
+import type { CreateVariantRequest } from '../products/variants/types/variant.request.type'
 
 vi.mock('@/shared/api/http/api.client', () => ({
   default: {
@@ -28,7 +28,7 @@ describe('productRepository', () => {
     expect(apiClient.get).toHaveBeenCalledWith('catalog/products/guid-1')
   })
   it('create calls correct route', async () => {
-    await productRepository.create({ name: 'Test', slug: 'test', price: 10, trackInventory: true })
+    await productRepository.create({ name: 'Test', slug: 'test', price: 0, trackInventory: true })
     expect(apiClient.post).toHaveBeenCalledWith('catalog/products', expect.any(Object))
   })
   it('delete calls correct route', async () => {
@@ -44,7 +44,7 @@ describe('variantRepository', () => {
   })
   it('getById calls correct route', async () => {
     await variantRepository.getById('var-1')
-    expect(apiClient.get).toHaveBeenCalledWith('catalog/products/variants/var-1')
+    expect(apiClient.get).toHaveBeenCalledWith('catalog/variants/var-1')
   })
 })
 

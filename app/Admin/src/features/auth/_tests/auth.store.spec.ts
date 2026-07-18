@@ -5,7 +5,7 @@ import { authService } from '../services/auth.service'
 
 // Mock dependencies
 import { createMockErrorResult } from '@/shared/test/mock-types'
-import type { AuthenticationResponse } from '../types/Login.Response.Type'
+import type { AuthSession } from '../types/auth.model.type'
 
 vi.mock('../services/auth.service', () => ({
   authService: {
@@ -83,6 +83,7 @@ describe('AuthStore', () => {
           accessTokenExpiresIn: 3600,
           refreshToken: 'new-refresh',
           refreshTokenExpiresIn: 86400,
+          user: null,
         },
       }
 
@@ -111,7 +112,7 @@ describe('AuthStore', () => {
 
     it('login should handle failure correctly', async () => {
       const store = useAuthStore()
-      const mockErrorResponse = createMockErrorResult<AuthenticationResponse>({
+      const mockErrorResponse = createMockErrorResult<AuthSession>({
         statusCode: 400,
         errors: [{ code: 'invalid_credentials', message: 'Invalid credentials', type: 0, metadata: null }],
         message: 'Invalid credentials',
@@ -152,6 +153,7 @@ describe('AuthStore', () => {
           accessTokenExpiresIn: 3600,
           refreshToken: 'fresh-refresh',
           refreshTokenExpiresIn: 86400,
+          user: null,
         },
       }
  

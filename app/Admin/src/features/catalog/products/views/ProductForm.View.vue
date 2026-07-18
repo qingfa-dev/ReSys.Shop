@@ -4,7 +4,7 @@ import { useI18n } from 'vue-i18n';
 import { useRoute, useRouter } from 'vue-router';
 import { useForm } from 'vee-validate';
 import { toTypedSchema } from '@vee-validate/zod';
-import { createCreateProductSchema } from '../schemas/CreateProduct.Schema';
+import { createCreateProductSchema } from '../schemas/create-product.schema';
 import { useProductStore } from '../stores/product.store';
 import { storeToRefs } from 'pinia';
 import PageShell from '@/shared/components/PageShell.Component.vue';
@@ -15,8 +15,8 @@ import ProductVariantManager from '../variants/components/ProductVariantManager.
 import ProductClassificationManager from '../classifications/components/ProductClassificationManager.Component.vue';
 import ProductOptionTypeManager from '../option-types/components/ProductOptionTypeManager.Component.vue';
 import ProductInventoryManager from '../variants/components/ProductInventoryManager.Component.vue';
-import type { ProductDetail } from '../types/Product.Response.Type';
-import type { CreateProductRequest, UpdateProductRequest } from '../types/Product.Request.Type';
+import type { ProductDetailModel } from '../types/product.model.type';
+import type { CreateProductRequest, UpdateProductRequest } from '../types/product.request.type';
 
 const { t } = useI18n();
 const route = useRoute();
@@ -34,13 +34,7 @@ const { defineField, handleSubmit, errors, setValues } = useForm({
     initialValues: {
         name: '',
         slug: '',
-        sku: '',
-        price: 0,
         description: '',
-        weight: null,
-        height: null,
-        width: null,
-        depth: null,
         metaTitle: '',
         metaDescription: '',
         metaKeywords: '',
@@ -49,13 +43,7 @@ const { defineField, handleSubmit, errors, setValues } = useForm({
 
 const [name] = defineField('name');
 const [slug] = defineField('slug');
-const [sku] = defineField('sku');
-const [price] = defineField('price');
 const [description] = defineField('description');
-const [weight] = defineField('weight');
-const [height] = defineField('height');
-const [width] = defineField('width');
-const [depth] = defineField('depth');
 const [metaTitle] = defineField('metaTitle');
 const [metaDescription] = defineField('metaDescription');
 const [metaKeywords] = defineField('metaKeywords');
@@ -74,19 +62,13 @@ onMounted(async () => {
     if (isEdit.value) {
         const result = await store.fetchProductById(productId.value);
         if (result.isSuccess && current_product.value) {
-            const p: ProductDetail = current_product.value;
-            isActive.value = p.status === 'Active';
+            const p: ProductDetailModel = current_product.value;
+            isActive.value = p.status === 1;
             isVisible.value = true;
             setValues({
                 name: p.name,
                 slug: p.slug,
-                sku: p.sku || '',
-                price: p.price,
                 description: p.description || '',
-                weight: p.weight,
-                height: p.height,
-                width: p.width,
-                depth: p.depth,
                 metaTitle: p.metaTitle || '',
                 metaDescription: p.metaDescription || '',
                 metaKeywords: p.metaKeywords || '',
@@ -102,13 +84,8 @@ const onSubmit = handleSubmit(async (values) => {
         name: values.name,
         slug: values.slug,
         description: values.description,
-        price: values.price,
-        sku: values.sku,
+        price: values.price ?? 0,
         trackInventory: true,
-        weight: values.weight,
-        height: values.height,
-        width: values.width,
-        depth: values.depth,
     };
 
     if (isEdit.value) {
@@ -208,19 +185,6 @@ const onSubmit = handleSubmit(async (values) => {
                                     </div>
                                 </div>
 
-                                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-                                    <div class="flex flex-col gap-2">
-                                        <label class="font-bold text-xs uppercase tracking-wider text-surface-500 ml-1">{{ t('catalog.products.labels.sku') }}</label>
-                                        <InputText v-model="sku" class="w-full rounded-2xl h-12 px-4 font-mono" :invalid="!!errors.sku" />
-                                        <small class="p-error" v-if="errors.sku">{{ errors.sku }}</small>
-                                    </div>
-                                    <div class="flex flex-col gap-2">
-                                        <label class="font-bold text-xs uppercase tracking-wider text-surface-500 ml-1">{{ t('catalog.products.labels.price') }}</label>
-                                        <InputNumber v-model="price" mode="currency" currency="USD" locale="en-US" class="w-full rounded-2xl h-12 overflow-hidden" inputClass="px-4" :invalid="!!errors.price" />
-                                        <small class="p-error" v-if="errors.price">{{ errors.price }}</small>
-                                    </div>
-                                </div>
-
                                 <div class="flex flex-col gap-2">
                                     <label class="font-bold text-xs uppercase tracking-wider text-surface-500 ml-1">{{ t('catalog.products.labels.description') }}</label>
                                     <Textarea v-model="description" rows="5" class="w-full rounded-2xl p-4" />
@@ -263,25 +227,6 @@ const onSubmit = handleSubmit(async (values) => {
 
                         <TabPanel :value="5">
                             <div class="flex flex-col gap-8">
-                                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-                                    <div class="flex flex-col gap-2">
-                                        <label class="font-bold text-xs uppercase text-surface-500 ml-1">{{ t('catalog.products.labels.weight') }}</label>
-                                        <InputNumber v-model="weight" mode="decimal" :minFractionDigits="2" class="w-full rounded-2xl h-12 overflow-hidden" inputClass="px-4" />
-                                    </div>
-                                    <div class="flex flex-col gap-2">
-                                        <label class="font-bold text-xs uppercase text-surface-500 ml-1">{{ t('catalog.products.labels.height') }}</label>
-                                        <InputNumber v-model="height" mode="decimal" class="w-full rounded-2xl h-12 overflow-hidden" inputClass="px-4" />
-                                    </div>
-                                    <div class="flex flex-col gap-2">
-                                        <label class="font-bold text-xs uppercase text-surface-500 ml-1">{{ t('catalog.products.labels.width') }}</label>
-                                        <InputNumber v-model="width" mode="decimal" class="w-full rounded-2xl h-12 overflow-hidden" inputClass="px-4" />
-                                    </div>
-                                    <div class="flex flex-col gap-2">
-                                        <label class="font-bold text-xs uppercase text-surface-500 ml-1">{{ t('catalog.products.labels.depth') }}</label>
-                                        <InputNumber v-model="depth" mode="decimal" class="w-full rounded-2xl h-12 overflow-hidden" inputClass="px-4" />
-                                    </div>
-                                </div>
-
                                 <Divider />
 
                                 <ProductInventoryManager :productId="productId" v-if="isEdit" />

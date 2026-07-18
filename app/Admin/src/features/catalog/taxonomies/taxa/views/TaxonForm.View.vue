@@ -7,15 +7,15 @@ import { useTaxonomyStore } from '../../stores/taxonomy.store'
 import { storeToRefs } from 'pinia'
 import { useForm } from 'vee-validate'
 import { toTypedSchema } from '@vee-validate/zod'
-import { createTaxonSchema } from '../../schemas/Taxon.Schema'
+import { createTaxonSchema } from '../../schemas/taxon.schema'
 import { useApiErrorHandler } from '@/shared/composables/api-error-handler.use'
 import { useToast } from '@/shared/composables/toast.use'
 import MetadataManager from '@/shared/components/MetadataManager.Component.vue'
 import TaxonRulesManagerComponent from '../components/TaxonRulesManager.Component.vue'
 import TaxonProductsPreviewComponent from '../components/TaxonProductsPreview.Component.vue'
 import { taxonService } from '../services/taxon.service'
-import type { TaxonDetail } from '../types/Taxon.Response.Type'
-import type { CreateTaxonRequest } from '../types/Taxon.Request.Type'
+import type { TaxonDetail } from '../types/taxon.response.type'
+import type { CreateTaxonRequest } from '../types/taxon.request.type'
 
 const { t } = useI18n()
 const route = useRoute()

@@ -4,9 +4,18 @@ import { stockRepository } from '../stock-items/api/stock.api'
 import { locationRepository } from '../stock-locations/api/location.api'
 import { transferRepository } from '../stock-transfers/api/transfer.api'
 
-vi.mock('@/shared/api/http/api.client', () => ({
-  default: { get: vi.fn().mockResolvedValue({ data: {} }), post: vi.fn().mockResolvedValue({ data: {} }), put: vi.fn().mockResolvedValue({ data: {} }), patch: vi.fn().mockResolvedValue({ data: {} }), delete: vi.fn().mockResolvedValue({ data: {} }) }
-}))
+vi.mock('@/shared/api/http/api.client', () => {
+  const d = { isSuccess: true, statusCode: 200, errors: [], message: null, metadata: null, page: 1, pageSize: 10, totalCount: 0 }
+  return {
+    default: {
+      get: vi.fn().mockResolvedValue({ data: { ...d, items: [], value: null } }),
+      post: vi.fn().mockResolvedValue({ data: { ...d, value: null } }),
+      put: vi.fn().mockResolvedValue({ data: {} }),
+      patch: vi.fn().mockResolvedValue({ data: {} }),
+      delete: vi.fn().mockResolvedValue({ data: {} }),
+    }
+  }
+})
 
 describe('StockRepository', () => {
   it('list calls correct route', async () => {

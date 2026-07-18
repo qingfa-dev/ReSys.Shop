@@ -7,7 +7,7 @@ import { useI18n } from 'vue-i18n';
 import { roleService } from '../services/role.service';
 import PageShell from '@/shared/components/PageShell.Component.vue';
 import PageHeader from '@/shared/components/PageHeader.Component.vue';
-import type { RoleSummary } from '../types/Role.Response.Type';
+import type { RoleSummary } from '../types/role.response.type';
 import type { DataTablePageEvent } from 'primevue/datatable';
 
 const router = useRouter();

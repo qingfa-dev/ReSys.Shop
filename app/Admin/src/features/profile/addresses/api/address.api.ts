@@ -1,9 +1,8 @@
 import apiClient from '@/shared/api/http/api.client'
 import { PROFILES } from '@/shared/api/constants'
 import type { ServerResult } from '@/shared/api/types/result.types'
-import type { AddressDetail } from '../types/Address.Response.Type'
-import type { CreateAddressRequest, UpdateAddressRequest } from '../types/Address.Request.Type'
-
+import type { AddressDetail } from '../types/address.response.type'
+import type { CreateAddressRequest, UpdateAddressRequest } from '../types/address.request.type'
 export const addressApi = {
   getAll: (userId: string): Promise<ServerResult<AddressDetail[]>> =>
     apiClient.get(`${PROFILES}/addresses`, { params: { userId } }).then(res => res.data as ServerResult<AddressDetail[]>),

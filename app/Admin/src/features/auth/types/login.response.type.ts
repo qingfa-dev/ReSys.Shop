@@ -1,8 +1,14 @@
-export interface AuthenticationResponse {
+export interface LoginResponse {
   accessToken: string
   accessTokenExpiresIn: number
   refreshToken: string
   refreshTokenExpiresIn: number
+}
+
+export interface AuthSessionResponse {
+  id: string
+  roles: string[]
+  permissions: string[]
 }
 
 export interface UserProfile {

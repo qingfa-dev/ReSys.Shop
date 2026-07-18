@@ -8,8 +8,8 @@ import { useConfirm } from 'primevue/useconfirm';
 import { variantService } from '../services/variant.service';
 import VariantGenerationDialog from './VariantGenerationDialog.Component.vue';
 import VariantFormDialog from './VariantFormDialog.Component.vue';
-import type { VariantSummary, VariantDetail } from '../types/Variant.Response.Type';
-import type { CreateVariantRequest } from '../types/Variant.Request.Type';
+import type { VariantSummaryModel, VariantDetailModel } from '../types/variant.model.type';
+import type { CreateVariantRequest } from '../types/variant.request.type';
 import type { ServerResult } from '@/shared/api/types/result.types';
 
 const { t } = useI18n();
@@ -23,11 +23,11 @@ const { showToast } = useToast();
 const { formatCurrency } = useFormatter();
 const confirm = useConfirm();
 
-const variants = ref<VariantSummary[]>([]);
+const variants = ref<VariantSummaryModel[]>([]);
 const loading = ref(false);
 const showGenerator = ref(false);
 const showForm = ref(false);
-const selectedVariant = ref<VariantDetail | null>(null);
+const selectedVariant = ref<VariantDetailModel | null>(null);
 
 const loadVariants = async () => {
     loading.value = true;
@@ -46,7 +46,7 @@ const openCreate = () => {
     showForm.value = true;
 };
 
-const openEdit = async (variant: VariantSummary) => {
+const openEdit = async (variant: VariantSummaryModel) => {
     loading.value = true;
     try {
         const result = await variantService.getById(variant.id);
@@ -61,7 +61,7 @@ const openEdit = async (variant: VariantSummary) => {
 
 const onSaveVariant = async (data: CreateVariantRequest) => {
     try {
-        let result: ServerResult<VariantDetail>;
+        let result: ServerResult<VariantDetailModel>;
         if (selectedVariant.value) {
             result = await variantService.update(selectedVariant.value.id, data);
         } else {
@@ -78,7 +78,7 @@ const onSaveVariant = async (data: CreateVariantRequest) => {
     }
 };
 
-const onDelete = (variant: VariantSummary) => {
+const onDelete = (variant: VariantSummaryModel) => {
     confirm.require({
         message: t('catalog.products.confirm.delete_message').replace('{name}', variant.sku ?? ''),
         header: t('catalog.products.confirm.delete_header'),
@@ -130,21 +130,9 @@ onMounted(() => {
                         </div>
                     </template>
                 </Column>
-                <Column header="Options">
-                    <template #body="{ data }">
-                        <div class="flex gap-1 flex-wrap">
-                            <Tag v-for="(opt, idx) in data.options || []" :key="idx" :value="`${opt.name}: ${opt.value}`" severity="secondary" class="text-[10px]" />
-                        </div>
-                    </template>
-                </Column>
                 <Column field="price" :header="t('catalog.products.table.price')" class="text-right">
                     <template #body="{ data }">
-                        <span class="font-black">{{ formatCurrency(data.price) }}</span>
-                    </template>
-                </Column>
-                <Column field="status" :header="t('catalog.products.table.status')" class="text-center w-24">
-                    <template #body="{ data }">
-                        <Tag :value="data.status || 'Active'" :severity="(data.status || 'Active') === 'Active' ? 'success' : 'secondary'" rounded class="text-[10px]" />
+                        <span class="font-black">{{ data.priceDisplay }}</span>
                     </template>
                 </Column>
                 <Column class="w-32 text-right">

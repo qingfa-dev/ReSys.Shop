@@ -5,32 +5,35 @@ import type { ServerQueryingParameters } from "@/shared/api/types/query.types";
 import type {
   CreateOptionTypeRequest,
   UpdateOptionTypeRequest,
-} from "../types/OptionType.Request.Type";
+} from "../types/option-type.request.type";
 import type {
   OptionTypeListItem,
   OptionTypeDetail,
-} from "../../products/option-types/types/ProductOptionType.Response.Type";
-
+} from "../../products/option-types/types/product-option-type.response.type";
 export const optionTypeRepository = {
-  list: (params?: ServerQueryingParameters): Promise<ServerPagedResult<OptionTypeListItem>> =>
-    apiClient
+  list: async (params?: ServerQueryingParameters): Promise<ServerPagedResult<OptionTypeListItem>> => {
+    return apiClient
       .get(`${CATALOG}/option-types`, { params })
-      .then((res) => res.data as ServerPagedResult<OptionTypeListItem>),
+      .then((res) => res.data as ServerPagedResult<OptionTypeListItem>)
+  },
 
-  getById: (id: string): Promise<ServerResult<OptionTypeDetail>> =>
-    apiClient
+  getById: async (id: string): Promise<ServerResult<OptionTypeListItem>> => {
+    return apiClient
       .get(`${CATALOG}/option-types/${id}`)
-      .then((res) => res.data as ServerResult<OptionTypeDetail>),
+      .then((res) => res.data as ServerResult<OptionTypeListItem>)
+  },
 
-  create: (data: CreateOptionTypeRequest): Promise<ServerResult<OptionTypeDetail>> =>
-    apiClient
+  create: async (data: CreateOptionTypeRequest): Promise<ServerResult<OptionTypeListItem>> => {
+    return apiClient
       .post(`${CATALOG}/option-types`, data)
-      .then((res) => res.data as ServerResult<OptionTypeDetail>),
+      .then((res) => res.data as ServerResult<OptionTypeListItem>)
+  },
 
-  update: (id: string, data: UpdateOptionTypeRequest): Promise<ServerResult<OptionTypeDetail>> =>
-    apiClient
+  update: async (id: string, data: UpdateOptionTypeRequest): Promise<ServerResult<OptionTypeListItem>> => {
+    return apiClient
       .put(`${CATALOG}/option-types/${id}`, data)
-      .then((res) => res.data as ServerResult<OptionTypeDetail>),
+      .then((res) => res.data as ServerResult<OptionTypeListItem>)
+  },
 
   delete: (id: string): Promise<ServerResult<void>> =>
     apiClient.delete(`${CATALOG}/option-types/${id}`).then((res) => res.data as ServerResult<void>),

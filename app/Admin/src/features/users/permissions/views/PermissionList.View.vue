@@ -2,7 +2,7 @@
 import { ref, onMounted } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { permissionService } from '../services/permission.service';
-import type { PermissionSummary } from '../types/Permission.Response.Type';
+import type { PermissionSummary } from '../types/permission.response.type';
 import type { DataTablePageEvent } from 'primevue/datatable';
 import PageShell from '@/shared/components/PageShell.Component.vue';
 import PageHeader from '@/shared/components/PageHeader.Component.vue';

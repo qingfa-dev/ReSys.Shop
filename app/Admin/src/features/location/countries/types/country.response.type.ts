@@ -2,10 +2,9 @@ export interface Country {
   id: string
   name: string
   isoCode: string
-  callingCode: string
+  callingCode: string | null
   isActive: boolean
   statesRequired?: boolean
-  zipcodeRequired?: boolean
   createdAtUtc?: string
   modifiedAtUtc?: string
 }

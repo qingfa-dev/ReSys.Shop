@@ -1,4 +1,4 @@
-import type { RoleParameters } from '../schemas/Role.Schema'
+import type { RoleParameters } from '../schemas/role.schema'
 export type CreateRoleRequest = RoleParameters
 export type UpdateRoleRequest = Partial<RoleParameters>
 

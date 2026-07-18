@@ -1,2 +1,2 @@
-import type { UserParameters } from '../schemas/User.Schema'
+import type { UserParameters } from '../schemas/user.schema'
 export type { UserParameters }

@@ -6,11 +6,11 @@ import { toTypedSchema } from '@vee-validate/zod';
 import * as z from 'zod';
 import { productService } from '../../services/product.service';
 import { optionValueService } from '@/features/catalog/option-types/option-values/services/option-value.service';
-import type { OptionValueQuery } from '@/features/catalog/option-types/option-values/types/OptionValue.Query.Type';
-import type { OptionValueListItem } from '@/features/catalog/option-types/option-values/types/OptionValue.Response.Type';
-import type { OptionTypeDetail } from '@/features/catalog/option-types/types/OptionType.Response.Type';
-import type { VariantDetail } from '../types/Variant.Response.Type';
-import type { CreateVariantRequest } from '../types/Variant.Request.Type';
+import type { OptionValueQuery } from '@/features/catalog/option-types/option-values/types/option-value.query.type';
+import type { OptionValueListItem } from '@/features/catalog/option-types/option-values/types/option-value.response.type';
+import type { OptionTypeDetail } from '@/features/catalog/option-types/types/option-type.response.type';
+import type { VariantDetail } from '../types/variant.response.type';
+import type { CreateVariantRequest } from '../types/variant.request.type';
 
 interface AssignedOptionType extends OptionTypeDetail {
   values: OptionValueListItem[];
@@ -43,8 +43,6 @@ const schema = z.object({
     sku: z.string().min(1, 'SKU is required'),
     price: z.number().min(0, 'Price must be non-negative'),
     trackInventory: z.boolean(),
-    barcode: z.string().optional().nullable(),
-    weight: z.number().optional().nullable(),
 });
 
 const { defineField, handleSubmit, errors, resetForm, setValues } = useForm({
@@ -53,16 +51,12 @@ const { defineField, handleSubmit, errors, resetForm, setValues } = useForm({
         sku: '',
         price: 0,
         trackInventory: true,
-        barcode: '',
-        weight: null as number | null,
     }
 });
 
 const [sku] = defineField('sku');
 const [price] = defineField('price');
 const [trackInventory] = defineField('trackInventory');
-const [barcode] = defineField('barcode');
-const [weight] = defineField('weight');
 
 const fetchOptions = async () => {
     loadingOptions.value = true;
@@ -95,21 +89,7 @@ watch([() => props.variant, assignedOptionTypes], ([newVariant, types]) => {
             sku: newVariant.sku || '',
             price: newVariant.price,
             trackInventory: newVariant.trackInventory,
-            barcode: newVariant.barcode || '',
-            weight: newVariant.weight,
         });
-
-        const mapped: Record<string, string> = {};
-        if (newVariant.optionValueIds && types.length > 0) {
-            newVariant.optionValueIds.forEach((id: string) => {
-                types.forEach(type => {
-                    if (type.values && type.values.some((v: OptionValueListItem) => v.id === id)) {
-                        mapped[type.id] = id;
-                    }
-                });
-            });
-        }
-        selectedOptionValues.value = mapped;
     } else {
         resetForm();
         selectedOptionValues.value = {};
@@ -124,9 +104,6 @@ const onSubmit = handleSubmit((values) => {
         price: values.price,
         position: 0,
         trackInventory: values.trackInventory,
-        barcode: values.barcode ?? undefined,
-        weight: values.weight,
-        optionValueIds: optionValueIds,
         productId: props.productId,
     };
     emit('save', payload);
@@ -146,7 +123,12 @@ const onSubmit = handleSubmit((values) => {
                 <span class="font-bold text-xs uppercase tracking-wider text-surface-500">{{ t('catalog.products.variants.form.attributes') }}</span>
                 <div v-for="type in assignedOptionTypes" :key="type.id" class="flex flex-col gap-1">
                     <label class="text-xs font-medium">{{ type.presentation || type.name }}</label>
-                    <Select v-model="selectedOptionValues[type.id]" :options="type.values" optionLabel="presentation" optionValue="id" placeholder="Select..." class="w-full" />
+                    <Select v-model="selectedOptionValues[type.id]"
+                      :options="type.values"
+                      optionLabel="presentation"
+                      optionValue="id"
+                      placeholder="Select..."
+                      class="w-full" />
                 </div>
             </div>
 
@@ -156,15 +138,6 @@ const onSubmit = handleSubmit((values) => {
                     <InputNumber v-model="price" mode="currency" currency="USD" locale="en-US" class="w-full" :invalid="!!errors.price" />
                     <small class="p-error" v-if="errors.price">{{ errors.price }}</small>
                 </div>
-                <div class="flex flex-col gap-2">
-                    <label class="font-bold text-xs uppercase tracking-wider text-surface-500 ml-1">{{ t('catalog.products.labels.weight') }}</label>
-                    <InputNumber v-model="weight" mode="decimal" :minFractionDigits="2" class="w-full" />
-                </div>
-            </div>
-
-            <div class="flex flex-col gap-2">
-                <label class="font-bold text-xs uppercase tracking-wider text-surface-500 ml-1">{{ t('catalog.products.variants.form.barcode') }}</label>
-                <InputText v-model="barcode" class="w-full" />
             </div>
 
             <div class="flex items-center justify-between p-4 bg-surface-50 dark:bg-surface-800 rounded-xl border border-surface-100 dark:border-surface-700">

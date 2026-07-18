@@ -1,4 +1,4 @@
-import type { StockAdjustmentParameters } from '../schemas/StockItem.Schema'
+import type { StockAdjustmentParameters } from '../schemas/stock-item.schema'
 export type StockAdjustmentRequest = StockAdjustmentParameters
 export interface StockAuditRequest { physicalCount: number; reason?: string; reference?: string }
 

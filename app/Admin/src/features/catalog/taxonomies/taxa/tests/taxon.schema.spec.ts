@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { createTaxonSchema } from '../../schemas/Taxon.Schema';
+import { createTaxonSchema } from '../../schemas/taxon.schema';
 
 const t = (key: string) => key;
 const TaxonSchema = createTaxonSchema(t);

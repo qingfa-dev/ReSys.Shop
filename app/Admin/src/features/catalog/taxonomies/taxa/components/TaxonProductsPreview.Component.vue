@@ -5,7 +5,7 @@ import { taxonService } from '../services/taxon.service'
 import { useApiErrorHandler } from '@/shared/composables/api-error-handler.use'
 import { useFormatter } from '@/shared/composables/formatter.use'
 import type { DataTablePageEvent } from 'primevue/datatable'
-import type { ProductSummary } from '@/features/catalog/products/types/Product.Response.Type'
+import type { ProductSummary } from '@/features/catalog/products/types/product.response.type'
 
 const props = defineProps<{
   taxonId: string

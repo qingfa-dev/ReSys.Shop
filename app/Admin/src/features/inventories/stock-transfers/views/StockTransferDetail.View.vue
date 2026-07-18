@@ -8,8 +8,8 @@ import { useFormatter } from '@/shared/composables/formatter.use';
 import { useI18n } from 'vue-i18n';
 import PageShell from '@/shared/components/PageShell.Component.vue';
 import PageHeader from '@/shared/components/PageHeader.Component.vue';
-import type { StockTransferDetail } from '../types/StockTransfer.Response.Type';
-import type { ProductSummary } from '@/features/catalog/products/types/Product.Response.Type';
+import type { StockTransferDetail } from '../types/stock-transfer.response.type';
+import type { ProductSummary } from '@/features/catalog/products/types/product.response.type';
 
 const { t } = useI18n();
 
@@ -94,13 +94,23 @@ async function onReceive() {
     }
 }
 
-const getStatusSeverity = (state?: string) => {
-    switch (state) {
-        case 'Received': return 'success';
-        case 'InTransit': return 'info';
-        case 'Draft': return 'warning';
-        case 'Canceled': return 'danger';
+const getStatusSeverity = (status?: number) => {
+    switch (status) {
+        case 2: return 'success';
+        case 1: return 'info';
+        case 0: return 'warning';
+        case 3: return 'danger';
         default: return 'secondary';
+    }
+};
+
+const statusLabel = (status?: number) => {
+    switch (status) {
+        case 0: return 'Draft';
+        case 1: return 'In Transit';
+        case 2: return 'Received';
+        case 3: return 'Canceled';
+        default: return 'Unknown';
     }
 };
 
@@ -112,13 +122,13 @@ onMounted(() => {
 <template>
     <PageShell :card="false" gap maxWidth="7xl">
         <template v-if="transfer">
-            <PageHeader back :title="transfer.referenceNumber" :description="'Initiated on ' + formatDate(transfer.createdAtUtc)">
+            <PageHeader back :title="transfer.reference" :description="'Initiated on ' + formatDate(transfer.createdAtUtc)">
                 <template #badge>
-                    <Tag :value="transfer.state" :severity="getStatusSeverity(transfer.state)" rounded class="font-bold px-3" />
+                    <Tag :value="statusLabel(transfer.status)" :severity="getStatusSeverity(transfer.status)" rounded class="font-bold px-3" />
                 </template>
                 <template #actions>
-                    <Button v-if="transfer.state === 'Draft'" :label="t('inventory.actions.ship')" icon="pi pi-send" class="rounded-xl px-6" :loading="processing" @click="onShip" />
-                    <Button v-if="transfer.state === 'InTransit'" :label="t('inventory.actions.receive')" icon="pi pi-download" severity="success" class="rounded-xl px-6" :loading="processing" @click="onReceive" />
+                    <Button v-if="transfer.status === 0" :label="t('inventory.actions.ship')" icon="pi pi-send" class="rounded-xl px-6" :loading="processing" @click="onShip" />
+                    <Button v-if="transfer.status === 1" :label="t('inventory.actions.receive')" icon="pi pi-download" severity="success" class="rounded-xl px-6" :loading="processing" @click="onReceive" />
                 </template>
             </PageHeader>
         </template>
@@ -134,7 +144,7 @@ onMounted(() => {
                     <template #title>
                         <div class="flex justify-between items-center p-4">
                             <span class="text-xl font-black uppercase tracking-tight">{{ t('inventory.titles.merchandise') }}</span>
-                            <Button v-if="transfer.state === 'Draft'" :label="t('inventory.actions.add')" icon="pi pi-plus" size="small" text @click="itemDialog = true" />
+                                <Button v-if="transfer.status === 0" :label="t('inventory.actions.add')" icon="pi pi-plus" size="small" text @click="itemDialog = true" />
                         </div>
                     </template>
                     <template #content>
@@ -151,7 +161,7 @@ onMounted(() => {
                                 </template>
                             </Column>
                             <Column field="quantity" :header="t('inventory.table.quantity')" class="text-right font-mono font-bold"></Column>
-                            <Column class="w-12 text-right" v-if="transfer.state === 'Draft'">
+                            <Column class="w-12 text-right" v-if="transfer.status === 0">
                                 <template #body>
                                     <Button icon="pi pi-trash" severity="danger" text rounded />
                                 </template>
@@ -160,10 +170,10 @@ onMounted(() => {
                     </template>
                 </Card>
 
-                <Card class="rounded-3xl shadow-sm border-none bg-surface-0 dark:bg-surface-900" v-if="transfer.reason">
-                    <template #title><span class="text-sm font-black uppercase tracking-widest text-surface-400">Transfer Reason</span></template>
+                <Card class="rounded-3xl shadow-sm border-none bg-surface-0 dark:bg-surface-900" v-if="transfer.notes">
+                    <template #title><span class="text-sm font-black uppercase tracking-widest text-surface-400">Notes</span></template>
                     <template #content>
-                        <p class="m-0 italic text-surface-600 dark:text-surface-300">"{{ transfer.reason }}"</p>
+                        <p class="m-0 italic text-surface-600 dark:text-surface-300">"{{ transfer.notes }}"</p>
                     </template>
                 </Card>
             </div>

@@ -2,32 +2,35 @@ import apiClient from "@/shared/api/http/api.client";
 import { CATALOG } from "@/shared/api/constants";
 import type { ServerPagedResult, ServerResult } from "@/shared/api/types/result.types";
 import type { ServerQueryingParameters } from "@/shared/api/types/query.types";
-import type { TaxonomyDetail, TaxonomyListItem } from "../types/Taxonomy.Response.Type";
+import type { TaxonomyDetail, TaxonomyListItem } from "../types/taxonomy.response.type";
 import type {
   CreateTaxonomyRequest,
   UpdateTaxonomyRequest,
-} from "../types/Taxonomy.Request.Type";
-
+} from "../types/taxonomy.request.type";
 export const taxonomyRepository = {
-  list: (params?: ServerQueryingParameters): Promise<ServerPagedResult<TaxonomyListItem>> =>
-    apiClient
+  list: async (params?: ServerQueryingParameters): Promise<ServerPagedResult<TaxonomyListItem>> => {
+    return apiClient
       .get(`${CATALOG}/taxonomies`, { params })
-      .then((res) => res.data as ServerPagedResult<TaxonomyListItem>),
+      .then((res) => res.data as ServerPagedResult<TaxonomyListItem>);
+  },
 
-  getById: (id: string): Promise<ServerResult<TaxonomyDetail>> =>
-    apiClient
+  getById: async (id: string): Promise<ServerResult<TaxonomyDetail | null>> => {
+    return apiClient
       .get(`${CATALOG}/taxonomies/${id}`)
-      .then((res) => res.data as ServerResult<TaxonomyDetail>),
+      .then((res) => res.data as ServerResult<TaxonomyDetail>);
+  },
 
-  create: (data: CreateTaxonomyRequest): Promise<ServerResult<TaxonomyDetail>> =>
-    apiClient
+  create: async (data: CreateTaxonomyRequest): Promise<ServerResult<TaxonomyDetail | null>> => {
+    return apiClient
       .post(`${CATALOG}/taxonomies`, data)
-      .then((res) => res.data as ServerResult<TaxonomyDetail>),
+      .then((res) => res.data as ServerResult<TaxonomyDetail>);
+  },
 
-  update: (id: string, data: UpdateTaxonomyRequest): Promise<ServerResult<TaxonomyDetail>> =>
-    apiClient
+  update: async (id: string, data: UpdateTaxonomyRequest): Promise<ServerResult<TaxonomyDetail | null>> => {
+    return apiClient
       .put(`${CATALOG}/taxonomies/${id}`, data)
-      .then((res) => res.data as ServerResult<TaxonomyDetail>),
+      .then((res) => res.data as ServerResult<TaxonomyDetail>);
+  },
 
   delete: (id: string): Promise<ServerResult<void>> =>
     apiClient.delete(`${CATALOG}/taxonomies/${id}`).then((res) => res.data as ServerResult<void>),

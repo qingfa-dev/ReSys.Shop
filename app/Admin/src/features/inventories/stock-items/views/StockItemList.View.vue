@@ -9,7 +9,7 @@ import PageHeader from '@/shared/components/PageHeader.Component.vue';
 import StockMovementTimeline from '../../components/StockMovementTimeline.Component.vue';
 import StockAdjustmentDialog from '../../components/StockAdjustmentDialog.Component.vue';
 import type { DataTablePageEvent, DataTableSortEvent, DataTableFilterMeta } from 'primevue/datatable';
-import type { StockItem } from '../types/StockItem.Response.Type';
+import type { StockItem } from '../types/stock-item.response.type';
 
 const { t } = useI18n();
 
@@ -27,7 +27,7 @@ const selectedSku = ref('');
 
 const showHistory = (data: StockItem) => {
     selectedStockId.value = data.id;
-    selectedSku.value = data.sku;
+    selectedSku.value = data.sku ?? '';
     historyDrawer.value = true;
 };
 
@@ -160,19 +160,7 @@ const toggleLowStock = () => {
                         </template>
                     </Column>
 
-                    <Column field="quantityReserved" :header="t('inventory.table.reserved')" class="text-center">
-                        <template #body="{ data }">
-                            <span class="text-surface-500">{{ data.quantityReserved }}</span>
-                        </template>
-                    </Column>
 
-                    <Column field="countAvailable" :header="t('inventory.table.available')" class="text-center">
-                        <template #body="{ data }">
-                            <Tag :value="data.countAvailable" 
-                                 :severity="data.countAvailable > 10 ? 'success' : (data.countAvailable > 0 ? 'warning' : 'danger')" 
-                                 class="px-3 font-bold" />
-                        </template>
-                    </Column>
 
                     <Column :header="t('inventory.table.actions')" class="w-32 text-right" frozen alignFrozen="right">
                         <template #body="{ data }">
@@ -188,8 +176,8 @@ const toggleLowStock = () => {
         <StockAdjustmentDialog 
             v-if="adjustDialog && selectedStockItem" 
             :stockItemId="selectedStockItem.id" 
-            :sku="selectedStockItem.sku" 
-            :variantName="selectedStockItem.variantName" 
+            :sku="selectedStockItem.sku ?? ''" 
+            :variantName="selectedStockItem.variantName ?? ''" 
             @updated="store.fetchStocks()" 
             @close="adjustDialog = false" 
         />

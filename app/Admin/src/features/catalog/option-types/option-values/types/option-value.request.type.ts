@@ -1,4 +1,4 @@
-import type { OptionValueParameters } from '../schemas/OptionValue.Schema'
+import type { OptionValueParameters } from '../schemas/option-value.schema'
 export type CreateOptionValueRequest = OptionValueParameters & { optionTypeId: string }
 export type UpdateOptionValueRequest = OptionValueParameters & { optionTypeId?: string }
 export interface UpdateOptionValuePositionsRequest {

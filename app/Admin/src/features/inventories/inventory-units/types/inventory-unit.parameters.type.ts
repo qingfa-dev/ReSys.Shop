@@ -1,2 +1,2 @@
-import type { InventoryUnitParameters } from '../schemas/InventoryUnit.Schema'
+import type { InventoryUnitParameters } from '../schemas/inventory-unit.schema'
 export type { InventoryUnitParameters }

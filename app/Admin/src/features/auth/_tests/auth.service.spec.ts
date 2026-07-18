@@ -1,15 +1,15 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { authService } from '../services/auth.service'
 import apiClient from '@/shared/api/http/api.client'
-import type { LoginRequest } from '../types/Login.Request.Type'
+import type { LoginRequest } from '../types/login.request.type'
 import { createMockResult } from '@/shared/test/mock-types'
-import type { AuthenticationResponse } from '../types/Login.Response.Type'
+import type { LoginResponse } from '../types/login.response.type'
 import type { AxiosResponse } from 'axios'
 
-// Mock apiClient
 vi.mock('@/shared/api/http/api.client', () => ({
   default: {
     post: vi.fn(),
+    get: vi.fn(),
   },
 }))
 
@@ -20,9 +20,13 @@ describe('AuthService', () => {
 
   describe('login', () => {
     it('should call api.post with correct params and return data', async () => {
+      vi.mocked(apiClient.get).mockResolvedValue({
+        data: createMockResult({ id: 'uid-1', email: 'a@b.com', fullName: 'John', roles: ['Admin'] }),
+      } as AxiosResponse)
+
       const mockRequest: LoginRequest = { credential: 'user', password: 'password', rememberMe: false }
       const mockResponse = {
-        data: createMockResult<AuthenticationResponse>({
+        data: createMockResult<LoginResponse>({
           accessToken: 'access',
           accessTokenExpiresIn: 3600,
           refreshToken: 'refresh',
@@ -46,9 +50,13 @@ describe('AuthService', () => {
 
   describe('refresh', () => {
     it('should call api.post with correct params', async () => {
+      vi.mocked(apiClient.get).mockResolvedValue({
+        data: createMockResult({ id: 'uid-1', email: 'a@b.com', fullName: 'John', roles: ['Admin'] }),
+      } as AxiosResponse)
+
       const mockRequest = { refreshToken: 'old-refresh' }
       const mockResponse = {
-        data: createMockResult<AuthenticationResponse>({
+        data: createMockResult<LoginResponse>({
           accessToken: 'new-access',
           accessTokenExpiresIn: 3600,
           refreshToken: 'new-refresh',

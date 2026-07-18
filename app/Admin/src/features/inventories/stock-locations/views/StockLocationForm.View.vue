@@ -7,7 +7,7 @@ import { useI18n } from 'vue-i18n';
 import PageShell from '@/shared/components/PageShell.Component.vue';
 import PageHeader from '@/shared/components/PageHeader.Component.vue';
 import LocationSelector from '../../components/LocationSelector.Component.vue';
-import type { CreateStockLocationRequest } from '../types/StockLocation.Request.Type';
+import type { CreateStockLocationRequest } from '../types/stock-location.request.type';
 
 const { t } = useI18n();
 
@@ -68,21 +68,13 @@ async function loadLocation() {
                 code: res.value.code,
                 type: 0,
                 isDefault: res.value.isDefault,
-                active: res.value.active,
-                address1: res.value.address.address1,
-                address2: res.value.address.address2 || '',
-                city: res.value.address.city,
-                zipCode: res.value.address.zipCode,
-                countryCode: res.value.address.countryCode,
-                stateCode: res.value.address.stateCode || '',
-                phone: res.value.address.phone || '',
-                backorderableDefault: res.value.backorderableDefault ?? false,
-                propagateAllVariants: res.value.propagateAllVariants ?? false,
-                notifyOnLowStock: res.value.notifyOnLowStock ?? false,
-                lowStockThreshold: res.value.lowStockThreshold,
-                position: res.value.position ?? 0,
+                active: res.value.isActive,
+                address1: res.value.address,
+                city: res.value.city,
+                zipCode: res.value.postalCode,
+                countryCode: res.value.country,
+                stateCode: res.value.stateProvince || '',
             };
-            parentId.value = (res.value as { parentId?: string | null }).parentId ?? null;
         }
     } finally {
         loading.value = false;

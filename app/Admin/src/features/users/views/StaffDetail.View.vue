@@ -4,7 +4,7 @@ import { useRoute, useRouter } from 'vue-router';
 import { useToast } from '@/shared/composables/toast.use';
 import { useFormatter } from '@/shared/composables/formatter.use';
 import { userService } from '../services/user.service';
-import type { AdminUserSummary } from '../types/User.Response.Type';
+import type { AdminUserSummary } from '../types/user.response.type';
 import { useI18n } from 'vue-i18n';
 import PageShell from '@/shared/components/PageShell.Component.vue';
 import PageHeader from '@/shared/components/PageHeader.Component.vue';
@@ -138,14 +138,6 @@ async function onToggleStatus() {
                                                 <label class="text-xs text-surface-400 uppercase font-bold mb-1">Joined Date</label>
                                                 <span class="text-lg font-medium">{{ formatDate(user.createdAtUtc) }}</span>
                                             </div>
-                                            <div class="flex flex-col">
-                                                <label class="text-xs text-surface-400 uppercase font-bold mb-1">Last Sign In</label>
-                                                <span class="text-lg font-medium">{{ user.lastSignInAtUtc ? formatDate(user.lastSignInAtUtc) : 'Never' }}</span>
-                                            </div>
-                                            <div class="flex flex-col">
-                                                <label class="text-xs text-surface-400 uppercase font-bold mb-1">Last Known IP</label>
-                                                <span class="text-lg font-medium font-mono text-surface-600">{{ user.lastIpAddress || '-' }}</span>
-                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -153,7 +145,7 @@ async function onToggleStatus() {
 
                             <!-- Roles Panel -->
                             <TabPanel :value="1">
-                                <UserRoleManager :userId="user.id" :assignedRoles="user.roleNames" @updated="loadData" />
+                                <UserRoleManager :userId="user.id" :assignedRoles="[]" @updated="loadData" />
                             </TabPanel>
 
                             <!-- Permissions Panel -->

@@ -2,24 +2,38 @@ import apiClient from '@/shared/api/http/api.client'
 import { IDENTITY } from '@/shared/api/constants'
 import type { ServerPagedResult, ServerResult } from '@/shared/api/types/result.types'
 import type { ServerQueryingParameters } from '@/shared/api/types/query.types'
-import type { AdminUserSummary, CustomerSummary } from '../types/User.Response.Type'
-import type { CreateAdminUserRequest, UpdateAdminUserRequest, UpdateUserStatusRequest, AssignRoleRequest, SyncRolesRequest, AssignPermissionRequest, SyncPermissionsRequest } from '../types/User.Request.Type'
+import type { AdminUserSummary, CustomerSummary } from '../types/user.response.type'
+import type { CreateAdminUserRequest, UpdateAdminUserRequest, UpdateUserStatusRequest, AssignRoleRequest, SyncRolesRequest, AssignPermissionRequest, SyncPermissionsRequest } from '../types/user.request.type'
+import type { AdminUserSummaryModel } from '../types/user.model.type'
+import { mapValue, mapItems } from '@/shared/utils/transform'
 
 export const userRepository = {
-  list: (params?: ServerQueryingParameters): Promise<ServerPagedResult<AdminUserSummary>> =>
-    apiClient.get(`${IDENTITY}/users`, { params }).then(res => res.data as ServerPagedResult<AdminUserSummary>),
+  async list(params?: ServerQueryingParameters): Promise<ServerPagedResult<AdminUserSummaryModel>> {
+    const res = await apiClient.get(`${IDENTITY}/users`, { params })
+    const data = res.data as ServerPagedResult<AdminUserSummary>
+    return mapItems(data, d => ({ ...d, hasRole: false, isLocked: false }))
+  },
 
   listCustomers: (params?: ServerQueryingParameters): Promise<ServerPagedResult<CustomerSummary>> =>
     apiClient.get(`${IDENTITY}/users`, { params: { ...params, role: 'Storefront.Customer' } }).then(res => res.data as ServerPagedResult<CustomerSummary>),
 
-  getById: (id: string): Promise<ServerResult<AdminUserSummary>> =>
-    apiClient.get(`${IDENTITY}/users/${id}`).then(res => res.data as ServerResult<AdminUserSummary>),
+  async getById(id: string): Promise<ServerResult<AdminUserSummaryModel>> {
+    const res = await apiClient.get(`${IDENTITY}/users/${id}`)
+    const data = res.data as ServerResult<AdminUserSummary>
+    return mapValue(data, d => ({ ...d, hasRole: false, isLocked: false }))
+  },
 
-  create: (data: CreateAdminUserRequest): Promise<ServerResult<AdminUserSummary>> =>
-    apiClient.post(`${IDENTITY}/users`, data).then(res => res.data as ServerResult<AdminUserSummary>),
+  async create(data: CreateAdminUserRequest): Promise<ServerResult<AdminUserSummaryModel>> {
+    const res = await apiClient.post(`${IDENTITY}/users`, data)
+    const result = res.data as ServerResult<AdminUserSummary>
+    return mapValue(result, d => ({ ...d, hasRole: false, isLocked: false }))
+  },
 
-  update: (id: string, data: UpdateAdminUserRequest): Promise<ServerResult<AdminUserSummary>> =>
-    apiClient.put(`${IDENTITY}/users/${id}`, data).then(res => res.data as ServerResult<AdminUserSummary>),
+  async update(id: string, data: UpdateAdminUserRequest): Promise<ServerResult<AdminUserSummaryModel>> {
+    const res = await apiClient.put(`${IDENTITY}/users/${id}`, data)
+    const result = res.data as ServerResult<AdminUserSummary>
+    return mapValue(result, d => ({ ...d, hasRole: false, isLocked: false }))
+  },
 
   delete: (id: string): Promise<ServerResult<void>> =>
     apiClient.delete(`${IDENTITY}/users/${id}`).then(res => res.data as ServerResult<void>),

@@ -3,19 +3,29 @@ import { PAYMENTS } from '@/shared/api/constants'
 import type { ServerPagedResult, ServerResult } from '@/shared/api/types/result.types'
 import type { ServerQueryingParameters } from '@/shared/api/types/query.types'
 import type { PaymentListItem, PaymentDetail } from '../types/payment.response.type'
+import type { PaymentListItemModel, PaymentDetailModel } from '../types/payment.model.type'
 import type { CapturePaymentRequest, RefundPaymentRequest } from '../types/payment.request.type'
+import { mapPaymentListItem, mapPaymentDetail } from '../mappers/payment.mapper'
 
 function paymentsPath(sub?: string): string {
   return `${PAYMENTS}/payments${sub ? `/${sub}` : ''}`
 }
 
 export const paymentRepository = {
-  list(params?: ServerQueryingParameters): Promise<ServerPagedResult<PaymentListItem>> {
-    return apiClient.get(paymentsPath(), { params }).then(res => res.data as ServerPagedResult<PaymentListItem>)
+  async list(params?: ServerQueryingParameters): Promise<ServerPagedResult<PaymentListItemModel>> {
+    const result = await apiClient.get(paymentsPath(), { params }).then(res => res.data as ServerPagedResult<PaymentListItem>)
+    if (result.isSuccess) {
+      return { ...result, items: result.items.map(mapPaymentListItem) }
+    }
+    return result as ServerPagedResult<PaymentListItemModel>
   },
 
-  getById(id: string): Promise<ServerResult<PaymentDetail>> {
-    return apiClient.get(paymentsPath(id)).then(res => res.data as ServerResult<PaymentDetail>)
+  async getById(id: string): Promise<ServerResult<PaymentDetailModel>> {
+    const result = await apiClient.get(paymentsPath(id)).then(res => res.data as ServerResult<PaymentDetail>)
+    if (result.isSuccess) {
+      return { ...result, value: mapPaymentDetail(result.value) }
+    }
+    return result as ServerResult<PaymentDetailModel>
   },
 
   capture(id: string, amount?: number): Promise<ServerResult<void>> {

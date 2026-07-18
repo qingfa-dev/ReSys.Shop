@@ -3,9 +3,9 @@ import { ref } from 'vue';
 import { useToast } from '@/shared/composables/toast.use';
 import { useI18n } from 'vue-i18n';
 import { userService } from '../services/user.service';
-import type { AdminUserSummary, CustomerSummary } from '../types/User.Response.Type'
-import type { UserQuery } from '../types/User.Query.Type'
-import type { CreateAdminUserRequest, UpdateAdminUserRequest } from '../types/User.Request.Type';
+import type { AdminUserSummary, CustomerSummary } from '../types/user.response.type'
+import type { UserQuery } from '../types/user.query.type'
+import type { CreateAdminUserRequest, UpdateAdminUserRequest } from '../types/user.request.type';
 
 export const useUserStore = defineStore('user', () => {
   const { showToast } = useToast();

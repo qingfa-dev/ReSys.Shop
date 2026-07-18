@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
 import { inventoryService } from '../services/inventory.service';
-import type { StockMovement } from '../stock-movements/types/StockMovement.Response.Type';
+import type { StockMovement } from '../stock-movements/types/stock-movement.response.type';
 import type { ServerQueryingParameters } from '@/shared/api/types/query.types';
 import { useFormatter } from '@/shared/composables/formatter.use';
 
@@ -31,23 +31,35 @@ const fetchMovements = async () => {
 
 onMounted(fetchMovements);
 
-const getIcon = (type: string) => {
+const movementLabel = (type: number) => {
     switch (type) {
-        case 'Purchase': return 'pi pi-shopping-cart';
-        case 'Sale': return 'pi pi-shopping-bag';
-        case 'Adjustment': return 'pi pi-cog';
-        case 'Audit': return 'pi pi-verified';
-        case 'Transfer': return 'pi pi-arrow-right-arrow-left';
+        case 0: return 'Purchase';
+        case 1: return 'Sale';
+        case 2: return 'Adjustment';
+        case 3: return 'Audit';
+        case 4: return 'Transfer';
+        case 5: return 'Loss';
+        default: return 'Movement';
+    }
+};
+
+const getIcon = (type: number) => {
+    switch (type) {
+        case 0: return 'pi pi-shopping-cart';
+        case 1: return 'pi pi-shopping-bag';
+        case 2: return 'pi pi-cog';
+        case 3: return 'pi pi-verified';
+        case 4: return 'pi pi-arrow-right-arrow-left';
         default: return 'pi pi-box';
     }
 };
 
-const getColor = (type: string) => {
+const getColor = (type: number) => {
     switch (type) {
-        case 'Purchase': return 'text-green-500';
-        case 'Sale': return 'text-blue-500';
-        case 'Loss': return 'text-red-500';
-        case 'Audit': return 'text-purple-500';
+        case 0: return 'text-green-500';
+        case 1: return 'text-blue-500';
+        case 5: return 'text-red-500';
+        case 3: return 'text-purple-500';
         default: return 'text-surface-500';
     }
 };
@@ -65,13 +77,13 @@ const getColor = (type: string) => {
             </template>
             <template #marker="slotProps">
                 <span class="flex w-8 h-8 items-center justify-center bg-surface-100 dark:bg-surface-800 rounded-full shadow-sm">
-                    <i :class="[getIcon(slotProps.item.action), getColor(slotProps.item.action)]" class="text-xs"></i>
+                    <i :class="[getIcon(slotProps.item.type), getColor(slotProps.item.type)]" class="text-xs"></i>
                 </span>
             </template>
             <template #content="slotProps">
                 <div class="flex flex-col mb-6">
                     <div class="flex items-center gap-2">
-                        <span class="font-bold text-sm">{{ slotProps.item.action }}</span>
+                        <span class="font-bold text-sm">{{ movementLabel(slotProps.item.type) }}</span>
                         <Tag :value="slotProps.item.quantity > 0 ? `+${slotProps.item.quantity}` : slotProps.item.quantity"
                              :severity="slotProps.item.quantity > 0 ? 'success' : 'danger'" class="text-[10px]" />
                     </div>
@@ -79,7 +91,6 @@ const getColor = (type: string) => {
                         {{ slotProps.item.reason }}
                     </p>
                     <div class="flex items-center gap-4 mt-2 text-[10px] text-surface-400 font-mono uppercase tracking-tighter">
-                        <span>Previous Count: {{ slotProps.item.previousCountOnHand }}</span>
                         <span v-if="slotProps.item.reference">REF: {{ slotProps.item.reference }}</span>
                     </div>
                 </div>

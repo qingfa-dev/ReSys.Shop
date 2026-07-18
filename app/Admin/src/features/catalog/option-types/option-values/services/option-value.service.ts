@@ -1,12 +1,12 @@
 import { optionValueRepository } from "../api/option-value.api";
-import type { OptionValueListItem } from "../types/OptionValue.Response.Type";
-import type { OptionValueQuery } from "../types/OptionValue.Query.Type";
+import type { OptionValueQuery } from "../types/option-value.query.type";
 import type {
   CreateOptionValueRequest,
   UpdateOptionValueRequest,
   UpdateOptionValuePositionsRequest,
-} from "../types/OptionValue.Request.Type";
+} from "../types/option-value.request.type";
 import type { ServerResult, ServerPagedResult } from "@/shared/api/types/result.types";
+import type { OptionValueListItem } from "../types/option-value.response.type";
 
 export const optionValueService = {
   async list(
@@ -25,27 +25,14 @@ export const optionValueService = {
         pageSize: 0,
         totalCount: 0,
       };
-    return optionValueRepository.listByOptionTypeId(optionTypeId, params) as unknown as Promise<
-      ServerPagedResult<OptionValueListItem>
-    >;
+    return optionValueRepository.listByOptionTypeId(optionTypeId, params);
   },
   getById: (_optionTypeId: string, _id: string) => {
     throw new Error("Use optionValueRepository directly — requires optionTypeId");
   },
-  async create(data: CreateOptionValueRequest): Promise<ServerResult<OptionValueListItem>> {
-    const { optionTypeId, ...payload } = data;
-    return optionValueRepository.create(optionTypeId, payload);
-  },
-  async update(
-    optionTypeId: string,
-    valueId: string,
-    data: UpdateOptionValueRequest,
-  ): Promise<ServerResult<OptionValueListItem>> {
-    return optionValueRepository.update(optionTypeId, valueId, data);
-  },
-  async delete(optionTypeId: string, valueId: string): Promise<ServerResult<void>> {
-    return optionValueRepository.delete(optionTypeId, valueId);
-  },
+  create: optionValueRepository.create,
+  update: optionValueRepository.update,
+  delete: optionValueRepository.delete,
   async reorder(data: UpdateOptionValuePositionsRequest): Promise<ServerResult<void>> {
     const { optionTypeId, positions } = data;
     return optionValueRepository.listByOptionTypeId(optionTypeId, {}).then(() => ({

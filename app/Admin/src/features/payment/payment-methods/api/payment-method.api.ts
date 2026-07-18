@@ -3,27 +3,45 @@ import { PAYMENTS } from '@/shared/api/constants'
 import type { ServerPagedResult, ServerResult } from '@/shared/api/types/result.types'
 import type { ServerQueryingParameters } from '@/shared/api/types/query.types'
 import type { PaymentMethodListItem, PaymentMethodDetail } from '../types/payment-method.response.type'
+import type { PaymentMethodListItemModel, PaymentMethodDetailModel } from '../types/payment-method.model.type'
 import type { CreatePaymentMethodRequest, UpdatePaymentMethodRequest } from '../types/payment-method.request.type'
+import { mapValue, mapItems } from '@/shared/utils/transform'
 
 function methodsPath(sub?: string): string {
   return `${PAYMENTS}/payment-methods${sub ? `/${sub}` : ''}`
 }
 
 export const paymentMethodRepository = {
-  list(params?: ServerQueryingParameters): Promise<ServerPagedResult<PaymentMethodListItem>> {
-    return apiClient.get(methodsPath(), { params }).then(res => res.data as ServerPagedResult<PaymentMethodListItem>)
+  async list(params?: ServerQueryingParameters): Promise<ServerPagedResult<PaymentMethodListItemModel>> {
+    const result = await apiClient.get(methodsPath(), { params }).then(res => res.data as ServerPagedResult<PaymentMethodListItem>)
+    if (result.isSuccess) {
+      return mapItems(result, d => ({ ...d, statusLabel: d.isActive ? 'Active' : 'Inactive' }))
+    }
+    return result as ServerPagedResult<PaymentMethodListItemModel>
   },
 
-  getById(id: string): Promise<ServerResult<PaymentMethodDetail>> {
-    return apiClient.get(methodsPath(id)).then(res => res.data as ServerResult<PaymentMethodDetail>)
+  async getById(id: string): Promise<ServerResult<PaymentMethodDetailModel>> {
+    const result = await apiClient.get(methodsPath(id)).then(res => res.data as ServerResult<PaymentMethodDetail>)
+    if (result.isSuccess) {
+      return mapValue(result, d => ({ ...d, statusLabel: d.isActive ? 'Active' : 'Inactive' }))
+    }
+    return result as ServerResult<PaymentMethodDetailModel>
   },
 
-  create(data: CreatePaymentMethodRequest): Promise<ServerResult<PaymentMethodDetail>> {
-    return apiClient.post(methodsPath(), data).then(res => res.data as ServerResult<PaymentMethodDetail>)
+  async create(data: CreatePaymentMethodRequest): Promise<ServerResult<PaymentMethodDetailModel>> {
+    const result = await apiClient.post(methodsPath(), data).then(res => res.data as ServerResult<PaymentMethodDetail>)
+    if (result.isSuccess) {
+      return mapValue(result, d => ({ ...d, statusLabel: d.isActive ? 'Active' : 'Inactive' }))
+    }
+    return result as ServerResult<PaymentMethodDetailModel>
   },
 
-  update(id: string, data: UpdatePaymentMethodRequest): Promise<ServerResult<PaymentMethodDetail>> {
-    return apiClient.put(methodsPath(id), data).then(res => res.data as ServerResult<PaymentMethodDetail>)
+  async update(id: string, data: UpdatePaymentMethodRequest): Promise<ServerResult<PaymentMethodDetailModel>> {
+    const result = await apiClient.put(methodsPath(id), data).then(res => res.data as ServerResult<PaymentMethodDetail>)
+    if (result.isSuccess) {
+      return mapValue(result, d => ({ ...d, statusLabel: d.isActive ? 'Active' : 'Inactive' }))
+    }
+    return result as ServerResult<PaymentMethodDetailModel>
   },
 
   delete(id: string): Promise<ServerResult<void>> {

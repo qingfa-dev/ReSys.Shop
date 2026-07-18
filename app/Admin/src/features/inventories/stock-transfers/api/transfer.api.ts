@@ -2,9 +2,8 @@ import apiClient from '@/shared/api/http/api.client'
 import { INVENTORY } from '@/shared/api/constants'
 import type { ServerResult, ServerPagedResult } from '@/shared/api/types/result.types'
 import type { ServerQueryingParameters } from '@/shared/api/types/query.types'
-import type { StockTransfer, StockTransferDetail } from '../types/StockTransfer.Response.Type'
-import type { CreateStockTransferRequest } from '../types/StockTransfer.Request.Type'
-
+import type { StockTransfer, StockTransferDetail } from '../types/stock-transfer.response.type'
+import type { CreateStockTransferRequest } from '../types/stock-transfer.request.type'
 function path(sub?: string): string {
   return `${INVENTORY}/stock-transfers${sub ? `/${sub}` : ''}`
 }

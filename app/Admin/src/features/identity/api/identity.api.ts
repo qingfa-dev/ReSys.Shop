@@ -2,11 +2,11 @@ import apiClient from '@/shared/api/http/api.client'
 import { IDENTITY } from '@/shared/api/constants'
 import type { ServerResult, ServerPagedResult } from '@/shared/api/types/result.types'
 import type { ServerQueryingParameters } from '@/shared/api/types/query.types'
-import type { AdminUserSummary, CustomerSummary } from '../../users/types/User.Response.Type'
-import type { RoleSummary } from '../../users/roles/types/Role.Response.Type'
-import type { PermissionSummary } from '../../users/permissions/types/Permission.Response.Type'
-import type { CreateAdminUserRequest, UpdateAdminUserRequest, UpdateUserStatusRequest, AssignRoleRequest, SyncRolesRequest, AssignPermissionRequest, SyncPermissionsRequest } from '../../users/types/User.Request.Type'
-import type { CreateRoleRequest, UpdateRoleRequest, AssignRolePermissionRequest, RevokeRolePermissionRequest, SyncRolePermissionsRequest } from '../../users/roles/types/Role.Request.Type'
+import type { AdminUserSummary, CustomerSummary } from '../../users/types/user.response.type'
+import type { RoleSummary } from '../../users/roles/types/role.response.type'
+import type { PermissionSummary } from '../../users/permissions/types/permission.response.type'
+import type { CreateAdminUserRequest, UpdateAdminUserRequest, UpdateUserStatusRequest, AssignRoleRequest, SyncRolesRequest, AssignPermissionRequest, SyncPermissionsRequest } from '../../users/types/user.request.type'
+import type { CreateRoleRequest, UpdateRoleRequest, AssignRolePermissionRequest, RevokeRolePermissionRequest, SyncRolePermissionsRequest } from '../../users/roles/types/role.request.type'
 
 export const identityApi = {
   users: {

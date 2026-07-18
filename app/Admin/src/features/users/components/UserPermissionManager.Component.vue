@@ -4,7 +4,7 @@ import { useToast } from '@/shared/composables/toast.use';
 import { useI18n } from 'vue-i18n';
 import { permissionService } from '../permissions/services/permission.service';
 import { userService } from '../services/user.service';
-import type { PermissionSummary } from '../permissions/types/Permission.Response.Type';
+import type { PermissionSummary } from '../permissions/types/permission.response.type';
 
 const props = defineProps<{
     userId: string;

@@ -1,9 +1,8 @@
 import { stateRepository } from '../api/state.api'
-import { mapStateResponse } from '../mappers/state.mapper'
 import type { ServerResult, ServerPagedResult } from '@/shared/api/types/result.types'
 import type { ServerQueryingParameters } from '@/shared/api/types/query.types'
-import type { State } from '../types/State.Response.Type'
-import type { CreateStateRequest, UpdateStateRequest } from '../types/State.Request.Type'
+import type { State } from '../types/state.response.type'
+import type { CreateStateRequest, UpdateStateRequest } from '../types/state.request.type'
 
 export const stateService = {
   list(params?: ServerQueryingParameters): Promise<ServerPagedResult<State>> {
@@ -14,20 +13,12 @@ export const stateService = {
     return stateRepository.getById(id)
   },
 
-  async create(data: CreateStateRequest): Promise<ServerResult<State>> {
-    const result = await stateRepository.create(data)
-    if (result.isSuccess) {
-      return { ...result, value: mapStateResponse(result.value) }
-    }
-    return result
+  create(data: CreateStateRequest): Promise<ServerResult<State>> {
+    return stateRepository.create(data)
   },
 
-  async update(id: string, data: UpdateStateRequest): Promise<ServerResult<State>> {
-    const result = await stateRepository.update(id, data)
-    if (result.isSuccess) {
-      return { ...result, value: mapStateResponse(result.value) }
-    }
-    return result
+  update(id: string, data: UpdateStateRequest): Promise<ServerResult<State>> {
+    return stateRepository.update(id, data)
   },
 
   delete(id: string): Promise<ServerResult<void>> {

@@ -4,6 +4,8 @@ import type { ServerPagedResult, ServerResult } from '@/shared/api/types/result.
 import type { ServerQueryingParameters } from '@/shared/api/types/query.types'
 import type { OrderListItem, OrderDetail } from '../types/order.response.type'
 import type { CreateOrderRequest, AddOrderItemRequest, CancelOrderRequest, UpdateLineItemRequest, UpdateOrderStatusRequest, UpdateShippingMethodRequest, UpdateAddressesRequest } from '../types/order.request.type'
+import type { OrderListItemModel, OrderDetailModel } from '../types/order.model.type'
+import { mapOrderListItem, mapOrderDetail } from '../mappers/order.mapper'
 
 interface OrderLineItem {
   id: string
@@ -21,17 +23,33 @@ function ordersPath(sub?: string): string {
 }
 
 export const orderRepository = {
-  list(params?: ServerQueryingParameters): Promise<ServerPagedResult<OrderListItem>> {
-    return apiClient.get(ordersPath(), { params }).then(res => res.data as ServerPagedResult<OrderListItem>)
+  async list(params?: ServerQueryingParameters): Promise<ServerPagedResult<OrderListItemModel>> {
+    const result = await apiClient.get(ordersPath(), { params }).then(res => res.data as ServerPagedResult<OrderListItem>)
+    if (result.isSuccess) {
+      return { ...result, items: result.items.map(mapOrderListItem) }
+    }
+    return result as ServerPagedResult<OrderListItemModel>
   },
-  getById(id: string): Promise<ServerResult<OrderDetail>> {
-    return apiClient.get(ordersPath(id)).then(res => res.data as ServerResult<OrderDetail>)
+  async getById(id: string): Promise<ServerResult<OrderDetailModel>> {
+    const result = await apiClient.get(ordersPath(id)).then(res => res.data as ServerResult<OrderDetail>)
+    if (result.isSuccess) {
+      return { ...result, value: mapOrderDetail(result.value) }
+    }
+    return result as ServerResult<OrderDetailModel>
   },
-  create(data: CreateOrderRequest): Promise<ServerResult<OrderDetail>> {
-    return apiClient.post(ordersPath(), data).then(res => res.data as ServerResult<OrderDetail>)
+  async create(data: CreateOrderRequest): Promise<ServerResult<OrderDetailModel>> {
+    const result = await apiClient.post(ordersPath(), data).then(res => res.data as ServerResult<OrderDetail>)
+    if (result.isSuccess) {
+      return { ...result, value: mapOrderDetail(result.value) }
+    }
+    return result as ServerResult<OrderDetailModel>
   },
-  update(id: string, data: Partial<CreateOrderRequest>): Promise<ServerResult<OrderDetail>> {
-    return apiClient.put(ordersPath(id), data).then(res => res.data as ServerResult<OrderDetail>)
+  async update(id: string, data: Partial<CreateOrderRequest>): Promise<ServerResult<OrderDetailModel>> {
+    const result = await apiClient.put(ordersPath(id), data).then(res => res.data as ServerResult<OrderDetail>)
+    if (result.isSuccess) {
+      return { ...result, value: mapOrderDetail(result.value) }
+    }
+    return result as ServerResult<OrderDetailModel>
   },
   delete(id: string): Promise<ServerResult<void>> {
     return apiClient.delete(ordersPath(id)).then(res => res.data as ServerResult<void>)

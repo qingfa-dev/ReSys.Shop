@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { ref, onMounted, computed } from 'vue';
 import { authService } from '../services/auth.service';
-import type { ChangePasswordParameters } from '../types/ChangePassword.Parameters.Type';
-import type { UserProfile } from '../types/Login.Response.Type';
+import type { ChangePasswordParameters } from '../types/change-password.parameters.type';
+import type { UserProfile } from '../types/login.response.type';
 import { useToast } from '@/shared/composables/toast.use';
 import { useFormatter } from '@/shared/composables/formatter.use';
 import { useI18n } from 'vue-i18n';

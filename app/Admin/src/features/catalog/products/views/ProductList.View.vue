@@ -17,7 +17,7 @@ import { useFormatter } from '@/shared/composables/formatter.use';
 import { QueryBuilder, type FilterOperator } from '@/shared/utils/query-builder.utils';
 import PageShell from '@/shared/components/PageShell.Component.vue';
 import PageHeader from '@/shared/components/PageHeader.Component.vue';
-import type { ProductSummary } from '../types/Product.Response.Type';
+import type { ProductSummaryModel } from '../types/product.model.type';
 
 const { t } = useI18n();
 
@@ -95,7 +95,7 @@ const clearFilters = () => {
   onFilter();
 };
 
-const confirmDelete = (product: ProductSummary) => {
+const confirmDelete = (product: ProductSummaryModel) => {
   const messageStr = t('catalog.products.confirm.delete_message').replace('{name}', product.name);
   
   confirm.require({
@@ -199,36 +199,12 @@ onMounted(() => {
         </div>
       </template>
 
-      <Column field="imageUrl" :header="t('catalog.products.table.preview')" class="w-24">
-        <template #body="{ data }">
-          <div class="w-14 h-14 rounded-xl overflow-hidden border border-surface-100 dark:border-surface-700 bg-surface-50 flex items-center justify-center">
-              <Image v-if="data.imageUrl" :src="data.imageUrl" :alt="data.name" preview imageClass="w-full h-full object-cover" />
-              <i v-else class="pi pi-image text-surface-300 text-xl"></i>
-          </div>
-        </template>
-      </Column>
-
       <Column field="name" :header="t('catalog.products.table.name')" sortable filter>
           <template #body="{ data }">
               <span class="font-bold text-surface-900 dark:text-surface-0">{{ data.name }}</span>
           </template>
           <template #filter="{ filterModel, filterCallback }">
               <InputText v-model="filterModel.value" type="text" @keydown.enter="filterCallback()" class="p-column-filter" :placeholder="t('catalog.products.placeholders.name')" />
-          </template>
-      </Column>
-
-      <Column field="sku" :header="t('catalog.products.table.sku')" filter>
-          <template #body="{ data }">
-              <span class="font-mono text-xs uppercase tracking-widest text-surface-500">{{ data.sku || '-' }}</span>
-          </template>
-          <template #filter="{ filterModel, filterCallback }">
-              <InputText v-model="filterModel.value" type="text" @keydown.enter="filterCallback()" class="p-column-filter" placeholder="Search SKU" />
-          </template>
-      </Column>
-
-      <Column field="price" :header="t('catalog.products.table.price')">
-          <template #body="{ data }">
-              <span class="font-black">{{ formatCurrency(data.price) }}</span>
           </template>
       </Column>
 
@@ -240,7 +216,7 @@ onMounted(() => {
 
       <Column field="status" :header="t('catalog.products.table.status')">
           <template #body="{ data }">
-              <Tag :value="data.status" :severity="data.status === 'Active' ? 'success' : 'secondary'" rounded class="font-bold px-3" />
+              <Tag :value="data.statusLabel" :severity="data.statusLabel === 'Active' ? 'success' : 'secondary'" rounded class="font-bold px-3" />
           </template>
       </Column>
 

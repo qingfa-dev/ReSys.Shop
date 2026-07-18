@@ -8,15 +8,10 @@ import { inventoryService } from '@/features/inventories/services/inventory.serv
 import { variantService } from '../services/variant.service';
 import StockMovementTimeline from '@/features/inventories/components/StockMovementTimeline.Component.vue';
 import StockAdjustmentDialog from '@/features/inventories/components/StockAdjustmentDialog.Component.vue';
-interface InventoryVariantOption {
-  name: string;
-  items: string;
-}
 
 interface InventoryVariant {
   id: string;
   sku: string;
-  options: InventoryVariantOption[];
 }
 
 interface InventoryStockItem {
@@ -104,9 +99,6 @@ onMounted(() => {
                 <div class="p-4 bg-surface-50 dark:bg-surface-800/50 border-b border-surface-200 dark:border-surface-700 flex justify-between items-center">
                     <div class="flex flex-col">
                         <span class="font-bold text-lg">{{ variant.sku }}</span>
-                        <div class="flex gap-2 mt-1">
-                            <Tag v-for="(opt, idx) in variant.options || []" :key="idx" :value="`${opt.name}: ${opt.items}`" severity="secondary" class="text-xs" />
-                        </div>
                     </div>
                 </div>
 

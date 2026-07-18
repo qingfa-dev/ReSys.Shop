@@ -6,7 +6,7 @@ import { useI18n } from 'vue-i18n';
 import PageShell from '@/shared/components/PageShell.Component.vue'
 import PageHeader from '@/shared/components/PageHeader.Component.vue'
 import { roleService } from '../services/role.service';
-import type { CreateRoleRequest, UpdateRoleRequest } from '../types/Role.Request.Type';
+import type { CreateRoleRequest, UpdateRoleRequest } from '../types/role.request.type';
 
 const route = useRoute();
 const router = useRouter();

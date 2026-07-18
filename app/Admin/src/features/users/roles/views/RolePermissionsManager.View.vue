@@ -7,7 +7,7 @@ import PageShell from '@/shared/components/PageShell.Component.vue'
 import PageHeader from '@/shared/components/PageHeader.Component.vue'
 import { roleService } from '../services/role.service';
 import { permissionService } from '../../permissions/services/permission.service';
-import type { PermissionSummary } from '../../permissions/types/Permission.Response.Type';
+import type { PermissionSummary } from '../../permissions/types/permission.response.type';
 
 const route = useRoute();
 const router = useRouter();

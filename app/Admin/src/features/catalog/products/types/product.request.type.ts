@@ -1,6 +1,6 @@
-import type { CreateProductParameters } from '../schemas/CreateProduct.Schema'
-import type { UpdateProductParameters } from '../schemas/UpdateProduct.Schema'
-import type { ManageClassificationsParameters } from '../classifications/schemas/ProductClassification.Schema'
+import type { CreateProductParameters } from '../schemas/create-product.schema'
+import type { UpdateProductParameters } from '../schemas/update-product.schema'
+import type { ManageClassificationsParameters } from '../classifications/schemas/product-classification.schema'
 
 export type CreateProductRequest = CreateProductParameters
 export type UpdateProductRequest = UpdateProductParameters

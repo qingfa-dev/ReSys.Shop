@@ -1,2 +1,2 @@
-import type { StockMovementParameters } from '../schemas/StockMovement.Schema'
+import type { StockMovementParameters } from '../schemas/stock-movement.schema'
 export type { StockMovementParameters }

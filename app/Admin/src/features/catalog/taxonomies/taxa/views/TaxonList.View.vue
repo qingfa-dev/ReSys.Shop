@@ -14,7 +14,7 @@ import { FilterMatchMode } from '@primevue/core/api'
 import type { DataTablePageEvent, DataTableSortEvent, DataTableFilterMeta } from 'primevue/datatable'
 import { QueryBuilder } from '@/shared/utils/query-builder.utils'
 import { getFilterValue } from '@/shared/api/types/filter.types'
-import type { TaxonListItem } from '../types/Taxon.Response.Type'
+import type { TaxonListItem } from '../types/taxon.response.type'
 
 const { t } = useI18n()
 const route = useRoute()

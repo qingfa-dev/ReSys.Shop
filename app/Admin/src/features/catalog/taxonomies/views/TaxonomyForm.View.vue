@@ -4,7 +4,7 @@ import { useI18n } from 'vue-i18n'
 import { useRoute, useRouter } from 'vue-router'
 import { useForm } from 'vee-validate'
 import { toTypedSchema } from '@vee-validate/zod'
-import { createTaxonomySchema } from '../schemas/Taxonomy.Schema'
+import { createTaxonomySchema } from '../schemas/taxonomy.schema'
 import { useTaxonomyStore } from '../stores/taxonomy.store'
 import { useToast } from '@/shared/composables/toast.use'
 

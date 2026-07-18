@@ -1,3 +1,3 @@
-import type { TaxonomyParameters } from '../schemas/Taxonomy.Schema'
+import type { TaxonomyParameters } from '../schemas/taxonomy.schema'
 
 export type { TaxonomyParameters }

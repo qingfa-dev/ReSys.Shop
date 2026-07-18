@@ -4,9 +4,9 @@ import { useI18n } from 'vue-i18n';
 import { useToast } from '@/shared/composables/toast.use';
 import { taxonomyService } from '../services/taxonomy.service';
 import { taxonomyRepository } from '../api/taxonomy.api';
-import type { TaxonomyListItem, TaxonomyDetail } from '../types/Taxonomy.Response.Type'
-import type { TaxonomyQuery } from '../types/Taxonomy.Query.Type'
-import type { CreateTaxonomyRequest, UpdateTaxonomyRequest } from '../types/Taxonomy.Request.Type'
+import type { TaxonomyListItem, TaxonomyDetail } from '../types/taxonomy.response.type'
+import type { TaxonomyQuery } from '../types/taxonomy.query.type'
+import type { CreateTaxonomyRequest, UpdateTaxonomyRequest } from '../types/taxonomy.request.type'
 
 export const useTaxonomyStore = defineStore('taxonomy', () => {
   const { showToast } = useToast();

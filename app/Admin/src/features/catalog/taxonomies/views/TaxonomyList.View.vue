@@ -17,7 +17,7 @@ import { useFormatter } from '@/shared/composables/formatter.use';
 import { QueryBuilder } from '@/shared/utils/query-builder.utils';
 import PageShell from '@/shared/components/PageShell.Component.vue'
 import PageHeader from '@/shared/components/PageHeader.Component.vue'
-import type { TaxonomyListItem } from '../types/Taxonomy.Response.Type';
+import type { TaxonomyListItem } from '../types/taxonomy.response.type';
 
 const { t } = useI18n();
 

@@ -1,10 +1,11 @@
 export interface StockItem {
-  id: string; variantId: string; sku: string; variantName: string
-  stockLocationId: string; stockLocationName: string; countOnHand: number
-  quantityReserved?: number; countAvailable?: number; backorderable: boolean
+  id: string; stockLocationId: string; variantId: string
+  countOnHand: number; backorderable: boolean
+  sku?: string | null; variantName?: string | null; stockLocationName?: string | null
 }
 export interface StockItemDetail extends StockItem {
-  backorderLimit: number; createdAtUtc: string; modifiedAtUtc: string | null
+  createdAtUtc: string; modifiedAtUtc: string | null
+  createdBy?: string | null; modifiedBy?: string | null
 }
 
 export interface LocationBreakdown {

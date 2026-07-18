@@ -4,7 +4,7 @@ import { useRoute, useRouter } from 'vue-router';
 import { useToast } from '@/shared/composables/toast.use';
 import { useFormatter } from '@/shared/composables/formatter.use';
 import { userService } from '../services/user.service';
-import type { AdminUserSummary } from '../types/User.Response.Type';
+import type { AdminUserSummary } from '../types/user.response.type';
 import { useI18n } from 'vue-i18n';
 import PageShell from '@/shared/components/PageShell.Component.vue';
 import PageHeader from '@/shared/components/PageHeader.Component.vue';
@@ -159,7 +159,7 @@ async function onToggleStatus() {
 
                             <!-- Roles Panel -->
                             <TabPanel :value="2">
-                                <UserRoleManager :userId="user.id" :assignedRoles="user.roleNames" @updated="loadData" />
+                                <UserRoleManager :userId="user.id" :assignedRoles="[]" @updated="loadData" />
                             </TabPanel>
 
                             <!-- Permissions Panel -->

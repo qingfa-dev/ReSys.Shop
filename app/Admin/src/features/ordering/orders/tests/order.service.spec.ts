@@ -20,7 +20,7 @@ describe('OrderService', () => {
   describe('list', () => {
     it('should call api.get with correct endpoint and params', async () => {
       const params: OrderQuery = { search: 'ORD-1', page: 1 }
-      const serverResult = { isSuccess: true, statusCode: 200, errors: [], message: null, metadata: null, value: [] }
+      const serverResult = { isSuccess: true, statusCode: 200, errors: [], message: null, metadata: null, items: [], totalCount: 0, page: 1, pageSize: 10 }
 
       vi.mocked(apiClient.get).mockResolvedValue({ data: serverResult })
 
@@ -34,14 +34,25 @@ describe('OrderService', () => {
   describe('getById', () => {
     it('should call api.get with correct endpoint', async () => {
       const id = 'order-id'
-      const serverResult = { isSuccess: true, statusCode: 200, errors: [], message: null, metadata: null, value: { id } }
+      const orderDetail = {
+        id, number: 'R1', status: 0, checkoutState: 0, currency: 'USD',
+        email: null, specialInstructions: null, billAddressId: null,
+        shipAddressId: null, shippingMethodId: null, itemTotal: 0,
+        adjustmentTotal: 0, shipmentTotal: 0, total: 0, paymentTotal: 0,
+        outstandingBalance: 0, paymentState: null, shipmentState: null,
+        userId: null, storeId: null, itemCount: 0,
+        approvedById: null, approvedAtUtc: null, completedAtUtc: null,
+        canceledAtUtc: null, createdAtUtc: '', modifiedAtUtc: null,
+      }
+      const serverResult = { isSuccess: true, statusCode: 200, errors: [], message: null, metadata: null, value: orderDetail }
 
       vi.mocked(apiClient.get).mockResolvedValue({ data: serverResult })
 
       const result = await orderService.getById(id)
 
       expect(apiClient.get).toHaveBeenCalledWith('ordering/orders/order-id')
-      expect(result).toEqual(serverResult)
+      expect(result.isSuccess).toBe(true)
+      expect(result.value!.id).toBe(id)
     })
   })
 

@@ -2,12 +2,12 @@
 import { watch } from 'vue'
 import { useForm } from 'vee-validate'
 import { toTypedSchema } from '@vee-validate/zod'
-import { createStateSchema } from '../schemas/State.Schema'
+import { createStateSchema } from '../schemas/state.schema'
 import { useStateStore } from '../stores/state.store'
 import { useCountryStore } from '../../countries/stores/country.store'
 import { useToast } from '@/shared/composables/toast.use'
 import { storeToRefs } from 'pinia'
-import type { State } from '../types/State.Response.Type'
+import type { State } from '../types/state.response.type'
 import { useI18n } from 'vue-i18n'
 
 const props = withDefaults(defineProps<{

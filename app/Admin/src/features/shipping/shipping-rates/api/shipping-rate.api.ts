@@ -8,26 +8,45 @@ import type {
   CreateShippingRateRequest,
   UpdateShippingRateRequest,
 } from '../types'
+import type { ShippingRateListItemModel, ShippingRateDetailModel } from '../types/shipping-rate.model.type'
+import { mapValue, mapItems } from '@/shared/utils/transform'
+import { decimalToDisplay } from '@/shared/utils/currency'
 
 function ratesPath(sub?: string): string {
   return `${SHIPPING}/shipping-rates${sub ? `/${sub}` : ''}`
 }
 
 export const shippingRateRepository = {
-  list(params?: ServerQueryingParameters): Promise<ServerPagedResult<ShippingRateListItem>> {
-    return apiClient.get(ratesPath(), { params }).then(res => res.data as ServerPagedResult<ShippingRateListItem>)
+  async list(params?: ServerQueryingParameters): Promise<ServerPagedResult<ShippingRateListItemModel>> {
+    const result = await apiClient.get(ratesPath(), { params }).then(res => res.data as ServerPagedResult<ShippingRateListItem>)
+    if (result.isSuccess) {
+      return mapItems(result, d => ({ ...d, costDisplay: decimalToDisplay(d.cost, d.currency) }))
+    }
+    return result as ServerPagedResult<ShippingRateListItemModel>
   },
 
-  getById(id: string): Promise<ServerResult<ShippingRateDetail>> {
-    return apiClient.get(ratesPath(id)).then(res => res.data as ServerResult<ShippingRateDetail>)
+  async getById(id: string): Promise<ServerResult<ShippingRateDetailModel>> {
+    const result = await apiClient.get(ratesPath(id)).then(res => res.data as ServerResult<ShippingRateDetail>)
+    if (result.isSuccess) {
+      return mapValue(result, d => ({ ...d, costDisplay: decimalToDisplay(d.cost, d.currency) }))
+    }
+    return result as ServerResult<ShippingRateDetailModel>
   },
 
-  create(data: CreateShippingRateRequest): Promise<ServerResult<ShippingRateDetail>> {
-    return apiClient.post(ratesPath(), data).then(res => res.data as ServerResult<ShippingRateDetail>)
+  async create(data: CreateShippingRateRequest): Promise<ServerResult<ShippingRateDetailModel>> {
+    const result = await apiClient.post(ratesPath(), data).then(res => res.data as ServerResult<ShippingRateDetail>)
+    if (result.isSuccess) {
+      return mapValue(result, d => ({ ...d, costDisplay: decimalToDisplay(d.cost, d.currency) }))
+    }
+    return result as ServerResult<ShippingRateDetailModel>
   },
 
-  update(id: string, data: UpdateShippingRateRequest): Promise<ServerResult<ShippingRateDetail>> {
-    return apiClient.put(ratesPath(id), data).then(res => res.data as ServerResult<ShippingRateDetail>)
+  async update(id: string, data: UpdateShippingRateRequest): Promise<ServerResult<ShippingRateDetailModel>> {
+    const result = await apiClient.put(ratesPath(id), data).then(res => res.data as ServerResult<ShippingRateDetail>)
+    if (result.isSuccess) {
+      return mapValue(result, d => ({ ...d, costDisplay: decimalToDisplay(d.cost, d.currency) }))
+    }
+    return result as ServerResult<ShippingRateDetailModel>
   },
 
   delete(id: string): Promise<ServerResult<void>> {

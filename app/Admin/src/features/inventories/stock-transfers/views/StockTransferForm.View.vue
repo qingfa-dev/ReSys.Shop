@@ -7,7 +7,7 @@ import { useI18n } from 'vue-i18n';
 import PageShell from '@/shared/components/PageShell.Component.vue'
 import PageHeader from '@/shared/components/PageHeader.Component.vue'
 import LocationSelector from '../../components/LocationSelector.Component.vue';
-import type { CreateStockTransferRequest } from '../types/StockTransfer.Request.Type';
+import type { CreateStockTransferRequest } from '../types/stock-transfer.request.type';
 
 const { t } = useI18n();
 

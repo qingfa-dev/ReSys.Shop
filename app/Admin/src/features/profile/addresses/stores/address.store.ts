@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
 import { addressService } from '../services/address.service'
-import type { AddressDetail } from '../types/Address.Response.Type'
+import type { AddressDetail } from '../types/address.response.type'
 
 export const useAddressStore = defineStore('address', () => {
   const items = ref<AddressDetail[]>([])

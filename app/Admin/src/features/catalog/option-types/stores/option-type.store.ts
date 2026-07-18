@@ -2,9 +2,9 @@ import { defineStore } from 'pinia';
 import { ref } from 'vue';
 import { usePagedList } from '@/shared/composables/paged-list.use';
 import { optionTypeService } from '../services/option-type.service';
-import type { OptionTypeListItem, OptionTypeDetail } from '../types/OptionType.Response.Type'
-import type { CreateOptionTypeRequest, UpdateOptionTypeRequest } from '../types/OptionType.Request.Type'
-import type { OptionTypeQuery } from '../types/OptionType.Query.Type'
+import type { OptionTypeListItem, OptionTypeDetail } from '../types/option-type.response.type'
+import type { CreateOptionTypeRequest, UpdateOptionTypeRequest } from '../types/option-type.request.type'
+import type { OptionTypeQuery } from '../types/option-type.query.type'
 import type { ServerResult } from '@/shared/api/types/result.types'
 
 export const useOptionTypeStore = defineStore('option-type', () => {

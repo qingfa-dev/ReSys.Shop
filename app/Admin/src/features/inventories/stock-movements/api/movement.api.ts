@@ -2,8 +2,7 @@ import apiClient from '@/shared/api/http/api.client'
 import { INVENTORY } from '@/shared/api/constants'
 import type { ServerResult, ServerPagedResult } from '@/shared/api/types/result.types'
 import type { ServerQueryingParameters } from '@/shared/api/types/query.types'
-import type { StockMovement } from '../types/StockMovement.Response.Type'
-
+import type { StockMovement } from '../types/stock-movement.response.type'
 function path(sub?: string): string {
   return `${INVENTORY}/stock-movements${sub ? `/${sub}` : ''}`
 }

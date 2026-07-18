@@ -10,7 +10,7 @@ import { toTypedSchema } from '@vee-validate/zod'
 import { z } from 'zod'
 import PageHeader from '@/shared/components/PageHeader.Component.vue'
 import PageShell from '@/shared/components/PageShell.Component.vue'
-import { createOptionValueSchema } from '../schemas/OptionValue.Schema'
+import { createOptionValueSchema } from '../schemas/option-value.schema'
 import { FilterMatchMode, FilterOperator } from '@primevue/core/api'
 import type { DataTablePageEvent, DataTableSortEvent, DataTableFilterMeta } from 'primevue/datatable'
 import { getFilterValue } from '@/shared/api/types/filter.types'
@@ -18,7 +18,7 @@ import { useToast } from '@/shared/composables/toast.use'
 import { useConfirm } from 'primevue/useconfirm'
 import { useApiErrorHandler } from '@/shared/composables/api-error-handler.use'
 import { QueryBuilder } from '@/shared/utils/query-builder.utils'
-import type { OptionValueListItem } from '../types/OptionValue.Response.Type'
+import type { OptionValueListItem } from '../types/option-value.response.type'
 
 const { t } = useI18n()
 

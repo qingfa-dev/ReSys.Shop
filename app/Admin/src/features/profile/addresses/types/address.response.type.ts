@@ -8,4 +8,6 @@ export interface AddressDetail {
   postalCode: string
   country: string
   isDefault: boolean
+  createdAtUtc?: string
+  modifiedAtUtc?: string
 }

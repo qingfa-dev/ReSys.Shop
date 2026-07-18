@@ -1,5 +1,5 @@
 import axios from 'axios'
-import type { ServerResult } from '../types/result.types'
+import type { ServerResult } from '../../types/result.types'
 
 export async function refreshTokens(): Promise<boolean> {
   const token = localStorage.getItem('refreshToken')

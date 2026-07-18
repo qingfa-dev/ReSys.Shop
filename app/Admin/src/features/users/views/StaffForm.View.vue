@@ -7,7 +7,7 @@ import PageShell from '@/shared/components/PageShell.Component.vue'
 import PageHeader from '@/shared/components/PageHeader.Component.vue'
 import { userService } from '../services/user.service';
 import { roleService } from '../roles/services/role.service';
-import type { CreateAdminUserRequest, UpdateAdminUserRequest } from '../types/User.Request.Type';
+import type { CreateAdminUserRequest, UpdateAdminUserRequest } from '../types/user.request.type';
 
 const route = useRoute();
 const router = useRouter();
@@ -59,7 +59,7 @@ async function loadUser() {
             email: user.email,
             firstName: user.firstName || '',
             lastName: user.lastName || '',
-            role: user.roleNames || [],
+            role: [],
             isActive: user.isActive
         };
     } else {

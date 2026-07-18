@@ -1,8 +1,8 @@
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
 import { reservationService } from '../services/reservation.service'
-import type { InventoryUnit } from '../types/InventoryUnit.Response.Type'
-import type { InventoryUnitQuery } from '../types/InventoryUnit.Query.Type'
+import type { InventoryUnit } from '../types/inventory-unit.response.type'
+import type { InventoryUnitQuery } from '../types/inventory-unit.query.type'
 
 export const useReservationStore = defineStore('reservation', () => {
   const items = ref<InventoryUnit[]>([])

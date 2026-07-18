@@ -8,7 +8,7 @@ import { useProductStore } from '../stores/product.store';
 import { productService } from '../services/product.service';
 
 import { createMockPagedResult } from '@/shared/test/mock-types'
-import type { ProductSummary } from '../types/Product.Response.Type'
+import type { ProductSummaryModel } from '../types/product.model.type'
 
 vi.mock('../services/product.service', () => ({
   productService: {
@@ -44,7 +44,7 @@ describe('ProductStore', () => {
     const store = useProductStore();
     const mockData = [
       { id: '1', name: 'Product A' },
-    ] as ProductSummary[];
+    ] as ProductSummaryModel[];
     
     vi.mocked(productService.list).mockResolvedValue(
       createMockPagedResult(mockData, { page: 1, pageSize: 10, totalCount: 1 })

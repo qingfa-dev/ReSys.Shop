@@ -3,8 +3,8 @@ import { ref } from 'vue'
 import { useToast } from '@/shared/composables/toast.use'
 import { useI18n } from 'vue-i18n'
 import { stateService } from '../services/state.service'
-import type { State } from '../types/State.Response.Type'
-import type { CreateStateRequest, UpdateStateRequest } from '../types/State.Request.Type'
+import type { State } from '../types/state.response.type'
+import type { CreateStateRequest, UpdateStateRequest } from '../types/state.request.type'
 
 export const useStateStore = defineStore('state', () => {
   const { showToast } = useToast()

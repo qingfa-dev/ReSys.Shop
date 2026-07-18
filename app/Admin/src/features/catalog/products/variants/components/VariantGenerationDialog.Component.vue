@@ -3,12 +3,11 @@ import { ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useOptionTypeStore } from '@/features/catalog/option-types/stores/option-type.store';
 import { useOptionValueStore } from '@/features/catalog/option-types/option-values/stores/option-value.store';
-import { useProductStore } from '../../stores/product.store';
 import { productService } from '../../services/product.service';
 import { variantService } from '../services/variant.service';
 import { useToast } from '@/shared/composables/toast.use';
-import type { OptionTypeDetail } from '@/features/catalog/option-types/types/OptionType.Response.Type';
-import type { OptionValueListItem } from '@/features/catalog/option-types/option-values/types/OptionValue.Response.Type';
+import type { OptionTypeDetail } from '@/features/catalog/option-types/types/option-type.response.type';
+import type { OptionValueListItem } from '@/features/catalog/option-types/option-values/types/option-value.response.type';
 
 interface AssignedOptionType extends OptionTypeDetail {
   availableValues?: OptionValueListItem[]
@@ -28,7 +27,6 @@ const props = defineProps<{
 const emit = defineEmits(['update:visible', 'generated']);
 
 const { showToast } = useToast();
-const productStore = useProductStore();
 const optionValueStore = useOptionValueStore();
 
 const activeStep = ref(0);
@@ -38,6 +36,9 @@ const generating = ref(false);
 const assignedOptionTypes = ref<AssignedOptionType[]>([]);
 const selectedValues = ref<Record<string, OptionValueListItem[]>>({});
 const generatedPreview = ref<PreviewVariant[]>([]);
+
+const defaultSku = 'SKU';
+const defaultPrice = 0;
 
 const loadOptionData = async () => {
     loading.value = true;
@@ -131,8 +132,8 @@ const confirmGeneration = async () => {
         for (const variant of generatedPreview.value) {
             const payload = {
                 productId: props.productId,
-                sku: `${productStore.current_product?.sku || 'SKU'}-${variant.skuSuffix}`,
-                price: productStore.current_product?.price || 0,
+                sku: `${defaultSku}-${variant.skuSuffix}`,
+                price: defaultPrice,
                 optionValues: variant.options.map((o: { id: string }) => o.id),
             };
 
@@ -237,7 +238,7 @@ watch(() => props.visible, (val) => {
                         </Column>
                         <Column header="Generated SKU">
                             <template #body="{ data }">
-                                <span class="font-mono text-xs">{{ productStore.current_product?.sku }}-{{ data.skuSuffix }}</span>
+                                <span class="font-mono text-xs">{{ defaultSku }}-{{ data.skuSuffix }}</span>
                             </template>
                         </Column>
                     </DataTable>

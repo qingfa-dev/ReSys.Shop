@@ -4,7 +4,7 @@ import { useToast } from '@/shared/composables/toast.use';
 import { useI18n } from 'vue-i18n';
 import { roleService } from '../roles/services/role.service';
 import { userService } from '../services/user.service';
-import type { RoleSummary } from '../roles/types/Role.Response.Type';
+import type { RoleSummary } from '../roles/types/role.response.type';
 
 const props = defineProps<{
     userId: string;

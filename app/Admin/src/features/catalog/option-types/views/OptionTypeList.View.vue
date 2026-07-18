@@ -12,7 +12,7 @@ import { useConfirm } from 'primevue/useconfirm'
 import PageShell from '@/shared/components/PageShell.Component.vue'
 import PageHeader from '@/shared/components/PageHeader.Component.vue'
 import { QueryBuilder } from '@/shared/utils/query-builder.utils'
-import type { OptionTypeListItem } from '../types/OptionType.Response.Type'
+import type { OptionTypeListItem } from '../types/option-type.response.type'
 
 const { t } = useI18n()
 const router = useRouter()

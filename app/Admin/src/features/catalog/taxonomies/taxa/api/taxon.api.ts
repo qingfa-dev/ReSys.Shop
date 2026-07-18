@@ -6,43 +6,49 @@ import type {
   TaxonDetail,
   TaxonListItem,
   TaxonTreeItem,
-} from "../types/Taxon.Response.Type";
-import type { TaxonRuleListItem } from "../types/TaxonRule.Response.Type";
-import type { CreateTaxonRequest, UpdateTaxonRequest } from "../types/Taxon.Request.Type";
-import type { CreateTaxonRuleRequest, UpdateTaxonRuleRequest } from "../types/TaxonRule.Request.Type";
+} from "../types/taxon.response.type";
+import type { TaxonRuleListItem } from "../types/taxon-rule.response.type";
+import type { CreateTaxonRequest, UpdateTaxonRequest } from "../types/taxon.request.type";
+import type { CreateTaxonRuleRequest, UpdateTaxonRuleRequest } from "../types/taxon-rule.request.type";
+import type { ProductSummaryModel } from '../../../products/types/product.model.type'
 
 export const taxonRepository = {
-  listByTaxonomyId: (
+  listByTaxonomyId: async (
     taxonomyId: string,
     params?: ServerQueryingParameters & { includeLeavesOnly?: boolean },
-  ): Promise<ServerPagedResult<TaxonListItem>> =>
-    apiClient
+  ): Promise<ServerPagedResult<TaxonListItem>> => {
+    return apiClient
       .get(`${CATALOG}/taxonomies/${taxonomyId}/taxons`, { params })
-      .then((res) => res.data as ServerPagedResult<TaxonListItem>),
+      .then((res) => res.data as ServerPagedResult<TaxonListItem>);
+  },
 
-  getTree: (taxonomyId: string): Promise<ServerResult<TaxonTreeItem[]>> =>
-    apiClient
+  getTree: async (taxonomyId: string): Promise<ServerResult<TaxonTreeItem | null>> => {
+    return apiClient
       .get(`${CATALOG}/taxonomies/${taxonomyId}/taxons/tree`)
-      .then((res) => res.data as ServerResult<TaxonTreeItem[]>),
+      .then((res) => res.data as ServerResult<TaxonTreeItem>);
+  },
 
-  getById: (taxonomyId: string, taxonId: string): Promise<ServerResult<TaxonDetail>> =>
-    apiClient
+  getById: async (taxonomyId: string, taxonId: string): Promise<ServerResult<TaxonDetail | null>> => {
+    return apiClient
       .get(`${CATALOG}/taxonomies/${taxonomyId}/taxons/${taxonId}`)
-      .then((res) => res.data as ServerResult<TaxonDetail>),
+      .then((res) => res.data as ServerResult<TaxonDetail>);
+  },
 
-  create: (taxonomyId: string, data: CreateTaxonRequest): Promise<ServerResult<TaxonDetail>> =>
-    apiClient
+  create: async (taxonomyId: string, data: CreateTaxonRequest): Promise<ServerResult<TaxonDetail | null>> => {
+    return apiClient
       .post(`${CATALOG}/taxonomies/${taxonomyId}/taxons`, data)
-      .then((res) => res.data as ServerResult<TaxonDetail>),
+      .then((res) => res.data as ServerResult<TaxonDetail>);
+  },
 
-  update: (
+  update: async (
     taxonomyId: string,
     taxonId: string,
     data: UpdateTaxonRequest,
-  ): Promise<ServerResult<TaxonDetail>> =>
-    apiClient
+  ): Promise<ServerResult<TaxonDetail | null>> => {
+    return apiClient
       .put(`${CATALOG}/taxonomies/${taxonomyId}/taxons/${taxonId}`, data)
-      .then((res) => res.data as ServerResult<TaxonDetail>),
+      .then((res) => res.data as ServerResult<TaxonDetail>);
+  },
 
   delete: (taxonomyId: string, taxonId: string): Promise<ServerResult<void>> =>
     apiClient
@@ -63,10 +69,11 @@ export const taxonRepository = {
       .patch(`${CATALOG}/taxonomies/${taxonomyId}/taxons/${taxonId}/restore`)
       .then((res) => res.data as ServerResult<void>),
 
-  listRules: (taxonomyId: string, taxonId: string): Promise<ServerPagedResult<TaxonRuleListItem>> =>
-    apiClient
+  listRules: async (taxonomyId: string, taxonId: string): Promise<ServerPagedResult<TaxonRuleListItem>> => {
+    return apiClient
       .get(`${CATALOG}/taxonomies/${taxonomyId}/taxons/${taxonId}/rules`)
-      .then((res) => res.data as ServerPagedResult<TaxonRuleListItem>),
+      .then((res) => res.data as ServerPagedResult<TaxonRuleListItem>);
+  },
 
   createRule: (
     taxonomyId: string,
@@ -105,4 +112,13 @@ export const taxonRepository = {
     apiClient
       .post(`${CATALOG}/taxonomies/${taxonomyId}/taxons/${taxonId}/rules/regenerate`)
       .then((res) => res.data as ServerResult<void>),
+
+  getProductPreview: async (_taxonId: string, _params: Record<string, unknown>): Promise<ServerResult<{ items: ProductSummaryModel[]; totalCount: number }>> => ({
+    isSuccess: true,
+    statusCode: 200,
+    errors: [],
+    message: null,
+    metadata: null,
+    value: { items: [], totalCount: 0 },
+  }),
 };

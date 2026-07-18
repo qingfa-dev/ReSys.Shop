@@ -6,10 +6,9 @@ import { useTaxonomyStore } from '@/features/catalog/taxonomies/stores/taxonomy.
 import { storeToRefs } from 'pinia';
 import { useApiErrorHandler } from '@/shared/composables/api-error-handler.use';
 import type { ServerResult } from '@/shared/api/types/result.types';
-import type { TreeNode } from 'primevue/tree';
 import { useToast } from '@/shared/composables/toast.use';
 import apiClient from '@/shared/api/http/api.client';
-import type { ProductClassification } from '../../types/Product.Response.Type';
+import type { ProductClassification } from '../types/classification.response.type';
 
 const props = defineProps<{
     productId: string;
@@ -23,8 +22,14 @@ const { handleApiResult } = useApiErrorHandler();
 const { showToast } = useToast();
 const { t } = useI18n();
 
+interface RawTaxonNode { id: string; presentation: string; children?: RawTaxonNode[] }
+
+interface PrimeTreeNode {
+  key: string; label: string; data?: unknown; children?: PrimeTreeNode[]; leaf?: boolean
+}
+
 const loading = ref(false);
-const trees = ref<Record<string, TreeNode[]>>({});
+const trees = ref<Record<string, PrimeTreeNode[]>>({});
 
 const loadHierarchy = async () => {
     loading.value = true;
@@ -35,7 +40,7 @@ const loadHierarchy = async () => {
         // Fetch tree for each taxonomy
         for (const tax of taxonomies.value) {
             const res = await apiClient.get(`catalog/taxonomies/${tax.id}/taxons/tree`);
-            const result = res.data as ServerResult<{ id: string; presentation: string; children: unknown[] }[]>;
+            const result = res.data as ServerResult<RawTaxonNode[]>;
             if (result.isSuccess && result.value) {
                 trees.value[tax.id] = result.value.map(mapNode);
             }
@@ -45,9 +50,7 @@ const loadHierarchy = async () => {
     }
 };
 
-interface RawTaxonNode { id: string; presentation: string; children?: RawTaxonNode[] }
-
-const mapNode = (node: RawTaxonNode): TreeNode => {
+const mapNode = (node: RawTaxonNode): PrimeTreeNode => {
     return {
         key: node.id,
         label: node.presentation,

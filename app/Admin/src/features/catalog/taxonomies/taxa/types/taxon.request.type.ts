@@ -1,5 +1,5 @@
-import type { TaxonParameters } from '../../schemas/Taxon.Schema'
-import type { TaxonRuleParameters } from './TaxonRule.Parameters.Type'
+import type { TaxonParameters } from '../../schemas/taxon.schema'
+import type { TaxonRuleParameters } from './taxon-rule.parameters.type'
 
 export type CreateTaxonRequest = TaxonParameters & {
   rules?: TaxonRuleParameters[]

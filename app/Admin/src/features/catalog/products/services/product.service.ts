@@ -2,15 +2,17 @@ import { productRepository } from "../api/product.api";
 import { productOptionTypeApi } from "../option-types/api/product-option-type.api";
 import { productClassificationApi } from "../classifications/api/product-classification.api";
 import type { ServerResult, ServerPagedResult } from "@/shared/api/types/result.types";
-import type { OptionTypeDetail } from "../../option-types/types/OptionType.Response.Type";
-import type { ProductClassification, ProductImage } from "../types/Product.Response.Type";
-import type { SyncClassificationsRequest } from "../classifications/types/Classification.Request.Type";
+import type { OptionTypeDetail } from "../../option-types/types/option-type.response.type";
+import type { ProductClassification } from "../classifications/types/classification.response.type";
+import type { ProductImage } from "../types/product-image.response.type";
+import type { SyncClassificationsRequest } from "../classifications/types/classification.request.type";
 
 export const productService = {
   list: productRepository.list,
   getById: productRepository.getById,
   create: productRepository.create,
   update: productRepository.update,
+
   delete: productRepository.delete,
   activate: productRepository.activate,
   discontinue: productRepository.discontinue,
@@ -32,9 +34,14 @@ export const productService = {
   async getImages(_productId: string): Promise<ServerPagedResult<ProductImage>> {
     return { isSuccess: true, statusCode: 200, errors: [], message: null, metadata: null, items: [], page: 1, pageSize: 0, totalCount: 0 }
   },
-  uploadImage: async (_productId: string, _file: File, _role?: number, _alt?: string): Promise<ServerResult<ProductImage>> => {
-    return { isSuccess: true, statusCode: 200, errors: [], message: null, metadata: null, value: null as unknown as ProductImage }
-  },
+  uploadImage: async (_productId: string, _file: File, _role?: number, _alt?: string): Promise<ServerResult<ProductImage>> => ({
+    isSuccess: true,
+    statusCode: 200,
+    errors: [],
+    message: null,
+    metadata: null,
+    value: {} as ProductImage,
+  }),
   deleteImage: async (_imageId: string): Promise<ServerResult<void>> => {
     return { isSuccess: true, statusCode: 200, errors: [], message: null, metadata: null, value: undefined }
   },

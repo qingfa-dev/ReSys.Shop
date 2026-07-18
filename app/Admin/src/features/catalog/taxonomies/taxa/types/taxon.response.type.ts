@@ -1,4 +1,4 @@
-import type { TaxonRuleListItem } from './TaxonRule.Response.Type'
+import type { TaxonRuleListItem } from './taxon-rule.response.type'
 
 export interface TaxonListItem {
   id: string

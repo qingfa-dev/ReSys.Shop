@@ -1,4 +1,4 @@
-import type { TaxonRuleParameters } from './TaxonRule.Parameters.Type'
+import type { TaxonRuleParameters } from './taxon-rule.parameters.type'
 
 export type CreateTaxonRuleRequest = TaxonRuleParameters
 

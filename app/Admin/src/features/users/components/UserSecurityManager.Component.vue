@@ -4,7 +4,7 @@ import { useToast } from '@/shared/composables/toast.use';
 import { useConfirm } from 'primevue/useconfirm';
 import { useFormatter } from '@/shared/composables/formatter.use';
 import { userService } from '../services/user.service';
-import type { AdminUserSummary } from '../types/User.Response.Type';
+import type { AdminUserSummary } from '../types/user.response.type';
 import { useI18n } from 'vue-i18n';
 
 const props = defineProps<{
@@ -77,17 +77,6 @@ async function onVerify() {
             
             <div class="bg-surface-50 dark:bg-surface-900 p-6 rounded-2xl border border-surface-100 dark:border-surface-800 flex flex-col gap-4">
                 <div class="flex justify-between items-center pb-4 border-b border-surface-200 dark:border-surface-700">
-                    <span class="text-surface-500 font-medium">{{ t('users.security.lockout_end') }}</span>
-                    <span class="font-bold" v-if="user.lockoutEnd">{{ formatDate(user.lockoutEnd) }}</span>
-                    <Tag v-else value="None" severity="success" rounded />
-                </div>
-                
-                <div class="flex justify-between items-center pb-4 border-b border-surface-200 dark:border-surface-700">
-                    <span class="text-surface-500 font-medium">{{ t('users.security.failed_attempts') }}</span>
-                    <Badge :value="user.accessFailedCount || 0" :severity="(user.accessFailedCount || 0) > 0 ? 'warning' : 'secondary'" />
-                </div>
-
-                <div class="flex justify-between items-center pb-4 border-b border-surface-200 dark:border-surface-700">
                     <span class="text-surface-500 font-medium">{{ t('users.security.email_verified') }}</span>
                     <Tag :value="user.emailConfirmed ? 'Verified' : 'Pending'" :severity="user.emailConfirmed ? 'success' : 'warning'" rounded />
                 </div>
@@ -104,7 +93,7 @@ async function onVerify() {
             <h3 class="text-xl font-bold m-0">{{ t('users.security.actions_title') }}</h3>
             <div class="flex flex-col gap-3">
                 <Button :label="t('users.actions.reset_password')" icon="pi pi-key" severity="danger" outlined class="w-full justify-start rounded-xl" @click="onResetPassword" />
-                <Button :label="t('users.actions.unlock')" icon="pi pi-lock-open" severity="warning" outlined class="w-full justify-start rounded-xl" @click="onUnlock" :disabled="!user.lockoutEnd" />
+                <Button :label="t('users.actions.unlock')" icon="pi pi-lock-open" severity="warning" outlined class="w-full justify-start rounded-xl" @click="onUnlock" />
                 <Button :label="t('users.actions.verify')" icon="pi pi-check-circle" severity="success" outlined class="w-full justify-start rounded-xl" @click="onVerify" :disabled="user.emailConfirmed && user.phoneNumberConfirmed" />
             </div>
         </div>

@@ -1,6 +1,9 @@
 export interface SalesSummary {
-  totalRevenue: number; orderCount: number; averageOrderValue: number
-  revenueTrendPercentage: number; trendHistory?: Array<{ date: string; revenue: number }>
+  totalSales: number; totalOrders: number; averageOrderValue: number
+  salesGrowth: number; salesTarget: number; targetProgress: number
+  dailySales: Array<{ date: string; revenue: number }>
+  weeklySales: Array<{ date: string; revenue: number }>
+  monthlySales: Array<{ date: string; revenue: number }>
 }
 
 export interface InventorySummary {

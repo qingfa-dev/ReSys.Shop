@@ -8,7 +8,7 @@ import { storeToRefs } from 'pinia'
 import { useApiErrorHandler } from '@/shared/composables/api-error-handler.use'
 import { useToast } from '@/shared/composables/toast.use'
 import { useConfirm } from 'primevue/useconfirm'
-import type { TaxonListItem, TaxonTreeItem } from '../types/Taxon.Response.Type'
+import type { TaxonListItem, TaxonTreeItem } from '../types/taxon.response.type'
 
 const { t } = useI18n()
 const route = useRoute()

@@ -1,12 +1,12 @@
 import { defineStore } from 'pinia';
 import { ref } from 'vue';
 import { inventoryService } from '../services/inventory.service';
-import type { InventoryUnit } from '../inventory-units/types/InventoryUnit.Response.Type';
-import type { StockItem } from '../stock-items/types/StockItem.Response.Type';
-import type { StockLocation } from '../stock-locations/types/StockLocation.Response.Type';
-import type { StockTransfer } from '../stock-transfers/types/StockTransfer.Response.Type';
-import type { StockItemQuery } from '../stock-items/types/StockItem.Query.Type';
-import type { InventoryUnitQuery } from '../inventory-units/types/InventoryUnit.Query.Type';
+import type { InventoryUnit } from '../inventory-units/types/inventory-unit.response.type';
+import type { StockItem } from '../stock-items/types/stock-item.response.type';
+import type { StockLocation } from '../stock-locations/types/stock-location.response.type';
+import type { StockTransfer } from '../stock-transfers/types/stock-transfer.response.type';
+import type { StockItemQuery } from '../stock-items/types/stock-item.query.type';
+import type { InventoryUnitQuery } from '../inventory-units/types/inventory-unit.query.type';
 import type { ServerQueryingParameters } from '@/shared/api/types/query.types';
 
 export const useInventoryStore = defineStore('inventory', () => {
@@ -118,7 +118,7 @@ export const useInventoryStore = defineStore('inventory', () => {
 
   async function toggleLocationStatus(id: string): Promise<void> {
     const loc = locations.value.find(l => l.id === id);
-    if (loc) loc.active = !loc.active;
+    if (loc) loc.isActive = !loc.isActive;
   }
 
   async function adjustStock(_data: Record<string, unknown>): Promise<{ success: boolean }> {

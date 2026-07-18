@@ -4,21 +4,18 @@ import { useI18n } from 'vue-i18n';
 import { useToast } from "@/shared/composables/toast.use";
 import { usePagedList } from "@/shared/composables/paged-list.use";
 import { productService } from "../services/product.service";
-import type {
-  ProductSummary,
-  ProductDetail,
-  ProductClassification,
-  ProductImage,
-} from "../types/Product.Response.Type";
-import type { CreateProductRequest, UpdateProductRequest } from "../types/Product.Request.Type";
-import type { ProductQuery } from "../types/Product.Query.Type";
+import type { ProductSummaryModel, ProductDetailModel } from "../types/product.model.type";
+import type { ProductClassification } from "../classifications/types/classification.response.type";
+import type { ProductImage } from "../types/product-image.response.type";
+import type { CreateProductRequest, UpdateProductRequest } from "../types/product.request.type";
+import type { ProductQuery } from "../types/product.query.type";
 
 export const useProductStore = defineStore("product", () => {
   const { showToast } = useToast();
   const { t } = useI18n();
 
   // --- STATE ---
-  const current_product = ref<ProductDetail | null>(null);
+  const current_product = ref<ProductDetailModel | null>(null);
   const current_classifications = ref<ProductClassification[]>([]);
   const current_images = ref<ProductImage[]>([]);
   const submitting = ref(false);
@@ -30,7 +27,7 @@ export const useProductStore = defineStore("product", () => {
     fetch: fetchProducts,
     loading,
     error,
-  } = usePagedList<ProductSummary, ProductQuery>((p) => productService.list(p), {
+  } = usePagedList<ProductSummaryModel, ProductQuery>((p) => productService.list(p), {
     page: 1,
     pageSize: 10,
     search: "",
@@ -119,7 +116,7 @@ export const useProductStore = defineStore("product", () => {
       }
       return result;
     } finally {
-      submitting.value = false;
+      loading.value = false;
     }
   }
 

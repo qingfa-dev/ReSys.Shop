@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { createOptionTypeSchema } from '../schemas/OptionType.Schema';
+import { createOptionTypeSchema } from '../schemas/option-type.schema';
 
 const t = (key: string) => key;
 const OptionTypeSchema = createOptionTypeSchema(t);

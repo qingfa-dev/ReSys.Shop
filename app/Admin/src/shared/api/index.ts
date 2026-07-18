@@ -10,4 +10,4 @@ export type {
   ServerQueryingParameters,
 } from './types'
 export { ErrorType } from './types'
-export { refreshTokens } from './http/refresh-handler'
+export { refreshTokens } from './http/handlers/refresh-handler'
