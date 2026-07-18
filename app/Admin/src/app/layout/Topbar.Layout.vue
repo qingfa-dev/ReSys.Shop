@@ -1,9 +1,24 @@
 <script setup lang="ts">
+import { ref } from 'vue'
+import { useRouter } from 'vue-router'
+import { useAuthStore } from '@/features/auth/stores/auth.store'
 import { useLayout } from './composables/layout.composable'
 import GlobalSearch from './components/GlobalSearch.Component.vue'
 import AppConfigurator from './Configurator.Layout.vue'
 
-const { toggleMenu, toggleDarkMode, isDarkTheme } = useLayout()
+const router = useRouter()
+const authStore = useAuthStore()
+const { toggleMenu, toggleDarkMode, isDarkTheme, toggleConfigSidebar } = useLayout()
+const profileMenu = ref()
+const profileMenuItems = ref([
+  { label: 'My Profile', icon: 'pi pi-user', command: () => router.push({ name: 'profile' }) },
+  { separator: true },
+  { label: 'Logout', icon: 'pi pi-sign-out', command: () => authStore.logout() },
+])
+
+const toggleProfileMenu = (event: Event) => {
+  profileMenu.value?.toggle(event)
+}
 </script>
 
 <template>
@@ -45,18 +60,16 @@ const { toggleMenu, toggleDarkMode, isDarkTheme } = useLayout()
 
       <div class="layout-topbar-menu hidden lg:block">
         <div class="layout-topbar-menu-content">
-          <button type="button" class="layout-topbar-action">
-            <i class="pi pi-calendar"></i>
-            <span>Calendar</span>
-          </button>
-          <button type="button" class="layout-topbar-action">
-            <i class="pi pi-inbox"></i>
-            <span>Messages</span>
-          </button>
-          <button type="button" class="layout-topbar-action">
+          <button
+            type="button"
+            class="layout-topbar-action"
+            @click="toggleProfileMenu"
+            v-tooltip.bottom="'Profile'"
+          >
             <i class="pi pi-user"></i>
             <span>Profile</span>
           </button>
+          <Menu ref="profileMenu" :model="profileMenuItems" :popup="true" />
         </div>
       </div>
     </div>
