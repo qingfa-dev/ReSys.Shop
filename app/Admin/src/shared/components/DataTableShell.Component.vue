@@ -1,4 +1,4 @@
-<script setup lang="ts">
+<script setup lang="ts" generic="T extends Record<string, any>">
 import type { DataTablePageEvent, DataTableSortEvent, DataTableFilterMeta } from 'primevue/datatable'
 import { FilterMatchMode } from '@primevue/core/api'
 
@@ -8,12 +8,12 @@ export interface ColumnDef {
   sortable?: boolean
   filter?: boolean
   class?: string
-  body?: (data: any) => string
+  body?: (data: T) => string
 }
 
 const props = withDefaults(defineProps<{
   columns: ColumnDef[]
-  value: any[]
+  value: T[]
   loading?: boolean
   totalRecords?: number
   rows?: number
@@ -63,7 +63,6 @@ const globalFilterValue = computed({
 })
 
 const skeletonRows = computed(() => Array.from({ length: props.rows }, (_, i) => ({ id: `sk-${i}` })))
-const columnCount = computed(() => props.columns.length + 1)
 </script>
 
 <template>
