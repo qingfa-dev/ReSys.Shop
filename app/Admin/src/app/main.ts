@@ -9,6 +9,7 @@ import App from "./App.vue";
 import router from "./router";
 import { installAuthBootstrap } from "./auth/auth-bootstrap";
 import i18n from "./plugins/i18n";
+import { useLayout } from "@/app/layout/composables/layout.composable";
 import "@/assets/tailwind.css";
 import "@/assets/scss/main.scss";
 
@@ -24,4 +25,8 @@ app.directive("styleclass", StyleClass);
 installAuthBootstrap(app);
 app.use(i18n);
 app.use(router);
+const { layoutConfig } = useLayout();
+if (layoutConfig.darkTheme) {
+  document.documentElement.classList.add("app-dark");
+}
 app.mount("#app");

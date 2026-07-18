@@ -1,12 +1,33 @@
-import { computed, reactive } from 'vue'
+import { computed, reactive, watch } from 'vue'
+
+const STORAGE_KEY = 'resys-admin-layout'
+
+function loadConfig(): Partial<typeof layoutConfig> {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY)
+    return raw ? JSON.parse(raw) : {}
+  } catch {
+    return {}
+  }
+}
+
+const saved = loadConfig()
 
 const layoutConfig = reactive({
-  preset: 'Aura',
-  primary: 'emerald',
-  surface: null as string | null,
-  darkTheme: false,
-  menuMode: 'static',
+  preset: saved.preset || 'Aura',
+  primary: saved.primary || 'emerald',
+  surface: (saved.surface as string | null) || null,
+  darkTheme: saved.darkTheme ?? false,
+  menuMode: saved.menuMode || 'static',
 })
+
+watch(
+  () => ({ ...layoutConfig }),
+  (val) => {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(val))
+  },
+  { deep: true }
+)
 
 const layoutState = reactive({
   staticMenuInactive: false,
