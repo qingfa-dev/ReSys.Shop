@@ -1,12 +1,12 @@
 <script setup lang="ts">
 import { ref, onMounted, computed } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
-import { useInventoryStore } from '../stores/inventory.store';
+import { useInventoryStore } from '../../stores/inventory.store';
 import { useToast } from '@/shared/composables/toast.use';
 import { useI18n } from 'vue-i18n';
 import PageShell from '@/shared/components/PageShell.Component.vue';
 import PageHeader from '@/shared/components/PageHeader.Component.vue';
-import LocationSelector from '../components/LocationSelector.Component.vue';
+import LocationSelector from '../../components/LocationSelector.Component.vue';
 import type { CreateStockLocationRequest } from '../types/StockLocation.Request.Type';
 
 const { t } = useI18n();

@@ -2,8 +2,8 @@ import apiClient from '@/shared/api/http/api.client'
 import { INVENTORY } from '@/shared/api/constants'
 import type { ServerResult, ServerPagedResult } from '@/shared/api/types/result.types'
 import type { ServerQueryingParameters } from '@/shared/api/types/query.types'
-import type { StockLocation, StockLocationDetail } from '../../types/StockLocation.Response.Type'
-import type { CreateStockLocationRequest } from '../../types/StockLocation.Request.Type'
+import type { StockLocation, StockLocationDetail } from '../types/StockLocation.Response.Type'
+import type { CreateStockLocationRequest } from '../types/StockLocation.Request.Type'
 
 function path(sub?: string): string {
   return `${INVENTORY}/stock-locations${sub ? `/${sub}` : ''}`

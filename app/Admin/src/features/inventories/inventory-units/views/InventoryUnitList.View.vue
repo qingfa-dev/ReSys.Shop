@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue';
-import { useInventoryStore } from '../stores/inventory.store';
+import { useInventoryStore } from '../../stores/inventory.store';
 import { storeToRefs } from 'pinia';
 import { useFormatter } from '@/shared/composables/formatter.use';
 import { useI18n } from 'vue-i18n';

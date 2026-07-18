@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { onMounted, computed, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { useInventoryStore } from '../stores/inventory.store'
+import { useInventoryStore } from '../../stores/inventory.store'
 import { storeToRefs } from 'pinia'
 import { useI18n } from 'vue-i18n'
 import { useApiErrorHandler } from '@/shared/composables/api-error-handler.use'

@@ -2,9 +2,9 @@ import apiClient from '@/shared/api/http/api.client'
 import { INVENTORY } from '@/shared/api/constants'
 import type { ServerResult, ServerPagedResult } from '@/shared/api/types/result.types'
 import type { ServerQueryingParameters } from '@/shared/api/types/query.types'
-import type { StockItem, StockItemDetail, StockSummary } from '../../types/StockItem.Response.Type'
-import type { StockAdjustmentRequest } from '../../types/StockItem.Request.Type'
-import type { StockItemQuery } from '../../types/StockItem.Query.Type'
+import type { StockItem, StockItemDetail, StockSummary } from '../types/StockItem.Response.Type'
+import type { StockAdjustmentRequest } from '../types/StockItem.Request.Type'
+import type { StockItemQuery } from '../types/StockItem.Query.Type'
 
 function path(sub?: string): string {
   return `${INVENTORY}/stock-items${sub ? `/${sub}` : ''}`

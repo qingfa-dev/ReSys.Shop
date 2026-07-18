@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue';
-import { useInventoryStore } from '../stores/inventory.store';
+import { useInventoryStore } from '../../stores/inventory.store';
 import { storeToRefs } from 'pinia';
 import { useRouter } from 'vue-router';
 import { useI18n } from 'vue-i18n';

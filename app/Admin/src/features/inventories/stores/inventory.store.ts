@@ -1,12 +1,12 @@
 import { defineStore } from 'pinia';
 import { ref } from 'vue';
 import { inventoryService } from '../services/inventory.service';
-import type { InventoryUnit } from '../types/InventoryUnit.Response.Type';
-import type { StockItem } from '../types/StockItem.Response.Type';
-import type { StockLocation } from '../types/StockLocation.Response.Type';
-import type { StockTransfer } from '../types/StockTransfer.Response.Type';
-import type { StockItemQuery } from '../types/StockItem.Query.Type';
-import type { InventoryUnitQuery } from '../types/InventoryUnit.Query.Type';
+import type { InventoryUnit } from '../inventory-units/types/InventoryUnit.Response.Type';
+import type { StockItem } from '../stock-items/types/StockItem.Response.Type';
+import type { StockLocation } from '../stock-locations/types/StockLocation.Response.Type';
+import type { StockTransfer } from '../stock-transfers/types/StockTransfer.Response.Type';
+import type { StockItemQuery } from '../stock-items/types/StockItem.Query.Type';
+import type { InventoryUnitQuery } from '../inventory-units/types/InventoryUnit.Query.Type';
 import type { ServerQueryingParameters } from '@/shared/api/types/query.types';
 
 export const useInventoryStore = defineStore('inventory', () => {

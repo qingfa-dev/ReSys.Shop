@@ -1,8 +1,8 @@
 import { describe, it, expect, vi } from 'vitest'
 import apiClient from '@/shared/api/http/api.client'
-import { stockRepository } from '../stock-items/repositories/stock.repository'
-import { locationRepository } from '../stock-locations/repositories/location.repository'
-import { transferRepository } from '../stock-transfers/repositories/transfer.repository'
+import { stockRepository } from '../stock-items/api/stock.api'
+import { locationRepository } from '../stock-locations/api/location.api'
+import { transferRepository } from '../stock-transfers/api/transfer.api'
 
 vi.mock('@/shared/api/http/api.client', () => ({
   default: { get: vi.fn().mockResolvedValue({ data: {} }), post: vi.fn().mockResolvedValue({ data: {} }), put: vi.fn().mockResolvedValue({ data: {} }), patch: vi.fn().mockResolvedValue({ data: {} }), delete: vi.fn().mockResolvedValue({ data: {} }) }

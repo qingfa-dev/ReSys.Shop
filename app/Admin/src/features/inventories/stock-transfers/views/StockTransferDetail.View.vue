@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, onMounted, computed } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
-import { useInventoryStore } from '../stores/inventory.store';
+import { useInventoryStore } from '../../stores/inventory.store';
 import { useProductStore } from '@/features/catalog/products/stores/product.store';
 import { useToast } from '@/shared/composables/toast.use';
 import { useFormatter } from '@/shared/composables/formatter.use';

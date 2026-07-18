@@ -1,13 +1,13 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue';
-import { useInventoryStore } from '../stores/inventory.store';
+import { useInventoryStore } from '../../stores/inventory.store';
 import { storeToRefs } from 'pinia';
 import { useFormatter } from '@/shared/composables/formatter.use';
 import { useI18n } from 'vue-i18n';
 import PageShell from '@/shared/components/PageShell.Component.vue';
 import PageHeader from '@/shared/components/PageHeader.Component.vue';
-import StockMovementTimeline from '../components/StockMovementTimeline.Component.vue';
-import StockAdjustmentDialog from '../components/StockAdjustmentDialog.Component.vue';
+import StockMovementTimeline from '../../components/StockMovementTimeline.Component.vue';
+import StockAdjustmentDialog from '../../components/StockAdjustmentDialog.Component.vue';
 import type { DataTablePageEvent, DataTableSortEvent, DataTableFilterMeta } from 'primevue/datatable';
 import type { StockItem } from '../types/StockItem.Response.Type';
 
