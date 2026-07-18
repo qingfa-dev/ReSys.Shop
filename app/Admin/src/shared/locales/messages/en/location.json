@@ -23,5 +23,25 @@
     "state_create_success": "State created successfully",
     "state_update_success": "State updated successfully",
     "state_delete_success": "State removed successfully"
+  },
+  "validation": {
+    "name": {
+      "required": "Country name is required",
+      "max_length": "Name must not exceed {max} characters"
+    },
+    "iso_code": {
+      "length": "ISO code must be exactly 2 characters"
+    },
+    "calling_code": {
+      "max_length": "Calling code must not exceed {max} characters"
+    },
+    "abbreviation": {
+      "required": "Abbreviation is required",
+      "max_length": "Abbreviation must not exceed {max} characters"
+    },
+    "country": {
+      "required": "Country is required",
+      "invalid": "Invalid country"
+    }
   }
 }

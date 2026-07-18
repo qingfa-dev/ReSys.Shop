@@ -43,5 +43,22 @@
       "name": "Name",
       "description": "Description"
     }
+  },
+  "validation": {
+    "name": {
+      "required": "Role name is required",
+      "max_length": "Role name must not exceed {max} characters",
+      "format": "Role name may only contain lowercase letters and underscores"
+    },
+    "display_name": {
+      "max_length": "Display name must not exceed {max} characters"
+    },
+    "description": {
+      "max_length": "Description must not exceed {max} characters"
+    },
+    "priority": {
+      "whole": "Priority must be a whole number",
+      "min": "Priority must be non-negative"
+    }
   }
 }

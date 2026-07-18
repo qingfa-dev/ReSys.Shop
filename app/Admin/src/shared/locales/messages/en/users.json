@@ -93,5 +93,58 @@
     "reject_label": "Cancel",
     "reset_password_header": "Reset Password",
     "reset_password_message": "Are you sure you want to force a password reset for this user? A temporary password will be required."
+  },
+  "validation": {
+    "email": {
+      "required": "Email is required",
+      "invalid": "Invalid email format",
+      "max_length": "Email must not exceed {max} characters"
+    },
+    "first_name": {
+      "required": "First name is required",
+      "max_length": "First name must not exceed {max} characters"
+    },
+    "last_name": {
+      "required": "Last name is required",
+      "max_length": "Last name must not exceed {max} characters"
+    },
+    "roles": {
+      "min_one": "At least one role must be assigned"
+    },
+    "password": {
+      "min_length": "Password must be at least {min} characters",
+      "max_length": "Password must not exceed {max} characters"
+    },
+    "phone": {
+      "max_length": "Phone number must not exceed {max} characters"
+    },
+    "identifier": {
+      "required": "Identifier is required",
+      "max_length": "Identifier must not exceed {max} characters",
+      "format": "Identifier format: lowercase letters, numbers, underscores, dots"
+    },
+    "name": {
+      "required": "Name is required",
+      "max_length": "Name must not exceed {max} characters"
+    },
+    "description": {
+      "max_length": "Description must not exceed {max} characters"
+    },
+    "action": {
+      "required": "Action is required",
+      "max_length": "Action must not exceed {max} characters"
+    },
+    "role_name": {
+      "required": "Role name is required",
+      "max_length": "Role name must not exceed {max} characters",
+      "format": "Role name may only contain lowercase letters and underscores"
+    },
+    "display_name": {
+      "max_length": "Display name must not exceed {max} characters"
+    },
+    "priority": {
+      "whole": "Priority must be a whole number",
+      "min": "Priority must be non-negative"
+    }
   }
 }

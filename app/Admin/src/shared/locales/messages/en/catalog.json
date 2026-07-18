@@ -447,5 +447,96 @@
   },
   "actions": {
     "view_all": "View All"
+  },
+  "validation": {
+    "name": {
+      "required": "Name is required",
+      "max_length": "Name must not exceed {max} characters"
+    },
+    "presentation": {
+      "required": "Presentation is required",
+      "max_length": "Presentation must not exceed {max} characters"
+    },
+    "description": {
+      "max_length": "Description must not exceed {max} characters"
+    },
+    "position": {
+      "whole": "Position must be a whole number",
+      "min": "Position must be non-negative"
+    },
+    "internal_name": {
+      "required": "Internal name is required",
+      "max_length": "Name must not exceed {max} characters"
+    },
+    "display_name": {
+      "required": "Display name is required",
+      "max_length": "Display name must not exceed {max} characters"
+    },
+    "sku": {
+      "required": "SKU is required",
+      "max_length": "SKU must not exceed {max} characters"
+    },
+    "slug": {
+      "required": "Slug is required",
+      "max_length": "Slug must not exceed {max} characters",
+      "format": "Slug may only contain lowercase letters, numbers, and hyphens"
+    },
+    "price": {
+      "min": "Price must be non-negative"
+    },
+    "weight": {
+      "min": "Weight must be non-negative"
+    },
+    "height": {
+      "min": "Height must be non-negative"
+    },
+    "width": {
+      "min": "Width must be non-negative"
+    },
+    "depth": {
+      "min": "Depth must be non-negative"
+    },
+    "meta_title": {
+      "max_length": "Meta title must not exceed {max} characters"
+    },
+    "meta_description": {
+      "max_length": "Meta description must not exceed {max} characters"
+    },
+    "meta_keywords": {
+      "max_length": "Meta keywords must not exceed {max} characters"
+    },
+    "barcode": {
+      "max_length": "Barcode must not exceed {max} characters"
+    },
+    "compare_at_price": {
+      "min": "Compare-at price must be non-negative"
+    },
+    "cost_price": {
+      "min": "Cost price must be non-negative"
+    },
+    "taxon_id": {
+      "invalid": "Invalid taxon ID"
+    },
+    "taxonomy": {
+      "required": "Taxonomy is required"
+    },
+    "rule_type": {
+      "required": "Rule type is required"
+    },
+    "value": {
+      "required": "Value is required"
+    },
+    "match_policy": {
+      "required": "Match policy is required"
+    },
+    "option_type_ids": {
+      "min": "At least one option type must be selected"
+    },
+    "currency": {
+      "length": "Currency must be a 3-letter code"
+    },
+    "role": {
+      "range": "Role must be between 0 and 5"
+    }
   }
 }

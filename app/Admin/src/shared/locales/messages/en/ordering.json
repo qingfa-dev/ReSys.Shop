@@ -126,5 +126,71 @@
     "total_revenue": "Total Revenue",
     "recent_orders": "Recent Orders",
     "status_breakdown": "Status Breakdown"
+  },
+  "validation": {
+    "first_name": {
+      "required": "First name is required",
+      "max_length": "First name must not exceed {max} characters"
+    },
+    "last_name": {
+      "required": "Last name is required",
+      "max_length": "Last name must not exceed {max} characters"
+    },
+    "address": {
+      "required": "Address is required",
+      "max_length": "Address must not exceed {max} characters"
+    },
+    "city": {
+      "required": "City is required",
+      "max_length": "City must not exceed {max} characters"
+    },
+    "zip": {
+      "required": "ZIP code is required",
+      "max_length": "ZIP code must not exceed {max} characters"
+    },
+    "country_code": {
+      "length": "Country code must be 2 characters"
+    },
+    "state_code": {
+      "max_length": "State code must not exceed {max} characters"
+    },
+    "phone": {
+      "max_length": "Phone must not exceed {max} characters"
+    },
+    "company": {
+      "max_length": "Company must not exceed {max} characters"
+    },
+    "email": {
+      "required": "Email is required",
+      "invalid": "Invalid email format"
+    },
+    "currency": {
+      "length": "Currency must be a 3-letter code"
+    },
+    "variant": {
+      "required": "Invalid variant",
+      "invalid": "Invalid variant"
+    },
+    "quantity": {
+      "whole": "Quantity must be a whole number",
+      "min_one": "Quantity must be at least 1"
+    },
+    "items": {
+      "min_one": "At least one item is required"
+    },
+    "tracking_number": {
+      "max_length": "Tracking number must not exceed {max} characters"
+    },
+    "stock_location": {
+      "required": "Stock location is required",
+      "invalid": "Invalid stock location"
+    },
+    "inventory_unit": {
+      "required": "Invalid inventory unit",
+      "invalid": "Invalid inventory unit"
+    },
+    "units": {
+      "min_one": "At least one unit must be selected"
+    }
   }
 }
