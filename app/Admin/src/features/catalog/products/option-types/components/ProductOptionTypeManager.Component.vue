@@ -4,7 +4,7 @@ import { useI18n } from 'vue-i18n';
 import { useOptionTypeStore } from '@/features/catalog/option-types/stores/option-type.store';
 import { useApiErrorHandler } from '@/shared/composables/api-error-handler.use';
 import { useToast } from '@/shared/composables/toast.use';
-import { productService } from '../services/product.service';
+import { productService } from '../../services/product.service';
 
 const props = defineProps<{
     productId: string;

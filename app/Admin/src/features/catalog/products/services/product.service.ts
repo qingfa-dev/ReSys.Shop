@@ -1,4 +1,4 @@
-import { productRepository } from '../repositories/product.repository'
+import { productRepository } from '../api/product.api'
 import type { ServerResult, ServerPagedResult } from '@/shared/api/types/result.types'
 import type { ProductImage } from '../types/Product.Response.Type'
 
@@ -10,12 +10,8 @@ export const productService = {
   delete: productRepository.delete,
   activate: productRepository.activate,
   discontinue: productRepository.discontinue,
-  getOptionTypes: productRepository.getOptionTypes,
-  syncOptionTypes: productRepository.syncOptionTypes,
-  getClassifications: productRepository.getClassifications,
-  syncClassifications: productRepository.syncClassifications,
 
-  // Image methods — currently at variant level in API; stubs for future product-level endpoints
+  // Image stubs — variant-level endpoints exist but product-level endpoints don't exist yet
   async getImages(_productId: string): Promise<ServerPagedResult<ProductImage>> {
     return { isSuccess: true, statusCode: 200, errors: [], message: null, metadata: null, items: [], page: 1, pageSize: 0, totalCount: 0 }
   },
@@ -26,11 +22,6 @@ export const productService = {
     return { isSuccess: true, statusCode: 200, errors: [], message: null, metadata: null, value: undefined }
   },
   async updateImage(_imageId: string, _data: { alt?: string; role?: number }): Promise<ServerResult<void>> {
-    return { isSuccess: true, statusCode: 200, errors: [], message: null, metadata: null, value: undefined }
-  },
-
-  // Option type methods
-  async updateOptionTypes(_productId: string, _optionTypeIds: string[]): Promise<ServerResult<void>> {
     return { isSuccess: true, statusCode: 200, errors: [], message: null, metadata: null, value: undefined }
   },
 }
