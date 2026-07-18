@@ -1,4 +1,4 @@
-import { optionValueRepository } from '../repositories/option-value.repository'
+import { optionValueRepository } from '../api/option-value.api'
 import type { OptionValueListItem } from '../types/OptionValue.Response.Type'
 import type { CreateOptionValueRequest, UpdateOptionValueRequest, UpdateOptionValuePositionsRequest } from '../types/OptionValue.Request.Type'
 import type { ServerResult, ServerPagedResult } from '@/shared/api/types/result.types'
