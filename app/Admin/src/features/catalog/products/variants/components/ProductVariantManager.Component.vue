@@ -6,7 +6,7 @@ import { useToast } from '@/shared/composables/toast.use';
 import { useFormatter } from '@/shared/composables/formatter.use';
 import { useConfirm } from 'primevue/useconfirm';
 import { variantService } from '../services/variant.service';
-import VariantGenerationDialog from './dialogs/VariantGenerationDialog.Component.vue';
+import VariantGenerationDialog from './VariantGenerationDialog.Component.vue';
 import VariantFormDialog from './VariantFormDialog.Component.vue';
 import type { VariantSummary, VariantDetail } from '../types/Variant.Response.Type';
 import type { CreateVariantRequest } from '../types/Variant.Request.Type';

@@ -4,7 +4,7 @@ import { useI18n } from 'vue-i18n';
 import { useForm } from 'vee-validate';
 import { toTypedSchema } from '@vee-validate/zod';
 import * as z from 'zod';
-import { productService } from '../services/product.service';
+import { productService } from '../../services/product.service';
 import { optionValueService } from '@/features/catalog/option-types/option-values/services/option-value.service';
 import type { OptionValueQuery } from '@/features/catalog/option-types/option-values/types/OptionValue.Query.Type';
 import type { OptionValueListItem } from '@/features/catalog/option-types/option-values/types/OptionValue.Response.Type';
