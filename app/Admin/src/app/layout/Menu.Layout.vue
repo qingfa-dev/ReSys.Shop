@@ -85,10 +85,10 @@ const model = ref<MenuItem[]>([
   {
     label: 'Identity & Access',
     items: [
-      { label: 'Staff', icon: 'pi pi-fw pi-id-card', to: { name: 'admin-users' } },
-      { label: 'Customers', icon: 'pi pi-fw pi-users', to: { name: 'customer-users' } },
-      { label: 'Roles', icon: 'pi pi-fw pi-shield', to: { name: 'roles-list' } },
-      { label: 'Permissions', icon: 'pi pi-fw pi-key', to: { name: 'permissions-list' } },
+      { label: 'Staff', icon: 'pi pi-fw pi-id-card', to: { name: 'users.staff.list' } },
+      { label: 'Customers', icon: 'pi pi-fw pi-users', to: { name: 'users.customers.list' } },
+      { label: 'Roles', icon: 'pi pi-fw pi-shield', to: { name: 'users.roles.list' } },
+      { label: 'Permissions', icon: 'pi pi-fw pi-key', to: { name: 'users.permissions.list' } },
       { label: 'Addresses', icon: 'pi pi-fw pi-address-book', to: { name: 'addresses' } },
     ],
   },

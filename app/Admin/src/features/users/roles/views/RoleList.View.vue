@@ -70,7 +70,7 @@ const confirmDelete = (role: RoleSummary) => {
                 <Badge :value="totalRecords" severity="info" />
             </template>
             <template #actions>
-                <Button :label="t('roles.actions.create')" icon="pi pi-plus" severity="primary" class="rounded-xl" @click="router.push({ name: 'role-create' })" />
+                <Button :label="t('roles.actions.create')" icon="pi pi-plus" severity="primary" class="rounded-xl" @click="router.push({ name: 'users.roles.create' })" />
             </template>
         </PageHeader>
         <DataTable 
@@ -122,8 +122,8 @@ const confirmDelete = (role: RoleSummary) => {
                     <Column :header="t('roles.table.actions')" class="w-48 text-right">
                         <template #body="{ data }">
                             <div class="flex justify-end gap-1">
-                                <Button icon="pi pi-shield" text rounded v-tooltip.top="'Permissions'" @click="router.push({ name: 'role-permissions', params: { id: data.id } })" />
-                                <Button icon="pi pi-pencil" text rounded severity="secondary" @click="router.push({ name: 'role-edit', params: { id: data.id } })" />
+                                <Button icon="pi pi-shield" text rounded v-tooltip.top="'Permissions'" @click="router.push({ name: 'users.roles.permissions', params: { id: data.id } })" />
+                                <Button icon="pi pi-pencil" text rounded severity="secondary" @click="router.push({ name: 'users.roles.edit', params: { id: data.id } })" />
                                 <Button icon="pi pi-trash" text rounded severity="danger" :disabled="data.isSystem" @click="confirmDelete(data)" />
                             </div>
                         </template>

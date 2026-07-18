@@ -38,7 +38,7 @@ async function loadData() {
             await loadPermissions();
         } else {
             showToast('error', t('common.error'), t('users.messages.customer_detail_error'));
-            router.push({ name: 'customer-users' });
+            router.push({ name: 'users.customers.list' });
         }
     } finally {
         loading.value = false;

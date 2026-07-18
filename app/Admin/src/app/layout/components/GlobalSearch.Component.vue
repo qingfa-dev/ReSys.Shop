@@ -19,7 +19,7 @@ const allPages: SearchResult[] = [
   { label: 'Dashboard', description: 'Reports & overview', to: { name: 'reports.dashboard' } },
   { label: 'Products', description: 'Product catalog', to: { name: 'catalog.products.list' } },
   { label: 'Orders', description: 'Order management', to: { name: 'ordering.orders.list' } },
-  { label: 'Users', description: 'User accounts', to: { name: 'admin-users' } },
+  { label: 'Users', description: 'User accounts', to: { name: 'users.staff.list' } },
   { label: 'Countries', description: 'Location data', to: { name: 'countries.list' } },
 ]
 

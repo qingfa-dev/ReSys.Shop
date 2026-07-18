@@ -64,7 +64,7 @@ async function loadUser() {
         };
     } else {
         showToast('error', t('common.error'), t('users.messages.load_error'));
-        router.push({ name: 'admin-users' });
+        router.push({ name: 'users.staff.list' });
     }
 }
 
@@ -81,7 +81,7 @@ async function onSubmit() {
             const res = await userService.update(userId.value, updateData);
             if (res.isSuccess) {
                 showToast('success', t('common.success'), t('users.messages.update_success'));
-                router.push({ name: 'admin-users' });
+                router.push({ name: 'users.staff.list' });
             }
         } else {
             const createData: CreateAdminUserRequest = {
@@ -95,7 +95,7 @@ async function onSubmit() {
             const res = await userService.create(createData);
             if (res.isSuccess) {
                 showToast('success', t('common.success'), t('users.messages.create_success'));
-                router.push({ name: 'admin-users' });
+                router.push({ name: 'users.staff.list' });
             }
         }
     } finally {

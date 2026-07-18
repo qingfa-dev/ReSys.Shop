@@ -147,7 +147,7 @@ const clearFilters = () => {
 
             <Column :header="t('users.table.actions')" class="w-32 text-right" frozen alignFrozen="right">
                 <template #body="{ data }">
-                    <Button icon="pi pi-eye" text rounded @click="router.push({ name: 'customer-detail', params: { id: data.id } })" />
+                    <Button icon="pi pi-eye" text rounded @click="router.push({ name: 'users.customers.detail', params: { id: data.id } })" />
                 </template>
             </Column>
         </DataTable>

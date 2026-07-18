@@ -166,7 +166,7 @@ const confirmDelete = (user: AdminUserSummary) => {
           <Column :header="t('users.table.actions')" class="w-32 text-right" frozen alignFrozen="right">
             <template #body="{ data }">
               <div class="flex justify-end gap-1">
-                <Button icon="pi pi-eye" severity="secondary" text rounded @click="router.push({ name: 'admin-user-detail', params: { id: data.id } })" />
+                <Button icon="pi pi-eye" severity="secondary" text rounded @click="router.push({ name: 'users.staff.detail', params: { id: data.id } })" />
                 <Button icon="pi pi-pencil" severity="secondary" text rounded />
                 <Button icon="pi pi-trash" severity="danger" text rounded @click="confirmDelete(data)" />
               </div>

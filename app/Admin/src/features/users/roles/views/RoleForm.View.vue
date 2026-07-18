@@ -51,7 +51,7 @@ async function loadRole() {
         isSystemRole.value = role.isSystem;
     } else {
         showToast('error', t('common.error'), t('roles.messages.load_error'));
-        router.push({ name: 'roles-list' });
+        router.push({ name: 'users.roles.list' });
     }
 }
 
@@ -67,7 +67,7 @@ async function onSubmit() {
             const res = await roleService.update(roleId.value, updateData);
             if (res.isSuccess) {
                 showToast('success', t('common.success'), t('roles.messages.update_success'));
-                router.push({ name: 'roles-list' });
+                router.push({ name: 'users.roles.list' });
             }
         } else {
             const createData: CreateRoleRequest = {
@@ -79,7 +79,7 @@ async function onSubmit() {
             const res = await roleService.create(createData);
             if (res.isSuccess) {
                 showToast('success', t('common.success'), t('roles.messages.create_success'));
-                router.push({ name: 'roles-list' });
+                router.push({ name: 'users.roles.list' });
             }
         }
     } finally {

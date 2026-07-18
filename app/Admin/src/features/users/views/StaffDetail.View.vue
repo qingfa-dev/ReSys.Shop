@@ -38,7 +38,7 @@ async function loadData() {
             await loadPermissions();
         } else {
             showToast('error', t('common.error'), t('users.messages.load_error'));
-            router.push({ name: 'admin-users' });
+            router.push({ name: 'users.staff.list' });
         }
     } finally {
         loading.value = false;
@@ -53,7 +53,7 @@ async function loadPermissions() {
 }
 
 function onEdit() {
-    router.push({ name: 'admin-user-edit', params: { id: userId.value } });
+    router.push({ name: 'users.staff.edit', params: { id: userId.value } });
 }
 
 async function onToggleStatus() {
