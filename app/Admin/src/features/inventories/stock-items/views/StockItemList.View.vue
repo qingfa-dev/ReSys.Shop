@@ -139,17 +139,17 @@ const toggleLowStock = () => {
                         </template>
                     </Column>
 
-                    <Column field="variant_name" :header="t('inventory.table.product')">
+                    <Column field="variantName" :header="t('inventory.table.product')">
                         <template #body="{ data }">
-                            <span class="font-bold text-surface-900 dark:text-surface-0">{{ data.variant_name }}</span>
+                            <span class="font-bold text-surface-900 dark:text-surface-0">{{ data.variantName }}</span>
                         </template>
                     </Column>
 
-                    <Column field="stock_location_name" :header="t('inventory.table.location')">
+                    <Column field="stockLocationName" :header="t('inventory.table.location')">
                         <template #body="{ data }">
                             <div class="flex items-center gap-2">
                                 <i class="pi pi-building text-surface-400"></i>
-                                <span>{{ data.stock_location_name }}</span>
+                                <span>{{ data.stockLocationName }}</span>
                             </div>
                         </template>
                     </Column>
@@ -186,10 +186,10 @@ const toggleLowStock = () => {
 
         <!-- Adjust Dialog -->
         <StockAdjustmentDialog 
-            v-if="adjustDialog" 
+            v-if="adjustDialog && selectedStockItem" 
             :stockItemId="selectedStockItem.id" 
             :sku="selectedStockItem.sku" 
-            :variantName="selectedStockItem.variant_name" 
+            :variantName="selectedStockItem.variantName" 
             @updated="store.fetchStocks()" 
             @close="adjustDialog = false" 
         />

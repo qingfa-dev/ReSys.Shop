@@ -84,7 +84,7 @@ export const useOrderStore = defineStore('order', () => {
   async function advanceOrderState(id: string, status?: string) {
     submitting.value = true;
     try {
-      const result = await orderService.updateStatus(id, status || 'next');
+      const result = await orderService.updateStatus(id, { status: status || 'next' });
       if (result.isSuccess) {
         showToast('success', t('common.success'), t('ordering.messages.state_advanced'));
         await fetchOrderById(id);
@@ -98,7 +98,7 @@ export const useOrderStore = defineStore('order', () => {
   async function cancelOrder(id: string, reason?: string) {
     submitting.value = true;
     try {
-      const result = await orderService.cancel(id, reason);
+      const result = await orderService.cancel(id, reason ? { reason } : undefined);
       if (result.isSuccess) {
         showToast('success', t('common.success'), t('ordering.messages.order_canceled'));
         await fetchOrderById(id);

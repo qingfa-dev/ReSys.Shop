@@ -5,8 +5,8 @@ import type { ServerQueryingParameters } from '@/shared/api/types/query.types'
 import type { AdminUserSummary, CustomerSummary } from '../../users/types/User.Response.Type'
 import type { RoleSummary } from '../../users/roles/types/Role.Response.Type'
 import type { PermissionSummary } from '../../users/permissions/types/Permission.Response.Type'
-import type { CreateAdminUserRequest, UpdateAdminUserRequest } from '../../users/types/User.Request.Type'
-import type { CreateRoleRequest, UpdateRoleRequest } from '../../users/roles/types/Role.Request.Type'
+import type { CreateAdminUserRequest, UpdateAdminUserRequest, UpdateUserStatusRequest, AssignRoleRequest, SyncRolesRequest, AssignPermissionRequest, SyncPermissionsRequest } from '../../users/types/User.Request.Type'
+import type { CreateRoleRequest, UpdateRoleRequest, AssignRolePermissionRequest, RevokeRolePermissionRequest, SyncRolePermissionsRequest } from '../../users/roles/types/Role.Request.Type'
 
 export const identityApi = {
   users: {
@@ -28,36 +28,36 @@ export const identityApi = {
     async delete(id: string): Promise<ServerResult<void>> {
       return apiClient.delete(`${IDENTITY}/users/${id}`)
     },
-    async updateStatus(id: string, isActive: boolean): Promise<ServerResult<void>> {
-      return apiClient.patch(`${IDENTITY}/users/${id}/status`, { isActive })
+    async updateStatus(id: string, data: UpdateUserStatusRequest): Promise<ServerResult<void>> {
+      return apiClient.patch(`${IDENTITY}/users/${id}/status`, data)
     },
 
     // Roles
     async getRoles(id: string): Promise<ServerResult<string[]>> {
       return apiClient.get(`${IDENTITY}/users/${id}/roles`)
     },
-    async assignRole(id: string, roleName: string): Promise<ServerResult<void>> {
-      return apiClient.post(`${IDENTITY}/users/${id}/roles/assign`, { roleName })
+    async assignRole(id: string, data: AssignRoleRequest): Promise<ServerResult<void>> {
+      return apiClient.post(`${IDENTITY}/users/${id}/roles/assign`, data)
     },
-    async revokeRole(id: string, roleName: string): Promise<ServerResult<void>> {
-      return apiClient.post(`${IDENTITY}/users/${id}/roles/revoke`, { roleName })
+    async revokeRole(id: string, data: AssignRoleRequest): Promise<ServerResult<void>> {
+      return apiClient.post(`${IDENTITY}/users/${id}/roles/revoke`, data)
     },
-    async syncRoles(id: string, roleNames: string[]): Promise<ServerResult<void>> {
-      return apiClient.patch(`${IDENTITY}/users/${id}/roles/sync`, { roleNames })
+    async syncRoles(id: string, data: SyncRolesRequest): Promise<ServerResult<void>> {
+      return apiClient.patch(`${IDENTITY}/users/${id}/roles/sync`, data)
     },
 
     // Permissions
     async getPermissions(id: string): Promise<ServerResult<string[]>> {
       return apiClient.get(`${IDENTITY}/users/${id}/permissions`)
     },
-    async assignPermission(id: string, permissionName: string): Promise<ServerResult<void>> {
-      return apiClient.post(`${IDENTITY}/users/${id}/permissions/assign`, { permissionName })
+    async assignPermission(id: string, data: AssignPermissionRequest): Promise<ServerResult<void>> {
+      return apiClient.post(`${IDENTITY}/users/${id}/permissions/assign`, data)
     },
-    async revokePermission(id: string, permissionName: string): Promise<ServerResult<void>> {
-      return apiClient.delete(`${IDENTITY}/users/${id}/permissions/revoke`, { data: { permissionName } })
+    async revokePermission(id: string, data: AssignPermissionRequest): Promise<ServerResult<void>> {
+      return apiClient.delete(`${IDENTITY}/users/${id}/permissions/revoke`, { data })
     },
-    async syncPermissions(id: string, permissionNames: string[]): Promise<ServerResult<void>> {
-      return apiClient.put(`${IDENTITY}/users/${id}/permissions/sync`, { permissionNames })
+    async syncPermissions(id: string, data: SyncPermissionsRequest): Promise<ServerResult<void>> {
+      return apiClient.put(`${IDENTITY}/users/${id}/permissions/sync`, data)
     },
   },
 
@@ -82,14 +82,14 @@ export const identityApi = {
     async getPermissions(id: string): Promise<ServerResult<string[]>> {
       return apiClient.get(`${IDENTITY}/roles/${id}/permissions`)
     },
-    async assignPermission(id: string, permissionName: string): Promise<ServerResult<void>> {
-      return apiClient.put(`${IDENTITY}/roles/${id}/permissions/assign`, { permissionName })
+    async assignPermission(id: string, data: AssignRolePermissionRequest): Promise<ServerResult<void>> {
+      return apiClient.put(`${IDENTITY}/roles/${id}/permissions/assign`, data)
     },
-    async revokePermission(id: string, permissionName: string): Promise<ServerResult<void>> {
-      return apiClient.delete(`${IDENTITY}/roles/${id}/permissions/revoke`, { data: { permissionName } })
+    async revokePermission(id: string, data: RevokeRolePermissionRequest): Promise<ServerResult<void>> {
+      return apiClient.delete(`${IDENTITY}/roles/${id}/permissions/revoke`, { data })
     },
-    async syncPermissions(id: string, permissionNames: string[]): Promise<ServerResult<void>> {
-      return apiClient.patch(`${IDENTITY}/roles/${id}/permissions/sync`, { permissionNames })
+    async syncPermissions(id: string, data: SyncRolePermissionsRequest): Promise<ServerResult<void>> {
+      return apiClient.patch(`${IDENTITY}/roles/${id}/permissions/sync`, data)
     },
   },
 

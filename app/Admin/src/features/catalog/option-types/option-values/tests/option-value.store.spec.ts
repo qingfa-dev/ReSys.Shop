@@ -26,9 +26,9 @@ describe('OptionValueStore', () => {
   describe('fetchValues (Nested)', () => {
     it('should fetch values for an option type and sort them', async () => {
       const store = useOptionValueStore();
-      const mockData = [
-        { id: '2', name: 'Medium', presentation: 'M', position: 2 },
-        { id: '1', name: 'Small', presentation: 'S', position: 1 }
+      const mockData: OptionValueListItem[] = [
+        { id: '2', name: 'Medium', presentation: 'M', position: 2, optionTypeId: 'type-123' },
+        { id: '1', name: 'Small', presentation: 'S', position: 1, optionTypeId: 'type-123' }
       ];
       
       vi.mocked(optionValueService.list).mockResolvedValue(createMockPagedResult(mockData, { pageSize: 50 }));
@@ -44,7 +44,7 @@ describe('OptionValueStore', () => {
   describe('fetchList (Flat)', () => {
     it('should fetch all values and update state', async () => {
       const store = useOptionValueStore();
-      const mockData = [{ id: '1', name: 'Blue', presentation: 'Blue', position: 0 }];
+      const mockData: OptionValueListItem[] = [{ id: '1', name: 'Blue', presentation: 'Blue', position: 0, optionTypeId: 'type-1' }];
       
       vi.mocked(optionValueService.list).mockResolvedValue(createMockPagedResult(mockData));
 

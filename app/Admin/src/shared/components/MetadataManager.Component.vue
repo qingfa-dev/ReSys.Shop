@@ -100,7 +100,8 @@ const loadingExternal = ref(false);
                         :class="{'border-primary': entry.isNew}"
                     />
                     <InputText 
-                        v-model="entry.value" 
+                        :modelValue="String(entry.value ?? '')" 
+                        @update:modelValue="(v: string | undefined) => entry.value = v"
                         placeholder="Value (string, number or JSON)" 
                         class="w-full text-sm" 
                         @blur="onBlur" 

@@ -72,13 +72,17 @@ const generateCombinations = () => {
         return;
     }
 
-    const firstTypeValues = selectedValues.value[activeTypes[0].id];
+    const firstType = activeTypes[0];
+    if (!firstType) return;
+    const firstTypeValues = selectedValues.value[firstType.id];
     if (!firstTypeValues) return;
 
     let combinations: OptionValueListItem[][] = firstTypeValues.map((v: OptionValueListItem) => [v]);
 
     for (let i = 1; i < activeTypes.length; i++) {
-        const typeId = activeTypes[i].id;
+        const activeType = activeTypes[i];
+        if (!activeType) continue;
+        const typeId = activeType.id;
         const values = selectedValues.value[typeId];
 
         if (!values || values.length === 0) continue;

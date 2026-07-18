@@ -52,17 +52,17 @@ const onFilter = () => {
   const presentationFilter = filters.value.presentation as { constraints: { value: string | null }[] }
 
   const builder = new QueryBuilder()
-  
+
   if (nameFilter.constraints[0]?.value) {
     builder.where('Name', '*', nameFilter.constraints[0].value)
   }
-  
+
   if (presentationFilter.constraints[0]?.value) {
     builder.where('Presentation', '*', presentationFilter.constraints[0].value)
   }
 
   const built = builder.build()
-  
+
   store.fetchList({
     search: globalValue || undefined,
     searchFields: globalValue ? ['Name', 'Presentation'] : undefined,
@@ -122,9 +122,9 @@ onMounted(() => {
         <Badge :value="totalRecords" severity="info" />
       </template>
       <template #actions>
-        <Button 
-          :label="t('catalog.option_types.actions.create')" 
-          icon="pi pi-plus" 
+        <Button
+          :label="t('catalog.option_types.actions.create')"
+          icon="pi pi-plus"
           @click="createItem"
           class="px-4 shadow-lg rounded-xl"
         />
@@ -152,19 +152,19 @@ onMounted(() => {
           <div class="flex flex-col items-center justify-between gap-4 md:flex-row">
             <IconField iconPosition="left" class="w-full md:w-72">
               <InputIcon class="pi pi-search" />
-              <InputText 
-                v-model="(filters.global as { value: string | null }).value" 
-                placeholder="Search..." 
-                @keyup.enter="onFilter" 
+              <InputText
+                v-model="(filters.global as { value: string | null }).value"
+                placeholder="Search..."
+                @keyup.enter="onFilter"
                 class="w-full rounded-xl"
               />
             </IconField>
-            <Button 
-              type="button" 
-              icon="pi pi-filter-slash" 
-              label="Clear" 
-              outlined 
-              @click="clearFilters" 
+            <Button
+              type="button"
+              icon="pi pi-filter-slash"
+              label="Clear"
+              outlined
+              @click="clearFilters"
               class="w-full rounded-xl md:w-auto"
             />
           </div>
@@ -207,13 +207,13 @@ onMounted(() => {
         <Column class="w-48 text-right" frozen alignFrozen="right">
           <template #body="{ data }">
             <div class="flex justify-end gap-1">
-              <Button 
-                icon="pi pi-list" 
-                severity="info" 
-                text 
-                rounded 
-                v-tooltip.top="'Manage Values'" 
-                @click="router.push({ name: 'catalog.option-values.list', query: { optionTypeId: data.id } })" 
+              <Button
+                icon="pi pi-list"
+                severity="info"
+                text
+                rounded
+                v-tooltip.top="'Manage Values'"
+                @click="router.push({ name: 'catalog.option-values.list', query: { optionTypeId: data.id } })"
               />
               <Button icon="pi pi-pencil" severity="secondary" text rounded @click="editItem(data.id)" />
               <Button icon="pi pi-trash" severity="danger" text rounded @click="confirmDelete(data)" />

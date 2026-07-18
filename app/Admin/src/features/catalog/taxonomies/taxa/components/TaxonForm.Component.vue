@@ -77,7 +77,7 @@ watch(
         hideFromNav: newData.hideFromNav,
         parentId: newData.parentId as string | null,
         automatic: newData.automatic,
-        rulesMatchPolicy: newData.rulesMatchPolicy as string,
+        rulesMatchPolicy: newData.rulesMatchPolicy as 'all' | 'any',
         sortOrder: newData.sortOrder,
         metaTitle: newData.metaTitle || '',
         metaDescription: newData.metaDescription || '',

@@ -3,7 +3,7 @@ import { IDENTITY } from '@/shared/api/constants'
 import type { ServerPagedResult, ServerResult } from '@/shared/api/types/result.types'
 import type { ServerQueryingParameters } from '@/shared/api/types/query.types'
 import type { RoleSummary } from '../types/Role.Response.Type'
-import type { CreateRoleRequest, UpdateRoleRequest } from '../types/Role.Request.Type'
+import type { CreateRoleRequest, UpdateRoleRequest, AssignRolePermissionRequest, RevokeRolePermissionRequest, SyncRolePermissionsRequest } from '../types/Role.Request.Type'
 
 export const roleRepository = {
   list: (params?: ServerQueryingParameters): Promise<ServerPagedResult<RoleSummary>> =>
@@ -24,12 +24,12 @@ export const roleRepository = {
   getPermissions: (id: string): Promise<ServerResult<string[]>> =>
     apiClient.get(`${IDENTITY}/roles/${id}/permissions`).then(res => res.data as ServerResult<string[]>),
 
-  assignPermission: (id: string, permissionName: string): Promise<ServerResult<void>> =>
-    apiClient.put(`${IDENTITY}/roles/${id}/permissions/assign`, { permissionName }).then(res => res.data as ServerResult<void>),
+  assignPermission: (id: string, data: AssignRolePermissionRequest): Promise<ServerResult<void>> =>
+    apiClient.put(`${IDENTITY}/roles/${id}/permissions/assign`, data).then(res => res.data as ServerResult<void>),
 
-  revokePermission: (id: string, permissionName: string): Promise<ServerResult<void>> =>
-    apiClient.delete(`${IDENTITY}/roles/${id}/permissions/revoke`, { data: { permissionName } }).then(res => res.data as ServerResult<void>),
+  revokePermission: (id: string, data: RevokeRolePermissionRequest): Promise<ServerResult<void>> =>
+    apiClient.delete(`${IDENTITY}/roles/${id}/permissions/revoke`, { data }).then(res => res.data as ServerResult<void>),
 
-  syncPermissions: (id: string, permissionNames: string[]): Promise<ServerResult<void>> =>
-    apiClient.patch(`${IDENTITY}/roles/${id}/permissions/sync`, { permissionNames }).then(res => res.data as ServerResult<void>),
+  syncPermissions: (id: string, data: SyncRolePermissionsRequest): Promise<ServerResult<void>> =>
+    apiClient.patch(`${IDENTITY}/roles/${id}/permissions/sync`, data).then(res => res.data as ServerResult<void>),
 }

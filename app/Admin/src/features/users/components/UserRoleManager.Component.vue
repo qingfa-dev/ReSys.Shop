@@ -44,7 +44,7 @@ async function onSave() {
     saving.value = true;
     try {
         const roleNames = selection.value[1].map((r: RoleSummary) => r.name);
-        const res = await userService.syncUserRoles(props.userId, roleNames);
+        const res = await userService.syncUserRoles(props.userId, { roleNames });
         if (res.isSuccess) {
             showToast('success', t('common.success'), t('users.messages.roles_updated'));
             emit('updated');

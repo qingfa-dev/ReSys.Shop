@@ -3,7 +3,7 @@ import { INVENTORY } from '@/shared/api/constants'
 import type { ServerResult, ServerPagedResult } from '@/shared/api/types/result.types'
 import type { ServerQueryingParameters } from '@/shared/api/types/query.types'
 import type { StockItem, StockItemDetail, StockSummary } from '../types/StockItem.Response.Type'
-import type { StockAdjustmentRequest } from '../types/StockItem.Request.Type'
+import type { StockAdjustmentRequest, CreateStockItemRequest, UpdateStockItemRequest, BulkAdjustRequest } from '../types/StockItem.Request.Type'
 import type { StockItemQuery } from '../types/StockItem.Query.Type'
 
 function path(sub?: string): string {
@@ -17,10 +17,10 @@ export const stockRepository = {
   getById(id: string): Promise<ServerResult<StockItemDetail>> {
     return apiClient.get(path(id)).then(res => res.data as ServerResult<StockItemDetail>)
   },
-  create(data: { variantId: string; stockLocationId: string; countOnHand?: number }): Promise<ServerResult<StockItemDetail>> {
+  create(data: CreateStockItemRequest): Promise<ServerResult<StockItemDetail>> {
     return apiClient.post(path(), data).then(res => res.data as ServerResult<StockItemDetail>)
   },
-  update(id: string, data: { countOnHand?: number; backorderable?: boolean; backorderLimit?: number }): Promise<ServerResult<void>> {
+  update(id: string, data: UpdateStockItemRequest): Promise<ServerResult<void>> {
     return apiClient.put(path(id), data).then(res => res.data as ServerResult<void>)
   },
   delete(id: string): Promise<ServerResult<void>> {
@@ -35,7 +35,7 @@ export const stockRepository = {
   getSummary(): Promise<ServerResult<StockSummary[]>> {
     return apiClient.get(path('summary')).then(res => res.data as ServerResult<StockSummary[]>)
   },
-  bulkAdjust(data: { items: Array<{ id: string; quantity: number; type: number }> }): Promise<ServerResult<void>> {
+  bulkAdjust(data: BulkAdjustRequest): Promise<ServerResult<void>> {
     return apiClient.post(path('bulk-adjust'), data).then(res => res.data as ServerResult<void>)
   },
 }

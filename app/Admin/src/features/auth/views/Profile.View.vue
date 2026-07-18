@@ -12,7 +12,12 @@ const { t } = useI18n();
 const { showToast } = useToast();
 const { formatDate } = useFormatter();
 
-const user = ref<Partial<UserProfile> | null>(null);
+interface ProfileViewFields {
+  roleNames?: string[]
+  userName?: string
+  createdAtUtc?: string
+}
+const user = ref<Partial<UserProfile & ProfileViewFields> | null>(null);
 const loading = ref(false);
 const submitting = ref(false);
 

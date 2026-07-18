@@ -22,7 +22,7 @@ export const paymentMethodRepository = {
     return apiClient.post(methodsPath(), data).then(res => res.data as ServerResult<PaymentMethodDetail>)
   },
 
-  update(id: string, data: Partial<CreatePaymentMethodRequest>): Promise<ServerResult<PaymentMethodDetail>> {
+  update(id: string, data: UpdatePaymentMethodRequest): Promise<ServerResult<PaymentMethodDetail>> {
     return apiClient.put(methodsPath(id), data).then(res => res.data as ServerResult<PaymentMethodDetail>)
   },
 

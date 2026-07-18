@@ -56,7 +56,7 @@ async function onSave() {
     saving.value = true;
     try {
         const permissionNames = selection.value[1].map(p => p.identifier);
-        const res = await roleService.syncPermissions(roleId.value, permissionNames);
+        const res = await roleService.syncPermissions(roleId.value, { permissionNames });
         if (res.isSuccess) {
             showToast('success', t('common.saved'), t('roles.messages.permissions_updated'));
             router.back();

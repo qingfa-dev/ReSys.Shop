@@ -20,3 +20,15 @@ export interface CreateShipmentRequest {
   stockLocationId: string
   inventoryUnitIds: string[]
 }
+
+export interface UpdateLineItemRequest {
+  quantity?: number
+}
+
+export interface UpdateOrderStatusRequest {
+  status: string
+}
+
+export interface UpdateShippingMethodRequest {
+  shippingMethodId: string
+}

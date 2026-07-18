@@ -111,7 +111,7 @@ describe('AuthStore', () => {
 
     it('login should handle failure correctly', async () => {
       const store = useAuthStore()
-      const mockErrorResponse = createMockErrorResult<AuthenticationResponse | null>({
+      const mockErrorResponse = createMockErrorResult<AuthenticationResponse>({
         statusCode: 400,
         errors: [{ code: 'invalid_credentials', message: 'Invalid credentials', type: 0, metadata: null }],
         message: 'Invalid credentials',

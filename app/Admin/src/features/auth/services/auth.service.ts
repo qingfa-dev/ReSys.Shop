@@ -25,7 +25,7 @@ export const authService = {
   async getProfile(): Promise<ServerResult<Partial<UserProfile>>> {
     const result = await authRepository.getProfile();
     if (!result.isSuccess) return result as ServerResult<Partial<UserProfile>>;
-    const value = result.value as Record<string, unknown>;
+    const value = result.value as unknown as Record<string, unknown>;
     return {
       ...result,
       value: {

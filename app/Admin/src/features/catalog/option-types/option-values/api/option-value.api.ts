@@ -3,6 +3,8 @@ import { CATALOG } from "@/shared/api/constants";
 import type { ServerPagedResult, ServerResult } from "@/shared/api/types/result.types";
 import type { ServerQueryingParameters } from "@/shared/api/types/query.types";
 import type { OptionValueListItem } from "../types/OptionValue.Response.Type";
+import type { OptionValueParameters } from "../schemas/OptionValue.Schema";
+import type { UpdateOptionValueRequest } from "../types/OptionValue.Request.Type";
 
 export const optionValueRepository = {
   listByOptionTypeId: (
@@ -15,7 +17,7 @@ export const optionValueRepository = {
 
   create: (
     optionTypeId: string,
-    data: { name: string; presentation: string; position?: number },
+    data: OptionValueParameters,
   ): Promise<ServerResult<OptionValueListItem>> =>
     apiClient
       .post(`${CATALOG}/option-types/${optionTypeId}/values`, data)
@@ -24,7 +26,7 @@ export const optionValueRepository = {
   update: (
     optionTypeId: string,
     valueId: string,
-    data: { name?: string; presentation?: string; position?: number },
+    data: UpdateOptionValueRequest,
   ): Promise<ServerResult<OptionValueListItem>> =>
     apiClient
       .put(`${CATALOG}/option-types/${optionTypeId}/values/${valueId}`, data)

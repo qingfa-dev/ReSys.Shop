@@ -3,6 +3,7 @@ import type { ServerResult } from '@/shared/api/types/result.types'
 import type { AuthenticationResponse } from '../types/Login.Response.Type'
 import type { LoginRequest } from '../types/Login.Request.Type'
 import type { ChangePasswordRequest } from '../types/ChangePassword.Request.Type'
+import type { RefreshTokenRequest, UpdateProfileRequest, AuthProfileResponse } from '../types/Auth.Request.Type'
 
 const BASE_URL = '/store/identity/auth'
 
@@ -16,7 +17,7 @@ export const authRepository = {
     return res.data as ServerResult<AuthenticationResponse>
   },
 
-  async refresh(request: { refreshToken: string; rememberMe?: boolean }): Promise<ServerResult<AuthenticationResponse>> {
+  async refresh(request: RefreshTokenRequest): Promise<ServerResult<AuthenticationResponse>> {
     const res = await apiClient.post(path('sessions/refresh'), request)
     return res.data as ServerResult<AuthenticationResponse>
   },
@@ -26,12 +27,12 @@ export const authRepository = {
     return res.data as ServerResult<void>
   },
 
-  async getProfile(): Promise<ServerResult<Record<string, unknown>>> {
+  async getProfile(): Promise<ServerResult<AuthProfileResponse>> {
     const res = await apiClient.get(path('profile'))
-    return res.data as ServerResult<Record<string, unknown>>
+    return res.data as ServerResult<AuthProfileResponse>
   },
 
-  async updateProfile(data: Record<string, unknown>): Promise<ServerResult<void>> {
+  async updateProfile(data: UpdateProfileRequest): Promise<ServerResult<void>> {
     const res = await apiClient.put(path('profile'), data)
     return res.data as ServerResult<void>
   },

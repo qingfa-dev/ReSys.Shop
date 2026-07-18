@@ -54,7 +54,7 @@ async function onSave() {
             await userService.assignPermission(props.userId, name);
         }
         for (const name of toRemove) {
-            await userService.unassignPermission(props.userId, name);
+            await userService.unassignPermission(props.userId, { permissionName: name });
         }
 
         showToast('success', t('common.success'), t('users.messages.permissions_updated'));

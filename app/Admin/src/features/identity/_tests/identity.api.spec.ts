@@ -12,19 +12,19 @@ describe('identityApi.users', () => {
     expect(apiClient.get).toHaveBeenCalledWith('identity/users', expect.any(Object))
   })
   it('assignRole calls correct route', async () => {
-    await identityApi.users.assignRole('uid-1', 'admin')
+    await identityApi.users.assignRole('uid-1', { roleName: 'admin' })
     expect(apiClient.post).toHaveBeenCalledWith('identity/users/uid-1/roles/assign', { roleName: 'admin' })
   })
   it('syncRoles calls correct route', async () => {
-    await identityApi.users.syncRoles('uid-1', ['admin'])
+    await identityApi.users.syncRoles('uid-1', { roleNames: ['admin'] })
     expect(apiClient.patch).toHaveBeenCalledWith('identity/users/uid-1/roles/sync', { roleNames: ['admin'] })
   })
   it('assignPermission calls correct route', async () => {
-    await identityApi.users.assignPermission('uid-1', 'catalog.read')
+    await identityApi.users.assignPermission('uid-1', { permissionName: 'catalog.read' })
     expect(apiClient.post).toHaveBeenCalledWith('identity/users/uid-1/permissions/assign', { permissionName: 'catalog.read' })
   })
   it('revokePermission calls correct route', async () => {
-    await identityApi.users.revokePermission('uid-1', 'catalog.read')
+    await identityApi.users.revokePermission('uid-1', { permissionName: 'catalog.read' })
     expect(apiClient.delete).toHaveBeenCalledWith('identity/users/uid-1/permissions/revoke', expect.any(Object))
   })
 })

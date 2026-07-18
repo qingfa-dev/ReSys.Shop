@@ -55,7 +55,7 @@ async function loadPermissions() {
 async function onToggleStatus() {
     if (!user.value) return;
     const newStatus = !user.value.isActive;
-    const res = await userService.updateAdminStatus(userId.value, newStatus);
+    const res = await userService.updateAdminStatus(userId.value, { isActive: newStatus });
     if (res.isSuccess) {
         user.value.isActive = newStatus;
         showToast('success', t('common.saved'), t('users.messages.status_updated', { status: newStatus ? 'active' : 'inactive' }));

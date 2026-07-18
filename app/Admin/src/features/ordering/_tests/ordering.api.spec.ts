@@ -45,7 +45,7 @@ describe('OrderRepository', () => {
     expect(apiClient.delete).toHaveBeenCalledWith('ordering/orders/ord-1/line-items/li-1')
   })
   it('cancel calls correct route', async () => {
-    await orderRepository.cancel('ord-1', 'out of stock')
+    await orderRepository.cancel('ord-1', { reason: 'out of stock' })
     expect(apiClient.post).toHaveBeenCalledWith('ordering/orders/ord-1/cancel', { reason: 'out of stock' })
   })
   it('complete calls correct route', async () => {
@@ -61,7 +61,7 @@ describe('OrderRepository', () => {
     expect(apiClient.post).toHaveBeenCalledWith('ordering/orders/ord-1/resume')
   })
   it('updateStatus calls correct route', async () => {
-    await orderRepository.updateStatus('ord-1', 'Processing')
+    await orderRepository.updateStatus('ord-1', { status: 'Processing' })
     expect(apiClient.put).toHaveBeenCalledWith('ordering/orders/ord-1/status', { status: 'Processing' })
   })
   it('updateShipAddress calls correct route', async () => {
@@ -73,7 +73,7 @@ describe('OrderRepository', () => {
     expect(apiClient.put).toHaveBeenCalledWith('ordering/orders/ord-1/bill-address', { city: 'LA' })
   })
   it('updateShippingMethod calls correct route', async () => {
-    await orderRepository.updateShippingMethod('ord-1', 'sm-1')
+    await orderRepository.updateShippingMethod('ord-1', { shippingMethodId: 'sm-1' })
     expect(apiClient.put).toHaveBeenCalledWith('ordering/orders/ord-1/shipping-method', { shippingMethodId: 'sm-1' })
   })
 })

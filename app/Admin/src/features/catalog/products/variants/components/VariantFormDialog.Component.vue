@@ -98,7 +98,7 @@ watch([() => props.variant, assignedOptionTypes], ([newVariant, types]) => {
             barcode: newVariant.barcode || '',
             weight: newVariant.weight,
         });
-        
+
         const mapped: Record<string, string> = {};
         if (newVariant.optionValueIds && types.length > 0) {
             newVariant.optionValueIds.forEach((id: string) => {
@@ -118,7 +118,7 @@ watch([() => props.variant, assignedOptionTypes], ([newVariant, types]) => {
 
 const onSubmit = handleSubmit((values) => {
     const optionValueIds = Object.values(selectedOptionValues.value).filter(v => !!v);
-    
+
     const payload: CreateVariantRequest = {
         sku: values.sku,
         price: values.price,

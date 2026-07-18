@@ -86,15 +86,15 @@ const goBack = () => router.push({ name: 'catalog.dashboard' })
                             <span class="font-bold text-xs uppercase tracking-widest text-surface-400">Available Options</span>
                             <Badge :value="items.length" severity="secondary" />
                         </div>
-                        
+
                         <div class="flex-1 overflow-y-auto p-2 scrollbar-thin">
                             <div v-if="loading && items.length === 0" class="flex flex-col items-center justify-center py-20">
                                 <ProgressSpinner style="width: 40px; height: 40px" />
                             </div>
-                            
+
                             <div v-else class="flex flex-col gap-1">
-                                <div 
-                                    v-for="item in items" 
+                                <div
+                                    v-for="item in items"
                                     :key="item.id"
                                     class="flex items-center justify-between p-3 rounded-2xl group cursor-pointer transition-all duration-200"
                                     :class="{ 'bg-primary/10 text-primary border border-primary/20 shadow-sm': selectedId === item.id, 'hover:bg-surface-100 dark:hover:bg-surface-800 border border-transparent': selectedId !== item.id }"

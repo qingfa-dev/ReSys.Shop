@@ -2,6 +2,7 @@ import apiClient from '@/shared/api/http/api.client'
 import { CATALOG } from '@/shared/api/constants'
 import type { ServerResult } from '@/shared/api/types/result.types'
 import type { VariantImage } from '../types/Image.Response.Type'
+import type { UpdateVariantImageRequest } from '../types/Image.Request.Type'
 
 export const imageApi = {
   listByVariant: (variantId: string): Promise<ServerResult<VariantImage[]>> =>
@@ -15,7 +16,7 @@ export const imageApi = {
     return apiClient.post(url, formData, { headers: { 'Content-Type': 'multipart/form-data' } }).then(res => res.data as ServerResult<VariantImage>)
   },
 
-  update: (imageId: string, data: { alt?: string; role?: number }): Promise<ServerResult<void>> =>
+  update: (imageId: string, data: UpdateVariantImageRequest): Promise<ServerResult<void>> =>
     apiClient.put(`${CATALOG}/variants/images/${imageId}`, data).then(res => res.data as ServerResult<void>),
 
   delete: (imageId: string): Promise<ServerResult<void>> =>

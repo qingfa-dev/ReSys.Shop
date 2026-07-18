@@ -3,7 +3,13 @@ import { setActivePinia, createPinia } from 'pinia';
 import { useOptionTypeStore } from '../stores/option-type.store';
 import { optionTypeService } from '../services/option-type.service';
 import { createMockPagedResult, createMockResult, createMockErrorResult } from '@/shared/test/mock-types';
-import type { OptionTypeListItem } from '../types/OptionType.Response.Type';
+import type { OptionTypeListItem } from '../types/OptionType.Response.Type'
+
+const makeItem = (overrides?: Partial<OptionTypeListItem>): OptionTypeListItem => ({
+  id: '', name: '', presentation: '', position: 0, filterable: false,
+  optionValuesCount: 0, productsCount: 0, createdAtUtc: '', modifiedAtUtc: '',
+  ...overrides,
+})
 
 // Mock service
 vi.mock('../services/option-type.service', () => ({
@@ -25,8 +31,8 @@ describe('OptionTypeStore', () => {
   describe('fetchList', () => {
     it('should fetch list and update state on success', async () => {
       const store = useOptionTypeStore();
-      const mockData = [
-        { id: '1', name: 'Color', presentation: 'Color', position: 1, filterable: true }
+      const mockData: OptionTypeListItem[] = [
+        makeItem({ id: '1', name: 'Color', presentation: 'Color', position: 1, filterable: true })
       ];
       vi.mocked(optionTypeService.list).mockResolvedValue(createMockPagedResult(mockData));
 
@@ -54,7 +60,7 @@ describe('OptionTypeStore', () => {
   describe('fetchById', () => {
     it('should fetch detail and set currentItem', async () => {
       const store = useOptionTypeStore();
-      const mockItem = { id: '1', name: 'Size', presentation: 'Size', optionValues: [] };
+      const mockItem: OptionTypeListItem = makeItem({ id: '1', name: 'Size', presentation: 'Size' });
       vi.mocked(optionTypeService.getById).mockResolvedValue(createMockResult(mockItem));
 
       await store.fetchById('1');
@@ -68,7 +74,7 @@ describe('OptionTypeStore', () => {
     it('create should call service', async () => {
       const store = useOptionTypeStore();
       const newItem = { name: 'New', presentation: 'New', position: 0, filterable: false };
-      vi.mocked(optionTypeService.create).mockResolvedValue(createMockResult({ ...newItem, id: '123' }));
+      vi.mocked(optionTypeService.create).mockResolvedValue(createMockResult(makeItem({ ...newItem, id: '123' })));
 
       const result = await store.create(newItem);
 

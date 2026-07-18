@@ -2,7 +2,14 @@ import apiClient from "@/shared/api/http/api.client";
 import { CATALOG } from "@/shared/api/constants";
 import type { ServerPagedResult, ServerResult } from "@/shared/api/types/result.types";
 import type { ServerQueryingParameters } from "@/shared/api/types/query.types";
-import type { OptionTypeDetail, OptionTypeListItem } from "../types/OptionType.Response.Type";
+import type {
+  CreateOptionTypeRequest,
+  UpdateOptionTypeRequest,
+} from "../types/OptionType.Request.Type";
+import type {
+  OptionTypeListItem,
+  OptionTypeDetail,
+} from "../../products/option-types/types/ProductOptionType.Response.Type";
 
 export const optionTypeRepository = {
   list: (params?: ServerQueryingParameters): Promise<ServerPagedResult<OptionTypeListItem>> =>
@@ -15,20 +22,12 @@ export const optionTypeRepository = {
       .get(`${CATALOG}/option-types/${id}`)
       .then((res) => res.data as ServerResult<OptionTypeDetail>),
 
-  create: (data: {
-    name: string;
-    presentation: string;
-    filterable?: boolean;
-    position?: number;
-  }): Promise<ServerResult<OptionTypeDetail>> =>
+  create: (data: CreateOptionTypeRequest): Promise<ServerResult<OptionTypeDetail>> =>
     apiClient
       .post(`${CATALOG}/option-types`, data)
       .then((res) => res.data as ServerResult<OptionTypeDetail>),
 
-  update: (
-    id: string,
-    data: Partial<{ name: string; presentation: string; filterable: boolean; position: number }>,
-  ): Promise<ServerResult<OptionTypeDetail>> =>
+  update: (id: string, data: UpdateOptionTypeRequest): Promise<ServerResult<OptionTypeDetail>> =>
     apiClient
       .put(`${CATALOG}/option-types/${id}`, data)
       .then((res) => res.data as ServerResult<OptionTypeDetail>),

@@ -53,7 +53,7 @@ describe('OrderService', () => {
 
       vi.mocked(apiClient.put).mockResolvedValue({ data: serverResult })
 
-      const result = await orderService.updateStatus(id, status)
+      const result = await orderService.updateStatus(id, { status })
 
       expect(apiClient.put).toHaveBeenCalledWith('ordering/orders/order-id/status', { status })
       expect(result).toEqual(serverResult)
@@ -68,7 +68,7 @@ describe('OrderService', () => {
 
       vi.mocked(apiClient.post).mockResolvedValue({ data: serverResult })
 
-      const result = await orderService.cancel(id, reason)
+      const result = await orderService.cancel(id, { reason })
 
       expect(apiClient.post).toHaveBeenCalledWith('ordering/orders/order-id/cancel', { reason })
       expect(result).toEqual(serverResult)

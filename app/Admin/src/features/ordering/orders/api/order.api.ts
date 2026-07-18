@@ -3,7 +3,7 @@ import { ORDERS } from '@/shared/api/constants'
 import type { ServerPagedResult, ServerResult } from '@/shared/api/types/result.types'
 import type { ServerQueryingParameters } from '@/shared/api/types/query.types'
 import type { OrderListItem, OrderDetail } from '../types/Order.Response.Type'
-import type { CreateOrderRequest, AddOrderItemRequest } from '../types/Order.Request.Type'
+import type { CreateOrderRequest, AddOrderItemRequest, CancelOrderRequest, UpdateLineItemRequest, UpdateOrderStatusRequest, UpdateShippingMethodRequest, UpdateAddressesRequest } from '../types/Order.Request.Type'
 
 interface OrderLineItem {
   id: string
@@ -36,11 +36,11 @@ export const orderRepository = {
   delete(id: string): Promise<ServerResult<void>> {
     return apiClient.delete(ordersPath(id)).then(res => res.data as ServerResult<void>)
   },
-  updateStatus(id: string, status: string): Promise<ServerResult<void>> {
-    return apiClient.put(ordersPath(`${id}/status`), { status }).then(res => res.data as ServerResult<void>)
+  updateStatus(id: string, data: UpdateOrderStatusRequest): Promise<ServerResult<void>> {
+    return apiClient.put(ordersPath(`${id}/status`), data).then(res => res.data as ServerResult<void>)
   },
-  cancel(id: string, reason?: string): Promise<ServerResult<void>> {
-    return apiClient.post(ordersPath(`${id}/cancel`), { reason }).then(res => res.data as ServerResult<void>)
+  cancel(id: string, data?: CancelOrderRequest): Promise<ServerResult<void>> {
+    return apiClient.post(ordersPath(`${id}/cancel`), data).then(res => res.data as ServerResult<void>)
   },
   complete(id: string): Promise<ServerResult<void>> {
     return apiClient.post(ordersPath(`${id}/complete`)).then(res => res.data as ServerResult<void>)
@@ -51,14 +51,14 @@ export const orderRepository = {
   resume(id: string): Promise<ServerResult<void>> {
     return apiClient.post(ordersPath(`${id}/resume`)).then(res => res.data as ServerResult<void>)
   },
-  updateShipAddress(id: string, address: Record<string, unknown>): Promise<ServerResult<void>> {
+  updateShipAddress(id: string, address: UpdateAddressesRequest['shippingAddress']): Promise<ServerResult<void>> {
     return apiClient.put(ordersPath(`${id}/ship-address`), address).then(res => res.data as ServerResult<void>)
   },
-  updateBillAddress(id: string, address: Record<string, unknown>): Promise<ServerResult<void>> {
+  updateBillAddress(id: string, address: UpdateAddressesRequest['billingAddress']): Promise<ServerResult<void>> {
     return apiClient.put(ordersPath(`${id}/bill-address`), address).then(res => res.data as ServerResult<void>)
   },
-  updateShippingMethod(id: string, shippingMethodId: string): Promise<ServerResult<void>> {
-    return apiClient.put(ordersPath(`${id}/shipping-method`), { shippingMethodId }).then(res => res.data as ServerResult<void>)
+  updateShippingMethod(id: string, data: UpdateShippingMethodRequest): Promise<ServerResult<void>> {
+    return apiClient.put(ordersPath(`${id}/shipping-method`), data).then(res => res.data as ServerResult<void>)
   },
   listLineItems(id: string): Promise<ServerPagedResult<OrderLineItem>> {
     return apiClient.get(ordersPath(`${id}/line-items`)).then(res => res.data as ServerPagedResult<OrderLineItem>)
@@ -69,7 +69,7 @@ export const orderRepository = {
   addLineItem(id: string, data: AddOrderItemRequest): Promise<ServerResult<void>> {
     return apiClient.post(ordersPath(`${id}/line-items`), data).then(res => res.data as ServerResult<void>)
   },
-  updateLineItem(id: string, lineItemId: string, data: { quantity?: number }): Promise<ServerResult<void>> {
+  updateLineItem(id: string, lineItemId: string, data: UpdateLineItemRequest): Promise<ServerResult<void>> {
     return apiClient.put(ordersPath(`${id}/line-items/${lineItemId}`), data).then(res => res.data as ServerResult<void>)
   },
   removeLineItem(id: string, lineItemId: string): Promise<ServerResult<void>> {

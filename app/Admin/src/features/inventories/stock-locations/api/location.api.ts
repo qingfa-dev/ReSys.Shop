@@ -3,7 +3,7 @@ import { INVENTORY } from '@/shared/api/constants'
 import type { ServerResult, ServerPagedResult } from '@/shared/api/types/result.types'
 import type { ServerQueryingParameters } from '@/shared/api/types/query.types'
 import type { StockLocation, StockLocationDetail } from '../types/StockLocation.Response.Type'
-import type { CreateStockLocationRequest } from '../types/StockLocation.Request.Type'
+import type { CreateStockLocationRequest, UpdateStockLocationRequest } from '../types/StockLocation.Request.Type'
 
 function path(sub?: string): string {
   return `${INVENTORY}/stock-locations${sub ? `/${sub}` : ''}`
@@ -19,7 +19,7 @@ export const locationRepository = {
   create(data: CreateStockLocationRequest): Promise<ServerResult<StockLocationDetail>> {
     return apiClient.post(path(), data).then(res => res.data as ServerResult<StockLocationDetail>)
   },
-  update(id: string, data: Partial<CreateStockLocationRequest>): Promise<ServerResult<StockLocationDetail>> {
+  update(id: string, data: UpdateStockLocationRequest): Promise<ServerResult<StockLocationDetail>> {
     return apiClient.put(path(id), data).then(res => res.data as ServerResult<StockLocationDetail>)
   },
   delete(id: string): Promise<ServerResult<void>> {

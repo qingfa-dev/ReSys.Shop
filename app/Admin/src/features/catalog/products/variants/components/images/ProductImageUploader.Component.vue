@@ -31,7 +31,7 @@ const handleFileSelect = (event: { files: File[] }) => {
     if (file) {
         currentFile.value = file;
         filePreview.value = URL.createObjectURL(file);
-        altText.value = file.name.split('.')[0];
+        altText.value = file.name.split('.')[0] ?? '';
         selectedRole.value = 3;
     }
 };
