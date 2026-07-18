@@ -2,6 +2,7 @@
 import { useLayout } from './composables/layout.composable'
 import { computed, ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
+import { useAuthStore } from '@/features/auth/stores/auth.store'
 
 export interface MenuItem {
   label?: string
@@ -12,6 +13,8 @@ export interface MenuItem {
   items?: MenuItem[]
   separator?: boolean
   visible?: boolean
+  permission?: string
+  badge?: string | number
   disabled?: boolean
   class?: string
   command?: (event: { originalEvent: Event; item: MenuItem }) => void
@@ -19,6 +22,7 @@ export interface MenuItem {
 
 const route = useRoute()
 const { layoutState } = useLayout()
+const authStore = useAuthStore()
 
 defineOptions({
   name: 'AppMenuItem',
@@ -31,6 +35,11 @@ const props = defineProps<{
 }>()
 
 const active = ref(false)
+
+const hasPermission = computed(() => {
+  if (!props.item.permission) return true
+  return authStore.session?.user?.permissions?.includes(props.item.permission) ?? false
+})
 
 const isActive = computed(() => {
   if (props.item.to && typeof props.item.to === 'string' && route.path === props.item.to) return true
@@ -87,46 +96,57 @@ const itemClick = (event: Event, item: MenuItem) => {
 </script>
 
 <template>
-  <li :class="{ 'layout-root-menuitem': root, 'active-menuitem': active || isActive }">
-    <div v-if="root && item.visible !== false" class="layout-menuitem-root-text">
-      {{ item.label }}
-    </div>
+  <template v-if="hasPermission">
+    <li :class="{ 'layout-root-menuitem': root, 'active-menuitem': active || isActive }">
+      <div v-if="root" class="layout-menuitem-root-text">
+        {{ item.label }}
+        <span v-if="item.badge" class="ml-auto">
+          <Badge :value="item.badge" severity="info" size="small" />
+        </span>
+      </div>
 
-    <a
-      v-if="!root && item.items && item.visible !== false"
-      :href="item.url"
-      @click="itemClick($event, item)"
-      :class="[item.class, { 'active-route': isActive }]"
-      :target="item.target"
-      tabindex="0"
-    >
-      <i v-if="item.icon" :class="item.icon" class="layout-menuitem-icon" />
-      <span class="layout-menuitem-text">{{ item.label }}</span>
-      <i class="pi pi-fw pi-angle-down layout-submenu-toggler" />
-    </a>
+      <a
+        v-if="!root && item.items"
+        :href="item.url"
+        @click="itemClick($event, item)"
+        :class="[item.class, { 'active-route': isActive }]"
+        :target="item.target"
+        tabindex="0"
+      >
+        <i v-if="item.icon" :class="item.icon" class="layout-menuitem-icon" />
+        <span class="layout-menuitem-text">{{ item.label }}</span>
+        <span v-if="item.badge" class="ml-auto">
+          <Badge :value="item.badge" severity="info" size="small" />
+        </span>
+        <i class="pi pi-fw pi-angle-down layout-submenu-toggler" />
+      </a>
 
-    <router-link
-      v-if="!root && item.to && !item.items && item.visible !== false"
-      @click="itemClick($event, item)"
-      exactActiveClass="active-route"
-      :class="[item.class]"
-      tabindex="0"
-      :to="item.to"
-    >
-      <i v-if="item.icon" :class="item.icon" class="layout-menuitem-icon" />
-      <span class="layout-menuitem-text">{{ item.label }}</span>
-    </router-link>
+      <router-link
+        v-if="!root && item.to && !item.items"
+        @click="itemClick($event, item)"
+        exactActiveClass="active-route"
+        :class="[item.class]"
+        tabindex="0"
+        :to="item.to"
+      >
+        <i v-if="item.icon" :class="item.icon" class="layout-menuitem-icon" />
+        <span class="layout-menuitem-text">{{ item.label }}</span>
+        <span v-if="item.badge" class="ml-auto">
+          <Badge :value="item.badge" severity="info" size="small" />
+        </span>
+      </router-link>
 
-    <Transition v-if="item.items && item.visible !== false" name="layout-submenu">
-      <ul v-show="root ? true : active || isActive" class="layout-submenu">
-        <AppMenuItem
-          v-for="(child, i) in item.items"
-          :key="child.label + '_' + i"
-          :item="child"
-          :index="i"
-          :root="false"
-        />
-      </ul>
-    </Transition>
-  </li>
+      <Transition v-if="item.items" name="layout-submenu">
+        <ul v-show="root ? true : active || isActive" class="layout-submenu">
+          <AppMenuItem
+            v-for="(child, i) in item.items"
+            :key="child.label + '_' + i"
+            :item="child"
+            :index="i"
+            :root="false"
+          />
+        </ul>
+      </Transition>
+    </li>
+  </template>
 </template>

@@ -1,105 +1,28 @@
 <script setup lang="ts">
-import { ref } from 'vue'
 import AppMenuItem from './MenuItem.Layout.vue'
-import type { MenuItem } from './MenuItem.Layout.vue'
+import { adminMenuConfig } from '@/app/config/admin-menu.config'
+import { useAuthStore } from '@/features/auth/stores/auth.store'
+import { computed } from 'vue'
 
-const model = ref<MenuItem[]>([
-  {
-    label: 'Home',
-    items: [
-      { label: 'Dashboard', icon: 'pi pi-fw pi-home', to: { name: 'reports.dashboard' } },
-      { label: 'My Profile', icon: 'pi pi-fw pi-user', to: { name: 'profile' } },
-    ],
-  },
-  {
-    label: 'Catalog',
-    items: [
-      { label: 'Dashboard', icon: 'pi pi-fw pi-th-large', to: { name: 'catalog.dashboard' } },
-      {
-        label: 'Products',
-        icon: 'pi pi-fw pi-shopping-bag',
-        items: [
-          { label: 'List', icon: 'pi pi-fw pi-list', to: { name: 'catalog.products.list' } },
-          { label: 'Add New', icon: 'pi pi-fw pi-plus-circle', to: { name: 'catalog.products.create' } },
-        ],
-      },
-      {
-        label: 'Taxonomies',
-        icon: 'pi pi-fw pi-sitemap',
-        items: [
-          { label: 'Manager', icon: 'pi pi-fw pi-sitemap', to: { name: 'catalog.taxonomies.list' } },
-          { label: 'Categories', icon: 'pi pi-fw pi-tags', to: { name: 'catalog.taxa.list' } },
-        ],
-      },
-      {
-        label: 'Option Types',
-        icon: 'pi pi-fw pi-list',
-        items: [
-          { label: 'Manager', icon: 'pi pi-fw pi-list', to: { name: 'catalog.option-types.list' } },
-          { label: 'Values', icon: 'pi pi-fw pi-th-large', to: { name: 'catalog.option-values.list' } },
-        ],
-      },
+const authStore = useAuthStore()
 
-    ],
-  },
-  {
-    label: 'Inventory',
-    items: [
-      { label: 'Stock Items', icon: 'pi pi-fw pi-box', to: { name: 'inventory.stocks.list' } },
-      { label: 'Import', icon: 'pi pi-fw pi-file-import', to: { name: 'inventory.stocks.import' } },
-      { label: 'Stock Units', icon: 'pi pi-fw pi-cubes', to: { name: 'inventory.units.list' } },
-      { label: 'Locations', icon: 'pi pi-fw pi-building', to: { name: 'inventory.locations.list' } },
-      { label: 'Movements', icon: 'pi pi-fw pi-history', to: { name: 'inventory.movements.list' } },
-      { label: 'Transfers', icon: 'pi pi-fw pi-arrow-right-arrow-left', to: { name: 'inventory.transfers.list' } },
-    ],
-  },
-  {
-    label: 'Locations',
-    items: [
-      { label: 'Countries', icon: 'pi pi-fw pi-globe', to: { name: 'location.countries.list' } },
-      { label: 'States', icon: 'pi pi-fw pi-map', to: { name: 'location.states.list' } },
-    ],
-  },
-  {
-    label: 'Sales',
-    items: [
-      { label: 'All Orders', icon: 'pi pi-fw pi-shopping-cart', to: { name: 'ordering.orders.list' } },
-      { label: 'Fulfillment', icon: 'pi pi-fw pi-box', to: { name: 'ordering.fulfillment.queue' } },
-      { label: 'Reports', icon: 'pi pi-fw pi-chart-bar', to: { name: 'reports.dashboard' } },
-    ],
-  },
-  {
-    label: 'Payments',
-    items: [
-      { label: 'Payments', icon: 'pi pi-fw pi-wallet', to: { name: 'payment.payments.list' } },
-      { label: 'Methods', icon: 'pi pi-fw pi-credit-card', to: { name: 'payment.methods.list' } },
-    ],
-  },
-  {
-    label: 'Shipping',
-    items: [
-      { label: 'Methods', icon: 'pi pi-fw pi-truck', to: { name: 'shipping.methods.list' } },
-      { label: 'Rates', icon: 'pi pi-fw pi-tag', to: { name: 'shipping.rates.list' } },
-    ],
-  },
-  {
-    label: 'Identity & Access',
-    items: [
-      { label: 'Staff', icon: 'pi pi-fw pi-id-card', to: { name: 'users.staff.list' } },
-      { label: 'Customers', icon: 'pi pi-fw pi-users', to: { name: 'users.customers.list' } },
-      { label: 'Roles', icon: 'pi pi-fw pi-shield', to: { name: 'users.roles.list' } },
-      { label: 'Permissions', icon: 'pi pi-fw pi-key', to: { name: 'users.permissions.list' } },
-      { label: 'Addresses', icon: 'pi pi-fw pi-address-book', to: { name: 'addresses' } },
-    ],
-  },
-])
+function groupHasVisibleItems(items: { permission?: string }[]): boolean {
+  return items.some(item => {
+    if (!item.permission) return true
+    return authStore.session?.user?.permissions?.includes(item.permission) ?? false
+  })
+}
+
+const visibleGroups = computed(() =>
+  adminMenuConfig.filter(group => groupHasVisibleItems(group.items))
+)
 </script>
 
 <template>
   <ul class="layout-menu">
-    <template v-for="(item, i) in model" :key="item.label">
-      <AppMenuItem v-if="!item.separator" :item="item" :index="i" root></AppMenuItem>
-      <li v-if="item.separator" class="menu-separator"></li>
+    <template v-for="(item, i) in visibleGroups" :key="item.label">
+      <AppMenuItem v-if="!item.separator" :item="item" :index="i" root />
+      <li v-if="item.separator" class="menu-separator" />
     </template>
   </ul>
 </template>
