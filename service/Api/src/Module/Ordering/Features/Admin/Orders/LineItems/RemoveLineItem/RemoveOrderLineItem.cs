@@ -1,7 +1,7 @@
 using Module.Ordering.Domain.LineItems;
 using Module.Ordering.Domain.Orders;
 
-namespace Module.Ordering.Features.Admin.Orders.RemoveLineItem;
+namespace Module.Ordering.Features.Admin.Orders.LineItems.RemoveLineItem;
 /// <summary>Removes a line item from a draft order and recalculates the order totals.</summary>
 public static partial class RemoveOrderLineItem
 {
@@ -23,8 +23,10 @@ public static partial class RemoveOrderLineItem
             // Check: Find the parent order for status validation and recalculation.
             var order = await dbContext.Set<Order>().FirstOrDefaultAsync(o => o.Id == command.OrderId, cancellationToken);
             if (order is null) return OrderResult.Errors.NotFound(command.OrderId);
+
             // Enforce: Only draft orders can have line items removed — placed orders are immutable.
             if (order.Status != OrderStatus.Draft) return OrderResult.Errors.InvalidStatusForLineItemRemove;
+
             // Remove: Use domain method to remove from collection and recalculate, then delete from database for EF tracking.
             var removeResult = order.RemoveLineItem(command.LineItemId);
             if (removeResult.IsFailure)

@@ -1,9 +1,8 @@
-using Module.Ordering.Domain.LineItems;
 using Module.Ordering.Domain.Orders;
 
-namespace Module.Ordering.Features.Admin.Orders.UpdateLineItem;
+namespace Module.Ordering.Features.Admin.Orders.LineItems.RemoveLineItem;
 
-public static partial class UpdateOrderLineItem
+public static partial class RemoveOrderLineItem
 {
     public sealed class Validator : AbstractValidator<Command>
     {
@@ -18,17 +17,6 @@ public static partial class UpdateOrderLineItem
                 .NotEmpty()
                 .WithErrorCode(OrderResult.Errors.LineItemIdRequired.Code)
                 .WithMessage(OrderResult.Errors.LineItemIdRequired.Message);
-
-            RuleFor(x => x.Request)
-                .NotNull()
-                .WithErrorCode(OrderResult.Errors.RequestRequired.Code)
-                .WithMessage(OrderResult.Errors.RequestRequired.Message);
-
-            When(x => x.Request is not null, () =>
-            {
-                RuleFor(x => x.Request!.Quantity)
-                    .ApplyQuantityRules();
-            });
         }
     }
 }

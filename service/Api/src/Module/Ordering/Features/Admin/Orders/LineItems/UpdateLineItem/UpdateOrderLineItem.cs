@@ -2,7 +2,7 @@ using Module.Ordering.Domain.LineItems;
 using Module.Ordering.Domain.Orders;
 using Module.Ordering.Features.Admin.Orders.Shared.Mappings;
 
-namespace Module.Ordering.Features.Admin.Orders.UpdateLineItem;
+namespace Module.Ordering.Features.Admin.Orders.LineItems.UpdateLineItem;
 /// <summary>Updates the quantity of an existing line item on a draft order and recalculates order totals.</summary>
 public static partial class UpdateOrderLineItem
 {

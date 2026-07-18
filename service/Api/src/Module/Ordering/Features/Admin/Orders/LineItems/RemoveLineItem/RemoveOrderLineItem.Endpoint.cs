@@ -1,6 +1,6 @@
 using Module.Ordering.Features.Shared;
 
-namespace Module.Ordering.Features.Admin.Orders.RemoveLineItem;
+namespace Module.Ordering.Features.Admin.Orders.LineItems.RemoveLineItem;
 
 public static partial class RemoveOrderLineItem
 {

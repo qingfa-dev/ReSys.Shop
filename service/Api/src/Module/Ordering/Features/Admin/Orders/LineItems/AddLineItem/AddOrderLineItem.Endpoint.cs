@@ -1,6 +1,6 @@
 using Module.Ordering.Features.Shared;
 
-namespace Module.Ordering.Features.Admin.Orders.AddLineItem;
+namespace Module.Ordering.Features.Admin.Orders.LineItems.AddLineItem;
 
 public static partial class AddOrderLineItem
 {

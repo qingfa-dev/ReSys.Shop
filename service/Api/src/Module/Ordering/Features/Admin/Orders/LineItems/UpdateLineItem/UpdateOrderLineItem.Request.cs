@@ -1,4 +1,4 @@
-namespace Module.Ordering.Features.Admin.Orders.UpdateLineItem;
+namespace Module.Ordering.Features.Admin.Orders.LineItems.UpdateLineItem;
 
 public static partial class UpdateOrderLineItem
 {
