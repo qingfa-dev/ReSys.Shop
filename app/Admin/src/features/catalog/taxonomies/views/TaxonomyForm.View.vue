@@ -7,6 +7,7 @@ import { toTypedSchema } from '@vee-validate/zod'
 import { createTaxonomySchema } from '../schemas/taxonomy.schema'
 import { useTaxonomyStore } from '../stores/taxonomy.store'
 import { useToast } from '@/shared/composables/toast.use'
+import FormField from '@/shared/components/FormField.Component.vue'
 
 const { t } = useI18n()
 
@@ -106,23 +107,17 @@ const onFormSubmit = submitForm(async (values) => {
                     <TabPanel :value="0">
                         <div class="flex flex-col gap-6">
                             <div class="grid grid-cols-1 gap-6">
-                                <div class="flex flex-col gap-2">
-                                    <label for="name" class="font-bold text-xs uppercase tracking-wider text-surface-500 ml-1">{{ t('catalog.taxonomies.labels.name') }}</label>
-                                    <InputText id="name" v-model="name" :placeholder="t('catalog.taxonomies.placeholders.name')" :invalid="!!errors.name" class="rounded-xl h-11" />
-                                    <small class="p-error" v-if="errors.name">{{ errors.name }}</small>
-                                </div>
+                                <FormField :label="t('catalog.taxonomies.labels.name')" name="name" :error="errors.name">
+                                    <InputText v-model="name" :placeholder="t('catalog.taxonomies.placeholders.name')" :invalid="!!errors.name" class="rounded-xl h-11" />
+                                </FormField>
 
-                                <div class="flex flex-col gap-2">
-                                    <label for="presentation" class="font-bold text-xs uppercase tracking-wider text-surface-500 ml-1">{{ t('catalog.taxonomies.labels.presentation') }}</label>
-                                    <InputText id="presentation" v-model="presentation" :placeholder="t('catalog.taxonomies.placeholders.presentation')" :invalid="!!errors.presentation" class="rounded-xl h-11" />
-                                    <small class="p-error" v-if="errors.presentation">{{ errors.presentation }}</small>
-                                </div>
+                                <FormField :label="t('catalog.taxonomies.labels.presentation')" name="presentation" :error="errors.presentation">
+                                    <InputText v-model="presentation" :placeholder="t('catalog.taxonomies.placeholders.presentation')" :invalid="!!errors.presentation" class="rounded-xl h-11" />
+                                </FormField>
 
-                                <div class="flex flex-col gap-2">
-                                    <label for="position" class="font-bold text-xs uppercase tracking-wider text-surface-500 ml-1">{{ t('catalog.taxonomies.labels.position') }}</label>
-                                    <InputNumber id="position" v-model="position" showButtons :min="0" class="rounded-xl overflow-hidden" inputClass="h-11" />
-                                    <p class="text-xs text-surface-400 mt-1 ml-1 italic">Determine the display order in navigation menus.</p>
-                                </div>
+                                <FormField :label="t('catalog.taxonomies.labels.position')" name="position" hint="Determine the display order in navigation menus.">
+                                    <InputNumber v-model="position" showButtons :min="0" class="rounded-xl overflow-hidden" inputClass="h-11" />
+                                </FormField>
                             </div>
                         </div>
                     </TabPanel>

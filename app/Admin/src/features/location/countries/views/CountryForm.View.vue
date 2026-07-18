@@ -5,6 +5,7 @@ import { toTypedSchema } from '@vee-validate/zod'
 import { createCountrySchema } from '../schemas/country.schema'
 import { useCountryStore } from '../stores/country.store'
 import { useToast } from '@/shared/composables/toast.use'
+import FormField from '@/shared/components/FormField.Component.vue'
 import type { Country } from '../types/country.response.type'
 import { useI18n } from 'vue-i18n'
 
@@ -86,30 +87,24 @@ const onCancel = () => {
     class="rounded-2xl"
   >
     <form @submit="onFormSubmit" class="flex flex-col gap-5 py-2">
-      <div class="flex flex-col gap-2">
-        <label for="name" class="font-bold text-xs uppercase tracking-wider text-surface-500 ml-1">{{ t('location.labels.name') }}</label>
-        <InputText id="name" v-model="name" placeholder="Country name" :invalid="!!errors.name" class="rounded-xl h-11" />
-        <small class="p-error" v-if="errors.name">{{ errors.name }}</small>
-      </div>
+      <FormField :label="t('location.labels.name')" name="name" :error="errors.name">
+        <InputText v-model="name" placeholder="Country name" :invalid="!!errors.name" class="rounded-xl h-11" />
+      </FormField>
 
-      <div class="flex flex-col gap-2">
-        <label for="isoCode" class="font-bold text-xs uppercase tracking-wider text-surface-500 ml-1">ISO Code</label>
-        <InputText id="isoCode" v-model="isoCode" placeholder="US" maxlength="2" class="rounded-xl h-11 uppercase" :invalid="!!errors.isoCode" />
-        <small class="p-error" v-if="errors.isoCode">{{ errors.isoCode }}</small>
-      </div>
+      <FormField label="ISO Code" name="isoCode" :error="errors.isoCode">
+        <InputText v-model="isoCode" placeholder="US" maxlength="2" class="rounded-xl h-11 uppercase" :invalid="!!errors.isoCode" />
+      </FormField>
 
-      <div class="flex flex-col gap-2">
-        <label for="callingCode" class="font-bold text-xs uppercase tracking-wider text-surface-500 ml-1">Calling Code</label>
-        <InputText id="callingCode" v-model="callingCode" placeholder="+1" class="rounded-xl h-11" />
-      </div>
+      <FormField label="Calling Code" name="callingCode">
+        <InputText v-model="callingCode" placeholder="+1" class="rounded-xl h-11" />
+      </FormField>
 
-      <div class="flex flex-col gap-2">
-        <label class="font-bold text-xs uppercase tracking-wider text-surface-500 ml-1">{{ t('location.labels.active') }}</label>
+      <FormField :label="t('location.labels.active')" name="isActive">
         <div class="flex items-center gap-2 ml-1">
           <ToggleSwitch v-model="isActive" />
           <span class="text-sm text-surface-500">{{ isActive ? 'Enabled' : 'Disabled' }}</span>
         </div>
-      </div>
+      </FormField>
     </form>
 
     <template #footer>

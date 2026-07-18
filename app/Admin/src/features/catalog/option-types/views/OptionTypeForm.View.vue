@@ -11,6 +11,7 @@ import { createOptionTypeSchema } from '../schemas/option-type.schema'
 import { createOptionValueSchema } from '@/features/catalog/option-types/option-values/schemas/option-value.schema'
 import { useApiErrorHandler } from '@/shared/composables/api-error-handler.use'
 import { useToast } from '@/shared/composables/toast.use'
+import FormField from '@/shared/components/FormField.Component.vue'
 import type { OptionValueListItem } from '@/features/catalog/option-types/option-values/types/option-value.response.type'
 import MetadataManager from '@/shared/components/MetadataManager.Component.vue'
 
@@ -222,32 +223,25 @@ const cancel = () => {
                     <TabPanel :value="0">
                         <div class="flex flex-col gap-6">
                             <div class="grid grid-cols-1 gap-6">
-                                <div class="flex flex-col gap-2">
-                                    <label for="name" class="font-bold text-xs uppercase tracking-wider text-surface-500 ml-1">{{ t('catalog.option_types.labels.name') }}</label>
-                                    <InputText id="name" v-model="name" class="w-full rounded-xl h-11" :invalid="!!errors.name" :placeholder="t('catalog.option_types.placeholders.name')" />
-                                    <small class="p-error" v-if="errors.name">{{ errors.name }}</small>
-                                </div>
+                                <FormField :label="t('catalog.option_types.labels.name')" name="name" :error="errors.name">
+                                    <InputText v-model="name" class="w-full rounded-xl h-11" :invalid="!!errors.name" :placeholder="t('catalog.option_types.placeholders.name')" />
+                                </FormField>
 
-                                <div class="flex flex-col gap-2">
-                                    <label for="presentation" class="font-bold text-xs uppercase tracking-wider text-surface-500 ml-1">{{ t('catalog.option_types.labels.presentation') }}</label>
-                                    <InputText id="presentation" v-model="presentation" class="w-full rounded-xl h-11" :invalid="!!errors.presentation" :placeholder="t('catalog.option_types.placeholders.presentation')" />
-                                    <small class="p-error" v-if="errors.presentation">{{ errors.presentation }}</small>
-                                </div>
+                                <FormField :label="t('catalog.option_types.labels.presentation')" name="presentation" :error="errors.presentation">
+                                    <InputText v-model="presentation" class="w-full rounded-xl h-11" :invalid="!!errors.presentation" :placeholder="t('catalog.option_types.placeholders.presentation')" />
+                                </FormField>
 
                                 <div class="grid grid-cols-2 gap-4">
-                                    <div class="flex flex-col gap-2">
-                                        <label for="position" class="font-bold text-xs uppercase tracking-wider text-surface-500 ml-1">{{ t('catalog.option_types.labels.position') }}</label>
-                                        <InputNumber id="position" v-model="position" showButtons :min="0" class="w-full rounded-xl overflow-hidden" inputClass="h-11" />
-                                    </div>
-                                    <div class="flex flex-col gap-2">
-                                        <label class="font-bold text-xs uppercase tracking-wider text-surface-500 ml-1">{{ t('catalog.option_types.labels.filterable') }}</label>
+                                    <FormField :label="t('catalog.option_types.labels.position')" name="position">
+                                        <InputNumber v-model="position" showButtons :min="0" class="w-full rounded-xl overflow-hidden" inputClass="h-11" />
+                                    </FormField>
+                                    <FormField :label="t('catalog.option_types.labels.filterable')" name="filterable">
                                         <div class="flex items-center gap-2 h-11">
                                             <ToggleSwitch v-model="filterable" />
                                             <span class="text-xs text-surface-500">{{ filterable ? 'Visible in filters' : 'Internal only' }}</span>
                                         </div>
-                                    </div>
+                                    </FormField>
                                 </div>
-
                             </div>
                         </div>
                     </TabPanel>
@@ -296,22 +290,17 @@ const cancel = () => {
 
     <Dialog v-model:visible="showValueDialog" :header="isEditingValue ? 'Edit Value' : 'Add Value'" :modal="true" :style="{ width: '400px' }" class="rounded-3xl shadow-2xl">
       <form @submit="onValueSubmit" class="flex flex-col gap-4 mt-2">
-        <div class="flex flex-col gap-2">
-          <label for="vName" class="font-bold text-xs uppercase text-surface-500">{{ t('catalog.option_types.labels.value_name') }}</label>
-          <InputText id="vName" v-model="vName" class="w-full rounded-xl h-11" :invalid="!!valueErrors.name" :placeholder="t('catalog.option_types.placeholders.value_name')" />
-          <small class="p-error" v-if="valueErrors.name">{{ valueErrors.name }}</small>
-        </div>
+        <FormField :label="t('catalog.option_types.labels.value_name')" name="name" :error="valueErrors.name">
+          <InputText v-model="vName" class="w-full rounded-xl h-11" :invalid="!!valueErrors.name" :placeholder="t('catalog.option_types.placeholders.value_name')" />
+        </FormField>
 
-        <div class="flex flex-col gap-2">
-          <label for="vPresentation" class="font-bold text-xs uppercase text-surface-500">{{ t('catalog.option_types.labels.value_presentation') }}</label>
-          <InputText id="vPresentation" v-model="vPresentation" class="w-full rounded-xl h-11" :invalid="!!valueErrors.presentation" :placeholder="t('catalog.option_types.placeholders.value_presentation')" />
-          <small class="p-error" v-if="valueErrors.presentation">{{ valueErrors.presentation }}</small>
-        </div>
+        <FormField :label="t('catalog.option_types.labels.value_presentation')" name="presentation" :error="valueErrors.presentation">
+          <InputText v-model="vPresentation" class="w-full rounded-xl h-11" :invalid="!!valueErrors.presentation" :placeholder="t('catalog.option_types.placeholders.value_presentation')" />
+        </FormField>
 
-        <div class="flex flex-col gap-2">
-          <label for="vPosition" class="font-bold text-xs uppercase text-surface-500">{{ t('catalog.option_types.labels.position') }}</label>
-          <InputNumber id="vPosition" v-model="vPosition" class="w-full rounded-xl overflow-hidden" inputClass="h-11" showButtons :min="0" />
-        </div>
+        <FormField :label="t('catalog.option_types.labels.position')" name="position">
+          <InputNumber v-model="vPosition" class="w-full rounded-xl overflow-hidden" inputClass="h-11" showButtons :min="0" />
+        </FormField>
 
         <div class="flex justify-end gap-2 mt-4">
           <Button type="button" label="Cancel" severity="secondary" text @click="showValueDialog = false" />

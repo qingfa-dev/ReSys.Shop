@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRoute, useRouter } from 'vue-router'
 import { usePaymentMethodStore } from '../stores/payment-method.store'
@@ -7,6 +7,7 @@ import { paymentMethodService } from '../services/payment-method.service'
 import { useForm } from 'vee-validate'
 import { toTypedSchema } from '@vee-validate/zod'
 import { createPaymentMethodSchema } from '../schemas/payment-method.schema'
+import FormField from '@/shared/components/FormField.Component.vue'
 import InputText from 'primevue/inputtext'
 import InputSwitch from 'primevue/inputswitch'
 import InputNumber from 'primevue/inputnumber'
@@ -17,16 +18,38 @@ const { t } = useI18n()
 const route = useRoute()
 const router = useRouter()
 const store = usePaymentMethodStore()
-const isEdit = !!route.params.id
+const isEdit = computed(() => !!route.params.id)
 const submitting = ref(false)
 
-const { handleSubmit, errors } = useForm({
+const { defineField, handleSubmit, errors, setValues } = useForm({
   validationSchema: toTypedSchema(createPaymentMethodSchema(t)),
+  initialValues: {
+    name: '',
+    code: '',
+    description: '',
+    isActive: true,
+    displayOrder: 0,
+  },
 })
+
+const [name] = defineField('name')
+const [code] = defineField('code')
+const [description] = defineField('description')
+const [displayOrder] = defineField('displayOrder')
+const [isActive] = defineField('isActive')
 
 onMounted(async () => {
   if (isEdit) {
     await store.fetchById(route.params.id as string)
+    if (store.current) {
+      setValues({
+        name: store.current.name,
+        code: store.current.code,
+        description: store.current.description ?? '',
+        isActive: store.current.isActive,
+        displayOrder: store.current.position ?? 0,
+      })
+    }
   }
 })
 
@@ -46,28 +69,27 @@ const onSubmit = handleSubmit(async (values) => {
 </script>
 
 <template>
-  <form @submit="onSubmit">
-    <div class="field">
-      <label>Name</label>
-      <InputText name="name" />
-      <small v-if="errors.name">{{ errors.name }}</small>
-    </div>
-    <div class="field">
-      <label>Provider</label>
-      <InputText name="provider" />
-    </div>
-    <div class="field">
-      <label>Description</label>
-      <Textarea name="description" />
-    </div>
-    <div class="field">
-      <label>Display Order</label>
-      <InputNumber name="displayOrder" />
-    </div>
-    <div class="field">
-      <label>Active</label>
-      <InputSwitch name="isActive" />
-    </div>
-    <Button type="submit" :loading="submitting" :label="isEdit ? 'Update' : 'Create'" />
+  <form @submit="onSubmit" class="flex flex-col gap-4 p-4">
+    <FormField label="Name" name="name" :error="errors.name">
+      <InputText v-model="name" :invalid="!!errors.name" class="w-full rounded-xl h-11" />
+    </FormField>
+
+    <FormField label="Code" name="code" :error="errors.code">
+      <InputText v-model="code" :invalid="!!errors.code" class="w-full rounded-xl h-11" />
+    </FormField>
+
+    <FormField label="Description" name="description">
+      <Textarea v-model="description" class="w-full" rows="3" />
+    </FormField>
+
+    <FormField label="Display Order" name="displayOrder">
+      <InputNumber v-model="displayOrder" class="w-full" :min="0" />
+    </FormField>
+
+    <FormField label="Active" name="isActive">
+      <InputSwitch v-model="isActive" />
+    </FormField>
+
+    <Button type="submit" :loading="submitting" :label="isEdit ? 'Update' : 'Create'" class="rounded-xl" />
   </form>
 </template>

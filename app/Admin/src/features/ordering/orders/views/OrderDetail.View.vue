@@ -7,6 +7,8 @@ import { useFormatter } from '@/shared/composables/formatter.use';
 import { useApiErrorHandler } from '@/shared/composables/api-error-handler.use';
 import { useConfirm } from 'primevue/useconfirm';
 import { OrderStatusMap } from '@/shared/utils/enums';
+import StatusBadge from '@/shared/components/StatusBadge.Component.vue';
+import DetailField from '@/shared/components/DetailField.Component.vue';
 import { orderService } from '../services/order.service';
 import type { UpdateAddressesRequest, AddOrderItemRequest } from '../types/order.request.type';
 import type { RefundPaymentRequest } from '../../fulfillment/types/fulfillment.request.type';
@@ -95,13 +97,11 @@ const onCancel = () => {
     });
 };
 
-const getStatusSeverity = (status: number) => {
-    switch (status) {
-        case 1: return 'success';
-        case 2: return 'danger';
-        case 4: return 'warn';
-        default: return 'secondary';
-    }
+const orderStatusMap: Record<number, { label: string; severity: string }> = {
+  0: { label: OrderStatusMap[0]!, severity: 'info' },
+  1: { label: OrderStatusMap[1]!, severity: 'success' },
+  2: { label: OrderStatusMap[2]!, severity: 'danger' },
+  4: { label: OrderStatusMap[4]!, severity: 'warn' },
 };
 
 const onResume = async () => {
@@ -147,7 +147,7 @@ async function onRemoveLineItem(lineItemId: string) {
         <template v-if="current_order">
             <PageHeader back :title="'Order ' + current_order.number">
                 <template #badge>
-                    <Tag :value="current_order.statusLabel" :severity="getStatusSeverity(current_order.status)" class="px-4 py-2 text-lg font-bold rounded-xl" />
+                    <StatusBadge :status="current_order.status" :status-map="orderStatusMap" />
                 </template>
                 <template #actions>
                     <Button 
@@ -294,8 +294,7 @@ async function onRemoveLineItem(lineItemId: string) {
                         </div>
                     </template>
                     <template #content>
-                        <span v-if="current_order.shipAddressId" class="font-mono text-sm">{{ current_order.shipAddressId }}</span>
-                        <p v-else class="italic text-surface-400">{{ t('ordering.messages.no_shipping_address') }}</p>
+                        <DetailField :label="t('ordering.labels.shipping_address')" :value="current_order.shipAddressId" :empty-text="t('ordering.messages.no_shipping_address')" />
                     </template>
                 </Card>
             </div>
@@ -306,10 +305,7 @@ async function onRemoveLineItem(lineItemId: string) {
                     <div class="flex flex-col gap-4">
                         <div class="flex items-center gap-4">
                             <Avatar icon="pi pi-user" size="large" shape="circle" class="bg-primary/10 text-primary w-12 h-12" />
-                            <div class="flex flex-col">
-                                <span class="text-xs text-surface-400 font-bold uppercase tracking-widest">{{ t('ordering.labels.account') }}</span>
-                                <span class="font-black text-lg">{{ current_order.email || 'Guest Checkout' }}</span>
-                            </div>
+                            <DetailField :label="t('ordering.labels.account')" :value="current_order.email || 'Guest Checkout'" />
                         </div>
                         <Button :label="t('ordering.actions.view_profile')" icon="pi pi-external-link" text size="small" class="w-full justify-start px-0" />
                     </div>

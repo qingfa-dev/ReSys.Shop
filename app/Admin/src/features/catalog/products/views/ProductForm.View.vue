@@ -9,6 +9,7 @@ import { useProductStore } from '../stores/product.store';
 import { storeToRefs } from 'pinia';
 import PageShell from '@/shared/components/PageShell.Component.vue';
 import PageHeader from '@/shared/components/PageHeader.Component.vue';
+import FormField from '@/shared/components/FormField.Component.vue';
 import MetadataManager from '@/shared/components/MetadataManager.Component.vue';
 import ProductImageManager from '../variants/components/ProductImageManager.Component.vue';
 import ProductVariantManager from '../variants/components/ProductVariantManager.Component.vue';
@@ -173,22 +174,17 @@ const onSubmit = handleSubmit(async (values) => {
                         <TabPanel :value="0">
                             <div class="flex flex-col gap-8">
                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-                                    <div class="flex flex-col gap-2">
-                                        <label class="font-bold text-xs uppercase tracking-wider text-surface-500 ml-1">{{ t('catalog.products.labels.name') }}</label>
+                                    <FormField :label="t('catalog.products.labels.name')" name="name" :error="errors.name">
                                         <InputText v-model="name" class="w-full rounded-2xl h-12 px-4" :invalid="!!errors.name" @blur="generateSlug" />
-                                        <small class="p-error" v-if="errors.name">{{ errors.name }}</small>
-                                    </div>
-                                    <div class="flex flex-col gap-2">
-                                        <label class="font-bold text-xs uppercase tracking-wider text-surface-500 ml-1">{{ t('catalog.products.labels.slug') }}</label>
+                                    </FormField>
+                                    <FormField :label="t('catalog.products.labels.slug')" name="slug" :error="errors.slug">
                                         <InputText v-model="slug" class="w-full rounded-2xl h-12 px-4 font-mono text-sm" :invalid="!!errors.slug" />
-                                        <small class="p-error" v-if="errors.slug">{{ errors.slug }}</small>
-                                    </div>
+                                    </FormField>
                                 </div>
 
-                                <div class="flex flex-col gap-2">
-                                    <label class="font-bold text-xs uppercase tracking-wider text-surface-500 ml-1">{{ t('catalog.products.labels.description') }}</label>
+                                <FormField :label="t('catalog.products.labels.description')" name="description">
                                     <Textarea v-model="description" rows="5" class="w-full rounded-2xl p-4" />
-                                </div>
+                                </FormField>
 
                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                                     <div class="p-6 bg-surface-50 dark:bg-surface-800/50 rounded-3xl border border-surface-100 dark:border-surface-800 flex items-center justify-between">
@@ -235,18 +231,15 @@ const onSubmit = handleSubmit(async (values) => {
 
                         <TabPanel :value="6">
                             <div class="flex flex-col gap-8 max-w-3xl">
-                                <div class="flex flex-col gap-2">
-                                    <label class="font-bold text-xs uppercase text-surface-500 ml-1">{{ t('catalog.products.labels.meta_title') }}</label>
+                                <FormField :label="t('catalog.products.labels.meta_title')" name="metaTitle">
                                     <InputText v-model="metaTitle" class="w-full rounded-2xl h-12 px-4" />
-                                </div>
-                                <div class="flex flex-col gap-2">
-                                    <label class="font-bold text-xs uppercase text-surface-500 ml-1">{{ t('catalog.products.labels.meta_description') }}</label>
+                                </FormField>
+                                <FormField :label="t('catalog.products.labels.meta_description')" name="metaDescription">
                                     <Textarea v-model="metaDescription" rows="3" class="w-full rounded-2xl p-4" />
-                                </div>
-                                <div class="flex flex-col gap-2">
-                                    <label class="font-bold text-xs uppercase text-surface-500 ml-1">{{ t('catalog.products.labels.meta_keywords') }}</label>
+                                </FormField>
+                                <FormField :label="t('catalog.products.labels.meta_keywords')" name="metaKeywords">
                                     <InputText v-model="metaKeywords" class="w-full rounded-2xl h-12 px-4" />
-                                </div>
+                                </FormField>
                             </div>
                         </TabPanel>
 

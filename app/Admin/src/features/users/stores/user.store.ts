@@ -14,6 +14,7 @@ export const useUserStore = defineStore('user', () => {
   // --- STATE ---
   const admins = ref<AdminUserSummary[]>([]);
   const customers = ref<CustomerSummary[]>([]);
+  const currentCustomer = ref<CustomerSummary | null>(null);
   const loading = ref(false);
   const submitting = ref(false);
   const error = ref<string | null>(null);
@@ -58,6 +59,30 @@ export const useUserStore = defineStore('user', () => {
     }
   }
 
+  async function fetchCustomerById(id: string) {
+    loading.value = true;
+    try {
+      const result = await userService.getById(id);
+      if (result.isSuccess && result.value) {
+        currentCustomer.value = {
+          id: result.value.id,
+          email: result.value.email,
+          firstName: result.value.firstName,
+          lastName: result.value.lastName,
+          fullName: result.value.fullName,
+          phoneNumber: result.value.phoneNumber,
+          ordersCount: 0,
+          totalSpent: 0,
+          isActive: result.value.isActive,
+          createdAtUtc: result.value.createdAtUtc,
+        };
+      }
+      return result;
+    } finally {
+      loading.value = false;
+    }
+  }
+
   async function createAdmin(data: CreateAdminUserRequest) {
     submitting.value = true;
     try {
@@ -89,6 +114,7 @@ export const useUserStore = defineStore('user', () => {
   return {
     admins,
     customers,
+    currentCustomer,
     loading,
     submitting,
     error,
@@ -96,6 +122,7 @@ export const useUserStore = defineStore('user', () => {
     totalRecords,
     fetchAdmins,
     fetchCustomers,
+    fetchCustomerById,
     createAdmin,
     deleteAdmin
   };

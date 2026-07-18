@@ -14,6 +14,6 @@ export interface AdminUserSummary {
 
 export interface CustomerSummary {
   id: string; email: string; firstName: string | null; lastName: string | null
-  fullName: string | null; ordersCount: number; totalSpent: number
+  fullName: string | null; phoneNumber: string | null; ordersCount: number; totalSpent: number
   isActive: boolean; createdAtUtc: string
 }

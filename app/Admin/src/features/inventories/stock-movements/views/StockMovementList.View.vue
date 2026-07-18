@@ -1,113 +1,84 @@
 <script setup lang="ts">
-import { onMounted, ref } from 'vue';
-import { movementService } from '../services/movement.service';
-import { useFormatter } from '@/shared/composables/formatter.use';
-import { useI18n } from 'vue-i18n';
-import { useToast } from 'primevue/usetoast';
-import PageShell from '@/shared/components/PageShell.Component.vue';
-import PageHeader from '@/shared/components/PageHeader.Component.vue';
-import type { DataTablePageEvent } from 'primevue/datatable';
-import type { StockMovement } from '../types/stock-movement.response.type';
+import { onMounted, ref } from 'vue'
+import { useRouter } from 'vue-router'
+import { movementService } from '../services/movement.service'
+import { useFormatter } from '@/shared/composables/formatter.use'
+import { useI18n } from 'vue-i18n'
+import PageShell from '@/shared/components/PageShell.Component.vue'
+import PageHeader from '@/shared/components/PageHeader.Component.vue'
+import DataTableShell from '@/shared/components/DataTableShell.Component.vue'
+import type { DataTablePageEvent } from 'primevue/datatable'
+import type { StockMovement } from '../types/stock-movement.response.type'
+import type { ColumnDef } from '@/shared/components/DataTableShell.Component.vue'
 
-const { t } = useI18n();
-
-const movements = ref<StockMovement[]>([]);
-const loading = ref(false);
-const totalCount = ref(0);
-const page = ref(1);
-const pageSize = ref(10);
-const { formatDate } = useFormatter();
+const router = useRouter()
+const { t } = useI18n()
+const movements = ref<StockMovement[]>([])
+const loading = ref(false)
+const totalCount = ref(0)
+const page = ref(1)
+const pageSize = ref(10)
+const { formatDate } = useFormatter()
 
 const movementTypes: Record<number, string> = {
   1: 'Addition',
   2: 'Removal',
   3: 'Adjustment',
   4: 'Transfer',
-};
-
-async function fetchMovements() {
-  loading.value = true;
-  const result = await movementService.listMovements({ page: page.value, pageSize: pageSize.value });
-  if (result.isSuccess) {
-    movements.value = result.items ?? [];
-    totalCount.value = result.totalCount ?? 0;
-  } else {
-    const toast = useToast();
-    toast.add({ severity: 'error', summary: t('common.error'), detail: t('common.load_error'), life: 5000 });
-  }
-  loading.value = false;
 }
 
-onMounted(() => fetchMovements());
+const columns: ColumnDef[] = [
+  { field: 'type', header: 'Type', body: (d) => movementTypes[d.type] ?? String(d.type) },
+  { field: 'stockItemId', header: 'Stock Item', body: (d) => d.stockItemId },
+  { field: 'quantity', header: 'Quantity', body: (d) => `${d.quantity > 0 ? '+' : ''}${d.quantity}` },
+  { field: 'reference', header: 'Reference', body: (d) => d.reference ?? '-' },
+  { field: 'reason', header: 'Reason', body: (d) => d.reason ?? '-' },
+]
+
+async function fetchMovements() {
+  loading.value = true
+  const result = await movementService.listMovements({ page: page.value, pageSize: pageSize.value })
+  if (result.isSuccess) {
+    movements.value = result.items ?? []
+    totalCount.value = result.totalCount ?? 0
+  }
+  loading.value = false
+}
+
+onMounted(() => fetchMovements())
 
 function onPage(event: DataTablePageEvent) {
-  page.value = event.page !== undefined ? event.page + 1 : 1;
-  pageSize.value = event.rows;
-  fetchMovements();
+  page.value = event.page !== undefined ? event.page + 1 : 1
+  pageSize.value = event.rows
+  fetchMovements()
 }
 </script>
 
 <template>
   <PageShell maxWidth="7xl">
     <PageHeader :title="t('inventory.titles.stock_movement_history')" />
-    <DataTable
+
+    <DataTableShell
+      :columns="columns"
       :value="movements"
       :loading="loading"
-      :lazy="true"
-      :paginator="true"
-      :rows="pageSize"
       :totalRecords="totalCount"
-      @page="onPage"
+      :rows="pageSize"
       dataKey="id"
-      rowHover
-      scrollable
-      stripedRows
-      showGridlines
+      :showCreateButton="false"
+      emptyIcon="pi pi-history"
+      emptyTitle="No movements found"
+      @page="onPage"
+      @refresh="fetchMovements"
     >
-      <template #empty>
-        <div class="flex flex-col items-center justify-center py-20 text-surface-400">
-          <i class="mb-4 text-6xl pi pi-history opacity-20"></i>
-          <p class="text-xl font-medium">{{ t('inventory.messages.no_movements') }}</p>
-        </div>
+      <template #row-actions="{ data }">
+        <Button
+          icon="pi pi-eye"
+          text
+          rounded
+          @click="router.push({ name: 'inventory.movements.detail', params: { id: data.id } })"
+        />
       </template>
-
-      <Column field="createdAtUtc" :header="t('inventory.table.date')">
-        <template #body="{ data }">
-          <span class="text-sm">{{ formatDate(data.createdAtUtc) }}</span>
-        </template>
-      </Column>
-
-      <Column field="type" :header="t('inventory.table.type')">
-        <template #body="{ data }">
-          <Tag :value="movementTypes[data.type] ?? data.type" severity="info" rounded class="px-3" />
-        </template>
-      </Column>
-
-      <Column field="stockItemId" header="Stock Item">
-        <template #body="{ data }">
-          <span class="font-mono text-xs">{{ data.stockItemId }}</span>
-        </template>
-      </Column>
-
-      <Column field="quantity" :header="t('inventory.table.quantity')">
-        <template #body="{ data }">
-          <span :class="data.quantity < 0 ? 'text-red-500 font-bold' : 'font-bold'">
-            {{ data.quantity > 0 ? '+' : '' }}{{ data.quantity }}
-          </span>
-        </template>
-      </Column>
-
-      <Column field="reference" :header="t('inventory.table.reference')">
-        <template #body="{ data }">
-          <span>{{ data.reference ?? '-' }}</span>
-        </template>
-      </Column>
-
-      <Column field="reason" :header="t('inventory.table.reason')">
-        <template #body="{ data }">
-          <span>{{ data.reason ?? '-' }}</span>
-        </template>
-      </Column>
-    </DataTable>
+    </DataTableShell>
   </PageShell>
 </template>

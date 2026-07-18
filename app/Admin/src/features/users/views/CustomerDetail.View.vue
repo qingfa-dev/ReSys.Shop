@@ -1,191 +1,117 @@
 <script setup lang="ts">
-import { ref, onMounted, computed } from 'vue';
-import { useRoute, useRouter } from 'vue-router';
-import { useToast } from '@/shared/composables/toast.use';
-import { useFormatter } from '@/shared/composables/formatter.use';
-import { userService } from '../services/user.service';
-import type { AdminUserSummary } from '../types/user.response.type';
-import { useI18n } from 'vue-i18n';
-import PageShell from '@/shared/components/PageShell.Component.vue';
-import PageHeader from '@/shared/components/PageHeader.Component.vue';
-import UserRoleManager from '../components/UserRoleManager.Component.vue';
-import UserPermissionManager from '../components/UserPermissionManager.Component.vue';
-import UserSecurityManager from '../components/UserSecurityManager.Component.vue';
+import { onMounted } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
+import { useUserStore } from '../stores/user.store'
+import { storeToRefs } from 'pinia'
+import { useToast } from '@/shared/composables/toast.use'
+import { useFormatter } from '@/shared/composables/formatter.use'
+import { useI18n } from 'vue-i18n'
+import PageShell from '@/shared/components/PageShell.Component.vue'
+import PageHeader from '@/shared/components/PageHeader.Component.vue'
+import DetailField from '@/shared/components/DetailField.Component.vue'
+import StatusBadge from '@/shared/components/StatusBadge.Component.vue'
 
-const route = useRoute();
-const router = useRouter();
-const { showToast } = useToast();
-const { formatDate, formatCurrency } = useFormatter();
-const { t } = useI18n();
+const route = useRoute()
+const router = useRouter()
+const store = useUserStore()
+const { showToast } = useToast()
+const { formatDate } = useFormatter()
+const { t } = useI18n()
+const { currentCustomer, loading } = storeToRefs(store)
 
-const userId = computed(() => route.params.id as string);
-const user = ref<AdminUserSummary | null>(null);
-const loading = ref(false);
-const activeTab = ref(0);
+const customerId = route.params.id as string
 
-const permissionList = ref<string[]>([]); 
+const statusMap: Record<string | number, { label: string; severity: string }> = {
+  true: { label: 'Active', severity: 'success' },
+  false: { label: 'Inactive', severity: 'secondary' },
+}
 
 onMounted(async () => {
-    await loadData();
-});
-
-async function loadData() {
-    loading.value = true;
-    try {
-        const res = await userService.getById(userId.value);
-        if (res.isSuccess && res.value) {
-            user.value = res.value;
-            await loadPermissions();
-        } else {
-            showToast('error', t('common.error'), t('users.messages.customer_detail_error'));
-            router.push({ name: 'users.customers.list' });
-        }
-    } finally {
-        loading.value = false;
-    }
-}
-
-async function loadPermissions() {
-    const res = await userService.getUserPermissions(userId.value);
-    if (res.isSuccess && res.value) {
-        permissionList.value = res.value;
-    }
-}
-
-async function onToggleStatus() {
-    if (!user.value) return;
-    const newStatus = !user.value.isActive;
-    const res = await userService.updateAdminStatus(userId.value, { isActive: newStatus });
-    if (res.isSuccess) {
-        user.value.isActive = newStatus;
-        showToast('success', t('common.saved'), t('users.messages.status_updated', { status: newStatus ? 'active' : 'inactive' }));
-    }
-}
+  const result = await store.fetchCustomerById(customerId)
+  if (!result.isSuccess) {
+    showToast('error', t('common.error'), result.message || t('users.messages.customer_detail_error'))
+    router.push({ name: 'users.customers.list' })
+  }
+})
 </script>
 
 <template>
-    <PageShell :card="false" gap maxWidth="7xl">
-        <template v-if="user">
-            <PageHeader back :title="user.fullName || 'Customer Profile'" :description="user.email">
-                <template #badge>
-                    <Tag :value="user.isActive ? 'Active' : 'Inactive'" :severity="user.isActive ? 'success' : 'secondary'" rounded class="font-bold px-3" />
-                </template>
-                <template #actions>
-                    <Button :label="user.isActive ? 'Deactivate' : 'Activate'" :severity="user.isActive ? 'danger' : 'success'" outlined icon="pi pi-power-off" @click="onToggleStatus" class="rounded-xl px-6" />
-                </template>
-            </PageHeader>
-
-            <Card class="border-none shadow-sm rounded-3xl bg-surface-0 dark:bg-surface-900 overflow-hidden">
-                <template #content>
-                    <Tabs v-model:value="activeTab">
-                        <TabList>
-                            <Tab :value="0">
-                                <div class="flex items-center gap-2">
-                                    <i class="pi pi-user"></i>
-                                    <span>{{ t('users.tabs.details') }}</span>
-                                </div>
-                            </Tab>
-                            <Tab :value="1">
-                                <div class="flex items-center gap-2">
-                                    <i class="pi pi-shopping-bag"></i>
-                                    <span>Commerce</span>
-                                </div>
-                            </Tab>
-                            <Tab :value="2">
-                                <div class="flex items-center gap-2">
-                                    <i class="pi pi-shield"></i>
-                                    <span>{{ t('users.tabs.roles') }}</span>
-                                </div>
-                            </Tab>
-                            <Tab :value="3">
-                                <div class="flex items-center gap-2">
-                                    <i class="pi pi-key"></i>
-                                    <span>{{ t('users.tabs.permissions') }}</span>
-                                </div>
-                            </Tab>
-                            <Tab :value="4">
-                                <div class="flex items-center gap-2">
-                                    <i class="pi pi-lock"></i>
-                                    <span>{{ t('users.tabs.security') }}</span>
-                                </div>
-                            </Tab>
-                        </TabList>
-
-                        <TabPanels class="p-6">
-                            <!-- Details Panel -->
-                            <TabPanel :value="0">
-                                <div class="grid grid-cols-1 md:grid-cols-2 gap-12">
-                                    <div class="flex flex-col gap-6">
-                                        <h3 class="text-lg font-bold uppercase tracking-wide text-surface-500 m-0">Customer Information</h3>
-                                        <div class="flex flex-col gap-4">
-                                            <div class="flex flex-col">
-                                                <label class="text-xs text-surface-400 uppercase font-bold mb-1">First Name</label>
-                                                <span class="text-lg font-medium">{{ user.firstName || '-' }}</span>
-                                            </div>
-                                            <div class="flex flex-col">
-                                                <label class="text-xs text-surface-400 uppercase font-bold mb-1">Last Name</label>
-                                                <span class="text-lg font-medium">{{ user.lastName || '-' }}</span>
-                                            </div>
-                                            <div class="flex flex-col">
-                                                <label class="text-xs text-surface-400 uppercase font-bold mb-1">Phone Number</label>
-                                                <span class="text-lg font-medium font-mono">{{ user.phoneNumber || 'Not Provided' }}</span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="flex flex-col gap-6">
-                                        <h3 class="text-lg font-bold uppercase tracking-wide text-surface-500 m-0">Registration Details</h3>
-                                        <div class="flex flex-col gap-4">
-                                            <div class="flex flex-col">
-                                                <label class="text-xs text-surface-400 uppercase font-bold mb-1">Registered Since</label>
-                                                <span class="text-lg font-medium">{{ formatDate(user.createdAtUtc) }}</span>
-                                            </div>
-                                            <div class="flex justify-between items-center bg-surface-50 dark:bg-surface-800 p-4 rounded-xl">
-                                                <span class="text-sm font-bold">Email Status</span>
-                                                <Tag :value="user.emailConfirmed ? 'Verified' : 'Unverified'" :severity="user.emailConfirmed ? 'success' : 'warning'" />
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </TabPanel>
-
-                            <!-- Commerce Panel (Placeholder for history) -->
-                            <TabPanel :value="1">
-                                <div class="flex flex-col items-center justify-center p-20 text-surface-400">
-                                    <i class="pi pi-shopping-cart text-6xl opacity-20 mb-4"></i>
-                                    <p class="text-xl font-medium">Order History is coming soon.</p>
-                                    <p class="text-sm">Comprehensive customer shopping metrics will be displayed here.</p>
-                                </div>
-                            </TabPanel>
-
-                            <!-- Roles Panel -->
-                            <TabPanel :value="2">
-                                <UserRoleManager :userId="user.id" :assignedRoles="[]" @updated="loadData" />
-                            </TabPanel>
-
-                            <!-- Permissions Panel -->
-                            <TabPanel :value="3">
-                                <UserPermissionManager :userId="user.id" :initialPermissions="permissionList" @updated="loadData" />
-                            </TabPanel>
-
-                            <!-- Security Panel -->
-                            <TabPanel :value="4">
-                                <UserSecurityManager :user="user" @updated="loadData" />
-                            </TabPanel>
-                        </TabPanels>
-                    </Tabs>
-                </template>
-            </Card>
+  <PageShell :card="false" gap maxWidth="7xl">
+    <template v-if="currentCustomer">
+      <PageHeader
+        back
+        :title="currentCustomer.fullName || 'Customer Profile'"
+        :description="currentCustomer.email"
+      >
+        <template #badge>
+          <StatusBadge :status="String(currentCustomer.isActive)" :statusMap="statusMap" />
         </template>
+      </PageHeader>
 
-        <div v-else-if="loading" class="flex flex-col items-center justify-center p-20">
-            <ProgressSpinner />
-            <p class="mt-4 text-surface-500">{{ t('users.messages.loading') }}</p>
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <!-- Profile Info -->
+        <div class="lg:col-span-2 flex flex-col gap-6">
+          <Card class="rounded-3xl shadow-sm border-none bg-surface-0 dark:bg-surface-900 overflow-hidden">
+            <template #title>
+              <span class="text-xl font-black uppercase tracking-tight p-4 block">
+                Profile Information
+              </span>
+            </template>
+            <template #content>
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-8 p-6">
+                <DetailField label="Email" :value="currentCustomer.email" />
+                <DetailField label="Display Name" :value="currentCustomer.fullName" />
+                <DetailField label="Phone" :value="currentCustomer.phoneNumber" />
+                <DetailField label="Member Since" :value="formatDate(currentCustomer.createdAtUtc)" />
+              </div>
+            </template>
+          </Card>
         </div>
-    </PageShell>
+
+        <!-- Sidebar -->
+        <div class="flex flex-col gap-6">
+          <Card class="rounded-3xl shadow-sm border-none bg-surface-0 dark:bg-surface-900 overflow-hidden">
+            <template #title>
+              <span class="text-sm font-black uppercase tracking-widest text-surface-400 p-4 block">
+                Addresses
+              </span>
+            </template>
+            <template #content>
+              <div class="flex flex-col items-center justify-center p-8 text-surface-400">
+                <i class="pi pi-map-marker text-4xl opacity-20 mb-3"></i>
+                <p class="text-sm font-medium">No addresses on file</p>
+              </div>
+            </template>
+          </Card>
+
+          <Card class="rounded-3xl shadow-sm border-none bg-surface-0 dark:bg-surface-900 overflow-hidden">
+            <template #title>
+              <span class="text-sm font-black uppercase tracking-widest text-surface-400 p-4 block">
+                Recent Orders
+              </span>
+            </template>
+            <template #content>
+              <div class="flex flex-col items-center justify-center p-8 text-surface-400">
+                <i class="pi pi-shopping-bag text-4xl opacity-20 mb-3"></i>
+                <p class="text-sm font-medium">No recent orders</p>
+              </div>
+            </template>
+          </Card>
+        </div>
+      </div>
+    </template>
+
+    <div v-else-if="loading" class="flex justify-center py-20">
+      <ProgressSpinner />
+    </div>
+  </PageShell>
 </template>
 
 <style scoped>
-:deep(.p-tabs-list) {
-    border-bottom: 1px solid var(--p-surface-100);
+:deep(.p-card-body) {
+  padding: 0;
+}
+:deep(.p-card-content) {
+  padding: 0;
 }
 </style>
