@@ -10,11 +10,11 @@ import { storeToRefs } from 'pinia';
 import PageShell from '@/shared/components/PageShell.Component.vue';
 import PageHeader from '@/shared/components/PageHeader.Component.vue';
 import MetadataManager from '@/shared/components/MetadataManager.Component.vue';
-import ProductImageManager from '../components/ProductImageManager.Component.vue';
-import ProductVariantManager from '../components/ProductVariantManager.Component.vue';
+import ProductImageManager from '../variants/components/ProductImageManager.Component.vue';
+import ProductVariantManager from '../variants/components/ProductVariantManager.Component.vue';
 import ProductClassificationManager from '../components/ProductClassificationManager.Component.vue';
 import ProductOptionTypeManager from '../components/ProductOptionTypeManager.Component.vue';
-import ProductInventoryManager from '../components/ProductInventoryManager.Component.vue';
+import ProductInventoryManager from '../variants/components/ProductInventoryManager.Component.vue';
 import type { ProductDetail } from '../types/Product.Response.Type';
 import type { CreateProductRequest, UpdateProductRequest } from '../types/Product.Request.Type';
 
