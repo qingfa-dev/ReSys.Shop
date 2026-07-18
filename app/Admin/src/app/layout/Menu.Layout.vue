@@ -52,11 +52,32 @@ const model = ref<MenuItem[]>([
     ],
   },
   {
+    label: 'Locations',
+    items: [
+      { label: 'Countries', icon: 'pi pi-fw pi-globe', to: { name: 'location.countries.list' } },
+      { label: 'States', icon: 'pi pi-fw pi-map', to: { name: 'location.states.list' } },
+    ],
+  },
+  {
     label: 'Sales',
     items: [
       { label: 'All Orders', icon: 'pi pi-fw pi-shopping-cart', to: { name: 'ordering.orders.list' } },
       { label: 'Fulfillment', icon: 'pi pi-fw pi-box', to: { name: 'ordering.fulfillment.queue' } },
       { label: 'Reports', icon: 'pi pi-fw pi-chart-bar', to: { name: 'reports.dashboard' } },
+    ],
+  },
+  {
+    label: 'Payments',
+    items: [
+      { label: 'Payments', icon: 'pi pi-fw pi-wallet', to: { name: 'payment.payments.list' } },
+      { label: 'Methods', icon: 'pi pi-fw pi-credit-card', to: { name: 'payment.methods.list' } },
+    ],
+  },
+  {
+    label: 'Shipping',
+    items: [
+      { label: 'Methods', icon: 'pi pi-fw pi-truck', to: { name: 'shipping.methods.list' } },
+      { label: 'Rates', icon: 'pi pi-fw pi-tag', to: { name: 'shipping.rates.list' } },
     ],
   },
   {
@@ -66,6 +87,7 @@ const model = ref<MenuItem[]>([
       { label: 'Customers', icon: 'pi pi-fw pi-users', to: { name: 'customer-users' } },
       { label: 'Roles', icon: 'pi pi-fw pi-shield', to: { name: 'roles-list' } },
       { label: 'Permissions', icon: 'pi pi-fw pi-key', to: { name: 'permissions-list' } },
+      { label: 'Addresses', icon: 'pi pi-fw pi-address-book', to: { name: 'addresses' } },
     ],
   },
 ])

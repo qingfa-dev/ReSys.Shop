@@ -9,6 +9,10 @@ import { orderingRoutes } from '@/features/ordering/ordering.routes'
 import { usersRoutes } from '@/features/users/users.routes'
 import { rolesRoutes } from '@/features/users/roles.routes'
 import { permissionsRoutes } from '@/features/users/permissions.routes'
+import { paymentRoutes } from '@/features/payment/payment.routes'
+import { shippingRoutes } from '@/features/shipping/shipping.routes'
+import { locationRoutes } from '@/features/location/location.routes'
+import { addressesRoutes } from '@/features/profile/addresses/addresses.routes'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -24,6 +28,10 @@ const router = createRouter({
       reportsRoutes,
       inventoryRoutes,
       orderingRoutes,
+      paymentRoutes,
+      shippingRoutes,
+      locationRoutes,
+      addressesRoutes,
       usersRoutes,
     ]},
   ],
