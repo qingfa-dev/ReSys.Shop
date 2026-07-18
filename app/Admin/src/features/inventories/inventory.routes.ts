@@ -23,6 +23,12 @@ export const inventoryRoutes: RouteRecordRaw = {
       meta: { breadcrumb: 'Serialized Units' }
     },
     {
+      path: 'movements',
+      name: 'inventory.movements.list',
+      component: () => import('./stock-movements/views/StockMovementList.View.vue'),
+      meta: { breadcrumb: 'Stock Movements' },
+    },
+    {
       path: 'locations',
       meta: { breadcrumb: 'Warehouses' },
       component: () => import('./stock-locations/views/StockLocationManager.View.vue'),
