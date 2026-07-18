@@ -1,0 +1,25 @@
+<script setup lang="ts">
+import { onMounted } from 'vue'
+import { useShippingMethodStore } from '../stores/shipping-method.store'
+import { storeToRefs } from 'pinia'
+import DataTable from 'primevue/datatable'
+import Column from 'primevue/column'
+
+const store = useShippingMethodStore()
+const { items, loading, totalRecords } = storeToRefs(store)
+
+onMounted(() => store.fetchItems())
+</script>
+
+<template>
+  <DataTable :value="items" :loading="loading" :totalRecords="totalRecords" dataKey="id">
+    <Column field="name" header="Name" />
+    <Column field="carrier" header="Carrier" />
+    <Column field="isActive" header="Active">
+      <template #body="{ data }">
+        <i :class="data.isActive ? 'pi pi-check text-green-500' : 'pi pi-times text-red-500'" />
+      </template>
+    </Column>
+    <Column field="displayOrder" header="Order" />
+  </DataTable>
+</template>

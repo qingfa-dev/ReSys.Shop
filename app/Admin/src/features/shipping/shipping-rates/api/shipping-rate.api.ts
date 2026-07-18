@@ -1,39 +1,21 @@
 import apiClient from '@/shared/api/http/api.client'
 import { SHIPPING } from '@/shared/api/constants'
-import type { ServerResult } from '@/shared/api/types/result.types'
+import type { ServerPagedResult, ServerResult } from '@/shared/api/types/result.types'
 import type { ServerQueryingParameters } from '@/shared/api/types/query.types'
-
-export interface ShippingRateListItem {
-  id: string
-  name: string
-  methodId: string
-  minOrderAmount: number
-  maxOrderAmount: number
-  rate: number
-  currency: string
-}
-
-export interface ShippingRateDetail extends ShippingRateListItem {
-  conditions: Record<string, unknown> | null
-}
-
-export interface CreateShippingRateRequest {
-  name: string
-  methodId: string
-  minOrderAmount: number
-  maxOrderAmount: number
-  rate: number
-  currency: string
-  conditions?: Record<string, unknown>
-}
+import type {
+  ShippingRateListItem,
+  ShippingRateDetail,
+  CreateShippingRateRequest,
+  UpdateShippingRateRequest,
+} from '../types'
 
 function ratesPath(sub?: string): string {
   return `${SHIPPING}/shipping-rates${sub ? `/${sub}` : ''}`
 }
 
 export const shippingRateRepository = {
-  list(params?: ServerQueryingParameters): Promise<ServerResult<ShippingRateListItem[]>> {
-    return apiClient.get(ratesPath(), { params }).then(res => res.data as ServerResult<ShippingRateListItem[]>)
+  list(params?: ServerQueryingParameters): Promise<ServerPagedResult<ShippingRateListItem>> {
+    return apiClient.get(ratesPath(), { params }).then(res => res.data as ServerPagedResult<ShippingRateListItem>)
   },
 
   getById(id: string): Promise<ServerResult<ShippingRateDetail>> {
@@ -44,7 +26,7 @@ export const shippingRateRepository = {
     return apiClient.post(ratesPath(), data).then(res => res.data as ServerResult<ShippingRateDetail>)
   },
 
-  update(id: string, data: Partial<CreateShippingRateRequest>): Promise<ServerResult<ShippingRateDetail>> {
+  update(id: string, data: UpdateShippingRateRequest): Promise<ServerResult<ShippingRateDetail>> {
     return apiClient.put(ratesPath(id), data).then(res => res.data as ServerResult<ShippingRateDetail>)
   },
 

@@ -1,32 +1,17 @@
 import apiClient from '@/shared/api/http/api.client'
 import { PAYMENTS } from '@/shared/api/constants'
-import type { ServerResult } from '@/shared/api/types/result.types'
+import type { ServerPagedResult, ServerResult } from '@/shared/api/types/result.types'
 import type { ServerQueryingParameters } from '@/shared/api/types/query.types'
-
-export interface PaymentMethodListItem {
-  id: string
-  name: string
-  type: string
-  isActive: boolean
-}
-
-export interface PaymentMethodDetail extends PaymentMethodListItem {
-  configuration: Record<string, unknown> | null
-}
-
-export interface CreatePaymentMethodRequest {
-  name: string
-  type: string
-  configuration?: Record<string, unknown>
-}
+import type { PaymentMethodListItem, PaymentMethodDetail } from '../types/PaymentMethod.Response.Type'
+import type { CreatePaymentMethodRequest, UpdatePaymentMethodRequest } from '../types/PaymentMethod.Request.Type'
 
 function methodsPath(sub?: string): string {
   return `${PAYMENTS}/payment-methods${sub ? `/${sub}` : ''}`
 }
 
 export const paymentMethodRepository = {
-  list(params?: ServerQueryingParameters): Promise<ServerResult<PaymentMethodListItem[]>> {
-    return apiClient.get(methodsPath(), { params }).then(res => res.data as ServerResult<PaymentMethodListItem[]>)
+  list(params?: ServerQueryingParameters): Promise<ServerPagedResult<PaymentMethodListItem>> {
+    return apiClient.get(methodsPath(), { params }).then(res => res.data as ServerPagedResult<PaymentMethodListItem>)
   },
 
   getById(id: string): Promise<ServerResult<PaymentMethodDetail>> {
