@@ -24,4 +24,4 @@ export interface ProductDetail extends ProductSummary {
   variants: VariantSummary[]; classifications: ProductClassification[]; images: ProductImage[]
 }
 
-import type { VariantSummary } from './Variant.Response.Type'
+import type { VariantSummary } from '../variants/types/Variant.Response.Type'

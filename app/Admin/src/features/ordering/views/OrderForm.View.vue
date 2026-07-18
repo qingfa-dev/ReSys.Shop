@@ -10,7 +10,7 @@ import PageShell from '@/shared/components/PageShell.Component.vue'
 import PageHeader from '@/shared/components/PageHeader.Component.vue'
 import type { CreateOrderRequest } from '../types/Order.Request.Type';
 import type { ProductSummary } from '@/features/catalog/products/types/Product.Response.Type';
-import type { VariantSummary } from '@/features/catalog/products/types/Variant.Response.Type';
+import type { VariantSummary } from '@/features/catalog/products/variants/types/Variant.Response.Type';
 
 interface OrderVariantSummary extends VariantSummary {
   option_values?: Array<{ id: string; value: string; presentation?: string }>;
