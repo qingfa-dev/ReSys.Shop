@@ -51,4 +51,11 @@ export const stockRepository = {
   bulkAdjust(data: BulkAdjustRequest): Promise<ServerResult<void>> {
     return apiClient.post(path('bulk-adjust'), data).then(res => res.data as ServerResult<void>)
   },
+  importStockItems(file: File): Promise<ServerResult<void>> {
+    const formData = new FormData()
+    formData.append('file', file)
+    return apiClient
+      .post(path('import'), formData, { headers: { 'Content-Type': 'multipart/form-data' } })
+      .then(res => res.data as ServerResult<void>)
+  },
 }
