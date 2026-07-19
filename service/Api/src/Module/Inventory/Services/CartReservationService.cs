@@ -96,7 +96,10 @@ public class CartReservationService(IApplicationDbContext dbContext) : ICartRese
         var now = DateTimeOffset.UtcNow;
         // Load: Find all active, non-expired reservations for this cart
         var reservations = await _dbContext.Set<StockReservation>()
-            .Where(r => r.CartToken == cartToken && r.State == ReservationState.Reserved && r.ExpiresAtUtc > now)
+            .Where(r => r.CartToken == cartToken
+                && r.State == ReservationState.Reserved
+                && r.ExpiresAtUtc != null
+                && r.ExpiresAtUtc > now)
             .ToListAsync(cancellationToken);
 
         // Compute: Remaining TTL for each reservation
