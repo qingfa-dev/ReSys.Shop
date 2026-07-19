@@ -63,27 +63,27 @@ public class CartReservationService(IApplicationDbContext dbContext) : ICartRese
     /// <param name="cancellationToken">Cancellation token.</param>
     public async Task ReleaseCartReservationsAsync(string cartToken, CancellationToken cancellationToken = default)
     {
-        // Load: Find all active reservations for this cart token
         var reservations = await _dbContext.Set<StockReservation>()
             .Where(r => r.CartToken == cartToken && r.State == ReservationState.Reserved)
             .ToListAsync(cancellationToken);
 
         foreach (var r in reservations)
         {
-            // Update: Release the reservation
+            var wasActive = r.State == ReservationState.Reserved;
             r.State = ReservationState.Released;
             r.ModifiedAtUtc = DateTimeOffset.UtcNow;
 
-            if (r.StockLocationId is not null)
+            if (wasActive && r.StockLocationId is not null)
             {
-                // Load: Find the stock item to restore quantity
                 var stockItem = await _dbContext.Set<StockItem>()
                     .FirstOrDefaultAsync(si => si.VariantId == r.VariantId && si.StockLocationId == r.StockLocationId.Value, cancellationToken);
                 if (stockItem is not null)
-                    // Update: Restore the released quantity to available stock
                     stockItem.CountOnHand += r.Quantity;
             }
         }
+
+        if (reservations.Count > 0)
+            await _dbContext.SaveChangesAsync(cancellationToken);
     }
 
     /// <summary>Returns all active, non-expired reservations for a cart with their remaining TTL in seconds.</summary>

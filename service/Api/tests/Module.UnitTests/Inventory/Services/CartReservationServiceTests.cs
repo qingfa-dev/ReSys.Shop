@@ -147,7 +147,6 @@ public class CartReservationServiceTests : IDisposable
         await SeedCartReservation(3);
 
         await _service.ReleaseCartReservationsAsync(_cartToken, ct);
-        await _dbContext.SaveChangesAsync(ct);
 
         var reservations = await _dbContext.Set<StockReservation>()
             .Where(r => r.CartToken == _cartToken).ToListAsync(ct);
