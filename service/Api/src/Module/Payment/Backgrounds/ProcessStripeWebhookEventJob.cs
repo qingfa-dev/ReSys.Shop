@@ -68,7 +68,14 @@ public sealed partial class ProcessStripeWebhookEventJob
         // Check: Skip if already completed (idempotency)
         if (payment.State == PaymentRecordState.Completed) return;
 
-        payment.Complete();
+        var result = payment.Complete();
+        if (result.IsFailure)
+        {
+            _logger.LogWarning("Cannot complete payment {PaymentId} (state={State}): {Message}",
+                payment.Id, payment.State, result.Message);
+            return;
+        }
+
         await _dbContext.SaveChangesAsync(ct);
     }
 
@@ -82,7 +89,14 @@ public sealed partial class ProcessStripeWebhookEventJob
             .FirstOrDefaultAsync(p => p.ResponseCode == intent.Id, ct);
         if (payment is null) return;
 
-        payment.Fail();
+        var result = payment.Fail();
+        if (result.IsFailure)
+        {
+            _logger.LogWarning("Cannot fail payment {PaymentId} (state={State}): {Message}",
+                payment.Id, payment.State, result.Message);
+            return;
+        }
+
         await _dbContext.SaveChangesAsync(ct);
     }
 
@@ -101,7 +115,16 @@ public sealed partial class ProcessStripeWebhookEventJob
         {
             var newRefunded = charge.AmountRefunded / 100m;
             var delta = newRefunded - payment.RefundedAmount;
-            if (delta > 0) payment.Refund(delta);
+            if (delta > 0)
+            {
+                var result = payment.Refund(delta);
+                if (result.IsFailure)
+                {
+                    _logger.LogWarning("Cannot refund payment {PaymentId} (state={State}): {Message}",
+                        payment.Id, payment.State, result.Message);
+                    return;
+                }
+            }
         }
         payment.ModifiedAtUtc = DateTimeOffset.UtcNow;
         await _dbContext.SaveChangesAsync(ct);
