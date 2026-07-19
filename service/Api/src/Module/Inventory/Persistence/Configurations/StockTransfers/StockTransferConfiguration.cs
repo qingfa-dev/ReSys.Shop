@@ -50,6 +50,9 @@ public class StockTransferConfiguration : IEntityTypeConfiguration<StockTransfer
             .OnDelete(DeleteBehavior.Cascade);
         #endregion
 
+        builder.Property(x => x.RowVersion)
+            .IsRowVersion();
+
         #region Indexes
         builder.HasIndex(x => x.State);
         builder.HasIndex(x => x.SourceLocationId);
