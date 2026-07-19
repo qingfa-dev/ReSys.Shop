@@ -330,6 +330,7 @@ namespace Api.Migrations.Migrations
                     cart_token = table.Column<string>(type: "text", nullable: true),
                     line_item_id = table.Column<Guid>(type: "uuid", nullable: true),
                     reason = table.Column<string>(type: "text", nullable: true),
+                    xmin = table.Column<uint>(type: "xid", rowVersion: true, nullable: false),
                     created_at_utc = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
                     modified_at_utc = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: true),
                     created_by = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: true),
@@ -508,7 +509,7 @@ namespace Api.Migrations.Migrations
                     capture_event_created = table.Column<bool>(type: "boolean", nullable: false),
                     refunded_amount = table.Column<decimal>(type: "numeric(18,2)", precision: 18, scale: 2, nullable: false),
                     provider_key = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
-                    payment_method_id = table.Column<Guid>(type: "uuid", nullable: false),
+                    payment_method_id = table.Column<Guid>(type: "uuid", nullable: true),
                     order_id = table.Column<Guid>(type: "uuid", nullable: false),
                     source_id = table.Column<Guid>(type: "uuid", nullable: true),
                     source_type = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: true),
@@ -584,7 +585,6 @@ namespace Api.Migrations.Migrations
                     width = table.Column<decimal>(type: "numeric(18,2)", precision: 18, scale: 2, nullable: true, defaultValue: 0m),
                     depth = table.Column<decimal>(type: "numeric(18,2)", precision: 18, scale: 2, nullable: true, defaultValue: 0m),
                     dimensions_unit = table.Column<string>(type: "character varying(10)", maxLength: 10, nullable: true, defaultValue: "Cm"),
-                    primary_media_id = table.Column<Guid>(type: "uuid", nullable: true),
                     price = table.Column<decimal>(type: "numeric(18,2)", precision: 18, scale: 2, nullable: true, defaultValue: 0m),
                     cost_price = table.Column<decimal>(type: "numeric(18,2)", precision: 18, scale: 2, nullable: true, defaultValue: 0m),
                     cost_currency = table.Column<string>(type: "character varying(3)", maxLength: 3, nullable: true, defaultValue: "USD"),
@@ -667,6 +667,7 @@ namespace Api.Migrations.Migrations
                     state = table.Column<string>(type: "character varying(20)", maxLength: 20, nullable: false),
                     source_location_id = table.Column<Guid>(type: "uuid", nullable: false),
                     destination_location_id = table.Column<Guid>(type: "uuid", nullable: false),
+                    xmin = table.Column<uint>(type: "xid", rowVersion: true, nullable: false),
                     created_at_utc = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
                     modified_at_utc = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: true),
                     created_by = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: true),
@@ -1525,6 +1526,18 @@ namespace Api.Migrations.Migrations
                 schema: "inventory",
                 table: "stock_movements",
                 column: "stock_location_id");
+
+            migrationBuilder.CreateIndex(
+                name: "ix_stock_reservations_cart_token_state",
+                schema: "inventory",
+                table: "stock_reservations",
+                columns: new[] { "cart_token", "state" });
+
+            migrationBuilder.CreateIndex(
+                name: "ix_stock_reservations_order_id_state",
+                schema: "inventory",
+                table: "stock_reservations",
+                columns: new[] { "order_id", "state" });
 
             migrationBuilder.CreateIndex(
                 name: "ix_stock_transfers_destination_location_id",

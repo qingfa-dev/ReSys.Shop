@@ -14,7 +14,7 @@ using Shared.Operational.Persistence.Data;
 namespace Api.Migrations.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20260715100340_InitialCreate")]
+    [Migration("20260719202426_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -666,10 +666,6 @@ namespace Api.Migrations.Migrations
                         .HasColumnType("numeric(18,2)")
                         .HasDefaultValue(0m)
                         .HasColumnName("price");
-
-                    b.Property<Guid?>("PrimaryMediaId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("primary_media_id");
 
                     b.Property<Guid>("ProductId")
                         .HasColumnType("uuid")
@@ -1328,6 +1324,12 @@ namespace Api.Migrations.Migrations
                         .HasColumnType("text")
                         .HasColumnName("reason");
 
+                    b.Property<uint>("RowVersion")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("xid")
+                        .HasColumnName("xmin");
+
                     b.Property<string>("State")
                         .IsRequired()
                         .HasColumnType("text")
@@ -1343,6 +1345,12 @@ namespace Api.Migrations.Migrations
 
                     b.HasKey("Id")
                         .HasName("pk_stock_reservations");
+
+                    b.HasIndex("CartToken", "State")
+                        .HasDatabaseName("ix_stock_reservations_cart_token_state");
+
+                    b.HasIndex("OrderId", "State")
+                        .HasDatabaseName("ix_stock_reservations_order_id_state");
 
                     b.ToTable("stock_reservations", "inventory");
                 });
@@ -1385,6 +1393,12 @@ namespace Api.Migrations.Migrations
                         .HasMaxLength(255)
                         .HasColumnType("character varying(255)")
                         .HasColumnName("reference");
+
+                    b.Property<uint>("RowVersion")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("xid")
+                        .HasColumnName("xmin");
 
                     b.Property<Guid>("SourceLocationId")
                         .HasColumnType("uuid")
@@ -1984,7 +1998,7 @@ namespace Api.Migrations.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("order_id");
 
-                    b.Property<Guid>("PaymentMethodId")
+                    b.Property<Guid?>("PaymentMethodId")
                         .HasColumnType("uuid")
                         .HasColumnName("payment_method_id");
 
@@ -3375,7 +3389,6 @@ namespace Api.Migrations.Migrations
                         .WithMany("Payments")
                         .HasForeignKey("PaymentMethodId")
                         .OnDelete(DeleteBehavior.SetNull)
-                        .IsRequired()
                         .HasConstraintName("fk_payment_captures_payment_methods_payment_method_id");
 
                     b.Navigation("PaymentMethod");
