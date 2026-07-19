@@ -214,6 +214,28 @@ public class StockReservationServiceTests : IDisposable
         stockItem.CountOnHand.Should().Be(8);
     }
 
+    [Fact(DisplayName = "ExpireReservationsAsync: Should not double-restore stock on repeated calls")]
+    public async Task ExpireReservationsAsync_ShouldNotDoubleRestoreStock_OnRepeatedCalls()
+    {
+        var ct = TestContext.Current.CancellationToken;
+        await SeedStockItem(10);
+        var reservation = await SeedReservation(3, ReservationState.Reserved, expiresAtUtc: DateTimeOffset.UtcNow.AddSeconds(-1));
+
+        await _service.ExpireReservationsAsync(ct);
+        await _dbContext.SaveChangesAsync(ct);
+
+        var stockAfterFirst = await _dbContext.Set<StockItem>()
+            .FirstAsync(si => si.VariantId == _variantId, ct);
+        stockAfterFirst.CountOnHand.Should().Be(13); // 10 + 3
+
+        await _service.ExpireReservationsAsync(ct);
+        await _dbContext.SaveChangesAsync(ct);
+
+        var stockAfterSecond = await _dbContext.Set<StockItem>()
+            .FirstAsync(si => si.VariantId == _variantId, ct);
+        stockAfterSecond.CountOnHand.Should().Be(13); // still 13, not 16
+    }
+
     #endregion
 
     #region FulfillReservationAsync
@@ -323,6 +345,28 @@ public class StockReservationServiceTests : IDisposable
         await _dbContext.SaveChangesAsync(ct);
 
         count.Should().Be(0);
+    }
+
+    [Fact(DisplayName = "ExpireReservationsAndRestoreStockAsync: Should not double-restore stock on repeated calls")]
+    public async Task ExpireReservationsAndRestoreStockAsync_ShouldNotDoubleRestoreStock_OnRepeatedCalls()
+    {
+        var ct = TestContext.Current.CancellationToken;
+        await SeedStockItem(10);
+        await SeedReservation(3, ReservationState.Reserved, expiresAtUtc: DateTimeOffset.UtcNow.AddSeconds(-1));
+
+        await _service.ExpireReservationsAndRestoreStockAsync(ct);
+        await _dbContext.SaveChangesAsync(ct);
+
+        var stockAfterFirst = await _dbContext.Set<StockItem>()
+            .FirstAsync(si => si.VariantId == _variantId, ct);
+        stockAfterFirst.CountOnHand.Should().Be(13);
+
+        await _service.ExpireReservationsAndRestoreStockAsync(ct);
+        await _dbContext.SaveChangesAsync(ct);
+
+        var stockAfterSecond = await _dbContext.Set<StockItem>()
+            .FirstAsync(si => si.VariantId == _variantId, ct);
+        stockAfterSecond.CountOnHand.Should().Be(13); // still 13, not 16
     }
 
     #endregion
