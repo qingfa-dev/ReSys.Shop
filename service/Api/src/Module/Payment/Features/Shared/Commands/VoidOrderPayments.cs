@@ -1,3 +1,4 @@
+using System.Data;
 using Module.Payment.Domain.PaymentCaptures;
 using Module.Payment.Services.Models;
 
@@ -22,36 +23,51 @@ public sealed class VoidOrderPaymentsCommandHandler(
     // Contract: pre=OrderId valid, post=All non-void payments for order are voided || Result.IsFailure
     public async Task<Result> Handle(VoidOrderPaymentsCommand command, CancellationToken ct)
     {
-        // Load: All payment captures for the given order
         var payments = await dbContext.Set<PaymentCapture>()
             .Where(p => p.OrderId == command.OrderId)
             .ToListAsync(ct);
 
-        // Batch: Void each payment through its registered gateway
-        foreach (var payment in payments)
+        await using var transaction = await dbContext.BeginTransactionAsync(
+            System.Data.IsolationLevel.ReadCommitted, ct);
+
+        try
         {
-            // Check: Skip if no gateway registered for this payment's provider
-            var gatewayResult = gatewayRegistry.GetGateway(payment.ProviderKey);
-            if (gatewayResult.IsFailure) continue;
-
-            // Build: Gateway options with idempotency key
-            var options = new GatewayOptions
+            foreach (var payment in payments)
             {
-                Email = string.Empty,
-                Customer = string.Empty,
-                OrderId = payment.OrderId.ToString(),
-                PaymentId = payment.Number,
-                IdempotencyKey = GatewayConstants.Idempotency.ForPayment(payment.Number),
-                StatementDescriptorSuffix = string.Empty,
-            };
+                var gatewayResult = gatewayRegistry.GetGateway(payment.ProviderKey);
+                if (gatewayResult.IsFailure)
+                {
+                    await transaction.RollbackAsync(ct);
+                    return PaymentCaptureResult.Failure.ProviderNotRegistered(payment.ProviderKey);
+                }
 
-            // Call: Gateway void — if it fails, abort the batch
-            var voidResult = await processingService.VoidTransactionAsync(payment, gatewayResult.Value, options, null, ct);
-            if (voidResult.IsFailure)
-                return voidResult.Errors;
+                var options = new GatewayOptions
+                {
+                    Email = string.Empty,
+                    Customer = string.Empty,
+                    OrderId = payment.OrderId.ToString(),
+                    PaymentId = payment.Number,
+                    IdempotencyKey = GatewayConstants.Idempotency.ForPayment(payment.Number),
+                    StatementDescriptorSuffix = string.Empty,
+                };
+
+                var voidResult = await processingService.VoidTransactionAsync(
+                    payment, gatewayResult.Value, options, null, ct);
+                if (voidResult.IsFailure)
+                {
+                    await transaction.RollbackAsync(ct);
+                    return voidResult.Errors;
+                }
+            }
+
+            await dbContext.SaveChangesAsync(ct);
+            await transaction.CommitAsync(ct);
+            return Result.Ok();
         }
-
-        await dbContext.SaveChangesAsync(ct);
-        return Result.Ok();
+        catch
+        {
+            await transaction.RollbackAsync(ct);
+            throw;
+        }
     }
 }
