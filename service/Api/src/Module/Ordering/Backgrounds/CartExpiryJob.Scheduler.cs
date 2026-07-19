@@ -4,7 +4,7 @@ using Microsoft.Extensions.Hosting;
 
 namespace Module.Ordering.Backgrounds;
 
-// Trigger: Hangfire recurring job scheduler for CartExpiryJob — registered as IHostedService for automatic startup
+/// <summary>Hangfire recurring job scheduler for CartExpiryJob — registered as IHostedService for automatic startup.</summary>
 public sealed class CartExpiryJobScheduler : IHostedService
 {
     private readonly ILogger<CartExpiryJobScheduler> _logger;
@@ -14,7 +14,7 @@ public sealed class CartExpiryJobScheduler : IHostedService
         _logger = logger;
     }
 
-    // Trigger: Register recurring Hangfire job on application start
+    /// <summary>Registers the Hangfire recurring job for cart expiry on application start.</summary>
     public Task StartAsync(CancellationToken cancellationToken)
     {
         // Schedule: Cart expiry recurring job runs on the configured cron interval
@@ -32,5 +32,6 @@ public sealed class CartExpiryJobScheduler : IHostedService
         return Task.CompletedTask;
     }
 
+    /// <summary>No-op stop — Hangfire manages job lifecycle independently.</summary>
     public Task StopAsync(CancellationToken cancellationToken) => Task.CompletedTask;
 }

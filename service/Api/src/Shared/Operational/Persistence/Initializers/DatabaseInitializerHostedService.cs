@@ -5,12 +5,15 @@ using Shared.Operational.Persistence.Health;
 
 namespace Shared.Operational.Persistence.Initializers;
 
+/// <summary>Hosted service that runs database initialization (migrations + seeders) on application startup.</summary>
 public sealed class DatabaseInitializerHostedService(
     IHostApplicationLifetime lifetime,
     IDatabaseInitializationState state,
     IDatabaseInitializer initializer,
     ILogger<DatabaseInitializerHostedService> logger) : BackgroundService
 {
+    /// <summary>Executes database initialization — stops the application on critical failure.</summary>
+    /// <param name="stoppingToken">Cancellation token.</param>
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
         try

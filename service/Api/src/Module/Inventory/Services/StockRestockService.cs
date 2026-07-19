@@ -6,10 +6,21 @@ using Module.Inventory.Services.Models;
 
 namespace Module.Inventory.Services;
 
+/// <summary>Processes restock operations, fulfilling pending backorders before adding remaining stock to on-hand.</summary>
+// Contract: pre=quantity>0, post=Result<RestockResult> with stockItem.CountOnHand increased
 public class StockRestockService(IApplicationDbContext dbContext) : IStockRestockService
 {
     private readonly IApplicationDbContext _dbContext = dbContext;
 
+    /// <summary>
+    /// Restocks a stock item, first fulfilling any pending backorder reservations in FIFO order.
+    /// </summary>
+    /// <param name="stockItemId">The stock item identifier.</param>
+    /// <param name="quantity">The incoming restock quantity. Must be positive.</param>
+    /// <param name="reference">Optional reference number for the restock.</param>
+    /// <param name="reason">Optional reason for the restock.</param>
+    /// <param name="cancellationToken">Cancellation token.</param>
+    /// <returns>A result containing the restock summary with backorder fulfillment details.</returns>
     public async Task<Result<RestockResult>> RestockAsync(
         Guid stockItemId,
         int quantity,

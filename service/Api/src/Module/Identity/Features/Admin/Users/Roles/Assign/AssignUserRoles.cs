@@ -40,15 +40,19 @@ public static partial class AssignUserRoles
         /// <exception cref="DbUpdateException">Thrown when the identity store fails to persist role assignments.</exception>
         public async Task<Result> Handle(Command command, CancellationToken cancellationToken)
         {
+            // Load: Retrieve the target user to verify they exist
             var user = await userManager.FindByIdAsync(command.Id.ToString());
             if (user is null)
                 return UserResult.Failure.NotFound;
 
+            // Compute: Determine which requested roles exist and are not yet assigned
             var rolesToAdd = new List<string>();
             foreach (var roleName in command.Request.Roles)
             {
+                // Validate: Confirm the role exists in the role store before attempting assignment
                 if (await roleManager.RoleExistsAsync(roleName))
                 {
+                    // Check: Skip roles the user already holds to avoid redundant Identity operations
                     if (!await userManager.IsInRoleAsync(user, roleName))
                     {
                         rolesToAdd.Add(roleName);
@@ -59,22 +63,26 @@ public static partial class AssignUserRoles
             if (rolesToAdd.Count == 0)
                 return Result.Ok();
 
+            // Call: Persist new role assignments via Identity user manager
             var identityResult = await userManager.AddToRolesAsync(user, rolesToAdd);
             if (!identityResult.Succeeded)
                 return identityResult.ToResult();
 
             AuditableBehavior.Touch(user, dateTime.UtcNow);
 
+            // Call: Persist the updated audit timestamp
             var updateResult = await userManager.UpdateAsync(user);
             if (!updateResult.Succeeded)
                 return updateResult.ToResult();
 
+            // Log: Record role assignment details for audit trail
             if (logger.IsEnabled(LogLevel.Debug))
             {
                 var roles = string.Join(", ", rolesToAdd);
                 UserLoggers.Roles.RolesAssigned(logger, UserName: user.UserName!, UserId: user.Id, Roles: roles);
             }
 
+            // Cache: Invalidate the user's permission cache since roles influence effective permissions
             await OnRolesChangedAsync(user, cancellationToken);
 
             return Result.Ok();

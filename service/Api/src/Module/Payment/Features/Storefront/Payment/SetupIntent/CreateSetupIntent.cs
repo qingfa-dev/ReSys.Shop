@@ -7,6 +7,7 @@ using Module.Payment.Features.Storefront.Payment.Shared.Mappings;
 
 namespace Module.Payment.Features.Storefront.Payment.SetupIntent;
 
+/// <summary>Creates a Stripe SetupIntent for saved payment methods.</summary>
 public static partial class CreateSetupIntent
 {
     public sealed record Command(Guid PaymentMethodId) : ICommand<Response>;
@@ -16,6 +17,7 @@ public static partial class CreateSetupIntent
         IGatewayRegistry gatewayRegistry)
         : ICommandHandler<Command, Response>
     {
+        /// <summary>Creates a Stripe SetupIntent for saved payment methods.</summary>
         public async Task<Result<Response>> Handle(Command command, CancellationToken cancellationToken)
         {
             // Load: Payment method must be active and not deleted

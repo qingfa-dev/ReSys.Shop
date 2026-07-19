@@ -4,6 +4,11 @@ namespace Module.Catalog.Features.Admin.Taxonomies.Taxons.Services.Hierarchy;
 
 public partial class TaxonHierarchyService
 {
+    /// <summary>Regenerates SEO-friendly permalinks and pretty names for all taxons in a taxonomy (or a subtree).</summary>
+    /// <param name="taxonomyId">The taxonomy identifier providing the root name.</param>
+    /// <param name="taxonId">Optional anchor taxon to regenerate a subtree only.</param>
+    /// <param name="ct">Cancellation token.</param>
+    /// <returns>A success result or an error if the taxonomy was not found.</returns>
     public async Task<Result> RegeneratePermalinksAsync(
         Guid taxonomyId,
         Guid? taxonId = null,

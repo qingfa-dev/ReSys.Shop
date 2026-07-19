@@ -5,6 +5,7 @@ using Module.Payment.Features.Admin.PaymentMethods.Shared.Mappings;
 
 namespace Module.Payment.Features.Admin.PaymentMethods.Create;
 
+/// <summary>Creates a new payment method.</summary>
 public static partial class CreatePaymentMethod
 {
     public sealed record Command(Request Request) : ICommand<Response>;
@@ -12,6 +13,7 @@ public static partial class CreatePaymentMethod
     public sealed class CommandHandler(IApplicationDbContext dbContext, IGatewayRegistry gatewayRegistry)
         : ICommandHandler<Command, Response>
     {
+        /// <summary>Creates a new payment method.</summary>
         public async Task<Result<Response>> Handle(Command command, CancellationToken cancellationToken)
         {
             var request = command.Request;

@@ -8,6 +8,7 @@ using Module.Payment.Domain.PaymentCaptures;
 
 namespace Module.Payment.Features.Storefront.Payment.Confirm;
 
+/// <summary>Confirms a payment intent with the gateway.</summary>
 public static partial class ConfirmPayment
 {
     public sealed record Command(Guid PaymentId) : ICommand<Response>;
@@ -18,6 +19,7 @@ public static partial class ConfirmPayment
         IGatewayRegistry gatewayRegistry)
         : ICommandHandler<Command, Response>
     {
+        /// <summary>Confirms a payment intent with the gateway.</summary>
         public async Task<Result<Response>> Handle(Command command, CancellationToken cancellationToken)
         {
             // Check: Current user must own the order

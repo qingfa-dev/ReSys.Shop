@@ -4,10 +4,22 @@ using Module.Inventory.Services.Abstractions;
 
 namespace Module.Inventory.Services;
 
+/// <summary>Manages stock reservation lifecycle — reserve, release, expire, and fulfill reservations with automatic stock restoration.</summary>
+// Contract: pre=ReserveAsync quantity>0 && stockLocationId!=Guid.Empty, post=Result<StockReservation>
 public class StockReservationService(IApplicationDbContext dbContext) : IStockReservationService
 {
     private readonly IApplicationDbContext _dbContext = dbContext;
 
+    /// <summary>
+    /// Reserves stock for an order, deducting from available inventory for a configurable TTL.
+    /// </summary>
+    /// <param name="variantId">The product variant identifier.</param>
+    /// <param name="quantity">The quantity to reserve. Must be positive.</param>
+    /// <param name="stockLocationId">The stock location identifier.</param>
+    /// <param name="orderId">The order identifier the reservation is for.</param>
+    /// <param name="ttlMinutes">Time-to-live in minutes before the reservation expires (default 30).</param>
+    /// <param name="cancellationToken">Cancellation token.</param>
+    /// <returns>A result containing the StockReservation, or an error if insufficient stock.</returns>
     public async Task<Result<StockReservation>> ReserveAsync(
         Guid variantId,
         int quantity,
@@ -50,6 +62,9 @@ public class StockReservationService(IApplicationDbContext dbContext) : IStockRe
         return reservation;
     }
 
+    /// <summary>Releases all active reservations for an order, restoring stock quantities.</summary>
+    /// <param name="orderId">The order identifier.</param>
+    /// <param name="cancellationToken">Cancellation token.</param>
     public async Task ReleaseReservationsAsync(Guid orderId, CancellationToken cancellationToken = default)
     {
         // Load: Find all active reservations for the order
@@ -78,6 +93,8 @@ public class StockReservationService(IApplicationDbContext dbContext) : IStockRe
             await _dbContext.SaveChangesAsync(cancellationToken);
     }
 
+    /// <summary>Marks expired reservations and restores their stock quantities.</summary>
+    /// <param name="cancellationToken">Cancellation token.</param>
     public async Task ExpireReservationsAsync(CancellationToken cancellationToken = default)
     {
         var now = DateTimeOffset.UtcNow;
@@ -107,6 +124,10 @@ public class StockReservationService(IApplicationDbContext dbContext) : IStockRe
             await _dbContext.SaveChangesAsync(cancellationToken);
     }
 
+    /// <summary>Transitions a specific reservation to fulfilled state.</summary>
+    /// <param name="reservationId">The reservation identifier.</param>
+    /// <param name="cancellationToken">Cancellation token.</param>
+    /// <returns>A success result or an error if the reservation was not found or already expired.</returns>
     public async Task<Result> FulfillReservationAsync(Guid reservationId, CancellationToken cancellationToken = default)
     {
         // Load: Find the reservation by identifier
@@ -126,6 +147,9 @@ public class StockReservationService(IApplicationDbContext dbContext) : IStockRe
         return Result.Ok();
     }
 
+    /// <summary>Atomically expires all overdue reservations and restores their stock quantities in a single transaction.</summary>
+    /// <param name="cancellationToken">Cancellation token.</param>
+    /// <returns>The count of expired reservations processed.</returns>
     public async Task<int> ExpireReservationsAndRestoreStockAsync(CancellationToken cancellationToken = default)
     {
         var now = DateTimeOffset.UtcNow;

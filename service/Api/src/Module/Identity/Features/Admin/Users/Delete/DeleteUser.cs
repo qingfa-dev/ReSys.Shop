@@ -37,20 +37,25 @@ public static partial class DeleteUser
         {
             var request = command.Request;
 
+            // Validate: Ensure the caller identity is valid before proceeding
             if (!Guid.TryParse(currentUser.UserId, out var currentUserId))
                 return UserResult.Failure.Unauthorized;
 
+            // Guard: Prevent an admin from deleting their own account
             if (request.Id == currentUserId)
                 return UserResult.Failure.SelfDelete;
 
+            // Load: Retrieve the user to verify they exist before deletion
             var user = await userManager.FindByIdAsync(request.Id.ToString());
             if (user is null)
                 return UserResult.Failure.NotFound;
 
+            // Call: Execute the deletion via Identity user manager
             var deleteResult = await userManager.DeleteAsync(user);
             if (!deleteResult.Succeeded)
                 return deleteResult.ToResult();
 
+            // Log: Record user deletion with identifying details for audit trail
             UserLoggers.Management.Deleted(logger,
                 UserName: user.UserName!,
                 Email: user.Email!,

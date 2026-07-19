@@ -4,6 +4,9 @@ using Shared.Operational.Storages.Services;
 
 namespace Module.Catalog.Features.Storefront.Images.Get.Image;
 
+/// <summary>
+/// Defines the use case for retrieving a product variant image.
+/// </summary>
 public static partial class GetImage
 {
     public sealed record Query(Guid Id) : IQuery<Response>;
@@ -29,12 +32,14 @@ public static partial class GetImage
         // Contract: pre=query.Id!=Guid.Empty, post=result!=null
         public async Task<Result<Response>> Handle(Query query, CancellationToken cancellationToken)
         {
+            // Load: Fetch image metadata from the database
             var image = await dbContext.Set<VariantImage>()
                 .FirstOrDefaultAsync(i => i.Id == query.Id, cancellationToken);
 
             if (image is null)
                 return VariantImageResult.Failure.ById(query.Id);
 
+            // Resolve: Translate storage path to absolute filesystem path
             var pathResult = await storageService.ResolvePathAsync(image.StoragePath, ct: cancellationToken);
 
             if (pathResult.IsFailure)
@@ -42,6 +47,7 @@ public static partial class GetImage
 
             var fullPath = pathResult.Value;
 
+            // Check: Verify the image file physically exists on disk
             if (!File.Exists(fullPath))
                 return VariantImageResult.Failure.ById(query.Id);
 

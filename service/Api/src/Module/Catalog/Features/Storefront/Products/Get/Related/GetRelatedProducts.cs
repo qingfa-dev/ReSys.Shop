@@ -23,7 +23,12 @@ public static partial class GetRelatedProducts
         IApplicationDbContext dbContext,
         ILogger<PagedQueryHandler> logger) : IPagedQueryHandler<Query, Response>
     {
-        /// <inheritdoc />
+        /// <summary>
+        /// Retrieves related products by shared taxon strategy, sorted by overlapping classification count.
+        /// </summary>
+        /// <param name="query">The query containing the product ID and pagination parameters.</param>
+        /// <param name="cancellationToken">Propagates cancellation notification.</param>
+        /// <returns>A paged result of related product list items.</returns>
         // Contract: pre=query.Id!=Guid.Empty, post=result.Items!=null
         public async Task<PagedResult<Response>> Handle(Query query, CancellationToken cancellationToken)
         {

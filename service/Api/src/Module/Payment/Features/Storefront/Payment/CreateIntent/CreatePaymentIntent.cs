@@ -11,6 +11,7 @@ using Module.Payment.Services.Models;
 
 namespace Module.Payment.Features.Storefront.Payment.CreateIntent;
 
+/// <summary>Creates a payment intent for checkout.</summary>
 public static partial class CreatePaymentIntent
 {
     public sealed record Command(Guid OrderId) : ICommand<Response>;
@@ -23,6 +24,7 @@ public static partial class CreatePaymentIntent
         : ICommandHandler<Command, Response>
     {
         // Contract: pre=orderId valid & user owns order, post=PaymentCapture persisted + gateway intent created
+        /// <summary>Creates a payment intent for checkout.</summary>
     public async Task<Result<Response>> Handle(Command command, CancellationToken cancellationToken)
         {
             // Check: Current user must own the order

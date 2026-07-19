@@ -15,6 +15,9 @@ public static partial class GetRolesPagedOrAll
 {
     public record Query(Parameters Parameters) : IPagedQuery<Response>;
 
+    /// <summary>
+    /// Handles the <see cref="Query"/> to retrieve roles with paging or all results.
+    /// </summary>
     public sealed class QueryHandler(RoleManager<Role> roleManager)
         : IPagedQueryHandler<Query, Response>
     {
@@ -28,6 +31,7 @@ public static partial class GetRolesPagedOrAll
         {
             var parameters = request.Parameters;
 
+            // Validate: Parse and validate filter, search, and sort parameters against allowed fields
             var parsing = parameters.ParseAll(
                 allowedFilterFields: DomainRoles.RoleConstant.Query.AllowedFilterFields.ToHashSet(StringComparer.OrdinalIgnoreCase),
                 allowedSearchFields: DomainRoles.RoleConstant.Query.AllowedSearchFields.ToHashSet(StringComparer.OrdinalIgnoreCase),
@@ -35,8 +39,10 @@ public static partial class GetRolesPagedOrAll
             if (parsing.IsFailure)
                 return PagedResult<Response>.Create(errors: parsing.Errors);
 
+            // Load: Access role queryable from the role manager
             var roles = roleManager.Roles;
 
+            // Transform: Apply dynamic querying and projection, then paginate the results
             var pagedResult = await roles
                 .ApplyQuerying(parsing.Value)
                 .ToPagedOrAllAsync(r => r.MapToListItem<Response>(), parsing.Value.Page, cancellationToken);

@@ -3,13 +3,13 @@ goal: Apply Code Commenting Standard v3.0 to all C# API service files in service
 version: 1.0
 date_created: 2026-07-19
 owner: Engineering Standards
-status: 'Planned'
+status: 'Completed'
 tags: feature, commenting, csharp, standards, services
 ---
 
 # Introduction
 
-![Status: Planned](https://img.shields.io/badge/status-Planned-blue)
+![Status: Completed](https://img.shields.io/badge/status-Completed-brightgreen)
 
 Apply the structured Code Commenting Standard v3.0 (`guide/code-commenting/CommentingRules.xml`) to all C# service files in `service/Api/src/` that are missing proper comments. The standard defines 10 label categories (CAT-1 through CAT-10) plus Temporal Markers and C# XML Documentation Comments (`/// <summary>`). Each comment must explain WHY, never WHAT; use imperative verbs; follow the Semantic Density Principle (every token earns its place).
 

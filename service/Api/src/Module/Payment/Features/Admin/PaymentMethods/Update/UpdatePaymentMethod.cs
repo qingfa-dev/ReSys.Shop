@@ -5,6 +5,7 @@ using Module.Payment.Features.Admin.PaymentMethods.Shared.Mappings;
 
 namespace Module.Payment.Features.Admin.PaymentMethods.Update;
 
+/// <summary>Updates an existing payment method's details.</summary>
 public static partial class UpdatePaymentMethod
 {
     public sealed record Command(Guid Id, Request Request) : ICommand<Response>;
@@ -12,6 +13,7 @@ public static partial class UpdatePaymentMethod
     public sealed class CommandHandler(IApplicationDbContext dbContext, IGatewayRegistry gatewayRegistry)
         : ICommandHandler<Command, Response>
     {
+        /// <summary>Updates an existing payment method's details.</summary>
         public async Task<Result<Response>> Handle(Command command, CancellationToken cancellationToken)
         {
             // Load: Payment method by ID

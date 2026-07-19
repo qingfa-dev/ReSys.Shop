@@ -13,6 +13,7 @@ public static partial class CreateProfile
     /// <param name="Request">The request containing profile details.</param>
     public sealed record Command(Guid UserId, Request Request) : ICommand<Response>;
 
+    /// <summary>Validates user existence and one-profile-per-user constraint, then persists the new profile.</summary>
     public sealed class CommandHandler(
         IApplicationDbContext dbContext)
         : ICommandHandler<Command, Response>

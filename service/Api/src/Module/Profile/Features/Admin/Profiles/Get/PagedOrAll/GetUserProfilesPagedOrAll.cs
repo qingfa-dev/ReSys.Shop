@@ -11,6 +11,7 @@ public static partial class GetUserProfilesPagedOrAll
     /// <param name="Parameters">The querying parameters for pagination and filtering.</param>
     public record Query(Parameters Parameters) : IPagedQuery<Response>;
 
+    /// <summary>Handles paginated retrieval of user profiles with filtering and sorting.</summary>
     public sealed class QueryHandler(IApplicationDbContext dbContext)
         : IPagedQueryHandler<Query, Response>
     {

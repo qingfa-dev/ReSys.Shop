@@ -4,6 +4,11 @@ namespace Module.Catalog.Features.Admin.Taxonomies.Taxons.Services.Hierarchy;
 
 public partial class TaxonHierarchyService
 {
+    /// <summary>Validates that a taxon can be moved under a potential parent without violating hierarchy constraints (circular parenting, taxonomy mismatch).</summary>
+    /// <param name="taxonId">The taxon to move.</param>
+    /// <param name="potentialParentId">The proposed new parent.</param>
+    /// <param name="ct">Cancellation token.</param>
+    /// <returns>A success result or an error describing the violation.</returns>
     public async Task<Result> ValidateDescendantAsync(Guid taxonId, Guid potentialParentId, CancellationToken ct = default)
     {
         // Check: Taxon being moved must exist in the system
@@ -31,6 +36,11 @@ public partial class TaxonHierarchyService
         return Result.Ok();
     }
 
+    /// <summary>Validates the full hierarchy of a taxonomy — checks for cycles, orphans, and nested set boundary consistency.</summary>
+    /// <param name="taxonomyId">The taxonomy identifier.</param>
+    /// <param name="anchorTaxonId">Optional anchor to validate a subtree only.</param>
+    /// <param name="ct">Cancellation token.</param>
+    /// <returns>A success result or an error describing the first integrity violation found.</returns>
     public async Task<Result> ValidateHierarchyAsync(Guid taxonomyId, Guid? anchorTaxonId = null, CancellationToken ct = default)
     {
         // Check: Ensure the taxonomy exists before validating its hierarchy

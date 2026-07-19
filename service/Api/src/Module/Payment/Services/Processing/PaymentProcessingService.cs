@@ -3,9 +3,16 @@ using Module.Payment.Domain.PaymentCaptures;
 
 namespace Module.Payment.Services.Processing;
 
+// Invariant: State transitions follow PaymentRecordState lifecycle: Checkout → Processing → Pending → Completed/Void
+/// <summary>Orchestrates payment gateway operations — authorize, capture, void, refund — with state management and idempotency guards.</summary>
 public sealed class PaymentProcessingService : IPaymentProcessingService
 {
-    // Contract: pre=payment!=null && gateway!=null, post=Result<PaymentProcessingResult>
+    /// <summary>Routes payment to Purchase (auto-capture) or Authorize based on gateway configuration.</summary>
+    /// <param name="payment">The payment capture to process.</param>
+    /// <param name="gateway">The payment gateway action provider.</param>
+    /// <param name="options">Gateway options including idempotency key.</param>
+    /// <param name="ct">Cancellation token.</param>
+    /// <returns>A result indicating processing outcome.</returns>
     public Task<Result<PaymentProcessingResult>> ProcessAsync(PaymentCapture payment, IPaymentGatewayActionProvider gateway, GatewayOptions options, CancellationToken ct = default)
     {
         // Skip: Auto-capture gateway routes to Purchase — otherwise Authorize
@@ -14,7 +21,13 @@ public sealed class PaymentProcessingService : IPaymentProcessingService
         return AuthorizeAsync(payment, gateway, options, ct);
     }
 
-    // Contract: pre=payment!=null, post=payment.State==Completed || Result.IsFailure
+    /// <summary>Captures an authorized payment via the gateway and transitions state to Completed.</summary>
+    /// <param name="payment">The payment capture to capture.</param>
+    /// <param name="gateway">The payment gateway.</param>
+    /// <param name="options">Gateway options.</param>
+    /// <param name="amount">Optional partial amount to capture.</param>
+    /// <param name="ct">Cancellation token.</param>
+    /// <returns>A result indicating capture outcome.</returns>
     public async Task<Result<PaymentProcessingResult>> CaptureAsync(PaymentCapture payment, IPaymentGatewayActionProvider gateway, GatewayOptions options, decimal? amount = null, CancellationToken ct = default)
     {
         // Check: Already completed — idempotency guard
@@ -43,7 +56,12 @@ public sealed class PaymentProcessingService : IPaymentProcessingService
         return ProcessingResult.Success.Captured(payment.Number, amount.Value);
     }
 
-    // Contract: pre=payment!=null, post=payment.State==Void || Result.IsFailure
+    /// <summary>Voids a payment via the gateway, cancelling the Stripe PaymentIntent.</summary>
+    /// <param name="payment">The payment capture to void.</param>
+    /// <param name="gateway">The payment gateway.</param>
+    /// <param name="options">Gateway options.</param>
+    /// <param name="ct">Cancellation token.</param>
+    /// <returns>A result indicating void outcome.</returns>
     public Task<Result<PaymentProcessingResult>> VoidAsync(PaymentCapture payment, IPaymentGatewayActionProvider gateway, GatewayOptions options, CancellationToken ct = default)
     {
         // Check: Already voided — idempotency guard
@@ -57,7 +75,13 @@ public sealed class PaymentProcessingService : IPaymentProcessingService
         return VoidTransactionAsync(payment, gateway, options, null, ct);
     }
 
-    // Contract: pre=payment!=null && amount>0, post=RefundedAmount incremented || Result.IsFailure
+    /// <summary>Refunds a completed payment via the gateway, incrementing the refunded amount.</summary>
+    /// <param name="payment">The payment capture to refund.</param>
+    /// <param name="gateway">The payment gateway.</param>
+    /// <param name="options">Gateway options.</param>
+    /// <param name="amount">The amount to refund.</param>
+    /// <param name="ct">Cancellation token.</param>
+    /// <returns>A result indicating refund outcome.</returns>
     public async Task<Result<PaymentProcessingResult>> RefundAsync(PaymentCapture payment, IPaymentGatewayActionProvider gateway, GatewayOptions options, decimal amount, CancellationToken ct = default)
     {
         // Check: Payment state and refund amount must be valid

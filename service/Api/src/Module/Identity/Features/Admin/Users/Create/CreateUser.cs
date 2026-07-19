@@ -38,30 +38,39 @@ public static partial class CreateUser
         {
             var request = command.Request;
 
+            // Check: Reject duplicate email to enforce email uniqueness constraint
             var existingByEmail = await userManager.FindByEmailAsync(email: request.Email);
             if (existingByEmail is not null)
                 return UserResult.Failure.EmailDuplicate;
 
+            // Check: Reject duplicate username to enforce username uniqueness constraint
             var existingByUserName = await userManager.FindByNameAsync(userName: request.UserName);
             if (existingByUserName is not null)
                 return UserResult.Failure.UsernameDuplicate;
 
+            // Transform: Map request to domain entity before persistence
             var mapResult = request.MapToDomain();
             if (mapResult.IsFailure) return mapResult.Errors;
             var user = mapResult.Value;
 
+            // Call: Persist the new user via Identity user manager
             var result = await userManager.CreateAsync(user: user);
             if (!result.Succeeded)
                 return result.ToResult<Response>();
+            // Call: Generate password-reset token so admin can share the setup link
             var token = await userManager.GeneratePasswordResetTokenAsync(user: user);
+            // Transform: Build setup URL with encoded token for password initialization
             var setupUrl = BuildSetupPath(userId: user.Id, token: token);
 
+            // Call: Persist audit timestamp updated by setup-path generation
             var updateResult = await userManager.UpdateAsync(user: user);
             if (!updateResult.Succeeded)
                 return updateResult.ToResult<Response>();
 
+            // Log: Record user creation for audit trail
             UserLoggers.Management.Created(logger: logger, UserName: user.UserName!, Email: user.Email!, UserId: user.Id);
 
+            // Transform: Return mapped response with created user details
             return user.MapToDetail<Response>();
         }
 

@@ -4,6 +4,9 @@ using Module.Catalog.Domain.Products.Variants.Options;
 
 namespace Module.Catalog.Features.Admin.Products.Variants.OptionValues.Get;
 
+/// <summary>
+/// Defines the use case for retrieving variant option values with assigned state.
+/// </summary>
 public static partial class GetVariantOptionValues
 {
     public sealed record Query(Guid VariantId) : IQuery<Response>;
@@ -21,21 +24,25 @@ public static partial class GetVariantOptionValues
         // Contract: pre=request.VariantId!=Guid.Empty, post=result!=null
         public async Task<Result<Response>> Handle(Query request, CancellationToken cancellationToken)
         {
+            // Check: Variant must exist before querying assigned option values
             var variantExists = await dbContext.Set<Variant>()
                 .AnyAsync(x => x.Id == request.VariantId, cancellationToken);
             if (!variantExists)
                 return VariantResult.Errors.NotFound(request.VariantId);
 
+            // Load: All option values with their option type for the full selection list
             var allOptionValues = await dbContext.Set<OptionValue>()
                 .AsNoTracking()
                 .Include(x => x.OptionType)
                 .ToListAsync(cancellationToken);
 
+            // Load: Already-assigned option value IDs for this variant
             var assignedOptionValueIds = await dbContext.Set<OptionValueVariant>()
                 .Where(x => x.VariantId == request.VariantId)
                 .Select(x => x.OptionValueId)
                 .ToHashSetAsync(cancellationToken);
 
+            // Transform: Enrich each option value with its assignment status
             var items = allOptionValues.Select(ov => new Response.OptionValueItem
             {
                 OptionValueId = ov.Id,

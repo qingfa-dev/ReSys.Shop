@@ -3,6 +3,9 @@ using Module.Catalog.Features.Storefront.Products.Shared.Mappings;
 
 namespace Module.Catalog.Features.Storefront.Products.Get.List;
 
+/// <summary>
+/// Defines the use case for listing storefront products.
+/// </summary>
 public static partial class ListProducts
 {
     public sealed record Query(Parameters Parameters) : IPagedQuery<Response>;
@@ -21,6 +24,7 @@ public static partial class ListProducts
         {
             var parameters = request.Parameters;
 
+            // Load: Available products with variants, prices, images, option values, and classifications
             var query = dbContext.Set<Product>()
                 .Include(x => x.Variants)
                     .ThenInclude(v => v.Prices)
@@ -35,6 +39,7 @@ public static partial class ListProducts
                 .Where(x => !x.IsDeleted && x.AvailableOn <= DateTimeOffset.UtcNow)
                 .AsNoTracking();
 
+            // Filter: Apply storefront-specific filter aliases (taxon, price range, etc.)
             foreach (IStorefrontProductAlias alias in StorefrontProductFilterAliases.All)
             {
                 var predicate = alias.BuildPredicate(parameters);
@@ -42,6 +47,7 @@ public static partial class ListProducts
                     query = query.Where(predicate);
             }
 
+            // Parse: Validate and parse querying parameters for filtering, searching, and sorting
             var parsing = parameters.ParseAll(
                 allowedFilterFields: ProductConstant.Query.AllowedFilterFields,
                 allowedSearchFields: ProductConstant.Query.AllowedSearchFields,
@@ -49,6 +55,7 @@ public static partial class ListProducts
             if (parsing.IsFailure)
                 return parsing.Errors;
 
+            // Compute: Order by newest, apply pagination, and project to storefront list items
             var pagedResult = await query
                 .OrderByDescending(x => x.CreatedAtUtc)
                 .ApplyQuerying(parsing.Value)

@@ -4,10 +4,19 @@ using Module.Inventory.Services.Abstractions;
 
 namespace Module.Inventory.Services;
 
+/// <summary>Manages cart-scoped stock reservations with shorter TTL (15 min) and cart-token-based release.</summary>
 public class CartReservationService(IApplicationDbContext dbContext) : ICartReservationService
 {
     private readonly IApplicationDbContext _dbContext = dbContext;
 
+    /// <summary>Reserves stock for a shopping cart session with a configurable short TTL.</summary>
+    /// <param name="variantId">The product variant identifier.</param>
+    /// <param name="quantity">The quantity to reserve.</param>
+    /// <param name="stockLocationId">The stock location identifier.</param>
+    /// <param name="cartToken">The cart session token.</param>
+    /// <param name="ttlMinutes">Time-to-live in minutes (default 15 for cart reservations).</param>
+    /// <param name="cancellationToken">Cancellation token.</param>
+    /// <returns>A result containing the StockReservation, or an error if insufficient stock.</returns>
     public async Task<Result<StockReservation>> ReserveForCartAsync(
         Guid variantId,
         int quantity,
@@ -49,6 +58,9 @@ public class CartReservationService(IApplicationDbContext dbContext) : ICartRese
         return reservation;
     }
 
+    /// <summary>Releases all active reservations for a given cart token, restoring stock quantities.</summary>
+    /// <param name="cartToken">The cart session token.</param>
+    /// <param name="cancellationToken">Cancellation token.</param>
     public async Task ReleaseCartReservationsAsync(string cartToken, CancellationToken cancellationToken = default)
     {
         // Load: Find all active reservations for this cart token
@@ -74,6 +86,10 @@ public class CartReservationService(IApplicationDbContext dbContext) : ICartRese
         }
     }
 
+    /// <summary>Returns all active, non-expired reservations for a cart with their remaining TTL in seconds.</summary>
+    /// <param name="cartToken">The cart session token.</param>
+    /// <param name="cancellationToken">Cancellation token.</param>
+    /// <returns>A list of (reservation, remaining seconds) tuples.</returns>
     public async Task<List<(StockReservation Reservation, int RemainingSeconds)>> GetReservationsForCartAsync(
         string cartToken, CancellationToken cancellationToken = default)
     {

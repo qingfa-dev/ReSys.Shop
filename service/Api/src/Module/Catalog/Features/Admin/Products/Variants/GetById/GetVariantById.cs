@@ -7,9 +7,11 @@ public static partial class GetVariantById
 {
     public sealed record Query(Guid Id) : IQuery<Response>;
 
+    /// <summary>Handler for getting a variant by ID.</summary>
     public sealed class QueryHandler(IApplicationDbContext dbContext)
         : IQueryHandler<Query, Response>
     {
+        /// <summary>Gets a product variant by ID.</summary>
         public async Task<Result<Response>> Handle(Query query, CancellationToken cancellationToken)
         {
             var entity = await dbContext.Set<Variant>()

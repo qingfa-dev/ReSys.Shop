@@ -6,7 +6,7 @@ using Module.Catalog.Features.Admin.Taxonomies.Taxons.Services.AutoClassificatio
 namespace Module.Catalog.Features.Admin.Taxonomies.Taxons.Services.AutoClassification;
 
 /// <summary>
-/// Orchestrates automatic product ↔ taxon classification.
+/// Orchestrates automatic product ↔ taxon classification by evaluating rule sets against products in batches.
 /// </summary>
 public sealed class AutoClassificationService(
     IApplicationDbContext dbContext,
@@ -14,7 +14,9 @@ public sealed class AutoClassificationService(
 {
     private const int BatchSize = 500;
 
-    /// <inheritdoc />
+    /// <summary>Regenerates automatic classifications for all products matching a taxon's rules.</summary>
+    /// <param name="taxonId">The taxon identifier with automatic classification rules.</param>
+    /// <param name="ct">Cancellation token.</param>
     public async Task RegenerateForTaxonAsync(Guid taxonId, CancellationToken ct = default)
     {
         // Fetch: Target taxon with its rules
@@ -81,7 +83,9 @@ public sealed class AutoClassificationService(
         await dbContext.SaveChangesAsync(ct);
     }
 
-    /// <inheritdoc />
+    /// <summary>Regenerates automatic classifications for a product against all automatic taxons.</summary>
+    /// <param name="productId">The product identifier.</param>
+    /// <param name="ct">Cancellation token.</param>
     public async Task RegenerateForProductAsync(Guid productId, CancellationToken ct = default)
     {
         // Fetch: Target product with its variants
@@ -137,10 +141,11 @@ public sealed class AutoClassificationService(
         await dbContext.SaveChangesAsync(ct);
     }
 
-    /// <inheritdoc />
+    /// <summary>Bulk-regenerates all dirty taxons and products marked for re-evaluation.</summary>
+    /// <param name="ct">Cancellation token.</param>
     public async Task RegenerateDirtyAsync(CancellationToken ct = default)
     {
-        // 1. Process: Taxons marked for regeneration
+        // Process: Taxons marked for regeneration
         var dirtyTaxonIds = await dbContext.Set<Taxon>()
             .Where(t => t.MarkedForRegenerateTaxonProducts)
             .Select(t => t.Id)
@@ -151,7 +156,7 @@ public sealed class AutoClassificationService(
             await RegenerateForTaxonAsync(taxonId, ct);
         }
 
-        // 2. Process: Products marked for regeneration
+        // Process: Products marked for regeneration
         var dirtyProductIds = await dbContext.Set<Product>()
             .Where(p => p.MarkedForRegenerateTaxonProducts)
             .Select(p => p.Id)

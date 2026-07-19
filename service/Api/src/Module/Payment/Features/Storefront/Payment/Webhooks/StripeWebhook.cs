@@ -6,6 +6,7 @@ using IStripeWebhookService = Module.Payment.Services.Webhook.IStripeWebhookServ
 
 namespace Module.Payment.Features.Storefront.Payment.Webhooks;
 
+/// <summary>Processes an inbound Stripe webhook event.</summary>
 public static partial class StripeWebhook
 {
     public sealed record Command(string Payload, string StripeSignature) : ICommand;
@@ -15,6 +16,7 @@ public static partial class StripeWebhook
         IBackgroundJobClient backgroundJobClient)
         : ICommandHandler<Command>
     {
+        /// <summary>Processes an inbound Stripe webhook event.</summary>
         public async Task<Result> Handle(Command command, CancellationToken cancellationToken)
         {
             // Webhook: Validate HMAC-SHA256 signature — reject if invalid

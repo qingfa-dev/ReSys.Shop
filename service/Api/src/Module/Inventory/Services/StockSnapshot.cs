@@ -1,5 +1,7 @@
 namespace Module.Inventory.Services;
 
+// Invariant: TotalAvailable == Math.Max(TotalOnHand - TotalReserved, 0); TotalOnHand >= 0
+/// <summary>Aggregated stock snapshot across all locations for a single variant.</summary>
 public sealed record StockSnapshot
 {
     public int TotalOnHand { get; init; }
@@ -9,6 +11,7 @@ public sealed record StockSnapshot
     public IReadOnlyList<LocationStockSnapshot> Locations { get; init; } = default!;
 }
 
+/// <summary>Per-location stock breakdown within a variant's stock snapshot.</summary>
 public sealed record LocationStockSnapshot
 {
     public Guid StockLocationId { get; init; }

@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Http;
 
 namespace Shared.Operational.Http;
 
+/// <summary>Delegating handler that propagates the correlation ID from the incoming request to outgoing HTTP calls.</summary>
 internal sealed class CorrelationIdPropagationHandler(IHttpContextAccessor accessor)
     : DelegatingHandler
 {

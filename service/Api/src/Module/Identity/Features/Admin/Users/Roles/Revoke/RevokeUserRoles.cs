@@ -37,13 +37,16 @@ public static partial class RevokeUserRoles
         /// <exception cref="DbUpdateException">Thrown when the identity store fails to persist role changes.</exception>
         public async Task<Result> Handle(Command command, CancellationToken cancellationToken)
         {
+            // Load: Retrieve the target user to verify they exist
             var user = await userManager.FindByIdAsync(command.Id.ToString());
             if (user is null)
                 return UserResult.Failure.NotFound;
 
+            // Compute: Determine which requested roles the user currently holds
             var rolesToRemove = new List<string>();
             foreach (var roleName in command.Request.Roles)
             {
+                // Check: Only include roles the user actually has to avoid redundant operations
                 if (await userManager.IsInRoleAsync(user, roleName))
                 {
                     rolesToRemove.Add(roleName);
@@ -53,22 +56,26 @@ public static partial class RevokeUserRoles
             if (rolesToRemove.Count == 0)
                 return Result.Ok();
 
+            // Call: Persist role removals via Identity user manager
             var identityResult = await userManager.RemoveFromRolesAsync(user, rolesToRemove);
             if (!identityResult.Succeeded)
                 return identityResult.ToResult();
 
             AuditableBehavior.Touch(user, dateTime.UtcNow);
 
+            // Call: Persist the updated audit timestamp
             var updateResult = await userManager.UpdateAsync(user);
             if (!updateResult.Succeeded)
                 return updateResult.ToResult();
 
+            // Log: Record role revocation details for audit trail
             if (logger.IsEnabled(LogLevel.Debug))
             {
                 var roles = string.Join(", ", rolesToRemove);
                 UserLoggers.Roles.RolesRevoked(logger, UserName: user.UserName!, UserId: user.Id, Roles: roles);
             }
 
+            // Cache: Invalidate the user's permission cache since roles influence effective permissions
             await OnRolesChangedAsync(user, cancellationToken);
 
             return Result.Ok();

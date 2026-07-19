@@ -10,7 +10,7 @@ using Stripe;
 
 namespace Module.Payment.Services.Webhook;
 
-// Context: Legacy webhook handler — use StripeWebhookDispatcher (Features) for current logic
+/// <summary>Legacy Stripe webhook handler — validates signatures and parses events.</summary>
 public sealed class StripeWebhookHandler : IWebhookHandler, IStripeWebhookService
 {
     private readonly StripeSetting _options;
@@ -32,7 +32,11 @@ public sealed class StripeWebhookHandler : IWebhookHandler, IStripeWebhookServic
         _logger = logger;
     }
 
-    // Webhook: Handle inbound Stripe event — checks webhook secret is configured
+    /// <summary>Handles an inbound Stripe webhook event, verifying the webhook secret is configured.</summary>
+    /// <param name="eventType">The Stripe event type.</param>
+    /// <param name="payload">The raw JSON payload.</param>
+    /// <param name="ct">Cancellation token.</param>
+    /// <returns>A success result or validation error if webhook secret is not configured.</returns>
     public Task<Result> HandleAsync(string eventType, string payload, CancellationToken ct = default)
     {
         // Check: Webhook secret must be configured before processing
@@ -44,7 +48,10 @@ public sealed class StripeWebhookHandler : IWebhookHandler, IStripeWebhookServic
         return Task.FromResult(Result.Ok());
     }
 
-    // Webhook: Validate HMAC-SHA256 signature against Stripe webhook secret
+    /// <summary>Validates an HMAC-SHA256 signature against the configured Stripe webhook secret.</summary>
+    /// <param name="payload">The raw request body.</param>
+    /// <param name="stripeSignature">The Stripe-Signature header value.</param>
+    /// <returns>True if the signature is valid; false if secret is unconfigured or validation fails.</returns>
     public bool ValidateSignature(string payload, string stripeSignature)
     {
         if (string.IsNullOrEmpty(_options.WebhookSecret))
@@ -58,8 +65,9 @@ public sealed class StripeWebhookHandler : IWebhookHandler, IStripeWebhookServic
         catch (StripeException) { return false; }
     }
 
-    // Parse: Deserialize Stripe event JSON payload
-    // Catch: Exception → log and return null (malformed payload)
+    /// <summary>Deserializes a Stripe event JSON payload into a typed Stripe.Event.</summary>
+    /// <param name="payload">The raw JSON payload.</param>
+    /// <returns>The parsed Stripe Event, or null if the payload is malformed.</returns>
     public Event? ParseEvent(string payload)
     {
         try

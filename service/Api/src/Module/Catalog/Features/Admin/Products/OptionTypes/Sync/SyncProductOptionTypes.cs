@@ -4,6 +4,9 @@ using Module.Catalog.Features.Admin.Products.OptionTypes.Shared.Mappings;
 
 namespace Module.Catalog.Features.Admin.Products.OptionTypes.Sync;
 
+/// <summary>
+/// Defines the use case for synchronizing product option types.
+/// </summary>
 public static partial class SyncProductOptionTypes
 {
     public sealed record Command(Guid Id, Request Request) : ICommand;

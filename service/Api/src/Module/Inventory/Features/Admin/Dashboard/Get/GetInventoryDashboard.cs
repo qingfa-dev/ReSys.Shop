@@ -8,9 +8,11 @@ namespace Module.Inventory.Features.Admin.Dashboard.Get;
 
 public static partial class GetInventoryDashboard
 {
+    /// <summary>Handler for getting the inventory dashboard data.</summary>
     public sealed class QueryHandler(IApplicationDbContext dbContext)
         : IQueryHandler<Query, Response>
     {
+        /// <summary>Gets the inventory dashboard data.</summary>
         public async Task<Result<Response>> Handle(Query request, CancellationToken cancellationToken)
         {
             var locations = await dbContext.Set<StockLocation>()

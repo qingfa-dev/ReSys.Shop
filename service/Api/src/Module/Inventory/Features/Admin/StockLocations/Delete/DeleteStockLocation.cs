@@ -7,34 +7,42 @@ public static partial class DeleteStockLocation
 {
     public sealed record Command(Guid Id) : ICommand<Response>;
 
+    /// <summary>Handler for deleting a stock location.</summary>
     public sealed class CommandHandler(
         IApplicationDbContext dbContext,
         ILogger<CommandHandler> logger,
         ICurrentUser currentUser)
         : ICommandHandler<Command, Response>
     {
+        /// <summary>Deletes a stock location.</summary>
         public async Task<Result<Response>> Handle(Command command, CancellationToken cancellationToken)
         {
+            // Load: Fetch the stock location by identifier
             var entity = await dbContext.Set<StockLocation>()
                 .FirstOrDefaultAsync(x => x.Id == command.Id, cancellationToken);
 
+            // Check: Reject deletion if location does not exist
             if (entity is null)
                 return StockLocationResult.Failure.NotFound;
 
+            // Guard: Only inactive, non-default locations can be deleted
             if (entity.Active)
                 return StockLocationResult.Failure.CannotDeleteActive;
 
             if (entity.Default)
                 return StockLocationResult.Failure.CannotDeactivateDefault;
 
+            // Update: Soft-delete the location entity
             var deleteResult = entity.SoftDelete();
             if (deleteResult.IsFailure)
                 return deleteResult.Errors;
 
             await dbContext.SaveChangesAsync(cancellationToken);
 
+            // Log: Record deletion for audit trail
             StockLocationLoggers.Deleted(logger, Name: entity.Name, Id: entity.Id, ActionBy: currentUser.UserName);
 
+            // Transform: Map domain entity to response DTO
             return entity.MapToListItem<Response>();
         }
     }

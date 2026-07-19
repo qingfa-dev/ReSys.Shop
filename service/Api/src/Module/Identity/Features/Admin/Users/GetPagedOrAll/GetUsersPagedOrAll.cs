@@ -9,6 +9,9 @@ public static partial class GetUsersPagedOrAll
 {
     public record Query(Parameters Parameters) : IPagedQuery<Response>;
 
+    /// <summary>
+    /// Handles the <see cref="Query"/> to retrieve users with paging or all results.
+    /// </summary>
     public sealed class QueryHandler(IApplicationDbContext dbContext)
         : IPagedQueryHandler<Query, Response>
     {
@@ -24,6 +27,7 @@ public static partial class GetUsersPagedOrAll
         {
             var parameters = request.Parameters;
 
+            // Validate: Parse and validate filter, search, and sort parameters against allowed fields
             var parsing = parameters.ParseAll(
                 allowedFilterFields: DomainUsers.UserConstant.Query.AllowedFilterFields.ToHashSet(StringComparer.OrdinalIgnoreCase),
                 allowedSearchFields: DomainUsers.UserConstant.Query.AllowedSearchFields.ToHashSet(StringComparer.OrdinalIgnoreCase),
@@ -31,8 +35,10 @@ public static partial class GetUsersPagedOrAll
             if (parsing.IsFailure)
                 return parsing.Errors;
 
+            // Load: Access user queryable from the database context
             var users = dbContext.Set<User>();
 
+            // Transform: Apply dynamic querying and projection, then paginate the results
             var pagedResult = await users
                 .ApplyQuerying(parsing.Value)
                 .ToPagedOrAllAsync(parsing.Value, u => u.MapToListItem<Response>(), cancellationToken);

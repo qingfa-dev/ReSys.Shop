@@ -11,6 +11,9 @@ public static partial class ResetPassword
 {
     public record Command(Request Request) : ICommand;
 
+    /// <summary>
+    /// Handles the <see cref="Command"/> to reset a user's password.
+    /// </summary>
     public class CommandHandler(
         UserManager<User> userManager,
         ISystemDateTime dateTime,
@@ -30,20 +33,24 @@ public static partial class ResetPassword
         {
             var request = command.Request;
 
+            // Load: Retrieve the user by ID to verify they exist
             var user = await userManager.FindByIdAsync(request.UserId.ToString());
             if (user is null)
                 return UserResult.Failure.InvalidToken;
 
+            // Call: Apply the password reset via Identity with the provided token
             var identityResult = await userManager.ResetPasswordAsync(user, request.Token, request.NewPassword);
             if (!identityResult.Succeeded)
                 return identityResult.ToResult();
 
             user.ModifiedAtUtc = dateTime.UtcNow;
 
+            // Call: Persist the updated audit timestamp
             var updateResult = await userManager.UpdateAsync(user);
             if (!updateResult.Succeeded)
                 return updateResult.ToResult();
 
+            // Call: Send confirmation notification to the user for security awareness
             await SendPasswordResetConfirmedNotificationAsync(user);
 
             return Result.Accepted(UserResult.Success.PasswordReset);

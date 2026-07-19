@@ -20,15 +20,19 @@ public static partial class DeleteProfile
         /// <exception cref="DbUpdateException">Thrown when database persistence fails.</exception>
         public async Task<Result> Handle(Command request, CancellationToken cancellationToken)
         {
+            // Load: Fetch the user's profile from persistence
             var profile = await dbContext.Set<UserProfile>()
                 .FirstOrDefaultAsync(p => p.UserId == request.UserId, cancellationToken);
 
+            // Validate: Confirm profile exists before deactivation
             if (profile is null)
                 return UserProfileResult.Failure.NotFound;
 
+            // Update: Soft-deactivate the profile
             profile.IsActive = false;
             AuditableBehavior.Touch(profile);
 
+            // Call: Persist deactivation to the database
             await dbContext.SaveChangesAsync(cancellationToken);
             return Result.Ok();
         }

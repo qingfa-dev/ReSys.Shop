@@ -8,12 +8,14 @@ public static partial class ImportStockItems
 {
     public sealed record Command(Request Request) : ICommand<Response>;
 
+    /// <summary>Handler for importing stock items from a CSV file.</summary>
     public sealed class CommandHandler(
         IApplicationDbContext dbContext,
         ILogger<CommandHandler> logger,
         ICurrentUser currentUser)
         : ICommandHandler<Command, Response>
     {
+        /// <summary>Imports stock items from a CSV file.</summary>
         public async Task<Result<Response>> Handle(Command command, CancellationToken cancellationToken)
         {
             var file = command.Request.File;

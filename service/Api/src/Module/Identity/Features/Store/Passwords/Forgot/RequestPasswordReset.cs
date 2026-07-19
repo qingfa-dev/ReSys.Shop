@@ -19,6 +19,9 @@ public static partial class RequestPasswordReset
 
     public record Command(Request Request) : ICommand;
 
+    /// <summary>
+    /// Handles the <see cref="Command"/> to request a password reset.
+    /// </summary>
     public class CommandHandler(
         UserManager<User> userManager,
         ISystemDateTime dateTime,
@@ -40,34 +43,45 @@ public static partial class RequestPasswordReset
         {
             var request = command.Request;
 
+            // Validate: Reject empty email early to avoid unnecessary lookups
             if (string.IsNullOrWhiteSpace(request.Email))
                 return Result.NoContent();
 
+            // Load: Look up user by email without revealing whether the account exists
             var user = await userManager.FindByEmailAsync(request.Email);
 
+            // Guard: Silently return NoContent for unknown users to prevent email enumeration
             if (user is null)
                 return Result.NoContent();
 
+            // Guard: Silently return NoContent for inactive users to prevent account enumeration
             if (!user.IsActive)
                 return Result.NoContent();
 
+            // Call: Generate a password reset token for the valid user
             var token = await userManager.GeneratePasswordResetTokenAsync(user);
+            // Transform: Build reset URL with encoded token for the notification
             var resetPath = BuildConfirmPath(user.Id, token, user.Email!);
 
             user.ModifiedAtUtc = dateTime.UtcNow;
 
+            // Log: Record the password reset request for audit trail
             UserLoggers.Passwords.PasswordResetRequested(logger, UserId: user.Id, Email: user.Email!, Timestamp: dateTime.UtcNow.DateTime);
 
+            // Call: Persist the updated audit timestamp
             var updateResult = await userManager.UpdateAsync(user);
             if (!updateResult.Succeeded)
                 return updateResult.ToResult();
 
+            // Catch: Handle notification delivery failure gracefully without breaking the flow
             try
             {
+                // Call: Send the password reset link to the user's email
                 await SendPasswordResetNotificationAsync(user, resetPath);
             }
             catch (Exception ex)
             {
+                // Log: Warning for failed notification delivery — does not block the reset flow
                 logger.LogWarning(ex, "Failed to send password reset notification to {UserId}", user.Id);
             }
 

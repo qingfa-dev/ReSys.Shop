@@ -10,7 +10,7 @@ using PaymentCapture = Module.Payment.Domain.PaymentCaptures.PaymentCapture;
 
 namespace Module.Payment.Backgrounds;
 
-// Defer: Background job processes Stripe webhook events asynchronously via Hangfire
+/// <summary>Background job that processes Stripe webhook events asynchronously via Hangfire — parses the event and routes to type-specific handlers.</summary>
 public sealed partial class ProcessStripeWebhookEventJob
 {
     private readonly IApplicationDbContext _dbContext;
@@ -27,7 +27,9 @@ public sealed partial class ProcessStripeWebhookEventJob
         _logger = logger;
     }
 
-    // Webhook: Entry point — parse event and route to type-specific handler
+    /// <summary>Entry point — parses the Stripe event and routes to type-specific handler.</summary>
+    /// <param name="payload">The raw Stripe webhook JSON payload.</param>
+    /// <param name="ct">Cancellation token.</param>
     public async Task ExecuteAsync(string payload, CancellationToken ct = default)
     {
         // Parse: Deserialize Stripe event from raw JSON

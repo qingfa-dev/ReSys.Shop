@@ -22,7 +22,10 @@ public sealed class QueryingTaxonRuleEvaluator : ITaxonRuleEvaluator
     private static readonly ConcurrentDictionary<Guid, Func<Product, bool>> CompiledRulesCache = new();
     private static readonly ConcurrentDictionary<Guid, DateTimeOffset?> TaxonModifiedCache = new();
 
-    /// <inheritdoc />
+    /// <summary>Evaluates a product against a taxon's rule set using cached expression trees for high throughput.</summary>
+    /// <param name="product">The product to evaluate.</param>
+    /// <param name="taxon">The taxon with automatic classification rules.</param>
+    /// <returns>True if the product matches the taxon's rule set; otherwise false.</returns>
     public bool Evaluate(Product product, Taxon taxon)
     {
         // Guard: Skip non-automatic taxons or those without rules

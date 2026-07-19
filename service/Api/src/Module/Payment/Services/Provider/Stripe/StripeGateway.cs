@@ -29,8 +29,12 @@ public sealed class StripeGateway : Gateway
         IdempotencyKey = opt.IdempotencyKey
     };
 
-    // Call: Stripe PaymentIntent.Create with autoCapture=true — succeeds immediately
-    // Catch: StripeException → MapStripeException
+    /// <summary>Creates a PaymentIntent with auto-capture — succeeds immediately.</summary>
+    /// <param name="amount">The payment amount.</param>
+    /// <param name="source">The payment source identifier (string).</param>
+    /// <param name="options">Gateway options.</param>
+    /// <param name="ct">Cancellation token.</param>
+    /// <returns>A result containing the Stripe PaymentIntent response.</returns>
     public override async Task<Result<PaymentGatewayResponse>> PurchaseAsync(
         decimal amount, object? source, GatewayOptions options, CancellationToken ct = default)
     {
@@ -49,8 +53,7 @@ public sealed class StripeGateway : Gateway
         catch (StripeException ex) { return MapStripeException(ex); }
     }
 
-    // Call: Stripe PaymentIntent.Create with autoCapture=false — requires separate capture
-    // Catch: StripeException → MapStripeException
+    /// <summary>Creates a PaymentIntent with manual capture — requires a separate CaptureAsync call.</summary>
     public override async Task<Result<PaymentGatewayResponse>> AuthorizeAsync(
         decimal amount, object? source, GatewayOptions options, CancellationToken ct = default)
     {
@@ -69,8 +72,7 @@ public sealed class StripeGateway : Gateway
         catch (StripeException ex) { return MapStripeException(ex); }
     }
 
-    // Call: Stripe PaymentIntent.Capture — amount in cents
-    // Catch: StripeException → MapStripeException
+    /// <summary>Captures a PaymentIntent — amount converted to cents with away-from-zero rounding.</summary>
     public override async Task<Result<PaymentGatewayResponse>> CaptureAsync(
         decimal amount, string? responseCode, GatewayOptions options, CancellationToken ct = default)
     {
@@ -91,8 +93,7 @@ public sealed class StripeGateway : Gateway
         catch (StripeException ex) { return MapStripeException(ex); }
     }
 
-    // Call: Stripe PaymentIntent.Cancel
-    // Catch: StripeException → MapStripeException
+    /// <summary>Cancels a Stripe PaymentIntent.</summary>
     public override async Task<Result<PaymentGatewayResponse>> VoidAsync(
         string? responseCode, object? source, GatewayOptions options, CancellationToken ct = default)
     {
@@ -109,8 +110,7 @@ public sealed class StripeGateway : Gateway
         catch (StripeException ex) { return MapStripeException(ex); }
     }
 
-    // Call: Stripe Refund.Create — amount in cents
-    // Catch: StripeException → MapStripeException
+    /// <summary>Creates a Stripe Refund for the given PaymentIntent.</summary>
     public override async Task<Result<PaymentGatewayResponse>> RefundAsync(
         decimal amount, string? responseCode, GatewayOptions options, CancellationToken ct = default)
     {
@@ -132,8 +132,7 @@ public sealed class StripeGateway : Gateway
         catch (StripeException ex) { return MapStripeException(ex); }
     }
 
-    // Call: Stripe SetupIntent.Create — for saved payment methods
-    // Catch: StripeException → MapStripeException
+    /// <summary>Creates a Stripe SetupIntent for saved payment methods.</summary>
     public override async Task<Result<PaymentGatewayResponse>> CreateSetupIntentAsync(
         string? customerId, Dictionary<string, string>? metadata, CancellationToken ct = default)
     {

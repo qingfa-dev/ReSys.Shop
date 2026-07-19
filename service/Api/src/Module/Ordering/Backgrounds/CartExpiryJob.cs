@@ -2,7 +2,8 @@ using Module.Ordering.Domain.Orders;
 
 namespace Module.Ordering.Backgrounds;
 
-// @CAT-10 Contract: pre=dbContext!=null && logger!=null, post=expired carts have Status==Expired && IsDeleted==true
+/// <summary>Background job that expires draft carts past a configurable inactivity cutoff.</summary>
+// Contract: pre=dbContext!=null && logger!=null, post=expired carts have Status==Expired && IsDeleted==true
 public sealed partial class CartExpiryJob
 {
     private readonly IApplicationDbContext _dbContext;
@@ -16,7 +17,8 @@ public sealed partial class CartExpiryJob
         _afterDays = afterDays;
     }
 
-    // Filter: Identify draft carts past the inactivity cutoff — excludes already-deleted records
+    /// <summary>Executes the expiry sweep — transitions draft carts past the cutoff to Expired with soft-delete.</summary>
+    /// <param name="ct">Cancellation token.</param>
     public async Task RunAsync(CancellationToken ct = default)
     {
         var cutoff = DateTimeOffset.UtcNow.AddDays(-_afterDays);

@@ -9,9 +9,11 @@ namespace Module.Catalog.Features.Admin.Dashboard.Get;
 
 public static partial class GetCatalogDashboard
 {
+    /// <summary>Handler for getting the catalog dashboard data.</summary>
     public sealed class QueryHandler(IApplicationDbContext dbContext)
         : IQueryHandler<Query, Response>
     {
+        /// <summary>Gets the catalog dashboard data.</summary>
         public async Task<Result<Response>> Handle(Query request, CancellationToken cancellationToken)
         {
             var productsQuery = dbContext.Set<Product>().Where(p => !p.IsDeleted);

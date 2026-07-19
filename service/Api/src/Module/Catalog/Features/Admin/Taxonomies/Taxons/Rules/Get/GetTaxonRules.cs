@@ -25,16 +25,19 @@ public static partial class GetTaxonRules
         // Contract: pre=query!=null, post=result!=null
         public async Task<Result<List<Response>>> Handle(Query query, CancellationToken cancellationToken)
         {
+            // Check: Parent taxon must exist before retrieving its rules
             var taxonExists = await dbContext.Set<Taxon>()
                 .AnyAsync(x => x.Id == query.TaxonId && x.TaxonomyId == query.TaxonomyId, cancellationToken);
             if (!taxonExists)
                 return TaxonResult.Errors.NotFound;
 
+            // Load: Fetch all rules for the taxon ordered by rule type
             var rules = await dbContext.Set<TaxonRule>()
                 .Where(x => x.TaxonId == query.TaxonId)
                 .OrderBy(x => x.Type)
                 .ToListAsync(cancellationToken);
 
+            // Map: Transform each rule entity to detail response DTO
             var mapped = rules.Select(r => r.MapToDetail<Response>()).ToList();
             return mapped;
         }

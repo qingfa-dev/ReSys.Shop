@@ -6,9 +6,11 @@ public static partial class ReleaseCartReservation
 {
     public sealed record Command(Guid ReservationId) : ICommand;
 
+    /// <summary>Handler for releasing a cart reservation.</summary>
     public sealed class CommandHandler(IApplicationDbContext dbContext)
         : ICommandHandler<Command>
     {
+        /// <summary>Releases a cart reservation.</summary>
         public async Task<Result> Handle(Command command, CancellationToken cancellationToken)
         {
             var reservation = await dbContext.Set<StockReservation>()

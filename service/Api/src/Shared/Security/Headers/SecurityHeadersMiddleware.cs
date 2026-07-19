@@ -5,6 +5,7 @@ using Shared.Security.Headers.Options;
 
 namespace Shared.Security.Headers;
 
+/// <summary>Adds security headers (CSP, HSTS, X-Frame-Options, etc.) to every HTTP response.</summary>
 public sealed class SecurityHeadersMiddleware
 {
     private readonly RequestDelegate _next;

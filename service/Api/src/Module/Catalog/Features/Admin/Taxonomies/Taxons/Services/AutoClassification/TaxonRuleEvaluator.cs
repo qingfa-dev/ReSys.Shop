@@ -10,7 +10,10 @@ namespace Module.Catalog.Features.Admin.Taxonomies.Taxons.Services.AutoClassific
 /// </summary>
 public sealed class TaxonRuleEvaluator : ITaxonRuleEvaluator
 {
-    /// <inheritdoc />
+    /// <summary>Evaluates whether a product matches a taxon's rule set based on the configured match policy (All/Any).</summary>
+    /// <param name="product">The product to evaluate.</param>
+    /// <param name="taxon">The taxon with automatic classification rules and match policy.</param>
+    /// <returns>True if the product matches the taxon's rule set; otherwise false.</returns>
     public bool Evaluate(Product product, Taxon taxon)
     {
         // Validate: Basic requirements for evaluation

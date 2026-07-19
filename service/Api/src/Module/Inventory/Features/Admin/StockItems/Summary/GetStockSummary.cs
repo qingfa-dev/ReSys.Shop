@@ -20,17 +20,20 @@ public static partial class GetStockSummary
         {
             var now = DateTimeOffset.UtcNow;
 
+            // Load: Fetch all stock items with location details for computing availability
             var stockItems = await dbContext.Set<StockItem>()
                 .Include(si => si.StockLocation)
                 .Where(si => si.StockLocation != null && !si.StockLocation.IsDeleted && si.StockLocation.Active)
                 .ToListAsync(cancellationToken);
 
+            // Load: Fetch active reservation totals grouped by variant and location
             var reservations = await dbContext.Set<StockReservation>()
                 .Where(r => r.State == ReservationState.Reserved && r.ExpiresAtUtc > now)
                 .GroupBy(r => new { r.VariantId, r.StockLocationId })
                 .Select(g => new { g.Key.VariantId, g.Key.StockLocationId, Reserved = g.Sum(r => r.Quantity) })
                 .ToListAsync(cancellationToken);
 
+            // Aggregate: Build lookup map of variant → location → reserved quantity
             var reservationMap = reservations
                 .Where(r => r.StockLocationId.HasValue)
                 .GroupBy(r => r.VariantId)
@@ -38,6 +41,7 @@ public static partial class GetStockSummary
                     g => g.Key,
                     g => g.ToDictionary(r => r.StockLocationId!.Value, r => r.Reserved));
 
+            // Compute: Group stock items by variant and compute totals with reservation accounting
             var grouped = stockItems
                 .GroupBy(si => si.VariantId)
                 .Select(g =>

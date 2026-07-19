@@ -11,6 +11,7 @@ using PaymentCapture = Module.Payment.Domain.PaymentCaptures.PaymentCapture;
 
 namespace Module.Payment.Features.Admin.Payments.Void;
 
+/// <summary>Voids a payment before capture.</summary>
 public static partial class VoidPayment
 {
     public sealed record Command(Guid Id) : ICommand<Response>;
@@ -18,6 +19,7 @@ public static partial class VoidPayment
     public sealed class CommandHandler(IApplicationDbContext dbContext, IGatewayRegistry gatewayRegistry, IPaymentProcessingService processingService)
         : ICommandHandler<Command, Response>
     {
+        /// <summary>Voids a payment before capture.</summary>
         public async Task<Result<Response>> Handle(Command command, CancellationToken cancellationToken)
         {
             // Load: Payment capture by ID
