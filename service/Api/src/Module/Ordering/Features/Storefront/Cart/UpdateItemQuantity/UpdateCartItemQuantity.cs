@@ -1,4 +1,3 @@
-using Module.Inventory.Domain.StockLocations.StockItems;
 using Module.Inventory.Features.Storefront.StockAvailability.CheckStockAvailability;
 using Module.Ordering.Domain.LineItems;
 using Module.Ordering.Domain.Orders;
@@ -52,11 +51,8 @@ public static partial class UpdateCartItemQuantity
                 }),
                 cancellationToken);
 
-            if (stockResult.IsFailure)
-                return stockResult.Errors;
-
             if (!stockResult.Value.IsAvailable)
-                return StockItemResult.Errors.InsufficientStock;
+                return OrderResult.Errors.CartQuantityInvalid;
 
             // Update: Modify quantity and total.
             var updateResult = lineItem.UpdateQuantity(command.Request.Quantity);
