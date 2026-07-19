@@ -69,11 +69,11 @@ public class CartReservationService(IApplicationDbContext dbContext) : ICartRese
 
         foreach (var r in reservations)
         {
-            var wasActive = r.State == ReservationState.Reserved;
-            r.State = ReservationState.Released;
+            var releaseResult = r.Release();
+            if (releaseResult.IsFailure) continue;
             r.ModifiedAtUtc = DateTimeOffset.UtcNow;
 
-            if (wasActive && r.StockLocationId is not null)
+            if (r.StockLocationId is not null)
             {
                 var stockItem = await _dbContext.Set<StockItem>()
                     .FirstOrDefaultAsync(si => si.VariantId == r.VariantId && si.StockLocationId == r.StockLocationId.Value, cancellationToken);
