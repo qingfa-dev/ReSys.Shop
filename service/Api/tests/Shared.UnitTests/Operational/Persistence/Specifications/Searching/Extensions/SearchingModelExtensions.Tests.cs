@@ -30,7 +30,7 @@ public sealed class SearchingModelQueryExtensionsTests
     {
         SearchModel model = isEmptyModel
             ? SearchModel.Empty
-            : new(new SearchTerm(term!), ["Name"]);
+            : new(new SearchTerm { Value = term! }, ["Name"]);
 
         List<TestEntity> result = GetData()
             .ApplySearch(model, null)
@@ -45,7 +45,7 @@ public sealed class SearchingModelQueryExtensionsTests
     public void ApplySearch_AnyMode_Matching(String term, String fieldsStr, Int32 expectedCount)
     {
         String[] fields = fieldsStr.Split(',');
-        SearchModel model = new(new SearchTerm(term), fields);
+        SearchModel model = new(new SearchTerm { Value = term }, fields);
 
         List<TestEntity> result = GetData()
             .ApplySearch(model, null)
@@ -57,7 +57,7 @@ public sealed class SearchingModelQueryExtensionsTests
     [Fact(DisplayName = "ApplySearch: All mode, matching all fields filters correctly")]
     public void ApplySearch_AllMode_MatchingAllFields_ShouldFilter()
     {
-        SearchModel model = new(new SearchTerm("a"), ["Name", "Description"], SearchMode.All);
+        SearchModel model = new(new SearchTerm { Value = "a" }, ["Name", "Description"], SearchMode.All);
 
         List<TestEntity> result = GetData()
             .ApplySearch(model, null)
@@ -72,7 +72,7 @@ public sealed class SearchingModelQueryExtensionsTests
     public void ApplySearch_CaseSensitivity(String term, Boolean caseSensitive, String fieldsStr, Int32 expectedCount)
     {
         String[] fields = fieldsStr.Split(',');
-        SearchModel model = new(new SearchTerm(term, caseSensitive), fields);
+        SearchModel model = new(new SearchTerm { Value = term, CaseSensitive = caseSensitive }, fields);
 
         List<TestEntity> result = GetData()
             .ApplySearch(model, null)
@@ -84,7 +84,7 @@ public sealed class SearchingModelQueryExtensionsTests
     [Fact(DisplayName = "ApplySearch: defaultFields fallback when model.Fields is empty")]
     public void ApplySearch_DefaultFieldsFallback_ShouldUseDefaults()
     {
-        SearchModel model = new(new SearchTerm("fruit"), []);
+        SearchModel model = new(new SearchTerm { Value = "fruit" }, []);
 
         List<TestEntity> result = GetData()
             .ApplySearch(model, ["Description"])

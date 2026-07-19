@@ -89,6 +89,12 @@ public sealed class CatalogEmbeddingSeeder : AbstractDataSeeder
         return Result.Ok();
     }
 
-    private record DemoEmbeddingJson(string VariantImageId, string ModelName, string ModelVersion,
-        float[] Vector, int Dimensions);
+    private record DemoEmbeddingJson
+    {
+        public string VariantImageId { get; init; } = default!;
+        public string ModelName { get; init; } = default!;
+        public string ModelVersion { get; init; } = default!;
+        public float[] Vector { get; init; } = default!;
+        public int Dimensions { get; init; }
+    }
 }

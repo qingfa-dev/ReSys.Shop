@@ -13,6 +13,12 @@ public static partial class GetInventoryDashboard
         public List<RecentMovementData> RecentMovements { get; init; } = [];
     }
 
-    public sealed record RecentMovementData(
-        Guid Id, int Quantity, string? Action, string? Reason, DateTime CreatedAtUtc);
+    public sealed record RecentMovementData
+    {
+        public Guid Id { get; init; }
+        public int Quantity { get; init; }
+        public string? Action { get; init; }
+        public string? Reason { get; init; }
+        public DateTime CreatedAtUtc { get; init; }
+    }
 }

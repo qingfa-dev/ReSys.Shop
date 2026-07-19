@@ -7,7 +7,11 @@ using IPaymentProcessingService = Module.Payment.Services.Processing.IPaymentPro
 
 namespace Module.Payment.Features.Shared.Commands;
 
-public sealed record VoidOrderPaymentsCommand(Guid OrderId, string Reason) : ICommand;
+public sealed record VoidOrderPaymentsCommand : ICommand
+{
+    public Guid OrderId { get; init; }
+    public string Reason { get; init; } = default!;
+}
 
 public sealed class VoidOrderPaymentsCommandHandler(
     IApplicationDbContext dbContext,

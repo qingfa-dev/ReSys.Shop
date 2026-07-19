@@ -20,7 +20,7 @@ public sealed class SearchingModelTests
     [Fact(DisplayName = "SearchingModel: Non-empty model has IsEmpty false")]
     public void NonEmptyModel_ShouldHaveIsEmptyFalse()
     {
-        SearchModel model = new(new SearchTerm("hello"), []);
+        SearchModel model = new(new SearchTerm { Value = "hello" }, []);
 
         model.IsEmpty.Should().BeFalse();
     }
@@ -35,7 +35,7 @@ public sealed class SearchingModelTests
             ? null
             : new([field is "Forbidden" ? "Name" : field], StringComparer.OrdinalIgnoreCase);
 
-        SearchModel model = new(new SearchTerm("hello"), [field], SearchMode.Any, allowedFields);
+        SearchModel model = new(new SearchTerm { Value = "hello" }, [field], SearchMode.Any, allowedFields);
 
         model.IsValid.Should().Be(expectedIsValid);
     }
@@ -44,7 +44,7 @@ public sealed class SearchingModelTests
     public void EmptyFields_WithAllowedFields_ShouldBeValid()
     {
         HashSet<String> allowedFields = new(["Name"], StringComparer.OrdinalIgnoreCase);
-        SearchModel model = new(new SearchTerm("hello"), [], SearchMode.Any, allowedFields);
+        SearchModel model = new(new SearchTerm { Value = "hello" }, [], SearchMode.Any, allowedFields);
 
         model.IsValid.Should().BeTrue();
     }
@@ -56,7 +56,7 @@ public sealed class SearchingModelTests
     [InlineData("Description", false)]
     public void HasField_ShouldBeCaseInsensitive(String field, Boolean expected)
     {
-        SearchModel model = new(new SearchTerm("hello"), ["Name"]);
+        SearchModel model = new(new SearchTerm { Value = "hello" }, ["Name"]);
 
         model.HasField(field).Should().Be(expected);
     }
@@ -76,7 +76,7 @@ public sealed class SearchingModelTests
     {
         String[] fields = fieldsStr.Length > 0 ? fieldsStr.Split(',') : [];
         String[] defaultFields = defaultFieldsStr.Split(',');
-        SearchModel model = new(new SearchTerm("hello"), fields);
+        SearchModel model = new(new SearchTerm { Value = "hello" }, fields);
 
         IReadOnlyList<String> result = model.ResolveFields(defaultFields);
 
@@ -88,7 +88,7 @@ public sealed class SearchingModelTests
     [InlineData(null, null)]
     public void RawInput_ShouldReflectInput(String? rawInput, String? expected)
     {
-        SearchModel model = new(new SearchTerm("hello"), [], rawInput: rawInput);
+        SearchModel model = new(new SearchTerm { Value = "hello" }, [], rawInput: rawInput);
 
         model.RawInput.Should().Be(expected);
     }

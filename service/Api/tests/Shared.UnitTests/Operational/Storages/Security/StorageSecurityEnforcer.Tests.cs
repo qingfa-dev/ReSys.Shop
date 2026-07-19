@@ -40,7 +40,8 @@ public sealed class StorageSecurityEnforcerTests
     }
 
     private static UploadRequest CreateRequest(string key, byte[] content, string contentType = "application/octet-stream")
-        => new(key, new MemoryStream(content), contentType);
+        => new()
+        { Key = key, Content = new MemoryStream(content), ContentType = contentType };
 
     private sealed class NonSeekableStream(byte[] data) : MemoryStream(data)
     {
@@ -125,7 +126,7 @@ public sealed class StorageSecurityEnforcerTests
     {
         StorageSecurityEnforcer sut = CreateSut(cfg => cfg.ValidateMagicBytes = false);
         NonSeekableStream stream = new([.. "hello"u8]);
-        UploadRequest request = new("file.txt", stream, "text/plain");
+        UploadRequest request = new() { Key = "file.txt", Content = stream, ContentType = "text/plain" };
 
         Result result = await sut.EnforceAsync(request);
 
@@ -159,7 +160,7 @@ public sealed class StorageSecurityEnforcerTests
     {
         StorageSecurityEnforcer sut = CreateSut();
         MemoryStream stream = new(PngContent);
-        UploadRequest request = new("image.png", stream, "image/png");
+        UploadRequest request = new() { Key = "image.png", Content = stream, ContentType = "image/png" };
 
         await sut.EnforceAsync(request);
 
@@ -171,7 +172,7 @@ public sealed class StorageSecurityEnforcerTests
     {
         StorageSecurityEnforcer sut = CreateSut();
         MemoryStream stream = new(InvalidHeader);
-        UploadRequest request = new("image.png", stream, "image/png");
+        UploadRequest request = new() { Key = "image.png", Content = stream, ContentType = "image/png" };
 
         await sut.EnforceAsync(request);
 

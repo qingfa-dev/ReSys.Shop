@@ -1,12 +1,17 @@
 namespace Shared.Application.Domain.Currencies;
 
-public sealed record SystemCurrency(string Code, string Symbol, string Name, int NumericCode)
+public sealed record SystemCurrency
 {
+    public string Code { get; init; } = default!;
+    public string Symbol { get; init; } = default!;
+    public string Name { get; init; } = default!;
+    public int NumericCode { get; init; }
+
     private static readonly Dictionary<string, SystemCurrency> _supported = new(StringComparer.OrdinalIgnoreCase)
     {
-        ["USD"] = new("USD", "$", "US Dollar", 840),
-        ["EUR"] = new("EUR", "€", "Euro", 978),
-        ["GBP"] = new("GBP", "£", "British Pound", 826),
+        ["USD"] = new() { Code = "USD", Symbol = "$", Name = "US Dollar", NumericCode = 840 },
+        ["EUR"] = new() { Code = "EUR", Symbol = "€", Name = "Euro", NumericCode = 978 },
+        ["GBP"] = new() { Code = "GBP", Symbol = "£", Name = "British Pound", NumericCode = 826 },
     };
 
     public static IReadOnlyDictionary<string, SystemCurrency> Supported => _supported;

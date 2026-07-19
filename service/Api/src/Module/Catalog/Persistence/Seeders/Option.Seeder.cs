@@ -40,6 +40,20 @@ public sealed class CatalogOptionSeeder(IApplicationDbContext context, DemoJsonH
         return Result.Ok();
     }
 
-    private record DemoOptionTypeJson(string Id, string Name, string Presentation, int Position, bool Filterable);
-    private record DemoOptionValueJson(string Id, string OptionTypeId, string Name, string Presentation, int Position);
+    private record DemoOptionTypeJson
+    {
+        public string Id { get; init; } = default!;
+        public string Name { get; init; } = default!;
+        public string Presentation { get; init; } = default!;
+        public int Position { get; init; }
+        public bool Filterable { get; init; }
+    }
+    private record DemoOptionValueJson
+    {
+        public string Id { get; init; } = default!;
+        public string OptionTypeId { get; init; } = default!;
+        public string Name { get; init; } = default!;
+        public string Presentation { get; init; } = default!;
+        public int Position { get; init; }
+    }
 }

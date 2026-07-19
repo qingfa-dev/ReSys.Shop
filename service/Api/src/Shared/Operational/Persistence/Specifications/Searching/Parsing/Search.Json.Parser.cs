@@ -59,8 +59,8 @@ internal static class SearchJsonParser
                 };
             }
 
-            SearchModel model = new SearchModel(
-                new SearchTerm(term!, caseSensitive),
+            SearchModel model = new(
+                new SearchTerm { Value = term!, CaseSensitive = caseSensitive },
                 fields,
                 mode,
                 rawInput: element.GetRawText());

@@ -16,7 +16,7 @@ public sealed class TokenRequestModelTests
         string fullName = "Test User";
 
         // Act
-        TokenRequestModel model = new(userId, email, fullName);
+        TokenRequestModel model = new() { UserId = userId, Email = email, FullName = fullName };
 
         // Assert
         model.UserId.Should().Be(userId);
@@ -29,9 +29,9 @@ public sealed class TokenRequestModelTests
     {
         // Arrange
         Guid userId = Guid.NewGuid();
-        TokenRequestModel model1 = new(userId, "a@b.com", "User A");
-        TokenRequestModel model2 = new(userId, "a@b.com", "User A");
-        TokenRequestModel model3 = new(Guid.NewGuid(), "c@d.com", "User C");
+        TokenRequestModel model1 = new() { UserId = userId, Email = "a@b.com", FullName = "User A" };
+        TokenRequestModel model2 = new() { UserId = userId, Email = "a@b.com", FullName = "User A" };
+        TokenRequestModel model3 = new() { UserId = Guid.NewGuid(), Email = "c@d.com", FullName = "User C" };
 
         // Assert
         model1.Should().Be(model2);
@@ -46,7 +46,7 @@ public sealed class TokenRequestModelTests
         string reason = "user_logout";
 
         // Act
-        RevokeTokenRequestModel model = new(token, reason);
+        RevokeTokenRequestModel model = new() { Token = token, Reason = reason };
 
         // Assert
         model.Token.Should().Be(token);
@@ -57,7 +57,7 @@ public sealed class TokenRequestModelTests
     public void RevokeTokenRequestModel_DefaultReason_ShouldBeNull()
     {
         // Act
-        RevokeTokenRequestModel model = new("some-token");
+        RevokeTokenRequestModel model = new() { Token = "some-token" };
 
         // Assert
         model.Reason.Should().BeNull();
@@ -67,9 +67,9 @@ public sealed class TokenRequestModelTests
     public void RevokeTokenRequestModel_ShouldHaveStructuralEquality()
     {
         // Arrange
-        RevokeTokenRequestModel model1 = new("token-1", "logout");
-        RevokeTokenRequestModel model2 = new("token-1", "logout");
-        RevokeTokenRequestModel model3 = new("token-2", "logout");
+        RevokeTokenRequestModel model1 = new() { Token = "token-1", Reason = "logout" };
+        RevokeTokenRequestModel model2 = new() { Token = "token-1", Reason = "logout" };
+        RevokeTokenRequestModel model3 = new() { Token = "token-2", Reason = "logout" };
 
         // Assert
         model1.Should().Be(model2);

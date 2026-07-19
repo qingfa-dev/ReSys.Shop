@@ -34,7 +34,21 @@ public sealed class StockLocationSeeder(IApplicationDbContext context, DemoJsonH
         return Result.Ok();
     }
 
-    private record DemoStockLocationJson(string Id, string Name, string? Presentation, string Code,
-        bool IsDefault, bool Active, string? Address1, string? City, string? PostalCode, string? Phone,
-        bool BackorderableDefault, bool PropagateAllVariants, int Position, string CountryIso);
+    private record DemoStockLocationJson
+    {
+        public string Id { get; init; } = default!;
+        public string Name { get; init; } = default!;
+        public string? Presentation { get; init; }
+        public string Code { get; init; } = default!;
+        public bool IsDefault { get; init; }
+        public bool Active { get; init; }
+        public string? Address1 { get; init; }
+        public string? City { get; init; }
+        public string? PostalCode { get; init; }
+        public string? Phone { get; init; }
+        public bool BackorderableDefault { get; init; }
+        public bool PropagateAllVariants { get; init; }
+        public int Position { get; init; }
+        public string CountryIso { get; init; } = default!;
+    }
 }

@@ -27,7 +27,18 @@ public static partial class ListShippingRates
                 .AsNoTracking()
                 .ApplyQuerying(parsing.Value)
                 // EXCEPTION: no domain entity — maps from domain ShippingRate entity
-                .Select(r => new Response(r.Id, r.ShippingMethodId, r.Name, r.Cost, r.FinalPrice, r.DeliveryRange, r.MinWeight, r.MaxWeight, r.FreeShippingThreshold))
+                .Select(r => new Response
+                {
+                    Id = r.Id,
+                    ShippingMethodId = r.ShippingMethodId,
+                    Name = r.Name,
+                    Cost = r.Cost,
+                    FinalPrice = r.FinalPrice,
+                    DeliveryRange = r.DeliveryRange,
+                    MinWeight = r.MinWeight,
+                    MaxWeight = r.MaxWeight,
+                    FreeShippingThreshold = r.FreeShippingThreshold
+                })
                 .ToPagedOrAllAsync(parsing.Value, x => x, cancellationToken);
 
             return pagedResult;

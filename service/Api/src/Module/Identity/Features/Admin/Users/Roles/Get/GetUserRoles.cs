@@ -44,7 +44,7 @@ public static partial class GetUserRoles
                 IsAssigned = userRolesSet.Contains(role.Name!)
             }).ToList();
 
-            return new Response(roles);
+            return new Response { Roles = roles };
         }
     }
 }

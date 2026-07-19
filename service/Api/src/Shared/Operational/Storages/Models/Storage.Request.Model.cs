@@ -1,16 +1,22 @@
 namespace Shared.Operational.Storages.Models;
 
 /// <summary>Encapsulates the data required to upload an object to a storage provider.</summary>
-/// <param name="Key">Logical path / filename for the object (e.g. <c>avatars/user-42.png</c>).</param>
-/// <param name="Content">The raw bytes to persist.</param>
-/// <param name="ContentType">MIME type of the content (e.g. <c>image/png</c>).</param>
-/// <param name="Metadata">Optional key-value metadata to attach to the object.</param>
-public sealed record UploadRequest(
-    string Key,
-    Stream Content,
-    string ContentType,
-    IReadOnlyDictionary<string, string>? Metadata = null,
-    UploadOptions? Options = null);
+public sealed record UploadRequest
+{
+    /// <summary>Logical path / filename for the object (e.g. <c>avatars/user-42.png</c>).</summary>
+    public string Key { get; init; } = default!;
+
+    /// <summary>The raw bytes to persist.</summary>
+    public Stream Content { get; init; } = default!;
+
+    /// <summary>MIME type of the content (e.g. <c>image/png</c>).</summary>
+    public string ContentType { get; init; } = default!;
+
+    /// <summary>Optional key-value metadata to attach to the object.</summary>
+    public IReadOnlyDictionary<string, string>? Metadata { get; init; } = null;
+
+    public UploadOptions? Options { get; init; } = null;
+}
 
 
 public sealed record UploadOptions

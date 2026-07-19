@@ -41,7 +41,7 @@ public static partial class DeleteUserAddress
 
             await dbContext.SaveChangesAsync(cancellationToken);
 
-            return new Response(command.Id, label);
+            return new Response { Id = command.Id, Label = label };
         }
     }
 }

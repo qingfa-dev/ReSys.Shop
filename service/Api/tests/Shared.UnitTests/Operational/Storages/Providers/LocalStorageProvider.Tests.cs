@@ -36,7 +36,8 @@ public sealed class LocalStorageProviderTests : IDisposable
     }
 
     private static UploadRequest CreateRequest(string key = "test/file.txt", string content = "hello")
-        => new(key, new MemoryStream(Encoding.UTF8.GetBytes(content)), "text/plain");
+        => new()
+        { Key = key, Content = new MemoryStream(Encoding.UTF8.GetBytes(content)), ContentType = "text/plain" };
 
     private static LocalStorageProvider CreateSutWithNonExistentRoot()
     {
@@ -71,7 +72,7 @@ public sealed class LocalStorageProviderTests : IDisposable
     {
         using var ms = new MemoryStream(Encoding.UTF8.GetBytes("data"));
         var invalidKey = Path.GetInvalidFileNameChars()[0].ToString();
-        var request = new UploadRequest(invalidKey, ms, "text/plain");
+        var request = new UploadRequest { Key = invalidKey, Content = ms, ContentType = "text/plain" };
 
         Result<UploadResult> result = await _sut.UploadAsync(request);
 
@@ -94,7 +95,7 @@ public sealed class LocalStorageProviderTests : IDisposable
     public async Task UploadAsync_CopiesFromCurrentStreamPosition()
     {
         using var content = new MemoryStream(Encoding.UTF8.GetBytes("stream test")) { Position = 0 };
-        var request = new UploadRequest("stream_test.txt", content, "text/plain");
+        var request = new UploadRequest { Key = "stream_test.txt", Content = content, ContentType = "text/plain" };
 
         // Read the first byte — upload should start from position 1
         content.ReadByte();

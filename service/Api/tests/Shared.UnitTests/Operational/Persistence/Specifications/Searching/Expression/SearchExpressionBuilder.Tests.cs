@@ -31,7 +31,7 @@ public sealed class SearchExpressionBuilderTests
 
         SearchModel model = isEmptyModel
             ? SearchModel.Empty
-            : new(new SearchTerm("hello"), []);
+            : new(new SearchTerm { Value = "hello" }, []);
 
         Expression<Func<TestEntity, Boolean>> lambda = SearchExpressionBuilder.Build<TestEntity>(model, null);
 
@@ -44,7 +44,7 @@ public sealed class SearchExpressionBuilderTests
     public void AnyMode_SingleField_FiltersCorrectly(String term, String entityName, Boolean expected)
     {
         TestEntity entity = new() { Name = entityName, Description = "Nothing" };
-        SearchModel model = new(new SearchTerm(term), ["Name"]);
+        SearchModel model = new(new SearchTerm { Value = term }, ["Name"]);
 
         Expression<Func<TestEntity, Boolean>> lambda = SearchExpressionBuilder.Build<TestEntity>(model, null);
 
@@ -57,7 +57,7 @@ public sealed class SearchExpressionBuilderTests
     public void AnyMode_TwoFields_MatchesAny(String term, Boolean expected)
     {
         TestEntity entity = new() { Name = "Hello", Description = "Nothing" };
-        SearchModel model = new(new SearchTerm(term), ["Name", "Description"]);
+        SearchModel model = new(new SearchTerm { Value = term }, ["Name", "Description"]);
 
         Expression<Func<TestEntity, Boolean>> lambda = SearchExpressionBuilder.Build<TestEntity>(model, null);
 
@@ -70,7 +70,7 @@ public sealed class SearchExpressionBuilderTests
     public void AllMode_TwoFields_MatchesAll(String term, String entityName, String entityDescription, Boolean expected)
     {
         TestEntity entity = new() { Name = entityName, Description = entityDescription };
-        SearchModel model = new(new SearchTerm(term), ["Name", "Description"], SearchMode.All);
+        SearchModel model = new(new SearchTerm { Value = term }, ["Name", "Description"], SearchMode.All);
 
         Expression<Func<TestEntity, Boolean>> lambda = SearchExpressionBuilder.Build<TestEntity>(model, null);
 
@@ -83,7 +83,7 @@ public sealed class SearchExpressionBuilderTests
     public void CaseSensitive_Matching(String entityName, Boolean expected)
     {
         TestEntity entity = new() { Name = entityName };
-        SearchModel model = new(new SearchTerm("Hello", true), ["Name"]);
+        SearchModel model = new(new SearchTerm { Value = "Hello", CaseSensitive = true }, ["Name"]);
 
         Expression<Func<TestEntity, Boolean>> lambda = SearchExpressionBuilder.Build<TestEntity>(model, null);
 
@@ -94,7 +94,7 @@ public sealed class SearchExpressionBuilderTests
     public void Build_CaseInsensitive_MatchesDifferentCase()
     {
         TestEntity entity = new() { Name = "Hello World" };
-        SearchModel model = new(new SearchTerm("hello", false), ["Name"]);
+        SearchModel model = new(new SearchTerm { Value = "hello", CaseSensitive = false }, ["Name"]);
 
         Expression<Func<TestEntity, Boolean>> lambda = SearchExpressionBuilder.Build<TestEntity>(model, null);
 
@@ -105,7 +105,7 @@ public sealed class SearchExpressionBuilderTests
     public void Build_DefaultFieldsFallback_ShouldSearchDefaults()
     {
         TestEntity entity = new() { Name = "Nothing", Category = "hello world" };
-        SearchModel model = new(new SearchTerm("hello"), []);
+        SearchModel model = new(new SearchTerm { Value = "hello" }, []);
 
         Expression<Func<TestEntity, Boolean>> lambda = SearchExpressionBuilder.Build<TestEntity>(model, ["Category"]);
 
@@ -116,7 +116,7 @@ public sealed class SearchExpressionBuilderTests
     public void Build_SpecialCharacters_ShouldWork()
     {
         TestEntity entity = new() { Name = "hello (world) [test]" };
-        SearchModel model = new(new SearchTerm("("), ["Name"]);
+        SearchModel model = new(new SearchTerm { Value = "(" }, ["Name"]);
 
         Expression<Func<TestEntity, Boolean>> lambda = SearchExpressionBuilder.Build<TestEntity>(model, null);
 
@@ -127,7 +127,7 @@ public sealed class SearchExpressionBuilderTests
     public void Build_MatchesDescriptionField_ShouldReturnTrue()
     {
         TestEntity entity = new() { Name = "Nothing", Description = "search target" };
-        SearchModel model = new(new SearchTerm("target"), ["Description"]);
+        SearchModel model = new(new SearchTerm { Value = "target" }, ["Description"]);
 
         Expression<Func<TestEntity, Boolean>> lambda = SearchExpressionBuilder.Build<TestEntity>(model, null);
 
@@ -138,7 +138,7 @@ public sealed class SearchExpressionBuilderTests
     public void Build_AnyMode_CrossFieldMatch_ShouldReturnTrue()
     {
         TestEntity entity = new() { Name = "Nothing", Description = "hello", Category = "world" };
-        SearchModel model = new(new SearchTerm("hello"), ["Name", "Description", "Category"]);
+        SearchModel model = new(new SearchTerm { Value = "hello" }, ["Name", "Description", "Category"]);
 
         Expression<Func<TestEntity, Boolean>> lambda = SearchExpressionBuilder.Build<TestEntity>(model, null);
 
@@ -149,7 +149,7 @@ public sealed class SearchExpressionBuilderTests
     public void Build_CaseInsensitiveFieldName_ShouldResolveProperty()
     {
         TestEntity entity = new() { Name = "Hello World", Description = "Nothing" };
-        SearchModel model = new(new SearchTerm("hello"), ["name"]);
+        SearchModel model = new(new SearchTerm { Value = "hello" }, ["name"]);
 
         Expression<Func<TestEntity, Boolean>> lambda = SearchExpressionBuilder.Build<TestEntity>(model, null);
 

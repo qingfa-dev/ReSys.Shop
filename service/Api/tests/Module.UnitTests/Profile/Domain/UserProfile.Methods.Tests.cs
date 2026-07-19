@@ -61,7 +61,7 @@ public class UserProfileMethodTests
     [Fact(DisplayName = "Create with all optional fields should produce correct profile")]
     public void Create_WithAllOptionalFields_ShouldProduceCorrectProfile()
     {
-        DateTimeOffset dob = new DateTimeOffset(1985, 6, 20, 0, 0, 0, TimeSpan.Zero);
+        DateTimeOffset dob = new(1985, 6, 20, 0, 0, 0, TimeSpan.Zero);
         UserPreferences prefs = UserPreferenceMethod.Create(preferredStyle: "formal").Value;
         NotificationPreferences notifications = NotificationPreferencesExtensions.Create(
             enableSms: false, enableEmail: false, enableNewsfeeds: true).Value;
@@ -108,7 +108,7 @@ public class UserProfileMethodTests
     [Fact(DisplayName = "Update should set date of birth")]
     public void Update_WithDateOfBirth_ShouldSetDateOfBirth()
     {
-        DateTimeOffset dob = new DateTimeOffset(1990, 1, 15, 0, 0, 0, TimeSpan.Zero);
+        DateTimeOffset dob = new(1990, 1, 15, 0, 0, 0, TimeSpan.Zero);
         Result<UserProfile> result = UserProfileMethod.Create(FirstName, LastName, Email);
 
         Result<UserProfile> updated = result.Value.Update(dateOfBirth: dob);
@@ -259,7 +259,7 @@ public class UserProfileMethodTests
     [Fact(DisplayName = "WithFavoriteColors should set colors")]
     public void WithFavoriteColors_ShouldSetColors()
     {
-        List<string> colors = new List<string> { "Red", "Blue" };
+        List<string> colors = new() { "Red", "Blue" };
         Result<UserProfile> profile = UserProfileMethod.Create(FirstName, LastName, Email);
 
         Result<UserProfile> result = profile.Value.WithFavoriteColors(colors);
@@ -319,7 +319,7 @@ public class UserProfileMethodTests
     [Fact(DisplayName = "IsActiveCustomer should return true when active and has orders")]
     public void IsActiveCustomer_WhenActiveAndHasOrders_ShouldReturnTrue()
     {
-        UserProfile profile = new UserProfile
+        UserProfile profile = new()
         {
             FirstName = FirstName,
             LastName = LastName,
@@ -334,7 +334,7 @@ public class UserProfileMethodTests
     [Fact(DisplayName = "IsActiveCustomer should return false when inactive")]
     public void IsActiveCustomer_WhenInactive_ShouldReturnFalse()
     {
-        UserProfile profile = new UserProfile
+        UserProfile profile = new()
         {
             FirstName = FirstName,
             LastName = LastName,
@@ -353,7 +353,7 @@ public class UserProfileMethodTests
     [Fact(DisplayName = "RecordSignIn (Result) should rotate IPs and increment count")]
     public void RecordSignIn_ShouldRotateIpsAndIncrement()
     {
-        User user = new User { UserName = "johndoe" };
+        User user = new() { UserName = "johndoe" };
         Result<UserProfile> profile = UserProfileMethod.Create(FirstName, LastName, Email);
         profile.Value.User = user;
         profile.Value.UserId = user.Id;
@@ -373,7 +373,7 @@ public class UserProfileMethodTests
     [Fact(DisplayName = "RecordSignIn (instance) should update profile")]
     public void RecordSignIn_Instance_ShouldUpdateProfile()
     {
-        User user = new User { UserName = "johndoe" };
+        User user = new() { UserName = "johndoe" };
         UserProfile profile = UserProfileMethod.Create(FirstName, LastName, Email).Value;
         profile.User = user;
         profile.UserId = user.Id;
@@ -387,7 +387,7 @@ public class UserProfileMethodTests
     [Fact(DisplayName = "RecordFailedAttempt should increment")]
     public void RecordFailedAttempt_ShouldIncrement()
     {
-        User user = new User { UserName = "johndoe" };
+        User user = new() { UserName = "johndoe" };
         UserProfile profile = UserProfileMethod.Create(FirstName, LastName, Email).Value;
         profile.User = user;
         profile.UserId = user.Id;
@@ -458,7 +458,7 @@ public class UserProfileMethodTests
     public void HasRole_WhenRoleExists_ShouldReturnTrue()
     {
         UserProfile profile = UserProfileMethod.Create(FirstName, LastName, Email).Value;
-        List<Role> roles = new List<Role> { new Role { Name = "Admin" } };
+        List<Role> roles = new() { new Role { Name = "Admin" } };
 
         profile.HasRole("Admin", roles).Should().BeTrue();
     }
@@ -467,7 +467,7 @@ public class UserProfileMethodTests
     public void IsAdmin_WhenAdminRoleExists_ShouldReturnTrue()
     {
         UserProfile profile = UserProfileMethod.Create(FirstName, LastName, Email).Value;
-        List<Role> roles = new List<Role> { new Role { Name = RoleConstant.Defaults.Admin } };
+        List<Role> roles = new() { new Role { Name = RoleConstant.Defaults.Admin } };
 
         profile.IsAdmin(roles).Should().BeTrue();
     }
@@ -476,8 +476,8 @@ public class UserProfileMethodTests
     public void HasAnyRole_WhenAnyRoleMatches_ShouldReturnTrue()
     {
         UserProfile profile = UserProfileMethod.Create(FirstName, LastName, Email).Value;
-        List<Role> roles = new List<Role> { new Role { Name = "Editor" } };
-        List<string> roleNames = new List<string> { "Admin", "Editor" };
+        List<Role> roles = new() { new Role { Name = "Editor" } };
+        List<string> roleNames = new() { "Admin", "Editor" };
 
         profile.HasAnyRole(roleNames, roles).Should().BeTrue();
     }

@@ -137,7 +137,7 @@ public sealed partial class SearchModel
     /// Returns an empty <see cref="SearchModel"/> with no term, no fields, and no violations.
     /// </summary>
     public static SearchModel Empty { get; } =
-        new(new SearchTerm(string.Empty), [], SearchMode.Any);
+        new(new SearchTerm { Value = string.Empty }, [], SearchMode.Any);
 
     #endregion Static Factories
 

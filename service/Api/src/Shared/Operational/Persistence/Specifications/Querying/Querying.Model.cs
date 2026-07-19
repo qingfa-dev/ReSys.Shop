@@ -9,24 +9,29 @@ namespace Shared.Operational.Persistence.Specifications.Querying;
 /// A fully parsed, validated record carrying all four querying concern models.
 /// Produced by <see cref="QueryingParametersExtensions.ParseAll"/>.
 /// </summary>
-/// <param name="Filter">The parsed filter model, or <see cref="FilterModel.Empty"/>.</param>
-/// <param name="Search">The parsed search model, or <see cref="SearchModel.Empty"/>.</param>
-/// <param name="Sort">The parsed sort model, or <see cref="SortModel.Empty"/>.</param>
-/// <param name="Page">The parsed page model, or <see cref="PageModel.Empty"/>.</param>
-public sealed record QueryingModel(
-    FilterModel Filter,
-    SearchModel Search,
-    SortModel Sort,
-    PageModel Page
-)
+public sealed record QueryingModel
 {
+    /// <summary>The parsed filter model, or <see cref="FilterModel.Empty"/>.</summary>
+    public FilterModel Filter { get; init; } = default!;
+
+    /// <summary>The parsed search model, or <see cref="SearchModel.Empty"/>.</summary>
+    public SearchModel Search { get; init; } = default!;
+
+    /// <summary>The parsed sort model, or <see cref="SortModel.Empty"/>.</summary>
+    public SortModel Sort { get; init; } = default!;
+
+    /// <summary>The parsed page model, or <see cref="PageModel.Empty"/>.</summary>
+    public PageModel Page { get; init; } = default!;
+
     /// <summary>
     /// Returns a <see cref="QueryingModel"/> with all four concern models set to their
     /// respective empty sentinels — equivalent to a request with no query-string parameters.
     /// </summary>
-    public static QueryingModel Empty { get; } = new(
-        FilterModel.Empty,
-        SearchModel.Empty,
-        SortModel.Empty,
-        PageModel.Empty);
+    public static QueryingModel Empty { get; } = new()
+    {
+        Filter = FilterModel.Empty,
+        Search = SearchModel.Empty,
+        Sort = SortModel.Empty,
+        Page = PageModel.Empty
+    };
 }

@@ -61,7 +61,7 @@ public static partial class Logout
             if (!string.IsNullOrEmpty(request.RefreshToken))
             {
                 var revokeResult = await refreshTokenService.RevokeAsync(
-                    new RevokeTokenRequestModel(request.RefreshToken, RefreshTokenConstant.RevocationReasons.UserLogout),
+                    new RevokeTokenRequestModel { Token = request.RefreshToken, Reason = RefreshTokenConstant.RevocationReasons.UserLogout },
                     cancellationToken);
 
                 if (revokeResult.IsFailure)

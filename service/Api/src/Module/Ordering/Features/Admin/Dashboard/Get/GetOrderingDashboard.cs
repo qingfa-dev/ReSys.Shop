@@ -31,7 +31,14 @@ public static partial class GetOrderingDashboard
             var recentOrders = await baseQuery
                 .OrderByDescending(o => o.CreatedAtUtc)
                 .Take(10)
-                .Select(o => new RecentOrderData(o.Id, o.Number, o.Total, o.Status.ToString(), o.CreatedAtUtc.DateTime))
+                .Select(o => new RecentOrderData
+                {
+                    Id = o.Id,
+                    Number = o.Number,
+                    Total = o.Total,
+                    Status = o.Status.ToString(),
+                    CreatedAtUtc = o.CreatedAtUtc.DateTime
+                })
                 .ToListAsync(cancellationToken);
 
             return new Response

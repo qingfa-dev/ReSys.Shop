@@ -38,7 +38,7 @@ public class ConfirmEmailTests
             .ReturnsAsync(Result.Ok());
         _mediatorMock
             .Setup(x => x.Send(It.IsAny<CreateUserProfileCommand>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new CreateUserProfileResult(Guid.NewGuid()));
+            .ReturnsAsync(new CreateUserProfileResult { ProfileId = Guid.NewGuid() });
     }
 
     private ConfirmEmail.CommandHandler CreateHandler()
@@ -191,7 +191,7 @@ public class ConfirmEmailTests
         _mediatorMock
             .Setup(x => x.Send(It.IsAny<CreateUserProfileCommand>(), It.IsAny<CancellationToken>()))
             .Callback<IRequest<Result<CreateUserProfileResult>>, CancellationToken>((req, _) => captured = (CreateUserProfileCommand)req)
-            .ReturnsAsync(new CreateUserProfileResult(Guid.NewGuid()));
+            .ReturnsAsync(new CreateUserProfileResult { ProfileId = Guid.NewGuid() });
 
         var handler = CreateHandler();
         var command = new ConfirmEmail.Command(

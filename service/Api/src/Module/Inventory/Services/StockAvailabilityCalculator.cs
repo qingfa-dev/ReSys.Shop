@@ -35,14 +35,16 @@ public sealed class StockAvailabilityCalculator(IApplicationDbContext dbContext)
             {
                 var reserved = reservedMap.GetValueOrDefault(si.StockLocationId, 0);
                 var available = si.CountOnHand - reserved;
-                return new LocationStockSnapshot(
-                    si.StockLocationId,
-                    si.StockLocation!.Name,
-                    si.CountOnHand,
-                    reserved,
-                    Math.Max(available, 0),
-                    si.StockLocation.Active,
-                    si.Backorderable);
+                return new LocationStockSnapshot
+                {
+                    StockLocationId = si.StockLocationId,
+                    LocationName = si.StockLocation!.Name,
+                    CountOnHand = si.CountOnHand,
+                    ReservedCount = reserved,
+                    AvailableCount = Math.Max(available, 0),
+                    Active = si.StockLocation.Active,
+                    Backorderable = si.Backorderable
+                };
             })
             .ToList();
 
@@ -51,7 +53,14 @@ public sealed class StockAvailabilityCalculator(IApplicationDbContext dbContext)
         var totalAvailable = Math.Max(totalOnHand - totalReserved, 0);
         var backorderable = locations.Any(l => l.Backorderable);
 
-        return new StockSnapshot(totalOnHand, totalReserved, totalAvailable, backorderable, locations);
+        return new StockSnapshot
+        {
+            TotalOnHand = totalOnHand,
+            TotalReserved = totalReserved,
+            TotalAvailable = totalAvailable,
+            Backorderable = backorderable,
+            Locations = locations
+        };
     }
 
     public async Task<IReadOnlyDictionary<Guid, int>> GetAvailableByVariantAsync(

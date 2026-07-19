@@ -8,13 +8,17 @@ namespace Shared.UnitTests.Operational.Persistence.Specifications.Paging.Extensi
 [Trait("Feature", "Persistence")]
 public sealed class PageModelInMemoryExtensionsTests
 {
-    private sealed record TestEntity(int Id, string Name);
+    private sealed record TestEntity
+    {
+        public int Id { get; init; }
+        public string Name { get; init; } = default!;
+    }
 
     [Fact]
     public void ToPagedResult_WithProjection_ShouldReturnCorrectPage()
     {
         List<TestEntity> source = Enumerable.Range(1, 30)
-            .Select(i => new TestEntity(i, $"Item {i}"))
+            .Select(i => new TestEntity { Id = i, Name = $"Item {i}" })
             .ToList();
 
         PageBounds bounds = PageBounds.Default;
@@ -33,7 +37,7 @@ public sealed class PageModelInMemoryExtensionsTests
     public void ToPagedResult_WithoutProjection_ShouldReturnCorrectPage()
     {
         List<TestEntity> source = Enumerable.Range(1, 20)
-            .Select(i => new TestEntity(i, $"Item {i}"))
+            .Select(i => new TestEntity { Id = i, Name = $"Item {i}" })
             .ToList();
 
         PageBounds bounds = PageBounds.Default;
@@ -63,7 +67,7 @@ public sealed class PageModelInMemoryExtensionsTests
     [Fact]
     public void ToPagedResult_SingleItem_ShouldReturnThatItem()
     {
-        List<TestEntity> source = [new(1, "Only")];
+        List<TestEntity> source = [new TestEntity { Id = 1, Name = "Only" }];
 
         PageBounds bounds = PageBounds.Default;
         PageModel page = new(page: 1, pageSize: 10, bounds: bounds);
@@ -78,7 +82,7 @@ public sealed class PageModelInMemoryExtensionsTests
     public void ToPagedResult_PageBeyondTotal_ShouldReturnEmpty()
     {
         List<TestEntity> source = Enumerable.Range(1, 5)
-            .Select(i => new TestEntity(i, $"Item {i}"))
+            .Select(i => new TestEntity { Id = i, Name = $"Item {i}" })
             .ToList();
 
         PageBounds bounds = PageBounds.Default;
@@ -94,7 +98,7 @@ public sealed class PageModelInMemoryExtensionsTests
     public void ToPagedResult_LastPartialPage_ShouldReturnRemainingItems()
     {
         List<TestEntity> source = Enumerable.Range(1, 25)
-            .Select(i => new TestEntity(i, $"Item {i}"))
+            .Select(i => new TestEntity { Id = i, Name = $"Item {i}" })
             .ToList();
 
         PageBounds bounds = PageBounds.Default;

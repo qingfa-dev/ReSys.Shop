@@ -52,7 +52,7 @@ public static partial class RepositionTaxon
 
             // Skip: No-op when neither position nor parent has changed
             if (!positionChanged && !parentChanged)
-                return new Response(id);
+                return new Response { Id = id };
 
             if (request.ParentId.HasValue && request.ParentId.Value != entity.ParentId)
             {
@@ -89,7 +89,7 @@ public static partial class RepositionTaxon
                 TaxonLoggers.HierarchyRebuildFinished(logger, entity.TaxonomyId);
             }
 
-            return new Response(id);
+            return new Response { Id = id };
         }
     }
 }

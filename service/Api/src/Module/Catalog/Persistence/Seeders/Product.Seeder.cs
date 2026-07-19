@@ -129,13 +129,49 @@ public sealed class CatalogDemoSeeder(IApplicationDbContext context, DemoJsonHel
         }
     }
 
-    private record DemoProductJson(string Id, string Name, string Slug, string Description, string Status,
-        string GenderTarget, string MetaTitle, string MetaKeywords, string MasterVariantId,
-        string? StyleCode, string? SeasonName, string? MaterialComposition, string? CareInstructions,
-        string? Department);
-    private record DemoVariantJson(string Id, string ProductId, string Sku, bool IsMaster, int Position,
-        decimal Price, string? Barcode, string? HsCode);
-    private record DemoVariantImageJson(string Id, string VariantId, string ContentType, string FileName,
-        string StoragePath, int Position, string Alt, string Type);
-    private record DemoOptionAssignmentJson(string VariantId, string OptionValueName, string OptionTypeId);
+    private record DemoProductJson
+    {
+        public string Id { get; init; } = default!;
+        public string Name { get; init; } = default!;
+        public string Slug { get; init; } = default!;
+        public string Description { get; init; } = default!;
+        public string Status { get; init; } = default!;
+        public string GenderTarget { get; init; } = default!;
+        public string MetaTitle { get; init; } = default!;
+        public string MetaKeywords { get; init; } = default!;
+        public string MasterVariantId { get; init; } = default!;
+        public string? StyleCode { get; init; }
+        public string? SeasonName { get; init; }
+        public string? MaterialComposition { get; init; }
+        public string? CareInstructions { get; init; }
+        public string? Department { get; init; }
+    }
+    private record DemoVariantJson
+    {
+        public string Id { get; init; } = default!;
+        public string ProductId { get; init; } = default!;
+        public string Sku { get; init; } = default!;
+        public bool IsMaster { get; init; }
+        public int Position { get; init; }
+        public decimal Price { get; init; }
+        public string? Barcode { get; init; }
+        public string? HsCode { get; init; }
+    }
+    private record DemoVariantImageJson
+    {
+        public string Id { get; init; } = default!;
+        public string VariantId { get; init; } = default!;
+        public string ContentType { get; init; } = default!;
+        public string FileName { get; init; } = default!;
+        public string StoragePath { get; init; } = default!;
+        public int Position { get; init; }
+        public string Alt { get; init; } = default!;
+        public string Type { get; init; } = default!;
+    }
+    private record DemoOptionAssignmentJson
+    {
+        public string VariantId { get; init; } = default!;
+        public string OptionValueName { get; init; } = default!;
+        public string OptionTypeId { get; init; } = default!;
+    }
 }

@@ -17,7 +17,7 @@ public sealed partial class FacebookExternalProvider(
 
     public string Provider => "facebook";
 
-    public ProviderOption GetProviderConfig() => new ProviderOption()
+    public ProviderOption GetProviderConfig() => new()
     {
         Provider = Provider,
         Options = new Dictionary<string, string>
@@ -35,12 +35,14 @@ public sealed partial class FacebookExternalProvider(
                 return UserResult.Failure.ExternalLoginEmailMissing;
 
             var nameParts = (fbUser.Name ?? fbUser.Email.Split('@')[0]).Split(' ', 2);
-            return new ExternalUserInfo(
-                Provider: Provider,
-                ProviderSubjectId: fbUser.Id,
-                Email: fbUser.Email,
-                FirstName: nameParts[0],
-                LastName: nameParts.Length > 1 ? nameParts[1] : null);
+            return new ExternalUserInfo
+            {
+                Provider = Provider,
+                ProviderSubjectId = fbUser.Id,
+                Email = fbUser.Email,
+                FirstName = nameParts[0],
+                LastName = nameParts.Length > 1 ? nameParts[1] : null
+            };
         }
         catch (Exception ex)
         {

@@ -38,7 +38,7 @@ public sealed class SyncRolePermissionsIntegrationTests(ApiFixture fixture) : Id
             permissions = new[] { "system.users.list" }
         };
 
-        using HttpRequestMessage noAuthRequest = new HttpRequestMessage(
+        using HttpRequestMessage noAuthRequest = new(
             HttpMethod.Patch, $"/api/identity/roles/{someId}/permissions/sync")
         {
             Content = JsonContent.Create(request)

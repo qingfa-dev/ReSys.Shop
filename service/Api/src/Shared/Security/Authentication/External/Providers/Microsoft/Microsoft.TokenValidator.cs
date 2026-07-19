@@ -27,10 +27,12 @@ public sealed partial class MicrosoftTokenValidator : IMicrosoftTokenValidator
             throw new InvalidOperationException("Invalid Microsoft access token");
         }
         var doc = await response.Content.ReadFromJsonAsync<JsonElement>(cancellationToken: ct);
-        return new MicrosoftUserInfo(
-            Id: doc.GetProperty("id").GetString() ?? string.Empty,
-            Mail: doc.TryGetProperty("mail", out var m) ? m.GetString() ?? string.Empty
+        return new MicrosoftUserInfo
+        {
+            Id = doc.GetProperty("id").GetString() ?? string.Empty,
+            Mail = doc.TryGetProperty("mail", out var m) ? m.GetString() ?? string.Empty
                 : (doc.TryGetProperty("userPrincipalName", out var upn) ? upn.GetString() ?? string.Empty : string.Empty),
-            DisplayName: doc.TryGetProperty("displayName", out var n) ? n.GetString() : null);
+            DisplayName = doc.TryGetProperty("displayName", out var n) ? n.GetString() : null
+        };
     }
 }

@@ -54,7 +54,7 @@ public sealed class NotificationMapperTests
     {
         // Arrange: message without ApplicationName param, options have ApplicationName value
         NotificationMessage message = CreateMessage(NotificationUseCase.UserRegistered);
-        NotificationSetting defaults = new NotificationSetting { ApplicationName = "TestStore" };
+        NotificationSetting defaults = new() { ApplicationName = "TestStore" };
 
         // Act
         NotificationMessage result = message.ApplyDefaults(defaults);
@@ -74,7 +74,7 @@ public sealed class NotificationMapperTests
             NotificationRecipient.Create("user@test.com"),
             NotificationChannel.Email,
             context);
-        NotificationSetting defaults = new NotificationSetting { ApplicationName = "TestStore" };
+        NotificationSetting defaults = new() { ApplicationName = "TestStore" };
 
         // Act
         NotificationMessage result = message.ApplyDefaults(defaults);

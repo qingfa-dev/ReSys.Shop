@@ -45,7 +45,7 @@ public class DownloadVariantImageTests : IDisposable
         var stream = new MemoryStream(new byte[] { 0x89, 0x50, 0x4E, 0x47 });
         _storageServiceMock
             .Setup(x => x.DownloadAsync(image.StoragePath, null, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(Result<DownloadResult>.Ok(new DownloadResult(stream, new StoredObjectInfo("key", "provider", stream.Length, DateTimeOffset.UtcNow, "image/png"))));
+            .ReturnsAsync(Result<DownloadResult>.Ok(new DownloadResult { Content = stream, Info = new StoredObjectInfo { Key = "key", Provider = "provider", SizeBytes = stream.Length, LastModifiedUtc = DateTimeOffset.UtcNow, ContentType = "image/png" } }));
 
         var result = await _handler.Handle(
             new DownloadVariantImage.Query(image.Id),

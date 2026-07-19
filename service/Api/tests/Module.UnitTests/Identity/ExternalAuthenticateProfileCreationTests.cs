@@ -22,12 +22,14 @@ public class ExternalAuthenticateProfileCreationTests
         var provider = new Mock<IExternalLoginProvider>();
         provider.Setup(x => x.Provider).Returns("google");
         provider.Setup(x => x.ValidateIdTokenAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(Result<ExternalUserInfo>.Ok(new ExternalUserInfo(
-                Provider: "google",
-                ProviderSubjectId: "sub-1",
-                Email: "new@user.com",
-                FirstName: "New",
-                LastName: "User")));
+            .ReturnsAsync(Result<ExternalUserInfo>.Ok(new ExternalUserInfo
+            {
+                Provider = "google",
+                ProviderSubjectId = "sub-1",
+                Email = "new@user.com",
+                FirstName = "New",
+                LastName = "User"
+            }));
 
         var userManager = IdentityMocks.CreateUserManagerMock<User>();
         userManager.Setup(x => x.FindByEmailAsync(It.IsAny<string>())).ReturnsAsync((User?)null);
@@ -38,20 +40,22 @@ public class ExternalAuthenticateProfileCreationTests
 
         var accessTokenService = new Mock<IAccessTokenService>();
         accessTokenService.Setup(x => x.GenerateToken(It.IsAny<TokenRequestModel>()))
-            .Returns(Result<TokenResponseModel>.Ok(new TokenResponseModel("tok", 900)));
+            .Returns(Result<TokenResponseModel>.Ok(new TokenResponseModel { Token = "tok", ExpiresIn = 900 }));
 
         var refreshTokenService = new Mock<IRefreshTokenService>();
         refreshTokenService.Setup(x => x.GenerateAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(Result<RefreshTokenResponseModel>.Ok(new RefreshTokenResponseModel(
-                Id: Guid.NewGuid(),
-                Token: "rt",
-                UserId: Guid.NewGuid(),
-                CreatedAt: DateTime.UtcNow,
-                ExpiresAt: DateTime.UtcNow.AddDays(7),
-                RevokedAt: null,
-                RevokedReason: null,
-                ReplacedByToken: null,
-                IsActive: true)));
+            .ReturnsAsync(Result<RefreshTokenResponseModel>.Ok(new RefreshTokenResponseModel
+            {
+                Id = Guid.NewGuid(),
+                Token = "rt",
+                UserId = Guid.NewGuid(),
+                CreatedAt = DateTime.UtcNow,
+                ExpiresAt = DateTime.UtcNow.AddDays(7),
+                RevokedAt = null,
+                RevokedReason = null,
+                ReplacedByToken = null,
+                IsActive = true
+            }));
 
         var dateTime = new Mock<ISystemDateTime>();
         dateTime.Setup(x => x.UtcNow).Returns(DateTimeOffset.UtcNow);

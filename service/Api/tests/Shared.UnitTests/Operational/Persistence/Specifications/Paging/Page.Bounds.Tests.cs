@@ -68,7 +68,7 @@ public sealed class PageBoundsTests
     [Fact]
     public void CustomBounds_ShouldApplyCorrectLimits()
     {
-        PageBounds bounds = new(DefaultPage: 1, DefaultPageSize: 20, MaxPageSize: 200);
+        PageBounds bounds = new() { DefaultPage = 1, DefaultPageSize = 20, MaxPageSize = 200 };
 
         bounds.NormalizePage(null).Should().Be(1);
         bounds.NormalizePageSize(null).Should().Be(20);

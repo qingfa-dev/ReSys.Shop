@@ -53,19 +53,19 @@ public sealed partial record FilterGroup
     /// </summary>
     /// <param name="conditions">The conditions to include.</param>
     public static FilterGroup FlatAnd(IReadOnlyList<FilterCondition> conditions)
-        => new(FilterLogic.And, conditions, []);
+        => new() { Logic = FilterLogic.And, Conditions = conditions, Groups = [] };
 
     /// <summary>
     /// Creates an OR group from a flat list of conditions with no sub-groups.
     /// </summary>
     /// <param name="conditions">The conditions to include.</param>
     public static FilterGroup FlatOr(IReadOnlyList<FilterCondition> conditions)
-        => new(FilterLogic.Or, conditions, []);
+        => new() { Logic = FilterLogic.Or, Conditions = conditions, Groups = [] };
 
     /// <summary>
     /// Returns a canonical empty AND group with no conditions and no sub-groups.
     /// </summary>
-    public static FilterGroup Empty { get; } = new(FilterLogic.And, [], []);
+    public static FilterGroup Empty { get; } = new() { Logic = FilterLogic.And, Conditions = [], Groups = [] };
 
     #endregion Static Factories — without Result
 

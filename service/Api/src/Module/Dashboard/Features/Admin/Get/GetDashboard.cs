@@ -68,9 +68,11 @@ public static partial class GetDashboard
                 .Select(date =>
                 {
                     var entry = dailyRevenue.FirstOrDefault(d => d.Date == date);
-                    return new TrendPoint(
-                        DateOnly.FromDateTime(date),
-                        entry?.Revenue ?? 0m);
+                    return new TrendPoint
+                    {
+                        Date = DateOnly.FromDateTime(date),
+                        Revenue = entry?.Revenue ?? 0m
+                    };
                 })
                 .ToList();
 
@@ -100,7 +102,7 @@ public static partial class GetDashboard
             var recentProducts = await productsQuery
                 .OrderByDescending(p => p.CreatedAtUtc)
                 .Take(5)
-                .Select(p => new RecentProductData(p.Id, p.Name, p.Slug, p.CreatedAtUtc.DateTime))
+                .Select(p => new RecentProductData { Id = p.Id, Name = p.Name, Slug = p.Slug, CreatedAtUtc = p.CreatedAtUtc.DateTime })
                 .ToListAsync(ct);
 
             return new CatalogSummaryData

@@ -101,11 +101,13 @@ public static partial class ConfirmEmail
             try
             {
                 var profileResult = await mediator.Send(
-                    new CreateUserProfileCommand(
-                        user.Id,
-                        user.FirstName,
-                        user.LastName,
-                        user.Email!),
+                    new CreateUserProfileCommand
+                    {
+                        UserId = user.Id,
+                        FirstName = user.FirstName,
+                        LastName = user.LastName,
+                        Email = user.Email!
+                    },
                     cancellationToken);
 
                 if (profileResult.IsFailure)

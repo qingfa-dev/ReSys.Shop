@@ -10,8 +10,8 @@ public sealed class SearchTermTests
     [Fact(DisplayName = "SearchTerm: Same Value and CaseSensitive are equal")]
     public void SameValueAndCaseSensitive_ShouldBeEqual()
     {
-        SearchTerm a = new("hello", false);
-        SearchTerm b = new("hello", false);
+        SearchTerm a = new() { Value = "hello", CaseSensitive = false };
+        SearchTerm b = new() { Value = "hello", CaseSensitive = false };
 
         a.Should().Be(b);
         a.GetHashCode().Should().Be(b.GetHashCode());
@@ -22,8 +22,8 @@ public sealed class SearchTermTests
     [InlineData("hello", false, "hello", true)]
     public void NotEqual_WhenPropertyDiffers(String valueA, Boolean caseSensitiveA, String valueB, Boolean caseSensitiveB)
     {
-        SearchTerm a = new(valueA, caseSensitiveA);
-        SearchTerm b = new(valueB, caseSensitiveB);
+        SearchTerm a = new() { Value = valueA, CaseSensitive = caseSensitiveA };
+        SearchTerm b = new() { Value = valueB, CaseSensitive = caseSensitiveB };
 
         a.Should().NotBe(b);
     }
@@ -31,7 +31,7 @@ public sealed class SearchTermTests
     [Fact(DisplayName = "SearchTerm: Default CaseSensitive is false")]
     public void DefaultCaseSensitive_ShouldBeFalse()
     {
-        SearchTerm term = new("hello");
+        SearchTerm term = new() { Value = "hello" };
 
         term.CaseSensitive.Should().BeFalse();
     }

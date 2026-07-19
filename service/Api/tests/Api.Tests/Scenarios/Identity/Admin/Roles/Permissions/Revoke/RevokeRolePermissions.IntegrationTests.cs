@@ -38,7 +38,7 @@ public sealed class RevokeRolePermissionsIntegrationTests(ApiFixture fixture) : 
             permissions = new[] { "system.users.list" }
         };
 
-        using HttpRequestMessage noAuthRequest = new HttpRequestMessage(
+        using HttpRequestMessage noAuthRequest = new(
             HttpMethod.Delete, $"/api/identity/roles/{someId}/permissions/revoke")
         {
             Content = JsonContent.Create(request)

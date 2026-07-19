@@ -233,7 +233,7 @@ public partial class RefreshTokenService(
             string newTokenHash = ComputeSha256Hash(newRawToken);
 
             // Create: new entity shares TokenFamilyId with old token to preserve rotation chain
-            RefreshToken newEntity = new RefreshToken
+            RefreshToken newEntity = new()
             {
                 Id = Guid.NewGuid(),
                 TokenHash = newTokenHash,
@@ -287,17 +287,18 @@ public partial class RefreshTokenService(
 
     private static RefreshTokenResponseModel MapToResponse(RefreshToken entity, string? rawToken = null)
     {
-        return new RefreshTokenResponseModel(
-            Id: entity.Id,
-            Token: rawToken ?? string.Empty,
-            UserId: entity.UserId,
-            CreatedAt: entity.CreatedAtUtc.UtcDateTime,
-            ExpiresAt: entity.ExpiresAtUtc.UtcDateTime,
-            RevokedAt: entity.RevokedAtUtc?.UtcDateTime,
-            RevokedReason: entity.RevocationReason?.ToString(),
-            ReplacedByToken: entity.ReplacedByTokenId?.ToString(),
-            IsActive: entity.IsActive
-        );
+        return new RefreshTokenResponseModel
+        {
+            Id = entity.Id,
+            Token = rawToken ?? string.Empty,
+            UserId = entity.UserId,
+            CreatedAt = entity.CreatedAtUtc.UtcDateTime,
+            ExpiresAt = entity.ExpiresAtUtc.UtcDateTime,
+            RevokedAt = entity.RevokedAtUtc?.UtcDateTime,
+            RevokedReason = entity.RevocationReason?.ToString(),
+            ReplacedByToken = entity.ReplacedByTokenId?.ToString(),
+            IsActive = entity.IsActive
+        };
     }
 
     private static RefreshTokenRevocationReason MapRevocationReason(string? reason)

@@ -34,13 +34,18 @@ public class RefreshSessionTests
     private static RefreshSession.Command CreateCommand(string refreshToken) => new(
         new RefreshSession.Request { RefreshToken = refreshToken });
 
-    private static RefreshTokenResponseModel CreateRefreshResponse(Guid userId, string token = "new-refresh-token", DateTime? expiresAt = null) => new(
-        Guid.NewGuid(),
-        token,
-        userId,
-        DateTime.UtcNow,
-        expiresAt ?? DateTime.UtcNow.AddDays(7),
-        null, null, null, true);
+    private static RefreshTokenResponseModel CreateRefreshResponse(Guid userId, string token = "new-refresh-token", DateTime? expiresAt = null) => new()
+    {
+        Id = Guid.NewGuid(),
+        Token = token,
+        UserId = userId,
+        CreatedAt = DateTime.UtcNow,
+        ExpiresAt = expiresAt ?? DateTime.UtcNow.AddDays(7),
+        RevokedAt = null,
+        RevokedReason = null,
+        ReplacedByToken = null,
+        IsActive = true
+    };
 
     private void SetUpRotationSuccess(string oldToken, RefreshTokenResponseModel response) =>
         _refreshTokenServiceMock
@@ -61,7 +66,7 @@ public class RefreshSessionTests
     private void SetUpAccessTokenSuccess(string token = "new-access-token", long expiresIn = 3600) =>
         _accessTokenServiceMock
             .Setup(x => x.GenerateToken(It.IsAny<TokenRequestModel>()))
-            .Returns(new TokenResponseModel(token, expiresIn));
+            .Returns(new TokenResponseModel { Token = token, ExpiresIn = expiresIn });
 
     private void SetUpAccessTokenFailure() =>
         _accessTokenServiceMock
@@ -167,7 +172,7 @@ public class RefreshSessionTests
         _accessTokenServiceMock
             .Setup(x => x.GenerateToken(It.IsAny<TokenRequestModel>()))
             .Callback<TokenRequestModel>(r => captured = r)
-            .Returns(new TokenResponseModel("access-token", 3600));
+            .Returns(new TokenResponseModel { Token = "access-token", ExpiresIn = 3600 });
 
         SetUpRotationSuccess("valid-token", CreateRefreshResponse(userId));
         SetUpUserFound(user);

@@ -70,13 +70,18 @@ public class ExternalAuthenticateTests
     private static ExternalAuthenticate.Command CreateCommand(string provider, string idToken) => new(
         new ExternalAuthenticate.Request { Provider = provider, IdToken = idToken });
 
-    private static RefreshTokenResponseModel CreateRefreshToken(Guid userId) => new(
-        Guid.NewGuid(),
-        "refresh-token",
-        userId,
-        DateTime.UtcNow,
-        DateTime.UtcNow.AddDays(7),
-        null, null, null, true);
+    private static RefreshTokenResponseModel CreateRefreshToken(Guid userId) => new()
+    {
+        Id = Guid.NewGuid(),
+        Token = "refresh-token",
+        UserId = userId,
+        CreatedAt = DateTime.UtcNow,
+        ExpiresAt = DateTime.UtcNow.AddDays(7),
+        RevokedAt = null,
+        RevokedReason = null,
+        ReplacedByToken = null,
+        IsActive = true
+    };
 
     // ===== Mock Setup Helpers =====
 
@@ -84,12 +89,14 @@ public class ExternalAuthenticateTests
     {
         _providerMock
             .Setup(x => x.ValidateIdTokenAsync(It.IsAny<string>(), TestContext.Current.CancellationToken))
-            .ReturnsAsync(Result<ExternalUserInfo>.Ok(new ExternalUserInfo(
-                Provider: "google",
-                ProviderSubjectId: subjectId,
-                Email: email,
-                FirstName: "John",
-                LastName: "Doe")));
+            .ReturnsAsync(Result<ExternalUserInfo>.Ok(new ExternalUserInfo
+            {
+                Provider = "google",
+                ProviderSubjectId = subjectId,
+                Email = email,
+                FirstName = "John",
+                LastName = "Doe"
+            }));
     }
 
     private void SetUpProviderFailure()
@@ -154,7 +161,7 @@ public class ExternalAuthenticateTests
     {
         _accessTokenServiceMock
             .Setup(x => x.GenerateToken(It.IsAny<TokenRequestModel>()))
-            .Returns(Result<TokenResponseModel>.Ok(new TokenResponseModel(token, expiresIn)));
+            .Returns(Result<TokenResponseModel>.Ok(new TokenResponseModel { Token = token, ExpiresIn = expiresIn }));
     }
 
     private void SetUpAccessTokenFailure()
@@ -578,7 +585,7 @@ public class ExternalAuthenticateTests
 
         _accessTokenServiceMock
             .Setup(x => x.GenerateToken(It.IsAny<TokenRequestModel>()))
-            .Returns(Result<TokenResponseModel>.Ok(new TokenResponseModel("jwt-token-abc123", expiresIn)));
+            .Returns(Result<TokenResponseModel>.Ok(new TokenResponseModel { Token = "jwt-token-abc123", ExpiresIn = expiresIn }));
 
         _refreshTokenServiceMock
             .Setup(x => x.GenerateAsync(It.IsAny<Guid>(), TestContext.Current.CancellationToken))

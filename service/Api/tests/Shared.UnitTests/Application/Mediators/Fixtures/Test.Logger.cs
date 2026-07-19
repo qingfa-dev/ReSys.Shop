@@ -26,16 +26,20 @@ public class TestLogger<T> : ILogger<T>
         Exception? exception,
         Func<TState, Exception?, string> formatter)
     {
-        Entries.Enqueue(new LogEntry(
-            logLevel,
-            eventId,
-            formatter(state, exception),
-            exception));
+        Entries.Enqueue(new LogEntry
+        {
+            Level = logLevel,
+            EventId = eventId,
+            Message = formatter(state, exception),
+            Exception = exception
+        });
     }
 
-    public record LogEntry(
-        LogLevel Level,
-        EventId EventId,
-        string Message,
-        Exception? Exception);
+    public record LogEntry
+    {
+        public LogLevel Level { get; init; }
+        public EventId EventId { get; init; }
+        public string Message { get; init; } = default!;
+        public Exception? Exception { get; init; }
+    }
 }

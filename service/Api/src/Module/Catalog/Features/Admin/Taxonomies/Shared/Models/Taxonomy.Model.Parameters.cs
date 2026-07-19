@@ -1,4 +1,9 @@
 namespace Module.Catalog.Features.Admin.Taxonomies.Shared.Models;
 
 
-public abstract record TaxonomyParameters(string Name = "", string? Presentation = "", int Position = 0);
+public abstract record TaxonomyParameters
+{
+    public string Name { get; init; } = string.Empty;
+    public string? Presentation { get; init; } = string.Empty;
+    public int Position { get; init; } = 0;
+}

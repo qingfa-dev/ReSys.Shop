@@ -21,7 +21,7 @@ public sealed class FilterGroupTests
     [Fact(DisplayName = "FilterGroup: IsEmpty false when conditions exist")]
     public void IsEmpty_ShouldBeFalse_WhenConditionsExist()
     {
-        List<FilterCondition> conditions = [new("Name", FilterOperator.Equal, "Apple")];
+        List<FilterCondition> conditions = [new FilterCondition { Field = "Name", Operator = FilterOperator.Equal, Value = "Apple" }];
         FilterGroup group = FilterGroup.FlatAnd(conditions.AsReadOnly());
 
         group.IsEmpty.Should().BeFalse();
@@ -30,8 +30,8 @@ public sealed class FilterGroupTests
     [Fact(DisplayName = "FilterGroup: IsEmpty false when sub-groups exist")]
     public void IsEmpty_ShouldBeFalse_WhenSubGroupsExist()
     {
-        FilterGroup inner = FilterGroup.FlatAnd(new[] { new FilterCondition("Name", FilterOperator.Equal, "A") });
-        FilterGroup group = new(FilterLogic.And, new List<FilterCondition>().AsReadOnly(), new FilterGroup[] { inner });
+        FilterGroup inner = FilterGroup.FlatAnd(new[] { new FilterCondition { Field = "Name", Operator = FilterOperator.Equal, Value = "A" } });
+        FilterGroup group = new() { Logic = FilterLogic.And, Conditions = new List<FilterCondition>().AsReadOnly(), Groups = new FilterGroup[] { inner } };
 
         group.IsEmpty.Should().BeFalse();
     }
@@ -39,11 +39,13 @@ public sealed class FilterGroupTests
     [Fact(DisplayName = "FilterGroup: TotalConditionCount counts all leaf conditions")]
     public void TotalConditionCount_ShouldCountRecursively()
     {
-        FilterGroup inner = FilterGroup.FlatAnd(new[] { new FilterCondition("A", FilterOperator.Equal, "1") });
-        FilterGroup group = new(
-            FilterLogic.And,
-            new[] { new FilterCondition("B", FilterOperator.Equal, "2"), new FilterCondition("C", FilterOperator.Equal, "3") },
-            new[] { inner });
+        FilterGroup inner = FilterGroup.FlatAnd(new[] { new FilterCondition { Field = "A", Operator = FilterOperator.Equal, Value = "1" } });
+        FilterGroup group = new()
+        {
+            Logic = FilterLogic.And,
+            Conditions = new[] { new FilterCondition { Field = "B", Operator = FilterOperator.Equal, Value = "2" }, new FilterCondition { Field = "C", Operator = FilterOperator.Equal, Value = "3" } },
+            Groups = new[] { inner }
+        };
 
         group.TotalConditionCount.Should().Be(3);
     }
@@ -51,13 +53,13 @@ public sealed class FilterGroupTests
     [Fact(DisplayName = "FilterGroup: FlattenConditions enumerates depth-first")]
     public void FlattenConditions_ShouldEnumerateDepthFirst()
     {
-        FilterCondition leaf1 = new("A", FilterOperator.Equal, "1");
-        FilterCondition leaf2 = new("B", FilterOperator.Equal, "2");
-        FilterCondition leaf3 = new("C", FilterOperator.Equal, "3");
+        FilterCondition leaf1 = new() { Field = "A", Operator = FilterOperator.Equal, Value = "1" };
+        FilterCondition leaf2 = new() { Field = "B", Operator = FilterOperator.Equal, Value = "2" };
+        FilterCondition leaf3 = new() { Field = "C", Operator = FilterOperator.Equal, Value = "3" };
 
         FilterGroup inner = FilterGroup.FlatAnd(new[] { leaf1 });
-        FilterGroup root = new(FilterLogic.And, new[] { leaf2 }, new[] { inner });
-        FilterGroup wrapper = new(FilterLogic.And, new[] { leaf3 }, new[] { root });
+        FilterGroup root = new() { Logic = FilterLogic.And, Conditions = new[] { leaf2 }, Groups = new[] { inner } };
+        FilterGroup wrapper = new() { Logic = FilterLogic.And, Conditions = new[] { leaf3 }, Groups = new[] { root } };
 
         List<FilterCondition> flat = wrapper.FlattenConditions().ToList();
 
@@ -70,7 +72,7 @@ public sealed class FilterGroupTests
     [Fact(DisplayName = "FilterGroup: FlatAnd creates AND group with conditions")]
     public void FlatAnd_ShouldCreateAndGroup()
     {
-        List<FilterCondition> conditions = [new("Name", FilterOperator.Equal, "Apple")];
+        List<FilterCondition> conditions = [new FilterCondition { Field = "Name", Operator = FilterOperator.Equal, Value = "Apple" }];
         FilterGroup group = FilterGroup.FlatAnd(conditions.AsReadOnly());
 
         group.Logic.Should().Be(FilterLogic.And);
@@ -81,7 +83,7 @@ public sealed class FilterGroupTests
     [Fact(DisplayName = "FilterGroup: FlatOr creates OR group with conditions")]
     public void FlatOr_ShouldCreateOrGroup()
     {
-        List<FilterCondition> conditions = [new("Name", FilterOperator.Equal, "Apple")];
+        List<FilterCondition> conditions = [new FilterCondition { Field = "Name", Operator = FilterOperator.Equal, Value = "Apple" }];
         FilterGroup group = FilterGroup.FlatOr(conditions.AsReadOnly());
 
         group.Logic.Should().Be(FilterLogic.Or);
@@ -91,9 +93,9 @@ public sealed class FilterGroupTests
     [Fact(DisplayName = "FilterGroup: ToString displays logic and counts")]
     public void ToString_ShouldDisplayDiagnosticInfo()
     {
-        List<FilterCondition> conditions = [new("A", FilterOperator.Equal, "1")];
-        FilterGroup inner = FilterGroup.FlatAnd(new[] { new FilterCondition("B", FilterOperator.Equal, "2") });
-        FilterGroup group = new(FilterLogic.Or, conditions.AsReadOnly(), new[] { inner });
+        List<FilterCondition> conditions = [new FilterCondition { Field = "A", Operator = FilterOperator.Equal, Value = "1" }];
+        FilterGroup inner = FilterGroup.FlatAnd(new[] { new FilterCondition { Field = "B", Operator = FilterOperator.Equal, Value = "2" } });
+        FilterGroup group = new() { Logic = FilterLogic.Or, Conditions = conditions.AsReadOnly(), Groups = new[] { inner } };
 
         group.ToString().Should().Be("Or[conditions=1, groups=1]");
     }

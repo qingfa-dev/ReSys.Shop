@@ -19,7 +19,11 @@ public static partial class GetDashboard
         public List<TrendPoint> TrendHistory { get; init; } = [];
     }
 
-    public sealed record TrendPoint(DateOnly Date, decimal Revenue);
+    public sealed record TrendPoint
+    {
+        public DateOnly Date { get; init; }
+        public decimal Revenue { get; init; }
+    }
 
     public sealed record InventorySummaryData
     {
@@ -39,7 +43,13 @@ public static partial class GetDashboard
         public List<RecentProductData> RecentlyAdded { get; init; } = [];
     }
 
-    public sealed record RecentProductData(Guid Id, string Name, string Slug, DateTime CreatedAtUtc);
+    public sealed record RecentProductData
+    {
+        public Guid Id { get; init; }
+        public string Name { get; init; } = default!;
+        public string Slug { get; init; } = default!;
+        public DateTime CreatedAtUtc { get; init; }
+    }
 
     public sealed record ActivityItemData
     {

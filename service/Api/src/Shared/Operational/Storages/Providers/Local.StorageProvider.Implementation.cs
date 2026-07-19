@@ -46,8 +46,14 @@ internal sealed partial class LocalStorageProvider(
             Loggers.LogUploadSuccess(logger, request.Key, size);
 
             // Transform: return result with null URI — local FS has no public endpoint
-            return Result<UploadResult>.Ok(new UploadResult(
-                request.Key, Name, null, size, DateTimeOffset.UtcNow));
+            return Result<UploadResult>.Ok(new UploadResult
+            {
+                Key = request.Key,
+                Provider = Name,
+                Uri = null,
+                SizeBytes = size,
+                StoredAtUtc = DateTimeOffset.UtcNow
+            });
         }
         catch (OperationCanceledException)
         {
@@ -86,8 +92,15 @@ internal sealed partial class LocalStorageProvider(
             var stream = new FileStream(fullPath, FileMode.Open, FileAccess.Read, FileShare.Read, options.Value.BufferSize, useAsync: true);
             var info = new FileInfo(fullPath);
             // Create: StoredObjectInfo with ContentType=null — local FS lacks MIME metadata
-            var meta = new StoredObjectInfo(key, Name, info.Length, info.LastWriteTimeUtc, ContentType: null);
-            return Task.FromResult(Result<DownloadResult>.Ok(new DownloadResult(stream, meta)));
+            var meta = new StoredObjectInfo
+            {
+                Key = key,
+                Provider = Name,
+                SizeBytes = info.Length,
+                LastModifiedUtc = info.LastWriteTimeUtc,
+                ContentType = null
+            };
+            return Task.FromResult(Result<DownloadResult>.Ok(new DownloadResult { Content = stream, Info = meta }));
         }
         catch (OperationCanceledException)
         {
@@ -163,7 +176,7 @@ internal sealed partial class LocalStorageProvider(
         {
             var info = new FileInfo(fullPath);
             return Task.FromResult(Result<StoredObjectInfo>.Ok(
-                new StoredObjectInfo(key, Name, info.Length, info.LastWriteTimeUtc, ContentType: null)));
+                new StoredObjectInfo { Key = key, Provider = Name, SizeBytes = info.Length, LastModifiedUtc = info.LastWriteTimeUtc, ContentType = null }));
         }
         catch (OperationCanceledException)
         {
@@ -200,7 +213,7 @@ internal sealed partial class LocalStorageProvider(
                 {
                     var relativeKey = Path.GetRelativePath(root, f).Replace('\\', '/');
                     var fi = new FileInfo(f);
-                    return new StoredObjectInfo(relativeKey, Name, fi.Length, fi.LastWriteTimeUtc, ContentType: null);
+                    return new StoredObjectInfo { Key = relativeKey, Provider = Name, SizeBytes = fi.Length, LastModifiedUtc = fi.LastWriteTimeUtc, ContentType = null };
                 })
                 .Where(o => prefix is null || o.Key.StartsWith(prefix, StringComparison.OrdinalIgnoreCase))
                 .ToList();

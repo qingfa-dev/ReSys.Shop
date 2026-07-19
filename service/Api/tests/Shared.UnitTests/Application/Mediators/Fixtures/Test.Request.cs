@@ -4,11 +4,21 @@ using MediatR;
 
 namespace Shared.UnitTests.Application.Mediators.Fixtures;
 
-public record TestRequest(string Value) : IRequest<Result>;
+public record TestRequest : IRequest<Result>
+{
+    public string Value { get; init; } = default!;
+}
 
-public record TestRequestWithValue(string Value) : IRequest<Result<string>>;
+public record TestRequestWithValue : IRequest<Result<string>>
+{
+    public string Value { get; init; } = default!;
+}
 
-public record TestRequestMultipleValidations(string Value, string Name) : IRequest<Result>;
+public record TestRequestMultipleValidations : IRequest<Result>
+{
+    public string Value { get; init; } = default!;
+    public string Name { get; init; } = default!;
+}
 
 public class TestRequestHandler : IRequestHandler<TestRequest, Result>
 {

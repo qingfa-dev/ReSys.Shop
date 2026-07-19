@@ -6,15 +6,6 @@ namespace Shared.Operational.Persistence.Specifications.Searching;
 /// Represents a single, normalized search term that has been validated and is ready
 /// to be applied to a query.
 /// </summary>
-/// <param name="Value">
-/// The trimmed, non-empty string to search for. Never <see langword="null"/> or whitespace —
-/// construction is only permitted via <see cref="SearchModel"/> factory methods which enforce this.
-/// </param>
-/// <param name="CaseSensitive">
-/// <see langword="true"/> if the match must be exact-case; <see langword="false"/> (default)
-/// for case-insensitive matching using <c>ToLowerInvariant</c> normalization, consistent
-/// with the filter layer's behavior for string operators.
-/// </param>
 /// <remarks>
 /// A <c>SearchTerm</c> does not carry field information — it is field-agnostic.
 /// The target fields and match mode are owned by the parent <see cref="SearchModel"/>.
@@ -24,8 +15,21 @@ namespace Shared.Operational.Persistence.Specifications.Searching;
 /// use the filter layer (<see cref="FilterCondition"/>).
 /// </para>
 /// </remarks>
-public sealed partial record SearchTerm(string Value, bool CaseSensitive = false)
+public sealed partial record SearchTerm
 {
+    /// <summary>
+    /// The trimmed, non-empty string to search for. Never <see langword="null"/> or whitespace —
+    /// construction is only permitted via <see cref="SearchModel"/> factory methods which enforce this.
+    /// </summary>
+    public string Value { get; init; } = default!;
+
+    /// <summary>
+    /// <see langword="true"/> if the match must be exact-case; <see langword="false"/> (default)
+    /// for case-insensitive matching using <c>ToLowerInvariant</c> normalization, consistent
+    /// with the filter layer's behavior for string operators.
+    /// </summary>
+    public bool CaseSensitive { get; init; } = false;
+
     // AgentHint: EffectiveValue recomputes on every access; acceptable because it is a simple property.
 
     // Contract: Default values shared across all search term construction sites.

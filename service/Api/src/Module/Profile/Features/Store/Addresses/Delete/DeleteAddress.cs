@@ -62,7 +62,7 @@ public static partial class DeleteAddress
 
             // Map: Return deleted info
             // EXCEPTION: minimal delete confirmation — address ID and label only
-            return new Response(address.Id, address.Label ?? address.Address1);
+            return new Response { Id = address.Id, Label = address.Label ?? address.Address1 };
         }
     }
 }

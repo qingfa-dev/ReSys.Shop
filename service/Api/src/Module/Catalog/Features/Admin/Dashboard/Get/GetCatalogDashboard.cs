@@ -29,7 +29,7 @@ public static partial class GetCatalogDashboard
             var recentProducts = await productsQuery
                 .OrderByDescending(p => p.CreatedAtUtc)
                 .Take(5)
-                .Select(p => new RecentProductData(p.Id, p.Name, p.Slug, p.CreatedAtUtc.DateTime))
+                .Select(p => new RecentProductData { Id = p.Id, Name = p.Name, Slug = p.Slug, CreatedAtUtc = p.CreatedAtUtc.DateTime })
                 .ToListAsync(cancellationToken);
 
             return new Response

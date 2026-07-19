@@ -59,8 +59,14 @@ public static partial class GetInventoryDashboard
                 .Where(sm => sm.StockLocationId == null || locationIds.Contains(sm.StockLocationId.Value))
                 .OrderByDescending(sm => sm.CreatedAtUtc)
                 .Take(10)
-                .Select(sm => new RecentMovementData(
-                    sm.Id, sm.Quantity, sm.Action, sm.Reason, sm.CreatedAtUtc.DateTime))
+                .Select(sm => new RecentMovementData
+                {
+                    Id = sm.Id,
+                    Quantity = sm.Quantity,
+                    Action = sm.Action,
+                    Reason = sm.Reason,
+                    CreatedAtUtc = sm.CreatedAtUtc.DateTime
+                })
                 .ToListAsync(cancellationToken);
 
             return new Response

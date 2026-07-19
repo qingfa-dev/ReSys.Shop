@@ -43,8 +43,11 @@ public static partial class CancelOrderAdmin
 
             // Call: Void pending payments via Payment module — fire-and-forget on failure.
             var voidResult = await sender.Send(
-                new Module.Payment.Features.Shared.Commands.VoidOrderPaymentsCommand(
-                    order.Id, OrderConstant.CancelReasons.Admin),
+                new Module.Payment.Features.Shared.Commands.VoidOrderPaymentsCommand
+                {
+                    OrderId = order.Id,
+                    Reason = OrderConstant.CancelReasons.Admin
+                },
                 cancellationToken);
             if (voidResult.IsFailure)
             {

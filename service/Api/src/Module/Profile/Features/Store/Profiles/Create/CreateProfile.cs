@@ -69,7 +69,7 @@ public sealed class CreateUserProfileCommandHandler(
             }), cancellationToken);
 
         return result.IsSuccess
-            ? new CreateUserProfileResult(result.Value.Id)
+            ? new CreateUserProfileResult { ProfileId = result.Value.Id }
             : result.Errors;
     }
 }

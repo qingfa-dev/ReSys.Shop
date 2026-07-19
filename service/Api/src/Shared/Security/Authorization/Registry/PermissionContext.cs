@@ -209,6 +209,10 @@ public static class PermissionContext
             "shipping_methods", "Shipping Methods", "Shipping method configuration resource.");
         public static readonly OptionDescriptor<string> ShippingRates = OptionDescriptor<string>.Option(
             "shipping_rates", "Shipping Rates", "Shipping rate configuration resource.");
+        public static readonly OptionDescriptor<string> CatalogDashboard = OptionDescriptor<string>.Option(
+            "catalog_dashboard", "Catalog Dashboard", "Catalog dashboard resource.");
+        public static readonly OptionDescriptor<string> InventoryDashboard = OptionDescriptor<string>.Option(
+            "inventory_dashboard", "Inventory Dashboard", "Inventory dashboard resource.");
     }
 
     private static readonly Dictionary<string, PermissionMetadata> SByIdentifier =
