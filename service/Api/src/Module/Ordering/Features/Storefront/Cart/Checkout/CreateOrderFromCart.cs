@@ -89,7 +89,6 @@ public static partial class CreateOrderFromCart
             // during the transaction — prevents stock double-deduction under concurrent checkouts.
             await using var transaction = await dbContext.BeginTransactionAsync(
                 IsolationLevel.RepeatableRead, cancellationToken);
-            try
             {
                 // Generate: Unique order number inside transaction so rollback doesn't leak numbers
                 var numberResult = await OrderNumber.GenerateAsync(dbContext, cancellationToken);
@@ -156,11 +155,6 @@ public static partial class CreateOrderFromCart
                 }
 
                 await transaction.CommitAsync(cancellationToken);
-            }
-            catch
-            {
-                await transaction.RollbackAsync(cancellationToken);
-                throw;
             }
 
             // Notify: Send order confirmation email to customer.
