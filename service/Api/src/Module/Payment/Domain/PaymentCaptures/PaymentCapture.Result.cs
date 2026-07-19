@@ -177,6 +177,11 @@ public static class PaymentCaptureResult
             code: "Payment.AlreadyFailed",
             message: "Payment has already been marked as failed.");
 
+        /// <summary>Error indicating the payment has already been disputed.</summary>
+        public static Error AlreadyDisputed => Error.Conflict(
+            code: "Payment.AlreadyDisputed",
+            message: "Payment has already been disputed.");
+
         /// <summary>Error indicating the capture amount exceeds the authorized amount.</summary>
         public static Error AmountExceedsAuthorized => Error.Validation(
             code: "Payment.Amount.ExceedsAuthorized",

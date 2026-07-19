@@ -73,6 +73,20 @@ public static partial class PaymentCaptureMethod
         return Result.Ok(PaymentCaptureResult.Success.Voided(payment.Number));
     }
 
+    // Update: Any non-terminal state → Disputed — idempotent if already disputed
+    public static Result Dispute(this PaymentCapture payment)
+    {
+        if (payment.State is PaymentRecordState.Disputed)
+            return PaymentCaptureResult.Failure.AlreadyDisputed;
+
+        if (payment.State is PaymentRecordState.Void or PaymentRecordState.Invalid)
+            return PaymentCaptureResult.Failure.InvalidStateTransition(payment.State, PaymentRecordState.Disputed);
+
+        payment.State = PaymentRecordState.Disputed;
+        payment.ModifiedAtUtc = DateTimeOffset.UtcNow;
+        return Result.Ok();
+    }
+
     // Update: Failed/Void → Invalid — idempotent if already invalid
     public static Result Invalidate(this PaymentCapture payment)
     {
