@@ -209,16 +209,9 @@ public sealed class PaymentProcessingService : IPaymentProcessingService
     }
 
     // Call: Gateway cancel/void — no gateway response code means local void only
-    private async Task<Result<PaymentProcessingResult>> CancelAsync(PaymentCapture payment, IPaymentGatewayActionProvider gateway, CancellationToken ct = default)
+    private async Task<Result<PaymentProcessingResult>> CancelAsync(PaymentCapture payment, IPaymentGatewayActionProvider gateway, GatewayOptions options, CancellationToken ct = default)
     {
-        var gatewayResult = await gateway.VoidAsync(payment.ResponseCode, payment, new GatewayOptions
-        {
-            Email = string.Empty,
-            Customer = string.Empty,
-            OrderId = payment.OrderId.ToString(),
-            PaymentId = payment.Number,
-            IdempotencyKey = GatewayConstants.Idempotency.ForPayment(payment.Number)
-        }, ct).ConfigureAwait(false);
+        var gatewayResult = await gateway.VoidAsync(payment.ResponseCode, payment, options, ct).ConfigureAwait(false);
 
         // Catch: Gateway failure — propagate error
         if (gatewayResult.IsFailure)
