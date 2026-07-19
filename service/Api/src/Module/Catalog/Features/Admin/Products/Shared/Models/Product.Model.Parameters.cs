@@ -1,6 +1,6 @@
 namespace Module.Catalog.Features.Admin.Products.Shared.Models;
 
-public abstract record ProductParameters
+public abstract record ProductParameters : ISeoParameters
 {
     public string Name { get; init; } = string.Empty;
     public string Slug { get; init; } = string.Empty;

@@ -8,5 +8,5 @@ public static partial class CreateRole
     /// Represents the request contract for creating a new role.
     /// Inherits properties like Name and Description from <see cref="RoleRequest"/>.
     /// </summary>
-    public class Request : RoleRequest { }
+    public record Request : RoleRequest;
 }

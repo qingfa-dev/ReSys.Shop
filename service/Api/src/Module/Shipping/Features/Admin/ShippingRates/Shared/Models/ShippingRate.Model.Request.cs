@@ -1,3 +1,3 @@
 namespace Module.Shipping.Features.Admin.ShippingRates.Shared.Models;
 
-public class ShippingRateRequest : ShippingRateParameters { }
+public record ShippingRateRequest : ShippingRateParameters;

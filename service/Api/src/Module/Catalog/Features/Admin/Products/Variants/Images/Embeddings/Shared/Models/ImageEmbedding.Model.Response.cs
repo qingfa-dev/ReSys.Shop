@@ -1,6 +1,6 @@
 namespace Module.Catalog.Features.Admin.Products.Variants.Images.Embeddings.Shared.Models;
 
-public class EmbeddingDetailResponse
+public record EmbeddingDetailResponse
 {
     public Guid Id { get; init; }
     public Guid VariantImageId { get; init; }

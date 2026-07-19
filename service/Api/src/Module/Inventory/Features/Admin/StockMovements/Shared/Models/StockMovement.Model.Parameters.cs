@@ -1,6 +1,6 @@
 namespace Module.Inventory.Features.Admin.StockMovements.Shared.Models;
 
-public abstract class StockMovementParameters
+public abstract record StockMovementParameters
 {
     public Guid StockItemId { get; init; }
     public int Quantity { get; init; }

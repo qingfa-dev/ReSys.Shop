@@ -30,15 +30,5 @@ public static partial class ShippingRateMapping
             shippingMethodId: request.ShippingMethodId);
     }
 
-    public static Result MapUpdateToDomain<T>(this T request, RateDomain rate) where T : Models.ShippingRateUpdateRequest
-    {
-        return rate.Update(
-            name: request.Name,
-            cost: request.Cost,
-            deliveryRange: request.DeliveryRange,
-            minWeight: request.MinWeight,
-            maxWeight: request.MaxWeight,
-            freeShippingThreshold: request.FreeShippingThreshold,
-            shippingMethodId: request.ShippingMethodId);
-    }
+    
 }

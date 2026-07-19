@@ -1,3 +1,3 @@
 namespace Module.Shipping.Features.Admin.ShippingMethods.Shared.Models;
 
-public class ShippingMethodRequest : ShippingMethodParameters { }
+public record ShippingMethodRequest : ShippingMethodParameters;

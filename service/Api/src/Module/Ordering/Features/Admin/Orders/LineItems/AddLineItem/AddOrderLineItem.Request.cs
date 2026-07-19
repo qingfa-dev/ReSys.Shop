@@ -1,12 +1,11 @@
+using Module.Ordering.Features.Storefront.Cart.Shared.Models;
+
 namespace Module.Ordering.Features.Admin.Orders.LineItems.AddLineItem;
 
 public static partial class AddOrderLineItem
 {
-    public sealed record Request
+    public sealed record Request : CartRequest
     {
-        public Guid VariantId { get; init; }
-        public int Quantity { get; init; } = 1;
-        /// <summary>Unit price at the time the line item is added — snapshotted to prevent drift from catalogue changes.</summary>
         public decimal Price { get; init; }
     }
 }

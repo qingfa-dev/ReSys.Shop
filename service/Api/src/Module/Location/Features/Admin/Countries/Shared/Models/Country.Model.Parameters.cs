@@ -1,6 +1,6 @@
 namespace Module.Location.Features.Admin.Countries.Shared.Models;
 
-public abstract record class CountryParameters
+public abstract record class CountryParameters : IActivatableParameters
 {
     public string Name { get; init; } = string.Empty;
     public string IsoCode { get; init; } = string.Empty;

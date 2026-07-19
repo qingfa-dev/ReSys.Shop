@@ -2,6 +2,7 @@ namespace Module.Catalog.Features.Admin.Products.Variants.Images.Embeddings.Shar
 
 public abstract record ImageEmbeddingParameters
 {
+    public Guid VariantImageId { get; init; }
     public string ModelName { get; init; } = string.Empty;
     public string ModelVersion { get; init; } = string.Empty;
 }

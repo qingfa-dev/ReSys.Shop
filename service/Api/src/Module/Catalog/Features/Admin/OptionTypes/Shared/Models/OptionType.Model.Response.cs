@@ -4,7 +4,7 @@ namespace Module.Catalog.Features.Admin.OptionTypes.Shared.Models;
 /// Represents the response data for an option type.
 /// Inherits common option type properties from <see cref="OptionTypeParameters"/>.
 /// </summary>
-public record OptionTypeDetailResponse : OptionTypeParameters
+public record OptionTypeDetailResponse : OptionTypeParameters, IResponse
 {
     /// <summary>
     /// Gets or initializes the unique identifier of the option type.
@@ -23,7 +23,7 @@ public record OptionTypeDetailResponse : OptionTypeParameters
     public DateTimeOffset? ModifiedAtUtc { get; set; }
 }
 
-public record OptionTypeListItemResponse : OptionTypeParameters
+public record OptionTypeListItemResponse : OptionTypeParameters, IResponse
 {
     /// <summary>
     /// Gets or initializes the unique identifier of the option type.

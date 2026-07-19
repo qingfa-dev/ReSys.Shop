@@ -39,17 +39,4 @@ public static partial class ShippingMethodMapping
             calculatorType: request.CalculatorType,
             taxCategoryId: request.TaxCategoryId);
     }
-
-    public static Result MapUpdateToDomain<T>(this T request, ShippingDomain method) where T : Models.ShippingMethodUpdateRequest
-    {
-        return method.Update(
-            name: request.Name,
-            code: request.Code,
-            trackingUrl: request.TrackingUrl,
-            adminName: request.AdminName,
-            position: request.Position,
-            availableToUsers: request.AvailableToUsers,
-            calculatorType: request.CalculatorType,
-            taxCategoryId: request.TaxCategoryId);
-    }
 }

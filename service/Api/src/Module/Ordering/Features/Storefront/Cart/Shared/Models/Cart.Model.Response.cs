@@ -3,10 +3,8 @@ using Module.Ordering.Domain.Orders;
 namespace Module.Ordering.Features.Storefront.Cart.Shared.Models;
 
 /// <summary>Line item within a cart response — identifies the variant, quantity, and computed totals.</summary>
-public record CartItem
+public record CartItem : Response
 {
-    /// <summary>Line item identifier within the cart.</summary>
-    public Guid Id { get; init; }
     /// <summary>The product variant added to the cart.</summary>
     public Guid VariantId { get; init; }
     /// <summary>Display name of the product variant.</summary>
@@ -22,11 +20,11 @@ public record CartItem
 }
 
 /// <summary>Cart detail response — includes line items and computed cart totals.</summary>
-public record CartDetailResponse : CartResponseBase
+public record CartDetailResponse : CartResponseBase, IResponse
 {
     /// <summary>Line items currently in the cart.</summary>
     public List<CartItem> Items { get; init; } = [];
 }
 
 /// <summary>Cart list item — lightweight summary for cart list views without line items.</summary>
-public record CartListItemResponse : CartResponseBase;
+public record CartListItemResponse : CartResponseBase, IResponse;

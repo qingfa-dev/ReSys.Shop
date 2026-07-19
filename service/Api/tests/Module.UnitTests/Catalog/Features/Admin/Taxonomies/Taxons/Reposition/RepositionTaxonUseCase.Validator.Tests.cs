@@ -15,7 +15,7 @@ public class RepositionTaxonValidatorTests
         var command = new RepositionTaxon.Command(
             Guid.NewGuid(), 
             Guid.NewGuid(), 
-            new Request { Position = 5 });
+            new RepositionTaxon.Request { Position = 5 });
 
         var result = _validator.TestValidate(command);
 
@@ -37,7 +37,7 @@ public class RepositionTaxonValidatorTests
         var command = new RepositionTaxon.Command(
             Guid.NewGuid(), 
             Guid.NewGuid(), 
-            new Request { Position = position });
+            new RepositionTaxon.Request { Position = position });
         
         var result = _validator.TestValidate(command);
         result.ShouldHaveValidationErrorFor("Request.Position");
@@ -51,7 +51,7 @@ public class RepositionTaxonValidatorTests
         var command = new RepositionTaxon.Command(
             emptyTaxonomyId ? Guid.Empty : Guid.NewGuid(),
             emptyId ? Guid.Empty : Guid.NewGuid(),
-            new Request { Position = 0 });
+            new RepositionTaxon.Request { Position = 0 });
         
         var result = _validator.TestValidate(command);
         

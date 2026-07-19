@@ -1,8 +1,9 @@
 namespace Module.Shipping.Features.Admin.ShippingRates.Shared.Models;
 
-public abstract class ShippingRateParameters
+public abstract record ShippingRateParameters : INamedParameters
 {
     public string Name { get; init; } = string.Empty;
+    public string? Presentation { get; init; }
     public decimal Cost { get; init; }
     public string? DeliveryRange { get; init; }
     public decimal? MinWeight { get; init; }

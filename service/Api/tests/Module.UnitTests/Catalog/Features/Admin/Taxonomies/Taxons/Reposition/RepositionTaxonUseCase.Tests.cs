@@ -57,7 +57,7 @@ public class RepositionTaxonTests : IDisposable
         _dbContext.Set<Taxon>().AddRange(root, taxon, otherParent);
         await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 
-        var request = new Request
+        var request = new RepositionTaxon.Request
         {
             ParentId = otherParent.Id,
             Position = 10
@@ -84,7 +84,7 @@ public class RepositionTaxonTests : IDisposable
         _dbContext.Set<Taxon>().AddRange(root, taxon);
         await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 
-        var request = new Request { ParentId = root.Id, Position = 1 };
+        var request = new RepositionTaxon.Request { ParentId = root.Id, Position = 1 };
 
         var result = await _handler.Handle(new RepositionTaxon.Command(taxonomy.Id, taxon.Id, request), TestContext.Current.CancellationToken);
 
@@ -96,7 +96,7 @@ public class RepositionTaxonTests : IDisposable
     [Fact(DisplayName = "Handler: Should return failure when taxonomy not found")]
     public async Task Handle_ShouldReturnFailure_WhenTaxonomyNotFound()
     {
-        var result = await _handler.Handle(new RepositionTaxon.Command(Guid.NewGuid(), Guid.NewGuid(), new Request()), TestContext.Current.CancellationToken);
+        var result = await _handler.Handle(new RepositionTaxon.Command(Guid.NewGuid(), Guid.NewGuid(), new RepositionTaxon.Request()), TestContext.Current.CancellationToken);
 
         result.IsFailure.Should().BeTrue();
         result.Errors[0].Code.Should().Be(TaxonomyResult.Errors.NotFound.Code);
@@ -109,7 +109,7 @@ public class RepositionTaxonTests : IDisposable
         _dbContext.Set<Taxonomy>().Add(taxonomy);
         await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 
-        var result = await _handler.Handle(new RepositionTaxon.Command(taxonomy.Id, Guid.NewGuid(), new Request()), TestContext.Current.CancellationToken);
+        var result = await _handler.Handle(new RepositionTaxon.Command(taxonomy.Id, Guid.NewGuid(), new RepositionTaxon.Request()), TestContext.Current.CancellationToken);
 
         result.IsFailure.Should().BeTrue();
         result.Errors[0].Code.Should().Be(TaxonResult.Errors.NotFound.Code);
@@ -124,7 +124,7 @@ public class RepositionTaxonTests : IDisposable
         _dbContext.Set<Taxon>().Add(root);
         await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 
-        var result = await _handler.Handle(new RepositionTaxon.Command(taxonomy.Id, root.Id, new Request()), TestContext.Current.CancellationToken);
+        var result = await _handler.Handle(new RepositionTaxon.Command(taxonomy.Id, root.Id, new RepositionTaxon.Request()), TestContext.Current.CancellationToken);
 
         result.IsFailure.Should().BeTrue();
         result.Errors[0].Code.Should().Be(TaxonResult.Errors.RootLock.Code);
@@ -140,7 +140,7 @@ public class RepositionTaxonTests : IDisposable
         _dbContext.Set<Taxon>().AddRange(root, taxon);
         await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 
-        var request = new Request { ParentId = Guid.NewGuid() };
+        var request = new RepositionTaxon.Request { ParentId = Guid.NewGuid() };
 
         _hierarchyServiceMock.Setup(x => x.ValidateDescendantAsync(It.IsAny<Guid>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(TaxonResult.Errors.NotFound);
@@ -165,7 +165,7 @@ public class RepositionTaxonTests : IDisposable
         _dbContext.Set<Taxon>().AddRange(root1, taxon, root2);
         await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 
-        var request = new Request { ParentId = root2.Id };
+        var request = new RepositionTaxon.Request { ParentId = root2.Id };
 
         _hierarchyServiceMock.Setup(x => x.ValidateDescendantAsync(It.IsAny<Guid>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(TaxonResult.Errors.ParentTaxonomyMismatch);
@@ -187,7 +187,7 @@ public class RepositionTaxonTests : IDisposable
         _dbContext.Set<Taxon>().AddRange(root, taxon);
         await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 
-        var request = new Request
+        var request = new RepositionTaxon.Request
         {
             ParentId = taxon.Id,
             Position = 0

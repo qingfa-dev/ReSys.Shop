@@ -4,5 +4,5 @@ namespace Module.Shipping.Features.Admin.ShippingMethods.Update;
 
 public static partial class UpdateShippingMethod
 {
-    public class Response : ShippingMethodDetailResponse;
+    public record Response : ShippingMethodDetailResponse;
 }

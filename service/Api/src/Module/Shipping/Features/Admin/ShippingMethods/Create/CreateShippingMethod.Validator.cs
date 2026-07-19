@@ -1,4 +1,4 @@
-using Module.Shipping.Domain.ShippingMethods;
+using Module.Shipping.Features.Admin.ShippingMethods.Shared.Validators;
 
 namespace Module.Shipping.Features.Admin.ShippingMethods.Create;
 
@@ -8,9 +8,8 @@ public static partial class CreateShippingMethod
     {
         public Validator()
         {
-            RuleFor(x => x.Request.Name).ApplyNameRules();
-            RuleFor(x => x.Request.Code).ApplyCodeRules();
-            RuleFor(x => x.Request.CalculatorType).ApplyCalculatorTypeRules();
+            RuleFor(x => x.Request)
+                .ApplyShippingMethodParametersRules();
         }
     }
 }

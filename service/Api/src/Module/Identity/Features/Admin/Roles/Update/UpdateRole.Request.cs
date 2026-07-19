@@ -8,5 +8,5 @@ public static partial class UpdateRole
     /// Represents the request contract for updating an existing role.
     /// Inherits common role properties from <see cref="RoleRequest"/>.
     /// </summary>
-    public class Request : RoleRequest;
+    public record Request : RoleRequest;
 }

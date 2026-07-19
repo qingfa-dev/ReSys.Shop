@@ -27,7 +27,7 @@ public static partial class UpdateShippingRate
                 return ShippingRateResult.Errors.NotFound(command.Id);
 
             // Update: Apply partial update mapping
-            var result = command.Request.MapUpdateToDomain(rate);
+            var result = command.Request.MapToDomain(rate);
             if (result.IsFailure)
                 return result.Errors;
 

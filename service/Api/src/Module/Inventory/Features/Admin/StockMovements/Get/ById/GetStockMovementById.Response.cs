@@ -4,5 +4,5 @@ namespace Module.Inventory.Features.Admin.StockMovements.Get.ById;
 
 public static partial class GetStockMovementById
 {
-    public class Response : StockMovementDetailResponse { }
+    public record Response : StockMovementDetailResponse;
 }

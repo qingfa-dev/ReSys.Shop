@@ -3,7 +3,7 @@ namespace Module.Catalog.Features.Admin.OptionTypes.OptionValues.Shared.Models;
 /// <summary>
 /// Represents the response data for an option value.
 /// </summary>
-public record OptionValueListItemResponse : OptionValueParameters
+public record OptionValueListItemResponse : OptionValueParameters, IResponse
 {
     /// <summary>
     /// Gets or initializes the unique identifier of the option value.

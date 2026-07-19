@@ -4,5 +4,5 @@ namespace Module.Inventory.Features.Admin.StockTransfers.Create;
 
 public static partial class CreateStockTransfer
 {
-    public class Response : StockTransferDetailResponse { }
+    public record Response : StockTransferDetailResponse;
 }

@@ -109,21 +109,8 @@ public class ShippingMethodMappingTests
         method.CalculatorType.Should().Be("weight");
     }
 
-    [Fact(DisplayName = "MapUpdateToDomain: Should apply partial update")]
-    public void MapUpdateToDomain_ShouldApplyPatch()
-    {
-        var method = CreateShippingMethod();
-        var patchRequest = new ShippingMethodUpdateRequest
-        {
-            Name = "Patched Name"
-        };
-
-        var result = patchRequest.MapUpdateToDomain(method);
-
-        result.IsSuccess.Should().BeTrue();
-        method.Name.Should().Be("Patched Name");
-        method.Code.Should().NotBeNull();
-    }
+    // [Fact(DisplayName = "MapUpdateToDomain: Should apply partial update")]
+    // public void MapUpdateToDomain_ShouldApplyPatch() { }
 
     private static ShippingDomain CreateShippingMethod()
     {

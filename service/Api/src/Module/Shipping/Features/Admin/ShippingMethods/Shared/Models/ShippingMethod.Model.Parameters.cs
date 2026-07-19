@@ -1,6 +1,6 @@
 namespace Module.Shipping.Features.Admin.ShippingMethods.Shared.Models;
 
-public abstract class ShippingMethodParameters
+public abstract record ShippingMethodParameters : INamedParameters, ISortableParameters
 {
     public string Name { get; init; } = string.Empty;
     public string? Code { get; init; }

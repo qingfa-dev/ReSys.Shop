@@ -2,7 +2,7 @@ using Module.Catalog.Domain.Products;
 
 namespace Module.Catalog.Features.Admin.Products.Shared.Models;
 
-public record ProductDetailResponse : ProductParameters
+public record ProductDetailResponse : ProductParameters, IResponse
 {
     public Guid Id { get; init; }
     public ProductStatus Status { get; init; }
@@ -11,7 +11,7 @@ public record ProductDetailResponse : ProductParameters
     public DateTimeOffset? ModifiedAtUtc { get; set; }
 }
 
-public record ProductListItemResponse : ProductParameters
+public record ProductListItemResponse : ProductParameters, IResponse
 {
     public Guid Id { get; init; }
     public ProductStatus Status { get; init; }

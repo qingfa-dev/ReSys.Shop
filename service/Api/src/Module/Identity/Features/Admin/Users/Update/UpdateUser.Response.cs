@@ -8,5 +8,5 @@ public static partial class UpdateUser
     /// Represents the response contract for an updated user.
     /// Inherits properties from <see cref="UserDetailResponse"/>.
     /// </summary>
-    public class Response : UserDetailResponse { }
+    public record Response : UserDetailResponse;
 }

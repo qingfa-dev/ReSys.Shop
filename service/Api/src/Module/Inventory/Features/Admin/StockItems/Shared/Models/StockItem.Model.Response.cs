@@ -1,6 +1,6 @@
 namespace Module.Inventory.Features.Admin.StockItems.Shared.Models;
 
-public record ImportStockItemsResponseBase
+public record ImportStockItemsResponseBase : Response
 {
     public int Created { get; init; }
     public int Updated { get; init; }
@@ -8,7 +8,7 @@ public record ImportStockItemsResponseBase
     public List<string> Errors { get; init; } = [];
 }
 
-public record StockItemDetailResponse : StockItemParameters
+public record StockItemDetailResponse : StockItemParameters, IResponse
 {
     public Guid Id { get; init; }
     public DateTimeOffset CreatedAtUtc { get; init; }
@@ -17,7 +17,7 @@ public record StockItemDetailResponse : StockItemParameters
     public string? ModifiedBy { get; init; }
 }
 
-public record StockItemListItemResponse : StockItemParameters
+public record StockItemListItemResponse : StockItemParameters, IResponse
 {
     public Guid Id { get; init; }
     public DateTimeOffset CreatedAtUtc { get; init; }
@@ -26,7 +26,7 @@ public record StockItemListItemResponse : StockItemParameters
     public string? ModifiedBy { get; init; }
 }
 
-public record RestockResultResponse
+public record RestockResultResponse : Response
 {
     public Guid StockItemId { get; init; }
     public int PreviousCountOnHand { get; init; }
@@ -37,7 +37,7 @@ public record RestockResultResponse
     public Guid? MovementId { get; init; }
 }
 
-public record StockSummaryDetailResponse
+public record StockSummaryDetailResponse : Response
 {
     public Guid VariantId { get; init; }
     public int TotalOnHand { get; init; }
@@ -46,7 +46,7 @@ public record StockSummaryDetailResponse
     public List<LocationBreakdownItem> LocationBreakdown { get; init; } = [];
 }
 
-public record LocationBreakdownItem
+public record LocationBreakdownItem : Response
 {
     public Guid LocationId { get; init; }
     public string LocationName { get; init; } = string.Empty;

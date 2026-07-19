@@ -4,5 +4,5 @@ namespace Module.Shipping.Features.Admin.ShippingRates.Create;
 
 public static partial class CreateShippingRate
 {
-    public class Request : ShippingRateRequest;
+    public record Request : ShippingRateRequest;
 }

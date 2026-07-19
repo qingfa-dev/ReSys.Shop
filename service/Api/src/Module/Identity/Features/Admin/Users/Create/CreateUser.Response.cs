@@ -8,5 +8,5 @@ public static partial class CreateUser
     /// Represents the response contract for a created user.
     /// Inherits properties from <see cref="UserDetailResponse"/>.
     /// </summary>
-    public class Response : UserDetailResponse { }
+    public record Response : UserDetailResponse;
 }

@@ -8,5 +8,5 @@ public static partial class UpdateRole
     /// Represents the response contract for an updated role.
     /// Inherits properties like Id, Name, Description, IsSystem, and audit fields from <see cref="RoleDetailResponse"/>.
     /// </summary>
-    public class Response : RoleDetailResponse { }
+    public record Response : RoleDetailResponse;
 }

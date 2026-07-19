@@ -12,8 +12,8 @@ public class LocationSchemaTests
         [Fact]
         public void ShouldUseToSnakeCase_ForAllEntries()
         {
-            LocationSchema.TableNames.Countries.Should().Be("country");
-            LocationSchema.TableNames.States.Should().Be("state");
+            LocationSchema.TableNames.Countries.Should().Be("countries");
+            LocationSchema.TableNames.States.Should().Be("states");
         }
     }
 

@@ -4,5 +4,5 @@ namespace Module.Inventory.Features.Admin.StockReservations.Get.ById;
 
 public static partial class GetStockReservationById
 {
-    public class Response : StockReservationDetailResponse { }
+    public record Response : StockReservationDetailResponse;
 }

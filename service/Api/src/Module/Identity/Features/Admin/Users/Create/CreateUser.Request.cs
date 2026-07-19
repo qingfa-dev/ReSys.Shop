@@ -8,5 +8,5 @@ public static partial class CreateUser
     /// Represents the request contract for creating a new user.
     /// Inherits properties from <see cref="UserRequest"/>.
     /// </summary>
-    public class Request : UserRequest { }
+    public record Request : UserRequest;
 }

@@ -1,6 +1,6 @@
 namespace Module.Inventory.Features.Admin.StockTransfers.Shared.Models;
 
-public class StockTransferRequest : StockTransferParameters
+public record StockTransferRequest : StockTransferParameters
 {
     public List<TransferItemRequest> Items { get; set; } = [];
 }
