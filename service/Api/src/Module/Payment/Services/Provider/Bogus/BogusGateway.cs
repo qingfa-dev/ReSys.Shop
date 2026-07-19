@@ -70,7 +70,7 @@ public sealed class BogusGateway : Gateway
 
     private readonly ConcurrentDictionary<string, string> _intentStatuses = new();
 
-    public override Task<string> GetPaymentStatusAsync(string responseCode, CancellationToken ct)
+    public override Task<string> GetPaymentStatusAsync(string responseCode, CancellationToken ct = default)
     {
         if (_intentStatuses.TryGetValue(responseCode, out var status))
             return Task.FromResult(status);
