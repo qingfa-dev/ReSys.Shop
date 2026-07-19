@@ -1,5 +1,3 @@
-using Module.Inventory.Domain.StockLocations.StockItems;
-using Module.Inventory.Domain.StockLocations;
 using Module.Inventory.Features.Storefront.StockAvailability.CheckStockAvailability;
 using Module.Ordering.Domain.Orders;
 using Module.Ordering.Features.Storefront.Cart.UpdateItemQuantity;
@@ -27,8 +25,7 @@ public class UpdateCartItemQuantityTests : IDisposable
             .Options;
 
         ApplicationDbContext.AdditionalConfigurationsAssemblies = [
-            typeof(Order).Assembly,
-            typeof(StockItem).Assembly
+            typeof(Order).Assembly
         ];
         _dbContext = new ApplicationDbContext(options);
 
@@ -56,10 +53,6 @@ public class UpdateCartItemQuantityTests : IDisposable
     public async Task Handle_ShouldUpdateQuantity_WhenItemExists()
     {
         // Arrange: Seed cart with line item
-        var location = StockLocationMethod.Create("Main").Value;
-        _dbContext.Set<StockLocation>().Add(location);
-        await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
-
         var cart = OrderMethod.Create("USD", _userId, Guid.Empty).Value;
         cart.LineItems.Add(new Module.Ordering.Domain.LineItems.LineItem
         {
@@ -99,10 +92,6 @@ public class UpdateCartItemQuantityTests : IDisposable
     public async Task Handle_ShouldFail_WhenInsufficientStock()
     {
         // Arrange: Seed cart with line item
-        var location = StockLocationMethod.Create("Main").Value;
-        _dbContext.Set<StockLocation>().Add(location);
-        await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
-
         var cart = OrderMethod.Create("USD", _userId, Guid.Empty).Value;
         cart.LineItems.Add(new Module.Ordering.Domain.LineItems.LineItem
         {
