@@ -76,8 +76,6 @@ public static class PaymentExtension
         services.AddScoped<ProcessStripeWebhookEventJob>();
 
         services.AddSingleton<IStripeWebhookService, StripeWebhookDispatcher>();
-        // TODO(follow-up): Remove legacy StripeWebhookHandler — StripeWebhookDispatcher is the current impl
-        services.AddSingleton<IWebhookHandler, StripeWebhookHandler>();
 
         services.AddHostedService<EncryptedConverterServiceProviderInitializer>();
 
