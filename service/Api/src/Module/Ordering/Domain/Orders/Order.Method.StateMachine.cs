@@ -77,6 +77,9 @@ public static partial class OrderMethod
         if (order.Status == OrderStatus.Canceled)
             return OrderResult.Errors.AlreadyCanceled;
 
+        if (order.Status != OrderStatus.Placed)
+            return OrderResult.Errors.InvalidStatusTransition;
+
         if (order.ApprovedById.HasValue)
             return OrderResult.Errors.AlreadyApproved;
 
