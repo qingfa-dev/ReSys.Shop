@@ -57,7 +57,9 @@ public static partial class ReserveCartStock
                     await transaction.RollbackAsync(cancellationToken);
                     return StockReservationResult.Errors.InsufficientStock;
                 }
-
+                // NOTE: Cart reservations have null OrderId. When cart converts to order,
+                // the OrderId must be patched so DecrementStockAsync can match reservations.
+                // See Module.Ordering for cart-to-order flow.
                 var result = StockReservationMethod.Reserve(variantId, quantity, stockLocationId, null, ttlMinutes, cartToken: cartToken);
                 if (result.IsFailure)
                 {
