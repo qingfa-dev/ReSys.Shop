@@ -67,14 +67,15 @@ public static partial class AddToCart
 
             // Reserve: Find the best location with stock and reserve via Inventory module.
             var primaryLocation = await dbContext.Set<StockItem>()
-                .Where(si => si.VariantId == request.VariantId && si.CountOnHand > 0)
+                .Include(si => si.StockLocation)
+                .Where(si => si.VariantId == request.VariantId && si.CountOnHand > 0 && si.StockLocation != null && si.StockLocation.Active)
                 .OrderByDescending(si => si.CountOnHand)
                 .FirstOrDefaultAsync(cancellationToken);
 
             if (primaryLocation is not null)
             {
                 var cartToken = currentUser.IsAuthenticated
-                    ? currentUser.UserId!
+                    ? currentUser.UserId ?? string.Empty
                     : currentUser.SessionId ?? string.Empty;
 
                 const int CartReservationTtlMinutes = 30;
