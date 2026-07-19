@@ -24,7 +24,7 @@ public sealed partial class PaymentCapture : Entity, IAuditable
     #endregion Properties
 
     #region Identifiers
-    public Guid PaymentMethodId { get; set; }
+    public Guid? PaymentMethodId { get; set; }
     public Guid OrderId { get; set; }
     public Guid? SourceId { get; set; }
     public string? SourceType { get; set; }

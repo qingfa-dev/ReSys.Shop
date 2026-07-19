@@ -21,7 +21,7 @@ public class PaymentStoreMappingTests
         response.Id.Should().Be(payment.Id);
         response.Amount.Should().Be(payment.Amount);
         response.OrderId.Should().Be(payment.OrderId);
-        response.PaymentMethodId.Should().Be(payment.PaymentMethodId);
+        response.PaymentMethodId.Should().Be(payment.PaymentMethodId.GetValueOrDefault());
         response.CreatedAtUtc.Should().Be(payment.CreatedAtUtc);
         response.ModifiedAtUtc.Should().Be(payment.ModifiedAtUtc);
     }
@@ -57,7 +57,7 @@ public class PaymentStoreMappingTests
         response.Id.Should().Be(payment.Id);
         response.Amount.Should().Be(payment.Amount);
         response.OrderId.Should().Be(payment.OrderId);
-        response.PaymentMethodId.Should().Be(payment.PaymentMethodId);
+        response.PaymentMethodId.Should().Be(payment.PaymentMethodId.GetValueOrDefault());
     }
 
     [Fact(DisplayName = "MapToStoreDetail: Should handle null optional fields")]

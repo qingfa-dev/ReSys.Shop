@@ -25,7 +25,7 @@ public static class PaymentStoreMapping
             Amount = payment.Amount,
             Currency = string.Empty,
             OrderId = payment.OrderId,
-            PaymentMethodId = payment.PaymentMethodId,
+            PaymentMethodId = payment.PaymentMethodId.GetValueOrDefault(),
             State = payment.State.ToString(),
             ClientSecret = payment.IntentClientSecret,
             CreatedAtUtc = payment.CreatedAtUtc,
@@ -41,7 +41,7 @@ public static class PaymentStoreMapping
             Amount = payment.Amount,
             Currency = string.Empty,
             OrderId = payment.OrderId,
-            PaymentMethodId = payment.PaymentMethodId,
+            PaymentMethodId = payment.PaymentMethodId.GetValueOrDefault(),
             State = payment.State.ToString(),
         };
     }
