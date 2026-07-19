@@ -80,7 +80,7 @@ public class UpdateCartItemQuantityTests : IDisposable
                     q => q.Request.VariantId == _variantId && q.Request.Quantity == 5),
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync(Result<CheckStockAvailability.Response>.Ok(
-                new CheckStockAvailability.Response { VariantId = _variantId, IsAvailable = true, TotalAvailable = 10 }));
+                new CheckStockAvailability.Response { VariantId = _variantId, IsAvailable = true }));
 
         // Act
         var result = await _handler.Handle(
@@ -123,7 +123,7 @@ public class UpdateCartItemQuantityTests : IDisposable
                     q => q.Request.VariantId == _variantId && q.Request.Quantity == 10),
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync(Result<CheckStockAvailability.Response>.Ok(
-                new CheckStockAvailability.Response { VariantId = _variantId, IsAvailable = false, TotalAvailable = 3 }));
+                new CheckStockAvailability.Response { VariantId = _variantId, IsAvailable = false }));
 
         // Act
         var result = await _handler.Handle(

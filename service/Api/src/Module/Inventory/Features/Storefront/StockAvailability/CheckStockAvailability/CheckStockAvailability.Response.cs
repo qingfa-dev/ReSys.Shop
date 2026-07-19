@@ -6,6 +6,5 @@ public static partial class CheckStockAvailability
     {
         public Guid VariantId { get; init; }
         public bool IsAvailable { get; init; }
-        public int TotalAvailable { get; init; }
     }
 }

@@ -15,7 +15,7 @@ public static partial class CheckStockAvailability
             var req = request.Request;
 
             if (req.Quantity <= 0)
-                return new Response { VariantId = req.VariantId, IsAvailable = true, TotalAvailable = 0 };
+                return new Response { VariantId = req.VariantId, IsAvailable = true };
 
             var isAvailable = await availabilityService.IsAvailableAnyLocationAsync(
                 req.VariantId, req.Quantity, cancellationToken);
@@ -23,8 +23,7 @@ public static partial class CheckStockAvailability
             return new Response
             {
                 VariantId = req.VariantId,
-                IsAvailable = isAvailable,
-                TotalAvailable = 0
+                IsAvailable = isAvailable
             };
         }
     }
