@@ -12,10 +12,5 @@ public static partial class LineItemMethod
         return Result.Ok(LineItemResult.Success.Recalculated(lineItem.Id));
     }
 
-    // Compute: FinalAmount = Total — Total already includes AdjustmentTotal from RecalculateTotal
-    public static decimal FinalAmount(this LineItem lineItem)
-    {
-        return lineItem.Total; // Total already includes AdjustmentTotal from RecalculateTotal
-    }
     #endregion
 }
