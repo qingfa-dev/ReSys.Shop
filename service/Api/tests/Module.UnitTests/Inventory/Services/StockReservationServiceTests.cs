@@ -99,6 +99,23 @@ public class StockReservationServiceTests : IDisposable
         result.Value.ExpiresAtUtc.Should().BeCloseTo(DateTimeOffset.UtcNow.AddMinutes(30), TimeSpan.FromMinutes(1));
     }
 
+    [Fact(DisplayName = "ReserveAsync: Should prevent oversell under concurrent reservations")]
+    [Trait("Category", "Integration")]
+    public async Task ReserveAsync_ShouldPreventOversell_UnderConcurrentReservations()
+    {
+        var ct = TestContext.Current.CancellationToken;
+        await SeedStockItem(5);
+
+        var tasks = Enumerable.Range(0, 3)
+            .Select(_ => _service.ReserveAsync(_variantId, 3, _stockLocationId, Guid.NewGuid(), cancellationToken: ct))
+            .ToList();
+
+        var results = await Task.WhenAll(tasks);
+
+        var successes = results.Count(r => r.IsSuccess);
+        successes.Should().Be(1);
+    }
+
     #endregion
 
     #region ReleaseReservationsAsync

@@ -1,3 +1,5 @@
+using System.Data;
+
 using Module.Inventory.Domain.StockLocations.StockItems;
 using Module.Inventory.Domain.StockReservations;
 using Module.Inventory.Services.Abstractions;
@@ -28,38 +30,55 @@ public class StockReservationService(IApplicationDbContext dbContext) : IStockRe
         int ttlMinutes = 30,
         CancellationToken cancellationToken = default)
     {
-        // Validate: Quantity must be positive for a valid reservation
         if (quantity <= 0)
             return StockReservationResult.Errors.QuantityZero;
 
-        // Load: Find the stock item for this variant at the specified location
-        var stockItem = await _dbContext.Set<StockItem>()
-            .FirstOrDefaultAsync(si => si.VariantId == variantId && si.StockLocationId == stockLocationId, cancellationToken);
+        await using var transaction = await _dbContext.BeginTransactionAsync(
+            IsolationLevel.Serializable, cancellationToken);
 
-        if (stockItem is null)
-            return StockReservationResult.Errors.InsufficientStock;
+        try
+        {
+            var stockItem = await _dbContext.Set<StockItem>()
+                .FirstOrDefaultAsync(si => si.VariantId == variantId && si.StockLocationId == stockLocationId, cancellationToken);
 
-        // Load: Sum already-reserved quantities for this variant and location
-        var reserved = await _dbContext.Set<StockReservation>()
-            .Where(r => r.VariantId == variantId
-                        && r.StockLocationId == stockLocationId
-                        && r.State == ReservationState.Reserved
-                        && r.ExpiresAtUtc > DateTimeOffset.UtcNow)
-            .SumAsync(r => r.Quantity, cancellationToken);
+            if (stockItem is null)
+            {
+                await transaction.RollbackAsync(cancellationToken);
+                return StockReservationResult.Errors.InsufficientStock;
+            }
 
-        // Compute: Available stock = on-hand minus already-reserved
-        var available = stockItem.CountOnHand - reserved;
-        if (available < quantity)
-            return StockReservationResult.Errors.InsufficientStock;
+            var reserved = await _dbContext.Set<StockReservation>()
+                .Where(r => r.VariantId == variantId
+                            && r.StockLocationId == stockLocationId
+                            && r.State == ReservationState.Reserved
+                            && r.ExpiresAtUtc > DateTimeOffset.UtcNow)
+                .SumAsync(r => r.Quantity, cancellationToken);
 
-        // Create: Build the reservation entity via domain factory method
-        var result = StockReservationMethod.Reserve(variantId, quantity, stockLocationId, orderId, ttlMinutes);
-        if (result.IsFailure) return result;
+            var available = stockItem.CountOnHand - reserved;
+            if (available < quantity)
+            {
+                await transaction.RollbackAsync(cancellationToken);
+                return StockReservationResult.Errors.InsufficientStock;
+            }
 
-        var reservation = result.Value;
-        _dbContext.Set<StockReservation>().Add(reservation);
+            var result = StockReservationMethod.Reserve(variantId, quantity, stockLocationId, orderId, ttlMinutes);
+            if (result.IsFailure)
+            {
+                await transaction.RollbackAsync(cancellationToken);
+                return result;
+            }
 
-        return reservation;
+            _dbContext.Set<StockReservation>().Add(result.Value);
+            await _dbContext.SaveChangesAsync(cancellationToken);
+            await transaction.CommitAsync(cancellationToken);
+
+            return result.Value;
+        }
+        catch
+        {
+            await transaction.RollbackAsync(cancellationToken);
+            throw;
+        }
     }
 
     /// <summary>Releases all active reservations for an order, restoring stock quantities.</summary>
