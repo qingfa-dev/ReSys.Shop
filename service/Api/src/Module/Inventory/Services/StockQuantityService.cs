@@ -43,8 +43,15 @@ public class StockQuantityService : IStockQuantityService
         if (stockItem is null)
             return StockItemResult.Errors.VariantNotFound(variantId);
 
-        // Validate: Ensure sufficient stock before decrementing
-        if (stockItem.CountOnHand < quantity)
+        // Compute available stock = on-hand minus active reserved
+        var activeReserved = await _dbContext.Set<StockReservation>()
+            .Where(r => r.VariantId == variantId
+                && r.StockLocationId == stockLocationId
+                && r.State == ReservationState.Reserved
+                && r.ExpiresAtUtc > DateTimeOffset.UtcNow)
+            .SumAsync(r => r.Quantity, cancellationToken);
+
+        if (stockItem.CountOnHand - activeReserved < quantity)
             return StockItemResult.Errors.InsufficientStock;
 
         var previousCount = stockItem.CountOnHand;
