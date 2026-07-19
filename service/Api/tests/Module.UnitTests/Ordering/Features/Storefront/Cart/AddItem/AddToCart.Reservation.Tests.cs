@@ -42,8 +42,8 @@ public class AddToCartReservationTests : IDisposable
 
     public void Dispose() { _dbContext.Dispose(); GC.SuppressFinalize(this); }
 
-    [Fact(DisplayName = "AddToCart: Dispatches ReserveCartStock after stock validation")]
-    public async Task Handle_ShouldDispatchReserveCartStock_WhenStockAvailable()
+    [Fact(DisplayName = "AddToCart: Dispatches ReserveCartStock when stock location exists")]
+    public async Task Handle_ShouldDispatchReserveCartStock_WhenStockLocationExists()
     {
         var variantId = Guid.NewGuid();
         var locationId = Guid.NewGuid();
