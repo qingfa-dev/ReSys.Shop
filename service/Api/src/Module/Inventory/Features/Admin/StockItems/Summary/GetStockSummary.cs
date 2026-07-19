@@ -58,7 +58,7 @@ public static partial class GetStockSummary
                             CountOnHand = si.CountOnHand,
                             Reserved = reserved,
                             Available = available >= 0 ? available : 0,
-                            IsLowStock = si.StockLocation != null && si.CountOnHand <= si.StockLocation.LowStockThreshold
+                            IsLowStock = si.StockLocation != null && available <= si.StockLocation.LowStockThreshold
                         };
                     }).ToList();
 
