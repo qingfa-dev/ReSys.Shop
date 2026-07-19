@@ -28,14 +28,16 @@ const { defineField, handleSubmit, errors, setValues } = useForm({
   validationSchema: toTypedSchema(createStaffSchema(t)),
   initialValues: {
     email: '',
-    displayName: '',
+    firstName: '',
+    lastName: '',
     roleIds: [],
     isActive: true,
   },
 })
 
 const [email] = defineField('email')
-const [displayName] = defineField('displayName')
+const [firstName] = defineField('firstName')
+const [lastName] = defineField('lastName')
 const [roleIds] = defineField('roleIds')
 const [isActive] = defineField('isActive')
 const [password] = defineField('password')
@@ -68,7 +70,8 @@ async function loadUser() {
     const user = res.value
     setValues({
       email: user.email,
-      displayName: [user.firstName, user.lastName].filter(Boolean).join(' ') || user.email,
+      firstName: user.firstName ?? '',
+      lastName: user.lastName ?? '',
       roleIds: (user as any).roles || [],
       isActive: (user as any).isActive ?? true,
     })
@@ -83,8 +86,8 @@ const onSubmit = handleSubmit(async (values) => {
   try {
     if (isEditMode.value) {
       const updateData: UpdateAdminUserRequest = {
-        firstName: values.displayName,
-        lastName: '',
+        firstName: values.firstName,
+        lastName: values.lastName,
         role: values.roleIds,
         isActive: values.isActive ?? true,
       }
@@ -96,8 +99,8 @@ const onSubmit = handleSubmit(async (values) => {
     } else {
       const createData: CreateAdminUserRequest = {
         email: values.email,
-        firstName: values.displayName,
-        lastName: '',
+        firstName: values.firstName,
+        lastName: values.lastName,
         role: values.roleIds,
         password: values.password || '',
         isActive: true,
@@ -146,9 +149,15 @@ const onSubmit = handleSubmit(async (values) => {
         <div v-else />
       </div>
 
-      <FormField label="Display Name" name="displayName" :error="errors.displayName">
-        <InputText v-model="displayName" class="w-full" :invalid="!!errors.displayName" placeholder="Full name" />
-      </FormField>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <FormField label="First Name" name="firstName" :error="errors.firstName">
+          <InputText v-model="firstName" class="w-full" :invalid="!!errors.firstName" placeholder="First name" />
+        </FormField>
+
+        <FormField label="Last Name" name="lastName" :error="errors.lastName">
+          <InputText v-model="lastName" class="w-full" :invalid="!!errors.lastName" placeholder="Last name" />
+        </FormField>
+      </div>
 
       <Divider />
 

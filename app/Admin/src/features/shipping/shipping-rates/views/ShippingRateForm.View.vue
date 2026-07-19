@@ -25,11 +25,19 @@ const { defineField, handleSubmit, errors, setValues } = useForm({
     shippingMethodId: '',
     name: '',
     rate: 0,
+    fromWeight: null,
+    toWeight: null,
+    fromTotal: null,
+    toTotal: null,
   },
 })
 
 const [name] = defineField('name')
 const [rate] = defineField('rate')
+const [fromWeight] = defineField('fromWeight')
+const [toWeight] = defineField('toWeight')
+const [fromTotal] = defineField('fromTotal')
+const [toTotal] = defineField('toTotal')
 
 onMounted(async () => {
   if (isEdit) {
@@ -40,6 +48,10 @@ onMounted(async () => {
         shippingMethodId: c.shippingMethodId ?? '',
         name: c.name,
         rate: c.cost ?? c.rate ?? 0,
+        fromWeight: c.fromWeight ?? null,
+        toWeight: c.toWeight ?? null,
+        fromTotal: c.fromTotal ?? null,
+        toTotal: c.toTotal ?? null,
       })
     }
   }
@@ -66,6 +78,21 @@ const onSubmit = handleSubmit(async (values) => {
     <FormField label="Rate" name="rate" :error="errors.rate">
       <InputNumber v-model="rate" placeholder="Rate" class="w-full" :min="0" />
     </FormField>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <FormField label="From Weight" name="fromWeight" :error="errors.fromWeight">
+        <InputNumber v-model="fromWeight" placeholder="From weight" class="w-full" :min="0" />
+      </FormField>
+      <FormField label="To Weight" name="toWeight" :error="errors.toWeight">
+        <InputNumber v-model="toWeight" placeholder="To weight" class="w-full" :min="0" />
+      </FormField>
+      <FormField label="From Total" name="fromTotal" :error="errors.fromTotal">
+        <InputNumber v-model="fromTotal" placeholder="From total" class="w-full" :min="0" />
+      </FormField>
+      <FormField label="To Total" name="toTotal" :error="errors.toTotal">
+        <InputNumber v-model="toTotal" placeholder="To total" class="w-full" :min="0" />
+      </FormField>
+    </div>
 
     <Button type="submit" :loading="submitting" :label="isEdit ? 'Update' : 'Create'" class="rounded-xl" />
   </form>

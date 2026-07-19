@@ -60,7 +60,7 @@ function onPage(event: DataTablePageEvent) {
 }
 
 function onSort(event: DataTableSortEvent) {
-  sortField.value = event.sortField ?? undefined
+  sortField.value = event.sortField as string | undefined ?? undefined
   sortOrder.value = event.sortOrder ?? undefined
   fetchMovements()
 }
