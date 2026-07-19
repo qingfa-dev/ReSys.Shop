@@ -10,7 +10,7 @@ public class NotificationPreferencesExtensionsTests
     [Fact(DisplayName = "Create should return default preferences with all enabled")]
     public void Create_ShouldReturnAllEnabled()
     {
-        Result<NotificationPreferences> result = NotificationPreferencesExtensions.Create();
+        Result<NotificationPreferences> result = NotificationPreferencesMethod.Create();
 
         result.IsSuccess.Should().BeTrue();
         result.Value.EnableSms.Should().BeTrue();
@@ -24,7 +24,7 @@ public class NotificationPreferencesExtensionsTests
     [InlineData("Newsfeeds", false)]
     public void Update_ShouldModifySpecifiedPreference(string field, bool value)
     {
-        Result<NotificationPreferences> result = NotificationPreferencesExtensions.Create();
+        Result<NotificationPreferences> result = NotificationPreferencesMethod.Create();
 
         Result<NotificationPreferences> updated = field switch
         {
@@ -42,7 +42,7 @@ public class NotificationPreferencesExtensionsTests
     [Fact(DisplayName = "Update should preserve other fields when updating one")]
     public void Update_ShouldPreserveOtherFields()
     {
-        Result<NotificationPreferences> result = NotificationPreferencesExtensions.Create();
+        Result<NotificationPreferences> result = NotificationPreferencesMethod.Create();
 
         Result<NotificationPreferences> updated = result.Value.Update(enableSms: false);
 

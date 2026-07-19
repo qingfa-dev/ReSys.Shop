@@ -28,6 +28,6 @@ public sealed partial class NotificationPreferences : ValueObject
         bool? enableEmail = true,
         bool? enableNewsfeeds = true)
     {
-        return NotificationPreferencesExtensions.Create(enableSms, enableEmail, enableNewsfeeds);
+        return NotificationPreferencesMethod.Create(enableSms, enableEmail, enableNewsfeeds);
     }
 }

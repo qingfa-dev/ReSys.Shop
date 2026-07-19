@@ -1,5 +1,7 @@
 using Module.Profile.Features.Shared;
 
+using Shared.Security.Identity.Domain.Users;
+
 namespace Module.Profile.Features.Store.Wishlists.Create;
 
 public static partial class CreateWishlist
@@ -11,9 +13,13 @@ public static partial class CreateWishlist
             app.MapPost(ProfileFeature.Store.Wishlists.Create.Route, async (
                     [FromBody] Request request,
                     ISender sender,
+                    ICurrentUser currentUser,
                     CancellationToken cancellationToken) =>
                 {
-                    var command = new Command(request);
+                    if (string.IsNullOrEmpty(currentUser.UserId))
+                        return Results.Unauthorized();
+
+                    var command = new Command(Guid.Parse(currentUser.UserId), request);
                     var result = await sender.Send(command, cancellationToken);
                     return result.ToResult();
                 })

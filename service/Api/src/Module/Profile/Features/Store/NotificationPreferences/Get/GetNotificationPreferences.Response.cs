@@ -1,4 +1,4 @@
-using Module.Profile.Features.Store.Profiles.Shared.Models;
+using Module.Profile.Features.Admin.Profiles.Shared.Models;
 
 namespace Module.Profile.Features.Store.NotificationPreferences.Get;
 

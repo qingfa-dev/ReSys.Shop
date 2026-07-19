@@ -1,4 +1,4 @@
-using Module.Profile.Features.Store.Profiles.Shared.Models;
+using Module.Profile.Features.Admin.Profiles.Shared.Models;
 
 namespace Module.Profile.Features.Store.Profiles.Update;
 
@@ -7,11 +7,8 @@ public static partial class UpdateProfile
     /// <summary>
     /// Represents the request contract for updating profile fields.
     /// </summary>
-    public class Request : ProfileRequest
+    public record Request : ProfileRequest
     {
-        /// <summary>
-        /// Gets or initializes the password required for sensitive changes.
-        /// </summary>
         public string? Password { get; init; }
     }
 }

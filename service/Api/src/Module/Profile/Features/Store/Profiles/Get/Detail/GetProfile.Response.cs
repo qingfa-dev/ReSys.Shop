@@ -1,8 +1,8 @@
-using Module.Profile.Features.Store.Profiles.Shared.Models;
+using Module.Profile.Features.Admin.Profiles.Shared.Models;
 
 namespace Module.Profile.Features.Store.Profiles.Get.Detail;
 
 public static partial class GetProfile
 {
-    public class Response : ProfileDetailResponse { }
+    public record Response : ProfileDetailResponse;
 }

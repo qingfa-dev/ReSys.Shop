@@ -1,7 +1,6 @@
 using Module.Profile.Domain;
 using Module.Profile.Domain.Addresses;
 using Module.Profile.Features.Store.Addresses.Create;
-using Module.UnitTests.Identity.Fixtures;
 using Module.UnitTests.Profile.Domain;
 
 using Shared.Security.Identity.Domain.Users;
@@ -14,7 +13,6 @@ namespace Module.UnitTests.Profile.Features.Store.Addresses.Create;
 public class CreateAddressTests : IDisposable
 {
     private readonly ApplicationDbContext _dbContext;
-    private readonly Mock<ICurrentUser> _currentUserMock;
     private readonly CreateAddress.CommandHandler _handler;
     private readonly Guid _userId = Guid.NewGuid();
 
@@ -27,9 +25,7 @@ public class CreateAddressTests : IDisposable
         ApplicationDbContext.AdditionalConfigurationsAssemblies = [typeof(UserProfile).Assembly];
 
         _dbContext = new ApplicationDbContext(options);
-        _currentUserMock = IdentityMocks.CreateCurrentUserMock(_userId);
-        
-        _handler = new CreateAddress.CommandHandler(_dbContext, _currentUserMock.Object);
+        _handler = new CreateAddress.CommandHandler(_dbContext);
     }
 
     public void Dispose()
@@ -66,7 +62,7 @@ public class CreateAddressTests : IDisposable
         var request = CreateValidRequest(isDefault: false);
 
         // Act
-        var result = await _handler.Handle(new CreateAddress.Command(request), TestContext.Current.CancellationToken);
+        var result = await _handler.Handle(new CreateAddress.Command(_userId, request), TestContext.Current.CancellationToken);
 
         // Assert
         result.IsSuccess.Should().BeTrue();
@@ -77,21 +73,6 @@ public class CreateAddressTests : IDisposable
         updatedProfile.Addresses.First().IsDefault.Should().BeTrue();
     }
 
-    [Fact(DisplayName = "Handle: Should return Unauthorized if user is not authenticated")]
-    public async Task Handle_ShouldReturnUnauthorized_WhenUserNotAuthenticated()
-    {
-        // Arrange
-        _currentUserMock.Setup(x => x.UserId).Returns((string?)null);
-        var request = CreateValidRequest();
-
-        // Act
-        var result = await _handler.Handle(new CreateAddress.Command(request), TestContext.Current.CancellationToken);
-
-        // Assert
-        result.IsFailure.Should().BeTrue();
-        result.StatusCode.Should().Be(401);
-    }
-
     [Fact(DisplayName = "Handle: Should return NotFound if profile does not exist")]
     public async Task Handle_ShouldReturnNotFound_WhenProfileMissing()
     {
@@ -99,7 +80,7 @@ public class CreateAddressTests : IDisposable
         var request = CreateValidRequest();
 
         // Act
-        var result = await _handler.Handle(new CreateAddress.Command(request), TestContext.Current.CancellationToken);
+        var result = await _handler.Handle(new CreateAddress.Command(_userId, request), TestContext.Current.CancellationToken);
 
         // Assert
         result.IsFailure.Should().BeTrue();
@@ -123,7 +104,7 @@ public class CreateAddressTests : IDisposable
         var request = CreateValidRequest(address1: "New St");
 
         // Act
-        var result = await _handler.Handle(new CreateAddress.Command(request), TestContext.Current.CancellationToken);
+        var result = await _handler.Handle(new CreateAddress.Command(_userId, request), TestContext.Current.CancellationToken);
 
         // Assert
         result.IsFailure.Should().BeTrue();
@@ -145,7 +126,7 @@ public class CreateAddressTests : IDisposable
         var request = CreateValidRequest(type: AddressType.Shipping, address1: "New St");
 
         // Act
-        var result = await _handler.Handle(new CreateAddress.Command(request), TestContext.Current.CancellationToken);
+        var result = await _handler.Handle(new CreateAddress.Command(_userId, request), TestContext.Current.CancellationToken);
 
         // Assert
         result.IsFailure.Should().BeTrue();
@@ -165,7 +146,7 @@ public class CreateAddressTests : IDisposable
         var request = CreateValidRequest(); // Same as existing
 
         // Act
-        var result = await _handler.Handle(new CreateAddress.Command(request), TestContext.Current.CancellationToken);
+        var result = await _handler.Handle(new CreateAddress.Command(_userId, request), TestContext.Current.CancellationToken);
 
         // Assert
         result.IsFailure.Should().BeTrue();
@@ -185,7 +166,7 @@ public class CreateAddressTests : IDisposable
         var request = CreateValidRequest(type: AddressType.Shipping, address1: "New St", isDefault: true);
 
         // Act
-        var result = await _handler.Handle(new CreateAddress.Command(request), TestContext.Current.CancellationToken);
+        var result = await _handler.Handle(new CreateAddress.Command(_userId, request), TestContext.Current.CancellationToken);
 
         // Assert
         result.IsSuccess.Should().BeTrue();

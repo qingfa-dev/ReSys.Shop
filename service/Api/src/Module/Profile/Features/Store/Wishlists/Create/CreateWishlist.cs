@@ -5,19 +5,16 @@ namespace Module.Profile.Features.Store.Wishlists.Create;
 
 public static partial class CreateWishlist
 {
-    public sealed record Command(Request Request) : ICommand<Response>;
+    public sealed record Command(Guid UserId, Request Request) : ICommand<Response>;
 
-    public sealed class CommandHandler(IApplicationDbContext dbContext, ICurrentUser currentUser)
+    public sealed class CommandHandler(IApplicationDbContext dbContext)
         : ICommandHandler<Command, Response>
     {
         public async Task<Result<Response>> Handle(Command command, CancellationToken cancellationToken)
         {
-            if (string.IsNullOrEmpty(currentUser.UserId))
-                return WishlistResult.Failure.AuthRequired;
-
             var createResult = WishlistExtensions.Create(
                 name: command.Request.Name,
-                userId: Guid.Parse(currentUser.UserId),
+                userId: command.UserId,
                 isPrivate: command.Request.IsPrivate);
 
             if (createResult.IsFailure)

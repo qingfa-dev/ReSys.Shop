@@ -1,18 +1,18 @@
 using Module.Profile.Domain;
-using Module.Profile.Features.Store.Profiles.Get.PagedOrAll;
+using Module.Profile.Features.Admin.Profiles.Get.PagedOrAll;
 using Module.UnitTests.Profile.Domain;
 
-namespace Module.UnitTests.Profile.Features.Store.Profile.Get.PagedOrAll;
+namespace Module.UnitTests.Profile.Features.Admin.Profile.Get.PagedOrAll;
 
 [Trait("Category", "Unit")]
 [Trait("Module", "Identity")]
 [Trait("Feature", "ProfileGetAll")]
-public class GetProfilesPagedOrAllTests : IDisposable
+public class GetUserProfilesPagedOrAllTests : IDisposable
 {
     private readonly ApplicationDbContext _dbContext;
-    private readonly GetProfilesPagedOrAll.QueryHandler _handler;
+    private readonly GetUserProfilesPagedOrAll.QueryHandler _handler;
 
-    public GetProfilesPagedOrAllTests()
+    public GetUserProfilesPagedOrAllTests()
     {
         var options = new DbContextOptionsBuilder<ApplicationDbContext>()
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
@@ -21,7 +21,7 @@ public class GetProfilesPagedOrAllTests : IDisposable
         ApplicationDbContext.AdditionalConfigurationsAssemblies = [typeof(UserProfile).Assembly];
 
         _dbContext = new ApplicationDbContext(options);
-        _handler = new GetProfilesPagedOrAll.QueryHandler(_dbContext);
+        _handler = new GetUserProfilesPagedOrAll.QueryHandler(_dbContext);
     }
 
     public void Dispose()
@@ -39,7 +39,7 @@ public class GetProfilesPagedOrAllTests : IDisposable
         _dbContext.Set<UserProfile>().AddRange(profile1, profile2);
         await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 
-        var result = await _handler.Handle(new GetProfilesPagedOrAll.Query(new GetProfilesPagedOrAll.Parameters()), TestContext.Current.CancellationToken);
+        var result = await _handler.Handle(new GetUserProfilesPagedOrAll.Query(new GetUserProfilesPagedOrAll.Parameters()), TestContext.Current.CancellationToken);
 
         result.Items.Should().HaveCount(2);
         result.TotalCount.Should().Be(2);
@@ -49,7 +49,7 @@ public class GetProfilesPagedOrAllTests : IDisposable
     [Fact(DisplayName = "Handle: Should return empty list when no profiles")]
     public async Task Handle_ShouldReturnEmptyList_WhenNoProfiles()
     {
-        var result = await _handler.Handle(new GetProfilesPagedOrAll.Query(new GetProfilesPagedOrAll.Parameters()), TestContext.Current.CancellationToken);
+        var result = await _handler.Handle(new GetUserProfilesPagedOrAll.Query(new GetUserProfilesPagedOrAll.Parameters()), TestContext.Current.CancellationToken);
 
         result.Items.Should().BeEmpty();
         result.TotalCount.Should().Be(0);
@@ -65,7 +65,7 @@ public class GetProfilesPagedOrAllTests : IDisposable
         }
         await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 
-        var result = await _handler.Handle(new GetProfilesPagedOrAll.Query(new GetProfilesPagedOrAll.Parameters { PageNumber = 1, PageSize = 2 }), TestContext.Current.CancellationToken);
+        var result = await _handler.Handle(new GetUserProfilesPagedOrAll.Query(new GetUserProfilesPagedOrAll.Parameters { PageNumber = 1, PageSize = 2 }), TestContext.Current.CancellationToken);
 
         result.Items.Should().HaveCount(2);
         result.TotalCount.Should().Be(5);
@@ -83,7 +83,7 @@ public class GetProfilesPagedOrAllTests : IDisposable
         }
         await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 
-        var result = await _handler.Handle(new GetProfilesPagedOrAll.Query(new GetProfilesPagedOrAll.Parameters { PageNumber = 2, PageSize = 2 }), TestContext.Current.CancellationToken);
+        var result = await _handler.Handle(new GetUserProfilesPagedOrAll.Query(new GetUserProfilesPagedOrAll.Parameters { PageNumber = 2, PageSize = 2 }), TestContext.Current.CancellationToken);
 
         result.Items.Should().HaveCount(2);
         result.TotalCount.Should().Be(5);
@@ -100,7 +100,7 @@ public class GetProfilesPagedOrAllTests : IDisposable
         }
         await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 
-        var result = await _handler.Handle(new GetProfilesPagedOrAll.Query(new GetProfilesPagedOrAll.Parameters { PageNumber = 1, PageSize = 10 }), TestContext.Current.CancellationToken);
+        var result = await _handler.Handle(new GetUserProfilesPagedOrAll.Query(new GetUserProfilesPagedOrAll.Parameters { PageNumber = 1, PageSize = 10 }), TestContext.Current.CancellationToken);
 
         result.Items.Should().HaveCount(3);
         result.TotalCount.Should().Be(3);

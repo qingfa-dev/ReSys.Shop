@@ -5,21 +5,18 @@ namespace Module.Profile.Features.Store.Wishlists.Get;
 
 public static partial class GetWishlists
 {
-    public sealed record Query(Parameters Parameters) : IPagedQuery<Response>;
+    public sealed record Query(Guid UserId, Parameters Parameters) : IPagedQuery<Response>;
 
-    public sealed class PagedQueryHandler(IApplicationDbContext dbContext, ICurrentUser currentUser)
+    public sealed class PagedQueryHandler(IApplicationDbContext dbContext)
         : IPagedQueryHandler<Query, Response>
     {
         public async Task<PagedResult<Response>> Handle(Query request, CancellationToken cancellationToken)
         {
-            if (string.IsNullOrEmpty(currentUser.UserId))
-                return PagedResult<Response>.Create(items: [], page: 1, pageSize: 10, totalCount: 0);
-
             var page = request.Parameters.PageNumber ?? 1;
             var pageSize = request.Parameters.PageSize ?? 10;
 
             var query = dbContext.Set<Wishlist>()
-                .Where(w => w.UserId == Guid.Parse(currentUser.UserId) && !w.IsDeleted);
+                .Where(w => w.UserId == request.UserId && !w.IsDeleted);
 
             var totalCount = await query.CountAsync(cancellationToken);
 

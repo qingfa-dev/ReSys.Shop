@@ -1,5 +1,7 @@
 using Module.Profile.Features.Shared;
 
+using Shared.Security.Identity.Domain.Users;
+
 namespace Module.Profile.Features.Store.NotificationPreferences.Update;
 
 public static partial class UpdateNotificationPreferences
@@ -11,9 +13,13 @@ public static partial class UpdateNotificationPreferences
             app.MapPut(ProfileFeature.Store.NotificationPreferences.Update.Route, async (
                 [FromBody] Request request,
                 ISender sender,
+                ICurrentUser currentUser,
                 CancellationToken ct) =>
             {
-                var result = await sender.Send(new Command(request), ct);
+                if (string.IsNullOrEmpty(currentUser.UserId))
+                    return Results.Unauthorized();
+
+                var result = await sender.Send(new Command(Guid.Parse(currentUser.UserId), request), ct);
                 return result.ToResult();
             })
             .RequireAuthorization()

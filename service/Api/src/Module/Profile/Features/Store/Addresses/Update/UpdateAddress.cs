@@ -1,6 +1,6 @@
 using Module.Profile.Domain;
 using Module.Profile.Domain.Addresses;
-using Module.Profile.Features.Store.Addresses.Shared.Mappings;
+using Module.Profile.Features.Admin.Addresses.Shared.Mappings;
 
 using Shared.Security.Identity.Domain.Users;
 
@@ -9,40 +9,26 @@ namespace Module.Profile.Features.Store.Addresses.Update;
 /// <summary>Updates an existing address on the authenticated user's profile.</summary>
 public static partial class UpdateAddress
 {
-    public sealed record Command(Guid Id, Request Request) : ICommand<Response>;
+    public sealed record Command(Guid UserId, Guid Id, Request Request) : ICommand<Response>;
 
     public sealed class CommandHandler(
-        IApplicationDbContext dbContext,
-        ICurrentUser currentUser)
+        IApplicationDbContext dbContext)
         : ICommandHandler<Command, Response>
     {
-        /// <summary>Validates duplicates and per-type limits, updates the entity, and enforces default-address invariants.</summary>
-        /// <param name="command">The command containing the address ID and update data.</param>
-        /// <param name="cancellationToken">Propagates cancellation signal.</param>
-        /// <returns>A result containing the updated address response or an error.</returns>
-        /// <exception cref="DbUpdateException">Thrown when database persistence fails.</exception>
         public async Task<Result<Response>> Handle(Command command, CancellationToken cancellationToken)
         {
-            // Contract: pre=user authenticated && address exists, post=address updated, throws=DbUpdateException
             var request = command.Request;
 
-            // Check: Ensure user is authenticated
-            if (string.IsNullOrEmpty(currentUser.UserId))
-                return AddressResult.Failure.AuthRequired;
-
-            // Load: Get the profile with addresses
             var profile = await dbContext.Set<UserProfile>()
-                .FirstOrDefaultAsync(p => p.UserId == Guid.Parse(currentUser.UserId), cancellationToken);
+                .FirstOrDefaultAsync(p => p.UserId == command.UserId, cancellationToken);
 
             if (profile is null)
                 return UserResult.Failure.NotFound;
 
-            // Check: Address exists in profile
             var address = profile.Addresses.FirstOrDefault(a => a.Id == command.Id);
             if (address is null)
                 return AddressResult.Failure.NotFound;
 
-            // Validate: No duplicates (check relevant fields, excluding current address)
             var isDuplicate = profile.Addresses.Any(a =>
                 a.Id != command.Id &&
                 a.Address1.Equals(request.Address1, StringComparison.OrdinalIgnoreCase) &&
@@ -55,7 +41,6 @@ public static partial class UpdateAddress
             if (isDuplicate)
                 return AddressResult.Failure.DuplicateAddress;
 
-            // Check: If address type is changing, validate per-type limit for NEW type
             if (address.AddressType != request.AddressType)
             {
                 var newTypeCount = profile.Addresses.Count(a => a.AddressType == request.AddressType);
@@ -66,35 +51,26 @@ public static partial class UpdateAddress
             var oldType = address.AddressType;
             var wasDefault = address.IsDefault;
 
-            // Update: Apply changes to entity
             address.UpdateEntity(request);
 
-            // Enforce: 1 and only 1 default per type
             var sameTypeAddresses = profile.Addresses
                 .Where(a => a.AddressType == address.AddressType && a.Id != address.Id)
                 .ToList();
 
-            // If it's the only one of its type, it must be default
             if (sameTypeAddresses.Count == 0)
             {
                 address.IsDefault = true;
             }
             else if (address.IsDefault)
             {
-                // If set to default, unset others of same type
                 foreach (var existing in sameTypeAddresses)
-                {
                     existing.IsDefault = false;
-                }
             }
             else if (wasDefault && !address.IsDefault)
             {
-                // If it was default and now it's not, we MUST have another default for this type
-                // Pick the first one from the list and make it default
                 sameTypeAddresses[0].IsDefault = true;
             }
 
-            // If the type changed, we might need to fix the OLD type's default address
             if (oldType != address.AddressType)
             {
                 var oldTypeAddresses = profile.Addresses
@@ -102,14 +78,11 @@ public static partial class UpdateAddress
                     .ToList();
 
                 if (oldTypeAddresses.Count > 0 && !oldTypeAddresses.Any(a => a.IsDefault))
-                {
                     oldTypeAddresses[0].IsDefault = true;
-                }
             }
 
             await dbContext.SaveChangesAsync(cancellationToken);
 
-            // Map: Domain entity to response DTO
             return address.ToResponse<Response>();
         }
     }

@@ -16,7 +16,7 @@ public static class ProfileFeature
     {
         private const string StoreRoute = "api/store/profiles";
 
-        public static class Profile
+        public static class Profiles
         {
             private const string BaseRoute = $"{StoreRoute}/profiles";
 

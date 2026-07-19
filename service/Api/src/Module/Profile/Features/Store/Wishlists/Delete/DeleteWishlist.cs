@@ -5,19 +5,16 @@ namespace Module.Profile.Features.Store.Wishlists.Delete;
 
 public static partial class DeleteWishlist
 {
-    public sealed record Command(Guid Id) : ICommand<Response>;
+    public sealed record Command(Guid UserId, Guid Id, string? DeletedBy = null) : ICommand<Response>;
 
-    public sealed class CommandHandler(IApplicationDbContext dbContext, ICurrentUser currentUser)
+    public sealed class CommandHandler(IApplicationDbContext dbContext)
         : ICommandHandler<Command, Response>
     {
         public async Task<Result<Response>> Handle(Command command, CancellationToken cancellationToken)
         {
-            if (string.IsNullOrEmpty(currentUser.UserId))
-                return WishlistResult.Failure.AuthRequired;
-
             var wishlist = await dbContext.Set<Wishlist>()
                 .FirstOrDefaultAsync(
-                    w => w.Id == command.Id && w.UserId == Guid.Parse(currentUser.UserId) && !w.IsDeleted,
+                    w => w.Id == command.Id && w.UserId == command.UserId && !w.IsDeleted,
                     cancellationToken);
 
             if (wishlist is null)
@@ -25,7 +22,7 @@ public static partial class DeleteWishlist
 
             wishlist.IsDeleted = true;
             wishlist.DeletedAtUtc = DateTimeOffset.UtcNow;
-            wishlist.DeletedBy = currentUser.UserName;
+            wishlist.DeletedBy = command.DeletedBy ?? command.UserId.ToString();
 
             await dbContext.SaveChangesAsync(cancellationToken);
 

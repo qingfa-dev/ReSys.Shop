@@ -1,6 +1,6 @@
 using Module.Profile.Domain.Preferences;
-using Module.Profile.Features.Store.Profiles.Shared.Mappings;
-using Module.Profile.Features.Store.Profiles.Shared.Models;
+using Module.Profile.Features.Admin.Profiles.Shared.Mappings;
+using Module.Profile.Features.Admin.Profiles.Shared.Models;
 using Module.UnitTests.Profile.Domain;
 
 namespace Module.UnitTests.Profile.Features.Store.Profile.Shared.Mappings;
@@ -10,9 +10,9 @@ namespace Module.UnitTests.Profile.Features.Store.Profile.Shared.Mappings;
 [Trait("Feature", "ProfileMapping")]
 public class ProfileMappingTests
 {
-    private sealed class TestProfileRequest : ProfileRequest { }
-    private sealed class TestProfileDetailResponse : ProfileDetailResponse { }
-    private sealed class TestProfileListItemResponse : ProfileListItemResponse { }
+    private sealed record TestProfileRequest : ProfileRequest;
+    private sealed record TestProfileDetailResponse : ProfileDetailResponse;
+    private sealed record TestProfileListItemResponse : ProfileListItemResponse;
 
     [Fact(DisplayName = "Should map request to entity with all properties including preferences")]
     public void ToEntity_ShouldMapRequestToEntity()

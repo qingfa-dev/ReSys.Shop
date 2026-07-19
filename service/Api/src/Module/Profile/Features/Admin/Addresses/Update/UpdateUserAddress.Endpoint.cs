@@ -1,4 +1,5 @@
 using Module.Profile.Features.Shared;
+using Module.Profile.Features.Store.Addresses.Update;
 
 namespace Module.Profile.Features.Admin.Addresses.Update;
 
@@ -10,11 +11,11 @@ public static partial class UpdateUserAddress
         {
             app.MapPut(ProfileFeature.Admin.Addresses.Update.Route, async (
                 [FromRoute] Guid id,
-                [FromBody] Request request,
+                [FromBody] UpdateAddress.Request request,
                 ISender sender,
                 CancellationToken ct) =>
             {
-                var command = new Command(id, request);
+                var command = new UpdateAddress.Command(request.UserId, id, request);
                 var result = await sender.Send(command, ct);
                 return result.ToResult();
             })
@@ -23,7 +24,7 @@ public static partial class UpdateUserAddress
             .WithTags(ProfileFeature.Tags.Address)
             .WithSummary(ProfileFeature.Admin.Addresses.Update.Summary)
             .WithDescription(ProfileFeature.Admin.Addresses.Update.Description)
-            .Produces<Result<Response>>()
+            .Produces<Result<UpdateAddress.Response>>()
             .Produces<Result>(StatusCodes.Status400BadRequest)
             .Produces<Result>(StatusCodes.Status404NotFound);
         }

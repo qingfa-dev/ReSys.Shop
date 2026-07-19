@@ -10,7 +10,6 @@ namespace Module.UnitTests.Profile.Features.Store.Profile.Update;
 public class UpdateProfileTests : IDisposable
 {
     private readonly ApplicationDbContext _dbContext;
-    private readonly Mock<ICurrentUser> _currentUserMock;
     private readonly Guid _userId = Guid.NewGuid();
 
     public UpdateProfileTests()
@@ -22,9 +21,6 @@ public class UpdateProfileTests : IDisposable
         ApplicationDbContext.AdditionalConfigurationsAssemblies = [typeof(UserProfile).Assembly];
 
         _dbContext = new ApplicationDbContext(options);
-        _currentUserMock = new Mock<ICurrentUser>();
-        _currentUserMock.Setup(x => x.UserId).Returns(_userId.ToString());
-        _currentUserMock.Setup(x => x.UserName).Returns("test-user");
     }
 
     public void Dispose()
@@ -33,7 +29,7 @@ public class UpdateProfileTests : IDisposable
         GC.SuppressFinalize(this);
     }
 
-    private UpdateProfile.CommandHandler CreateHandler() => new(_dbContext, _currentUserMock.Object);
+    private UpdateProfile.CommandHandler CreateHandler() => new(_dbContext);
 
     private static UpdateProfile.Request SampleRequest() => new()
     {

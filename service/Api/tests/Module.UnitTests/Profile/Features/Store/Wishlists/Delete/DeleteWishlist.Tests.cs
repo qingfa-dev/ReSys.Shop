@@ -1,7 +1,6 @@
 using Module.Profile.Domain;
 using Module.Profile.Domain.Wishlists;
 using Module.Profile.Features.Store.Wishlists.Delete;
-using Module.UnitTests.Identity.Fixtures;
 
 namespace Module.UnitTests.Profile.Features.Store.Wishlists.Delete;
 
@@ -11,7 +10,6 @@ namespace Module.UnitTests.Profile.Features.Store.Wishlists.Delete;
 public class DeleteWishlistTests : IDisposable
 {
     private readonly ApplicationDbContext _dbContext;
-    private readonly Mock<ICurrentUser> _currentUserMock;
     private readonly DeleteWishlist.CommandHandler _handler;
     private readonly Guid _userId = Guid.NewGuid();
 
@@ -24,9 +22,7 @@ public class DeleteWishlistTests : IDisposable
         ApplicationDbContext.AdditionalConfigurationsAssemblies = [typeof(UserProfile).Assembly];
 
         _dbContext = new ApplicationDbContext(options);
-        _currentUserMock = IdentityMocks.CreateCurrentUserMock(_userId);
-        _currentUserMock.Setup(x => x.UserName).Returns("testuser");
-        _handler = new DeleteWishlist.CommandHandler(_dbContext, _currentUserMock.Object);
+        _handler = new DeleteWishlist.CommandHandler(_dbContext);
     }
 
     public void Dispose()
@@ -42,7 +38,7 @@ public class DeleteWishlistTests : IDisposable
         _dbContext.Set<Wishlist>().Add(wishlist);
         await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 
-        var result = await _handler.Handle(new DeleteWishlist.Command(wishlist.Id), TestContext.Current.CancellationToken);
+        var result = await _handler.Handle(new DeleteWishlist.Command(_userId, wishlist.Id, "testuser"), TestContext.Current.CancellationToken);
 
         result.IsSuccess.Should().BeTrue();
 
@@ -53,21 +49,10 @@ public class DeleteWishlistTests : IDisposable
         deleted.DeletedBy.Should().Be("testuser");
     }
 
-    [Fact(DisplayName = "Handle: Should return Unauthorized when user not authenticated")]
-    public async Task Handle_ShouldFail_WhenNotAuthenticated()
-    {
-        _currentUserMock.Setup(x => x.UserId).Returns((string?)null);
-
-        var result = await _handler.Handle(new DeleteWishlist.Command(Guid.NewGuid()), TestContext.Current.CancellationToken);
-
-        result.IsFailure.Should().BeTrue();
-        result.Errors[0].Code.Should().Be(WishlistResult.Failure.AuthRequired.Code);
-    }
-
     [Fact(DisplayName = "Handle: Should return NotFound when wishlist does not exist")]
     public async Task Handle_ShouldFail_WhenNotFound()
     {
-        var result = await _handler.Handle(new DeleteWishlist.Command(Guid.NewGuid()), TestContext.Current.CancellationToken);
+        var result = await _handler.Handle(new DeleteWishlist.Command(_userId, Guid.NewGuid()), TestContext.Current.CancellationToken);
 
         result.IsFailure.Should().BeTrue();
         result.Errors[0].Code.Should().Be(WishlistResult.Failure.NotFound.Code);

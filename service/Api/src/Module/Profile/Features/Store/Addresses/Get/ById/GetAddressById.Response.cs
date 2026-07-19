@@ -1,9 +1,8 @@
-using Module.Profile.Features.Store.Addresses.Shared.Models;
+using Module.Profile.Features.Admin.Addresses.Shared.Models;
 
 namespace Module.Profile.Features.Store.Addresses.Get.ById;
 
 public static partial class GetAddressById
 {
-    // ============ RESPONSE ============
-    public class Response : AddressResponse { }
+    public sealed record Response() : AddressResponse;
 }

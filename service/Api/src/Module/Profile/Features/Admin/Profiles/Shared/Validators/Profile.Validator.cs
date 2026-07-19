@@ -1,24 +1,48 @@
+using Module.Profile.Domain;
+using Module.Profile.Domain.Notifications;
+using Module.Profile.Domain.Preferences;
 using Module.Profile.Features.Admin.Profiles.Shared.Models;
 
 namespace Module.Profile.Features.Admin.Profiles.Shared.Validators;
 
-public class ProfileRequestValidator : AbstractValidator<ProfileRequest>
+public static partial class ProfileValidator
 {
-    public ProfileRequestValidator()
+    public static void ApplyProfileRules<T>(this AbstractValidator<T> validator, ISystemDateTime systemDateTime)
+        where T : ProfileParameters
     {
-        RuleFor(x => x.UserId).NotEmpty();
-        RuleFor(x => x.FirstName).NotEmpty().MaximumLength(100);
-        RuleFor(x => x.LastName).NotEmpty().MaximumLength(100);
-        RuleFor(x => x.Email).NotEmpty().MaximumLength(256).EmailAddress();
-        RuleFor(x => x.PhoneNumber).MaximumLength(50);
+        validator.RuleFor(x => x.FirstName).ApplyFirstNameRules();
+        validator.RuleFor(x => x.LastName).ApplyLastNameRules();
+        validator.RuleFor(x => x.DateOfBirth).ApplyDateOfBirthRules(systemDateTime);
+
+        validator.RuleFor(x => x.Preferences)
+            .SetValidator(new ProfilePreferencesValidator()!);
+
+        validator.RuleFor(x => x.Notifications)
+            .SetValidator(new ProfileNotificationPreferencesValidator()!);
     }
 }
 
-public static class ProfileValidatorExtensions
+public class ProfilePreferencesValidator : AbstractValidator<ProfilePreferences>
 {
-    public static IRuleBuilderOptions<T, ProfileRequest> ApplyProfileRequestRules<T>(
-        this IRuleBuilder<T, ProfileRequest> ruleBuilder)
+    public ProfilePreferencesValidator()
     {
-        return ruleBuilder.NotNull().SetValidator(new ProfileRequestValidator());
+        RuleFor(x => x.PreferredStyle).ApplyPreferredStyleRules();
+        RuleFor(x => x.PreferredFit).ApplyPreferredFitRules();
+        RuleFor(x => x.FavoriteColors).ApplyFavoriteColorsRules();
+        RuleFor(x => x.FavoriteCategories).ApplyFavoriteCategoriesRules();
+        RuleFor(x => x.PreferredBrands).ApplyPreferredBrandsRules();
+        RuleFor(x => x.SizeTop).ApplySizeTopRules();
+        RuleFor(x => x.SizeBottom).ApplySizeBottomRules();
+        RuleFor(x => x.ShoeSize).ApplyShoeSizeRules();
+    }
+}
+
+public class ProfileNotificationPreferencesValidator : AbstractValidator<ProfileNotificationPreferences>
+{
+    public ProfileNotificationPreferencesValidator()
+    {
+        RuleFor(x => x.EnableSms).ApplyEnableSmsRules();
+        RuleFor(x => x.EnableEmail).ApplyEnableEmailRules();
+        RuleFor(x => x.EnableNewsfeeds).ApplyEnableNewsfeedsRules();
     }
 }

@@ -63,7 +63,7 @@ public class UserProfileMethodTests
     {
         DateTimeOffset dob = new(1985, 6, 20, 0, 0, 0, TimeSpan.Zero);
         UserPreferences prefs = UserPreferenceMethod.Create(preferredStyle: "formal").Value;
-        NotificationPreferences notifications = NotificationPreferencesExtensions.Create(
+        NotificationPreferences notifications = NotificationPreferencesMethod.Create(
             enableSms: false, enableEmail: false, enableNewsfeeds: true).Value;
 
         Result<UserProfile> result = UserProfileMethod.Create(
@@ -161,7 +161,7 @@ public class UserProfileMethodTests
     [Fact(DisplayName = "Update should set notifications")]
     public void Update_WithNotifications_ShouldSetNotifications()
     {
-        NotificationPreferences notifications = NotificationPreferencesExtensions.Create(
+        NotificationPreferences notifications = NotificationPreferencesMethod.Create(
             enableSms: false, enableEmail: true, enableNewsfeeds: false).Value;
         Result<UserProfile> result = UserProfileMethod.Create(FirstName, LastName, Email);
 

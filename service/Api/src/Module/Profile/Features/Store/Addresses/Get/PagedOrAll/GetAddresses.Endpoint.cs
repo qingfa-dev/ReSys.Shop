@@ -1,10 +1,11 @@
 using Module.Profile.Features.Shared;
 
+using Shared.Security.Identity.Domain.Users;
+
 namespace Module.Profile.Features.Store.Addresses.Get.PagedOrAll;
 
 public static partial class GetAddresses
 {
-    // ============ ENDPOINT ============
     public sealed class Endpoint : ICarterModule
     {
         public void AddRoutes(IEndpointRouteBuilder app)
@@ -12,9 +13,13 @@ public static partial class GetAddresses
             app.MapGet(ProfileFeature.Store.Addresses.GetAll.Route, async (
                 [AsParameters] Parameters parameters,
                 ISender sender,
+                ICurrentUser currentUser,
                 CancellationToken cancellationToken) =>
             {
-                var query = new Query(parameters);
+                if (string.IsNullOrEmpty(currentUser.UserId))
+                    return Results.Unauthorized();
+
+                var query = new Query(parameters with { UserId = Guid.Parse(currentUser.UserId) });
                 var result = await sender.Send(query, cancellationToken);
                 return result.ToPagedResult();
             })

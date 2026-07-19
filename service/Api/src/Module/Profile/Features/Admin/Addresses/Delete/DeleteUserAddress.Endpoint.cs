@@ -1,4 +1,5 @@
 using Module.Profile.Features.Shared;
+using Module.Profile.Features.Store.Addresses.Delete;
 
 namespace Module.Profile.Features.Admin.Addresses.Delete;
 
@@ -14,7 +15,7 @@ public static partial class DeleteUserAddress
                 ISender sender,
                 CancellationToken ct) =>
             {
-                var command = new Command(id, userId);
+                var command = new DeleteAddress.Command(userId, id);
                 var result = await sender.Send(command, ct);
                 return result.ToResult();
             })
@@ -23,7 +24,7 @@ public static partial class DeleteUserAddress
             .WithTags(ProfileFeature.Tags.Address)
             .WithSummary(ProfileFeature.Admin.Addresses.Delete.Summary)
             .WithDescription(ProfileFeature.Admin.Addresses.Delete.Description)
-            .Produces<Result<Response>>()
+            .Produces<Result<DeleteAddress.Response>>()
             .Produces<Result>(StatusCodes.Status404NotFound);
         }
     }

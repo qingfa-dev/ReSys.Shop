@@ -1,6 +1,6 @@
 using Module.Profile.Domain.Addresses;
-using Module.Profile.Features.Store.Addresses.Shared.Mappings;
-using Module.Profile.Features.Store.Addresses.Shared.Models;
+using Module.Profile.Features.Admin.Addresses.Shared.Mappings;
+using Module.Profile.Features.Admin.Addresses.Shared.Models;
 
 namespace Module.UnitTests.Profile.Features.Store.Addresses.Shared.Mappings;
 

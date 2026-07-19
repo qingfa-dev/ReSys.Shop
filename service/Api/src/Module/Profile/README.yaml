@@ -228,7 +228,7 @@ abstractions:
     - id: A-14
       name: Profile.Mapping.Domain
       type: mapping
-      path: ./Features/Store/Profiles/Shared/Mappings/Profile.Mapping.Domain.cs
+      path: ./Features/Admin/Profiles/Shared/Mappings/Profile.Mapping.Domain.cs
       description: Mapster mappings between UserProfile entity and response/request DTOs.
       purpose: |
         Handles domain-to-model translation for profile endpoints.
@@ -236,7 +236,7 @@ abstractions:
     - id: A-15
       name: Profile.Mapping.Model
       type: mapping
-      path: ./Features/Store/Profiles/Shared/Mappings/Profile.Mapping.Model.cs
+      path: ./Features/Admin/Profiles/Shared/Mappings/Profile.Mapping.Model.cs
       description: Mapster mappings between profile model DTOs.
       purpose: |
         Handles model-to-model translation for profile feature shared DTOs.
@@ -244,7 +244,7 @@ abstractions:
     - id: A-16
       name: Address.Mapping.Domain
       type: mapping
-      path: ./Features/Store/Addresses/Shared/Mappings/Address.Mapping.Domain.cs
+      path: ./Features/Admin/Addresses/Shared/Mappings/Address.Mapping.cs
       description: Mapster mappings between Address entity and response/request DTOs.
       purpose: |
         Handles domain-to-model translation for address endpoints.
@@ -252,7 +252,7 @@ abstractions:
     - id: A-17
       name: Profile.Validator
       type: validator
-      path: ./Features/Store/Profiles/Shared/Validators/Profile.Validator.cs
+      path: ./Features/Admin/Profiles/Shared/Validators/Profile.Validator.cs
       description: Shared FluentValidation rules for profile request DTOs.
       purpose: |
         Validates profile create/update requests at the feature layer.
@@ -260,7 +260,7 @@ abstractions:
     - id: A-18
       name: Address.Validator.Parameters
       type: validator
-      path: ./Features/Store/Addresses/Shared/Validators/Address.Validator.Parameters.cs
+      path: ./Features/Admin/Addresses/Shared/Validators/Address.Validator.cs
       description: FluentValidation rules for address parameter DTOs.
       purpose: |
         Validates address create/update requests at the feature layer.

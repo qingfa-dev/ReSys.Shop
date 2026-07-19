@@ -1,5 +1,7 @@
 using Module.Profile.Features.Shared;
 
+using Shared.Security.Identity.Domain.Users;
+
 namespace Module.Profile.Features.Store.Wishlists.AddItem;
 
 public static partial class AddWishlistItem
@@ -12,9 +14,13 @@ public static partial class AddWishlistItem
                     [FromRoute] Guid id,
                     [FromBody] Request request,
                     ISender sender,
+                    ICurrentUser currentUser,
                     CancellationToken cancellationToken) =>
                 {
-                    var command = new Command(id, request);
+                    if (string.IsNullOrEmpty(currentUser.UserId))
+                        return Results.Unauthorized();
+
+                    var command = new Command(Guid.Parse(currentUser.UserId), id, request);
                     var result = await sender.Send(command, cancellationToken);
                     return result.ToResult();
                 })

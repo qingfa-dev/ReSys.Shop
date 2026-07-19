@@ -1,5 +1,7 @@
 using Module.Profile.Features.Shared;
 
+using Shared.Security.Identity.Domain.Users;
+
 namespace Module.Profile.Features.Store.Wishlists.RemoveItem;
 
 public static partial class RemoveWishlistItem
@@ -12,9 +14,13 @@ public static partial class RemoveWishlistItem
                     [FromRoute] Guid id,
                     [FromRoute] Guid itemId,
                     ISender sender,
+                    ICurrentUser currentUser,
                     CancellationToken cancellationToken) =>
                 {
-                    var command = new Command(id, itemId);
+                    if (string.IsNullOrEmpty(currentUser.UserId))
+                        return Results.Unauthorized();
+
+                    var command = new Command(Guid.Parse(currentUser.UserId), id, itemId);
                     var result = await sender.Send(command, cancellationToken);
                     return result.ToResult();
                 })

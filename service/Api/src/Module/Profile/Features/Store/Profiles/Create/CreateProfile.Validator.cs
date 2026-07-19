@@ -1,5 +1,5 @@
-using Module.Profile.Features.Store.Profiles.Shared.Models;
-using Module.Profile.Features.Store.Profiles.Shared.Validators;
+using Module.Profile.Features.Admin.Profiles.Shared.Models;
+using Module.Profile.Features.Admin.Profiles.Shared.Validators;
 
 namespace Module.Profile.Features.Store.Profiles.Create;
 
@@ -10,10 +10,10 @@ public static partial class CreateProfile
     {
         public Validator(ISystemDateTime systemDateTime)
         {
-            var profileRules = new InlineValidator<ProfileParameter>();
+            var profileRules = new InlineValidator<ProfileParameters>();
             profileRules.ApplyProfileRules(systemDateTime);
 
-            RuleFor(x => (ProfileParameter)x.Request)
+            RuleFor(x => x.Request)
                 .SetValidator(profileRules);
         }
     }

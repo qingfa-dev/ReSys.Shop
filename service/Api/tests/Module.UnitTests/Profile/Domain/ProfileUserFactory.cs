@@ -16,7 +16,7 @@ public static class ProfileUserFactory
             phoneNumber: "+1234567890",
             dateOfBirth: new DateTimeOffset(2000, 1, 1, 0, 0, 0, TimeSpan.Zero),
             preferences: UserPreferenceMethod.Create().Value,
-            notifications: NotificationPreferencesExtensions.Create().Value
+            notifications: NotificationPreferencesMethod.Create().Value
         ).Value;
     }
 }

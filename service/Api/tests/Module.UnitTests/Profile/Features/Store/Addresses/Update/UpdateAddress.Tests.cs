@@ -1,7 +1,6 @@
 using Module.Profile.Domain;
 using Module.Profile.Domain.Addresses;
 using Module.Profile.Features.Store.Addresses.Update;
-using Module.UnitTests.Identity.Fixtures;
 using Module.UnitTests.Profile.Domain;
 
 using Shared.Security.Identity.Domain.Users;
@@ -14,7 +13,6 @@ namespace Module.UnitTests.Profile.Features.Store.Addresses.Update;
 public class UpdateAddressTests : IDisposable
 {
     private readonly ApplicationDbContext _dbContext;
-    private readonly Mock<ICurrentUser> _currentUserMock;
     private readonly UpdateAddress.CommandHandler _handler;
     private readonly Guid _userId = Guid.NewGuid();
 
@@ -27,9 +25,7 @@ public class UpdateAddressTests : IDisposable
         ApplicationDbContext.AdditionalConfigurationsAssemblies = [typeof(UserProfile).Assembly];
 
         _dbContext = new ApplicationDbContext(options);
-        _currentUserMock = IdentityMocks.CreateCurrentUserMock(_userId);
-        
-        _handler = new UpdateAddress.CommandHandler(_dbContext, _currentUserMock.Object);
+        _handler = new UpdateAddress.CommandHandler(_dbContext);
     }
 
     public void Dispose()
@@ -68,7 +64,7 @@ public class UpdateAddressTests : IDisposable
         var request = CreateValidRequest(address1: "New St");
 
         // Act
-        var result = await _handler.Handle(new UpdateAddress.Command(address.Id, request), TestContext.Current.CancellationToken);
+        var result = await _handler.Handle(new UpdateAddress.Command(_userId, address.Id, request), TestContext.Current.CancellationToken);
 
         // Assert
         result.IsSuccess.Should().BeTrue();
@@ -76,21 +72,6 @@ public class UpdateAddressTests : IDisposable
         
         var updatedProfile = await _dbContext.Set<UserProfile>().FirstAsync(p => p.UserId == _userId, TestContext.Current.CancellationToken);
         updatedProfile.Addresses.First().Address1.Should().Be("New St");
-    }
-
-    [Fact(DisplayName = "Handle: Should return Unauthorized if user is not authenticated")]
-    public async Task Handle_ShouldReturnUnauthorized_WhenUserNotAuthenticated()
-    {
-        // Arrange
-        _currentUserMock.Setup(x => x.UserId).Returns((string?)null);
-        var request = CreateValidRequest();
-
-        // Act
-        var result = await _handler.Handle(new UpdateAddress.Command(Guid.NewGuid(), request), TestContext.Current.CancellationToken);
-
-        // Assert
-        result.IsFailure.Should().BeTrue();
-        result.StatusCode.Should().Be(401);
     }
 
     [Fact(DisplayName = "Handle: Should fail if address is duplicate of another")]
@@ -109,7 +90,7 @@ public class UpdateAddressTests : IDisposable
         // request also has City: "New York", CountryName: "USA", ZipCode: "10001" by default in helper
 
         // Act
-        var result = await _handler.Handle(new UpdateAddress.Command(address1.Id, request), TestContext.Current.CancellationToken);
+        var result = await _handler.Handle(new UpdateAddress.Command(_userId, address1.Id, request), TestContext.Current.CancellationToken);
 
         // Assert
         result.IsFailure.Should().BeTrue();
@@ -136,7 +117,7 @@ public class UpdateAddressTests : IDisposable
         var request = CreateValidRequest(type: AddressType.Shipping); // Try to change Billing to Shipping
 
         // Act
-        var result = await _handler.Handle(new UpdateAddress.Command(billingAddress.Id, request), TestContext.Current.CancellationToken);
+        var result = await _handler.Handle(new UpdateAddress.Command(_userId, billingAddress.Id, request), TestContext.Current.CancellationToken);
 
         // Assert
         result.IsFailure.Should().BeTrue();
@@ -158,7 +139,7 @@ public class UpdateAddressTests : IDisposable
         var request = CreateValidRequest(type: AddressType.Billing, isDefault: true); // Move addr1 to Billing
 
         // Act
-        var result = await _handler.Handle(new UpdateAddress.Command(addr1.Id, request), TestContext.Current.CancellationToken);
+        var result = await _handler.Handle(new UpdateAddress.Command(_userId, addr1.Id, request), TestContext.Current.CancellationToken);
 
         // Assert
         result.IsSuccess.Should().BeTrue();
@@ -176,7 +157,7 @@ public class UpdateAddressTests : IDisposable
         var request = CreateValidRequest();
 
         // Act
-        var result = await _handler.Handle(new UpdateAddress.Command(Guid.NewGuid(), request), TestContext.Current.CancellationToken);
+        var result = await _handler.Handle(new UpdateAddress.Command(_userId, Guid.NewGuid(), request), TestContext.Current.CancellationToken);
 
         // Assert
         result.IsFailure.Should().BeTrue();
@@ -196,7 +177,7 @@ public class UpdateAddressTests : IDisposable
         var request = CreateValidRequest(isDefault: false);
 
         // Act
-        var result = await _handler.Handle(new UpdateAddress.Command(address.Id, request), TestContext.Current.CancellationToken);
+        var result = await _handler.Handle(new UpdateAddress.Command(_userId, address.Id, request), TestContext.Current.CancellationToken);
 
         // Assert
         result.IsSuccess.Should().BeTrue();
@@ -218,7 +199,7 @@ public class UpdateAddressTests : IDisposable
         var request = CreateValidRequest(isDefault: false); // Don't change default status
 
         // Act
-        var result = await _handler.Handle(new UpdateAddress.Command(addr2.Id, request), TestContext.Current.CancellationToken);
+        var result = await _handler.Handle(new UpdateAddress.Command(_userId, addr2.Id, request), TestContext.Current.CancellationToken);
 
         // Assert
         result.IsSuccess.Should().BeTrue();
@@ -253,7 +234,7 @@ public class UpdateAddressTests : IDisposable
         };
 
         // Act
-        var result = await _handler.Handle(new UpdateAddress.Command(address.Id, request), TestContext.Current.CancellationToken);
+        var result = await _handler.Handle(new UpdateAddress.Command(_userId, address.Id, request), TestContext.Current.CancellationToken);
 
         // Assert
         result.IsSuccess.Should().BeTrue();

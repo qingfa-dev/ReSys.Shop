@@ -1,10 +1,11 @@
 using Module.Profile.Features.Shared;
 
+using Shared.Security.Identity.Domain.Users;
+
 namespace Module.Profile.Features.Store.Addresses.Create;
 
 public static partial class CreateAddress
 {
-    // ============ ENDPOINT ============
     public sealed class Endpoint : ICarterModule
     {
         public void AddRoutes(IEndpointRouteBuilder app)
@@ -12,9 +13,13 @@ public static partial class CreateAddress
             app.MapPost(ProfileFeature.Store.Addresses.Create.Route, async (
                     [FromBody] Request request,
                     ISender sender,
+                    ICurrentUser currentUser,
                     CancellationToken cancellationToken) =>
                 {
-                    var command = new Command(request);
+                    if (string.IsNullOrEmpty(currentUser.UserId))
+                        return Results.Unauthorized();
+
+                    var command = new Command(Guid.Parse(currentUser.UserId), request);
                     var result = await sender.Send(command, cancellationToken);
                     return result.ToResult();
                 })

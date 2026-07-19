@@ -1,6 +1,5 @@
 using Module.Profile.Domain;
 using Module.Profile.Features.Store.NotificationPreferences.Get;
-using Module.UnitTests.Identity.Fixtures;
 using Module.UnitTests.Profile.Domain;
 
 namespace Module.UnitTests.Profile.Features.Store.NotificationPreferences.Get;
@@ -11,7 +10,6 @@ namespace Module.UnitTests.Profile.Features.Store.NotificationPreferences.Get;
 public class GetNotificationPreferencesTests : IDisposable
 {
     private readonly ApplicationDbContext _dbContext;
-    private readonly Mock<ICurrentUser> _currentUserMock;
     private readonly GetNotificationPreferences.QueryHandler _handler;
     private readonly Guid _userId = Guid.NewGuid();
 
@@ -24,8 +22,7 @@ public class GetNotificationPreferencesTests : IDisposable
         ApplicationDbContext.AdditionalConfigurationsAssemblies = [typeof(UserProfile).Assembly];
 
         _dbContext = new ApplicationDbContext(options);
-        _currentUserMock = IdentityMocks.CreateCurrentUserMock(_userId);
-        _handler = new GetNotificationPreferences.QueryHandler(_dbContext, _currentUserMock.Object);
+        _handler = new GetNotificationPreferences.QueryHandler(_dbContext);
     }
 
     public void Dispose()
@@ -38,12 +35,12 @@ public class GetNotificationPreferencesTests : IDisposable
     public async Task Handle_ShouldReturnPreferences()
     {
         var profile = ProfileUserFactory.Create(_userId);
-        profile.Notifications = Module.Profile.Domain.Notifications.NotificationPreferencesExtensions.Create(
+        profile.Notifications = Module.Profile.Domain.Notifications.NotificationPreferencesMethod.Create(
             enableSms: true, enableEmail: false, enableNewsfeeds: true).Value;
         _dbContext.Set<UserProfile>().Add(profile);
         await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 
-        var result = await _handler.Handle(new GetNotificationPreferences.Query(), TestContext.Current.CancellationToken);
+        var result = await _handler.Handle(new GetNotificationPreferences.Query(_userId), TestContext.Current.CancellationToken);
 
         result.IsSuccess.Should().BeTrue();
         result.Value.EnableSms.Should().BeTrue();
@@ -51,21 +48,10 @@ public class GetNotificationPreferencesTests : IDisposable
         result.Value.EnableNewsfeeds.Should().BeTrue();
     }
 
-    [Fact(DisplayName = "Handle: Should return NotFound when user is not authenticated")]
-    public async Task Handle_ShouldFail_WhenNotAuthenticated()
-    {
-        _currentUserMock.Setup(x => x.UserId).Returns((string?)null);
-
-        var result = await _handler.Handle(new GetNotificationPreferences.Query(), TestContext.Current.CancellationToken);
-
-        result.IsFailure.Should().BeTrue();
-        result.Errors[0].Code.Should().Be(UserProfileResult.Failure.NotFound.Code);
-    }
-
     [Fact(DisplayName = "Handle: Should return NotFound when profile does not exist")]
     public async Task Handle_ShouldFail_WhenProfileNotFound()
     {
-        var result = await _handler.Handle(new GetNotificationPreferences.Query(), TestContext.Current.CancellationToken);
+        var result = await _handler.Handle(new GetNotificationPreferences.Query(_userId), TestContext.Current.CancellationToken);
 
         result.IsFailure.Should().BeTrue();
         result.Errors[0].Code.Should().Be(UserProfileResult.Failure.NotFound.Code);
