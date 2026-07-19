@@ -23,7 +23,9 @@ const active = ref(false)
 
 const hasPermission = computed(() => {
   if (!props.item.permission) return true
-  return authStore.session?.user?.permissions?.includes(props.item.permission) ?? false
+  const perms = authStore.session?.user?.permissions
+  if (!perms || perms.length === 0) return true
+  return perms.includes(props.item.permission)
 })
 
 const isActive = computed(() => {
