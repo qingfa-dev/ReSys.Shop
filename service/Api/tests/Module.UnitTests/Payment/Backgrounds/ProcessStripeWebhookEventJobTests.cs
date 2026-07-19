@@ -145,4 +145,54 @@ public class ProcessStripeWebhookEventJobTests : IDisposable
         var updated = await _dbContext.Set<PaymentCapture>().FirstAsync(p => p.Id == payment.Id);
         updated.State.Should().Be(PaymentRecordState.Completed);
     }
+
+    [Fact(DisplayName = "payment_intent.succeeded does not save when Complete returns failure")]
+    public async Task HandlePaymentIntentSucceeded_ShouldNotSave_WhenCompleteFails()
+    {
+        var payment = PaymentCaptureMethod.Create(100m, Guid.NewGuid(), Guid.NewGuid()).Value;
+        payment.State = PaymentRecordState.Completed;
+        payment.ResponseCode = "pi_already_done";
+        _dbContext.Set<PaymentCapture>().Add(payment);
+        await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
+
+        _webhookMock.Setup(x => x.ParseEvent(It.IsAny<string>()))
+            .Returns(new Event
+            {
+                Type = "payment_intent.succeeded",
+                Data = new EventData
+                {
+                    Object = new PaymentIntent { Id = "pi_already_done" }
+                }
+            });
+
+        await _job.ExecuteAsync("{}", TestContext.Current.CancellationToken);
+
+        var updated = await _dbContext.Set<PaymentCapture>().FirstAsync(p => p.Id == payment.Id);
+        updated.State.Should().Be(PaymentRecordState.Completed);
+    }
+
+    [Fact(DisplayName = "payment_intent.payment_failed does not save when Fail returns failure")]
+    public async Task HandlePaymentIntentFailed_ShouldNotSave_WhenFailFails()
+    {
+        var payment = PaymentCaptureMethod.Create(100m, Guid.NewGuid(), Guid.NewGuid()).Value;
+        payment.State = PaymentRecordState.Completed;
+        payment.ResponseCode = "pi_cant_fail";
+        _dbContext.Set<PaymentCapture>().Add(payment);
+        await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
+
+        _webhookMock.Setup(x => x.ParseEvent(It.IsAny<string>()))
+            .Returns(new Event
+            {
+                Type = "payment_intent.payment_failed",
+                Data = new EventData
+                {
+                    Object = new PaymentIntent { Id = "pi_cant_fail" }
+                }
+            });
+
+        await _job.ExecuteAsync("{}", TestContext.Current.CancellationToken);
+
+        var updated = await _dbContext.Set<PaymentCapture>().FirstAsync(p => p.Id == payment.Id);
+        updated.State.Should().Be(PaymentRecordState.Completed);
+    }
 }
