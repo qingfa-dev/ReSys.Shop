@@ -42,7 +42,7 @@ public static partial class CancelOrder
             if (entity is null)
                 return OrderResult.Errors.NotFound(command.Id);
 
-            var wasPlaced = entity.Status == OrderStatus.Placed && entity.CompletedAtUtc.HasValue;
+            var wasPlaced = entity.Status == OrderStatus.Placed;
 
             var cancelResult = entity.Cancel(userId);
             if (cancelResult.IsFailure)

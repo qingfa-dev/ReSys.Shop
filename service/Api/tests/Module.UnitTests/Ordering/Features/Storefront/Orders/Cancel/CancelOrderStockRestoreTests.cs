@@ -140,9 +140,8 @@ public class CancelOrderStockRestoreTests : IDisposable
         var order = new Order
         {
             Number = "R-TEST-002",
-            Status = OrderStatus.Placed,
+            Status = OrderStatus.Expired,
             UserId = _userId,
-            CompletedAtUtc = null,
             Email = "test@test.com",
         };
         _dbContext.Set<Order>().Add(order);
