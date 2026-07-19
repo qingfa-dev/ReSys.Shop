@@ -65,7 +65,7 @@ describe('OptionValueStore', () => {
 
       const result = await store.create('type-123', newData);
 
-      expect(optionValueService.create).toHaveBeenCalledWith({ ...newData, optionTypeId: 'type-123' });
+      expect(optionValueService.create).toHaveBeenCalledWith('type-123', newData);
       expect(result.isSuccess).toBe(true);
       expect(store.values).toContainEqual(expect.objectContaining({ id: '3' }));
     });
