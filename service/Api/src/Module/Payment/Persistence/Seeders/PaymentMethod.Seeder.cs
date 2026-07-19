@@ -1,4 +1,4 @@
-using Module.Payment.Services.Models;
+using Module.Payment.Services.Provider;
 using Module.Payment.Domain.PaymentMethods;
 
 namespace Module.Payment.Persistence.Seeders;

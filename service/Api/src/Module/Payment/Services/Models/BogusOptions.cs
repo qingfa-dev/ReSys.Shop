@@ -1,3 +1,5 @@
+using GatewayConstants = Module.Payment.Services.Provider.GatewayConstants;
+
 namespace Module.Payment.Services.Models;
 
 public sealed class BogusSetting

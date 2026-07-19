@@ -1,4 +1,4 @@
-using Module.Payment.Services.Models;
+using Module.Payment.Services.Provider;
 
 // Context: Legacy duplicate of Services.Provider.IPaymentGatewayActionProvider
 namespace Module.Payment.Services.Abstractions;

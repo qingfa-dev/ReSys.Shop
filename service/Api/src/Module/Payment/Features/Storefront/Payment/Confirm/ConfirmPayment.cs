@@ -3,7 +3,7 @@ using Module.Payment.Features.Storefront.Payment.Shared.Mappings;
 using Module.Ordering.Domain.Orders;
 using IGatewayRegistry = Module.Payment.Services.Provider.IGatewayRegistry;
 
-using Module.Payment.Services.Models;
+using Module.Payment.Services.Provider;
 using Module.Payment.Domain.PaymentCaptures;
 
 namespace Module.Payment.Features.Storefront.Payment.Confirm;

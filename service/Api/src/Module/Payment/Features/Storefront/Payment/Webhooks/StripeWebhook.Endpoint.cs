@@ -1,4 +1,4 @@
-using Module.Payment.Services.Models;
+using Module.Payment.Services.Provider;
 using Module.Payment.Features.Shared;
 
 namespace Module.Payment.Features.Storefront.Payment.Webhooks;

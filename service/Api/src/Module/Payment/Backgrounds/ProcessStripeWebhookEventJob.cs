@@ -1,7 +1,7 @@
 using Microsoft.Extensions.Logging;
 
 using Module.Payment.Domain.PaymentCaptures;
-using Module.Payment.Services.Models;
+using Module.Payment.Services.Provider;
 using Module.Payment.Services.Webhook;
 
 using Stripe;
@@ -71,8 +71,7 @@ public sealed partial class ProcessStripeWebhookEventJob
         var result = payment.Complete();
         if (result.IsFailure)
         {
-            _logger.LogWarning("Cannot complete payment {PaymentId} (state={State}): {Message}",
-                payment.Id, payment.State, result.Message);
+            ProcessStripeWebhookEventJobLoggers.CannotCompletePayment(_logger, payment.Id, payment.State.ToString(), result.Message);
             return;
         }
 
@@ -92,8 +91,7 @@ public sealed partial class ProcessStripeWebhookEventJob
         var result = payment.Fail();
         if (result.IsFailure)
         {
-            _logger.LogWarning("Cannot fail payment {PaymentId} (state={State}): {Message}",
-                payment.Id, payment.State, result.Message);
+            ProcessStripeWebhookEventJobLoggers.CannotFailPayment(_logger, payment.Id, payment.State.ToString(), result.Message);
             return;
         }
 
@@ -120,8 +118,7 @@ public sealed partial class ProcessStripeWebhookEventJob
                 var result = payment.Refund(delta);
                 if (result.IsFailure)
                 {
-                    _logger.LogWarning("Cannot refund payment {PaymentId} (state={State}): {Message}",
-                        payment.Id, payment.State, result.Message);
+                    ProcessStripeWebhookEventJobLoggers.CannotRefundPayment(_logger, payment.Id, payment.State.ToString(), result.Message);
                     return;
                 }
             }

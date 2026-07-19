@@ -1,7 +1,7 @@
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
-using Module.Payment.Services.Models;
+using Module.Payment.Services.Provider;
 using Module.Payment.Services.Webhook;
 
 using Stripe;

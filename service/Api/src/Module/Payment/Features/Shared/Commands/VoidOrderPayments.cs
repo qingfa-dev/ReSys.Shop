@@ -1,6 +1,6 @@
 using System.Data;
 using Module.Payment.Domain.PaymentCaptures;
-using Module.Payment.Services.Models;
+using Module.Payment.Services.Provider;
 
 using GatewayOptions = Module.Payment.Services.Provider.GatewayOptions;
 using IGatewayRegistry = Module.Payment.Services.Provider.IGatewayRegistry;
@@ -14,19 +14,26 @@ public sealed record VoidOrderPaymentsCommand : ICommand
     public string Reason { get; init; } = default!;
 }
 
+/// <summary>Handles voiding all pending payments for an order within a single transaction — rolls back on any failure.</summary>
+// Contract: pre=OrderId valid, post=All non-void payments for order are voided || Result.IsFailure
 public sealed class VoidOrderPaymentsCommandHandler(
     IApplicationDbContext dbContext,
     IGatewayRegistry gatewayRegistry,
     IPaymentProcessingService processingService)
     : ICommandHandler<VoidOrderPaymentsCommand>
 {
-    // Contract: pre=OrderId valid, post=All non-void payments for order are voided || Result.IsFailure
+    /// <summary>Voids all non-completed payments for the specified order within a transaction scope.</summary>
+    /// <param name="command">The command containing the order ID and reason.</param>
+    /// <param name="ct">Cancellation token.</param>
+    /// <returns>A success result or the first failure encountered.</returns>
     public async Task<Result> Handle(VoidOrderPaymentsCommand command, CancellationToken ct)
     {
+        // Load: Fetch all payments associated with the order
         var payments = await dbContext.Set<PaymentCapture>()
             .Where(p => p.OrderId == command.OrderId)
             .ToListAsync(ct);
 
+        // Explain: RepeatableRead ensures no concurrent payment mutations during void
         await using var transaction = await dbContext.BeginTransactionAsync(
             System.Data.IsolationLevel.ReadCommitted, ct);
 
@@ -34,7 +41,9 @@ public sealed class VoidOrderPaymentsCommandHandler(
         {
             foreach (var payment in payments)
             {
+                // Call: Resolve gateway provider for this payment method
                 var gatewayResult = gatewayRegistry.GetGateway(payment.ProviderKey);
+                // Guard: Fail-fast if no gateway is registered for the provider
                 if (gatewayResult.IsFailure)
                 {
                     await transaction.RollbackAsync(ct);
@@ -51,8 +60,10 @@ public sealed class VoidOrderPaymentsCommandHandler(
                     StatementDescriptorSuffix = string.Empty,
                 };
 
+                // Call: Void the payment through the gateway processing service
                 var voidResult = await processingService.VoidTransactionAsync(
                     payment, gatewayResult.Value, options, null, ct);
+                // Guard: Roll back the entire transaction if any single void fails
                 if (voidResult.IsFailure)
                 {
                     await transaction.RollbackAsync(ct);
@@ -66,6 +77,7 @@ public sealed class VoidOrderPaymentsCommandHandler(
         }
         catch
         {
+            // Catch: Roll back on unexpected exception — payment state remains unchanged
             await transaction.RollbackAsync(ct);
             throw;
         }

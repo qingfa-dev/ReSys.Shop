@@ -7,7 +7,7 @@ using GatewayOptions = Module.Payment.Services.Provider.GatewayOptions;
 using IGatewayRegistry = Module.Payment.Services.Provider.IGatewayRegistry;
 using IPaymentProcessingService = Module.Payment.Services.Processing.IPaymentProcessingService;
 
-using Module.Payment.Services.Models;
+using Module.Payment.Services.Provider;
 
 namespace Module.Payment.Features.Storefront.Payment.CreateIntent;
 
