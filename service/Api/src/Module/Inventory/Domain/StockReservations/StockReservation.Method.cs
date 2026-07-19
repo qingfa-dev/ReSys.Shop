@@ -82,6 +82,9 @@ public static class StockReservationMethod
         if (reservation.IsExpired())
             return StockReservationResult.Errors.AlreadyExpired;
 
+        if (reservation.State != ReservationState.Reserved)
+            return StockReservationResult.Errors.InvalidStateTransition;
+
         reservation.State = ReservationState.Released;
         reservation.ExpiresAtUtc = DateTimeOffset.UtcNow;
         return Result.Ok();
