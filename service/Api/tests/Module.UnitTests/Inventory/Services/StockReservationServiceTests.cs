@@ -46,12 +46,12 @@ public class StockReservationServiceTests : IDisposable
     }
 
     private async Task<StockReservation> SeedReservation(
-        int quantity, ReservationState state, DateTimeOffset? expiresAtUtc = null)
+        int quantity, ReservationState state, DateTimeOffset? expiresAtUtc = null, Guid? orderId = null)
     {
         var ct = TestContext.Current.CancellationToken;
         var reservation = StockReservationMethod.SeedForTest(
             _variantId, quantity, state, expiresAtUtc ?? DateTimeOffset.UtcNow.AddMinutes(30),
-            _stockLocationId, _orderId, createdAtUtc: DateTimeOffset.UtcNow);
+            _stockLocationId, orderId ?? _orderId, createdAtUtc: DateTimeOffset.UtcNow);
         _dbContext.Set<StockReservation>().Add(reservation);
         await _dbContext.SaveChangesAsync(ct);
         return reservation;
@@ -140,6 +140,29 @@ public class StockReservationServiceTests : IDisposable
         var ct = TestContext.Current.CancellationToken;
         var emptyOrderId = Guid.NewGuid();
         await _service.ReleaseReservationsAsync(emptyOrderId, ct);
+    }
+
+    [Fact(DisplayName = "ReleaseReservationsAsync: Should not double-restore stock on repeated calls")]
+    public async Task ReleaseReservationsAsync_ShouldNotDoubleRestoreStock_OnRepeatedCalls()
+    {
+        var ct = TestContext.Current.CancellationToken;
+        await SeedStockItem(10);
+        var orderId = Guid.NewGuid();
+        var reservation = await SeedReservation(3, ReservationState.Reserved, orderId: orderId);
+
+        await _service.ReleaseReservationsAsync(orderId, ct);
+        await _dbContext.SaveChangesAsync(ct);
+
+        var stockAfterFirst = await _dbContext.Set<StockItem>()
+            .FirstAsync(si => si.VariantId == _variantId, ct);
+        stockAfterFirst.CountOnHand.Should().Be(13);
+
+        await _service.ReleaseReservationsAsync(orderId, ct);
+        await _dbContext.SaveChangesAsync(ct);
+
+        var stockAfterSecond = await _dbContext.Set<StockItem>()
+            .FirstAsync(si => si.VariantId == _variantId, ct);
+        stockAfterSecond.CountOnHand.Should().Be(13);
     }
 
     #endregion

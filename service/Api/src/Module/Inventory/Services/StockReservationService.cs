@@ -74,17 +74,15 @@ public class StockReservationService(IApplicationDbContext dbContext) : IStockRe
 
         foreach (var r in reservations)
         {
-            // Update: Release the reservation
+            var wasActive = r.State == ReservationState.Reserved;
             r.State = ReservationState.Released;
             r.ModifiedAtUtc = DateTimeOffset.UtcNow;
 
-            if (r.StockLocationId is not null)
+            if (wasActive && r.StockLocationId is not null)
             {
-                // Load: Find the stock item to restore quantity
                 var stockItem = await _dbContext.Set<StockItem>()
                     .FirstOrDefaultAsync(si => si.VariantId == r.VariantId && si.StockLocationId == r.StockLocationId.Value, cancellationToken);
                 if (stockItem is not null)
-                    // Update: Restore the released quantity to available stock
                     stockItem.CountOnHand += r.Quantity;
             }
         }
@@ -105,17 +103,15 @@ public class StockReservationService(IApplicationDbContext dbContext) : IStockRe
 
         foreach (var r in expired)
         {
-            // Update: Mark as expired
+            var wasActive = r.State == ReservationState.Reserved;
             r.State = ReservationState.Expired;
             r.ModifiedAtUtc = now;
 
-            if (r.StockLocationId is not null)
+            if (wasActive && r.StockLocationId is not null)
             {
-                // Load: Find the stock item to restore quantity
                 var stockItem = await _dbContext.Set<StockItem>()
                     .FirstOrDefaultAsync(si => si.VariantId == r.VariantId && si.StockLocationId == r.StockLocationId.Value, cancellationToken);
                 if (stockItem is not null)
-                    // Update: Restore expired reservation quantity back to available stock
                     stockItem.CountOnHand += r.Quantity;
             }
         }
@@ -160,17 +156,15 @@ public class StockReservationService(IApplicationDbContext dbContext) : IStockRe
 
         foreach (var r in expired)
         {
-            // Update: Mark as expired
+            var wasActive = r.State == ReservationState.Reserved;
             r.State = ReservationState.Expired;
             r.ModifiedAtUtc = now;
 
-            if (r.StockLocationId is not null)
+            if (wasActive && r.StockLocationId is not null)
             {
-                // Load: Find the stock item to restore quantity
                 var stockItem = await _dbContext.Set<StockItem>()
                     .FirstOrDefaultAsync(si => si.VariantId == r.VariantId && si.StockLocationId == r.StockLocationId.Value, cancellationToken);
                 if (stockItem is not null)
-                    // Update: Restore expired reservation quantity back to available stock
                     stockItem.CountOnHand += r.Quantity;
             }
         }
