@@ -1,5 +1,5 @@
-using Module.Inventory.Domain.Stock;
 using Module.Inventory.Domain.StockLocations.StockItems;
+using Module.Inventory.Features.Storefront.StockAvailability.CheckStockAvailability;
 using Module.Ordering.Domain.LineItems;
 using Module.Ordering.Domain.Orders;
 
@@ -12,10 +12,11 @@ public static partial class UpdateCartItemQuantity
     public sealed class CommandHandler(
         IApplicationDbContext dbContext,
         ILogger<CommandHandler> logger,
-        ICurrentUser currentUser)
+        ICurrentUser currentUser,
+        ISender sender)
         : ICommandHandler<Command>
     {
-        /// <summary>Validates stock, updates the line item quantity and total, and recalculates cart totals.</summary>
+        /// <summary>Validates stock via Inventory module, updates the line item quantity and total, and recalculates cart totals.</summary>
         /// <param name="command">The command containing the line item ID and new quantity.</param>
         /// <param name="cancellationToken">Cancellation token.</param>
         /// <returns>The result of the operation.</returns>
@@ -42,12 +43,19 @@ public static partial class UpdateCartItemQuantity
             if (lineItem is null)
                 return LineItemResult.Errors.NotFound(command.LineItemId);
 
-            // Validate: Stock availability for the new quantity.
-            var stockItems = await dbContext.Set<StockItem>()
-                .Where(x => x.VariantId == lineItem.VariantId)
-                .ToListAsync(cancellationToken);
+            // Validate: Stock availability via Inventory module's reservation-aware query.
+            var stockResult = await sender.Send(
+                new CheckStockAvailability.Query(new CheckStockAvailability.Request
+                {
+                    VariantId = lineItem.VariantId,
+                    Quantity = command.Request.Quantity
+                }),
+                cancellationToken);
 
-            if (!AvailabilityValidator.IsAvailable(stockItems, command.Request.Quantity))
+            if (stockResult.IsFailure)
+                return stockResult.Errors;
+
+            if (!stockResult.Value.IsAvailable)
                 return StockItemResult.Errors.InsufficientStock;
 
             // Update: Modify quantity and total.
