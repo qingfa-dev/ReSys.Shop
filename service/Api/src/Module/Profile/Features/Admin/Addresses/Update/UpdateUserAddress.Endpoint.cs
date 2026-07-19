@@ -1,28 +1,29 @@
 using Module.Profile.Features.Shared;
 
-namespace Module.Profile.Features.Admin.Addresses.Create;
+namespace Module.Profile.Features.Admin.Addresses.Update;
 
-public static partial class CreateAddress
+public static partial class UpdateUserAddress
 {
     public sealed class Endpoint : ICarterModule
     {
         public void AddRoutes(IEndpointRouteBuilder app)
         {
-            app.MapPost(ProfileFeature.Admin.Addresses.Create.Route, async (
+            app.MapPut(ProfileFeature.Admin.Addresses.Update.Route, async (
+                [FromRoute] Guid id,
                 [FromBody] Request request,
                 ISender sender,
                 CancellationToken ct) =>
             {
-                var command = new Command(request);
+                var command = new Command(id, request);
                 var result = await sender.Send(command, ct);
                 return result.ToResult();
             })
             .RequireAuthorization()
-            .WithName(nameof(CreateAddress))
+            .WithName(nameof(UpdateUserAddress))
             .WithTags(ProfileFeature.Tags.Address)
-            .WithSummary(ProfileFeature.Admin.Addresses.Create.Summary)
-            .WithDescription(ProfileFeature.Admin.Addresses.Create.Description)
-            .Produces<Result<Response>>(StatusCodes.Status201Created)
+            .WithSummary(ProfileFeature.Admin.Addresses.Update.Summary)
+            .WithDescription(ProfileFeature.Admin.Addresses.Update.Description)
+            .Produces<Result<Response>>()
             .Produces<Result>(StatusCodes.Status400BadRequest)
             .Produces<Result>(StatusCodes.Status404NotFound);
         }

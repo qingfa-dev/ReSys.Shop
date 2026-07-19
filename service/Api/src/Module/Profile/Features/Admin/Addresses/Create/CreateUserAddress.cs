@@ -4,7 +4,7 @@ using Module.Profile.Features.Admin.Addresses.Shared.Mappings;
 
 namespace Module.Profile.Features.Admin.Addresses.Create;
 
-public static partial class CreateAddress
+public static partial class CreateUserAddress
 {
     public sealed record Command(Request Request) : ICommand<Response>;
 

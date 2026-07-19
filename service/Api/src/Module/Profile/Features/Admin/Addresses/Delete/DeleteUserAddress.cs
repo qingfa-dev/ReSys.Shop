@@ -3,7 +3,7 @@ using Module.Profile.Domain.Addresses;
 
 namespace Module.Profile.Features.Admin.Addresses.Delete;
 
-public static partial class DeleteAddress
+public static partial class DeleteUserAddress
 {
     public sealed record Command(Guid Id, Guid UserId) : ICommand<Response>;
 

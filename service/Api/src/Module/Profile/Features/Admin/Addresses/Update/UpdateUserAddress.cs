@@ -4,7 +4,7 @@ using Module.Profile.Features.Admin.Addresses.Shared.Mappings;
 
 namespace Module.Profile.Features.Admin.Addresses.Update;
 
-public static partial class UpdateAddress
+public static partial class UpdateUserAddress
 {
     public sealed record Command(Guid Id, Request Request) : ICommand<Response>;
 

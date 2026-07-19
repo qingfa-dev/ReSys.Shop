@@ -1,8 +1,8 @@
 using Module.Profile.Features.Admin.Addresses.Shared.Validators;
 
-namespace Module.Profile.Features.Admin.Addresses.Create;
+namespace Module.Profile.Features.Admin.Addresses.Update;
 
-public static partial class CreateAddress
+public static partial class UpdateUserAddress
 {
     public sealed class Validator : AbstractValidator<Command>
     {

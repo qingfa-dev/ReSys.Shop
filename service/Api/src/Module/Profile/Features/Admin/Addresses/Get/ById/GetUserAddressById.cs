@@ -4,7 +4,7 @@ using Module.Profile.Features.Admin.Addresses.Shared.Mappings;
 
 namespace Module.Profile.Features.Admin.Addresses.Get.ById;
 
-public static partial class GetAddressById
+public static partial class GetUserAddressById
 {
     public sealed record Query(Guid Id) : IQuery<Response>;
 

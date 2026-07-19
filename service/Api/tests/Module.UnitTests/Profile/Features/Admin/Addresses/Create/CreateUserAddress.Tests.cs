@@ -8,13 +8,13 @@ namespace Module.UnitTests.Profile.Features.Admin.Addresses.Create;
 [Trait("Category", "Unit")]
 [Trait("Module", "Profile")]
 [Trait("Feature", "AdminAddressCreate")]
-public class CreateAddressTests : IDisposable
+public class CreateUserAddressTests : IDisposable
 {
     private readonly ApplicationDbContext _dbContext;
-    private readonly CreateAddress.CommandHandler _handler;
+    private readonly CreateUserAddress.CommandHandler _handler;
     private readonly Guid _userId = Guid.NewGuid();
 
-    public CreateAddressTests()
+    public CreateUserAddressTests()
     {
         var options = new DbContextOptionsBuilder<ApplicationDbContext>()
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
@@ -23,7 +23,7 @@ public class CreateAddressTests : IDisposable
         ApplicationDbContext.AdditionalConfigurationsAssemblies = [typeof(UserProfile).Assembly];
 
         _dbContext = new ApplicationDbContext(options);
-        _handler = new CreateAddress.CommandHandler(_dbContext);
+        _handler = new CreateUserAddress.CommandHandler(_dbContext);
     }
 
     public void Dispose()
@@ -32,7 +32,7 @@ public class CreateAddressTests : IDisposable
         GC.SuppressFinalize(this);
     }
 
-    private static CreateAddress.Request CreateRequest(
+    private static CreateUserAddress.Request CreateRequest(
         Guid userId,
         AddressType type = AddressType.Shipping,
         string address1 = "123 Main St",
@@ -57,7 +57,7 @@ public class CreateAddressTests : IDisposable
 
         var request = CreateRequest(_userId, address1: "New St", isDefault: false);
 
-        var result = await _handler.Handle(new CreateAddress.Command(request), TestContext.Current.CancellationToken);
+        var result = await _handler.Handle(new CreateUserAddress.Command(request), TestContext.Current.CancellationToken);
 
         result.IsSuccess.Should().BeTrue();
         result.Value.IsDefault.Should().BeTrue();
@@ -72,7 +72,7 @@ public class CreateAddressTests : IDisposable
     {
         var request = CreateRequest(Guid.NewGuid());
 
-        var result = await _handler.Handle(new CreateAddress.Command(request), TestContext.Current.CancellationToken);
+        var result = await _handler.Handle(new CreateUserAddress.Command(request), TestContext.Current.CancellationToken);
 
         result.IsFailure.Should().BeTrue();
         result.Errors[0].Code.Should().Be(UserProfileResult.Failure.UserNotFound.Code);
@@ -93,7 +93,7 @@ public class CreateAddressTests : IDisposable
 
         var request = CreateRequest(_userId, address1: "New St");
 
-        var result = await _handler.Handle(new CreateAddress.Command(request), TestContext.Current.CancellationToken);
+        var result = await _handler.Handle(new CreateUserAddress.Command(request), TestContext.Current.CancellationToken);
 
         result.IsFailure.Should().BeTrue();
         result.Errors[0].Code.Should().Be(AddressResult.Failure.MaxAddressesReached.Code);
@@ -112,7 +112,7 @@ public class CreateAddressTests : IDisposable
 
         var request = CreateRequest(_userId, type: AddressType.Shipping, address1: "New St");
 
-        var result = await _handler.Handle(new CreateAddress.Command(request), TestContext.Current.CancellationToken);
+        var result = await _handler.Handle(new CreateUserAddress.Command(request), TestContext.Current.CancellationToken);
 
         result.IsFailure.Should().BeTrue();
         result.Errors[0].Code.Should().Be(AddressResult.Failure.MaxAddressesPerTypeReached.Code);
@@ -129,7 +129,7 @@ public class CreateAddressTests : IDisposable
 
         var request = CreateRequest(_userId);
 
-        var result = await _handler.Handle(new CreateAddress.Command(request), TestContext.Current.CancellationToken);
+        var result = await _handler.Handle(new CreateUserAddress.Command(request), TestContext.Current.CancellationToken);
 
         result.IsFailure.Should().BeTrue();
         result.Errors[0].Code.Should().Be(AddressResult.Failure.DuplicateAddress.Code);
@@ -146,7 +146,7 @@ public class CreateAddressTests : IDisposable
 
         var request = CreateRequest(_userId, type: AddressType.Shipping, address1: "New St", isDefault: true);
 
-        var result = await _handler.Handle(new CreateAddress.Command(request), TestContext.Current.CancellationToken);
+        var result = await _handler.Handle(new CreateUserAddress.Command(request), TestContext.Current.CancellationToken);
 
         result.IsSuccess.Should().BeTrue();
 

@@ -8,13 +8,13 @@ namespace Module.UnitTests.Profile.Features.Admin.Addresses.Delete;
 [Trait("Category", "Unit")]
 [Trait("Module", "Profile")]
 [Trait("Feature", "AdminAddressDelete")]
-public class DeleteAddressTests : IDisposable
+public class DeleteUserAddressTests : IDisposable
 {
     private readonly ApplicationDbContext _dbContext;
-    private readonly DeleteAddress.CommandHandler _handler;
+    private readonly DeleteUserAddress.CommandHandler _handler;
     private readonly Guid _userId = Guid.NewGuid();
 
-    public DeleteAddressTests()
+    public DeleteUserAddressTests()
     {
         var options = new DbContextOptionsBuilder<ApplicationDbContext>()
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
@@ -23,7 +23,7 @@ public class DeleteAddressTests : IDisposable
         ApplicationDbContext.AdditionalConfigurationsAssemblies = [typeof(UserProfile).Assembly];
 
         _dbContext = new ApplicationDbContext(options);
-        _handler = new DeleteAddress.CommandHandler(_dbContext);
+        _handler = new DeleteUserAddress.CommandHandler(_dbContext);
     }
 
     public void Dispose()
@@ -33,7 +33,7 @@ public class DeleteAddressTests : IDisposable
     }
 
     [Fact(DisplayName = "Handle: Should delete address successfully")]
-    public async Task Handle_ShouldDeleteAddress()
+    public async Task Handle_ShouldDeleteUserAddress()
     {
         var profile = ProfileUserFactory.Create(_userId);
         var address = AddressMethod.Create("John", "Delete St", "City", "Country").Value;
@@ -41,7 +41,7 @@ public class DeleteAddressTests : IDisposable
         _dbContext.Set<UserProfile>().Add(profile);
         await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 
-        var result = await _handler.Handle(new DeleteAddress.Command(address.Id, _userId), TestContext.Current.CancellationToken);
+        var result = await _handler.Handle(new DeleteUserAddress.Command(address.Id, _userId), TestContext.Current.CancellationToken);
 
         result.IsSuccess.Should().BeTrue();
         result.Value.Id.Should().Be(address.Id);
@@ -53,7 +53,7 @@ public class DeleteAddressTests : IDisposable
     [Fact(DisplayName = "Handle: Should return NotFound if profile does not exist")]
     public async Task Handle_ShouldFail_WhenProfileNotFound()
     {
-        var result = await _handler.Handle(new DeleteAddress.Command(Guid.NewGuid(), _userId), TestContext.Current.CancellationToken);
+        var result = await _handler.Handle(new DeleteUserAddress.Command(Guid.NewGuid(), _userId), TestContext.Current.CancellationToken);
 
         result.IsFailure.Should().BeTrue();
         result.Errors[0].Code.Should().Be(UserProfileResult.Failure.UserNotFound.Code);
@@ -66,7 +66,7 @@ public class DeleteAddressTests : IDisposable
         _dbContext.Set<UserProfile>().Add(profile);
         await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 
-        var result = await _handler.Handle(new DeleteAddress.Command(Guid.NewGuid(), _userId), TestContext.Current.CancellationToken);
+        var result = await _handler.Handle(new DeleteUserAddress.Command(Guid.NewGuid(), _userId), TestContext.Current.CancellationToken);
 
         result.IsFailure.Should().BeTrue();
         result.Errors[0].Code.Should().Be(AddressResult.Failure.NotFound.Code);
@@ -83,7 +83,7 @@ public class DeleteAddressTests : IDisposable
         _dbContext.Set<UserProfile>().Add(profile);
         await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 
-        var result = await _handler.Handle(new DeleteAddress.Command(addr1.Id, _userId), TestContext.Current.CancellationToken);
+        var result = await _handler.Handle(new DeleteUserAddress.Command(addr1.Id, _userId), TestContext.Current.CancellationToken);
 
         result.IsSuccess.Should().BeTrue();
 

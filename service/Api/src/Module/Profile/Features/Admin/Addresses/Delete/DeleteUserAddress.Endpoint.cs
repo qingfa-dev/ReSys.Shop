@@ -2,7 +2,7 @@ using Module.Profile.Features.Shared;
 
 namespace Module.Profile.Features.Admin.Addresses.Delete;
 
-public static partial class DeleteAddress
+public static partial class DeleteUserAddress
 {
     public sealed class Endpoint : ICarterModule
     {
@@ -19,7 +19,7 @@ public static partial class DeleteAddress
                 return result.ToResult();
             })
             .RequireAuthorization()
-            .WithName(nameof(DeleteAddress))
+            .WithName(nameof(DeleteUserAddress))
             .WithTags(ProfileFeature.Tags.Address)
             .WithSummary(ProfileFeature.Admin.Addresses.Delete.Summary)
             .WithDescription(ProfileFeature.Admin.Addresses.Delete.Description)

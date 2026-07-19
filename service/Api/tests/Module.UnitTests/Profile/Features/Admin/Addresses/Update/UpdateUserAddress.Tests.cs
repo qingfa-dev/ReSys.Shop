@@ -8,13 +8,13 @@ namespace Module.UnitTests.Profile.Features.Admin.Addresses.Update;
 [Trait("Category", "Unit")]
 [Trait("Module", "Profile")]
 [Trait("Feature", "AdminAddressUpdate")]
-public class UpdateAddressTests : IDisposable
+public class UpdateUserAddressTests : IDisposable
 {
     private readonly ApplicationDbContext _dbContext;
-    private readonly UpdateAddress.CommandHandler _handler;
+    private readonly UpdateUserAddress.CommandHandler _handler;
     private readonly Guid _userId = Guid.NewGuid();
 
-    public UpdateAddressTests()
+    public UpdateUserAddressTests()
     {
         var options = new DbContextOptionsBuilder<ApplicationDbContext>()
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
@@ -23,7 +23,7 @@ public class UpdateAddressTests : IDisposable
         ApplicationDbContext.AdditionalConfigurationsAssemblies = [typeof(UserProfile).Assembly];
 
         _dbContext = new ApplicationDbContext(options);
-        _handler = new UpdateAddress.CommandHandler(_dbContext);
+        _handler = new UpdateUserAddress.CommandHandler(_dbContext);
     }
 
     public void Dispose()
@@ -32,7 +32,7 @@ public class UpdateAddressTests : IDisposable
         GC.SuppressFinalize(this);
     }
 
-    private static UpdateAddress.Request CreateRequest(
+    private static UpdateUserAddress.Request CreateRequest(
         Guid userId,
         AddressType type = AddressType.Shipping,
         string address1 = "Updated St",
@@ -49,7 +49,7 @@ public class UpdateAddressTests : IDisposable
     };
 
     [Fact(DisplayName = "Handle: Should update address details successfully")]
-    public async Task Handle_ShouldUpdateAddressDetails()
+    public async Task Handle_ShouldUpdateUserAddressDetails()
     {
         var profile = ProfileUserFactory.Create(_userId);
         var address = AddressMethod.Create("John", "Old St", "City", "Country").Value;
@@ -59,7 +59,7 @@ public class UpdateAddressTests : IDisposable
 
         var request = CreateRequest(_userId, address1: "New St");
 
-        var result = await _handler.Handle(new UpdateAddress.Command(address.Id, request), TestContext.Current.CancellationToken);
+        var result = await _handler.Handle(new UpdateUserAddress.Command(address.Id, request), TestContext.Current.CancellationToken);
 
         result.IsSuccess.Should().BeTrue();
         result.Value.Address1.Should().Be("New St");
@@ -72,7 +72,7 @@ public class UpdateAddressTests : IDisposable
     public async Task Handle_ShouldFail_WhenProfileNotFound()
     {
         var request = CreateRequest(Guid.NewGuid());
-        var result = await _handler.Handle(new UpdateAddress.Command(Guid.NewGuid(), request), TestContext.Current.CancellationToken);
+        var result = await _handler.Handle(new UpdateUserAddress.Command(Guid.NewGuid(), request), TestContext.Current.CancellationToken);
 
         result.IsFailure.Should().BeTrue();
         result.Errors[0].Code.Should().Be(UserProfileResult.Failure.UserNotFound.Code);
@@ -87,7 +87,7 @@ public class UpdateAddressTests : IDisposable
 
         var request = CreateRequest(_userId);
 
-        var result = await _handler.Handle(new UpdateAddress.Command(Guid.NewGuid(), request), TestContext.Current.CancellationToken);
+        var result = await _handler.Handle(new UpdateUserAddress.Command(Guid.NewGuid(), request), TestContext.Current.CancellationToken);
 
         result.IsFailure.Should().BeTrue();
         result.Errors[0].Code.Should().Be(AddressResult.Failure.NotFound.Code);
@@ -106,7 +106,7 @@ public class UpdateAddressTests : IDisposable
 
         var request = CreateRequest(_userId, address1: "456 Other St");
 
-        var result = await _handler.Handle(new UpdateAddress.Command(addr1.Id, request), TestContext.Current.CancellationToken);
+        var result = await _handler.Handle(new UpdateUserAddress.Command(addr1.Id, request), TestContext.Current.CancellationToken);
 
         result.IsFailure.Should().BeTrue();
         result.Errors[0].Code.Should().Be(AddressResult.Failure.DuplicateAddress.Code);
@@ -125,7 +125,7 @@ public class UpdateAddressTests : IDisposable
 
         var request = CreateRequest(_userId, type: AddressType.Shipping);
 
-        var result = await _handler.Handle(new UpdateAddress.Command(billing.Id, request), TestContext.Current.CancellationToken);
+        var result = await _handler.Handle(new UpdateUserAddress.Command(billing.Id, request), TestContext.Current.CancellationToken);
 
         result.IsFailure.Should().BeTrue();
         result.Errors[0].Code.Should().Be(AddressResult.Failure.MaxAddressesPerTypeReached.Code);
@@ -144,7 +144,7 @@ public class UpdateAddressTests : IDisposable
 
         var request = CreateRequest(_userId, type: AddressType.Billing, isDefault: true);
 
-        var result = await _handler.Handle(new UpdateAddress.Command(addr1.Id, request), TestContext.Current.CancellationToken);
+        var result = await _handler.Handle(new UpdateUserAddress.Command(addr1.Id, request), TestContext.Current.CancellationToken);
 
         result.IsSuccess.Should().BeTrue();
 
@@ -165,7 +165,7 @@ public class UpdateAddressTests : IDisposable
 
         var request = CreateRequest(_userId, isDefault: false);
 
-        var result = await _handler.Handle(new UpdateAddress.Command(address.Id, request), TestContext.Current.CancellationToken);
+        var result = await _handler.Handle(new UpdateUserAddress.Command(address.Id, request), TestContext.Current.CancellationToken);
 
         result.IsSuccess.Should().BeTrue();
         result.Value.IsDefault.Should().BeTrue();
@@ -180,7 +180,7 @@ public class UpdateAddressTests : IDisposable
         _dbContext.Set<UserProfile>().Add(profile);
         await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 
-        var request = new UpdateAddress.Request
+        var request = new UpdateUserAddress.Request
         {
             UserId = _userId,
             AddressType = AddressType.Billing,
@@ -195,7 +195,7 @@ public class UpdateAddressTests : IDisposable
             IsDefault = true
         };
 
-        var result = await _handler.Handle(new UpdateAddress.Command(address.Id, request), TestContext.Current.CancellationToken);
+        var result = await _handler.Handle(new UpdateUserAddress.Command(address.Id, request), TestContext.Current.CancellationToken);
 
         result.IsSuccess.Should().BeTrue();
         result.Value.FirstName.Should().Be("Jane");

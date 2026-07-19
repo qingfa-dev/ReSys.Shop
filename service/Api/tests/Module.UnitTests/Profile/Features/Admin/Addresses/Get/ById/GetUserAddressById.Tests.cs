@@ -10,12 +10,12 @@ namespace Module.UnitTests.Profile.Features.Admin.Addresses.Get.ById;
 [Trait("Category", "Unit")]
 [Trait("Module", "Profile")]
 [Trait("Feature", "AdminAddressGetById")]
-public class GetAddressByIdTests : IDisposable
+public class GetUserAddressByIdTests : IDisposable
 {
     private readonly ApplicationDbContext _dbContext;
-    private readonly GetAddressById.QueryHandler _handler;
+    private readonly GetUserAddressById.QueryHandler _handler;
 
-    public GetAddressByIdTests()
+    public GetUserAddressByIdTests()
     {
         var options = new DbContextOptionsBuilder<ApplicationDbContext>()
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
@@ -24,7 +24,7 @@ public class GetAddressByIdTests : IDisposable
         ApplicationDbContext.AdditionalConfigurationsAssemblies = [typeof(UserProfile).Assembly];
 
         _dbContext = new ApplicationDbContext(options);
-        _handler = new GetAddressById.QueryHandler(_dbContext);
+        _handler = new GetUserAddressById.QueryHandler(_dbContext);
     }
 
     public void Dispose()
@@ -40,7 +40,7 @@ public class GetAddressByIdTests : IDisposable
         _dbContext.Set<Address>().Add(address);
         await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 
-        var result = await _handler.Handle(new GetAddressById.Query(address.Id), TestContext.Current.CancellationToken);
+        var result = await _handler.Handle(new GetUserAddressById.Query(address.Id), TestContext.Current.CancellationToken);
 
         result.IsSuccess.Should().BeTrue();
         result.Value.Id.Should().Be(address.Id);
@@ -50,7 +50,7 @@ public class GetAddressByIdTests : IDisposable
     [Fact(DisplayName = "Handle: Should return NotFound if address does not exist")]
     public async Task Handle_ShouldFail_WhenNotFound()
     {
-        var result = await _handler.Handle(new GetAddressById.Query(Guid.NewGuid()), TestContext.Current.CancellationToken);
+        var result = await _handler.Handle(new GetUserAddressById.Query(Guid.NewGuid()), TestContext.Current.CancellationToken);
 
         result.IsFailure.Should().BeTrue();
         result.Errors[0].Code.Should().Be(AddressResult.Failure.NotFound.Code);

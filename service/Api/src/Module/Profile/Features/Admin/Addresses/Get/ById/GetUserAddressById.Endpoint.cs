@@ -2,7 +2,7 @@ using Module.Profile.Features.Shared;
 
 namespace Module.Profile.Features.Admin.Addresses.Get.ById;
 
-public static partial class GetAddressById
+public static partial class GetUserAddressById
 {
     public sealed class Endpoint : ICarterModule
     {
@@ -18,7 +18,7 @@ public static partial class GetAddressById
                 return result.ToResult();
             })
             .RequireAuthorization()
-            .WithName(nameof(GetAddressById))
+            .WithName(nameof(GetUserAddressById))
             .WithTags(ProfileFeature.Tags.Address)
             .WithSummary(ProfileFeature.Admin.Addresses.GetById.Summary)
             .WithDescription(ProfileFeature.Admin.Addresses.GetById.Description)
