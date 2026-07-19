@@ -40,22 +40,6 @@ public sealed class StripeWebhookDispatcher : IStripeWebhookService
         _logger = logger;
     }
 
-    // Webhook: Dispatches Stripe event to handler via MediatR — signature validation happens in CommandHandler
-    public async Task<Result> HandleAsync(string eventType, string payload, CancellationToken ct = default)
-    {
-        // Check: Webhook secret must be configured
-        if (string.IsNullOrEmpty(_options.WebhookSecret))
-        {
-            return Error.Validation(
-                "Stripe.WebhookSecret.NotConfigured",
-                "Stripe webhook secret is not configured.");
-        }
-
-        // Assume: Stripe-Signature header is injected by gateway pipeline before reaching dispatcher
-        var result = await _sender.Send(new StripeWebhook.Command(payload, "stripe-signature"), ct);
-        return result;
-    }
-
     // Webhook: Validate HMAC-SHA256 signature against Stripe webhook secret
     public bool ValidateSignature(string payload, string stripeSignature)
     {
@@ -68,7 +52,7 @@ public sealed class StripeWebhookDispatcher : IStripeWebhookService
         // Suppress: StripeException on invalid signature — returns false without throwing
         catch (StripeException ex)
         {
-            _logger.LogWarning(ex, "Stripe signature validation failed");
+            StripeWebhookDispatcherLoggers.SignatureValidationFailed(_logger, ex);
             return false;
         }
     }
@@ -80,7 +64,7 @@ public sealed class StripeWebhookDispatcher : IStripeWebhookService
         try { return EventUtility.ParseEvent(payload); }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Stripe event parse failed: {Payload}", payload);
+            StripeWebhookDispatcherLoggers.EventParseFailed(_logger, ex, payload);
             return null;
         }
     }
