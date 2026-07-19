@@ -1,9 +1,8 @@
 using Module.Catalog.Domain.Products.Variants;
 
 using Shared.Application.Systems.SystemInfos;
-using Module.Inventory.Domain.Stock;
-using Module.Inventory.Features.Storefront.CartReservations.Reserve;
 using Module.Inventory.Domain.StockLocations.StockItems;
+using Module.Inventory.Features.Storefront.CartReservations.Reserve;
 using Module.Ordering.Domain.LineItems;
 using Module.Ordering.Domain.Orders;
 using Module.Ordering.Features.Storefront.Cart.Shared.Mappings;
@@ -23,7 +22,7 @@ public static partial class AddToCart
         ISender sender)
         : ICommandHandler<Command, Response>
     {
-        /// <summary>Adds a variant to the user's cart, creating a new cart or merging with an existing line item, with stock validation.</summary>
+        /// <summary>Adds a variant to the user's cart, creating a new cart or merging with an existing line item, with stock reservation.</summary>
         /// <param name="command">The command containing the variant ID and quantity.</param>
         /// <param name="cancellationToken">Cancellation token.</param>
         /// <returns>The response with the new or updated line item ID.</returns>
@@ -66,20 +65,11 @@ public static partial class AddToCart
                 dbContext.Set<Order>().Add(cart);
             }
 
-            // Validate: Stock availability for requested quantity.
-            var stockItems = await dbContext.Set<StockItem>()
-                .Include(x => x.StockLocation)
-                .Where(x => x.VariantId == request.VariantId)
-                .ToListAsync(cancellationToken);
-
-            if (!AvailabilityValidator.IsAvailable(stockItems, request.Quantity))
-                return StockItemResult.Errors.InsufficientStock;
-
-            // Reserve: Lock stock for the cart duration (30-min TTL).
-            var primaryLocation = stockItems
-                .Where(si => si.CountOnHand > 0)
+            // Reserve: Find the best location with stock and reserve via Inventory module.
+            var primaryLocation = await dbContext.Set<StockItem>()
+                .Where(si => si.VariantId == request.VariantId && si.CountOnHand > 0)
                 .OrderByDescending(si => si.CountOnHand)
-                .FirstOrDefault();
+                .FirstOrDefaultAsync(cancellationToken);
 
             if (primaryLocation is not null)
             {
