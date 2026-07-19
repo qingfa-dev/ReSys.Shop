@@ -59,13 +59,15 @@ def main() -> None:
         sys.exit(1)
 
     image_records = json.loads(images_json.read_text())
-    seen: set[str] = set()
+    seen: dict[str, str] = {}
     unique: list[dict] = []
     for rec in image_records:
         sp = rec["storage_path"]
         if sp not in seen:
-            seen.add(sp)
+            seen[sp] = rec["file_name"]
             unique.append(rec)
+        elif seen[sp] != rec["file_name"]:
+            print(f"  WARN: {sp} has conflicting file_names: {seen[sp]} vs {rec['file_name']}")
 
     source_dir = args.dataset / "images"
     ok = fail = 0

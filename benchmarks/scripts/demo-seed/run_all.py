@@ -55,7 +55,11 @@ def main() -> None:
 
     if args.deploy:
         print(f"\n{'=' * 60}\n  DEPLOY: copying images to storage\n{'=' * 60}")
-        shutil.copytree(args.output / "images", args.storage / "images", dirs_exist_ok=True)
+        src = args.output / "images"
+        if not src.exists():
+            print(f"ERROR: {src} not found; images must be generated first (step 03)")
+            sys.exit(1)
+        shutil.copytree(src, args.storage / "images", dirs_exist_ok=True)
         print(f"Deployed images to {args.storage / 'images'}")
 
     print(f"\n{'=' * 60}")

@@ -51,8 +51,8 @@ def extract_sizes_from_json(dataset_path: Path, product_id: str) -> list[str]:
         style_options = data.get("data", {}).get("styleOptions", [])
         sizes: list[str] = []
         for opt in style_options:
-            size = (opt.get("sizeOption", {}) or {}).get("value", "")
-            if size:
+            size = opt.get("value", "")
+            if opt.get("name") == "Size" and size:
                 sizes.append(str(size))
         return sorted(set(sizes))
     except Exception:
@@ -243,7 +243,7 @@ def main() -> None:
                 "variant_id": variant_id,
                 "content_type": "image/jpeg",
                 "file_name": f"{benchmark_id}.jpg",
-                "storage_path": f"images/medium/{benchmark_id}.jpg",
+                "storage_path": str(Path("images") / "medium" / f"{benchmark_id}.jpg"),
                 "position": 0,
                 "alt": display_name[:500],
                 "type": "Default",
@@ -256,7 +256,7 @@ def main() -> None:
                     "variant_id": variant_id,
                     "content_type": "image/jpeg",
                     "file_name": f"{benchmark_id}.jpg",
-                    "storage_path": f"images/search/{args.search_size}/{benchmark_id}.jpg",
+                    "storage_path": str(Path("images") / "search" / str(args.search_size) / f"{benchmark_id}.jpg"),
                     "position": 1,
                     "alt": display_name[:500],
                     "type": "Search",
