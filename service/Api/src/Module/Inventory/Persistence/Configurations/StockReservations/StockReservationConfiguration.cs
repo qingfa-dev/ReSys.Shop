@@ -22,5 +22,10 @@ public class StockReservationConfiguration : IEntityTypeConfiguration<StockReser
         builder.Property(x => x.State).HasConversion<string>();
         builder.Property(x => x.Reason);
         #endregion
+
+        #region Indexes
+        builder.HasIndex(x => x.VariantId);
+        builder.HasIndex(x => x.ExpiresAtUtc);
+        #endregion
     }
 }
