@@ -94,7 +94,8 @@ public class StockReservationService(IApplicationDbContext dbContext) : IStockRe
         foreach (var r in reservations)
         {
             var wasActive = r.State == ReservationState.Reserved;
-            r.State = ReservationState.Released;
+            var releaseResult = r.Release();
+            if (releaseResult.IsFailure) continue;
             r.ModifiedAtUtc = DateTimeOffset.UtcNow;
 
             if (wasActive && r.StockLocationId is not null)
@@ -124,6 +125,7 @@ public class StockReservationService(IApplicationDbContext dbContext) : IStockRe
         {
             var wasActive = r.State == ReservationState.Reserved;
             r.State = ReservationState.Expired;
+            r.ExpiresAtUtc = now;
             r.ModifiedAtUtc = now;
 
             if (wasActive && r.StockLocationId is not null)
@@ -177,6 +179,7 @@ public class StockReservationService(IApplicationDbContext dbContext) : IStockRe
         {
             var wasActive = r.State == ReservationState.Reserved;
             r.State = ReservationState.Expired;
+            r.ExpiresAtUtc = now;
             r.ModifiedAtUtc = now;
 
             if (wasActive && r.StockLocationId is not null)

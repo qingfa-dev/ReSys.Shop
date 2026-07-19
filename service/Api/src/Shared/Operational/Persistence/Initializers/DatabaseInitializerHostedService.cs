@@ -20,12 +20,12 @@ public sealed class DatabaseInitializerHostedService(
         {
             await initializer.InitializeAsync(stoppingToken);
             state.MarkComplete();
-            logger.LogInformation("Database initialization complete.");
+            DatabaseInitializerHostedServiceLoggers.InitializationComplete(logger);
         }
         catch (Exception ex)
         {
             state.MarkFailed(ex);
-            logger.LogCritical(ex, "Database initialization failed.");
+            DatabaseInitializerHostedServiceLoggers.InitializationFailed(logger, ex);
             lifetime.StopApplication();
         }
     }

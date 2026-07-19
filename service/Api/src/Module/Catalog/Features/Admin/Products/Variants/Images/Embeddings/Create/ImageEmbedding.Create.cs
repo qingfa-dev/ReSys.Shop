@@ -16,7 +16,9 @@ public static partial class CreateEmbedding
         public async Task<Result<EmbeddingDetailResponse>> Handle(Command command, CancellationToken cancellationToken)
         {
             var request = command.Request;
+            // Call: Generate embedding via inference service and persist to database
             var result = await orchestrator.GenerateAndPersistAsync(request.VariantImageId, request.ModelName, cancellationToken);
+            // Check: Propagate failure from orchestrator without modification
             if (result.IsFailure)
                 return result.Errors;
 

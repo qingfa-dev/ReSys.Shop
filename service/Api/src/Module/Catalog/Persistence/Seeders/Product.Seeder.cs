@@ -1,10 +1,10 @@
 using Module.Catalog.Domain.Products;
+using Module.Catalog.Domain.Products.Classifications;
 using Module.Catalog.Domain.Products.Options;
 using Module.Catalog.Domain.Products.Variants;
 using Module.Catalog.Domain.Products.Variants.Images;
 using Module.Catalog.Domain.Products.Variants.Options;
 using Module.Catalog.Domain.Products.Variants.Prices;
-using Module.Catalog.Domain.Taxonomies.Taxons;
 using Module.Catalog.Domain.OptionTypes;
 using Module.Catalog.Domain.OptionTypes.Values;
 
@@ -24,26 +24,25 @@ public sealed class CatalogDemoSeeder(IApplicationDbContext context, DemoJsonHel
         var jsonVariants = jsonHelper.LoadIfExists<DemoVariantJson>("demo_variants.json");
         var jsonImages = jsonHelper.LoadIfExists<DemoVariantImageJson>("demo_variant_images.json");
         var jsonAssignments = jsonHelper.LoadIfExists<DemoOptionAssignmentJson>("demo_option_assignments.json");
+        var jsonClassifications = jsonHelper.LoadIfExists<DemoClassificationJson>("demo_classifications.json");
 
         if (jsonProducts is null || jsonVariants is null)
             return Result.Ok();
 
-        await SeedFromJsonAsync(jsonProducts, jsonVariants, jsonImages, jsonAssignments, cancellationToken);
+        await SeedFromJsonAsync(jsonProducts, jsonVariants, jsonImages, jsonAssignments, jsonClassifications, cancellationToken);
         return Result.Ok();
     }
 
     private async Task SeedFromJsonAsync(
         DemoProductJson[] products, DemoVariantJson[] variants,
-        DemoVariantImageJson[]? images, DemoOptionAssignmentJson[]? assignments, CancellationToken ct)
+        DemoVariantImageJson[]? images, DemoOptionAssignmentJson[]? assignments,
+        DemoClassificationJson[]? classifications, CancellationToken ct)
     {
         var optionValues = await Context.Set<OptionValue>().ToListAsync(ct);
         var optionTypes = await Context.Set<OptionType>().ToListAsync(ct);
 
         var colorTypeId = optionTypes.FirstOrDefault(o => o.Name == "Color")?.Id;
         var sizeTypeId = optionTypes.FirstOrDefault(o => o.Name == "Size")?.Id;
-
-        var taxonLookup = await Context.Set<Taxon>()
-            .Where(t => !t.IsDeleted).ToDictionaryAsync(t => t.Slug, ct);
 
         foreach (var pj in products)
         {
@@ -127,6 +126,19 @@ public sealed class CatalogDemoSeeder(IApplicationDbContext context, DemoJsonHel
             }
             await Context.SaveChangesAsync(ct);
         }
+
+        if (classifications is not null)
+        {
+            foreach (var c in classifications)
+            {
+                var result = ClassificationMethod.Create(
+                    Guid.Parse(c.ProductId), Guid.Parse(c.TaxonId),
+                    c.Position, isAutomatic: true);
+                if (result.IsSuccess)
+                    Context.Set<Classification>().Add(result.Value);
+            }
+            await Context.SaveChangesAsync(ct);
+        }
     }
 
     private record DemoProductJson
@@ -173,5 +185,11 @@ public sealed class CatalogDemoSeeder(IApplicationDbContext context, DemoJsonHel
         public string VariantId { get; init; } = default!;
         public string OptionValueName { get; init; } = default!;
         public string OptionTypeId { get; init; } = default!;
+    }
+    private record DemoClassificationJson
+    {
+        public string ProductId { get; init; } = default!;
+        public string TaxonId { get; init; } = default!;
+        public int Position { get; init; }
     }
 }

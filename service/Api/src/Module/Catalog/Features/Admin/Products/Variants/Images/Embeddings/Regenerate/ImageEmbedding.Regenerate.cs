@@ -16,7 +16,9 @@ public static partial class RegenerateEmbedding
         public async Task<Result<EmbeddingDetailResponse>> Handle(Command command, CancellationToken cancellationToken)
         {
             var request = command.Request;
+            // Call: Regenerate embedding via inference service and overwrite existing
             var result = await orchestrator.GenerateAndPersistAsync(request.VariantImageId, request.ModelName, cancellationToken);
+            // Check: Propagate failure from orchestrator without modification
             if (result.IsFailure)
                 return result.Errors;
 

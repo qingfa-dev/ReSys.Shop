@@ -38,10 +38,10 @@ public static partial class SearchByImage
 
             const long MaxFileSize = 10_485_760; // 10 MB
             if (image.Length > MaxFileSize)
-                return Error.Validation("SearchByImage.FileTooLarge", "Image file must not exceed 10 MB.");
+                return SearchByImageResult.Errors.FileTooLarge;
 
             if (!image.ContentType.StartsWith("image/"))
-                return Error.Validation("SearchByImage.InvalidContentType", "File must be an image.");
+                return SearchByImageResult.Errors.InvalidContentType;
 
             // Transform: Read image bytes into memory for inference
             using var ms = new MemoryStream();

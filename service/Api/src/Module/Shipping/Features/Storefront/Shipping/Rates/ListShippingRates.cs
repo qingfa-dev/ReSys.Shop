@@ -16,6 +16,7 @@ public static partial class ListShippingRates
         public async Task<PagedResult<Response>> Handle(Query request, CancellationToken cancellationToken)
         {
             _ = logger;
+            // Validate: Parse and validate query parameters against allowed fields
             var parsing = request.Parameters.ParseAll(
                 allowedFilterFields: ShippingRateConstant.Query.AllowedFilterFields.ToHashSet(StringComparer.OrdinalIgnoreCase),
                 allowedSearchFields: ShippingRateConstant.Query.AllowedSearchFields.ToHashSet(StringComparer.OrdinalIgnoreCase),
@@ -23,10 +24,11 @@ public static partial class ListShippingRates
             if (parsing.IsFailure)
                 return parsing.Errors;
 
+            // Load: Query shipping rates with filtering, sorting, and pagination
             var pagedResult = await dbContext.Set<ShippingRate>()
                 .AsNoTracking()
                 .ApplyQuerying(parsing.Value)
-                // EXCEPTION: no domain entity — maps from domain ShippingRate entity
+                // Transform: Map domain entity to response DTO
                 .Select(r => new Response
                 {
                     Id = r.Id,

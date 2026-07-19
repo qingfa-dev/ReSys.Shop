@@ -16,11 +16,13 @@ public static partial class GetCatalogDashboard
         /// <summary>Gets the catalog dashboard data.</summary>
         public async Task<Result<Response>> Handle(Query request, CancellationToken cancellationToken)
         {
+            // Load: Base queries for non-deleted products, variants, taxonomies, and taxons
             var productsQuery = dbContext.Set<Product>().Where(p => !p.IsDeleted);
             var variantsQuery = dbContext.Set<Variant>().Where(v => !v.IsDeleted);
             var taxonomiesQuery = dbContext.Set<Taxonomy>().Where(t => !t.IsDeleted);
             var taxonsQuery = dbContext.Set<Taxon>().Where(t => !t.IsDeleted);
 
+            // Aggregate: Compute dashboard counters from filtered queries
             var totalProducts = await productsQuery.CountAsync(cancellationToken);
             var activeProducts = await productsQuery.CountAsync(p => p.Status == ProductStatus.Active, cancellationToken);
             var draftProducts = await productsQuery.CountAsync(p => p.Status == ProductStatus.Draft, cancellationToken);
@@ -28,6 +30,7 @@ public static partial class GetCatalogDashboard
             var totalTaxonomies = await taxonomiesQuery.CountAsync(cancellationToken);
             var totalTaxons = await taxonsQuery.CountAsync(cancellationToken);
 
+            // Load: Fetch the 5 most recently created products for the dashboard feed
             var recentProducts = await productsQuery
                 .OrderByDescending(p => p.CreatedAtUtc)
                 .Take(5)

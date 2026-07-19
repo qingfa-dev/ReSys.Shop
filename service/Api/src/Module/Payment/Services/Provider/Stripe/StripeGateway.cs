@@ -45,7 +45,7 @@ public sealed class StripeGateway : Gateway
             var intent = await new PaymentIntentService().CreateAsync(po, ro, ct).ConfigureAwait(false);
             // Check: Intent must be succeeded status for auto-capture
             if (intent.Status != GatewayConstants.Stripe.IntentStatus.Succeeded)
-                return Error.BadRequest("Stripe.Purchase.NotSucceeded", $"Purchase status: {intent.Status}");
+                return StripeGatewayResult.Errors.PurchaseNotSucceeded(intent.Status);
             return new PaymentGatewayResponse(GatewayConstants.Providers.Stripe,
                 authorization: intent.Id,
                 clientSecret: intent.ClientSecret);
@@ -64,7 +64,7 @@ public sealed class StripeGateway : Gateway
             var intent = await new PaymentIntentService().CreateAsync(po, ro, ct).ConfigureAwait(false);
             // Check: Intent must be requires_capture status for manual-capture
             if (intent.Status != GatewayConstants.Stripe.IntentStatus.RequiresCapture)
-                return Error.BadRequest("Stripe.Authorize.NotRequiresCapture", $"Authorize status: {intent.Status}");
+                return StripeGatewayResult.Errors.AuthorizeNotRequiresCapture(intent.Status);
             return new PaymentGatewayResponse(GatewayConstants.Providers.Stripe,
                 authorization: intent.Id,
                 clientSecret: intent.ClientSecret);
@@ -189,6 +189,6 @@ public sealed class StripeGateway : Gateway
         var msg = e?.DeclineCode is not null
             ? $"Stripe [{code}] decline [{e.DeclineCode}]: {e!.Message}"
             : $"Stripe [{code}]: {e?.Message ?? ex.Message}";
-        return Error.BadRequest($"Stripe.{code}", msg);
+        return StripeGatewayResult.Errors.GatewayError(code, msg);
     }
 }

@@ -7,15 +7,9 @@ import json
 import random
 import sys
 from pathlib import Path
-from uuid import uuid5, NAMESPACE_DNS
 
-SEED_NAMESPACE = uuid5(NAMESPACE_DNS, "resys.shop.demo-seed")
-
-SCRIPTS_DIR = Path(__file__).resolve().parent
-
-
-def guid(entity_type: str, name: str) -> str:
-    return str(uuid5(SEED_NAMESPACE, f"{entity_type}.{name}"))
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from shared import SCRIPTS_DIR, check_overwrite, guid, write_json  # noqa: E402
 
 
 def main() -> None:
@@ -25,15 +19,12 @@ def main() -> None:
     parser.add_argument("--force", action="store_true")
     args = parser.parse_args()
 
-    output_file = args.output / "demo_stock_locations.json"
-    if output_file.exists() and not args.force:
-        print(f"Output already exists: {output_file}")
-        print("Use --force to overwrite.")
-        sys.exit(1)
+    check_overwrite(args.output / "demo_stock_locations.json", args.force)
 
     variants_json = args.output / "demo_variants.json"
     if not variants_json.exists():
-        print(f"ERROR: {variants_json} not found"); sys.exit(1)
+        print(f"ERROR: {variants_json} not found")
+        sys.exit(1)
 
     random.seed(args.seed)
     variants = json.loads(variants_json.read_text())
@@ -86,7 +77,7 @@ def main() -> None:
             qty = int(base_qty * ratios[loc["code"]])
             if qty <= 0:
                 continue
-            si_id = guid("stock_item", f"{variant['sku']}.{loc['code']}")
+            si_id = guid("stock_item", f"{variant['id']}.{loc['code']}")
             stock_items.append({
                 "id": si_id,
                 "variant_id": variant["id"],
@@ -104,9 +95,9 @@ def main() -> None:
                 "action": "restock",
             })
 
-    (args.output / "demo_stock_locations.json").write_text(json.dumps(locations, indent=2))
-    (args.output / "demo_stock_items.json").write_text(json.dumps(stock_items, indent=2))
-    (args.output / "demo_stock_movements.json").write_text(json.dumps(stock_movements, indent=2))
+    write_json(args.output / "demo_stock_locations.json", locations)
+    write_json(args.output / "demo_stock_items.json", stock_items)
+    write_json(args.output / "demo_stock_movements.json", stock_movements)
 
     print(f"Written {len(locations)} locations, {len(stock_items)} items, {len(stock_movements)} movements")
 

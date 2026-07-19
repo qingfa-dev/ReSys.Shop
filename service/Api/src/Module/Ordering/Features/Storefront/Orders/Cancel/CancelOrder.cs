@@ -58,8 +58,7 @@ public static partial class CancelOrder
                 cancellationToken);
             if (voidResult.IsFailure)
             {
-                logger.LogWarning("Failed to void payments for order {OrderId}: {Errors}",
-                    entity.Id, string.Join("; ", voidResult.Errors.Select(f => f.Message)));
+                OrderLoggers.VoidPaymentsFailed(logger, entity.Id, string.Join("; ", voidResult.Errors.Select(f => f.Message)));
             }
 
             // Compensate: Release inventory back to stock for previously placed orders.
@@ -100,8 +99,7 @@ public static partial class CancelOrder
             // Suppress: Notification failure does not roll back the cancellation.
             if (result.IsFailure)
             {
-                logger.LogWarning("Failed to send order canceled notification for order {OrderId}: {Errors}",
-                    order.Id, string.Join("; ", result.Errors.Select(f => f.Message)));
+                OrderLoggers.CancelNotificationFailed(logger, order.Id, string.Join("; ", result.Errors.Select(f => f.Message)));
             }
         }
     }

@@ -9,16 +9,16 @@ import re
 import sys
 from collections import defaultdict
 from pathlib import Path
-from uuid import uuid5, NAMESPACE_DNS
 
-SEED_NAMESPACE = uuid5(NAMESPACE_DNS, "resys.shop.demo-seed")
-OPTION_TYPE_SIZE_ID = str(uuid5(SEED_NAMESPACE, "option_type.size"))
-OPTION_TYPE_COLOR_ID = str(uuid5(SEED_NAMESPACE, "option_type.color"))
-
-MODEL_INPUT_SIZES: dict[str, int] = {
-    "efficientnet_b0": 224, "clip_vit_b16": 224, "fashion_clip": 224,
-    "dinov2_vits14": 224,
-}
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from shared import (  # noqa: E402
+    OPTION_TYPE_COLOR_ID,
+    OPTION_TYPE_SIZE_ID,
+    SCRIPTS_DIR,
+    check_overwrite,
+    guid,
+    write_json,
+)
 
 ARTICLE_PRICE_MAP: dict[str, float] = {
     "Tshirts": 24.99, "Shirts": 34.99, "Jeans": 59.99, "Trousers": 49.99,
@@ -35,12 +35,6 @@ ARTICLE_PRICE_MAP: dict[str, float] = {
     "Sarees": 69.99, "Lehenga": 99.99, "Dupatta": 19.99, "Salwar": 29.99,
     "Churidar": 29.99, "Leggings": 24.99, "Capris": 29.99,
 }
-
-SCRIPTS_DIR = Path(__file__).resolve().parent
-
-
-def guid(entity_type: str, name: str) -> str:
-    return str(uuid5(SEED_NAMESPACE, f"{entity_type}.{name}"))
 
 
 def derive_sku(base: str, variant_index: int) -> str:
@@ -122,15 +116,12 @@ def main() -> None:
     parser.add_argument("--force", action="store_true")
     args = parser.parse_args()
 
-    output_file = args.output / "demo_products.json"
-    if output_file.exists() and not args.force:
-        print(f"Output already exists: {output_file}")
-        print("Use --force to overwrite.")
-        sys.exit(1)
+    check_overwrite(args.output / "demo_products.json", args.force)
 
     styles_csv = args.dataset / "styles.csv"
     if not styles_csv.exists():
-        print(f"ERROR: {styles_csv} not found"); sys.exit(1)
+        print(f"ERROR: {styles_csv} not found")
+        sys.exit(1)
 
     groups: dict[str, list[dict]] = defaultdict(list)
     with open(styles_csv, encoding="utf-8") as f:
@@ -147,8 +138,9 @@ def main() -> None:
     images: list[dict] = []
     assignments: list[dict] = []
     all_sizes: set[str] = set()
+    product_taxon_refs: list[dict] = []  # for demo_classifications.json
 
-    for idx, (display_name, rows) in enumerate(selected.items()):
+    for _idx, (display_name, rows) in enumerate(selected.items()):
         product_id = guid("product", display_name)
         first = rows[0]
         article = first.get("articleType", "").strip()
@@ -178,6 +170,32 @@ def main() -> None:
             "material_composition": meta.get("material_composition"),
             "care_instructions": meta.get("care_instructions"),
         })
+
+        mc = first.get("masterCategory", "").strip()
+        b = brand
+        at = article
+        pos = 0
+        if mc:
+            product_taxon_refs.append({
+                "product_id": product_id,
+                "taxon_id": guid("taxon", f"cat.{mc}"),
+                "position": pos,
+            })
+            pos += 1
+        if b:
+            product_taxon_refs.append({
+                "product_id": product_id,
+                "taxon_id": guid("taxon", f"brand.{b}"),
+                "position": pos,
+            })
+            pos += 1
+        if at:
+            product_taxon_refs.append({
+                "product_id": product_id,
+                "taxon_id": guid("taxon", f"article_type.{at}"),
+                "position": pos,
+            })
+            pos += 1
 
         master_variant_id = None
         for vi, row in enumerate(rows):
@@ -264,10 +282,11 @@ def main() -> None:
 
     args.output.mkdir(parents=True, exist_ok=True)
 
-    (args.output / "demo_products.json").write_text(json.dumps(products, indent=2))
-    (args.output / "demo_variants.json").write_text(json.dumps(variants, indent=2))
-    (args.output / "demo_variant_images.json").write_text(json.dumps(images, indent=2))
-    (args.output / "demo_option_assignments.json").write_text(json.dumps(assignments, indent=2))
+    write_json(args.output / "demo_products.json", products)
+    write_json(args.output / "demo_variants.json", variants)
+    write_json(args.output / "demo_variant_images.json", images)
+    write_json(args.output / "demo_option_assignments.json", assignments)
+    write_json(args.output / "demo_classifications.json", product_taxon_refs)
 
     existing = json.loads((args.output / "demo_option_values.json").read_text()) if (args.output / "demo_option_values.json").exists() else []
     pos = len(existing)
@@ -279,9 +298,9 @@ def main() -> None:
                 "name": size, "presentation": size, "position": pos,
             })
             pos += 1
-    (args.output / "demo_option_values.json").write_text(json.dumps(existing, indent=2))
+    write_json(args.output / "demo_option_values.json", existing)
 
-    print(f"Written {len(products)} products, {len(variants)} variants, {len(images)} images, {len(assignments)} assignments")
+    print(f"Written {len(products)} products, {len(variants)} variants, {len(images)} images, {len(assignments)} assignments, {len(product_taxon_refs)} classifications")
 
 
 if __name__ == "__main__":

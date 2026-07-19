@@ -4,25 +4,21 @@ from __future__ import annotations
 
 import argparse
 import csv
-import json
 import sys
 from pathlib import Path
-from uuid import uuid5, NAMESPACE_DNS
 
-SEED_NAMESPACE = uuid5(NAMESPACE_DNS, "resys.shop.demo-seed")
-
-TAXONOMY_CATEGORIES_ID = str(uuid5(SEED_NAMESPACE, "taxonomy.categories"))
-TAXONOMY_BRANDS_ID = str(uuid5(SEED_NAMESPACE, "taxonomy.brands"))
-TAXONOMY_ARTICLE_TYPES_ID = str(uuid5(SEED_NAMESPACE, "taxonomy.article_types"))
-
-OPTION_TYPE_SIZE_ID = str(uuid5(SEED_NAMESPACE, "option_type.size"))
-OPTION_TYPE_COLOR_ID = str(uuid5(SEED_NAMESPACE, "option_type.color"))
-
-SCRIPTS_DIR = Path(__file__).resolve().parent
-
-
-def guid(entity_type: str, name: str) -> str:
-    return str(uuid5(SEED_NAMESPACE, f"{entity_type}.{name}"))
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from shared import (  # noqa: E402
+    OPTION_TYPE_COLOR_ID,
+    OPTION_TYPE_SIZE_ID,
+    SCRIPTS_DIR,
+    TAXONOMY_ARTICLE_TYPES_ID,
+    TAXONOMY_BRANDS_ID,
+    TAXONOMY_CATEGORIES_ID,
+    check_overwrite,
+    guid,
+    write_json,
+)
 
 
 def build_taxonomies_json() -> list[dict]:
@@ -137,14 +133,12 @@ def build_option_types_json() -> list[dict]:
 
 def build_option_values_json(colors: set[str]) -> list[dict]:
     values: list[dict] = []
-    pos = 0
-    for color in sorted(colors):
+    for pos, color in enumerate(sorted(colors)):
         values.append({
             "id": guid("option_value", f"color.{color}"),
             "option_type_id": OPTION_TYPE_COLOR_ID,
             "name": color, "presentation": color, "position": pos,
         })
-        pos += 1
     return values
     # Size values are generated in extract_products.py from JSON articleAttributes
 
@@ -156,15 +150,12 @@ def main() -> None:
     parser.add_argument("--force", action="store_true")
     args = parser.parse_args()
 
-    output_file = args.output / "demo_taxonomies.json"
-    if output_file.exists() and not args.force:
-        print(f"Output already exists: {output_file}")
-        print("Use --force to overwrite.")
-        sys.exit(1)
+    check_overwrite(args.output / "demo_taxonomies.json", args.force)
 
     styles_csv = args.dataset / "styles.csv"
     if not styles_csv.exists():
-        print(f"ERROR: {styles_csv} not found"); sys.exit(1)
+        print(f"ERROR: {styles_csv} not found")
+        sys.exit(1)
 
     master_categories: set[str] = set()
     sub_categories: dict[str, set[str]] = {}
@@ -196,14 +187,11 @@ def main() -> None:
 
     args.output.mkdir(parents=True, exist_ok=True)
 
-    (args.output / "demo_taxonomies.json").write_text(
-        json.dumps(build_taxonomies_json(), indent=2))
-    (args.output / "demo_taxons.json").write_text(
-        json.dumps(build_taxons_json(master_categories, sub_categories, brands, article_types), indent=2))
-    (args.output / "demo_option_types.json").write_text(
-        json.dumps(build_option_types_json(), indent=2))
-    (args.output / "demo_option_values.json").write_text(
-        json.dumps(build_option_values_json(colors), indent=2))
+    write_json(args.output / "demo_taxonomies.json", build_taxonomies_json())
+    write_json(args.output / "demo_taxons.json",
+               build_taxons_json(master_categories, sub_categories, brands, article_types))
+    write_json(args.output / "demo_option_types.json", build_option_types_json())
+    write_json(args.output / "demo_option_values.json", build_option_values_json(colors))
 
     print(f"Written taxonomies/taxons/options to {args.output}")
 

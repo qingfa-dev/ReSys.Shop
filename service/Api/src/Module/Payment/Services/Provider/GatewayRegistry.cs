@@ -24,9 +24,7 @@ public sealed class GatewayRegistry : IGatewayRegistry
     public Result<IPaymentGatewayActionProvider> GetGateway(string providerKey)
     {
         if (!_gateways.TryGetValue(providerKey, out var factory))
-            return Error.NotFound(
-                code: $"Gateway.Provider.{providerKey}.NotFound",
-                message: $"No gateway registered for provider '{providerKey}'.");
+            return GatewayRegistryResult.Errors.ProviderNotFound(providerKey);
 
         return new Result<IPaymentGatewayActionProvider>(value: factory());
     }

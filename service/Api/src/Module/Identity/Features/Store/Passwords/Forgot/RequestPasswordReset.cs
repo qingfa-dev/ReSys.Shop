@@ -82,7 +82,7 @@ public static partial class RequestPasswordReset
             catch (Exception ex)
             {
                 // Log: Warning for failed notification delivery — does not block the reset flow
-                logger.LogWarning(ex, "Failed to send password reset notification to {UserId}", user.Id);
+                UserLoggers.Passwords.PasswordResetNotificationFailed(logger, user.Id, ex);
             }
 
             return Result.NoContent();

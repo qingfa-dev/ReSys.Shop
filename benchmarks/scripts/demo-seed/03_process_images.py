@@ -10,12 +10,8 @@ from pathlib import Path
 from PIL import Image
 from tqdm import tqdm
 
-MODEL_INPUT_SIZES: dict[str, int] = {
-    "efficientnet_b0": 224, "clip_vit_b16": 224, "fashion_clip": 224,
-    "dinov2_vits14": 224,
-}
-
-SCRIPTS_DIR = Path(__file__).resolve().parent
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from shared import MODEL_INPUT_SIZES, SCRIPTS_DIR  # noqa: E402
 
 
 def resize_image(src: Path, dst: Path, size: int) -> bool:
@@ -59,7 +55,8 @@ def main() -> None:
 
     images_json = args.output / "demo_variant_images.json"
     if not images_json.exists():
-        print(f"ERROR: {images_json} not found; run extract_products.py first"); sys.exit(1)
+        print(f"ERROR: {images_json} not found; run extract_products.py first")
+        sys.exit(1)
 
     image_records = json.loads(images_json.read_text())
     seen: set[str] = set()

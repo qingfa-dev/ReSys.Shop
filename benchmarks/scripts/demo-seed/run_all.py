@@ -12,8 +12,8 @@ SCRIPTS_DIR = Path(__file__).resolve().parent
 REPO_ROOT = SCRIPTS_DIR.parent.parent.parent
 
 
-def run_step(step_num: int, total: int, name: str, args: list[str]) -> int:
-    print(f"\n{'='*60}\n  STEP {step_num}/{total}: {name}\n{'='*60}")
+def run_step(name: str, args: list[str]) -> int:
+    print(f"\n{'=' * 60}\n  {name}\n{'=' * 60}")
     cmd = ["uv", "run", "python", str(SCRIPTS_DIR / name)] + args
     result = subprocess.run(cmd)
     return result.returncode
@@ -28,8 +28,6 @@ def main() -> None:
                         default=SCRIPTS_DIR / "output")
     parser.add_argument("--storage", type=Path,
                         default=REPO_ROOT / "infra" / "Storage" / "demo")
-    parser.add_argument("--embedding-mode", choices=["skip", "job", "direct"], default="direct",
-                        help="How to generate embeddings: skip (none), job (Hangfire), direct (local PyTorch)")
     parser.add_argument("--deploy", action="store_true")
     parser.add_argument("--display-size", default="512")
     parser.add_argument("--search-size", default="224")
@@ -39,56 +37,30 @@ def main() -> None:
     force_args = ["--force"] if args.force else []
 
     steps = [
-        ("extract_taxonomies.py", ["--dataset", str(args.dataset), "--output", str(args.output)] + force_args),
-        ("extract_products.py", ["--dataset", str(args.dataset), "--output", str(args.output), "--count", str(args.count),
-                                 "--display-size", args.display_size, "--search-size", args.search_size] + force_args),
-        ("process_images.py", ["--dataset", str(args.dataset), "--output", str(args.output),
-                               "--display-size", args.display_size, "--search-size", args.search_size]),
+        ("01_extract_taxonomies.py", ["--dataset", str(args.dataset), "--output", str(args.output)] + force_args),
+        ("02_extract_products.py", ["--dataset", str(args.dataset), "--output", str(args.output), "--count", str(args.count),
+                                    "--display-size", args.display_size, "--search-size", args.search_size] + force_args),
+        ("03_process_images.py", ["--dataset", str(args.dataset), "--output", str(args.output),
+                                  "--display-size", args.display_size, "--search-size", args.search_size]),
+        ("04_generate_embeddings.py", ["--output", str(args.output)]),
+        ("05_extract_stock.py", ["--output", str(args.output)] + force_args),
+        ("06_verify_output.py", ["--output", str(args.output), "--count", str(args.count)]),
     ]
 
-    if args.embedding_mode == "direct":
-        steps.append(("generate_embeddings.py", ["--output", str(args.output)]))
-
-    steps.append(("extract_stock.py", ["--output", str(args.output)] + force_args))
-
-    total_steps = len(steps)
-    for i, (script_name, script_args) in enumerate(steps, 1):
-        rc = run_step(i, total_steps, script_name, script_args)
-        if rc != 0 and script_name != "generate_embeddings.py":
+    for script_name, script_args in steps:
+        rc = run_step(script_name, script_args)
+        if rc != 0:
             print(f"\nERROR: {script_name} failed with code {rc}")
             sys.exit(rc)
 
     if args.deploy:
-        print(f"\n{'='*60}\n  DEPLOY: copying images to storage\n{'='*60}")
+        print(f"\n{'=' * 60}\n  DEPLOY: copying images to storage\n{'=' * 60}")
         shutil.copytree(args.output / "images", args.storage / "images", dirs_exist_ok=True)
         print(f"Deployed images to {args.storage / 'images'}")
 
-    print(f"\n{'='*60}")
+    print(f"\n{'=' * 60}")
     print("  PIPELINE COMPLETE")
-    print(f"{'='*60}")
-    import json as _json
-    summary_files = {
-        "Products": "demo_products.json",
-        "Variants": "demo_variants.json",
-        "Total Images": "demo_variant_images.json",
-        "Option Assignments": "demo_option_assignments.json",
-        "Taxons": "demo_taxons.json",
-        "Embeddings": "demo_embeddings.json",
-        "Stock Items": "demo_stock_items.json",
-        "Stock Locations": "demo_stock_locations.json",
-    }
-    for label, fname in summary_files.items():
-        fp = args.output / fname
-        if fp.exists():
-            data = _json.loads(fp.read_text())
-            if isinstance(data, dict):
-                summary_files[label] = sum(len(v) if isinstance(v, list) else 1 for v in data.values())
-                print(f"  {label:.<40} {summary_files[label]:>6}")
-            else:
-                print(f"  {label:.<40} {len(data):>6}")
-
-    if args.embedding_mode == "job":
-        print(f"\n  Embedding mode: JOB — run 'dotnet run' to enqueue Hangfire jobs")
+    print(f"{'=' * 60}")
 
 
 if __name__ == "__main__":

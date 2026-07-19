@@ -4,16 +4,17 @@ from __future__ import annotations
 
 import argparse
 import json
+import sys
 from pathlib import Path
 
-import numpy as np
 import torch
 from PIL import Image
 from tqdm import tqdm
 
 from benchmark.models import get_registry
 
-SCRIPTS_DIR = Path(__file__).resolve().parent
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from shared import SCRIPTS_DIR  # noqa: E402
 
 # script ID → benchmark registry slug
 DEFAULT_MODEL_SLUGS = ["fashion-clip", "efficientnet-b0", "dinov2-vits14", "clip-vit-b16"]
@@ -27,12 +28,14 @@ def main() -> None:
 
     images_json = args.output / "demo_variant_images.json"
     if not images_json.exists():
-        print(f"ERROR: {images_json} not found; run extract_products.py first"); return
+        print(f"ERROR: {images_json} not found; run extract_products.py first")
+        return
 
     records = json.loads(images_json.read_text())
     search_records = [r for r in records if r.get("type") == "Search"]
     if not search_records:
-        print("No search images found. Skipping."); return
+        print("No search images found. Skipping.")
+        return
 
     print(f"Generating embeddings for {len(search_records)} search images")
     print(f"Models: {args.models}")
@@ -46,7 +49,8 @@ def main() -> None:
             model = registry[slug]
             model.ensure_loaded()
         except Exception as e:
-            print(f"  WARN: Cannot load {slug}: {e}. Skipping."); continue
+            print(f"  WARN: Cannot load {slug}: {e}. Skipping.")
+            continue
 
         dim = model.embedding_dim
         print(f"  dim={dim}, name={model.name}")
@@ -66,7 +70,8 @@ def main() -> None:
                     "dimensions": dim,
                 })
             except Exception as e:
-                print(f"  WARN: {rec['storage_path']}: {e}"); continue
+                print(f"  WARN: {rec['storage_path']}: {e}")
+                continue
 
         if torch.cuda.is_available():
             torch.cuda.empty_cache()
