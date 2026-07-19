@@ -128,6 +128,16 @@ public class OrderMethodTests
     }
 
     [Fact]
+    public void Empty_WhenExpired_ShouldFail()
+    {
+        var order = OrderMethod.Create("USD", null, Guid.NewGuid()).Value;
+        order.Status = OrderStatus.Expired;
+        var r = order.Empty();
+        r.IsFailure.Should().BeTrue();
+        r.Errors[0].Should().Be(OrderResult.Errors.InvalidStatusTransition);
+    }
+
+    [Fact]
     public void Delete_WhenDraft_ShouldSucceed()
     {
         var order = OrderMethod.Create("USD", null, Guid.NewGuid()).Value;
