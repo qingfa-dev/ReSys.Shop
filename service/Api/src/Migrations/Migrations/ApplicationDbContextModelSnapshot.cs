@@ -1321,6 +1321,12 @@ namespace Api.Migrations.Migrations
                         .HasColumnType("text")
                         .HasColumnName("reason");
 
+                    b.Property<uint>("RowVersion")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("xid")
+                        .HasColumnName("xmin");
+
                     b.Property<string>("State")
                         .IsRequired()
                         .HasColumnType("text")

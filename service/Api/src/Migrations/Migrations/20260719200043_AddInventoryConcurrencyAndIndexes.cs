@@ -11,11 +11,6 @@ namespace Api.Migrations.Migrations
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.DropColumn(
-                name: "primary_media_id",
-                schema: "catalog",
-                table: "variants");
-
             migrationBuilder.AddColumn<uint>(
                 name: "xmin",
                 schema: "inventory",
@@ -25,14 +20,14 @@ namespace Api.Migrations.Migrations
                 nullable: false,
                 defaultValue: 0u);
 
-            migrationBuilder.AlterColumn<Guid>(
-                name: "payment_method_id",
-                schema: "payment",
-                table: "payment_captures",
-                type: "uuid",
-                nullable: true,
-                oldClrType: typeof(Guid),
-                oldType: "uuid");
+            migrationBuilder.AddColumn<uint>(
+                name: "xmin",
+                schema: "inventory",
+                table: "stock_reservations",
+                type: "xid",
+                rowVersion: true,
+                nullable: false,
+                defaultValue: 0u);
 
             migrationBuilder.CreateIndex(
                 name: "ix_stock_reservations_cart_token_state",
@@ -65,23 +60,10 @@ namespace Api.Migrations.Migrations
                 schema: "inventory",
                 table: "stock_transfers");
 
-            migrationBuilder.AddColumn<Guid>(
-                name: "primary_media_id",
-                schema: "catalog",
-                table: "variants",
-                type: "uuid",
-                nullable: true);
-
-            migrationBuilder.AlterColumn<Guid>(
-                name: "payment_method_id",
-                schema: "payment",
-                table: "payment_captures",
-                type: "uuid",
-                nullable: false,
-                defaultValue: new Guid("00000000-0000-0000-0000-000000000000"),
-                oldClrType: typeof(Guid),
-                oldType: "uuid",
-                oldNullable: true);
+            migrationBuilder.DropColumn(
+                name: "xmin",
+                schema: "inventory",
+                table: "stock_reservations");
         }
     }
 }
