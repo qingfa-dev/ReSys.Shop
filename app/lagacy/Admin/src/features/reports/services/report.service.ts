@@ -1,28 +1,10 @@
-import apiClient from '@/shared/api/http/api.client'
-import type { AxiosResponse } from 'axios'
+import { reportApi } from '../api/report.api'
+import type { SalesSummary, InventorySummary, CatalogSummary } from '../types/report.response.type'
 
 export interface DashboardResponse {
-  sales: {
-    totalRevenue: number
-    orderCount: number
-    averageOrderValue: number
-    revenueTrendPercentage: number
-    trendHistory: Array<{ date: string; revenue: number }>
-  }
-  inventory: {
-    totalVariants: number
-    outOfStockCount: number
-    lowStockCount: number
-    stockAccuracyPercentage: number
-  }
-  catalog: {
-    totalProducts: number
-    activeProducts: number
-    totalVariants: number
-    totalTaxonomies: number
-    totalTaxons: number
-    recentlyAdded: Array<{ id: string; name: string; slug: string; createdAtUtc: string }>
-  }
+  sales: SalesSummary
+  inventory: InventorySummary
+  catalog: CatalogSummary
   recentActivities: Array<{
     id: string
     type: string
@@ -34,7 +16,28 @@ export interface DashboardResponse {
 }
 
 export const reportService = {
-  fetchDashboard(): Promise<AxiosResponse<DashboardResponse>> {
-    return apiClient.get('/dashboard')
+  async fetchDashboard() {
+    const [sales, inventory, catalog, activity] = await Promise.all([
+      reportApi.getSalesSummary(),
+      reportApi.getInventorySummary(),
+      reportApi.getCatalogSummary(),
+      reportApi.getRecentActivity(),
+    ])
+
+    return {
+      data: {
+        sales: sales.value,
+        inventory: inventory.value,
+        catalog: catalog.value,
+        recentActivities: (activity.value?.items ?? []).map(item => ({
+          id: item.id,
+          type: item.type,
+          title: item.title,
+          description: item.description,
+          status: item.status,
+          timestamp: item.timestamp,
+        })),
+      },
+    }
   },
 }

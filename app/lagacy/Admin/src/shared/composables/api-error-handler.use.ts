@@ -1,16 +1,11 @@
-import type { ApiResult } from '@/shared/api/types/api.types'
+import type { ServerResult } from '@/shared/api/types/result.types'
+import { mapToErrors } from '@/shared/api/types/api.types'
 import { parseApiError } from '@/shared/api/utils/api.utils'
 import { useToast } from './toast.use'
 
-/**
- * Composable for handling API results and errors in forms and components.
- */
 export function useApiErrorHandler() {
   const { showToast } = useToast()
 
-  /**
-   * Maps API validation errors to VeeValidate form errors.
-   */
   const handleFormErrors = (
     error: unknown,
     setErrors: ((errors: Record<string, string | undefined>) => void) | undefined,
@@ -21,19 +16,15 @@ export function useApiErrorHandler() {
     const apiError = parseApiError(error)
     console.log('[API Trace] Handler received parsed error:', apiError)
 
-    // 1. Handle Validation Errors (If errors dictionary is present)
     if (apiError.errors && Object.keys(apiError.errors).length > 0) {
       console.log('[API Trace] Validation error dictionary detected.')
       const formErrors: Record<string, string> = {}
       const unmappedMessages: string[] = []
 
       Object.entries(apiError.errors).forEach(([key, messages]) => {
-        // Backend keys are often prefixed (e.g., 'request.name', 'order.customer.name')
         const normalizedKey = key.toLowerCase()
         const messagesArray = messages as string[]
 
-        // Match if the key is exactly the field name,
-        // OR if the key ends with .field_name (e.g. 'request.name' matching 'name')
         const field = fieldNames.find((f) => {
           const lowerF = f.toLowerCase()
           return normalizedKey === lowerF || normalizedKey.endsWith(`.${lowerF}`)
@@ -51,23 +42,20 @@ export function useApiErrorHandler() {
         setErrors(formErrors)
       }
 
-      // IMPROVED: If we have specific unmapped messages (e.g. business logic errors like RootLock), 
-      // show those instead of the generic "One or more validation errors occurred" detail.
-      const isGenericDetail = apiError.detail?.toLowerCase().includes('one or more validation errors')
+      const isGenericDetail = apiError.detail?.toLowerCase()?.includes('one or more validation errors') ?? false
       const toastDetail =
         (isGenericDetail && unmappedMessages.length > 0)
           ? unmappedMessages.join('. ')
           : (apiError.detail || (unmappedMessages.length > 0 ? unmappedMessages.join('. ') : (locales?.genericError || 'Validation Error')))
 
       const baseTitle = apiError.title || locales?.errorTitle || 'Error'
-      const toastTitle = apiError.error_code ? `${baseTitle} (${apiError.error_code})` : baseTitle
+      const toastTitle = apiError.errorCode ? `${baseTitle} (${apiError.errorCode})` : baseTitle
 
       showToast('warn', toastTitle, toastDetail)
     } else {
-      // 2. Handle Global Errors (409, 500, etc.)
       const severity = apiError.statusCode && apiError.statusCode < 500 ? 'warn' : 'error'
       const baseTitle = apiError.title || locales?.errorTitle || 'Error'
-      const toastTitle = apiError.error_code ? `${baseTitle} (${apiError.error_code})` : baseTitle
+      const toastTitle = apiError.errorCode ? `${baseTitle} (${apiError.errorCode})` : baseTitle
       const toastDetail = apiError.detail || locales?.genericError || 'An unexpected error occurred.'
 
       console.log(
@@ -78,12 +66,8 @@ export function useApiErrorHandler() {
     }
   }
 
-  /**
-   * High-level handler for ApiResult.
-   * Handles success/error toasts and form error mapping.
-   */
   const handleApiResult = <T>(
-    result: ApiResult<T>,
+    result: ServerResult<T>,
     options?: {
       setErrors?: (errors: Record<string, string | undefined>) => void
       fieldNames?: string[]
@@ -93,17 +77,27 @@ export function useApiErrorHandler() {
       genericError?: string
     },
   ) => {
-    if (result.success) {
+    if (result.isSuccess) {
       if (options?.successMessage) {
         showToast('success', options.successTitle || 'Success', options.successMessage)
       }
       return true
     }
 
-    handleFormErrors(result.error, options?.setErrors, options?.fieldNames || [], {
-      errorTitle: options?.errorTitle,
-      genericError: options?.genericError,
-    })
+    handleFormErrors(
+      {
+        statusCode: result.statusCode,
+        title: result.message,
+        message: result.message,
+        detail: result.message,
+        isSuccess: result.isSuccess,
+        errors: mapToErrors(result.errors),
+        errorCode: undefined,
+      },
+      options?.setErrors,
+      options?.fieldNames || [],
+      { errorTitle: options?.errorTitle, genericError: options?.genericError },
+    )
     return false
   }
 

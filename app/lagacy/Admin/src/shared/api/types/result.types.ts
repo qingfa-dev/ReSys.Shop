@@ -40,5 +40,3 @@ export interface PaginationMeta {
   totalCount: number
   totalPages: number
 }
-
-

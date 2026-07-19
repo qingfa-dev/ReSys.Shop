@@ -1,18 +1,16 @@
 import { defineStore } from 'pinia';
 import { ref, computed } from 'vue';
+import { useI18n } from 'vue-i18n';
 import { useToast } from '@/shared/composables/toast.use';
 import { taxonomyService } from '../services/taxonomy.service';
-import { catalogApi } from '../../services/catalog.api';
-import type { 
-  TaxonomyListItem, 
-  TaxonomyDetail, 
-  TaxonomyQuery, 
-  CreateTaxonomyRequest, 
-  UpdateTaxonomyRequest 
-} from '../types/taxonomy.types';
+import { taxonomyRepository } from '../api/taxonomy.api';
+import type { TaxonomyListItem, TaxonomyDetail } from '../types/taxonomy.response.type'
+import type { TaxonomyQuery } from '../types/taxonomy.query.type'
+import type { CreateTaxonomyRequest, UpdateTaxonomyRequest } from '../types/taxonomy.request.type'
 
 export const useTaxonomyStore = defineStore('taxonomy', () => {
   const { showToast } = useToast();
+  const { t } = useI18n();
 
   // --- STATE ---
   const taxonomies = ref<TaxonomyListItem[]>([]);
@@ -39,11 +37,11 @@ export const useTaxonomyStore = defineStore('taxonomy', () => {
 
     try {
       const result = await taxonomyService.list(query.value);
-      if (result.success && result.data) {
-        taxonomies.value = result.data;
-        totalRecords.value = result.meta?.totalCount || 0;
-      } else if (!result.success) {
-        error.value = result.error.detail || 'Failed to fetch taxonomies';
+      if (result.isSuccess && result.items) {
+        taxonomies.value = result.items;
+        totalRecords.value = result.totalCount || 0;
+      } else if (!result.isSuccess) {
+        error.value = result.errors?.[0]?.message || 'Failed to fetch taxonomies';
       }
       return result;
     } finally {
@@ -56,10 +54,10 @@ export const useTaxonomyStore = defineStore('taxonomy', () => {
     error.value = null;
     try {
       const result = await taxonomyService.getById(id);
-      if (result.success && result.data) {
-        current_taxonomy.value = result.data;
-      } else if (!result.success) {
-        error.value = result.error.detail || 'Failed to fetch taxonomy';
+      if (result.isSuccess && result.value) {
+        current_taxonomy.value = result.value;
+      } else if (!result.isSuccess) {
+        error.value = result.errors?.[0]?.message || 'Failed to fetch taxonomy';
       }
       return result;
     } finally {
@@ -72,11 +70,11 @@ export const useTaxonomyStore = defineStore('taxonomy', () => {
     error.value = null;
     try {
       const result = await taxonomyService.create(data);
-      if (result.success) {
-        showToast('success', 'Created', 'Taxonomy created successfully');
+      if (result.isSuccess) {
+        showToast('success', t('common.created'), t('catalog.taxonomies.messages.create_success'));
         await fetchTaxonomies();
-      } else if (!result.success) {
-        error.value = result.error.detail || 'Failed to create taxonomy';
+      } else if (!result.isSuccess) {
+        error.value = result.errors?.[0]?.message || 'Failed to create taxonomy';
       }
       return result;
     } finally {
@@ -89,11 +87,11 @@ export const useTaxonomyStore = defineStore('taxonomy', () => {
     error.value = null;
     try {
       const result = await taxonomyService.update(id, data);
-      if (result.success) {
-        showToast('success', 'Updated', 'Taxonomy updated successfully');
+      if (result.isSuccess) {
+        showToast('success', t('common.updated'), t('catalog.taxonomies.messages.update_success'));
         await fetchTaxonomies();
-      } else if (!result.success) {
-        error.value = result.error.detail || 'Failed to update taxonomy';
+      } else if (!result.isSuccess) {
+        error.value = result.errors?.[0]?.message || 'Failed to update taxonomy';
       }
       return result;
     } finally {
@@ -106,11 +104,11 @@ export const useTaxonomyStore = defineStore('taxonomy', () => {
     error.value = null;
     try {
       const result = await taxonomyService.delete(id);
-      if (result.success) {
-        showToast('success', 'Deleted', 'Taxonomy removed successfully');
+      if (result.isSuccess) {
+        showToast('success', t('common.deleted'), t('catalog.taxonomies.messages.delete_success'));
         await fetchTaxonomies();
-      } else if (!result.success) {
-        error.value = result.error.detail || 'Failed to delete taxonomy';
+      } else if (!result.isSuccess) {
+        error.value = result.errors?.[0]?.message || 'Failed to delete taxonomy';
       }
       return result;
     } finally {
@@ -122,11 +120,11 @@ export const useTaxonomyStore = defineStore('taxonomy', () => {
     loading.value = true;
     error.value = null;
     try {
-        const result = await catalogApi.taxonomies.restore(id)
-        if (result.success) {
-            showToast('success', 'Rebuilt', 'Taxonomy tree successfully rebuilt');
-        } else if (!result.success) {
-            error.value = result.error.detail || 'Failed to rebuild taxonomy';
+        const result = await taxonomyRepository.restore(id)
+        if (result.isSuccess) {
+            showToast('success', t('common.success'), t('catalog.taxonomies.messages.rebuilt_success'));
+        } else if (!result.isSuccess) {
+            error.value = result.errors?.[0]?.message || 'Failed to rebuild taxonomy';
         }
         return result;
     } finally {

@@ -1,3 +1,9 @@
-import { catalogApi } from '../../services/catalog.api'
+import { optionTypeRepository } from '../api/option-type.api'
 
-export const optionTypeService = catalogApi.optionTypes
+export const optionTypeService = {
+  list: optionTypeRepository.list,
+  getById: optionTypeRepository.getById,
+  create: optionTypeRepository.create,
+  update: optionTypeRepository.update,
+  delete: optionTypeRepository.delete,
+}

@@ -1,8 +1,0 @@
-export const CATALOG = 'catalog'
-export const IDENTITY = 'identity'
-export const LOCATIONS = 'locations'
-export const PROFILES = 'profiles'
-export const INVENTORY = 'inventory'
-export const ORDERS = 'ordering'
-export const PAYMENTS = 'payment'
-export const SHIPPING = 'shipping'

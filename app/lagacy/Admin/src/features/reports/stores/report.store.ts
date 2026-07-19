@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia';
 import { ref } from 'vue';
 import { reportService } from '../services/report.service';
-import type { SalesSummary, InventorySummary, CatalogSummary, ActivityItem } from '../types/report.types';
+import type { SalesSummary, InventorySummary, CatalogSummary, ActivityItem } from '../types/report.response.type';
 
 export const useReportStore = defineStore('report', () => {
   const sales = ref<SalesSummary | null>(null);
@@ -17,7 +17,10 @@ export const useReportStore = defineStore('report', () => {
       sales.value = { ...data.sales };
       inventory.value = { ...data.inventory };
       catalog.value = { ...data.catalog };
-      activities.value = data.recentActivities;
+      activities.value = data.recentActivities.map((item: Record<string, unknown>) => ({
+        ...item,
+        type: item.type as 'Order' | 'Stock',
+      })) as ActivityItem[];
     } finally {
       is_loading.value = false;
     }

@@ -6,60 +6,49 @@ export const usersRoutes: RouteRecordRaw = {
   children: [
     {
       path: 'staff',
+      meta: { breadcrumb: 'Staff' },
       children: [
         {
           path: '',
-          name: 'admin-users',
-          component: () => import('./views/admin-user-list.view.vue'),
-          meta: {
-            breadcrumb: 'Staff'
-          }
+          name: 'users.staff.list',
+          component: () => import('./views/AdminUserList.View.vue'),
         },
         {
           path: 'create',
-          name: 'admin-user-create',
-          component: () => import('./views/staff-form.view.vue'),
-          meta: {
-            breadcrumb: 'Invite Staff'
-          }
+          name: 'users.staff.create',
+          component: () => import('./views/StaffForm.View.vue'),
+          meta: { breadcrumb: 'Invite Staff' },
         },
         {
           path: ':id',
-          name: 'admin-user-detail',
-          component: () => import('./views/staff-detail.view.vue'),
-          meta: {
-            breadcrumb: 'Staff Details'
-          }
+          name: 'users.staff.detail',
+          component: () => import('./views/StaffDetail.View.vue'),
+          meta: { breadcrumb: 'Staff Details' },
         },
         {
           path: ':id/edit',
-          name: 'admin-user-edit',
-          component: () => import('./views/staff-form.view.vue'),
-          meta: {
-            breadcrumb: 'Edit Staff'
-          }
-        }
-      ]
+          name: 'users.staff.edit',
+          component: () => import('./views/StaffForm.View.vue'),
+          meta: { breadcrumb: 'Edit Staff' },
+        },
+      ],
     },
     {
       path: 'customers',
+      meta: { breadcrumb: 'Customers' },
       children: [
         {
           path: '',
-          name: 'customer-users',
-          component: () => import('./views/customer-list.view.vue'),
-          meta: {
-            breadcrumb: 'Customers'
-          }
+          name: 'users.customers.list',
+          component: () => import('./views/CustomerList.View.vue'),
         },
         {
           path: ':id',
-          name: 'customer-detail',
-          component: () => import('./views/customer-detail.view.vue'), // Placeholder
-          meta: {
-            breadcrumb: 'Customer Details'
-          }
-        }
-      ]
-    }],
+          name: 'users.customers.detail',
+          component: () => import('./views/CustomerDetail.View.vue'),
+          meta: { breadcrumb: 'Customer Details' },
+        },
+      ],
+    },
+  ],
 }

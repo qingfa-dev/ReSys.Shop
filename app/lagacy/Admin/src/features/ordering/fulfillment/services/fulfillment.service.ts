@@ -1,6 +1,10 @@
-import { orderingApi } from '../../services/ordering.api'
+import { fulfillmentRepository } from '../api/fulfillment.api'
+import { orderRepository } from '../../orders/api/order.api'
+import type { ServerResult } from '@/shared/api/types/result.types'
 
 export const fulfillmentService = {
-  getQueue: orderingApi.fulfillments.getQueue,
-  markAsShipped: orderingApi.orders.complete,
+  getQueue: fulfillmentRepository.getQueue.bind(fulfillmentRepository),
+  async markAsShipped(id: string, _trackingNumber?: string): Promise<ServerResult<void>> {
+    return orderRepository.complete(id)
+  },
 }

@@ -1,6 +1,3 @@
-/**
- * Shared formatting utilities.
- */
 export function useFormatter() {
   const formatCurrency = (value: number | null | undefined): string => {
     if (value === null || value === undefined) return '$0.00'

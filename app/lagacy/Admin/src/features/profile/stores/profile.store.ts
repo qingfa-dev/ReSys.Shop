@@ -1,11 +1,13 @@
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { useToast } from '@/shared/composables/toast.use'
 import { profileService } from '../services/profile.service'
-import type { Profile } from '../types/profile.types'
+import type { Profile } from '../types/profile.response.type'
 
 export const useProfileStore = defineStore('profile', () => {
   const { showToast } = useToast()
+  const { t } = useI18n()
   const profile = ref<Profile | null>(null)
   const loading = ref(false)
   const submitting = ref(false)
@@ -13,21 +15,21 @@ export const useProfileStore = defineStore('profile', () => {
   async function fetchProfile() {
     loading.value = true
     const result = await profileService.getProfile()
-    if (result.success) {
-      profile.value = result.data
+    if (result.isSuccess) {
+      profile.value = result.value
     } else {
-      showToast('error', 'Error', result.error?.detail || 'Failed to load profile')
+      showToast('error', t('common.error'), result.errors?.[0]?.message || t('profile.messages.load_error'))
     }
     loading.value = false
     return result
   }
 
-  async function updateProfile(data: import('../types/profile.types').ProfileUpdateRequest) {
+  async function updateProfile(data: import('../types/profile.request.type').ProfileUpdateRequest) {
     submitting.value = true
     const result = await profileService.updateProfile(data)
-    if (result.success) {
-      profile.value = result.data
-      showToast('success', 'Updated', 'Profile updated successfully')
+    if (result.isSuccess) {
+      profile.value = result.value
+      showToast('success', t('common.updated'), t('profile.messages.update_success'))
     }
     submitting.value = false
     return result

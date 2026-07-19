@@ -1,9 +1,8 @@
 export { default as apiClient } from './http/api.client'
-export { createCrudService } from './services/crud.service'
 export { createModuleApi } from './services/module-api.factory'
 export * from './constants'
 export type {
-  ApiResult,
+  MappedResult,
   ServerError,
   ServerResult,
   ServerPagedResult,
@@ -11,4 +10,4 @@ export type {
   ServerQueryingParameters,
 } from './types'
 export { ErrorType } from './types'
-export { refreshTokens } from './http/refresh-handler'
+export { refreshTokens } from './http/handlers/refresh-handler'

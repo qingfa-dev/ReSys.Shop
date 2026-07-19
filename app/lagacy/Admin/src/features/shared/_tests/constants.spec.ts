@@ -3,27 +3,27 @@ import { CATALOG, IDENTITY, LOCATIONS, PROFILES, INVENTORY, ORDERS, PAYMENTS, SH
 
 describe('API constants', () => {
   it('CATALOG matches backend', () => {
-    expect(CATALOG).toBe('api/catalog')
+    expect(CATALOG).toBe('catalog')
   })
   it('IDENTITY matches backend', () => {
-    expect(IDENTITY).toBe('api/identity')
+    expect(IDENTITY).toBe('identity')
   })
   it('LOCATIONS matches backend', () => {
-    expect(LOCATIONS).toBe('api/locations')
+    expect(LOCATIONS).toBe('locations')
   })
   it('PROFILES matches backend', () => {
-    expect(PROFILES).toBe('api/profiles')
+    expect(PROFILES).toBe('profiles')
   })
   it('INVENTORY matches backend', () => {
-    expect(INVENTORY).toBe('api/inventory')
+    expect(INVENTORY).toBe('inventory')
   })
   it('ORDERS matches backend', () => {
-    expect(ORDERS).toBe('api/ordering')
+    expect(ORDERS).toBe('ordering')
   })
   it('PAYMENTS matches backend', () => {
-    expect(PAYMENTS).toBe('api/payment')
+    expect(PAYMENTS).toBe('payment')
   })
   it('SHIPPING matches backend', () => {
-    expect(SHIPPING).toBe('api/shipping')
+    expect(SHIPPING).toBe('shipping')
   })
 })

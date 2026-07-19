@@ -1,31 +1,20 @@
 import apiClient from './api.client';
-import type { ApiResult } from '../types/api.types';
+import type { ServerResult } from '../types/result.types';
 import type { FileMetadata, FileUploadResponse } from '../types/api.file.types';
 
-/**
- * Service for managing files and retrieving file metadata.
- */
 export const fileService = {
-    /**
-     * Retrieves the metadata for a specific file by its path/id.
-     * @param path The full path or file ID (e.g., 'products/image.webp').
-     */
-    async getFileMetadata(path: string): Promise<ApiResult<FileMetadata>> {
-        return await apiClient.get(`/files/meta/${path}`);
+    async getFileMetadata(path: string): Promise<ServerResult<FileMetadata>> {
+        return await apiClient.get(`/files/meta/${path}`).then(res => res.data as ServerResult<FileMetadata>);
     },
 
-    /**
-     * Uploads an image and returns processing metadata (dimensions, format, etc.).
-     * @param file The image file to upload.
-     */
-    async uploadImage(file: File): Promise<ApiResult<FileUploadResponse>> {
+    async uploadImage(file: File): Promise<ServerResult<FileUploadResponse>> {
         const formData = new FormData();
         formData.append('file', file);
         return await apiClient.post('/files/image', formData, {
             headers: {
                 'Content-Type': 'multipart/form-data',
             },
-        });
+        }).then(res => res.data as ServerResult<FileUploadResponse>);
     }
 };
 

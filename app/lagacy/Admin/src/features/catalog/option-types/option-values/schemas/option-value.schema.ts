@@ -1,9 +1,21 @@
-import { z } from 'zod'
+import { z } from "zod";
 
-export const OptionValueSchema = z.object({
-  name: z.string().min(1, 'Internal name is required').max(100),
-  presentation: z.string().min(1, 'Display name is required').max(100),
-  position: z.number().int().min(0).default(0),
-})
+export function createOptionValueSchema(t: (key: string, args?: Record<string, unknown>) => string) {
+  return z.object({
+  name: z
+    .string()
+    .min(1, t("catalog.validation.internal_name.required"))
+    .max(100, t("catalog.validation.name.max_length")),
+  presentation: z
+    .string()
+    .min(1, t("catalog.validation.display_name.required"))
+    .max(100, t("catalog.validation.display_name.max_length")),
+  position: z
+    .number()
+    .int(t("catalog.validation.position.whole"))
+    .min(0, t("catalog.validation.position.min"))
+    .default(0),
+});
+}
 
-export type OptionValueFormData = z.infer<typeof OptionValueSchema>
+export type OptionValueParameters = z.infer<ReturnType<typeof createOptionValueSchema>>;

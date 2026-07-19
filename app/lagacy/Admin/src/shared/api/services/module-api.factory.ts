@@ -1,35 +1,36 @@
 import apiClient from '../http/api.client'
-import { createCrudService } from './crud.service'
-import type { ApiResult } from '../types/api.types'
+import type { ServerResult } from '../types/result.types'
 
 export interface ModuleApiConfig {
   basePath: string
 }
 
 export function createModuleApi<T, TCreate = Partial<T>, TUpdate = Partial<T>>(config: ModuleApiConfig) {
-  const crud = createCrudService<T, TCreate, TUpdate>(config.basePath)
 
   return {
-    ...crud,
-
-    getSubResource<T>(path: string, params?: Record<string, unknown>): Promise<ApiResult<T>> {
-      return apiClient.get(`${config.basePath}/${path}`, { params })
+    async getSubResource<T>(path: string, params?: Record<string, unknown>): Promise<ServerResult<T>> {
+      const res = await apiClient.get(`${config.basePath}/${path}`, { params })
+      return res.data as ServerResult<T>
     },
 
-    postSubResource<T>(path: string, data?: unknown): Promise<ApiResult<T>> {
-      return apiClient.post(`${config.basePath}/${path}`, data)
+    async postSubResource<T>(path: string, data?: unknown): Promise<ServerResult<T>> {
+      const res = await apiClient.post(`${config.basePath}/${path}`, data)
+      return res.data as ServerResult<T>
     },
 
-    putSubResource<T>(path: string, data?: unknown): Promise<ApiResult<T>> {
-      return apiClient.put(`${config.basePath}/${path}`, data)
+    async putSubResource<T>(path: string, data?: unknown): Promise<ServerResult<T>> {
+      const res = await apiClient.put(`${config.basePath}/${path}`, data)
+      return res.data as ServerResult<T>
     },
 
-    deleteSubResource<T>(path: string, params?: Record<string, unknown>): Promise<ApiResult<T>> {
-      return apiClient.delete(`${config.basePath}/${path}`, { params })
+    async deleteSubResource<T>(path: string, params?: Record<string, unknown>): Promise<ServerResult<T>> {
+      const res = await apiClient.delete(`${config.basePath}/${path}`, { params })
+      return res.data as ServerResult<T>
     },
 
-    postAction<T>(path: string, data?: unknown): Promise<ApiResult<T>> {
-      return apiClient.post(`${config.basePath}/${path}`, data)
+    async postAction<T>(path: string, data?: unknown): Promise<ServerResult<T>> {
+      const res = await apiClient.post(`${config.basePath}/${path}`, data)
+      return res.data as ServerResult<T>
     },
   }
 }

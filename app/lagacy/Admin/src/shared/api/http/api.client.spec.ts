@@ -2,6 +2,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 import apiClient from './api.client'
 import { parseApiError } from '../utils/api.utils'
 import type { AxiosResponse } from 'axios'
+import type { ServerResult } from '../types/result.types'
 
 vi.mock('../utils/api.utils', () => ({
   parseApiError: vi.fn((err) => ({
@@ -11,7 +12,7 @@ vi.mock('../utils/api.utils', () => ({
     detail: 'Mock Detail',
     isSuccess: false,
     errors: {},
-    error_code: undefined,
+      errorCode: undefined,
   })),
 }))
 
@@ -22,7 +23,7 @@ describe('apiClient', () => {
   beforeEach(() => {
     vi.clearAllMocks()
 
-    const responseInterceptor = (apiClient.interceptors.response as any).handlers[0]
+    const responseInterceptor = (apiClient.interceptors.response as unknown as { handlers: Array<{ fulfilled: (response: AxiosResponse) => unknown; rejected: (error: unknown) => Promise<unknown> }> }).handlers[0]
 
     if (!responseInterceptor) {
       throw new Error('Response interceptor not found')
@@ -32,7 +33,7 @@ describe('apiClient', () => {
     errorInterceptor = responseInterceptor.rejected
   })
 
-  it('should unwrap successful Result<T> response via value', () => {
+  it('should return raw AxiosResponse from success interceptor', () => {
     const mockResponse = {
       data: {
         isSuccess: true,
@@ -48,15 +49,12 @@ describe('apiClient', () => {
       config: {},
     } as AxiosResponse
 
-    const result = successInterceptor(mockResponse) as any
+    const result = successInterceptor(mockResponse)
 
-    expect(result).toEqual({
-      data: { id: 1, name: 'Test' },
-      success: true,
-    })
+    expect(result).toBe(mockResponse)
   })
 
-  it('should unwrap successful PagedResult<T> response via items', () => {
+  it('should return raw AxiosResponse for paged response from success interceptor', () => {
     const mockResponse = {
       data: {
         isSuccess: true,
@@ -75,21 +73,12 @@ describe('apiClient', () => {
       config: {},
     } as AxiosResponse
 
-    const result = successInterceptor(mockResponse) as any
+    const result = successInterceptor(mockResponse)
 
-    expect(result).toEqual({
-      data: [{ id: 1, name: 'Item 1' }],
-      meta: {
-        page: 1,
-        pageSize: 20,
-        totalCount: 1,
-        totalPages: 1,
-      },
-      success: true,
-    })
+    expect(result).toBe(mockResponse)
   })
 
-  it('should parse and format error response', async () => {
+  it('should wrap error response as ServerResult<null> in AxiosResponse', async () => {
     const mockError = {
       isAxiosError: true,
       response: {
@@ -98,20 +87,17 @@ describe('apiClient', () => {
       },
     }
 
-    const result = await errorInterceptor(mockError) as any
+    const result = await errorInterceptor(mockError) as unknown as { data: ServerResult<null> }
 
     expect(parseApiError).toHaveBeenCalledWith(mockError)
-    expect(result).toEqual({
-      data: null,
-      success: false,
-      error: {
-        statusCode: 400,
-        title: 'Mock Error',
-        message: 'Mock Error',
-        detail: 'Mock Detail',
+    expect(result).toMatchObject({
+      data: {
         isSuccess: false,
-        errors: {},
-        error_code: undefined,
+        statusCode: 400,
+        errors: [{ code: 'ERROR', message: 'Mock Detail', type: 0, metadata: null }],
+        message: 'Mock Error',
+        metadata: null,
+        value: null,
       },
     })
   })
@@ -126,7 +112,7 @@ describe('apiClient', () => {
       detail: null,
       isSuccess: false,
       errors: {},
-      error_code: undefined,
+    errorCode: undefined,
     })
 
     const mockError = {

@@ -5,38 +5,63 @@ export const inventoryRoutes: RouteRecordRaw = {
   meta: { breadcrumb: 'Inventory' },
   children: [
     {
+      path: '',
+      name: 'inventory.dashboard',
+      component: () => import('./dashboard/views/InventoryDashboard.View.vue'),
+      meta: { breadcrumb: 'Overview' },
+    },
+    {
       path: 'stocks',
       name: 'inventory.stocks.list',
-      component: () => import('./views/StockItemList.view.vue'),
+      component: () => import('./stock-items/views/StockItemList.View.vue'),
       meta: { breadcrumb: 'Stock Levels' }
+    },
+    {
+      path: 'stocks/import',
+      name: 'inventory.stocks.import',
+      component: () => import('./stock-items/views/StockImport.View.vue'),
+      meta: { breadcrumb: 'Import Stock' },
     },
     {
       path: 'units',
       name: 'inventory.units.list',
-      component: () => import('./views/InventoryUnitList.view.vue'),
+      component: () => import('./inventory-units/views/InventoryUnitList.View.vue'),
       meta: { breadcrumb: 'Serialized Units' }
+    },
+    {
+      path: 'movements',
+      name: 'inventory.movements.list',
+      component: () => import('./stock-movements/views/StockMovementList.View.vue'),
+      meta: { breadcrumb: 'Stock Movements' },
+    },
+    {
+      path: 'movements/:id',
+      name: 'inventory.movements.detail',
+      component: () => import('./stock-movements/views/StockMovementDetail.View.vue'),
+      meta: { breadcrumb: 'Movement Detail' },
     },
     {
       path: 'locations',
       meta: { breadcrumb: 'Warehouses' },
-      component: () => import('./views/StockLocationManager.view.vue'),
+      component: () => import('./stock-locations/views/StockLocationManager.View.vue'),
       children: [
         {
           path: '',
           name: 'inventory.locations.list',
-          component: () => import('./views/StockLocationList.view.vue'),
+          component: () => import('./stock-locations/views/StockLocationList.View.vue'),
+          meta: { breadcrumb: 'All Locations' },
         },
         {
           path: 'create',
           name: 'inventory.locations.create',
-          component: () => import('./views/StockLocationForm.view.vue'),
+          component: () => import('./stock-locations/views/StockLocationForm.View.vue'),
           props: { hideHeader: true },
           meta: { breadcrumb: 'Add Location' }
         },
         {
           path: ':id/edit',
           name: 'inventory.locations.edit',
-          component: () => import('./views/StockLocationForm.view.vue'),
+          component: () => import('./stock-locations/views/StockLocationForm.View.vue'),
           props: { hideHeader: true },
           meta: { breadcrumb: 'Edit Location' }
         },
@@ -45,19 +70,19 @@ export const inventoryRoutes: RouteRecordRaw = {
     {
       path: 'transfers',
       name: 'inventory.transfers.list',
-      component: () => import('./views/StockTransferList.view.vue'),
+      component: () => import('./stock-transfers/views/StockTransferList.View.vue'),
       meta: { breadcrumb: 'Logistics' }
     },
     {
       path: 'transfers/create',
       name: 'inventory.transfers.create',
-      component: () => import('./views/StockTransferForm.view.vue'),
+      component: () => import('./stock-transfers/views/StockTransferForm.View.vue'),
       meta: { breadcrumb: 'Initiate Transfer' }
     },
     {
       path: 'transfers/:id',
       name: 'inventory.transfers.detail',
-      component: () => import('./views/StockTransferDetail.view.vue'),
+      component: () => import('./stock-transfers/views/StockTransferDetail.View.vue'),
       meta: { breadcrumb: 'Transfer Details' }
     }
   ]

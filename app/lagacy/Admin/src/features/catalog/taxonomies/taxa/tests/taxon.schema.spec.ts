@@ -1,5 +1,8 @@
 import { describe, it, expect } from 'vitest';
-import { TaxonSchema } from '../schemas/taxon.schema';
+import { createTaxonSchema } from '../../schemas/taxon.schema';
+
+const t = (key: string) => key;
+const TaxonSchema = createTaxonSchema(t);
 
 describe('TaxonSchema', () => {
   it('should validate a correct taxon', () => {

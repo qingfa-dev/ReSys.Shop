@@ -1,10 +1,3 @@
-// --- vite.config.ts ---
-// Vite build configuration for the Admin SPA.
-// Plugin order: @tailwindcss/vite first (processes @import "tailwindcss"),
-// then Vue + Vue JSX, then PrimeVue auto-import resolver.
-// The `@` alias maps to ./src for clean imports.
-// ---
-
 import { readFileSync } from 'node:fs'
 import { fileURLToPath, URL } from 'node:url'
 
@@ -31,16 +24,12 @@ export default defineConfig({
     vue(),
     vueJsx(),
     vueDevTools(),
-    Components({
-      resolvers: [PrimeVueResolver()],
-    }),
+    Components({ resolvers: [PrimeVueResolver()] }),
     AutoImport({
       imports: ['vue', 'vue-router'],
       dirs: ['src/shared/composables'],
       dts: 'src/auto-imports.d.ts',
-      eslintrc: {
-        enabled: true,
-      },
+      eslintrc: { enabled: true },
     }),
   ],
   resolve: {

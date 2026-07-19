@@ -1,11 +1,12 @@
 @use '../abstracts/mixins' as *;
 
 .layout-sidebar {
+    display: flex;
+    flex-direction: column;
     position: fixed;
     width: 20rem;
     height: calc(100vh - 8rem);
     z-index: 999;
-    overflow-y: auto;
     user-select: none;
     top: 6rem;
     left: 2rem;
@@ -15,6 +16,15 @@
     background-color: var(--surface-overlay);
     border-radius: var(--content-border-radius);
     padding: 0.5rem 1.5rem;
+
+    .layout-sidebar-content {
+        flex: 1;
+        overflow-y: auto;
+    }
+
+    .layout-sidebar-footer {
+        flex-shrink: 0;
+    }
 }
 
 .layout-menu {
@@ -27,7 +37,7 @@
             font-size: 0.75rem;
             text-transform: uppercase;
             font-weight: 800;
-            color: var(--surface-400);
+            color: var(--p-surface-400);
             margin: 1.5rem 0 0.5rem 0;
             letter-spacing: 0.1em;
         }
@@ -60,7 +70,7 @@
             .layout-menuitem-icon {
                 margin-right: 0.75rem;
                 font-size: 1.1rem;
-                color: var(--surface-500);
+                color: var(--p-surface-500);
             }
 
             .layout-submenu-toggler {
@@ -72,7 +82,7 @@
             &.active-route {
                 font-weight: 700;
                 color: var(--primary-color);
-                background-color: var(--primary-50);
+                background-color: var(--p-primary-50);
                 
                 .layout-menuitem-icon {
                     color: var(--primary-color);

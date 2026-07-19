@@ -1,51 +1,45 @@
-import apiClient from '@/shared/api/http/api.client'
-import type { ApiResult } from '@/shared/api/types/api.types'
-import type { LoginRequest, RefreshRequest, AuthenticationResponse } from '../types/auth.types'
-
-// NOTE: Backend has no admin auth endpoints yet.
-// Admin auth uses storefront identity routes as a temporary bridge.
-// Full admin auth endpoints should be added to the Identity module.
-// See: docs/superpowers/plans/2026-07-16-admin-api-service-correction.md §4.1
-const BASE_URL = '/store/identity/auth'
-
-export interface ChangePasswordRequest {
-    current_password: string;
-    new_password: string;
-    confirm_new_password: string;
-}
+import { authRepository } from "../api/auth.api";
+import { mapJwtToProfile } from "../mappers/auth.mapper";
+import type { ServerResult } from "@/shared/api/types/result.types";
+import type { LoginRequest } from "../types/login.request.type";
+import type { UserProfile } from "../types/login.response.type";
+import type { AuthSession } from "../types/auth.model.type";
+import type { ChangePasswordRequest } from "../types/change-password.request.type";
 
 export const authService = {
-  /**
-   * Authenticates the user with credentials.
-   */
-    async login(request: LoginRequest): Promise<ApiResult<AuthenticationResponse>> {
-        return await apiClient.post(`${BASE_URL}/login/password`, request) as any;
-    },
+  async login(request: LoginRequest): Promise<ServerResult<AuthSession>> {
+    return authRepository.login(request);
+  },
 
-    /**
-     * Refreshes the access token using the refresh token.
-     * Note: This rotates the refresh token.
-     */
-    async refresh(request: RefreshRequest): Promise<ApiResult<AuthenticationResponse>> {
-        return await apiClient.post(`${BASE_URL}/sessions/refresh`, request) as any;
-    },
+  async refresh(request: {
+    refreshToken: string;
+    rememberMe?: boolean;
+  }): Promise<ServerResult<AuthSession>> {
+    return authRepository.refresh(request);
+  },
 
-    /**
-     * Logs out the user (invalidates the session on the server).
-     */
-    async logout(): Promise<ApiResult<void>> {
-        return await apiClient.post(`${BASE_URL}/logout`, {}) as any;
-    },
+  async logout(): Promise<ServerResult<void>> {
+    return authRepository.logout();
+  },
 
-    async getProfile(): Promise<ApiResult<any>> {
-        return apiClient.get('/account/profile');
-    },
+  async getProfile(): Promise<ServerResult<Partial<UserProfile>>> {
+    return authRepository.getProfile();
+  },
 
-    async updateProfile(data: any): Promise<ApiResult<void>> {
-        return apiClient.put('/account/profile', data);
-    },
+  async updateProfile(data: Record<string, unknown>): Promise<ServerResult<void>> {
+    return authRepository.updateProfile(data);
+  },
 
-    async changePassword(data: ChangePasswordRequest): Promise<ApiResult<void>> {
-        return apiClient.post(`${BASE_URL}/password/change`, data);
+  async changePassword(data: ChangePasswordRequest): Promise<ServerResult<void>> {
+    return authRepository.changePassword(data);
+  },
+
+  getProfileFromToken(token: string): UserProfile | null {
+    try {
+      const claims = JSON.parse(atob(token.split(".")[1] as string));
+      return mapJwtToProfile(claims) as UserProfile;
+    } catch {
+      return null;
     }
+  },
 };

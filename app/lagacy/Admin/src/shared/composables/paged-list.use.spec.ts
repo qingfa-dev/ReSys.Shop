@@ -1,17 +1,25 @@
 import { describe, it, expect, vi } from 'vitest'
 import { usePagedList } from './paged-list.use'
-import type { ApiResult } from '@/shared/api/types/api.types'
+import type { ServerPagedResult } from '@/shared/api/types/result.types'
+
+type MockItem = { id: string; name: string }
 
 describe('usePagedList', () => {
-  const mockItems = [{ id: '1', name: 'Item 1' }, { id: '2', name: 'Item 2' }]
+  const mockItems: MockItem[] = [{ id: '1', name: 'Item 1' }, { id: '2', name: 'Item 2' }]
 
-  function createMockFetch(result: Partial<ApiResult<typeof mockItems>> = {}) {
+  function createMockFetch(result: Partial<ServerPagedResult<MockItem>> = {}) {
     return vi.fn().mockResolvedValue({
-      success: true,
-      data: mockItems,
-      meta: { totalCount: 10, page: 1, pageSize: 10, totalPages: 1 },
+      isSuccess: true,
+      statusCode: 200,
+      errors: [],
+      message: null,
+      metadata: null,
+      items: mockItems,
+      page: 1,
+      pageSize: 10,
+      totalCount: 10,
       ...result,
-    })
+    } as ServerPagedResult<MockItem>)
   }
 
   it('should initialize with default state', () => {
@@ -43,7 +51,7 @@ describe('usePagedList', () => {
   })
 
   it('should set error on failed fetch', async () => {
-    const mockFetch = createMockFetch({ success: false, data: null, error: { title: 'Not Found', statusCode: 404 } as any })
+    const mockFetch = createMockFetch({ isSuccess: false, errors: [{ code: 'NotFound', message: 'Not Found', type: 1, metadata: null }], items: [], totalCount: 0 })
     const { items, error, fetch } = usePagedList(mockFetch)
 
     await fetch()
@@ -104,7 +112,7 @@ describe('usePagedList', () => {
   })
 
   it('should handle empty data response', async () => {
-    const mockFetch = vi.fn().mockResolvedValue({ success: true, data: [], meta: { totalCount: 0 } })
+    const mockFetch = vi.fn().mockResolvedValue({ isSuccess: true, statusCode: 200, errors: [], message: null, metadata: null, items: [], page: 1, pageSize: 10, totalCount: 0 })
     const { items, totalRecords, fetch } = usePagedList(mockFetch)
 
     await fetch()
@@ -123,7 +131,7 @@ describe('usePagedList', () => {
     const promise = fetch()
     expect(loading.value).toBe(true)
 
-    resolvePromise({ success: true, data: [], meta: { totalCount: 0 } })
+    resolvePromise({ isSuccess: true, statusCode: 200, errors: [], message: null, metadata: null, items: [], page: 1, pageSize: 10, totalCount: 0 })
     await promise
     expect(loading.value).toBe(false)
   })

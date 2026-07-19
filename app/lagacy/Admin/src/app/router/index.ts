@@ -1,5 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import AppLayout from '@/app/layout/main.layout.vue'
+import AppLayout from '@/app/layout/Main.Layout.vue'
 import { useAuthStore } from '@/features/auth/stores/auth.store'
 import { errorRoutes } from '@/features/error/error.routes'
 import { catalogRoutes } from '@/features/catalog/catalog.routes'
@@ -9,22 +9,30 @@ import { orderingRoutes } from '@/features/ordering/ordering.routes'
 import { usersRoutes } from '@/features/users/users.routes'
 import { rolesRoutes } from '@/features/users/roles.routes'
 import { permissionsRoutes } from '@/features/users/permissions.routes'
+import { paymentRoutes } from '@/features/payment/payment.routes'
+import { shippingRoutes } from '@/features/shipping/shipping.routes'
+import { locationRoutes } from '@/features/location/location.routes'
+import { addressesRoutes } from '@/features/profile/addresses/addresses.routes'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
     ...errorRoutes,
-    rolesRoutes,
-    permissionsRoutes,
-    { path: '/login', name: 'login', component: () => import('@/features/auth/views/login.view.vue'), meta: { public: true } },
+    { path: '/login', name: 'login', component: () => import('@/features/auth/views/Login.View.vue'), meta: { public: true } },
     { path: '/', component: AppLayout, meta: { breadcrumb: 'navigation.home' }, children: [
       { path: '', name: 'home', redirect: { name: 'reports.dashboard' } },
-      { path: 'profile', name: 'profile', component: () => import('@/features/auth/views/Profile.view.vue'), meta: { breadcrumb: 'My Profile' } },
+      { path: 'profile', name: 'profile', component: () => import('@/features/auth/views/Profile.View.vue'), meta: { breadcrumb: 'My Profile' } },
       catalogRoutes,
       reportsRoutes,
       inventoryRoutes,
       orderingRoutes,
+      paymentRoutes,
+      shippingRoutes,
+      locationRoutes,
+      addressesRoutes,
       usersRoutes,
+      rolesRoutes,
+      permissionsRoutes,
     ]},
   ],
 })

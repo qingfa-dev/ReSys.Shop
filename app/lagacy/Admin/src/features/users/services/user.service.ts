@@ -1,28 +1,45 @@
-import { identityApi } from '../../identity/services/identity.api'
-import type { ServerQueryingParameters } from '@/shared/api/types/query-params.types'
-import type { AdminUserSummary, CustomerSummary, CreateAdminUserRequest, UpdateAdminUserRequest } from '../types/user.types'
+import { userRepository } from '../api/user.api'
+import type { ServerResult, ServerPagedResult } from '@/shared/api/types/result.types'
+import type { AdminUserSummaryModel } from '../types/user.model.type'
 
 export const userService = {
-  list: identityApi.users.list,
-  listCustomers: identityApi.users.listCustomers,
-  getById: identityApi.users.getById,
-  create: identityApi.users.create,
-  update: identityApi.users.update,
-  delete: identityApi.users.delete,
-  getUserPermissions: identityApi.users.getPermissions,
-  updateAdminStatus: identityApi.users.updateStatus,
-  syncUserRoles: identityApi.users.syncRoles,
-  unassignPermission: identityApi.users.revokePermission,
-  resetPassword: async (_id: string, _data: { new_password: string }) => {
+  async list(...args: Parameters<typeof userRepository.list>): Promise<ServerPagedResult<AdminUserSummaryModel>> {
+    return userRepository.list(...args)
+  },
+
+  listCustomers: userRepository.listCustomers,
+
+  async getById(...args: Parameters<typeof userRepository.getById>): Promise<ServerResult<AdminUserSummaryModel>> {
+    return userRepository.getById(...args)
+  },
+
+  async create(...args: Parameters<typeof userRepository.create>): Promise<ServerResult<AdminUserSummaryModel>> {
+    return userRepository.create(...args)
+  },
+
+  async update(...args: Parameters<typeof userRepository.update>): Promise<ServerResult<AdminUserSummaryModel>> {
+    return userRepository.update(...args)
+  },
+
+  delete: userRepository.delete,
+  getUserPermissions: userRepository.getPermissions,
+  updateAdminStatus: userRepository.updateStatus,
+  syncUserRoles: userRepository.syncRoles,
+  assignRole: userRepository.assignRole,
+  revokeRole: userRepository.revokeRole,
+  syncPermissions: userRepository.syncPermissions,
+  unassignPermission: userRepository.revokePermission,
+  assignPermission: userRepository.assignPermission,
+  resetPassword: async (_id: string, _data: { new_password: string }): Promise<ServerResult<void>> => {
     console.warn('resetPassword: no backend route exists. See spec/spec-design-admin-api-services.md')
-    return { success: false, error: { detail: 'Not implemented — no backend route' } } as const
+    return { isSuccess: false, statusCode: 501, errors: [{ code: 'not_implemented', message: 'Not implemented — no backend route', type: 0, metadata: null }], message: 'Not implemented — no backend route', metadata: null, value: undefined }
   },
-  unlockAccount: async (_id: string) => {
+  unlockAccount: async (_id: string): Promise<ServerResult<void>> => {
     console.warn('unlockAccount: no backend route exists. See spec/spec-design-admin-api-services.md')
-    return { success: false, error: { detail: 'Not implemented — no backend route' } } as const
+    return { isSuccess: false, statusCode: 501, errors: [{ code: 'not_implemented', message: 'Not implemented — no backend route', type: 0, metadata: null }], message: 'Not implemented — no backend route', metadata: null, value: undefined }
   },
-  verifyAccount: async (_id: string, _data: { verifyEmail?: boolean; verifyPhone?: boolean }) => {
+  verifyAccount: async (_id: string, _data: { verifyEmail?: boolean; verifyPhone?: boolean }): Promise<ServerResult<void>> => {
     console.warn('verifyAccount: no backend route exists. See spec/spec-design-admin-api-services.md')
-    return { success: false, error: { detail: 'Not implemented — no backend route' } } as const
+    return { isSuccess: false, statusCode: 501, errors: [{ code: 'not_implemented', message: 'Not implemented — no backend route', type: 0, metadata: null }], message: 'Not implemented — no backend route', metadata: null, value: undefined }
   },
 }

@@ -7,6 +7,9 @@ import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { useProductStore } from '../stores/product.store';
 import { productService } from '../services/product.service';
 
+import { createMockPagedResult } from '@/shared/test/mock-types'
+import type { ProductSummaryModel } from '../types/product.model.type'
+
 vi.mock('../services/product.service', () => ({
   productService: {
     list: vi.fn(),
@@ -39,13 +42,13 @@ describe('ProductStore', () => {
 
   it('updates state after successful fetch', async () => {
     const store = useProductStore();
-    const mockData = [{ id: '1', name: 'Product A' }] as any;
+    const mockData = [
+      { id: '1', name: 'Product A' },
+    ] as ProductSummaryModel[];
     
-    vi.mocked(productService.list).mockResolvedValue({
-      success: true,
-      data: mockData,
-      meta: { totalCount: 1 } as any
-    });
+    vi.mocked(productService.list).mockResolvedValue(
+      createMockPagedResult(mockData, { page: 1, pageSize: 10, totalCount: 1 })
+    );
 
     await store.fetchProducts();
 
@@ -57,11 +60,17 @@ describe('ProductStore', () => {
   it('handles errors gracefully during fetch', async () => {
     const store = useProductStore();
     
-    vi.mocked(productService.list).mockResolvedValue({
-      success: false,
-      error: { title: 'Network Error', statusCode: 500, message: 'Network Error', detail: 'Network Error', isSuccess: false, errors: {}, error_code: undefined },
-      data: null as any
-    });
+    vi.mocked(productService.list).mockResolvedValue(
+      createMockPagedResult([], {
+        isSuccess: false,
+        statusCode: 500,
+        errors: [{ code: 'Error', message: 'Network Error', type: 4, metadata: null }],
+        message: 'Network Error',
+        page: 1,
+        pageSize: 10,
+        totalCount: 0,
+      })
+    );
 
     await store.fetchProducts();
 

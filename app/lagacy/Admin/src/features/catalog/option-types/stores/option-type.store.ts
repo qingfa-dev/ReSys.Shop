@@ -2,14 +2,10 @@ import { defineStore } from 'pinia';
 import { ref } from 'vue';
 import { usePagedList } from '@/shared/composables/paged-list.use';
 import { optionTypeService } from '../services/option-type.service';
-import type { 
-  OptionTypeListItem, 
-  OptionTypeDetail, 
-  CreateOptionTypeRequest, 
-  UpdateOptionTypeRequest, 
-  OptionTypeQuery,
-  ApiResult
-} from '../types/option-type.types';
+import type { OptionTypeListItem, OptionTypeDetail } from '../types/option-type.response.type'
+import type { CreateOptionTypeRequest, UpdateOptionTypeRequest } from '../types/option-type.request.type'
+import type { OptionTypeQuery } from '../types/option-type.query.type'
+import type { ServerResult } from '@/shared/api/types/result.types'
 
 export const useOptionTypeStore = defineStore('option-type', () => {
   const currentItem = ref<OptionTypeDetail | null>(null);
@@ -22,34 +18,34 @@ export const useOptionTypeStore = defineStore('option-type', () => {
   async function fetchById(id: string) {
     loading.value = true;
     const result = await optionTypeService.getById(id);
-    if (result.success && result.data) {
-      currentItem.value = result.data;
+    if (result.isSuccess) {
+      currentItem.value = result.value;
     }
     loading.value = false;
     return result;
   }
 
-  async function create(request: CreateOptionTypeRequest): Promise<ApiResult<OptionTypeDetail>> {
+  async function create(request: CreateOptionTypeRequest): Promise<ServerResult<OptionTypeDetail>> {
     loading.value = true;
     const result = await optionTypeService.create(request);
     loading.value = false;
     return result;
   }
 
-  async function update(id: string, request: UpdateOptionTypeRequest): Promise<ApiResult<OptionTypeDetail>> {
+  async function update(id: string, request: UpdateOptionTypeRequest): Promise<ServerResult<OptionTypeDetail>> {
     loading.value = true;
     const result = await optionTypeService.update(id, request);
-    if (result.success && result.data) {
-      currentItem.value = result.data;
+    if (result.isSuccess) {
+      currentItem.value = result.value;
     }
     loading.value = false;
     return result;
   }
 
-  async function remove(id: string): Promise<ApiResult<void>> {
+  async function remove(id: string): Promise<ServerResult<void>> {
     loading.value = true;
     const result = await optionTypeService.delete(id);
-    if (result.success) {
+    if (result.isSuccess) {
       items.value = items.value.filter(i => i.id !== id);
       totalRecords.value--;
     }
