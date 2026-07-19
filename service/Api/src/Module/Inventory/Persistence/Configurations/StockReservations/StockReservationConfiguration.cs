@@ -24,8 +24,8 @@ public class StockReservationConfiguration : IEntityTypeConfiguration<StockReser
         #endregion
 
         #region Indexes
-        builder.HasIndex(x => x.VariantId);
-        builder.HasIndex(x => x.ExpiresAtUtc);
+        builder.HasIndex(x => new { x.OrderId, x.State });
+        builder.HasIndex(x => new { x.CartToken, x.State });
         #endregion
     }
 }
