@@ -21,11 +21,13 @@ public static partial class GetStockAvailability
         public async Task<Result<Response>> Handle(Query request, CancellationToken cancellationToken)
         {
             var req = request.Request;
+            // Compute: Fetch stock snapshot with per-location availability
             var snapshot = await calculator.GetForVariantAsync(req.VariantId, cancellationToken);
 
             var cartReserved = 0;
             if (!string.IsNullOrEmpty(req.CartToken))
             {
+                // Load: Sum quantities reserved by this specific cart token
                 cartReserved = await dbContext.Set<StockReservation>()
                     .Where(r => r.VariantId == req.VariantId
                                 && r.CartToken == req.CartToken

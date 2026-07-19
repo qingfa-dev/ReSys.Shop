@@ -87,6 +87,11 @@ public static class StockItemResult
             code: "StockItem.Import.EmptyFile",
             message: "CSV file is empty.");
 
+        /// <summary>Error when the imported CSV file exceeds the maximum file size.</summary>
+        public static Error ImportFileTooLarge => Error.Validation(
+            code: "StockItem.Import.FileTooLarge",
+            message: "CSV file must not exceed 5 MB.");
+
         #endregion
     }
 }
