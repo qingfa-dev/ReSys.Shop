@@ -48,8 +48,7 @@ export const useOptionValueStore = defineStore('option-value', () => {
 
   async function create(optionTypeId: string, payload: Omit<CreateOptionValueRequest, 'optionTypeId'>): Promise<ServerResult<OptionValueListItem>> {
     loading.value = true;
-    const request: CreateOptionValueRequest = { ...payload, optionTypeId };
-    const result = await optionValueService.create(request);
+    const result = await optionValueService.create(optionTypeId, payload);
     
     if (result.isSuccess) {
         values.value.push(result.value);

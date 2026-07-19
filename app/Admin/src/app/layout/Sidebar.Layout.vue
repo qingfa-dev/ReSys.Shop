@@ -7,12 +7,12 @@ import AppMenu from './Menu.Layout.vue'
 const authStore = useAuthStore()
 const router = useRouter()
 
-const user = computed(() => authStore.user)
-const userDisplayName = computed(() => (typeof user.value?.name === 'string' ? user.value.name : 'Admin'))
-const userEmail = computed(() => (typeof user.value?.email === 'string' ? user.value.email : ''))
+const user = computed(() => authStore.user as any)
+const userDisplayName = computed(() => user.value?.name || 'Admin')
+const userEmail = computed(() => user.value?.email || '')
 const userInitials = computed(() => {
   const name = userDisplayName.value
-  return name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2)
+  return name.split(' ').map((n: string) => n[0]).join('').toUpperCase().slice(0, 2)
 })
 
 function logout() {

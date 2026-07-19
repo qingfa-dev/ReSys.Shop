@@ -22,7 +22,7 @@ const visibleGroups = computed(() =>
 <template>
   <ul class="layout-menu">
     <template v-for="(item, i) in visibleGroups" :key="item.label">
-      <AppMenuItem v-if="!item.separator" :item="item" :index="i" root />
+      <AppMenuItem v-if="!item.separator" :item="(item as any)" :index="i" root />
       <li v-if="item.separator" class="menu-separator" />
     </template>
   </ul>

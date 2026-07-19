@@ -2,7 +2,15 @@ import { computed, reactive, watch } from 'vue'
 
 const STORAGE_KEY = 'resys-admin-layout'
 
-function loadConfig(): Partial<typeof layoutConfig> {
+interface LayoutConfig {
+  preset: string
+  primary: string
+  surface: string | null
+  darkTheme: boolean
+  menuMode: string
+}
+
+function loadConfig(): Partial<LayoutConfig> {
   try {
     const raw = localStorage.getItem(STORAGE_KEY)
     return raw ? JSON.parse(raw) : {}
@@ -13,7 +21,7 @@ function loadConfig(): Partial<typeof layoutConfig> {
 
 const saved = loadConfig()
 
-const layoutConfig = reactive({
+const layoutConfig = reactive<LayoutConfig>({
   preset: saved.preset || 'Aura',
   primary: saved.primary || 'emerald',
   surface: (saved.surface as string | null) || null,

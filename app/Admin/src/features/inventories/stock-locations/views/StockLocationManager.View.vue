@@ -7,7 +7,7 @@ import { useI18n } from 'vue-i18n'
 import { useApiErrorHandler } from '@/shared/composables/api-error-handler.use'
 import { useToast } from '@/shared/composables/toast.use'
 import { useConfirm } from 'primevue/useconfirm'
-import type { TreeNode } from 'primevue/tree'
+import type { TreeNode } from 'primevue/treenode'
 
 const { t } = useI18n()
 
@@ -116,13 +116,13 @@ const goBack = () => router.push({ name: 'inventory.stocks.list' })
                   <ProgressSpinner style="width: 40px; height: 40px" />
                 </div>
 
-                <Tree v-else :value="locationTree as TreeNode[]" selectionMode="single"
+                <Tree v-else :value="locationTree as unknown as TreeNode[]" selectionMode="single"
                   :pt="{ root: { class: 'bg-transparent border-none p-0' } }">
-                  <template #default="{ node }: { node: TreeNode }">
+                  <template #default="{ node }: { node: any }">
                     <div
                       class="flex items-center justify-between w-full p-2 rounded-xl group cursor-pointer transition-colors"
                       :class="{ 'bg-primary/10 text-primary': selectedId === node.id, 'hover:bg-surface-100 dark:hover:bg-surface-800': selectedId !== node.id }"
-                      @click="openEdit(node)">
+                      @click="openEdit(node as any)">
                       <div class="flex items-center gap-3 overflow-hidden">
                         <i class="pi pi-building text-sm shrink-0"></i>
                         <span class="truncate font-medium text-sm">{{ node.name }}</span>
@@ -130,9 +130,9 @@ const goBack = () => router.push({ name: 'inventory.stocks.list' })
                       <div
                         class="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity shrink-0">
                         <Button icon="pi pi-plus" text rounded size="small" severity="secondary"
-                          @click.stop="openNew(node)" v-tooltip.top="t('inventory.actions.add_child')" />
+                          @click.stop="openNew(node as any)" v-tooltip.top="t('inventory.actions.add_child')" />
                         <Button icon="pi pi-trash" text rounded size="small" severity="danger"
-                          @click.stop="confirmDelete(node)" />
+                          @click.stop="confirmDelete(node as any)" />
                       </div>
                     </div>
                   </template>

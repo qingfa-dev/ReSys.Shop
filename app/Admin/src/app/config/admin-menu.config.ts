@@ -5,6 +5,8 @@ export interface MenuItem {
   label: string
   icon?: string
   to?: RouteLocationRaw
+  url?: string
+  target?: string
   items?: MenuItem[]
   permission?: string
   visible?: boolean
@@ -19,6 +21,7 @@ export interface MenuGroup {
   label: string
   icon?: string
   path?: string
+  separator?: boolean
   items: MenuItem[]
 }
 

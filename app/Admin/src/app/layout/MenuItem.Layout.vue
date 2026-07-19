@@ -3,22 +3,7 @@ import { useLayout } from './composables/layout.composable'
 import { computed, ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import { useAuthStore } from '@/features/auth/stores/auth.store'
-
-export interface MenuItem {
-  label?: string
-  icon?: string
-  to?: string | object
-  url?: string
-  target?: string
-  items?: MenuItem[]
-  separator?: boolean
-  visible?: boolean
-  permission?: string
-  badge?: string | number
-  disabled?: boolean
-  class?: string
-  command?: (event: { originalEvent: Event; item: MenuItem }) => void
-}
+import type { MenuItem } from '@/app/config/admin-menu.config'
 
 const route = useRoute()
 const { layoutState } = useLayout()
