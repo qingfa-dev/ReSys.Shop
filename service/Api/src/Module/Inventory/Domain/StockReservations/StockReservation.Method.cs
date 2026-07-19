@@ -50,7 +50,8 @@ public static class StockReservationMethod
         Guid? orderId = null,
         string? cartToken = null,
         DateTimeOffset? createdAtUtc = null,
-        string createdBy = "System")
+        string createdBy = "System",
+        string? reason = null)
     {
         var reservation = new StockReservation
         {
@@ -62,6 +63,7 @@ public static class StockReservationMethod
             State = state,
             ExpiresAtUtc = expiresAtUtc,
             CartToken = cartToken,
+            Reason = reason,
         };
 
         AuditableBehavior.CreateBy(reservation, createdBy, createdAtUtc);

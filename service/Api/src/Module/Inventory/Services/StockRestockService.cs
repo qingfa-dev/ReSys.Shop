@@ -90,7 +90,8 @@ public class StockRestockService(IApplicationDbContext dbContext) : IStockRestoc
             .Where(r => r.VariantId == stockItem.VariantId
                         && r.StockLocationId == stockItem.StockLocationId
                         && r.State == ReservationState.Reserved
-                        && r.ExpiresAtUtc > DateTimeOffset.UtcNow)
+                        && r.ExpiresAtUtc > DateTimeOffset.UtcNow
+                        && r.Reason == "backorder")
             .OrderBy(r => r.CreatedAtUtc)
             .ToListAsync(cancellationToken);
 
