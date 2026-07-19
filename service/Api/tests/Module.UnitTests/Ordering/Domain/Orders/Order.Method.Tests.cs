@@ -194,6 +194,47 @@ public class OrderMethodTests
         order.OutstandingBalance.Should().Be(17m);
     }
 
+    [Fact(DisplayName = "RecalculateTotals: Total does not count shipping twice")]
+    public void RecalculateTotals_WithShippingAdjustment_DoesNotCountShippingTwice()
+    {
+        var order = OrderMethod.Create("USD", null, Guid.NewGuid()).Value;
+        order.LineItems.Add(new() { Quantity = 1, Price = 100, Total = 100 });
+        order.Adjustments.Add(new Adjustment
+        {
+            Amount = 10,
+            Eligible = true,
+            Label = "Shipping",
+            DisplayAmount = "10.00",
+            AdjustableId = order.Id,
+            AdjustableType = AdjustmentConstant.AdjustableTypes.Order,
+            SourceId = Guid.NewGuid(),
+            SourceType = AdjustmentConstant.SourceTypes.Shipping,
+            OrderId = order.Id,
+            CreatedBy = "test"
+        });
+        order.Adjustments.Add(new Adjustment
+        {
+            Amount = 5,
+            Eligible = true,
+            Label = "Tax",
+            DisplayAmount = "5.00",
+            AdjustableId = order.Id,
+            AdjustableType = AdjustmentConstant.AdjustableTypes.Order,
+            SourceId = Guid.NewGuid(),
+            SourceType = "Tax",
+            OrderId = order.Id,
+            CreatedBy = "test"
+        });
+
+        var result = order.RecalculateTotals();
+
+        result.IsSuccess.Should().BeTrue();
+        order.ItemTotal.Should().Be(100m);
+        order.ShipmentTotal.Should().Be(10m);
+        order.AdjustmentTotal.Should().Be(5m);
+        order.Total.Should().Be(115m); // 100 + 10 + 5, not 125
+    }
+
     [Fact]
     public void Place_WithValidPrerequisites_ShouldSucceed()
     {

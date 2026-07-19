@@ -20,7 +20,7 @@ public static partial class OrderMethod
         // tracking is not yet implemented. This term will be 0 until that feature is built.
         order.AdjustmentTotal =
             order.LineItems.Sum(li => li.AdjustmentTotal) +
-            order.Adjustments.Where(a => a.Eligible).Sum(a => a.Amount);
+            order.Adjustments.Where(a => a.Eligible && a.SourceType != AdjustmentConstant.SourceTypes.Shipping).Sum(a => a.Amount);
 
         // Compute: Shipping costs from eligible shipping-source adjustments
         order.ShipmentTotal = order.Adjustments
