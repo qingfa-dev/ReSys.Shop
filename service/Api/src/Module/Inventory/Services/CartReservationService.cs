@@ -1,3 +1,5 @@
+using System.Data;
+
 using Module.Inventory.Domain.StockLocations.StockItems;
 using Module.Inventory.Domain.StockReservations;
 using Module.Inventory.Services.Abstractions;
@@ -29,33 +31,57 @@ public class CartReservationService(IApplicationDbContext dbContext) : ICartRese
         if (quantity <= 0)
             return StockReservationResult.Errors.QuantityZero;
 
-        // Load: Find the stock item for this variant at the specified location
-        var stockItem = await _dbContext.Set<StockItem>()
-            .FirstOrDefaultAsync(si => si.VariantId == variantId && si.StockLocationId == stockLocationId, cancellationToken);
+        await using var transaction = await _dbContext.BeginTransactionAsync(
+            IsolationLevel.Serializable, cancellationToken);
 
-        if (stockItem is null) return StockReservationResult.Errors.InsufficientStock;
+        try
+        {
+            // Load: Find the stock item for this variant at the specified location
+            var stockItem = await _dbContext.Set<StockItem>()
+                .FirstOrDefaultAsync(si => si.VariantId == variantId && si.StockLocationId == stockLocationId, cancellationToken);
 
-        // Load: Sum already-reserved quantities for this variant and location
-        var reserved = await _dbContext.Set<StockReservation>()
-            .Where(r => r.VariantId == variantId
-                        && r.StockLocationId == stockLocationId
-                        && r.State == ReservationState.Reserved
-                        && r.ExpiresAtUtc > DateTimeOffset.UtcNow)
-            .SumAsync(r => r.Quantity, cancellationToken);
+            if (stockItem is null)
+            {
+                await transaction.RollbackAsync(cancellationToken);
+                return StockReservationResult.Errors.InsufficientStock;
+            }
 
-        // Compute: Available stock = on-hand minus already-reserved
-        var available = stockItem.CountOnHand - reserved;
-        if (available < quantity)
-            return StockReservationResult.Errors.InsufficientStock;
+            // Load: Sum already-reserved quantities for this variant and location
+            var reserved = await _dbContext.Set<StockReservation>()
+                .Where(r => r.VariantId == variantId
+                            && r.StockLocationId == stockLocationId
+                            && r.State == ReservationState.Reserved
+                            && r.ExpiresAtUtc > DateTimeOffset.UtcNow)
+                .SumAsync(r => r.Quantity, cancellationToken);
 
-        // Create: Build the cart reservation via domain factory method
-        var result = StockReservationMethod.Reserve(variantId, quantity, stockLocationId, null, ttlMinutes, cartToken: cartToken);
-        if (result.IsFailure) return result;
+            // Compute: Available stock = on-hand minus already-reserved
+            var available = stockItem.CountOnHand - reserved;
+            if (available < quantity)
+            {
+                await transaction.RollbackAsync(cancellationToken);
+                return StockReservationResult.Errors.InsufficientStock;
+            }
 
-        var reservation = result.Value;
-        _dbContext.Set<StockReservation>().Add(reservation);
+            // Create: Build the cart reservation via domain factory method
+            var result = StockReservationMethod.Reserve(variantId, quantity, stockLocationId, null, ttlMinutes, cartToken: cartToken);
+            if (result.IsFailure)
+            {
+                await transaction.RollbackAsync(cancellationToken);
+                return result;
+            }
 
-        return reservation;
+            var reservation = result.Value;
+            _dbContext.Set<StockReservation>().Add(reservation);
+            await _dbContext.SaveChangesAsync(cancellationToken);
+            await transaction.CommitAsync(cancellationToken);
+
+            return reservation;
+        }
+        catch
+        {
+            await transaction.RollbackAsync(cancellationToken);
+            throw;
+        }
     }
 
     /// <summary>Releases all active reservations for a given cart token, restoring stock quantities.</summary>

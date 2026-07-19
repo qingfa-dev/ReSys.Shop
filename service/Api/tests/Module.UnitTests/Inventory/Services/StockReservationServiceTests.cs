@@ -99,7 +99,8 @@ public class StockReservationServiceTests : IDisposable
         result.Value.ExpiresAtUtc.Should().BeCloseTo(DateTimeOffset.UtcNow.AddMinutes(30), TimeSpan.FromMinutes(1));
     }
 
-    [Fact(DisplayName = "ReserveAsync: Should prevent oversell under concurrent reservations")]
+    [Fact(DisplayName = "ReserveAsync: Should prevent oversell under concurrent reservations",
+        Skip = "InMemory does not support serializable isolation. Requires PostgreSQL integration test.")]
     [Trait("Category", "Integration")]
     public async Task ReserveAsync_ShouldPreventOversell_UnderConcurrentReservations()
     {

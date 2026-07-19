@@ -92,6 +92,17 @@ public static class StockReservationMethod
         return Result.Ok();
     }
 
+    // Expire: Mark the reservation as expired at the current time
+    public static Result Expire(this StockReservation reservation)
+    {
+        if (reservation.State != ReservationState.Reserved)
+            return StockReservationResult.Errors.InvalidStateTransition;
+
+        reservation.State = ReservationState.Expired;
+        reservation.ExpiresAtUtc = DateTimeOffset.UtcNow;
+        return Result.Ok();
+    }
+
     // Extend: Add additional minutes to reservation expiry
     public static Result Extend(this StockReservation reservation, int additionalMinutes)
     {
