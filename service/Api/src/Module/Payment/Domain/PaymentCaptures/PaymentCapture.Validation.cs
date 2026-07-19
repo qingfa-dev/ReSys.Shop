@@ -1,3 +1,4 @@
+using FluentValidation;
 using Shared.Application.Domain.Currencies;
 
 namespace Module.Payment.Domain.PaymentCaptures;
@@ -21,7 +22,7 @@ public static class PaymentCaptureValidation
         return ruleBuilder
             .Must(target => IsValidTransition(currentState, target))
             .WithErrorCode(PaymentCaptureResult.Failure.InvalidStateTransition(currentState, currentState).Code)
-            .WithMessage(PaymentCaptureResult.Failure.InvalidStateTransition(currentState, currentState).Message);
+            .WithMessage((_, target) => PaymentCaptureResult.Failure.InvalidStateTransition(currentState, target).Message);
     }
 
     public static IRuleBuilderOptions<T, string?> ApplyNumberRules<T>(this IRuleBuilder<T, string?> ruleBuilder)
