@@ -195,7 +195,7 @@ public static partial class OrderMethod
     {
         // Guard: Only draft orders can change shipping method
         if (order.Status != OrderStatus.Draft)
-            return OrderResult.Errors.NotDraftForShipAddress;
+            return OrderResult.Errors.NotDraftForShippingMethod;
 
         order.ShippingMethodId = methodId;
         order.ShipmentTotal = 0m;

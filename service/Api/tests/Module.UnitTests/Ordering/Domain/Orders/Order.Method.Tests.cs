@@ -393,7 +393,7 @@ public class OrderMethodTests
         order.Finalize();
         var r = order.SetShippingMethod(Guid.NewGuid());
         r.IsFailure.Should().BeTrue();
-        r.Errors[0].Should().Be(OrderResult.Errors.NotDraftForShipAddress);
+        r.Errors[0].Should().Be(OrderResult.Errors.NotDraftForShippingMethod);
     }
 
     [Fact]
