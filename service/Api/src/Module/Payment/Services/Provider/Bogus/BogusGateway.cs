@@ -1,3 +1,4 @@
+using System.Collections.Concurrent;
 using Microsoft.Extensions.Options;
 
 namespace Module.Payment.Services.Provider.Bogus;
@@ -67,6 +68,15 @@ public sealed class BogusGateway : Gateway
                 setupIntentClientSecret: $"{GatewayConstants.Bogus.SetupIntentSecretPrefix}{Guid.NewGuid():N}")));
     }
 
+    private readonly ConcurrentDictionary<string, string> _intentStatuses = new();
+
+    public override Task<string> GetPaymentStatusAsync(string responseCode, CancellationToken ct)
+    {
+        if (_intentStatuses.TryGetValue(responseCode, out var status))
+            return Task.FromResult(status);
+        return Task.FromResult("succeeded");
+    }
+
     // Compute: Simulates gateway response based on test card number
     private Task<Result<PaymentGatewayResponse>> SimulateGatewayResponse(
         decimal amount, object? source, GatewayOptions options)
@@ -80,9 +90,12 @@ public sealed class BogusGateway : Gateway
         if (cardNumber != TestCards.Success && cardNumber is not null)
             return Task.FromResult<Result<PaymentGatewayResponse>>(BogusGatewayResult.Errors.UnknownCard);
 
+        var authCode = $"auth_{Guid.NewGuid():N}";
+        _intentStatuses[authCode] = "succeeded";
+
         return Task.FromResult(Result<PaymentGatewayResponse>.Ok(
             new PaymentGatewayResponse(GatewayConstants.Providers.Bogus,
-                authorization: $"auth_{Guid.NewGuid():N}",
+                authorization: authCode,
                 clientSecret: $"pi_fake_{Guid.NewGuid():N}_secret_{Guid.NewGuid():N}")));
     }
 }

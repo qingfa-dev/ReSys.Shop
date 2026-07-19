@@ -31,7 +31,7 @@ public static partial class PaymentCaptureMethod
         return Result.Ok(PaymentCaptureResult.Success.Pended(payment.Number));
     }
 
-    // Update: Processing/Pending → Completed — idempotent if already completed
+    // Update: Processing/Pending → Completed — returns AlreadyCompleted error if already completed
     public static Result Complete(this PaymentCapture payment)
     {
         if (payment.State is PaymentRecordState.Completed)
