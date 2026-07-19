@@ -5,7 +5,7 @@ using Module.Payment.Services.Provider.Stripe;
 
 namespace Module.UnitTests.Payment.Infrastructure.Gateways.Stripe;
 
-[Trait("Category", "Unit")]
+[Trait("Category", "Integration")]
 [Trait("Module", "Payment")]
 [Trait("Feature", "StripeGatewayAuthorize")]
 public class StripeGatewayAuthorizeTests
