@@ -23,6 +23,14 @@ export const useAuthStore = defineStore('auth', () => {
         }
     });
 
+    const permissions = computed<string[]>(() => {
+        const sessionPerms = session.value?.user?.permissions
+        if (sessionPerms && sessionPerms.length > 0) return sessionPerms
+        const decoded = user.value as Record<string, unknown> | null
+        const jwtPerms = decoded?.permissions || decoded?.permission
+        return Array.isArray(jwtPerms) ? jwtPerms.map(String) : []
+    })
+
     function setTokens(response: { accessToken: string; refreshToken: string }) {
         accessToken.value = response.accessToken;
         refreshToken.value = response.refreshToken;
@@ -98,6 +106,7 @@ export const useAuthStore = defineStore('auth', () => {
         isAuthenticated,
         user,
         session,
+        permissions,
         loading,
         login,
         logout,

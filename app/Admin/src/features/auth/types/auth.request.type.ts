@@ -14,4 +14,5 @@ export interface AuthProfileResponse {
   email: string
   fullName: string
   roles: string[]
+  permissions?: string[]
 }

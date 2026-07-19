@@ -10,7 +10,7 @@ function groupHasVisibleItems(items: typeof adminMenuConfig[0]['items']): boolea
   return items.some(item => {
     if (item.visible === false) return false
     if (!item.permission) return true
-    const perms = authStore.session?.user?.permissions
+    const perms = authStore.permissions
     if (!perms || perms.length === 0) return true
     return perms.includes(item.permission)
   })

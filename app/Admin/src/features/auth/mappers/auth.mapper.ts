@@ -18,6 +18,6 @@ export function mapProfileResponse(value: object): Partial<UserProfile> {
   }
 }
 
-export function mapSessionResponse(value: { id: string; roles: string[] }): { id: string; roles: string[]; permissions: string[] } {
-  return { id: value.id, roles: Array.isArray(value.roles) ? value.roles : [], permissions: [] }
+export function mapSessionResponse(value: { id: string; roles: string[]; permissions?: string[] }): { id: string; roles: string[]; permissions: string[] } {
+  return { id: value.id, roles: Array.isArray(value.roles) ? value.roles : [], permissions: Array.isArray(value.permissions) ? value.permissions : [] }
 }
