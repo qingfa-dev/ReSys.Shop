@@ -28,5 +28,15 @@ public static class StripeGatewayResult
         public static Error GatewayError(string code, string message) => Error.BadRequest(
             $"Stripe.{code}",
             message);
+
+        public static Result<PaymentGatewayResponse> TransientGatewayError(string code, string message) =>
+            Result<PaymentGatewayResponse>.Failure(
+                Error.Unexpected($"Stripe.Transient.{code}", message));
+
+        public static Result<PaymentGatewayResponse> PaymentMethodRequired(string? message) =>
+            Result<PaymentGatewayResponse>.Failure(
+                Error.Validation(
+                    "Stripe.PaymentMethod.Required",
+                    $"Payment method was declined or requires re-entry: {message ?? "unknown"}"));
     }
 }
