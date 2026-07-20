@@ -187,8 +187,6 @@ public static class PermissionContext
             "store_contact", "Store Contact", "Store contact information resource.");
         public static readonly OptionDescriptor<string> StoreSeo = OptionDescriptor<string>.Option(
             "store_seo", "Store SEO", "Store SEO settings resource.");
-        public static readonly OptionDescriptor<string> StoreCurrency = OptionDescriptor<string>.Option(
-            "store_currency", "Store Currency", "Store currency configuration resource.");
         public static readonly OptionDescriptor<string> StoreCheckout = OptionDescriptor<string>.Option(
             "store_checkout", "Store Checkout", "Store checkout settings resource.");
         public static readonly OptionDescriptor<string> TaxCategories = OptionDescriptor<string>.Option(
