@@ -10,7 +10,7 @@ import type { DataTablePageEvent, DataTableSortEvent } from 'primevue/datatable'
 import PageShell from '@/shared/components/navigation/PageShell.vue'
 import PageHeader from '@/shared/components/navigation/PageHeader.vue'
 import DataTableShell from '@/shared/components/tables/DataTableShell.vue'
-import ConfirmButton from '@/shared/components/overlays/ConfirmDialog.vue'
+import ConfirmDialog from '@/shared/components/overlays/ConfirmDialog.vue'
 import type { ColumnDef } from '@/shared/components/tables/DataTableShell.vue'
 
 const { t } = useI18n()
@@ -77,8 +77,7 @@ onMounted(() => store.fetchItems({}))
     >
       <template #row-actions="{ data }">
         <Button icon="pi pi-pencil" severity="secondary" text rounded @click="onEdit(data.id)" />
-        <ConfirmButton
-          icon="pi pi-trash"
+        <ConfirmDialog
           severity="danger"
           :header="t('shipping.titles.confirm_delete') || 'Confirm Delete'"
           :message="t('shipping.messages.confirm_delete_rate') || 'Delete this shipping rate?'"

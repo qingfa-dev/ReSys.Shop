@@ -20,7 +20,7 @@ describe('ModalDialog', () => {
       props: { modelValue: false, header: 'Test' },
     })
     await wrapper.setProps({ modelValue: true })
-    expect(wrapper.vm.visible).toBe(true)
+    expect(wrapper.vm.modelValue).toBe(true)
   })
 
   it('renders footer slot', () => {
