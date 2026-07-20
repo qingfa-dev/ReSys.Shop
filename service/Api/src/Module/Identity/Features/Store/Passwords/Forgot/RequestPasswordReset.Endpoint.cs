@@ -18,6 +18,7 @@ public static partial class RequestPasswordReset
                 return result.ToResult();
             })
             .AllowAnonymous()
+            .RequireRateLimiting("forgot-password")
             .WithName(nameof(RequestPasswordReset))
             .WithTags(IdentityFeature.Tags.Authentication)
             .WithSummary(IdentityFeature.Store.Passwords.Forgot.Summary)

@@ -18,6 +18,7 @@ public static partial class EmailRegister
                 return result.ToResult();
             })
             .AllowAnonymous()
+            .RequireRateLimiting("register")
             .WithName(nameof(EmailRegister))
             .WithTags(IdentityFeature.Tags.Authentication)
             .WithSummary(IdentityFeature.Store.Auth.Register.Summary)

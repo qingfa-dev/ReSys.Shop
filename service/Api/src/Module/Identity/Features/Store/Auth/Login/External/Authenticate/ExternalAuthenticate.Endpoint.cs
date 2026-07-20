@@ -20,6 +20,7 @@ public static partial class ExternalAuthenticate
                 .WithName(nameof(ExternalAuthenticate))
                 .WithTags(IdentityFeature.Tags.Authentication)
                 .AllowAnonymous()
+                .RequireRateLimiting("auth")
                 .WithSummary(IdentityFeature.Store.Auth.Login.External.Authenticate.Summary)
                 .WithDescription(IdentityFeature.Store.Auth.Login.External.Authenticate.Description)
                 .Produces<Result<Response>>()

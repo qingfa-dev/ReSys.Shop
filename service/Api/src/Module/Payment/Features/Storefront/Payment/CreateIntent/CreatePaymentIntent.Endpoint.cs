@@ -20,6 +20,7 @@ public static partial class CreatePaymentIntent
                 return result.ToResult();
             })
             .RequireAuthorization()
+            .RequireRateLimiting("payment")
             .WithName(nameof(CreatePaymentIntent))
             .WithTags(PaymentFeature.Tags.Payment)
             .WithSummary(PaymentFeature.Storefront.Payment.CreateIntent.Summary)

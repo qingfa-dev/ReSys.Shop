@@ -20,6 +20,7 @@ public static partial class PasswordLogin
             .WithName(nameof(PasswordLogin))
             .WithTags(IdentityFeature.Tags.Authentication)
             .AllowAnonymous()
+            .RequireRateLimiting("auth")
             .WithSummary(IdentityFeature.Store.Auth.Login.Password.Summary)
             .WithDescription(IdentityFeature.Store.Auth.Login.Password.Description)
             .Produces<Result<Response>>()

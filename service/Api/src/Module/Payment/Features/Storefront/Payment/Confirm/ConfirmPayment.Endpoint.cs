@@ -20,6 +20,7 @@ public static partial class ConfirmPayment
                 return result.ToResult();
             })
             .RequireAuthorization()
+            .RequireRateLimiting("payment")
             .WithName(nameof(ConfirmPayment))
             .WithTags(PaymentFeature.Tags.Payment)
             .WithSummary(PaymentFeature.Storefront.Payment.Confirm.Summary)
