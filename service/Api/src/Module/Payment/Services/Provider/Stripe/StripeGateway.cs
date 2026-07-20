@@ -8,7 +8,6 @@ namespace Module.Payment.Services.Provider.Stripe;
 // AgentHint: Add new Stripe API operations as override methods — keep try/catch StripeException pattern
 public sealed class StripeGateway : Gateway
 {
-    private const long CentsMultiplier = 100;
     private readonly StripeSetting _options;
     private readonly PaymentIntentService _paymentIntentService = new();
     private readonly RefundService _refundService = new();
@@ -98,7 +97,7 @@ public sealed class StripeGateway : Gateway
             // Compute: Amount in cents with away-from-zero rounding
             var co = new PaymentIntentCaptureOptions
             {
-                AmountToCapture = checked((long)Math.Round(amount * CentsMultiplier, MidpointRounding.AwayFromZero))
+                AmountToCapture = checked((long)Math.Round(amount * GatewayConstants.Amounts.CentsMultiplier, MidpointRounding.AwayFromZero))
             };
             var ro = BuildRequestOptions(options);
             var intent = await _paymentIntentService.CaptureAsync(responseCode, co, ro, ct).ConfigureAwait(false);
@@ -137,7 +136,7 @@ public sealed class StripeGateway : Gateway
             var ro = new RefundCreateOptions
             {
                 PaymentIntent = responseCode,
-                Amount = checked((long)Math.Round(amount * CentsMultiplier, MidpointRounding.AwayFromZero))
+                Amount = checked((long)Math.Round(amount * GatewayConstants.Amounts.CentsMultiplier, MidpointRounding.AwayFromZero))
             };
             var requestOptions = BuildRequestOptions(options);
             var refund = await _refundService.CreateAsync(ro, requestOptions, ct).ConfigureAwait(false);
@@ -177,7 +176,7 @@ public sealed class StripeGateway : Gateway
         // Compute: Amount in cents with away-from-zero rounding
         var o = new PaymentIntentCreateOptions
         {
-            Amount = checked((long)Math.Round(amount * CentsMultiplier, MidpointRounding.AwayFromZero)),
+            Amount = checked((long)Math.Round(amount * GatewayConstants.Amounts.CentsMultiplier, MidpointRounding.AwayFromZero)),
             Currency = GatewayOptions.Currency,
             ConfirmationMethod = GatewayConstants.Stripe.ConfirmationMethod.Manual,
             CaptureMethod = autoCapture

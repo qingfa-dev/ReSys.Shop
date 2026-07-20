@@ -7,7 +7,6 @@ namespace Module.Payment.Services.Provider.Bogus;
 // Invariant: AutoCapture==true; PaymentProfilesSupported==false
 public sealed class BogusGateway : Gateway
 {
-    private const long CentsMultiplier = 100;
     private readonly IOptions<BogusSetting> _options;
 
     public override string ProviderKey => GatewayConstants.Providers.Bogus;

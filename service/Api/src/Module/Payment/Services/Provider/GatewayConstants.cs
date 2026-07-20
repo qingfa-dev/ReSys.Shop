@@ -73,6 +73,12 @@ public static class GatewayConstants
         public const string SetupIntentSecretPrefix = "pi_setup_fake_";
     }
 
+    public static class Amounts
+    {
+        public const long CentsMultiplier = 100;
+        public const decimal MaxSafeDollarAmount = 92_233_720_368_547_758.07m;
+    }
+
     public static class Webhook
     {
         public static class Headers
