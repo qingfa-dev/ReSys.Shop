@@ -25,4 +25,10 @@ public static partial class ProcessStripeWebhookEventJobLoggers
         Level = LogLevel.Warning,
         Message = "Cannot dispute payment {PaymentId} (state={State}): {Message}")]
     public static partial void CannotDisputePayment(ILogger logger, Guid PaymentId, string State, string? Message);
+
+    [LoggerMessage(
+        EventId = 5010,
+        Level = LogLevel.Warning,
+        Message = "Cannot void payment {PaymentId} (state={State}): {Message}")]
+    public static partial void CannotVoidPayment(ILogger logger, Guid PaymentId, string State, string? Message);
 }

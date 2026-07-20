@@ -55,6 +55,13 @@ public sealed partial class ProcessStripeWebhookEventJob
             case GatewayConstants.WebhookEvents.Stripe.ChargeDisputeCreated:
                 await HandleChargeDisputeCreated(stripeEvent, ct);
                 break;
+            case GatewayConstants.WebhookEvents.Stripe.PaymentIntentRequiresAction:
+                break;
+            case GatewayConstants.WebhookEvents.Stripe.PaymentIntentProcessing:
+                break;
+            case GatewayConstants.WebhookEvents.Stripe.PaymentIntentCanceled:
+                await HandlePaymentIntentCanceled(stripeEvent, ct);
+                break;
         }
     }
 
@@ -150,5 +157,25 @@ public sealed partial class ProcessStripeWebhookEventJob
 
         await _dbContext.SaveChangesAsync(ct);
         _logger.DisputeCreated(dispute.ChargeId, dispute.Reason ?? "unknown");
+    }
+
+    private async Task HandlePaymentIntentCanceled(Event stripeEvent, CancellationToken ct)
+    {
+        var intent = stripeEvent.Data.Object as PaymentIntent;
+        if (intent is null) return;
+
+        var payment = await _dbContext.Set<PaymentCapture>()
+            .FirstOrDefaultAsync(p => p.ResponseCode == intent.Id, ct);
+        if (payment is null) return;
+
+        var result = payment.Void();
+        if (result.IsFailure)
+        {
+            ProcessStripeWebhookEventJobLoggers.CannotVoidPayment(
+                _logger, payment.Id, payment.State.ToString(), result.Message);
+            return;
+        }
+
+        await _dbContext.SaveChangesAsync(ct);
     }
 }
