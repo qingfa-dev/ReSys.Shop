@@ -19,4 +19,10 @@ public static partial class ProcessStripeWebhookEventJobLoggers
         Level = LogLevel.Warning,
         Message = "Cannot refund payment {PaymentId} (state={State}): {Message}")]
     public static partial void CannotRefundPayment(ILogger logger, Guid PaymentId, string State, string? Message);
+
+    [LoggerMessage(
+        EventId = 5009,
+        Level = LogLevel.Warning,
+        Message = "Cannot dispute payment {PaymentId} (state={State}): {Message}")]
+    public static partial void CannotDisputePayment(ILogger logger, Guid PaymentId, string State, string? Message);
 }

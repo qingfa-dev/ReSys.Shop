@@ -53,7 +53,7 @@ public sealed partial class ProcessStripeWebhookEventJob
                 await HandleChargeRefunded(stripeEvent, ct);
                 break;
             case GatewayConstants.WebhookEvents.Stripe.ChargeDisputeCreated:
-                HandleChargeDisputeCreated(stripeEvent);
+                await HandleChargeDisputeCreated(stripeEvent, ct);
                 break;
         }
     }
@@ -130,11 +130,25 @@ public sealed partial class ProcessStripeWebhookEventJob
         await _dbContext.SaveChangesAsync(ct);
     }
 
-    // Webhook: charge.dispute.created — log for manual review
-    private void HandleChargeDisputeCreated(Event stripeEvent)
+    // Webhook: charge.dispute.created — transition to Disputed state
+    private async Task HandleChargeDisputeCreated(Event stripeEvent, CancellationToken ct)
     {
         var dispute = stripeEvent.Data.Object as Dispute;
-        if (dispute is null) return;
+        if (dispute is null || string.IsNullOrEmpty(dispute.PaymentIntentId)) return;
+
+        var payment = await _dbContext.Set<PaymentCapture>()
+            .FirstOrDefaultAsync(p => p.ResponseCode == dispute.PaymentIntentId, ct);
+        if (payment is null) return;
+
+        var result = payment.Dispute();
+        if (result.IsFailure)
+        {
+            ProcessStripeWebhookEventJobLoggers.CannotDisputePayment(
+                _logger, payment.Id, payment.State.ToString(), result.Message);
+            return;
+        }
+
+        await _dbContext.SaveChangesAsync(ct);
         _logger.DisputeCreated(dispute.ChargeId, dispute.Reason ?? "unknown");
     }
 }
