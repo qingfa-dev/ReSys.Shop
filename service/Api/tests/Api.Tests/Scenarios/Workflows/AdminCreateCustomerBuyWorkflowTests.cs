@@ -108,7 +108,7 @@ public sealed class AdminCreateCustomerBuyWorkflowTests(ApiFixture fixture) : Wo
             var userManager = scope.ServiceProvider.GetRequiredService<Microsoft.AspNetCore.Identity.UserManager<User>>();
             var user = await userManager.FindByEmailAsync(email);
             user.Should().NotBeNull();
-            var profileResult = UserProfileMethod.Create("Test", "User", email);
+            var profileResult = UserProfileMethod.Create("Test", "User", email, userId: user!.Id);
             profileResult.IsSuccess.Should().BeTrue();
             db.Set<UserProfile>().Add(profileResult.Value);
             await db.SaveChangesAsync();
