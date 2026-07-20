@@ -178,6 +178,7 @@ public sealed class PaymentProcessingService : IPaymentProcessingService
         payment.CvvResponseCode = response.CvvResultCode;
         payment.CvvResponseMessage = response.CvvResultMessage;
         payment.IntentClientSecret = response.ClientSecret;
+        payment.PaymentStatus = response.PaymentStatus;
     }
 
     // Call: Gateway authorize — transition to Pending
