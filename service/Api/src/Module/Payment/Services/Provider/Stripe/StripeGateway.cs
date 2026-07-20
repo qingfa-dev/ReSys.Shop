@@ -43,12 +43,23 @@ public sealed class StripeGateway : Gateway
             var po = CreatePaymentIntentOptions(amount, source, options, autoCapture: true);
             var ro = BuildRequestOptions(options);
             var intent = await new PaymentIntentService().CreateAsync(po, ro, ct).ConfigureAwait(false);
-            // Check: Intent must be succeeded status for auto-capture
-            if (intent.Status != GatewayConstants.Stripe.IntentStatus.Succeeded)
-                return StripeGatewayResult.Errors.PurchaseNotSucceeded(intent.Status);
-            return new PaymentGatewayResponse(GatewayConstants.Providers.Stripe,
-                authorization: intent.Id,
-                clientSecret: intent.ClientSecret);
+            // Check: Intent status routing
+            if (intent.Status == GatewayConstants.Stripe.IntentStatus.Succeeded)
+                return new PaymentGatewayResponse(GatewayConstants.Providers.Stripe,
+                    authorization: intent.Id,
+                    clientSecret: intent.ClientSecret);
+
+            if (intent.Status == "requires_action")
+                return new PaymentGatewayResponse(GatewayConstants.Providers.Stripe,
+                    authorization: intent.Id,
+                    clientSecret: intent.ClientSecret,
+                    paymentStatus: "requires_action");
+
+            if (intent.Status == "requires_payment_method")
+                return StripeGatewayResult.Errors.PaymentMethodRequired(
+                    intent.LastPaymentError?.Message);
+
+            return StripeGatewayResult.Errors.PurchaseNotSucceeded(intent.Status);
         }
         catch (StripeException ex) { return MapStripeException(ex); }
     }
