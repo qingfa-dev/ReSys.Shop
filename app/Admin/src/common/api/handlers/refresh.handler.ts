@@ -1,6 +1,6 @@
 import axios from 'axios'
-import type { ServerResult } from '../../../api/types/result.type'
-import { tokenService } from '../services/token.service'
+import type { ServerResult } from '@/shared/types/result.type'
+import { tokenService } from '@/common/auth/token.service'
 
 export async function refreshTokens(): Promise<boolean> {
   const token = tokenService.getRefreshToken()

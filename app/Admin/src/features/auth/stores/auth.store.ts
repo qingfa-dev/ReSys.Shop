@@ -3,7 +3,7 @@ import { ref, computed } from 'vue'
 import { authService } from '../services/auth.service'
 import type { LoginRequest } from '../types/login.request.type'
 import type { AuthSession } from '../types/auth.model.type'
-import type { ServerResult } from '@/shared/api/types/result.type'
+import type { ServerResult } from '@/shared/types/result.type'
 import { jwtDecode } from 'jwt-decode'
 
 export const useAuthStore = defineStore('auth', () => {

@@ -9,7 +9,7 @@ const tokenService = {
   hasTokens: vi.fn(),
 }
 
-vi.mock('../../services/token.service', () => ({
+vi.mock('@/common/auth/token.service', () => ({
   tokenService,
 }))
 

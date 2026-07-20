@@ -1,5 +1,5 @@
-import apiClient from '@/shared/api/http/api.client'
-import type { ServerResult } from '@/shared/api/types/result.type'
+import { apiClient } from '@/common/api'
+import type { ServerResult } from '@/shared/types/result.type'
 import type { LoginResponse } from '../types/login.response.type'
 import type { LoginRequest } from '../types/login.request.type'
 import type { RefreshTokenRequest, AuthProfileResponse } from '../types/auth.request.type'
