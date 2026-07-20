@@ -40,6 +40,8 @@ public sealed class StripeGateway : Gateway
     public override async Task<Result<PaymentGatewayResponse>> PurchaseAsync(
         decimal amount, object? source, GatewayOptions options, CancellationToken ct = default)
     {
+        if (amount > GatewayConstants.Amounts.MaxSafeDollarAmount)
+            return StripeGatewayResult.Errors.AmountExceedsMaximum;
         try
         {
             var po = CreatePaymentIntentOptions(amount, source, options, autoCapture: true);
@@ -70,6 +72,8 @@ public sealed class StripeGateway : Gateway
     public override async Task<Result<PaymentGatewayResponse>> AuthorizeAsync(
         decimal amount, object? source, GatewayOptions options, CancellationToken ct = default)
     {
+        if (amount > GatewayConstants.Amounts.MaxSafeDollarAmount)
+            return StripeGatewayResult.Errors.AmountExceedsMaximum;
         try
         {
             var po = CreatePaymentIntentOptions(amount, source, options, autoCapture: false);
@@ -92,6 +96,8 @@ public sealed class StripeGateway : Gateway
         // Check: ResponseCode (PaymentIntent ID) is required
         if (string.IsNullOrEmpty(responseCode))
             return StripeGatewayResult.Errors.CaptureMissingIntent;
+        if (amount > GatewayConstants.Amounts.MaxSafeDollarAmount)
+            return StripeGatewayResult.Errors.AmountExceedsMaximum;
         try
         {
             // Compute: Amount in cents with away-from-zero rounding
@@ -130,6 +136,8 @@ public sealed class StripeGateway : Gateway
         // Check: ResponseCode (PaymentIntent ID) is required
         if (string.IsNullOrEmpty(responseCode))
             return StripeGatewayResult.Errors.CreditMissingIntent;
+        if (amount > GatewayConstants.Amounts.MaxSafeDollarAmount)
+            return StripeGatewayResult.Errors.AmountExceedsMaximum;
         try
         {
             // Compute: Amount in cents with away-from-zero rounding

@@ -38,5 +38,11 @@ public static class StripeGatewayResult
                 Error.Validation(
                     "Stripe.PaymentMethod.Required",
                     $"Payment method was declined or requires re-entry: {message ?? "unknown"}"));
+
+        public static Result<PaymentGatewayResponse> AmountExceedsMaximum =>
+            Result<PaymentGatewayResponse>.Failure(
+                Error.Validation(
+                    "Stripe.Amount.ExceedsMaximum",
+                    "Payment amount exceeds the maximum supported value."));
     }
 }
