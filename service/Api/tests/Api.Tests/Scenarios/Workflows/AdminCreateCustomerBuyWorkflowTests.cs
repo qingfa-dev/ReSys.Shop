@@ -150,20 +150,6 @@ public sealed class AdminCreateCustomerBuyWorkflowTests(ApiFixture fixture) : Wo
             "/api/storefront/cart", updateCartBody);
         updateCartResp.IsSuccessStatusCode.Should().BeTrue();
 
-        Guid shippingMethodId;
-        using (var scope = Fixture.Factory.Services.CreateScope())
-        {
-            var db = scope.ServiceProvider.GetRequiredService<IApplicationDbContext>();
-            var shippingMethod = await db.Set<ShippingMethod>()
-                .FirstAsync(sm => sm.Code == "standard");
-            shippingMethodId = shippingMethod.Id;
-        }
-
-        var selectShipBody = new { shippingMethodId };
-        HttpResponseMessage selectShipResp = await client.PostAsJsonAsync(
-            "/api/storefront/cart/shipping-rate", selectShipBody);
-        selectShipResp.IsSuccessStatusCode.Should().BeTrue();
-
         using (var scope = Fixture.Factory.Services.CreateScope())
         {
             var db = scope.ServiceProvider.GetRequiredService<IApplicationDbContext>();
@@ -175,9 +161,26 @@ public sealed class AdminCreateCustomerBuyWorkflowTests(ApiFixture fixture) : Wo
                 .Include(o => o.LineItems)
                 .Include(o => o.Adjustments)
                 .FirstOrDefaultAsync(o => o.UserId == user!.Id && o.Status == OrderStatus.Draft);
-
             cartEntity.Should().NotBeNull();
-            cartEntity!.CheckoutState = CheckoutState.Confirm;
+
+            var existingSm = await db.Set<ShippingMethod>()
+                .FirstOrDefaultAsync(sm => sm.Code == "standard");
+            if (existingSm is not null)
+            {
+                cartEntity!.ShippingMethodId = existingSm.Id;
+            }
+            else
+            {
+                var smResult = ShippingMethodExtensions.Create(
+                    name: "Standard Shipping",
+                    calculatorType: "flat_rate",
+                    code: "standard");
+                db.Set<ShippingMethod>().Add(smResult.Value);
+                await db.SaveChangesAsync();
+                cartEntity!.ShippingMethodId = smResult.Value.Id;
+            }
+
+            cartEntity.CheckoutState = CheckoutState.Confirm;
 
             var recalcResult = cartEntity.RecalculateTotals();
             recalcResult.IsSuccess.Should().BeTrue();
