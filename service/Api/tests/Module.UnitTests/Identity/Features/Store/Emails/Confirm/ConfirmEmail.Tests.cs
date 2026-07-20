@@ -264,7 +264,7 @@ public class ConfirmEmailTests
 
     #region Email Change (with NewEmail)
 
-    [Fact(DisplayName = "EmailChange: Should succeed, call ChangeEmailAsync, set ModifiedAtUtc, NOT send welcome notification")]
+    [Fact(DisplayName = "EmailChange: Should succeed, call ChangeEmailAsync, set ModifiedAtUtc, create profile, NOT send welcome notification")]
     public async Task Handle_ShouldChangeEmail_WhenNewEmailProvided()
     {
         var user = CreateUnconfirmedUser();
@@ -280,6 +280,9 @@ public class ConfirmEmailTests
         _userManagerMock
             .Setup(x => x.UpdateAsync(It.IsAny<User>()))
             .ReturnsAsync(IdentityResult.Success);
+        _mediatorMock
+            .Setup(x => x.Send(It.IsAny<CreateUserProfileCommand>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new CreateUserProfileResult { ProfileId = Guid.NewGuid() });
 
         var handler = CreateHandler();
         var command = new ConfirmEmail.Command(
@@ -297,7 +300,7 @@ public class ConfirmEmailTests
             Times.Never);
         _mediatorMock.Verify(
             x => x.Send(It.IsAny<CreateUserProfileCommand>(), It.IsAny<CancellationToken>()),
-            Times.Never);
+            Times.Once);
     }
 
     [Fact(DisplayName = "EmailChange: Should return failure when ChangeEmailAsync fails")]

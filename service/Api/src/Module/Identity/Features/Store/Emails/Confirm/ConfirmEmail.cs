@@ -89,11 +89,13 @@ public static partial class ConfirmEmail
             else
             {
                 UserLoggers.Emails.EmailVerified(logger, UserId: user.Id, Email: user.Email!, Timestamp: DateTime.UtcNow, ActionBy: currentUser.UserName);
-                // Call: Send welcome notification for first-time email verification
-                await SendWelcomeNotificationAsync(user);
-                // Call: Create the initial user profile after successful verification
-                await CreateUserProfileAsync(user, cancellationToken);
             }
+
+            // Best-effort: profile creation always fires; welcome only for first-time verification.
+            // Failures in CreateUserProfileAsync are logged internally and do not propagate.
+            await Task.WhenAll(
+                CreateUserProfileAsync(user, cancellationToken),
+                isEmailChange ? Task.CompletedTask : SendWelcomeNotificationAsync(user));
 
             return Result.NoContent();
         }
