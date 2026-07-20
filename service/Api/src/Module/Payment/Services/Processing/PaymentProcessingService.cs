@@ -34,6 +34,10 @@ public sealed class PaymentProcessingService : IPaymentProcessingService
         if (payment.State == PaymentRecordState.Completed)
             return ProcessingResult.Errors.AlreadyCompleted;
 
+        // Check: Cannot capture disputed payments
+        if (payment.State == PaymentRecordState.Disputed)
+            return ProcessingResult.Errors.InvalidStateTransition(payment.State, PaymentRecordState.Completed);
+
         amount ??= payment.Amount;
 
         // Check: Payment does not allow capture at current state or amount
@@ -84,6 +88,9 @@ public sealed class PaymentProcessingService : IPaymentProcessingService
     /// <returns>A result indicating refund outcome.</returns>
     public async Task<Result<PaymentProcessingResult>> RefundAsync(PaymentCapture payment, IPaymentGatewayActionProvider gateway, GatewayOptions options, decimal amount, CancellationToken ct = default)
     {
+        if (payment.State is PaymentRecordState.Disputed)
+            return ProcessingResult.Errors.InvalidStateTransition(payment.State, PaymentRecordState.Completed);
+
         // Check: Payment state and refund amount must be valid
         if (!payment.CanRefund(amount))
         {
