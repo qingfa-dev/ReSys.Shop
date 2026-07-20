@@ -69,7 +69,7 @@ public static partial class CreatePaymentIntent
                 OrderId = $"{order.Number}-{payment.Number}",
                 PaymentId = payment.Number,
                 IdempotencyKey = GatewayConstants.Idempotency.ForPayment(payment.Number),
-                StatementDescriptorSuffix = string.Empty,
+                StatementDescriptorSuffix = paymentMethod.StatementDescriptorSuffix,
             };
 
             // Call: Gateway process (authorize or purchase depending on AutoCapture)
