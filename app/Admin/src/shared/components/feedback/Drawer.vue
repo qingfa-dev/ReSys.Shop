@@ -14,7 +14,7 @@ withDefaults(defineProps<{
 </script>
 
 <template>
-  <Drawer v-model="visible" :header="header" :position="position" :style="{ width }">
+  <Drawer v-model:visible="visible" :header="header" :position="position" :style="{ width }">
     <slot />
   </Drawer>
 </template>
