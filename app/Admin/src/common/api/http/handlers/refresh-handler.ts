@@ -4,7 +4,6 @@ import type { ServerResult } from '../../types/result.types'
 export async function refreshTokens(): Promise<boolean> {
   const token = localStorage.getItem('refreshToken')
   if (!token) {
-    window.location.href = '/login'
     return false
   }
 
@@ -29,7 +28,6 @@ export async function refreshTokens(): Promise<boolean> {
   } catch {
     localStorage.removeItem('accessToken')
     localStorage.removeItem('refreshToken')
-    window.location.href = '/login'
     return false
   }
 }

@@ -1,42 +1,66 @@
-import { type AxiosError, type AxiosResponse, type InternalAxiosRequestConfig } from 'axios'
-import type { ServerResult } from '../../types/result.types'
-import { parseApiError } from '../../utils/api.utils'
-import { refreshTokens } from '../handlers/refresh-handler'
-import apiClient from '../api.client'
+import { type AxiosError, type AxiosResponse, type InternalAxiosRequestConfig } from "axios";
+import type { ServerResult } from "../../types/result.types";
+import { parseApiError } from "../../utils/api.utils";
+import { refreshTokens } from "../handlers/refresh-handler";
+import apiClient from "../api.client";
+import router from "@/app/router";
 
 export async function errorWrapperInterceptor(error: AxiosError): Promise<AxiosResponse> {
-  const originalRequest = error.config as InternalAxiosRequestConfig & { _retry?: boolean }
-  const apiError = parseApiError(error)
+  const originalRequest = error.config as InternalAxiosRequestConfig & { _retry?: boolean };
+  const apiError = parseApiError(error);
 
   if (apiError.statusCode === 401 && originalRequest && !originalRequest._retry) {
-    if (originalRequest.url?.includes('/auth/session/refresh')) {
+    if (originalRequest.url?.includes("/sessions/refresh")) {
       return Promise.resolve({
         data: {
-          isSuccess: false, statusCode: 401,
-          errors: [{ code: 'UNAUTHORIZED', message: apiError.detail || 'Unauthorized', type: 0, metadata: null }],
-          message: apiError.title, metadata: null, value: null,
+          isSuccess: false,
+          statusCode: 401,
+          errors: [
+            {
+              code: "UNAUTHORIZED",
+              message: apiError.detail || "Unauthorized",
+              type: 0,
+              metadata: null,
+            },
+          ],
+          message: apiError.title,
+          metadata: null,
+          value: null,
         } as ServerResult<null>,
-      } as AxiosResponse)
+      } as AxiosResponse);
     }
 
-    console.warn('Session expired. Attempting to refresh token...')
+    console.warn("Session expired. Attempting to refresh token...");
 
-    originalRequest._retry = true
-    const refreshed = await refreshTokens()
+    originalRequest._retry = true;
+    const refreshed = await refreshTokens();
     if (refreshed) {
-      const newToken = localStorage.getItem('accessToken')
+      const newToken = localStorage.getItem("accessToken");
       if (newToken && originalRequest.headers) {
-        originalRequest.headers.Authorization = `Bearer ${newToken}`
+        originalRequest.headers.Authorization = `Bearer ${newToken}`;
       }
-      return apiClient(originalRequest)
+      return apiClient(originalRequest);
+    } else {
+      router.push("/login");
+      return Promise.reject(error);
     }
   }
 
   return Promise.resolve({
     data: {
-      isSuccess: false, statusCode: apiError.statusCode,
-      errors: [{ code: apiError.errorCode || 'ERROR', message: apiError.detail || apiError.title || 'Request failed', type: 0, metadata: null }],
-      message: apiError.title, metadata: null, value: null,
+      isSuccess: false,
+      statusCode: apiError.statusCode,
+      errors: [
+        {
+          code: apiError.errorCode || "ERROR",
+          message: apiError.detail || apiError.title || "Request failed",
+          type: 0,
+          metadata: null,
+        },
+      ],
+      message: apiError.title,
+      metadata: null,
+      value: null,
     } as ServerResult<null>,
-  } as AxiosResponse)
+  } as AxiosResponse);
 }

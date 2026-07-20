@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed } from 'vue'
+import type { RouteLocationRaw } from 'vue-router'
 import type { DataTablePageEvent, DataTableSortEvent, DataTableFilterMeta } from 'primevue/datatable'
 import { FilterMatchMode } from '@primevue/core/api'
 
@@ -27,7 +28,7 @@ const props = withDefaults(defineProps<{
   emptyDescription?: string
   searchPlaceholder?: string
   showCreateButton?: boolean
-  createRoute?: any
+  createRoute?: RouteLocationRaw
   createLabel?: string
   showExport?: boolean
   showClearFilters?: boolean

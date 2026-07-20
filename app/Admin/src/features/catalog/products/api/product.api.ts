@@ -16,22 +16,26 @@ import { ProductStatusMap } from '@/shared/utils/enums'
 
 export const productRepository = {
   list: async (params?: ServerQueryingParameters): Promise<ServerPagedResult<ProductSummaryModel>> => {
-    const result = await apiClient.get(`${CATALOG}/products`, { params }).then(res => res.data as ServerPagedResult<ProductSummary>)
+    const res = await apiClient.get(`${CATALOG}/products`, { params })
+    const result = res.data as ServerPagedResult<ProductSummary>
     return mapItems(result, d => ({ ...d, statusLabel: ProductStatusMap[d.status] ?? 'Unknown' }))
   },
 
   getById: async (id: string): Promise<ServerResult<ProductDetailModel>> => {
-    const result = await apiClient.get(`${CATALOG}/products/${id}`).then(res => res.data as ServerResult<ProductDetail>)
+    const res = await apiClient.get(`${CATALOG}/products/${id}`)
+    const result = res.data as ServerResult<ProductDetail>
     return mapValue(result, d => ({ ...d, statusLabel: ProductStatusMap[d.status] ?? 'Unknown' }))
   },
 
   create: async (data: CreateProductRequest): Promise<ServerResult<ProductDetailModel>> => {
-    const result = await apiClient.post(`${CATALOG}/products`, data).then(res => res.data as ServerResult<ProductDetail>)
+    const res = await apiClient.post(`${CATALOG}/products`, data)
+    const result = res.data as ServerResult<ProductDetail>
     return mapValue(result, d => ({ ...d, statusLabel: ProductStatusMap[d.status] ?? 'Unknown' }))
   },
 
   update: async (id: string, data: UpdateProductRequest): Promise<ServerResult<ProductDetailModel>> => {
-    const result = await apiClient.put(`${CATALOG}/products/${id}`, data).then(res => res.data as ServerResult<ProductDetail>)
+    const res = await apiClient.put(`${CATALOG}/products/${id}`, data)
+    const result = res.data as ServerResult<ProductDetail>
     return mapValue(result, d => ({ ...d, statusLabel: ProductStatusMap[d.status] ?? 'Unknown' }))
   },
 

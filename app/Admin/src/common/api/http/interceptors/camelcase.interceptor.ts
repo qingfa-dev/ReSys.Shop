@@ -1,9 +1,9 @@
-import type { AxiosResponse } from 'axios'
-import { toCamelCaseKeys } from '@/common/mapper/mapper.utils'
+import type { AxiosResponse } from "axios";
+import { toCamelCaseKeys } from "@/common/mapper/mapper.utils";
 
 export function camelCaseInterceptor(response: AxiosResponse): AxiosResponse {
-  if (response.data && typeof response.data === 'object') {
-    response.data = toCamelCaseKeys(response.data as Record<string, unknown>)
+  if (response.data && typeof response.data === "object") {
+    response.data = toCamelCaseKeys(response.data as Record<string, unknown>);
   }
-  return response
+  return response;
 }
