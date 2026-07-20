@@ -53,18 +53,24 @@ declare global {
   const toRef: typeof import('vue').toRef
   const toRefs: typeof import('vue').toRefs
   const toValue: typeof import('vue').toValue
+  const toastBus: typeof import('./shared/composables/toast.use').toastBus
   const triggerRef: typeof import('vue').triggerRef
   const unref: typeof import('vue').unref
+  const useApiErrorHandler: typeof import('./shared/composables/api-error-handler.use').useApiErrorHandler
   const useAttrs: typeof import('vue').useAttrs
   const useCssModule: typeof import('vue').useCssModule
   const useCssVars: typeof import('vue').useCssVars
+  const useFilePreview: typeof import('./shared/composables/file-preview.use').useFilePreview
+  const useFormatter: typeof import('./shared/composables/formatter.use').useFormatter
   const useId: typeof import('vue').useId
   const useLink: typeof import('vue-router').useLink
   const useModel: typeof import('vue').useModel
+  const usePagedList: typeof import('./shared/composables/paged-list.use').usePagedList
   const useRoute: typeof import('vue-router').useRoute
   const useRouter: typeof import('vue-router').useRouter
   const useSlots: typeof import('vue').useSlots
   const useTemplateRef: typeof import('vue').useTemplateRef
+  const useToast: typeof import('./shared/composables/toast.use').useToast
   const watch: typeof import('vue').watch
   const watchEffect: typeof import('vue').watchEffect
   const watchPostEffect: typeof import('vue').watchPostEffect
@@ -75,4 +81,7 @@ declare global {
   // @ts-ignore
   export type { Component, Slot, Slots, ComponentPublicInstance, ComputedRef, DirectiveBinding, ExtractDefaultPropTypes, ExtractPropTypes, ExtractPublicPropTypes, InjectionKey, PropType, Ref, ShallowRef, MaybeRef, MaybeRefOrGetter, VNode, WritableComputedRef } from 'vue'
   import('vue')
+  // @ts-ignore
+  export type { ToastMessage } from './shared/composables/toast.use'
+  import('./shared/composables/toast.use')
 }

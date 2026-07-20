@@ -37,3 +37,8 @@ __screenshots__/
 
 # Vite
 *.timestamp-*-*.mjs
+
+# unplugin-auto-import generated files
+.auto-imports/
+.eslintrc-auto-import.json
+src/auto-imports.d.ts

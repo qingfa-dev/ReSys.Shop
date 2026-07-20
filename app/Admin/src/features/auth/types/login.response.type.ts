@@ -5,6 +5,12 @@ export interface LoginResponse {
   refreshTokenExpiresIn: number
 }
 
+export interface AuthSessionResponse {
+  id: string
+  roles: string[]
+  permissions: string[]
+}
+
 export interface UserProfile {
   id: string
   email: string

@@ -3,6 +3,12 @@ export interface RefreshTokenRequest {
   rememberMe?: boolean
 }
 
+export interface UpdateProfileRequest {
+  email?: string
+  fullName?: string
+  phone?: string
+}
+
 export interface AuthProfileResponse {
   id: string
   email: string

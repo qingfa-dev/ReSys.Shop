@@ -59,6 +59,8 @@ public sealed class SmtpProviderSettingValidatorTests
         yield return Wrap("Host empty", s => { s.Host = string.Empty; }, SmtpProviderSettingResult.Failure.SmtpHostRequired.Code);
         yield return Wrap("Host too long", s => { s.Host = new string('a', 257); }, SmtpProviderSettingResult.Failure.SmtpHostTooLong.Code);
         yield return Wrap("Host invalid format", s => { s.Host = "not a valid hostname!!!"; }, SmtpProviderSettingResult.Failure.SmtpHostInvalidFormat.Code);
+        yield return Wrap("Host long pathological no timeout", s => { s.Host = new string('a', 1000); }, SmtpProviderSettingResult.Failure.SmtpHostInvalidFormat.Code);
+        yield return Wrap("Host long near-miss no timeout", s => { s.Host = new string('a', 500) + "!@#$%"; }, SmtpProviderSettingResult.Failure.SmtpHostInvalidFormat.Code);
         yield return Wrap("Port below minimum", s => { s.Port = 0; }, SmtpProviderSettingResult.Failure.SmtpPortInvalid.Code);
         yield return Wrap("Port above maximum", s => { s.Port = 65536; }, SmtpProviderSettingResult.Failure.SmtpPortOutOfRange.Code);
         yield return Wrap("Username null with UseDefaultCredentials false", s => { s.Username = null; }, SmtpProviderSettingResult.Failure.SmtpCredentialsRequired.Code);

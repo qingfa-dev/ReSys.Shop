@@ -1,49 +1,63 @@
-import { computed, reactive } from 'vue'
+import { computed, reactive, watch } from 'vue'
 
-export interface LayoutConfig {
+const STORAGE_KEY = 'resys-admin-layout'
+
+interface LayoutConfig {
   preset: string
   primary: string
   surface: string | null
   darkTheme: boolean
-  menuMode: 'static' | 'overlay'
+  menuMode: string
 }
 
-export interface LayoutState {
-  staticMenuInactive: boolean
-  overlayMenuActive: boolean
-  profileSidebarVisible: boolean
-  configSidebarVisible: boolean
-  sidebarExpanded: boolean
-  menuHoverActive: boolean
-  mobileMenuActive: boolean
-  activeMenuItem: string | null
-  activePath: string | null
-  anchored: boolean
+function loadConfig(): Partial<LayoutConfig> {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY)
+    return raw ? JSON.parse(raw) : {}
+  } catch {
+    return {}
+  }
 }
+
+const saved = loadConfig()
 
 const layoutConfig = reactive<LayoutConfig>({
-  preset: 'Aura',
-  primary: 'emerald',
-  surface: null,
-  darkTheme: false,
-  menuMode: 'static',
+  preset: saved.preset || 'Aura',
+  primary: saved.primary || 'emerald',
+  surface: (saved.surface as string | null) || null,
+  darkTheme: saved.darkTheme ?? false,
+  menuMode: saved.menuMode || 'static',
 })
 
-const layoutState = reactive<LayoutState>({
+watch(
+  () => ({ ...layoutConfig }),
+  (val) => {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(val))
+  },
+  { deep: true }
+)
+
+const layoutState = reactive({
   staticMenuInactive: false,
   overlayMenuActive: false,
   profileSidebarVisible: false,
   configSidebarVisible: false,
   sidebarExpanded: false,
   menuHoverActive: false,
+  activeMenuItem: null as string | null,
+  activePath: null as string | null,
   mobileMenuActive: false,
-  activeMenuItem: null,
-  activePath: null,
-  anchored: false,
 })
 
 export function useLayout() {
-  const toggleDarkMode = () => {
+  const isDarkTheme = computed(() => layoutConfig.darkTheme)
+
+  const executeDarkModeToggle = () => {
+    layoutConfig.darkTheme = !layoutConfig.darkTheme
+    document.documentElement.classList.toggle('app-dark')
+  }
+
+  function toggleDarkMode() {
     if (!document.startViewTransition) {
       executeDarkModeToggle()
       return
@@ -51,12 +65,9 @@ export function useLayout() {
     document.startViewTransition(() => executeDarkModeToggle())
   }
 
-  const executeDarkModeToggle = () => {
-    layoutConfig.darkTheme = !layoutConfig.darkTheme
-    document.documentElement.classList.toggle('app-dark')
-  }
+  const isDesktop = () => window.innerWidth > 991
 
-  const toggleMenu = () => {
+  function toggleMenu() {
     if (isDesktop()) {
       if (layoutConfig.menuMode === 'static') {
         layoutState.staticMenuInactive = !layoutState.staticMenuInactive
@@ -69,21 +80,33 @@ export function useLayout() {
     }
   }
 
-  const hideMobileMenu = () => {
+  function toggleConfigSidebar() {
+    layoutState.configSidebarVisible = !layoutState.configSidebarVisible
+  }
+
+  function hideMobileMenu() {
     layoutState.mobileMenuActive = false
   }
 
-  const isDarkTheme = computed(() => layoutConfig.darkTheme)
-  const isDesktop = () => window.innerWidth > 991
-  const hasOpenOverlay = computed(() => layoutState.overlayMenuActive)
+  function changeMenuMode(mode: string) {
+    layoutConfig.menuMode = mode
+    layoutState.staticMenuInactive = false
+    layoutState.mobileMenuActive = false
+    layoutState.sidebarExpanded = false
+    layoutState.menuHoverActive = false
+  }
+
+  const hasOpenOverlay = computed(() => layoutState.overlayMenuActive || layoutState.mobileMenuActive)
 
   return {
     layoutConfig,
     layoutState,
     isDarkTheme,
     toggleDarkMode,
+    toggleConfigSidebar,
     toggleMenu,
     hideMobileMenu,
+    changeMenuMode,
     isDesktop,
     hasOpenOverlay,
   }

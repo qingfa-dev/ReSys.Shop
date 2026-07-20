@@ -1,0 +1,42 @@
+import apiClient from "@/shared/api/http/api.client";
+import { CATALOG } from "@/shared/api/constants";
+import type { ServerPagedResult, ServerResult } from "@/shared/api/types/result.types";
+import type { ServerQueryingParameters } from "@/shared/api/types/query.types";
+import type { TaxonomyDetail, TaxonomyListItem } from "../types/taxonomy.response.type";
+import type {
+  CreateTaxonomyRequest,
+  UpdateTaxonomyRequest,
+} from "../types/taxonomy.request.type";
+export const taxonomyRepository = {
+  list: async (params?: ServerQueryingParameters): Promise<ServerPagedResult<TaxonomyListItem>> => {
+    return apiClient
+      .get(`${CATALOG}/taxonomies`, { params })
+      .then((res) => res.data as ServerPagedResult<TaxonomyListItem>);
+  },
+
+  getById: async (id: string): Promise<ServerResult<TaxonomyDetail | null>> => {
+    return apiClient
+      .get(`${CATALOG}/taxonomies/${id}`)
+      .then((res) => res.data as ServerResult<TaxonomyDetail>);
+  },
+
+  create: async (data: CreateTaxonomyRequest): Promise<ServerResult<TaxonomyDetail | null>> => {
+    return apiClient
+      .post(`${CATALOG}/taxonomies`, data)
+      .then((res) => res.data as ServerResult<TaxonomyDetail>);
+  },
+
+  update: async (id: string, data: UpdateTaxonomyRequest): Promise<ServerResult<TaxonomyDetail | null>> => {
+    return apiClient
+      .put(`${CATALOG}/taxonomies/${id}`, data)
+      .then((res) => res.data as ServerResult<TaxonomyDetail>);
+  },
+
+  delete: (id: string): Promise<ServerResult<void>> =>
+    apiClient.delete(`${CATALOG}/taxonomies/${id}`).then((res) => res.data as ServerResult<void>),
+
+  restore: (id: string): Promise<ServerResult<void>> =>
+    apiClient
+      .patch(`${CATALOG}/taxonomies/${id}/restore`)
+      .then((res) => res.data as ServerResult<void>),
+};
