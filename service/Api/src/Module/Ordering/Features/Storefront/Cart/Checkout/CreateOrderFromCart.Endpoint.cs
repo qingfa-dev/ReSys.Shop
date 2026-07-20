@@ -19,7 +19,7 @@ public static partial class CreateOrderFromCart
                 var result = await sender.Send(command, ct);
                 return result.ToResult();
             })
-            .AllowAnonymous()
+            .RequireAuthorization()
             .WithName(nameof(CreateOrderFromCart))
             .WithTags(OrderingFeature.Tags.Cart)
             .WithSummary(OrderingFeature.Storefront.Cart.Checkout.Summary)
