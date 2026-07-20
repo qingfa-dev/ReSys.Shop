@@ -13,6 +13,8 @@ public sealed class StripeSettingValidation : IValidateOptions<StripeSetting>
         var errors = new List<string>();
         if (string.IsNullOrEmpty(options.SecretKey))
             errors.Add("GatewayProviders:stripe:SecretKey is required when Enabled=true.");
+        if (string.IsNullOrEmpty(options.WebhookSecret))
+            errors.Add("GatewayProviders:stripe:WebhookSecret is required when Enabled=true.");
 
         return errors.Count > 0
             ? ValidateOptionsResult.Fail(errors)

@@ -44,27 +44,13 @@ public sealed class CatalogDemoSeeder(IApplicationDbContext context, DemoJsonHel
         var colorTypeId = optionTypes.FirstOrDefault(o => o.Name == "Color")?.Id;
         var sizeTypeId = optionTypes.FirstOrDefault(o => o.Name == "Size")?.Id;
 
-        var productIds = products.Select(p => Guid.Parse(p.Id)).ToArray();
-        var existingProductIds = await Context.Set<Product>()
-            .Where(p => productIds.Contains(p.Id))
-            .Select(p => p.Id)
-            .ToHashSetAsync(ct);
-
-        var existingProductOptionTypes = new HashSet<(Guid ProductId, Guid OptionTypeId)>(
-            (await Context.Set<ProductOptionType>().ToListAsync(ct))
-            .Select(pot => (pot.ProductId, pot.OptionTypeId)));
-
         foreach (var pj in products)
         {
-            var pid = Guid.Parse(pj.Id);
-            if (existingProductIds.Contains(pid))
-                continue;
-
             var productResult = ProductMethod.Create(
                 name: pj.Name, slug: pj.Slug, description: pj.Description,
                 status: ProductStatus.Active, availableOn: DateTimeOffset.UtcNow,
                 metaTitle: pj.MetaTitle, metaDescription: pj.Description,
-                metaKeywords: pj.MetaKeywords, id: pid);
+                metaKeywords: pj.MetaKeywords, id: Guid.Parse(pj.Id));
             var product = productResult.Value;
             product.GenderTarget = pj.GenderTarget;
 
@@ -80,31 +66,20 @@ public sealed class CatalogDemoSeeder(IApplicationDbContext context, DemoJsonHel
 
             if (colorTypeId is not null && sizeTypeId is not null)
             {
-                if (!existingProductOptionTypes.Contains((pid, colorTypeId.Value)))
-                    AddProductOptionType(pid, colorTypeId.Value, 0);
-
-                if (!existingProductOptionTypes.Contains((pid, sizeTypeId.Value)))
-                    AddProductOptionType(pid, sizeTypeId.Value, 1);
+                var potColor = ProductOptionTypeMethod.Create(product.Id, colorTypeId.Value, 0);
+                Context.Set<ProductOptionType>().Add(potColor.Value);
+                var potSize = ProductOptionTypeMethod.Create(product.Id, sizeTypeId.Value, 1);
+                Context.Set<ProductOptionType>().Add(potSize.Value);
             }
         }
         await Context.SaveChangesAsync(ct);
 
-        var variantIds = variants.Select(v => Guid.Parse(v.Id)).ToArray();
-        var existingVariantIds = await Context.Set<Variant>()
-            .Where(v => variantIds.Contains(v.Id))
-            .Select(v => v.Id)
-            .ToHashSetAsync(ct);
-
         foreach (var vj in variants)
         {
-            var vid = Guid.Parse(vj.Id);
-            if (existingVariantIds.Contains(vid))
-                continue;
-
             var variantResult = VariantMethod.Create(
                 productId: Guid.Parse(vj.ProductId), sku: vj.Sku,
                 isMaster: vj.IsMaster, position: vj.Position,
-                barcode: vj.Barcode, id: vid);
+                barcode: vj.Barcode, id: Guid.Parse(vj.Id));
             var variant = variantResult.Value;
             variant.Price = vj.Price;
             variant.HsCode = vj.HsCode;
@@ -120,18 +95,8 @@ public sealed class CatalogDemoSeeder(IApplicationDbContext context, DemoJsonHel
 
         if (images is not null)
         {
-            var imageIds = images.Select(img => Guid.Parse(img.Id)).ToArray();
-            var existingImageIds = await Context.Set<VariantImage>()
-                .Where(vi => imageIds.Contains(vi.Id))
-                .Select(vi => vi.Id)
-                .ToHashSetAsync(ct);
-
             foreach (var img in images)
             {
-                var imgId = Guid.Parse(img.Id);
-                if (existingImageIds.Contains(imgId))
-                    continue;
-
                 var type = img.Type == "Search" ? VariantImageType.Search : VariantImageType.Default;
                 var imgResult = VariantImageMethod.Create(
                     contentType: img.ContentType, fileName: img.FileName,
@@ -139,7 +104,7 @@ public sealed class CatalogDemoSeeder(IApplicationDbContext context, DemoJsonHel
                     position: img.Position, alt: img.Alt, type: type,
                     variantId: Guid.Parse(img.VariantId));
                 var image = imgResult.Value;
-                image.Id = imgId;
+                image.Id = Guid.Parse(img.Id);
                 Context.Set<VariantImage>().Add(image);
             }
             await Context.SaveChangesAsync(ct);
@@ -147,19 +112,12 @@ public sealed class CatalogDemoSeeder(IApplicationDbContext context, DemoJsonHel
 
         if (assignments is not null)
         {
-            var existingAssignments = new HashSet<(Guid VariantId, Guid OptionValueId)>(
-                (await Context.Set<OptionValueVariant>().ToListAsync(ct))
-                .Select(ovv => (ovv.VariantId, ovv.OptionValueId)));
-
             foreach (var a in assignments)
             {
                 var ov = optionValues.FirstOrDefault(v =>
                     v.Name.Equals(a.OptionValueName, StringComparison.OrdinalIgnoreCase) &&
                     v.OptionTypeId == Guid.Parse(a.OptionTypeId));
                 if (ov is null) continue;
-
-                if (existingAssignments.Contains((Guid.Parse(a.VariantId), ov.Id)))
-                    continue;
 
                 var assocResult = OptionValueVariantMethod.Create(
                     Guid.Parse(a.VariantId), ov.Id);
@@ -171,16 +129,8 @@ public sealed class CatalogDemoSeeder(IApplicationDbContext context, DemoJsonHel
 
         if (classifications is not null)
         {
-            var existingClassifications = new HashSet<(Guid ProductId, Guid TaxonId)>(
-                (await Context.Set<Classification>().ToListAsync(ct))
-                .Where(c => c.ProductId.HasValue && c.TaxonId.HasValue)
-                .Select(c => (c.ProductId!.Value, c.TaxonId!.Value)));
-
             foreach (var c in classifications)
             {
-                if (existingClassifications.Contains((Guid.Parse(c.ProductId), Guid.Parse(c.TaxonId))))
-                    continue;
-
                 var result = ClassificationMethod.Create(
                     Guid.Parse(c.ProductId), Guid.Parse(c.TaxonId),
                     c.Position, isAutomatic: true);
@@ -189,13 +139,6 @@ public sealed class CatalogDemoSeeder(IApplicationDbContext context, DemoJsonHel
             }
             await Context.SaveChangesAsync(ct);
         }
-    }
-
-    private void AddProductOptionType(Guid productId, Guid optionTypeId, int position)
-    {
-        var result = ProductOptionTypeMethod.Create(productId, optionTypeId, position);
-        if (result.IsSuccess)
-            Context.Set<ProductOptionType>().Add(result.Value);
     }
 
     private record DemoProductJson

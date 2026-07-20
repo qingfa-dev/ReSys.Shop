@@ -19,9 +19,4 @@ public static class Images
         public const string Optimized = "changemakerstudiosus/papercut-smtp";
         public const string Stable = "changemakerstudiosus/papercut-smtp";
     }
-
-    public static class Stripe
-    {
-        public const string Cli = "docker.io/stripe/stripe-cli";
-    }
 }

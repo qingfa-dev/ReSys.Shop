@@ -21,32 +21,14 @@ public sealed class CatalogEmbeddingSeeder(IApplicationDbContext context, DemoJs
         if (json is null)
             return Result.Ok();
 
-        var imageIds = json.Select(e => Guid.Parse(e.VariantImageId)).Distinct().ToArray();
-        var existingImageIds = await Context.Set<VariantImage>()
-            .Where(vi => imageIds.Contains(vi.Id))
-            .Select(vi => vi.Id)
-            .ToHashSetAsync(cancellationToken);
-
-        var existingEmbeddings = new HashSet<(Guid VariantImageId, string ModelName)>(
-            (await Context.Set<ImageEmbedding>().ToListAsync(cancellationToken))
-            .Select(em => (em.VariantImageId, em.ModelName)));
-
         foreach (var e in json)
         {
-            var imageId = Guid.Parse(e.VariantImageId);
-            if (!existingImageIds.Contains(imageId))
-                continue;
-
-            if (existingEmbeddings.Contains((imageId, e.ModelName)))
-                continue;
-
             var embedding = ImageEmbeddingMethod.Create(
-                variantImageId: imageId,
+                variantImageId: Guid.Parse(e.VariantImageId),
                 modelName: e.ModelName,
                 modelVersion: e.ModelVersion,
                 vectorData: e.Vector);
             Context.Set<ImageEmbedding>().Add(embedding);
-            existingEmbeddings.Add((imageId, e.ModelName));
         }
         await Context.SaveChangesAsync(cancellationToken);
         return Result.Ok();

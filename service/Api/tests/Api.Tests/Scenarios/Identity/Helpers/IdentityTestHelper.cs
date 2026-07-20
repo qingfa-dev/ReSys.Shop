@@ -179,13 +179,6 @@ public static class IdentityTestHelper
         return request;
     }
 
-    public static string GetAccessToken(ApiResponse loginResult)
-    {
-        using JsonDocument doc = JsonDocument.Parse(loginResult.ValueRaw!);
-        JsonElement root = doc.RootElement;
-        return root.GetProperty("accessToken").GetString()!;
-    }
-
     public static HttpRequestMessage CreateUserRequest(HttpMethod method, string requestUri, Guid userId, string email, HttpContent? content = null)
     {
         string token = GenerateUserToken(userId, email);
