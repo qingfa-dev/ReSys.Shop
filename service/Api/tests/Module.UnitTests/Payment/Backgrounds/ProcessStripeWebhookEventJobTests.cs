@@ -225,4 +225,29 @@ public class ProcessStripeWebhookEventJobTests : IDisposable
         var updated = await _dbContext.Set<PaymentCapture>().FirstAsync(p => p.Id == payment.Id);
         updated.State.Should().Be(PaymentRecordState.Disputed);
     }
+
+    [Fact(DisplayName = "payment_intent.canceled transitions payment to Void")]
+    public async Task HandlePaymentIntentCanceled_ShouldVoidPayment()
+    {
+        var payment = PaymentCaptureMethod.Create(100m, Guid.NewGuid(), Guid.NewGuid()).Value;
+        payment.State = PaymentRecordState.Processing;
+        payment.ResponseCode = "pi_canceled";
+        _dbContext.Set<PaymentCapture>().Add(payment);
+        await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
+
+        _webhookMock.Setup(x => x.ParseEvent(It.IsAny<string>()))
+            .Returns(new Event
+            {
+                Type = "payment_intent.canceled",
+                Data = new EventData
+                {
+                    Object = new PaymentIntent { Id = "pi_canceled" }
+                }
+            });
+
+        await _job.ExecuteAsync("{}", TestContext.Current.CancellationToken);
+
+        var updated = await _dbContext.Set<PaymentCapture>().FirstAsync(p => p.Id == payment.Id);
+        updated.State.Should().Be(PaymentRecordState.Void);
+    }
 }

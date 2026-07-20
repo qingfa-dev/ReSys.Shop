@@ -76,6 +76,16 @@ public class PaymentStoreMappingTests
         response.ModifiedAtUtc.Should().BeNull();
     }
 
+    [Fact(DisplayName = "MapToStoreDetail: Should map PaymentStatus from payment")]
+    public void MapToStoreDetail_ShouldMapPaymentStatus()
+    {
+        var payment = CreatePayment(p => p.PaymentStatus = "requires_action");
+
+        var response = payment.MapToStoreDetail<StorePaymentDetailResponse>();
+
+        response.PaymentStatus.Should().Be("requires_action");
+    }
+
     private static PaymentCapture CreatePayment(Action<PaymentCapture>? configure = null)
     {
         var payment = new PaymentCapture
