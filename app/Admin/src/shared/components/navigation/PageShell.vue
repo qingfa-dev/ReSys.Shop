@@ -22,10 +22,10 @@ const MAX_WIDTH_CLASS: Record<string, string> = {
     class="p-6"
     :class="[
       MAX_WIDTH_CLASS[maxWidth] || '',
-      !card && gap ? 'flex flex-col gap-6' : '',
+      !card && gap ? 'flex flex-col gap-6 bg-surface-0 dark:bg-surface-950' : '',
     ]"
   >
-    <Card v-if="card">
+    <Card v-if="card" class="!mb-0">
       <template #content>
         <slot />
       </template>

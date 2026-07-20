@@ -37,7 +37,7 @@ function goBack() {
           {{ title }}
         </h2>
         <div v-if="description || $slots.badge" class="flex items-center gap-2 mt-1">
-          <span v-if="description" class="text-surface-500 dark:text-surface-400">{{ description }}</span>
+          <span v-if="description" class="text-muted-color">{{ description }}</span>
           <slot name="badge" />
         </div>
       </div>
