@@ -2,6 +2,8 @@ using ReSys.ServiceDefaults.Constants;
 
 IDistributedApplicationBuilder builder = DistributedApplication.CreateBuilder(args);
 
+// ── Infrastructure ──────────────────────────────────────────────
+
 IResourceBuilder<PostgresServerResource> postgres = builder.AddPostgres(Infrastructures.Databases.Server)
     .WithImage(Images.Pgvector.Optimized);
 
@@ -19,6 +21,12 @@ var embedding = builder.AddUvicornApp(
     .WithHttpHealthCheck("/health")
     .WithHttpEndpoint(targetPort: 8000, name: "http");
 
+// ── Stripe secrets ──────────────────────────────────────────────
+
+var stripeApiKey = builder.AddParameter("StripeApiKey", secret: true);
+var stripeWebhookSecret = builder.AddParameter("StripeWebhookSecret", secret: true);
+
+// ── API ─────────────────────────────────────────────────────────
 
 IResourceBuilder<ProjectResource> api = builder.AddProject<Projects.Api>(Services.Api)
     .WithReference(database)
@@ -26,7 +34,23 @@ IResourceBuilder<ProjectResource> api = builder.AddProject<Projects.Api>(Service
     .WithReference(embedding)
     .WithHttpHealthCheck("/health")
     .WithExternalHttpEndpoints()
-    .WithOtlpExporter();
+    .WithOtlpExporter()
+    .WithEnvironment("GatewayProviders__stripe__SecretKey", stripeApiKey)
+    .WithEnvironment("GatewayProviders__stripe__WebhookSecret", stripeWebhookSecret);
+
+// ── Stripe CLI (webhook forwarder) ──────────────────────────────
+
+var stripeForwardUrl = ReferenceExpression.Create(
+    $"{api.GetEndpoint("http")}/api/storefront/webhooks/stripe");
+
+builder.AddContainer("stripe-cli", "docker.io/stripe/stripe-cli")
+    .WithEnvironment("STRIPE_API_KEY", stripeApiKey)
+    .WithArgs("listen",
+        "--forward-to", stripeForwardUrl,
+        "--events", "payment_intent.succeeded,payment_intent.payment_failed,payment_intent.canceled,charge.refunded,charge.dispute.created,payment_intent.processing,payment_intent.requires_action")
+    .WaitFor(api);
+
+// ── Admin SPA ───────────────────────────────────────────────────
 
 #pragma warning disable ASPIRECERTIFICATES001
 builder.AddViteApp(Application.Admin, "../../../../app/Admin")
@@ -37,6 +61,8 @@ builder.AddViteApp(Application.Admin, "../../../../app/Admin")
     .WithDeveloperCertificateTrust(trust: true);
 #pragma warning restore ASPIRECERTIFICATES001
 
+// ── Store SPA ───────────────────────────────────────────────────
+
 #pragma warning disable ASPIRECERTIFICATES001
 builder.AddViteApp(Application.Store, "../../../../app/Store")
     .WithPnpm()
@@ -45,4 +71,5 @@ builder.AddViteApp(Application.Store, "../../../../app/Store")
     .WithHttpsDeveloperCertificate()
     .WithDeveloperCertificateTrust(trust: true);
 #pragma warning restore ASPIRECERTIFICATES001
+
 builder.Build().Run();
