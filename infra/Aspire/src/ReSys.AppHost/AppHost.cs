@@ -23,8 +23,8 @@ var embedding = builder.AddUvicornApp(
 
 // ── Stripe secrets ──────────────────────────────────────────────
 
-var stripeApiKey = builder.AddParameter("StripeApiKey", secret: true);
-var stripeWebhookSecret = builder.AddParameter("StripeWebhookSecret", secret: true);
+var stripeApiKey = builder.AddParameter(Stripe.Parameters.ApiKey, secret: true);
+var stripeWebhookSecret = builder.AddParameter(Stripe.Parameters.WebhookSecret, secret: true);
 
 // ── API ─────────────────────────────────────────────────────────
 
@@ -35,19 +35,19 @@ IResourceBuilder<ProjectResource> api = builder.AddProject<Projects.Api>(Service
     .WithHttpHealthCheck("/health")
     .WithExternalHttpEndpoints()
     .WithOtlpExporter()
-    .WithEnvironment("GatewayProviders__stripe__SecretKey", stripeApiKey)
-    .WithEnvironment("GatewayProviders__stripe__WebhookSecret", stripeWebhookSecret);
+    .WithEnvironment(Stripe.EnvironmentVariables.GatewaySecretKey, stripeApiKey)
+    .WithEnvironment(Stripe.EnvironmentVariables.GatewayWebhookSecret, stripeWebhookSecret);
 
 // ── Stripe CLI (webhook forwarder) ──────────────────────────────
 
 var stripeForwardUrl = ReferenceExpression.Create(
-    $"{api.GetEndpoint("http")}/api/storefront/webhooks/stripe");
+    $"{api.GetEndpoint("http")}{Stripe.WebhookRoute}");
 
-builder.AddContainer("stripe-cli", "docker.io/stripe/stripe-cli")
-    .WithEnvironment("STRIPE_API_KEY", stripeApiKey)
-    .WithArgs("listen",
-        "--forward-to", stripeForwardUrl,
-        "--events", "payment_intent.succeeded,payment_intent.payment_failed,payment_intent.canceled,charge.refunded,charge.dispute.created,payment_intent.processing,payment_intent.requires_action")
+builder.AddContainer(Services.StripeCli, Images.Stripe.Cli)
+    .WithEnvironment(Stripe.EnvironmentVariables.ApiKey, stripeApiKey)
+    .WithArgs(Stripe.Cli.Command,
+        Stripe.Cli.ForwardTo, stripeForwardUrl,
+        Stripe.Cli.Events, Stripe.WebhookEvents)
     .WaitFor(api);
 
 // ── Admin SPA ───────────────────────────────────────────────────
