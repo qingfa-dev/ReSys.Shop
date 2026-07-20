@@ -67,7 +67,7 @@ describe('errorWrapperInterceptor', () => {
   it('short-circuits on refresh endpoint 401', async () => {
     const error = {
       response: { status: 401 },
-      config: { headers: {}, url: '/auth/session/refresh' },
+      config: { headers: {}, url: '/auth/sessions/refresh' },
     } as unknown as AxiosError
 
     const d = asData(await errorWrapperInterceptor(error))
