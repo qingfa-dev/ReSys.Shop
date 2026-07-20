@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Options;
 
 using Module.Identity.Features.Store.Emails.Change;
+using Shared.Governance.Conventions;
 using Module.UnitTests.Identity.Fixtures;
 
 using Shared.Operational.Notifications.Models;
@@ -225,17 +226,17 @@ public class ChangeEmailTests
         var userId = Guid.NewGuid();
         var result = ChangeEmail.BuildConfirmPath(userId, "tokenABC", "newemail@test.com");
 
-        result.Should().Be($"confirm-email-change?userId={userId}&token=tokenABC&newEmail=newemail%40test.com");
+        result.Should().Be($"confirm-email-change?userId={userId}&token={"tokenABC".ToBase64Url()}&newEmail={"newemail@test.com".ToBase64Url()}");
     }
 
-    [Fact(DisplayName = "UseCase: BuildConfirmPath should URL encode special characters")]
-    public void BuildConfirmPath_ShouldUrlEncodeSpecialCharacters()
+    [Fact(DisplayName = "UseCase: BuildConfirmPath should base64url encode special characters")]
+    public void BuildConfirmPath_ShouldBase64UrlEncodeSpecialCharacters()
     {
         var userId = Guid.NewGuid();
         var result = ChangeEmail.BuildConfirmPath(userId, "token+with=special", "email+test@test.com");
 
-        result.Should().Contain("token%2Bwith%3Dspecial");
-        result.Should().Contain("newEmail=email%2Btest%40test.com");
+        result.Should().Contain($"token={"token+with=special".ToBase64Url()}");
+        result.Should().Contain($"newEmail={"email+test@test.com".ToBase64Url()}");
     }
 
     [Fact(DisplayName = "UseCase: Should set ModifiedAtUtc when changing email")]

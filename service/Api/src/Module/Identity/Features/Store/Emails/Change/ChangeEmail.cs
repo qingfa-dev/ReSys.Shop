@@ -88,8 +88,8 @@ public static partial class ChangeEmail
 
     internal static string BuildConfirmPath(Guid userId, string token, string newEmail)
     {
-        var encodedToken = Uri.EscapeDataString(token);
-        var encodedEmail = Uri.EscapeDataString(newEmail);
+        var encodedToken = token.ToBase64Url();
+        var encodedEmail = newEmail.ToBase64Url();
         const string path = "confirm-email-change";
 
         return $"{path}?userId={userId}&token={encodedToken}&newEmail={encodedEmail}";
