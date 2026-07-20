@@ -97,14 +97,6 @@ public class ReserveCartStockTests : IDisposable
         result.Value.ExpiresAtUtc.Should().BeCloseTo(DateTimeOffset.UtcNow.AddMinutes(5), TimeSpan.FromMinutes(1));
     }
 
-    [Fact(DisplayName = "Handler: Should return failure when quantity zero")]
-    public async Task Handle_ShouldReturnFailure_WhenQuantityZero()
-    {
-        var result = await _handler.Handle(CreateCommand(0), TestContext.Current.CancellationToken);
-
-        result.IsFailure.Should().BeTrue();
-    }
-
     [Fact(DisplayName = "Handler: Should return failure when insufficient stock")]
     public async Task Handle_ShouldReturnFailure_WhenInsufficientStock()
     {
@@ -166,5 +158,73 @@ public class ReserveCartStockTests : IDisposable
         await handler.Handle(command, TestContext.Current.CancellationToken);
 
         capturedLevel.Should().Be(IsolationLevel.RepeatableRead);
+    }
+
+    [Fact(DisplayName = "Validator: rejects null StockLocationId")]
+    public void Validator_NullStockLocationId_ReturnsError()
+    {
+        var validator = new ReserveCartStock.Validator();
+        var command = new ReserveCartStock.Command(new ReserveCartStock.Request
+        {
+            VariantId = Guid.NewGuid(),
+            Quantity = 1,
+            StockLocationId = null,
+            CartToken = "cart-1",
+            TtlMinutes = 15
+        });
+
+        var result = validator.TestValidate(command);
+        result.ShouldHaveValidationErrorFor(x => x.Request.StockLocationId);
+    }
+
+    [Fact(DisplayName = "Validator: rejects zero Quantity")]
+    public void Validator_ZeroQuantity_ReturnsError()
+    {
+        var validator = new ReserveCartStock.Validator();
+        var command = new ReserveCartStock.Command(new ReserveCartStock.Request
+        {
+            VariantId = Guid.NewGuid(),
+            Quantity = 0,
+            StockLocationId = Guid.NewGuid(),
+            CartToken = "cart-1",
+            TtlMinutes = 15
+        });
+
+        var result = validator.TestValidate(command);
+        result.ShouldHaveValidationErrorFor(x => x.Request.Quantity);
+    }
+
+    [Fact(DisplayName = "Validator: rejects TTL below minimum")]
+    public void Validator_TtlBelowMin_ReturnsError()
+    {
+        var validator = new ReserveCartStock.Validator();
+        var command = new ReserveCartStock.Command(new ReserveCartStock.Request
+        {
+            VariantId = Guid.NewGuid(),
+            Quantity = 1,
+            StockLocationId = Guid.NewGuid(),
+            CartToken = "cart-1",
+            TtlMinutes = 0
+        });
+
+        var result = validator.TestValidate(command);
+        result.ShouldHaveValidationErrorFor(x => x.Request.TtlMinutes);
+    }
+
+    [Fact(DisplayName = "Validator: accepts valid input")]
+    public void Validator_ValidInput_Passes()
+    {
+        var validator = new ReserveCartStock.Validator();
+        var command = new ReserveCartStock.Command(new ReserveCartStock.Request
+        {
+            VariantId = Guid.NewGuid(),
+            Quantity = 3,
+            StockLocationId = Guid.NewGuid(),
+            CartToken = "cart-1",
+            TtlMinutes = 15
+        });
+
+        var result = validator.TestValidate(command);
+        result.ShouldNotHaveAnyValidationErrors();
     }
 }

@@ -23,12 +23,9 @@ public static partial class ReserveCartStock
             // Contract: pre=command!=null && command.Request.Quantity>0, post=result!=null, throws=DbUpdateException
             var variantId = command.Request.VariantId;
             var quantity = command.Request.Quantity;
-            var stockLocationId = command.Request.StockLocationId!.Value;
+            var stockLocationId = command.Request.StockLocationId!.Value; // guaranteed non-null by validator
             var cartToken = command.Request.CartToken;
             var ttlMinutes = command.Request.TtlMinutes;
-
-            if (quantity <= 0)
-                return StockReservationResult.Errors.QuantityZero;
 
             await using var transaction = await dbContext.BeginTransactionAsync(
                 IsolationLevel.RepeatableRead, cancellationToken);
