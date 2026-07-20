@@ -179,9 +179,22 @@ public sealed class BrowseCatalogToCheckoutWorkflowTests(ApiFixture fixture) : W
         using (var scope = Fixture.Factory.Services.CreateScope())
         {
             var db = scope.ServiceProvider.GetRequiredService<IApplicationDbContext>();
-            var shippingMethod = await db.Set<ShippingMethod>()
-                .FirstAsync(sm => sm.Code == "standard");
-            shippingMethodId = shippingMethod.Id;
+            var existing = await db.Set<ShippingMethod>()
+                .FirstOrDefaultAsync(sm => sm.Code == "standard");
+            if (existing is not null)
+            {
+                shippingMethodId = existing.Id;
+            }
+            else
+            {
+                var smResult = ShippingMethodExtensions.Create(
+                    name: "Standard Shipping",
+                    calculatorType: "flat_rate",
+                    code: "standard");
+                db.Set<ShippingMethod>().Add(smResult.Value);
+                await db.SaveChangesAsync();
+                shippingMethodId = smResult.Value.Id;
+            }
         }
 
         var selectShipBody = new { shippingMethodId };
