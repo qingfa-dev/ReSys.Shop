@@ -87,74 +87,94 @@ public static partial class CreateOrderFromCart
 
             // Explain: RepeatableRead ensures stock rows read for deduction are stable
             // during the transaction — prevents stock double-deduction under concurrent checkouts.
-            await using var transaction = await dbContext.BeginTransactionAsync(
-                IsolationLevel.RepeatableRead, cancellationToken);
+            // Retry: Wrap in retry loop for DbUpdateConcurrencyException (up to 3 attempts)
+            int maxRetries = 3;
+            for (int attempt = 0; attempt < maxRetries; attempt++)
             {
-                // Generate: Unique order number inside transaction so rollback doesn't leak numbers
-                var numberResult = await OrderNumber.GenerateAsync(dbContext, cancellationToken);
-                if (numberResult.IsFailure)
-                    return numberResult.Errors;
-                var placeResult = cart.Place(numberResult.Value);
-                if (placeResult.IsFailure)
-                    return placeResult.Errors;
-
-                foreach (var lineItem in cart.LineItems)
-                {
-                    // Deduct: Consume stock from locations with highest on-hand first.
-                    var stockItems = await dbContext.Set<StockItem>()
-                        .Where(si => si.VariantId == lineItem.VariantId)
-                        .OrderByDescending(si => si.CountOnHand)
-                        .ToListAsync(cancellationToken);
-
-                    var remaining = lineItem.Quantity;
-                    foreach (var si in stockItems)
-                    {
-                        if (remaining <= 0) break;
-                        var take = Math.Min(si.CountOnHand, remaining);
-                        if (take <= 0) continue;
-
-                        // Update: Deduct stock from this location.
-                        si.CountOnHand -= take;
-                        si.ModifiedAtUtc = DateTimeOffset.UtcNow;
-
-                        remaining -= take;
-
-                        // Create: Reserve stock for this order (30-day expiry).
-                        const int StockReservationExpiryDays = 30;
-                        var reservation = StockReservationMethod.Reserve(
-                            si.VariantId, take, si.StockLocationId, cart.Id, StockReservationExpiryDays).Value;
-                        dbContext.Set<StockReservation>().Add(reservation);
-
-                        // Log: Record stock movement for audit trail.
-                        var movementResult = StockMovementMethod.Create(
-                            stockItemId: si.Id,
-                            quantity: -take,
-                            previousCountOnHand: si.CountOnHand,
-                            originatorType: AdjustmentConstant.AdjustableTypes.Order,
-                            originatorId: cart.Id,
-                            action: OrderConstant.StockAction.Ship,
-                            createdBy: currentUser.UserName ?? "System");
-
-                        if (movementResult.IsSuccess)
-                            dbContext.Set<StockMovement>().Add(movementResult.Value);
-                    }
-
-                    if (remaining > 0)
-                        return StockItemResult.Errors.InsufficientStock;
-                }
-
+                bool isLastAttempt = attempt == maxRetries - 1;
+                await using var transaction = await dbContext.BeginTransactionAsync(
+                    IsolationLevel.RepeatableRead, cancellationToken);
                 try
                 {
-                    await dbContext.SaveChangesAsync(cancellationToken);
+                    // Generate: Unique order number inside transaction so rollback doesn't leak numbers
+                    var numberResult = await OrderNumber.GenerateAsync(dbContext, cancellationToken);
+                    if (numberResult.IsFailure)
+                        return numberResult.Errors;
+                    var placeResult = cart.Place(numberResult.Value);
+                    if (placeResult.IsFailure)
+                        return placeResult.Errors;
+
+                    foreach (var lineItem in cart.LineItems)
+                    {
+                        // Deduct: Consume stock from locations with highest on-hand first.
+                        var stockItems = await dbContext.Set<StockItem>()
+                            .Where(si => si.VariantId == lineItem.VariantId)
+                            .OrderByDescending(si => si.CountOnHand)
+                            .ToListAsync(cancellationToken);
+
+                        var remaining = lineItem.Quantity;
+                        foreach (var si in stockItems)
+                        {
+                            if (remaining <= 0) break;
+                            var take = Math.Min(si.CountOnHand, remaining);
+                            if (take <= 0) continue;
+
+                            // Update: Deduct stock via domain Pick() method.
+                            var pickResult = si.Pick(take);
+                            if (pickResult.IsFailure)
+                                return pickResult.Errors;
+
+                            remaining -= take;
+
+                            // Create: Reserve stock for this order (30-day expiry).
+                            const int StockReservationExpiryDays = 30;
+                            var reservation = StockReservationMethod.Reserve(
+                                si.VariantId, take, si.StockLocationId, cart.Id, StockReservationExpiryDays).Value;
+                            dbContext.Set<StockReservation>().Add(reservation);
+
+                            // Log: Record stock movement for audit trail.
+                            var movementResult = StockMovementMethod.Create(
+                                stockItemId: si.Id,
+                                quantity: -take,
+                                previousCountOnHand: si.CountOnHand,
+                                originatorType: AdjustmentConstant.AdjustableTypes.Order,
+                                originatorId: cart.Id,
+                                action: OrderConstant.StockAction.Ship,
+                                createdBy: currentUser.UserName ?? "System");
+
+                            if (movementResult.IsSuccess)
+                                dbContext.Set<StockMovement>().Add(movementResult.Value);
+                        }
+
+                        if (remaining > 0)
+                            return StockItemResult.Errors.InsufficientStock;
+                    }
+
+                    try
+                    {
+                        await dbContext.SaveChangesAsync(cancellationToken);
+                    }
+                    catch (DbUpdateConcurrencyException)
+                    {
+                        await transaction.RollbackAsync(cancellationToken);
+                        if (isLastAttempt)
+                            return StockItemResult.Errors.ConcurrencyConflict(
+                                cart.LineItems.First().VariantId);
+                        await Task.Delay(100 * (1 << attempt), cancellationToken);
+                        continue;
+                    }
+
+                    await transaction.CommitAsync(cancellationToken);
+                    break;
                 }
                 catch (DbUpdateConcurrencyException)
                 {
                     await transaction.RollbackAsync(cancellationToken);
-                    return StockItemResult.Errors.ConcurrencyConflict(
-                        cart.LineItems.First().VariantId);
+                    if (isLastAttempt)
+                        return StockItemResult.Errors.ConcurrencyConflict(
+                            cart.LineItems.First().VariantId);
+                    await Task.Delay(100 * (1 << attempt), cancellationToken);
                 }
-
-                await transaction.CommitAsync(cancellationToken);
             }
 
             // Notify: Send order confirmation email to customer.
