@@ -11,6 +11,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Module.Inventory.Domain.StockLocations;
 using Module.Inventory.Domain.StockLocations.StockItems;
 using Module.Ordering.Domain.Orders;
+using Module.Profile.Domain;
 using Module.Shipping.Domain.ShippingMethods;
 
 using Shared.Operational.Persistence.Data;
@@ -101,15 +102,22 @@ public sealed class AdminCreateCustomerBuyWorkflowTests(ApiFixture fixture) : Wo
         accessToken.Should().NotBeNullOrEmpty();
         client.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", accessToken);
 
+        using (var scope = Fixture.Factory.Services.CreateScope())
+        {
+            var db = scope.ServiceProvider.GetRequiredService<IApplicationDbContext>();
+            var userManager = scope.ServiceProvider.GetRequiredService<Microsoft.AspNetCore.Identity.UserManager<User>>();
+            var user = await userManager.FindByEmailAsync(email);
+            user.Should().NotBeNull();
+            var profileResult = UserProfileMethod.Create("Test", "User", email);
+            profileResult.IsSuccess.Should().BeTrue();
+            db.Set<UserProfile>().Add(profileResult.Value);
+            await db.SaveChangesAsync();
+        }
+
         var addItemBody = new { variantId = product.MasterVariantId, quantity = 1 };
         HttpResponseMessage addResp = await client.PostAsJsonAsync(
             "/api/storefront/cart/items", addItemBody);
         addResp.IsSuccessStatusCode.Should().BeTrue();
-
-        var profileBody = new { firstName = "Test", lastName = "User" };
-        HttpResponseMessage profileResp = await client.PutAsJsonAsync(
-            "/api/store/profiles/profiles", profileBody);
-        profileResp.IsSuccessStatusCode.Should().BeTrue();
 
         var addressBody = new
         {
