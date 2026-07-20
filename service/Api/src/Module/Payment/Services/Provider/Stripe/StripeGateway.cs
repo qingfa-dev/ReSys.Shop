@@ -52,13 +52,13 @@ public sealed class StripeGateway : Gateway
                     authorization: intent.Id,
                     clientSecret: intent.ClientSecret);
 
-            if (intent.Status == "requires_action")
+            if (intent.Status == GatewayConstants.Stripe.IntentStatus.RequiresAction)
                 return new PaymentGatewayResponse(GatewayConstants.Providers.Stripe,
                     authorization: intent.Id,
                     clientSecret: intent.ClientSecret,
-                    paymentStatus: "requires_action");
+                    paymentStatus: GatewayConstants.Stripe.IntentStatus.RequiresAction);
 
-            if (intent.Status == "requires_payment_method")
+            if (intent.Status == GatewayConstants.Stripe.IntentStatus.RequiresPaymentMethod)
                 return StripeGatewayResult.Errors.PaymentMethodRequired(
                     intent.LastPaymentError?.Message);
 
@@ -189,6 +189,14 @@ public sealed class StripeGateway : Gateway
                 [GatewayConstants.Metadata.PaymentIdKey] = options.PaymentId
             }
         };
+        // Assign: ReturnUrl for 3DS redirect — only when configured
+        if (!string.IsNullOrEmpty(options.SuccessUrl))
+            o.ReturnUrl = options.SuccessUrl;
+        o.PaymentMethodTypes = options.ProviderSpecific is not null
+            && options.ProviderSpecific.TryGetValue("payment_method_types", out var types)
+            && types is List<string> list
+                ? list
+                : ["card"];
         // Assign: Statement descriptor suffix — shown on customer card statements
         if (!string.IsNullOrEmpty(options.StatementDescriptorSuffix))
             o.StatementDescriptorSuffix = options.StatementDescriptorSuffix;
