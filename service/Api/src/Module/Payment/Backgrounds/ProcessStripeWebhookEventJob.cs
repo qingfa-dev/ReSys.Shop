@@ -1,3 +1,5 @@
+using Hangfire;
+
 using Microsoft.Extensions.Logging;
 
 using Module.Payment.Domain.PaymentCaptures;
@@ -11,6 +13,7 @@ using PaymentCapture = Module.Payment.Domain.PaymentCaptures.PaymentCapture;
 namespace Module.Payment.Backgrounds;
 
 /// <summary>Background job that processes Stripe webhook events asynchronously via Hangfire — parses the event and routes to type-specific handlers.</summary>
+[AutomaticRetry(Attempts = 3, OnAttemptsExceeded = AttemptsExceededAction.Fail)]
 public sealed partial class ProcessStripeWebhookEventJob
 {
     private readonly IApplicationDbContext _dbContext;
