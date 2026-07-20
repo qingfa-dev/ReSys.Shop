@@ -83,7 +83,7 @@ public static partial class ResendEmailVerification
 
     internal static string BuildVerificationPath(Guid userId, string token)
     {
-        var encodedToken = token.ToBase64();
+        var encodedToken = token.ToBase64Url();
         const string path = "verify-email";
 
         return $"{path}?userId={userId}&token={encodedToken}";
