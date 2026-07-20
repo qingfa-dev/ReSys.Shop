@@ -1,4 +1,5 @@
 import type { ServerError } from '../../types/result.types'
+import { toCamelCaseKeys } from '@/common/mapper/mapper.utils'
 
 export interface ParsedApiError {
   statusCode: number
@@ -54,16 +55,16 @@ export function parseApiError(error: unknown): ParsedApiError {
     const apiData = axiosError.response?.data
 
     if (apiData && typeof apiData === 'object') {
-      const data = apiData as Record<string, unknown>
+      const data = toCamelCaseKeys(apiData as Record<string, unknown>)
 
-      const statusCode = (data.statusCode ?? data.StatusCode ?? data.status ?? data.Status ?? axiosError.response?.status) as number | undefined
-      const message = (data.message ?? data.Message) as string | undefined
+      const statusCode = (data.statusCode ?? data.status ?? axiosError.response?.status) as number | undefined
+      const message = data.message as string | undefined
       const isSuccess = data.isSuccess as boolean | undefined
-      const rawErrors = data.errors ?? data.Errors
+      const rawErrors = data.errors
 
-      const title = (data.title ?? data.Title ?? message) as string | undefined
-      const detail = (data.detail ?? data.Detail ?? message) as string | undefined
-      const errorCode = (data.error_code ?? data.ErrorCode ?? data.errorCode) as string | undefined
+      const title = (data.title ?? message) as string | undefined
+      const detail = (data.detail ?? message) as string | undefined
+      const errorCode = data.errorCode as string | undefined
       const resolvedCode = statusCode ?? 500
 
       return {

@@ -1,5 +1,5 @@
 import type { ServerResult } from '@/common/api/types/result.types'
-import { mapToErrors } from '@/common/api/types/api.types'
+import { mapToErrors } from '@/common/api/utils/result.mapper'
 import { parseApiError } from '@/common/api/utils/api.utils'
 import { useToast } from './toast.use'
 
@@ -14,10 +14,10 @@ export function useApiErrorHandler() {
   ) => {
     if (!error) return
     const apiError = parseApiError(error)
-    console.log('[API Trace] Handler received parsed error:', apiError)
+    if (import.meta.env.DEV) console.log('[API Trace] Handler received parsed error:', apiError)
 
     if (apiError.errors && Object.keys(apiError.errors).length > 0) {
-      console.log('[API Trace] Validation error dictionary detected.')
+      if (import.meta.env.DEV) console.log('[API Trace] Validation error dictionary detected.')
       const formErrors: Record<string, string> = {}
       const unmappedMessages: string[] = []
 
@@ -38,7 +38,7 @@ export function useApiErrorHandler() {
       })
 
       if (setErrors) {
-        console.log('[API Trace] Mapping errors to fields:', formErrors)
+        if (import.meta.env.DEV) console.log('[API Trace] Mapping errors to fields:', formErrors)
         setErrors(formErrors)
       }
 
@@ -58,9 +58,11 @@ export function useApiErrorHandler() {
       const toastTitle = apiError.errorCode ? `${baseTitle} (${apiError.errorCode})` : baseTitle
       const toastDetail = apiError.detail || locales?.genericError || 'An unexpected error occurred.'
 
-      console.log(
-        `[API Trace] Showing global toast. Severity: ${severity}, Title: ${toastTitle}, Detail: ${toastDetail}`,
-      )
+      if (import.meta.env.DEV) {
+        console.log(
+          `[API Trace] Showing global toast. Severity: ${severity}, Title: ${toastTitle}, Detail: ${toastDetail}`,
+        )
+      }
 
       showToast(severity, toastTitle, toastDetail)
     }

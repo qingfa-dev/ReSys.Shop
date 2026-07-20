@@ -1,5 +1,5 @@
-import apiClient from "@/shared/api/http/api.client";
-import type { ServerResult } from "@/shared/api/types/result.types";
+import apiClient from "@/common/api/http/api.client";
+import type { ServerResult } from "@/common/api/types/result.types";
 import type { LoginResponse, UserProfile } from "../types/login.response.type";
 import type { LoginRequest } from "../types/login.request.type";
 import type { ChangePasswordRequest } from "../types/change-password.request.type";
@@ -25,7 +25,9 @@ async function fetchSession(): Promise<{ id: string; roles: string[]; permission
     if (data.isSuccess && data.value) {
       return mapSessionResponse(data.value);
     }
-  } catch { /* ignore */ }
+  } catch (e) {
+    console.error('[Auth] Failed to fetch session:', e)
+  }
   return null;
 }
 
@@ -35,10 +37,7 @@ export const authRepository = {
     const result = res.data as ServerResult<LoginResponse>;
     if (!result.isSuccess) return result as unknown as ServerResult<AuthSession>;
     const session = await fetchSession();
-    return {
-      ...result,
-      value: mapAuthSession(result.value, session),
-    } as ServerResult<AuthSession>;
+    return mapAuthSession(result, session);
   },
 
   async refresh(request: RefreshTokenRequest): Promise<ServerResult<AuthSession>> {
@@ -46,10 +45,7 @@ export const authRepository = {
     const result = res.data as ServerResult<LoginResponse>;
     if (!result.isSuccess) return result as unknown as ServerResult<AuthSession>;
     const session = await fetchSession();
-    return {
-      ...result,
-      value: mapAuthSession(result.value, session),
-    } as ServerResult<AuthSession>;
+    return mapAuthSession(result, session);
   },
 
   async logout(): Promise<ServerResult<void>> {

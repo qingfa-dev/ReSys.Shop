@@ -1,4 +1,4 @@
-import type { ServerQueryingParameters, SearchMode, SortDirection } from '../api/types/query.types'
+import type { ServerQueryingParameters, SearchMode } from '../api/types/query.types'
 
 export type FilterOperator = '=' | '!=' | '>' | '<' | '>=' | '<=' | '!*' | '*' | '^' | '$';
 
@@ -139,6 +139,10 @@ export class QueryBuilder<T extends object = Record<string, unknown>> {
   private formatValue(value: unknown): string {
     if (value === null || value === undefined) return 'null';
     if (value instanceof Date) return value.toISOString();
-    return String(value);
+    const str = String(value);
+    if (str.includes(',') || str.includes('(') || str.includes(')') || str.includes('|')) {
+      return encodeURIComponent(str);
+    }
+    return str;
   }
 }

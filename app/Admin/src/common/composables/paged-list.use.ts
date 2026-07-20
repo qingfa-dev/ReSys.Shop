@@ -1,6 +1,6 @@
 import { ref } from "vue";
-import type { ServerResult, ServerPagedResult } from "@/shared/api/types/result.types";
-import type { ServerQueryingParameters } from "@/shared/api/types/query.types";
+import type { ServerResult, ServerPagedResult } from "@/common/api/types/result.types";
+import type { ServerQueryingParameters } from "@/common/api/types/query.types";
 
 type PagedFetchResult<T> = ServerPagedResult<T> | ServerResult<T[]>;
 
@@ -47,24 +47,27 @@ export function usePagedList<
         error.value = result.errors?.[0]?.message || "Failed to fetch";
       }
       return result;
-    } catch (err) {
+    } catch {
       error.value = "An unexpected error occurred";
-      throw err;
     } finally {
       loading.value = false;
     }
   }
 
   function setPage(page: number) {
-    return fetch({ page } as unknown as Partial<TParams>);
+    params.value.page = page;
+    return fetch();
   }
 
   function setSort(sort: string[]) {
-    return fetch({ sort } as unknown as Partial<TParams>);
+    params.value.sort = sort;
+    return fetch();
   }
 
   function setSearch(search: string, searchFields?: string[]) {
-    return fetch({ search, searchFields } as unknown as Partial<TParams>);
+    params.value.search = search;
+    params.value.searchFields = searchFields;
+    return fetch();
   }
 
   function refresh() {

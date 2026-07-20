@@ -1,21 +1,14 @@
-import { ref } from 'vue';
-
-export interface ToastMessage {
-  severity: 'success' | 'info' | 'warn' | 'error';
-  summary: string;
-  detail: string;
-  life?: number;
-}
-
-export const toastBus = ref<ToastMessage | null>(null);
+import { useToast as usePrimeToast } from 'primevue/usetoast';
 
 export function useToast() {
-  const showToast = (severity: ToastMessage['severity'], summary: string, detail: string, life = 3000) => {
-    toastBus.value = { severity, summary, detail, life };
+  const toast = usePrimeToast();
+  const showToast = (
+    severity: 'success' | 'info' | 'warn' | 'error',
+    summary: string,
+    detail: string,
+    life = 3000,
+  ) => {
+    toast.add({ severity, summary, detail, life });
   };
-
-  return {
-    showToast,
-    toastBus
-  };
+  return { showToast };
 }

@@ -5,7 +5,7 @@ export interface ModuleApiConfig {
   basePath: string
 }
 
-export function createModuleApi<T, TCreate = Partial<T>, TUpdate = Partial<T>>(config: ModuleApiConfig) {
+export function createModuleApi<_T>(config: ModuleApiConfig) {
 
   return {
     async getSubResource<T>(path: string, params?: Record<string, unknown>): Promise<ServerResult<T>> {
