@@ -136,13 +136,19 @@ public static class PaymentCaptureValidation
     private static bool IsValidTransition(PaymentRecordState from, PaymentRecordState to) => (from, to) switch
     {
         (PaymentRecordState.Checkout, PaymentRecordState.Processing) => true,
+        (PaymentRecordState.Checkout, PaymentRecordState.Failed) => true,
+        (PaymentRecordState.Checkout, PaymentRecordState.Disputed) => true,
         (PaymentRecordState.Processing, PaymentRecordState.Pending) => true,
         (PaymentRecordState.Processing, PaymentRecordState.Completed) => true,
         (PaymentRecordState.Processing, PaymentRecordState.Failed) => true,
         (PaymentRecordState.Processing, PaymentRecordState.Void) => true,
+        (PaymentRecordState.Processing, PaymentRecordState.Disputed) => true,
         (PaymentRecordState.Pending, PaymentRecordState.Completed) => true,
         (PaymentRecordState.Pending, PaymentRecordState.Failed) => true,
         (PaymentRecordState.Pending, PaymentRecordState.Void) => true,
+        (PaymentRecordState.Pending, PaymentRecordState.Disputed) => true,
+        (PaymentRecordState.Completed, PaymentRecordState.Disputed) => true,
+        (PaymentRecordState.Failed, PaymentRecordState.Disputed) => true,
         (PaymentRecordState.Failed, PaymentRecordState.Invalid) => true,
         (PaymentRecordState.Void, PaymentRecordState.Invalid) => true,
         _ => false
