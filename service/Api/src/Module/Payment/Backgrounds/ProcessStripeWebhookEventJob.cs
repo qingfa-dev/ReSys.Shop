@@ -121,7 +121,7 @@ public sealed partial class ProcessStripeWebhookEventJob
         // Compute: Delta between new refund amount and existing — only apply if positive
         if (charge.AmountRefunded > 0)
         {
-            var newRefunded = charge.AmountRefunded / 100m;
+            var newRefunded = charge.AmountRefunded / (decimal)GatewayConstants.Amounts.CentsMultiplier;
             var delta = newRefunded - payment.RefundedAmount;
             if (delta > 0)
             {
