@@ -130,6 +130,11 @@ public sealed class BrowseCatalogToCheckoutWorkflowTests(ApiFixture fixture) : W
             "/api/storefront/cart/associate", associateBody);
         associateResp.IsSuccessStatusCode.Should().BeTrue();
 
+        var profileBody = new { firstName = "Test", lastName = "User" };
+        HttpResponseMessage profileResp = await client.PutAsJsonAsync(
+            "/api/store/profiles/profiles", profileBody);
+        profileResp.IsSuccessStatusCode.Should().BeTrue();
+
         var addressBody = new
         {
             addressType = "Shipping",
@@ -137,9 +142,9 @@ public sealed class BrowseCatalogToCheckoutWorkflowTests(ApiFixture fixture) : W
             lastName = "User",
             address1 = "123 Test St",
             city = "TestCity",
-            stateName = "California",
+            stateProvince = "California",
             countryName = "United States",
-            postalCode = "90210",
+            zipCode = "90210",
             phone = "555-0100"
         };
 

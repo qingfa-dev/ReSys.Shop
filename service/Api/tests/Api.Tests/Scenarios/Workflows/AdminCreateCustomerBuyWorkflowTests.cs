@@ -106,6 +106,11 @@ public sealed class AdminCreateCustomerBuyWorkflowTests(ApiFixture fixture) : Wo
             "/api/storefront/cart/items", addItemBody);
         addResp.IsSuccessStatusCode.Should().BeTrue();
 
+        var profileBody = new { firstName = "Test", lastName = "User" };
+        HttpResponseMessage profileResp = await client.PutAsJsonAsync(
+            "/api/store/profiles/profiles", profileBody);
+        profileResp.IsSuccessStatusCode.Should().BeTrue();
+
         var addressBody = new
         {
             addressType = "Shipping",
@@ -113,9 +118,9 @@ public sealed class AdminCreateCustomerBuyWorkflowTests(ApiFixture fixture) : Wo
             lastName = "User",
             address1 = "123 Test St",
             city = "TestCity",
-            stateName = "California",
+            stateProvince = "California",
             countryName = "United States",
-            postalCode = "90210",
+            zipCode = "90210",
             phone = "555-0100"
         };
 
