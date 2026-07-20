@@ -5,7 +5,7 @@ using Shared.Security.Headers.Options;
 
 namespace Shared.Security.Headers;
 
-/// <summary>Adds security headers (CSP, HSTS, X-Frame-Options, etc.) to every HTTP response.</summary>
+/// <summary>Adds security headers (X-Content-Type-Options, X-Frame-Options, Content-Security-Policy, Referrer-Policy, Permissions-Policy) to every HTTP response. HSTS should be handled by the reverse proxy (Aspire/nginx) in production.</summary>
 public sealed class SecurityHeadersMiddleware
 {
     private readonly RequestDelegate _next;
