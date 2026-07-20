@@ -55,7 +55,6 @@ public static partial class CreatePaymentIntent
 
             var payment = createResult.Value;
             dbContext.Set<PaymentCapture>().Add(payment);
-            await dbContext.SaveChangesAsync(cancellationToken);
 
             // Check: Gateway must be registered
             var gatewayResult = gatewayRegistry.GetGateway(paymentMethod.ProviderKey);
