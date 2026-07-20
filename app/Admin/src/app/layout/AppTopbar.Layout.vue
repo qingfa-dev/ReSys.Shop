@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { useLayout } from '@/app/layout/composables/layout.composable'
 import { useRouter } from 'vue-router'
-import { useAuthStore } from '@/features/auth/stores/auth.store'
+import { useAuthStore } from '@/features/auth/store/auth.store'
 
 const { toggleMenu, toggleDarkMode, isDarkTheme } = useLayout()
 const router = useRouter()

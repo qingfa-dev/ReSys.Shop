@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { useAuthStore } from '@/features/auth/stores/auth.store'
+import { useAuthStore } from '@/features/auth/store/auth.store'
 </script>
 
 <template>

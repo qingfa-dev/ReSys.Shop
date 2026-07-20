@@ -4,12 +4,21 @@ import type { LoginResponse } from '../types/login.response.type'
 import type { LoginRequest } from '../types/login.request.type'
 import type { RefreshTokenRequest, AuthProfileResponse } from '../types/auth.request.type'
 import type { AuthSession } from '../types/auth.model.type'
-import { mapAuthSession } from '../mappers/auth.mapper'
 
 const BASE_URL = '/store/identity/auth'
 
 function path(sub: string): string {
   return `${BASE_URL}/${sub}`
+}
+
+function mapAuthSession(login: LoginResponse, session: { id: string; roles: string[]; permissions: string[] } | null): AuthSession {
+  return {
+    accessToken: login.accessToken,
+    accessTokenExpiresIn: login.accessTokenExpiresIn,
+    refreshToken: login.refreshToken,
+    refreshTokenExpiresIn: login.refreshTokenExpiresIn,
+    user: session ? { id: session.id, roles: session.roles, permissions: session.permissions } : null,
+  }
 }
 
 async function fetchSession(): Promise<{ id: string; roles: string[]; permissions: string[] } | null> {
@@ -29,7 +38,7 @@ async function fetchSession(): Promise<{ id: string; roles: string[]; permission
   return null
 }
 
-export const authRepository = {
+export const authService = {
   async login(request: LoginRequest): Promise<ServerResult<AuthSession>> {
     const res = await apiClient.post(path('login/password'), request)
     const result = res.data as ServerResult<LoginResponse>
