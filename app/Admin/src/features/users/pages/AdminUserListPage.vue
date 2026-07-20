@@ -11,6 +11,8 @@ import PageHeader from '@/shared/components/navigation/PageHeader.vue';
 import { FilterMatchMode } from '@primevue/core/api';
 import type { DataTablePageEvent, DataTableSortEvent, DataTableFilterMeta } from 'primevue/datatable';
 import { getFilterValue } from '@/common/api/types/filter.types';
+import StatusBadge from '@/shared/components/feedback/StatusBadge.vue';
+import { booleanStatusMap } from '@/common/utils/status.util';
 
 const store = useUserStore();
 const { admins, loading, totalRecords, query } = storeToRefs(store);
@@ -137,7 +139,7 @@ const deleteAdmin = async (userId: string) => {
 
           <Column field="isActive" :header="t('users.table.status')">
             <template #body="{ data }">
-              <Tag :value="data.isActive ? 'Active' : 'Inactive'" :severity="data.isActive ? 'success' : 'secondary'" rounded class="font-bold px-3" />
+              <StatusBadge :status="String(data.isActive)" :statusMap="booleanStatusMap" />
             </template>
           </Column>
 

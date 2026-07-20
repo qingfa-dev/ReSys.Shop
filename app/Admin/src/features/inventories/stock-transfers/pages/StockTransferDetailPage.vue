@@ -8,6 +8,7 @@ import { useFormatter } from '@/common/composables/formatter.use';
 import { useI18n } from 'vue-i18n';
 import PageShell from '@/shared/components/navigation/PageShell.vue';
 import PageHeader from '@/shared/components/navigation/PageHeader.vue';
+import StatusBadge from '@/shared/components/feedback/StatusBadge.vue';
 import type { StockTransferDetail } from '../types/stock-transfer.response';
 import type { ProductSummary } from '@/features/catalog/products/types/product.response';
 
@@ -95,25 +96,12 @@ async function onReceive() {
     }
 }
 
-const getStatusSeverity = (status?: number) => {
-    switch (status) {
-        case 2: return 'success';
-        case 1: return 'info';
-        case 0: return 'warning';
-        case 3: return 'danger';
-        default: return 'secondary';
-    }
-};
-
-const statusLabel = (status?: number) => {
-    switch (status) {
-        case 0: return 'Draft';
-        case 1: return 'In Transit';
-        case 2: return 'Received';
-        case 3: return 'Canceled';
-        default: return 'Unknown';
-    }
-};
+const transferStatusMap: Record<number, { label: string; severity: string }> = {
+  0: { label: 'Draft', severity: 'warning' },
+  1: { label: 'In Transit', severity: 'info' },
+  2: { label: 'Received', severity: 'success' },
+  3: { label: 'Canceled', severity: 'danger' },
+}
 
 onMounted(() => {
     loadTransfer();
@@ -125,7 +113,7 @@ onMounted(() => {
         <template v-if="transfer">
             <PageHeader back :title="transfer.reference" :description="'Initiated on ' + formatDate(transfer.createdAtUtc)">
                 <template #badge>
-                    <Tag :value="statusLabel(transfer.status)" :severity="getStatusSeverity(transfer.status)" rounded class="font-bold px-3" />
+                    <StatusBadge :status="transfer.status ?? 0" :statusMap="transferStatusMap" />
                 </template>
                 <template #actions>
                     <Button v-if="transfer.status === 0" :label="t('inventory.actions.ship')" icon="pi pi-send" class="rounded-xl px-6" :loading="processing" @click="onShip" />

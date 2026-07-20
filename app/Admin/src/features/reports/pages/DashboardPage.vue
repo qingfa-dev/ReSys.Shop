@@ -6,6 +6,13 @@ import { useFormatter } from '@/common/composables/formatter.use';
 import { useI18n } from 'vue-i18n';
 import PageShell from '@/shared/components/navigation/PageShell.vue';
 import PageHeader from '@/shared/components/navigation/PageHeader.vue';
+import StatusBadge from '@/shared/components/feedback/StatusBadge.vue';
+
+const orderStatusMap: Record<string, { label: string; severity: string }> = {
+  complete: { label: 'Complete', severity: 'success' },
+  processing: { label: 'Processing', severity: 'info' },
+  canceled: { label: 'Canceled', severity: 'danger' },
+}
 
 const { t } = useI18n();
 
@@ -54,15 +61,6 @@ const chartOptions = {
                 color: 'rgba(0,0,0,0.05)'
             }
         }
-    }
-};
-
-const getStatusSeverity = (status: string) => {
-    switch (status?.toLowerCase()) {
-        case 'complete': return 'success';
-        case 'processing': return 'info';
-        case 'canceled': return 'danger';
-        default: return 'secondary';
     }
 };
 
@@ -221,11 +219,9 @@ const getActivityColor = (type: string) => {
                             </Column>
                             <Column field="status" :header="t('ordering.table.status')" :style="{ minWidth: '8rem' }">
                                 <template #body="{ data }">
-                                    <Tag
-                                        :value="data.status"
-                                        :severity="getStatusSeverity(data.status)"
-                                        rounded
-                                        class="text-xs font-semibold px-2"
+                                    <StatusBadge
+                                        :status="data.status?.toLowerCase()"
+                                        :statusMap="orderStatusMap"
                                     />
                                 </template>
                             </Column>
@@ -268,11 +264,9 @@ const getActivityColor = (type: string) => {
                                     <p class="text-xs text-surface-500 dark:text-surface-400 mt-0.5 truncate">{{ item.description }}</p>
                                 </div>
                                 <div class="flex flex-col items-end gap-1 flex-shrink-0">
-                                    <Tag
-                                        :value="item.status"
-                                        :severity="getStatusSeverity(item.status)"
-                                        rounded
-                                        class="text-[10px] font-semibold px-1.5"
+                                    <StatusBadge
+                                        :status="item.status?.toLowerCase()"
+                                        :statusMap="orderStatusMap"
                                     />
                                     <small class="text-[10px] text-surface-400 dark:text-surface-500 font-medium uppercase">{{ formatDate(item.timestamp) }}</small>
                                 </div>

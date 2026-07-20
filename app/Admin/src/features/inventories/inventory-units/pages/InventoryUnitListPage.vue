@@ -9,6 +9,7 @@ import PageHeader from '@/shared/components/navigation/PageHeader.vue'
 import { FilterMatchMode } from '@primevue/core/api';
 import type { DataTablePageEvent, DataTableSortEvent, DataTableFilterMeta } from 'primevue/datatable';
 import type { InventoryUnit } from '../types/inventory-unit.response';
+import StatusBadge from '@/shared/components/feedback/StatusBadge.vue';
 
 const { t } = useI18n();
 
@@ -34,29 +35,14 @@ const onSort = (event: DataTableSortEvent) => {
     });
 };
 
-const getStatusSeverity = (state: number) => {
-    switch (state) {
-        case 0: return 'success';
-        case 1: return 'info';
-        case 2: return 'secondary';
-        case 3: return 'danger';
-        case 4: return 'warning';
-        case 5: return 'contrast';
-        default: return 'secondary';
-    }
-};
-
-const statusLabel = (state: number) => {
-    switch (state) {
-        case 0: return 'Available';
-        case 1: return 'Reserved';
-        case 2: return 'Shipped';
-        case 3: return 'Damaged';
-        case 4: return 'Returned';
-        case 5: return 'Sold';
-        default: return 'Unknown';
-    }
-};
+const unitStatusMap: Record<number, { label: string; severity: string }> = {
+  0: { label: 'Available', severity: 'success' },
+  1: { label: 'Reserved', severity: 'info' },
+  2: { label: 'Shipped', severity: 'secondary' },
+  3: { label: 'Damaged', severity: 'danger' },
+  4: { label: 'Returned', severity: 'warning' },
+  5: { label: 'Sold', severity: 'contrast' },
+}
 </script>
 
 <template>
@@ -98,7 +84,7 @@ const statusLabel = (state: number) => {
 
                 <Column field="state" :header="t('inventory.table.status')" sortable class="text-center">
                     <template #body="{ data }">
-                        <Tag :value="statusLabel(data.state)" :severity="getStatusSeverity(data.state)" rounded class="px-3" />
+                        <StatusBadge :status="data.state" :statusMap="unitStatusMap" />
                     </template>
                 </Column>
 

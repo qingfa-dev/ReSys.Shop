@@ -5,6 +5,8 @@ import { storeToRefs } from 'pinia';
 import { useRouter } from 'vue-router';
 import { useI18n } from 'vue-i18n';
 import type { TreeNode } from 'primevue/treenode'
+import StatusBadge from '@/shared/components/feedback/StatusBadge.vue';
+import { booleanStatusMap } from '@/common/utils/status.util';
 
 const { t } = useI18n();
 
@@ -48,8 +50,7 @@ const onToggleStatus = async (id: string, current: boolean) => {
                         <span class="text-[10px] font-black uppercase tracking-widest text-surface-400">{{ loc.code }}</span>
                         <h3 class="text-xl font-black m-0 tracking-tight">{{ loc.name }}</h3>
                     </div>
-                    <Tag :value="loc.isActive ? 'Active' : 'Inactive'" 
-                         :severity="loc.isActive ? 'success' : 'secondary'" rounded class="px-3 text-[10px] font-black" />
+                    <StatusBadge :status="String(loc.isActive)" :statusMap="booleanStatusMap" />
                 </div>
 
                 <div class="flex items-center gap-2 text-surface-500 text-sm">
@@ -83,8 +84,7 @@ const onToggleStatus = async (id: string, current: boolean) => {
                 <Column field="city" header="City"></Column>
                 <Column field="isActive" :header="t('inventory.table.status')" class="text-center">
                     <template #body="{ node }">
-                        <Tag :value="node.data.isActive ? 'Active' : 'Inactive'" 
-                             :severity="node.data.isActive ? 'success' : 'secondary'" rounded class="text-[10px] font-black" />
+                        <StatusBadge :status="String(node.data.isActive)" :statusMap="booleanStatusMap" />
                     </template>
                 </Column>
                 <Column :header="t('inventory.table.actions')" class="w-24">

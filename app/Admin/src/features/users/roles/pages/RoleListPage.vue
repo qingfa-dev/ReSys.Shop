@@ -7,6 +7,7 @@ import { useI18n } from 'vue-i18n';
 import { roleRepository } from '../api/role.api';
 import PageShell from '@/shared/components/navigation/PageShell.vue';
 import PageHeader from '@/shared/components/navigation/PageHeader.vue';
+import StatusBadge from '@/shared/components/feedback/StatusBadge.vue';
 import type { RoleSummary } from '../types/role.response';
 import type { DataTablePageEvent } from 'primevue/datatable';
 
@@ -104,9 +105,8 @@ const deleteRole = async (roleId: string) => {
                     
                     <Column :header="t('roles.table.type')">
                         <template #body="{ data }">
-                            <Tag v-if="data.isSystem" value="System" severity="warning" icon="pi pi-lock" rounded />
-                            <Tag v-else value="Custom" severity="secondary" rounded />
-                            <Tag v-if="data.isDefault" value="Default" severity="success" class="ml-2" rounded />
+                            <StatusBadge :status="String(data.isSystem)" :statusMap="{ true: { label: 'System', severity: 'warning' }, false: { label: 'Custom', severity: 'secondary' } }" />
+                            <StatusBadge v-if="data.isDefault" :status="String(data.isDefault)" :statusMap="{ true: { label: 'Default', severity: 'success' } }" class="ml-2" />
                         </template>
                     </Column>
 

@@ -6,6 +6,13 @@ import { useApiErrorHandler } from '@/common/composables/api-error-handler.use'
 import { useFormatter } from '@/common/composables/formatter.use'
 import type { DataTablePageEvent } from 'primevue/datatable'
 import type { ProductSummary } from '@/features/catalog/products/types/product.response'
+import StatusBadge from '@/shared/components/feedback/StatusBadge.vue'
+
+const productStatusMap: Record<string, { label: string; severity: string }> = {
+  Active: { label: 'Active', severity: 'success' },
+  Inactive: { label: 'Inactive', severity: 'secondary' },
+  Draft: { label: 'Draft', severity: 'warning' },
+}
 
 const props = defineProps<{
   taxonId: string
@@ -105,7 +112,7 @@ defineExpose({
 
             <Column field="status" :header="t('catalog.products.table.status')" class="text-center w-24">
                 <template #body="{ data }">
-                    <Tag :value="data.status" :severity="data.status === 'Active' ? 'success' : 'secondary'" rounded class="text-[10px]" />
+                    <StatusBadge :status="data.status" :statusMap="productStatusMap" />
                 </template>
             </Column>
         </DataTable>

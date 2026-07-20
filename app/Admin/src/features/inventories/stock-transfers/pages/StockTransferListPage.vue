@@ -9,6 +9,14 @@ import PageShell from '@/shared/components/navigation/PageShell.vue';
 import PageHeader from '@/shared/components/navigation/PageHeader.vue';
 import { FilterMatchMode } from '@primevue/core/api';
 import type { DataTablePageEvent, DataTableSortEvent, DataTableFilterMeta } from 'primevue/datatable';
+import StatusBadge from '@/shared/components/feedback/StatusBadge.vue';
+
+const transferStatusMap: Record<string, { label: string; severity: string }> = {
+  Received: { label: 'Received', severity: 'success' },
+  InTransit: { label: 'In Transit', severity: 'info' },
+  Draft: { label: 'Draft', severity: 'warning' },
+  Canceled: { label: 'Canceled', severity: 'danger' },
+}
 
 const { t } = useI18n();
 
@@ -26,16 +34,6 @@ const onPage = (event: DataTablePageEvent) => {
         page: event.page !== undefined ? event.page + 1 : 1,
         pageSize: event.rows,
     });
-};
-
-const getStatusSeverity = (state: string) => {
-    switch (state) {
-        case 'Received': return 'success';
-        case 'InTransit': return 'info';
-        case 'Draft': return 'warning';
-        case 'Canceled': return 'danger';
-        default: return 'secondary';
-    }
 };
 </script>
 
@@ -88,7 +86,7 @@ const getStatusSeverity = (state: string) => {
 
                     <Column field="state" :header="t('inventory.table.status')" class="text-center">
                         <template #body="{ data }">
-                            <Tag :value="data.state" :severity="getStatusSeverity(data.state)" rounded class="px-3" />
+                            <StatusBadge :status="data.state" :statusMap="transferStatusMap" />
                         </template>
                     </Column>
 

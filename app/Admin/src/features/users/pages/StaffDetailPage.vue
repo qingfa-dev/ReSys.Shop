@@ -11,6 +11,8 @@ import PageHeader from '@/shared/components/navigation/PageHeader.vue';
 import UserRoleManager from '../components/UserRoleManager.vue';
 import UserPermissionManager from '../components/UserPermissionManager.vue';
 import UserSecurityManager from '../components/UserSecurityManager.vue';
+import StatusBadge from '@/shared/components/feedback/StatusBadge.vue';
+import { booleanStatusMap } from '@/common/utils/status.util';
 
 const route = useRoute();
 const router = useRouter();
@@ -72,7 +74,7 @@ async function onToggleStatus() {
         <template v-if="user">
             <PageHeader back :title="user.fullName || 'Staff Member'" :description="user.email">
                 <template #badge>
-                    <Tag :value="user.isActive ? 'Active' : 'Inactive'" :severity="user.isActive ? 'success' : 'secondary'" rounded class="font-bold px-3" />
+                    <StatusBadge :status="String(user.isActive)" :statusMap="booleanStatusMap" />
                 </template>
                 <template #actions>
                     <Button :label="user.isActive ? 'Deactivate' : 'Activate'" :severity="user.isActive ? 'danger' : 'success'" outlined icon="pi pi-power-off" @click="onToggleStatus" class="rounded-xl px-6" />

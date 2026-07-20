@@ -6,6 +6,12 @@ import { useFormatter } from '@/common/composables/formatter.use';
 import { userRepository } from '../api/user.api';
 import type { AdminUserSummary } from '../types/user.response';
 import { useI18n } from 'vue-i18n';
+import StatusBadge from '@/shared/components/feedback/StatusBadge.vue';
+
+const verificationStatusMap: Record<string, { label: string; severity: string }> = {
+  true: { label: 'Verified', severity: 'success' },
+  false: { label: 'Pending', severity: 'warning' },
+}
 
 const props = defineProps<{
     user: AdminUserSummary;
@@ -78,12 +84,12 @@ async function onVerify() {
             <div class="bg-surface-50 dark:bg-surface-900 p-6 rounded-2xl border border-surface-100 dark:border-surface-800 flex flex-col gap-4">
                 <div class="flex justify-between items-center pb-4 border-b border-surface-200 dark:border-surface-700">
                     <span class="text-surface-500 font-medium">{{ t('users.security.email_verified') }}</span>
-                    <Tag :value="user.emailConfirmed ? 'Verified' : 'Pending'" :severity="user.emailConfirmed ? 'success' : 'warning'" rounded />
+                    <StatusBadge :status="String(user.emailConfirmed)" :statusMap="verificationStatusMap" />
                 </div>
 
                 <div class="flex justify-between items-center">
                     <span class="text-surface-500 font-medium">{{ t('users.security.phone_verified') }}</span>
-                    <Tag :value="user.phoneNumberConfirmed ? 'Verified' : 'Pending'" :severity="user.phoneNumberConfirmed ? 'success' : 'warning'" rounded />
+                    <StatusBadge :status="String(user.phoneNumberConfirmed)" :statusMap="verificationStatusMap" />
                 </div>
             </div>
         </div>
