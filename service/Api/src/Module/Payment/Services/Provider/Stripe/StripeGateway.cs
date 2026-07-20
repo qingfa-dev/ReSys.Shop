@@ -10,6 +10,9 @@ public sealed class StripeGateway : Gateway
 {
     private const long CentsMultiplier = 100;
     private readonly StripeSetting _options;
+    private readonly PaymentIntentService _paymentIntentService = new();
+    private readonly RefundService _refundService = new();
+    private readonly SetupIntentService _setupIntentService = new();
 
     public override string ProviderKey => GatewayConstants.Providers.Stripe;
     public override bool AutoCapture => true;
@@ -42,7 +45,7 @@ public sealed class StripeGateway : Gateway
         {
             var po = CreatePaymentIntentOptions(amount, source, options, autoCapture: true);
             var ro = BuildRequestOptions(options);
-            var intent = await new PaymentIntentService().CreateAsync(po, ro, ct).ConfigureAwait(false);
+            var intent = await _paymentIntentService.CreateAsync(po, ro, ct).ConfigureAwait(false);
             // Check: Intent status routing
             if (intent.Status == GatewayConstants.Stripe.IntentStatus.Succeeded)
                 return new PaymentGatewayResponse(GatewayConstants.Providers.Stripe,
@@ -72,7 +75,7 @@ public sealed class StripeGateway : Gateway
         {
             var po = CreatePaymentIntentOptions(amount, source, options, autoCapture: false);
             var ro = BuildRequestOptions(options);
-            var intent = await new PaymentIntentService().CreateAsync(po, ro, ct).ConfigureAwait(false);
+            var intent = await _paymentIntentService.CreateAsync(po, ro, ct).ConfigureAwait(false);
             // Check: Intent must be requires_capture status for manual-capture
             if (intent.Status != GatewayConstants.Stripe.IntentStatus.RequiresCapture)
                 return StripeGatewayResult.Errors.AuthorizeNotRequiresCapture(intent.Status);
@@ -98,7 +101,7 @@ public sealed class StripeGateway : Gateway
                 AmountToCapture = checked((long)Math.Round(amount * CentsMultiplier, MidpointRounding.AwayFromZero))
             };
             var ro = BuildRequestOptions(options);
-            var intent = await new PaymentIntentService().CaptureAsync(responseCode, co, ro, ct).ConfigureAwait(false);
+            var intent = await _paymentIntentService.CaptureAsync(responseCode, co, ro, ct).ConfigureAwait(false);
             return new PaymentGatewayResponse(GatewayConstants.Providers.Stripe, authorization: intent.Id);
         }
         catch (StripeException ex) { return MapStripeException(ex); }
@@ -115,7 +118,7 @@ public sealed class StripeGateway : Gateway
         {
             var co = new PaymentIntentCancelOptions();
             var ro = BuildRequestOptions(options);
-            var intent = await new PaymentIntentService().CancelAsync(responseCode, co, ro, ct).ConfigureAwait(false);
+            var intent = await _paymentIntentService.CancelAsync(responseCode, co, ro, ct).ConfigureAwait(false);
             return new PaymentGatewayResponse(GatewayConstants.Providers.Stripe, authorization: intent.Id);
         }
         catch (StripeException ex) { return MapStripeException(ex); }
@@ -137,7 +140,7 @@ public sealed class StripeGateway : Gateway
                 Amount = checked((long)Math.Round(amount * CentsMultiplier, MidpointRounding.AwayFromZero))
             };
             var requestOptions = BuildRequestOptions(options);
-            var refund = await new RefundService().CreateAsync(ro, requestOptions, ct).ConfigureAwait(false);
+            var refund = await _refundService.CreateAsync(ro, requestOptions, ct).ConfigureAwait(false);
             return new PaymentGatewayResponse(GatewayConstants.Providers.Stripe, authorization: refund.Id);
         }
         catch (StripeException ex) { return MapStripeException(ex); }
@@ -151,7 +154,7 @@ public sealed class StripeGateway : Gateway
         {
             var options = new SetupIntentCreateOptions { Metadata = metadata };
             var ro = new RequestOptions { ApiKey = _options.SecretKey };
-            var intent = await new SetupIntentService().CreateAsync(options, ro, ct).ConfigureAwait(false);
+            var intent = await _setupIntentService.CreateAsync(options, ro, ct).ConfigureAwait(false);
             return new PaymentGatewayResponse(GatewayConstants.Providers.Stripe,
                 setupIntentClientSecret: intent.ClientSecret);
         }
@@ -163,7 +166,7 @@ public sealed class StripeGateway : Gateway
         string paymentIntentId, CancellationToken ct)
     {
         var ro = new RequestOptions { ApiKey = _options.SecretKey };
-        var intent = await new PaymentIntentService().GetAsync(paymentIntentId, null, ro, ct);
+        var intent = await _paymentIntentService.GetAsync(paymentIntentId, null, ro, ct);
         return intent.Status;
     }
 
