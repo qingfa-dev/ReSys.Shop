@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 using Module.Catalog.Domain.Products.Variants;
 using Module.Ordering.Domain.LineItems;
+using Module.Ordering.Domain.Orders;
 
 namespace Module.Ordering.Persistence.Configurations.LineItems;
 
@@ -29,6 +30,11 @@ public class LineItemConfiguration : IEntityTypeConfiguration<LineItem>
 
         builder.Property(x => x.AdjustmentTotal)
             .HasPrecision(LineItemConstant.Precision, LineItemConstant.Scale);
+
+        builder.Property(x => x.Currency)
+            .IsRequired()
+            .HasMaxLength(OrderConstant.Constraints.MaxCurrencyLength)
+            .HasDefaultValue(OrderConstant.Defaults.Currency);
 
         builder.Property(x => x.VariantId).IsRequired();
         builder.Property(x => x.OrderId).IsRequired();
