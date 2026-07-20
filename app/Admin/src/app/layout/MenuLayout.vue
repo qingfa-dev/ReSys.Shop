@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import AppMenuItem from './MenuItem.Layout.vue'
+import AppMenuItem from './MenuItemLayout.vue'
 import { adminMenuConfig } from '@/app/config/admin-menu.config'
-import { useAuthStore } from '@/features/auth/stores/auth.store'
+import { useAuthStore } from '@/features/auth/store/auth.store'
 import { computed } from 'vue'
 
 const authStore = useAuthStore()

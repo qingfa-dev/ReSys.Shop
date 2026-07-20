@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
-import { useAuthStore } from '@/features/auth/stores/auth.store'
+import { useAuthStore } from '@/features/auth/store/auth.store'
 import { useLayout } from './composables/layout.composable'
-import GlobalSearch from './components/GlobalSearch.Component.vue'
-import AppConfigurator from './Configurator.Layout.vue'
+import GlobalSearch from './components/GlobalSearch.vue'
+import AppConfigurator from './ConfiguratorLayout.vue'
 
 const router = useRouter()
 const authStore = useAuthStore()

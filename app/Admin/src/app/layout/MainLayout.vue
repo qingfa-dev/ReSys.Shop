@@ -2,9 +2,9 @@
 import { useLayout } from './composables/layout.composable'
 import { computed, watch, ref } from 'vue'
 import { RouterView } from 'vue-router'
-import AppTopbar from './Topbar.Layout.vue'
-import AppFooter from './Footer.Layout.vue'
-import AppSidebar from './Sidebar.Layout.vue'
+import AppTopbar from './TopbarLayout.vue'
+import AppFooter from './FooterLayout.vue'
+import AppSidebar from './SidebarLayout.vue'
 import AppBreadcrumb from '@/shared/components/navigation/Breadcrumb.vue'
 
 const { layoutConfig, layoutState, isDarkTheme, hideMobileMenu } = useLayout()

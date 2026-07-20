@@ -2,7 +2,7 @@
 import { useLayout } from './composables/layout.composable'
 import { computed, ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
-import { useAuthStore } from '@/features/auth/stores/auth.store'
+import { useAuthStore } from '@/features/auth/store/auth.store'
 import type { MenuItem } from '@/app/config/admin-menu.config'
 
 const route = useRoute()
