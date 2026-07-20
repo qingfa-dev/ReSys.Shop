@@ -11,6 +11,7 @@ import PageShell from '@/shared/components/navigation/PageShell.vue'
 import PageHeader from '@/shared/components/navigation/PageHeader.vue'
 import DetailField from '@/shared/components/data-display/DetailField.vue'
 import StatusBadge from '@/shared/components/feedback/StatusBadge.vue'
+import ConfirmDialog from '@/shared/components/overlays/ConfirmDialog.vue'
 
 const { t } = useI18n()
 const route = useRoute()
@@ -81,32 +82,36 @@ async function onRefund() {
           <StatusBadge :status="current.status" :status-map="paymentStatusMap" />
         </template>
         <template #actions>
-          <Button
-            :label="t('payment.actions.capture') || 'Capture'"
+          <ConfirmDialog
+            :header="t('payment.titles.capture') || 'Capture Payment'"
+            :message="t('payment.messages.confirm_capture') || 'Are you sure you want to capture this payment?'"
             icon="pi pi-check-circle"
             severity="success"
-            class="rounded-xl px-6"
-            @click="onCapture"
+            @confirm="onCapture"
             v-if="current.status === 0"
-          />
-          <Button
-            :label="t('payment.actions.void') || 'Void'"
+          >
+            {{ t('payment.actions.capture') || 'Capture' }}
+          </ConfirmDialog>
+          <ConfirmDialog
+            :header="t('payment.titles.void') || 'Void Payment'"
+            :message="t('payment.messages.confirm_void') || 'Are you sure you want to void this payment?'"
             icon="pi pi-times-circle"
             severity="warn"
-            outlined
-            class="rounded-xl px-6"
-            @click="onVoid"
+            @confirm="onVoid"
             v-if="current.status === 0"
-          />
-          <Button
-            :label="t('payment.actions.refund') || 'Refund'"
+          >
+            {{ t('payment.actions.void') || 'Void' }}
+          </ConfirmDialog>
+          <ConfirmDialog
+            :header="t('payment.titles.refund') || 'Refund Payment'"
+            :message="t('payment.messages.confirm_refund') || 'Are you sure you want to refund this payment?'"
             icon="pi pi-undo"
             severity="danger"
-            outlined
-            class="rounded-xl px-6"
-            @click="onRefund"
+            @confirm="onRefund"
             v-if="current.status === 1"
-          />
+          >
+            {{ t('payment.actions.refund') || 'Refund' }}
+          </ConfirmDialog>
         </template>
       </PageHeader>
 

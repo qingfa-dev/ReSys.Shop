@@ -141,15 +141,16 @@ async function removeLineItem(lineItemId: string) {
                     v-if="current_order.status !== 1 && current_order.status !== 2"
                     class="rounded-xl px-6"
                 />
-                <Button 
-                    :label="t('ordering.actions.cancel_order')" 
-                    icon="pi pi-times" 
-                    severity="danger" 
-                    outlined
-                    @click="cancelOrder"
+                <ConfirmDialog
+                    :header="t('ordering.titles.confirm_cancellation') || 'Cancel Order'"
+                    :message="t('ordering.messages.cancel_order_confirm') || 'Are you sure you want to cancel this order?'"
+                    icon="pi pi-exclamation-triangle"
+                    severity="danger"
+                    @confirm="cancelOrder"
                     v-if="current_order.status !== 1 && current_order.status !== 2"
-                        class="rounded-xl px-6"
-                    />
+                >
+                    {{ t('ordering.actions.cancel_order') || 'Cancel Order' }}
+                </ConfirmDialog>
                 <Button
                     :label="t('ordering.actions.resume_order')"
                     icon="pi pi-undo"
