@@ -3,6 +3,7 @@ import { computed } from 'vue'
 import type { RouteLocationRaw } from 'vue-router'
 import type { DataTablePageEvent, DataTableSortEvent, DataTableFilterMeta } from 'primevue/datatable'
 import { FilterMatchMode } from '@primevue/core/api'
+import EmptyState from '@/shared/components/feedback/EmptyState.vue'
 
 export interface ColumnDef {
   field: string
@@ -111,14 +112,14 @@ const skeletonRows = computed(() => Array.from({ length: props.rows }, (_, i) =>
             label="Clear Filters"
             outlined
             @click="emit('filter')"
-            class="rounded-xl"
+            class="rounded-border"
           />
           <Button
             v-if="showCreateButton && createRoute"
             :label="createLabel || 'Create'"
             icon="pi pi-plus"
             @click="$router.push(createRoute)"
-            class="rounded-xl"
+            class="rounded-border"
           />
           <Button
             v-if="showExport"
@@ -128,7 +129,7 @@ const skeletonRows = computed(() => Array.from({ length: props.rows }, (_, i) =>
             severity="secondary"
             outlined
             @click="emit('export')"
-            class="rounded-xl"
+            class="rounded-border"
           />
           <Button
             type="button"
@@ -136,7 +137,7 @@ const skeletonRows = computed(() => Array.from({ length: props.rows }, (_, i) =>
             severity="secondary"
             outlined
             @click="emit('refresh')"
-            class="rounded-xl"
+            class="rounded-border"
           />
           <slot name="toolbar-actions" />
         </div>
@@ -145,17 +146,17 @@ const skeletonRows = computed(() => Array.from({ length: props.rows }, (_, i) =>
 
     <template #empty>
       <slot name="empty">
-        <div class="flex flex-col items-center justify-center py-20 text-surface-400">
-          <i :class="emptyIcon" class="mb-4 text-6xl opacity-20" />
-          <p class="text-xl font-medium">{{ emptyTitle }}</p>
-          <p v-if="emptyDescription" class="text-sm mt-1">{{ emptyDescription }}</p>
-        </div>
+        <EmptyState
+          :icon="emptyIcon"
+          :title="emptyTitle"
+          :description="emptyDescription"
+        />
       </slot>
     </template>
 
     <template #loading>
-      <div class="p-4">
-        <Skeleton v-for="i in skeletonRows.length" :key="i" class="mb-3" height="2.5rem" />
+      <div class="p-4 space-y-3">
+        <Skeleton v-for="i in skeletonRows.length" :key="i" height="2.5rem" class="bg-surface-100 dark:bg-surface-800" />
       </div>
     </template>
 

@@ -36,6 +36,6 @@ describe('FormField', () => {
       slots: { default: '<input id="name" />' },
       global: { stubs: { InputText: true } },
     })
-    expect(wrapper.find('.text-surface-400').text()).toBe('Enter your full name')
+    expect(wrapper.find('small').text()).toBe('Enter your full name')
   })
 })
