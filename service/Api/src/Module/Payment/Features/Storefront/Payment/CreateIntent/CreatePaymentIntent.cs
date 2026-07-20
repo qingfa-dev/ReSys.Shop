@@ -14,7 +14,7 @@ namespace Module.Payment.Features.Storefront.Payment.CreateIntent;
 /// <summary>Creates a payment intent for checkout.</summary>
 public static partial class CreatePaymentIntent
 {
-    public sealed record Command(Guid OrderId) : ICommand<Response>;
+    public sealed record Command(Guid OrderId, Guid? PaymentMethodId = null) : ICommand<Response>;
 
     public sealed class CommandHandler(
         IApplicationDbContext dbContext,
@@ -38,8 +38,11 @@ public static partial class CreatePaymentIntent
                 return OrderResult.Errors.NotFound(command.OrderId);
 
             // Load: First active payment method
-            var paymentMethod = await dbContext.Set<PaymentMethod>()
-                .FirstOrDefaultAsync(c => c.Active && !c.IsDeleted, cancellationToken);
+            var paymentMethod = command.PaymentMethodId.HasValue
+                ? await dbContext.Set<PaymentMethod>()
+                    .FirstOrDefaultAsync(c => c.Id == command.PaymentMethodId.Value && c.Active && !c.IsDeleted, cancellationToken)
+                : await dbContext.Set<PaymentMethod>()
+                    .FirstOrDefaultAsync(c => c.Active && !c.IsDeleted, cancellationToken);
             if (paymentMethod is null)
                 return PaymentCaptureResult.Failure.NotFound;
 
