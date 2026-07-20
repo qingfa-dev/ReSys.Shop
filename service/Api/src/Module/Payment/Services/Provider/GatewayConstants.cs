@@ -51,8 +51,13 @@ public static class GatewayConstants
 
         public static class IntentStatus
         {
-            public const string Succeeded = "succeeded";
+            public const string RequiresPaymentMethod = "requires_payment_method";
+            public const string RequiresConfirmation = "requires_confirmation";
+            public const string RequiresAction = "requires_action";
+            public const string Processing = "processing";
             public const string RequiresCapture = "requires_capture";
+            public const string Canceled = "canceled";
+            public const string Succeeded = "succeeded";
         }
     }
 
@@ -91,6 +96,9 @@ public static class GatewayConstants
             public const string PaymentIntentPaymentFailed = "payment_intent.payment_failed";
             public const string ChargeRefunded = "charge.refunded";
             public const string ChargeDisputeCreated = "charge.dispute.created";
+            public const string PaymentIntentRequiresAction = "payment_intent.requires_action";
+            public const string PaymentIntentProcessing = "payment_intent.processing";
+            public const string PaymentIntentCanceled = "payment_intent.canceled";
         }
     }
 
