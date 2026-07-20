@@ -8,13 +8,17 @@ public static partial class RegenerateEmbedding
 {
     public sealed record Command(Request Request) : ICommand<EmbeddingDetailResponse>;
 
+    /// <summary>Handler for regenerating an image embedding.</summary>
     public sealed class CommandHandler(IEmbeddingOrchestrator orchestrator)
         : ICommandHandler<Command, EmbeddingDetailResponse>
     {
+        /// <summary>Regenerates an image embedding.</summary>
         public async Task<Result<EmbeddingDetailResponse>> Handle(Command command, CancellationToken cancellationToken)
         {
             var request = command.Request;
+            // Call: Regenerate embedding via inference service and overwrite existing
             var result = await orchestrator.GenerateAndPersistAsync(request.VariantImageId, request.ModelName, cancellationToken);
+            // Check: Propagate failure from orchestrator without modification
             if (result.IsFailure)
                 return result.Errors;
 

@@ -21,6 +21,13 @@ public class StockReservationConfiguration : IEntityTypeConfiguration<StockReser
         builder.Property(x => x.OrderId);
         builder.Property(x => x.State).HasConversion<string>();
         builder.Property(x => x.Reason);
+        builder.Property(x => x.RowVersion)
+            .IsRowVersion();
+        #endregion
+
+        #region Indexes
+        builder.HasIndex(x => new { x.OrderId, x.State });
+        builder.HasIndex(x => new { x.CartToken, x.State });
         #endregion
     }
 }

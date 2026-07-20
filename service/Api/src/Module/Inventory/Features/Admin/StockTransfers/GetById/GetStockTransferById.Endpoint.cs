@@ -4,10 +4,12 @@ namespace Module.Inventory.Features.Admin.StockTransfers.GetById;
 
 public static partial class GetStockTransferById
 {
+    /// <summary>Gets a stock transfer by ID.</summary>
     public class Endpoint : ICarterModule
     {
         public void AddRoutes(IEndpointRouteBuilder app)
         {
+            // Map: GET /admin/inventory/stock-transfers/{id} — gets a stock transfer by ID
             app.MapGet(InventoryFeature.Admin.StockTransfers.GetById.Route, async (
                 [FromRoute] Guid id,
                 ISender sender,

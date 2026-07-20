@@ -1,5 +1,4 @@
 using Module.Catalog.Domain.Products.Variants;
-using Module.Inventory.Domain.Stock;
 using Module.Inventory.Domain.StockLocations;
 using Module.Inventory.Domain.StockLocations.StockItems;
 using Module.Inventory.Features.Storefront.CartReservations.Reserve;

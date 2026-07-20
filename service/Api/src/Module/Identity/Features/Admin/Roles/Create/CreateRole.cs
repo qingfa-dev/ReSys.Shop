@@ -13,6 +13,9 @@ public static partial class CreateRole
 {
     public sealed record Command(Request Request) : ICommand<Response>;
 
+    /// <summary>
+    /// Handles the <see cref="Command"/> to create a new role.
+    /// </summary>
     public sealed class CommandHandler(
         RoleManager<Role> roleManager,
         ILogger<CommandHandler> logger)
@@ -31,19 +34,24 @@ public static partial class CreateRole
         {
             var request = command.Request;
 
+            // Check: Reject duplicate role name to enforce uniqueness constraint
             var existingRole = await roleManager.FindByNameAsync(request.Name);
             if (existingRole is not null)
                 return RoleResult.Failure.AlreadyExists;
 
+            // Transform: Map request to domain entity with a new identity
             var role = request.MapToDomain();
             role.Id = Guid.NewGuid();
 
+            // Call: Persist the new role via Identity role manager
             var result = await roleManager.CreateAsync(role);
             if (!result.Succeeded)
                 return result.ToResult<Response>();
 
+            // Log: Record role creation for audit trail
             RoleLoggers.Management.Created(logger, RoleName: role.Name!, RoleId: role.Id);
 
+            // Transform: Return mapped response with created role details
             return role.MapToDetail<Response>();
         }
     }

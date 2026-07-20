@@ -1,14 +1,15 @@
-// Route: GET api/payment/payment-methods/{id} — get by ID
 using Module.Payment.Features.Shared;
 
 namespace Module.Payment.Features.Admin.PaymentMethods.Get.ById;
 
 public static partial class GetPaymentMethodById
 {
+    /// <summary>Maps GET api/payment/payment-methods/{id} to retrieve a payment method by its ID.</summary>
     public class Endpoint : ICarterModule
     {
         public void AddRoutes(IEndpointRouteBuilder app)
         {
+            // Map: GET api/payment/payment-methods/{id} — get payment method by ID
             app.MapGet(PaymentFeature.Admin.PaymentMethods.GetById.Route, async (
                 [FromRoute] Guid id,
                 ISender sender,

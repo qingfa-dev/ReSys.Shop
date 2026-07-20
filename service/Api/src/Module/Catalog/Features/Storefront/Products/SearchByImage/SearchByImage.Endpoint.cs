@@ -4,10 +4,12 @@ namespace Module.Catalog.Features.Storefront.Products.SearchByImage;
 
 public static partial class SearchByImage
 {
+    /// <summary>Maps the image-based product search route.</summary>
     public class Endpoint : ICarterModule
     {
         public void AddRoutes(IEndpointRouteBuilder app)
         {
+            // Map: POST /api/storefront/products/search-by-image — visual similarity search via embedding
             app.MapPost(CatalogFeature.Storefront.Products.Get.SearchByImage.Route, async (
                 [FromForm] Request request,
                 ISender sender,

@@ -9,5 +9,6 @@ public enum PaymentRecordState
     Completed,
     Failed,
     Void,
+    Disputed,
     Invalid
 }

@@ -7,6 +7,7 @@ using Shared.Application.Extensions.Exceptions;
 
 namespace Shared.Application.Exceptions.Handlers;
 
+/// <summary>Global exception handler that catches unhandled exceptions and returns structured JSON error responses.</summary>
 public sealed class GlobalExceptionHandler(ILogger<GlobalExceptionHandler> logger) : IExceptionHandler
 {
     public async ValueTask<bool> TryHandleAsync(

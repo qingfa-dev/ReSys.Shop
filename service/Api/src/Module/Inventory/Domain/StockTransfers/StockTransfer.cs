@@ -24,6 +24,8 @@ public sealed partial class StockTransfer : Entity, IAuditable
     public Guid SourceLocationId { get; set; }
     /// <summary>Gets or sets the destination stock location identifier.</summary>
     public Guid DestinationLocationId { get; set; }
+    /// <summary>Concurrency token for optimistic locking — auto-managed by EF Core / PostgreSQL xid.</summary>
+    public uint RowVersion { get; set; }
     #endregion Properties
 
     #region Auditing

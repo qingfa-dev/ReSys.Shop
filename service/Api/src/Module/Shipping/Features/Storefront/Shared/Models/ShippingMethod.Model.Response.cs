@@ -1,6 +1,6 @@
 namespace Module.Shipping.Features.Storefront.Shared.Models;
 
-public class ShippingMethodDetailResponse : ShippingMethodParameters
+public record ShippingMethodDetailResponse : ShippingMethodParameters
 {
     public Guid Id { get; init; }
     public DateTimeOffset CreatedAtUtc { get; init; }
@@ -9,7 +9,7 @@ public class ShippingMethodDetailResponse : ShippingMethodParameters
     public string? ModifiedBy { get; init; }
 }
 
-public class ShippingMethodListItemResponse : ShippingMethodParameters
+public record ShippingMethodListItemResponse : ShippingMethodParameters
 {
     public Guid Id { get; init; }
 }

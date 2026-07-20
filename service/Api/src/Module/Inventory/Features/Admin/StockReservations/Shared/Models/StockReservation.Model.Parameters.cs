@@ -2,8 +2,7 @@ using Module.Inventory.Domain.StockReservations;
 
 namespace Module.Inventory.Features.Admin.StockReservations.Shared.Models;
 
-/// <summary>Abstract base class for stock reservation-related parameters.</summary>
-public abstract class StockReservationParameters
+public abstract record StockReservationParameters
 {
     /// <summary>Gets or sets the product variant identifier for which stock is reserved.</summary>
     public Guid VariantId { get; init; }

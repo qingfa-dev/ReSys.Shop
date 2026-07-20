@@ -1,14 +1,16 @@
+using Module.Identity.Features.Admin.Roles.Shared.Models;
+
 namespace Module.Identity.Features.Admin.Users.Roles.Get;
 
 public static partial class GetUserRoles
 {
-    // EXCEPTION: collection wrapper — inner RoleItemResponse is the domain DTO
-    public sealed record Response(List<RoleItemResponse> Roles);
-
-    public sealed record RoleItemResponse
+    public sealed record Response
     {
-        public string Name { get; init; } = default!;
-        public string? Description { get; init; }
+        public List<RoleItemResponse> Roles { get; init; } = default!;
+    }
+
+    public sealed record RoleItemResponse : RoleListResponse
+    {
         public bool IsAssigned { get; init; }
     }
 }

@@ -4,10 +4,12 @@ namespace Module.Location.Features.Admin.States.Update;
 
 public static partial class UpdateState
 {
+    /// <summary>Admin: update a state.</summary>
     public sealed class Endpoint : ICarterModule
     {
         public void AddRoutes(IEndpointRouteBuilder app)
         {
+            // Map: PUT {route}/{id} → update state
             app.MapPut(pattern: LocationFeature.Admin.States.Update.Route, handler: async (
                 [FromRoute] Guid id,
                 [FromBody] Request request,

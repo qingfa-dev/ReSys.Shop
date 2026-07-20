@@ -1,6 +1,6 @@
 using Module.Profile.Domain;
 using Module.Profile.Domain.Addresses;
-using Module.Profile.Features.Store.Addresses.Shared.Mappings;
+using Module.Profile.Features.Admin.Addresses.Shared.Mappings;
 
 using Shared.Security.Identity.Domain.Users;
 
@@ -9,37 +9,30 @@ namespace Module.Profile.Features.Store.Addresses.Get.ById;
 /// <summary>Retrieves a single address by ID for the authenticated user.</summary>
 public static partial class GetAddressById
 {
-    public sealed record Query(Guid Id) : IQuery<Response>;
+    public sealed record Query(Guid UserId, Guid Id) : IQuery<Response>;
 
+    /// <summary>Handles the retrieval of an address by its identifier.</summary>
     public sealed class QueryHandler(
-        IApplicationDbContext dbContext,
-        ICurrentUser currentUser)
+        IApplicationDbContext dbContext)
         : IQueryHandler<Query, Response>
     {
-        /// <summary>Loads the user profile and returns the matching address or a not-found error.</summary>
-        /// <param name="request">The query containing the address ID.</param>
-        /// <param name="cancellationToken">Propagates cancellation signal.</param>
-        /// <returns>A result containing the address response or an error.</returns>
+        /// <summary>Retrieves an address by its identifier.</summary>
         public async Task<Result<Response>> Handle(Query request, CancellationToken cancellationToken)
         {
-            // Contract: pre=user authenticated, post=address found or NotFound returned
-            // Check: Ensure user is authenticated
-            if (string.IsNullOrEmpty(currentUser.UserId))
-                return AddressResult.Failure.AuthRequired;
-
-            // Load: Get the profile for the current user
+            // Load: Fetch the user's profile from persistence
             var profile = await dbContext.Set<UserProfile>()
-                .FirstOrDefaultAsync(p => p.UserId == Guid.Parse(currentUser.UserId), cancellationToken);
+                .FirstOrDefaultAsync(p => p.UserId == request.UserId, cancellationToken);
 
+            // Validate: Confirm profile exists
             if (profile is null)
                 return UserResult.Failure.NotFound;
 
-            // Load: Get the address by its unique identifier
+            // Validate: Confirm address exists on profile
             var address = profile.Addresses.FirstOrDefault(a => a.Id == request.Id);
-
             if (address is null)
                 return AddressResult.Failure.NotFound;
 
+            // Transform: Map address to response DTO
             return address.ToResponse<Response>();
         }
     }

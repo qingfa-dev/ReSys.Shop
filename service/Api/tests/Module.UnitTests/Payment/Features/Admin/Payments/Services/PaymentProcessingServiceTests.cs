@@ -111,7 +111,6 @@ public class PaymentProcessingServiceTests
 
         result.IsSuccess.Should().BeTrue();
         payment.State.Should().Be(PaymentRecordState.Completed);
-        payment.CaptureEventCreated.Should().BeTrue();
     }
 
     [Fact(DisplayName = "PurchaseAsync: Should fail when gateway declines")]

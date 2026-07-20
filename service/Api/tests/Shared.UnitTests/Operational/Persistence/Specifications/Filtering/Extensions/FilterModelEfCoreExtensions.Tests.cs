@@ -26,7 +26,7 @@ public sealed class FilterModelEfCoreExtensionsTests
     public void ApplyFilter_ValidModel_ShouldFilter()
     {
         FilterGroup group = FilterGroup.FlatAnd(
-            new FilterCondition[] { new("IsActive", FilterOperator.Equal, "true") });
+            new FilterCondition[] { new() { Field = "IsActive", Operator = FilterOperator.Equal, Value = "true" } });
         FilterModel model = new(group);
         IQueryable<TestEntity> query = GetData();
 
@@ -59,7 +59,7 @@ public sealed class FilterModelEfCoreExtensionsTests
     public void ApplyFilter_InvalidModel_ShouldReturnUnchanged()
     {
         FilterGroup group = FilterGroup.FlatAnd(
-            new FilterCondition[] { new("Forbidden", FilterOperator.Equal, "value") });
+            new FilterCondition[] { new() { Field = "Forbidden", Operator = FilterOperator.Equal, Value = "value" } });
         HashSet<string> allowedFields = new(["Name", "Age"], StringComparer.OrdinalIgnoreCase);
         FilterModel model = new(group, allowedFields);
         IQueryable<TestEntity> query = GetData();

@@ -4,10 +4,12 @@ namespace Module.Location.Features.Store.States.GetPagedOrAll;
 
 public static partial class GetStorefrontStatePagedOrAll
 {
+    /// <summary>Storefront: list/paginate states.</summary>
     public sealed class Endpoint : ICarterModule
     {
         public void AddRoutes(IEndpointRouteBuilder app)
         {
+            // Map: GET {route} → paginated/all states for storefront
             app.MapGet(pattern: LocationFeature.Storefront.States.GetAll.Route, handler: async (
                 [AsParameters] Parameters parameters,
                 ISender sender,

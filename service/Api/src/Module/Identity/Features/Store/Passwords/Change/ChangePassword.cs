@@ -12,6 +12,9 @@ public static partial class ChangePassword
 {
     public record Command(Request Request) : ICommand;
 
+    /// <summary>
+    /// Handles the <see cref="Command"/> to change the current user's password.
+    /// </summary>
     public class CommandHandler(
         ICurrentUser currentUser,
         ISystemDateTime dateTime,
@@ -32,14 +35,17 @@ public static partial class ChangePassword
         {
             var request = command.Request;
 
+            // Load: Retrieve the current user to verify they exist
             var user = await userManager.FindByIdAsync(currentUser.UserId!);
             if (user is null)
                 return UserResult.Failure.NotFound;
 
+            // Validate: Confirm the current password matches before allowing a change
             var isCurrentPasswordValid = await userManager.CheckPasswordAsync(user, request.CurrentPassword);
             if (!isCurrentPasswordValid)
                 return UserResult.Failure.PasswordMismatch;
 
+            // Call: Apply the new password via Identity
             var identityResult =
                 await userManager.ChangePasswordAsync(user, request.CurrentPassword, request.NewPassword);
             if (!identityResult.Succeeded)
@@ -47,10 +53,12 @@ public static partial class ChangePassword
 
             AuditableBehavior.Touch(user, dateTime.UtcNow);
 
+            // Call: Persist the updated audit timestamp
             var updateResult = await userManager.UpdateAsync(user);
             if (!updateResult.Succeeded)
                 return updateResult.ToResult();
 
+            // Call: Notify the user of the password change for security awareness
             await SendPasswordChangedNotificationAsync(user);
 
             return Result.Accepted(UserResult.Success.PasswordChanged);

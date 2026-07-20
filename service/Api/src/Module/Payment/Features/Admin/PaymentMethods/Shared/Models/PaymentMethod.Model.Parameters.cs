@@ -5,7 +5,7 @@ namespace Module.Payment.Features.Admin.PaymentMethods.Shared.Models;
 /// <summary>
 /// Abstract base class for payment method-related parameters, providing common properties.
 /// </summary>
-public abstract record PaymentMethodParameters
+public abstract record PaymentMethodParameters : INamedParameters, IActivatableParameters, ISortableParameters
 {
     /// <summary>Gets or sets the display name of the payment method.</summary>
     public string Name { get; init; } = string.Empty;
@@ -42,4 +42,6 @@ public abstract record PaymentMethodParameters
 
     /// <summary>Gets or sets whether the payment method is active.</summary>
     public bool Active { get; init; }
+
+    bool IActivatableParameters.IsActive { get => Active; init => Active = value; }
 }

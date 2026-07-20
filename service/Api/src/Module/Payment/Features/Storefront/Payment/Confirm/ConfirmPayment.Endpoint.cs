@@ -1,14 +1,15 @@
-// Route: POST api/storefront/payment/confirm/{paymentId} — confirm payment after gateway
 using Module.Payment.Features.Shared;
 
 namespace Module.Payment.Features.Storefront.Payment.Confirm;
 
 public static partial class ConfirmPayment
 {
+    /// <summary>Maps POST api/storefront/payment/confirm/{paymentId} to confirm a payment after gateway processing.</summary>
     public class Endpoint : ICarterModule
     {
         public void AddRoutes(IEndpointRouteBuilder app)
         {
+            // Map: POST api/storefront/payment/confirm/{paymentId} — confirm payment after gateway
             app.MapPost(PaymentFeature.Storefront.Payment.Confirm.Route, async (
                 [FromRoute] Guid paymentId,
                 ISender sender,
@@ -19,6 +20,7 @@ public static partial class ConfirmPayment
                 return result.ToResult();
             })
             .RequireAuthorization()
+            .RequireRateLimiting("payment")
             .WithName(nameof(ConfirmPayment))
             .WithTags(PaymentFeature.Tags.Payment)
             .WithSummary(PaymentFeature.Storefront.Payment.Confirm.Summary)

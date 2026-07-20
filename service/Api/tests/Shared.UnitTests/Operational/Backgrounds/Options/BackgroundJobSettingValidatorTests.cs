@@ -11,7 +11,7 @@ namespace Shared.UnitTests.Operational.Backgrounds.Options;
 [Trait("Feature", "BackgroundJobs")]
 public class BackgroundJobSettingValidatorTests
 {
-    private readonly BackgroundJobSettingValidator _validator = new BackgroundJobSettingValidator(new ConfigurationBuilder().Build());
+    private readonly BackgroundJobSettingValidator _validator = new(new ConfigurationBuilder().Build());
 
     [Fact(DisplayName = "Valid defaults should pass validation")]
     public void ValidDefaults_ShouldPassValidation()
@@ -66,7 +66,7 @@ public class BackgroundJobSettingValidatorTests
             .Build();
 
         BackgroundJobSetting model = new() { CachingEnabled = true };
-        BackgroundJobSettingValidator validator = new BackgroundJobSettingValidator(configuration);
+        BackgroundJobSettingValidator validator = new(configuration);
 
         ValidationResult result = validator.Validate(model);
 
@@ -84,7 +84,7 @@ public class BackgroundJobSettingValidatorTests
             .Build();
 
         BackgroundJobSetting model = new() { CachingEnabled = true };
-        BackgroundJobSettingValidator validator = new BackgroundJobSettingValidator(configuration);
+        BackgroundJobSettingValidator validator = new(configuration);
 
         ValidationResult result = validator.Validate(model);
 
@@ -97,7 +97,7 @@ public class BackgroundJobSettingValidatorTests
         var configuration = new ConfigurationBuilder().Build();
 
         BackgroundJobSetting model = new() { CachingEnabled = true };
-        BackgroundJobSettingValidator validator = new BackgroundJobSettingValidator(configuration);
+        BackgroundJobSettingValidator validator = new(configuration);
 
         ValidationResult result = validator.Validate(model);
 

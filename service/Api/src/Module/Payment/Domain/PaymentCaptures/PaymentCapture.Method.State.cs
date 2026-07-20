@@ -31,7 +31,7 @@ public static partial class PaymentCaptureMethod
         return Result.Ok(PaymentCaptureResult.Success.Pended(payment.Number));
     }
 
-    // Update: Processing/Pending → Completed — idempotent if already completed
+    // Update: Processing/Pending → Completed — returns AlreadyCompleted error if already completed
     public static Result Complete(this PaymentCapture payment)
     {
         if (payment.State is PaymentRecordState.Completed)
@@ -73,6 +73,20 @@ public static partial class PaymentCaptureMethod
         return Result.Ok(PaymentCaptureResult.Success.Voided(payment.Number));
     }
 
+    // Update: Any non-terminal state → Disputed — idempotent if already disputed
+    public static Result Dispute(this PaymentCapture payment)
+    {
+        if (payment.State is PaymentRecordState.Disputed)
+            return PaymentCaptureResult.Failure.AlreadyDisputed;
+
+        if (payment.State is PaymentRecordState.Void or PaymentRecordState.Invalid)
+            return PaymentCaptureResult.Failure.InvalidStateTransition(payment.State, PaymentRecordState.Disputed);
+
+        payment.State = PaymentRecordState.Disputed;
+        payment.ModifiedAtUtc = DateTimeOffset.UtcNow;
+        return Result.Ok();
+    }
+
     // Update: Failed/Void → Invalid — idempotent if already invalid
     public static Result Invalidate(this PaymentCapture payment)
     {
@@ -102,7 +116,7 @@ public static partial class PaymentCaptureMethod
         => payment.State is PaymentRecordState.Processing or PaymentRecordState.Pending
            && amount > 0 && amount <= payment.Amount;
 
-    // Update: Capture amount — validates CanCapture precondition
+    // Update: Capture amount — validates CanCapture precondition, transitions to Completed
     public static Result Capture(this PaymentCapture payment, decimal amount)
     {
         if (!payment.CanCapture(amount))
@@ -111,6 +125,8 @@ public static partial class PaymentCaptureMethod
                 ? PaymentCaptureResult.Failure.AmountExceedsAuthorized
                 : PaymentCaptureResult.Failure.InvalidStateTransition(payment.State, PaymentRecordState.Completed);
         }
+        payment.State = PaymentRecordState.Completed;
+        payment.ModifiedAtUtc = DateTimeOffset.UtcNow;
         return Result.Ok(PaymentCaptureResult.Success.Captured(payment.Number, amount));
     }
 

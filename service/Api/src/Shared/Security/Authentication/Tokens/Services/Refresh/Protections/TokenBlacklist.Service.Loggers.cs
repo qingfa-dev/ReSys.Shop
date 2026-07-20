@@ -2,6 +2,7 @@ namespace Shared.Security.Authentication.Tokens.Services.Refresh.Protections;
 
 public partial class TokenBlacklistService
 {
+    /// <summary>Structured log event definitions for token blacklist operations.</summary>
     internal static partial class Loggers
     {
         [LoggerMessage(

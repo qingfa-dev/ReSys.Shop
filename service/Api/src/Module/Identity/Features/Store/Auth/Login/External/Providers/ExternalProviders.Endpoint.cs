@@ -2,10 +2,12 @@ namespace Module.Identity.Features.Store.Auth.Login.External.Providers;
 
 public static partial class ExternalProviders
 {
+    /// <summary>Maps the external providers listing route.</summary>
     public sealed class Endpoint : ICarterModule
     {
         public void AddRoutes(IEndpointRouteBuilder app)
         {
+            // Map: GET /api/store/auth/login/external/providers — list available OAuth providers
             app.MapGet(IdentityFeature.Store.Auth.Login.External.Providers.Route, async (
                 ISender sender,
                 CancellationToken ct) =>

@@ -43,14 +43,16 @@ public static partial class CancelOrderAdmin
 
             // Call: Void pending payments via Payment module — fire-and-forget on failure.
             var voidResult = await sender.Send(
-                new Module.Payment.Features.Shared.Commands.VoidOrderPaymentsCommand(
-                    order.Id, OrderConstant.CancelReasons.Admin),
+                new Module.Payment.Features.Shared.Commands.VoidOrderPaymentsCommand
+                {
+                    OrderId = order.Id,
+                    Reason = OrderConstant.CancelReasons.Admin
+                },
                 cancellationToken);
             if (voidResult.IsFailure)
             {
                 // Log: Payment void failure is non-fatal — order is already cancelled.
-                logger.LogWarning("Failed to void payments for order {OrderId}: {Errors}",
-                    order.Id, string.Join("; ", voidResult.Errors.Select(f => f.Message)));
+                OrderLoggers.VoidPaymentsFailed(logger, order.Id, string.Join("; ", voidResult.Errors.Select(f => f.Message)));
             }
 
             if (wasPlaced)
@@ -89,8 +91,7 @@ public static partial class CancelOrderAdmin
             var result = await notificationService.SendAsync(message, ct);
             if (result.IsFailure)
             {
-                logger.LogWarning("Failed to send order canceled notification for order {OrderId}: {Errors}",
-                    order.Id, string.Join("; ", result.Errors.Select(f => f.Message)));
+                OrderLoggers.CancelNotificationFailed(logger, order.Id, string.Join("; ", result.Errors.Select(f => f.Message)));
             }
         }
     }

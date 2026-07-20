@@ -15,7 +15,7 @@ public static class PaymentModelMapping
             Amount = payment.Amount,
             Currency = string.Empty,
             OrderId = payment.OrderId,
-            PaymentMethodId = payment.PaymentMethodId,
+            PaymentMethodId = payment.PaymentMethodId.GetValueOrDefault(),
             State = payment.State.ToString(),
             ResponseCode = payment.ResponseCode,
             PaymentMethodName = payment.PaymentMethod?.Name,
@@ -35,7 +35,7 @@ public static class PaymentModelMapping
             Amount = payment.Amount,
             Currency = string.Empty,
             OrderId = payment.OrderId,
-            PaymentMethodId = payment.PaymentMethodId,
+            PaymentMethodId = payment.PaymentMethodId.GetValueOrDefault(),
             State = payment.State.ToString()
         };
     }

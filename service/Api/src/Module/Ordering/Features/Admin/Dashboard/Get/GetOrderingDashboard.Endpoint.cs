@@ -8,10 +8,12 @@ namespace Module.Ordering.Features.Admin.Dashboard.Get;
 
 public static partial class GetOrderingDashboard
 {
+    /// <summary>Maps the admin ordering dashboard route.</summary>
     public class Endpoint : ICarterModule
     {
         public void AddRoutes(IEndpointRouteBuilder app)
         {
+            // Map: GET api/ordering/dashboard — get ordering dashboard metrics
             app.MapGet(OrderingDashboardFeature.Admin.Get.Route, async (
                 ISender sender,
                 CancellationToken ct) =>

@@ -1,6 +1,6 @@
 using Module.Profile.Domain;
 using Module.Profile.Domain.Addresses;
-using Module.Profile.Features.Store.Addresses.Shared.Mappings;
+using Module.Profile.Features.Admin.Addresses.Shared.Mappings;
 
 using Shared.Security.Identity.Domain.Users;
 
@@ -9,48 +9,40 @@ namespace Module.Profile.Features.Store.Addresses.Create;
 /// <summary>Creates a new address for the authenticated user's profile.</summary>
 public static partial class CreateAddress
 {
-    public sealed record Command(Request Request) : ICommand<Response>;
+    public sealed record Command(Guid UserId, Request Request) : ICommand<Response>;
 
+    /// <summary>Handles the creation of a new address for the current user.</summary>
     public sealed class CommandHandler(
-        IApplicationDbContext dbContext,
-        ICurrentUser currentUser)
+        IApplicationDbContext dbContext)
         : ICommandHandler<Command, Response>
     {
-        /// <summary>Validates limits and duplicates, then creates and persists a new address on the user profile.</summary>
-        /// <param name="command">The command containing the address creation request.</param>
-        /// <param name="cancellationToken">Propagates cancellation signal.</param>
-        /// <returns>A result containing the created address response or an error.</returns>
-        /// <exception cref="DbUpdateException">Thrown when database persistence fails.</exception>
+        /// <summary>Creates a new address for the current user.</summary>
         public async Task<Result<Response>> Handle(Command command, CancellationToken cancellationToken)
         {
-            // Contract: pre=user authenticated && profile exists, post=address persisted to profile,
-            //           throws=DbUpdateException
+            // Validate: Extract incoming request data
             var request = command.Request;
 
-            // Check: Ensure user is authenticated
-            if (string.IsNullOrEmpty(currentUser.UserId))
-                return AddressResult.Failure.AuthRequired;
-
-            // Load: Get the profile for the current user including existing addresses
+            // Load: Fetch the user's profile from persistence
             var profile = await dbContext.Set<UserProfile>()
-                .FirstOrDefaultAsync(p => p.UserId == Guid.Parse(currentUser.UserId), cancellationToken);
+                .FirstOrDefaultAsync(p => p.UserId == command.UserId, cancellationToken);
 
+            // Validate: Confirm profile exists before mutating addresses
             if (profile is null)
                 return UserResult.Failure.NotFound;
 
-            // Validate: Overall address count limit
+            // Validate: Enforce maximum total addresses per profile
             if (profile.Addresses.Count >= UserProfileConstant.Constraints.MaxAddressesCount)
                 return AddressResult.Failure.MaxAddressesReached;
 
-            // Validate: Per-type address count limit
             var sameTypeAddresses = profile.Addresses
                 .Where(a => a.AddressType == request.AddressType)
                 .ToList();
 
+            // Validate: Enforce maximum addresses per type
             if (sameTypeAddresses.Count >= UserProfileConstant.Constraints.MaxAddressesCountPerType)
                 return AddressResult.Failure.MaxAddressesPerTypeReached;
 
-            // Validate: No duplicates (check relevant fields)
+            // Validate: Reject duplicate address entries
             var isDuplicate = profile.Addresses.Any(a =>
                 a.Address1.Equals(request.Address1, StringComparison.OrdinalIgnoreCase) &&
                 a.City.Equals(request.City, StringComparison.OrdinalIgnoreCase) &&
@@ -62,31 +54,27 @@ public static partial class CreateAddress
             if (isDuplicate)
                 return AddressResult.Failure.DuplicateAddress;
 
-            // Transform: Request DTO to domain entity
+            // Transform: Map validated request to new address entity
             var address = request.MapToDomain();
 
-            // Enforce: 1 and only 1 default per type
-            // If this is the first address of this type, force it to be default
+            // Validate: First address of its type becomes the default
             if (sameTypeAddresses.Count == 0)
-            {
                 address.IsDefault = true;
-            }
 
-            // If the new address is set as default, unset others of the same type
+            // Validate: Only one default address per type
             if (address.IsDefault)
             {
                 foreach (var existing in sameTypeAddresses)
-                {
                     existing.IsDefault = false;
-                }
             }
 
-            // Add: Attach new address to the profile aggregate
+            // Create: Attach the address to the user profile
             profile.AddAddress(address);
 
+            // Call: Persist changes to the database
             await dbContext.SaveChangesAsync(cancellationToken);
 
-            // Map: Domain entity to response DTO
+            // Transform: Map persisted address to response DTO
             return Result<Response>.Created(address.ToResponse<Response>());
         }
     }

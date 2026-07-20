@@ -4,10 +4,12 @@ namespace Module.Location.Features.Store.Countries.GetByIsoCode;
 
 public static partial class GetStorefrontCountryByIso
 {
+    /// <summary>Storefront: get country by ISO code.</summary>
     public sealed class Endpoint : ICarterModule
     {
         public void AddRoutes(IEndpointRouteBuilder app)
         {
+            // Map: GET {route}/{isoCode} → country by ISO for storefront
             app.MapGet(pattern: LocationFeature.Storefront.Countries.GetByIso.Route, handler: async (
                 [FromRoute] string isoCode,
                 ISender sender,

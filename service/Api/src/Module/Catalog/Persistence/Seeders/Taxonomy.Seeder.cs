@@ -27,5 +27,11 @@ public sealed class CatalogTaxonomySeeder(IApplicationDbContext context, DemoJso
         return Result.Ok();
     }
 
-    private record DemoTaxonomyJson(string Id, string Name, string Presentation, int Position);
+    private record DemoTaxonomyJson
+    {
+        public string Id { get; init; } = default!;
+        public string Name { get; init; } = default!;
+        public string Presentation { get; init; } = default!;
+        public int Position { get; init; }
+    }
 }

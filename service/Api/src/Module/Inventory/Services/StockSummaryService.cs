@@ -5,10 +5,16 @@ using Module.Inventory.Services.Models;
 
 namespace Module.Inventory.Services;
 
+/// <summary>Computes per-variant stock summaries across all active locations, including on-hand, reserved, and available quantities.</summary>
 public class StockSummaryService(IApplicationDbContext dbContext) : IStockSummaryService
 {
     private readonly IApplicationDbContext _dbContext = dbContext;
 
+    /// <summary>
+    /// Aggregates stock data across all active locations, producing a per-variant summary with location breakdown.
+    /// </summary>
+    /// <param name="cancellationToken">Cancellation token.</param>
+    /// <returns>A list of variant stock summaries with on-hand, reserved, and available counts per location.</returns>
     public async Task<List<VariantStockSummary>> GetStockSummaryAsync(CancellationToken cancellationToken = default)
     {
         var now = DateTimeOffset.UtcNow;
@@ -51,7 +57,7 @@ public class StockSummaryService(IApplicationDbContext dbContext) : IStockSummar
                         CountOnHand = si.CountOnHand,
                         Reserved = reserved,
                         Available = available >= 0 ? available : 0,
-                        IsLowStock = si.StockLocation != null && si.CountOnHand <= si.StockLocation.LowStockThreshold
+                        IsLowStock = si.StockLocation != null && available <= si.StockLocation.LowStockThreshold
                     };
                 }).ToList();
 

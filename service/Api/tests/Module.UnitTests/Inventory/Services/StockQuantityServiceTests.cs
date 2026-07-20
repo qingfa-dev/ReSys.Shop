@@ -1,6 +1,7 @@
 using Module.Inventory.Services;
 using Module.Inventory.Domain.StockLocations.StockItems;
 using Module.Inventory.Domain.StockLocations.StockItems.StockMovements;
+using Module.Inventory.Domain.StockReservations;
 
 namespace Module.UnitTests.Inventory.Services;
 
@@ -45,6 +46,18 @@ public class StockQuantityServiceTests : IDisposable
         return stockItem;
     }
 
+    private async Task<StockReservation> SeedReservation(
+        int quantity, ReservationState state, Guid? orderId = null, DateTimeOffset? expiresAtUtc = null)
+    {
+        var ct = TestContext.Current.CancellationToken;
+        var reservation = StockReservationMethod.SeedForTest(
+            _variantId, quantity, state, expiresAtUtc ?? DateTimeOffset.UtcNow.AddMinutes(30),
+            _stockLocationId, orderId ?? _orderId, createdAtUtc: DateTimeOffset.UtcNow);
+        _dbContext.Set<StockReservation>().Add(reservation);
+        await _dbContext.SaveChangesAsync(ct);
+        return reservation;
+    }
+
     [Fact(DisplayName = "DecrementStockAsync: Should reduce CountOnHand and create StockMovement")]
     public async Task DecrementStockAsync_ShouldDecrementAndCreateMovement()
     {
@@ -83,6 +96,21 @@ public class StockQuantityServiceTests : IDisposable
 
         var result = await _service.DecrementStockAsync(_variantId, 5, _stockLocationId, _orderId, ct);
         result.IsFailure.Should().BeTrue();
+    }
+
+    [Fact(DisplayName = "DecrementStockAsync: Should fail when available stock (on-hand minus reserved) is insufficient")]
+    public async Task DecrementStockAsync_ShouldFail_WhenReservedStockMakesAvailableInsufficient()
+    {
+        var ct = TestContext.Current.CancellationToken;
+        await SeedStockItem(10);
+        var order1Id = Guid.NewGuid();
+        await SeedReservation(3, ReservationState.Reserved, orderId: order1Id);
+        var order2Id = Guid.NewGuid();
+
+        var result = await _service.DecrementStockAsync(_variantId, 8, _stockLocationId, order2Id, ct);
+
+        result.IsFailure.Should().BeTrue();
+        result.Errors.Should().ContainSingle(e => e.Code == "StockItem.InsufficientStock");
     }
 
     [Fact(DisplayName = "IncrementStockAsync: Should increase CountOnHand and create StockMovement")]

@@ -93,7 +93,8 @@ public class CreateOrderFromCartStockTests : IDisposable
         result.Errors[0].Code.Should().Be(StockItemResult.Errors.InsufficientStock.Code);
     }
 
-    [Fact(DisplayName = "Stock: Should return insufficient stock when concurrent checkouts exceed single item")]
+    [Fact(DisplayName = "Stock: Should return insufficient stock when concurrent checkouts exceed single item",
+        Skip = "InMemory does not support serializable isolation. Requires PostgreSQL integration test.")]
     public async Task Handle_Concurrent_Checkouts_Should_Not_Oversell()
     {
         // Arrange: Seed location and single unit of stock

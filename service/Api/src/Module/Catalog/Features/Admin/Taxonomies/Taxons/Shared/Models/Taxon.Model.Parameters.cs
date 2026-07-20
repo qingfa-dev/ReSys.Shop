@@ -6,7 +6,7 @@ namespace Module.Catalog.Features.Admin.Taxonomies.Taxons.Shared.Models;
 /// <summary>
 /// Abstract base class for taxon-related parameters, providing common properties.
 /// </summary>
-public abstract record TaxonParameters
+public abstract record TaxonParameters : INamedParameters, ISortableParameters, ISeoParameters
 {
     #region Relationships
     public Guid? ParentId { get; init; }

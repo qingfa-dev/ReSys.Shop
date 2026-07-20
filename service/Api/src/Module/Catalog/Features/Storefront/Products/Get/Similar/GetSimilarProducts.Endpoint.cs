@@ -4,10 +4,12 @@ namespace Module.Catalog.Features.Storefront.Products.Get.Similar;
 
 public static partial class GetSimilarProducts
 {
+    /// <summary>Maps the similar products route for the storefront.</summary>
     public class Endpoint : ICarterModule
     {
         public void AddRoutes(IEndpointRouteBuilder app)
         {
+            // Map: GET /api/storefront/products/{id}/similar — embedding-based similarity search
             app.MapGet(CatalogFeature.Storefront.Products.Get.Similar.Route, async (
                 [FromRoute] Guid id,
                 ISender sender,

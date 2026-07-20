@@ -1,6 +1,5 @@
 using Module.Profile.Domain;
 using Module.Profile.Features.Store.Profiles.Get.Detail;
-using Module.UnitTests.Identity.Fixtures;
 using Module.UnitTests.Profile.Domain;
 
 using Shared.Security.Identity.Domain.Users;
@@ -13,7 +12,6 @@ namespace Module.UnitTests.Profile.Features.Store.Profile.Get.Detail;
 public class GetProfileTests : IDisposable
 {
     private readonly ApplicationDbContext _dbContext;
-    private readonly Mock<ICurrentUser> _currentUserMock;
 
     public GetProfileTests()
     {
@@ -24,11 +22,10 @@ public class GetProfileTests : IDisposable
         ApplicationDbContext.AdditionalConfigurationsAssemblies = [typeof(UserProfile).Assembly];
 
         _dbContext = new ApplicationDbContext(options);
-        _currentUserMock = IdentityMocks.CreateCurrentUserMock(Guid.NewGuid());
     }
 
     private GetProfile.QueryHandler CreateHandler()
-        => new(_currentUserMock.Object, _dbContext);
+        => new(_dbContext);
 
     public void Dispose()
     {
@@ -36,28 +33,11 @@ public class GetProfileTests : IDisposable
         GC.SuppressFinalize(this);
     }
 
-    // Guard: Reject unauthenticated requests with 401
-    [Fact(DisplayName = "UseCase: Should return Unauthorized when user not authenticated")]
-    public async Task ExecuteAsync_ShouldReturnUnauthorized_WhenNotAuthenticated()
-    {
-        _currentUserMock.Setup(x => x.IsAuthenticated).Returns(false);
-
-        var handler = CreateHandler();
-        var request = new GetProfile.Query(Guid.NewGuid());
-
-        var result = await handler.Handle(request, TestContext.Current.CancellationToken);
-
-        result.IsFailure.Should().BeTrue();
-        result.Errors[0].Code.Should().Be(UserProfileResult.Failure.AuthRequired.Code);
-    }
-
     // Check: Return UserNotFound when identity user does not exist in store
     [Fact(DisplayName = "UseCase: Should return NotFound when user does not exist")]
     public async Task ExecuteAsync_ShouldReturnNotFound_WhenUserNotFound()
     {
         var userId = Guid.NewGuid();
-        _currentUserMock.Setup(x => x.IsAuthenticated).Returns(true);
-        _currentUserMock.Setup(x => x.UserId).Returns(userId.ToString());
 
         var handler = CreateHandler();
         var request = new GetProfile.Query(userId);
@@ -99,9 +79,6 @@ public class GetProfileTests : IDisposable
         _dbContext.Set<UserProfile>().Add(profile);
         await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 
-        _currentUserMock.Setup(x => x.IsAuthenticated).Returns(true);
-        _currentUserMock.Setup(x => x.UserId).Returns(userId.ToString());
-
         var handler = CreateHandler();
         var request = new GetProfile.Query(userId);
 
@@ -125,9 +102,6 @@ public class GetProfileTests : IDisposable
 
         _dbContext.Set<User>().Add(user);
         await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
-
-        _currentUserMock.Setup(x => x.IsAuthenticated).Returns(true);
-        _currentUserMock.Setup(x => x.UserId).Returns(userId.ToString());
 
         var handler = CreateHandler();
         var request = new GetProfile.Query(userId);

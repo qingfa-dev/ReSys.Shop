@@ -15,13 +15,13 @@ public class PaymentConfiguration : IEntityTypeConfiguration<PaymentCapture>
         builder.HasKey(x => x.Id);
         builder.Property(x => x.Number).IsRequired().HasMaxLength(PaymentConstant.Constraints.MaxPaymentNumberLength);
         builder.Property(x => x.Amount).HasPrecision(PaymentConstant.Constraints.Precision, PaymentConstant.Constraints.Scale);
+        builder.Property(x => x.Currency).IsRequired().HasMaxLength(PaymentConstant.Constraints.MaxCurrencyLength).HasDefaultValue(PaymentConstant.Defaults.Currency);
         builder.Property(x => x.State).IsRequired().HasConversion<string>().HasDefaultValue(PaymentRecordState.Checkout);
         builder.Property(x => x.ResponseCode).HasMaxLength(PaymentConstant.Constraints.MaxResponseCodeLength);
         builder.Property(x => x.AvsResponse).HasMaxLength(PaymentConstant.Constraints.MaxAvsResponseLength);
         builder.Property(x => x.CvvResponseCode).HasMaxLength(PaymentConstant.Constraints.MaxCvvCodeLength);
         builder.Property(x => x.CvvResponseMessage).HasMaxLength(PaymentConstant.Constraints.MaxCvvMessageLength);
         builder.Property(x => x.IntentClientSecret).HasMaxLength(PaymentConstant.Constraints.MaxIntentClientSecretLength);
-        builder.Property(x => x.CaptureEventCreated);
         builder.Property(x => x.RefundedAmount).HasPrecision(PaymentConstant.Constraints.Precision, PaymentConstant.Constraints.Scale);
         builder.Property(x => x.PaymentMethodId);
         builder.Property(x => x.OrderId);
@@ -31,5 +31,9 @@ public class PaymentConfiguration : IEntityTypeConfiguration<PaymentCapture>
 
         builder.HasOne<Order>().WithMany().HasForeignKey(x => x.OrderId).OnDelete(DeleteBehavior.Cascade);
         builder.HasOne(x => x.PaymentMethod).WithMany(pm => pm.Payments).HasForeignKey(x => x.PaymentMethodId).OnDelete(DeleteBehavior.SetNull);
+
+        builder.HasIndex(x => x.ResponseCode)
+            .HasDatabaseName("ix_payment_captures_response_code")
+            .HasFilter("\"ResponseCode\" IS NOT NULL");
     }
 }

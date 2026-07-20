@@ -1,5 +1,7 @@
 using Module.Profile.Features.Shared;
 
+using Shared.Security.Identity.Domain.Users;
+
 namespace Module.Profile.Features.Store.NotificationPreferences.Get;
 
 public static partial class GetNotificationPreferences
@@ -9,9 +11,14 @@ public static partial class GetNotificationPreferences
         public void AddRoutes(IEndpointRouteBuilder app)
         {
             app.MapGet(ProfileFeature.Store.NotificationPreferences.Get.Route, async (
-                ISender sender, CancellationToken ct) =>
+                ISender sender,
+                ICurrentUser currentUser,
+                CancellationToken ct) =>
             {
-                var result = await sender.Send(new Query(), ct);
+                if (string.IsNullOrEmpty(currentUser.UserId))
+                    return Results.Unauthorized();
+
+                var result = await sender.Send(new Query(Guid.Parse(currentUser.UserId)), ct);
                 return result.ToResult();
             })
             .RequireAuthorization()

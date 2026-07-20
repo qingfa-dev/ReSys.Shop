@@ -55,7 +55,7 @@ public sealed class ApiFixture : IAsyncLifetime
             "true",
             StringComparison.OrdinalIgnoreCase);
 
-        PostgreSqlBuilder builder = new PostgreSqlBuilder("pgvector/pgvector:pg17");
+        PostgreSqlBuilder builder = new("pgvector/pgvector:pg17");
         if (reuse)
         {
             builder = builder.WithReuse(true);
@@ -80,7 +80,7 @@ public sealed class ApiFixture : IAsyncLifetime
         _respawnersBySchema = new ConcurrentDictionary<string, Respawner>(StringComparer.OrdinalIgnoreCase);
         foreach (string schema in AllSchemas)
         {
-            await using NpgsqlConnection connection = new NpgsqlConnection(_connectionString);
+            await using NpgsqlConnection connection = new(_connectionString);
             await connection.OpenAsync();
             Respawner perSchema = await Respawner.CreateAsync(connection, new RespawnerOptions
             {
@@ -90,7 +90,7 @@ public sealed class ApiFixture : IAsyncLifetime
             _respawnersBySchema[schema] = perSchema;
         }
 
-        await using (NpgsqlConnection allConn = new NpgsqlConnection(_connectionString))
+        await using (NpgsqlConnection allConn = new(_connectionString))
         {
             await allConn.OpenAsync();
             _respawner = await Respawner.CreateAsync(allConn, new RespawnerOptions
@@ -112,7 +112,7 @@ public sealed class ApiFixture : IAsyncLifetime
 
         HashSet<string> schemaSet = new(schemas, StringComparer.OrdinalIgnoreCase);
 
-        await using NpgsqlConnection connection = new NpgsqlConnection(_connectionString);
+        await using NpgsqlConnection connection = new(_connectionString);
         await connection.OpenAsync();
 
         foreach (string schema in schemaSet)

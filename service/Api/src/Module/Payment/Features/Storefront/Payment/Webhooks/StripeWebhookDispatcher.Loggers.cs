@@ -1,0 +1,16 @@
+namespace Module.Payment.Features.Storefront.Payment.Webhooks;
+
+public static partial class StripeWebhookDispatcherLoggers
+{
+    [LoggerMessage(
+        EventId = 5010,
+        Level = LogLevel.Warning,
+        Message = "Stripe signature validation failed")]
+    public static partial void SignatureValidationFailed(ILogger logger, Exception ex);
+
+    [LoggerMessage(
+        EventId = 5011,
+        Level = LogLevel.Error,
+        Message = "Stripe event parse failed: {Payload}")]
+    public static partial void EventParseFailed(ILogger logger, Exception ex, string Payload);
+}

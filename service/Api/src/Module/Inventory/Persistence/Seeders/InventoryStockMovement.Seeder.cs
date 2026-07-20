@@ -41,6 +41,14 @@ public sealed class InventoryStockMovementSeeder(IApplicationDbContext context, 
         return Result.Ok();
     }
 
-    private record DemoStockMovementJson(string VariantId, string StockLocationCode, int Quantity,
-        int PreviousCountOnHand, string OriginatorType, string Reason, string Action);
+    private record DemoStockMovementJson
+    {
+        public string VariantId { get; init; } = default!;
+        public string StockLocationCode { get; init; } = default!;
+        public int Quantity { get; init; }
+        public int PreviousCountOnHand { get; init; }
+        public string OriginatorType { get; init; } = default!;
+        public string Reason { get; init; } = default!;
+        public string Action { get; init; } = default!;
+    }
 }

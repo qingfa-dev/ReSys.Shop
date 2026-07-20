@@ -5,29 +5,23 @@ namespace Module.Profile.Features.Store.NotificationPreferences.Get;
 /// <summary>Retrieves the notification preferences for the authenticated user.</summary>
 public static partial class GetNotificationPreferences
 {
-    public sealed record Query : IQuery<Response>;
+    public sealed record Query(Guid UserId) : IQuery<Response>;
 
-    public sealed class QueryHandler(IApplicationDbContext dbContext, ICurrentUser currentUser)
+    /// <summary>Handles the retrieval of notification preferences for the current user.</summary>
+    public sealed class QueryHandler(IApplicationDbContext dbContext)
         : IQueryHandler<Query, Response>
     {
-        /// <summary>Loads the user profile and returns SMS, email, and newsfeed notification flags.</summary>
-        /// <param name="request">The empty query.</param>
-        /// <param name="cancellationToken">Propagates cancellation signal.</param>
-        /// <returns>A result containing the notification preferences or a not-found error.</returns>
+        /// <summary>Retrieves notification preferences for the current user.</summary>
         public async Task<Result<Response>> Handle(Query request, CancellationToken cancellationToken)
         {
-            // Contract: pre=user authenticated, post=preferences returned or NotFound
-            // Check: Ensure user is authenticated
-            if (string.IsNullOrEmpty(currentUser.UserId))
-                return UserProfileResult.Failure.NotFound;
-
-            // Load: Fetch user profile to access notification settings
+            // Load: Fetch the user's profile from persistence
             var profile = await dbContext.Set<UserProfile>()
-                .FirstOrDefaultAsync(p => p.UserId == Guid.Parse(currentUser.UserId), cancellationToken);
+                .FirstOrDefaultAsync(p => p.UserId == request.UserId, cancellationToken);
+            // Validate: Confirm profile exists
             if (profile is null)
                 return UserProfileResult.Failure.NotFound;
 
-            // EXCEPTION: no domain entity — maps from domain NotificationPreferences values
+            // Transform: Extract notification preferences into response DTO
             return new Response
             {
                 EnableSms = profile.Notifications.EnableSms,

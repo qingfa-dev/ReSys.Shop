@@ -4,11 +4,12 @@ namespace Module.Inventory.Features.Storefront.CartReservations.Reserve;
 
 public static partial class ReserveCartStock
 {
-    /// <summary>Registers the endpoint.</summary>
+    /// <summary>Reserves stock for a shopping cart.</summary>
     public class Endpoint : ICarterModule
     {
         public void AddRoutes(IEndpointRouteBuilder app)
         {
+            // Map: POST /inventory/cart/reservations — reserves stock for a shopping cart
             app.MapPost(InventoryFeature.Storefront.CartReservations.Reserve.Route, async (
                 [FromBody] Request request,
                 HttpContext httpContext,
@@ -29,7 +30,9 @@ public static partial class ReserveCartStock
             .WithSummary(InventoryFeature.Storefront.CartReservations.Reserve.Summary)
             .WithDescription(InventoryFeature.Storefront.CartReservations.Reserve.Description)
             .Produces<Result<Response>>()
-            .Produces<Result>(StatusCodes.Status400BadRequest);
+            .Produces<Result>(StatusCodes.Status400BadRequest)
+            .Produces<Result>(StatusCodes.Status409Conflict)
+            .Produces<Result>(StatusCodes.Status404NotFound);
         }
     }
 }

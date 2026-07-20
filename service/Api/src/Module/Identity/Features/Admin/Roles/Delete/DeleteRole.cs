@@ -29,20 +29,25 @@ public static partial class DeleteRole
         {
             var request = command.Request;
 
+            // Load: Retrieve the role to verify it exists before deletion
             var role = await roleManager.FindByIdAsync(request.Id.ToString());
             if (role is null)
                 return RoleResult.Failure.NotFound;
 
+            // Guard: Prevent deletion of system-protected roles to maintain platform integrity
             if (role.IsSystem)
             {
+                // Log: Record attempted deletion of protected role for security audit
                 RoleLoggers.Management.SystemRoleProtected(logger, RoleName: role.Name!, RoleId: role.Id);
                 return RoleResult.Failure.SystemRoleProtected;
             }
 
+            // Call: Execute the deletion via Identity role manager
             var result = await roleManager.DeleteAsync(role);
             if (!result.Succeeded)
                 return result.ToResult<Response>();
 
+            // Log: Confirm role was deleted with identifying details
             RoleLoggers.Management.Deleted(logger, RoleName: role.Name!, RoleId: role.Id);
 
             // EXCEPTION: deleted role response — no domain entity after deletion

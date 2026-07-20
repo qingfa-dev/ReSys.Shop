@@ -2,7 +2,7 @@ using Module.Inventory.Domain.StockLocations;
 
 namespace Module.Inventory.Features.Admin.StockLocations.Shared.Models;
 
-public abstract record class StockLocationParameters
+public abstract record class StockLocationParameters : INamedParameters, IActivatableParameters, ISortableParameters
 {
     // Validate: Name is required and limited to max length
     public string Name { get; init; } = string.Empty;
@@ -18,4 +18,6 @@ public abstract record class StockLocationParameters
     public bool BackorderableDefault { get; init; } = StockLocationConstant.Defaults.BackorderableDefault;
     public bool PropagateAllVariants { get; init; } = StockLocationConstant.Defaults.PropagateAllVariants;
     public int Position { get; init; }
+
+    bool IActivatableParameters.IsActive { get => Active; init => Active = value; }
 }

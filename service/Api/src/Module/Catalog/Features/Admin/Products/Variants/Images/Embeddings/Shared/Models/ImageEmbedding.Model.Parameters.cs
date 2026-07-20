@@ -1,5 +1,8 @@
 namespace Module.Catalog.Features.Admin.Products.Variants.Images.Embeddings.Shared.Models;
 
-public abstract record ImageEmbeddingParameters(
-    string ModelName = "",
-    string ModelVersion = "");
+public abstract record ImageEmbeddingParameters
+{
+    public Guid VariantImageId { get; init; }
+    public string ModelName { get; init; } = string.Empty;
+    public string ModelVersion { get; init; } = string.Empty;
+}

@@ -3,18 +3,6 @@ namespace Shared.Operational.Persistence.Specifications.Paging;
 /// <summary>
 /// Defines the boundary constraints applied when normalizing a <see cref="PageModel"/>.
 /// </summary>
-/// <param name="DefaultPage">
-/// The page number used when the caller supplies no page, or supplies a value ≤ 0.
-/// Must be ≥ 1. Defaults to <c>1</c>.
-/// </param>
-/// <param name="DefaultPageSize">
-/// The page size used when the caller supplies no size, or supplies a value ≤ 0.
-/// Must be ≥ 1. Defaults to <c>10</c>.
-/// </param>
-/// <param name="MaxPageSize">
-/// The hard ceiling on page size. Any caller-supplied size above this value is clamped
-/// to this value. Must be ≥ 1. Defaults to <c>100</c>.
-/// </param>
 /// <remarks>
 /// <c>PageBounds</c> replaces the static <c>PaginationConstants</c> class, allowing
 /// different endpoints to enforce different limits without a global singleton:
@@ -23,14 +11,11 @@ namespace Shared.Operational.Persistence.Specifications.Paging;
 /// PageBounds.Default
 ///
 /// // Admin export endpoint — 500 items default, 1000 max.
-/// new PageBounds(DefaultPageSize: 500, MaxPageSize: 1000)
+/// new PageBounds { DefaultPageSize = 500, MaxPageSize = 1000 }
 /// </code>
 /// Pass a <c>PageBounds</c> instance into any <c>PageModelExtensions</c> factory method.
 /// </remarks>
-public sealed partial record PageBounds(
-    int DefaultPage    = PageBounds.DefaultPageValue,
-    int DefaultPageSize = PageBounds.DefaultPageSizeValue,
-    int MaxPageSize    = PageBounds.DefaultMaxPageSizeValue)
+public sealed partial record PageBounds
 {
     #region Constants
 
@@ -41,6 +26,24 @@ public sealed partial record PageBounds(
     public static readonly PageBounds Default = new();
 
     #endregion Constants
+
+    /// <summary>
+    /// The page number used when the caller supplies no page, or supplies a value ≤ 0.
+    /// Must be ≥ 1. Defaults to <c>1</c>.
+    /// </summary>
+    public int DefaultPage { get; init; } = PageBounds.DefaultPageValue;
+
+    /// <summary>
+    /// The page size used when the caller supplies no size, or supplies a value ≤ 0.
+    /// Must be ≥ 1. Defaults to <c>10</c>.
+    /// </summary>
+    public int DefaultPageSize { get; init; } = PageBounds.DefaultPageSizeValue;
+
+    /// <summary>
+    /// The hard ceiling on page size. Any caller-supplied size above this value is clamped
+    /// to this value. Must be ≥ 1. Defaults to <c>100</c>.
+    /// </summary>
+    public int MaxPageSize { get; init; } = PageBounds.DefaultMaxPageSizeValue;
 
     #region Normalization
 

@@ -1,14 +1,15 @@
-// Route: POST api/payment/payments/{id}/capture — gateway capture
 using Module.Payment.Features.Shared;
 
 namespace Module.Payment.Features.Admin.Payments.Capture;
 
 public static partial class CapturePayment
 {
+    /// <summary>Maps POST api/payment/payments/{id}/capture to capture an authorized payment.</summary>
     public class Endpoint : ICarterModule
     {
         public void AddRoutes(IEndpointRouteBuilder app)
         {
+            // Map: POST api/payment/payments/{id}/capture — gateway capture
             app.MapPost(PaymentFeature.Admin.Payments.Capture.Route, async (
                 [FromRoute] Guid id,
                 [FromBody] Request request,

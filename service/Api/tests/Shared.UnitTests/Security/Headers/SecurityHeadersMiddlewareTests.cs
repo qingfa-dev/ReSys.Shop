@@ -131,6 +131,31 @@ public sealed class SecurityHeadersMiddlewareTests
             .NotContain(kvp => kvp.Key == "Permissions-Policy");
     }
 
+    [Fact(DisplayName = "Middleware: emits X-Content-Type-Options but NOT Strict-Transport-Security")]
+    public async Task InvokeAsync_EmitsExpectedHeaders_NotHSTS()
+    {
+        var settings = Microsoft.Extensions.Options.Options.Create(new SecurityHeadersSetting
+        {
+            IsEnabled = true,
+            XContentTypeOptions = "nosniff",
+            XFrameOptions = "DENY",
+            ContentSecurityPolicy = "default-src 'self'",
+            ReferrerPolicy = "strict-origin-when-cross-origin",
+            PermissionsPolicy = "camera=()"
+        });
+        var middleware = new SecurityHeadersMiddleware(next: ctx => Task.CompletedTask, settings);
+        var context = new DefaultHttpContext();
+
+        await middleware.InvokeAsync(context);
+
+        context.Response.Headers.Should().ContainKey("X-Content-Type-Options");
+        context.Response.Headers.Should().ContainKey("X-Frame-Options");
+        context.Response.Headers.Should().ContainKey("Content-Security-Policy");
+        context.Response.Headers.Should().ContainKey("Referrer-Policy");
+        context.Response.Headers.Should().ContainKey("Permissions-Policy");
+        context.Response.Headers.Should().NotContainKey("Strict-Transport-Security");
+    }
+
     [Fact(DisplayName = "Should call the next delegate")]
     public async Task InvokeAsync_ShouldCallNext()
     {

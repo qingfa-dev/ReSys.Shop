@@ -3,6 +3,9 @@ using Module.Catalog.Domain.Products.Variants.Options;
 
 namespace Module.Catalog.Features.Admin.Products.Variants.OptionValues.Revoke;
 
+/// <summary>
+/// Defines the use case for revoking option values from a variant.
+/// </summary>
 public static partial class RevokeVariantOptionValues
 {
     public sealed record Command(Guid VariantId, Request Request) : ICommand;

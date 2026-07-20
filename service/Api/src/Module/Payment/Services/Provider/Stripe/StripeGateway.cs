@@ -8,8 +8,10 @@ namespace Module.Payment.Services.Provider.Stripe;
 // AgentHint: Add new Stripe API operations as override methods — keep try/catch StripeException pattern
 public sealed class StripeGateway : Gateway
 {
-    private const long CentsMultiplier = 100;
     private readonly StripeSetting _options;
+    private readonly PaymentIntentService _paymentIntentService = new();
+    private readonly RefundService _refundService = new();
+    private readonly SetupIntentService _setupIntentService = new();
 
     public override string ProviderKey => GatewayConstants.Providers.Stripe;
     public override bool AutoCapture => true;
@@ -29,39 +31,57 @@ public sealed class StripeGateway : Gateway
         IdempotencyKey = opt.IdempotencyKey
     };
 
-    // Call: Stripe PaymentIntent.Create with autoCapture=true — succeeds immediately
-    // Catch: StripeException → MapStripeException
+    /// <summary>Creates a PaymentIntent with auto-capture — succeeds immediately.</summary>
+    /// <param name="amount">The payment amount.</param>
+    /// <param name="source">The payment source identifier (string).</param>
+    /// <param name="options">Gateway options.</param>
+    /// <param name="ct">Cancellation token.</param>
+    /// <returns>A result containing the Stripe PaymentIntent response.</returns>
     public override async Task<Result<PaymentGatewayResponse>> PurchaseAsync(
         decimal amount, object? source, GatewayOptions options, CancellationToken ct = default)
     {
+        if (amount > GatewayConstants.Amounts.MaxSafeDollarAmount)
+            return StripeGatewayResult.Errors.AmountExceedsMaximum;
         try
         {
             var po = CreatePaymentIntentOptions(amount, source, options, autoCapture: true);
             var ro = BuildRequestOptions(options);
-            var intent = await new PaymentIntentService().CreateAsync(po, ro, ct).ConfigureAwait(false);
-            // Check: Intent must be succeeded status for auto-capture
-            if (intent.Status != GatewayConstants.Stripe.IntentStatus.Succeeded)
-                return Error.BadRequest("Stripe.Purchase.NotSucceeded", $"Purchase status: {intent.Status}");
-            return new PaymentGatewayResponse(GatewayConstants.Providers.Stripe,
-                authorization: intent.Id,
-                clientSecret: intent.ClientSecret);
+            var intent = await _paymentIntentService.CreateAsync(po, ro, ct).ConfigureAwait(false);
+            // Check: Intent status routing
+            if (intent.Status == GatewayConstants.Stripe.IntentStatus.Succeeded)
+                return new PaymentGatewayResponse(GatewayConstants.Providers.Stripe,
+                    authorization: intent.Id,
+                    clientSecret: intent.ClientSecret);
+
+            if (intent.Status == GatewayConstants.Stripe.IntentStatus.RequiresAction)
+                return new PaymentGatewayResponse(GatewayConstants.Providers.Stripe,
+                    authorization: intent.Id,
+                    clientSecret: intent.ClientSecret,
+                    paymentStatus: GatewayConstants.Stripe.IntentStatus.RequiresAction);
+
+            if (intent.Status == GatewayConstants.Stripe.IntentStatus.RequiresPaymentMethod)
+                return StripeGatewayResult.Errors.PaymentMethodRequired(
+                    intent.LastPaymentError?.Message);
+
+            return StripeGatewayResult.Errors.PurchaseNotSucceeded(intent.Status);
         }
         catch (StripeException ex) { return MapStripeException(ex); }
     }
 
-    // Call: Stripe PaymentIntent.Create with autoCapture=false — requires separate capture
-    // Catch: StripeException → MapStripeException
+    /// <summary>Creates a PaymentIntent with manual capture — requires a separate CaptureAsync call.</summary>
     public override async Task<Result<PaymentGatewayResponse>> AuthorizeAsync(
         decimal amount, object? source, GatewayOptions options, CancellationToken ct = default)
     {
+        if (amount > GatewayConstants.Amounts.MaxSafeDollarAmount)
+            return StripeGatewayResult.Errors.AmountExceedsMaximum;
         try
         {
             var po = CreatePaymentIntentOptions(amount, source, options, autoCapture: false);
             var ro = BuildRequestOptions(options);
-            var intent = await new PaymentIntentService().CreateAsync(po, ro, ct).ConfigureAwait(false);
+            var intent = await _paymentIntentService.CreateAsync(po, ro, ct).ConfigureAwait(false);
             // Check: Intent must be requires_capture status for manual-capture
             if (intent.Status != GatewayConstants.Stripe.IntentStatus.RequiresCapture)
-                return Error.BadRequest("Stripe.Authorize.NotRequiresCapture", $"Authorize status: {intent.Status}");
+                return StripeGatewayResult.Errors.AuthorizeNotRequiresCapture(intent.Status);
             return new PaymentGatewayResponse(GatewayConstants.Providers.Stripe,
                 authorization: intent.Id,
                 clientSecret: intent.ClientSecret);
@@ -69,30 +89,30 @@ public sealed class StripeGateway : Gateway
         catch (StripeException ex) { return MapStripeException(ex); }
     }
 
-    // Call: Stripe PaymentIntent.Capture — amount in cents
-    // Catch: StripeException → MapStripeException
+    /// <summary>Captures a PaymentIntent — amount converted to cents with away-from-zero rounding.</summary>
     public override async Task<Result<PaymentGatewayResponse>> CaptureAsync(
         decimal amount, string? responseCode, GatewayOptions options, CancellationToken ct = default)
     {
         // Check: ResponseCode (PaymentIntent ID) is required
         if (string.IsNullOrEmpty(responseCode))
             return StripeGatewayResult.Errors.CaptureMissingIntent;
+        if (amount > GatewayConstants.Amounts.MaxSafeDollarAmount)
+            return StripeGatewayResult.Errors.AmountExceedsMaximum;
         try
         {
             // Compute: Amount in cents with away-from-zero rounding
             var co = new PaymentIntentCaptureOptions
             {
-                AmountToCapture = (long)Math.Round(amount * CentsMultiplier, MidpointRounding.AwayFromZero)
+                AmountToCapture = checked((long)Math.Round(amount * GatewayConstants.Amounts.CentsMultiplier, MidpointRounding.AwayFromZero))
             };
             var ro = BuildRequestOptions(options);
-            var intent = await new PaymentIntentService().CaptureAsync(responseCode, co, ro, ct).ConfigureAwait(false);
+            var intent = await _paymentIntentService.CaptureAsync(responseCode, co, ro, ct).ConfigureAwait(false);
             return new PaymentGatewayResponse(GatewayConstants.Providers.Stripe, authorization: intent.Id);
         }
         catch (StripeException ex) { return MapStripeException(ex); }
     }
 
-    // Call: Stripe PaymentIntent.Cancel
-    // Catch: StripeException → MapStripeException
+    /// <summary>Cancels a Stripe PaymentIntent.</summary>
     public override async Task<Result<PaymentGatewayResponse>> VoidAsync(
         string? responseCode, object? source, GatewayOptions options, CancellationToken ct = default)
     {
@@ -103,37 +123,37 @@ public sealed class StripeGateway : Gateway
         {
             var co = new PaymentIntentCancelOptions();
             var ro = BuildRequestOptions(options);
-            var intent = await new PaymentIntentService().CancelAsync(responseCode, co, ro, ct).ConfigureAwait(false);
+            var intent = await _paymentIntentService.CancelAsync(responseCode, co, ro, ct).ConfigureAwait(false);
             return new PaymentGatewayResponse(GatewayConstants.Providers.Stripe, authorization: intent.Id);
         }
         catch (StripeException ex) { return MapStripeException(ex); }
     }
 
-    // Call: Stripe Refund.Create — amount in cents
-    // Catch: StripeException → MapStripeException
+    /// <summary>Creates a Stripe Refund for the given PaymentIntent.</summary>
     public override async Task<Result<PaymentGatewayResponse>> RefundAsync(
         decimal amount, string? responseCode, GatewayOptions options, CancellationToken ct = default)
     {
         // Check: ResponseCode (PaymentIntent ID) is required
         if (string.IsNullOrEmpty(responseCode))
             return StripeGatewayResult.Errors.CreditMissingIntent;
+        if (amount > GatewayConstants.Amounts.MaxSafeDollarAmount)
+            return StripeGatewayResult.Errors.AmountExceedsMaximum;
         try
         {
             // Compute: Amount in cents with away-from-zero rounding
             var ro = new RefundCreateOptions
             {
                 PaymentIntent = responseCode,
-                Amount = (long)Math.Round(amount * CentsMultiplier, MidpointRounding.AwayFromZero)
+                Amount = checked((long)Math.Round(amount * GatewayConstants.Amounts.CentsMultiplier, MidpointRounding.AwayFromZero))
             };
             var requestOptions = BuildRequestOptions(options);
-            var refund = await new RefundService().CreateAsync(ro, requestOptions, ct).ConfigureAwait(false);
+            var refund = await _refundService.CreateAsync(ro, requestOptions, ct).ConfigureAwait(false);
             return new PaymentGatewayResponse(GatewayConstants.Providers.Stripe, authorization: refund.Id);
         }
         catch (StripeException ex) { return MapStripeException(ex); }
     }
 
-    // Call: Stripe SetupIntent.Create — for saved payment methods
-    // Catch: StripeException → MapStripeException
+    /// <summary>Creates a Stripe SetupIntent for saved payment methods.</summary>
     public override async Task<Result<PaymentGatewayResponse>> CreateSetupIntentAsync(
         string? customerId, Dictionary<string, string>? metadata, CancellationToken ct = default)
     {
@@ -141,7 +161,7 @@ public sealed class StripeGateway : Gateway
         {
             var options = new SetupIntentCreateOptions { Metadata = metadata };
             var ro = new RequestOptions { ApiKey = _options.SecretKey };
-            var intent = await new SetupIntentService().CreateAsync(options, ro, ct).ConfigureAwait(false);
+            var intent = await _setupIntentService.CreateAsync(options, ro, ct).ConfigureAwait(false);
             return new PaymentGatewayResponse(GatewayConstants.Providers.Stripe,
                 setupIntentClientSecret: intent.ClientSecret);
         }
@@ -153,7 +173,7 @@ public sealed class StripeGateway : Gateway
         string paymentIntentId, CancellationToken ct)
     {
         var ro = new RequestOptions { ApiKey = _options.SecretKey };
-        var intent = await new PaymentIntentService().GetAsync(paymentIntentId, null, ro, ct);
+        var intent = await _paymentIntentService.GetAsync(paymentIntentId, null, ro, ct);
         return intent.Status;
     }
 
@@ -164,7 +184,7 @@ public sealed class StripeGateway : Gateway
         // Compute: Amount in cents with away-from-zero rounding
         var o = new PaymentIntentCreateOptions
         {
-            Amount = (long)Math.Round(amount * CentsMultiplier, MidpointRounding.AwayFromZero),
+            Amount = checked((long)Math.Round(amount * GatewayConstants.Amounts.CentsMultiplier, MidpointRounding.AwayFromZero)),
             Currency = GatewayOptions.Currency,
             ConfirmationMethod = GatewayConstants.Stripe.ConfirmationMethod.Manual,
             CaptureMethod = autoCapture
@@ -176,6 +196,35 @@ public sealed class StripeGateway : Gateway
                 [GatewayConstants.Metadata.PaymentIdKey] = options.PaymentId
             }
         };
+        // Assign: ReturnUrl for 3DS redirect — only when configured
+        if (!string.IsNullOrEmpty(options.SuccessUrl))
+            o.ReturnUrl = options.SuccessUrl;
+        o.PaymentMethodTypes = options.ProviderSpecific is not null
+            && options.ProviderSpecific.TryGetValue("payment_method_types", out var types)
+            && types is List<string> list
+                ? list
+                : ["card"];
+        // Assign: Statement descriptor suffix — shown on customer card statements
+        if (!string.IsNullOrEmpty(options.StatementDescriptorSuffix))
+            o.StatementDescriptorSuffix = options.StatementDescriptorSuffix;
+
+        // Assign: Shipping details for fraud detection and card statement context
+        if (options.ShippingAddress is not null)
+        {
+            o.Shipping = new ChargeShippingOptions
+            {
+                Name = options.ShippingAddress.GetValueOrDefault("name")?.ToString(),
+                Address = new AddressOptions
+                {
+                    Line1 = options.ShippingAddress.GetValueOrDefault("line1")?.ToString(),
+                    Line2 = options.ShippingAddress.GetValueOrDefault("line2")?.ToString(),
+                    City = options.ShippingAddress.GetValueOrDefault("city")?.ToString(),
+                    State = options.ShippingAddress.GetValueOrDefault("state")?.ToString(),
+                    PostalCode = options.ShippingAddress.GetValueOrDefault("postal_code")?.ToString(),
+                    Country = options.ShippingAddress.GetValueOrDefault("country")?.ToString(),
+                }
+            };
+        }
         // Assign: Payment method from source string if provided
         if (source is string s && !string.IsNullOrEmpty(s))
             o.PaymentMethod = s;
@@ -190,6 +239,13 @@ public sealed class StripeGateway : Gateway
         var msg = e?.DeclineCode is not null
             ? $"Stripe [{code}] decline [{e.DeclineCode}]: {e!.Message}"
             : $"Stripe [{code}]: {e?.Message ?? ex.Message}";
-        return Error.BadRequest($"Stripe.{code}", msg);
+
+        var isTransient = ex.HttpStatusCode >= System.Net.HttpStatusCode.InternalServerError
+            || e?.Type == "api_error"
+            || e?.Type == "api_connection_error";
+
+        return isTransient
+            ? StripeGatewayResult.Errors.TransientGatewayError(code, msg)
+            : StripeGatewayResult.Errors.GatewayError(code, msg);
     }
 }

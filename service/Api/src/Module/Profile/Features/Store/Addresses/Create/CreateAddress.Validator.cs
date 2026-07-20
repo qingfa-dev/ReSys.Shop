@@ -1,4 +1,4 @@
-using Module.Profile.Features.Store.Addresses.Shared.Validators;
+using Module.Profile.Features.Admin.Addresses.Shared.Validators;
 
 namespace Module.Profile.Features.Store.Addresses.Create;
 

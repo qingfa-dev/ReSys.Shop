@@ -16,7 +16,11 @@ public sealed class PageModelEfCoreExtensionsTests : IDisposable
         public string Name { get; init; } = string.Empty;
     }
 
-    private sealed record TestDto(int Id, string Name);
+    private sealed record TestDto
+    {
+        public int Id { get; init; }
+        public string Name { get; init; } = default!;
+    }
 
     private sealed class TestDbContext(DbContextOptions<TestDbContext> options) : DbContext(options)
     {
@@ -51,7 +55,7 @@ public sealed class PageModelEfCoreExtensionsTests : IDisposable
         PageModel page = new(page: 2, pageSize: 5, bounds: bounds);
 
         PagedResult<TestDto> result = await _context.Items
-            .ToPagedResultAsync(e => new TestDto(e.Id, e.Name), page);
+            .ToPagedResultAsync(e => new TestDto { Id = e.Id, Name = e.Name }, page);
 
         result.PageNumber.Should().Be(2);
         result.PageSize.Should().Be(5);
@@ -80,7 +84,7 @@ public sealed class PageModelEfCoreExtensionsTests : IDisposable
         PageModel page = PageModel.Empty;
 
         PagedResult<TestDto> result = await _context.Items
-            .ToPagedOrAllAsync(e => new TestDto(e.Id, e.Name), page);
+            .ToPagedOrAllAsync(e => new TestDto { Id = e.Id, Name = e.Name }, page);
 
         result.Items.Should().HaveCount(25);
         result.PageNumber.Should().Be(1);
@@ -94,7 +98,7 @@ public sealed class PageModelEfCoreExtensionsTests : IDisposable
         PageModel page = new(page: 2, pageSize: 3, bounds: bounds);
 
         PagedResult<TestDto> result = await _context.Items
-            .ToPagedOrAllAsync(e => new TestDto(e.Id, e.Name), page);
+            .ToPagedOrAllAsync(e => new TestDto { Id = e.Id, Name = e.Name }, page);
 
         result.Items.Should().HaveCount(3);
         result.PageNumber.Should().Be(2);
@@ -106,7 +110,7 @@ public sealed class PageModelEfCoreExtensionsTests : IDisposable
         PageModel page = PageModel.Empty;
 
         PagedResult<TestDto> result = await _context.Items
-            .ToPagedOrEmptyAsync(e => new TestDto(e.Id, e.Name), page);
+            .ToPagedOrEmptyAsync(e => new TestDto { Id = e.Id, Name = e.Name }, page);
 
         result.Items.Should().BeEmpty();
         result.TotalCount.Should().Be(0);

@@ -2,13 +2,12 @@ namespace Module.Identity.Features.Store.Emails.Resend;
 
 public static partial class ResendEmailVerification
 {
-    /// <summary>
-    /// Carter endpoint for resending email verification links.
-    /// </summary>
+    /// <summary>Maps the email verification resend route.</summary>
     public class Endpoint : ICarterModule
     {
         public void AddRoutes(IEndpointRouteBuilder app)
         {
+            // Map: POST /api/store/emails/resend-verification — resend email verification link
             app.MapPost(IdentityFeature.Store.Emails.Resend.Route, Handle)
                 .AllowAnonymous()
                 .WithName(nameof(ResendEmailVerification))
@@ -20,7 +19,6 @@ public static partial class ResendEmailVerification
                 .Produces<Result>(StatusCodes.Status404NotFound);
         }
 
-        // Handle: Resend email verification — routes Command to handler via MediatR
         private static async Task<IResult> Handle(
             [FromBody] Request request,
             ISender sender,

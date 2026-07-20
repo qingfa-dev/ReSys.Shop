@@ -27,26 +27,34 @@ public static partial class CancelStockTransfer
                 .Include(t => t.TransferItems)
                 .FirstOrDefaultAsync(t => t.Id == command.Id, cancellationToken);
 
+            // Check: Transfer must exist
             if (transfer is null)
                 return StockTransferResult.Failure.NotFound;
 
+            // Compute: Determine if stock needs restoration
             var wasInTransit = transfer.State == TransferState.InTransit;
+
+            // Update: Transition state to Canceled
             var cancelResult = transfer.Cancel();
             if (cancelResult.IsFailure) return cancelResult;
 
+            // Restore: Return stock to source if it was previously deducted
             if (wasInTransit)
             {
                 foreach (var item in transfer.TransferItems)
                 {
+                    // Load: Source stock item for this variant
                     var stockItem = await dbContext.Set<StockItem>()
                         .FirstOrDefaultAsync(si => si.VariantId == item.VariantId
                             && si.StockLocationId == transfer.SourceLocationId, cancellationToken);
 
                     if (stockItem is not null)
                     {
+                        // Update: Restore deducted stock quantity
                         stockItem.CountOnHand += item.Quantity;
                         stockItem.ModifiedAtUtc = DateTimeOffset.UtcNow;
 
+                        // Record: Create stock movement for cancellation audit trail
                         var movement = StockMovementMethod.Create(
                             stockItemId: stockItem.Id,
                             quantity: item.Quantity,
@@ -61,8 +69,10 @@ public static partial class CancelStockTransfer
                 }
             }
 
+            // Await: Persist all changes
             await dbContext.SaveChangesAsync(cancellationToken);
 
+            // Log: Record cancellation for audit trail
             StockTransferLoggers.Canceled(logger, Id: command.Id);
             return Result.Ok();
         }

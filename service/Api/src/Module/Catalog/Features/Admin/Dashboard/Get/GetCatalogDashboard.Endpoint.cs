@@ -8,10 +8,12 @@ namespace Module.Catalog.Features.Admin.Dashboard.Get;
 
 public static partial class GetCatalogDashboard
 {
+    /// <summary>Maps the catalog admin dashboard route.</summary>
     public class Endpoint : ICarterModule
     {
         public void AddRoutes(IEndpointRouteBuilder app)
         {
+            // Map: GET /api/admin/catalog/dashboard — catalog stats for admin dashboard
             app.MapGet(CatalogDashboardFeature.Admin.Get.Route, async (
                 ISender sender,
                 CancellationToken ct) =>

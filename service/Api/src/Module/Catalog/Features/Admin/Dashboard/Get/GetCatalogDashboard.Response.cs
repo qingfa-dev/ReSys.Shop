@@ -13,5 +13,11 @@ public static partial class GetCatalogDashboard
         public List<RecentProductData> RecentProducts { get; init; } = [];
     }
 
-    public sealed record RecentProductData(Guid Id, string Name, string Slug, DateTime CreatedAtUtc);
+    public sealed record RecentProductData
+    {
+        public Guid Id { get; init; }
+        public string Name { get; init; } = default!;
+        public string Slug { get; init; } = default!;
+        public DateTime CreatedAtUtc { get; init; }
+    }
 }

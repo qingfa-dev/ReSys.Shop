@@ -5,6 +5,7 @@ using PaymentCapture = Module.Payment.Domain.PaymentCaptures.PaymentCapture;
 
 namespace Module.Payment.Features.Admin.Payments.Get.Paged;
 
+/// <summary>Retrieves a paged list of payments.</summary>
 public static partial class GetPagedPayments
 {
     public record Query(QueryingParameters Parameters) : IPagedQuery<Response>;
@@ -12,6 +13,8 @@ public static partial class GetPagedPayments
     public sealed class PagedQueryHandler(IApplicationDbContext dbContext)
         : IPagedQueryHandler<Query, Response>
     {
+        /// <summary>Retrieves a paged list of payments.</summary>
+        // Contract: pre=request!=null, post=result!=null
         public async Task<PagedResult<Response>> Handle(Query request, CancellationToken cancellationToken)
         {
             // Parse: Query parameters — validates filters, sorting, pagination

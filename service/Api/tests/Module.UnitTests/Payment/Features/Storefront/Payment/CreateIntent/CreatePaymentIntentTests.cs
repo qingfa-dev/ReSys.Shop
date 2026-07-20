@@ -140,6 +140,30 @@ public class CreatePaymentIntentTests : IDisposable
         result.Value.ClientSecret.Should().NotBeNullOrEmpty();
     }
 
+    [Fact(DisplayName = "Handler: Should use specific PaymentMethodId when provided")]
+    public async Task Handle_ShouldUseSpecificPaymentMethod()
+    {
+        var userId = Guid.Parse(_currentUserMock.Object.UserId!);
+        var order = OrderMethod.Create("USD", userId, Guid.NewGuid()).Value;
+        order.Status = OrderStatus.Placed;
+        order.Total = 100.00m;
+        _dbContext.Set<Order>().Add(order);
+        await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
+
+        var pmA = new PaymentMethod { Name = "Provider A", Code = "provider_a", ProviderKey = "stripe" };
+        var pmB = new PaymentMethod { Name = "Provider B", Code = "provider_b", ProviderKey = "bogus" };
+        _dbContext.Set<PaymentMethod>().Add(pmA);
+        _dbContext.Set<PaymentMethod>().Add(pmB);
+        await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
+
+        var result = await _handler.Handle(
+            new CreatePaymentIntent.Command(order.Id, PaymentMethodId: pmB.Id),
+            TestContext.Current.CancellationToken);
+
+        result.IsSuccess.Should().BeTrue();
+        _gatewayRegistryMock.Verify(x => x.GetGateway("bogus"), Times.Once);
+    }
+
     [Fact(DisplayName = "Handler: Should return failure when order not found")]
     public async Task Handle_ShouldReturnFailure_WhenOrderNotFound()
     {
@@ -149,5 +173,53 @@ public class CreatePaymentIntentTests : IDisposable
 
         result.IsFailure.Should().BeTrue();
         result.Errors[0].Code.Should().Be(OrderResult.Errors.NotFound(Guid.NewGuid()).Code);
+    }
+
+    [Fact(DisplayName = "Handler: does NOT persist PaymentCapture when gateway call fails")]
+    public async Task Handle_GatewayFails_NoPaymentPersisted()
+    {
+        var order = CreateOrder();
+        var paymentMethod = CreatePaymentMethod();
+        SetupGatewayThatThrows();
+
+        var handler = CreateHandler();
+        var command = new CreatePaymentIntent.Command(order.Id, paymentMethod.Id);
+        var result = await handler.Handle(command, CancellationToken.None);
+
+        result.IsFailure.Should().BeTrue();
+        VerifyPaymentNotAddedToStore();
+    }
+
+    private Order CreateOrder()
+    {
+        var userId = Guid.Parse(_currentUserMock.Object.UserId!);
+        var order = OrderMethod.Create("USD", userId, Guid.NewGuid()).Value;
+        order.Status = OrderStatus.Placed;
+        order.Total = 100.00m;
+        _dbContext.Set<Order>().Add(order);
+        _dbContext.SaveChanges();
+        return order;
+    }
+
+    private PaymentMethod CreatePaymentMethod()
+    {
+        var pm = new PaymentMethod { Name = "Credit Card", Code = "credit_card", ProviderKey = "stripe" };
+        _dbContext.Set<PaymentMethod>().Add(pm);
+        _dbContext.SaveChanges();
+        return pm;
+    }
+
+    private void SetupGatewayThatThrows()
+    {
+        _processingServiceMock.Setup(x => x.ProcessAsync(It.IsAny<PaymentCapture>(), It.IsAny<IPaymentGatewayActionProvider>(), It.IsAny<GatewayOptions>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Error.BadRequest("Gateway.Declined", "Card declined."));
+    }
+
+    private CreatePaymentIntent.CommandHandler CreateHandler()
+        => new(_dbContext, _currentUserMock.Object, _gatewayRegistryMock.Object, _processingServiceMock.Object);
+
+    private void VerifyPaymentNotAddedToStore()
+    {
+        _dbContext.Set<PaymentCapture>().Count().Should().Be(0);
     }
 }

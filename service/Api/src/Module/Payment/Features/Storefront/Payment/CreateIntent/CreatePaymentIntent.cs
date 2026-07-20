@@ -7,13 +7,14 @@ using GatewayOptions = Module.Payment.Services.Provider.GatewayOptions;
 using IGatewayRegistry = Module.Payment.Services.Provider.IGatewayRegistry;
 using IPaymentProcessingService = Module.Payment.Services.Processing.IPaymentProcessingService;
 
-using Module.Payment.Services.Models;
+using Module.Payment.Services.Provider;
 
 namespace Module.Payment.Features.Storefront.Payment.CreateIntent;
 
+/// <summary>Creates a payment intent for checkout.</summary>
 public static partial class CreatePaymentIntent
 {
-    public sealed record Command(Guid OrderId) : ICommand<Response>;
+    public sealed record Command(Guid OrderId, Guid? PaymentMethodId = null) : ICommand<Response>;
 
     public sealed class CommandHandler(
         IApplicationDbContext dbContext,
@@ -23,6 +24,7 @@ public static partial class CreatePaymentIntent
         : ICommandHandler<Command, Response>
     {
         // Contract: pre=orderId valid & user owns order, post=PaymentCapture persisted + gateway intent created
+        /// <summary>Creates a payment intent for checkout.</summary>
     public async Task<Result<Response>> Handle(Command command, CancellationToken cancellationToken)
         {
             // Check: Current user must own the order
@@ -36,8 +38,11 @@ public static partial class CreatePaymentIntent
                 return OrderResult.Errors.NotFound(command.OrderId);
 
             // Load: First active payment method
-            var paymentMethod = await dbContext.Set<PaymentMethod>()
-                .FirstOrDefaultAsync(c => c.Active && !c.IsDeleted, cancellationToken);
+            var paymentMethod = command.PaymentMethodId.HasValue
+                ? await dbContext.Set<PaymentMethod>()
+                    .FirstOrDefaultAsync(c => c.Id == command.PaymentMethodId.Value && c.Active && !c.IsDeleted, cancellationToken)
+                : await dbContext.Set<PaymentMethod>()
+                    .FirstOrDefaultAsync(c => c.Active && !c.IsDeleted, cancellationToken);
             if (paymentMethod is null)
                 return PaymentCaptureResult.Failure.NotFound;
 
@@ -50,7 +55,6 @@ public static partial class CreatePaymentIntent
 
             var payment = createResult.Value;
             dbContext.Set<PaymentCapture>().Add(payment);
-            await dbContext.SaveChangesAsync(cancellationToken);
 
             // Check: Gateway must be registered
             var gatewayResult = gatewayRegistry.GetGateway(paymentMethod.ProviderKey);
@@ -67,7 +71,7 @@ public static partial class CreatePaymentIntent
                 OrderId = $"{order.Number}-{payment.Number}",
                 PaymentId = payment.Number,
                 IdempotencyKey = GatewayConstants.Idempotency.ForPayment(payment.Number),
-                StatementDescriptorSuffix = string.Empty,
+                StatementDescriptorSuffix = paymentMethod.StatementDescriptorSuffix,
             };
 
             // Call: Gateway process (authorize or purchase depending on AutoCapture)

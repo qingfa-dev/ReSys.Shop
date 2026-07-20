@@ -31,11 +31,13 @@ public static partial class GetAvailability
         // Contract: pre=query.Id!=Guid.Empty, post=result!=null
         public async Task<Result<Response>> Handle(Query query, CancellationToken cancellationToken)
         {
+            // Check: Verify the product exists before computing availability
             var productExists = await dbContext.Set<Product>()
                 .AnyAsync(x => x.Id == query.Id && !x.IsDeleted, cancellationToken);
             if (!productExists)
                 return Result<Response>.NotFound();
 
+            // Load: Fetch non-master variants with option values and prices for availability computation
             var variants = await dbContext.Set<Variant>()
                 .Include(v => v.OptionValueVariants)
                     .ThenInclude(ov => ov.OptionValue!)
@@ -46,6 +48,7 @@ public static partial class GetAvailability
                 .AsNoTracking()
                 .ToListAsync(cancellationToken);
 
+            // Compute: Extract distinct option types as matrix axes (Color, Size, etc.)
             var optionTypes = variants
                 .SelectMany(v => v.OptionValueVariants)
                 .Select(ov => ov.OptionValue?.OptionType)
@@ -74,8 +77,10 @@ public static partial class GetAvailability
             }).ToList();
 
             var variantIds = variants.Select(v => v.Id).Distinct().ToList();
+            // Call: Query inventory service for batch available stock per variant
             var availableByVariant = await calculator.GetAvailableByVariantAsync(variantIds, cancellationToken);
 
+            // Compute: Build availability cells for each variant in the matrix grid
             var cells = new List<AvailabilityCell>(variants.Count);
             foreach (var v in variants)
             {
@@ -86,6 +91,7 @@ public static partial class GetAvailability
                 var firstPrice = v.Prices.FirstOrDefault();
                 var available = availableByVariant.GetValueOrDefault(v.Id, 0);
 
+                // Compute: Fetch full snapshot for out-of-stock variants to check backorderability
                 var snapshot = available == 0
                     ? await calculator.GetForVariantAsync(v.Id, cancellationToken)
                     : null;

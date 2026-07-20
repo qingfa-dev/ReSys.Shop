@@ -13,7 +13,7 @@ public class OpenApiOptionsSetupTests
     [Fact(DisplayName = "ConfigureCustomOptions should return the same OpenApiOptions instance for chaining")]
     public void ConfigureCustomOptions_ShouldReturnSameInstance()
     {
-        OpenApiOptions options = new OpenApiOptions();
+        OpenApiOptions options = new();
 
         OpenApiOptions result = options.ConfigureCustomOptions();
 

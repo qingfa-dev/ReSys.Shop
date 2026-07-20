@@ -13,6 +13,9 @@ public static partial class ResendEmailVerification
 {
     public sealed record Command(Request Request) : ICommand;
 
+    /// <summary>
+    /// Handles the <see cref="Command"/> to resend email verification.
+    /// </summary>
     public sealed class CommandHandler(
         ISystemDateTime systemDateTime,
         UserManager<User> userManager,
@@ -33,24 +36,31 @@ public static partial class ResendEmailVerification
         {
             var request = command.Request;
 
+            // Load: Look up user by email without revealing whether the account exists
             var user = await userManager.FindByEmailAsync(request.Email);
 
+            // Guard: Silently return NoContent for unknown users to prevent email enumeration
             if (user is null)
                 return Result.NoContent();
 
+            // Guard: Silently return NoContent if the email is already confirmed
             if (user.EmailConfirmed)
                 return Result.NoContent();
 
+            // Call: Generate a fresh email confirmation token for resending
             var token = await userManager.GenerateEmailConfirmationTokenAsync(user);
+            // Transform: Build verification URL with encoded token for notification
             var verificationUrl = BuildVerificationPath(user.Id, token);
 
             user.ModifiedAtUtc = systemDateTime.UtcNow;
             user.ModifiedBy = "System";
 
+            // Call: Persist the updated audit timestamp
             var updateResult = await userManager.UpdateAsync(user);
             if (!updateResult.Succeeded)
                 return updateResult.ToResult();
 
+            // Call: Send the verification notification with the new token
             await SendVerificationNotificationAsync(user, verificationUrl);
 
             return Result.NoContent();
@@ -73,7 +83,7 @@ public static partial class ResendEmailVerification
 
     internal static string BuildVerificationPath(Guid userId, string token)
     {
-        var encodedToken = token.ToBase64();
+        var encodedToken = token.ToBase64Url();
         const string path = "verify-email";
 
         return $"{path}?userId={userId}&token={encodedToken}";

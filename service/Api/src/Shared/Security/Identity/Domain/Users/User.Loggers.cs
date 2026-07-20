@@ -144,6 +144,12 @@ public static partial class UserLoggers
             string Email,
             string Errors,
             string? ActionBy = "System");
+
+        [LoggerMessage(
+            EventId = 1033,
+            Level = LogLevel.Warning,
+            Message = "Failed to send password reset notification to {UserId}")]
+        public static partial void PasswordResetNotificationFailed(ILogger logger, Guid UserId, Exception ex);
     }
 
     public static partial class Emails

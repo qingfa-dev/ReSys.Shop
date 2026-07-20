@@ -1,6 +1,6 @@
 namespace Module.Ordering.Backgrounds;
 
-// Contract: Success and error factories for CartExpiryJob background sweep operations
+/// <summary>Success and error result factories for CartExpiryJob background sweep operations.</summary>
 public static class CartExpiryJobResult
 {
     public static class Success

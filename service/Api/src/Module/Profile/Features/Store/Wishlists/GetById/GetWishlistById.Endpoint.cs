@@ -1,5 +1,7 @@
 using Module.Profile.Features.Shared;
 
+using Shared.Security.Identity.Domain.Users;
+
 namespace Module.Profile.Features.Store.Wishlists.GetById;
 
 public static partial class GetWishlistById
@@ -11,9 +13,13 @@ public static partial class GetWishlistById
             app.MapGet(ProfileFeature.Store.Wishlists.GetById.Route, async (
                     [FromRoute] Guid id,
                     ISender sender,
+                    ICurrentUser currentUser,
                     CancellationToken cancellationToken) =>
                 {
-                    var query = new Query(id);
+                    if (string.IsNullOrEmpty(currentUser.UserId))
+                        return Results.Unauthorized();
+
+                    var query = new Query(Guid.Parse(currentUser.UserId), id);
                     var result = await sender.Send(query, cancellationToken);
                     return result.ToResult();
                 })

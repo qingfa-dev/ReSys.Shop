@@ -4,11 +4,12 @@ namespace Module.Location.Features.Admin.Countries.Delete;
 
 public static partial class DeleteCountry
 {
-    // ============ ENDPOINT ============
+    /// <summary>Admin: delete a country.</summary>
     public sealed class Endpoint : ICarterModule
     {
         public void AddRoutes(IEndpointRouteBuilder app)
         {
+            // Map: DELETE {route}/{id} → delete country
             app.MapDelete(pattern: LocationFeature.Admin.Countries.Delete.Route, handler: async (
                     [FromRoute] Guid id,
                     ISender sender,

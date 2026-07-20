@@ -4,10 +4,12 @@ namespace Module.Catalog.Features.Admin.Taxonomies.Get.Paged;
 
 public static partial class GetTaxonomiesPaged
 {
+    /// <summary>Maps the paged taxonomy listing route.</summary>
     public class Endpoint : ICarterModule
     {
         public void AddRoutes(IEndpointRouteBuilder app)
         {
+            // Map: GET /api/admin/taxonomies — paged taxonomy listing with filtering and sorting
             app.MapGet(CatalogFeature.Admin.Taxonomies.GetAll.Route, async (
                 [AsParameters] Parameters parameters,
                 ISender sender,

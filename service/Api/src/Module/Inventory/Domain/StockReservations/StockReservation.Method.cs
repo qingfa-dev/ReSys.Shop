@@ -50,7 +50,8 @@ public static class StockReservationMethod
         Guid? orderId = null,
         string? cartToken = null,
         DateTimeOffset? createdAtUtc = null,
-        string createdBy = "System")
+        string createdBy = "System",
+        string? reason = null)
     {
         var reservation = new StockReservation
         {
@@ -62,6 +63,7 @@ public static class StockReservationMethod
             State = state,
             ExpiresAtUtc = expiresAtUtc,
             CartToken = cartToken,
+            Reason = reason,
         };
 
         AuditableBehavior.CreateBy(reservation, createdBy, createdAtUtc);
@@ -82,7 +84,21 @@ public static class StockReservationMethod
         if (reservation.IsExpired())
             return StockReservationResult.Errors.AlreadyExpired;
 
+        if (reservation.State != ReservationState.Reserved)
+            return StockReservationResult.Errors.InvalidStateTransition;
+
         reservation.State = ReservationState.Released;
+        reservation.ExpiresAtUtc = DateTimeOffset.UtcNow;
+        return Result.Ok();
+    }
+
+    // Expire: Mark the reservation as expired at the current time
+    public static Result Expire(this StockReservation reservation)
+    {
+        if (reservation.State != ReservationState.Reserved)
+            return StockReservationResult.Errors.InvalidStateTransition;
+
+        reservation.State = ReservationState.Expired;
         reservation.ExpiresAtUtc = DateTimeOffset.UtcNow;
         return Result.Ok();
     }

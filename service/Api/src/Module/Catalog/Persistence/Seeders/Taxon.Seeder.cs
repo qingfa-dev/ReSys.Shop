@@ -58,6 +58,17 @@ public sealed class CatalogTaxonSeeder(IApplicationDbContext context, DemoJsonHe
         return Result.Ok();
     }
 
-    private record DemoTaxonJson(string Id, string TaxonomyId, string? ParentId, string Name, string? Presentation,
-        string Slug, int Depth, int Lft, int Rgt, int Position);
+    private record DemoTaxonJson
+    {
+        public string Id { get; init; } = default!;
+        public string TaxonomyId { get; init; } = default!;
+        public string? ParentId { get; init; }
+        public string Name { get; init; } = default!;
+        public string? Presentation { get; init; }
+        public string Slug { get; init; } = default!;
+        public int Depth { get; init; }
+        public int Lft { get; init; }
+        public int Rgt { get; init; }
+        public int Position { get; init; }
+    }
 }

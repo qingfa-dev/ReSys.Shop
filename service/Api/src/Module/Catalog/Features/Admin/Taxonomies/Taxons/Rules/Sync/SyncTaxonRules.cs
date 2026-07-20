@@ -6,6 +6,9 @@ using Module.Catalog.Features.Admin.Taxonomies.Taxons.Services.AutoClassificatio
 
 namespace Module.Catalog.Features.Admin.Taxonomies.Taxons.Rules.Sync;
 
+/// <summary>
+/// Defines the use case for synchronizing taxon rules.
+/// </summary>
 public static partial class SyncTaxonRules
 {
     public sealed record Command(Guid TaxonomyId, Guid TaxonId, Request Request) : ICommand<Response>;

@@ -25,11 +25,12 @@ public static partial class ActivatePaymentMethod
             if (method is null)
                 return PaymentMethodResult.Errors.NotFound;
 
-            // Update: Toggle entity state.
+            // Update: Activate the payment method via domain logic
             var result = method.Activate();
             if (result.IsFailure)
                 return result;
 
+            // Await: Persist state change
             await dbContext.SaveChangesAsync(cancellationToken);
             return Result.Ok();
         }

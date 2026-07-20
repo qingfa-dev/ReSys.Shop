@@ -5,6 +5,9 @@ using Module.Catalog.Features.Admin.Taxonomies.Taxons.Services.AutoClassificatio
 
 namespace Module.Catalog.Features.Admin.Taxonomies.Taxons.Rules.Delete;
 
+/// <summary>
+/// Defines the use case for deleting a taxon rule.
+/// </summary>
 public static partial class DeleteTaxonRule
 {
     public sealed record Command(Guid TaxonomyId, Guid TaxonId, Guid RuleId) : ICommand;

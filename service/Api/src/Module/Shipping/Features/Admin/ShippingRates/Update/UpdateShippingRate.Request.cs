@@ -4,5 +4,5 @@ namespace Module.Shipping.Features.Admin.ShippingRates.Update;
 
 public static partial class UpdateShippingRate
 {
-    public class Request : ShippingRateUpdateRequest;
+    public record Request : ShippingRateRequest;
 }

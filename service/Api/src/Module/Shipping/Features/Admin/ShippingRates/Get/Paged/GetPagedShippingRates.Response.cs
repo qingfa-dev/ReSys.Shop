@@ -4,5 +4,5 @@ namespace Module.Shipping.Features.Admin.ShippingRates.Get.Paged;
 
 public static partial class GetPagedShippingRates
 {
-    public class Response : ShippingRateListItemResponse;
+    public record Response : ShippingRateListItemResponse;
 }

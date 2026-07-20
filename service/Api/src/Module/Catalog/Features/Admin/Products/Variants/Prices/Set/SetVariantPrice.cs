@@ -74,7 +74,7 @@ public static partial class SetVariantPrice
             VariantLoggers.Updated(logger, Sku: string.Empty, Id: variantId, ActionBy: currentUser.UserName);
 
             return Result<Response>.Ok(
-                new Response(variantId),
+                new Response { VariantId = variantId },
                 PriceResult.Success.Updated(variantId));
         }
     }

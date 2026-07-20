@@ -2,10 +2,12 @@ namespace Module.Identity.Features.Store.Auth.Login.External.Authenticate;
 
 public static partial class ExternalAuthenticate
 {
+    /// <summary>Maps the external OAuth authentication route.</summary>
     public sealed class Endpoint : ICarterModule
     {
         public void AddRoutes(IEndpointRouteBuilder app)
         {
+            // Map: POST /api/store/auth/login/external — authenticate via external OAuth provider (Google, Facebook)
             app.MapPost(IdentityFeature.Store.Auth.Login.External.Authenticate.Route, async (
                     [FromBody] Request request,
                     ISender sender,
@@ -18,6 +20,7 @@ public static partial class ExternalAuthenticate
                 .WithName(nameof(ExternalAuthenticate))
                 .WithTags(IdentityFeature.Tags.Authentication)
                 .AllowAnonymous()
+                .RequireRateLimiting("auth")
                 .WithSummary(IdentityFeature.Store.Auth.Login.External.Authenticate.Summary)
                 .WithDescription(IdentityFeature.Store.Auth.Login.External.Authenticate.Description)
                 .Produces<Result<Response>>()

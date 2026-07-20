@@ -1,5 +1,5 @@
 using Module.Profile.Domain;
-using Module.Profile.Features.Store.Profiles.Shared.Mappings;
+using Module.Profile.Features.Admin.Profiles.Shared.Mappings;
 
 using Shared.Application.Contracts.Profile;
 using Shared.Security.Identity.Domain.Users;
@@ -13,6 +13,7 @@ public static partial class CreateProfile
     /// <param name="Request">The request containing profile details.</param>
     public sealed record Command(Guid UserId, Request Request) : ICommand<Response>;
 
+    /// <summary>Validates user existence and one-profile-per-user constraint, then persists the new profile.</summary>
     public sealed class CommandHandler(
         IApplicationDbContext dbContext)
         : ICommandHandler<Command, Response>
@@ -69,7 +70,7 @@ public sealed class CreateUserProfileCommandHandler(
             }), cancellationToken);
 
         return result.IsSuccess
-            ? new CreateUserProfileResult(result.Value.Id)
+            ? new CreateUserProfileResult { ProfileId = result.Value.Id }
             : result.Errors;
     }
 }

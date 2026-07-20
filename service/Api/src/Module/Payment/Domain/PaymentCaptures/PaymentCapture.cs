@@ -12,19 +12,20 @@ public sealed partial class PaymentCapture : Entity, IAuditable
     #region Properties
     public string Number { get; set; } = string.Empty;
     public decimal Amount { get; set; }
+    public string Currency { get; set; } = PaymentConstant.Defaults.Currency;
     public PaymentRecordState State { get; set; } = PaymentRecordState.Checkout;
     public string? ResponseCode { get; set; }
     public string? AvsResponse { get; set; }
     public string? CvvResponseCode { get; set; }
     public string? CvvResponseMessage { get; set; }
     public string? IntentClientSecret { get; set; }
-    public bool CaptureEventCreated { get; set; }
+    public string? PaymentStatus { get; set; }
     public decimal RefundedAmount { get; set; }
     public string ProviderKey { get; set; } = string.Empty;
     #endregion Properties
 
     #region Identifiers
-    public Guid PaymentMethodId { get; set; }
+    public Guid? PaymentMethodId { get; set; }
     public Guid OrderId { get; set; }
     public Guid? SourceId { get; set; }
     public string? SourceType { get; set; }

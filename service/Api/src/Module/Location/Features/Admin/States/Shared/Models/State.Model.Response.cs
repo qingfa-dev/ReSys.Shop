@@ -1,6 +1,6 @@
 namespace Module.Location.Features.Admin.States.Shared.Models;
 
-public record StateDetailResponse : StateParameters
+public record StateDetailResponse : StateParameters, IResponse
 {
     public Guid Id { get; init; }
     public DateTimeOffset CreatedAtUtc { get; init; }
@@ -9,7 +9,7 @@ public record StateDetailResponse : StateParameters
     public string? ModifiedBy { get; init; }
 }
 
-public record StateListResponse : StateParameters
+public record StateListResponse : StateParameters, IResponse
 {
     public Guid Id { get; init; }
     public string? CountryName { get; init; }

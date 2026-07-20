@@ -15,12 +15,18 @@ public static partial class GetAllOptionTypes
     public sealed class PagedQueryHandler(IApplicationDbContext dbContext)
         : IPagedQueryHandler<Query, Response>
     {
-        /// <inheritdoc />
+        /// <summary>
+        /// Retrieves all filterable option types with their ordered values for the storefront filter panel.
+        /// </summary>
+        /// <param name="request">The query containing pagination and filtering parameters.</param>
+        /// <param name="cancellationToken">Propagates cancellation notification.</param>
+        /// <returns>A paged result of storefront option type responses.</returns>
         // Contract: pre=none, post=result.Items!=null
         public async Task<PagedResult<Response>> Handle(Query request, CancellationToken cancellationToken)
         {
             var parameters = request.Parameters;
 
+            // Load: Filterable option types with ordered values for storefront display
             var query = dbContext.Set<OptionType>()
                 .Include(x => x.OptionValues.OrderBy(v => v.Position))
                 .Where(x => !x.IsDeleted && x.Filterable)
@@ -35,6 +41,7 @@ public static partial class GetAllOptionTypes
             if (parsing.IsFailure)
                 return parsing.Errors;
 
+            // Compute: Apply filtering, sorting, and pagination to produce the storefront result
             var pagedResult = await query
                 .ApplyQuerying(parsing.Value)
                 .ToPagedOrAllAsync(parsing.Value, x => x.MapToStoreResponse<Response>(), cancellationToken);

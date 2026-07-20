@@ -21,7 +21,7 @@ public class PaymentStoreMappingTests
         response.Id.Should().Be(payment.Id);
         response.Amount.Should().Be(payment.Amount);
         response.OrderId.Should().Be(payment.OrderId);
-        response.PaymentMethodId.Should().Be(payment.PaymentMethodId);
+        response.PaymentMethodId.Should().Be(payment.PaymentMethodId.GetValueOrDefault());
         response.CreatedAtUtc.Should().Be(payment.CreatedAtUtc);
         response.ModifiedAtUtc.Should().Be(payment.ModifiedAtUtc);
     }
@@ -36,14 +36,14 @@ public class PaymentStoreMappingTests
         response.ClientSecret.Should().Be("secret_456");
     }
 
-    [Fact(DisplayName = "MapToStoreDetail: Should set Currency to empty string")]
-    public void MapToStoreDetail_ShouldSetCurrencyToEmpty()
+    [Fact(DisplayName = "MapToStoreDetail: Should set Currency from payment")]
+    public void MapToStoreDetail_ShouldSetCurrencyFromPayment()
     {
         var payment = CreatePayment();
 
         var response = payment.MapToStoreDetail<StorePaymentDetailResponse>();
 
-        response.Currency.Should().BeEmpty();
+        response.Currency.Should().Be(PaymentConstant.Defaults.Currency);
     }
 
     [Fact(DisplayName = "MapToStoreListItem: Should map entity to store list item response")]
@@ -57,7 +57,8 @@ public class PaymentStoreMappingTests
         response.Id.Should().Be(payment.Id);
         response.Amount.Should().Be(payment.Amount);
         response.OrderId.Should().Be(payment.OrderId);
-        response.PaymentMethodId.Should().Be(payment.PaymentMethodId);
+        response.PaymentMethodId.Should().Be(payment.PaymentMethodId.GetValueOrDefault());
+        response.Currency.Should().Be(PaymentConstant.Defaults.Currency);
     }
 
     [Fact(DisplayName = "MapToStoreDetail: Should handle null optional fields")]
@@ -74,6 +75,16 @@ public class PaymentStoreMappingTests
         response.Id.Should().Be(payment.Id);
         response.ClientSecret.Should().BeNull();
         response.ModifiedAtUtc.Should().BeNull();
+    }
+
+    [Fact(DisplayName = "MapToStoreDetail: Should map PaymentStatus from payment")]
+    public void MapToStoreDetail_ShouldMapPaymentStatus()
+    {
+        var payment = CreatePayment(p => p.PaymentStatus = "requires_action");
+
+        var response = payment.MapToStoreDetail<StorePaymentDetailResponse>();
+
+        response.PaymentStatus.Should().Be("requires_action");
     }
 
     private static PaymentCapture CreatePayment(Action<PaymentCapture>? configure = null)

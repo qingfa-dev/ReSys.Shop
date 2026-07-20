@@ -24,4 +24,6 @@ public sealed class SystemInfo(IHostEnvironment environment, IConfiguration conf
     public int ProcessId => System.Environment.ProcessId;
 
     public string DefaultCurrency => configuration["System:DefaultCurrency"] ?? SystemCurrencyConstant.Defaults.Code;
+
+    public string DefaultLanguage => configuration["System:DefaultLanguage"] ?? SystemCurrencyConstant.Defaults.Language;
 }

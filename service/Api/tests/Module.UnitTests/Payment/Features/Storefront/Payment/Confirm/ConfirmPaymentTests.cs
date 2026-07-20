@@ -1,6 +1,4 @@
 using Module.Ordering.Domain.Orders;
-using IPaymentGatewayActionProvider = Module.Payment.Services.Provider.IPaymentGatewayActionProvider;
-using IGatewayRegistry = Module.Payment.Services.Provider.IGatewayRegistry;
 
 using Module.Payment.Domain.PaymentCaptures;
 using Module.Payment.Features.Storefront.Payment.Confirm;
@@ -16,8 +14,6 @@ public class ConfirmPaymentTests : IDisposable
     private readonly ApplicationDbContext _dbContext;
     private readonly ConfirmPayment.CommandHandler _handler;
     private readonly string _currentUserId;
-    private readonly Mock<IPaymentGatewayActionProvider> _gatewayMock;
-    private readonly Mock<IGatewayRegistry> _gatewayRegistryMock;
 
     public ConfirmPaymentTests()
     {
@@ -30,15 +26,8 @@ public class ConfirmPaymentTests : IDisposable
         var currentUserMock = new Mock<ICurrentUser>();
         currentUserMock.Setup(x => x.UserId).Returns(_currentUserId);
         currentUserMock.Setup(x => x.UserName).Returns("test-user");
-        _gatewayMock = new Mock<IPaymentGatewayActionProvider>();
-        _gatewayMock.Setup(x => x.GetPaymentStatusAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync("succeeded");
 
-        _gatewayRegistryMock = new Mock<IGatewayRegistry>();
-        _gatewayRegistryMock.Setup(x => x.GetGateway(It.IsAny<string>()))
-            .Returns(Result<IPaymentGatewayActionProvider>.Ok(_gatewayMock.Object));
-
-        _handler = new ConfirmPayment.CommandHandler(_dbContext, currentUserMock.Object, _gatewayRegistryMock.Object);
+        _handler = new ConfirmPayment.CommandHandler(_dbContext, currentUserMock.Object);
     }
 
     private async Task SeedOrderAsync(Guid orderId, CancellationToken ct)
@@ -80,27 +69,6 @@ public class ConfirmPaymentTests : IDisposable
         result.Value.State.Should().Be("Completed");
     }
 
-    [Fact(DisplayName = "Handler: Should return failure when gateway status is not succeeded")]
-    public async Task Handle_ShouldFail_WhenGatewayStatusNotSucceeded()
-    {
-        _gatewayMock.Setup(x => x.GetPaymentStatusAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync("requires_payment_method");
-
-        var payment = CreateTestPayment();
-        payment.Process();
-        payment.Pend();
-        _dbContext.Set<PaymentCapture>().Add(payment);
-        await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
-        await SeedOrderAsync(payment.OrderId, TestContext.Current.CancellationToken);
-
-        var result = await _handler.Handle(
-            new ConfirmPayment.Command(payment.Id),
-            TestContext.Current.CancellationToken);
-
-        result.IsFailure.Should().BeTrue();
-        result.Errors[0].Code.Should().Be("Payment.Confirm.NotSucceeded");
-    }
-
     [Fact(DisplayName = "Handler: Should return failure when payment in Checkout state")]
     public async Task Handle_ShouldFail_WhenCheckout()
     {
@@ -130,8 +98,8 @@ public class ConfirmPaymentTests : IDisposable
             new ConfirmPayment.Command(payment.Id),
             TestContext.Current.CancellationToken);
 
-        result.IsFailure.Should().BeTrue();
-        result.Errors[0].Code.Should().Be("Payment.AlreadyCompleted");
+        result.IsSuccess.Should().BeTrue();
+        result.Value.State.Should().Be("Completed");
     }
 
     [Fact(DisplayName = "Handler: Should return NotFound when payment does not exist")]

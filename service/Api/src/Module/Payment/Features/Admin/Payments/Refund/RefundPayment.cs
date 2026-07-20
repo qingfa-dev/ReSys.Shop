@@ -4,13 +4,14 @@ using GatewayOptions = Module.Payment.Services.Provider.GatewayOptions;
 using IGatewayRegistry = Module.Payment.Services.Provider.IGatewayRegistry;
 using IPaymentProcessingService = Module.Payment.Services.Processing.IPaymentProcessingService;
 
-using Module.Payment.Services.Models;
+using Module.Payment.Services.Provider;
 using Module.Payment.Domain.PaymentCaptures;
 
 using PaymentCapture = Module.Payment.Domain.PaymentCaptures.PaymentCapture;
 
 namespace Module.Payment.Features.Admin.Payments.Refund;
 
+/// <summary>Refunds a completed payment.</summary>
 public static partial class RefundPayment
 {
     public sealed record Command(Guid Id, Request Request) : ICommand<Response>;
@@ -18,6 +19,7 @@ public static partial class RefundPayment
     public sealed class CommandHandler(IApplicationDbContext dbContext, IGatewayRegistry gatewayRegistry, IPaymentProcessingService processingService)
         : ICommandHandler<Command, Response>
     {
+        /// <summary>Refunds a completed payment.</summary>
         public async Task<Result<Response>> Handle(Command command, CancellationToken cancellationToken)
         {
             // Load: Payment capture by ID

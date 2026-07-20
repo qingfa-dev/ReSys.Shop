@@ -13,9 +13,11 @@ namespace Module.Dashboard.Features.Admin.Get;
 
 public static partial class GetDashboard
 {
+    /// <summary>Handler for getting the main dashboard data.</summary>
     public sealed class QueryHandler(IApplicationDbContext dbContext)
         : IQueryHandler<Query, Response>
     {
+        /// <summary>Gets the main dashboard data.</summary>
         public async Task<Result<Response>> Handle(Query request, CancellationToken cancellationToken)
         {
             var now = DateTimeOffset.UtcNow;
@@ -33,18 +35,22 @@ public static partial class GetDashboard
             return response;
         }
 
+        // Compute: Aggregate sales metrics — total revenue, order count, trend percentage, daily history
         private async Task<SalesSummaryData> BuildSales(
             DateTimeOffset now, DateTimeOffset thirtyDaysAgo, DateTimeOffset sevenDaysAgo,
             CancellationToken ct)
         {
+            // Filter: Exclude draft and canceled orders from sales computation
             var baseQuery = dbContext.Set<Order>()
                 .Where(o => !o.IsDeleted
                     && o.Status != OrderStatus.Draft
                     && o.Status != OrderStatus.Canceled);
 
+            // Aggregate: Total revenue and order count across all non-draft, non-canceled orders
             var totalRevenue = await baseQuery.SumAsync(o => o.Total, ct);
             var orderCount = await baseQuery.CountAsync(ct);
 
+            // Filter: Restrict to orders created within the last 30 days for trend analysis
             var recentQuery = baseQuery.Where(o => o.CreatedAtUtc >= thirtyDaysAgo);
             var recentRevenue = await recentQuery.SumAsync(o => o.Total, ct);
             var last7Revenue = await recentQuery
@@ -68,9 +74,11 @@ public static partial class GetDashboard
                 .Select(date =>
                 {
                     var entry = dailyRevenue.FirstOrDefault(d => d.Date == date);
-                    return new TrendPoint(
-                        DateOnly.FromDateTime(date),
-                        entry?.Revenue ?? 0m);
+                    return new TrendPoint
+                    {
+                        Date = DateOnly.FromDateTime(date),
+                        Revenue = entry?.Revenue ?? 0m
+                    };
                 })
                 .ToList();
 
@@ -84,8 +92,10 @@ public static partial class GetDashboard
             };
         }
 
+        // Compute: Aggregate catalog metrics — products, variants, taxonomies, recent additions
         private async Task<CatalogSummaryData> BuildCatalog(CancellationToken ct)
         {
+            // Filter: Exclude soft-deleted entities from catalog counts
             var productsQuery = dbContext.Set<Product>().Where(p => !p.IsDeleted);
             var variantsQuery = dbContext.Set<Variant>().Where(v => !v.IsDeleted);
             var taxonomiesQuery = dbContext.Set<Taxonomy>().Where(t => !t.IsDeleted);
@@ -100,7 +110,7 @@ public static partial class GetDashboard
             var recentProducts = await productsQuery
                 .OrderByDescending(p => p.CreatedAtUtc)
                 .Take(5)
-                .Select(p => new RecentProductData(p.Id, p.Name, p.Slug, p.CreatedAtUtc.DateTime))
+                .Select(p => new RecentProductData { Id = p.Id, Name = p.Name, Slug = p.Slug, CreatedAtUtc = p.CreatedAtUtc.DateTime })
                 .ToListAsync(ct);
 
             return new CatalogSummaryData
@@ -114,8 +124,10 @@ public static partial class GetDashboard
             };
         }
 
+        // Compute: Aggregate inventory metrics — variant count, out-of-stock, low-stock
         private async Task<InventorySummaryData> BuildInventory(CancellationToken ct)
         {
+            // Load: Active stock locations for threshold comparisons
             var locations = await dbContext.Set<StockLocation>()
                 .Where(sl => sl.Active && !sl.IsDeleted)
                 .ToListAsync(ct);
@@ -161,8 +173,10 @@ public static partial class GetDashboard
             };
         }
 
+        // Load: Aggregate recent order and stock movement activity for the dashboard feed
         private async Task<List<ActivityItemData>> BuildActivities(CancellationToken ct)
         {
+            // Load: Fetch 20 most recent non-draft, non-canceled orders for activity feed
             var recentOrders = await dbContext.Set<Order>()
                 .Where(o => !o.IsDeleted
                     && o.Status != OrderStatus.Draft
@@ -180,6 +194,7 @@ public static partial class GetDashboard
                 })
                 .ToListAsync(ct);
 
+            // Load: Fetch 20 most recent stock movements for activity feed
             var recentMovements = await dbContext.Set<StockMovement>()
                 .OrderByDescending(sm => sm.CreatedAtUtc)
                 .Take(20)

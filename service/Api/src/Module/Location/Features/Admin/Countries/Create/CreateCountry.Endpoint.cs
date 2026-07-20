@@ -4,11 +4,12 @@ namespace Module.Location.Features.Admin.Countries.Create;
 
 public static partial class CreateCountry
 {
-    // Endpoints:
+    /// <summary>Admin: create a country.</summary>
     public sealed class Endpoint : ICarterModule
     {
         public void AddRoutes(IEndpointRouteBuilder app)
         {
+            // Map: POST {route} → create country
             app.MapPost(pattern: LocationFeature.Admin.Countries.Create.Route, handler: async (
                     [FromBody] Request request,
                     ISender sender,

@@ -13,6 +13,9 @@ public static partial class GetUserRoles
     /// <param name="Id">The unique identifier of the user.</param>
     public sealed record Query(Guid Id) : IQuery<Response>;
 
+    /// <summary>
+    /// Handles the <see cref="Query"/> to retrieve user role assignments.
+    /// </summary>
     public sealed class QueryHandler(
         UserManager<User> userManager,
         RoleManager<Role> roleManager)
@@ -28,15 +31,19 @@ public static partial class GetUserRoles
         /// <exception cref="DbUpdateException">Thrown when the underlying identity store fails.</exception>
         public async Task<Result<Response>> Handle(Query request, CancellationToken cancellationToken)
         {
+            // Load: Retrieve the target user to verify they exist
             var user = await userManager.FindByIdAsync(request.Id.ToString());
             if (user is null)
                 return UserResult.Failure.NotFound;
 
+            // Load: Fetch all system-defined roles
             var allRoles = roleManager.Roles.ToList();
 
+            // Load: Retrieve the user's current role assignments
             var userRoles = await userManager.GetRolesAsync(user);
             var userRolesSet = userRoles.ToHashSet(StringComparer.OrdinalIgnoreCase);
 
+            // Transform: Build response with each role and its assignment status for the user
             var roles = allRoles.Select(role => new RoleItemResponse
             {
                 Name = role.Name!,
@@ -44,7 +51,7 @@ public static partial class GetUserRoles
                 IsAssigned = userRolesSet.Contains(role.Name!)
             }).ToList();
 
-            return new Response(roles);
+            return new Response { Roles = roles };
         }
     }
 }

@@ -17,7 +17,7 @@ public static partial class GetProductDetail
         IApplicationDbContext dbContext,
         ILogger<QueryHandler> logger) : IQueryHandler<Query, Response>
     {
-        /// <inheritdoc />
+        /// <summary>Retrieves a product with full detail by slug — includes variants, prices, images, and classifications.</summary>
         // Contract: pre=query.Slug!=null, post=result!=null
         public async Task<Result<Response>> Handle(Query query, CancellationToken cancellationToken)
         {

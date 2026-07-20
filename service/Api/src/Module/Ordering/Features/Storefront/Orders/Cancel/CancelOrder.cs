@@ -42,7 +42,7 @@ public static partial class CancelOrder
             if (entity is null)
                 return OrderResult.Errors.NotFound(command.Id);
 
-            var wasPlaced = entity.Status == OrderStatus.Placed && entity.CompletedAtUtc.HasValue;
+            var wasPlaced = entity.Status == OrderStatus.Placed;
 
             var cancelResult = entity.Cancel(userId);
             if (cancelResult.IsFailure)
@@ -50,13 +50,15 @@ public static partial class CancelOrder
 
             // Call: Cancel associated payments via MediatR.
             var voidResult = await sender.Send(
-                new Module.Payment.Features.Shared.Commands.VoidOrderPaymentsCommand(
-                    entity.Id, OrderConstant.CancelReasons.Customer),
+                new Module.Payment.Features.Shared.Commands.VoidOrderPaymentsCommand
+                {
+                    OrderId = entity.Id,
+                    Reason = OrderConstant.CancelReasons.Customer
+                },
                 cancellationToken);
             if (voidResult.IsFailure)
             {
-                logger.LogWarning("Failed to void payments for order {OrderId}: {Errors}",
-                    entity.Id, string.Join("; ", voidResult.Errors.Select(f => f.Message)));
+                OrderLoggers.VoidPaymentsFailed(logger, entity.Id, string.Join("; ", voidResult.Errors.Select(f => f.Message)));
             }
 
             // Compensate: Release inventory back to stock for previously placed orders.
@@ -97,8 +99,7 @@ public static partial class CancelOrder
             // Suppress: Notification failure does not roll back the cancellation.
             if (result.IsFailure)
             {
-                logger.LogWarning("Failed to send order canceled notification for order {OrderId}: {Errors}",
-                    order.Id, string.Join("; ", result.Errors.Select(f => f.Message)));
+                OrderLoggers.CancelNotificationFailed(logger, order.Id, string.Join("; ", result.Errors.Select(f => f.Message)));
             }
         }
     }

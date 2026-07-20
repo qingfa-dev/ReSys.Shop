@@ -179,7 +179,7 @@ public sealed class QueryHelperTests
         // Contract: ConcurrentDictionary must handle parallel access without corruption.
         string[] names = { "Name", "name", "EMAIL_ADDRESS", "is_active", "Age", "email-address", "IsActive" };
         int iterations = 100;
-        ParallelOptions parallelOptions = new ParallelOptions { MaxDegreeOfParallelism = 4 };
+        ParallelOptions parallelOptions = new() { MaxDegreeOfParallelism = 4 };
 
         // Act
         Action act = () =>

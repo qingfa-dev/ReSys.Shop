@@ -7,7 +7,6 @@ public sealed record PaymentProcessingResult
     public PaymentRecordState? State { get; init; }
     public decimal? CapturedAmount { get; init; }
     public decimal? RefundedAmount { get; init; }
-    public bool CaptureEventCreated { get; init; }
 }
 
 public static class ProcessingResult
@@ -57,33 +56,26 @@ public static class ProcessingResult
 
     public static class Errors
     {
-        public static Error InvalidStateTransition(PaymentRecordState from, PaymentRecordState to) => Error.Validation(
-            code: "Payment.State.InvalidTransition",
-            message: $"Cannot transition payment from '{from}' to '{to}'.");
+        public static Error InvalidStateTransition(PaymentRecordState from, PaymentRecordState to)
+            => PaymentCaptureResult.Failure.InvalidStateTransition(from, to);
 
-        public static Error AlreadyCompleted => Error.Conflict(
-            code: "Payment.AlreadyCompleted",
-            message: "Payment has already been completed.");
+        public static Error AlreadyCompleted
+            => PaymentCaptureResult.Failure.AlreadyCompleted;
 
-        public static Error AlreadyVoided => Error.Conflict(
-            code: "Payment.AlreadyVoided",
-            message: "Payment has already been voided.");
+        public static Error AlreadyVoided
+            => PaymentCaptureResult.Failure.AlreadyVoided;
 
-        public static Error AmountExceedsAuthorized => Error.Validation(
-            code: "Payment.Amount.ExceedsAuthorized",
-            message: "Capture amount exceeds the authorized amount.");
+        public static Error AmountExceedsAuthorized
+            => PaymentCaptureResult.Failure.AmountExceedsAuthorized;
 
-        public static Error ProcessingSourceRequired => Error.Validation(
-            code: "Payment.Processing.SourceRequired",
-            message: "Payment source is required but was not provided.");
+        public static Error ProcessingSourceRequired
+            => PaymentCaptureResult.Failure.ProcessingSourceRequired;
 
-        public static Error ProcessingAlreadyProcessing => Error.Conflict(
-            code: "Payment.Processing.AlreadyProcessing",
-            message: "Payment is already being processed.");
+        public static Error ProcessingAlreadyProcessing
+            => PaymentCaptureResult.Failure.ProcessingAlreadyProcessing;
 
-        public static Error CreditNotAllowed => Error.Conflict(
-            code: "Payment.Credit.NotAllowed",
-            message: "Payment is not in a completed state and cannot be credited.");
+        public static Error CreditNotAllowed
+            => PaymentCaptureResult.Failure.CreditNotAllowed;
 
         public static Error GatewayDeclined(string detail) => Error.BadRequest(
             code: "Payment.Gateway.Declined",

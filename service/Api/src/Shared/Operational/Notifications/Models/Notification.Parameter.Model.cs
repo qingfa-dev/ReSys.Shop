@@ -5,10 +5,16 @@ namespace Shared.Operational.Notifications.Models;
 /// <summary>
 /// Represents a key-value pair used to populate placeholders in a notification template.
 /// </summary>
-/// <param name="Key">The parameter type.</param>
-/// <param name="Value">The string value to inject.</param>
-public sealed record NotificationParameter(NotificationParameterType Key, string? Value, bool IsRequired = true)
+public sealed record NotificationParameter
 {
+    /// <summary>The parameter type.</summary>
+    public NotificationParameterType Key { get; init; }
+
+    /// <summary>The string value to inject.</summary>
+    public string? Value { get; init; }
+
+    public bool IsRequired { get; init; } = true;
+
     /// <summary>
     /// Creates a new instance of <see cref="NotificationParameter"/>.
     /// </summary>
@@ -18,5 +24,5 @@ public sealed record NotificationParameter(NotificationParameterType Key, string
     public static NotificationParameter Create(
         NotificationParameterType key,
         string? value,
-        bool isRequired = true) => new(key, value, isRequired);
+        bool isRequired = true) => new() { Key = key, Value = value, IsRequired = isRequired };
 }

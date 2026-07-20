@@ -6,6 +6,7 @@ using Shared.Application.Contracts.Inventory;
 
 namespace Module.Inventory.Services;
 
+/// <summary>Adjusts stock quantities — decrements for order fulfilment and increments for returns.</summary>
 public class StockQuantityService : IStockQuantityService
 {
     private readonly IApplicationDbContext _dbContext;
@@ -15,6 +16,15 @@ public class StockQuantityService : IStockQuantityService
         _dbContext = dbContext;
     }
 
+    /// <summary>
+    /// Decrements stock for an order, records a movement, and fulfills the matching reservation.
+    /// </summary>
+    /// <param name="variantId">The product variant identifier.</param>
+    /// <param name="quantity">The quantity to decrement. Must be positive.</param>
+    /// <param name="stockLocationId">The stock location identifier.</param>
+    /// <param name="orderId">The order identifier for audit and reservation matching.</param>
+    /// <param name="cancellationToken">Cancellation token.</param>
+    /// <returns>A success result or an error if insufficient stock or variant not found.</returns>
     public async Task<Result> DecrementStockAsync(
         Guid variantId,
         int quantity,
@@ -33,8 +43,15 @@ public class StockQuantityService : IStockQuantityService
         if (stockItem is null)
             return StockItemResult.Errors.VariantNotFound(variantId);
 
-        // Validate: Ensure sufficient stock before decrementing
-        if (stockItem.CountOnHand < quantity)
+        // Compute available stock = on-hand minus active reserved
+        var activeReserved = await _dbContext.Set<StockReservation>()
+            .Where(r => r.VariantId == variantId
+                && r.StockLocationId == stockLocationId
+                && r.State == ReservationState.Reserved
+                && r.ExpiresAtUtc > DateTimeOffset.UtcNow)
+            .SumAsync(r => r.Quantity, cancellationToken);
+
+        if (stockItem.CountOnHand - activeReserved < quantity)
             return StockItemResult.Errors.InsufficientStock;
 
         var previousCount = stockItem.CountOnHand;
@@ -68,6 +85,15 @@ public class StockQuantityService : IStockQuantityService
         return Result.Ok();
     }
 
+    /// <summary>
+    /// Increments stock for a returned order, records a movement.
+    /// </summary>
+    /// <param name="variantId">The product variant identifier.</param>
+    /// <param name="quantity">The quantity to increment. Must be positive.</param>
+    /// <param name="stockLocationId">The stock location identifier.</param>
+    /// <param name="orderId">The order identifier for audit trail.</param>
+    /// <param name="cancellationToken">Cancellation token.</param>
+    /// <returns>A success result or an error if variant not found.</returns>
     public async Task<Result> IncrementStockAsync(
         Guid variantId,
         int quantity,

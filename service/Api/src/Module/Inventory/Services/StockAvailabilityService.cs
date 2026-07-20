@@ -4,6 +4,7 @@ using Module.Inventory.Services.Abstractions;
 
 namespace Module.Inventory.Services;
 
+/// <summary>Checks stock availability for a variant at a specific location, accounting for active reservations.</summary>
 public class StockAvailabilityService : IStockAvailabilityService
 {
     private readonly IApplicationDbContext _dbContext;
@@ -13,6 +14,14 @@ public class StockAvailabilityService : IStockAvailabilityService
         _dbContext = dbContext;
     }
 
+    /// <summary>
+    /// Determines whether the requested quantity of a variant is available at the specified stock location.
+    /// </summary>
+    /// <param name="variantId">The product variant identifier.</param>
+    /// <param name="quantity">The requested quantity to check.</param>
+    /// <param name="stockLocationId">The stock location identifier.</param>
+    /// <param name="cancellationToken">Cancellation token.</param>
+    /// <returns>True if the variant has sufficient un-reserved stock at the location; otherwise false.</returns>
     public async Task<bool> IsAvailableAsync(
         Guid variantId,
         int quantity,
@@ -41,6 +50,13 @@ public class StockAvailabilityService : IStockAvailabilityService
         return available >= quantity;
     }
 
+    /// <summary>
+    /// Determines whether the requested quantity is available at any active stock location.
+    /// </summary>
+    /// <param name="variantId">The product variant identifier.</param>
+    /// <param name="quantity">The requested quantity to check.</param>
+    /// <param name="cancellationToken">Cancellation token.</param>
+    /// <returns>True if the variant has sufficient stock at any location; otherwise false.</returns>
     public async Task<bool> IsAvailableAnyLocationAsync(
         Guid variantId,
         int quantity,

@@ -4,10 +4,12 @@ namespace Module.Catalog.Features.Admin.Taxonomies.Delete;
 
 public static partial class DeleteTaxonomy
 {
+    /// <summary>Maps the taxonomy soft-delete route.</summary>
     public class Endpoint : ICarterModule
     {
         public void AddRoutes(IEndpointRouteBuilder app)
         {
+            // Map: DELETE /api/admin/taxonomies/{id} — soft-delete a taxonomy
             app.MapDelete(CatalogFeature.Admin.Taxonomies.Delete.Route, async (
                 [FromRoute] Guid id,
                 ISender sender,

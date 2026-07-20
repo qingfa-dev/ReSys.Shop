@@ -1,7 +1,18 @@
 namespace Module.Identity.Features.Store.Shared.Models;
 
-public abstract record BasePasswordLoginRequest(string Credential = "", string Password = "");
+public abstract record BasePasswordLoginRequest
+{
+    public string Credential { get; init; } = string.Empty;
+    public string Password { get; init; } = string.Empty;
+}
 
-public abstract record BaseRefreshTokenRequestModel(string? RefreshToken = null);
+public abstract record BaseRefreshTokenRequestModel
+{
+    public string? RefreshToken { get; init; } = null;
+}
 
-public abstract record BaseLogOutRequest(string? RefreshToken = null, bool RevokeAll = false) : BaseRefreshTokenRequestModel(RefreshToken);
+public abstract record BaseLogOutRequest
+{
+    public string? RefreshToken { get; init; } = null;
+    public bool RevokeAll { get; init; } = false;
+}

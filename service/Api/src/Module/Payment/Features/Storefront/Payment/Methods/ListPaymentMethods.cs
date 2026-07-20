@@ -3,12 +3,14 @@ using Module.Payment.Features.Storefront.PaymentMethods.Shared.Mappings;
 
 namespace Module.Payment.Features.Storefront.Payment.Methods;
 
+/// <summary>Lists available payment methods for the customer.</summary>
 public static partial class ListPaymentMethods
 {
     public sealed record Query(QueryingParameters Parameters) : IPagedQuery<Response>;
 
     public sealed class PagedQueryHandler(IApplicationDbContext dbContext) : IPagedQueryHandler<Query, Response>
     {
+        /// <summary>Lists available payment methods for the customer.</summary>
         public async Task<PagedResult<Response>> Handle(Query request, CancellationToken cancellationToken)
         {
             // Parse: Query parameters — validates filters, sorting, pagination

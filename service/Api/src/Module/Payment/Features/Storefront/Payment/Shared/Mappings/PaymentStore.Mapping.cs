@@ -23,11 +23,12 @@ public static class PaymentStoreMapping
         {
             Id = payment.Id,
             Amount = payment.Amount,
-            Currency = string.Empty,
+            Currency = payment.Currency,
             OrderId = payment.OrderId,
-            PaymentMethodId = payment.PaymentMethodId,
+            PaymentMethodId = payment.PaymentMethodId.GetValueOrDefault(),
             State = payment.State.ToString(),
             ClientSecret = payment.IntentClientSecret,
+            PaymentStatus = payment.PaymentStatus,
             CreatedAtUtc = payment.CreatedAtUtc,
             ModifiedAtUtc = payment.ModifiedAtUtc,
         };
@@ -39,9 +40,9 @@ public static class PaymentStoreMapping
         {
             Id = payment.Id,
             Amount = payment.Amount,
-            Currency = string.Empty,
+            Currency = payment.Currency,
             OrderId = payment.OrderId,
-            PaymentMethodId = payment.PaymentMethodId,
+            PaymentMethodId = payment.PaymentMethodId.GetValueOrDefault(),
             State = payment.State.ToString(),
         };
     }

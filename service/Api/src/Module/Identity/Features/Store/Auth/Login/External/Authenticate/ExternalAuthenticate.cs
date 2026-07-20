@@ -117,7 +117,7 @@ public static partial class ExternalAuthenticate
             if (!user.IsActive)
                 return UserResult.Failure.Inactive;
 
-            var tokenRequest = new TokenRequestModel(user.Id, user.Email!, user.FullName);
+            var tokenRequest = new TokenRequestModel { UserId = user.Id, Email = user.Email!, FullName = user.FullName };
             var tokenResult = accessTokenService.GenerateToken(tokenRequest);
             if (tokenResult.IsFailure)
                 return tokenResult.Errors;

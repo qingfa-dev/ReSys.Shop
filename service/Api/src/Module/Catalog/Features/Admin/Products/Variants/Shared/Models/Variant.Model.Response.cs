@@ -1,6 +1,6 @@
 namespace Module.Catalog.Features.Admin.Products.Variants.Shared.Models;
 
-public record VariantDetailResponse : VariantParameters
+public record VariantDetailResponse : VariantParameters, IResponse
 {
     public Guid Id { get; init; }
     public Guid ProductId { get; init; }
@@ -9,7 +9,7 @@ public record VariantDetailResponse : VariantParameters
     public int PricesCount { get; init; }
 }
 
-public record VariantListItemResponse : VariantParameters
+public record VariantListItemResponse : VariantParameters, IResponse
 {
     public Guid Id { get; init; }
     public Guid ProductId { get; init; }

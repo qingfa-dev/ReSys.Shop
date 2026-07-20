@@ -219,7 +219,7 @@ public sealed class StorageAntiForgeryGuardTests
     public async Task ValidateRequestAsync_WhenAlreadyBlocked_ShouldReturnTooManyAttempts()
     {
         StorageAntiForgeryGuard sut = CreateSut();
-        DefaultHttpContext httpContext = new DefaultHttpContext();
+        DefaultHttpContext httpContext = new();
         int threshold = AntiForgeryOptionsConstant.Defaults.MaxConsecutiveFailures;
 
         _cacheStore[$"antiforgery:failures:blocked-user"] = threshold;
@@ -235,7 +235,7 @@ public sealed class StorageAntiForgeryGuardTests
     public async Task ValidateRequestAsync_WhenTokenInvalid_ShouldRecordFailure()
     {
         StorageAntiForgeryGuard sut = CreateSut();
-        DefaultHttpContext httpContext = new DefaultHttpContext();
+        DefaultHttpContext httpContext = new();
         int threshold = AntiForgeryOptionsConstant.Defaults.MaxConsecutiveFailures;
 
         _cacheStore[$"antiforgery:failures:fraud-user"] = threshold - 2;
@@ -251,7 +251,7 @@ public sealed class StorageAntiForgeryGuardTests
     public async Task ValidateRequestAsync_WhenTokenInvalidAndThresholdReached_ShouldReturnTooManyAttempts()
     {
         StorageAntiForgeryGuard sut = CreateSut();
-        DefaultHttpContext httpContext = new DefaultHttpContext();
+        DefaultHttpContext httpContext = new();
         int threshold = AntiForgeryOptionsConstant.Defaults.MaxConsecutiveFailures;
 
         _cacheStore[$"antiforgery:failures:edge-user"] = threshold - 1;
@@ -267,7 +267,7 @@ public sealed class StorageAntiForgeryGuardTests
     public async Task ValidateRequestAsync_WhenTokenValid_ShouldResetAndReturnOk()
     {
         StorageAntiForgeryGuard sut = CreateSut();
-        DefaultHttpContext httpContext = new DefaultHttpContext();
+        DefaultHttpContext httpContext = new();
 
         _cacheStore[$"antiforgery:failures:valid-user"] = 3;
         _antiforgeryMock.Setup(x => x.IsRequestValidAsync(httpContext)).ReturnsAsync(true);
@@ -282,7 +282,7 @@ public sealed class StorageAntiForgeryGuardTests
     public async Task ValidateRequestAsync_WhenNoPriorFailuresAndTokenValid_ShouldReturnOk()
     {
         StorageAntiForgeryGuard sut = CreateSut();
-        DefaultHttpContext httpContext = new DefaultHttpContext();
+        DefaultHttpContext httpContext = new();
 
         _antiforgeryMock.Setup(x => x.IsRequestValidAsync(httpContext)).ReturnsAsync(true);
 

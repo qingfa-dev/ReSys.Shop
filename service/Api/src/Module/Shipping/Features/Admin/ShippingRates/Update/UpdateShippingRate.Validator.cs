@@ -1,4 +1,4 @@
-using Module.Shipping.Domain.ShippingRates;
+using Module.Shipping.Features.Admin.ShippingRates.Shared.Validators;
 
 namespace Module.Shipping.Features.Admin.ShippingRates.Update;
 
@@ -8,20 +8,8 @@ public static partial class UpdateShippingRate
     {
         public Validator()
         {
-            When(x => x.Request.Name is not null, () =>
-            {
-                RuleFor(x => x.Request.Name!).ApplyNameRules();
-            });
-
-            When(x => x.Request.Cost is not null, () =>
-            {
-                RuleFor(x => x.Request.Cost!.Value).ApplyCostRules();
-            });
-
-            When(x => x.Request.DeliveryRange is not null, () =>
-            {
-                RuleFor(x => x.Request.DeliveryRange!).ApplyDeliveryRangeRules();
-            });
+            RuleFor(m=>m.Request)
+                .ApplyShippingRateParametersRules();
         }
     }
 }

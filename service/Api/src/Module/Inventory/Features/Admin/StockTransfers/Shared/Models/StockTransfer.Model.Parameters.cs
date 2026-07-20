@@ -1,7 +1,6 @@
 namespace Module.Inventory.Features.Admin.StockTransfers.Shared.Models;
 
-/// <summary>Shared parameters for stock transfer requests and responses.</summary>
-public abstract class StockTransferParameters
+public abstract record StockTransferParameters
 {
     /// <summary>Gets an optional external reference.</summary>
     public string? Reference { get; init; }

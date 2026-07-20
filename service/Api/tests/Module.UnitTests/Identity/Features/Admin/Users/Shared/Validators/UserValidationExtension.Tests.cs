@@ -15,7 +15,7 @@ public class UserValidationTests
         _validator = new TestValidator();
     }
 
-    private sealed class TestRequest : UserParameter { }
+    private sealed record TestRequest : UserParameter;
 
     private sealed class TestValidator : AbstractValidator<TestRequest>
     {

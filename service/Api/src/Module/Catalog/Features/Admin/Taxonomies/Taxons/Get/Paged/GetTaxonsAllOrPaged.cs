@@ -4,6 +4,9 @@ using Module.Catalog.Features.Admin.Taxonomies.Taxons.Shared.Mappings;
 
 namespace Module.Catalog.Features.Admin.Taxonomies.Taxons.Get.Paged;
 
+/// <summary>
+/// Defines the use case for retrieving a paged or full list of taxons.
+/// </summary>
 public static partial class GetTaxonsAllOrPaged
 {
     public record Parameters : QueryingParameters
@@ -27,11 +30,13 @@ public static partial class GetTaxonsAllOrPaged
         {
             var parameters = request.Parameters;
 
+            // Check: Taxonomy must exist before retrieving its taxons
             var taxonomyExists = await dbContext.Set<Taxonomy>()
                 .AnyAsync(x => x.Id == parameters.TaxonomyId, cancellationToken);
             if (!taxonomyExists)
                 return PagedResult<Response>.NotFound();
 
+            // Load: Base taxon query with related entities for full representation
             var query = dbContext.Set<Taxon>()
                 .Include(t => t.TaxonRules)
                 .Include(t => t.Classifications)
@@ -39,6 +44,7 @@ public static partial class GetTaxonsAllOrPaged
                 .Where(t => t.TaxonomyId == parameters.TaxonomyId)
                 .AsNoTracking();
 
+            // Parse: Validate and parse querying parameters for filtering, searching, and sorting
             var parsing = parameters.ParseAll(
                 allowedFilterFields: TaxonConstant.Query.AllowedFilterFields,
                 allowedSearchFields: TaxonConstant.Query.AllowedSearchFields,
@@ -46,6 +52,7 @@ public static partial class GetTaxonsAllOrPaged
             if (parsing.IsFailure)
                 return parsing.Errors;
 
+            // Compute: Apply nested set ordering and pagination to produce the paged result
             var pagedResult = await query
                 .OrderBy(t => t.Lft)
                 .ApplyQuerying(parsing.Value)

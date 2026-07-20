@@ -58,7 +58,7 @@ public class VoidOrderPaymentsTests : IDisposable
         _dbContext.Set<PaymentCapture>().Add(payment);
         await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 
-        var result = await _handler.Handle(new VoidOrderPaymentsCommand(orderId, "Cancellation"), TestContext.Current.CancellationToken);
+        var result = await _handler.Handle(new VoidOrderPaymentsCommand { OrderId = orderId, Reason = "Cancellation" }, TestContext.Current.CancellationToken);
 
         result.IsFailure.Should().BeTrue();
     }
@@ -77,7 +77,11 @@ public class VoidOrderPaymentsTests : IDisposable
         _dbContext.Set<PaymentCapture>().Add(payment);
         await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 
-        var result = await _handler.Handle(new VoidOrderPaymentsCommand(orderId, "Cancellation"), TestContext.Current.CancellationToken);
+        var result = await _handler.Handle(new VoidOrderPaymentsCommand
+        {
+            OrderId = orderId,
+            Reason = "Cancellation"
+        }, TestContext.Current.CancellationToken);
 
         result.IsSuccess.Should().BeTrue();
     }

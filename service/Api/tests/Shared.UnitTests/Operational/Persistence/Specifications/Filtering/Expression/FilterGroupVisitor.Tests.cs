@@ -32,7 +32,7 @@ public sealed class FilterGroupVisitorTests
     public void Build_SingleCondition_ShouldProduceExpression()
     {
         FilterGroup group = FilterGroup.FlatAnd(
-            new FilterCondition[] { new("Name", FilterOperator.Equal, "Apple") });
+            new FilterCondition[] { new() { Field = "Name", Operator = FilterOperator.Equal, Value = "Apple" } });
         FilterGroupVisitor<TestEntity>.Build(group, Param).Should().NotBeNull();
     }
 
@@ -45,9 +45,10 @@ public sealed class FilterGroupVisitorTests
     [InlineData(FilterLogic.Or, ExpressionType.OrElse)]
     public void Build_LogicalConnective_ShouldMatchExpressionType(FilterLogic logic, ExpressionType expectedType)
     {
-        FilterGroup group = new(logic,
-            new FilterCondition[] { new("Name", FilterOperator.Equal, "A"), new("Name", FilterOperator.Equal, "B") },
-            Array.Empty<FilterGroup>());
+        FilterGroup group = new()
+        { Logic = logic,
+            Conditions = new FilterCondition[] { new() { Field = "Name", Operator = FilterOperator.Equal, Value = "A" }, new() { Field = "Name", Operator = FilterOperator.Equal, Value = "B" } },
+            Groups = Array.Empty<FilterGroup>() };
 
         System.Linq.Expressions.Expression? result = FilterGroupVisitor<TestEntity>.Build(group, Param);
         result!.NodeType.Should().Be(expectedType);
@@ -61,10 +62,11 @@ public sealed class FilterGroupVisitorTests
     public void Build_NestedGroup_ShouldWork()
     {
         FilterGroup inner = FilterGroup.FlatOr(
-            new FilterCondition[] { new("Name", FilterOperator.Equal, "A"), new("Name", FilterOperator.Equal, "B") });
-        FilterGroup root = new(FilterLogic.And,
-            new FilterCondition[] { new("IsActive", FilterOperator.Equal, "true") },
-            new FilterGroup[] { inner });
+            new FilterCondition[] { new() { Field = "Name", Operator = FilterOperator.Equal, Value = "A" }, new() { Field = "Name", Operator = FilterOperator.Equal, Value = "B" } });
+        FilterGroup root = new()
+        { Logic = FilterLogic.And,
+            Conditions = new FilterCondition[] { new() { Field = "IsActive", Operator = FilterOperator.Equal, Value = "true" } },
+            Groups = new FilterGroup[] { inner } };
 
         System.Linq.Expressions.Expression? result = FilterGroupVisitor<TestEntity>.Build(root, Param);
         result.Should().NotBeNull();
@@ -80,8 +82,8 @@ public sealed class FilterGroupVisitorTests
     {
         FilterGroup group = FilterGroup.FlatAnd(new FilterCondition[]
         {
-            new("NonExistent", FilterOperator.Equal, "value"),
-            new("Name", FilterOperator.Equal, "Apple"),
+            new() { Field = "NonExistent", Operator = FilterOperator.Equal, Value = "value" },
+            new() { Field = "Name", Operator = FilterOperator.Equal, Value = "Apple" },
         });
 
         System.Linq.Expressions.Expression? result = FilterGroupVisitor<TestEntity>.Build(group, Param);
@@ -92,7 +94,7 @@ public sealed class FilterGroupVisitorTests
     public void Build_AllInvalid_ShouldReturnNull()
     {
         FilterGroup group = FilterGroup.FlatAnd(
-            new FilterCondition[] { new("NonExistent", FilterOperator.Equal, "value") });
+            new FilterCondition[] { new() { Field = "NonExistent", Operator = FilterOperator.Equal, Value = "value" } });
         FilterGroupVisitor<TestEntity>.Build(group, Param).Should().BeNull();
     }
 
@@ -114,9 +116,10 @@ public sealed class FilterGroupVisitorTests
             new() { Name = "Orange", Age = 35, IsActive = true },
         ];
 
-        FilterGroup group = new(logic,
-            new FilterCondition[] { new(f1, op1, v1), new(f2, op2, v2) },
-            Array.Empty<FilterGroup>());
+        FilterGroup group = new()
+        { Logic = logic,
+            Conditions = new FilterCondition[] { new() { Field = f1, Operator = op1, Value = v1 }, new() { Field = f2, Operator = op2, Value = v2 } },
+            Groups = Array.Empty<FilterGroup>() };
 
         System.Linq.Expressions.Expression? body = FilterGroupVisitor<TestEntity>.Build(group, Param);
         body.Should().NotBeNull();
@@ -135,7 +138,7 @@ public sealed class FilterGroupVisitorTests
         ];
 
         FilterGroup group = FilterGroup.FlatAnd(
-            new FilterCondition[] { new("Email", FilterOperator.Equal, "null") });
+            new FilterCondition[] { new() { Field = "Email", Operator = FilterOperator.Equal, Value = "null" } });
         System.Linq.Expressions.Expression? body = FilterGroupVisitor<TestEntity>.Build(group, Param);
         Expression<Func<TestEntity, bool>> lambda = System.Linq.Expressions.Expression.Lambda<Func<TestEntity, bool>>(body!, Param);
         data.AsQueryable().Where(lambda).Should().HaveCount(1).And.Contain(x => x.Name == "B");
@@ -152,7 +155,7 @@ public sealed class FilterGroupVisitorTests
         ];
 
         FilterGroup group = FilterGroup.FlatAnd(
-            new FilterCondition[] { new("Email", FilterOperator.NotEqual, "null") });
+            new FilterCondition[] { new() { Field = "Email", Operator = FilterOperator.NotEqual, Value = "null" } });
         System.Linq.Expressions.Expression? body = FilterGroupVisitor<TestEntity>.Build(group, Param);
         Expression<Func<TestEntity, bool>> lambda = System.Linq.Expressions.Expression.Lambda<Func<TestEntity, bool>>(body!, Param);
         data.AsQueryable().Where(lambda).Should().HaveCount(2);
@@ -172,10 +175,10 @@ public sealed class FilterGroupVisitorTests
             new() { Name = "C", Age = 30 },
         ];
 
-        FilterGroup leaf1 = FilterGroup.FlatAnd(new FilterCondition[] { new("Age", FilterOperator.GreaterThan, "5") });
-        FilterGroup leaf2 = FilterGroup.FlatAnd(new FilterCondition[] { new("Age", FilterOperator.LessThan, "25") });
-        FilterGroup mid = new(FilterLogic.And, Array.Empty<FilterCondition>(), new FilterGroup[] { leaf1, leaf2 });
-        FilterGroup root = new(FilterLogic.And, new FilterCondition[] { new("Name", FilterOperator.Equal, "B") }, new FilterGroup[] { mid });
+        FilterGroup leaf1 = FilterGroup.FlatAnd(new FilterCondition[] { new() { Field = "Age", Operator = FilterOperator.GreaterThan, Value = "5" } });
+        FilterGroup leaf2 = FilterGroup.FlatAnd(new FilterCondition[] { new() { Field = "Age", Operator = FilterOperator.LessThan, Value = "25" } });
+        FilterGroup mid = new() { Logic = FilterLogic.And, Conditions = Array.Empty<FilterCondition>(), Groups = new FilterGroup[] { leaf1, leaf2 } };
+        FilterGroup root = new() { Logic = FilterLogic.And, Conditions = new FilterCondition[] { new() { Field = "Name", Operator = FilterOperator.Equal, Value = "B" } }, Groups = new FilterGroup[] { mid } };
 
         System.Linq.Expressions.Expression? body = FilterGroupVisitor<TestEntity>.Build(root, Param);
         Expression<Func<TestEntity, bool>> lambda = System.Linq.Expressions.Expression.Lambda<Func<TestEntity, bool>>(body!, Param);

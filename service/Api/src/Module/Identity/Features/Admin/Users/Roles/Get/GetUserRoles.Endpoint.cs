@@ -2,13 +2,12 @@ namespace Module.Identity.Features.Admin.Users.Roles.Get;
 
 public static partial class GetUserRoles
 {
-    /// <summary>
-    /// Represents the API endpoint for retrieving roles associated with a specific user.
-    /// </summary>
+    /// <summary>Maps the user role retrieval route.</summary>
     public sealed class Endpoint : ICarterModule
     {
         public void AddRoutes(IEndpointRouteBuilder app)
         {
+            // Map: GET /api/admin/users/{id}/roles — get roles assigned to a user
             app.MapGet(IdentityFeature.Admin.Users.Roles.Get.Route, async (
                 Guid id,
                 ISender sender,

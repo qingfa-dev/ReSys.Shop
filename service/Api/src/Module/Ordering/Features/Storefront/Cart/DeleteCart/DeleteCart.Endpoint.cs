@@ -4,13 +4,14 @@ namespace Module.Ordering.Features.Storefront.Cart.DeleteCart;
 
 public static partial class DeleteCart
 {
+    /// <summary>Maps the storefront cart deletion route.</summary>
     public class Endpoint : ICarterModule
     {
         public void AddRoutes(IEndpointRouteBuilder app)
         {
+            // Map: DELETE api/storefront/cart — delete the shopping cart
             app.MapDelete(OrderingFeature.Storefront.Cart.Delete.Route, async (ISender sender, CancellationToken ct) =>
             {
-                // Call: Dispatch delete-cart command.
                 var result = await sender.Send(new Command(), ct);
                 return result.ToResult();
             })

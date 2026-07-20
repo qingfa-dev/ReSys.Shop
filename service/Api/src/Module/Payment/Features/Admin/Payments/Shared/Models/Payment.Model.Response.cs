@@ -1,6 +1,6 @@
 namespace Module.Payment.Features.Admin.Payments.Shared.Models;
 
-public record PaymentDetailResponse : PaymentParameters
+public record PaymentDetailResponse : PaymentParameters, IResponse
 {
     public Guid Id { get; init; }
     public string Number { get; init; } = string.Empty;
@@ -13,7 +13,7 @@ public record PaymentDetailResponse : PaymentParameters
     public string? ModifiedBy { get; init; }
 }
 
-public record PaymentListItemResponse : PaymentParameters
+public record PaymentListItemResponse : PaymentParameters, IResponse
 {
     public Guid Id { get; init; }
 }

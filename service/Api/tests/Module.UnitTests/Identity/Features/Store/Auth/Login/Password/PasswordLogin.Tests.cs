@@ -56,13 +56,18 @@ public class PasswordLoginTests
     private static PasswordLogin.Command CreateCommand(string credential, string password) => new(
         new PasswordLogin.Request { Credential = credential, Password = password });
 
-    private static RefreshTokenResponseModel CreateRefreshToken(Guid userId, DateTime? expiresAt = null) => new(
-        Guid.NewGuid(),
-        "refresh-token",
-        userId,
-        DateTime.UtcNow,
-        expiresAt ?? DateTime.UtcNow.AddDays(7),
-        null, null, null, true);
+    private static RefreshTokenResponseModel CreateRefreshToken(Guid userId, DateTime? expiresAt = null) => new()
+    {
+        Id = Guid.NewGuid(),
+        Token = "refresh-token",
+        UserId = userId,
+        CreatedAt = DateTime.UtcNow,
+        ExpiresAt = expiresAt ?? DateTime.UtcNow.AddDays(7),
+        RevokedAt = null,
+        RevokedReason = null,
+        ReplacedByToken = null,
+        IsActive = true
+    };
 
     // ===== Mock Setup Helpers =====
 
@@ -109,7 +114,7 @@ public class PasswordLoginTests
     private void SetUpAccessTokenSuccess(string token = "access-token", long expiresIn = 3600) =>
         _accessTokenServiceMock
             .Setup(x => x.GenerateToken(It.IsAny<TokenRequestModel>()))
-            .Returns(Result<TokenResponseModel>.Ok(new TokenResponseModel(token, expiresIn)));
+            .Returns(Result<TokenResponseModel>.Ok(new TokenResponseModel { Token = token, ExpiresIn = expiresIn }));
 
     private void SetUpAccessTokenFailure() =>
         _accessTokenServiceMock
@@ -280,7 +285,7 @@ public class PasswordLoginTests
         SetUpSignInSuccess();
         _accessTokenServiceMock
             .Setup(x => x.GenerateToken(It.IsAny<TokenRequestModel>()))
-            .Returns(Result<TokenResponseModel>.Ok(new TokenResponseModel("jwt-token-abc123", expiresIn)));
+            .Returns(Result<TokenResponseModel>.Ok(new TokenResponseModel { Token = "jwt-token-abc123", ExpiresIn = expiresIn }));
         _refreshTokenServiceMock
             .Setup(x => x.GenerateAsync(It.IsAny<Guid>(), TestContext.Current.CancellationToken))
             .ReturnsAsync(Result<RefreshTokenResponseModel>.Ok(CreateRefreshToken(user.Id, refreshExp) with
@@ -314,7 +319,7 @@ public class PasswordLoginTests
         _accessTokenServiceMock
             .Setup(x => x.GenerateToken(It.IsAny<TokenRequestModel>()))
             .Callback<TokenRequestModel>(r => captured = r)
-            .Returns(Result<TokenResponseModel>.Ok(new TokenResponseModel("token", 3600)));
+            .Returns(Result<TokenResponseModel>.Ok(new TokenResponseModel { Token = "token", ExpiresIn = 3600 }));
 
         await CreateHandler().Handle(CreateCommand("test@example.com", "password123"), TestContext.Current.CancellationToken);
 

@@ -6,6 +6,8 @@ using Module.Ordering.Backgrounds;
 
 namespace Module.Ordering.Services;
 
+// Invariant: DefaultSweepInterval >= TimeSpan.FromMinutes(1); scopeFactory is never null
+/// <summary>Periodically sweeps expired draft carts by running a background job on a configurable interval.</summary>
 public sealed partial class CartExpiryService : BackgroundService
 {
     private readonly IServiceScopeFactory _scopeFactory;

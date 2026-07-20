@@ -7,6 +7,7 @@ using Module.Catalog.Features.Admin.Products.Variants.Images.Embeddings.Shared.M
 
 namespace Module.Catalog.Features.Admin.Products.Variants.Images.Embeddings.Shared.Services;
 
+/// <summary>Orchestrates image embedding generation via the inference service and persisting results to the database.</summary>
 public sealed partial class EmbeddingOrchestrator : IEmbeddingOrchestrator
 {
     private readonly IInferenceClient _inferenceClient;
@@ -26,6 +27,11 @@ public sealed partial class EmbeddingOrchestrator : IEmbeddingOrchestrator
         _logger = logger;
     }
 
+    /// <summary>Generates an embedding for a variant image URL and persists it to the database.</summary>
+    /// <param name="variantImageId">The variant image identifier.</param>
+    /// <param name="modelName">The embedding model name (uses default if empty).</param>
+    /// <param name="ct">Cancellation token.</param>
+    /// <returns>A result containing the persisted embedding details.</returns>
     public async Task<Result<EmbeddingDetailResponse>> GenerateAndPersistAsync(Guid variantImageId, string modelName, CancellationToken ct = default)
     {
         var imageResult = await LoadVariantImageAsync(variantImageId, ct);
@@ -46,6 +52,13 @@ public sealed partial class EmbeddingOrchestrator : IEmbeddingOrchestrator
         return await PersistEmbeddingAsync(variantImageId, effectiveModel, inferenceResult.Value, ct);
     }
 
+    /// <summary>Generates an embedding from raw image bytes and persists it to the database.</summary>
+    /// <param name="variantImageId">The variant image identifier.</param>
+    /// <param name="imageBytes">Raw image byte data.</param>
+    /// <param name="contentType">MIME content type of the image.</param>
+    /// <param name="modelName">The embedding model name (uses default if empty).</param>
+    /// <param name="ct">Cancellation token.</param>
+    /// <returns>A result containing the persisted embedding details.</returns>
     public async Task<Result<EmbeddingDetailResponse>> GenerateAndPersistFromBytesAsync(Guid variantImageId, byte[] imageBytes, string contentType, string modelName, CancellationToken ct = default)
     {
         var imageResult = await LoadVariantImageAsync(variantImageId, ct);

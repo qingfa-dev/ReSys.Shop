@@ -4,10 +4,12 @@ namespace Module.Catalog.Features.Admin.Taxonomies.Taxons.Update;
 
 public static partial class UpdateTaxon
 {
+    /// <summary>Maps the taxon update route.</summary>
     public class Endpoint : ICarterModule
     {
         public void AddRoutes(IEndpointRouteBuilder app)
         {
+            // Map: PUT /api/admin/taxonomies/{taxonomyId}/taxons/{id} — update a taxon within a taxonomy
             app.MapPut(CatalogFeature.Admin.Taxonomies.Taxons.Update.Route, async (
                 [FromRoute] Guid taxonomyId,
                 [FromRoute] Guid id,

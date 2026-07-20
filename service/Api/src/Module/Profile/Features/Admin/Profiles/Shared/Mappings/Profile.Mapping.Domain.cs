@@ -26,7 +26,7 @@ public static partial class ProfileMapping
                 request.Preferences?.SizeTop,
                 request.Preferences?.SizeBottom,
                 request.Preferences?.ShoeSize).Value,
-            notifications: NotificationPreferencesExtensions.Create(
+            notifications: NotificationPreferencesMethod.Create(
                 request.Notifications?.EnableSms ?? true,
                 request.Notifications?.EnableEmail ?? true,
                 request.Notifications?.EnableNewsfeeds ?? true).Value
@@ -51,7 +51,7 @@ public static partial class ProfileMapping
             request.Preferences?.SizeBottom,
             request.Preferences?.ShoeSize).Value;
 
-        profile.Notifications = NotificationPreferencesExtensions.Create(
+        profile.Notifications = NotificationPreferencesMethod.Create(
             request.Notifications?.EnableSms ?? true,
             request.Notifications?.EnableEmail ?? true,
             request.Notifications?.EnableNewsfeeds ?? true).Value;

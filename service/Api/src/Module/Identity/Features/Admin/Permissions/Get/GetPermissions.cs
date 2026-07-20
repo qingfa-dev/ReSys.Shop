@@ -10,6 +10,9 @@ public static partial class GetPermissions
 {
     public sealed record Query : IPagedQuery<PermissionMetadata>;
 
+    /// <summary>
+    /// Handles the <see cref="Query"/> to retrieve all available permissions.
+    /// </summary>
     public sealed class QueryHandler : IPagedQueryHandler<Query, PermissionMetadata>
     {
         // Contract: pre=request!=null, post=result!=null
@@ -21,8 +24,10 @@ public static partial class GetPermissions
         /// <returns>A paged result containing all permission metadata.</returns>
         public Task<PagedResult<PermissionMetadata>> Handle(Query request, CancellationToken cancellationToken)
         {
+            // Load: Fetch all registered permissions from the global permission registry
             var all = PermissionContext.All;
 
+            // Transform: Package permissions into a paged result for uniform API response
             return Task.FromResult(PagedResult<PermissionMetadata>.Create(
                 items: all,
                 page: 1,

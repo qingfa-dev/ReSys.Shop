@@ -2,6 +2,7 @@ using Shared.Application.Domain.Models;
 
 namespace Module.Profile.Domain.Addresses;
 
+// Invariant: FirstName != null; Address1 != null; City != null; CountryName != null; IsDefault implies valid address type
 public sealed partial class Address : Entity
 {
     #region Properties

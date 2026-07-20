@@ -3,6 +3,9 @@ using Module.Catalog.Domain.Products.Variants.Options;
 
 namespace Module.Catalog.Features.Admin.Products.Variants.OptionValues.Assign;
 
+/// <summary>
+/// Defines the use case for assigning option values to a variant.
+/// </summary>
 public static partial class AssignVariantOptionValues
 {
     public sealed record Command(Guid VariantId, Request Request) : ICommand;

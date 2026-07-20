@@ -90,12 +90,7 @@ public class GetAvailabilityTests : IDisposable
             .ReturnsAsync(new Dictionary<Guid, int> { [variantId] = 0 });
 
         _calc.Setup(x => x.GetForVariantAsync(variantId, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new StockSnapshot(
-                TotalOnHand: 0,
-                TotalReserved: 0,
-                TotalAvailable: 0,
-                Backorderable: true,
-                Locations: []));
+            .ReturnsAsync(            new StockSnapshot { TotalOnHand = 0, TotalReserved = 0, TotalAvailable = 0, Backorderable = true, Locations = [] });
 
         var result = await _sut.Handle(new GetAvailability.Query(productId), TestContext.Current.CancellationToken);
 

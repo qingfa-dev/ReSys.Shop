@@ -2,19 +2,17 @@ namespace Module.Identity.Features.Store.Emails.Change;
 
 public static partial class ChangeEmail
 {
-    /// <summary>
-    /// Carter endpoint for initiating an email change request.
-    /// </summary>
+    /// <summary>Maps the email change initiation route.</summary>
     public sealed class Endpoint : ICarterModule
     {
         public void AddRoutes(IEndpointRouteBuilder app)
         {
+            // Map: POST /api/store/emails/change — initiate email address change
             app.MapPost(IdentityFeature.Store.Emails.Change.Route, async (
                 [FromBody] Request request,
                 ISender sender,
                 CancellationToken ct) =>
             {
-                // Handle: Initiate email change — routes Command to handler via MediatR
                 var command = new Command(request);
                 var result = await sender.Send(command, ct);
                 return result.ToResult();

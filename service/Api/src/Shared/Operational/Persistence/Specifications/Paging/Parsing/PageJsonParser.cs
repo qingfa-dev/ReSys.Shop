@@ -9,7 +9,11 @@ internal static class PageJsonParser
 {
     private static readonly JsonSerializerOptions s_jsonOptions = new() { PropertyNameCaseInsensitive = true };
 
-    private sealed record PageJsonDto(int? Page, int? PageSize);
+    private sealed record PageJsonDto
+    {
+        public int? Page { get; init; }
+        public int? PageSize { get; init; }
+    }
 
     /// <summary>
     /// Parses a JSON string into a validated <see cref="PageModel"/>,

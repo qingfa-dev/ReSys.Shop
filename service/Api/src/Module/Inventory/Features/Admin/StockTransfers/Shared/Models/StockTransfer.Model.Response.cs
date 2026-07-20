@@ -1,6 +1,6 @@
 namespace Module.Inventory.Features.Admin.StockTransfers.Shared.Models;
 
-public class StockTransferDetailResponse : StockTransferParameters
+public record StockTransferDetailResponse : StockTransferParameters, IResponse
 {
     public Guid Id { get; init; }
     public string Number { get; set; } = string.Empty;
@@ -9,7 +9,7 @@ public class StockTransferDetailResponse : StockTransferParameters
     public List<TransferItemResponse> Items { get; set; } = [];
 }
 
-public class StockTransferListItemResponse : StockTransferParameters
+public record StockTransferListItemResponse : StockTransferParameters, IResponse
 {
     public Guid Id { get; init; }
     public string Number { get; set; } = string.Empty;
@@ -17,9 +17,8 @@ public class StockTransferListItemResponse : StockTransferParameters
     public DateTimeOffset CreatedAtUtc { get; set; }
 }
 
-public class TransferItemResponse
+public record TransferItemResponse : Response
 {
-    public Guid Id { get; init; }
     public Guid VariantId { get; set; }
     public int Quantity { get; set; }
     public int ReceivedQuantity { get; set; }

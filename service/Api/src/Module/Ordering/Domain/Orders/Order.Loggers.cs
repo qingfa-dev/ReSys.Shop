@@ -38,4 +38,28 @@ public static partial class OrderLoggers
         Level = LogLevel.Debug,
         Message = "[Order.Emptied]: {Number} ({Id}) by {ActionBy}")]
     public static partial void Emptied(ILogger logger, string Number, Guid Id, string? ActionBy = "System");
+
+    [LoggerMessage(
+        EventId = 3010,
+        Level = LogLevel.Warning,
+        Message = "Failed to void payments for order {OrderId}: {Errors}")]
+    public static partial void VoidPaymentsFailed(ILogger logger, Guid OrderId, string Errors);
+
+    [LoggerMessage(
+        EventId = 3011,
+        Level = LogLevel.Warning,
+        Message = "Failed to send order canceled notification for order {OrderId}: {Errors}")]
+    public static partial void CancelNotificationFailed(ILogger logger, Guid OrderId, string Errors);
+
+    [LoggerMessage(
+        EventId = 3012,
+        Level = LogLevel.Warning,
+        Message = "Failed to send order confirmation notification for order {OrderId}: {Errors}")]
+    public static partial void ConfirmationNotificationFailed(ILogger logger, Guid OrderId, string Errors);
+
+    [LoggerMessage(
+        EventId = 3013,
+        Level = LogLevel.Warning,
+        Message = "Failed to send order resumed notification for order {OrderId}: {Errors}")]
+    public static partial void ResumeNotificationFailed(ILogger logger, Guid OrderId, string Errors);
 }

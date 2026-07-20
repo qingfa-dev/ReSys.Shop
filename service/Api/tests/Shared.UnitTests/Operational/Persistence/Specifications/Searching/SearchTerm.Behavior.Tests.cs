@@ -13,7 +13,7 @@ public sealed class SearchTermBehaviorTests
     [InlineData("WORLD", "world")]
     public void EffectiveValue_WhenCaseInsensitive_ShouldReturnToLowerInvariant(string value, string expected)
     {
-        SearchTerm term = new(value, false);
+        SearchTerm term = new() { Value = value, CaseSensitive = false };
 
         term.EffectiveValue.Should().Be(expected);
     }
@@ -24,7 +24,7 @@ public sealed class SearchTermBehaviorTests
     [InlineData("world")]
     public void EffectiveValue_WhenCaseSensitive_ShouldReturnOriginal(string value)
     {
-        SearchTerm term = new(value, true);
+        SearchTerm term = new() { Value = value, CaseSensitive = true };
 
         term.EffectiveValue.Should().Be(value);
     }
@@ -34,7 +34,7 @@ public sealed class SearchTermBehaviorTests
     [InlineData("world", "world~")]
     public void ToString_WhenCaseInsensitive_ShouldAppendTilde(string value, string expected)
     {
-        SearchTerm term = new(value, false);
+        SearchTerm term = new() { Value = value, CaseSensitive = false };
 
         term.ToString().Should().Be(expected);
     }
@@ -44,7 +44,7 @@ public sealed class SearchTermBehaviorTests
     [InlineData("world")]
     public void ToString_WhenCaseSensitive_ShouldReturnValueOnly(string value)
     {
-        SearchTerm term = new(value, true);
+        SearchTerm term = new() { Value = value, CaseSensitive = true };
 
         term.ToString().Should().Be(value);
     }

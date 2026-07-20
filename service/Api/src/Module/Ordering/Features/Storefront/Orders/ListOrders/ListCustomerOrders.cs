@@ -19,13 +19,14 @@ public static partial class ListCustomerOrders
         /// <returns>The paged order list response.</returns>
         public async Task<PagedResult<Response>> Handle(Query request, CancellationToken cancellationToken)
         {
+            // Contract: pre=query!=null, post=result!=null
             var parameters = request.Parameters;
 
-            // Contract: pre=query!=null, post=result!=null
+            // Check: Resolve current user identifier
             if (!Guid.TryParse(currentUser.UserId, out var userId))
                 return PagedResult<Response>.Create();
 
-            // Validate: Parse querying parameters (sort, filter, page).
+            // Parse: Validate and parse querying parameters
             var parseAll = parameters.ParseAll(
                 allowedFilterFields: OrderConstant.Query.AllowedFilterFields.ToHashSet(StringComparer.OrdinalIgnoreCase),
                 allowedSearchFields: OrderConstant.Query.AllowedSearchFields.ToHashSet(StringComparer.OrdinalIgnoreCase),

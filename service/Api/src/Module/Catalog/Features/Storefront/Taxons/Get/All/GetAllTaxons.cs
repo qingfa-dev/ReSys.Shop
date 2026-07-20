@@ -22,12 +22,18 @@ public static partial class GetAllTaxons
     public sealed class PagedQueryHandler(IApplicationDbContext dbContext)
         : IPagedQueryHandler<Query, Response>
     {
-        /// <inheritdoc />
+        /// <summary>
+        /// Retrieves all active taxons filtered by depth and/or taxonomy ID for breadcrumb and filter panel population.
+        /// </summary>
+        /// <param name="request">The query containing optional depth and taxonomy ID filters with pagination parameters.</param>
+        /// <param name="cancellationToken">Propagates cancellation notification.</param>
+        /// <returns>A paged result of flat taxon list items.</returns>
         // Contract: pre=none, post=result.Items!=null
         public async Task<PagedResult<Response>> Handle(Query request, CancellationToken cancellationToken)
         {
             var parameters = request.Parameters;
 
+            // Filter: Active taxons with optional depth and taxonomy constraints
             var query = dbContext.Set<Taxon>()
                 .Where(t => !t.IsDeleted)
                 .AsNoTracking();
@@ -38,7 +44,7 @@ public static partial class GetAllTaxons
             if (parameters.TaxonomyId.HasValue)
                 query = query.Where(t => t.TaxonomyId == parameters.TaxonomyId.Value);
 
-            // Parse: Validate and parse querying parameters
+            // Parse: Validate and parse querying parameters for filtering, searching, and sorting
             var parsing = parameters.ParseAll(
                 allowedFilterFields: TaxonConstant.Query.AllowedFilterFields,
                 allowedSearchFields: TaxonConstant.Query.AllowedSearchFields,
@@ -46,6 +52,7 @@ public static partial class GetAllTaxons
             if (parsing.IsFailure)
                 return parsing.Errors;
 
+            // Compute: Apply nested set ordering and pagination to produce flat taxon list
             var pagedResult = await query
                 .OrderBy(t => t.Lft)
                 .ApplyQuerying(parsing.Value)

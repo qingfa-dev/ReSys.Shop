@@ -50,7 +50,7 @@ public static class DashboardFeatureMetadata
     public static class Catalog
     {
         public static readonly PermissionMetadata List = PermissionMetadataMethod.For(
-            PermissionContext.Domains.Admin, PermissionContext.Categories.Dashboard, PermissionContext.Resources.CatalogDb, PermissionContext.Actions.List);
+            PermissionContext.Domains.Admin, PermissionContext.Categories.Dashboard, PermissionContext.Resources.CatalogDashboard, PermissionContext.Actions.List);
 
         public static IReadOnlyList<PermissionMetadata> All => [List];
     }
@@ -58,7 +58,7 @@ public static class DashboardFeatureMetadata
     public static class Orders
     {
         public static readonly PermissionMetadata List = PermissionMetadataMethod.For(
-            PermissionContext.Domains.Admin, PermissionContext.Categories.Dashboard, PermissionContext.Resources.Sales, PermissionContext.Actions.List);
+            PermissionContext.Domains.Admin, PermissionContext.Categories.Dashboard, PermissionContext.Resources.Orders, PermissionContext.Actions.List);
 
         public static IReadOnlyList<PermissionMetadata> All => [List];
     }
@@ -66,7 +66,7 @@ public static class DashboardFeatureMetadata
     public static class Inventory
     {
         public static readonly PermissionMetadata List = PermissionMetadataMethod.For(
-            PermissionContext.Domains.Admin, PermissionContext.Categories.Dashboard, PermissionContext.Resources.InventoryDb, PermissionContext.Actions.List);
+            PermissionContext.Domains.Admin, PermissionContext.Categories.Dashboard, PermissionContext.Resources.InventoryDashboard, PermissionContext.Actions.List);
 
         public static IReadOnlyList<PermissionMetadata> All => [List];
     }

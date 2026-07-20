@@ -33,7 +33,7 @@ public class PermissionMappingTests
     public void ToItem_SingleResourceGroupWithOnePermission_ShouldMapAllProperties()
     {
         var permission = PermissionMetadataMethod.For("admin", "identity", "users", "create");
-        var group = new ResourceGroup("Users", [permission], "User management");
+        var group = new ResourceGroup { ResourceName = "Users", Permissions = [permission], Description = "User management" };
 
         var result = group.ToItem<TestResourceGroupItem, TestPermissionResponse>();
 
@@ -49,7 +49,7 @@ public class PermissionMappingTests
         var p1 = PermissionMetadataMethod.For("admin", "identity", "users", "create");
         var p2 = PermissionMetadataMethod.For("admin", "identity", "users", "view");
         var p3 = PermissionMetadataMethod.For("admin", "identity", "users", "delete");
-        var group = new ResourceGroup("Users", [p1, p2, p3]);
+        var group = new ResourceGroup { ResourceName = "Users", Permissions = [p1, p2, p3] };
 
         var result = group.ToItem<TestResourceGroupItem, TestPermissionResponse>();
 
@@ -63,7 +63,7 @@ public class PermissionMappingTests
     public void ToItem_ResourceGroupWithNullDescription_ShouldMapNullDescription()
     {
         var permission = PermissionMetadataMethod.For("admin", "identity", "users", "create");
-        var group = new ResourceGroup("Users", [permission]);
+        var group = new ResourceGroup { ResourceName = "Users", Permissions = [permission] };
 
         var result = group.ToItem<TestResourceGroupItem, TestPermissionResponse>();
 
@@ -73,7 +73,7 @@ public class PermissionMappingTests
     [Fact(DisplayName = "Should map ResourceGroup with empty permissions to empty list")]
     public void ToItem_ResourceGroupWithEmptyPermissions_ShouldMapEmptyList()
     {
-        var group = new ResourceGroup("Users", []);
+        var group = new ResourceGroup { ResourceName = "Users", Permissions = [] };
 
         var result = group.ToItem<TestResourceGroupItem, TestPermissionResponse>();
 
@@ -87,8 +87,8 @@ public class PermissionMappingTests
         var p2 = PermissionMetadataMethod.For("admin", "identity", "roles", "create");
         var groups = new[]
         {
-            new ResourceGroup("Users", [p1], "User management"),
-            new ResourceGroup("Roles", [p2], "Role management")
+            new ResourceGroup { ResourceName = "Users", Permissions = [p1], Description = "User management" },
+            new ResourceGroup { ResourceName = "Roles", Permissions = [p2], Description = "Role management" }
         };
 
         var result = groups.MapToListItem<TestResourceGroupItem, TestPermissionResponse>();
@@ -116,8 +116,8 @@ public class PermissionMappingTests
         var p2 = PermissionMetadataMethod.For("admin", "identity", "roles", "create");
         var groups = new[]
         {
-            new ResourceGroup("Users", [p1]),
-            new ResourceGroup("Roles", [p2])
+            new ResourceGroup { ResourceName = "Users", Permissions = [p1] },
+            new ResourceGroup { ResourceName = "Roles", Permissions = [p2] }
         };
 
         var result = groups.ToListResponse<TestResourceGroupList, TestResourceGroupItem, TestPermissionResponse>();
@@ -141,8 +141,18 @@ public class PermissionMappingTests
     public void ToItem_SingleCategoryWithOneResource_ShouldMapAllProperties()
     {
         var permission = PermissionMetadataMethod.For("admin", "identity", "users", "create");
-        var resource = new ResourceGroup("Users", [permission], "User management");
-        var group = new PermissionGroup("Identity Management", [resource], "Identity related permissions");
+        var resource = new ResourceGroup
+        {
+            ResourceName = "Users",
+            Permissions = [permission],
+            Description = "User management"
+        };
+        var group = new PermissionGroup
+        {
+            Category = "Identity Management",
+            Resources = [resource],
+            Description = "Identity related permissions"
+        };
 
         var result = group.ToItem<TestCategoryGroupItem, TestResourceGroupItem, TestPermissionResponse>();
 
@@ -156,9 +166,9 @@ public class PermissionMappingTests
     [Fact(DisplayName = "Should map PermissionGroup with multiple resources preserving all items")]
     public void ToItem_SingleCategoryWithMultipleResources_ShouldMapAllResources()
     {
-        var r1 = new ResourceGroup("Users", [PermissionMetadataMethod.For("admin", "identity", "users", "create")]);
-        var r2 = new ResourceGroup("Roles", [PermissionMetadataMethod.For("admin", "identity", "roles", "create")]);
-        var group = new PermissionGroup("Identity", [r1, r2]);
+        var r1 = new ResourceGroup { ResourceName = "Users", Permissions = [PermissionMetadataMethod.For("admin", "identity", "users", "create")] };
+        var r2 = new ResourceGroup { ResourceName = "Roles", Permissions = [PermissionMetadataMethod.For("admin", "identity", "roles", "create")] };
+        var group = new PermissionGroup { Category = "Identity", Resources = [r1, r2] };
 
         var result = group.ToItem<TestCategoryGroupItem, TestResourceGroupItem, TestPermissionResponse>();
 
@@ -170,7 +180,7 @@ public class PermissionMappingTests
     [Fact(DisplayName = "Should map PermissionGroup with null description preserving null")]
     public void ToItem_SingleCategoryWithNullDescription_ShouldMapNullDescription()
     {
-        var group = new PermissionGroup("Identity", [new ResourceGroup("Users", [PermissionMetadataMethod.For("admin", "identity", "users", "create")])]);
+        var group = new PermissionGroup { Category = "Identity", Resources = [new ResourceGroup { ResourceName = "Users", Permissions = [PermissionMetadataMethod.For("admin", "identity", "users", "create")] }] };
 
         var result = group.ToItem<TestCategoryGroupItem, TestResourceGroupItem, TestPermissionResponse>();
 
@@ -182,8 +192,8 @@ public class PermissionMappingTests
     {
         var groups = new[]
         {
-            new PermissionGroup("Identity", [new ResourceGroup("Users", [PermissionMetadataMethod.For("admin", "identity", "users", "create")])]),
-            new PermissionGroup("Catalog", [new ResourceGroup("Products", [PermissionMetadataMethod.For("admin", "catalog", "products", "view")])])
+            new PermissionGroup { Category = "Identity", Resources = [new ResourceGroup { ResourceName = "Users", Permissions = [PermissionMetadataMethod.For("admin", "identity", "users", "create")] }] },
+            new PermissionGroup { Category = "Catalog", Resources = [new ResourceGroup { ResourceName = "Products", Permissions = [PermissionMetadataMethod.For("admin", "catalog", "products", "view")] }] }
         };
 
         var result = groups.ToList<TestCategoryGroupItem, TestResourceGroupItem, TestPermissionResponse>();
@@ -210,8 +220,8 @@ public class PermissionMappingTests
     {
         var groups = new[]
         {
-            new PermissionGroup("Identity", [new ResourceGroup("Users", [PermissionMetadataMethod.For("admin", "identity", "users", "create")])]),
-            new PermissionGroup("Catalog", [new ResourceGroup("Products", [PermissionMetadataMethod.For("admin", "catalog", "products", "view")])])
+            new PermissionGroup { Category = "Identity", Resources = [new ResourceGroup { ResourceName = "Users", Permissions = [PermissionMetadataMethod.For("admin", "identity", "users", "create")] }] },
+            new PermissionGroup { Category = "Catalog", Resources = [new ResourceGroup { ResourceName = "Products", Permissions = [PermissionMetadataMethod.For("admin", "catalog", "products", "view")] }] }
         };
 
         var result = groups.ToListResponse<TestCategoryGroupList, TestCategoryGroupItem, TestResourceGroupItem, TestPermissionResponse>();

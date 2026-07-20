@@ -1,3 +1,4 @@
+using FluentValidation;
 using Shared.Application.Domain.Currencies;
 
 namespace Module.Payment.Domain.PaymentCaptures;
@@ -21,7 +22,7 @@ public static class PaymentCaptureValidation
         return ruleBuilder
             .Must(target => IsValidTransition(currentState, target))
             .WithErrorCode(PaymentCaptureResult.Failure.InvalidStateTransition(currentState, currentState).Code)
-            .WithMessage(PaymentCaptureResult.Failure.InvalidStateTransition(currentState, currentState).Message);
+            .WithMessage((_, target) => PaymentCaptureResult.Failure.InvalidStateTransition(currentState, target).Message);
     }
 
     public static IRuleBuilderOptions<T, string?> ApplyNumberRules<T>(this IRuleBuilder<T, string?> ruleBuilder)
@@ -135,13 +136,19 @@ public static class PaymentCaptureValidation
     private static bool IsValidTransition(PaymentRecordState from, PaymentRecordState to) => (from, to) switch
     {
         (PaymentRecordState.Checkout, PaymentRecordState.Processing) => true,
+        (PaymentRecordState.Checkout, PaymentRecordState.Failed) => true,
+        (PaymentRecordState.Checkout, PaymentRecordState.Disputed) => true,
         (PaymentRecordState.Processing, PaymentRecordState.Pending) => true,
         (PaymentRecordState.Processing, PaymentRecordState.Completed) => true,
         (PaymentRecordState.Processing, PaymentRecordState.Failed) => true,
         (PaymentRecordState.Processing, PaymentRecordState.Void) => true,
+        (PaymentRecordState.Processing, PaymentRecordState.Disputed) => true,
         (PaymentRecordState.Pending, PaymentRecordState.Completed) => true,
         (PaymentRecordState.Pending, PaymentRecordState.Failed) => true,
         (PaymentRecordState.Pending, PaymentRecordState.Void) => true,
+        (PaymentRecordState.Pending, PaymentRecordState.Disputed) => true,
+        (PaymentRecordState.Completed, PaymentRecordState.Disputed) => true,
+        (PaymentRecordState.Failed, PaymentRecordState.Disputed) => true,
         (PaymentRecordState.Failed, PaymentRecordState.Invalid) => true,
         (PaymentRecordState.Void, PaymentRecordState.Invalid) => true,
         _ => false

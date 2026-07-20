@@ -1,6 +1,6 @@
 namespace Module.Payment.Services.Provider;
 
-// Contract: Required fields Email, Customer, OrderId, PaymentId, IdempotencyKey must be non-null
+/// <summary>Required and optional parameters passed to gateway payment operations.</summary>
 public sealed record GatewayOptions
 {
     public static string Currency => GatewayConstants.Currency.Usd;
@@ -13,6 +13,8 @@ public sealed record GatewayOptions
     public required string PaymentId { get; init; }
     public required string IdempotencyKey { get; init; }
     public string? StatementDescriptorSuffix { get; init; }
+    public string? SuccessUrl { get; init; }
+    public string? CancelUrl { get; init; }
     public decimal Shipping { get; init; }
     public decimal Tax { get; init; }
     public decimal Subtotal { get; init; }

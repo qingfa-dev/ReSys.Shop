@@ -4,10 +4,12 @@ namespace Module.Shipping.Features.Storefront.Shipping.Methods;
 
 public static partial class GetShippingMethods
 {
+    /// <summary>Storefront: list available shipping methods.</summary>
     public class Endpoint : ICarterModule
     {
         public void AddRoutes(IEndpointRouteBuilder app)
         {
+            // Map: GET {route} → list shipping methods
             app.MapGet(ShippingFeature.Storefront.Shipping.Methods.Route, async (
                 ISender sender,
                 CancellationToken ct) =>

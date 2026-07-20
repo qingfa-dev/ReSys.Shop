@@ -49,7 +49,7 @@ public static partial class DeleteVariantImage
             // Log: Record image deletion event for observability
             VariantImageLoggers.Deleted(logger, Id: image.Id, ActionBy: currentUser.UserName);
 
-            return Result<Response>.Ok(new Response(VariantImageResult.Success.Deleted(image.Id)));
+            return Result<Response>.Ok(new Response { Message = VariantImageResult.Success.Deleted(image.Id) });
         }
     }
 }

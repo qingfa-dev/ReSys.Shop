@@ -6,6 +6,9 @@ using Pgvector;
 
 namespace Module.Catalog.Features.Storefront.Products.SearchByImage;
 
+/// <summary>
+/// Defines the use case for searching products by image similarity.
+/// </summary>
 public static partial class SearchByImage
 {
     public sealed record Command(Request Request) : ICommand<Response>;
@@ -29,22 +32,25 @@ public static partial class SearchByImage
         {
             var image = command.Request.Image;
 
+            // Validate: Reject empty, oversized, and non-image files
             if (image is null || image.Length == 0)
                 return new Response();
 
             const long MaxFileSize = 10_485_760; // 10 MB
             if (image.Length > MaxFileSize)
-                return Error.Validation("SearchByImage.FileTooLarge", "Image file must not exceed 10 MB.");
+                return SearchByImageResult.Errors.FileTooLarge;
 
             if (!image.ContentType.StartsWith("image/"))
-                return Error.Validation("SearchByImage.InvalidContentType", "File must be an image.");
+                return SearchByImageResult.Errors.InvalidContentType;
 
+            // Transform: Read image bytes into memory for inference
             using var ms = new MemoryStream();
             await image.CopyToAsync(ms, cancellationToken);
             var imageBytes = ms.ToArray();
 
             var modelName = command.Request.Model ?? DefaultModel;
 
+            // Call: Generate embedding vector from uploaded image via inference service
             var inferenceResult = await inferenceClient.CreateEmbeddingFromBytesAsync(
                 imageBytes, image.ContentType, modelName, cancellationToken);
 
@@ -56,6 +62,7 @@ public static partial class SearchByImage
 
             var topK = command.Request.TopK > 0 ? command.Request.TopK : 20;
 
+            // Query: Find nearest neighbors in pgvector space using cosine distance
             var similarVariants = await dbContext.Set<Variant>()
                 .FromSqlRaw(@"
                     SELECT DISTINCT ON (v.id) v.*
@@ -73,9 +80,9 @@ public static partial class SearchByImage
                 .AsNoTracking()
                 .ToListAsync(cancellationToken);
 
+            // Map: Build search result items with variant and image URLs
             var items = similarVariants.Select(MapToItem).ToList();
 
-            // No domain entity to map from — Response wraps List<SearchResultItem> directly
             return new Response { Items = items };
         }
     }

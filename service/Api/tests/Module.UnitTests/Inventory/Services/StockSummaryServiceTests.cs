@@ -81,6 +81,30 @@ public class StockSummaryServiceTests : IDisposable
         result[0].LocationBreakdown[0].IsLowStock.Should().BeTrue();
     }
 
+    [Fact(DisplayName = "GetStockSummaryAsync: Should flag low stock based on available (on-hand minus reserved)")]
+    public async Task GetStockSummaryAsync_ShouldFlagLowStock_WhenAvailableBelowThreshold()
+    {
+        var ct = TestContext.Current.CancellationToken;
+        var loc = Guid.NewGuid();
+
+        _dbContext.Set<StockLocation>().Add(new StockLocation { Id = loc, Name = "Loc", Active = true, LowStockThreshold = 5 });
+        await _dbContext.SaveChangesAsync(ct);
+
+        _dbContext.Set<StockItem>().Add(new StockItem { VariantId = _variantId, StockLocationId = loc, CountOnHand = 8 });
+        await _dbContext.SaveChangesAsync(ct);
+
+        _dbContext.Set<StockReservation>().Add(StockReservationMethod.SeedForTest(
+            _variantId, 4, ReservationState.Reserved, DateTimeOffset.UtcNow.AddMinutes(30),
+            loc, _orderId, createdAtUtc: DateTimeOffset.UtcNow));
+        await _dbContext.SaveChangesAsync(ct);
+
+        var result = await _service.GetStockSummaryAsync(ct);
+
+        result.Should().HaveCount(1);
+        result[0].LocationBreakdown[0].Available.Should().Be(4);
+        result[0].LocationBreakdown[0].IsLowStock.Should().BeTrue();
+    }
+
     [Fact(DisplayName = "GetStockSummaryAsync: Should return empty when no stock items")]
     public async Task GetStockSummaryAsync_ShouldReturnEmpty_WhenNoStockItems()
     {

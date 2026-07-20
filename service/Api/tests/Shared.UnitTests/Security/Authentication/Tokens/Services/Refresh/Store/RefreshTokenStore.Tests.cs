@@ -40,7 +40,7 @@ public sealed class RefreshTokenStoreTests
     public async Task AddAsync_PersistsEntity()
     {
         // Arrange
-        RefreshToken entity = new RefreshToken
+        RefreshToken entity = new()
         {
             Id = Guid.NewGuid(),
             TokenHash = "new-token-hash",
@@ -61,7 +61,7 @@ public sealed class RefreshTokenStoreTests
     public async Task UpdateAsync_PersistsChanges()
     {
         // Arrange
-        RefreshToken entity = new RefreshToken
+        RefreshToken entity = new()
         {
             Id = Guid.NewGuid(),
             TokenHash = "update-token",
@@ -90,7 +90,7 @@ public sealed class RefreshTokenStoreTests
     private static Mock<DbSet<T>> CreateDbSetMock<T>(List<T> data) where T : class
     {
         IQueryable<T> queryable = data.AsQueryable();
-        Mock<DbSet<T>> dbSetMock = new Mock<DbSet<T>>();
+        Mock<DbSet<T>> dbSetMock = new();
 
         dbSetMock.As<IQueryable<T>>().Setup(m => m.Provider).Returns(queryable.Provider);
         dbSetMock.As<IQueryable<T>>().Setup(m => m.Expression).Returns(queryable.Expression);

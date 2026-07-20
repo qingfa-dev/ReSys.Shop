@@ -4,11 +4,12 @@ namespace Module.Catalog.Features.Admin.Taxonomies.Create;
 
 public static partial class CreateTaxonomy
 {
-    // Endpoints:
+    /// <summary>Maps the taxonomy creation route.</summary>
     public class Endpoint : ICarterModule
     {
         public void AddRoutes(IEndpointRouteBuilder app)
         {
+            // Map: POST /api/admin/taxonomies — create a new taxonomy
             app.MapPost(CatalogFeature.Admin.Taxonomies.Create.Route, async (
                 [FromBody] Request request,
                 ISender sender,

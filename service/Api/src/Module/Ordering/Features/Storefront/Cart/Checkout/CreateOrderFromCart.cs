@@ -30,6 +30,8 @@ public static partial class CreateOrderFromCart
         INotificationService notificationService)
         : ICommandHandler<Command, Response>
     {
+        /// <summary>TTL in minutes for stock reservations. Set to 30 days by default. Overridable in tests.</summary>
+        internal int StockReservationExpiryMinutes { get; init; } = 30;
         /// <summary>Validates checkout prerequisites, verifies payment, deducts stock, reserves inventory, places the order, publishes an event, and sends a notification.</summary>
         /// <param name="command">The command containing checkout request with optional payment intent ID.</param>
         /// <param name="cancellationToken">Cancellation token.</param>
@@ -87,80 +89,87 @@ public static partial class CreateOrderFromCart
 
             // Explain: RepeatableRead ensures stock rows read for deduction are stable
             // during the transaction — prevents stock double-deduction under concurrent checkouts.
-            await using var transaction = await dbContext.BeginTransactionAsync(
-                IsolationLevel.RepeatableRead, cancellationToken);
-            try
+            // Retry: Wrap in retry loop for DbUpdateConcurrencyException (up to 3 attempts)
+            int maxRetries = 3;
+            for (int attempt = 0; attempt < maxRetries; attempt++)
             {
-                // Generate: Unique order number inside transaction so rollback doesn't leak numbers
-                var numberResult = await OrderNumber.GenerateAsync(dbContext, cancellationToken);
-                if (numberResult.IsFailure)
-                    return numberResult.Errors;
-                var placeResult = cart.Place(numberResult.Value);
-                if (placeResult.IsFailure)
-                    return placeResult.Errors;
+                bool isLastAttempt = attempt == maxRetries - 1;
+                await using var transaction = await dbContext.BeginTransactionAsync(
+                    IsolationLevel.RepeatableRead, cancellationToken);
 
-                foreach (var lineItem in cart.LineItems)
-                {
-                    // Deduct: Consume stock from locations with highest on-hand first.
-                    var stockItems = await dbContext.Set<StockItem>()
-                        .Where(si => si.VariantId == lineItem.VariantId)
-                        .OrderByDescending(si => si.CountOnHand)
-                        .ToListAsync(cancellationToken);
+                    // Generate: Unique order number inside transaction so rollback doesn't leak numbers
+                    var numberResult = await OrderNumber.GenerateAsync(dbContext, cancellationToken);
+                    if (numberResult.IsFailure)
+                        return numberResult.Errors;
+                    var placeResult = cart.Place(numberResult.Value);
+                    if (placeResult.IsFailure)
+                        return placeResult.Errors;
 
-                    var remaining = lineItem.Quantity;
-                    foreach (var si in stockItems)
+                    foreach (var lineItem in cart.LineItems)
                     {
-                        if (remaining <= 0) break;
-                        var take = Math.Min(si.CountOnHand, remaining);
-                        if (take <= 0) continue;
+                        // Deduct: Consume stock from locations with highest on-hand first.
+                        var stockItems = await dbContext.Set<StockItem>()
+                            .Where(si => si.VariantId == lineItem.VariantId)
+                            .OrderByDescending(si => si.CountOnHand)
+                            .ToListAsync(cancellationToken);
 
-                        // Update: Deduct stock from this location.
-                        si.CountOnHand -= take;
-                        si.ModifiedAtUtc = DateTimeOffset.UtcNow;
+                        var remaining = lineItem.Quantity;
+                        foreach (var si in stockItems)
+                        {
+                            if (remaining <= 0) break;
+                            var take = Math.Min(si.CountOnHand, remaining);
+                            if (take <= 0) continue;
 
-                        remaining -= take;
+                            // Update: Deduct stock via domain Pick() method.
+                            var pickResult = si.Pick(take);
+                            if (pickResult.IsFailure)
+                                return pickResult.Errors;
 
-                        // Create: Reserve stock for this order (30-day expiry).
-                        const int StockReservationExpiryDays = 30;
-                        var reservation = StockReservationMethod.Reserve(
-                            si.VariantId, take, si.StockLocationId, cart.Id, StockReservationExpiryDays).Value;
-                        dbContext.Set<StockReservation>().Add(reservation);
+                            remaining -= take;
 
-                        // Log: Record stock movement for audit trail.
-                        var movementResult = StockMovementMethod.Create(
-                            stockItemId: si.Id,
-                            quantity: -take,
-                            previousCountOnHand: si.CountOnHand,
-                            originatorType: AdjustmentConstant.AdjustableTypes.Order,
-                            originatorId: cart.Id,
-                            action: OrderConstant.StockAction.Ship,
-                            createdBy: currentUser.UserName ?? "System");
+                            // Create: Reserve stock for this order.
+                            var reserveResult = StockReservationMethod.Reserve(
+                                si.VariantId, take, si.StockLocationId, cart.Id, StockReservationExpiryMinutes);
+                            if (reserveResult.IsFailure)
+                                return reserveResult.Errors;
+                            var reservation = reserveResult.Value;
+                            dbContext.Set<StockReservation>().Add(reservation);
 
-                        if (movementResult.IsSuccess)
-                            dbContext.Set<StockMovement>().Add(movementResult.Value);
+                            // Log: Record stock movement for audit trail.
+                            var movementResult = StockMovementMethod.Create(
+                                stockItemId: si.Id,
+                                quantity: -take,
+                                previousCountOnHand: si.CountOnHand,
+                                originatorType: AdjustmentConstant.AdjustableTypes.Order,
+                                originatorId: cart.Id,
+                                action: OrderConstant.StockAction.Ship,
+                                createdBy: currentUser.UserName ?? "System");
+
+                            if (movementResult.IsSuccess)
+                                dbContext.Set<StockMovement>().Add(movementResult.Value);
+                        }
+
+                        if (remaining > 0)
+                            return StockItemResult.Errors.InsufficientStock;
                     }
 
-                    if (remaining > 0)
-                        return StockItemResult.Errors.InsufficientStock;
-                }
+                    try
+                    {
+                        await dbContext.SaveChangesAsync(cancellationToken);
+                    }
+                    catch (DbUpdateConcurrencyException)
+                    {
+                        await transaction.RollbackAsync(cancellationToken);
+                        if (isLastAttempt)
+                            return StockItemResult.Errors.ConcurrencyConflict(
+                                cart.LineItems.First().VariantId);
+                        await Task.Delay(100 * (1 << attempt), cancellationToken);
+                        continue;
+                    }
 
-                try
-                {
-                    await dbContext.SaveChangesAsync(cancellationToken);
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    await transaction.RollbackAsync(cancellationToken);
-                    return StockItemResult.Errors.ConcurrencyConflict(
-                        cart.LineItems.First().VariantId);
-                }
+                    await transaction.CommitAsync(cancellationToken);
+                    break;
 
-                await transaction.CommitAsync(cancellationToken);
-            }
-            catch
-            {
-                await transaction.RollbackAsync(cancellationToken);
-                throw;
             }
 
             // Notify: Send order confirmation email to customer.
@@ -193,8 +202,7 @@ public static partial class CreateOrderFromCart
             var result = await notificationService.SendAsync(message, ct);
             if (result.IsFailure)
             {
-                logger.LogWarning("Failed to send order confirmation notification for order {OrderId}: {Errors}",
-                    order.Id, string.Join("; ", result.Errors.Select(f => f.Message)));
+                OrderLoggers.ConfirmationNotificationFailed(logger, order.Id, string.Join("; ", result.Errors.Select(f => f.Message)));
             }
         }
     }

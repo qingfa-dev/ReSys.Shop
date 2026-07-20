@@ -2,6 +2,7 @@ using Module.Inventory.Services.Abstractions;
 
 namespace Module.Inventory.Backgrounds;
 
+/// <summary>Background job that expires overdue stock reservations and restores inventory.</summary>
 public sealed class ReservationExpiryJob
 {
     private readonly IStockReservationService _reservationService;
@@ -15,6 +16,9 @@ public sealed class ReservationExpiryJob
         _logger = logger;
     }
 
+    /// <summary>Executes the reservation expiry sweep and returns count of expired reservations.</summary>
+    /// <param name="ct">Cancellation token.</param>
+    /// <returns>The number of expired reservations processed.</returns>
     public async Task<int> RunAsync(CancellationToken ct = default)
     {
         var expiredCount = await _reservationService.ExpireReservationsAndRestoreStockAsync(ct);

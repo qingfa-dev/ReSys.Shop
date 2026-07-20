@@ -11,7 +11,7 @@ public static partial class GetUserById
         public string? Presentation { get; init; }
     }
 
-    public class Response : UserDetailResponse
+    public record Response : UserDetailResponse
     {
         public IEnumerable<CustomerGroupDto> CustomerGroups { get; set; } = [];
     }

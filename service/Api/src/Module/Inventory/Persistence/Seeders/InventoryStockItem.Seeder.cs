@@ -40,5 +40,11 @@ public sealed class InventoryStockItemSeeder(IApplicationDbContext context, Demo
         return Result.Ok();
     }
 
-    private record DemoStockItemJson(string VariantId, string StockLocationCode, int CountOnHand, bool Backorderable);
+    private record DemoStockItemJson
+    {
+        public string VariantId { get; init; } = default!;
+        public string StockLocationCode { get; init; } = default!;
+        public int CountOnHand { get; init; }
+        public bool Backorderable { get; init; }
+    }
 }

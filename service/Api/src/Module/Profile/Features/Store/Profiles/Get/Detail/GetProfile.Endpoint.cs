@@ -16,7 +16,7 @@ public static partial class GetProfile
         public void AddRoutes(IEndpointRouteBuilder app)
         {
             // Map: Defines a GET endpoint for retrieving the authenticated user's profile.
-            app.MapGet(ProfileFeature.Store.Profile.Get.Route, async (
+            app.MapGet(ProfileFeature.Store.Profiles.Get.Route, async (
                 ISender sender,
                 ICurrentUser currentUser,
                 CancellationToken ct) =>
@@ -37,8 +37,8 @@ public static partial class GetProfile
             .RequireAuthorization()
             .WithName(nameof(GetProfile))
             .WithTags(ProfileFeature.Tags.Profile)
-            .WithSummary(ProfileFeature.Store.Profile.Get.Summary)
-            .WithDescription(ProfileFeature.Store.Profile.Get.Description)
+            .WithSummary(ProfileFeature.Store.Profiles.Get.Summary)
+            .WithDescription(ProfileFeature.Store.Profiles.Get.Description)
             .Produces<Result<Response>>()
             .Produces<Result>(StatusCodes.Status401Unauthorized)
             .Produces<Result>(StatusCodes.Status404NotFound);

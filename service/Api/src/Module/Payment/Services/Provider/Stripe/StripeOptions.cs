@@ -1,6 +1,6 @@
 namespace Module.Payment.Services.Provider.Stripe;
 
-// Context: Binds from appSettings["GatewayProviders:stripe"] — enables StripeGateway registration
+/// <summary>Stripe gateway configuration, bound from appSettings["GatewayProviders:stripe"].</summary>
 public sealed class StripeSetting
 {
     public const string SectionName = GatewayConstants.Configuration.SectionName + ":" + GatewayConstants.Providers.Stripe;

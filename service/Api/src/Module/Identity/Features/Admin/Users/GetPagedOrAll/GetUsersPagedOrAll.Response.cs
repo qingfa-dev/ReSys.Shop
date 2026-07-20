@@ -7,5 +7,5 @@ public static partial class GetUsersPagedOrAll
     /// <summary>
     /// Represents the response contract for a list of users, typically used in paged results.
     /// </summary>
-    public class Response : UserListResponse { }
+    public record Response : UserListResponse;
 }

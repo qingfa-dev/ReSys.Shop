@@ -24,7 +24,6 @@ public static partial class GetTaxonomiesPaged
         {
             var parameters = request.Parameters;
 
-            // Load: Start with the base set of taxonomies.
             // Parse: Validate and parse querying parameters
             var parsing = parameters.ParseAll(
                 allowedFilterFields: TaxonomyConstant.Query.AllowedFilterFields,
@@ -33,9 +32,9 @@ public static partial class GetTaxonomiesPaged
             if (parsing.IsFailure)
                 return parsing.Errors;
 
+            // Filter: Apply dynamic filtering, sorting, and searching
             var pagedResult = await dbContext.Set<Taxonomy>()
                 .AsNoTracking()
-                // Filter: Apply dynamic filtering, sorting, and searching.
                 .ApplyQuerying(parsing.Value)
                 .ToPagedOrAllAsync(parsing.Value, x => x.MapToListItem<Response>(), cancellationToken);
 

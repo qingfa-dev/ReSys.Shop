@@ -76,7 +76,7 @@ public sealed class PageModelExtensionsTests
     [Fact]
     public void FromValues_CustomBounds_AppliesCorrectly()
     {
-        PageBounds bounds = new(DefaultPage: 1, DefaultPageSize: 50, MaxPageSize: 500);
+        PageBounds bounds = new() { DefaultPage = 1, DefaultPageSize = 50, MaxPageSize = 500 };
 
         Result<PageModel> result = PageModelExtensions.FromValues(page: 2, pageSize: 100, bounds: bounds);
 
@@ -159,7 +159,7 @@ public sealed class PageModelExtensionsTests
     [Fact]
     public void FromQueryString_CustomBounds_AppliesCorrectly()
     {
-        PageBounds bounds = new(DefaultPage: 1, DefaultPageSize: 50, MaxPageSize: 500);
+        PageBounds bounds = new() { DefaultPage = 1, DefaultPageSize = 50, MaxPageSize = 500 };
 
         Result<PageModel> result = PageModelExtensions.FromQueryString("5", "200", bounds);
 
@@ -227,7 +227,7 @@ public sealed class PageModelExtensionsTests
     [Fact]
     public void FromJson_CustomBounds_AppliesCorrectly()
     {
-        PageBounds bounds = new(DefaultPage: 1, DefaultPageSize: 30, MaxPageSize: 300);
+        PageBounds bounds = new() { DefaultPage = 1, DefaultPageSize = 30, MaxPageSize = 300 };
 
         Result<PageModel> result = PageModelExtensions.FromJson("""{"page":3,"pageSize":30}""", bounds);
 

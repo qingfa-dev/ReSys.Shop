@@ -1,8 +1,8 @@
-using Module.Profile.Features.Store.Profiles.Shared.Models;
+using Module.Profile.Features.Admin.Profiles.Shared.Models;
 
 namespace Module.Profile.Features.Store.Profiles.Create;
 
 public static partial class CreateProfile
 {
-    public class Request : ProfileRequest { }
+    public record Request : ProfileRequest;
 }

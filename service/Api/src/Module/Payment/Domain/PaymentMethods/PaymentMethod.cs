@@ -13,6 +13,7 @@ public sealed partial class PaymentMethod : Entity, IAuditable, IParameterizable
     public string Name { get; set; } = string.Empty;
     public string? Code { get; set; }
     public string? Description { get; set; }
+    public string? StatementDescriptorSuffix { get; set; }
     public string ProviderKey { get; set; } = string.Empty;
     public bool Active { get; set; } = PaymentMethodConstant.Defaults.Active;
     public bool AutoCapture { get; set; } = PaymentMethodConstant.Defaults.AutoCapture;

@@ -260,7 +260,7 @@ abstractions:
       - State (PaymentRecordState) — current lifecycle state
       - ResponseCode (string?) — gateway authorization code
       - IntentClientSecret (string?) — Stripe client secret for frontend
-      - PaymentMethodId (Guid) — FK to payment method
+      - PaymentMethodId (Guid?) — FK to payment method (nullable)
       - OrderId (Guid) — FK to order
       - RefundedAmount (decimal) — total refunded amount
   - id: A-2
@@ -299,8 +299,6 @@ abstractions:
       - AutoCapture (bool) — whether payments auto-capture
       - DisplayOn (DisplayOn) — visibility target
       - Preferences (Dictionary) — gateway-specific key-value config
-      - WebhookUrl (string?) — webhook endpoint URL
-      - WebhookSecret (string?) — webhook signing secret
   - id: A-4
     name: DisplayOn
     type: enum
@@ -712,7 +710,7 @@ usage:
     var result = await sender.Send(new VoidOrderPayments.Command(orderId));
   webhook_registration: |
     // Stripe webhook endpoint
-    app.MapPost("/api/storefront/webhooks/stripe", async (string payload, string stripeSignature) =>
+    app.MapPost("/api/payments/stripe/webhook", async (string payload, string stripeSignature) =>
     {
         var result = await sender.Send(new StripeWebhook.Command(payload, stripeSignature));
         return result.IsSuccess ? Results.Ok() : Results.BadRequest(result.Errors);

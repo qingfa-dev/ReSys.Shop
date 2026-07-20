@@ -1,7 +1,6 @@
 using Module.Profile.Domain;
 using Module.Profile.Domain.Wishlists;
 using Module.Profile.Features.Store.Wishlists.Update;
-using Module.UnitTests.Identity.Fixtures;
 
 namespace Module.UnitTests.Profile.Features.Store.Wishlists.Update;
 
@@ -11,7 +10,6 @@ namespace Module.UnitTests.Profile.Features.Store.Wishlists.Update;
 public class UpdateWishlistTests : IDisposable
 {
     private readonly ApplicationDbContext _dbContext;
-    private readonly Mock<ICurrentUser> _currentUserMock;
     private readonly UpdateWishlist.CommandHandler _handler;
     private readonly Guid _userId = Guid.NewGuid();
 
@@ -24,8 +22,7 @@ public class UpdateWishlistTests : IDisposable
         ApplicationDbContext.AdditionalConfigurationsAssemblies = [typeof(UserProfile).Assembly];
 
         _dbContext = new ApplicationDbContext(options);
-        _currentUserMock = IdentityMocks.CreateCurrentUserMock(_userId);
-        _handler = new UpdateWishlist.CommandHandler(_dbContext, _currentUserMock.Object);
+        _handler = new UpdateWishlist.CommandHandler(_dbContext);
     }
 
     public void Dispose()
@@ -41,7 +38,7 @@ public class UpdateWishlistTests : IDisposable
         _dbContext.Set<Wishlist>().Add(wishlist);
         await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 
-        var result = await _handler.Handle(new UpdateWishlist.Command(wishlist.Id, new UpdateWishlist.Request
+        var result = await _handler.Handle(new UpdateWishlist.Command(_userId, wishlist.Id, new UpdateWishlist.Request
         {
             Name = "Updated",
             IsPrivate = true,
@@ -53,24 +50,10 @@ public class UpdateWishlistTests : IDisposable
         result.Value.IsPrivate.Should().BeTrue();
     }
 
-    [Fact(DisplayName = "Handle: Should return Unauthorized when user not authenticated")]
-    public async Task Handle_ShouldFail_WhenNotAuthenticated()
-    {
-        _currentUserMock.Setup(x => x.UserId).Returns((string?)null);
-
-        var result = await _handler.Handle(new UpdateWishlist.Command(Guid.NewGuid(), new UpdateWishlist.Request
-        {
-            Name = "Test"
-        }), TestContext.Current.CancellationToken);
-
-        result.IsFailure.Should().BeTrue();
-        result.Errors[0].Code.Should().Be(WishlistResult.Failure.AuthRequired.Code);
-    }
-
     [Fact(DisplayName = "Handle: Should return NotFound when wishlist does not exist")]
     public async Task Handle_ShouldFail_WhenNotFound()
     {
-        var result = await _handler.Handle(new UpdateWishlist.Command(Guid.NewGuid(), new UpdateWishlist.Request
+        var result = await _handler.Handle(new UpdateWishlist.Command(_userId, Guid.NewGuid(), new UpdateWishlist.Request
         {
             Name = "Test"
         }), TestContext.Current.CancellationToken);
@@ -86,7 +69,7 @@ public class UpdateWishlistTests : IDisposable
         _dbContext.Set<Wishlist>().Add(wishlist);
         await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 
-        var result = await _handler.Handle(new UpdateWishlist.Command(wishlist.Id, new UpdateWishlist.Request
+        var result = await _handler.Handle(new UpdateWishlist.Command(_userId, wishlist.Id, new UpdateWishlist.Request
         {
             Name = "New Name",
             IsPrivate = null,

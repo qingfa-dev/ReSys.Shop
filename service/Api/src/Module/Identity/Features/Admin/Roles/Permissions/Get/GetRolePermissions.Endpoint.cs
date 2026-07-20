@@ -2,28 +2,19 @@ namespace Module.Identity.Features.Admin.Roles.Permissions.Get;
 
 public static partial class GetRolePermissions
 {
-    /// <summary>
-    /// Represents the API endpoint for retrieving permissions associated with a specific role.
-    /// </summary>
+    /// <summary>Maps the role permission retrieval route.</summary>
     public sealed class Endpoint : ICarterModule
     {
-        /// <summary>
-        /// Adds the endpoint for getting role permissions to the Carter module.
-        /// </summary>
-        /// <param name="app">The endpoint route builder.</param>
         public void AddRoutes(IEndpointRouteBuilder app)
         {
-            // Map: Defines a GET endpoint for retrieving permissions by role ID.
+            // Map: GET /api/admin/roles/{id}/permissions — get permissions for a role
             app.MapGet(IdentityFeature.Admin.Roles.Permissions.Get.Route, async (
                 Guid id,
                 ISender sender,
                 CancellationToken ct) =>
             {
-                // Create: Construct a query from the route ID.
                 var query = new Query(id);
-                // Send: Dispatch the query to the mediator for processing.
                 var result = await sender.Send(query, ct);
-                // Map: Convert the result to an IResult for the HTTP response.
                 return result.ToResult();
             })
             .RequireAuthorization()

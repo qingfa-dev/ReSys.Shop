@@ -147,7 +147,6 @@ public class CartReservationServiceTests : IDisposable
         await SeedCartReservation(3);
 
         await _service.ReleaseCartReservationsAsync(_cartToken, ct);
-        await _dbContext.SaveChangesAsync(ct);
 
         var reservations = await _dbContext.Set<StockReservation>()
             .Where(r => r.CartToken == _cartToken).ToListAsync(ct);
@@ -205,6 +204,21 @@ public class CartReservationServiceTests : IDisposable
     {
         var ct = TestContext.Current.CancellationToken;
         var result = await _service.GetReservationsForCartAsync("nonexistent", ct);
+        result.Should().BeEmpty();
+    }
+
+    [Fact(DisplayName = "GetReservationsForCartAsync: Should not throw when ExpiresAtUtc is null")]
+    public async Task GetReservationsForCartAsync_ShouldNotThrow_WhenExpiresAtUtcIsNull()
+    {
+        var ct = TestContext.Current.CancellationToken;
+        var reservation = StockReservationMethod.SeedForTest(
+            _variantId, 2, ReservationState.Reserved, null,
+            _stockLocationId, _orderId, _cartToken, DateTimeOffset.UtcNow);
+        _dbContext.Set<StockReservation>().Add(reservation);
+        await _dbContext.SaveChangesAsync(ct);
+
+        var result = await _service.GetReservationsForCartAsync(_cartToken, ct);
+
         result.Should().BeEmpty();
     }
 

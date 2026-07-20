@@ -3,6 +3,9 @@ using Module.Catalog.Domain.Products.Variants.Options;
 
 namespace Module.Catalog.Features.Admin.Products.Variants.OptionValues.Sync;
 
+/// <summary>
+/// Defines the use case for synchronizing variant option values.
+/// </summary>
 public static partial class SyncVariantOptionValues
 {
     public sealed record Command(Guid VariantId, Request Request) : ICommand;

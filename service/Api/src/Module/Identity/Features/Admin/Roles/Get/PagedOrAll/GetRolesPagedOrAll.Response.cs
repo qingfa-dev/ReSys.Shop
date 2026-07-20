@@ -8,5 +8,5 @@ public static partial class GetRolesPagedOrAll
     /// Represents the response contract for a list of roles, typically used in paged results.
     /// Inherits properties like Id, Name, Description, and IsSystem from <see cref="RoleListResponse"/>.
     /// </summary>
-    public class Response : RoleListResponse { }
+    public record Response : RoleListResponse;
 }

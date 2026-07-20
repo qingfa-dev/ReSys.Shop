@@ -1,5 +1,4 @@
-using Module.Inventory.Domain.StockLocations.StockItems;
-using Module.Inventory.Domain.StockLocations;
+using Module.Inventory.Features.Storefront.StockAvailability.CheckStockAvailability;
 using Module.Ordering.Domain.Orders;
 using Module.Ordering.Features.Storefront.Cart.UpdateItemQuantity;
 
@@ -11,6 +10,7 @@ namespace Module.UnitTests.Ordering.Features.Storefront.Cart.UpdateItemQuantity;
 public class UpdateCartItemQuantityTests : IDisposable
 {
     private readonly ApplicationDbContext _dbContext;
+    private readonly Mock<ISender> _senderMock;
     private readonly Mock<ICurrentUser> _currentUserMock;
     private readonly Mock<ILogger<UpdateCartItemQuantity.CommandHandler>> _loggerMock;
     private readonly UpdateCartItemQuantity.CommandHandler _handler;
@@ -25,8 +25,7 @@ public class UpdateCartItemQuantityTests : IDisposable
             .Options;
 
         ApplicationDbContext.AdditionalConfigurationsAssemblies = [
-            typeof(Order).Assembly,
-            typeof(StockItem).Assembly
+            typeof(Order).Assembly
         ];
         _dbContext = new ApplicationDbContext(options);
 
@@ -38,8 +37,10 @@ public class UpdateCartItemQuantityTests : IDisposable
         _currentUserMock.Setup(x => x.UserName).Returns("customer");
         _currentUserMock.Setup(x => x.UserId).Returns(_userId.ToString());
 
+        _senderMock = new Mock<ISender>();
         _loggerMock = new Mock<ILogger<UpdateCartItemQuantity.CommandHandler>>();
-        _handler = new UpdateCartItemQuantity.CommandHandler(_dbContext, _loggerMock.Object, _currentUserMock.Object);
+        _handler = new UpdateCartItemQuantity.CommandHandler(
+            _dbContext, _loggerMock.Object, _currentUserMock.Object, _senderMock.Object);
     }
 
     public void Dispose()
@@ -51,15 +52,7 @@ public class UpdateCartItemQuantityTests : IDisposable
     [Fact(DisplayName = "Handler: Should update item quantity")]
     public async Task Handle_ShouldUpdateQuantity_WhenItemExists()
     {
-        // Arrange: Seed cart with line item and stock
-        var location = StockLocationMethod.Create("Main").Value;
-        _dbContext.Set<StockLocation>().Add(location);
-        await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
-
-        var stockItem = StockItemMethod.Create(stockLocationId: location.Id, variantId: _variantId, countOnHand: 10).Value;
-        _dbContext.Set<StockItem>().Add(stockItem);
-        await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
-
+        // Arrange: Seed cart with line item
         var cart = OrderMethod.Create("USD", _userId, Guid.Empty).Value;
         cart.LineItems.Add(new Module.Ordering.Domain.LineItems.LineItem
         {
@@ -73,6 +66,14 @@ public class UpdateCartItemQuantityTests : IDisposable
         });
         _dbContext.Set<Order>().Add(cart);
         await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
+
+        _senderMock
+            .Setup(x => x.Send(
+                It.Is<CheckStockAvailability.Query>(
+                    q => q.Request.VariantId == _variantId && q.Request.Quantity == 5),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Result<CheckStockAvailability.Response>.Ok(
+                new CheckStockAvailability.Response { VariantId = _variantId, IsAvailable = true }));
 
         // Act
         var result = await _handler.Handle(
@@ -90,15 +91,7 @@ public class UpdateCartItemQuantityTests : IDisposable
     [Fact(DisplayName = "Handler: Should fail when quantity exceeds stock")]
     public async Task Handle_ShouldFail_WhenInsufficientStock()
     {
-        // Arrange: Seed cart and stock with only 3 available
-        var location = StockLocationMethod.Create("Main").Value;
-        _dbContext.Set<StockLocation>().Add(location);
-        await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
-
-        var stockItem = StockItemMethod.Create(stockLocationId: location.Id, variantId: _variantId, countOnHand: 3).Value;
-        _dbContext.Set<StockItem>().Add(stockItem);
-        await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
-
+        // Arrange: Seed cart with line item
         var cart = OrderMethod.Create("USD", _userId, Guid.Empty).Value;
         cart.LineItems.Add(new Module.Ordering.Domain.LineItems.LineItem
         {
@@ -112,6 +105,14 @@ public class UpdateCartItemQuantityTests : IDisposable
         });
         _dbContext.Set<Order>().Add(cart);
         await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
+
+        _senderMock
+            .Setup(x => x.Send(
+                It.Is<CheckStockAvailability.Query>(
+                    q => q.Request.VariantId == _variantId && q.Request.Quantity == 10),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Result<CheckStockAvailability.Response>.Ok(
+                new CheckStockAvailability.Response { VariantId = _variantId, IsAvailable = false }));
 
         // Act
         var result = await _handler.Handle(

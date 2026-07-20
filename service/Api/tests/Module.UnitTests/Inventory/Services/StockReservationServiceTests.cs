@@ -46,12 +46,12 @@ public class StockReservationServiceTests : IDisposable
     }
 
     private async Task<StockReservation> SeedReservation(
-        int quantity, ReservationState state, DateTimeOffset? expiresAtUtc = null)
+        int quantity, ReservationState state, DateTimeOffset? expiresAtUtc = null, Guid? orderId = null)
     {
         var ct = TestContext.Current.CancellationToken;
         var reservation = StockReservationMethod.SeedForTest(
             _variantId, quantity, state, expiresAtUtc ?? DateTimeOffset.UtcNow.AddMinutes(30),
-            _stockLocationId, _orderId, createdAtUtc: DateTimeOffset.UtcNow);
+            _stockLocationId, orderId ?? _orderId, createdAtUtc: DateTimeOffset.UtcNow);
         _dbContext.Set<StockReservation>().Add(reservation);
         await _dbContext.SaveChangesAsync(ct);
         return reservation;
@@ -99,6 +99,24 @@ public class StockReservationServiceTests : IDisposable
         result.Value.ExpiresAtUtc.Should().BeCloseTo(DateTimeOffset.UtcNow.AddMinutes(30), TimeSpan.FromMinutes(1));
     }
 
+    [Fact(DisplayName = "ReserveAsync: Should prevent oversell under concurrent reservations",
+        Skip = "InMemory does not support serializable isolation. Requires PostgreSQL integration test.")]
+    [Trait("Category", "Integration")]
+    public async Task ReserveAsync_ShouldPreventOversell_UnderConcurrentReservations()
+    {
+        var ct = TestContext.Current.CancellationToken;
+        await SeedStockItem(5);
+
+        var tasks = Enumerable.Range(0, 3)
+            .Select(_ => _service.ReserveAsync(_variantId, 3, _stockLocationId, Guid.NewGuid(), cancellationToken: ct))
+            .ToList();
+
+        var results = await Task.WhenAll(tasks);
+
+        var successes = results.Count(r => r.IsSuccess);
+        successes.Should().Be(1);
+    }
+
     #endregion
 
     #region ReleaseReservationsAsync
@@ -140,6 +158,29 @@ public class StockReservationServiceTests : IDisposable
         var ct = TestContext.Current.CancellationToken;
         var emptyOrderId = Guid.NewGuid();
         await _service.ReleaseReservationsAsync(emptyOrderId, ct);
+    }
+
+    [Fact(DisplayName = "ReleaseReservationsAsync: Should not double-restore stock on repeated calls")]
+    public async Task ReleaseReservationsAsync_ShouldNotDoubleRestoreStock_OnRepeatedCalls()
+    {
+        var ct = TestContext.Current.CancellationToken;
+        await SeedStockItem(10);
+        var orderId = Guid.NewGuid();
+        var reservation = await SeedReservation(3, ReservationState.Reserved, orderId: orderId);
+
+        await _service.ReleaseReservationsAsync(orderId, ct);
+        await _dbContext.SaveChangesAsync(ct);
+
+        var stockAfterFirst = await _dbContext.Set<StockItem>()
+            .FirstAsync(si => si.VariantId == _variantId, ct);
+        stockAfterFirst.CountOnHand.Should().Be(13);
+
+        await _service.ReleaseReservationsAsync(orderId, ct);
+        await _dbContext.SaveChangesAsync(ct);
+
+        var stockAfterSecond = await _dbContext.Set<StockItem>()
+            .FirstAsync(si => si.VariantId == _variantId, ct);
+        stockAfterSecond.CountOnHand.Should().Be(13);
     }
 
     #endregion
@@ -189,6 +230,28 @@ public class StockReservationServiceTests : IDisposable
         var stockItem = await _dbContext.Set<StockItem>()
             .FirstAsync(si => si.VariantId == _variantId && si.StockLocationId == _stockLocationId, ct);
         stockItem.CountOnHand.Should().Be(8);
+    }
+
+    [Fact(DisplayName = "ExpireReservationsAsync: Should not double-restore stock on repeated calls")]
+    public async Task ExpireReservationsAsync_ShouldNotDoubleRestoreStock_OnRepeatedCalls()
+    {
+        var ct = TestContext.Current.CancellationToken;
+        await SeedStockItem(10);
+        var reservation = await SeedReservation(3, ReservationState.Reserved, expiresAtUtc: DateTimeOffset.UtcNow.AddSeconds(-1));
+
+        await _service.ExpireReservationsAsync(ct);
+        await _dbContext.SaveChangesAsync(ct);
+
+        var stockAfterFirst = await _dbContext.Set<StockItem>()
+            .FirstAsync(si => si.VariantId == _variantId, ct);
+        stockAfterFirst.CountOnHand.Should().Be(13); // 10 + 3
+
+        await _service.ExpireReservationsAsync(ct);
+        await _dbContext.SaveChangesAsync(ct);
+
+        var stockAfterSecond = await _dbContext.Set<StockItem>()
+            .FirstAsync(si => si.VariantId == _variantId, ct);
+        stockAfterSecond.CountOnHand.Should().Be(13); // still 13, not 16
     }
 
     #endregion
@@ -300,6 +363,28 @@ public class StockReservationServiceTests : IDisposable
         await _dbContext.SaveChangesAsync(ct);
 
         count.Should().Be(0);
+    }
+
+    [Fact(DisplayName = "ExpireReservationsAndRestoreStockAsync: Should not double-restore stock on repeated calls")]
+    public async Task ExpireReservationsAndRestoreStockAsync_ShouldNotDoubleRestoreStock_OnRepeatedCalls()
+    {
+        var ct = TestContext.Current.CancellationToken;
+        await SeedStockItem(10);
+        await SeedReservation(3, ReservationState.Reserved, expiresAtUtc: DateTimeOffset.UtcNow.AddSeconds(-1));
+
+        await _service.ExpireReservationsAndRestoreStockAsync(ct);
+        await _dbContext.SaveChangesAsync(ct);
+
+        var stockAfterFirst = await _dbContext.Set<StockItem>()
+            .FirstAsync(si => si.VariantId == _variantId, ct);
+        stockAfterFirst.CountOnHand.Should().Be(13);
+
+        await _service.ExpireReservationsAndRestoreStockAsync(ct);
+        await _dbContext.SaveChangesAsync(ct);
+
+        var stockAfterSecond = await _dbContext.Set<StockItem>()
+            .FirstAsync(si => si.VariantId == _variantId, ct);
+        stockAfterSecond.CountOnHand.Should().Be(13); // still 13, not 16
     }
 
     #endregion

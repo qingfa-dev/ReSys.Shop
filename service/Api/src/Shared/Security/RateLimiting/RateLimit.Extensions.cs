@@ -37,10 +37,14 @@ public static class RateLimitExtensions
         {
             options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
 
-            if (!setting.Enabled)
-                return;
-
-            ConfigurePolicies(options, setting);
+            if (setting.Enabled)
+            {
+                ConfigurePolicies(options, setting);
+            }
+            else
+            {
+                ConfigurePolicies(options, RateLimitSetting.Default);
+            }
 
             return;
         });

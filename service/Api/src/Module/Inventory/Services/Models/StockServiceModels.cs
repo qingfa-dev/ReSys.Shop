@@ -19,6 +19,7 @@ internal class BackorderFulfillmentResult
     public int PartiallyFulfilled { get; set; }
 }
 
+/// <summary>Aggregated stock summary for a product variant across all locations.</summary>
 public record VariantStockSummary
 {
     public Guid VariantId { get; init; }
@@ -28,6 +29,7 @@ public record VariantStockSummary
     public List<LocationStockInfo> LocationBreakdown { get; init; } = [];
 }
 
+/// <summary>Per-location stock information for a product variant.</summary>
 public class LocationStockInfo
 {
     public Guid LocationId { get; set; }

@@ -1,3 +1,4 @@
+using FluentAssertions;
 using Microsoft.Extensions.Options;
 
 using Module.Payment.Services.Provider;
@@ -56,5 +57,31 @@ public class BogusGatewayTests
             source: BogusGateway.TestCards.InsufficientFunds,
             options: CreateGatewayOptions());
         Assert.True(response.IsFailure);
+    }
+
+    [Fact(DisplayName = "GetPaymentStatusAsync returns correct status after successful purchase")]
+    public async Task GetPaymentStatusAsync_ShouldReturnStatus_FromSimulatedIntent()
+    {
+        var gateway = CreateGateway();
+        var response = await gateway.PurchaseAsync(
+            amount: 1000m,
+            source: BogusGateway.TestCards.Success,
+            options: CreateGatewayOptions());
+        Assert.True(response.IsSuccess);
+
+        var authorization = response.Value!.Authorization;
+        Assert.NotNull(authorization);
+        var status = await gateway.GetPaymentStatusAsync(authorization, TestContext.Current.CancellationToken);
+        status.Should().Be("succeeded");
+    }
+
+    [Fact(DisplayName = "BogusGateway: GetPaymentStatusAsync should return unknown for unrecognized code")]
+    public async Task GetPaymentStatusAsync_ShouldReturnUnknown_ForUnknownCode()
+    {
+        var gateway = new BogusGateway(Options.Create(new BogusSetting { Enabled = true }));
+
+        var result = await gateway.GetPaymentStatusAsync("nonexistent_code");
+
+        result.Should().Be("unknown");
     }
 }

@@ -30,15 +30,19 @@ public static partial class GetSession
         /// <exception cref="DbUpdateException">Thrown when the identity store query fails.</exception>
         public async Task<Result<Response>> Handle(Query request, CancellationToken cancellationToken)
         {
+            // Check: Verify the caller is authenticated
             if (!currentUser.IsAuthenticated)
                 return UserProfileResult.Failure.AuthRequired;
 
+            // Load: Retrieve the authenticated user
             var user = await userManager.FindByIdAsync(currentUser.UserId!);
             if (user is null)
                 return UserResult.Failure.NotFound;
 
+            // Compute: Resolve assigned roles for the user
             var roles = await userManager.GetRolesAsync(user);
 
+            // Call: Fetch effective permissions via permission service
             var permissions = await permissionService.GetEffectiveUserPermissionsAsync(user.Id, cancellationToken);
 
             // EXCEPTION: session response — composite from user, roles, and permissions

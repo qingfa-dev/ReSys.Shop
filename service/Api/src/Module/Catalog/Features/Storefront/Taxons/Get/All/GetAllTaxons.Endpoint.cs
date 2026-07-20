@@ -4,10 +4,12 @@ namespace Module.Catalog.Features.Storefront.Taxons.Get.All;
 
 public static partial class GetAllTaxons
 {
+    /// <summary>Maps the taxon listing route for the storefront.</summary>
     public class Endpoint : ICarterModule
     {
         public void AddRoutes(IEndpointRouteBuilder app)
         {
+            // Map: GET /api/storefront/taxons — paged listing of all taxons for a taxonomy
             app.MapGet(CatalogFeature.Storefront.Taxons.Get.All.Route, async (
                 [AsParameters] Parameters parameters,
                 ISender sender,

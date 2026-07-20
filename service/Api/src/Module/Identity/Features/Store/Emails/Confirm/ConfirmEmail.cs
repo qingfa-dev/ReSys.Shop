@@ -12,6 +12,9 @@ public static partial class ConfirmEmail
 {
     public sealed record Command(Request Request) : ICommand;
 
+    /// <summary>
+    /// Handles the <see cref="Command"/> to confirm an email verification or change.
+    /// </summary>
     public sealed class CommandHandler(
         UserManager<User> userManager,
         ICurrentUser currentUser,
@@ -35,11 +38,13 @@ public static partial class ConfirmEmail
             var request = command.Request;
             string? decodedNewEmail = null;
 
+            // Validate: Decode the confirmation token, reject if malformed
             if (!Base64Converter.TryFromBase64Url(request.Token, out string decodedToken))
             {
                 return UserResult.Failure.InvalidToken;
             }
 
+            // Validate: Decode the optional new email for email-change scenarios
             if (!string.IsNullOrEmpty(request.NewEmail))
             {
                 if (!Base64Converter.TryFromBase64Url(request.NewEmail, out var tempEmail))
@@ -49,15 +54,18 @@ public static partial class ConfirmEmail
                 decodedNewEmail = tempEmail;
             }
 
+            // Load: Retrieve the user to confirm their identity exists
             var user = await userManager.FindByIdAsync(request.UserId.ToString());
             if (user is null)
                 return UserResult.Failure.NotFound;
 
             var isEmailChange = !string.IsNullOrWhiteSpace(decodedNewEmail);
 
+            // Check: Skip confirmation if the email is already verified (idempotent)
             if (user.EmailConfirmed && !isEmailChange)
                 return Result.NoContent();
 
+            // Call: Apply the email operation — change or confirm — via Identity
             var identityResult = isEmailChange
                 ? await userManager.ChangeEmailAsync(user, decodedNewEmail!, decodedToken)
                 : await userManager.ConfirmEmailAsync(user, decodedToken);
@@ -67,11 +75,13 @@ public static partial class ConfirmEmail
 
             user.ModifiedAtUtc = DateTimeOffset.UtcNow;
 
+            // Call: Persist the updated audit timestamp
             var updateResult = await userManager.UpdateAsync(user);
 
             if (!updateResult.Succeeded)
                 return updateResult.ToResult();
 
+            // Log: Record the confirmation type (email change vs. initial verification) for audit trail
             if (isEmailChange)
             {
                 UserLoggers.Emails.EmailChangeConfirmed(logger, UserId: user.Id, Email: user.Email!, Timestamp: DateTime.UtcNow, ActionBy: currentUser.UserName);
@@ -79,9 +89,13 @@ public static partial class ConfirmEmail
             else
             {
                 UserLoggers.Emails.EmailVerified(logger, UserId: user.Id, Email: user.Email!, Timestamp: DateTime.UtcNow, ActionBy: currentUser.UserName);
-                await SendWelcomeNotificationAsync(user);
-                await CreateUserProfileAsync(user, cancellationToken);
             }
+
+            // Best-effort: profile creation always fires; welcome only for first-time verification.
+            // Failures in CreateUserProfileAsync are logged internally and do not propagate.
+            await Task.WhenAll(
+                CreateUserProfileAsync(user, cancellationToken),
+                isEmailChange ? Task.CompletedTask : SendWelcomeNotificationAsync(user));
 
             return Result.NoContent();
         }
@@ -101,11 +115,13 @@ public static partial class ConfirmEmail
             try
             {
                 var profileResult = await mediator.Send(
-                    new CreateUserProfileCommand(
-                        user.Id,
-                        user.FirstName,
-                        user.LastName,
-                        user.Email!),
+                    new CreateUserProfileCommand
+                    {
+                        UserId = user.Id,
+                        FirstName = user.FirstName,
+                        LastName = user.LastName,
+                        Email = user.Email!
+                    },
                     cancellationToken);
 
                 if (profileResult.IsFailure)

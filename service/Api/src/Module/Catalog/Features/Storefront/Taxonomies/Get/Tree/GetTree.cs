@@ -27,14 +27,17 @@ public static partial class GetTree
         // Contract: pre=query.Id!=Guid.Empty, post=result!=null
         public async Task<Result<Response>> Handle(Query query, CancellationToken cancellationToken)
         {
+            // Load: Fetch the taxonomy with its active, non-hidden taxons ordered by nested set
             var entity = await dbContext.Set<Taxonomy>()
                 .Include(x => x.Taxons.Where(t => !t.IsDeleted && !t.HideFromNav)
                     .OrderBy(t => t.Lft))
                 .FirstOrDefaultAsync(x => x.Id == query.Id && !x.IsDeleted, cancellationToken);
 
+            // Check: Return not-found if taxonomy does not exist
             if (entity is null)
                 return TaxonomyResult.Errors.NotFound;
 
+            // Transform: Map taxonomy with nested taxon hierarchy to tree DTO for storefront menu
             return Result<Response>.Ok(
                 entity.MapToStoreTree<Response>());
         }

@@ -1,7 +1,7 @@
 namespace Module.Catalog.Features.Admin.Taxonomies.Taxons.Shared.Models;
 
 // List Item:
-public record TaxonListItemResponse : TaxonParameters
+public record TaxonListItemResponse : TaxonParameters, IResponse
 {
     public Guid Id { get; set; }
 
@@ -47,7 +47,7 @@ public record TaxonTreeItem : TaxonListItemResponse
 }
 
 // Tree:
-public record TaxonTreeResponse
+public record TaxonTreeResponse : Response
 {
     public IEnumerable<TaxonTreeItem> Tree { get; set; } = [];
     public IEnumerable<TaxonTreeItem> Breadcrumbs { get; set; } = [];

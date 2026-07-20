@@ -19,7 +19,7 @@ public class LoggingBehaviorTests
     {
         var logger = new TestLogger<LoggingBehavior<TestRequest, Result>>();
         var behavior = new LoggingBehavior<TestRequest, Result>(logger);
-        var request = new TestRequest("test-value");
+        var request = new TestRequest { Data = "test-value" };
 
         RequestHandlerDelegate<Result> next = (_) =>
             Task.FromResult(Result.Ok());
@@ -64,7 +64,7 @@ public class LoggingBehaviorTests
     {
         var logger = new TestLogger<LoggingBehavior<TestRequest, Result>>();
         var behavior = new LoggingBehavior<TestRequest, Result>(logger);
-        var request = new TestRequest("test-value");
+        var request = new TestRequest { Data = "test-value" };
         var failure = Error.Create("Test.Code", "Test error description");
 
         RequestHandlerDelegate<Result> next = (_) =>
@@ -88,7 +88,7 @@ public class LoggingBehaviorTests
     {
         var logger = new TestLogger<LoggingBehavior<TestRequest, Result>>();
         var behavior = new LoggingBehavior<TestRequest, Result>(logger);
-        var request = new TestRequest("test-value");
+        var request = new TestRequest { Data = "test-value" };
 
         RequestHandlerDelegate<Result> next = (_) =>
             Task.FromResult(Result.Ok());
@@ -100,6 +100,9 @@ public class LoggingBehaviorTests
 
     #endregion
 
-    public record TestRequest(string Data) : IRequest<Result>;
+    public record TestRequest : IRequest<Result>
+    {
+        public string Data { get; init; } = default!;
+    }
     public record TestRequestWithGenericResult : IRequest<Result<string>>;
 }

@@ -1,9 +1,6 @@
 namespace Module.Identity.Features.Admin.Users.Shared.Models;
 
-/// <summary>
-/// Abstract base class for user-related parameters, providing common properties.
-/// </summary>
-public abstract class UserParameter
+public abstract record UserParameter
 {
     /// <summary>
     /// Gets or initializes the email address of the user.

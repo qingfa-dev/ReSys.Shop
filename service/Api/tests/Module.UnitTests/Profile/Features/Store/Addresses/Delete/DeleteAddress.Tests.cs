@@ -1,7 +1,6 @@
 using Module.Profile.Domain;
 using Module.Profile.Domain.Addresses;
 using Module.Profile.Features.Store.Addresses.Delete;
-using Module.UnitTests.Identity.Fixtures;
 using Module.UnitTests.Profile.Domain;
 
 using Shared.Security.Identity.Domain.Users;
@@ -14,7 +13,6 @@ namespace Module.UnitTests.Profile.Features.Store.Addresses.Delete;
 public class DeleteAddressTests : IDisposable
 {
     private readonly ApplicationDbContext _dbContext;
-    private readonly Mock<ICurrentUser> _currentUserMock;
     private readonly DeleteAddress.CommandHandler _handler;
     private readonly Guid _userId = Guid.NewGuid();
 
@@ -27,9 +25,7 @@ public class DeleteAddressTests : IDisposable
         ApplicationDbContext.AdditionalConfigurationsAssemblies = [typeof(UserProfile).Assembly];
 
         _dbContext = new ApplicationDbContext(options);
-        _currentUserMock = IdentityMocks.CreateCurrentUserMock(_userId);
-        
-        _handler = new DeleteAddress.CommandHandler(_dbContext, _currentUserMock.Object);
+        _handler = new DeleteAddress.CommandHandler(_dbContext);
     }
 
     public void Dispose()
@@ -49,7 +45,7 @@ public class DeleteAddressTests : IDisposable
         await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 
         // Act
-        var result = await _handler.Handle(new DeleteAddress.Command(address.Id), TestContext.Current.CancellationToken);
+        var result = await _handler.Handle(new DeleteAddress.Command(_userId, address.Id), TestContext.Current.CancellationToken);
 
         // Assert
         result.IsSuccess.Should().BeTrue();
@@ -57,20 +53,6 @@ public class DeleteAddressTests : IDisposable
         
         var updatedProfile = await _dbContext.Set<UserProfile>().FirstAsync(p => p.UserId == _userId, TestContext.Current.CancellationToken);
         updatedProfile.Addresses.Should().BeEmpty();
-    }
-
-    [Fact(DisplayName = "Handle: Should return Unauthorized if user is not authenticated")]
-    public async Task Handle_ShouldReturnUnauthorized_WhenUserNotAuthenticated()
-    {
-        // Arrange
-        _currentUserMock.Setup(x => x.UserId).Returns((string?)null);
-
-        // Act
-        var result = await _handler.Handle(new DeleteAddress.Command(Guid.NewGuid()), TestContext.Current.CancellationToken);
-
-        // Assert
-        result.IsFailure.Should().BeTrue();
-        result.StatusCode.Should().Be(401);
     }
 
     [Fact(DisplayName = "Handle: Should return NotFound if address does not exist")]
@@ -82,7 +64,7 @@ public class DeleteAddressTests : IDisposable
         await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 
         // Act
-        var result = await _handler.Handle(new DeleteAddress.Command(Guid.NewGuid()), TestContext.Current.CancellationToken);
+        var result = await _handler.Handle(new DeleteAddress.Command(_userId, Guid.NewGuid()), TestContext.Current.CancellationToken);
 
         // Assert
         result.IsFailure.Should().BeTrue();
@@ -102,7 +84,7 @@ public class DeleteAddressTests : IDisposable
         await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 
         // Act
-        var result = await _handler.Handle(new DeleteAddress.Command(addr1.Id), TestContext.Current.CancellationToken);
+        var result = await _handler.Handle(new DeleteAddress.Command(_userId, addr1.Id), TestContext.Current.CancellationToken);
 
         // Assert
         result.IsSuccess.Should().BeTrue();
@@ -117,7 +99,7 @@ public class DeleteAddressTests : IDisposable
     public async Task Handle_ShouldReturnNotFound_WhenProfileMissing()
     {
         // Act
-        var result = await _handler.Handle(new DeleteAddress.Command(Guid.NewGuid()), TestContext.Current.CancellationToken);
+        var result = await _handler.Handle(new DeleteAddress.Command(_userId, Guid.NewGuid()), TestContext.Current.CancellationToken);
 
         // Assert
         result.IsFailure.Should().BeTrue();
@@ -135,7 +117,7 @@ public class DeleteAddressTests : IDisposable
         await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 
         // Act
-        var result = await _handler.Handle(new DeleteAddress.Command(address.Id), TestContext.Current.CancellationToken);
+        var result = await _handler.Handle(new DeleteAddress.Command(_userId, address.Id), TestContext.Current.CancellationToken);
 
         // Assert
         result.IsSuccess.Should().BeTrue();

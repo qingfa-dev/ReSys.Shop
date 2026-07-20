@@ -109,10 +109,10 @@ public class RestockStockItemTests : IDisposable
         var orderB = Guid.NewGuid();
         _dbContext.Set<StockReservation>().Add(StockReservationMethod.SeedForTest(
             _variantId, 3, ReservationState.Reserved, DateTimeOffset.UtcNow.AddMinutes(30),
-            _stockLocationId, orderA, createdAtUtc: DateTimeOffset.UtcNow.AddMinutes(-10)));
+            _stockLocationId, orderA, createdAtUtc: DateTimeOffset.UtcNow.AddMinutes(-10), reason: "backorder"));
         _dbContext.Set<StockReservation>().Add(StockReservationMethod.SeedForTest(
             _variantId, 2, ReservationState.Reserved, DateTimeOffset.UtcNow.AddMinutes(30),
-            _stockLocationId, orderB, createdAtUtc: DateTimeOffset.UtcNow.AddMinutes(-5)));
+            _stockLocationId, orderB, createdAtUtc: DateTimeOffset.UtcNow.AddMinutes(-5), reason: "backorder"));
         await _dbContext.SaveChangesAsync(ct);
 
         var result = await _handler.Handle(
@@ -140,7 +140,7 @@ public class RestockStockItemTests : IDisposable
 
         _dbContext.Set<StockReservation>().Add(StockReservationMethod.SeedForTest(
             _variantId, 10, ReservationState.Reserved, DateTimeOffset.UtcNow.AddMinutes(30),
-            _stockLocationId, _orderId, createdAtUtc: DateTimeOffset.UtcNow));
+            _stockLocationId, _orderId, createdAtUtc: DateTimeOffset.UtcNow, reason: "backorder"));
         await _dbContext.SaveChangesAsync(ct);
 
         var result = await _handler.Handle(

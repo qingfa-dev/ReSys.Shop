@@ -3,6 +3,9 @@ using Module.Catalog.Domain.Products.Options;
 
 namespace Module.Catalog.Features.Admin.Products.OptionTypes.Revoke;
 
+/// <summary>
+/// Defines the use case for revoking option types from a product.
+/// </summary>
 public static partial class RevokeProductOptionTypes
 {
     public sealed record Command(Guid Id, Request Request) : ICommand;

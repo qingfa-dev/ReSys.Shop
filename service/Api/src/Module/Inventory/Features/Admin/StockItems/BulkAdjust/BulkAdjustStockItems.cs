@@ -35,7 +35,9 @@ public static partial class BulkAdjustStockItems
 
                 var previousCount = entity.CountOnHand;
 
-                entity.CountOnHand += item.Quantity;
+                var adjustResult = entity.AdjustCountOnHand(item.Quantity, request.Reason);
+                if (adjustResult.IsFailure)
+                    return adjustResult;
                 entity.ModifiedAtUtc = DateTimeOffset.UtcNow;
 
                 var movementResult = StockMovementMapping.MapToDomain(

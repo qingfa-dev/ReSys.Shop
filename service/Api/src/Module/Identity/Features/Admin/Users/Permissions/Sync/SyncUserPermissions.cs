@@ -40,17 +40,21 @@ public static partial class SyncUserPermissions
         /// <exception cref="DbUpdateException">Thrown when the identity store fails to persist user claims.</exception>
         public async Task<Result> Handle(Command command, CancellationToken cancellationToken)
         {
+            // Validate: Ensure the caller is authenticated before proceeding
             if (!currentUser.IsAuthenticated || !Guid.TryParse(currentUser.UserId, out Guid currentUserId))
                 return UserResult.Failure.Unauthorized;
 
+            // Load: Retrieve the target user to verify they exist
             var user = await userManager.FindByIdAsync(command.Id.ToString());
             if (user is null)
                 return UserResult.Failure.NotFound;
 
+            // Filter: Only consider permissions that are registered in the global permission registry
             var requestedPermissions = command.Request.Permissions
                 .Where(p => PermissionContext.All.Select(x => x.Identifier).Contains(p))
                 .ToList();
 
+            // Check: Verify the caller holds all requested permissions before computing the diff
             if (requestedPermissions.Count > 0)
             {
                 var authResult =
@@ -60,16 +64,19 @@ public static partial class SyncUserPermissions
                     return UserResult.Failure.AssignDenied(requestedPermissions.First());
             }
 
+            // Load: Fetch existing permission claims to compute the add and remove deltas
             var existingClaims = await userManager.GetClaimsAsync(user);
             var existingPermissionValues = existingClaims
                 .Where(c => c.Type == PermissionMetadataConstant.ClaimType)
                 .Select(c => c.Value)
                 .ToHashSet(StringComparer.OrdinalIgnoreCase);
 
+            // Compute: Determine permissions to add (requested but not present)
             var permissionsToAdd = requestedPermissions
                 .Where(p => !existingPermissionValues.Contains(p))
                 .ToList();
 
+            // Compute: Determine permissions to remove (present but not requested)
             var permissionsToRemove = existingPermissionValues
                 .Where(p => !requestedPermissions.Contains(p, StringComparer.OrdinalIgnoreCase))
                 .ToList();
@@ -77,6 +84,7 @@ public static partial class SyncUserPermissions
             if (permissionsToAdd.Count == 0 && permissionsToRemove.Count == 0)
                 return Result.Ok();
 
+            // Check: Verify caller authority for each permission that will be removed
             if (permissionsToRemove.Count > 0)
             {
                 var authResult =
@@ -86,6 +94,7 @@ public static partial class SyncUserPermissions
                     return UserResult.Failure.RevokeDenied(permissionsToRemove.First());
             }
 
+            // Call: Persist new permission additions via the permission service
             if (permissionsToAdd.Count > 0)
             {
                 var addResult =
@@ -93,6 +102,7 @@ public static partial class SyncUserPermissions
                 if (addResult.IsFailure) return addResult;
             }
 
+            // Call: Persist permission removals via the permission service
             if (permissionsToRemove.Count > 0)
             {
                 var removeResult =
@@ -103,14 +113,17 @@ public static partial class SyncUserPermissions
 
             AuditableBehavior.Touch(user, dateTime.UtcNow);
 
+            // Call: Persist the updated audit timestamp
             var updateResult = await userManager.UpdateAsync(user);
             if (!updateResult.Succeeded)
                 return updateResult.ToResult();
 
+            // Log: Record the sync operation with add/remove counts for audit trail
             UserLoggers.Permissions.PermissionsSynced(logger, UserName: user.UserName!, UserId: user.Id,
                 AddedCount: permissionsToAdd.Count, RemovedCount: permissionsToRemove.Count,
                 ActionBy: currentUser.UserName);
 
+            // Cache: Invalidate the user's permission cache so the new set takes effect immediately
             await OnPermissionsChangedAsync(user, cancellationToken);
 
             return Result.Ok();

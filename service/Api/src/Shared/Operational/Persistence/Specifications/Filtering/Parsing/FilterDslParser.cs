@@ -61,7 +61,7 @@ internal static class FilterDslParser
                     subGroups.Add(arm);
             }
 
-            return new FilterGroup(FilterLogic.Or, conditions.AsReadOnly(), subGroups.AsReadOnly());
+            return new FilterGroup { Logic = FilterLogic.Or, Conditions = conditions.AsReadOnly(), Groups = subGroups.AsReadOnly() };
         }
 
         private FilterGroup ParseAnd()
@@ -77,7 +77,7 @@ internal static class FilterDslParser
                 AppendFactor(conditions, subGroups);
             }
 
-            return new FilterGroup(FilterLogic.And, conditions.AsReadOnly(), subGroups.AsReadOnly());
+            return new FilterGroup { Logic = FilterLogic.And, Conditions = conditions.AsReadOnly(), Groups = subGroups.AsReadOnly() };
         }
 
         private void AppendFactor(List<FilterCondition> conditions, List<FilterGroup> groups)
@@ -131,7 +131,7 @@ internal static class FilterDslParser
             };
 
             return FilterOperatorMap.TryParse(lookupToken, out FilterOperator op)
-                ? new FilterCondition(field, op, value)
+                ? new FilterCondition { Field = field, Operator = op, Value = value }
                 : null;
         }
 

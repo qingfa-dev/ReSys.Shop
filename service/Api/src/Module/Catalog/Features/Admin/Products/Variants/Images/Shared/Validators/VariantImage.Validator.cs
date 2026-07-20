@@ -1,3 +1,5 @@
+using System.IO;
+
 using Module.Catalog.Domain.Products.Variants.Images;
 using Module.Catalog.Features.Admin.Products.Variants.Images.Shared.Models;
 
@@ -75,6 +77,17 @@ public static class VariantImageValidator
                     .Must(x => VariantImageConstant.Constraints.Upload.AllowedContentTypes.Contains(x))
                     .WithErrorCode(VariantImageResult.Failure.InvalidContentType.Code)
                     .WithMessage(x => VariantImageResult.Failure.InvalidContentTypeMessage(x.File.ContentType));
+
+                // Validate: File extension must be in the allowed list
+                RuleFor(x => x.File.FileName)
+                    .Must(fileName =>
+                    {
+                        var ext = Path.GetExtension(fileName)?.ToLowerInvariant();
+                        return !string.IsNullOrEmpty(ext) && VariantImageConstant.Constraints.Upload.AllowedExtensions.Contains(ext);
+                    })
+                    .WithErrorCode(VariantImageResult.Failure.UnsupportedFileType(".unknown").Code)
+                    .WithMessage(x => VariantImageResult.Failure.UnsupportedFileType(
+                        Path.GetExtension(x.File.FileName) ?? ".unknown").Message);
             });
 
             // Validate: Common image metadata (alt, position, type)

@@ -5,6 +5,7 @@ using Module.Catalog.Domain.Products.Variants.Images.Embeddings;
 
 namespace Module.Catalog.Features.Admin.Products.Variants.Images.Embeddings.Shared.Clients;
 
+/// <summary>HTTP client for the external image embedding inference service (FastAPI ML sidecar).</summary>
 public class InferenceClient : IInferenceClient
 {
     private readonly HttpClient _httpClient;
@@ -18,6 +19,10 @@ public class InferenceClient : IInferenceClient
         _httpClient = httpClient;
     }
 
+    /// <summary>Sends an image URL to the inference service for embedding generation.</summary>
+    /// <param name="request">The embedding request containing the image URL and model name.</param>
+    /// <param name="ct">Cancellation token.</param>
+    /// <returns>A result containing the embedding response or an error.</returns>
     public async Task<Result<EmbeddingResponse>> CreateEmbeddingAsync(EmbeddingRequest request, CancellationToken ct = default)
     {
         try
@@ -37,6 +42,12 @@ public class InferenceClient : IInferenceClient
         }
     }
 
+    /// <summary>Sends raw image bytes as a multipart upload to the inference service for embedding generation.</summary>
+    /// <param name="imageBytes">Raw image byte data.</param>
+    /// <param name="contentType">MIME content type of the image.</param>
+    /// <param name="model">Optional model name override.</param>
+    /// <param name="ct">Cancellation token.</param>
+    /// <returns>A result containing the embedding response or an error.</returns>
     public async Task<Result<EmbeddingResponse>> CreateEmbeddingFromBytesAsync(byte[] imageBytes, string contentType, string? model = null, CancellationToken ct = default)
     {
         try
@@ -63,6 +74,9 @@ public class InferenceClient : IInferenceClient
         }
     }
 
+    /// <summary>Lists available embedding models from the inference service.</summary>
+    /// <param name="ct">Cancellation token.</param>
+    /// <returns>A result containing the list of available model metadata.</returns>
     public async Task<Result<List<ModelMetadata>>> ListModelsAsync(CancellationToken ct = default)
     {
         try

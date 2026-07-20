@@ -32,7 +32,7 @@ public sealed class OpenApiSchemaNamingTests
     {
         get
         {
-            TheoryData<Type, string> data = new TheoryData<Type, string>();
+            TheoryData<Type, string> data = new();
 
             // Simple non-nested, non-generic
             data.Add(typeof(NamingSimple), "NamingSimple");

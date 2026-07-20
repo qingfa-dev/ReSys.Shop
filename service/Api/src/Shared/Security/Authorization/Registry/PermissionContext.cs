@@ -187,8 +187,6 @@ public static class PermissionContext
             "store_contact", "Store Contact", "Store contact information resource.");
         public static readonly OptionDescriptor<string> StoreSeo = OptionDescriptor<string>.Option(
             "store_seo", "Store SEO", "Store SEO settings resource.");
-        public static readonly OptionDescriptor<string> StoreCurrency = OptionDescriptor<string>.Option(
-            "store_currency", "Store Currency", "Store currency configuration resource.");
         public static readonly OptionDescriptor<string> StoreCheckout = OptionDescriptor<string>.Option(
             "store_checkout", "Store Checkout", "Store checkout settings resource.");
         public static readonly OptionDescriptor<string> TaxCategories = OptionDescriptor<string>.Option(
@@ -209,6 +207,10 @@ public static class PermissionContext
             "shipping_methods", "Shipping Methods", "Shipping method configuration resource.");
         public static readonly OptionDescriptor<string> ShippingRates = OptionDescriptor<string>.Option(
             "shipping_rates", "Shipping Rates", "Shipping rate configuration resource.");
+        public static readonly OptionDescriptor<string> CatalogDashboard = OptionDescriptor<string>.Option(
+            "catalog_dashboard", "Catalog Dashboard", "Catalog dashboard resource.");
+        public static readonly OptionDescriptor<string> InventoryDashboard = OptionDescriptor<string>.Option(
+            "inventory_dashboard", "Inventory Dashboard", "Inventory dashboard resource.");
     }
 
     private static readonly Dictionary<string, PermissionMetadata> SByIdentifier =

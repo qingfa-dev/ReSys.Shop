@@ -2,10 +2,12 @@ namespace Module.Identity.Features.Store.Auth.Sessions.Refresh;
 
 public static partial class RefreshSession
 {
+    /// <summary>Maps the session refresh route.</summary>
     public sealed class Endpoint : ICarterModule
     {
         public void AddRoutes(IEndpointRouteBuilder app)
         {
+            // Map: POST /api/store/auth/sessions/refresh — refresh an expired JWT access token
             app.MapPost(IdentityFeature.Store.Auth.Sessions.Refresh.Route, async (
                 [FromBody] Request request,
                 ISender sender,

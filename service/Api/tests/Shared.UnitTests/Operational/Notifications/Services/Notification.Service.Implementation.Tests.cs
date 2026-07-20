@@ -34,7 +34,7 @@ public sealed class NotificationServiceTests
 
     private NotificationService CreateSut()
     {
-        Mock<ILogger<NotificationService>> loggerMock = new Mock<ILogger<NotificationService>>();
+        Mock<ILogger<NotificationService>> loggerMock = new();
         return new NotificationService(
             _hubMock.Object,
             _jobClientMock.Object,

@@ -8,6 +8,9 @@ public static partial class GetUserById
 {
     public record Query(Guid Id) : IQuery<Response>;
 
+    /// <summary>
+    /// Handles the <see cref="Query"/> to retrieve a user by their ID.
+    /// </summary>
     public sealed class QueryHandler(IApplicationDbContext dbContext)
         : IQueryHandler<Query, Response>
     {
@@ -21,12 +24,15 @@ public static partial class GetUserById
         /// <exception cref="DbUpdateException">Thrown when the database query fails.</exception>
         public async Task<Result<Response>> Handle(Query request, CancellationToken cancellationToken)
         {
+            // Load: Query the user by ID from the database
             var user = await dbContext.Set<User>()
                 .FirstOrDefaultAsync(u => u.Id == request.Id, cancellationToken);
 
+            // Check: Return NotFound if no user matches the requested ID
             if (user is null)
                 return UserResult.Failure.NotFound;
 
+            // Transform: Map domain entity to response for API consumption
             var response = user.MapToDetail<Response>();
 
             return response;

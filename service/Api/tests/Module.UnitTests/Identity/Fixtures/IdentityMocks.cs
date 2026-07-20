@@ -8,7 +8,7 @@ namespace Module.UnitTests.Identity.Fixtures;
 public static class IdentityMocks
 {
     public static Mock<UserManager<TUser>> CreateUserManagerMock<TUser>() where TUser : class
-        => new Mock<UserManager<TUser>>(
+        => new(
             Mock.Of<IUserStore<TUser>>(),
             null!,
             null!,
@@ -20,7 +20,7 @@ public static class IdentityMocks
             null!);
 
     public static Mock<RoleManager<TRole>> CreateRoleManagerMock<TRole>() where TRole : class
-        => new Mock<RoleManager<TRole>>(
+        => new(
             Mock.Of<IRoleStore<TRole>>(),
             null!,
             null!,
@@ -29,7 +29,7 @@ public static class IdentityMocks
 
     public static Mock<SignInManager<TUser>> CreateSignInManagerMock<TUser>(
         Mock<UserManager<TUser>> userManagerMock) where TUser : class
-        => new Mock<SignInManager<TUser>>(
+        => new(
             userManagerMock.Object,
             Mock.Of<IHttpContextAccessor>(),
             Mock.Of<IUserClaimsPrincipalFactory<TUser>>(),

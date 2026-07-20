@@ -17,6 +17,7 @@ public class UploadVariantImageTests : IDisposable
     private readonly Mock<ILogger<UploadVariantImage.CommandHandler>> _loggerMock;
     private readonly Mock<ICurrentUser> _currentUserMock;
     private readonly UploadVariantImage.CommandHandler _handler;
+    private string? CapturedStorageKey;
 
     public UploadVariantImageTests()
     {
@@ -51,12 +52,14 @@ public class UploadVariantImageTests : IDisposable
         _dbContext.Set<Variant>().Add(variant);
         await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 
-        var uploadResult = Result<UploadResult>.Ok(new UploadResult(
-            Key: "catalog/variants/1/images/img.jpg",
-            Provider: "local",
-            Uri: new Uri("https://cdn.test.com/media/img.jpg"),
-            SizeBytes: 2048,
-            StoredAtUtc: DateTimeOffset.UtcNow));
+        var uploadResult = Result<UploadResult>.Ok(new UploadResult
+        {
+            Key = "catalog/variants/1/images/img.jpg",
+            Provider = "local",
+            Uri = new Uri("https://cdn.test.com/media/img.jpg"),
+            SizeBytes = 2048,
+            StoredAtUtc = DateTimeOffset.UtcNow
+        });
 
         _storageServiceMock
             .Setup(x => x.UploadAsync(
@@ -149,5 +152,55 @@ public class UploadVariantImageTests : IDisposable
 
         result.IsFailure.Should().BeTrue();
         result.Errors[0].Code.Should().Be("Storage.Error");
+    }
+
+    [Fact(DisplayName = "Handler: sanitizes filename with path traversal characters")]
+    public async Task Handle_PathTraversalFileName_SanitizesToLeaf()
+    {
+        var product = ProductMethod.Create("Test Product", "test-product", status: ProductStatus.Draft).Value;
+        var variant = VariantMethod.Create(product.Id, "SKU-001", isMaster: true).Value;
+        _dbContext.Set<Product>().Add(product);
+        _dbContext.Set<Variant>().Add(variant);
+        await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
+
+        var uploadResult = Result<UploadResult>.Ok(new UploadResult
+        {
+            Key = "catalog/variants/1/images/passwd.jpg",
+            Provider = "local",
+            Uri = new Uri("https://cdn.test.com/media/passwd.jpg"),
+            SizeBytes = 2048,
+            StoredAtUtc = DateTimeOffset.UtcNow
+        });
+
+        _storageServiceMock
+            .Setup(x => x.UploadAsync(
+                It.IsAny<UploadRequest>(),
+                It.IsAny<string?>(),
+                It.IsAny<UploadOptions?>(),
+                It.IsAny<CancellationToken>()))
+            .Callback<UploadRequest, string?, UploadOptions?, CancellationToken>((req, _, _, _) => CapturedStorageKey = req.Key)
+            .ReturnsAsync(uploadResult);
+
+        var file = new FormFile(new MemoryStream(new byte[2048]), 0, 2048, "file", "../../../etc/passwd.jpg")
+        {
+            Headers = new HeaderDictionary(),
+            ContentType = "image/jpeg"
+        };
+
+        var request = new UploadVariantImage.Request
+        {
+            File = file,
+            Alt = "Test",
+            Position = 1,
+            Type = "Gallery"
+        };
+
+        var result = await _handler.Handle(
+            new UploadVariantImage.Command(variant.Id, request),
+            TestContext.Current.CancellationToken);
+
+        result.IsSuccess.Should().BeTrue();
+        CapturedStorageKey.Should().EndWith("passwd.jpg");
+        CapturedStorageKey.Should().NotContain("..");
     }
 }

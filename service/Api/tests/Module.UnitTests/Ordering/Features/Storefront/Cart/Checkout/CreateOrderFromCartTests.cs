@@ -1,11 +1,14 @@
+using System.Data;
+
 using Module.Inventory.Domain.StockLocations.StockItems;
 using Module.Inventory.Domain.StockLocations;
-
+using Module.Ordering.Domain.LineItems;
 using Module.Ordering.Domain.Orders;
 using Module.Ordering.Features.Storefront.Cart.Checkout;
 
 using Shared.Operational.Notifications.Models;
 using Shared.Operational.Notifications.Services;
+using Shared.Operational.Persistence.Transactions;
 
 namespace Module.UnitTests.Ordering.Features.Storefront.Cart.Checkout;
 
@@ -44,6 +47,9 @@ public class CreateOrderFromCartTests : IDisposable
 
         _handler = new CreateOrderFromCart.CommandHandler(_dbContext, _loggerMock.Object, _currentUserMock.Object, _notificationServiceMock.Object);
     }
+
+    private CreateOrderFromCart.CommandHandler CreateHandler(IApplicationDbContext dbContext)
+        => new(dbContext, _loggerMock.Object, _currentUserMock.Object, _notificationServiceMock.Object);
 
     public void Dispose()
     {
@@ -136,5 +142,175 @@ public class CreateOrderFromCartTests : IDisposable
         // Assert
         result.IsFailure.Should().BeTrue();
         result.Errors[0].Code.Should().Be(OrderResult.Errors.NotFound(Guid.Empty).Code);
+    }
+
+    [Fact(DisplayName = "Handler: uses Pick() domain method for stock deduction")]
+    public async Task Handle_StockDeduction_UsesPickDomainMethod()
+    {
+        var location = StockLocationMethod.Create("Warehouse").Value;
+        _dbContext.Set<StockLocation>().Add(location);
+        await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
+
+        var variantId = Guid.NewGuid();
+        var stockItem = StockItemMethod.Create(stockLocationId: location.Id, variantId: variantId, countOnHand: 10).Value;
+        _dbContext.Set<StockItem>().Add(stockItem);
+        await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
+
+        var userId = Guid.Parse(_currentUserMock.Object.UserId!);
+        var cart = OrderMethod.Create("USD", userId, Guid.Empty).Value;
+        cart.CheckoutState = CheckoutState.Confirm;
+        cart.BillAddressId = Guid.NewGuid();
+        cart.ShipAddressId = Guid.NewGuid();
+        cart.ShippingMethodId = Guid.NewGuid();
+        cart.Email = "test@test.com";
+        cart.LineItems.Add(new LineItem
+        {
+            Id = Guid.NewGuid(),
+            OrderId = cart.Id,
+            VariantId = variantId,
+            Quantity = 2,
+            Price = 29.99m,
+            Total = 59.98m,
+            Currency = "USD"
+        });
+        _dbContext.Set<Order>().Add(cart);
+        await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
+
+        var result = await _handler.Handle(
+            new CreateOrderFromCart.Command(new CreateOrderFromCart.Request()),
+            TestContext.Current.CancellationToken);
+
+        result.IsSuccess.Should().BeTrue();
+        var si = await _dbContext.Set<StockItem>().FindAsync(
+            new object[] { stockItem.Id }, TestContext.Current.CancellationToken);
+        si.Should().NotBeNull();
+        si!.CountOnHand.Should().Be(8);
+    }
+
+    [Fact(DisplayName = "Handler: propagates Reserve() failure instead of throwing on .Value")]
+    public async Task Handle_ReserveStockFails_ReturnsError()
+    {
+        await SeedCartAsync();
+
+        var handler = new CreateOrderFromCart.CommandHandler(
+            _dbContext, _loggerMock.Object, _currentUserMock.Object, _notificationServiceMock.Object)
+        {
+            StockReservationExpiryMinutes = -1
+        };
+        var result = await handler.Handle(
+            new CreateOrderFromCart.Command(new CreateOrderFromCart.Request()),
+            TestContext.Current.CancellationToken);
+
+        result.IsFailure.Should().BeTrue();
+        result.Errors[0].Code.Should().Be("StockReservation.Ttl.NotPositive");
+    }
+
+    private async Task<(Guid VariantId, Guid StockItemId)> SeedCartAsync()
+    {
+        var location = StockLocationMethod.Create("Warehouse").Value;
+        _dbContext.Set<StockLocation>().Add(location);
+        await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
+
+        var variantId = Guid.NewGuid();
+        var stockItem = StockItemMethod.Create(stockLocationId: location.Id, variantId: variantId, countOnHand: 10).Value;
+        _dbContext.Set<StockItem>().Add(stockItem);
+        await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
+
+        var userId = Guid.Parse(_currentUserMock.Object.UserId!);
+        var cart = OrderMethod.Create("USD", userId, Guid.Empty).Value;
+        cart.CheckoutState = CheckoutState.Confirm;
+        cart.BillAddressId = Guid.NewGuid();
+        cart.ShipAddressId = Guid.NewGuid();
+        cart.ShippingMethodId = Guid.NewGuid();
+        cart.Email = "test@test.com";
+        cart.LineItems.Add(new LineItem
+        {
+            Id = Guid.NewGuid(),
+            OrderId = cart.Id,
+            VariantId = variantId,
+            Quantity = 2,
+            Price = 29.99m,
+            Total = 59.98m,
+            Currency = "USD"
+        });
+        _dbContext.Set<Order>().Add(cart);
+        await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
+
+        return (variantId, stockItem.Id);
+    }
+
+    [Fact(DisplayName = "Handler: retries on DbUpdateConcurrencyException up to 3 times, then fails")]
+    public async Task Handle_ConcurrencyConflict_AllRetriesExhausted_ReturnsError()
+    {
+        await SeedCartAsync();
+
+        int saveAttempts = 0;
+        var wrappedDb = new SaveChangesInterceptingDbContext(
+            _dbContext,
+            shouldThrowOnSave: () =>
+            {
+                saveAttempts++;
+                return true;
+            });
+
+        var handler = CreateHandler(wrappedDb);
+        var result = await handler.Handle(
+            new CreateOrderFromCart.Command(new CreateOrderFromCart.Request()),
+            TestContext.Current.CancellationToken);
+
+        result.IsFailure.Should().BeTrue();
+        result.Errors[0].Code.Should().Be("StockItem.ConcurrencyConflict");
+        saveAttempts.Should().Be(3);
+    }
+
+    [Fact(DisplayName = "Handler: retries on DbUpdateConcurrencyException and succeeds on 3rd attempt")]
+    public async Task Handle_ConcurrencyConflict_RetryThenSucceed()
+    {
+        await SeedCartAsync();
+
+        int saveAttempts = 0;
+        var wrappedDb = new SaveChangesInterceptingDbContext(
+            _dbContext,
+            shouldThrowOnSave: () =>
+            {
+                saveAttempts++;
+                return saveAttempts < 3;
+            });
+
+        var handler = CreateHandler(wrappedDb);
+        var result = await handler.Handle(
+            new CreateOrderFromCart.Command(new CreateOrderFromCart.Request()),
+            TestContext.Current.CancellationToken);
+
+        result.IsSuccess.Should().BeTrue();
+        saveAttempts.Should().Be(3);
+    }
+}
+
+internal sealed class SaveChangesInterceptingDbContext : IApplicationDbContext
+{
+    private readonly ApplicationDbContext _inner;
+    private readonly Func<bool> _shouldThrowOnSave;
+
+    public SaveChangesInterceptingDbContext(ApplicationDbContext inner, Func<bool> shouldThrowOnSave)
+    {
+        _inner = inner;
+        _shouldThrowOnSave = shouldThrowOnSave;
+    }
+
+    public bool SupportsTransactions => _inner.SupportsTransactions;
+
+    public Task<IDatabaseTransaction> BeginTransactionAsync(
+        IsolationLevel isolationLevel, CancellationToken cancellationToken = default)
+        => _inner.BeginTransactionAsync(isolationLevel, cancellationToken);
+
+    public DbSet<TEntity> Set<TEntity>() where TEntity : class
+        => _inner.Set<TEntity>();
+
+    public async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
+    {
+        if (_shouldThrowOnSave())
+            throw new DbUpdateConcurrencyException("Simulated concurrency conflict.");
+        return await _inner.SaveChangesAsync(cancellationToken);
     }
 }

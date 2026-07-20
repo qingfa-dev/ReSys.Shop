@@ -23,15 +23,12 @@ public static partial class ReserveCartStock
             // Contract: pre=command!=null && command.Request.Quantity>0, post=result!=null, throws=DbUpdateException
             var variantId = command.Request.VariantId;
             var quantity = command.Request.Quantity;
-            var stockLocationId = command.Request.StockLocationId!.Value;
+            var stockLocationId = command.Request.StockLocationId!.Value; // guaranteed non-null by validator
             var cartToken = command.Request.CartToken;
             var ttlMinutes = command.Request.TtlMinutes;
 
-            if (quantity <= 0)
-                return StockReservationResult.Errors.QuantityZero;
-
             await using var transaction = await dbContext.BeginTransactionAsync(
-                IsolationLevel.Serializable, cancellationToken);
+                IsolationLevel.RepeatableRead, cancellationToken);
 
             try
             {
@@ -57,7 +54,9 @@ public static partial class ReserveCartStock
                     await transaction.RollbackAsync(cancellationToken);
                     return StockReservationResult.Errors.InsufficientStock;
                 }
-
+                // NOTE: Cart reservations have null OrderId. When cart converts to order,
+                // the OrderId must be patched so DecrementStockAsync can match reservations.
+                // See Module.Ordering for cart-to-order flow.
                 var result = StockReservationMethod.Reserve(variantId, quantity, stockLocationId, null, ttlMinutes, cartToken: cartToken);
                 if (result.IsFailure)
                 {

@@ -29,9 +29,9 @@ public class AccessTokenService(IOptions<JwtSettings> jwtOptions) : IAccessToken
         try
         {
             // Compute: symmetric key from configured secret for HMAC-SHA256 signing
-            SymmetricSecurityKey securityKey = new SymmetricSecurityKey(
+            SymmetricSecurityKey securityKey = new(
                 Encoding.UTF8.GetBytes(_jwtOptions.Secret));
-            SigningCredentials credentials = new SigningCredentials(
+            SigningCredentials credentials = new(
                 securityKey, SecurityAlgorithms.HmacSha256);
 
             // Transform: user identity into standard JWT registered claims for downstream service consumption
@@ -50,7 +50,7 @@ public class AccessTokenService(IOptions<JwtSettings> jwtOptions) : IAccessToken
             DateTime expiration = DateTime.UtcNow.AddMinutes(_jwtOptions.AccessTokenExpirationInMinutes);
 
             // Create: token descriptor with claims, expiry, signing — all inputs must be populated
-            SecurityTokenDescriptor tokenDescriptor = new SecurityTokenDescriptor
+            SecurityTokenDescriptor tokenDescriptor = new()
             {
                 Subject = new ClaimsIdentity(claims),
                 Expires = expiration,
@@ -60,15 +60,16 @@ public class AccessTokenService(IOptions<JwtSettings> jwtOptions) : IAccessToken
             };
 
             // Call: JwtSecurityTokenHandler serializes into compact token string for HTTP bearer transmission
-            JwtSecurityTokenHandler tokenHandler = new JwtSecurityTokenHandler();
+            JwtSecurityTokenHandler tokenHandler = new();
             SecurityToken securityToken = tokenHandler.CreateToken(tokenDescriptor);
             string accessToken = tokenHandler.WriteToken(securityToken);
 
             // Transform: domain token and expiry into wire-format response DTO
-            return Result<TokenResponseModel>.Ok(new TokenResponseModel(
-                Token: accessToken,
-                ExpiresIn: new DateTimeOffset(expiration).ToUnixTimeSeconds()
-            ));
+            return Result<TokenResponseModel>.Ok(new TokenResponseModel
+            {
+                Token = accessToken,
+                ExpiresIn = new DateTimeOffset(expiration).ToUnixTimeSeconds()
+            });
         }
         catch (Exception ex)
         {

@@ -4,10 +4,12 @@ namespace Module.Location.Features.Admin.States.GetById;
 
 public static partial class GetStateById
 {
+    /// <summary>Admin: get state by ID.</summary>
     public sealed class Endpoint : ICarterModule
     {
         public void AddRoutes(IEndpointRouteBuilder app)
         {
+            // Map: GET {route}/{id} → state by ID for admin
             app.MapGet(pattern: LocationFeature.Admin.States.GetById.Route, handler: async (
                 [FromRoute] Guid id,
                 ISender sender,

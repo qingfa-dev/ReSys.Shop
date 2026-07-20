@@ -29,7 +29,8 @@ public sealed class S3StorageProviderTests
     }
 
     private static UploadRequest CreateRequest(string key = "test/file.txt")
-        => new(key, new MemoryStream("data"u8.ToArray()), "text/plain");
+        => new()
+        { Key = key, Content = new MemoryStream("data"u8.ToArray()), ContentType = "text/plain" };
 
     [Fact(DisplayName = "UploadAsync should return UploadResult with correct Provider and Key")]
     public async Task UploadAsync_ShouldReturnCorrectResult()

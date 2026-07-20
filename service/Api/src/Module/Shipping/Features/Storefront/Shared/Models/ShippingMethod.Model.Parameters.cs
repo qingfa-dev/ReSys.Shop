@@ -1,6 +1,6 @@
 namespace Module.Shipping.Features.Storefront.Shared.Models;
 
-public abstract class ShippingMethodParameters
+public abstract record ShippingMethodParameters
 {
     public string MethodName { get; init; } = string.Empty;
     public string Description { get; init; } = string.Empty;

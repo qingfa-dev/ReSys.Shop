@@ -29,9 +29,6 @@ public static partial class UploadVariantImage
         ICurrentUser currentUser)
         : ICommandHandler<Command, Response>
     {
-        // Guard: Only allow known image extensions via storage validator pipeline
-        private static readonly string[] AllowedImageExtensions = [".jpg", ".jpeg", ".png", ".gif", ".webp"];
-
         /// <summary>
         /// Executes the upload pipeline: variant check → storage upload → entity creation → persistence.
         /// </summary>
@@ -62,11 +59,13 @@ public static partial class UploadVariantImage
 
             // Call: Storage service upload pipeline — validates, scans, encrypts, stores
             var uploadResult = await storageService.UploadAsync(
-                new UploadRequest(
-                    Key: $"{subdirectory}/{request.File.FileName}",
-                    Content: stream,
-                    ContentType: request.File.ContentType,
-                    Options: options),
+                new UploadRequest
+                {
+                    Key = $"{subdirectory}/{Path.GetFileName(request.File.FileName)}",
+                    Content = stream,
+                    ContentType = request.File.ContentType,
+                    Options = options
+                },
                 ct: cancellationToken);
             if (uploadResult.IsFailure)
                 return uploadResult.Errors;

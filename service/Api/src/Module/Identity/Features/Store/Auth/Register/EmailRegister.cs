@@ -18,6 +18,9 @@ public static partial class EmailRegister
 {
     public record Command(Request Request) : ICommand<Response>;
 
+    /// <summary>
+    /// Handles the <see cref="Command"/> to register a new user via email.
+    /// </summary>
     public class CommandHandler(
         UserManager<User> userManager,
         INotificationService notificationService,
@@ -39,18 +42,23 @@ public static partial class EmailRegister
         {
             var request = command.Request;
 
+            // Check: Reject duplicate email to enforce email uniqueness constraint
             var existingUser = await userManager.FindByEmailAsync(request.Email);
             if (existingUser is not null)
                 return UserResult.Failure.EmailDuplicate;
 
+            // Validate: Ensure first name is provided for the registration to proceed
             if (string.IsNullOrWhiteSpace(request.FirstName))
                 return UserResult.Failure.FirstNameRequired;
 
             var trimmedUsername = request.UserName.Trim();
+
+            // Check: Reject duplicate username to enforce username uniqueness constraint
             var existingByUsername = await userManager.FindByNameAsync(trimmedUsername);
             if (existingByUsername is not null)
                 return UserResult.Failure.UsernameDuplicate;
 
+            // Create: Initialize the new user entity with registration data
             var user = new User
             {
                 Id = Guid.NewGuid(),
@@ -64,23 +72,29 @@ public static partial class EmailRegister
                 CreatedAtUtc = DateTimeOffset.UtcNow
             };
 
+            // Call: Persist the new user with the provided password
             var identityResult = await userManager.CreateAsync(user, request.Password);
             if (!identityResult.Succeeded)
                 return identityResult.ToResult<Response>();
 
+            // Enforce: Assign the default user role so the new account has baseline permissions
             var roleResult = await userManager.AddToRoleAsync(user, RoleConstant.Defaults.User);
             if (!roleResult.Succeeded)
                 return roleResult.ToResult<Response>();
 
+            // Call: Generate email confirmation token for verification flow
             var token = await userManager.GenerateEmailConfirmationTokenAsync(user);
+            // Transform: Build verification URL with encoded token for notification
             var verificationUrl = BuildVerificationPath(user.Id, token);
 
             AuditableBehavior.Touch(user);
 
+            // Call: Persist audit timestamp from the touch operation
             var updateResult = await userManager.UpdateAsync(user);
             if (!updateResult.Succeeded)
                 return updateResult.ToResult<Response>();
 
+            // Call: Send verification email to the new user
             await SendEmailVerificationNotificationAsync(user, request.Email, verificationUrl);
 
             return new Response

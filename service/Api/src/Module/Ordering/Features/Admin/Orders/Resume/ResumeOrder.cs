@@ -59,8 +59,7 @@ public static partial class ResumeOrder
             var result = await notificationService.SendAsync(message, ct);
             if (result.IsFailure)
             {
-                logger.LogWarning("Failed to send order resumed notification for order {OrderId}: {Errors}",
-                    order.Id, string.Join("; ", result.Errors.Select(f => f.Message)));
+                OrderLoggers.ResumeNotificationFailed(logger, order.Id, string.Join("; ", result.Errors.Select(f => f.Message)));
             }
         }
     }

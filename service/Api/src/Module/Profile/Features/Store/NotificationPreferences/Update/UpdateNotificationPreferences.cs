@@ -5,30 +5,23 @@ namespace Module.Profile.Features.Store.NotificationPreferences.Update;
 /// <summary>Updates the notification preferences for the authenticated user.</summary>
 public static partial class UpdateNotificationPreferences
 {
-    public sealed record Command(Request Request) : ICommand<Response>;
+    public sealed record Command(Guid UserId, Request Request) : ICommand<Response>;
 
-    public sealed class CommandHandler(IApplicationDbContext dbContext, ICurrentUser currentUser)
+    /// <summary>Handles the update of notification preferences.</summary>
+    public sealed class CommandHandler(IApplicationDbContext dbContext)
         : ICommandHandler<Command, Response>
     {
-        /// <summary>Validates user, creates new preferences, and persists the change.</summary>
-        /// <param name="command">The command containing SMS, email, and newsfeed toggle flags.</param>
-        /// <param name="cancellationToken">Propagates cancellation signal.</param>
-        /// <returns>A result containing the updated preferences or an error.</returns>
-        /// <exception cref="DbUpdateException">Thrown when database persistence fails.</exception>
+        /// <summary>Updates notification preferences.</summary>
         public async Task<Result<Response>> Handle(Command command, CancellationToken cancellationToken)
         {
-            // Contract: pre=user authenticated && profile exists, post=preferences updated, throws=DbUpdateException
-            // Check: Ensure user is authenticated
-            if (string.IsNullOrEmpty(currentUser.UserId))
-                return UserProfileResult.Failure.NotFound;
-
-            // Load: Fetch user profile
+            // Load: Fetch the user's profile from persistence
             var profile = await dbContext.Set<UserProfile>()
-                .FirstOrDefaultAsync(p => p.UserId == Guid.Parse(currentUser.UserId), cancellationToken);
+                .FirstOrDefaultAsync(p => p.UserId == command.UserId, cancellationToken);
+            // Validate: Confirm profile exists
             if (profile is null)
                 return UserProfileResult.Failure.NotFound;
 
-            // Create: Build notification preferences from request
+            // Validate: Build and validate notification preferences value object
             var prefs = Module.Profile.Domain.Notifications.NotificationPreferences.Create(
                 enableSms: command.Request.EnableSms,
                 enableEmail: command.Request.EnableEmail,
@@ -38,9 +31,10 @@ public static partial class UpdateNotificationPreferences
 
             // Update: Replace profile notification preferences
             profile.Notifications = prefs.Value;
+            // Call: Persist updated preferences to the database
             await dbContext.SaveChangesAsync(cancellationToken);
 
-            // EXCEPTION: no domain entity — maps from domain NotificationPreferences values
+            // Transform: Build response from updated preferences
             return new Response
             {
                 EnableSms = profile.Notifications.EnableSms,

@@ -16,7 +16,7 @@ public static partial class UpdateProfile
         public void AddRoutes(IEndpointRouteBuilder app)
         {
             // Map: Defines a PUT endpoint for updating the authenticated user's profile.
-            app.MapPut(ProfileFeature.Store.Profile.Update.Route, async (
+            app.MapPut(ProfileFeature.Store.Profiles.Update.Route, async (
                 [FromBody] Request request,
                 ISender sender,
                 ICurrentUser currentUser,
@@ -34,8 +34,8 @@ public static partial class UpdateProfile
             .RequireAuthorization()
             .WithName(nameof(UpdateProfile))
             .WithTags(ProfileFeature.Tags.Profile)
-            .WithSummary(ProfileFeature.Store.Profile.Update.Summary)
-            .WithDescription(ProfileFeature.Store.Profile.Update.Description)
+            .WithSummary(ProfileFeature.Store.Profiles.Update.Summary)
+            .WithDescription(ProfileFeature.Store.Profiles.Update.Description)
             .Produces<Result<Response>>()
             .Produces<Result>(StatusCodes.Status400BadRequest)
             .Produces<Result>(StatusCodes.Status401Unauthorized)

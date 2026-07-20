@@ -89,7 +89,9 @@ public class GetRolePermissionsTests
         result.IsSuccess.Should().BeTrue();
         result.Value.Categories.Should().HaveCount(PermissionContext.All.GroupBy(p => p.Category).Count());
 
-        var expectedResourceCount = PermissionContext.All.Select(p => p.Resource).Distinct().Count();
+        var expectedResourceCount = PermissionContext.All
+            .GroupBy(p => p.Category)
+            .Sum(g => g.Select(p => p.Resource).Distinct().Count());
         result.Value.Categories.SelectMany(c => c.Resources).Should().HaveCount(expectedResourceCount);
     }
 

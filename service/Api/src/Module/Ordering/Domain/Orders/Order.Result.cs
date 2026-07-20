@@ -128,6 +128,11 @@ public static class OrderResult
             code: "Order.ShipAddress.Update.NotDraft",
             message: "Only draft orders can have shipping address modified.");
 
+        /// <summary>Only draft orders can have shipping method modified.</summary>
+        public static Error NotDraftForShippingMethod => Error.Validation(
+            code: "Order.ShippingMethod.Update.NotDraft",
+            message: "Only draft orders can have shipping method modified.");
+
         /// <summary>Only draft orders can have line items modified.</summary>
         public static Error NotDraftForLineItem => Error.Validation(
             code: "Order.LineItem.Update.NotDraft",

@@ -11,7 +11,7 @@ public sealed class SearchingModelBehaviorTests
     public void NullAllowedFields_ShouldReturnNoViolations()
     {
         SearchModel model = new(
-            new SearchTerm("hello"),
+            new SearchTerm { Value = "hello" },
             ["Name", "Description"],
             SearchMode.Any,
             null);
@@ -25,7 +25,7 @@ public sealed class SearchingModelBehaviorTests
     {
         HashSet<String> allowedFields = new(["Name"], StringComparer.OrdinalIgnoreCase);
         SearchModel model = new(
-            new SearchTerm("hello"),
+            new SearchTerm { Value = "hello" },
             [],
             SearchMode.Any,
             allowedFields);
@@ -41,7 +41,7 @@ public sealed class SearchingModelBehaviorTests
     {
         HashSet<String> allowedFields = new([allowedField], StringComparer.OrdinalIgnoreCase);
         SearchModel model = new(
-            new SearchTerm("hello"),
+            new SearchTerm { Value = "hello" },
             [field],
             SearchMode.Any,
             allowedFields);
@@ -57,7 +57,7 @@ public sealed class SearchingModelBehaviorTests
     {
         HashSet<String> allowedFields = new([allowedField], StringComparer.OrdinalIgnoreCase);
         SearchModel model = new(
-            new SearchTerm("hello"),
+            new SearchTerm { Value = "hello" },
             [field],
             SearchMode.Any,
             allowedFields);
@@ -71,7 +71,7 @@ public sealed class SearchingModelBehaviorTests
     {
         HashSet<String> allowedFields = new(["Name"], StringComparer.OrdinalIgnoreCase);
         SearchModel model = new(
-            new SearchTerm("hello"),
+            new SearchTerm { Value = "hello" },
             ["Forbidden", "FORBIDDEN", "forbidden"],
             SearchMode.Any,
             allowedFields);
@@ -85,7 +85,7 @@ public sealed class SearchingModelBehaviorTests
     {
         HashSet<String> allowedFields = new(["Name"], StringComparer.OrdinalIgnoreCase);
         SearchModel model = new(
-            new SearchTerm("hello"),
+            new SearchTerm { Value = "hello" },
             ["ForbiddenA", "ForbiddenB"],
             SearchMode.Any,
             allowedFields);

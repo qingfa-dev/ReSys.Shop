@@ -39,13 +39,16 @@ public static partial class AssignUserPermissions
         /// <exception cref="DbUpdateException">Thrown when the identity store fails to persist user claims.</exception>
         public async Task<Result> Handle(Command command, CancellationToken cancellationToken)
         {
+            // Validate: Ensure the caller is authenticated before proceeding
             if (!currentUser.IsAuthenticated || !Guid.TryParse(currentUser.UserId, out Guid currentUserId))
                 return UserResult.Failure.Unauthorized;
 
+            // Load: Retrieve the target user to verify they exist
             var user = await userManager.FindByIdAsync(command.Id.ToString());
             if (user is null)
                 return UserResult.Failure.NotFound;
 
+            // Filter: Only consider permissions that are registered in the global permission registry
             var requestedPermissions = command.Request.Permissions
                 .Where(p => PermissionContext.All.Select(p => p.Identifier).Contains(p))
                 .ToList();
@@ -53,6 +56,7 @@ public static partial class AssignUserPermissions
             if (requestedPermissions.Count == 0)
                 return Result.Ok();
 
+            // Check: Verify the caller holds all requested permissions to prevent privilege escalation
             var authResult =
                 await permissionService.HasAllPermissionsAsync(currentUserId, requestedPermissions, cancellationToken);
 
@@ -61,12 +65,14 @@ public static partial class AssignUserPermissions
                 return UserResult.Failure.AssignDenied(requestedPermissions.First());
             }
 
+            // Load: Fetch existing permission claims to compute the delta
             var existingClaims = await userManager.GetClaimsAsync(user);
             var existingPermissionValues = existingClaims
                 .Where(c => c.Type == PermissionMetadataConstant.ClaimType)
                 .Select(c => c.Value)
                 .ToHashSet(StringComparer.OrdinalIgnoreCase);
 
+            // Compute: Determine which requested permissions are not yet assigned
             var permissionsToAdd = requestedPermissions
                 .Where(p => !existingPermissionValues.Contains(p))
                 .ToList();
@@ -74,6 +80,7 @@ public static partial class AssignUserPermissions
             if (permissionsToAdd.Count == 0)
                 return Result.Ok();
 
+            // Call: Persist new permission claims via the permission service
             var addResult =
                 await permissionService.AddUserDirectPermissionsAsync(user.Id, permissionsToAdd, cancellationToken);
             if (addResult.IsFailure)
@@ -81,10 +88,12 @@ public static partial class AssignUserPermissions
 
             AuditableBehavior.Touch(user, dateTime.UtcNow);
 
+            // Call: Persist the updated audit timestamp
             var updateResult = await userManager.UpdateAsync(user);
             if (!updateResult.Succeeded)
                 return updateResult.ToResult();
 
+            // Log: Record permissions assigned with user and caller details for audit trail
             if (logger.IsEnabled(LogLevel.Debug))
             {
                 var permissions = string.Join(", ", permissionsToAdd);
@@ -92,6 +101,7 @@ public static partial class AssignUserPermissions
                     Permissions: permissions, ActionBy: currentUser.UserName);
             }
 
+            // Cache: Invalidate the user's permission cache so new permissions take effect immediately
             await OnPermissionsChangedAsync(user, cancellationToken);
 
             return Result.Ok();

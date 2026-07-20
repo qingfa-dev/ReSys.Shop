@@ -2,13 +2,12 @@ namespace Module.Identity.Features.Admin.Users.Roles.Revoke;
 
 public static partial class RevokeUserRoles
 {
-    /// <summary>
-    /// Represents the API endpoint for revoking roles from a user.
-    /// </summary>
+    /// <summary>Maps the user role revocation route.</summary>
     public sealed class Endpoint : ICarterModule
     {
         public void AddRoutes(IEndpointRouteBuilder app)
         {
+            // Map: POST /api/admin/users/{id}/roles/revoke — revoke roles from a user
             app.MapPost(IdentityFeature.Admin.Users.Roles.Revoke.Route, async (
                 Guid id,
                 [FromBody] Request request,

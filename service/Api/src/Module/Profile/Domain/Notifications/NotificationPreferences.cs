@@ -3,6 +3,7 @@ using Shared.Application.Domain.Models;
 namespace Module.Profile.Domain.Notifications;
 
 /// <summary>Represents notification preferences for a user.</summary>
+// Invariant: At least one channel enabled by default; all values are boolean
 public sealed partial class NotificationPreferences : ValueObject
 {
     public bool EnableSms { get; set; }
@@ -28,6 +29,6 @@ public sealed partial class NotificationPreferences : ValueObject
         bool? enableEmail = true,
         bool? enableNewsfeeds = true)
     {
-        return NotificationPreferencesExtensions.Create(enableSms, enableEmail, enableNewsfeeds);
+        return NotificationPreferencesMethod.Create(enableSms, enableEmail, enableNewsfeeds);
     }
 }

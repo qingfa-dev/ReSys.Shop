@@ -1,14 +1,15 @@
-// Route: DELETE api/payment/payment-methods/{id} — soft-delete
 using Module.Payment.Features.Shared;
 
 namespace Module.Payment.Features.Admin.PaymentMethods.Delete;
 
 public static partial class DeletePaymentMethod
 {
+    /// <summary>Maps DELETE api/payment/payment-methods/{id} to soft-delete a payment method.</summary>
     public class Endpoint : ICarterModule
     {
         public void AddRoutes(IEndpointRouteBuilder app)
         {
+            // Map: DELETE api/payment/payment-methods/{id} — soft-delete payment method
             app.MapDelete(PaymentFeature.Admin.PaymentMethods.Delete.Route, async (
                 [FromRoute] Guid id,
                 ISender sender,

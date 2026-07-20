@@ -128,6 +128,16 @@ public class OrderMethodTests
     }
 
     [Fact]
+    public void Empty_WhenExpired_ShouldFail()
+    {
+        var order = OrderMethod.Create("USD", null, Guid.NewGuid()).Value;
+        order.Status = OrderStatus.Expired;
+        var r = order.Empty();
+        r.IsFailure.Should().BeTrue();
+        r.Errors[0].Should().Be(OrderResult.Errors.InvalidStatusTransition);
+    }
+
+    [Fact]
     public void Delete_WhenDraft_ShouldSucceed()
     {
         var order = OrderMethod.Create("USD", null, Guid.NewGuid()).Value;
@@ -151,10 +161,34 @@ public class OrderMethodTests
     public void Approve_WhenAlreadyApproved_ShouldFail()
     {
         var order = OrderMethod.Create("USD", null, Guid.NewGuid()).Value;
+        order.LineItems.Add(new() { Quantity = 1, Price = 10 });
+        order.Finalize();
         order.ApprovedById = Guid.NewGuid();
         var r = order.Approve(Guid.NewGuid());
         r.IsFailure.Should().BeTrue();
         r.Errors[0].Should().Be(OrderResult.Errors.AlreadyApproved);
+    }
+
+    [Fact(DisplayName = "Approve: Draft order returns InvalidStatusTransition")]
+    public void Approve_DraftOrder_ShouldFail()
+    {
+        var order = OrderMethod.Create("USD", null, Guid.NewGuid()).Value;
+        var r = order.Approve(Guid.NewGuid());
+        r.IsFailure.Should().BeTrue();
+        r.Errors[0].Should().Be(OrderResult.Errors.InvalidStatusTransition);
+    }
+
+    [Fact(DisplayName = "Approve: Placed order succeeds")]
+    public void Approve_PlacedOrder_ShouldSucceed()
+    {
+        var order = OrderMethod.Create("USD", null, Guid.NewGuid()).Value;
+        order.LineItems.Add(new() { Quantity = 1, Price = 10 });
+        order.Finalize();
+        var approverId = Guid.NewGuid();
+        var r = order.Approve(approverId);
+        r.IsSuccess.Should().BeTrue();
+        order.ApprovedById.Should().Be(approverId);
+        order.ApprovedAtUtc.Should().BeCloseTo(DateTimeOffset.UtcNow, TimeSpan.FromSeconds(1));
     }
 
     [Fact]
@@ -192,6 +226,47 @@ public class OrderMethodTests
         order.ItemTotal.Should().Be(10m);
         order.Total.Should().Be(17m);
         order.OutstandingBalance.Should().Be(17m);
+    }
+
+    [Fact(DisplayName = "RecalculateTotals: Total does not count shipping twice")]
+    public void RecalculateTotals_WithShippingAdjustment_DoesNotCountShippingTwice()
+    {
+        var order = OrderMethod.Create("USD", null, Guid.NewGuid()).Value;
+        order.LineItems.Add(new() { Quantity = 1, Price = 100, Total = 100 });
+        order.Adjustments.Add(new Adjustment
+        {
+            Amount = 10,
+            Eligible = true,
+            Label = "Shipping",
+            DisplayAmount = "10.00",
+            AdjustableId = order.Id,
+            AdjustableType = AdjustmentConstant.AdjustableTypes.Order,
+            SourceId = Guid.NewGuid(),
+            SourceType = AdjustmentConstant.SourceTypes.Shipping,
+            OrderId = order.Id,
+            CreatedBy = "test"
+        });
+        order.Adjustments.Add(new Adjustment
+        {
+            Amount = 5,
+            Eligible = true,
+            Label = "Tax",
+            DisplayAmount = "5.00",
+            AdjustableId = order.Id,
+            AdjustableType = AdjustmentConstant.AdjustableTypes.Order,
+            SourceId = Guid.NewGuid(),
+            SourceType = "Tax",
+            OrderId = order.Id,
+            CreatedBy = "test"
+        });
+
+        var result = order.RecalculateTotals();
+
+        result.IsSuccess.Should().BeTrue();
+        order.ItemTotal.Should().Be(100m);
+        order.ShipmentTotal.Should().Be(10m);
+        order.AdjustmentTotal.Should().Be(5m);
+        order.Total.Should().Be(115m); // 100 + 10 + 5, not 125
     }
 
     [Fact]
@@ -318,7 +393,7 @@ public class OrderMethodTests
         order.Finalize();
         var r = order.SetShippingMethod(Guid.NewGuid());
         r.IsFailure.Should().BeTrue();
-        r.Errors[0].Should().Be(OrderResult.Errors.NotDraftForShipAddress);
+        r.Errors[0].Should().Be(OrderResult.Errors.NotDraftForShippingMethod);
     }
 
     [Fact]

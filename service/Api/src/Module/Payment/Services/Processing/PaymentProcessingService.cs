@@ -3,9 +3,16 @@ using Module.Payment.Domain.PaymentCaptures;
 
 namespace Module.Payment.Services.Processing;
 
+// Invariant: State transitions follow PaymentRecordState lifecycle: Checkout → Processing → Pending → Completed/Void
+/// <summary>Orchestrates payment gateway operations — authorize, capture, void, refund — with state management and idempotency guards.</summary>
 public sealed class PaymentProcessingService : IPaymentProcessingService
 {
-    // Contract: pre=payment!=null && gateway!=null, post=Result<PaymentProcessingResult>
+    /// <summary>Routes payment to Purchase (auto-capture) or Authorize based on gateway configuration.</summary>
+    /// <param name="payment">The payment capture to process.</param>
+    /// <param name="gateway">The payment gateway action provider.</param>
+    /// <param name="options">Gateway options including idempotency key.</param>
+    /// <param name="ct">Cancellation token.</param>
+    /// <returns>A result indicating processing outcome.</returns>
     public Task<Result<PaymentProcessingResult>> ProcessAsync(PaymentCapture payment, IPaymentGatewayActionProvider gateway, GatewayOptions options, CancellationToken ct = default)
     {
         // Skip: Auto-capture gateway routes to Purchase — otherwise Authorize
@@ -14,12 +21,22 @@ public sealed class PaymentProcessingService : IPaymentProcessingService
         return AuthorizeAsync(payment, gateway, options, ct);
     }
 
-    // Contract: pre=payment!=null, post=payment.State==Completed || Result.IsFailure
+    /// <summary>Captures an authorized payment via the gateway and transitions state to Completed.</summary>
+    /// <param name="payment">The payment capture to capture.</param>
+    /// <param name="gateway">The payment gateway.</param>
+    /// <param name="options">Gateway options.</param>
+    /// <param name="amount">Optional partial amount to capture.</param>
+    /// <param name="ct">Cancellation token.</param>
+    /// <returns>A result indicating capture outcome.</returns>
     public async Task<Result<PaymentProcessingResult>> CaptureAsync(PaymentCapture payment, IPaymentGatewayActionProvider gateway, GatewayOptions options, decimal? amount = null, CancellationToken ct = default)
     {
         // Check: Already completed — idempotency guard
         if (payment.State == PaymentRecordState.Completed)
             return ProcessingResult.Errors.AlreadyCompleted;
+
+        // Check: Cannot capture disputed payments
+        if (payment.State == PaymentRecordState.Disputed)
+            return ProcessingResult.Errors.InvalidStateTransition(payment.State, PaymentRecordState.Completed);
 
         amount ??= payment.Amount;
 
@@ -38,12 +55,19 @@ public sealed class PaymentProcessingService : IPaymentProcessingService
 
         var response = gatewayResult.Value;
         RecordGatewayResponse(payment, response);
-        payment.State = PaymentRecordState.Completed;
+        var captureResult = payment.Capture(amount.Value);
+        if (captureResult.IsFailure)
+            return Result<PaymentProcessingResult>.Failure(captureResult.Errors[0]);
         payment.ResponseCode = response.Authorization ?? payment.ResponseCode;
         return ProcessingResult.Success.Captured(payment.Number, amount.Value);
     }
 
-    // Contract: pre=payment!=null, post=payment.State==Void || Result.IsFailure
+    /// <summary>Voids a payment via the gateway, cancelling the Stripe PaymentIntent.</summary>
+    /// <param name="payment">The payment capture to void.</param>
+    /// <param name="gateway">The payment gateway.</param>
+    /// <param name="options">Gateway options.</param>
+    /// <param name="ct">Cancellation token.</param>
+    /// <returns>A result indicating void outcome.</returns>
     public Task<Result<PaymentProcessingResult>> VoidAsync(PaymentCapture payment, IPaymentGatewayActionProvider gateway, GatewayOptions options, CancellationToken ct = default)
     {
         // Check: Already voided — idempotency guard
@@ -57,9 +81,18 @@ public sealed class PaymentProcessingService : IPaymentProcessingService
         return VoidTransactionAsync(payment, gateway, options, null, ct);
     }
 
-    // Contract: pre=payment!=null && amount>0, post=RefundedAmount incremented || Result.IsFailure
+    /// <summary>Refunds a completed payment via the gateway, incrementing the refunded amount.</summary>
+    /// <param name="payment">The payment capture to refund.</param>
+    /// <param name="gateway">The payment gateway.</param>
+    /// <param name="options">Gateway options.</param>
+    /// <param name="amount">The amount to refund.</param>
+    /// <param name="ct">Cancellation token.</param>
+    /// <returns>A result indicating refund outcome.</returns>
     public async Task<Result<PaymentProcessingResult>> RefundAsync(PaymentCapture payment, IPaymentGatewayActionProvider gateway, GatewayOptions options, decimal amount, CancellationToken ct = default)
     {
+        if (payment.State is PaymentRecordState.Disputed)
+            return ProcessingResult.Errors.InvalidStateTransition(payment.State, PaymentRecordState.Completed);
+
         // Check: Payment state and refund amount must be valid
         if (!payment.CanRefund(amount))
         {
@@ -73,8 +106,9 @@ public sealed class PaymentProcessingService : IPaymentProcessingService
         var result = await CreditAsync(payment, gateway, options, amount, ct).ConfigureAwait(false);
         if (result.IsSuccess)
         {
-            payment.RefundedAmount += amount;
-            payment.ModifiedAtUtc = DateTimeOffset.UtcNow;
+            var refundResult = payment.Refund(amount);
+            if (refundResult.IsFailure)
+                return Result<PaymentProcessingResult>.Failure(refundResult.Errors[0]);
         }
 
         return result;
@@ -106,7 +140,9 @@ public sealed class PaymentProcessingService : IPaymentProcessingService
         var response = gatewayResult.Value;
         RecordGatewayResponse(payment, response);
         payment.ResponseCode = response.Authorization ?? payment.ResponseCode;
-        payment.State = PaymentRecordState.Void;
+        var voidResult = payment.Void();
+        if (voidResult.IsFailure)
+            return Result<PaymentProcessingResult>.Failure(voidResult.Errors[0]);
         return ProcessingResult.Success.Voided(payment.Number);
     }
 
@@ -147,6 +183,7 @@ public sealed class PaymentProcessingService : IPaymentProcessingService
         payment.CvvResponseCode = response.CvvResultCode;
         payment.CvvResponseMessage = response.CvvResultMessage;
         payment.IntentClientSecret = response.ClientSecret;
+        payment.PaymentStatus = response.PaymentStatus;
     }
 
     // Call: Gateway authorize — transition to Pending
@@ -178,23 +215,13 @@ public sealed class PaymentProcessingService : IPaymentProcessingService
             (amount, src, opts, t) => gateway.PurchaseAsync(amount, src, opts, t),
             PaymentRecordState.Completed, ct).ConfigureAwait(false);
 
-        if (result.IsSuccess)
-            payment.CaptureEventCreated = true;
-
         return result;
     }
 
     // Call: Gateway cancel/void — no gateway response code means local void only
-    private async Task<Result<PaymentProcessingResult>> CancelAsync(PaymentCapture payment, IPaymentGatewayActionProvider gateway, CancellationToken ct = default)
+    private async Task<Result<PaymentProcessingResult>> CancelAsync(PaymentCapture payment, IPaymentGatewayActionProvider gateway, GatewayOptions options, CancellationToken ct = default)
     {
-        var gatewayResult = await gateway.VoidAsync(payment.ResponseCode, payment, new GatewayOptions
-        {
-            Email = string.Empty,
-            Customer = string.Empty,
-            OrderId = payment.OrderId.ToString(),
-            PaymentId = payment.Number,
-            IdempotencyKey = GatewayConstants.Idempotency.ForPayment(payment.Number)
-        }, ct).ConfigureAwait(false);
+        var gatewayResult = await gateway.VoidAsync(payment.ResponseCode, payment, options, ct).ConfigureAwait(false);
 
         // Catch: Gateway failure — propagate error
         if (gatewayResult.IsFailure)
@@ -202,7 +229,9 @@ public sealed class PaymentProcessingService : IPaymentProcessingService
 
         var response = gatewayResult.Value;
         RecordGatewayResponse(payment, response);
-        payment.State = PaymentRecordState.Void;
+        var voidResult = payment.Void();
+        if (voidResult.IsFailure)
+            return Result<PaymentProcessingResult>.Failure(voidResult.Errors[0]);
         return ProcessingResult.Success.Voided(payment.Number);
     }
 
@@ -257,7 +286,14 @@ public sealed class PaymentProcessingService : IPaymentProcessingService
         var response = gatewayResult.Value;
         RecordGatewayResponse(payment, response);
         payment.ResponseCode = response.Authorization ?? payment.ResponseCode;
-        payment.State = successState;
+        var transitionResult = successState switch
+        {
+            PaymentRecordState.Completed => payment.Complete(),
+            PaymentRecordState.Pending => payment.Pend(),
+            _ => Result.Ok()
+        };
+        if (transitionResult.IsFailure)
+            return Result<PaymentProcessingResult>.Failure(transitionResult.Errors[0]);
         return successState == PaymentRecordState.Pending
             ? ProcessingResult.Success.Pended(payment.Number)
             : ProcessingResult.Success.Completed(payment.Number);

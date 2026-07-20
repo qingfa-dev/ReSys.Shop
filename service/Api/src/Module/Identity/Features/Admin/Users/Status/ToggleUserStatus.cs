@@ -36,24 +36,30 @@ public static partial class ToggleUserStatus
         /// <exception cref="DbUpdateException">Thrown when the identity store fails to persist the status change.</exception>
         public async Task<Result> Handle(Command command, CancellationToken cancellationToken)
         {
+            // Validate: Ensure the caller identity is valid before proceeding
             if (!Guid.TryParse(currentUser.UserId, out var currentUserId))
                 return UserResult.Failure.Unauthorized;
 
+            // Guard: Prevent an admin from toggling their own status to avoid accidental lockout
             if (command.Id == currentUserId)
                 return UserResult.Failure.SelfStatusToggle;
 
+            // Load: Retrieve the target user to verify they exist
             var user = await userManager.FindByIdAsync(command.Id.ToString());
             if (user is null)
                 return UserResult.Failure.NotFound;
 
+            // Call: Apply domain enable/disable logic based on current status
             var updateResult = user.IsActive ? user.Disable() : user.Enable();
             if (updateResult.IsFailure)
                 return Result.Validation(errors: updateResult.Errors);
 
+            // Call: Persist the status change via Identity user manager
             var result = await userManager.UpdateAsync(user);
             if (!result.Succeeded)
                 return result.ToResult();
 
+            // Log: Record the status toggle with user ID and new state for audit trail
             UserLoggers.Management.StatusToggled(logger, UserId: user.Id, IsActive: user.IsActive, ActionBy: currentUser.UserName);
 
             return Result.Ok();

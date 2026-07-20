@@ -1,6 +1,5 @@
 using Module.Profile.Domain;
 using Module.Profile.Features.Store.NotificationPreferences.Update;
-using Module.UnitTests.Identity.Fixtures;
 using Module.UnitTests.Profile.Domain;
 
 namespace Module.UnitTests.Profile.Features.Store.NotificationPreferences.Update;
@@ -11,7 +10,6 @@ namespace Module.UnitTests.Profile.Features.Store.NotificationPreferences.Update
 public class UpdateNotificationPreferencesTests : IDisposable
 {
     private readonly ApplicationDbContext _dbContext;
-    private readonly Mock<ICurrentUser> _currentUserMock;
     private readonly UpdateNotificationPreferences.CommandHandler _handler;
     private readonly Guid _userId = Guid.NewGuid();
 
@@ -24,8 +22,7 @@ public class UpdateNotificationPreferencesTests : IDisposable
         ApplicationDbContext.AdditionalConfigurationsAssemblies = [typeof(UserProfile).Assembly];
 
         _dbContext = new ApplicationDbContext(options);
-        _currentUserMock = IdentityMocks.CreateCurrentUserMock(_userId);
-        _handler = new UpdateNotificationPreferences.CommandHandler(_dbContext, _currentUserMock.Object);
+        _handler = new UpdateNotificationPreferences.CommandHandler(_dbContext);
     }
 
     public void Dispose()
@@ -48,7 +45,7 @@ public class UpdateNotificationPreferencesTests : IDisposable
             EnableNewsfeeds = true
         };
 
-        var result = await _handler.Handle(new UpdateNotificationPreferences.Command(request), TestContext.Current.CancellationToken);
+        var result = await _handler.Handle(new UpdateNotificationPreferences.Command(_userId, request), TestContext.Current.CancellationToken);
 
         result.IsSuccess.Should().BeTrue();
         result.Value.EnableSms.Should().BeTrue();
@@ -56,21 +53,10 @@ public class UpdateNotificationPreferencesTests : IDisposable
         result.Value.EnableNewsfeeds.Should().BeTrue();
     }
 
-    [Fact(DisplayName = "Handle: Should return NotFound when user is not authenticated")]
-    public async Task Handle_ShouldFail_WhenNotAuthenticated()
-    {
-        _currentUserMock.Setup(x => x.UserId).Returns((string?)null);
-
-        var result = await _handler.Handle(new UpdateNotificationPreferences.Command(new UpdateNotificationPreferences.Request()), TestContext.Current.CancellationToken);
-
-        result.IsFailure.Should().BeTrue();
-        result.Errors[0].Code.Should().Be(UserProfileResult.Failure.NotFound.Code);
-    }
-
     [Fact(DisplayName = "Handle: Should return NotFound when profile does not exist")]
     public async Task Handle_ShouldFail_WhenProfileNotFound()
     {
-        var result = await _handler.Handle(new UpdateNotificationPreferences.Command(new UpdateNotificationPreferences.Request()), TestContext.Current.CancellationToken);
+        var result = await _handler.Handle(new UpdateNotificationPreferences.Command(_userId, new UpdateNotificationPreferences.Request()), TestContext.Current.CancellationToken);
 
         result.IsFailure.Should().BeTrue();
         result.Errors[0].Code.Should().Be(UserProfileResult.Failure.NotFound.Code);
@@ -90,7 +76,7 @@ public class UpdateNotificationPreferencesTests : IDisposable
             EnableNewsfeeds = false
         };
 
-        var result = await _handler.Handle(new UpdateNotificationPreferences.Command(request), TestContext.Current.CancellationToken);
+        var result = await _handler.Handle(new UpdateNotificationPreferences.Command(_userId, request), TestContext.Current.CancellationToken);
 
         result.IsSuccess.Should().BeTrue();
         result.Value.EnableSms.Should().BeFalse();

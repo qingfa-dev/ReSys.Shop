@@ -664,10 +664,6 @@ namespace Api.Migrations.Migrations
                         .HasDefaultValue(0m)
                         .HasColumnName("price");
 
-                    b.Property<Guid?>("PrimaryMediaId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("primary_media_id");
-
                     b.Property<Guid>("ProductId")
                         .HasColumnType("uuid")
                         .HasColumnName("product_id");
@@ -1325,6 +1321,12 @@ namespace Api.Migrations.Migrations
                         .HasColumnType("text")
                         .HasColumnName("reason");
 
+                    b.Property<uint>("RowVersion")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("xid")
+                        .HasColumnName("xmin");
+
                     b.Property<string>("State")
                         .IsRequired()
                         .HasColumnType("text")
@@ -1340,6 +1342,12 @@ namespace Api.Migrations.Migrations
 
                     b.HasKey("Id")
                         .HasName("pk_stock_reservations");
+
+                    b.HasIndex("CartToken", "State")
+                        .HasDatabaseName("ix_stock_reservations_cart_token_state");
+
+                    b.HasIndex("OrderId", "State")
+                        .HasDatabaseName("ix_stock_reservations_order_id_state");
 
                     b.ToTable("stock_reservations", "inventory");
                 });
@@ -1382,6 +1390,12 @@ namespace Api.Migrations.Migrations
                         .HasMaxLength(255)
                         .HasColumnType("character varying(255)")
                         .HasColumnName("reference");
+
+                    b.Property<uint>("RowVersion")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("xid")
+                        .HasColumnName("xmin");
 
                     b.Property<Guid>("SourceLocationId")
                         .HasColumnType("uuid")
@@ -1689,7 +1703,10 @@ namespace Api.Migrations.Migrations
 
                     b.Property<string>("Currency")
                         .IsRequired()
-                        .HasColumnType("text")
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(3)
+                        .HasColumnType("character varying(3)")
+                        .HasDefaultValue("USD")
                         .HasColumnName("currency");
 
                     b.Property<DateTimeOffset?>("ModifiedAtUtc")
@@ -1934,10 +1951,6 @@ namespace Api.Migrations.Migrations
                         .HasColumnType("character varying(255)")
                         .HasColumnName("avs_response");
 
-                    b.Property<bool>("CaptureEventCreated")
-                        .HasColumnType("boolean")
-                        .HasColumnName("capture_event_created");
-
                     b.Property<DateTimeOffset>("CreatedAtUtc")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("created_at_utc");
@@ -1946,6 +1959,14 @@ namespace Api.Migrations.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("character varying(100)")
                         .HasColumnName("created_by");
+
+                    b.Property<string>("Currency")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(3)
+                        .HasColumnType("character varying(3)")
+                        .HasDefaultValue("USD")
+                        .HasColumnName("currency");
 
                     b.Property<string>("CvvResponseCode")
                         .HasMaxLength(10)
@@ -1981,9 +2002,13 @@ namespace Api.Migrations.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("order_id");
 
-                    b.Property<Guid>("PaymentMethodId")
+                    b.Property<Guid?>("PaymentMethodId")
                         .HasColumnType("uuid")
                         .HasColumnName("payment_method_id");
+
+                    b.Property<string>("PaymentStatus")
+                        .HasColumnType("text")
+                        .HasColumnName("payment_status");
 
                     b.Property<string>("ProviderKey")
                         .IsRequired()
@@ -2025,6 +2050,10 @@ namespace Api.Migrations.Migrations
 
                     b.HasIndex("PaymentMethodId")
                         .HasDatabaseName("ix_payment_captures_payment_method_id");
+
+                    b.HasIndex("ResponseCode")
+                        .HasDatabaseName("ix_payment_captures_response_code")
+                        .HasFilter("\"response_code\" IS NOT NULL");
 
                     b.ToTable("payment_captures", "payment");
                 });
@@ -2126,6 +2155,10 @@ namespace Api.Migrations.Migrations
                         .IsRequired()
                         .HasColumnType("text")
                         .HasColumnName("settings");
+
+                    b.Property<string>("StatementDescriptorSuffix")
+                        .HasColumnType("text")
+                        .HasColumnName("statement_descriptor_suffix");
 
                     b.Property<bool>("WebhookEnabled")
                         .ValueGeneratedOnAdd()
@@ -3372,7 +3405,6 @@ namespace Api.Migrations.Migrations
                         .WithMany("Payments")
                         .HasForeignKey("PaymentMethodId")
                         .OnDelete(DeleteBehavior.SetNull)
-                        .IsRequired()
                         .HasConstraintName("fk_payment_captures_payment_methods_payment_method_id");
 
                     b.Navigation("PaymentMethod");

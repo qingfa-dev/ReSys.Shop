@@ -34,36 +34,36 @@ public class ValidationBehaviorTests
         var logger = new TestLogger<ValidationBehavior<TestRequest, Result>>();
         IEnumerable<IValidator<TestRequest>> validators = Enumerable.Empty<IValidator<TestRequest>>();
         ValidationBehavior<TestRequest, Result> behavior = CreateBehavior(validators, logger);
-        var request = new TestRequest("test-value");
-        var nextCalled = false;
+var request = new TestRequest { Value = "test-value" };
+            var nextCalled = false;
 
-        RequestHandlerDelegate<Result> next = (_) =>
+            RequestHandlerDelegate<Result> next = (_) =>
+            {
+                nextCalled = true;
+                return Task.FromResult(Result.Ok());
+            };
+
+            Result result = await behavior.Handle(request, next, TestContext.Current.CancellationToken);
+
+            result.IsSuccess.Should().BeTrue();
+            nextCalled.Should().BeTrue();
+
+            logger.Entries.Should().Contain(e => e.Level == LogLevel.Information && e.Message.Contains("No validators found for command TestRequest"));
+        }
+
+        #endregion
+
+        #region Handle - All Validators Pass
+
+        [Fact(DisplayName = "Should proceed to next when all validators pass")]
+        public async Task Handle_AllValidatorsPass_ReturnsSuccess()
         {
-            nextCalled = true;
-            return Task.FromResult(Result.Ok());
-        };
-
-        Result result = await behavior.Handle(request, next, TestContext.Current.CancellationToken);
-
-        result.IsSuccess.Should().BeTrue();
-        nextCalled.Should().BeTrue();
-
-        logger.Entries.Should().Contain(e => e.Level == LogLevel.Information && e.Message.Contains("No validators found for command TestRequest"));
-    }
-
-    #endregion
-
-    #region Handle - All Validators Pass
-
-    [Fact(DisplayName = "Should proceed to next when all validators pass")]
-    public async Task Handle_AllValidatorsPass_ReturnsSuccess()
-    {
-        var validatorMock = new Mock<IValidator<TestRequest>>();
-        validatorMock.Setup(v => v.ValidateAsync(It.IsAny<ValidationContext<TestRequest>>(), TestContext.Current.CancellationToken))
-            .ReturnsAsync(new ValidationResult());
-        IValidator<TestRequest>[] validators = [validatorMock.Object];
-        ValidationBehavior<TestRequest, Result> behavior = CreateBehavior<TestRequest, Result>(validators);
-        var request = new TestRequest("test-value");
+            var validatorMock = new Mock<IValidator<TestRequest>>();
+            validatorMock.Setup(v => v.ValidateAsync(It.IsAny<ValidationContext<TestRequest>>(), TestContext.Current.CancellationToken))
+                .ReturnsAsync(new ValidationResult());
+            IValidator<TestRequest>[] validators = [validatorMock.Object];
+            ValidationBehavior<TestRequest, Result> behavior = CreateBehavior<TestRequest, Result>(validators);
+            var request = new TestRequest { Value = "test-value" };
         var nextCalled = false;
 
         RequestHandlerDelegate<Result> next = (_) =>
@@ -97,7 +97,7 @@ public class ValidationBehaviorTests
             .ReturnsAsync(new ValidationResult(validationErrors));
         IValidator<TestRequest>[] validators = [validatorMock.Object];
         ValidationBehavior<TestRequest, Result> behavior = CreateBehavior(validators, logger);
-        var request = new TestRequest("");
+        var request = new TestRequest { Value = "" };
 
         RequestHandlerDelegate<Result> next = (_) => Task.FromResult(Result.Ok());
 
@@ -120,7 +120,7 @@ public class ValidationBehaviorTests
             .ReturnsAsync(new ValidationResult(validationErrors));
 
         ValidationBehavior<TestRequestWithValue, Result<string>> behavior = CreateBehavior<TestRequestWithValue, Result<string>>([validatorMock.Object]);
-        var request = new TestRequestWithValue("data");
+        var request = new TestRequestWithValue { Value = "data" };
         var nextCalled = false;
         RequestHandlerDelegate<Result<string>> next = (_) => { nextCalled = true; return Task.FromResult(Result<string>.Ok("fail")); };
 
@@ -150,7 +150,7 @@ public class ValidationBehaviorTests
             .ReturnsAsync(new ValidationResult(validationErrors));
         IValidator<TestRequest>[] validators = [validatorMock.Object];
         ValidationBehavior<TestRequest, Result> behavior = CreateBehavior<TestRequest, Result>(validators);
-        var request = new TestRequest("");
+        var request = new TestRequest { Value = "" };
 
         RequestHandlerDelegate<Result> next = (_) => Task.FromResult(Result.Ok());
 
@@ -173,7 +173,7 @@ public class ValidationBehaviorTests
             .ReturnsAsync(new ValidationResult(new List<ValidationFailure>()));
         IValidator<TestRequest>[] validators = [validatorMock.Object];
         ValidationBehavior<TestRequest, Result> behavior = CreateBehavior<TestRequest, Result>(validators);
-        var request = new TestRequest("valid");
+        var request = new TestRequest { Value = "valid" };
         var nextCalled = false;
 
         RequestHandlerDelegate<Result> next = (_) =>
@@ -211,7 +211,7 @@ public class ValidationBehaviorTests
 
         IValidator<TestRequest>[] validators = [validator1Mock.Object, validator2Mock.Object];
         ValidationBehavior<TestRequest, Result> behavior = CreateBehavior<TestRequest, Result>(validators);
-        var request = new TestRequest("");
+        var request = new TestRequest { Value = "" };
 
         RequestHandlerDelegate<Result> next = (_) => Task.FromResult(Result.Ok());
 
@@ -223,5 +223,8 @@ public class ValidationBehaviorTests
 
     #endregion
 
-    public record TestRequestWithValue(string Value) : IRequest<Result<string>>;
+    public record TestRequestWithValue : IRequest<Result<string>>
+    {
+        public string Value { get; init; } = default!;
+    }
 }

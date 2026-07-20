@@ -1,9 +1,8 @@
-using Module.Profile.Features.Store.Addresses.Shared.Models;
+using Module.Profile.Features.Admin.Addresses.Shared.Models;
 
 namespace Module.Profile.Features.Store.Addresses.Create;
 
 public static partial class CreateAddress
 {
-    // ============ REQUEST ============
-    public class Request : AddressRequest { }
+    public sealed record Request() : AddressRequest;
 }

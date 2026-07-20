@@ -10,7 +10,7 @@ public static partial class OptionValueMapping
         return OptionValueMethod.Create(
             optionTypeId,
             request.Name,
-            request.Presentation,
+            request.Presentation ?? string.Empty,
             request.Position);
     }
 
@@ -18,7 +18,7 @@ public static partial class OptionValueMapping
     {
         return entity.Update(
             name: request.Name,
-            presentation: request.Presentation,
+            presentation: request.Presentation ?? string.Empty,
             position: request.Position);
     }
 

@@ -29,6 +29,8 @@ public sealed partial class StockReservation : Entity, IAuditable
     public Guid? LineItemId { get; set; }
     /// <summary>Gets or sets the reason for creating this reservation.</summary>
     public string? Reason { get; set; }
+    /// <summary>Concurrency token for optimistic locking — auto-managed by EF Core / PostgreSQL xid.</summary>
+    public uint RowVersion { get; set; }
     #endregion Properties
 
     #region Auditing

@@ -13,7 +13,14 @@ public static partial class GetOrderingDashboard
         public OrderStatusBreakdownData StatusBreakdown { get; init; } = new();
     }
 
-    public sealed record RecentOrderData(Guid Id, string Number, decimal Total, string Status, DateTime CreatedAtUtc);
+    public sealed record RecentOrderData
+    {
+        public Guid Id { get; init; }
+        public string Number { get; init; } = default!;
+        public decimal Total { get; init; }
+        public string Status { get; init; } = default!;
+        public DateTime CreatedAtUtc { get; init; }
+    }
 
     public sealed record OrderStatusBreakdownData
     {

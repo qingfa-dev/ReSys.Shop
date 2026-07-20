@@ -1,3 +1,5 @@
+using Shared.Application.Domain.Currencies;
+
 namespace Module.Catalog.Domain.Products.Variants;
 
 /// <summary>
@@ -42,7 +44,7 @@ public static class VariantConstant
             public const int Precision = 18;
             public const int Scale = 2;
             public const int CurrencyMaxLength = 3;
-            public static readonly string[] AllowedCurrencies = ["USD", "EUR", "GBP", "JPY", "CAD"]; // Extend as needed
+            public static readonly string[] AllowedCurrencies = [.. SystemCurrency.Supported.Keys];
         }
 
         public static class Dimensions

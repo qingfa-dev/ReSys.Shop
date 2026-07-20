@@ -145,4 +145,220 @@ public class ProcessStripeWebhookEventJobTests : IDisposable
         var updated = await _dbContext.Set<PaymentCapture>().FirstAsync(p => p.Id == payment.Id);
         updated.State.Should().Be(PaymentRecordState.Completed);
     }
+
+    [Fact(DisplayName = "payment_intent.succeeded does not save when Complete returns failure")]
+    public async Task HandlePaymentIntentSucceeded_ShouldNotSave_WhenCompleteFails()
+    {
+        var payment = PaymentCaptureMethod.Create(100m, Guid.NewGuid(), Guid.NewGuid()).Value;
+        payment.State = PaymentRecordState.Completed;
+        payment.ResponseCode = "pi_already_done";
+        _dbContext.Set<PaymentCapture>().Add(payment);
+        await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
+
+        _webhookMock.Setup(x => x.ParseEvent(It.IsAny<string>()))
+            .Returns(new Event
+            {
+                Type = "payment_intent.succeeded",
+                Data = new EventData
+                {
+                    Object = new PaymentIntent { Id = "pi_already_done" }
+                }
+            });
+
+        await _job.ExecuteAsync("{}", TestContext.Current.CancellationToken);
+
+        var updated = await _dbContext.Set<PaymentCapture>().FirstAsync(p => p.Id == payment.Id);
+        updated.State.Should().Be(PaymentRecordState.Completed);
+    }
+
+    [Fact(DisplayName = "payment_intent.payment_failed does not save when Fail returns failure")]
+    public async Task HandlePaymentIntentFailed_ShouldNotSave_WhenFailFails()
+    {
+        var payment = PaymentCaptureMethod.Create(100m, Guid.NewGuid(), Guid.NewGuid()).Value;
+        payment.State = PaymentRecordState.Completed;
+        payment.ResponseCode = "pi_cant_fail";
+        _dbContext.Set<PaymentCapture>().Add(payment);
+        await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
+
+        _webhookMock.Setup(x => x.ParseEvent(It.IsAny<string>()))
+            .Returns(new Event
+            {
+                Type = "payment_intent.payment_failed",
+                Data = new EventData
+                {
+                    Object = new PaymentIntent { Id = "pi_cant_fail" }
+                }
+            });
+
+        await _job.ExecuteAsync("{}", TestContext.Current.CancellationToken);
+
+        var updated = await _dbContext.Set<PaymentCapture>().FirstAsync(p => p.Id == payment.Id);
+        updated.State.Should().Be(PaymentRecordState.Completed);
+    }
+
+    [Fact(DisplayName = "charge.dispute.created transitions payment to Disputed")]
+    public async Task HandleChargeDisputeCreated_ShouldDisputePayment()
+    {
+        var payment = PaymentCaptureMethod.Create(100m, Guid.NewGuid(), Guid.NewGuid()).Value;
+        payment.State = PaymentRecordState.Completed;
+        payment.ResponseCode = "pi_disputed";
+        _dbContext.Set<PaymentCapture>().Add(payment);
+        await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
+
+        _webhookMock.Setup(x => x.ParseEvent(It.IsAny<string>()))
+            .Returns(new Event
+            {
+                Type = "charge.dispute.created",
+                Data = new EventData
+                {
+                    Object = new Dispute
+                    {
+                        PaymentIntentId = "pi_disputed",
+                        ChargeId = "ch_disputed",
+                        Reason = "fraudulent"
+                    }
+                }
+            });
+
+        await _job.ExecuteAsync("{}", TestContext.Current.CancellationToken);
+
+        var updated = await _dbContext.Set<PaymentCapture>().FirstAsync(p => p.Id == payment.Id);
+        updated.State.Should().Be(PaymentRecordState.Disputed);
+    }
+
+    [Fact(DisplayName = "payment_intent.canceled transitions payment to Void")]
+    public async Task HandlePaymentIntentCanceled_ShouldVoidPayment()
+    {
+        var payment = PaymentCaptureMethod.Create(100m, Guid.NewGuid(), Guid.NewGuid()).Value;
+        payment.State = PaymentRecordState.Processing;
+        payment.ResponseCode = "pi_canceled";
+        _dbContext.Set<PaymentCapture>().Add(payment);
+        await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
+
+        _webhookMock.Setup(x => x.ParseEvent(It.IsAny<string>()))
+            .Returns(new Event
+            {
+                Type = "payment_intent.canceled",
+                Data = new EventData
+                {
+                    Object = new PaymentIntent { Id = "pi_canceled" }
+                }
+            });
+
+        await _job.ExecuteAsync("{}", TestContext.Current.CancellationToken);
+
+        var updated = await _dbContext.Set<PaymentCapture>().FirstAsync(p => p.Id == payment.Id);
+        updated.State.Should().Be(PaymentRecordState.Void);
+    }
+
+    [Fact(DisplayName = "HandlePaymentIntentFailed: skips when payment already Failed")]
+    public async Task HandlePaymentIntentFailed_AlreadyFailed_Skips()
+    {
+        var payment = PaymentCaptureMethod.Create(100m, Guid.NewGuid(), Guid.NewGuid()).Value;
+        payment.State = PaymentRecordState.Failed;
+        payment.ResponseCode = "pi_skip_fail";
+        _dbContext.Set<PaymentCapture>().Add(payment);
+        await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
+
+        _webhookMock.Setup(x => x.ParseEvent(It.IsAny<string>()))
+            .Returns(new Event
+            {
+                Type = "payment_intent.payment_failed",
+                Data = new EventData
+                {
+                    Object = new PaymentIntent { Id = "pi_skip_fail" }
+                }
+            });
+
+        await _job.ExecuteAsync("{}", TestContext.Current.CancellationToken);
+
+        var updated = await _dbContext.Set<PaymentCapture>().FirstAsync(p => p.Id == payment.Id);
+        updated.State.Should().Be(PaymentRecordState.Failed);
+    }
+
+    [Fact(DisplayName = "HandleChargeRefunded: skips when payment already Voided")]
+    public async Task HandleChargeRefunded_AlreadyVoided_Skips()
+    {
+        var payment = PaymentCaptureMethod.Create(100m, Guid.NewGuid(), Guid.NewGuid()).Value;
+        payment.State = PaymentRecordState.Void;
+        payment.ResponseCode = "pi_skip_refund";
+        payment.RefundedAmount = 0;
+        _dbContext.Set<PaymentCapture>().Add(payment);
+        await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
+
+        _webhookMock.Setup(x => x.ParseEvent(It.IsAny<string>()))
+            .Returns(new Event
+            {
+                Type = "charge.refunded",
+                Data = new EventData
+                {
+                    Object = new Charge
+                    {
+                        PaymentIntentId = "pi_skip_refund",
+                        AmountRefunded = 2000
+                    }
+                }
+            });
+
+        await _job.ExecuteAsync("{}", TestContext.Current.CancellationToken);
+
+        var updated = await _dbContext.Set<PaymentCapture>().FirstAsync(p => p.Id == payment.Id);
+        updated.State.Should().Be(PaymentRecordState.Void);
+        updated.RefundedAmount.Should().Be(0);
+    }
+
+    [Fact(DisplayName = "HandleChargeDisputeCreated: skips when payment already Disputed")]
+    public async Task HandleChargeDisputeCreated_AlreadyDisputed_Skips()
+    {
+        var payment = PaymentCaptureMethod.Create(100m, Guid.NewGuid(), Guid.NewGuid()).Value;
+        payment.State = PaymentRecordState.Disputed;
+        payment.ResponseCode = "pi_skip_dispute";
+        _dbContext.Set<PaymentCapture>().Add(payment);
+        await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
+
+        _webhookMock.Setup(x => x.ParseEvent(It.IsAny<string>()))
+            .Returns(new Event
+            {
+                Type = "charge.dispute.created",
+                Data = new EventData
+                {
+                    Object = new Dispute
+                    {
+                        PaymentIntentId = "pi_skip_dispute",
+                        ChargeId = "ch_skip_dispute",
+                        Reason = "fraudulent"
+                    }
+                }
+            });
+
+        await _job.ExecuteAsync("{}", TestContext.Current.CancellationToken);
+
+        var updated = await _dbContext.Set<PaymentCapture>().FirstAsync(p => p.Id == payment.Id);
+        updated.State.Should().Be(PaymentRecordState.Disputed);
+    }
+
+    [Fact(DisplayName = "HandlePaymentIntentCanceled: skips when payment already Voided")]
+    public async Task HandlePaymentIntentCanceled_AlreadyVoided_Skips()
+    {
+        var payment = PaymentCaptureMethod.Create(100m, Guid.NewGuid(), Guid.NewGuid()).Value;
+        payment.State = PaymentRecordState.Void;
+        payment.ResponseCode = "pi_skip_void";
+        _dbContext.Set<PaymentCapture>().Add(payment);
+        await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
+
+        _webhookMock.Setup(x => x.ParseEvent(It.IsAny<string>()))
+            .Returns(new Event
+            {
+                Type = "payment_intent.canceled",
+                Data = new EventData
+                {
+                    Object = new PaymentIntent { Id = "pi_skip_void" }
+                }
+            });
+
+        await _job.ExecuteAsync("{}", TestContext.Current.CancellationToken);
+
+        var updated = await _dbContext.Set<PaymentCapture>().FirstAsync(p => p.Id == payment.Id);
+        updated.State.Should().Be(PaymentRecordState.Void);
+    }
 }

@@ -256,7 +256,7 @@ public class ResendEmailVerificationTests
         var userId = Guid.NewGuid();
         var result = ResendEmailVerification.BuildVerificationPath(userId, "tokenABC");
 
-        result.Should().Be($"verify-email?userId={userId}&token={"tokenABC".ToBase64()}");
+        result.Should().Be($"verify-email?userId={userId}&token={"tokenABC".ToBase64Url()}");
 
     }
 
@@ -266,7 +266,43 @@ public class ResendEmailVerificationTests
         var userId = Guid.NewGuid();
         var result = ResendEmailVerification.BuildVerificationPath(userId, "token+with=special&chars");
 
-        result.Should().Be($"verify-email?userId={userId}&token={"token+with=special&chars".ToBase64()}");
+        result.Should().Be($"verify-email?userId={userId}&token={"token+with=special&chars".ToBase64Url()}");
 
+    }
+
+    [Fact(DisplayName = "BugFix: BuildVerificationPath encodes token with base64url, decodable by ConfirmEmail's TryFromBase64Url")]
+    public void BuildVerificationPath_EncodesBase64Url_Decodable()
+    {
+        var userId = Guid.NewGuid();
+        var rawToken = "test-token-with/special+chars";
+
+        var path = ResendEmailVerification.BuildVerificationPath(userId, rawToken);
+
+        var tokenFromUrl = ExtractQueryParam(path, "token");
+        var success = tokenFromUrl.TryFromBase64Url(out var decoded);
+        success.Should().BeTrue();
+        decoded.Should().Be(rawToken);
+    }
+
+    [Fact(DisplayName = "BugFix: BuildVerificationPath does not contain URL-unsafe characters")]
+    public void BuildVerificationPath_NoUnsafeUrlChars()
+    {
+        var path = ResendEmailVerification.BuildVerificationPath(Guid.NewGuid(), "test");
+        var token = ExtractQueryParam(path, "token");
+
+        token.Should().NotContain("+");
+        token.Should().NotContain("/");
+        token.Should().NotContain("=");
+    }
+
+    private static string ExtractQueryParam(string url, string param)
+    {
+        var query = url[(url.IndexOf('?') + 1)..];
+        foreach (var pair in query.Split('&'))
+        {
+            var parts = pair.Split('=');
+            if (parts[0] == param) return parts[1];
+        }
+        return string.Empty;
     }
 }

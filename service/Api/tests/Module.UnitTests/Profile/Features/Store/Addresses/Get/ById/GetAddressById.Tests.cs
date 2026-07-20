@@ -1,7 +1,6 @@
 using Module.Profile.Domain;
 using Module.Profile.Domain.Addresses;
 using Module.Profile.Features.Store.Addresses.Get.ById;
-using Module.UnitTests.Identity.Fixtures;
 using Module.UnitTests.Profile.Domain;
 
 using Shared.Security.Identity.Domain.Users;
@@ -14,7 +13,6 @@ namespace Module.UnitTests.Profile.Features.Store.Addresses.Get.ById;
 public class GetAddressByIdTests : IDisposable
 {
     private readonly ApplicationDbContext _dbContext;
-    private readonly Mock<ICurrentUser> _currentUserMock;
     private readonly GetAddressById.QueryHandler _handler;
     private readonly Guid _userId = Guid.NewGuid();
 
@@ -27,9 +25,7 @@ public class GetAddressByIdTests : IDisposable
         ApplicationDbContext.AdditionalConfigurationsAssemblies = [typeof(UserProfile).Assembly];
 
         _dbContext = new ApplicationDbContext(options);
-        _currentUserMock = IdentityMocks.CreateCurrentUserMock(_userId);
-
-        _handler = new GetAddressById.QueryHandler(_dbContext, _currentUserMock.Object);
+        _handler = new GetAddressById.QueryHandler(_dbContext);
     }
 
     public void Dispose()
@@ -49,7 +45,7 @@ public class GetAddressByIdTests : IDisposable
         await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 
         // Act
-        var result = await _handler.Handle(new GetAddressById.Query(address.Id), TestContext.Current.CancellationToken);
+        var result = await _handler.Handle(new GetAddressById.Query(_userId, address.Id), TestContext.Current.CancellationToken);
 
         // Assert
         result.IsSuccess.Should().BeTrue();
@@ -59,25 +55,11 @@ public class GetAddressByIdTests : IDisposable
         result.Value.CountryName.Should().Be("USA");
     }
 
-    [Fact(DisplayName = "Handle: Should return Unauthorized when user not authenticated")]
-    public async Task Handle_ShouldReturnUnauthorized_WhenUserNotAuthenticated()
-    {
-        // Arrange
-        _currentUserMock.Setup(x => x.UserId).Returns((string?)null);
-
-        // Act
-        var result = await _handler.Handle(new GetAddressById.Query(Guid.NewGuid()), TestContext.Current.CancellationToken);
-
-        // Assert
-        result.IsFailure.Should().BeTrue();
-        result.StatusCode.Should().Be(401);
-    }
-
     [Fact(DisplayName = "Handle: Should return NotFound when profile doesn't exist")]
     public async Task Handle_ShouldReturnNotFound_WhenProfileMissing()
     {
         // Act
-        var result = await _handler.Handle(new GetAddressById.Query(Guid.NewGuid()), TestContext.Current.CancellationToken);
+        var result = await _handler.Handle(new GetAddressById.Query(_userId, Guid.NewGuid()), TestContext.Current.CancellationToken);
 
         // Assert
         result.IsFailure.Should().BeTrue();
@@ -93,31 +75,7 @@ public class GetAddressByIdTests : IDisposable
         await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 
         // Act
-        var result = await _handler.Handle(new GetAddressById.Query(Guid.NewGuid()), TestContext.Current.CancellationToken);
-
-        // Assert
-        result.IsFailure.Should().BeTrue();
-        result.Errors[0].Code.Should().Be(AddressResult.Failure.NotFound.Code);
-    }
-
-    [Fact(DisplayName = "Handle: Should return NotFound when address belongs to different user")]
-    public async Task Handle_ShouldReturnNotFound_WhenAddressBelongsToDifferentUser()
-    {
-        // Arrange - Create profile for current user (without the address)
-        var currentUserProfile = ProfileUserFactory.Create(_userId);
-        _dbContext.Set<UserProfile>().Add(currentUserProfile);
-
-        // Create address for different user
-        var otherUserId = Guid.NewGuid();
-        var otherProfile = ProfileUserFactory.Create(otherUserId);
-        var address = AddressMethod.Create("John", "123 Main St", "New York", "USA").Value;
-        otherProfile.AddAddress(address);
-        _dbContext.Set<UserProfile>().Add(otherProfile);
-
-        await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
-
-        // Act
-        var result = await _handler.Handle(new GetAddressById.Query(address.Id), TestContext.Current.CancellationToken);
+        var result = await _handler.Handle(new GetAddressById.Query(_userId, Guid.NewGuid()), TestContext.Current.CancellationToken);
 
         // Assert
         result.IsFailure.Should().BeTrue();
@@ -142,7 +100,7 @@ public class GetAddressByIdTests : IDisposable
         await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 
         // Act
-        var result = await _handler.Handle(new GetAddressById.Query(address.Id), TestContext.Current.CancellationToken);
+        var result = await _handler.Handle(new GetAddressById.Query(_userId, address.Id), TestContext.Current.CancellationToken);
 
         // Assert
         result.IsSuccess.Should().BeTrue();

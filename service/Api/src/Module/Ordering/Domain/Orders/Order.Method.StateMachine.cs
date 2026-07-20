@@ -77,6 +77,9 @@ public static partial class OrderMethod
         if (order.Status == OrderStatus.Canceled)
             return OrderResult.Errors.AlreadyCanceled;
 
+        if (order.Status != OrderStatus.Placed)
+            return OrderResult.Errors.InvalidStatusTransition;
+
         if (order.ApprovedById.HasValue)
             return OrderResult.Errors.AlreadyApproved;
 
@@ -91,8 +94,8 @@ public static partial class OrderMethod
     // Enforce: Only non-Placed orders can be emptied; clears all items, adjustments, and zeroes totals
     public static Result Empty(this Order order)
     {
-        // Guard: Placed orders are immutable — reject empty operation
-        if (order.Status == OrderStatus.Placed)
+        // Guard: Placed and Expired orders are immutable — reject empty operation
+        if (order.Status == OrderStatus.Placed || order.Status == OrderStatus.Expired)
             return OrderResult.Errors.InvalidStatusTransition;
 
         // Guard: Canceled orders cannot be emptied
