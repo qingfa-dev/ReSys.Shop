@@ -6,11 +6,11 @@ import type {
   TaxonDetail,
   TaxonListItem,
   TaxonTreeItem,
-} from "../types/taxon.response.type";
-import type { TaxonRuleListItem } from "../types/taxon-rule.response.type";
-import type { CreateTaxonRequest, UpdateTaxonRequest } from "../types/taxon.request.type";
-import type { CreateTaxonRuleRequest, UpdateTaxonRuleRequest } from "../types/taxon-rule.request.type";
-import type { ProductSummaryModel } from '../../../products/types/product.model.type'
+} from "../types/taxon.response";
+import type { TaxonRuleListItem } from "../types/taxon-rule.response";
+import type { CreateTaxonRequest, UpdateTaxonRequest } from "../types/taxon.request";
+import type { CreateTaxonRuleRequest, UpdateTaxonRuleRequest } from "../types/taxon-rule.request";
+import type { ProductSummaryModel } from '../../../products/models/product.model'
 
 export const taxonRepository = {
   listByTaxonomyId: async (

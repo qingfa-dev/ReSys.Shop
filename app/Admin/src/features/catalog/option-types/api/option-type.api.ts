@@ -5,11 +5,10 @@ import type { ServerQueryingParameters } from "@/common/api/types/query.types";
 import type {
   CreateOptionTypeRequest,
   UpdateOptionTypeRequest,
-} from "../types/option-type.request.type";
+} from "../types/option-type.request";
 import type {
   OptionTypeListItem,
-  OptionTypeDetail,
-} from "../../products/option-types/types/product-option-type.response.type";
+} from "../../products/option-types/types/product-option-type.response";
 export const optionTypeRepository = {
   list: async (params?: ServerQueryingParameters): Promise<ServerPagedResult<OptionTypeListItem>> => {
     return apiClient

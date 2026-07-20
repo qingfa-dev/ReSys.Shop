@@ -7,7 +7,7 @@ export const catalogRoutes: RouteRecordRaw = {
     {
       path: '',
       name: 'catalog.dashboard',
-      component: () => import('@/features/catalog/dashboard/views/CatalogDashboard.View.vue'),
+      component: () => import('@/features/catalog/dashboard/pages/CatalogDashboardPage.vue'),
     },
     {
       path: 'products',
@@ -16,18 +16,18 @@ export const catalogRoutes: RouteRecordRaw = {
         {
           path: '',
           name: 'catalog.products.list',
-          component: () => import('@/features/catalog/products/views/ProductList.View.vue'),
+          component: () => import('@/features/catalog/products/pages/ProductListPage.vue'),
         },
         {
           path: 'create',
           name: 'catalog.products.create',
-          component: () => import('@/features/catalog/products/views/ProductForm.View.vue'),
+          component: () => import('@/features/catalog/products/pages/ProductFormPage.vue'),
           meta: { breadcrumb: 'Create' },
         },
         {
           path: ':id/edit',
           name: 'catalog.products.edit',
-          component: () => import('@/features/catalog/products/views/ProductForm.View.vue'),
+          component: () => import('@/features/catalog/products/pages/ProductFormPage.vue'),
           meta: { breadcrumb: 'Edit' },
         },
       ],
@@ -35,7 +35,7 @@ export const catalogRoutes: RouteRecordRaw = {
     {
       path: 'taxonomies',
       meta: { breadcrumb: 'Taxonomies' },
-      component: () => import('@/features/catalog/taxonomies/views/TaxonomyManager.View.vue'),
+      component: () => import('@/features/catalog/taxonomies/pages/TaxonomyManagerPage.vue'),
       children: [
         {
           path: '',
@@ -50,13 +50,13 @@ export const catalogRoutes: RouteRecordRaw = {
         {
           path: 'create',
           name: 'catalog.taxonomies.create',
-          component: () => import('@/features/catalog/taxonomies/views/TaxonomyForm.View.vue'),
+          component: () => import('@/features/catalog/taxonomies/pages/TaxonomyFormPage.vue'),
           meta: { breadcrumb: 'Create' },
         },
         {
           path: ':id/edit',
           name: 'catalog.taxonomies.edit',
-          component: () => import('@/features/catalog/taxonomies/views/TaxonomyForm.View.vue'),
+          component: () => import('@/features/catalog/taxonomies/pages/TaxonomyFormPage.vue'),
           meta: { breadcrumb: 'Edit' },
         },
       ],
@@ -68,23 +68,23 @@ export const catalogRoutes: RouteRecordRaw = {
         {
           path: '',
           name: 'catalog.taxa.list',
-          component: () => import('@/features/catalog/taxonomies/taxa/views/TaxonList.View.vue'),
+          component: () => import('@/features/catalog/taxonomies/taxa/pages/TaxonListPage.vue'),
         },
         {
           path: ':taxonomyId/manage',
-          component: () => import('@/features/catalog/taxonomies/taxa/views/TaxonTreeManager.View.vue'),
+          component: () => import('@/features/catalog/taxonomies/taxa/pages/TaxonTreeManagerPage.vue'),
           name: 'catalog.taxa.manager',
           children: [
             {
               path: 'create',
               name: 'catalog.taxa.create',
-              component: () => import('@/features/catalog/taxonomies/taxa/views/TaxonForm.View.vue'),
+              component: () => import('@/features/catalog/taxonomies/taxa/pages/TaxonFormPage.vue'),
               meta: { breadcrumb: 'Create' },
             },
             {
               path: ':id/edit',
               name: 'catalog.taxa.edit',
-              component: () => import('@/features/catalog/taxonomies/taxa/views/TaxonForm.View.vue'),
+              component: () => import('@/features/catalog/taxonomies/taxa/pages/TaxonFormPage.vue'),
               meta: { breadcrumb: 'Edit' },
             },
           ]
@@ -94,7 +94,7 @@ export const catalogRoutes: RouteRecordRaw = {
     {
       path: 'option-types',
       meta: { breadcrumb: 'Option Types' },
-      component: () => import('@/features/catalog/option-types/views/OptionTypeManager.View.vue'),
+      component: () => import('@/features/catalog/option-types/pages/OptionTypeManagerPage.vue'),
       children: [
         {
           path: '',
@@ -109,13 +109,13 @@ export const catalogRoutes: RouteRecordRaw = {
         {
           path: 'create',
           name: 'catalog.option-types.create',
-          component: () => import('@/features/catalog/option-types/views/OptionTypeForm.View.vue'),
+          component: () => import('@/features/catalog/option-types/pages/OptionTypeFormPage.vue'),
           meta: { breadcrumb: 'Create' },
         },
         {
           path: ':id/edit',
           name: 'catalog.option-types.edit',
-          component: () => import('@/features/catalog/option-types/views/OptionTypeForm.View.vue'),
+          component: () => import('@/features/catalog/option-types/pages/OptionTypeFormPage.vue'),
           meta: { breadcrumb: 'Edit' },
         },
       ],
@@ -123,7 +123,7 @@ export const catalogRoutes: RouteRecordRaw = {
     {
       path: 'option-values',
       name: 'catalog.option-values.list',
-      component: () => import('@/features/catalog/option-types/option-values/views/OptionValueList.View.vue'),
+      component: () => import('@/features/catalog/option-types/option-values/pages/OptionValueListPage.vue'),
       meta: { breadcrumb: 'Option Values' },
     },
 

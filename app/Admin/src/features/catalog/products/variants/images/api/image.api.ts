@@ -1,8 +1,8 @@
 import apiClient from "@/common/api/http/api.client";
 import { CATALOG } from "@/common/api/constants";
 import type { ServerResult } from "@/common/api/types/result.types";
-import type { VariantImage } from "../types/image.response.type";
-import type { UpdateVariantImageRequest } from "../types/image.request.type";
+import type { VariantImage } from "../types/image.response";
+import type { UpdateVariantImageRequest } from "../types/image.request";
 
 export const imageApi = {
   listByVariant: (variantId: string): Promise<ServerResult<VariantImage[]>> =>

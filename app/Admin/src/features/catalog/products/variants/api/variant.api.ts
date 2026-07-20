@@ -1,11 +1,11 @@
 import apiClient from '@/common/api/http/api.client'
 import { CATALOG } from '@/common/api/constants'
 import type { ServerResult } from '@/common/api/types/result.types'
-import type { VariantDetail, VariantSummary } from '../types/variant.response.type'
-import type { CreateVariantRequest, UpdateVariantRequest } from '../types/variant.request.type'
+import type { VariantDetail, VariantSummary } from '../types/variant.response'
+import type { CreateVariantRequest, UpdateVariantRequest } from '../types/variant.request'
 import { mapValue } from '@/common/utils/transform'
 import { decimalToDisplay } from '@/shared/utils/currency'
-import type { VariantSummaryModel, VariantDetailModel } from '../types/variant.model.type'
+import type { VariantSummaryModel, VariantDetailModel } from '../models/variant.model'
 
 export const variantRepository = {
   getById: async (id: string): Promise<ServerResult<VariantDetailModel>> => {

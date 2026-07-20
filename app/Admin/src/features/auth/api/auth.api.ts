@@ -1,16 +1,16 @@
 import apiClient from "@/common/api/http/api.client";
 import type { ServerResult } from "@/common/api/types/result.types";
-import type { LoginResponse, UserProfile } from "../types/login.response.type";
-import type { LoginRequest } from "../types/login.request.type";
-import type { ChangePasswordRequest } from "../types/change-password.request.type";
+import type { LoginResponse, UserProfile } from "../types/login.response";
+import type { LoginRequest } from "../types/login.request";
+import type { ChangePasswordRequest } from "../types/change-password.request";
 import type {
   RefreshTokenRequest,
   UpdateProfileRequest,
   AuthProfileResponse,
-} from "../types/auth.request.type";
-import type { AuthSession } from "../types/auth.model.type";
-import { mapAuthSession } from "../../identity/mappers/identity.mapper";
-import { mapProfileResponse, mapSessionResponse } from "../mappers/auth.mapper";
+} from "../types/auth.request";
+import type { AuthSession } from '../models/auth.model';
+import { mapAuthSession } from "../../identity/models/identity.mapper";
+import { mapJwtToProfile, mapProfileResponse, mapSessionResponse } from "../models/auth.mapper";
 
 const BASE_URL = "/store/identity/auth";
 
@@ -32,6 +32,15 @@ async function fetchSession(): Promise<{ id: string; roles: string[]; permission
 }
 
 export const authRepository = {
+  getProfileFromToken(token: string): UserProfile | null {
+    try {
+      const claims = JSON.parse(atob(token.split(".")[1] as string));
+      return mapJwtToProfile(claims) as UserProfile;
+    } catch {
+      return null;
+    }
+  },
+
   async login(request: LoginRequest): Promise<ServerResult<AuthSession>> {
     const res = await apiClient.post(path("login/password"), request);
     const result = res.data as ServerResult<LoginResponse>;

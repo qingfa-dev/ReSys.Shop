@@ -1,8 +1,8 @@
 import apiClient from '@/common/api/http/api.client'
 import { CATALOG } from '@/common/api/constants'
 import type { ServerResult } from '@/common/api/types/result.types'
-import type { ProductClassification } from '../types/classification.response.type'
-import type { SyncClassificationsRequest } from '../types/classification.request.type'
+import type { ProductClassification } from '../types/classification.response'
+import type { SyncClassificationsRequest } from '../types/classification.request'
 export const productClassificationApi = {
   getClassifications: async (productId: string): Promise<ServerResult<ProductClassification[]>> => {
     return apiClient.get(`${CATALOG}/products/${productId}/classifications`).then(res => res.data as ServerResult<ProductClassification[]>);

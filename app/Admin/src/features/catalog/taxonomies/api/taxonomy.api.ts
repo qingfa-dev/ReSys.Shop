@@ -2,11 +2,11 @@ import apiClient from "@/common/api/http/api.client";
 import { CATALOG } from "@/common/api/constants";
 import type { ServerPagedResult, ServerResult } from "@/common/api/types/result.types";
 import type { ServerQueryingParameters } from "@/common/api/types/query.types";
-import type { TaxonomyDetail, TaxonomyListItem } from "../types/taxonomy.response.type";
+import type { TaxonomyDetail, TaxonomyListItem } from "../types/taxonomy.response";
 import type {
   CreateTaxonomyRequest,
   UpdateTaxonomyRequest,
-} from "../types/taxonomy.request.type";
+} from "../types/taxonomy.request";
 export const taxonomyRepository = {
   list: async (params?: ServerQueryingParameters): Promise<ServerPagedResult<TaxonomyListItem>> => {
     return apiClient

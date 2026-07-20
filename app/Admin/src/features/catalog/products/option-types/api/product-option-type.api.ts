@@ -1,7 +1,7 @@
 import apiClient from '@/common/api/http/api.client'
 import { CATALOG } from '@/common/api/constants'
 import type { ServerResult } from '@/common/api/types/result.types'
-import type { OptionTypeDetail } from '../../../option-types/types/option-type.response.type'
+import type { OptionTypeDetail } from '../../../option-types/types/option-type.response'
 export const productOptionTypeApi = {
   getOptionTypes: async (productId: string): Promise<ServerResult<OptionTypeDetail[]>> => {
     return apiClient.get(`${CATALOG}/products/${productId}/option-types`).then(res => res.data as ServerResult<OptionTypeDetail[]>);
