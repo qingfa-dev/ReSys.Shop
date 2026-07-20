@@ -1,8 +1,8 @@
 using System.Net;
-using System.Text.Json;
-
 using Api.Tests.Infrastructure;
 using Api.Tests.Infrastructure.Http;
+
+using Api.Tests.Scenarios.Identity.Helpers;
 
 using Microsoft.Extensions.DependencyInjection;
 
@@ -67,7 +67,7 @@ public sealed class GuestRegistrationWorkflowTests(ApiFixture fixture) : Workflo
         loginResult.IsSuccess.Should().BeTrue();
 
         // Step 5: Access profile with the login token
-        string accessToken = GetAccessToken(loginResult);
+        string accessToken = IdentityTestHelper.GetAccessToken(loginResult);
         accessToken.Should().NotBeNullOrEmpty();
         client.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", accessToken);
 
@@ -75,12 +75,5 @@ public sealed class GuestRegistrationWorkflowTests(ApiFixture fixture) : Workflo
         profileResponse.StatusCode.Should().Be(HttpStatusCode.OK);
         ApiResponse profileResult = await profileResponse.ReadApiResponseAsync();
         profileResult.IsSuccess.Should().BeTrue();
-    }
-
-    private static string GetAccessToken(ApiResponse loginResult)
-    {
-        using JsonDocument doc = JsonDocument.Parse(loginResult.ValueRaw!);
-        JsonElement root = doc.RootElement;
-        return root.GetProperty("accessToken").GetString()!;
     }
 }
