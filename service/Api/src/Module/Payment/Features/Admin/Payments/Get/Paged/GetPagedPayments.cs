@@ -14,6 +14,7 @@ public static partial class GetPagedPayments
         : IPagedQueryHandler<Query, Response>
     {
         /// <summary>Retrieves a paged list of payments.</summary>
+        // Contract: pre=request!=null, post=result!=null
         public async Task<PagedResult<Response>> Handle(Query request, CancellationToken cancellationToken)
         {
             // Parse: Query parameters — validates filters, sorting, pagination

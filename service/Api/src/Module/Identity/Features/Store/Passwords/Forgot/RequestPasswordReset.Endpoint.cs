@@ -2,19 +2,17 @@ namespace Module.Identity.Features.Store.Passwords.Forgot;
 
 public static partial class RequestPasswordReset
 {
-    /// <summary>
-    /// Carter endpoint for requesting a password reset link.
-    /// </summary>
+    /// <summary>Maps the password reset request route.</summary>
     public sealed class Endpoint : ICarterModule
     {
         public void AddRoutes(IEndpointRouteBuilder app)
         {
+            // Map: POST /api/store/passwords/forgot — send password reset email
             app.MapPost(IdentityFeature.Store.Passwords.Forgot.Route, async (
                 [FromBody] Request request,
                 ISender sender,
                 CancellationToken ct) =>
             {
-                // Handle: Request password reset — routes Command to handler via MediatR
                 var command = new Command(request);
                 var result = await sender.Send(command, ct);
                 return result.ToResult();

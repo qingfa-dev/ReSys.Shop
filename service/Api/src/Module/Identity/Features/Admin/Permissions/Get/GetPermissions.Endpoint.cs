@@ -4,11 +4,12 @@ namespace Module.Identity.Features.Admin.Permissions.Get;
 
 public static partial class GetPermissions
 {
-    // ============ ENDPOINT ============
+    /// <summary>Maps the permission metadata listing route.</summary>
     public sealed class Endpoint : ICarterModule
     {
         public void AddRoutes(IEndpointRouteBuilder app)
         {
+            // Map: GET /api/admin/permissions — list all available permission metadata
             app.MapGet(IdentityFeature.Admin.Permissions.Get.Route, async (
                 ISender sender,
                 CancellationToken ct) =>

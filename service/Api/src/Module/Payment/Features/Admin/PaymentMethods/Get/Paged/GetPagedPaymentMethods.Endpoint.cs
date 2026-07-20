@@ -1,14 +1,15 @@
-// Route: GET api/payment/payment-methods — paged list
 using Module.Payment.Features.Shared;
 
 namespace Module.Payment.Features.Admin.PaymentMethods.Get.Paged;
 
 public static partial class GetPagedPaymentMethods
 {
+    /// <summary>Maps GET api/payment/payment-methods to retrieve a paged list of payment methods.</summary>
     public class Endpoint : ICarterModule
     {
         public void AddRoutes(IEndpointRouteBuilder app)
         {
+            // Map: GET api/payment/payment-methods — paged list of payment methods
             app.MapGet(PaymentFeature.Admin.PaymentMethods.GetAll.Route, async (
                 [AsParameters] QueryingParameters parameters,
                 ISender sender,

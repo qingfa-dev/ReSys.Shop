@@ -4,14 +4,15 @@ namespace Module.Ordering.Features.Storefront.Cart.UpdateItemQuantity;
 
 public static partial class UpdateCartItemQuantity
 {
+    /// <summary>Maps the storefront cart item quantity update route.</summary>
     public class Endpoint : ICarterModule
     {
         public void AddRoutes(IEndpointRouteBuilder app)
         {
+            // Map: PUT api/storefront/cart/items/{lineItemId:guid} — update a cart line item quantity
             app.MapPut(OrderingFeature.Storefront.Cart.UpdateItemQuantity.Route, async (
                 [FromRoute] Guid lineItemId, [FromBody] Request request, ISender sender, CancellationToken ct) =>
             {
-                // Call: Dispatch update-cart-item-quantity command.
                 var result = await sender.Send(new Command(lineItemId, request), ct);
                 return result.ToResult();
             })

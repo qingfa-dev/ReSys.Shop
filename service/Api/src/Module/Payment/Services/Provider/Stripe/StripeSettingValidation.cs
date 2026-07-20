@@ -2,6 +2,7 @@ using Microsoft.Extensions.Options;
 
 namespace Module.Payment.Services.Provider.Stripe;
 
+/// <summary>Validates StripeSetting when enabled: requires non-null SecretKey and WebhookSecret.</summary>
 public sealed class StripeSettingValidation : IValidateOptions<StripeSetting>
 {
     public ValidateOptionsResult Validate(string? name, StripeSetting options)

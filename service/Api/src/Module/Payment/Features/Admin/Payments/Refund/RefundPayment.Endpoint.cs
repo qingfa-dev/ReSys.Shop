@@ -1,14 +1,15 @@
-// Route: POST api/payment/payments/{id}/refund — gateway refund
 using Module.Payment.Features.Shared;
 
 namespace Module.Payment.Features.Admin.Payments.Refund;
 
 public static partial class RefundPayment
 {
+    /// <summary>Maps POST api/payment/payments/{id}/refund to refund a captured payment.</summary>
     public class Endpoint : ICarterModule
     {
         public void AddRoutes(IEndpointRouteBuilder app)
         {
+            // Map: POST api/payment/payments/{id}/refund — gateway refund
             app.MapPost(PaymentFeature.Admin.Payments.Refund.Route, async (
                 [FromRoute] Guid id,
                 [FromBody] Request request,

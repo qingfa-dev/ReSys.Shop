@@ -14,6 +14,7 @@ public static partial class CreatePaymentMethod
         : ICommandHandler<Command, Response>
     {
         /// <summary>Creates a new payment method.</summary>
+        // Contract: pre=command!=null, post=method!=null
         public async Task<Result<Response>> Handle(Command command, CancellationToken cancellationToken)
         {
             var request = command.Request;
@@ -28,7 +29,10 @@ public static partial class CreatePaymentMethod
                 return createResult.Errors;
 
             var method = createResult.Value;
+
+            // Create: Persist new payment method to database
             dbContext.Set<PaymentMethod>().Add(method);
+            // Await: Commit the transaction
             await dbContext.SaveChangesAsync(cancellationToken);
 
             // Map: PaymentMethod → response DTO

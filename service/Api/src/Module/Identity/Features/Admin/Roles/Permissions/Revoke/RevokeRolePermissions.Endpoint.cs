@@ -2,29 +2,20 @@ namespace Module.Identity.Features.Admin.Roles.Permissions.Revoke;
 
 public static partial class RevokeRolePermissions
 {
-    /// <summary>
-    /// Represents the API endpoint for revoking permissions from a role.
-    /// </summary>
+    /// <summary>Maps the role permission revocation route.</summary>
     public sealed class Endpoint : ICarterModule
     {
-        /// <summary>
-        /// Adds the endpoint for revoking permissions from a role to the Carter module.
-        /// </summary>
-        /// <param name="app">The endpoint route builder.</param>
         public void AddRoutes(IEndpointRouteBuilder app)
         {
-            // Map: Defines a DELETE endpoint for revoking permissions from a role.
+            // Map: DELETE /api/admin/roles/{id}/permissions/revoke — revoke permissions from a role
             app.MapDelete(IdentityFeature.Admin.Roles.Permissions.Revoke.Route, async (
                 Guid id,
                 [FromBody] Request request,
                 ISender sender,
                 CancellationToken ct) =>
             {
-                // Create: Construct a command from the route ID and request body.
                 var command = new Command(id, request);
-                // Send: Dispatch the command to the mediator for processing.
                 var result = await sender.Send(command, ct);
-                // Map: Convert the result to an IResult for the HTTP response.
                 return result.ToResult();
             })
             .RequireAuthorization()

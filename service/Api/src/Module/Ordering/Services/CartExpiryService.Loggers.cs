@@ -2,7 +2,7 @@ namespace Module.Ordering.Services;
 
 public sealed partial class CartExpiryService
 {
-    // Log: Structured logging events for CartExpiryService background sweep lifecycle
+    /// <summary>Structured log event definitions for cart-expiry background sweep lifecycle.</summary>
     internal static partial class Loggers
     {
         [LoggerMessage(

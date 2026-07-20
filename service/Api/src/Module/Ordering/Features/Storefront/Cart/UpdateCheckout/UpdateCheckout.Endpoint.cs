@@ -4,14 +4,15 @@ namespace Module.Ordering.Features.Storefront.Cart.UpdateCheckout;
 
 public static partial class UpdateCheckout
 {
+    /// <summary>Maps the storefront checkout update route.</summary>
     public class Endpoint : ICarterModule
     {
         public void AddRoutes(IEndpointRouteBuilder app)
         {
+            // Map: PUT api/storefront/cart — update cart checkout details (email, addresses, instructions)
             app.MapPut(OrderingFeature.Storefront.Cart.Update.Route, async (
                 [FromBody] Request request, ISender sender, CancellationToken ct) =>
             {
-                // Call: Dispatch update-checkout command.
                 var result = await sender.Send(new Command(request), ct);
                 return result.ToResult();
             })

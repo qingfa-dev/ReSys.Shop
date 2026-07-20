@@ -4,16 +4,17 @@ namespace Module.Ordering.Features.Admin.Orders.Complete;
 
 public static partial class CompleteOrder
 {
+    /// <summary>Maps the admin order-completion route.</summary>
     public class Endpoint : ICarterModule
     {
         public void AddRoutes(IEndpointRouteBuilder app)
         {
+            // Map: POST api/ordering/orders/{id:guid}/complete — mark an order as completed
             app.MapPost(OrderingFeature.Admin.Orders.Complete.Route, async (
                 [FromRoute] Guid id,
                 ISender sender,
                 CancellationToken ct) =>
             {
-                // Call: Dispatch CompleteOrder command via MediatR.
                 var result = await sender.Send(new Command(id), ct);
                 return result.ToResult();
             })

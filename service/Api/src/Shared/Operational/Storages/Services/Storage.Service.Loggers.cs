@@ -2,6 +2,7 @@ namespace Shared.Operational.Storages.Services;
 
 internal sealed partial class StorageService
 {
+    /// <summary>Structured log event definitions for storage upload/scan/encryption operations.</summary>
     internal static partial class Loggers
     {
         [LoggerMessage(

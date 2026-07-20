@@ -12,6 +12,7 @@ public static partial class GetStockItemById
         : IQueryHandler<Query, Response>
     {
         /// <summary>Gets a stock item by ID.</summary>
+        // Contract: pre=request!=null, post=result!=null
         public async Task<Result<Response>> Handle(Query request, CancellationToken cancellationToken)
         {
             // Load: Fetch stock item by identifier without tracking

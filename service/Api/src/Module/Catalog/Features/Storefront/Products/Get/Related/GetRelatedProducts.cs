@@ -32,11 +32,13 @@ public static partial class GetRelatedProducts
         // Contract: pre=query.Id!=Guid.Empty, post=result.Items!=null
         public async Task<PagedResult<Response>> Handle(Query query, CancellationToken cancellationToken)
         {
+            // Load: Product by ID with classifications for taxon discovery
             var product = await dbContext.Set<Product>()
                 .Include(x => x.Classifications)
                 .AsNoTracking()
                 .FirstOrDefaultAsync(x => x.Id == query.Id && !x.IsDeleted, cancellationToken);
 
+            // Check: Product must exist to find related items
             if (product is null)
             {
                 // Log: Record product not found for observability
@@ -57,6 +59,7 @@ public static partial class GetRelatedProducts
 
             var parameters = query.Parameters;
 
+            // Compute: Build related-products query via shared taxon matching
             var relatedQuery = dbContext.Set<Product>()
                 .Include(x => x.Variants)
                     .ThenInclude(v => v.Prices)

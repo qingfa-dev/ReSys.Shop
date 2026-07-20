@@ -27,29 +27,36 @@ public static partial class TransferStockTransfer
                 .Include(t => t.TransferItems)
                 .FirstOrDefaultAsync(t => t.Id == command.Id, cancellationToken);
 
+            // Check: Transfer must exist
             if (transfer is null)
                 return StockTransferResult.Failure.NotFound;
 
+            // Update: Transition state from Draft to InTransit
             var transitionResult = transfer.Transfer();
             if (transitionResult.IsFailure) return transitionResult;
 
             foreach (var item in transfer.TransferItems)
             {
+                // Load: Source stock item for this variant
                 var stockItem = await dbContext.Set<StockItem>()
                     .FirstOrDefaultAsync(si => si.VariantId == item.VariantId
                         && si.StockLocationId == transfer.SourceLocationId, cancellationToken);
 
+                // Check: Stock item must exist at source
                 if (stockItem is null)
                     return StockTransferResult.Failure.InsufficientStockAtSource;
 
                 var previousCount = stockItem.CountOnHand;
 
+                // Check: Sufficient stock at source
                 if (stockItem.CountOnHand < item.Quantity)
                     return StockTransferResult.Failure.InsufficientStockAtSource;
 
+                // Update: Deduct stock at source location
                 stockItem.CountOnHand -= item.Quantity;
                 stockItem.ModifiedAtUtc = DateTimeOffset.UtcNow;
 
+                // Record: Create stock movement record for audit trail
                 var movementResult = StockMovementMethod.Create(
                     stockItemId: stockItem.Id,
                     quantity: -item.Quantity,
@@ -64,8 +71,10 @@ public static partial class TransferStockTransfer
                     dbContext.Set<StockMovement>().Add(movementResult.Value);
             }
 
+            // Await: Persist all changes
             await dbContext.SaveChangesAsync(cancellationToken);
 
+            // Log: Record transfer execution for audit trail
             StockTransferLoggers.Transferred(logger, Id: command.Id);
             return Result.Ok();
         }

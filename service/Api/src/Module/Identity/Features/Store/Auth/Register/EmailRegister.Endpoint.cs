@@ -2,10 +2,12 @@ namespace Module.Identity.Features.Store.Auth.Register;
 
 public static partial class EmailRegister
 {
+    /// <summary>Maps the email registration route.</summary>
     public sealed class Endpoint : ICarterModule
     {
         public void AddRoutes(IEndpointRouteBuilder app)
         {
+            // Map: POST /api/store/auth/register — register a new account with email and password
             app.MapPost(IdentityFeature.Store.Auth.Register.Route, async (
                 [FromBody] Request request,
                 ISender sender,

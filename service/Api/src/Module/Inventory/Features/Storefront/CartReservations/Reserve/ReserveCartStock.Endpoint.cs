@@ -4,11 +4,12 @@ namespace Module.Inventory.Features.Storefront.CartReservations.Reserve;
 
 public static partial class ReserveCartStock
 {
-    /// <summary>Registers the endpoint.</summary>
+    /// <summary>Reserves stock for a shopping cart.</summary>
     public class Endpoint : ICarterModule
     {
         public void AddRoutes(IEndpointRouteBuilder app)
         {
+            // Map: POST /inventory/cart/reservations — reserves stock for a shopping cart
             app.MapPost(InventoryFeature.Storefront.CartReservations.Reserve.Route, async (
                 [FromBody] Request request,
                 HttpContext httpContext,

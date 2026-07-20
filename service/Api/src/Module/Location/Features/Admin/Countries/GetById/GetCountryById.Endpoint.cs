@@ -4,10 +4,12 @@ namespace Module.Location.Features.Admin.Countries.GetById;
 
 public static partial class GetCountryById
 {
+    /// <summary>Admin: get country by ID.</summary>
     public sealed class Endpoint : ICarterModule
     {
         public void AddRoutes(IEndpointRouteBuilder app)
         {
+            // Map: GET {route}/{id} → country by ID for admin
             app.MapGet(pattern: LocationFeature.Admin.Countries.GetById.Route, handler: async (
                 [FromRoute] Guid id,
                 ISender sender,

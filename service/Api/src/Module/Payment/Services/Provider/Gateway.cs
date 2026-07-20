@@ -1,7 +1,6 @@
 namespace Module.Payment.Services.Provider;
 
-// Contract: pre=amount>0 && options!=null, post=Result<PaymentGatewayResponse>
-// Invariant: AutoCapture==true for Stripe, false for manual gateways
+/// <summary>Abstract base for payment gateways. Defines the payment action contract (authorize, capture, purchase, void, refund).</summary>
 public abstract class Gateway : IPaymentGatewayActionProvider
 {
     protected const decimal FromDollarToCentRate = 100m;

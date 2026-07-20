@@ -1,5 +1,6 @@
 namespace Shared.Operational.Persistence.Initializers;
 
+/// <summary>Structured log event definitions for database initialization lifecycle.</summary>
 public static partial class DatabaseInitializerHostedServiceLoggers
 {
     [LoggerMessage(

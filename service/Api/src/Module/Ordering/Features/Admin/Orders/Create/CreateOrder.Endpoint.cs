@@ -4,13 +4,14 @@ namespace Module.Ordering.Features.Admin.Orders.Create;
 
 public static partial class CreateOrder
 {
+    /// <summary>Maps the admin order-creation route.</summary>
     public class Endpoint : ICarterModule
     {
         public void AddRoutes(IEndpointRouteBuilder app)
         {
+            // Map: POST api/ordering/orders — admin create a new order
             app.MapPost(OrderingFeature.Admin.Orders.Create.Route, async ([FromBody] Request request, ISender sender, CancellationToken ct) =>
             {
-                // Call: Dispatch CreateOrder command via MediatR.
                 var result = await sender.Send(new Command(request), ct);
                 return result.ToResult();
             })

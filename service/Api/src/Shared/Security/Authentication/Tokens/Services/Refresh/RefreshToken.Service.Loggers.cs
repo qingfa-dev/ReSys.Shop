@@ -2,6 +2,7 @@ namespace Shared.Security.Authentication.Tokens.Services.Refresh;
 
 public partial class RefreshTokenService
 {
+    /// <summary>Structured log event definitions for refresh token lifecycle operations.</summary>
     internal static partial class Loggers
     {
         [LoggerMessage(

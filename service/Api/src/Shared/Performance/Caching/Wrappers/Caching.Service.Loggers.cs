@@ -2,6 +2,7 @@ namespace Shared.Performance.Caching.Wrappers;
 
 public partial class CacheService
 {
+    /// <summary>Structured log event definitions for cache hit/miss/set/remove lifecycle.</summary>
     internal static partial class Loggers
     {
         [LoggerMessage(

@@ -1,14 +1,15 @@
-// Route: PATCH api/payment/payment-methods/{id}/activate — activate payment method
 using Module.Payment.Features.Shared;
 
 namespace Module.Payment.Features.Admin.PaymentMethods.Activate;
 
 public static partial class ActivatePaymentMethod
 {
+    /// <summary>Maps PATCH api/payment/payment-methods/{id}/activate to activate a payment method.</summary>
     public class Endpoint : ICarterModule
     {
         public void AddRoutes(IEndpointRouteBuilder app)
         {
+            // Map: PATCH api/payment/payment-methods/{id}/activate — activate payment method
             app.MapPatch(PaymentFeature.Admin.PaymentMethods.Activate.Route, async (
                 [FromRoute] Guid id,
                 ISender sender,

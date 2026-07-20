@@ -1,14 +1,15 @@
-// Route: PATCH api/payment/payment-methods/{id}/deactivate — deactivate payment method
 using Module.Payment.Features.Shared;
 
 namespace Module.Payment.Features.Admin.PaymentMethods.Deactivate;
 
 public static partial class DeactivatePaymentMethod
 {
+    /// <summary>Maps PATCH api/payment/payment-methods/{id}/deactivate to deactivate a payment method.</summary>
     public class Endpoint : ICarterModule
     {
         public void AddRoutes(IEndpointRouteBuilder app)
         {
+            // Map: PATCH api/payment/payment-methods/{id}/deactivate — deactivate payment method
             app.MapPatch(PaymentFeature.Admin.PaymentMethods.Deactivate.Route, async (
                 [FromRoute] Guid id,
                 ISender sender,

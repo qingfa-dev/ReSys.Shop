@@ -4,10 +4,12 @@ namespace Module.Location.Features.Admin.States.Delete;
 
 public static partial class DeleteState
 {
+    /// <summary>Admin: delete a state.</summary>
     public sealed class Endpoint : ICarterModule
     {
         public void AddRoutes(IEndpointRouteBuilder app)
         {
+            // Map: DELETE {route}/{id} → delete state
             app.MapDelete(pattern: LocationFeature.Admin.States.Delete.Route, handler: async (
                 [FromRoute] Guid id,
                 ISender sender,

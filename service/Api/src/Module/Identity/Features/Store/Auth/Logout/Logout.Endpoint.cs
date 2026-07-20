@@ -2,10 +2,12 @@ namespace Module.Identity.Features.Store.Auth.Logout;
 
 public static partial class Logout
 {
+    /// <summary>Maps the logout route.</summary>
     public sealed class Endpoint : ICarterModule
     {
         public void AddRoutes(IEndpointRouteBuilder app)
         {
+            // Map: POST /api/store/auth/logout — revoke refresh token and sign out
             app.MapPost(IdentityFeature.Store.Auth.Logout.Route, async (
                 [FromBody] Request request,
                 ISender sender,

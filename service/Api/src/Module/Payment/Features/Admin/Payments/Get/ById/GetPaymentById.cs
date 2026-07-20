@@ -15,6 +15,7 @@ public static partial class GetPaymentById
         : IQueryHandler<Query, Response>
     {
         /// <summary>Retrieves a payment by its identifier.</summary>
+        // Contract: pre=request!=null, post=result!=null
         public async Task<Result<Response>> Handle(Query request, CancellationToken cancellationToken)
         {
             // Load: Payment capture by ID — no-tracking for read-only

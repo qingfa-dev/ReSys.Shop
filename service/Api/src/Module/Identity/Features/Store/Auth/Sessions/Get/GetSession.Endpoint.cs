@@ -2,10 +2,12 @@ namespace Module.Identity.Features.Store.Auth.Sessions.Get;
 
 public static partial class GetSession
 {
+    /// <summary>Maps the current session retrieval route.</summary>
     public sealed class Endpoint : ICarterModule
     {
         public void AddRoutes(IEndpointRouteBuilder app)
         {
+            // Map: GET /api/store/auth/sessions — get current user session info
             app.MapGet(IdentityFeature.Store.Auth.Sessions.Get.Route, async (
                 ISender sender,
                 CancellationToken ct) =>

@@ -2,13 +2,12 @@ namespace Module.Identity.Features.Admin.Users.Roles.Sync;
 
 public static partial class SyncUserRoles
 {
-    /// <summary>
-    /// Represents the API endpoint for synchronizing roles for a user.
-    /// </summary>
+    /// <summary>Maps the user role synchronisation route.</summary>
     public sealed class Endpoint : ICarterModule
     {
         public void AddRoutes(IEndpointRouteBuilder app)
         {
+            // Map: PATCH /api/admin/users/{id}/roles/sync — sync all role assignments for a user
             app.MapPatch(IdentityFeature.Admin.Users.Roles.Sync.Route, async (
                 Guid id,
                 [FromBody] Request request,

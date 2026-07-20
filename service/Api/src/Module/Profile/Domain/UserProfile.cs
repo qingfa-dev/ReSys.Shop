@@ -9,6 +9,7 @@ using Shared.Security.Identity.Domain.Users;
 namespace Module.Profile.Domain;
 
 /// <summary>Represents a user profile with personal, commerce, and preference data.</summary>
+// Invariant: FirstName != null && LastName != null; Email != null; UserId != Guid.Empty; OrdersCount >= 0; TotalSpent >= 0
 public sealed class UserProfile : Entity, IAuditable
 {
     #region Properties

@@ -8,10 +8,12 @@ namespace Module.Inventory.Features.Admin.Dashboard.Get;
 
 public static partial class GetInventoryDashboard
 {
+    /// <summary>Gets inventory dashboard data.</summary>
     public class Endpoint : ICarterModule
     {
         public void AddRoutes(IEndpointRouteBuilder app)
         {
+            // Map: GET /admin/inventory/dashboard — gets inventory dashboard data
             app.MapGet(InventoryDashboardFeature.Admin.Get.Route, async (
                 ISender sender,
                 CancellationToken ct) =>

@@ -4,6 +4,7 @@ using Shared.Application.Domain.Models;
 namespace Module.Profile.Domain.Wishlists.WishedItems;
 
 /// <summary>Represents an item in a wishlist with a specific variant and quantity.</summary>
+// Invariant: Quantity >= 1; VariantId != Guid.Empty; WishlistId != Guid.Empty
 public sealed partial class WishedItem : Entity, IAuditable
 {
     #region Properties

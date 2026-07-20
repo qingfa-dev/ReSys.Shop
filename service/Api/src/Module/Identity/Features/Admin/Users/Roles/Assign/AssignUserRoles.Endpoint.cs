@@ -2,13 +2,12 @@ namespace Module.Identity.Features.Admin.Users.Roles.Assign;
 
 public static partial class AssignUserRoles
 {
-    /// <summary>
-    /// Represents the API endpoint for assigning roles to a user.
-    /// </summary>
+    /// <summary>Maps the user role assignment route.</summary>
     public sealed class Endpoint : ICarterModule
     {
         public void AddRoutes(IEndpointRouteBuilder app)
         {
+            // Map: POST /api/admin/users/{id}/roles/assign — assign roles to a user
             app.MapPost(IdentityFeature.Admin.Users.Roles.Assign.Route, async (
                 Guid id,
                 [FromBody] Request request,

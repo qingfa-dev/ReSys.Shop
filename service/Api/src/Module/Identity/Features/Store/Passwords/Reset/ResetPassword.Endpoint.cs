@@ -2,19 +2,17 @@ namespace Module.Identity.Features.Store.Passwords.Reset;
 
 public static partial class ResetPassword
 {
-    /// <summary>
-    /// Carter endpoint for finalising a password reset.
-    /// </summary>
+    /// <summary>Maps the password reset finalisation route.</summary>
     public sealed class Endpoint : ICarterModule
     {
         public void AddRoutes(IEndpointRouteBuilder app)
         {
+            // Map: POST /api/store/passwords/reset — finalise password reset with token
             app.MapPost(IdentityFeature.Store.Passwords.Reset.Route, async (
                 [FromBody] Request request,
                 ISender sender,
                 CancellationToken ct) =>
             {
-                // Handle: Reset password — routes Command to handler via MediatR
                 var command = new Command(request);
                 var result = await sender.Send(command, ct);
                 return result.ToResult();

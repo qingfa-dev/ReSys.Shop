@@ -4,10 +4,12 @@ namespace Module.Catalog.Features.Storefront.Taxonomies.Get.Tree;
 
 public static partial class GetTree
 {
+    /// <summary>Maps the taxonomy tree route for the storefront navigation.</summary>
     public class Endpoint : ICarterModule
     {
         public void AddRoutes(IEndpointRouteBuilder app)
         {
+            // Map: GET /api/storefront/taxonomies/{id}/tree — hierarchical taxonomy tree for navigation
             app.MapGet(CatalogFeature.Storefront.Taxonomies.Get.Tree.Route, async (
                 [FromRoute] Guid id,
                 ISender sender,

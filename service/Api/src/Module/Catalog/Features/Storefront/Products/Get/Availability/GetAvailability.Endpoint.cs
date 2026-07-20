@@ -4,10 +4,12 @@ namespace Module.Catalog.Features.Storefront.Products.Get.Availability;
 
 public static partial class GetAvailability
 {
+    /// <summary>Maps the variant availability check route.</summary>
     public class Endpoint : ICarterModule
     {
         public void AddRoutes(IEndpointRouteBuilder app)
         {
+            // Map: GET /api/storefront/variants/{id}/availability — stock availability across locations
             app.MapGet(CatalogFeature.Storefront.Products.Get.Availability.Route, async (
                 [FromRoute] Guid id,
                 ISender sender,

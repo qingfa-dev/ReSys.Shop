@@ -4,10 +4,12 @@ namespace Module.Location.Features.Store.Countries.GetById;
 
 public static partial class GetStorefrontCountryById
 {
+    /// <summary>Storefront: get country by ID.</summary>
     public sealed class Endpoint : ICarterModule
     {
         public void AddRoutes(IEndpointRouteBuilder app)
         {
+            // Map: GET {route}/{id} → country by ID for storefront
             app.MapGet(pattern: LocationFeature.Storefront.Countries.GetById.Route, handler: async (
                 [FromRoute] Guid id,
                 ISender sender,

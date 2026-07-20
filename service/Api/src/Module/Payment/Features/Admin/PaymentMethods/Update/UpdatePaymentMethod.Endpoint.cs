@@ -1,14 +1,15 @@
-// Route: PUT api/payment/payment-methods/{id} — update payment method
 using Module.Payment.Features.Shared;
 
 namespace Module.Payment.Features.Admin.PaymentMethods.Update;
 
 public static partial class UpdatePaymentMethod
 {
+    /// <summary>Maps PUT api/payment/payment-methods/{id} to update an existing payment method.</summary>
     public class Endpoint : ICarterModule
     {
         public void AddRoutes(IEndpointRouteBuilder app)
         {
+            // Map: PUT api/payment/payment-methods/{id} — update payment method
             app.MapPut(PaymentFeature.Admin.PaymentMethods.Update.Route, async (
                 [FromRoute] Guid id,
                 [FromBody] Request request,

@@ -2,25 +2,17 @@ namespace Module.Identity.Features.Admin.Roles.Permissions.Sync;
 
 public static partial class SyncRolePermissions
 {
-    /// <summary>
-    /// Represents the API endpoint for synchronizing role permissions.
-    /// </summary>
+    /// <summary>Maps the role permission synchronisation route.</summary>
     public sealed class Endpoint : ICarterModule
     {
-        /// <summary>
-        /// Adds the endpoint for synchronizing permissions to the Carter module.
-        /// </summary>
-        /// <param name="app">The endpoint route builder.</param>
         public void AddRoutes(IEndpointRouteBuilder app)
         {
-            // Map: Defines a PUT endpoint to sync permissions.
-            // Using a specific /sync sub-resource to differentiate from the base PUT if needed, 
-            // or we could replace the base PUT. Let's use /sync for absolute clarity.
+            // Map: PATCH /api/admin/roles/{id}/permissions/sync — sync all permission assignments for a role
             app.MapPatch(IdentityFeature.Admin.Roles.Permissions.Sync.Route, async (
                 Guid id,
                 Request request,
                 ISender sender,
-                CancellationToken ct) =>/*  */
+                CancellationToken ct) =>
             {
                 var command = new Command(id, request);
                 var result = await sender.Send(command, ct);

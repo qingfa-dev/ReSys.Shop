@@ -4,13 +4,14 @@ namespace Module.Ordering.Features.Storefront.Cart.ValidateCheckout;
 
 public static partial class ValidateCheckout
 {
+    /// <summary>Maps the storefront checkout validation route.</summary>
     public class Endpoint : ICarterModule
     {
         public void AddRoutes(IEndpointRouteBuilder app)
         {
+            // Map: POST api/storefront/cart/validate — validate the current checkout state
             app.MapPost(OrderingFeature.Storefront.Cart.Validate.Route, async (ISender sender, CancellationToken ct) =>
             {
-                // Call: Dispatch validate-checkout command.
                 var result = await sender.Send(new Command(), ct);
                 return result.ToResult();
             })

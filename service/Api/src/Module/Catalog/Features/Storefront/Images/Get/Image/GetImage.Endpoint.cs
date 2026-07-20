@@ -4,10 +4,12 @@ namespace Module.Catalog.Features.Storefront.Images.Get.Image;
 
 public static partial class GetImage
 {
+    /// <summary>Maps the product image serving route.</summary>
     public class Endpoint : ICarterModule
     {
         public void AddRoutes(IEndpointRouteBuilder app)
         {
+            // Map: GET /api/storefront/images/{id} — serve product variant image file
             app.MapGet(CatalogFeature.Storefront.Images.Get.Image.Route, async (
                 [FromRoute] Guid id,
                 ISender sender,

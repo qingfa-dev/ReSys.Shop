@@ -15,6 +15,7 @@ public static partial class SetDefaultStockLocation
         : ICommandHandler<Command, Response>
     {
         /// <summary>Sets a stock location as the default.</summary>
+        // Contract: pre=command!=null, post=result!=null
         public async Task<Result<Response>> Handle(Command command, CancellationToken cancellationToken)
         {
             // Load: Fetch the target stock location

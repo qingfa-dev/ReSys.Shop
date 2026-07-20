@@ -1,5 +1,6 @@
 namespace Module.Payment.Backgrounds;
 
+/// <summary>Structured log event definitions for Stripe webhook event job processing.</summary>
 public static partial class ProcessStripeWebhookEventJobLoggers
 {
     [LoggerMessage(

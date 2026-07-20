@@ -33,7 +33,7 @@ public sealed class VoidOrderPaymentsCommandHandler(
             .Where(p => p.OrderId == command.OrderId)
             .ToListAsync(ct);
 
-        // Explain: RepeatableRead ensures no concurrent payment mutations during void
+        // Await: Begin transaction for atomic void operation
         await using var transaction = await dbContext.BeginTransactionAsync(
             System.Data.IsolationLevel.ReadCommitted, ct);
 
@@ -41,7 +41,7 @@ public sealed class VoidOrderPaymentsCommandHandler(
         {
             // Call: Resolve gateway provider for this payment method
             var gatewayResult = gatewayRegistry.GetGateway(payment.ProviderKey);
-            // Guard: Fail-fast if no gateway is registered for the provider
+            // Check: Fail-fast if no gateway is registered for the provider
             if (gatewayResult.IsFailure)
             {
                 await transaction.RollbackAsync(ct);
@@ -61,7 +61,7 @@ public sealed class VoidOrderPaymentsCommandHandler(
             // Call: Void the payment through the gateway processing service
             var voidResult = await processingService.VoidTransactionAsync(
                 payment, gatewayResult.Value, options, null, ct);
-            // Guard: Roll back the entire transaction if any single void fails
+            // Check: Roll back the entire transaction if any single void fails
             if (voidResult.IsFailure)
             {
                 await transaction.RollbackAsync(ct);
@@ -69,6 +69,7 @@ public sealed class VoidOrderPaymentsCommandHandler(
             }
         }
 
+        // Await: Persist changes and commit transaction
         await dbContext.SaveChangesAsync(ct);
         await transaction.CommitAsync(ct);
         return Result.Ok();

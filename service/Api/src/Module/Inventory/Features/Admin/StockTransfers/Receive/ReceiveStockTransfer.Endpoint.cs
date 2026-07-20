@@ -4,11 +4,12 @@ namespace Module.Inventory.Features.Admin.StockTransfers.Receive;
 
 public static partial class ReceiveStockTransfer
 {
-    /// <summary>Registers the stock transfer endpoint.</summary>
+    /// <summary>Receives a stock transfer.</summary>
     public class Endpoint : ICarterModule
     {
         public void AddRoutes(IEndpointRouteBuilder app)
         {
+            // Map: POST /admin/inventory/stock-transfers/{id}/receive — receives a stock transfer
             app.MapPost(InventoryFeature.Admin.StockTransfers.Receive.Route, async (
                 Guid id,
                 [FromBody] Request request,

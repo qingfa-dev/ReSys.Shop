@@ -12,6 +12,7 @@ public static partial class GetPagedStockLocations
         : IPagedQueryHandler<Query, Response>
     {
         /// <summary>Gets a paged list of stock locations.</summary>
+        // Contract: pre=request!=null, post=result!=null
         public async Task<PagedResult<Response>> Handle(Query request, CancellationToken cancellationToken)
         {
             var parameters = request.Parameters;

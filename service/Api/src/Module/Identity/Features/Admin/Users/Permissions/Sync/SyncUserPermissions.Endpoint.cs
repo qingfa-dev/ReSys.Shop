@@ -2,29 +2,20 @@ namespace Module.Identity.Features.Admin.Users.Permissions.Sync;
 
 public static partial class SyncUserPermissions
 {
-    /// <summary>
-    /// Represents the API endpoint for synchronizing permissions for a user.
-    /// </summary>
+    /// <summary>Maps the user permission synchronisation route.</summary>
     public sealed class Endpoint : ICarterModule
     {
-        /// <summary>
-        /// Adds the endpoint for syncing user permissions to the Carter module.
-        /// </summary>
-        /// <param name="app">The endpoint route builder.</param>
         public void AddRoutes(IEndpointRouteBuilder app)
         {
-            // Map: Defines a PUT endpoint for synchronizing permissions by user ID.
+            // Map: PUT /api/admin/users/{id}/permissions/sync — sync all permission assignments for a user
             app.MapPut(IdentityFeature.Admin.Users.Permissions.Sync.Route, async (
                 Guid id,
                 [FromBody] Request request,
                 ISender sender,
                 CancellationToken ct) =>
             {
-                // Create: Construct a command from the route ID and request body.
                 var command = new Command(id, request);
-                // Send: Dispatch the command to the mediator for processing.
                 var result = await sender.Send(command, ct);
-                // Map: Convert the result to an IResult for the HTTP response.
                 return result.ToResult();
             })
             .RequireAuthorization()

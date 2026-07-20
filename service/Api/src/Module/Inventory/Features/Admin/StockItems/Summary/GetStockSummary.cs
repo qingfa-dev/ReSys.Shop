@@ -16,6 +16,7 @@ public static partial class GetStockSummary
         /// <param name="request">The query (no parameters needed).</param>
         /// <param name="cancellationToken">Cancellation token.</param>
         /// <returns>A list of per-variant stock summaries.</returns>
+        // Contract: pre=request!=null, post=result!=null
         public async Task<Result<List<Response>>> Handle(Query request, CancellationToken cancellationToken)
         {
             var now = DateTimeOffset.UtcNow;

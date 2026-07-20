@@ -4,14 +4,15 @@ namespace Module.Ordering.Features.Storefront.Cart.EmptyCart;
 
 public static partial class EmptyCart
 {
+    /// <summary>Maps the storefront empty-cart route.</summary>
     public class Endpoint : ICarterModule
     {
         public void AddRoutes(IEndpointRouteBuilder app)
         {
+            // Map: POST api/storefront/cart/empty — remove all items from the cart
             app.MapPost(OrderingFeature.Storefront.Cart.Empty.Route,
                 async (ISender sender, CancellationToken ct) =>
             {
-                // Call: Dispatch empty-cart command.
                 var result = await sender.Send(new Command(), ct);
                 return result.ToResult();
             })

@@ -12,6 +12,7 @@ public static partial class GetAllStockItems
         : IQueryHandler<Query, List<Response>>
     {
         /// <summary>Gets all stock items.</summary>
+        // Contract: pre=request!=null, post=result!=null
         public async Task<Result<List<Response>>> Handle(Query request, CancellationToken cancellationToken)
         {
             // Load: Fetch all stock items without tracking for read-only access

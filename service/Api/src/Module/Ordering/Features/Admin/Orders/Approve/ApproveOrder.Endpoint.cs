@@ -4,13 +4,14 @@ namespace Module.Ordering.Features.Admin.Orders.Approve;
 
 public static partial class ApproveOrder
 {
+    /// <summary>Maps the admin order-approval route.</summary>
     public class Endpoint : ICarterModule
     {
         public void AddRoutes(IEndpointRouteBuilder app)
         {
+            // Map: POST api/ordering/orders/{id:guid}/approve — approve a placed order
             app.MapPost(OrderingFeature.Admin.Orders.Approve.Route, async ([FromRoute] Guid id, ISender sender, CancellationToken ct) =>
             {
-                // Call: Dispatch ApproveOrder command via MediatR.
                 var result = await sender.Send(new Command(id), ct);
                 return result.ToResult();
             })

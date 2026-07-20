@@ -4,10 +4,12 @@ namespace Module.Location.Features.Admin.Countries.GetByIsoCode;
 
 public static partial class GetCountryByIso
 {
+    /// <summary>Admin: get country by ISO code.</summary>
     public sealed class Endpoint : ICarterModule
     {
         public void AddRoutes(IEndpointRouteBuilder app)
         {
+            // Map: GET {route}/{isoCode} → country by ISO for admin
             app.MapGet(pattern: LocationFeature.Admin.Countries.GetByIso.Route, handler: async (
                 [FromRoute] string isoCode,
                 ISender sender,

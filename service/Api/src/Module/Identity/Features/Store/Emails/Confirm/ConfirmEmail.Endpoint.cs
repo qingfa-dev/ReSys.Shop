@@ -2,13 +2,12 @@ namespace Module.Identity.Features.Store.Emails.Confirm;
 
 public static partial class ConfirmEmail
 {
-    /// <summary>
-    /// Carter endpoint for email confirmation and email change finalisation.
-    /// </summary>
+    /// <summary>Maps the email confirmation route.</summary>
     public class Endpoint : ICarterModule
     {
         public void AddRoutes(IEndpointRouteBuilder app)
         {
+            // Map: POST /api/store/emails/confirm — confirm email or finalise email change
             app.MapPost(IdentityFeature.Store.Emails.Confirm.Route, Handle)
                 .AllowAnonymous()
                 .WithName(nameof(ConfirmEmail))
@@ -20,7 +19,6 @@ public static partial class ConfirmEmail
                 .Produces<Result>(StatusCodes.Status404NotFound);
         }
 
-        // Handle: Confirm email or finalise email change — routes Command to handler via MediatR
         private static async Task<IResult> Handle(
             [FromBody] Request request,
             ISender sender,

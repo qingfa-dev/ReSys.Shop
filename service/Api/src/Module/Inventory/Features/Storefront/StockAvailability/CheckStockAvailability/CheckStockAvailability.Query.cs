@@ -10,13 +10,16 @@ public static partial class CheckStockAvailability
     public sealed class QueryHandler(IStockAvailabilityService availabilityService)
         : IQueryHandler<Query, Response>
     {
+        // Contract: pre=request!=null, post=result!=null
         public async Task<Result<Response>> Handle(Query request, CancellationToken cancellationToken)
         {
             var req = request.Request;
 
+            // Validate: Reject non-positive quantities as trivially available
             if (req.Quantity <= 0)
                 return new Response { VariantId = req.VariantId, IsAvailable = true };
 
+            // Await: Check stock availability across all locations
             var isAvailable = await availabilityService.IsAvailableAnyLocationAsync(
                 req.VariantId, req.Quantity, cancellationToken);
 

@@ -2,28 +2,19 @@ namespace Module.Identity.Features.Admin.Roles.Delete;
 
 public static partial class DeleteRole
 {
-    /// <summary>
-    /// Represents the API endpoint for deleting a role.
-    /// </summary>
+    /// <summary>Maps the role deletion route.</summary>
     public sealed class Endpoint : ICarterModule
     {
-        /// <summary>
-        /// Adds the endpoint for deleting a role to the Carter module.
-        /// </summary>
-        /// <param name="app">The endpoint route builder.</param>
         public void AddRoutes(IEndpointRouteBuilder app)
         {
-            // Map: Defines a DELETE endpoint for roles by ID.
+            // Map: DELETE /api/admin/roles/{id} — delete a role
             app.MapDelete(IdentityFeature.Admin.Roles.Delete.Route, async (
                 Guid id,
                 ISender sender,
                 CancellationToken ct) =>
             {
-                // Create: Construct a command with the role ID from the route.
                 var command = new Command(new Request { Id = id });
-                // Send: Dispatch the command to the mediator for processing.
                 var result = await sender.Send(command, ct);
-                // Map: Convert the result to an IResult for the HTTP response.
                 return result.ToResult();
             })
             .WithName(nameof(DeleteRole))

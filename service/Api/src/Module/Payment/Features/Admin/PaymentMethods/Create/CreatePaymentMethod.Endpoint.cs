@@ -1,14 +1,15 @@
-// Route: POST api/payment/payment-methods — create payment method
 using Module.Payment.Features.Shared;
 
 namespace Module.Payment.Features.Admin.PaymentMethods.Create;
 
 public static partial class CreatePaymentMethod
 {
+    /// <summary>Maps POST api/payment/payment-methods to create a new payment method.</summary>
     public class Endpoint : ICarterModule
     {
         public void AddRoutes(IEndpointRouteBuilder app)
         {
+            // Map: POST api/payment/payment-methods — create payment method
             app.MapPost(PaymentFeature.Admin.PaymentMethods.Create.Route, async (
                 [FromBody] Request request,
                 ISender sender,

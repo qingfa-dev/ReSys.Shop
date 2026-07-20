@@ -4,11 +4,12 @@ namespace Module.Inventory.Features.Admin.StockTransfers.Create;
 
 public static partial class CreateStockTransfer
 {
-    /// <summary>Registers the create stock transfer endpoint.</summary>
+    /// <summary>Creates a stock transfer.</summary>
     public class Endpoint : ICarterModule
     {
         public void AddRoutes(IEndpointRouteBuilder app)
         {
+            // Map: POST /admin/inventory/stock-transfers — creates a stock transfer
             app.MapPost(InventoryFeature.Admin.StockTransfers.Create.Route, async (
                 [FromBody] Request request,
                 ISender sender,

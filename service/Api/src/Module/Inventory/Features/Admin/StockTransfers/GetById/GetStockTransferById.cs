@@ -12,6 +12,7 @@ public static partial class GetStockTransferById
         : IQueryHandler<Query, Response>
     {
         /// <summary>Gets a stock transfer by ID.</summary>
+        // Contract: pre=request!=null, post=result!=null
         public async Task<Result<Response>> Handle(Query request, CancellationToken cancellationToken)
         {
             // Load: Fetch the stock transfer with its line items, without tracking

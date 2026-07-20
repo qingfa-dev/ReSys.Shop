@@ -4,13 +4,14 @@ namespace Module.Ordering.Features.Admin.Orders.Resume;
 
 public static partial class ResumeOrder
 {
+    /// <summary>Maps the admin order-resumption route.</summary>
     public class Endpoint : ICarterModule
     {
         public void AddRoutes(IEndpointRouteBuilder app)
         {
+            // Map: POST api/ordering/orders/{id:guid}/resume — resume a canceled order
             app.MapPost(OrderingFeature.Admin.Orders.Resume.Route, async ([FromRoute] Guid id, ISender sender, CancellationToken ct) =>
             {
-                // Call: Dispatch ResumeOrder command via MediatR.
                 var result = await sender.Send(new Command(id), ct);
                 return result.ToResult();
             })

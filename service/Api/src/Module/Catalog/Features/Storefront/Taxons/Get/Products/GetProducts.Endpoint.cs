@@ -4,10 +4,12 @@ namespace Module.Catalog.Features.Storefront.Taxons.Get.Products;
 
 public static partial class GetProducts
 {
+    /// <summary>Maps the taxon products route for the storefront.</summary>
     public class Endpoint : ICarterModule
     {
         public void AddRoutes(IEndpointRouteBuilder app)
         {
+            // Map: GET /api/storefront/taxons/{id}/products — paged products within a taxon
             app.MapGet(CatalogFeature.Storefront.Taxons.Get.Products.Route, async (
                 [FromRoute] Guid id,
                 [AsParameters] Parameters parameters,

@@ -2,29 +2,20 @@ namespace Module.Identity.Features.Admin.Users.Permissions.Assign;
 
 public static partial class AssignUserPermissions
 {
-    /// <summary>
-    /// Represents the API endpoint for assigning permissions to a user.
-    /// </summary>
+    /// <summary>Maps the user permission assignment route.</summary>
     public sealed class Endpoint : ICarterModule
     {
-        /// <summary>
-        /// Adds the endpoint for assigning user permissions to the Carter module.
-        /// </summary>
-        /// <param name="app">The endpoint route builder.</param>
         public void AddRoutes(IEndpointRouteBuilder app)
         {
-            // Map: Defines a POST endpoint for assigning permissions by user ID.
+            // Map: POST /api/admin/users/{id}/permissions/assign — assign permissions to a user
             app.MapPost(IdentityFeature.Admin.Users.Permissions.Assign.Route, async (
                 Guid id,
                 [FromBody] Request request,
                 ISender sender,
                 CancellationToken ct) =>
             {
-                // Create: Construct a command from the route ID and request body.
                 var command = new Command(id, request);
-                // Send: Dispatch the command to the mediator for processing.
                 var result = await sender.Send(command, ct);
-                // Map: Convert the result to an IResult for the HTTP response.
                 return result.ToResult();
             })
             .RequireAuthorization()

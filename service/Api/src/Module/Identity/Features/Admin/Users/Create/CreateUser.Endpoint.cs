@@ -2,28 +2,19 @@ namespace Module.Identity.Features.Admin.Users.Create;
 
 public static partial class CreateUser
 {
-    /// <summary>
-    /// Represents the API endpoint for creating a new user.
-    /// </summary>
+    /// <summary>Maps the user creation route.</summary>
     public sealed class Endpoint : ICarterModule
     {
-        /// <summary>
-        /// Adds the endpoint for creating a new user to the Carter module.
-        /// </summary>
-        /// <param name="app">The endpoint route builder.</param>
         public void AddRoutes(IEndpointRouteBuilder app)
         {
-            // Map: Defines a POST endpoint for creating users.
+            // Map: POST /api/admin/users — create a new user
             app.MapPost(IdentityFeature.Admin.Users.Create.Route, async (
                 [FromBody] Request request,
                 ISender sender,
                 CancellationToken ct) =>
             {
-                // Create: Construct a command from the incoming request.
                 var command = new Command(request);
-                // Send: Dispatch the command to the mediator for processing.
                 var result = await sender.Send(command, ct);
-                // Map: Convert the result to an IResult for the HTTP response.
                 return result.ToResult();
             })
             .WithName(nameof(CreateUser))

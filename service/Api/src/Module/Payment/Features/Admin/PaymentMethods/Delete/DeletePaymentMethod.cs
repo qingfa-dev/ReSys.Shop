@@ -38,7 +38,7 @@ public static partial class DeletePaymentMethod
             if (hasActivePayments)
                 return PaymentMethodResult.Errors.HasActivePayments;
 
-            // Soft Delete: Mark the payment method as deleted.
+            // Remove: Soft-delete the payment method.
             method.IsDeleted = true;
             method.DeletedAtUtc = DateTimeOffset.UtcNow;
             method.DeletedBy = "System";

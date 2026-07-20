@@ -4,10 +4,12 @@ namespace Module.Location.Features.Store.Countries.GetPagedOrAll;
 
 public static partial class GetStorefrontCountryPagedOrAll
 {
+    /// <summary>Storefront: list/paginate countries.</summary>
     public sealed class Endpoint : ICarterModule
     {
         public void AddRoutes(IEndpointRouteBuilder app)
         {
+            // Map: GET {route} → paginated/all countries for storefront
             app.MapGet(pattern: LocationFeature.Storefront.Countries.GetAll.Route, handler: async (
                     [AsParameters] Parameters parameters,
                     ISender sender,

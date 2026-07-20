@@ -3,8 +3,7 @@ using Microsoft.Extensions.Options;
 
 namespace Module.Payment.Services.Provider.Bogus;
 
-// Context: Test-only gateway that simulates Stripe responses without real API calls
-// Invariant: AutoCapture==true; PaymentProfilesSupported==false
+/// <summary>Test-only gateway simulating Stripe responses without real API calls. AutoCapture=true, PaymentProfilesSupported=false.</summary>
 public sealed class BogusGateway : Gateway
 {
     private readonly IOptions<BogusSetting> _options;
@@ -15,6 +14,7 @@ public sealed class BogusGateway : Gateway
     public override bool PaymentProfilesSupported => false;
     public override bool Supports(object? source) => source is string;
 
+    /// <summary>Test card number constants for Bogus gateway simulation.</summary>
     public static class TestCards
     {
         public const string Success = GatewayConstants.Bogus.TestCards.Success;
@@ -24,17 +24,14 @@ public sealed class BogusGateway : Gateway
 
     public BogusGateway(IOptions<BogusSetting> options) { _options = options; }
 
-    // Call: Simulated purchase — delegates to SimulateGatewayResponse
     public override Task<Result<PaymentGatewayResponse>> PurchaseAsync(
         decimal amount, object? source, GatewayOptions options, CancellationToken ct = default)
         => SimulateGatewayResponse(amount, source, options);
 
-    // Call: Simulated authorize — delegates to SimulateGatewayResponse
     public override Task<Result<PaymentGatewayResponse>> AuthorizeAsync(
         decimal amount, object? source, GatewayOptions options, CancellationToken ct = default)
         => SimulateGatewayResponse(amount, source, options);
 
-    // Generate: Always succeeds — returns responseCode as authorization
     public override Task<Result<PaymentGatewayResponse>> CaptureAsync(
         decimal amount, string? responseCode, GatewayOptions options, CancellationToken ct = default)
     {
@@ -42,7 +39,6 @@ public sealed class BogusGateway : Gateway
             new PaymentGatewayResponse(GatewayConstants.Providers.Bogus, authorization: responseCode)));
     }
 
-    // Generate: Always succeeds — returns responseCode as authorization
     public override Task<Result<PaymentGatewayResponse>> VoidAsync(
         string? responseCode, object? source, GatewayOptions options, CancellationToken ct = default)
     {
@@ -50,7 +46,6 @@ public sealed class BogusGateway : Gateway
             new PaymentGatewayResponse(GatewayConstants.Providers.Bogus, authorization: responseCode)));
     }
 
-    // Generate: Always succeeds — returns responseCode as authorization
     public override Task<Result<PaymentGatewayResponse>> RefundAsync(
         decimal amount, string? responseCode, GatewayOptions options, CancellationToken ct = default)
     {
@@ -58,7 +53,6 @@ public sealed class BogusGateway : Gateway
             new PaymentGatewayResponse(GatewayConstants.Providers.Bogus, authorization: responseCode)));
     }
 
-    // Generate: Always succeeds — creates fake setup intent secret
     public override Task<Result<PaymentGatewayResponse>> CreateSetupIntentAsync(
         string? customerId, Dictionary<string, string>? metadata, CancellationToken ct = default)
     {
@@ -76,12 +70,10 @@ public sealed class BogusGateway : Gateway
         return Task.FromResult("unknown");
     }
 
-    // Compute: Simulates gateway response based on test card number
     private Task<Result<PaymentGatewayResponse>> SimulateGatewayResponse(
         decimal amount, object? source, GatewayOptions options)
     {
         var cardNumber = source as string;
-        // Check: Known test card numbers map to specific error/success responses
         if (cardNumber == TestCards.Declined)
             return Task.FromResult<Result<PaymentGatewayResponse>>(BogusGatewayResult.Errors.CardDeclined);
         if (cardNumber == TestCards.InsufficientFunds)

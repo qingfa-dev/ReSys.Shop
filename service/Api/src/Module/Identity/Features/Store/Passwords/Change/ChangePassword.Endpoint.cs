@@ -2,19 +2,17 @@ namespace Module.Identity.Features.Store.Passwords.Change;
 
 public static partial class ChangePassword
 {
-    /// <summary>
-    /// Carter endpoint for authenticated password change.
-    /// </summary>
+    /// <summary>Maps the authenticated password change route.</summary>
     public sealed class Endpoint : ICarterModule
     {
         public void AddRoutes(IEndpointRouteBuilder app)
         {
+            // Map: POST /api/store/passwords/change — change password for authenticated user
             app.MapPost(IdentityFeature.Store.Passwords.Change.Route, async (
                 [FromBody] Request request,
                 ISender sender,
                 CancellationToken ct) =>
             {
-                // Handle: Change password — routes Command to handler via MediatR
                 var command = new Command(request);
                 var result = await sender.Send(command, ct);
                 return result.ToResult();

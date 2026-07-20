@@ -28,7 +28,7 @@ public static partial class GetCart
             if (userId is null && string.IsNullOrWhiteSpace(sessionId))
                 return OrderResult.Errors.UserNotAuthenticated;
 
-            // Check: Find the current user's active cart (Draft order).
+            // Load: Find the current user's active draft cart with line items
             var cart = await dbContext.Set<Order>()
                 .Include(x => x.LineItems)
                 .Where(x => (x.UserId == userId && x.Status == OrderStatus.Draft)
@@ -36,16 +36,18 @@ public static partial class GetCart
                 .AsNoTracking()
                 .FirstOrDefaultAsync(cancellationToken);
 
+            // Check: Return empty cart if none exists
             if (cart is null)
                 return CartMapping.EmptyCart<Response>();
 
-            // Map: Enrich line items with variant details (name, SKU) from catalog.
+            // Enrich: Look up variant display names for line items
             var variantIds = cart.LineItems.Select(li => li.VariantId).ToList();
             var variantNames = await dbContext.Set<Variant>()
                 .Where(v => variantIds.Contains(v.Id))
                 .AsNoTracking()
                 .ToDictionaryAsync(v => v.Id, v => v.Sku ?? "", cancellationToken);
 
+            // Map: Return cart with enriched line items
             return cart.MapToDetailWithItems<Response>(variantNames);
         }
     }

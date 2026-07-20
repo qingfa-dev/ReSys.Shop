@@ -4,14 +4,15 @@ namespace Module.Ordering.Features.Storefront.Cart.SelectShippingRate;
 
 public static partial class SelectShippingRate
 {
+    /// <summary>Maps the storefront shipping-rate selection route.</summary>
     public class Endpoint : ICarterModule
     {
         public void AddRoutes(IEndpointRouteBuilder app)
         {
+            // Map: POST api/storefront/cart/shipping-rate — select a shipping rate for the order
             app.MapPost(OrderingFeature.Storefront.Cart.SelectShippingRate.Route, async (
                 [FromBody] Request request, ISender sender, CancellationToken ct) =>
             {
-                // Call: Dispatch select-shipping-rate command.
                 var result = await sender.Send(new Command(request), ct);
                 return result.ToResult();
             })

@@ -4,16 +4,17 @@ namespace Module.Ordering.Features.Storefront.Cart.Get;
 
 public static partial class GetCart
 {
+    /// <summary>Maps the storefront cart retrieval route.</summary>
     public class Endpoint : ICarterModule
     {
         public void AddRoutes(IEndpointRouteBuilder app)
         {
+            // Map: GET api/storefront/cart — retrieve the current shopping cart
             app.MapGet(OrderingFeature.Storefront.Cart.Get.Route, async (
                 ISender sender,
                 CancellationToken ct) =>
             {
                 var query = new Query();
-                // Call: Dispatch get-cart query.
                 var result = await sender.Send(query, ct);
                 return result.ToResult();
             })

@@ -14,6 +14,7 @@ public static partial class UpdatePaymentMethod
         : ICommandHandler<Command, Response>
     {
         /// <summary>Updates an existing payment method's details.</summary>
+        // Contract: pre=command!=null && method exists, post=method updated
         public async Task<Result<Response>> Handle(Command command, CancellationToken cancellationToken)
         {
             // Load: Payment method by ID
@@ -33,6 +34,7 @@ public static partial class UpdatePaymentMethod
             if (result.IsFailure)
                 return result.Errors;
 
+            // Await: Persist changes
             await dbContext.SaveChangesAsync(cancellationToken);
 
             // Map: PaymentMethod → response DTO

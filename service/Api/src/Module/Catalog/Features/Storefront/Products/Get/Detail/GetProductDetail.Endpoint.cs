@@ -4,10 +4,12 @@ namespace Module.Catalog.Features.Storefront.Products.Get.Detail;
 
 public static partial class GetProductDetail
 {
+    /// <summary>Maps the product detail route for the storefront.</summary>
     public class Endpoint : ICarterModule
     {
         public void AddRoutes(IEndpointRouteBuilder app)
         {
+            // Map: GET /api/storefront/products/{slug} — full product detail with variants and prices
             app.MapGet(CatalogFeature.Storefront.Products.Get.Detail.Route, async (
                 [FromRoute] string slug,
                 ISender sender,

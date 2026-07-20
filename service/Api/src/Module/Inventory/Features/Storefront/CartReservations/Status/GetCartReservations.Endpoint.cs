@@ -4,11 +4,12 @@ namespace Module.Inventory.Features.Storefront.CartReservations.Status;
 
 public static partial class GetCartReservations
 {
-    /// <summary>Registers the endpoint.</summary>
+    /// <summary>Gets cart stock reservations.</summary>
     public class Endpoint : ICarterModule
     {
         public void AddRoutes(IEndpointRouteBuilder app)
         {
+            // Map: GET /inventory/cart/reservations — gets cart stock reservations
             app.MapGet(InventoryFeature.Storefront.CartReservations.Status.Route, async (
                 HttpContext httpContext,
                 ISender sender,
