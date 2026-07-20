@@ -5,6 +5,7 @@ import { useForm } from 'vee-validate'
 import { toTypedSchema } from '@vee-validate/zod'
 import { createTaxonSchema } from '../../types/taxon.field'
 import MetadataManager from '@/shared/components/data-display/MetadataManager.vue'
+import FormField from '@/shared/components/form/FormField.vue'
 import type { TaxonDetail } from '../types/taxon.response'
 
 const { t } = useI18n()
@@ -128,46 +129,28 @@ const onSubmit = handleSubmit((values) => {
         <TabPanel value="0">
           <div class="flex flex-col gap-6 py-4">
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div class="flex flex-col gap-2">
-                <label class="font-bold text-sm text-surface-700 dark:text-surface-300">
-                  {{ t('catalog.taxa.labels.name') }}
-                </label>
+              <FormField :label="t('catalog.taxa.labels.name')" name="name" :error="errors.name">
                 <InputText v-model="name" class="w-full rounded-xl" :invalid="!!errors.name" @blur="generateSlug" />
-                <small class="p-error" v-if="errors.name">{{ errors.name }}</small>
-              </div>
+              </FormField>
 
-              <div class="flex flex-col gap-2">
-                <label class="font-bold text-sm text-surface-700 dark:text-surface-300">
-                  {{ t('catalog.taxa.labels.presentation') }}
-                </label>
+              <FormField :label="t('catalog.taxa.labels.presentation')" name="presentation" :error="errors.presentation">
                 <InputText v-model="presentation" class="w-full rounded-xl" :invalid="!!errors.presentation" />
-                <small class="p-error" v-if="errors.presentation">{{ errors.presentation }}</small>
-              </div>
+              </FormField>
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div class="flex flex-col gap-2">
-                <label class="font-bold text-sm text-surface-700 dark:text-surface-300">
-                  {{ t('catalog.taxa.labels.slug') }}
-                </label>
+              <FormField :label="t('catalog.taxa.labels.slug')" name="slug" :error="errors.slug">
                 <InputText v-model="slug" class="w-full font-mono text-sm rounded-xl" :invalid="!!errors.slug" />
-                <small class="p-error" v-if="errors.slug">{{ errors.slug }}</small>
-              </div>
+              </FormField>
 
-              <div class="flex flex-col gap-2">
-                <label class="font-bold text-sm text-surface-700 dark:text-surface-300">
-                  {{ t('catalog.taxa.labels.position') }}
-                </label>
+              <FormField :label="t('catalog.taxa.labels.position')" name="position">
                 <InputNumber v-model="position" showButtons :min="0" class="w-full rounded-xl" />
-              </div>
+              </FormField>
             </div>
 
-            <div class="flex flex-col gap-2">
-              <label class="font-bold text-sm text-surface-700 dark:text-surface-300">
-                {{ t('catalog.taxa.labels.description') }}
-              </label>
+            <FormField :label="t('catalog.taxa.labels.description')" name="description">
               <Textarea v-model="description" rows="3" class="w-full rounded-xl" />
-            </div>
+            </FormField>
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                <div class="flex items-center justify-between p-4 bg-surface-50 dark:bg-surface-800 rounded-xl border border-surface-100 dark:border-surface-700">
@@ -192,30 +175,26 @@ const onSubmit = handleSubmit((values) => {
             </div>
 
             <div v-if="automatic" class="p-4 bg-primary/5 rounded-xl border border-primary/10 flex flex-col gap-4">
-              <div class="flex flex-col gap-2">
-                <label class="font-bold text-sm text-primary">{{ t('catalog.taxa.labels.rules_policy') }}</label>
+              <FormField :label="t('catalog.taxa.labels.rules_policy')" name="rulesMatchPolicy">
                 <SelectButton v-model="rulesMatchPolicy" :options="[{label: t('catalog.taxa.labels.rules_policy_all'), value: 'all'}, {label: t('catalog.taxa.labels.rules_policy_any'), value: 'any'}]" optionLabel="label" optionValue="value" class="w-full" />
-              </div>
+              </FormField>
             </div>
           </div>
         </TabPanel>
 
         <TabPanel value="1">
           <div class="flex flex-col gap-6 py-4">
-            <div class="flex flex-col gap-2">
-              <label class="font-bold text-sm text-surface-700 dark:text-surface-300">{{ t('catalog.taxa.labels.meta_title') }}</label>
+            <FormField :label="t('catalog.taxa.labels.meta_title')" name="metaTitle">
               <InputText v-model="metaTitle" class="w-full rounded-xl" :placeholder="t('catalog.taxa.placeholders.meta_title')" />
-            </div>
+            </FormField>
 
-            <div class="flex flex-col gap-2">
-              <label class="font-bold text-sm text-surface-700 dark:text-surface-300">{{ t('catalog.taxa.labels.meta_description') }}</label>
+            <FormField :label="t('catalog.taxa.labels.meta_description')" name="metaDescription">
               <Textarea v-model="metaDescription" rows="3" class="w-full rounded-xl" :placeholder="t('catalog.taxa.placeholders.meta_description')" />
-            </div>
+            </FormField>
 
-            <div class="flex flex-col gap-2">
-              <label class="font-bold text-sm text-surface-700 dark:text-surface-300">{{ t('catalog.taxa.labels.meta_keywords') }}</label>
+            <FormField :label="t('catalog.taxa.labels.meta_keywords')" name="metaKeywords">
               <InputText v-model="metaKeywords" class="w-full rounded-xl" :placeholder="t('catalog.taxa.placeholders.meta_keywords')" />
-            </div>
+            </FormField>
           </div>
         </TabPanel>
 

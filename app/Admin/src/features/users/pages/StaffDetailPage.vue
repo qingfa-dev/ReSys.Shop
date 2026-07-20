@@ -12,6 +12,7 @@ import UserRoleManager from '../components/UserRoleManager.vue';
 import UserPermissionManager from '../components/UserPermissionManager.vue';
 import UserSecurityManager from '../components/UserSecurityManager.vue';
 import StatusBadge from '@/shared/components/feedback/StatusBadge.vue';
+import DetailField from '@/shared/components/data-display/DetailField.vue';
 import { booleanStatusMap } from '@/common/utils/status.util';
 
 const route = useRoute();
@@ -119,27 +120,15 @@ async function onToggleStatus() {
                                     <div class="flex flex-col gap-6">
                                         <h3 class="text-lg font-bold uppercase tracking-wide text-surface-500 m-0">Basic Information</h3>
                                         <div class="flex flex-col gap-4">
-                                            <div class="flex flex-col">
-                                                <label class="text-xs text-surface-400 uppercase font-bold mb-1">{{ t('users.labels.username') }}</label>
-                                                <span class="text-lg font-medium">{{ user.userName || '-' }}</span>
-                                            </div>
-                                            <div class="flex flex-col">
-                                                <label class="text-xs text-surface-400 uppercase font-bold mb-1">First Name</label>
-                                                <span class="text-lg font-medium">{{ user.firstName || '-' }}</span>
-                                            </div>
-                                            <div class="flex flex-col">
-                                                <label class="text-xs text-surface-400 uppercase font-bold mb-1">Last Name</label>
-                                                <span class="text-lg font-medium">{{ user.lastName || '-' }}</span>
-                                            </div>
+                                            <DetailField :label="t('users.labels.username')" :value="user.userName" />
+                                            <DetailField label="First Name" :value="user.firstName" />
+                                            <DetailField label="Last Name" :value="user.lastName" />
                                         </div>
                                     </div>
                                     <div class="flex flex-col gap-6">
                                         <h3 class="text-lg font-bold uppercase tracking-wide text-surface-500 m-0">Account Lifecycle</h3>
                                         <div class="flex flex-col gap-4">
-                                            <div class="flex flex-col">
-                                                <label class="text-xs text-surface-400 uppercase font-bold mb-1">Joined Date</label>
-                                                <span class="text-lg font-medium">{{ formatDate(user.createdAtUtc) }}</span>
-                                            </div>
+                                            <DetailField label="Joined Date" :value="formatDate(user.createdAtUtc)" />
                                         </div>
                                     </div>
                                 </div>

@@ -7,6 +7,7 @@ import type { ProductSummaryModel } from '@/features/catalog/products/models/pro
 import type { VariantSummary } from '@/features/catalog/products/variants/types/variant.response';
 import { variantRepository } from '@/features/catalog/products/variants/api/variant.api';
 import { useI18n } from 'vue-i18n';
+import FormField from '@/shared/components/form/FormField.vue';
 
 interface OrderVariant {
   id: string; sku: string; price: number; option_values?: { id: string; value: string }[]
@@ -68,8 +69,7 @@ const onSelectVariant = (variant: OrderVariant) => {
 <template>
     <Dialog :header="t('ordering.actions.add_to_order')" visible modal class="w-full max-w-xl" @update:visible="$emit('close')">
         <div class="flex flex-col gap-6 py-4">
-            <div class="flex flex-col gap-2">
-                <label class="font-bold text-sm">Search Product</label>
+            <FormField label="Search Product" name="product">
                 <AutoComplete 
                     v-model="selectedProduct" 
                     :suggestions="productResults" 
@@ -90,12 +90,11 @@ const onSelectVariant = (variant: OrderVariant) => {
                         </div>
                     </template>
                 </AutoComplete>
-            </div>
+            </FormField>
 
-            <div class="flex flex-col gap-2">
-                <label class="font-bold text-sm">{{ t('ordering.labels.quantity') }}</label>
+            <FormField :label="t('ordering.labels.quantity')" name="quantity">
                 <InputNumber v-model="quantity" showButtons buttonLayout="horizontal" :min="1" class="w-full" inputClass="h-12 text-center" />
-            </div>
+            </FormField>
 
             <div v-if="showVariantList" class="flex flex-col gap-3 animate-fade-in">
                 <label class="font-black uppercase tracking-widest text-surface-400 text-xs mt-4">Select Variant</label>

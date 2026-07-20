@@ -9,6 +9,7 @@ import { createTaxonRuleSchema } from '../../types/taxon-rule.field'
 import { useApiErrorHandler } from '@/common/composables/api-error-handler.use'
 import { useToast } from '@/common/composables/toast.use'
 import ModalDialog from '@/shared/components/overlays/ModalDialog.vue'
+import FormField from '@/shared/components/form/FormField.vue'
 import type { TaxonRuleListItem } from '../types/taxon-rule.response'
 
 const { t } = useI18n()
@@ -245,8 +246,7 @@ const regenerate = async () => {
       maxWidth="max-w-[450px]"
     >
       <form @submit="onRuleSubmit" class="flex flex-col gap-6 mt-4">
-        <div class="flex flex-col gap-2">
-          <label class="font-bold text-sm text-surface-700 dark:text-surface-300">{{ t('catalog.taxa.labels.rule_type') }}</label>
+        <FormField :label="t('catalog.taxa.labels.rule_type')" name="type">
           <Select
             v-model="rType"
             :options="ruleTypeOptions"
@@ -254,10 +254,9 @@ const regenerate = async () => {
             optionValue="value"
             class="w-full rounded-xl"
           />
-        </div>
+        </FormField>
 
-        <div class="flex flex-col gap-2">
-          <label class="font-bold text-sm text-surface-700 dark:text-surface-300">{{ t('catalog.taxa.labels.rule_policy') }}</label>
+        <FormField :label="t('catalog.taxa.labels.rule_policy')" name="matchPolicy">
           <Select
             v-model="rPolicy"
             :options="matchPolicyOptions"
@@ -265,16 +264,15 @@ const regenerate = async () => {
             optionValue="value"
             class="w-full rounded-xl"
           />
-        </div>
+        </FormField>
 
-        <div class="flex flex-col gap-2">
-          <label class="font-bold text-sm text-surface-700 dark:text-surface-300">{{ t('catalog.taxa.labels.rule_value') }}</label>
+        <FormField :label="t('catalog.taxa.labels.rule_value')" name="value">
           <InputText
             v-model="rValue"
             :placeholder="t('catalog.taxa.placeholders.rule_value')"
             class="w-full rounded-xl"
           />
-        </div>
+        </FormField>
 
         <div class="flex justify-end gap-2 mt-4">
           <Button

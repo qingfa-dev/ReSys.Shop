@@ -10,6 +10,7 @@ import PageShell from '@/shared/components/navigation/PageShell.vue';
 import PageHeader from '@/shared/components/navigation/PageHeader.vue';
 import StatusBadge from '@/shared/components/feedback/StatusBadge.vue';
 import ModalDialog from '@/shared/components/overlays/ModalDialog.vue';
+import FormField from '@/shared/components/form/FormField.vue';
 import type { StockTransferDetail } from '../types/stock-transfer.response';
 import type { ProductSummary } from '@/features/catalog/products/types/product.response';
 
@@ -205,8 +206,7 @@ onMounted(() => {
         <!-- Add Item Dialog -->
         <ModalDialog v-model="itemDialog" :header="t('inventory.titles.add_transfer_item')">
             <div class="flex flex-col gap-6 py-4">
-                <div class="flex flex-col gap-2">
-                    <label class="font-bold text-sm">Search Product</label>
+                <FormField label="Search Product" name="product">
                     <AutoComplete 
                         v-model="selectedProduct" 
                         :suggestions="productResults" 
@@ -216,11 +216,10 @@ onMounted(() => {
                         inputClass="w-full h-12 px-4 rounded-xl"
                         placeholder="Type to search SKU or name..."
                     />
-                </div>
-                <div class="flex flex-col gap-2">
-                    <label class="font-bold text-sm">Quantity to Move</label>
+                </FormField>
+                <FormField label="Quantity to Move" name="quantity">
                     <InputNumber v-model="quantity" showButtons :min="1" class="w-full" />
-                </div>
+                </FormField>
             </div>
             <template #footer>
                 <Button :label="t('inventory.actions.cancel')" severity="secondary" text @click="itemDialog = false" />

@@ -13,6 +13,7 @@ import { useToast } from '@/common/composables/toast.use'
 import MetadataManager from '@/shared/components/data-display/MetadataManager.vue'
 import TaxonRulesManagerComponent from '../components/TaxonRulesManager.vue'
 import TaxonProductsPreviewComponent from '../components/TaxonProductsPreview.vue'
+import FormField from '@/shared/components/form/FormField.vue'
 import { taxonRepository } from '../api/taxon.api'
 import type { TaxonDetail } from '../types/taxon.response'
 import type { CreateTaxonRequest } from '../types/taxon.request'
@@ -227,33 +228,26 @@ const goBack = () => router.push({ name: 'catalog.taxa.manager', params: { taxon
                         <TabPanel :value="0">
                             <div class="flex flex-col gap-6">
                                 <div class="grid grid-cols-1 gap-6">
-                                    <div class="flex flex-col gap-2">
-                                        <label class="font-bold text-xs uppercase tracking-wider text-surface-500">{{ t('catalog.taxa.labels.name') }}</label>
+                                    <FormField :label="t('catalog.taxa.labels.name')" name="name" :error="errors.name">
                                         <InputText v-model="name" class="w-full rounded-xl h-11" :invalid="!!errors.name" @blur="generateSlug" />
-                                        <small class="p-error" v-if="errors.name">{{ errors.name }}</small>
-                                    </div>
+                                    </FormField>
 
-                                    <div class="flex flex-col gap-2">
-                                        <label class="font-bold text-xs uppercase tracking-wider text-surface-500">{{ t('catalog.taxa.labels.presentation') }}</label>
+                                    <FormField :label="t('catalog.taxa.labels.presentation')" name="presentation" :error="errors.presentation">
                                         <InputText v-model="presentation" class="w-full rounded-xl h-11" :invalid="!!errors.presentation" />
-                                        <small class="p-error" v-if="errors.presentation">{{ errors.presentation }}</small>
-                                    </div>
+                                    </FormField>
 
                                     <div class="grid grid-cols-2 gap-4">
-                                        <div class="flex flex-col gap-2">
-                                            <label class="font-bold text-xs uppercase tracking-wider text-surface-500">{{ t('catalog.taxa.labels.slug') }}</label>
+                                        <FormField :label="t('catalog.taxa.labels.slug')" name="slug" :error="errors.slug">
                                             <InputText v-model="slug" class="w-full font-mono text-sm rounded-xl h-11" :invalid="!!errors.slug" />
-                                        </div>
-                                        <div class="flex flex-col gap-2">
-                                            <label class="font-bold text-xs uppercase tracking-wider text-surface-500">{{ t('catalog.taxa.labels.position') }}</label>
+                                        </FormField>
+                                        <FormField :label="t('catalog.taxa.labels.position')" name="position">
                                             <InputNumber v-model="position" showButtons :min="0" class="w-full rounded-xl overflow-hidden" inputClass="h-11" />
-                                        </div>
+                                        </FormField>
                                     </div>
 
-                                    <div class="flex flex-col gap-2">
-                                        <label class="font-bold text-xs uppercase tracking-wider text-surface-500">{{ t('catalog.taxa.labels.description') }}</label>
+                                    <FormField :label="t('catalog.taxa.labels.description')" name="description">
                                         <Textarea v-model="description" rows="3" class="w-full rounded-xl" />
-                                    </div>
+                                    </FormField>
 
                                     <div class="p-4 bg-surface-50 dark:bg-surface-800/50 rounded-2xl border border-surface-100 dark:border-surface-800 flex items-center justify-between mt-2">
                                         <span class="font-bold text-sm">{{ t('catalog.taxa.labels.hide_from_nav') }}</span>
@@ -265,14 +259,12 @@ const goBack = () => router.push({ name: 'catalog.taxa.manager', params: { taxon
 
                         <TabPanel :value="3">
                             <div class="flex flex-col gap-6">
-                                <div class="flex flex-col gap-2">
-                                    <label class="font-bold text-xs uppercase text-surface-500">{{ t('catalog.taxa.labels.meta_title') }}</label>
+                                <FormField :label="t('catalog.taxa.labels.meta_title')" name="metaTitle">
                                     <InputText v-model="metaTitle" class="w-full rounded-xl" :placeholder="t('catalog.taxa.placeholders.meta_title')" />
-                                </div>
-                                <div class="flex flex-col gap-2">
-                                    <label class="font-bold text-xs uppercase text-surface-500">{{ t('catalog.taxa.labels.meta_description') }}</label>
+                                </FormField>
+                                <FormField :label="t('catalog.taxa.labels.meta_description')" name="metaDescription">
                                     <Textarea v-model="metaDescription" rows="3" class="w-full rounded-xl" :placeholder="t('catalog.taxa.placeholders.meta_description')" />
-                                </div>
+                                </FormField>
                             </div>
                         </TabPanel>
 

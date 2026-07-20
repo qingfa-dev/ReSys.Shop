@@ -4,6 +4,7 @@ import { inventoryService } from '../api/inventory.api';
 import { useToast } from '@/common/composables/toast.use';
 import { useI18n } from 'vue-i18n';
 import ModalDialog from '@/shared/components/overlays/ModalDialog.vue';
+import FormField from '@/shared/components/form/FormField.vue';
 
 const { t } = useI18n();
 
@@ -63,27 +64,22 @@ async function onSubmit() {
             </div>
 
             <div class="grid grid-cols-2 gap-4">
-                <div class="flex flex-col gap-2">
-                    <label class="font-bold text-sm">{{ t('inventory.labels.quantity') }}</label>
+                <FormField :label="t('inventory.labels.quantity')" name="quantity">
                     <InputNumber v-model="form.quantity" showButtons :min="-10000" :max="10000" class="w-full" />
-                </div>
-
+                </FormField>
             </div>
 
-            <div class="flex flex-col gap-2">
-                <label class="font-bold text-sm">{{ t('inventory.table.type') }}</label>
+            <FormField :label="t('inventory.table.type')" name="type">
                 <Select v-model="form.type" :options="typeOptions" optionLabel="label" optionValue="value" class="w-full" />
-            </div>
+            </FormField>
 
-            <div class="flex flex-col gap-2">
-                <label class="font-bold text-sm">{{ t('inventory.labels.reason') }}</label>
+            <FormField :label="t('inventory.labels.reason')" name="reason">
                 <Textarea v-model="form.reason" rows="2" class="w-full" />
-            </div>
+            </FormField>
 
-            <div class="flex flex-col gap-2">
-                <label class="font-bold text-sm">{{ t('inventory.table.reference') }}</label>
+            <FormField :label="t('inventory.table.reference')" name="reference">
                 <InputText v-model="form.reference" placeholder="PO #, Order ID, etc." class="w-full" />
-            </div>
+            </FormField>
         </div>
 
         <template #footer>

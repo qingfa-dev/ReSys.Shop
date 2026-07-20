@@ -5,6 +5,7 @@ import { useOptionTypeStore } from '@/features/catalog/option-types/store/option
 import { useApiErrorHandler } from '@/common/composables/api-error-handler.use';
 import { useToast } from '@/common/composables/toast.use';
 import { productRepository } from '../../api/product.api';
+import FormField from '@/shared/components/form/FormField.vue';
 
 const props = defineProps<{
     productId: string;
@@ -71,8 +72,7 @@ onMounted(() => {
 
         <div v-else class="flex flex-col gap-4">
             <div class="p-4 border border-surface-200 dark:border-surface-700 rounded-xl bg-surface-50 dark:bg-surface-800/50">
-                <div class="flex flex-col gap-2">
-                    <label class="font-bold text-sm">Assigned Options</label>
+                <FormField label="Assigned Options" name="assignedOptions">
                     <MultiSelect 
                         v-model="selectedOptionTypes" 
                         :options="availableOptionTypes" 
@@ -83,7 +83,7 @@ onMounted(() => {
                         placeholder="Select option types..." 
                         class="w-full"
                     />
-                </div>
+                </FormField>
             </div>
 
             <div class="flex justify-end">

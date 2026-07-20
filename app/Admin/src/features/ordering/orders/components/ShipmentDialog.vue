@@ -4,6 +4,7 @@ import { useToast } from '@/common/composables/toast.use';
 import { orderRepository } from '../api/order.api';
 import LocationSelector from '@/features/inventories/components/LocationSelector.vue';
 import ModalDialog from '@/shared/components/overlays/ModalDialog.vue';
+import FormField from '@/shared/components/form/FormField.vue';
 import type { OrderDetailModel } from '../types/order.model';
 import type { CreateShipmentRequest } from '../types/order.request';
 import { useI18n } from 'vue-i18n';
@@ -60,10 +61,9 @@ const onSubmit = async () => {
 <template>
     <ModalDialog v-model="visible" :header="t('ordering.actions.create_shipment')" maxWidth="max-w-3xl">
         <div class="flex flex-col gap-6 py-4">
-            <div class="flex flex-col gap-2">
-                <label class="font-bold text-sm">Ship From</label>
+            <FormField label="Ship From" name="stockLocationId">
                 <LocationSelector v-model="stockLocationId" placeholder="Select Warehouse" />
-            </div>
+            </FormField>
 
             <div class="flex flex-col gap-2">
                 <label class="font-bold text-sm">Items to Ship</label>

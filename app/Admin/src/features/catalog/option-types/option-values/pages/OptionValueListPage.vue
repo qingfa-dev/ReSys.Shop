@@ -18,6 +18,7 @@ import { useToast } from '@/common/composables/toast.use'
 import ConfirmDialog from '@/shared/components/overlays/ConfirmDialog.vue'
 import ModalDialog from '@/shared/components/overlays/ModalDialog.vue'
 import { useApiErrorHandler } from '@/common/composables/api-error-handler.use'
+import FormField from '@/shared/components/form/FormField.vue'
 import { QueryBuilder } from '@/common/utils/query-builder.utils'
 import type { OptionValueListItem } from '../types/option-value.response'
 
@@ -268,32 +269,24 @@ onMounted(() => {
 
     <ModalDialog v-model="showDialog" :header="isEditing ? 'Edit Option Value' : 'Add Option Value'" maxWidth="max-w-[450px]">
       <form @submit="onFormSubmit" class="flex flex-col gap-4 mt-2">
-        <div class="flex flex-col gap-2">
-          <label class="font-bold text-sm">{{ t('catalog.option_values.labels.option_type') }}</label>
+        <FormField :label="t('catalog.option_values.labels.option_type')" name="optionTypeId" :error="formErrors.optionTypeId">
           <Select v-model="optionTypeId" :options="optionTypes" optionLabel="label" optionValue="value" class="w-full"
             :placeholder="t('catalog.option_values.placeholders.option_type')" :disabled="isEditing" />
-          <small class="p-error" v-if="formErrors.optionTypeId">{{ formErrors.optionTypeId }}</small>
-        </div>
+        </FormField>
 
-        <div class="flex flex-col gap-2">
-          <label for="vName" class="font-bold text-sm">{{ t('catalog.option_values.labels.name') }}</label>
+        <FormField :label="t('catalog.option_values.labels.name')" name="name" :error="formErrors.name">
           <InputText id="vName" v-model="name" class="w-full" :invalid="!!formErrors.name"
             :placeholder="t('catalog.option_values.placeholders.name')" />
-          <small class="p-error" v-if="formErrors.name">{{ formErrors.name }}</small>
-        </div>
+        </FormField>
 
-        <div class="flex flex-col gap-2">
-          <label for="vPresentation" class="font-bold text-sm">{{ t('catalog.option_values.labels.presentation')
-            }}</label>
+        <FormField :label="t('catalog.option_values.labels.presentation')" name="presentation" :error="formErrors.presentation">
           <InputText id="vPresentation" v-model="presentation" class="w-full" :invalid="!!formErrors.presentation"
             :placeholder="t('catalog.option_values.placeholders.presentation')" />
-          <small class="p-error" v-if="formErrors.presentation">{{ formErrors.presentation }}</small>
-        </div>
+        </FormField>
 
-        <div class="flex flex-col gap-2">
-          <label for="vPosition" class="font-bold text-sm">{{ t('catalog.option_values.labels.position') }}</label>
+        <FormField :label="t('catalog.option_values.labels.position')" name="position">
           <InputNumber id="vPosition" v-model="position" class="w-full" showButtons :min="0" />
-        </div>
+        </FormField>
 
         <div class="flex justify-end gap-2 mt-4">
           <Button type="button" :label="t('common.cancel')" severity="secondary" text @click="showDialog = false" />

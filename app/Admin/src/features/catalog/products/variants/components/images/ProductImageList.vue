@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import { useI18n } from 'vue-i18n';
+import FormField from '@/shared/components/form/FormField.vue';
 import type { ProductImage } from '../../../types/product-image.response';
 
 const { t } = useI18n();
@@ -130,16 +131,16 @@ const saveEdit = () => {
         <!-- Edit Dialog -->
         <Dialog :visible="!!editingImage" :header="t('catalog.products.images.edit_title')" modal :style="{ width: '400px' }" @update:visible="val => !val && (editingImage = null)">
             <div class="flex flex-col gap-6" v-if="editingImage">
-                <div class="flex flex-col gap-2">
-                    <label class="font-bold text-sm">{{ t('catalog.products.images.role_label') }}</label>
+                <FormField :label="t('catalog.products.images.role_label')" name="role">
                     <SelectButton v-model="editForm.role" :options="roles" optionLabel="label" optionValue="value" :allowEmpty="false" />
-                    <small class="text-surface-500">{{ roles.find(r => r.value === editForm.role)?.desc }}</small>
-                </div>
+                    <template #description>
+                        <small class="text-surface-500">{{ roles.find(r => r.value === editForm.role)?.desc }}</small>
+                    </template>
+                </FormField>
                 
-                <div class="flex flex-col gap-2">
-                    <label class="font-bold text-sm">{{ t('catalog.products.images.alt_text') }}</label>
+                <FormField :label="t('catalog.products.images.alt_text')" name="alt">
                     <InputText v-model="editForm.alt" :placeholder="t('catalog.products.images.alt_placeholder')" />
-                </div>
+                </FormField>
             </div>
             <template #footer>
                 <Button :label="t('catalog.products.actions.cancel')" text severity="secondary" @click="editingImage = null" />

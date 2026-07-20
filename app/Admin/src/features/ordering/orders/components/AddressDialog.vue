@@ -2,6 +2,7 @@
 import { ref, onMounted } from 'vue';
 import type { UpdateAddressesRequest } from '../types/order.request';
 import { useI18n } from 'vue-i18n';
+import FormField from '@/shared/components/form/FormField.vue';
 
 const props = defineProps<{
     shipAddressId?: string | null;
@@ -57,37 +58,30 @@ const onSave = () => {
             <div class="flex flex-col gap-4">
                 <h3 class="font-black uppercase tracking-widest text-surface-400 text-sm">{{ t('ordering.labels.shipping_address') }}</h3>
                 <div class="grid grid-cols-2 gap-3">
-                    <div class="flex flex-col gap-1">
-                        <label class="text-xs font-bold">First Name</label>
+                    <FormField label="First Name" name="shipFirstName">
                         <InputText v-model="shipAddr.firstName" class="p-inputtext-sm" />
-                    </div>
-                    <div class="flex flex-col gap-1">
-                        <label class="text-xs font-bold">Last Name</label>
+                    </FormField>
+                    <FormField label="Last Name" name="shipLastName">
                         <InputText v-model="shipAddr.lastName" class="p-inputtext-sm" />
-                    </div>
+                    </FormField>
                 </div>
-                <div class="flex flex-col gap-1">
-                    <label class="text-xs font-bold">Address line 1</label>
+                <FormField label="Address line 1" name="shipAddress1">
                     <InputText v-model="shipAddr.address1" class="p-inputtext-sm" />
-                </div>
-                <div class="flex flex-col gap-1">
-                    <label class="text-xs font-bold">Address line 2</label>
+                </FormField>
+                <FormField label="Address line 2" name="shipAddress2">
                     <InputText v-model="shipAddr.address2" class="p-inputtext-sm" />
-                </div>
+                </FormField>
                 <div class="grid grid-cols-2 gap-3">
-                    <div class="flex flex-col gap-1">
-                        <label class="text-xs font-bold">City</label>
+                    <FormField label="City" name="shipCity">
                         <InputText v-model="shipAddr.city" class="p-inputtext-sm" />
-                    </div>
-                    <div class="flex flex-col gap-1">
-                        <label class="text-xs font-bold">Zip Code</label>
+                    </FormField>
+                    <FormField label="Zip Code" name="shipZipCode">
                         <InputText v-model="shipAddr.zipCode" class="p-inputtext-sm" />
-                    </div>
+                    </FormField>
                 </div>
-                 <div class="flex flex-col gap-1">
-                    <label class="text-xs font-bold">Country Code (ISO)</label>
+                 <FormField label="Country Code (ISO)" name="shipCountryCode">
                     <InputText v-model="shipAddr.countryCode" class="p-inputtext-sm" />
-                </div>
+                </FormField>
             </div>
 
             <!-- Billing -->
@@ -102,37 +96,30 @@ const onSave = () => {
 
                 <div v-if="!sameAsShipping" class="flex flex-col gap-4 animate-fade-in">
                     <div class="grid grid-cols-2 gap-3">
-                        <div class="flex flex-col gap-1">
-                            <label class="text-xs font-bold">First Name</label>
+                        <FormField label="First Name" name="billFirstName">
                             <InputText v-model="billAddr.firstName" class="p-inputtext-sm" />
-                        </div>
-                        <div class="flex flex-col gap-1">
-                            <label class="text-xs font-bold">Last Name</label>
+                        </FormField>
+                        <FormField label="Last Name" name="billLastName">
                             <InputText v-model="billAddr.lastName" class="p-inputtext-sm" />
-                        </div>
+                        </FormField>
                     </div>
-                    <div class="flex flex-col gap-1">
-                        <label class="text-xs font-bold">Address line 1</label>
+                    <FormField label="Address line 1" name="billAddress1">
                         <InputText v-model="billAddr.address1" class="p-inputtext-sm" />
-                    </div>
-                    <div class="flex flex-col gap-1">
-                        <label class="text-xs font-bold">Address line 2</label>
+                    </FormField>
+                    <FormField label="Address line 2" name="billAddress2">
                         <InputText v-model="billAddr.address2" class="p-inputtext-sm" />
-                    </div>
+                    </FormField>
                     <div class="grid grid-cols-2 gap-3">
-                        <div class="flex flex-col gap-1">
-                            <label class="text-xs font-bold">City</label>
+                        <FormField label="City" name="billCity">
                             <InputText v-model="billAddr.city" class="p-inputtext-sm" />
-                        </div>
-                        <div class="flex flex-col gap-1">
-                            <label class="text-xs font-bold">Zip Code</label>
+                        </FormField>
+                        <FormField label="Zip Code" name="billZipCode">
                             <InputText v-model="billAddr.zipCode" class="p-inputtext-sm" />
-                        </div>
+                        </FormField>
                     </div>
-                    <div class="flex flex-col gap-1">
-                        <label class="text-xs font-bold">Country Code (ISO)</label>
+                    <FormField label="Country Code (ISO)" name="billCountryCode">
                         <InputText v-model="billAddr.countryCode" class="p-inputtext-sm" />
-                    </div>
+                    </FormField>
                 </div>
                 <div v-else class="flex items-center justify-center h-full border-2 border-dashed border-surface-100 dark:border-surface-800 rounded-3xl text-surface-400 italic text-sm text-center p-8">
                     Billing information will match the shipping details.

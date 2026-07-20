@@ -10,6 +10,7 @@ import { variantRepository } from '@/features/catalog/products/variants/api/vari
 import PageShell from '@/shared/components/navigation/PageShell.vue'
 import PageHeader from '@/shared/components/navigation/PageHeader.vue'
 import ModalDialog from '@/shared/components/overlays/ModalDialog.vue'
+import FormField from '@/shared/components/form/FormField.vue'
 import type { CreateOrderRequest } from '../types/order.request';
 import type { ProductSummaryModel } from '@/features/catalog/products/models/product.model';
 import type { VariantSummary } from '@/features/catalog/products/variants/types/variant.response';
@@ -145,14 +146,12 @@ const onSubmit = async () => {
                     <template #title><span class="text-lg font-black uppercase tracking-widest text-surface-400">Customer Details</span></template>
                     <template #content>
                         <div class="flex flex-col gap-4">
-                            <div class="flex flex-col gap-2">
-                                <label class="font-bold text-sm">Customer Email</label>
+                            <FormField label="Customer Email" name="email">
                                 <InputText v-model="email" placeholder="john@example.com" class="w-full h-12 px-4 rounded-xl" />
-                            </div>
-                            <div class="flex flex-col gap-2">
-                                <label class="font-bold text-sm">{{ t('ordering.labels.currency') }}</label>
+                            </FormField>
+                            <FormField :label="t('ordering.labels.currency')" name="currency">
                                 <SelectButton v-model="currency" :options="['USD', 'EUR', 'GBP']" />
-                            </div>
+                            </FormField>
                         </div>
                     </template>
                 </Card>

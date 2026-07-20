@@ -7,6 +7,7 @@ import { useI18n } from 'vue-i18n';
 import PageShell from '@/shared/components/navigation/PageShell.vue';
 import PageHeader from '@/shared/components/navigation/PageHeader.vue';
 import LocationSelector from '../../components/LocationSelector.vue';
+import FormField from '@/shared/components/form/FormField.vue';
 import type { CreateStockLocationRequest } from '../types/stock-location.request';
 
 const { t } = useI18n();
@@ -134,17 +135,16 @@ onMounted(() => {
                     <template #title><span class="text-sm font-black uppercase tracking-widest text-surface-400">{{ t('inventory.titles.identification') }}</span></template>
                     <template #content>
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <div class="flex flex-col gap-2">
-                                <label class="font-bold text-sm">{{ t('inventory.labels.name') }}</label>
+                            <FormField :label="t('inventory.labels.name')" name="name">
                                 <InputText v-model="form.name" required class="w-full rounded-xl" />
-                            </div>
-                            <div class="flex flex-col gap-2">
-                                <label class="font-bold text-sm">{{ t('inventory.labels.code') }}</label>
+                            </FormField>
+                            <FormField :label="t('inventory.labels.code')" name="code">
                                 <InputText v-model="form.code" required class="w-full font-mono rounded-xl" :disabled="isEdit" />
-                            </div>
-                            <div class="flex flex-col gap-2 md:col-span-2">
-                                <label class="font-bold text-sm">Hierarchy (Parent Location)</label>
-                                <LocationSelector v-model="parentId" placeholder="No Parent (Top Level)" />
+                            </FormField>
+                            <div class="md:col-span-2">
+                                <FormField label="Hierarchy (Parent Location)" name="parentId">
+                                    <LocationSelector v-model="parentId" placeholder="No Parent (Top Level)" />
+                                </FormField>
                             </div>
                         </div>
                     </template>
@@ -155,22 +155,20 @@ onMounted(() => {
                     <template #title><span class="text-sm font-black uppercase tracking-widest text-surface-400">Physical Address</span></template>
                     <template #content>
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <div class="flex flex-col gap-2 md:col-span-2">
-                                <label class="font-bold text-sm">{{ t('inventory.labels.address') }}</label>
-                                <InputText v-model="form.address1" required class="w-full rounded-xl" />
+                            <div class="md:col-span-2">
+                                <FormField :label="t('inventory.labels.address')" name="address1">
+                                    <InputText v-model="form.address1" required class="w-full rounded-xl" />
+                                </FormField>
                             </div>
-                            <div class="flex flex-col gap-2">
-                                <label class="font-bold text-sm">{{ t('inventory.labels.city') }}</label>
+                            <FormField :label="t('inventory.labels.city')" name="city">
                                 <InputText v-model="form.city" required class="w-full rounded-xl" />
-                            </div>
-                            <div class="flex flex-col gap-2">
-                                <label class="font-bold text-sm">{{ t('inventory.labels.zip') }}</label>
+                            </FormField>
+                            <FormField :label="t('inventory.labels.zip')" name="zipCode">
                                 <InputText v-model="form.zipCode" required class="w-full rounded-xl" />
-                            </div>
-                            <div class="flex flex-col gap-2">
-                                <label class="font-bold text-sm">{{ t('inventory.labels.country') }}</label>
+                            </FormField>
+                            <FormField :label="t('inventory.labels.country')" name="countryCode">
                                 <InputText v-model="form.countryCode" required class="w-full rounded-xl" maxlength="2" placeholder="e.g. US" />
-                            </div>
+                            </FormField>
                         </div>
                     </template>
                 </Card>
@@ -181,10 +179,9 @@ onMounted(() => {
                 <Card class="rounded-3xl shadow-sm border-none bg-surface-0 dark:bg-surface-900 overflow-hidden">
                     <template #content>
                         <div class="flex flex-col gap-6">
-                            <div class="flex flex-col gap-2">
-                                <label class="font-bold text-sm">Location Type</label>
+                            <FormField label="Location Type" name="type">
                                 <Select v-model="form.type" :options="typeOptions" optionLabel="label" optionValue="value" class="w-full rounded-xl" />
-                            </div>
+                            </FormField>
 
                             <div class="flex items-center justify-between p-4 bg-surface-50 dark:bg-surface-800/50 rounded-2xl border border-surface-100 dark:border-surface-800">
                                 <div class="flex flex-col">

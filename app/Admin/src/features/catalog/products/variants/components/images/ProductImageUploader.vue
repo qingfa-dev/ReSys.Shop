@@ -2,6 +2,7 @@
 import { ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 import ModalDialog from '@/shared/components/overlays/ModalDialog.vue';
+import FormField from '@/shared/components/form/FormField.vue';
 import type { ProductImage } from '../../../types/product-image.response';
 
 const { t } = useI18n();
@@ -102,22 +103,22 @@ const executeUpload = () => {
             </div>
 
             <div v-if="currentFile" class="flex-1 flex flex-col gap-4 w-full md:w-auto animate-fade-in">
-                <div class="flex flex-col gap-2">
-                    <label class="font-bold text-xs uppercase text-surface-500">{{ t('catalog.products.images.role_label') }}</label>
+                <FormField :label="t('catalog.products.images.role_label')" name="role">
                     <SelectButton v-model="selectedRole" :options="roles" optionLabel="label" optionValue="value" :allowEmpty="false" />
-                    <div class="text-xs text-surface-500 mt-1">
-                        <span v-if="selectedRole === 3">{{ t('catalog.products.images.roles.desc_gallery') }}</span>
-                        <span v-else-if="selectedRole === 0" class="text-primary font-bold">{{ t('catalog.products.images.roles.desc_primary') }}</span>
-                        <span v-else-if="selectedRole === 4" class="text-blue-500 font-bold">{{ t('catalog.products.images.roles.desc_search') }}</span>
-                        <span v-else-if="selectedRole === 1">{{ t('catalog.products.images.roles.desc_thumbnail') }}</span>
-                        <span v-else-if="selectedRole === 2">{{ t('catalog.products.images.roles.desc_square') }}</span>
-                    </div>
-                </div>
+                    <template #description>
+                        <div class="text-xs text-surface-500 mt-1">
+                            <span v-if="selectedRole === 3">{{ t('catalog.products.images.roles.desc_gallery') }}</span>
+                            <span v-else-if="selectedRole === 0" class="text-primary font-bold">{{ t('catalog.products.images.roles.desc_primary') }}</span>
+                            <span v-else-if="selectedRole === 4" class="text-blue-500 font-bold">{{ t('catalog.products.images.roles.desc_search') }}</span>
+                            <span v-else-if="selectedRole === 1">{{ t('catalog.products.images.roles.desc_thumbnail') }}</span>
+                            <span v-else-if="selectedRole === 2">{{ t('catalog.products.images.roles.desc_square') }}</span>
+                        </div>
+                    </template>
+                </FormField>
 
-                <div class="flex flex-col gap-2">
-                    <label class="font-bold text-xs uppercase text-surface-500">{{ t('catalog.products.images.alt_text') }}</label>
+                <FormField :label="t('catalog.products.images.alt_text')" name="alt">
                     <InputText v-model="altText" :placeholder="t('catalog.products.images.alt_placeholder')" class="w-full" />
-                </div>
+                </FormField>
 
                 <div class="flex justify-end pt-2">
                     <Button :label="t('catalog.products.images.upload_now')" icon="pi pi-upload" @click="proceedToUpload" :loading="uploading" />

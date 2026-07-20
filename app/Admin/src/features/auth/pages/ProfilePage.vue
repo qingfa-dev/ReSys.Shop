@@ -7,6 +7,8 @@ import { useToast } from '@/common/composables/toast.use';
 import { useFormatter } from '@/common/composables/formatter.use';
 import { useI18n } from 'vue-i18n';
 import PageShell from '@/shared/components/navigation/PageShell.vue';
+import DetailField from '@/shared/components/data-display/DetailField.vue';
+import FormField from '@/shared/components/form/FormField.vue';
 
 const { t } = useI18n();
 const { showToast } = useToast();
@@ -109,22 +111,10 @@ async function onChangePassword() {
                     </template>
                     <template #content>
                         <div class="flex flex-col gap-4">
-                            <div>
-                                <span class="text-xs font-bold uppercase tracking-widest text-surface-400">{{ t('profile.labels.full_name') }}</span>
-                                <p class="text-lg font-medium">{{ user.fullName || 'N/A' }}</p>
-                            </div>
-                            <div>
-                                <span class="text-xs font-bold uppercase tracking-widest text-surface-400">{{ t('profile.labels.email') }}</span>
-                                <p class="text-lg font-medium font-mono">{{ user.email }}</p>
-                            </div>
-                            <div>
-                                <span class="text-xs font-bold uppercase tracking-widest text-surface-400">{{ t('profile.labels.username') }}</span>
-                                <p class="text-lg font-medium">{{ user.userName || 'N/A' }}</p>
-                            </div>
-                            <div>
-                                <span class="text-xs font-bold uppercase tracking-widest text-surface-400">{{ t('profile.labels.joined') }}</span>
-                                <p class="text-lg font-medium">{{ formatDate(user.createdAtUtc) }}</p>
-                            </div>
+                            <DetailField :label="t('profile.labels.full_name')" :value="user.fullName" />
+                            <DetailField :label="t('profile.labels.email')" :value="user.email" />
+                            <DetailField :label="t('profile.labels.username')" :value="user.userName" />
+                            <DetailField :label="t('profile.labels.joined')" :value="formatDate(user.createdAtUtc)" />
                         </div>
                     </template>
                 </Card>
@@ -140,18 +130,15 @@ async function onChangePassword() {
                         </template>
                         <template #content>
                             <form @submit.prevent="onChangePassword" class="flex flex-col gap-4">
-                                <div class="flex flex-col gap-2">
-                                    <label class="font-bold text-sm">{{ t('auth.labels.current_password') }}</label>
+                                <FormField :label="t('auth.labels.current_password')" name="currentPassword">
                                     <Password v-model="passwordForm.currentPassword" toggleMask class="w-full" inputClass="w-full" required />
-                                </div>
-                                <div class="flex flex-col gap-2">
-                                    <label class="font-bold text-sm">{{ t('auth.labels.new_password') }}</label>
+                                </FormField>
+                                <FormField :label="t('auth.labels.new_password')" name="newPassword">
                                     <Password v-model="passwordForm.newPassword" toggleMask class="w-full" inputClass="w-full" required />
-                                </div>
-                                <div class="flex flex-col gap-2">
-                                    <label class="font-bold text-sm">{{ t('auth.labels.confirm_password') }}</label>
+                                </FormField>
+                                <FormField :label="t('auth.labels.confirm_password')" name="confirmNewPassword">
                                     <Password v-model="passwordForm.confirmNewPassword" toggleMask class="w-full" inputClass="w-full" :feedback="false" required />
-                                </div>
+                                </FormField>
                                 <Button type="submit" :label="t('auth.actions.update_password')" icon="pi pi-check" class="mt-2" :loading="submitting" />
                             </form>
                         </template>

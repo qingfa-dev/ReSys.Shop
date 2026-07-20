@@ -7,6 +7,7 @@ import * as z from 'zod';
 import { productRepository } from '../../api/product.api';
 import { optionValueRepository } from '@/features/catalog/option-types/option-values/api/option-value.api';
 import ModalDialog from '@/shared/components/overlays/ModalDialog.vue';
+import FormField from '@/shared/components/form/FormField.vue';
 import type { OptionValueQuery } from '@/features/catalog/option-types/option-values/types/option-value.query';
 import type { OptionValueListItem } from '@/features/catalog/option-types/option-values/types/option-value.response';
 import type { OptionTypeDetail } from '@/features/catalog/option-types/types/option-type.response';
@@ -114,11 +115,9 @@ const onSubmit = handleSubmit((values) => {
 <template>
     <ModalDialog v-model="visible" :header="isEdit ? t('catalog.products.variants.form.edit_variant') : t('catalog.products.variants.form.new_variant')">
         <div class="flex flex-col gap-6 pt-4">
-            <div class="flex flex-col gap-2">
-                <label class="font-bold text-xs uppercase tracking-wider text-surface-500 ml-1">SKU</label>
+            <FormField label="SKU" name="sku" :error="errors.sku">
                 <InputText v-model="sku" class="w-full" :invalid="!!errors.sku" />
-                <small class="p-error" v-if="errors.sku">{{ errors.sku }}</small>
-            </div>
+            </FormField>
 
             <div v-if="!variant?.isMaster && assignedOptionTypes.length > 0" class="flex flex-col gap-4 p-4 bg-surface-50 dark:bg-surface-800/50 rounded-2xl border border-surface-200 dark:border-surface-700">
                 <span class="font-bold text-xs uppercase tracking-wider text-surface-500">{{ t('catalog.products.variants.form.attributes') }}</span>
@@ -134,11 +133,9 @@ const onSubmit = handleSubmit((values) => {
             </div>
 
             <div class="grid grid-cols-2 gap-4">
-                <div class="flex flex-col gap-2">
-                    <label class="font-bold text-xs uppercase tracking-wider text-surface-500 ml-1">{{ t('catalog.products.labels.price') }}</label>
+                <FormField :label="t('catalog.products.labels.price')" name="price" :error="errors.price">
                     <InputNumber v-model="price" mode="currency" currency="USD" locale="en-US" class="w-full" :invalid="!!errors.price" />
-                    <small class="p-error" v-if="errors.price">{{ errors.price }}</small>
-                </div>
+                </FormField>
             </div>
 
             <div class="flex items-center justify-between p-4 bg-surface-50 dark:bg-surface-800 rounded-xl border border-surface-100 dark:border-surface-700">

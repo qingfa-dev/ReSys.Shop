@@ -7,6 +7,7 @@ import { useI18n } from 'vue-i18n';
 import PageShell from '@/shared/components/navigation/PageShell.vue'
 import PageHeader from '@/shared/components/navigation/PageHeader.vue'
 import LocationSelector from '../../components/LocationSelector.vue';
+import FormField from '@/shared/components/form/FormField.vue';
 import type { CreateStockTransferRequest } from '../types/stock-transfer.request';
 
 const { t } = useI18n();
@@ -47,20 +48,17 @@ async function onSubmit() {
         <PageHeader back :title="t('inventory.titles.create_transfer')" :description="t('inventory.descriptions.transfers')" />
 
         <form @submit.prevent="onSubmit" class="flex flex-col gap-6">
-            <div class="flex flex-col gap-2">
-                <label class="font-bold text-sm">{{ t('inventory.labels.source') }}</label>
+            <FormField :label="t('inventory.labels.source')" name="sourceLocationId">
                 <LocationSelector v-model="form.sourceLocationId" placeholder="Select Source Warehouse" />
-            </div>
+            </FormField>
 
-            <div class="flex flex-col gap-2">
-                <label class="font-bold text-sm">{{ t('inventory.labels.destination') }}</label>
+            <FormField :label="t('inventory.labels.destination')" name="destinationLocationId">
                 <LocationSelector v-model="form.destinationLocationId" placeholder="Select Destination Warehouse" />
-            </div>
+            </FormField>
 
-            <div class="flex flex-col gap-2">
-                <label class="font-bold text-sm">{{ t('inventory.labels.reason') }}</label>
+            <FormField :label="t('inventory.labels.reason')" name="reason">
                 <Textarea v-model="form.reason" rows="3" class="w-full rounded-2xl p-4" placeholder="Optional notes for this movement..." />
-            </div>
+            </FormField>
 
             <div class="flex justify-end gap-3 mt-4">
                 <Button :label="t('inventory.actions.cancel')" severity="secondary" text @click="router.back()" />

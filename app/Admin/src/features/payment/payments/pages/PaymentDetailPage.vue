@@ -12,6 +12,8 @@ import PageHeader from '@/shared/components/navigation/PageHeader.vue'
 import DetailField from '@/shared/components/data-display/DetailField.vue'
 import StatusBadge from '@/shared/components/feedback/StatusBadge.vue'
 import ConfirmDialog from '@/shared/components/overlays/ConfirmDialog.vue'
+import CompactTable from '@/shared/components/tables/CompactTable.vue'
+import type { ColumnDef } from '@/shared/components/tables/DataTableShell.vue'
 
 const { t } = useI18n()
 const route = useRoute()
@@ -22,6 +24,14 @@ const { formatDate } = useFormatter()
 const { current, loading } = storeToRefs(store)
 
 const paymentId = route.params.id as string
+
+const transactionColumns: ColumnDef[] = [
+  { field: 'type', header: t('payment.table.type') || 'Type' },
+  { field: 'amount', header: t('payment.table.amount') || 'Amount' },
+  { field: 'status', header: t('payment.table.status') || 'Status' },
+  { field: 'gatewayTransactionId', header: t('payment.table.gateway_id') || 'Gateway ID' },
+  { field: 'createdAtUtc', header: t('payment.table.date') || 'Date', body: (data: any) => formatDate(data.createdAtUtc) },
+]
 
 onMounted(async () => {
   const result = await store.fetchById(paymentId)
@@ -144,15 +154,7 @@ async function onRefund() {
               </span>
             </template>
             <template #content>
-              <DataTable :value="current.transactions" stripedRows class="text-sm">
-                <Column field="type" :header="t('payment.table.type') || 'Type'" />
-                <Column field="amount" :header="t('payment.table.amount') || 'Amount'" />
-                <Column field="status" :header="t('payment.table.status') || 'Status'" />
-                <Column field="gatewayTransactionId" :header="t('payment.table.gateway_id') || 'Gateway ID'" />
-                <Column field="createdAtUtc" :header="t('payment.table.date') || 'Date'">
-                  <template #body="{ data }">{{ formatDate(data.createdAtUtc) }}</template>
-                </Column>
-              </DataTable>
+              <CompactTable :value="current.transactions" :columns="transactionColumns" stripedRows />
             </template>
           </Card>
         </div>
