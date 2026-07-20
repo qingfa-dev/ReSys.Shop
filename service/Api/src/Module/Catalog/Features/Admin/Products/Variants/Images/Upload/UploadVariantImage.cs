@@ -29,9 +29,6 @@ public static partial class UploadVariantImage
         ICurrentUser currentUser)
         : ICommandHandler<Command, Response>
     {
-        // Guard: Only allow known image extensions via storage validator pipeline
-        private static readonly string[] AllowedImageExtensions = [".jpg", ".jpeg", ".png", ".gif", ".webp"];
-
         /// <summary>
         /// Executes the upload pipeline: variant check → storage upload → entity creation → persistence.
         /// </summary>

@@ -98,6 +98,11 @@ public static class VariantImageResult
         /// <summary>Returns a content type invalidation message.</summary>
         public static string InvalidContentTypeMessage(string contentType) =>
             $"Content type '{contentType}' is not allowed. Must be one of: {string.Join(", ", VariantImageConstant.Constraints.Upload.AllowedContentTypes)}.";
+
+        /// <summary>File extension is not in the allowed list.</summary>
+        public static Error UnsupportedFileType(string ext) => Error.Validation(
+            code: "VariantImage.UnsupportedFileType",
+            message: $"File extension '{ext}' is not supported.");
         #endregion
     }
 }

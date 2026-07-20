@@ -144,6 +144,43 @@ public class UploadImageRequestValidatorTests
             .WithErrorCode(VariantImageResult.Failure.FileTooLarge.Code);
     }
 
+    [Theory(DisplayName = "Upload: Should fail when extension is disallowed")]
+    [InlineData(".exe")]
+    [InlineData(".php")]
+    [InlineData(".html")]
+    [InlineData(".bmp")]
+    public void Validate_WhenExtensionDisallowed_ShouldHaveError(string extension)
+    {
+        var file = new FormFile(Stream.Null, 0, 1024, "file", $"evil{extension}")
+        {
+            Headers = new HeaderDictionary(),
+            ContentType = "image/jpeg"
+        };
+        var model = new UploadImageRequest { File = file };
+        var result = _sut.TestValidate(model);
+
+        result.ShouldHaveValidationErrorFor(x => x.File.FileName);
+    }
+
+    [Theory(DisplayName = "Upload: Should pass when extension is allowed")]
+    [InlineData(".jpg")]
+    [InlineData(".jpeg")]
+    [InlineData(".png")]
+    [InlineData(".gif")]
+    [InlineData(".webp")]
+    public void Validate_WhenExtensionAllowed_ShouldNotHaveError(string extension)
+    {
+        var file = new FormFile(new MemoryStream(new byte[1024]), 0, 1024, "file", $"image{extension}")
+        {
+            Headers = new HeaderDictionary(),
+            ContentType = "image/jpeg"
+        };
+        var model = new UploadImageRequest { File = file, Position = 1, Type = "Gallery" };
+        var result = _sut.TestValidate(model);
+
+        result.ShouldNotHaveAnyValidationErrors();
+    }
+
     [Fact(DisplayName = "Upload: Should pass with valid file")]
     public void Validate_WhenValid_ShouldNotHaveError()
     {
