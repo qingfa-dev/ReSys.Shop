@@ -74,7 +74,7 @@ public sealed class BogusGateway : Gateway
     {
         if (_intentStatuses.TryGetValue(responseCode, out var status))
             return Task.FromResult(status);
-        return Task.FromResult("succeeded");
+        return Task.FromResult("unknown");
     }
 
     // Compute: Simulates gateway response based on test card number
