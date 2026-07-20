@@ -31,5 +31,9 @@ public class PaymentConfiguration : IEntityTypeConfiguration<PaymentCapture>
 
         builder.HasOne<Order>().WithMany().HasForeignKey(x => x.OrderId).OnDelete(DeleteBehavior.Cascade);
         builder.HasOne(x => x.PaymentMethod).WithMany(pm => pm.Payments).HasForeignKey(x => x.PaymentMethodId).OnDelete(DeleteBehavior.SetNull);
+
+        builder.HasIndex(x => x.ResponseCode)
+            .HasDatabaseName("ix_payment_captures_response_code")
+            .HasFilter("\"ResponseCode\" IS NOT NULL");
     }
 }
