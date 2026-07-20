@@ -99,7 +99,7 @@ describe('buildFilterParam', () => {
     ])
     const model: FilterModel = {
       root,
-      conditions: root.groups[0].conditions,
+      conditions: root.groups[0]!.conditions,
       isValid: true,
       violations: [],
       isEmpty: false,
@@ -117,7 +117,7 @@ describe('buildFilterParam', () => {
     ])
     const model: FilterModel = {
       root,
-      conditions: root.groups[0].groups[0].conditions,
+      conditions: root.groups[0]!.groups[0]!.conditions,
       isValid: true,
       violations: [],
       isEmpty: false,
@@ -182,27 +182,30 @@ describe('buildSearchParams', () => {
   })
 
   it('includes search term only', () => {
-    const model = {
+    const model: SearchModel = {
       term: { value: 'shirt', caseSensitive: false },
       fields: [],
+      mode: 'any',
       isValid: true,
       violations: [],
       isEmpty: false,
-    } as SearchModel
-    expect(buildSearchParams(model)).toEqual({ search: 'shirt' })
+    }
+    expect(buildSearchParams(model)).toEqual({ search: 'shirt', searchMode: 'any' })
   })
 
   it('includes term and fields', () => {
-    const model = {
+    const model: SearchModel = {
       term: { value: 'shirt', caseSensitive: false },
       fields: ['name', 'description'],
+      mode: 'any',
       isValid: true,
       violations: [],
       isEmpty: false,
-    } as SearchModel
+    }
     expect(buildSearchParams(model)).toEqual({
       search: 'shirt',
       searchFields: 'name,description',
+      searchMode: 'any',
     })
   })
 
@@ -239,15 +242,16 @@ describe('buildSearchParams', () => {
   })
 
   it('omits search key when term value is empty', () => {
-    const model = {
+    const model: SearchModel = {
       term: { value: '', caseSensitive: false },
       fields: ['name'],
+      mode: 'any',
       isValid: true,
       violations: [],
       isEmpty: false,
-    } as SearchModel
+    }
     const result = buildSearchParams(model)
-    expect(result).toEqual({ searchFields: 'name' })
+    expect(result).toEqual({ searchFields: 'name', searchMode: 'any' })
     expect('search' in result).toBe(false)
   })
 })
