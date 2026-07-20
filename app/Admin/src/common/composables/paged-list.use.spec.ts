@@ -1,6 +1,6 @@
 import { describe, it, expect, vi } from 'vitest'
 import { usePagedList } from './paged-list.use'
-import type { ServerPagedResult } from '@/shared/api/types/result.types'
+import type { ServerPagedResult } from '@/common/api/types/result.types'
 
 type MockItem = { id: string; name: string }
 

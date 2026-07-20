@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { useApiErrorHandler } from './api-error-handler.use'
-import type { ServerResult } from '@/shared/api/types/result.types'
+import type { ServerResult } from '@/common/api/types/result.types'
 
 const mockShowToast = vi.fn()
 vi.mock('./toast.use', () => ({

@@ -1,4 +1,4 @@
-import type { ServerResult, ServerPagedResult } from '@/shared/api/types/result.types'
+import type { ServerResult, ServerPagedResult } from '@/common/api/types/result.types'
 
 export function mapValue<T, R>(result: ServerResult<T>, fn: (dto: T) => R): ServerResult<R> {
   return result.isSuccess && result.value != null

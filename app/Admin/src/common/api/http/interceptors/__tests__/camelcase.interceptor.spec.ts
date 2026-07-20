@@ -2,7 +2,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { camelCaseInterceptor } from '../camelcase.interceptor'
 import type { AxiosResponse } from 'axios'
 
-vi.mock('@/shared/mapper/mapper.utils', () => ({
+vi.mock('@/common/mapper/mapper.utils', () => ({
   toCamelCaseKeys: vi.fn((data: Record<string, unknown>) => ({
     ...data,
     converted: true,

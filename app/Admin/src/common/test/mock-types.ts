@@ -1,4 +1,4 @@
-import type { ServerResult, ServerPagedResult } from '@/shared/api/types/result.types'
+import type { ServerResult, ServerPagedResult } from '@/common/api/types/result.types'
 
 export function createMockResult<T>(value: T, overrides?: Partial<ServerResult<T>>): ServerResult<T> {
   return {

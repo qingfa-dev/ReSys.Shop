@@ -1,5 +1,5 @@
 import type { AxiosResponse } from 'axios'
-import { toCamelCaseKeys } from '@/shared/mapper/mapper.utils'
+import { toCamelCaseKeys } from '@/common/mapper/mapper.utils'
 
 export function camelCaseInterceptor(response: AxiosResponse): AxiosResponse {
   if (response.data && typeof response.data === 'object') {

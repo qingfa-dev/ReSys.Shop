@@ -1,6 +1,6 @@
-import type { ServerResult } from '@/shared/api/types/result.types'
-import { mapToErrors } from '@/shared/api/types/api.types'
-import { parseApiError } from '@/shared/api/utils/api.utils'
+import type { ServerResult } from '@/common/api/types/result.types'
+import { mapToErrors } from '@/common/api/types/api.types'
+import { parseApiError } from '@/common/api/utils/api.utils'
 import { useToast } from './toast.use'
 
 export function useApiErrorHandler() {
