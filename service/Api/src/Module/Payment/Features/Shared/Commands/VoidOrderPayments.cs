@@ -37,49 +37,40 @@ public sealed class VoidOrderPaymentsCommandHandler(
         await using var transaction = await dbContext.BeginTransactionAsync(
             System.Data.IsolationLevel.ReadCommitted, ct);
 
-        try
+        foreach (var payment in payments)
         {
-            foreach (var payment in payments)
+            // Call: Resolve gateway provider for this payment method
+            var gatewayResult = gatewayRegistry.GetGateway(payment.ProviderKey);
+            // Guard: Fail-fast if no gateway is registered for the provider
+            if (gatewayResult.IsFailure)
             {
-                // Call: Resolve gateway provider for this payment method
-                var gatewayResult = gatewayRegistry.GetGateway(payment.ProviderKey);
-                // Guard: Fail-fast if no gateway is registered for the provider
-                if (gatewayResult.IsFailure)
-                {
-                    await transaction.RollbackAsync(ct);
-                    return PaymentCaptureResult.Failure.ProviderNotRegistered(payment.ProviderKey);
-                }
-
-                var options = new GatewayOptions
-                {
-                    Email = string.Empty,
-                    Customer = string.Empty,
-                    OrderId = payment.OrderId.ToString(),
-                    PaymentId = payment.Number,
-                    IdempotencyKey = GatewayConstants.Idempotency.ForPayment(payment.Number),
-                    StatementDescriptorSuffix = string.Empty,
-                };
-
-                // Call: Void the payment through the gateway processing service
-                var voidResult = await processingService.VoidTransactionAsync(
-                    payment, gatewayResult.Value, options, null, ct);
-                // Guard: Roll back the entire transaction if any single void fails
-                if (voidResult.IsFailure)
-                {
-                    await transaction.RollbackAsync(ct);
-                    return voidResult.Errors;
-                }
+                await transaction.RollbackAsync(ct);
+                return PaymentCaptureResult.Failure.ProviderNotRegistered(payment.ProviderKey);
             }
 
-            await dbContext.SaveChangesAsync(ct);
-            await transaction.CommitAsync(ct);
-            return Result.Ok();
+            var options = new GatewayOptions
+            {
+                Email = string.Empty,
+                Customer = string.Empty,
+                OrderId = payment.OrderId.ToString(),
+                PaymentId = payment.Number,
+                IdempotencyKey = GatewayConstants.Idempotency.ForPayment(payment.Number),
+                StatementDescriptorSuffix = string.Empty,
+            };
+
+            // Call: Void the payment through the gateway processing service
+            var voidResult = await processingService.VoidTransactionAsync(
+                payment, gatewayResult.Value, options, null, ct);
+            // Guard: Roll back the entire transaction if any single void fails
+            if (voidResult.IsFailure)
+            {
+                await transaction.RollbackAsync(ct);
+                return voidResult.Errors;
+            }
         }
-        catch
-        {
-            // Catch: Roll back on unexpected exception — payment state remains unchanged
-            await transaction.RollbackAsync(ct);
-            throw;
-        }
+
+        await dbContext.SaveChangesAsync(ct);
+        await transaction.CommitAsync(ct);
+        return Result.Ok();
     }
 }
