@@ -86,26 +86,12 @@ Write `src/common/services/index.ts`, `src/common/composables/index.ts`, `src/co
 
 Write `src/shared/utils/index.ts`:
 ```ts
-export { toCamelCase } from './string.transforms'
-export { mapKeys, toCamelCaseKeys } from './object.transforms'
-export {
-  buildFilterParam,
-  buildSearchParams,
-  buildSortParams,
-  buildPageParams,
-} from './query-string.builder'
+export {}
 ```
 
 Write `src/shared/types/index.ts`:
 ```ts
-export * from './result.type'
-export * from './error.model'
-export * from './filtering.model'
-export * from './pagination.model'
-export * from './sorting.model'
-export * from './searching.model'
-export * from './parameter.model'
-export * from './response.model'
+export {}
 ```
 
 Write `src/shared/components/index.ts`, `src/shared/composables/index.ts`, `src/shared/directives/index.ts`, `src/shared/enums/index.ts` — each with `export {}`.
@@ -200,21 +186,35 @@ mv src/shared/models/parameter.model.ts src/shared/types/parameter.model.ts
 mv src/shared/models/response.model.ts src/shared/types/response.model.ts
 ```
 
-- [ ] **Step 2: Delete old models/ directory**
+- [ ] **Step 2: Update shared/types/index.ts barrel**
+
+Write `src/shared/types/index.ts`:
+```ts
+export * from './error.model'
+export * from './filtering.model'
+export * from './pagination.model'
+export * from './sorting.model'
+export * from './searching.model'
+export * from './parameter.model'
+export * from './response.model'
+export * from './result.type'
+```
+
+- [ ] **Step 3: Delete old models/ directory**
 
 ```bash
 rm -rf src/shared/models/
 ```
 
-- [ ] **Step 3: Verify type-check**
+- [ ] **Step 4: Verify type-check**
 
 Run: `npx vue-tsc --build --noEmit`
 Expected: zero errors (barrel in `shared/types/index.ts` already re-exports from local paths).
 
-- [ ] **Step 4: Commit**
+- [ ] **Step 5: Commit**
 
 ```bash
-git add src/shared/types/*.model.ts src/shared/models/
+git add src/shared/types/*.model.ts src/shared/models/ src/shared/types/index.ts
 git commit -m "refactor: move shared/models/ → shared/types/"
 ```
 
@@ -261,18 +261,26 @@ export { toCamelCase } from './utils/string.transforms'
 export { mapKeys, toCamelCaseKeys } from './utils/object.transforms'
 ```
 
-- [ ] **Step 3: Delete old mapper/ directory**
+- [ ] **Step 3: Populate shared/utils/index.ts barrel**
+
+Write `src/shared/utils/index.ts`:
+```ts
+export { toCamelCase } from './string.transforms'
+export { mapKeys, toCamelCaseKeys } from './object.transforms'
+```
+
+- [ ] **Step 4: Delete old mapper/ directory**
 
 ```bash
 rm -rf src/shared/mapper/
 ```
 
-- [ ] **Step 4: Verify type-check**
+- [ ] **Step 5: Verify type-check**
 
 Run: `npx vue-tsc --build --noEmit`
 Expected: zero errors.
 
-- [ ] **Step 5: Commit**
+- [ ] **Step 6: Commit**
 
 ```bash
 git add src/shared/utils/ src/shared/mapper/ src/shared/api/http/interceptors/camel-case.interceptor.ts src/shared/index.ts
@@ -551,7 +559,19 @@ import type { SearchModel } from '../types/searching.model'
 import type { PageModel } from '../types/pagination.model'
 ```
 
-- [ ] **Step 3: Verify type-check**
+- [ ] **Step 3: Update shared/utils/index.ts barrel**
+
+Append to `src/shared/utils/index.ts` (add after existing exports):
+```ts
+export {
+  buildFilterParam,
+  buildSearchParams,
+  buildSortParams,
+  buildPageParams,
+} from './query-string.builder'
+```
+
+- [ ] **Step 4: Verify type-check**
 
 Run: `npx vue-tsc --build --noEmit`
 Expected: zero errors.
