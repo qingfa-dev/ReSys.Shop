@@ -186,6 +186,27 @@ public sealed class StripeGateway : Gateway
                 [GatewayConstants.Metadata.PaymentIdKey] = options.PaymentId
             }
         };
+        // Assign: Statement descriptor suffix — shown on customer card statements
+        if (!string.IsNullOrEmpty(options.StatementDescriptorSuffix))
+            o.StatementDescriptorSuffix = options.StatementDescriptorSuffix;
+
+        // Assign: Shipping details for fraud detection and card statement context
+        if (options.ShippingAddress is not null)
+        {
+            o.Shipping = new ChargeShippingOptions
+            {
+                Name = options.ShippingAddress.GetValueOrDefault("name")?.ToString(),
+                Address = new AddressOptions
+                {
+                    Line1 = options.ShippingAddress.GetValueOrDefault("line1")?.ToString(),
+                    Line2 = options.ShippingAddress.GetValueOrDefault("line2")?.ToString(),
+                    City = options.ShippingAddress.GetValueOrDefault("city")?.ToString(),
+                    State = options.ShippingAddress.GetValueOrDefault("state")?.ToString(),
+                    PostalCode = options.ShippingAddress.GetValueOrDefault("postal_code")?.ToString(),
+                    Country = options.ShippingAddress.GetValueOrDefault("country")?.ToString(),
+                }
+            };
+        }
         // Assign: Payment method from source string if provided
         if (source is string s && !string.IsNullOrEmpty(s))
             o.PaymentMethod = s;
