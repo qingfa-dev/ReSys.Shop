@@ -6,7 +6,7 @@ import { createMockResult } from '@/common/test/mock-types'
 import type { LoginResponse } from '../types/login.response.type'
 import type { AxiosResponse } from 'axios'
 
-vi.mock('@/shared/api/http/api.client', () => ({
+vi.mock('@/common/api/http/api.client', () => ({
   default: {
     post: vi.fn(),
     get: vi.fn(),

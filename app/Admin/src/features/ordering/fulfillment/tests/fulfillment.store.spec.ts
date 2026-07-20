@@ -12,7 +12,7 @@ vi.mock('../services/fulfillment.service', () => ({
   }
 }));
 
-vi.mock('@/shared/composables/toast.use', () => ({
+vi.mock('@/common/composables/toast.use', () => ({
   useToast: () => ({
     showToast: vi.fn()
   })

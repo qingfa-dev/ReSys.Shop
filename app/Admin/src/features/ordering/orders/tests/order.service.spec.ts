@@ -4,7 +4,7 @@ import apiClient from '@/common/api/http/api.client'
 import type { OrderQuery } from '../types/order.query.type'
 
 // Mock apiClient
-vi.mock('@/shared/api/http/api.client', () => ({
+vi.mock('@/common/api/http/api.client', () => ({
   default: {
     get: vi.fn(),
     post: vi.fn(),

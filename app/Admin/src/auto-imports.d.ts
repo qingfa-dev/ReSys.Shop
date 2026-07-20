@@ -53,7 +53,6 @@ declare global {
   const toRef: typeof import('vue').toRef
   const toRefs: typeof import('vue').toRefs
   const toValue: typeof import('vue').toValue
-  const toastBus: typeof import('./shared/composables/toast.use').toastBus
   const triggerRef: typeof import('vue').triggerRef
   const unref: typeof import('vue').unref
   const useApiErrorHandler: typeof import('./common/composables/api-error-handler.use').useApiErrorHandler

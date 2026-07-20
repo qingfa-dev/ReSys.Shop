@@ -4,7 +4,7 @@ import { stockRepository } from '../stock-items/api/stock.api'
 import { locationRepository } from '../stock-locations/api/location.api'
 import { transferRepository } from '../stock-transfers/api/transfer.api'
 
-vi.mock('@/shared/api/http/api.client', () => {
+vi.mock('@/common/api/http/api.client', () => {
   const d = { isSuccess: true, statusCode: 200, errors: [], message: null, metadata: null, page: 1, pageSize: 10, totalCount: 0 }
   return {
     default: {

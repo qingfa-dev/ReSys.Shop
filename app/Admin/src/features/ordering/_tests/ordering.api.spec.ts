@@ -3,7 +3,7 @@ import apiClient from '@/common/api/http/api.client'
 import { orderRepository } from '../orders/api/order.api'
 import { fulfillmentRepository } from '../fulfillment/api/fulfillment.api'
 
-vi.mock('@/shared/api/http/api.client', () => ({
+vi.mock('@/common/api/http/api.client', () => ({
   default: { get: vi.fn().mockResolvedValue({ data: {} }), post: vi.fn().mockResolvedValue({ data: {} }), put: vi.fn().mockResolvedValue({ data: {} }), delete: vi.fn().mockResolvedValue({ data: {} }) }
 }))
 

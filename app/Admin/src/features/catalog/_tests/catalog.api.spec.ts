@@ -8,7 +8,7 @@ import { taxonomyRepository } from '../taxonomies/api/taxonomy.api'
 import { taxonRepository } from '../taxonomies/taxa/api/taxon.api'
 import type { CreateVariantRequest } from '../products/variants/types/variant.request.type'
 
-vi.mock('@/shared/api/http/api.client', () => ({
+vi.mock('@/common/api/http/api.client', () => ({
   default: {
     get: vi.fn().mockResolvedValue({ data: {} }),
     post: vi.fn().mockResolvedValue({ data: {} }),
