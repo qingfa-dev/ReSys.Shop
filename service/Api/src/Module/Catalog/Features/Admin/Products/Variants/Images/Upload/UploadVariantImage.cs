@@ -61,7 +61,7 @@ public static partial class UploadVariantImage
             var uploadResult = await storageService.UploadAsync(
                 new UploadRequest
                 {
-                    Key = $"{subdirectory}/{request.File.FileName}",
+                    Key = $"{subdirectory}/{Path.GetFileName(request.File.FileName)}",
                     Content = stream,
                     ContentType = request.File.ContentType,
                     Options = options
