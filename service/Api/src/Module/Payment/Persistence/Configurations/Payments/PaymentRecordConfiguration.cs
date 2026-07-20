@@ -21,7 +21,6 @@ public class PaymentConfiguration : IEntityTypeConfiguration<PaymentCapture>
         builder.Property(x => x.CvvResponseCode).HasMaxLength(PaymentConstant.Constraints.MaxCvvCodeLength);
         builder.Property(x => x.CvvResponseMessage).HasMaxLength(PaymentConstant.Constraints.MaxCvvMessageLength);
         builder.Property(x => x.IntentClientSecret).HasMaxLength(PaymentConstant.Constraints.MaxIntentClientSecretLength);
-        builder.Property(x => x.CaptureEventCreated);
         builder.Property(x => x.RefundedAmount).HasPrecision(PaymentConstant.Constraints.Precision, PaymentConstant.Constraints.Scale);
         builder.Property(x => x.PaymentMethodId);
         builder.Property(x => x.OrderId);
