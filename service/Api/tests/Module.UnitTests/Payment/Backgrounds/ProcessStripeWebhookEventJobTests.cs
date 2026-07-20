@@ -195,4 +195,34 @@ public class ProcessStripeWebhookEventJobTests : IDisposable
         var updated = await _dbContext.Set<PaymentCapture>().FirstAsync(p => p.Id == payment.Id);
         updated.State.Should().Be(PaymentRecordState.Completed);
     }
+
+    [Fact(DisplayName = "charge.dispute.created transitions payment to Disputed")]
+    public async Task HandleChargeDisputeCreated_ShouldDisputePayment()
+    {
+        var payment = PaymentCaptureMethod.Create(100m, Guid.NewGuid(), Guid.NewGuid()).Value;
+        payment.State = PaymentRecordState.Completed;
+        payment.ResponseCode = "pi_disputed";
+        _dbContext.Set<PaymentCapture>().Add(payment);
+        await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
+
+        _webhookMock.Setup(x => x.ParseEvent(It.IsAny<string>()))
+            .Returns(new Event
+            {
+                Type = "charge.dispute.created",
+                Data = new EventData
+                {
+                    Object = new Dispute
+                    {
+                        PaymentIntentId = "pi_disputed",
+                        ChargeId = "ch_disputed",
+                        Reason = "fraudulent"
+                    }
+                }
+            });
+
+        await _job.ExecuteAsync("{}", TestContext.Current.CancellationToken);
+
+        var updated = await _dbContext.Set<PaymentCapture>().FirstAsync(p => p.Id == payment.Id);
+        updated.State.Should().Be(PaymentRecordState.Disputed);
+    }
 }
