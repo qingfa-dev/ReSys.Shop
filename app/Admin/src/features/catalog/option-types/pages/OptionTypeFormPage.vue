@@ -12,6 +12,7 @@ import { createOptionValueSchema } from '@/features/catalog/option-types/option-
 import { useApiErrorHandler } from '@/common/composables/api-error-handler.use'
 import { useToast } from '@/common/composables/toast.use'
 import FormField from '@/shared/components/form/FormField.vue'
+import ModalDialog from '@/shared/components/overlays/ModalDialog.vue'
 import type { OptionValueListItem } from '@/features/catalog/option-types/option-values/types/option-value.response'
 import MetadataManager from '@/shared/components/data-display/MetadataManager.vue'
 
@@ -288,7 +289,7 @@ const cancel = () => {
         </template>
     </Card>
 
-    <Dialog v-model:visible="showValueDialog" :header="isEditingValue ? 'Edit Value' : 'Add Value'" :modal="true" :style="{ width: '400px' }" class="rounded-3xl shadow-2xl">
+    <ModalDialog v-model="showValueDialog" :header="isEditingValue ? 'Edit Value' : 'Add Value'" maxWidth="max-w-[400px]">
       <form @submit="onValueSubmit" class="flex flex-col gap-4 mt-2">
         <FormField :label="t('catalog.option_types.labels.value_name')" name="name" :error="valueErrors.name">
           <InputText v-model="vName" class="w-full rounded-xl h-11" :invalid="!!valueErrors.name" :placeholder="t('catalog.option_types.placeholders.value_name')" />
@@ -307,7 +308,7 @@ const cancel = () => {
           <Button type="submit" label="Save Value" icon="pi pi-check" :loading="submittingValue" class="rounded-xl px-6" />
         </div>
       </form>
-    </Dialog>
+    </ModalDialog>
   </div>
 </template>
 

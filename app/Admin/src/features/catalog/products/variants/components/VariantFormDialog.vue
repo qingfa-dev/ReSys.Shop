@@ -6,6 +6,7 @@ import { toTypedSchema } from '@vee-validate/zod';
 import * as z from 'zod';
 import { productRepository } from '../../api/product.api';
 import { optionValueRepository } from '@/features/catalog/option-types/option-values/api/option-value.api';
+import ModalDialog from '@/shared/components/overlays/ModalDialog.vue';
 import type { OptionValueQuery } from '@/features/catalog/option-types/option-values/types/option-value.query';
 import type { OptionValueListItem } from '@/features/catalog/option-types/option-values/types/option-value.response';
 import type { OptionTypeDetail } from '@/features/catalog/option-types/types/option-type.response';
@@ -111,7 +112,7 @@ const onSubmit = handleSubmit((values) => {
 </script>
 
 <template>
-    <Dialog v-model:visible="visible" modal :header="isEdit ? t('catalog.products.variants.form.edit_variant') : t('catalog.products.variants.form.new_variant')" class="w-full max-w-lg">
+    <ModalDialog v-model="visible" :header="isEdit ? t('catalog.products.variants.form.edit_variant') : t('catalog.products.variants.form.new_variant')">
         <div class="flex flex-col gap-6 pt-4">
             <div class="flex flex-col gap-2">
                 <label class="font-bold text-xs uppercase tracking-wider text-surface-500 ml-1">SKU</label>
@@ -153,5 +154,5 @@ const onSubmit = handleSubmit((values) => {
             <Button :label="t('catalog.products.actions.cancel')" text severity="secondary" @click="visible = false" />
             <Button :label="isEdit ? t('catalog.products.actions.save') : t('catalog.products.actions.new')" icon="pi pi-check" @click="onSubmit" />
         </template>
-    </Dialog>
+    </ModalDialog>
 </template>

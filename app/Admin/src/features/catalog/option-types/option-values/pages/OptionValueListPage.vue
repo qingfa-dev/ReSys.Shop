@@ -16,6 +16,7 @@ import type { DataTablePageEvent, DataTableSortEvent, DataTableFilterMeta } from
 import { getFilterValue } from '@/common/api/types/filter.types'
 import { useToast } from '@/common/composables/toast.use'
 import ConfirmDialog from '@/shared/components/overlays/ConfirmDialog.vue'
+import ModalDialog from '@/shared/components/overlays/ModalDialog.vue'
 import { useApiErrorHandler } from '@/common/composables/api-error-handler.use'
 import { QueryBuilder } from '@/common/utils/query-builder.utils'
 import type { OptionValueListItem } from '../types/option-value.response'
@@ -265,8 +266,7 @@ onMounted(() => {
       </Column>
     </DataTable>
 
-    <Dialog v-model:visible="showDialog" :header="isEditing ? 'Edit Option Value' : 'Add Option Value'" :modal="true"
-      :style="{ width: '450px' }">
+    <ModalDialog v-model="showDialog" :header="isEditing ? 'Edit Option Value' : 'Add Option Value'" maxWidth="max-w-[450px]">
       <form @submit="onFormSubmit" class="flex flex-col gap-4 mt-2">
         <div class="flex flex-col gap-2">
           <label class="font-bold text-sm">{{ t('catalog.option_values.labels.option_type') }}</label>
@@ -300,6 +300,6 @@ onMounted(() => {
           <Button type="submit" :label="t('common.save')" icon="pi pi-check" :loading="submitting" />
         </div>
       </form>
-    </Dialog>
+    </ModalDialog>
   </PageShell>
 </template>

@@ -8,6 +8,7 @@ import { toTypedSchema } from '@vee-validate/zod'
 import { createTaxonRuleSchema } from '../../types/taxon-rule.field'
 import { useApiErrorHandler } from '@/common/composables/api-error-handler.use'
 import { useToast } from '@/common/composables/toast.use'
+import ModalDialog from '@/shared/components/overlays/ModalDialog.vue'
 import type { TaxonRuleListItem } from '../types/taxon-rule.response'
 
 const { t } = useI18n()
@@ -238,12 +239,10 @@ const regenerate = async () => {
       </div>
     </div>
 
-    <Dialog
-      v-model:visible="showRuleDialog"
+    <ModalDialog
+      v-model="showRuleDialog"
       :header="isEditingRule ? 'Edit Rule' : 'Add Rule'"
-      :modal="true"
-      :style="{ width: '450px' }"
-      class="rounded-2xl"
+      maxWidth="max-w-[450px]"
     >
       <form @submit="onRuleSubmit" class="flex flex-col gap-6 mt-4">
         <div class="flex flex-col gap-2">
@@ -289,6 +288,6 @@ const regenerate = async () => {
           <Button type="submit" :label="t('catalog.taxa.actions.add_rule')" icon="pi pi-check" :loading="actionLoading" class="rounded-xl px-6" />
         </div>
       </form>
-    </Dialog>
+    </ModalDialog>
   </div>
 </template>

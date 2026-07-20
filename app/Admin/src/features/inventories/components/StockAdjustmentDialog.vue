@@ -1,8 +1,9 @@
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref, watch } from 'vue';
 import { inventoryService } from '../api/inventory.api';
 import { useToast } from '@/common/composables/toast.use';
 import { useI18n } from 'vue-i18n';
+import ModalDialog from '@/shared/components/overlays/ModalDialog.vue';
 
 const { t } = useI18n();
 
@@ -17,6 +18,10 @@ const emit = defineEmits(['updated', 'close']);
 const { showToast } = useToast();
 const visible = ref(true);
 const loading = ref(false);
+
+watch(visible, (val) => {
+    if (!val) emit('close');
+});
 
 const form = ref({
     quantity: 0,
@@ -50,7 +55,7 @@ async function onSubmit() {
 </script>
 
 <template>
-    <Dialog v-model:visible="visible" :header="t('inventory.titles.adjust')" modal class="w-full max-w-lg" @hide="emit('close')">
+    <ModalDialog v-model="visible" :header="t('inventory.titles.adjust')">
         <div class="flex flex-col gap-6 py-4">
             <div class="bg-surface-50 dark:bg-surface-900 p-4 rounded-2xl border border-surface-100 dark:border-surface-800">
                 <span class="text-xs font-mono uppercase text-surface-400">{{ sku }}</span>
@@ -82,8 +87,8 @@ async function onSubmit() {
         </div>
 
         <template #footer>
-            <Button :label="t('inventory.actions.cancel')" severity="secondary" text @click="emit('close')" />
+            <Button :label="t('inventory.actions.cancel')" severity="secondary" text @click="visible = false" />
             <Button :label="t('inventory.actions.save')" icon="pi pi-check" :loading="loading" @click="onSubmit" />
         </template>
-    </Dialog>
+    </ModalDialog>
 </template>

@@ -1,8 +1,9 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue';
+import { ref, computed, watch } from 'vue';
 import { useToast } from '@/common/composables/toast.use';
 import { orderRepository } from '../api/order.api';
 import LocationSelector from '@/features/inventories/components/LocationSelector.vue';
+import ModalDialog from '@/shared/components/overlays/ModalDialog.vue';
 import type { OrderDetailModel } from '../types/order.model';
 import type { CreateShipmentRequest } from '../types/order.request';
 import { useI18n } from 'vue-i18n';
@@ -17,6 +18,10 @@ const { t } = useI18n();
 const { showToast } = useToast();
 const visible = ref(true);
 const loading = ref(false);
+
+watch(visible, (val) => {
+    if (!val) emit('close');
+});
 
 const stockLocationId = ref('');
 const selectedUnitIds = ref<string[]>([]);
@@ -53,7 +58,7 @@ const onSubmit = async () => {
 </script>
 
 <template>
-    <Dialog v-model:visible="visible" :header="t('ordering.actions.create_shipment')" modal class="w-full max-w-3xl" @hide="emit('close')">
+    <ModalDialog v-model="visible" :header="t('ordering.actions.create_shipment')" maxWidth="max-w-3xl">
         <div class="flex flex-col gap-6 py-4">
             <div class="flex flex-col gap-2">
                 <label class="font-bold text-sm">Ship From</label>
@@ -73,8 +78,8 @@ const onSubmit = async () => {
         </div>
 
         <template #footer>
-            <Button :label="t('common.cancel')" severity="secondary" text @click="emit('close')" />
+            <Button :label="t('common.cancel')" severity="secondary" text @click="visible = false" />
             <Button :label="t('ordering.actions.create_shipment')" icon="pi pi-check" :loading="loading" @click="onSubmit" />
         </template>
-    </Dialog>
+    </ModalDialog>
 </template>

@@ -9,6 +9,7 @@ import { useToast } from '@/common/composables/toast.use';
 import { variantRepository } from '@/features/catalog/products/variants/api/variant.api';
 import PageShell from '@/shared/components/navigation/PageShell.vue'
 import PageHeader from '@/shared/components/navigation/PageHeader.vue'
+import ModalDialog from '@/shared/components/overlays/ModalDialog.vue'
 import type { CreateOrderRequest } from '../types/order.request';
 import type { ProductSummaryModel } from '@/features/catalog/products/models/product.model';
 import type { VariantSummary } from '@/features/catalog/products/variants/types/variant.response';
@@ -231,7 +232,7 @@ const onSubmit = async () => {
             </div>
         </div>
 
-        <Dialog v-model:visible="showVariantDialog" :header="t('ordering.titles.select_variant')" modal class="w-full max-w-lg">
+        <ModalDialog v-model="showVariantDialog" :header="t('ordering.titles.select_variant')">
             <div class="flex flex-col gap-4 py-4">
                 <p class="text-sm text-surface-500">Please select the specific variant to add.</p>
                 <div v-for="variant in currentProductVariants" :key="variant.id" 
@@ -248,6 +249,6 @@ const onSubmit = async () => {
                     <span class="font-black">{{ formatCurrency(variant.price) }}</span>
                 </div>
             </div>
-        </Dialog>
+        </ModalDialog>
     </PageShell>
 </template>

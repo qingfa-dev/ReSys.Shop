@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import { useI18n } from 'vue-i18n';
+import ModalDialog from '@/shared/components/overlays/ModalDialog.vue';
 import type { ProductImage } from '../../../types/product-image.response';
 
 const { t } = useI18n();
@@ -124,7 +125,7 @@ const executeUpload = () => {
             </div>
         </div>
 
-        <Dialog v-model:visible="showRoleConflictConfirm" :header="t('catalog.products.images.conflict_header')" modal :style="{ width: '350px' }">
+        <ModalDialog v-model="showRoleConflictConfirm" :header="t('catalog.products.images.conflict_header')" maxWidth="max-w-[350px]">
             <div class="flex flex-col gap-4 items-center text-center p-2">
                 <i class="pi pi-exclamation-triangle text-4xl text-orange-500"></i>
                 <p class="m-0">
@@ -135,7 +136,7 @@ const executeUpload = () => {
                 <Button :label="t('catalog.products.confirm.reject_label')" text severity="secondary" @click="showRoleConflictConfirm = false" />
                 <Button label="Replace & Upload" severity="warning" icon="pi pi-refresh" @click="executeUpload" :loading="uploading" />
             </template>
-        </Dialog>
+        </ModalDialog>
     </div>
 </template>
 

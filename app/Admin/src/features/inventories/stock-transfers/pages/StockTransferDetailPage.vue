@@ -9,6 +9,7 @@ import { useI18n } from 'vue-i18n';
 import PageShell from '@/shared/components/navigation/PageShell.vue';
 import PageHeader from '@/shared/components/navigation/PageHeader.vue';
 import StatusBadge from '@/shared/components/feedback/StatusBadge.vue';
+import ModalDialog from '@/shared/components/overlays/ModalDialog.vue';
 import type { StockTransferDetail } from '../types/stock-transfer.response';
 import type { ProductSummary } from '@/features/catalog/products/types/product.response';
 
@@ -202,7 +203,7 @@ onMounted(() => {
         </div>
 
         <!-- Add Item Dialog -->
-        <Dialog v-model:visible="itemDialog" :header="t('inventory.titles.add_transfer_item')" modal class="w-full max-w-lg">
+        <ModalDialog v-model="itemDialog" :header="t('inventory.titles.add_transfer_item')">
             <div class="flex flex-col gap-6 py-4">
                 <div class="flex flex-col gap-2">
                     <label class="font-bold text-sm">Search Product</label>
@@ -225,6 +226,6 @@ onMounted(() => {
                 <Button :label="t('inventory.actions.cancel')" severity="secondary" text @click="itemDialog = false" />
                 <Button :label="t('inventory.actions.add_to_transfer')" icon="pi pi-plus" :loading="processing" @click="onAddItem" />
             </template>
-        </Dialog>
+        </ModalDialog>
     </PageShell>
 </template>
