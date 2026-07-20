@@ -55,7 +55,9 @@ public sealed class PaymentProcessingService : IPaymentProcessingService
 
         var response = gatewayResult.Value;
         RecordGatewayResponse(payment, response);
-        payment.State = PaymentRecordState.Completed;
+        var captureResult = payment.Capture(amount.Value);
+        if (captureResult.IsFailure)
+            return Result<PaymentProcessingResult>.Failure(captureResult.Errors[0]);
         payment.ResponseCode = response.Authorization ?? payment.ResponseCode;
         return ProcessingResult.Success.Captured(payment.Number, amount.Value);
     }
@@ -137,7 +139,9 @@ public sealed class PaymentProcessingService : IPaymentProcessingService
         var response = gatewayResult.Value;
         RecordGatewayResponse(payment, response);
         payment.ResponseCode = response.Authorization ?? payment.ResponseCode;
-        payment.State = PaymentRecordState.Void;
+        var voidResult = payment.Void();
+        if (voidResult.IsFailure)
+            return Result<PaymentProcessingResult>.Failure(voidResult.Errors[0]);
         return ProcessingResult.Success.Voided(payment.Number);
     }
 
@@ -227,7 +231,9 @@ public sealed class PaymentProcessingService : IPaymentProcessingService
 
         var response = gatewayResult.Value;
         RecordGatewayResponse(payment, response);
-        payment.State = PaymentRecordState.Void;
+        var voidResult = payment.Void();
+        if (voidResult.IsFailure)
+            return Result<PaymentProcessingResult>.Failure(voidResult.Errors[0]);
         return ProcessingResult.Success.Voided(payment.Number);
     }
 
@@ -282,7 +288,14 @@ public sealed class PaymentProcessingService : IPaymentProcessingService
         var response = gatewayResult.Value;
         RecordGatewayResponse(payment, response);
         payment.ResponseCode = response.Authorization ?? payment.ResponseCode;
-        payment.State = successState;
+        var transitionResult = successState switch
+        {
+            PaymentRecordState.Completed => payment.Complete(),
+            PaymentRecordState.Pending => payment.Pend(),
+            _ => Result.Ok()
+        };
+        if (transitionResult.IsFailure)
+            return Result<PaymentProcessingResult>.Failure(transitionResult.Errors[0]);
         return successState == PaymentRecordState.Pending
             ? ProcessingResult.Success.Pended(payment.Number)
             : ProcessingResult.Success.Completed(payment.Number);

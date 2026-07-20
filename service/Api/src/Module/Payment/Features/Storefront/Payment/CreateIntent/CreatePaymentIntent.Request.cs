@@ -7,6 +7,6 @@ public static partial class CreatePaymentIntent
     public record Request : StorePaymentRequest
     {
         public string? ReturnUrl { get; init; }
-        public Guid? PaymentMethodId { get; init; }
+        public new Guid? PaymentMethodId { get; init; }
     }
 }
