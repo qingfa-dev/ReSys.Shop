@@ -36,14 +36,14 @@ public class PaymentStoreMappingTests
         response.ClientSecret.Should().Be("secret_456");
     }
 
-    [Fact(DisplayName = "MapToStoreDetail: Should set Currency to empty string")]
-    public void MapToStoreDetail_ShouldSetCurrencyToEmpty()
+    [Fact(DisplayName = "MapToStoreDetail: Should set Currency from payment")]
+    public void MapToStoreDetail_ShouldSetCurrencyFromPayment()
     {
         var payment = CreatePayment();
 
         var response = payment.MapToStoreDetail<StorePaymentDetailResponse>();
 
-        response.Currency.Should().BeEmpty();
+        response.Currency.Should().Be(PaymentConstant.Defaults.Currency);
     }
 
     [Fact(DisplayName = "MapToStoreListItem: Should map entity to store list item response")]
@@ -58,6 +58,7 @@ public class PaymentStoreMappingTests
         response.Amount.Should().Be(payment.Amount);
         response.OrderId.Should().Be(payment.OrderId);
         response.PaymentMethodId.Should().Be(payment.PaymentMethodId.GetValueOrDefault());
+        response.Currency.Should().Be(PaymentConstant.Defaults.Currency);
     }
 
     [Fact(DisplayName = "MapToStoreDetail: Should handle null optional fields")]

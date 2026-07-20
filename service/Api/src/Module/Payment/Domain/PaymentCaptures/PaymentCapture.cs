@@ -12,6 +12,7 @@ public sealed partial class PaymentCapture : Entity, IAuditable
     #region Properties
     public string Number { get; set; } = string.Empty;
     public decimal Amount { get; set; }
+    public string Currency { get; set; } = PaymentConstant.Defaults.Currency;
     public PaymentRecordState State { get; set; } = PaymentRecordState.Checkout;
     public string? ResponseCode { get; set; }
     public string? AvsResponse { get; set; }

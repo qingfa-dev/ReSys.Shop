@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using Pgvector;
@@ -13,9 +14,11 @@ using Shared.Operational.Persistence.Data;
 namespace Api.Migrations.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260720044512_AddPaymentCurrency")]
+    partial class AddPaymentCurrency
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -2003,10 +2006,6 @@ namespace Api.Migrations.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("payment_method_id");
 
-                    b.Property<string>("PaymentStatus")
-                        .HasColumnType("text")
-                        .HasColumnName("payment_status");
-
                     b.Property<string>("ProviderKey")
                         .IsRequired()
                         .HasMaxLength(50)
@@ -2152,10 +2151,6 @@ namespace Api.Migrations.Migrations
                         .IsRequired()
                         .HasColumnType("text")
                         .HasColumnName("settings");
-
-                    b.Property<string>("StatementDescriptorSuffix")
-                        .HasColumnType("text")
-                        .HasColumnName("statement_descriptor_suffix");
 
                     b.Property<bool>("WebhookEnabled")
                         .ValueGeneratedOnAdd()

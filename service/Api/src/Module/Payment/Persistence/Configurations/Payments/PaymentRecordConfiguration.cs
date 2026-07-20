@@ -15,6 +15,7 @@ public class PaymentConfiguration : IEntityTypeConfiguration<PaymentCapture>
         builder.HasKey(x => x.Id);
         builder.Property(x => x.Number).IsRequired().HasMaxLength(PaymentConstant.Constraints.MaxPaymentNumberLength);
         builder.Property(x => x.Amount).HasPrecision(PaymentConstant.Constraints.Precision, PaymentConstant.Constraints.Scale);
+        builder.Property(x => x.Currency).IsRequired().HasMaxLength(PaymentConstant.Constraints.MaxCurrencyLength).HasDefaultValue(PaymentConstant.Defaults.Currency);
         builder.Property(x => x.State).IsRequired().HasConversion<string>().HasDefaultValue(PaymentRecordState.Checkout);
         builder.Property(x => x.ResponseCode).HasMaxLength(PaymentConstant.Constraints.MaxResponseCodeLength);
         builder.Property(x => x.AvsResponse).HasMaxLength(PaymentConstant.Constraints.MaxAvsResponseLength);
