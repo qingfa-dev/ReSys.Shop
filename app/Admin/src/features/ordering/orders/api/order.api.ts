@@ -2,10 +2,10 @@ import apiClient from '@/common/api/http/api.client'
 import { ORDERS } from '@/common/api/constants'
 import type { ServerPagedResult, ServerResult } from '@/common/api/types/result.types'
 import type { ServerQueryingParameters } from '@/common/api/types/query.types'
-import type { OrderListItem, OrderDetail } from '../types/order.response.type'
-import type { CreateOrderRequest, AddOrderItemRequest, CancelOrderRequest, UpdateLineItemRequest, UpdateOrderStatusRequest, UpdateShippingMethodRequest, UpdateAddressesRequest } from '../types/order.request.type'
-import type { OrderListItemModel, OrderDetailModel } from '../types/order.model.type'
-import { mapOrderListItem, mapOrderDetail } from '../mappers/order.mapper'
+import type { OrderListItem, OrderDetail } from '../types/order.response'
+import type { CreateOrderRequest, AddOrderItemRequest, CancelOrderRequest, UpdateLineItemRequest, UpdateOrderStatusRequest, UpdateShippingMethodRequest, UpdateAddressesRequest } from '../types/order.request'
+import type { OrderListItemModel, OrderDetailModel } from '../types/order.model'
+import { mapOrderListItem, mapOrderDetail } from '../models/order.mapper'
 
 export interface OrderLineItem {
   id: string
@@ -93,4 +93,7 @@ export const orderRepository = {
   removeLineItem(id: string, lineItemId: string): Promise<ServerResult<void>> {
     return apiClient.delete(ordersPath(`${id}/line-items/${lineItemId}`)).then(res => res.data as ServerResult<void>)
   },
+  createShipment: async (_orderId: string, _data: unknown): Promise<ServerResult<void>> => ({ isSuccess: false, statusCode: 501, errors: [{ code: 'not_implemented', message: 'Not implemented — no backend route', type: 0, metadata: null }], message: 'Not implemented — no backend route', metadata: null, value: undefined as unknown as void }),
+  refund: async (_orderId: string, _paymentId: string, _data: unknown): Promise<ServerResult<void>> => ({ isSuccess: false, statusCode: 501, errors: [{ code: 'not_implemented', message: 'Not implemented — no backend route', type: 0, metadata: null }], message: 'Not implemented — no backend route', metadata: null, value: undefined as unknown as void }),
+  cancelShipment: async (_orderId: string, _shipmentId: string): Promise<ServerResult<void>> => ({ isSuccess: false, statusCode: 501, errors: [{ code: 'not_implemented', message: 'Not implemented — no backend route', type: 0, metadata: null }], message: 'Not implemented — no backend route', metadata: null, value: undefined as unknown as void }),
 }

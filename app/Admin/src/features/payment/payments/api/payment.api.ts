@@ -2,10 +2,10 @@ import apiClient from '@/common/api/http/api.client'
 import { PAYMENTS } from '@/common/api/constants'
 import type { ServerPagedResult, ServerResult } from '@/common/api/types/result.types'
 import type { ServerQueryingParameters } from '@/common/api/types/query.types'
-import type { PaymentListItem, PaymentDetail } from '../types/payment.response.type'
-import type { PaymentListItemModel, PaymentDetailModel } from '../types/payment.model.type'
-import type { CapturePaymentRequest, RefundPaymentRequest } from '../types/payment.request.type'
-import { mapPaymentListItem, mapPaymentDetail } from '../mappers/payment.mapper'
+import type { PaymentListItem, PaymentDetail } from '../types/payment.response'
+import type { PaymentListItemModel, PaymentDetailModel } from '../types/payment.model'
+import type { CapturePaymentRequest, RefundPaymentRequest } from '../types/payment.request'
+import { mapPaymentListItem, mapPaymentDetail } from '../models/payment.mapper'
 
 function paymentsPath(sub?: string): string {
   return `${PAYMENTS}/payments${sub ? `/${sub}` : ''}`

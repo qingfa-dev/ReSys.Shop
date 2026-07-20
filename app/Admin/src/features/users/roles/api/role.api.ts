@@ -2,8 +2,8 @@ import apiClient from '@/common/api/http/api.client'
 import { IDENTITY } from '@/common/api/constants'
 import type { ServerPagedResult, ServerResult } from '@/common/api/types/result.types'
 import type { ServerQueryingParameters } from '@/common/api/types/query.types'
-import type { RoleSummary } from '../types/role.response.type'
-import type { CreateRoleRequest, UpdateRoleRequest, AssignRolePermissionRequest, RevokeRolePermissionRequest, SyncRolePermissionsRequest } from '../types/role.request.type'
+import type { RoleSummary } from '../types/role.response'
+import type { CreateRoleRequest, UpdateRoleRequest, AssignRolePermissionRequest, RevokeRolePermissionRequest, SyncRolePermissionsRequest } from '../types/role.request'
 export const roleRepository = {
   async list(params?: ServerQueryingParameters): Promise<ServerPagedResult<RoleSummary>> {
     const res = await apiClient.get(`${IDENTITY}/roles`, { params })

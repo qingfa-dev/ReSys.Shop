@@ -2,7 +2,7 @@ import apiClient from "@/common/api/http/api.client";
 import { IDENTITY } from "@/common/api/constants";
 import type { ServerPagedResult, ServerResult } from "@/common/api/types/result.types";
 import type { ServerQueryingParameters } from "@/common/api/types/query.types";
-import type { AdminUserSummary, CustomerSummary } from "../types/user.response.type";
+import type { AdminUserSummary, CustomerSummary } from "../types/user.response";
 import type {
   CreateAdminUserRequest,
   UpdateAdminUserRequest,
@@ -11,8 +11,8 @@ import type {
   SyncRolesRequest,
   AssignPermissionRequest,
   SyncPermissionsRequest,
-} from "../types/user.request.type";
-import type { AdminUserSummaryModel } from "../types/user.model.type";
+} from "../types/user.request";
+import type { AdminUserSummaryModel } from "../types/user.model";
 import { mapValue, mapItems } from "@/common/utils/transform";
 
 export const userRepository = {
@@ -95,4 +95,24 @@ export const userRepository = {
     apiClient
       .put(`${IDENTITY}/users/${id}/permissions/sync`, data)
       .then((res) => res.data as ServerResult<void>),
+
+  getUserPermissions: (id: string): Promise<ServerResult<string[]>> =>
+    apiClient
+      .get(`${IDENTITY}/users/${id}/permissions`)
+      .then((res) => res.data as ServerResult<string[]>),
+  updateAdminStatus: (id: string, data: UpdateUserStatusRequest): Promise<ServerResult<void>> =>
+    apiClient
+      .patch(`${IDENTITY}/users/${id}/status`, data)
+      .then((res) => res.data as ServerResult<void>),
+  syncUserRoles: (id: string, data: SyncRolesRequest): Promise<ServerResult<void>> =>
+    apiClient
+      .patch(`${IDENTITY}/users/${id}/roles/sync`, data)
+      .then((res) => res.data as ServerResult<void>),
+  unassignPermission: (id: string, data: AssignPermissionRequest): Promise<ServerResult<void>> =>
+    apiClient
+      .delete(`${IDENTITY}/users/${id}/permissions/revoke`, { data })
+      .then((res) => res.data as ServerResult<void>),
+  resetPassword: async (_id: string, _data: { new_password: string }): Promise<ServerResult<void>> => ({ isSuccess: false, statusCode: 501, errors: [{ code: 'not_implemented', message: 'Not implemented — no backend route', type: 0, metadata: null }], message: 'Not implemented — no backend route', metadata: null, value: undefined as unknown as void }),
+  unlockAccount: async (_id: string): Promise<ServerResult<void>> => ({ isSuccess: false, statusCode: 501, errors: [{ code: 'not_implemented', message: 'Not implemented — no backend route', type: 0, metadata: null }], message: 'Not implemented — no backend route', metadata: null, value: undefined as unknown as void }),
+  verifyAccount: async (_id: string, _data: { verifyEmail?: boolean; verifyPhone?: boolean }): Promise<ServerResult<void>> => ({ isSuccess: false, statusCode: 501, errors: [{ code: 'not_implemented', message: 'Not implemented — no backend route', type: 0, metadata: null }], message: 'Not implemented — no backend route', metadata: null, value: undefined as unknown as void }),
 };

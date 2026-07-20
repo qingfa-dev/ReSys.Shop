@@ -2,9 +2,9 @@ import apiClient from '@/common/api/http/api.client'
 import { PAYMENTS } from '@/common/api/constants'
 import type { ServerPagedResult, ServerResult } from '@/common/api/types/result.types'
 import type { ServerQueryingParameters } from '@/common/api/types/query.types'
-import type { PaymentMethodListItem, PaymentMethodDetail } from '../types/payment-method.response.type'
-import type { PaymentMethodListItemModel, PaymentMethodDetailModel } from '../types/payment-method.model.type'
-import type { CreatePaymentMethodRequest, UpdatePaymentMethodRequest } from '../types/payment-method.request.type'
+import type { PaymentMethodListItem, PaymentMethodDetail } from '../types/payment-method.response'
+import type { PaymentMethodListItemModel, PaymentMethodDetailModel } from '../types/payment-method.model'
+import type { CreatePaymentMethodRequest, UpdatePaymentMethodRequest } from '../types/payment-method.request'
 import { mapValue, mapItems } from '@/common/utils/transform'
 
 function methodsPath(sub?: string): string {

@@ -11,7 +11,7 @@ import type {
 import type {
   ShippingMethodListItemModel,
   ShippingMethodDetailModel,
-} from "../types/shipping-method.model.type";
+} from "../types/shipping-method.model";
 import { mapValue, mapItems } from "@/common/utils/transform";
 
 function methodsPath(sub?: string): string {

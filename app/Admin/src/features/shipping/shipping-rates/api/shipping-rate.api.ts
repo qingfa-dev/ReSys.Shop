@@ -8,7 +8,7 @@ import type {
   CreateShippingRateRequest,
   UpdateShippingRateRequest,
 } from '../types'
-import type { ShippingRateListItemModel, ShippingRateDetailModel } from '../types/shipping-rate.model.type'
+import type { ShippingRateListItemModel, ShippingRateDetailModel } from '../types/shipping-rate.model'
 import { mapValue, mapItems } from '@/common/utils/transform'
 import { decimalToDisplay } from '@/shared/utils/currency'
 

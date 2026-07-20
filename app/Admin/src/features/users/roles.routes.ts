@@ -9,7 +9,7 @@ export const rolesRoutes: RouteRecordRaw = {
         {
             path: '',
             name: 'users.roles.list',
-            component: () => import('./roles/views/RoleList.View.vue'),
+            component: () => import('./roles/pages/RoleListPage.vue'),
             meta: {
                 breadcrumb: 'List'
             }
@@ -17,7 +17,7 @@ export const rolesRoutes: RouteRecordRaw = {
         {
             path: 'create',
             name: 'users.roles.create',
-            component: () => import('./roles/views/RoleForm.View.vue'),
+            component: () => import('./roles/pages/RoleFormPage.vue'),
             meta: {
                 breadcrumb: 'Create Role'
             }
@@ -25,7 +25,7 @@ export const rolesRoutes: RouteRecordRaw = {
         {
             path: ':id/edit',
             name: 'users.roles.edit',
-            component: () => import('./roles/views/RoleForm.View.vue'),
+            component: () => import('./roles/pages/RoleFormPage.vue'),
             meta: {
                 breadcrumb: 'Edit Role'
             }
@@ -33,7 +33,7 @@ export const rolesRoutes: RouteRecordRaw = {
         {
             path: ':id/permissions',
             name: 'users.roles.permissions',
-            component: () => import('./roles/views/RolePermissionsManager.View.vue'),
+            component: () => import('./roles/pages/RolePermissionsManagerPage.vue'),
             meta: {
                 breadcrumb: 'Manage Permissions'
             }

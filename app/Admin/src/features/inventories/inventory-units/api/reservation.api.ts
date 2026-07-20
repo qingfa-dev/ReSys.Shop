@@ -2,7 +2,7 @@ import apiClient from '@/common/api/http/api.client'
 import { INVENTORY } from '@/common/api/constants'
 import type { ServerResult, ServerPagedResult } from '@/common/api/types/result.types'
 import type { ServerQueryingParameters } from '@/common/api/types/query.types'
-import type { InventoryUnit } from '../types/inventory-unit.response.type'
+import type { InventoryUnit } from '../types/inventory-unit.response'
 function path(sub?: string): string {
   return `${INVENTORY}/stock-reservations${sub ? `/${sub}` : ''}`
 }

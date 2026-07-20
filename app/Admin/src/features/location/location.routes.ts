@@ -7,13 +7,13 @@ export const locationRoutes: RouteRecordRaw = {
     {
       path: 'countries',
       name: 'location.countries.list',
-      component: () => import('../location/countries/views/CountryList.View.vue'),
+      component: () => import('../location/countries/pages/CountryListPage.vue'),
       meta: { breadcrumb: 'Countries' },
     },
     {
       path: 'states',
       name: 'location.states.list',
-      component: () => import('../location/states/views/StateList.View.vue'),
+      component: () => import('../location/states/pages/StateListPage.vue'),
       meta: { breadcrumb: 'States' },
     },
   ],

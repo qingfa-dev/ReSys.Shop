@@ -4,10 +4,10 @@ import { useI18n } from 'vue-i18n';
 import { useApiErrorHandler } from '@/common/composables/api-error-handler.use';
 import { useToast } from '@/common/composables/toast.use';
 import { useFormatter } from '@/common/composables/formatter.use';
-import { inventoryService } from '@/features/inventories/services/inventory.service';
+import { inventoryService } from '@/features/inventories/api/inventory.api';
 import { variantRepository } from '../api/variant.api';
-import StockMovementTimeline from '@/features/inventories/components/StockMovementTimeline.Component.vue';
-import StockAdjustmentDialog from '@/features/inventories/components/StockAdjustmentDialog.Component.vue';
+import StockMovementTimeline from '@/features/inventories/components/StockMovementTimeline.vue';
+import StockAdjustmentDialog from '@/features/inventories/components/StockAdjustmentDialog.vue';
 
 interface InventoryVariant {
   id: string;
@@ -51,7 +51,7 @@ const loadData = async () => {
             variants.value = (varResult.value || []) as unknown as InventoryVariant[];
         }
 
-        const stockResult = await inventoryService.listStocks({ filter: `Variant.ProductId=${props.productId}` });
+        const stockResult = await inventoryService.listStocks({ page: 1, pageSize: 100, search: '' });
         if (stockResult.isSuccess && stockResult.items) {
             stockItems.value = stockResult.items as unknown as InventoryStockItem[];
         }
