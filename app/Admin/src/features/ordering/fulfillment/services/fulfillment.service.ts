@@ -1,6 +1,6 @@
 import { fulfillmentRepository } from '../api/fulfillment.api'
 import { orderRepository } from '../../orders/api/order.api'
-import type { ServerResult } from '@/shared/api/types/result.types'
+import type { ServerResult } from '@/common/api/types/result.types'
 
 export const fulfillmentService = {
   getQueue: fulfillmentRepository.getQueue.bind(fulfillmentRepository),

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue';
-import { useToast } from '@/shared/composables/toast.use';
+import { useToast } from '@/common/composables/toast.use';
 import { orderService } from '../services/order.service';
 import LocationSelector from '@/features/inventories/components/LocationSelector.Component.vue';
 import type { OrderDetailModel } from '../types/order.model.type';

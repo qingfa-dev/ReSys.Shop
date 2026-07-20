@@ -4,10 +4,10 @@ import { useI18n } from 'vue-i18n';
 import { useProductStore } from '../../stores/product.store';
 import { useTaxonomyStore } from '@/features/catalog/taxonomies/stores/taxonomy.store';
 import { storeToRefs } from 'pinia';
-import { useApiErrorHandler } from '@/shared/composables/api-error-handler.use';
-import type { ServerResult } from '@/shared/api/types/result.types';
-import { useToast } from '@/shared/composables/toast.use';
-import apiClient from '@/shared/api/http/api.client';
+import { useApiErrorHandler } from '@/common/composables/api-error-handler.use';
+import type { ServerResult } from '@/common/api/types/result.types';
+import { useToast } from '@/common/composables/toast.use';
+import apiClient from '@/common/api/http/api.client';
 import type { ProductClassification } from '../types/classification.response.type';
 
 const props = defineProps<{

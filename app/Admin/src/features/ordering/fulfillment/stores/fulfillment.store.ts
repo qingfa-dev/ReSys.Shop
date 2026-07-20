@@ -1,10 +1,10 @@
 import { defineStore } from 'pinia';
 import { useI18n } from 'vue-i18n';
-import { useToast } from '@/shared/composables/toast.use';
-import { usePagedList } from '@/shared/composables/paged-list.use';
+import { useToast } from '@/common/composables/toast.use';
+import { usePagedList } from '@/common/composables/paged-list.use';
 import { fulfillmentService } from '@/features/ordering/fulfillment/services/fulfillment.service';
 import type { OrderListItemModel } from '../../orders/types/order.model.type';
-import type { ServerQueryingParameters } from '@/shared/api/types/query.types';
+import type { ServerQueryingParameters } from '@/common/api/types/query.types';
 
 export const useFulfillmentStore = defineStore('fulfillment', () => {
   const { showToast } = useToast();

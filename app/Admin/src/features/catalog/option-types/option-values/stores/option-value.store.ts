@@ -4,7 +4,7 @@ import { optionValueService } from '../services/option-value.service';
 import type { OptionValueListItem } from '../types/option-value.response.type'
 import type { OptionValueQuery } from '../types/option-value.query.type'
 import type { CreateOptionValueRequest, UpdateOptionValueRequest } from '../types/option-value.request.type'
-import type { ServerResult, ServerPagedResult } from '@/shared/api/types/result.types'
+import type { ServerResult, ServerPagedResult } from '@/common/api/types/result.types'
 
 export const useOptionValueStore = defineStore('option-value', () => {
   const values = ref<OptionValueListItem[]>([]);

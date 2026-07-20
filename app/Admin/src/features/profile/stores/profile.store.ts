@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { useToast } from '@/shared/composables/toast.use'
+import { useToast } from '@/common/composables/toast.use'
 import { profileService } from '../services/profile.service'
 import type { Profile } from '../types/profile.response.type'
 

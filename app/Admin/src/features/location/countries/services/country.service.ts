@@ -1,6 +1,6 @@
 import { countryRepository } from '../api/country.api'
-import type { ServerResult, ServerPagedResult } from '@/shared/api/types/result.types'
-import type { ServerQueryingParameters } from '@/shared/api/types/query.types'
+import type { ServerResult, ServerPagedResult } from '@/common/api/types/result.types'
+import type { ServerQueryingParameters } from '@/common/api/types/query.types'
 import type { Country } from '../types/country.response.type'
 import type { CreateCountryRequest, UpdateCountryRequest } from '../types/country.request.type'
 

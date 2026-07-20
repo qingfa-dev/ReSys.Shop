@@ -1,6 +1,6 @@
 import { movementRepository } from '../api/movement.api'
-import type { ServerResult, ServerPagedResult } from '@/shared/api/types/result.types'
-import type { ServerQueryingParameters } from '@/shared/api/types/query.types'
+import type { ServerResult, ServerPagedResult } from '@/common/api/types/result.types'
+import type { ServerQueryingParameters } from '@/common/api/types/query.types'
 import type { StockMovement } from '../types/stock-movement.response.type'
 
 export const movementService = {

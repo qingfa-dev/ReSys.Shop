@@ -10,8 +10,8 @@ import type {
   DataTableSortEvent,
   DataTableFilterMeta,
 } from 'primevue/datatable';
-import { getFilterValue } from '@/shared/api/types/filter.types';
-import { useFormatter } from '@/shared/composables/formatter.use';
+import { getFilterValue } from '@/common/api/types/filter.types';
+import { useFormatter } from '@/common/composables/formatter.use';
 import PageShell from '@/shared/components/PageShell.Component.vue';
 import PageHeader from '@/shared/components/PageHeader.Component.vue';
 import DataTableShell from '@/shared/components/DataTableShell.Component.vue';

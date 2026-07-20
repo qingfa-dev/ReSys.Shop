@@ -1,11 +1,11 @@
-import apiClient from '@/shared/api/http/api.client'
-import { CATALOG } from '@/shared/api/constants'
-import type { ServerPagedResult, ServerResult } from '@/shared/api/types/result.types'
-import type { ServerQueryingParameters } from '@/shared/api/types/query.types'
+import apiClient from '@/common/api/http/api.client'
+import { CATALOG } from '@/common/api/constants'
+import type { ServerPagedResult, ServerResult } from '@/common/api/types/result.types'
+import type { ServerQueryingParameters } from '@/common/api/types/query.types'
 import type { ProductDetail, ProductSummary } from '../types/product.response.type'
 import type { CreateProductRequest, UpdateProductRequest } from '../types/product.request.type'
 import type { ProductSummaryModel, ProductDetailModel } from '../types/product.model.type'
-import { mapValue, mapItems } from '@/shared/utils/transform'
+import { mapValue, mapItems } from '@/common/utils/transform'
 import { ProductStatusMap } from '@/shared/utils/enums'
 
 export const productRepository = {

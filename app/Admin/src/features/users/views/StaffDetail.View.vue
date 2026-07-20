@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { ref, onMounted, computed } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
-import { useToast } from '@/shared/composables/toast.use';
-import { useFormatter } from '@/shared/composables/formatter.use';
+import { useToast } from '@/common/composables/toast.use';
+import { useFormatter } from '@/common/composables/formatter.use';
 import { userService } from '../services/user.service';
 import type { AdminUserSummary } from '../types/user.response.type';
 import { useI18n } from 'vue-i18n';

@@ -1,7 +1,7 @@
-import apiClient from '@/shared/api/http/api.client'
-import { IDENTITY } from '@/shared/api/constants'
-import type { ServerResult } from '@/shared/api/types/result.types'
-import type { ServerQueryingParameters } from '@/shared/api/types/query.types'
+import apiClient from '@/common/api/http/api.client'
+import { IDENTITY } from '@/common/api/constants'
+import type { ServerResult } from '@/common/api/types/result.types'
+import type { ServerQueryingParameters } from '@/common/api/types/query.types'
 import type { PermissionSummary } from '../types/permission.response.type'
 export const permissionRepository = {
   async list(params?: ServerQueryingParameters): Promise<ServerResult<PermissionSummary[]>> {

@@ -2,7 +2,7 @@ import { defineStore } from 'pinia'
 import { ref } from 'vue'
 import { roleService } from '../services/role.service'
 import type { RoleSummary } from '../types/role.response.type'
-import type { ServerQueryingParameters } from '@/shared/api/types/query.types'
+import type { ServerQueryingParameters } from '@/common/api/types/query.types'
 
 export const useRoleStore = defineStore('role', () => {
   const items = ref<RoleSummary[]>([])

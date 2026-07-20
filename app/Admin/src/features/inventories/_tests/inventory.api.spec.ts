@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from 'vitest'
-import apiClient from '@/shared/api/http/api.client'
+import apiClient from '@/common/api/http/api.client'
 import { stockRepository } from '../stock-items/api/stock.api'
 import { locationRepository } from '../stock-locations/api/location.api'
 import { transferRepository } from '../stock-transfers/api/transfer.api'

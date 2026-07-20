@@ -1,6 +1,6 @@
 import { locationRepository } from '../api/location.api'
-import type { ServerResult, ServerPagedResult } from '@/shared/api/types/result.types'
-import type { ServerQueryingParameters } from '@/shared/api/types/query.types'
+import type { ServerResult, ServerPagedResult } from '@/common/api/types/result.types'
+import type { ServerQueryingParameters } from '@/common/api/types/query.types'
 import type { StockLocation, StockLocationDetail } from '../types/stock-location.response.type'
 import type { CreateStockLocationRequest } from '../types/stock-location.request.type'
 

@@ -1,6 +1,6 @@
-import apiClient from '@/shared/api/http/api.client'
-import { CATALOG } from '@/shared/api/constants'
-import type { ServerPagedResult, ServerResult } from '@/shared/api/types/result.types'
+import apiClient from '@/common/api/http/api.client'
+import { CATALOG } from '@/common/api/constants'
+import type { ServerPagedResult, ServerResult } from '@/common/api/types/result.types'
 import type { PriceRecord } from '../types/price.response.type'
 import type { SetVariantPriceRequest } from '../types/price.request.type'
 

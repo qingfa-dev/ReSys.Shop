@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { ref } from 'vue';
-import { useToast } from '@/shared/composables/toast.use';
+import { useToast } from '@/common/composables/toast.use';
 import { useConfirm } from 'primevue/useconfirm';
-import { useFormatter } from '@/shared/composables/formatter.use';
+import { useFormatter } from '@/common/composables/formatter.use';
 import { userService } from '../services/user.service';
 import type { AdminUserSummary } from '../types/user.response.type';
 import { useI18n } from 'vue-i18n';

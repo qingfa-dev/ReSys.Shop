@@ -2,7 +2,7 @@ import { defineStore } from 'pinia'
 import { ref } from 'vue'
 import { paymentMethodService } from '../services/payment-method.service'
 import type { PaymentMethodListItemModel, PaymentMethodDetailModel } from '../types/payment-method.model.type'
-import type { ServerQueryingParameters } from '@/shared/api/types/query.types'
+import type { ServerQueryingParameters } from '@/common/api/types/query.types'
 
 export const usePaymentMethodStore = defineStore('paymentMethod', () => {
   const items = ref<PaymentMethodListItemModel[]>([])

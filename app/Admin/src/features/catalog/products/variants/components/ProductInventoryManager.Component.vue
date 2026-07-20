@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
 import { useI18n } from 'vue-i18n';
-import { useApiErrorHandler } from '@/shared/composables/api-error-handler.use';
-import { useToast } from '@/shared/composables/toast.use';
-import { useFormatter } from '@/shared/composables/formatter.use';
+import { useApiErrorHandler } from '@/common/composables/api-error-handler.use';
+import { useToast } from '@/common/composables/toast.use';
+import { useFormatter } from '@/common/composables/formatter.use';
 import { inventoryService } from '@/features/inventories/services/inventory.service';
 import { variantService } from '../services/variant.service';
 import StockMovementTimeline from '@/features/inventories/components/StockMovementTimeline.Component.vue';

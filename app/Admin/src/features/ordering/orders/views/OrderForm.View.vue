@@ -3,9 +3,9 @@ import { ref, onMounted, computed } from 'vue';
 import { useRouter } from 'vue-router';
 import { useOrderStore } from '../stores/order.store';
 import { useProductStore } from '@/features/catalog/products/stores/product.store';
-import { useFormatter } from '@/shared/composables/formatter.use';
+import { useFormatter } from '@/common/composables/formatter.use';
 import { useI18n } from 'vue-i18n';
-import { useToast } from '@/shared/composables/toast.use';
+import { useToast } from '@/common/composables/toast.use';
 import { variantService } from '@/features/catalog/products/variants/services/variant.service';
 import PageShell from '@/shared/components/PageShell.Component.vue'
 import PageHeader from '@/shared/components/PageHeader.Component.vue'

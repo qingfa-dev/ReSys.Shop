@@ -1,5 +1,5 @@
 import { userRepository } from '../api/user.api'
-import type { ServerResult, ServerPagedResult } from '@/shared/api/types/result.types'
+import type { ServerResult, ServerPagedResult } from '@/common/api/types/result.types'
 import type { AdminUserSummaryModel } from '../types/user.model.type'
 
 export const userService = {

@@ -1,4 +1,4 @@
-import apiClient from '@/shared/api/http/api.client'
+import apiClient from '@/common/api/http/api.client'
 import type { AxiosResponse } from 'axios'
 import type { OrderingDashboardResponse } from '../types/ordering-dashboard.types'
 

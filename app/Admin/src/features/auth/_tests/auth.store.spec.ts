@@ -4,7 +4,7 @@ import { useAuthStore } from '../stores/auth.store'
 import { authService } from '../services/auth.service'
 
 // Mock dependencies
-import { createMockErrorResult } from '@/shared/test/mock-types'
+import { createMockErrorResult } from '@/common/test/mock-types'
 import type { AuthSession } from '../types/auth.model.type'
 
 vi.mock('../services/auth.service', () => ({

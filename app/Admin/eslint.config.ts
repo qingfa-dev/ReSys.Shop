@@ -18,6 +18,7 @@ export default defineConfigWithVueTs(
     settings: {
       'boundaries/elements': [
         { type: 'shared', pattern: 'src/shared/**/*' },
+        { type: 'common', pattern: 'src/common/**/*', mode: 'folder' },
         { type: 'features', pattern: 'src/features/**/*', mode: 'folder' },
         { type: 'app', pattern: 'src/app/**/*', mode: 'folder' },
       ],
@@ -28,9 +29,10 @@ export default defineConfigWithVueTs(
         {
           default: 'allow',
           rules: [
-            { from: 'shared', disallow: ['features', 'app'] },
+            { from: 'shared', disallow: ['common', 'features', 'app'] },
+            { from: 'common', disallow: ['features', 'app'] },
             { from: 'features', disallow: ['features', 'app'] },
-            { from: 'app', allow: ['shared', 'features'] },
+            { from: 'app', allow: ['shared', 'common', 'features'] },
           ],
         },
       ],

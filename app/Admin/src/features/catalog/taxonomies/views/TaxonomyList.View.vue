@@ -11,10 +11,10 @@ import type {
   DataTableSortEvent,
   DataTableFilterMeta,
 } from 'primevue/datatable';
-import { getFilterValue } from '@/shared/api/types/filter.types';
-import { useToast } from '@/shared/composables/toast.use';
-import { useFormatter } from '@/shared/composables/formatter.use';
-import { QueryBuilder } from '@/shared/utils/query-builder.utils';
+import { getFilterValue } from '@/common/api/types/filter.types';
+import { useToast } from '@/common/composables/toast.use';
+import { useFormatter } from '@/common/composables/formatter.use';
+import { QueryBuilder } from '@/common/utils/query-builder.utils';
 import PageShell from '@/shared/components/PageShell.Component.vue'
 import PageHeader from '@/shared/components/PageHeader.Component.vue'
 import type { TaxonomyListItem } from '../types/taxonomy.response.type';

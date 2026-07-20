@@ -2,7 +2,7 @@
 import { onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { movementService } from '../services/movement.service'
-import { useFormatter } from '@/shared/composables/formatter.use'
+import { useFormatter } from '@/common/composables/formatter.use'
 import { useI18n } from 'vue-i18n'
 import PageShell from '@/shared/components/PageShell.Component.vue'
 import PageHeader from '@/shared/components/PageHeader.Component.vue'

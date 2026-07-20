@@ -1,4 +1,4 @@
-import apiClient from '@/shared/api/http/api.client'
+import apiClient from '@/common/api/http/api.client'
 import type { AxiosResponse } from 'axios'
 import type { InventoryDashboardResponse } from '../types/inventory-dashboard.types'
 

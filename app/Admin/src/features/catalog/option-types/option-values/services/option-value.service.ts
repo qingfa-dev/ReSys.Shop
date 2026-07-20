@@ -5,7 +5,7 @@ import type {
   UpdateOptionValueRequest,
   UpdateOptionValuePositionsRequest,
 } from "../types/option-value.request.type";
-import type { ServerResult, ServerPagedResult } from "@/shared/api/types/result.types";
+import type { ServerResult, ServerPagedResult } from "@/common/api/types/result.types";
 import type { OptionValueListItem } from "../types/option-value.response.type";
 
 export const optionValueService = {

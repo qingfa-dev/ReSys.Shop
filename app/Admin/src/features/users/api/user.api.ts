@@ -1,7 +1,7 @@
-import apiClient from "@/shared/api/http/api.client";
-import { IDENTITY } from "@/shared/api/constants";
-import type { ServerPagedResult, ServerResult } from "@/shared/api/types/result.types";
-import type { ServerQueryingParameters } from "@/shared/api/types/query.types";
+import apiClient from "@/common/api/http/api.client";
+import { IDENTITY } from "@/common/api/constants";
+import type { ServerPagedResult, ServerResult } from "@/common/api/types/result.types";
+import type { ServerQueryingParameters } from "@/common/api/types/query.types";
 import type { AdminUserSummary, CustomerSummary } from "../types/user.response.type";
 import type {
   CreateAdminUserRequest,
@@ -13,7 +13,7 @@ import type {
   SyncPermissionsRequest,
 } from "../types/user.request.type";
 import type { AdminUserSummaryModel } from "../types/user.model.type";
-import { mapValue, mapItems } from "@/shared/utils/transform";
+import { mapValue, mapItems } from "@/common/utils/transform";
 
 export const userRepository = {
   async list(params?: ServerQueryingParameters): Promise<ServerPagedResult<AdminUserSummaryModel>> {

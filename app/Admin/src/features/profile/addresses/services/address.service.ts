@@ -1,5 +1,5 @@
 import { addressApi } from '../api/address.api'
-import type { ServerResult } from '@/shared/api/types/result.types'
+import type { ServerResult } from '@/common/api/types/result.types'
 import type { AddressDetail } from '../types/address.response.type'
 
 export const addressService = {

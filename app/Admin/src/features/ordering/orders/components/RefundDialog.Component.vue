@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import type { RefundPaymentRequest } from '../../fulfillment/types/fulfillment.request.type';
-import { useFormatter } from '@/shared/composables/formatter.use';
+import { useFormatter } from '@/common/composables/formatter.use';
 import { useI18n } from 'vue-i18n';
 
 const props = defineProps<{

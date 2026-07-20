@@ -1,7 +1,7 @@
 import { productRepository } from "../api/product.api";
 import { productOptionTypeApi } from "../option-types/api/product-option-type.api";
 import { productClassificationApi } from "../classifications/api/product-classification.api";
-import type { ServerResult, ServerPagedResult } from "@/shared/api/types/result.types";
+import type { ServerResult, ServerPagedResult } from "@/common/api/types/result.types";
 import type { OptionTypeDetail } from "../../option-types/types/option-type.response.type";
 import type { ProductClassification } from "../classifications/types/classification.response.type";
 import type { ProductImage } from "../types/product-image.response.type";

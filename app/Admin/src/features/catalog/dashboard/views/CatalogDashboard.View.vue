@@ -4,7 +4,7 @@ import { useI18n } from 'vue-i18n';
 import { useRouter } from 'vue-router';
 import { useCatalogDashboardStore } from '../stores/catalog-dashboard.store';
 import { storeToRefs } from 'pinia';
-import { useFormatter } from '@/shared/composables/formatter.use';
+import { useFormatter } from '@/common/composables/formatter.use';
 import PageShell from '@/shared/components/PageShell.Component.vue';
 import PageHeader from '@/shared/components/PageHeader.Component.vue';
 

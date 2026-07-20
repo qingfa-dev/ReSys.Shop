@@ -27,7 +27,7 @@ export default defineConfig({
     Components({ resolvers: [PrimeVueResolver()] }),
     AutoImport({
       imports: ['vue', 'vue-router'],
-      dirs: ['src/shared/composables'],
+      dirs: ['src/common/composables'],
       dts: 'src/auto-imports.d.ts',
       eslintrc: { enabled: true },
     }),

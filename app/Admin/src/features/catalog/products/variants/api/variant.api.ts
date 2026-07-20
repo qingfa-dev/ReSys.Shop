@@ -1,9 +1,9 @@
-import apiClient from '@/shared/api/http/api.client'
-import { CATALOG } from '@/shared/api/constants'
-import type { ServerResult } from '@/shared/api/types/result.types'
+import apiClient from '@/common/api/http/api.client'
+import { CATALOG } from '@/common/api/constants'
+import type { ServerResult } from '@/common/api/types/result.types'
 import type { VariantDetail, VariantSummary } from '../types/variant.response.type'
 import type { CreateVariantRequest, UpdateVariantRequest } from '../types/variant.request.type'
-import { mapValue } from '@/shared/utils/transform'
+import { mapValue } from '@/common/utils/transform'
 import { decimalToDisplay } from '@/shared/utils/currency'
 import type { VariantSummaryModel, VariantDetailModel } from '../types/variant.model.type'
 

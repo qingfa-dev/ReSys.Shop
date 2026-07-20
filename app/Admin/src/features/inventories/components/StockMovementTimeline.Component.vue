@@ -2,8 +2,8 @@
 import { ref, onMounted } from 'vue';
 import { inventoryService } from '../services/inventory.service';
 import type { StockMovement } from '../stock-movements/types/stock-movement.response.type';
-import type { ServerQueryingParameters } from '@/shared/api/types/query.types';
-import { useFormatter } from '@/shared/composables/formatter.use';
+import type { ServerQueryingParameters } from '@/common/api/types/query.types';
+import { useFormatter } from '@/common/composables/formatter.use';
 
 const props = defineProps<{
     stockItemId?: string;

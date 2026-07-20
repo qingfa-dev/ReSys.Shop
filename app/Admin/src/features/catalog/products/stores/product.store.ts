@@ -1,8 +1,8 @@
 import { defineStore } from "pinia";
 import { ref } from "vue";
 import { useI18n } from 'vue-i18n';
-import { useToast } from "@/shared/composables/toast.use";
-import { usePagedList } from "@/shared/composables/paged-list.use";
+import { useToast } from "@/common/composables/toast.use";
+import { usePagedList } from "@/common/composables/paged-list.use";
 import { productService } from "../services/product.service";
 import type { ProductSummaryModel, ProductDetailModel } from "../types/product.model.type";
 import type { ProductClassification } from "../classifications/types/classification.response.type";

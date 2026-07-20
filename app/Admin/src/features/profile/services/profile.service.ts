@@ -1,5 +1,5 @@
 import { profileRepository } from '../api/profile.api'
-import type { ServerResult } from '@/shared/api/types/result.types'
+import type { ServerResult } from '@/common/api/types/result.types'
 import type { Profile } from '../types/profile.response.type'
 import type { ProfileUpdateRequest } from '../types/profile.request.type'
 

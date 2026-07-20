@@ -1,10 +1,10 @@
 import { defineStore } from 'pinia';
 import { ref } from 'vue';
 import { useI18n } from 'vue-i18n';
-import { useToast } from '@/shared/composables/toast.use';
-import { usePagedList } from '@/shared/composables/paged-list.use';
+import { useToast } from '@/common/composables/toast.use';
+import { usePagedList } from '@/common/composables/paged-list.use';
 import { orderService } from '../services/order.service';
-import type { ServerResult } from '@/shared/api/types/result.types';
+import type { ServerResult } from '@/common/api/types/result.types';
 import type { OrderListItemModel, OrderDetailModel } from '../types/order.model.type';
 import type { OrderQuery } from '../types/order.query.type';
 import type { CreateOrderRequest, AddOrderItemRequest, UpdateAddressesRequest } from '../types/order.request.type';

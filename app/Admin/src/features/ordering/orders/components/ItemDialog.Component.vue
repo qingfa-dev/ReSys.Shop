@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import { useProductStore } from '@/features/catalog/products/stores/product.store';
-import { useFormatter } from '@/shared/composables/formatter.use';
+import { useFormatter } from '@/common/composables/formatter.use';
 import type { AddOrderItemRequest } from '../types/order.request.type';
 import type { ProductSummaryModel } from '@/features/catalog/products/types/product.model.type';
 import type { VariantSummary } from '@/features/catalog/products/variants/types/variant.response.type';

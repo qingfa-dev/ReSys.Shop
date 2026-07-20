@@ -3,7 +3,7 @@ import { onMounted, ref } from 'vue';
 import { useInventoryStore } from '../../stores/inventory.store';
 import { storeToRefs } from 'pinia';
 import { useRouter } from 'vue-router';
-import { useFormatter } from '@/shared/composables/formatter.use';
+import { useFormatter } from '@/common/composables/formatter.use';
 import { useI18n } from 'vue-i18n';
 import PageShell from '@/shared/components/PageShell.Component.vue';
 import PageHeader from '@/shared/components/PageHeader.Component.vue';

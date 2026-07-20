@@ -1,11 +1,11 @@
-import apiClient from '@/shared/api/http/api.client'
-import { PAYMENTS } from '@/shared/api/constants'
-import type { ServerPagedResult, ServerResult } from '@/shared/api/types/result.types'
-import type { ServerQueryingParameters } from '@/shared/api/types/query.types'
+import apiClient from '@/common/api/http/api.client'
+import { PAYMENTS } from '@/common/api/constants'
+import type { ServerPagedResult, ServerResult } from '@/common/api/types/result.types'
+import type { ServerQueryingParameters } from '@/common/api/types/query.types'
 import type { PaymentMethodListItem, PaymentMethodDetail } from '../types/payment-method.response.type'
 import type { PaymentMethodListItemModel, PaymentMethodDetailModel } from '../types/payment-method.model.type'
 import type { CreatePaymentMethodRequest, UpdatePaymentMethodRequest } from '../types/payment-method.request.type'
-import { mapValue, mapItems } from '@/shared/utils/transform'
+import { mapValue, mapItems } from '@/common/utils/transform'
 
 function methodsPath(sub?: string): string {
   return `${PAYMENTS}/payment-methods${sub ? `/${sub}` : ''}`

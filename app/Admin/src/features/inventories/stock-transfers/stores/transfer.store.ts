@@ -2,7 +2,7 @@ import { defineStore } from 'pinia'
 import { ref } from 'vue'
 import { transferService } from '../services/transfer.service'
 import type { StockTransfer } from '../types/stock-transfer.response.type'
-import type { ServerQueryingParameters } from '@/shared/api/types/query.types'
+import type { ServerQueryingParameters } from '@/common/api/types/query.types'
 
 export const useTransferStore = defineStore('transfer', () => {
   const items = ref<StockTransfer[]>([])

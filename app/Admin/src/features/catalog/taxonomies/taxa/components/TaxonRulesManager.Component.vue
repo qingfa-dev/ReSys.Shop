@@ -6,8 +6,8 @@ import { storeToRefs } from 'pinia'
 import { useForm } from 'vee-validate'
 import { toTypedSchema } from '@vee-validate/zod'
 import { createTaxonRuleSchema } from '../../schemas/taxon-rule.schema'
-import { useApiErrorHandler } from '@/shared/composables/api-error-handler.use'
-import { useToast } from '@/shared/composables/toast.use'
+import { useApiErrorHandler } from '@/common/composables/api-error-handler.use'
+import { useToast } from '@/common/composables/toast.use'
 import type { TaxonRuleListItem } from '../types/taxon-rule.response.type'
 
 const { t } = useI18n()

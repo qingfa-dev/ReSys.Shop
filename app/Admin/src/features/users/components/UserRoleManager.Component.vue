@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
-import { useToast } from '@/shared/composables/toast.use';
+import { useToast } from '@/common/composables/toast.use';
 import { useI18n } from 'vue-i18n';
 import { roleService } from '../roles/services/role.service';
 import { userService } from '../services/user.service';

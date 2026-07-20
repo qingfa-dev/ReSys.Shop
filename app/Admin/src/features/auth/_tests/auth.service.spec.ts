@@ -1,8 +1,8 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { authService } from '../services/auth.service'
-import apiClient from '@/shared/api/http/api.client'
+import apiClient from '@/common/api/http/api.client'
 import type { LoginRequest } from '../types/login.request.type'
-import { createMockResult } from '@/shared/test/mock-types'
+import { createMockResult } from '@/common/test/mock-types'
 import type { LoginResponse } from '../types/login.response.type'
 import type { AxiosResponse } from 'axios'
 

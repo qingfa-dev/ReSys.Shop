@@ -1,7 +1,7 @@
-import apiClient from '@/shared/api/http/api.client'
-import { LOCATIONS } from '@/shared/api/constants'
-import type { ServerResult, ServerPagedResult } from '@/shared/api/types/result.types'
-import type { ServerQueryingParameters } from '@/shared/api/types/query.types'
+import apiClient from '@/common/api/http/api.client'
+import { LOCATIONS } from '@/common/api/constants'
+import type { ServerResult, ServerPagedResult } from '@/common/api/types/result.types'
+import type { ServerQueryingParameters } from '@/common/api/types/query.types'
 import type { Country } from '../types/country.response.type'
 import type { CreateCountryRequest, UpdateCountryRequest } from '../types/country.request.type'
 function path(sub?: string): string {

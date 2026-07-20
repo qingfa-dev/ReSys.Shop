@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from 'vitest'
-import apiClient from '@/shared/api/http/api.client'
+import apiClient from '@/common/api/http/api.client'
 import { orderRepository } from '../orders/api/order.api'
 import { fulfillmentRepository } from '../fulfillment/api/fulfillment.api'
 

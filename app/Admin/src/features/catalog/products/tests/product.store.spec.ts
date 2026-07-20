@@ -7,7 +7,7 @@ import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { useProductStore } from '../stores/product.store';
 import { productService } from '../services/product.service';
 
-import { createMockPagedResult } from '@/shared/test/mock-types'
+import { createMockPagedResult } from '@/common/test/mock-types'
 import type { ProductSummaryModel } from '../types/product.model.type'
 
 vi.mock('../services/product.service', () => ({

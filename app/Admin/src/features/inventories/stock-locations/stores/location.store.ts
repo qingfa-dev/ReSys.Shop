@@ -2,7 +2,7 @@ import { defineStore } from 'pinia'
 import { ref } from 'vue'
 import { locationService } from '../services/location.service'
 import type { StockLocation } from '../types/stock-location.response.type'
-import type { ServerQueryingParameters } from '@/shared/api/types/query.types'
+import type { ServerQueryingParameters } from '@/common/api/types/query.types'
 
 export const useLocationStore = defineStore('location', () => {
   const items = ref<StockLocation[]>([])

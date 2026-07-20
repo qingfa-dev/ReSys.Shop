@@ -1,7 +1,7 @@
-import apiClient from '@/shared/api/http/api.client'
-import { INVENTORY } from '@/shared/api/constants'
-import type { ServerResult, ServerPagedResult } from '@/shared/api/types/result.types'
-import type { ServerQueryingParameters } from '@/shared/api/types/query.types'
+import apiClient from '@/common/api/http/api.client'
+import { INVENTORY } from '@/common/api/constants'
+import type { ServerResult, ServerPagedResult } from '@/common/api/types/result.types'
+import type { ServerQueryingParameters } from '@/common/api/types/query.types'
 import type { InventoryUnit } from '../types/inventory-unit.response.type'
 function path(sub?: string): string {
   return `${INVENTORY}/stock-reservations${sub ? `/${sub}` : ''}`

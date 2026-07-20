@@ -1,6 +1,6 @@
 import { stockRepository } from '../api/stock.api'
-import type { ServerResult, ServerPagedResult } from '@/shared/api/types/result.types'
-import type { ServerQueryingParameters } from '@/shared/api/types/query.types'
+import type { ServerResult, ServerPagedResult } from '@/common/api/types/result.types'
+import type { ServerQueryingParameters } from '@/common/api/types/query.types'
 import type { StockItem, StockItemDetail, StockSummary } from '../types/stock-item.response.type'
 import type { StockItemQuery } from '../types/stock-item.query.type'
 import type { StockAdjustmentRequest } from '../types/stock-item.request.type'

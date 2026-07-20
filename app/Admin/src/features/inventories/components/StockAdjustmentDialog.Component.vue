@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import { inventoryService } from '../services/inventory.service';
-import { useToast } from '@/shared/composables/toast.use';
+import { useToast } from '@/common/composables/toast.use';
 import { useI18n } from 'vue-i18n';
 
 const { t } = useI18n();

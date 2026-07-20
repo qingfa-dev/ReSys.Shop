@@ -1,6 +1,6 @@
-import apiClient from '@/shared/api/http/api.client'
-import { PROFILES } from '@/shared/api/constants'
-import type { ServerResult } from '@/shared/api/types/result.types'
+import apiClient from '@/common/api/http/api.client'
+import { PROFILES } from '@/common/api/constants'
+import type { ServerResult } from '@/common/api/types/result.types'
 import type { AddressDetail } from '../types/address.response.type'
 import type { CreateAddressRequest, UpdateAddressRequest } from '../types/address.request.type'
 export const addressApi = {

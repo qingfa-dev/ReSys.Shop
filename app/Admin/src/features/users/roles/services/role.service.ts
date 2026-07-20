@@ -1,6 +1,6 @@
 import { roleRepository } from '../api/role.api'
 import type { RoleSummary } from '../types/role.response.type'
-import type { ServerPagedResult, ServerResult } from '@/shared/api/types/result.types'
+import type { ServerPagedResult, ServerResult } from '@/common/api/types/result.types'
 
 export const roleService = {
   async list(...args: Parameters<typeof roleRepository.list>): Promise<ServerPagedResult<RoleSummary>> {

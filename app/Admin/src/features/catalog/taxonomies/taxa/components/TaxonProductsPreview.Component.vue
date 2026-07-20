@@ -2,8 +2,8 @@
 import { ref, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { taxonService } from '../services/taxon.service'
-import { useApiErrorHandler } from '@/shared/composables/api-error-handler.use'
-import { useFormatter } from '@/shared/composables/formatter.use'
+import { useApiErrorHandler } from '@/common/composables/api-error-handler.use'
+import { useFormatter } from '@/common/composables/formatter.use'
 import type { DataTablePageEvent } from 'primevue/datatable'
 import type { ProductSummary } from '@/features/catalog/products/types/product.response.type'
 

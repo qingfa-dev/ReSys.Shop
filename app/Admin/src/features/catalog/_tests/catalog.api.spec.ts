@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from 'vitest'
-import apiClient from '@/shared/api/http/api.client'
+import apiClient from '@/common/api/http/api.client'
 import { productRepository } from '../products/api/product.api'
 import { variantRepository } from '../products/variants/api/variant.api'
 import { optionTypeRepository } from '../option-types/api/option-type.api'

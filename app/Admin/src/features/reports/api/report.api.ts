@@ -1,5 +1,5 @@
-import apiClient from '@/shared/api/http/api.client'
-import type { ServerResult } from '@/shared/api/types/result.types'
+import apiClient from '@/common/api/http/api.client'
+import type { ServerResult } from '@/common/api/types/result.types'
 import type { SalesSummary, InventorySummary, CatalogSummary, RecentActivityResponse } from '../types/report.response.type'
 interface ReportEndpoints {
   getSalesSummary(params?: Record<string, unknown>): Promise<ServerResult<SalesSummary>>

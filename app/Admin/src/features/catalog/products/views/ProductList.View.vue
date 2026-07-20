@@ -11,8 +11,8 @@ import type {
   DataTableSortEvent,
   DataTableFilterMeta,
 } from 'primevue/datatable';
-import { getFilterValue } from '@/shared/api/types/filter.types';
-import { useToast } from '@/shared/composables/toast.use';
+import { getFilterValue } from '@/common/api/types/filter.types';
+import { useToast } from '@/common/composables/toast.use';
 import PageShell from '@/shared/components/PageShell.Component.vue';
 import PageHeader from '@/shared/components/PageHeader.Component.vue';
 import DataTableShell from '@/shared/components/DataTableShell.Component.vue';

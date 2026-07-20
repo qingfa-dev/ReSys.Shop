@@ -1,6 +1,6 @@
 import { reservationRepository } from '../api/reservation.api'
-import type { ServerResult, ServerPagedResult } from '@/shared/api/types/result.types'
-import type { ServerQueryingParameters } from '@/shared/api/types/query.types'
+import type { ServerResult, ServerPagedResult } from '@/common/api/types/result.types'
+import type { ServerQueryingParameters } from '@/common/api/types/query.types'
 import type { InventoryUnit } from '../types/inventory-unit.response.type'
 
 export const reservationService = {

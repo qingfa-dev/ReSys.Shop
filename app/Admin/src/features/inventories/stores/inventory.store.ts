@@ -7,7 +7,7 @@ import type { StockLocation } from '../stock-locations/types/stock-location.resp
 import type { StockTransfer } from '../stock-transfers/types/stock-transfer.response.type';
 import type { StockItemQuery } from '../stock-items/types/stock-item.query.type';
 import type { InventoryUnitQuery } from '../inventory-units/types/inventory-unit.query.type';
-import type { ServerQueryingParameters } from '@/shared/api/types/query.types';
+import type { ServerQueryingParameters } from '@/common/api/types/query.types';
 
 export const useInventoryStore = defineStore('inventory', () => {
   // --- STATE ---

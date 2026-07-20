@@ -2,7 +2,7 @@
 import { onMounted, ref } from 'vue';
 import { useFulfillmentStore } from '../stores/fulfillment.store';
 import { storeToRefs } from 'pinia';
-import { useFormatter } from '@/shared/composables/formatter.use';
+import { useFormatter } from '@/common/composables/formatter.use';
 import { useRouter } from 'vue-router';
 import { useI18n } from 'vue-i18n';
 import PageShell from '@/shared/components/PageShell.Component.vue';

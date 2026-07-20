@@ -3,8 +3,8 @@ import { ref, onMounted, computed } from 'vue';
 import { authService } from '../services/auth.service';
 import type { ChangePasswordParameters } from '../types/change-password.parameters.type';
 import type { UserProfile } from '../types/login.response.type';
-import { useToast } from '@/shared/composables/toast.use';
-import { useFormatter } from '@/shared/composables/formatter.use';
+import { useToast } from '@/common/composables/toast.use';
+import { useFormatter } from '@/common/composables/formatter.use';
 import { useI18n } from 'vue-i18n';
 import PageShell from '@/shared/components/PageShell.Component.vue';
 

@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
 import { useI18n } from 'vue-i18n';
-import { useApiErrorHandler } from '@/shared/composables/api-error-handler.use';
-import { useToast } from '@/shared/composables/toast.use';
-import apiClient from '@/shared/api/http/api.client';
+import { useApiErrorHandler } from '@/common/composables/api-error-handler.use';
+import { useToast } from '@/common/composables/toast.use';
+import apiClient from '@/common/api/http/api.client';
 import type { ProductImage } from '../../types/product-image.response.type';
 import ProductImageUploader from './images/ProductImageUploader.Component.vue';
 import ProductImageList from './images/ProductImageList.Component.vue';

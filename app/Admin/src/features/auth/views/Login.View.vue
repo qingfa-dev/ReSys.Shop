@@ -7,7 +7,7 @@ import { useForm } from 'vee-validate'
 import { toTypedSchema } from '@vee-validate/zod'
 import { createLoginSchema } from '../schemas/login.schema'
 import { useI18n } from 'vue-i18n'
-import { useApiErrorHandler } from '@/shared/composables/api-error-handler.use'
+import { useApiErrorHandler } from '@/common/composables/api-error-handler.use'
 
 const { t } = useI18n()
 

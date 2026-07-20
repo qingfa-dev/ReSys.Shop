@@ -5,7 +5,7 @@ import { setActivePinia, createPinia } from 'pinia';
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { useTaxonomyStore } from '../stores/taxonomy.store';
 import { taxonomyService } from '../services/taxonomy.service';
-import { createMockPagedResult } from '@/shared/test/mock-types';
+import { createMockPagedResult } from '@/common/test/mock-types';
 import type { TaxonomyListItem } from '../types/taxonomy.response.type';
 
 vi.mock('../services/taxonomy.service', () => ({

@@ -2,7 +2,7 @@ import { setActivePinia, createPinia } from 'pinia';
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { useFulfillmentStore } from '../stores/fulfillment.store';
 import { fulfillmentService } from '../services/fulfillment.service';
-import { createMockResult, createMockErrorResult } from '@/shared/test/mock-types';
+import { createMockResult, createMockErrorResult } from '@/common/test/mock-types';
 import type { OrderListItemModel } from '../../orders/types/order.model.type';
 
 vi.mock('../services/fulfillment.service', () => ({

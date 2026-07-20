@@ -1,5 +1,5 @@
 import { orderRepository } from '../api/order.api'
-import type { ServerResult } from '@/shared/api/types/result.types'
+import type { ServerResult } from '@/common/api/types/result.types'
 import type { CreateOrderRequest, AddOrderItemRequest, CancelOrderRequest, UpdateLineItemRequest, UpdateOrderStatusRequest, UpdateShippingMethodRequest, UpdateAddressesRequest } from '../types/order.request.type'
 
 export const orderService = {

@@ -1,3 +1,3 @@
-import type { ServerQueryingParameters } from '@/shared/api/types/query.types'
+import type { ServerQueryingParameters } from '@/common/api/types/query.types'
 
 export type TaxonomyQuery = ServerQueryingParameters

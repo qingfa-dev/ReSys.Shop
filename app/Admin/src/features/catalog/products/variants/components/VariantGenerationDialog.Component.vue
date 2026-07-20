@@ -5,7 +5,7 @@ import { useOptionTypeStore } from '@/features/catalog/option-types/stores/optio
 import { useOptionValueStore } from '@/features/catalog/option-types/option-values/stores/option-value.store';
 import { productService } from '../../services/product.service';
 import { variantService } from '../services/variant.service';
-import { useToast } from '@/shared/composables/toast.use';
+import { useToast } from '@/common/composables/toast.use';
 import type { OptionTypeDetail } from '@/features/catalog/option-types/types/option-type.response.type';
 import type { OptionValueListItem } from '@/features/catalog/option-types/option-values/types/option-value.response.type';
 

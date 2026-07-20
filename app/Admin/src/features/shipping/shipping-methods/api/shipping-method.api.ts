@@ -1,7 +1,7 @@
-import apiClient from "@/shared/api/http/api.client";
-import { SHIPPING } from "@/shared/api/constants";
-import type { ServerPagedResult, ServerResult } from "@/shared/api/types/result.types";
-import type { ServerQueryingParameters } from "@/shared/api/types/query.types";
+import apiClient from "@/common/api/http/api.client";
+import { SHIPPING } from "@/common/api/constants";
+import type { ServerPagedResult, ServerResult } from "@/common/api/types/result.types";
+import type { ServerQueryingParameters } from "@/common/api/types/query.types";
 import type {
   ShippingMethodListItem,
   ShippingMethodDetail,
@@ -12,7 +12,7 @@ import type {
   ShippingMethodListItemModel,
   ShippingMethodDetailModel,
 } from "../types/shipping-method.model.type";
-import { mapValue, mapItems } from "@/shared/utils/transform";
+import { mapValue, mapItems } from "@/common/utils/transform";
 
 function methodsPath(sub?: string): string {
   return `${SHIPPING}/shipping-methods${sub ? `/${sub}` : ""}`;

@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { CATALOG, IDENTITY, LOCATIONS, PROFILES, INVENTORY, ORDERS, PAYMENTS, SHIPPING } from '@/shared/api/constants'
+import { CATALOG, IDENTITY, LOCATIONS, PROFILES, INVENTORY, ORDERS, PAYMENTS, SHIPPING } from '@/common/api/constants'
 
 describe('API constants', () => {
   it('CATALOG matches backend', () => {

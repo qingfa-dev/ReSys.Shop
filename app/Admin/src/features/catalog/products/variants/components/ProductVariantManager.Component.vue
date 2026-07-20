@@ -1,16 +1,16 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
 import { useI18n } from 'vue-i18n';
-import { useApiErrorHandler } from '@/shared/composables/api-error-handler.use';
-import { useToast } from '@/shared/composables/toast.use';
-import { useFormatter } from '@/shared/composables/formatter.use';
+import { useApiErrorHandler } from '@/common/composables/api-error-handler.use';
+import { useToast } from '@/common/composables/toast.use';
+import { useFormatter } from '@/common/composables/formatter.use';
 import { useConfirm } from 'primevue/useconfirm';
 import { variantService } from '../services/variant.service';
 import VariantGenerationDialog from './VariantGenerationDialog.Component.vue';
 import VariantFormDialog from './VariantFormDialog.Component.vue';
 import type { VariantSummaryModel, VariantDetailModel } from '../types/variant.model.type';
 import type { CreateVariantRequest } from '../types/variant.request.type';
-import type { ServerResult } from '@/shared/api/types/result.types';
+import type { ServerResult } from '@/common/api/types/result.types';
 
 const { t } = useI18n();
 

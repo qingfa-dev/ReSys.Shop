@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia';
 import { ref, computed } from 'vue';
 import { useI18n } from 'vue-i18n';
-import { useToast } from '@/shared/composables/toast.use';
+import { useToast } from '@/common/composables/toast.use';
 import { taxonomyService } from '../services/taxonomy.service';
 import { taxonomyRepository } from '../api/taxonomy.api';
 import type { TaxonomyListItem, TaxonomyDetail } from '../types/taxonomy.response.type'

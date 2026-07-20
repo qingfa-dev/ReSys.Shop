@@ -1,6 +1,6 @@
 import { authRepository } from "../api/auth.api";
 import { mapJwtToProfile } from "../mappers/auth.mapper";
-import type { ServerResult } from "@/shared/api/types/result.types";
+import type { ServerResult } from "@/common/api/types/result.types";
 import type { LoginRequest } from "../types/login.request.type";
 import type { UserProfile } from "../types/login.response.type";
 import type { AuthSession } from "../types/auth.model.type";
