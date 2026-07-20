@@ -10,10 +10,10 @@ withDefaults(defineProps<{
 
 <template>
   <div class="flex flex-col">
-    <span class="text-xs text-surface-400 uppercase font-bold mb-1">{{ label }}</span>
-    <span v-if="value !== null && value !== undefined && value !== ''" class="text-lg font-medium text-surface-900 dark:text-surface-0">
+    <span class="text-xs text-muted-color uppercase font-bold mb-1">{{ label }}</span>
+    <span v-if="value !== null && value !== undefined && value !== ''" class="text-lg font-medium text-color dark:text-surface-0">
       {{ value }}
     </span>
-    <span v-else class="text-lg text-surface-300 dark:text-surface-600">{{ emptyText }}</span>
+    <span v-else class="text-lg text-muted-color">{{ emptyText }}</span>
   </div>
 </template>

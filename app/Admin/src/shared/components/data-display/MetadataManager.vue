@@ -80,13 +80,13 @@ const loadingExternal = ref(false);
         <div class="flex items-center justify-between mb-4">
             <div>
                 <h3 v-if="title" class="text-lg font-bold text-surface-800 dark:text-surface-50">{{ title }}</h3>
-                <p v-if="description" class="text-sm text-surface-500">{{ description }}</p>
+                <p v-if="description" class="text-sm text-muted-color">{{ description }}</p>
             </div>
             <Button icon="pi pi-plus" label="Add Metadata" size="small" text @click="addEntry" />
         </div>
 
-        <div v-if="entries.length === 0" class="p-8 border-2 border-dashed border-surface-200 dark:border-surface-800 rounded-xl text-center">
-            <p class="text-surface-400 italic">{{ emptyMessage || 'No metadata defined' }}</p>
+        <div v-if="entries.length === 0" class="p-8 border-2 border-dashed border-surface-200 dark:border-surface-800 rounded-border text-center">
+            <p class="text-muted-color italic">{{ emptyMessage || 'No metadata defined' }}</p>
         </div>
 
         <div v-else class="flex flex-col gap-3">
@@ -118,7 +118,7 @@ const loadingExternal = ref(false);
             </div>
         </div>
         
-        <small class="block mt-2 text-surface-400 italic">
+        <small class="block mt-2 text-muted-color italic">
             * Keys must be unique. Objects can be entered as JSON.
         </small>
     </div>

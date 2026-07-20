@@ -14,7 +14,7 @@ const props = withDefaults(defineProps<{
 </script>
 
 <template>
-  <div class="card !mb-0 flex flex-col gap-4 p-6">
+  <div class="card !mb-0 flex flex-col gap-4 p-6 bg-surface-100 dark:bg-surface-800">
     <template v-if="skeleton">
       <Skeleton width="3rem" height="3rem" borderRadius="50%" />
       <Skeleton width="60%" height="2rem" />
@@ -28,7 +28,7 @@ const props = withDefaults(defineProps<{
       </div>
       <span class="text-2xl font-black text-surface-900 dark:text-surface-0">{{ value }}</span>
       <div class="flex items-center gap-2">
-        <span class="text-sm text-surface-500">{{ title }}</span>
+        <span class="text-sm text-muted-color">{{ title }}</span>
         <template v-if="trendValue !== undefined">
           <i
             :class="trendPositive ? 'pi pi-arrow-up text-green-500' : 'pi pi-arrow-down text-red-500'"
