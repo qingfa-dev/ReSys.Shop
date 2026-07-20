@@ -1,6 +1,8 @@
+using System.Data;
 using Module.Inventory.Domain.StockLocations.StockItems;
 using Module.Inventory.Domain.StockReservations;
 using Module.Inventory.Features.Storefront.CartReservations.Reserve;
+using Shared.Operational.Persistence.Transactions;
 
 namespace Module.UnitTests.Inventory.Features.Storefront.CartReservations.Reserve;
 
@@ -125,5 +127,44 @@ public class ReserveCartStockTests : IDisposable
         var result = await _handler.Handle(CreateCommand(3), TestContext.Current.CancellationToken);
 
         result.IsFailure.Should().BeTrue();
+    }
+
+    [Fact(DisplayName = "Handler: uses RepeatableRead isolation for cart reservation transaction")]
+    public async Task Handle_UsesRepeatableRead()
+    {
+        IsolationLevel? capturedLevel = null;
+
+        var transactionMock = new Mock<IDatabaseTransaction>();
+
+        var options = new DbContextOptionsBuilder<ApplicationDbContext>()
+            .UseInMemoryDatabase(Guid.NewGuid().ToString())
+            .Options;
+        ApplicationDbContext.AdditionalConfigurationsAssemblies = [typeof(StockItem).Assembly];
+        var realDbContext = new ApplicationDbContext(options);
+
+        var dbContextMock = new Mock<IApplicationDbContext>();
+        dbContextMock.Setup(x => x.Set<StockItem>())
+            .Returns(realDbContext.Set<StockItem>());
+        dbContextMock.Setup(x => x.Set<StockReservation>())
+            .Returns(realDbContext.Set<StockReservation>());
+        dbContextMock.Setup(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()))
+            .Returns(() => realDbContext.SaveChangesAsync(TestContext.Current.CancellationToken));
+        dbContextMock.Setup(x => x.BeginTransactionAsync(It.IsAny<IsolationLevel>(), It.IsAny<CancellationToken>()))
+            .Callback<IsolationLevel, CancellationToken>((level, _) => capturedLevel = level)
+            .ReturnsAsync(transactionMock.Object);
+
+        var handler = new ReserveCartStock.CommandHandler(dbContextMock.Object);
+        var command = new ReserveCartStock.Command(new ReserveCartStock.Request
+        {
+            VariantId = Guid.NewGuid(),
+            Quantity = 3,
+            StockLocationId = Guid.NewGuid(),
+            CartToken = "test-cart",
+            TtlMinutes = 15
+        });
+
+        await handler.Handle(command, TestContext.Current.CancellationToken);
+
+        capturedLevel.Should().Be(IsolationLevel.RepeatableRead);
     }
 }

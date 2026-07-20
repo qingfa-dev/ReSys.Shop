@@ -31,7 +31,7 @@ public static partial class ReserveCartStock
                 return StockReservationResult.Errors.QuantityZero;
 
             await using var transaction = await dbContext.BeginTransactionAsync(
-                IsolationLevel.Serializable, cancellationToken);
+                IsolationLevel.RepeatableRead, cancellationToken);
 
             try
             {
