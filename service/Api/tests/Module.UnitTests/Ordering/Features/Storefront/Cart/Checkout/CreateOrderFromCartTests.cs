@@ -187,6 +187,24 @@ public class CreateOrderFromCartTests : IDisposable
         si!.CountOnHand.Should().Be(8);
     }
 
+    [Fact(DisplayName = "Handler: propagates Reserve() failure instead of throwing on .Value")]
+    public async Task Handle_ReserveStockFails_ReturnsError()
+    {
+        await SeedCartAsync();
+
+        var handler = new CreateOrderFromCart.CommandHandler(
+            _dbContext, _loggerMock.Object, _currentUserMock.Object, _notificationServiceMock.Object)
+        {
+            StockReservationExpiryDaysInMinutes = -1
+        };
+        var result = await handler.Handle(
+            new CreateOrderFromCart.Command(new CreateOrderFromCart.Request()),
+            TestContext.Current.CancellationToken);
+
+        result.IsFailure.Should().BeTrue();
+        result.Errors[0].Code.Should().Be("StockReservation.Ttl.NotPositive");
+    }
+
     private async Task<(Guid VariantId, Guid StockItemId)> SeedCartAsync()
     {
         var location = StockLocationMethod.Create("Warehouse").Value;

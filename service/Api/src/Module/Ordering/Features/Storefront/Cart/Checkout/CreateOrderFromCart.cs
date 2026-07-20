@@ -30,6 +30,8 @@ public static partial class CreateOrderFromCart
         INotificationService notificationService)
         : ICommandHandler<Command, Response>
     {
+        /// <summary>TTL in minutes for stock reservations. Set to 30 days by default. Overridable in tests.</summary>
+        internal int StockReservationExpiryDaysInMinutes { get; init; } = 30;
         /// <summary>Validates checkout prerequisites, verifies payment, deducts stock, reserves inventory, places the order, publishes an event, and sends a notification.</summary>
         /// <param name="command">The command containing checkout request with optional payment intent ID.</param>
         /// <param name="cancellationToken">Cancellation token.</param>
@@ -126,10 +128,12 @@ public static partial class CreateOrderFromCart
 
                             remaining -= take;
 
-                            // Create: Reserve stock for this order (30-day expiry).
-                            const int StockReservationExpiryDays = 30;
-                            var reservation = StockReservationMethod.Reserve(
-                                si.VariantId, take, si.StockLocationId, cart.Id, StockReservationExpiryDays).Value;
+                            // Create: Reserve stock for this order.
+                            var reserveResult = StockReservationMethod.Reserve(
+                                si.VariantId, take, si.StockLocationId, cart.Id, StockReservationExpiryDaysInMinutes);
+                            if (reserveResult.IsFailure)
+                                return reserveResult.Errors;
+                            var reservation = reserveResult.Value;
                             dbContext.Set<StockReservation>().Add(reservation);
 
                             // Log: Record stock movement for audit trail.
