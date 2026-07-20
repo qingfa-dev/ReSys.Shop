@@ -5,7 +5,7 @@ import { RouterView } from 'vue-router'
 import AppTopbar from './Topbar.Layout.vue'
 import AppFooter from './Footer.Layout.vue'
 import AppSidebar from './Sidebar.Layout.vue'
-import AppBreadcrumb from '@/shared/components/Breadcrumb.Component.vue'
+import AppBreadcrumb from '@/shared/components/navigation/Breadcrumb.vue'
 
 const { layoutConfig, layoutState, isDarkTheme, hideMobileMenu } = useLayout()
 

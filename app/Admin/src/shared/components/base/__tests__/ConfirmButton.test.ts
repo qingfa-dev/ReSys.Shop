@@ -5,7 +5,7 @@ import { useConfirm } from 'primevue/useconfirm'
 
 vi.mock('primevue/useconfirm')
 
-import ConfirmButton from '../ConfirmButton.Component.vue'
+import ConfirmButton from '../ConfirmButton.vue'
 
 describe('ConfirmButton', () => {
   beforeEach(() => {

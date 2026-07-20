@@ -7,8 +7,8 @@ import DataTable from 'primevue/datatable'
 import Column from 'primevue/column'
 import Select from 'primevue/select'
 import Message from 'primevue/message'
-import PageShell from '@/shared/components/PageShell.Component.vue'
-import PageHeader from '@/shared/components/PageHeader.Component.vue'
+import PageShell from '@/shared/components/navigation/PageShell.vue'
+import PageHeader from '@/shared/components/navigation/PageHeader.vue'
 import { useI18n } from 'vue-i18n'
 
 const store = useAddressStore()

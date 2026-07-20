@@ -6,7 +6,7 @@ import type { UserProfile } from '../types/login.response.type';
 import { useToast } from '@/common/composables/toast.use';
 import { useFormatter } from '@/common/composables/formatter.use';
 import { useI18n } from 'vue-i18n';
-import PageShell from '@/shared/components/PageShell.Component.vue';
+import PageShell from '@/shared/components/navigation/PageShell.vue';
 
 const { t } = useI18n();
 const { showToast } = useToast();

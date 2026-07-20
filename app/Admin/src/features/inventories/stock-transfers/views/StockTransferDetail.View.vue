@@ -6,8 +6,8 @@ import { useProductStore } from '@/features/catalog/products/stores/product.stor
 import { useToast } from '@/common/composables/toast.use';
 import { useFormatter } from '@/common/composables/formatter.use';
 import { useI18n } from 'vue-i18n';
-import PageShell from '@/shared/components/PageShell.Component.vue';
-import PageHeader from '@/shared/components/PageHeader.Component.vue';
+import PageShell from '@/shared/components/navigation/PageShell.vue';
+import PageHeader from '@/shared/components/navigation/PageHeader.vue';
 import type { StockTransferDetail } from '../types/stock-transfer.response.type';
 import type { ProductSummary } from '@/features/catalog/products/types/product.response.type';
 

@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import { mount } from '@vue/test-utils'
-import TabbedDetail from '../TabbedDetail.Component.vue'
+import TabbedDetail from '../TabbedDetail.vue'
 import { h, defineComponent } from 'vue'
 
 describe('TabbedDetail', () => {

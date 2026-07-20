@@ -4,8 +4,8 @@ import { useRoute, useRouter } from 'vue-router';
 import { useInventoryStore } from '../../stores/inventory.store';
 import { useToast } from '@/common/composables/toast.use';
 import { useI18n } from 'vue-i18n';
-import PageShell from '@/shared/components/PageShell.Component.vue';
-import PageHeader from '@/shared/components/PageHeader.Component.vue';
+import PageShell from '@/shared/components/navigation/PageShell.vue';
+import PageHeader from '@/shared/components/navigation/PageHeader.vue';
 import LocationSelector from '../../components/LocationSelector.Component.vue';
 import type { CreateStockLocationRequest } from '../types/stock-location.request.type';
 

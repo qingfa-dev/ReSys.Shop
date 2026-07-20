@@ -3,8 +3,8 @@ import { ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useToast } from 'primevue/usetoast';
 import { stockRepository } from '../api/stock.api';
-import PageShell from '@/shared/components/PageShell.Component.vue';
-import PageHeader from '@/shared/components/PageHeader.Component.vue';
+import PageShell from '@/shared/components/navigation/PageShell.vue';
+import PageHeader from '@/shared/components/navigation/PageHeader.vue';
 
 const { t } = useI18n();
 const toast = useToast();

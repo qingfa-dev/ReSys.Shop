@@ -4,8 +4,8 @@ import { useReportStore } from '../stores/report.store';
 import { storeToRefs } from 'pinia';
 import { useFormatter } from '@/common/composables/formatter.use';
 import { useI18n } from 'vue-i18n';
-import PageShell from '@/shared/components/PageShell.Component.vue';
-import PageHeader from '@/shared/components/PageHeader.Component.vue';
+import PageShell from '@/shared/components/navigation/PageShell.vue';
+import PageHeader from '@/shared/components/navigation/PageHeader.vue';
 
 const { t } = useI18n();
 

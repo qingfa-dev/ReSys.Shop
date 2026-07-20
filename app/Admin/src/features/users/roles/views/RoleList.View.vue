@@ -5,8 +5,8 @@ import { useToast } from '@/common/composables/toast.use';
 import { useConfirm } from 'primevue/useconfirm';
 import { useI18n } from 'vue-i18n';
 import { roleService } from '../services/role.service';
-import PageShell from '@/shared/components/PageShell.Component.vue';
-import PageHeader from '@/shared/components/PageHeader.Component.vue';
+import PageShell from '@/shared/components/navigation/PageShell.vue';
+import PageHeader from '@/shared/components/navigation/PageHeader.vue';
 import type { RoleSummary } from '../types/role.response.type';
 import type { DataTablePageEvent } from 'primevue/datatable';
 

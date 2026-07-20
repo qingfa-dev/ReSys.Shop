@@ -13,10 +13,10 @@ import type {
 } from 'primevue/datatable';
 import { getFilterValue } from '@/common/api/types/filter.types';
 import { useToast } from '@/common/composables/toast.use';
-import PageShell from '@/shared/components/PageShell.Component.vue';
-import PageHeader from '@/shared/components/PageHeader.Component.vue';
-import DataTableShell from '@/shared/components/DataTableShell.Component.vue';
-import type { ColumnDef } from '@/shared/components/DataTableShell.Component.vue';
+import PageShell from '@/shared/components/navigation/PageShell.vue';
+import PageHeader from '@/shared/components/navigation/PageHeader.vue';
+import DataTableShell from '@/shared/components/tables/DataTableShell.vue';
+import type { ColumnDef } from '@/shared/components/tables/DataTableShell.vue';
 import type { ProductSummaryModel } from '../types/product.model.type';
 
 const { t } = useI18n();

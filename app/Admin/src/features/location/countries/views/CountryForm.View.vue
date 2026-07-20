@@ -5,7 +5,7 @@ import { toTypedSchema } from '@vee-validate/zod'
 import { createCountrySchema } from '../schemas/country.schema'
 import { useCountryStore } from '../stores/country.store'
 import { useToast } from '@/common/composables/toast.use'
-import FormField from '@/shared/components/FormField.Component.vue'
+import FormField from '@/shared/components/form/FormField.vue'
 import type { Country } from '../types/country.response.type'
 import { useI18n } from 'vue-i18n'
 

@@ -3,8 +3,8 @@ import { ref, onMounted, computed } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useToast } from '@/common/composables/toast.use';
 import { useI18n } from 'vue-i18n';
-import PageShell from '@/shared/components/PageShell.Component.vue'
-import PageHeader from '@/shared/components/PageHeader.Component.vue'
+import PageShell from '@/shared/components/navigation/PageShell.vue'
+import PageHeader from '@/shared/components/navigation/PageHeader.vue'
 import { roleService } from '../services/role.service';
 import { permissionService } from '../../permissions/services/permission.service';
 import type { PermissionSummary } from '../../permissions/types/permission.response.type';

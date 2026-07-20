@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeAll } from 'vitest'
 import { mount } from '@vue/test-utils'
-import DataTableShell from '../DataTableShell.Component.vue'
-import type { ColumnDef } from '../DataTableShell.Component.vue'
+import DataTableShell from '../DataTableShell.vue'
+import type { ColumnDef } from '../DataTableShell.vue'
 
 beforeAll(() => {
   if (!window.matchMedia) {

@@ -15,8 +15,8 @@ import { getFilterValue } from '@/common/api/types/filter.types';
 import { useToast } from '@/common/composables/toast.use';
 import { useFormatter } from '@/common/composables/formatter.use';
 import { QueryBuilder } from '@/common/utils/query-builder.utils';
-import PageShell from '@/shared/components/PageShell.Component.vue'
-import PageHeader from '@/shared/components/PageHeader.Component.vue'
+import PageShell from '@/shared/components/navigation/PageShell.vue'
+import PageHeader from '@/shared/components/navigation/PageHeader.vue'
 import type { TaxonomyListItem } from '../types/taxonomy.response.type';
 
 const { t } = useI18n();

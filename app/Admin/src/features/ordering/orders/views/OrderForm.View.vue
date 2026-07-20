@@ -7,8 +7,8 @@ import { useFormatter } from '@/common/composables/formatter.use';
 import { useI18n } from 'vue-i18n';
 import { useToast } from '@/common/composables/toast.use';
 import { variantService } from '@/features/catalog/products/variants/services/variant.service';
-import PageShell from '@/shared/components/PageShell.Component.vue'
-import PageHeader from '@/shared/components/PageHeader.Component.vue'
+import PageShell from '@/shared/components/navigation/PageShell.vue'
+import PageHeader from '@/shared/components/navigation/PageHeader.vue'
 import type { CreateOrderRequest } from '../types/order.request.type';
 import type { ProductSummaryModel } from '@/features/catalog/products/types/product.model.type';
 import type { VariantSummary } from '@/features/catalog/products/variants/types/variant.response.type';

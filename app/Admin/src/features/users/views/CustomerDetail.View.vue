@@ -6,10 +6,10 @@ import { storeToRefs } from 'pinia'
 import { useToast } from '@/common/composables/toast.use'
 import { useFormatter } from '@/common/composables/formatter.use'
 import { useI18n } from 'vue-i18n'
-import PageShell from '@/shared/components/PageShell.Component.vue'
-import PageHeader from '@/shared/components/PageHeader.Component.vue'
-import DetailField from '@/shared/components/DetailField.Component.vue'
-import StatusBadge from '@/shared/components/StatusBadge.Component.vue'
+import PageShell from '@/shared/components/navigation/PageShell.vue'
+import PageHeader from '@/shared/components/navigation/PageHeader.vue'
+import DetailField from '@/shared/components/data-display/DetailField.vue'
+import StatusBadge from '@/shared/components/feedback/StatusBadge.vue'
 
 const route = useRoute()
 const router = useRouter()

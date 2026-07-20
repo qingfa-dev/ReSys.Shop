@@ -5,8 +5,8 @@ import { storeToRefs } from 'pinia';
 import { useRouter } from 'vue-router';
 import { useFormatter } from '@/common/composables/formatter.use';
 import { useI18n } from 'vue-i18n';
-import PageShell from '@/shared/components/PageShell.Component.vue';
-import PageHeader from '@/shared/components/PageHeader.Component.vue';
+import PageShell from '@/shared/components/navigation/PageShell.vue';
+import PageHeader from '@/shared/components/navigation/PageHeader.vue';
 import { FilterMatchMode } from '@primevue/core/api';
 import type { DataTablePageEvent, DataTableSortEvent, DataTableFilterMeta } from 'primevue/datatable';
 

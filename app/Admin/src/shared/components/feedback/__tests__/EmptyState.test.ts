@@ -1,6 +1,6 @@
 import { describe, it, expect, vi } from 'vitest'
 import { mount } from '@vue/test-utils'
-import EmptyState from '../EmptyState.Component.vue'
+import EmptyState from '../EmptyState.vue'
 
 const pushMock = vi.fn()
 

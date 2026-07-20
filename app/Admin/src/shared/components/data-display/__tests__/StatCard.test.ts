@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import { mount } from '@vue/test-utils'
-import StatCard from '../StatCard.Component.vue'
+import StatCard from '../StatCard.vue'
 
 describe('StatCard', () => {
   it('renders title and value', () => {

@@ -7,7 +7,7 @@ import { toTypedSchema } from '@vee-validate/zod'
 import { createTaxonomySchema } from '../schemas/taxonomy.schema'
 import { useTaxonomyStore } from '../stores/taxonomy.store'
 import { useToast } from '@/common/composables/toast.use'
-import FormField from '@/shared/components/FormField.Component.vue'
+import FormField from '@/shared/components/form/FormField.vue'
 
 const { t } = useI18n()
 

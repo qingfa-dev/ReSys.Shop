@@ -4,8 +4,8 @@ import { useInventoryStore } from '../../stores/inventory.store';
 import { storeToRefs } from 'pinia';
 import { useFormatter } from '@/common/composables/formatter.use';
 import { useI18n } from 'vue-i18n';
-import PageShell from '@/shared/components/PageShell.Component.vue'
-import PageHeader from '@/shared/components/PageHeader.Component.vue'
+import PageShell from '@/shared/components/navigation/PageShell.vue'
+import PageHeader from '@/shared/components/navigation/PageHeader.vue'
 import { FilterMatchMode } from '@primevue/core/api';
 import type { DataTablePageEvent, DataTableSortEvent, DataTableFilterMeta } from 'primevue/datatable';
 import type { InventoryUnit } from '../types/inventory-unit.response.type';

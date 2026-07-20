@@ -5,8 +5,8 @@ import { useRouter } from 'vue-router';
 import { useCatalogDashboardStore } from '../stores/catalog-dashboard.store';
 import { storeToRefs } from 'pinia';
 import { useFormatter } from '@/common/composables/formatter.use';
-import PageShell from '@/shared/components/PageShell.Component.vue';
-import PageHeader from '@/shared/components/PageHeader.Component.vue';
+import PageShell from '@/shared/components/navigation/PageShell.vue';
+import PageHeader from '@/shared/components/navigation/PageHeader.vue';
 
 const { t } = useI18n();
 const router = useRouter();

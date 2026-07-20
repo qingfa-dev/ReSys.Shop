@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import { mount } from '@vue/test-utils'
-import FormField from '../FormField.Component.vue'
+import FormField from '../FormField.vue'
 
 describe('FormField', () => {
   it('renders label and slot content', () => {

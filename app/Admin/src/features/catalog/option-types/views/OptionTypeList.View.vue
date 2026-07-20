@@ -9,8 +9,8 @@ import type { DataTablePageEvent, DataTableSortEvent, DataTableFilterMeta } from
 import { getFilterValue } from '@/common/api/types/filter.types'
 import { useToast } from '@/common/composables/toast.use'
 import { useConfirm } from 'primevue/useconfirm'
-import PageShell from '@/shared/components/PageShell.Component.vue'
-import PageHeader from '@/shared/components/PageHeader.Component.vue'
+import PageShell from '@/shared/components/navigation/PageShell.vue'
+import PageHeader from '@/shared/components/navigation/PageHeader.vue'
 import { QueryBuilder } from '@/common/utils/query-builder.utils'
 import type { OptionTypeListItem } from '../types/option-type.response.type'
 

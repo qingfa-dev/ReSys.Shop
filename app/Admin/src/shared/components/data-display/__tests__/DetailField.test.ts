@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import { mount } from '@vue/test-utils'
-import DetailField from '../DetailField.Component.vue'
+import DetailField from '../DetailField.vue'
 
 describe('DetailField', () => {
   it('renders label and value', () => {

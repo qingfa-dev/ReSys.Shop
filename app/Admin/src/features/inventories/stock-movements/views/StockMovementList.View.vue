@@ -4,12 +4,12 @@ import { useRouter } from 'vue-router'
 import { movementService } from '../services/movement.service'
 import { useFormatter } from '@/common/composables/formatter.use'
 import { useI18n } from 'vue-i18n'
-import PageShell from '@/shared/components/PageShell.Component.vue'
-import PageHeader from '@/shared/components/PageHeader.Component.vue'
-import DataTableShell from '@/shared/components/DataTableShell.Component.vue'
+import PageShell from '@/shared/components/navigation/PageShell.vue'
+import PageHeader from '@/shared/components/navigation/PageHeader.vue'
+import DataTableShell from '@/shared/components/tables/DataTableShell.vue'
 import type { DataTablePageEvent, DataTableSortEvent } from 'primevue/datatable'
 import type { StockMovement } from '../types/stock-movement.response.type'
-import type { ColumnDef } from '@/shared/components/DataTableShell.Component.vue'
+import type { ColumnDef } from '@/shared/components/tables/DataTableShell.vue'
 
 const router = useRouter()
 const { t } = useI18n()

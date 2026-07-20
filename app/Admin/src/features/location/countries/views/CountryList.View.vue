@@ -7,8 +7,8 @@ import { useToast } from '@/common/composables/toast.use'
 import type { Country } from '../types/country.response.type'
 import CountryForm from './CountryForm.View.vue'
 import { useI18n } from 'vue-i18n'
-import PageShell from '@/shared/components/PageShell.Component.vue'
-import PageHeader from '@/shared/components/PageHeader.Component.vue'
+import PageShell from '@/shared/components/navigation/PageShell.vue'
+import PageHeader from '@/shared/components/navigation/PageHeader.vue'
 
 const store = useCountryStore()
 const { t } = useI18n()

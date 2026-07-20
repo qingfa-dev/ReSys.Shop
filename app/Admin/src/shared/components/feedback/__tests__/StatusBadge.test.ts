@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import { mount } from '@vue/test-utils'
-import StatusBadge from '../StatusBadge.Component.vue'
+import StatusBadge from '../StatusBadge.vue'
 import PrimeVue from 'primevue/config'
 
 describe('StatusBadge', () => {

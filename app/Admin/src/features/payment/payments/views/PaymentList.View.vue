@@ -5,10 +5,10 @@ import { useI18n } from 'vue-i18n'
 import { usePaymentStore } from '../stores/payment.store'
 import { storeToRefs } from 'pinia'
 import type { DataTablePageEvent, DataTableSortEvent } from 'primevue/datatable'
-import PageShell from '@/shared/components/PageShell.Component.vue'
-import PageHeader from '@/shared/components/PageHeader.Component.vue'
-import DataTableShell from '@/shared/components/DataTableShell.Component.vue'
-import type { ColumnDef } from '@/shared/components/DataTableShell.Component.vue'
+import PageShell from '@/shared/components/navigation/PageShell.vue'
+import PageHeader from '@/shared/components/navigation/PageHeader.vue'
+import DataTableShell from '@/shared/components/tables/DataTableShell.vue'
+import type { ColumnDef } from '@/shared/components/tables/DataTableShell.vue'
 
 const { t } = useI18n()
 const router = useRouter()

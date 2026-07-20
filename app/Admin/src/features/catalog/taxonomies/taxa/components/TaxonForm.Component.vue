@@ -4,7 +4,7 @@ import { useI18n } from 'vue-i18n'
 import { useForm } from 'vee-validate'
 import { toTypedSchema } from '@vee-validate/zod'
 import { createTaxonSchema } from '../../schemas/taxon.schema'
-import MetadataManager from '@/shared/components/MetadataManager.Component.vue'
+import MetadataManager from '@/shared/components/data-display/MetadataManager.vue'
 import type { TaxonDetail } from '../types/taxon.response.type'
 
 const { t } = useI18n()

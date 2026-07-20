@@ -8,10 +8,10 @@ import { useToast } from '@/common/composables/toast.use'
 import { useFormatter } from '@/common/composables/formatter.use'
 import { useConfirm } from 'primevue/useconfirm'
 import { PaymentStateMap } from '@/shared/utils/enums'
-import PageShell from '@/shared/components/PageShell.Component.vue'
-import PageHeader from '@/shared/components/PageHeader.Component.vue'
-import DetailField from '@/shared/components/DetailField.Component.vue'
-import StatusBadge from '@/shared/components/StatusBadge.Component.vue'
+import PageShell from '@/shared/components/navigation/PageShell.vue'
+import PageHeader from '@/shared/components/navigation/PageHeader.vue'
+import DetailField from '@/shared/components/data-display/DetailField.vue'
+import StatusBadge from '@/shared/components/feedback/StatusBadge.vue'
 
 const { t } = useI18n()
 const route = useRoute()

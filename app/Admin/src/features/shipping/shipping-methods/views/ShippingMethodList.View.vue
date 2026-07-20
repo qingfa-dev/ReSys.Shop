@@ -8,11 +8,11 @@ import { shippingMethodService } from '../services/shipping-method.service'
 import { useToast } from '@/common/composables/toast.use'
 import { useConfirm } from 'primevue/useconfirm'
 import type { DataTablePageEvent, DataTableSortEvent } from 'primevue/datatable'
-import PageShell from '@/shared/components/PageShell.Component.vue'
-import PageHeader from '@/shared/components/PageHeader.Component.vue'
-import DataTableShell from '@/shared/components/DataTableShell.Component.vue'
-import ConfirmButton from '@/shared/components/ConfirmButton.Component.vue'
-import type { ColumnDef } from '@/shared/components/DataTableShell.Component.vue'
+import PageShell from '@/shared/components/navigation/PageShell.vue'
+import PageHeader from '@/shared/components/navigation/PageHeader.vue'
+import DataTableShell from '@/shared/components/tables/DataTableShell.vue'
+import ConfirmButton from '@/shared/components/base/ConfirmButton.vue'
+import type { ColumnDef } from '@/shared/components/tables/DataTableShell.vue'
 
 const { t } = useI18n()
 const router = useRouter()

@@ -11,9 +11,9 @@ import { createOptionTypeSchema } from '../schemas/option-type.schema'
 import { createOptionValueSchema } from '@/features/catalog/option-types/option-values/schemas/option-value.schema'
 import { useApiErrorHandler } from '@/common/composables/api-error-handler.use'
 import { useToast } from '@/common/composables/toast.use'
-import FormField from '@/shared/components/FormField.Component.vue'
+import FormField from '@/shared/components/form/FormField.vue'
 import type { OptionValueListItem } from '@/features/catalog/option-types/option-values/types/option-value.response.type'
-import MetadataManager from '@/shared/components/MetadataManager.Component.vue'
+import MetadataManager from '@/shared/components/data-display/MetadataManager.vue'
 
 const { t } = useI18n()
 const route = useRoute()
