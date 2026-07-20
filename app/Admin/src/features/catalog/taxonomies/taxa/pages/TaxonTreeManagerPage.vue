@@ -7,13 +7,12 @@ import { useTaxonomyStore } from '../../store/taxonomy.store'
 import { storeToRefs } from 'pinia'
 import { useApiErrorHandler } from '@/common/composables/api-error-handler.use'
 import { useToast } from '@/common/composables/toast.use'
-import { useConfirm } from 'primevue/useconfirm'
+import ConfirmDialog from '@/shared/components/overlays/ConfirmDialog.vue'
 import type { TaxonListItem, TaxonTreeItem } from '../types/taxon.response'
 
 const { t } = useI18n()
 const route = useRoute()
 const router = useRouter()
-const confirm = useConfirm()
 const taxonStore = useTaxonStore()
 const taxonomyStore = useTaxonomyStore()
 const { loading, taxonTree } = storeToRefs(taxonStore)
@@ -52,28 +51,16 @@ const openEdit = (node: TaxonListItem) => {
   })
 }
 
-const confirmDelete = (node: TaxonListItem) => {
-  const messageStr = t('catalog.taxa.confirm.delete_message').replace('{name}', node.presentation);
-
-  confirm.require({
-    message: messageStr,
-    header: t('catalog.taxa.confirm.delete_header'),
-    icon: 'pi pi-exclamation-triangle',
-    rejectLabel: t('catalog.taxa.actions.cancel'),
-    acceptLabel: t('catalog.taxa.actions.delete_taxon'),
-    acceptProps: { severity: 'danger' },
-    accept: async () => {
-      const result = await taxonStore.deleteTaxon(taxonomyId.value, node.id)
-      if (result.isSuccess) {
-        showToast('success', t('common.deleted'), t('catalog.taxa.messages.delete_success'))
-        if (selectedTaxonId.value === node.id) {
-            router.push({ name: 'catalog.taxa.manager', params: { taxonomyId: taxonomyId.value } })
-        }
-      } else {
-        handleApiResult(result)
-      }
+const deleteTaxon = async (node: TaxonListItem) => {
+  const result = await taxonStore.deleteTaxon(taxonomyId.value, node.id)
+  if (result.isSuccess) {
+    showToast('success', t('common.deleted'), t('catalog.taxa.messages.delete_success'))
+    if (selectedTaxonId.value === node.id) {
+        router.push({ name: 'catalog.taxa.manager', params: { taxonomyId: taxonomyId.value } })
     }
-  })
+  } else {
+    handleApiResult(result)
+  }
 }
 
 const goBack = () => router.push({ name: 'catalog.taxonomies.list' })
@@ -132,7 +119,12 @@ const goBack = () => router.push({ name: 'catalog.taxonomies.list' })
                                         </div>
                                         <div class="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity shrink-0">
                                             <Button icon="pi pi-plus" text rounded size="small" severity="secondary" @click.stop="openNew(node as any)" v-tooltip.top="t('catalog.taxa.actions.add_taxon')" />
-                                            <Button icon="pi pi-trash" text rounded size="small" severity="danger" @click.stop="confirmDelete(node as any)" />
+                                            <ConfirmDialog
+                                              :header="t('catalog.taxa.confirm.delete_header')"
+                                              :message="t('catalog.taxa.confirm.delete_message').replace('{name}', (node as any).presentation)"
+                                              :accept-label="t('catalog.taxa.actions.delete_taxon')"
+                                              :reject-label="t('catalog.taxa.actions.cancel')"
+                                              @confirm="deleteTaxon(node as any)" />
                                         </div>
                                     </div>
                                 </template>

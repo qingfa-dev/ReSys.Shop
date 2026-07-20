@@ -2,7 +2,7 @@
 import { ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { useToast } from '@/common/composables/toast.use';
-import { useConfirm } from 'primevue/useconfirm';
+import ConfirmDialog from '@/shared/components/overlays/ConfirmDialog.vue';
 import { useI18n } from 'vue-i18n';
 import { roleRepository } from '../api/role.api';
 import PageShell from '@/shared/components/navigation/PageShell.vue';
@@ -13,7 +13,6 @@ import type { DataTablePageEvent } from 'primevue/datatable';
 const router = useRouter();
 const { showToast } = useToast();
 const { t } = useI18n();
-const confirm = useConfirm();
 
 const roles = ref<RoleSummary[]>([]);
 const loading = ref(false);
@@ -46,20 +45,12 @@ const onPage = (event: DataTablePageEvent) => {
     fetchRoles();
 };
 
-const confirmDelete = (role: RoleSummary) => {
-    confirm.require({
-        message: `Are you sure you want to delete the role "${role.displayName || role.name}"? This cannot be undone.`,
-        header: 'Delete Role',
-        icon: 'pi pi-exclamation-triangle',
-        acceptClass: 'p-button-danger',
-        accept: async () => {
-            const res = await roleRepository.delete(role.id);
-            if (res.isSuccess) {
-                showToast('success', t('common.deleted'), t('roles.messages.delete_success'));
-                fetchRoles();
-            }
-        }
-    });
+const deleteRole = async (roleId: string) => {
+  const res = await roleRepository.delete(roleId);
+  if (res.isSuccess) {
+    showToast('success', t('common.deleted'), t('roles.messages.delete_success'));
+    fetchRoles();
+  }
 };
 </script>
 
@@ -124,7 +115,11 @@ const confirmDelete = (role: RoleSummary) => {
                             <div class="flex justify-end gap-1">
                                 <Button icon="pi pi-shield" text rounded v-tooltip.top="'Permissions'" @click="router.push({ name: 'users.roles.permissions', params: { id: data.id } })" />
                                 <Button icon="pi pi-pencil" text rounded severity="secondary" @click="router.push({ name: 'users.roles.edit', params: { id: data.id } })" />
-                                <Button icon="pi pi-trash" text rounded severity="danger" :disabled="data.isSystem" @click="confirmDelete(data)" />
+                                <ConfirmDialog
+                                  :header="'Delete Role'"
+                                  :message="`Are you sure you want to delete the role ${data.displayName || data.name}? This cannot be undone.`"
+                                  :disabled="data.isSystem"
+                                  @confirm="deleteRole(data.id)" />
                             </div>
                         </template>
                     </Column>

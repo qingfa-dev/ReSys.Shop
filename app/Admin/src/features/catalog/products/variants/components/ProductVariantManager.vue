@@ -4,7 +4,7 @@ import { useI18n } from 'vue-i18n';
 import { useApiErrorHandler } from '@/common/composables/api-error-handler.use';
 import { useToast } from '@/common/composables/toast.use';
 import { useFormatter } from '@/common/composables/formatter.use';
-import { useConfirm } from 'primevue/useconfirm';
+import ConfirmDialog from '@/shared/components/overlays/ConfirmDialog.vue';
 import { variantRepository } from '../api/variant.api';
 import VariantGenerationDialog from './VariantGenerationDialog.vue';
 import VariantFormDialog from './VariantFormDialog.vue';
@@ -21,7 +21,6 @@ const props = defineProps<{
 const { handleApiResult } = useApiErrorHandler();
 const { showToast } = useToast();
 const { formatCurrency } = useFormatter();
-const confirm = useConfirm();
 
 const variants = ref<VariantSummaryModel[]>([]);
 const loading = ref(false);
@@ -78,24 +77,16 @@ const onSaveVariant = async (data: CreateVariantRequest) => {
     }
 };
 
-const onDelete = (variant: VariantSummaryModel) => {
-    confirm.require({
-        message: t('catalog.products.confirm.delete_message').replace('{name}', variant.sku ?? ''),
-        header: t('catalog.products.confirm.delete_header'),
-        icon: 'pi pi-exclamation-triangle',
-        acceptClass: 'p-button-danger',
-        accept: async () => {
-            try {
-                const result = await variantRepository.delete(variant.id);
-                if (handleApiResult(result)) {
-                    showToast('success', t('common.deleted'), t('catalog.products.variants.messages.delete_success'));
-                    await loadVariants();
-                }
-            } catch (e) {
-                showToast('error', t('common.error'), t('catalog.products.variants.messages.delete_failed'));
-            }
-        }
-    });
+const deleteVariant = async (variant: VariantSummaryModel) => {
+  try {
+    const result = await variantRepository.delete(variant.id);
+    if (handleApiResult(result)) {
+      showToast('success', t('common.deleted'), t('catalog.products.variants.messages.delete_success'));
+      await loadVariants();
+    }
+  } catch (e) {
+    showToast('error', t('common.error'), t('catalog.products.variants.messages.delete_failed'));
+  }
 };
 
 onMounted(() => {
@@ -139,7 +130,11 @@ onMounted(() => {
                     <template #body="{ data }">
                         <div class="flex justify-end gap-1">
                             <Button icon="pi pi-pencil" text rounded size="small" severity="secondary" @click="openEdit(data)" />
-                            <Button v-if="!data.isMaster" icon="pi pi-trash" text rounded size="small" severity="danger" @click="onDelete(data)" />
+                            <ConfirmDialog
+                              v-if="!data.isMaster"
+                              :header="t('catalog.products.confirm.delete_header')"
+                              :message="t('catalog.products.confirm.delete_message').replace('{name}', data.sku ?? '')"
+                              @confirm="deleteVariant(data)" />
                         </div>
                     </template>
                 </Column>

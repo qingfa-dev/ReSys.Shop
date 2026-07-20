@@ -5,7 +5,7 @@ import { useOrderStore } from '../store/order.store';
 import { storeToRefs } from 'pinia';
 import { useFormatter } from '@/common/composables/formatter.use';
 import { useApiErrorHandler } from '@/common/composables/api-error-handler.use';
-import { useConfirm } from 'primevue/useconfirm';
+import ConfirmDialog from '@/shared/components/overlays/ConfirmDialog.vue';
 import { OrderStatusMap } from '@/shared/utils/enums';
 import StatusBadge from '@/shared/components/feedback/StatusBadge.vue';
 import DetailField from '@/shared/components/data-display/DetailField.vue';
@@ -23,7 +23,6 @@ import InputNumber from 'primevue/inputnumber';
 const route = useRoute();
 const router = useRouter();
 const store = useOrderStore();
-const confirm = useConfirm();
 const { current_order, loading, submitting } = storeToRefs(store);
 const { t } = useI18n();
 const { formatCurrency } = useFormatter();
@@ -84,17 +83,9 @@ const onAddItem = async (data: AddOrderItemRequest) => {
     handleApiResult(result);
 };
 
-const onCancel = () => {
-    confirm.require({
-        message: t('ordering.messages.cancel_order_confirm'),
-        header: t('ordering.titles.confirm_cancellation'),
-        icon: 'pi pi-exclamation-triangle',
-        acceptClass: 'p-button-danger',
-        accept: async () => {
-            const result = await store.cancelOrder(orderId, cancelReason.value);
-            handleApiResult(result);
-        }
-    });
+const cancelOrder = async () => {
+  const result = await store.cancelOrder(orderId, cancelReason.value);
+  handleApiResult(result);
 };
 
 const orderStatusMap: Record<number, { label: string; severity: string }> = {
@@ -127,18 +118,10 @@ async function saveEditLineItem() {
   if (result.isSuccess) await loadLineItems();
 }
 
-async function onRemoveLineItem(lineItemId: string) {
-  confirm.require({
-    message: t('ordering.messages.remove_line_item_confirm'),
-    header: t('ordering.titles.confirm_remove'),
-    icon: 'pi pi-exclamation-triangle',
-    acceptClass: 'p-button-danger',
-    accept: async () => {
-      const result = await store.removeLineItem(orderId, lineItemId);
-      handleApiResult(result);
-      if (result.isSuccess) await loadLineItems();
-    }
-  });
+async function removeLineItem(lineItemId: string) {
+  const result = await store.removeLineItem(orderId, lineItemId);
+  handleApiResult(result);
+  if (result.isSuccess) await loadLineItems();
 }
 </script>
 
@@ -163,7 +146,7 @@ async function onRemoveLineItem(lineItemId: string) {
                     icon="pi pi-times" 
                     severity="danger" 
                     outlined
-                    @click="onCancel"
+                    @click="cancelOrder"
                     v-if="current_order.status !== 1 && current_order.status !== 2"
                         class="rounded-xl px-6"
                     />
@@ -239,13 +222,10 @@ async function onRemoveLineItem(lineItemId: string) {
                                             @click="startEditLineItem(slotProps.data)"
                                             :disabled="current_order.status === 2"
                                         />
-                                        <Button
-                                            icon="pi pi-trash"
-                                            size="small"
-                                            rounded
-                                            text
-                                            severity="danger"
-                                            @click="onRemoveLineItem(slotProps.data.id)"
+                                        <ConfirmDialog
+                                            :header="t('ordering.titles.confirm_remove')"
+                                            :message="t('ordering.messages.remove_line_item_confirm')"
+                                            @confirm="removeLineItem(slotProps.data.id)"
                                             :disabled="current_order.status === 2"
                                         />
                                     </div>

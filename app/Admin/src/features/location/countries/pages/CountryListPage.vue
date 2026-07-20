@@ -2,7 +2,7 @@
 import { onMounted, ref } from 'vue'
 import { useCountryStore } from '../store/country.store'
 import { storeToRefs } from 'pinia'
-import { useConfirm } from 'primevue/useconfirm'
+import ConfirmDialog from '@/shared/components/overlays/ConfirmDialog.vue'
 import { useToast } from '@/common/composables/toast.use'
 import type { Country } from '../types/country.response'
 import CountryForm from './CountryFormPage.vue'
@@ -13,7 +13,6 @@ import PageHeader from '@/shared/components/navigation/PageHeader.vue'
 const store = useCountryStore()
 const { t } = useI18n()
 const { items, loading, totalRecords } = storeToRefs(store)
-const confirm = useConfirm()
 const { showToast } = useToast()
 
 const dialogVisible = ref(false)
@@ -43,21 +42,11 @@ const onSaved = async () => {
   await store.fetchCountries()
 }
 
-const confirmDelete = (item: Country) => {
-  confirm.require({
-    message: `Delete "${item.name}"?`,
-    header: 'Confirm Deletion',
-    icon: 'pi pi-exclamation-triangle',
-    rejectLabel: 'Cancel',
-    acceptLabel: 'Delete',
-    acceptProps: { severity: 'danger' },
-    accept: async () => {
-      const result = await store.deleteCountry(item.id)
-      if (result.isSuccess) {
-        showToast('success', t('common.deleted'), t('location.messages.delete_success'))
-      }
-    },
-  })
+const deleteCountry = async (countryId: string) => {
+  const result = await store.deleteCountry(countryId)
+  if (result.isSuccess) {
+    showToast('success', t('common.deleted'), t('location.messages.delete_success'))
+  }
 }
 
 onMounted(() => {
@@ -124,7 +113,12 @@ onMounted(() => {
         <template #body="{ data }">
           <div class="flex justify-end gap-1">
             <Button icon="pi pi-pencil" severity="secondary" text rounded @click="openEdit(data)" />
-            <Button icon="pi pi-trash" severity="danger" text rounded @click="confirmDelete(data)" />
+            <ConfirmDialog
+              header="Confirm Deletion"
+              :message="`Delete ${data.name}?`"
+              accept-label="Delete"
+              reject-label="Cancel"
+              @confirm="deleteCountry(data.id)" />
           </div>
         </template>
       </Column>

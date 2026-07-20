@@ -6,14 +6,13 @@ import { storeToRefs } from 'pinia'
 import { useI18n } from 'vue-i18n'
 import { useApiErrorHandler } from '@/common/composables/api-error-handler.use'
 import { useToast } from '@/common/composables/toast.use'
-import { useConfirm } from 'primevue/useconfirm'
+import ConfirmDialog from '@/shared/components/overlays/ConfirmDialog.vue'
 import type { TreeNode } from 'primevue/treenode'
 
 const { t } = useI18n()
 
 const route = useRoute()
 const router = useRouter()
-const confirm = useConfirm()
 const store = useInventoryStore()
 const { loading, locationTree, locations } = storeToRefs(store)
 const { handleApiResult } = useApiErrorHandler()
@@ -43,30 +42,18 @@ const openEdit = (node: LocationTreeNode) => {
   router.push({ name: 'inventory.locations.edit', params: { id: node.id } })
 }
 
-const confirmDelete = (node: LocationTreeNode) => {
-  const messageStr = t('inventory.confirm.delete_message', { name: node.name });
-
-  confirm.require({
-    message: messageStr,
-    header: t('inventory.confirm.delete_header'),
-    icon: 'pi pi-exclamation-triangle',
-    rejectLabel: t('inventory.actions.cancel'),
-    acceptLabel: t('inventory.actions.delete'),
-    acceptProps: { severity: 'danger' },
-    accept: async () => {
-      const result = await store.inventoryService.deleteLocation(node.id)
-      if (result.isSuccess) {
-        showToast('success', t('common.deleted'), t('inventory.messages.delete_location_success'))
-        await store.fetchLocationTree()
-        await store.fetchLocations()
-        if (selectedId.value === node.id) {
-          router.push({ name: 'inventory.locations.list' })
-        }
-      } else {
-        handleApiResult(result)
-      }
+const deleteLocation = async (node: LocationTreeNode) => {
+  const result = await store.inventoryService.deleteLocation(node.id)
+  if (result.isSuccess) {
+    showToast('success', t('common.deleted'), t('inventory.messages.delete_location_success'))
+    await store.fetchLocationTree()
+    await store.fetchLocations()
+    if (selectedId.value === node.id) {
+      router.push({ name: 'inventory.locations.list' })
     }
-  })
+  } else {
+    handleApiResult(result)
+  }
 }
 
 const goBack = () => router.push({ name: 'inventory.stocks.list' })
@@ -131,8 +118,12 @@ const goBack = () => router.push({ name: 'inventory.stocks.list' })
                         class="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity shrink-0">
                         <Button icon="pi pi-plus" text rounded size="small" severity="secondary"
                           @click.stop="openNew(node as any)" v-tooltip.top="t('inventory.actions.add_child')" />
-                        <Button icon="pi pi-trash" text rounded size="small" severity="danger"
-                          @click.stop="confirmDelete(node as any)" />
+                        <ConfirmDialog
+                          :header="t('inventory.confirm.delete_header')"
+                          :message="t('inventory.confirm.delete_message', { name: (node as any).name })"
+                          :accept-label="t('inventory.actions.delete')"
+                          :reject-label="t('inventory.actions.cancel')"
+                          @confirm="deleteLocation(node as any)" />
                       </div>
                     </div>
                   </template>

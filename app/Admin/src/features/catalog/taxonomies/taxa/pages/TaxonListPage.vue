@@ -9,7 +9,7 @@ import { useApiErrorHandler } from '@/common/composables/api-error-handler.use'
 import PageShell from '@/shared/components/navigation/PageShell.vue'
 import PageHeader from '@/shared/components/navigation/PageHeader.vue'
 import { useToast } from '@/common/composables/toast.use'
-import { useConfirm } from 'primevue/useconfirm'
+import ConfirmDialog from '@/shared/components/overlays/ConfirmDialog.vue'
 import { FilterMatchMode } from '@primevue/core/api'
 import type { DataTablePageEvent, DataTableSortEvent, DataTableFilterMeta } from 'primevue/datatable'
 import { QueryBuilder } from '@/common/utils/query-builder.utils'
@@ -24,7 +24,6 @@ const taxonomyStore = useTaxonomyStore()
 const { currentTaxons: items, loading, totalRecords } = storeToRefs(store)
 const { showToast } = useToast()
 const { handleApiResult } = useApiErrorHandler()
-const confirm = useConfirm()
 
 const taxonomies = ref<{label: string, value: string}[]>([])
 
@@ -79,21 +78,11 @@ const clearFilters = () => {
   onFilter()
 }
 
-const confirmDelete = (item: TaxonListItem) => {
-  confirm.require({
-    message: t('catalog.taxa.confirm.delete_message').replace('{name}', item.presentation),
-    header: t('catalog.taxa.confirm.delete_header'),
-    icon: 'pi pi-exclamation-triangle',
-    rejectLabel: t('catalog.taxa.actions.cancel'),
-    acceptLabel: t('catalog.taxa.actions.delete_taxon'),
-    acceptProps: { severity: 'danger' },
-    accept: async () => {
-      const result = await store.deleteTaxon(item.taxonomyId, item.id)
-      if (result.isSuccess) {
-        showToast('success', t('common.deleted'), t('catalog.taxa.messages.delete_success'))
-      }
-    }
-  })
+const deleteTaxon = async (item: TaxonListItem) => {
+  const result = await store.deleteTaxon(item.taxonomyId, item.id)
+  if (result.isSuccess) {
+    showToast('success', t('common.deleted'), t('catalog.taxa.messages.delete_success'))
+  }
 }
 
 onMounted(() => {
@@ -202,7 +191,12 @@ onMounted(() => {
           <template #body="{ data }">
             <div class="flex justify-end gap-1">
               <Button icon="pi pi-pencil" severity="secondary" text rounded @click="router.push({ name: 'catalog.taxa.edit', params: { taxonomyId: data.taxonomyId, id: data.id } })" />
-              <Button icon="pi pi-trash" severity="danger" text rounded @click="confirmDelete(data)" />
+              <ConfirmDialog
+                :header="t('catalog.taxa.confirm.delete_header')"
+                :message="t('catalog.taxa.confirm.delete_message').replace('{name}', data.presentation)"
+                :accept-label="t('catalog.taxa.actions.delete_taxon')"
+                :reject-label="t('catalog.taxa.actions.cancel')"
+                @confirm="deleteTaxon(data)" />
             </div>
           </template>
         </Column>

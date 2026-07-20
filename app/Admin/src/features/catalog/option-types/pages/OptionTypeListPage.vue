@@ -8,7 +8,7 @@ import { FilterMatchMode, FilterOperator } from '@primevue/core/api'
 import type { DataTablePageEvent, DataTableSortEvent, DataTableFilterMeta } from 'primevue/datatable'
 import { getFilterValue } from '@/common/api/types/filter.types'
 import { useToast } from '@/common/composables/toast.use'
-import { useConfirm } from 'primevue/useconfirm'
+import ConfirmDialog from '@/shared/components/overlays/ConfirmDialog.vue'
 import PageShell from '@/shared/components/navigation/PageShell.vue'
 import PageHeader from '@/shared/components/navigation/PageHeader.vue'
 import { QueryBuilder } from '@/common/utils/query-builder.utils'
@@ -19,7 +19,6 @@ const router = useRouter()
 const store = useOptionTypeStore()
 const { items, loading, totalRecords, params: query } = storeToRefs(store)
 const { showToast } = useToast()
-const confirm = useConfirm()
 
 const filters = ref<DataTableFilterMeta>({
   global: { value: null, matchMode: FilterMatchMode.CONTAINS },
@@ -88,23 +87,13 @@ const editItem = (id: string) => {
   router.push({ name: 'catalog.option-types.edit', params: { id } })
 }
 
-const confirmDelete = (item: OptionTypeListItem) => {
-  confirm.require({
-    message: `Are you sure you want to delete "${item.name}"?`,
-    header: t('common.warning'),
-    icon: 'pi pi-exclamation-triangle',
-    rejectLabel: t('catalog.option_types.actions.cancel'),
-    acceptLabel: t('catalog.option_types.actions.delete'),
-    acceptProps: { severity: 'danger' },
-    accept: async () => {
-      const result = await store.remove(item.id)
-      if (result.isSuccess) {
-        showToast('success', t('common.success'), t('catalog.option_types.messages.delete_success'))
-      } else {
-        showToast('error', t('common.error'), t('catalog.option_types.messages.delete_error'))
-      }
-    }
-  })
+const deleteOptionType = async (item: OptionTypeListItem) => {
+  const result = await store.remove(item.id)
+  if (result.isSuccess) {
+    showToast('success', t('common.success'), t('catalog.option_types.messages.delete_success'))
+  } else {
+    showToast('error', t('common.error'), t('catalog.option_types.messages.delete_error'))
+  }
 }
 
 onMounted(() => {
@@ -216,7 +205,12 @@ onMounted(() => {
                 @click="router.push({ name: 'catalog.option-values.list', query: { optionTypeId: data.id } })"
               />
               <Button icon="pi pi-pencil" severity="secondary" text rounded @click="editItem(data.id)" />
-              <Button icon="pi pi-trash" severity="danger" text rounded @click="confirmDelete(data)" />
+              <ConfirmDialog
+                :header="t('common.warning')"
+                :message="`Are you sure you want to delete ${data.name}?`"
+                :accept-label="t('catalog.option_types.actions.delete')"
+                :reject-label="t('catalog.option_types.actions.cancel')"
+                @confirm="deleteOptionType(data)" />
             </div>
           </template>
         </Column>

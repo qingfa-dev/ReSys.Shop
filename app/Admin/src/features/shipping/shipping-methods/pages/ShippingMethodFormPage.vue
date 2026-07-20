@@ -39,7 +39,7 @@ const [isActive] = defineField('isActive')
 const [displayOrder] = defineField('displayOrder')
 
 onMounted(async () => {
-  if (isEdit) {
+  if (isEdit.value) {
     await store.fetchById(route.params.id as string)
     if (store.current) {
       const c = store.current as any
@@ -57,7 +57,7 @@ onMounted(async () => {
 const onSubmit = handleSubmit(async (values) => {
   submitting.value = true
   try {
-    if (isEdit) {
+    if (isEdit.value) {
       await shippingMethodRepository.update(route.params.id as string, values)
     } else {
       await shippingMethodRepository.create(values)

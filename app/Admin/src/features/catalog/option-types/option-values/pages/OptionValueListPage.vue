@@ -15,7 +15,7 @@ import { FilterMatchMode, FilterOperator } from '@primevue/core/api'
 import type { DataTablePageEvent, DataTableSortEvent, DataTableFilterMeta } from 'primevue/datatable'
 import { getFilterValue } from '@/common/api/types/filter.types'
 import { useToast } from '@/common/composables/toast.use'
-import { useConfirm } from 'primevue/useconfirm'
+import ConfirmDialog from '@/shared/components/overlays/ConfirmDialog.vue'
 import { useApiErrorHandler } from '@/common/composables/api-error-handler.use'
 import { QueryBuilder } from '@/common/utils/query-builder.utils'
 import type { OptionValueListItem } from '../types/option-value.response'
@@ -29,7 +29,6 @@ const typeStore = useOptionTypeStore()
 const { items, loading, totalRecords, query } = storeToRefs(store)
 const { showToast } = useToast()
 const { handleApiResult } = useApiErrorHandler()
-const confirm = useConfirm()
 
 const optionTypes = ref<{ label: string, value: string }[]>([])
 
@@ -172,22 +171,12 @@ const clearFilters = () => {
   router.replace({ query: {} })
 }
 
-const confirmDelete = (item: OptionValueListItem) => {
-  confirm.require({
-    message: `Are you sure you want to delete "${item.name}"?`,
-    header: t('common.warning'),
-    icon: 'pi pi-exclamation-triangle',
-    rejectLabel: t('catalog.option_values.actions.cancel'),
-    acceptLabel: t('catalog.option_values.actions.delete'),
-    acceptProps: { severity: 'danger' },
-    accept: async () => {
-      const result = await store.remove(item.id)
-      if (result.isSuccess) {
-        showToast('success', t('common.success'), t('catalog.option_values.messages.delete_success'))
-        store.fetchList()
-      }
-    }
-  })
+const deleteOptionValue = async (item: OptionValueListItem) => {
+  const result = await store.remove(item.id)
+  if (result.isSuccess) {
+    showToast('success', t('common.success'), t('catalog.option_values.messages.delete_success'))
+    store.fetchList()
+  }
 }
 
 watch(() => route.query.optionTypeId, (newVal) => {
@@ -265,7 +254,12 @@ onMounted(() => {
         <template #body="{ data }">
           <div class="flex justify-end gap-1">
             <Button icon="pi pi-pencil" severity="secondary" text rounded @click="openEdit(data)" />
-            <Button icon="pi pi-trash" severity="danger" text rounded @click="confirmDelete(data)" />
+            <ConfirmDialog
+              :header="t('common.warning')"
+              :message="`Are you sure you want to delete ${data.name}?`"
+              :accept-label="t('catalog.option_values.actions.delete')"
+              :reject-label="t('catalog.option_values.actions.cancel')"
+              @confirm="deleteOptionValue(data)" />
           </div>
         </template>
       </Column>

@@ -4,7 +4,6 @@ import { useI18n } from 'vue-i18n';
 import { useProductStore } from '../store/product.store';
 import { storeToRefs } from 'pinia';
 import { useRouter } from 'vue-router';
-import { useConfirm } from 'primevue/useconfirm';
 import { FilterMatchMode } from '@primevue/core/api';
 import type {
   DataTablePageEvent,
@@ -13,18 +12,17 @@ import type {
 } from 'primevue/datatable';
 import { getFilterValue } from '@/common/api/types/filter.types';
 import { useToast } from '@/common/composables/toast.use';
+import ConfirmDialog from '@/shared/components/overlays/ConfirmDialog.vue';
 import PageShell from '@/shared/components/navigation/PageShell.vue';
 import PageHeader from '@/shared/components/navigation/PageHeader.vue';
 import DataTableShell from '@/shared/components/tables/DataTableShell.vue';
 import type { ColumnDef } from '@/shared/components/tables/DataTableShell.vue';
-import type { ProductSummaryModel } from '../models/product.model';
 
 const { t } = useI18n();
 
 const store = useProductStore();
 const { products, loading, totalRecords, query } = storeToRefs(store);
 const router = useRouter();
-const confirm = useConfirm();
 const { showToast } = useToast();
 
 const filters = ref<DataTableFilterMeta>({
@@ -65,25 +63,11 @@ const onFilter = () => {
   });
 };
 
-const confirmDelete = (product: ProductSummaryModel) => {
-  const messageStr = t('catalog.products.confirm.delete_message').replace('{name}', product.name);
-
-  confirm.require({
-    message: messageStr,
-    header: t('catalog.products.confirm.delete_header'),
-    icon: 'pi pi-exclamation-triangle',
-    rejectLabel: t('catalog.products.confirm.reject_label'),
-    acceptProps: {
-      label: t('catalog.products.confirm.accept_label'),
-      severity: 'danger',
-    },
-    accept: async () => {
-      const result = await store.deleteProduct(product.id);
-      if (result.isSuccess) {
-        showToast('success', t('common.success'), t('catalog.products.messages.delete_success'));
-      }
-    },
-  });
+const deleteProduct = async (productId: string) => {
+  const result = await store.deleteProduct(productId);
+  if (result.isSuccess) {
+    showToast('success', t('common.success'), t('catalog.products.messages.delete_success'));
+  }
 };
 
 onMounted(() => {
@@ -118,7 +102,12 @@ onMounted(() => {
     >
       <template #row-actions="{ data }">
         <Button icon="pi pi-pencil" severity="secondary" text rounded @click="router.push({ name: 'catalog.products.edit', params: { id: data.id } })" />
-        <Button icon="pi pi-trash" severity="danger" text rounded @click="confirmDelete(data)" />
+        <ConfirmDialog
+          :header="t('catalog.products.confirm.delete_header').replace('{name}', data.name)"
+          :message="t('catalog.products.confirm.delete_message').replace('{name}', data.name)"
+          :accept-label="t('catalog.products.confirm.accept_label')"
+          :reject-label="t('catalog.products.confirm.reject_label')"
+          @confirm="deleteProduct(data.id)" />
       </template>
     </DataTableShell>
   </PageShell>

@@ -6,13 +6,12 @@ import { useOptionTypeStore } from '../store/option-type.store'
 import { storeToRefs } from 'pinia'
 import { useApiErrorHandler } from '@/common/composables/api-error-handler.use'
 import { useToast } from '@/common/composables/toast.use'
-import { useConfirm } from 'primevue/useconfirm'
+import ConfirmDialog from '@/shared/components/overlays/ConfirmDialog.vue'
 import type { OptionTypeListItem } from '../types/option-type.response'
 
 const { t } = useI18n()
 const route = useRoute()
 const router = useRouter()
-const confirm = useConfirm()
 const store = useOptionTypeStore()
 const { loading, items, totalRecords } = storeToRefs(store)
 const { handleApiResult } = useApiErrorHandler()
@@ -32,26 +31,16 @@ const openEdit = (id: string) => {
   router.push({ name: 'catalog.option-types.edit', params: { id } })
 }
 
-const confirmDelete = (item: OptionTypeListItem) => {
-  confirm.require({
-    message: `Are you sure you want to delete "${item.name}"?`,
-    header: t('common.warning'),
-    icon: 'pi pi-exclamation-triangle',
-    rejectLabel: t('catalog.option_types.actions.cancel'),
-    acceptLabel: t('catalog.option_types.actions.delete'),
-    acceptProps: { severity: 'danger' },
-    accept: async () => {
-      const result = await store.remove(item.id)
-      if (result.isSuccess) {
-        showToast('success', t('common.deleted'), t('catalog.option_types.messages.delete_success'))
-        if (selectedId.value === item.id) {
-            router.push({ name: 'catalog.option-types.list' })
-        }
-      } else {
-        handleApiResult(result)
-      }
+const deleteOptionType = async (item: OptionTypeListItem) => {
+  const result = await store.remove(item.id)
+  if (result.isSuccess) {
+    showToast('success', t('common.deleted'), t('catalog.option_types.messages.delete_success'))
+    if (selectedId.value === item.id) {
+        router.push({ name: 'catalog.option-types.list' })
     }
-  })
+  } else {
+    handleApiResult(result)
+  }
 }
 
 const goBack = () => router.push({ name: 'catalog.dashboard' })
@@ -110,7 +99,12 @@ const goBack = () => router.push({ name: 'catalog.dashboard' })
                                         </div>
                                     </div>
                                     <div class="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity shrink-0">
-                                        <Button icon="pi pi-trash" text rounded size="small" severity="danger" @click.stop="confirmDelete(item)" />
+                                        <ConfirmDialog
+                                          :header="t('common.warning')"
+                                          :message="`Are you sure you want to delete ${item.name}?`"
+                                          :accept-label="t('catalog.option_types.actions.delete')"
+                                          :reject-label="t('catalog.option_types.actions.cancel')"
+                                          @confirm="deleteOptionType(item)" />
                                     </div>
                                 </div>
                             </div>

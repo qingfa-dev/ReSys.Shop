@@ -6,7 +6,6 @@ import { usePaymentStore } from '../store/payment.store'
 import { storeToRefs } from 'pinia'
 import { useToast } from '@/common/composables/toast.use'
 import { useFormatter } from '@/common/composables/formatter.use'
-import { useConfirm } from 'primevue/useconfirm'
 import { PaymentStateMap } from '@/shared/utils/enums'
 import PageShell from '@/shared/components/navigation/PageShell.vue'
 import PageHeader from '@/shared/components/navigation/PageHeader.vue'
@@ -17,7 +16,6 @@ const { t } = useI18n()
 const route = useRoute()
 const router = useRouter()
 const store = usePaymentStore()
-const confirm = useConfirm()
 const { showToast } = useToast()
 const { formatDate } = useFormatter()
 const { current, loading } = storeToRefs(store)
@@ -40,58 +38,34 @@ const paymentStatusMap = computed(() => ({
   8: { label: 'Voided', severity: 'secondary' as const },
 }))
 
-function onCapture() {
-  confirm.require({
-    message: t('payment.messages.confirm_capture') || 'Capture this payment?',
-    header: t('payment.titles.capture') || 'Capture Payment',
-    icon: 'pi pi-check-circle',
-    acceptClass: 'p-button-success',
-    accept: async () => {
-      const result = await store.capture(current.value!.id)
-      if (result.isSuccess) {
-        showToast('success', t('common.success') || 'Success', t('payment.messages.captured') || 'Payment captured')
-        store.fetchById(paymentId)
-      } else {
-        showToast('error', t('common.error') || 'Error', result.message || 'Capture failed')
-      }
-    },
-  })
+async function onCapture() {
+  const result = await store.capture(current.value!.id)
+  if (result.isSuccess) {
+    showToast('success', t('common.success') || 'Success', t('payment.messages.captured') || 'Payment captured')
+    store.fetchById(paymentId)
+  } else {
+    showToast('error', t('common.error') || 'Error', result.message || 'Capture failed')
+  }
 }
 
-function onVoid() {
-  confirm.require({
-    message: t('payment.messages.confirm_void') || 'Void this payment?',
-    header: t('payment.titles.void') || 'Void Payment',
-    icon: 'pi pi-times-circle',
-    acceptClass: 'p-button-warning',
-    accept: async () => {
-      const result = await store.void(current.value!.id)
-      if (result.isSuccess) {
-        showToast('success', t('common.success') || 'Success', t('payment.messages.voided') || 'Payment voided')
-        store.fetchById(paymentId)
-      } else {
-        showToast('error', t('common.error') || 'Error', result.message || 'Void failed')
-      }
-    },
-  })
+async function onVoid() {
+  const result = await store.void(current.value!.id)
+  if (result.isSuccess) {
+    showToast('success', t('common.success') || 'Success', t('payment.messages.voided') || 'Payment voided')
+    store.fetchById(paymentId)
+  } else {
+    showToast('error', t('common.error') || 'Error', result.message || 'Void failed')
+  }
 }
 
-function onRefund() {
-  confirm.require({
-    message: t('payment.messages.confirm_refund') || 'Refund this payment?',
-    header: t('payment.titles.refund') || 'Refund Payment',
-    icon: 'pi pi-undo',
-    acceptClass: 'p-button-danger',
-    accept: async () => {
-      const result = await store.refund(current.value!.id, current.value!.amount)
-      if (result.isSuccess) {
-        showToast('success', t('common.success') || 'Success', t('payment.messages.refunded') || 'Payment refunded')
-        store.fetchById(paymentId)
-      } else {
-        showToast('error', t('common.error') || 'Error', result.message || 'Refund failed')
-      }
-    },
-  })
+async function onRefund() {
+  const result = await store.refund(current.value!.id, current.value!.amount)
+  if (result.isSuccess) {
+    showToast('success', t('common.success') || 'Success', t('payment.messages.refunded') || 'Payment refunded')
+    store.fetchById(paymentId)
+  } else {
+    showToast('error', t('common.error') || 'Error', result.message || 'Refund failed')
+  }
 }
 </script>
 

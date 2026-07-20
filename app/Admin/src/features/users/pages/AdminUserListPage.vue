@@ -3,7 +3,7 @@ import { onMounted, ref } from 'vue';
 import { useUserStore } from '../store/user.store';
 import { storeToRefs } from 'pinia';
 import { useRouter } from 'vue-router';
-import { useConfirm } from 'primevue/useconfirm';
+import ConfirmDialog from '@/shared/components/overlays/ConfirmDialog.vue';
 import { useFormatter } from '@/common/composables/formatter.use';
 import { useI18n } from 'vue-i18n';
 import PageShell from '@/shared/components/navigation/PageShell.vue';
@@ -11,12 +11,10 @@ import PageHeader from '@/shared/components/navigation/PageHeader.vue';
 import { FilterMatchMode } from '@primevue/core/api';
 import type { DataTablePageEvent, DataTableSortEvent, DataTableFilterMeta } from 'primevue/datatable';
 import { getFilterValue } from '@/common/api/types/filter.types';
-import type { AdminUserSummary } from '../types/user.response';
 
 const store = useUserStore();
 const { admins, loading, totalRecords, query } = storeToRefs(store);
 const router = useRouter();
-const confirm = useConfirm();
 const { formatDate } = useFormatter();
 const { t } = useI18n();
 
@@ -62,22 +60,8 @@ const clearFilters = () => {
     onFilter();
 };
 
-const confirmDelete = (user: AdminUserSummary) => {
-    const messageStr = t('users.confirm.delete_message').replace('{email}', user.email);
-
-    confirm.require({
-        message: messageStr,
-        header: t('users.confirm.delete_header'),
-        icon: 'pi pi-exclamation-triangle',
-        rejectLabel: t('users.confirm.reject_label'),
-        acceptProps: {
-            label: t('users.confirm.accept_label'),
-            severity: 'danger',
-        },
-        accept: async () => {
-            await store.deleteAdmin(user.id);
-        }
-    });
+const deleteAdmin = async (userId: string) => {
+  await store.deleteAdmin(userId);
 };
 </script>
 
@@ -168,7 +152,12 @@ const confirmDelete = (user: AdminUserSummary) => {
               <div class="flex justify-end gap-1">
                 <Button icon="pi pi-eye" severity="secondary" text rounded @click="router.push({ name: 'users.staff.detail', params: { id: data.id } })" />
                 <Button icon="pi pi-pencil" severity="secondary" text rounded />
-                <Button icon="pi pi-trash" severity="danger" text rounded @click="confirmDelete(data)" />
+                <ConfirmDialog
+                  :header="t('users.confirm.delete_header')"
+                  :message="t('users.confirm.delete_message').replace('{email}', data.email)"
+                  :accept-label="t('users.confirm.accept_label')"
+                  :reject-label="t('users.confirm.reject_label')"
+                  @confirm="deleteAdmin(data.id)" />
               </div>
             </template>
           </Column>

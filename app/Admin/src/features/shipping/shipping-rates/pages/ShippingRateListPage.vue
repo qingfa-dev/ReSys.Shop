@@ -6,7 +6,6 @@ import { useShippingRateStore } from '../store/shipping-rate.store'
 import { storeToRefs } from 'pinia'
 import { shippingRateRepository } from '../api/shipping-rate.api'
 import { useToast } from '@/common/composables/toast.use'
-import { useConfirm } from 'primevue/useconfirm'
 import type { DataTablePageEvent, DataTableSortEvent } from 'primevue/datatable'
 import PageShell from '@/shared/components/navigation/PageShell.vue'
 import PageHeader from '@/shared/components/navigation/PageHeader.vue'
@@ -17,7 +16,6 @@ import type { ColumnDef } from '@/shared/components/tables/DataTableShell.vue'
 const { t } = useI18n()
 const router = useRouter()
 const store = useShippingRateStore()
-const confirm = useConfirm()
 const { showToast } = useToast()
 const { items, loading, totalRecords } = storeToRefs(store)
 
@@ -41,22 +39,14 @@ function onEdit(id: string) {
   router.push({ name: 'shipping.rates.edit', params: { id } })
 }
 
-function onDelete(id: string) {
-  confirm.require({
-    message: t('shipping.messages.confirm_delete_rate') || 'Delete this shipping rate?',
-    header: t('shipping.titles.confirm_delete') || 'Confirm Delete',
-    icon: 'pi pi-exclamation-triangle',
-    acceptClass: 'p-button-danger',
-    accept: async () => {
-      const result = await shippingRateRepository.delete(id)
-      if (result.isSuccess) {
-        showToast('success', t('common.success') || 'Success', t('shipping.messages.rate_deleted') || 'Shipping rate deleted')
-        store.fetchItems({})
-      } else {
-        showToast('error', t('common.error') || 'Error', result.message || 'Delete failed')
-      }
-    },
-  })
+async function onDelete(id: string) {
+  const result = await shippingRateRepository.delete(id)
+  if (result.isSuccess) {
+    showToast('success', t('common.success') || 'Success', t('shipping.messages.rate_deleted') || 'Shipping rate deleted')
+    store.fetchItems({})
+  } else {
+    showToast('error', t('common.error') || 'Error', result.message || 'Delete failed')
+  }
 }
 
 onMounted(() => store.fetchItems({}))

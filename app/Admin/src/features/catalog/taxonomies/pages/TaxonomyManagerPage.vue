@@ -6,13 +6,12 @@ import { useTaxonomyStore } from '../store/taxonomy.store'
 import { storeToRefs } from 'pinia'
 import { useApiErrorHandler } from '@/common/composables/api-error-handler.use'
 import { useToast } from '@/common/composables/toast.use'
-import { useConfirm } from 'primevue/useconfirm'
+import ConfirmDialog from '@/shared/components/overlays/ConfirmDialog.vue'
 import type { TaxonomyListItem } from '../types/taxonomy.response'
 
 const { t } = useI18n()
 const route = useRoute()
 const router = useRouter()
-const confirm = useConfirm()
 const store = useTaxonomyStore()
 const { loading, taxonomies, totalRecords } = storeToRefs(store)
 const { handleApiResult } = useApiErrorHandler()
@@ -32,28 +31,16 @@ const openEdit = (id: string) => {
   router.push({ name: 'catalog.taxonomies.edit', params: { id } })
 }
 
-const confirmDelete = (item: TaxonomyListItem) => {
-  const messageStr = t('catalog.taxonomies.confirm.delete_message').replace('{name}', item.name);
-  
-  confirm.require({
-    message: messageStr,
-    header: t('catalog.taxonomies.confirm.delete_header'),
-    icon: 'pi pi-exclamation-triangle',
-    rejectLabel: t('catalog.taxonomies.actions.cancel'),
-    acceptLabel: t('catalog.taxonomies.actions.delete'),
-    acceptProps: { severity: 'danger' },
-    accept: async () => {
-      const result = await store.deleteTaxonomy(item.id)
-      if (result.isSuccess) {
-        showToast('success', t('common.deleted'), t('catalog.taxonomies.messages.delete_success'))
-        if (selectedId.value === item.id) {
-            router.push({ name: 'catalog.taxonomies.list' })
-        }
-      } else {
-        handleApiResult(result)
-      }
+const deleteTaxonomy = async (item: TaxonomyListItem) => {
+  const result = await store.deleteTaxonomy(item.id)
+  if (result.isSuccess) {
+    showToast('success', t('common.deleted'), t('catalog.taxonomies.messages.delete_success'))
+    if (selectedId.value === item.id) {
+        router.push({ name: 'catalog.taxonomies.list' })
     }
-  })
+  } else {
+    handleApiResult(result)
+  }
 }
 
 const goBack = () => router.push({ name: 'catalog.dashboard' })
@@ -113,7 +100,12 @@ const goBack = () => router.push({ name: 'catalog.dashboard' })
                                     </div>
                                     <div class="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity shrink-0">
                                         <Button icon="pi pi-list" text rounded size="small" severity="info" @click.stop="router.push({ name: 'catalog.taxa.manager', params: { taxonomyId: tax.id } })" v-tooltip.top="'Manage Tree'" />
-                                        <Button icon="pi pi-trash" text rounded size="small" severity="danger" @click.stop="confirmDelete(tax)" />
+                                        <ConfirmDialog
+                                          :header="t('catalog.taxonomies.confirm.delete_header')"
+                                          :message="t('catalog.taxonomies.confirm.delete_message').replace('{name}', tax.name)"
+                                          :accept-label="t('catalog.taxonomies.actions.delete')"
+                                          :reject-label="t('catalog.taxonomies.actions.cancel')"
+                                          @confirm="deleteTaxonomy(tax)" />
                                     </div>
                                 </div>
                             </div>

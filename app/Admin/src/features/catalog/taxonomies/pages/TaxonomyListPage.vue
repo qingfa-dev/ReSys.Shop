@@ -4,7 +4,6 @@ import { useI18n } from 'vue-i18n';
 import { useTaxonomyStore } from '../store/taxonomy.store';
 import { storeToRefs } from 'pinia';
 import { useRouter } from 'vue-router';
-import { useConfirm } from 'primevue/useconfirm';
 import { FilterMatchMode, FilterOperator as PrimeFilterOperator } from '@primevue/core/api';
 import type {
   DataTablePageEvent,
@@ -17,6 +16,7 @@ import { useFormatter } from '@/common/composables/formatter.use';
 import { QueryBuilder } from '@/common/utils/query-builder.utils';
 import PageShell from '@/shared/components/navigation/PageShell.vue'
 import PageHeader from '@/shared/components/navigation/PageHeader.vue'
+import ConfirmDialog from '@/shared/components/overlays/ConfirmDialog.vue'
 import type { TaxonomyListItem } from '../types/taxonomy.response';
 
 const { t } = useI18n();
@@ -24,7 +24,6 @@ const { t } = useI18n();
 const store = useTaxonomyStore();
 const { taxonomies, loading, totalRecords, query } = storeToRefs(store);
 const router = useRouter();
-const confirm = useConfirm();
 const { showToast } = useToast();
 
 const filters = ref<DataTableFilterMeta>({
@@ -93,25 +92,11 @@ const clearFilters = () => {
   onFilter();
 };
 
-const confirmDelete = (taxonomy: TaxonomyListItem) => {
-  const messageStr = t('catalog.taxonomies.confirm.delete_message').replace('{name}', taxonomy.name);
-  
-  confirm.require({
-    message: messageStr,
-    header: t('catalog.taxonomies.confirm.delete_header'),
-    icon: 'pi pi-exclamation-triangle',
-    rejectLabel: t('catalog.taxonomies.actions.cancel'),
-    acceptProps: {
-      label: t('catalog.taxonomies.actions.delete'),
-      severity: 'danger',
-    },
-    accept: async () => {
-      const result = await store.deleteTaxonomy(taxonomy.id);
-      if (result.isSuccess) {
-        showToast('success', t('common.success'), t('catalog.taxonomies.messages.delete_success'));
-      }
-    },
-  });
+const deleteTaxonomy = async (taxonomyId: string) => {
+  const result = await store.deleteTaxonomy(taxonomyId);
+  if (result.isSuccess) {
+    showToast('success', t('common.success'), t('catalog.taxonomies.messages.delete_success'));
+  }
 };
 
 onMounted(() => {
@@ -200,7 +185,12 @@ onMounted(() => {
             <div class="flex justify-end gap-1">
               <Button icon="pi pi-sitemap" :label="t('catalog.taxonomies.actions.manage_tree')" text rounded severity="info" size="small" v-tooltip.top="'Manage Tree'" @click="router.push({ name: 'catalog.taxa.manager', params: { taxonomyId: data.id } })" />
               <Button icon="pi pi-pencil" severity="secondary" text rounded @click="router.push({ name: 'catalog.taxonomies.edit', params: { id: data.id } })" />
-              <Button icon="pi pi-trash" severity="danger" text rounded @click="confirmDelete(data)" />
+              <ConfirmDialog
+                :header="t('catalog.taxonomies.confirm.delete_header')"
+                :message="t('catalog.taxonomies.confirm.delete_message').replace('{name}', data.name)"
+                :accept-label="t('catalog.taxonomies.actions.delete')"
+                :reject-label="t('catalog.taxonomies.actions.cancel')"
+                @confirm="deleteTaxonomy(data.id)" />
             </div>
           </template>
         </Column>

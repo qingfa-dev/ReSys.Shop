@@ -39,7 +39,7 @@ const [displayOrder] = defineField('displayOrder')
 const [isActive] = defineField('isActive')
 
 onMounted(async () => {
-  if (isEdit) {
+  if (isEdit.value) {
     await store.fetchById(route.params.id as string)
     if (store.current) {
       setValues({
@@ -56,7 +56,7 @@ onMounted(async () => {
 const onSubmit = handleSubmit(async (values) => {
   submitting.value = true
   try {
-    if (isEdit) {
+    if (isEdit.value) {
       await paymentMethodRepository.update(route.params.id as string, values)
     } else {
       await paymentMethodRepository.create(values)
