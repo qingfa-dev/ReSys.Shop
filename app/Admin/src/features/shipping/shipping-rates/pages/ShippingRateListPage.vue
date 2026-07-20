@@ -11,7 +11,7 @@ import type { DataTablePageEvent, DataTableSortEvent } from 'primevue/datatable'
 import PageShell from '@/shared/components/navigation/PageShell.vue'
 import PageHeader from '@/shared/components/navigation/PageHeader.vue'
 import DataTableShell from '@/shared/components/tables/DataTableShell.vue'
-import ConfirmButton from '@/shared/components/base/ConfirmButton.vue'
+import ConfirmButton from '@/shared/components/overlays/ConfirmDialog.vue'
 import type { ColumnDef } from '@/shared/components/tables/DataTableShell.vue'
 
 const { t } = useI18n()
