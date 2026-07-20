@@ -1,6 +1,6 @@
 export { parseApiError, type ParsedApiError } from './api/utils/api.utils'
-export { toCamelCase } from './mapper/string.transforms'
-export { mapKeys, toCamelCaseKeys } from './mapper/object.transforms'
+export { toCamelCase } from './utils/string.transforms'
+export { mapKeys, toCamelCaseKeys } from './utils/object.transforms'
 export {
   buildFilterParam,
   buildSearchParams,
