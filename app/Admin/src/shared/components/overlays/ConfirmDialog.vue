@@ -6,8 +6,6 @@ const confirm = useConfirm()
 const props = withDefaults(defineProps<{
   icon?: string
   severity?: string
-  rounded?: boolean
-  text?: boolean
   header: string
   message: string
   acceptLabel?: string
@@ -16,15 +14,17 @@ const props = withDefaults(defineProps<{
 }>(), {
   icon: 'pi pi-trash',
   severity: 'danger',
-  rounded: true,
-  text: true,
+  acceptLabel: 'Confirm',
+  rejectLabel: 'Cancel',
+  loading: false,
 })
 
 const emit = defineEmits<{
   confirm: []
+  cancel: []
 }>()
 
-function onClick() {
+function open() {
   confirm.require({
     message: props.message,
     header: props.header,
@@ -32,20 +32,22 @@ function onClick() {
     rejectLabel: props.rejectLabel,
     acceptProps: {
       label: props.acceptLabel,
-      severity: props.severity as any,
+      severity: props.severity,
+    },
+    rejectProps: {
+      label: props.rejectLabel,
+      severity: 'secondary',
+      outlined: true,
     },
     accept: () => emit('confirm'),
+    reject: () => emit('cancel'),
   })
 }
 </script>
 
 <template>
-  <Button
-    :icon="icon"
-    :severity="severity"
-    :rounded="rounded"
-    :text="text"
-    :loading="loading"
-    @click="onClick"
-  />
+  <ConfirmDialogPrime />
+  <Button :icon="icon" :severity="severity" :loading="loading" rounded text @click="open">
+    <slot />
+  </Button>
 </template>

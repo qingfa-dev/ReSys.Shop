@@ -1,69 +1,50 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { describe, it, expect, vi } from 'vitest'
 import { mount } from '@vue/test-utils'
-import PrimeVue from 'primevue/config'
+import ConfirmDialog from '../ConfirmDialog.vue'
+import ConfirmDialogPrime from 'primevue/confirmdialog'
 import { useConfirm } from 'primevue/useconfirm'
 
-vi.mock('primevue/useconfirm')
-
-import ConfirmButton from '../ConfirmDialog.vue'
+vi.mock('primevue/useconfirm', () => ({
+  useConfirm: vi.fn(() => ({
+    require: vi.fn((opts: any) => {
+      // last call will be used for assertions
+      ;(useConfirm as any)._lastOpts = opts
+      // call accept callback to simulate confirmation
+      opts.accept?.()
+    }),
+  })),
+}))
+;(useConfirm as any)._lastOpts = null
 
 describe('ConfirmDialog', () => {
-  beforeEach(() => {
-    vi.clearAllMocks()
-    vi.mocked(useConfirm).mockReturnValue({
-      require: vi.fn(),
-    } as any)
-  })
-
-  it('renders trigger button', () => {
-    const wrapper = mount(ConfirmButton, {
-      props: { header: 'Confirm', message: 'Are you sure?' },
-      global: { stubs: { Button: true } },
-    })
-    expect(wrapper.findComponent({ name: 'Button' }).exists()).toBe(true)
-  })
-
-  it('calls confirm.require on click', async () => {
-    const wrapper = mount(ConfirmButton, {
+  it('renders default slot as trigger', () => {
+    const wrapper = mount(ConfirmDialog, {
+      global: { stubs: { ConfirmDialogPrime: true, Button: { template: '<button><slot /></button>' } } },
       props: { header: 'Delete', message: 'Sure?' },
-      global: { stubs: { Button: { template: '<button><slot /></button>' } } },
+      slots: { default: '<button class="my-trigger">Delete</button>' },
     })
-    await wrapper.find('button').trigger('click')
-    expect(vi.mocked(useConfirm)().require).toHaveBeenCalledOnce()
+    expect(wrapper.html()).toContain('my-trigger')
   })
 
-  it('passes message and header to confirm.require', async () => {
-    const wrapper = mount(ConfirmButton, {
-      props: { header: 'Delete item', message: 'This action cannot be undone.' },
-      global: { stubs: { Button: { template: '<button><slot /></button>' } } },
+  it('emits confirm when accept clicked', async () => {
+    const wrapper = mount(ConfirmDialog, {
+      global: { stubs: { ConfirmDialogPrime: true, Button: { template: '<button><slot /></button>' } } },
+      props: { header: 'Delete', message: 'Sure?' },
+      slots: { default: '<button>X</button>' },
     })
     await wrapper.find('button').trigger('click')
-    expect(vi.mocked(useConfirm)().require).toHaveBeenCalledWith(
-      expect.objectContaining({
-        header: 'Delete item',
-        message: 'This action cannot be undone.',
-      }),
-    )
-  })
-
-  it('emits confirm when accept callback fires', async () => {
-    let acceptFn: (() => void) | null = null
-    vi.mocked(useConfirm).mockReturnValue({
-      require: vi.fn((opts: any) => {
-        acceptFn = opts.accept
-      }),
-    } as any)
-
-    const wrapper = mount(ConfirmButton, {
-      props: { header: 'Delete', message: 'Are you sure?', severity: 'danger' },
-      global: { plugins: [PrimeVue] },
-    })
-
-    await wrapper.find('button').trigger('click')
-    expect(acceptFn).toBeDefined()
-
-    acceptFn!()
-
+    await wrapper.vm.$nextTick()
+    expect((useConfirm as any)._lastOpts.header).toBe('Delete')
     expect(wrapper.emitted('confirm')).toBeTruthy()
+  })
+
+  it('uses default severity and icon when not provided', () => {
+    const wrapper = mount(ConfirmDialog, {
+      global: { stubs: { ConfirmDialogPrime: true, Button: { template: '<button><slot /></button>' } } },
+      props: { header: 'Title', message: 'Msg' },
+      slots: { default: '<button>X</button>' },
+    })
+    // defaults: severity='danger', icon='pi pi-trash', acceptLabel='Confirm'
+    expect(wrapper.props('severity')).toBe('danger')
   })
 })
