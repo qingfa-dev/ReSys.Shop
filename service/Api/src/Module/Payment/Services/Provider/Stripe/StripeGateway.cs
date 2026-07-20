@@ -95,7 +95,7 @@ public sealed class StripeGateway : Gateway
             // Compute: Amount in cents with away-from-zero rounding
             var co = new PaymentIntentCaptureOptions
             {
-                AmountToCapture = (long)Math.Round(amount * CentsMultiplier, MidpointRounding.AwayFromZero)
+                AmountToCapture = checked((long)Math.Round(amount * CentsMultiplier, MidpointRounding.AwayFromZero))
             };
             var ro = BuildRequestOptions(options);
             var intent = await new PaymentIntentService().CaptureAsync(responseCode, co, ro, ct).ConfigureAwait(false);
@@ -134,7 +134,7 @@ public sealed class StripeGateway : Gateway
             var ro = new RefundCreateOptions
             {
                 PaymentIntent = responseCode,
-                Amount = (long)Math.Round(amount * CentsMultiplier, MidpointRounding.AwayFromZero)
+                Amount = checked((long)Math.Round(amount * CentsMultiplier, MidpointRounding.AwayFromZero))
             };
             var requestOptions = BuildRequestOptions(options);
             var refund = await new RefundService().CreateAsync(ro, requestOptions, ct).ConfigureAwait(false);
@@ -174,7 +174,7 @@ public sealed class StripeGateway : Gateway
         // Compute: Amount in cents with away-from-zero rounding
         var o = new PaymentIntentCreateOptions
         {
-            Amount = (long)Math.Round(amount * CentsMultiplier, MidpointRounding.AwayFromZero),
+            Amount = checked((long)Math.Round(amount * CentsMultiplier, MidpointRounding.AwayFromZero)),
             Currency = GatewayOptions.Currency,
             ConfirmationMethod = GatewayConstants.Stripe.ConfirmationMethod.Manual,
             CaptureMethod = autoCapture
