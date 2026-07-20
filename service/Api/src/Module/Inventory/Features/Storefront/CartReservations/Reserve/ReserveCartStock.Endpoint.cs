@@ -30,7 +30,9 @@ public static partial class ReserveCartStock
             .WithSummary(InventoryFeature.Storefront.CartReservations.Reserve.Summary)
             .WithDescription(InventoryFeature.Storefront.CartReservations.Reserve.Description)
             .Produces<Result<Response>>()
-            .Produces<Result>(StatusCodes.Status400BadRequest);
+            .Produces<Result>(StatusCodes.Status400BadRequest)
+            .Produces<Result>(StatusCodes.Status409Conflict)
+            .Produces<Result>(StatusCodes.Status404NotFound);
         }
     }
 }

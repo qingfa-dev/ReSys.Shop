@@ -16,7 +16,8 @@ public static partial class ConfirmEmail
                 .WithDescription(IdentityFeature.Store.Emails.Confirm.Description)
                 .Produces<Result>()
                 .Produces<Result>(StatusCodes.Status400BadRequest)
-                .Produces<Result>(StatusCodes.Status404NotFound);
+                .Produces<Result>(StatusCodes.Status404NotFound)
+                .Produces(StatusCodes.Status204NoContent);
         }
 
         private static async Task<IResult> Handle(

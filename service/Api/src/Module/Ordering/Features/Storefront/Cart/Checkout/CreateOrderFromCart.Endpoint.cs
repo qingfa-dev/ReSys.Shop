@@ -26,7 +26,9 @@ public static partial class CreateOrderFromCart
             .WithDescription(OrderingFeature.Storefront.Cart.Checkout.Description)
             .Produces<Result<Response>>()
             .Produces<Result>(StatusCodes.Status400BadRequest)
-            .Produces<Result>(StatusCodes.Status404NotFound);
+            .Produces<Result>(StatusCodes.Status404NotFound)
+            .Produces<Result>(StatusCodes.Status409Conflict)
+            .Produces<Result>(StatusCodes.Status422UnprocessableEntity);
         }
     }
 }
