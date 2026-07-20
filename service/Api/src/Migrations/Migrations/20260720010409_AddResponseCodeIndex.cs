@@ -15,7 +15,7 @@ namespace Api.Migrations.Migrations
                 schema: "payment",
                 table: "payment_captures",
                 column: "response_code",
-                filter: "\"ResponseCode\" IS NOT NULL");
+                filter: "\"response_code\" IS NOT NULL");
         }
 
         /// <inheritdoc />

@@ -2045,7 +2045,7 @@ namespace Api.Migrations.Migrations
 
                     b.HasIndex("ResponseCode")
                         .HasDatabaseName("ix_payment_captures_response_code")
-                        .HasFilter("\"ResponseCode\" IS NOT NULL");
+                        .HasFilter("\"response_code\" IS NOT NULL");
 
                     b.ToTable("payment_captures", "payment");
                 });
