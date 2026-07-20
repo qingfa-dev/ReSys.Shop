@@ -24,6 +24,7 @@ public static partial class StripeWebhook
                 return StripeWebhookResult.Errors.InvalidSignature;
 
             // Defer: Enqueue background job for async processing — avoids blocking webhook response
+            // CancellationToken.None is a serialization placeholder — Hangfire injects the real token at execution time
             backgroundJobClient.Enqueue<ProcessStripeWebhookEventJob>(
                 job => job.ExecuteAsync(command.Payload, CancellationToken.None));
 
