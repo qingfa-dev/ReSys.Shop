@@ -200,6 +200,13 @@ public sealed class StripeGateway : Gateway
         var msg = e?.DeclineCode is not null
             ? $"Stripe [{code}] decline [{e.DeclineCode}]: {e!.Message}"
             : $"Stripe [{code}]: {e?.Message ?? ex.Message}";
-        return StripeGatewayResult.Errors.GatewayError(code, msg);
+
+        var isTransient = ex.HttpStatusCode >= System.Net.HttpStatusCode.InternalServerError
+            || e?.Type == "api_error"
+            || e?.Type == "api_connection_error";
+
+        return isTransient
+            ? StripeGatewayResult.Errors.TransientGatewayError(code, msg)
+            : StripeGatewayResult.Errors.GatewayError(code, msg);
     }
 }
