@@ -11,6 +11,7 @@ public static partial class ConfirmEmail
     {
         public Validator()
         {
+            RuleFor(x => x.Request.UserId).NotEmpty();
             RuleFor(x => x.Request.Token).ApplyUserTokenRules();
         }
     }
