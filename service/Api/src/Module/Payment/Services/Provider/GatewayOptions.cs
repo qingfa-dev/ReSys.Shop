@@ -13,6 +13,8 @@ public sealed record GatewayOptions
     public required string PaymentId { get; init; }
     public required string IdempotencyKey { get; init; }
     public string? StatementDescriptorSuffix { get; init; }
+    public string? SuccessUrl { get; init; }
+    public string? CancelUrl { get; init; }
     public decimal Shipping { get; init; }
     public decimal Tax { get; init; }
     public decimal Subtotal { get; init; }
