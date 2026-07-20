@@ -106,8 +106,9 @@ public sealed class PaymentProcessingService : IPaymentProcessingService
         var result = await CreditAsync(payment, gateway, options, amount, ct).ConfigureAwait(false);
         if (result.IsSuccess)
         {
-            payment.RefundedAmount += amount;
-            payment.ModifiedAtUtc = DateTimeOffset.UtcNow;
+            var refundResult = payment.Refund(amount);
+            if (refundResult.IsFailure)
+                return Result<PaymentProcessingResult>.Failure(refundResult.Errors[0]);
         }
 
         return result;
@@ -213,9 +214,6 @@ public sealed class PaymentProcessingService : IPaymentProcessingService
         var result = await GatewayActionAsync(payment, gateway, options,
             (amount, src, opts, t) => gateway.PurchaseAsync(amount, src, opts, t),
             PaymentRecordState.Completed, ct).ConfigureAwait(false);
-
-        if (result.IsSuccess)
-            payment.CaptureEventCreated = true;
 
         return result;
     }
