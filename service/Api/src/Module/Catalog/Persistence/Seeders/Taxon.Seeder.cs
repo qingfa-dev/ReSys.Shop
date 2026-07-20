@@ -16,6 +16,12 @@ public sealed class CatalogTaxonSeeder(IApplicationDbContext context, DemoJsonHe
         if (json is null)
             return Result.Ok();
 
+        var ids = json.Select(item => Guid.Parse(item.Id)).ToArray();
+        var existingIds = await Context.Set<Taxon>()
+            .Where(t => ids.Contains(t.Id))
+            .Select(t => t.Id)
+            .ToHashSetAsync(cancellationToken);
+
         var usedSlugs = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
         var existingSlugs = await Context.Set<Taxon>()
             .Select(t => t.Slug)
@@ -33,6 +39,10 @@ public sealed class CatalogTaxonSeeder(IApplicationDbContext context, DemoJsonHe
                 slug = $"{original}-{suffix}";
                 suffix++;
             }
+
+            var taxonId = Guid.Parse(item.Id);
+            if (existingIds.Contains(taxonId))
+                continue;
 
             Guid? parentId = string.IsNullOrEmpty(item.ParentId) ? null : Guid.Parse(item.ParentId);
             var result = TaxonMethod.Create(

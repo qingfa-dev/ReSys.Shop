@@ -1,5 +1,4 @@
 using System.Net;
-using System.Text.Json;
 
 using Api.Tests.Infrastructure;
 using Api.Tests.Infrastructure.Auth;
@@ -27,6 +26,11 @@ public sealed class BrowseCatalogToCheckoutWorkflowTests(ApiFixture fixture) : W
     }
 
     private record AddressIdResponse
+    {
+        public Guid Id { get; init; }
+    }
+
+    private record CartIdResponse
     {
         public Guid Id { get; init; }
     }
@@ -92,6 +96,16 @@ public sealed class BrowseCatalogToCheckoutWorkflowTests(ApiFixture fixture) : W
         ApiResponse browseResult = await browseResp.ReadApiResponseAsync();
         browseResult.IsSuccess.Should().BeTrue();
 
+        var addItemBody = new { variantId, quantity = 2 };
+        HttpResponseMessage addItemResp = await client.PostAsJsonAsync(
+            "/api/storefront/cart/items", addItemBody);
+        addItemResp.StatusCode.Should().Be(HttpStatusCode.Created);
+        ApiResponse addItemResult = await addItemResp.ReadApiResponseAsync();
+        addItemResult.IsSuccess.Should().BeTrue();
+        var cart = addItemResult.DeserializeValue<CartIdResponse>();
+        cart.Should().NotBeNull();
+        Guid cartId = cart!.Id;
+
         var (email, password, userName) = TestCredentials();
         var registerBody = new { email, userName, password, firstName = "Cart", lastName = "User" };
 
@@ -106,19 +120,14 @@ public sealed class BrowseCatalogToCheckoutWorkflowTests(ApiFixture fixture) : W
         ApiResponse loginResult = await loginResp.ReadApiResponseAsync();
         loginResult.IsSuccess.Should().BeTrue();
 
-        string accessToken = GetAccessToken(loginResult);
+        string accessToken = IdentityTestHelper.GetAccessToken(loginResult);
         accessToken.Should().NotBeNullOrEmpty();
         client.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", accessToken);
 
-        var profileBody = new { firstName = "Cart", lastName = "User", email };
-        HttpResponseMessage profileResp = await client.PutAsJsonAsync(
-            "/api/store/profiles/profiles", profileBody);
-        profileResp.IsSuccessStatusCode.Should().BeTrue();
-
-        var addItemBody = new { variantId, quantity = 2 };
-        HttpResponseMessage addItemResp = await client.PostAsJsonAsync(
-            "/api/storefront/cart/items", addItemBody);
-        addItemResp.StatusCode.Should().Be(HttpStatusCode.Created);
+        var associateBody = new { guestOrderId = cartId };
+        HttpResponseMessage associateResp = await client.PostAsJsonAsync(
+            "/api/storefront/cart/associate", associateBody);
+        associateResp.IsSuccessStatusCode.Should().BeTrue();
 
         var addressBody = new
         {
@@ -142,6 +151,30 @@ public sealed class BrowseCatalogToCheckoutWorkflowTests(ApiFixture fixture) : W
 
         Guid shipAddressId = address!.Id;
 
+        var updateCartBody = new
+        {
+            email,
+            billAddressId = shipAddressId,
+            shipAddressId = shipAddressId
+        };
+        HttpResponseMessage updateCartResp = await client.PutAsJsonAsync(
+            "/api/storefront/cart", updateCartBody);
+        updateCartResp.IsSuccessStatusCode.Should().BeTrue();
+
+        Guid shippingMethodId;
+        using (var scope = Fixture.Factory.Services.CreateScope())
+        {
+            var db = scope.ServiceProvider.GetRequiredService<IApplicationDbContext>();
+            var shippingMethod = await db.Set<ShippingMethod>()
+                .FirstAsync(sm => sm.Code == "standard");
+            shippingMethodId = shippingMethod.Id;
+        }
+
+        var selectShipBody = new { shippingMethodId };
+        HttpResponseMessage selectShipResp = await client.PostAsJsonAsync(
+            "/api/storefront/cart/shipping-rate", selectShipBody);
+        selectShipResp.IsSuccessStatusCode.Should().BeTrue();
+
         using (var scope = Fixture.Factory.Services.CreateScope())
         {
             var db = scope.ServiceProvider.GetRequiredService<IApplicationDbContext>();
@@ -149,22 +182,15 @@ public sealed class BrowseCatalogToCheckoutWorkflowTests(ApiFixture fixture) : W
             var user = await userManager.FindByEmailAsync(email);
             user.Should().NotBeNull();
 
-            var shippingMethod = await db.Set<ShippingMethod>()
-                .FirstAsync(sm => sm.Code == "standard");
-
-            var cart = await db.Set<Order>()
+            var cartEntity = await db.Set<Order>()
                 .Include(o => o.LineItems)
                 .Include(o => o.Adjustments)
                 .FirstOrDefaultAsync(o => o.UserId == user!.Id && o.Status == OrderStatus.Draft);
 
-            cart.Should().NotBeNull();
-            cart!.Email = email;
-            cart.BillAddressId = shipAddressId;
-            cart.ShipAddressId = shipAddressId;
-            cart.ShippingMethodId = shippingMethod.Id;
-            cart.CheckoutState = CheckoutState.Confirm;
+            cartEntity.Should().NotBeNull();
+            cartEntity!.CheckoutState = CheckoutState.Confirm;
 
-            var recalcResult = cart.RecalculateTotals();
+            var recalcResult = cartEntity.RecalculateTotals();
             recalcResult.IsSuccess.Should().BeTrue();
 
             await db.SaveChangesAsync();
@@ -174,12 +200,5 @@ public sealed class BrowseCatalogToCheckoutWorkflowTests(ApiFixture fixture) : W
         HttpResponseMessage checkoutResp = await client.PostAsJsonAsync(
             "/api/storefront/cart/checkout", checkoutBody);
         checkoutResp.IsSuccessStatusCode.Should().BeTrue();
-    }
-
-    private static string GetAccessToken(ApiResponse loginResult)
-    {
-        using JsonDocument doc = JsonDocument.Parse(loginResult.ValueRaw!);
-        JsonElement root = doc.RootElement;
-        return root.GetProperty("accessToken").GetString()!;
     }
 }

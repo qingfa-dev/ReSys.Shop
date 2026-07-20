@@ -129,5 +129,11 @@ public static partial class DatabaseInitializer
             Level = LogLevel.Information,
             Message = "Seeders skipped (runSeeders=false).")]
         public static partial void LogSeedersSkipped(ILogger logger);
+
+        [LoggerMessage(
+            EventId = 270,
+            Level = LogLevel.Warning,
+            Message = "Seeders skipped because migrations failed.")]
+        public static partial void LogSeedersSkippedOnMigrationFailure(ILogger logger);
     }
 }

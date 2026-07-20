@@ -51,16 +51,21 @@ public static partial class DatabaseInitializer
                 await DropApplicationSchemasAsync(scope, logger);
             }
 
+            bool migrationsSucceeded = !runMigrations;
             if (runMigrations)
             {
-                await RunMigrationsAsync(scope, logger);
+                migrationsSucceeded = await RunMigrationsAsync(scope, logger);
             }
             else
             {
                 Loggers.LogMigrationsSkipped(logger);
             }
 
-            if (runSeeders)
+            if (!migrationsSucceeded)
+            {
+                Loggers.LogSeedersSkippedOnMigrationFailure(logger);
+            }
+            else if (runSeeders)
             {
                 await RunSeedersAsync(scope, logger);
             }
@@ -108,19 +113,20 @@ public static partial class DatabaseInitializer
         Loggers.LogSchemasDropped(logger);
     }
 
-    private static async Task RunMigrationsAsync(IServiceScope scope, ILogger logger)
+    private static async Task<bool> RunMigrationsAsync(IServiceScope scope, ILogger logger)
     {
         IEnumerable<IApplicationDbContext> contexts = scope.ServiceProvider.GetServices<IApplicationDbContext>();
 
-        Task[] migrationTasks = contexts
+        Task<bool>[] migrationTasks = contexts
             .OfType<DbContext>()
             .Select(dbContext => ApplyOneContextAsync(dbContext, logger))
             .ToArray();
 
-        await Task.WhenAll(migrationTasks);
+        var results = await Task.WhenAll(migrationTasks);
+        return results.All(r => r);
     }
 
-    private static async Task ApplyOneContextAsync(DbContext dbContext, ILogger logger)
+    private static async Task<bool> ApplyOneContextAsync(DbContext dbContext, ILogger logger)
     {
         string dbContextName = dbContext.GetType().Name;
         Loggers.LogApplyingMigrations(logger, dbContextName);
@@ -137,6 +143,8 @@ public static partial class DatabaseInitializer
         {
             Loggers.LogMigrationsApplied(logger);
         }
+
+        return migrationApplied;
     }
 
     private static async Task<bool> ApplyMigrationsWithRetryAsync(
