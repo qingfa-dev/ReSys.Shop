@@ -18,6 +18,7 @@ using GatewayRegistry = Module.Payment.Services.Provider.GatewayRegistry;
 using IGatewayRegistry = Module.Payment.Services.Provider.IGatewayRegistry;
 using StripeGateway = Module.Payment.Services.Provider.Stripe.StripeGateway;
 using StripeSetting = Module.Payment.Services.Provider.Stripe.StripeSetting;
+using StripeSettingValidation = Module.Payment.Services.Provider.Stripe.StripeSettingValidation;
 
 using Shared.Operational.Persistence.Configurations.Dictionaries;
 using Shared.Operational.Security.Encryption;
@@ -44,6 +45,7 @@ public static class PaymentExtension
 
         services.Configure<StripeSetting>(
             configuration.GetSection(StripeSetting.SectionName));
+        services.AddSingleton<IValidateOptions<StripeSetting>, StripeSettingValidation>();
         services.Configure<BogusSetting>(
             configuration.GetSection(BogusSetting.SectionName));
 
