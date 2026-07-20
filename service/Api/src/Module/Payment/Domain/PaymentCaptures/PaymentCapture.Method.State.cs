@@ -116,7 +116,7 @@ public static partial class PaymentCaptureMethod
         => payment.State is PaymentRecordState.Processing or PaymentRecordState.Pending
            && amount > 0 && amount <= payment.Amount;
 
-    // Update: Capture amount — validates CanCapture precondition
+    // Update: Capture amount — validates CanCapture precondition, transitions to Completed
     public static Result Capture(this PaymentCapture payment, decimal amount)
     {
         if (!payment.CanCapture(amount))
@@ -125,6 +125,8 @@ public static partial class PaymentCaptureMethod
                 ? PaymentCaptureResult.Failure.AmountExceedsAuthorized
                 : PaymentCaptureResult.Failure.InvalidStateTransition(payment.State, PaymentRecordState.Completed);
         }
+        payment.State = PaymentRecordState.Completed;
+        payment.ModifiedAtUtc = DateTimeOffset.UtcNow;
         return Result.Ok(PaymentCaptureResult.Success.Captured(payment.Number, amount));
     }
 
