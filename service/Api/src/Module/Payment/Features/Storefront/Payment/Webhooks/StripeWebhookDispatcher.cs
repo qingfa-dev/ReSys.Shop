@@ -60,9 +60,9 @@ public sealed class StripeWebhookDispatcher : IStripeWebhookService
     // Parse: Deserialize Stripe event JSON — returns null if malformed
     public Event? ParseEvent(string payload)
     {
-        // Catch: Exception → log and return null (malformed payload)
+        // Catch: StripeException → log and return null (malformed payload)
         try { return EventUtility.ParseEvent(payload); }
-        catch (Exception ex)
+        catch (StripeException ex)
         {
             StripeWebhookDispatcherLoggers.EventParseFailed(_logger, ex, payload);
             return null;
