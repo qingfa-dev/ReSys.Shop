@@ -15,5 +15,6 @@ public static class SystemCurrencyConstant
         public const string Symbol = "$";
         public const string Name = "US Dollar";
         public const int NumericCode = 840;
+        public const string Language = "en";
     }
 }

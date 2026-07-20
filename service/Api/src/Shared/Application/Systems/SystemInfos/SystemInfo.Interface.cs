@@ -34,4 +34,9 @@ public interface ISystemInfo
     /// Gets the default currency ISO 4217 code for the system.
     /// </summary>
     string DefaultCurrency { get; }
+
+    /// <summary>
+    /// Gets the default language code for the system (e.g., "en").
+    /// </summary>
+    string DefaultLanguage { get; }
 }
