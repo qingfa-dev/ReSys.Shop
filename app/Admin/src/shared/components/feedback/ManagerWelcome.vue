@@ -13,7 +13,7 @@ defineProps<{
       <i :class="['pi', icon, 'text-4xl text-surface-300']"></i>
     </div>
     <h3 class="text-xl font-bold text-surface-700 dark:text-surface-200">{{ title }}</h3>
-    <p class="text-surface-500 text-center max-w-xs px-4 mt-2">
+    <p class="text-muted-color text-center max-w-xs px-4 mt-2">
       {{ description }}
     </p>
   </div>
