@@ -140,6 +140,30 @@ public class CreatePaymentIntentTests : IDisposable
         result.Value.ClientSecret.Should().NotBeNullOrEmpty();
     }
 
+    [Fact(DisplayName = "Handler: Should use specific PaymentMethodId when provided")]
+    public async Task Handle_ShouldUseSpecificPaymentMethod()
+    {
+        var userId = Guid.Parse(_currentUserMock.Object.UserId!);
+        var order = OrderMethod.Create("USD", userId, Guid.NewGuid()).Value;
+        order.Status = OrderStatus.Placed;
+        order.Total = 100.00m;
+        _dbContext.Set<Order>().Add(order);
+        await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
+
+        var pmA = new PaymentMethod { Name = "Provider A", Code = "provider_a", ProviderKey = "stripe" };
+        var pmB = new PaymentMethod { Name = "Provider B", Code = "provider_b", ProviderKey = "bogus" };
+        _dbContext.Set<PaymentMethod>().Add(pmA);
+        _dbContext.Set<PaymentMethod>().Add(pmB);
+        await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
+
+        var result = await _handler.Handle(
+            new CreatePaymentIntent.Command(order.Id, PaymentMethodId: pmB.Id),
+            TestContext.Current.CancellationToken);
+
+        result.IsSuccess.Should().BeTrue();
+        _gatewayRegistryMock.Verify(x => x.GetGateway("bogus"), Times.Once);
+    }
+
     [Fact(DisplayName = "Handler: Should return failure when order not found")]
     public async Task Handle_ShouldReturnFailure_WhenOrderNotFound()
     {

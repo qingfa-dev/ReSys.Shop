@@ -74,4 +74,14 @@ public class BogusGatewayTests
         var status = await gateway.GetPaymentStatusAsync(authorization, TestContext.Current.CancellationToken);
         status.Should().Be("succeeded");
     }
+
+    [Fact(DisplayName = "BogusGateway: GetPaymentStatusAsync should return unknown for unrecognized code")]
+    public async Task GetPaymentStatusAsync_ShouldReturnUnknown_ForUnknownCode()
+    {
+        var gateway = new BogusGateway(Options.Create(new BogusSetting { Enabled = true }));
+
+        var result = await gateway.GetPaymentStatusAsync("nonexistent_code");
+
+        result.Should().Be("unknown");
+    }
 }
