@@ -32,4 +32,10 @@ public static partial class ProcessStripeWebhookEventJobLoggers
         Level = LogLevel.Warning,
         Message = "Cannot void payment {PaymentId} (state={State}): {Message}")]
     public static partial void CannotVoidPayment(ILogger logger, Guid PaymentId, string State, string? Message);
+
+    [LoggerMessage(
+        EventId = 5011,
+        Level = LogLevel.Warning,
+        Message = "Failed to parse Stripe webhook event from payload.")]
+    public static partial void ParseFailure(ILogger logger);
 }

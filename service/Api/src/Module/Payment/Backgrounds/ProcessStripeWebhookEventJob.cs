@@ -38,7 +38,10 @@ public sealed partial class ProcessStripeWebhookEventJob
         // Parse: Deserialize Stripe event from raw JSON
         var stripeEvent = _webhookService.ParseEvent(payload);
         if (stripeEvent is null)
+        {
+            ProcessStripeWebhookEventJobLoggers.ParseFailure(_logger);
             return;
+        }
 
         // Route: Dispatch to handler by event type
         switch (stripeEvent.Type)
