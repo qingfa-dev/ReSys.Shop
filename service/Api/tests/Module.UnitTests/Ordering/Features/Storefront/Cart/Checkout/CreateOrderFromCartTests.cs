@@ -195,7 +195,7 @@ public class CreateOrderFromCartTests : IDisposable
         var handler = new CreateOrderFromCart.CommandHandler(
             _dbContext, _loggerMock.Object, _currentUserMock.Object, _notificationServiceMock.Object)
         {
-            StockReservationExpiryDaysInMinutes = -1
+            StockReservationExpiryMinutes = -1
         };
         var result = await handler.Handle(
             new CreateOrderFromCart.Command(new CreateOrderFromCart.Request()),

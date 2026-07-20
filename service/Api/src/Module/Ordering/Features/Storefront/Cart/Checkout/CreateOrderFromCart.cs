@@ -31,7 +31,7 @@ public static partial class CreateOrderFromCart
         : ICommandHandler<Command, Response>
     {
         /// <summary>TTL in minutes for stock reservations. Set to 30 days by default. Overridable in tests.</summary>
-        internal int StockReservationExpiryDaysInMinutes { get; init; } = 30;
+        internal int StockReservationExpiryMinutes { get; init; } = 30;
         /// <summary>Validates checkout prerequisites, verifies payment, deducts stock, reserves inventory, places the order, publishes an event, and sends a notification.</summary>
         /// <param name="command">The command containing checkout request with optional payment intent ID.</param>
         /// <param name="cancellationToken">Cancellation token.</param>
@@ -96,8 +96,7 @@ public static partial class CreateOrderFromCart
                 bool isLastAttempt = attempt == maxRetries - 1;
                 await using var transaction = await dbContext.BeginTransactionAsync(
                     IsolationLevel.RepeatableRead, cancellationToken);
-                try
-                {
+
                     // Generate: Unique order number inside transaction so rollback doesn't leak numbers
                     var numberResult = await OrderNumber.GenerateAsync(dbContext, cancellationToken);
                     if (numberResult.IsFailure)
@@ -130,7 +129,7 @@ public static partial class CreateOrderFromCart
 
                             // Create: Reserve stock for this order.
                             var reserveResult = StockReservationMethod.Reserve(
-                                si.VariantId, take, si.StockLocationId, cart.Id, StockReservationExpiryDaysInMinutes);
+                                si.VariantId, take, si.StockLocationId, cart.Id, StockReservationExpiryMinutes);
                             if (reserveResult.IsFailure)
                                 return reserveResult.Errors;
                             var reservation = reserveResult.Value;
@@ -170,15 +169,7 @@ public static partial class CreateOrderFromCart
 
                     await transaction.CommitAsync(cancellationToken);
                     break;
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    await transaction.RollbackAsync(cancellationToken);
-                    if (isLastAttempt)
-                        return StockItemResult.Errors.ConcurrencyConflict(
-                            cart.LineItems.First().VariantId);
-                    await Task.Delay(100 * (1 << attempt), cancellationToken);
-                }
+
             }
 
             // Notify: Send order confirmation email to customer.
