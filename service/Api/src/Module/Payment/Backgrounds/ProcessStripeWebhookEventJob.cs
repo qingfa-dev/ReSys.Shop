@@ -97,6 +97,7 @@ public sealed partial class ProcessStripeWebhookEventJob
         var payment = await _dbContext.Set<PaymentCapture>()
             .FirstOrDefaultAsync(p => p.ResponseCode == intent.Id, ct);
         if (payment is null) return;
+        if (payment.State is PaymentRecordState.Failed or PaymentRecordState.Void) return;
 
         var result = payment.Fail();
         if (result.IsFailure)
@@ -117,6 +118,7 @@ public sealed partial class ProcessStripeWebhookEventJob
         var payment = await _dbContext.Set<PaymentCapture>()
             .FirstOrDefaultAsync(p => p.ResponseCode == charge.PaymentIntentId, ct);
         if (payment is null) return;
+        if (payment.State is PaymentRecordState.Void) return;
 
         // Compute: Delta between new refund amount and existing — only apply if positive
         if (charge.AmountRefunded > 0)
@@ -146,6 +148,7 @@ public sealed partial class ProcessStripeWebhookEventJob
         var payment = await _dbContext.Set<PaymentCapture>()
             .FirstOrDefaultAsync(p => p.ResponseCode == dispute.PaymentIntentId, ct);
         if (payment is null) return;
+        if (payment.State is PaymentRecordState.Disputed) return;
 
         var result = payment.Dispute();
         if (result.IsFailure)
@@ -167,6 +170,7 @@ public sealed partial class ProcessStripeWebhookEventJob
         var payment = await _dbContext.Set<PaymentCapture>()
             .FirstOrDefaultAsync(p => p.ResponseCode == intent.Id, ct);
         if (payment is null) return;
+        if (payment.State is PaymentRecordState.Void) return;
 
         var result = payment.Void();
         if (result.IsFailure)
