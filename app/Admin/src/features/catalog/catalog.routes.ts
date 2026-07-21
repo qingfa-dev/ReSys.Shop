@@ -1,4 +1,5 @@
 import type { RouteRecordRaw } from 'vue-router'
+import { taxonRoutes } from './taxa/routes'
 
 export const catalogRoutes: RouteRecordRaw = {
   path: 'catalog',
@@ -61,36 +62,7 @@ export const catalogRoutes: RouteRecordRaw = {
         },
       ],
     },
-    {
-      path: 'categories',
-      meta: { breadcrumb: 'Categories' },
-      children: [
-        {
-          path: '',
-          name: 'catalog.taxa.list',
-          component: () => import('@/features/catalog/taxonomies/taxa/pages/TaxonListPage.vue'),
-        },
-        {
-          path: ':taxonomyId/manage',
-          component: () => import('@/features/catalog/taxonomies/taxa/pages/TaxonTreeManagerPage.vue'),
-          name: 'catalog.taxa.manager',
-          children: [
-            {
-              path: 'create',
-              name: 'catalog.taxa.create',
-              component: () => import('@/features/catalog/taxonomies/taxa/pages/TaxonFormPage.vue'),
-              meta: { breadcrumb: 'Create' },
-            },
-            {
-              path: ':id/edit',
-              name: 'catalog.taxa.edit',
-              component: () => import('@/features/catalog/taxonomies/taxa/pages/TaxonFormPage.vue'),
-              meta: { breadcrumb: 'Edit' },
-            },
-          ]
-        }
-      ]
-    },
+    ...taxonRoutes,
     {
       path: 'option-types',
       meta: { breadcrumb: 'Option Types' },

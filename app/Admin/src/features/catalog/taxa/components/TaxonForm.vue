@@ -3,10 +3,10 @@ import { ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useForm } from 'vee-validate'
 import { toTypedSchema } from '@vee-validate/zod'
-import { createTaxonSchema } from '../../types/taxon.field'
+import { createTaxonSchema } from '../types/taxon.field'
 import MetadataManager from '@/shared/components/data-display/MetadataManager.vue'
 import FormField from '@/shared/components/form/FormField.vue'
-import type { TaxonDetail } from '../types/taxon.response'
+import type { TaxonDetail } from '../models/taxon.response'
 
 const { t } = useI18n()
 

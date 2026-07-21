@@ -3,7 +3,7 @@ import { onMounted, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRoute, useRouter } from 'vue-router'
 import { useTaxonStore } from '../store/taxon.store'
-import { useTaxonomyStore } from '../../store/taxonomy.store'
+import { useTaxonomyStore } from '../../taxonomies/store/taxonomy.store'
 import { storeToRefs } from 'pinia'
 import { useApiErrorHandler } from '@/common/composables/api-error-handler.use'
 import PageShell from '@/shared/components/navigation/PageShell.vue'
@@ -14,7 +14,7 @@ import { FilterMatchMode } from '@primevue/core/api'
 import type { DataTablePageEvent, DataTableSortEvent, DataTableFilterMeta } from 'primevue/datatable'
 import { QueryBuilder } from '@/common/utils/query-builder.utils'
 import { getFilterValue } from '@/common/api/types/filter.types'
-import type { TaxonListItem } from '../types/taxon.response'
+import type { TaxonListItem } from '../models/taxon.response'
 
 const { t } = useI18n()
 const route = useRoute()

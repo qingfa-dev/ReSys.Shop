@@ -3,12 +3,12 @@ import { onMounted, computed, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRoute, useRouter } from 'vue-router'
 import { useTaxonStore } from '../store/taxon.store'
-import { useTaxonomyStore } from '../../store/taxonomy.store'
+import { useTaxonomyStore } from '../../taxonomies/store/taxonomy.store'
 import { storeToRefs } from 'pinia'
 import { useApiErrorHandler } from '@/common/composables/api-error-handler.use'
 import { useToast } from '@/common/composables/toast.use'
 import ConfirmDialog from '@/shared/components/overlays/ConfirmDialog.vue'
-import type { TaxonListItem, TaxonTreeItem } from '../types/taxon.response'
+import type { TaxonListItem, TaxonTreeItem } from '../models/taxon.response'
 
 const { t } = useI18n()
 const route = useRoute()

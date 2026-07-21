@@ -5,12 +5,12 @@ import { useTaxonStore } from '../store/taxon.store'
 import { storeToRefs } from 'pinia'
 import { useForm } from 'vee-validate'
 import { toTypedSchema } from '@vee-validate/zod'
-import { createTaxonRuleSchema } from '../../types/taxon-rule.field'
+import { createTaxonRuleSchema } from '../types/taxon-rule.field'
 import { useApiErrorHandler } from '@/common/composables/api-error-handler.use'
 import { useToast } from '@/common/composables/toast.use'
 import ModalDialog from '@/shared/components/overlays/ModalDialog.vue'
 import FormField from '@/shared/components/form/FormField.vue'
-import type { TaxonRuleListItem } from '../types/taxon-rule.response'
+import type { TaxonRuleListItem } from '../models/taxon-rule.response'
 
 const { t } = useI18n()
 

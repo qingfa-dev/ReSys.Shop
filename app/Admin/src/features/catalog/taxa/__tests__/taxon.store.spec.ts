@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { setActivePinia, createPinia } from 'pinia';
 import { useTaxonStore } from '../store/taxon.store';
-import type { TaxonListItem } from '../types/taxon.response';
+import type { TaxonListItem } from '../models/taxon.response';
 
 vi.mock('../api/taxon.api', () => ({
   taxonRepository: {
