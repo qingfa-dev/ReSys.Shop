@@ -11,24 +11,24 @@ export const usersRoutes: RouteRecordRaw = {
         {
           path: '',
           name: 'users.staff.list',
-          component: () => import('./views/AdminUserList.View.vue'),
+          component: () => import('./pages/AdminUserListPage.vue'),
         },
         {
           path: 'create',
           name: 'users.staff.create',
-          component: () => import('./views/StaffForm.View.vue'),
+          component: () => import('./pages/StaffFormPage.vue'),
           meta: { breadcrumb: 'Invite Staff' },
         },
         {
           path: ':id',
           name: 'users.staff.detail',
-          component: () => import('./views/StaffDetail.View.vue'),
+          component: () => import('./pages/StaffDetailPage.vue'),
           meta: { breadcrumb: 'Staff Details' },
         },
         {
           path: ':id/edit',
           name: 'users.staff.edit',
-          component: () => import('./views/StaffForm.View.vue'),
+          component: () => import('./pages/StaffFormPage.vue'),
           meta: { breadcrumb: 'Edit Staff' },
         },
       ],
@@ -40,12 +40,12 @@ export const usersRoutes: RouteRecordRaw = {
         {
           path: '',
           name: 'users.customers.list',
-          component: () => import('./views/CustomerList.View.vue'),
+          component: () => import('./pages/CustomerListPage.vue'),
         },
         {
           path: ':id',
           name: 'users.customers.detail',
-          component: () => import('./views/CustomerDetail.View.vue'),
+          component: () => import('./pages/CustomerDetailPage.vue'),
           meta: { breadcrumb: 'Customer Details' },
         },
       ],

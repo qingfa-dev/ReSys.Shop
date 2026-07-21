@@ -1,15 +1,15 @@
-import apiClient from '@/shared/api/http/api.client'
-import { SHIPPING } from '@/shared/api/constants'
-import type { ServerPagedResult, ServerResult } from '@/shared/api/types/result.types'
-import type { ServerQueryingParameters } from '@/shared/api/types/query.types'
+import apiClient from '@/common/api/http/api.client'
+import { SHIPPING } from '@/common/api/constants'
+import type { ServerPagedResult, ServerResult } from '@/common/api/types/result.types'
+import type { ServerQueryingParameters } from '@/common/api/types/query.types'
 import type {
   ShippingRateListItem,
   ShippingRateDetail,
   CreateShippingRateRequest,
   UpdateShippingRateRequest,
 } from '../types'
-import type { ShippingRateListItemModel, ShippingRateDetailModel } from '../types/shipping-rate.model.type'
-import { mapValue, mapItems } from '@/shared/utils/transform'
+import type { ShippingRateListItemModel, ShippingRateDetailModel } from '../types/shipping-rate.model'
+import { mapValue, mapItems } from '@/common/utils/transform'
 import { decimalToDisplay } from '@/shared/utils/currency'
 
 function ratesPath(sub?: string): string {

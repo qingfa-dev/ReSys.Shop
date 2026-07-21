@@ -4,6 +4,11 @@ import { taxonomyRoutes } from './taxonomies/routes'
 import { taxonRoutes } from './taxa/routes'
 import { optionTypeRoutes } from './option-types/routes'
 import { optionValueRoutes } from './option-values/routes'
+import { classificationRoutes } from './classifications/routes'
+import { variantRoutes } from './variants/routes'
+import { variantImageRoutes } from './variant-images/routes'
+import { variantPriceRoutes } from './variant-prices/routes'
+import { productOptionTypeRoutes } from './product-option-types/routes'
 
 export const catalogRoutes: RouteRecordRaw = {
   path: 'catalog',
@@ -19,5 +24,10 @@ export const catalogRoutes: RouteRecordRaw = {
     ...taxonRoutes,
     ...optionTypeRoutes,
     ...optionValueRoutes,
+    ...classificationRoutes,
+    ...variantRoutes,
+    ...variantImageRoutes,
+    ...variantPriceRoutes,
+    ...productOptionTypeRoutes,
   ],
 }

@@ -1,6 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import AppLayout from '@/app/layout/Main.Layout.vue'
-import { useAuthStore } from '@/features/auth/stores/auth.store'
+import AppLayout from '@/app/layout/MainLayout.vue'
+import { useAuthStore } from '@/features/auth/store/auth.store'
 import { errorRoutes } from '@/features/error/error.routes'
 import { catalogRoutes } from '@/features/catalog/catalog.routes'
 import { reportsRoutes } from '@/features/reports/reports.routes'
@@ -18,10 +18,10 @@ const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
     ...errorRoutes,
-    { path: '/login', name: 'login', component: () => import('@/features/auth/views/Login.View.vue'), meta: { public: true } },
+    { path: '/login', name: 'login', component: () => import('@/features/auth/pages/LoginPage.vue'), meta: { public: true } },
     { path: '/', component: AppLayout, meta: { breadcrumb: 'navigation.home' }, children: [
       { path: '', name: 'home', redirect: { name: 'reports.dashboard' } },
-      { path: 'profile', name: 'profile', component: () => import('@/features/auth/views/Profile.View.vue'), meta: { breadcrumb: 'My Profile' } },
+      { path: 'profile', name: 'profile', component: () => import('@/features/auth/pages/ProfilePage.vue'), meta: { breadcrumb: 'My Profile' } },
       catalogRoutes,
       reportsRoutes,
       inventoryRoutes,

@@ -11,7 +11,7 @@ export const reportsRoutes: RouteRecordRaw = {
     {
       path: 'dashboard',
       name: 'reports.dashboard',
-      component: () => import('@/features/reports/views/Dashboard.View.vue'),
+      component: () => import('@/features/reports/pages/DashboardPage.vue'),
       meta: { breadcrumb: 'Command Center' },
     },
   ],

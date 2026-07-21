@@ -189,7 +189,6 @@
     "labels": {
       "name": "Internal Name",
       "presentation": "Display Name",
-      "description": "Description",
       "position": "Position",
       "filterable": "Filterable",
       "value_name": "Value Name",
@@ -198,7 +197,6 @@
     "placeholders": {
       "name": "e.g. tshirt-size",
       "presentation": "e.g. Size",
-      "description": "Internal notes...",
       "value_name": "e.g. small",
       "value_presentation": "e.g. Small"
     },
@@ -228,10 +226,8 @@
       "value_delete_success": "Option value removed.",
       "empty_list": "No option types found.",
       "loading": "Loading option types...",
-      "delete_error": "Failed to delete option type"
-    },
-    "tabs": {
-      "metadata": "Metadata"
+      "delete_error": "Failed to delete option type",
+      "delete_with_values": "Cannot delete: this option type has existing option values. Remove all values first."
     }
   },
   "option_values": {

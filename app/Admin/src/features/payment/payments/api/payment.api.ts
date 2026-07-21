@@ -4,7 +4,7 @@ import type { ServerPagedResult, ServerResult } from '@/common/api/types/result.
 import type { ServerQueryingParameters } from '@/common/api/types/query.types'
 import type { PaymentListItem, PaymentDetail } from '../types/payment.response'
 import type { PaymentListItemModel, PaymentDetailModel } from '../types/payment.model'
-import type { CapturePaymentRequest, RefundPaymentRequest } from '../types/payment.request'
+import type { RefundPaymentRequest } from '../types/payment.request'
 import { mapPaymentListItem, mapPaymentDetail } from '../models/payment.mapper'
 
 function paymentsPath(sub?: string): string {

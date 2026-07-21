@@ -1,9 +1,9 @@
-import apiClient from '@/shared/api/http/api.client'
-import { LOCATIONS } from '@/shared/api/constants'
-import type { ServerResult, ServerPagedResult } from '@/shared/api/types/result.types'
-import type { ServerQueryingParameters } from '@/shared/api/types/query.types'
-import type { State } from '../types/state.response.type'
-import type { CreateStateRequest, UpdateStateRequest } from '../types/state.request.type'
+import apiClient from '@/common/api/http/api.client'
+import { LOCATIONS } from '@/common/api/constants'
+import type { ServerResult, ServerPagedResult } from '@/common/api/types/result.types'
+import type { ServerQueryingParameters } from '@/common/api/types/query.types'
+import type { State } from '../types/state.response'
+import type { CreateStateRequest, UpdateStateRequest } from '../types/state.request'
 function path(sub?: string): string {
   return `${LOCATIONS}/states${sub ? `/${sub}` : ''}`
 }

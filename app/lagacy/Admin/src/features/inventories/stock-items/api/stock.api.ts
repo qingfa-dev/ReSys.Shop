@@ -1,11 +1,11 @@
-import apiClient from '@/shared/api/http/api.client'
-import { INVENTORY } from '@/shared/api/constants'
-import type { ServerResult, ServerPagedResult } from '@/shared/api/types/result.types'
-import type { ServerQueryingParameters } from '@/shared/api/types/query.types'
-import type { StockItem, StockItemDetail, StockSummary } from '../types/stock-item.response.type'
-import type { StockAdjustmentRequest, CreateStockItemRequest, UpdateStockItemRequest, BulkAdjustRequest } from '../types/stock-item.request.type'
-import type { StockItemQuery } from '../types/stock-item.query.type'
-import { mapStockItem, mapStockItemDetail } from '../mappers/stock-item.mapper'
+import apiClient from '@/common/api/http/api.client'
+import { INVENTORY } from '@/common/api/constants'
+import type { ServerResult, ServerPagedResult } from '@/common/api/types/result.types'
+import type { ServerQueryingParameters } from '@/common/api/types/query.types'
+import type { StockItem, StockItemDetail, StockSummary } from '../types/stock-item.response'
+import type { StockAdjustmentRequest, CreateStockItemRequest, UpdateStockItemRequest, BulkAdjustRequest } from '../types/stock-item.request'
+import type { StockItemQuery } from '../types/stock-item.query'
+import { mapStockItem, mapStockItemDetail } from '../models/stock-item.mapper'
 
 function path(sub?: string): string {
   return `${INVENTORY}/stock-items${sub ? `/${sub}` : ''}`

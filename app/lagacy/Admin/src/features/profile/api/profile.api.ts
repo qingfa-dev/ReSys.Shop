@@ -1,9 +1,9 @@
-import apiClient from '@/shared/api/http/api.client'
-import type { ServerResult } from '@/shared/api/types/result.types'
-import type { Profile } from '../types/profile.response.type'
-import type { ProfileUpdateRequest } from '../types/profile.request.type'
-import { PROFILES } from '@/shared/api/constants'
-import { mapProfileResponse } from '../mappers/profile.mapper'
+import apiClient from '@/common/api/http/api.client'
+import type { ServerResult } from '@/common/api/types/result.types'
+import type { Profile } from '../types/profile.response'
+import type { ProfileUpdateRequest } from '../types/profile.request'
+import { PROFILES } from '@/common/api/constants'
+import { mapProfileResponse } from '../models/profile.mapper'
 
 export const profileRepository = {
   async get(): Promise<ServerResult<Profile>> {
