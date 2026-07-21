@@ -1,18 +1,26 @@
-import apiClient from '@/common/api/http/api.client'
-import { CATALOG } from '@/common/api/constants'
-import type { ServerResult } from '@/common/api/types/result.types'
-import type { OptionTypeDetail } from '../../../option-types/types/option-type.response'
+import apiClient from "@/common/api/http/api.client";
+import { CATALOG } from "@/common/api/constants";
+import type { ServerResult } from "@/common/api/types/result.types";
+import type { OptionTypeDetail } from "../../../option-types/types/option-type.response";
 export const productOptionTypeApi = {
   getOptionTypes: async (productId: string): Promise<ServerResult<OptionTypeDetail[]>> => {
-    return apiClient.get(`${CATALOG}/products/${productId}/option-types`).then(res => res.data as ServerResult<OptionTypeDetail[]>);
+    return apiClient
+      .get(`${CATALOG}/products/${productId}/option-types`)
+      .then((res) => res.data as ServerResult<OptionTypeDetail[]>);
   },
 
   syncOptionTypes: (productId: string, optionTypeIds: string[]): Promise<ServerResult<void>> =>
-    apiClient.put(`${CATALOG}/products/${productId}/option-types/sync`, { optionTypeIds }).then(res => res.data as ServerResult<void>),
+    apiClient
+      .put(`${CATALOG}/products/${productId}/option-types/sync`, { optionTypeIds })
+      .then((res) => res.data as ServerResult<void>),
 
   assignOptionTypes: (productId: string, optionTypeIds: string[]): Promise<ServerResult<void>> =>
-    apiClient.post(`${CATALOG}/products/${productId}/option-types/assign`, { optionTypeIds }).then(res => res.data as ServerResult<void>),
+    apiClient
+      .post(`${CATALOG}/products/${productId}/option-types/assign`, { optionTypeIds })
+      .then((res) => res.data as ServerResult<void>),
 
   revokeOptionTypes: (productId: string, optionTypeIds: string[]): Promise<ServerResult<void>> =>
-    apiClient.delete(`${CATALOG}/products/${productId}/option-types/revoke`, { data: { optionTypeIds } }).then(res => res.data as ServerResult<void>),
-}
+    apiClient
+      .delete(`${CATALOG}/products/${productId}/option-types/revoke`, { data: { optionTypeIds } })
+      .then((res) => res.data as ServerResult<void>),
+};

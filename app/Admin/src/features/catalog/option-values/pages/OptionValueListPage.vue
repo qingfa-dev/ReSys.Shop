@@ -2,7 +2,7 @@
 import { onMounted, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRoute, useRouter } from 'vue-router'
-import { useOptionValueStore } from '@/features/catalog/option-types/option-values/store/option-value.store'
+import { useOptionValueStore } from '../store/option-value.store'
 import { useOptionTypeStore } from '@/features/catalog/option-types/store/option-type.store'
 import { storeToRefs } from 'pinia'
 import { useForm } from 'vee-validate'
@@ -20,7 +20,7 @@ import ModalDialog from '@/shared/components/overlays/ModalDialog.vue'
 import { useApiErrorHandler } from '@/common/composables/api-error-handler.use'
 import FormField from '@/shared/components/form/FormField.vue'
 import { QueryBuilder } from '@/common/utils/query-builder.utils'
-import type { OptionValueListItem } from '../types/option-value.response'
+import type { OptionValueListItem } from '../models/option-value.response'
 
 const { t } = useI18n()
 

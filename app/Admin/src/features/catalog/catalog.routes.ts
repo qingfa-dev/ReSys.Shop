@@ -123,7 +123,7 @@ export const catalogRoutes: RouteRecordRaw = {
     {
       path: 'option-values',
       name: 'catalog.option-values.list',
-      component: () => import('@/features/catalog/option-types/option-values/pages/OptionValueListPage.vue'),
+      component: () => import('@/features/catalog/option-values/pages/OptionValueListPage.vue'),
       meta: { breadcrumb: 'Option Values' },
     },
 

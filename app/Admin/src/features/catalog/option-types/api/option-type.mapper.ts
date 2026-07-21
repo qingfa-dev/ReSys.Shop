@@ -1,19 +1,20 @@
 import type { OptionTypeListItem, OptionTypeDetail } from '../models/option-type.response'
 
-export function mapToListItem(dto: Record<string, unknown>): OptionTypeListItem {
+export function mapToListItem(dto: unknown): OptionTypeListItem {
+  const r = dto as Record<string, unknown> ?? {}
   return {
-    id: String(dto.id ?? ''),
-    name: String(dto.name ?? ''),
-    presentation: String(dto.presentation ?? ''),
-    position: Number(dto.position ?? 0),
-    filterable: Boolean(dto.filterable),
-    optionValuesCount: Number(dto.optionValuesCount ?? 0),
-    productsCount: Number(dto.productsCount ?? 0),
-    createdAtUtc: String(dto.createdAtUtc ?? ''),
-    modifiedAtUtc: String(dto.modifiedAtUtc ?? ''),
+    id: String(r.id ?? ''),
+    name: String(r.name ?? ''),
+    presentation: String(r.presentation ?? ''),
+    position: Number(r.position ?? 0),
+    filterable: Boolean(r.filterable),
+    optionValuesCount: Number(r.optionValuesCount ?? 0),
+    productsCount: Number(r.productsCount ?? 0),
+    createdAtUtc: String(r.createdAtUtc ?? ''),
+    modifiedAtUtc: String(r.modifiedAtUtc ?? ''),
   }
 }
 
-export function mapToDetail(dto: Record<string, unknown>): OptionTypeDetail {
+export function mapToDetail(dto: unknown): OptionTypeDetail {
   return mapToListItem(dto)
 }

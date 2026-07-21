@@ -3,7 +3,7 @@ import { setActivePinia, createPinia } from 'pinia';
 import { useOptionValueStore } from '../store/option-value.store';
 import { optionValueRepository } from '../api/option-value.api';
 import { createMockResult, createMockPagedResult } from '@/common/test/mock-types';
-import type { OptionValueListItem } from '../types/option-value.response';
+import type { OptionValueListItem } from '../models/option-value.response';
 
 // Mock service
 vi.mock('../api/option-value.api', () => ({

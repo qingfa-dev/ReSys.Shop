@@ -2,10 +2,10 @@ import apiClient from "@/common/api/http/api.client";
 import { CATALOG } from "@/common/api/constants";
 import type { ServerPagedResult, ServerResult } from "@/common/api/types/result.types";
 import type { ServerQueryingParameters } from "@/common/api/types/query.types";
-import type { OptionValueListItem } from "../types/option-value.response";
-import type { OptionValueParameters } from "../types/option-value.field";
-import type { UpdateOptionValueRequest } from "../types/option-value.request";
-import type { OptionValueQuery } from "../types/option-value.query";
+import type { OptionValueListItem } from '../models/option-value.response'
+import type { OptionValueParameters } from '../models/option-value.parameters'
+import type { UpdateOptionValueRequest } from '../models/option-value.request'
+import type { OptionValueQuery } from '../types/option-value.query'
 export const optionValueRepository = {
   listByOptionTypeId: async (
     optionTypeId: string,
