@@ -7,7 +7,7 @@ import { storeToRefs } from 'pinia'
 import { useApiErrorHandler } from '@/common/composables/api-error-handler.use'
 import { useToast } from '@/common/composables/toast.use'
 import ConfirmDialog from '@/shared/components/overlays/ConfirmDialog.vue'
-import type { OptionTypeListItem } from '../types/option-type.response'
+import type { OptionTypeListItem } from '../models/option-type.response'
 
 const { t } = useI18n()
 const route = useRoute()

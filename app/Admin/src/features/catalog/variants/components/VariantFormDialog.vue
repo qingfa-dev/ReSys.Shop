@@ -10,7 +10,7 @@ import ModalDialog from '@/shared/components/overlays/ModalDialog.vue';
 import FormField from '@/shared/components/form/FormField.vue';
 import type { OptionValueQuery } from '@/features/catalog/option-values/types/option-value.query';
 import type { OptionValueListItem } from '@/features/catalog/option-values/models/option-value.response';
-import type { OptionTypeDetail } from '@/features/catalog/option-types/types/option-type.response';
+import type { OptionTypeDetail } from '@/features/catalog/option-types/models/option-type.response';
 import type { VariantDetail } from '../models/variant.response';
 import type { CreateVariantRequest } from '../models/variant.request';
 

@@ -6,7 +6,7 @@ import { useOptionValueStore } from '@/features/catalog/option-values/store/opti
 import { productRepository } from '../products/api/product.api';
 import { variantRepository } from '../api/variant.api';
 import { useToast } from '@/common/composables/toast.use';
-import type { OptionTypeDetail } from '@/features/catalog/option-types/types/option-type.response';
+import type { OptionTypeDetail } from '@/features/catalog/option-types/models/option-type.response';
 import type { OptionValueListItem } from '@/features/catalog/option-values/models/option-value.response';
 
 interface AssignedOptionType extends OptionTypeDetail {

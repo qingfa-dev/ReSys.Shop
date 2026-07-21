@@ -12,7 +12,7 @@ import ConfirmDialog from '@/shared/components/overlays/ConfirmDialog.vue'
 import PageShell from '@/shared/components/navigation/PageShell.vue'
 import PageHeader from '@/shared/components/navigation/PageHeader.vue'
 import { QueryBuilder } from '@/common/utils/query-builder.utils'
-import type { OptionTypeListItem } from '../types/option-type.response'
+import type { OptionTypeListItem } from '../models/option-type.response'
 
 const { t } = useI18n()
 const router = useRouter()
