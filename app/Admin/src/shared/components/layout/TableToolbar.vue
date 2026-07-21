@@ -4,40 +4,18 @@
       <div class="flex items-center gap-2 flex-wrap">
         <IconField>
           <InputIcon class="pi pi-search" />
-          <InputText
-            v-model="search"
-            :placeholder="searchPlaceholder"
-            class="w-64"
-            @update:model-value="onSearch"
-          />
+          <InputText v-model="search" :placeholder="searchPlaceholder" class="w-64" @update:model-value="onSearch" />
         </IconField>
-        <Button
-          v-if="showFilterButton"
-          :label="activeFilterCount ? `Filters (${activeFilterCount})` : 'Filters'"
-          icon="pi pi-filter"
-          severity="secondary"
-          outlined
-          @click="emit('toggle-filters')"
-        />
-        <Button
-          v-if="activeFilterCount"
-          label="Clear"
-          icon="pi pi-times"
-          text
-          severity="secondary"
-          @click="emit('clear-filters')"
-        />
+        <Button v-if="showFilterButton" :label="activeFilterCount ? `Filters (${activeFilterCount})` : 'Filters'"
+          icon="pi pi-filter" severity="secondary" outlined @click="emit('toggle-filters')" />
+        <Button v-if="activeFilterCount" label="Clear" icon="pi pi-times" text severity="secondary"
+          @click="emit('clear-filters')" />
       </div>
     </template>
     <template #end>
       <div class="flex items-center gap-2">
         <slot name="secondary-actions" />
-        <Button
-          v-if="createLabel"
-          :label="createLabel"
-          icon="pi pi-plus"
-          @click="emit('create')"
-        />
+        <Button v-if="createLabel" :label="createLabel" icon="pi pi-plus" @click="emit('create')" />
       </div>
     </template>
   </Toolbar>

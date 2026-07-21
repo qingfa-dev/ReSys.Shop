@@ -2,6 +2,7 @@
 import { useLayout } from '@/app/composables/layout.composable'
 import { computed, ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
+import Badge from 'primevue/badge'
 import type { MenuItem } from '@/app/config/admin-menu.config'
 
 defineOptions({ name: 'AppMenuItem' })

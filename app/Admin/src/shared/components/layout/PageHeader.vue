@@ -1,5 +1,6 @@
 <template>
-  <div class="flex flex-col gap-1 border-b border-surface-200 dark:border-surface-700 pb-4 mb-5 sm:flex-row sm:items-center sm:justify-between">
+  <div
+    class="flex flex-col gap-1 border-b border-surface-200 dark:border-surface-700 pb-4 mb-5 sm:flex-row sm:items-center sm:justify-between">
     <div>
       <nav v-if="breadcrumb?.length" class="flex items-center gap-1.5 text-xs text-surface-500 mb-1">
         <template v-for="(item, i) in breadcrumb" :key="i">

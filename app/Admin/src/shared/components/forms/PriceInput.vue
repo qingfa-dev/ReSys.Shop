@@ -1,14 +1,6 @@
 <template>
-  <InputNumber
-    :model-value="modelValue"
-    mode="currency"
-    :currency="currency"
-    :locale="locale"
-    :min="min"
-    :invalid="invalid"
-    class="w-full"
-    @update:model-value="emit('update:modelValue', $event ?? 0)"
-  />
+  <InputNumber :model-value="modelValue" mode="currency" :currency="currency" :locale="locale" :min="min"
+    :invalid="invalid" class="w-full" @update:model-value="emit('update:modelValue', $event ?? 0)" />
 </template>
 
 <script setup lang="ts">

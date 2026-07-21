@@ -1,16 +1,7 @@
 <template>
-  <AutoComplete
-    :model-value="modelValue"
-    :suggestions="suggestions"
-    :option-label="optionLabel"
-    :placeholder="placeholder"
-    :invalid="invalid"
-    :loading="loading"
-    dropdown
-    class="w-full"
-    @complete="onComplete"
-    @update:model-value="emit('update:modelValue', $event)"
-  >
+  <AutoComplete :model-value="modelValue" :suggestions="suggestions" :option-label="optionLabel"
+    :placeholder="placeholder" :invalid="invalid" :loading="loading" dropdown class="w-full" @complete="onComplete"
+    @update:model-value="emit('update:modelValue', $event)">
     <template #option="{ option }">
       <slot name="option" :option="option">
         <span>{{ option[optionLabel] }}</span>

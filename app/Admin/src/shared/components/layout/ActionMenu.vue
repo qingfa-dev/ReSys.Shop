@@ -1,12 +1,6 @@
 <template>
-  <Button
-    icon="pi pi-ellipsis-v"
-    text
-    rounded
-    severity="secondary"
-    aria-haspopup="true"
-    @click="menu?.toggle($event)"
-  />
+  <Button icon="pi pi-ellipsis-v" text rounded severity="secondary" aria-haspopup="true"
+    @click="menu?.toggle($event)" />
   <Menu ref="menu" :model="items" popup />
 </template>
 
