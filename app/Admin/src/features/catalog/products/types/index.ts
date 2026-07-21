@@ -1,6 +1,0 @@
-export * from './create-product.field'
-export * from './update-product.field'
-export * from './product-image.response'
-export * from './product.query'
-export type { ProductParameters } from '../models'
-export * from './product.request'

@@ -1,5 +1,0 @@
-export { baseFields, type BaseFields } from './base.field'
-export { nameFields, type NameFields } from './name.field'
-export { addressFields, type AddressFields } from './address.field'
-export { moneyFields, type MoneyFields } from './money.field'
-export { seoFields, type SeoFields } from './seo.field'
