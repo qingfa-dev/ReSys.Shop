@@ -36,7 +36,7 @@ export const useOptionTypeStore = defineStore('option-type', () => {
       currentItem.value = mapToDetail(result.value)
     }
     loading.value = false
-    return { ...result, value: currentItem.value }
+    return result.isSuccess ? { ...result, value: currentItem.value } : result
   }
 
   async function update(id: string, request: UpdateOptionTypeRequest): Promise<ServerResult<OptionTypeDetail>> {
@@ -46,7 +46,7 @@ export const useOptionTypeStore = defineStore('option-type', () => {
       currentItem.value = mapToDetail(result.value)
     }
     loading.value = false
-    return { ...result, value: currentItem.value }
+    return result.isSuccess ? { ...result, value: currentItem.value } : result
   }
 
   async function remove(id: string): Promise<ServerResult<void>> {
