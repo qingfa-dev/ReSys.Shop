@@ -6,11 +6,11 @@ import type { ProductDetail, ProductSummary } from "../models/product.response";
 import type { CreateProductRequest, UpdateProductRequest } from "../models/product.request";
 import type { ProductSummaryModel, ProductDetailModel } from "../models/product.model";
 import type { ProductImage } from "../types/product-image.response";
-import type { OptionTypeDetail } from "../../product-option-types/models/option-type.response";
-import type { ProductClassification } from "../../classifications/types/classification.response";
-import type { SyncClassificationsRequest } from "../../classifications/types/classification.request";
-import { productOptionTypeApi } from "../../product-option-types/api/product-option-type.api";
-import { productClassificationApi } from "../../classifications/api/product-classification.api";
+import type { OptionTypeDetail } from '../../option-types/types/option-type.response';
+import type { ProductClassification } from '../classifications/types/classification.response';
+import type { SyncClassificationsRequest } from '../classifications/types/classification.request';
+import { productOptionTypeApi } from '../option-types/api/product-option-type.api';
+import { productClassificationApi } from '../classifications/api/product-classification.api';
 import { mapToSummaryModel, mapToDetailModel } from "./product.mapper";
 
 export const productRepository = {
