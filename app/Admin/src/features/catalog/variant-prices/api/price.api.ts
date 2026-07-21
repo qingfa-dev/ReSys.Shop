@@ -1,7 +1,7 @@
 import apiClient from '@/common/api/http/api.client'
 import { CATALOG } from '@/common/api/constants'
 import type { ServerPagedResult, ServerResult } from '@/common/api/types/result.types'
-import type { PriceRecord } from '../types/price.response'
+import type { PriceRecord } from '../models/price.response'
 import type { SetVariantPriceRequest } from '../types/price.request'
 
 export const priceApi = {

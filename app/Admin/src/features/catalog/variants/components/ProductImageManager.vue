@@ -5,8 +5,8 @@ import { useApiErrorHandler } from '@/common/composables/api-error-handler.use';
 import { useToast } from '@/common/composables/toast.use';
 import apiClient from '@/common/api/http/api.client';
 import type { ProductImage } from '../products/types/product-image.response';
-import ProductImageUploader from '../products/variants/components/images/ProductImageUploader.vue';
-import ProductImageList from '../products/variants/components/images/ProductImageList.vue';
+import ProductImageUploader from '../../variant-images/components/ProductImageUploader.vue';
+import ProductImageList from '../../variant-images/components/ProductImageList.vue';
 import { productRepository } from '../products/api/product.api';
 
 const props = defineProps<{

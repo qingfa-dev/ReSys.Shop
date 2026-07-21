@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
 import { priceApi } from '../api/price.api'
-import type { PriceRecord } from '../types/price.response'
+import type { PriceRecord } from '../models/price.response'
 
 export const usePriceStore = defineStore('variantPrice', () => {
   const items = ref<PriceRecord[]>([])

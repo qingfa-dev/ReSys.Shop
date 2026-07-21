@@ -3,7 +3,7 @@ import { ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 import ModalDialog from '@/shared/components/overlays/ModalDialog.vue';
 import FormField from '@/shared/components/form/FormField.vue';
-import type { ProductImage } from '../../../types/product-image.response';
+import type { ProductImage } from '../../products/types/product-image.response';
 
 const { t } = useI18n();
 

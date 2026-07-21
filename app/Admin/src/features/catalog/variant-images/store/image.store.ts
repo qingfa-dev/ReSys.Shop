@@ -1,7 +1,7 @@
 import { defineStore } from "pinia";
 import { ref } from "vue";
 import { imageApi } from "../api/image.api";
-import type { VariantImage } from "../types/image.response";
+import type { VariantImage } from "../models/image.response";
 
 export const useImageStore = defineStore("variantImage", () => {
   const items = ref<VariantImage[]>([]);
