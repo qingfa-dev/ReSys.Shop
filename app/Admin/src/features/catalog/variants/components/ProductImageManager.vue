@@ -4,10 +4,10 @@ import { useI18n } from 'vue-i18n';
 import { useApiErrorHandler } from '@/common/composables/api-error-handler.use';
 import { useToast } from '@/common/composables/toast.use';
 import apiClient from '@/common/api/http/api.client';
-import type { ProductImage } from '../../types/product-image.response';
-import ProductImageUploader from './images/ProductImageUploader.vue';
-import ProductImageList from './images/ProductImageList.vue';
-import { productRepository } from '../../api/product.api';
+import type { ProductImage } from '../products/types/product-image.response';
+import ProductImageUploader from '../products/variants/components/images/ProductImageUploader.vue';
+import ProductImageList from '../products/variants/components/images/ProductImageList.vue';
+import { productRepository } from '../products/api/product.api';
 
 const props = defineProps<{
     productId: string;

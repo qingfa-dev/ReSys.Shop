@@ -11,11 +11,11 @@ import PageShell from '@/shared/components/navigation/PageShell.vue';
 import PageHeader from '@/shared/components/navigation/PageHeader.vue';
 import FormField from '@/shared/components/form/FormField.vue';
 import MetadataManager from '@/shared/components/data-display/MetadataManager.vue';
-import ProductImageManager from '../variants/components/ProductImageManager.vue';
-import ProductVariantManager from '../variants/components/ProductVariantManager.vue';
+import ProductImageManager from '../../variants/components/ProductImageManager.vue';
+import ProductVariantManager from '../../variants/components/ProductVariantManager.vue';
 import ProductClassificationManager from '../../classifications/components/ProductClassificationManager.vue';
 import ProductOptionTypeManager from '../../product-option-types/components/ProductOptionTypeManager.vue';
-import ProductInventoryManager from '../variants/components/ProductInventoryManager.vue';
+import ProductInventoryManager from '../../variants/components/ProductInventoryManager.vue';
 import type { ProductDetailModel } from '../models/product.model';
 import type { CreateProductRequest, UpdateProductRequest } from '../models/product.request';
 

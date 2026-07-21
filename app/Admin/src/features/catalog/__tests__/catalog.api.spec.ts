@@ -1,12 +1,12 @@
 import { describe, it, expect, vi } from 'vitest'
 import apiClient from '@/common/api/http/api.client'
 import { productRepository } from '../products/api/product.api'
-import { variantRepository } from '../products/variants/api/variant.api'
+import { variantRepository } from '../variants/api/variant.api'
 import { optionTypeRepository } from '../option-types/api/option-type.api'
 import { optionValueRepository } from '../option-values/api/option-value.api'
 import { taxonomyRepository } from '../taxonomies/api/taxonomy.api'
 import { taxonRepository } from '../taxonomies/taxa/api/taxon.api'
-import type { CreateVariantRequest } from '../products/variants/types/variant.request'
+import type { CreateVariantRequest } from '../variants/models/variant.request'
 
 vi.mock('@/common/api/http/api.client', () => ({
   default: {

@@ -3,7 +3,7 @@ import { ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useOptionTypeStore } from '@/features/catalog/option-types/store/option-type.store';
 import { useOptionValueStore } from '@/features/catalog/option-values/store/option-value.store';
-import { productRepository } from '../../api/product.api';
+import { productRepository } from '../products/api/product.api';
 import { variantRepository } from '../api/variant.api';
 import { useToast } from '@/common/composables/toast.use';
 import type { OptionTypeDetail } from '@/features/catalog/option-types/types/option-type.response';

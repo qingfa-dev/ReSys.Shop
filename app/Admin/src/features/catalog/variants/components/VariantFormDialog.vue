@@ -4,15 +4,15 @@ import { useI18n } from 'vue-i18n';
 import { useForm } from 'vee-validate';
 import { toTypedSchema } from '@vee-validate/zod';
 import * as z from 'zod';
-import { productRepository } from '../../api/product.api';
+import { productRepository } from '../products/api/product.api';
 import { optionValueRepository } from '@/features/catalog/option-values/api/option-value.api';
 import ModalDialog from '@/shared/components/overlays/ModalDialog.vue';
 import FormField from '@/shared/components/form/FormField.vue';
 import type { OptionValueQuery } from '@/features/catalog/option-values/types/option-value.query';
 import type { OptionValueListItem } from '@/features/catalog/option-values/models/option-value.response';
 import type { OptionTypeDetail } from '@/features/catalog/option-types/types/option-type.response';
-import type { VariantDetail } from '../types/variant.response';
-import type { CreateVariantRequest } from '../types/variant.request';
+import type { VariantDetail } from '../models/variant.response';
+import type { CreateVariantRequest } from '../models/variant.request';
 
 interface AssignedOptionType extends OptionTypeDetail {
   values: OptionValueListItem[];

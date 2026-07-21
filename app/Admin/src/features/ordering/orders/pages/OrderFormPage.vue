@@ -6,14 +6,14 @@ import { useProductStore } from '@/features/catalog/products/store/product.store
 import { useFormatter } from '@/common/composables/formatter.use';
 import { useI18n } from 'vue-i18n';
 import { useToast } from '@/common/composables/toast.use';
-import { variantRepository } from '@/features/catalog/products/variants/api/variant.api';
+import { variantRepository } from '@/features/catalog/variants/api/variant.api';
 import PageShell from '@/shared/components/navigation/PageShell.vue'
 import PageHeader from '@/shared/components/navigation/PageHeader.vue'
 import ModalDialog from '@/shared/components/overlays/ModalDialog.vue'
 import FormField from '@/shared/components/form/FormField.vue'
 import type { CreateOrderRequest } from '../types/order.request';
 import type { ProductSummaryModel } from '@/features/catalog/products/models/product.model';
-import type { VariantSummary } from '@/features/catalog/products/variants/types/variant.response';
+import type { VariantSummary } from '@/features/catalog/variants/models/variant.response';
 
 interface OrderVariantSummary extends VariantSummary {
   option_values?: Array<{ id: string; value: string; presentation?: string }>;

@@ -1,0 +1,7 @@
+export { variantRoutes } from './routes'
+export { variantRepository } from './api/variant.api'
+export * from './types/variant.field'
+export * from './types/variant.query'
+export * from './models/variant.parameters'
+export * from './models/variant.request'
+export * from './models/variant.response'

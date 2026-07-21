@@ -1,4 +1,4 @@
-import type { VariantSummary, VariantDetail } from '../types/variant.response'
+import type { VariantSummary, VariantDetail } from './variant.response'
 import { decimalToDisplay } from '@/shared/utils/currency'
 
 export interface VariantSummaryModel extends VariantSummary {

@@ -9,7 +9,7 @@ import { variantRepository } from '../api/variant.api';
 import VariantGenerationDialog from './VariantGenerationDialog.vue';
 import VariantFormDialog from './VariantFormDialog.vue';
 import type { VariantSummaryModel, VariantDetailModel } from '../models/variant.model';
-import type { CreateVariantRequest } from '../types/variant.request';
+import type { CreateVariantRequest } from '../models/variant.request';
 import type { ServerResult } from '@/common/api/types/result.types';
 
 const { t } = useI18n();
