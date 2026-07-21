@@ -4,7 +4,7 @@ import { useI18n } from 'vue-i18n';
 import { useOptionTypeStore } from '@/features/catalog/option-types/store/option-type.store';
 import { useApiErrorHandler } from '@/common/composables/api-error-handler.use';
 import { useToast } from '@/common/composables/toast.use';
-import { productRepository } from '../../api/product.api';
+import { productRepository } from '../../products/api/product.api';
 import FormField from '@/shared/components/form/FormField.vue';
 
 const props = defineProps<{

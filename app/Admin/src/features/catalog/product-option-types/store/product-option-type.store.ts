@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
 import { productOptionTypeApi } from '../api/product-option-type.api'
-import type { OptionTypeDetail } from '../../../option-types/types/option-type.response'
+import type { OptionTypeDetail } from '../../option-types/models/option-type.response'
 
 export const useProductOptionTypeStore = defineStore('productOptionType', () => {
   const items = ref<OptionTypeDetail[]>([])

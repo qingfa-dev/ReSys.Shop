@@ -6,4 +6,4 @@ export function createProductOptionTypeSchema(t: (key: string, args?: Record<str
 })
 }
 
-export type ProductOptionTypeParameters = z.infer<ReturnType<typeof createProductOptionTypeSchema>>
+export type ProductOptionTypeFormSchema = z.infer<ReturnType<typeof createProductOptionTypeSchema>>

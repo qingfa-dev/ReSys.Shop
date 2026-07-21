@@ -1,14 +1,14 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
-import { useProductStore } from '../../store/product.store';
+import { useProductStore } from '../../products/store/product.store';
 import { useTaxonomyStore } from '@/features/catalog/taxonomies/store/taxonomy.store';
 import { storeToRefs } from 'pinia';
 import { useApiErrorHandler } from '@/common/composables/api-error-handler.use';
 import type { ServerResult } from '@/common/api/types/result.types';
 import { useToast } from '@/common/composables/toast.use';
 import apiClient from '@/common/api/http/api.client';
-import type { ProductClassification } from '../types/classification.response';
+import type { ProductClassification } from '../models/classification.response';
 
 const props = defineProps<{
     productId: string;

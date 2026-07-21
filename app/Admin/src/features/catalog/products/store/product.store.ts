@@ -5,7 +5,7 @@ import { useToast } from "@/common/composables/toast.use";
 import { usePagedList } from "@/common/composables/paged-list.use";
 import { productRepository } from "../api/product.api";
 import type { ProductSummaryModel, ProductDetailModel } from '../models/product.model';
-import type { ProductClassification } from "../classifications/types/classification.response";
+import type { ProductClassification } from "../../classifications/models/classification.response";
 import type { ProductImage } from "../types/product-image.response";
 import type { CreateProductRequest, UpdateProductRequest } from "../models/product.request";
 import type { ProductQuery } from "../types/product.query";
