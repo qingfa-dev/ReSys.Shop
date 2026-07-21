@@ -3,9 +3,10 @@ import { ref, computed } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useToast } from '@/common/composables/toast.use';
 import { taxonomyRepository } from '../api/taxonomy.api';
-import type { TaxonomyListItem, TaxonomyDetail } from '../types/taxonomy.response'
+import { mapToListItem, mapToDetail } from '../api/taxonomy.mapper'
+import type { TaxonomyListItem, TaxonomyDetail } from '../models/taxonomy.response'
 import type { TaxonomyQuery } from '../types/taxonomy.query'
-import type { CreateTaxonomyRequest, UpdateTaxonomyRequest } from '../types/taxonomy.request'
+import type { CreateTaxonomyRequest, UpdateTaxonomyRequest } from '../models/taxonomy.request'
 
 export const useTaxonomyStore = defineStore('taxonomy', () => {
   const { showToast } = useToast();
@@ -37,7 +38,7 @@ export const useTaxonomyStore = defineStore('taxonomy', () => {
     try {
       const result = await taxonomyRepository.list(query.value);
       if (result.isSuccess && result.items) {
-        taxonomies.value = result.items;
+        taxonomies.value = result.items.map(mapToListItem)
         totalRecords.value = result.totalCount || 0;
       } else if (!result.isSuccess) {
         error.value = result.errors?.[0]?.message || 'Failed to fetch taxonomies';
@@ -54,7 +55,7 @@ export const useTaxonomyStore = defineStore('taxonomy', () => {
     try {
       const result = await taxonomyRepository.getById(id);
       if (result.isSuccess && result.value) {
-        current_taxonomy.value = result.value;
+        current_taxonomy.value = mapToDetail(result.value)
       } else if (!result.isSuccess) {
         error.value = result.errors?.[0]?.message || 'Failed to fetch taxonomy';
       }

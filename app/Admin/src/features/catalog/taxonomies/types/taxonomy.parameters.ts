@@ -1,3 +1,2 @@
-import type { TaxonomyParameters } from '../types/taxonomy.field'
-
+import type { TaxonomyParameters } from '../models/taxonomy.parameters'
 export type { TaxonomyParameters }

@@ -17,7 +17,7 @@ import { QueryBuilder } from '@/common/utils/query-builder.utils';
 import PageShell from '@/shared/components/navigation/PageShell.vue'
 import PageHeader from '@/shared/components/navigation/PageHeader.vue'
 import ConfirmDialog from '@/shared/components/overlays/ConfirmDialog.vue'
-import type { TaxonomyListItem } from '../types/taxonomy.response';
+import type { TaxonomyListItem } from '../models/taxonomy.response';
 
 const { t } = useI18n();
 

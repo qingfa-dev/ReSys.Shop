@@ -6,7 +6,7 @@ import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { useTaxonomyStore } from '../store/taxonomy.store';
 import { taxonomyRepository } from '../api/taxonomy.api';
 import { createMockPagedResult } from '@/common/test/mock-types';
-import type { TaxonomyListItem } from '../types/taxonomy.response';
+import type { TaxonomyListItem } from '../models/taxonomy.response';
 
 vi.mock('../api/taxonomy.api', () => ({
   taxonomyRepository: {
