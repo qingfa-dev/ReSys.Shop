@@ -3,7 +3,7 @@ import { setActivePinia, createPinia } from 'pinia';
 import { useOptionTypeStore } from '../store/option-type.store';
 import { optionTypeRepository } from '../api/option-type.api';
 import { createMockPagedResult, createMockResult, createMockErrorResult } from '@/common/test/mock-types';
-import type { OptionTypeListItem } from '../types/option-type.response'
+import type { OptionTypeListItem } from '../models/option-type.response'
 
 const makeItem = (overrides?: Partial<OptionTypeListItem>): OptionTypeListItem => ({
   id: '', name: '', presentation: '', position: 0, filterable: false,

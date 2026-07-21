@@ -6,9 +6,7 @@ import type {
   CreateOptionTypeRequest,
   UpdateOptionTypeRequest,
 } from "../types/option-type.request";
-import type {
-  OptionTypeListItem,
-} from "../../products/option-types/types/product-option-type.response";
+import type { OptionTypeListItem, OptionTypeDetail } from '../models/option-type.response'
 export const optionTypeRepository = {
   list: async (params?: ServerQueryingParameters): Promise<ServerPagedResult<OptionTypeListItem>> => {
     return apiClient

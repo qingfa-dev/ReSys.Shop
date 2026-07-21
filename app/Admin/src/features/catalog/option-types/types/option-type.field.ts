@@ -1,27 +1,41 @@
 import { z } from 'zod'
 
-export function createOptionTypeSchema(t: (key: string, args?: Record<string, unknown>) => string) {
-  return z.object({
-  name: z
-    .string()
+export function nameSchema(t: (key: string, args?: Record<string, unknown>) => string) {
+  return z.string()
     .min(1, t('catalog.validation.name.required'))
-    .max(100, t('catalog.validation.name.max_length')),
-  presentation: z
-    .string()
-    .min(1, t('catalog.validation.presentation.required'))
-    .max(100, t('catalog.validation.presentation.max_length')),
-  description: z
-    .string()
-    .max(500, t('catalog.validation.description.max_length'))
-    .optional()
-    .nullable(),
-  filterable: z.boolean().default(false),
-  position: z
-    .number()
-    .int(t('catalog.validation.position.whole'))
-    .min(0, t('catalog.validation.position.min'))
-    .default(0),
-})
+    .max(100, t('catalog.validation.name.max_length'))
 }
 
-export type OptionTypeParameters = z.infer<ReturnType<typeof createOptionTypeSchema>>
+export function presentationSchema(t: (key: string, args?: Record<string, unknown>) => string) {
+  return z.string()
+    .min(1, t('catalog.validation.presentation.required'))
+    .max(100, t('catalog.validation.presentation.max_length'))
+}
+
+export function positionSchema(t: (key: string, args?: Record<string, unknown>) => string) {
+  return z.number()
+    .int(t('catalog.validation.position.whole'))
+    .min(0, t('catalog.validation.position.min'))
+    .default(0)
+}
+
+export function filterableSchema() {
+  return z.boolean().default(false)
+}
+
+export function descriptionSchema(t: (key: string, args?: Record<string, unknown>) => string) {
+  return z.string()
+    .max(500, t('catalog.validation.description.max_length'))
+    .optional()
+    .nullable()
+}
+
+export function createOptionTypeSchema(t: (key: string, args?: Record<string, unknown>) => string) {
+  return z.object({
+    name: nameSchema(t),
+    presentation: presentationSchema(t),
+    description: descriptionSchema(t),
+    filterable: filterableSchema(),
+    position: positionSchema(t),
+  })
+}

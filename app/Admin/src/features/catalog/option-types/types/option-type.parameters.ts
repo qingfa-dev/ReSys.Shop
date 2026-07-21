@@ -1,2 +1,2 @@
-import type { OptionTypeParameters } from '../types/option-type.field'
+import type { OptionTypeParameters } from '../models/option-type.parameters'
 export type { OptionTypeParameters }

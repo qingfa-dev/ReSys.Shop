@@ -1,3 +1,2 @@
-import type { OptionTypeParameters } from '../types/option-type.field'
-export type CreateOptionTypeRequest = OptionTypeParameters
-export type UpdateOptionTypeRequest = OptionTypeParameters
+import type { CreateOptionTypeRequest, UpdateOptionTypeRequest } from '../models/option-type.request'
+export type { CreateOptionTypeRequest, UpdateOptionTypeRequest }

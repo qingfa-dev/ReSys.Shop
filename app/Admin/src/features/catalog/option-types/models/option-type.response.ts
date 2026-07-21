@@ -9,4 +9,5 @@ export interface OptionTypeListItem {
   createdAtUtc: string
   modifiedAtUtc: string
 }
+
 export type OptionTypeDetail = OptionTypeListItem
