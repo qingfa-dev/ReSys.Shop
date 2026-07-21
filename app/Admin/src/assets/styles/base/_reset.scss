@@ -1,0 +1,26 @@
+@use '../tokens' as *;
+
+html {
+  height: 100%;
+  font-size: $text-base;
+  line-height: $leading-base;
+}
+
+body {
+  font-family: var(--font-sans);
+  color: var(--color-text);
+  background-color: var(--color-surface-ground);
+  margin: 0;
+  padding: 0;
+  min-height: 100%;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+a {
+  text-decoration: none;
+}
+
+.layout-wrapper {
+  min-height: 100vh;
+}

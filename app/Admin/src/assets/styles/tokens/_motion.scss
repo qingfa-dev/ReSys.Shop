@@ -1,0 +1,27 @@
+$duration-instant: 0.15s;
+$duration-fast: 0.2s;
+$duration-normal: 0.4s;
+$duration-slow: 0.45s;
+$duration-expand: 1s;
+
+$ease-sidebar: cubic-bezier(0.05, 0.74, 0.2, 0.99);
+$ease-collapse: cubic-bezier(0, 1, 0, 1);
+$ease-expand: ease-in-out;
+
+:root {
+  --duration-instant: #{$duration-instant};
+  --duration-fast: #{$duration-fast};
+  --duration-normal: #{$duration-normal};
+  --duration-slow: #{$duration-slow};
+  --duration-expand: #{$duration-expand};
+
+  --ease-sidebar: #{$ease-sidebar};
+  --ease-collapse: #{$ease-collapse};
+  --ease-expand: #{$ease-expand};
+
+  --focus-ring-width: var(--p-focus-ring-width);
+  --focus-ring-style: var(--p-focus-ring-style);
+  --focus-ring-color: var(--p-focus-ring-color);
+  --focus-ring-offset: var(--p-focus-ring-offset);
+  --focus-ring-shadow: var(--p-focus-ring-shadow);
+}

@@ -1,0 +1,14 @@
+@use '../tokens' as *;
+
+.layout-main-enter-active,
+.layout-main-leave-active {
+  transition: opacity $duration-instant ease, transform $duration-instant ease;
+}
+.layout-main-enter-from {
+  opacity: 0;
+  transform: translateY(8px);
+}
+.layout-main-leave-to {
+  opacity: 0;
+  transform: translateY(-8px);
+}
