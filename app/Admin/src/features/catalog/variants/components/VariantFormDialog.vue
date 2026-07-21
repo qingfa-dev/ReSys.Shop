@@ -3,7 +3,7 @@ import { ref, computed, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useForm } from 'vee-validate';
 import { toTypedSchema } from '@vee-validate/zod';
-import * as z from 'zod';
+import { createVariantSchema } from '../types/variant.field';
 import { productRepository } from '../products/api/product.api';
 import { optionValueRepository } from '@/features/catalog/option-values/api/option-value.api';
 import ModalDialog from '@/shared/components/overlays/ModalDialog.vue';
@@ -41,11 +41,7 @@ const assignedOptionTypes = ref<AssignedOptionType[]>([]);
 const selectedOptionValues = ref<Record<string, string>>({});
 const loadingOptions = ref(false);
 
-const schema = z.object({
-    sku: z.string().min(1, 'SKU is required'),
-    price: z.number().min(0, 'Price must be non-negative'),
-    trackInventory: z.boolean(),
-});
+const schema = createVariantSchema(t);
 
 const { defineField, handleSubmit, errors, resetForm, setValues } = useForm({
     validationSchema: toTypedSchema(schema),

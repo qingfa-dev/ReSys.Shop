@@ -65,4 +65,3 @@ export function createVariantSchema(t: (key: string, args?: Record<string, unkno
   })
 }
 
-export type VariantParameters = z.infer<ReturnType<typeof createVariantSchema>>
