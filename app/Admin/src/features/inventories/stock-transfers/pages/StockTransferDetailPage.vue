@@ -12,7 +12,7 @@ import StatusBadge from '@/shared/components/feedback/StatusBadge.vue';
 import ModalDialog from '@/shared/components/overlays/ModalDialog.vue';
 import FormField from '@/shared/components/form/FormField.vue';
 import type { StockTransferDetail } from '../types/stock-transfer.response';
-import type { ProductSummary } from '@/features/catalog/products/types/product.response';
+import type { ProductSummary } from '@/features/catalog/products/models/product.response';
 
 const { t } = useI18n();
 

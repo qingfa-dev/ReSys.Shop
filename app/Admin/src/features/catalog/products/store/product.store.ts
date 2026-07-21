@@ -7,7 +7,7 @@ import { productRepository } from "../api/product.api";
 import type { ProductSummaryModel, ProductDetailModel } from '../models/product.model';
 import type { ProductClassification } from "../classifications/types/classification.response";
 import type { ProductImage } from "../types/product-image.response";
-import type { CreateProductRequest, UpdateProductRequest } from "../types/product.request";
+import type { CreateProductRequest, UpdateProductRequest } from "../models/product.request";
 import type { ProductQuery } from "../types/product.query";
 
 export const useProductStore = defineStore("product", () => {

@@ -1,7 +1,5 @@
-import type { CreateProductParameters } from '../types/create-product.field'
-import type { UpdateProductParameters } from '../types/update-product.field'
-import type { ManageClassificationsParameters } from '../classifications/types/product-classification.field'
+import type { CreateProductRequest, UpdateProductRequest } from '../models/product.request'
+export type { CreateProductRequest, UpdateProductRequest }
 
-export type CreateProductRequest = CreateProductParameters
-export type UpdateProductRequest = UpdateProductParameters
-export type ManageClassificationsRequest = ManageClassificationsParameters
+import type { ManageClassificationsParameters } from '../classifications/types/product-classification.field'
+export type { ManageClassificationsParameters }

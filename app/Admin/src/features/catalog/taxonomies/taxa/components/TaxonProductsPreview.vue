@@ -5,7 +5,7 @@ import { taxonRepository } from '../api/taxon.api'
 import { useApiErrorHandler } from '@/common/composables/api-error-handler.use'
 import { useFormatter } from '@/common/composables/formatter.use'
 import type { DataTablePageEvent } from 'primevue/datatable'
-import type { ProductSummary } from '@/features/catalog/products/types/product.response'
+import type { ProductSummary } from '@/features/catalog/products/models/product.response'
 import StatusBadge from '@/shared/components/feedback/StatusBadge.vue'
 
 const productStatusMap: Record<string, { label: string; severity: string }> = {

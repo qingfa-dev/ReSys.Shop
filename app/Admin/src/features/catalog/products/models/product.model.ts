@@ -1,4 +1,4 @@
-import type { ProductSummary, ProductDetail } from '../types/product.response'
+import type { ProductSummary, ProductDetail } from './product.response'
 import { ProductStatusMap } from '@/shared/utils/enums'
 
 export interface ProductSummaryModel extends ProductSummary {

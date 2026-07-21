@@ -1,2 +1,2 @@
-import type { CreateProductParameters } from '../types/create-product.field'
-export type { CreateProductParameters }
+import type { ProductParameters } from '../models/product.parameters'
+export type { ProductParameters }

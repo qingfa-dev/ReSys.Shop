@@ -4,7 +4,7 @@ import { useI18n } from 'vue-i18n';
 import { useRoute, useRouter } from 'vue-router';
 import { useForm } from 'vee-validate';
 import { toTypedSchema } from '@vee-validate/zod';
-import { createCreateProductSchema } from '../types/create-product.field';
+import { createProductSchema } from '../types/create-product.field';
 import { useProductStore } from '../store/product.store';
 import { storeToRefs } from 'pinia';
 import PageShell from '@/shared/components/navigation/PageShell.vue';
@@ -17,7 +17,7 @@ import ProductClassificationManager from '../classifications/components/ProductC
 import ProductOptionTypeManager from '../option-types/components/ProductOptionTypeManager.vue';
 import ProductInventoryManager from '../variants/components/ProductInventoryManager.vue';
 import type { ProductDetailModel } from '../models/product.model';
-import type { CreateProductRequest, UpdateProductRequest } from '../types/product.request';
+import type { CreateProductRequest, UpdateProductRequest } from '../models/product.request';
 
 const { t } = useI18n();
 const route = useRoute();
@@ -31,7 +31,7 @@ const productId = computed(() => route.params.id as string);
 const activeTab = ref(0);
 
 const { defineField, handleSubmit, errors, setValues } = useForm({
-    validationSchema: toTypedSchema(createCreateProductSchema(t)),
+    validationSchema: toTypedSchema(createProductSchema(t)),
     initialValues: {
         name: '',
         slug: '',
