@@ -7,6 +7,7 @@ import { AdminPreset } from '@/assets/presets/admin-preset'
 
 export function setupPrimeVue(app: App) {
   app.use(PrimeVue, {
+    license: import.meta.env.VITE_PRIMEVUE_LICENSE_KEY,
     theme: {
       preset: AdminPreset,
       options: {
