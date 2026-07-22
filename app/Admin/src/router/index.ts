@@ -9,6 +9,7 @@ import { shippingRoutes } from '@/app/routes/shipping.routes'
 import { locationRoutes } from '@/app/routes/location.routes'
 import { usersRoutes } from '@/app/routes/users.routes'
 import { profileRoutes } from '@/app/routes/profile.routes'
+import { registerAuthGuard } from './guards'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -31,5 +32,7 @@ const router = createRouter({
     },
   ],
 })
+
+registerAuthGuard(router)
 
 export default router
