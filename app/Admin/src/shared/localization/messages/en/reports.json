@@ -1,0 +1,9 @@
+{
+  "titles": {
+    "dashboard": "Dashboard"
+  },
+  "labels": {
+    "revenue": "Revenue",
+    "activity": "Activity"
+  }
+}
