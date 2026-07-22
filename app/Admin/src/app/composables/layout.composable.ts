@@ -56,7 +56,6 @@ export function useLayout() {
   const isDarkTheme = isDark
 
   watch(isDarkTheme, (val) => { layoutConfig.darkTheme = val })
-  watch(() => layoutConfig.darkTheme, (val) => { if (val !== isDarkTheme.value) isDarkTheme.value = val })
 
   function toggleDarkMode() {
     if (!document.startViewTransition) {
