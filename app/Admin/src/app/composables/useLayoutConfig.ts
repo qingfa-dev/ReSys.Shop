@@ -37,6 +37,7 @@ watch(
   { deep: true },
 )
 
-export function changeMenuMode(mode: string) {
+export function changeMenuMode(mode: string, resetLayoutState?: () => void) {
   layoutConfig.menuMode = mode
+  resetLayoutState?.()
 }
