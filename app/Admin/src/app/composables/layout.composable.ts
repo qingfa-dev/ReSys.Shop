@@ -1,6 +1,6 @@
 import { computed, reactive, watch } from 'vue'
 import { useDarkMode } from '@/shared/composables/useDarkMode'
-import { layoutConfig, changeMenuMode } from './useLayoutConfig'
+import { layoutConfig, changeMenuMode as setMenuMode } from './useLayoutConfig'
 
 const layoutState = reactive({
   staticMenuInactive: false,
@@ -13,6 +13,15 @@ const layoutState = reactive({
   activePath: null as string | null,
   mobileMenuActive: false,
 })
+
+function changeMenuMode(mode: string) {
+  setMenuMode(mode, () => {
+    layoutState.staticMenuInactive = false
+    layoutState.mobileMenuActive = false
+    layoutState.sidebarExpanded = false
+    layoutState.menuHoverActive = false
+  })
+}
 
 export function useLayout() {
   const { isDark, toggle } = useDarkMode()
