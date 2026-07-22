@@ -4,6 +4,7 @@ import { computed, ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import Badge from 'primevue/badge'
 import type { MenuItem } from '@/app/config/admin-menu.config'
+import { isRouteActive } from '@/app/config/route-matcher'
 
 defineOptions({ name: 'AppMenuItem' })
 
@@ -19,39 +20,11 @@ const props = defineProps<{
 const active = ref(false)
 
 const isActive = computed(() => {
-  if (props.item.to && typeof props.item.to === 'string' && route.path === props.item.to) return true
-  if (props.item.to && typeof props.item.to === 'object' && 'name' in props.item.to) {
-    return route.name === props.item.to.name
-  }
-  if (props.item.items) {
-    return props.item.items.some(child => {
-      if (typeof child.to === 'string' && child.to === route.path) return true
-      if (child.to && typeof child.to === 'object' && 'name' in child.to && route.name === child.to.name) return true
-      if (child.items) return child.items.some(sub => {
-        if (typeof sub.to === 'string' && sub.to === route.path) return true
-        if (sub.to && typeof sub.to === 'object' && 'name' in sub.to && route.name === sub.to.name) return true
-        return false
-      })
-      return false
-    })
-  }
-  return false
+  return isRouteActive(props.item, route.path, route.name)
 })
 
 watch(() => route.path, (newPath) => {
-  if (props.item.items) {
-    const hasActiveChild = props.item.items.some(child => {
-      if (typeof child.to === 'string' && child.to === newPath) return true
-      if (child.to && typeof child.to === 'object' && 'name' in child.to && route.name === child.to.name) return true
-      if (child.items) return child.items.some(sub => {
-        if (typeof sub.to === 'string' && sub.to === newPath) return true
-        if (sub.to && typeof sub.to === 'object' && 'name' in sub.to && route.name === sub.to.name) return true
-        return false
-      })
-      return false
-    })
-    if (hasActiveChild) active.value = true
-  }
+  if (isRouteActive(props.item, newPath, route.name)) active.value = true
 }, { immediate: true })
 
 function itemClick(event: Event, item: MenuItem) {
