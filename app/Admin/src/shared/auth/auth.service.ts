@@ -24,7 +24,7 @@ interface CurrentUser {
 export class AuthService {
   static async login(request: LoginRequest): Promise<Result<LoginResponse>> {
     const response = await apiClient.post<Result<LoginResponse>>(
-      '/api/store/identity/auth/sessions/login',
+      '/store/identity/auth/sessions/login',
       request
     )
     const result = response.data
@@ -37,7 +37,7 @@ export class AuthService {
   static async logout(): Promise<void> {
     const refreshToken = TokenService.getRefreshToken()
     if (refreshToken) {
-      await apiClient.post('/api/store/identity/auth/sessions/logout', {
+      await apiClient.post('/store/identity/auth/sessions/logout', {
         refreshToken,
       }).catch(() => {})
     }
@@ -47,7 +47,7 @@ export class AuthService {
 
   static async getCurrentUser(): Promise<Result<CurrentUser>> {
     const response = await apiClient.get<Result<CurrentUser>>(
-      '/api/store/identity/auth/sessions/me'
+      '/store/identity/auth/sessions/me'
     )
     return response.data
   }
