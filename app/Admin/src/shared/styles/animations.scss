@@ -1,0 +1,132 @@
+// Keyframes
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes fade-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fade-in-down {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+@keyframes scale-in {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes slide-in-right {
+  from {
+    opacity: 0;
+    transform: translateX(100%);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes slide-out-right {
+  from {
+    opacity: 1;
+    transform: translateX(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateX(100%);
+  }
+}
+
+// Utility classes
+
+.u-animate-fade-in {
+  animation: fade-in var(--duration-normal, 0.4s) ease-out;
+}
+
+.u-animate-fade-in-up {
+  animation: fade-in-up var(--duration-normal, 0.4s) ease-out;
+}
+
+.u-animate-fade-in-down {
+  animation: fade-in-down var(--duration-normal, 0.4s) ease-out;
+}
+
+.u-animate-spin {
+  animation: spin 1s linear infinite;
+}
+
+.u-animate-pulse {
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+.u-animate-scale-in {
+  animation: scale-in var(--duration-normal, 0.4s) ease-out;
+}
+
+.u-animate-slide-in-right {
+  animation: slide-in-right var(--duration-normal, 0.4s) ease-out;
+}
+
+.u-animate-slide-out-right {
+  animation: slide-out-right var(--duration-normal, 0.4s) ease-out;
+}
+
+// Accessibility: respect reduced-motion preference
+@media (prefers-reduced-motion: reduce) {
+  .u-animate-fade-in,
+  .u-animate-fade-in-up,
+  .u-animate-fade-in-down,
+  .u-animate-spin,
+  .u-animate-pulse,
+  .u-animate-scale-in,
+  .u-animate-slide-in-right,
+  .u-animate-slide-out-right {
+    animation: none;
+  }
+}
