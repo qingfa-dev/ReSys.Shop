@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { useLayout } from '@/app/composables/layout.composable'
-import { computed, watch, ref, onUnmounted } from 'vue'
+import { computed } from 'vue'
 import { RouterView } from 'vue-router'
 import AppTopbar from './TopbarLayout.vue'
 import AppSidebar from './SidebarLayout.vue'
@@ -9,6 +9,8 @@ import AppBreadcrumb from './BreadcrumbLayout.vue'
 
 const { layoutConfig, layoutState, hideMobileMenu } = useLayout()
 
+const clickOutsideExcept = '.layout-menu-button' as const
+
 const containerClass = computed(() => ({
   'layout-overlay': layoutConfig.menuMode === 'overlay',
   'layout-static': layoutConfig.menuMode === 'static',
@@ -16,55 +18,14 @@ const containerClass = computed(() => ({
   'layout-overlay-active': layoutState.overlayMenuActive,
   'layout-mobile-active': layoutState.mobileMenuActive,
 }))
-
-const outsideClickListener = ref<((event: MouseEvent) => void) | null>(null)
-
-watch(() => layoutState.mobileMenuActive, (newVal) => {
-  if (newVal) {
-    bindOutsideClickListener()
-  } else {
-    unbindOutsideClickListener()
-  }
-})
-
-function bindOutsideClickListener() {
-  if (!outsideClickListener.value) {
-    outsideClickListener.value = (event: MouseEvent) => {
-      if (isOutsideClicked(event)) {
-        hideMobileMenu()
-      }
-    }
-    document.addEventListener('click', outsideClickListener.value)
-  }
-}
-
-function unbindOutsideClickListener() {
-  if (outsideClickListener.value) {
-    document.removeEventListener('click', outsideClickListener.value)
-    outsideClickListener.value = null
-  }
-}
-
-onUnmounted(() => {
-  unbindOutsideClickListener()
-})
-
-function isOutsideClicked(event: MouseEvent) {
-  const sidebarEl = document.querySelector('.layout-sidebar')
-  const topbarEl = document.querySelector('.layout-menu-button')
-  return !(
-    sidebarEl?.isSameNode(event.target as Node)
-    || sidebarEl?.contains(event.target as Node)
-    || topbarEl?.isSameNode(event.target as Node)
-    || topbarEl?.contains(event.target as Node)
-  )
-}
 </script>
 
 <template>
   <div class="layout-wrapper" :class="containerClass">
     <AppTopbar />
-    <AppSidebar />
+    <div v-click-outside:[clickOutsideExcept]="hideMobileMenu">
+      <AppSidebar />
+    </div>
     <div class="layout-main-container">
       <div class="layout-main">
         <AppBreadcrumb />

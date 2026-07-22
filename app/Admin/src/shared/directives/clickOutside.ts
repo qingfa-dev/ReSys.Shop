@@ -6,13 +6,24 @@ interface ClickOutsideElement extends HTMLElement {
 
 export const clickOutside: Directive = {
   mounted(el: ClickOutsideElement, binding: DirectiveBinding) {
-    const handler = (event: MouseEvent) => {
-      if (!(el === event.target || el.contains(event.target as Node))) {
-        binding.value(event)
+    const handler = binding.value
+    const exceptSelectors = (binding.arg || '').split(',').filter(Boolean)
+
+    el.__clickOutsideHandler = (event: MouseEvent) => {
+      const target = event.target as Node | null
+      if (!target) return
+
+      if (exceptSelectors.length > 0 && target instanceof Element) {
+        for (const sel of exceptSelectors) {
+          if (target.closest(sel.trim())) return
+        }
+      }
+
+      if (!el.contains(target)) {
+        handler(event)
       }
     }
-    el.__clickOutsideHandler = handler
-    document.addEventListener('click', handler)
+    document.addEventListener('click', el.__clickOutsideHandler)
   },
   unmounted(el: ClickOutsideElement) {
     if (el.__clickOutsideHandler) {
