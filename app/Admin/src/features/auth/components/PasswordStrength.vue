@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 
-const props = defineProps<{ password: string }>()
+const props = defineProps<{ password: string | undefined }>()
 
 const rules = computed(() => [
   { key: 'minLength', label: 'At least 8 characters', met: (props.password?.length ?? 0) >= 8 },
