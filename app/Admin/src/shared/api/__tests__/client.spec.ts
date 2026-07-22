@@ -17,11 +17,11 @@ vi.mock('../handlers/error-handler', () => ({
 }))
 
 vi.mock('../handlers/refresh-handler', () => ({
-  refreshTokens: vi.fn().mockResolvedValue(false),
+  refreshTokens: vi.fn<() => Promise<boolean>>().mockResolvedValue(false),
 }))
 
 vi.mock('@/router', () => ({
-  default: { push: vi.fn() },
+  default: { push: vi.fn<(x: string) => void>() },
 }))
 
 describe('apiClient', () => {

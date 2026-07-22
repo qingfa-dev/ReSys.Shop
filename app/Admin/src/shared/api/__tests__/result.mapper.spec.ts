@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest'
-import { mapToErrors, resultToMapped, pagedResultToMapped, isSuccess, isFailure } from '../utils/result.mapper'
-import type { Result, PagedResult, Error } from '@/shared/models'
+import { mapToErrors, resultToMapped, isSuccess, isFailure } from '../utils/result.mapper'
+import type { Result, Error } from '@/shared/models'
 
 describe('mapToErrors', () => {
   it('should map Error array to Record<string, string[]>', () => {
@@ -46,7 +46,9 @@ describe('resultToMapped', () => {
     }
     const mapped = resultToMapped(result)
     expect(mapped.success).toBe(false)
-    expect(mapped.error).toBeDefined()
+    if (!mapped.success) {
+      expect(mapped.error).toBeDefined()
+    }
   })
 })
 

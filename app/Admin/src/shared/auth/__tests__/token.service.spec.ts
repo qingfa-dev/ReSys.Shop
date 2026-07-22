@@ -1,6 +1,5 @@
 import { describe, it, expect, beforeEach } from 'vitest'
 import { TokenService } from '../token.service'
-import { STORAGE_KEYS } from '@/shared/constants'
 
 describe('TokenService', () => {
   beforeEach(() => {

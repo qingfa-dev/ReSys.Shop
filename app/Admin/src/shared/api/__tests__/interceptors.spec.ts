@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest'
+import { describe, it, expect, beforeEach } from 'vitest'
 import { authInterceptor } from '../interceptors/auth.interceptor'
 import type { InternalAxiosRequestConfig } from 'axios'
 
