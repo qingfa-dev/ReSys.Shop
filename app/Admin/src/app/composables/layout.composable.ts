@@ -1,4 +1,5 @@
 import { computed, reactive, watch } from 'vue'
+import { useDarkMode } from '@/shared/composables/useDarkMode'
 
 const STORAGE_KEY = 'resys-admin-layout'
 
@@ -50,19 +51,19 @@ const layoutState = reactive({
 })
 
 export function useLayout() {
-  const isDarkTheme = computed(() => layoutConfig.darkTheme)
+  const { isDark, toggle } = useDarkMode()
 
-  const executeDarkModeToggle = () => {
-    layoutConfig.darkTheme = !layoutConfig.darkTheme
-    document.documentElement.classList.toggle('app-dark')
-  }
+  const isDarkTheme = isDark
+
+  watch(isDarkTheme, (val) => { layoutConfig.darkTheme = val })
+  watch(() => layoutConfig.darkTheme, (val) => { if (val !== isDarkTheme.value) isDarkTheme.value = val })
 
   function toggleDarkMode() {
     if (!document.startViewTransition) {
-      executeDarkModeToggle()
+      toggle()
       return
     }
-    const transition = document.startViewTransition(() => executeDarkModeToggle())
+    const transition = document.startViewTransition(() => toggle())
     transition.ready.then(() => {
       const x = window.innerWidth / 2
       const y = window.innerHeight / 2
