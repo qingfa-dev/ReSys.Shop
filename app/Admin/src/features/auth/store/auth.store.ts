@@ -25,10 +25,8 @@ function mapErrors(
 
   for (const error of errors) {
     server.push(error)
-    const segments = error.code.split('.')
-    const mapped = segments.length >= 2
-      ? segments[1].charAt(0).toLowerCase() + segments[1].slice(1)
-      : null
+    const code = error.code
+    const mapped = fieldNameFromCode(code)
 
     if (mapped) {
       if (!fields[mapped]) fields[mapped] = []
@@ -38,6 +36,14 @@ function mapErrors(
 
   fieldErrors.value = fields
   serverErrors.value = server
+}
+
+function fieldNameFromCode(code: string): string | null {
+  const segments = code.split('.')
+  if (segments.length < 2) return null
+  const field = segments[1]
+  if (!field) return null
+  return field.charAt(0).toLowerCase() + field.slice(1)
 }
 
 function fromJwtToUser(payload: Record<string, unknown>) {

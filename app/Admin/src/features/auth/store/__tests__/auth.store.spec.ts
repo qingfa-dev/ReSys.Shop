@@ -4,16 +4,16 @@ import { useAuthStore } from '../auth.store'
 import { useSessionStore } from '@/stores/useSessionStore'
 import * as authApi from '../../api/auth.api'
 
-const mockRouterPush = vi.hoisted(() => vi.fn<(...args: unknown[]) => unknown>())
+const mockRouterPush = vi.hoisted(() => vi.fn<(...args: any[]) => any>())
 
 vi.mock('../../api/auth.api', () => ({
-  loginApi: vi.fn<(...args: unknown[]) => unknown>(),
-  registerApi: vi.fn<(...args: unknown[]) => unknown>(),
-  forgotPasswordApi: vi.fn<(...args: unknown[]) => unknown>(),
-  resetPasswordApi: vi.fn<(...args: unknown[]) => unknown>(),
-  changePasswordApi: vi.fn<(...args: unknown[]) => unknown>(),
-  logoutApi: vi.fn<(...args: unknown[]) => unknown>(),
-  getSessionApi: vi.fn<(...args: unknown[]) => unknown>(),
+  loginApi: vi.fn<(...args: any[]) => any>(),
+  registerApi: vi.fn<(...args: any[]) => any>(),
+  forgotPasswordApi: vi.fn<(...args: any[]) => any>(),
+  resetPasswordApi: vi.fn<(...args: any[]) => any>(),
+  changePasswordApi: vi.fn<(...args: any[]) => any>(),
+  logoutApi: vi.fn<(...args: any[]) => any>(),
+  getSessionApi: vi.fn<(...args: any[]) => any>(),
 }))
 
 vi.mock('vue-router', () => ({
@@ -26,12 +26,12 @@ function createTestToken(exp: number, extra: Record<string, unknown> = {}): stri
   return `${header}.${payload}.`
 }
 
-function successResult<T>(value: T) {
-  return { isSuccess: true, statusCode: 200, value, errors: [], message: null, metadata: null } as const
+function successResult(value: unknown): any {
+  return { isSuccess: true, statusCode: 200, value, errors: [], message: null, metadata: null }
 }
 
-function errorResult(errors: Array<{ code: string; message: string; type: number; metadata: null }>) {
-  return { isSuccess: false, statusCode: 400, value: null, errors, message: null, metadata: null } as const
+function errorResult(errors: Array<{ code: string; message: string; type: number; metadata: null }>): any {
+  return { isSuccess: false, statusCode: 400, value: null, errors, message: null, metadata: null }
 }
 
 describe('useAuthStore', () => {
@@ -48,7 +48,7 @@ describe('useAuthStore', () => {
     it('sets isLoading during request', async () => {
       let resolver!: (value: unknown) => void
       vi.mocked(authApi.loginApi).mockImplementation(
-        () => new Promise(resolve => { resolver = resolve }),
+        () => new Promise(resolve => { resolver = resolve }) as any,
       )
       const store = useAuthStore()
       const promise = store.login('cred', 'pass')
@@ -77,7 +77,7 @@ describe('useAuthStore', () => {
       await store.login('cred', 'pass')
 
       expect(store.serverErrors).toHaveLength(1)
-      expect(store.serverErrors[0].code).toBe('User.Credentials.Invalid')
+      expect(store.serverErrors[0]?.code).toBe('User.Credentials.Invalid')
       expect(store.isLoading).toBe(false)
     })
 
@@ -165,7 +165,7 @@ describe('useAuthStore', () => {
       await store.forgotPassword('test@example.com')
 
       expect(store.serverErrors).toHaveLength(1)
-      expect(store.serverErrors[0].code).toBe('User.Email.NotFound')
+      expect(store.serverErrors[0]?.code).toBe('User.Email.NotFound')
       expect(store.isLoading).toBe(false)
     })
   })
@@ -189,7 +189,7 @@ describe('useAuthStore', () => {
       await store.resetPassword({ email: 'test@example.com', userId: '1', token: 'tok', newPassword: 'NewPass123!' })
 
       expect(store.serverErrors).toHaveLength(1)
-      expect(store.serverErrors[0].code).toBe('User.Token.Expired')
+      expect(store.serverErrors[0]?.code).toBe('User.Token.Expired')
       expect(store.isLoading).toBe(false)
     })
   })
@@ -213,7 +213,7 @@ describe('useAuthStore', () => {
       await store.changePassword({ email: 'test@example.com', currentPassword: 'WrongPass!', newPassword: 'NewPass123!' })
 
       expect(store.serverErrors).toHaveLength(1)
-      expect(store.serverErrors[0].code).toBe('User.Password.Incorrect')
+      expect(store.serverErrors[0]?.code).toBe('User.Password.Incorrect')
       expect(store.isLoading).toBe(false)
     })
   })

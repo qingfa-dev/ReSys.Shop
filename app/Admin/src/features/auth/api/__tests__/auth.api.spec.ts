@@ -13,22 +13,22 @@ import {
 
 vi.mock('@/shared/api/client', () => ({
   default: {
-    post: vi.fn<(...args: unknown[]) => unknown>(),
-    get: vi.fn<(...args: unknown[]) => unknown>(),
+    post: vi.fn<(...args: any[]) => any>(),
+    get: vi.fn<(...args: any[]) => any>(),
   },
 }))
 
 vi.mock('@/shared/auth/auth.service', () => ({
   AuthService: {
-    login: vi.fn<(...args: unknown[]) => unknown>(),
-    logout: vi.fn<(...args: unknown[]) => unknown>(),
-    getCurrentUser: vi.fn<(...args: unknown[]) => unknown>(),
-    isAuthenticated: vi.fn<(...args: unknown[]) => unknown>(),
+    login: vi.fn<(...args: any[]) => any>(),
+    logout: vi.fn<(...args: any[]) => any>(),
+    getCurrentUser: vi.fn<(...args: any[]) => any>(),
+    isAuthenticated: vi.fn<(...args: any[]) => any>(),
   },
 }))
 
-function mockResult<T>(value: T) {
-  return { data: { isSuccess: true, statusCode: 200, value, errors: [], message: null } }
+function mockResult<T>(value: T): any {
+  return { data: { isSuccess: true, statusCode: 200, value, errors: [], message: null, metadata: null } }
 }
 
 describe('auth.api', () => {
@@ -38,8 +38,8 @@ describe('auth.api', () => {
 
   describe('loginApi', () => {
     it('calls AuthService.login with credential and password', async () => {
-      const mockResponse = { isSuccess: true, statusCode: 200, value: { accessToken: 'at', refreshToken: 'rt' }, errors: [], message: null }
-      vi.mocked(AuthService.login).mockResolvedValue(mockResponse)
+      const mockResponse = { isSuccess: true, statusCode: 200, value: { accessToken: 'at', refreshToken: 'rt' }, errors: [], message: null, metadata: null }
+      vi.mocked(AuthService.login).mockResolvedValue(mockResponse as any)
 
       const result = await loginApi('user@test.com', 'secret')
 
@@ -103,14 +103,13 @@ describe('auth.api', () => {
   })
 
   describe('getSessionApi', () => {
-    it('calls AuthService.getCurrentUser', async () => {
-      const mockResponse = { isSuccess: true, statusCode: 200, value: { id: '1', email: 'a@b.com', name: 'A', role: 'admin', permissions: [] }, errors: [], message: null }
-      vi.mocked(AuthService.getCurrentUser).mockResolvedValue(mockResponse as never)
+    it('gets session from sessions endpoint', async () => {
+      vi.mocked(apiClient.get).mockResolvedValue(mockResult({ id: '1', roles: ['admin'], permissions: ['*'] }))
 
       const result = await getSessionApi()
 
-      expect(AuthService.getCurrentUser).toHaveBeenCalled()
-      expect(result).toBe(mockResponse)
+      expect(apiClient.get).toHaveBeenCalledWith('/store/identity/auth/sessions')
+      expect(result.isSuccess).toBe(true)
     })
   })
 })
