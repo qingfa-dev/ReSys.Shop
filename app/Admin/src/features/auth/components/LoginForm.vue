@@ -36,7 +36,7 @@ const onSubmit = handleSubmit((values) => {
         id="credential"
         v-model="credential"
         :placeholder="t('auth.placeholders.credential')"
-        class="w-full md:w-[30rem] mb-4"
+        class="w-full md:w-120 mb-4"
         :invalid="!!errors.credential"
       />
       <small v-if="errors.credential" class="text-red-500 -mt-3 mb-2">{{ errors.credential }}</small>
