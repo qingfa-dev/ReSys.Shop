@@ -1,4 +1,4 @@
-import { ref, readonly, type Ref } from 'vue'
+import { ref, readonly } from 'vue'
 import { defineStore } from 'pinia'
 import { useRouter } from 'vue-router'
 import { useSessionStore } from '@/stores/useSessionStore'
@@ -15,35 +15,31 @@ import {
 } from '../api/auth.api'
 import type { RegisterRequest, ResetPasswordRequest, ChangePasswordRequest } from '../types'
 
-function mapErrors(
-  errors: ApiProblemDetail[],
-  fieldErrors: Ref<Record<string, string[]>>,
-  serverErrors: Ref<ApiProblemDetail[]>,
-) {
-  const fields: Record<string, string[]> = {}
-  const server: ApiProblemDetail[] = []
-
-  for (const error of errors) {
-    server.push(error)
-    const code = error.code
-    const mapped = fieldNameFromCode(code)
-
-    if (mapped) {
-      if (!fields[mapped]) fields[mapped] = []
-      fields[mapped].push(error.message)
-    }
-  }
-
-  fieldErrors.value = fields
-  serverErrors.value = server
-}
-
 function fieldNameFromCode(code: string): string | null {
   const segments = code.split('.')
   if (segments.length < 2) return null
   const field = segments[1]
   if (!field) return null
   return field.charAt(0).toLowerCase() + field.slice(1)
+}
+
+function mapErrors(
+  errors: ApiProblemDetail[],
+  fieldErrors: { value: Record<string, string[]> },
+  serverErrors: { value: ApiProblemDetail[] },
+) {
+  const fields: Record<string, string[]> = {}
+  const server: ApiProblemDetail[] = []
+  for (const error of errors) {
+    server.push(error)
+    const mapped = fieldNameFromCode(error.code)
+    if (mapped) {
+      if (!fields[mapped]) fields[mapped] = []
+      fields[mapped].push(error.message)
+    }
+  }
+  fieldErrors.value = fields
+  serverErrors.value = server
 }
 
 function fromJwtToUser(payload: Record<string, unknown>) {
@@ -181,4 +177,4 @@ export const useAuthStore = defineStore('auth', () => {
   }
 })
 
-export { mapErrors }
+
