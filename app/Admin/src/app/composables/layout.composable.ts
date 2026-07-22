@@ -1,42 +1,6 @@
 import { computed, reactive, watch } from 'vue'
 import { useDarkMode } from '@/shared/composables/useDarkMode'
-
-const STORAGE_KEY = 'resys-admin-layout'
-
-interface LayoutConfig {
-  preset: string
-  primary: string
-  surface: string | null
-  darkTheme: boolean
-  menuMode: string
-}
-
-function loadConfig(): Partial<LayoutConfig> {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY)
-    return raw ? JSON.parse(raw) : {}
-  } catch {
-    return {}
-  }
-}
-
-const saved = loadConfig()
-
-const layoutConfig = reactive<LayoutConfig>({
-  preset: saved.preset || 'Aura',
-  primary: saved.primary || 'emerald',
-  surface: (saved.surface as string | null) || null,
-  darkTheme: saved.darkTheme ?? false,
-  menuMode: saved.menuMode || 'static',
-})
-
-watch(
-  () => ({ ...layoutConfig }),
-  (val) => {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(val))
-  },
-  { deep: true },
-)
+import { layoutConfig, changeMenuMode } from './useLayoutConfig'
 
 const layoutState = reactive({
   staticMenuInactive: false,
@@ -95,14 +59,6 @@ export function useLayout() {
 
   function hideMobileMenu() {
     layoutState.mobileMenuActive = false
-  }
-
-  function changeMenuMode(mode: string) {
-    layoutConfig.menuMode = mode
-    layoutState.staticMenuInactive = false
-    layoutState.mobileMenuActive = false
-    layoutState.sidebarExpanded = false
-    layoutState.menuHoverActive = false
   }
 
   const hasOpenOverlay = computed(() => layoutState.overlayMenuActive || layoutState.mobileMenuActive)
