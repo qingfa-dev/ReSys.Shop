@@ -12,7 +12,6 @@ const rules = computed(() => [
 ])
 
 const metCount = computed(() => rules.value.filter((r) => r.met).length)
-const strengthPercent = computed(() => (metCount.value / rules.value.length) * 100)
 const strengthColor = computed(() => {
   if (metCount.value <= 2) return 'var(--p-red-500)'
   if (metCount.value <= 4) return 'var(--p-amber-500)'
