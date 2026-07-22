@@ -1,5 +1,6 @@
 import { ref } from 'vue'
 import type { Result, PagedResult, QueryingModel } from '@/shared/models'
+import { createDefaultQueryingModel } from '@/shared/models'
 
 type PagedFetchResult<T> = PagedResult<T> | Result<T[]>
 
@@ -12,12 +13,7 @@ export function usePagedList<TItem>(fetchFn: (params: QueryingModel) => Promise<
   const loading = ref(false)
   const error = ref<string | null>(null)
   const totalRecords = ref(0)
-  const params = ref<QueryingModel>({
-    filter: { conditions: [], allowedFields: [], violations: [] },
-    search: { term: { value: '', caseSensitive: false }, fields: [], mode: 'Any', allowedFields: [], violations: [] },
-    sort: { clauses: [], allowedFields: [], violations: [] },
-    page: { page: 1, pageSize: 10, isEmpty: false, bounds: { defaultPage: 1, defaultPageSize: 10, maxPageSize: 100 }, violations: [] },
-  })
+  const params = ref<QueryingModel>(createDefaultQueryingModel())
 
   async function fetch() {
     loading.value = true

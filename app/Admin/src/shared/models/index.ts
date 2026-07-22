@@ -22,5 +22,7 @@ export type {
   QueryingModel,
 } from './querying'
 
+export { createDefaultQueryingModel } from './querying'
+
 export type { PaginationMeta } from './pagination'
 export type { ApiError, RequestOptions } from './api'

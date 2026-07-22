@@ -88,3 +88,24 @@ export interface QueryingModel {
   sort: SortModel
   page: PageModel
 }
+
+export function createDefaultQueryingModel(pageSize = 10): QueryingModel {
+  return {
+    filter: { conditions: [], allowedFields: [], violations: [] },
+    search: {
+      term: { value: '', caseSensitive: false },
+      fields: [],
+      mode: 'Any',
+      allowedFields: [],
+      violations: [],
+    },
+    sort: { clauses: [], allowedFields: [], violations: [] },
+    page: {
+      page: 1,
+      pageSize,
+      isEmpty: false,
+      bounds: { defaultPage: 1, defaultPageSize: pageSize, maxPageSize: 100 },
+      violations: [],
+    },
+  }
+}
