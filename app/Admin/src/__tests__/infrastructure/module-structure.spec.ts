@@ -21,3 +21,21 @@ describe('module directory structure', () => {
     expect(fs.existsSync(pagesPath), `${mod}/pages should exist`).toBe(true)
   })
 })
+
+const removedFiles = [
+  'features/catalog/pages/ProductCreatePage.vue',
+  'features/catalog/pages/TaxonListPage.vue',
+  'features/catalog/pages/TaxonTreeManagerPage.vue',
+  'features/catalog/pages/OptionValueListPage.vue',
+  'features/inventory/pages/StockImportPage.vue',
+  'features/inventory/pages/UnitListPage.vue',
+  'features/ordering/pages/OrderCreatePage.vue',
+  'features/users/pages/StaffCreatePage.vue',
+]
+
+describe('deprecated page removal', () => {
+  it.each(removedFiles)('%s does not exist', (file) => {
+    const filePath = path.resolve(__dirname, '../../', file)
+    expect(fs.existsSync(filePath), `${file} should be removed`).toBe(false)
+  })
+})
