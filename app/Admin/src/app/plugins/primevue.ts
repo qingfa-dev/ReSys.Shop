@@ -14,7 +14,7 @@ export function setupPrimeVue(app: App) {
         darkModeSelector: '.app-dark',
         cssLayer: {
           name: 'primevue',
-          order: 'tailwind-base, primevue, tailwind-utilities',
+          order: 'base, primevue, utilities',
         },
       },
     },
