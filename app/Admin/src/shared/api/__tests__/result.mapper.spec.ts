@@ -46,9 +46,7 @@ describe('resultToMapped', () => {
     }
     const mapped = resultToMapped(result)
     expect(mapped.success).toBe(false)
-    if (!mapped.success) {
-      expect(mapped.error).toBeDefined()
-    }
+    expect((mapped as { error: unknown }).error).toBeDefined()
   })
 })
 
