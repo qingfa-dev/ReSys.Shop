@@ -4,6 +4,8 @@ import { useAuthStore } from '../auth.store'
 import { useSessionStore } from '@/stores/useSessionStore'
 import * as authApi from '../../api/auth.api'
 
+const mockRouterPush = vi.hoisted(() => vi.fn<(...args: unknown[]) => unknown>())
+
 vi.mock('../../api/auth.api', () => ({
   loginApi: vi.fn<(...args: unknown[]) => unknown>(),
   registerApi: vi.fn<(...args: unknown[]) => unknown>(),
@@ -15,7 +17,7 @@ vi.mock('../../api/auth.api', () => ({
 }))
 
 vi.mock('vue-router', () => ({
-  useRouter: () => ({ push: vi.fn<(...args: unknown[]) => unknown>(), currentRoute: { value: { query: {} } } }),
+  useRouter: () => ({ push: mockRouterPush, currentRoute: { value: { query: {} } } }),
 }))
 
 function createTestToken(exp: number, extra: Record<string, unknown> = {}): string {
@@ -141,6 +143,78 @@ describe('useAuthStore', () => {
 
       expect(authApi.registerApi).toHaveBeenCalled()
       expect(authApi.loginApi).toHaveBeenCalled()
+    })
+  })
+
+  describe('forgotPassword', () => {
+    it('cleans state on success', async () => {
+      vi.mocked(authApi.forgotPasswordApi).mockResolvedValue(successResult(null))
+      const store = useAuthStore()
+      await store.forgotPassword('test@example.com')
+
+      expect(store.isLoading).toBe(false)
+      expect(store.serverErrors).toHaveLength(0)
+      expect(store.fieldErrors).toEqual({})
+    })
+
+    it('populates serverErrors on failure', async () => {
+      vi.mocked(authApi.forgotPasswordApi).mockResolvedValue(errorResult([
+        { code: 'User.Email.NotFound', message: 'Email not found', type: 404, metadata: null },
+      ]))
+      const store = useAuthStore()
+      await store.forgotPassword('test@example.com')
+
+      expect(store.serverErrors).toHaveLength(1)
+      expect(store.serverErrors[0].code).toBe('User.Email.NotFound')
+      expect(store.isLoading).toBe(false)
+    })
+  })
+
+  describe('resetPassword', () => {
+    it('navigates to login on success', async () => {
+      vi.mocked(authApi.resetPasswordApi).mockResolvedValue(successResult(null))
+      const store = useAuthStore()
+      await store.resetPassword({ email: 'test@example.com', userId: '1', token: 'tok', newPassword: 'NewPass123!' })
+
+      expect(mockRouterPush).toHaveBeenCalledWith({ name: 'auth.login' })
+      expect(store.isLoading).toBe(false)
+      expect(store.serverErrors).toHaveLength(0)
+    })
+
+    it('populates serverErrors on failure', async () => {
+      vi.mocked(authApi.resetPasswordApi).mockResolvedValue(errorResult([
+        { code: 'User.Token.Expired', message: 'Token expired', type: 400, metadata: null },
+      ]))
+      const store = useAuthStore()
+      await store.resetPassword({ email: 'test@example.com', userId: '1', token: 'tok', newPassword: 'NewPass123!' })
+
+      expect(store.serverErrors).toHaveLength(1)
+      expect(store.serverErrors[0].code).toBe('User.Token.Expired')
+      expect(store.isLoading).toBe(false)
+    })
+  })
+
+  describe('changePassword', () => {
+    it('navigates to dashboard on success', async () => {
+      vi.mocked(authApi.changePasswordApi).mockResolvedValue(successResult(null))
+      const store = useAuthStore()
+      await store.changePassword({ email: 'test@example.com', currentPassword: 'OldPass123!', newPassword: 'NewPass123!' })
+
+      expect(mockRouterPush).toHaveBeenCalledWith({ name: 'reports.dashboard' })
+      expect(store.isLoading).toBe(false)
+      expect(store.serverErrors).toHaveLength(0)
+    })
+
+    it('populates serverErrors on failure', async () => {
+      vi.mocked(authApi.changePasswordApi).mockResolvedValue(errorResult([
+        { code: 'User.Password.Incorrect', message: 'Current password is incorrect', type: 400, metadata: null },
+      ]))
+      const store = useAuthStore()
+      await store.changePassword({ email: 'test@example.com', currentPassword: 'WrongPass!', newPassword: 'NewPass123!' })
+
+      expect(store.serverErrors).toHaveLength(1)
+      expect(store.serverErrors[0].code).toBe('User.Password.Incorrect')
+      expect(store.isLoading).toBe(false)
     })
   })
 })
