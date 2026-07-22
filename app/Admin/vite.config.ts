@@ -6,6 +6,8 @@ import vueJsx from '@vitejs/plugin-vue-jsx'
 import vueDevTools from 'vite-plugin-vue-devtools'
 import tailwindcss from '@tailwindcss/vite'
 import AutoImport from 'unplugin-auto-import/vite'
+import Components from 'unplugin-vue-components/vite'
+import { PrimeVueResolver } from '@primevue/auto-import-resolver'
 
 export default defineConfig({
   plugins: [
@@ -14,6 +16,9 @@ export default defineConfig({
     AutoImport({
       imports: ['vue', 'vue-router'],
       dts: 'src/auto-imports.d.ts',
+    }),
+    Components({
+      resolvers: [PrimeVueResolver()],
     }),
     vueDevTools(),
     tailwindcss(),
