@@ -6,7 +6,7 @@ vi.mock('vue-i18n', () => ({
   useI18n: () => ({
     t: (key: string) => {
       const map: Record<string, string> = {
-        'auth.validation.password.rules.minLength': 'At least 8 characters',
+        'auth.validation.password.rules.min_length': 'At least 8 characters',
         'auth.validation.password.rules.uppercase': 'At least one uppercase letter',
         'auth.validation.password.rules.lowercase': 'At least one lowercase letter',
         'auth.validation.password.rules.digit': 'At least one digit',

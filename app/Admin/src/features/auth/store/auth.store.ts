@@ -6,6 +6,7 @@ import { TokenService } from '../services/token.service'
 import type { ApiProblemDetail } from '@/shared/models'
 import { AuthApi } from '../api/auth.api'
 import type { RegisterRequest, ResetPasswordRequest, ChangePasswordRequest } from '../types'
+import { AuthResponseMapper } from '../mappers/auth.response.mapper'
 
 function fieldNameFromCode(code: string): string | null {
   const segments = code.split('.')
@@ -34,16 +35,6 @@ function mapErrors(
   serverErrors.value = server
 }
 
-function fromJwtToUser(payload: Record<string, unknown>) {
-  return {
-    id: (payload.sub as string) ?? '',
-    email: (payload.email as string) ?? '',
-    name: (payload.name as string) ?? '',
-    role: (payload.role as string) ?? '',
-    permissions: (payload.permissions as string[]) ?? [],
-  }
-}
-
 export const useAuthStore = defineStore('auth', () => {
   const session = useSessionStore()
   const router = useRouter()
@@ -66,7 +57,7 @@ export const useAuthStore = defineStore('auth', () => {
       TokenService.setTokens(result.value.accessToken, result.value.refreshToken)
       const payload = TokenService.getAccessTokenPayload()
       if (payload) {
-        session.setUser(fromJwtToUser(payload as unknown as Record<string, unknown>))
+        session.setUser(AuthResponseMapper.fromJwt(payload as unknown as Record<string, unknown>))
       }
       const redirect = (router.currentRoute.value.query.redirect as string) ?? '/'
       router.push(redirect)
@@ -136,13 +127,7 @@ export const useAuthStore = defineStore('auth', () => {
     if (TokenService.hasValidAccessToken()) {
       const result = await AuthApi.getSession()
       if (result.isSuccess && result.value) {
-        session.setUser({
-          id: result.value.id,
-          email: '',
-          name: '',
-          role: result.value.roles[0] ?? '',
-          permissions: Array.isArray(result.value.permissions) ? result.value.permissions : [],
-        })
+        session.setUser(AuthResponseMapper.fromSession(result.value))
       } else {
         TokenService.clearTokens()
         session.clear()

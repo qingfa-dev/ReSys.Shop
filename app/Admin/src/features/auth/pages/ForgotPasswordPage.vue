@@ -1,19 +1,20 @@
-<!-- features/auth/pages/ForgotPasswordPage.vue -->
 <script setup lang="ts">
 import { ref } from 'vue'
 import { useForm } from 'vee-validate'
 import { toTypedSchema } from '@vee-validate/zod'
 import { useI18n } from 'vue-i18n'
 import AuthLayout from '@/shared/components/layout/AuthLayout.vue'
+import { AuthForms } from '../schemas'
 import { useAuth } from '../composables/useAuth'
 
 defineOptions({ name: 'ForgotPasswordPage' })
 
 const { t } = useI18n()
-const { forgotPassword, forgotPasswordSchema, isLoading, serverErrors } = useAuth()
+const schemas = new AuthForms(t)
+const { forgotPassword, isLoading, serverErrors, fieldErrors } = useAuth()
 
 const { handleSubmit, defineField, errors } = useForm({
-  validationSchema: toTypedSchema(forgotPasswordSchema),
+  validationSchema: toTypedSchema(schemas.forgotPassword()),
 })
 
 const [email] = defineField('email')
@@ -46,8 +47,9 @@ const onSubmit = handleSubmit((values) => {
       <label for="fpemail" class="block text-surface-900 dark:text-surface-0 font-medium text-xl mb-2">
         {{ t('auth.labels.email') }}
       </label>
-      <InputText id="fpemail" v-model="email" type="email" class="w-full md:w-[30rem] mb-4" :invalid="!!errors.email" />
+      <InputText id="fpemail" v-model="email" type="email" class="w-full md:w-120 mb-4" :invalid="!!errors.email" />
       <small v-if="errors.email" class="text-red-500 -mt-3 mb-2">{{ errors.email }}</small>
+      <small v-if="fieldErrors.email?.length" class="text-red-500 -mt-3 mb-2">{{ fieldErrors.email[0] }}</small>
 
       <Button type="submit" :label="t('auth.actions.sendResetLink')" class="w-full" :loading="isLoading" :disabled="isLoading" />
 

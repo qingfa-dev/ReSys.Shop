@@ -1,13 +1,6 @@
 import { ref, computed } from 'vue'
 import { defineStore } from 'pinia'
-
-interface CurrentUser {
-  id: string
-  email: string
-  name: string
-  role: string
-  permissions: string[]
-}
+import type { CurrentUser } from '@/shared/types/user'
 
 export const useSessionStore = defineStore('session', () => {
   const user = ref<CurrentUser | null>(null)

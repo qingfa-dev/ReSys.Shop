@@ -7,7 +7,7 @@ const { t } = useI18n()
 const props = defineProps<{ password: string | undefined }>()
 
 const ruleLabels: Record<string, string> = {
-  minLength: t('auth.validation.password.rules.minLength'),
+  minLength: t('auth.validation.password.rules.min_length'),
   uppercase: t('auth.validation.password.rules.uppercase'),
   lowercase: t('auth.validation.password.rules.lowercase'),
   digit: t('auth.validation.password.rules.digit'),

@@ -23,3 +23,5 @@ export type {
   Timestamped,
   SoftDeletable,
 } from './global'
+
+export type { CurrentUser } from './user'

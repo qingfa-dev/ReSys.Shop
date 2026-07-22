@@ -1,21 +1,25 @@
 <script setup lang="ts">
 import { useForm } from 'vee-validate'
 import { toTypedSchema } from '@vee-validate/zod'
-import { useAuth } from '../composables/useAuth'
 import { useI18n } from 'vue-i18n'
+import { AuthForms } from '../schemas'
+import { useAuth } from '../composables/useAuth'
+import { AuthRequestMapper } from '../mappers/auth.request.mapper'
 
 const { t } = useI18n()
-const { login, loginSchema, isLoading, serverErrors, fieldErrors } = useAuth()
+const schemas = new AuthForms(t)
+const { login, isLoading, serverErrors, fieldErrors } = useAuth()
 
 const { handleSubmit, defineField, errors } = useForm({
-  validationSchema: toTypedSchema(loginSchema),
+  validationSchema: toTypedSchema(schemas.login()),
 })
 
 const [credential] = defineField('credential')
 const [password] = defineField('password')
 
 const onSubmit = handleSubmit((values) => {
-  login(values.credential, values.password)
+  const req = AuthRequestMapper.toLogin(values)
+  login(req.credential, req.password)
 })
 </script>
 
@@ -56,6 +60,7 @@ const onSubmit = handleSubmit((values) => {
         :invalid="!!errors.password"
       />
       <small v-if="errors.password" class="text-red-500 -mt-3 mb-2">{{ errors.password }}</small>
+      <small v-if="fieldErrors.password?.length" class="text-red-500 -mt-3 mb-2">{{ fieldErrors.password[0] }}</small>
 
       <div class="flex items-center justify-between mt-2 mb-8 gap-8">
         <div />
