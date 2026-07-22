@@ -22,8 +22,8 @@ import ConfirmationService from 'primevue/confirmationservice'
 import ToastService from 'primevue/toastservice'
 import TaxonomyListPage from '../TaxonomyListPage.vue'
 
-const mockGetTaxonomies = vi.fn()
-const mockDeleteTaxonomy = vi.fn()
+const mockGetTaxonomies = vi.fn<(...args: unknown[]) => unknown>()
+const mockDeleteTaxonomy = vi.fn<(...args: unknown[]) => unknown>()
 
 vi.mock('../../api/taxonomies', () => ({
   getTaxonomies: (...args: unknown[]) => mockGetTaxonomies(...args),

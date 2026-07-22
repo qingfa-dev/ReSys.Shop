@@ -3,18 +3,20 @@ import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { setActivePinia, createPinia } from "pinia";
 import { useAuthStore } from "../auth.store";
 import { useSessionStore } from "@/stores/useSessionStore";
-import * as authApi from "../../api/auth.api";
+import { AuthApi } from "../../api/auth.api";
 
 const mockRouterPush = vi.hoisted(() => vi.fn<(...args: any[]) => any>());
 
 vi.mock("../../api/auth.api", () => ({
-  loginApi: vi.fn<(...args: any[]) => any>(),
-  registerApi: vi.fn<(...args: any[]) => any>(),
-  forgotPasswordApi: vi.fn<(...args: any[]) => any>(),
-  resetPasswordApi: vi.fn<(...args: any[]) => any>(),
-  changePasswordApi: vi.fn<(...args: any[]) => any>(),
-  logoutApi: vi.fn<(...args: any[]) => any>(),
-  getSessionApi: vi.fn<(...args: any[]) => any>(),
+  AuthApi: {
+    login: vi.fn<(...args: any[]) => any>(),
+    register: vi.fn<(...args: any[]) => any>(),
+    forgotPassword: vi.fn<(...args: any[]) => any>(),
+    resetPassword: vi.fn<(...args: any[]) => any>(),
+    changePassword: vi.fn<(...args: any[]) => any>(),
+    logout: vi.fn<(...args: any[]) => any>(),
+    getSession: vi.fn<(...args: any[]) => any>(),
+  },
 }));
 
 vi.mock("vue-router", () => ({
@@ -60,7 +62,7 @@ describe("useAuthStore", () => {
   describe("login", () => {
     it("sets isLoading during request", async () => {
       let resolver!: (value: unknown) => void;
-      vi.mocked(authApi.loginApi).mockImplementation(
+      vi.mocked(AuthApi.login).mockImplementation(
         () =>
           new Promise((resolve) => {
             resolver = resolve;
@@ -81,7 +83,7 @@ describe("useAuthStore", () => {
     });
 
     it("hydrates session on success", async () => {
-      vi.mocked(authApi.loginApi).mockResolvedValue(
+      vi.mocked(AuthApi.login).mockResolvedValue(
         successResult({
           accessToken: createTestToken(9999999999),
           refreshToken: "rt",
@@ -95,11 +97,11 @@ describe("useAuthStore", () => {
 
       const session = useSessionStore();
       expect(session.isAuthenticated).toBeTruthy();
-      expect(authApi.loginApi).toHaveBeenCalledWith("cred", "pass");
+      expect(AuthApi.login).toHaveBeenCalledWith("cred", "pass");
     });
 
     it("populates serverErrors on failure", async () => {
-      vi.mocked(authApi.loginApi).mockResolvedValue(
+      vi.mocked(AuthApi.login).mockResolvedValue(
         errorResult([
           {
             code: "User.Credentials.Invalid",
@@ -119,7 +121,7 @@ describe("useAuthStore", () => {
     });
 
     it("populates fieldErrors for field-specific codes", async () => {
-      vi.mocked(authApi.loginApi).mockResolvedValue(
+      vi.mocked(AuthApi.login).mockResolvedValue(
         errorResult([
           { code: "User.Email.Duplicate", message: "Email taken", type: 409, metadata: null },
         ]),
@@ -136,14 +138,14 @@ describe("useAuthStore", () => {
   describe("initialize", () => {
     it("fetches session when valid token exists", async () => {
       localStorage.setItem("accessToken", createTestToken(9999999999));
-      vi.mocked(authApi.getSessionApi).mockResolvedValue(
+      vi.mocked(AuthApi.getSession).mockResolvedValue(
         successResult({ id: "1", roles: ["Admin"], permissions: ["*"] }),
       );
 
       const store = useAuthStore();
       await store.initialize();
 
-      expect(authApi.getSessionApi).toHaveBeenCalled();
+      expect(AuthApi.getSession).toHaveBeenCalled();
       const session = useSessionStore();
       expect(session.isAuthenticated).toBe(true);
     });
@@ -152,7 +154,7 @@ describe("useAuthStore", () => {
       const store = useAuthStore();
       await store.initialize();
 
-      expect(authApi.getSessionApi).not.toHaveBeenCalled();
+      expect(AuthApi.getSession).not.toHaveBeenCalled();
       const session = useSessionStore();
       expect(session.isAuthenticated).toBe(false);
     });
@@ -168,7 +170,7 @@ describe("useAuthStore", () => {
       const store = useAuthStore();
       await store.logout();
 
-      expect(authApi.logoutApi).toHaveBeenCalled();
+      expect(AuthApi.logout).toHaveBeenCalled();
       expect(session.isAuthenticated).toBe(false);
       expect(localStorage.getItem("accessToken")).toBeNull();
     });
@@ -176,10 +178,10 @@ describe("useAuthStore", () => {
 
   describe("register", () => {
     it("auto-logins on success", async () => {
-      vi.mocked(authApi.registerApi).mockResolvedValue(
+      vi.mocked(AuthApi.register).mockResolvedValue(
         successResult({ userId: "1", email: "a@b.com", message: "ok" }),
       );
-      vi.mocked(authApi.loginApi).mockResolvedValue(
+      vi.mocked(AuthApi.login).mockResolvedValue(
         successResult({
           accessToken: "at",
           refreshToken: "rt",
@@ -197,14 +199,14 @@ describe("useAuthStore", () => {
         acceptTerm: true,
       });
 
-      expect(authApi.registerApi).toHaveBeenCalled();
-      expect(authApi.loginApi).toHaveBeenCalled();
+      expect(AuthApi.register).toHaveBeenCalled();
+      expect(AuthApi.login).toHaveBeenCalled();
     });
   });
 
   describe("forgotPassword", () => {
     it("cleans state on success", async () => {
-      vi.mocked(authApi.forgotPasswordApi).mockResolvedValue(successResult(null));
+      vi.mocked(AuthApi.forgotPassword).mockResolvedValue(successResult(null));
       const store = useAuthStore();
       await store.forgotPassword("test@example.com");
 
@@ -214,7 +216,7 @@ describe("useAuthStore", () => {
     });
 
     it("populates serverErrors on failure", async () => {
-      vi.mocked(authApi.forgotPasswordApi).mockResolvedValue(
+      vi.mocked(AuthApi.forgotPassword).mockResolvedValue(
         errorResult([
           { code: "User.Email.NotFound", message: "Email not found", type: 404, metadata: null },
         ]),
@@ -230,7 +232,7 @@ describe("useAuthStore", () => {
 
   describe("resetPassword", () => {
     it("navigates to login on success", async () => {
-      vi.mocked(authApi.resetPasswordApi).mockResolvedValue(successResult(null));
+      vi.mocked(AuthApi.resetPassword).mockResolvedValue(successResult(null));
       const store = useAuthStore();
       await store.resetPassword({
         email: "test@example.com",
@@ -245,7 +247,7 @@ describe("useAuthStore", () => {
     });
 
     it("populates serverErrors on failure", async () => {
-      vi.mocked(authApi.resetPasswordApi).mockResolvedValue(
+      vi.mocked(AuthApi.resetPassword).mockResolvedValue(
         errorResult([
           { code: "User.Token.Expired", message: "Token expired", type: 400, metadata: null },
         ]),
@@ -266,7 +268,7 @@ describe("useAuthStore", () => {
 
   describe("changePassword", () => {
     it("navigates to dashboard on success", async () => {
-      vi.mocked(authApi.changePasswordApi).mockResolvedValue(successResult(null));
+      vi.mocked(AuthApi.changePassword).mockResolvedValue(successResult(null));
       const store = useAuthStore();
       await store.changePassword({
         email: "test@example.com",
@@ -280,7 +282,7 @@ describe("useAuthStore", () => {
     });
 
     it("populates serverErrors on failure", async () => {
-      vi.mocked(authApi.changePasswordApi).mockResolvedValue(
+      vi.mocked(AuthApi.changePassword).mockResolvedValue(
         errorResult([
           {
             code: "User.Password.Incorrect",

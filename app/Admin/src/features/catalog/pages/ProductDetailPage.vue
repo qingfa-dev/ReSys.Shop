@@ -8,7 +8,7 @@ import LoadingSkeleton from '@/shared/components/feedback/LoadingSkeleton.vue'
 import ErrorState from '@/shared/components/feedback/ErrorState.vue'
 import { useToast } from '@/shared/composables/useToast'
 import { getProduct, createProduct, updateProduct } from '../api/products'
-import type { ProductResponse, ProductRequest, ProductStatus } from '../models/Product'
+import type { ProductRequest, ProductStatus } from '../models/Product'
 
 const route = useRoute()
 const router = useRouter()

@@ -20,24 +20,24 @@ import { createRouter, createWebHistory } from 'vue-router'
 import PrimeVue from 'primevue/config'
 import ConfirmationService from 'primevue/confirmationservice'
 import ToastService from 'primevue/toastservice'
-import ProductListPage from '../ProductListPage.vue'
+import OptionTypeListPage from '../OptionTypeListPage.vue'
 
-const mockGetProducts = vi.fn<(...args: unknown[]) => unknown>()
-const mockDeleteProduct = vi.fn<(...args: unknown[]) => unknown>()
+const mockGetOptionTypes = vi.fn<(...args: unknown[]) => unknown>()
+const mockDeleteOptionType = vi.fn<(...args: unknown[]) => unknown>()
 
-vi.mock('../../api/products', () => ({
-  getProducts: (...args: unknown[]) => mockGetProducts(...args),
-  deleteProduct: (...args: unknown[]) => mockDeleteProduct(...args),
+vi.mock('../../api/optionTypes', () => ({
+  getOptionTypes: (...args: unknown[]) => mockGetOptionTypes(...args),
+  deleteOptionType: (...args: unknown[]) => mockDeleteOptionType(...args),
 }))
 
 const router = createRouter({
   history: createWebHistory(),
   routes: [
     { path: '/', component: { template: '<div />' } },
-    { path: '/catalog/products', name: 'catalog.products.list', component: { template: '<div />' } },
-    { path: '/catalog/products/new', name: 'catalog.products.create', component: { template: '<div />' } },
-    { path: '/catalog/products/:id', name: 'catalog.products.view', component: { template: '<div />' } },
-    { path: '/catalog/products/:id/edit', name: 'catalog.products.edit', component: { template: '<div />' } },
+    { path: '/catalog/option-types', name: 'catalog.option-types.list', component: { template: '<div />' } },
+    { path: '/catalog/option-types/new', name: 'catalog.option-types.create', component: { template: '<div />' } },
+    { path: '/catalog/option-types/:id', name: 'catalog.option-types.view', component: { template: '<div />' } },
+    { path: '/catalog/option-types/:id/edit', name: 'catalog.option-types.edit', component: { template: '<div />' } },
   ],
 })
 
@@ -45,58 +45,58 @@ function createTestPlugins() {
   return [PrimeVue, ConfirmationService, ToastService, router]
 }
 
-describe('ProductListPage', () => {
+describe('OptionTypeListPage', () => {
   beforeEach(() => {
     vi.clearAllMocks()
   })
 
   it('renders page header', async () => {
-    mockGetProducts.mockResolvedValue({
+    mockGetOptionTypes.mockResolvedValue({
       success: true,
       data: [],
       meta: { page: 1, pageSize: 20, totalCount: 0, totalPages: 0 },
     })
-    const wrapper = mount(ProductListPage, {
+    const wrapper = mount(OptionTypeListPage, {
       global: { plugins: createTestPlugins() },
     })
     await flushPromises()
-    expect(wrapper.text()).toContain('Products')
+    expect(wrapper.text()).toContain('Option Types')
   })
 
-  it('displays empty state when no products', async () => {
-    mockGetProducts.mockResolvedValue({
+  it('displays empty state when no option types', async () => {
+    mockGetOptionTypes.mockResolvedValue({
       success: true,
       data: [],
       meta: { page: 1, pageSize: 20, totalCount: 0, totalPages: 0 },
     })
-    const wrapper = mount(ProductListPage, {
+    const wrapper = mount(OptionTypeListPage, {
       global: { plugins: createTestPlugins() },
     })
     await flushPromises()
-    expect(wrapper.text()).toContain('No products')
+    expect(wrapper.text()).toContain('No option types')
   })
 
-  it('displays products in table when data exists', async () => {
-    mockGetProducts.mockResolvedValue({
+  it('displays option types in table when data exists', async () => {
+    mockGetOptionTypes.mockResolvedValue({
       success: true,
       data: [
-        { id: '1', name: 'Test Product', slug: 'test', status: 'Draft', department: null, createdAt: '2026-01-01', updatedAt: '2026-01-01' },
+        { id: '1', name: 'Color', presentation: 'Color', position: 1, filterable: true, createdAt: '2026-01-01', updatedAt: '2026-01-01' },
       ],
       meta: { page: 1, pageSize: 20, totalCount: 1, totalPages: 1 },
     })
-    const wrapper = mount(ProductListPage, {
+    const wrapper = mount(OptionTypeListPage, {
       global: { plugins: createTestPlugins() },
     })
     await flushPromises()
-    expect(wrapper.text()).toContain('Test Product')
+    expect(wrapper.text()).toContain('Color')
   })
 
   it('displays error state on API failure', async () => {
-    mockGetProducts.mockResolvedValue({
+    mockGetOptionTypes.mockResolvedValue({
       success: false,
       error: { message: 'Server error', statusCode: 500, title: 'Error', detail: null, errors: {}, errorCode: 'ERR' },
     })
-    const wrapper = mount(ProductListPage, {
+    const wrapper = mount(OptionTypeListPage, {
       global: { plugins: createTestPlugins() },
     })
     await flushPromises()
@@ -104,15 +104,15 @@ describe('ProductListPage', () => {
   })
 
   it('has a create button', async () => {
-    mockGetProducts.mockResolvedValue({
+    mockGetOptionTypes.mockResolvedValue({
       success: true,
       data: [],
       meta: { page: 1, pageSize: 20, totalCount: 0, totalPages: 0 },
     })
-    const wrapper = mount(ProductListPage, {
+    const wrapper = mount(OptionTypeListPage, {
       global: { plugins: createTestPlugins() },
     })
     await flushPromises()
-    expect(wrapper.text()).toContain('Add Product')
+    expect(wrapper.text()).toContain('Add Type')
   })
 })

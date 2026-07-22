@@ -22,17 +22,17 @@ import ConfirmationService from 'primevue/confirmationservice'
 import ToastService from 'primevue/toastservice'
 import TaxonomyDetailPage from '../TaxonomyDetailPage.vue'
 
-const mockGetTaxonomy = vi.fn()
-const mockGetTaxons = vi.fn()
+const mockGetTaxonomy = vi.fn<(...args: unknown[]) => unknown>()
+const mockGetTaxons = vi.fn<(...args: unknown[]) => unknown>()
 
 vi.mock('../../api/taxonomies', () => ({
   getTaxonomy: (...args: unknown[]) => mockGetTaxonomy(...args),
-  createTaxonomy: vi.fn(),
-  updateTaxonomy: vi.fn(),
+  createTaxonomy: vi.fn<(...args: unknown[]) => unknown>(),
+  updateTaxonomy: vi.fn<(...args: unknown[]) => unknown>(),
   getTaxons: (...args: unknown[]) => mockGetTaxons(...args),
-  createTaxon: vi.fn(),
-  updateTaxon: vi.fn(),
-  deleteTaxon: vi.fn(),
+  createTaxon: vi.fn<(...args: unknown[]) => unknown>(),
+  updateTaxon: vi.fn<(...args: unknown[]) => unknown>(),
+  deleteTaxon: vi.fn<(...args: unknown[]) => unknown>(),
 }))
 
 function makeRouter(initialRoute: string) {

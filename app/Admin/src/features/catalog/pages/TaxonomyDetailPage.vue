@@ -13,12 +13,12 @@ import Button from 'primevue/button'
 import { useToast } from '@/shared/composables/useToast'
 import { useConfirm } from '@/shared/composables/useConfirm'
 import { getTaxonomy, createTaxonomy, updateTaxonomy, getTaxons, createTaxon, updateTaxon, deleteTaxon } from '../api/taxonomies'
-import type { TaxonomyResponse, TaxonomyRequest, TaxonResponse, TaxonRequest } from '../models/Taxonomy'
+import type { TaxonomyRequest, TaxonResponse, TaxonRequest } from '../models/Taxonomy'
 
 const route = useRoute()
 const router = useRouter()
 const toast = useToast()
-const confirm = useConfirm()
+const { confirmDelete } = useConfirm()
 
 const id = computed(() => route.params.id as string | undefined)
 const mode = computed<'create' | 'view' | 'edit'>(() => {
@@ -121,11 +121,9 @@ async function saveTaxon() {
 }
 
 function confirmDeleteTaxon(taxon: TaxonResponse) {
-  confirm.require({
-    message: `Delete taxon "${taxon.name}"?`,
-    header: 'Confirm Delete',
-    icon: 'pi pi-exclamation-triangle',
-    accept: () => deleteTaxonAction(taxon),
+  confirmDelete({
+    target: 'this taxon',
+    onAccept: () => deleteTaxonAction(taxon),
   })
 }
 

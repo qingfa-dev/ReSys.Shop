@@ -2,10 +2,10 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { getProducts, getProduct, createProduct, updateProduct, deleteProduct } from '../products'
 import type { FailureResult } from '@/shared/api/utils/result.mapper'
 
-const mockGet = vi.fn()
-const mockPost = vi.fn()
-const mockPut = vi.fn()
-const mockDelete = vi.fn()
+const mockGet = vi.fn<(...args: unknown[]) => unknown>()
+const mockPost = vi.fn<(...args: unknown[]) => unknown>()
+const mockPut = vi.fn<(...args: unknown[]) => unknown>()
+const mockDelete = vi.fn<(...args: unknown[]) => unknown>()
 
 vi.mock('@/shared/api/client', () => ({
   default: {

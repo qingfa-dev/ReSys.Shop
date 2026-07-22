@@ -22,9 +22,9 @@ import ConfirmationService from 'primevue/confirmationservice'
 import ToastService from 'primevue/toastservice'
 import ProductDetailPage from '../ProductDetailPage.vue'
 
-const mockGet = vi.fn()
-const mockCreate = vi.fn()
-const mockUpdate = vi.fn()
+const mockGet = vi.fn<(...args: unknown[]) => unknown>()
+const mockCreate = vi.fn<(...args: unknown[]) => unknown>()
+const mockUpdate = vi.fn<(...args: unknown[]) => unknown>()
 
 vi.mock('../../api/products', () => ({
   getProduct: (...args: unknown[]) => mockGet(...args),
@@ -32,7 +32,7 @@ vi.mock('../../api/products', () => ({
   updateProduct: (...args: unknown[]) => mockUpdate(...args),
 }))
 
-function makeRouter(initialRoute: string) {
+function makeRouter(_initialRoute: string) {
   return createRouter({
     history: createWebHistory(),
     routes: [

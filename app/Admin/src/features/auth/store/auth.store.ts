@@ -4,15 +4,7 @@ import { useRouter } from 'vue-router'
 import { useSessionStore } from '@/stores/useSessionStore'
 import { TokenService } from '../services/token.service'
 import type { ApiProblemDetail } from '@/shared/models'
-import {
-  loginApi,
-  registerApi,
-  forgotPasswordApi,
-  resetPasswordApi,
-  changePasswordApi,
-  logoutApi,
-  getSessionApi,
-} from '../api/auth.api'
+import { AuthApi } from '../api/auth.api'
 import type { RegisterRequest, ResetPasswordRequest, ChangePasswordRequest } from '../types'
 
 function fieldNameFromCode(code: string): string | null {
@@ -69,7 +61,7 @@ export const useAuthStore = defineStore('auth', () => {
   async function login(credential: string, password: string) {
     resetFormState()
     isLoading.value = true
-    const result = await loginApi(credential, password)
+    const result = await AuthApi.login(credential, password)
     if (result.isSuccess) {
       TokenService.setTokens(result.value.accessToken, result.value.refreshToken)
       const payload = TokenService.getAccessTokenPayload()
@@ -87,7 +79,7 @@ export const useAuthStore = defineStore('auth', () => {
   async function register(fields: RegisterRequest) {
     resetFormState()
     isLoading.value = true
-    const result = await registerApi(fields)
+    const result = await AuthApi.register(fields)
     if (result.isSuccess) {
       await login(fields.email, fields.password)
     } else {
@@ -99,7 +91,7 @@ export const useAuthStore = defineStore('auth', () => {
   async function forgotPassword(email: string) {
     resetFormState()
     isLoading.value = true
-    const result = await forgotPasswordApi(email)
+    const result = await AuthApi.forgotPassword(email)
     if (!result.isSuccess) {
       mapErrors(result.errors, fieldErrors, serverErrors)
     }
@@ -109,7 +101,7 @@ export const useAuthStore = defineStore('auth', () => {
   async function resetPassword(params: ResetPasswordRequest) {
     resetFormState()
     isLoading.value = true
-    const result = await resetPasswordApi(params)
+    const result = await AuthApi.resetPassword(params)
     if (result.isSuccess) {
       router.push({ name: 'auth.login' })
     } else {
@@ -121,7 +113,7 @@ export const useAuthStore = defineStore('auth', () => {
   async function changePassword(params: ChangePasswordRequest) {
     resetFormState()
     isLoading.value = true
-    const result = await changePasswordApi(params)
+    const result = await AuthApi.changePassword(params)
     if (result.isSuccess) {
       router.push({ name: 'reports.dashboard' })
     } else {
@@ -133,7 +125,7 @@ export const useAuthStore = defineStore('auth', () => {
   async function logout() {
     resetFormState()
     const refreshToken = TokenService.getRefreshToken()
-    await logoutApi(refreshToken ?? '')
+    await AuthApi.logout(refreshToken ?? '')
     TokenService.clearTokens()
     session.clear()
     router.push({ name: 'auth.login' })
@@ -142,7 +134,7 @@ export const useAuthStore = defineStore('auth', () => {
   async function initialize() {
     isLoading.value = true
     if (TokenService.hasValidAccessToken()) {
-      const result = await getSessionApi()
+      const result = await AuthApi.getSession()
       if (result.isSuccess && result.value) {
         session.setUser({
           id: result.value.id,
