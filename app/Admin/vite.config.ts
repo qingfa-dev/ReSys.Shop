@@ -5,11 +5,16 @@ import vue from '@vitejs/plugin-vue'
 import vueJsx from '@vitejs/plugin-vue-jsx'
 import vueDevTools from 'vite-plugin-vue-devtools'
 import tailwindcss from '@tailwindcss/vite'
+import AutoImport from 'unplugin-auto-import/vite'
 
 export default defineConfig({
   plugins: [
     vue(),
     vueJsx(),
+    AutoImport({
+      imports: ['vue', 'vue-router'],
+      dts: 'src/auto-imports.d.ts',
+    }),
     vueDevTools(),
     tailwindcss(),
   ],
