@@ -37,3 +37,138 @@ describe('catalog routes', () => {
     expect(names).not.toContain('catalog.option-values.list')
   })
 })
+
+import { inventoryRoutes } from '@/app/routes/inventory.routes'
+import { orderingRoutes } from '@/app/routes/ordering.routes'
+import { paymentRoutes } from '@/app/routes/payment.routes'
+import { shippingRoutes } from '@/app/routes/shipping.routes'
+import { locationRoutes } from '@/app/routes/location.routes'
+import { usersRoutes } from '@/app/routes/users.routes'
+import { profileRoutes } from '@/app/routes/profile.routes'
+
+describe('inventory routes', () => {
+  const childRoutes = (inventoryRoutes.children || []) as RouteRecordRaw[]
+  const names = collectRouteNames(childRoutes)
+  it('has stock detail routes', () => {
+    expect(names).toContain('inventory.stocks.create')
+    expect(names).toContain('inventory.stocks.view')
+    expect(names).toContain('inventory.stocks.edit')
+  })
+  it('has location detail routes', () => {
+    expect(names).toContain('inventory.locations.create')
+    expect(names).toContain('inventory.locations.view')
+    expect(names).toContain('inventory.locations.edit')
+  })
+  it('has transfer detail routes', () => {
+    expect(names).toContain('inventory.transfers.create')
+    expect(names).toContain('inventory.transfers.view')
+    expect(names).toContain('inventory.transfers.edit')
+  })
+  it('has reservation list route', () => {
+    expect(names).toContain('inventory.reservations.list')
+  })
+  it('no legacy routes', () => {
+    expect(names).not.toContain('inventory.stocks.import')
+    expect(names).not.toContain('inventory.units.list')
+  })
+})
+
+describe('ordering routes', () => {
+  const childRoutes = (orderingRoutes.children || []) as RouteRecordRaw[]
+  const names = collectRouteNames(childRoutes)
+  it('has order detail routes', () => {
+    expect(names).toContain('ordering.orders.create')
+    expect(names).toContain('ordering.orders.view')
+    expect(names).toContain('ordering.orders.edit')
+  })
+  it('no legacy orders/create', () => {
+    expect(names).toContain('ordering.orders.create')
+  })
+})
+
+describe('payment routes', () => {
+  const childRoutes = (paymentRoutes.children || []) as RouteRecordRaw[]
+  const names = collectRouteNames(childRoutes)
+  it('has normalized payments path', () => {
+    expect(names).toContain('payment.payments.list')
+    expect(names).toContain('payment.payments.view')
+  })
+  it('has method detail routes', () => {
+    expect(names).toContain('payment.methods.create')
+    expect(names).toContain('payment.methods.view')
+    expect(names).toContain('payment.methods.edit')
+  })
+  it('no payments/new (Payment is view-only)', () => {
+    expect(names).not.toContain('payment.payments.create')
+  })
+})
+
+describe('shipping routes', () => {
+  const childRoutes = (shippingRoutes.children || []) as RouteRecordRaw[]
+  const names = collectRouteNames(childRoutes)
+  it('has method detail routes', () => {
+    expect(names).toContain('shipping.methods.create')
+    expect(names).toContain('shipping.methods.view')
+    expect(names).toContain('shipping.methods.edit')
+  })
+  it('has rate detail routes', () => {
+    expect(names).toContain('shipping.rates.create')
+    expect(names).toContain('shipping.rates.view')
+    expect(names).toContain('shipping.rates.edit')
+  })
+})
+
+describe('location routes', () => {
+  const childRoutes = (locationRoutes.children || []) as RouteRecordRaw[]
+  const names = collectRouteNames(childRoutes)
+  it('has country detail routes', () => {
+    expect(names).toContain('location.countries.create')
+    expect(names).toContain('location.countries.view')
+    expect(names).toContain('location.countries.edit')
+  })
+  it('has state detail routes', () => {
+    expect(names).toContain('location.states.create')
+    expect(names).toContain('location.states.view')
+    expect(names).toContain('location.states.edit')
+  })
+})
+
+describe('users routes', () => {
+  const childRoutes = (usersRoutes.children || []) as RouteRecordRaw[]
+  const names = collectRouteNames(childRoutes)
+  it('has staff detail routes', () => {
+    expect(names).toContain('users.staff.create')
+    expect(names).toContain('users.staff.view')
+    expect(names).toContain('users.staff.edit')
+  })
+  it('has customer detail routes', () => {
+    expect(names).toContain('users.customers.create')
+    expect(names).toContain('users.customers.view')
+    expect(names).toContain('users.customers.edit')
+  })
+  it('has role detail routes', () => {
+    expect(names).toContain('users.roles.create')
+    expect(names).toContain('users.roles.view')
+    expect(names).toContain('users.roles.edit')
+  })
+  it('has permission view route only (read-only)', () => {
+    expect(names).toContain('users.permissions.list')
+    expect(names).toContain('users.permissions.view')
+    expect(names).not.toContain('users.permissions.create')
+    expect(names).not.toContain('users.permissions.edit')
+  })
+  it('no legacy staff/create', () => {
+    expect(names).toContain('users.staff.create')
+  })
+})
+
+describe('profile routes', () => {
+  const childRoutes = (profileRoutes.children || []) as RouteRecordRaw[]
+  const names = collectRouteNames(childRoutes)
+  it('uses profile.* namespace', () => {
+    expect(names).toContain('profile.view')
+    expect(names).toContain('profile.addresses')
+    expect(names).not.toContain('profile')
+    expect(names).not.toContain('addresses')
+  })
+})

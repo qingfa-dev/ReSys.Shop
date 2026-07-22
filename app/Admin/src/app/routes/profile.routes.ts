@@ -5,12 +5,12 @@ export const profileRoutes: RouteRecordRaw = {
   children: [
     {
       path: '',
-      name: 'profile',
+      name: 'profile.view',
       component: () => import('@/features/profile/pages/ProfilePage.vue'),
     },
     {
       path: 'addresses',
-      name: 'addresses',
+      name: 'profile.addresses',
       component: () => import('@/features/profile/pages/AddressListPage.vue'),
     },
   ],

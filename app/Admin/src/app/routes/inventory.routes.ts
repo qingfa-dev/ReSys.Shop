@@ -15,9 +15,19 @@ export const inventoryRoutes: RouteRecordRaw = {
       component: () => import('@/features/inventory/pages/StockListPage.vue'),
     },
     {
-      path: 'stocks/import',
-      name: 'inventory.stocks.import',
-      component: () => import('@/features/inventory/pages/StockImportPage.vue'),
+      path: 'stocks/new',
+      name: 'inventory.stocks.create',
+      component: () => import('@/features/inventory/pages/StockItemDetailPage.vue'),
+    },
+    {
+      path: 'stocks/:id',
+      name: 'inventory.stocks.view',
+      component: () => import('@/features/inventory/pages/StockItemDetailPage.vue'),
+    },
+    {
+      path: 'stocks/:id/edit',
+      name: 'inventory.stocks.edit',
+      component: () => import('@/features/inventory/pages/StockItemDetailPage.vue'),
     },
     {
       path: 'locations',
@@ -25,9 +35,19 @@ export const inventoryRoutes: RouteRecordRaw = {
       component: () => import('@/features/inventory/pages/LocationListPage.vue'),
     },
     {
-      path: 'units',
-      name: 'inventory.units.list',
-      component: () => import('@/features/inventory/pages/UnitListPage.vue'),
+      path: 'locations/new',
+      name: 'inventory.locations.create',
+      component: () => import('@/features/inventory/pages/LocationDetailPage.vue'),
+    },
+    {
+      path: 'locations/:id',
+      name: 'inventory.locations.view',
+      component: () => import('@/features/inventory/pages/LocationDetailPage.vue'),
+    },
+    {
+      path: 'locations/:id/edit',
+      name: 'inventory.locations.edit',
+      component: () => import('@/features/inventory/pages/LocationDetailPage.vue'),
     },
     {
       path: 'movements',
@@ -38,6 +58,26 @@ export const inventoryRoutes: RouteRecordRaw = {
       path: 'transfers',
       name: 'inventory.transfers.list',
       component: () => import('@/features/inventory/pages/TransferListPage.vue'),
+    },
+    {
+      path: 'transfers/new',
+      name: 'inventory.transfers.create',
+      component: () => import('@/features/inventory/pages/TransferDetailPage.vue'),
+    },
+    {
+      path: 'transfers/:id',
+      name: 'inventory.transfers.view',
+      component: () => import('@/features/inventory/pages/TransferDetailPage.vue'),
+    },
+    {
+      path: 'transfers/:id/edit',
+      name: 'inventory.transfers.edit',
+      component: () => import('@/features/inventory/pages/TransferDetailPage.vue'),
+    },
+    {
+      path: 'reservations',
+      name: 'inventory.reservations.list',
+      component: () => import('@/features/inventory/pages/StockReservationListPage.vue'),
     },
   ],
 }

@@ -15,9 +15,19 @@ export const orderingRoutes: RouteRecordRaw = {
       component: () => import('@/features/ordering/pages/OrderListPage.vue'),
     },
     {
-      path: 'orders/create',
+      path: 'orders/new',
       name: 'ordering.orders.create',
-      component: () => import('@/features/ordering/pages/OrderCreatePage.vue'),
+      component: () => import('@/features/ordering/pages/OrderDetailPage.vue'),
+    },
+    {
+      path: 'orders/:id',
+      name: 'ordering.orders.view',
+      component: () => import('@/features/ordering/pages/OrderDetailPage.vue'),
+    },
+    {
+      path: 'orders/:id/edit',
+      name: 'ordering.orders.edit',
+      component: () => import('@/features/ordering/pages/OrderDetailPage.vue'),
     },
     {
       path: 'fulfillment',
