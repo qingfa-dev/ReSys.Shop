@@ -1,5 +1,5 @@
 import type { Router } from 'vue-router'
-import { TokenService } from '@/shared/auth/token.service'
+import { TokenService } from '@/features/auth/services/token.service'
 
 const PUBLIC_ROUTES = ['auth.login', 'auth.register', 'auth.forgotPassword', 'auth.resetPassword']
 

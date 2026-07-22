@@ -1,6 +1,6 @@
 import apiClient from '@/shared/api/client'
 import type { Result } from '@/shared/models'
-import { TokenService } from './token.service'
+import { TokenService } from '@/features/auth/services/token.service'
 import { STORAGE_KEYS } from '@/shared/constants'
 
 interface LoginRequest {

@@ -2,7 +2,7 @@ import { ref, readonly } from 'vue'
 import { defineStore } from 'pinia'
 import { useRouter } from 'vue-router'
 import { useSessionStore } from '@/stores/useSessionStore'
-import { TokenService } from '@/shared/auth/token.service'
+import { TokenService } from '../services/token.service'
 import type { ApiProblemDetail } from '@/shared/models'
 import {
   loginApi,
