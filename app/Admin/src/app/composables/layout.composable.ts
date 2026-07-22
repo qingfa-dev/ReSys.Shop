@@ -1,18 +1,7 @@
-import { computed, reactive, watch } from 'vue'
+import { computed, watch } from 'vue'
 import { useDarkMode } from '@/shared/composables/useDarkMode'
 import { layoutConfig, changeMenuMode as setMenuMode } from './useLayoutConfig'
-
-const layoutState = reactive({
-  staticMenuInactive: false,
-  overlayMenuActive: false,
-  profileSidebarVisible: false,
-  configSidebarVisible: false,
-  sidebarExpanded: false,
-  menuHoverActive: false,
-  activeMenuItem: null as string | null,
-  activePath: null as string | null,
-  mobileMenuActive: false,
-})
+import { layoutState, hideMobileMenu } from './useLayoutState'
 
 function changeMenuMode(mode: string) {
   setMenuMode(mode, () => {
@@ -64,10 +53,6 @@ export function useLayout() {
 
   function toggleConfigSidebar() {
     layoutState.configSidebarVisible = !layoutState.configSidebarVisible
-  }
-
-  function hideMobileMenu() {
-    layoutState.mobileMenuActive = false
   }
 
   const hasOpenOverlay = computed(() => layoutState.overlayMenuActive || layoutState.mobileMenuActive)
