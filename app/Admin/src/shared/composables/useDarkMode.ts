@@ -1,5 +1,6 @@
-const DARK_MODE_CLASS = 'app-dark'
 import { ref, watchEffect } from 'vue'
+
+const DARK_MODE_CLASS = 'app-dark'
 
 export function useDarkMode() {
   const stored = localStorage.getItem('resys-admin-dark-mode')
