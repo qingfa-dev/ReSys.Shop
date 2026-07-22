@@ -1,14 +1,25 @@
 <script setup lang="ts">
 import { computed } from 'vue'
+import { useI18n } from 'vue-i18n'
+
+const { t } = useI18n()
 
 const props = defineProps<{ password: string | undefined }>()
 
+const ruleLabels: Record<string, string> = {
+  minLength: t('auth.validation.password.rules.minLength'),
+  uppercase: t('auth.validation.password.rules.uppercase'),
+  lowercase: t('auth.validation.password.rules.lowercase'),
+  digit: t('auth.validation.password.rules.digit'),
+  special: t('auth.validation.password.rules.special'),
+}
+
 const rules = computed(() => [
-  { key: 'minLength', label: 'At least 8 characters', met: (props.password?.length ?? 0) >= 8 },
-  { key: 'uppercase', label: 'At least one uppercase letter', met: /[A-Z]/.test(props.password ?? '') },
-  { key: 'lowercase', label: 'At least one lowercase letter', met: /[a-z]/.test(props.password ?? '') },
-  { key: 'digit', label: 'At least one digit', met: /[0-9]/.test(props.password ?? '') },
-  { key: 'special', label: 'At least one special character', met: /[^A-Za-z0-9]/.test(props.password ?? '') },
+  { key: 'minLength', label: ruleLabels.minLength, met: (props.password?.length ?? 0) >= 8 },
+  { key: 'uppercase', label: ruleLabels.uppercase, met: /[A-Z]/.test(props.password ?? '') },
+  { key: 'lowercase', label: ruleLabels.lowercase, met: /[a-z]/.test(props.password ?? '') },
+  { key: 'digit', label: ruleLabels.digit, met: /[0-9]/.test(props.password ?? '') },
+  { key: 'special', label: ruleLabels.special, met: /[^A-Za-z0-9]/.test(props.password ?? '') },
 ])
 
 const metCount = computed(() => rules.value.filter((r) => r.met).length)
