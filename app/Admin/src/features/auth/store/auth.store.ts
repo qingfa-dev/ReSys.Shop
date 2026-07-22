@@ -132,7 +132,8 @@ export const useAuthStore = defineStore('auth', () => {
 
   async function logout() {
     resetFormState()
-    await logoutApi()
+    const refreshToken = TokenService.getRefreshToken()
+    await logoutApi(refreshToken ?? '')
     TokenService.clearTokens()
     session.clear()
     router.push({ name: 'auth.login' })
