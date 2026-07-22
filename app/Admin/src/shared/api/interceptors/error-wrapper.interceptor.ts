@@ -11,7 +11,7 @@ export async function errorWrapperInterceptor(error: AxiosError): Promise<AxiosR
   const apiError = parseApiError(error)
 
   if (apiError.statusCode === 401 && originalRequest && !originalRequest._retry) {
-    if (originalRequest.url?.includes('/sessions/refresh')) {
+    if (originalRequest.url?.endsWith('/sessions/refresh')) {
       return Promise.resolve({
         data: {
           isSuccess: false,
