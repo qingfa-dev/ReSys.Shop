@@ -172,3 +172,60 @@ describe('profile routes', () => {
     expect(names).not.toContain('addresses')
   })
 })
+
+import { adminMenuConfig } from '@/app/config/admin-menu.config'
+
+function collectMenuRouteNames(groups: typeof adminMenuConfig): string[] {
+  const names: string[] = []
+  for (const group of groups) {
+    for (const item of group.items) {
+      if (item.to && typeof item.to === 'object' && 'name' in item.to) {
+        names.push(item.to.name as string)
+      }
+      if (item.items) {
+        for (const child of item.items) {
+          if (child.to && typeof child.to === 'object' && 'name' in child.to) {
+            names.push(child.to.name as string)
+          }
+        }
+      }
+    }
+  }
+  return names
+}
+
+describe('admin menu config', () => {
+  const menuNames = collectMenuRouteNames(adminMenuConfig)
+
+  it('contains required entries', () => {
+    expect(menuNames).toContain('reports.dashboard')
+    expect(menuNames).toContain('profile.view')
+    expect(menuNames).toContain('profile.addresses')
+    expect(menuNames).toContain('catalog.dashboard')
+    expect(menuNames).toContain('catalog.products.list')
+    expect(menuNames).toContain('catalog.taxonomies.list')
+    expect(menuNames).toContain('catalog.option-types.list')
+    expect(menuNames).toContain('inventory.stocks.list')
+    expect(menuNames).toContain('ordering.orders.list')
+    expect(menuNames).toContain('ordering.fulfillment.queue')
+    expect(menuNames).toContain('payment.payments.list')
+    expect(menuNames).toContain('payment.methods.list')
+    expect(menuNames).toContain('shipping.methods.list')
+    expect(menuNames).toContain('shipping.rates.list')
+    expect(menuNames).toContain('location.countries.list')
+    expect(menuNames).toContain('location.states.list')
+    expect(menuNames).toContain('users.staff.list')
+    expect(menuNames).toContain('users.customers.list')
+    expect(menuNames).toContain('users.roles.list')
+    expect(menuNames).toContain('users.permissions.list')
+  })
+
+  it('does not contain removed entries', () => {
+    expect(menuNames).not.toContain('catalog.products.create')
+    expect(menuNames).not.toContain('catalog.taxa.list')
+    expect(menuNames).not.toContain('catalog.option-values.list')
+    expect(menuNames).not.toContain('inventory.stocks.import')
+    expect(menuNames).not.toContain('inventory.units.list')
+    expect(menuNames).not.toContain('users.staff.create')
+  })
+})
