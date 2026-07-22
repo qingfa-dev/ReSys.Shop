@@ -15,19 +15,39 @@ export const catalogRoutes: RouteRecordRaw = {
       component: () => import('@/features/catalog/pages/ProductListPage.vue'),
     },
     {
-      path: 'products/create',
+      path: 'products/new',
       name: 'catalog.products.create',
-      component: () => import('@/features/catalog/pages/ProductCreatePage.vue'),
+      component: () => import('@/features/catalog/pages/ProductDetailPage.vue'),
     },
     {
-      path: 'taxa',
-      name: 'catalog.taxa.list',
-      component: () => import('@/features/catalog/pages/TaxonListPage.vue'),
+      path: 'products/:id',
+      name: 'catalog.products.view',
+      component: () => import('@/features/catalog/pages/ProductDetailPage.vue'),
+    },
+    {
+      path: 'products/:id/edit',
+      name: 'catalog.products.edit',
+      component: () => import('@/features/catalog/pages/ProductDetailPage.vue'),
     },
     {
       path: 'taxonomies',
       name: 'catalog.taxonomies.list',
-      component: () => import('@/features/catalog/pages/TaxonTreeManagerPage.vue'),
+      component: () => import('@/features/catalog/pages/TaxonomyListPage.vue'),
+    },
+    {
+      path: 'taxonomies/new',
+      name: 'catalog.taxonomies.create',
+      component: () => import('@/features/catalog/pages/TaxonomyDetailPage.vue'),
+    },
+    {
+      path: 'taxonomies/:id',
+      name: 'catalog.taxonomies.view',
+      component: () => import('@/features/catalog/pages/TaxonomyDetailPage.vue'),
+    },
+    {
+      path: 'taxonomies/:id/edit',
+      name: 'catalog.taxonomies.edit',
+      component: () => import('@/features/catalog/pages/TaxonomyDetailPage.vue'),
     },
     {
       path: 'option-types',
@@ -35,9 +55,19 @@ export const catalogRoutes: RouteRecordRaw = {
       component: () => import('@/features/catalog/pages/OptionTypeListPage.vue'),
     },
     {
-      path: 'option-values',
-      name: 'catalog.option-values.list',
-      component: () => import('@/features/catalog/pages/OptionValueListPage.vue'),
+      path: 'option-types/new',
+      name: 'catalog.option-types.create',
+      component: () => import('@/features/catalog/pages/OptionTypeDetailPage.vue'),
+    },
+    {
+      path: 'option-types/:id',
+      name: 'catalog.option-types.view',
+      component: () => import('@/features/catalog/pages/OptionTypeDetailPage.vue'),
+    },
+    {
+      path: 'option-types/:id/edit',
+      name: 'catalog.option-types.edit',
+      component: () => import('@/features/catalog/pages/OptionTypeDetailPage.vue'),
     },
   ],
 }
