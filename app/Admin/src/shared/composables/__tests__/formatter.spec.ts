@@ -1,33 +1,36 @@
-import { describe, it, expect } from 'vitest';
-import { useFormatter } from '../useFormatter';
+import { describe, it, expect } from 'vitest'
+import { useFormatter } from '../useFormatter'
 
 describe('useFormatter', () => {
-  const { formatCurrency, truncate } = useFormatter();
+  const { formatNumber, truncate } = useFormatter()
 
-  describe('formatCurrency', () => {
-    it('should format numbers as USD', () => {
-      expect(formatCurrency(1234.56)).toMatch(/\$1,234\.56/);
-      expect(formatCurrency(0)).toMatch(/\$0\.00/);
-    });
+  describe('formatNumber', () => {
+    it('formats integers with comma separators', () => {
+      expect(formatNumber(1234)).toBe('1,234')
+    })
 
-    it('should return $0.00 for null or undefined', () => {
-      expect(formatCurrency(null)).toBe('$0.00');
-      expect(formatCurrency(undefined)).toBe('$0.00');
-    });
-  });
+    it('formats with decimal places', () => {
+      expect(formatNumber(1234.567, 2)).toBe('1,234.57')
+    })
+
+    it('returns dash for null or undefined', () => {
+      expect(formatNumber(null)).toBe('-')
+      expect(formatNumber(undefined)).toBe('-')
+    })
+  })
 
   describe('truncate', () => {
-    it('should truncate long strings', () => {
-      expect(truncate('Hello World', 5)).toBe('Hello...');
-    });
+    it('truncates long strings', () => {
+      expect(truncate('Hello World', 5)).toBe('Hello...')
+    })
 
-    it('should not truncate short strings', () => {
-      expect(truncate('Hello', 10)).toBe('Hello');
-    });
+    it('does not truncate short strings', () => {
+      expect(truncate('Hello', 10)).toBe('Hello')
+    })
 
-    it('should handle null or undefined', () => {
-      expect(truncate(null, 10)).toBe('');
-      expect(truncate(undefined, 5)).toBe('');
-    });
-  });
-});
+    it('handles null or undefined', () => {
+      expect(truncate(null, 10)).toBe('')
+      expect(truncate(undefined, 5)).toBe('')
+    })
+  })
+})
