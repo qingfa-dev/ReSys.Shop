@@ -1,10 +1,10 @@
 import { describe, it, expect } from 'vitest'
 import { mapToErrors, resultToMapped, isSuccess, isFailure } from '../utils/result.mapper'
-import type { Result, Error } from '@/shared/models'
+import type { Result, ApiProblemDetail } from '@/shared/models'
 
 describe('mapToErrors', () => {
   it('should map Error array to Record<string, string[]>', () => {
-    const errors: Error[] = [
+    const errors: ApiProblemDetail[] = [
       { code: 'Name', message: 'Name is required', type: 0, metadata: null },
       { code: 'Name', message: 'Name too short', type: 0, metadata: null },
       { code: 'Email', message: 'Invalid email', type: 0, metadata: null },
@@ -17,7 +17,7 @@ describe('mapToErrors', () => {
   })
 
   it('should use "general" key for errors without code', () => {
-    const errors: Error[] = [
+    const errors: ApiProblemDetail[] = [
       { code: '', message: 'Something went wrong', type: 0, metadata: null },
     ]
     const result = mapToErrors(errors)

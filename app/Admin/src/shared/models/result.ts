@@ -1,4 +1,4 @@
-export interface Error {
+export interface ApiProblemDetail {
   code: string
   message: string
   type: number
@@ -8,7 +8,7 @@ export interface Error {
 export interface Result<T> {
   isSuccess: boolean
   statusCode: number
-  errors: Error[]
+  errors: ApiProblemDetail[]
   message: string | null
   metadata: Record<string, unknown> | null
   value: T
@@ -17,7 +17,7 @@ export interface Result<T> {
 export interface PagedResult<T> {
   isSuccess: boolean
   statusCode: number
-  errors: Error[]
+  errors: ApiProblemDetail[]
   message: string | null
   metadata: Record<string, unknown> | null
   items: T[]

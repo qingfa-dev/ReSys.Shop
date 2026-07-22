@@ -1,4 +1,4 @@
-import type { Error } from '@/shared/models'
+import type { ApiProblemDetail } from '@/shared/models'
 import { toCamelCaseKeys } from '@/shared/utils/transform'
 
 export interface ParsedApiError {
@@ -15,7 +15,7 @@ function convertServerErrors(errors: unknown): Record<string, string[]> {
   if (!errors) return {}
 
   if (Array.isArray(errors)) {
-    const se = errors as Error[]
+    const se = errors as ApiProblemDetail[]
     if (se.length > 0 && se[0]?.code !== undefined) {
       const result: Record<string, string[]> = {}
       for (const err of se) {

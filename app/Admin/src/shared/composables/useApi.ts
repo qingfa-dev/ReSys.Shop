@@ -1,10 +1,10 @@
 import { ref } from 'vue'
-import type { Result, Error } from '@/shared/models'
+import type { Result, ApiProblemDetail } from '@/shared/models'
 
 export function useApi<T>() {
   const data = ref<T | null>(null)
   const loading = ref(false)
-  const error = ref<Error | null>(null)
+  const error = ref<ApiProblemDetail | null>(null)
 
   async function execute(apiCall: () => Promise<Result<T>>): Promise<Result<T>> {
     loading.value = true

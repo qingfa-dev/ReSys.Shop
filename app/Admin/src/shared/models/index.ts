@@ -1,5 +1,5 @@
 export type {
-  Error,
+  ApiProblemDetail,
   Result,
   PagedResult,
 } from './result'

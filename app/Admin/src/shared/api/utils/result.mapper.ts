@@ -1,4 +1,4 @@
-import type { Result, PagedResult, Error, PaginationMeta } from '@/shared/models'
+import type { Result, PagedResult, ApiProblemDetail, PaginationMeta } from '@/shared/models'
 
 export interface SuccessResult<T> {
   data: T
@@ -29,7 +29,7 @@ export function isFailure<T>(result: Result<T> | PagedResult<T>): boolean {
   return !result.isSuccess
 }
 
-export function mapToErrors(errors: Error[]): Record<string, string[]> {
+export function mapToErrors(errors: ApiProblemDetail[]): Record<string, string[]> {
   const result: Record<string, string[]> = {}
   for (const err of errors) {
     const key = err.code || 'general'
