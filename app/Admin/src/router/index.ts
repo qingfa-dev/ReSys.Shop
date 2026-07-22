@@ -9,16 +9,19 @@ import { shippingRoutes } from '@/app/routes/shipping.routes'
 import { locationRoutes } from '@/app/routes/location.routes'
 import { usersRoutes } from '@/app/routes/users.routes'
 import { profileRoutes } from '@/app/routes/profile.routes'
+import { authRoutes, changePasswordRoute } from '@/features/auth'
 import { registerAuthGuard } from './guards'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
+    ...authRoutes,
     {
       path: '/',
       component: MainLayout,
       children: [
         { path: '', redirect: { name: 'reports.dashboard' } },
+        changePasswordRoute,
         profileRoutes,
         reportsRoutes,
         catalogRoutes,

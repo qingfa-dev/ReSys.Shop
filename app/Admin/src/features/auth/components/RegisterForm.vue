@@ -60,7 +60,8 @@ const onSubmit = handleSubmit((vals) => {
           <label for="firstName" class="block text-surface-900 dark:text-surface-0 font-medium mb-2">
             {{ t('auth.labels.firstName') }}
           </label>
-          <InputText id="firstName" v-model="firstName" v-bind="firstNameAttrs" class="w-full" :invalid="!!errors.firstName" />
+          <InputText id="firstName" v-model="firstName" v-bind="firstNameAttrs" class="w-full"
+            :invalid="!!errors.firstName" />
           <small v-if="errors.firstName" class="text-red-500">{{ errors.firstName }}</small>
         </div>
 
@@ -92,7 +93,8 @@ const onSubmit = handleSubmit((vals) => {
       <label for="password" class="block text-surface-900 dark:text-surface-0 font-medium mb-2 mt-4">
         {{ t('auth.labels.password') }}
       </label>
-      <Password id="password" v-model="password" v-bind="passwordAttrs" :toggleMask="true" :feedback="false" class="w-full" fluid :invalid="!!errors.password" />
+      <Password id="password" v-model="password" v-bind="passwordAttrs" :toggleMask="true" :feedback="false"
+        class="w-full" fluid :invalid="!!errors.password" />
       <small v-if="errors.password" class="text-red-500">{{ errors.password }}</small>
       <PasswordStrength :password="password" />
 
@@ -100,7 +102,8 @@ const onSubmit = handleSubmit((vals) => {
       <label for="confirmPassword" class="block text-surface-900 dark:text-surface-0 font-medium mb-2 mt-4">
         {{ t('auth.labels.confirmPassword') }}
       </label>
-      <Password id="confirmPassword" v-model="confirmPassword" v-bind="confirmPasswordAttrs" :toggleMask="true" :feedback="false" class="w-full" fluid :invalid="!!errors.confirmPassword" />
+      <Password id="confirmPassword" v-model="confirmPassword" v-bind="confirmPasswordAttrs" :toggleMask="true"
+        :feedback="false" class="w-full" fluid :invalid="!!errors.confirmPassword" />
       <small v-if="errors.confirmPassword" class="text-red-500">{{ errors.confirmPassword }}</small>
 
       <!-- Phone -->
@@ -118,7 +121,8 @@ const onSubmit = handleSubmit((vals) => {
       </div>
       <small v-if="errors.acceptTerm" class="text-red-500">{{ errors.acceptTerm }}</small>
 
-      <Button type="submit" :label="t('auth.actions.register')" class="w-full mt-6" :loading="isLoading" :disabled="isLoading" />
+      <Button type="submit" :label="t('auth.actions.register')" class="w-full mt-6" :loading="isLoading"
+        :disabled="isLoading" />
 
       <div v-if="serverErrors.length" class="mt-4">
         <small v-for="err in serverErrors" :key="err.code" class="text-red-500 block">{{ err.message }}</small>
