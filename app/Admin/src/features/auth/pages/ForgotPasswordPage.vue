@@ -16,7 +16,7 @@ const { handleSubmit, defineField, errors } = useForm({
   validationSchema: toTypedSchema(forgotPasswordSchema),
 })
 
-const [email, emailAttrs] = defineField('email')
+const [email] = defineField('email')
 const submitted = ref(false)
 
 const onSubmit = handleSubmit((values) => {
@@ -46,7 +46,7 @@ const onSubmit = handleSubmit((values) => {
       <label for="fpemail" class="block text-surface-900 dark:text-surface-0 font-medium text-xl mb-2">
         {{ t('auth.labels.email') }}
       </label>
-      <InputText id="fpemail" v-model="email" v-bind="emailAttrs" type="email" class="w-full md:w-[30rem] mb-4" :invalid="!!errors.email" />
+      <InputText id="fpemail" v-model="email" type="email" class="w-full md:w-[30rem] mb-4" :invalid="!!errors.email" />
       <small v-if="errors.email" class="text-red-500 -mt-3 mb-2">{{ errors.email }}</small>
 
       <Button type="submit" :label="t('auth.actions.sendResetLink')" class="w-full" :loading="isLoading" :disabled="isLoading" />

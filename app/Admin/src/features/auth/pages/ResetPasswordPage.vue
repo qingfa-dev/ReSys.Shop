@@ -16,8 +16,8 @@ const { handleSubmit, defineField, errors } = useForm({
   validationSchema: toTypedSchema(resetPasswordSchema),
 })
 
-const [password, passwordAttrs] = defineField('password')
-const [confirmPassword, confirmPasswordAttrs] = defineField('confirmPassword')
+const [password] = defineField('password')
+const [confirmPassword] = defineField('confirmPassword')
 
 const onSubmit = handleSubmit((vals) => {
   resetPassword({
@@ -42,14 +42,14 @@ const onSubmit = handleSubmit((vals) => {
       <label for="rspassword" class="block text-surface-900 dark:text-surface-0 font-medium text-xl mb-2">
         {{ t('auth.labels.newPassword') }}
       </label>
-      <Password id="rspassword" v-model="password" v-bind="passwordAttrs" :toggleMask="true" :feedback="false" class="w-full md:w-[30rem]" fluid :invalid="!!errors.password" />
+      <Password id="rspassword" v-model="password" :toggleMask="true" :feedback="false" class="w-full md:w-[30rem]" fluid :invalid="!!errors.password" />
       <small v-if="errors.password" class="text-red-500 mt-1">{{ errors.password }}</small>
       <PasswordStrength :password="password" />
 
       <label for="rsconfirmPassword" class="block text-surface-900 dark:text-surface-0 font-medium text-xl mb-2 mt-4">
         {{ t('auth.labels.confirmPassword') }}
       </label>
-      <Password id="rsconfirmPassword" v-model="confirmPassword" v-bind="confirmPasswordAttrs" :toggleMask="true" :feedback="false" class="w-full md:w-[30rem]" fluid :invalid="!!errors.confirmPassword" />
+      <Password id="rsconfirmPassword" v-model="confirmPassword" :toggleMask="true" :feedback="false" class="w-full md:w-[30rem]" fluid :invalid="!!errors.confirmPassword" />
       <small v-if="errors.confirmPassword" class="text-red-500 mt-1">{{ errors.confirmPassword }}</small>
 
       <Button type="submit" :label="t('auth.actions.resetPassword')" class="w-full mt-6" :loading="isLoading" :disabled="isLoading" />

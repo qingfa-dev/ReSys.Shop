@@ -22,14 +22,14 @@ const { handleSubmit, defineField, errors } = useForm({
   },
 })
 
-const [email, emailAttrs] = defineField('email')
-const [userName, userNameAttrs] = defineField('userName')
-const [password, passwordAttrs] = defineField('password')
-const [confirmPassword, confirmPasswordAttrs] = defineField('confirmPassword')
-const [firstName, firstNameAttrs] = defineField('firstName')
-const [lastName, lastNameAttrs] = defineField('lastName')
-const [phone, phoneAttrs] = defineField('phone')
-const [acceptTerm, acceptTermAttrs] = defineField('acceptTerm')
+const [email] = defineField('email')
+const [userName] = defineField('userName')
+const [password] = defineField('password')
+const [confirmPassword] = defineField('confirmPassword')
+const [firstName] = defineField('firstName')
+const [lastName] = defineField('lastName')
+const [phone] = defineField('phone')
+const [acceptTerm] = defineField('acceptTerm')
 
 const onSubmit = handleSubmit((vals) => {
   register({
@@ -60,7 +60,7 @@ const onSubmit = handleSubmit((vals) => {
           <label for="firstName" class="block text-surface-900 dark:text-surface-0 font-medium mb-2">
             {{ t('auth.labels.firstName') }}
           </label>
-          <InputText id="firstName" v-model="firstName" v-bind="firstNameAttrs" class="w-full"
+          <InputText id="firstName" v-model="firstName"  class="w-full"
             :invalid="!!errors.firstName" />
           <small v-if="errors.firstName" class="text-red-500">{{ errors.firstName }}</small>
         </div>
@@ -70,7 +70,7 @@ const onSubmit = handleSubmit((vals) => {
           <label for="lastName" class="block text-surface-900 dark:text-surface-0 font-medium mb-2">
             {{ t('auth.labels.lastName') }}
           </label>
-          <InputText id="lastName" v-model="lastName" v-bind="lastNameAttrs" class="w-full" />
+          <InputText id="lastName" v-model="lastName"  class="w-full" />
         </div>
       </div>
 
@@ -78,7 +78,7 @@ const onSubmit = handleSubmit((vals) => {
       <label for="email" class="block text-surface-900 dark:text-surface-0 font-medium mb-2 mt-4">
         {{ t('auth.labels.email') }}
       </label>
-      <InputText id="email" v-model="email" v-bind="emailAttrs" type="email" class="w-full" :invalid="!!errors.email" />
+      <InputText id="email" v-model="email"  type="email" class="w-full" :invalid="!!errors.email" />
       <small v-if="errors.email" class="text-red-500">{{ errors.email }}</small>
       <small v-if="fieldErrors.email?.length" class="text-red-500">{{ fieldErrors.email[0] }}</small>
 
@@ -86,14 +86,14 @@ const onSubmit = handleSubmit((vals) => {
       <label for="userName" class="block text-surface-900 dark:text-surface-0 font-medium mb-2 mt-4">
         {{ t('auth.labels.userName') }}
       </label>
-      <InputText id="userName" v-model="userName" v-bind="userNameAttrs" class="w-full" :invalid="!!errors.userName" />
+      <InputText id="userName" v-model="userName"  class="w-full" :invalid="!!errors.userName" />
       <small v-if="errors.userName" class="text-red-500">{{ errors.userName }}</small>
 
       <!-- Password -->
       <label for="password" class="block text-surface-900 dark:text-surface-0 font-medium mb-2 mt-4">
         {{ t('auth.labels.password') }}
       </label>
-      <Password id="password" v-model="password" v-bind="passwordAttrs" :toggleMask="true" :feedback="false"
+      <Password id="password" v-model="password"  :toggleMask="true" :feedback="false"
         class="w-full" fluid :invalid="!!errors.password" />
       <small v-if="errors.password" class="text-red-500">{{ errors.password }}</small>
       <PasswordStrength :password="password" />
@@ -102,7 +102,7 @@ const onSubmit = handleSubmit((vals) => {
       <label for="confirmPassword" class="block text-surface-900 dark:text-surface-0 font-medium mb-2 mt-4">
         {{ t('auth.labels.confirmPassword') }}
       </label>
-      <Password id="confirmPassword" v-model="confirmPassword" v-bind="confirmPasswordAttrs" :toggleMask="true"
+      <Password id="confirmPassword" v-model="confirmPassword"  :toggleMask="true"
         :feedback="false" class="w-full" fluid :invalid="!!errors.confirmPassword" />
       <small v-if="errors.confirmPassword" class="text-red-500">{{ errors.confirmPassword }}</small>
 
@@ -110,11 +110,11 @@ const onSubmit = handleSubmit((vals) => {
       <label for="phone" class="block text-surface-900 dark:text-surface-0 font-medium mb-2 mt-4">
         {{ t('auth.labels.phone') }}
       </label>
-      <InputText id="phone" v-model="phone" v-bind="phoneAttrs" class="w-full" />
+      <InputText id="phone" v-model="phone"  class="w-full" />
 
       <!-- Accept Terms -->
       <div class="flex items-center mt-4 gap-2">
-        <Checkbox id="acceptTerm" v-model="acceptTerm" v-bind="acceptTermAttrs" binary />
+        <Checkbox id="acceptTerm" v-model="acceptTerm"  binary />
         <label for="acceptTerm" class="text-surface-900 dark:text-surface-0">
           {{ t('auth.labels.acceptTerms') }}
         </label>

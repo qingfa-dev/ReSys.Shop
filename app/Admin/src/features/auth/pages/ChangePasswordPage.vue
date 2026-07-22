@@ -12,9 +12,9 @@ const { handleSubmit, defineField, errors } = useForm({
   validationSchema: toTypedSchema(changePasswordSchema),
 })
 
-const [currentPassword, currentPasswordAttrs] = defineField('currentPassword')
-const [newPassword, newPasswordAttrs] = defineField('newPassword')
-const [confirmPassword, confirmPasswordAttrs] = defineField('confirmPassword')
+const [currentPassword] = defineField('currentPassword')
+const [newPassword] = defineField('newPassword')
+const [confirmPassword] = defineField('confirmPassword')
 
 const onSubmit = handleSubmit((vals) => {
   changePassword({
@@ -37,7 +37,7 @@ const onSubmit = handleSubmit((vals) => {
           <label for="cpcurrent" class="block text-surface-900 dark:text-surface-0 font-medium mb-2">
             {{ t('auth.labels.currentPassword') }}
           </label>
-          <Password id="cpcurrent" v-model="currentPassword" v-bind="currentPasswordAttrs" :toggleMask="true" :feedback="false" fluid :invalid="!!errors.currentPassword" />
+          <Password id="cpcurrent" v-model="currentPassword"  :toggleMask="true" :feedback="false" fluid :invalid="!!errors.currentPassword" />
           <small v-if="errors.currentPassword" class="text-red-500">{{ errors.currentPassword }}</small>
           <small v-if="fieldErrors.currentPassword?.length" class="text-red-500">{{ fieldErrors.currentPassword[0] }}</small>
         </div>
@@ -46,7 +46,7 @@ const onSubmit = handleSubmit((vals) => {
           <label for="cpnew" class="block text-surface-900 dark:text-surface-0 font-medium mb-2">
             {{ t('auth.labels.newPassword') }}
           </label>
-          <Password id="cpnew" v-model="newPassword" v-bind="newPasswordAttrs" :toggleMask="true" :feedback="false" fluid :invalid="!!errors.newPassword" />
+          <Password id="cpnew" v-model="newPassword"  :toggleMask="true" :feedback="false" fluid :invalid="!!errors.newPassword" />
           <small v-if="errors.newPassword" class="text-red-500">{{ errors.newPassword }}</small>
         </div>
 
@@ -54,7 +54,7 @@ const onSubmit = handleSubmit((vals) => {
           <label for="cpconfirm" class="block text-surface-900 dark:text-surface-0 font-medium mb-2">
             {{ t('auth.labels.confirmPassword') }}
           </label>
-          <Password id="cpconfirm" v-model="confirmPassword" v-bind="confirmPasswordAttrs" :toggleMask="true" :feedback="false" fluid :invalid="!!errors.confirmPassword" />
+          <Password id="cpconfirm" v-model="confirmPassword"  :toggleMask="true" :feedback="false" fluid :invalid="!!errors.confirmPassword" />
           <small v-if="errors.confirmPassword" class="text-red-500">{{ errors.confirmPassword }}</small>
         </div>
 

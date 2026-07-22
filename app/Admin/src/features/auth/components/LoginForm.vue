@@ -11,8 +11,8 @@ const { handleSubmit, defineField, errors } = useForm({
   validationSchema: toTypedSchema(loginSchema),
 })
 
-const [credential, credentialAttrs] = defineField('credential')
-const [password, passwordAttrs] = defineField('password')
+const [credential] = defineField('credential')
+const [password] = defineField('password')
 
 const onSubmit = handleSubmit((values) => {
   login(values.credential, values.password)
@@ -35,7 +35,6 @@ const onSubmit = handleSubmit((values) => {
       <InputText
         id="credential"
         v-model="credential"
-        v-bind="credentialAttrs"
         :placeholder="t('auth.placeholders.credential')"
         class="w-full md:w-[30rem] mb-4"
         :invalid="!!errors.credential"
@@ -49,7 +48,6 @@ const onSubmit = handleSubmit((values) => {
       <Password
         id="password1"
         v-model="password"
-        v-bind="passwordAttrs"
         :placeholder="t('auth.placeholders.password')"
         :toggleMask="true"
         :feedback="false"
