@@ -60,8 +60,8 @@ export interface RegisterForm {
   password: string
   confirmPassword: string
   firstName: string
-  lastName: string
-  phone: string
+  lastName?: string
+  phone?: string
   acceptTerm: boolean
 }
 
