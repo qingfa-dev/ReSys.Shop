@@ -1,7 +1,6 @@
  
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import apiClient from '@/shared/api/client'
-import { AuthService } from '@/shared/auth/auth.service'
 import {
   loginApi,
   registerApi,
@@ -19,15 +18,6 @@ vi.mock('@/shared/api/client', () => ({
   },
 }))
 
-vi.mock('@/shared/auth/auth.service', () => ({
-  AuthService: {
-    login: vi.fn<(...args: any[]) => any>(),
-    logout: vi.fn<(...args: any[]) => any>(),
-    getCurrentUser: vi.fn<(...args: any[]) => any>(),
-    isAuthenticated: vi.fn<(...args: any[]) => any>(),
-  },
-}))
-
 function mockResult<T>(value: T): any {
   return { data: { isSuccess: true, statusCode: 200, value, errors: [], message: null, metadata: null } }
 }
@@ -38,14 +28,13 @@ describe('auth.api', () => {
   })
 
   describe('loginApi', () => {
-    it('calls AuthService.login with credential and password', async () => {
-      const mockResponse = { isSuccess: true, statusCode: 200, value: { accessToken: 'at', refreshToken: 'rt' }, errors: [], message: null, metadata: null }
-      vi.mocked(AuthService.login).mockResolvedValue(mockResponse as any)
+    it('posts to login-password endpoint with credential and password', async () => {
+      vi.mocked(apiClient.post).mockResolvedValue(mockResult({ accessToken: 'at', refreshToken: 'rt', accessTokenExpiresIn: 0, refreshTokenExpiresIn: 0 }))
 
       const result = await loginApi('user@test.com', 'secret')
 
-      expect(AuthService.login).toHaveBeenCalledWith({ email: 'user@test.com', password: 'secret' })
-      expect(result).toBe(mockResponse)
+      expect(apiClient.post).toHaveBeenCalledWith('/store/identity/auth/login/password', { credential: 'user@test.com', password: 'secret' })
+      expect(result.isSuccess).toBe(true)
     })
   })
 
@@ -94,12 +83,12 @@ describe('auth.api', () => {
   })
 
   describe('logoutApi', () => {
-    it('calls AuthService.logout', async () => {
-      vi.mocked(AuthService.logout).mockResolvedValue(undefined)
+    it('posts to logout endpoint with refresh token', async () => {
+      vi.mocked(apiClient.post).mockResolvedValue({ data: null })
 
-      await logoutApi()
+      await logoutApi('test-refresh-token')
 
-      expect(AuthService.logout).toHaveBeenCalled()
+      expect(apiClient.post).toHaveBeenCalledWith('/store/identity/auth/logout', { refreshToken: 'test-refresh-token' })
     })
   })
 
