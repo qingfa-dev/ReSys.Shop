@@ -1,0 +1,146 @@
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
+import { setActivePinia, createPinia } from 'pinia'
+import { useAuthStore } from '../auth.store'
+import { useSessionStore } from '@/stores/useSessionStore'
+import * as authApi from '../../api/auth.api'
+
+vi.mock('../../api/auth.api', () => ({
+  loginApi: vi.fn<(...args: unknown[]) => unknown>(),
+  registerApi: vi.fn<(...args: unknown[]) => unknown>(),
+  forgotPasswordApi: vi.fn<(...args: unknown[]) => unknown>(),
+  resetPasswordApi: vi.fn<(...args: unknown[]) => unknown>(),
+  changePasswordApi: vi.fn<(...args: unknown[]) => unknown>(),
+  logoutApi: vi.fn<(...args: unknown[]) => unknown>(),
+  getSessionApi: vi.fn<(...args: unknown[]) => unknown>(),
+}))
+
+vi.mock('vue-router', () => ({
+  useRouter: () => ({ push: vi.fn<(...args: unknown[]) => unknown>(), currentRoute: { value: { query: {} } } }),
+}))
+
+function createTestToken(exp: number, extra: Record<string, unknown> = {}): string {
+  const header = btoa(JSON.stringify({ alg: 'none', typ: 'JWT' }))
+  const payload = btoa(JSON.stringify({ sub: '1', email: 'a@b.com', name: 'Test', role: 'admin', permissions: [], exp, ...extra }))
+  return `${header}.${payload}.`
+}
+
+function successResult<T>(value: T) {
+  return { isSuccess: true, statusCode: 200, value, errors: [], message: null, metadata: null } as const
+}
+
+function errorResult(errors: Array<{ code: string; message: string; type: number; metadata: null }>) {
+  return { isSuccess: false, statusCode: 400, value: null, errors, message: null, metadata: null } as const
+}
+
+describe('useAuthStore', () => {
+  beforeEach(() => {
+    setActivePinia(createPinia())
+    vi.clearAllMocks()
+  })
+
+  afterEach(() => {
+    localStorage.clear()
+  })
+
+  describe('login', () => {
+    it('sets isLoading during request', async () => {
+      let resolver!: (value: unknown) => void
+      vi.mocked(authApi.loginApi).mockImplementation(
+        () => new Promise(resolve => { resolver = resolve }),
+      )
+      const store = useAuthStore()
+      const promise = store.login('cred', 'pass')
+      expect(store.isLoading).toBe(true)
+      resolver(successResult({ accessToken: 'at', refreshToken: 'rt', accessTokenExpiresIn: 0, refreshTokenExpiresIn: 0 }))
+      await promise
+    })
+
+    it('hydrates session on success', async () => {
+      vi.mocked(authApi.loginApi).mockResolvedValue(successResult({ accessToken: createTestToken(9999999999), refreshToken: 'rt', accessTokenExpiresIn: 9999999999, refreshTokenExpiresIn: 9999999999 }))
+
+      const store = useAuthStore()
+      await store.login('cred', 'pass')
+
+      const session = useSessionStore()
+      expect(session.isAuthenticated).toBeTruthy()
+      expect(authApi.loginApi).toHaveBeenCalledWith('cred', 'pass')
+    })
+
+    it('populates serverErrors on failure', async () => {
+      vi.mocked(authApi.loginApi).mockResolvedValue(errorResult([
+        { code: 'User.Credentials.Invalid', message: 'Invalid credentials', type: 401, metadata: null },
+      ]))
+
+      const store = useAuthStore()
+      await store.login('cred', 'pass')
+
+      expect(store.serverErrors).toHaveLength(1)
+      expect(store.serverErrors[0].code).toBe('User.Credentials.Invalid')
+      expect(store.isLoading).toBe(false)
+    })
+
+    it('populates fieldErrors for field-specific codes', async () => {
+      vi.mocked(authApi.loginApi).mockResolvedValue(errorResult([
+        { code: 'User.Email.Duplicate', message: 'Email taken', type: 409, metadata: null },
+      ]))
+
+      const store = useAuthStore()
+      await store.login('cred', 'pass')
+
+      expect(store.fieldErrors.email).toContain('Email taken')
+      expect(store.serverErrors).toHaveLength(1)
+    })
+  })
+
+  describe('initialize', () => {
+    it('fetches session when valid token exists', async () => {
+      localStorage.setItem('accessToken', createTestToken(9999999999))
+      vi.mocked(authApi.getSessionApi).mockResolvedValue(successResult({ id: '1', roles: ['Admin'], permissions: ['*'] }))
+
+      const store = useAuthStore()
+      await store.initialize()
+
+      expect(authApi.getSessionApi).toHaveBeenCalled()
+      const session = useSessionStore()
+      expect(session.isAuthenticated).toBe(true)
+    })
+
+    it('clears tokens when no valid token', async () => {
+      const store = useAuthStore()
+      await store.initialize()
+
+      expect(authApi.getSessionApi).not.toHaveBeenCalled()
+      const session = useSessionStore()
+      expect(session.isAuthenticated).toBe(false)
+    })
+  })
+
+  describe('logout', () => {
+    it('clears session and tokens', async () => {
+      const session = useSessionStore()
+      session.setUser({ id: '1', email: 'a@b.com', name: 'A', role: 'admin', permissions: [] })
+      localStorage.setItem('accessToken', 'at')
+      localStorage.setItem('refreshToken', 'rt')
+
+      const store = useAuthStore()
+      await store.logout()
+
+      expect(authApi.logoutApi).toHaveBeenCalled()
+      expect(session.isAuthenticated).toBe(false)
+      expect(localStorage.getItem('accessToken')).toBeNull()
+    })
+  })
+
+  describe('register', () => {
+    it('auto-logins on success', async () => {
+      vi.mocked(authApi.registerApi).mockResolvedValue(successResult({ userId: '1', email: 'a@b.com', message: 'ok' }))
+      vi.mocked(authApi.loginApi).mockResolvedValue(successResult({ accessToken: 'at', refreshToken: 'rt', accessTokenExpiresIn: 9999999999, refreshTokenExpiresIn: 9999999999 }))
+
+      const store = useAuthStore()
+      await store.register({ email: 'a@b.com', userName: 'test', password: 'Pass1234!', firstName: 'A', acceptTerm: true })
+
+      expect(authApi.registerApi).toHaveBeenCalled()
+      expect(authApi.loginApi).toHaveBeenCalled()
+    })
+  })
+})
