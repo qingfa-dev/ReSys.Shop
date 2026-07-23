@@ -5,14 +5,14 @@ export class TaxonomyFormMapper {
   static toCreate(form: CreateTaxonomyForm): CreateTaxonomyRequest {
     return {
       name: form.name,
-      presentation: form.presentation ?? null,
+      presentation: form.presentation,
     }
   }
 
   static toUpdate(form: UpdateTaxonomyForm): UpdateTaxonomyRequest {
     return {
       name: form.name,
-      presentation: form.presentation ?? null,
+      presentation: form.presentation,
     }
   }
 }

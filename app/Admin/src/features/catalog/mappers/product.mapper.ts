@@ -6,11 +6,11 @@ export class ProductFormMapper {
     return {
       name: form.name,
       slug: form.slug,
-      description: form.description ?? null,
+      description: form.description ,
       status: form.status,
-      department: form.department ?? null,
-      genderTarget: form.genderTarget ?? null,
-      styleCode: form.styleCode ?? null,
+      department: form.department ,
+      genderTarget: form.genderTarget ,
+      styleCode: form.styleCode ,
     }
   }
 
@@ -18,11 +18,11 @@ export class ProductFormMapper {
     return {
       name: form.name,
       slug: form.slug,
-      description: form.description ?? null,
+      description: form.description ,
       status: form.status,
-      department: form.department ?? null,
-      genderTarget: form.genderTarget ?? null,
-      styleCode: form.styleCode ?? null,
+      department: form.department ,
+      genderTarget: form.genderTarget ,
+      styleCode: form.styleCode ,
     }
   }
 }

@@ -62,10 +62,12 @@ vi.mock('../../api', () => ({
     get: (...args: unknown[]) => mockGetTaxonomy(...args),
     create: vi.fn<(...args: unknown[]) => unknown>(),
     update: (...args: unknown[]) => mockUpdateTaxonomy(...args),
-    getTaxons: (...args: unknown[]) => mockGetTaxons(...args),
-    createTaxon: vi.fn<(...args: unknown[]) => unknown>(),
-    updateTaxon: vi.fn<(...args: unknown[]) => unknown>(),
-    deleteTaxon: vi.fn<(...args: unknown[]) => unknown>(),
+  },
+  TaxonApi: {
+    getMany: (...args: unknown[]) => mockGetTaxons(...args),
+    create: vi.fn<(...args: unknown[]) => unknown>(),
+    update: vi.fn<(...args: unknown[]) => unknown>(),
+    delete: vi.fn<(...args: unknown[]) => unknown>(),
   },
 }))
 

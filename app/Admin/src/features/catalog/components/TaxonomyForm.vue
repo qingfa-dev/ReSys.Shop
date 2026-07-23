@@ -15,9 +15,9 @@ import Sidebar from 'primevue/sidebar'
 import Button from 'primevue/button'
 import { useToast } from '@/shared/composables/useToast'
 import { useConfirm } from '@/shared/composables/useConfirm'
-import { CatalogForms } from '../schemas'
+import { TaxonomyForms } from '../schemas'
 import { TaxonomyFormMapper } from '../mappers/taxonomy.mapper'
-import { TaxonomyApi } from '../api'
+import { TaxonomyApi, TaxonApi } from '../api'
 import type { TaxonResponse, TaxonRequest } from '../types'
 import { ROUTE } from '../routes'
 
@@ -34,10 +34,10 @@ const mode = computed<'create' | 'view' | 'edit'>(() => {
   return 'view'
 })
 
-const schemas = new CatalogForms(t)
+const schemas = new TaxonomyForms(t)
 const { handleSubmit, defineField, errors, setValues } = useForm({
   validationSchema: toTypedSchema(
-    mode.value === 'create' ? schemas.createTaxonomy() : schemas.updateTaxonomy(),
+    mode.value === 'create' ? schemas.create() : schemas.update(),
   ),
 })
 
@@ -68,7 +68,7 @@ async function loadTaxonomy() {
   loadError.value = null
   const result = await TaxonomyApi.get(id.value)
   if (result.isSuccess) {
-    setValues({ name: result.value.name, presentation: result.value.presentation })
+    setValues({ name: result.value.name, presentation: result.value.presentation ?? undefined })
   } else {
     loadError.value = result.message ?? 'Failed to load taxonomy'
   }
@@ -78,7 +78,7 @@ async function loadTaxonomy() {
 async function loadTaxons() {
   if (!id.value) return
   taxonsLoading.value = true
-  const result = await TaxonomyApi.getTaxons(id.value)
+  const result = await TaxonApi.getMany(id.value)
   if (result.isSuccess) { taxons.value = result.value }
   taxonsLoading.value = false
 }
@@ -127,8 +127,8 @@ async function saveTaxon() {
   taxonSaving.value = true
   const data: TaxonRequest = { name: taxonForm.value.name, presentation: taxonForm.value.presentation || null }
   const result = editingTaxon.value
-    ? await TaxonomyApi.updateTaxon(id.value, editingTaxon.value.id, data)
-    : await TaxonomyApi.createTaxon(id.value, data)
+    ? await TaxonApi.update(id.value, editingTaxon.value.id, data)
+    : await TaxonApi.create(id.value, data)
   taxonSaving.value = false
   if (result.isSuccess) {
     toast.success(editingTaxon.value ? t('catalog.taxa.messages.update_success') : t('catalog.taxa.messages.create_success'))
@@ -146,7 +146,7 @@ function confirmDeleteTaxon(taxon: TaxonResponse) {
 
 async function deleteTaxonAction(taxon: TaxonResponse) {
   if (!id.value) return
-  const result = await TaxonomyApi.deleteTaxon(id.value, taxon.id)
+  const result = await TaxonApi.delete(id.value, taxon.id)
   if (result.isSuccess) {
     toast.success(t('catalog.taxa.messages.delete_success'))
     await loadTaxons()

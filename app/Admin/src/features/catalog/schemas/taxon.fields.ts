@@ -1,0 +1,13 @@
+import { z } from 'zod'
+
+export type TFunction = (key: string) => string
+
+export class TaxonFields {
+  constructor(private t: TFunction) {}
+
+  name() { return z.string().min(1, this.t('catalog.validation.name.required')) }
+  presentation() { return z.string().optional() }
+  slug() { return z.string().optional() }
+  description() { return z.string().optional() }
+  position() { return z.number().int().min(0).optional() }
+}

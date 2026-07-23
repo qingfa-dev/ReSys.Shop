@@ -1,3 +1,5 @@
 export { ProductApi } from './product.api'
 export { TaxonomyApi } from './taxonomy.api'
+export { TaxonApi } from './taxon.api'
 export { OptionTypeApi } from './option-type.api'
+export { OptionValueApi } from './option-value.api'

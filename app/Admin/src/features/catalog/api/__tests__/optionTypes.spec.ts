@@ -1,6 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import apiClient from '@/shared/api/client'
 import { OptionTypeApi } from '../option-type.api'
+import { OptionValueApi } from '../option-value.api'
 
 vi.mock('@/shared/api/client', () => ({
   default: {
@@ -49,25 +50,25 @@ describe('OptionTypeApi', () => {
 
   it('getValues: GET .../option-types/:id/values', async () => {
     vi.mocked(apiClient.get).mockResolvedValue({ data: singleOk([]) })
-    await OptionTypeApi.getValues('1')
+    await OptionValueApi.getMany('1')
     expect(apiClient.get).toHaveBeenCalledWith('/catalog/option-types/1/values')
   })
 
   it('createValue: POST .../option-types/:id/values', async () => {
     vi.mocked(apiClient.post).mockResolvedValue({ data: singleOk({ id: 'v1', name: 'Red' }) })
-    await OptionTypeApi.createValue('1', { name: 'Red' })
+    await OptionValueApi.create('1', { name: 'Red' })
     expect(apiClient.post).toHaveBeenCalledWith('/catalog/option-types/1/values', { name: 'Red' })
   })
 
   it('updateValue: PUT with type+value ids', async () => {
     vi.mocked(apiClient.put).mockResolvedValue({ data: singleOk({ id: 'v1', name: 'Blue' }) })
-    await OptionTypeApi.updateValue('1', 'v1', { name: 'Blue' })
+    await OptionValueApi.update('1', 'v1', { name: 'Blue' })
     expect(apiClient.put).toHaveBeenCalledWith('/catalog/option-types/1/values/v1', { name: 'Blue' })
   })
 
   it('deleteValue: DELETE with type+value ids', async () => {
     vi.mocked(apiClient.delete).mockResolvedValue({ data: { isSuccess: true, statusCode: 200 } })
-    await OptionTypeApi.deleteValue('1', 'v1')
+    await OptionValueApi.delete('1', 'v1')
     expect(apiClient.delete).toHaveBeenCalledWith('/catalog/option-types/1/values/v1')
   })
 })

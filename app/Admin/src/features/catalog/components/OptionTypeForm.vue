@@ -16,9 +16,9 @@ import Button from 'primevue/button'
 import Checkbox from 'primevue/checkbox'
 import { useToast } from '@/shared/composables/useToast'
 import { useConfirm } from '@/shared/composables/useConfirm'
-import { CatalogForms } from '../schemas'
+import { OptionTypeForms } from '../schemas'
 import { OptionTypeFormMapper } from '../mappers/option-type.mapper'
-import { OptionTypeApi } from '../api'
+import { OptionTypeApi, OptionValueApi } from '../api'
 import type { OptionValueResponse, OptionValueRequest } from '../types'
 import { ROUTE } from '../routes'
 
@@ -35,10 +35,10 @@ const mode = computed<'create' | 'view' | 'edit'>(() => {
   return 'view'
 })
 
-const schemas = new CatalogForms(t)
+const schemas = new OptionTypeForms(t)
 const { handleSubmit, defineField, errors, setValues } = useForm({
   validationSchema: toTypedSchema(
-    mode.value === 'create' ? schemas.createOptionType() : schemas.updateOptionType(),
+    mode.value === 'create' ? schemas.create() : schemas.update(),
   ),
 })
 
@@ -70,7 +70,7 @@ async function loadOptionType() {
   loadError.value = null
   const result = await OptionTypeApi.get(id.value)
   if (result.isSuccess) {
-    setValues({ name: result.value.name, presentation: result.value.presentation, filterable: result.value.filterable })
+    setValues({ name: result.value.name, presentation: result.value.presentation ?? undefined, filterable: result.value.filterable ?? undefined })
   } else {
     loadError.value = result.message ?? 'Failed to load option type'
   }
@@ -80,7 +80,7 @@ async function loadOptionType() {
 async function loadOptionValues() {
   if (!id.value) return
   optionValuesLoading.value = true
-  const result = await OptionTypeApi.getValues(id.value)
+  const result = await OptionValueApi.getMany(id.value)
   if (result.isSuccess) { optionValues.value = result.value }
   optionValuesLoading.value = false
 }
@@ -129,8 +129,8 @@ async function saveOptionValue() {
   optionValueSaving.value = true
   const data: OptionValueRequest = { name: optionValueForm.value.name, presentation: optionValueForm.value.presentation || null }
   const result = editingOptionValue.value
-    ? await OptionTypeApi.updateValue(id.value, editingOptionValue.value.id, data)
-    : await OptionTypeApi.createValue(id.value, data)
+    ? await OptionValueApi.update(id.value, editingOptionValue.value.id, data)
+    : await OptionValueApi.create(id.value, data)
   optionValueSaving.value = false
   if (result.isSuccess) {
     toast.success(editingOptionValue.value ? t('catalog.option_values.messages.update_success') : t('catalog.option_values.messages.create_success'))
@@ -148,7 +148,7 @@ function confirmDeleteOptionValue(ov: OptionValueResponse) {
 
 async function deleteOptionValueAction(ov: OptionValueResponse) {
   if (!id.value) return
-  const result = await OptionTypeApi.deleteValue(id.value, ov.id)
+  const result = await OptionValueApi.delete(id.value, ov.id)
   if (result.isSuccess) {
     toast.success(t('catalog.option_values.messages.delete_success'))
     await loadOptionValues()

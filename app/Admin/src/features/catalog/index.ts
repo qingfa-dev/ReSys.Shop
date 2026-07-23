@@ -1,2 +1,7 @@
 export { catalogRoutes, ROUTE } from './routes'
+export { useProduct } from './composables/useProduct'
+export { useTaxonomy } from './composables/useTaxonomy'
+export { useOptionType } from './composables/useOptionType'
+export { ProductForms, TaxonomyForms, TaxonForms, OptionTypeForms, OptionValueForms } from './schemas'
 export type * from './types'
+export type { CreateProductForm, UpdateProductForm, CreateTaxonomyForm, UpdateTaxonomyForm, CreateOptionTypeForm, UpdateOptionTypeForm } from './schemas'

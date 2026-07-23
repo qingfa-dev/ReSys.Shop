@@ -5,7 +5,7 @@ export class OptionTypeFormMapper {
   static toCreate(form: CreateOptionTypeForm): CreateOptionTypeRequest {
     return {
       name: form.name,
-      presentation: form.presentation ?? null,
+      presentation: form.presentation,
       filterable: form.filterable,
     }
   }
@@ -13,7 +13,7 @@ export class OptionTypeFormMapper {
   static toUpdate(form: UpdateOptionTypeForm): UpdateOptionTypeRequest {
     return {
       name: form.name,
-      presentation: form.presentation ?? null,
+      presentation: form.presentation,
       filterable: form.filterable,
     }
   }

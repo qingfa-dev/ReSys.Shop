@@ -441,6 +441,24 @@
       "delete_message": "Are you sure you want to delete \"{name}\"? This cannot be undone."
     }
   },
+  "dashboard": {
+    "title": "Catalog",
+    "description": "Overview of your product catalog",
+    "total_products": "Total Products",
+    "active": "active",
+    "inactive": "inactive",
+    "this_month": "this month",
+    "no_change": "no change",
+    "quick_actions": "Quick Actions",
+    "add_product": "Add Product",
+    "import_csv": "Import CSV",
+    "manage_categories": "Manage Categories",
+    "recently_updated": "Recently Updated",
+    "needs_attention": "Needs Attention",
+    "catalog_coverage": "Catalog Coverage",
+    "recent_empty": "No products added yet.",
+    "attention_empty": "Everything looks good — no items need attention."
+  },
   "actions": {
     "view_all": "View All"
   },

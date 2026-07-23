@@ -10,7 +10,7 @@ import FormActions from '@/shared/components/forms/FormActions.vue'
 import LoadingSkeleton from '@/shared/components/feedback/LoadingSkeleton.vue'
 import ErrorState from '@/shared/components/feedback/ErrorState.vue'
 import { useToast } from '@/shared/composables/useToast'
-import { CatalogForms } from '../schemas'
+import { ProductForms } from '../schemas'
 import { ProductFormMapper } from '../mappers/product.mapper'
 import { ProductApi } from '../api'
 import { ROUTE } from '../routes'
@@ -27,10 +27,10 @@ const mode = computed<'create' | 'view' | 'edit'>(() => {
   return 'view'
 })
 
-const schemas = new CatalogForms(t)
+const schemas = new ProductForms(t)
 const { handleSubmit, defineField, errors, setValues } = useForm({
   validationSchema: toTypedSchema(
-    mode.value === 'create' ? schemas.createProduct() : schemas.updateProduct(),
+    mode.value === 'create' ? schemas.create() : schemas.update(),
   ),
 })
 
@@ -61,11 +61,11 @@ async function load() {
     setValues({
       name: result.value.name,
       slug: result.value.slug,
-      description: result.value.description,
+      description: result.value.description ?? undefined,
       status: result.value.status,
-      department: result.value.department,
-      genderTarget: result.value.genderTarget,
-      styleCode: result.value.styleCode,
+      department: result.value.department ?? undefined,
+      genderTarget: result.value.genderTarget ?? undefined,
+      styleCode: result.value.styleCode ?? undefined,
     })
   } else {
     loadError.value = result.message ?? 'Failed to load product'

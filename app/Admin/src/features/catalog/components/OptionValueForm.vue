@@ -1,0 +1,61 @@
+<script setup lang="ts">
+import { ref } from 'vue'
+import { useForm } from 'vee-validate'
+import { toTypedSchema } from '@vee-validate/zod'
+import { useI18n } from 'vue-i18n'
+import { OptionValueForms } from '../schemas'
+import { OptionValueFormMapper } from '../mappers/option-value.mapper'
+import { OptionValueApi } from '../api/option-value.api'
+import type { OptionValueResponse } from '../types'
+
+const emit = defineEmits<{
+  saved: [value: OptionValueResponse]
+  cancelled: []
+}>()
+
+const props = defineProps<{
+  optionTypeId: string
+  optionValue?: OptionValueResponse | null
+}>()
+
+const { t } = useI18n()
+const schemas = new OptionValueForms(t)
+const saving = ref(false)
+
+const { handleSubmit, defineField, errors } = useForm({
+  validationSchema: toTypedSchema(props.optionValue ? schemas.update() : schemas.create()),
+  initialValues: { name: props.optionValue?.name ?? '', presentation: props.optionValue?.presentation ?? undefined },
+})
+
+const [name] = defineField('name')
+const [presentation] = defineField('presentation')
+
+const onSubmit = handleSubmit(async (values) => {
+  saving.value = true
+  const result = props.optionValue
+    ? await OptionValueApi.update(props.optionTypeId, props.optionValue.id, OptionValueFormMapper.toUpdate(values))
+    : await OptionValueApi.create(props.optionTypeId, OptionValueFormMapper.toCreate(values))
+  saving.value = false
+  if (result.isSuccess) {
+    emit('saved', result.value)
+  }
+})
+</script>
+
+<template>
+  <form @submit="onSubmit" class="flex flex-col gap-3">
+    <div>
+      <label class="block font-medium mb-1">{{ t('catalog.option_values.labels.name') }}</label>
+      <InputText v-model="name" class="w-full" :invalid="!!errors.name" />
+      <small v-if="errors.name" class="text-red-500">{{ errors.name }}</small>
+    </div>
+    <div>
+      <label class="block font-medium mb-1">{{ t('catalog.option_values.labels.presentation') }}</label>
+      <InputText v-model="presentation" class="w-full" />
+    </div>
+    <div class="flex justify-content-end gap-2">
+      <Button :label="t('catalog.option_values.actions.cancel')" class="p-button-secondary" @click="emit('cancelled')" />
+      <Button type="submit" :label="t('catalog.option_values.actions.save')" :loading="saving" :disabled="saving" />
+    </div>
+  </form>
+</template>

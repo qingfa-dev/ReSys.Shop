@@ -1,6 +1,6 @@
 import apiClient from '@/shared/api/client'
 import type { Result, PagedResult } from '@/shared/models'
-import type { OptionTypeResponse, CreateOptionTypeRequest, UpdateOptionTypeRequest, OptionTypeListParams, OptionValueResponse, OptionValueRequest } from '../types'
+import type { OptionTypeResponse, CreateOptionTypeRequest, UpdateOptionTypeRequest, OptionTypeListParams } from '../types'
 
 export class OptionTypeApi {
   static async getMany(params: OptionTypeListParams = {}): Promise<PagedResult<OptionTypeResponse>> {
@@ -25,26 +25,6 @@ export class OptionTypeApi {
 
   static async delete(id: string): Promise<Result<void>> {
     const res = await apiClient.delete<Result<void>>(`/catalog/option-types/${id}`)
-    return res.data
-  }
-
-  static async getValues(optionTypeId: string): Promise<Result<OptionValueResponse[]>> {
-    const res = await apiClient.get<Result<OptionValueResponse[]>>(`/catalog/option-types/${optionTypeId}/values`)
-    return res.data
-  }
-
-  static async createValue(optionTypeId: string, data: OptionValueRequest): Promise<Result<OptionValueResponse>> {
-    const res = await apiClient.post<Result<OptionValueResponse>>(`/catalog/option-types/${optionTypeId}/values`, data)
-    return res.data
-  }
-
-  static async updateValue(optionTypeId: string, id: string, data: OptionValueRequest): Promise<Result<OptionValueResponse>> {
-    const res = await apiClient.put<Result<OptionValueResponse>>(`/catalog/option-types/${optionTypeId}/values/${id}`, data)
-    return res.data
-  }
-
-  static async deleteValue(optionTypeId: string, id: string): Promise<Result<void>> {
-    const res = await apiClient.delete<Result<void>>(`/catalog/option-types/${optionTypeId}/values/${id}`)
     return res.data
   }
 }

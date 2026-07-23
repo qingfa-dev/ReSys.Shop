@@ -67,10 +67,12 @@ vi.mock('../../api', () => ({
     get: (...args: unknown[]) => mockGetOptionType(...args),
     create: (...args: unknown[]) => mockCreateOptionType(...args),
     update: (...args: unknown[]) => mockUpdateOptionType(...args),
-    getValues: (...args: unknown[]) => mockGetOptionValues(...args),
-    createValue: (...args: unknown[]) => mockCreateOptionValue(...args),
-    updateValue: (...args: unknown[]) => mockUpdateOptionValue(...args),
-    deleteValue: (...args: unknown[]) => mockDeleteOptionValue(...args),
+  },
+  OptionValueApi: {
+    getMany: (...args: unknown[]) => mockGetOptionValues(...args),
+    create: (...args: unknown[]) => mockCreateOptionValue(...args),
+    update: (...args: unknown[]) => mockUpdateOptionValue(...args),
+    delete: (...args: unknown[]) => mockDeleteOptionValue(...args),
   },
 }))
 

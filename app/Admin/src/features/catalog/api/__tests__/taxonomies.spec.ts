@@ -1,6 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import apiClient from '@/shared/api/client'
 import { TaxonomyApi } from '../taxonomy.api'
+import { TaxonApi } from '../taxon.api'
 
 vi.mock('@/shared/api/client', () => ({
   default: {
@@ -49,25 +50,25 @@ describe('TaxonomyApi', () => {
 
   it('getTaxons: GET .../taxonomies/:id/taxons', async () => {
     vi.mocked(apiClient.get).mockResolvedValue({ data: singleOk([]) })
-    await TaxonomyApi.getTaxons('1')
+    await TaxonApi.getMany('1')
     expect(apiClient.get).toHaveBeenCalledWith('/catalog/taxonomies/1/taxons')
   })
 
   it('createTaxon: POST .../taxonomies/:id/taxons', async () => {
     vi.mocked(apiClient.post).mockResolvedValue({ data: singleOk({ id: 't1', name: 'Child' }) })
-    await TaxonomyApi.createTaxon('1', { name: 'Child' })
+    await TaxonApi.create('1', { name: 'Child' })
     expect(apiClient.post).toHaveBeenCalledWith('/catalog/taxonomies/1/taxons', { name: 'Child' })
   })
 
   it('updateTaxon: PUT with taxonomy+taxon ids', async () => {
     vi.mocked(apiClient.put).mockResolvedValue({ data: singleOk({ id: 't1', name: 'Upd' }) })
-    await TaxonomyApi.updateTaxon('1', 't1', { name: 'Upd' })
+    await TaxonApi.update('1', 't1', { name: 'Upd' })
     expect(apiClient.put).toHaveBeenCalledWith('/catalog/taxonomies/1/taxons/t1', { name: 'Upd' })
   })
 
   it('deleteTaxon: DELETE with taxonomy+taxon ids', async () => {
     vi.mocked(apiClient.delete).mockResolvedValue({ data: { isSuccess: true, statusCode: 200 } })
-    await TaxonomyApi.deleteTaxon('1', 't1')
+    await TaxonApi.delete('1', 't1')
     expect(apiClient.delete).toHaveBeenCalledWith('/catalog/taxonomies/1/taxons/t1')
   })
 })
