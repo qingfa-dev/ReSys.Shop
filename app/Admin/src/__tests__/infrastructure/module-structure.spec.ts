@@ -3,7 +3,7 @@ import fs from 'node:fs'
 import path from 'node:path'
 
 const modules = ['catalog', 'inventory', 'ordering', 'payment', 'shipping', 'location', 'users', 'profile', 'reports']
-const subdirs = ['api', 'components', 'composables', 'models', 'store', 'utils']
+const subdirs = ['api', 'components', 'composables', 'store', 'utils']
 
 const featuresDir = path.resolve(__dirname, '../../features')
 
@@ -14,6 +14,9 @@ describe('module directory structure', () => {
       const dirPath = path.join(base, dir)
       expect(fs.existsSync(dirPath), `${mod}/${dir} should exist`).toBe(true)
     }
+    const hasModels = fs.existsSync(path.join(base, 'models'))
+    const hasTypes = fs.existsSync(path.join(base, 'types'))
+    expect(hasModels || hasTypes, `${mod} should have models/ or types/`).toBe(true)
   })
 
   it.each(modules)('%s has a pages directory maintained', (mod) => {

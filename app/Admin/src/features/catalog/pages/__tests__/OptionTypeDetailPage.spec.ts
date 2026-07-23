@@ -20,30 +20,51 @@ import { createRouter, createWebHistory } from 'vue-router'
 import PrimeVue from 'primevue/config'
 import ConfirmationService from 'primevue/confirmationservice'
 import ToastService from 'primevue/toastservice'
-import { ROUTE_CATALOG } from '../../routers/route-names'
+import { ROUTE } from '../../routes'
 import OptionTypeDetailPage from '../OptionTypeDetailPage.vue'
 
 const mockGetOptionType = vi.fn<(...args: unknown[]) => unknown>()
+const mockCreateOptionType = vi.fn<(...args: unknown[]) => unknown>()
+const mockUpdateOptionType = vi.fn<(...args: unknown[]) => unknown>()
 const mockGetOptionValues = vi.fn<(...args: unknown[]) => unknown>()
+const mockCreateOptionValue = vi.fn<(...args: unknown[]) => unknown>()
+const mockUpdateOptionValue = vi.fn<(...args: unknown[]) => unknown>()
+const mockDeleteOptionValue = vi.fn<(...args: unknown[]) => unknown>()
 
-vi.mock('../../api/optionTypes', () => ({
-  getOptionType: (...args: unknown[]) => mockGetOptionType(...args),
-  createOptionType: vi.fn<(...args: unknown[]) => unknown>(),
-  updateOptionType: vi.fn<(...args: unknown[]) => unknown>(),
-  getOptionValues: (...args: unknown[]) => mockGetOptionValues(...args),
-  createOptionValue: vi.fn<(...args: unknown[]) => unknown>(),
-  updateOptionValue: vi.fn<(...args: unknown[]) => unknown>(),
-  deleteOptionValue: vi.fn<(...args: unknown[]) => unknown>(),
+vi.mock('vue-i18n', () => ({
+  useI18n: () => ({
+    t: (key: string) => {
+      const map: Record<string, string> = {
+        'catalog.optionType.create': 'Create Option Type',
+        'catalog.optionType.edit': 'Edit:',
+        'catalog.optionType.detail': 'Option Type Detail',
+        'catalog.optionType.updated': 'Option type updated',
+        'catalog.optionType.created': 'Option type created',
+      }
+      return map[key] ?? key
+    },
+  }),
+}))
+vi.mock('../../api', () => ({
+  OptionTypeApi: {
+    get: (...args: unknown[]) => mockGetOptionType(...args),
+    create: (...args: unknown[]) => mockCreateOptionType(...args),
+    update: (...args: unknown[]) => mockUpdateOptionType(...args),
+    getValues: (...args: unknown[]) => mockGetOptionValues(...args),
+    createValue: (...args: unknown[]) => mockCreateOptionValue(...args),
+    updateValue: (...args: unknown[]) => mockUpdateOptionValue(...args),
+    deleteValue: (...args: unknown[]) => mockDeleteOptionValue(...args),
+  },
 }))
 
 function makeRouter(initialRoute: string) {
   const router = createRouter({
     history: createWebHistory(),
     routes: [
-      { path: '/catalog/option-types/new', name: ROUTE_CATALOG.OPTION_TYPES.CREATE, component: OptionTypeDetailPage },
-      { path: '/catalog/option-types/:id', name: ROUTE_CATALOG.OPTION_TYPES.VIEW, component: OptionTypeDetailPage },
-      { path: '/catalog/option-types/:id/edit', name: ROUTE_CATALOG.OPTION_TYPES.EDIT, component: OptionTypeDetailPage },
-      { path: '/catalog/option-types', name: ROUTE_CATALOG.OPTION_TYPES.LIST, component: { template: '<div />' } },
+      { path: '/catalog/option-types/new', name: ROUTE.OPTION_TYPES.CREATE, component: OptionTypeDetailPage },
+      { path: '/catalog/option-types/:id', name: ROUTE.OPTION_TYPES.VIEW, component: OptionTypeDetailPage },
+      { path: '/catalog/option-types/:id/edit', name: ROUTE.OPTION_TYPES.EDIT, component: OptionTypeDetailPage },
+      { path: '/catalog/option-types', name: ROUTE.OPTION_TYPES.LIST, component: { template: '<div />' } },
     ],
   })
   router.push(initialRoute)
@@ -57,10 +78,10 @@ describe('OptionTypeDetailPage', () => {
 
   it('renders in view mode and loads option values', async () => {
     mockGetOptionType.mockResolvedValue({
-      success: true, data: { id: 'abc', name: 'Color', presentation: 'Color Family', position: 1, filterable: true, createdAt: '', updatedAt: '' },
+      isSuccess: true, value: { id: 'abc', name: 'Color', presentation: 'Color Family', position: 1, filterable: true, createdAt: '', updatedAt: '' },
     })
     mockGetOptionValues.mockResolvedValue({
-      success: true, data: [
+      isSuccess: true, value: [
         { id: '1', name: 'Red', presentation: 'Red', position: 1, optionTypeId: 'abc' },
         { id: '2', name: 'Blue', presentation: 'Blue', position: 2, optionTypeId: 'abc' },
       ],
@@ -78,9 +99,9 @@ describe('OptionTypeDetailPage', () => {
 
   it('shows Add Option Value button', async () => {
     mockGetOptionType.mockResolvedValue({
-      success: true, data: { id: 'abc', name: 'Size', presentation: null, position: 0, filterable: false, createdAt: '', updatedAt: '' },
+      isSuccess: true, value: { id: 'abc', name: 'Size', presentation: null, position: 0, filterable: false, createdAt: '', updatedAt: '' },
     })
-    mockGetOptionValues.mockResolvedValue({ success: true, data: [] })
+    mockGetOptionValues.mockResolvedValue({ isSuccess: true, value: [] })
     const router = makeRouter('/catalog/option-types/abc')
     await router.isReady()
     const wrapper = mount(OptionTypeDetailPage, { global: { plugins: [...plugins, router] } })
@@ -99,9 +120,9 @@ describe('OptionTypeDetailPage', () => {
 
   it('shows empty state for option values', async () => {
     mockGetOptionType.mockResolvedValue({
-      success: true, data: { id: 'abc', name: 'Empty', presentation: null, position: 0, filterable: false, createdAt: '', updatedAt: '' },
+      isSuccess: true, value: { id: 'abc', name: 'Empty', presentation: null, position: 0, filterable: false, createdAt: '', updatedAt: '' },
     })
-    mockGetOptionValues.mockResolvedValue({ success: true, data: [] })
+    mockGetOptionValues.mockResolvedValue({ isSuccess: true, value: [] })
     const router = makeRouter('/catalog/option-types/abc')
     await router.isReady()
     const wrapper = mount(OptionTypeDetailPage, { global: { plugins: [...plugins, router] } })

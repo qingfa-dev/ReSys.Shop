@@ -11,9 +11,9 @@ import LoadingSkeleton from '@/shared/components/feedback/LoadingSkeleton.vue'
 import ErrorState from '@/shared/components/feedback/ErrorState.vue'
 import { useConfirm } from '@/shared/composables/useConfirm'
 import { useToast } from '@/shared/composables/useToast'
-import { getTaxonomies, deleteTaxonomy } from '../api/taxonomies'
-import type { TaxonomyResponse } from '../models/Taxonomy'
-import { ROUTE_CATALOG } from '../routers/route-names'
+import { TaxonomyApi } from '../api'
+import type { TaxonomyResponse } from '../types'
+import { ROUTE } from '../routes'
 
 const route = useRoute()
 const router = useRouter()
@@ -31,31 +31,31 @@ const totalCount = ref(0)
 async function fetchTaxonomies() {
   loading.value = true
   error.value = null
-  const result = await getTaxonomies({
+  const result = await TaxonomyApi.getMany({
     page: page.value,
     pageSize: pageSize.value,
     search: search.value || undefined,
   })
-  if (result.success) {
-    items.value = result.data
-    totalCount.value = result.meta?.totalCount ?? 0
+  if (result.isSuccess) {
+    items.value = result.items
+    totalCount.value = result.totalCount
   } else {
-    error.value = result.error?.message ?? 'Failed to load taxonomies'
+    error.value = result.message ?? 'Failed to load taxonomies'
   }
   loading.value = false
 }
 
-function goToCreate() { router.push({ name: ROUTE_CATALOG.TAXONOMIES.CREATE }) }
-function goToView(id: string) { router.push({ name: ROUTE_CATALOG.TAXONOMIES.VIEW, params: { id } }) }
-function goToEdit(id: string) { router.push({ name: ROUTE_CATALOG.TAXONOMIES.EDIT, params: { id } }) }
+function goToCreate() { router.push({ name: ROUTE.TAXONOMIES.CREATE }) }
+function goToView(id: string) { router.push({ name: ROUTE.TAXONOMIES.VIEW, params: { id } }) }
+function goToEdit(id: string) { router.push({ name: ROUTE.TAXONOMIES.EDIT, params: { id } }) }
 
 async function onDelete(id: string) {
   confirmDelete({
     target: 'this taxonomy',
     onAccept: async () => {
-      const result = await deleteTaxonomy(id)
-      if (result.success) { toast.success('Taxonomy deleted'); await fetchTaxonomies() }
-      else { toast.error(result.error?.message ?? 'Failed to delete') }
+      const result = await TaxonomyApi.delete(id)
+      if (result.isSuccess) { toast.success('Taxonomy deleted'); await fetchTaxonomies() }
+      else { toast.error(result.message ?? 'Failed to delete') }
     },
   })
 }

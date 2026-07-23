@@ -20,27 +20,44 @@ import { createRouter, createWebHistory } from 'vue-router'
 import PrimeVue from 'primevue/config'
 import ConfirmationService from 'primevue/confirmationservice'
 import ToastService from 'primevue/toastservice'
-import { ROUTE_CATALOG } from '../../routers/route-names'
+import { ROUTE } from '../../routes'
 import ProductDetailPage from '../ProductDetailPage.vue'
+
+vi.mock('vue-i18n', () => ({
+  useI18n: () => ({
+    t: (key: string) => {
+      const map: Record<string, string> = {
+        'catalog.product.create': 'Create Product',
+        'catalog.product.edit': 'Edit:',
+        'catalog.product.detail': 'Product Detail',
+        'catalog.product.updated': 'Product updated',
+        'catalog.product.created': 'Product created',
+      }
+      return map[key] ?? key
+    },
+  }),
+}))
 
 const mockGet = vi.fn<(...args: unknown[]) => unknown>()
 const mockCreate = vi.fn<(...args: unknown[]) => unknown>()
 const mockUpdate = vi.fn<(...args: unknown[]) => unknown>()
 
-vi.mock('../../api/products', () => ({
-  getProduct: (...args: unknown[]) => mockGet(...args),
-  createProduct: (...args: unknown[]) => mockCreate(...args),
-  updateProduct: (...args: unknown[]) => mockUpdate(...args),
+vi.mock('../../api', () => ({
+  ProductApi: {
+    get: (...args: unknown[]) => mockGet(...args),
+    create: (...args: unknown[]) => mockCreate(...args),
+    update: (...args: unknown[]) => mockUpdate(...args),
+  },
 }))
 
 function makeRouter(_initialRoute: string) {
   return createRouter({
     history: createWebHistory(),
     routes: [
-      { path: '/catalog/products/new', name: ROUTE_CATALOG.PRODUCTS.CREATE, component: ProductDetailPage },
-      { path: '/catalog/products/:id', name: ROUTE_CATALOG.PRODUCTS.VIEW, component: ProductDetailPage },
-      { path: '/catalog/products/:id/edit', name: ROUTE_CATALOG.PRODUCTS.EDIT, component: ProductDetailPage },
-      { path: '/catalog/products', name: ROUTE_CATALOG.PRODUCTS.LIST, component: { template: '<div />' } },
+      { path: '/catalog/products/new', name: ROUTE.PRODUCTS.CREATE, component: ProductDetailPage },
+      { path: '/catalog/products/:id', name: ROUTE.PRODUCTS.VIEW, component: ProductDetailPage },
+      { path: '/catalog/products/:id/edit', name: ROUTE.PRODUCTS.EDIT, component: ProductDetailPage },
+      { path: '/catalog/products', name: ROUTE.PRODUCTS.LIST, component: { template: '<div />' } },
     ],
   })
 }
@@ -59,8 +76,8 @@ describe('ProductDetailPage', () => {
 
   it('renders in view mode when :id present and route not .edit', async () => {
     mockGet.mockResolvedValue({
-      success: true,
-      data: { id: 'abc', name: 'Test Product', slug: 'test', status: 'Draft', department: null, createdAt: '', updatedAt: '' },
+      isSuccess: true,
+      value: { id: 'abc', name: 'Test Product', slug: 'test', status: 'Draft', department: null, createdAt: '', updatedAt: '' },
     })
     const router = makeRouter('/catalog/products/abc')
     router.push('/catalog/products/abc')
@@ -72,8 +89,8 @@ describe('ProductDetailPage', () => {
 
   it('renders in edit mode when route ends with .edit', async () => {
     mockGet.mockResolvedValue({
-      success: true,
-      data: { id: 'abc', name: 'Edit Me', slug: 'edit-me', status: 'Draft', department: null, createdAt: '', updatedAt: '' },
+      isSuccess: true,
+      value: { id: 'abc', name: 'Edit Me', slug: 'edit-me', status: 'Draft', department: null, createdAt: '', updatedAt: '' },
     })
     const router = makeRouter('/catalog/products/abc/edit')
     router.push('/catalog/products/abc/edit')
@@ -84,7 +101,7 @@ describe('ProductDetailPage', () => {
   })
 
   it('displays error state on load failure', async () => {
-    mockGet.mockResolvedValue({ success: false, error: { message: 'Not found', statusCode: 404, title: '', detail: null, errors: {}, errorCode: 'ERR' } })
+    mockGet.mockResolvedValue({ isSuccess: false, message: 'Not found', statusCode: 404, errors: [{ code: 'ERR', message: 'Not found' }] })
     const router = makeRouter('/catalog/products/missing')
     router.push('/catalog/products/missing')
     await router.isReady()
@@ -95,8 +112,8 @@ describe('ProductDetailPage', () => {
 
   it('shows save and cancel buttons in edit mode', async () => {
     mockGet.mockResolvedValue({
-      success: true,
-      data: { id: 'abc', name: 'Test', slug: 'test', status: 'Draft', department: null, createdAt: '', updatedAt: '' },
+      isSuccess: true,
+      value: { id: 'abc', name: 'Test', slug: 'test', status: 'Draft', department: null, createdAt: '', updatedAt: '' },
     })
     const router = makeRouter('/catalog/products/abc/edit')
     router.push('/catalog/products/abc/edit')

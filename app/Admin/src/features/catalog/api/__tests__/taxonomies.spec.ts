@@ -1,80 +1,73 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import {
-  getTaxonomies, getTaxonomy, createTaxonomy, updateTaxonomy, deleteTaxonomy,
-  getTaxons, createTaxon, updateTaxon, deleteTaxon,
-} from '../taxonomies'
-
-const mockGet = vi.fn<(...args: unknown[]) => unknown>()
-const mockPost = vi.fn<(...args: unknown[]) => unknown>()
-const mockPut = vi.fn<(...args: unknown[]) => unknown>()
-const mockDelete = vi.fn<(...args: unknown[]) => unknown>()
+import apiClient from '@/shared/api/client'
+import { TaxonomyApi } from '../taxonomy.api'
 
 vi.mock('@/shared/api/client', () => ({
   default: {
-    get: (...args: unknown[]) => mockGet(...args),
-    post: (...args: unknown[]) => mockPost(...args),
-    put: (...args: unknown[]) => mockPut(...args),
-    delete: (...args: unknown[]) => mockDelete(...args),
+    get: vi.fn<(...args: unknown[]) => unknown>(),
+    post: vi.fn<(...args: unknown[]) => unknown>(),
+    put: vi.fn<(...args: unknown[]) => unknown>(),
+    delete: vi.fn<(...args: unknown[]) => unknown>(),
   },
 }))
 
 const pagedEmpty = { isSuccess: true, items: [], page: 1, pageSize: 20, totalCount: 0, statusCode: 200 }
 const singleOk = (value: unknown) => ({ isSuccess: true, value, statusCode: 200 })
 
-describe('taxonomies API', () => {
+describe('TaxonomyApi', () => {
   beforeEach(() => { vi.clearAllMocks() })
 
-  it('getTaxonomies calls GET /catalog/taxonomies', async () => {
-    mockGet.mockResolvedValue({ data: pagedEmpty })
-    await getTaxonomies({ page: 1 })
-    expect(mockGet).toHaveBeenCalledWith('/catalog/taxonomies', { params: { page: 1 } })
+  it('getMany: GET /catalog/taxonomies', async () => {
+    vi.mocked(apiClient.get).mockResolvedValue({ data: pagedEmpty })
+    await TaxonomyApi.getMany({ page: 1 })
+    expect(apiClient.get).toHaveBeenCalledWith('/catalog/taxonomies', { params: { page: 1 } })
   })
 
-  it('getTaxonomy calls GET /catalog/taxonomies/:id', async () => {
-    mockGet.mockResolvedValue({ data: singleOk({ id: '1', name: 'Test' }) })
-    await getTaxonomy('1')
-    expect(mockGet).toHaveBeenCalledWith('/catalog/taxonomies/1')
+  it('get: GET /catalog/taxonomies/:id', async () => {
+    vi.mocked(apiClient.get).mockResolvedValue({ data: singleOk({ id: '1', name: 'Cat' }) })
+    await TaxonomyApi.get('1')
+    expect(apiClient.get).toHaveBeenCalledWith('/catalog/taxonomies/1')
   })
 
-  it('createTaxonomy calls POST /catalog/taxonomies', async () => {
-    mockPost.mockResolvedValue({ data: singleOk({ id: 'new', name: 'New' }) })
-    await createTaxonomy({ name: 'New' })
-    expect(mockPost).toHaveBeenCalledWith('/catalog/taxonomies', { name: 'New' })
+  it('create: POST /catalog/taxonomies', async () => {
+    vi.mocked(apiClient.post).mockResolvedValue({ data: singleOk({ id: 'new', name: 'New' }) })
+    await TaxonomyApi.create({ name: 'New' })
+    expect(apiClient.post).toHaveBeenCalledWith('/catalog/taxonomies', { name: 'New' })
   })
 
-  it('updateTaxonomy calls PUT /catalog/taxonomies/:id', async () => {
-    mockPut.mockResolvedValue({ data: singleOk({ id: '1', name: 'Updated' }) })
-    await updateTaxonomy('1', { name: 'Updated' })
-    expect(mockPut).toHaveBeenCalledWith('/catalog/taxonomies/1', { name: 'Updated' })
+  it('update: PUT /catalog/taxonomies/:id', async () => {
+    vi.mocked(apiClient.put).mockResolvedValue({ data: singleOk({ id: '1', name: 'Upd' }) })
+    await TaxonomyApi.update('1', { name: 'Upd' })
+    expect(apiClient.put).toHaveBeenCalledWith('/catalog/taxonomies/1', { name: 'Upd' })
   })
 
-  it('deleteTaxonomy calls DELETE /catalog/taxonomies/:id', async () => {
-    mockDelete.mockResolvedValue({ data: { isSuccess: true, statusCode: 200 } })
-    await deleteTaxonomy('1')
-    expect(mockDelete).toHaveBeenCalledWith('/catalog/taxonomies/1')
+  it('delete: DELETE /catalog/taxonomies/:id', async () => {
+    vi.mocked(apiClient.delete).mockResolvedValue({ data: { isSuccess: true, statusCode: 200 } })
+    await TaxonomyApi.delete('1')
+    expect(apiClient.delete).toHaveBeenCalledWith('/catalog/taxonomies/1')
   })
 
-  it('getTaxons calls GET /catalog/taxonomies/:id/taxons', async () => {
-    mockGet.mockResolvedValue({ data: singleOk([]) })
-    await getTaxons('1')
-    expect(mockGet).toHaveBeenCalledWith('/catalog/taxonomies/1/taxons')
+  it('getTaxons: GET .../taxonomies/:id/taxons', async () => {
+    vi.mocked(apiClient.get).mockResolvedValue({ data: singleOk([]) })
+    await TaxonomyApi.getTaxons('1')
+    expect(apiClient.get).toHaveBeenCalledWith('/catalog/taxonomies/1/taxons')
   })
 
-  it('createTaxon calls POST /catalog/taxonomies/:id/taxons', async () => {
-    mockPost.mockResolvedValue({ data: singleOk({ id: 'new', name: 'Child' }) })
-    await createTaxon('1', { name: 'Child' })
-    expect(mockPost).toHaveBeenCalledWith('/catalog/taxonomies/1/taxons', { name: 'Child' })
+  it('createTaxon: POST .../taxonomies/:id/taxons', async () => {
+    vi.mocked(apiClient.post).mockResolvedValue({ data: singleOk({ id: 't1', name: 'Child' }) })
+    await TaxonomyApi.createTaxon('1', { name: 'Child' })
+    expect(apiClient.post).toHaveBeenCalledWith('/catalog/taxonomies/1/taxons', { name: 'Child' })
   })
 
-  it('updateTaxon calls PUT with taxonomy and taxon ids', async () => {
-    mockPut.mockResolvedValue({ data: singleOk({ id: '2', name: 'Updated' }) })
-    await updateTaxon('1', '2', { name: 'Updated' })
-    expect(mockPut).toHaveBeenCalledWith('/catalog/taxonomies/1/taxons/2', { name: 'Updated' })
+  it('updateTaxon: PUT with taxonomy+taxon ids', async () => {
+    vi.mocked(apiClient.put).mockResolvedValue({ data: singleOk({ id: 't1', name: 'Upd' }) })
+    await TaxonomyApi.updateTaxon('1', 't1', { name: 'Upd' })
+    expect(apiClient.put).toHaveBeenCalledWith('/catalog/taxonomies/1/taxons/t1', { name: 'Upd' })
   })
 
-  it('deleteTaxon calls DELETE with taxonomy and taxon ids', async () => {
-    mockDelete.mockResolvedValue({ data: { isSuccess: true, statusCode: 200 } })
-    await deleteTaxon('1', '2')
-    expect(mockDelete).toHaveBeenCalledWith('/catalog/taxonomies/1/taxons/2')
+  it('deleteTaxon: DELETE with taxonomy+taxon ids', async () => {
+    vi.mocked(apiClient.delete).mockResolvedValue({ data: { isSuccess: true, statusCode: 200 } })
+    await TaxonomyApi.deleteTaxon('1', 't1')
+    expect(apiClient.delete).toHaveBeenCalledWith('/catalog/taxonomies/1/taxons/t1')
   })
 })

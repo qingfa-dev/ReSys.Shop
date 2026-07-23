@@ -12,9 +12,9 @@ import LoadingSkeleton from '@/shared/components/feedback/LoadingSkeleton.vue'
 import ErrorState from '@/shared/components/feedback/ErrorState.vue'
 import { useConfirm } from '@/shared/composables/useConfirm'
 import { useToast } from '@/shared/composables/useToast'
-import { getProducts, deleteProduct } from '../api/products'
-import type { ProductResponse } from '../models/Product'
-import { ROUTE_CATALOG } from '../routers/route-names'
+import { ProductApi } from '../api'
+import type { ProductResponse } from '../types'
+import { ROUTE } from '../routes'
 
 const route = useRoute()
 const router = useRouter()
@@ -32,31 +32,31 @@ const totalCount = ref(0)
 async function fetchProducts() {
   loading.value = true
   error.value = null
-  const result = await getProducts({
+  const result = await ProductApi.getMany({
     page: page.value,
     pageSize: pageSize.value,
     search: search.value || undefined,
   })
-  if (result.success) {
-    items.value = result.data
-    totalCount.value = result.meta?.totalCount ?? 0
+  if (result.isSuccess) {
+    items.value = result.items
+    totalCount.value = result.totalCount
   } else {
-    error.value = result.error?.message ?? 'Failed to load products'
+    error.value = result.message ?? 'Failed to load products'
   }
   loading.value = false
 }
 
-function goToCreate() { router.push({ name: ROUTE_CATALOG.PRODUCTS.CREATE }) }
-function goToView(id: string) { router.push({ name: ROUTE_CATALOG.PRODUCTS.VIEW, params: { id } }) }
-function goToEdit(id: string) { router.push({ name: ROUTE_CATALOG.PRODUCTS.EDIT, params: { id } }) }
+function goToCreate() { router.push({ name: ROUTE.PRODUCTS.CREATE }) }
+function goToView(id: string) { router.push({ name: ROUTE.PRODUCTS.VIEW, params: { id } }) }
+function goToEdit(id: string) { router.push({ name: ROUTE.PRODUCTS.EDIT, params: { id } }) }
 
 async function onDelete(id: string) {
   confirmDelete({
     target: 'this product',
     onAccept: async () => {
-      const result = await deleteProduct(id)
-      if (result.success) { toast.success('Product deleted'); await fetchProducts() }
-      else { toast.error(result.error?.message ?? 'Failed to delete') }
+      const result = await ProductApi.delete(id)
+      if (result.isSuccess) { toast.success('Product deleted'); await fetchProducts() }
+      else { toast.error(result.message ?? 'Failed to delete') }
     },
   })
 }

@@ -20,25 +20,27 @@ import { createRouter, createWebHistory } from 'vue-router'
 import PrimeVue from 'primevue/config'
 import ConfirmationService from 'primevue/confirmationservice'
 import ToastService from 'primevue/toastservice'
-import { ROUTE_CATALOG } from '../../routers/route-names'
+import { ROUTE } from '../../routes'
 import ProductListPage from '../ProductListPage.vue'
 
 const mockGetProducts = vi.fn<(...args: unknown[]) => unknown>()
 const mockDeleteProduct = vi.fn<(...args: unknown[]) => unknown>()
 
-vi.mock('../../api/products', () => ({
-  getProducts: (...args: unknown[]) => mockGetProducts(...args),
-  deleteProduct: (...args: unknown[]) => mockDeleteProduct(...args),
+vi.mock('../../api', () => ({
+  ProductApi: {
+    getMany: (...args: unknown[]) => mockGetProducts(...args),
+    delete: (...args: unknown[]) => mockDeleteProduct(...args),
+  },
 }))
 
 const router = createRouter({
   history: createWebHistory(),
   routes: [
     { path: '/', component: { template: '<div />' } },
-    { path: '/catalog/products', name: ROUTE_CATALOG.PRODUCTS.LIST, component: { template: '<div />' } },
-    { path: '/catalog/products/new', name: ROUTE_CATALOG.PRODUCTS.CREATE, component: { template: '<div />' } },
-    { path: '/catalog/products/:id', name: ROUTE_CATALOG.PRODUCTS.VIEW, component: { template: '<div />' } },
-    { path: '/catalog/products/:id/edit', name: ROUTE_CATALOG.PRODUCTS.EDIT, component: { template: '<div />' } },
+    { path: '/catalog/products', name: ROUTE.PRODUCTS.LIST, component: { template: '<div />' } },
+    { path: '/catalog/products/new', name: ROUTE.PRODUCTS.CREATE, component: { template: '<div />' } },
+    { path: '/catalog/products/:id', name: ROUTE.PRODUCTS.VIEW, component: { template: '<div />' } },
+    { path: '/catalog/products/:id/edit', name: ROUTE.PRODUCTS.EDIT, component: { template: '<div />' } },
   ],
 })
 
@@ -53,9 +55,9 @@ describe('ProductListPage', () => {
 
   it('renders page header', async () => {
     mockGetProducts.mockResolvedValue({
-      success: true,
-      data: [],
-      meta: { page: 1, pageSize: 20, totalCount: 0, totalPages: 0 },
+      isSuccess: true,
+      items: [],
+      page: 1, pageSize: 20, totalCount: 0,
     })
     const wrapper = mount(ProductListPage, {
       global: { plugins: createTestPlugins() },
@@ -66,9 +68,9 @@ describe('ProductListPage', () => {
 
   it('displays empty state when no products', async () => {
     mockGetProducts.mockResolvedValue({
-      success: true,
-      data: [],
-      meta: { page: 1, pageSize: 20, totalCount: 0, totalPages: 0 },
+      isSuccess: true,
+      items: [],
+      page: 1, pageSize: 20, totalCount: 0,
     })
     const wrapper = mount(ProductListPage, {
       global: { plugins: createTestPlugins() },
@@ -79,11 +81,11 @@ describe('ProductListPage', () => {
 
   it('displays products in table when data exists', async () => {
     mockGetProducts.mockResolvedValue({
-      success: true,
-      data: [
+      isSuccess: true,
+      items: [
         { id: '1', name: 'Test Product', slug: 'test', status: 'Draft', department: null, createdAt: '2026-01-01', updatedAt: '2026-01-01' },
       ],
-      meta: { page: 1, pageSize: 20, totalCount: 1, totalPages: 1 },
+      page: 1, pageSize: 20, totalCount: 1,
     })
     const wrapper = mount(ProductListPage, {
       global: { plugins: createTestPlugins() },
@@ -94,8 +96,8 @@ describe('ProductListPage', () => {
 
   it('displays error state on API failure', async () => {
     mockGetProducts.mockResolvedValue({
-      success: false,
-      error: { message: 'Server error', statusCode: 500, title: 'Error', detail: null, errors: {}, errorCode: 'ERR' },
+      isSuccess: false,
+      message: 'Server error', statusCode: 500, errors: [{ code: 'ERR', message: 'Server error' }],
     })
     const wrapper = mount(ProductListPage, {
       global: { plugins: createTestPlugins() },
@@ -106,9 +108,9 @@ describe('ProductListPage', () => {
 
   it('has a create button', async () => {
     mockGetProducts.mockResolvedValue({
-      success: true,
-      data: [],
-      meta: { page: 1, pageSize: 20, totalCount: 0, totalPages: 0 },
+      isSuccess: true,
+      items: [],
+      page: 1, pageSize: 20, totalCount: 0,
     })
     const wrapper = mount(ProductListPage, {
       global: { plugins: createTestPlugins() },

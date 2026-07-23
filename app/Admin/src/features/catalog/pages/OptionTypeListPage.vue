@@ -11,9 +11,9 @@ import LoadingSkeleton from '@/shared/components/feedback/LoadingSkeleton.vue'
 import ErrorState from '@/shared/components/feedback/ErrorState.vue'
 import { useConfirm } from '@/shared/composables/useConfirm'
 import { useToast } from '@/shared/composables/useToast'
-import { getOptionTypes, deleteOptionType } from '../api/optionTypes'
-import type { OptionTypeResponse } from '../models/OptionType'
-import { ROUTE_CATALOG } from '../routers/route-names'
+import { OptionTypeApi } from '../api'
+import type { OptionTypeResponse } from '../types'
+import { ROUTE } from '../routes'
 
 const route = useRoute()
 const router = useRouter()
@@ -31,31 +31,31 @@ const totalCount = ref(0)
 async function fetchOptionTypes() {
   loading.value = true
   error.value = null
-  const result = await getOptionTypes({
+  const result = await OptionTypeApi.getMany({
     page: page.value,
     pageSize: pageSize.value,
     search: search.value || undefined,
   })
-  if (result.success) {
-    items.value = result.data
-    totalCount.value = result.meta?.totalCount ?? 0
+  if (result.isSuccess) {
+    items.value = result.items
+    totalCount.value = result.totalCount
   } else {
-    error.value = result.error?.message ?? 'Failed to load option types'
+    error.value = result.message ?? 'Failed to load option types'
   }
   loading.value = false
 }
 
-function goToCreate() { router.push({ name: ROUTE_CATALOG.OPTION_TYPES.CREATE }) }
-function goToView(id: string) { router.push({ name: ROUTE_CATALOG.OPTION_TYPES.VIEW, params: { id } }) }
-function goToEdit(id: string) { router.push({ name: ROUTE_CATALOG.OPTION_TYPES.EDIT, params: { id } }) }
+function goToCreate() { router.push({ name: ROUTE.OPTION_TYPES.CREATE }) }
+function goToView(id: string) { router.push({ name: ROUTE.OPTION_TYPES.VIEW, params: { id } }) }
+function goToEdit(id: string) { router.push({ name: ROUTE.OPTION_TYPES.EDIT, params: { id } }) }
 
 async function onDelete(id: string) {
   confirmDelete({
     target: 'this option type',
     onAccept: async () => {
-      const result = await deleteOptionType(id)
-      if (result.success) { toast.success('Option type deleted'); await fetchOptionTypes() }
-      else { toast.error(result.error?.message ?? 'Failed to delete') }
+      const result = await OptionTypeApi.delete(id)
+      if (result.isSuccess) { toast.success('Option type deleted'); await fetchOptionTypes() }
+      else { toast.error(result.message ?? 'Failed to delete') }
     },
   })
 }

@@ -1,3 +1,3 @@
-export * as productsApi from './products'
-export * as taxonomiesApi from './taxonomies'
-export * as optionTypesApi from './optionTypes'
+export { ProductApi } from './product.api'
+export { TaxonomyApi } from './taxonomy.api'
+export { OptionTypeApi } from './option-type.api'
