@@ -20,7 +20,6 @@ const router = useRouter()
 const toast = useToast()
 const { t } = useI18n()
 
-const routeIcon = computed(() => route.meta?.icon as string | undefined)
 const id = computed(() => route.params.id as string | undefined)
 const mode = computed<'create' | 'view' | 'edit'>(() => {
   if (!id.value) return 'create'
