@@ -11,7 +11,8 @@
           <i v-if="i < breadcrumb.length - 1" class="pi pi-angle-right text-[10px]" />
         </template>
       </nav>
-      <h1 class="text-xl font-semibold text-surface-900 dark:text-surface-0 leading-tight">
+      <h1 class="text-xl font-semibold text-surface-900 dark:text-surface-0 leading-tight flex items-center gap-2">
+        <i v-if="icon" :class="icon" />
         {{ title }}
       </h1>
       <p v-if="subtitle" class="text-sm text-surface-500 mt-0.5">{{ subtitle }}</p>
@@ -32,5 +33,6 @@ defineProps<{
   title: string;
   subtitle?: string;
   breadcrumb?: BreadcrumbItem[];
+  icon?: string;
 }>();
 </script>

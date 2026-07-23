@@ -21,16 +21,19 @@ export const catalogRoutes: RouteRecordRaw = {
       path: 'products/new',
       name: ROUTE_CATALOG.PRODUCTS.CREATE,
       component: () => import('@/features/catalog/pages/ProductDetailPage.vue'),
+      meta: { icon: 'pi pi-fw pi-shopping-bag' },
     },
     {
       path: 'products/:id',
       name: ROUTE_CATALOG.PRODUCTS.VIEW,
       component: () => import('@/features/catalog/pages/ProductDetailPage.vue'),
+      meta: { icon: 'pi pi-fw pi-shopping-bag' },
     },
     {
       path: 'products/:id/edit',
       name: ROUTE_CATALOG.PRODUCTS.EDIT,
       component: () => import('@/features/catalog/pages/ProductDetailPage.vue'),
+      meta: { icon: 'pi pi-fw pi-shopping-bag' },
     },
     {
       path: 'taxonomies',
@@ -42,16 +45,19 @@ export const catalogRoutes: RouteRecordRaw = {
       path: 'taxonomies/new',
       name: ROUTE_CATALOG.TAXONOMIES.CREATE,
       component: () => import('@/features/catalog/pages/TaxonomyDetailPage.vue'),
+      meta: { icon: 'pi pi-fw pi-sitemap' },
     },
     {
       path: 'taxonomies/:id',
       name: ROUTE_CATALOG.TAXONOMIES.VIEW,
       component: () => import('@/features/catalog/pages/TaxonomyDetailPage.vue'),
+      meta: { icon: 'pi pi-fw pi-sitemap' },
     },
     {
       path: 'taxonomies/:id/edit',
       name: ROUTE_CATALOG.TAXONOMIES.EDIT,
       component: () => import('@/features/catalog/pages/TaxonomyDetailPage.vue'),
+      meta: { icon: 'pi pi-fw pi-sitemap' },
     },
     {
       path: 'option-types',
@@ -63,16 +69,19 @@ export const catalogRoutes: RouteRecordRaw = {
       path: 'option-types/new',
       name: ROUTE_CATALOG.OPTION_TYPES.CREATE,
       component: () => import('@/features/catalog/pages/OptionTypeDetailPage.vue'),
+      meta: { icon: 'pi pi-fw pi-list' },
     },
     {
       path: 'option-types/:id',
       name: ROUTE_CATALOG.OPTION_TYPES.VIEW,
       component: () => import('@/features/catalog/pages/OptionTypeDetailPage.vue'),
+      meta: { icon: 'pi pi-fw pi-list' },
     },
     {
       path: 'option-types/:id/edit',
       name: ROUTE_CATALOG.OPTION_TYPES.EDIT,
       component: () => import('@/features/catalog/pages/OptionTypeDetailPage.vue'),
+      meta: { icon: 'pi pi-fw pi-list' },
     },
   ],
 }
