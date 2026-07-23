@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
-import { useRouter } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import Column from 'primevue/column'
 import DataTable from '@/shared/components/data/DataTable.vue'
 import TableToolbar from '@/shared/components/layout/TableToolbar.vue'
@@ -15,6 +15,7 @@ import { getOptionTypes, deleteOptionType } from '../api/optionTypes'
 import type { OptionTypeResponse } from '../models/OptionType'
 import { ROUTE_CATALOG } from '../routers/route-names'
 
+const route = useRoute()
 const router = useRouter()
 const { confirmDelete } = useConfirm()
 const toast = useToast()
@@ -71,7 +72,7 @@ onMounted(() => fetchOptionTypes())
 
 <template>
   <div>
-    <PageHeader title="Option Types" subtitle="Manage product option types (Size, Color, etc.)" />
+    <PageHeader title="Option Types" subtitle="Manage product option types (Size, Color, etc.)" :icon="route.meta?.icon as string | undefined" />
     <TableToolbar
       search-placeholder="Search option types..."
       create-label="Add Type"

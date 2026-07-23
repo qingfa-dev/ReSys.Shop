@@ -82,7 +82,7 @@ onMounted(() => { load() })
 
 <template>
   <div>
-    <PageHeader :title="title">
+    <PageHeader :title="title" :icon="route.meta?.icon as string | undefined">
       <template #actions>
         <button v-if="mode === 'view'" class="p-button p-component" @click="toggleEdit">Edit</button>
       </template>

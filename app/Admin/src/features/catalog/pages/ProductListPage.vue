@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
-import { useRouter } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import Column from 'primevue/column'
 import DataTable from '@/shared/components/data/DataTable.vue'
 import TableToolbar from '@/shared/components/layout/TableToolbar.vue'
@@ -16,6 +16,7 @@ import { getProducts, deleteProduct } from '../api/products'
 import type { ProductResponse } from '../models/Product'
 import { ROUTE_CATALOG } from '../routers/route-names'
 
+const route = useRoute()
 const router = useRouter()
 const { confirmDelete } = useConfirm()
 const toast = useToast()
@@ -72,7 +73,7 @@ onMounted(() => fetchProducts())
 
 <template>
   <div>
-    <PageHeader title="Products" subtitle="Manage product catalog" />
+    <PageHeader title="Products" subtitle="Manage product catalog" :icon="route.meta?.icon as string | undefined" />
     <TableToolbar
       search-placeholder="Search products..."
       create-label="Add Product"

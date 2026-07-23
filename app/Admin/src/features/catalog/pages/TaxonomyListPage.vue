@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
-import { useRouter } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import Column from 'primevue/column'
 import DataTable from '@/shared/components/data/DataTable.vue'
 import TableToolbar from '@/shared/components/layout/TableToolbar.vue'
@@ -15,6 +15,7 @@ import { getTaxonomies, deleteTaxonomy } from '../api/taxonomies'
 import type { TaxonomyResponse } from '../models/Taxonomy'
 import { ROUTE_CATALOG } from '../routers/route-names'
 
+const route = useRoute()
 const router = useRouter()
 const { confirmDelete } = useConfirm()
 const toast = useToast()
@@ -71,7 +72,7 @@ onMounted(() => fetchTaxonomies())
 
 <template>
   <div>
-    <PageHeader title="Taxonomies" subtitle="Manage taxonomy groups" />
+    <PageHeader title="Taxonomies" subtitle="Manage taxonomy groups" :icon="route.meta?.icon as string | undefined" />
     <TableToolbar
       search-placeholder="Search taxonomies..."
       create-label="Add Taxonomy"
