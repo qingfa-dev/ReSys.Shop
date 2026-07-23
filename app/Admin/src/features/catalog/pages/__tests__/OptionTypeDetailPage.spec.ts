@@ -20,6 +20,7 @@ import { createRouter, createWebHistory } from 'vue-router'
 import PrimeVue from 'primevue/config'
 import ConfirmationService from 'primevue/confirmationservice'
 import ToastService from 'primevue/toastservice'
+import { ROUTE_CATALOG } from '../../routers/route-names'
 import OptionTypeDetailPage from '../OptionTypeDetailPage.vue'
 
 const mockGetOptionType = vi.fn<(...args: unknown[]) => unknown>()
@@ -39,10 +40,10 @@ function makeRouter(initialRoute: string) {
   const router = createRouter({
     history: createWebHistory(),
     routes: [
-      { path: '/catalog/option-types/new', name: 'catalog.option-types.create', component: OptionTypeDetailPage },
-      { path: '/catalog/option-types/:id', name: 'catalog.option-types.view', component: OptionTypeDetailPage },
-      { path: '/catalog/option-types/:id/edit', name: 'catalog.option-types.edit', component: OptionTypeDetailPage },
-      { path: '/catalog/option-types', name: 'catalog.option-types.list', component: { template: '<div />' } },
+      { path: '/catalog/option-types/new', name: ROUTE_CATALOG.OPTION_TYPES.CREATE, component: OptionTypeDetailPage },
+      { path: '/catalog/option-types/:id', name: ROUTE_CATALOG.OPTION_TYPES.VIEW, component: OptionTypeDetailPage },
+      { path: '/catalog/option-types/:id/edit', name: ROUTE_CATALOG.OPTION_TYPES.EDIT, component: OptionTypeDetailPage },
+      { path: '/catalog/option-types', name: ROUTE_CATALOG.OPTION_TYPES.LIST, component: { template: '<div />' } },
     ],
   })
   router.push(initialRoute)

@@ -13,6 +13,7 @@ import { useConfirm } from '@/shared/composables/useConfirm'
 import { useToast } from '@/shared/composables/useToast'
 import { getOptionTypes, deleteOptionType } from '../api/optionTypes'
 import type { OptionTypeResponse } from '../models/OptionType'
+import { ROUTE_CATALOG } from '../routers/route-names'
 
 const router = useRouter()
 const { confirmDelete } = useConfirm()
@@ -43,9 +44,9 @@ async function fetchOptionTypes() {
   loading.value = false
 }
 
-function goToCreate() { router.push({ name: 'catalog.option-types.create' }) }
-function goToView(id: string) { router.push({ name: 'catalog.option-types.view', params: { id } }) }
-function goToEdit(id: string) { router.push({ name: 'catalog.option-types.edit', params: { id } }) }
+function goToCreate() { router.push({ name: ROUTE_CATALOG.OPTION_TYPES.CREATE }) }
+function goToView(id: string) { router.push({ name: ROUTE_CATALOG.OPTION_TYPES.VIEW, params: { id } }) }
+function goToEdit(id: string) { router.push({ name: ROUTE_CATALOG.OPTION_TYPES.EDIT, params: { id } }) }
 
 async function onDelete(id: string) {
   confirmDelete({

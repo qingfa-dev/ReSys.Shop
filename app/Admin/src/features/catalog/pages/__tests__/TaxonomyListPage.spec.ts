@@ -20,6 +20,7 @@ import { createRouter, createWebHistory } from 'vue-router'
 import PrimeVue from 'primevue/config'
 import ConfirmationService from 'primevue/confirmationservice'
 import ToastService from 'primevue/toastservice'
+import { ROUTE_CATALOG } from '../../routers/route-names'
 import TaxonomyListPage from '../TaxonomyListPage.vue'
 
 const mockGetTaxonomies = vi.fn<(...args: unknown[]) => unknown>()
@@ -34,10 +35,10 @@ const router = createRouter({
   history: createWebHistory(),
   routes: [
     { path: '/', component: { template: '<div />' } },
-    { path: '/catalog/taxonomies', name: 'catalog.taxonomies.list', component: { template: '<div />' } },
-    { path: '/catalog/taxonomies/new', name: 'catalog.taxonomies.create', component: { template: '<div />' } },
-    { path: '/catalog/taxonomies/:id', name: 'catalog.taxonomies.view', component: { template: '<div />' } },
-    { path: '/catalog/taxonomies/:id/edit', name: 'catalog.taxonomies.edit', component: { template: '<div />' } },
+    { path: '/catalog/taxonomies', name: ROUTE_CATALOG.TAXONOMIES.LIST, component: { template: '<div />' } },
+    { path: '/catalog/taxonomies/new', name: ROUTE_CATALOG.TAXONOMIES.CREATE, component: { template: '<div />' } },
+    { path: '/catalog/taxonomies/:id', name: ROUTE_CATALOG.TAXONOMIES.VIEW, component: { template: '<div />' } },
+    { path: '/catalog/taxonomies/:id/edit', name: ROUTE_CATALOG.TAXONOMIES.EDIT, component: { template: '<div />' } },
   ],
 })
 

@@ -9,6 +9,7 @@ import ErrorState from '@/shared/components/feedback/ErrorState.vue'
 import { useToast } from '@/shared/composables/useToast'
 import { getProduct, createProduct, updateProduct } from '../api/products'
 import type { ProductRequest, ProductStatus } from '../models/Product'
+import { ROUTE_CATALOG } from '../routers/route-names'
 
 const route = useRoute()
 const router = useRouter()
@@ -62,19 +63,19 @@ async function save() {
   if (result.success) {
     toast.success(id.value ? 'Product updated' : 'Product created')
     if (mode.value === 'create') {
-      router.replace({ name: 'catalog.products.view', params: { id: result.data.id } })
+      router.replace({ name: ROUTE_CATALOG.PRODUCTS.VIEW, params: { id: result.data.id } })
     } else {
-      router.replace({ name: 'catalog.products.view', params: { id: id.value } })
+      router.replace({ name: ROUTE_CATALOG.PRODUCTS.VIEW, params: { id: id.value } })
     }
   } else { toast.error(result.error?.message ?? 'Save failed') }
 }
 
 function cancel() {
-  if (id.value) router.push({ name: 'catalog.products.view', params: { id: id.value } })
-  else router.push({ name: 'catalog.products.list' })
+  if (id.value) router.push({ name: ROUTE_CATALOG.PRODUCTS.VIEW, params: { id: id.value } })
+  else router.push({ name: ROUTE_CATALOG.PRODUCTS.LIST })
 }
 
-function toggleEdit() { router.push({ name: 'catalog.products.edit', params: { id: id.value } }) }
+function toggleEdit() { router.push({ name: ROUTE_CATALOG.PRODUCTS.EDIT, params: { id: id.value } }) }
 
 onMounted(() => { load() })
 </script>

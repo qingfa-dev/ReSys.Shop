@@ -20,6 +20,7 @@ import { createRouter, createWebHistory } from 'vue-router'
 import PrimeVue from 'primevue/config'
 import ConfirmationService from 'primevue/confirmationservice'
 import ToastService from 'primevue/toastservice'
+import { ROUTE_CATALOG } from '../../routers/route-names'
 import ProductListPage from '../ProductListPage.vue'
 
 const mockGetProducts = vi.fn<(...args: unknown[]) => unknown>()
@@ -34,10 +35,10 @@ const router = createRouter({
   history: createWebHistory(),
   routes: [
     { path: '/', component: { template: '<div />' } },
-    { path: '/catalog/products', name: 'catalog.products.list', component: { template: '<div />' } },
-    { path: '/catalog/products/new', name: 'catalog.products.create', component: { template: '<div />' } },
-    { path: '/catalog/products/:id', name: 'catalog.products.view', component: { template: '<div />' } },
-    { path: '/catalog/products/:id/edit', name: 'catalog.products.edit', component: { template: '<div />' } },
+    { path: '/catalog/products', name: ROUTE_CATALOG.PRODUCTS.LIST, component: { template: '<div />' } },
+    { path: '/catalog/products/new', name: ROUTE_CATALOG.PRODUCTS.CREATE, component: { template: '<div />' } },
+    { path: '/catalog/products/:id', name: ROUTE_CATALOG.PRODUCTS.VIEW, component: { template: '<div />' } },
+    { path: '/catalog/products/:id/edit', name: ROUTE_CATALOG.PRODUCTS.EDIT, component: { template: '<div />' } },
   ],
 })
 

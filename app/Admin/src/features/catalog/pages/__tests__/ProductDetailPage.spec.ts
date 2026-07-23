@@ -20,6 +20,7 @@ import { createRouter, createWebHistory } from 'vue-router'
 import PrimeVue from 'primevue/config'
 import ConfirmationService from 'primevue/confirmationservice'
 import ToastService from 'primevue/toastservice'
+import { ROUTE_CATALOG } from '../../routers/route-names'
 import ProductDetailPage from '../ProductDetailPage.vue'
 
 const mockGet = vi.fn<(...args: unknown[]) => unknown>()
@@ -36,10 +37,10 @@ function makeRouter(_initialRoute: string) {
   return createRouter({
     history: createWebHistory(),
     routes: [
-      { path: '/catalog/products/new', name: 'catalog.products.create', component: ProductDetailPage },
-      { path: '/catalog/products/:id', name: 'catalog.products.view', component: ProductDetailPage },
-      { path: '/catalog/products/:id/edit', name: 'catalog.products.edit', component: ProductDetailPage },
-      { path: '/catalog/products', name: 'catalog.products.list', component: { template: '<div />' } },
+      { path: '/catalog/products/new', name: ROUTE_CATALOG.PRODUCTS.CREATE, component: ProductDetailPage },
+      { path: '/catalog/products/:id', name: ROUTE_CATALOG.PRODUCTS.VIEW, component: ProductDetailPage },
+      { path: '/catalog/products/:id/edit', name: ROUTE_CATALOG.PRODUCTS.EDIT, component: ProductDetailPage },
+      { path: '/catalog/products', name: ROUTE_CATALOG.PRODUCTS.LIST, component: { template: '<div />' } },
     ],
   })
 }

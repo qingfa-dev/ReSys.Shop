@@ -13,6 +13,7 @@ import { useConfirm } from '@/shared/composables/useConfirm'
 import { useToast } from '@/shared/composables/useToast'
 import { getTaxonomies, deleteTaxonomy } from '../api/taxonomies'
 import type { TaxonomyResponse } from '../models/Taxonomy'
+import { ROUTE_CATALOG } from '../routers/route-names'
 
 const router = useRouter()
 const { confirmDelete } = useConfirm()
@@ -43,9 +44,9 @@ async function fetchTaxonomies() {
   loading.value = false
 }
 
-function goToCreate() { router.push({ name: 'catalog.taxonomies.create' }) }
-function goToView(id: string) { router.push({ name: 'catalog.taxonomies.view', params: { id } }) }
-function goToEdit(id: string) { router.push({ name: 'catalog.taxonomies.edit', params: { id } }) }
+function goToCreate() { router.push({ name: ROUTE_CATALOG.TAXONOMIES.CREATE }) }
+function goToView(id: string) { router.push({ name: ROUTE_CATALOG.TAXONOMIES.VIEW, params: { id } }) }
+function goToEdit(id: string) { router.push({ name: ROUTE_CATALOG.TAXONOMIES.EDIT, params: { id } }) }
 
 async function onDelete(id: string) {
   confirmDelete({

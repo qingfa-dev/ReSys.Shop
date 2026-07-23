@@ -15,6 +15,7 @@ import { useToast } from '@/shared/composables/useToast'
 import { useConfirm } from '@/shared/composables/useConfirm'
 import { getOptionType, createOptionType, updateOptionType, getOptionValues, createOptionValue, updateOptionValue, deleteOptionValue } from '../api/optionTypes'
 import type { OptionTypeRequest, OptionValueResponse, OptionValueRequest } from '../models/OptionType'
+import { ROUTE_CATALOG } from '../routers/route-names'
 
 const route = useRoute()
 const router = useRouter()
@@ -80,19 +81,19 @@ async function save() {
   if (result.success) {
     toast.success(id.value ? 'Option type updated' : 'Option type created')
     if (mode.value === 'create') {
-      router.replace({ name: 'catalog.option-types.view', params: { id: result.data.id } })
+      router.replace({ name: ROUTE_CATALOG.OPTION_TYPES.VIEW, params: { id: result.data.id } })
     } else {
-      router.replace({ name: 'catalog.option-types.view', params: { id: id.value } })
+      router.replace({ name: ROUTE_CATALOG.OPTION_TYPES.VIEW, params: { id: id.value } })
     }
   } else { toast.error(result.error?.message ?? 'Save failed') }
 }
 
 function cancel() {
-  if (id.value) router.push({ name: 'catalog.option-types.view', params: { id: id.value } })
-  else router.push({ name: 'catalog.option-types.list' })
+  if (id.value) router.push({ name: ROUTE_CATALOG.OPTION_TYPES.VIEW, params: { id: id.value } })
+  else router.push({ name: ROUTE_CATALOG.OPTION_TYPES.LIST })
 }
 
-function toggleEdit() { router.push({ name: 'catalog.option-types.edit', params: { id: id.value } }) }
+function toggleEdit() { router.push({ name: ROUTE_CATALOG.OPTION_TYPES.EDIT, params: { id: id.value } }) }
 
 function openAddOptionValue() {
   editingOptionValue.value = null

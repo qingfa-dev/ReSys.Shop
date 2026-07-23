@@ -14,6 +14,7 @@ import { useConfirm } from '@/shared/composables/useConfirm'
 import { useToast } from '@/shared/composables/useToast'
 import { getProducts, deleteProduct } from '../api/products'
 import type { ProductResponse } from '../models/Product'
+import { ROUTE_CATALOG } from '../routers/route-names'
 
 const router = useRouter()
 const { confirmDelete } = useConfirm()
@@ -44,9 +45,9 @@ async function fetchProducts() {
   loading.value = false
 }
 
-function goToCreate() { router.push({ name: 'catalog.products.create' }) }
-function goToView(id: string) { router.push({ name: 'catalog.products.view', params: { id } }) }
-function goToEdit(id: string) { router.push({ name: 'catalog.products.edit', params: { id } }) }
+function goToCreate() { router.push({ name: ROUTE_CATALOG.PRODUCTS.CREATE }) }
+function goToView(id: string) { router.push({ name: ROUTE_CATALOG.PRODUCTS.VIEW, params: { id } }) }
+function goToEdit(id: string) { router.push({ name: ROUTE_CATALOG.PRODUCTS.EDIT, params: { id } }) }
 
 async function onDelete(id: string) {
   confirmDelete({

@@ -14,6 +14,7 @@ import { useToast } from '@/shared/composables/useToast'
 import { useConfirm } from '@/shared/composables/useConfirm'
 import { getTaxonomy, createTaxonomy, updateTaxonomy, getTaxons, createTaxon, updateTaxon, deleteTaxon } from '../api/taxonomies'
 import type { TaxonomyRequest, TaxonResponse, TaxonRequest } from '../models/Taxonomy'
+import { ROUTE_CATALOG } from '../routers/route-names'
 
 const route = useRoute()
 const router = useRouter()
@@ -79,19 +80,19 @@ async function save() {
   if (result.success) {
     toast.success(id.value ? 'Taxonomy updated' : 'Taxonomy created')
     if (mode.value === 'create') {
-      router.replace({ name: 'catalog.taxonomies.view', params: { id: result.data.id } })
+      router.replace({ name: ROUTE_CATALOG.TAXONOMIES.VIEW, params: { id: result.data.id } })
     } else {
-      router.replace({ name: 'catalog.taxonomies.view', params: { id: id.value } })
+      router.replace({ name: ROUTE_CATALOG.TAXONOMIES.VIEW, params: { id: id.value } })
     }
   } else { toast.error(result.error?.message ?? 'Save failed') }
 }
 
 function cancel() {
-  if (id.value) router.push({ name: 'catalog.taxonomies.view', params: { id: id.value } })
-  else router.push({ name: 'catalog.taxonomies.list' })
+  if (id.value) router.push({ name: ROUTE_CATALOG.TAXONOMIES.VIEW, params: { id: id.value } })
+  else router.push({ name: ROUTE_CATALOG.TAXONOMIES.LIST })
 }
 
-function toggleEdit() { router.push({ name: 'catalog.taxonomies.edit', params: { id: id.value } }) }
+function toggleEdit() { router.push({ name: ROUTE_CATALOG.TAXONOMIES.EDIT, params: { id: id.value } }) }
 
 function openAddTaxon() {
   editingTaxon.value = null
