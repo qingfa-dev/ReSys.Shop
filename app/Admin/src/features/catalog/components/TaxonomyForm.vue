@@ -57,9 +57,9 @@ const taxonForm = ref<TaxonRequest>({ name: '', presentation: null })
 const taxonSaving = ref(false)
 
 const title = computed(() => {
-  if (mode.value === 'create') return 'Create Taxonomy'
-  if (mode.value === 'edit') return `Edit: ${name.value || 'Taxonomy'}`
-  return name.value || 'Taxonomy Detail'
+  if (mode.value === 'create') return t('catalog.taxonomies.titles.create')
+  if (mode.value === 'edit') return `${t('catalog.taxonomies.actions.edit')}: ${name.value || ''}`
+  return name.value || t('catalog.taxonomies.titles.edit')
 })
 
 async function loadTaxonomy() {
@@ -93,7 +93,7 @@ const save = handleSubmit(async (values) => {
     : await TaxonomyApi.create(data)
   saving.value = false
   if (result.isSuccess) {
-    toast.success(id.value ? t('catalog.taxonomy.updated') : t('catalog.taxonomy.created'))
+    toast.success(id.value ? t('catalog.taxonomies.messages.update_success') : t('catalog.taxonomies.messages.create_success'))
     const newId = result.value.id
     router.replace({ name: ROUTE.TAXONOMIES.VIEW, params: { id: newId } })
   } else {
@@ -131,7 +131,7 @@ async function saveTaxon() {
     : await TaxonomyApi.createTaxon(id.value, data)
   taxonSaving.value = false
   if (result.isSuccess) {
-    toast.success(editingTaxon.value ? 'Taxon updated' : 'Taxon created')
+    toast.success(editingTaxon.value ? t('catalog.taxa.messages.update_success') : t('catalog.taxa.messages.create_success'))
     taxonSlideoverVisible.value = false
     await loadTaxons()
   } else { toast.error(result.message ?? 'Save failed') }
@@ -148,7 +148,7 @@ async function deleteTaxonAction(taxon: TaxonResponse) {
   if (!id.value) return
   const result = await TaxonomyApi.deleteTaxon(id.value, taxon.id)
   if (result.isSuccess) {
-    toast.success('Taxon deleted')
+    toast.success(t('catalog.taxa.messages.delete_success'))
     await loadTaxons()
   } else { toast.error(result.message ?? 'Delete failed') }
 }
@@ -163,7 +163,7 @@ onMounted(async () => {
   <div>
     <PageHeader :title="title" :icon="route.meta?.icon as string | undefined">
       <template #actions>
-        <button v-if="mode === 'view'" class="p-button p-component" @click="toggleEdit">Edit</button>
+        <button v-if="mode === 'view'" class="p-button p-component" @click="toggleEdit">{{ t('catalog.taxonomies.actions.edit') }}</button>
       </template>
     </PageHeader>
     <LoadingSkeleton v-if="loading && mode !== 'create'" :rows="8" :columns="2" />
@@ -171,35 +171,35 @@ onMounted(async () => {
     <div v-else class="card">
       <div class="grid">
         <div class="col-6">
-          <FormField label="Name" :error="errors.name" required>
+          <FormField :label="t('catalog.taxonomies.labels.name')" :error="errors.name" required>
             <input v-model="name" type="text" class="p-inputtext p-component w-full" :disabled="mode === 'view'" />
           </FormField>
         </div>
         <div class="col-6">
-          <FormField label="Presentation">
+          <FormField :label="t('catalog.taxonomies.labels.presentation')">
             <input v-model="presentation" type="text" class="p-inputtext p-component w-full" :disabled="mode === 'view'" />
           </FormField>
         </div>
       </div>
 
       <fieldset v-if="id" class="mt-6 border border-surface-200 dark:border-surface-700 rounded-lg p-4">
-        <legend class="text-lg font-semibold text-surface-900 dark:text-surface-0 px-2">Taxons</legend>
+        <legend class="text-lg font-semibold text-surface-900 dark:text-surface-0 px-2">{{ t('catalog.taxa.titles.manager') }}</legend>
         <div class="flex justify-end mb-3">
-          <Button label="Add Taxon" icon="pi pi-plus" size="small" @click="openAddTaxon" />
+          <Button :label="t('catalog.taxa.actions.add_taxon')" icon="pi pi-plus" size="small" @click="openAddTaxon" />
         </div>
         <DataTable
           :rows="taxons"
           :loading="taxonsLoading"
-          empty-title="No taxons"
+          :empty-title="t('catalog.taxa.messages.empty_tree')"
           empty-description="Add a taxon to get started."
         >
-          <Column field="name" header="Name">
+          <Column field="name" :header="t('catalog.taxa.labels.name')">
             <template #body="{ data }">
               <span :style="{ paddingLeft: data.depth * 1.5 + 'rem' }">{{ data.name }}</span>
             </template>
           </Column>
-          <Column field="presentation" header="Presentation" />
-          <Column field="slug" header="Slug" />
+          <Column field="presentation" :header="t('catalog.taxa.labels.presentation')" />
+          <Column field="slug" :header="t('catalog.taxa.labels.slug')" />
           <Column header="Children">
             <template #body="{ data }">
               {{ data.childrenCount }}
@@ -217,24 +217,24 @@ onMounted(async () => {
       <FormActions
         v-if="mode !== 'view'"
         :loading="saving"
-        :save-label="mode === 'create' ? 'Create Taxonomy' : 'Save Changes'"
-        cancel-label="Cancel"
+        :save-label="mode === 'create' ? t('catalog.taxonomies.actions.save_create') : t('catalog.taxonomies.actions.save_edit')"
+        :cancel-label="t('catalog.taxonomies.actions.cancel')"
         @save="save"
         @cancel="cancel"
       />
     </div>
 
-    <Sidebar v-model:visible="taxonSlideoverVisible" header="Taxon" position="right" class="w-full sm:w-96">
+    <Sidebar v-model:visible="taxonSlideoverVisible" :header="t('catalog.taxa.titles.create')" position="right" class="w-full sm:w-96">
       <div class="flex flex-col gap-4">
-        <FormField label="Name" required>
+        <FormField :label="t('catalog.taxa.labels.name')" required>
           <input v-model="taxonForm.name" type="text" class="p-inputtext p-component w-full" />
         </FormField>
-        <FormField label="Presentation">
+        <FormField :label="t('catalog.taxa.labels.presentation')">
           <input v-model="taxonForm.presentation" type="text" class="p-inputtext p-component w-full" />
         </FormField>
         <div class="flex gap-2 justify-end mt-4">
-          <Button label="Cancel" severity="secondary" text @click="taxonSlideoverVisible = false" />
-          <Button :label="editingTaxon ? 'Update' : 'Create'" icon="pi pi-check" :loading="taxonSaving" @click="saveTaxon" />
+          <Button :label="t('catalog.taxa.actions.cancel')" severity="secondary" text @click="taxonSlideoverVisible = false" />
+          <Button :label="editingTaxon ? t('catalog.taxa.actions.edit_taxon') : t('catalog.taxa.actions.add_taxon')" icon="pi pi-check" :loading="taxonSaving" @click="saveTaxon" />
         </div>
       </div>
     </Sidebar>

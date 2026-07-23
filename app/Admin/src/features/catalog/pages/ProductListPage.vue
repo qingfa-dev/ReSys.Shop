@@ -10,6 +10,7 @@ import StatusTag from '@/shared/components/data/StatusTag.vue'
 import EmptyState from '@/shared/components/feedback/EmptyState.vue'
 import LoadingSkeleton from '@/shared/components/feedback/LoadingSkeleton.vue'
 import ErrorState from '@/shared/components/feedback/ErrorState.vue'
+import { useI18n } from 'vue-i18n'
 import { useConfirm } from '@/shared/composables/useConfirm'
 import { useToast } from '@/shared/composables/useToast'
 import { ProductApi } from '../api'
@@ -20,6 +21,7 @@ const route = useRoute()
 const router = useRouter()
 const { confirmDelete } = useConfirm()
 const toast = useToast()
+const { t } = useI18n()
 
 const items = ref<ProductResponse[]>([])
 const loading = ref(true)
@@ -55,7 +57,7 @@ async function onDelete(id: string) {
     target: 'this product',
     onAccept: async () => {
       const result = await ProductApi.delete(id)
-      if (result.isSuccess) { toast.success('Product deleted'); await fetchProducts() }
+      if (result.isSuccess) { toast.success(t('catalog.products.messages.delete_success')); await fetchProducts() }
       else { toast.error(result.message ?? 'Failed to delete') }
     },
   })
@@ -73,16 +75,16 @@ onMounted(() => fetchProducts())
 
 <template>
   <div>
-    <PageHeader title="Products" subtitle="Manage product catalog" :icon="route.meta?.icon as string | undefined" />
+    <PageHeader :title="t('catalog.products.titles.list')" :subtitle="t('catalog.products.descriptions.list')" :icon="route.meta?.icon as string | undefined" />
     <TableToolbar
-      search-placeholder="Search products..."
-      create-label="Add Product"
+      :search-placeholder="t('catalog.products.placeholders.search')"
+      :create-label="t('catalog.products.actions.new')"
       @search="onSearch"
       @create="goToCreate"
     />
     <LoadingSkeleton v-if="loading" :rows="5" :columns="4" />
     <ErrorState v-else-if="error" :description="error" @retry="fetchProducts" />
-    <EmptyState v-else-if="items.length === 0" title="No products" description="Create your first product." />
+    <EmptyState v-else-if="items.length === 0" :title="t('catalog.products.messages.empty_list')" description="Create your first product." />
     <DataTable
       v-else
       :rows="items"

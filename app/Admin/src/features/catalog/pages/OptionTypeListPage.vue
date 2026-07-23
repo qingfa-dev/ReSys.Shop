@@ -9,6 +9,7 @@ import ActionMenu from '@/shared/components/layout/ActionMenu.vue'
 import EmptyState from '@/shared/components/feedback/EmptyState.vue'
 import LoadingSkeleton from '@/shared/components/feedback/LoadingSkeleton.vue'
 import ErrorState from '@/shared/components/feedback/ErrorState.vue'
+import { useI18n } from 'vue-i18n'
 import { useConfirm } from '@/shared/composables/useConfirm'
 import { useToast } from '@/shared/composables/useToast'
 import { OptionTypeApi } from '../api'
@@ -19,6 +20,7 @@ const route = useRoute()
 const router = useRouter()
 const { confirmDelete } = useConfirm()
 const toast = useToast()
+const { t } = useI18n()
 
 const items = ref<OptionTypeResponse[]>([])
 const loading = ref(true)
@@ -54,7 +56,7 @@ async function onDelete(id: string) {
     target: 'this option type',
     onAccept: async () => {
       const result = await OptionTypeApi.delete(id)
-      if (result.isSuccess) { toast.success('Option type deleted'); await fetchOptionTypes() }
+      if (result.isSuccess) { toast.success(t('catalog.option_types.messages.delete_success')); await fetchOptionTypes() }
       else { toast.error(result.message ?? 'Failed to delete') }
     },
   })
@@ -72,16 +74,16 @@ onMounted(() => fetchOptionTypes())
 
 <template>
   <div>
-    <PageHeader title="Option Types" subtitle="Manage product option types (Size, Color, etc.)" :icon="route.meta?.icon as string | undefined" />
+    <PageHeader :title="t('catalog.option_types.titles.list')" :subtitle="t('catalog.option_types.descriptions.list')" :icon="route.meta?.icon as string | undefined" />
     <TableToolbar
       search-placeholder="Search option types..."
-      create-label="Add Type"
+      :create-label="t('catalog.option_types.actions.create')"
       @search="onSearch"
       @create="goToCreate"
     />
     <LoadingSkeleton v-if="loading" :rows="5" :columns="4" />
     <ErrorState v-else-if="error" :description="error" @retry="fetchOptionTypes" />
-    <EmptyState v-else-if="items.length === 0" title="No option types" description="Create your first option type." />
+    <EmptyState v-else-if="items.length === 0" :title="t('catalog.option_types.messages.empty_list')" description="Create your first option type." />
     <DataTable
       v-else
       :rows="items"

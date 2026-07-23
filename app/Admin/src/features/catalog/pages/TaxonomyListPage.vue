@@ -9,6 +9,7 @@ import ActionMenu from '@/shared/components/layout/ActionMenu.vue'
 import EmptyState from '@/shared/components/feedback/EmptyState.vue'
 import LoadingSkeleton from '@/shared/components/feedback/LoadingSkeleton.vue'
 import ErrorState from '@/shared/components/feedback/ErrorState.vue'
+import { useI18n } from 'vue-i18n'
 import { useConfirm } from '@/shared/composables/useConfirm'
 import { useToast } from '@/shared/composables/useToast'
 import { TaxonomyApi } from '../api'
@@ -19,6 +20,7 @@ const route = useRoute()
 const router = useRouter()
 const { confirmDelete } = useConfirm()
 const toast = useToast()
+const { t } = useI18n()
 
 const items = ref<TaxonomyResponse[]>([])
 const loading = ref(true)
@@ -54,7 +56,7 @@ async function onDelete(id: string) {
     target: 'this taxonomy',
     onAccept: async () => {
       const result = await TaxonomyApi.delete(id)
-      if (result.isSuccess) { toast.success('Taxonomy deleted'); await fetchTaxonomies() }
+      if (result.isSuccess) { toast.success(t('catalog.taxonomies.messages.delete_success')); await fetchTaxonomies() }
       else { toast.error(result.message ?? 'Failed to delete') }
     },
   })
@@ -72,16 +74,16 @@ onMounted(() => fetchTaxonomies())
 
 <template>
   <div>
-    <PageHeader title="Taxonomies" subtitle="Manage taxonomy groups" :icon="route.meta?.icon as string | undefined" />
+    <PageHeader :title="t('catalog.taxonomies.titles.list')" :subtitle="t('catalog.taxonomies.descriptions.list')" :icon="route.meta?.icon as string | undefined" />
     <TableToolbar
       search-placeholder="Search taxonomies..."
-      create-label="Add Taxonomy"
+      :create-label="t('catalog.taxonomies.actions.create')"
       @search="onSearch"
       @create="goToCreate"
     />
     <LoadingSkeleton v-if="loading" :rows="5" :columns="4" />
     <ErrorState v-else-if="error" :description="error" @retry="fetchTaxonomies" />
-    <EmptyState v-else-if="items.length === 0" title="No taxonomies" description="Create your first taxonomy." />
+    <EmptyState v-else-if="items.length === 0" :title="t('catalog.taxonomies.messages.empty_list')" description="Create your first taxonomy." />
     <DataTable
       v-else
       :rows="items"

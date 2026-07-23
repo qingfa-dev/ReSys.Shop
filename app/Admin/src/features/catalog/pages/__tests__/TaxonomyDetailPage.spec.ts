@@ -31,11 +31,25 @@ vi.mock('vue-i18n', () => ({
   useI18n: () => ({
     t: (key: string) => {
       const map: Record<string, string> = {
-        'catalog.taxonomy.create': 'Create Taxonomy',
-        'catalog.taxonomy.edit': 'Edit:',
-        'catalog.taxonomy.detail': 'Taxonomy Detail',
-        'catalog.taxonomy.updated': 'Taxonomy updated',
-        'catalog.taxonomy.created': 'Taxonomy created',
+        'catalog.taxonomies.titles.create': 'Create Taxonomy',
+        'catalog.taxonomies.actions.edit': 'Edit',
+        'catalog.taxonomies.titles.edit': 'Edit Taxonomy',
+        'catalog.taxonomies.actions.save_create': 'Create Taxonomy',
+        'catalog.taxonomies.actions.save_edit': 'Update Taxonomy',
+        'catalog.taxonomies.actions.cancel': 'Cancel',
+        'catalog.taxonomies.labels.name': 'Internal Name',
+        'catalog.taxonomies.labels.presentation': 'Display Name',
+        'catalog.taxa.titles.manager': 'Manage Categories',
+        'catalog.taxa.actions.add_taxon': 'Add Taxon',
+        'catalog.taxa.actions.edit_taxon': 'Edit',
+        'catalog.taxa.actions.cancel': 'Cancel',
+        'catalog.taxa.messages.create_success': 'Taxon created',
+        'catalog.taxa.messages.update_success': 'Taxon updated',
+        'catalog.taxa.messages.delete_success': 'Taxon removed',
+        'catalog.taxa.messages.empty_tree': 'No Categories Found',
+        'catalog.taxa.labels.name': 'Internal Name',
+        'catalog.taxa.labels.presentation': 'Display Name',
+        'catalog.taxa.labels.slug': 'URL Slug',
       }
       return map[key] ?? key
     },
@@ -91,7 +105,7 @@ describe('TaxonomyDetailPage', () => {
     await flushPromises()
     await flushPromises()
     expect(wrapper.text()).toContain('Clothing')
-    expect(wrapper.text()).toContain('Taxons')
+    expect(wrapper.text()).toContain('Manage Categories')
     expect(wrapper.text()).toContain('Men')
     expect(wrapper.text()).toContain('Tops')
   })
@@ -127,6 +141,6 @@ describe('TaxonomyDetailPage', () => {
     const wrapper = mount(TaxonomyDetailPage, { global: { plugins: [...plugins, router] } })
     await flushPromises()
     await flushPromises()
-    expect(wrapper.text()).toContain('No taxons')
+    expect(wrapper.text()).toContain('No Categories Found')
   })
 })

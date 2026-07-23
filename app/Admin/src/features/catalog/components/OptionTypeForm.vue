@@ -59,9 +59,9 @@ const optionValueForm = ref<OptionValueRequest>({ name: '', presentation: null }
 const optionValueSaving = ref(false)
 
 const title = computed(() => {
-  if (mode.value === 'create') return 'Create Option Type'
-  if (mode.value === 'edit') return `Edit: ${name.value || 'Option Type'}`
-  return name.value || 'Option Type Detail'
+  if (mode.value === 'create') return t('catalog.option_types.titles.create')
+  if (mode.value === 'edit') return `${t('catalog.option_types.actions.edit')}: ${name.value || ''}`
+  return name.value || t('catalog.option_types.titles.edit')
 })
 
 async function loadOptionType() {
@@ -95,7 +95,7 @@ const save = handleSubmit(async (values) => {
     : await OptionTypeApi.create(data)
   saving.value = false
   if (result.isSuccess) {
-    toast.success(id.value ? t('catalog.optionType.updated') : t('catalog.optionType.created'))
+    toast.success(id.value ? t('catalog.option_types.messages.update_success') : t('catalog.option_types.messages.create_success'))
     const newId = result.value.id
     router.replace({ name: ROUTE.OPTION_TYPES.VIEW, params: { id: newId } })
   } else {
@@ -133,7 +133,7 @@ async function saveOptionValue() {
     : await OptionTypeApi.createValue(id.value, data)
   optionValueSaving.value = false
   if (result.isSuccess) {
-    toast.success(editingOptionValue.value ? 'Option value updated' : 'Option value created')
+    toast.success(editingOptionValue.value ? t('catalog.option_values.messages.update_success') : t('catalog.option_values.messages.create_success'))
     optionValueSlideoverVisible.value = false
     await loadOptionValues()
   } else { toast.error(result.message ?? 'Save failed') }
@@ -150,7 +150,7 @@ async function deleteOptionValueAction(ov: OptionValueResponse) {
   if (!id.value) return
   const result = await OptionTypeApi.deleteValue(id.value, ov.id)
   if (result.isSuccess) {
-    toast.success('Option value deleted')
+    toast.success(t('catalog.option_values.messages.delete_success'))
     await loadOptionValues()
   } else { toast.error(result.message ?? 'Delete failed') }
 }
@@ -165,7 +165,7 @@ onMounted(async () => {
   <div>
     <PageHeader :title="title" :icon="route.meta?.icon as string | undefined">
       <template #actions>
-        <button v-if="mode === 'view'" class="p-button p-component" @click="toggleEdit">Edit</button>
+        <button v-if="mode === 'view'" class="p-button p-component" @click="toggleEdit">{{ t('catalog.option_types.actions.edit') }}</button>
       </template>
     </PageHeader>
     <LoadingSkeleton v-if="loading && mode !== 'create'" :rows="8" :columns="2" />
@@ -173,7 +173,7 @@ onMounted(async () => {
     <div v-else class="card">
       <div class="grid">
         <div class="col-6">
-          <FormField label="Name" :error="errors.name" required>
+          <FormField :label="t('catalog.option_types.labels.name')" :error="errors.name" required>
             <input v-model="name" type="text" class="p-inputtext p-component w-full" :disabled="mode === 'view'" />
           </FormField>
         </div>
@@ -185,29 +185,29 @@ onMounted(async () => {
       </div>
       <div class="grid">
         <div class="col-6">
-          <FormField label="Filterable">
+          <FormField :label="t('catalog.option_types.labels.filterable')">
             <div class="flex align-items-center gap-2 mt-1">
               <Checkbox v-model="filterable" :binary="true" :disabled="mode === 'view'" input-id="filterable" />
-              <label for="filterable">Enable filtering by this option</label>
+              <label for="filterable">{{ t('catalog.option_types.descriptions.values') }}</label>
             </div>
           </FormField>
         </div>
       </div>
 
       <fieldset v-if="id" class="mt-6 border border-surface-200 dark:border-surface-700 rounded-lg p-4">
-        <legend class="text-lg font-semibold text-surface-900 dark:text-surface-0 px-2">Option Values</legend>
+        <legend class="text-lg font-semibold text-surface-900 dark:text-surface-0 px-2">{{ t('catalog.option_values.titles.list') }}</legend>
         <div class="flex justify-end mb-3">
-          <Button label="Add Option Value" icon="pi pi-plus" size="small" @click="openAddOptionValue" />
+          <Button :label="t('catalog.option_values.actions.add_value')" icon="pi pi-plus" size="small" @click="openAddOptionValue" />
         </div>
         <DataTable
           :rows="optionValues"
           :loading="optionValuesLoading"
-          empty-title="No option values"
+          :empty-title="t('catalog.option_values.messages.empty_list')"
           empty-description="Add an option value to get started."
         >
-          <Column field="name" header="Name" />
-          <Column field="presentation" header="Presentation" />
-          <Column field="position" header="Position" />
+          <Column field="name" :header="t('catalog.option_values.labels.name')" />
+          <Column field="presentation" :header="t('catalog.option_values.labels.presentation')" />
+          <Column field="position" :header="t('catalog.option_values.labels.position')" />
           <template #rowActions="{ data }">
             <div class="flex gap-1">
               <Button icon="pi pi-pencil" severity="secondary" text rounded size="small" @click="openEditOptionValue(data)" />
@@ -220,24 +220,24 @@ onMounted(async () => {
       <FormActions
         v-if="mode !== 'view'"
         :loading="saving"
-        :save-label="mode === 'create' ? 'Create Option Type' : 'Save Changes'"
-        cancel-label="Cancel"
+        :save-label="mode === 'create' ? t('catalog.option_types.actions.save_create') : t('catalog.option_types.actions.save_edit')"
+        :cancel-label="t('catalog.option_types.actions.cancel')"
         @save="save"
         @cancel="cancel"
       />
     </div>
 
-    <Sidebar v-model:visible="optionValueSlideoverVisible" header="Option Value" position="right" class="w-full sm:w-96">
+    <Sidebar v-model:visible="optionValueSlideoverVisible" :header="t('catalog.option_values.titles.create')" position="right" class="w-full sm:w-96">
       <div class="flex flex-col gap-4">
-        <FormField label="Name" required>
+        <FormField :label="t('catalog.option_values.labels.name')" required>
           <input v-model="optionValueForm.name" type="text" class="p-inputtext p-component w-full" />
         </FormField>
-        <FormField label="Presentation">
+        <FormField :label="t('catalog.option_values.labels.presentation')">
           <input v-model="optionValueForm.presentation" type="text" class="p-inputtext p-component w-full" />
         </FormField>
         <div class="flex gap-2 justify-end mt-4">
-          <Button label="Cancel" severity="secondary" text @click="optionValueSlideoverVisible = false" />
-          <Button :label="editingOptionValue ? 'Update' : 'Create'" icon="pi pi-check" :loading="optionValueSaving" @click="saveOptionValue" />
+          <Button :label="t('catalog.option_values.actions.cancel')" severity="secondary" text @click="optionValueSlideoverVisible = false" />
+          <Button :label="editingOptionValue ? t('catalog.option_values.titles.edit') : t('catalog.option_values.titles.create')" icon="pi pi-check" :loading="optionValueSaving" @click="saveOptionValue" />
         </div>
       </div>
     </Sidebar>

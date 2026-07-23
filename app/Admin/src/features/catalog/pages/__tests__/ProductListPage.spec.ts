@@ -23,6 +23,22 @@ import ToastService from 'primevue/toastservice'
 import { ROUTE } from '../../routes'
 import ProductListPage from '../ProductListPage.vue'
 
+vi.mock('vue-i18n', () => ({
+  useI18n: () => ({
+    t: (key: string) => {
+      const map: Record<string, string> = {
+        'catalog.products.titles.list': 'Products',
+        'catalog.products.descriptions.list': 'Manage your product catalog, pricing and stock.',
+        'catalog.products.placeholders.search': 'Search by name or SKU...',
+        'catalog.products.actions.new': 'New Product',
+        'catalog.products.messages.empty_list': 'No products found matching your criteria.',
+        'catalog.products.messages.delete_success': 'Product removed successfully.',
+      }
+      return map[key] ?? key
+    },
+  }),
+}))
+
 const mockGetProducts = vi.fn<(...args: unknown[]) => unknown>()
 const mockDeleteProduct = vi.fn<(...args: unknown[]) => unknown>()
 
@@ -76,7 +92,7 @@ describe('ProductListPage', () => {
       global: { plugins: createTestPlugins() },
     })
     await flushPromises()
-    expect(wrapper.text()).toContain('No products')
+    expect(wrapper.text()).toContain('No products found matching your criteria.')
   })
 
   it('displays products in table when data exists', async () => {
@@ -116,6 +132,6 @@ describe('ProductListPage', () => {
       global: { plugins: createTestPlugins() },
     })
     await flushPromises()
-    expect(wrapper.text()).toContain('Add Product')
+    expect(wrapper.text()).toContain('New Product')
   })
 })

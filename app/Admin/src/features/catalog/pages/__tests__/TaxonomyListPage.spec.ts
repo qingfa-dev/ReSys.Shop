@@ -23,6 +23,21 @@ import ToastService from 'primevue/toastservice'
 import { ROUTE } from '../../routes'
 import TaxonomyListPage from '../TaxonomyListPage.vue'
 
+vi.mock('vue-i18n', () => ({
+  useI18n: () => ({
+    t: (key: string) => {
+      const map: Record<string, string> = {
+        'catalog.taxonomies.titles.list': 'Taxonomies',
+        'catalog.taxonomies.descriptions.list': 'Organize your products into root hierarchies (e.g. Categories, Brands).',
+        'catalog.taxonomies.actions.create': 'New Taxonomy',
+        'catalog.taxonomies.messages.empty_list': 'No taxonomies found.',
+        'catalog.taxonomies.messages.delete_success': 'Taxonomy deleted successfully.',
+      }
+      return map[key] ?? key
+    },
+  }),
+}))
+
 const mockGetTaxonomies = vi.fn<(...args: unknown[]) => unknown>()
 const mockDeleteTaxonomy = vi.fn<(...args: unknown[]) => unknown>()
 
@@ -76,7 +91,7 @@ describe('TaxonomyListPage', () => {
       global: { plugins: createTestPlugins() },
     })
     await flushPromises()
-    expect(wrapper.text()).toContain('No taxonomies')
+    expect(wrapper.text()).toContain('No taxonomies found.')
   })
 
   it('displays taxonomies in table when data exists', async () => {
@@ -116,6 +131,6 @@ describe('TaxonomyListPage', () => {
       global: { plugins: createTestPlugins() },
     })
     await flushPromises()
-    expect(wrapper.text()).toContain('Add Taxonomy')
+    expect(wrapper.text()).toContain('New Taxonomy')
   })
 })

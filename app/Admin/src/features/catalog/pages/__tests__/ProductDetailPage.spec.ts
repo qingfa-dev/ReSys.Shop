@@ -27,11 +27,15 @@ vi.mock('vue-i18n', () => ({
   useI18n: () => ({
     t: (key: string) => {
       const map: Record<string, string> = {
-        'catalog.product.create': 'Create Product',
-        'catalog.product.edit': 'Edit:',
-        'catalog.product.detail': 'Product Detail',
-        'catalog.product.updated': 'Product updated',
-        'catalog.product.created': 'Product created',
+        'catalog.products.titles.create': 'Create Product',
+        'catalog.products.actions.edit': 'Edit',
+        'catalog.products.titles.edit': 'Edit Product',
+        'catalog.products.actions.save': 'Save Product',
+        'catalog.products.actions.cancel': 'Cancel',
+        'catalog.products.labels.name': 'Name',
+        'catalog.products.labels.slug': 'Slug',
+        'catalog.products.labels.status': 'Status',
+        'catalog.products.labels.description': 'Description',
       }
       return map[key] ?? key
     },
@@ -120,7 +124,7 @@ describe('ProductDetailPage', () => {
     await router.isReady()
     const wrapper = mount(ProductDetailPage, { global: { plugins: [PrimeVue, ConfirmationService, ToastService, router] } })
     await flushPromises()
-    expect(wrapper.text()).toContain('Save Changes')
+    expect(wrapper.text()).toContain('Save Product')
     expect(wrapper.text()).toContain('Cancel')
   })
 })

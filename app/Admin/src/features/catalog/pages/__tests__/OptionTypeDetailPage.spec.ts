@@ -35,11 +35,28 @@ vi.mock('vue-i18n', () => ({
   useI18n: () => ({
     t: (key: string) => {
       const map: Record<string, string> = {
-        'catalog.optionType.create': 'Create Option Type',
-        'catalog.optionType.edit': 'Edit:',
-        'catalog.optionType.detail': 'Option Type Detail',
-        'catalog.optionType.updated': 'Option type updated',
-        'catalog.optionType.created': 'Option type created',
+        'catalog.option_types.titles.create': 'Create Option Type',
+        'catalog.option_types.actions.edit': 'Edit',
+        'catalog.option_types.titles.edit': 'Edit Option Type',
+        'catalog.option_types.actions.save_create': 'Create Option Type',
+        'catalog.option_types.actions.save_edit': 'Update Option Type',
+        'catalog.option_types.actions.cancel': 'Cancel',
+        'catalog.option_types.labels.name': 'Internal Name',
+        'catalog.option_types.labels.presentation': 'Display Name',
+        'catalog.option_types.labels.filterable': 'Filterable',
+        'catalog.option_types.descriptions.values': 'Add and manage specific values for this option type.',
+        'catalog.option_values.titles.list': 'Option Values',
+        'catalog.option_values.titles.create': 'Create Option Value',
+        'catalog.option_values.titles.edit': 'Edit Option Value',
+        'catalog.option_values.actions.add_value': 'Add Option Value',
+        'catalog.option_values.actions.cancel': 'Cancel',
+        'catalog.option_values.messages.update_success': 'Option value updated',
+        'catalog.option_values.messages.create_success': 'Option value created',
+        'catalog.option_values.messages.delete_success': 'Option value deleted',
+        'catalog.option_values.messages.empty_list': 'No option values',
+        'catalog.option_values.labels.name': 'Value Name',
+        'catalog.option_values.labels.presentation': 'Display Label',
+        'catalog.option_values.labels.position': 'Position',
       }
       return map[key] ?? key
     },

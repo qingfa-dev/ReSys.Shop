@@ -48,9 +48,9 @@ const saving = ref(false)
 const loadError = ref<string | null>(null)
 
 const title = computed(() => {
-  if (mode.value === 'create') return 'Create Product'
-  if (mode.value === 'edit') return `Edit: ${name.value || 'Product'}`
-  return name.value || 'Product Detail'
+  if (mode.value === 'create') return t('catalog.products.titles.create')
+  if (mode.value === 'edit') return `${t('catalog.products.actions.edit')}: ${name.value || ''}`
+  return name.value || t('catalog.products.titles.edit')
 })
 
 async function load() {
@@ -84,7 +84,7 @@ const save = handleSubmit(async (values) => {
     : await ProductApi.create(data)
   saving.value = false
   if (result.isSuccess) {
-    toast.success(id.value ? t('catalog.product.updated') : t('catalog.product.created'))
+    toast.success(id.value ? t('catalog.products.messages.update_success') : t('catalog.products.messages.create_success'))
     const newId = result.value.id
     router.replace({ name: ROUTE.PRODUCTS.VIEW, params: { id: newId } })
   } else {
@@ -108,7 +108,8 @@ onMounted(() => { load() })
   <div>
     <PageHeader :title="title" :icon="route.meta?.icon as string | undefined">
       <template #actions>
-        <button v-if="mode === 'view'" class="p-button p-component" @click="toggleEdit">Edit</button>
+        <button v-if="mode === 'view'" class="p-button p-component" @click="toggleEdit">{{
+          t('catalog.products.actions.edit') }}</button>
       </template>
     </PageHeader>
     <LoadingSkeleton v-if="loading && mode !== 'create'" :rows="8" :columns="2" />
@@ -116,17 +117,17 @@ onMounted(() => { load() })
     <div v-else class="card">
       <div class="grid">
         <div class="col-6">
-          <FormField label="Name" :error="errors.name" required>
+          <FormField :label="t('catalog.products.labels.name')" :error="errors.name" required>
             <input v-model="name" type="text" class="p-inputtext p-component w-full" :disabled="mode === 'view'" />
           </FormField>
         </div>
         <div class="col-6">
-          <FormField label="Slug" :error="errors.slug" required>
+          <FormField :label="t('catalog.products.labels.slug')" :error="errors.slug" required>
             <input v-model="slug" type="text" class="p-inputtext p-component w-full" :disabled="mode === 'view'" />
           </FormField>
         </div>
         <div class="col-6">
-          <FormField label="Status">
+          <FormField :label="t('catalog.products.labels.status')">
             <select v-model="status" class="p-inputtext p-component w-full" :disabled="mode === 'view'">
               <option value="Draft">Draft</option>
               <option value="Active">Active</option>
@@ -136,12 +137,14 @@ onMounted(() => { load() })
         </div>
         <div class="col-6">
           <FormField label="Department">
-            <input v-model="department" type="text" class="p-inputtext p-component w-full" :disabled="mode === 'view'" />
+            <input v-model="department" type="text" class="p-inputtext p-component w-full"
+              :disabled="mode === 'view'" />
           </FormField>
         </div>
         <div class="col-6">
           <FormField label="Gender Target">
-            <input v-model="genderTarget" type="text" class="p-inputtext p-component w-full" :disabled="mode === 'view'" />
+            <input v-model="genderTarget" type="text" class="p-inputtext p-component w-full"
+              :disabled="mode === 'view'" />
           </FormField>
         </div>
         <div class="col-6">
@@ -150,19 +153,14 @@ onMounted(() => { load() })
           </FormField>
         </div>
         <div class="col-12">
-          <FormField label="Description">
-            <textarea v-model="description" rows="4" class="p-inputtext p-component w-full" :disabled="mode === 'view'" />
+          <FormField :label="t('catalog.products.labels.description')">
+            <textarea v-model="description" rows="4" class="p-inputtext p-component w-full"
+              :disabled="mode === 'view'" />
           </FormField>
         </div>
       </div>
-      <FormActions
-        v-if="mode !== 'view'"
-        :loading="saving"
-        :save-label="mode === 'create' ? 'Create Product' : 'Save Changes'"
-        cancel-label="Cancel"
-        @save="save"
-        @cancel="cancel"
-      />
+      <FormActions v-if="mode !== 'view'" :loading="saving" :save-label="t('catalog.products.actions.save')"
+        :cancel-label="t('catalog.products.actions.cancel')" @save="save" @cancel="cancel" />
     </div>
   </div>
 </template>

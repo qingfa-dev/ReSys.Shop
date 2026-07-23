@@ -23,6 +23,21 @@ import ToastService from 'primevue/toastservice'
 import { ROUTE } from '../../routes'
 import OptionTypeListPage from '../OptionTypeListPage.vue'
 
+vi.mock('vue-i18n', () => ({
+  useI18n: () => ({
+    t: (key: string) => {
+      const map: Record<string, string> = {
+        'catalog.option_types.titles.list': 'Option Types',
+        'catalog.option_types.descriptions.list': 'Manage product options like Color, Size, etc.',
+        'catalog.option_types.actions.create': 'New Option Type',
+        'catalog.option_types.messages.empty_list': 'No option types found.',
+        'catalog.option_types.messages.delete_success': 'Option Type deleted successfully.',
+      }
+      return map[key] ?? key
+    },
+  }),
+}))
+
 const mockGetOptionTypes = vi.fn<(...args: unknown[]) => unknown>()
 const mockDeleteOptionType = vi.fn<(...args: unknown[]) => unknown>()
 
@@ -76,7 +91,7 @@ describe('OptionTypeListPage', () => {
       global: { plugins: createTestPlugins() },
     })
     await flushPromises()
-    expect(wrapper.text()).toContain('No option types')
+    expect(wrapper.text()).toContain('No option types found.')
   })
 
   it('displays option types in table when data exists', async () => {
@@ -116,6 +131,6 @@ describe('OptionTypeListPage', () => {
       global: { plugins: createTestPlugins() },
     })
     await flushPromises()
-    expect(wrapper.text()).toContain('Add Type')
+    expect(wrapper.text()).toContain('New Option Type')
   })
 })
