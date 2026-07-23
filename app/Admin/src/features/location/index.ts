@@ -1,0 +1,1 @@
+export { locationRoutes } from './routes'

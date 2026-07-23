@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { catalogRoutes } from '@/app/routes/catalog.routes'
+import { catalogRoutes } from '@/features/catalog'
 import type { RouteRecordRaw } from 'vue-router'
 
 function collectRouteNames(routes: RouteRecordRaw[]): string[] {
@@ -38,13 +38,13 @@ describe('catalog routes', () => {
   })
 })
 
-import { inventoryRoutes } from '@/app/routes/inventory.routes'
-import { orderingRoutes } from '@/app/routes/ordering.routes'
-import { paymentRoutes } from '@/app/routes/payment.routes'
-import { shippingRoutes } from '@/app/routes/shipping.routes'
-import { locationRoutes } from '@/app/routes/location.routes'
-import { usersRoutes } from '@/app/routes/users.routes'
-import { profileRoutes } from '@/app/routes/profile.routes'
+import { inventoryRoutes } from '@/features/inventory'
+import { orderingRoutes } from '@/features/ordering'
+import { paymentRoutes } from '@/features/payment'
+import { shippingRoutes } from '@/features/shipping'
+import { locationRoutes } from '@/features/location'
+import { usersRoutes } from '@/features/users'
+import { profileRoutes } from '@/features/profile'
 
 describe('inventory routes', () => {
   const childRoutes = (inventoryRoutes.children || []) as RouteRecordRaw[]
