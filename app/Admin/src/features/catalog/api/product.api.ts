@@ -1,11 +1,12 @@
 import apiClient from '@/shared/api/client'
+import { getPagedList } from '@/shared/api/utils/query-serializer'
 import type { Result, PagedResult } from '@/shared/models'
-import type { ProductResponse, CreateProductRequest, UpdateProductRequest, ProductListParams } from '../types'
+import type { ListQuery } from '@/shared/models'
+import type { ProductResponse, CreateProductRequest, UpdateProductRequest } from '../types'
 
 export class ProductApi {
-  static async getMany(params: ProductListParams = {}): Promise<PagedResult<ProductResponse>> {
-    const res = await apiClient.get<PagedResult<ProductResponse>>('/catalog/products', { params })
-    return res.data
+  static getMany(query: ListQuery): Promise<PagedResult<ProductResponse>> {
+    return getPagedList<ProductResponse>('/catalog/products', query)
   }
 
   static async get(id: string): Promise<Result<ProductResponse>> {

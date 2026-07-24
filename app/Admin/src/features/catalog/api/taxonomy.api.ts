@@ -1,11 +1,12 @@
 import apiClient from '@/shared/api/client'
+import { getPagedList } from '@/shared/api/utils/query-serializer'
 import type { Result, PagedResult } from '@/shared/models'
-import type { TaxonomyResponse, CreateTaxonomyRequest, UpdateTaxonomyRequest, TaxonomyListParams } from '../types'
+import type { ListQuery } from '@/shared/models'
+import type { TaxonomyResponse, CreateTaxonomyRequest, UpdateTaxonomyRequest } from '../types'
 
 export class TaxonomyApi {
-  static async getMany(params: TaxonomyListParams = {}): Promise<PagedResult<TaxonomyResponse>> {
-    const res = await apiClient.get<PagedResult<TaxonomyResponse>>('/catalog/taxonomies', { params })
-    return res.data
+  static getMany(query: ListQuery): Promise<PagedResult<TaxonomyResponse>> {
+    return getPagedList<TaxonomyResponse>('/catalog/taxonomies', query)
   }
 
   static async get(id: string): Promise<Result<TaxonomyResponse>> {

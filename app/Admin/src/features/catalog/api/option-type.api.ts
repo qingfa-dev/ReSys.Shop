@@ -1,11 +1,12 @@
 import apiClient from '@/shared/api/client'
+import { getPagedList } from '@/shared/api/utils/query-serializer'
 import type { Result, PagedResult } from '@/shared/models'
-import type { OptionTypeResponse, CreateOptionTypeRequest, UpdateOptionTypeRequest, OptionTypeListParams } from '../types'
+import type { ListQuery } from '@/shared/models'
+import type { OptionTypeResponse, CreateOptionTypeRequest, UpdateOptionTypeRequest } from '../types'
 
 export class OptionTypeApi {
-  static async getMany(params: OptionTypeListParams = {}): Promise<PagedResult<OptionTypeResponse>> {
-    const res = await apiClient.get<PagedResult<OptionTypeResponse>>('/catalog/option-types', { params })
-    return res.data
+  static getMany(query: ListQuery): Promise<PagedResult<OptionTypeResponse>> {
+    return getPagedList<OptionTypeResponse>('/catalog/option-types', query)
   }
 
   static async get(id: string): Promise<Result<OptionTypeResponse>> {
