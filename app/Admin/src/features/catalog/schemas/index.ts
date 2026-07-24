@@ -18,4 +18,8 @@ export { OptionValueFields } from './option-value.fields'
 export { OptionValueForms } from './option-value.forms'
 export type { CreateOptionValueForm, UpdateOptionValueForm } from './option-value.forms'
 
+export { VariantFields } from './variant.fields'
+export { VariantForms } from './variant.forms'
+export type { CreateVariantForm, UpdateVariantForm } from './variant.forms'
+
 export type { TFunction } from './product.fields'

@@ -5,6 +5,7 @@ const ROUTE = {
   PRODUCTS: { LIST: 'catalog.products.list', CREATE: 'catalog.products.create', VIEW: 'catalog.products.view', EDIT: 'catalog.products.edit' },
   TAXONOMIES: { LIST: 'catalog.taxonomies.list', CREATE: 'catalog.taxonomies.create', VIEW: 'catalog.taxonomies.view', EDIT: 'catalog.taxonomies.edit' },
   OPTION_TYPES: { LIST: 'catalog.option-types.list', CREATE: 'catalog.option-types.create', VIEW: 'catalog.option-types.view', EDIT: 'catalog.option-types.edit' },
+  VARIANTS: { LIST: 'catalog.variants.list', CREATE: 'catalog.variants.create', VIEW: 'catalog.variants.view', EDIT: 'catalog.variants.edit' },
 } as const
 
 export { ROUTE }
@@ -90,6 +91,30 @@ export const catalogRoutes: RouteRecordRaw = {
       name: ROUTE.OPTION_TYPES.EDIT,
       component: () => import('./pages/OptionTypeDetailPage.vue'),
       meta: { icon: 'pi pi-fw pi-list' },
+    },
+    {
+      path: 'products/:productId/variants',
+      name: ROUTE.VARIANTS.LIST,
+      component: () => import('./pages/VariantListPage.vue'),
+      meta: { icon: 'pi pi-fw pi-tag' },
+    },
+    {
+      path: 'products/:productId/variants/new',
+      name: ROUTE.VARIANTS.CREATE,
+      component: () => import('./pages/VariantDetailPage.vue'),
+      meta: { icon: 'pi pi-fw pi-tag' },
+    },
+    {
+      path: 'products/:productId/variants/:id',
+      name: ROUTE.VARIANTS.VIEW,
+      component: () => import('./pages/VariantDetailPage.vue'),
+      meta: { icon: 'pi pi-fw pi-tag' },
+    },
+    {
+      path: 'products/:productId/variants/:id/edit',
+      name: ROUTE.VARIANTS.EDIT,
+      component: () => import('./pages/VariantDetailPage.vue'),
+      meta: { icon: 'pi pi-fw pi-tag' },
     },
   ],
 }
