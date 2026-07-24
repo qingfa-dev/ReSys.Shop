@@ -65,7 +65,7 @@ function openEdit(rule: TaxonRuleListItem) {
   editingRule.value = rule
   setValues({
     type: rule.type,
-    matchPolicy: rule.matchPolicy,
+    matchPolicy: rule.matchPolicy as 'All' | 'Any',
     value: rule.value,
   })
   sidebarVisible.value = true
@@ -73,10 +73,9 @@ function openEdit(rule: TaxonRuleListItem) {
 
 const submit = handleSubmit(async (values) => {
   saving.value = true
-  const data = TaxonRuleFormMapper.toCreate(values)
   const result = editingRule.value
-    ? await TaxonRuleApi.update(props.taxonomyId, props.taxonId, editingRule.value.id, data)
-    : await TaxonRuleApi.create(props.taxonomyId, props.taxonId, data)
+    ? await TaxonRuleApi.update(props.taxonomyId, props.taxonId, editingRule.value.id, TaxonRuleFormMapper.toUpdate(values))
+    : await TaxonRuleApi.create(props.taxonomyId, props.taxonId, TaxonRuleFormMapper.toCreate(values))
   saving.value = false
   if (result.isSuccess) {
     toast.success(editingRule.value ? 'Rule updated' : 'Rule added')
