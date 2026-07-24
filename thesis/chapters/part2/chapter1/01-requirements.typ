@@ -200,7 +200,7 @@ Business rules are encoded as domain invariants (comments on entity classes), va
   [Configure sidecar with Model A (e.g., Fashion-CLIP)],
   [Generate embeddings for all 100 query images and all catalog images],
   [Execute top-20 similarity search for each query image],
-  [Record Precision@20, Recall@20, embedding generation time per image, total storage],
+  [Record Precision at K=20, Recall at K=20, embedding generation time per image, total storage],
   [Repeat steps 1–4 for Model B (ResNet-50), Model C (EfficientNet-B0), Model D (CLIP-generic)],
   [Compute mean ± SD across all queries per model],
   [Generate comparison report: retrieval metrics vs. operational metrics trade-off],
