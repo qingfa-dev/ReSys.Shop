@@ -2,6 +2,8 @@ import { computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useToast } from '@/shared/composables/useToast'
 import { ProductApi } from '../api/product.api'
+import { ProductOptionTypeApi } from '../api/product-option-type.api'
+import { ProductClassificationApi } from '../api/product-classification.api'
 
 export function useProduct() {
   const toast = useToast()
@@ -14,5 +16,5 @@ export function useProduct() {
     return route.name?.toString().endsWith('.edit') ? 'edit' : 'view'
   })
 
-  return { id, mode, route, router, toast, api: ProductApi }
+  return { id, mode, route, router, toast, api: ProductApi, optionTypeApi: ProductOptionTypeApi, classificationApi: ProductClassificationApi }
 }

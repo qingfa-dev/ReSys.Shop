@@ -14,6 +14,8 @@ import { ProductForms } from '../schemas'
 import { ProductFormMapper } from '../mappers/product.mapper'
 import { ProductApi } from '../api'
 import { ROUTE } from '../routes'
+import ProductOptionTypeManager from './ProductOptionTypeManager.vue'
+import ProductClassificationManager from './ProductClassificationManager.vue'
 
 const route = useRoute()
 const router = useRouter()
@@ -160,6 +162,8 @@ onMounted(() => { load() })
       </div>
       <FormActions v-if="mode !== 'view'" :loading="saving" :save-label="t('catalog.products.actions.save')"
         :cancel-label="t('catalog.products.actions.cancel')" @save="save" @cancel="cancel" />
+      <ProductOptionTypeManager v-if="id" :productId="id" />
+      <ProductClassificationManager v-if="id" :productId="id" />
     </div>
   </div>
 </template>
