@@ -3,6 +3,7 @@ import { useRoute, useRouter } from 'vue-router'
 import { useToast } from '@/shared/composables/useToast'
 import { TaxonomyApi } from '../api/taxonomy.api'
 import { TaxonApi } from '../api/taxon.api'
+import { TaxonRuleApi } from '../api/taxon-rule.api'
 
 export function useTaxonomy() {
   const toast = useToast()
@@ -15,5 +16,5 @@ export function useTaxonomy() {
     return route.name?.toString().endsWith('.edit') ? 'edit' : 'view'
   })
 
-  return { id, mode, route, router, toast, api: TaxonomyApi, taxonApi: TaxonApi, taxonTreeApi: TaxonApi }
+  return { id, mode, route, router, toast, api: TaxonomyApi, taxonApi: TaxonApi, taxonTreeApi: TaxonApi, ruleApi: TaxonRuleApi }
 }

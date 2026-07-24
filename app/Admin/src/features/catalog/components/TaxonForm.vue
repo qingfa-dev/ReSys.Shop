@@ -7,6 +7,7 @@ import { TaxonForms } from '../schemas'
 import { TaxonFormMapper } from '../mappers/taxon.mapper'
 import { TaxonApi } from '../api/taxon.api'
 import type { TaxonResponse } from '../types'
+import TaxonRuleManager from './TaxonRuleManager.vue'
 
 const emit = defineEmits<{
   saved: [value: TaxonResponse]
@@ -58,4 +59,8 @@ const onSubmit = handleSubmit(async (values) => {
       <Button type="submit" :label="t('catalog.taxa.actions.save')" :loading="saving" :disabled="saving" />
     </div>
   </form>
+  <fieldset v-if="taxon" class="mt-4 border-1 border-round p-3">
+    <legend class="font-semibold">{{ t('catalog.taxa.rules.title') }}</legend>
+    <TaxonRuleManager :taxonomy-id="props.taxonomyId" :taxon-id="taxon.id" />
+  </fieldset>
 </template>

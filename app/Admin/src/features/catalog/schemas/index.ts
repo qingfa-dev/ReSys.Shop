@@ -30,4 +30,8 @@ export { VariantImageFields } from './variant-image.fields'
 export { VariantImageForms } from './variant-image.forms'
 export type { VariantImageForm } from './variant-image.forms'
 
+export { TaxonRuleFields } from './taxon-rule.fields'
+export { TaxonRuleForms } from './taxon-rule.forms'
+export type { TaxonRuleForm } from './taxon-rule.forms'
+
 export type { TFunction } from './product.fields'
