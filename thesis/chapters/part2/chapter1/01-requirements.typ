@@ -174,6 +174,20 @@ Business rules are encoded as domain invariants (comments on entity classes), va
 
 == Use Cases
 
+=== Actor–Use Case Mapping
+
+#figure(
+  table(
+    columns: (auto, 1fr),
+    align: (start, start),
+    [*Actor*], [*Use Cases*],
+    [*Customer* (Guest / Authenticated)], [UC-CAT-01: Browse products \ UC-CAT-02: Search by image \ UC-CAT-03: View product details \ UC-ORD-01: Add to cart \ UC-ORD-02: Checkout \ UC-ORD-03: View order history \ UC-ORD-04: Cancel order \ UC-ID-01: Register / Login \ UC-ID-02: Login with Google \ UC-ID-03: Reset password \ UC-PROF-01: Manage addresses \ UC-PROF-02: Manage wishlist \ UC-PROF-03: Set notification preferences \ UC-PAY-01: Create payment intent \ UC-PAY-02: Confirm payment \ UC-SHIP-01: Calculate shipping],
+    [*Administrator*], [UC-CAT-04: Manage products \ UC-CAT-05: Manage taxonomies \ UC-CAT-06: Upload variant images \ UC-ORD-05: Manage orders \ UC-ID-04: Manage users & roles \ UC-PAY-03: Refund / capture \ UC-SHIP-02: Configure methods],
+    [*System* (Background Jobs)], [UC-ORD-06: Expire abandoned carts \ UC-PAY-04: Handle Stripe webhook],
+  ),
+  caption: [Actor–Use Case Mapping],
+)
+
 === Use Case: Search by Image (CBIR)
 
 *Actor*: Storefront Customer \
