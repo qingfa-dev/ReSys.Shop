@@ -52,6 +52,7 @@ function handleFileUpload(event: Event) {
   const file = input.files?.[0]
   if (!file) return
   upload(file)
+  input.value = ''
 }
 
 async function upload(file: File) {

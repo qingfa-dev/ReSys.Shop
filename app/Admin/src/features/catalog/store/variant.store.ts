@@ -34,19 +34,22 @@ export const useVariantStore = defineStore('catalog-variant', () => {
     loading.value = false
   }
 
-  function setPage(page: number) { query.value.page = page }
-  function setSearch(value: string) {
+  function setPage(page: number, productId: string) { query.value.page = page; return fetchMany(productId) }
+  function setSearch(value: string, productId: string) {
     query.value.search = { value, mode: 'Any' }
     query.value.page = 1
+    return fetchMany(productId)
   }
-  function setSort(field: string, direction: SortDirection) {
+  function setSort(field: string, direction: SortDirection, productId: string) {
     query.value.sort = [{ field, direction }]
+    return fetchMany(productId)
   }
-  function setFilter(group: FilterGroup) {
+  function setFilter(group: FilterGroup, productId: string) {
     query.value.filters = group
     query.value.page = 1
+    return fetchMany(productId)
   }
-  function resetQuery() { query.value = defaultListQuery() }
+  function resetQuery(productId: string) { query.value = defaultListQuery(); return fetchMany(productId) }
 
   return {
     items: readonly(items), loading: readonly(loading),

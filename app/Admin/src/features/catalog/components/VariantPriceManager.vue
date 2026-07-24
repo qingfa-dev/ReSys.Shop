@@ -67,9 +67,7 @@ function openEdit(price: VariantPriceResponse) {
 const submit = handleSubmit(async (values) => {
   saving.value = true
   const data = VariantPriceFormMapper.toCreate(values)
-  const result = editingPrice.value
-    ? await VariantPriceApi.set(props.variantId, data)
-    : await VariantPriceApi.set(props.variantId, data)
+  const result = await VariantPriceApi.set(props.variantId, data)
   saving.value = false
   if (result.isSuccess) {
     toast.success(editingPrice.value ? 'Price updated' : 'Price added')

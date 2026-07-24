@@ -40,8 +40,9 @@ async function onDelete(id: string) {
   })
 }
 
-function onSearch(value: string) { store.setSearch(value); store.fetchMany(productId) }
-function onPageChange(e: { page: number; rows: number }) { store.setPage(e.page + 1); store.fetchMany(productId) }
+function onSearch(value: string) { store.setSearch(value, productId) }
+function onPageChange(e: { page: number; rows: number }) { store.setPage(e.page + 1, productId) }
+function onSort(e: any) { store.setSort(e.sortField, e.sortOrder === 1 ? 'Ascending' : 'Descending', productId) }
 </script>
 
 <template>
@@ -63,6 +64,7 @@ function onPageChange(e: { page: number; rows: number }) { store.setPage(e.page 
       :page-size="store.query.pageSize"
       :first="(store.query.page - 1) * store.query.pageSize"
       @page="onPageChange"
+      @sort="onSort"
     >
       <Column field="sku" header="SKU" sortable />
       <Column field="position" header="Position" />
