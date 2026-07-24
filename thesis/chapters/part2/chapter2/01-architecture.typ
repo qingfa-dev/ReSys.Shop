@@ -70,6 +70,46 @@ The backend is a single ASP.NET Core API (.NET 10) exposing REST endpoints under
 
 External integrations include Stripe (payments), SendGrid/SMTP (email), Sinch (SMS), Google OAuth (login), and S3 (file storage).
 
+#figure(
+  {
+    set text(size: 8pt)
+    let box-w = 2.8cm
+    let box-h = 1.0cm
+
+    // People
+    let customer-box = rect(width: box-w, height: box-h, stroke: 0.5pt, fill: rgb("#d4e6f1"))[Customer\ Browses, searches, purchases]
+    let admin-box = rect(width: box-w, height: box-h, stroke: 0.5pt, fill: rgb("#d4e6f1"))[Administrator\ Manages catalog, orders]
+    let stripe-person-box = rect(width: box-w, height: box-h, stroke: 0.5pt, fill: rgb("#d4e6f1"))[Stripe\ Webhook sender]
+
+    // System
+    let resys-box = rect(width: 3.6cm, height: 1.4cm, stroke: 1pt, fill: rgb("#d5f5e3"))[#align(center + horizon)[*ReSys.Shop*\ Modular e-commerce platform]]
+
+    // External
+    let sendgrid-box = rect(width: box-w, height: box-h, stroke: 0.5pt, fill: luma(240))[SendGrid / SMTP\ Email delivery]
+    let sinch-box = rect(width: box-w, height: box-h, stroke: 0.5pt, fill: luma(240))[Sinch\ SMS notifications]
+    let google-box = rect(width: box-w, height: box-h, stroke: 0.5pt, fill: luma(240))[Google OAuth\ Identity provider]
+    let s3-box = rect(width: box-w, height: box-h, stroke: 0.5pt, fill: luma(240))[S3 Storage\ Image objects]
+
+    grid(
+      columns: (auto, auto, auto, auto),
+      column-gutter: 0.6cm,
+      row-gutter: 0.5cm,
+      align: (start, center, center, center),
+
+      // Row 1: People → System ← External
+      [People:], customer-box, resys-box, sendgrid-box,
+      [], admin-box, [], sinch-box,
+      [Webhooks:], stripe-person-box, [], google-box,
+      [], [], [], s3-box,
+    )
+
+    v(0.3cm)
+    set text(size: 7pt, style: "italic")
+    [Connections: Customer → HTTPS → ReSys.Shop; Admin → HTTPS → ReSys.Shop; Stripe → HTTPS webhook → ReSys.Shop; ReSys.Shop → SMTP/HTTPS → SendGrid; ReSys.Shop → HTTPS → Sinch; ReSys.Shop → OAuth 2.0 → Google; ReSys.Shop → S3 API → S3 Storage]
+  },
+  caption: [C4 Context Diagram --- ReSys.Shop System Context],
+)
+
 == Container Diagram
 
 The C4 Container diagram details the runtime components:
@@ -90,6 +130,73 @@ Downstream containers:
 - *Redis 7*: HybridCache and Hangfire persistence.
 - *Embedding Sidecar* (port 8000): Python FastAPI service for image vector generation.
 - *Stripe Gateway*: Webhook-based payment processing.
+
+#figure(
+  {
+    set text(size: 7.5pt)
+    let box-w = 2.4cm
+    let box-h = 0.9cm
+
+    // People
+    let customer-box = rect(width: box-w, height: box-h, stroke: 0.5pt, fill: rgb("#d4e6f1"))[Customer]
+    let admin-box = rect(width: box-w, height: box-h, stroke: 0.5pt, fill: rgb("#d4e6f1"))[Administrator]
+
+    // Containers inside ReSys.Shop boundary
+    let store-box = rect(width: box-w, height: box-h, stroke: 0.5pt, fill: rgb("#d5f5e3"))[Store SPA\ Vue 3 + Nuxt UI]
+    let admin-spa-box = rect(width: box-w, height: box-h, stroke: 0.5pt, fill: rgb("#d5f5e3"))[Admin SPA\ Vue 3 + PrimeVue]
+    let api-box = rect(width: box-w, height: box-h, stroke: 0.5pt, fill: rgb("#d5f5e3"))[API Backend\ .NET 10 + Carter]
+    let emb-box = rect(width: box-w, height: box-h, stroke: 0.5pt, fill: rgb("#d5f5e3"))[Embedding Sidecar\ Python + FastAPI]
+    let pg-box = rect(width: box-w, height: box-h, stroke: 0.5pt, fill: rgb("#aed6f1"))[PostgreSQL 17\ pgvector]
+    let redis-box = rect(width: box-w, height: box-h, stroke: 0.5pt, fill: rgb("#aed6f1"))[Redis 7\ Cache + Jobs]
+
+    // External
+    let stripe-box = rect(width: box-w, height: box-h, stroke: 0.5pt, fill: luma(240))[Stripe]
+    let sendgrid-ext = rect(width: box-w, height: box-h, stroke: 0.5pt, fill: luma(240))[SendGrid / SMTP]
+    let s3-ext = rect(width: box-w, height: box-h, stroke: 0.5pt, fill: luma(240))[S3 Storage]
+
+    // ReSys.Shop boundary
+    let boundary = rect(
+      width: 10.5cm,
+      height: 3.6cm,
+      stroke: 0.8pt,
+      radius: 4pt,
+      fill: luma(252),
+    )[
+      #place(dx: 6pt, dy: 4pt)[#text(size: 8pt, weight: "bold")[ReSys.Shop System]]
+      #place(dx: 0.3cm, dy: 0.7cm, grid(
+        columns: (1fr, 1fr, 1fr),
+        column-gutter: 0.4cm,
+        row-gutter: 0.3cm,
+        store-box, admin-spa-box, api-box,
+        emb-box, pg-box, redis-box,
+      ))
+    ]
+
+    grid(
+      columns: (auto, auto, auto),
+      column-gutter: 0.6cm,
+      row-gutter: 0.5cm,
+      align: (start, center, start),
+
+      [Actors:], grid(
+        rows: (auto, auto),
+        row-gutter: 0.3cm,
+        customer-box, admin-box,
+      ), boundary,
+
+      [External:], grid(
+        rows: (auto, auto, auto),
+        row-gutter: 0.3cm,
+        stripe-box, sendgrid-ext, s3-ext,
+      ), [],
+    )
+
+    v(0.3cm)
+    set text(size: 7pt, style: "italic")
+    [Connections: Customer → HTTPS → Store SPA; Admin → HTTPS → Admin SPA; Store SPA → REST /api → API; Admin SPA → REST /api → API; API → TCP 5432 → PostgreSQL; API → TCP 6379 → Redis; API → HTTP 8000 → Embedding; API → HTTPS → Stripe / SendGrid / S3; Embedding → pgvector (indirect via API)]
+  },
+  caption: [C4 Container Diagram --- ReSys.Shop Internal Structure],
+)
 
 == Component Diagram (API Backend)
 
@@ -117,6 +224,108 @@ Cross-cutting concerns are provided as separate components:
 - *Storage*: Local/S3 file storage (Strategy pattern)
 - *Notifications*: Email + SMS (SendGrid/SMTP/Sinch)
 - *Backgrounds*: Hangfire job processing
+
+#figure(
+  {
+    set text(size: 7pt)
+    let box-w = 2.2cm
+    let box-h = 0.75cm
+
+    // Frontends
+    let store-box = rect(width: box-w, height: box-h, stroke: 0.5pt, fill: rgb("#d4e6f1"))[Store SPA]
+    let admin-box = rect(width: box-w, height: box-h, stroke: 0.5pt, fill: rgb("#d4e6f1"))[Admin SPA]
+
+    // API Backend components
+    let endpoints-box = rect(width: box-w, height: box-h, stroke: 0.5pt, fill: rgb("#d5f5e3"))[Carter Endpoints\ ICarterModule]
+    let pipeline-box = rect(width: box-w, height: box-h, stroke: 0.5pt, fill: rgb("#d5f5e3"))[MediatR Pipeline\ IPipelineBehavior]
+    let handlers-box = rect(width: box-w, height: box-h, stroke: 0.5pt, fill: rgb("#d5f5e3"))[Feature Handlers\ ICommand / IQuery]
+    let db-box = rect(width: box-w, height: box-h, stroke: 0.5pt, fill: rgb("#d5f5e3"))[ApplicationDbContext\ EF Core 10]
+    let spec-box = rect(width: box-w, height: box-h, stroke: 0.5pt, fill: rgb("#d5f5e3"))[Specification DSL\ IQueryable]
+    let jwt-box = rect(width: box-w, height: box-h, stroke: 0.5pt, fill: rgb("#d5f5e3"))[JWT Auth\ ASP.NET Identity]
+    let perm-box = rect(width: box-w, height: box-h, stroke: 0.5pt, fill: rgb("#d5f5e3"))[Permission Provider\ IAuthorizationPolicy]
+    let storage-box = rect(width: box-w, height: box-h, stroke: 0.5pt, fill: rgb("#d5f5e3"))[Storage Service\ IStorageProvider]
+    let notify-box = rect(width: box-w, height: box-h, stroke: 0.5pt, fill: rgb("#d5f5e3"))[Notification Hub\ FluentEmail]
+    let hangfire-box = rect(width: box-w, height: box-h, stroke: 0.5pt, fill: rgb("#d5f5e3"))[Hangfire\ BackgroundJob]
+    let cache-box = rect(width: box-w, height: box-h, stroke: 0.5pt, fill: rgb("#d5f5e3"))[HybridCache\ IHybridCache]
+
+    // Databases
+    let pg-box = rect(width: box-w, height: box-h, stroke: 0.5pt, fill: rgb("#aed6f1"))[PostgreSQL 17\ pgvector]
+    let redis-box = rect(width: box-w, height: box-h, stroke: 0.5pt, fill: rgb("#aed6f1"))[Redis 7]
+
+    // Embedding Sidecar components
+    let emb-api-box = rect(width: box-w, height: box-h, stroke: 0.5pt, fill: rgb("#f9e79f"))[FastAPI Router\ embedding_router]
+    let emb-svc-box = rect(width: box-w, height: box-h, stroke: 0.5pt, fill: rgb("#f9e79f"))[Embedding Service\ Strategy pattern]
+    let emb-model-box = rect(width: box-w, height: box-h, stroke: 0.5pt, fill: rgb("#f9e79f"))[Model Implementations\ 4 concrete models]
+
+    // API Backend boundary
+    let api-boundary = rect(
+      width: 9.5cm,
+      height: 4.2cm,
+      stroke: 0.8pt,
+      radius: 4pt,
+      fill: luma(252),
+    )[
+      #place(dx: 6pt, dy: 4pt)[#text(size: 7.5pt, weight: "bold")[API Backend (.NET 10)]]
+      #place(dx: 0.2cm, dy: 0.6cm, grid(
+        columns: (1fr, 1fr, 1fr),
+        column-gutter: 0.3cm,
+        row-gutter: 0.25cm,
+        endpoints-box, pipeline-box, handlers-box,
+        db-box, spec-box, jwt-box,
+        perm-box, storage-box, notify-box,
+        hangfire-box, cache-box, [],
+      ))
+    ]
+
+    // Embedding Sidecar boundary
+    let sidecar-boundary = rect(
+      width: 9.5cm,
+      height: 1.4cm,
+      stroke: 0.8pt,
+      radius: 4pt,
+      fill: luma(252),
+    )[
+      #place(dx: 6pt, dy: 4pt)[#text(size: 7.5pt, weight: "bold")[Embedding Sidecar (Python)]]
+      #place(dx: 0.2cm, dy: 0.6cm, grid(
+        columns: (1fr, 1fr, 1fr),
+        column-gutter: 0.3cm,
+        emb-api-box, emb-svc-box, emb-model-box,
+      ))
+    ]
+
+    grid(
+      columns: (auto, auto),
+      column-gutter: 0.5cm,
+      row-gutter: 0.4cm,
+      align: (start, center),
+
+      // Frontends
+      [Frontends:], grid(
+        columns: (1fr, 1fr),
+        column-gutter: 0.3cm,
+        store-box, admin-box,
+      ),
+
+      // API Backend
+      [], api-boundary,
+
+      // Databases
+      [Data:], grid(
+        columns: (1fr, 1fr),
+        column-gutter: 0.3cm,
+        pg-box, redis-box,
+      ),
+
+      // Sidecar
+      [], sidecar-boundary,
+    )
+
+    v(0.3cm)
+    set text(size: 6.5pt, style: "italic")
+    [API Pipeline: Carter Endpoints → sender.Send() → Logging → Validation → ExceptionMapping → Handler\ Handlers → EF Core → PostgreSQL; Handlers → Specification DSL → IQueryable\ Handlers → JWT Auth / Permissions / Storage / Notifications / Hangfire / HybridCache\ HybridCache → Redis; Hangfire → Redis\ Handlers → POST /embeddings → FastAPI Router → Embedding Service → Model Registry]
+  },
+  caption: [C4 Component Diagram --- API Backend (.NET 10)],
+)
 
 == Design Patterns
 
