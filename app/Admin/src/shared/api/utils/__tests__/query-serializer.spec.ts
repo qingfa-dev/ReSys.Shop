@@ -1,6 +1,26 @@
 import { describe, it, expect } from 'vitest'
 import { toQueryParams } from '../query-serializer'
 import type { ListQuery } from '@/shared/models'
+import { defaultListQuery } from '@/shared/models'
+
+describe('defaultListQuery', () => {
+  it('returns default values', () => {
+    const q = defaultListQuery()
+    expect(q.page).toBe(1)
+    expect(q.pageSize).toBe(20)
+    expect(q.sort).toEqual([{ field: 'createdAt', direction: 'Descending' }])
+  })
+
+  it('accepts custom pageSize', () => {
+    const q = defaultListQuery(50)
+    expect(q.page).toBe(1)
+    expect(q.pageSize).toBe(50)
+  })
+
+  it('returns a new object each call', () => {
+    expect(defaultListQuery()).not.toBe(defaultListQuery())
+  })
+})
 
 describe('toQueryParams', () => {
   it('serializes page and pageSize', () => {
