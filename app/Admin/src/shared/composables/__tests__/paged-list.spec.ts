@@ -87,4 +87,10 @@ describe('usePagedList', () => {
     await refresh()
     expect(mockFetch).toHaveBeenCalledTimes(2)
   })
+
+  it('params returns default QueryingModel', () => {
+    const { params } = usePagedList({ fetchFn: vi.fn() })
+    expect(params).toBeDefined()
+    expect(typeof params.value.page.page).toBe('number')
+  })
 })
