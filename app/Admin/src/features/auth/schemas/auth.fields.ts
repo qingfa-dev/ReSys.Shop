@@ -58,8 +58,8 @@ export class AuthFields {
   }
 
   acceptTerm() {
-    return z.literal(true, {
-      errorMap: () => ({ message: this.t('auth.validation.acceptTerms.required') }),
+    return z.boolean().refine(val => val === true, {
+      message: this.t('auth.validation.acceptTerms.required'),
     })
   }
 }
