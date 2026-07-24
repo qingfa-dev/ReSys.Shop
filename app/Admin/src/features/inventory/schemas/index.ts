@@ -1,4 +1,6 @@
 export { StockLocationFields } from './stock-location.fields'
 export { StockLocationForms } from './stock-location.forms'
+export { StockItemForms } from './stock-item.forms'
 export type { CreateStockLocationForm, UpdateStockLocationForm } from './stock-location.forms'
+export type { CreateStockItemForm, UpdateStockItemForm } from './stock-item.forms'
 export type { TFunction } from './stock-location.fields'

@@ -2,6 +2,10 @@ import type { RouteRecordRaw } from 'vue-router'
 
 const ROUTE = {
   LOCATIONS: { LIST: 'inventory.locations.list', CREATE: 'inventory.locations.create', VIEW: 'inventory.locations.view', EDIT: 'inventory.locations.edit' },
+  STOCKS: { LIST: 'inventory.stocks.list', CREATE: 'inventory.stocks.create', VIEW: 'inventory.stocks.view', EDIT: 'inventory.stocks.edit' },
+  TRANSFERS: { LIST: 'inventory.transfers.list', CREATE: 'inventory.transfers.create', VIEW: 'inventory.transfers.view', EDIT: 'inventory.transfers.edit' },
+  MOVEMENTS: { LIST: 'inventory.movements.list' },
+  RESERVATIONS: { LIST: 'inventory.reservations.list' },
 } as const
 
 export { ROUTE }

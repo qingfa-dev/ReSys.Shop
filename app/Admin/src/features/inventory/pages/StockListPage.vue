@@ -1,7 +1,14 @@
 <script setup lang="ts">
-import PlaceholderPage from '@/shared/components/layout/PlaceholderPage.vue'
+import { useRoute } from 'vue-router'
+import PageHeader from '@/shared/components/layout/PageHeader.vue'
+import StockItemListTable from '../components/StockItemListTable.vue'
+
+const route = useRoute()
 </script>
 
 <template>
-  <PlaceholderPage title="Stock Items" description="Stock item list" />
+  <div>
+    <PageHeader title="Stock Items" :icon="route.meta?.icon as string | undefined" />
+    <StockItemListTable />
+  </div>
 </template>
