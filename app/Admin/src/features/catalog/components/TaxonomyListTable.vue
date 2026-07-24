@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import Column from 'primevue/column'
 import DataTable from '@/shared/components/data/DataTable.vue'
@@ -11,39 +11,17 @@ import ErrorState from '@/shared/components/feedback/ErrorState.vue'
 import { useI18n } from 'vue-i18n'
 import { useConfirm } from '@/shared/composables/useConfirm'
 import { useToast } from '@/shared/composables/useToast'
+import { useTaxonomyStore } from '../store/taxonomy.store'
 import { TaxonomyApi } from '../api'
-import type { TaxonomyResponse } from '../types'
 import { ROUTE } from '../routes'
 
 const router = useRouter()
 const { confirmDelete } = useConfirm()
 const toast = useToast()
 const { t } = useI18n()
+const store = useTaxonomyStore()
 
-const items = ref<TaxonomyResponse[]>([])
-const loading = ref(true)
-const error = ref<string | null>(null)
-const search = ref('')
-const page = ref(1)
-const pageSize = ref(20)
-const totalCount = ref(0)
-
-async function fetchTaxonomies() {
-  loading.value = true
-  error.value = null
-  const result = await TaxonomyApi.getMany({
-    page: page.value,
-    pageSize: pageSize.value,
-    search: search.value || undefined,
-  })
-  if (result.isSuccess) {
-    items.value = result.items
-    totalCount.value = result.totalCount
-  } else {
-    error.value = result.message ?? 'Failed to load taxonomies'
-  }
-  loading.value = false
-}
+onMounted(() => store.fetchMany())
 
 function goToCreate() { router.push({ name: ROUTE.TAXONOMIES.CREATE }) }
 function goToView(id: string) { router.push({ name: ROUTE.TAXONOMIES.VIEW, params: { id } }) }
@@ -54,20 +32,14 @@ async function onDelete(id: string) {
     target: 'this taxonomy',
     onAccept: async () => {
       const result = await TaxonomyApi.delete(id)
-      if (result.isSuccess) { toast.success(t('catalog.taxonomies.messages.delete_success')); await fetchTaxonomies() }
+      if (result.isSuccess) { toast.success(t('catalog.taxonomies.messages.delete_success')); await store.fetchMany() }
       else { toast.error(result.message ?? 'Failed to delete') }
     },
   })
 }
 
-function onSearch(value: string) { search.value = value; page.value = 1; fetchTaxonomies() }
-function onPageChange(e: { page: number; rows: number }) {
-  page.value = e.page + 1
-  pageSize.value = e.rows
-  fetchTaxonomies()
-}
-
-onMounted(() => fetchTaxonomies())
+function onSearch(value: string) { store.setSearch(value) }
+function onPageChange(e: { page: number; rows: number }) { store.setPage(e.page + 1) }
 </script>
 
 <template>
@@ -78,16 +50,16 @@ onMounted(() => fetchTaxonomies())
       @search="onSearch"
       @create="goToCreate"
     />
-    <LoadingSkeleton v-if="loading" :rows="5" :columns="4" />
-    <ErrorState v-else-if="error" :description="error" @retry="fetchTaxonomies" />
-    <EmptyState v-else-if="items.length === 0" :title="t('catalog.taxonomies.messages.empty_list')" description="Create your first taxonomy." />
+    <LoadingSkeleton v-if="store.loading.value && store.items.value.length === 0" :rows="5" :columns="4" />
+    <ErrorState v-else-if="store.error.value" :description="store.error.value" @retry="store.fetchMany" />
+    <EmptyState v-else-if="store.items.value.length === 0" :title="t('catalog.taxonomies.messages.empty_list')" description="Create your first taxonomy." />
     <DataTable
       v-else
-      :rows="items"
-      :loading="loading"
-      :total-records="totalCount"
-      :page-size="pageSize"
-      :first="(page - 1) * pageSize"
+      :rows="store.items.value"
+      :loading="store.loading.value"
+      :total-records="store.totalRecords.value"
+      :page-size="store.query.value.pageSize"
+      :first="(store.query.value.page - 1) * store.query.value.pageSize"
       @page="onPageChange"
     >
       <Column field="name" header="Name" sortable />
