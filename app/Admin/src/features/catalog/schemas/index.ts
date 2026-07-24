@@ -22,4 +22,12 @@ export { VariantFields } from './variant.fields'
 export { VariantForms } from './variant.forms'
 export type { CreateVariantForm, UpdateVariantForm } from './variant.forms'
 
+export { VariantPriceFields } from './variant-price.fields'
+export { VariantPriceForms } from './variant-price.forms'
+export type { VariantPriceForm } from './variant-price.forms'
+
+export { VariantImageFields } from './variant-image.fields'
+export { VariantImageForms } from './variant-image.forms'
+export type { VariantImageForm } from './variant-image.forms'
+
 export type { TFunction } from './product.fields'

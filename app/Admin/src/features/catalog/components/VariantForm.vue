@@ -15,6 +15,9 @@ import { VariantForms } from '../schemas'
 import { VariantFormMapper } from '../mappers/variant.mapper'
 import { VariantApi } from '../api'
 import { ROUTE } from '../routes'
+import VariantPriceManager from './VariantPriceManager.vue'
+import VariantOptionValueManager from './VariantOptionValueManager.vue'
+import VariantImageGallery from './VariantImageGallery.vue'
 
 const route = useRoute()
 const router = useRouter()
@@ -223,19 +226,16 @@ onMounted(async () => {
         </div>
       </div>
 
-      <!-- Prices section (Phase 2) -->
-      <div class="mt-6 border border-surface-200 dark:border-surface-700 rounded-lg p-4">
-        <div class="text-lg font-semibold text-surface-900 dark:text-surface-0 px-2 mb-3">Prices section</div>
+      <div v-if="id" class="mt-6 border border-surface-200 dark:border-surface-700 rounded-lg p-4">
+        <VariantPriceManager :variant-id="id!" />
       </div>
 
-      <!-- Option Values section (Phase 3) -->
-      <div class="mt-6 border border-surface-200 dark:border-surface-700 rounded-lg p-4">
-        <div class="text-lg font-semibold text-surface-900 dark:text-surface-0 px-2 mb-3">Option Values section</div>
+      <div v-if="id" class="mt-6 border border-surface-200 dark:border-surface-700 rounded-lg p-4">
+        <VariantOptionValueManager :variant-id="id!" />
       </div>
 
-      <!-- Images section (Phase 4) -->
-      <div class="mt-6 border border-surface-200 dark:border-surface-700 rounded-lg p-4">
-        <div class="text-lg font-semibold text-surface-900 dark:text-surface-0 px-2 mb-3">Images section</div>
+      <div v-if="id" class="mt-6 border border-surface-200 dark:border-surface-700 rounded-lg p-4">
+        <VariantImageGallery :variant-id="id!" />
       </div>
 
       <FormActions
