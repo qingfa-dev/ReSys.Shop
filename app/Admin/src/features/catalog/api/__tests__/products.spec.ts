@@ -13,14 +13,22 @@ vi.mock('@/shared/api/client', () => ({
 
 const pagedEmpty = { isSuccess: true, items: [], page: 1, pageSize: 20, totalCount: 0, statusCode: 200 }
 const singleOk = (value: unknown) => ({ isSuccess: true, value, statusCode: 200 })
+const defaultQuery = { page: 1, pageSize: 20, sort: [{ field: 'createdAt', direction: 'Descending' as const }] }
 
 describe('ProductApi', () => {
   beforeEach(() => { vi.clearAllMocks() })
 
-  it('getMany: GET /catalog/products with params', async () => {
+  it('getMany: GET /catalog/products with serialized query params', async () => {
     vi.mocked(apiClient.get).mockResolvedValue({ data: pagedEmpty })
-    await ProductApi.getMany({ page: 1 })
-    expect(apiClient.get).toHaveBeenCalledWith('/catalog/products', { params: { page: 1 } })
+    await ProductApi.getMany(defaultQuery)
+    expect(apiClient.get).toHaveBeenCalledWith('/catalog/products', {
+      params: {
+        'page.page': 1,
+        'page.pageSize': 20,
+        'sort.clauses[0].field': 'createdAt',
+        'sort.clauses[0].direction': 'Descending',
+      },
+    })
   })
 
   it('get: GET /catalog/products/:id', async () => {

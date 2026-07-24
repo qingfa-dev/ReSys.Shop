@@ -14,14 +14,22 @@ vi.mock('@/shared/api/client', () => ({
 
 const pagedEmpty = { isSuccess: true, items: [], page: 1, pageSize: 20, totalCount: 0, statusCode: 200 }
 const singleOk = (value: unknown) => ({ isSuccess: true, value, statusCode: 200 })
+const defaultQuery = { page: 1, pageSize: 20, sort: [{ field: 'createdAt', direction: 'Descending' as const }] }
 
 describe('TaxonomyApi', () => {
   beforeEach(() => { vi.clearAllMocks() })
 
-  it('getMany: GET /catalog/taxonomies', async () => {
+  it('getMany: GET /catalog/taxonomies with serialized params', async () => {
     vi.mocked(apiClient.get).mockResolvedValue({ data: pagedEmpty })
-    await TaxonomyApi.getMany({ page: 1 })
-    expect(apiClient.get).toHaveBeenCalledWith('/catalog/taxonomies', { params: { page: 1 } })
+    await TaxonomyApi.getMany(defaultQuery)
+    expect(apiClient.get).toHaveBeenCalledWith('/catalog/taxonomies', {
+      params: {
+        'page.page': 1,
+        'page.pageSize': 20,
+        'sort.clauses[0].field': 'createdAt',
+        'sort.clauses[0].direction': 'Descending',
+      },
+    })
   })
 
   it('get: GET /catalog/taxonomies/:id', async () => {
