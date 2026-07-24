@@ -1,5 +1,11 @@
 import type { RouteRecordRaw } from 'vue-router'
 
+const ROUTE = {
+  LOCATIONS: { LIST: 'inventory.locations.list', CREATE: 'inventory.locations.create', VIEW: 'inventory.locations.view', EDIT: 'inventory.locations.edit' },
+} as const
+
+export { ROUTE }
+
 export const inventoryRoutes: RouteRecordRaw = {
   path: 'inventory',
   children: [
@@ -31,23 +37,27 @@ export const inventoryRoutes: RouteRecordRaw = {
     },
     {
       path: 'locations',
-      name: 'inventory.locations.list',
+      name: ROUTE.LOCATIONS.LIST,
       component: () => import('@/features/inventory/pages/LocationListPage.vue'),
+      meta: { icon: 'pi pi-fw pi-building' },
     },
     {
       path: 'locations/new',
-      name: 'inventory.locations.create',
+      name: ROUTE.LOCATIONS.CREATE,
       component: () => import('@/features/inventory/pages/LocationDetailPage.vue'),
+      meta: { icon: 'pi pi-fw pi-building' },
     },
     {
       path: 'locations/:id',
-      name: 'inventory.locations.view',
+      name: ROUTE.LOCATIONS.VIEW,
       component: () => import('@/features/inventory/pages/LocationDetailPage.vue'),
+      meta: { icon: 'pi pi-fw pi-building' },
     },
     {
       path: 'locations/:id/edit',
-      name: 'inventory.locations.edit',
+      name: ROUTE.LOCATIONS.EDIT,
       component: () => import('@/features/inventory/pages/LocationDetailPage.vue'),
+      meta: { icon: 'pi pi-fw pi-building' },
     },
     {
       path: 'movements',
