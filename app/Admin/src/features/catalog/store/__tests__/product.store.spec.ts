@@ -87,6 +87,7 @@ describe('useProductStore', () => {
     const store = useProductStore()
     await store.setPage(3)
     await store.setSearch('test')
+    expect(mockGetMany).toHaveBeenCalled()
     expect(store.query.search).toEqual({ value: 'test', mode: 'Any' })
     expect(store.query.page).toBe(1)
   })
@@ -102,6 +103,7 @@ describe('useProductStore', () => {
     mockGetMany.mockResolvedValue(pagedResult())
     const store = useProductStore()
     await store.setFilter({ logic: 'And', conditions: [{ field: 'status', operator: 'Equal', value: 'Active' }] })
+    expect(mockGetMany).toHaveBeenCalled()
     expect(store.query.filters).toEqual({ logic: 'And', conditions: [{ field: 'status', operator: 'Equal', value: 'Active' }] })
     expect(store.query.page).toBe(1)
   })
@@ -113,6 +115,7 @@ describe('useProductStore', () => {
     await store.resetQuery()
     expect(store.query.page).toBe(1)
     expect(store.query.search).toBeUndefined()
+    expect(store.query.sort).toEqual([{ field: 'createdAt', direction: 'Descending' }])
     expect(mockGetMany).toHaveBeenCalled()
   })
 
