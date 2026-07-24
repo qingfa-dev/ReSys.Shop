@@ -50,6 +50,76 @@ Key columns per entity:
 - *LineItem*: `id` (PK), `order_id` (FK), `variant_id` (FK), `quantity`, `price`
 - *VariantImage*: `id` (PK), `variant_id` (FK), `embedding` (pgvector type `vector(512)`), `...`
 
+#figure(
+  block(width: 100%, inset: 0.8em, stroke: 0.5pt + black, radius: 4pt)[
+    ```text
+    ┌─────────────────────────────────────────────────┐
+    │  PRODUCT                                         │
+    ├─────────────────────────────────────────────────┤
+    │  PK  id                  uuid                    │
+    │      name                string                  │
+    │      description         string                  │
+    │  UK  slug                string                  │
+    │      status              string                  │
+    │      meta_title          string                  │
+    │      meta_description    string                  │
+    │      available_on        datetime                │
+    │      discontinue_on      datetime                │
+    │      style_code          string                  │
+    │      season_name         string                  │
+    │      material_composition string                 │
+    │      department          string                  │
+    │      gender_target       string                  │
+    │      master_variant_id   uuid (FK→Variant)       │
+    │      is_deleted          bool                    │
+    │      created_at_utc      datetime                │
+    │      modified_at_utc     datetime                │
+    └──────────────────┬──────────────────────────────┘
+                       │ 1
+                       │
+                       │ n
+    ┌──────────────────┴──────────────────────────────┐
+    │  VARIANT                                         │
+    ├─────────────────────────────────────────────────┤
+    │  PK  id                  uuid                    │
+    │  FK  product_id          uuid (→Product)         │
+    │      is_master           bool                    │
+    │  UK  sku                 string                  │
+    │      barcode             string                  │
+    │      price               decimal                 │
+    │      cost_price          decimal                 │
+    │      track_inventory     bool                    │
+    │      weight/height/      decimal                 │
+    │      width/depth                                 │
+    │      is_deleted          bool                    │
+    └─────┬───────────────────────────────────────────┘
+          │ 1                          │ 1
+          │                            │
+          │ n                          │ n
+    ┌─────┴──────────────┐   ┌────────┴───────────────┐
+    │  VARIANT_IMAGE      │   │  LINE_ITEM              │
+    ├────────────────────┤   ├────────────────────────┤
+    │  PK  id   uuid     │   │  PK  id   uuid         │
+    │  FK  variant_id    │   │  FK  order_id (→Order) │
+    │      file_path     │   │  FK  variant_id        │
+    │      alt_text      │   │      quantity  int     │
+    │      position int  │   │      price  decimal    │
+    │  **  embedding     │   │      total  decimal    │
+    │      vector(512)   │   └────────────────────────┘
+    └────────────────────┘
+    ```
+  ],
+  caption: [Entity Relationship Diagram -- Core Business Entities],
+)
+
+*Design notes*:
+
+1. *Product → Variant (1:n)* --- Exactly one variant is marked `is_master`; all others are size/color combinations.
+2. *Variant → VariantImage (1:n)* --- Each image stores a `pgvector(512)` embedding column for Content-Based Image Retrieval (CBIR).
+3. *Taxon self-references* via `parent_id` (not shown in ERD; see Taxonomy section below).
+4. *Order → LineItem (1:n)* --- Line items reference variants (not products) because customers buy specific size/color combinations.
+5. *Soft deletion* --- `is_deleted` on most entities enables recoverable deletion with audit trail.
+
 === Identity ERD (ASP.NET Identity Tables)
 
 The Identity schema uses standard ASP.NET Identity table structure:

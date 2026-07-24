@@ -343,6 +343,99 @@ service/Embedding/
     └── e2e/
 ```
 
+#figure(
+  block(width: 100%, inset: 0.8em, stroke: 0.5pt + black, radius: 4pt)[
+    ```text
+    ╔══════════════════════════════════════════════════════════════════════════╗
+    ║              ML Pipeline: Image Upload → Embedding → Search            ║
+    ╠══════════════════════════════════════════════════════════════════════════╣
+    ║                                                                        ║
+    ║  UPLOAD PHASE        EMBEDDING GENERATION (Model-Agnostic)             ║
+    ║  ════════════        ═════════════════════════════════════             ║
+    ║                                                                        ║
+    ║  ┌──────────┐        ┌────────────────┐      ┌──────────────────┐     ║
+    ║  │ Customer │──select image──→│ Vue SPA       │      │ API: Upload      │     ║
+    ║  │ / Admin  │        │ (file input +   │      │ POST /api/.../   │     ║
+    ║  └──────────┘        │  preview)       │      │ images           │     ║
+    ║                      └────────────────┘      └────────┬─────────┘     ║
+    ║                                                       │                ║
+    ║                                          ┌────────────┼──────────┐    ║
+    ║                                          ▼            ▼          │    ║
+    ║                                    ┌──────────┐ ┌──────────┐    │    ║
+    ║                                    │ Storage  │ │ Trigger  │    │    ║
+    ║                                    │ Provider │ │ embed    │    │    ║
+    ║                                    │(Local/S3)│ │          │    │    ║
+    ║                                    └──────────┘ └─────┬────┘    │    ║
+    ║                                                       │         │    ║
+    ║                                                       ▼         │    ║
+    ║                          ┌──────────────────────────────────┐   │    ║
+    ║                          │  API: Request Embedding          │   │    ║
+    ║                          │  HTTP POST /embeddings           │   │    ║
+    ║                          │  + ?model=fashion-clip           │   │    ║
+    ║                          └───────────────┬──────────────────┘   │    ║
+    ║                                          │                      │    ║
+    ║                                          ▼                      │    ║
+    ║                     ┌────────────────────────────────────────┐  │    ║
+    ║                     │  Python Sidecar (FastAPI + Uvicorn)    │  │    ║
+    ║                     │                                        │  │    ║
+    ║                     │  ┌──────────────────────────────────┐  │  │    ║
+    ║                     │  │ Model Registry (Strategy Pattern) │  │  │    ║
+    ║                     │  │ BaseEmbeddingModel → subclass     │  │  │    ║
+    ║                     │  └──────────────┬───────────────────┘  │  │    ║
+    ║                     │                 │ Instantiate           │  │    ║
+    ║                     │  ┌──────────────▼───────────────────┐  │  │    ║
+    ║                     │  │ Selected Model                   │  │  │    ║
+    ║                     │  │ Fashion-CLIP / ResNet-50 /       │  │  │    ║
+    ║                     │  │ EfficientNet-B0 / CLIP-generic   │  │  │    ║
+    ║                     │  └──────────────┬───────────────────┘  │  │    ║
+    ║                     │  ┌──────────────▼───────────────────┐  │  │    ║
+    ║                     │  │ Model-Specific Preprocessing     │  │  │    ║
+    ║                     │  │ (resize + normalize + tensor)    │  │  │    ║
+    ║                     │  └──────────────┬───────────────────┘  │  │    ║
+    ║                     │  ┌──────────────▼───────────────────┐  │  │    ║
+    ║                     │  │ Float Vector (L2-normalized)     │  │  │    ║
+    ║                     │  │ 512 / 1280 / 2048-d             │  │  │    ║
+    ║                     │  └──────────────────────────────────┘  │  │    ║
+    ║                     └────────────────────────────────────────┘  │    ║
+    ║                                          │                      │    ║
+    ║  PERSISTENCE PHASE                       ▼                      │    ║
+    ║  ════════════════                ┌──────────────┐               │    ║
+    ║                                  │ PostgreSQL 17│               │    ║
+    ║                                  │ pgvector ext │               │    ║
+    ║                                  └──────┬───────┘               │    ║
+    ║  ┌──────────────────────────────────────▼──────┐                │    ║
+    ║  │  Per-Model IVFFlat Index                    │                │    ║
+    ║  │  WHERE model_name = $1                      │                │    ║
+    ║  └─────────────────────────────────────────────┘                │    ║
+    ║                                                                  │    ║
+    ║  RETRIEVAL PHASE                                                 │    ║
+    ║  ═══════════════                                                │    ║
+    ║                                                                  │    ║
+    ║  ┌─────────────────────┐   ┌──────────────────┐                 │    ║
+    ║  │ Search by Image     │──→│ Cosine Similarity│                 │    ║
+    ║  │ POST /search-by-    │   │ ORDER BY <=>     │                 │    ║
+    ║  │ image               │   │ FILTER model_name│                 │    ║
+    ║  └─────────────────────┘   └────────┬─────────┘                 │    ║
+    ║                                      │                           │    ║
+    ║  ┌─────────────────────┐            ▼                           │    ║
+    ║  │ Top-K Results       │←── Use per-model index                 │    ║
+    ║  │ LIMIT 20            │                                        │    ║
+    ║  └─────────────────────┘                                        │    ║
+    ╚══════════════════════════════════════════════════════════════════════════╝
+    ```
+  ],
+  caption: [ML Pipeline -- Image Upload, Model-Agnostic Embedding Generation, and CBIR Retrieval],
+)
+
+*Pipeline design notes*:
+
+1. *Upload Phase* --- Images are uploaded via the Vue SPA, validated, and stored via the `IStorageProvider` abstraction (Local disk or S3).
+2. *Embedding Generation (Strategy Pattern)* --- The Python sidecar receives the image plus an optional `model` parameter. The `Model Registry` instantiates the correct `BaseEmbeddingModel` subclass: `FashionCLIPModel` (512-d), `ResNet50Model` (2048-d), `EfficientNetB0Model` (1280-d), or `CLIPGenericModel` (512-d).
+3. *Persistence* --- The vector, `model_name`, and `vector_dim` are stored in PostgreSQL pgvector. Per-model IVFFlat indexes prevent cross-model interference during evaluation.
+4. *Retrieval* --- The query embedding is filtered by `model_name` so only embeddings generated by the same model are compared. This is critical for the comparative evaluation in Chapter 11.
+
+*Key design decision*: Model selection happens at runtime via the `EMBEDDING_MODEL` env var or query parameter. No code changes are needed in the .NET backend to swap models --- the sidecar encapsulates all ML complexity.
+
 === Embedding Model Class Hierarchy (Strategy Pattern)
 
 #figure(
