@@ -55,7 +55,7 @@ function onPageChange(e: { page: number; rows: number }) { store.setPage(e.page 
     <EmptyState v-else-if="store.items.length === 0" :title="t('catalog.option_types.messages.empty_list')" description="Create your first option type." />
     <DataTable
       v-else
-      :rows="store.items"
+      :rows="[...store.items]"
       :loading="store.loading"
       :total-records="store.totalRecords"
       :page-size="store.query.pageSize"
