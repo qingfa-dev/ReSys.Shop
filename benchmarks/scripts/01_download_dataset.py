@@ -1,68 +1,87 @@
 #!/usr/bin/env python
-"""Prepare the Kaggle Fashion Product Images (Small) dataset for benchmarking.
+"""Download the Kaggle Fashion Product Images datasets for benchmarking.
 
-The dataset is ~280 MB and must be downloaded manually from Kaggle
-(requires a free Kaggle account):
+Uses ``kagglehub`` to download from Kaggle (requires API token in
+``~/.kaggle/access_token`` or the ``KAGGLE_API_TOKEN`` env var).
 
-    https://www.kaggle.com/datasets/paramaggarwal/fashion-product-images-small
+Datasets
+--------
+- small  — paramaggarwal/fashion-product-images-small (44K images + styles.csv)
+- full   — paramaggarwal/fashion-product-images-dataset (44K images + per-product JSONs)
+- synthetic — locally-generated mini-dataset (no download, for CI/smoke tests)
 
-After downloading, you will have a zip file. Run this script to extract it
-and validate the layout:
+Usage::
 
-    uv run python scripts/01_download_dataset.py --source ~/Downloads/archive.zip
+    # Default: small dataset
+    uv run python scripts/01_download_dataset.py
 
-Expected layout after extraction
----------------------------------
-data/raw/fashion-dataset/
-├── images/           # 44 k JPEG files named {product_id}.jpg
-└── styles.csv        # product metadata (id, gender, masterCategory, …)
+    # Full dataset (~23 GB)
+    uv run python scripts/01_download_dataset.py --dataset full
 
-Columns in styles.csv
----------------------
-id, gender, masterCategory, subCategory, articleType,
-baseColour, season, year, usage, productDisplayName
-
-Alternatively, use the Kaggle CLI (pip install kaggle):
-
-    kaggle datasets download -d paramaggarwal/fashion-product-images-small
-    uv run python scripts/01_download_dataset.py --source fashion-product-images-small.zip
-
-Synthetic dataset (for CI / smoke tests without the real data)
---------------------------------------------------------------
-    uv run python scripts/01_download_dataset.py --synthetic --n 500
+    # Synthetic mini-dataset
+    uv run python scripts/01_download_dataset.py --dataset synthetic --n 500
 """
 from __future__ import annotations
 
 import argparse
 import csv
 import random
-import zipfile
-from io import StringIO
+import sys
 from pathlib import Path
 
 from PIL import Image, ImageDraw
 
 
-# ── Kaggle dataset preparation ────────────────────────────────────────────────
+_KAGGLE_SLUGS = {
+    "small": "paramaggarwal/fashion-product-images-small",
+    "full": "paramaggarwal/fashion-product-images-dataset",
+}
 
-def extract_kaggle_zip(source: Path, output_root: Path) -> Path:
-    """Extract the Kaggle zip to output_root/fashion-dataset/.
 
-    Returns:
-        Path to the extracted dataset root.
+def _download_kagglehub(slug: str) -> Path:
+    """Download a Kaggle dataset via kagglehub and return its cache path."""
+    try:
+        import kagglehub
+    except ImportError:
+        print("kagglehub not installed. Run: uv add kagglehub")
+        raise SystemExit(1)
+
+    print(f"Downloading {slug} via kagglehub …")
+    path = Path(kagglehub.dataset_download(slug))
+    print(f"  cached at {path}")
+    return path
+
+
+def _link_or_copy(src: Path, dst: Path) -> None:
+    """Link src to dst. Fall back to copy if cross-device."""
+    dst.unlink(missing_ok=True)
+    try:
+        dst.symlink_to(src, target_is_directory=True)
+        print(f"  symlinked {dst} → {src}")
+    except OSError:
+        import shutil
+        shutil.copytree(src, dst, dirs_exist_ok=True)
+        print(f"  copied {src} → {dst}")
+
+
+def _resolve_cache_dir(cache_path: Path) -> Path:
+    """Resolve the actual data directory inside a kagglehub cache path.
+
+    The small dataset stores files directly in ``versions/1/``, while the
+    full dataset wraps them in a ``fashion-dataset/`` subdirectory.
     """
-    dest = output_root / "fashion-dataset"
-    dest.mkdir(parents=True, exist_ok=True)
+    candidate = cache_path / "fashion-dataset"
+    if candidate.is_dir():
+        return candidate
+    return cache_path
 
-    print(f"Extracting {source} → {dest} …")
-    with zipfile.ZipFile(source, "r") as zf:
-        members = zf.namelist()
-        total = len(members)
-        for i, member in enumerate(members, 1):
-            if i % 5000 == 0 or i == total:
-                print(f"  {i}/{total} files extracted …", end="\r")
-            zf.extract(member, dest)
-    print(f"\nDone — {total} files extracted.")
+
+def create_symlink_output(cache_path: Path, output_root: Path, name: str) -> Path:
+    """Create a symlink from cache to output_root/name, returns output path."""
+    src = _resolve_cache_dir(cache_path)
+    dest = output_root / name
+    dest.parent.mkdir(parents=True, exist_ok=True)
+    _link_or_copy(src, dest)
     return dest
 
 
@@ -71,6 +90,14 @@ def validate_layout(dataset_root: Path) -> bool:
     ok = True
     csv_path = dataset_root / "styles.csv"
     img_dir  = dataset_root / "images"
+
+    # The full dataset also provides styles/ (per-product JSONs) — optional
+    styles_dir = dataset_root / "styles"
+    if styles_dir.is_dir():
+        n_jsons = len(list(styles_dir.glob("*.json")))
+        print(f"✓  styles/ — {n_jsons:,} JSON files")
+    else:
+        print(f"–  styles/ not found (expected only for full dataset)")
 
     if not csv_path.exists():
         print(f"✗  styles.csv not found at {csv_path}")
@@ -92,8 +119,6 @@ def validate_layout(dataset_root: Path) -> bool:
 
 
 # ── Synthetic dataset (CI smoke tests) ───────────────────────────────────────
-
-# Real article types from the Kaggle dataset — used to make synthetic data realistic
 _ARTICLE_TYPES = [
     "Tshirts", "Shirts", "Jeans", "Trousers", "Casual Shoes",
     "Watches", "Sports Shoes", "Kurtas", "Tops", "Handbags",
@@ -126,10 +151,6 @@ _USAGES    = ["Casual", "Formal", "Sports", "Ethnic"]
 def generate_synthetic(output_root: Path, n: int = 500, seed: int = 42) -> Path:
     """Generate a synthetic fashion-dataset with the same layout as the Kaggle data.
 
-    The generated dataset has:
-    - ``images/{id}.jpg``  — small coloured rectangles (224×224)
-    - ``styles.csv``       — same columns as the real Kaggle CSV
-
     Args:
         output_root: Parent directory; dataset created at output_root/fashion-dataset/
         n:           Number of products to generate.
@@ -139,7 +160,7 @@ def generate_synthetic(output_root: Path, n: int = 500, seed: int = 42) -> Path:
         Path to the generated dataset root.
     """
     rng = random.Random(seed)
-    dest = output_root / "fashion-dataset"
+    dest = output_root / "synthetic-dataset"
     img_dir = dest / "images"
     img_dir.mkdir(parents=True, exist_ok=True)
 
@@ -156,7 +177,6 @@ def generate_synthetic(output_root: Path, n: int = 500, seed: int = 42) -> Path:
         year       = rng.randint(2010, 2020)
         name       = f"{colour} {article} for {gender}"
 
-        # Generate a coloured thumbnail
         hue = (i * 37) % 360
         r = int(128 + 127 * __import__("math").sin(hue * 3.14159 / 180))
         g = int(128 + 127 * __import__("math").sin((hue + 120) * 3.14159 / 180))
@@ -197,25 +217,21 @@ def generate_synthetic(output_root: Path, n: int = 500, seed: int = 42) -> Path:
 
 def main() -> None:
     parser = argparse.ArgumentParser(
-        description="Prepare the Kaggle Fashion Product Images (Small) dataset",
+        description="Download Kaggle Fashion Product Images datasets via kagglehub",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog=__doc__,
     )
     parser.add_argument(
-        "--source", type=Path, metavar="ZIP",
-        help="Path to the downloaded archive.zip from Kaggle.",
+        "--dataset", choices=("small", "full", "synthetic"), default="small",
+        help="Dataset to download (default: small).",
     )
     parser.add_argument(
         "--output", type=Path, default=Path("data/raw"), metavar="DIR",
-        help="Parent directory for the extracted dataset (default: data/raw).",
-    )
-    parser.add_argument(
-        "--synthetic", action="store_true",
-        help="Generate a synthetic mini-dataset instead of extracting a real one.",
+        help="Parent directory for the dataset (default: data/raw).",
     )
     parser.add_argument(
         "--n", type=int, default=500,
-        help="Number of products to generate (--synthetic only, default 500).",
+        help="Number of products to generate (synthetic only, default 500).",
     )
     parser.add_argument(
         "--seed", type=int, default=42,
@@ -223,33 +239,29 @@ def main() -> None:
     )
     args = parser.parse_args()
 
-    if args.synthetic:
-        dest = generate_synthetic(args.output, n=args.n, seed=args.seed)
+    output_root = args.output.resolve()
+
+    if args.dataset == "synthetic":
+        dest = generate_synthetic(output_root, n=args.n, seed=args.seed)
         print("\nValidating …")
         validate_layout(dest)
-        print("\nRun the benchmark with:")
-        print(f"  uv run benchmark benchmark --dataset-root {dest}")
+        print(f"\nRun: uv run benchmark run --dataset-root {dest}")
         return
 
-    if args.source is None:
-        print(
-            "Provide --source to extract a Kaggle zip, or --synthetic to generate test data.\n"
-            "Download from:\n"
-            "  https://www.kaggle.com/datasets/paramaggarwal/fashion-product-images-small\n"
-            "Or with the Kaggle CLI:\n"
-            "  kaggle datasets download -d paramaggarwal/fashion-product-images-small"
-        )
+    slug = _KAGGLE_SLUGS[args.dataset]
+    name = slug.split("/")[-1]
+
+    cache_path = _download_kagglehub(slug)
+    dest = create_symlink_output(cache_path, output_root, name)
+
+    print("\nValidating …")
+    ok = validate_layout(dest)
+    if not ok:
+        print("\nDownload may be incomplete. Re-run the script.")
         raise SystemExit(1)
 
-    dest = extract_kaggle_zip(args.source, args.output)
-    print("\nValidating extracted layout …")
-    ok = validate_layout(dest)
-    if ok:
-        print("\nDataset ready. Run the benchmark with:")
-        print(f"  uv run benchmark benchmark --dataset-root {dest}")
-    else:
-        print("\nExtraction may be incomplete. Re-download and try again.")
-        raise SystemExit(1)
+    print(f"\nDataset ready at {dest}")
+    print(f"  Run: uv run benchmark run --dataset-root {dest}")
 
 
 if __name__ == "__main__":

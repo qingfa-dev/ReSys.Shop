@@ -17,7 +17,7 @@ def test_upsert_batch():
     labels = ["shirt", "jeans", "shoes"]
     embeddings = np.random.rand(3, 512).astype(np.float32)
 
-    retriever.upsert_batch(ids, labels, embeddings)
+    retriever.upsert_batch(ids, labels, embeddings, model_slug="fashion-clip")
     assert cur.executemany.call_count == 1
     sql = cur.executemany.call_args[0][0]
     assert "INSERT INTO" in sql
@@ -32,9 +32,10 @@ def test_clear_table():
     cur = retriever._conn.cursor.return_value
 
     retriever.clear_table()
-    cur.execute.assert_called_once()
-    sql = cur.execute.call_args[0][0]
-    assert "DELETE FROM" in sql
+    assert cur.execute.call_count == 2
+    for call_args in cur.execute.call_args_list:
+        sql = call_args[0][0]
+        assert "DELETE FROM" in sql
 
 
 def test_build_index():
