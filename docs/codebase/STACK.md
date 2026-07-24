@@ -10,7 +10,8 @@
 | .NET SDK | 10.0.301 (rollForward: latestPatch) | `global.json` (line 4) |
 | Target framework | net10.0 (C# preview) | `Directory.Build.props` (line 4) |
 | .NET runtime versions | 10.0.9 (AspNetCore, EFCore), 10.6.0 (Extensions) | `Directory.Packages.props` (lines 6-10) |
-| Node.js | ^20.19.0 or >=22.12.0 | `app/Admin/package.json` (line 71), `app/Store/package.json` (line 55) |
+| Node.js (Admin) | ^22.18.0 or >=24.12.0 | `app/Admin/package.json` (engines) |
+| Node.js (Store) | ^20.19.0 or >=22.12.0 | `app/Store/package.json` (engines) |
 | Python | >=3.12 | `service/Embedding/pyproject.toml` (line 9), `benchmarks/pyproject.toml` (line 6) |
 | Package manager (C#) | NuGet (Central Package Management) | `Directory.Packages.props` (line 3) |
 | Package manager (TS) | pnpm | `app/Admin/package.json` (scripts), CI workflow at `.github/workflows/ci.yml` (line 30) |
@@ -48,14 +49,13 @@
 | Dependency | Version | Role in system | Evidence |
 |------------|---------|----------------|----------|
 | Vue | ^3.5.38 | UI framework | `app/Admin/package.json` |
-| PrimeVue | ^4.5.5 | UI component library | `app/Admin/package.json` |
-| Tailwind CSS | ^4.3.2 | Utility CSS framework | `app/Admin/package.json` |
+| PrimeVue | ^5.0.0 | UI component library | `app/Admin/package.json` |
+| Tailwind CSS | ^4.3.3 | Utility CSS framework | `app/Admin/package.json` |
 | Pinia | ^3.0.4 | State management | `app/Admin/package.json` |
 | Vue Router | ^5.1.0 | Client-side routing | `app/Admin/package.json` |
 | Axios | ^1.18.1 | HTTP client | `app/Admin/package.json` |
-| Vee-Validate + Zod | ^4.15.1 + ^3.25.75 | Form validation | `app/Admin/package.json` |
-| Chart.js | ^4.5.1 | Dashboard charts | `app/Admin/package.json` |
-| vue-i18n | ^11.4.6 | Internationalization | `app/Admin/package.json` |
+| Vee-Validate + Zod | ^4.15.1 + ^3.25.76 | Form validation | `app/Admin/package.json` |
+| vue-i18n | ^11.4.7 | Internationalization | `app/Admin/package.json` |
 | jwt-decode | ^4.0.0 | JWT token decoding | `app/Admin/package.json` |
 
 #### Vue 3 Storefront SPA (app/Store)
@@ -102,7 +102,7 @@
 | Aspire Redis Hosting | 13.4.6 | Redis container management | `Directory.Packages.props` |
 | Aspire Python Hosting | 13.4.6 | Python uvicorn app hosting | `Directory.Packages.props` |
 | Aspire Node.js Hosting | 13.4.6 | Vite dev server hosting | `Directory.Packages.props` |
-| OpenTelemetry | 1.16.0 | Distributed tracing/metrics | `Directory.Packages.props` |
+| OpenTelemetry | 1.16.0 (Runtime: 1.15.1, EF/Redis instr: 1.16.0-beta.1) | Distributed tracing/metrics | `Directory.Packages.props` |
 
 ### 3) Development Toolchain
 
@@ -157,10 +157,10 @@ cd benchmarks && uv run benchmark --help              # CLI
 
 ### 5) Environment and Config
 
-- Config sources: `service/Api/src/Api/appsettings.json`, `appsettings.Development.json`, `dotnet user-secrets` (id: `resys.shop.api`)
+- Config sources: `service/Api/src/Api/appsettings.json`, `appsettings.Development.json`, `dotnet user-secrets` (id: `resys.shop.api`), `service/Api/src/Api/.env.template` (placeholders), `service/Embedding/.env.template` (placeholders), `app/Store/.env.development`
 - Required env vars: `ConnectionStrings__DefaultConnection`, `Authentication__Jwt__Secret`, `GatewayProviders__SettingsEncryptionKey`, `GatewayProviders__stripe__SecretKey`, `GatewayProviders__stripe__WebhookSecret`, `Authentication__Google__ClientId`, `Authentication__Google__ClientSecret`
-- No `.env.example` or `.env.template` found; `appsettings.json` serves as config template
-- Deployment/runtime constraints: Net10.0 on Linux (via Aspire), PostgreSQL with pgvector, Redis 7-alpine, all orchestrated by Aspire for local dev; no Dockerfiles (Aspire manages containers)
+- `.env.template` files exist at `service/Api/src/Api/.env.template` and `service/Embedding/.env.template` with placeholder values; `appsettings.json` serves as config template
+- Deployment/runtime constraints: Net10.0 on Linux (via Aspire), PostgreSQL with pgvector, Redis 7-alpine, all orchestrated by Aspire for local dev; `service/Embedding/Dockerfile` exists for Python sidecar production deployment
 
 ### 6) Evidence
 

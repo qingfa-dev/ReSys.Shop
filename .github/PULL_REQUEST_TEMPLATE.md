@@ -9,8 +9,17 @@
 - [ ] `dotnet test service/Api/tests/Shared.UnitTests` passes
 - [ ] Relevant frontend `pnpm run lint && pnpm run test:unit` passes (Admin / Store / both)
 - [ ] Python `uv run ruff check . && uv run pytest` passes (if touching `service/Embedding/`)
+- [ ] `bash scripts/check-feature-conventions.sh` passes (C# changes)
+- [ ] `bash scripts/check-cross-module-refs.sh` passes (C# changes — no new cross-module using statements)
 - [ ] New features follow vertical-slice layout (Handler + Request + Response + Endpoint + Validator)
 - [ ] Cross-module work uses `ISender`, not direct namespace reference
 - [ ] Domain operations return `Result` / `Result<T>`, not exceptions
 - [ ] `.harness/domains.yml` LOC counts are up-to-date for affected modules
 - [ ] `AGENTS.md` is updated if conventions or structure changed
+
+### Security
+
+- [ ] No secrets, tokens, or credentials committed
+- [ ] New endpoints have rate-limit policy or documented exemption
+- [ ] New file types added to upload allowlist/blocklist if relevant
+- [ ] New external dependencies reviewed for supply-chain risk

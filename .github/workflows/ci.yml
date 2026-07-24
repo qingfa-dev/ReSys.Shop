@@ -18,6 +18,8 @@ jobs:
       - run: dotnet build
       - name: Check feature conventions
         run: bash scripts/check-feature-conventions.sh
+      - name: Check cross-module references
+        run: bash scripts/check-cross-module-refs.sh
       - run: dotnet test service/Api/tests/Shared.UnitTests
       - run: dotnet test service/Api/tests/Module.UnitTests
 

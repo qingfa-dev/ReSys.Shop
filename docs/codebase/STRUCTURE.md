@@ -11,7 +11,7 @@
 | `service/Api/src/Module/` | 8 business modules (single assembly, no cross-references) | `Module.csproj` depends only on Shared |
 | `service/Api/src/Shared/` | Cross-cutting infrastructure (no dependency on Module) | `Shared.csproj` references ReSys.ServiceDefaults |
 | `service/Api/src/Migrations/` | EF Core migrations (separate assembly) | `Api.Migrations.csproj` references Shared + Module |
-| `service/Api/tests/` | 3 test projects: Module.UnitTests, Shared.UnitTests, Api.Tests | `ReSys.Shop.slnx` |
+| `service/Api/tests/` | 4 test projects: Module.UnitTests, Shared.UnitTests, Api.Tests (integration), Api.SmokeTests (.http) | `ReSys.Shop.slnx` |
 | `service/Embedding/` | Python FastAPI ML sidecar (Fashion-CLIP, ONNX) | `pyproject.toml` |
 | `app/Admin/` | Vue 3 Admin SPA (PrimeVue + Sakai theme) | `package.json` |
 | `app/Store/` | Vue 3 Storefront SPA (Nuxt UI) | `package.json` |
@@ -39,7 +39,7 @@
 | Boundary | What belongs here | What must not be here |
 |----------|-------------------|------------------------|
 | `Shared/` | Cross-cutting abstractions: Application (Result, Entity, Mediators), Security, Performance, Operational, Observability, Governance | Must not depend on any Module code |
-| `Module/` | 8 business domains: Catalog, Identity, Inventory, Location, Ordering, Payment, Profile, Shipping | Modules must not reference each other (verified by build target) |
+| `Module/` | 8 business domains (9th proto-module Dashboard exists but is unregistered): Catalog, Identity, Inventory, Location, Ordering, Payment, Profile, Shipping | Modules must not reference each other (ISender pattern only). However, 39 cross-module `using Module.X.Domain...` references exist across 7 of 8 modules (Ordering is the worst offender). Build target `ValidateVerticalSliceIsolation` emits warnings but does not fail the build. |
 | `Api/` | Thin composition root: Program.cs, appsettings, startup wiring | No business logic |
 | `Migrations/` | EF Core migration files and DbContext snapshot | No business logic |
 | `Embedding/` | ML inference: image embedding generation, model hosting, ONNX optimization | No business logic |
@@ -49,7 +49,7 @@
 | Sub-boundary | What belongs here | What must not be here |
 |-------------|-------------------|------------------------|
 | `{Module}/Domain/` | Aggregate roots, value objects, domain methods returning Result<T>, enums, validation, error factories | No EF Core, no persistence, no API concerns |
-| `{Module}/Features/` | Vertical slice feature files: Handler, Endpoint, Request, Response, Validator (static partial class) | No direct module-to-module references (use ISender) |
+| `{Module}/Features/` | Vertical slice feature files: Handler, Endpoint, Request, Response, Validator (static partial class). Subdirectories use `Admin`/`Storefront` (Profile, Identity, Location currently use `Store` — to be standardized). | No direct module-to-module references (use ISender) |
 | `{Module}/Persistence/` | EF Core entity configurations + seeders | No domain logic |
 | `{Module}/Backgrounds/` | Hangfire background job handlers | No domain logic |
 | `{Module}/Services/` | Domain service interfaces and implementations | No cross-module DI |
@@ -58,8 +58,8 @@
 
 - **File naming**: PascalCase for all C# files (e.g., `Order.cs`, `CreateOrderFromCart.cs`, `ICommand.cs`)
 - **Directory naming**: PascalCase domain names (e.g., `Catalog/`, `Ordering/`, `Payment/`), PascalCase subdirectories (e.g., `Features/Admin/Orders/Cancel/`)
-- **Directory organization**: By feature (vertical slice), not by layer. Each feature action gets its own directory under `Features/{Admin|Storefront}/{Domain}/{Action}/`
-- **CS file per concern**: Handler in `{Action}.cs`, endpoint in `{Action}.Endpoint.cs`, request DTO in `{Action}.Request.cs`, response DTO in `{Action}.Response.cs`, validator in `{Action}.Validator.cs`
+- **Directory organization**: By feature (vertical slice), not by layer. Each feature action gets its own directory under `Features/{Admin|Storefront}/{Domain}/{Action}/`. Convention is `Storefront` (Profile, Identity, Location currently use `Store` — to be standardized).
+- **CS file per concern**: Handler in `{Action}.cs`, endpoint in `{Action}.Endpoint.cs`, request DTO in `{Action}.Request.cs`, response DTO in `{Action}.Response.cs`, validator in `{Action}.Validator.cs`. Some read-only queries use `.Parameters.cs` instead of `.Request.cs`. Some features add `.Result.cs` (error factories).
 - **TypeScript path aliases**: `@/*` → `./src/*` in both SPAs (`tsconfig.app.json`)
 - **Test file placement**: Mirror source structure under `tests/{Project}/`. Test files are NOT co-located with source — they live in separate test projects.
 
