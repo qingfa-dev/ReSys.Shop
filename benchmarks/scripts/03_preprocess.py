@@ -3,7 +3,7 @@
 
 Usage::
 
-    uv run python scripts/preprocess.py --dataset data/raw/deepfashion
+    uv run python scripts/03_preprocess.py --dataset data/raw/deepfashion
 """
 from __future__ import annotations
 

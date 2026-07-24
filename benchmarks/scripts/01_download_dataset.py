@@ -9,7 +9,7 @@ The dataset is ~280 MB and must be downloaded manually from Kaggle
 After downloading, you will have a zip file. Run this script to extract it
 and validate the layout:
 
-    uv run python scripts/download_dataset.py --source ~/Downloads/archive.zip
+    uv run python scripts/01_download_dataset.py --source ~/Downloads/archive.zip
 
 Expected layout after extraction
 ---------------------------------
@@ -25,11 +25,11 @@ baseColour, season, year, usage, productDisplayName
 Alternatively, use the Kaggle CLI (pip install kaggle):
 
     kaggle datasets download -d paramaggarwal/fashion-product-images-small
-    uv run python scripts/download_dataset.py --source fashion-product-images-small.zip
+    uv run python scripts/01_download_dataset.py --source fashion-product-images-small.zip
 
 Synthetic dataset (for CI / smoke tests without the real data)
 --------------------------------------------------------------
-    uv run python scripts/download_dataset.py --synthetic --n 500
+    uv run python scripts/01_download_dataset.py --synthetic --n 500
 """
 from __future__ import annotations
 

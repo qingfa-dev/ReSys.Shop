@@ -36,7 +36,7 @@ Academic benchmark comparing one-shot vision-language models for fashion product
 uv sync
 
 # Download dataset
-uv run scripts/download_dataset.py --dataset fashion-product-images-small
+uv run scripts/01_download_dataset.py --dataset fashion-product-images-small
 
 # Run all models (one-shot comparison)
 uv run benchmark run --dataset-root data/raw/deepfashion --models all --k 10

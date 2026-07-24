@@ -3,9 +3,9 @@
 
 Usage::
 
-    uv run python scripts/clean.py           # remove outputs/
-    uv run python scripts/clean.py --cache   # also remove data/cache/
-    uv run python scripts/clean.py --all     # remove outputs/ and data/cache/
+    uv run python scripts/08_clean.py           # remove outputs/
+    uv run python scripts/08_clean.py --cache   # also remove data/cache/
+    uv run python scripts/08_clean.py --all     # remove outputs/ and data/cache/
 """
 from __future__ import annotations
 

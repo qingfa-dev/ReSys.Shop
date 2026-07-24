@@ -6,7 +6,7 @@ Produces an enriched dataset with two label schemes per sample:
   label_pattern — subCategory/normalizedColour/Pattern  (secondary)
 
 Usage:
-    uv run python scripts/enrich_dataset.py \
+    uv run python scripts/_05_enrich_dataset.py \
         --json-styles data/raw/fashion-product-images/styles/ \
         --csv data/raw/fashion-product-images-small/styles.csv \
         --output data/raw/fashion-enriched-5k \
@@ -48,8 +48,8 @@ def extract_pattern(data: dict[str, Any]) -> str:
 def main() -> None:
     args = parse_args()
 
-    # When running as `python scripts/enrich_dataset.py`, Python adds the
-    # script's directory to sys.path[0].  scripts/benchmark.py then shadows
+    # When running as `python scripts/_05_enrich_dataset.py`, Python adds the
+    # script's directory to sys.path[0].  scripts/06_benchmark.py then shadows
     # the benchmark *package*.  Remove scripts/ and ensure src/ comes first.
     _script_dir = str(Path(__file__).resolve().parent)
     sys.path = [p for p in sys.path if p != _script_dir]

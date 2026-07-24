@@ -84,4 +84,4 @@
 - `src/benchmark/cli/benchmark.py` — CLI entry point
 - `src/benchmark/retrieval/cosine.py` — In-memory cosine retrieval
 - `src/benchmark/models/__init__.py:L68-103` — Lazy registry
-- `scripts/enrich_dataset.py` — Enriched dataset builder (JSON → CSV)
+- `scripts/05_enrich_dataset.py` — Enriched dataset builder (JSON → CSV)

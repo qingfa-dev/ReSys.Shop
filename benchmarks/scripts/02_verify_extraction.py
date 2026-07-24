@@ -12,14 +12,14 @@ This script goes beyond the basic preflight_check() in validators.py:
 
 Usage
 -----
-    uv run python scripts/verify_extraction.py \\
+    uv run python scripts/02_verify_extraction.py \\
         --dataset-root data/raw/fashion-dataset
 
     # Verbose mode (prints per-column stats)
-    uv run python scripts/verify_extraction.py --verbose
+    uv run python scripts/02_verify_extraction.py --verbose
 
     # Output results to JSON
-    uv run python scripts/verify_extraction.py --json-out outputs/verify.json
+    uv run python scripts/02_verify_extraction.py --json-out outputs/verify.json
 """
 from __future__ import annotations
 

@@ -5,7 +5,7 @@ This converts the Kaggle CSV + image folder into the benchmark's JSON split form
     [ {"image_path": "images/12345.jpg", "label": "tops", "product_id": "12345" }, ... ]
 
 Usage:
-    python scripts/prepare_fashion_product.py \
+    python scripts/04_prepare_fashion_product.py \
         --csv data/raw/fashion-product-images-small/styles.csv \
         --images-root data/raw/fashion-product-images-small/images \
         --output-root data/raw/fashion-product-images-small
