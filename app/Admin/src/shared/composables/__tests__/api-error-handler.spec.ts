@@ -145,4 +145,12 @@ describe('useApiErrorHandler - Edge Cases', () => {
     handleFormErrors(apiError, setErrors, ['first_name'])
     expect(setErrors).toHaveBeenCalledWith({ first_name: 'Required' })
   })
+
+  it('handleApiResult shows success toast when successMessage provided', () => {
+    const { handleApiResult } = useApiErrorHandler()
+    const result = { isSuccess: true, statusCode: 200, value: null, errors: [], message: null, metadata: null }
+    const result_v = handleApiResult(result, { successMessage: 'Saved', successTitle: 'OK' })
+    expect(result_v).toBe(true)
+    expect(mockShowToast).toHaveBeenCalledWith('success', 'OK', 'Saved')
+  })
 })

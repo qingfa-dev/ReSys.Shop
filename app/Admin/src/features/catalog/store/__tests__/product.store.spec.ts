@@ -95,16 +95,16 @@ describe('useProductStore', () => {
   it('setSort updates sort clause', async () => {
     mockGetMany.mockResolvedValue(pagedResult())
     const store = useProductStore()
-    await store.setSort('name', 'Asc')
-    expect(store.query.sort).toEqual([{ field: 'name', direction: 'Asc' }])
+    await store.setSort('name', 'Ascending')
+    expect(store.query.sort).toEqual([{ field: 'name', direction: 'Ascending' }])
   })
 
   it('setFilter sets filter group and resets page', async () => {
     mockGetMany.mockResolvedValue(pagedResult())
     const store = useProductStore()
-    await store.setFilter({ logic: 'And', conditions: [{ field: 'status', operator: 'Equal', value: 'Active' }] })
+    await store.setFilter({ logic: 'And', conditions: [{ field: 'status', operator: 'Equal', value: 'Active' }], groups: [] })
     expect(mockGetMany).toHaveBeenCalled()
-    expect(store.query.filters).toEqual({ logic: 'And', conditions: [{ field: 'status', operator: 'Equal', value: 'Active' }] })
+    expect(store.query.filters).toEqual({ logic: 'And', conditions: [{ field: 'status', operator: 'Equal', value: 'Active' }], groups: [] })
     expect(store.query.page).toBe(1)
   })
 

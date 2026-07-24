@@ -89,8 +89,30 @@ describe('usePagedList', () => {
   })
 
   it('params returns default QueryingModel', () => {
-    const { params } = usePagedList({ fetchFn: vi.fn() })
+    const { params } = usePagedList(vi.fn())
     expect(params).toBeDefined()
     expect(typeof params.value.page.page).toBe('number')
+  })
+
+  it('handles Result<T[]> instead of PagedResult', async () => {
+    const fetchFn = vi.fn().mockResolvedValue({ isSuccess: true, value: [{ id: '1' }] })
+    const { items, totalRecords, fetch } = usePagedList(fetchFn)
+    await fetch()
+    expect(items.value).toHaveLength(1)
+    expect(totalRecords.value).toBe(1)
+  })
+
+  it('sets error when API returns isSuccess: false with errors', async () => {
+    const fetchFn = vi.fn().mockResolvedValue({ isSuccess: false, errors: [{ message: 'Not found' }] })
+    const { error, fetch } = usePagedList(fetchFn)
+    await fetch()
+    expect(error.value).toBe('Not found')
+  })
+
+  it('sets generic error on catch', async () => {
+    const fetchFn = vi.fn().mockRejectedValue(new Error('Network'))
+    const { error, fetch } = usePagedList(fetchFn)
+    await fetch()
+    expect(error.value).toBe('An unexpected error occurred')
   })
 })

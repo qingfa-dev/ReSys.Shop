@@ -49,4 +49,10 @@ describe('useDebounce', () => {
     vi.advanceTimersByTime(100)
     expect(fn).toHaveBeenCalledWith('a', 1)
   })
+
+  it('cancel() when no pending timer does not throw', () => {
+    const fn = vi.fn()
+    const { cancel } = useDebounce(fn)
+    expect(() => cancel()).not.toThrow()
+  })
 })

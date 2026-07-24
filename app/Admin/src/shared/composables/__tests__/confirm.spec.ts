@@ -1,25 +1,40 @@
-import { describe, it, expect, vi } from 'vitest'
+import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { useConfirm } from '../useConfirm'
 
+const mockRequire = vi.fn()
 vi.mock('primevue/useconfirm', () => ({
-  useConfirm: () => ({
-    require: vi.fn(),
-  }),
+  useConfirm: () => ({ require: mockRequire }),
 }))
 
 describe('useConfirm', () => {
-  it('returns confirmDelete and confirmAction', () => {
-    const { confirmDelete, confirmAction } = useConfirm()
-    expect(typeof confirmDelete).toBe('function')
-    expect(typeof confirmAction).toBe('function')
-  })
+  beforeEach(() => { vi.clearAllMocks() })
 
-  it('confirmDelete calls confirm.require', () => {
-    // The mock uses vi.fn() internally which always returns undefined — this
-    // already covers the call-was-invoked path because require is inside a
-    // mock.
+  it('confirmDelete calls require with delete options', () => {
     const { confirmDelete } = useConfirm()
     const onAccept = vi.fn()
-    expect(() => confirmDelete({ onAccept })).not.toThrow()
+    confirmDelete({ onAccept })
+    expect(mockRequire).toHaveBeenCalledWith(
+      expect.objectContaining({ header: 'Delete confirmation' })
+    )
+    const callArgs = mockRequire.mock.calls[0]![0]
+    callArgs.accept()
+    expect(onAccept).toHaveBeenCalled()
+  })
+
+  it('confirmAction calls require with confirm options', () => {
+    const { confirmAction } = useConfirm()
+    const onAccept = vi.fn()
+    confirmAction({ onAccept })
+    expect(mockRequire).toHaveBeenCalledWith(
+      expect.objectContaining({ header: 'Please confirm' })
+    )
+  })
+
+  it('confirmDelete uses custom target in message', () => {
+    const { confirmDelete } = useConfirm()
+    confirmDelete({ target: 'the product', onAccept: vi.fn() })
+    expect(mockRequire).toHaveBeenCalledWith(
+      expect.objectContaining({ message: expect.stringContaining('the product') })
+    )
   })
 })

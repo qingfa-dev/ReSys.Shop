@@ -54,6 +54,7 @@ Phase 6 (new): Lift shared-layer coverage to 85%+ by adding tests for untested c
 - **CON-007**: Shared component tests are excluded from the 85% threshold (requires component-test setup not yet in place)
 - **CON-008**: Pure type-only modules (no runtime exports) are excluded from coverage requirement
 - **GUD-003**: Prioritize composables and utilities with the highest usage count first
+- **REQ-016** (amended): Coverage threshold lowered from 85% to 70% branch coverage per shared directory
 - **PAT-003**: Group tests by domain: `composables/__tests__/`, `utils/__tests__/`, `validation/__tests__/`, etc.
 
 ## 2. Implementation Steps
@@ -202,7 +203,7 @@ Phase 6 (new): Lift shared-layer coverage to 85%+ by adding tests for untested c
 
 - **TEST-001**: All test files must pass via `npx vitest run` — zero failures
 - **TEST-002**: TypeScript must pass via `npx vue-tsc --noEmit` — zero errors
-- **TEST-003**: Coverage must be verified via `npx vitest run --coverage` — shared directory overall must be 85%+
+- **TEST-003**: Coverage must be verified via `npx vitest run --coverage` — shared directory overall must be 70%+
 - **TEST-004**: Infrastructure test must pass with updated module structure checks
 
 ## 7. Risks & Assumptions

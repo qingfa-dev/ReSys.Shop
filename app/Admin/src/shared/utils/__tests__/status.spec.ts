@@ -3,12 +3,14 @@ import { booleanStatusMap } from '../status'
 
 describe('booleanStatusMap', () => {
   it('has true/Active entry', () => {
-    expect(booleanStatusMap['true']).toBeDefined()
-    expect(booleanStatusMap['true'].label).toBe('Active')
+    const entry = booleanStatusMap['true']
+    expect(entry).toBeDefined()
+    expect(entry!.label).toBe('Active')
   })
 
   it('has false/Inactive entry', () => {
-    expect(booleanStatusMap['false']).toBeDefined()
-    expect(booleanStatusMap['false'].label).toBe('Inactive')
+    const entry = booleanStatusMap['false']
+    expect(entry).toBeDefined()
+    expect(entry!.label).toBe('Inactive')
   })
 })

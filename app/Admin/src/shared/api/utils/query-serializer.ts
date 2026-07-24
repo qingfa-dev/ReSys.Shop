@@ -17,8 +17,8 @@ function flattenFilter(group: FilterGroup, prefix: string): Record<string, strin
   return params
 }
 
-export function toQueryParams(query: ListQuery): Record<string, string | number | undefined> {
-  const raw: Record<string, string | number | undefined> = {
+export function toQueryParams(query: ListQuery): Record<string, string | number | boolean | undefined> {
+  const raw: Record<string, string | number | boolean | undefined> = {
     'page.page': query.page,
     'page.pageSize': query.pageSize,
     'search.term.value': query.search?.value,
@@ -35,7 +35,7 @@ export function toQueryParams(query: ListQuery): Record<string, string | number 
   }
   return Object.fromEntries(
     Object.entries(raw).filter(([_, v]) => v !== undefined),
-  ) as Record<string, string | number | undefined>
+  ) as Record<string, string | number | boolean | undefined>
 }
 
 export async function getPagedList<T>(url: string, query: ListQuery): Promise<PagedResult<T>> {

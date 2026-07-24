@@ -39,4 +39,16 @@ describe('useDate', () => {
     const result = formatRelative(hoursAgo)
     expect(result).toMatch(/\d+h ago/)
   })
+
+  it('formatRelative returns "Xm ago" for minutes', () => {
+    const { formatRelative } = useDate()
+    const minsAgo = new Date(Date.now() - 5 * 60 * 1000)
+    expect(formatRelative(minsAgo)).toMatch(/\d+m ago/)
+  })
+
+  it('formatRelative returns "Xd ago" for days', () => {
+    const { formatRelative } = useDate()
+    const daysAgo = new Date(Date.now() - 3 * 24 * 60 * 60 * 1000)
+    expect(formatRelative(daysAgo)).toMatch(/\d+d ago/)
+  })
 })

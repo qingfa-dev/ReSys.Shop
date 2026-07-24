@@ -25,14 +25,14 @@ describe('OptionValueApi', () => {
 
   it('create: POST /catalog/option-types/:id/values', async () => {
     vi.mocked(apiClient.post).mockResolvedValue({ data: singleOk({ id: 'new', value: 'Red' }) })
-    await OptionValueApi.create('opt1', { optionTypeId: 'opt1', name: 'Red', value: 'red', displayOrder: 1 })
-    expect(apiClient.post).toHaveBeenCalledWith('/catalog/option-types/opt1/values', { optionTypeId: 'opt1', name: 'Red', value: 'red', displayOrder: 1 })
+    await OptionValueApi.create('opt1', { name: 'Red', presentation: 'red', position: 1 })
+    expect(apiClient.post).toHaveBeenCalledWith('/catalog/option-types/opt1/values', { name: 'Red', presentation: 'red', position: 1 })
   })
 
   it('update: PUT /catalog/option-types/:optionTypeId/values/:id', async () => {
     vi.mocked(apiClient.put).mockResolvedValue({ data: singleOk({ id: 'v1', value: 'Blue' }) })
-    await OptionValueApi.update('opt1', 'v1', { optionTypeId: 'opt1', name: 'Blue', value: 'blue', displayOrder: 2 })
-    expect(apiClient.put).toHaveBeenCalledWith('/catalog/option-types/opt1/values/v1', { optionTypeId: 'opt1', name: 'Blue', value: 'blue', displayOrder: 2 })
+    await OptionValueApi.update('opt1', 'v1', { name: 'Blue', presentation: 'blue', position: 2 })
+    expect(apiClient.put).toHaveBeenCalledWith('/catalog/option-types/opt1/values/v1', { name: 'Blue', presentation: 'blue', position: 2 })
   })
 
   it('delete: DELETE /catalog/option-types/:optionTypeId/values/:id', async () => {

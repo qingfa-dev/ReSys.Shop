@@ -4,7 +4,7 @@ import { defaultListQuery } from '@/shared/models'
 import type { ListQuery } from '@/shared/models'
 import type { ProductResponse } from '../types'
 import { ProductApi } from '../api'
-import type { FilterGroup } from '@/shared/models/querying'
+import type { FilterGroup, SortDirection } from '@/shared/models/querying'
 
 export const useProductStore = defineStore('catalog-product', () => {
   const items = ref<ProductResponse[]>([])
@@ -40,7 +40,7 @@ export const useProductStore = defineStore('catalog-product', () => {
     query.value.page = 1
     return fetchMany()
   }
-  function setSort(field: string, direction: 'Asc' | 'Desc') {
+  function setSort(field: string, direction: SortDirection) {
     query.value.sort = [{ field, direction }]
     return fetchMany()
   }

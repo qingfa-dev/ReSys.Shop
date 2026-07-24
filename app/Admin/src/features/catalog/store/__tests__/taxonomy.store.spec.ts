@@ -11,7 +11,7 @@ vi.mock('../../api', () => ({
   },
 }))
 
-function pagedResult(overrides = {}) {
+function pagedResult(overrides: { items?: any[], totalCount?: number } = {}) {
   return { isSuccess: true, statusCode: 200, items: overrides.items ?? [], page: 1, pageSize: 20, totalCount: overrides.totalCount ?? 0, errors: [], message: null, metadata: null }
 }
 

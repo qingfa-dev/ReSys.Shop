@@ -25,14 +25,14 @@ describe('TaxonApi', () => {
 
   it('create: POST /catalog/taxonomies/:id/taxons', async () => {
     vi.mocked(apiClient.post).mockResolvedValue({ data: singleOk({ id: 'new', name: 'New' }) })
-    await TaxonApi.create('tax1', { name: 'New', slug: 'new', taxonomyId: 'tax1' })
-    expect(apiClient.post).toHaveBeenCalledWith('/catalog/taxonomies/tax1/taxons', { name: 'New', slug: 'new', taxonomyId: 'tax1' })
+    await TaxonApi.create('tax1', { name: 'New', slug: 'new' })
+    expect(apiClient.post).toHaveBeenCalledWith('/catalog/taxonomies/tax1/taxons', { name: 'New', slug: 'new' })
   })
 
   it('update: PUT /catalog/taxonomies/:taxonomyId/taxons/:id', async () => {
     vi.mocked(apiClient.put).mockResolvedValue({ data: singleOk({ id: 't1', name: 'Updated' }) })
-    await TaxonApi.update('tax1', 't1', { name: 'Updated', slug: 'updated', taxonomyId: 'tax1' })
-    expect(apiClient.put).toHaveBeenCalledWith('/catalog/taxonomies/tax1/taxons/t1', { name: 'Updated', slug: 'updated', taxonomyId: 'tax1' })
+    await TaxonApi.update('tax1', 't1', { name: 'Updated', slug: 'updated' })
+    expect(apiClient.put).toHaveBeenCalledWith('/catalog/taxonomies/tax1/taxons/t1', { name: 'Updated', slug: 'updated' })
   })
 
   it('delete: DELETE /catalog/taxonomies/:taxonomyId/taxons/:id', async () => {

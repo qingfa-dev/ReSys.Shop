@@ -51,6 +51,7 @@ describe('toQueryParams', () => {
       filters: {
         logic: 'And',
         conditions: [{ field: 'status', operator: 'Equal', value: 'Active' }],
+        groups: [],
       },
     }
     const params = toQueryParams(query)
@@ -71,6 +72,7 @@ describe('toQueryParams', () => {
         groups: [{
           logic: 'And',
           conditions: [{ field: 'price', operator: 'GreaterThan', value: '100' }],
+          groups: [],
         }],
       },
     }
