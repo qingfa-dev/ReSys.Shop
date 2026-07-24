@@ -51,16 +51,16 @@ function onPageChange(e: { page: number; rows: number }) { store.setPage(e.page 
       @search="onSearch"
       @create="goToCreate"
     />
-    <LoadingSkeleton v-if="store.loading.value && store.items.value.length === 0" :rows="5" :columns="4" />
-    <ErrorState v-else-if="store.error.value" :description="store.error.value" @retry="store.fetchMany" />
-    <EmptyState v-else-if="store.items.value.length === 0" :title="t('catalog.products.messages.empty_list')" description="Create your first product." />
+    <LoadingSkeleton v-if="store.loading && store.items.length === 0" :rows="5" :columns="4" />
+    <ErrorState v-else-if="store.error" :description="store.error" @retry="store.fetchMany" />
+    <EmptyState v-else-if="store.items.length === 0" :title="t('catalog.products.messages.empty_list')" description="Create your first product." />
     <DataTable
       v-else
-      :rows="store.items.value"
-      :loading="store.loading.value"
-      :total-records="store.totalRecords.value"
-      :page-size="store.query.value.pageSize"
-      :first="(store.query.value.page - 1) * store.query.value.pageSize"
+      :rows="store.items"
+      :loading="store.loading"
+      :total-records="store.totalRecords"
+      :page-size="store.query.pageSize"
+      :first="(store.query.page - 1) * store.query.pageSize"
       @page="onPageChange"
     >
       <Column field="name" header="Name" sortable />

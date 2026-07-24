@@ -3,7 +3,7 @@ import { defineStore } from 'pinia'
 import { defaultListQuery } from '@/shared/models'
 import type { ListQuery } from '@/shared/models'
 import type { ProductResponse } from '../types'
-import { ProductApi } from '../api/product.api'
+import { ProductApi } from '../api'
 import type { FilterGroup } from '@/shared/models/querying'
 
 export const useProductStore = defineStore('catalog-product', () => {
@@ -18,10 +18,18 @@ export const useProductStore = defineStore('catalog-product', () => {
     error.value = null
     try {
       const result = await ProductApi.getMany(query.value)
-      items.value = result.items ?? []
-      totalRecords.value = result.totalCount ?? 0
+      if (result.isSuccess) {
+        items.value = result.items ?? []
+        totalRecords.value = result.totalCount ?? 0
+      } else {
+        error.value = result.message ?? 'Failed to load'
+        items.value = []
+        totalRecords.value = 0
+      }
     } catch {
       error.value = 'Failed to load'
+      items.value = []
+      totalRecords.value = 0
     }
     loading.value = false
   }

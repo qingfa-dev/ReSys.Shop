@@ -3,7 +3,7 @@ import { defineStore } from 'pinia'
 import { defaultListQuery } from '@/shared/models'
 import type { ListQuery } from '@/shared/models'
 import type { OptionTypeResponse } from '../types'
-import { OptionTypeApi } from '../api/option-type.api'
+import { OptionTypeApi } from '../api'
 import type { FilterGroup } from '@/shared/models/querying'
 
 export const useOptionTypeStore = defineStore('catalog-option-type', () => {
@@ -18,10 +18,18 @@ export const useOptionTypeStore = defineStore('catalog-option-type', () => {
     error.value = null
     try {
       const result = await OptionTypeApi.getMany(query.value)
-      items.value = result.items ?? []
-      totalRecords.value = result.totalCount ?? 0
+      if (result.isSuccess) {
+        items.value = result.items ?? []
+        totalRecords.value = result.totalCount ?? 0
+      } else {
+        error.value = result.message ?? 'Failed to load'
+        items.value = []
+        totalRecords.value = 0
+      }
     } catch {
       error.value = 'Failed to load'
+      items.value = []
+      totalRecords.value = 0
     }
     loading.value = false
   }

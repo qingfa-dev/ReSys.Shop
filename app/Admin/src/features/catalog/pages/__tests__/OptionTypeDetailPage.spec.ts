@@ -17,6 +17,7 @@ beforeAll(() => {
 })
 import { mount, flushPromises } from '@vue/test-utils'
 import { createRouter, createWebHistory } from 'vue-router'
+import { createPinia } from 'pinia'
 import PrimeVue from 'primevue/config'
 import ConfirmationService from 'primevue/confirmationservice'
 import ToastService from 'primevue/toastservice'
@@ -90,7 +91,7 @@ function makeRouter(initialRoute: string) {
   return router
 }
 
-const plugins = [PrimeVue, ConfirmationService, ToastService]
+const plugins = [createPinia(), PrimeVue, ConfirmationService, ToastService]
 
 describe('OptionTypeDetailPage', () => {
   beforeEach(() => { vi.clearAllMocks() })

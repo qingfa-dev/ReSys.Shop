@@ -17,6 +17,7 @@ beforeAll(() => {
 })
 import { mount, flushPromises } from '@vue/test-utils'
 import { createRouter, createWebHistory } from 'vue-router'
+import { createPinia } from 'pinia'
 import PrimeVue from 'primevue/config'
 import ConfirmationService from 'primevue/confirmationservice'
 import ToastService from 'primevue/toastservice'
@@ -60,7 +61,7 @@ const router = createRouter({
 })
 
 function createTestPlugins() {
-  return [PrimeVue, ConfirmationService, ToastService, router]
+  return [createPinia(), PrimeVue, ConfirmationService, ToastService, router]
 }
 
 describe('OptionTypeListPage', () => {

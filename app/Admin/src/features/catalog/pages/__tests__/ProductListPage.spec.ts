@@ -16,7 +16,9 @@ beforeAll(() => {
   })
 })
 import { mount, flushPromises } from '@vue/test-utils'
+import { nextTick } from 'vue'
 import { createRouter, createWebHistory } from 'vue-router'
+import { createPinia, setActivePinia } from 'pinia'
 import PrimeVue from 'primevue/config'
 import ConfirmationService from 'primevue/confirmationservice'
 import ToastService from 'primevue/toastservice'
@@ -67,6 +69,7 @@ function createTestPlugins() {
 describe('ProductListPage', () => {
   beforeEach(() => {
     vi.clearAllMocks()
+    setActivePinia(createPinia())
   })
 
   it('renders page header', async () => {
@@ -92,6 +95,7 @@ describe('ProductListPage', () => {
       global: { plugins: createTestPlugins() },
     })
     await flushPromises()
+    await nextTick()
     expect(wrapper.text()).toContain('No products found matching your criteria.')
   })
 
@@ -107,6 +111,7 @@ describe('ProductListPage', () => {
       global: { plugins: createTestPlugins() },
     })
     await flushPromises()
+    await nextTick()
     expect(wrapper.text()).toContain('Test Product')
   })
 
@@ -119,6 +124,7 @@ describe('ProductListPage', () => {
       global: { plugins: createTestPlugins() },
     })
     await flushPromises()
+    await nextTick()
     expect(wrapper.text()).toContain('Server error')
   })
 

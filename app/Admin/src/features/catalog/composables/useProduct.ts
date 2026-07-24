@@ -2,7 +2,6 @@ import { computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useToast } from '@/shared/composables/useToast'
 import { ProductApi } from '../api/product.api'
-import type { CreateProductRequest, UpdateProductRequest, ProductResponse } from '../types'
 
 export function useProduct() {
   const toast = useToast()
