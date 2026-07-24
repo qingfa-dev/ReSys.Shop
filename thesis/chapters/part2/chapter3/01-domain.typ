@@ -14,7 +14,49 @@ ReSys.Shop implements a *Domain-Driven Design (DDD)* approach with the following
 
 == Bounded Context Map
 
-ReSys.Shop is decomposed into *8 bounded contexts*, each corresponding to one business module. A formal Context Map diagram is maintained at `docs/thesis/diagrams/bounded-context-map.mmd`.
+ReSys.Shop is decomposed into *8 bounded contexts*, each corresponding to one business module.
+
+#figure(
+  block(width: 100%, inset: 0.8em, stroke: 0.5pt + black, radius: 4pt)[
+    ```text
+    ╔══════════════════════════════════════════════════════════════════════╗
+    ║                  Bounded Context Map -- ReSys.Shop                 ║
+    ╠══════════════════════════════════════════════════════════════════════╣
+    ║                                                                    ║
+    ║   ┌──────────┐   ProductId,       ┌──────────┐   OrderId,          ║
+    ║   │          │   VariantId,       │          │   Total,            ║
+    ║   │ Catalog  │──Price, SKU──────→│ Ordering │←─Currency───┐       ║
+    ║   │          │                    │          │             │       ║
+    ║   └──────────┘                    └──┬───┬───┘             │       ║
+    ║       │    │                         │   │                 │       ║
+    ║       │    │ VariantId              │   │                 │       ║
+    ║       │    └───────┐               │   │  ShipmentTotal   │       ║
+    ║       │            │               │   │     │            │       ║
+    ║       ▼            ▼               │   │     ▼            │       ║
+    ║   ┌──────────┐  ┌──────────┐      │   │  ┌──────────┐   │       ║
+    ║   │ Inventory│  │Location  │      │   │  │ Shipping │   │       ║
+    ║   │          │←─│          │      │   └─→│          │   │       ║
+    ║   └────┬─────┘  └────┬─────┘      │      └──────────┘   │       ║
+    ║        │              │            │                      │       ║
+    ║        │ StockItemId, │ CountryId, │     PaymentIntentId,│       ║
+    ║        │ Quantity     │ StateId    │     PaymentState     │       ║
+    ║        └──────────────┼────────────┘                      │       ║
+    ║                       │                                   │       ║
+    ║   ┌──────────┐  ┌──────────┐  ┌──────────┐              │       ║
+    ║   │ Identity │──│ Profile  │  │ Payment  │              │       ║
+    ║   │          │  │          │──│          │──────────────┘       ║
+    ║   └──────────┘  └──────────┘  └──────────┘                      ║
+    ║      UserId           AddressId                                  ║
+    ║                                                                    ║
+    ╠══════════════════════════════════════════════════════════════════════╣
+    ║  Legend:  ───→ Published Language flow                             ║
+    ║           All integration via MediatR ISender (in-process)        ║
+    ║           Pattern: Conformist (shared Result<T> kernel)           ║
+    ╚══════════════════════════════════════════════════════════════════════╝
+    ```
+  ],
+  caption: [Bounded Context Map -- 8 contexts and their Published Languages],
+)
 
 *Integration pattern*: All contexts integrate via *in-process message dispatch* (MediatR `ISender`). There are no direct namespace references between contexts --- this is the *Conformist* pattern with a shared technical kernel (`Shared.Application` containing `Result<T>`, `ICommand`, `IQuery`).
 
