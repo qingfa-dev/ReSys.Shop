@@ -24,5 +24,8 @@ export type {
 
 export { createDefaultQueryingModel } from './querying'
 
+export type { ListQuery } from './list-query'
+export { defaultListQuery } from './list-query'
+
 export type { PaginationMeta } from './pagination'
 export type { ApiError, RequestOptions } from './api'
