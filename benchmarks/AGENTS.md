@@ -36,7 +36,7 @@ uv sync --extra dev          # Install deps + pytest (required for testing)
 ```bash
 uv run ruff check src/              # Lint
 uv run pytest --ignore=src/tests/integration/  # Unit tests (145, fast)
-uv run pytest                        # All tests (inc. integration — requires Podman/pgvector)
+uv run pytest                        # All tests (inc. integration — Testcontainers auto-manages pgvector)
 uv run pytest --cov=benchmark        # Coverage report
 uv run benchmark --help              # CLI sanity
 ```
