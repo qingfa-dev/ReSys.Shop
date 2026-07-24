@@ -196,15 +196,62 @@ The project uses interface markers for cross-cutting behavior rather than base c
 
 === Order Lifecycle (CheckoutState)
 
-The order checkout state machine progresses through five states: *Address* (initial) → *Delivery* → *Payment* → *Confirm* → *Complete*. State transitions are monotonic (no backward transitions except cancellation of the entire order). The address state is entered when the customer sets a shipping address; the delivery state follows when a delivery method is selected; the payment state is reached upon payment method selection; confirmation occurs when the customer confirms the order; and completion marks finalization.
+#figure(
+  table(
+    columns: (auto, 1fr, auto),
+    align: (start, start, start),
+    [*From*], [*Trigger*], [*To*],
+    [start], [Create cart / start checkout], [Address],
+    [Address], [Set shipping address], [Delivery],
+    [Address], [Cancel], [end],
+    [Delivery], [Select shipping method], [Payment],
+    [Delivery], [Cancel], [end],
+    [Payment], [Select payment method], [Confirm],
+    [Payment], [Cancel], [end],
+    [Confirm], [Confirm order], [Complete],
+    [Confirm], [Cancel], [end],
+    [Complete], [Order finalized], [end],
+  ),
+  caption: [Order Checkout State Transitions],
+)
+
+The order checkout state machine progresses through five states: *Address* (initial) → *Delivery* → *Payment* → *Confirm* → *Complete*. State transitions are monotonic (no backward transitions except cancellation of the entire order).
+
+*Business rule*: CheckoutState progresses forward; finalized orders are immutable except Cancel (`Order.cs:12`).
 
 *Evidence*: `Order.cs:20` (`CheckoutState` property), `Order.Constant.cs:50-56`
 
 === Payment Intent Lifecycle
 
-The payment intent state machine tracks the lifecycle of a payment through these states: *Pending* (initial creation) → *RequiresAction* (e.g., 3D Secure authentication needed) → *Processing* (payment being processed by gateway) → *Succeeded* (payment captured successfully). From Processing, the payment may transition to *Canceled* or *Failed* if the gateway rejects it. From Succeeded, a *Refunded* state may be entered. Each state transition is driven by webhook events from the payment gateway (Stripe) or by explicit gateway API calls.
+#figure(
+  table(
+    columns: (auto, 1fr, auto),
+    align: (start, start, start),
+    [*From*], [*Trigger*], [*To*],
+    [start], [Create intent], [Pending],
+    [Pending], [3D Secure / SCA required], [RequiresAction],
+    [Pending], [Payment method attached], [Processing],
+    [Pending], [Cancel intent], [Canceled],
+    [RequiresAction], [Customer authenticates], [Processing],
+    [RequiresAction], [Authentication fails], [Canceled],
+    [Processing], [Charge succeeds], [Succeeded],
+    [Processing], [Charge fails], [Failed],
+    [Succeeded], [Capture funds], [Captured],
+    [Succeeded], [Cancel (before capture)], [Canceled],
+    [Captured], [Refund payment], [Refunded],
+    [Captured], [Fulfillment complete], [end],
+    [Failed], [Retry or abandon], [end],
+    [Canceled], [Order canceled], [end],
+    [Refunded], [Money returned], [end],
+  ),
+  caption: [Payment Intent State Transitions],
+)
 
-*Evidence*: `PaymentCapture.Method.State.cs`, `PaymentCapture.cs`
+The payment intent state machine tracks the lifecycle of a payment through these states. Each state transition is driven by webhook events from the payment gateway (Stripe) or by explicit gateway API calls.
+
+*Design decision*: The system maintains its own `PaymentIntent` entity state in parallel with Stripe's state to support the Bogus gateway and enable offline operations.
+
+*Evidence*: `PaymentCapture.Method.State.cs`, `StripeWebhook.cs`
 
 == Business Rules (Domain Invariants)
 

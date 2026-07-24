@@ -57,6 +57,78 @@ Since Dockerfiles and CI/CD are explicitly out of scope (deferred), the producti
 
 *Design rationale*: A modular monolith is naturally containerizable as a single API container. The frontends are static SPA bundles served from a CDN or object storage. The embedding sidecar is a separate container because Python/.NET runtimes don't share a process. Redis and PostgreSQL are best managed by cloud providers in production.
 
+=== Deployment Diagram (Conceptual)
+
+#figure(
+  {
+    set text(size: 8pt)
+    let box-w = 2.6cm
+    let box-h = 1.2cm
+    let col-gap = 0.8cm
+    let row-gap = 0.7cm
+
+    // --- Client Tier ---
+    let browser-box = rect(width: box-w, height: box-h, stroke: 0.5pt)[Browser\ Customer / Admin]
+    let cdn-box = rect(width: box-w, height: box-h, stroke: 0.5pt)[CDN / Static Hosting\ Store SPA + Admin SPA]
+
+    // --- Application Tier ---
+    let lb-box = rect(width: box-w, height: box-h, stroke: 0.5pt)[Load Balancer\ (Ingress / YARP)]
+    let api1-box = rect(width: box-w, height: box-h, stroke: 0.5pt)[API Container 1\ .NET 10 Modular Monolith]
+    let api2-box = rect(width: box-w, height: box-h, stroke: 0.5pt)[API Container 2\ .NET 10 Modular Monolith]
+    let emb-box = rect(width: box-w, height: box-h, stroke: 0.5pt)[Embedding Container\ Python + FastAPI + PyTorch]
+
+    // --- Data Tier ---
+    let pg-box = rect(width: box-w, height: box-h, stroke: 0.5pt, fill: luma(230))[PostgreSQL 17\ Primary + Replica\ pgvector]
+    let redis-box = rect(width: box-w, height: box-h, stroke: 0.5pt, fill: luma(230))[Redis 7\ Cache + Hangfire]
+
+    // --- External ---
+    let stripe-box = rect(width: box-w, height: box-h, stroke: 0.5pt, fill: luma(245))[Stripe API]
+    let sendgrid-box = rect(width: box-w, height: box-h, stroke: 0.5pt, fill: luma(245))[SendGrid / SMTP]
+    let s3-box = rect(width: box-w, height: box-h, stroke: 0.5pt, fill: luma(245))[S3 Storage]
+    let google-box = rect(width: box-w, height: box-h, stroke: 0.5pt, fill: luma(245))[Google OAuth]
+
+    // Layout using grid for tier labels + boxes
+    grid(
+      columns: (auto, 1fr, 1fr, 1fr),
+      rows: (auto, auto, auto),
+      column-gutter: col-gap,
+      row-gutter: row-gap,
+      align: (start, center, center, center),
+
+      // Row 1: Client Tier
+      [Client Tier:], browser-box, cdn-box, [],
+
+      // Row 2: Application Tier
+      [Application Tier:], lb-box, grid(
+        columns: (1fr, 1fr),
+        column-gutter: col-gap,
+        api1-box, api2-box,
+      ), emb-box,
+
+      // Row 3: Data Tier + External
+      [Data Tier + External:], grid(
+        columns: (1fr, 1fr),
+        column-gutter: col-gap,
+        pg-box, redis-box,
+      ), grid(
+        columns: (1fr, 1fr),
+        column-gutter: col-gap,
+        stripe-box, sendgrid-box,
+      ), grid(
+        columns: (1fr, 1fr),
+        column-gutter: col-gap,
+        s3-box, google-box,
+      ),
+    )
+
+    // Connection notes
+    v(0.3cm)
+    set text(size: 7pt, style: "italic")
+    [Connections: Browser → HTTPS → CDN; Browser → HTTPS → LB → API (round-robin); API → TCP 5432 → PG; API → TCP 6379 → Redis; API → HTTP 8000 → Embedding; API → HTTPS → Stripe / SendGrid / S3 / Google OAuth]
+  },
+  caption: [Conceptual Production Deployment Diagram],
+)
+
 == Configuration per Environment
 
 #figure(
