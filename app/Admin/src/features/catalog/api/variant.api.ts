@@ -9,7 +9,7 @@ export class VariantApi {
     return getPagedList<VariantListItemResponse>(`/catalog/products/${productId}/variants`, query)
   }
   static async get(id: string): Promise<Result<VariantDetailResponse>> {
-    const res = await apiClient.get<Result<VariantDetailResponse>>(`/catalog/products/variants/${id}`)
+    const res = await apiClient.get<Result<VariantDetailResponse>>(`/catalog/variants/${id}`)
     return res.data
   }
   static async create(productId: string, data: VariantRequest): Promise<Result<VariantDetailResponse>> {
@@ -17,11 +17,11 @@ export class VariantApi {
     return res.data
   }
   static async update(id: string, data: VariantRequest): Promise<Result<VariantDetailResponse>> {
-    const res = await apiClient.put<Result<VariantDetailResponse>>(`/catalog/products/variants/${id}`, data)
+    const res = await apiClient.put<Result<VariantDetailResponse>>(`/catalog/variants/${id}`, data)
     return res.data
   }
   static async delete(id: string): Promise<Result<void>> {
-    const res = await apiClient.delete<Result<void>>(`/catalog/products/variants/${id}`)
+    const res = await apiClient.delete<Result<void>>(`/catalog/variants/${id}`)
     return res.data
   }
 }

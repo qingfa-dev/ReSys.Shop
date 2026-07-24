@@ -111,12 +111,6 @@ async function remove(image: VariantImageDetailResponse) {
   })
 }
 
-async function loadEmbedding(imageId: string) {
-  embeddingLoading.value = true
-  const result = await VariantImageApi.get(imageId)
-  embeddingLoading.value = false
-}
-
 async function regenerateEmbedding() {
   if (!editingImage.value) return
   embeddingLoading.value = true
