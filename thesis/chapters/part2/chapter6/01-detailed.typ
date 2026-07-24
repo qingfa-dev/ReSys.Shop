@@ -271,28 +271,20 @@ The Content-Based Image Retrieval (CBIR) flow connects the frontend, backend, Py
 
 The `Result<T>` type is the universal return type for all domain operations. It encapsulates either a success value or a collection of errors:
 
-```
-┌─────────────────┐
-│   Result<T>     │
-├─────────────────┤
-│ + IsSuccess     │
-│ + IsFailure     │
-│ + StatusCode    │
-│ + Errors[]      │
-│ + Value?        │
-│ + ToResult()    │
-└────────┬────────┘
-         │ implicit conversion
-         ▼
-┌─────────────────┐
-│     Error       │
-├─────────────────┤
-│ + Code          │
-│ + Message       │
-│ + Type          │
-│ + Metadata      │
-└─────────────────┘
-```
+#figure(
+  table(
+    columns: (auto, 1fr, 1fr),
+    align: (start, start, start),
+    [*Class*], [*Properties*], [*Methods*],
+    [`Result<T>`], [`IsSuccess: bool`, `IsFailure: bool`, `StatusCode: int`, `Errors: List<Error>`, `Value: T?`], [`ToResult() → IResult`],
+    [`Result` `(static)`], [`IsSuccess: bool`, `IsFailure: bool`, `StatusCode: int`, `Errors: List<Error>`], [`Created<T>(T) → Result<T>`, `Ok<T>(T) → Result<T>`, `NotFound(code)`, `Conflict(code)`, `Validation(code)`, `Unexpected(code)`],
+    [`Error`], [`Code: string`, `Message: string`, `Type: ErrorType`, `Metadata: Dictionary?`], [`implicit operator Result(Error)`],
+    [`PagedResult<T>`], [`Data: List<T>`, `PageNumber: int`, `PageSize: int`, `TotalCount: int`, `TotalPages: int`, `HasPreviousPage: bool`, `HasNextPage: bool`], [---],
+  ),
+  caption: [Result type hierarchy],
+)
+
+*Relationships*: `Result<T>` uses factory methods on the static `Result` class. `Error` has an implicit conversion to `Result`. `PagedResult<T>` is a specialization for paginated responses.
 
 *Evidence*: `Shared/Application/Models/Results/Result.cs`, `Shared/Application/Models/Errors/Error.cs`
 
@@ -300,19 +292,24 @@ The `Result<T>` type is the universal return type for all domain operations. It 
 
 The MediatR pipeline behaviors all implement `IPipelineBehavior<TRequest, TResponse>`:
 
-```
-┌──────────────────────────────────────────┐
-│ IPipelineBehavior<TRequest, TResponse>  │
-└──────────────────────────────────────────┘
-         ▲
-         │ implements
-    ┌────┴────┐
-    │         │
-┌───┴───┐ ┌───┴────────────────┐ ┌──────────────┐
-│Logging│ │ValidationBehavior  │ │ExceptionMapping│
-│Behavior│ │<TRequest,TResponse>│ │Behavior        │
-└───────┘ └────────────────────┘ └──────────────┘
-```
+#figure(
+  table(
+    columns: (auto, auto, 1fr),
+    align: (start, start, start),
+    [*Class*], [*Interface*], [*Key Details*],
+    [`IPipelineBehavior<TRequest, TResponse>`], [`<<interface>>`], [`Handle(TRequest, RequestHandlerDelegate<TResponse>) → Task<TResponse>`],
+    [`LoggingBehavior<TReq, TRes>`], [implements `IPipelineBehavior`], [Logs request entry/exit with CorrelationId, elapsed ms; outermost behavior],
+    [`ValidationBehavior<TReq, TRes>`], [implements `IPipelineBehavior`], [Runs FluentValidation rules; short-circuits with `Result.Validation` on failure; holds `IValidator[]`],
+    [`ExceptionMappingBehavior<TReq, TRes>`], [implements `IPipelineBehavior`], [Catches unhandled exceptions; returns `Result.Unexpected`; innermost behavior (catch-all)],
+    [`ICommand<TResponse>`], [`<<interface>>`], [Marker interface for commands],
+    [`IQuery<TResponse>`], [`<<interface>>`], [Marker interface for queries],
+    [`ICommandHandler<TCmd, TRes>`], [`<<interface>>`], [`Handle(TCommand, CancellationToken) → Task<TResponse>`],
+    [`IQueryHandler<TQuery, TRes>`], [`<<interface>>`], [`Handle(TQuery, CancellationToken) → Task<TResponse>`],
+  ),
+  caption: [MediatR pipeline behavior class hierarchy],
+)
+
+*Relationships*: The three concrete behaviors implement `IPipelineBehavior` (Decorator chain). `ICommandHandler` processes `ICommand` instances; `IQueryHandler` processes `IQuery` instances.
 
 *Evidence*: `Shared/Application/Mediators/Behaviours/Logging/Logging.Behaviours.cs`, `Validation/Validation.Behavior.cs`, `Exceptions/Exception.Behavior.cs`
 
@@ -348,27 +345,22 @@ service/Embedding/
 
 === Embedding Model Class Hierarchy (Strategy Pattern)
 
-```
-┌────────────────────────────────────────────────────────────┐
-│                   BaseEmbeddingModel (ABC)                 │
-├────────────────────────────────────────────────────────────┤
-│ + model_name: str                                          │
-│ + vector_dim: int                                          │
-│ + __init__()                                               │
-│ + encode_image(image: PIL.Image) -> np.ndarray           │
-│ + warmup(): optional model preloading                      │
-└─────────────────────┬──────────────────────────────────────┘
-                      │ inherits
-         ┌────────────┼────────────┬────────────────┐
-         ▼            ▼            ▼                ▼
-┌─────────────┐ ┌──────────┐ ┌──────────────┐ ┌─────────────┐
-│ FashionCLIP │ │ ResNet50 │ │ EfficientNet │ │ CLIPGeneric │
-│  Model      │ │  Model   │ │    B0 Model  │ │    Model    │
-├─────────────┤ ├──────────┤ ├──────────────┤ ├─────────────┤
-│ open_clip   │ │ torchvision│ │ timm       │ │ transformers │
-│ 512-d       │ │ 2048-d    │ │  1280-d      │ │ 512-d        │
-└─────────────┘ └──────────┘ └──────────────┘ └─────────────┘
-```
+#figure(
+  table(
+    columns: (auto, auto, 1fr),
+    align: (start, start, start),
+    [*Class*], [*Key Properties*], [*Methods*],
+    [*BaseEmbeddingModel* `(abstract)`], [`model_name: str`, `vector_dim: int`, `_model: Any`, `_preprocess: Any`, `_device: str`], [`__init__()`, `warmup()`, `is_loaded()`, `encode_image(PIL.Image) → np.ndarray`, `_load()` `(abstract)`, `_ensure_loaded()`, `_to_numpy()`, `_l2_normalize()`],
+    [*FashionCLIPModel*], [`model_name = "fashion-clip"`, `vector_dim = 512`], [`_load()` — open_clip, `encode_image()`],
+    [*ResNet50Model*], [`model_name = "resnet50"`, `vector_dim = 2048`], [`_load()` — torchvision, `encode_image()`],
+    [*EfficientNetB0Model*], [`model_name = "efficientnet_b0"`, `vector_dim = 1280`], [`_load()` — timm, `encode_image()`],
+    [*CLIPGenericModel*], [`model_name = "clip"`, `vector_dim = 512`], [`_load()` — transformers, `encode_image()`],
+    [*EmbeddingService*], [`MODEL_REGISTRY: dict`, `_loaded_models: dict`], [`get_model(name)`, `list_available_models()`, `encode_image(image, model)`, `warmup_default_model()`],
+  ),
+  caption: [Embedding model class hierarchy — Strategy pattern],
+)
+
+*Relationships*: `FashionCLIPModel`, `ResNet50Model`, `EfficientNetB0Model`, and `CLIPGenericModel` all inherit from `BaseEmbeddingModel`. `EmbeddingService` uses the `MODEL_REGISTRY` to resolve model classes by string identifier at runtime.
 
 *Model selection at runtime*:
 

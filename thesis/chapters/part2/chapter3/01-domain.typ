@@ -60,6 +60,29 @@ An aggregate is a cluster of associated objects treated as a single unit for dat
 
 *Evidence*: `Module/Catalog/Domain/Products/Product.cs`, `Module/Catalog/Domain/Products/Variants/Variant.cs`, `Module/Catalog/Persistence/CatalogSchema.cs:1-31`
 
+==== Product Aggregate Class Diagram
+
+#figure(
+  table(
+    columns: (auto, 1fr, 1fr),
+    align: (start, start, start),
+    [*Class*], [*Properties*], [*Methods / Notes*],
+    [`Product`], [`Id: Guid`, `Name: string`, `Description: string`, `Status: ProductStatus`, `Slug: string`, `MetaTitle: string?`, `MetaDescription: string?`, `AvailableOn: DateTimeOffset?`, `DiscontinueOn: DateTimeOffset?`, `StyleCode: string?`, `SeasonName: string?`, `MaterialComposition: string?`, `Department: string?`, `GenderTarget: string?`, `MasterVariantId: Guid`, `IsDeleted: bool`, `CreatedAtUtc: DateTimeOffset`, `ModifiedAtUtc: DateTimeOffset?`], [`Create() → Product`],
+    [`Variant`], [`Id: Guid`, `ProductId: Guid`, `IsMaster: bool`, `Sku: string?`, `Barcode: string?`, `Price: decimal?`, `CostPrice: decimal?`, `TrackInventory: bool`, `Weight/Height/Width/Depth: decimal?`, `IsDeleted: bool`], [`Create() → Variant`],
+    [`VariantImage`], [`Id: Guid`, `VariantId: Guid`, `FilePath: string`, `AltText: string?`, `Position: int`, `Embedding: float[]`], [Stores 512-d embedding for CBIR],
+    [`Price`], [`Id: Guid`, `VariantId: Guid`, `Amount: decimal`, `Currency: string`, `ValidFrom: DateTimeOffset?`, `ValidUntil: DateTimeOffset?`], [Time-bound pricing],
+    [`OptionType`], [`Id: Guid`, `Name: string`, `Presentation: string`, `Position: int`], [e.g., "Size", "Color"],
+    [`OptionValue`], [`Id: Guid`, `OptionTypeId: Guid`, `Name: string`, `Presentation: string`, `Position: int`], [e.g., "Small", "Red"],
+    [`OptionValueVariant`], [`OptionValueId: Guid`, `VariantId: Guid`], [Associative entity],
+    [`Taxonomy`], [`Id: Guid`, `Name: string`, `Slug: string`, `Position: int`], [Classification tree root],
+    [`Taxon`], [`Id: Guid`, `TaxonomyId: Guid`, `ParentId: Guid?`, `Name: string`, `Slug: string`, `Position: int`], [Self-referencing tree via `ParentId`],
+    [`Classification`], [`ProductId: Guid`, `TaxonId: Guid`], [Associative entity — links products to taxons],
+  ),
+  caption: [Product aggregate class diagram (Catalog context)],
+)
+
+*Relationships*: Product → Variant (1:n, one master); Variant → VariantImage (1:n); Variant → Price (1:n); Variant → OptionValueVariant (1:n); OptionValueVariant → OptionValue (n:1); OptionValue → OptionType (n:1); Product → Classification (1:n); Classification → Taxon (n:1); Taxon → Taxonomy (n:1); Taxon → Taxon (self-referencing parent).
+
 === Ordering Aggregates
 
 #figure(
@@ -75,6 +98,24 @@ An aggregate is a cluster of associated objects treated as a single unit for dat
 
 *Evidence*: `Module/Ordering/Domain/Orders/Order.cs`, `Order.Constant.cs:1-98`
 
+==== Order Aggregate Class Diagram
+
+#figure(
+  table(
+    columns: (auto, 1fr, 1fr),
+    align: (start, start, start),
+    [*Class*], [*Properties*], [*Methods / Notes*],
+    [`Order`], [`Id: Guid`, `Number: string`, `SessionId: string?`, `UserId: Guid?`, `Status: OrderStatus`, `CheckoutState: CheckoutState`, `Currency: string`, `ItemTotal: decimal`, `AdjustmentTotal: decimal`, `ShipmentTotal: decimal`, `Total: decimal`, `PaymentTotal: decimal`, `OutstandingBalance: decimal`, `PaymentState: string?`, `ShipmentState: string?`, `IsDeleted: bool`, `CompletedAtUtc: DateTimeOffset?`, `CanceledAtUtc: DateTimeOffset?`], [`Checkout() → Result<Order>`, `Cancel(reason) → Result<Order>`, `Finalize() → Result<Order>`],
+    [`LineItem`], [`Id: Guid`, `OrderId: Guid`, `VariantId: Guid`, `Quantity: int`, `Price: decimal`, `Total: decimal`], [References Variant, not Product],
+    [`Adjustment`], [`Id: Guid`, `OrderId: Guid`, `Label: string`, `Amount: decimal`, `IsIncluded: bool`], [e.g., discounts, surcharges],
+    [`OrderStatus` `(enum)`], [`Draft`, `Pending`, `Complete`, `Canceled`], [Cart = Draft + SessionId],
+    [`CheckoutState` `(enum)`], [`Address`, `Delivery`, `Payment`, `Confirm`, `Complete`], [Forward-only state machine],
+  ),
+  caption: [Order aggregate class diagram (Ordering context)],
+)
+
+*Relationships*: Order → LineItem (1:n); Order → Adjustment (1:n); Order → OrderStatus (uses); Order → CheckoutState (uses).
+
 === Payment Aggregates
 
 #figure(
@@ -88,6 +129,24 @@ An aggregate is a cluster of associated objects treated as a single unit for dat
 )
 
 *Evidence*: `Module/Payment/Domain/PaymentCaptures/PaymentCapture.cs`, `PaymentCapture.Method.State.cs`
+
+==== Payment Aggregate Class Diagram
+
+#figure(
+  table(
+    columns: (auto, 1fr, 1fr),
+    align: (start, start, start),
+    [*Class*], [*Properties*], [*Methods / Notes*],
+    [`PaymentIntent`], [`Id: Guid`, `OrderId: Guid`, `GatewayId: string`, `GatewayType: string`, `Status: PaymentStatus`, `Amount: decimal`, `Currency: string`, `ClientSecret: string?`, `CreatedAtUtc: DateTimeOffset`], [`Create() → PaymentIntent`, `Confirm() → Result<PaymentIntent>`, `Capture() → Result<PaymentCapture>`],
+    [`PaymentCapture`], [`Id: Guid`, `PaymentIntentId: Guid`, `Amount: decimal`, `Currency: string`, `Status: CaptureStatus`, `GatewayCaptureId: string?`, `CreatedAtUtc: DateTimeOffset`], [`Create() → PaymentCapture`, `Refund(amount) → Result<PaymentCapture>`, `Void() → Result<PaymentCapture>`],
+    [`PaymentMethod`], [`Id: Guid`, `Type: string`, `LastFourDigits: string?`, `Brand: string?`, `ExpiryMonth: int?`, `ExpiryYear: int?`, `IsDefault: bool`], [Payment card metadata],
+    [`PaymentStatus` `(enum)`], [`Pending`, `RequiresAction`, `Processing`, `Succeeded`, `Canceled`, `Failed`], [Mirrors Stripe lifecycle],
+    [`CaptureStatus` `(enum)`], [`Pending`, `Captured`, `Refunded`, `Voided`], [Tracks capture-level state],
+  ),
+  caption: [Payment aggregate class diagram (Payment context)],
+)
+
+*Relationships*: PaymentIntent → PaymentCapture (1:n); PaymentIntent → PaymentStatus (uses); PaymentCapture → CaptureStatus (uses); PaymentIntent → PaymentMethod (references).
 
 === Identity Aggregates
 
@@ -103,6 +162,27 @@ An aggregate is a cluster of associated objects treated as a single unit for dat
 )
 
 *Evidence*: `Shared/Security/Identity/Domain/Users/User.cs`, `Shared/Security/Identity/Domain/Roles/Role.cs`
+
+==== Identity Aggregate Class Diagram
+
+#figure(
+  table(
+    columns: (auto, 1fr, 1fr),
+    align: (start, start, start),
+    [*Class*], [*Properties*], [*Methods / Notes*],
+    [`User`], [`Id: Guid`, `Email: string`, `PhoneNumber: string?`, `EmailConfirmed: bool`, `PhoneNumberConfirmed: bool`, `TwoFactorEnabled: bool`, `LockoutEnd: DateTimeOffset?`], [Extends `ASP.NET Identity User<Guid>`],
+    [`Role`], [`Id: Guid`, `Name: string`, `Description: string?`], [Role-based authorization],
+    [`UserRole`], [`UserId: Guid`, `RoleId: Guid`], [Join entity: User ↔ Role],
+    [`UserClaim`], [`Id: Guid`, `UserId: Guid`, `ClaimType: string`, `ClaimValue: string`], [Claims-based permissions],
+    [`RoleClaim`], [`Id: Guid`, `RoleId: Guid`, `ClaimType: string`, `ClaimValue: string`], [Role-level claims],
+    [`PermissionContext` `(static)`], [`Registry: Dictionary<string, PermissionDescriptor>`], [`Register(domain, category, actions)`, `Resolve(policyName) → PermissionRequirement`],
+    [`PermissionDescriptor`], [`Domain: string`, `Category: string`, `Action: string`, `FullName: string`], [e.g., `catalog:products:create`],
+    [`ICurrentUser` `<<interface>>`], [`UserId: Guid?`, `UserName: string?`, `Email: string?`, `IsAuthenticated: bool`], [`HasPermission(permission) → bool`],
+  ),
+  caption: [Identity aggregate class diagram (Identity context)],
+)
+
+*Relationships*: User → UserRole (1:n); UserRole → Role (n:1); User → UserClaim (1:n); Role → RoleClaim (1:n); PermissionContext → PermissionDescriptor (registers).
 
 === Inventory Aggregates
 
