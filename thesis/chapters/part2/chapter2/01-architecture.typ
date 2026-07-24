@@ -197,7 +197,7 @@ Ground-truth dataset (100 images, 10 similarity groups)
       → POST /embeddings → receive vector
       → Query pgvector top-20
       → Compare retrieved variants against labeled group
-      → Record: Precision@20, Recall@20, latency_ms, vector_dim
+      → Record: Precision at K=20, Recall at K=20, latency_ms, vector_dim
     → Compute mean ± SD across 100 queries
   → Generate comparison table
 ```
