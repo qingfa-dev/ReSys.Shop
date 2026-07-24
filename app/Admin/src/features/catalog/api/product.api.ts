@@ -28,4 +28,14 @@ export class ProductApi {
     const res = await apiClient.delete<Result<void>>(`/catalog/products/${id}`)
     return res.data
   }
+
+  static async activate(id: string): Promise<Result<ProductResponse>> {
+    const res = await apiClient.patch<Result<ProductResponse>>(`/catalog/products/${id}/activate`)
+    return res.data
+  }
+
+  static async discontinue(id: string): Promise<Result<ProductResponse>> {
+    const res = await apiClient.patch<Result<ProductResponse>>(`/catalog/products/${id}/discontinue`)
+    return res.data
+  }
 }

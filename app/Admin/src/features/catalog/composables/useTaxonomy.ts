@@ -15,5 +15,5 @@ export function useTaxonomy() {
     return route.name?.toString().endsWith('.edit') ? 'edit' : 'view'
   })
 
-  return { id, mode, route, router, toast, api: TaxonomyApi, taxonApi: TaxonApi }
+  return { id, mode, route, router, toast, api: TaxonomyApi, taxonApi: TaxonApi, taxonTreeApi: TaxonApi }
 }

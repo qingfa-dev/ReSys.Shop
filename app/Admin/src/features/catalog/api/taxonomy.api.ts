@@ -28,4 +28,9 @@ export class TaxonomyApi {
     const res = await apiClient.delete<Result<void>>(`/catalog/taxonomies/${id}`)
     return res.data
   }
+
+  static async restore(id: string): Promise<Result<void>> {
+    const res = await apiClient.patch<Result<void>>(`/catalog/taxonomies/${id}/restore`)
+    return res.data
+  }
 }
