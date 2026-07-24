@@ -98,7 +98,7 @@ export function toQueryParams(query: ListQuery): Record<string, string | number 
 // shared/api/utils/query-serializer.ts (continued)
 import apiClient from '@/shared/api/client'
 
-export async function getList<T>(url: string, query: ListQuery): Promise<T> {
+export async function getPagedList<T>(url: string, query: ListQuery): Promise<T> {
   const res = await apiClient.get<T>(url, { params: toQueryParams(query) })
   return res.data
 }
@@ -108,19 +108,19 @@ export async function getList<T>(url: string, query: ListQuery): Promise<T> {
 
 ## Integration — Feature Store
 
-Every feature store owns its own `ListQuery` state and pagination logic. The feature API class uses the shared `getList` helper.
+Every feature store owns its own `ListQuery` state and pagination logic. The feature API class uses the shared `getPagedList` helper.
 
 ### Feature API class
 
 ```ts
 // features/catalog/api/product.api.ts
-import { getList } from '@/shared/api/utils/query-serializer'
+import { getPagedList } from '@/shared/api/utils/query-serializer'
 import type { PagedResult, ListQuery } from '@/shared/models'
 import type { ProductResponse } from '../types'
 
 export class ProductApi {
   static getMany(query: ListQuery): Promise<PagedResult<ProductResponse>> {
-    return getList<PagedResult<ProductResponse>>('/catalog/products', query)
+    return getPagedList<PagedResult<ProductResponse>>('/catalog/products', query)
   }
 }
 ```
@@ -229,7 +229,7 @@ shared/
     list-query.ts          ← ListQuery interface + defaultListQuery()
   api/
     utils/
-      query-serializer.ts  ← toQueryParams() + getList()
+      query-serializer.ts  ← toQueryParams() + getPagedList()
     (client.ts, interceptors/ unchanged)
 ```
 
@@ -239,7 +239,7 @@ No changes to existing `querying.ts` — all existing types stay. No changes to 
 
 ## Error handling
 
-- `getList()` does NOT catch axios errors — errors propagate to the store's try/catch
+- `getPagedList()` does NOT catch axios errors — errors propagate to the store's try/catch
 - The store sets `error = 'Failed to load'` on any exception
 - The serializer does NOT validate — invalid `ListQuery` fields produce undefined query params (axios drops them)
 - Empty `search.value` sets `search.term.value` as empty string — the backend ignores empty searches

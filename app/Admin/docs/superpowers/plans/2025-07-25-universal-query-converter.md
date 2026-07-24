@@ -2,9 +2,9 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Create a shared `toQueryParams()` serializer and `getList()` helper that all features use to convert `ListQuery` into dot-notation API query params, plus migrate the catalog feature to use it with Pinia stores.
+**Goal:** Create a shared `toQueryParams()` serializer and `getPagedList()` helper that all features use to convert `ListQuery` into dot-notation API query params, plus migrate the catalog feature to use it with Pinia stores.
 
-**Architecture:** A `ListQuery` interface (frontend-facing) is serialized by a single `toQueryParams()` function into the structured dot-notation format the C# backend expects (`page.page`, `filter.root.logic`, `sort.clauses[0].field`, etc.). A thin `getList()` wrapper around `apiClient.get` applies the serializer automatically. Feature stores own pagination state and expose `setPage`/`setSearch`/`setSort`/`setFilter` actions. Feature API classes call `getList()`.
+**Architecture:** A `ListQuery` interface (frontend-facing) is serialized by a single `toQueryParams()` function into the structured dot-notation format the C# backend expects (`page.page`, `filter.root.logic`, `sort.clauses[0].field`, etc.). A thin `getPagedList()` wrapper around `apiClient.get` applies the serializer automatically. Feature stores own pagination state and expose `setPage`/`setSearch`/`setSort`/`setFilter` actions. Feature API classes call `getPagedList()`.
 
 **Tech Stack:** TypeScript, Vue 3, Pinia, Axios, Vitest
 
@@ -24,7 +24,7 @@
 
 ### New files
 - `src/shared/models/list-query.ts` — `ListQuery` interface + `defaultListQuery()` factory
-- `src/shared/api/utils/query-serializer.ts` — `toQueryParams()` + `getList()` + `getPagedList()`
+- `src/shared/api/utils/query-serializer.ts` — `toQueryParams()` + `getPagedList()` + `getPagedList()`
 - `src/shared/api/utils/__tests__/query-serializer.spec.ts` — serializer unit tests
 - `src/features/catalog/store/product.store.ts` — `useProductStore`
 - `src/features/catalog/store/taxonomy.store.ts` — `useTaxonomyStore`
