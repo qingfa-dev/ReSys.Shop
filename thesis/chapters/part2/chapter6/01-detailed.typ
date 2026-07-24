@@ -31,54 +31,239 @@ LoggingBehavior<TRequest, TResponse>
 
 === Create Product Flow
 
-The Create Product flow demonstrates the vertical slice pattern in action. The following describes the interaction between system components:
+The Create Product flow demonstrates the vertical slice pattern in action. The following sequence diagram shows the interactions between system components:
 
-1. The *Client* sends a `POST /api/catalog/admin/products` request to the *Carter Endpoint*
-2. The *Carter Endpoint* dispatches a `CreateProduct` command via `ISender.Send()` to the *MediatR Pipeline*
-3. The pipeline runs the *ValidationBehavior* which invokes the FluentValidation validator; on failure, returns early
-4. On success, the *CreateProduct Handler* is invoked
-5. The handler queries *Application DbContext* to verify slug uniqueness
-6. The handler invokes the Product factory method to create the domain entity
-7. The handler calls `SaveChanges()` to persist the Product
-8. The handler dispatches an `AddVariant` nested command to create the master variant
-9. The handler sets `MasterVariantId` on the Product and saves again
-10. The handler maps the result to `CreateProduct.Response` via Mapster and returns 201 Created
+#figure(
+  block(width: 100%, inset: 0.8em, stroke: 0.5pt + black, radius: 4pt)[
+    ```text
+    Admin          Admin SPA        Carter Endpoint    MediatR Pipeline    Handler           DbContext
+     │                │                   │                   │                │                 │
+     │  Fill form     │                   │                   │                │                 │
+     │  + "Create"    │                   │                   │                │                 │
+     ├───────────────>│                   │                   │                │                 │
+     │                │  POST /api/catalog/admin/products      │                │                 │
+     │                │  + JWT + X-CSRF   │                   │                │                 │
+     │                ├──────────────────>│                   │                │                 │
+     │                │                   │  sender.Send()    │                │                 │
+     │                │                   ├──────────────────>│                │                 │
+     │                │                   │                   │  Validate(req) │                 │
+     │                │                   │                   ├───────────────>│                 │
+     │                │                   │                   │                │                 │
+     │           ┌────┴──── Validation fails ────┐            │                │                 │
+     │           │ Result.Validation(errors)     │            │                │                 │
+     │           │ 400 Bad Request               │            │                │                 │
+     │           └───────────────────────────────┘            │                │                 │
+     │                │                   │                   │                │                 │
+     │           ┌────┴──── Validation passes ────┐           │                │                 │
+     │                │                   │         │          │                │                 │
+     │                │                   │         │  Handle(Command)          │                 │
+     │                │                   │         ├─────────────────────────>│                 │
+     │                │                   │         │          │   Query: slug exists?            │
+     │                │                   │         │          ├────────────────────────────────>│
+     │                │                   │         │          │            false  <──────────────┤
+     │                │                   │         │          │   Product.Create()               │
+     │                │                   │         │          ├────────────────────────────────>│
+     │                │                   │         │          │   db.Products.Add(product)       │
+     │                │                   │         │          │   SaveChanges()                  │
+     │                │                   │         │          ├────────────────────────────────>│
+     │                │                   │         │          │                                  │
+     │                │                   │         │          │   Send(AddVariant.Command)       │
+     │                │                   │         │          ├────────────────────────────────>│
+     │                │                   │         │          │   Add variant + set IsMaster     │
+     │                │                   │         │          ├────────────────────────────────>│
+     │                │                   │         │          │                                  │
+     │                │                   │         │          │   product.MasterVariantId = v.Id │
+     │                │                   │         │          │   SaveChanges()                  │
+     │                │                   │         │          ├────────────────────────────────>│
+     │                │                   │         │          │                                  │
+     │                │                   │         │  Result.Created(...)  │                     │
+     │                │                   │         │<─────────────────────┤                      │
+     │                │                   │  result  │                     │                      │
+     │                │                   │<─────────┤                     │                      │
+     │                │  201 Created      │         │                     │                      │
+     │                │  {id,name,varId}  │         │                     │                      │
+     │                │<──────────────────┤         │                     │                      │
+     │           └──────────────────────────────────┘                     │                      │
+    ```
+  ],
+  caption: [Sequence diagram: Create Product (Admin)],
+)
 
-*Evidence*: `CreateProduct.cs:36-78`, `CreateProduct.Endpoint.cs:14-32`
+*Design decisions*:
+
+1. *FluentValidation short-circuit* -- `ValidationBehavior` stops the pipeline before the handler if rules fail.
+2. *Nested command dispatch* -- `CreateProduct` dispatches `AddVariant` via `ISender`, demonstrating module-internal CQRS and the MediatR dispatch pattern.
+3. *Two SaveChanges calls* -- product is saved first (to get its ID), then variant is added and saved. This is a deliberate trade-off for ID generation vs. batching.
+4. *Exception mapping* -- any unhandled exception in the handler is caught by `ExceptionMappingBehavior` and converted to `Result.Unexpected`.
+
+*Evidence*: `CreateProduct.cs:36-78`, `CreateProduct.Endpoint.cs:14-32`, `Validation.Behavior.cs:1-67`, `Exception.Behavior.cs:1-42`
 
 === Checkout Flow
 
-The Checkout flow orchestrates order creation, inventory reservation, and payment initiation:
+The Checkout flow is the *highest-stakes business flow* in the system. The following sequence diagram shows the interactions between system components, including the critical transaction boundary:
 
-1. The *Client* sends a `POST /api/ordering/storefront/cart/checkout` request to the *Carter Endpoint*
-2. The *Carter Endpoint* dispatches a `CreateOrderFromCart` command via the MediatR pipeline
-3. The *CreateOrderFromCart Handler* validates the cart is not empty and validates stock availability
-4. The handler begins a `RepeatableRead` transaction on *Application DbContext*
-5. The handler generates an order number, creates the Order and LineItems entities
-6. The handler calls `SaveChanges()` to persist the order within the transaction
-7. The handler invokes the *Payment Gateway* to create a PaymentIntent via the *Stripe API*
-8. On success, the handler commits the transaction
-9. The handler maps the result to the checkout response via Mapster and returns 201 Created
+#figure(
+  block(width: 100%, inset: 0.8em, stroke: 0.5pt + black, radius: 4pt)[
+    ```text
+    Customer       Store SPA         Carter Endpoint    MediatR Pipeline    Handler           DbContext       Payment        Hangfire
+     │                │                   │                   │                │                 │               │               │
+     │  Review cart   │                   │                   │                │                 │               │               │
+     │  + "Checkout"  │                   │                   │                │                 │               │               │
+     ├───────────────>│                   │                   │                │                 │               │               │
+     │                │  POST /api/ordering/storefront/cart/checkout           │                │               │               │
+     │                │  + address + shipping + payment method                │                │               │               │
+     │                ├──────────────────>│                   │                │                 │               │               │
+     │                │                   │  sender.Send()    │                │                 │               │               │
+     │                │                   ├──────────────────>│                │                 │               │               │
+     │                │                   │                   │  Handle(Command)                 │               │               │
+     │                │                   │                   ├─────────────────────────────────>│               │               │
+     │                │                   │                   │                │  BEGIN TRANSACTION             │               │
+     │                │                   │                   │                │  IsolationLevel.RepeatableRead  │               │
+     │                │                   │                   │                ├────────────────────────────────>│               │
+     │                │                   │                   │                │                                  │               │
+     │                │                   │                   │                │  Query cart + line items         │               │
+     │                │                   │                   │                ├────────────────────────────────>│               │
+     │                │                   │                   │                │  Query stock for each variant    │               │
+     │                │                   │                   │                ├────────────────────────────────>│               │
+     │                │                   │                   │                │                                  │               │
+     │           ┌────┴──── Stock insufficient ────┐          │                │               │               │               │
+     │           │ Result.Conflict("Stock insufficient")       │                │               │               │               │
+     │           │ 409 Conflict                  │          │                │               │               │               │
+     │           └───────────────────────────────┘          │                │               │               │               │
+     │                │                   │                   │                │                                  │               │
+     │           ┌────┴──── Stock OK ──────────────┐         │                │               │               │               │
+     │                │                   │         │         │                │               │               │               │
+     │                │                   │         │         │  Generate OrderNumber           │               │               │
+     │                │                   │         │         │  (inside transaction)           │               │               │
+     │                │                   │         │         │                │                 │               │               │
+     │                │                   │         │         │  INSERT Order + LineItems       │               │               │
+     │                │                   │         │         │  SaveChanges()                  │               │               │
+     │                │                   │         │         ├────────────────────────────────>│               │               │
+     │                │                   │         │         │                │                 │               │               │
+     │                │                   │         │         │  CreatePaymentIntent(total, currency)           │               │
+     │                │                   │         │         ├─────────────────────────────────────────────────>│               │
+     │                │                   │         │         │                │                 │  clientSecret  │               │
+     │                │                   │         │         │                │                 │  + intentId   │               │
+     │                │                   │         │         │<──────────────────────────────────────────────────┤               │
+     │                │                   │         │         │                │                 │               │               │
+     │                │                   │         │         │  INSERT PaymentIntent record    │               │               │
+     │                │                   │         │         │  SaveChanges()                  │               │               │
+     │                │                   │         │         ├────────────────────────────────>│               │               │
+     │                │                   │         │         │                │                 │               │               │
+     │                │                   │         │         │  COMMIT TRANSACTION             │               │               │
+     │                │                   │         │         ├────────────────────────────────>│               │               │
+     │                │                   │         │         │                │                 │               │               │
+     │                │                   │         │         │  Enqueue order confirmation email              │               │
+     │                │                   │         │         ├─────────────────────────────────────────────────────────────>│
+     │                │                   │         │         │                │                 │               │               │
+     │                │                   │         │  Result.Created(orderDto)                │               │               │
+     │                │                   │         │<─────────────────────────────────────────┤               │               │
+     │                │                   │  result  │         │                │               │               │               │
+     │                │                   │<─────────┤         │                │               │               │               │
+     │                │  201 Created       │         │         │                │               │               │               │
+     │                │  {orderId,orderNo, │         │         │                │               │               │               │
+     │                │   clientSecret}    │         │         │                │               │               │               │
+     │                │<──────────────────┤         │         │                │               │               │               │
+     │           └──────────────────────────────────┘         │                │               │               │               │
+    ```
+  ],
+  caption: [Sequence diagram: Checkout (Critical Path)],
+)
 
-*Design decision*: Order number generation and all related inserts happen inside a `RepeatableRead` transaction to prevent phantom reads on inventory during high-concurrency checkout scenarios.
+*Design decisions*:
 
-*Evidence*: `git log: commit 887a77c7`, `CreateOrderFromCart.cs`
+1. *RepeatableRead isolation* -- prevents phantom reads on inventory during high-concurrency checkout.
+2. *Order number generation inside transaction* -- ensures uniqueness even with concurrent checkouts.
+3. *Payment intent creation inside transaction* -- order and payment are ACID-consistent.
+4. *Hangfire for async work* -- email confirmation is offloaded to a background job to reduce response latency.
+5. *Stock check before order creation* -- prevents overselling.
 
-=== Image Search Flow (CBIR — Model-Agnostic)
+*Evidence*: `git log: commit 887a77c7`, `CreateOrderFromCart.cs`, `PaymentIntent.cs`
 
-The Content-Based Image Retrieval flow connects the frontend, backend, Python sidecar, and database:
+=== Image Search Flow (CBIR -- Model-Agnostic)
 
-1. The *Client* uploads an image to the *Store SPA*
-2. The *Store SPA* sends a `POST /search-by-image` multipart request to the *Catalog Backend (Search Handler)*
-3. The *Catalog Backend* forwards the image bytes and `model=fashion-clip` parameter to the *Embedding Sidecar*
-4. The *Embedding Sidecar* lazily initializes the requested model (Fashion-CLIP) and calls `encode_image()`
-5. The sidecar returns a 512-dimensional embedding vector and model name to the *Catalog Backend*
-6. The *Catalog Backend* executes a vector similarity query against *PostgreSQL + pgvector* using the cosine distance operator (`<=>`), filtering by model name and ordering by similarity
-7. The top-K results are returned to the *Store SPA* and displayed to the client
+The Content-Based Image Retrieval (CBIR) flow connects the frontend, backend, Python sidecar, and database:
 
-*Model abstraction in sidecar*: The sidecar uses a *Strategy pattern* with a `BaseEmbeddingModel` abstract class. Each model (Fashion-CLIP, ResNet-50, EfficientNet-B0, CLIP-generic) is a concrete implementation loaded at runtime based on the `EMBEDDING_MODEL` environment variable. This enables swapping models without code changes.
+#figure(
+  block(width: 100%, inset: 0.8em, stroke: 0.5pt + black, radius: 4pt)[
+    ```text
+    Customer       Store SPA         Carter Endpoint    Handler           Embedding Sidecar   DbContext        HybridCache
+     │                │                   │                │                    │                 │                │
+     │  Upload        │                   │                │                    │                 │                │
+     │  fashion image │                   │                │                    │                 │                │
+     ├───────────────>│                   │                │                    │                 │                │
+     │                │  POST /search-by-image             │                    │                 │                │
+     │                │  multipart/form-data               │                    │                 │                │
+     │                ├──────────────────>│                │                    │                 │                │
+     │                │                   │  sender.Send() │                    │                 │                │
+     │                │                   ├───────────────>│                    │                 │                │
+     │                │                   │                │                    │                 │                │
+     │           ┌────┴──── Cache hit ──────────────┐     │                    │                 │                │
+     │                │                   │         │     │  TryGet(cacheKey)  │                 │                │
+     │                │                   │         │     ├────────────────────────────────────────────────────>│
+     │                │                   │         │     │                    │                 │  Cached results │
+     │                │                   │         │     │<───────────────────────────────────────────────────┤
+     │                │                   │         │     │                    │                 │                │
+     │           ┌────┴──── Cache miss ─────────────┐     │                    │                 │                │
+     │                │                   │         │     │                    │                 │                │
+     │                │                   │         │     │  POST /embeddings  │                 │                │
+     │                │                   │         │     │  {image, model}    │                 │                │
+     │                │                   │         │     ├────────────────────>│                 │                │
+     │                │                   │         │     │                    │                 │                │
+     │                │                   │         │     │                    │  Model Registry  │                │
+     │                │                   │         │     │                    │  resolves model  │                │
+     │                │                   │         │     │                    │  (FashionCLIP)   │                │
+     │                │                   │         │     │                    │                 │                │
+     │                │                   │         │     │                    │  Lazy-load       │                │
+     │                │                   │         │     │                    │  (if cold start) │                │
+     │                │                   │         │     │                    │                 │                │
+     │                │                   │         │     │                    │  Model-specific  │                │
+     │                │                   │         │     │                    │  preprocessing   │                │
+     │                │                   │         │     │                    │  (resize+norm)   │                │
+     │                │                   │         │     │                    │                 │                │
+     │                │                   │         │     │                    │  encode_image()  │                │
+     │                │                   │         │     │                    │  (torch)         │                │
+     │                │                   │         │     │                    │                 │                │
+     │                │                   │         │     │  {embedding:[...], │                 │                │
+     │                │                   │         │     │   model, vector_dim}                  │                │
+     │                │                   │         │     │<────────────────────┤                 │                │
+     │                │                   │         │     │                    │                 │                │
+     │                │                   │         │     │  SELECT vi.*, v.sku, p.name           │                │
+     │                │                   │         │     │  FROM variant_images vi               │                │
+     │                │                   │         │     │  JOIN variants v ON ...               │                │
+     │                │                   │         │     │  JOIN products p ON ...               │                │
+     │                │                   │         │     │  WHERE model_name = 'fashion-clip'    │                │
+     │                │                   │         │     │  ORDER BY embedding <=> @embedding    │                │
+     │                │                   │         │     │  LIMIT 20                            │                │
+     │                │                   │         │     ├──────────────────────────────────────>│                │
+     │                │                   │         │     │                    │                 │  Top-K images   │
+     │                │                   │         │     │<──────────────────────────────────────┤                │
+     │                │                   │         │     │                    │                 │                │
+     │                │                   │         │     │  Set(cacheKey, results, 5min)         │                │
+     │                │                   │         │     ├────────────────────────────────────────────────────>│
+     │                │                   │         │     │                    │                 │                │
+     │           └──────────────────────────────────┘     │                    │                 │                │
+     │                │                   │                │                    │                 │                │
+     │                │                   │  Result<PagedResult<SearchResult>> │                 │                │
+     │                │                   │<───────────────┤                    │                 │                │
+     │                │  200 OK           │                │                    │                 │                │
+     │                │  {products,       │                │                    │                 │                │
+     │                │   similarityScores}│                │                    │                 │                │
+     │                │<──────────────────┤                │                    │                 │                │
+    ```
+  ],
+  caption: [Sequence diagram: Image Search (CBIR -- Model-Agnostic)],
+)
 
-*Evidence*: `ImageEmbedding.Inference.cs:21-36`, `ApiTests/Catalog/Storefront/search-by-image.http`
+*Design decisions*:
+
+1. *Strategy Pattern in Sidecar* -- The sidecar maintains a registry of `BaseEmbeddingModel` subclasses. The active model is selected at runtime via `EMBEDDING_MODEL` env var or query parameter, enabling the comparative evaluation in Chapter 11.
+2. *Model-specific preprocessing* -- Each model class encapsulates its own resize/normalize logic (e.g., Fashion-CLIP vs ResNet-50 may differ in interpolation or mean/std).
+3. *Per-model database filtering* -- The SQL query includes `WHERE model_name = 'fashion-clip'` to ensure only embeddings from the same model are compared. This prevents comparing a Fashion-CLIP query vector against ResNet-50 catalog vectors (different semantic spaces).
+4. *HybridCache* -- Repeated searches for the same image avoid re-computing the embedding.
+5. *Cosine similarity (`<=>`)* -- pgvector operator optimized for normalized vectors from any model.
+
+*Evidence*: `ImageEmbedding.Inference.cs:21-36`, `Vector.Configuration.cs`, `service/Embedding/src/services/embedding_service.py`, `ApiTests/Catalog/Storefront/search-by-image.http`
 
 == Class Diagrams
 
