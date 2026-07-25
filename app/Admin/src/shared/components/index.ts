@@ -16,6 +16,7 @@ export { default as SearchableSelect } from './forms/SearchableSelect.vue'
 
 export { default as ActionMenu } from './layout/ActionMenu.vue'
 export { default as BulkActionBar } from './layout/BulkActionBar.vue'
+export { default as AppCard } from './layout/AppCard.vue'
 export { default as PageHeader } from './layout/PageHeader.vue'
 export { default as PlaceholderPage } from './layout/PlaceholderPage.vue'
 export { default as TableToolbar } from './layout/TableToolbar.vue'
