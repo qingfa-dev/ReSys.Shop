@@ -3,6 +3,7 @@ import { ref, computed, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useConfirm } from '@/shared/composables/useConfirm'
 import { useToast } from '@/shared/composables/useToast'
+import Button from 'primevue/button'
 import PageHeader from '@/shared/components/layout/PageHeader.vue'
 import LoadingSkeleton from '@/shared/components/feedback/LoadingSkeleton.vue'
 import ErrorState from '@/shared/components/feedback/ErrorState.vue'
@@ -170,7 +171,3 @@ onMounted(loadPayment)
   </div>
 </template>
 
-<script lang="ts">
-import Button from 'primevue/button'
-export default { components: { Button } }
-</script>

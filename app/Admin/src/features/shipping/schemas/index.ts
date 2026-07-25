@@ -1,4 +1,7 @@
 export { ShippingMethodFields } from './shipping-method.fields'
 export { ShippingMethodForms } from './shipping-method.forms'
+export { ShippingRateFields } from './shipping-rate.fields'
+export { ShippingRateForms } from './shipping-rate.forms'
 export type { CreateShippingMethodForm, UpdateShippingMethodForm } from './shipping-method.forms'
+export type { CreateShippingRateForm, UpdateShippingRateForm } from './shipping-rate.forms'
 export type { TFunction } from './shipping-method.fields'
