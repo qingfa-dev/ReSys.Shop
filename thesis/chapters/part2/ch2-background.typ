@@ -225,6 +225,8 @@ This project distinguishes itself from prior work by addressing the *engineering
 
 == Technology Stack
 
+The preceding sections introduced individual technologies in context: pgvector as the vector storage layer, PyTorch and FastAPI within the machine learning sidecar, and the modular monolith as the architectural backbone of the .NET backend. Table @tbl-tech-stack consolidates the complete technology stack, mapping each component to its role in the platform.
+
 #figure(
   table(
     columns: (auto, auto, 1fr),
@@ -233,13 +235,13 @@ This project distinguishes itself from prior work by addressing the *engineering
     [Frontend], [Vue 3, TypeScript, Vite], [Customer storefront and admin panel; reactive UI with Pinia state management],
     [Backend API], [.NET 10, Carter, MediatR], [REST endpoints via minimal APIs; CQRS command-query separation across business modules],
     [Database], [PostgreSQL, pgvector], [Relational data and vector embeddings in a single ACID database with HNSW-indexed similarity search],
-    [Caching], [Redis, HybridCache], [Two-tier cache (in-memory L1 + Redis L2); Hangfire job queue and session state backing store],
+    [Caching], [Redis, HybridCache], [Two-tier cache (in-memory L1 and Redis L2); Hangfire job queue and session state backing store],
     [ML Sidecar], [Python 3.12, FastAPI, PyTorch], [Dedicated embedding generation service with lazy model loading and GPU acceleration],
-    [Orchestration], [.NET Aspire], [Container lifecycle management, service discovery, and reproducible local development],
+    [Orchestration], [.NET Aspire], [Container lifecycle management, service discovery, and reproducible local development environment],
     [Background Jobs], [Hangfire], [Persistent job processing for cart expiry, embedding queue, and maintenance tasks],
     [Authentication], [JWT, ASP.NET Identity], [Short-lived access tokens with refresh rotation; role and permission-based authorisation],
   ),
   caption: [Technology stack of the ReSys.Shop platform],
 ) <tbl-tech-stack>
 
-Each technology addresses a specific architectural requirement. Vue 3 and Vite provide modern frontend tooling with fast development cycles. .NET 10 offers the strong type system and high-throughput web server needed for transactional e-commerce logic. PostgreSQL, via pgvector, consolidates relational and vector data management into one well-understood database, avoiding the complexity of operating a separate vector store. Redis layers in caching and transient state. The Python sidecar exists specifically to host PyTorch, the standard framework for pre-trained deep learning models, isolated so that an inference resource spike cannot affect e-commerce API availability. .NET Aspire orchestrates these components into a reproducible containerised environment. Hangfire persists background jobs in Redis for resilience across restarts. JWT-based authentication with refresh token rotation follows current best practices for securing browser-based single-page applications.
+Together these technologies form a polyglot stack spanning three languages (C\#, TypeScript, Python) orchestrated through a unified containerised environment. The .NET backend hosts transactional e-commerce logic; Vue 3 delivers the customer-facing interface; PostgreSQL serves as the single source of truth for both business data and embeddings; and the Python sidecar provides the bridge to GPU-accelerated model inference.
