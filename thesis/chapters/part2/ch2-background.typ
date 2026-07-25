@@ -22,20 +22,16 @@ The machine learning capability is the one exception to the single-process rule.
 
 === Architectural Decision
 
-#figure(
-  table(
-    columns: (auto, auto, auto, 1fr),
-    align: (start, start, start, start),
-    table.header([*Pattern*], [*Deploy Units*], [*Module Isolation*], [*Best For*]),
-    [Monolith], [1], [None (shared namespace)], [Small teams, early-stage projects],
-    [Modular Monolith], [1, plus optional sidecar], [Namespace-level boundaries], [Single team, logical domain separation, shared data store],
-    [Microservices], [N (one per service)], [Process-level boundaries], [Multiple teams, independent scaling, polyglot stacks],
-  ),
-  caption: [Architectural patterns and their trade-offs],
-) <tbl-arch-patterns>
+ReSys.Shop adopts the modular monolith with a machine learning sidecar. The decision is guided by three trade-offs:
+
+- *Deployment.* One process for the core application avoids service discovery, inter-service authentication, and distributed transaction orchestration. The Python sidecar runs as a separate process because PyTorch and .NET have incompatible runtime environments, but the sidecar exposes a narrow HTTP interface restricted to embedding generation. A GPU failure in the sidecar does not affect e-commerce API availability.
+
+- *Data consistency.* A single PostgreSQL instance hosts both relational product data and pgvector embeddings. Catalog updates and embedding index changes share the same transactional boundary, eliminating the class of stale-index bugs that arise when a vector store and relational database drift out of sync.
+
+- *Module boundaries.* Nine business modules (Catalog, Ordering, Payment, Inventory, Identity, Profile, Shipping, Location, Dashboard) are isolated by namespace convention within one assembly. Inter-module communication uses an in-process message bus. There are no direct cross-module references at compile time, preserving bounded-context independence without the operational cost of separate deployment units.
 
 // Diagram placeholder: Three architecture patterns side-by-side (Mermaid)
-// #figure(image("images/diagrams/arch-patterns.png", width: 90%), caption: [Monolith, modular monolith, and microservices compared. The modular monolith preserves logical boundaries while avoiding the network complexity of distributed services.])
+// #figure(image("images/diagrams/arch-patterns.png", width: 90%), caption: [Monolith, modular monolith, and microservices compared.])
 
 == Vector Embeddings: The Mathematical Foundation
 
