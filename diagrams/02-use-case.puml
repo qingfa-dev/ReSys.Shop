@@ -1,0 +1,18 @@
+@startuml
+left to right direction
+actor "Customer" as Customer
+actor "Administrator" as Admin
+actor "System\n(Background)" as System
+
+rectangle "ReSys.Shop" {
+  Customer --> (Browse Catalog)
+  Customer --> (Visual Search\nCBIR)
+  Customer --> (Checkout)
+  Customer --> (Manage Account)
+  Admin --> (Manage Products)
+  Admin --> (Process Orders)
+  Admin --> (Manage Users)
+  System --> (Generate Embeddings)
+  System --> (Expire Carts)
+}
+@enduml
