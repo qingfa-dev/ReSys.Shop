@@ -1,1 +1,1 @@
-export {}
+export { OrderFormMapper } from './order.mapper'

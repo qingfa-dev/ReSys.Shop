@@ -25,6 +25,12 @@ const statusMap: Record<string, { severity: Severity; icon?: string; label?: str
   out_of_stock: { severity: 'danger', label: 'Out of stock' },
   low_stock: { severity: 'warn', label: 'Low stock' },
   in_stock: { severity: 'success', label: 'In stock' },
+  approved: { severity: 'info', icon: 'pi pi-thumbs-up' },
+  shipped: { severity: 'info', icon: 'pi pi-truck' },
+  delivered: { severity: 'success', icon: 'pi pi-box' },
+  on_hold: { severity: 'warn', icon: 'pi pi-pause' },
+  returned: { severity: 'warn', icon: 'pi pi-history' },
+  refunded: { severity: 'info', icon: 'pi pi-money-bill' },
 };
 
 const props = defineProps<{ status: string }>();

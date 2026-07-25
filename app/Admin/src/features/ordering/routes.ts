@@ -1,5 +1,13 @@
 import type { RouteRecordRaw } from 'vue-router'
 
+const ROUTE = {
+  ORDERS: { LIST: 'ordering.orders.list', CREATE: 'ordering.orders.create', VIEW: 'ordering.orders.view', EDIT: 'ordering.orders.edit' },
+  DASHBOARD: 'ordering.dashboard',
+  FULFILLMENT: 'ordering.fulfillment.queue',
+} as const
+
+export { ROUTE }
+
 export const orderingRoutes: RouteRecordRaw = {
   path: 'ordering',
   children: [
@@ -11,27 +19,27 @@ export const orderingRoutes: RouteRecordRaw = {
     },
     {
       path: 'orders',
-      name: 'ordering.orders.list',
+      name: ROUTE.ORDERS.LIST,
       component: () => import('@/features/ordering/pages/OrderListPage.vue'),
     },
     {
       path: 'orders/new',
-      name: 'ordering.orders.create',
+      name: ROUTE.ORDERS.CREATE,
       component: () => import('@/features/ordering/pages/OrderDetailPage.vue'),
     },
     {
       path: 'orders/:id',
-      name: 'ordering.orders.view',
+      name: ROUTE.ORDERS.VIEW,
       component: () => import('@/features/ordering/pages/OrderDetailPage.vue'),
     },
     {
       path: 'orders/:id/edit',
-      name: 'ordering.orders.edit',
+      name: ROUTE.ORDERS.EDIT,
       component: () => import('@/features/ordering/pages/OrderDetailPage.vue'),
     },
     {
       path: 'fulfillment',
-      name: 'ordering.fulfillment.queue',
+      name: ROUTE.FULFILLMENT,
       component: () => import('@/features/ordering/pages/FulfillmentQueuePage.vue'),
     },
   ],
