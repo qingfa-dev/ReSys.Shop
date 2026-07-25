@@ -1,8 +1,8 @@
-= Requirements Analysis
+== Requirements Analysis
 
-This chapter defines the scope of the ReSys.Shop platform by identifying its actors, functional and non-functional requirements, key use cases, and the classification of features into research contributions and supporting infrastructure. The analysis establishes what the system must do before proceeding to its architectural design and implementation.
+This section defines the scope of the ReSys.Shop platform by identifying its actors, functional and non-functional requirements, key use cases, and the classification of features into research contributions and supporting infrastructure. The analysis establishes what the system must do before proceeding to its architectural design and implementation.
 
-== System Actors
+=== System Actors
 
 The platform serves three categories of actors, each with a distinct role, set of permissions, and interaction surface. Table @tbl-system-actors summarises these actors and their primary responsibilities.
 
@@ -44,35 +44,35 @@ The platform serves three categories of actors, each with a distinct role, set o
 
 The Customer and Administrator actors represent human users interacting through browser-based single-page applications. The System actor represents background processes that operate without direct human interaction, executing scheduled and event-driven tasks through Hangfire job workers within the .NET application process. The three actors together define the complete set of interactions supported by the platform.
 
-== Functional Requirements
+=== Functional Requirements
 
 The functional capabilities of ReSys.Shop are organised around eight business modules, each responsible for a coherent subset of domain logic. This section describes each module in narrative prose; a summary table at the end of the section consolidates responsibilities and research classification.
 
-=== Catalog Module
+==== Catalog Module
 
-The Catalog module manages the product lifecycle: creating products with fashion-specific metadata, including style code, season, material, department, and gender target, defining sellable variants with SKUs, barcodes, and independent pricing, uploading product images with automatic thumbnail generation, and organising products through hierarchical taxonomies that allow browsing by category (e.g., Clothing → Dresses → Evening Dresses). It also hosts the Content-Based Image Retrieval (CBIR) infrastructure: newly uploaded variant images are sent to the Python machine learning sidecar for vectorisation, and the resulting embeddings are stored in PostgreSQL using the pgvector extension for similarity search @pgvector2023. The catalog supports configurable embedding models, allowing the system to switch between Fashion-CLIP, ResNet-50, and other architectures without application changes, a capability that enables the systematic benchmark evaluation presented in Chapter 6.
+The Catalog module manages the product lifecycle: creating products with fashion-specific metadata, including style code, season, material, department, and gender target, defining sellable variants with SKUs, barcodes, and independent pricing, uploading product images with automatic thumbnail generation, and organising products through hierarchical taxonomies that allow browsing by category (e.g., Clothing → Dresses → Evening Dresses). It also hosts the Content-Based Image Retrieval (CBIR) infrastructure: newly uploaded variant images are sent to the Python machine learning sidecar for vectorisation, and the resulting embeddings are stored in PostgreSQL using the pgvector extension for similarity search @pgvector2023. The catalog supports configurable embedding models, allowing the system to switch between Fashion-CLIP, ResNet-50, and other architectures without application changes, a capability that enables the systematic benchmark evaluation presented in Chapter 3.
 
-=== Ordering Module
+==== Ordering Module
 
 The Ordering module handles the customer purchase workflow from cart to completed order. Both guest and authenticated users can add products to a cart, which automatically expires after seven days of inactivity to prevent indefinite stock reservation. Checkout proceeds through a forward-only state machine: the customer selects a shipping address, chooses a delivery method, provides payment details, reviews the order summary, and confirms. Once confirmed, the system creates an order record, reserves inventory quantities for each line item, processes the payment intent, and clears the cart. Orders track item totals, price adjustments, shipment costs, and payment state independently, enabling partial fulfilment scenarios. Cancellation is available at any pre-confirmation stage without penalty.
 
-=== Payment Module
+==== Payment Module
 
 The Payment module manages the lifecycle of payment intents, the data structure representing a customer's intent to pay, including creation, capture, refund, and void operations. It supports two gateway providers: the Stripe gateway for production, which validates incoming webhooks using signature verification to prevent spoofed payment confirmations, and a Bogus gateway for development and testing, which simulates the payment lifecycle by automatically transitioning through states without external calls. Payment intents follow their own state machine, Pending, RequiresAction, Processing, and Succeeded or Canceled, and the system maintains its own copy of the payment state in parallel with the gateway's state, enabling offline operations and consistent behaviour across both gateway implementations.
 
-=== Inventory Module
+==== Inventory Module
 
 The Inventory module tracks physical stock quantities across warehouse locations, manages temporary reservations during active checkouts to prevent overselling, records stock movements for audit trails, and handles inter-warehouse transfers. Each stock item is associated with a specific product variant and a warehouse location, with quantities maintained as both on-hand (physical count) and reserved (held for active checkouts) values. The reservation mechanism ensures that a variant added to a cart remains visible to other customers as having limited availability but cannot be sold twice.
 
-=== Identity Module
+==== Identity Module
 
 The Identity module provides JWT-based authentication with short-lived access tokens (fifteen-minute lifetime) and refresh token rotation with reuse detection: each refresh token is single-use, and presenting a previously consumed token triggers revocation of all tokens for that user to contain potential compromise. Guest sessions enable anonymous cart usage through cookie-based identifiers that persist across page navigations without requiring account creation. Role-based and permission-based authorisation segregates admin functions from customer-facing endpoints, with permission claims following a `domain:category:action` format that allows fine-grained access control.
 
-=== Supporting Modules
+==== Supporting Modules
 
 Three additional modules provide complementary infrastructure. The *Profile* module manages user addresses, wishlists, and notification preferences, linking customer identity to personalisation features. The *Shipping* module configures delivery methods, standard, express, and local pickup, and calculates shipping rates by geographic zone. The *Location* module provides country and state reference data with ISO codes, shared across Shipping (for zone configuration) and Profile (for address validation).
 
-=== Summary
+==== Summary
 
 Table @tbl-module-summary consolidates the eight business modules with their key responsibilities and research classification relative to this thesis.
 
@@ -124,7 +124,7 @@ Table @tbl-module-summary consolidates the eight business modules with their key
 
 The functional scope of ReSys.Shop extends far beyond the visual search capability at its core. The supporting modules, Ordering, Payment, Inventory, and Identity, provide a realistic e-commerce context in which the research contribution can be meaningfully evaluated. Without a functioning checkout flow, for example, the value of visual search could not be measured through downstream conversion events. Without inventory awareness, search results could include out-of-stock items, undermining the realism of the evaluation.
 
-== Non-Functional Requirements
+=== Non-Functional Requirements
 
 Beyond feature completeness, the system must satisfy quantitative and qualitative constraints that determine its fitness for production use. Table @tbl-nfr summarises the non-functional requirements across five quality dimensions.
 
@@ -173,11 +173,11 @@ Beyond feature completeness, the system must satisfy quantitative and qualitativ
 
 These non-functional requirements shaped architectural decisions throughout the system. The one-second CBIR latency target influenced the choice of a synchronous embedding pipeline rather than a queued approach; the modularity requirement led to the MediatR-based in-process dispatch model; and the reliability constraint motivated the choice of Hangfire with Redis-backed persistence for background jobs. Each target is revisited in the evaluation chapter, where the benchmark results confirm whether the implemented system meets these stated requirements.
 
-== Use Cases
+=== Use Cases
 
-This section presents three use cases that represent the system's core functional scenarios: visual search (the primary research capability), checkout (the primary e-commerce transaction), and model benchmark evaluation (the research methodology for Chapter 6). Each use case is described in a compact tabular format comprising the actor, preconditions, main flow as numbered sequential steps, and postconditions. Figure @fig-use-case-diagram provides a visual summary of actor-system interactions.
+This section presents three use cases that represent the system's core functional scenarios: visual search (the primary research capability), checkout (the primary e-commerce transaction), and model benchmark evaluation (the research methodology for Chapter 3). Each use case is described in a compact tabular format comprising the actor, preconditions, main flow as numbered sequential steps, and postconditions. Figure @fig-use-case-diagram provides a visual summary of actor-system interactions.
 
-=== Use Case 1: Visual Search (CBIR)
+==== Use Case 1: Visual Search (CBIR)
 
 #figure(
   table(
@@ -205,7 +205,7 @@ This section presents three use cases that represent the system's core functiona
   caption: [UC-1: Visual Search (CBIR), the primary research use case.],
 ) <tbl-uc-visual-search>
 
-=== Use Case 2: Multi-Step Checkout
+==== Use Case 2: Multi-Step Checkout
 
 #figure(
   table(
@@ -234,7 +234,7 @@ This section presents three use cases that represent the system's core functiona
   caption: [UC-2: Multi-Step Checkout, the primary e-commerce transaction use case.],
 ) <tbl-uc-checkout>
 
-=== Use Case 3: Model Benchmark Evaluation
+==== Use Case 3: Model Benchmark Evaluation
 
 #figure(
   table(
@@ -265,15 +265,15 @@ This section presents three use cases that represent the system's core functiona
 Figure @fig-use-case-diagram positions these three use cases alongside the broader system functionality within a single visual summary.
 
 #figure(
-  image("../../images/diagrams/02-use-case.png", width: 85%),
+  image("../../../images/diagrams/02-use-case.png", width: 85%),
   caption: [
     System use case diagram showing the three actors, Customer, Administrator, and System background services, and their primary interactions with the ReSys.Shop platform.
   ],
 ) <fig-use-case-diagram>
 
-The three use cases serve distinct purposes within the thesis. The visual search use case defines the functional behaviour of the system's primary research capability; the checkout use case establishes the realistic e-commerce context in which search success can be measured through downstream conversion events; and the benchmark use case defines the systematic methodology used in Chapter 6 to evaluate and compare embedding models. The breadth of the system, nine background actors and use cases in the diagram, encompassing catalog browsing, account management, product administration, and order processing, reflects the full operational scope of the platform, while the three detailed use cases focus on the scenarios most relevant to the research questions.
+The three use cases serve distinct purposes within the thesis. The visual search use case defines the functional behaviour of the system's primary research capability; the checkout use case establishes the realistic e-commerce context in which search success can be measured through downstream conversion events; and the benchmark use case defines the systematic methodology used in Chapter 3 to evaluate and compare embedding models. The breadth of the system, nine background actors and use cases in the diagram, encompassing catalog browsing, account management, product administration, and order processing, reflects the full operational scope of the platform, while the three detailed use cases focus on the scenarios most relevant to the research questions.
 
-== Feature Classification
+=== Feature Classification
 
 Not all features of ReSys.Shop carry equal research significance. Seven feature areas are classified in Table @tbl-feature-classification as either *Core Research* (directly contributing to the thesis's academic objectives) or *Supporting Infrastructure* (providing the realistic e-commerce context in which the research is conducted and evaluated). This distinction is important for two reasons: it clarifies the scope of the thesis's original contribution, and it explains why certain features, shipping calculation, user management, country reference data, exist in the platform but are not discussed in depth in subsequent chapters.
 
@@ -319,4 +319,4 @@ Not all features of ReSys.Shop carry equal research significance. Seven feature 
   ],
 ) <tbl-feature-classification>
 
-The classification makes explicit what the thesis does and does not claim as contribution. The CBIR pipeline, encompassing embedding generation, vector storage, and similarity search, is the core research artefact. The e-commerce modules (Catalog, Ordering, Inventory, Payment, Identity) are supporting infrastructure, built to provide a realistic context that validates the visual search results in a production-like environment. This separation is maintained throughout the thesis: Chapters 4 and 5 dedicate detailed treatment to the research features, while the supporting infrastructure is described only to the extent necessary to understand the system's design.
+The classification makes explicit what the thesis does and does not claim as contribution. The CBIR pipeline, encompassing embedding generation, vector storage, and similarity search, is the core research artefact. The e-commerce modules (Catalog, Ordering, Inventory, Payment, Identity) are supporting infrastructure, built to provide a realistic context that validates the visual search results in a production-like environment. This separation is maintained throughout the thesis: Sections 2.2 and 2.3 devote detailed treatment to the research features, while the supporting infrastructure is described only to the extent necessary to understand the system's design.

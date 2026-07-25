@@ -1,6 +1,6 @@
 = Conclusion & Future Work
 
-This chapter brings the thesis to a close. Section 7.1 summarises the work accomplished and answers each of the three research questions with the empirical evidence presented in Chapter 6. Section 7.2 enumerates the concrete contributions of this project. Section 7.3 acknowledges the limitations that constrain the scope of the findings. Section 7.4 proposes actionable directions for future work. Section 7.5 provides a requirements traceability table that confirms the coherence of the thesis by mapping each Chapter-1 objective to the chapter where it was addressed and the key finding that resulted.
+This chapter brings the thesis to a close. Section 4.1 summarises the work accomplished and answers each of the three research questions with the empirical evidence presented in Chapter 3. Section 4.2 enumerates the concrete contributions of this project. Section 4.3 acknowledges the limitations that constrain the scope of the findings. Section 4.4 proposes actionable directions for future work. Section 4.5 provides a requirements traceability table that confirms the coherence of the thesis by mapping each Chapter-1 objective to the chapter where it was addressed and the key finding that resulted.
 
 == Summary of Work
 
@@ -68,7 +68,7 @@ The limitations identified in the preceding section, together with insights gain
 
 *1. Fine-tune Fashion-CLIP on the target catalogue.* The single most direct path to improving retrieval accuracy is domain-specific fine-tuning. Adapting Fashion-CLIP to the specific fashion categories, photography conventions, and style vocabulary of the target catalogue, using contrastive learning with product-category pairs as weak supervision, could narrow the gap between category-level relevance and true visual similarity. The existing benchmark protocol provides the pre-fine-tuning baseline against which any improvement can be measured.
 
-*2. Conduct a user experience study with A/B testing.* The quantitative accuracy metrics reported in Chapter 6 must be validated against human judgment. A controlled A/B test, assigning half of storefront visitors to text-only search and half to visual search, would measure the actual engagement lift provided by CBIR. Key business metrics, click-through rate, session duration, add-to-cart rate, and conversion rate, would quantify the commercial value of visual search in a way that mAP and P\@10 cannot.
+*2. Conduct a user experience study with A/B testing.* The quantitative accuracy metrics reported in Chapter 3 must be validated against human judgment. A controlled A/B test, assigning half of storefront visitors to text-only search and half to visual search, would measure the actual engagement lift provided by CBIR. Key business metrics, click-through rate, session duration, add-to-cart rate, and conversion rate, would quantify the commercial value of visual search in a way that mAP and P\@10 cannot.
 
 *3. Implement multi-modal search combining text and image queries.* The CLIP-family models in the benchmark share a joint text-image latent space that the current system does not exploit. Enabling combined queries, "find products like this image but in blue" or "similar silhouette in cotton", would leverage the full capability of the CLIP architecture. This requires extending the search endpoint to accept an optional text prompt alongside the query image and using CLIP's text encoder to refine the similarity computation.
 
@@ -93,40 +93,40 @@ The traceability table below confirms that every objective and research question
     align: (left, left, left),
     table.header([*Objective / RQ*], [*Addressed In*], [*Key Finding*]),
     [Integrate pre-trained deep learning models into a conventional e-commerce stack],
-    [Chapter 4, Sections 4.3--4.4; Chapter 5, Sections 5.2--5.3],
+    [Chapter 2, Sections 2.2.3--2.2.4, 2.3.2--2.3.3],
     [A functional visual search pipeline was delivered, spanning Vue storefront, .NET backend, Python ML sidecar, and PostgreSQL pgvector. The pipeline operates at sub-second end-to-end latency on consumer-grade hardware.],
     [Architect a polyglot system bridging .NET and Python ML],
-    [Chapter 4, Sections 4.3--4.4; Chapter 5, Sections 5.1--5.3],
+    [Chapter 2, Sections 2.2.3--2.2.4, 2.3.1--2.3.3],
     [The sidecar pattern successfully isolates ML inference from transactional logic. The .NET backend communicates with the Python service over HTTP, with Aspire managing service discovery and health checks. Integration tests validate the cross-service contract.],
     [Validate pgvector feasibility for real-time similarity search],
-    [Chapter 4, Section 4.4; Chapter 5, Section 5.3],
+    [Chapter 2, Section 2.2.4, Section 2.3.3],
     [HNSW-indexed cosine similarity queries execute in under 10 milliseconds at the benchmark catalogue scale. Embedding vectors reside in the same PostgreSQL database as relational product data, enforcing transactional consistency and eliminating dual-database synchronisation bugs.],
     [Benchmark embedding model performance on constrained hardware],
-    [Chapter 6, Sections 6.2--6.5],
+    [Chapter 3, Sections 3.2--3.5],
     [Eleven models spanning four architecture families were evaluated. Fashion-CLIP delivers the highest accuracy (mAP 0.7455); EfficientNet-B0 delivers the best efficiency (21.6 ms per inference). Deployment recommendations are provided for GPU, CPU-only, and edge scenarios.],
     [RQ1: Fashion-specific vs general-purpose model comparison],
-    [Chapter 6, Section 6.3; Chapter 6, Section 6.5],
+    [Chapter 3, Section 3.3; Chapter 3, Section 3.5],
     [Fashion-CLIP outperforms all three general-purpose models across every non-zero accuracy metric: mAP 0.7455 vs 0.7026--0.7196. Domain-specific fine-tuning provides a consistent 4.3--6.1 percent mAP improvement. Fashion-CLIP also exhibits the lowest cross-fold variability (±0.0088).],
     [RQ2: Accuracy vs speed trade-offs],
-    [Chapter 6, Sections 6.3--6.5],
+    [Chapter 3, Sections 3.3--3.5],
     [The trade-off is quantifiable: Fashion-CLIP provides top accuracy at 84.4 ms; EfficientNet-B0 achieves 96.5 percent of that accuracy at 25.6 percent of the latency (21.6 ms). Architecture family, CNN vs transformer, dominates the accuracy-efficiency plane. CLIP-generic is least competitive on both dimensions.],
     [RQ3: Sidecar architecture viability for real-time search],
-    [Chapter 5, Sections 5.2--5.3; Chapter 6, Section 6.5 (synthesis)],
+    [Chapter 2, Sections 2.3.2--2.3.3; Chapter 3, Section 3.5 (synthesis)],
     [The polyglot architecture is viable. The sidecar handles model inference at 21.6--105.6 ms per image depending on model, while the .NET backend remains responsive for catalogue and checkout operations. End-to-end search latency remains under one second. Independent scaling and fault isolation are achieved without the operational overhead of a full microservices deployment.],
     [Build AI service],
-    [Chapter 5, Section 5.2],
+    [Chapter 2, Section 2.3.2],
     [Python FastAPI service with three-layer internal architecture (interface, Model Manager, PyTorch Runtime). Lazy-loading reduces cold-start memory pressure. Exposes POST /embeddings and GET /health endpoints, containerised via Docker and orchestrated by Aspire.],
     [Set up vector search],
-    [Chapter 4, Section 4.4; Chapter 5, Section 5.3],
-    [PostgreSQL 16 with pgvector 0.7.0 stores embedding vectors in a dedicated column with HNSW indexing. Cosine similarity search via the pgvector `<=>` operator integrates seamlessly with relational queries, joining similarity-ranked variant images with product metadata in a single database round-trip.],
+[Chapter 2, Section 2.2.4, Section 2.3.3],
+
     [Connect the services],
-    [Chapter 5, Sections 5.2--5.3],
+    [Chapter 2, Sections 2.3.2--2.3.3],
     [The .NET CBIR handler orchestrates the full pipeline: client-side validation, server-side magic-byte verification, cross-service HTTP to the ML sidecar with API-key authentication, pgvector similarity query with model-name filtering, and result deduplication with similarity-score conversion.],
     [Create the user interface],
-    [Chapter 5, Sections 5.3 (flow) and 5.4 (supporting modules)],
+    [Chapter 2, Sections 2.3.3 (flow) and 2.3.5 (supporting modules)],
     [Vue 3 storefront with drag-and-drop image upload, similarity score badges, and product-card result display. Client-side file-type and size validation reduces server load. Results are rendered as a grid with thumbnail images and navigable product links.],
     [Evaluate the results],
-    [Chapter 6, Sections 6.2--6.5],
+    [Chapter 3, Sections 3.2--3.5],
     [Eleven-model benchmark with 3-fold cross-validation. Five accuracy metrics (mAP, P\@5, P\@10, R\@5, R\@10) and five efficiency metrics (latency, throughput, load time, storage, RAM). Deployment recommendations provided. Benchmark framework, metrics script, and raw results published in the project repository.],
   ),
   caption: [Requirements traceability: mapping from Chapter 1 objectives and research questions to the chapters where they are addressed, with the key finding that confirms each objective was met.],
