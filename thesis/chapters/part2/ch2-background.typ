@@ -14,11 +14,7 @@ At the heart of visual search is a simple idea: turning images into lists of num
 
 When we look at an image, we see colours, shapes, and patterns. Computers cannot "see" in the same way; they require numerical data to process information. A vector embedding is a way to represent the visual content of an image as a sequence of numbers.
 
-For example, when an AI model processes an image of a red dress, it might output a list like:
-
-```
-[0.23, -0.15, 0.87, 0.42, ..., -0.31]  (512 numbers total)
-```
+For example, when an AI model processes an image of a red dress, it might output a 512-dimensional list like `[0.23, -0.15, 0.87, 0.42, ..., -0.31]`.
 
 This list captures the "essence" of that image in a compressed form. Similar images will produce similar lists of numbers.
 
