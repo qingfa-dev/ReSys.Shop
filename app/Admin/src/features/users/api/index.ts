@@ -1,0 +1,6 @@
+export { UserApi } from './user.api'
+export { UserRoleApi } from './user-role.api'
+export { UserPermissionApi } from './user-permission.api'
+export { RoleApi } from './role.api'
+export { RolePermissionApi } from './role-permission.api'
+export { PermissionApi } from './permission.api'

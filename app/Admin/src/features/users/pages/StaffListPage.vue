@@ -1,7 +1,14 @@
 <script setup lang="ts">
-import PlaceholderPage from '@/shared/components/layout/PlaceholderPage.vue'
+import { useRoute } from 'vue-router'
+import PageHeader from '@/shared/components/layout/PageHeader.vue'
+import UserListTable from '../components/UserListTable.vue'
+
+const route = useRoute()
 </script>
 
 <template>
-  <PlaceholderPage title="Staff" description="Staff list" />
+  <div>
+    <PageHeader title="Staff" :icon="route.meta?.icon as string | undefined" subtitle="Manage staff accounts" />
+    <UserListTable user-type="staff" />
+  </div>
 </template>
