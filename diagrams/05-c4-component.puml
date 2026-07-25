@@ -1,0 +1,54 @@
+@startuml 05-c4-component
+!include <C4/C4_Component>
+
+LAYOUT_TOP_DOWN()
+
+title Component Diagram — API Backend (.NET 10)
+
+Person_Ext(store_spa, "Store SPA", "Vue 3", "Customer frontend")
+Person_Ext(admin_spa, "Admin SPA", "Vue 3", "Admin frontend")
+
+Container_Boundary(api, "API Backend (.NET 10)") {
+    Component(endpoints, "Carter Endpoints", "ICarterModule", "Minimal API route mapping; scans Module + Shared assemblies")
+    Component(pipeline, "MediatR Pipeline", "IPipelineBehavior", "Logging → Validation → Exception Mapping")
+    Component(handlers, "Feature Handlers", "ICommandHandler / IQueryHandler", "Vertical-slice handlers per feature action")
+    Component(db, "ApplicationDbContext", "EF Core 10", "Identity + app data; interceptors: Auditable, SoftDeletable, Versionable")
+    Component(spec, "Specification DSL", "IQueryable extensions", "Composable filtering, sorting, paging, full-text search")
+    Component(jwt, "JWT Auth", "ASP.NET Identity", "Access/refresh tokens, rotation, reuse detection, blacklist")
+    Component(perm, "Permission Provider", "IAuthorizationPolicyProvider", "Dynamic policy resolution: domain:category:action")
+    Component(storage, "Storage Service", "IStorageProvider", "Local / S3 strategy; security enforcer + anti-forgery guard")
+    Component(notify, "Notification Hub", "FluentEmail", "SendGrid / SMTP / Sinch with priority fallback")
+    Component(hangfire, "Hangfire", "BackgroundJob", "Cart expiry, webhook dispatch; Redis or in-memory storage")
+    Component(cache, "HybridCache", "IHybridCache", "L1 memory + L2 Redis; 5-minute default TTL")
+}
+
+ContainerDb(postgres, "PostgreSQL 17", "pgvector", "Primary database; stores embeddings with model_name metadata")
+ContainerDb(redis, "Redis 7", "", "Cache + jobs")
+
+Container_Boundary(sidecar, "Embedding Sidecar (Python)") {
+    Component(emb_api, "FastAPI Router", "embedding_router.py", "POST /embeddings + GET /models")
+    Component(emb_service, "Embedding Service", "embedding_service.py", "Model registry + singleton cache; Strategy pattern")
+    Component(emb_models, "Model Implementations", "BaseEmbeddingModel", "4 concrete models: Fashion-CLIP, ResNet-50, EfficientNet-B0, CLIP-generic")
+}
+
+Rel(store_spa, endpoints, "HTTP requests", "JSON / JWT Bearer")
+Rel(admin_spa, endpoints, "HTTP requests", "JSON / JWT Bearer")
+Rel(endpoints, pipeline, "sender.Send()", "MediatR dispatch")
+Rel(pipeline, handlers, "Handle()", "Command / Query")
+Rel(handlers, db, "SaveChanges / Query", "EF Core")
+Rel(handlers, spec, "Build queries", "IQueryable")
+Rel(handlers, jwt, "Validate / issue tokens", "ClaimsPrincipal")
+Rel(handlers, perm, "Authorize", "PermissionRequirement")
+Rel(handlers, storage, "Upload / retrieve", "Stream / URL")
+Rel(handlers, notify, "Enqueue / send", "NotificationDefinition")
+Rel(handlers, hangfire, "Schedule jobs", "BackgroundJobClient")
+Rel(handlers, cache, "Get / set", "Cache key")
+Rel(handlers, emb_api, "POST /embeddings", "HTTP + multipart")
+Rel(db, postgres, "SQL + vector queries", "Npgsql TCP")
+Rel(cache, redis, "Distributed cache", "StackExchange.Redis")
+Rel(hangfire, redis, "Job storage", "Hangfire.Redis")
+
+Rel(emb_api, emb_service, "Delegate encoding", "encode_image()")
+Rel(emb_service, emb_models, "Instantiate / cache", "MODEL_REGISTRY[name]")
+
+@enduml
