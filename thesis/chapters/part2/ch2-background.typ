@@ -1,15 +1,41 @@
-= Chapter 1: Background and Related Work
+= Background and Related Work
 
 This chapter establishes the technical foundations for the thesis. It introduces vector embeddings as the mathematical basis of visual search, surveys the neural architectures used to generate them, examines vector database technologies that store and query them, reviews prior work in fashion image retrieval, and summarises the technology stack chosen for implementation.
 
 == E-commerce Platform Architectures
 
-Enterprise web applications have evolved through three dominant patterns. The *monolithic* architecture packages all components (user interface, business logic, data access) into a single deployable unit, simple to develop at small scale but prone to accumulated coupling as the codebase grows. The *microservices* pattern decomposes an application into independently deployable services, enabling parallel development but introducing operational overhead from distributed data management, network latency, and partial failure modes. Between these extremes lies the *modular monolith*, which organises code into logically isolated business modules within a single process while enforcing compile-time boundaries that prevent direct cross-module references.
+Modern web applications are shaped by three architectural patterns, each trading off simplicity, scalability, and operational cost.
 
-This thesis adopts the modular monolith for three practical reasons. A single-process architecture avoids service discovery, inter-service authentication, and distributed transaction orchestration, complexities disproportionate to a system whose research contribution lies in machine learning integration. A shared PostgreSQL database allows relational product data and vector embeddings to coexist within the same transactional context, preserving consistency between catalog updates and search index changes. Business modules are separated by namespace convention with no direct cross-references, maintaining the logical independence of bounded contexts without the operational cost of separate deployment units. The machine learning capability (image embedding generation and model inference) is isolated in a dedicated Python sidecar service running as a separate process due to its distinct technology stack and GPU resource requirements.
+=== Monolith
 
-// Diagram placeholder: Architecture pattern comparison (Mermaid flowchart)
-// #figure(image("images/diagrams/arch-patterns.png", width: 80%), caption: [...])
+A monolith packages the user interface, business logic, and data access into a single deployable unit. Development is straightforward: one codebase, one build pipeline, one deployment. At small scale this works well. As the system grows, subsystems accumulate coupling. Changing the checkout flow requires understanding the catalog module; deploying a payment fix means redeploying the entire application. The monolith does not scale with team size or codebase age.
+
+=== Microservices
+
+Microservices decompose an application into independently deployable services, each owning a discrete business capability. Teams can work in parallel using different technology stacks per service. The trade-off is operational complexity: service discovery, inter-service authentication, network latency, partial failure modes, and distributed transaction management. For a system where the primary research contribution lies in machine learning integration rather than infrastructure engineering, this overhead is disproportionate.
+
+=== Modular Monolith
+
+The modular monolith occupies the middle ground. Code is organised into logically isolated business modules within a single process. Compile-time boundaries prevent direct cross-module references, preserving the logical independence of bounded contexts. There is one build, one deployment, and one shared database. The nine business modules in ReSys.Shop (Catalog, Ordering, Payment, Inventory, Identity, Profile, Shipping, Location, Dashboard) communicate through an in-process message bus with no namespace-level dependencies between them. A shared PostgreSQL instance allows relational product data and vector embeddings to coexist within the same transactional boundary, maintaining consistency between catalog updates and search index changes.
+
+The machine learning capability is the one exception to the single-process rule. It runs as a dedicated Python sidecar service, isolated because PyTorch and the broader Python scientific stack have incompatible runtime requirements with .NET. The sidecar communicates with the main application over HTTP, exposing a narrow embedding-generation interface while keeping GPU resource contention isolated from the e-commerce API.
+
+=== Architectural Decision
+
+#figure(
+  table(
+    columns: (auto, auto, auto, 1fr),
+    align: (start, start, start, start),
+    table.header([*Pattern*], [*Deploy Units*], [*Module Isolation*], [*Best For*]),
+    [Monolith], [1], [None (shared namespace)], [Small teams, early-stage projects],
+    [Modular Monolith], [1, plus optional sidecar], [Namespace-level boundaries], [Single team, logical domain separation, shared data store],
+    [Microservices], [N (one per service)], [Process-level boundaries], [Multiple teams, independent scaling, polyglot stacks],
+  ),
+  caption: [Architectural patterns and their trade-offs],
+) <tbl-arch-patterns>
+
+// Diagram placeholder: Three architecture patterns side-by-side (Mermaid)
+// #figure(image("images/diagrams/arch-patterns.png", width: 90%), caption: [Monolith, modular monolith, and microservices compared. The modular monolith preserves logical boundaries while avoiding the network complexity of distributed services.])
 
 == Vector Embeddings: The Mathematical Foundation
 
