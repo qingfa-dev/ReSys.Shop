@@ -8,7 +8,9 @@ import FormField from '@/shared/components/forms/FormField.vue'
 import FormActions from '@/shared/components/forms/FormActions.vue'
 import LoadingSkeleton from '@/shared/components/feedback/LoadingSkeleton.vue'
 import ErrorState from '@/shared/components/feedback/ErrorState.vue'
+import { AppCard } from '@/shared/components'
 import Checkbox from 'primevue/checkbox'
+import Button from 'primevue/button'
 import { useUser } from '../composables/useUser'
 import type { CreateUserForm, UpdateUserForm } from '../schemas'
 import type { CreateUserRequest, UpdateUserRequest } from '../types'
@@ -108,52 +110,58 @@ onMounted(async () => {
   <div>
     <PageHeader :title="title" :icon="route.meta?.icon as string | undefined">
       <template #actions>
-        <button v-if="mode === 'view'" class="p-button p-component" @click="toggleEdit">Edit</button>
+        <Button
+          v-if="mode === 'view'"
+          label="Edit"
+          icon="pi pi-pencil"
+          size="small"
+          @click="toggleEdit"
+        />
       </template>
     </PageHeader>
     <LoadingSkeleton v-if="loading && mode !== 'create'" :rows="8" :columns="2" />
     <ErrorState v-else-if="loadError" :title="loadError" @retry="loadUser" />
-    <div v-else class="card">
-      <div class="grid">
-        <div class="col-6">
+    <AppCard v-else>
+      <div class="grid grid-cols-12 gap-4">
+        <div class="col-span-full sm:col-span-6">
           <FormField label="Email" :error="errors.email" required>
             <input v-model="email" type="email" class="p-inputtext p-component w-full" :disabled="mode === 'view'" />
           </FormField>
         </div>
-        <div class="col-6">
+        <div class="col-span-full sm:col-span-6">
           <FormField label="Username" :error="errors.userName" required>
             <input v-model="userName" type="text" class="p-inputtext p-component w-full" :disabled="mode === 'view'" />
           </FormField>
         </div>
       </div>
-      <div v-if="mode === 'create'" class="grid">
-        <div class="col-6">
+      <div v-if="mode === 'create'" class="grid grid-cols-12 gap-4">
+        <div class="col-span-full sm:col-span-6">
           <FormField label="Password" :error="errors.password" required>
             <input v-model="password" type="password" class="p-inputtext p-component w-full" />
           </FormField>
         </div>
       </div>
-      <div class="grid">
-        <div class="col-6">
+      <div class="grid grid-cols-12 gap-4">
+        <div class="col-span-full sm:col-span-6">
           <FormField label="First Name" :error="errors.firstName" required>
             <input v-model="firstName" type="text" class="p-inputtext p-component w-full" :disabled="mode === 'view'" />
           </FormField>
         </div>
-        <div class="col-6">
+        <div class="col-span-full sm:col-span-6">
           <FormField label="Last Name" :error="errors.lastName" required>
             <input v-model="lastName" type="text" class="p-inputtext p-component w-full" :disabled="mode === 'view'" />
           </FormField>
         </div>
       </div>
-      <div class="grid">
-        <div class="col-6">
+      <div class="grid grid-cols-12 gap-4">
+        <div class="col-span-full sm:col-span-6">
           <FormField label="Phone" :error="errors.phone">
             <input v-model="phone" type="text" class="p-inputtext p-component w-full" :disabled="mode === 'view'" />
           </FormField>
         </div>
-        <div class="col-6">
+        <div class="col-span-full sm:col-span-6">
           <FormField label="Active">
-            <div class="flex align-items-center gap-2 mt-1">
+            <div class="flex items-center gap-2 mt-1">
               <Checkbox v-model="isActive" :binary="true" :disabled="mode === 'view'" input-id="isActive" />
               <label for="isActive">User is active</label>
             </div>
@@ -173,6 +181,6 @@ onMounted(async () => {
         @save="save"
         @cancel="cancel"
       />
-    </div>
+    </AppCard>
   </div>
 </template>

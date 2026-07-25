@@ -1,7 +1,9 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 import PageHeader from '@/shared/components/layout/PageHeader.vue'
+import { DetailLayout, AppCard } from '@/shared/components'
 import LoadingSkeleton from '@/shared/components/feedback/LoadingSkeleton.vue'
 import ErrorState from '@/shared/components/feedback/ErrorState.vue'
 import Tag from 'primevue/tag'
@@ -11,6 +13,7 @@ import { ROUTE } from '../routes'
 
 const route = useRoute()
 const router = useRouter()
+const { t } = useI18n()
 
 const permission = ref<PermissionResponse | null>(null)
 const loading = ref(false)
@@ -40,20 +43,20 @@ onMounted(load)
   <div>
     <PageHeader
       :title="permission?.name ?? 'Permission'"
+      :subtitle="t('roles.permissions.descriptions.detail')"
       :icon="route.meta?.icon as string | undefined"
-      subtitle="Permission details"
     />
     <LoadingSkeleton v-if="loading" :rows="4" :columns="2" />
     <ErrorState v-else-if="error" :description="error" @retry="load" />
-    <div v-else-if="permission" class="card">
-      <div class="grid">
-        <div class="col-6">
+    <AppCard v-else-if="permission">
+      <div class="grid grid-cols-12 gap-4">
+        <div class="col-span-full sm:col-span-6">
           <div class="flex flex-col gap-1">
             <label class="text-sm font-medium text-surface-500">Name</label>
             <span>{{ permission.name }}</span>
           </div>
         </div>
-        <div class="col-6">
+        <div class="col-span-full sm:col-span-6">
           <div class="flex flex-col gap-1">
             <label class="text-sm font-medium text-surface-500">Module</label>
             <Tag :value="permission.module" severity="info" />
@@ -71,6 +74,6 @@ onMounted(load)
           <i class="pi pi-arrow-left" /> Back to Permissions
         </button>
       </div>
-    </div>
+    </AppCard>
   </div>
 </template>

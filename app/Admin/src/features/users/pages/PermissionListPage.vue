@@ -1,8 +1,9 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
-import { useRouter } from 'vue-router'
-import { useRoute } from 'vue-router'
+import { useRouter, useRoute } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 import PageHeader from '@/shared/components/layout/PageHeader.vue'
+import { ListLayout } from '@/shared/components'
 import DataTable from '@/shared/components/data/DataTable.vue'
 import Column from 'primevue/column'
 import LoadingSkeleton from '@/shared/components/feedback/LoadingSkeleton.vue'
@@ -14,6 +15,7 @@ import { ROUTE } from '../routes'
 
 const router = useRouter()
 const route = useRoute()
+const { t } = useI18n()
 
 const items = ref<PermissionResponse[]>([])
 const loading = ref(false)
@@ -44,8 +46,14 @@ onMounted(fetchPermissions)
 </script>
 
 <template>
-  <div>
-    <PageHeader title="Permissions" :icon="route.meta?.icon as string | undefined" subtitle="View all system permissions" />
+  <ListLayout>
+    <template #header>
+      <PageHeader
+        :title="t('roles.permissions.titles.list')"
+        :subtitle="t('roles.permissions.descriptions.list')"
+        :icon="route.meta?.icon as string | undefined"
+      />
+    </template>
     <LoadingSkeleton v-if="loading && items.length === 0" :rows="5" :columns="4" />
     <ErrorState v-else-if="error" :description="error" @retry="fetchPermissions" />
     <DataTable v-else :rows="items" :loading="loading">
@@ -62,5 +70,5 @@ onMounted(fetchPermissions)
         </button>
       </template>
     </DataTable>
-  </div>
+  </ListLayout>
 </template>

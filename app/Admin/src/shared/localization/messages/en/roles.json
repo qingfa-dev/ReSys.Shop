@@ -36,7 +36,17 @@
     "available": "Available",
     "assigned": "Assigned"
   },
+  "descriptions": {
+    "list": "Manage user roles"
+  },
   "permissions": {
+    "titles": {
+      "list": "Permissions"
+    },
+    "descriptions": {
+      "list": "View all system permissions",
+      "detail": "Permission details"
+    },
     "table": {
       "module": "Module",
       "key": "Permission Key",

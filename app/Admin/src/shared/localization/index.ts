@@ -8,6 +8,8 @@ import ordering from './messages/en/ordering.json'
 import payment from './messages/en/payment.json'
 import reports from './messages/en/reports.json'
 import shipping from './messages/en/shipping.json'
+import users from './messages/en/users.json'
+import roles from './messages/en/roles.json'
 
 export function createI18nPlugin() {
   const i18n = createI18n({
@@ -24,6 +26,8 @@ export function createI18nPlugin() {
         payment,
         reports,
         shipping,
+        users,
+        roles,
       },
     },
   })

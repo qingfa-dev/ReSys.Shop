@@ -8,6 +8,8 @@ import FormField from '@/shared/components/forms/FormField.vue'
 import FormActions from '@/shared/components/forms/FormActions.vue'
 import LoadingSkeleton from '@/shared/components/feedback/LoadingSkeleton.vue'
 import ErrorState from '@/shared/components/feedback/ErrorState.vue'
+import { AppCard } from '@/shared/components'
+import Button from 'primevue/button'
 import { useRole } from '../composables/useRole'
 import { RoleForms } from '../schemas'
 import { RoleFormMapper } from '../mappers/role.mapper'
@@ -88,19 +90,25 @@ onMounted(async () => {
   <div>
     <PageHeader :title="title" :icon="route.meta?.icon as string | undefined">
       <template #actions>
-        <button v-if="mode === 'view'" class="p-button p-component" @click="toggleEdit">Edit</button>
+        <Button
+          v-if="mode === 'view'"
+          label="Edit"
+          icon="pi pi-pencil"
+          size="small"
+          @click="toggleEdit"
+        />
       </template>
     </PageHeader>
     <LoadingSkeleton v-if="loading && mode !== 'create'" :rows="4" :columns="2" />
     <ErrorState v-else-if="loadError" :title="loadError" @retry="loadRole" />
-    <div v-else class="card">
-      <div class="grid">
-        <div class="col-6">
+    <AppCard v-else>
+      <div class="grid grid-cols-12 gap-4">
+        <div class="col-span-full sm:col-span-6">
           <FormField label="Name" :error="errors.name" required>
             <input v-model="name" type="text" class="p-inputtext p-component w-full" :disabled="mode === 'view'" />
           </FormField>
         </div>
-        <div class="col-6">
+        <div class="col-span-full sm:col-span-6">
           <FormField label="Description" :error="errors.description">
             <input v-model="description" type="text" class="p-inputtext p-component w-full" :disabled="mode === 'view'" />
           </FormField>
@@ -119,6 +127,6 @@ onMounted(async () => {
         @save="save"
         @cancel="cancel"
       />
-    </div>
+    </AppCard>
   </div>
 </template>

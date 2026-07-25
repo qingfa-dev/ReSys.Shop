@@ -1,4 +1,12 @@
 {
+  "staff": {
+    "title": "Staff",
+    "subtitle": "Manage staff accounts"
+  },
+  "customers": {
+    "title": "Customers",
+    "subtitle": "Manage customer accounts"
+  },
   "titles": {
     "list": "Staff Management",
     "customers": "Customer Management",
