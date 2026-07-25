@@ -1,122 +1,217 @@
-= Background and Related Work
+= Chapter 1: Background and Related Work
+
+This chapter establishes the technical foundations for the thesis. It introduces vector embeddings as the mathematical basis of visual search, surveys the neural architectures used to generate them, examines vector database technologies that store and query them, reviews prior work in fashion image retrieval, and summarises the technology stack chosen for implementation.
 
 == E-commerce Platform Architectures
 
-Modern web applications organise code along a spectrum from tightly coupled monoliths to fully distributed microservices. At one end, a *monolithic* architecture bundles all components into a single deployable unit: simple to develop initially, but prone to accumulating subsystem coupling as the codebase grows. At the other end, *microservices* decompose the application into independently deployable services, each owning a discrete business function. This enables parallel team workflows and heterogeneous technology stacks, at the cost of distributed data management, network latency, and complex deployment pipelines.
+Enterprise web applications have evolved through three dominant patterns. The *monolithic* architecture packages all components (user interface, business logic, data access) into a single deployable unit, simple to develop at small scale but prone to accumulated coupling as the codebase grows. The *microservices* pattern decomposes an application into independently deployable services, enabling parallel development but introducing operational overhead from distributed data management, network latency, and partial failure modes. Between these extremes lies the *modular monolith*, which organises code into logically isolated business modules within a single process while enforcing compile-time boundaries that prevent direct cross-module references.
 
-The *modular monolith* occupies the middle ground. Code is organised into logically isolated business modules within a single process, sharing a common data store while enforcing compile-time boundaries that prevent cross-module coupling. This thesis adopts the modular monolith pattern for ReSys.Shop because a single-process architecture eliminates service discovery and distributed transaction overhead (disproportionate for a system whose research contribution lies in machine learning integration), a shared PostgreSQL database keeps relational product data and vector embeddings within the same transactional context, and business modules remain independently testable through namespace-level isolation.
+This thesis adopts the modular monolith for three practical reasons. A single-process architecture avoids service discovery, inter-service authentication, and distributed transaction orchestration, complexities disproportionate to a system whose research contribution lies in machine learning integration. A shared PostgreSQL database allows relational product data and vector embeddings to coexist within the same transactional context, preserving consistency between catalog updates and search index changes. Business modules are separated by namespace convention with no direct cross-references, maintaining the logical independence of bounded contexts without the operational cost of separate deployment units. The machine learning capability (image embedding generation and model inference) is isolated in a dedicated Python sidecar service running as a separate process due to its distinct technology stack and GPU resource requirements.
 
-The one component that runs as a separate process is the *Python machine learning sidecar*, isolated due to its distinct technology stack (PyTorch, FastAPI) and resource profile (GPU memory, model loading). This sidecar pattern preserves the operational simplicity of a single deployable for the core application while giving the ML workload the runtime environment it requires.
+// Diagram placeholder: Architecture pattern comparison (Mermaid flowchart)
+// #figure(image("images/diagrams/arch-patterns.png", width: 80%), caption: [...])
 
-// DIAGRAM: System architecture overview — modular monolith with Python sidecar (PlantUML, to be added)
+== Vector Embeddings: The Mathematical Foundation
 
-== Visual Search and Content-Based Image Retrieval
+At the heart of visual search is a simple idea: turning images into lists of numbers that a computer can compare. These lists are called *vector embeddings*, sometimes *feature vectors*.
 
-*Content-Based Image Retrieval* (CBIR) replaces text queries with direct visual comparison. Instead of matching keywords to product labels, CBIR encodes images into dense numerical vectors, called *embeddings*, and measures similarity between them mathematically.
+When an AI model processes an image, it outputs a fixed-length sequence of numbers representing the visual content:
 
-An embedding is a fixed-length sequence of numbers that captures the visual essence of an image. When a convolutional or transformer-based model processes an image of a red dress, it outputs a vector such as `[0.23, -0.15, 0.87, ..., -0.31]` (typically 512 numbers). Images with similar visual content produce vectors that are close together in the embedding space; dissimilar images produce vectors far apart.
+```
+[0.23, -0.15, 0.87, 0.42, ..., -0.31]  (512 numbers)
+```
 
-*Cosine similarity* is the primary distance metric used in this work. It measures the angle between two vectors, producing a score from -1 (opposite) to +1 (identical), with values above 0.7 typically indicating visual similarity recognisable to users. The formula is:
+Embeddings capture the essence of an image in compressed form. Visually similar products produce similar number sequences; dissimilar products produce different ones. This transforms visual comparison into a mathematical operation.
 
-$ "similarity" = cos(theta) = (A dot B) / (||A|| times ||B||) $
+=== The Latent Space
 
-The key advantage of embedding-based search over keyword search is flexibility. A rule-based system must explicitly encode every relevant visual attribute (colour, pattern, silhouette). An embedding model learns which features matter from training data, and mathematical comparison handles the rest. This approach also enables *multimodal queries*: if a model maps both images and text into the same embedding space, a user can search using a photo, a text description, or both simultaneously.
+Embeddings can be understood as points in a high-dimensional space. A 512-dimensional vector occupies a space with 512 axes, far beyond the three spatial dimensions we can visualise. In this *latent space*:
 
-// DIAGRAM: CBIR pipeline overview — image upload to ranked results (Mermaid, to be added)
+- Similar images cluster close together
+- Different images are far apart
+- The word "latent" signifies that the dimensions do not correspond to obvious visual concepts like "redness" or "stripiness." They represent abstract features the model learned during training.
 
-== Deep Learning Models for Fashion Image Retrieval
+=== Measuring Similarity: Cosine Distance
 
-Generating useful embeddings from fashion product images requires models capable of extracting features at multiple levels of abstraction: from low-level textures and edges to high-level concepts like garment category, silhouette, and style. Three families of neural architectures have shaped this capability, appearing in roughly chronological order.
+To compare images, the system measures the angle between their embedding vectors using *cosine similarity*:
 
-=== Convolutional Neural Networks (2012–2019)
+$ "cosine similarity" = (A dot B) / (||A|| times ||B||) $
 
-CNNs process images through a hierarchy of learned filters. Early layers detect edges, colour gradients, and texture orientation; deeper layers compose these primitives into complex structures such as fabric patterns and garment silhouettes. Two CNN architectures are evaluated in this thesis:
+Where $A$ and $B$ are the embedding vectors being compared, $A dot B$ is their dot product, and $||A||$ and $||B||$ are their Euclidean norms.
 
-- *ResNet* (He et al., 2016) @he2016deep introduced residual connections: shortcut paths that allow gradients to flow directly through very deep networks. This solved the vanishing gradient problem and enabled training of networks with 50, 101, or 152 layers. ResNet-50, pre-trained on the ImageNet dataset (1.2 million images across 1,000 categories), serves as a strong general-purpose visual feature extractor.
-- *EfficientNet* (Tan and Le, 2019) @tan2019efficientnet introduced compound scaling: simultaneously adjusting network depth, width, and input resolution using a principled scaling coefficient. This produces a family of models (B0 through B7) that achieve state-of-the-art accuracy with an order of magnitude fewer parameters than comparably accurate ResNet variants. EfficientNet-B0, the smallest member of the family, is evaluated as the lightweight CNN baseline.
+Cosine similarity ranges from +1.0 (vectors point in the same direction, very similar) to 0.0 (perpendicular, unrelated) to -1.0 (opposite directions, very dissimilar). For fashion images, values above 0.7 typically indicate visual similarity a user would recognise. The key advantage is that the same mathematical operation works for any image, any category, without the system needing to know what makes a "dress" or a "shoe."
 
-=== Vision Transformers (2020–present)
+// Diagram placeholder: Visualisation of cosine similarity in 2D vector space
+// #figure(image("images/diagrams/cosine-similarity.png", width: 70%), caption: [...])
 
-While CNNs capture local patterns through layered filters, their limited receptive field (typically 3×3 or 5×5 pixel windows) constrains their ability to model relationships between distant image regions. *Vision Transformers* (ViTs) address this by applying the self-attention mechanism to image data @dosovitskiy2020vit.
+=== The CBIR Pipeline
 
-A ViT divides an image into a grid of fixed-size patches (typically 16×16 pixels), treats each patch as a token analogous to a word in a sentence, and processes the sequence through transformer encoder layers. Self-attention computes pairwise relationships between all patches simultaneously, enabling the model to capture long-range dependencies (a sleeve pattern that echoes a collar detail, a texture that repeats across a dress) without requiring information to propagate through many successive layers.
+Content-Based Image Retrieval (CBIR) replaces text queries with image queries through the following pipeline:
 
-- *DINOv2* (Oquab et al., 2023) represents a self-supervised approach: the model is trained without human-labelled data, learning visual representations by predicting relationships between different augmented views of the same image. This produces strong general-purpose features that transfer well to downstream tasks without fine-tuning.
+1. The user uploads or selects a query image
+2. The system generates an embedding for that image using a deep learning model
+3. The system compares the query embedding against all product embeddings in the database using cosine distance
+4. Results are ranked by similarity and displayed to the user
 
-=== CLIP and Multimodal Models (2021–present)
+This approach bypasses the need for consistent, complete textual labels. A photograph of a dress with a distinctive neckline retrieves visually similar products regardless of how the catalog describes them. The embedding becomes a universal description that captures shape, texture, colour, and pattern automatically.
 
-CNNs and ViTs operate purely in the visual domain: they map images to embedding vectors, but those vectors have no connection to human language. *CLIP* (Contrastive Language-Image Pre-training), introduced by Radford et al. (2021) @radford2021learning, bridges this gap through a dual-tower design. One tower encodes images; a parallel tower encodes text. Both are trained jointly on 400 million (image, caption) pairs using a contrastive objective that pulls matching pairs together in a shared embedding space.
+// Diagram placeholder: CBIR pipeline overview (Mermaid flowchart)
+// #figure(image("images/diagrams/01-cbir-pipeline.png", width: 90%), caption: [...])
 
-- *Fashion-CLIP* @chia2022fashionclip extends CLIP by fine-tuning on over 700,000 fashion images with domain-specific text descriptions (garment categories, fabric terms, style labels, occasion tags). Fashion-CLIP uses the ViT-B/16 architecture inherited from CLIP and produces 512-dimensional embeddings. The domain-specific training improves retrieval quality on fashion queries by approximately 15–20% relative to general CLIP, and the dual-tower design enables text-to-image search without requiring a reference photo.
+== Deep Learning Architectures for Embedding Generation
 
-=== Model Comparison
+Generating useful embeddings requires models that extract features at multiple levels, from low-level textures to high-level garment structure. Three families of architectures have emerged over the past decade.
 
-The thesis evaluates four representative models spanning these architectural families. Their key characteristics (architecture type, embedding dimension, training method, and domain) are described in the preceding subsections. The evaluation in Chapter 5 measures both retrieval accuracy and operational efficiency, providing empirical data on the accuracy-speed trade-offs that inform practical model selection.
+=== Convolutional Neural Networks
 
-== Vector Search and Databases
+Convolutional neural networks (CNNs) process images through a hierarchy of learned filters. Early layers detect simple patterns (edges, colour transitions, texture directions), middle layers compose these into shapes and parts (lapels, button rows, sleeve boundaries), and deep layers recognise complete structures (dress vs. jacket, formal vs. casual). This layered organisation mirrors aspects of biological vision and has proven remarkably effective for visual recognition @he2016deep.
 
-Once product images are converted to embeddings, those vectors must be stored and searched efficiently. A naive approach (computing the distance from the query vector to every stored vector) becomes impractical beyond a few thousand items.
+*ResNet* (Residual Network) introduced skip connections that allow information to bypass layers, solving the degradation problem that plagued deeper networks. ResNet-50, the 50-layer variant used in this thesis, remains a strong baseline for image retrieval with 25.6 million parameters and 2,048-dimensional embeddings.
 
-*Approximate Nearest Neighbour* (ANN) search addresses this by trading a small amount of accuracy for large speed gains. Rather than exhaustively scanning all vectors, ANN algorithms use index structures that guide the search directly toward the neighbourhood of likely matches, achieving 97–99% recall of the true nearest neighbours with query times that scale logarithmically rather than linearly.
+*EfficientNet* uses compound scaling to simultaneously balance network depth, width, and input resolution @tan2019efficientnet. EfficientNet-B0, the smallest variant evaluated here, achieves competitive accuracy with 5.3 million parameters and produces 1,280-dimensional embeddings. Its compact design makes it well-suited to CPU-only or memory-constrained deployments.
 
-This project uses *HNSW* (Hierarchical Navigable Small World), a graph-based ANN algorithm that organises vectors into a multi-layered graph structure. Each layer is a proximity graph where nodes represent vectors and edges connect near neighbours. Search begins at the top (sparsest) layer and descends through increasingly dense layers, rapidly narrowing toward the target region.
+#figure(
+  table(
+    columns: (auto, auto, auto, auto, auto),
+    align: center + horizon,
+    table.header([*Family*], [*Model*], [*Parameters*], [*Embedding Dim*], [*Training Data*]),
+    [CNN], [ResNet-50], [25.6M], [2048], [ImageNet (1.2M images)],
+    [CNN], [ResNet-101], [44.5M], [2048], [ImageNet (1.2M images)],
+    [CNN], [EfficientNet-B0], [5.3M], [1280], [ImageNet (1.2M images)],
+    [CNN], [EfficientNet-B4], [19.3M], [1792], [ImageNet (1.2M images)],
+  ),
+  caption: [CNN-based models evaluated in this thesis],
+) <tbl-cnn-models>
 
-The implementation uses *pgvector*, a PostgreSQL extension that stores vectors alongside relational data within the same database. This approach eliminates the *dual-database problem*: when a vector index lives in a separate system (Pinecone, Milvus, Weaviate), it can drift out of sync with the relational source of truth. With pgvector, product updates and embedding updates occur within a single ACID transaction. Vector search queries use standard SQL with the cosine distance operator (`<=>`), and can combine similarity search with relational filtering in a single execution plan.
+=== Vision Transformers
 
-// DIAGRAM: HNSW index structure — multi-layer graph with search descent (Mermaid, to be added)
+While CNNs capture local patterns through their layered filter design, their reliance on small receptive fields (typically 3×3 pixel windows) limits their ability to model relationships between distant image regions. Vision Transformers (ViTs) address this by applying the *self-attention* mechanism that was originally developed for natural language processing to image data @dosovitskiy2020vit.
 
-== Related Work
+A ViT divides an image into a grid of fixed-size patches (typically 16×16 pixels), treats each patch as a "token" analogous to a word in a sentence, and passes the sequence through transformer layers. Self-attention computes pairwise relationships between all patches simultaneously. For fashion, this means a ViT can relate a collar detail in one corner to a hemline pattern at the opposite edge without needing many intermediate layers, a capability especially valuable for garment retrieval where global silhouette matters as much as local texture.
 
-Visual search for fashion has been studied in both academic research and industrial deployment.
+*DINOv2*, developed by Meta AI, takes a different approach: rather than training on human-labelled images, it uses self-supervised learning on a large, uncurated collection of images @oquab2023dinov2. The model learns visual features by solving a prediction task on its own representations, without ever seeing a category label. DINOv2 produces 384-dimensional embeddings (ViT-S variant) or 768-dimensional embeddings (ViT-B variant). Its self-supervised training makes it adaptable to domains where curated labels are scarce.
 
-*Academic foundations.* The *DeepFashion* dataset @liu2016deepfashion, containing over 800,000 fashion images with attribute and landmark annotations, established standard benchmarks for fashion recognition and retrieval. *FashionIQ* @wu2019fashioniq introduced conversational retrieval, where users refine search results through natural language feedback ("like this dress but shorter"). This multi-turn interaction paradigm is beyond the scope of this thesis, which focuses on single-turn image-based search. The shift toward *pre-trained foundation models*, exemplified by CLIP @radford2021learning and its fashion-specific variant @chia2022fashionclip, has substantially improved retrieval quality without requiring task-specific training from scratch.
+#figure(
+  table(
+    columns: (auto, auto, auto, auto, auto),
+    align: center + horizon,
+    table.header([*Family*], [*Model*], [*Parameters*], [*Embedding Dim*], [*Training Method*]),
+    [ViT], [DINOv2 ViT-S/14], [21M], [384], [Self-supervised (142M images)],
+    [ViT], [DINOv2 ViT-B/14], [86M], [768], [Self-supervised (142M images)],
+    [ViT], [CLIP ViT-B/32], [151M], [512], [Contrastive (400M pairs)],
+    [ViT], [CLIP ViT-B/16], [150M], [512], [Contrastive (400M pairs)],
+    [ViT], [CLIP ViT-L/14], [428M], [768], [Contrastive (400M pairs)],
+  ),
+  caption: [Vision Transformer models evaluated in this thesis],
+) <tbl-vit-models>
 
-*Commercial systems.* Google Lens, Pinterest Lens, and ASOS Style Match demonstrate that visual search operates at massive scale in production. However, these systems are proprietary, closed to modification, and incur per-query API costs. ViSenze offers API-based visual search as a service but similarly creates vendor lock-in. This thesis demonstrates that comparable functionality is achievable with open-source tools, providing a reference implementation for smaller platforms.
+=== CLIP and Fashion-CLIP: Bridging Vision and Language
 
-*Positioning.* This project distinguishes itself by addressing the *engineering gap* between theoretical model research and production software. While the academic literature primarily optimises metric scores, this thesis contributes:
-- A polyglot architecture (.NET + Python sidecar) that gives production web applications access to the Python AI ecosystem without adopting a full microservices deployment.
-- Vector-native data consistency through pgvector, keeping embeddings and product data in the same transactional scope.
-- Demonstration that commodity hardware (mid-range GPU, standard CPU) suffices for production-quality fashion CBIR.
-- Systematic comparison of CNN, ViT, and CLIP-based architectures within the constraints of a real-time web application, providing practical model selection guidance.
+CNNs and ViTs operate purely in the visual domain, mapping images to embedding spaces that have no connection to human language. *CLIP* (Contrastive Language-Image Pre-training) bridges this gap through a dual-tower architecture: one tower encodes images, a parallel text encoder processes natural language descriptions, and both are trained jointly on 400 million (image, caption) pairs from the public web @radford2021learning. A contrastive objective pulls matching image-text pairs together in a shared embedding space while pushing non-matching pairs apart. The result is a model that can both see and read.
 
-== Technology Stack
+*Fashion-CLIP* extends CLIP by fine-tuning it on over 700,000 fashion images paired with domain-specific text descriptions @chia2022fashionclip. The fine-tuning adjusts model weights to emphasise fashion-relevant attributes (garment categories, fabric textures, style descriptors, occasion labels) while retaining general visual understanding. Fashion-CLIP uses the ViT-B/16 architecture inherited from CLIP, producing 512-dimensional embeddings. The original paper reports a 15 to 20% improvement on fashion retrieval over general CLIP, a result confirmed in the benchmark evaluation presented in Chapter 5 of this thesis.
 
-The platform spans three programming languages orchestrated through a containerised environment. Table @tbl-tech-stack summarises the principal components.
+The dual-tower design also enables *multimodal queries* unavailable in pure vision models like DINOv2 or EfficientNet. A user searching for "red floral summer dress" does not need a reference image; the text encoder maps the description directly into the same embedding space as catalog images. A hybrid query combining an uploaded photo with a textual refinement, "like this, but in blue," becomes possible by encoding both modalities and merging the results.
+
+#figure(
+  table(
+    columns: (auto, auto, auto, auto),
+    align: center + horizon,
+    table.header([*Model*], [*Architecture*], [*Training*], [*Domain*]),
+    [CLIP ViT-B/32], [Dual-tower (ViT + text transformer)], [Contrastive (400M image-text pairs)], [General],
+    [CLIP ViT-B/16], [Dual-tower (ViT + text transformer)], [Contrastive (400M image-text pairs)], [General],
+    [CLIP ViT-L/14], [Dual-tower (ViT + text transformer)], [Contrastive (400M image-text pairs)], [General],
+    [Fashion-CLIP], [Dual-tower (ViT + text transformer)], [Contrastive, fine-tuned on 700K fashion images], [Fashion-specific],
+  ),
+  caption: [CLIP variants evaluated in this thesis],
+) <tbl-clip-models>
+
+== Vector Databases and Approximate Search
+
+Once images are converted to embeddings, those vectors must be stored and queried efficiently. For a catalog of $n$ products, a naive brute-force search requires $n$ distance computations per query, acceptable at 10,000 items but several orders of magnitude too slow for millions.
+
+The solution is *Approximate Nearest Neighbour* (ANN) search. ANN algorithms use index structures that organise vectors into navigable graphs, enabling searches to move directly toward the neighbourhood of likely matches rather than scanning exhaustively. The accuracy trade-off is modest: 97 to 99% recall of the true top matches, for a speed improvement of several orders of magnitude.
+
+=== pgvector: PostgreSQL with Vector Search
+
+This project uses *pgvector*, an open-source PostgreSQL extension that adds vector storage and similarity search to the standard relational database. The key practical advantage is transactional consistency: because vectors and product metadata live in the same database, a product update and its embedding update occur within a single ACID transaction. This eliminates the *dual-database problem*, where a separate vector store can drift out of sync with the relational source of truth, producing stale search results.
+
+pgvector uses the *HNSW* (Hierarchical Navigable Small World) index, a graph-based ANN algorithm that achieves logarithmic search complexity. Queries combine vector similarity with relational filtering in standard SQL: find products visually similar to a query image, but restrict results to a specific category and price range, using a single query plan. The extension supports variable-length vectors, accommodating the different embedding dimensions produced by different models (384 for DINOv2-S, 512 for Fashion-CLIP, 768 for DINOv2-B, 1280 for EfficientNet-B0, 2048 for ResNet-50).
 
 #figure(
   table(
     columns: (auto, auto, 1fr),
-    stroke: 0.5pt,
-    align: (left + horizon, left + horizon, left),
-
-    table.header([*Layer*], [*Technology*], [*Role*]),
-
-    [Frontend], [Vue 3, TypeScript, Vite],
-    [Customer storefront and admin panel; reactive component model with Pinia state management.],
-
-    [Backend API], [.NET 10, Carter, MediatR],
-    [REST endpoints via minimal APIs; CQRS separation of read and write operations enforcing module boundaries.],
-
-    [Database], [PostgreSQL, pgvector],
-    [Relational data and vector embeddings in a single ACID database; HNSW-indexed similarity search via SQL.],
-
-    [Caching], [Redis, HybridCache],
-    [Multi-tier cache with in-memory L1 and Redis L2; backing store for job queues and session state.],
-
-    [ML Sidecar], [Python, FastAPI, PyTorch],
-    [Embedding generation service; GPU-accelerated inference; isolated from main application process.],
-
-    [Orchestration], [.NET Aspire],
-    [Container lifecycle management; service discovery; reproducible local development environment.],
-
-    [Background Jobs], [Hangfire],
-    [Persistent job processing for cart expiry, embedding generation queue, and periodic maintenance.],
-
-    [Authentication], [JWT, ASP.NET Identity],
-    [Short-lived access tokens with refresh token rotation; role-based and permission-based authorisation.],
-
+    align: (start, start, start),
+    table.header([*Property*], [*Value*], [*Rationale*]),
+    [Extension], [pgvector 0.8+], [Open-source, zero additional infrastructure],
+    [Index type], [HNSW], [Logarithmic search complexity, good recall-speed balance],
+    [Distance metric], [Cosine], [Bounded range, interpretable thresholds for fashion similarity],
+    [Model metadata], [model_name, model_version columns], [Enables per-model filtering and A/B testing],
   ),
-  caption: [Technology stack of the ReSys.Shop platform, organised by architectural layer.],
+  caption: [pgvector configuration used in this thesis],
+) <tbl-pgvector-config>
+
+== Related Work
+
+This section positions the ReSys.Shop platform within the broader landscape of fashion image retrieval research and commercial visual search systems.
+
+=== Academic Research
+
+The *DeepFashion* dataset, introduced by Liu et al., established the foundational benchmark for fashion recognition and retrieval with over 800,000 images annotated with attributes, landmarks, and in-shop-to-consumer photo pairs @liu2016deepfashion. This dataset catalysed much of the subsequent work in fashion AI.
+
+*FashionIQ* extended retrieval to the conversational setting, where users modify queries through natural language feedback ("like this dress but shorter") @wu2019fashioniq. While compelling, the interactive dialogue paradigm requires infrastructure beyond the scope of this project, which focuses on single-turn visual and text queries.
+
+The *Fashion-CLIP* work demonstrated that domain-specific fine-tuning of CLIP on 700,000 fashion images improves retrieval by 15 to 20% over the general model @chia2022fashionclip. This thesis follows that approach, using pre-trained models without custom training, and extends the evaluation to additional architectures (ResNet, EfficientNet, DINOv2) for systematic comparison.
+
+=== Commercial Systems
+
+Several platforms have deployed visual search at production scale.
+
+#figure(
+  table(
+    columns: (auto, 1fr, 1fr),
+    stroke: 0.5pt,
+    align: (center, left, left),
+    [*Product*], [*Key Strength*], [*Limitation*],
+    [Google Lens], [Massive scale, general-domain coverage], [Closed ecosystem, not customisable],
+    [Pinterest Lens], [Over 600M monthly searches, style-aware], [Proprietary, requires Pinterest integration],
+    [ASOS Style Match], [Fashion-specific accuracy], [Restricted to ASOS catalog only],
+    [ViSenze], [API-based, good accuracy], [Paid service with recurring per-query costs],
+  ),
+  caption: [Comparison of commercial visual search products],
+) <tbl-commercial-comparison>
+
+These products share common limitations for independent projects: they are proprietary and cannot be studied or modified, API access incurs costs at query volume, and reliance on external services creates vendor lock-in. This thesis demonstrates that comparable functionality is achievable with open-source tools, providing both a reference implementation and a cost-effective alternative for smaller deployments.
+
+=== Contribution Differentiators
+
+This project distinguishes itself from prior work by addressing the *engineering gap* between model research and production systems. Four contributions define this gap:
+
+*1. Polyglot architecture.* Python's machine learning ecosystem (PyTorch, HuggingFace) does not natively interoperate with the .NET stack common in enterprise e-commerce. This thesis presents a modular monolith with a dedicated AI sidecar, combining .NET's type safety and transactional integrity with Python's access to state-of-the-art vision models, without the operational overhead of a full microservices deployment.
+
+*2. Vector-native consistency.* By using pgvector within PostgreSQL, embeddings and product metadata share the same transactional boundary. Product updates, image replacements, and index maintenance occur atomically, eliminating stale-index bugs that arise when a vector store and relational database have independent consistency guarantees.
+
+*3. Commodity hardware benchmarking.* Commercial visual search runs on cloud TPU clusters. This thesis evaluates 11 models on consumer-grade hardware, establishing that production-quality visual search is achievable without specialised infrastructure, lowering the barrier for small to medium e-commerce platforms.
+
+*4. Applied model comparison.* Rather than chasing leaderboard metrics, this thesis compares models within realistic deployment constraints (inference latency budget, memory limits, storage cost). The resulting accuracy-efficiency trade-off data, presented in Chapter 5, provides a pragmatic guide for practitioners selecting embedding models.
+
+== Technology Stack
+
+#figure(
+  table(
+    columns: (auto, auto, 1fr),
+    align: (start, start, start),
+    table.header([*Layer*], [*Technology*], [*Role*]),
+    [Frontend], [Vue 3, TypeScript, Vite], [Customer storefront and admin panel; reactive UI with Pinia state management],
+    [Backend API], [.NET 10, Carter, MediatR], [REST endpoints via minimal APIs; CQRS command-query separation across business modules],
+    [Database], [PostgreSQL, pgvector], [Relational data and vector embeddings in a single ACID database with HNSW-indexed similarity search],
+    [Caching], [Redis, HybridCache], [Two-tier cache (in-memory L1 + Redis L2); Hangfire job queue and session state backing store],
+    [ML Sidecar], [Python 3.12, FastAPI, PyTorch], [Dedicated embedding generation service with lazy model loading and GPU acceleration],
+    [Orchestration], [.NET Aspire], [Container lifecycle management, service discovery, and reproducible local development],
+    [Background Jobs], [Hangfire], [Persistent job processing for cart expiry, embedding queue, and maintenance tasks],
+    [Authentication], [JWT, ASP.NET Identity], [Short-lived access tokens with refresh rotation; role and permission-based authorisation],
+  ),
+  caption: [Technology stack of the ReSys.Shop platform],
 ) <tbl-tech-stack>
 
-Each component was selected to satisfy a specific architectural requirement. Vue 3 and Vite provide fast frontend iteration appropriate for a single-developer thesis project. .NET 10 supplies the strong type system, high-throughput web server, and mature ORM that underpin the transactional e-commerce backend. PostgreSQL hosts both the relational schema and, via pgvector, the vector index, consolidating data management into a single database. Redis adds a caching tier for repeated queries and transient state storage. The Python sidecar exists specifically to host PyTorch for model inference, isolated so that GPU resource spikes do not affect API availability. .NET Aspire unifies these components into a reproducible container-based development environment. Hangfire persists background job state in Redis, ensuring operations survive application restarts. JWT-based authentication with refresh token rotation follows current best practices for securing browser-based single-page applications.
+Each technology addresses a specific architectural requirement. Vue 3 and Vite provide modern frontend tooling with fast development cycles. .NET 10 offers the strong type system and high-throughput web server needed for transactional e-commerce logic. PostgreSQL, via pgvector, consolidates relational and vector data management into one well-understood database, avoiding the complexity of operating a separate vector store. Redis layers in caching and transient state. The Python sidecar exists specifically to host PyTorch, the standard framework for pre-trained deep learning models, isolated so that an inference resource spike cannot affect e-commerce API availability. .NET Aspire orchestrates these components into a reproducible containerised environment. Hangfire persists background jobs in Redis for resilience across restarts. JWT-based authentication with refresh token rotation follows current best practices for securing browser-based single-page applications.
