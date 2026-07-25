@@ -76,11 +76,11 @@ async function loadOptionType() {
     if (result.isSuccess) {
       setValues({ name: result.value.name, presentation: result.value.presentation ?? undefined, filterable: result.value.filterable ?? undefined })
     } else {
-      loadError.value = result.message ?? 'Failed to load option type'
+      loadError.value = result.message ?? t('catalog.option_types.messages.load_failed')
     }
   } catch (err) {
     console.error(err)
-    loadError.value = 'Failed to load option type'
+    loadError.value = t('catalog.option_types.messages.load_failed')
   }
   loading.value = false
 }

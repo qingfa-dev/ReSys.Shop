@@ -72,11 +72,11 @@ async function fetchDashboard() {
     if (result.isSuccess) {
       data.value = result.value
     } else {
-      error.value = result.message ?? 'Failed to load dashboard data'
+      error.value = result.message ?? t('catalog.dashboard.messages.load_failed')
     }
   } catch (err) {
     console.error(err)
-    error.value = 'Failed to load dashboard data'
+    error.value = t('catalog.dashboard.messages.load_failed')
   }
   loading.value = false
 }

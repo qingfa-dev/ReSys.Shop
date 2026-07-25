@@ -46,12 +46,12 @@ const onSubmit = handleSubmit(async (values) => {
     if (result.isSuccess) {
       emit('saved', result.value)
     } else {
-      toast.error(result.message ?? 'Failed to save option value')
+      toast.error(result.message ?? t('catalog.option_values.messages.save_failed'))
     }
   } catch (err) {
     console.error(err)
     saving.value = false
-    toast.error('Failed to save option value')
+    toast.error(t('catalog.option_values.messages.save_failed'))
   }
 })
 </script>

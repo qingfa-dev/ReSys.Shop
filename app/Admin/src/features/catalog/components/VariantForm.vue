@@ -89,11 +89,11 @@ async function loadVariant() {
         isMaster: result.value.isMaster ?? undefined,
       })
     } else {
-      loadError.value = result.message ?? 'Failed to load variant'
+      loadError.value = result.message ?? t('catalog.products.variants.messages.load_failed')
     }
   } catch (err) {
     console.error(err)
-    loadError.value = 'Failed to load variant'
+    loadError.value = t('catalog.products.variants.messages.load_failed')
   }
   loading.value = false
 }

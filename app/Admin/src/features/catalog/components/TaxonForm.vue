@@ -47,12 +47,12 @@ const onSubmit = handleSubmit(async (values) => {
     if (result.isSuccess) {
       emit('saved', result.value)
     } else {
-      toast.error(result.message ?? 'Failed to save taxon')
+      toast.error(result.message ?? t('catalog.taxa.messages.save_failed'))
     }
   } catch (err) {
     console.error(err)
     saving.value = false
-    toast.error('Failed to save taxon')
+    toast.error(t('catalog.taxa.messages.save_failed'))
   }
 })
 </script>

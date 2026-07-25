@@ -92,6 +92,7 @@
         "delete_success": "Variant removed",
         "save_failed": "Failed to save variant",
         "delete_failed": "Failed to delete variant",
+        "load_failed": "Failed to load variant",
         "generation_failed": "Failed to generate some variants."
       }
     },
@@ -159,7 +160,8 @@
       "delete_success": "Product removed successfully.",
       "empty_list": "No products found matching your criteria.",
       "loading": "Loading products...",
-      "classifications_saved": "Classifications saved"
+      "classifications_saved": "Classifications saved",
+      "load_failed": "Failed to load product"
     },
     "confirm": {
       "delete_header": "Confirm Delete",
@@ -227,7 +229,8 @@
       "empty_list": "No option types found.",
       "loading": "Loading option types...",
       "delete_error": "Failed to delete option type",
-      "delete_with_values": "Cannot delete: this option type has existing option values. Remove all values first."
+      "delete_with_values": "Cannot delete: this option type has existing option values. Remove all values first.",
+      "load_failed": "Failed to load option type"
     }
   },
   "option_values": {
@@ -263,7 +266,8 @@
       "update_success": "Option value updated successfully.",
       "delete_success": "Option value deleted successfully.",
       "empty_list": "No option values found.",
-      "loading": "Loading values..."
+      "loading": "Loading values...",
+      "save_failed": "Failed to save option value"
     },
     "actions": {
       "delete": "Delete",
@@ -322,7 +326,8 @@
       "delete_success": "Taxonomy deleted successfully.",
       "empty_list": "No taxonomies found.",
       "loading": "Loading taxonomies...",
-      "rebuilt_success": "Taxonomy tree successfully rebuilt"
+      "rebuilt_success": "Taxonomy tree successfully rebuilt",
+      "load_failed": "Failed to load taxonomy"
     },
     "confirm": {
       "delete_header": "Confirm Deletion",
@@ -434,7 +439,8 @@
       "save_required": "Save Required",
       "save_required_desc": "You must save the category before you can define automation rules.",
       "manual_collection": "Manual Collection",
-      "manual_collection_desc": "Products must be manually assigned to this category from the Product Management screen."
+      "manual_collection_desc": "Products must be manually assigned to this category from the Product Management screen.",
+      "save_failed": "Failed to save taxon"
     },
     "confirm": {
       "delete_header": "Confirm Deletion",
@@ -457,7 +463,10 @@
     "needs_attention": "Needs Attention",
     "catalog_coverage": "Catalog Coverage",
     "recent_empty": "No products added yet.",
-    "attention_empty": "Everything looks good — no items need attention."
+    "attention_empty": "Everything looks good — no items need attention.",
+    "messages": {
+      "load_failed": "Failed to load dashboard data"
+    }
   },
   "actions": {
     "view_all": "View All"

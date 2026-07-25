@@ -74,11 +74,11 @@ async function loadTaxonomy() {
     if (result.isSuccess) {
       setValues({ name: result.value.name, presentation: result.value.presentation ?? undefined })
     } else {
-      loadError.value = result.message ?? 'Failed to load taxonomy'
+      loadError.value = result.message ?? t('catalog.taxonomies.messages.load_failed')
     }
   } catch (err) {
     console.error(err)
-    loadError.value = 'Failed to load taxonomy'
+    loadError.value = t('catalog.taxonomies.messages.load_failed')
   }
   loading.value = false
 }

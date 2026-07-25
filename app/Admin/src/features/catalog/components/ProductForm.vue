@@ -76,11 +76,11 @@ async function load() {
         styleCode: result.value.styleCode ?? undefined,
       })
     } else {
-      loadError.value = result.message ?? 'Failed to load product'
+      loadError.value = result.message ?? t('catalog.products.messages.load_failed')
     }
   } catch (err) {
     console.error(err)
-    loadError.value = 'Failed to load product'
+    loadError.value = t('catalog.products.messages.load_failed')
   }
   loading.value = false
 }
