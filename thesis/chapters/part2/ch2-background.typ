@@ -1,37 +1,6 @@
 = Background and Related Work
 
-This chapter establishes the technical foundations for the thesis. It introduces vector embeddings as the mathematical basis of visual search, surveys the neural architectures used to generate them, examines vector database technologies that store and query them, reviews prior work in fashion image retrieval, and summarises the technology stack chosen for implementation.
-
-== E-commerce Platform Architectures
-
-Modern web applications are shaped by three architectural patterns, each trading off simplicity, scalability, and operational cost.
-
-=== Monolith
-
-A monolith packages the user interface, business logic, and data access into a single deployable unit. Development is straightforward: one codebase, one build pipeline, one deployment. At small scale this works well. As the system grows, subsystems accumulate coupling. Changing the checkout flow requires understanding the catalog module; deploying a payment fix means redeploying the entire application. The monolith does not scale with team size or codebase age.
-
-=== Microservices
-
-Microservices decompose an application into independently deployable services, each owning a discrete business capability. Teams can work in parallel using different technology stacks per service. The trade-off is operational complexity: service discovery, inter-service authentication, network latency, partial failure modes, and distributed transaction management. For a system where the primary research contribution lies in machine learning integration rather than infrastructure engineering, this overhead is disproportionate.
-
-=== Modular Monolith
-
-The modular monolith occupies the middle ground. Code is organised into logically isolated business modules within a single process. Compile-time boundaries prevent direct cross-module references, preserving the logical independence of bounded contexts. There is one build, one deployment, and one shared database. The nine business modules in ReSys.Shop (Catalog, Ordering, Payment, Inventory, Identity, Profile, Shipping, Location, Dashboard) communicate through an in-process message bus with no namespace-level dependencies between them. A shared PostgreSQL instance allows relational product data and vector embeddings to coexist within the same transactional boundary, maintaining consistency between catalog updates and search index changes.
-
-The machine learning capability is the one exception to the single-process rule. It runs as a dedicated Python sidecar service, isolated because PyTorch and the broader Python scientific stack have incompatible runtime requirements with .NET. The sidecar communicates with the main application over HTTP, exposing a narrow embedding-generation interface while keeping GPU resource contention isolated from the e-commerce API.
-
-=== Architectural Decision
-
-ReSys.Shop adopts the modular monolith with a machine learning sidecar. The decision is guided by three trade-offs:
-
-- *Deployment.* One process for the core application avoids service discovery, inter-service authentication, and distributed transaction orchestration. The Python sidecar runs as a separate process because PyTorch and .NET have incompatible runtime environments, but the sidecar exposes a narrow HTTP interface restricted to embedding generation. A GPU failure in the sidecar does not affect e-commerce API availability.
-
-- *Data consistency.* A single PostgreSQL instance hosts both relational product data and pgvector embeddings. Catalog updates and embedding index changes share the same transactional boundary, eliminating the class of stale-index bugs that arise when a vector store and relational database drift out of sync.
-
-- *Module boundaries.* Nine business modules (Catalog, Ordering, Payment, Inventory, Identity, Profile, Shipping, Location, Dashboard) are isolated by namespace convention within one assembly. Inter-module communication uses an in-process message bus. There are no direct cross-module references at compile time, preserving bounded-context independence without the operational cost of separate deployment units.
-
-// Diagram placeholder: Three architecture patterns side-by-side (Mermaid)
-// #figure(image("images/diagrams/arch-patterns.png", width: 90%), caption: [Monolith, modular monolith, and microservices compared.])
+This chapter establishes the technical foundations for the thesis. It introduces vector embeddings as the mathematical basis of visual search, surveys the neural architectures used to generate them, examines vector database technologies including pgvector and HNSW indexing, evaluates architectural patterns for integrating machine learning into web applications, reviews prior work in fashion image retrieval, and summarises the technology stack chosen for implementation.
 
 == Vector Embeddings: The Mathematical Foundation
 
@@ -150,15 +119,21 @@ The dual-tower design also enables *multimodal queries* unavailable in pure visi
 
 == Vector Databases and Approximate Search
 
-Once images are converted to embeddings, those vectors must be stored and queried efficiently. For a catalog of $n$ products, a naive brute-force search requires $n$ distance computations per query, acceptable at 10,000 items but several orders of magnitude too slow for millions.
+Once images are converted to embeddings, those vectors must be stored and queried efficiently. For a catalog of $n$ products, a naive brute-force search requires $n$ distance computations per query. At 10,000 items this is manageable on modern hardware; at millions it becomes impractical.
 
-The solution is *Approximate Nearest Neighbour* (ANN) search. ANN algorithms use index structures that organise vectors into navigable graphs, enabling searches to move directly toward the neighbourhood of likely matches rather than scanning exhaustively. The accuracy trade-off is modest: 97 to 99% recall of the true top matches, for a speed improvement of several orders of magnitude.
+=== Approximate Nearest Neighbour Search
+
+The solution is *Approximate Nearest Neighbour* (ANN) search. Rather than exhaustively computing the distance to every stored vector, ANN algorithms use index structures that organise vectors into navigable graphs or trees. A query navigates directly toward the neighbourhood of likely matches, skipping the vast majority of irrelevant vectors. The accuracy trade-off is modest: typically 97 to 99% recall of the true top matches, for a speed improvement of several orders of magnitude. For product search, where returning 20 visually similar items matters far more than guaranteeing the absolute 21st best match, this trade-off is entirely acceptable.
+
+=== HNSW: Hierarchical Navigable Small World
+
+The HNSW index is among the most widely adopted ANN algorithms. It constructs a multi-layered graph where each layer contains a subset of vectors connected by edges to their nearest neighbours. Top layers are sparse and enable long-range jumps across the embedding space; bottom layers are dense and refine the search locally. A query begins at the top layer, descends through progressively finer graphs, and converges on the neighbourhood of the query vector. The search complexity scales logarithmically with the number of vectors, making HNSW suitable for interactive applications where query latency must remain under tens of milliseconds.
 
 === pgvector: PostgreSQL with Vector Search
 
-This project uses *pgvector*, an open-source PostgreSQL extension that adds vector storage and similarity search to the standard relational database. The key practical advantage is transactional consistency: because vectors and product metadata live in the same database, a product update and its embedding update occur within a single ACID transaction. This eliminates the *dual-database problem*, where a separate vector store can drift out of sync with the relational source of truth, producing stale search results.
+This project uses *pgvector*, an open-source PostgreSQL extension that implements HNSW-indexed vector storage and similarity search within the standard relational database. The key practical advantage is transactional consistency: because vectors and product metadata live in the same database, a product update and its embedding update occur within a single ACID transaction. This eliminates the *dual-database problem*, where a separate vector store can drift out of sync with the relational source of truth, producing stale search results.
 
-pgvector uses the *HNSW* (Hierarchical Navigable Small World) index, a graph-based ANN algorithm that achieves logarithmic search complexity. Queries combine vector similarity with relational filtering in standard SQL: find products visually similar to a query image, but restrict results to a specific category and price range, using a single query plan. The extension supports variable-length vectors, accommodating the different embedding dimensions produced by different models (384 for DINOv2-S, 512 for Fashion-CLIP, 768 for DINOv2-B, 1280 for EfficientNet-B0, 2048 for ResNet-50).
+Queries combine vector similarity with relational filtering in standard SQL: find products visually similar to a query image, but restrict results to a specific category and price range, using a single query plan. The extension supports variable-length vectors, accommodating the different embedding dimensions produced by different models (384 for DINOv2-S, 512 for Fashion-CLIP, 768 for DINOv2-B, 1280 for EfficientNet-B0, 2048 for ResNet-50).
 
 #figure(
   table(
@@ -172,6 +147,37 @@ pgvector uses the *HNSW* (Hierarchical Navigable Small World) index, a graph-bas
   ),
   caption: [pgvector configuration used in this thesis],
 ) <tbl-pgvector-config>
+
+== E-commerce Platform Architectures
+
+Having covered how embeddings are generated and stored, this section examines the architectural patterns that organise the ReSys.Shop platform around these capabilities. Modern web applications are shaped by three architectural patterns, each trading off simplicity, scalability, and operational cost.
+
+=== Monolith
+
+A monolith packages the user interface, business logic, and data access into a single deployable unit. Development is straightforward: one codebase, one build pipeline, one deployment. At small scale this works well. As the system grows, subsystems accumulate coupling. Changing the checkout flow requires understanding the catalog module; deploying a payment fix means redeploying the entire application. The monolith does not scale with team size or codebase age.
+
+=== Microservices
+
+Microservices decompose an application into independently deployable services, each owning a discrete business capability. Teams can work in parallel using different technology stacks per service. The trade-off is operational complexity: service discovery, inter-service authentication, network latency, partial failure modes, and distributed transaction management. For a system where the primary research contribution lies in machine learning integration rather than infrastructure engineering, this overhead is disproportionate.
+
+=== Modular Monolith
+
+The modular monolith occupies the middle ground. Code is organised into logically isolated business modules within a single process. Compile-time boundaries prevent direct cross-module references, preserving the logical independence of bounded contexts. There is one build, one deployment, and one shared database. The nine business modules in ReSys.Shop (Catalog, Ordering, Payment, Inventory, Identity, Profile, Shipping, Location, Dashboard) communicate through an in-process message bus with no namespace-level dependencies between them. A shared PostgreSQL instance allows relational product data and vector embeddings to coexist within the same transactional boundary, maintaining consistency between catalog updates and search index changes.
+
+The machine learning capability is the one exception to the single-process rule. It runs as a dedicated Python sidecar service, isolated because PyTorch and the broader Python scientific stack have incompatible runtime requirements with .NET. The sidecar communicates with the main application over HTTP, exposing a narrow embedding-generation interface while keeping GPU resource contention isolated from the e-commerce API.
+
+=== Architectural Decision
+
+ReSys.Shop adopts the modular monolith with a machine learning sidecar. The decision is guided by three trade-offs:
+
+- *Deployment.* One process for the core application avoids service discovery, inter-service authentication, and distributed transaction orchestration. The Python sidecar runs as a separate process because PyTorch and .NET have incompatible runtime environments, but the sidecar exposes a narrow HTTP interface restricted to embedding generation. A GPU failure in the sidecar does not affect e-commerce API availability.
+
+- *Data consistency.* A single PostgreSQL instance hosts both relational product data and pgvector embeddings. Catalog updates and embedding index changes share the same transactional boundary, eliminating the class of stale-index bugs that arise when a vector store and relational database drift out of sync.
+
+- *Module boundaries.* Nine business modules (Catalog, Ordering, Payment, Inventory, Identity, Profile, Shipping, Location, Dashboard) are isolated by namespace convention within one assembly. Inter-module communication uses an in-process message bus. There are no direct cross-module references at compile time, preserving bounded-context independence without the operational cost of separate deployment units.
+
+// Diagram placeholder: Three architecture patterns side-by-side (Mermaid)
+// #figure(image("images/diagrams/arch-patterns.png", width: 90%), caption: [Monolith, modular monolith, and microservices compared.])
 
 == Related Work
 
