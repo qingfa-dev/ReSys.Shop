@@ -1,8 +1,8 @@
-= System Architecture & Design
+== System Architecture & Design
 
 This chapter presents the architectural design of ReSys.Shop, progressing from a high-level system overview through domain modelling, to the structural, data, API, and security layers. The design follows a service-oriented approach with three independently deployable services, a Vue 3 frontend, a .NET 10 modular monolith backend, and a Python machine learning sidecar, each responsible for a distinct technological concern. The chapter is organised into six sections, each accompanied by architectural diagrams that provide visual representations of the system's structure, behaviour, and deployment topology.
 
-== System Overview
+=== System Overview
 
 ReSys.Shop is built as a service-oriented system with three distinct services. The frontend is implemented in Vue 3 and TypeScript using the Vite build tool. The backend is a .NET 10 modular monolith using ASP.NET Core for HTTP handling, Entity Framework Core for data access, and Carter for minimal API endpoint registration. The machine learning service is a Python FastAPI application running PyTorch models that generates vector embeddings from product images for visual similarity search.
 
@@ -93,11 +93,11 @@ The backend is internally organised into eight bounded contexts following the pr
 
 The separation of concerns across these eight contexts enables independent evolution of each business domain while the modular monolith deployment model avoids the operational complexity of distributed microservices. The following section details the domain-driven design principles that govern these contexts.
 
-== Domain-Driven Design
+=== Domain-Driven Design
 
 The ReSys.Shop platform applies Domain-Driven Design (DDD) to structure its business logic around eight bounded contexts, each with well-defined aggregate roots, domain entities, and invariants. This section presents the context map, the aggregate design with invariants, the ubiquitous language glossary, and the state machines that govern the checkout and payment lifecycles.
 
-=== Bounded Context Map
+==== Bounded Context Map
 
 The eight bounded contexts partition the e-commerce domain along business capability boundaries. Each context owns its data, its domain logic, and its vocabulary, terms that are well-defined within a context may carry different meaning in another. For example, a Variant in the Catalog context is a sellable unit with a SKU and pricing; a LineItem in the Ordering context references that same variant but from the perspective of purchase fulfilment.
 
@@ -106,7 +106,7 @@ The integration between contexts follows the *Conformist* pattern: all contexts 
 Figure @fig-bounded-context-map depicts the eight contexts and the *Published Language*, the shared identifiers and value types, that flow between them.
 
 #figure(
-  image("../../images/diagrams/06-bounded-context-map.png", width: 100%),
+  image("../../../images/diagrams/06-bounded-context-map.png", width: 100%),
   caption: [Bounded Context Map showing the eight business contexts and the Published Language identifiers exchanged between them. All integration uses in-process MediatR dispatch; no context directly references another context's namespace.],
 ) <fig-bounded-context-map>
 
@@ -155,7 +155,7 @@ Table @tbl-context-responsibilities details each context's business responsibili
   caption: [Bounded context responsibilities and Published Language identifiers. The Published Language column lists the value types that other contexts may reference by identifier only, never by importing the source context's namespace.],
 ) <tbl-context-responsibilities>
 
-=== Aggregates and Invariants
+==== Aggregates and Invariants
 
 An aggregate is a cluster of domain objects treated as a single consistency boundary. Each aggregate has a root entity through which all modifications must pass. The root enforces invariants, business rules that must hold true at all times within the aggregate boundary. ReSys.Shop takes a pragmatic approach to DDD: it defines aggregate roots and their invariants explicitly but does not require formal value-object base classes or a dedicated domain-event infrastructure for every operation.
 
@@ -169,7 +169,7 @@ The four most architecturally significant aggregates are described below.
 
 *StockItem (Inventory aggregate root).* The StockItem aggregate tracks the physical availability of a product variant at a specific warehouse location. It maintains two quantities: on-hand (physical count from warehouse operations) and reserved (units held for active checkouts). The aggregate enforces the invariant that `QuantityOnHand ≥ 0`, stock cannot go negative. Backorder support allows sales beyond on-hand quantity up to a configured backorder limit, but the system tracks the deficit separately. Quantity changes are not performed directly on StockItem; instead, they must be recorded as StockMovement entries in an append-only ledger, preserving a complete and auditable history of every stock change, including the quantity before and after, the reason, and the operating user.
 
-=== Ubiquitous Language Glossary
+==== Ubiquitous Language Glossary
 
 A key practice in DDD is establishing a ubiquitous language, a shared vocabulary used by all team members and reflected directly in the codebase. Table @tbl-ubiquitous-language presents the core terms of the ReSys.Shop domain with their definitions.
 
@@ -236,16 +236,16 @@ A key practice in DDD is establishing a ubiquitous language, a shared vocabulary
   caption: [Ubiquitous Language Glossary: core domain terms, their owning bounded context, and their precise definitions as used throughout the codebase and this thesis.],
 ) <tbl-ubiquitous-language>
 
-=== State Machines
+==== State Machines
 
 Two explicit state machines govern the most critical transactional workflows in the system: the order checkout process and the payment intent lifecycle. Both are encoded in domain entities, validated before every state transition, and drive the sequence of user-facing and system-level actions.
 
-==== Order Checkout State Machine
+===== Order Checkout State Machine
 
 The order checkout state machine enforces a forward-only progression through five sequential states: Address, Delivery, Payment, Confirm, and Complete. Each state transition is triggered by a specific user action and validated by the domain entity before being committed. Figure @fig-order-state-machine depicts this lifecycle.
 
 #figure(
-  image("../../images/diagrams/08-order-state-machine.png", width: 80%),
+  image("../../../images/diagrams/08-order-state-machine.png", width: 80%),
   caption: [Order checkout state machine: five sequential states with cancellation available from any pre-confirmation state. The forward-only constraint prevents regressing to earlier checkout stages.],
 ) <fig-order-state-machine>
 
@@ -253,12 +253,12 @@ The customer begins by providing a shipping address (Address state), selects a d
 
 Once an order reaches the Complete state, it becomes finalised: the order record transitions to Pending status, inventory quantities are reserved for each line item, and the payment intent is processed. From this point forward, the order is immutable except for the cancel transition, which captures the cancellation timestamp and releases reserved inventory. This forward-only design ensures that at every stage of the checkout pipeline, the system can unambiguously determine the customer's position and the next required action.
 
-==== Payment Intent State Machine
+===== Payment Intent State Machine
 
 The payment intent state machine models the full lifecycle of a payment from creation through to terminal completion, reflecting the state transitions of the Stripe payment gateway while maintaining a parallel system-managed state for offline consistency. Figure @fig-payment-state-machine shows all states and transitions.
 
 #figure(
-  image("../../images/diagrams/09-payment-state-machine.png", width: 80%),
+  image("../../../images/diagrams/09-payment-state-machine.png", width: 80%),
   caption: [Payment intent lifecycle: the state machine reflects Stripe gateway states while maintaining a parallel system copy for offline operations and Bogus gateway compatibility. Terminal states are Failed, Canceled, and Refunded.],
 ) <fig-payment-state-machine>
 
@@ -268,16 +268,16 @@ From Processing, a successful charge transitions the intent to Succeeded, while 
 
 The system maintains its own copy of the payment state in parallel with the gateway's representation. This design decision serves two purposes. First, it enables the Bogus test gateway, a development-only implementation that simulates payment lifecycles without external calls, to operate against the same domain entities as the production Stripe gateway. Second, it allows the system to reason about payment state offline without querying the gateway API, which improves resilience during network interruptions and reduces external dependency during business operations.
 
-== C4 Architecture
+=== C4 Architecture
 
 The C4 model provides a structured approach to describing software architecture at four levels of abstraction: system context, container, component, and code. This section presents the first three levels for ReSys.Shop, omitting the code-level view as it falls within the scope of the implementation chapter. A deployment diagram complements the C4 views by showing the physical infrastructure.
 
-=== System Context
+==== System Context
 
 The system context diagram positions ReSys.Shop within its environment, showing the human users who interact with the platform and the external systems on which it depends. Figure @fig-c4-context presents this highest-level view.
 
 #figure(
-  image("../../images/diagrams/03-c4-context.png", width: 100%),
+  image("../../../images/diagrams/03-c4-context.png", width: 100%),
   caption: [System Context diagram: ReSys.Shop as a single system boundary with customer and administrator users on one side and external payment, email, storage, identity, and ML services on the other. The modular monolith internally handles all eight business domains within one boundary.],
 ) <fig-c4-context>
 
@@ -285,12 +285,12 @@ Two categories of human users interact with the platform. Customers browse the p
 
 The system depends on five external services. Stripe processes payment intents and sends webhook notifications when payment events occur, the backend validates these webhooks using Stripe's signature verification before acting on them. SendGrid delivers transactional emails such as order confirmations, password reset links, and shipping notifications. An S3-compatible object store persists product images uploaded through the admin interface. Google OAuth provides an alternative authentication path, allowing customers to sign in using their Google credentials. The Python ML Sidecar, deployed as a companion service within the Aspire orchestration boundary, generates image embeddings used by the catalogue's visual search feature.
 
-=== Container
+==== Container
 
 The container diagram decomposes ReSys.Shop into its deployable units, the processes and data stores that together constitute the running system. Figure @fig-c4-container presents this view.
 
 #figure(
-  image("../../images/diagrams/04-c4-container.png", width: 100%),
+  image("../../../images/diagrams/04-c4-container.png", width: 100%),
   caption: [Container diagram showing the deployable units of ReSys.Shop: two Vue 3 SPAs, the .NET 10 API backend, the Python ML sidecar, PostgreSQL with pgvector, and Redis. Arrows indicate communication protocols between containers.],
 ) <fig-c4-container>
 
@@ -300,12 +300,12 @@ Two persistent data stores support the platform. PostgreSQL 17 with the pgvector
 
 The communication topology reflects deliberate design constraints. The Vue SPAs call the backend synchronously over HTTPS, never directly accessing the database or external services, which ensures all security policies and data validation are enforced server-side. The backend communicates with PostgreSQL and Redis over internal TCP connections, with the ML sidecar over HTTP on the internal Docker network, and with external services over HTTPS. This design centralises all external integration through the backend container, simplifying security management and operational monitoring.
 
-=== Component
+==== Component
 
 The component diagram zooms into the API Backend container, revealing its internal structure: the modules, framework services, and cross-cutting concerns that compose the .NET application. Figure @fig-c4-component presents this view.
 
 #figure(
-  image("../../images/diagrams/05-c4-component.png", width: 100%),
+  image("../../../images/diagrams/05-c4-component.png", width: 100%),
   caption: [Component diagram of the API Backend showing the Carter endpoint layer, the MediatR pipeline, the feature handlers, and eight supporting infrastructure components. The Python ML Sidecar is shown with its internal three-layer architecture alongside.],
 ) <fig-c4-component>
 
@@ -324,12 +324,12 @@ The MediatR pipeline wraps every request with a chain of behaviours: logging cap
 
 The Python ML Sidecar follows a three-layer architecture: the FastAPI router handles HTTP request validation and API key authentication, the Embedding Service maintains a singleton model registry with lazy loading and caching, and the model implementations, Fashion-CLIP, ResNet-50, EfficientNet-B0, and generic CLIP, implement a common strategy interface for interchangeable inference backends.
 
-=== Deployment
+==== Deployment
 
 The deployment diagram illustrates how the containers map to physical or virtual infrastructure in a production configuration. Figure @fig-deployment shows the deployment topology.
 
 #figure(
-  image("../../images/diagrams/10-deployment.png", width: 100%),
+  image("../../../images/diagrams/10-deployment.png", width: 100%),
   caption: [Deployment diagram showing containerised services within an Aspire orchestration boundary. The API backend is horizontally scalable; the embedding sidecar is stateless; Redis enables distributed state across API replicas.],
 ) <fig-deployment>
 
@@ -339,11 +339,11 @@ The API backend is horizontally scalable, multiple container instances share Pos
 
 PostgreSQL is configured with a primary instance for writes and one or more read replicas for reporting and analytical queries. The pgvector extension is installed on both primary and replicas, enabling vector similarity search from any read path. External services, Stripe, SendGrid, S3 storage, and Google OAuth, are accessed over HTTPS from every API instance, with credentials managed through Aspire's configuration system and never baked into container images.
 
-== Database Design
+=== Database Design
 
 The ReSys.Shop database is a single PostgreSQL 17 instance organised into per-context schemas, each owned by a bounded context and managed through Entity Framework Core migrations. This section describes the schema organisation, the core entity-relationship model, the pgvector integration for visual search, and the key design decisions that shape the data layer.
 
-=== Schema Organisation
+==== Schema Organisation
 
 Each of the eight bounded contexts owns its database schema. The Catalog context manages tables for products, variants, variant images, option types, option values, taxonomies, and taxons. The Ordering context owns orders, line items, adjustments, shipments, and inventory units. The Payment context holds payment intents, payment captures, and payment logs. The Inventory context manages stock locations, stock items, stock movements, and stock reservations. The Identity context, built on ASP.NET Identity Core, manages users, roles, user roles, refresh tokens, and external login providers. The Profile context owns user addresses, wishlists, and notification preferences. The Shipping context manages shipping methods, shipping rates, and shipping zones. The Location context provides country and state reference tables.
 
@@ -351,12 +351,12 @@ Cross-context relationships are implemented through identifier references only, 
 
 Entity Framework Core manages all migrations from a dedicated Migrations assembly. Each migration is generated by comparing the current database state against the domain entity model, and migrations are applied as part of the application startup or through standalone migration scripts for production deployments.
 
-=== Core Entity-Relationship Model
+==== Core Entity-Relationship Model
 
 Figure @fig-erd-core presents the entity-relationship diagram for the core business entities across the Catalog and Ordering domains, the two contexts that participate most directly in the visual search and checkout workflows.
 
 #figure(
-  image("../../images/diagrams/07-erd-core.png", width: 100%),
+  image("../../../images/diagrams/07-erd-core.png", width: 100%),
   caption: [Core entity-relationship diagram showing the primary domain entities and their relationships across the Catalog and Ordering bounded contexts. Soft deletion, audit columns, and GUID primary keys are used throughout.],
 ) <fig-erd-core>
 
@@ -364,7 +364,7 @@ The Catalog domain centres on the Product entity, which has a one-to-many relati
 
 The Ordering domain centres on the Order entity, which has a one-to-many relationship with LineItem. Each line item references a specific variant, not a product directly, because customers purchase specific configurations. The line item captures a price snapshot at the time of purchase, ensuring that historical orders are unaffected by catalogue price changes. Orders are related to users through a UserId reference, optionally nullable to support guest checkout, and track a session identifier for mapping anonymous carts before authentication.
 
-=== pgvector Integration
+==== pgvector Integration
 
 PostgreSQL's pgvector extension enables vector similarity search directly within the relational database, eliminating the need for a separate vector database. The `variant_images` table contains an `embedding` column of type `vector(512)`, a fixed-length array of 512 IEEE 754 single-precision floating-point numbers representing the visual features extracted from the image by the ML sidecar.
 
@@ -372,9 +372,9 @@ An HNSW (Hierarchical Navigable Small World) index is created on the embedding c
 
 Vector similarity queries use the cosine distance operator (`<=>`), which computes the angular distance between two vectors. A representative conceptual query pattern is: retrieve all variant images, compute the cosine distance between each stored embedding and the query embedding, order by ascending distance, and return the top results. The system filters results by a configurable minimum similarity threshold, computed as 1 - cosine_distance, defaulting to 0.7, a level at which fashion images typically exhibit perceptible visual similarity.
 
-Each embedding row includes a `model_name` column identifying which ML model generated the vector. This metadata enables per-model filtered queries: when the system switches the active embedding model, only embeddings from that model's columns participate in similarity search, preventing cross-model vector comparisons that would produce meaningless results. The model name also supports the benchmark evaluation in Chapter 6, where multiple models are compared against the same image corpus.
+Each embedding row includes a `model_name` column identifying which ML model generated the vector. This metadata enables per-model filtered queries: when the system switches the active embedding model, only embeddings from that model's columns participate in similarity search, preventing cross-model vector comparisons that would produce meaningless results. The model name also supports the benchmark evaluation in Chapter 3, where multiple models are compared against the same image corpus.
 
-=== Key Design Decisions
+==== Key Design Decisions
 
 Several design decisions govern the database layer and influence every bounded context:
 
@@ -388,7 +388,7 @@ Several design decisions govern the database layer and influence every bounded c
 
 *Variable Vector Dimensions.* Different embedding models produce vectors of different dimensionalities: 384 for DINOv2-S, 512 for Fashion-CLIP and CLIP, 768 for DINOv2-B, 1280 for EfficientNet-B0, and 2048 for ResNet-50. PostgreSQL's `vector` type supports this variability, the dimension is part of the column type declaration, and HNSW indexes are built per-dimension. The system stores embeddings from all models in separate rows, each tagged with the model name, and queries against the active model's dimension only.
 
-=== Per-Context Schema Description
+==== Per-Context Schema Description
 
 The Identity context stores user accounts with Argon2-hashed passwords, security stamps for session invalidation, and refresh tokens with one-time-use semantics. Role and UserRole tables implement RBAC, while UserLogin records link local accounts to external OAuth providers. UserAddresses store shipping and billing locations with ISO country codes.
 
@@ -398,11 +398,11 @@ The Ordering context stores financial values as decimal with 18-digit precision 
 
 The Inventory context tracks stock items at a variant-location granularity, with `QuantityOnHand` and `QuantityReserved` maintained as separate counters and protected by optimistic concurrency control using PostgreSQL's `xmin` system column. StockMovements form an immutable ledger, every quantity change, whether from receiving, selling, returning, or stock-taking, is recorded with the delta, balances before and after, unit cost, and an external reference such as an order number or purchase order identifier.
 
-== API Design
+=== API Design
 
 The ReSys.Shop API exposes a RESTful interface built on Carter minimal APIs and organised around the MediatR CQRS pattern. This section describes the API architecture, the endpoint organisation scheme, and a summary of the key endpoints that define the platform's external contract.
 
-=== API Architecture
+==== API Architecture
 
 The API layer acts as a thin orchestration boundary. It contains no business logic; instead, it delegates all processing to the MediatR pipeline. Each request follows a consistent path: the Carter endpoint receives the HTTP request, extracts route and body parameters, constructs a MediatR command or query object, dispatches it through `ISender`, and maps the returned `Result<T>` to an HTTP response. This design keeps endpoints concise, typically six to twelve lines, and concentrates all domain logic in the handler layer, where it is testable without HTTP infrastructure.
 
@@ -410,7 +410,7 @@ Carter modules group related endpoints by module and surface. Each module (Catal
 
 FluentValidation provides input validation through validator classes associated with each command and query. Validators run automatically as part of the MediatR pipeline behaviour, before the handler executes, ensuring that handlers never receive invalid input. Validation failures return standardised `400 Bad Request` responses with field-level error details.
 
-=== Endpoint Organisation
+==== Endpoint Organisation
 
 Endpoints are organised by two dimensions: the business module that owns the operation, and the surface, Admin or Storefront, that serves as the entry point. The URL pattern follows the convention `/api/{module}/{surface}/{action}`, where module identifies the owning bounded context, surface distinguishes administrative from customer-facing operations, and action names the specific operation.
 
@@ -455,11 +455,11 @@ Table @tbl-key-endpoints summarises the most architecturally significant endpoin
 
 The admin surface provides full CRUD operations on all module entities, products, variants, orders, inventory, users, shipping methods, and location data, following the same URL pattern with the Admin surface prefix. These endpoints are excluded from the table to maintain focus on the core platform capabilities, but they follow identical architectural patterns: minimal API route groups, MediatR dispatch, FluentValidation, and permission-based authorisation.
 
-== Security Design
+=== Security Design
 
 The security architecture of ReSys.Shop addresses three layers: authentication, verifying the identity of callers, authorisation, controlling what authenticated callers may do, and hardening, defensive measures against common attack vectors. This section describes each layer in turn.
 
-=== Authentication
+==== Authentication
 
 The platform uses JSON Web Tokens (JWT) for bearer token authentication. Upon successful login, via email and password or Google OAuth, the server issues two tokens: an access token with a fifteen-minute lifetime and a refresh token with a longer lifetime. The access token carries the user's identifier, email, and permission claims in a compact signed payload. All authenticated API requests include the access token in the `Authorization` header as a Bearer token.
 
@@ -467,7 +467,7 @@ The refresh token is a long-lived credential stored server-side in the database.
 
 Guest users, customers who have not yet authenticated, are assigned a session identifier stored in a browser cookie. This session identifier links their anonymous cart to their browsing context and persists across page navigations. Upon registration or login, the anonymous cart is merged with the authenticated user's cart, preserving the shopping intent built during the guest session.
 
-=== Authorisation
+==== Authorisation
 
 Authorisation is implemented through two complementary mechanisms: role-based access control (RBAC) for broad category restrictions and permission-based claims for fine-grained control.
 
@@ -475,7 +475,7 @@ Roles, such as Customer and Administrator, segregate the Admin and Storefront su
 
 Permissions use a structured claim format: `{domain}:{category}:{action}`. For example, `catalog:products:create` grants permission to create products in the Catalog domain. A dynamic permission provider, `IAuthorizationPolicyProvider`, resolves these claim strings to ASP.NET Core authorisation policies at runtime, eliminating the need for static policy registration for every endpoint. This dynamic resolution enables permission configuration through the database without redeployment: an administrator may create a new role, assign it a set of permission claims, and those permissions take effect across all authorised endpoints immediately.
 
-=== Security Measures
+==== Security Measures
 
 Several defensive measures harden the platform against common web application attack vectors.
 
@@ -487,10 +487,10 @@ Several defensive measures harden the platform against common web application at
 
 *Payment Webhook Verification.* The Stripe webhook endpoint, which receives payment event notifications, validates each incoming request using Stripe's signature verification algorithm. The webhook payload is hashed with a shared signing secret; if the computed signature does not match the one provided in the Stripe-Signature header, the request is discarded before any business logic processes it. This verification prevents spoofed webhook payloads from injecting fraudulent payment state into the system.
 
-=== Token Flow
+==== Token Flow
 
 The authentication token lifecycle operates as follows. A client authenticates with email and password, receiving an access token and a refresh token. The access token is short-lived and not stored server-side; it is validated by signature verification and expiration check on each request. When the access token expires, the client sends the refresh token to the refresh endpoint. The server validates the refresh token against the database: if it is valid and has not been used before, the server marks it as consumed, issues a new access token and a new refresh token, and returns both to the client. If the presented refresh token has already been consumed, flagged as used from a previous rotation, the server assumes token theft and revokes all refresh tokens associated with that user, logging the security event. The user must then re-authenticate, which invalidates the compromised token chain and issues fresh credentials. This model provides a self-healing defence against refresh token interception without requiring the user to detect or report the compromise.
 
-== Summary
+=== Summary
 
-This chapter has presented the architectural design of ReSys.Shop across six dimensions. The service-oriented system architecture separates presentation (Vue 3), business logic (.NET 10), and machine learning (Python sidecar) into independently deployable services. Domain-Driven Design partitions the business domain into eight bounded contexts communicating through MediatR in-process dispatch, with four architecturally significant aggregate roots enforcing explicit invariants. The C4 model describes the system at context, container, and component levels of abstraction, revealing the communication paths between deployable units and the internal composition of the .NET backend. The PostgreSQL database uses per-context schemas, pgvector for vector similarity search, and a set of consistent design decisions, GUIDs, soft deletion, audit columns, applied across all contexts. The API layer follows the URL convention `/api/{module}/{surface}/{action}` with Carter minimal APIs and MediatR CQRS. The security architecture covers JWT authentication with refresh token rotation, permission-based authorisation with dynamic policy resolution, and layered defensive measures against common attack vectors. Together, these architectural decisions provide the foundation on which the implementation described in the following chapter is built.
+This section has presented the architectural design of ReSys.Shop across six dimensions. The service-oriented system architecture separates presentation (Vue 3), business logic (.NET 10), and machine learning (Python sidecar) into independently deployable services. Domain-Driven Design partitions the business domain into eight bounded contexts communicating through MediatR in-process dispatch, with four architecturally significant aggregate roots enforcing explicit invariants. The C4 model describes the system at context, container, and component levels of abstraction, revealing the communication paths between deployable units and the internal composition of the .NET backend. The PostgreSQL database uses per-context schemas, pgvector for vector similarity search, and a set of consistent design decisions, GUIDs, soft deletion, audit columns, applied across all contexts. The API layer follows the URL convention `/api/{module}/{surface}/{action}` with Carter minimal APIs and MediatR CQRS. The security architecture covers JWT authentication with refresh token rotation, permission-based authorisation with dynamic policy resolution, and layered defensive measures against common attack vectors. Together, these architectural decisions provide the foundation on which the implementation described in the following section is built.
