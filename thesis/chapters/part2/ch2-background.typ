@@ -223,9 +223,9 @@ This project distinguishes itself from prior work by addressing the *engineering
 
 *4. Applied model comparison.* Rather than chasing leaderboard metrics, this thesis compares models within realistic deployment constraints (inference latency budget, memory limits, storage cost). The resulting accuracy-efficiency trade-off data, presented in Chapter 5, provides a pragmatic guide for practitioners selecting embedding models.
 
-== Technology Stack
+== Technology Stack Summary
 
-The preceding sections introduced individual technologies in context: pgvector as the vector storage layer, PyTorch and FastAPI within the machine learning sidecar, and the modular monolith as the architectural backbone of the .NET backend. Table @tbl-tech-stack consolidates the complete technology stack, mapping each component to its role in the platform.
+The preceding sections introduced the principal technologies that compose the ReSys.Shop platform. Table @tbl-tech-stack consolidates the complete stack.
 
 #figure(
   table(
@@ -244,4 +244,36 @@ The preceding sections introduced individual technologies in context: pgvector a
   caption: [Technology stack of the ReSys.Shop platform],
 ) <tbl-tech-stack>
 
-Together these technologies form a polyglot stack spanning three languages (C\#, TypeScript, Python) orchestrated through a unified containerised environment. The .NET backend hosts transactional e-commerce logic; Vue 3 delivers the customer-facing interface; PostgreSQL serves as the single source of truth for both business data and embeddings; and the Python sidecar provides the bridge to GPU-accelerated model inference.
+Together these technologies form a polyglot stack spanning three languages (C\#, TypeScript, Python) orchestrated through a unified containerised environment.
+
+== .NET Backend
+
+The backend is built on .NET 10, a high-performance runtime with ahead-of-time compilation and native asynchronous I/O. The API layer uses *Carter*, a library that extends ASP.NET minimal APIs with module-based endpoint registration, allowing each business module to declare its own routes independently. *MediatR* implements the CQRS pattern, routing commands and queries to handlers without direct coupling between modules. *Entity Framework Core* provides object-relational mapping to PostgreSQL, including pgvector integration for vector column types. *FluentValidation* enforces input rules at the application boundary before any handler executes.
+
+== Vue.js Frontend
+
+The frontend uses Vue 3 with TypeScript and the Vite build tool. Vue's reactive component model maps naturally to the storefront interface (product grids, search results, cart management) and the admin panel (CRUD forms, data tables, dashboards). *Pinia* manages client-side state across both surfaces. The storefront implements image upload with drag-and-drop via the browser File API, preview thumbnails rendered from blob URLs, and search result grids with lazy loading.
+
+== PostgreSQL and pgvector
+
+PostgreSQL 17 serves as the single data store for both relational business data and vector embeddings. The *pgvector* extension adds a vector column type with HNSW-indexed ANN search using cosine distance. A single ACID database means product updates, image replacements, and embedding index maintenance occur within the same transaction, eliminating stale-index risks. Composite indexes on query-critical column combinations (user status, session status, product slug) optimise the most frequent access patterns.
+
+== Redis Caching
+
+Redis 7 provides a two-tier cache alongside the .NET *HybridCache* abstraction. A fast in-process L1 cache serves repeated reads with sub-millisecond latency. Redis acts as the shared L2 layer, synchronised across application instances, and also backs Hangfire job queues and guest session state. Hot catalog data (taxonomy trees, front-page product lists) is cached at both tiers with configurable expiry.
+
+== Python ML Sidecar
+
+The machine learning sidecar is a separate Python 3.12 service built with *FastAPI*, an async web framework with automatic OpenAPI documentation. *PyTorch* loads and executes pre-trained embedding models. Models are managed by a singleton *ModelManager* that lazy-loads on first use and caches weights in GPU or CPU memory thereafter. The service exposes a narrow interface: `POST /embeddings` accepts image bytes and returns a JSON float array, `GET /health` reports model status and last inference latency. API key authentication protects the sidecar from unauthorised access.
+
+== .NET Aspire Orchestration
+
+*.NET Aspire* manages the multi-container development environment. It handles service discovery (the .NET backend reaches the Python sidecar at `http://ml-service`), container lifecycle (startup ordering, health check gating), and telemetry export. OpenTelemetry traces, metrics, and structured logs from both .NET and Python services are collected and exported through the Aspire dashboard. The orchestration model enables the entire platform to start from a single `dotnet run` command.
+
+== Hangfire Background Jobs
+
+*Hangfire* processes background work that should not block HTTP requests: cart expiry after seven days of inactivity, embedding generation queued separately from image upload, and periodic index maintenance. Jobs are persisted in Redis, surviving application restarts. The cart expiry job runs on a daily schedule; embedding generation jobs are enqueued immediately when new product images are uploaded and processed by the next available worker.
+
+== JWT Authentication
+
+*ASP.NET Identity* manages user accounts with password hashing, email confirmation, and two-factor support. *JWT* access tokens with a 15-minute lifetime secure API requests; refresh tokens with rotation and reuse detection allow silent renewal without forcing frequent re-login. A *permission-based authorisation* model augments role checks with granular claims (e.g., `catalog:products:create`), enabling fine-grained access control at the endpoint level. Guest sessions, backed by signed cookies, allow anonymous users to browse and add items to a cart before authentication.
