@@ -8,16 +8,16 @@
   This appendix provides supplementary material for the benchmark evaluation presented in Chapter 6. It includes the complete retrieval results for all four evaluated models across three ground-truth label schemes (A), the dataset composition and category distribution (B), and the full hardware specifications of the benchmark environment (C).
 ]
 
-= Appendix A — Full Benchmark Results <appendix-a>
+= Appendix A, Full Benchmark Results <appendix-a>
 
-This appendix presents the complete retrieval accuracy and operational efficiency results from the 3-fold cross-validation benchmark described in Chapter 6, Section 6.2. Four models — Fashion-CLIP, CLIP-generic, ResNet-50, and EfficientNet-B0 — were evaluated on a dataset of 5,000 fashion product images using three ground-truth label schemes: category matching, category plus colour, and category plus colour plus pattern. Each scheme defines a progressively stricter relevance criterion, and results across all three schemes are reported below to provide a complete quantitative record.
+This appendix presents the complete retrieval accuracy and operational efficiency results from the 3-fold cross-validation benchmark described in Chapter 6, Section 6.2. Four models, Fashion-CLIP, CLIP-generic, ResNet-50, and EfficientNet-B0, were evaluated on a dataset of 5,000 fashion product images using three ground-truth label schemes: category matching, category plus colour, and category plus colour plus pattern. Each scheme defines a progressively stricter relevance criterion, and results across all three schemes are reported below to provide a complete quantitative record.
 
 == A.1 Category-Only Ground Truth (5 Categories)
 
 Under the category-only label scheme, a retrieved product is considered relevant if it belongs to the same master category (Apparel, Accessories, Footwear, Personal Care, Sporting Goods) as the query image. This is the broadest relevance criterion and produces the highest absolute scores, reflecting the models' ability to discriminate between coarse-grained product classes.
 
 #figure(
-  caption: [Retrieval Accuracy — Category-Only Ground Truth (3-Fold CV, Mean ± SD)],
+  caption: [Retrieval Accuracy, Category-Only Ground Truth (3-Fold CV, Mean ± SD)],
   table(
     columns: 8,
     align: (left,) + (center,) * 7,
@@ -33,14 +33,14 @@ Under the category-only label scheme, a retrieved product is considered relevant
   kind: table,
 )
 
-Under this broadest criterion, all four models achieve high precision (above 0.90 at P\@10). Fashion-CLIP leads with mAP of 0.9309, followed by CLIP-generic (0.9115). The low recall values (R\@20 of 0.07--0.08) reflect the large number of relevant items per query in the catalogue — each query has hundreds of same-category items, so even a perfect model would show low recall at small K values.
+Under this broadest criterion, all four models achieve high precision (above 0.90 at P\@10). Fashion-CLIP leads with mAP of 0.9309, followed by CLIP-generic (0.9115). The low recall values (R\@20 of 0.07--0.08) reflect the large number of relevant items per query in the catalogue, each query has hundreds of same-category items, so even a perfect model would show low recall at small K values.
 
 == A.2 Category + Colour Ground Truth
 
 Under the category plus colour label scheme, a retrieved product is relevant only if it matches the query's master category and base colour. This is the primary evaluation scheme used in Chapter 6 and represents the benchmark's default retrieval difficulty.
 
 #figure(
-  caption: [Retrieval Accuracy — Category + Colour Ground Truth (3-Fold CV, Mean ± SD)],
+  caption: [Retrieval Accuracy, Category + Colour Ground Truth (3-Fold CV, Mean ± SD)],
   table(
     columns: 8,
     align: (left,) + (center,) * 7,
@@ -56,14 +56,14 @@ Under the category plus colour label scheme, a retrieved product is relevant onl
   kind: table,
 )
 
-Under this stricter label scheme, absolute mAP drops to the 0.20--0.25 range. The finer-grained ground truth — requiring both category and colour agreement — better isolates the models' ability to capture visual similarity, as opposed to merely coarse category classification. Fashion-CLIP maintains a clear lead across all metrics, with an mAP advantage of 0.0146 over CLIP-generic and 0.0363 over ResNet-50. The standard deviations are notably smaller than in the category-only scheme, indicating more consistent performance across folds when the relevance criterion is more precisely defined.
+Under this stricter label scheme, absolute mAP drops to the 0.20--0.25 range. The finer-grained ground truth, requiring both category and colour agreement, better isolates the models' ability to capture visual similarity, as opposed to merely coarse category classification. Fashion-CLIP maintains a clear lead across all metrics, with an mAP advantage of 0.0146 over CLIP-generic and 0.0363 over ResNet-50. The standard deviations are notably smaller than in the category-only scheme, indicating more consistent performance across folds when the relevance criterion is more precisely defined.
 
 == A.3 Category + Colour + Pattern Ground Truth
 
 Under the strictest label scheme, a retrieved product must match the query's master category, base colour, and pattern attribute (e.g., Solid, Striped, Checked, Floral). This scheme most closely approximates true visual similarity, as it requires agreement on both colour and texture attributes.
 
 #figure(
-  caption: [Retrieval Accuracy — Category + Colour + Pattern Ground Truth (3-Fold CV, Mean ± SD)],
+  caption: [Retrieval Accuracy, Category + Colour + Pattern Ground Truth (3-Fold CV, Mean ± SD)],
   table(
     columns: 8,
     align: (left,) + (center,) * 7,
@@ -84,7 +84,7 @@ The pattern-constrained scheme produces the lowest absolute scores (mAP 0.19--0.
 == A.4 Operational Efficiency (3-Fold CV)
 
 #figure(
-  caption: [Operational Efficiency — All Models (3-Fold CV, Mean ± SD)],
+  caption: [Operational Efficiency, All Models (3-Fold CV, Mean ± SD)],
   table(
     columns: 7,
     align: (left,) + (center,) * 6,
@@ -107,7 +107,7 @@ EfficientNet-B0 achieves the lowest inference latency (37.8 ms) and highest thro
 The per-fold results for the primary evaluation scheme (category plus colour) are presented below to provide transparency on the cross-validation procedure and to permit independent verification of aggregate statistics.
 
 #figure(
-  caption: [Per-Fold Breakdown — Category + Colour Ground Truth],
+  caption: [Per-Fold Breakdown, Category + Colour Ground Truth],
   table(
     columns: 5,
     align: (left,) + (center,) * 4,
@@ -125,7 +125,7 @@ The per-fold results for the primary evaluation scheme (category plus colour) ar
 
 All models exhibit low fold-to-fold variability (standard deviation 0.0039--0.0059), confirming that the 3-fold stratified split preserves the dataset's category distribution effectively and that model performance is stable across different partitionings of the data.
 
-= Appendix B — Dataset Composition <appendix-b>
+= Appendix B, Dataset Composition <appendix-b>
 
 This appendix details the composition of the benchmark dataset used in the evaluation presented in Chapter 6.
 
@@ -179,7 +179,7 @@ All images were preprocessed uniformly before embedding generation, regardless o
 - *Colour space:* Images were maintained in RGB colour space. No grayscale conversion or colour augmentation was applied.
 - *Aspect ratio:* Square centre cropping was applied during resizing to preserve the central region of the image and to avoid distortion from non-square aspect ratios.
 
-= Appendix C — Hardware Specifications <appendix-c>
+= Appendix C, Hardware Specifications <appendix-c>
 
 All benchmark results reported in Chapter 6 and Appendix A were collected on a single workstation. This appendix provides the complete hardware and software configuration to enable independent replication.
 
@@ -228,7 +228,7 @@ The RTX 4090 GPU provides 24 GB of video memory, sufficient to hold all evaluate
   kind: table,
 ) <tbl-appendix-software>
 
-All models were loaded from pre-trained weights hosted on the HuggingFace Model Hub or PyTorch Hub. Model weights were cached locally in `~/.cache/huggingface/` and `~/.cache/torch/` after the first download. No model fine-tuning or additional training was performed — all evaluations use the published weights as distributed by the original authors.
+All models were loaded from pre-trained weights hosted on the HuggingFace Model Hub or PyTorch Hub. Model weights were cached locally in `~/.cache/huggingface/` and `~/.cache/torch/` after the first download. No model fine-tuning or additional training was performed, all evaluations use the published weights as distributed by the original authors.
 
 == C.3 Precision and Determinism Settings
 
