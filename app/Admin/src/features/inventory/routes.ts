@@ -21,7 +21,7 @@ export const inventoryRoutes: RouteRecordRaw = {
     },
     {
       path: 'stocks',
-      name: 'inventory.stocks.list',
+      name: ROUTE.STOCKS.LIST,
       component: () => import('@/features/inventory/pages/StockListPage.vue'),
     },
     {
@@ -65,7 +65,7 @@ export const inventoryRoutes: RouteRecordRaw = {
     },
     {
       path: 'movements',
-      name: 'inventory.movements.list',
+      name: ROUTE.MOVEMENTS.LIST,
       component: () => import('@/features/inventory/pages/MovementListPage.vue'),
     },
     {

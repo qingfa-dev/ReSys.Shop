@@ -43,10 +43,6 @@ const recentMovements = computed(() =>
   })) ?? [],
 )
 
-function directionSeverity(dir: string): 'success' | 'danger' {
-  return dir === 'In' ? 'success' : 'danger'
-}
-
 async function fetchDashboard() {
   loading.value = true
   error.value = null
