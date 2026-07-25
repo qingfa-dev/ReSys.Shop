@@ -6,6 +6,7 @@ using Module.Catalog.Features.Admin.Taxonomies.Taxons.Services.AutoClassificatio
 using Module.Catalog.Features.Admin.Taxonomies.Taxons.Services.AutoClassification.Abstractions;
 using Module.Catalog.Features.Admin.Taxonomies.Taxons.Services.Hierarchy;
 using Module.Catalog.Features.Admin.Taxonomies.Taxons.Services.Hierarchy.Abstractions;
+using Module.Catalog.Features.Storefront.Products.Shared.Services;
 using Module.Catalog.Persistence.Seeders;
 
 namespace Module.Catalog;
@@ -35,6 +36,7 @@ public static class CatalogExtensions
         builder.AddSeeder<CatalogEmbeddingSeeder>();
 
         builder.Services.AddScoped<Module.Catalog.Persistence.Seeders.DemoJsonHelper>();
+        builder.Services.AddVectorSearchService();
 
         return builder;
     }

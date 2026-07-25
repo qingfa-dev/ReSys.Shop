@@ -1,6 +1,13 @@
+using Microsoft.EntityFrameworkCore;
+
 using Module.Catalog.Domain.Products;
 using Module.Catalog.Domain.Products.Variants;
+using Module.Catalog.Domain.Products.Variants.Images;
+using Module.Catalog.Domain.Products.Variants.Images.Embeddings;
 using Module.Catalog.Features.Storefront.Products.Get.Similar;
+using Module.Catalog.Features.Storefront.Products.Shared.Services;
+
+using Pgvector;
 
 namespace Module.UnitTests.Catalog.Features.Storefront.Products.Get.Similar;
 
@@ -21,7 +28,8 @@ public class GetSimilarProductsTests : IDisposable
         ApplicationDbContext.AdditionalConfigurationsAssemblies = [typeof(Variant).Assembly];
         _dbContext = new ApplicationDbContext(options);
 
-        _handler = new GetSimilarProducts.QueryHandler(_dbContext);
+        var vectorSearchService = new VectorSearchService(_dbContext);
+        _handler = new GetSimilarProducts.QueryHandler(_dbContext, vectorSearchService);
     }
 
     public void Dispose()
@@ -62,5 +70,88 @@ public class GetSimilarProductsTests : IDisposable
         // Assert: No embedding -> returns empty
         result.IsSuccess.Should().BeTrue();
         result.Value.Items.Should().BeEmpty();
+    }
+
+    [Fact(DisplayName = "Handler: Should return similar products when embeddings exist")]
+    public async Task Handle_ShouldReturnSimilarProducts_WhenEmbeddingsExist()
+    {
+        // Arrange: Seed source variant with an embedding
+        var sourceProduct = new Product { Name = "Source Product", Slug = "source-product" };
+        _dbContext.Set<Product>().Add(sourceProduct);
+        await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
+
+        var sourceVariant = new Variant { ProductId = sourceProduct.Id, Sku = "SRC-001" };
+        _dbContext.Set<Variant>().Add(sourceVariant);
+        await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
+
+        var sourceImage = new VariantImage
+        {
+            VariantId = sourceVariant.Id,
+            Type = VariantImageType.Default,
+            Url = "http://test.img/src.jpg",
+            ContentType = "image/jpeg",
+            FileName = "src.jpg",
+            FileSize = 1024,
+            Position = 0
+        };
+        _dbContext.Set<VariantImage>().Add(sourceImage);
+        await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
+
+        var sourceVectorData = Enumerable.Repeat(0.1f, 384).ToArray();
+        var sourceEmbedding = new ImageEmbedding
+        {
+            Id = Guid.NewGuid(),
+            VariantImageId = sourceImage.Id,
+            ModelName = "dinov2_vits14",
+            ModelVersion = "1.0",
+            Vector = new Vector(sourceVectorData),
+            Dimensions = 384
+        };
+        _dbContext.Set<ImageEmbedding>().Add(sourceEmbedding);
+
+        // Arrange: Seed a similar variant with the same vector (zero cosine distance)
+        var similarProduct = new Product { Name = "Similar Product", Slug = "similar-product" };
+        _dbContext.Set<Product>().Add(similarProduct);
+        await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
+
+        var similarVariant = new Variant { ProductId = similarProduct.Id, Sku = "SIM-001", Price = 19.99m };
+        _dbContext.Set<Variant>().Add(similarVariant);
+        await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
+
+        var similarImage = new VariantImage
+        {
+            VariantId = similarVariant.Id,
+            Type = VariantImageType.Default,
+            Url = "http://test.img/sim.jpg",
+            ContentType = "image/jpeg",
+            FileName = "sim.jpg",
+            FileSize = 1024,
+            Position = 0
+        };
+        _dbContext.Set<VariantImage>().Add(similarImage);
+        await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
+
+        var similarEmbedding = new ImageEmbedding
+        {
+            Id = Guid.NewGuid(),
+            VariantImageId = similarImage.Id,
+            ModelName = "dinov2_vits14",
+            ModelVersion = "1.0",
+            Vector = new Vector(sourceVectorData),
+            Dimensions = 384
+        };
+        _dbContext.Set<ImageEmbedding>().Add(similarEmbedding);
+        await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
+
+        // Act
+        var result = await _handler.Handle(
+            new GetSimilarProducts.Query(sourceProduct.Id),
+            TestContext.Current.CancellationToken);
+
+        // Assert: Similar product should be returned, source product should be excluded
+        result.IsSuccess.Should().BeTrue();
+        result.Value.Items.Should().NotBeEmpty();
+        result.Value.Items.Should().ContainSingle(i => i.VariantId == similarVariant.Id);
+        result.Value.Items.Should().NotContain(i => i.VariantId == sourceVariant.Id);
     }
 }

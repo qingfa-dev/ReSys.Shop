@@ -1,6 +1,7 @@
 using Module.Catalog.Domain.Products.Variants;
 using Module.Catalog.Domain.Products.Variants.Images;
 using Module.Catalog.Domain.Products.Variants.Images.Embeddings;
+using Module.Catalog.Features.Storefront.Products.Shared.Services;
 
 namespace Module.Catalog.Features.Storefront.Products.Get.Similar;
 
@@ -11,7 +12,9 @@ public static partial class GetSimilarProducts
 {
     public sealed record Query(Guid Id, int TopK = 20) : ICommand<Response>;
 
-    public sealed class QueryHandler(IApplicationDbContext dbContext)
+    public sealed class QueryHandler(
+        IApplicationDbContext dbContext,
+        IVectorSearchService vectorSearchService)
         : ICommandHandler<Query, Response>
     {
         /// <summary>
@@ -45,28 +48,30 @@ public static partial class GetSimilarProducts
             if (embeddingData is null)
                 return Result<Response>.Ok(new Response { Items = [] });
 
-            // Load: Find visually similar variants using pgvector cosine distance.
+            // Query: Find nearest neighbors in vector space using cosine distance.
+            var similarVariantIds = await vectorSearchService.FindSimilarVariantIdsAsync(
+                embeddingData.Vector, embeddingData.ModelName, request.TopK,
+                excludeProductId: variant.ProductId, cancellationToken);
+
+            if (similarVariantIds.Count == 0)
+                return Result<Response>.Ok(new Response { Items = [] });
+
+            // Load: Fetch full variant data with includes for response mapping.
             var similarVariants = await dbContext.Set<Variant>()
-                .FromSqlRaw(@"
-                    SELECT DISTINCT ON (v.id) v.*
-                    FROM catalog.variants v
-                    INNER JOIN catalog.product_images vi ON vi.variant_id = v.id
-                    INNER JOIN catalog.product_image_embeddings ie ON ie.variant_image_id = vi.id
-                    WHERE v.is_deleted = false
-                      AND v.product_id != {0}
-                      AND vi.type = 'Default'
-                      AND ie.model_name = {2}
-                    ORDER BY v.id, ie.vector <=> {1}::vector
-                    LIMIT {3}",
-                    variant.ProductId, embeddingData.Vector, embeddingData.ModelName, request.TopK)
+                .Where(v => similarVariantIds.Contains(v.Id))
                 .Include(x => x.Product)
                 .Include(x => x.Prices)
-                .OrderBy(v => v.Position).ThenBy(v => v.IsMaster ? 0 : 1)
                 .AsNoTracking()
                 .ToListAsync(cancellationToken);
 
+            // Order: Preserve the similarity ranking from the vector search, then apply secondary sort.
+            var orderedVariants = similarVariantIds
+                .Select(id => similarVariants.First(v => v.Id == id))
+                .OrderBy(v => v.Position).ThenBy(v => v.IsMaster ? 0 : 1)
+                .ToList();
+
             // Map: Build response with similar products.
-            var items = similarVariants.Select(v => new SimilarProductItem
+            var items = orderedVariants.Select(v => new SimilarProductItem
             {
                 VariantId = v.Id,
                 ProductId = v.ProductId,

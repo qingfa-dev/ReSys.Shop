@@ -1,7 +1,14 @@
 using Microsoft.AspNetCore.Http;
+using Microsoft.EntityFrameworkCore;
 
+using Module.Catalog.Domain.Products;
 using Module.Catalog.Domain.Products.Variants;
+using Module.Catalog.Domain.Products.Variants.Images;
+using Module.Catalog.Domain.Products.Variants.Images.Embeddings;
 using Module.Catalog.Features.Admin.Products.Variants.Images.Embeddings.Shared.Clients;
+using Module.Catalog.Features.Storefront.Products.Shared.Services;
+
+using Pgvector;
 
 using SearchByImageFeature = Module.Catalog.Features.Storefront.Products.SearchByImage.SearchByImage;
 
@@ -25,7 +32,8 @@ public class SearchByImageTests : IDisposable
         ApplicationDbContext.AdditionalConfigurationsAssemblies = [typeof(Variant).Assembly];
         _dbContext = new ApplicationDbContext(options);
         _inferenceClientMock = new Mock<IInferenceClient>();
-        _handler = new SearchByImageFeature.QueryHandler(_dbContext, _inferenceClientMock.Object);
+        var vectorSearchService = new VectorSearchService(_dbContext);
+        _handler = new SearchByImageFeature.QueryHandler(_dbContext, _inferenceClientMock.Object, vectorSearchService);
     }
 
     public void Dispose()
@@ -88,28 +96,66 @@ public class SearchByImageTests : IDisposable
             e.Code == "SearchByImage.InvalidContentType");
     }
 
-    [Fact(DisplayName = "Handler: Should return items when inference succeeds and gallery has matches",
-          Skip = "FromSqlRaw is not supported by InMemory provider. Integration test required for pgvector query.")]
+    [Fact(DisplayName = "Handler: Should return items when inference succeeds and gallery has matches")]
     public async Task Handle_ShouldReturnResults_WhenInferenceSucceeds()
     {
+        // Arrange: Seed a variant with an embedding using the same vector the inference will return
+        var product = new Product { Name = "Test Product", Slug = "test-product" };
+        _dbContext.Set<Product>().Add(product);
+        await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
+
+        var variant = new Variant { ProductId = product.Id, Sku = "TEST-001", Price = 29.99m };
+        _dbContext.Set<Variant>().Add(variant);
+        await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
+
+        var variantImage = new VariantImage
+        {
+            VariantId = variant.Id,
+            Type = VariantImageType.Default,
+            Url = "http://test.img/test.jpg",
+            ContentType = "image/jpeg",
+            FileName = "test.jpg",
+            FileSize = 1024,
+            Position = 0
+        };
+        _dbContext.Set<VariantImage>().Add(variantImage);
+        await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
+
+        var vectorData = Enumerable.Repeat(0.1f, 512).ToArray();
+        var embedding = new ImageEmbedding
+        {
+            Id = Guid.NewGuid(),
+            VariantImageId = variantImage.Id,
+            ModelName = "openclip-vit-b-32",
+            ModelVersion = "1.0",
+            Vector = new Vector(vectorData),
+            Dimensions = 512
+        };
+        _dbContext.Set<ImageEmbedding>().Add(embedding);
+        await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
+
         var formFile = CreateFormFile([0xFF, 0xD8, 0xFF, 0xE0], "photo.jpg", "image/jpeg");
         var request = new SearchByImageFeature.Request { Image = formFile };
         var command = new SearchByImageFeature.Command(request);
 
-        var embedding = new EmbeddingResponse
+        var inferenceResponse = new EmbeddingResponse
         {
-            Vector = Enumerable.Repeat(0.1f, 512).ToList(),
+            Vector = vectorData.ToList(),
             ModelVersion = "1.0",
             Dimension = 512
         };
         _inferenceClientMock
             .Setup(x => x.CreateEmbeddingFromBytesAsync(
                 It.IsAny<byte[]>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(Result<EmbeddingResponse>.Ok(embedding));
+            .ReturnsAsync(Result<EmbeddingResponse>.Ok(inferenceResponse));
 
+        // Act
         var result = await _handler.Handle(command, TestContext.Current.CancellationToken);
 
+        // Assert
         result.IsSuccess.Should().BeTrue();
+        result.Value.Items.Should().NotBeEmpty();
+        result.Value.Items.Should().ContainSingle(i => i.VariantId == variant.Id);
         _inferenceClientMock.Verify(
             x => x.CreateEmbeddingFromBytesAsync(
                 It.IsAny<byte[]>(), "image/jpeg", "openclip-vit-b-32", It.IsAny<CancellationToken>()),
