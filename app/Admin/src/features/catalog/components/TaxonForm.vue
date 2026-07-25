@@ -9,6 +9,8 @@ import { TaxonApi } from '../api/taxon.api'
 import type { TaxonResponse } from '../types'
 import TaxonRuleManager from './TaxonRuleManager.vue'
 
+import { useToast } from '@/shared/composables/useToast'
+
 const emit = defineEmits<{
   saved: [value: TaxonResponse]
   cancelled: []
@@ -20,6 +22,7 @@ const props = defineProps<{
 }>()
 
 const { t } = useI18n()
+const toast = useToast()
 const schemas = new TaxonForms(t)
 const saving = ref(false)
 
@@ -39,6 +42,8 @@ const onSubmit = handleSubmit(async (values) => {
   saving.value = false
   if (result.isSuccess) {
     emit('saved', result.value)
+  } else {
+    toast.error(result.message ?? 'Failed to save taxon')
   }
 })
 </script>

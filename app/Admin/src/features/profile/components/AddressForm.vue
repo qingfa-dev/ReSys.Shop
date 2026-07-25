@@ -10,6 +10,7 @@ import LoadingSkeleton from '@/shared/components/feedback/LoadingSkeleton.vue'
 import ErrorState from '@/shared/components/feedback/ErrorState.vue'
 import InputSwitch from 'primevue/inputswitch'
 import { useAddress } from '../composables/useAddress'
+import { ROUTE } from '../routes'
 import { AddressForms } from '../schemas'
 import { AddressFormMapper } from '../mappers/address.mapper'
 
@@ -79,14 +80,14 @@ const save = handleSubmit(async (values) => {
   saving.value = false
   if (result.isSuccess) {
     toast.success(id.value ? 'Address updated successfully' : 'Address created successfully')
-    router.push({ name: 'profile.addresses' })
+    router.push({ name: ROUTE.ADDRESSES.LIST })
   } else {
     toast.error(result.message ?? 'Save failed')
   }
 })
 
 function cancel() {
-  router.push({ name: 'profile.addresses' })
+  router.push({ name: ROUTE.ADDRESSES.LIST })
 }
 
 function toggleEdit() {

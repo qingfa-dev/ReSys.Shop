@@ -91,6 +91,7 @@ async function lifecycleAction(action: 'approve' | 'complete' | 'cancel' | 'resu
     case 'complete': result = await OrderApi.complete(id.value); break
     case 'cancel': result = await OrderApi.cancel(id.value); break
     case 'resume': result = await OrderApi.resume(id.value); break
+    default: return
   }
   saving.value = false
   if (result!.isSuccess) {

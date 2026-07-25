@@ -21,12 +21,14 @@ const items = ref<import('../types').StockReservationResponse[]>([])
 const loading = ref(false)
 const error = ref<string | null>(null)
 const totalRecords = ref(0)
+const page = ref(0)
+const pageSize = ref(20)
 
 async function fetchMany() {
   loading.value = true
   error.value = null
   try {
-    const result = await StockReservationApi.getMany({ page: 1, pageSize: 20 })
+    const result = await StockReservationApi.getMany({ page: page.value + 1, pageSize: pageSize.value })
     if (result.isSuccess) {
       items.value = result.items ?? []
       totalRecords.value = result.totalCount ?? 0
@@ -69,7 +71,9 @@ async function onCancel(id: string) {
       :rows="[...items]"
       :loading="loading"
       :total-records="totalRecords"
-      @page="() => {}"
+      :page-size="pageSize"
+      :first="page * pageSize"
+      @page="(e) => { page = e.page; fetchMany() }"
     >
       <Column field="orderNumber" header="Order" sortable />
       <Column field="variantSku" header="SKU" sortable />

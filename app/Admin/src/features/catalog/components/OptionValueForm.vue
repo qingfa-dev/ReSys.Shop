@@ -8,6 +8,8 @@ import { OptionValueFormMapper } from '../mappers/option-value.mapper'
 import { OptionValueApi } from '../api/option-value.api'
 import type { OptionValueResponse } from '../types'
 
+import { useToast } from '@/shared/composables/useToast'
+
 const emit = defineEmits<{
   saved: [value: OptionValueResponse]
   cancelled: []
@@ -19,6 +21,7 @@ const props = defineProps<{
 }>()
 
 const { t } = useI18n()
+const toast = useToast()
 const schemas = new OptionValueForms(t)
 const saving = ref(false)
 
@@ -38,6 +41,8 @@ const onSubmit = handleSubmit(async (values) => {
   saving.value = false
   if (result.isSuccess) {
     emit('saved', result.value)
+  } else {
+    toast.error(result.message ?? 'Failed to save option value')
   }
 })
 </script>
