@@ -1,0 +1,6 @@
+flowchart LR
+    A[".NET Backend\nsends image bytes"] --> B["FastAPI\nvalidate API key"]
+    B --> C["Preprocessing\nresize, normalize,\nto tensor"]
+    C --> D["Model Inference\nforward pass\n(Fashion-CLIP / ResNet / ...)"]
+    D --> E["512-d Vector\n(float array)"]
+    E --> F["Return JSON\nembedding response"]
