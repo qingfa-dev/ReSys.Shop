@@ -1,7 +1,16 @@
 <script setup lang="ts">
-import PlaceholderPage from '@/shared/components/layout/PlaceholderPage.vue'
+import { useI18n } from 'vue-i18n'
+import { useRoute } from 'vue-router'
+import PageHeader from '@/shared/components/layout/PageHeader.vue'
+import PaymentListTable from '../components/PaymentListTable.vue'
+
+const { t } = useI18n()
+const route = useRoute()
 </script>
 
 <template>
-  <PlaceholderPage title="Payments" description="Payment list" />
+  <div>
+    <PageHeader :title="t('payment.payments.titles.list')" :icon="route.meta?.icon as string | undefined" />
+    <PaymentListTable />
+  </div>
 </template>
