@@ -50,7 +50,7 @@ The functional capabilities of ReSys.Shop are organised around eight business mo
 
 === Catalog Module
 
-The Catalog module manages the product lifecycle: creating products with fashion-specific metadata — including style code, season, material, department, and gender target — defining sellable variants with SKUs, barcodes, and independent pricing, uploading product images with automatic thumbnail generation, and organising products through hierarchical taxonomies that allow browsing by category (e.g., Clothing → Dresses → Evening Dresses). It also hosts the Content-Based Image Retrieval (CBIR) infrastructure: newly uploaded variant images are sent to the Python machine learning sidecar for vectorisation, and the resulting embeddings are stored in PostgreSQL using the pgvector extension for similarity search @pgvector2023. The catalog supports configurable embedding models, allowing the system to switch between Fashion-CLIP, ResNet-50, and other architectures without application changes — a capability that enables the systematic benchmark evaluation presented in Chapter 6.
+The Catalog module manages the product lifecycle: creating products with fashion-specific metadata, including style code, season, material, department, and gender target, defining sellable variants with SKUs, barcodes, and independent pricing, uploading product images with automatic thumbnail generation, and organising products through hierarchical taxonomies that allow browsing by category (e.g., Clothing → Dresses → Evening Dresses). It also hosts the Content-Based Image Retrieval (CBIR) infrastructure: newly uploaded variant images are sent to the Python machine learning sidecar for vectorisation, and the resulting embeddings are stored in PostgreSQL using the pgvector extension for similarity search @pgvector2023. The catalog supports configurable embedding models, allowing the system to switch between Fashion-CLIP, ResNet-50, and other architectures without application changes, a capability that enables the systematic benchmark evaluation presented in Chapter 6.
 
 === Ordering Module
 
@@ -58,7 +58,7 @@ The Ordering module handles the customer purchase workflow from cart to complete
 
 === Payment Module
 
-The Payment module manages the lifecycle of payment intents — the data structure representing a customer's intent to pay — including creation, capture, refund, and void operations. It supports two gateway providers: the Stripe gateway for production, which validates incoming webhooks using signature verification to prevent spoofed payment confirmations, and a Bogus gateway for development and testing, which simulates the payment lifecycle by automatically transitioning through states without external calls. Payment intents follow their own state machine — Pending, RequiresAction, Processing, and Succeeded or Canceled — and the system maintains its own copy of the payment state in parallel with the gateway's state, enabling offline operations and consistent behaviour across both gateway implementations.
+The Payment module manages the lifecycle of payment intents, the data structure representing a customer's intent to pay, including creation, capture, refund, and void operations. It supports two gateway providers: the Stripe gateway for production, which validates incoming webhooks using signature verification to prevent spoofed payment confirmations, and a Bogus gateway for development and testing, which simulates the payment lifecycle by automatically transitioning through states without external calls. Payment intents follow their own state machine, Pending, RequiresAction, Processing, and Succeeded or Canceled, and the system maintains its own copy of the payment state in parallel with the gateway's state, enabling offline operations and consistent behaviour across both gateway implementations.
 
 === Inventory Module
 
@@ -70,7 +70,7 @@ The Identity module provides JWT-based authentication with short-lived access to
 
 === Supporting Modules
 
-Three additional modules provide complementary infrastructure. The *Profile* module manages user addresses, wishlists, and notification preferences, linking customer identity to personalisation features. The *Shipping* module configures delivery methods — standard, express, and local pickup — and calculates shipping rates by geographic zone. The *Location* module provides country and state reference data with ISO codes, shared across Shipping (for zone configuration) and Profile (for address validation).
+Three additional modules provide complementary infrastructure. The *Profile* module manages user addresses, wishlists, and notification preferences, linking customer identity to personalisation features. The *Shipping* module configures delivery methods, standard, express, and local pickup, and calculates shipping rates by geographic zone. The *Location* module provides country and state reference data with ISO codes, shared across Shipping (for zone configuration) and Profile (for address validation).
 
 === Summary
 
@@ -85,7 +85,7 @@ Table @tbl-module-summary consolidates the eight business modules with their key
     table.header([*Module*], [*Key Responsibilities*], [*Research Classification*]),
 
     [Catalog], [
-      Product and variant lifecycle management; fashion-specific metadata (style code, season, material, department); hierarchical taxonomies; image upload and management; CBIR infrastructure — embedding generation pipeline and pgvector vector search.
+      Product and variant lifecycle management; fashion-specific metadata (style code, season, material, department); hierarchical taxonomies; image upload and management; CBIR infrastructure, embedding generation pipeline and pgvector vector search.
     ], [Core Research],
 
     [Ordering], [
@@ -122,7 +122,7 @@ Table @tbl-module-summary consolidates the eight business modules with their key
   ],
 ) <tbl-module-summary>
 
-The functional scope of ReSys.Shop extends far beyond the visual search capability at its core. The supporting modules — Ordering, Payment, Inventory, and Identity — provide a realistic e-commerce context in which the research contribution can be meaningfully evaluated. Without a functioning checkout flow, for example, the value of visual search could not be measured through downstream conversion events. Without inventory awareness, search results could include out-of-stock items, undermining the realism of the evaluation.
+The functional scope of ReSys.Shop extends far beyond the visual search capability at its core. The supporting modules, Ordering, Payment, Inventory, and Identity, provide a realistic e-commerce context in which the research contribution can be meaningfully evaluated. Without a functioning checkout flow, for example, the value of visual search could not be measured through downstream conversion events. Without inventory awareness, search results could include out-of-stock items, undermining the realism of the evaluation.
 
 == Non-Functional Requirements
 
@@ -163,7 +163,7 @@ Beyond feature completeness, the system must satisfy quantitative and qualitativ
     [Reliability], [
       Background jobs (cart expiry, embedding generation retries, index maintenance) persist in Redis-backed Hangfire storage, surviving application restarts without data loss. Payment webhooks include idempotency keys that prevent duplicate processing on retry. Cart expiry triggers after fifteen minutes of inactivity, releasing reserved inventory automatically.
     ], [
-      Many e-commerce operations are inherently long-running or time-delayed — cart expiry, payment confirmation, and index maintenance. A durable job queue ensures these operations complete reliably, even across process crashes or scheduled restarts.
+      Many e-commerce operations are inherently long-running or time-delayed, cart expiry, payment confirmation, and index maintenance. A durable job queue ensures these operations complete reliably, even across process crashes or scheduled restarts.
     ],
   ),
   caption: [
@@ -192,7 +192,7 @@ This section presents three use cases that represent the system's core functiona
     [*Main Flow*], [
       1. Customer uploads a reference image (JPEG, PNG, or WebP; maximum ten megabytes) via the storefront visual search interface. \
       2. The Vue frontend sends the image as a multipart form data request to the .NET API endpoint. \
-      3. The API validates the image — magic-byte verification, extension check, size limit — then forwards the raw image bytes to the Python ML sidecar. \
+      3. The API validates the image, magic-byte verification, extension check, size limit, then forwards the raw image bytes to the Python ML sidecar. \
       4. The ML sidecar preprocesses the image (resize, normalise) and executes a forward pass through the configured embedding model, producing a floating-point vector. \
       5. The API queries PostgreSQL pgvector using cosine similarity against all stored variant embeddings filtered by the active model name, retrieving the top 20 most similar results. \
       6. The API joins variant data with product metadata, computes similarity scores, filters by a minimum similarity threshold (default 0.7), and returns the ordered results as JSON. \
@@ -202,7 +202,7 @@ This section presents three use cases that represent the system's core functiona
       A ranked list of visually similar products is displayed to the customer, ordered by decreasing cosine similarity. Each result includes the product thumbnail, name, price, and similarity score.
     ],
   ),
-  caption: [UC-1: Visual Search (CBIR) — the primary research use case.],
+  caption: [UC-1: Visual Search (CBIR), the primary research use case.],
 ) <tbl-uc-visual-search>
 
 === Use Case 2: Multi-Step Checkout
@@ -231,7 +231,7 @@ This section presents three use cases that represent the system's core functiona
       An order record is created with status "Placed". Inventory quantities for each ordered variant are reserved. A payment intent is linked to the order. The customer's cart is emptied. A confirmation is displayed with the order reference number.
     ],
   ),
-  caption: [UC-2: Multi-Step Checkout — the primary e-commerce transaction use case.],
+  caption: [UC-2: Multi-Step Checkout, the primary e-commerce transaction use case.],
 ) <tbl-uc-checkout>
 
 === Use Case 3: Model Benchmark Evaluation
@@ -252,14 +252,14 @@ This section presents three use cases that represent the system's core functiona
       3. For each query image, the system executes a top-K (K = 20) similarity search against the catalog embeddings. \
       4. System computes retrieval metrics: Mean Average Precision (mAP), Precision at K, and Recall at K, using the human-labelled groups as ground truth. \
       5. System records operational metrics: average inference time per image, throughput (images per second), disk storage for the embedding index, and RAM consumption. \
-      6. Steps 1—5 are repeated for each of the 11 candidate models. \
+      6. Steps 1 to 5 are repeated for each of the 11 candidate models. \
       7. System aggregates all results into comparison tables, ranking models by retrieval accuracy and operational efficiency.
     ],
     [*Postcondition*], [
       A complete benchmark report is produced containing accuracy metrics (mAP, P\@20, R\@20) and efficiency metrics (latency, throughput, storage, RAM) for every evaluated model. The report identifies the optimal model for each deployment scenario (GPU production, CPU-only, maximum accuracy, resource-constrained).
     ],
   ),
-  caption: [UC-3: Model Benchmark Evaluation — the research methodology use case.],
+  caption: [UC-3: Model Benchmark Evaluation, the research methodology use case.],
 ) <tbl-uc-benchmark>
 
 Figure @fig-use-case-diagram positions these three use cases alongside the broader system functionality within a single visual summary.
@@ -267,15 +267,15 @@ Figure @fig-use-case-diagram positions these three use cases alongside the broad
 #figure(
   image("../../images/diagrams/02-use-case.png", width: 85%),
   caption: [
-    System use case diagram showing the three actors — Customer, Administrator, and System background services — and their primary interactions with the ReSys.Shop platform.
+    System use case diagram showing the three actors, Customer, Administrator, and System background services, and their primary interactions with the ReSys.Shop platform.
   ],
 ) <fig-use-case-diagram>
 
-The three use cases serve distinct purposes within the thesis. The visual search use case defines the functional behaviour of the system's primary research capability; the checkout use case establishes the realistic e-commerce context in which search success can be measured through downstream conversion events; and the benchmark use case defines the systematic methodology used in Chapter 6 to evaluate and compare embedding models. The breadth of the system — nine background actors and use cases in the diagram, encompassing catalog browsing, account management, product administration, and order processing — reflects the full operational scope of the platform, while the three detailed use cases focus on the scenarios most relevant to the research questions.
+The three use cases serve distinct purposes within the thesis. The visual search use case defines the functional behaviour of the system's primary research capability; the checkout use case establishes the realistic e-commerce context in which search success can be measured through downstream conversion events; and the benchmark use case defines the systematic methodology used in Chapter 6 to evaluate and compare embedding models. The breadth of the system, nine background actors and use cases in the diagram, encompassing catalog browsing, account management, product administration, and order processing, reflects the full operational scope of the platform, while the three detailed use cases focus on the scenarios most relevant to the research questions.
 
 == Feature Classification
 
-Not all features of ReSys.Shop carry equal research significance. Seven feature areas are classified in Table @tbl-feature-classification as either *Core Research* (directly contributing to the thesis's academic objectives) or *Supporting Infrastructure* (providing the realistic e-commerce context in which the research is conducted and evaluated). This distinction is important for two reasons: it clarifies the scope of the thesis's original contribution, and it explains why certain features — shipping calculation, user management, country reference data — exist in the platform but are not discussed in depth in subsequent chapters.
+Not all features of ReSys.Shop carry equal research significance. Seven feature areas are classified in Table @tbl-feature-classification as either *Core Research* (directly contributing to the thesis's academic objectives) or *Supporting Infrastructure* (providing the realistic e-commerce context in which the research is conducted and evaluated). This distinction is important for two reasons: it clarifies the scope of the thesis's original contribution, and it explains why certain features, shipping calculation, user management, country reference data, exist in the platform but are not discussed in depth in subsequent chapters.
 
 #figure(
   table(
@@ -290,7 +290,7 @@ Not all features of ReSys.Shop carry equal research significance. Seven feature 
     ],
 
     [ML Embedding Pipeline], [Core Research], [
-      Critical infrastructure: automated ingestion of product images, generation of vector embeddings via the Python sidecar, storage in pgvector, and HNSW indexing — the operational backbone of the visual search capability.
+      Critical infrastructure: automated ingestion of product images, generation of vector embeddings via the Python sidecar, storage in pgvector, and HNSW indexing, the operational backbone of the visual search capability.
     ],
 
     [Model Benchmark System], [Core Research], [
@@ -298,7 +298,7 @@ Not all features of ReSys.Shop carry equal research significance. Seven feature 
     ],
 
     [Product Catalog], [Supporting Infrastructure], [
-      Required context: provides the structured dataset of fashion products — with variants, images, taxonomies, and metadata — that serves as the search target for CBIR evaluation.
+      Required context: provides the structured dataset of fashion products, with variants, images, taxonomies, and metadata, that serves as the search target for CBIR evaluation.
     ],
 
     [Order System], [Supporting Infrastructure], [
@@ -319,4 +319,4 @@ Not all features of ReSys.Shop carry equal research significance. Seven feature 
   ],
 ) <tbl-feature-classification>
 
-The classification makes explicit what the thesis does and does not claim as contribution. The CBIR pipeline — encompassing embedding generation, vector storage, and similarity search — is the core research artefact. The e-commerce modules (Catalog, Ordering, Inventory, Payment, Identity) are supporting infrastructure, built to provide a realistic context that validates the visual search results in a production-like environment. This separation is maintained throughout the thesis: Chapters 4 and 5 dedicate detailed treatment to the research features, while the supporting infrastructure is described only to the extent necessary to understand the system's design.
+The classification makes explicit what the thesis does and does not claim as contribution. The CBIR pipeline, encompassing embedding generation, vector storage, and similarity search, is the core research artefact. The e-commerce modules (Catalog, Ordering, Inventory, Payment, Identity) are supporting infrastructure, built to provide a realistic context that validates the visual search results in a production-like environment. This separation is maintained throughout the thesis: Chapters 4 and 5 dedicate detailed treatment to the research features, while the supporting infrastructure is described only to the extent necessary to understand the system's design.

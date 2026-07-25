@@ -114,11 +114,11 @@ The thesis is organized into seven chapters across three parts.
 *Part II: Thesis Content* contains five chapters:
 
 #list(
-  [*Chapter 2: Background and Related Work.* Surveys vector embeddings, convolutional and transformer-based neural network architectures, vector database technologies including pgvector, prior academic and commercial work in fashion image retrieval, and the technology stack selected for this project.],
-  [*Chapter 3: Requirements Analysis.* Translates the problem statement into functional requirements organized by business domain, specifies non-functional requirements, and presents use cases for the visual search workflow.],
-  [*Chapter 4: System Architecture and Design.* Details the modular monolith structure with bounded contexts, the Python sidecar integration pattern, the database schema including pgvector configuration, the REST API design, and the security model.],
-  [*Chapter 5: Implementation.* Describes the .NET backend built with vertical slice architecture, the Python embedding service using FastAPI and PyTorch, and the Vue.js storefront, including key patterns applied across the system.],
-  [*Chapter 6: Testing and Evaluation.* Reports a systematic benchmark comparing retrieval accuracy and inference efficiency across multiple embedding models using a cross-validation protocol on 5,000 fashion product images, and analyzes the accuracy-speed trade-offs that inform model selection.],
+  [*Chapter 1: Background and Related Work.* Surveys vector embeddings, convolutional and transformer-based neural network architectures, vector database technologies including pgvector, prior academic and commercial work in fashion image retrieval, and the technology stack selected for this project.],
+  [*Chapter 2: Requirements Analysis.* Translates the problem statement into functional requirements organized by business domain, specifies non-functional requirements, and presents use cases for the visual search workflow.],
+  [*Chapter 3: System Architecture and Design.* Details the modular monolith structure with bounded contexts, the Python sidecar integration pattern, the database schema including pgvector configuration, the REST API design, and the security model.],
+  [*Chapter 4: Implementation.* Describes the .NET backend built with vertical slice architecture, the Python embedding service using FastAPI and PyTorch, and the Vue.js storefront, including key patterns applied across the system.],
+  [*Chapter 5: Testing and Evaluation.* Reports a systematic benchmark comparing retrieval accuracy and inference efficiency across multiple embedding models using a cross-validation protocol on 5,000 fashion product images, and analyzes the accuracy-speed trade-offs that inform model selection.],
 )
 
-*Part III: Conclusion.* Chapter 7 synthesizes findings against each research objective, evaluates contributions and limitations, and proposes directions for future work.
+*Part III: Conclusion.* Chapter 6 synthesizes findings against each research objective, evaluates contributions and limitations, and proposes directions for future work.
