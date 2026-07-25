@@ -486,3 +486,7 @@ app/ReSys.Admin/
 infra/Storage/demo/images/
 benchmarks/old/
 benchmarks/scripts/demo-seed/output/
+
+# Diagram tooling
+diagrams/plantuml.jar
+thesis/images/diagrams/*.png
