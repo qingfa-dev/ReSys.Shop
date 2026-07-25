@@ -8,6 +8,8 @@ import FormField from '@/shared/components/forms/FormField.vue'
 import FormActions from '@/shared/components/forms/FormActions.vue'
 import LoadingSkeleton from '@/shared/components/feedback/LoadingSkeleton.vue'
 import ErrorState from '@/shared/components/feedback/ErrorState.vue'
+import { AppCard } from '@/shared/components'
+import Button from 'primevue/button'
 import { useProfile } from '../composables/useProfile'
 import { ProfileForms } from '../schemas'
 import { ProfileFormMapper } from '../mappers/profile.mapper'
@@ -32,7 +34,7 @@ const loadError = ref<string | null>(null)
 
 const isEditing = ref(false)
 
-const title = computed(() => isEditing.value ? 'Edit Profile' : 'My Profile')
+const title = computed(() => isEditing.value ? t('profile.titles.edit_profile') : t('profile.titles.my_profile'))
 
 async function loadProfile() {
   loading.value = true
@@ -47,7 +49,7 @@ async function loadProfile() {
       dateOfBirth: result.value.dateOfBirth ?? undefined,
     })
   } else {
-    loadError.value = result.message ?? 'Failed to load profile'
+    loadError.value = result.message ?? t('profile.messages.load_error')
   }
   loading.value = false
 }
@@ -58,10 +60,10 @@ const save = handleSubmit(async (values) => {
   const result = await api.update(data)
   saving.value = false
   if (result.isSuccess) {
-    toast.success('Profile updated successfully')
+    toast.success(t('profile.messages.update_success'))
     isEditing.value = false
   } else {
-    toast.error(result.message ?? 'Save failed')
+    toast.error(result.message ?? t('profile.messages.save_failed'))
   }
 })
 
@@ -75,41 +77,51 @@ onMounted(loadProfile)
 
 <template>
   <div>
-    <PageHeader :title="title" :icon="route.meta?.icon as string | undefined">
+    <PageHeader
+      :title="title"
+      :subtitle="t('profile.descriptions.manage')"
+      :icon="route.meta?.icon as string | undefined"
+    >
       <template #actions>
-        <button v-if="!isEditing" class="p-button p-component" @click="isEditing = true">Edit Profile</button>
+        <Button
+          v-if="!isEditing"
+          :label="t('profile.actions.edit_profile')"
+          icon="pi pi-pencil"
+          size="small"
+          @click="isEditing = true"
+        />
       </template>
     </PageHeader>
     <LoadingSkeleton v-if="loading" :rows="6" :columns="2" />
     <ErrorState v-else-if="loadError" :title="loadError" @retry="loadProfile" />
-    <div v-else class="card">
-      <div class="grid">
-        <div class="col-6">
-          <FormField label="First Name" :error="errors.firstName" required>
+    <AppCard v-else>
+      <div class="grid grid-cols-12 gap-4">
+        <div class="col-span-full sm:col-span-6">
+          <FormField :label="t('profile.labels.first_name')" :error="errors.firstName" required>
             <input v-model="firstName" type="text" class="p-inputtext p-component w-full" :disabled="!isEditing" />
           </FormField>
         </div>
-        <div class="col-6">
-          <FormField label="Last Name" :error="errors.lastName" required>
+        <div class="col-span-full sm:col-span-6">
+          <FormField :label="t('profile.labels.last_name')" :error="errors.lastName" required>
             <input v-model="lastName" type="text" class="p-inputtext p-component w-full" :disabled="!isEditing" />
           </FormField>
         </div>
       </div>
-      <div class="grid">
-        <div class="col-6">
-          <FormField label="Phone" :error="errors.phone">
+      <div class="grid grid-cols-12 gap-4">
+        <div class="col-span-full sm:col-span-6">
+          <FormField :label="t('profile.labels.phone')" :error="errors.phone">
             <input v-model="phone" type="text" class="p-inputtext p-component w-full" :disabled="!isEditing" />
           </FormField>
         </div>
-        <div class="col-6">
-          <FormField label="Date of Birth" :error="errors.dateOfBirth">
+        <div class="col-span-full sm:col-span-6">
+          <FormField :label="t('profile.labels.date_of_birth')" :error="errors.dateOfBirth">
             <input v-model="dateOfBirth" type="date" class="p-inputtext p-component w-full" :disabled="!isEditing" />
           </FormField>
         </div>
       </div>
-      <div class="grid">
-        <div class="col-12">
-          <FormField label="Avatar URL" :error="errors.avatarUrl">
+      <div class="grid grid-cols-12 gap-4">
+        <div class="col-span-full">
+          <FormField :label="t('profile.labels.avatar_url')" :error="errors.avatarUrl">
             <input v-model="avatarUrl" type="url" class="p-inputtext p-component w-full" placeholder="https://example.com/avatar.jpg" :disabled="!isEditing" />
           </FormField>
         </div>
@@ -117,11 +129,11 @@ onMounted(loadProfile)
       <FormActions
         v-if="isEditing"
         :loading="saving"
-        save-label="Save Profile"
-        cancel-label="Cancel"
+        :save-label="t('profile.actions.save_profile')"
+        :cancel-label="t('profile.actions.cancel')"
         @save="save"
         @cancel="cancel"
       />
-    </div>
+    </AppCard>
   </div>
 </template>

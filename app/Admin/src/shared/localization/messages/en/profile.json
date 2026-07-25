@@ -1,6 +1,7 @@
 {
   "titles": {
     "my_profile": "My Profile",
+    "edit_profile": "Edit Profile",
     "profile_info": "Profile Details",
     "account_info": "Account Info",
     "details": "Account Details",
@@ -15,6 +16,8 @@
     "first_name": "First Name",
     "last_name": "Last Name",
     "phone": "Phone",
+    "date_of_birth": "Date of Birth",
+    "avatar_url": "Avatar URL",
     "full_name": "Full Name",
     "email": "Email",
     "username": "Username",
@@ -29,7 +32,9 @@
     "default": "Default"
   },
   "actions": {
+    "edit_profile": "Edit Profile",
     "save_profile": "Save Profile",
+    "cancel": "Cancel",
     "update_password": "Update Password"
   },
   "notifications": {
@@ -48,6 +53,7 @@
   "messages": {
     "load_error": "Failed to load profile",
     "update_success": "Profile updated successfully",
+    "save_failed": "Failed to save profile",
     "password_updated": "Password updated successfully",
     "select_user_to_view_addresses": "Select a user to view their addresses"
   },
@@ -83,6 +89,42 @@
     },
     "country": {
       "required": "Country is required"
+    }
+  },
+  "addresses": {
+    "title": "Addresses",
+    "subtitle": "Manage shipping and billing addresses.",
+    "form": {
+      "create_title": "Create Address",
+      "edit_title": "Edit Address: {name}",
+      "view_title": "Address Details",
+      "subtitle": "Manage address information"
+    },
+    "labels": {
+      "first_name": "First Name",
+      "last_name": "Last Name",
+      "address1": "Address Line 1",
+      "address2": "Address Line 2",
+      "city": "City",
+      "state": "State / Province",
+      "postal_code": "Postal Code",
+      "country": "Country",
+      "phone": "Phone",
+      "default": "Default Address",
+      "yes": "Yes",
+      "no": "No"
+    },
+    "actions": {
+      "edit": "Edit",
+      "save_create": "Create Address",
+      "save_edit": "Save Address",
+      "cancel": "Cancel"
+    },
+    "messages": {
+      "load_failed": "Failed to load address",
+      "create_success": "Address created successfully",
+      "update_success": "Address updated successfully",
+      "save_failed": "Save failed"
     }
   }
 }

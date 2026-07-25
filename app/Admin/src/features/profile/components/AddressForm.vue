@@ -8,6 +8,8 @@ import FormField from '@/shared/components/forms/FormField.vue'
 import FormActions from '@/shared/components/forms/FormActions.vue'
 import LoadingSkeleton from '@/shared/components/feedback/LoadingSkeleton.vue'
 import ErrorState from '@/shared/components/feedback/ErrorState.vue'
+import { AppCard } from '@/shared/components'
+import Button from 'primevue/button'
 import InputSwitch from 'primevue/inputswitch'
 import { useAddress } from '../composables/useAddress'
 import { ROUTE } from '../routes'
@@ -40,9 +42,9 @@ const saving = ref(false)
 const loadError = ref<string | null>(null)
 
 const title = computed(() => {
-  if (mode.value === 'create') return 'Create Address'
-  if (mode.value === 'edit') return `Edit Address: ${address1.value || ''}`
-  return address1.value || 'Address Details'
+  if (mode.value === 'create') return t('profile.addresses.form.create_title')
+  if (mode.value === 'edit') return t('profile.addresses.form.edit_title', { name: address1.value || '' })
+  return address1.value || t('profile.addresses.form.view_title')
 })
 
 async function loadAddress() {
@@ -64,7 +66,7 @@ async function loadAddress() {
       isDefault: result.value.isDefault ?? undefined,
     })
   } else {
-    loadError.value = result.message ?? 'Failed to load address'
+    loadError.value = result.message ?? t('profile.addresses.messages.load_failed')
   }
   loading.value = false
 }
@@ -79,10 +81,12 @@ const save = handleSubmit(async (values) => {
     : await api.create(data)
   saving.value = false
   if (result.isSuccess) {
-    toast.success(id.value ? 'Address updated successfully' : 'Address created successfully')
+    toast.success(id.value
+      ? t('profile.addresses.messages.update_success')
+      : t('profile.addresses.messages.create_success'))
     router.push({ name: ROUTE.ADDRESSES.LIST })
   } else {
-    toast.error(result.message ?? 'Save failed')
+    toast.error(result.message ?? t('profile.addresses.messages.save_failed'))
   }
 })
 
@@ -91,7 +95,7 @@ function cancel() {
 }
 
 function toggleEdit() {
-  router.push({ name: 'profile.addresses.edit', params: { id: id.value } })
+  router.push({ name: ROUTE.ADDRESSES.EDIT, params: { id: id.value } })
 }
 
 onMounted(loadAddress)
@@ -99,73 +103,83 @@ onMounted(loadAddress)
 
 <template>
   <div>
-    <PageHeader :title="title" :icon="route.meta?.icon as string | undefined">
+    <PageHeader
+      :title="title"
+      :subtitle="t('profile.addresses.form.subtitle')"
+      :icon="route.meta?.icon as string | undefined"
+    >
       <template #actions>
-        <button v-if="mode === 'view'" class="p-button p-component" @click="toggleEdit">Edit</button>
+        <Button
+          v-if="mode === 'view'"
+          :label="t('profile.addresses.actions.edit')"
+          icon="pi pi-pencil"
+          size="small"
+          @click="toggleEdit"
+        />
       </template>
     </PageHeader>
-    <LoadingSkeleton v-if="loading && mode !== 'create'" :rows="6" :columns="2" />
+    <LoadingSkeleton v-if="loading && mode !== 'create'" :rows="8" :columns="2" />
     <ErrorState v-else-if="loadError" :title="loadError" @retry="loadAddress" />
-    <div v-else class="card">
-      <div class="grid">
-        <div class="col-6">
-          <FormField label="First Name" :error="errors.firstName" required>
+    <AppCard v-else>
+      <div class="grid grid-cols-12 gap-4">
+        <div class="col-span-full sm:col-span-6">
+          <FormField :label="t('profile.addresses.labels.first_name')" :error="errors.firstName" required>
             <input v-model="firstName" type="text" class="p-inputtext p-component w-full" :disabled="mode === 'view'" />
           </FormField>
         </div>
-        <div class="col-6">
-          <FormField label="Last Name" :error="errors.lastName" required>
+        <div class="col-span-full sm:col-span-6">
+          <FormField :label="t('profile.addresses.labels.last_name')" :error="errors.lastName" required>
             <input v-model="lastName" type="text" class="p-inputtext p-component w-full" :disabled="mode === 'view'" />
           </FormField>
         </div>
       </div>
-      <div class="grid">
-        <div class="col-6">
-          <FormField label="Address Line 1" :error="errors.address1" required>
+      <div class="grid grid-cols-12 gap-4">
+        <div class="col-span-full sm:col-span-6">
+          <FormField :label="t('profile.addresses.labels.address1')" :error="errors.address1" required>
             <input v-model="address1" type="text" class="p-inputtext p-component w-full" :disabled="mode === 'view'" />
           </FormField>
         </div>
-        <div class="col-6">
-          <FormField label="Address Line 2" :error="errors.address2">
+        <div class="col-span-full sm:col-span-6">
+          <FormField :label="t('profile.addresses.labels.address2')" :error="errors.address2">
             <input v-model="address2" type="text" class="p-inputtext p-component w-full" :disabled="mode === 'view'" />
           </FormField>
         </div>
       </div>
-      <div class="grid">
-        <div class="col-4">
-          <FormField label="City" :error="errors.city" required>
+      <div class="grid grid-cols-12 gap-4">
+        <div class="col-span-full sm:col-span-6 lg:col-span-4">
+          <FormField :label="t('profile.addresses.labels.city')" :error="errors.city" required>
             <input v-model="city" type="text" class="p-inputtext p-component w-full" :disabled="mode === 'view'" />
           </FormField>
         </div>
-        <div class="col-4">
-          <FormField label="State / Province" :error="errors.state">
+        <div class="col-span-full sm:col-span-6 lg:col-span-4">
+          <FormField :label="t('profile.addresses.labels.state')" :error="errors.state">
             <input v-model="state" type="text" class="p-inputtext p-component w-full" :disabled="mode === 'view'" />
           </FormField>
         </div>
-        <div class="col-4">
-          <FormField label="Postal Code" :error="errors.postalCode" required>
+        <div class="col-span-full sm:col-span-6 lg:col-span-4">
+          <FormField :label="t('profile.addresses.labels.postal_code')" :error="errors.postalCode" required>
             <input v-model="postalCode" type="text" class="p-inputtext p-component w-full" :disabled="mode === 'view'" />
           </FormField>
         </div>
       </div>
-      <div class="grid">
-        <div class="col-6">
-          <FormField label="Country" :error="errors.country" required>
+      <div class="grid grid-cols-12 gap-4">
+        <div class="col-span-full sm:col-span-6">
+          <FormField :label="t('profile.addresses.labels.country')" :error="errors.country" required>
             <input v-model="country" type="text" class="p-inputtext p-component w-full" :disabled="mode === 'view'" />
           </FormField>
         </div>
-        <div class="col-6">
-          <FormField label="Phone" :error="errors.phone">
+        <div class="col-span-full sm:col-span-6">
+          <FormField :label="t('profile.addresses.labels.phone')" :error="errors.phone">
             <input v-model="phone" type="text" class="p-inputtext p-component w-full" :disabled="mode === 'view'" />
           </FormField>
         </div>
       </div>
-      <div class="grid">
-        <div class="col-6">
-          <FormField label="Default Address">
-            <div class="flex align-items-center gap-2 mt-1">
+      <div class="grid grid-cols-12 gap-4">
+        <div class="col-span-full sm:col-span-6">
+          <FormField :label="t('profile.addresses.labels.default')">
+            <div class="flex items-center gap-2 mt-1">
               <InputSwitch v-model="isDefault" :disabled="mode === 'view'" input-id="isDefault" />
-              <label for="isDefault">{{ isDefault ? 'Yes' : 'No' }}</label>
+              <label for="isDefault">{{ isDefault ? t('profile.addresses.labels.yes') : t('profile.addresses.labels.no') }}</label>
             </div>
           </FormField>
         </div>
@@ -173,11 +187,11 @@ onMounted(loadAddress)
       <FormActions
         v-if="mode !== 'view'"
         :loading="saving"
-        save-label="Save Address"
-        cancel-label="Cancel"
+        :save-label="mode === 'create' ? t('profile.addresses.actions.save_create') : t('profile.addresses.actions.save_edit')"
+        :cancel-label="t('profile.addresses.actions.cancel')"
         @save="save"
         @cancel="cancel"
       />
-    </div>
+    </AppCard>
   </div>
 </template>
