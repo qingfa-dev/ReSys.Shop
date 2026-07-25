@@ -1,123 +1,47 @@
-// ============================================================================
-// CTU THESIS INFORMATION CONFIGURATION
-// Can Tho University - College of Information and Communication Technology
-// ============================================================================
-
 #let info = (
   en: (
     student: (
       name: "Nguyen Thanh Phat",
-      id: "B220001",
-      class: "DI2296A1",
+      id: "B2005853",
+      class: "DI20V7F1 (K46)",
       major: "INFORMATION TECHNOLOGY",
       program: "High-Quality Program",
     ),
     advisor: (
-      name: "TS. Tran Thi B",
-      title: "TS",
+      name: "Dr. Tran Cong An",
     ),
     thesis: (
-      title: "He thong Thuong mai Dien tu voi Tim kiem Anh Cong nghe",
-      short_title: "He thong TMĐT",
-      date: "July 2026",
+      title: [BUILDING A FASHION E-COMMERCE APPLICATION WITH IMAGE-BASED PRODUCT SEARCH AND MODEL BENCHMARKING],
+      short_title: "FASHION E-COMMERCE WITH CBIR & MODEL BENCHMARKING",
+      date: "December 2025",
       location: "Can Tho",
       degree: "BACHELOR OF ENGINEERING",
     ),
     keywords: (
-      "e-commerce",
-      "content-based image retrieval",
-      "modular monolith",
-      "fashion retrieval",
-      "embedding models",
+      "e-commerce", "visual search", "deep learning",
+      "modular architecture", "computer vision", "benchmarking",
     ),
     committee: (
-      chairman: "Dr. Chairman Name",
-      reviewer: "Dr. Reviewer Name",
-      advisor: "TS. Tran Thi B",
+      chairman: "Dr. Pham The Phi",
+      reviewer: "Dr. Thai Minh Tuan",
+      advisor: "Dr. Tran Cong An",
     ),
-    abbreviations: (
-      ("API", "Application Programming Interface"),
-      ("CTU", "Can Tho University"),
-      ("ICT", "Information and Communication Technology"),
-      ("UI/UX", "User Interface/User Experience"),
-      ("HTTP", "Hypertext Transfer Protocol"),
-      ("CBIR", "Content-Based Image Retrieval"),
-      ("CQRS", "Command Query Responsibility Segregation"),
-      ("MediatR", "Mediator library for .NET"),
-      ("EF Core", "Entity Framework Core"),
-      ("JWT", "JSON Web Token"),
-      ("pgvector", "PostgreSQL vector extension"),
-    ),
-  ),
-  vi: (
-    student: (
-      name: "Nguyen Thanh Phat",
-      id: "B220001",
-      class: "DI2296A1",
-      major: "CONG NGHE THONG TIN",
-      program: "Chat luong cao",
-    ),
-    advisor: (
-      name: "TS. Tran Thi B",
-      title: "TS",
-    ),
-    thesis: (
-      title: "He thong Thuong mai Dien tu voi Tim kiem Anh Cong nghe",
-      short_title: "He thong TMĐT",
-      date: "Thang 07/2026",
-      location: "Can Tho",
-      degree: "KY SU",
-    ),
-    keywords: (
-      "thuong mai dien tu",
-      "tim kiem anh cong nghe",
-      "kien truc don mo",
-      "tim kiem anh thoi trang",
-      "mo hinh embedding",
-    ),
-    committee: (
-      chairman: "TS. Ten Chu Tich",
-      reviewer: "TS. Ten Phan Bien",
-      advisor: "TS. Tran Thi B",
-    ),
-    abbreviations: (
-      ("API", "Giao dien lap trinh ung dung"),
-      ("CTU", "Dai hoc Can Tho"),
-      ("CNTT-TT", "Cong nghe Thong tin va Truyen thong"),
-      ("UI/UX", "Giao dien/Trai nguoi dung"),
-      ("HTTP", "Giao thuc truyen tai sieu van ban"),
-      ("CBIR", "Tim kiem anh cong nghe"),
-      ("CQRS", "Phan cach lenh truy van"),
-      ("MediatR", "Thu vien trung gian cho .NET"),
-      ("EF Core", "Entity Framework Core"),
-      ("JWT", "JSON Web Token"),
-      ("pgvector", "Phan mo rong vector cua PostgreSQL"),
-    ),
+    defense_date: "December 24, 2025",
   ),
 )
 
-// ============================================================================
-// GLOBAL SETTINGS (CTU STANDARD — Decision 4125/QĐ-ĐHCT 2024)
-// ============================================================================
 #let settings = (
   primary_lang: "en",
-
-  // CTU Official Colors
-  border_color: rgb(0, 51, 153), // CTU Blue (#003399)
-  accent_color: rgb(0, 83, 159), // CTU Accent (#00539F)
-
-  // CTU Format Requirements (2025-2026)
+  border_color: rgb(0, 51, 153),
   format: (
     font: "Times New Roman",
     font_size: 13pt,
-    line_spacing: 1.2,
-    margins: (
+    margin: (
       left: 4cm,
       right: 2.5cm,
       top: 2.5cm,
       bottom: 2.5cm,
     ),
-    paragraph_indent: 1cm,
-    abstract_words: (200, 350),
+    line_spacing: 1.2,
   ),
 )
