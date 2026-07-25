@@ -27,6 +27,10 @@
       advisor: "Dr. Tran Cong An",
     ),
     defense_date: "December 24, 2025",
+    abbreviations: (
+      ("CBIR", "Content-Based Image Retrieval"),
+      ("CTU", "Can Tho University"),
+    ),
   ),
 )
 
@@ -36,12 +40,13 @@
   format: (
     font: "Times New Roman",
     font_size: 13pt,
-    margin: (
+    margins: (
       left: 4cm,
       right: 2.5cm,
       top: 2.5cm,
       bottom: 2.5cm,
     ),
+    paragraph_indent: 1cm,
     line_spacing: 1.2,
   ),
 )
