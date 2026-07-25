@@ -111,7 +111,7 @@ The traceability table below confirms that every objective and research question
     [Chapter 6, Sections 6.3--6.5],
     [The trade-off is quantifiable: Fashion-CLIP provides top accuracy at 84.4 ms; EfficientNet-B0 achieves 96.5 percent of that accuracy at 25.6 percent of the latency (21.6 ms). Architecture family — CNN vs transformer — dominates the accuracy-efficiency plane. CLIP-generic is least competitive on both dimensions.],
     [RQ3: Sidecar architecture viability for real-time search],
-    [Chapter 5, Sections 5.2--5.3; Chapter 6, Section 5.6 (synthesis)],
+    [Chapter 5, Sections 5.2--5.3; Chapter 6, Section 6.5 (synthesis)],
     [The polyglot architecture is viable. The sidecar handles model inference at 21.6--105.6 ms per image depending on model, while the .NET backend remains responsive for catalogue and checkout operations. End-to-end search latency remains under one second. Independent scaling and fault isolation are achieved without the operational overhead of a full microservices deployment.],
     [Build AI service],
     [Chapter 5, Section 5.2],
