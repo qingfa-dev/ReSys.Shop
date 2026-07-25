@@ -32,14 +32,14 @@ Generating useful embeddings from fashion product images requires models capable
 
 CNNs process images through a hierarchy of learned filters. Early layers detect edges, colour gradients, and texture orientation; deeper layers compose these primitives into complex structures such as fabric patterns and garment silhouettes. Two CNN architectures are evaluated in this thesis:
 
-- *ResNet* (He et al., 2016) @he2016deep introduced residual connections — shortcut paths that allow gradients to flow directly through very deep networks. This solved the vanishing gradient problem and enabled training of networks with 50, 101, or 152 layers. ResNet-50, pre-trained on the ImageNet dataset (1.2 million images across 1,000 categories), serves as a strong general-purpose visual feature extractor.
+- *ResNet* (He et al., 2016) @he2016deep introduced residual connections: shortcut paths that allow gradients to flow directly through very deep networks. This solved the vanishing gradient problem and enabled training of networks with 50, 101, or 152 layers. ResNet-50, pre-trained on the ImageNet dataset (1.2 million images across 1,000 categories), serves as a strong general-purpose visual feature extractor.
 - *EfficientNet* (Tan and Le, 2019) @tan2019efficientnet introduced compound scaling: simultaneously adjusting network depth, width, and input resolution using a principled scaling coefficient. This produces a family of models (B0 through B7) that achieve state-of-the-art accuracy with an order of magnitude fewer parameters than comparably accurate ResNet variants. EfficientNet-B0, the smallest member of the family, is evaluated as the lightweight CNN baseline.
 
 === Vision Transformers (2020–present)
 
 While CNNs capture local patterns through layered filters, their limited receptive field (typically 3×3 or 5×5 pixel windows) constrains their ability to model relationships between distant image regions. *Vision Transformers* (ViTs) address this by applying the self-attention mechanism to image data @dosovitskiy2020vit.
 
-A ViT divides an image into a grid of fixed-size patches (typically 16×16 pixels), treats each patch as a token analogous to a word in a sentence, and processes the sequence through transformer encoder layers. Self-attention computes pairwise relationships between all patches simultaneously, enabling the model to capture long-range dependencies — a sleeve pattern that echoes a collar detail, a texture that repeats across a dress — without requiring information to propagate through many successive layers.
+A ViT divides an image into a grid of fixed-size patches (typically 16×16 pixels), treats each patch as a token analogous to a word in a sentence, and processes the sequence through transformer encoder layers. Self-attention computes pairwise relationships between all patches simultaneously, enabling the model to capture long-range dependencies (a sleeve pattern that echoes a collar detail, a texture that repeats across a dress) without requiring information to propagate through many successive layers.
 
 - *DINOv2* (Oquab et al., 2023) represents a self-supervised approach: the model is trained without human-labelled data, learning visual representations by predicting relationships between different augmented views of the same image. This produces strong general-purpose features that transfer well to downstream tasks without fine-tuning.
 
@@ -55,7 +55,7 @@ The thesis evaluates four representative models spanning these architectural fam
 
 == Vector Search and Databases
 
-Once product images are converted to embeddings, those vectors must be stored and searched efficiently. A naive approach — computing the distance from the query vector to every stored vector — becomes impractical beyond a few thousand items.
+Once product images are converted to embeddings, those vectors must be stored and searched efficiently. A naive approach (computing the distance from the query vector to every stored vector) becomes impractical beyond a few thousand items.
 
 *Approximate Nearest Neighbour* (ANN) search addresses this by trading a small amount of accuracy for large speed gains. Rather than exhaustively scanning all vectors, ANN algorithms use index structures that guide the search directly toward the neighbourhood of likely matches, achieving 97–99% recall of the true nearest neighbours with query times that scale logarithmically rather than linearly.
 
