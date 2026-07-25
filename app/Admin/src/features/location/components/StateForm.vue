@@ -8,7 +8,9 @@ import FormField from '@/shared/components/forms/FormField.vue'
 import FormActions from '@/shared/components/forms/FormActions.vue'
 import LoadingSkeleton from '@/shared/components/feedback/LoadingSkeleton.vue'
 import ErrorState from '@/shared/components/feedback/ErrorState.vue'
-import InputSwitch from 'primevue/inputswitch'
+import { AppCard } from '@/shared/components'
+import Checkbox from 'primevue/checkbox'
+import Button from 'primevue/button'
 import Select from 'primevue/select'
 import { useState } from '../composables/useState'
 import { StateForms } from '../schemas'
@@ -40,16 +42,20 @@ const saving = ref(false)
 const loadError = ref<string | null>(null)
 
 const title = computed(() => {
-  if (mode.value === 'create') return 'Create State/Province'
-  if (mode.value === 'edit') return `Edit: ${name.value || ''}`
-  return name.value || 'State/Province Details'
+  if (mode.value === 'create') return t('location.states.form.create_title')
+  if (mode.value === 'edit') return t('location.states.form.edit_title', { name: name.value || '' })
+  return name.value || t('location.states.form.view_title')
 })
 
 async function loadCountries() {
   countriesLoading.value = true
-  const result = await CountryApi.getMany({ page: 1, pageSize: 500 })
-  if (result.isSuccess) {
-    countries.value = result.items ?? []
+  try {
+    const result = await CountryApi.getMany({ page: 1, pageSize: 500 })
+    if (result.isSuccess) {
+      countries.value = result.items ?? []
+    }
+  } catch (err) {
+    console.error(err)
   }
   countriesLoading.value = false
 }
@@ -58,16 +64,21 @@ async function loadState() {
   if (!id.value) return
   loading.value = true
   loadError.value = null
-  const result = await api.get(id.value)
-  if (result.isSuccess) {
-    setValues({
-      name: result.value.name,
-      isoCode: result.value.isoCode,
-      countryId: result.value.countryId,
-      isActive: result.value.isActive ?? undefined,
-    })
-  } else {
-    loadError.value = result.message ?? 'Failed to load state/province'
+  try {
+    const result = await api.get(id.value)
+    if (result.isSuccess) {
+      setValues({
+        name: result.value.name,
+        isoCode: result.value.isoCode,
+        countryId: result.value.countryId,
+        isActive: result.value.isActive ?? undefined,
+      })
+    } else {
+      loadError.value = result.message ?? t('location.states.messages.load_failed')
+    }
+  } catch (err) {
+    console.error(err)
+    loadError.value = t('location.states.messages.load_failed')
   }
   loading.value = false
 }
@@ -77,15 +88,23 @@ const save = handleSubmit(async (values) => {
   const data = mode.value === 'create'
     ? StateFormMapper.toCreate(values)
     : StateFormMapper.toUpdate(values)
-  const result = id.value
-    ? await api.update(id.value, data)
-    : await api.create(data)
-  saving.value = false
-  if (result.isSuccess) {
-    toast.success(id.value ? 'State updated successfully' : 'State created successfully')
-    router.replace({ name: ROUTE.STATES.VIEW, params: { id: result.value.id } })
-  } else {
-    toast.error(result.message ?? 'Save failed')
+  try {
+    const result = id.value
+      ? await api.update(id.value, data)
+      : await api.create(data)
+    saving.value = false
+    if (result.isSuccess) {
+      toast.success(id.value
+        ? t('location.states.messages.update_success')
+        : t('location.states.messages.create_success'))
+      router.replace({ name: ROUTE.STATES.VIEW, params: { id: result.value.id } })
+    } else {
+      toast.error(result.message ?? t('location.states.messages.save_failed'))
+    }
+  } catch (err) {
+    console.error(err)
+    saving.value = false
+    toast.error(t('location.states.messages.save_failed'))
   }
 })
 
@@ -106,27 +125,33 @@ onMounted(async () => {
 
 <template>
   <div>
-    <PageHeader :title="title" :icon="route.meta?.icon as string | undefined">
+    <PageHeader :title="title" :subtitle="t('location.states.form.subtitle')" :icon="route.meta?.icon as string | undefined">
       <template #actions>
-        <button v-if="mode === 'view'" class="p-button p-component" @click="toggleEdit">Edit</button>
+        <Button
+          v-if="mode === 'view'"
+          :label="t('location.states.actions.edit')"
+          icon="pi pi-pencil"
+          size="small"
+          @click="toggleEdit"
+        />
       </template>
     </PageHeader>
-    <LoadingSkeleton v-if="loading && mode !== 'create'" :rows="5" :columns="2" />
+    <LoadingSkeleton v-if="loading && mode !== 'create'" :rows="8" :columns="2" />
     <ErrorState v-else-if="loadError" :title="loadError" @retry="loadState" />
-    <div v-else class="card">
-      <div class="grid">
-        <div class="col-6">
-          <FormField label="Name" :error="errors.name" required>
+    <AppCard v-else>
+      <div class="grid grid-cols-12 gap-4">
+        <div class="col-span-full sm:col-span-6">
+          <FormField :label="t('location.states.labels.name')" :error="errors.name" required>
             <input v-model="name" type="text" class="p-inputtext p-component w-full" :disabled="mode === 'view'" />
           </FormField>
         </div>
-        <div class="col-3">
-          <FormField label="ISO Code" :error="errors.isoCode" required>
+        <div class="col-span-full sm:col-span-3">
+          <FormField :label="t('location.states.labels.iso_code')" :error="errors.isoCode" required>
             <input v-model="isoCode" type="text" class="p-inputtext p-component w-full" :disabled="mode === 'view'" />
           </FormField>
         </div>
-        <div class="col-3">
-          <FormField label="Country" :error="errors.countryId" required>
+        <div class="col-span-full sm:col-span-3">
+          <FormField :label="t('location.states.labels.country')" :error="errors.countryId" required>
             <Select
               v-model="countryId"
               :options="countries"
@@ -134,30 +159,31 @@ onMounted(async () => {
               option-label="name"
               :loading="countriesLoading"
               :disabled="mode === 'view'"
-              placeholder="Select country"
+              :placeholder="t('location.states.labels.select_country')"
               class="w-full"
             />
           </FormField>
         </div>
       </div>
-      <div class="grid">
-        <div class="col-6">
-          <FormField label="Active">
-            <div class="flex align-items-center gap-2 mt-1">
-              <InputSwitch v-model="isActive" :disabled="mode === 'view'" input-id="isActive" />
-              <label for="isActive">{{ isActive ? 'Active' : 'Inactive' }}</label>
+      <div class="grid grid-cols-12 gap-4">
+        <div class="col-span-full sm:col-span-6">
+          <FormField :label="t('location.states.labels.is_active')">
+            <div class="flex items-center gap-2 mt-1">
+              <Checkbox v-model="isActive" :binary="true" :disabled="mode === 'view'" input-id="isActive" />
+              <label for="isActive">{{ t('location.states.labels.active_help') }}</label>
             </div>
           </FormField>
         </div>
       </div>
+
       <FormActions
         v-if="mode !== 'view'"
         :loading="saving"
-        save-label="Save State/Province"
-        cancel-label="Cancel"
+        :save-label="mode === 'create' ? t('location.states.actions.save_create') : t('location.states.actions.save_edit')"
+        :cancel-label="t('location.states.actions.cancel')"
         @save="save"
         @cancel="cancel"
       />
-    </div>
+    </AppCard>
   </div>
 </template>

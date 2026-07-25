@@ -1,47 +1,107 @@
 {
-  "titles": {
-    "countries": "Countries",
-    "states": "States / Provinces"
-  },
-  "labels": {
-    "name": "Name",
-    "calling_code": "Calling Code",
-    "active": "Active",
-    "abbreviation": "Abbreviation",
-    "country": "Country"
-  },
-  "actions": {
-    "new_country": "New Country",
-    "new_state": "New State"
-  },
-  "messages": {
-    "load_error": "Failed to load countries",
-    "create_success": "Country created successfully",
-    "update_success": "Country updated successfully",
-    "delete_success": "Country removed successfully",
-    "state_load_error": "Failed to load states",
-    "state_create_success": "State created successfully",
-    "state_update_success": "State updated successfully",
-    "state_delete_success": "State removed successfully"
-  },
-  "validation": {
-    "name": {
-      "required": "Country name is required",
-      "max_length": "Name must not exceed {max} characters"
+  "countries": {
+    "titles": {
+      "list": "Countries",
+      "create": "Add Country",
+      "edit": "Edit Country"
     },
-    "iso_code": {
-      "length": "ISO code must be exactly 2 characters"
+    "descriptions": {
+      "list": "Manage countries."
     },
-    "calling_code": {
-      "max_length": "Calling code must not exceed {max} characters"
+    "form": {
+      "create_title": "Create Country",
+      "edit_title": "Edit: {name}",
+      "view_title": "Country",
+      "subtitle": "Configure country details and settings."
     },
-    "abbreviation": {
-      "required": "Abbreviation is required",
-      "max_length": "Abbreviation must not exceed {max} characters"
+    "labels": {
+      "name": "Name",
+      "iso_code": "ISO Code",
+      "iso3_code": "ISO 3 Code",
+      "numeric_code": "Numeric Code",
+      "phone_code": "Phone Code",
+      "is_active": "Active",
+      "active_help": "Country is active"
     },
-    "country": {
-      "required": "Country is required",
-      "invalid": "Invalid country"
+    "actions": {
+      "create": "Create Country",
+      "edit": "Edit",
+      "save_create": "Save Country",
+      "save_edit": "Save",
+      "cancel": "Cancel",
+      "view": "View",
+      "delete": "Delete"
+    },
+    "table": {
+      "search_placeholder": "Search countries...",
+      "name": "Name",
+      "iso_code": "ISO Code",
+      "iso3_code": "ISO 3 Code",
+      "phone_code": "Phone Code",
+      "states_count": "States",
+      "active": "Active"
+    },
+    "messages": {
+      "create_success": "Country created successfully",
+      "update_success": "Country updated successfully",
+      "save_failed": "Save failed",
+      "load_failed": "Failed to load country",
+      "delete_success": "Country deleted successfully",
+      "delete_failed": "Failed to delete",
+      "delete_confirm_target": "this country",
+      "empty_list": "No countries found",
+      "empty_description": "Create your first country."
+    }
+  },
+  "states": {
+    "titles": {
+      "list": "States / Provinces",
+      "create": "Add State/Province",
+      "edit": "Edit State/Province"
+    },
+    "descriptions": {
+      "list": "Manage states and provinces."
+    },
+    "form": {
+      "create_title": "Create State/Province",
+      "edit_title": "Edit: {name}",
+      "view_title": "State/Province",
+      "subtitle": "Configure state/province details."
+    },
+    "labels": {
+      "name": "Name",
+      "iso_code": "ISO Code",
+      "country": "Country",
+      "is_active": "Active",
+      "active_help": "State is active",
+      "select_country": "Select country"
+    },
+    "actions": {
+      "create": "Create State/Province",
+      "edit": "Edit",
+      "save_create": "Save State/Province",
+      "save_edit": "Save",
+      "cancel": "Cancel",
+      "view": "View",
+      "delete": "Delete"
+    },
+    "table": {
+      "search_placeholder": "Search states/provinces...",
+      "name": "Name",
+      "iso_code": "ISO Code",
+      "country": "Country",
+      "active": "Active"
+    },
+    "messages": {
+      "create_success": "State created successfully",
+      "update_success": "State updated successfully",
+      "save_failed": "Save failed",
+      "load_failed": "Failed to load state",
+      "delete_success": "State deleted successfully",
+      "delete_failed": "Failed to delete",
+      "delete_confirm_target": "this state/province",
+      "empty_list": "No states found",
+      "empty_description": "Create your first state/province."
     }
   }
 }
