@@ -15,13 +15,12 @@ const store = useStockMovementStore()
 
 onMounted(() => store.fetchMany())
 
-function onSearch(value: string) { store.setSearch(value) }
 function onPageChange(e: { page: number; rows: number }) { store.setPage(e.page + 1) }
 </script>
 
 <template>
   <div>
-    <TableToolbar search-placeholder="Search movements..." @search="onSearch" />
+    <TableToolbar v-model:query="store.searchQuery" search-placeholder="Search movements..." />
     <LoadingSkeleton v-if="store.loading && store.items.length === 0" :rows="5" :columns="6" />
     <ErrorState v-else-if="store.error" :description="store.error" @retry="store.fetchMany" />
     <EmptyState v-else-if="store.items.length === 0" title="No movements found" />

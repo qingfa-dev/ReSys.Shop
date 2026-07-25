@@ -1,49 +1,28 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import PageHeader from '@/shared/components/layout/PageHeader.vue'
 import { ListLayout } from '@/shared/components'
 import DataTable from '@/shared/components/data/DataTable.vue'
+import TableToolbar from '@/shared/components/layout/TableToolbar.vue'
 import Column from 'primevue/column'
 import LoadingSkeleton from '@/shared/components/feedback/LoadingSkeleton.vue'
 import ErrorState from '@/shared/components/feedback/ErrorState.vue'
 import Button from 'primevue/button'
 import Tag from 'primevue/tag'
-import { PermissionApi } from '../api'
-import type { PermissionResponse } from '../types'
+import { usePermissionStore } from '../store/permission.store'
 import { ROUTE } from '../routes'
 
 const router = useRouter()
 const route = useRoute()
 const { t } = useI18n()
-
-const items = ref<PermissionResponse[]>([])
-const loading = ref(false)
-const error = ref<string | null>(null)
-
-async function fetchPermissions() {
-  loading.value = true
-  error.value = null
-  try {
-    const result = await PermissionApi.getMany()
-    if (result.isSuccess) {
-      items.value = result.value ?? []
-    } else {
-      error.value = result.message ?? 'Failed to load permissions'
-      items.value = []
-    }
-  } catch (err) {
-    console.error(err)
-    error.value = 'Failed to load permissions'
-    items.value = []
-  }
-  loading.value = false
-}
+const store = usePermissionStore()
 
 function goToView(id: string) { router.push({ name: ROUTE.PERMISSIONS.VIEW, params: { id } }) }
+function onPageChange(e: { page: number; rows: number }) { store.setPage(e.page + 1) }
 
-onMounted(fetchPermissions)
+onMounted(() => store.fetchMany())
 </script>
 
 <template>
@@ -55,9 +34,18 @@ onMounted(fetchPermissions)
         :icon="route.meta?.icon as string | undefined"
       />
     </template>
-    <LoadingSkeleton v-if="loading && items.length === 0" :rows="5" :columns="4" />
-    <ErrorState v-else-if="error" :description="error" @retry="fetchPermissions" />
-    <DataTable v-else :rows="items" :loading="loading">
+    <TableToolbar v-model:query="store.searchQuery" search-placeholder="Search permissions..." />
+    <LoadingSkeleton v-if="store.loading && store.items.length === 0" :rows="5" :columns="4" />
+    <ErrorState v-else-if="store.error" :description="store.error" @retry="store.fetchMany" />
+    <DataTable
+      v-else
+      :rows="[...store.items]"
+      :loading="store.loading"
+      :total-records="store.totalRecords"
+      :page-size="store.query.pageSize"
+      :first="(store.query.page - 1) * store.query.pageSize"
+      @page="onPageChange"
+    >
       <Column field="name" header="Name" sortable />
       <Column field="description" header="Description" />
       <Column field="module" header="Module">

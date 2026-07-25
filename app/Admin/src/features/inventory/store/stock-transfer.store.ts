@@ -1,10 +1,11 @@
-import { ref, readonly } from 'vue'
+import { ref, readonly, watch } from 'vue'
 import { defineStore } from 'pinia'
 import { defaultListQuery } from '@/shared/models'
 import type { ListQuery } from '@/shared/models'
 import type { StockTransferResponse } from '../types'
 import { StockTransferApi } from '../api'
-import type { FilterGroup, SortDirection } from '@/shared/models/querying'
+import type { FilterGroup, SortDirection, FilterCondition, FilterOperator } from '@/shared/models/querying'
+import type { FilterConfig } from '@/shared/components/layout/FilterPanel.vue'
 
 export const useStockTransferStore = defineStore('inventory-stock-transfer', () => {
   const items = ref<StockTransferResponse[]>([])
@@ -12,6 +13,23 @@ export const useStockTransferStore = defineStore('inventory-stock-transfer', () 
   const error = ref<string | null>(null)
   const totalRecords = ref(0)
   const query = ref<ListQuery>(defaultListQuery())
+
+  const searchQuery = ref('')
+  const activeFilters = ref<FilterConfig[]>([])
+  let skipSearchWatch = false
+
+  watch(searchQuery, (val) => {
+    if (skipSearchWatch) {
+      skipSearchWatch = false
+      return
+    }
+    query.value = {
+      ...query.value,
+      search: val ? { value: val, mode: 'Any' } : undefined,
+      page: 1,
+    }
+    fetchMany()
+  })
 
   async function fetchMany() {
     loading.value = true
@@ -36,26 +54,58 @@ export const useStockTransferStore = defineStore('inventory-stock-transfer', () 
   }
 
   function setPage(page: number) { query.value.page = page; return fetchMany() }
-  function setSearch(value: string) {
-    query.value.search = { value, mode: 'Any' }
-    query.value.page = 1
-    return fetchMany()
-  }
   function setSort(field: string, direction: SortDirection) {
     query.value.sort = [{ field, direction }]
     return fetchMany()
   }
-  function setFilter(group: FilterGroup) {
-    query.value.filters = group
-    query.value.page = 1
+  function resetQuery() { query.value = defaultListQuery(); return fetchMany() }
+
+  function buildFilterGroup(filters: FilterConfig[]): FilterGroup {
+    const conditions: FilterCondition[] = filters.map(f => ({
+      field: f.field,
+      operator: f.operator as FilterOperator,
+      value: String(f.value),
+    }))
+    return { logic: 'And', conditions, groups: [] }
+  }
+
+  function setFilters(f: FilterConfig[]) {
+    activeFilters.value = f
+    query.value = {
+      ...query.value,
+      filters: f.length > 0 ? buildFilterGroup(f) : undefined,
+      page: 1,
+    }
     return fetchMany()
   }
-  function resetQuery() { query.value = defaultListQuery(); return fetchMany() }
+
+  function setFilter(group: FilterGroup) {
+    query.value = { ...query.value, filters: group, page: 1 }
+    activeFilters.value = []
+    return fetchMany()
+  }
+
+  function setSearchQuery(q: string) {
+    searchQuery.value = q
+  }
+
+  function setSearch(value: string) {
+    skipSearchWatch = true
+    searchQuery.value = value
+    query.value = {
+      ...query.value,
+      search: value ? { value, mode: 'Any' } : undefined,
+      page: 1,
+    }
+    return fetchMany()
+  }
 
   return {
     items: readonly(items), loading: readonly(loading),
     error: readonly(error), totalRecords: readonly(totalRecords),
     query: readonly(query),
-    fetchMany, setPage, setSearch, setSort, setFilter, resetQuery,
+    searchQuery: readonly(searchQuery),
+    activeFilters: readonly(activeFilters),
+    fetchMany, setPage, setSort, setFilters, setFilter, setSearchQuery, setSearch, resetQuery,
   }
 })
