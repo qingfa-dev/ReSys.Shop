@@ -7,8 +7,8 @@ import { useI18n } from 'vue-i18n'
 import PageHeader from '@/shared/components/layout/PageHeader.vue'
 import FormField from '@/shared/components/forms/FormField.vue'
 import FormActions from '@/shared/components/forms/FormActions.vue'
-import LoadingSkeleton from '@/shared/components/feedback/LoadingSkeleton.vue'
-import ErrorState from '@/shared/components/feedback/ErrorState.vue'
+import { LoadingSkeleton, ErrorState, AppCard } from '@/shared/components'
+import Button from 'primevue/button'
 import { useToast } from '@/shared/composables/useToast'
 import { ProductForms } from '../schemas'
 import { ProductFormMapper } from '../mappers/product.mapper'
@@ -54,23 +54,33 @@ const title = computed(() => {
   return name.value || t('catalog.products.titles.edit')
 })
 
+const subtitle = computed(() => {
+  if (mode.value === 'create') return t('catalog.products.descriptions.general')
+  return t('catalog.products.descriptions.general')
+})
+
 async function load() {
   if (!id.value) return
   loading.value = true
   loadError.value = null
-  const result = await ProductApi.get(id.value)
-  if (result.isSuccess) {
-    setValues({
-      name: result.value.name,
-      slug: result.value.slug,
-      description: result.value.description ?? undefined,
-      status: result.value.status,
-      department: result.value.department ?? undefined,
-      genderTarget: result.value.genderTarget ?? undefined,
-      styleCode: result.value.styleCode ?? undefined,
-    })
-  } else {
-    loadError.value = result.message ?? 'Failed to load product'
+  try {
+    const result = await ProductApi.get(id.value)
+    if (result.isSuccess) {
+      setValues({
+        name: result.value.name,
+        slug: result.value.slug,
+        description: result.value.description ?? undefined,
+        status: result.value.status,
+        department: result.value.department ?? undefined,
+        genderTarget: result.value.genderTarget ?? undefined,
+        styleCode: result.value.styleCode ?? undefined,
+      })
+    } else {
+      loadError.value = result.message ?? 'Failed to load product'
+    }
+  } catch (err) {
+    console.error(err)
+    loadError.value = 'Failed to load product'
   }
   loading.value = false
 }
@@ -107,63 +117,66 @@ onMounted(() => { load() })
 
 <template>
   <div>
-    <PageHeader :title="title" :icon="route.meta?.icon as string | undefined">
+    <PageHeader :title="title" :subtitle="subtitle" :icon="route.meta?.icon as string | undefined">
       <template #actions>
-        <button v-if="mode === 'view'" class="p-button p-component" @click="toggleEdit">{{
-          t('catalog.products.actions.edit') }}</button>
+        <Button v-if="mode === 'view'" :label="t('catalog.products.actions.edit')" @click="toggleEdit" />
       </template>
     </PageHeader>
     <LoadingSkeleton v-if="loading && mode !== 'create'" :rows="8" :columns="2" />
     <ErrorState v-else-if="loadError" :title="loadError" @retry="load" />
-    <div v-else class="card">
-      <div class="grid">
-        <div class="col-6">
-          <FormField :label="t('catalog.products.labels.name')" :error="errors.name" required>
-            <input v-model="name" type="text" class="p-inputtext p-component w-full" :disabled="mode === 'view'" />
-          </FormField>
+    <template v-else>
+      <AppCard>
+        <div class="grid grid-cols-12 gap-4">
+          <div class="col-span-full sm:col-span-6">
+            <FormField :label="t('catalog.products.labels.name')" :error="errors.name" required>
+              <input v-model="name" type="text" class="p-inputtext p-component w-full" :disabled="mode === 'view'" />
+            </FormField>
+          </div>
+          <div class="col-span-full sm:col-span-6">
+            <FormField :label="t('catalog.products.labels.slug')" :error="errors.slug" required>
+              <input v-model="slug" type="text" class="p-inputtext p-component w-full" :disabled="mode === 'view'" />
+            </FormField>
+          </div>
+          <div class="col-span-full sm:col-span-6">
+            <FormField :label="t('catalog.products.labels.status')">
+              <select v-model="status" class="p-inputtext p-component w-full" :disabled="mode === 'view'">
+                <option value="Draft">Draft</option>
+                <option value="Active">Active</option>
+                <option value="Archived">Archived</option>
+              </select>
+            </FormField>
+          </div>
+          <div class="col-span-full sm:col-span-6">
+            <FormField :label="t('catalog.products.labels.department')">
+              <input v-model="department" type="text" class="p-inputtext p-component w-full"
+                :disabled="mode === 'view'" />
+            </FormField>
+          </div>
+          <div class="col-span-full sm:col-span-6">
+            <FormField :label="t('catalog.products.labels.gender_target')">
+              <input v-model="genderTarget" type="text" class="p-inputtext p-component w-full"
+                :disabled="mode === 'view'" />
+            </FormField>
+          </div>
+          <div class="col-span-full sm:col-span-6">
+            <FormField :label="t('catalog.products.labels.style_code')">
+              <input v-model="styleCode" type="text" class="p-inputtext p-component w-full" :disabled="mode === 'view'" />
+            </FormField>
+          </div>
+          <div class="col-span-full">
+            <FormField :label="t('catalog.products.labels.description')">
+              <textarea v-model="description" rows="4" class="p-inputtext p-component w-full"
+                :disabled="mode === 'view'" />
+            </FormField>
+          </div>
         </div>
-        <div class="col-6">
-          <FormField :label="t('catalog.products.labels.slug')" :error="errors.slug" required>
-            <input v-model="slug" type="text" class="p-inputtext p-component w-full" :disabled="mode === 'view'" />
-          </FormField>
-        </div>
-        <div class="col-6">
-          <FormField :label="t('catalog.products.labels.status')">
-            <select v-model="status" class="p-inputtext p-component w-full" :disabled="mode === 'view'">
-              <option value="Draft">Draft</option>
-              <option value="Active">Active</option>
-              <option value="Archived">Archived</option>
-            </select>
-          </FormField>
-        </div>
-        <div class="col-6">
-          <FormField label="Department">
-            <input v-model="department" type="text" class="p-inputtext p-component w-full"
-              :disabled="mode === 'view'" />
-          </FormField>
-        </div>
-        <div class="col-6">
-          <FormField label="Gender Target">
-            <input v-model="genderTarget" type="text" class="p-inputtext p-component w-full"
-              :disabled="mode === 'view'" />
-          </FormField>
-        </div>
-        <div class="col-6">
-          <FormField label="Style Code">
-            <input v-model="styleCode" type="text" class="p-inputtext p-component w-full" :disabled="mode === 'view'" />
-          </FormField>
-        </div>
-        <div class="col-12">
-          <FormField :label="t('catalog.products.labels.description')">
-            <textarea v-model="description" rows="4" class="p-inputtext p-component w-full"
-              :disabled="mode === 'view'" />
-          </FormField>
-        </div>
+      </AppCard>
+      <div class="flex flex-col gap-4">
+        <FormActions v-if="mode !== 'view'" :loading="saving" :save-label="t('catalog.products.actions.save')"
+          :cancel-label="t('catalog.products.actions.cancel')" @save="save" @cancel="cancel" />
+        <ProductOptionTypeManager v-if="id" :productId="id" />
+        <ProductClassificationManager v-if="id" :productId="id" />
       </div>
-      <FormActions v-if="mode !== 'view'" :loading="saving" :save-label="t('catalog.products.actions.save')"
-        :cancel-label="t('catalog.products.actions.cancel')" @save="save" @cancel="cancel" />
-      <ProductOptionTypeManager v-if="id" :productId="id" />
-      <ProductClassificationManager v-if="id" :productId="id" />
-    </div>
+    </template>
   </div>
 </template>

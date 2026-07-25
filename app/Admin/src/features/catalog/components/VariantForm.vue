@@ -1,13 +1,14 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
 import { useForm } from 'vee-validate'
 import { toTypedSchema } from '@vee-validate/zod'
 import { useI18n } from 'vue-i18n'
 import PageHeader from '@/shared/components/layout/PageHeader.vue'
 import FormField from '@/shared/components/forms/FormField.vue'
 import FormActions from '@/shared/components/forms/FormActions.vue'
-import LoadingSkeleton from '@/shared/components/feedback/LoadingSkeleton.vue'
-import ErrorState from '@/shared/components/feedback/ErrorState.vue'
+import { LoadingSkeleton, ErrorState, AppCard } from '@/shared/components'
+import Button from 'primevue/button'
 import Checkbox from 'primevue/checkbox'
 import Select from 'primevue/select'
 import { useToast } from '@/shared/composables/useToast'
@@ -63,29 +64,36 @@ const title = computed(() => {
   return sku.value || t('catalog.variants.titles.view')
 })
 
+const subtitle = computed(() => t('catalog.variants.descriptions.list'))
+
 async function loadVariant() {
   if (!id.value) return
   loading.value = true
   loadError.value = null
-  const result = await VariantApi.get(id.value)
-  if (result.isSuccess) {
-    setValues({
-      sku: result.value.sku,
-      position: result.value.position,
-      trackInventory: result.value.trackInventory ?? undefined,
-      weight: result.value.weight ?? undefined,
-      weightUnit: result.value.weightUnit ?? undefined,
-      height: result.value.height ?? undefined,
-      width: result.value.width ?? undefined,
-      depth: result.value.depth ?? undefined,
-      dimensionsUnit: result.value.dimensionsUnit ?? undefined,
-      price: result.value.price ?? undefined,
-      costPrice: result.value.costPrice ?? undefined,
-      costCurrency: result.value.costCurrency ?? undefined,
-      isMaster: result.value.isMaster ?? undefined,
-    })
-  } else {
-    loadError.value = result.message ?? 'Failed to load variant'
+  try {
+    const result = await VariantApi.get(id.value)
+    if (result.isSuccess) {
+      setValues({
+        sku: result.value.sku,
+        position: result.value.position,
+        trackInventory: result.value.trackInventory ?? undefined,
+        weight: result.value.weight ?? undefined,
+        weightUnit: result.value.weightUnit ?? undefined,
+        height: result.value.height ?? undefined,
+        width: result.value.width ?? undefined,
+        depth: result.value.depth ?? undefined,
+        dimensionsUnit: result.value.dimensionsUnit ?? undefined,
+        price: result.value.price ?? undefined,
+        costPrice: result.value.costPrice ?? undefined,
+        costCurrency: result.value.costCurrency ?? undefined,
+        isMaster: result.value.isMaster ?? undefined,
+      })
+    } else {
+      loadError.value = result.message ?? 'Failed to load variant'
+    }
+  } catch (err) {
+    console.error(err)
+    loadError.value = 'Failed to load variant'
   }
   loading.value = false
 }
@@ -138,103 +146,99 @@ onMounted(async () => {
 
 <template>
   <div>
-    <PageHeader :title="title" :icon="route.meta?.icon as string | undefined">
+    <PageHeader :title="title" :subtitle="subtitle" :icon="route.meta?.icon as string | undefined">
       <template #actions>
-        <button v-if="mode === 'view'" class="p-button p-component" @click="toggleEdit">{{ t('catalog.variants.actions.edit') }}</button>
+        <Button v-if="mode === 'view'" :label="t('catalog.variants.actions.edit')" @click="toggleEdit" />
       </template>
     </PageHeader>
     <LoadingSkeleton v-if="loading && mode !== 'create'" :rows="8" :columns="2" />
     <ErrorState v-else-if="loadError" :title="loadError" @retry="loadVariant" />
-    <div v-else class="card">
-      <div class="grid">
-        <div class="col-6">
-          <FormField :label="t('catalog.variants.labels.sku')" :error="errors.sku" required>
-            <input v-model="sku" type="text" class="p-inputtext p-component w-full" :disabled="mode === 'view'" />
-          </FormField>
+    <template v-else>
+      <AppCard class="mb-4">
+        <div class="grid grid-cols-12 gap-4">
+          <div class="col-span-full sm:col-span-6">
+            <FormField :label="t('catalog.variants.labels.sku')" :error="errors.sku" required>
+              <input v-model="sku" type="text" class="p-inputtext p-component w-full" :disabled="mode === 'view'" />
+            </FormField>
+          </div>
+          <div class="col-span-full sm:col-span-6">
+            <FormField :label="t('catalog.variants.labels.position')" :error="errors.position">
+              <input v-model.number="position" type="number" class="p-inputtext p-component w-full" :disabled="mode === 'view'" />
+            </FormField>
+          </div>
         </div>
-        <div class="col-6">
-          <FormField :label="t('catalog.variants.labels.position')" :error="errors.position">
-            <input v-model.number="position" type="number" class="p-inputtext p-component w-full" :disabled="mode === 'view'" />
-          </FormField>
+        <div class="grid grid-cols-12 gap-4 mt-4">
+          <div class="col-span-full sm:col-span-6">
+            <FormField :label="t('catalog.variants.labels.track_inventory')">
+              <div class="flex align-items-center gap-2 mt-1">
+                <Checkbox v-model="trackInventory" :binary="true" :disabled="mode === 'view'" input-id="trackInventory" />
+                <label for="trackInventory">{{ t('catalog.variants.descriptions.track_inventory') }}</label>
+              </div>
+            </FormField>
+          </div>
+          <div class="col-span-full sm:col-span-6">
+            <FormField :label="t('catalog.variants.labels.is_master')">
+              <div class="flex align-items-center gap-2 mt-1">
+                <Checkbox v-model="isMaster" :binary="true" :disabled="mode === 'view'" input-id="isMaster" />
+                <label for="isMaster">{{ t('catalog.variants.descriptions.is_master') }}</label>
+              </div>
+            </FormField>
+          </div>
         </div>
-      </div>
-      <div class="grid">
-        <div class="col-6">
-          <FormField :label="t('catalog.variants.labels.track_inventory')">
-            <div class="flex align-items-center gap-2 mt-1">
-              <Checkbox v-model="trackInventory" :binary="true" :disabled="mode === 'view'" input-id="trackInventory" />
-              <label for="trackInventory">{{ t('catalog.variants.descriptions.track_inventory') }}</label>
-            </div>
-          </FormField>
+        <div class="grid grid-cols-12 gap-4 mt-4">
+          <div class="col-span-full sm:col-span-4">
+            <FormField :label="t('catalog.variants.labels.weight')">
+              <input v-model.number="weight" type="number" class="p-inputtext p-component w-full" :disabled="mode === 'view'" />
+            </FormField>
+          </div>
+          <div class="col-span-full sm:col-span-2">
+            <FormField :label="t('catalog.variants.labels.weight_unit')">
+              <Select v-model="weightUnit" :options="weightUnitOptions" option-label="label" option-value="value" class="w-full" :disabled="mode === 'view'" />
+            </FormField>
+          </div>
+          <div class="col-span-full sm:col-span-2">
+            <FormField :label="t('catalog.variants.labels.height')">
+              <input v-model.number="height" type="number" class="p-inputtext p-component w-full" :disabled="mode === 'view'" />
+            </FormField>
+          </div>
+          <div class="col-span-full sm:col-span-2">
+            <FormField :label="t('catalog.variants.labels.width')">
+              <input v-model.number="width" type="number" class="p-inputtext p-component w-full" :disabled="mode === 'view'" />
+            </FormField>
+          </div>
+          <div class="col-span-full sm:col-span-2">
+            <FormField :label="t('catalog.variants.labels.depth')">
+              <input v-model.number="depth" type="number" class="p-inputtext p-component w-full" :disabled="mode === 'view'" />
+            </FormField>
+          </div>
         </div>
-        <div class="col-6">
-          <FormField :label="t('catalog.variants.labels.is_master')">
-            <div class="flex align-items-center gap-2 mt-1">
-              <Checkbox v-model="isMaster" :binary="true" :disabled="mode === 'view'" input-id="isMaster" />
-              <label for="isMaster">{{ t('catalog.variants.descriptions.is_master') }}</label>
-            </div>
-          </FormField>
+        <div class="grid grid-cols-12 gap-4 mt-4">
+          <div class="col-span-full sm:col-span-2">
+            <FormField :label="t('catalog.variants.labels.dimensions_unit')">
+              <Select v-model="dimensionsUnit" :options="dimensionsUnitOptions" option-label="label" option-value="value" class="w-full" :disabled="mode === 'view'" />
+            </FormField>
+          </div>
+          <div class="col-span-full sm:col-span-4">
+            <FormField :label="t('catalog.variants.labels.price')">
+              <input v-model.number="price" type="number" class="p-inputtext p-component w-full" :disabled="mode === 'view'" />
+            </FormField>
+          </div>
+          <div class="col-span-full sm:col-span-4">
+            <FormField :label="t('catalog.variants.labels.cost_price')">
+              <input v-model.number="costPrice" type="number" class="p-inputtext p-component w-full" :disabled="mode === 'view'" />
+            </FormField>
+          </div>
+          <div class="col-span-full sm:col-span-2">
+            <FormField :label="t('catalog.variants.labels.cost_currency')">
+              <input v-model="costCurrency" type="text" class="p-inputtext p-component w-full" :disabled="mode === 'view'" />
+            </FormField>
+          </div>
         </div>
-      </div>
-      <div class="grid">
-        <div class="col-4">
-          <FormField :label="t('catalog.variants.labels.weight')">
-            <input v-model.number="weight" type="number" class="p-inputtext p-component w-full" :disabled="mode === 'view'" />
-          </FormField>
-        </div>
-        <div class="col-2">
-          <FormField :label="t('catalog.variants.labels.weight_unit')">
-            <Select v-model="weightUnit" :options="weightUnitOptions" option-label="label" option-value="value" class="w-full" :disabled="mode === 'view'" />
-          </FormField>
-        </div>
-        <div class="col-2">
-          <FormField :label="t('catalog.variants.labels.height')">
-            <input v-model.number="height" type="number" class="p-inputtext p-component w-full" :disabled="mode === 'view'" />
-          </FormField>
-        </div>
-        <div class="col-2">
-          <FormField :label="t('catalog.variants.labels.width')">
-            <input v-model.number="width" type="number" class="p-inputtext p-component w-full" :disabled="mode === 'view'" />
-          </FormField>
-        </div>
-        <div class="col-2">
-          <FormField :label="t('catalog.variants.labels.depth')">
-            <input v-model.number="depth" type="number" class="p-inputtext p-component w-full" :disabled="mode === 'view'" />
-          </FormField>
-        </div>
-      </div>
-      <div class="grid">
-        <div class="col-2">
-          <FormField :label="t('catalog.variants.labels.dimensions_unit')">
-            <Select v-model="dimensionsUnit" :options="dimensionsUnitOptions" option-label="label" option-value="value" class="w-full" :disabled="mode === 'view'" />
-          </FormField>
-        </div>
-        <div class="col-4">
-          <FormField :label="t('catalog.variants.labels.price')">
-            <input v-model.number="price" type="number" class="p-inputtext p-component w-full" :disabled="mode === 'view'" />
-          </FormField>
-        </div>
-        <div class="col-4">
-          <FormField :label="t('catalog.variants.labels.cost_price')">
-            <input v-model.number="costPrice" type="number" class="p-inputtext p-component w-full" :disabled="mode === 'view'" />
-          </FormField>
-        </div>
-        <div class="col-2">
-          <FormField :label="t('catalog.variants.labels.cost_currency')">
-            <input v-model="costCurrency" type="text" class="p-inputtext p-component w-full" :disabled="mode === 'view'" />
-          </FormField>
-        </div>
-      </div>
+      </AppCard>
 
-      <div v-if="id" class="mt-6 border border-surface-200 dark:border-surface-700 rounded-lg p-4">
+      <div v-if="id" class="flex flex-col gap-4">
         <VariantPriceManager :variant-id="id!" />
-      </div>
-
-      <div v-if="id" class="mt-6 border border-surface-200 dark:border-surface-700 rounded-lg p-4">
         <VariantOptionValueManager :variant-id="id!" />
-      </div>
-
-      <div v-if="id" class="mt-6 border border-surface-200 dark:border-surface-700 rounded-lg p-4">
         <VariantImageGallery :variant-id="id!" />
       </div>
 
@@ -246,6 +250,6 @@ onMounted(async () => {
         @save="save"
         @cancel="cancel"
       />
-    </div>
+    </template>
   </div>
 </template>

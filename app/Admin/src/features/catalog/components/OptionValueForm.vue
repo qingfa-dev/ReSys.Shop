@@ -3,6 +3,9 @@ import { ref } from 'vue'
 import { useForm } from 'vee-validate'
 import { toTypedSchema } from '@vee-validate/zod'
 import { useI18n } from 'vue-i18n'
+import { AppCard } from '@/shared/components'
+import Button from 'primevue/button'
+import InputText from 'primevue/inputtext'
 import { OptionValueForms } from '../schemas'
 import { OptionValueFormMapper } from '../mappers/option-value.mapper'
 import { OptionValueApi } from '../api/option-value.api'
@@ -35,32 +38,40 @@ const [presentation] = defineField('presentation')
 
 const onSubmit = handleSubmit(async (values) => {
   saving.value = true
-  const result = props.optionValue
-    ? await OptionValueApi.update(props.optionTypeId, props.optionValue.id, OptionValueFormMapper.toUpdate(values))
-    : await OptionValueApi.create(props.optionTypeId, OptionValueFormMapper.toCreate(values))
-  saving.value = false
-  if (result.isSuccess) {
-    emit('saved', result.value)
-  } else {
-    toast.error(result.message ?? 'Failed to save option value')
+  try {
+    const result = props.optionValue
+      ? await OptionValueApi.update(props.optionTypeId, props.optionValue.id, OptionValueFormMapper.toUpdate(values))
+      : await OptionValueApi.create(props.optionTypeId, OptionValueFormMapper.toCreate(values))
+    saving.value = false
+    if (result.isSuccess) {
+      emit('saved', result.value)
+    } else {
+      toast.error(result.message ?? 'Failed to save option value')
+    }
+  } catch (err) {
+    console.error(err)
+    saving.value = false
+    toast.error('Failed to save option value')
   }
 })
 </script>
 
 <template>
-  <form @submit="onSubmit" class="flex flex-col gap-3">
-    <div>
-      <label class="block font-medium mb-1">{{ t('catalog.option_values.labels.name') }}</label>
-      <InputText v-model="name" class="w-full" :invalid="!!errors.name" />
-      <small v-if="errors.name" class="text-red-500">{{ errors.name }}</small>
-    </div>
-    <div>
-      <label class="block font-medium mb-1">{{ t('catalog.option_values.labels.presentation') }}</label>
-      <InputText v-model="presentation" class="w-full" />
-    </div>
-    <div class="flex justify-content-end gap-2">
-      <Button :label="t('catalog.option_values.actions.cancel')" class="p-button-secondary" @click="emit('cancelled')" />
-      <Button type="submit" :label="t('catalog.option_values.actions.save')" :loading="saving" :disabled="saving" />
-    </div>
-  </form>
+  <AppCard>
+    <form @submit="onSubmit" class="flex flex-col gap-3">
+      <div>
+        <label class="block font-medium mb-1">{{ t('catalog.option_values.labels.name') }}</label>
+        <InputText v-model="name" class="w-full" :invalid="!!errors.name" />
+        <small v-if="errors.name" class="text-red-500">{{ errors.name }}</small>
+      </div>
+      <div>
+        <label class="block font-medium mb-1">{{ t('catalog.option_values.labels.presentation') }}</label>
+        <InputText v-model="presentation" class="w-full" />
+      </div>
+      <div class="flex justify-end gap-2">
+        <Button :label="t('catalog.option_values.actions.cancel')" severity="secondary" @click="emit('cancelled')" />
+        <Button type="submit" :label="t('catalog.option_values.actions.save')" :loading="saving" :disabled="saving" />
+      </div>
+    </form>
+  </AppCard>
 </template>

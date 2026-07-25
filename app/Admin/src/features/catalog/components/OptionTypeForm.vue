@@ -7,9 +7,7 @@ import { useI18n } from 'vue-i18n'
 import PageHeader from '@/shared/components/layout/PageHeader.vue'
 import FormField from '@/shared/components/forms/FormField.vue'
 import FormActions from '@/shared/components/forms/FormActions.vue'
-import LoadingSkeleton from '@/shared/components/feedback/LoadingSkeleton.vue'
-import ErrorState from '@/shared/components/feedback/ErrorState.vue'
-import DataTable from '@/shared/components/data/DataTable.vue'
+import { LoadingSkeleton, ErrorState, AppCard, DataTable } from '@/shared/components'
 import Column from 'primevue/column'
 import Sidebar from 'primevue/sidebar'
 import Button from 'primevue/button'
@@ -64,15 +62,25 @@ const title = computed(() => {
   return name.value || t('catalog.option_types.titles.edit')
 })
 
+const subtitle = computed(() => {
+  if (mode.value === 'create') return t('catalog.option_types.descriptions.create')
+  return t('catalog.option_types.descriptions.list')
+})
+
 async function loadOptionType() {
   if (!id.value) return
   loading.value = true
   loadError.value = null
-  const result = await OptionTypeApi.get(id.value)
-  if (result.isSuccess) {
-    setValues({ name: result.value.name, presentation: result.value.presentation ?? undefined, filterable: result.value.filterable ?? undefined })
-  } else {
-    loadError.value = result.message ?? 'Failed to load option type'
+  try {
+    const result = await OptionTypeApi.get(id.value)
+    if (result.isSuccess) {
+      setValues({ name: result.value.name, presentation: result.value.presentation ?? undefined, filterable: result.value.filterable ?? undefined })
+    } else {
+      loadError.value = result.message ?? 'Failed to load option type'
+    }
+  } catch (err) {
+    console.error(err)
+    loadError.value = 'Failed to load option type'
   }
   loading.value = false
 }
@@ -80,8 +88,12 @@ async function loadOptionType() {
 async function loadOptionValues() {
   if (!id.value) return
   optionValuesLoading.value = true
-  const result = await OptionValueApi.getMany(id.value)
-  if (result.isSuccess) { optionValues.value = result.value }
+  try {
+    const result = await OptionValueApi.getMany(id.value)
+    if (result.isSuccess) { optionValues.value = result.value }
+  } catch (err) {
+    console.error(err)
+  }
   optionValuesLoading.value = false
 }
 
@@ -163,59 +175,63 @@ onMounted(async () => {
 
 <template>
   <div>
-    <PageHeader :title="title" :icon="route.meta?.icon as string | undefined">
+    <PageHeader :title="title" :subtitle="subtitle" :icon="route.meta?.icon as string | undefined">
       <template #actions>
-        <button v-if="mode === 'view'" class="p-button p-component" @click="toggleEdit">{{ t('catalog.option_types.actions.edit') }}</button>
+        <Button v-if="mode === 'view'" :label="t('catalog.option_types.actions.edit')" @click="toggleEdit" />
       </template>
     </PageHeader>
     <LoadingSkeleton v-if="loading && mode !== 'create'" :rows="8" :columns="2" />
     <ErrorState v-else-if="loadError" :title="loadError" @retry="loadOptionType" />
-    <div v-else class="card">
-      <div class="grid">
-        <div class="col-6">
-          <FormField :label="t('catalog.option_types.labels.name')" :error="errors.name" required>
-            <input v-model="name" type="text" class="p-inputtext p-component w-full" :disabled="mode === 'view'" />
-          </FormField>
+    <template v-else>
+      <AppCard class="mb-4">
+        <div class="grid grid-cols-12 gap-4">
+          <div class="col-span-full sm:col-span-6">
+            <FormField :label="t('catalog.option_types.labels.name')" :error="errors.name" required>
+              <input v-model="name" type="text" class="p-inputtext p-component w-full" :disabled="mode === 'view'" />
+            </FormField>
+          </div>
+          <div class="col-span-full sm:col-span-6">
+            <FormField :label="t('catalog.option_types.labels.presentation')">
+              <input v-model="presentation" type="text" class="p-inputtext p-component w-full" :disabled="mode === 'view'" />
+            </FormField>
+          </div>
         </div>
-        <div class="col-6">
-          <FormField label="Presentation">
-            <input v-model="presentation" type="text" class="p-inputtext p-component w-full" :disabled="mode === 'view'" />
-          </FormField>
+        <div class="grid grid-cols-12 gap-4 mt-4">
+          <div class="col-span-full sm:col-span-6">
+            <FormField :label="t('catalog.option_types.labels.filterable')">
+              <div class="flex align-items-center gap-2 mt-1">
+                <Checkbox v-model="filterable" :binary="true" :disabled="mode === 'view'" input-id="filterable" />
+                <label for="filterable">{{ t('catalog.option_types.descriptions.values') }}</label>
+              </div>
+            </FormField>
+          </div>
         </div>
-      </div>
-      <div class="grid">
-        <div class="col-6">
-          <FormField :label="t('catalog.option_types.labels.filterable')">
-            <div class="flex align-items-center gap-2 mt-1">
-              <Checkbox v-model="filterable" :binary="true" :disabled="mode === 'view'" input-id="filterable" />
-              <label for="filterable">{{ t('catalog.option_types.descriptions.values') }}</label>
-            </div>
-          </FormField>
-        </div>
-      </div>
+      </AppCard>
 
-      <fieldset v-if="id" class="mt-6 border border-surface-200 dark:border-surface-700 rounded-lg p-4">
-        <legend class="text-lg font-semibold text-surface-900 dark:text-surface-0 px-2">{{ t('catalog.option_values.titles.list') }}</legend>
-        <div class="flex justify-end mb-3">
-          <Button :label="t('catalog.option_values.actions.add_value')" icon="pi pi-plus" size="small" @click="openAddOptionValue" />
-        </div>
-        <DataTable
-          :rows="optionValues"
-          :loading="optionValuesLoading"
-          :empty-title="t('catalog.option_values.messages.empty_list')"
-          empty-description="Add an option value to get started."
-        >
-          <Column field="name" :header="t('catalog.option_values.labels.name')" />
-          <Column field="presentation" :header="t('catalog.option_values.labels.presentation')" />
-          <Column field="position" :header="t('catalog.option_values.labels.position')" />
-          <template #rowActions="{ data }">
-            <div class="flex gap-1">
-              <Button icon="pi pi-pencil" severity="secondary" text rounded size="small" @click="openEditOptionValue(data)" />
-              <Button icon="pi pi-trash" severity="danger" text rounded size="small" @click="confirmDeleteOptionValue(data)" />
-            </div>
-          </template>
-        </DataTable>
-      </fieldset>
+      <div v-if="id" class="flex flex-col gap-4">
+        <AppCard>
+          <div class="flex items-center justify-between mb-3">
+            <h3 class="text-lg font-semibold text-surface-900 dark:text-surface-0">{{ t('catalog.option_values.titles.list') }}</h3>
+            <Button :label="t('catalog.option_values.actions.add_value')" icon="pi pi-plus" size="small" @click="openAddOptionValue" />
+          </div>
+          <DataTable
+            :rows="optionValues"
+            :loading="optionValuesLoading"
+            :empty-title="t('catalog.option_values.messages.empty_list')"
+            empty-description="Add an option value to get started."
+          >
+            <Column field="name" :header="t('catalog.option_values.labels.name')" />
+            <Column field="presentation" :header="t('catalog.option_values.labels.presentation')" />
+            <Column field="position" :header="t('catalog.option_values.labels.position')" />
+            <template #rowActions="{ data }">
+              <div class="flex gap-1">
+                <Button icon="pi pi-pencil" severity="secondary" text rounded size="small" @click="openEditOptionValue(data)" />
+                <Button icon="pi pi-trash" severity="danger" text rounded size="small" @click="confirmDeleteOptionValue(data)" />
+              </div>
+            </template>
+          </DataTable>
+        </AppCard>
+      </div>
 
       <FormActions
         v-if="mode !== 'view'"
@@ -225,7 +241,7 @@ onMounted(async () => {
         @save="save"
         @cancel="cancel"
       />
-    </div>
+    </template>
 
     <Sidebar v-model:visible="optionValueSlideoverVisible" :header="t('catalog.option_values.titles.create')" position="right" class="w-full sm:w-96">
       <div class="flex flex-col gap-4">

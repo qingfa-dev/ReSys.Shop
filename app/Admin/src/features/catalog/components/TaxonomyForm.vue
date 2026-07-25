@@ -7,9 +7,7 @@ import { useI18n } from 'vue-i18n'
 import PageHeader from '@/shared/components/layout/PageHeader.vue'
 import FormField from '@/shared/components/forms/FormField.vue'
 import FormActions from '@/shared/components/forms/FormActions.vue'
-import LoadingSkeleton from '@/shared/components/feedback/LoadingSkeleton.vue'
-import ErrorState from '@/shared/components/feedback/ErrorState.vue'
-import DataTable from '@/shared/components/data/DataTable.vue'
+import { LoadingSkeleton, ErrorState, AppCard, DataTable } from '@/shared/components'
 import Column from 'primevue/column'
 import Sidebar from 'primevue/sidebar'
 import Button from 'primevue/button'
@@ -62,15 +60,25 @@ const title = computed(() => {
   return name.value || t('catalog.taxonomies.titles.edit')
 })
 
+const subtitle = computed(() => {
+  if (mode.value === 'create') return t('catalog.taxonomies.descriptions.create')
+  return t('catalog.taxonomies.descriptions.list')
+})
+
 async function loadTaxonomy() {
   if (!id.value) return
   loading.value = true
   loadError.value = null
-  const result = await TaxonomyApi.get(id.value)
-  if (result.isSuccess) {
-    setValues({ name: result.value.name, presentation: result.value.presentation ?? undefined })
-  } else {
-    loadError.value = result.message ?? 'Failed to load taxonomy'
+  try {
+    const result = await TaxonomyApi.get(id.value)
+    if (result.isSuccess) {
+      setValues({ name: result.value.name, presentation: result.value.presentation ?? undefined })
+    } else {
+      loadError.value = result.message ?? 'Failed to load taxonomy'
+    }
+  } catch (err) {
+    console.error(err)
+    loadError.value = 'Failed to load taxonomy'
   }
   loading.value = false
 }
@@ -78,8 +86,12 @@ async function loadTaxonomy() {
 async function loadTaxons() {
   if (!id.value) return
   taxonsLoading.value = true
-  const result = await TaxonApi.getMany(id.value)
-  if (result.isSuccess) { taxons.value = result.value }
+  try {
+    const result = await TaxonApi.getMany(id.value)
+    if (result.isSuccess) { taxons.value = result.value }
+  } catch (err) {
+    console.error(err)
+  }
   taxonsLoading.value = false
 }
 
@@ -161,58 +173,62 @@ onMounted(async () => {
 
 <template>
   <div>
-    <PageHeader :title="title" :icon="route.meta?.icon as string | undefined">
+    <PageHeader :title="title" :subtitle="subtitle" :icon="route.meta?.icon as string | undefined">
       <template #actions>
-        <button v-if="mode === 'view'" class="p-button p-component" @click="toggleEdit">{{ t('catalog.taxonomies.actions.edit') }}</button>
+        <Button v-if="mode === 'view'" :label="t('catalog.taxonomies.actions.edit')" @click="toggleEdit" />
       </template>
     </PageHeader>
     <LoadingSkeleton v-if="loading && mode !== 'create'" :rows="8" :columns="2" />
     <ErrorState v-else-if="loadError" :title="loadError" @retry="loadTaxonomy" />
-    <div v-else class="card">
-      <div class="grid">
-        <div class="col-6">
-          <FormField :label="t('catalog.taxonomies.labels.name')" :error="errors.name" required>
-            <input v-model="name" type="text" class="p-inputtext p-component w-full" :disabled="mode === 'view'" />
-          </FormField>
+    <template v-else>
+      <AppCard class="mb-4">
+        <div class="grid grid-cols-12 gap-4">
+          <div class="col-span-full sm:col-span-6">
+            <FormField :label="t('catalog.taxonomies.labels.name')" :error="errors.name" required>
+              <input v-model="name" type="text" class="p-inputtext p-component w-full" :disabled="mode === 'view'" />
+            </FormField>
+          </div>
+          <div class="col-span-full sm:col-span-6">
+            <FormField :label="t('catalog.taxonomies.labels.presentation')">
+              <input v-model="presentation" type="text" class="p-inputtext p-component w-full" :disabled="mode === 'view'" />
+            </FormField>
+          </div>
         </div>
-        <div class="col-6">
-          <FormField :label="t('catalog.taxonomies.labels.presentation')">
-            <input v-model="presentation" type="text" class="p-inputtext p-component w-full" :disabled="mode === 'view'" />
-          </FormField>
-        </div>
-      </div>
+      </AppCard>
 
-      <fieldset v-if="id" class="mt-6 border border-surface-200 dark:border-surface-700 rounded-lg p-4">
-        <legend class="text-lg font-semibold text-surface-900 dark:text-surface-0 px-2">{{ t('catalog.taxa.titles.manager') }}</legend>
-        <div class="flex justify-end mb-3">
-          <Button :label="t('catalog.taxa.actions.add_taxon')" icon="pi pi-plus" size="small" @click="openAddTaxon" />
-        </div>
-        <DataTable
-          :rows="taxons"
-          :loading="taxonsLoading"
-          :empty-title="t('catalog.taxa.messages.empty_tree')"
-          empty-description="Add a taxon to get started."
-        >
-          <Column field="name" :header="t('catalog.taxa.labels.name')">
-            <template #body="{ data }">
-              <span :style="{ paddingLeft: data.depth * 1.5 + 'rem' }">{{ data.name }}</span>
+      <div v-if="id" class="flex flex-col gap-4">
+        <AppCard>
+          <div class="flex items-center justify-between mb-3">
+            <h3 class="text-lg font-semibold text-surface-900 dark:text-surface-0">{{ t('catalog.taxa.titles.manager') }}</h3>
+            <Button :label="t('catalog.taxa.actions.add_taxon')" icon="pi pi-plus" size="small" @click="openAddTaxon" />
+          </div>
+          <DataTable
+            :rows="taxons"
+            :loading="taxonsLoading"
+            :empty-title="t('catalog.taxa.messages.empty_tree')"
+            empty-description="Add a taxon to get started."
+          >
+            <Column field="name" :header="t('catalog.taxa.labels.name')">
+              <template #body="{ data }">
+                <span :style="{ paddingLeft: data.depth * 1.5 + 'rem' }">{{ data.name }}</span>
+              </template>
+            </Column>
+            <Column field="presentation" :header="t('catalog.taxa.labels.presentation')" />
+            <Column field="slug" :header="t('catalog.taxa.labels.slug')" />
+            <Column header="Children">
+              <template #body="{ data }">
+                {{ data.childrenCount }}
+              </template>
+            </Column>
+            <template #rowActions="{ data }">
+              <div class="flex gap-1">
+                <Button icon="pi pi-pencil" severity="secondary" text rounded size="small" @click="openEditTaxon(data)" />
+                <Button icon="pi pi-trash" severity="danger" text rounded size="small" @click="confirmDeleteTaxon(data)" />
+              </div>
             </template>
-          </Column>
-          <Column field="presentation" :header="t('catalog.taxa.labels.presentation')" />
-          <Column field="slug" :header="t('catalog.taxa.labels.slug')" />
-          <Column header="Children">
-            <template #body="{ data }">
-              {{ data.childrenCount }}
-            </template>
-          </Column>
-          <template #rowActions="{ data }">
-            <div class="flex gap-1">
-              <Button icon="pi pi-pencil" severity="secondary" text rounded size="small" @click="openEditTaxon(data)" />
-              <Button icon="pi pi-trash" severity="danger" text rounded size="small" @click="confirmDeleteTaxon(data)" />
-            </div>
-          </template>
-        </DataTable>
-      </fieldset>
+          </DataTable>
+        </AppCard>
+      </div>
 
       <FormActions
         v-if="mode !== 'view'"
@@ -222,7 +238,7 @@ onMounted(async () => {
         @save="save"
         @cancel="cancel"
       />
-    </div>
+    </template>
 
     <Sidebar v-model:visible="taxonSlideoverVisible" :header="t('catalog.taxa.titles.create')" position="right" class="w-full sm:w-96">
       <div class="flex flex-col gap-4">

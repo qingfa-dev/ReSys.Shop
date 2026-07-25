@@ -3,9 +3,11 @@ import { ref, computed, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRouter, useRoute } from 'vue-router'
 import PageHeader from '@/shared/components/layout/PageHeader.vue'
-import { StatCard, LoadingSkeleton, ErrorState } from '@/shared/components'
+import { StatCard, LoadingSkeleton, ErrorState, ListLayout } from '@/shared/components'
+import Button from 'primevue/button'
 import { CatalogDashboardApi } from '../api'
 import type { CatalogDashboardResponse } from '../types'
+import { ROUTE } from '../routes'
 
 const { t } = useI18n()
 const router = useRouter()
@@ -37,9 +39,9 @@ const metrics = computed(() => [
 ])
 
 const quickActions = [
-  { label: t('catalog.dashboard.add_product'), icon: 'pi pi-plus', route: { name: 'catalog.products.create' } },
-  { label: t('catalog.dashboard.import_csv'), icon: 'pi pi-upload', route: { name: 'catalog.products.create' } },
-  { label: t('catalog.dashboard.manage_categories'), icon: 'pi pi-sitemap', route: { name: 'catalog.taxonomies.list' } },
+  { label: t('catalog.dashboard.add_product'), icon: 'pi pi-plus', route: { name: ROUTE.PRODUCTS.CREATE } },
+  { label: t('catalog.dashboard.import_csv'), icon: 'pi pi-upload', route: { name: ROUTE.PRODUCTS.CREATE } },
+  { label: t('catalog.dashboard.manage_categories'), icon: 'pi pi-sitemap', route: { name: ROUTE.TAXONOMIES.LIST } },
 ]
 
 const recentProducts = computed(() =>
@@ -65,11 +67,16 @@ function formatRelativeTime(utc: string): string {
 async function fetchDashboard() {
   loading.value = true
   error.value = null
-  const result = await CatalogDashboardApi.get()
-  if (result.isSuccess) {
-    data.value = result.value
-  } else {
-    error.value = result.message ?? 'Failed to load dashboard data'
+  try {
+    const result = await CatalogDashboardApi.get()
+    if (result.isSuccess) {
+      data.value = result.value
+    } else {
+      error.value = result.message ?? 'Failed to load dashboard data'
+    }
+  } catch (err) {
+    console.error(err)
+    error.value = 'Failed to load dashboard data'
   }
   loading.value = false
 }
@@ -78,16 +85,18 @@ onMounted(fetchDashboard)
 </script>
 
 <template>
-  <div>
-    <PageHeader
-      :title="t('catalog.dashboard.title')"
-      :subtitle="t('catalog.dashboard.description')"
-      :icon="route.meta?.icon as string | undefined"
-    >
-      <template #actions>
-        <Button :label="t('catalog.dashboard.add_product')" icon="pi pi-plus" size="small" @click="router.push({ name: 'catalog.products.create' })" />
-      </template>
-    </PageHeader>
+  <ListLayout>
+    <template #header>
+      <PageHeader
+        :title="t('catalog.dashboard.title')"
+        :subtitle="t('catalog.dashboard.description')"
+        :icon="route.meta?.icon as string | undefined"
+      >
+        <template #actions>
+          <Button :label="t('catalog.dashboard.add_product')" icon="pi pi-plus" size="small" @click="router.push({ name: ROUTE.PRODUCTS.CREATE })" />
+        </template>
+      </PageHeader>
+    </template>
 
     <LoadingSkeleton v-if="loading" rows="4" columns="4" />
 
@@ -159,5 +168,5 @@ onMounted(fetchDashboard)
         </p>
       </div>
     </template>
-  </div>
+  </ListLayout>
 </template>
