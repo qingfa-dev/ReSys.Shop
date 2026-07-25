@@ -225,43 +225,105 @@ This project distinguishes itself from prior work by addressing the *engineering
 
 == .NET Backend
 
-The backend is built on .NET 10, a high-performance runtime with ahead-of-time compilation and native asynchronous I/O. The API layer uses *Carter*, a library that extends ASP.NET minimal APIs with module-based endpoint registration, allowing each business module to declare its own routes independently. *MediatR* implements the CQRS pattern, routing commands and queries to handlers without direct coupling between modules. *Entity Framework Core* provides object-relational mapping to PostgreSQL, including pgvector integration for vector column types. *FluentValidation* enforces input rules at the application boundary before any handler executes.
+The backend is built on .NET 10, a high-performance runtime with ahead-of-time compilation and native asynchronous I/O. Its architecture is organised around five core libraries:
+
+- *Carter* extends ASP.NET minimal APIs with module-based endpoint registration. Each business module declares its own routes independently, keeping endpoint definitions co-located with their handlers rather than centralised in a startup file.
+
+- *MediatR* implements CQRS, routing commands (writes) and queries (reads) to handlers through an in-process message bus. Handlers are discovered at startup and dispatched by request type, with no direct coupling between modules.
+
+- *Entity Framework Core* maps C\# domain objects to PostgreSQL tables, including pgvector column types for embedding storage. Migrations are version-controlled and applied at startup.
+
+- *FluentValidation* enforces input rules at the application boundary. Each request type has an associated validator that runs before the handler executes, rejecting invalid data before it reaches business logic.
+
+- *Vertical slice architecture* organises each feature (e.g., CreateProduct, SearchByImage) as a self-contained folder containing the handler, request, response, endpoint, and validator. This colocation keeps feature concerns together rather than spread across technical layers.
 
 == Vue.js Frontend
 
-The frontend uses Vue 3 with TypeScript and the Vite build tool. Vue's reactive component model maps naturally to the storefront interface (product grids, search results, cart management) and the admin panel (CRUD forms, data tables, dashboards). *Pinia* manages client-side state across both surfaces. The storefront implements image upload with drag-and-drop via the browser File API, preview thumbnails rendered from blob URLs, and search result grids with lazy loading.
+The frontend uses Vue 3 with TypeScript and the Vite build tool. Two surfaces share a common component library and state management:
+
+- *Storefront.* Product catalog browsing with category trees, faceted filters (price, size, colour), and paginated result grids. Visual search: drag-and-drop image upload with client-side preview, similarity-ranked results with thumbnail, price, and score display. Cart management with session-based guest support and checkout flow spanning address entry, delivery selection, payment confirmation, and order completion.
+
+- *Admin panel.* Full CRUD for products, variants, taxonomies, and option types. Order management with fulfilment status tracking. User and role administration. Dashboard with sales and inventory summary charts.
+
+- *Pinia* manages client-side state through typed stores. Each bounded context has its own store (catalog, cart, auth, orders), mirroring the backend module boundaries.
 
 == PostgreSQL and pgvector
 
-PostgreSQL 17 serves as the single data store for both relational business data and vector embeddings. The *pgvector* extension adds a vector column type with HNSW-indexed ANN search using cosine distance. A single ACID database means product updates, image replacements, and embedding index maintenance occur within the same transaction, eliminating stale-index risks. Composite indexes on query-critical column combinations (user status, session status, product slug) optimise the most frequent access patterns.
+PostgreSQL 17 hosts both relational business data and vector embeddings in a single database.
+
+- *Relational schema.* Tables for products, variants, orders, users, and supporting entities are organised by bounded context. Foreign keys reference entities within the same context; cross-context references use identifier columns without database-level constraints, preserving logical isolation.
+
+- *pgvector extension.* Adds a `vector(N)` column type and cosine distance operator (`<=>`). An HNSW index on the embedding column enables sub-10ms ANN search on catalog-scale datasets.
+
+- *Transactional consistency.* A product update and its embedding update share the same ACID boundary. New images trigger embedding generation; catalog modifications and index changes are committed together, eliminating stale-index drift.
+
+- *Performance.* Composite indexes on query-critical combinations (user status, session status, product slug) optimise frequent access patterns. Query plans combine vector similarity and relational filtering in a single execution.
 
 == Redis Caching
 
-Redis 7 provides a two-tier cache alongside the .NET *HybridCache* abstraction. A fast in-process L1 cache serves repeated reads with sub-millisecond latency. Redis acts as the shared L2 layer, synchronised across application instances, and also backs Hangfire job queues and guest session state. Hot catalog data (taxonomy trees, front-page product lists) is cached at both tiers with configurable expiry.
+Redis 7 operates alongside the .NET *HybridCache* abstraction in a two-tier arrangement.
+
+- *L1: in-process.* Frequently accessed data (taxonomy trees, front-page product lists) is held in application memory with sub-millisecond read latency. Cache entries expire on a configurable sliding window, typically five minutes.
+
+- *L2: Redis.* The shared tier synchronises cache across application instances. Redis also backs Hangfire job queues and guest session storage. On cache miss at L1, the value is retrieved from Redis and promoted to L1, ensuring subsequent hits stay in-process.
 
 == Python ML Sidecar
 
-The machine learning sidecar is a separate Python 3.12 service built with *FastAPI*, an async web framework with automatic OpenAPI documentation. *PyTorch* loads and executes pre-trained embedding models. Models are managed by a singleton *ModelManager* that lazy-loads on first use and caches weights in GPU or CPU memory thereafter. The service exposes a narrow interface: `POST /embeddings` accepts image bytes and returns a JSON float array, `GET /health` reports model status and last inference latency. API key authentication protects the sidecar from unauthorised access.
+The machine learning capability runs as a dedicated Python 3.12 service, isolated from the .NET backend due to incompatible runtime dependencies (PyTorch requires Python, .NET requires the CLR).
+
+- *Framework.* FastAPI provides async HTTP endpoints with automatic OpenAPI schema generation. Uvicorn serves as the ASGI runtime.
+
+- *Model management.* A singleton *ModelManager* lazy-loads models from the HuggingFace hub on first request. Once loaded, models persist in GPU memory (or CPU, if no GPU is available) for the lifetime of the service. The manager supports multiple architectures through a common embedding interface.
+
+- *API surface.* `POST /embeddings` accepts raw image bytes (JPEG, PNG, WebP) and returns a JSON array of floating-point values. `GET /health` reports the currently loaded model, its embedding dimension, and the most recent inference latency.
+
+- *Security.* Requests require an `X-API-Key` header validated at the middleware layer. The sidecar listens only on the internal Docker network, inaccessible from the public internet.
 
 == .NET Aspire Orchestration
 
-*.NET Aspire* manages the multi-container development environment. It handles service discovery (the .NET backend reaches the Python sidecar at `http://ml-service`), container lifecycle (startup ordering, health check gating), and telemetry export. OpenTelemetry traces, metrics, and structured logs from both .NET and Python services are collected and exported through the Aspire dashboard. The orchestration model enables the entire platform to start from a single `dotnet run` command.
+*.NET Aspire* coordinates the multi-container development and deployment environment.
+
+- *Service discovery.* Components resolve each other by name: the .NET backend reaches the Python sidecar at `http://ml-service`, PostgreSQL at `postgres`, and Redis at `redis`. Configuration is injected via environment variables managed by the Aspire host.
+
+- *Lifecycle.* Aspire enforces startup ordering (database before API, sidecar before backend health check) and gates each component behind a readiness probe. Containers restart on failure with configurable back-off.
+
+- *Observability.* OpenTelemetry SDKs in both .NET and Python services export distributed traces, request metrics, and structured logs to the Aspire dashboard. Correlation IDs propagate across the HTTP boundary between backend and sidecar, linking a search request to its embedding generation span.
 
 == Hangfire Background Jobs
 
-*Hangfire* processes background work that should not block HTTP requests: cart expiry after seven days of inactivity, embedding generation queued separately from image upload, and periodic index maintenance. Jobs are persisted in Redis, surviving application restarts. The cart expiry job runs on a daily schedule; embedding generation jobs are enqueued immediately when new product images are uploaded and processed by the next available worker.
+*Hangfire* processes operations that should not block HTTP requests. Jobs are persisted in Redis for resilience across application restarts.
+
+- *Cart expiry.* A recurring job runs daily, removing carts with no activity for seven days. This prevents abandoned carts from accumulating indefinitely.
+
+- *Embedding queue.* When an admin uploads new product images, embedding generation tasks are enqueued for asynchronous processing. The upload endpoint returns immediately; the embedding appears in search results once the job completes.
+
+- *Index maintenance.* A periodic job rebuilds the HNSW index on the embedding column, optimising search performance as the catalog grows.
 
 == Identity, Authentication, and Authorisation
 
-*ASP.NET Identity* manages user accounts with password hashing, email confirmation, and two-factor authentication support. *JWT* access tokens with a 15-minute lifetime secure API requests; refresh tokens with rotation and reuse detection allow silent renewal without forcing frequent re-login. Guest sessions, backed by signed cookies, enable anonymous users to browse catalog items and manage a cart before registration. A *permission-based authorisation* model augments role checks with granular claims (e.g., `catalog:products:create`), allowing fine-grained access control at the endpoint level without coupling authorisation logic to individual handlers.
+- *ASP.NET Identity* provides user account management: password hashing with salted PBKDF2, email confirmation workflows, and optional two-factor authentication via TOTP.
+
+- *JWT tokens.* Access tokens carry claims (user ID, roles, permissions) and expire after 15 minutes. Refresh tokens enable silent renewal: the client exchanges a refresh token for a new access token, and each refresh token is single-use. Reuse of an already-consumed refresh token triggers revocation of all tokens for that user, mitigating token theft.
+
+- *Guest sessions.* Anonymous users receive a signed session cookie. This cookie links to a server-side session backed by Redis, enabling cart operations and product browsing without authentication. On registration or login, the guest session is transferred to the authenticated user context.
+
+- *Permission model.* Authorisation uses granular claims in the format `domain:category:action` (e.g., `catalog:products:create`). Roles aggregate commonly used permission sets. Endpoint-level attributes evaluate claims at the middleware layer, so handler code contains no authorisation logic.
 
 == Benchmark Framework
 
-The benchmark framework is a Python 3.12 pipeline for systematic evaluation of embedding models on fashion product retrieval. It operates in three evaluation modes: a one-shot comparison across all configured models, a three-fold cross-validation protocol using stratified category-based splits for the thesis results, and a pgvector pipeline mode that measures end-to-end latency including database query time.
+The benchmark framework is a Python 3.12 pipeline for systematic, reproducible evaluation of embedding models on fashion product retrieval. It is separate from the application codebase and produces the experimental results reported in Chapter 5.
 
-The framework supports 11 pre-trained models spanning CNN architectures (ResNet-50, ResNet-101, ResNet-152, EfficientNet-B0, EfficientNet-B4), vision transformers (DINOv2 ViT-S/14, DINOv2 ViT-B/14), and CLIP variants (CLIP ViT-B/32, CLIP ViT-B/16, CLIP ViT-L/14, Fashion-CLIP). Embeddings are cached per model, per fold, and per split to avoid recomputation across runs. For each model, the framework measures retrieval accuracy (mAP, Precision at K, Recall at K, nDCG) and operational efficiency (inference latency, throughput, storage footprint, RAM usage). Results are exported in JSON, CSV, Markdown, and Typst table formats for direct inclusion in the thesis.
+- *Modes.* Three evaluation modes are supported: a one-shot comparison across all configured models, a three-fold cross-validation protocol with stratified category-based splits (the default for thesis results), and a pgvector pipeline mode that measures end-to-end latency including database query and network round-trip time.
 
-The benchmark produces two primary tables used in Chapter 5: aggregate retrieval metrics with mean and standard deviation across all folds, and efficiency metrics summarising latency, throughput, and resource consumption per model. A separate enriched-dataset pipeline supports multi-label evaluation across three label schemes (category only, category and colour, and category, colour and pattern) to assess how embedding quality varies with annotation granularity.
+- *Models.* 11 pre-trained architectures are implemented: CNN-based (ResNet-50, ResNet-101, ResNet-152, EfficientNet-B0, EfficientNet-B4), vision transformers (DINOv2 ViT-S/14, DINOv2 ViT-B/14), and CLIP variants (CLIP ViT-B/32, CLIP ViT-B/16, CLIP ViT-L/14, Fashion-CLIP). Each model has a thin adapter implementing a common `generate_embeddings` interface.
+
+- *Caching.* Embeddings are cached to disk per model, per fold, and per split (query vs. catalog), avoiding recomputation when re-running evaluation on the same configuration.
+
+- *Metrics.* Retrieval accuracy is measured through mAP, Precision at K, Recall at K, and nDCG. Operational efficiency is measured through inference latency (mean and SD per image), throughput (images per second), model load time, on-disk storage, and RAM usage.
+
+- *Outputs.* Results are exported in JSON, CSV, Markdown, and Typst table formats. The Typst output files (`thesis_aggregate.typ`, `thesis_efficiency.typ`) embed directly into the thesis without manual transcription.
+
+- *Multi-label pipeline.* A separate enriched-dataset mode supports evaluation across three label schemes of increasing granularity (category only, category and colour, and category, colour and pattern), enabling analysis of how embedding quality varies with annotation detail.
 
 == Technology Stack Summary
 
