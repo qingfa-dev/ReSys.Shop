@@ -1,5 +1,3 @@
-= Introduction
-
 == Context and Motivation
 
 The discovery and purchase of clothing have shifted fundamentally toward digital platforms, yet the methods for locating specific products remain largely tethered to text-based retrieval. Global fashion e-commerce revenue exceeded 770 billion U.S. dollars in 2024 and is projected to surpass one trillion by 2030 @statista2024fashion, positioning the sector among the fastest-growing segments of online retail. Despite this expansion, the search bar — which serves as the primary interface between users and product catalogs — often struggles to interpret the visual nuances that define fashion. This limitation is central to the motivation of this project.

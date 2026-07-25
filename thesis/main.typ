@@ -45,15 +45,30 @@
 // Part 1: Introduction
 #part-heading[#term(lang, "part") 1: INTRODUCTION]
 #counter(heading).update(1)
+// Roman numerals for Part 1 chapters
+#set heading(numbering: (..nums) => {
+  let values = nums.pos()
+  if values.len() == 1 {
+    numbering("I.", ..values)
+  } else if values.len() == 2 {
+    numbering("I.", values.at(1))
+  } else {
+    none  // no numbering for level 3+
+  }
+})
+#show heading.where(level: 3): set heading(outlined: false)  // hide subsections from TOC
 #include "chapters/part1-introduction.typ"
 
 // Part 2: Content
 #part-heading[#term(lang, "part") 2: THESIS CONTENT]
-#counter(heading).step()
+#set heading(numbering: "1.1")
+#counter(heading).update(0)
+#show heading.where(level: 3): set heading(outlined: true)  // re-enable for content
 #include "chapters/part2-content.typ"
 
 // Part 3: Conclusion
 #part-heading[#term(lang, "part") 3: CONCLUSION AND FUTURE WORK]
+#set heading(numbering: "1.1")
 #counter(heading).step()
 #include "chapters/part3-conclusion.typ"
 
