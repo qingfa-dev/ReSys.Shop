@@ -1,37 +1,117 @@
 {
-  "titles": {
-    "list": "Shipping Methods",
-    "create": "Add Shipping Method",
-    "edit": "Edit Shipping Method",
-    "rate_list": "Shipping Rates",
-    "rate_form": "Shipping Rate"
+  "methods": {
+    "titles": {
+      "list": "Shipping Methods",
+      "create": "Add Shipping Method",
+      "edit": "Edit Shipping Method"
+    },
+    "descriptions": {
+      "list": "Manage shipping methods and carriers."
+    },
+    "form": {
+      "create_title": "Create Shipping Method",
+      "edit_title": "Edit: {name}",
+      "view_title": "Shipping Method",
+      "subtitle": "Configure shipping method details and settings."
+    },
+    "labels": {
+      "name": "Name",
+      "code": "Code",
+      "description": "Description",
+      "is_active": "Active",
+      "display_order": "Display Order",
+      "estimated_delivery_min": "Est. Delivery Min (days)",
+      "estimated_delivery_max": "Est. Delivery Max (days)",
+      "active_help": "Method is active and available"
+    },
+    "actions": {
+      "create": "Create Shipping Method",
+      "edit": "Edit",
+      "save_create": "Create",
+      "save_edit": "Save",
+      "cancel": "Cancel",
+      "view": "View",
+      "activate": "Activate",
+      "deactivate": "Deactivate",
+      "delete": "Delete"
+    },
+    "table": {
+      "search_placeholder": "Search shipping methods...",
+      "name": "Name",
+      "code": "Code",
+      "order": "Order",
+      "est_min": "Est. Min (days)",
+      "est_max": "Est. Max (days)",
+      "active": "Active"
+    },
+    "messages": {
+      "create_success": "Shipping method created",
+      "update_success": "Shipping method updated",
+      "save_failed": "Save failed",
+      "load_failed": "Failed to load shipping method",
+      "delete_success": "Shipping method deleted",
+      "delete_failed": "Failed to delete",
+      "deactivate_success": "Shipping method deactivated",
+      "activate_success": "Shipping method activated",
+      "update_failed": "Failed to update",
+      "delete_confirm_target": "this shipping method",
+      "empty_list": "No shipping methods found",
+      "empty_description": "Create your first shipping method."
+    }
   },
-  "labels": {
-    "name": "Name",
-    "carrier": "Carrier",
-    "description": "Description",
-    "is_active": "Active",
-    "display_order": "Display Order",
-    "rate": "Rate",
-    "shipping_method": "Shipping Method",
-    "from_weight": "From Weight",
-    "to_weight": "To Weight"
-  },
-  "validation": {
-    "name": {
-      "required": "Name is required",
-      "max_length": "Name must not exceed {max} characters"
+  "rates": {
+    "titles": {
+      "list": "Shipping Rates",
+      "create": "Add Shipping Rate",
+      "edit": "Edit Shipping Rate"
     },
-    "carrier": {
-      "required": "Carrier is required",
-      "max_length": "Carrier must not exceed {max} characters"
+    "descriptions": {
+      "list": "Manage shipping rates and pricing tiers."
     },
-    "shipping_method": {
-      "required": "Invalid shipping method",
-      "invalid": "Invalid shipping method"
+    "form": {
+      "create_title": "Create Shipping Rate",
+      "edit_title": "Edit: {name}",
+      "view_title": "Shipping Rate",
+      "subtitle": "Configure shipping rate details."
     },
-    "rate": {
-      "min": "Rate must be non-negative"
+    "labels": {
+      "name": "Name",
+      "shipping_method_id": "Shipping Method ID",
+      "rate": "Rate",
+      "currency": "Currency",
+      "min_order_amount": "Min Order Amount",
+      "max_order_amount": "Max Order Amount",
+      "min_weight": "Min Weight",
+      "max_weight": "Max Weight"
+    },
+    "actions": {
+      "create": "Create Shipping Rate",
+      "edit": "Edit",
+      "save_create": "Create",
+      "save_edit": "Save",
+      "cancel": "Cancel",
+      "view": "View",
+      "delete": "Delete"
+    },
+    "table": {
+      "search_placeholder": "Search shipping rates...",
+      "name": "Name",
+      "shipping_method": "Shipping Method",
+      "rate": "Rate",
+      "min_order": "Min Order",
+      "max_order": "Max Order",
+      "created": "Created"
+    },
+    "messages": {
+      "create_success": "Shipping rate created",
+      "update_success": "Shipping rate updated",
+      "save_failed": "Save failed",
+      "load_failed": "Failed to load shipping rate",
+      "delete_success": "Shipping rate deleted",
+      "delete_failed": "Failed to delete",
+      "delete_confirm_target": "this shipping rate",
+      "empty_list": "No shipping rates found",
+      "empty_description": "Create your first shipping rate."
     }
   }
 }
