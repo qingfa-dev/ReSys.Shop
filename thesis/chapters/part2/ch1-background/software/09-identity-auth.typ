@@ -1,4 +1,4 @@
-== Identity, Authentication, and Authorisation
+=== Identity, Authentication, and Authorisation
 
 - *ASP.NET Identity* provides user account management: password hashing with salted PBKDF2, email confirmation workflows, and optional two-factor authentication via TOTP.
 

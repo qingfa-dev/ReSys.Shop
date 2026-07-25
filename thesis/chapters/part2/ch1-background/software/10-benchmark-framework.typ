@@ -1,4 +1,4 @@
-== Benchmark Framework
+=== Benchmark Framework
 
 The benchmark framework is a Python 3.12 pipeline for systematic, reproducible evaluation of embedding models on fashion product retrieval. It is separate from the application codebase and produces the experimental results reported in Chapter 3.
 

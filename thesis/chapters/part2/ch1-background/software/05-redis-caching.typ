@@ -1,4 +1,4 @@
-== Redis Caching
+=== Redis Caching
 
 Redis 7 operates alongside the .NET *HybridCache* abstraction in a two-tier arrangement.
 

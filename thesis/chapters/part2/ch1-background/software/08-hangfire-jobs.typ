@@ -1,4 +1,4 @@
-== Hangfire Background Jobs
+=== Hangfire Background Jobs
 
 *Hangfire* processes operations that should not block HTTP requests. Jobs are persisted in Redis for resilience across application restarts.
 

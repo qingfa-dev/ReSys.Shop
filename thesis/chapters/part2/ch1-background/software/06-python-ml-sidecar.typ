@@ -1,4 +1,4 @@
-== Python ML Sidecar
+=== Python ML Sidecar
 
 The machine learning capability runs as a dedicated Python 3.12 service, isolated from the .NET backend due to incompatible runtime dependencies (PyTorch requires Python, .NET requires the CLR).
 

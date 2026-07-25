@@ -1,4 +1,4 @@
-== Vue.js Frontend
+=== Vue.js Frontend
 
 The frontend uses Vue 3 with TypeScript and the Vite build tool. Two surfaces share a common component library and state management:
 

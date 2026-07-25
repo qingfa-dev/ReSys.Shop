@@ -1,6 +1,4 @@
-== Vector Embeddings: The Mathematical Foundation
-
-At the heart of visual search is a simple idea: turning images into lists of numbers that a computer can compare. These lists are called *vector embeddings*, sometimes *feature vectors*.
+=== Vector Embeddings: Mathematical Foundations
 
 When an AI model processes an image, it outputs a fixed-length sequence of numbers representing the visual content:
 
@@ -8,9 +6,9 @@ When an AI model processes an image, it outputs a fixed-length sequence of numbe
 [0.23, -0.15, 0.87, 0.42, ..., -0.31]  (512 numbers)
 ```
 
-Embeddings capture the essence of an image in compressed form. Visually similar products produce similar number sequences; dissimilar products produce different ones. This transforms visual comparison into a mathematical operation.
+These lists are called *vector embeddings*. Visually similar products produce similar number sequences; dissimilar products produce different ones. This transforms visual comparison into a mathematical operation.
 
-=== The Latent Space
+==== The Latent Space
 
 Embeddings can be understood as points in a high-dimensional space. A 512-dimensional vector occupies a space with 512 axes, far beyond the three spatial dimensions we can visualise. In this *latent space*:
 
@@ -18,7 +16,7 @@ Embeddings can be understood as points in a high-dimensional space. A 512-dimens
 - Different images are far apart
 - The word "latent" signifies that the dimensions do not correspond to obvious visual concepts like "redness" or "stripiness." They represent abstract features the model learned during training.
 
-=== Measuring Similarity: Cosine Distance
+==== Measuring Similarity: Cosine Distance
 
 To compare images, the system measures the angle between their embedding vectors using *cosine similarity*:
 
@@ -31,7 +29,7 @@ Cosine similarity ranges from +1.0 (vectors point in the same direction, very si
 // Diagram placeholder: Visualisation of cosine similarity in 2D vector space
 // #figure(image("images/diagrams/cosine-similarity.png", width: 70%), caption: [...])
 
-=== The CBIR Pipeline
+==== The CBIR Pipeline
 
 Content-Based Image Retrieval (CBIR) replaces text queries with image queries through the following pipeline:
 
