@@ -223,29 +223,6 @@ This project distinguishes itself from prior work by addressing the *engineering
 
 *4. Applied model comparison.* Rather than chasing leaderboard metrics, this thesis compares models within realistic deployment constraints (inference latency budget, memory limits, storage cost). The resulting accuracy-efficiency trade-off data, presented in Chapter 5, provides a pragmatic guide for practitioners selecting embedding models.
 
-== Technology Stack Summary
-
-The preceding sections introduced the principal technologies that compose the ReSys.Shop platform. Table @tbl-tech-stack consolidates the complete stack.
-
-#figure(
-  table(
-    columns: (auto, auto, 1fr),
-    align: (start, start, start),
-    table.header([*Layer*], [*Technology*], [*Role*]),
-    [Frontend], [Vue 3, TypeScript, Vite], [Customer storefront and admin panel; reactive UI with Pinia state management],
-    [Backend API], [.NET 10, Carter, MediatR], [REST endpoints via minimal APIs; CQRS command-query separation across business modules],
-    [Database], [PostgreSQL, pgvector], [Relational data and vector embeddings in a single ACID database with HNSW-indexed similarity search],
-    [Caching], [Redis, HybridCache], [Two-tier cache (in-memory L1 and Redis L2); Hangfire job queue and session state backing store],
-    [ML Sidecar], [Python 3.12, FastAPI, PyTorch], [Dedicated embedding generation service with lazy model loading and GPU acceleration],
-    [Orchestration], [.NET Aspire], [Container lifecycle management, service discovery, and reproducible local development environment],
-    [Background Jobs], [Hangfire], [Persistent job processing for cart expiry, embedding queue, and maintenance tasks],
-    [Authentication], [JWT, ASP.NET Identity], [Short-lived access tokens with refresh rotation; role and permission-based authorisation],
-  ),
-  caption: [Technology stack of the ReSys.Shop platform],
-) <tbl-tech-stack>
-
-Together these technologies form a polyglot stack spanning three languages (C\#, TypeScript, Python) orchestrated through a unified containerised environment.
-
 == .NET Backend
 
 The backend is built on .NET 10, a high-performance runtime with ahead-of-time compilation and native asynchronous I/O. The API layer uses *Carter*, a library that extends ASP.NET minimal APIs with module-based endpoint registration, allowing each business module to declare its own routes independently. *MediatR* implements the CQRS pattern, routing commands and queries to handlers without direct coupling between modules. *Entity Framework Core* provides object-relational mapping to PostgreSQL, including pgvector integration for vector column types. *FluentValidation* enforces input rules at the application boundary before any handler executes.
@@ -274,6 +251,38 @@ The machine learning sidecar is a separate Python 3.12 service built with *FastA
 
 *Hangfire* processes background work that should not block HTTP requests: cart expiry after seven days of inactivity, embedding generation queued separately from image upload, and periodic index maintenance. Jobs are persisted in Redis, surviving application restarts. The cart expiry job runs on a daily schedule; embedding generation jobs are enqueued immediately when new product images are uploaded and processed by the next available worker.
 
-== JWT Authentication
+== Identity, Authentication, and Authorisation
 
-*ASP.NET Identity* manages user accounts with password hashing, email confirmation, and two-factor support. *JWT* access tokens with a 15-minute lifetime secure API requests; refresh tokens with rotation and reuse detection allow silent renewal without forcing frequent re-login. A *permission-based authorisation* model augments role checks with granular claims (e.g., `catalog:products:create`), enabling fine-grained access control at the endpoint level. Guest sessions, backed by signed cookies, allow anonymous users to browse and add items to a cart before authentication.
+*ASP.NET Identity* manages user accounts with password hashing, email confirmation, and two-factor authentication support. *JWT* access tokens with a 15-minute lifetime secure API requests; refresh tokens with rotation and reuse detection allow silent renewal without forcing frequent re-login. Guest sessions, backed by signed cookies, enable anonymous users to browse catalog items and manage a cart before registration. A *permission-based authorisation* model augments role checks with granular claims (e.g., `catalog:products:create`), allowing fine-grained access control at the endpoint level without coupling authorisation logic to individual handlers.
+
+== Benchmark Framework
+
+The benchmark framework is a Python 3.12 pipeline for systematic evaluation of embedding models on fashion product retrieval. It operates in three evaluation modes: a one-shot comparison across all configured models, a three-fold cross-validation protocol using stratified category-based splits for the thesis results, and a pgvector pipeline mode that measures end-to-end latency including database query time.
+
+The framework supports 11 pre-trained models spanning CNN architectures (ResNet-50, ResNet-101, ResNet-152, EfficientNet-B0, EfficientNet-B4), vision transformers (DINOv2 ViT-S/14, DINOv2 ViT-B/14), and CLIP variants (CLIP ViT-B/32, CLIP ViT-B/16, CLIP ViT-L/14, Fashion-CLIP). Embeddings are cached per model, per fold, and per split to avoid recomputation across runs. For each model, the framework measures retrieval accuracy (mAP, Precision at K, Recall at K, nDCG) and operational efficiency (inference latency, throughput, storage footprint, RAM usage). Results are exported in JSON, CSV, Markdown, and Typst table formats for direct inclusion in the thesis.
+
+The benchmark produces two primary tables used in Chapter 5: aggregate retrieval metrics with mean and standard deviation across all folds, and efficiency metrics summarising latency, throughput, and resource consumption per model. A separate enriched-dataset pipeline supports multi-label evaluation across three label schemes (category only, category and colour, and category, colour and pattern) to assess how embedding quality varies with annotation granularity.
+
+== Technology Stack Summary
+
+The preceding sections introduced the principal technologies that compose the ReSys.Shop platform. Table @tbl-tech-stack consolidates the complete stack.
+
+#figure(
+  table(
+    columns: (auto, auto, 1fr),
+    align: (start, start, start),
+    table.header([*Layer*], [*Technology*], [*Role*]),
+    [Frontend], [Vue 3, TypeScript, Vite], [Customer storefront and admin panel; reactive UI with Pinia state management],
+    [Backend API], [.NET 10, Carter, MediatR], [REST endpoints via minimal APIs; CQRS command-query separation across business modules],
+    [Database], [PostgreSQL, pgvector], [Relational data and vector embeddings in a single ACID database with HNSW-indexed similarity search],
+    [Caching], [Redis, HybridCache], [Two-tier cache (in-memory L1 and Redis L2); Hangfire job queue and session state backing store],
+    [ML Sidecar], [Python 3.12, FastAPI, PyTorch], [Dedicated embedding generation service with lazy model loading and GPU acceleration],
+    [Orchestration], [.NET Aspire], [Container lifecycle management, service discovery, and reproducible local development environment],
+    [Background Jobs], [Hangfire], [Persistent job processing for cart expiry, embedding queue, and maintenance tasks],
+    [Auth and Identity], [JWT, ASP.NET Identity], [Access tokens, refresh rotation, permission-based authorisation, guest sessions],
+    [Benchmarking], [Python 3.12, PyTorch], [Systematic 11-model comparison with cross-validation, accuracy and efficiency metrics],
+  ),
+  caption: [Technology stack of the ReSys.Shop platform],
+) <tbl-tech-stack>
+
+Together these technologies form a polyglot stack spanning three languages (C\#, TypeScript, Python) orchestrated through a unified containerised environment. The .NET backend hosts transactional e-commerce logic; Vue 3 delivers the customer-facing interface; PostgreSQL serves as the single source of truth for both business data and embeddings; and the Python sidecar provides the bridge to GPU-accelerated model inference. A dedicated benchmarking framework, separate from the application codebase, provides the systematic evaluation infrastructure that produces the experimental results in Chapter 5.
