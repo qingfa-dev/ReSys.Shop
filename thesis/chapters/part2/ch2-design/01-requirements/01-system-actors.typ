@@ -1,41 +1,36 @@
 === System Actors
 
-The platform serves three categories of actors, each with a distinct role, set of permissions, and interaction surface. Table @tbl-system-actors summarises these actors and their primary responsibilities.
+The platform serves three categories of actors, defined by their access level, responsibilities, and interaction surface.
 
-#figure(
-  table(
-    columns: (auto, 1fr, 1fr),
-    stroke: 0.5pt,
-    align: (center + horizon, left, left),
+*Customer.* The primary beneficiary of the research contribution. Customers interact with the platform through a browser-based storefront. Their capabilities span the full shopping workflow:
 
-    table.header([*Actor*], [*Role Description*], [*Interaction Surface*]),
+- Browse the product catalog with faceted filters and category navigation
+- Perform keyword searches and, critically, *visual searches* by uploading images to find similar products
+- Manage a shopping cart that persists across sessions (guest or authenticated)
+- Complete a multi-step checkout: address selection, delivery choice, payment, and confirmation
+- Track order status and view purchase history (authenticated users only)
+- Manage profile details, addresses, and wishlists (authenticated users only)
 
-    [Customer
-    (Guest +
-    Authenticated)], [
-      Browses the product catalog, performs keyword and visual searches, manages a shopping cart, completes multi-step checkout, and tracks order history. Guest users can browse and add items to a cart; authenticated users access profile management, wishlists, and personalised features.
-    ], [
-      Vue 3 Storefront SPA\
-      (Web browser)
-    ],
+Guest customers can browse, search, and add items to a cart without registration. Upon account creation, the guest session is promoted to the authenticated context, preserving the cart contents.
 
-    [Administrator], [
-      Manages the full product lifecycle: creating and updating products with fashion-specific metadata, uploading and organising product images, defining taxonomies, monitoring inventory levels, processing order fulfilment, and managing user accounts and permissions.
-    ], [
-      Vue 3 Admin SPA\
-      (Web browser)
-    ],
+*Administrator.* Administrators operate the back-office interface, also a browser-based application, with full access to management functions across all business modules:
 
-    [System
-    (Background
-    Services)], [
-      Automated background processes that maintain data consistency and system performance: generating and indexing vector embeddings for newly uploaded images, expiring abandoned carts after a configurable time window, reserving and releasing inventory during checkout, and performing periodic index maintenance.
-    ], [
-      Internal services\
-      (No direct UI)
-    ],
-  ),
-  caption: [System actors and their roles within the ReSys.Shop platform.],
-) <tbl-system-actors>
+- Create, update, and archive products with fashion-specific metadata (style code, season, material, department, gender target)
+- Upload and organise product images, triggering the embedding generation pipeline
+- Define and manage hierarchical product taxonomies
+- Monitor real-time inventory levels and process order fulfilment
+- Manage user accounts, roles, and fine-grained permissions
 
-The Customer and Administrator actors represent human users interacting through browser-based single-page applications. The System actor represents background processes that operate without direct human interaction, executing scheduled and event-driven tasks through Hangfire job workers within the .NET application process. The three actors together define the complete set of interactions supported by the platform.
+Unlike the Customer actor, whose primary interaction is *discovery and purchase*, the Administrator actor is concerned with *data management and operational oversight*. The administrator interface is a distinct application surface from the storefront, with separate authentication requirements.
+
+*System (Background Services).* The System actor represents automated processes that execute without human interaction. These processes run as scheduled or event-driven background jobs within the .NET application:
+
+- *Embedding generation.* When an administrator uploads a new product image, a background job sends the image to the Python ML sidecar, receives the embedding vector, and stores it in pgvector. The upload completes immediately; the embedding appears in search results once the job finishes.
+
+- *Cart management.* A daily scheduled job removes carts with no activity for seven days, releasing reserved inventory and preventing accumulation of abandoned data.
+
+- *Inventory reservation.* During checkout, inventory quantities are temporarily reserved. If the checkout is not completed within a configurable window, the reservation expires and stock is returned to availability.
+
+- *Index maintenance.* Periodic HNSW index rebuilds on the embedding column maintain search performance as the catalog grows.
+
+The three actors together define the complete set of interactions supported by the platform. The Customer and Administrator represent human users; the System represents automated infrastructure that maintains data consistency and performance without direct human interaction.
