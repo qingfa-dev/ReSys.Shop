@@ -15,7 +15,7 @@ const emit = defineEmits<{
 }>()
 
 const { t } = useI18n()
-const { confirmAction } = useConfirm()
+const { confirmDelete } = useConfirm()
 const toastService = useToast()
 const transitioning = ref(false)
 
@@ -39,21 +39,18 @@ const canApprove = computed(() => props.status === 'pending')
 const canComplete = computed(() => props.status === 'approved' || props.status === 'processing')
 const canCancel = computed(() => !terminalStatuses.includes(props.status))
 
-function confirmPrompt(target: string): Promise<boolean> {
-  return new Promise((resolve) => {
-    confirmAction({
-      target,
-      onAccept: () => resolve(true),
-      onReject: () => resolve(false),
-    })
-  })
-}
-
 async function transition(action: 'approve' | 'complete' | 'cancel' | 'resume') {
   if (action === 'cancel') {
-    const confirmed = await confirmPrompt(t('ordering.workflow.confirm.cancel'))
-    if (!confirmed) return
+    confirmDelete({
+      target: t('ordering.workflow.confirm.cancel'),
+      onAccept: () => executeTransition(action),
+    })
+    return
   }
+  await executeTransition(action)
+}
+
+async function executeTransition(action: 'approve' | 'complete' | 'cancel' | 'resume') {
   transitioning.value = true
   try {
     const result = await OrderApi[action](props.orderId)
