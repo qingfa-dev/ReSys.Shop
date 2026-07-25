@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import PlaceholderPage from '@/shared/components/layout/PlaceholderPage.vue'
+import StateListTable from '../components/StateListTable.vue'
 </script>
 
 <template>
-  <PlaceholderPage title="States" description="State/Province list" />
+  <StateListTable />
 </template>

@@ -13,5 +13,20 @@ export const profileRoutes: RouteRecordRaw = {
       name: 'profile.addresses',
       component: () => import('@/features/profile/pages/AddressListPage.vue'),
     },
+    {
+      path: 'addresses/new',
+      name: 'profile.addresses.create',
+      component: () => import('@/features/profile/pages/AddressDetailPage.vue'),
+    },
+    {
+      path: 'addresses/:id',
+      name: 'profile.addresses.view',
+      component: () => import('@/features/profile/pages/AddressDetailPage.vue'),
+    },
+    {
+      path: 'addresses/:id/edit',
+      name: 'profile.addresses.edit',
+      component: () => import('@/features/profile/pages/AddressDetailPage.vue'),
+    },
   ],
 }

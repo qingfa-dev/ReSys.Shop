@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import PlaceholderPage from '@/shared/components/layout/PlaceholderPage.vue'
+import AddressListTable from '../components/AddressListTable.vue'
 </script>
 
 <template>
-  <PlaceholderPage title="Addresses" description="Address list" />
+  <AddressListTable />
 </template>
