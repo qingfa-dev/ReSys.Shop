@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { useConfirm } from '@/shared/composables/useConfirm'
 import { useToast } from '@/shared/composables/useToast'
 import Button from 'primevue/button'
 import PageHeader from '@/shared/components/layout/PageHeader.vue'
@@ -16,7 +15,6 @@ import type { PaymentResponse } from '../types'
 
 const { id, route, router, toast, api } = usePayment()
 const { t } = useI18n()
-const { confirmDelete } = useConfirm()
 
 const payment = ref<PaymentResponse | null>(null)
 const loading = ref(false)
@@ -24,7 +22,7 @@ const loadError = ref<string | null>(null)
 const actionLoading = ref(false)
 
 const title = computed(() => payment.value?.orderNumber
-  ? `${t('payment.payments.detail.actions.back')} #${payment.value.orderNumber}`
+  ? `${t('payment.payments.detail.title_prefix')} #${payment.value.orderNumber}`
   : t('payment.payments.title'))
 
 async function loadPayment() {

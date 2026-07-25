@@ -29,7 +29,7 @@ function goToEdit(id: string) { router.push({ name: ROUTE.METHODS.EDIT, params: 
 
 async function onDelete(id: string) {
   confirmDelete({
-    target: 'this payment method',
+    target: t('payment.methods.messages.delete_confirm_target'),
     onAccept: async () => {
       const result = await PaymentMethodApi.delete(id)
       if (result.isSuccess) {

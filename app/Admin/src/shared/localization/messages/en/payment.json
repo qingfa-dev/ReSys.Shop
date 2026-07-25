@@ -17,6 +17,7 @@
         "updated_at": "Updated At",
         "authorization_code": "Auth"
       },
+      "title_prefix": "Payment",
       "actions": {
         "back": "Back",
         "capture": "Capture",
@@ -96,6 +97,7 @@
       "deactivate_success": "Payment method deactivated",
       "activate_success": "Payment method activated",
       "update_failed": "Failed to update",
+      "delete_confirm_target": "this payment method",
       "empty_list": "No payment methods found",
       "empty_description": "Create your first payment method."
     }
