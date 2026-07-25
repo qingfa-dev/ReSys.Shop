@@ -52,6 +52,12 @@ erDiagram
         int position
     }
 
+    PRODUCT_OPTION_TYPE {
+        uuid id PK
+        uuid product_id FK
+        uuid option_type_id FK
+    }
+
     OPTION_VALUE {
         uuid id PK
         uuid option_type_id FK
@@ -74,6 +80,12 @@ erDiagram
         string name
         string slug
         int position
+    }
+
+    CLASSIFICATION {
+        uuid id PK
+        uuid product_id FK
+        uuid taxon_id FK
     }
 
     ORDER {

@@ -99,7 +99,7 @@ The ReSys.Shop platform applies Domain-Driven Design (DDD) to structure its busi
 
 === Bounded Context Map
 
-The eight bounded contexts partition the e-commerce domain along business capability boundaries. Each context owns its data, its domain logic, and its vocabulary — terms that are well-defined within a context may carry different meaning in another. For example, a Variant in the Catalog context is a sellable unit with a SKU and pricing; an InventoryUnit in the Ordering context references that same variant but from the perspective of fulfilment tracking.
+The eight bounded contexts partition the e-commerce domain along business capability boundaries. Each context owns its data, its domain logic, and its vocabulary — terms that are well-defined within a context may carry different meaning in another. For example, a Variant in the Catalog context is a sellable unit with a SKU and pricing; a LineItem in the Ordering context references that same variant but from the perspective of purchase fulfilment.
 
 The integration between contexts follows the *Conformist* pattern: all contexts conform to a shared technical kernel defined in the Shared layer, which provides the `Result<T>` return type, the `ICommand` and `IQuery` marker interfaces, and the `Entity` base class with audit and versioning columns. Communication occurs exclusively through MediatR `ISender` — a context dispatches a query or publishes a notification, and other contexts react without ever importing one another's namespace. This in-process dispatch model eliminates the network latency of inter-service messaging while preserving the logical isolation of the bounded contexts.
 
@@ -306,7 +306,7 @@ The component diagram zooms into the API Backend container, revealing its intern
 
 #figure(
   image("../../images/diagrams/05-c4-component.png", width: 100%),
-  caption: [Component diagram of the API Backend showing the Carter endpoint layer, the MediatR pipeline, the feature handlers, and the twelve supporting infrastructure components. The Python ML Sidecar is shown with its internal three-layer architecture alongside.],
+  caption: [Component diagram of the API Backend showing the Carter endpoint layer, the MediatR pipeline, the feature handlers, and eight supporting infrastructure components. The Python ML Sidecar is shown with its internal three-layer architecture alongside.],
 ) <fig-c4-component>
 
 The API Backend is structured as a pipeline. HTTP requests arrive at the Carter endpoints, which are minimal API route groups registered by `ICarterModule` implementations in each module's feature folder. The endpoints are thin — they extract request parameters, dispatch a command or query via `ISender`, and map the `Result<T>` response to an HTTP status code and JSON body. All business logic resides in the feature handlers.
