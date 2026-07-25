@@ -1,0 +1,18 @@
+= Background and Related Work
+
+#include "00-chapter.typ"
+#include "01-vector-embeddings.typ"
+#include "02-dl-architectures.typ"
+#include "03-vector-databases.typ"
+#include "04-ecommerce-architectures.typ"
+#include "06-dotnet-backend.typ"
+#include "07-vue-frontend.typ"
+#include "08-postgresql-pgvector.typ"
+#include "09-redis-caching.typ"
+#include "10-python-ml-sidecar.typ"
+#include "11-aspire-orchestration.typ"
+#include "12-hangfire-jobs.typ"
+#include "13-identity-auth.typ"
+#include "14-benchmark-framework.typ"
+#include "15-technology-summary.typ"
+#include "05-related-work.typ"
