@@ -15,7 +15,7 @@
         <i v-if="icon" :class="icon" />
         {{ title }}
       </h1>
-      <p v-if="subtitle" class="text-sm text-surface-500 mt-0.5">{{ subtitle }}</p>
+      <p v-if="subtitle" class="text-sm text-surface-500 dark:text-surface-400">{{ subtitle }}</p>
     </div>
     <div class="flex items-center gap-2 shrink-0">
       <slot name="actions" />
@@ -31,7 +31,7 @@ interface BreadcrumbItem {
 
 defineProps<{
   title: string;
-  subtitle?: string;
+  subtitle: string;
   breadcrumb?: BreadcrumbItem[];
   icon?: string;
 }>();
