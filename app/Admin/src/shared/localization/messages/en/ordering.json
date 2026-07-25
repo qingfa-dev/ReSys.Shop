@@ -91,5 +91,22 @@
       "status": "Status",
       "total": "Total"
     }
+  },
+  "workflow": {
+    "statuses": {
+      "pending": "Pending",
+      "approved": "Approved",
+      "processing": "Processing",
+      "completed": "Completed",
+      "shipped": "Shipped",
+      "delivered": "Delivered"
+    },
+    "confirm": {
+      "cancel": "this order"
+    },
+    "terminal_note": "Order is {status} — no actions available.",
+    "confirm_order": "Confirm Order",
+    "mark_complete": "Mark Complete",
+    "cancel_order": "Cancel Order"
   }
 }
