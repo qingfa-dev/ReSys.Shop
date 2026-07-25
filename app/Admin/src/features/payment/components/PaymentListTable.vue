@@ -28,13 +28,17 @@ function onPageChange(e: { page: number; rows: number }) { store.setPage(e.page 
 <template>
   <div>
     <TableToolbar
-      search-placeholder="Search payments..."
+      :search-placeholder="t('payment.payments.table.search_placeholder')"
       :create-label="undefined"
       @search="onSearch"
     />
     <LoadingSkeleton v-if="store.loading && store.items.length === 0" :rows="5" :columns="6" />
     <ErrorState v-else-if="store.error" :description="store.error" @retry="store.fetchMany" />
-    <EmptyState v-else-if="store.items.length === 0" title="No payments found" description="Payments will appear here once orders are placed." />
+    <EmptyState
+      v-else-if="store.items.length === 0"
+      :title="t('payment.payments.messages.empty_list')"
+      :description="t('payment.payments.messages.empty_description')"
+    />
     <DataTable
       v-else
       :rows="[...store.items]"
@@ -44,23 +48,23 @@ function onPageChange(e: { page: number; rows: number }) { store.setPage(e.page 
       :first="(store.query.page - 1) * store.query.pageSize"
       @page="onPageChange"
     >
-      <Column field="orderNumber" header="Order" sortable />
-      <Column field="paymentMethodName" header="Method" />
-      <Column field="amount" header="Amount">
+      <Column :header="t('payment.payments.table.order')" field="orderNumber" sortable />
+      <Column :header="t('payment.payments.table.method')" field="paymentMethodName" />
+      <Column :header="t('payment.payments.table.amount')" field="amount">
         <template #body="{ data }">
           {{ data.currency }} {{ data.amount?.toFixed(2) }}
         </template>
       </Column>
-      <Column field="status" header="Status">
+      <Column :header="t('payment.payments.table.status')" field="status">
         <template #body="{ data }">
           <StatusTag :status="data.status" />
         </template>
       </Column>
-      <Column field="createdAt" header="Date" sortable />
+      <Column :header="t('payment.payments.table.date')" field="createdAt" sortable />
       <template #rowActions="{ data }">
         <ActionMenu
           :items="[
-            { label: 'View', icon: 'pi pi-eye', command: () => goToView(data.id) },
+            { label: t('payment.payments.table.view'), icon: 'pi pi-eye', command: () => goToView(data.id) },
           ]"
         />
       </template>

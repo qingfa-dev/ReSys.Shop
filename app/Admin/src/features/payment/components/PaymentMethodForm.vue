@@ -8,7 +8,9 @@ import FormField from '@/shared/components/forms/FormField.vue'
 import FormActions from '@/shared/components/forms/FormActions.vue'
 import LoadingSkeleton from '@/shared/components/feedback/LoadingSkeleton.vue'
 import ErrorState from '@/shared/components/feedback/ErrorState.vue'
+import { AppCard } from '@/shared/components'
 import Checkbox from 'primevue/checkbox'
+import Button from 'primevue/button'
 import { usePaymentMethod } from '../composables/usePaymentMethod'
 import { PaymentMethodForms } from '../schemas'
 import { PaymentMethodFormMapper } from '../mappers/payment-method.mapper'
@@ -37,28 +39,33 @@ const saving = ref(false)
 const loadError = ref<string | null>(null)
 
 const title = computed(() => {
-  if (mode.value === 'create') return 'Create Payment Method'
-  if (mode.value === 'edit') return `Edit: ${name.value || ''}`
-  return name.value || 'Payment Method'
+  if (mode.value === 'create') return t('payment.methods.form.create_title')
+  if (mode.value === 'edit') return t('payment.methods.form.edit_title', { name: name.value || '' })
+  return name.value || t('payment.methods.form.view_title')
 })
 
 async function loadPaymentMethod() {
   if (!id.value) return
   loading.value = true
   loadError.value = null
-  const result = await api.get(id.value)
-  if (result.isSuccess) {
-    setValues({
-      name: result.value.name,
-      code: result.value.code,
-      description: result.value.description ?? undefined,
-      isActive: result.value.isActive ?? undefined,
-      isTestMode: result.value.isTestMode ?? undefined,
-      displayOrder: result.value.displayOrder ?? undefined,
-      supportedCurrencies: result.value.supportedCurrencies ?? undefined,
-    })
-  } else {
-    loadError.value = result.message ?? 'Failed to load payment method'
+  try {
+    const result = await api.get(id.value)
+    if (result.isSuccess) {
+      setValues({
+        name: result.value.name,
+        code: result.value.code,
+        description: result.value.description ?? undefined,
+        isActive: result.value.isActive ?? undefined,
+        isTestMode: result.value.isTestMode ?? undefined,
+        displayOrder: result.value.displayOrder ?? undefined,
+        supportedCurrencies: result.value.supportedCurrencies ?? undefined,
+      })
+    } else {
+      loadError.value = result.message ?? t('payment.methods.messages.load_failed')
+    }
+  } catch (err) {
+    console.error(err)
+    loadError.value = t('payment.methods.messages.load_failed')
   }
   loading.value = false
 }
@@ -68,16 +75,24 @@ const save = handleSubmit(async (values) => {
   const data = mode.value === 'create'
     ? PaymentMethodFormMapper.toCreate(values)
     : PaymentMethodFormMapper.toUpdate(values)
-  const result = id.value
-    ? await api.update(id.value, data)
-    : await api.create(data)
-  saving.value = false
-  if (result.isSuccess) {
-    toast.success(id.value ? 'Payment method updated' : 'Payment method created')
-    const newId = result.value.id
-    router.replace({ name: ROUTE.METHODS.VIEW, params: { id: newId } })
-  } else {
-    toast.error(result.message ?? 'Save failed')
+  try {
+    const result = id.value
+      ? await api.update(id.value, data)
+      : await api.create(data)
+    saving.value = false
+    if (result.isSuccess) {
+      toast.success(id.value
+        ? t('payment.methods.messages.update_success')
+        : t('payment.methods.messages.create_success'))
+      const newId = result.value.id
+      router.replace({ name: ROUTE.METHODS.VIEW, params: { id: newId } })
+    } else {
+      toast.error(result.message ?? t('payment.methods.messages.save_failed'))
+    }
+  } catch (err) {
+    console.error(err)
+    saving.value = false
+    toast.error(t('payment.methods.messages.save_failed'))
   }
 })
 
@@ -90,64 +105,72 @@ function toggleEdit() {
   router.push({ name: ROUTE.METHODS.EDIT, params: { id: id.value } })
 }
 
-onMounted(loadPaymentMethod)
+onMounted(async () => {
+  await loadPaymentMethod()
+})
 </script>
 
 <template>
   <div>
-    <PageHeader :title="title" :icon="route.meta?.icon as string | undefined">
+    <PageHeader :title="title" :subtitle="t('payment.methods.form.subtitle')" :icon="route.meta?.icon as string | undefined">
       <template #actions>
-        <button v-if="mode === 'view'" class="p-button p-component" @click="toggleEdit">Edit</button>
+        <Button
+          v-if="mode === 'view'"
+          :label="t('payment.methods.actions.edit')"
+          icon="pi pi-pencil"
+          size="small"
+          @click="toggleEdit"
+        />
       </template>
     </PageHeader>
     <LoadingSkeleton v-if="loading && mode !== 'create'" :rows="8" :columns="2" />
     <ErrorState v-else-if="loadError" :title="loadError" @retry="loadPaymentMethod" />
-    <div v-else class="card">
-      <div class="grid">
-        <div class="col-6">
-          <FormField label="Name" :error="errors.name" required>
+    <AppCard v-else>
+      <div class="grid grid-cols-12 gap-4">
+        <div class="col-span-full sm:col-span-6">
+          <FormField :label="t('payment.methods.labels.name')" :error="errors.name" required>
             <input v-model="name" type="text" class="p-inputtext p-component w-full" :disabled="mode === 'view'" />
           </FormField>
         </div>
-        <div class="col-6">
-          <FormField label="Code" :error="errors.code" required>
+        <div class="col-span-full sm:col-span-6">
+          <FormField :label="t('payment.methods.labels.code')" :error="errors.code" required>
             <input v-model="code" type="text" class="p-inputtext p-component w-full" :disabled="mode === 'view'" />
           </FormField>
         </div>
       </div>
-      <div class="grid">
-        <div class="col-12">
-          <FormField label="Description" :error="errors.description">
+      <div class="grid grid-cols-12 gap-4">
+        <div class="col-span-full">
+          <FormField :label="t('payment.methods.labels.description')" :error="errors.description">
             <textarea v-model="description" class="p-inputtext p-component w-full" :disabled="mode === 'view'" rows="3" />
           </FormField>
         </div>
       </div>
-      <div class="grid">
-        <div class="col-4">
-          <FormField label="Display Order" :error="errors.displayOrder">
+      <div class="grid grid-cols-12 gap-4">
+        <div class="col-span-full sm:col-span-4">
+          <FormField :label="t('payment.methods.labels.display_order')" :error="errors.displayOrder">
             <input v-model.number="displayOrder" type="number" class="p-inputtext p-component w-full" :disabled="mode === 'view'" />
           </FormField>
         </div>
-        <div class="col-8">
-          <FormField label="Supported Currencies" :error="errors.supportedCurrencies">
+        <div class="col-span-full sm:col-span-8">
+          <FormField :label="t('payment.methods.labels.supported_currencies')" :error="errors.supportedCurrencies">
             <input v-model="supportedCurrencies" type="text" class="p-inputtext p-component w-full" :disabled="mode === 'view'" placeholder="e.g. USD, EUR" />
           </FormField>
         </div>
       </div>
-      <div class="grid">
-        <div class="col-6">
-          <FormField label="Active">
-            <div class="flex align-items-center gap-2 mt-1">
+      <div class="grid grid-cols-12 gap-4">
+        <div class="col-span-full sm:col-span-6">
+          <FormField :label="t('payment.methods.labels.is_active')">
+            <div class="flex items-center gap-2 mt-1">
               <Checkbox v-model="isActive" :binary="true" :disabled="mode === 'view'" input-id="isActive" />
-              <label for="isActive">Method is active and available</label>
+              <label for="isActive">{{ t('payment.methods.labels.active_help') }}</label>
             </div>
           </FormField>
         </div>
-        <div class="col-6">
-          <FormField label="Test Mode">
-            <div class="flex align-items-center gap-2 mt-1">
+        <div class="col-span-full sm:col-span-6">
+          <FormField :label="t('payment.methods.labels.is_test_mode')">
+            <div class="flex items-center gap-2 mt-1">
               <Checkbox v-model="isTestMode" :binary="true" :disabled="mode === 'view'" input-id="isTestMode" />
-              <label for="isTestMode">Run in sandbox/test mode</label>
+              <label for="isTestMode">{{ t('payment.methods.labels.test_mode_help') }}</label>
             </div>
           </FormField>
         </div>
@@ -156,11 +179,11 @@ onMounted(loadPaymentMethod)
       <FormActions
         v-if="mode !== 'view'"
         :loading="saving"
-        :save-label="mode === 'create' ? 'Create' : 'Save'"
-        cancel-label="Cancel"
+        :save-label="mode === 'create' ? t('payment.methods.actions.save_create') : t('payment.methods.actions.save_edit')"
+        :cancel-label="t('payment.methods.actions.cancel')"
         @save="save"
         @cancel="cancel"
       />
-    </div>
+    </AppCard>
   </div>
 </template>

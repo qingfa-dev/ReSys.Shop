@@ -32,19 +32,27 @@ async function onDelete(id: string) {
     target: 'this payment method',
     onAccept: async () => {
       const result = await PaymentMethodApi.delete(id)
-      if (result.isSuccess) { toast.success('Payment method deleted'); await store.fetchMany() }
-      else { toast.error(result.message ?? 'Failed to delete') }
+      if (result.isSuccess) {
+        toast.success(t('payment.methods.messages.delete_success'))
+        await store.fetchMany()
+      } else {
+        toast.error(result.message ?? t('payment.methods.messages.delete_failed'))
+      }
     },
   })
 }
 
 async function onToggleActive(id: string, isActive: boolean) {
-  const result = isActive ? await PaymentMethodApi.deactivate(id) : await PaymentMethodApi.activate(id)
+  const result = isActive
+    ? await PaymentMethodApi.deactivate(id)
+    : await PaymentMethodApi.activate(id)
   if (result.isSuccess) {
-    toast.success(isActive ? 'Payment method deactivated' : 'Payment method activated')
+    toast.success(isActive
+      ? t('payment.methods.messages.deactivate_success')
+      : t('payment.methods.messages.activate_success'))
     await store.fetchMany()
   } else {
-    toast.error(result.message ?? 'Failed to update')
+    toast.error(result.message ?? t('payment.methods.messages.update_failed'))
   }
 }
 
@@ -55,14 +63,18 @@ function onPageChange(e: { page: number; rows: number }) { store.setPage(e.page 
 <template>
   <div>
     <TableToolbar
-      search-placeholder="Search payment methods..."
+      :search-placeholder="t('payment.methods.table.search_placeholder')"
       :create-label="t('payment.methods.actions.create')"
       @search="onSearch"
       @create="goToCreate"
     />
     <LoadingSkeleton v-if="store.loading && store.items.length === 0" :rows="5" :columns="6" />
     <ErrorState v-else-if="store.error" :description="store.error" @retry="store.fetchMany" />
-    <EmptyState v-else-if="store.items.length === 0" title="No payment methods found" description="Create your first payment method." />
+    <EmptyState
+      v-else-if="store.items.length === 0"
+      :title="t('payment.methods.messages.empty_list')"
+      :description="t('payment.methods.messages.empty_description')"
+    />
     <DataTable
       v-else
       :rows="[...store.items]"
@@ -72,16 +84,16 @@ function onPageChange(e: { page: number; rows: number }) { store.setPage(e.page 
       :first="(store.query.page - 1) * store.query.pageSize"
       @page="onPageChange"
     >
-      <Column field="name" header="Name" sortable />
-      <Column field="code" header="Code" />
-      <Column field="displayOrder" header="Order" sortable />
-      <Column field="isTestMode" header="Test Mode">
+      <Column :header="t('payment.methods.table.name')" field="name" sortable />
+      <Column :header="t('payment.methods.table.code')" field="code" />
+      <Column :header="t('payment.methods.table.order')" field="displayOrder" sortable />
+      <Column :header="t('payment.methods.table.test_mode')" field="isTestMode">
         <template #body="{ data }">
           <i v-if="data.isTestMode" class="pi pi-check" style="color: var(--p-green-500)" />
           <i v-else class="pi pi-times" style="color: var(--p-red-400)" />
         </template>
       </Column>
-      <Column field="isActive" header="Active">
+      <Column :header="t('payment.methods.table.active')" field="isActive">
         <template #body="{ data }">
           <i v-if="data.isActive" class="pi pi-check" style="color: var(--p-green-500)" />
           <i v-else class="pi pi-times" style="color: var(--p-red-400)" />
@@ -90,10 +102,10 @@ function onPageChange(e: { page: number; rows: number }) { store.setPage(e.page 
       <template #rowActions="{ data }">
         <ActionMenu
           :items="[
-            { label: 'View', icon: 'pi pi-eye', command: () => goToView(data.id) },
-            { label: 'Edit', icon: 'pi pi-pencil', command: () => goToEdit(data.id) },
-            { label: data.isActive ? 'Deactivate' : 'Activate', icon: data.isActive ? 'pi pi-pause' : 'pi pi-play', command: () => onToggleActive(data.id, data.isActive) },
-            { label: 'Delete', icon: 'pi pi-trash', command: () => onDelete(data.id) },
+            { label: t('payment.methods.actions.view'), icon: 'pi pi-eye', command: () => goToView(data.id) },
+            { label: t('payment.methods.actions.edit'), icon: 'pi pi-pencil', command: () => goToEdit(data.id) },
+            { label: data.isActive ? t('payment.methods.actions.deactivate') : t('payment.methods.actions.activate'), icon: data.isActive ? 'pi pi-pause' : 'pi pi-play', command: () => onToggleActive(data.id, data.isActive) },
+            { label: t('payment.methods.actions.delete'), icon: 'pi pi-trash', command: () => onDelete(data.id) },
           ]"
         />
       </template>

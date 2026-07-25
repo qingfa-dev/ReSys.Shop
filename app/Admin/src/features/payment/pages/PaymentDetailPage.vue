@@ -1,7 +1,10 @@
 <script setup lang="ts">
+import { DetailLayout } from '@/shared/components'
 import PaymentDetailForm from '../components/PaymentDetailForm.vue'
 </script>
 
 <template>
-  <PaymentDetailForm />
+  <DetailLayout>
+    <PaymentDetailForm />
+  </DetailLayout>
 </template>

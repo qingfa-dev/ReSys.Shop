@@ -1,30 +1,103 @@
 {
-  "titles": {
-    "list": "Payment Methods",
-    "create": "Add Payment Method",
-    "edit": "Edit Payment Method",
-    "detail": "Payment Detail"
-  },
-  "labels": {
-    "name": "Name",
-    "provider": "Provider",
-    "description": "Description",
-    "is_active": "Active",
-    "display_order": "Display Order"
-  },
-  "actions": {
-    "capture": "Capture",
-    "void": "Void",
-    "refund": "Refund"
-  },
-  "validation": {
-    "name": {
-      "required": "Name is required",
-      "max_length": "Name must not exceed {max} characters"
+  "payments": {
+    "title": "Payments",
+    "subtitle": "Manage payment transactions and statuses.",
+    "detail": {
+      "subtitle": "View payment details and manage transaction lifecycle.",
+      "labels": {
+        "order": "Order",
+        "payment_method": "Payment Method",
+        "amount": "Amount",
+        "currency": "Currency",
+        "captured_at": "Captured At",
+        "voided_at": "Voided At",
+        "refunded_at": "Refunded At",
+        "notes": "Notes",
+        "created_at": "Created At",
+        "updated_at": "Updated At",
+        "authorization_code": "Auth"
+      },
+      "actions": {
+        "back": "Back",
+        "capture": "Capture",
+        "void": "Void",
+        "refund": "Refund"
+      },
+      "messages": {
+        "load_failed": "Failed to load payment",
+        "capture_success": "Payment captured successfully",
+        "capture_failed": "Capture failed",
+        "void_success": "Payment voided successfully",
+        "void_failed": "Void failed",
+        "refund_success": "Payment refunded successfully",
+        "refund_failed": "Refund failed"
+      }
     },
-    "provider": {
-      "required": "Provider is required",
-      "max_length": "Provider must not exceed {max} characters"
+    "table": {
+      "search_placeholder": "Search payments...",
+      "order": "Order",
+      "method": "Method",
+      "amount": "Amount",
+      "status": "Status",
+      "date": "Date",
+      "view": "View"
+    },
+    "messages": {
+      "empty_list": "No payments found",
+      "empty_description": "Payments will appear here once orders are placed."
+    }
+  },
+  "methods": {
+    "title": "Payment Methods",
+    "subtitle": "Manage payment methods and gateway integrations.",
+    "form": {
+      "create_title": "Create Payment Method",
+      "edit_title": "Edit: {name}",
+      "view_title": "Payment Method",
+      "subtitle": "Configure payment method details and settings."
+    },
+    "labels": {
+      "name": "Name",
+      "code": "Code",
+      "description": "Description",
+      "is_active": "Active",
+      "is_test_mode": "Test Mode",
+      "display_order": "Display Order",
+      "supported_currencies": "Supported Currencies",
+      "active_help": "Method is active and available",
+      "test_mode_help": "Run in sandbox/test mode"
+    },
+    "actions": {
+      "create": "Create Payment Method",
+      "edit": "Edit",
+      "save_create": "Create",
+      "save_edit": "Save",
+      "cancel": "Cancel",
+      "view": "View",
+      "activate": "Activate",
+      "deactivate": "Deactivate",
+      "delete": "Delete"
+    },
+    "table": {
+      "search_placeholder": "Search payment methods...",
+      "name": "Name",
+      "code": "Code",
+      "order": "Order",
+      "test_mode": "Test Mode",
+      "active": "Active"
+    },
+    "messages": {
+      "create_success": "Payment method created",
+      "update_success": "Payment method updated",
+      "save_failed": "Save failed",
+      "load_failed": "Failed to load payment method",
+      "delete_success": "Payment method deleted",
+      "delete_failed": "Failed to delete",
+      "deactivate_success": "Payment method deactivated",
+      "activate_success": "Payment method activated",
+      "update_failed": "Failed to update",
+      "empty_list": "No payment methods found",
+      "empty_description": "Create your first payment method."
     }
   }
 }
