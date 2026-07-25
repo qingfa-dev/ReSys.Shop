@@ -4,5 +4,5 @@ This chapter consolidates the system design. Section 2.1 defines the functional 
 
 #include "01-requirements/requirements.typ"
 #include "02-use-cases/use-cases.typ"
-#include "02-architecture/architecture.typ"
-#include "03-implementation/implementation.typ"
+#include "03-architecture/architecture.typ"
+#include "04-implementation/implementation.typ"
