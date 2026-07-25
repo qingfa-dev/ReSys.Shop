@@ -41,20 +41,11 @@ The project builds a functional fashion e-commerce platform with integrated imag
 
 Three questions guide the investigation and are answered empirically in Chapter 6.
 
-#figure(
-  table(
-    columns: (auto, auto, 1fr),
-    align: (start, start, start),
-    table.header([*ID*], [*Focus*], [*Question*]),
-    [RQ1], [Model comparison],
-    [How do fashion-specific embedding models compare with general-purpose CNN and ViT architectures on fashion product retrieval?],
-    [RQ2], [Accuracy-speed trade-off],
-    [What trade-offs exist between retrieval accuracy and inference latency across pre-trained embedding models, and which model offers the best balance for real-time search?],
-    [RQ3], [Architecture viability],
-    [Can a service-oriented architecture with a dedicated AI sidecar separate image inference from the main application while maintaining interactive response times?],
-  ),
-  caption: [Research questions guiding the empirical investigation],
-)
+*RQ1* addresses model comparison: how do fashion-specific embedding models compare with general-purpose CNN and ViT architectures on fashion product retrieval? This question tests whether domain-specific training on fashion data yields measurable improvements over models trained on generic image corpora.
+
+*RQ2* addresses the accuracy-speed trade-off: what trade-offs exist between retrieval accuracy and inference latency across pre-trained embedding models, and which model offers the best balance for real-time search? This question acknowledges that the most accurate model is rarely the fastest, and that deployment decisions require weighing both dimensions.
+
+*RQ3* addresses architecture viability: can a service-oriented architecture with a dedicated AI sidecar separate image inference from the main application while maintaining interactive response times? This question evaluates whether the chosen polyglot pattern (Python ML service alongside a .NET application) is practical for production use, not merely a laboratory demonstration.
 
 === Tasks Completed
 
@@ -68,48 +59,35 @@ Three questions guide the investigation and are answered empirically in Chapter 
 
 == Scope and Limitations
 
-#figure(
-  table(
-    columns: (1fr, 1fr),
-    align: (start, start),
-    table.header([*Included*], [*Excluded*]),
-    [Visual search from the storefront with image upload via drag-and-drop or file selection],
-    [Real payment processing (transactions are simulated for demonstration)],
-    [Product recommendations derived from embedding similarity scores],
-    [Shipping, logistics, and warehouse management workflows],
-    [Core e-commerce: product catalogue browsing, shopping cart, and simulated checkout],
-    [User authentication via social login providers],
-    [Multi-model comparison spanning CNN and transformer architectures],
-    [Mobile application development (the system targets desktop and tablet web browsers)],
-    [End-to-end latency, throughput, and storage footprint measurement],
-    [Custom model training or fine-tuning (pre-trained models only)],
-  ),
-  caption: [Scope boundaries of the thesis],
+The thesis encompasses the design, implementation, and empirical evaluation of a fashion e-commerce platform with integrated visual search. Five areas define the included scope:
+
+#list(
+  [Visual search from the storefront, with image upload via drag-and-drop or file selection.],
+  [Product recommendations derived from embedding similarity scores.],
+  [Core e-commerce functionality: product catalogue browsing, shopping cart, and simulated checkout.],
+  [Multi-model comparison spanning several CNN and transformer architectures.],
+  [End-to-end latency, throughput, and storage footprint measurement.],
+)
+
+The following areas are explicitly excluded:
+
+#list(
+  [Real payment processing (transactions are simulated for demonstration purposes).],
+  [Shipping, logistics, and warehouse management workflows.],
+  [User authentication via social login providers.],
+  [Mobile application development (the system targets desktop and tablet web browsers).],
+  [Custom model training or fine-tuning (all models are used as published).],
 )
 
 === Known Limitations
 
 Four limitations define the boundaries of this work and are revisited in the concluding chapter.
 
-#figure(
-  table(
-    columns: (auto, 1fr, 1fr),
-    align: (start, start, start),
-    table.header([*Limitation*], [*Constraint*], [*Impact*]),
-    [Dataset size],
-    [5,000 fashion product images from the Fashion Product Images dataset @kaggle-fashion-dataset],
-    [Controlled comparative benchmarking is feasible; results may not extrapolate to production catalogues with millions of items.],
-    [Hardware],
-    [Consumer-grade GPU with limited VRAM and compute throughput],
-    [Reported latency and throughput figures are relative to the experimental hardware profile. A dedicated inference server would likely improve both metrics.],
-    [Evaluation method],
-    [Quantitative metrics only (retrieval accuracy, latency, throughput); qualitative review by visual inspection],
-    [No formal user experience study was conducted. The relationship between measured accuracy and subjective satisfaction remains an open question.],
-    [Model training],
-    [Pre-trained models used as published by original authors; no fine-tuning on evaluation dataset],
-    [Domain-specific fine-tuning (particularly for models pre-trained on generic image corpora) might improve retrieval quality but was beyond scope.],
-  ),
-  caption: [Known limitations and their impact on result interpretation],
+#list(
+  [*Dataset size.* Evaluation uses 5,000 fashion product images from the Fashion Product Images dataset @kaggle-fashion-dataset. Controlled comparative benchmarking is feasible at this scale, but results may not extrapolate to production catalogues containing millions of items.],
+  [*Hardware.* Experiments ran on consumer-grade hardware with a mid-range GPU. Reported latency and throughput figures are relative to this experimental hardware profile. A dedicated inference server with higher GPU memory and compute throughput would likely improve both metrics.],
+  [*Evaluation method.* Evaluation is exclusively quantitative: retrieval accuracy, inference latency, and throughput. Search output was reviewed qualitatively through visual inspection, but no formal user experience study was conducted. The relationship between measured accuracy metrics and subjective user satisfaction remains an open question.],
+  [*Model training.* All embedding models were used as published by their original authors, without fine-tuning on the evaluation dataset. Domain-specific fine-tuning, particularly for models pre-trained on generic image corpora rather than fashion data, might improve retrieval quality but was beyond scope.],
 )
 
 == Research Methodology
