@@ -1,4 +1,4 @@
-=== Vector Embeddings: Mathematical Foundations
+=== Mathematical Foundations of Embeddings
 
 When an AI model processes an image, it outputs a fixed-length sequence of numbers representing the visual content:
 

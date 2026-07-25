@@ -1,0 +1,3 @@
+=== HNSW: Hierarchical Navigable Small World
+
+The HNSW index is among the most widely adopted ANN algorithms. It constructs a multi-layered graph where each layer contains a subset of vectors connected by edges to their nearest neighbours. Top layers are sparse and enable long-range jumps across the embedding space; bottom layers are dense and refine the search locally. A query begins at the top layer, descends through progressively finer graphs, and converges on the neighbourhood of the query vector. The search complexity scales logarithmically with the number of vectors, making HNSW suitable for interactive applications where query latency must remain under tens of milliseconds.
