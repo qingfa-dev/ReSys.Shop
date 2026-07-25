@@ -1,18 +1,7 @@
 = Background and Related Work
 
-#include "00-chapter.typ"
-#include "01-vector-embeddings.typ"
-#include "02-dl-architectures.typ"
-#include "03-vector-databases.typ"
-#include "04-ecommerce-architectures.typ"
-#include "06-dotnet-backend.typ"
-#include "07-vue-frontend.typ"
-#include "08-postgresql-pgvector.typ"
-#include "09-redis-caching.typ"
-#include "10-python-ml-sidecar.typ"
-#include "11-aspire-orchestration.typ"
-#include "12-hangfire-jobs.typ"
-#include "13-identity-auth.typ"
-#include "14-benchmark-framework.typ"
-#include "15-technology-summary.typ"
-#include "05-related-work.typ"
+This chapter is organised into three domains. The Domain Background introduces fashion e-commerce and visual search as a problem space, surveys related academic and commercial work, and identifies the gap this thesis addresses. The Machine Learning Background covers the mathematical foundations of vector embeddings, the neural architectures used to generate them, and the vector database technologies that store and query them. The Software Engineering Background surveys architectural patterns for web applications and describes each technology in the ReSys.Shop stack with the rationale for its selection.
+
+#include "domain-background.typ"
+#include "ml-background.typ"
+#include "software-background.typ"

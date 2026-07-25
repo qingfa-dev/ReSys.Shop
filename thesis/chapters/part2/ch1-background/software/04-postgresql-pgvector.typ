@@ -1,4 +1,4 @@
-== PostgreSQL and pgvector
+=== PostgreSQL and pgvector
 
 PostgreSQL 17 hosts both relational business data and vector embeddings in a single database.
 

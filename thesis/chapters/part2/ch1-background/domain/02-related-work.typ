@@ -1,8 +1,8 @@
-== Related Work
+=== Related Work in Fashion Image Retrieval
 
 This section positions the ReSys.Shop platform within the broader landscape of fashion image retrieval research and commercial visual search systems.
 
-=== Academic Research
+==== Academic Research
 
 The *DeepFashion* dataset, introduced by Liu et al., established the foundational benchmark for fashion recognition and retrieval with over 800,000 images annotated with attributes, landmarks, and in-shop-to-consumer photo pairs @liu2016deepfashion. This dataset catalysed much of the subsequent work in fashion AI.
 
@@ -10,7 +10,7 @@ The *DeepFashion* dataset, introduced by Liu et al., established the foundationa
 
 The *Fashion-CLIP* work demonstrated that domain-specific fine-tuning of CLIP on 700,000 fashion images improves retrieval by 15 to 20% over the general model @chia2022fashionclip. This thesis follows that approach, using pre-trained models without custom training, and extends the evaluation to additional architectures (ResNet, EfficientNet, DINOv2) for systematic comparison.
 
-=== Commercial Systems
+==== Commercial Systems
 
 Several platforms have deployed visual search at production scale.
 
@@ -30,7 +30,7 @@ Several platforms have deployed visual search at production scale.
 
 These products share common limitations for independent projects: they are proprietary and cannot be studied or modified, API access incurs costs at query volume, and reliance on external services creates vendor lock-in. This thesis demonstrates that comparable functionality is achievable with open-source tools, providing both a reference implementation and a cost-effective alternative for smaller deployments.
 
-=== Contribution Differentiators
+==== Contribution Differentiators
 
 This project distinguishes itself from prior work by addressing the *engineering gap* between model research and production systems. Four contributions define this gap:
 

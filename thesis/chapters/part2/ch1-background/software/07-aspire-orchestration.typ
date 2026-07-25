@@ -1,4 +1,4 @@
-== .NET Aspire Orchestration
+=== .NET Aspire Orchestration
 
 *.NET Aspire* coordinates the multi-container development and deployment environment.
 

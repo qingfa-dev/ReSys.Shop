@@ -1,8 +1,8 @@
-== Deep Learning Architectures for Embedding Generation
+=== Deep Learning Architectures for Embedding Generation
 
 Generating useful embeddings requires models that extract features at multiple levels, from low-level textures to high-level garment structure. Three families of architectures have emerged over the past decade.
 
-=== Convolutional Neural Networks
+==== Convolutional Neural Networks
 
 Convolutional neural networks (CNNs) process images through a hierarchy of learned filters. Early layers detect simple patterns (edges, colour transitions, texture directions), middle layers compose these into shapes and parts (lapels, button rows, sleeve boundaries), and deep layers recognise complete structures (dress vs. jacket, formal vs. casual). This layered organisation mirrors aspects of biological vision and has proven remarkably effective for visual recognition @he2016deep.
 
@@ -23,7 +23,7 @@ Convolutional neural networks (CNNs) process images through a hierarchy of learn
   caption: [CNN-based models evaluated in this thesis],
 ) <tbl-cnn-models>
 
-=== Vision Transformers
+==== Vision Transformers
 
 While CNNs capture local patterns through their layered filter design, their reliance on small receptive fields (typically 3×3 pixel windows) limits their ability to model relationships between distant image regions. Vision Transformers (ViTs) address this by applying the *self-attention* mechanism that was originally developed for natural language processing to image data @dosovitskiy2020vit.
 
@@ -45,7 +45,7 @@ A ViT divides an image into a grid of fixed-size patches (typically 16×16 pixel
   caption: [Vision Transformer models evaluated in this thesis],
 ) <tbl-vit-models>
 
-=== CLIP and Fashion-CLIP: Bridging Vision and Language
+==== CLIP and Fashion-CLIP: Bridging Vision and Language
 
 CNNs and ViTs operate purely in the visual domain, mapping images to embedding spaces that have no connection to human language. *CLIP* (Contrastive Language-Image Pre-training) bridges this gap through a dual-tower architecture: one tower encodes images, a parallel text encoder processes natural language descriptions, and both are trained jointly on 400 million (image, caption) pairs from the public web @radford2021learning. A contrastive objective pulls matching image-text pairs together in a shared embedding space while pushing non-matching pairs apart. The result is a model that can both see and read.
 
