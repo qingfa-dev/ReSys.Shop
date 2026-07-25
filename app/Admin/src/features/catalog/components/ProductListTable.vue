@@ -1,9 +1,11 @@
 <script setup lang="ts">
-import { onMounted } from 'vue'
+import { onMounted, ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import Column from 'primevue/column'
 import DataTable from '@/shared/components/data/DataTable.vue'
 import TableToolbar from '@/shared/components/layout/TableToolbar.vue'
+import FilterPanel from '@/shared/components/layout/FilterPanel.vue'
+import type { ColumnFilterDef, FilterConfig } from '@/shared/components/layout/FilterPanel.vue'
 import ActionMenu from '@/shared/components/layout/ActionMenu.vue'
 import StatusTag from '@/shared/components/data/StatusTag.vue'
 import EmptyState from '@/shared/components/feedback/EmptyState.vue'
@@ -22,6 +24,18 @@ const toast = useToast()
 const { t } = useI18n()
 const store = useProductStore()
 
+const showFilters = ref(false)
+
+const productFilterDefs: ColumnFilterDef[] = [
+  { field: 'name', label: t('catalog.products.labels.name'), type: 'text' },
+  { field: 'status', label: t('catalog.products.labels.status'), type: 'select', options: [
+    { label: 'Active', value: 'Active' },
+    { label: 'Draft', value: 'Draft' },
+    { label: 'Discontinued', value: 'Discontinued' },
+  ] },
+  { field: 'price', label: t('catalog.products.labels.price'), type: 'number-range' },
+]
+
 onMounted(() => store.fetchMany())
 
 function goToCreate() { router.push({ name: ROUTE.PRODUCTS.CREATE }) }
@@ -39,18 +53,51 @@ async function onDelete(id: string) {
   })
 }
 
-function onSearch(value: string) { store.setSearch(value) }
 function onPageChange(e: { page: number; rows: number }) { store.setPage(e.page + 1) }
+
+const activeFilterChips = computed(() =>
+  store.activeFilters.map(f => ({ field: f.field, value: String(f.value), label: f.label }))
+)
+
+function onFiltersApplied(filters: FilterConfig[]) {
+  store.setFilters(filters)
+}
+
+function onClearFilters() {
+  store.setFilters([])
+}
+
+function onFilterChipsChanged(chips: { field: string; value: string; label: string }[]) {
+  const remainingFields = new Set(chips.map(c => c.field))
+  store.setFilters(store.activeFilters.filter(f => remainingFields.has(f.field)))
+}
 </script>
 
 <template>
   <div>
     <TableToolbar
+      v-model:query="store.searchQuery"
+      :filters="activeFilterChips"
       :search-placeholder="t('catalog.products.placeholders.search')"
       :create-label="t('catalog.products.actions.new')"
-      @search="onSearch"
+      :show-filter="true"
       @create="goToCreate"
+      @toggle-filter="showFilters = !showFilters"
+      @update:filters="onFilterChipsChanged"
+    >
+      <template #secondary-actions>
+        <slot name="secondary-actions" />
+      </template>
+    </TableToolbar>
+
+    <FilterPanel
+      v-model:visible="showFilters"
+      :definitions="productFilterDefs"
+      :active-filters="store.activeFilters"
+      @apply="onFiltersApplied"
+      @clear="onClearFilters"
     />
+
     <LoadingSkeleton v-if="store.loading && store.items.length === 0" :rows="5" :columns="4" />
     <ErrorState v-else-if="store.error" :description="store.error" @retry="store.fetchMany" />
     <EmptyState v-else-if="store.items.length === 0" :title="t('catalog.products.messages.empty_list')" description="Create your first product." />

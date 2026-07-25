@@ -36,5 +36,13 @@
   "layout": {
     "search": "Search...",
     "noResults": "No results found"
+  },
+  "filters": {
+    "label": "Filters",
+    "selectPlaceholder": "Select...",
+    "from": "From",
+    "to": "To",
+    "clearAll": "Clear All",
+    "apply": "Apply Filters"
   }
 }
