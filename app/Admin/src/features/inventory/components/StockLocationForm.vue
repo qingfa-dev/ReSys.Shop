@@ -8,6 +8,8 @@ import FormField from '@/shared/components/forms/FormField.vue'
 import FormActions from '@/shared/components/forms/FormActions.vue'
 import LoadingSkeleton from '@/shared/components/feedback/LoadingSkeleton.vue'
 import ErrorState from '@/shared/components/feedback/ErrorState.vue'
+import { AppCard } from '@/shared/components'
+import Button from 'primevue/button'
 import Checkbox from 'primevue/checkbox'
 import { useStockLocation } from '../composables/useStockLocation'
 import { StockLocationForms } from '../schemas'
@@ -50,23 +52,28 @@ async function loadStockLocation() {
   if (!id.value) return
   loading.value = true
   loadError.value = null
-  const result = await api.get(id.value)
-  if (result.isSuccess) {
-    setValues({
-      name: result.value.name,
-      code: result.value.code,
-      address1: result.value.address1 ?? undefined,
-      address2: result.value.address2 ?? undefined,
-      city: result.value.city ?? undefined,
-      state: result.value.state ?? undefined,
-      postalCode: result.value.postalCode ?? undefined,
-      country: result.value.country ?? undefined,
-      phone: result.value.phone ?? undefined,
-      isDefault: result.value.isDefault ?? undefined,
-      isActive: result.value.isActive ?? undefined,
-    })
-  } else {
-    loadError.value = result.message ?? 'Failed to load stock location'
+  try {
+    const result = await api.get(id.value)
+    if (result.isSuccess) {
+      setValues({
+        name: result.value.name,
+        code: result.value.code,
+        address1: result.value.address1 ?? undefined,
+        address2: result.value.address2 ?? undefined,
+        city: result.value.city ?? undefined,
+        state: result.value.state ?? undefined,
+        postalCode: result.value.postalCode ?? undefined,
+        country: result.value.country ?? undefined,
+        phone: result.value.phone ?? undefined,
+        isDefault: result.value.isDefault ?? undefined,
+        isActive: result.value.isActive ?? undefined,
+      })
+    } else {
+      loadError.value = result.message ?? 'Failed to load stock location'
+    }
+  } catch (err) {
+    console.error(err)
+    loadError.value = 'Failed to load stock location'
   }
   loading.value = false
 }
@@ -76,16 +83,22 @@ const save = handleSubmit(async (values) => {
   const data = mode.value === 'create'
     ? StockLocationFormMapper.toCreate(values)
     : StockLocationFormMapper.toUpdate(values)
-  const result = id.value
-    ? await api.update(id.value, data)
-    : await api.create(data)
-  saving.value = false
-  if (result.isSuccess) {
-    toast.success(id.value ? t('inventory.locations.messages.update_success') : t('inventory.locations.messages.create_success'))
-    const newId = result.value.id
-    router.replace({ name: ROUTE.LOCATIONS.VIEW, params: { id: newId } })
-  } else {
-    toast.error(result.message ?? 'Save failed')
+  try {
+    const result = id.value
+      ? await api.update(id.value, data)
+      : await api.create(data)
+    saving.value = false
+    if (result.isSuccess) {
+      toast.success(id.value ? t('inventory.locations.messages.update_success') : t('inventory.locations.messages.create_success'))
+      const newId = result.value.id
+      router.replace({ name: ROUTE.LOCATIONS.VIEW, params: { id: newId } })
+    } else {
+      toast.error(result.message ?? 'Save failed')
+    }
+  } catch (err) {
+    console.error(err)
+    saving.value = false
+    toast.error('Save failed')
   }
 })
 
@@ -107,77 +120,83 @@ onMounted(async () => {
   <div>
     <PageHeader :title="title" :icon="route.meta?.icon as string | undefined">
       <template #actions>
-        <button v-if="mode === 'view'" class="p-button p-component" @click="toggleEdit">{{ t('inventory.locations.actions.edit') }}</button>
+        <Button
+          v-if="mode === 'view'"
+          :label="t('inventory.locations.actions.edit')"
+          icon="pi pi-pencil"
+          size="small"
+          @click="toggleEdit"
+        />
       </template>
     </PageHeader>
     <LoadingSkeleton v-if="loading && mode !== 'create'" :rows="8" :columns="2" />
     <ErrorState v-else-if="loadError" :title="loadError" @retry="loadStockLocation" />
-    <div v-else class="card">
-      <div class="grid">
-        <div class="col-6">
+    <AppCard v-else>
+      <div class="grid grid-cols-12 gap-4">
+        <div class="col-span-full sm:col-span-6">
           <FormField :label="t('inventory.locations.labels.name')" :error="errors.name" required>
             <input v-model="name" type="text" class="p-inputtext p-component w-full" :disabled="mode === 'view'" />
           </FormField>
         </div>
-        <div class="col-6">
+        <div class="col-span-full sm:col-span-6">
           <FormField :label="t('inventory.locations.labels.code')" :error="errors.code" required>
             <input v-model="code" type="text" class="p-inputtext p-component w-full" :disabled="mode === 'view'" />
           </FormField>
         </div>
       </div>
-      <div class="grid">
-        <div class="col-6">
+      <div class="grid grid-cols-12 gap-4">
+        <div class="col-span-full sm:col-span-6">
           <FormField :label="t('inventory.locations.labels.address1')" :error="errors.address1">
             <input v-model="address1" type="text" class="p-inputtext p-component w-full" :disabled="mode === 'view'" />
           </FormField>
         </div>
-        <div class="col-6">
+        <div class="col-span-full sm:col-span-6">
           <FormField :label="t('inventory.locations.labels.address2')" :error="errors.address2">
             <input v-model="address2" type="text" class="p-inputtext p-component w-full" :disabled="mode === 'view'" />
           </FormField>
         </div>
       </div>
-      <div class="grid">
-        <div class="col-4">
+      <div class="grid grid-cols-12 gap-4">
+        <div class="col-span-full sm:col-span-4">
           <FormField :label="t('inventory.locations.labels.city')" :error="errors.city">
             <input v-model="city" type="text" class="p-inputtext p-component w-full" :disabled="mode === 'view'" />
           </FormField>
         </div>
-        <div class="col-4">
+        <div class="col-span-full sm:col-span-4">
           <FormField :label="t('inventory.locations.labels.state')" :error="errors.state">
             <input v-model="state" type="text" class="p-inputtext p-component w-full" :disabled="mode === 'view'" />
           </FormField>
         </div>
-        <div class="col-4">
+        <div class="col-span-full sm:col-span-4">
           <FormField :label="t('inventory.locations.labels.postal_code')" :error="errors.postalCode">
             <input v-model="postalCode" type="text" class="p-inputtext p-component w-full" :disabled="mode === 'view'" />
           </FormField>
         </div>
       </div>
-      <div class="grid">
-        <div class="col-6">
+      <div class="grid grid-cols-12 gap-4">
+        <div class="col-span-full sm:col-span-6">
           <FormField :label="t('inventory.locations.labels.country')" :error="errors.country">
             <input v-model="country" type="text" class="p-inputtext p-component w-full" :disabled="mode === 'view'" />
           </FormField>
         </div>
-        <div class="col-6">
+        <div class="col-span-full sm:col-span-6">
           <FormField :label="t('inventory.locations.labels.phone')" :error="errors.phone">
             <input v-model="phone" type="text" class="p-inputtext p-component w-full" :disabled="mode === 'view'" />
           </FormField>
         </div>
       </div>
-      <div class="grid">
-        <div class="col-6">
+      <div class="grid grid-cols-12 gap-4">
+        <div class="col-span-full sm:col-span-6">
           <FormField :label="t('inventory.locations.labels.is_default')">
-            <div class="flex align-items-center gap-2 mt-1">
+            <div class="flex items-center gap-2 mt-1">
               <Checkbox v-model="isDefault" :binary="true" :disabled="mode === 'view'" input-id="isDefault" />
               <label for="isDefault">{{ t('inventory.locations.descriptions.is_default') }}</label>
             </div>
           </FormField>
         </div>
-        <div class="col-6">
+        <div class="col-span-full sm:col-span-6">
           <FormField :label="t('inventory.locations.labels.is_active')">
-            <div class="flex align-items-center gap-2 mt-1">
+            <div class="flex items-center gap-2 mt-1">
               <Checkbox v-model="isActive" :binary="true" :disabled="mode === 'view'" input-id="isActive" />
               <label for="isActive">{{ t('inventory.locations.descriptions.is_active') }}</label>
             </div>
@@ -193,6 +212,6 @@ onMounted(async () => {
         @save="save"
         @cancel="cancel"
       />
-    </div>
+    </AppCard>
   </div>
 </template>

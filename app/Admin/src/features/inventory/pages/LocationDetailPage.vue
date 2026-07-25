@@ -1,7 +1,10 @@
 <script setup lang="ts">
+import { DetailLayout } from '@/shared/components'
 import StockLocationForm from '../components/StockLocationForm.vue'
 </script>
 
 <template>
-  <StockLocationForm />
+  <DetailLayout>
+    <StockLocationForm />
+  </DetailLayout>
 </template>

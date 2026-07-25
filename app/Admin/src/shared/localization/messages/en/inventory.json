@@ -1,179 +1,133 @@
 {
-  "titles": {
-    "list": "Inventory Stock",
-    "locations": "Stock Locations",
-    "transfers": "Stock Transfers",
-    "adjust": "Adjust Stock",
-    "audit": "Audit Inventory",
-    "create_location": "New Warehouse",
-    "create_transfer": "Initiate Transfer",
-    "stock_movement_history": "Stock Movement History",
-    "merchandise": "Merchandise",
-    "destination": "Destination",
-    "overview": "Overview",
-    "identification": "Identification",
-    "inventory": "Inventory",
-    "add_transfer_item": "Add Transfer Item",
-    "import_stock": "Import Stock",
-    "stock_movements": "Stock Movements"
+  "dashboard": {
+    "title": "Inventory Dashboard",
+    "subtitle": "Overview of stock levels, locations, and pending transfers",
+    "total_stock_items": "Total Stock Items",
+    "total_locations": "Total Locations",
+    "low_stock": "Low Stock Items",
+    "out_of_stock": "Out of Stock",
+    "total_reserved": "Reserved Quantity",
+    "pending_transfers": "Pending Transfers",
+    "quick_actions": "Quick Actions",
+    "recent_movements": "Recent Movements",
+    "no_movements": "No recent movements"
   },
-  "descriptions": {
-    "list": "Overview of stock levels across all products and locations.",
-    "locations": "Manage warehouses, retail stores, and fulfillment centers.",
-    "transfers": "Move merchandise between inventory locations.",
-    "manager": "Configure your physical and logical storage hierarchy."
+  "stocks": {
+    "title": "Stock Items",
+    "subtitle": "Manage stock levels across all products and locations"
   },
-  "table": {
-    "sku": "SKU",
-    "product": "Product",
-    "location": "Location",
-    "on_hand": "On Hand",
-    "reserved": "Reserved",
-    "available": "Available",
-    "status": "Status",
-    "reference": "Reference",
-    "type": "Type",
-    "actions": "Actions",
-    "clear_filter": "Clear Filters",
-    "serial_number": "Serial Number",
-    "registered": "Registered",
-    "initiated": "Initiated",
-    "location_name": "Location Name",
-    "code": "Code",
-    "quantity": "Quantity",
-    "action": "Action",
-    "reason": "Reason",
-    "date": "Date"
-  },
-  "labels": {
-    "name": "Location Name",
-    "code": "Code (Unique)",
-    "is_default": "Default Location",
-    "source": "Source Location",
-    "destination": "Destination Location",
-    "reason": "Reason / Note",
-    "quantity": "Quantity",
-    "unit_cost": "Unit Cost",
-    "address": "Street Address",
-    "city": "City",
-    "zip": "ZIP Code",
-    "country": "Country",
-    "selected_file": "Selected File"
-  },
-  "actions": {
-    "adjust": "Adjust",
-    "audit": "Audit",
-    "transfer": "Transfer",
-    "new_location": "Add Location",
-    "new_transfer": "New Transfer",
-    "ship": "Ship Transfer",
-    "receive": "Receive Items",
-    "save": "Save",
-    "cancel": "Cancel",
-    "add": "Add Item",
-    "add_child": "Add Child Location",
-    "delete": "Delete Location",
-    "add_to_transfer": "Add to Transfer",
-    "back": "Back",
-    "choose_file": "Choose CSV File",
-    "import": "Import Stock"
-  },
-  "placeholders": {
-    "search": "Search by SKU or product...",
-    "location_search": "Search locations...",
-    "transfer_search": "Search references..."
-  },
-  "messages": {
-    "adjust_success": "Stock level updated successfully.",
-    "audit_success": "Inventory audit completed.",
-    "create_location_success": "New location registered.",
-    "create_transfer_success": "Stock transfer initiated.",
-    "delete_location_success": "Location removed successfully.",
-    "loading": "Synchronizing inventory...",
-    "empty_list": "No inventory records found.",
-    "select_location": "Location Manager",
-    "select_location_desc": "Select a location from the hierarchy to edit its details or manage its children.",
-    "hierarchy_view": "Location Hierarchy",
-    "no_locations": "No root locations defined.",
-    "item_added_to_transfer": "Item added to transfer",
-    "transfer_shipped": "Transfer shipped",
-    "stock_received": "Stock received at destination",
-    "location_updated": "Location updated",
-    "location_created": "Location created",
-    "source_destination_same": "Source and destination cannot be the same.",
-    "load_error": "Failed to load inventory",
-    "load_states_error": "Failed to load states",
-    "import_stock_csv_info": "Upload a CSV file with stock item data. The file must contain SKU, quantity, and location columns.",
-    "import_success": "Stock items imported successfully.",
-    "no_movements": "No movement history found."
-  },
-  "confirm": {
-    "delete_header": "Confirm Deletion",
-    "delete_message": "Are you sure you want to delete \"{name}\"? This action cannot be undone if there are no active stock items."
-  },
-  "validation": {
-    "quantity": {
-      "whole": "Quantity must be a whole number",
-      "min_one": "Quantity must be at least 1"
+  "stock_items": {
+    "form": {
+      "create_title": "Create Stock Item",
+      "edit_title": "Edit Stock Item: {sku}",
+      "view_title": "Stock Item Detail"
     },
-    "type": {
-      "required": "Type is required",
-      "invalid": "Invalid adjustment type"
+    "labels": {
+      "variant_id": "Variant ID",
+      "location_id": "Location ID",
+      "quantity": "Quantity",
+      "low_stock_threshold": "Low Stock Threshold"
     },
-    "reason": {
-      "max_length": "Reason must not exceed {max} characters"
+    "actions": {
+      "create": "New Stock Item",
+      "edit": "Edit",
+      "save_create": "Create Stock Item",
+      "save_edit": "Save Changes",
+      "cancel": "Cancel"
     },
-    "reference": {
-      "max_length": "Reference must not exceed {max} characters"
-    },
-    "name": {
-      "required": "Location name is required",
-      "max_length": "Location name must not exceed {max} characters"
-    },
-    "code": {
-      "required": "Location code is required",
-      "max_length": "Location code must not exceed {max} characters",
-      "format": "Code may contain only uppercase letters, numbers, hyphens, underscores"
-    },
-    "address": {
-      "required": "Address is required",
-      "max_length": "Address must not exceed {max} characters"
-    },
-    "city": {
-      "required": "City is required",
-      "max_length": "City must not exceed {max} characters"
-    },
-    "zip": {
-      "required": "ZIP code is required",
-      "max_length": "ZIP code must not exceed {max} characters"
-    },
-    "country_code": {
-      "length": "Country code must be 2 characters"
-    },
-    "state_code": {
-      "max_length": "State code must not exceed {max} characters"
-    },
-    "phone": {
-      "max_length": "Phone must not exceed {max} characters"
-    },
-    "stock_item": {
-      "required": "Stock item is required",
-      "invalid": "Invalid stock item"
-    },
-    "state": {
-      "required": "State is required"
-    },
-    "source_location": {
-      "required": "Source location is required",
-      "invalid": "Invalid source location"
-    },
-    "destination_location": {
-      "required": "Destination location is required",
-      "invalid": "Invalid destination location"
-    },
-    "variant": {
-      "required": "Invalid variant",
-      "invalid": "Invalid variant"
+    "messages": {
+      "create_success": "Stock item created successfully",
+      "update_success": "Stock item updated successfully"
     }
+  },
+  "locations": {
+    "title": "Stock Locations",
+    "subtitle": "Manage warehouses, retail stores, and fulfillment centers",
+    "titles": {
+      "list": "Stock Locations",
+      "create": "New Location",
+      "view": "Location Detail",
+      "edit": "Edit Location"
+    },
+    "labels": {
+      "name": "Location Name",
+      "code": "Code (Unique)",
+      "address1": "Address Line 1",
+      "address2": "Address Line 2",
+      "city": "City",
+      "state": "State / Province",
+      "postal_code": "ZIP / Postal Code",
+      "country": "Country",
+      "phone": "Phone",
+      "is_default": "Default Location",
+      "is_active": "Active"
+    },
+    "descriptions": {
+      "list": "Manage warehouses, retail stores, and fulfillment centers.",
+      "is_default": "Set as default warehouse for new stock",
+      "is_active": "Location is operational and can receive stock"
+    },
+    "actions": {
+      "create": "Add Location",
+      "edit": "Edit",
+      "save_create": "Create Location",
+      "save_edit": "Save Changes",
+      "cancel": "Cancel",
+      "delete": "Delete"
+    },
+    "messages": {
+      "create_success": "Location created successfully",
+      "update_success": "Location updated successfully",
+      "delete_success": "Location removed successfully",
+      "empty_list": "No stock locations found"
+    }
+  },
+  "movements": {
+    "title": "Stock Movements",
+    "subtitle": "Track all inventory movements and adjustments"
+  },
+  "transfers": {
+    "title": "Stock Transfers",
+    "subtitle": "Move merchandise between inventory locations",
+    "titles": {
+      "create": "Create Stock Transfer",
+      "detail": "Transfer",
+      "line_items": "Line Items"
+    },
+    "labels": {
+      "source_location": "Source Location ID",
+      "destination_location": "Destination Location ID",
+      "notes": "Notes",
+      "variant_id": "Variant ID",
+      "quantity": "Quantity",
+      "reference": "Reference",
+      "from": "From",
+      "to": "To",
+      "status": "Status",
+      "created": "Created",
+      "sku": "SKU",
+      "received": "Received"
+    },
+    "actions": {
+      "create": "New Transfer",
+      "transfer": "Transfer",
+      "receive": "Receive",
+      "cancel": "Cancel",
+      "remove": "Remove",
+      "add_line": "Add Line",
+      "create_transfer": "Create Transfer"
+    },
+    "messages": {
+      "create_success": "Transfer created successfully",
+      "transfer_success": "Transfer completed",
+      "receive_success": "Transfer received",
+      "cancel_success": "Transfer cancelled",
+      "source_dest_required": "Source and destination locations are required",
+      "lines_required": "At least one line item is required"
+    }
+  },
+  "reservations": {
+    "title": "Stock Reservations",
+    "subtitle": "Manage product stock reservations for orders"
   }
 }

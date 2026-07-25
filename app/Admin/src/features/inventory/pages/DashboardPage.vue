@@ -1,107 +1,145 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, computed, onMounted } from 'vue'
+import { useI18n } from 'vue-i18n'
+import { useRouter, useRoute } from 'vue-router'
 import PageHeader from '@/shared/components/layout/PageHeader.vue'
+import { StatCard, LoadingSkeleton, ErrorState, ListLayout, AppCard } from '@/shared/components'
+import Button from 'primevue/button'
 import { InventoryDashboardApi } from '../api'
 import type { InventoryDashboardResponse } from '../types'
+import { ROUTE } from '../routes'
+
+const { t } = useI18n()
+const router = useRouter()
+const route = useRoute()
 
 const data = ref<InventoryDashboardResponse | null>(null)
-const loading = ref(false)
+const loading = ref(true)
 const error = ref<string | null>(null)
 
-async function load() {
+const metrics = computed(() => [
+  { label: t('inventory.dashboard.total_stock_items'), value: data.value?.totalStockItems ?? 0, icon: 'pi pi-box', color: 'primary' as const },
+  { label: t('inventory.dashboard.total_locations'), value: data.value?.totalLocations ?? 0, icon: 'pi pi-building', color: 'blue' as const },
+  { label: t('inventory.dashboard.low_stock'), value: data.value?.lowStockCount ?? 0, icon: 'pi pi-exclamation-triangle', color: 'orange' as const },
+  { label: t('inventory.dashboard.out_of_stock'), value: data.value?.outOfStockCount ?? 0, icon: 'pi pi-times-circle', color: 'red' as const },
+  { label: t('inventory.dashboard.total_reserved'), value: data.value?.totalReservedQuantity ?? 0, icon: 'pi pi-lock', color: 'green' as const },
+  { label: t('inventory.dashboard.pending_transfers'), value: data.value?.totalTransfersPending ?? 0, icon: 'pi pi-truck', color: 'blue' as const },
+])
+
+const quickActions = [
+  { label: t('inventory.stocks.title'), icon: 'pi pi-box', route: { name: ROUTE.STOCKS.LIST } },
+  { label: t('inventory.locations.title'), icon: 'pi pi-building', route: { name: ROUTE.LOCATIONS.LIST } },
+  { label: t('inventory.transfers.title'), icon: 'pi pi-arrows-h', route: { name: ROUTE.TRANSFERS.LIST } },
+  { label: t('inventory.movements.title'), icon: 'pi pi-history', route: { name: ROUTE.MOVEMENTS.LIST } },
+]
+
+const recentMovements = computed(() =>
+  data.value?.recentMovements.map(m => ({
+    sku: m.variantSku,
+    location: m.locationName,
+    qty: m.quantity,
+    direction: m.direction,
+    date: m.createdAt,
+  })) ?? [],
+)
+
+function directionSeverity(dir: string): 'success' | 'danger' {
+  return dir === 'In' ? 'success' : 'danger'
+}
+
+async function fetchDashboard() {
   loading.value = true
   error.value = null
-  const result = await InventoryDashboardApi.get()
-  if (result.isSuccess) {
-    data.value = result.value
-  } else {
-    error.value = result.message ?? 'Failed to load dashboard'
+  try {
+    const result = await InventoryDashboardApi.get()
+    if (result.isSuccess) {
+      data.value = result.value
+    } else {
+      error.value = result.message ?? 'Failed to load dashboard data'
+    }
+  } catch (err) {
+    console.error(err)
+    error.value = 'Failed to load dashboard data'
   }
   loading.value = false
 }
 
-onMounted(() => load())
+onMounted(fetchDashboard)
 </script>
 
 <template>
-  <div>
-    <PageHeader title="Inventory Dashboard" />
-    <div v-if="loading" class="grid">
-      <div v-for="i in 6" :key="i" class="col-12 md:col-6 lg:col-4">
-        <div class="card p-3 surface-50 border-round" style="height:100px">
-          <div class="text-sm text-surface-500 mb-2">Loading...</div>
+  <ListLayout>
+    <template #header>
+      <PageHeader
+        :title="t('inventory.dashboard.title')"
+        :subtitle="t('inventory.dashboard.subtitle')"
+        :icon="route.meta?.icon as string | undefined"
+      >
+        <template #actions>
+          <Button
+            :label="t('inventory.stocks.title')"
+            icon="pi pi-plus"
+            size="small"
+            @click="router.push({ name: ROUTE.STOCKS.CREATE })"
+          />
+        </template>
+      </PageHeader>
+    </template>
+
+    <LoadingSkeleton v-if="loading" :rows="4" :columns="4" />
+
+    <ErrorState
+      v-else-if="error"
+      :title="error"
+      @retry="fetchDashboard"
+    />
+
+    <template v-else>
+      <div class="grid grid-cols-2 gap-4 lg:grid-cols-3">
+        <StatCard v-for="m in metrics" :key="m.label" :label="m.label" :value="m.value" :icon="m.icon" :color="m.color" />
+      </div>
+
+      <div class="my-6">
+        <p class="mb-3 text-xs font-semibold uppercase tracking-wider text-surface-400">{{ t('inventory.dashboard.quick_actions') }}</p>
+        <div class="flex flex-wrap gap-3">
+          <Button
+            v-for="a in quickActions"
+            :key="a.label"
+            :label="a.label"
+            :icon="a.icon"
+            outlined
+            size="small"
+            @click="router.push(a.route)"
+          />
         </div>
       </div>
-    </div>
-    <div v-else-if="error" class="card p-4">
-      <p class="text-red-500">{{ error }}</p>
-      <button class="p-button p-component mt-3" @click="load">Retry</button>
-    </div>
-    <div v-else-if="data" class="grid">
-      <div class="col-12 md:col-6 lg:col-4">
-        <div class="card p-3 border-round">
-          <div class="text-sm text-surface-500">Stock Items</div>
-          <div class="text-2xl font-semibold">{{ data.totalStockItems }}</div>
+
+      <AppCard>
+        <p class="mb-3 text-xs font-semibold uppercase tracking-wider text-surface-400">{{ t('inventory.dashboard.recent_movements') }}</p>
+        <div v-if="recentMovements.length" class="divide-y divide-surface-200 dark:divide-surface-700">
+          <div
+            v-for="(m, i) in recentMovements"
+            :key="i"
+            class="flex items-center justify-between px-2 py-3 transition-colors hover:bg-surface-50 dark:hover:bg-surface-800"
+          >
+            <div>
+              <p class="text-sm font-medium text-surface-900 dark:text-surface-0">{{ m.sku }}</p>
+              <p class="text-xs text-surface-400">{{ m.location }}</p>
+            </div>
+            <div class="flex items-center gap-4">
+              <span class="text-sm font-medium">{{ m.qty }}</span>
+              <span
+                class="rounded px-2 py-0.5 text-xs font-medium"
+                :class="m.direction === 'In' ? 'bg-green-100 text-green-700 dark:bg-green-400/10 dark:text-green-400' : 'bg-red-100 text-red-700 dark:bg-red-400/10 dark:text-red-400'"
+              >{{ m.direction }}</span>
+              <span class="text-xs text-surface-400">{{ m.date }}</span>
+            </div>
+          </div>
         </div>
-      </div>
-      <div class="col-12 md:col-6 lg:col-4">
-        <div class="card p-3 border-round">
-          <div class="text-sm text-surface-500">Locations</div>
-          <div class="text-2xl font-semibold">{{ data.totalLocations }}</div>
-        </div>
-      </div>
-      <div class="col-12 md:col-6 lg:col-4">
-        <div class="card p-3 border-round">
-          <div class="text-sm text-surface-500">Low Stock Items</div>
-          <div class="text-2xl font-semibold text-orange-500">{{ data.lowStockCount }}</div>
-        </div>
-      </div>
-      <div class="col-12 md:col-6 lg:col-4">
-        <div class="card p-3 border-round">
-          <div class="text-sm text-surface-500">Out of Stock</div>
-          <div class="text-2xl font-semibold text-red-500">{{ data.outOfStockCount }}</div>
-        </div>
-      </div>
-      <div class="col-12 md:col-6 lg:col-4">
-        <div class="card p-3 border-round">
-          <div class="text-sm text-surface-500">Reserved Quantity</div>
-          <div class="text-2xl font-semibold text-blue-500">{{ data.totalReservedQuantity }}</div>
-        </div>
-      </div>
-      <div class="col-12 md:col-6 lg:col-4">
-        <div class="card p-3 border-round">
-          <div class="text-sm text-surface-500">Pending Transfers</div>
-          <div class="text-2xl font-semibold text-purple-500">{{ data.totalTransfersPending }}</div>
-        </div>
-      </div>
-      <div class="col-12 mt-4">
-        <div class="card">
-          <h3 class="text-lg font-semibold mb-3">Recent Movements</h3>
-          <table v-if="data.recentMovements.length > 0" class="w-full">
-            <thead>
-              <tr class="text-left text-sm text-surface-500">
-                <th class="pb-2">SKU</th>
-                <th class="pb-2">Location</th>
-                <th class="pb-2">Qty</th>
-                <th class="pb-2">Direction</th>
-                <th class="pb-2">Date</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr v-for="m in data.recentMovements" :key="m.id" class="border-top border-surface-200">
-                <td class="py-2">{{ m.variantSku }}</td>
-                <td class="py-2">{{ m.locationName }}</td>
-                <td class="py-2">{{ m.quantity }}</td>
-                <td class="py-2">
-                  <span :class="m.direction === 'In' ? 'text-green-600' : 'text-red-600'">{{ m.direction }}</span>
-                </td>
-                <td class="py-2">{{ m.createdAt }}</td>
-              </tr>
-            </tbody>
-          </table>
-          <p v-else class="text-surface-500 text-sm">No recent movements</p>
-        </div>
-      </div>
-    </div>
-  </div>
+        <p v-else class="rounded-lg border border-dashed border-surface-300 px-4 py-8 text-center text-sm text-surface-400 dark:border-surface-700">
+          {{ t('inventory.dashboard.no_movements') }}
+        </p>
+      </AppCard>
+    </template>
+  </ListLayout>
 </template>
