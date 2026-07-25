@@ -92,7 +92,7 @@ function onDragStart(index: number, event: DragEvent) {
   event.dataTransfer!.setData('text/plain', String(index))
 }
 
-function onDrop(targetIndex: number, event: DragEvent) {
+async function onDrop(targetIndex: number, event: DragEvent) {
   event.preventDefault()
   const sourceIndex = Number(event.dataTransfer!.getData('text/plain'))
   if (sourceIndex === targetIndex) return
@@ -100,6 +100,12 @@ function onDrop(targetIndex: number, event: DragEvent) {
   const [moved] = reordered.splice(sourceIndex, 1)
   reordered.splice(targetIndex, 0, moved)
   emit('update:images', reordered)
+
+  const result = await VariantImageApi.reorder(props.variantId, { imageIds: reordered.map(i => i.id) })
+  if (!result.isSuccess) {
+    console.error(result.message)
+    toast.error(t('catalog.variants.images.reorder_failed'))
+  }
 }
 
 function onDragOver(event: DragEvent) {

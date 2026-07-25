@@ -485,6 +485,7 @@
       "upload_failed": "Failed to upload {name}: {reason}",
       "delete_success": "Image deleted",
       "delete_failed": "Failed to delete image",
+      "reorder_failed": "Failed to save image order",
       "primary": "Primary image"
     }
   },

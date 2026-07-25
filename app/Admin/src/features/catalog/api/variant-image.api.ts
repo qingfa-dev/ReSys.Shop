@@ -1,6 +1,6 @@
 import apiClient from '@/shared/api/client'
 import type { Result } from '@/shared/models'
-import type { VariantImageDetailResponse, VariantImageListResponse, UpdateImageMetadataRequest, EmbeddingRequest, EmbeddingDetailResponse } from '../types'
+import type { VariantImageDetailResponse, VariantImageListResponse, UpdateImageMetadataRequest, EmbeddingRequest, EmbeddingDetailResponse, ReorderImagesRequest } from '../types'
 
 export class VariantImageApi {
   static async list(variantId: string): Promise<Result<VariantImageListResponse>> {
@@ -44,6 +44,11 @@ export class VariantImageApi {
 
   static async regenerateEmbedding(imageId: string, data: EmbeddingRequest): Promise<Result<EmbeddingDetailResponse>> {
     const res = await apiClient.put<Result<EmbeddingDetailResponse>>(`/catalog/variants/images/${imageId}/embeddings`, data)
+    return res.data
+  }
+
+  static async reorder(variantId: string, data: ReorderImagesRequest): Promise<Result<void>> {
+    const res = await apiClient.put<Result<void>>(`/catalog/variants/${variantId}/images/reorder`, data)
     return res.data
   }
 }

@@ -15,3 +15,7 @@ export interface EmbeddingRequest {
   modelName: string
   modelVersion: string
 }
+
+export interface ReorderImagesRequest {
+  imageIds: string[]
+}
