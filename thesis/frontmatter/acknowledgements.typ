@@ -9,9 +9,9 @@
 #set align(left)
 #set par(first-line-indent: 1cm, justify: true)
 
-I would like to express my sincere gratitude to Dr. Tran Cong An, my thesis advisor, for his guidance, continuous feedback, and support throughout this research. His input on the Design Science Research methodology, benchmark system architecture, and experimental design was instrumental.
+I would like to express my sincere gratitude to Dr. Tran Cong An, my thesis advisor, for his guidance, continuous feedback, and support throughout this research.
 
-I also thank the Chair of the Thesis Defense Committee, Dr. Pham The Phi, and the Committee Reviewer, Dr. Thai Minh Tuan, for their time, thorough evaluation, and constructive comments that strengthened the statistical analysis and discussion in this thesis.
+I also thank the members of the Thesis Defense Committee for their time, thorough evaluation, and constructive comments.
 
 My sincere appreciation goes to the Faculty of Information Technology, Can Tho University, for providing the academic foundation that supported this work, and to the High-Quality Program for fostering the engineering discipline applied throughout this thesis.
 
