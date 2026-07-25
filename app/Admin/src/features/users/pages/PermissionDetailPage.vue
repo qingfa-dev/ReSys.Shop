@@ -6,6 +6,7 @@ import PageHeader from '@/shared/components/layout/PageHeader.vue'
 import { DetailLayout, AppCard } from '@/shared/components'
 import LoadingSkeleton from '@/shared/components/feedback/LoadingSkeleton.vue'
 import ErrorState from '@/shared/components/feedback/ErrorState.vue'
+import Button from 'primevue/button'
 import Tag from 'primevue/tag'
 import { PermissionApi } from '../api'
 import type { PermissionResponse } from '../types'
@@ -40,7 +41,7 @@ onMounted(load)
 </script>
 
 <template>
-  <div>
+  <DetailLayout>
     <PageHeader
       :title="permission?.name ?? 'Permission'"
       :subtitle="t('roles.permissions.descriptions.detail')"
@@ -70,10 +71,10 @@ onMounted(load)
         </div>
       </div>
       <div class="mt-4">
-        <button class="p-button p-button-text" @click="router.push({ name: ROUTE.PERMISSIONS.LIST })">
+        <Button text @click="router.push({ name: ROUTE.PERMISSIONS.LIST })">
           <i class="pi pi-arrow-left" /> Back to Permissions
-        </button>
+        </Button>
       </div>
     </AppCard>
-  </div>
+  </DetailLayout>
 </template>

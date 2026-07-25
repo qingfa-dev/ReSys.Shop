@@ -8,6 +8,7 @@ import DataTable from '@/shared/components/data/DataTable.vue'
 import Column from 'primevue/column'
 import LoadingSkeleton from '@/shared/components/feedback/LoadingSkeleton.vue'
 import ErrorState from '@/shared/components/feedback/ErrorState.vue'
+import Button from 'primevue/button'
 import Tag from 'primevue/tag'
 import { PermissionApi } from '../api'
 import type { PermissionResponse } from '../types'
@@ -65,9 +66,9 @@ onMounted(fetchPermissions)
         </template>
       </Column>
       <template #rowActions="{ data }">
-        <button class="p-button p-button-text p-button-sm" @click="goToView(data.id)">
+        <Button text size="small" @click="goToView(data.id)">
           <i class="pi pi-eye" /> View
-        </button>
+        </Button>
       </template>
     </DataTable>
   </ListLayout>
