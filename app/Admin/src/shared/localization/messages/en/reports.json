@@ -1,9 +1,21 @@
 {
-  "titles": {
-    "dashboard": "Dashboard"
-  },
-  "labels": {
-    "revenue": "Revenue",
-    "activity": "Activity"
+  "dashboard": {
+    "title": "Analytics Dashboard",
+    "subtitle": "Reports and performance metrics",
+    "total_revenue": "Total Revenue",
+    "total_orders": "Total Orders",
+    "customers": "Customers",
+    "avg_order_value": "Avg. Order Value",
+    "revenue_trend": "Revenue Trend",
+    "orders_trend": "Orders Trend",
+    "revenue_by_category": "Revenue by Category",
+    "order_status_breakdown": "Order Status Breakdown",
+    "monthly_performance": "Monthly Performance",
+    "columns": {
+      "month": "Month",
+      "revenue": "Revenue",
+      "orders": "Orders",
+      "avg_order": "AOV"
+    }
   }
 }

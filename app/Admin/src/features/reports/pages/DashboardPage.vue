@@ -1,15 +1,29 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
-import PageHeader from '@/shared/components/layout/PageHeader.vue'
-import { StatCard, ErrorState } from '@/shared/components'
+import { useI18n } from 'vue-i18n'
+import { useRoute } from 'vue-router'
+import Column from 'primevue/column'
 import Chart from 'primevue/chart'
 import Skeleton from 'primevue/skeleton'
+import PageHeader from '@/shared/components/layout/PageHeader.vue'
+import { ListLayout, DataTable, StatCard, ErrorState } from '@/shared/components'
 import type { ReportsData } from '../types'
 import { DashboardApi } from '../api'
+
+const { t } = useI18n()
+const route = useRoute()
 
 const data = ref<ReportsData | null>(null)
 const loading = ref(true)
 const error = ref<string | null>(null)
+
+const monthlyData = computed(() =>
+  data.value?.salesTrends.map(t => ({
+    ...t,
+    revenueFormatted: formatCurrency(t.sales),
+    avgOrderValue: formatCurrency(Math.round(t.sales / t.orders)),
+  })) ?? [],
+)
 
 const revenueChartData = computed(() => ({
   labels: data.value?.salesTrends.map(t => t.month) ?? [],
@@ -162,11 +176,17 @@ onMounted(loadDashboard)
 </script>
 
 <template>
-  <div>
-    <PageHeader title="Analytics Dashboard" subtitle="Reports and performance metrics" />
+  <ListLayout>
+    <template #header>
+      <PageHeader
+        :title="t('reports.dashboard.title')"
+        :subtitle="t('reports.dashboard.subtitle')"
+        :icon="route.meta?.icon as string"
+      />
+    </template>
 
-    <div v-if="loading" class="grid">
-      <div v-for="i in 4" :key="i" class="col-12 md:col-6 lg:col-3">
+    <div v-if="loading" class="grid grid-cols-2 gap-4 lg:grid-cols-4">
+      <div v-for="i in 4" :key="i">
         <div class="rounded-border border border-surface-200 bg-white p-5 dark:border-surface-700 dark:bg-surface-900" style="height: 120px">
           <Skeleton height="1rem" width="60%" class="mb-3" />
           <Skeleton height="2rem" width="40%" />
@@ -178,21 +198,21 @@ onMounted(loadDashboard)
 
     <template v-else-if="data">
       <div class="mb-6 grid grid-cols-2 gap-4 lg:grid-cols-4">
-        <StatCard label="Total Revenue" :value="formatCurrency(data.totalRevenue)" icon="pi pi-dollar" color="green" :delta="data.revenueDelta" />
-        <StatCard label="Total Orders" :value="data.totalOrders.toLocaleString()" icon="pi pi-shopping-cart" color="blue" :delta="data.ordersDelta" />
-        <StatCard label="Customers" :value="data.totalCustomers.toLocaleString()" icon="pi pi-users" color="primary" :delta="data.customersDelta" />
-        <StatCard label="Avg. Order Value" :value="formatCurrency(data.averageOrderValue)" icon="pi pi-chart-bar" color="orange" :delta="data.aovDelta" />
+        <StatCard :label="t('reports.dashboard.total_revenue')" :value="formatCurrency(data.totalRevenue)" icon="pi pi-dollar" color="green" :delta="data.revenueDelta" />
+        <StatCard :label="t('reports.dashboard.total_orders')" :value="data.totalOrders.toLocaleString()" icon="pi pi-shopping-cart" color="blue" :delta="data.ordersDelta" />
+        <StatCard :label="t('reports.dashboard.customers')" :value="data.totalCustomers.toLocaleString()" icon="pi pi-users" color="primary" :delta="data.customersDelta" />
+        <StatCard :label="t('reports.dashboard.avg_order_value')" :value="formatCurrency(data.averageOrderValue)" icon="pi pi-chart-bar" color="orange" :delta="data.aovDelta" />
       </div>
 
       <div class="mb-6 grid grid-cols-1 gap-6 lg:grid-cols-2">
         <div class="rounded-border border border-surface-200 bg-white p-5 dark:border-surface-700 dark:bg-surface-900">
-          <h3 class="mb-4 text-sm font-semibold uppercase tracking-wider text-surface-500">Revenue Trend</h3>
+          <h3 class="mb-4 text-sm font-semibold uppercase tracking-wider text-surface-500">{{ t('reports.dashboard.revenue_trend') }}</h3>
           <div style="height: 280px">
             <Chart type="line" :data="revenueChartData" :options="revenueOptions" />
           </div>
         </div>
         <div class="rounded-border border border-surface-200 bg-white p-5 dark:border-surface-700 dark:bg-surface-900">
-          <h3 class="mb-4 text-sm font-semibold uppercase tracking-wider text-surface-500">Orders Trend</h3>
+          <h3 class="mb-4 text-sm font-semibold uppercase tracking-wider text-surface-500">{{ t('reports.dashboard.orders_trend') }}</h3>
           <div style="height: 280px">
             <Chart type="line" :data="ordersChartData" :options="ordersOptions" />
           </div>
@@ -201,13 +221,13 @@ onMounted(loadDashboard)
 
       <div class="mb-6 grid grid-cols-1 gap-6 lg:grid-cols-2">
         <div class="rounded-border border border-surface-200 bg-white p-5 dark:border-surface-700 dark:bg-surface-900">
-          <h3 class="mb-4 text-sm font-semibold uppercase tracking-wider text-surface-500">Revenue by Category</h3>
+          <h3 class="mb-4 text-sm font-semibold uppercase tracking-wider text-surface-500">{{ t('reports.dashboard.revenue_by_category') }}</h3>
           <div style="height: 300px">
             <Chart type="doughnut" :data="categoryChartData" :options="categoryOptions" />
           </div>
         </div>
         <div class="rounded-border border border-surface-200 bg-white p-5 dark:border-surface-700 dark:bg-surface-900">
-          <h3 class="mb-4 text-sm font-semibold uppercase tracking-wider text-surface-500">Order Status Breakdown</h3>
+          <h3 class="mb-4 text-sm font-semibold uppercase tracking-wider text-surface-500">{{ t('reports.dashboard.order_status_breakdown') }}</h3>
           <div style="height: 300px">
             <Chart type="doughnut" :data="statusChartData" :options="statusOptions" />
           </div>
@@ -215,28 +235,14 @@ onMounted(loadDashboard)
       </div>
 
       <div class="rounded-border border border-surface-200 bg-white p-5 dark:border-surface-700 dark:bg-surface-900">
-        <h3 class="mb-4 text-sm font-semibold uppercase tracking-wider text-surface-500">Monthly Performance</h3>
-        <div class="overflow-x-auto">
-          <table class="w-full text-sm">
-            <thead>
-              <tr class="border-b border-surface-200 text-left text-surface-500 dark:border-surface-700">
-                <th class="pb-3 font-medium">Month</th>
-                <th class="pb-3 font-medium">Revenue</th>
-                <th class="pb-3 font-medium">Orders</th>
-                <th class="pb-3 font-medium">AOV</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr v-for="t in data.salesTrends" :key="t.month" class="border-b border-surface-100 dark:border-surface-800">
-                <td class="py-2.5 font-medium text-surface-700 dark:text-surface-200">{{ t.month }}</td>
-                <td class="py-2.5">{{ formatCurrency(t.sales) }}</td>
-                <td class="py-2.5">{{ t.orders }}</td>
-                <td class="py-2.5">{{ formatCurrency(Math.round(t.sales / t.orders)) }}</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
+        <h3 class="mb-4 text-sm font-semibold uppercase tracking-wider text-surface-500">{{ t('reports.dashboard.monthly_performance') }}</h3>
+        <DataTable :rows="monthlyData" :total-records="monthlyData.length">
+          <Column field="month" :header="t('reports.dashboard.columns.month')" />
+          <Column field="orders" :header="t('reports.dashboard.columns.orders')" />
+          <Column field="revenueFormatted" :header="t('reports.dashboard.columns.revenue')" />
+          <Column field="avgOrderValue" :header="t('reports.dashboard.columns.avgOrder')" />
+        </DataTable>
       </div>
     </template>
-  </div>
+  </ListLayout>
 </template>
