@@ -10,6 +10,8 @@ import LoadingSkeleton from '@/shared/components/feedback/LoadingSkeleton.vue'
 import ErrorState from '@/shared/components/feedback/ErrorState.vue'
 import Checkbox from 'primevue/checkbox'
 import { useUser } from '../composables/useUser'
+import type { CreateUserForm, UpdateUserForm } from '../schemas'
+import type { CreateUserRequest, UpdateUserRequest } from '../types'
 import { UserForms } from '../schemas'
 import { UserFormMapper } from '../mappers/user.mapper'
 import { ROUTE } from '../routes'
@@ -71,12 +73,13 @@ async function loadUser() {
 
 const save = handleSubmit(async (values) => {
   saving.value = true
-  const data = mode.value === 'create'
-    ? UserFormMapper.toCreate(values as any)
-    : UserFormMapper.toUpdate(values as any)
+  const form = values as CreateUserForm | UpdateUserForm
+  const data: CreateUserRequest | UpdateUserRequest = mode.value === 'create'
+    ? UserFormMapper.toCreate(form as CreateUserForm)
+    : UserFormMapper.toUpdate(form as UpdateUserForm)
   const result = id.value
-    ? await api.update(id.value, data)
-    : await api.create(data as any)
+    ? await api.update(id.value, data as UpdateUserRequest)
+    : await api.create(data as CreateUserRequest)
   saving.value = false
   if (result.isSuccess) {
     toast.success(id.value ? 'User updated successfully' : 'User created successfully')

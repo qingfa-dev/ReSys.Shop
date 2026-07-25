@@ -30,7 +30,7 @@ function toggle(item: UserPermissionItem) {
 
 async function onSave() {
   saving.value = true
-  const data = { items: items.value.filter(i => i.isAssigned).map(i => ({ roleId: i.permissionId })) }
+  const data = { items: items.value.filter(i => i.isAssigned).map(i => ({ permissionId: i.permissionId })) }
   const result = await UserPermissionApi.sync(props.userId, data)
   saving.value = false
   if (result.isSuccess) {

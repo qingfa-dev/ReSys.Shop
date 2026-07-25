@@ -12,6 +12,7 @@ import { useConfirm } from '@/shared/composables/useConfirm'
 import { useToast } from '@/shared/composables/useToast'
 import { useCountryStore } from '../store/country.store'
 import { CountryApi } from '../api'
+import { ROUTE } from '../routes'
 
 const router = useRouter()
 const { confirmDelete } = useConfirm()
@@ -20,9 +21,9 @@ const store = useCountryStore()
 
 onMounted(() => store.fetchMany())
 
-function goToCreate() { router.push({ name: 'location.countries.create' }) }
-function goToView(id: string) { router.push({ name: 'location.countries.view', params: { id } }) }
-function goToEdit(id: string) { router.push({ name: 'location.countries.edit', params: { id } }) }
+function goToCreate() { router.push({ name: ROUTE.COUNTRIES.CREATE }) }
+function goToView(id: string) { router.push({ name: ROUTE.COUNTRIES.VIEW, params: { id } }) }
+function goToEdit(id: string) { router.push({ name: ROUTE.COUNTRIES.EDIT, params: { id } }) }
 
 async function onDelete(id: string) {
   confirmDelete({

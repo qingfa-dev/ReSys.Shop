@@ -14,6 +14,7 @@ import { useState } from '../composables/useState'
 import { StateForms } from '../schemas'
 import { StateFormMapper } from '../mappers/state.mapper'
 import { CountryApi } from '../api'
+import { ROUTE } from '../routes'
 import type { CountryResponse } from '../types'
 
 const { id, mode, route, router, toast, api } = useState()
@@ -82,19 +83,19 @@ const save = handleSubmit(async (values) => {
   saving.value = false
   if (result.isSuccess) {
     toast.success(id.value ? 'State updated successfully' : 'State created successfully')
-    router.replace({ name: 'location.states.view', params: { id: result.value.id } })
+    router.replace({ name: ROUTE.STATES.VIEW, params: { id: result.value.id } })
   } else {
     toast.error(result.message ?? 'Save failed')
   }
 })
 
 function cancel() {
-  if (id.value) router.push({ name: 'location.states.view', params: { id: id.value } })
-  else router.push({ name: 'location.states.list' })
+  if (id.value) router.push({ name: ROUTE.STATES.VIEW, params: { id: id.value } })
+  else router.push({ name: ROUTE.STATES.LIST })
 }
 
 function toggleEdit() {
-  router.push({ name: 'location.states.edit', params: { id: id.value } })
+  router.push({ name: ROUTE.STATES.EDIT, params: { id: id.value } })
 }
 
 onMounted(async () => {

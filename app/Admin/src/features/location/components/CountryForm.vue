@@ -12,6 +12,7 @@ import InputSwitch from 'primevue/inputswitch'
 import { useCountry } from '../composables/useCountry'
 import { CountryForms } from '../schemas'
 import { CountryFormMapper } from '../mappers/country.mapper'
+import { ROUTE } from '../routes'
 
 const { id, mode, route, router, toast, api } = useCountry()
 const { t } = useI18n()
@@ -71,19 +72,19 @@ const save = handleSubmit(async (values) => {
   saving.value = false
   if (result.isSuccess) {
     toast.success(id.value ? 'Country updated successfully' : 'Country created successfully')
-    router.replace({ name: 'location.countries.view', params: { id: result.value.id } })
+    router.replace({ name: ROUTE.COUNTRIES.VIEW, params: { id: result.value.id } })
   } else {
     toast.error(result.message ?? 'Save failed')
   }
 })
 
 function cancel() {
-  if (id.value) router.push({ name: 'location.countries.view', params: { id: id.value } })
-  else router.push({ name: 'location.countries.list' })
+  if (id.value) router.push({ name: ROUTE.COUNTRIES.VIEW, params: { id: id.value } })
+  else router.push({ name: ROUTE.COUNTRIES.LIST })
 }
 
 function toggleEdit() {
-  router.push({ name: 'location.countries.edit', params: { id: id.value } })
+  router.push({ name: ROUTE.COUNTRIES.EDIT, params: { id: id.value } })
 }
 
 onMounted(loadCountry)

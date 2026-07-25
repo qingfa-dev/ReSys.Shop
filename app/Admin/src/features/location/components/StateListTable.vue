@@ -12,6 +12,7 @@ import { useConfirm } from '@/shared/composables/useConfirm'
 import { useToast } from '@/shared/composables/useToast'
 import { useStateStore } from '../store/state.store'
 import { StateApi } from '../api'
+import { ROUTE } from '../routes'
 
 const router = useRouter()
 const { confirmDelete } = useConfirm()
@@ -20,9 +21,9 @@ const store = useStateStore()
 
 onMounted(() => store.fetchMany())
 
-function goToCreate() { router.push({ name: 'location.states.create' }) }
-function goToView(id: string) { router.push({ name: 'location.states.view', params: { id } }) }
-function goToEdit(id: string) { router.push({ name: 'location.states.edit', params: { id } }) }
+function goToCreate() { router.push({ name: ROUTE.STATES.CREATE }) }
+function goToView(id: string) { router.push({ name: ROUTE.STATES.VIEW, params: { id } }) }
+function goToEdit(id: string) { router.push({ name: ROUTE.STATES.EDIT, params: { id } }) }
 
 async function onDelete(id: string) {
   confirmDelete({

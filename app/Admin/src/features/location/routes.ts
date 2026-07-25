@@ -1,47 +1,54 @@
 import type { RouteRecordRaw } from 'vue-router'
 
+const ROUTE = {
+  COUNTRIES: { LIST: 'location.countries.list', CREATE: 'location.countries.create', VIEW: 'location.countries.view', EDIT: 'location.countries.edit' },
+  STATES: { LIST: 'location.states.list', CREATE: 'location.states.create', VIEW: 'location.states.view', EDIT: 'location.states.edit' },
+} as const
+
+export { ROUTE }
+
 export const locationRoutes: RouteRecordRaw = {
   path: 'locations',
   children: [
-    { path: '', redirect: { name: 'location.countries.list' } },
+    { path: '', redirect: { name: ROUTE.COUNTRIES.LIST } },
     {
       path: 'countries',
-      name: 'location.countries.list',
+      name: ROUTE.COUNTRIES.LIST,
       component: () => import('@/features/location/pages/CountryListPage.vue'),
     },
     {
       path: 'countries/new',
-      name: 'location.countries.create',
+      name: ROUTE.COUNTRIES.CREATE,
       component: () => import('@/features/location/pages/CountryDetailPage.vue'),
     },
     {
       path: 'countries/:id',
-      name: 'location.countries.view',
+      name: ROUTE.COUNTRIES.VIEW,
       component: () => import('@/features/location/pages/CountryDetailPage.vue'),
     },
     {
       path: 'countries/:id/edit',
-      name: 'location.countries.edit',
+      name: ROUTE.COUNTRIES.EDIT,
       component: () => import('@/features/location/pages/CountryDetailPage.vue'),
     },
     {
       path: 'states',
-      name: 'location.states.list',
+      name: ROUTE.STATES.LIST,
       component: () => import('@/features/location/pages/StateListPage.vue'),
     },
     {
       path: 'states/new',
-      name: 'location.states.create',
+      name: ROUTE.STATES.CREATE,
       component: () => import('@/features/location/pages/StateDetailPage.vue'),
     },
     {
       path: 'states/:id',
-      name: 'location.states.view',
+      name: ROUTE.STATES.VIEW,
       component: () => import('@/features/location/pages/StateDetailPage.vue'),
     },
     {
       path: 'states/:id/edit',
-      name: 'location.states.edit',
+      name: ROUTE.STATES.EDIT,
       component: () => import('@/features/location/pages/StateDetailPage.vue'),
     },
   ],
