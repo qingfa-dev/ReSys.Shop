@@ -19,7 +19,7 @@ export class VariantOptionValueApi {
   }
 
   static async sync(variantId: string, data: OptionValueIdsRequest): Promise<Result<void>> {
-    const res = await apiClient.put<Result<void>>(`/catalog/variants/${variantId}/option-values`, data)
+    const res = await apiClient.put<Result<void>>(`/catalog/variants/${variantId}/option-values/sync`, data)
     return res.data
   }
 }

@@ -19,7 +19,7 @@ export class ProductClassificationApi {
   }
 
   static async sync(productId: string, data: ClassificationItemsRequest): Promise<Result<void>> {
-    const res = await apiClient.put<Result<void>>(`/catalog/products/${productId}/classifications`, data)
+    const res = await apiClient.put<Result<void>>(`/catalog/products/${productId}/classifications/sync`, data)
     return res.data
   }
 }

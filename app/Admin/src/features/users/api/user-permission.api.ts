@@ -12,7 +12,7 @@ export class UserPermissionApi {
     return res.data
   }
   static async revoke(userId: string, data: UserPermissionIdsRequest): Promise<Result<void>> {
-    const res = await apiClient.post<Result<void>>(`/identity/users/${userId}/permissions/revoke`, data)
+    const res = await apiClient.delete<Result<void>>(`/identity/users/${userId}/permissions/revoke`, { data })
     return res.data
   }
   static async sync(userId: string, data: UserPermissionIdsRequest): Promise<Result<void>> {
