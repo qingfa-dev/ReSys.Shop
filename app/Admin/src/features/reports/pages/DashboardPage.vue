@@ -3,6 +3,7 @@ import { ref, computed, onMounted } from 'vue'
 import PageHeader from '@/shared/components/layout/PageHeader.vue'
 import { StatCard, ErrorState } from '@/shared/components'
 import Chart from 'primevue/chart'
+import Skeleton from 'primevue/skeleton'
 import type { ReportsData } from '../types'
 import { DashboardApi } from '../api'
 

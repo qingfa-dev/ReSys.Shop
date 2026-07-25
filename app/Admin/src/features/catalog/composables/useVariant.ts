@@ -1,7 +1,7 @@
 import { computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useToast } from '@/shared/composables/useToast'
-import { VariantApi } from '../api/variant.api'
+import { VariantApi } from '../api'
 
 export function useVariant() {
   const toast = useToast()
