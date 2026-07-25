@@ -1,5 +1,5 @@
 <template>
-  <div class="rounded-border border border-surface-200 dark:border-surface-700 overflow-hidden">
+  <div class="rounded-border border border-surface-200 bg-white dark:border-surface-700 dark:bg-surface-900 overflow-hidden">
     <DataTable
       :value="rows"
       :loading="loading"
