@@ -1,7 +1,10 @@
 = Background and Related Work
 
-This chapter is organised into three domains. The Domain Background introduces fashion e-commerce and visual search as a problem space, surveys related academic and commercial work, and identifies the gap this thesis addresses. The Machine Learning Background covers the mathematical foundations of vector embeddings, the neural architectures used to generate them, and the vector database technologies that store and query them. The Software Engineering Background surveys architectural patterns for web applications and describes each technology in the ReSys.Shop stack with the rationale for its selection.
+This chapter is organised into six sections. Fashion E-commerce establishes the market context and problem domain that motivates the thesis. Content-Based Image Retrieval introduces the core concepts and mathematical foundations of visual search. Machine Learning Models surveys the neural architectures used to generate image embeddings. Vector Databases covers the storage and indexing technologies that enable efficient similarity search. Software Engineering Technologies describes the architectural patterns and specific technologies composing the ReSys.Shop platform. Related Work and Research Gap positions this thesis within the broader landscape of academic research and commercial visual search systems.
 
-#include "domain-background.typ"
-#include "ml-background.typ"
-#include "software-background.typ"
+#include "f1-fashion-ecommerce.typ"
+#include "f2-cbir.typ"
+#include "f4-ml-models.typ"
+#include "f5-vector-databases.typ"
+#include "f3-software-tech.typ"
+#include "f6-related-work.typ"

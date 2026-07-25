@@ -1,0 +1,3 @@
+== Fashion E-commerce
+
+Global fashion e-commerce exceeded 770 billion U.S. dollars in 2024, with projections surpassing one trillion by 2030 @statista2024fashion. Yet the primary interface between customers and catalogues, the text search bar, struggles with the defining attributes of fashion products: silhouette, drape, pattern rhythm, and colour relationships resist keyword description. The semantic gap between visual richness and linguistic expression drives search abandonment rates of approximately 30 percent @pinterest2023visual, a loss with direct commercial consequence. This section establishes the market context and problem domain that motivates the thesis.
