@@ -26,7 +26,8 @@ export const useStockLocationStore = defineStore('inventory-stock-location', () 
         items.value = []
         totalRecords.value = 0
       }
-    } catch {
+    } catch (err) {
+      console.error(err)
       error.value = 'Failed to load'
       items.value = []
       totalRecords.value = 0

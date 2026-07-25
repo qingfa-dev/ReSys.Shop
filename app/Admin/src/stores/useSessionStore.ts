@@ -18,5 +18,5 @@ export const useSessionStore = defineStore('session', () => {
     isLoading.value = false
   }
 
-  return { user, isAuthenticated, isLoading, setUser, clear }
+  return { user: readonly(user), isAuthenticated, isLoading: readonly(isLoading), setUser, clear }
 })

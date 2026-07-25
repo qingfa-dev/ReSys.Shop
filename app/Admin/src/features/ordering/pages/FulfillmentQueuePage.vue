@@ -25,11 +25,18 @@ const error = ref<string | null>(null)
 async function load() {
   loading.value = true
   error.value = null
-  const result = await OrderApi.getMany({ page: 1, pageSize: 50 })
-  if (result.isSuccess) {
-    items.value = (result.items ?? []).filter(o => o.status === 'approved' || o.status === 'processing')
-  } else {
-    error.value = result.message ?? 'Failed to load'
+  try {
+    const result = await OrderApi.getMany({ page: 1, pageSize: 50 })
+    if (result.isSuccess) {
+      items.value = (result.items ?? []).filter(o => o.status === 'approved' || o.status === 'processing')
+    } else {
+      error.value = result.message ?? 'Failed to load'
+      items.value = []
+    }
+  } catch (err) {
+    console.error(err)
+    error.value = 'Failed to load'
+    items.value = []
   }
   loading.value = false
 }

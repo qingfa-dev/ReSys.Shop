@@ -1,4 +1,4 @@
-import { ref, readonly } from 'vue'
+import { ref, readonly, computed } from 'vue'
 import { defineStore } from 'pinia'
 import { useRouter } from 'vue-router'
 import { useSessionStore } from '@/stores/useSessionStore'
@@ -151,7 +151,7 @@ export const useAuthStore = defineStore('auth', () => {
     logout,
     initialize,
     isAuthenticated: session.isAuthenticated,
-    currentUser: session.user,
+    currentUser: readonly(session.user),
   }
 })
 

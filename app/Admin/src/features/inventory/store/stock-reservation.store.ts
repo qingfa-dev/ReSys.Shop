@@ -2,12 +2,12 @@ import { ref, readonly } from 'vue'
 import { defineStore } from 'pinia'
 import { defaultListQuery } from '@/shared/models'
 import type { ListQuery } from '@/shared/models'
-import type { CountryResponse } from '../types'
-import { CountryApi } from '../api'
+import type { StockReservationResponse } from '../types'
+import { StockReservationApi } from '../api'
 import type { FilterGroup, SortDirection } from '@/shared/models/querying'
 
-export const useCountryStore = defineStore('location-country', () => {
-  const items = ref<CountryResponse[]>([])
+export const useStockReservationStore = defineStore('inventory-stock-reservation', () => {
+  const items = ref<StockReservationResponse[]>([])
   const loading = ref(false)
   const error = ref<string | null>(null)
   const totalRecords = ref(0)
@@ -17,7 +17,7 @@ export const useCountryStore = defineStore('location-country', () => {
     loading.value = true
     error.value = null
     try {
-      const result = await CountryApi.getMany(query.value)
+      const result = await StockReservationApi.getMany(query.value)
       if (result.isSuccess) {
         items.value = result.items ?? []
         totalRecords.value = result.totalCount ?? 0

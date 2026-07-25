@@ -26,7 +26,8 @@ export const usePaymentStore = defineStore('payment-payment', () => {
         items.value = []
         totalRecords.value = 0
       }
-    } catch {
+    } catch (err) {
+      console.error(err)
       error.value = 'Failed to load'
       items.value = []
       totalRecords.value = 0

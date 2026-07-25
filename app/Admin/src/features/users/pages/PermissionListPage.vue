@@ -22,11 +22,18 @@ const error = ref<string | null>(null)
 async function fetchPermissions() {
   loading.value = true
   error.value = null
-  const result = await PermissionApi.getMany()
-  if (result.isSuccess) {
-    items.value = result.value ?? []
-  } else {
-    error.value = result.message ?? 'Failed to load permissions'
+  try {
+    const result = await PermissionApi.getMany()
+    if (result.isSuccess) {
+      items.value = result.value ?? []
+    } else {
+      error.value = result.message ?? 'Failed to load permissions'
+      items.value = []
+    }
+  } catch (err) {
+    console.error(err)
+    error.value = 'Failed to load permissions'
+    items.value = []
   }
   loading.value = false
 }

@@ -17,9 +17,12 @@ export const useProfileStore = defineStore('profile', () => {
         profile.value = result.value
       } else {
         error.value = result.message ?? 'Failed to load profile'
+        profile.value = null
       }
-    } catch {
+    } catch (err) {
+      console.error(err)
       error.value = 'Failed to load profile'
+      profile.value = null
     }
     loading.value = false
   }
