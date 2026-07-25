@@ -7,7 +7,7 @@ The preceding sections introduced the principal technologies that compose the Re
     columns: (auto, auto, 1fr),
     align: (start, start, start),
     table.header([*Layer*], [*Technology*], [*Role*]),
-    [Frontend], [Vue 3, TypeScript, Vite], [Customer storefront and admin panel; reactive UI with Pinia state management],
+    [Frontend], [Vue 3, TypeScript, Vite], [Customer storefront and administration interface; reactive UI with Pinia state management],
     [Backend API], [.NET 10, Carter, MediatR], [REST endpoints via minimal APIs; CQRS command-query separation across business modules],
     [Database], [PostgreSQL, pgvector], [Relational data and vector embeddings in a single ACID database with HNSW-indexed similarity search],
     [Caching], [Redis, HybridCache], [Two-tier cache (in-memory L1 and Redis L2); Hangfire job queue and session state backing store],
