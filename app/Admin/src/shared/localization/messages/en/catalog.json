@@ -468,6 +468,26 @@
       "load_failed": "Failed to load dashboard data"
     }
   },
+  "variants": {
+    "actions": {
+      "cancel": "Cancel",
+      "save": "Save Changes",
+      "edit": "Edit",
+      "create": "New Variant"
+    },
+    "images": {
+      "title": "Variant Images",
+      "upload": "Upload",
+      "uploading": "Uploading...",
+      "empty": "No images yet. Drag and drop or click Upload.",
+      "max_limit": "Maximum {max} images per variant",
+      "upload_success": "{name} uploaded successfully",
+      "upload_failed": "Failed to upload {name}: {reason}",
+      "delete_success": "Image deleted",
+      "delete_failed": "Failed to delete image",
+      "primary": "Primary image"
+    }
+  },
   "actions": {
     "view_all": "View All"
   },
