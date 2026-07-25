@@ -1,79 +1,146 @@
 === Functional Requirements
 
-The functional capabilities of ReSys.Shop are organised around eight business modules, each responsible for a coherent subset of domain logic. This section describes each module in narrative prose; a summary table at the end of the section consolidates responsibilities and research classification.
+The platform's capabilities are specified as traceable requirements organised by business module. Each module is introduced with a single sentence of context; the table that follows enumerates specific requirements with identifiers that can be referenced throughout the design and evaluation chapters.
 
 ==== Catalog Module
 
-The Catalog module manages the product lifecycle: creating products with fashion-specific metadata, including style code, season, material, department, and gender target, defining sellable variants with SKUs, barcodes, and independent pricing, uploading product images with automatic thumbnail generation, and organising products through hierarchical taxonomies that allow browsing by category (e.g., Clothing → Dresses → Evening Dresses). It also hosts the Content-Based Image Retrieval (CBIR) infrastructure: newly uploaded variant images are sent to the Python machine learning sidecar for vectorisation, and the resulting embeddings are stored in PostgreSQL using the pgvector extension for similarity search @pgvector2023. The catalog supports configurable embedding models, allowing the system to switch between Fashion-CLIP, ResNet-50, and other architectures without application changes, a capability that enables the systematic benchmark evaluation presented in Chapter 3.
-
-==== Ordering Module
-
-The Ordering module handles the customer purchase workflow from cart to completed order. Both guest and authenticated users can add products to a cart, which automatically expires after seven days of inactivity to prevent indefinite stock reservation. Checkout proceeds through a forward-only state machine: the customer selects a shipping address, chooses a delivery method, provides payment details, reviews the order summary, and confirms. Once confirmed, the system creates an order record, reserves inventory quantities for each line item, processes the payment intent, and clears the cart. Orders track item totals, price adjustments, shipment costs, and payment state independently, enabling partial fulfilment scenarios. Cancellation is available at any pre-confirmation stage without penalty.
-
-==== Payment Module
-
-The Payment module manages the lifecycle of payment intents, the data structure representing a customer's intent to pay, including creation, capture, refund, and void operations. It supports two gateway providers: the Stripe gateway for production, which validates incoming webhooks using signature verification to prevent spoofed payment confirmations, and a Bogus gateway for development and testing, which simulates the payment lifecycle by automatically transitioning through states without external calls. Payment intents follow their own state machine, Pending, RequiresAction, Processing, and Succeeded or Canceled, and the system maintains its own copy of the payment state in parallel with the gateway's state, enabling offline operations and consistent behaviour across both gateway implementations.
-
-==== Inventory Module
-
-The Inventory module tracks physical stock quantities across warehouse locations, manages temporary reservations during active checkouts to prevent overselling, records stock movements for audit trails, and handles inter-warehouse transfers. Each stock item is associated with a specific product variant and a warehouse location, with quantities maintained as both on-hand (physical count) and reserved (held for active checkouts) values. The reservation mechanism ensures that a variant added to a cart remains visible to other customers as having limited availability but cannot be sold twice.
-
-==== Identity Module
-
-The Identity module provides JWT-based authentication with short-lived access tokens (fifteen-minute lifetime) and refresh token rotation with reuse detection: each refresh token is single-use, and presenting a previously consumed token triggers revocation of all tokens for that user to contain potential compromise. Guest sessions enable anonymous cart usage through cookie-based identifiers that persist across page navigations without requiring account creation. Role-based and permission-based authorisation segregates admin functions from customer-facing endpoints, with permission claims following a `domain:category:action` format that allows fine-grained access control.
-
-==== Supporting Modules
-
-Three additional modules provide complementary infrastructure. The *Profile* module manages user addresses, wishlists, and notification preferences, linking customer identity to personalisation features. The *Shipping* module configures delivery methods, standard, express, and local pickup, and calculates shipping rates by geographic zone. The *Location* module provides country and state reference data with ISO codes, shared across Shipping (for zone configuration) and Profile (for address validation).
-
-==== Summary
-
-Table @tbl-module-summary consolidates the eight business modules with their key responsibilities and research classification relative to this thesis.
+The Catalog module manages the product lifecycle: creation, classification, image handling, and CBIR infrastructure.
 
 #figure(
   table(
     columns: (auto, 1fr, auto),
     stroke: 0.5pt,
-    align: (left + horizon, left, center + horizon),
-
-    table.header([*Module*], [*Key Responsibilities*], [*Research Classification*]),
-
-    [Catalog], [
-      Product and variant lifecycle management; fashion-specific metadata (style code, season, material, department); hierarchical taxonomies; image upload and management; CBIR infrastructure, embedding generation pipeline and pgvector vector search.
-    ], [Core Research],
-
-    [Ordering], [
-      Shopping cart with auto-expiry; forward-only checkout state machine (Address → Delivery → Payment → Confirm → Complete); order lifecycle tracking; cancellation and partial fulfilment support.
-    ], [Supporting],
-
-    [Payment], [
-      Payment intent lifecycle (create, capture, refund, void); Stripe gateway with webhook signature validation; Bogus test gateway; parallel state tracking for offline operations.
-    ], [Supporting],
-
-    [Inventory], [
-      Per-warehouse stock tracking; checkout-time quantity reservation to prevent overselling; auditable stock movements; inter-warehouse transfers.
-    ], [Supporting],
-
-    [Identity], [
-      JWT authentication with 15-minute access tokens; refresh token rotation and reuse detection; guest session support; role-based and permission-based authorisation.
-    ], [Supporting],
-
-    [Profile], [
-      User addresses (shipping and billing); wishlist management; notification preferences.
-    ], [Supporting],
-
-    [Shipping], [
-      Delivery method configuration; zone-based rate calculation.
-    ], [Supporting],
-
-    [Location], [
-      Country and state reference data with ISO codes.
-    ], [Supporting],
+    table.header([*ID*], [*Requirement*], [*Priority*]),
+    [CAT-FR-01], [Create products with name, description, slug, SEO metadata, and fashion-specific fields (style code, season, material composition, department, gender target)], [High],
+    [CAT-FR-02], [Define sellable variants (size and colour combinations) with SKU, barcode, dimensions, and independent pricing], [High],
+    [CAT-FR-03], [Upload variant images with automatic thumbnail generation], [High],
+    [CAT-FR-04], [Generate vector embeddings for all uploaded images using the configured ML model and store in pgvector], [High],
+    [CAT-FR-05], [Search products by image via CBIR with configurable minimum similarity threshold and result count], [High],
+    [CAT-FR-06], [Support configurable embedding models (Fashion-CLIP, ResNet-50, and others) via environment variable without code changes], [High],
+    [CAT-FR-07], [Organise products via hierarchical taxonomies with taxon trees], [Medium],
+    [CAT-FR-08], [Manage option types (e.g., Size, Colour) with option values], [Medium],
+    [CAT-FR-09], [Enforce slug uniqueness across the catalog], [High],
+    [CAT-FR-10], [Support product status lifecycle: Draft, Active, Archived with availability dates], [Medium],
   ),
-  caption: [
-    Summary of business modules, their key responsibilities, and classification as Core Research or Supporting Infrastructure.
-    Only Catalog is classified as Core Research because it hosts the CBIR capability that is the primary subject of evaluation.
-  ],
-) <tbl-module-summary>
+  caption: [Catalog module functional requirements.],
+)
 
-The functional scope of ReSys.Shop extends far beyond the visual search capability at its core. The supporting modules, Ordering, Payment, Inventory, and Identity, provide a realistic e-commerce context in which the research contribution can be meaningfully evaluated. Without a functioning checkout flow, for example, the value of visual search could not be measured through downstream conversion events. Without inventory awareness, search results could include out-of-stock items, undermining the realism of the evaluation.
+==== Identity Module
+
+The Identity module provides authentication, authorisation, and user management for both customer-facing and administrative functions.
+
+#figure(
+  table(
+    columns: (auto, 1fr, auto),
+    stroke: 0.5pt,
+    table.header([*ID*], [*Requirement*], [*Priority*]),
+    [IDN-FR-01], [Register new customer accounts with email, password, and profile information], [High],
+    [IDN-FR-02], [Authenticate users with JWT access tokens (15-minute lifetime) and refresh token rotation with reuse detection], [High],
+    [IDN-FR-03], [Support guest sessions via cookie-based identifiers for anonymous cart usage across page navigations], [High],
+    [IDN-FR-04], [Enforce role-based and permission-based authorisation with domain:category:action claims format], [High],
+    [IDN-FR-05], [Reset passwords via time-limited email token], [Medium],
+    [IDN-FR-06], [Manage users and roles through the admin interface], [Medium],
+    [IDN-FR-07], [Revoke all refresh tokens for a user when a previously consumed token is presented (compromise containment)], [High],
+  ),
+  caption: [Identity module functional requirements.],
+)
+
+==== Inventory Module
+
+The Inventory module tracks physical stock quantities, manages checkout-time reservations, and records stock movements for audit trails.
+
+#figure(
+  table(
+    columns: (auto, 1fr, auto),
+    stroke: 0.5pt,
+    table.header([*ID*], [*Requirement*], [*Priority*]),
+    [INV-FR-01], [Define stock locations (warehouses) with address and active status], [Medium],
+    [INV-FR-02], [Track stock quantities per product variant per location with on-hand and reserved values], [High],
+    [INV-FR-03], [Reserve inventory during checkout and release on cart expiry or cancellation to prevent overselling], [High],
+    [INV-FR-04], [Record stock transfers between locations with full auditable movement history], [Medium],
+    [INV-FR-05], [Maintain immutable audit log for all stock level changes], [Medium],
+  ),
+  caption: [Inventory module functional requirements.],
+)
+
+==== Ordering Module
+
+The Ordering module handles the customer purchase workflow from cart through checkout to completed order.
+
+#figure(
+  table(
+    columns: (auto, 1fr, auto),
+    stroke: 0.5pt,
+    table.header([*ID*], [*Requirement*], [*Priority*]),
+    [ORD-FR-01], [Support guest and authenticated shopping carts with product variant selection and quantity management], [High],
+    [ORD-FR-02], [Auto-expire abandoned carts after configurable inactivity period (default seven days)], [Medium],
+    [ORD-FR-03], [Enforce forward-only checkout state machine: Address, Delivery, Payment, Confirm, Complete], [High],
+    [ORD-FR-04], [Calculate order totals including item subtotals, price adjustments, shipment costs, and taxes], [High],
+    [ORD-FR-05], [Track payment and shipment state independently per order to enable partial fulfilment], [Medium],
+    [ORD-FR-06], [Allow order cancellation at any pre-confirmation stage without penalty], [Medium],
+    [ORD-FR-07], [Generate unique human-readable order numbers upon confirmation], [Medium],
+  ),
+  caption: [Ordering module functional requirements.],
+)
+
+==== Payment Module
+
+The Payment module manages the lifecycle of payment intents across the Stripe production gateway and a Bogus test gateway.
+
+#figure(
+  table(
+    columns: (auto, 1fr, auto),
+    stroke: 0.5pt,
+    table.header([*ID*], [*Requirement*], [*Priority*]),
+    [PAY-FR-01], [Create payment intents with amount, currency, and order reference], [High],
+    [PAY-FR-02], [Capture, void, and refund payment intents with idempotency keys to prevent duplicate processing], [High],
+    [PAY-FR-03], [Process Stripe webhooks with cryptographic signature verification for production], [High],
+    [PAY-FR-04], [Provide Bogus gateway for development and testing that simulates the full payment lifecycle without external calls], [Medium],
+    [PAY-FR-05], [Maintain independent payment state tracking in parallel with the gateway for offline consistency], [Medium],
+  ),
+  caption: [Payment module functional requirements.],
+)
+
+==== Shipping Module
+
+The Shipping module configures delivery methods and calculates shipping rates by geographic zone.
+
+#figure(
+  table(
+    columns: (auto, 1fr, auto),
+    stroke: 0.5pt,
+    table.header([*ID*], [*Requirement*], [*Priority*]),
+    [SHP-FR-01], [Configure delivery methods (standard, express, local pickup) with associated pricing rules], [Medium],
+    [SHP-FR-02], [Calculate shipping rates by geographic zone and selected delivery method at checkout], [Medium],
+  ),
+  caption: [Shipping module functional requirements.],
+)
+
+==== Profile Module
+
+The Profile module links customer identity to personalisation features and preference management.
+
+#figure(
+  table(
+    columns: (auto, 1fr, auto),
+    stroke: 0.5pt,
+    table.header([*ID*], [*Requirement*], [*Priority*]),
+    [PRF-FR-01], [Manage user shipping and billing addresses, wishlists, and notification preferences], [Medium],
+    [PRF-FR-02], [Configure per-channel notification preferences (email, SMS, push)], [Low],
+  ),
+  caption: [Profile module functional requirements.],
+)
+
+==== Location Module
+
+The Location module provides country and state reference data for address validation and shipping zone configuration.
+
+#figure(
+  table(
+    columns: (auto, 1fr, auto),
+    stroke: 0.5pt,
+    table.header([*ID*], [*Requirement*], [*Priority*]),
+    [LOC-FR-01], [Provide country and state reference data with ISO 3166 codes for address validation and shipping zone calculation], [Medium],
+  ),
+  caption: [Location module functional requirements.],
+)
