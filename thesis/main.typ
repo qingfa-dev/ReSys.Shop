@@ -1,94 +1,65 @@
-// ============================================================================
-// CTU GRADUATION THESIS - MAIN FILE
-// Can Tho University Format — Decision 4125/QĐ-ĐHCT (2024)
-// ============================================================================
-
-// 1. CONFIGURATION & IMPORTS
 #import "info.typ": *
 #import "template/ctu-styles.typ": ctu-styles
 #import "template/i18n.typ": term
 
-// 2. GLOBAL SETTINGS
-#let lang = if settings.primary_lang in ("en", "vi") { settings.primary_lang } else { "en" }
+#let lang = settings.primary_lang
 
-// 3. DOCUMENT SETUP (CTU Format)
 #show: doc => ctu-styles(doc, lang: lang)
 
-// Document Metadata
 #set document(
-  title: info.at(lang, default: info.en).thesis.title,
-  author: info.at(lang, default: info.en).student.name,
-  keywords: info.at(lang, default: info.en).keywords,
+  title: info.at(lang).thesis.title,
+  author: info.at(lang).student.name,
 )
 
-// ============================================================================
-// 4. FRONT MATTER (Roman numerals i, ii, iii...)
-// ============================================================================
+// Front matter (Roman numerals)
 #set page(numbering: "i")
 #counter(page).update(1)
 
-// Cover Pages
 #import "frontmatter/cover.typ": cover-page
 #import "frontmatter/inner-cover.typ": inner-cover-page
-
 #cover-page(lang: lang)
 #inner-cover-page(lang: lang)
 
-// Evaluation & Acknowledgements
 #include "frontmatter/evaluation.typ"
 #include "frontmatter/acknowledgements.typ"
-
-// Lists (TOC, LOF, LOT)
 #include "frontmatter/table-of-contents.typ"
 #pagebreak()
-
 #include "frontmatter/list-of-figures.typ"
 #pagebreak()
-
 #include "frontmatter/list-of-tables.typ"
 #pagebreak()
-
-// Abbreviations & Abstract
 #include "frontmatter/abbreviations.typ"
 #include "frontmatter/abstract.typ"
 
-// ============================================================================
-// 5. MAIN CONTENT (Arabic numerals 1, 2, 3...)
-// ============================================================================
+// Main content (Arabic numerals)
 #set page(numbering: "1")
 #counter(page).update(1)
-#set heading(numbering: "1.1.1.1")
+#set heading(numbering: "1.1.1")
 
-// Helper for Part Headings
 #let part-heading(body) = {
   pagebreak()
   v(2cm)
   heading(level: 1, numbering: none, outlined: true)[#body]
 }
 
-// PART 1: INTRODUCTION
+// Part 1: Introduction
 #part-heading[#term(lang, "part") 1: INTRODUCTION]
 #counter(heading).update(1)
 #include "chapters/part1-introduction.typ"
 
-// PART 2: THESIS CONTENT
+// Part 2: Content
 #part-heading[#term(lang, "part") 2: THESIS CONTENT]
+#counter(heading).step()
 #include "chapters/part2-content.typ"
 
-// PART 3: CONCLUSION
+// Part 3: Conclusion
 #part-heading[#term(lang, "part") 3: CONCLUSION AND FUTURE WORK]
 #counter(heading).step()
 #include "chapters/part3-conclusion.typ"
 
-// ============================================================================
-// 6. BACK MATTER
-// ============================================================================
-
-// REFERENCES (IEEE Style — CTU Standard)
+// Back matter
 #pagebreak()
-#bibliography("backmatter/bibliography.bib", title: term(lang, "ref"), style: "ieee")
-
-// APPENDICES
+#include "backmatter/references.typ"
 #pagebreak()
 #set page(numbering: none)
 #counter(heading).update(0)
