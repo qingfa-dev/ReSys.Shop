@@ -1,117 +1,127 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, computed, onMounted } from 'vue'
+import { useI18n } from 'vue-i18n'
+import { useRouter, useRoute } from 'vue-router'
 import PageHeader from '@/shared/components/layout/PageHeader.vue'
-import StatusTag from '@/shared/components/data/StatusTag.vue'
-import { useRouter } from 'vue-router'
+import { StatCard, LoadingSkeleton, ErrorState, ListLayout, AppCard } from '@/shared/components'
+import Button from 'primevue/button'
 import { OrderingDashboardApi } from '../api'
 import type { OrderingDashboardResponse } from '../types'
 import { ROUTE } from '../routes'
 
+const { t } = useI18n()
 const router = useRouter()
+const route = useRoute()
+
 const data = ref<OrderingDashboardResponse | null>(null)
-const loading = ref(false)
+const loading = ref(true)
 const error = ref<string | null>(null)
 
-async function load() {
-  loading.value = true
-  error.value = null
-  const result = await OrderingDashboardApi.get()
-  if (result.isSuccess) {
-    data.value = result.value
-  } else {
-    error.value = result.message ?? 'Failed to load dashboard'
-  }
-  loading.value = false
+const metrics = computed(() => [
+  { label: t('ordering.dashboard.total_orders'), value: data.value?.totalOrders ?? 0, icon: 'pi pi-shopping-cart', color: 'primary' as const },
+  { label: t('ordering.dashboard.pending'), value: data.value?.pendingOrders ?? 0, icon: 'pi pi-clock', color: 'orange' as const },
+  { label: t('ordering.dashboard.completed'), value: data.value?.completedOrders ?? 0, icon: 'pi pi-check-circle', color: 'green' as const },
+  { label: t('ordering.dashboard.cancelled'), value: data.value?.cancelledOrders ?? 0, icon: 'pi pi-times-circle', color: 'red' as const },
+  { label: t('ordering.dashboard.total_revenue'), value: formatCurrency(data.value?.totalRevenue ?? 0), icon: 'pi pi-dollar', color: 'blue' as const },
+  { label: t('ordering.dashboard.today_revenue'), value: formatCurrency(data.value?.todayRevenue ?? 0), icon: 'pi pi-chart-line', color: 'green' as const },
+])
+
+const recentOrders = computed(() =>
+  data.value?.recentOrders.map(o => ({
+    id: o.id,
+    orderNumber: o.orderNumber,
+    customer: o.customerName || o.customerEmail,
+    status: o.status,
+    total: formatCurrency(o.total),
+    date: o.createdAt,
+  })) ?? [],
+)
+
+function formatCurrency(amount: number) {
+  return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(amount)
 }
 
 function goToOrder(id: string) {
   router.push({ name: ROUTE.ORDERS.VIEW, params: { id } })
 }
 
-function formatCurrency(amount: number) {
-  return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(amount)
+async function fetchDashboard() {
+  loading.value = true
+  error.value = null
+  try {
+    const result = await OrderingDashboardApi.get()
+    if (result.isSuccess) {
+      data.value = result.value
+    } else {
+      error.value = result.message ?? t('ordering.dashboard.messages.load_failed')
+    }
+  } catch (err) {
+    console.error(err)
+    error.value = t('ordering.dashboard.messages.load_failed')
+  }
+  loading.value = false
 }
 
-onMounted(() => load())
+onMounted(fetchDashboard)
 </script>
 
 <template>
-  <div>
-    <PageHeader title="Orders Dashboard" />
-    <div v-if="loading" class="grid">
-      <div v-for="i in 6" :key="i" class="col-12 md:col-6 lg:col-4">
-        <div class="card p-3 surface-50 border-round" style="height:100px">
-          <div class="text-sm text-surface-500 mb-2">Loading...</div>
-        </div>
+  <ListLayout>
+    <template #header>
+      <PageHeader
+        :title="t('ordering.dashboard.title')"
+        :subtitle="t('ordering.dashboard.subtitle')"
+        :icon="route.meta?.icon as string | undefined"
+      >
+        <template #actions>
+          <Button
+            :label="t('ordering.orders.actions.create')"
+            icon="pi pi-plus"
+            size="small"
+            @click="router.push({ name: ROUTE.ORDERS.CREATE })"
+          />
+        </template>
+      </PageHeader>
+    </template>
+
+    <LoadingSkeleton v-if="loading" :rows="4" :columns="3" />
+
+    <ErrorState
+      v-else-if="error"
+      :title="error"
+      @retry="fetchDashboard"
+    />
+
+    <template v-else>
+      <div class="grid grid-cols-2 gap-4 lg:grid-cols-3">
+        <StatCard v-for="m in metrics" :key="m.label" :label="m.label" :value="m.value" :icon="m.icon" :color="m.color" />
       </div>
-    </div>
-    <div v-else-if="error" class="card p-4">
-      <p class="text-red-500">{{ error }}</p>
-      <button class="p-button p-component mt-3" @click="load">Retry</button>
-    </div>
-    <div v-else-if="data" class="grid">
-      <div class="col-12 md:col-6 lg:col-4">
-        <div class="card p-3 border-round">
-          <div class="text-sm text-surface-500">Total Orders</div>
-          <div class="text-2xl font-semibold">{{ data.totalOrders }}</div>
+
+      <AppCard>
+        <p class="mb-3 text-xs font-semibold uppercase tracking-wider text-surface-400">
+          {{ t('ordering.dashboard.recent_orders') }}
+        </p>
+        <div v-if="recentOrders.length" class="divide-y divide-surface-200 dark:divide-surface-700">
+          <div
+            v-for="o in recentOrders"
+            :key="o.id"
+            class="flex cursor-pointer items-center justify-between px-2 py-3 transition-colors hover:bg-surface-50 dark:hover:bg-surface-800"
+            @click="goToOrder(o.id)"
+          >
+            <div>
+              <p class="text-sm font-medium text-surface-900 dark:text-surface-0">{{ o.orderNumber }}</p>
+              <p class="text-xs text-surface-400">{{ o.customer }}</p>
+            </div>
+            <div class="flex items-center gap-4">
+              <span class="text-sm font-medium">{{ o.total }}</span>
+              <span class="text-xs text-surface-400">{{ o.date }}</span>
+            </div>
+          </div>
         </div>
-      </div>
-      <div class="col-12 md:col-6 lg:col-4">
-        <div class="card p-3 border-round">
-          <div class="text-sm text-surface-500">Pending</div>
-          <div class="text-2xl font-semibold text-orange-500">{{ data.pendingOrders }}</div>
-        </div>
-      </div>
-      <div class="col-12 md:col-6 lg:col-4">
-        <div class="card p-3 border-round">
-          <div class="text-sm text-surface-500">Completed</div>
-          <div class="text-2xl font-semibold text-green-500">{{ data.completedOrders }}</div>
-        </div>
-      </div>
-      <div class="col-12 md:col-6 lg:col-4">
-        <div class="card p-3 border-round">
-          <div class="text-sm text-surface-500">Cancelled</div>
-          <div class="text-2xl font-semibold text-red-500">{{ data.cancelledOrders }}</div>
-        </div>
-      </div>
-      <div class="col-12 md:col-6 lg:col-4">
-        <div class="card p-3 border-round">
-          <div class="text-sm text-surface-500">Total Revenue</div>
-          <div class="text-2xl font-semibold text-blue-500">{{ formatCurrency(data.totalRevenue) }}</div>
-        </div>
-      </div>
-      <div class="col-12 md:col-6 lg:col-4">
-        <div class="card p-3 border-round">
-          <div class="text-sm text-surface-500">Today's Revenue</div>
-          <div class="text-2xl font-semibold text-purple-500">{{ formatCurrency(data.todayRevenue) }}</div>
-        </div>
-      </div>
-      <div class="col-12 mt-4">
-        <div class="card">
-          <h3 class="text-lg font-semibold mb-3">Recent Orders</h3>
-          <table v-if="data.recentOrders.length > 0" class="w-full">
-            <thead>
-              <tr class="text-left text-sm text-surface-500">
-                <th class="pb-2">Order #</th>
-                <th class="pb-2">Customer</th>
-                <th class="pb-2">Status</th>
-                <th class="pb-2">Total</th>
-                <th class="pb-2">Date</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr v-for="o in data.recentOrders" :key="o.id" class="border-top border-surface-200 cursor-pointer" @click="goToOrder(o.id)">
-                <td class="py-2">{{ o.orderNumber }}</td>
-                <td class="py-2">{{ o.customerName || o.customerEmail }}</td>
-                <td class="py-2"><StatusTag :status="o.status" /></td>
-                <td class="py-2">{{ formatCurrency(o.total) }}</td>
-                <td class="py-2">{{ o.createdAt }}</td>
-              </tr>
-            </tbody>
-          </table>
-          <p v-else class="text-surface-500 text-sm">No recent orders</p>
-        </div>
-      </div>
-    </div>
-  </div>
+        <p v-else class="rounded-lg border border-dashed border-surface-300 px-4 py-8 text-center text-sm text-surface-400 dark:border-surface-700">
+          {{ t('ordering.dashboard.no_recent_orders') }}
+        </p>
+      </AppCard>
+    </template>
+  </ListLayout>
 </template>

@@ -33,8 +33,8 @@ async function onDelete(id: string) {
     target: `order #${id}`,
     onAccept: async () => {
       const result = await OrderApi.delete(id)
-      if (result.isSuccess) { toast.success('Order deleted'); await store.fetchMany() }
-      else { toast.error(result.message ?? 'Failed to delete') }
+      if (result.isSuccess) { toast.success(t('ordering.orders.messages.delete_success')); await store.fetchMany() }
+      else { toast.error(result.message ?? t('ordering.orders.messages.delete_failed')) }
     },
   })
 }
@@ -50,14 +50,14 @@ function formatCurrency(amount: number) {
 <template>
   <div>
     <TableToolbar
-      search-placeholder="Search orders..."
+      :search-placeholder="t('ordering.orders.table.search_placeholder')"
       :create-label="t('ordering.orders.actions.create')"
       @search="onSearch"
       @create="goToCreate"
     />
     <LoadingSkeleton v-if="store.loading && store.items.length === 0" :rows="5" :columns="6" />
     <ErrorState v-else-if="store.error" :description="store.error" @retry="store.fetchMany" />
-    <EmptyState v-else-if="store.items.length === 0" title="No orders found" description="Create your first order." />
+    <EmptyState v-else-if="store.items.length === 0" :title="t('ordering.orders.messages.empty_list')" :description="t('ordering.orders.messages.empty_description')" />
     <DataTable
       v-else
       :rows="[...store.items]"
@@ -67,25 +67,25 @@ function formatCurrency(amount: number) {
       :first="(store.query.page - 1) * store.query.pageSize"
       @page="onPageChange"
     >
-      <Column field="orderNumber" header="Order #" sortable />
-      <Column field="customerName" header="Customer" />
-      <Column field="status" header="Status">
+      <Column field="orderNumber" :header="t('ordering.orders.table.order_number')" sortable />
+      <Column field="customerName" :header="t('ordering.orders.table.customer')" />
+      <Column field="status" :header="t('ordering.orders.table.status')">
         <template #body="{ data }">
           <StatusTag :status="data.status" />
         </template>
       </Column>
-      <Column field="total" header="Total">
+      <Column field="total" :header="t('ordering.orders.table.total')">
         <template #body="{ data }">
           {{ formatCurrency(data.total) }}
         </template>
       </Column>
-      <Column field="createdAt" header="Date" sortable />
+      <Column field="createdAt" :header="t('ordering.orders.table.date')" sortable />
       <template #rowActions="{ data }">
         <ActionMenu
           :items="[
-            { label: 'View', icon: 'pi pi-eye', command: () => goToView(data.id) },
-            { label: 'Edit', icon: 'pi pi-pencil', command: () => goToEdit(data.id) },
-            { label: 'Delete', icon: 'pi pi-trash', command: () => onDelete(data.id) },
+            { label: t('ordering.orders.table.view'), icon: 'pi pi-eye', command: () => goToView(data.id) },
+            { label: t('ordering.orders.table.edit'), icon: 'pi pi-pencil', command: () => goToEdit(data.id) },
+            { label: t('ordering.orders.table.delete'), icon: 'pi pi-trash', command: () => onDelete(data.id) },
           ]"
         />
       </template>

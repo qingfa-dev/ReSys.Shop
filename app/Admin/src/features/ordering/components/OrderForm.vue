@@ -6,8 +6,7 @@ import { useI18n } from 'vue-i18n'
 import PageHeader from '@/shared/components/layout/PageHeader.vue'
 import FormField from '@/shared/components/forms/FormField.vue'
 import FormActions from '@/shared/components/forms/FormActions.vue'
-import LoadingSkeleton from '@/shared/components/feedback/LoadingSkeleton.vue'
-import ErrorState from '@/shared/components/feedback/ErrorState.vue'
+import { LoadingSkeleton, ErrorState, AppCard } from '@/shared/components'
 import StatusTag from '@/shared/components/data/StatusTag.vue'
 import Button from 'primevue/button'
 import OrderLineItemManager from './OrderLineItemManager.vue'
@@ -37,9 +36,13 @@ const saving = ref(false)
 const loadError = ref<string | null>(null)
 
 const title = computed(() => {
-  if (mode.value === 'create') return 'Create Order'
-  if (mode.value === 'edit') return `Edit Order: ${order.value?.orderNumber || ''}`
-  return order.value?.orderNumber || 'Order Details'
+  if (mode.value === 'create') return t('ordering.orders.titles.create')
+  if (mode.value === 'edit') return `${t('ordering.orders.actions.edit')}: ${order.value?.orderNumber || ''}`
+  return order.value?.orderNumber || t('ordering.orders.titles.view')
+})
+
+const subtitle = computed(() => {
+  return t('ordering.orders.descriptions.general')
 })
 
 const canApprove = computed(() => order.value?.status === 'pending')
@@ -51,15 +54,20 @@ async function loadOrder() {
   if (!id.value) return
   loading.value = true
   loadError.value = null
-  const result = await OrderApi.get(id.value)
-  if (result.isSuccess) {
-    order.value = result.value
-    setValues({
-      customerId: result.value.customerId,
-      notes: result.value.notes ?? undefined,
-    })
-  } else {
-    loadError.value = result.message ?? 'Failed to load order'
+  try {
+    const result = await OrderApi.get(id.value)
+    if (result.isSuccess) {
+      order.value = result.value
+      setValues({
+        customerId: result.value.customerId,
+        notes: result.value.notes ?? undefined,
+      })
+    } else {
+      loadError.value = result.message ?? t('ordering.orders.messages.load_failed')
+    }
+  } catch (err) {
+    console.error(err)
+    loadError.value = t('ordering.orders.messages.load_failed')
   }
   loading.value = false
 }
@@ -74,11 +82,11 @@ const save = handleSubmit(async (values) => {
     : await OrderApi.create(data)
   saving.value = false
   if (result.isSuccess) {
-    toast.success(id.value ? 'Order updated' : 'Order created')
+    toast.success(id.value ? t('ordering.orders.messages.update_success') : t('ordering.orders.messages.create_success'))
     const newId = result.value.id
     router.replace({ name: ROUTE.ORDERS.VIEW, params: { id: newId } })
   } else {
-    toast.error(result.message ?? 'Save failed')
+    toast.error(result.message ?? t('ordering.orders.messages.save_failed'))
   }
 })
 
@@ -95,10 +103,10 @@ async function lifecycleAction(action: 'approve' | 'complete' | 'cancel' | 'resu
   }
   saving.value = false
   if (result!.isSuccess) {
-    toast.success(`Order ${action}d`)
+    toast.success(t(`ordering.orders.messages.${action}_success`))
     await loadOrder()
   } else {
-    toast.error(result!.message ?? `Failed to ${action} order`)
+    toast.error(result!.message ?? t('ordering.orders.messages.save_failed'))
   }
 }
 
@@ -120,14 +128,14 @@ onMounted(async () => { await loadOrder() })
 
 <template>
   <div>
-    <PageHeader :title="title" :icon="route.meta?.icon as string | undefined">
+    <PageHeader :title="title" :subtitle="subtitle" :icon="route.meta?.icon as string | undefined">
       <template #actions>
         <template v-if="mode === 'view' && order">
-          <Button v-if="canApprove" label="Approve" icon="pi pi-check" severity="success" :loading="saving" @click="lifecycleAction('approve')" />
-          <Button v-if="canComplete" label="Complete" icon="pi pi-check-circle" severity="success" :loading="saving" @click="lifecycleAction('complete')" />
-          <Button v-if="canCancel" label="Cancel" icon="pi pi-times" severity="danger" :loading="saving" @click="lifecycleAction('cancel')" />
-          <Button v-if="canResume" label="Resume" icon="pi pi-refresh" severity="info" :loading="saving" @click="lifecycleAction('resume')" />
-          <button class="p-button p-component" @click="toggleEdit">Edit</button>
+          <Button v-if="canApprove" :label="t('ordering.orders.actions.approve')" icon="pi pi-check" severity="success" :loading="saving" @click="lifecycleAction('approve')" />
+          <Button v-if="canComplete" :label="t('ordering.orders.actions.complete')" icon="pi pi-check-circle" severity="success" :loading="saving" @click="lifecycleAction('complete')" />
+          <Button v-if="canCancel" :label="t('ordering.orders.actions.cancel_action')" icon="pi pi-times" severity="danger" :loading="saving" @click="lifecycleAction('cancel')" />
+          <Button v-if="canResume" :label="t('ordering.orders.actions.resume')" icon="pi pi-refresh" severity="info" :loading="saving" @click="lifecycleAction('resume')" />
+          <Button :label="t('ordering.orders.actions.edit')" @click="toggleEdit" />
         </template>
       </template>
     </PageHeader>
@@ -135,70 +143,69 @@ onMounted(async () => { await loadOrder() })
     <LoadingSkeleton v-if="loading && mode !== 'create'" :rows="8" :columns="2" />
     <ErrorState v-else-if="loadError" :title="loadError" @retry="loadOrder" />
 
-    <div v-else-if="order && mode === 'view'" class="card">
-      <div class="grid mb-4">
-        <div class="col-6">
-          <div class="text-sm text-surface-500">Status</div>
-          <StatusTag :status="order.status" />
+    <template v-else-if="order && mode === 'view'">
+      <AppCard>
+        <div class="grid grid-cols-2 gap-4 mb-4">
+          <div>
+            <div class="text-sm text-surface-500">{{ t('ordering.orders.labels.status') }}</div>
+            <StatusTag :status="order.status" />
+          </div>
+          <div>
+            <div class="text-sm text-surface-500">{{ t('ordering.orders.labels.customer') }}</div>
+            <div>{{ order.customerName || order.customerEmail || order.customerId }}</div>
+          </div>
         </div>
-        <div class="col-6">
-          <div class="text-sm text-surface-500">Customer</div>
-          <div>{{ order.customerName || order.customerEmail || order.customerId }}</div>
+        <div class="grid grid-cols-3 gap-4 mb-4">
+          <div>
+            <div class="text-sm text-surface-500">{{ t('ordering.orders.labels.subtotal') }}</div>
+            <div>{{ formatCurrency(order.subtotal) }}</div>
+          </div>
+          <div>
+            <div class="text-sm text-surface-500">{{ t('ordering.orders.labels.tax') }}</div>
+            <div>{{ formatCurrency(order.taxTotal) }}</div>
+          </div>
+          <div>
+            <div class="text-sm text-surface-500">{{ t('ordering.orders.labels.shipping') }}</div>
+            <div>{{ formatCurrency(order.shippingTotal) }}</div>
+          </div>
         </div>
-      </div>
-      <div class="grid mb-4">
-        <div class="col-4">
-          <div class="text-sm text-surface-500">Subtotal</div>
-          <div>{{ formatCurrency(order.subtotal) }}</div>
+        <div class="mb-4">
+          <div class="text-lg font-semibold">{{ t('ordering.orders.labels.total') }}: {{ formatCurrency(order.total) }}</div>
         </div>
-        <div class="col-4">
-          <div class="text-sm text-surface-500">Tax</div>
-          <div>{{ formatCurrency(order.taxTotal) }}</div>
+        <div v-if="order.notes" class="mb-4">
+          <div class="text-sm text-surface-500">{{ t('ordering.orders.labels.notes') }}</div>
+          <div>{{ order.notes }}</div>
         </div>
-        <div class="col-4">
-          <div class="text-sm text-surface-500">Shipping</div>
-          <div>{{ formatCurrency(order.shippingTotal) }}</div>
-        </div>
-      </div>
-      <div class="mb-4">
-        <div class="text-lg font-semibold">Total: {{ formatCurrency(order.total) }}</div>
-      </div>
-      <div v-if="order.notes" class="mb-4">
-        <div class="text-sm text-surface-500">Notes</div>
-        <div>{{ order.notes }}</div>
-      </div>
-
+      </AppCard>
       <OrderLineItemManager
         :order-id="order.id"
         :line-items="order.lineItems"
         :readonly="true"
       />
-    </div>
+    </template>
 
-    <div v-else class="card">
-      <div v-if="mode === 'create'" class="grid">
-        <div class="col-12">
-          <FormField label="Customer ID" :error="errors.customerId" required>
+    <template v-else>
+      <AppCard>
+        <div v-if="mode === 'create'" class="grid grid-cols-1 gap-4 mb-4">
+          <FormField :label="t('ordering.orders.labels.customer_id')" :error="errors.customerId" required>
             <input v-model="customerId" type="text" class="p-inputtext p-component w-full" />
           </FormField>
         </div>
-      </div>
-      <div class="grid">
-        <div class="col-12">
-          <FormField label="Notes" :error="errors.notes">
+        <div class="grid grid-cols-1 gap-4">
+          <FormField :label="t('ordering.orders.labels.notes')" :error="errors.notes">
             <textarea v-model="notes" class="p-inputtext p-component w-full" rows="3" />
           </FormField>
         </div>
-      </div>
+      </AppCard>
 
       <FormActions
         v-if="mode !== 'view'"
         :loading="saving"
-        :save-label="mode === 'create' ? 'Create Order' : 'Save Changes'"
-        :cancel-label="'Cancel'"
+        :save-label="mode === 'create' ? t('ordering.orders.actions.save_create') : t('ordering.orders.actions.save_edit')"
+        :cancel-label="t('ordering.orders.actions.cancel')"
         @save="save"
         @cancel="cancel"
       />
-    </div>
+    </template>
   </div>
 </template>

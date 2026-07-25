@@ -4,6 +4,7 @@ import en from './messages/en/general.json'
 import auth from './messages/en/auth.json'
 import catalog from './messages/en/catalog.json'
 import inventory from './messages/en/inventory.json'
+import ordering from './messages/en/ordering.json'
 import reports from './messages/en/reports.json'
 
 export function createI18nPlugin() {
@@ -17,6 +18,7 @@ export function createI18nPlugin() {
         auth,
         catalog,
         inventory,
+        ordering,
         reports,
       },
     },

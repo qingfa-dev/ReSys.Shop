@@ -1,13 +1,12 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
-import { useRouter } from 'vue-router'
+import { useI18n } from 'vue-i18n'
+import { useRouter, useRoute } from 'vue-router'
 import PageHeader from '@/shared/components/layout/PageHeader.vue'
 import Column from 'primevue/column'
 import DataTable from '@/shared/components/data/DataTable.vue'
 import ActionMenu from '@/shared/components/layout/ActionMenu.vue'
-import EmptyState from '@/shared/components/feedback/EmptyState.vue'
-import LoadingSkeleton from '@/shared/components/feedback/LoadingSkeleton.vue'
-import ErrorState from '@/shared/components/feedback/ErrorState.vue'
+import { EmptyState, LoadingSkeleton, ErrorState, ListLayout } from '@/shared/components'
 import StatusTag from '@/shared/components/data/StatusTag.vue'
 import Button from 'primevue/button'
 import { useToast } from '@/shared/composables/useToast'
@@ -15,7 +14,9 @@ import { OrderApi } from '../api'
 import type { OrderResponse } from '../types'
 import { ROUTE } from '../routes'
 
+const { t } = useI18n()
 const router = useRouter()
+const route = useRoute()
 const toast = useToast()
 
 const items = ref<OrderResponse[]>([])
@@ -30,12 +31,12 @@ async function load() {
     if (result.isSuccess) {
       items.value = (result.items ?? []).filter(o => o.status === 'approved' || o.status === 'processing')
     } else {
-      error.value = result.message ?? 'Failed to load'
+      error.value = result.message ?? t('ordering.fulfillment.load_failed')
       items.value = []
     }
   } catch (err) {
     console.error(err)
-    error.value = 'Failed to load'
+    error.value = t('ordering.fulfillment.load_failed')
     items.value = []
   }
   loading.value = false
@@ -44,10 +45,10 @@ async function load() {
 async function markComplete(id: string) {
   const result = await OrderApi.complete(id)
   if (result.isSuccess) {
-    toast.success('Order completed')
+    toast.success(t('ordering.fulfillment.complete_success'))
     await load()
   } else {
-    toast.error(result.message ?? 'Failed to complete')
+    toast.error(result.message ?? t('ordering.fulfillment.complete_failed'))
   }
 }
 
@@ -63,11 +64,18 @@ onMounted(() => load())
 </script>
 
 <template>
-  <div>
-    <PageHeader title="Fulfillment Queue" />
+  <ListLayout>
+    <template #header>
+      <PageHeader
+        :title="t('ordering.fulfillment.title')"
+        :subtitle="t('ordering.fulfillment.subtitle')"
+        :icon="route.meta?.icon as string | undefined"
+      />
+    </template>
+
     <LoadingSkeleton v-if="loading && items.length === 0" :rows="5" :columns="5" />
     <ErrorState v-else-if="error" :description="error" @retry="load" />
-    <EmptyState v-else-if="items.length === 0" title="No orders to fulfill" description="All orders have been fulfilled." />
+    <EmptyState v-else-if="items.length === 0" :title="t('ordering.fulfillment.empty_title')" :description="t('ordering.fulfillment.empty_description')" />
     <DataTable v-else :rows="[...items]" :loading="loading" :total-records="items.length">
       <Column field="orderNumber" header="Order #" sortable />
       <Column field="customerName" header="Customer" />
@@ -83,10 +91,10 @@ onMounted(() => load())
       </Column>
       <template #rowActions="{ data }">
         <div class="flex gap-2">
-          <Button label="View" icon="pi pi-eye" severity="secondary" text @click="goToView(data.id)" />
-          <Button v-if="data.status !== 'completed'" label="Complete" icon="pi pi-check-circle" severity="success" text @click="markComplete(data.id)" />
+          <Button :label="t('ordering.fulfillment.view')" icon="pi pi-eye" severity="secondary" text @click="goToView(data.id)" />
+          <Button v-if="data.status !== 'completed'" :label="t('ordering.fulfillment.complete')" icon="pi pi-check-circle" severity="success" text @click="markComplete(data.id)" />
         </div>
       </template>
     </DataTable>
-  </div>
+  </ListLayout>
 </template>
