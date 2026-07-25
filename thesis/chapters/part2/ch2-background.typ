@@ -5,7 +5,6 @@
 #include "ch1-background/02-dl-architectures.typ"
 #include "ch1-background/03-vector-databases.typ"
 #include "ch1-background/04-ecommerce-architectures.typ"
-#include "ch1-background/05-related-work.typ"
 #include "ch1-background/06-dotnet-backend.typ"
 #include "ch1-background/07-vue-frontend.typ"
 #include "ch1-background/08-postgresql-pgvector.typ"
@@ -16,3 +15,4 @@
 #include "ch1-background/13-identity-auth.typ"
 #include "ch1-background/14-benchmark-framework.typ"
 #include "ch1-background/15-technology-summary.typ"
+#include "ch1-background/05-related-work.typ"
