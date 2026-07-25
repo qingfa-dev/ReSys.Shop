@@ -84,6 +84,12 @@
     "complete_failed": "Failed to complete order",
     "load_failed": "Failed to load fulfillment queue",
     "view": "View",
-    "complete": "Complete"
+    "complete": "Complete",
+    "table": {
+      "order_number": "Order #",
+      "customer": "Customer",
+      "status": "Status",
+      "total": "Total"
+    }
   }
 }

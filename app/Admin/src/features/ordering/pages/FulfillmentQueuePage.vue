@@ -5,7 +5,6 @@ import { useRouter, useRoute } from 'vue-router'
 import PageHeader from '@/shared/components/layout/PageHeader.vue'
 import Column from 'primevue/column'
 import DataTable from '@/shared/components/data/DataTable.vue'
-import ActionMenu from '@/shared/components/layout/ActionMenu.vue'
 import { EmptyState, LoadingSkeleton, ErrorState, ListLayout } from '@/shared/components'
 import StatusTag from '@/shared/components/data/StatusTag.vue'
 import Button from 'primevue/button'
@@ -77,14 +76,14 @@ onMounted(() => load())
     <ErrorState v-else-if="error" :description="error" @retry="load" />
     <EmptyState v-else-if="items.length === 0" :title="t('ordering.fulfillment.empty_title')" :description="t('ordering.fulfillment.empty_description')" />
     <DataTable v-else :rows="[...items]" :loading="loading" :total-records="items.length">
-      <Column field="orderNumber" header="Order #" sortable />
-      <Column field="customerName" header="Customer" />
-      <Column field="status" header="Status">
+      <Column field="orderNumber" :header="t('ordering.fulfillment.table.order_number')" sortable />
+      <Column field="customerName" :header="t('ordering.fulfillment.table.customer')" />
+      <Column field="status" :header="t('ordering.fulfillment.table.status')">
         <template #body="{ data }">
           <StatusTag :status="data.status" />
         </template>
       </Column>
-      <Column field="total" header="Total">
+      <Column field="total" :header="t('ordering.fulfillment.table.total')">
         <template #body="{ data }">
           {{ formatCurrency(data.total) }}
         </template>
