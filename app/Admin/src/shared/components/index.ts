@@ -23,6 +23,4 @@ export { default as PageHeader } from './layout/PageHeader.vue'
 export { default as PlaceholderPage } from './layout/PlaceholderPage.vue'
 export { default as TableToolbar } from './layout/TableToolbar.vue'
 
-export { default as DetailDrawer } from './overlays/DetailDrawer.vue'
-export { default as FilterPanel } from './overlays/FilterPanel.vue'
 export { default as Modal } from './overlays/Modal.vue'
