@@ -1,7 +1,7 @@
 === HNSW: Hierarchical Navigable Small World
 
 - *Theory.* HNSW constructs a multi-layered navigable graph over the embedding space. Top layers are sparse, connecting distant regions and enabling long-range jumps; bottom layers are dense and refine the search locally. A query enters at the top layer, greedily traverses edges toward the nearest neighbour, then descends to the next layer and repeats. The process converges on the query neighbourhood with logarithmic time complexity $O(log n)$.
-- *Hyperparameters.* Three: `M` (maximum neighbours per node), `ef_construction` (search breadth during build), and `ef_search` (search breadth during query). These require coordinated tuning — increasing `M` improves recall but slows build and query; increasing `ef_search` improves recall linearly at logarithmic cost.
+- *Hyperparameters.* Three: `M` (maximum neighbours per node), `ef_construction` (search breadth during build), and `ef_search` (search breadth during query). These require coordinated tuning: increasing `M` improves recall but slows build and query; increasing `ef_search` improves recall linearly at logarithmic cost.
 - *Build cost.* Graph construction is computationally expensive. At moderate catalogue scales (10^4--10^5 vectors), build time is measured in minutes rather than seconds.
 - *Recall.* High. HNSW consistently exceeds 95 percent recall\@10 at query latencies under 10 ms, sustained across catalogue scales up to 10^7 vectors.
 - *Application.* HNSW is the preferred index for production-scale ANN search in this project. Its logarithmic query cost and sustained recall make it suitable for interactive fashion retrieval at millions of catalogue items, where sub-100 ms latency is required.
