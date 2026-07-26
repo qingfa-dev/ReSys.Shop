@@ -7,6 +7,7 @@
 #figure(
   table(
     columns: (auto, 1fr),
+    align: (left + horizon, left),
     stroke: 0.5pt,
     [*Field*], [*Description*],
     [*Use Case ID*], [UC-ADM-PROD],
@@ -64,6 +65,7 @@
 #figure(
   table(
     columns: (auto, 1fr),
+    align: (left + horizon, left),
     stroke: 0.5pt,
     [*Field*], [*Description*],
     [*Use Case ID*], [UC-ADM-VAR],
@@ -122,6 +124,7 @@
 #figure(
   table(
     columns: (auto, 1fr),
+    align: (left + horizon, left),
     stroke: 0.5pt,
     [*Field*], [*Description*],
     [*Use Case ID*], [UC-ADM-IMG],
@@ -174,6 +177,7 @@
 #figure(
   table(
     columns: (auto, 1fr),
+    align: (left + horizon, left),
     stroke: 0.5pt,
     [*Field*], [*Description*],
     [*Use Case ID*], [UC-ADM-TAX],
@@ -225,6 +229,7 @@
 #figure(
   table(
     columns: (auto, 1fr),
+    align: (left + horizon, left),
     stroke: 0.5pt,
     [*Field*], [*Description*],
     [*Use Case ID*], [UC-ADM-OPT],

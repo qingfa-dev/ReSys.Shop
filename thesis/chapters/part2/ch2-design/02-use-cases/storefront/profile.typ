@@ -7,6 +7,7 @@
 #figure(
   table(
     columns: (auto, 1fr),
+    align: (left + horizon, left),
     stroke: 0.5pt,
     [*Field*], [*Description*],
     [*Use Case ID*], [UC-STR-PRF],
