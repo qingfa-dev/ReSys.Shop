@@ -44,5 +44,10 @@
     "to": "To",
     "clearAll": "Clear All",
     "apply": "Apply Filters"
+  },
+  "notifications": {
+    "title": "Notifications",
+    "markAllRead": "Mark all read",
+    "empty": "No notifications"
   }
 }

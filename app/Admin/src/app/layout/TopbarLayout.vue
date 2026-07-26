@@ -2,6 +2,7 @@
 import { useLayout } from '@/app/composables/layout.composable'
 import GlobalSearch from './components/GlobalSearch.vue'
 import ConfiguratorLayout from './ConfiguratorLayout.vue'
+import NotificationBell from '@/shared/components/layout/NotificationBell.vue'
 
 const { toggleMenu, toggleDarkMode, isDarkTheme, toggleConfigSidebar } = useLayout()
 </script>
@@ -20,6 +21,7 @@ const { toggleMenu, toggleDarkMode, isDarkTheme, toggleConfigSidebar } = useLayo
     <GlobalSearch />
 
     <div class="layout-topbar-actions">
+      <NotificationBell />
       <div class="layout-config-menu">
         <button type="button" class="layout-topbar-action" @click="toggleDarkMode">
           <i :class="['pi', { 'pi-moon': isDarkTheme, 'pi-sun': !isDarkTheme }]" />
