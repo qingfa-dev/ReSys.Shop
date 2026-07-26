@@ -1,0 +1,128 @@
+@startuml use-case-overview
+left to right direction
+
+skinparam defaultFontName "Times New Roman"
+skinparam defaultFontSize 36
+skinparam actorFontSize 40
+skinparam usecaseFontSize 32
+skinparam packageFontSize 36
+skinparam stereotypeFontSize 20
+skinparam shadowing false
+skinparam padding 8
+skinparam nodesep 60
+skinparam ranksep 50
+
+skinparam actor {
+  BackgroundColor #FFFFFF
+  BorderColor #000000
+  BorderThickness 1.5
+  FontColor #000000
+  FontStyle bold
+}
+
+skinparam usecase {
+  BackgroundColor #FFFFFF
+  BorderColor #000000
+  BorderThickness 1.5
+  FontColor #000000
+}
+
+skinparam package {
+  BackgroundColor #FFFFFF
+  BorderColor #000000
+  BorderThickness 1.5
+  FontColor #000000
+  FontStyle bold
+}
+
+skinparam rectangle {
+  BackgroundColor #FFFFFF
+  BorderColor #000000
+  BorderThickness 2
+  FontSize 38
+  FontStyle bold
+}
+
+skinparam arrow {
+  Color #000000
+  Thickness 1.5
+  FontSize 20
+}
+
+actor "Administrator" as Admin
+actor "Customer" as Customer
+actor "System\n(Background)" as SysActor
+
+rectangle "ReSys.Shop" {
+
+  package "Catalog" as Cat {
+    usecase "Manage products" as UC_ADM_PROD
+    usecase "Manage variants" as UC_ADM_VAR
+    usecase "Manage images\nand embeddings" as UC_ADM_IMG
+    usecase "Manage taxonomies\nand classification" as UC_ADM_TAX
+    usecase "Manage option types" as UC_ADM_OPT
+    usecase "Browse and search\ncatalog" as UC_STR_BRW
+    usecase "Visual search" as UC_STR_SRC
+  }
+
+  package "Ordering" as Ord {
+    usecase "Manage orders" as UC_ADM_ORD
+    usecase "Manage order details" as UC_ADM_ORD_ITEMS
+    usecase "Manage cart" as UC_STR_CRT
+    usecase "Checkout" as UC_STR_CHK
+    usecase "Order history" as UC_STR_OHI
+  }
+
+  package "Payment" as Pay {
+    usecase "Manage payments" as UC_ADM_PAY
+    usecase "Manage payment\nmethods" as UC_ADM_PAY_METHOD
+    usecase "Payment processing" as UC_STR_PAY
+  }
+
+  package "Inventory" as Inv {
+    usecase "Manage stock" as UC_ADM_STK
+    usecase "Manage stock\nlocations" as UC_ADM_LOC
+  }
+
+  package "Identity" as Idn {
+    usecase "Manage users" as UC_ADM_USR
+    usecase "Manage roles\nand permissions" as UC_ADM_ROL
+    usecase "Authentication" as UC_STR_AUT
+    usecase "Session management" as UC_STR_SES
+  }
+
+  package "Shipping" as Shp {
+    usecase "Manage shipping" as UC_ADM_SHP
+  }
+
+  package "Location" as Loc {
+    usecase "Manage reference\ndata" as UC_ADM_REF
+  }
+
+  package "Profile" as Prf {
+    usecase "Profile management" as UC_STR_PRF
+  }
+
+  package "System Services" as Sys {
+    usecase "Embedding operations" as UC_SYS_EMB
+    usecase "System maintenance" as UC_SYS_MNT
+  }
+}
+
+Admin --> Cat
+Admin --> Ord
+Admin --> Pay
+Admin --> Inv
+Admin --> Idn
+Admin --> Shp
+Admin --> Loc
+
+Customer --> Cat
+Customer --> Ord
+Customer --> Pay
+Customer --> Idn
+Customer --> Prf
+
+SysActor --> Sys
+
+@enduml
