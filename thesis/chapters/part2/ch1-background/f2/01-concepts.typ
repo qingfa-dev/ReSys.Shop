@@ -1,6 +1,10 @@
 === Visual Search Concepts
 
-Content-Based Image Retrieval (CBIR) replaces text queries with image queries. Rather than requiring users to describe what they want in words, CBIR lets them search by example: the system encodes a query image into a *dense vector embedding* -- a fixed-length sequence of numbers capturing shape, texture, colour, and pattern -- and retrieves catalog items whose embeddings are nearest in vector space. Visually similar products produce similar vectors; dissimilar products produce distant ones. This bypasses the need for consistent textual labels: a photograph of a dress with a distinctive neckline retrieves visually similar products regardless of how the catalog describes them.
+Content-Based Image Retrieval (CBIR) replaces text queries with image queries. Rather than requiring users to describe what they want in words, CBIR lets them search by example.
+
+The system encodes a query image into a *dense vector embedding*: a fixed-length sequence of numbers that captures shape, texture, colour, and pattern. It then retrieves catalog items whose embeddings are nearest in vector space. Visually similar products produce similar vectors; dissimilar products produce distant ones.
+
+This approach bypasses the need for consistent textual labels. A photograph of a dress with a distinctive neckline retrieves visually similar products regardless of how the catalog describes them.
 
 === The Semantic Gap
 
