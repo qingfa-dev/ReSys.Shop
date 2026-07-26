@@ -44,7 +44,7 @@ describe('OrderApi', () => {
 
   describe('create', () => {
     it('calls POST /ordering/orders with body', async () => {
-      const data = { items: [{ productId: 'p1', quantity: 2 }] }
+      const data = { customerId: 'cust-1', lineItems: [{ variantId: 'p1', quantity: 2, unitPrice: 10 }] }
       vi.mocked(apiClient.post).mockResolvedValue({ data: singleOk({ id: '1', orderNumber: 'ORD-001' }) })
       await OrderApi.create(data)
       expect(apiClient.post).toHaveBeenCalledWith('/ordering/orders', data)
@@ -110,7 +110,7 @@ describe('OrderApi', () => {
 
   describe('updateShipAddress', () => {
     it('calls PUT /ordering/orders/:id/ship-address with body', async () => {
-      const data = { addressLine1: '123 Main St', city: 'NYC', stateId: 's1', countryId: 'c1' }
+      const data = { firstName: 'John', lastName: 'Doe', address1: '123 Main St', city: 'NYC', postalCode: '10001', country: 'US', stateId: 's1', countryId: 'c1' }
       vi.mocked(apiClient.put).mockResolvedValue({ data: singleOk({ id: '1' }) })
       await OrderApi.updateShipAddress('1', data)
       expect(apiClient.put).toHaveBeenCalledWith('/ordering/orders/1/ship-address', data)
@@ -119,7 +119,7 @@ describe('OrderApi', () => {
 
   describe('updateBillAddress', () => {
     it('calls PUT /ordering/orders/:id/bill-address with body', async () => {
-      const data = { addressLine1: '456 Oak Ave', city: 'LA', stateId: 's2', countryId: 'c1' }
+      const data = { firstName: 'Jane', lastName: 'Doe', address1: '456 Oak Ave', city: 'LA', postalCode: '90001', country: 'US', stateId: 's2', countryId: 'c1' }
       vi.mocked(apiClient.put).mockResolvedValue({ data: singleOk({ id: '1' }) })
       await OrderApi.updateBillAddress('1', data)
       expect(apiClient.put).toHaveBeenCalledWith('/ordering/orders/1/bill-address', data)

@@ -27,7 +27,7 @@ describe('UserRoleApi', () => {
 
   describe('assign', () => {
     it('calls POST /identity/users/:id/roles/assign with body', async () => {
-      const data = { roleIds: ['r1', 'r2'] }
+      const data = { items: [{ roleId: 'r1' }, { roleId: 'r2' }] }
       vi.mocked(apiClient.post).mockResolvedValue({ data: { isSuccess: true, statusCode: 200 } })
       await UserRoleApi.assign('1', data)
       expect(apiClient.post).toHaveBeenCalledWith('/identity/users/1/roles/assign', data)
@@ -36,7 +36,7 @@ describe('UserRoleApi', () => {
 
   describe('revoke', () => {
     it('calls POST /identity/users/:id/roles/revoke with body', async () => {
-      const data = { roleIds: ['r1'] }
+      const data = { items: [{ roleId: 'r1' }] }
       vi.mocked(apiClient.post).mockResolvedValue({ data: { isSuccess: true, statusCode: 200 } })
       await UserRoleApi.revoke('1', data)
       expect(apiClient.post).toHaveBeenCalledWith('/identity/users/1/roles/revoke', data)
@@ -45,7 +45,7 @@ describe('UserRoleApi', () => {
 
   describe('sync', () => {
     it('calls PATCH /identity/users/:id/roles/sync with body', async () => {
-      const data = { roleIds: ['r1'] }
+      const data = { items: [{ roleId: 'r1' }] }
       vi.mocked(apiClient.patch).mockResolvedValue({ data: { isSuccess: true, statusCode: 200 } })
       await UserRoleApi.sync('1', data)
       expect(apiClient.patch).toHaveBeenCalledWith('/identity/users/1/roles/sync', data)

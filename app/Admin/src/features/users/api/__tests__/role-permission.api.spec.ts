@@ -27,7 +27,7 @@ describe('RolePermissionApi', () => {
 
   describe('assign', () => {
     it('calls PUT /identity/roles/:id/permissions/assign with body', async () => {
-      const data = { permissionIds: ['p1', 'p2'] }
+      const data = { items: [{ permissionId: 'p1' }, { permissionId: 'p2' }] }
       vi.mocked(apiClient.put).mockResolvedValue({ data: { isSuccess: true, statusCode: 200 } })
       await RolePermissionApi.assign('1', data)
       expect(apiClient.put).toHaveBeenCalledWith('/identity/roles/1/permissions/assign', data)
@@ -36,7 +36,7 @@ describe('RolePermissionApi', () => {
 
   describe('revoke', () => {
     it('calls DELETE /identity/roles/:id/permissions/revoke with data in config', async () => {
-      const data = { permissionIds: ['p1'] }
+      const data = { items: [{ permissionId: 'p1' }] }
       vi.mocked(apiClient.delete).mockResolvedValue({ data: { isSuccess: true, statusCode: 200 } })
       await RolePermissionApi.revoke('1', data)
       expect(apiClient.delete).toHaveBeenCalledWith('/identity/roles/1/permissions/revoke', { data })
@@ -45,7 +45,7 @@ describe('RolePermissionApi', () => {
 
   describe('sync', () => {
     it('calls PATCH /identity/roles/:id/permissions/sync with body', async () => {
-      const data = { permissionIds: ['p1'] }
+      const data = { items: [{ permissionId: 'p1' }] }
       vi.mocked(apiClient.patch).mockResolvedValue({ data: { isSuccess: true, statusCode: 200 } })
       await RolePermissionApi.sync('1', data)
       expect(apiClient.patch).toHaveBeenCalledWith('/identity/roles/1/permissions/sync', data)

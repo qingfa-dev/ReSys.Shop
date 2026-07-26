@@ -43,7 +43,7 @@ describe('StockTransferApi', () => {
 
   describe('create', () => {
     it('calls POST /inventory/stock-transfers with body', async () => {
-      const data = { fromLocationId: 'loc-1', toLocationId: 'loc-2', items: [{ stockItemId: 'item-1', quantity: 5 }] }
+      const data = { sourceLocationId: 'loc-1', destinationLocationId: 'loc-2', lineItems: [{ variantId: 'item-1', quantity: 5 }] }
       vi.mocked(apiClient.post).mockResolvedValue({ data: singleOk({ id: '1', ...data, status: 'Draft' }) })
       await StockTransferApi.create(data)
       expect(apiClient.post).toHaveBeenCalledWith('/inventory/stock-transfers', data)
@@ -76,7 +76,7 @@ describe('StockTransferApi', () => {
 
   describe('lifecycle', () => {
     it('supports full transfer lifecycle: create, transfer, receive, cancel', async () => {
-      const transferData = { fromLocationId: 'loc-1', toLocationId: 'loc-2', items: [{ stockItemId: 'item-1', quantity: 5 }] }
+      const transferData = { sourceLocationId: 'loc-1', destinationLocationId: 'loc-2', lineItems: [{ variantId: 'item-1', quantity: 5 }] }
 
       vi.mocked(apiClient.post).mockResolvedValueOnce({ data: singleOk({ id: '1', ...transferData, status: 'Draft' }) })
       await StockTransferApi.create(transferData)

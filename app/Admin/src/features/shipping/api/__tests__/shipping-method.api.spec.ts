@@ -54,8 +54,8 @@ describe('ShippingMethodApi', () => {
   describe('update', () => {
     it('calls PUT /shipping/shipping-methods/:id with body', async () => {
       vi.mocked(apiClient.put).mockResolvedValue({ data: singleOk({ id: '1', name: 'Updated' }) })
-      await ShippingMethodApi.update('1', { name: 'Updated' })
-      expect(apiClient.put).toHaveBeenCalledWith('/shipping/shipping-methods/1', { name: 'Updated' })
+      await ShippingMethodApi.update('1', { name: 'Updated', code: 'EXP' })
+      expect(apiClient.put).toHaveBeenCalledWith('/shipping/shipping-methods/1', { name: 'Updated', code: 'EXP' })
     })
   })
 

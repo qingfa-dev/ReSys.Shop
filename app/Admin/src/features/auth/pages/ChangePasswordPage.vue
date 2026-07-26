@@ -19,7 +19,7 @@ const [newPassword] = defineField('newPassword')
 const [confirmPassword] = defineField('confirmPassword')
 
 const onSubmit = handleSubmit((vals) => {
-  changePassword(AuthRequestMapper.toChangePassword(vals, currentUser.value?.email ?? ''))
+  changePassword(AuthRequestMapper.toChangePassword(vals, (currentUser.value as Record<string, unknown>)?.email as string ?? ''))
 })
 </script>
 

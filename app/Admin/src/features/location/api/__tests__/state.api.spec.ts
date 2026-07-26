@@ -52,7 +52,7 @@ describe('StateApi', () => {
 
   describe('create', () => {
     it('calls POST /locations/states with body', async () => {
-      const data = { name: 'Texas', isoCode: 'US-TX' }
+      const data = { name: 'Texas', isoCode: 'US-TX', countryId: 'c1' }
       vi.mocked(apiClient.post).mockResolvedValue({ data: singleOk({ id: '2', ...data }) })
       await StateApi.create(data)
       expect(apiClient.post).toHaveBeenCalledWith('/locations/states', data)
@@ -62,8 +62,8 @@ describe('StateApi', () => {
   describe('update', () => {
     it('calls PUT /locations/states/:id with body', async () => {
       vi.mocked(apiClient.put).mockResolvedValue({ data: singleOk({ id: '1', name: 'Updated' }) })
-      await StateApi.update('1', { name: 'Updated' })
-      expect(apiClient.put).toHaveBeenCalledWith('/locations/states/1', { name: 'Updated' })
+      await StateApi.update('1', { name: 'Updated', isoCode: 'US-CA', countryId: 'c1' })
+      expect(apiClient.put).toHaveBeenCalledWith('/locations/states/1', { name: 'Updated', isoCode: 'US-CA', countryId: 'c1' })
     })
   })
 

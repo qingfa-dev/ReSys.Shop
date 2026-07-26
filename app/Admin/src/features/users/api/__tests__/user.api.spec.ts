@@ -44,7 +44,7 @@ describe('UserApi', () => {
 
   describe('create', () => {
     it('calls POST /identity/users with body', async () => {
-      const data = { userName: 'jane', email: 'jane@example.com', password: 'P@ssw0rd!' }
+      const data = { userName: 'jane', email: 'jane@example.com', password: 'P@ssw0rd!', firstName: 'Jane', lastName: 'Doe' }
       vi.mocked(apiClient.post).mockResolvedValue({ data: singleOk({ id: '2', ...data }) })
       await UserApi.create(data)
       expect(apiClient.post).toHaveBeenCalledWith('/identity/users', data)
@@ -53,9 +53,9 @@ describe('UserApi', () => {
 
   describe('update', () => {
     it('calls PUT /identity/users/:id with body', async () => {
-      vi.mocked(apiClient.put).mockResolvedValue({ data: singleOk({ id: '1', userName: 'updated' }) })
-      await UserApi.update('1', { userName: 'updated' })
-      expect(apiClient.put).toHaveBeenCalledWith('/identity/users/1', { userName: 'updated' })
+      vi.mocked(apiClient.put).mockResolvedValue({ data: singleOk({ id: '1', email: 'updated@test.com' }) })
+      await UserApi.update('1', { email: 'updated@test.com', firstName: 'Jane', lastName: 'Doe' })
+      expect(apiClient.put).toHaveBeenCalledWith('/identity/users/1', { email: 'updated@test.com', firstName: 'Jane', lastName: 'Doe' })
     })
   })
 
@@ -69,7 +69,7 @@ describe('UserApi', () => {
 
   describe('toggleStatus', () => {
     it('calls PATCH /identity/users/:id/status with body', async () => {
-      const data = { isEnabled: false }
+      const data = { isActive: false }
       vi.mocked(apiClient.patch).mockResolvedValue({ data: { isSuccess: true, statusCode: 200 } })
       await UserApi.toggleStatus('1', data)
       expect(apiClient.patch).toHaveBeenCalledWith('/identity/users/1/status', data)

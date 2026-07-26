@@ -44,7 +44,7 @@ describe('AddressApi', () => {
 
   describe('create', () => {
     it('calls POST /profiles/addresses with body', async () => {
-      const data = { addressLine1: '456 Oak Ave', city: 'LA' }
+      const data = { firstName: 'John', lastName: 'Doe', address1: '456 Oak Ave', city: 'LA', postalCode: '90001', country: 'US' }
       vi.mocked(apiClient.post).mockResolvedValue({ data: singleOk({ id: '2', ...data }) })
       await AddressApi.create(data)
       expect(apiClient.post).toHaveBeenCalledWith('/profiles/addresses', data)
@@ -53,9 +53,10 @@ describe('AddressApi', () => {
 
   describe('update', () => {
     it('calls PUT /profiles/addresses/:id with body', async () => {
-      vi.mocked(apiClient.put).mockResolvedValue({ data: singleOk({ id: '1', addressLine1: 'Updated' }) })
-      await AddressApi.update('1', { addressLine1: 'Updated' })
-      expect(apiClient.put).toHaveBeenCalledWith('/profiles/addresses/1', { addressLine1: 'Updated' })
+      const data = { firstName: 'John', lastName: 'Doe', address1: 'Updated', city: 'LA', postalCode: '90001', country: 'US' }
+      vi.mocked(apiClient.put).mockResolvedValue({ data: singleOk({ id: '1', ...data }) })
+      await AddressApi.update('1', data)
+      expect(apiClient.put).toHaveBeenCalledWith('/profiles/addresses/1', data)
     })
   })
 

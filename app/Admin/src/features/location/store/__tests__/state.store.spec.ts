@@ -50,7 +50,7 @@ describe('useStateStore', () => {
     expect(store.loading).toBe(false)
     expect(store.items).toHaveLength(1)
     expect(store.totalRecords).toBe(1)
-    expect(store.items[0].countryName).toBe('Vietnam')
+    expect(store.items[0]?.countryName).toBe('Vietnam')
     expect(store.error).toBeNull()
   })
 
@@ -111,7 +111,7 @@ describe('useStateStore', () => {
   it('setFilters builds filter group from config and resets page', async () => {
     mockGetMany.mockResolvedValue(pagedResult())
     const store = useStateStore()
-    await store.setFilters([{ field: 'countryId', operator: 'Equal', value: '1' }])
+    await store.setFilters([{ field: 'countryId', operator: 'Equal', value: '1', label: 'test' }])
     expect(mockGetMany).toHaveBeenCalled()
     expect(store.query.page).toBe(1)
   })

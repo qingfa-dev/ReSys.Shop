@@ -19,6 +19,8 @@ export class UserForms {
   update() {
     return z.object({
       email: this.f.email(),
+      userName: this.f.userName(),
+      password: this.f.password().optional(),
       firstName: this.f.firstName(),
       lastName: this.f.lastName(),
       phone: this.f.phone(),

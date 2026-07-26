@@ -62,8 +62,8 @@ describe('CountryApi', () => {
   describe('update', () => {
     it('calls PUT /locations/countries/:id with body', async () => {
       vi.mocked(apiClient.put).mockResolvedValue({ data: singleOk({ id: '1', name: 'Updated' }) })
-      await CountryApi.update('1', { name: 'Updated' })
-      expect(apiClient.put).toHaveBeenCalledWith('/locations/countries/1', { name: 'Updated' })
+      await CountryApi.update('1', { name: 'Updated', isoCode: 'US' })
+      expect(apiClient.put).toHaveBeenCalledWith('/locations/countries/1', { name: 'Updated', isoCode: 'US' })
     })
   })
 

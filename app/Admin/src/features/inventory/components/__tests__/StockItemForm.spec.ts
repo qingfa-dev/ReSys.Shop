@@ -9,11 +9,12 @@ vi.mock('vee-validate', async (importOriginal) => {
     ...actual,
     useForm: (opts?: Record<string, unknown>) => {
       const result = actual.useForm(opts ?? {})
-      const origHandleSubmit = result.handleSubmit
-      result.handleSubmit = (cb: (...args: unknown[]) => unknown) => {
-        return () => cb(result.values)
+      return {
+        ...result,
+        handleSubmit: ((cb: any) => {
+          return () => cb(result.values)
+        }) as typeof result.handleSubmit,
       }
-      return result
     },
   }
 })

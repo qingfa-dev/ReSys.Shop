@@ -40,7 +40,12 @@ onMounted(async () => {
 
   const taxonomiesResult = await TaxonomyApi.getMany({ page: 1, pageSize: 1, sort: [{ field: 'name', direction: 'Ascending' }] })
   if (taxonomiesResult.isSuccess && taxonomiesResult.items.length > 0) {
-    taxonomyId.value = taxonomiesResult.items[0].id
+    taxonomyId.value = taxonomiesResult.items[0]?.id ?? null
+    if (!taxonomyId.value) {
+      toast.error('No taxonomy found')
+      loading.value = false
+      return
+    }
   } else {
     loading.value = false
     return

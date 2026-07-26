@@ -44,7 +44,7 @@ describe('ShippingRateApi', () => {
 
   describe('create', () => {
     it('calls POST /shipping/shipping-rates with body', async () => {
-      const data = { rate: 5.99, currency: 'USD' }
+      const data = { name: 'Standard Rate', rate: 5.99, currency: 'USD', shippingMethodId: 'sm1' }
       vi.mocked(apiClient.post).mockResolvedValue({ data: singleOk({ id: '2', ...data }) })
       await ShippingRateApi.create(data)
       expect(apiClient.post).toHaveBeenCalledWith('/shipping/shipping-rates', data)
@@ -54,8 +54,8 @@ describe('ShippingRateApi', () => {
   describe('update', () => {
     it('calls PUT /shipping/shipping-rates/:id with body', async () => {
       vi.mocked(apiClient.put).mockResolvedValue({ data: singleOk({ id: '1', rate: 7.99 }) })
-      await ShippingRateApi.update('1', { rate: 7.99 })
-      expect(apiClient.put).toHaveBeenCalledWith('/shipping/shipping-rates/1', { rate: 7.99 })
+      await ShippingRateApi.update('1', { name: 'Express Rate', rate: 7.99, currency: 'USD', shippingMethodId: 'sm2' })
+      expect(apiClient.put).toHaveBeenCalledWith('/shipping/shipping-rates/1', { name: 'Express Rate', rate: 7.99, currency: 'USD', shippingMethodId: 'sm2' })
     })
   })
 

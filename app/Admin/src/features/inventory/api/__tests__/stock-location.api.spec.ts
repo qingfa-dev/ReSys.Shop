@@ -53,8 +53,8 @@ describe('StockLocationApi', () => {
   describe('update', () => {
     it('calls PUT /inventory/stock-locations/:id with body', async () => {
       vi.mocked(apiClient.put).mockResolvedValue({ data: singleOk({ id: '1', name: 'Updated' }) })
-      await StockLocationApi.update('1', { name: 'Updated' })
-      expect(apiClient.put).toHaveBeenCalledWith('/inventory/stock-locations/1', { name: 'Updated' })
+      await StockLocationApi.update('1', { name: 'Updated', code: 'WH-A' })
+      expect(apiClient.put).toHaveBeenCalledWith('/inventory/stock-locations/1', { name: 'Updated', code: 'WH-A' })
     })
   })
 

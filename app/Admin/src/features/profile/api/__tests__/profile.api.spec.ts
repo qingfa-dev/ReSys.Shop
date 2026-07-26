@@ -36,7 +36,7 @@ describe('ProfileApi', () => {
 
   describe('update', () => {
     it('calls PUT /profiles/profiles with body', async () => {
-      const data = { firstName: 'Updated' }
+      const data = { firstName: 'Updated', lastName: 'Doe' }
       vi.mocked(apiClient.put).mockResolvedValue({ data: singleOk({ id: '1', firstName: 'Updated' }) })
       await ProfileApi.update(data)
       expect(apiClient.put).toHaveBeenCalledWith('/profiles/profiles', data)

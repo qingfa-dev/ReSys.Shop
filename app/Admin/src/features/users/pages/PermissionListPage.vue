@@ -26,9 +26,9 @@ async function fetchPermissions() {
   loading.value = true
   error.value = null
   try {
-    const result = await PermissionApi.getMany()
+    const result = await PermissionApi.getMany({ page: 1, pageSize: 100 })
     if (result.isSuccess) {
-      items.value = result.value ?? []
+      items.value = result.items ?? []
     } else {
       error.value = result.message ?? 'Failed to load permissions'
       items.value = []

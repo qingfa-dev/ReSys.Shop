@@ -10,6 +10,7 @@ export interface CreateUserRequest {
 
 export interface UpdateUserRequest {
   email: string
+  userName?: string
   firstName: string
   lastName: string
   phone?: string | null

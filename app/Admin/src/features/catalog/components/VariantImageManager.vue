@@ -97,7 +97,7 @@ async function onDrop(targetIndex: number, event: DragEvent) {
   const sourceIndex = Number(event.dataTransfer!.getData('text/plain'))
   if (sourceIndex === targetIndex) return
   const reordered = [...props.images]
-  const [moved] = reordered.splice(sourceIndex, 1)
+  const [moved] = reordered.splice(sourceIndex, 1) as [VariantImageDetailResponse]
   reordered.splice(targetIndex, 0, moved)
   emit('update:images', reordered)
 

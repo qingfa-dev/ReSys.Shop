@@ -108,7 +108,7 @@ onMounted(async () => {
 
 <template>
   <div>
-    <PageHeader :title="title" :icon="route.meta?.icon as string | undefined">
+    <PageHeader :title="title" subtitle="" :icon="route.meta?.icon as string | undefined">
       <template #actions>
         <Button
           v-if="mode === 'view'"

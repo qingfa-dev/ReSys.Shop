@@ -26,9 +26,9 @@ const allPermissions = ref<PermissionResponse[]>([])
 async function load() {
   loading.value = true
   error.value = null
-  const result = await PermissionApi.getMany()
+  const result = await PermissionApi.getMany({ page: 1, pageSize: 100 })
   if (result.isSuccess) {
-    allPermissions.value = result.value ?? []
+    allPermissions.value = result.items ?? []
     permission.value = allPermissions.value.find(p => p.id === id.value) ?? null
     if (!permission.value) error.value = 'Permission not found'
   } else {

@@ -67,7 +67,7 @@ describe('StockItemApi', () => {
 
   describe('create', () => {
     it('calls POST /inventory/stock-items with body', async () => {
-      const data = { sku: 'SKU-1', quantity: 10 }
+      const data = { variantId: 'VAR-1', locationId: 'LOC-1', sku: 'SKU-1', quantity: 10 }
       vi.mocked(apiClient.post).mockResolvedValue({ data: singleOk({ id: '1', ...data }) })
       await StockItemApi.create(data)
       expect(apiClient.post).toHaveBeenCalledWith('/inventory/stock-items', data)
@@ -76,7 +76,7 @@ describe('StockItemApi', () => {
 
   describe('bulkAdjust', () => {
     it('calls POST /inventory/stock-items/bulk-adjust with body', async () => {
-      const data = { adjustments: [{ stockItemId: '1', quantity: 5 }] }
+      const data = { items: [{ stockItemId: '1', quantity: 5 }] }
       vi.mocked(apiClient.post).mockResolvedValue({ data: { isSuccess: true, statusCode: 200 } })
       await StockItemApi.bulkAdjust(data)
       expect(apiClient.post).toHaveBeenCalledWith('/inventory/stock-items/bulk-adjust', data)
@@ -105,9 +105,10 @@ describe('StockItemApi', () => {
 
   describe('update', () => {
     it('calls PUT /inventory/stock-items/:id with body', async () => {
+      const data = { variantId: 'VAR-1', locationId: 'LOC-1', quantity: 20 }
       vi.mocked(apiClient.put).mockResolvedValue({ data: singleOk({ id: '1', quantity: 20 }) })
-      await StockItemApi.update('1', { quantity: 20 })
-      expect(apiClient.put).toHaveBeenCalledWith('/inventory/stock-items/1', { quantity: 20 })
+      await StockItemApi.update('1', data)
+      expect(apiClient.put).toHaveBeenCalledWith('/inventory/stock-items/1', data)
     })
   })
 

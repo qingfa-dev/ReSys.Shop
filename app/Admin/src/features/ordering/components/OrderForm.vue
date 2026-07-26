@@ -15,7 +15,7 @@ import { OrderForms } from '../schemas'
 import { OrderFormMapper } from '../mappers/order.mapper'
 import { OrderApi } from '../api'
 import { ROUTE } from '../routes'
-import type { OrderResponse } from '../types'
+import type { OrderResponse, CreateOrderRequest } from '../types'
 
 const { id, mode, route, router, toast } = useOrder()
 const { t } = useI18n()
@@ -79,7 +79,7 @@ const save = handleSubmit(async (values) => {
     : OrderFormMapper.toUpdate(values)
   const result = id.value
     ? await OrderApi.update(id.value, data)
-    : await OrderApi.create(data)
+    : await OrderApi.create(data as CreateOrderRequest)
   saving.value = false
   if (result.isSuccess) {
     toast.success(id.value ? t('ordering.orders.messages.update_success') : t('ordering.orders.messages.create_success'))

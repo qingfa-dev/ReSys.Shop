@@ -196,13 +196,13 @@ describe('StockTransferForm', () => {
       saveBtn.trigger('click')
       await wrapper.vm.$nextTick()
 
-      expect(saveBtn.element.disabled).toBe(true)
+      expect(saveBtn.attributes('disabled')).toBeDefined()
 
       resolveCreate!(successResult({ id: 'new-tr' }))
       await flushPromises()
       await wrapper.vm.$nextTick()
 
-      expect(saveBtn.element.disabled).toBe(false)
+      expect(saveBtn.attributes('disabled')).toBeUndefined()
     })
   })
 

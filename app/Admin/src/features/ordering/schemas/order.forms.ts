@@ -9,11 +9,11 @@ export class OrderForms {
     return z.object({
       customerId: this.f.customerId(),
       notes: this.f.notes(),
-      lineItems: this.f.lineItems(),
     })
   }
   update() {
     return z.object({
+      customerId: this.f.customerId(),
       notes: this.f.notes(),
     })
   }

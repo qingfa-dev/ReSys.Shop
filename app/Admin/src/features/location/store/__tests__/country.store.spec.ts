@@ -110,7 +110,7 @@ describe('useCountryStore', () => {
   it('setFilters builds filter group from config and resets page', async () => {
     mockGetMany.mockResolvedValue(pagedResult())
     const store = useCountryStore()
-    await store.setFilters([{ field: 'isActive', operator: 'Equal', value: 'true' }])
+    await store.setFilters([{ field: 'isActive', operator: 'Equal', value: 'true', label: 'test' }])
     expect(mockGetMany).toHaveBeenCalled()
     expect(store.query.page).toBe(1)
   })

@@ -67,7 +67,7 @@ function mountComponent(props?: Record<string, unknown>) {
   return mount(FulfillmentWorkflow, {
     props: {
       orderId: 'o1',
-      status: props?.status ?? 'pending',
+      status: (props?.status as string) ?? 'pending',
       ...props,
     },
     global: {

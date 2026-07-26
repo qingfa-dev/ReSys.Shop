@@ -5,11 +5,11 @@ export class OrderFormMapper {
   static toCreate(form: CreateOrderForm): CreateOrderRequest {
     return {
       customerId: form.customerId,
-      notes: form.notes,
-      lineItems: form.lineItems,
+      notes: form.notes ?? undefined,
+      lineItems: (form as unknown as { lineItems?: CreateOrderRequest['lineItems'] }).lineItems ?? [],
     }
   }
-  static toUpdate(form: UpdateOrderForm): { notes?: string | null } {
-    return { notes: form.notes }
+  static toUpdate(form: UpdateOrderForm): { customerId?: string; notes?: string | null } {
+    return { customerId: form.customerId, notes: form.notes }
   }
 }

@@ -98,7 +98,7 @@ onMounted(fetchDashboard)
       </PageHeader>
     </template>
 
-    <LoadingSkeleton v-if="loading" rows="4" columns="4" />
+    <LoadingSkeleton v-if="loading" :rows="4" :columns="4" />
 
     <ErrorState
       v-else-if="error"

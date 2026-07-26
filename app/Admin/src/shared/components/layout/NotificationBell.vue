@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { useNotification } from '@/shared/composables/useNotification'
@@ -8,8 +9,15 @@ const { t } = useI18n()
 const router = useRouter()
 const { unreadCount, recentItems, markRead, markAllRead } = useNotification()
 
+const popoverVisible = ref(false)
+
+function togglePopover() {
+  popoverVisible.value = !popoverVisible.value
+}
+
 function onItemClick(notification: Notification) {
   markRead(notification.id)
+  popoverVisible.value = false
   if (notification.linkRoute) {
     router.push(notification.linkRoute)
   }
@@ -17,20 +25,18 @@ function onItemClick(notification: Notification) {
 </script>
 
 <template>
-  <Popover>
-    <template #activator="{ toggle }">
-      <Button
-        text
-        rounded
-        :badge="unreadCount > 0 ? String(unreadCount > 99 ? '99+' : unreadCount) : undefined"
-        badge-severity="danger"
-        @click="toggle"
-      >
-        <template #icon>
-          <i :class="['pi pi-bell', unreadCount > 0 ? 'text-primary-500' : 'text-surface-500']" />
-        </template>
-      </Button>
+  <Button
+    text
+    rounded
+    :badge="unreadCount > 0 ? String(unreadCount > 99 ? '99+' : unreadCount) : undefined"
+    badge-severity="danger"
+    @click="togglePopover"
+  >
+    <template #icon>
+      <i :class="['pi pi-bell', unreadCount > 0 ? 'text-primary-500' : 'text-surface-500']" />
     </template>
+  </Button>
+  <Popover v-model:visible="popoverVisible">
 
     <div class="w-80">
       <div class="flex items-center justify-between px-4 py-2 border-b border-surface-200 dark:border-surface-700">

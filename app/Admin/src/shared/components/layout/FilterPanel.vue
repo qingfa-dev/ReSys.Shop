@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, reactive } from 'vue'
 import { useI18n } from 'vue-i18n'
 import InputText from 'primevue/inputtext'
 import Select from 'primevue/select'
@@ -25,7 +25,7 @@ export interface FilterConfig {
 
 const props = defineProps<{
   definitions: ColumnFilterDef[]
-  activeFilters: FilterConfig[]
+  activeFilters: readonly FilterConfig[]
   visible: boolean
 }>()
 
@@ -55,31 +55,38 @@ function createDefaultState(): LocalState {
   }
 }
 
-const localFilters = ref<Record<string, LocalState>>({})
+const localFilters = ref<Record<string, LocalState>>(reactive({}))
+
+function getState(field: string): LocalState {
+  let state = localFilters.value[field]
+  if (!state) {
+    state = createDefaultState()
+    localFilters.value[field] = state
+  }
+  return state
+}
 
 function initLocal() {
-  const state: Record<string, LocalState> = {}
   for (const def of props.definitions) {
     const existing = props.activeFilters.filter(f => f.field === def.field)
-    state[def.field] = createDefaultState()
+    const state = getState(def.field)
     if (existing.length > 0) {
       if (def.type === 'text' || def.type === 'select') {
-        state[def.field].textValue = String(existing[0].value)
-        state[def.field].selectValue = String(existing[0].value)
+        state.textValue = String(existing[0]!.value)
+        state.selectValue = String(existing[0]!.value)
       } else if (def.type === 'number-range') {
         const fromFilter = existing.find(f => f.operator === 'GreaterThanOrEqual')
         const toFilter = existing.find(f => f.operator === 'LessThanOrEqual')
-        if (fromFilter) state[def.field].numberFrom = Number(fromFilter.value)
-        if (toFilter) state[def.field].numberTo = Number(toFilter.value)
+        if (fromFilter) state.numberFrom = Number(fromFilter.value)
+        if (toFilter) state.numberTo = Number(toFilter.value)
       } else if (def.type === 'date-range') {
         const fromFilter = existing.find(f => f.operator === 'GreaterThanOrEqual')
         const toFilter = existing.find(f => f.operator === 'LessThanOrEqual')
-        if (fromFilter) state[def.field].dateFrom = new Date(String(fromFilter.value))
-        if (toFilter) state[def.field].dateTo = new Date(String(toFilter.value))
+        if (fromFilter) state.dateFrom = new Date(String(fromFilter.value))
+        if (toFilter) state.dateTo = new Date(String(toFilter.value))
       }
     }
   }
-  localFilters.value = state
 }
 
 initLocal()
@@ -87,10 +94,9 @@ initLocal()
 function apply() {
   const filters: FilterConfig[] = []
 
-  for (const field of Object.keys(localFilters.value)) {
-    const state = localFilters.value[field]
-    const def = props.definitions.find(d => d.field === field)
-    if (!def) continue
+  for (const def of props.definitions) {
+    const field = def.field
+    const state = getState(field)
 
     if (def.type === 'text') {
       if (state.textValue) {
@@ -139,7 +145,7 @@ function apply() {
 }
 
 function clearAll() {
-  localFilters.value = {}
+  localFilters.value = reactive({})
   for (const def of props.definitions) {
     localFilters.value[def.field] = createDefaultState()
   }
@@ -158,12 +164,12 @@ function clearAll() {
         <label class="text-sm font-medium">{{ def.label }}</label>
 
         <template v-if="def.type === 'text'">
-          <InputText v-model="localFilters[def.field].textValue" :placeholder="def.label" size="small" />
+          <InputText v-model="getState(def.field).textValue" :placeholder="def.label" size="small" />
         </template>
 
         <template v-else-if="def.type === 'select'">
           <Select
-            v-model="localFilters[def.field].selectValue"
+            v-model="getState(def.field).selectValue"
             :options="def.options ?? []"
             option-label="label"
             option-value="value"
@@ -174,17 +180,17 @@ function clearAll() {
 
         <template v-else-if="def.type === 'number-range'">
           <div class="flex items-center gap-1">
-            <InputNumber v-model="localFilters[def.field].numberFrom" :placeholder="t('general.filters.from')" size="small" class="flex-1" />
+            <InputNumber v-model="getState(def.field).numberFrom" :placeholder="t('general.filters.from')" size="small" class="flex-1" />
             <span class="text-xs text-surface-500">-</span>
-            <InputNumber v-model="localFilters[def.field].numberTo" :placeholder="t('general.filters.to')" size="small" class="flex-1" />
+            <InputNumber v-model="getState(def.field).numberTo" :placeholder="t('general.filters.to')" size="small" class="flex-1" />
           </div>
         </template>
 
         <template v-else-if="def.type === 'date-range'">
           <div class="flex items-center gap-1">
-            <DatePicker v-model="localFilters[def.field].dateFrom" :placeholder="t('general.filters.from')" size="small" class="flex-1" />
+            <DatePicker v-model="getState(def.field).dateFrom" :placeholder="t('general.filters.from')" size="small" class="flex-1" />
             <span class="text-xs text-surface-500">-</span>
-            <DatePicker v-model="localFilters[def.field].dateTo" :placeholder="t('general.filters.to')" size="small" class="flex-1" />
+            <DatePicker v-model="getState(def.field).dateTo" :placeholder="t('general.filters.to')" size="small" class="flex-1" />
           </div>
         </template>
       </div>

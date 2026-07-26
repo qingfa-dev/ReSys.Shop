@@ -151,7 +151,7 @@ export const useAuthStore = defineStore('auth', () => {
     logout,
     initialize,
     isAuthenticated: session.isAuthenticated,
-    currentUser: readonly(session.user),
+    currentUser: session.user,
   }
 })
 

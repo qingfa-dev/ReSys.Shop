@@ -60,8 +60,8 @@ const ButtonStub = {
 }
 
 const mockImages = [
-  { id: 'img1', url: '/img/1.jpg', fileName: 'photo1.jpg', type: 'primary' as const },
-  { id: 'img2', url: '/img/2.jpg', fileName: 'photo2.jpg', type: 'gallery' as const },
+  { id: 'img1', url: '/img/1.jpg', fileName: 'photo1.jpg', type: 'primary' as const, position: 1, contentType: 'image/jpeg', fileSize: 1024, createdAt: '2026-01-01' },
+  { id: 'img2', url: '/img/2.jpg', fileName: 'photo2.jpg', type: 'gallery' as const, position: 2, contentType: 'image/jpeg', fileSize: 2048, createdAt: '2026-01-01' },
 ]
 
 function mountComponent(images = mockImages) {
@@ -125,6 +125,10 @@ describe('VariantImageManager', () => {
         url: `/img/${i}.jpg`,
         fileName: `photo${i}.jpg`,
         type: 'gallery' as const,
+        position: i + 1,
+        contentType: 'image/jpeg',
+        fileSize: 1024,
+        createdAt: '2026-01-01',
       }))
       const wrapper = mountComponent(tenImages)
       const buttons = wrapper.findAllComponents(ButtonStub)
@@ -233,6 +237,10 @@ describe('VariantImageManager', () => {
         url: `/img/${i}.jpg`,
         fileName: `photo${i}.jpg`,
         type: 'gallery' as const,
+        position: i + 1,
+        contentType: 'image/jpeg',
+        fileSize: 1024,
+        createdAt: '2026-01-01',
       }))
       const wrapper = mountComponent(nineImages)
 
