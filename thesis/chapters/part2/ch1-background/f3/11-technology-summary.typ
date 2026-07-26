@@ -20,5 +20,3 @@ The preceding sections introduced the principal technologies that compose the Re
     kind: table,
   caption: [Technology stack of the ReSys.Shop platform],
 ) <tbl-tech-stack>
-
-Together these technologies form a polyglot stack spanning three languages (C\#, TypeScript, Python) orchestrated through a unified containerised environment. The .NET backend hosts transactional e-commerce logic; Vue 3 delivers the customer-facing interface; PostgreSQL serves as the single source of truth for both business data and embeddings; and the Python sidecar provides the bridge to GPU-accelerated model inference. A dedicated benchmarking framework, separate from the application codebase, provides the systematic evaluation infrastructure that produces the experimental results in Chapter 3.
