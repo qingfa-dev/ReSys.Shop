@@ -1,30 +1,39 @@
-=== pgvector: PostgreSQL with Vector Search
+=== pgvector: Vector Search in PostgreSQL
 
-pgvector is an open-source PostgreSQL extension that implements vector storage and similarity search within the standard relational database. This project uses pgvector 0.8+.
+pgvector is an open-source extension that adds vector operations to PostgreSQL @pgvector2023. It allows storing vectors alongside regular product data (names, prices, images) in the same database, using standard SQL.
 
-- *Transactional consistency.* Vectors and product metadata live in the same database. A product update and its embedding update occur within a single ACID transaction, eliminating the dual-database problem where a separate vector store drifts out of sync with the relational source of truth.
-- *Combined SQL queries.* Vector similarity and relational filtering combine in a single query plan: find products visually similar to a query image, restricted to a specific category and price range, using a single SQL statement.
-- *Index support.* pgvector 0.8+ supports both IVFFlat (Inverted File with Flat Compression) and HNSW (Hierarchical Navigable Small World). This project uses each index type for a distinct purpose.
+Key features of pgvector:
 
-*Index assignment in this project.* The benchmark evaluation (Chapter 3) uses IVFFlat with 100 lists at the 5,000-vector catalogue scale. The production architecture designates HNSW as the long-term index target. The project migration strategy progresses through three phases:
+- *Vector column type.* `VECTOR(512)` stores 512-dimensional embeddings. The extension accommodates the different embedding dimensions produced by different models.
+- *Similarity operators.* The `<=>` operator computes cosine distance (values in the range [0, 2], where 0 means identical and 2 means maximally dissimilar). The `<->` operator computes Euclidean distance.
+- *Index support.* Both HNSW and IVFFlat indexing are supported for fast approximate search.
 
-1. *Exact search* (current state). At the current catalogue scale, the pgvector `<=>` operator without an index provides adequate query latency.
-2. *IVFFlat* (intermediate scale). As the catalogue grows beyond 10,000 items, IVFFlat with tuned `lists` and `probes` provides approximate search with minimal build overhead.
-3. *HNSW* (production scale). At millions of catalogue items, HNSW's superior recall-speed trade-off and sustained sub-100 ms latency become decisive.
+==== Why pgvector Over a Separate Vector Database
 
-- *Variable-length vectors.* pgvector accommodates the different embedding dimensions produced by different models: 384 (DINOv2-S), 512 (Fashion-CLIP), 768 (DINOv2-B), 1280 (EfficientNet-B0), and 2048 (ResNet-50).
-- *Distance metric.* Cosine distance, using the `<=>` operator. Cosine is bounded in $[0, 2]$ and produces interpretable similarity thresholds for fashion retrieval.
+The critical advantage of pgvector is *transactional consistency*. Vectors and product metadata live in the same database. A product update and its embedding update occur within a single ACID transaction. If an admin changes a product image, the new embedding is committed atomically with the catalog update. This eliminates the dual-database problem: a separate vector store that can drift out of sync with the relational source of truth.
 
-#figure(
-  table(
-    columns: (auto, 2fr, 2fr, 3fr),
-    align: (start, start, start, start),
-    table.header([*Property*], [*Benchmark Value*], [*Production Target*], [*Rationale*]),
-    [Extension], [pgvector 0.8+], [pgvector 0.8+], [Open-source, zero additional infrastructure],
-    [Index type], [IVFFlat (100 lists)], [HNSW], [IVFFlat for fast build and simple tuning during evaluation; HNSW for optimal recall at scale],
-    [Distance metric], [Cosine], [Cosine], [Bounded range, interpretable thresholds for fashion similarity],
-    [Model metadata], [model_name, model_version columns], [model_name, model_version columns], [Enables per-model filtering and A/B testing],
-  ),
-    kind: table,
-  caption: [pgvector configuration: benchmark evaluation and production target],
-) <tbl-pgvector-config>
+Combined queries present a second advantage. Vector similarity and relational filtering can be combined in a single SQL statement: find products visually similar to a query image, restricted to a specific category and within a price range, using one query plan. With separate databases, this requires querying the vector store, collecting result IDs, and querying the relational store in a second pass.
+
+==== Example Usage
+
+A simplified example of how vectors are stored and searched:
+
+```sql
+CREATE TABLE products (
+    id SERIAL PRIMARY KEY,
+    name TEXT,
+    price DECIMAL,
+    image_embedding VECTOR(512)
+);
+
+CREATE INDEX ON products
+USING hnsw (image_embedding vector_cosine_ops);
+
+SELECT id, name, price,
+       1 - (image_embedding <=> query_vector) AS similarity
+FROM products
+ORDER BY image_embedding <=> query_vector
+LIMIT 10;
+```
+
+The HNSW index enables the `ORDER BY ... <=>` clause to execute in logarithmic time rather than scanning the entire table.
