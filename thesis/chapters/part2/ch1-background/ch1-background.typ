@@ -1,6 +1,6 @@
 = Background and Related Work
 
-This chapter surveys six domains: *Fashion E-commerce* establishes the market context; *Content-Based Image Retrieval* covers embeddings and similarity search; *Machine Learning Models* surveys CNN, ViT, and CLIP-based architectures; *Vector Databases* examines HNSW indexing and pgvector; *Software Engineering Technologies* describes the platform's architectural patterns and technology stack; *Related Work and Research Gap* positions this thesis within academic research and commercial systems.
+This chapter surveys six domains. *Fashion E-commerce* establishes the market context and problem domain. *Content-Based Image Retrieval* introduces embeddings, cosine similarity, and the CBIR pipeline. *Machine Learning Models* covers CNN, ViT, and CLIP-based architectures including Fashion-CLIP. *Vector Databases* examines ANN search, HNSW indexing, and pgvector integration. *Software Engineering Technologies* describes architectural patterns (monolith, microservices, modular monolith) and the platform's technology stack: .NET backend, Vue.js frontend, PostgreSQL with pgvector, Redis caching, Python ML sidecar, Aspire orchestration, background jobs, identity and authentication, and the benchmark framework. *Related Work and Research Gap* positions this thesis within academic research and commercial visual search systems.
 
 #include "f1-fashion-ecommerce.typ"
 #include "f2-cbir.typ"
