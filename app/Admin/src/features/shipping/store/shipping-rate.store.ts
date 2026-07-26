@@ -1,8 +1,8 @@
 import { ref, readonly, watch } from 'vue'
 import { defineStore } from 'pinia'
 import { defaultListQuery } from '@/shared/models'
-import type { ListQuery } from '@/shared/models'
-import type { ShippingRateResponse } from '../types'
+import type { ListQuery, Result } from '@/shared/models'
+import type { ShippingRateResponse, CreateShippingRateRequest, UpdateShippingRateRequest } from '../types'
 import { ShippingRateApi } from '../api'
 import type { FilterGroup, SortDirection, FilterCondition, FilterOperator } from '@/shared/models/querying'
 import type { FilterConfig } from '@/shared/components/layout/FilterPanel.vue'
@@ -100,6 +100,78 @@ export const useShippingRateStore = defineStore('shipping-rate', () => {
     return fetchMany()
   }
 
+  async function getById(id: string): Promise<Result<ShippingRateResponse>> {
+    loading.value = true
+    error.value = null
+    try {
+      const result = await ShippingRateApi.get(id)
+      if (!result.isSuccess) {
+        error.value = result.message ?? 'Failed to load'
+      }
+      return result
+    } catch (err) {
+      console.error(err)
+      error.value = 'Failed to load'
+      return { isSuccess: false, statusCode: 0, errors: [], message: 'Failed to load', metadata: null, value: null as unknown as ShippingRateResponse }
+    } finally {
+      loading.value = false
+    }
+  }
+
+  async function create(data: CreateShippingRateRequest): Promise<Result<ShippingRateResponse>> {
+    loading.value = true
+    error.value = null
+    try {
+      const result = await ShippingRateApi.create(data)
+      if (!result.isSuccess) {
+        error.value = result.message ?? 'Failed to create'
+      }
+      return result
+    } catch (err) {
+      console.error(err)
+      error.value = 'Failed to create'
+      return { isSuccess: false, statusCode: 0, errors: [], message: 'Failed to create', metadata: null, value: null as unknown as ShippingRateResponse }
+    } finally {
+      loading.value = false
+    }
+  }
+
+  async function update(id: string, data: UpdateShippingRateRequest): Promise<Result<ShippingRateResponse>> {
+    loading.value = true
+    error.value = null
+    try {
+      const result = await ShippingRateApi.update(id, data)
+      if (!result.isSuccess) {
+        error.value = result.message ?? 'Failed to update'
+      }
+      return result
+    } catch (err) {
+      console.error(err)
+      error.value = 'Failed to update'
+      return { isSuccess: false, statusCode: 0, errors: [], message: 'Failed to update', metadata: null, value: null as unknown as ShippingRateResponse }
+    } finally {
+      loading.value = false
+    }
+  }
+
+  async function deleteRate(id: string): Promise<Result<void>> {
+    loading.value = true
+    error.value = null
+    try {
+      const result = await ShippingRateApi.delete(id)
+      if (!result.isSuccess) {
+        error.value = result.message ?? 'Failed to delete'
+      }
+      return result
+    } catch (err) {
+      console.error(err)
+      error.value = 'Failed to delete'
+      return { isSuccess: false, statusCode: 0, errors: [], message: 'Failed to delete', metadata: null, value: null as unknown as void }
+    } finally {
+      loading.value = false
+    }
+  }
+
   return {
     items: readonly(items), loading: readonly(loading),
     error: readonly(error), totalRecords: readonly(totalRecords),
@@ -107,5 +179,6 @@ export const useShippingRateStore = defineStore('shipping-rate', () => {
     searchQuery: readonly(searchQuery),
     activeFilters: readonly(activeFilters),
     fetchMany, setPage, setSort, setFilters, setFilter, setSearchQuery, setSearch, resetQuery,
+    getById, create, update, delete: deleteRate,
   }
 })
