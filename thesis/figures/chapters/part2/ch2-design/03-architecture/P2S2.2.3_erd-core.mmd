@@ -1,0 +1,335 @@
+%%{init: {'theme': 'neutral', 'themeVariables': {'fontSize': '72px'}}}%%
+erDiagram
+  Product {
+    uuid id PK
+    string slug UK
+    string name
+    string status
+    string style_code
+    string season_name
+    string department
+    string gender_target
+    uuid master_variant_id FK
+    bool is_deleted
+    datetime created_at_utc
+    datetime modified_at_utc
+  }
+
+  Variant {
+    uuid id PK
+    uuid product_id FK
+    bool is_master
+    string sku UK
+    string barcode
+    decimal price
+    decimal cost_price
+    bool track_inventory
+    decimal weight
+    decimal height
+    decimal width
+    decimal depth
+    bool is_deleted
+  }
+
+  VariantImage {
+    uuid id PK
+    uuid variant_id FK
+    string file_path
+    string alt_text
+    int position
+    string embedding
+    string model_name
+  }
+
+  OptionType {
+    uuid id PK
+    string name
+    string presentation
+    int position
+  }
+
+  OptionValue {
+    uuid id PK
+    uuid option_type_id FK
+    string name
+    string presentation
+    int position
+  }
+
+  ProductOptionType {
+    uuid product_id PK
+    uuid option_type_id
+  }
+
+  Taxonomy {
+    uuid id PK
+    string slug UK
+    string name
+    int position
+  }
+
+  Taxon {
+    uuid id PK
+    uuid taxonomy_id FK
+    uuid parent_id FK
+    string name
+    string slug
+    int position
+  }
+
+  Classification {
+    uuid product_id PK
+    uuid taxon_id
+  }
+
+  Product ||--o{ Variant : ""
+  Variant ||--o{ VariantImage : ""
+  Product ||--o{ ProductOptionType : ""
+  OptionType ||--o{ OptionValue : ""
+  ProductOptionType }o--|| OptionType : ""
+  Taxonomy ||--o{ Taxon : ""
+  Taxon ||--o{ Taxon : parent
+  Product ||--o{ Classification : ""
+  Taxon ||--o{ Classification : ""
+
+  Order {
+    uuid id PK
+    string number UK
+    string session_id
+    uuid user_id
+    string status
+    string checkout_state
+    string currency
+    decimal item_total
+    decimal adjustment_total
+    decimal shipment_total
+    decimal total
+    decimal payment_total
+    string payment_state
+    string shipment_state
+    bool is_deleted
+    datetime created_at_utc
+    datetime modified_at_utc
+  }
+
+  LineItem {
+    uuid id PK
+    uuid order_id FK
+    uuid variant_id FK
+    int quantity
+    decimal price
+    decimal total
+  }
+
+  Adjustment {
+    uuid id PK
+    uuid order_id FK
+    decimal amount
+    string label
+    string adjustment_type
+  }
+
+  Shipment {
+    uuid id PK
+    uuid order_id FK
+    uuid shipping_method_id
+    string tracking_number
+    string state
+    decimal cost
+  }
+
+  OrderHistory {
+    uuid id PK
+    uuid order_id FK
+    string state_from
+    string state_to
+    datetime timestamp
+  }
+
+  Order ||--o{ LineItem : ""
+  Order ||--o{ Adjustment : ""
+  Order ||--o{ Shipment : ""
+  Order ||--o{ OrderHistory : ""
+
+  PaymentIntent {
+    uuid id PK
+    uuid order_id
+    decimal amount
+    string currency
+    string state
+    string stripe_intent_id
+  }
+
+  PaymentCapture {
+    uuid id PK
+    uuid payment_intent_id FK
+    decimal amount
+    string state
+    string stripe_charge_id
+  }
+
+  PaymentLog {
+    uuid id PK
+    uuid payment_intent_id FK
+    string event
+    string payload
+    datetime timestamp
+  }
+
+  PaymentIntent ||--o{ PaymentCapture : ""
+  PaymentIntent ||--o{ PaymentLog : ""
+
+  StockLocation {
+    uuid id PK
+    string code UK
+    string name
+    bool is_active
+  }
+
+  StockItem {
+    uuid id PK
+    uuid variant_id FK
+    uuid stock_location_id FK
+    int quantity_on_hand
+    int quantity_reserved
+  }
+
+  StockMovement {
+    uuid id PK
+    uuid stock_item_id FK
+    int quantity
+    int delta
+    int balance_before
+    int balance_after
+    string reason
+    string external_ref
+    uuid operator_id
+    decimal unit_cost
+    datetime timestamp
+  }
+
+  StockReservation {
+    uuid id PK
+    uuid stock_item_id FK
+    uuid order_id FK
+    int quantity
+    datetime expires_at
+  }
+
+  StockLocation ||--o{ StockItem : ""
+  StockItem ||--o{ StockMovement : ""
+  StockItem ||--o{ StockReservation : ""
+
+  User {
+    uuid id PK
+    string email UK
+    string password_hash
+    string security_stamp
+    string e164_phone_number
+    bool is_deleted
+    datetime created_at_utc
+    datetime modified_at_utc
+  }
+
+  Role {
+    uuid id PK
+    string name UK
+    string normalized_name
+  }
+
+  UserRole {
+    uuid user_id PK
+    uuid role_id
+  }
+
+  RefreshToken {
+    uuid id PK
+    uuid user_id FK
+    string token_hash
+    datetime expires_at
+    bool is_revoked
+  }
+
+  UserLogin {
+    uuid user_id PK
+    string login_provider
+    string provider_key
+  }
+
+  User ||--o{ UserRole : ""
+  Role ||--o{ UserRole : ""
+  User ||--o{ RefreshToken : ""
+  User ||--o{ UserLogin : ""
+
+  UserAddress {
+    uuid id PK
+    uuid user_id
+    string address_type
+    string line1
+    string line2
+    string city
+    uuid state_id FK
+    uuid country_id FK
+    string postal_code
+    bool is_default
+  }
+
+  Wishlist {
+    uuid id PK
+    uuid user_id
+    uuid variant_id FK
+    datetime added_at
+  }
+
+  NotificationPref {
+    uuid id PK
+    uuid user_id
+    string channel
+    bool is_enabled
+  }
+
+  ShippingMethod {
+    uuid id PK
+    string name
+    string code
+    bool is_active
+  }
+
+  ShippingRate {
+    uuid id PK
+    uuid shipping_method_id FK
+    uuid zone_id FK
+    decimal price
+    decimal weight_from
+    decimal weight_to
+  }
+
+  ShippingZone {
+    uuid id PK
+    string name
+    string countries
+  }
+
+  ShippingMethod ||--o{ ShippingRate : ""
+  ShippingZone ||--o{ ShippingRate : ""
+
+  Country {
+    uuid id PK
+    string iso_code2 UK
+    string iso_code3
+    string name
+    bool is_active
+  }
+
+  State {
+    uuid id PK
+    uuid country_id FK
+    string name
+    string code
+  }
+
+  Country ||--o{ State : ""
+
+  Variant |o--o{ LineItem : ""
+  Order |o--o{ PaymentIntent : ""
+  StockItem |o--o{ StockReservation : ""

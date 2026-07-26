@@ -30,7 +30,7 @@
       #v(1fr)
 
       // University Logo
-      #image("../images/logo/CTU_logo.png", width: 3.5cm)
+      #image("../figures/logo/CTU_logo.png", width: 3.5cm)
 
       #v(1fr)
 

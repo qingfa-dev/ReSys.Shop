@@ -19,7 +19,7 @@ During training, CLIP processed 400 million image-text pairs from the public web
 CLIP has two separate towers:
 
 #figure(
-  image("../../../../figures/chapters/part2/ch1-background/f4-ml-models/ml-03-fashion-clip.png", width: 80%),
+  image("../../../../figures/chapters/part2/ch1-background/f4-ml-models/P2S2.1.4_fashion-clip.png", width: 80%),
   caption: [CLIP's dual-tower architecture: images and text are converted to vectors in the same space, allowing direct comparison],
 ) <fig-fashion-clip-arch>
 
@@ -51,7 +51,7 @@ This specialization helps Fashion-CLIP understand:
 Fashion-CLIP inherits the ViT-B/16 architecture, producing 512-dimensional embeddings. The original paper reports a 15-to-20% improvement on fashion retrieval over general CLIP, a result confirmed in the benchmark evaluation presented in Chapter 3.
 
 #figure(
-  image("../../../../figures/chapters/part2/ch1-background/f4-ml-models/ml-04-clip-vit-b16.png", width: 70%),
+  image("../../../../figures/chapters/part2/ch1-background/f4-ml-models/P2S2.1.4_clip-vit-b16.png", width: 70%),
   caption: [CLIP ViT-B/16 generates 512-dimensional embeddings for image-to-image and text-to-image similarity search],
 ) <fig-clip-vit-arch>
 

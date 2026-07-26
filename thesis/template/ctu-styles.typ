@@ -95,22 +95,31 @@
     v(0.3cm)
     set text(size: 12pt)
     set par(leading: 0.15cm) // Single spacing for captions
-    [#term(lang, "figure") #it.counter.display(it.numbering). #it.caption]
+    [#it.caption]
     v(0.6cm)
   }
   
-  // Tables (CTU Format: Single line spacing, caption above)
+  // Tables: caption above with Typst-managed numbering
   show figure.where(kind: table): it => {
     set align(center)
-    v(0.6cm)
+    set block(breakable: true)
+
     set text(size: 12pt)
-    set par(leading: 0.15cm) // Single spacing for captions
-    [#term(lang, "table") #it.counter.display(it.numbering). #it.caption]
-    v(0.3cm)
+    set par(leading: 0.15cm)
+
+    v(0.2cm)
+    
+    // Caption
+    it.caption
+
+    v(0.2cm)
+
+    // Table
     it.body
+
     v(0.6cm)
   }
-  
+    
   // Code blocks
   show raw.where(block: true): it => {
     set text(size: 10pt, font: "Courier New")

@@ -1,0 +1,28 @@
+@startwbs
+<style>
+wbsDiagram {
+  BackgroundColor transparent;
+  FontSize 18;
+}
+</style>
+
+* ReSys.Shop E-commerce Platform
+** Administration
+*** Catalog Management
+*** Order Management
+*** Payment Management
+*** Inventory Management
+*** Identity Management
+*** Shipping Management
+*** Location Management
+** Storefront
+*** Product Discovery
+*** Purchase Flow
+*** Account Management
+** Background Services
+*** Embedding Generation
+*** Cart Expiry
+*** Inventory Reservation
+*** Payment Webhook Processing
+*** Index Optimisation
+@endwbs

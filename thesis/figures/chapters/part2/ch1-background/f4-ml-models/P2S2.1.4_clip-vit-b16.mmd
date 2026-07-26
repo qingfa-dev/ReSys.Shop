@@ -1,0 +1,25 @@
+%%{init: {'theme': 'base', 'themeVariables': { 'fontSize': '26px', 'fontFamily': 'arial', 'primaryColor': '#ffffff', 'edgeLabelBackground':'#ffffff', 'tertiaryColor': '#ffffff', 'primaryBorderColor': '#333333', 'lineColor': '#555555' }}}%%
+flowchart TB
+    classDef mainNode fill:#fff,stroke:#333,stroke-width:3px
+    classDef backboneNode fill:#fafafa,stroke:#555,stroke-width:2px
+    classDef trainNode fill:#fff,stroke:#777,stroke-width:2px,stroke-dasharray: 4 2
+    classDef outputNode fill:#fafafa,stroke:#333,stroke-width:3px
+
+    A["Input Image"]:::mainNode --> B["Patch Embedding + CLS Token<br/>14x14 patches, 196 total"]:::backboneNode
+
+    subgraph Enc["Transformer Encoder (12 layers, 12 heads)"]
+        direction LR
+        E1["Multi-Head<br/>Self-Attention"]:::backboneNode --> E2["Feed-Forward<br/>MLP"]:::backboneNode
+    end
+
+    B --> E1
+    E2 --> C["Extract CLS Token<br/>Feature Vector 512-dim"]:::outputNode
+
+    subgraph PT["General-Purpose Pretraining"]
+        direction LR
+        F["400M Image-Text Pairs"]:::trainNode --> G["Broad Semantic<br/>Understanding"]:::trainNode
+    end
+
+    PT -.trains.-> E1
+
+    C --> D["Similarity Search<br/>Stylistically Similar Recommendations"]:::outputNode

@@ -1,5 +1,5 @@
-#include "part2/ch2-background.typ"
-#include "part2/ch3-requirements.typ"
-#include "part2/ch4-architecture.typ"
-#include "part2/ch5-implementation.typ"
-#include "part2/ch6-evaluation.typ"
+#include "part2/ch1-background/ch1-background.typ"
+#pagebreak()
+#include "part2/ch2-design/ch2-design.typ"
+#pagebreak()
+#include "part2/ch3-evaluation/ch3-evaluation.typ"

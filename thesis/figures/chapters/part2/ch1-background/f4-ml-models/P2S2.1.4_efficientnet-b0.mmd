@@ -1,0 +1,24 @@
+%%{init: {'theme': 'base', 'themeVariables': { 'fontSize': '26px', 'fontFamily': 'arial', 'primaryColor': '#ffffff', 'edgeLabelBackground':'#ffffff', 'tertiaryColor': '#ffffff', 'primaryBorderColor': '#333333', 'lineColor': '#555555' }}}%%
+flowchart TB
+    classDef mainNode fill:#fff,stroke:#333,stroke-width:3px
+    classDef convNode fill:#fafafa,stroke:#555,stroke-width:2px
+    classDef blockNode fill:#f8f8f8,stroke:#555,stroke-width:2px
+    classDef scaleNode fill:#fff,stroke:#777,stroke-width:2px,stroke-dasharray: 4 2
+    classDef outputNode fill:#fafafa,stroke:#333,stroke-width:3px
+
+    A["Input Image 224 x 224 x 3"]:::mainNode --> B["Stem Conv 3x3"]:::convNode
+
+    subgraph MB["MBConv Blocks (x7 stages)"]
+        direction LR
+        C1["Expand + DWConv + SE"]:::blockNode --> C2["... repeated per stage"]:::blockNode
+    end
+
+    B --> C1
+    C2 --> D["Conv 1x1 + Global Pool + Feature 1280-dim"]:::outputNode
+
+    subgraph CS["Compound Scaling"]
+        direction TB
+        S1["Depth: more layers"]:::scaleNode --> S2["Width: more channels"]:::scaleNode --> S3["Resolution: larger input"]:::scaleNode
+    end
+
+    CS -.balances.-> MB

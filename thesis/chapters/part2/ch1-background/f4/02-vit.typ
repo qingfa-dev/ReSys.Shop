@@ -16,7 +16,7 @@ In 2020, researchers showed this approach could also work for images @dosovitski
 )
 
 #figure(
-  image("../../../../figures/chapters/part2/ch1-background/f4-ml-models/ml-02-dinov2.png", width: 86%),
+  image("../../../../figures/chapters/part2/ch1-background/f4-ml-models/P2S2.1.4_dinov2.png", width: 86%),
   caption: [Vision Transformer converts an image into patches and uses self-attention to understand relationships between them],
 ) <fig-dinov2-arch>
 
