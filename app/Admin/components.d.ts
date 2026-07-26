@@ -16,8 +16,10 @@ declare module 'vue' {
     Checkbox: typeof import('primevue/checkbox')['default']
     InputText: typeof import('primevue/inputtext')['default']
     Password: typeof import('primevue/password')['default']
+    Popover: typeof import('primevue/popover')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
+    Steps: typeof import('primevue/steps')['default']
   }
 }
 
@@ -27,6 +29,8 @@ declare global {
   const Checkbox: typeof import('primevue/checkbox')['default']
   const InputText: typeof import('primevue/inputtext')['default']
   const Password: typeof import('primevue/password')['default']
+  const Popover: typeof import('primevue/popover')['default']
   const RouterLink: typeof import('vue-router')['RouterLink']
   const RouterView: typeof import('vue-router')['RouterView']
+  const Steps: typeof import('primevue/steps')['default']
 }
