@@ -1,6 +1,6 @@
 === Vue.js Frontend
 
-The frontend uses Vue 3 with TypeScript and the Vite build tool. Two surfaces share a common component library and state management:
+The frontend uses Vue 3 with TypeScript and the Vite build tool @vuejs2024. Two surfaces share a common component library and state management:
 
 - *Storefront.* Product catalog browsing with category trees, faceted filters (price, size, colour), and paginated result grids. Visual search with image upload, similarity-ranked results displaying thumbnail, price, and similarity score. Cart management with session-based guest support and a multi-step checkout flow spanning address entry, delivery selection, payment confirmation, and order completion.
 

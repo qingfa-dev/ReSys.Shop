@@ -1,6 +1,6 @@
 === Redis Caching
 
-Redis 7 operates alongside the .NET *HybridCache* abstraction in a two-tier arrangement.
+Redis 7 operates alongside the .NET *HybridCache* abstraction in a two-tier arrangement @redis-docs.
 
 - *L1: in-process.* Frequently accessed data (taxonomy trees, front-page product lists) is held in application memory with sub-millisecond read latency. Cache entries expire on a configurable sliding window, typically five minutes.
 

@@ -26,7 +26,7 @@ Early layers might detect the edge of a sleeve, middle layers recognise a stripe
 Deeper networks capture richer features but suffer from *vanishing gradients*: training signals decay as they propagate backward through many layers. ResNet (Residual Network) solves this with *skip connections*: identity paths that bypass convolutional blocks and add the block input directly to its output @he2016deep. This identity path lets gradients flow unimpeded, enabling networks of 50, 101, or 152 layers to train effectively.
 
 #figure(
-  image("../../../../figures/chapters/part2/ch1-background/f4-ml-models/P2S2.1.4_cnn-resnet.png", width: 90%),
+  image("../../../../figures/chapters/part2/ch1-background/f4-ml-models/P2S2.1.4_cnn-resnet.png", width: 80%),
   caption: [ResNet architecture with residual skip connections enabling gradient flow across very deep networks],
 ) <fig-resnet-arch>
 
@@ -37,7 +37,7 @@ ResNet-50, with 25.6 million parameters and 2,048-dimensional embeddings, remain
 Traditional scaling strategies enlarge a network along a single dimension: depth (more layers), width (more channels), or resolution (larger inputs). EfficientNet introduces *compound scaling*, which balances all three dimensions simultaneously using a learned coefficient @tan2019efficientnet. This produces a family of models (B0 through B7) that achieve competitive accuracy with far fewer parameters than conventional scaling.
 
 #figure(
-  image("../../../../figures/chapters/part2/ch1-background/f4-ml-models/P2S2.1.4_efficientnet-b0.png", width: 80%),
+  image("../../../../figures/chapters/part2/ch1-background/f4-ml-models/P2S2.1.4_efficientnet-b0.png", height: 55%),
   caption: [EfficientNet-B0 architecture showing the flow from input image to feature vector],
 ) <fig-efficientnet-arch>
 
