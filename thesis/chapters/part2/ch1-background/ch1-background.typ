@@ -1,11 +1,6 @@
 = Background and Related Work
 
-- *Fashion E-commerce*: market context and problem domain.
-- *Content-Based Image Retrieval*: embeddings, cosine similarity, CBIR pipeline.
-- *Machine Learning Models*: CNN, ViT, CLIP, and Fashion-CLIP architectures.
-- *Vector Databases*: ANN search, HNSW indexing, pgvector.
-- *Software Engineering Technologies*: architectural patterns and platform technology stack (.NET, Vue, PostgreSQL, Redis, Python ML sidecar, Aspire, background jobs, authentication, benchmark framework).
-- *Related Work and Research Gap*: academic and commercial visual search systems.
+This chapter surveys six domains that underpin the system. Fashion e-commerce and content-based image retrieval establish the problem context and the core search paradigm. Machine learning models (CNN, ViT, CLIP, Fashion-CLIP) and vector database technologies (ANN, HNSW, pgvector) provide the computational foundations for embedding generation and similarity search. Software engineering technologies and related work situate the architectural choices and position this work within academic and commercial visual search systems.
 
 #include "f1-fashion-ecommerce.typ"
 #include "f2-cbir.typ"
