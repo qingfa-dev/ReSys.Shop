@@ -13,33 +13,32 @@
     [*Use Case Name*], [Generate Image Embeddings],
     [*Primary Actor*], [System],
     [*Supporting Actors*], [ML Service],
-    [*Goal*], [Process an uploaded product image asynchronously to produce a visual embedding for similarity search.],
-    [*Trigger*], [An image has been uploaded for a product variant and is awaiting processing.],
+    [*Goal*], [Process an uploaded product image asynchronously to produce a visual embedding.],
+    [*Trigger*], [An image has been uploaded and is awaiting processing.],
     [*Preconditions*], [
-      - An image has been uploaded and stored.
-      - The ML service is operational.
+      - Image uploaded and stored.
+      - ML service is operational.
     ],
     [*Postconditions*], [
-      - The image has an associated embedding vector stored in the index.
-      - The embedding is available for visual search and similar product retrieval.
+      - Image has an embedding stored in the index for visual search.
     ],
     [*Main Success Scenario*], [
-      1. System -- Detects a new unprocessed image in the processing queue.
-      2. System -- Retrieves the image file from storage.
-      3. System -- Preprocesses the image (resize, normalise) to match the model's input requirements.
-      4. System -- Sends the preprocessed image to the ML service with the configured model identifier.
-      5. ML Service -- Computes the visual embedding vector for the image.
-      6. ML Service -- Returns the embedding vector with model metadata (name, version, dimension).
-      7. System -- Stores the embedding vector in the image embeddings index with the image reference and model metadata.
-      8. System -- Marks the image as processed.
+      1. System detects a new unprocessed image in the queue.
+      2. System retrieves the image file from storage.
+      3. System preprocesses the image (resize, normalise) for model requirements.
+      4. System sends preprocessed image to ML service with configured model identifier.
+      5. ML Service computes the visual embedding vector.
+      6. ML Service returns the embedding with model metadata (name, version, dimension).
+      7. System stores embedding in the index with image reference and metadata.
+      8. System marks the image as processed.
     ],
     [*Alternative Flows*], [
-      A1. Image file is not accessible (deleted or corrupted) -- System marks the image as failed and records the failure reason; the administrator can re-upload the image.
-      A2. Multiple images are queued simultaneously -- System processes them sequentially, throttling requests to respect the ML service's capacity.
+      A1. Image not accessible (deleted/corrupted): system marks as failed and records reason.
+      A2. Multiple images queued: system processes sequentially, throttling to ML service capacity.
     ],
     [*Exception Flows*], [
-      E1. ML service returns an error -- System retries with exponential backoff up to a configured maximum; after all retries, the image is marked as failed.
-      E2. ML service is unreachable -- System queues the image for retry and triggers an alert for the operations team.
+      E1. ML service returns error: system retries with exponential backoff; after max retries marks as failed.
+      E2. ML service unreachable: system requeues image and triggers alert.
     ],
     [*Related Requirements*], [CAT-FR-05],
   ),
@@ -57,34 +56,33 @@
     [*Use Case Name*], [Regenerate All Embeddings],
     [*Primary Actor*], [System],
     [*Supporting Actors*], [ML Service],
-    [*Goal*], [Regenerate embeddings for all existing product images when the embedding model configuration changes.],
-    [*Trigger*], [The embedding model configuration has been changed (e.g. model identifier or version updated).],
+    [*Goal*], [Regenerate embeddings for all product images when the model configuration changes.],
+    [*Trigger*], [Embedding model configuration has changed.],
     [*Preconditions*], [
-      - The embedding model configuration has changed.
-      - The new model is available and operational on the ML service.
+      - Embedding model configuration has changed.
+      - New model is available on ML service.
     ],
     [*Postconditions*], [
-      - All product images have embeddings consistent with the active model.
-      - Search results reflect the current model configuration.
+      - All embeddings consistent with active model. Search results reflect current configuration.
     ],
     [*Main Success Scenario*], [
-      1. System -- Detects a change to the embedding model configuration.
-      2. System -- Validates that the new model is available on the ML service by requesting a health check.
-      3. System -- Retrieves the list of all product images that require regeneration.
-      4. System -- For each image, sends it to the ML service using the new model.
-      5. ML Service -- Computes the new embedding and returns it.
-      6. System -- Stores the new embedding, replacing the previous one for that image.
-      7. System -- Updates the model metadata on each embedding record.
-      8. System -- Reports completion with a summary of success and failure counts.
+      1. System detects change to embedding model configuration.
+      2. System validates new model is available via ML service health check.
+      3. System retrieves list of all product images requiring regeneration.
+      4. System sends each image to ML service using the new model.
+      5. ML Service computes new embedding and returns it.
+      6. System stores new embedding, replacing previous.
+      7. System updates model metadata on each embedding record.
+      8. System reports completion with success/failure count summary.
     ],
     [*Alternative Flows*], [
-      A1. Regeneration is triggered during peak traffic -- System throttles processing to avoid impacting search query performance.
-      A2. Some images have missing or corrupted files -- System skips those images and records the failure; processing continues for remaining images.
-      A3. Regeneration is triggered but no model change is detected -- System logs the event and skips processing.
+      A1. Triggered during peak traffic: system throttles to avoid impacting search performance.
+      A2. Missing or corrupted files: system skips and continues; reports failures.
+      A3. No model change detected: system logs event and skips processing.
     ],
     [*Exception Flows*], [
-      E1. New model is not available on the ML service -- System aborts regeneration and reports the failure; existing embeddings remain in use.
-      E2. Partial failure during batch regeneration -- System continues processing remaining images; a final report lists all failures with reasons.
+      E1. New model not available: system aborts regeneration; existing embeddings remain in use.
+      E2. Partial failure during batch: system continues; final report lists failures with reasons.
     ],
     [*Related Requirements*], [CAT-FR-15],
   ),
@@ -112,23 +110,22 @@
       - Monitoring infrastructure is operational.
     ],
     [*Postconditions*], [
-      - Service availability monitored.
-      - Requests are routed to the ML service only when it reports healthy.
+      - Service availability monitored. Requests routed only when healthy.
     ],
     [*Main Success Scenario*], [
-      1. System -- Invokes the health check endpoint on the ML service at the configured interval.
-      2. ML Service -- Responds with its current health status: healthy, degraded, or unhealthy.
-      3. System -- Records the health status and response time.
-      4. System -- Updates the service availability flag based on the response.
-      5. System -- If the status transitions to unhealthy, routes search requests to a degraded path that returns cached results or a service-unavailable message.
+      1. System invokes health check endpoint on ML service at configured interval.
+      2. ML Service responds with current health status: healthy, degraded, or unhealthy.
+      3. System records health status and response time.
+      4. System updates service availability flag based on response.
+      5. If unhealthy, system routes search requests to degraded path (cached results or unavailable message).
     ],
     [*Alternative Flows*], [
-      A1. ML service reports degraded status -- System continues to route requests but logs a warning for the operations team.
-      A2. ML service reports healthy after a period of unavailability -- System clears the unhealthy flag and resumes normal request routing.
+      A1. Degraded status: system continues routing but logs warning for operations team.
+      A2. Healthy after unavailability: system clears unhealthy flag and resumes normal routing.
     ],
     [*Exception Flows*], [
-      E1. Health check endpoint does not respond -- System marks the service as unhealthy after the configured timeout and triggers an alert for the operations team.
-      E2. Health check response is malformed -- System treats the response as unhealthy and logs the parsing error for investigation.
+      E1. Health check endpoint does not respond: system marks unhealthy after timeout and triggers alert.
+      E2. Malformed health check response: system treats as unhealthy and logs parsing error.
     ],
     [*Related Requirements*], [CAT-FR-08],
   ),
@@ -146,30 +143,29 @@
     [*Use Case Name*], [Expire Abandoned Carts],
     [*Primary Actor*], [System],
     [*Supporting Actors*], [None],
-    [*Goal*], [On a daily schedule, identify and remove carts with no activity in the past seven days; release any reserved inventory.],
-    [*Trigger*], [The daily maintenance schedule fires.],
+    [*Goal*], [Daily: identify and remove carts with no activity in seven days; release reserved inventory.],
+    [*Trigger*], [Daily maintenance schedule fires.],
     [*Preconditions*], [
-      - The maintenance schedule is active.
+      - Maintenance schedule is active.
     ],
     [*Postconditions*], [
-      - Abandoned carts removed.
-      - Reserved inventory returned to availability.
+      - Abandoned carts removed. Reserved inventory released.
     ],
     [*Main Success Scenario*], [
-      1. System -- Executes the scheduled job at the configured time.
-      2. System -- Queries for all carts with no modification activity in the past seven days.
-      3. System -- For each abandoned cart, identifies any reserved inventory quantities.
-      4. System -- Releases the reserved inventory back to available stock.
-      5. System -- Deletes or marks the abandoned cart for cleanup.
-      6. System -- Logs the number of carts expired and inventory released.
+      1. System executes scheduled job at configured time.
+      2. System queries for carts with no modification in past seven days.
+      3. For each abandoned cart, identifies reserved inventory.
+      4. System releases reserved inventory back to availability.
+      5. System deletes or marks abandoned cart for cleanup.
+      6. System logs count of carts expired and inventory released.
     ],
     [*Alternative Flows*], [
-      A1. No carts meet the abandonment criteria -- System logs the job execution with zero expired carts and completes.
-      A2. A cart has reserved inventory but the associated stock item was deleted -- System skips the inventory release for that item and proceeds with cart expiration.
+      A1. No carts meet abandonment criteria: system logs zero expired carts and completes.
+      A2. Reserved inventory references deleted stock item: system skips release and proceeds with expiration.
     ],
     [*Exception Flows*], [
-      E1. Database is temporarily unavailable -- System records the failure and retries on the next scheduled execution.
-      E2. Partial failure during batch processing -- System continues processing remaining carts; a report lists the failures.
+      E1. Database unavailable: system records failure and retries on next execution.
+      E2. Partial failure during batch: system continues; report lists failures.
     ],
     [*Related Requirements*], [ORD-FR-03],
   ),
@@ -187,28 +183,27 @@
     [*Use Case Name*], [Release Expired Reservations],
     [*Primary Actor*], [System],
     [*Supporting Actors*], [None],
-    [*Goal*], [Periodically scan for inventory reservations held beyond the configured time window without checkout completion; expire stale holds.],
-    [*Trigger*], [The maintenance schedule fires at the configured interval.],
+    [*Goal*], [Periodically expire inventory reservations held beyond the configured time window.],
+    [*Trigger*], [Maintenance schedule fires at configured interval.],
     [*Preconditions*], [
-      - The maintenance schedule is active.
+      - Maintenance schedule is active.
     ],
     [*Postconditions*], [
-      - Stale reservations expired.
-      - Inventory accurately reflects true availability.
+      - Stale reservations expired. Inventory reflects true availability.
     ],
     [*Main Success Scenario*], [
-      1. System -- Executes the scheduled job at the configured interval.
-      2. System -- Queries for all inventory reservations with a hold time exceeding the configured expiry window (default 15 minutes).
-      3. System -- For each expired reservation, releases the reserved quantity back to available stock.
-      4. System -- Marks the reservation record as expired.
-      5. System -- Logs the number of expired reservations and quantities released.
+      1. System executes scheduled job at configured interval.
+      2. System queries for reservations with hold time exceeding configured expiry window (default 15 min).
+      3. For each expired reservation, releases reserved quantity back to available stock.
+      4. System marks reservation record as expired.
+      5. System logs count of expired reservations and quantities released.
     ],
     [*Alternative Flows*], [
-      A1. Reservation is associated with an active checkout session that is still progressing -- System retains the reservation and does not expire it (activity timestamp prevents incorrect expiry).
-      A2. No expired reservations are found -- System logs the job execution with zero expirations and completes.
+      A1. Associated with active checkout: system retains reservation (activity timestamp prevents incorrect expiry).
+      A2. No expired reservations: system logs zero expirations and completes.
     ],
     [*Exception Flows*], [
-      E1. Database is temporarily unavailable -- System records the failure and retries on the next scheduled execution.
+      E1. Database unavailable: system records failure and retries on next execution.
     ],
     [*Related Requirements*], [INV-FR-07],
   ),
@@ -226,33 +221,32 @@
     [*Use Case Name*], [Process Payment Webhooks],
     [*Primary Actor*], [System],
     [*Supporting Actors*], [Payment Gateway],
-    [*Goal*], [Receive and validate payment state-change notifications from the payment gateway; update payment and order state accordingly; detect and discard duplicates.],
-    [*Trigger*], [The payment gateway sends a webhook notification to the system's webhook endpoint.],
+    [*Goal*], [Receive payment state-change notifications; update payment and order state; discard duplicates.],
+    [*Trigger*], [Payment gateway sends a webhook notification to the system endpoint.],
     [*Preconditions*], [
-      - The webhook endpoint is reachable by the payment gateway.
+      - Webhook endpoint is reachable by the payment gateway.
     ],
     [*Postconditions*], [
-      - Payment state synchronised with the gateway.
-      - Order state transitions triggered where appropriate.
+      - Payment state synchronised with gateway. Order state transitions triggered where appropriate.
     ],
     [*Main Success Scenario*], [
-      1. Payment Gateway -- Sends a signed webhook notification to the system endpoint.
-      2. System -- Validates the cryptographic signature of the webhook payload against the configured gateway secret.
-      3. System -- Extracts the payment identifier, event type, and payload.
-      4. System -- Looks up the local payment record by the gateway payment identifier.
-      5. System -- Verifies this is not a duplicate by checking the idempotency key (event identifier).
-      6. System -- Updates the local payment state to match the gateway state.
-      7. System -- If the event type indicates a state transition that requires an order state change (e.g. payment captured, payment refunded), triggers the corresponding order state transition.
-      8. System -- Returns a success response to the gateway.
+      1. Payment Gateway sends signed webhook notification to system endpoint.
+      2. System validates cryptographic signature against configured gateway secret.
+      3. System extracts payment identifier, event type, and payload.
+      4. System looks up local payment record by gateway payment identifier.
+      5. System verifies not a duplicate by checking idempotency key (event identifier).
+      6. System updates local payment state to match gateway state.
+      7. If event requires order state change, triggers corresponding transition.
+      8. System returns success response to gateway.
     ],
     [*Alternative Flows*], [
-      A1. Duplicate webhook detected (same event identifier already processed) -- System returns a success response without making any changes; the duplicate is logged.
-      A2. Payment record not found locally -- System logs the unknown payment event and returns a success response (to acknowledge receipt); the event is queued for investigation.
-      A3. Webhook event represents an out-of-order state (e.g. refund before capture) -- System logs the anomaly and applies the state change; the current state always reflects the latest gateway truth.
+      A1. Duplicate webhook: system returns success without changes; duplicate logged.
+      A2. Payment record not found locally: system logs and returns success; event queued for investigation.
+      A3. Out-of-order event (e.g. refund before capture): system logs anomaly and applies state change.
     ],
     [*Exception Flows*], [
-      E1. Signature validation fails -- System rejects the webhook with an authentication error; the event is not processed.
-      E2. System fails to persist state changes -- System returns a failure response to the gateway, which will retry the webhook delivery.
+      E1. Signature validation fails: system rejects with authentication error.
+      E2. Persistence of state changes fails: system returns failure; gateway retries delivery.
     ],
     [*Related Requirements*], [PAY-FR-04],
   ),
@@ -270,31 +264,30 @@
     [*Use Case Name*], [Maintain Search Index],
     [*Primary Actor*], [System],
     [*Supporting Actors*], [None],
-    [*Goal*], [Periodically maintain the vector search index to sustain query performance as the embedding volume grows.],
-    [*Trigger*], [The maintenance schedule fires at the configured interval.],
+    [*Goal*], [Periodically maintain the vector search index to sustain query performance.],
+    [*Trigger*], [Maintenance schedule fires at configured interval.],
     [*Preconditions*], [
-      - The maintenance schedule is active.
-      - The search index exists.
+      - Maintenance schedule is active.
+      - Search index exists.
     ],
     [*Postconditions*], [
-      - Search index optimised.
-      - Visual search latency remains stable.
+      - Search index optimised. Visual search latency remains stable.
     ],
     [*Main Success Scenario*], [
-      1. System -- Executes the scheduled job at the configured interval.
-      2. System -- Analyses the current state of the embedding index: total vector count, index size, and recent query performance metrics.
-      3. System -- Determines whether index maintenance is likely to improve performance.
-      4. System -- Performs maintenance operations (e.g. index rebuilding, dead tuple removal, statistics update).
-      5. System -- Verifies the maintenance completed successfully.
-      6. System -- Logs the maintenance execution with before/after metrics.
+      1. System executes scheduled job at configured interval.
+      2. System analyses current embedding index state: vector count, index size, recent query performance.
+      3. System determines whether maintenance is likely to improve performance.
+      4. System performs maintenance (e.g. index rebuild, dead tuple removal, statistics update).
+      5. System verifies maintenance completed successfully.
+      6. System logs execution with before/after metrics.
     ],
     [*Alternative Flows*], [
-      A1. Index size is below the threshold where maintenance provides benefit -- System skips maintenance and logs the decision with the current metrics.
-      A2. Maintenance runs during a period of active search queries -- System performs lighter, non-blocking maintenance operations to avoid impacting concurrent queries.
+      A1. Index below maintenance threshold: system skips and logs decision with current metrics.
+      A2. Active search queries during maintenance: system performs lighter, non-blocking operations.
     ],
     [*Exception Flows*], [
-      E1. Index maintenance fails -- System logs the error and triggers an alert; existing search functionality continues using the current index state.
-      E2. Index appears corrupted -- System triggers a full index rebuild from stored embeddings.
+      E1. Index maintenance fails: system logs error and triggers alert; search continues with current index.
+      E2. Index appears corrupted: system triggers full rebuild from stored embeddings.
     ],
     [*Related Requirements*], [CAT-FR-06],
   ),

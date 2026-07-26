@@ -13,32 +13,31 @@
     [*Use Case Name*], [Manage Shipping Methods],
     [*Primary Actor*], [Administrator],
     [*Supporting Actors*], [None],
-    [*Goal*], [Create, update, activate, deactivate, or remove shipping methods; configure carrier and applicable zones per method.],
-    [*Trigger*], [Administrator navigates to the shipping method management interface.],
+    [*Goal*], [Create, update, activate, deactivate, or remove shipping methods with carrier and zone configuration.],
+    [*Trigger*], [Administrator navigates to shipping method management.],
     [*Preconditions*], [
-      - Administrator is authenticated with shipping management permissions.
+      - Authenticated with shipping management permissions.
     ],
     [*Postconditions*], [
-      - Shipping method configuration updated.
-      - Active methods available for customer selection at checkout if zone-applicable.
+      - Shipping method configuration updated. Active methods available for checkout if zone-applicable.
     ],
     [*Main Success Scenario*], [
-      1. Administrator -- Navigates to the shipping method management interface.
-      2. System -- Displays the list of configured shipping methods with activation status.
-      3. Administrator -- Creates a new shipping method with a name, description, carrier identifier, and applicable geographic zones.
-      4. Administrator -- Optionally edits, activates, deactivates, or removes existing shipping methods.
-      5. Administrator -- Saves the changes.
-      6. System -- Validates that the method name is unique.
-      7. System -- Persists the shipping method configuration.
-      8. System -- Confirms the changes.
+      1. Navigates to shipping method management.
+      2. System displays configured shipping methods with activation status.
+      3. Creates a new method with name, description, carrier identifier, and applicable zones.
+      4. Optionally edits, activates, deactivates, or removes existing methods.
+      5. Saves the changes.
+      6. System validates method name uniqueness.
+      7. System persists the configuration.
+      8. System confirms the changes.
     ],
     [*Alternative Flows*], [
-      A1. Administrator deactivates a shipping method currently the default in active checkouts -- System warns that new checkouts cannot use this method; existing selections remain unaffected.
-      A2. Administrator removes a shipping method that has active rates -- System prompts to also remove the associated rates or reassign them to another method.
-      A3. No geographic zones are assigned to a method -- System warns that the method will not be selectable at checkout because no zones match any delivery address.
+      A1. Deactivate method in active checkouts: system warns; existing selections unaffected.
+      A2. Remove method with active rates: system prompts to remove rates or reassign.
+      A3. No zones assigned: system warns method will not be selectable at checkout.
     ],
     [*Exception Flows*], [
-      E1. Concurrent modification detected -- System detects the shipping method was modified by another session, refreshes the data, and asks the administrator to retry.
+      E1. Concurrent modification: system refreshes and asks to retry.
     ],
     [*Related Requirements*], [SHP-FR-01, SHP-FR-04],
   ),
@@ -56,32 +55,32 @@
     [*Use Case Name*], [Manage Shipping Rates],
     [*Primary Actor*], [Administrator],
     [*Supporting Actors*], [None],
-    [*Goal*], [Create, update, or remove shipping rates per method; define rate tiers by weight, cart value, and geographic zone.],
-    [*Trigger*], [Administrator navigates to the shipping rate configuration interface.],
+    [*Goal*], [Create, update, or remove shipping rates per method with weight, cart value, and zone tiers.],
+    [*Trigger*], [Administrator navigates to shipping rate configuration.],
     [*Preconditions*], [
-      - Administrator is authenticated with shipping management permissions.
-      - The shipping method exists.
+      - Authenticated with shipping management permissions.
+      - Shipping method exists.
     ],
     [*Postconditions*], [
-      - Shipping rates applied during storefront checkout calculation for matching carts.
+      - Shipping rates applied during checkout calculation for matching carts.
     ],
     [*Main Success Scenario*], [
-      1. Administrator -- Selects a shipping method from the method listing.
-      2. System -- Displays the current rate tiers for the selected method.
-      3. Administrator -- Creates a new rate tier: selects applicable geographic zone, defines weight range (min-max), defines cart value range (min-max), and enters the rate amount.
-      4. Administrator -- Optionally edits or removes existing rate tiers.
-      5. Administrator -- Saves the changes.
-      6. System -- Validates that rate tier ranges do not overlap for the same zone.
-      7. System -- Persists the rate configuration.
-      8. System -- Confirms the changes.
+      1. Selects a shipping method from the method listing.
+      2. System displays current rate tiers for the method.
+      3. Creates a new rate tier: selects zone, defines weight and cart value ranges, enters rate amount.
+      4. Optionally edits or removes existing rate tiers.
+      5. Saves the changes.
+      6. System validates rate tier ranges do not overlap for the same zone.
+      7. System persists the rate configuration.
+      8. System confirms the changes.
     ],
     [*Alternative Flows*], [
-      A1. Rate tier ranges overlap with existing tiers -- System rejects and highlights the conflicting tiers.
-      A2. Administrator leaves a rate range unbounded (e.g. no maximum weight) -- System accepts and treats the tier as a catch-all for values above the minimum.
-      A3. Multiple rates exist for the same method and zone with different weight tiers -- System selects the matching tier at checkout based on cart weight.
+      A1. Ranges overlap with existing tiers: system rejects and highlights conflicting tiers.
+      A2. Unbounded range (no maximum): system treats as catch-all above minimum.
+      A3. Multiple tiers per method and zone: system selects matching tier at checkout based on cart weight.
     ],
     [*Exception Flows*], [
-      E1. Concurrent modification detected -- System detects the rate was modified by another session, refreshes the data, and asks the administrator to retry.
+      E1. Concurrent modification: system refreshes and asks to retry.
     ],
     [*Related Requirements*], [SHP-FR-05],
   ),
@@ -103,33 +102,32 @@
     [*Use Case Name*], [Manage Countries],
     [*Primary Actor*], [Administrator],
     [*Supporting Actors*], [None],
-    [*Goal*], [Create, update, or remove country records with ISO codes; set active status to control availability.],
-    [*Trigger*], [Administrator navigates to the country management interface.],
+    [*Goal*], [Create, update, or remove country records with ISO codes and active status.],
+    [*Trigger*], [Administrator navigates to country management.],
     [*Preconditions*], [
-      - Administrator is authenticated with reference data management permissions.
+      - Authenticated with reference data management permissions.
     ],
     [*Postconditions*], [
-      - Country data updated.
-      - Active countries available in address forms and shipping zone configuration.
+      - Country data updated. Active countries available in address forms and shipping zones.
     ],
     [*Main Success Scenario*], [
-      1. Administrator -- Navigates to the country management interface.
-      2. System -- Displays the list of countries with paging, showing name, ISO code, and active status.
-      3. Administrator -- Creates a new country record with display name and ISO 3166-1 code.
-      4. Administrator -- Sets the active status flag.
-      5. Administrator -- Optionally edits or removes existing country records.
-      6. Administrator -- Saves the changes.
-      7. System -- Validates that the ISO code is unique and in valid format.
-      8. System -- Persists the country data.
-      9. System -- Confirms the changes.
+      1. Navigates to country management.
+      2. System displays list of countries with name, ISO code, and active status.
+      3. Creates a new country record with display name and ISO 3166-1 code.
+      4. Sets the active status flag.
+      5. Optionally edits or removes existing country records.
+      6. Saves the changes.
+      7. System validates ISO code uniqueness and format.
+      8. System persists the country data.
+      9. System confirms the changes.
     ],
     [*Alternative Flows*], [
-      A1. Administrator deactivates a country -- System warns that addresses using this country will still be retained but the country will not appear in new address forms.
-      A2. Administrator attempts to delete a country with associated states -- System warns that associated states will be orphaned and asks for confirmation.
-      A3. Administrator attempts to delete a country referenced by active shipping zones -- System warns and suggests deactivating instead.
+      A1. Deactivate country: system warns addresses retained but country not in new forms.
+      A2. Delete country with associated states: system warns states will be orphaned.
+      A3. Delete country in shipping zones: system warns and suggests deactivating instead.
     ],
     [*Exception Flows*], [
-      E1. ISO code already exists -- System rejects and prompts the administrator to use a different code.
+      E1. ISO code already exists: system rejects and prompts for different code.
     ],
     [*Related Requirements*], [LOC-FR-01, LOC-FR-03],
   ),
@@ -147,34 +145,33 @@
     [*Use Case Name*], [Manage States],
     [*Primary Actor*], [Administrator],
     [*Supporting Actors*], [None],
-    [*Goal*], [Create, update, or remove state records with ISO codes, linked to a parent country; set active status per state.],
-    [*Trigger*], [Administrator navigates to the state management interface.],
+    [*Goal*], [Create, update, or remove state records linked to a parent country, with active status.],
+    [*Trigger*], [Administrator navigates to state management.],
     [*Preconditions*], [
-      - Administrator is authenticated with reference data management permissions.
+      - Authenticated with reference data management permissions.
       - Parent country exists.
     ],
     [*Postconditions*], [
-      - State data updated.
-      - Active states available for address validation within their parent country.
+      - State data updated. Active states available for address validation.
     ],
     [*Main Success Scenario*], [
-      1. Administrator -- Navigates to the state management interface.
-      2. System -- Displays the list of states with paging, showing name, ISO code, parent country, and active status.
-      3. Administrator -- Creates a new state record with display name, ISO 3166-2 code, and selects the parent country.
-      4. Administrator -- Sets the active status flag.
-      5. Administrator -- Optionally edits or removes existing state records.
-      6. Administrator -- Saves the changes.
-      7. System -- Validates that the ISO code is unique within the parent country.
-      8. System -- Persists the state data.
-      9. System -- Confirms the changes.
+      1. Navigates to state management.
+      2. System displays list of states with name, ISO code, parent country, and active status.
+      3. Creates a new state record with display name, ISO 3166-2 code, and selects parent country.
+      4. Sets the active status flag.
+      5. Optionally edits or removes existing state records.
+      6. Saves the changes.
+      7. System validates ISO code uniqueness within parent country.
+      8. System persists the state data.
+      9. System confirms the changes.
     ],
     [*Alternative Flows*], [
-      A1. Administrator deactivates a state -- System warns that addresses using this state will still be retained but the state will not appear in new address forms for that country.
-      A2. Administrator deactivates the parent country -- System prompts whether to cascade-deactivate all associated states.
-      A3. Administrator attempts to delete a state referenced by shipping zones -- System warns and suggests deactivating instead.
+      A1. Deactivate state: system warns addresses retained but state not in new forms.
+      A2. Deactivate parent country: system prompts whether to cascade-deactivate associated states.
+      A3. Delete state in shipping zones: system warns and suggests deactivating instead.
     ],
     [*Exception Flows*], [
-      E1. ISO code already exists for the same parent country -- System rejects and prompts the administrator to use a different code.
+      E1. ISO code already exists for parent country: system rejects and prompts for different code.
     ],
     [*Related Requirements*], [LOC-FR-02, LOC-FR-04],
   ),

@@ -13,32 +13,31 @@
     [*Use Case Name*], [Manage Addresses],
     [*Primary Actor*], [Customer],
     [*Supporting Actors*], [None],
-    [*Goal*], [Create, update, or remove shipping and billing addresses; set a default address per type.],
-    [*Trigger*], [Customer navigates to the address book in their account settings.],
+    [*Goal*], [Create, update, or remove shipping and billing addresses; set defaults per type.],
+    [*Trigger*], [Customer navigates to the address book in account settings.],
     [*Preconditions*], [
       - Customer is authenticated.
     ],
     [*Postconditions*], [
-      - Addresses available for selection during checkout.
-      - Default address pre-selected in checkout address step.
+      - Addresses available for checkout. Default pre-selected.
     ],
     [*Main Success Scenario*], [
-      1. Customer -- Navigates to the address book page in their account settings.
-      2. System -- Displays the list of saved addresses with type labels (shipping, billing) and default indicators.
-      3. Customer -- Creates a new address: enters name, street, city, postal code, country, and state.
-      4. Customer -- Assigns an address type (shipping, billing, or both) and optionally sets it as default.
-      5. Customer -- Saves the address.
-      6. System -- Validates required fields and address format.
-      7. System -- Persists the new address.
-      8. System -- Confirms the addition and refreshes the address list.
+      1. Navigates to address book page.
+      2. System displays saved addresses with type labels and default indicators.
+      3. Creates a new address: enters name, street, city, postal code, country, and state.
+      4. Assigns address type (shipping, billing, or both) and optionally sets as default.
+      5. Saves the address.
+      6. System validates required fields and address format.
+      7. System persists the new address.
+      8. System confirms and refreshes the address list.
     ],
     [*Alternative Flows*], [
-      A1. Customer edits an existing address -- System pre-fills the form with current values; validation and save proceed as per the main flow.
-      A2. Customer removes an address used in active orders -- System warns that the address is referenced by past orders (retained for history) and allows deletion; the address is soft-deleted.
-      A3. Customer sets a new default address -- System removes the default flag from the previous default of the same type.
+      A1. Edits existing address: system pre-fills form with current values.
+      A2. Remove address used in active orders: system warns it is referenced by past orders (retained); allows soft-delete.
+      A3. Set new default: system removes default flag from previous default of same type.
     ],
     [*Exception Flows*], [
-      E1. Address validation fails for an invalid country/state combination -- System highlights the mismatch and prevents save.
+      E1. Address validation fails for invalid country/state: system highlights mismatch and prevents save.
     ],
     [*Related Requirements*], [PRF-FR-01],
   ),
@@ -56,34 +55,33 @@
     [*Use Case Name*], [Manage Wishlists],
     [*Primary Actor*], [Customer],
     [*Supporting Actors*], [None],
-    [*Goal*], [Create named wishlists; add product variants with optional notes; remove items; rename or delete lists.],
-    [*Trigger*], [Customer navigates to the wishlist section or clicks Add to Wishlist on a product page.],
+    [*Goal*], [Create named wishlists; add product variants with notes; remove items; rename or delete lists.],
+    [*Trigger*], [Customer navigates to wishlist section or clicks Add to Wishlist on a product page.],
     [*Preconditions*], [
       - Customer is authenticated.
     ],
     [*Postconditions*], [
-      - Wishlist updated.
-      - Items retained for future reference.
+      - Wishlist updated. Items retained for future reference.
     ],
     [*Main Success Scenario*], [
-      1. Customer -- On a product detail page, clicks Add to Wishlist.
-      2. System -- Displays a dialog to select which wishlist to add to, or create a new one.
-      3. Customer -- Selects an existing wishlist or creates a new named wishlist.
-      4. Customer -- Optionally adds a note about the item.
-      5. System -- Adds the product variant to the selected wishlist.
-      6. System -- Confirms the addition.
-      7. Customer -- Navigates to the wishlists section to view all wishlists.
-      8. System -- Displays all wishlists with item counts and preview thumbnails.
-      9. Customer -- Selects a wishlist to view its items, remove items, rename the list, or delete the list.
+      1. On a product detail page, clicks Add to Wishlist.
+      2. System displays dialog to select wishlist or create new.
+      3. Selects an existing wishlist or creates a new named wishlist.
+      4. Optionally adds a note about the item.
+      5. System adds the product variant to the selected wishlist.
+      6. System confirms the addition.
+      7. Navigates to wishlists section to view all.
+      8. System displays all wishlists with item counts and preview thumbnails.
+      9. Selects a wishlist to view items, remove items, rename, or delete the list.
     ],
     [*Alternative Flows*], [
-      A1. Same variant already exists in the selected wishlist -- System notifies the customer and suggests adding a note to the existing entry instead.
-      A2. Customer removes an item -- System removes it immediately with an option to undo.
-      A3. Customer deletes a wishlist -- System asks for confirmation; once deleted, the list and its items are permanently removed.
-      A4. Customer moves an item between wishlists -- System transfers the item from the source to the destination list.
+      A1. Same variant already in wishlist: system notifies and suggests adding note to existing entry.
+      A2. Removes item: system removes immediately with undo option.
+      A3. Deletes wishlist: system asks for confirmation; list and items permanently removed.
+      A4. Moves item between wishlists: system transfers item from source to destination.
     ],
     [*Exception Flows*], [
-      E1. Product variant was archived since being added to the wishlist -- System displays the item with an Unavailable label and a remove suggestion.
+      E1. Product variant archived since added: system displays with Unavailable label and remove suggestion.
     ],
     [*Related Requirements*], [PRF-FR-02],
   ),
@@ -101,30 +99,29 @@
     [*Use Case Name*], [Manage Notification Preferences],
     [*Primary Actor*], [Customer],
     [*Supporting Actors*], [None],
-    [*Goal*], [Configure per-channel notification settings for each notification category; opt in or out per category.],
-    [*Trigger*], [Customer navigates to the notification preferences page in account settings.],
+    [*Goal*], [Configure per-channel notification settings for each notification category.],
+    [*Trigger*], [Customer navigates to notification preferences in account settings.],
     [*Preconditions*], [
       - Customer is authenticated.
     ],
     [*Postconditions*], [
-      - Notification preferences saved.
-      - Future notifications respect the configured settings.
+      - Notification preferences saved. Future notifications respect settings.
     ],
     [*Main Success Scenario*], [
-      1. Customer -- Navigates to the notification preferences page.
-      2. System -- Displays all notification categories (e.g. order updates, promotions, product alerts) with current opt-in/out status for each channel (email, SMS).
-      3. Customer -- Toggles individual notification categories on or off per channel.
-      4. Customer -- Saves the preferences.
-      5. System -- Persists the updated preferences.
-      6. System -- Confirms the changes.
+      1. Navigates to notification preferences page.
+      2. System displays all notification categories with current per-channel opt-in/out status.
+      3. Toggles individual notification categories on or off per channel.
+      4. Saves the preferences.
+      5. System persists the updated preferences.
+      6. System confirms the changes.
     ],
     [*Alternative Flows*], [
-      A1. Customer opts out of all notifications -- System warns that important order and account notifications will also be suppressed; asks for confirmation.
-      A2. Customer opts in to SMS notifications without a verified phone number -- System prompts the customer to add and verify a phone number first.
-      A3. Customer resets preferences to defaults -- System restores the default settings (all enabled for transactional notifications, optional for marketing).
+      A1. Opts out of all notifications: system warns important notifications also suppressed; asks confirmation.
+      A2. Opts in to SMS without verified phone: system prompts to add and verify phone number.
+      A3. Resets to defaults: system restores default settings.
     ],
     [*Exception Flows*], [
-      E1. System fails to persist preferences -- System reports the failure and retains the unsaved changes for retry.
+      E1. Persistence failure: system reports failure and retains unsaved changes for retry.
     ],
     [*Related Requirements*], [PRF-FR-03],
   ),
