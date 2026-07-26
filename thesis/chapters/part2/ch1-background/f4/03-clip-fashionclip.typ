@@ -38,6 +38,15 @@ CLIP's ability to understand natural language makes it powerful for fashion:
 
 However, the general CLIP model was trained on diverse internet images, not specifically fashion. It may not distinguish "A-line dress" from "sheath dress" or "Bohemian style" from "vintage aesthetic." This is where Fashion-CLIP comes in.
 
+==== Multimodal Query Capabilities
+
+The dual-tower design enables query modalities unavailable in vision-only models such as DINOv2 or EfficientNet:
+
+- *Text-to-image search.* A user types "red floral summer dress"; the text encoder maps the description into the same embedding space as catalog images.
+- *Hybrid queries.* An uploaded photo can be combined with a textual refinement ("like this, but in blue") by encoding both modalities and merging the results.
+
+This flexibility makes CLIP-based models the primary choice for the visual search feature.
+
 ==== Fashion-CLIP and Domain-Specific Fine-Tuning
 
 Fashion-CLIP is a version of CLIP further trained on fashion-specific data @chia2022fashionclip. The researchers used over 700,000 fashion product images paired with detailed descriptions covering garment categories, fabric textures, style descriptors, and occasion labels.
@@ -54,15 +63,6 @@ Fashion-CLIP inherits the ViT-B/16 architecture, producing 512-dimensional embed
   image("../../../../figures/chapters/part2/ch1-background/f4-ml-models/P2S2.1.4_clip-vit-b16.png", width: 70%),
   caption: [CLIP ViT-B/16 generates 512-dimensional embeddings for image-to-image and text-to-image similarity search],
 ) <fig-clip-vit-arch>
-
-==== Multimodal Query Capabilities
-
-The dual-tower design enables query modalities unavailable in vision-only models such as DINOv2 or EfficientNet:
-
-- *Text-to-image search.* A user types "red floral summer dress"; the text encoder maps the description into the same embedding space as catalog images.
-- *Hybrid queries.* An uploaded photo can be combined with a textual refinement ("like this, but in blue") by encoding both modalities and merging the results.
-
-This flexibility makes CLIP-based models the primary choice for the visual search feature.
 
 ==== Evaluated CLIP Variants
 
