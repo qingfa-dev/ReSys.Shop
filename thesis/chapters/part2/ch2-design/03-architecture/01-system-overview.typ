@@ -38,6 +38,7 @@ Table @tbl-system-services summarises the three services, their technology stack
       - Multi-model support with lazy-loading strategy
     ],
   ),
+    kind: table,
   caption: [System services and their technology stacks. Each service is independently deployable and communicates through well-defined HTTP contracts.],
 ) <tbl-system-services>
 
@@ -84,6 +85,7 @@ The backend is internally organised into eight bounded contexts following the pr
       State
     ],
   ),
+    kind: table,
   caption: [Bounded contexts with aggregate roots and key domain entities. Each context owns its database schema and communicates with other contexts through MediatR dispatch only.],
 ) <tbl-contexts-overview>
 

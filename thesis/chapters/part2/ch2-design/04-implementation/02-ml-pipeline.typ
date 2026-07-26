@@ -8,7 +8,7 @@ The ML sidecar is built on Python 3.12 with the FastAPI framework and runs under
 
 - The *FastAPI interface layer* handles HTTP concerns: routing requests to the correct endpoint, validating the API key presented in the `X-API-Key` header, parsing multipart form data containing image bytes, and serialising embedding results to JSON. This layer contains no machine learning logic.
 
-- The *Model Manager layer* is a singleton service responsible for the lifecycle of deep learning models. It maintains a registry of loaded models, loads new models on demand, caches them in GPU or CPU memory, and dispatches inference requests to the correct model instance. The singleton pattern ensures that a single copy of each model, typically consuming several gigabytes of VRAM, serves all inbound requests.
+- The *Model Manager layer* is a singleton service responsible for the lifecycle of deep learning models. It maintains a registry of loaded models, loads new models on demand, caches them in GPU or CPU memory, and dispatches inference requests to the correct model instance. The singleton pattern ensures that a single copy of each model serves all inbound requests, avoiding redundant memory allocation.
 
 - The *PyTorch Runtime layer* is the hardware-facing component that executes forward passes through the neural network. It handles device placement, selecting CUDA for NVIDIA GPUs, MPS for Apple Silicon, or CPU as a fallback, and manages the tensor operations that convert raw image data into embedding vectors.
 

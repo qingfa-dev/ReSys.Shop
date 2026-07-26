@@ -67,6 +67,7 @@ Table @tbl-uc-summary consolidates all use cases across the three actors and pro
     [UC-SYS-EMB], [Embedding operations], [System], [Embedding], [CAT-FR-05, CAT-FR-15],
     [UC-SYS-MNT], [System maintenance], [System], [Infrastructure], [CAT-FR-06, CAT-FR-08, ORD-FR-03, INV-FR-07, PAY-FR-04],
   ),
+  kind: table,
   caption: [
     Use case summary matrix. All use cases are listed with their actor, associated business module, and traceability to functional requirements defined in Section 2.1.
   ],

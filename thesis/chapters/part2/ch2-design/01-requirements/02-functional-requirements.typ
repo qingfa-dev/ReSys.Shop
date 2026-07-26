@@ -8,7 +8,7 @@ The Catalog module manages the product lifecycle, from creation and classificati
 
 #figure(
   table(
-    columns: (auto, auto, 1fr, auto),
+    columns: (auto, 1fr, 2fr, auto),
     stroke: 0.5pt,
     table.header([*ID*], [*Requirement*], [*Description*], [*Priority*]),
     [CAT-FR-01], [Product creation], [Create products with name, description, slug, and SEO metadata (meta title, meta description)], [High],
@@ -34,6 +34,7 @@ The Catalog module manages the product lifecycle, from creation and classificati
     [CAT-FR-12], [Status lifecycle], [Support product status lifecycle: Draft, Active, Archived with configurable availability and discontinuation dates], [Medium],
     [CAT-FR-13], [Master variant], [Designate one variant per product as the master (default) variant used for catalog listing display], [High],
   ),
+    kind: table,
   caption: [Catalog module functional requirements.],
 )
 
@@ -43,7 +44,7 @@ The Identity module provides authentication, authorisation, and user management 
 
 #figure(
   table(
-    columns: (auto, auto, 1fr, auto),
+    columns: (auto, 1fr, 2fr, auto),
     stroke: 0.5pt,
     table.header([*ID*], [*Requirement*], [*Description*], [*Priority*]),
     [IDN-FR-01], [Registration], [Register new customer accounts with email, password, and basic profile information], [High],
@@ -63,6 +64,7 @@ The Identity module provides authentication, authorisation, and user management 
     [IDN-FR-09], [User management], [Manage user accounts, role assignments, and permission grants through the administration interface], [Medium],
     [IDN-FR-10], [Two-factor auth], [Support optional two-factor authentication via time-based one-time password (TOTP)], [Low],
   ),
+    kind: table,
   caption: [Identity module functional requirements.],
 )
 
@@ -72,7 +74,7 @@ The Inventory module tracks physical stock quantities, manages checkout-time res
 
 #figure(
   table(
-    columns: (auto, auto, 1fr, auto),
+    columns: (auto, 1fr, 2fr, auto),
     stroke: 0.5pt,
     table.header([*ID*], [*Requirement*], [*Description*], [*Priority*]),
     [INV-FR-01], [Stock locations], [Define stock locations (warehouses or stores) with name, address, and active status flag], [Medium],
@@ -88,6 +90,7 @@ The Inventory module tracks physical stock quantities, manages checkout-time res
     [INV-FR-12], [Movement audit trail], [Provide a dedicated paged listing and detail view for all stock movements with source, destination, quantity, reason, and operator identity; support the stock movement entity as a first-class data model with query capabilities], [Medium],
     [INV-FR-07], [Reservation expiry], [Expire stale reservations after a configurable time window (default 15 minutes of checkout inactivity)], [Medium],
   ),
+    kind: table,
   caption: [Inventory module functional requirements.],
 )
 
@@ -97,7 +100,7 @@ The Ordering module handles the customer purchase workflow from cart through mul
 
 #figure(
   table(
-    columns: (auto, auto, 1fr, auto),
+    columns: (auto, 1fr, 2fr, auto),
     stroke: 0.5pt,
     table.header([*ID*], [*Requirement*], [*Description*], [*Priority*]),
     [ORD-FR-01], [Shopping cart], [Support guest and authenticated shopping carts with product variant selection, quantity management, and per-item pricing], [High],
@@ -115,6 +118,7 @@ The Ordering module handles the customer purchase workflow from cart through mul
     [ORD-FR-08], [Order numbering], [Generate unique, sequential, human-readable order numbers within a database transaction to prevent collisions under concurrent requests], [Medium],
     [ORD-FR-09], [Order immutability], [Mark completed orders as immutable; prevent modification of line items, adjustments, or totals after finalisation], [High],
   ),
+    kind: table,
   caption: [Ordering module functional requirements.],
 )
 
@@ -124,7 +128,7 @@ The Payment module manages the lifecycle of payment intents across the Stripe pr
 
 #figure(
   table(
-    columns: (auto, auto, 1fr, auto),
+    columns: (auto, 1fr, 2fr, auto),
     stroke: 0.5pt,
     table.header([*ID*], [*Requirement*], [*Description*], [*Priority*]),
     [PAY-FR-01], [Intent creation], [Create payment intents with amount, currency, order identifier, and gateway selection], [High],
@@ -138,6 +142,7 @@ The Payment module manages the lifecycle of payment intents across the Stripe pr
     [PAY-FR-06], [Bogus gateway], [Provide a Bogus gateway for development and testing that simulates the full payment lifecycle (Pending, Processing, Succeeded, Canceled) without external API calls], [Medium],
     [PAY-FR-07], [State tracking], [Maintain independent payment state tracking in parallel with the gateway; enable offline state queries without gateway round-trips], [Medium],
   ),
+    kind: table,
   caption: [Payment module functional requirements.],
 )
 
@@ -147,7 +152,7 @@ The Shipping module configures delivery methods and calculates shipping rates by
 
 #figure(
   table(
-    columns: (auto, auto, 1fr, auto),
+    columns: (auto, 1fr, 2fr, auto),
     stroke: 0.5pt,
     table.header([*ID*], [*Requirement*], [*Description*], [*Priority*]),
     [SHP-FR-01], [Delivery methods], [Configure delivery methods (standard, express, local pickup) with carrier name, pricing rules, and applicable geographic zones], [Medium],
@@ -157,6 +162,7 @@ The Shipping module configures delivery methods and calculates shipping rates by
     [SHP-FR-06], [Storefront calculation], [Calculate shipping cost for a given cart at checkout, returning available methods with rates applicable to the delivery address zone], [High],
     [SHP-FR-03], [Shipment tracking], [Assign per-order shipment tracking with carrier identifier and tracking number for customer visibility], [Low],
   ),
+    kind: table,
   caption: [Shipping module functional requirements.],
 )
 
@@ -166,13 +172,14 @@ The Profile module links customer identity to personalisation features and prefe
 
 #figure(
   table(
-    columns: (auto, auto, 1fr, auto),
+    columns: (auto, 1fr, 2fr, auto),
     stroke: 0.5pt,
     table.header([*ID*], [*Requirement*], [*Description*], [*Priority*]),
     [PRF-FR-01], [Addresses], [Manage user shipping and billing addresses with address type labels and default selection per type], [Medium],
     [PRF-FR-02], [Wishlists], [Manage wishlists: create, rename, delete lists; add and remove product variants with notes], [Low],
     [PRF-FR-03], [Notifications], [Configure per-channel notification preferences (email, SMS) with opt-in and opt-out per notification category], [Low],
   ),
+    kind: table,
   caption: [Profile module functional requirements.],
 )
 
@@ -182,7 +189,7 @@ The Location module provides country and state reference data for address valida
 
 #figure(
   table(
-    columns: (auto, auto, 1fr, auto),
+    columns: (auto, 1fr, 2fr, auto),
     stroke: 0.5pt,
     table.header([*ID*], [*Requirement*], [*Description*], [*Priority*]),
     [LOC-FR-01], [Countries], [Provide country reference data with ISO 3166-1 codes, display names, and active status flags], [Medium],
@@ -190,6 +197,7 @@ The Location module provides country and state reference data for address valida
     [LOC-FR-03], [Country CRUD], [Create, update, delete, and list countries with paging; retrieve by ID and ISO code through both admin and storefront interfaces], [Medium],
     [LOC-FR-04], [State CRUD], [Create, update, delete, and list states with paging; retrieve by ID and ISO code; filter by parent country through both admin and storefront interfaces], [Medium],
   ),
+    kind: table,
   caption: [Location module functional requirements.],
 )
 
@@ -199,10 +207,11 @@ The Dashboard module aggregates key performance indicators from all business mod
 
 #figure(
   table(
-    columns: (auto, auto, 1fr, auto),
+    columns: (auto, 1fr, 2fr, auto),
     stroke: 0.5pt,
     table.header([*ID*], [*Requirement*], [*Description*], [*Priority*]),
     [DSH-FR-01], [Aggregate dashboard], [Provide a cross-module administrative dashboard aggregating key metrics (product counts, order volumes, inventory levels, user statistics) from all business modules into a single view], [Medium],
   ),
+    kind: table,
   caption: [Dashboard module functional requirements.],
 )

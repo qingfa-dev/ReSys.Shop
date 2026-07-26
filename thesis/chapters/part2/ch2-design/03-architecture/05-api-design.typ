@@ -50,6 +50,7 @@ Table @tbl-key-endpoints summarises the most architecturally significant endpoin
       Creates a payment intent for the specified order amount and currency, initialising the payment state machine.
     ],
   ),
+    kind: table,
   caption: [Key API endpoints representing the primary user-facing capabilities of the platform. All endpoints in the Storefront surface serve customer interactions; Admin surface endpoints (not shown) mirror these with full CRUD capabilities on all modules.],
 ) <tbl-key-endpoints>
 

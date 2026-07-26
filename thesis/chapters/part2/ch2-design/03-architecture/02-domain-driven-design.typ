@@ -19,7 +19,7 @@ Table @tbl-context-responsibilities details each context's business responsibili
 
 #figure(
   table(
-    columns: (auto, 1fr, 1fr),
+    columns: (auto, 2fr, auto),
     stroke: 0.5pt,
     align: (left + horizon, left, left),
 
@@ -57,6 +57,7 @@ Table @tbl-context-responsibilities details each context's business responsibili
     [Provides country and state reference data with ISO 3166 codes. This context is read-only reference data shared across Shipping (zone configuration), Profile (address validation), and Ordering (checkout address selection).],
     [CountryId, StateId, IsoCode],
   ),
+    kind: table,
   caption: [Bounded context responsibilities and Published Language identifiers. The Published Language column lists the value types that other contexts may reference by identifier only, never by importing the source context's namespace.],
 ) <tbl-context-responsibilities>
 
@@ -138,6 +139,7 @@ A key practice in DDD is establishing a ubiquitous language, a shared vocabulary
       A long-lived credential used to obtain new short-lived access tokens without re-authentication. Each token is single-use; presenting a previously consumed token triggers revocation of all tokens for that user.
     ],
   ),
+    kind: table,
   caption: [Ubiquitous Language Glossary: core domain terms, their owning bounded context, and their precise definitions as used throughout the codebase and this thesis.],
 ) <tbl-ubiquitous-language>
 

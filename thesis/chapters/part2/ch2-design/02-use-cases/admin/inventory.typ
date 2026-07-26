@@ -40,7 +40,8 @@
     ],
     [*Related Requirements*], [INV-FR-01],
   ),
-  caption: [UC-ADM-LOC -- Manage Stock Locations.],
+    kind: table,
+  caption: [Manage Stock Locations.],
 )
 
 ==== Stock Item Management
@@ -113,5 +114,6 @@
     ],
     [*Related Requirements*], [INV-FR-02, INV-FR-05, INV-FR-06, INV-FR-08, INV-FR-09, INV-FR-10, INV-FR-12],
   ),
-  caption: [UC-ADM-STK -- Manage Stock.],
+    kind: table,
+  caption: [Manage Stock.],
 )

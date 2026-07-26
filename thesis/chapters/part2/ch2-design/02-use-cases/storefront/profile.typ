@@ -58,5 +58,6 @@
     ],
     [*Related Requirements*], [PRF-FR-01, PRF-FR-02, PRF-FR-03],
   ),
-  caption: [UC-STR-PRF -- Profile Management.],
+    kind: table,
+  caption: [Profile Management.],
 )

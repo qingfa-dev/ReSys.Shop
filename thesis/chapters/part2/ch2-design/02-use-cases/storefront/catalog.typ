@@ -58,7 +58,8 @@
     ],
     [*Related Requirements*], [CAT-FR-01, CAT-FR-02, CAT-FR-03, CAT-FR-09, CAT-FR-16, CAT-FR-22],
   ),
-  caption: [UC-STR-BRW -- Browse and Search Catalog.],
+    kind: table,
+  caption: [Browse and Search Catalog.],
 )
 
 ==== Search
@@ -115,5 +116,6 @@
     ],
     [*Related Requirements*], [CAT-FR-06, CAT-FR-07, CAT-FR-08, CAT-FR-17],
   ),
-  caption: [UC-STR-SRC -- Visual Search.],
+    kind: table,
+  caption: [Visual Search.],
 )

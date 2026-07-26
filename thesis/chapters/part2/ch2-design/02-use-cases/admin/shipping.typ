@@ -48,7 +48,8 @@
     ],
     [*Related Requirements*], [SHP-FR-01, SHP-FR-04, SHP-FR-05],
   ),
-  caption: [UC-ADM-SHP -- Manage Shipping.],
+    kind: table,
+  caption: [Manage Shipping.],
 )
 
 ==== Reference Data Management
@@ -101,5 +102,6 @@
     ],
     [*Related Requirements*], [LOC-FR-01, LOC-FR-02, LOC-FR-03, LOC-FR-04],
   ),
-  caption: [UC-ADM-REF -- Manage Reference Data.],
+    kind: table,
+  caption: [Manage Reference Data.],
 )

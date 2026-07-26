@@ -4,7 +4,7 @@ The preceding sections introduced the principal technologies that compose the Re
 
 #figure(
   table(
-    columns: (auto, auto, 1fr),
+    columns: (auto, 1fr, 2fr),
     align: (start, start, start),
     table.header([*Layer*], [*Technology*], [*Role*]),
     [Frontend], [Vue 3, TypeScript, Vite], [Customer storefront and administration interface; reactive UI with Pinia state management],
@@ -17,6 +17,7 @@ The preceding sections introduced the principal technologies that compose the Re
     [Auth and Identity], [JWT, ASP.NET Identity], [Access tokens, refresh rotation, permission-based authorisation, guest sessions],
     [Benchmarking], [Python 3.12, PyTorch], [Systematic 11-model comparison with cross-validation, accuracy and efficiency metrics],
   ),
+    kind: table,
   caption: [Technology stack of the ReSys.Shop platform],
 ) <tbl-tech-stack>
 

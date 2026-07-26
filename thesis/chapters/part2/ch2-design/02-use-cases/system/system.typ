@@ -55,7 +55,8 @@
     ],
     [*Related Requirements*], [CAT-FR-05, CAT-FR-15],
   ),
-  caption: [UC-SYS-EMB -- Embedding Operations.],
+    kind: table,
+  caption: [Embedding Operations.],
 )
 
 ==== Background Maintenance
@@ -133,5 +134,6 @@
     ],
     [*Related Requirements*], [CAT-FR-06, CAT-FR-08, ORD-FR-03, INV-FR-07, PAY-FR-04],
   ),
-  caption: [UC-SYS-MNT -- System Maintenance.],
+    kind: table,
+  caption: [System Maintenance.],
 )

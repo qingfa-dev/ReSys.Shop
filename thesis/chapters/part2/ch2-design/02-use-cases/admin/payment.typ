@@ -56,7 +56,8 @@
     ],
     [*Related Requirements*], [PAY-FR-03, PAY-FR-05, PAY-FR-07, PAY-FR-09],
   ),
-  caption: [UC-ADM-PAY -- Manage Payments.],
+    kind: table,
+  caption: [Manage Payments.],
 )
 
 ==== Payment Method Configuration
@@ -100,5 +101,6 @@
     ],
     [*Related Requirements*], [PAY-FR-10],
   ),
-  caption: [UC-ADM-PAY-METHOD -- Manage Payment Methods.],
+    kind: table,
+  caption: [Manage Payment Methods.],
 )

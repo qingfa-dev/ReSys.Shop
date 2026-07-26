@@ -50,7 +50,8 @@
     ],
     [*Related Requirements*], [PAY-FR-01, PAY-FR-02],
   ),
-  caption: [UC-STR-PAY -- Payment Processing.],
+    kind: table,
+  caption: [Payment Processing.],
 )
 
 ==== Authentication
@@ -117,7 +118,8 @@
     ],
     [*Related Requirements*], [IDN-FR-01, IDN-FR-02, IDN-FR-03, IDN-FR-08, IDN-FR-14],
   ),
-  caption: [UC-STR-AUT -- Authentication.],
+    kind: table,
+  caption: [Authentication.],
 )
 
 ==== Session Management
@@ -169,5 +171,6 @@
     ],
     [*Related Requirements*], [IDN-FR-04, IDN-FR-05, IDN-FR-16],
   ),
-  caption: [UC-STR-SES -- Session Management.],
+    kind: table,
+  caption: [Session Management.],
 )

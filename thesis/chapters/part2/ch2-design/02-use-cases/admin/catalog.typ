@@ -53,7 +53,8 @@
     ],
     [*Related Requirements*], [CAT-FR-01, CAT-FR-02, CAT-FR-03, CAT-FR-11, CAT-FR-12, CAT-FR-13],
   ),
-  caption: [UC-ADM-PROD -- Manage Products.],
+    kind: table,
+  caption: [Manage Products.],
 )
 
 ==== Variant and Pricing
@@ -112,7 +113,8 @@
     ],
     [*Related Requirements*], [CAT-FR-03, CAT-FR-10, CAT-FR-21, CAT-FR-22],
   ),
-  caption: [UC-ADM-VAR -- Manage Variants.],
+    kind: table,
+  caption: [Manage Variants.],
 )
 
 ==== Image and Embedding Management
@@ -165,7 +167,8 @@
     ],
     [*Related Requirements*], [CAT-FR-04, CAT-FR-05, CAT-FR-14, CAT-FR-15],
   ),
-  caption: [UC-ADM-IMG -- Manage Images and Embeddings.],
+    kind: table,
+  caption: [Manage Images and Embeddings.],
 )
 
 ==== Taxonomy and Classification
@@ -217,7 +220,8 @@
     ],
     [*Related Requirements*], [CAT-FR-09, CAT-FR-18, CAT-FR-19],
   ),
-  caption: [UC-ADM-TAX -- Manage Taxonomies and Classification.],
+    kind: table,
+  caption: [Manage Taxonomies and Classification.],
 )
 
 ==== Option Type Configuration
@@ -261,5 +265,6 @@
     ],
     [*Related Requirements*], [CAT-FR-10, CAT-FR-20],
   ),
-  caption: [UC-ADM-OPT -- Manage Option Types.],
+    kind: table,
+  caption: [Manage Option Types.],
 )
