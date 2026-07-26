@@ -1,22 +1,20 @@
 === pgvector: Vector Search in PostgreSQL
 
-pgvector is an open-source extension that adds vector operations to PostgreSQL @pgvector2023. It allows storing vectors alongside regular product data (names, prices, images) in the same database, using standard SQL.
+pgvector is an open-source PostgreSQL extension that adds vector operations to standard SQL @pgvector2023. It stores vectors alongside regular product data (names, prices, images) in the same database.
 
-Key features of pgvector:
+*Key features:*
 
-- *Vector column type.* `VECTOR(512)` stores 512-dimensional embeddings. The extension accommodates the different embedding dimensions produced by different models.
-- *Similarity operators.* The `<=>` operator computes cosine distance (values in the range [0, 2], where 0 means identical and 2 means maximally dissimilar). The `<->` operator computes Euclidean distance.
-- *Index support.* Both HNSW and IVFFlat indexing are supported for fast approximate search.
+- *Vector column.* `VECTOR(512)` stores 512-dimensional embeddings. Supports varying dimensions for different models.
+- *Similarity operators.* `<=>` for cosine distance (range [0, 2]), `<->` for Euclidean distance.
+- *Indexing.* Supports both HNSW and IVFFlat for fast approximate search.
 
-==== Why pgvector Over a Separate Vector Database
+==== Why pgvector
 
-The critical advantage of pgvector is *transactional consistency*. Vectors and product metadata live in the same database. A product update and its embedding update occur within a single ACID transaction. If an admin changes a product image, the new embedding is committed atomically with the catalog update. This eliminates the dual-database problem: a separate vector store that can drift out of sync with the relational source of truth.
+The critical advantage is *transactional consistency*. Vectors and product metadata share the same ACID boundary. An image change triggers a new embedding, and both are committed atomically. No dual-database drift between a vector store and the relational source of truth.
 
-Combined queries present a second advantage. Vector similarity and relational filtering can be combined in a single SQL statement: find products visually similar to a query image, restricted to a specific category and within a price range, using one query plan. With separate databases, this requires querying the vector store, collecting result IDs, and querying the relational store in a second pass.
+Combined queries are possible in a single SQL statement. A search can find visually similar products filtered by category and price range using one query plan.
 
-==== Example Usage
-
-A simplified example of how vectors are stored and searched:
+==== Example
 
 ```sql
 CREATE TABLE products (
@@ -35,5 +33,3 @@ FROM products
 ORDER BY image_embedding <=> query_vector
 LIMIT 10;
 ```
-
-The HNSW index enables the `ORDER BY ... <=>` clause to execute in logarithmic time rather than scanning the entire table.
