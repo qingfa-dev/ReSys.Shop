@@ -13,33 +13,32 @@
     [*Use Case Name*], [Manage Stock Locations],
     [*Primary Actor*], [Administrator],
     [*Supporting Actors*], [None],
-    [*Goal*], [Create, update, or remove warehouse locations and set a default location for new stock intake.],
-    [*Trigger*], [Administrator navigates to the stock location management interface.],
+    [*Goal*], [Create, update, or remove warehouse locations and set a default.],
+    [*Trigger*], [Administrator navigates to stock location management.],
     [*Preconditions*], [
-      - Administrator is authenticated with location management permissions.
+      - Authenticated with location management permissions.
     ],
     [*Postconditions*], [
       - Location configuration updated.
-      - Stock items assigned to modified locations retain valid references.
     ],
     [*Main Success Scenario*], [
-      1. Administrator -- Navigates to the stock location management interface.
-      2. System -- Displays the list of existing stock locations with their addresses and active status.
-      3. Administrator -- Creates a new location with a name, address, and active status flag.
-      4. Administrator -- Optionally designates the new location as the default for new stock intake.
-      5. Administrator -- Optionally edits, deactivates, or removes existing locations.
-      6. Administrator -- Saves the changes.
-      7. System -- Validates that the location name is unique.
-      8. System -- Persists the location configuration.
-      9. System -- Confirms the changes.
+      1. Navigates to stock location management.
+      2. System displays existing stock locations with addresses and active status.
+      3. Creates a new location with name, address, and active status flag.
+      4. Optionally designates the new location as default for stock intake.
+      5. Optionally edits, deactivates, or removes existing locations.
+      6. Saves the changes.
+      7. System validates location name uniqueness.
+      8. System persists the location configuration.
+      9. System confirms the changes.
     ],
     [*Alternative Flows*], [
-      A1. Administrator attempts to delete a location with active stock items -- System warns that stock items at this location must be transferred first and prevents deletion.
-      A2. Administrator deactivates a location -- System prevents new stock intake at the deactivated location but allows existing stock movements.
-      A3. Only one location exists and administrator attempts to delete it -- System prevents deletion and informs the administrator that at least one location must remain.
+      A1. Delete location with active stock: system prevents and requires transfer first.
+      A2. Deactivate location: system prevents new intake but allows existing movements.
+      A3. Delete last location: system prevents; at least one must remain.
     ],
     [*Exception Flows*], [
-      E1. Concurrent modification detected -- System detects the location was modified by another session, refreshes the data, and asks the administrator to retry.
+      E1. Concurrent modification: system refreshes and asks to retry.
     ],
     [*Related Requirements*], [INV-FR-01],
   ),
@@ -61,35 +60,34 @@
     [*Use Case Name*], [Manage Stock Items],
     [*Primary Actor*], [Administrator],
     [*Supporting Actors*], [None],
-    [*Goal*], [Create stock items for variants at specific locations with initial on-hand quantities; update, remove, or bulk-adjust quantities.],
-    [*Trigger*], [Administrator navigates to the stock item management interface.],
+    [*Goal*], [Create or adjust stock items for variants at specific locations.],
+    [*Trigger*], [Administrator navigates to stock item management.],
     [*Preconditions*], [
-      - Administrator is authenticated with stock management permissions.
-      - The variant and location exist.
+      - Authenticated with stock management permissions.
+      - Variant and location exist.
     ],
     [*Postconditions*], [
-      - Stock quantities updated.
-      - Changes recorded in the audit log with operator identity and reason.
+      - Stock quantities updated. Changes logged.
     ],
     [*Main Success Scenario*], [
-      1. Administrator -- Navigates to the stock item management interface.
-      2. System -- Displays the list of existing stock items with variant, location, on-hand, and reserved quantities.
-      3. Administrator -- Creates a new stock item by selecting a variant and a location, then enters initial on-hand quantity.
-      4. Administrator -- Alternatively selects an existing stock item and updates its on-hand quantity.
-      5. Administrator -- Provides a reason for the quantity adjustment.
-      6. Administrator -- Saves the changes.
-      7. System -- Validates that the variant-location combination is unique.
-      8. System -- Persists the stock item and records the adjustment in the audit log.
-      9. System -- Confirms the changes and displays the updated quantities.
+      1. Navigates to stock item management.
+      2. System displays stock items with variant, location, on-hand, and reserved quantities.
+      3. Creates a stock item by selecting variant and location, enters initial on-hand quantity.
+      4. Alternatively selects existing stock item and updates on-hand quantity.
+      5. Provides a reason for the adjustment.
+      6. Saves the changes.
+      7. System validates variant-location combination is unique.
+      8. System persists the stock item and records the adjustment in audit log.
+      9. System confirms and displays updated quantities.
     ],
     [*Alternative Flows*], [
-      A1. Administrator bulk-adjusts quantities via file upload -- System processes the file, validates each row, and reports success and failure counts.
-      A2. Administrator sets on-hand quantity to zero -- System accepts the change but warns that the variant will show as out of stock.
-      A3. Administrator attempts to reduce on-hand quantity below reserved quantity -- System rejects and displays the current reserved quantity.
+      A1. Bulk adjustment via file upload: system processes, validates, reports success/failure counts.
+      A2. Set on-hand to zero: system warns variant shows as out of stock.
+      A3. Reduce below reserved quantity: system rejects and shows current reserved.
     ],
     [*Exception Flows*], [
-      E1. Variant-location pair already has a stock item -- System rejects the creation and suggests editing the existing stock item instead.
-      E2. System fails to persist stock changes -- System reports the failure and retains the input data for retry.
+      E1. Variant-location pair already exists: system rejects and suggests editing existing.
+      E2. Persistence failure: system reports and retains input for retry.
     ],
     [*Related Requirements*], [INV-FR-02, INV-FR-08],
   ),
@@ -107,32 +105,31 @@
     [*Use Case Name*], [Restock Inventory],
     [*Primary Actor*], [Administrator],
     [*Supporting Actors*], [None],
-    [*Goal*], [Increase on-hand quantity for a stock item, recording the restock event.],
-    [*Trigger*], [Administrator receives new stock and navigates to the stock item to record the restock.],
+    [*Goal*], [Increase on-hand quantity for a stock item and record the restock.],
+    [*Trigger*], [Administrator receives new stock and navigates to record the restock.],
     [*Preconditions*], [
-      - Administrator is authenticated with stock management permissions.
-      - The stock item exists.
+      - Authenticated with stock management permissions.
+      - Stock item exists.
     ],
     [*Postconditions*], [
-      - On-hand quantity incremented.
-      - Stock movement audit entry created with restock details.
+      - On-hand quantity incremented. Restock event logged.
     ],
     [*Main Success Scenario*], [
-      1. Administrator -- Locates the stock item in the management interface.
-      2. System -- Displays the current stock item detail with on-hand and reserved quantities.
-      3. Administrator -- Enters the restock quantity being added.
-      4. Administrator -- Provides a restock reference (e.g. purchase order number) and any notes.
-      5. Administrator -- Confirms the restock.
-      6. System -- Increments the on-hand quantity by the restock amount.
-      7. System -- Creates a stock movement audit entry documenting the restock event with operator identity, timestamp, and reference.
-      8. System -- Confirms the restock and displays the updated quantities.
+      1. Locates the stock item in the management interface.
+      2. System displays current stock detail with on-hand and reserved quantities.
+      3. Enters the restock quantity.
+      4. Provides a restock reference (e.g. purchase order number) and notes.
+      5. Confirms the restock.
+      6. System increments on-hand quantity by the restock amount.
+      7. System records the restock event with operator, timestamp, and reference.
+      8. System confirms restock and displays updated quantities.
     ],
     [*Alternative Flows*], [
-      A1. Administrator bulk-restocks multiple stock items -- System presents a multi-line form or file upload interface; each line is validated independently.
-      A2. Administrator enters a negative restock quantity -- System rejects and suggests using the stock adjustment feature instead.
+      A1. Bulk restock: system presents multi-line or file upload interface; each line validated independently.
+      A2. Negative restock quantity: system rejects and suggests stock adjustment instead.
     ],
     [*Exception Flows*], [
-      E1. Concurrent modification detected -- System detects the stock item was modified by another session, refreshes the data, and asks the administrator to re-enter the restock quantity.
+      E1. Concurrent modification: system refreshes and asks to re-enter quantity.
     ],
     [*Related Requirements*], [INV-FR-06],
   ),
@@ -150,28 +147,28 @@
     [*Use Case Name*], [Monitor Low Stock],
     [*Primary Actor*], [Administrator],
     [*Supporting Actors*], [None],
-    [*Goal*], [View a filtered list of stock items where on-hand quantity falls below the configured threshold.],
+    [*Goal*], [View stock items where on-hand quantity falls below the configured threshold.],
     [*Trigger*], [Administrator navigates to the low stock monitoring view.],
     [*Preconditions*], [
-      - Administrator is authenticated with inventory viewing permissions.
+      - Authenticated with inventory viewing permissions.
     ],
     [*Postconditions*], [
-      - Low-stock items identified for replenishment planning.
+      - Low-stock items identified for replenishment.
     ],
     [*Main Success Scenario*], [
-      1. Administrator -- Navigates to the low stock monitoring view.
-      2. System -- Displays a list of stock items where on-hand quantity is below the configured low-stock threshold.
-      3. System -- Shows for each item: variant details, location, on-hand quantity, threshold value, and days since last restock.
-      4. Administrator -- Reviews the low-stock list and identifies items requiring replenishment.
-      5. Administrator -- Optionally filters by location or product category.
-      6. Administrator -- Optionally exports the low-stock list for purchase order creation.
+      1. Navigates to low stock monitoring view.
+      2. System displays stock items below the configured threshold.
+      3. System shows for each: variant, location, on-hand quantity, threshold, days since last restock.
+      4. Reviews low-stock list and identifies items needing replenishment.
+      5. Optionally filters by location or product category.
+      6. Optionally exports list for purchase order creation.
     ],
     [*Alternative Flows*], [
-      A1. No items are below the low-stock threshold -- System displays a message indicating that all stock levels are sufficient.
-      A2. Administrator adjusts the low-stock threshold for a specific item -- System updates the threshold and re-evaluates the item's low-stock status.
+      A1. No items below threshold: system displays message that all stock levels are sufficient.
+      A2. Adjusts threshold for an item: system updates and re-evaluates status.
     ],
     [*Exception Flows*], [
-      E1. System fails to retrieve stock data -- System displays an error message and offers a retry option.
+      E1. Retrieval failure: system displays error and offers retry.
     ],
     [*Related Requirements*], [INV-FR-09],
   ),
@@ -193,37 +190,36 @@
     [*Use Case Name*], [Transfer Stock],
     [*Primary Actor*], [Administrator],
     [*Supporting Actors*], [None],
-    [*Goal*], [Initiate a stock transfer from one location to another; record in-transit status, confirm receipt, or cancel pending transfers.],
+    [*Goal*], [Initiate a stock transfer between locations; confirm receipt or cancel pending transfers.],
     [*Trigger*], [Administrator navigates to the stock transfer interface.],
     [*Preconditions*], [
-      - Administrator is authenticated with transfer permissions.
+      - Authenticated with transfer permissions.
       - Source and destination locations exist.
-      - Sufficient stock at source location.
+      - Sufficient stock at source.
     ],
     [*Postconditions*], [
-      - Stock decremented at source, incremented at destination upon receipt.
-      - Full audit trail recorded for each stage of the transfer.
+      - Stock decremented at source, incremented at destination upon receipt. Audit trail recorded.
     ],
     [*Main Success Scenario*], [
-      1. Administrator -- Navigates to the stock transfer interface and initiates a new transfer.
-      2. Administrator -- Selects the source location, destination location, variant, and quantity to transfer.
-      3. System -- Validates that the source location has sufficient on-hand stock.
-      4. Administrator -- Submits the transfer.
-      5. System -- Creates the transfer record with status set to pending.
-      6. System -- Decrements on-hand quantity at the source location and records the deduction in the audit log.
-      7. Administrator -- When the stock arrives at the destination, confirms receipt.
-      8. System -- Increments on-hand quantity at the destination and records the addition in the audit log.
-      9. System -- Transitions the transfer to completed status.
-      10. System -- Confirms the completed transfer.
+      1. Navigates to stock transfer and initiates a new transfer.
+      2. Selects source location, destination, variant, and quantity.
+      3. System validates sufficient stock at source.
+      4. Submits the transfer.
+      5. System creates transfer record with pending status.
+      6. System decrements on-hand quantity at source and logs the deduction.
+      7. Upon arrival at destination, confirms receipt.
+      8. System increments on-hand quantity at destination and logs the addition.
+      9. System transitions transfer to completed.
+      10. System confirms the completed transfer.
     ],
     [*Alternative Flows*], [
-      A1. Administrator cancels a pending transfer before shipment -- System returns the decremented quantity to the source location and records the cancellation.
-      A2. Partial receipt -- Administrator confirms receipt of less than the full transfer quantity; System records the partial receipt and keeps the transfer open for the remaining quantity.
-      A3. Transfer quantity exceeds available stock at source -- System rejects and displays the maximum available quantity.
+      A1. Cancel pending transfer: system returns deducted quantity to source and logs cancellation.
+      A2. Partial receipt: system records partial receipt and keeps transfer open for remainder.
+      A3. Transfer exceeds available stock: system rejects and shows maximum.
     ],
     [*Exception Flows*], [
-      E1. Source location stock was modified by a concurrent operation -- System detects the stock change, refreshes the available quantity, and asks the administrator to adjust.
-      E2. Destination location does not have a stock item for the variant -- System automatically creates the stock item at the destination with zero initial quantity before recording the receipt.
+      E1. Source stock modified concurrently: system refreshes and asks to adjust.
+      E2. Destination has no stock item for variant: system auto-creates with zero initial quantity before receipt.
     ],
     [*Related Requirements*], [INV-FR-05, INV-FR-10],
   ),
@@ -241,29 +237,29 @@
     [*Use Case Name*], [Review Stock Movements],
     [*Primary Actor*], [Administrator],
     [*Supporting Actors*], [None],
-    [*Goal*], [Browse all stock movements with paging; view detail for any movement.],
+    [*Goal*], [Browse all stock movements with paging; view movement detail.],
     [*Trigger*], [Administrator navigates to the stock movement audit interface.],
     [*Preconditions*], [
-      - Administrator is authenticated with movement viewing permissions.
+      - Authenticated with movement viewing permissions.
     ],
     [*Postconditions*], [
-      - Complete audit trail visible for compliance and operational review.
+      - Complete audit trail visible for review.
     ],
     [*Main Success Scenario*], [
-      1. Administrator -- Navigates to the stock movement audit interface.
-      2. System -- Displays the list of all stock movements in reverse chronological order with pagination.
-      3. System -- Shows each movement with: timestamp, variant, source location, destination location, quantity, reason, and operator identity.
-      4. Administrator -- Applies optional filters: date range, variant, location, movement type.
-      5. System -- Refreshes the listing with filtered results.
-      6. Administrator -- Selects an individual movement to view full detail.
-      7. System -- Displays the complete movement record including all metadata fields.
+      1. Navigates to stock movement audit interface.
+      2. System displays all stock movements in reverse chronological order with pagination.
+      3. System shows each movement: timestamp, variant, source, destination, quantity, reason, operator.
+      4. Applies optional filters: date range, variant, location, movement type.
+      5. System refreshes listing with filtered results.
+      6. Selects a movement to view full detail.
+      7. System displays the complete movement record.
     ],
     [*Alternative Flows*], [
-      A1. No movements match the applied filters -- System displays an empty result message with suggestion to broaden the filter criteria.
-      A2. Administrator exports the movement audit trail -- System generates a downloadable report with the current filtered results.
+      A1. No movements match: system displays empty message with suggestion to broaden filters.
+      A2. Exports audit trail: system generates downloadable report of filtered results.
     ],
     [*Exception Flows*], [
-      E1. System fails to retrieve movement data -- System displays an error message and offers a retry option.
+      E1. Retrieval failure: system displays error and offers retry.
     ],
     [*Related Requirements*], [INV-FR-12],
   ),

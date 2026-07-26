@@ -13,35 +13,34 @@
     [*Use Case Name*], [Capture Payment],
     [*Primary Actor*], [Administrator],
     [*Supporting Actors*], [Payment Gateway],
-    [*Goal*], [Capture an authorised payment intent to transfer funds from the customer's account.],
+    [*Goal*], [Capture an authorised payment to transfer funds.],
     [*Trigger*], [Administrator selects the capture action on an authorised payment.],
     [*Preconditions*], [
-      - Administrator is authenticated with payment capture permissions.
-      - Payment intent is authorised.
+      - Authenticated with payment capture permissions.
+      - Payment authorised.
     ],
     [*Postconditions*], [
-      - Payment captured and funds transferred.
-      - Order payment state updated.
+      - Payment captured. Order payment state updated.
     ],
     [*Main Success Scenario*], [
-      1. Administrator -- Opens the payment detail view for an order.
-      2. System -- Displays the current payment state, authorised amount, and capture eligibility.
-      3. Administrator -- Optionally adjusts the capture amount (partial capture) not exceeding the authorised amount.
-      4. Administrator -- Confirms the capture action.
-      5. System -- Sends the capture request to the payment gateway with an idempotency key.
-      6. System -- Receives confirmation from the gateway.
-      7. System -- Updates the payment state to captured.
-      8. System -- Updates the order payment state accordingly.
-      9. System -- Confirms successful capture.
+      1. Opens payment detail view for an order.
+      2. System displays payment state, authorised amount, and capture eligibility.
+      3. Optionally adjusts capture amount (partial) not exceeding authorised amount.
+      4. Confirms the capture.
+      5. System sends capture request to gateway with idempotency key.
+      6. System receives gateway confirmation.
+      7. System updates payment state to captured.
+      8. System updates order payment state.
+      9. System confirms successful capture.
     ],
     [*Alternative Flows*], [
-      A1. Partial capture -- Administrator specifies a capture amount less than the authorised amount; the remaining authorised amount can be captured later.
-      A2. Capture amount exceeds authorised amount -- System rejects and displays the maximum capturable amount.
+      A1. Partial capture: amount less than authorised; remainder capturable later.
+      A2. Exceeds authorised: system rejects and shows maximum.
     ],
     [*Exception Flows*], [
-      E1. Payment gateway rejects the capture -- System reports the rejection reason from the gateway and suggests the administrator investigate.
-      E2. Payment gateway is unreachable -- System reports the failure and suggests retrying; the idempotency key ensures safe retry.
-      E3. Payment was already captured by a concurrent operation -- System detects the duplicate and reports the existing capture result.
+      E1. Gateway rejects: system reports rejection reason.
+      E2. Gateway unreachable: system reports failure; idempotency key ensures safe retry.
+      E3. Already captured concurrently: system detects duplicate and reports existing result.
     ],
     [*Related Requirements*], [PAY-FR-03],
   ),
@@ -59,37 +58,35 @@
     [*Use Case Name*], [Refund Payment],
     [*Primary Actor*], [Administrator],
     [*Supporting Actors*], [Payment Gateway],
-    [*Goal*], [Issue a refund against a captured payment, not exceeding the captured amount.],
+    [*Goal*], [Issue a refund against a captured payment.],
     [*Trigger*], [Administrator selects the refund action on a captured payment.],
     [*Preconditions*], [
-      - Administrator is authenticated with refund permissions.
-      - Payment is in captured state.
+      - Authenticated with refund permissions.
+      - Payment is captured.
     ],
     [*Postconditions*], [
-      - Refund processed.
-      - Funds returned to the customer.
-      - Payment state updated.
+      - Refund processed. Payment state updated.
     ],
     [*Main Success Scenario*], [
-      1. Administrator -- Opens the payment detail view for a captured payment.
-      2. System -- Displays the captured amount and refund eligibility.
-      3. Administrator -- Enters the refund amount (full or partial) not exceeding the captured amount.
-      4. Administrator -- Provides a refund reason.
-      5. Administrator -- Confirms the refund.
-      6. System -- Validates that the refund amount does not exceed the captured amount.
-      7. System -- Sends the refund request to the payment gateway with an idempotency key.
-      8. System -- Receives confirmation from the gateway.
-      9. System -- Updates the payment state to refunded (or partially refunded).
-      10. System -- Confirms the refund and displays the refund transaction details.
+      1. Opens payment detail view for a captured payment.
+      2. System displays captured amount and refund eligibility.
+      3. Enters refund amount (full or partial) not exceeding captured amount.
+      4. Provides a refund reason.
+      5. Confirms the refund.
+      6. System validates amount does not exceed captured amount.
+      7. System sends refund request to gateway with idempotency key.
+      8. System receives gateway confirmation.
+      9. System updates payment state to refunded or partially refunded.
+      10. System confirms refund and displays transaction details.
     ],
     [*Alternative Flows*], [
-      A1. Partial refund -- Administrator issues a refund for less than the full captured amount; the remaining amount can be refunded later.
-      A2. Multiple partial refunds -- System tracks cumulative refunded amount and prevents the total refunds from exceeding the captured amount.
-      A3. Refund amount exceeds captured amount -- System rejects and displays the maximum refundable amount.
+      A1. Partial refund: remaining amount refundable later.
+      A2. Multiple partial refunds: system tracks cumulative amount and prevents exceeding.
+      A3. Exceeds captured: system rejects and shows maximum.
     ],
     [*Exception Flows*], [
-      E1. Payment gateway rejects the refund -- System reports the rejection reason from the gateway and suggests the administrator investigate.
-      E2. Payment gateway is unreachable -- System reports the failure and suggests retrying; the idempotency key ensures safe retry.
+      E1. Gateway rejects: system reports rejection reason.
+      E2. Gateway unreachable: system reports failure; idempotency key ensures safe retry.
     ],
     [*Related Requirements*], [PAY-FR-03, PAY-FR-05],
   ),
@@ -107,34 +104,33 @@
     [*Use Case Name*], [Void Payment],
     [*Primary Actor*], [Administrator],
     [*Supporting Actors*], [Payment Gateway],
-    [*Goal*], [Void an authorised but un-captured payment, releasing the fund hold on the customer's account.],
+    [*Goal*], [Void an authorised but un-captured payment, releasing the fund hold.],
     [*Trigger*], [Administrator selects the void action on an authorised payment.],
     [*Preconditions*], [
-      - Administrator is authenticated with payment management permissions.
-      - Payment is authorised but not captured.
+      - Authenticated with payment management permissions.
+      - Payment authorised but not captured.
     ],
     [*Postconditions*], [
-      - Payment voided and fund hold released.
-      - Order payment state updated.
+      - Payment voided. Fund hold released.
     ],
     [*Main Success Scenario*], [
-      1. Administrator -- Opens the payment detail view for an authorised payment.
-      2. System -- Displays the authorised amount and void eligibility.
-      3. Administrator -- Selects the void action.
-      4. System -- Displays a confirmation prompt explaining that the fund hold will be released.
-      5. Administrator -- Confirms the void.
-      6. System -- Sends the void request to the payment gateway with an idempotency key.
-      7. System -- Receives confirmation from the gateway.
-      8. System -- Updates the payment state to voided.
-      9. System -- Confirms successful void.
+      1. Opens payment detail view for an authorised payment.
+      2. System displays authorised amount and void eligibility.
+      3. Selects the void action.
+      4. System displays confirmation prompt.
+      5. Confirms the void.
+      6. System sends void request to gateway with idempotency key.
+      7. System receives gateway confirmation.
+      8. System updates payment state to voided.
+      9. System confirms successful void.
     ],
     [*Alternative Flows*], [
-      A1. Payment was already captured -- System prevents void and suggests a refund instead (see UC-ADM-PAY-02).
-      A2. Payment is in a state that does not support void -- System displays the current payment state and explains why void is not available.
+      A1. Already captured: system prevents and suggests refund (UC-ADM-PAY-02).
+      A2. State doesn't support void: system displays current state and explains.
     ],
     [*Exception Flows*], [
-      E1. Payment gateway rejects the void -- System reports the rejection reason from the gateway.
-      E2. Payment gateway is unreachable -- System reports the failure and suggests retrying.
+      E1. Gateway rejects: system reports rejection reason.
+      E2. Gateway unreachable: system reports failure and suggests retry.
     ],
     [*Related Requirements*], [PAY-FR-09],
   ),
@@ -152,29 +148,28 @@
     [*Use Case Name*], [View Payments],
     [*Primary Actor*], [Administrator],
     [*Supporting Actors*], [None],
-    [*Goal*], [List payments with filtering and view individual payment detail including gateway state and system state.],
-    [*Trigger*], [Administrator navigates to the payment management interface.],
+    [*Goal*], [List payments with filters; view payment detail including gateway and system state.],
+    [*Trigger*], [Administrator navigates to payment management.],
     [*Preconditions*], [
-      - Administrator is authenticated with payment viewing permissions.
+      - Authenticated with payment viewing permissions.
     ],
     [*Postconditions*], [
-      - Payment records displayed.
-      - Gateway state and system state shown together for each payment.
+      - Payment records displayed with gateway and system state.
     ],
     [*Main Success Scenario*], [
-      1. Administrator -- Navigates to the payment management interface.
-      2. System -- Displays the payment list with default sorting (most recent first) showing payment ID, order reference, amount, state, and gateway.
-      3. Administrator -- Applies optional filters: payment state, date range, gateway, order number.
-      4. System -- Refreshes the listing with filtered results and pagination controls.
-      5. Administrator -- Selects an individual payment to view detail.
-      6. System -- Displays the full payment detail: amount, currency, gateway, state timeline, associated order reference, capture and refund history.
+      1. Navigates to payment management.
+      2. System displays payment list sorted by most recent.
+      3. Applies optional filters: state, date range, gateway, order number.
+      4. System refreshes listing with pagination.
+      5. Selects a payment to view detail.
+      6. System displays full payment detail: amount, currency, gateway, state timeline, order reference, capture and refund history.
     ],
     [*Alternative Flows*], [
-      A1. No payments match the applied filters -- System displays an empty result message with suggestion to broaden the filter criteria.
-      A2. Administrator views a payment with a state mismatch between system and gateway -- System highlights the discrepancy and suggests synchronising with the gateway.
+      A1. No payments match: system displays empty message with suggestion to broaden filters.
+      A2. State mismatch: system highlights discrepancy and suggests syncing.
     ],
     [*Exception Flows*], [
-      E1. System fails to retrieve payment data -- System displays an error message and offers a retry option.
+      E1. Retrieval failure: system displays error and offers retry.
     ],
     [*Related Requirements*], [PAY-FR-07],
   ),
@@ -196,32 +191,31 @@
     [*Use Case Name*], [Manage Payment Methods],
     [*Primary Actor*], [Administrator],
     [*Supporting Actors*], [None],
-    [*Goal*], [Create, update, activate, deactivate, or remove payment methods with gateway-specific parameters.],
-    [*Trigger*], [Administrator navigates to the payment method configuration interface.],
+    [*Goal*], [Manage payment methods with gateway-specific parameters.],
+    [*Trigger*], [Administrator navigates to payment method configuration.],
     [*Preconditions*], [
-      - Administrator is authenticated with payment method management permissions.
+      - Authenticated with payment method management permissions.
     ],
     [*Postconditions*], [
-      - Payment method configuration updated.
-      - Active methods available for storefront selection.
+      - Payment methods updated and available for storefront selection.
     ],
     [*Main Success Scenario*], [
-      1. Administrator -- Navigates to the payment method configuration interface.
-      2. System -- Displays the list of configured payment methods with their activation status.
-      3. Administrator -- Creates a new payment method with a name, description, gateway identifier, and gateway-specific parameters.
-      4. Administrator -- Optionally edits, activates, deactivates, or removes existing payment methods.
-      5. Administrator -- Saves the changes.
-      6. System -- Validates that the method name is unique and the gateway identifier is supported.
-      7. System -- Persists the payment method configuration.
-      8. System -- Confirms the changes.
+      1. Navigates to payment method configuration.
+      2. System displays configured payment methods with activation status.
+      3. Creates a new method with name, description, gateway identifier, and parameters.
+      4. Optionally edits, activates, deactivates, or removes methods.
+      5. Saves the changes.
+      6. System validates name uniqueness and gateway support.
+      7. System persists the configuration.
+      8. System confirms the changes.
     ],
     [*Alternative Flows*], [
-      A1. Administrator deactivates a payment method currently in use by active orders -- System warns that new orders cannot use this method but existing orders remain unaffected.
-      A2. Administrator removes a payment method -- System verifies no pending payments reference the method and asks for confirmation.
-      A3. Gateway parameters are invalid for the selected gateway -- System rejects and highlights the invalid parameters.
+      A1. Deactivate method in use: system warns new orders cannot use it; existing unaffected.
+      A2. Remove method: system verifies no pending payments reference it.
+      A3. Invalid gateway parameters: system rejects and highlights invalid ones.
     ],
     [*Exception Flows*], [
-      E1. Concurrent modification detected -- System detects the payment method was modified by another session, refreshes the data, and asks the administrator to retry.
+      E1. Concurrent modification: system refreshes and asks to retry.
     ],
     [*Related Requirements*], [PAY-FR-10],
   ),

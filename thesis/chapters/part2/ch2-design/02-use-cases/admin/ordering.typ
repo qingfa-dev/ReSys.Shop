@@ -13,28 +13,28 @@
     [*Use Case Name*], [View Orders],
     [*Primary Actor*], [Administrator],
     [*Supporting Actors*], [None],
-    [*Goal*], [List orders with filtering by status, date range, and customer; view individual order detail with full transactional context.],
-    [*Trigger*], [Administrator navigates to the order management interface.],
+    [*Goal*], [View orders with filtering by status, date, and customer; inspect full order detail.],
+    [*Trigger*], [Administrator navigates to order management.],
     [*Preconditions*], [
-      - Administrator is authenticated with order viewing permissions.
+      - Authenticated with order viewing permissions.
     ],
     [*Postconditions*], [
-      - Order data displayed with full transactional context including line items, payment state, and shipment state.
+      - Order data displayed with transactional context.
     ],
     [*Main Success Scenario*], [
-      1. Administrator -- Navigates to the order management interface.
-      2. System -- Displays the order list with default sorting (most recent first).
-      3. Administrator -- Applies optional filters: order status, date range, customer email.
-      4. System -- Refreshes the listing with filtered results and pagination controls.
-      5. Administrator -- Selects an individual order to view detail.
-      6. System -- Displays the full order detail: line items, pricing breakdown, payment state, shipment state, shipping and billing addresses, and status timeline.
+      1. Navigates to order management.
+      2. System displays order list sorted by most recent.
+      3. Applies optional filters: status, date range, customer email.
+      4. System refreshes listing with pagination.
+      5. Selects an order to view detail.
+      6. System displays full order detail: line items, pricing, payment state, shipment state, addresses, and status timeline.
     ],
     [*Alternative Flows*], [
-      A1. No orders match the applied filters -- System displays an empty result message with suggestion to broaden the filter criteria.
-      A2. Administrator exports the order list -- System generates a downloadable file with the current filtered results.
+      A1. No orders match: system displays empty message with suggestion to broaden filters.
+      A2. Exports list: system generates downloadable file of filtered results.
     ],
     [*Exception Flows*], [
-      E1. System fails to retrieve order data -- System displays an error message and offers a retry option.
+      E1. Retrieval failure: system displays error and offers retry.
     ],
     [*Related Requirements*], [ORD-FR-13],
   ),
@@ -52,35 +52,34 @@
     [*Use Case Name*], [Update Order],
     [*Primary Actor*], [Administrator],
     [*Supporting Actors*], [None],
-    [*Goal*], [Modify order attributes: adjust line items, update shipping and billing addresses, change delivery method.],
+    [*Goal*], [Modify line items, addresses, or delivery method on an editable order.],
     [*Trigger*], [Administrator opens the order edit form from the order detail view.],
     [*Preconditions*], [
-      - Administrator is authenticated with order update permissions.
-      - The order is in a mutable state.
+      - Authenticated with order update permissions.
+      - Order is in a mutable state.
     ],
     [*Postconditions*], [
-      - Order updated and totals recalculated to reflect the changes.
-      - Change recorded in the order audit log.
+      - Order updated with recalculated totals. Change logged.
     ],
     [*Main Success Scenario*], [
-      1. Administrator -- Opens an order from the order listing.
-      2. System -- Displays the order detail view.
-      3. Administrator -- Initiates the edit action.
-      4. System -- Presents the editable order form with current values.
-      5. Administrator -- Modifies line items (add, remove, or change quantities), updates shipping or billing addresses, or selects a different shipping method.
-      6. Administrator -- Submits the changes.
-      7. System -- Validates the modifications (stock availability for changed quantities, address completeness).
-      8. System -- Recalculates item totals, shipment total, and order total.
-      9. System -- Persists the updated order and logs the change.
-      10. System -- Confirms the update.
+      1. Opens an order from the listing.
+      2. System displays order detail.
+      3. Initiates the edit action.
+      4. System presents the editable form with current values.
+      5. Modifies line items, addresses, or shipping method.
+      6. Submits the changes.
+      7. System validates modifications (stock, address completeness).
+      8. System recalculates totals.
+      9. System persists the updated order and logs the change.
+      10. System confirms the update.
     ],
     [*Alternative Flows*], [
-      A1. Requested quantity exceeds available stock -- System rejects the line item change and displays the maximum available quantity.
-      A2. Administrator removes all line items -- System rejects and warns that the order must have at least one line item.
-      A3. Administrator changes the shipping address to a zone not served by the current shipping method -- System warns and prompts to select a compatible shipping method.
+      A1. Quantity exceeds stock: system rejects and shows max available.
+      A2. All line items removed: system rejects and warns at least one is required.
+      A3. Address incompatible with shipping method: system warns and prompts method change.
     ],
     [*Exception Flows*], [
-      E1. Order was transitioned to an immutable state by a concurrent operation -- System refreshes the order detail and notifies the administrator that the order is no longer editable.
+      E1. Order became immutable concurrently: system refreshes and notifies order is no longer editable.
     ],
     [*Related Requirements*], [ORD-FR-13],
   ),
@@ -101,32 +100,31 @@
     [*Goal*], [Approve a pending order for fulfilment after verifying payment and inventory.],
     [*Trigger*], [Administrator selects the approve action on a pending order.],
     [*Preconditions*], [
-      - Administrator is authenticated with order approval permissions.
-      - The order is in pending state.
-      - Payment is verified and captured.
-      - Inventory is available for all line items.
+      - Authenticated with order approval permissions.
+      - Order is pending.
+      - Payment verified and captured.
+      - Inventory available.
     ],
     [*Postconditions*], [
-      - Order approved and moved to fulfilment state.
-      - Fulfilment process can begin.
+      - Order approved and moved to fulfilment.
     ],
     [*Main Success Scenario*], [
-      1. Administrator -- Opens a pending order from the order listing.
-      2. System -- Displays the order detail including payment status and inventory reservation status.
-      3. Administrator -- Verifies payment capture and inventory availability.
-      4. Administrator -- Selects the approve action.
-      5. System -- Performs final validation of payment state and inventory reservations.
-      6. System -- Transitions the order to approved state.
-      7. System -- Confirms approval and displays the updated order status.
+      1. Opens a pending order.
+      2. System displays order detail with payment and inventory status.
+      3. Verifies payment capture and inventory availability.
+      4. Selects the approve action.
+      5. System performs final validation of payment and inventory.
+      6. System transitions order to approved state.
+      7. System confirms approval and displays updated status.
     ],
     [*Alternative Flows*], [
-      A1. Payment has not been captured -- System prevents approval and suggests the administrator capture the payment first.
-      A2. Inventory reservation for a line item has expired -- System prevents approval, releases the stale reservation, and notifies the administrator to re-reserve stock.
-      A3. Administrator cancels the approval action -- System returns to the order detail view without changes.
+      A1. Payment not captured: system prevents and suggests capturing first.
+      A2. Inventory reservation expired: system prevents, releases stale reservation, notifies to re-reserve.
+      A3. Cancels approval: system returns to order detail without changes.
     ],
     [*Exception Flows*], [
-      E1. Order was modified by a concurrent session -- System detects the conflict, refreshes the order data, and asks the administrator to re-evaluate.
-      E2. Payment gateway reports a state mismatch -- System prevents approval and advises the administrator to verify the payment state with the gateway before retrying.
+      E1. Concurrent modification: system refreshes and asks to re-evaluate.
+      E2. Payment gateway state mismatch: system prevents and advises verifying with gateway.
     ],
     [*Related Requirements*], [ORD-FR-13],
   ),
@@ -145,35 +143,33 @@
     [*Primary Actor*], [Administrator],
     [*Supporting Actors*], [None],
     [*Goal*], [Mark an order as fulfilled after shipment confirmation.],
-    [*Trigger*], [Administrator selects the complete action on an order in fulfilment state.],
+    [*Trigger*], [Administrator selects the complete action on an order in fulfilment.],
     [*Preconditions*], [
-      - Administrator is authenticated with order completion permissions.
-      - The order is in fulfilment state.
-      - Shipment has been dispatched.
+      - Authenticated with order completion permissions.
+      - Order is in fulfilment state.
+      - Shipment dispatched.
     ],
     [*Postconditions*], [
-      - Order completed and locked against further modification.
-      - Inventory on-hand quantities decremented.
-      - Order marked as immutable.
+      - Order completed and immutable. Inventory decremented.
     ],
     [*Main Success Scenario*], [
-      1. Administrator -- Opens an order in fulfilment state.
-      2. System -- Displays the order detail including shipment tracking information.
-      3. Administrator -- Verifies that the shipment has been dispatched with valid tracking details.
-      4. Administrator -- Selects the complete action.
-      5. System -- Displays a confirmation prompt.
-      6. Administrator -- Confirms completion.
-      7. System -- Decrements on-hand inventory quantities for each line item.
-      8. System -- Transitions the order to completed state and marks it as immutable.
-      9. System -- Records the completion in the audit log.
-      10. System -- Confirms successful completion.
+      1. Opens an order in fulfilment state.
+      2. System displays order detail with tracking information.
+      3. Verifies shipment dispatched with tracking details.
+      4. Selects the complete action.
+      5. System displays confirmation prompt.
+      6. Confirms completion.
+      7. System decrements on-hand inventory for each line item.
+      8. System transitions order to completed and marks as immutable.
+      9. System records completion in audit log.
+      10. System confirms completion.
     ],
     [*Alternative Flows*], [
-      A1. No tracking number has been assigned -- System warns the administrator but allows completion if shipment is confirmed.
-      A2. Administrator attempts to complete an order before shipment -- System warns and recommends completing after dispatch; allows override for hand-delivery or pickup scenarios.
+      A1. No tracking number: system warns but allows if shipment confirmed.
+      A2. Complete before shipment: system warns and recommends after dispatch; allows override.
     ],
     [*Exception Flows*], [
-      E1. Inventory decrement fails due to a data conflict -- System reports the failure and suggests the administrator verify current stock levels before retrying.
+      E1. Inventory decrement data conflict: system reports and suggests verifying stock levels.
     ],
     [*Related Requirements*], [ORD-FR-13],
   ),
@@ -191,37 +187,34 @@
     [*Use Case Name*], [Cancel Order],
     [*Primary Actor*], [Administrator],
     [*Supporting Actors*], [Payment Gateway],
-    [*Goal*], [Cancel an order at any pre-completion stage and release reserved inventory.],
+    [*Goal*], [Cancel an order and release reserved inventory.],
     [*Trigger*], [Administrator selects the cancel action on an order.],
     [*Preconditions*], [
-      - Administrator is authenticated with cancellation permissions.
-      - The order is in a cancellable state (not completed or already cancelled).
+      - Authenticated with cancellation permissions.
+      - Order is cancellable (not completed or already cancelled).
     ],
     [*Postconditions*], [
-      - Order cancelled.
-      - Reserved inventory returned to availability.
-      - Payment voided if not yet captured.
-      - Refund issued if payment was captured.
+      - Order cancelled. Inventory released. Payment voided or refunded.
     ],
     [*Main Success Scenario*], [
-      1. Administrator -- Opens the order detail view.
-      2. Administrator -- Selects the cancel action.
-      3. System -- Displays a confirmation prompt with a summary of consequences (inventory release, payment action).
-      4. Administrator -- Provides a cancellation reason.
-      5. Administrator -- Confirms the cancellation.
-      6. System -- Releases all reserved inventory back to available stock.
-      7. System -- Voids the payment if authorised but not captured, or initiates a refund if already captured.
-      8. System -- Transitions the order to cancelled state.
-      9. System -- Confirms the cancellation and displays the updated order status.
+      1. Opens the order detail view.
+      2. Selects the cancel action.
+      3. System displays confirmation with consequences summary.
+      4. Provides a cancellation reason.
+      5. Confirms the cancellation.
+      6. System releases all reserved inventory.
+      7. System voids payment if uncaptured or initiates refund if captured.
+      8. System transitions order to cancelled state.
+      9. System confirms cancellation and displays updated status.
     ],
     [*Alternative Flows*], [
-      A1. Payment void fails (already captured) -- System proceeds with a refund instead and reports the refund transaction to the administrator.
-      A2. Refund amount is partial due to gateway fees -- System records the partial refund and displays the refunded amount in the order detail.
-      A3. Administrator cancels the operation -- System returns to the order detail view without changes.
+      A1. Void fails (already captured): system proceeds with refund.
+      A2. Partial refund due to gateway fees: system records partial refund.
+      A3. Cancels operation: system returns to order detail without changes.
     ],
     [*Exception Flows*], [
-      E1. Payment gateway is unreachable -- System cancels the order and releases inventory; the payment action is queued for retry and the administrator is notified to verify the payment state when the gateway is operational.
-      E2. Concurrent state change detected -- System refreshes the order and notifies the administrator that the order state has changed.
+      E1. Payment gateway unreachable: system cancels order, releases inventory, queues payment action, notifies to verify.
+      E2. Concurrent state change: system refreshes and notifies.
     ],
     [*Related Requirements*], [ORD-FR-07, ORD-FR-13],
   ),
@@ -239,32 +232,31 @@
     [*Use Case Name*], [Resume Order],
     [*Primary Actor*], [Administrator],
     [*Supporting Actors*], [None],
-    [*Goal*], [Resume a previously paused or stalled order, returning it to the active workflow.],
+    [*Goal*], [Resume a paused or stalled order, returning it to active workflow.],
     [*Trigger*], [Administrator selects the resume action on a paused or stalled order.],
     [*Preconditions*], [
-      - Administrator is authenticated with order management permissions.
-      - The order is in a paused or stalled state.
+      - Authenticated with order management permissions.
+      - Order is paused or stalled.
     ],
     [*Postconditions*], [
-      - Order returned to pending processing state.
-      - Order continues through the normal workflow.
+      - Order returned to pending state.
     ],
     [*Main Success Scenario*], [
-      1. Administrator -- Locates a paused or stalled order from the order listing.
-      2. System -- Displays the order detail including the reason for the pause or stall.
-      3. Administrator -- Resolves the underlying issue (e.g. confirms inventory, verifies payment).
-      4. Administrator -- Selects the resume action.
-      5. System -- Validates that all prerequisites for processing are met.
-      6. System -- Transitions the order back to pending state.
-      7. System -- Confirms the resumption and displays the updated order status.
+      1. Locates a paused or stalled order.
+      2. System displays order detail with pause/stall reason.
+      3. Resolves the underlying issue.
+      4. Selects the resume action.
+      5. System validates prerequisites are met.
+      6. System transitions order back to pending state.
+      7. System confirms resumption and displays updated status.
     ],
     [*Alternative Flows*], [
-      A1. Prerequisites still not met -- System prevents resumption and displays the specific issues that must be resolved first.
-      A2. Underlying issue was a payment hold that has now been released -- System verifies the new payment state and allows resumption.
-      A3. Administrator cancels instead of resuming -- System proceeds with the cancel order flow (see UC-ADM-ORD-05).
+      A1. Prerequisites not met: system prevents and displays issues to resolve.
+      A2. Payment hold released: system verifies and allows.
+      A3. Cancels instead: proceeds with cancel order flow (UC-ADM-ORD-05).
     ],
     [*Exception Flows*], [
-      E1. Order state changed by a concurrent session -- System refreshes the order data and notifies the administrator.
+      E1. Concurrent state change: system refreshes and notifies.
     ],
     [*Related Requirements*], [ORD-FR-13],
   ),

@@ -13,34 +13,32 @@
     [*Use Case Name*], [Create Product],
     [*Primary Actor*], [Administrator],
     [*Supporting Actors*], [None],
-    [*Goal*], [Enter product information, configure a master variant, and assign the product to taxons.],
-    [*Trigger*], [Administrator initiates product creation in the administration interface.],
+    [*Goal*], [Add a new product with a master variant and taxon assignments.],
+    [*Trigger*], [Administrator initiates product creation.],
     [*Preconditions*], [
-      - Administrator is authenticated with catalog management permissions.
+      - Authenticated with catalog permissions.
     ],
     [*Postconditions*], [
-      - New product created in Draft status.
-      - At least one master variant associated with the product.
-      - Product available for further catalog configuration.
+      - Product created in Draft status with a master variant.
     ],
     [*Main Success Scenario*], [
-      1. Administrator -- Selects the option to create a new product.
-      2. System -- Presents the product creation form.
-      3. Administrator -- Enters product details: name, description, slug, and fashion-specific metadata (style code, season, material, department, gender target).
-      4. Administrator -- Defines at least one variant with SKU and price as the master variant.
-      5. Administrator -- Assigns the product to relevant taxons.
-      6. Administrator -- Submits the product.
-      7. System -- Validates all fields and the slug for uniqueness.
-      8. System -- Creates the product record with Draft status and the master variant.
-      9. System -- Confirms successful creation and displays the new product.
+      1. Selects the option to create a new product.
+      2. System presents the product creation form.
+      3. Enters product name, description, slug, and fashion metadata (style code, season, material, department, gender target).
+      4. Defines at least one variant with SKU and price as the master variant.
+      5. Assigns the product to relevant taxons.
+      6. Submits the product.
+      7. System validates all fields and slug uniqueness.
+      8. System creates the product record with Draft status and the master variant.
+      9. System confirms successful creation.
     ],
     [*Alternative Flows*], [
-      A1. Slug is not unique -- System rejects the submission and prompts administrator to enter a different slug.
-      A2. Administrator submits without a master variant -- System rejects and instructs administrator to designate a master variant.
-      A3. Administrator provides only partial variant information -- System saves the product but marks the variant as incomplete.
+      A1. Slug not unique: system rejects and prompts for a different slug.
+      A2. No master variant: system rejects and instructs to designate one.
+      A3. Partial variant info: system saves product but marks variant as incomplete.
     ],
     [*Exception Flows*], [
-      E1. System fails to persist the product -- System reports the failure and retains the form data for retry.
+      E1. Persistence failure: system reports and retains form data for retry.
     ],
     [*Related Requirements*], [CAT-FR-01, CAT-FR-02, CAT-FR-03, CAT-FR-11, CAT-FR-13],
   ),
@@ -58,33 +56,31 @@
     [*Use Case Name*], [Update Product],
     [*Primary Actor*], [Administrator],
     [*Supporting Actors*], [None],
-    [*Goal*], [Modify catalog information, metadata, SEO attributes, or status of an existing product.],
-    [*Trigger*], [Administrator selects a product from the catalog listing and opens the edit form.],
+    [*Goal*], [Modify an existing product's catalog information and status.],
+    [*Trigger*], [Administrator selects a product and opens the edit form.],
     [*Preconditions*], [
-      - Administrator is authenticated with catalog management permissions.
-      - The product exists.
+      - Authenticated with catalog permissions.
+      - Product exists.
     ],
     [*Postconditions*], [
-      - Product updated with new information.
-      - Catalog constraints remain consistent.
-      - Status transitions logged for audit.
+      - Product updated. Status transitions logged.
     ],
     [*Main Success Scenario*], [
-      1. Administrator -- Selects a product from the catalog listing.
-      2. System -- Displays the product edit form with current values.
-      3. Administrator -- Modifies one or more fields: name, description, slug, fashion metadata, SEO attributes, or status.
-      4. Administrator -- Submits the changes.
-      5. System -- Validates all fields and checks slug uniqueness if the slug was changed.
-      6. System -- Persists the updated product record.
-      7. System -- Confirms successful update.
+      1. Selects a product from the catalog listing.
+      2. System displays the edit form with current values.
+      3. Modifies fields: name, description, slug, fashion metadata, SEO attributes, or status.
+      4. Submits the changes.
+      5. System validates all fields and slug uniqueness if slug was changed.
+      6. System persists the updated product.
+      7. System confirms successful update.
     ],
     [*Alternative Flows*], [
-      A1. Administrator changes the slug to one already in use -- System rejects and prompts for a unique slug.
-      A2. Administrator transitions the product from Active to Archived -- System verifies no active orders reference this product before allowing the transition.
-      A3. Administrator clears required fields -- System highlights the missing fields and prevents submission.
+      A1. Slug already in use: system rejects and prompts for a unique slug.
+      A2. Active to Archived transition: system verifies no active orders reference this product before allowing.
+      A3. Required fields cleared: system highlights missing fields and prevents submission.
     ],
     [*Exception Flows*], [
-      E1. System fails to persist the update -- System reports the failure and retains the form data for retry.
+      E1. Persistence failure: system reports and retains form data for retry.
     ],
     [*Related Requirements*], [CAT-FR-01, CAT-FR-02, CAT-FR-11, CAT-FR-12],
   ),
@@ -102,32 +98,30 @@
     [*Use Case Name*], [Archive Product],
     [*Primary Actor*], [Administrator],
     [*Supporting Actors*], [None],
-    [*Goal*], [Remove a product from the active catalog while retaining data for order history and reporting.],
+    [*Goal*], [Remove a product from the active catalog, retaining data for history.],
     [*Trigger*], [Administrator selects the archive action on a product.],
     [*Preconditions*], [
-      - Administrator is authenticated with catalog management permissions.
-      - The product exists.
+      - Authenticated with catalog permissions.
+      - Product exists.
     ],
     [*Postconditions*], [
-      - Product removed from storefront browsing and search.
-      - Associated data retained for order history and reporting.
-      - Product status set to Archived.
+      - Product archived and removed from storefront views.
     ],
     [*Main Success Scenario*], [
-      1. Administrator -- Selects a product from the catalog listing.
-      2. Administrator -- Initiates the archive action.
-      3. System -- Displays a confirmation prompt with details about the product and its active variants.
-      4. Administrator -- Confirms the archive operation.
-      5. System -- Transitions the product status to Archived.
-      6. System -- Removes the product from all storefront-facing views and search results.
-      7. System -- Confirms successful archival.
+      1. Selects a product from the catalog listing.
+      2. Initiates the archive action.
+      3. System displays a confirmation prompt with product details.
+      4. Confirms the archive operation.
+      5. System transitions the product to Archived.
+      6. System removes the product from storefront views and search.
+      7. System confirms successful archival.
     ],
     [*Alternative Flows*], [
-      A1. Product is referenced by currently active orders -- System warns the administrator and allows archival (active orders remain unaffected) or cancellation of the operation.
-      A2. Administrator cancels the confirmation -- System aborts the archive operation and returns to the product detail view.
+      A1. Product referenced by active orders: system warns and allows archival or cancellation.
+      A2. Cancels confirmation: system aborts and returns to product detail.
     ],
     [*Exception Flows*], [
-      E1. Concurrent modification detected -- System detects the product was modified by another session, refreshes the data, and asks the administrator to retry.
+      E1. Concurrent modification: system detects change, refreshes data, asks for retry.
     ],
     [*Related Requirements*], [CAT-FR-12],
   ),
@@ -149,34 +143,33 @@
     [*Use Case Name*], [Add Product Variant],
     [*Primary Actor*], [Administrator],
     [*Supporting Actors*], [None],
-    [*Goal*], [Define a variant with SKU, barcode, physical attributes, and optional option values for a product.],
+    [*Goal*], [Add a variant with SKU, attributes, and option values to a product.],
     [*Trigger*], [Administrator opens the variant creation form from the product detail page.],
     [*Preconditions*], [
-      - Administrator is authenticated with catalog management permissions.
-      - The parent product exists.
+      - Authenticated with catalog permissions.
+      - Parent product exists.
     ],
     [*Postconditions*], [
-      - New variant associated with the product.
-      - Variant available for inventory, pricing, and catalog operations.
+      - Variant created and available for inventory and pricing.
     ],
     [*Main Success Scenario*], [
-      1. Administrator -- Navigates to the product detail page and selects the option to add a variant.
-      2. System -- Presents the variant creation form.
-      3. Administrator -- Enters variant details: SKU, barcode, dimensions, weight, and position.
-      4. Administrator -- Assigns option values (e.g. Size M, Colour Red) from available option types.
-      5. Administrator -- Submits the variant.
-      6. System -- Validates that the SKU is unique across the catalog.
-      7. System -- Validates that the option value combination does not conflict with an existing variant for this product.
-      8. System -- Creates the variant and associates it with the product.
-      9. System -- Confirms successful creation.
+      1. Navigates to product detail and selects add variant.
+      2. System presents the variant creation form.
+      3. Enters variant details: SKU, barcode, dimensions, weight, and position.
+      4. Assigns option values (e.g. Size M, Colour Red) from available option types.
+      5. Submits the variant.
+      6. System validates SKU uniqueness.
+      7. System validates option combination does not conflict with existing variants.
+      8. System creates the variant and associates it with the product.
+      9. System confirms successful creation.
     ],
     [*Alternative Flows*], [
-      A1. SKU is not unique -- System rejects and prompts administrator to enter a different SKU.
-      A2. Duplicate option value combination -- System rejects and warns that the same combination already exists for another variant of this product.
-      A3. Administrator omits all option values -- System accepts the variant but displays a reminder that configuring options improves the storefront experience.
+      A1. SKU not unique: system rejects and prompts for a different SKU.
+      A2. Duplicate option combination: system rejects and highlights the conflict.
+      A3. No option values: system accepts but reminds to configure options.
     ],
     [*Exception Flows*], [
-      E1. System fails to persist the variant -- System reports the failure and retains the form data for retry.
+      E1. Persistence failure: system reports and retains form data for retry.
     ],
     [*Related Requirements*], [CAT-FR-03, CAT-FR-21],
   ),
@@ -194,34 +187,33 @@
     [*Use Case Name*], [Configure Variant Options],
     [*Primary Actor*], [Administrator],
     [*Supporting Actors*], [None],
-    [*Goal*], [Assign a valid combination of option values such as size and colour to a variant.],
+    [*Goal*], [Assign option values such as size and colour to a variant.],
     [*Trigger*], [Administrator opens the option configuration panel for a variant.],
     [*Preconditions*], [
-      - Administrator is authenticated with catalog management permissions.
-      - The variant exists.
-      - The relevant option types and values exist.
+      - Authenticated with catalog permissions.
+      - Variant exists.
+      - Relevant option types and values exist.
     ],
     [*Postconditions*], [
-      - Variant has a defined option configuration.
-      - Option values are presentable as product choices in the storefront.
+      - Variant options configured for storefront display.
     ],
     [*Main Success Scenario*], [
-      1. Administrator -- Selects a variant from the product detail page.
-      2. System -- Displays the variant detail including current option assignments.
-      3. Administrator -- Selects an option type (e.g. Size) and chooses a value from the predefined list.
-      4. Administrator -- Repeats for additional option types (e.g. Colour, Material).
-      5. Administrator -- Saves the option configuration.
-      6. System -- Validates the option value combination against existing variants of the same product.
-      7. System -- Persists the updated option assignments.
-      8. System -- Confirms the change.
+      1. Selects a variant from the product detail page.
+      2. System displays variant detail with current option assignments.
+      3. Selects an option type (e.g. Size) and chooses a value from the list.
+      4. Repeats for additional option types (e.g. Colour, Material).
+      5. Saves the option configuration.
+      6. System validates the combination against existing variants.
+      7. System persists the updated option assignments.
+      8. System confirms the change.
     ],
     [*Alternative Flows*], [
-      A1. Selected option value combination already used by another variant -- System rejects and highlights the conflicting variant.
-      A2. Administrator removes a previously assigned option value -- System accepts the change after confirmation.
-      A3. Required option type has no value selected -- System warns the administrator that the variant may not appear in option-based filtering.
+      A1. Combination already used: system rejects and highlights conflicting variant.
+      A2. Removes assigned option value: system accepts after confirmation.
+      A3. Required option has no value: system warns variant may not appear in filtering.
     ],
     [*Exception Flows*], [
-      E1. Option type or value was deleted by a concurrent session -- System refreshes the available options and notifies the administrator to reselect.
+      E1. Option type deleted concurrently: system refreshes and notifies to reselect.
     ],
     [*Related Requirements*], [CAT-FR-10, CAT-FR-21],
   ),
@@ -239,32 +231,31 @@
     [*Use Case Name*], [Configure Variant Pricing],
     [*Primary Actor*], [Administrator],
     [*Supporting Actors*], [None],
-    [*Goal*], [Set or update applicable prices for one or more product variants with currency specification and optional validity periods.],
-    [*Trigger*], [Administrator opens the pricing management interface for a product or variant.],
+    [*Goal*], [Set or update prices for variants with currency and optional validity periods.],
+    [*Trigger*], [Administrator opens the pricing management interface.],
     [*Preconditions*], [
-      - Administrator is authenticated with catalog management permissions.
-      - The variants exist.
+      - Authenticated with catalog permissions.
+      - Variants exist.
     ],
     [*Postconditions*], [
-      - Selected variants have updated pricing configurations.
-      - Prices are used by catalog display and checkout operations.
+      - Pricing updated and used by catalog and checkout.
     ],
     [*Main Success Scenario*], [
-      1. Administrator -- Navigates to the pricing management section for a product.
-      2. System -- Displays current prices for all variants, grouped by currency.
-      3. Administrator -- Selects one or more variants and specifies a new price with currency and optional validity dates.
-      4. Administrator -- Submits the pricing changes.
-      5. System -- Validates the price values (non-negative, valid currency).
-      6. System -- Persists the updated prices.
-      7. System -- Confirms the pricing update.
+      1. Navigates to pricing management for a product.
+      2. System displays current prices for all variants, grouped by currency.
+      3. Selects variants and specifies new price with currency and optional validity dates.
+      4. Submits the pricing changes.
+      5. System validates non-negative prices and valid currency.
+      6. System persists the updated prices.
+      7. System confirms the pricing update.
     ],
     [*Alternative Flows*], [
-      A1. Administrator sets a zero price -- System accepts but displays a warning that the variant will appear as free.
-      A2. Administrator specifies overlapping date ranges for the same variant and currency -- System rejects and asks administrator to adjust the date ranges.
-      A3. Administrator bulk-updates all variants with a percentage adjustment -- System calculates new prices and presents a preview before applying.
+      A1. Zero price: system accepts but warns variant appears as free.
+      A2. Overlapping date ranges for same variant and currency: system rejects.
+      A3. Bulk percentage adjustment: system previews calculated prices before applying.
     ],
     [*Exception Flows*], [
-      E1. System fails to persist pricing changes -- System reports the failure and retains the input data for retry.
+      E1. Persistence failure: system reports and retains input for retry.
     ],
     [*Related Requirements*], [CAT-FR-22],
   ),
@@ -286,36 +277,35 @@
     [*Use Case Name*], [Upload Variant Images],
     [*Primary Actor*], [Administrator],
     [*Supporting Actors*], [ML Service],
-    [*Goal*], [Associate product images with a selected variant and initiate image processing.],
+    [*Goal*], [Associate images with a variant and initiate image processing.],
     [*Trigger*], [Administrator selects a variant and initiates image upload.],
     [*Preconditions*], [
-      - Administrator is authenticated with permission to manage variant images.
-      - The selected variant exists.
+      - Authenticated with image management permissions.
+      - Variant exists.
     ],
     [*Postconditions*], [
-      - Image is stored and associated with the selected variant.
-      - Image processing and embedding generation are scheduled.
+      - Image stored and associated with variant. Processing scheduled.
     ],
     [*Main Success Scenario*], [
-      1. Administrator -- Selects a product variant in the administration interface.
-      2. Administrator -- Selects an image file from the local file system.
-      3. System -- Validates the image format (JPEG, PNG, WebP) and size (max 10 MB).
-      4. Administrator -- Provides display metadata: alt text and display order position.
-      5. System -- Validates the provided metadata.
-      6. Administrator -- Confirms and submits the image.
-      7. System -- Stores the image file and creates the image record associated with the variant.
-      8. System -- Generates thumbnails for catalog listing and preview displays.
-      9. System -- Schedules embedding generation for the new image via the ML service.
-      10. System -- Reports successful upload with a confirmation message.
+      1. Selects a product variant.
+      2. Selects an image file from the local file system.
+      3. System validates format (JPEG, PNG, WebP) and size (max 10 MB).
+      4. Provides alt text and display order position.
+      5. System validates the metadata.
+      6. Confirms and submits the image.
+      7. System stores the image and creates the image record.
+      8. System generates thumbnails for catalog listing and preview.
+      9. System schedules embedding generation via the ML service.
+      10. System reports successful upload.
     ],
     [*Alternative Flows*], [
-      A1. Unsupported image format -- System rejects the upload and displays a message listing the accepted formats.
-      A2. Image exceeds the maximum file size -- System rejects the upload and displays the applicable size constraint.
-      A3. Administrator uploads multiple images simultaneously -- System processes each image in sequence and reports results individually.
+      A1. Unsupported format: system rejects and lists accepted formats.
+      A2. Exceeds max size: system rejects and displays size constraint.
+      A3. Multiple images: system processes sequentially and reports individually.
     ],
     [*Exception Flows*], [
-      E1. Image processing cannot be scheduled -- System stores the image and records the processing failure for later handling; notifies the administrator that the image is uploaded but search results will not include it until processing succeeds.
-      E2. Storage service is unreachable -- System reports the failure and suggests the administrator retry the upload.
+      E1. Processing cannot be scheduled: system stores image and notifies that search will exclude it until processing succeeds.
+      E2. Storage unreachable: system reports failure and suggests retry.
     ],
     [*Related Requirements*], [CAT-FR-04, CAT-FR-05, CAT-FR-14],
   ),
@@ -333,33 +323,32 @@
     [*Use Case Name*], [Regenerate Image Embeddings],
     [*Primary Actor*], [Administrator],
     [*Supporting Actors*], [ML Service],
-    [*Goal*], [Regenerate embeddings for selected product images using the configured model.],
-    [*Trigger*], [Administrator initiates embedding regeneration for one or more images.],
+    [*Goal*], [Regenerate embeddings for selected product images.],
+    [*Trigger*], [Administrator initiates embedding regeneration.],
     [*Preconditions*], [
-      - Administrator is authenticated with catalog management permissions.
-      - The selected images exist.
-      - The ML service is operational.
+      - Authenticated with catalog permissions.
+      - Images exist.
+      - ML service is operational.
     ],
     [*Postconditions*], [
-      - Selected images have current embeddings.
-      - Embeddings are available for visual search and recommendation.
+      - Embeddings updated and available for visual search.
     ],
     [*Main Success Scenario*], [
-      1. Administrator -- Navigates to the image management section and selects one or more product images.
-      2. Administrator -- Initiates the regenerate embeddings action.
-      3. System -- Displays a confirmation prompt showing the number of affected images.
-      4. Administrator -- Confirms the operation.
-      5. System -- Sends each image to the ML service for embedding generation.
-      6. System -- Stores the generated embeddings with model metadata (model name, version, dimension).
-      7. System -- Reports completion with a count of successfully regenerated embeddings.
+      1. Navigates to image management and selects images.
+      2. Initiates the regenerate embeddings action.
+      3. System displays confirmation showing affected image count.
+      4. Confirms the operation.
+      5. System sends each image to the ML service for embedding generation.
+      6. System stores embeddings with model metadata.
+      7. System reports completion with success count.
     ],
     [*Alternative Flows*], [
-      A1. Administrator regenerates embeddings for all images of a product -- System batches the processing and reports progress incrementally.
-      A2. No images are selected -- System disables the regenerate action and prompts the administrator to select at least one image.
+      A1. All images of a product: system batches processing and reports incrementally.
+      A2. No images selected: system disables the action and prompts to select.
     ],
     [*Exception Flows*], [
-      E1. ML service is unavailable -- System reports the failure and suggests the administrator retry when the service is operational.
-      E2. Image file is missing or corrupted -- System skips the image, records the failure, and continues processing the remaining images; reports a summary including failures.
+      E1. ML service unavailable: system reports failure and suggests retry when operational.
+      E2. Missing or corrupted file: system skips and continues; reports summary with failures.
     ],
     [*Related Requirements*], [CAT-FR-05, CAT-FR-15],
   ),
@@ -382,31 +371,30 @@
     [*Primary Actor*], [Administrator],
     [*Supporting Actors*], [None],
     [*Goal*], [Create, update, reorder, or remove taxonomies and their hierarchical taxons.],
-    [*Trigger*], [Administrator navigates to the taxonomy management interface.],
+    [*Trigger*], [Administrator navigates to taxonomy management.],
     [*Preconditions*], [
-      - Administrator is authenticated with taxonomy management permissions.
+      - Authenticated with taxonomy management permissions.
     ],
     [*Postconditions*], [
-      - Taxonomy structure reflects changes.
-      - Taxons remain available for product classification.
+      - Taxonomy structure updated.
     ],
     [*Main Success Scenario*], [
-      1. Administrator -- Navigates to the taxonomy management interface.
-      2. System -- Displays the taxonomy tree with existing taxons in hierarchical order.
-      3. Administrator -- Creates a new taxonomy root or selects an existing taxonomy.
-      4. Administrator -- Adds, edits, reorders, or removes taxon nodes within the hierarchy.
-      5. Administrator -- Optionally defines business rules attached to taxon nodes (attribute constraints, automatic assignments).
-      6. Administrator -- Saves the taxonomy changes.
-      7. System -- Persists the updated taxonomy structure.
-      8. System -- Confirms the changes.
+      1. Navigates to taxonomy management.
+      2. System displays the taxonomy tree with existing taxons.
+      3. Creates a new taxonomy root or selects an existing taxonomy.
+      4. Adds, edits, reorders, or removes taxon nodes.
+      5. Optionally defines business rules attached to taxon nodes.
+      6. Saves the changes.
+      7. System persists the updated taxonomy.
+      8. System confirms the changes.
     ],
     [*Alternative Flows*], [
-      A1. Administrator attempts to delete a taxon with child nodes -- System prompts to either cascade-delete all descendants or reassign them to a sibling taxon.
-      A2. Administrator attempts to delete a taxon with associated products -- System warns that products will lose their classification and asks for confirmation.
-      A3. Administrator reorders a taxon -- System accepts the new position and adjusts sibling ordering automatically.
+      A1. Delete taxon with children: system prompts to cascade-delete or reassign to sibling.
+      A2. Delete taxon with products: system warns products lose classification.
+      A3. Reorder taxon: system accepts and adjusts sibling ordering.
     ],
     [*Exception Flows*], [
-      E1. Concurrent modification detected -- System detects the taxonomy was modified by another session, refreshes the tree, and asks the administrator to retry.
+      E1. Concurrent modification: system refreshes tree and asks to retry.
     ],
     [*Related Requirements*], [CAT-FR-09, CAT-FR-18],
   ),
@@ -424,33 +412,32 @@
     [*Use Case Name*], [Classify Products],
     [*Primary Actor*], [Administrator],
     [*Supporting Actors*], [None],
-    [*Goal*], [Assign or remove product associations with applicable taxons.],
-    [*Trigger*], [Administrator opens the classification panel on a product detail page or from a batch classification view.],
+    [*Goal*], [Assign or remove product associations with taxons.],
+    [*Trigger*], [Administrator opens the classification panel on a product detail page or batch view.],
     [*Preconditions*], [
-      - Administrator is authenticated with catalog management permissions.
-      - The products and taxons exist.
+      - Authenticated with catalog permissions.
+      - Products and taxons exist.
     ],
     [*Postconditions*], [
-      - Products have updated classifications.
-      - Changes reflected in catalog browsing and filtering.
+      - Classifications updated.
     ],
     [*Main Success Scenario*], [
-      1. Administrator -- Selects one or more products from the catalog listing.
-      2. Administrator -- Opens the classification panel.
-      3. System -- Displays the taxonomy tree next to the current product classifications.
-      4. Administrator -- Selects taxons to assign or deselects taxons to remove.
-      5. Administrator -- Saves the classification changes.
-      6. System -- Validates that each assigned taxon path is valid.
-      7. System -- Persists the updated product-taxon associations.
-      8. System -- Confirms the changes.
+      1. Selects products from the catalog listing.
+      2. Opens the classification panel.
+      3. System displays taxonomy tree with current classifications.
+      4. Selects taxons to assign or deselects to remove.
+      5. Saves the changes.
+      6. System validates each taxon path.
+      7. System persists the updated associations.
+      8. System confirms the changes.
     ],
     [*Alternative Flows*], [
-      A1. Administrator assigns a parent taxon without its children -- System accepts the assignment; the product appears when browsing the parent category.
-      A2. Administrator removes all taxons from a product -- System warns that the product will not appear in any category-based browsing path.
-      A3. Administrator triggers auto-classification for a product -- System evaluates applicable taxon rules and assigns matching taxons automatically.
+      A1. Parent taxon without children: system accepts; product appears in parent browsing.
+      A2. All taxons removed: system warns product won't appear in category browsing.
+      A3. Auto-classification: system evaluates rules and assigns matching taxons.
     ],
     [*Exception Flows*], [
-      E1. Referenced taxon was deleted by a concurrent session -- System refreshes the taxonomy tree and notifies the administrator to re-select.
+      E1. Referenced taxon deleted concurrently: system refreshes and notifies.
     ],
     [*Related Requirements*], [CAT-FR-09, CAT-FR-19],
   ),
@@ -472,33 +459,32 @@
     [*Use Case Name*], [Manage Option Types],
     [*Primary Actor*], [Administrator],
     [*Supporting Actors*], [None],
-    [*Goal*], [Create, update, reorder, or remove product option types and their predefined option values.],
-    [*Trigger*], [Administrator navigates to the option type management interface.],
+    [*Goal*], [Manage option types and their predefined values.],
+    [*Trigger*], [Administrator navigates to option type management.],
     [*Preconditions*], [
-      - Administrator is authenticated with option type management permissions.
+      - Authenticated with option type management permissions.
     ],
     [*Postconditions*], [
-      - Configured option types and values available for product and variant configuration.
-      - Changes propagated to product option type associations.
+      - Option types updated and available for product configuration.
     ],
     [*Main Success Scenario*], [
-      1. Administrator -- Navigates to the option type management interface.
-      2. System -- Displays all existing option types with their values.
-      3. Administrator -- Creates a new option type with a name and presentation style (e.g. dropdown, colour swatch).
-      4. Administrator -- Adds ordered option values to the type (e.g. S, M, L, XL for Size).
-      5. Administrator -- Optionally edits, reorders, or removes existing option types and values.
-      6. Administrator -- Saves the changes.
-      7. System -- Validates that option type names are unique and values are not empty.
-      8. System -- Persists the updated option type configuration.
-      9. System -- Confirms the changes.
+      1. Navigates to option type management.
+      2. System displays all option types with their values.
+      3. Creates a new option type with name and presentation style.
+      4. Adds ordered option values (e.g. S, M, L, XL for Size).
+      5. Optionally edits, reorders, or removes existing types and values.
+      6. Saves the changes.
+      7. System validates name uniqueness and non-empty values.
+      8. System persists the configuration.
+      9. System confirms the changes.
     ],
     [*Alternative Flows*], [
-      A1. Administrator attempts to delete an option type in use by products -- System warns that affected products will lose that variant dimension and asks for confirmation.
-      A2. Administrator removes an option value in use by variants -- System warns that affected variants will have incomplete option configurations and asks for confirmation.
-      A3. Administrator reorders option values -- System persists the new order; existing variant configurations are unaffected.
+      A1. Delete type in use by products: system warns and asks for confirmation.
+      A2. Remove value in use by variants: system warns and asks for confirmation.
+      A3. Reorder values: system persists new order; existing configurations unaffected.
     ],
     [*Exception Flows*], [
-      E1. Concurrent modification detected -- System detects the option type was modified by another session, refreshes the data, and asks the administrator to retry.
+      E1. Concurrent modification: system refreshes data and asks to retry.
     ],
     [*Related Requirements*], [CAT-FR-10, CAT-FR-20],
   ),
