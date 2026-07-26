@@ -1,6 +1,6 @@
 == Machine Learning Models
 
-Generating useful embeddings requires models that extract visual features at multiple levels of abstraction. Over the past decade, three families of architectures have emerged: convolutional neural networks, vision transformers, and multimodal CLIP-based models. This section surveys each family, describes the specific variants evaluated in this thesis, and identifies their trade-offs for fashion retrieval.
+Three families of architectures convert images into embeddings: *convolutional neural networks* (CNNs), *vision transformers* (ViTs), and *multimodal CLIP-based models*. Each is surveyed below; tables list the specific variants evaluated in this thesis.
 
 #include "f4/01-cnn.typ"
 #include "f4/02-vit.typ"
