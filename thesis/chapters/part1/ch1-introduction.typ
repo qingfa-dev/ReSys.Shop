@@ -1,45 +1,45 @@
 == Context and Motivation
 
-Global fashion e-commerce revenue exceeded 770 billion USD in 2024, with projections surpassing one trillion by 2030 @statista2024fashion. Yet its dominant interface, keyword search, fails where the domain succeeds: fashion products are defined by silhouette, drape, print density, and colour relationships -- attributes that resist textual description. This *semantic gap*, the discrepancy between a garment's visual richness and a user's ability to express it in words, is well documented. A customer can recognise a desired aesthetic instantly from a photograph yet cannot produce query terms that retrieve it. When catalogue indexing uses inconsistent terminology (one vendor tags a pattern as "floral," another as "botanical," a third as "flower print"), relevant products are systematically excluded. Industry estimates place the session abandonment rate after an unsuccessful search at approximately 30 percent @pinterest2023visual.
+Global fashion e-commerce revenue exceeded *770 billion USD* in 2024, with projections surpassing *one trillion by 2030* @statista2024fashion. Yet its dominant interface, keyword search, fails where the domain succeeds: fashion products are defined by silhouette, drape, print density, and colour relationships -- attributes that resist textual description. This *semantic gap*, the discrepancy between a garment's visual richness and a user's ability to express it in words, is well documented. A customer can recognise a desired aesthetic instantly from a photograph yet cannot produce query terms that retrieve it. When catalogue indexing uses inconsistent terminology (one vendor tags a pattern as "floral," another as "botanical," a third as "flower print"), relevant products are systematically excluded. Industry estimates place the *session abandonment rate* after an unsuccessful search at approximately *30 percent* @pinterest2023visual.
 
-Content-Based Image Retrieval (CBIR) addresses this gap by replacing textual intermediaries with direct visual comparison. Products are indexed not by human-authored labels but by dense vector embeddings computed from images, with similarity measured through mathematical distance functions. A query image of a dress with a particular neckline and print pattern retrieves visually similar products without any keyword translation step. Pre-trained convolutional neural networks @he2016deep @tan2019efficientnet, vision transformers @radford2021learning, and fashion-specific models @chia2022fashionclip have substantially advanced this capability.
+*Content-Based Image Retrieval (CBIR)* addresses this gap by replacing textual intermediaries with direct visual comparison. Products are indexed not by human-authored labels but by *dense vector embeddings* computed from images, with similarity measured through mathematical distance functions. A query image of a dress with a particular neckline and print pattern retrieves visually similar products without any keyword translation step. Pre-trained convolutional neural networks @he2016deep @tan2019efficientnet, vision transformers @radford2021learning, and fashion-specific models @chia2022fashionclip have substantially advanced this capability.
 
-The contribution of this work is architectural rather than algorithmic. It investigates how to embed existing CBIR capabilities into a practical e-commerce system built with conventional web technologies, and provides empirical data on which embedding models deliver the optimal balance of accuracy, latency, and resource efficiency. The work bridges two distinct software ecosystems, the Python machine learning stack and the .NET enterprise web stack, under real-time latency constraints appropriate for interactive search.
+The contribution of this work is *architectural*, not algorithmic. It investigates how to embed existing CBIR capabilities into a practical e-commerce system built with conventional web technologies, and provides empirical data on which embedding models deliver the optimal balance of accuracy, latency, and resource efficiency. The work bridges two distinct software ecosystems, the *Python machine learning stack* and the *.NET enterprise web stack*, under real-time latency constraints appropriate for interactive search.
 
 == Problem Statement
 
 Keyword-reliant fashion search suffers from four compounding inefficiencies.
 
-Catalogue descriptors vary across vendors, such that a single visual pattern appears under multiple labels and fragments result sets. Users must reformulate queries iteratively as the vocabulary mismatch between catalogue indexing and customer search silently excludes relevant products.
+*Catalogue vocabulary mismatch.* Descriptors vary across vendors, such that a single visual pattern appears under multiple labels and fragments result sets. Users must reformulate queries iteratively as the gap between catalogue indexing vocabulary and customer search vocabulary silently excludes relevant products.
 
-Visual attributes -- fabric drape, texture gradient, silhouette proportion, and pattern rhythm -- cannot be captured reliably through text queries. A customer identifies a desired aesthetic instantly in a photograph yet cannot produce keywords that retrieve it. The search engine cannot match what the user cannot name.
+*Visual inexpressibility.* Attributes such as fabric drape, texture gradient, silhouette proportion, and pattern rhythm cannot be captured reliably through text queries. A customer identifies a desired aesthetic instantly in a photograph yet cannot produce keywords that retrieve it. The search engine cannot match what the user cannot name.
 
-Recommendation models based on collaborative filtering depend on historical user-item interactions. Newly listed products lack this data at their point of highest commercial value: initial release. Visual feature extraction bypasses this limitation, as product images are available from catalogue ingestion and embeddings enable similarity-based discovery without interaction history.
+*Cold-start invisibility.* Recommendation models based on collaborative filtering depend on historical user-item interactions. Newly listed products lack this data at their point of highest commercial value: initial release. Visual feature extraction bypasses this limitation, as product images are available from catalogue ingestion and embeddings enable similarity-based discovery without interaction history.
 
-Finally, integrating pre-trained vision models into a .NET transactional backend introduces a recurring engineering challenge in applied machine learning. The Python deep learning ecosystem (PyTorch, HuggingFace) does not natively interoperate with the .NET enterprise stack. Achieving sub-second response latency across this boundary requires architectural design that isolates the ML workload from the main application while bridging incompatible package managers, runtime environments, and deployment conventions.
+*Polyglot integration cost.* Integrating pre-trained vision models into a .NET transactional backend introduces a recurring engineering challenge in applied machine learning. The Python deep learning ecosystem (PyTorch, HuggingFace) does not natively interoperate with the .NET enterprise stack. Achieving *sub-second response latency* across this boundary requires architectural design that isolates the ML workload from the main application while bridging incompatible package managers, runtime environments, and deployment conventions.
 
 == Objectives
 
-This project builds a functional fashion e-commerce platform with integrated image-based search and evaluates the effectiveness of pre-trained deep learning models within that system. The contribution is not a novel AI architecture but the engineering demonstration of embedding existing models into a conventional web application stack.
+This project builds a functional fashion e-commerce platform with integrated image-based search and evaluates the effectiveness of pre-trained deep learning models within that system. The contribution is not a novel AI architecture but the *engineering demonstration* of embedding existing models into a conventional web application stack.
 
 === Technical Objectives
 
 #list(
-  [Integrate pre-trained vision models into a PostgreSQL and .NET e-commerce stack, establishing a reference pattern for teams with existing web infrastructure.],
-  [Architect a polyglot system in which a dedicated Python sidecar handles AI inference while the .NET backend manages transactional logic, business rules, and API routing.],
-  [Validate pgvector (an open-source PostgreSQL extension) as the sole vector storage and retrieval layer, evaluating whether it meets real-time search latency requirements at catalogue scales representative of small-to-medium fashion retailers.],
-  [Benchmark multiple embedding models spanning convolutional and transformer architectures on shared hardware, producing empirical guidance for model selection in resource-constrained deployments.],
+  [*Model integration.* Integrate pre-trained vision models into a PostgreSQL and .NET e-commerce stack, establishing a reference pattern for teams with existing web infrastructure.],
+  [*Polyglot architecture.* Architect a polyglot system in which a dedicated Python sidecar handles AI inference while the .NET backend manages transactional logic, business rules, and API routing.],
+  [*Vector storage validation.* Validate *pgvector* (an open-source PostgreSQL extension) as the sole vector storage and retrieval layer, evaluating whether it meets real-time search latency requirements at catalogue scales representative of small-to-medium fashion retailers.],
+  [*Empirical benchmarking.* Benchmark multiple embedding models spanning convolutional and transformer architectures on shared hardware, producing empirical guidance for model selection in resource-constrained deployments.],
 )
 
 === Research Questions
 
 Three questions guide the investigation and are answered empirically in Chapter 3.
 
-*RQ1* addresses model comparison: how do fashion-specific embedding models compare with general-purpose CNN and ViT architectures on fashion product retrieval? This question tests whether domain-specific training on fashion data yields measurable improvements over models trained on generic image corpora.
+*RQ1: Model comparison.* How do fashion-specific embedding models compare with general-purpose CNN and ViT architectures on fashion product retrieval? This question tests whether domain-specific training on fashion data yields measurable improvements over models trained on generic image corpora.
 
-*RQ2* addresses the accuracy-speed trade-off: what trade-offs exist between retrieval accuracy and inference latency across pre-trained embedding models, and which model offers the best balance for real-time search? The most accurate model is rarely the fastest; deployment decisions require weighing both dimensions.
+*RQ2: Accuracy-speed trade-off.* What trade-offs exist between retrieval accuracy and inference latency across pre-trained embedding models, and which model offers the best balance for real-time search? The most accurate model is rarely the fastest; deployment decisions require weighing both dimensions.
 
-*RQ3* addresses architecture viability: can a service-oriented architecture with a dedicated AI sidecar separate image inference from the main application while maintaining interactive response times? This question evaluates whether the chosen polyglot pattern (Python ML service alongside a .NET application) is practical for production use.
+*RQ3: Architecture viability.* Can a service-oriented architecture with a dedicated AI sidecar separate image inference from the main application while maintaining interactive response times? This question evaluates whether the chosen polyglot pattern (Python ML service alongside a .NET application) is practical for production use.
 
 === Tasks Completed
 
@@ -86,7 +86,7 @@ Four limitations define the boundaries of this work and are revisited in the con
 
 == Research Methodology
 
-This thesis follows a Design Science Research (DSR) methodology @hevner2004design @peffers2008design, a problem-solving paradigm that produces and evaluates an IT artifact (here, the e-commerce platform with integrated visual search) to address a defined problem domain.
+This thesis follows a *Design Science Research (DSR)* methodology @hevner2004design @peffers2008design, a problem-solving paradigm that produces and evaluates an IT artifact (here, the e-commerce platform with integrated visual search) to address a defined problem domain.
 
 The project progressed through four phases:
 
