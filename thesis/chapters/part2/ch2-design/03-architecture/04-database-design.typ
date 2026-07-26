@@ -17,7 +17,7 @@ Entity Framework Core manages all migrations from a dedicated Migrations assembl
 #set figure.caption(position: top)
 #rotate(-90deg, reflow: true)[
   #figure(
-    image("../../../../figures/chapters/part2/ch2-design/03-architecture/P2S2.2.3_erd-core.png", width: 23cm),
+    image("../../../../figures/chapters/part2/ch2-design/03-architecture/diagrams/P2S2.2.3_erd-core.png", width: 23cm),
     caption: [Core entity-relationship model across all eight bounded contexts.],
   ) <fig-erd-core>
 ]

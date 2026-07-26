@@ -11,7 +11,7 @@ The integration between contexts follows the *Conformist* pattern: all contexts 
 @fig-bounded-context-map depicts the eight contexts and the *Published Language*, the shared identifiers and value types, that flow between them.
 
 #figure(
-  image("../../../../figures/chapters/part2/ch2-design/03-architecture/P2S2.2.3_bounded-context-map.png", width: 100%),
+  image("../../../../figures/chapters/part2/ch2-design/03-architecture/diagrams/P2S2.2.3_bounded-context-map.png", width: 100%),
   caption: [Bounded Context Map showing the eight business contexts and the Published Language identifiers exchanged between them. All integration uses in-process MediatR dispatch; no context directly references another context's namespace.],
 ) <fig-bounded-context-map>
 
@@ -152,7 +152,7 @@ Two explicit state machines govern the most critical transactional workflows in 
 The order checkout state machine enforces a forward-only progression through five sequential states: Address, Delivery, Payment, Confirm, and Complete. Each state transition is triggered by a specific user action and validated by the domain entity before being committed. @fig-order-state-machine depicts this lifecycle.
 
 #figure(
-  image("../../../../figures/chapters/part2/ch2-design/03-architecture/P2S2.2.3_order-state-machine.png", width: 80%),
+  image("../../../../figures/chapters/part2/ch2-design/03-architecture/diagrams/P2S2.2.3_order-state-machine.png", width: 80%),
   caption: [Order checkout state machine: five sequential states with cancellation available from any pre-confirmation state. The forward-only constraint prevents regressing to earlier checkout stages.],
 ) <fig-order-state-machine>
 
@@ -165,7 +165,7 @@ Once an order reaches the Complete state, it becomes finalised: the order record
 The payment intent state machine models the full lifecycle of a payment from creation through to terminal completion, reflecting the state transitions of the Stripe payment gateway while maintaining a parallel system-managed state for offline consistency. @fig-payment-state-machine shows all states and transitions.
 
 #figure(
-  image("../../../../figures/chapters/part2/ch2-design/03-architecture/P2S2.2.3_payment-state-machine.png", width: 80%),
+  image("../../../../figures/chapters/part2/ch2-design/03-architecture/diagrams/P2S2.2.3_payment-state-machine.png", width: 80%),
   caption: [Payment intent lifecycle: the state machine reflects Stripe gateway states while maintaining a parallel system copy for offline operations and Bogus gateway compatibility. Terminal states are Failed, Canceled, and Refunded.],
 ) <fig-payment-state-machine>
 
