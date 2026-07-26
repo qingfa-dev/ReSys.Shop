@@ -1,9 +1,9 @@
 import { ref, readonly, watch } from 'vue'
 import { defineStore } from 'pinia'
 import { defaultListQuery } from '@/shared/models'
-import type { ListQuery } from '@/shared/models'
-import type { RoleResponse } from '../types'
-import { RoleApi } from '../api'
+import type { ListQuery, Result } from '@/shared/models'
+import type { RoleResponse, CreateRoleRequest, UpdateRoleRequest, UserPermissionIdsRequest } from '../types'
+import { RoleApi, RolePermissionApi } from '../api'
 import type { FilterGroup, SortDirection, FilterCondition, FilterOperator } from '@/shared/models/querying'
 import type { FilterConfig } from '@/shared/components/layout/FilterPanel.vue'
 
@@ -100,6 +100,135 @@ export const useRoleStore = defineStore('identity-role', () => {
     return fetchMany()
   }
 
+  async function getById(id: string): Promise<Result<RoleResponse>> {
+    loading.value = true
+    error.value = null
+    try {
+      const result = await RoleApi.get(id)
+      if (!result.isSuccess) {
+        error.value = result.message ?? 'Failed to load'
+      }
+      return result
+    } catch (err) {
+      console.error(err)
+      error.value = 'Failed to load'
+      return { isSuccess: false, statusCode: 0, errors: [], message: 'Failed to load', metadata: null, value: null as unknown as RoleResponse }
+    } finally {
+      loading.value = false
+    }
+  }
+
+  async function create(data: CreateRoleRequest): Promise<Result<RoleResponse>> {
+    loading.value = true
+    error.value = null
+    try {
+      const result = await RoleApi.create(data)
+      if (!result.isSuccess) {
+        error.value = result.message ?? 'Failed to create'
+      }
+      return result
+    } catch (err) {
+      console.error(err)
+      error.value = 'Failed to create'
+      return { isSuccess: false, statusCode: 0, errors: [], message: 'Failed to create', metadata: null, value: null as unknown as RoleResponse }
+    } finally {
+      loading.value = false
+    }
+  }
+
+  async function update(id: string, data: UpdateRoleRequest): Promise<Result<RoleResponse>> {
+    loading.value = true
+    error.value = null
+    try {
+      const result = await RoleApi.update(id, data)
+      if (!result.isSuccess) {
+        error.value = result.message ?? 'Failed to update'
+      }
+      return result
+    } catch (err) {
+      console.error(err)
+      error.value = 'Failed to update'
+      return { isSuccess: false, statusCode: 0, errors: [], message: 'Failed to update', metadata: null, value: null as unknown as RoleResponse }
+    } finally {
+      loading.value = false
+    }
+  }
+
+  async function deleteRole(id: string): Promise<Result<void>> {
+    loading.value = true
+    error.value = null
+    try {
+      const result = await RoleApi.delete(id)
+      if (!result.isSuccess) {
+        error.value = result.message ?? 'Failed to delete'
+      }
+      return result
+    } catch (err) {
+      console.error(err)
+      error.value = 'Failed to delete'
+      return { isSuccess: false, statusCode: 0, errors: [], message: 'Failed to delete', metadata: null, value: null as unknown as void }
+    } finally {
+      loading.value = false
+    }
+  }
+
+  async function assignPermission(roleId: string, permissionId: string): Promise<Result<void>> {
+    loading.value = true
+    error.value = null
+    try {
+      const data: UserPermissionIdsRequest = { items: [{ permissionId }] }
+      const result = await RolePermissionApi.assign(roleId, data)
+      if (!result.isSuccess) {
+        error.value = result.message ?? 'Failed to assign permission'
+      }
+      return result
+    } catch (err) {
+      console.error(err)
+      error.value = 'Failed to assign permission'
+      return { isSuccess: false, statusCode: 0, errors: [], message: 'Failed to assign permission', metadata: null, value: null as unknown as void }
+    } finally {
+      loading.value = false
+    }
+  }
+
+  async function revokePermission(roleId: string, permissionId: string): Promise<Result<void>> {
+    loading.value = true
+    error.value = null
+    try {
+      const data: UserPermissionIdsRequest = { items: [{ permissionId }] }
+      const result = await RolePermissionApi.revoke(roleId, data)
+      if (!result.isSuccess) {
+        error.value = result.message ?? 'Failed to revoke permission'
+      }
+      return result
+    } catch (err) {
+      console.error(err)
+      error.value = 'Failed to revoke permission'
+      return { isSuccess: false, statusCode: 0, errors: [], message: 'Failed to revoke permission', metadata: null, value: null as unknown as void }
+    } finally {
+      loading.value = false
+    }
+  }
+
+  async function syncPermissions(roleId: string, permissionIds: string[]): Promise<Result<void>> {
+    loading.value = true
+    error.value = null
+    try {
+      const data: UserPermissionIdsRequest = { items: permissionIds.map(permissionId => ({ permissionId })) }
+      const result = await RolePermissionApi.sync(roleId, data)
+      if (!result.isSuccess) {
+        error.value = result.message ?? 'Failed to sync permissions'
+      }
+      return result
+    } catch (err) {
+      console.error(err)
+      error.value = 'Failed to sync permissions'
+      return { isSuccess: false, statusCode: 0, errors: [], message: 'Failed to sync permissions', metadata: null, value: null as unknown as void }
+    } finally {
+      loading.value = false
+    }
+  }
+
   return {
     items: readonly(items), loading: readonly(loading),
     error: readonly(error), totalRecords: readonly(totalRecords),
@@ -107,5 +236,7 @@ export const useRoleStore = defineStore('identity-role', () => {
     searchQuery: readonly(searchQuery),
     activeFilters: readonly(activeFilters),
     fetchMany, setPage, setSort, setFilters, setFilter, setSearchQuery, setSearch, resetQuery,
+    getById, create, update, delete: deleteRole,
+    assignPermission, revokePermission, syncPermissions,
   }
 })
