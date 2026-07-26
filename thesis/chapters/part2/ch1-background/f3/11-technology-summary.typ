@@ -1,6 +1,6 @@
 === Technology Stack Summary
 
-The preceding sections introduced the principal technologies that compose the ReSys.Shop platform. Table @tbl-tech-stack consolidates the complete stack.
+The preceding sections introduced the principal technologies that compose the ReSys.Shop platform. @tbl-tech-stack consolidates the complete stack.
 
 #figure(
   table(

@@ -27,7 +27,7 @@ Where $A$ and $B$ are the embedding vectors being compared, $A dot B$ is their d
 Cosine similarity ranges from +1.0 (vectors point in the same direction, very similar) to 0.0 (perpendicular, unrelated) to -1.0 (opposite directions, very dissimilar). For fashion images, values above *0.7* typically indicate visual similarity a user would recognise. The same mathematical operation works for any image, any category, without the system needing to know what makes a "dress" or a "shoe."
 
 // Diagram placeholder: Visualisation of cosine similarity in 2D vector space
-// #figure(image("images/diagrams/cosine-similarity.png", width: 70%), caption: [...])
+// #figure(image("figures/chapters/cosine-similarity.png", width: 70%), caption: [...])
 
 ==== The CBIR Pipeline
 
@@ -41,4 +41,4 @@ Content-Based Image Retrieval (CBIR) replaces text queries with image queries th
 A photograph of a dress with a distinctive neckline retrieves visually similar products regardless of how the catalog describes them. The embedding becomes a universal description that captures shape, texture, colour, and pattern automatically.
 
 // Diagram placeholder: CBIR pipeline overview (Mermaid flowchart)
-// #figure(image("images/diagrams/01-cbir-pipeline.png", width: 90%), caption: [...])
+// #figure(image("../../../../figures/chapters/part2/ch1-background/f2-cbir/cbir-pipeline.png", width: 90%), caption: [...])

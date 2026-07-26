@@ -12,12 +12,15 @@ Entity Framework Core manages all migrations from a dedicated Migrations assembl
 
 ==== Core Entity-Relationship Model
 
-Figure @fig-erd-core presents the entity-relationship diagram for the core business entities across the Catalog and Ordering domains, the two contexts that participate most directly in the visual search and checkout workflows.
+@fig-erd-core presents the entity-relationship diagram for the core business entities across all eight bounded contexts, their key attributes, primary and foreign keys, and the relationships within and between contexts. Cross-context relationships (dotted lines) use identifier references only, without database-level foreign key constraints.
 
-#figure(
-  image("../../../../images/diagrams/07-erd-core.png", width: 100%),
-  caption: [Core entity-relationship diagram showing the primary domain entities and their relationships across the Catalog and Ordering bounded contexts. Soft deletion, audit columns, and GUID primary keys are used throughout.],
-) <fig-erd-core>
+#set figure.caption(position: top)
+#rotate(-90deg, reflow: true)[
+  #figure(
+    image("../../../../figures/chapters/part2/ch2-design/03-architecture/P2S2.2.3_erd-core.png", width: 23cm),
+    caption: [Core entity-relationship model across all eight bounded contexts.],
+  ) <fig-erd-core>
+]
 
 The Catalog domain centres on the Product entity, which has a one-to-many relationship with Variant. Each Variant represents a specific sellable configuration, for example, "Cotton T-Shirt, Red, Large", with its own SKU, pricing, and inventory tracking flag. Exactly one variant per product is designated as the master variant. Variants relate one-to-many to VariantImages, each of which holds a file path and an optional `embedding` column of type `vector(512)` for pgvector similarity search. Products configure option types, such as Colour or Size, which in turn define option values. Taxonomies contain taxons in a hierarchical structure, with taxons referencing themselves through a parent foreign key to represent tree structures such as "Clothing → Dresses → Evening Dresses". Products are classified by taxons through a many-to-many classification table.
 

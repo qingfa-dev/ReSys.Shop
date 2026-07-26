@@ -12,7 +12,7 @@ All images are preprocessed uniformly before being passed to any model. Images a
 
 === Models Evaluated
 
-The benchmark framework supports eleven pre-trained embedding models spanning four architectural families. Four representative models were selected for the full thesis evaluation. Table @tbl-model-architecture summarises the models grouped by their architecture type.
+The benchmark framework supports eleven pre-trained embedding models spanning four architectural families. Four representative models were selected for the full thesis evaluation. @tbl-model-architecture summarises the models grouped by their architecture type.
 
 #figure(
   table(
@@ -76,7 +76,7 @@ The retrieval accuracy metrics (mAP, P\@K, R\@K) are computed via exact cosine s
 
 === Hardware Environment
 
-All benchmarks were conducted on a standard development workstation to represent a realistic deployment scenario typical of small-to-medium e-commerce operations. Table @tbl-benchmark-hardware summarises the hardware configuration.
+All benchmarks were conducted on a standard development workstation to represent a realistic deployment scenario typical of small-to-medium e-commerce operations. @tbl-benchmark-hardware summarises the hardware configuration.
 
 #figure(
   table(

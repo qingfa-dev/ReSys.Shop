@@ -4,7 +4,7 @@ Not all features of ReSys.Shop carry equal research significance. Seven feature 
 
 #figure(
   table(
-    columns: (1fr, 1fr, 4fr),
+    columns: (1fr, 2fr, 4fr),
     stroke: 0.5pt,
     align: (left + horizon, left + horizon, left),
     inset: 8pt,

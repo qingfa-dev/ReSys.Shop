@@ -1,17 +1,30 @@
 == Functional Decomposition and Use Cases
 
-The system requirements are presented using a use case diagram, a use case summary matrix, and detailed scenario specifications for selected core use cases. This structure improves readability while preserving traceability between functional requirements, design decisions, and test cases.
+The system requirements are presented through a functional decomposition diagram, a use case overview diagram, a use case summary matrix, and detailed scenario specifications for selected core use cases. This structure improves readability while preserving traceability between functional requirements, design decisions, and test cases.
 
-=== Use Case Diagram
+=== Functional Decomposition
 
-// Diagram: Use case diagram showing all actors and their use cases
-// #figure(image("images/diagrams/use-case-overview.png", width: 100%), caption: [System use case diagram showing the three actors and their primary use cases grouped by business domain.])
+The functional decomposition of ReSys.Shop, shown in @fig-func-decomp, organises the platform into three top-level functional areas: Administration, Storefront, and Background Services. Each functional area decomposes into constituent modules, reflecting the responsibilities defined in the use case summary matrix (Section 2.2.3).
 
-The three actors (Administrator, Customer, System) interact with the platform across eight business domains. The Administrator manages product catalogues, order fulfilment, payment processing, inventory, user governance, shipping configuration, and reference data. The Customer browses, searches, purchases, and manages account information. The System performs automated embedding generation, cart maintenance, inventory reservation, payment webhook processing, and index optimisation.
+The Administration area encompasses seven modules accessible to the Administrator actor: Catalog Management, Order Management, Payment Management, Inventory Management, Identity Management, Shipping Management, and Location Management. The Storefront area covers Customer-facing functionality across three modules: Product Discovery (browse, search, visual search), Purchase Flow (cart, checkout, payment processing, order history), and Account Management (authentication, session management, profile management). Background Services include five automated processes performed by the System actor: Embedding Generation, Cart Expiry, Inventory Reservation, Payment Webhook Processing, and Index Optimisation.
+
+#figure(
+  image("../../../../figures/chapters/part2/ch2-design/02-use-cases/P2S2.2.2_functional-decomposition.png", width: 100%),
+  caption: [Functional decomposition of ReSys.Shop using a Work Breakdown Structure (WBS), showing the hierarchical breakdown into three functional areas and their constituent modules and sub-functions.]
+) <fig-func-decomp>
+
+=== Use Case Overview
+
+@fig-uc-overview presents the system use case diagram, showing all 26 use cases from the summary matrix grouped by business module. Each package corresponds to a module from the matrix, containing the use cases accessible to the connected actors. The Administrator interacts with seven modules (Catalog, Ordering, Payment, Inventory, Identity, Shipping, Location), the Customer interacts with five modules (Catalog, Ordering, Payment, Identity, Profile), and the System performs background operations through the System Services module.
+
+#figure(
+  image("../../../../figures/chapters/part2/ch2-design/02-use-cases/P2S2.2.2_use-case-overview.png", width: 100%),
+  caption: [System use case diagram showing all 26 use cases from the summary matrix, grouped by business module with actor-to-module associations.]
+) <fig-uc-overview>
 
 === Use Case Summary Matrix
 
-Table @tbl-uc-summary consolidates all use cases across the three actors and provides traceability to the functional requirements defined in Section 2.1.
+@tbl-uc-summary consolidates all use cases across the three actors and provides traceability to the functional requirements defined in Section 2.1.
 
 #figure(
   table(
