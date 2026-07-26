@@ -1,8 +1,8 @@
 import { ref, readonly, watch } from 'vue'
 import { defineStore } from 'pinia'
 import { defaultListQuery } from '@/shared/models'
-import type { ListQuery } from '@/shared/models'
-import type { PaymentMethodResponse } from '../types'
+import type { ListQuery, Result } from '@/shared/models'
+import type { PaymentMethodResponse, CreatePaymentMethodRequest, UpdatePaymentMethodRequest } from '../types'
 import { PaymentMethodApi } from '../api'
 import type { FilterGroup, SortDirection, FilterCondition, FilterOperator } from '@/shared/models/querying'
 import type { FilterConfig } from '@/shared/components/layout/FilterPanel.vue'
@@ -100,6 +100,114 @@ export const usePaymentMethodStore = defineStore('payment-method', () => {
     return fetchMany()
   }
 
+  async function getById(id: string): Promise<Result<PaymentMethodResponse>> {
+    loading.value = true
+    error.value = null
+    try {
+      const result = await PaymentMethodApi.get(id)
+      if (!result.isSuccess) {
+        error.value = result.message ?? 'Failed to load'
+      }
+      return result
+    } catch (err) {
+      console.error(err)
+      error.value = 'Failed to load'
+      return { isSuccess: false, statusCode: 0, errors: [], message: 'Failed to load', metadata: null, value: null as unknown as PaymentMethodResponse }
+    } finally {
+      loading.value = false
+    }
+  }
+
+  async function create(data: CreatePaymentMethodRequest): Promise<Result<PaymentMethodResponse>> {
+    loading.value = true
+    error.value = null
+    try {
+      const result = await PaymentMethodApi.create(data)
+      if (!result.isSuccess) {
+        error.value = result.message ?? 'Failed to create'
+      }
+      return result
+    } catch (err) {
+      console.error(err)
+      error.value = 'Failed to create'
+      return { isSuccess: false, statusCode: 0, errors: [], message: 'Failed to create', metadata: null, value: null as unknown as PaymentMethodResponse }
+    } finally {
+      loading.value = false
+    }
+  }
+
+  async function update(id: string, data: UpdatePaymentMethodRequest): Promise<Result<PaymentMethodResponse>> {
+    loading.value = true
+    error.value = null
+    try {
+      const result = await PaymentMethodApi.update(id, data)
+      if (!result.isSuccess) {
+        error.value = result.message ?? 'Failed to update'
+      }
+      return result
+    } catch (err) {
+      console.error(err)
+      error.value = 'Failed to update'
+      return { isSuccess: false, statusCode: 0, errors: [], message: 'Failed to update', metadata: null, value: null as unknown as PaymentMethodResponse }
+    } finally {
+      loading.value = false
+    }
+  }
+
+  async function deleteMethod(id: string): Promise<Result<void>> {
+    loading.value = true
+    error.value = null
+    try {
+      const result = await PaymentMethodApi.delete(id)
+      if (!result.isSuccess) {
+        error.value = result.message ?? 'Failed to delete'
+      }
+      return result
+    } catch (err) {
+      console.error(err)
+      error.value = 'Failed to delete'
+      return { isSuccess: false, statusCode: 0, errors: [], message: 'Failed to delete', metadata: null, value: null as unknown as void }
+    } finally {
+      loading.value = false
+    }
+  }
+
+  async function activate(id: string): Promise<Result<void>> {
+    loading.value = true
+    error.value = null
+    try {
+      const result = await PaymentMethodApi.activate(id)
+      if (!result.isSuccess) {
+        error.value = result.message ?? 'Failed to activate'
+      }
+      return result
+    } catch (err) {
+      console.error(err)
+      error.value = 'Failed to activate'
+      return { isSuccess: false, statusCode: 0, errors: [], message: 'Failed to activate', metadata: null, value: null as unknown as void }
+    } finally {
+      loading.value = false
+    }
+  }
+
+  async function deactivate(id: string): Promise<Result<void>> {
+    loading.value = true
+    error.value = null
+    try {
+      const result = await PaymentMethodApi.deactivate(id)
+      if (!result.isSuccess) {
+        error.value = result.message ?? 'Failed to deactivate'
+      }
+      return result
+    } catch (err) {
+      console.error(err)
+      error.value = 'Failed to deactivate'
+      return { isSuccess: false, statusCode: 0, errors: [], message: 'Failed to deactivate', metadata: null, value: null as unknown as void }
+    } finally {
+      loading.value = false
+    }
+  }
+
   return {
     items: readonly(items), loading: readonly(loading),
     error: readonly(error), totalRecords: readonly(totalRecords),
@@ -107,5 +215,6 @@ export const usePaymentMethodStore = defineStore('payment-method', () => {
     searchQuery: readonly(searchQuery),
     activeFilters: readonly(activeFilters),
     fetchMany, setPage, setSort, setFilters, setFilter, setSearchQuery, setSearch, resetQuery,
+    getById, create, update, delete: deleteMethod, activate, deactivate,
   }
 })

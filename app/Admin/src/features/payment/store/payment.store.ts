@@ -1,8 +1,8 @@
 import { ref, readonly, watch } from 'vue'
 import { defineStore } from 'pinia'
 import { defaultListQuery } from '@/shared/models'
-import type { ListQuery } from '@/shared/models'
-import type { PaymentResponse } from '../types'
+import type { ListQuery, Result } from '@/shared/models'
+import type { PaymentResponse, CapturePaymentRequest, VoidPaymentRequest, RefundPaymentRequest } from '../types'
 import { PaymentApi } from '../api'
 import type { FilterGroup, SortDirection, FilterCondition, FilterOperator } from '@/shared/models/querying'
 import type { FilterConfig } from '@/shared/components/layout/FilterPanel.vue'
@@ -100,6 +100,78 @@ export const usePaymentStore = defineStore('payment-payment', () => {
     return fetchMany()
   }
 
+  async function getById(id: string): Promise<Result<PaymentResponse>> {
+    loading.value = true
+    error.value = null
+    try {
+      const result = await PaymentApi.get(id)
+      if (!result.isSuccess) {
+        error.value = result.message ?? 'Failed to load'
+      }
+      return result
+    } catch (err) {
+      console.error(err)
+      error.value = 'Failed to load'
+      return { isSuccess: false, statusCode: 0, errors: [], message: 'Failed to load', metadata: null, value: null as unknown as PaymentResponse }
+    } finally {
+      loading.value = false
+    }
+  }
+
+  async function capture(id: string, data?: CapturePaymentRequest): Promise<Result<PaymentResponse>> {
+    loading.value = true
+    error.value = null
+    try {
+      const result = await PaymentApi.capture(id, data)
+      if (!result.isSuccess) {
+        error.value = result.message ?? 'Failed to capture'
+      }
+      return result
+    } catch (err) {
+      console.error(err)
+      error.value = 'Failed to capture'
+      return { isSuccess: false, statusCode: 0, errors: [], message: 'Failed to capture', metadata: null, value: null as unknown as PaymentResponse }
+    } finally {
+      loading.value = false
+    }
+  }
+
+  async function voidPayment(id: string, data?: VoidPaymentRequest): Promise<Result<PaymentResponse>> {
+    loading.value = true
+    error.value = null
+    try {
+      const result = await PaymentApi.void(id, data)
+      if (!result.isSuccess) {
+        error.value = result.message ?? 'Failed to void'
+      }
+      return result
+    } catch (err) {
+      console.error(err)
+      error.value = 'Failed to void'
+      return { isSuccess: false, statusCode: 0, errors: [], message: 'Failed to void', metadata: null, value: null as unknown as PaymentResponse }
+    } finally {
+      loading.value = false
+    }
+  }
+
+  async function refund(id: string, data?: RefundPaymentRequest): Promise<Result<PaymentResponse>> {
+    loading.value = true
+    error.value = null
+    try {
+      const result = await PaymentApi.refund(id, data)
+      if (!result.isSuccess) {
+        error.value = result.message ?? 'Failed to refund'
+      }
+      return result
+    } catch (err) {
+      console.error(err)
+      error.value = 'Failed to refund'
+      return { isSuccess: false, statusCode: 0, errors: [], message: 'Failed to refund', metadata: null, value: null as unknown as PaymentResponse }
+    } finally {
+      loading.value = false
+    }
+  }
+
   return {
     items: readonly(items), loading: readonly(loading),
     error: readonly(error), totalRecords: readonly(totalRecords),
@@ -107,5 +179,6 @@ export const usePaymentStore = defineStore('payment-payment', () => {
     searchQuery: readonly(searchQuery),
     activeFilters: readonly(activeFilters),
     fetchMany, setPage, setSort, setFilters, setFilter, setSearchQuery, setSearch, resetQuery,
+    getById, capture, void: voidPayment, refund,
   }
 })
