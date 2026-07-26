@@ -25,3 +25,6 @@ export type {
 } from './global'
 
 export type { CurrentUser } from './user'
+
+export type { Notification } from './notification'
+export type { NotificationType } from './notification'
