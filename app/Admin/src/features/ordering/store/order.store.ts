@@ -1,8 +1,8 @@
 import { ref, readonly, watch } from 'vue'
 import { defineStore } from 'pinia'
 import { defaultListQuery } from '@/shared/models'
-import type { ListQuery } from '@/shared/models'
-import type { OrderResponse } from '../types'
+import type { ListQuery, Result } from '@/shared/models'
+import type { OrderResponse, CreateOrderRequest } from '../types'
 import { OrderApi } from '../api'
 import type { FilterGroup, SortDirection, FilterCondition, FilterOperator } from '@/shared/models/querying'
 import type { FilterConfig } from '@/shared/components/layout/FilterPanel.vue'
@@ -100,6 +100,150 @@ export const useOrderStore = defineStore('ordering-order', () => {
     return fetchMany()
   }
 
+  async function getById(id: string): Promise<Result<OrderResponse>> {
+    loading.value = true
+    error.value = null
+    try {
+      const result = await OrderApi.get(id)
+      if (!result.isSuccess) {
+        error.value = result.message ?? 'Failed to load'
+      }
+      return result
+    } catch (err) {
+      console.error(err)
+      error.value = 'Failed to load'
+      return { isSuccess: false, statusCode: 0, errors: [], message: 'Failed to load', metadata: null, value: null as unknown as OrderResponse }
+    } finally {
+      loading.value = false
+    }
+  }
+
+  async function create(data: CreateOrderRequest): Promise<Result<OrderResponse>> {
+    loading.value = true
+    error.value = null
+    try {
+      const result = await OrderApi.create(data)
+      if (!result.isSuccess) {
+        error.value = result.message ?? 'Failed to create'
+      }
+      return result
+    } catch (err) {
+      console.error(err)
+      error.value = 'Failed to create'
+      return { isSuccess: false, statusCode: 0, errors: [], message: 'Failed to create', metadata: null, value: null as unknown as OrderResponse }
+    } finally {
+      loading.value = false
+    }
+  }
+
+  async function update(id: string, data: { notes?: string | null }): Promise<Result<OrderResponse>> {
+    loading.value = true
+    error.value = null
+    try {
+      const result = await OrderApi.update(id, data)
+      if (!result.isSuccess) {
+        error.value = result.message ?? 'Failed to update'
+      }
+      return result
+    } catch (err) {
+      console.error(err)
+      error.value = 'Failed to update'
+      return { isSuccess: false, statusCode: 0, errors: [], message: 'Failed to update', metadata: null, value: null as unknown as OrderResponse }
+    } finally {
+      loading.value = false
+    }
+  }
+
+  async function deleteOrder(id: string): Promise<Result<void>> {
+    loading.value = true
+    error.value = null
+    try {
+      const result = await OrderApi.delete(id)
+      if (!result.isSuccess) {
+        error.value = result.message ?? 'Failed to delete'
+      }
+      return result
+    } catch (err) {
+      console.error(err)
+      error.value = 'Failed to delete'
+      return { isSuccess: false, statusCode: 0, errors: [], message: 'Failed to delete', metadata: null, value: null as unknown as void }
+    } finally {
+      loading.value = false
+    }
+  }
+
+  async function approve(id: string): Promise<Result<OrderResponse>> {
+    loading.value = true
+    error.value = null
+    try {
+      const result = await OrderApi.approve(id)
+      if (!result.isSuccess) {
+        error.value = result.message ?? 'Failed to approve'
+      }
+      return result
+    } catch (err) {
+      console.error(err)
+      error.value = 'Failed to approve'
+      return { isSuccess: false, statusCode: 0, errors: [], message: 'Failed to approve', metadata: null, value: null as unknown as OrderResponse }
+    } finally {
+      loading.value = false
+    }
+  }
+
+  async function complete(id: string): Promise<Result<OrderResponse>> {
+    loading.value = true
+    error.value = null
+    try {
+      const result = await OrderApi.complete(id)
+      if (!result.isSuccess) {
+        error.value = result.message ?? 'Failed to complete'
+      }
+      return result
+    } catch (err) {
+      console.error(err)
+      error.value = 'Failed to complete'
+      return { isSuccess: false, statusCode: 0, errors: [], message: 'Failed to complete', metadata: null, value: null as unknown as OrderResponse }
+    } finally {
+      loading.value = false
+    }
+  }
+
+  async function cancel(id: string): Promise<Result<OrderResponse>> {
+    loading.value = true
+    error.value = null
+    try {
+      const result = await OrderApi.cancel(id)
+      if (!result.isSuccess) {
+        error.value = result.message ?? 'Failed to cancel'
+      }
+      return result
+    } catch (err) {
+      console.error(err)
+      error.value = 'Failed to cancel'
+      return { isSuccess: false, statusCode: 0, errors: [], message: 'Failed to cancel', metadata: null, value: null as unknown as OrderResponse }
+    } finally {
+      loading.value = false
+    }
+  }
+
+  async function resume(id: string): Promise<Result<OrderResponse>> {
+    loading.value = true
+    error.value = null
+    try {
+      const result = await OrderApi.resume(id)
+      if (!result.isSuccess) {
+        error.value = result.message ?? 'Failed to resume'
+      }
+      return result
+    } catch (err) {
+      console.error(err)
+      error.value = 'Failed to resume'
+      return { isSuccess: false, statusCode: 0, errors: [], message: 'Failed to resume', metadata: null, value: null as unknown as OrderResponse }
+    } finally {
+      loading.value = false
+    }
+  }
+
   return {
     items: readonly(items), loading: readonly(loading),
     error: readonly(error), totalRecords: readonly(totalRecords),
@@ -107,5 +251,6 @@ export const useOrderStore = defineStore('ordering-order', () => {
     searchQuery: readonly(searchQuery),
     activeFilters: readonly(activeFilters),
     fetchMany, setPage, setSort, setFilters, setFilter, setSearchQuery, setSearch, resetQuery,
+    getById, create, update, delete: deleteOrder, approve, complete, cancel, resume,
   }
 })
