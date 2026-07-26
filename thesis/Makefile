@@ -25,7 +25,7 @@ mermaid: $(MMD_OUT)
 plantuml: $(PUML_OUT)
 	@echo "--- PlantUML done ($(words $(PUML_OUT)) diagrams) ---"
 
-figures/chapters/part2/ch2-design/03-architecture/P2S2.2.3_erd-core.png: figures/chapters/part2/ch2-design/03-architecture/P2S2.2.3_erd-core.mmd
+figures/chapters/part2/ch2-design/03-architecture/diagrams/P2S2.2.3_erd-core.png: figures/chapters/part2/ch2-design/03-architecture/diagrams/P2S2.2.3_erd-core.mmd
 	@echo "  [mmd-erd] $(notdir $<) -> $(notdir $@)"
 	@$(MMDC) -i $< -o $@ -w 2400 -s 1 -b transparent -t neutral
 
