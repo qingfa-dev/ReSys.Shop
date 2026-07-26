@@ -21,8 +21,8 @@ For thousands to tens of thousands of products, pgvector's simplicity outweighs 
 
 *Limitations acknowledged:*
 
-- *Scale.* Performs well for millions of vectors; not designed for billion-vector deployments.
-- *Maturity.* Fewer features than dedicated vector databases.
+- *Scale.* Performs well for millions of vectors; not designed for billion-vector deployments @pgvector2023.
+- *Maturity.* Fewer features and optimisation options than dedicated vector databases.
 - *Distribution.* Does not natively distribute across multiple servers.
 
 For this project's scope (5,000 products in evaluation), these limitations are acceptable. The primary contribution is architectural integration within a conventional e-commerce stack, not massive-scale infrastructure.
