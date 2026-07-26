@@ -1,39 +1,55 @@
 ==== Shipping Method Configuration
-// Diagram placeholder for Shipping Method Configuration
+
+// Diagram placeholder: Shipping Configuration use case diagram
 
 #figure(
   table(
-    columns: (auto, auto, auto, 1fr, auto, 1fr),
+    columns: (auto, auto, auto, 1fr, 1fr, 1fr),
     stroke: 0.5pt,
-    table.header([*UC-ID*], [*Use Case*], [*Actor*], [*Flow*], [*Postcondition*], [*Related FR*]),
-    [UC-ADM-SHP-01], [Manage shipping methods], [Admin],
-    [Create, update, activate, deactivate, or delete shipping methods. Configure carrier name, pricing rules, and applicable geographic zones per method.],
+    table.header(
+      [*UC-ID*],
+      [*Use Case*],
+      [*Primary Actor*],
+      [*Main Flow*],
+      [*Postcondition*],
+      [*Related FR*],
+    ),
+    [UC-ADM-SHP-01], [Manage shipping methods], [Administrator],
+    [Create, update, activate, deactivate, or remove shipping methods. Configure carrier and applicable zones per method.],
     [Shipping method available for customer selection at checkout if active and zone-applicable.],
     [SHP-FR-01, SHP-FR-04],
-    [UC-ADM-SHP-02], [Manage shipping rates], [Admin],
-    [Create, update, or delete shipping rates per method. Define rate tiers by weight range, cart value range, and geographic zone.],
+    [UC-ADM-SHP-02], [Manage shipping rates], [Administrator],
+    [Create, update, or remove shipping rates per method. Define rate tiers by weight, cart value, and geographic zone.],
     [Shipping rates applied during storefront checkout calculation for matching carts.],
     [SHP-FR-02, SHP-FR-05],
   ),
   caption: [Administrator use cases — Shipping Method Configuration.],
 )
 
-==== Reference Data
-// Diagram placeholder for Reference Data
+==== Reference Data Management
+
+// Diagram placeholder: Reference Data use case diagram
 
 #figure(
   table(
-    columns: (auto, auto, auto, 1fr, auto, 1fr),
+    columns: (auto, auto, auto, 1fr, 1fr, 1fr),
     stroke: 0.5pt,
-    table.header([*UC-ID*], [*Use Case*], [*Actor*], [*Flow*], [*Postcondition*], [*Related FR*]),
-    [UC-ADM-LOC-01], [Manage countries], [Admin],
-    [Create, update, or delete country records with ISO 3166-1 codes and display names. Set active status to control availability in address forms and shipping zones.],
-    [Country data updated; active countries available in storefront address forms and shipping zone configuration.],
+    table.header(
+      [*UC-ID*],
+      [*Use Case*],
+      [*Primary Actor*],
+      [*Main Flow*],
+      [*Postcondition*],
+      [*Related FR*],
+    ),
+    [UC-ADM-LOC-01], [Manage countries], [Administrator],
+    [Create, update, or remove country records with ISO codes. Set active status to control availability.],
+    [Country data updated. Active countries available in address forms and shipping zone configuration.],
     [LOC-FR-01, LOC-FR-03],
-    [UC-ADM-LOC-02], [Manage states], [Admin],
-    [Create, update, or delete state records with ISO 3166-2 codes, linked to parent country. Set active status per state.],
-    [State data updated; active states available for address validation within their parent country.],
+    [UC-ADM-LOC-02], [Manage states], [Administrator],
+    [Create, update, or remove state records with ISO codes, linked to parent country. Set active status per state.],
+    [State data updated. Active states available for address validation within their parent country.],
     [LOC-FR-02, LOC-FR-04],
   ),
-  caption: [Administrator use cases — Reference Data.],
+  caption: [Administrator use cases — Reference Data Management (Location module).],
 )

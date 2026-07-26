@@ -1,102 +1,142 @@
 ==== Product Management
-// Diagram placeholder for Product Management
+
+// Diagram placeholder: Product Management use case diagram
 
 #figure(
   table(
-    columns: (auto, auto, auto, 1fr, auto, 1fr),
+    columns: (auto, auto, auto, 1fr, 1fr, 1fr),
     stroke: 0.5pt,
-    table.header([*UC-ID*], [*Use Case*], [*Actor*], [*Flow*], [*Postcondition*], [*Related FR*]),
-    [UC-ADM-CAT-01], [Create product], [Admin],
-    [Enter product details (name, description, slug, fashion metadata), define at least one master variant with SKU and price, upload images, assign taxons.],
-    [Product created with Draft status; master variant available for catalog operations.],
+    table.header(
+      [*UC-ID*],
+      [*Use Case*],
+      [*Primary Actor*],
+      [*Main Flow*],
+      [*Postcondition*],
+      [*Related FR*],
+    ),
+    [UC-ADM-CAT-01], [Create product], [Administrator],
+    [Enter product information, configure a master variant, and upload product images. Assign the product to relevant taxons.],
+    [A new product is created in Draft status and available for further catalog configuration.],
     [CAT-FR-01, CAT-FR-02, CAT-FR-03, CAT-FR-13],
-    [UC-ADM-CAT-02], [Update product], [Admin],
-    [Modify any product field (description, metadata, status, SEO fields). Slug changes validated for uniqueness.],
-    [Product updated; if status changed to Archived, hidden from storefront.],
+    [UC-ADM-CAT-02], [Update product], [Administrator],
+    [Select an existing product and modify its catalog information, metadata, SEO attributes, or status.],
+    [The product is updated with the new information and remains consistent with catalog constraints.],
     [CAT-FR-01, CAT-FR-12],
-    [UC-ADM-CAT-03], [Delete product], [Admin],
-    [Soft-delete product and all associated variants, images, and classifications.],
-    [Product flagged as deleted; not recoverable through storefront.],
-    [CAT-FR-01],
+    [UC-ADM-CAT-03], [Archive product], [Administrator],
+    [Select an existing product and archive it from the active catalog.],
+    [The product is removed from storefront browsing and search. Associated data is retained for order history and reporting.],
+    [CAT-FR-01, CAT-FR-12],
   ),
   caption: [Administrator use cases — Product Management.],
 )
 
 ==== Variant and Pricing
-// Diagram placeholder for Variant and Pricing
+
+// Diagram placeholder: Variant and Pricing use case diagram
 
 #figure(
   table(
-    columns: (auto, auto, auto, 1fr, auto, 1fr),
+    columns: (auto, auto, auto, 1fr, 1fr, 1fr),
     stroke: 0.5pt,
-    table.header([*UC-ID*], [*Use Case*], [*Actor*], [*Flow*], [*Postcondition*], [*Related FR*]),
-    [UC-ADM-CAT-04], [Add variant], [Admin],
-    [Select parent product, define SKU, barcode, dimensions, weight, and pricing; assign option values (Size M + Colour Red) to specify the variant configuration.],
-    [Variant created and available for inventory tracking, pricing, and image assignment.],
-    [CAT-FR-03, CAT-FR-21, CAT-FR-22],
-    [UC-ADM-CAT-07], [Manage option values], [Admin],
-    [Define option values (e.g., S, M, L for Size; Red, Blue for Colour) that constitute variant configurations. Add, reorder, or remove values within an option type. Assign option value combinations to product variants.],
-    [Option values defined and available for variant configuration and storefront selection.],
-    [CAT-FR-10, CAT-FR-20],
-    [UC-ADM-CAT-08], [Manage pricing], [Admin],
-    [Set base price, sale price, and cost price per variant. Configure currency and tax category. Apply bulk price updates across multiple variants.],
-    [Pricing configuration updated; storefront displays correct per-variant pricing.],
+    table.header(
+      [*UC-ID*],
+      [*Use Case*],
+      [*Primary Actor*],
+      [*Main Flow*],
+      [*Postcondition*],
+      [*Related FR*],
+    ),
+    [UC-ADM-CAT-04], [Add product variant], [Administrator],
+    [Select a product, define variant identification and physical attributes, and assign the appropriate option values.],
+    [A new variant is associated with the product and available for inventory, pricing, and catalog operations.],
+    [CAT-FR-03, CAT-FR-21],
+    [UC-ADM-CAT-05], [Configure variant options], [Administrator],
+    [Select a product variant and assign a valid combination of option values such as size and colour.],
+    [The variant has a defined option configuration that can be presented as a product choice in the storefront.],
+    [CAT-FR-10, CAT-FR-20, CAT-FR-21],
+    [UC-ADM-CAT-06], [Configure variant pricing], [Administrator],
+    [Set or update the applicable prices for one or more product variants.],
+    [The selected variants have updated pricing configurations used by catalog display and checkout operations.],
     [CAT-FR-21, CAT-FR-22],
   ),
   caption: [Administrator use cases — Variant and Pricing.],
 )
 
 ==== Image and Embedding Management
-// Diagram placeholder for Image and Embedding Management
+
+// Diagram placeholder: Image and Embedding Management use case diagram
 
 #figure(
   table(
-    columns: (auto, auto, auto, 1fr, auto, 1fr),
+    columns: (auto, auto, auto, 1fr, 1fr, 1fr),
     stroke: 0.5pt,
-    table.header([*UC-ID*], [*Use Case*], [*Actor*], [*Flow*], [*Postcondition*], [*Related FR*]),
-    [UC-ADM-CAT-05], [Upload variant images], [Admin],
-    [Select variant, upload image file, set alt text and display order. System triggers embedding generation job.],
-    [Image stored with metadata; embedding generation queued as background job.],
+    table.header(
+      [*UC-ID*],
+      [*Use Case*],
+      [*Primary Actor*],
+      [*Main Flow*],
+      [*Postcondition*],
+      [*Related FR*],
+    ),
+    [UC-ADM-CAT-07], [Upload variant image], [Administrator],
+    [Select a product variant, upload an image, and provide its display metadata.],
+    [The image is associated with the variant and available for catalog display and visual search processing.],
     [CAT-FR-04, CAT-FR-05, CAT-FR-15],
-    [UC-ADM-CAT-06], [Regenerate embeddings], [Admin],
-    [Select variant images and trigger embedding regeneration for the currently configured model.],
-    [New embeddings generated and stored in pgvector with updated model metadata.],
+    [UC-ADM-CAT-08], [Regenerate image embeddings], [Administrator],
+    [Select one or more product images and request embedding regeneration using the configured model.],
+    [The selected images have current embeddings available for visual search and recommendation.],
     [CAT-FR-05, CAT-FR-08, CAT-FR-15],
   ),
   caption: [Administrator use cases — Image and Embedding Management.],
 )
 
 ==== Taxonomy and Classification
-// Diagram placeholder for Taxonomy and Classification
+
+// Diagram placeholder: Taxonomy and Classification use case diagram
 
 #figure(
   table(
-    columns: (auto, auto, auto, 1fr, auto, 1fr),
+    columns: (auto, auto, auto, 1fr, 1fr, 1fr),
     stroke: 0.5pt,
-    table.header([*UC-ID*], [*Use Case*], [*Actor*], [*Flow*], [*Postcondition*], [*Related FR*]),
-    [UC-ADM-CAT-09], [Manage taxonomies], [Admin],
-    [Create, update, or delete taxonomies and nested taxon trees. Reorder taxons within a taxonomy.],
-    [Taxonomy structure updated; products classified under affected taxons retain their classifications.],
+    table.header(
+      [*UC-ID*],
+      [*Use Case*],
+      [*Primary Actor*],
+      [*Main Flow*],
+      [*Postcondition*],
+      [*Related FR*],
+    ),
+    [UC-ADM-CAT-09], [Manage taxonomies], [Administrator],
+    [Create, update, reorder, or remove taxonomies and their hierarchical taxons.],
+    [The taxonomy structure reflects the changes and remains available for product classification.],
     [CAT-FR-09],
-    [UC-ADM-CAT-10], [Classify products], [Admin],
-    [Assign products to one or more taxon nodes. Synchronise or revoke classifications.],
-    [Product appears under assigned categories in storefront browsing and search filters.],
+    [UC-ADM-CAT-10], [Classify products], [Administrator],
+    [Select products and assign or remove their associations with applicable taxons.],
+    [The products have updated classifications reflected in catalog browsing and filtering.],
     [CAT-FR-09, CAT-FR-19],
   ),
   caption: [Administrator use cases — Taxonomy and Classification.],
 )
 
 ==== Option Type Configuration
-// Diagram placeholder for Option Type Configuration
+
+// Diagram placeholder: Option Type Configuration use case diagram
 
 #figure(
   table(
-    columns: (auto, auto, auto, 1fr, auto, 1fr),
+    columns: (auto, auto, auto, 1fr, 1fr, 1fr),
     stroke: 0.5pt,
-    table.header([*UC-ID*], [*Use Case*], [*Actor*], [*Flow*], [*Postcondition*], [*Related FR*]),
-    [UC-ADM-CAT-11], [Manage option types], [Admin],
-    [Create option types (e.g., Size, Colour) with ordered option values. Assign option types to products.],
-    [Option types available for variant configuration across assigned products.],
+    table.header(
+      [*UC-ID*],
+      [*Use Case*],
+      [*Primary Actor*],
+      [*Main Flow*],
+      [*Postcondition*],
+      [*Related FR*],
+    ),
+    [UC-ADM-CAT-11], [Manage option types], [Administrator],
+    [Create, update, reorder, or remove product option types and their predefined option values.],
+    [The configured option types and values are available for product and variant configuration.],
     [CAT-FR-10, CAT-FR-20],
   ),
   caption: [Administrator use cases — Option Type Configuration.],

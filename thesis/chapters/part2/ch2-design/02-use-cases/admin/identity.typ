@@ -1,45 +1,57 @@
 ==== User Management
-// Diagram placeholder for User Management
+
+// Diagram placeholder: User Management use case diagram
 
 #figure(
   table(
-    columns: (auto, auto, auto, 1fr, auto, 1fr),
+    columns: (auto, auto, auto, 1fr, 1fr, 1fr),
     stroke: 0.5pt,
-    table.header([*UC-ID*], [*Use Case*], [*Actor*], [*Flow*], [*Postcondition*], [*Related FR*]),
-    [UC-ADM-IDN-01], [Manage users], [Admin],
-    [Create user accounts with email and initial role. Update profile fields. Enable or disable accounts. View user detail including assigned roles and permissions.],
-    [User account created or modified. Status changes take effect on next authentication attempt.],
+    table.header(
+      [*UC-ID*],
+      [*Use Case*],
+      [*Primary Actor*],
+      [*Main Flow*],
+      [*Postcondition*],
+      [*Related FR*],
+    ),
+    [UC-ADM-IDN-01], [Manage users], [Administrator],
+    [Create user accounts. Update profile fields. Enable or disable accounts. View user detail including assigned roles and permissions.],
+    [User account created or modified. Status changes take effect on next authentication.],
     [IDN-FR-01, IDN-FR-09, IDN-FR-13],
-    [UC-ADM-IDN-06], [Toggle user status], [Admin],
-    [Enable or disable individual user accounts. Disabled accounts cannot authenticate or receive new tokens. Existing sessions invalidated upon disable.],
-    [User account status updated; disabled users blocked from system access.],
-    [IDN-FR-09, IDN-FR-13],
   ),
   caption: [Administrator use cases — User Management.],
 )
 
 ==== Role and Permission Governance
-// Diagram placeholder for Role and Permission Governance
+
+// Diagram placeholder: Role and Permission use case diagram
 
 #figure(
   table(
-    columns: (auto, auto, auto, 1fr, auto, 1fr),
+    columns: (auto, auto, auto, 1fr, 1fr, 1fr),
     stroke: 0.5pt,
-    table.header([*UC-ID*], [*Use Case*], [*Actor*], [*Flow*], [*Postcondition*], [*Related FR*]),
-    [UC-ADM-IDN-02], [Manage roles], [Admin],
-    [Create, update, or delete roles. Assign, synchronise, or revoke permissions per role. List roles with paging.],
+    table.header(
+      [*UC-ID*],
+      [*Use Case*],
+      [*Primary Actor*],
+      [*Main Flow*],
+      [*Postcondition*],
+      [*Related FR*],
+    ),
+    [UC-ADM-IDN-02], [Manage roles], [Administrator],
+    [Create, update, or remove roles. Assign or revoke permissions per role. List roles with paging.],
     [Role configuration updated. Users assigned to modified roles receive updated permission sets.],
     [IDN-FR-07, IDN-FR-11],
-    [UC-ADM-IDN-03], [Assign user roles], [Admin],
-    [Assign, synchronise, or revoke roles for individual users. View current role assignments.],
+    [UC-ADM-IDN-03], [Assign user roles], [Administrator],
+    [Assign or revoke roles for individual users. View current role assignments.],
     [User role assignments updated. Effective permissions recalculated on next token issuance.],
     [IDN-FR-07, IDN-FR-12],
-    [UC-ADM-IDN-04], [Grant user permissions], [Admin],
-    [Grant or revoke granular permissions directly on a user account, bypassing role inheritance for exceptional cases.],
+    [UC-ADM-IDN-04], [Grant user permissions], [Administrator],
+    [Grant or revoke granular permissions directly on a user account.],
     [User's effective permissions updated to include direct grants plus role-derived permissions.],
     [IDN-FR-07, IDN-FR-12],
-    [UC-ADM-IDN-05], [View permissions catalog], [Admin],
-    [Browse the complete list of available permission claims across all modules, organised by domain and category.],
+    [UC-ADM-IDN-05], [View permissions catalogue], [Administrator],
+    [Browse the complete list of available permission claims across all modules.],
     [Full permission matrix visible for audit and role design.],
     [IDN-FR-07],
   ),

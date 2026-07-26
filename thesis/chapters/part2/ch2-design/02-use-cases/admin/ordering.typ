@@ -1,55 +1,43 @@
 ==== Order Lifecycle
-// Diagram placeholder for Order Lifecycle
+
+// Diagram placeholder: Order Lifecycle use case diagram
 
 #figure(
   table(
-    columns: (auto, auto, auto, 1fr, auto, 1fr),
+    columns: (auto, auto, auto, 1fr, 1fr, 1fr),
     stroke: 0.5pt,
-    table.header([*UC-ID*], [*Use Case*], [*Actor*], [*Flow*], [*Postcondition*], [*Related FR*]),
-    [UC-ADM-ORD-01], [View orders], [Admin],
-    [List orders with paging, filtering by status, date range, and customer. Drill into individual order detail showing line items, payments, shipments, and history.],
+    table.header(
+      [*UC-ID*],
+      [*Use Case*],
+      [*Primary Actor*],
+      [*Main Flow*],
+      [*Postcondition*],
+      [*Related FR*],
+    ),
+    [UC-ADM-ORD-01], [View orders], [Administrator],
+    [List orders with filtering by status, date range, and customer. View individual order detail.],
     [Order data displayed with full transactional context.],
     [ORD-FR-05, ORD-FR-06, ORD-FR-13],
-    [UC-ADM-ORD-02], [Update order], [Admin],
-    [Modify order attributes: add, update, or remove line items; update shipping and billing addresses; change shipping method.],
-    [Order updated; totals recalculated to reflect line item and adjustment changes.],
+    [UC-ADM-ORD-02], [Update order], [Administrator],
+    [Modify order attributes: adjust line items, update shipping and billing addresses, change delivery method.],
+    [Order updated and totals recalculated to reflect the changes.],
     [ORD-FR-05, ORD-FR-13],
-    [UC-ADM-ORD-03], [Approve order], [Admin],
-    [Approve a pending order for fulfilment. System verifies payment status and inventory availability.],
-    [Order approved and moved to fulfilment queue; inventory reserved if not already held.],
+    [UC-ADM-ORD-03], [Approve order], [Administrator],
+    [Approve a pending order for fulfilment after verifying payment status and inventory availability.],
+    [Order approved and moved to fulfilment queue.],
     [ORD-FR-04, ORD-FR-13],
-    [UC-ADM-ORD-04], [Complete order], [Admin],
-    [Mark order as fulfilled after shipment confirmation. Finalise totals and lock the order against further modification.],
-    [Order completed; immutable after this point. Inventory on-hand quantities decremented.],
+    [UC-ADM-ORD-04], [Complete order], [Administrator],
+    [Mark an order as fulfilled after shipment confirmation.],
+    [Order completed and locked against further modification. Inventory on-hand quantities decremented.],
     [ORD-FR-09, ORD-FR-13],
-    [UC-ADM-ORD-05], [Cancel order], [Admin],
-    [Cancel an order at any pre-confirmation stage with mandatory reason. Release reserved inventory, void payment intents.],
-    [Order cancelled; inventory released; payment voided.],
+    [UC-ADM-ORD-05], [Cancel order], [Administrator],
+    [Cancel an order at any pre-confirmation stage, providing a reason. Release reserved inventory.],
+    [Order cancelled. Inventory returned to availability. Payment voided.],
     [ORD-FR-07],
-    [UC-ADM-ORD-06], [Resume order], [Admin],
-    [Resume a previously paused or stalled order, moving it back into the active workflow.],
+    [UC-ADM-ORD-06], [Resume order], [Administrator],
+    [Resume a previously paused or stalled order, returning it to the active workflow.],
     [Order returned to processing state.],
     [ORD-FR-13],
   ),
   caption: [Administrator use cases — Order Lifecycle.],
-)
-
-==== Order Detail Management
-// Diagram placeholder for Order Detail Management
-
-#figure(
-  table(
-    columns: (auto, auto, auto, 1fr, auto, 1fr),
-    stroke: 0.5pt,
-    table.header([*UC-ID*], [*Use Case*], [*Actor*], [*Flow*], [*Postcondition*], [*Related FR*]),
-    [UC-ADM-ORD-07], [Manage line items], [Admin],
-    [Add, update, or remove line items from an order. Adjust quantities, apply discounts, or substitute products. Recalculate order totals after modifications.],
-    [Line items updated; order totals and tax calculations reflect current line item state.],
-    [ORD-FR-05, ORD-FR-13],
-    [UC-ADM-ORD-08], [Manage order addresses], [Admin],
-    [Update shipping and billing addresses on an existing order. Validate address completeness and zone applicability. Reprocess shipping rate if shipping address changes.],
-    [Order addresses updated; shipping method and rate recalculated if applicable.],
-    [ORD-FR-04, ORD-FR-13],
-  ),
-  caption: [Administrator use cases — Order Detail Management.],
 )
