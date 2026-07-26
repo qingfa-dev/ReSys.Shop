@@ -1,42 +1,58 @@
 ==== Payment Processing
-// Diagram placeholder for Payment Processing
+
+// Diagram placeholder: Payment Processing use case diagram
 
 #figure(
   table(
-    columns: (auto, auto, auto, 1fr, auto, 1fr),
+    columns: (auto, auto, auto, 1fr, 1fr, 1fr),
     stroke: 0.5pt,
-    table.header([*UC-ID*], [*Use Case*], [*Actor*], [*Flow*], [*Postcondition*], [*Related FR*]),
-    [UC-ADM-PAY-01], [Capture payment], [Admin],
-    [Capture an authorised payment intent, transferring funds from the customer's account. Idempotency key prevents duplicate capture.],
-    [Payment captured; funds transferred. Order payment state updated to captured.],
+    table.header(
+      [*UC-ID*],
+      [*Use Case*],
+      [*Primary Actor*],
+      [*Main Flow*],
+      [*Postcondition*],
+      [*Related FR*],
+    ),
+    [UC-ADM-PAY-01], [Capture payment], [Administrator],
+    [Capture an authorised payment intent to transfer funds from the customer's account.],
+    [Payment captured and funds transferred. Order payment state updated.],
     [PAY-FR-03],
-    [UC-ADM-PAY-02], [Refund payment], [Admin],
-    [Issue a refund against a captured payment. Validate that refund amount does not exceed captured amount.],
-    [Refund processed; payment state updated to refunded (partial or full). Funds returned to customer.],
+    [UC-ADM-PAY-02], [Refund payment], [Administrator],
+    [Issue a refund against a captured payment. The refund amount must not exceed the captured amount.],
+    [Refund processed. Funds returned to the customer. Payment state updated.],
     [PAY-FR-03, PAY-FR-05],
-    [UC-ADM-PAY-03], [Void payment], [Admin],
+    [UC-ADM-PAY-03], [Void payment], [Administrator],
     [Void an authorised but un-captured payment, releasing the fund hold without charging the customer.],
-    [Payment voided; fund hold released. Order payment state updated.],
+    [Payment voided and fund hold released. Order payment state updated.],
     [PAY-FR-09],
-    [UC-ADM-PAY-04], [View payments], [Admin],
-    [List payments with paging and filtering by status, date, gateway, and order reference. View individual payment detail.],
-    [Payment records displayed with gateway state and system state shown side by side.],
+    [UC-ADM-PAY-04], [View payments], [Administrator],
+    [List payments with filtering and view individual payment detail.],
+    [Payment records displayed. Gateway state and system state shown together.],
     [PAY-FR-07],
   ),
   caption: [Administrator use cases — Payment Processing.],
 )
 
 ==== Payment Method Configuration
-// Diagram placeholder for Payment Method Configuration
+
+// Diagram placeholder: Payment Method Configuration use case diagram
 
 #figure(
   table(
-    columns: (auto, auto, auto, 1fr, auto, 1fr),
+    columns: (auto, auto, auto, 1fr, 1fr, 1fr),
     stroke: 0.5pt,
-    table.header([*UC-ID*], [*Use Case*], [*Actor*], [*Flow*], [*Postcondition*], [*Related FR*]),
-    [UC-ADM-PAY-05], [Manage payment methods], [Admin],
-    [Create, update, activate, deactivate, or delete payment methods. Configure gateway-specific parameters per method.],
-    [Payment method configuration updated; active methods available for storefront selection.],
+    table.header(
+      [*UC-ID*],
+      [*Use Case*],
+      [*Primary Actor*],
+      [*Main Flow*],
+      [*Postcondition*],
+      [*Related FR*],
+    ),
+    [UC-ADM-PAY-05], [Manage payment methods], [Administrator],
+    [Create, update, activate, deactivate, or remove payment methods. Configure gateway-specific parameters per method.],
+    [Payment method configuration updated. Active methods available for storefront selection.],
     [PAY-FR-10],
   ),
   caption: [Administrator use cases — Payment Method Configuration.],

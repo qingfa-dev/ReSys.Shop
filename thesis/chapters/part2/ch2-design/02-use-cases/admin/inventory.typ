@@ -1,58 +1,82 @@
 ==== Stock Location Management
-// Diagram placeholder for Stock Location Management
+
+// Diagram placeholder: Stock Location use case diagram
 
 #figure(
   table(
-    columns: (auto, auto, auto, 1fr, auto, 1fr),
+    columns: (auto, auto, auto, 1fr, 1fr, 1fr),
     stroke: 0.5pt,
-    table.header([*UC-ID*], [*Use Case*], [*Actor*], [*Flow*], [*Postcondition*], [*Related FR*]),
-    [UC-ADM-INV-01], [Manage stock locations], [Admin],
-    [Create, update, or delete warehouse locations. Set a default location for new stock intake.],
-    [Location configuration updated; stock items assigned to locations maintain references.],
+    table.header(
+      [*UC-ID*],
+      [*Use Case*],
+      [*Primary Actor*],
+      [*Main Flow*],
+      [*Postcondition*],
+      [*Related FR*],
+    ),
+    [UC-ADM-INV-01], [Manage stock locations], [Administrator],
+    [Create, update, or remove warehouse locations. Set a default location for new stock intake.],
+    [Location configuration updated. Stock items assigned to modified locations retain valid references.],
     [INV-FR-01],
   ),
   caption: [Administrator use cases — Stock Location Management.],
 )
 
 ==== Stock Item Management
-// Diagram placeholder for Stock Item Management
+
+// Diagram placeholder: Stock Item use case diagram
 
 #figure(
   table(
-    columns: (auto, auto, auto, 1fr, auto, 1fr),
+    columns: (auto, auto, auto, 1fr, 1fr, 1fr),
     stroke: 0.5pt,
-    table.header([*UC-ID*], [*Use Case*], [*Actor*], [*Flow*], [*Postcondition*], [*Related FR*]),
-    [UC-ADM-INV-02], [Manage stock items], [Admin],
-    [Create stock items for product variants at specific locations with initial on-hand quantity. Update, delete, or bulk-adjust quantities across multiple items.],
-    [Stock quantities updated; audit log records the change with operator identity and reason.],
+    table.header(
+      [*UC-ID*],
+      [*Use Case*],
+      [*Primary Actor*],
+      [*Main Flow*],
+      [*Postcondition*],
+      [*Related FR*],
+    ),
+    [UC-ADM-INV-02], [Manage stock items], [Administrator],
+    [Create stock items for product variants at specific locations with initial on-hand quantities. Update, remove, or bulk-adjust quantities.],
+    [Stock quantities updated. Changes recorded in the audit log with operator identity and reason.],
     [INV-FR-02, INV-FR-06, INV-FR-08],
-    [UC-ADM-INV-03], [Restock inventory], [Admin],
-    [Increase on-hand quantity for a stock item, recording the restock event with source and reason.],
-    [On-hand quantity incremented; stock movement audit entry created.],
+    [UC-ADM-INV-03], [Restock inventory], [Administrator],
+    [Increase on-hand quantity for a stock item, recording the restock event.],
+    [On-hand quantity incremented. Stock movement audit entry created.],
     [INV-FR-02, INV-FR-06, INV-FR-08],
-    [UC-ADM-INV-06], [Monitor low stock], [Admin],
-    [View a filtered list of stock items where on-hand quantity falls below the configured threshold, grouped by location.],
-    [Low-stock items identified for proactive replenishment planning.],
+    [UC-ADM-INV-04], [Monitor low stock], [Administrator],
+    [View a filtered list of stock items where on-hand quantity falls below the configured threshold.],
+    [Low-stock items identified for replenishment planning.],
     [INV-FR-09],
   ),
   caption: [Administrator use cases — Stock Item Management.],
 )
 
 ==== Stock Movement and Transfer
-// Diagram placeholder for Stock Movement and Transfer
+
+// Diagram placeholder: Stock Movement use case diagram
 
 #figure(
   table(
-    columns: (auto, auto, auto, 1fr, auto, 1fr),
+    columns: (auto, auto, auto, 1fr, 1fr, 1fr),
     stroke: 0.5pt,
-    table.header([*UC-ID*], [*Use Case*], [*Actor*], [*Flow*], [*Postcondition*], [*Related FR*]),
-    [UC-ADM-INV-04], [Transfer stock], [Admin],
-    [Initiate a transfer of stock quantity from a source location to a destination. Record in-transit status, confirm receipt at destination, or cancel pending transfers.],
+    table.header(
+      [*UC-ID*],
+      [*Use Case*],
+      [*Primary Actor*],
+      [*Main Flow*],
+      [*Postcondition*],
+      [*Related FR*],
+    ),
+    [UC-ADM-INV-05], [Transfer stock], [Administrator],
+    [Initiate a stock transfer from one location to another. Record in-transit status, confirm receipt at destination, or cancel pending transfers.],
     [Stock decremented at source, incremented at destination upon receipt. Full audit trail recorded.],
     [INV-FR-05, INV-FR-10],
-    [UC-ADM-INV-05], [Review stock movements], [Admin],
-    [Browse paged listing of all stock movements. View detail for any movement including source, destination, quantity, reason, and operator.],
-    [Complete audit trail visible for compliance and debugging.],
+    [UC-ADM-INV-06], [Review stock movements], [Administrator],
+    [Browse all stock movements with paging. View detail for any movement including source, destination, quantity, and reason.],
+    [Complete audit trail visible for compliance and operational review.],
     [INV-FR-06, INV-FR-12],
   ),
   caption: [Administrator use cases — Stock Movement and Transfer.],
