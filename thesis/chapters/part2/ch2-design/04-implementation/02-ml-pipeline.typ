@@ -27,7 +27,7 @@ The supported models span four architectural families. *Convolutional neural net
 The embedding generation process follows a precise pipeline from image reception to vector output. @fig-ml-pipeline illustrates this flow.
 
 #figure(
-  image("../../../../figures/chapters/part2/ch2-design/04-implementation/P2S2.2.4_ml-pipeline.png", width: 100%),
+  image("../../../../figures/chapters/part2/ch2-design/04-implementation/diagrams/P2S2.2.4_ml-pipeline.png", width: 100%),
   caption: [ML embedding pipeline: the step-by-step flow from image bytes received by the FastAPI interface to a 512-dimensional float vector returned as JSON to the .NET backend.],
 ) <fig-ml-pipeline>
 
