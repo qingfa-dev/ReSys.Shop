@@ -10,4 +10,4 @@ The backend is built on .NET 10, a high-performance runtime with ahead-of-time c
 
 - *FluentValidation* enforces input rules at the application boundary. Each request type has an associated validator that runs before the handler executes, rejecting invalid data before it reaches business logic.
 
-- *Vertical slice architecture* organises each feature (e.g., CreateProduct, SearchByImage) as a self-contained folder containing the handler, request, response, endpoint, and validator. This colocation keeps feature concerns together rather than spread across technical layers.
+- *Vertical slice architecture* (described in Section 1.5.1) organises each feature as a self-contained folder containing the handler, request, response, endpoint, and validator. This colocation keeps feature concerns together rather than spread across technical layers.
