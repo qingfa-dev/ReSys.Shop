@@ -1,4 +1,5 @@
-==== Shipping Configuration
+==== Shipping Method Configuration
+// Diagram placeholder for Shipping Method Configuration
 
 #figure(
   table(
@@ -14,10 +15,11 @@
     [Shipping rates applied during storefront checkout calculation for matching carts.],
     [SHP-FR-02, SHP-FR-05],
   ),
-  caption: [Administrator use cases for the Shipping module.],
+  caption: [Administrator use cases — Shipping Method Configuration.],
 )
 
-==== Reference Data Management
+==== Reference Data
+// Diagram placeholder for Reference Data
 
 #figure(
   table(
@@ -33,5 +35,5 @@
     [State data updated; active states available for address validation within their parent country.],
     [LOC-FR-02, LOC-FR-04],
   ),
-  caption: [Administrator use cases for the Location module.],
+  caption: [Administrator use cases — Reference Data.],
 )

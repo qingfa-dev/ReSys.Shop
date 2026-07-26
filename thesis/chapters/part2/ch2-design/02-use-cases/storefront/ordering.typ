@@ -1,4 +1,5 @@
-==== Cart and Checkout
+==== Cart Management
+// Diagram placeholder for Cart Management
 
 #figure(
   table(
@@ -13,6 +14,18 @@
     [Upon login or registration, the existing guest cart is promoted to the authenticated user context. Cart contents are merged without data loss.],
     [Cart now associated with user account; available across devices via authentication.],
     [ORD-FR-02],
+  ),
+  caption: [Customer use cases — Cart Management.],
+)
+
+==== Checkout Flow
+// Diagram placeholder for Checkout Flow
+
+#figure(
+  table(
+    columns: (auto, auto, auto, 1fr, auto, 1fr),
+    stroke: 0.5pt,
+    table.header([*UC-ID*], [*Use Case*], [*Actor*], [*Flow*], [*Postcondition*], [*Related FR*]),
     [UC-STR-ORD-03], [Select shipping address], [Customer],
     [Select a saved address or enter a new shipping address. System validates address completeness and zone applicability.],
     [Shipping address set on the order; shipping zone determined for rate calculation.],
@@ -25,6 +38,18 @@
     [After address and shipping method selection, proceed to payment. Select payment method or enter new payment details. Review order summary (items, adjustments, shipping, total). Confirm order. System: validates stock availability, processes payment intent, creates order record, reserves inventory, clears cart.],
     [Order created with unique order number. Inventory reserved for each line item. Payment intent linked to order. Cart cleared.],
     [ORD-FR-04, ORD-FR-05, ORD-FR-08, ORD-FR-11, NFR-01],
+  ),
+  caption: [Customer use cases — Checkout Flow.],
+)
+
+==== Order History
+// Diagram placeholder for Order History
+
+#figure(
+  table(
+    columns: (auto, auto, auto, 1fr, auto, 1fr),
+    stroke: 0.5pt,
+    table.header([*UC-ID*], [*Use Case*], [*Actor*], [*Flow*], [*Postcondition*], [*Related FR*]),
     [UC-STR-ORD-06], [View order history], [Customer],
     [List past orders with status, date, and total. Drill into order detail to view line items, payment state, shipment tracking.],
     [Complete order history visible for authenticated customers.],
@@ -34,5 +59,5 @@
     [Order cancelled; inventory returned to availability; payment voided.],
     [ORD-FR-07],
   ),
-  caption: [Customer use cases for the Ordering module.],
+  caption: [Customer use cases — Order History.],
 )

@@ -1,4 +1,5 @@
-==== Payment Management
+==== Payment Processing
+// Diagram placeholder for Payment Processing
 
 #figure(
   table(
@@ -21,10 +22,22 @@
     [List payments with paging and filtering by status, date, gateway, and order reference. View individual payment detail.],
     [Payment records displayed with gateway state and system state shown side by side.],
     [PAY-FR-07],
+  ),
+  caption: [Administrator use cases — Payment Processing.],
+)
+
+==== Payment Method Configuration
+// Diagram placeholder for Payment Method Configuration
+
+#figure(
+  table(
+    columns: (auto, auto, auto, 1fr, auto, 1fr),
+    stroke: 0.5pt,
+    table.header([*UC-ID*], [*Use Case*], [*Actor*], [*Flow*], [*Postcondition*], [*Related FR*]),
     [UC-ADM-PAY-05], [Manage payment methods], [Admin],
     [Create, update, activate, deactivate, or delete payment methods. Configure gateway-specific parameters per method.],
     [Payment method configuration updated; active methods available for storefront selection.],
     [PAY-FR-10],
   ),
-  caption: [Administrator use cases for the Payment module.],
+  caption: [Administrator use cases — Payment Method Configuration.],
 )

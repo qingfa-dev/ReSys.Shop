@@ -1,4 +1,5 @@
 ==== Payment Processing
+// Diagram placeholder for Payment Processing
 
 #figure(
   table(
@@ -14,10 +15,11 @@
     [Payment confirmed; order moves to Complete state. PaymentIntent state updated to Succeeded.],
     [PAY-FR-02],
   ),
-  caption: [Customer use cases for the Payment module.],
+  caption: [Customer use cases — Payment Processing.],
 )
 
-==== Authentication and Account Management
+==== Account Management
+// Diagram placeholder for Account Management
 
 #figure(
   table(
@@ -53,5 +55,5 @@
     [Password changed without invalidating current session tokens.],
     [IDN-FR-14],
   ),
-  caption: [Customer use cases for the Identity module.],
+  caption: [Customer use cases — Account Management.],
 )

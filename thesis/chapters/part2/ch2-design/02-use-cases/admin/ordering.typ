@@ -1,4 +1,5 @@
-==== Order Fulfilment
+==== Order Lifecycle
+// Diagram placeholder for Order Lifecycle
 
 #figure(
   table(
@@ -30,5 +31,25 @@
     [Order returned to processing state.],
     [ORD-FR-13],
   ),
-  caption: [Administrator use cases for the Ordering module.],
+  caption: [Administrator use cases — Order Lifecycle.],
+)
+
+==== Order Detail Management
+// Diagram placeholder for Order Detail Management
+
+#figure(
+  table(
+    columns: (auto, auto, auto, 1fr, auto, 1fr),
+    stroke: 0.5pt,
+    table.header([*UC-ID*], [*Use Case*], [*Actor*], [*Flow*], [*Postcondition*], [*Related FR*]),
+    [UC-ADM-ORD-07], [Manage line items], [Admin],
+    [Add, update, or remove line items from an order. Adjust quantities, apply discounts, or substitute products. Recalculate order totals after modifications.],
+    [Line items updated; order totals and tax calculations reflect current line item state.],
+    [ORD-FR-05, ORD-FR-13],
+    [UC-ADM-ORD-08], [Manage order addresses], [Admin],
+    [Update shipping and billing addresses on an existing order. Validate address completeness and zone applicability. Reprocess shipping rate if shipping address changes.],
+    [Order addresses updated; shipping method and rate recalculated if applicable.],
+    [ORD-FR-04, ORD-FR-13],
+  ),
+  caption: [Administrator use cases — Order Detail Management.],
 )
