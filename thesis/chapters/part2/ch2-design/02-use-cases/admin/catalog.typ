@@ -1,4 +1,5 @@
-==== Catalog Management
+==== Product Management
+// Diagram placeholder for Product Management
 
 #figure(
   table(
@@ -17,10 +18,42 @@
     [Soft-delete product and all associated variants, images, and classifications.],
     [Product flagged as deleted; not recoverable through storefront.],
     [CAT-FR-01],
+  ),
+  caption: [Administrator use cases — Product Management.],
+)
+
+==== Variant and Pricing
+// Diagram placeholder for Variant and Pricing
+
+#figure(
+  table(
+    columns: (auto, auto, auto, 1fr, auto, 1fr),
+    stroke: 0.5pt,
+    table.header([*UC-ID*], [*Use Case*], [*Actor*], [*Flow*], [*Postcondition*], [*Related FR*]),
     [UC-ADM-CAT-04], [Add variant], [Admin],
     [Select parent product, define SKU, barcode, dimensions, weight, and pricing; assign option values (Size M + Colour Red) to specify the variant configuration.],
     [Variant created and available for inventory tracking, pricing, and image assignment.],
     [CAT-FR-03, CAT-FR-21, CAT-FR-22],
+    [UC-ADM-CAT-07], [Manage option values], [Admin],
+    [Define option values (e.g., S, M, L for Size; Red, Blue for Colour) that constitute variant configurations. Add, reorder, or remove values within an option type. Assign option value combinations to product variants.],
+    [Option values defined and available for variant configuration and storefront selection.],
+    [CAT-FR-10, CAT-FR-20],
+    [UC-ADM-CAT-08], [Manage pricing], [Admin],
+    [Set base price, sale price, and cost price per variant. Configure currency and tax category. Apply bulk price updates across multiple variants.],
+    [Pricing configuration updated; storefront displays correct per-variant pricing.],
+    [CAT-FR-21, CAT-FR-22],
+  ),
+  caption: [Administrator use cases — Variant and Pricing.],
+)
+
+==== Image and Embedding Management
+// Diagram placeholder for Image and Embedding Management
+
+#figure(
+  table(
+    columns: (auto, auto, auto, 1fr, auto, 1fr),
+    stroke: 0.5pt,
+    table.header([*UC-ID*], [*Use Case*], [*Actor*], [*Flow*], [*Postcondition*], [*Related FR*]),
     [UC-ADM-CAT-05], [Upload variant images], [Admin],
     [Select variant, upload image file, set alt text and display order. System triggers embedding generation job.],
     [Image stored with metadata; embedding generation queued as background job.],
@@ -29,18 +62,42 @@
     [Select variant images and trigger embedding regeneration for the currently configured model.],
     [New embeddings generated and stored in pgvector with updated model metadata.],
     [CAT-FR-05, CAT-FR-08, CAT-FR-15],
-    [UC-ADM-CAT-07], [Manage taxonomies], [Admin],
+  ),
+  caption: [Administrator use cases — Image and Embedding Management.],
+)
+
+==== Taxonomy and Classification
+// Diagram placeholder for Taxonomy and Classification
+
+#figure(
+  table(
+    columns: (auto, auto, auto, 1fr, auto, 1fr),
+    stroke: 0.5pt,
+    table.header([*UC-ID*], [*Use Case*], [*Actor*], [*Flow*], [*Postcondition*], [*Related FR*]),
+    [UC-ADM-CAT-09], [Manage taxonomies], [Admin],
     [Create, update, or delete taxonomies and nested taxon trees. Reorder taxons within a taxonomy.],
     [Taxonomy structure updated; products classified under affected taxons retain their classifications.],
     [CAT-FR-09],
-    [UC-ADM-CAT-08], [Classify products], [Admin],
+    [UC-ADM-CAT-10], [Classify products], [Admin],
     [Assign products to one or more taxon nodes. Synchronise or revoke classifications.],
     [Product appears under assigned categories in storefront browsing and search filters.],
     [CAT-FR-09, CAT-FR-19],
-    [UC-ADM-CAT-09], [Manage option types], [Admin],
+  ),
+  caption: [Administrator use cases — Taxonomy and Classification.],
+)
+
+==== Option Type Configuration
+// Diagram placeholder for Option Type Configuration
+
+#figure(
+  table(
+    columns: (auto, auto, auto, 1fr, auto, 1fr),
+    stroke: 0.5pt,
+    table.header([*UC-ID*], [*Use Case*], [*Actor*], [*Flow*], [*Postcondition*], [*Related FR*]),
+    [UC-ADM-CAT-11], [Manage option types], [Admin],
     [Create option types (e.g., Size, Colour) with ordered option values. Assign option types to products.],
     [Option types available for variant configuration across assigned products.],
     [CAT-FR-10, CAT-FR-20],
   ),
-  caption: [Administrator use cases for the Catalog module.],
+  caption: [Administrator use cases — Option Type Configuration.],
 )

@@ -1,8 +1,5 @@
-=== System Use Cases
-
-The System actor represents automated background processes that execute without human interaction. These processes maintain data consistency, generate embeddings asynchronously, manage inventory reservations, and perform scheduled maintenance.
-
-==== Automated Operations
+==== Embedding Operations
+// Diagram placeholder for Embedding Operations
 
 #figure(
   table(
@@ -21,6 +18,18 @@ The System actor represents automated background processes that execute without 
     [The Python ML sidecar exposes a health check endpoint. .NET Aspire periodically probes the endpoint. The sidecar responds with the currently loaded model, its embedding dimension, and the last inference latency. If the sidecar is unreachable or returns an error, Aspire restarts the container.],
     [ML sidecar availability continuously monitored. Automatic restart on failure. .NET API routes embedding requests only when sidecar reports healthy.],
     [NFR-04],
+  ),
+  caption: [System use cases — Embedding Operations.],
+)
+
+==== Background Maintenance
+// Diagram placeholder for Background Maintenance
+
+#figure(
+  table(
+    columns: (auto, auto, auto, 1fr, auto, 1fr),
+    stroke: 0.5pt,
+    table.header([*UC-ID*], [*Use Case*], [*Actor*], [*Flow*], [*Postcondition*], [*Related FR*]),
     [UC-SYS-JOB-01], [Expire abandoned carts], [System],
     [A daily scheduled Hangfire job queries for carts with no activity in the past seven days. Each expired cart: releases reserved inventory for all line items, voids any associated payment intents, marks the cart as expired.],
     [Abandoned carts removed. Reserved inventory returned to availability. Database storage from stale carts reclaimed.],
@@ -38,5 +47,5 @@ The System actor represents automated background processes that execute without 
     [HNSW index optimised. CBIR search latency remains stable as catalog size increases.],
     [CAT-FR-06],
   ),
-  caption: [System use cases for background operations.],
+  caption: [System use cases — Background Maintenance.],
 )
