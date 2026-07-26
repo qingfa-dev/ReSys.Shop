@@ -15,11 +15,6 @@ In 2020, researchers showed this approach could also work for images @dosovitski
   [Pass the sequence through transformer layers with multi-head self-attention.],
 )
 
-#figure(
-  image("../../../../figures/chapters/part2/ch1-background/f4-ml-models/P2S2.1.4_dinov2.png", width: 86%),
-  caption: [Vision Transformer converts an image into patches and uses self-attention to understand relationships between them],
-) <fig-dinov2-arch>
-
 ==== Global Context via Self-Attention
 
 Unlike CNNs, which focus on local patterns, self-attention captures relationships across the entire image from the first layer. A CNN processes patches in order and mainly compares nearby regions. A ViT can directly compare any two patches, even if they are far apart.
@@ -39,6 +34,11 @@ Most AI models are trained with supervised learning, where humans label images (
   [Update the teacher as an exponential moving average of the student weights.],
   [Repeat across 142 million uncurated images.],
 )
+
+#figure(
+  image("../../../../figures/chapters/part2/ch1-background/f4-ml-models/P2S2.1.4_dinov2.png", width: 86%),
+  caption: [DINOv2 architecture: image patches pass through transformer layers with self-attention to produce a feature vector],
+) <fig-dinov2-arch>
 
 DINOv2 produces features that exhibit strong object-level structure: silhouettes, part geometry, and garment boundaries, without being trained on category labels. This makes it adaptable to fashion domains where curated labels are scarce.
 
