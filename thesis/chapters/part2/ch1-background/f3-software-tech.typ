@@ -1,4 +1,4 @@
-== Software Engineering Technologies
+== Platform Architecture and Technology Stack
 
 Building a production-capable e-commerce platform with integrated machine learning requires deliberate architectural and technology choices. This section surveys architectural patterns, describes each technology in the ReSys.Shop stack, and provides the rationale for each selection.
 
