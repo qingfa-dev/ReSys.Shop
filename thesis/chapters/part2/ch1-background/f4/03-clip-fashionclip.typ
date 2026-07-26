@@ -2,7 +2,7 @@
 
 CLIP (Contrastive Language-Image Pre-training) bridges the gap between images and natural language, enabling search using both visual and textual queries. This section explains how CLIP works and introduces Fashion-CLIP, the domain-specialized variant used for visual search.
 
-==== The Idea Behind CLIP
+==== Contrastive Language-Image Pre-Training
 
 Traditional image models classify images into fixed categories ("cat," "dog," "dress"). CLIP takes a different approach: it learns to match images with text descriptions @radford2021learning.
 
@@ -14,7 +14,7 @@ During training, CLIP processed 400 million image-text pairs from the public web
   [Make matching image-text pairs produce similar vectors.],
 )
 
-==== The Dual-Tower Architecture
+==== Dual-Tower Architecture
 
 CLIP has two separate towers:
 
@@ -38,7 +38,7 @@ CLIP's ability to understand natural language makes it powerful for fashion:
 
 However, the general CLIP model was trained on diverse internet images, not specifically fashion. It may not distinguish "A-line dress" from "sheath dress" or "Bohemian style" from "vintage aesthetic." This is where Fashion-CLIP comes in.
 
-==== Fashion-CLIP: Domain Specialization
+==== Fashion-CLIP and Domain-Specific Fine-Tuning
 
 Fashion-CLIP is a version of CLIP further trained on fashion-specific data @chia2022fashionclip. The researchers used over 700,000 fashion product images paired with detailed descriptions covering garment categories, fabric textures, style descriptors, and occasion labels.
 
@@ -64,7 +64,7 @@ The dual-tower design enables query modalities unavailable in vision-only models
 
 This flexibility makes CLIP-based models the primary choice for the visual search feature.
 
-==== CLIP Variants Evaluated
+==== Evaluated CLIP Variants
 
 #figure(
   table(

@@ -39,7 +39,7 @@ Metrics included:
 
 A retrieved product was considered relevant if it belonged to the same category as the query image. The full evaluation protocol, benchmark results, and cross-validation methodology are presented in Chapter 3.
 
-==== Selection Criteria
+==== Weighted Selection Criteria
 
 The model selection was based on four criteria:
 
@@ -48,7 +48,7 @@ The model selection was based on four criteria:
 3. *Multimodal capability.* The ability to search by both image and text, enabling text-to-image queries.
 4. *Hardware compatibility.* Must operate within the memory and compute constraints of commodity hardware.
 
-==== Decision
+==== Selection Decision
 
 *Fashion-CLIP* was selected as the primary embedding model for the visual search feature. Three factors drove this decision:
 

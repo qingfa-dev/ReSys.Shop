@@ -2,7 +2,7 @@
 
 Convolutional neural networks (CNNs) have been the dominant architecture for computer vision. This section explains how CNNs extract features and introduces the specific variants evaluated: ResNet and EfficientNet.
 
-==== How CNNs Work
+==== Hierarchical Feature Extraction
 
 A CNN processes an image through a stack of learned filters. Each filter is a small window (typically 3 by 3 pixels) that slides across the image detecting local patterns @he2016deep. This process builds increasingly complex representations:
 
@@ -21,13 +21,13 @@ A CNN processes an image through a stack of learned filters. Each filter is a sm
 
 Early layers might detect the edge of a sleeve, middle layers recognise a striped pattern, and late layers understand "a formal button-down shirt." This hierarchical organisation gives CNNs an *inductive bias* toward local patterns: they excel at detecting texture and colour but may miss relationships between distant image regions.
 
-==== ResNet: Deep Networks with Skip Connections
+==== ResNet and Skip Connections
 
 Deeper networks capture richer features but suffer from *vanishing gradients*: training signals decay as they propagate backward through many layers. ResNet (Residual Network) solves this with *skip connections*: identity paths that bypass convolutional blocks and add the block input directly to its output @he2016deep. This identity path lets gradients flow unimpeded, enabling networks of 50, 101, or 152 layers to train effectively.
 
 ResNet-50, with 25.6 million parameters and 2,048-dimensional embeddings, remains a strong baseline for image retrieval. ResNet-101 (44.5M parameters) provides additional depth for comparison.
 
-==== EfficientNet: Compound Scaling
+==== EfficientNet and Compound Scaling
 
 Traditional scaling strategies enlarge a network along a single dimension: depth (more layers), width (more channels), or resolution (larger inputs). EfficientNet introduces *compound scaling*, which balances all three dimensions simultaneously using a learned coefficient @tan2019efficientnet. This produces a family of models (B0 through B7) that achieve competitive accuracy with far fewer parameters than conventional scaling.
 
@@ -38,7 +38,7 @@ Traditional scaling strategies enlarge a network along a single dimension: depth
 
 EfficientNet-B0, the smallest variant, uses 5.3 million parameters and produces 1,280-dimensional embeddings. Its compact design makes it well suited to CPU-only deployments. EfficientNet-B4 (19.3M parameters, 1,792-dimensional embeddings) provides higher capacity at increased computational cost.
 
-==== CNN Evaluated Variants
+==== Evaluated CNN Variants
 
 #figure(
   table(
