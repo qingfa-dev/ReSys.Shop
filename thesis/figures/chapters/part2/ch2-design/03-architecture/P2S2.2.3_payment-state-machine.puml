@@ -1,0 +1,36 @@
+@startuml payment-state-machine
+
+skinparam backgroundColor White
+skinparam DefaultFontSize 12
+
+[*] --> Pending : create intent
+
+Pending --> RequiresAction : 3D Secure / SCA required
+Pending --> Processing : payment method attached
+Pending --> Canceled : cancel intent
+
+RequiresAction --> Processing : customer authenticates
+RequiresAction --> Canceled : authentication fails
+
+Processing --> Succeeded : charge succeeds
+Processing --> Failed : charge fails
+
+Succeeded --> Captured : capture funds
+Succeeded --> Canceled : cancel (before capture)
+
+Captured --> Refunded : refund payment
+Captured --> [*] : fulfillment complete
+
+Failed --> [*] : retry or abandon
+Canceled --> [*] : order canceled
+Refunded --> [*] : money returned
+
+note right of Succeeded
+  System maintains its own
+  PaymentIntent state in parallel
+  with Stripe's state to support
+  the Bogus test gateway and
+  enable offline operations.
+end note
+
+@enduml

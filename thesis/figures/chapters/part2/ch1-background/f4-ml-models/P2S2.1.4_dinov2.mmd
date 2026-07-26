@@ -1,0 +1,19 @@
+%%{init: {'theme': 'base', 'themeVariables': { 'fontSize': '26px', 'fontFamily': 'arial', 'primaryColor': '#ffffff', 'edgeLabelBackground':'#ffffff', 'tertiaryColor': '#ffffff', 'primaryBorderColor': '#333333', 'lineColor': '#555555' }}}%%
+flowchart TB
+    classDef mainNode fill:#fff,stroke:#333,stroke-width:3px
+    classDef patchNode fill:#fafafa,stroke:#555,stroke-width:2px
+    classDef attnNode fill:#f8f8f8,stroke:#555,stroke-width:2px
+    classDef outputNode fill:#fafafa,stroke:#333,stroke-width:3px
+    classDef noteNode fill:#fff,stroke:#aaa,stroke-width:1px,stroke-dasharray: 3 3
+
+    A["Input Image"]:::mainNode --> B["Patch Embedding + Position + CLS Token<br/>14x14 px patches, 16x16 grid"]:::patchNode
+
+    subgraph Enc["Transformer Encoder (12 layers)"]
+        direction LR
+        E1["Multi-Head<br/>Self-Attention"]:::attnNode --> E2["Feed-Forward<br/>MLP"]:::attnNode
+    end
+
+    B --> E1
+    E2 --> C["Extract CLS Token<br/>Feature Vector 384 to 768-dim"]:::outputNode
+
+    H["Self-supervised pre-training:<br/>student-teacher self-distillation<br/>on 142M images, no human labels"]:::noteNode -.-> E1

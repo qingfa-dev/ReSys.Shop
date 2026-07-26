@@ -1,0 +1,35 @@
+@startuml c4-container
+!include <C4/C4_Container>
+
+LAYOUT_WITH_LEGEND()
+
+title Container Diagram — ReSys.Shop Internal Structure
+
+Person(customer, "Customer", "Browses products, searches by image, purchases")
+Person(admin, "Administrator", "Manages catalog, orders, users")
+
+System_Ext(stripe, "Stripe", "Payment gateway")
+System_Ext(sendgrid, "SendGrid / SMTP", "Email delivery")
+System_Ext(s3, "S3 Storage", "Image object storage")
+
+Container_Boundary(c1, "ReSys.Shop System") {
+    Container(store_spa, "Store SPA", "Vue 3 + Nuxt UI + Tailwind", "Customer-facing storefront; image upload, catalog browse, checkout")
+    Container(admin_spa, "Admin SPA", "Vue 3 + PrimeVue + Tailwind", "Administrator dashboard; CRUD on all modules")
+    Container(api, "API Backend", ".NET 10 + ASP.NET Core + Carter", "CQRS handlers, MediatR pipeline, EF Core, auth, storage")
+    Container(embedding, "Embedding Sidecar", "Python 3.12 + FastAPI + PyTorch", "Fashion-CLIP image embedding generation")
+    ContainerDb(postgres, "PostgreSQL 17", "PostgreSQL + pgvector", "Transactional data + vector embeddings; 8 module schemas")
+    ContainerDb(redis, "Redis 7", "Redis", "HybridCache L2 + Hangfire job store")
+}
+
+Rel(customer, store_spa, "Uses", "HTTPS")
+Rel(admin, admin_spa, "Uses", "HTTPS")
+Rel(store_spa, api, "Calls REST API", "HTTPS /api")
+Rel(admin_spa, api, "Calls REST API", "HTTPS /api")
+Rel(api, postgres, "Reads/writes", "TCP 5432 (Npgsql)")
+Rel(api, redis, "Cache + jobs", "TCP 6379")
+Rel(api, embedding, "POSTs images for embeddings", "HTTP 8000")
+Rel(api, stripe, "Payment intents + webhooks", "HTTPS")
+Rel(api, sendgrid, "Transactional email", "SMTP / HTTPS")
+Rel(api, s3, "Store/retrieve images", "HTTPS")
+
+@enduml

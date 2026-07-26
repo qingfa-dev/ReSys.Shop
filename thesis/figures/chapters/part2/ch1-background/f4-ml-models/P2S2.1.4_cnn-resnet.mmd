@@ -1,0 +1,24 @@
+%%{init: {'theme': 'base', 'themeVariables': { 'fontSize': '26px', 'fontFamily': 'arial', 'primaryColor': '#ffffff', 'edgeLabelBackground':'#ffffff', 'tertiaryColor': '#ffffff', 'primaryBorderColor': '#333333', 'lineColor': '#555555' }}}%%
+flowchart TB
+    classDef mainNode fill:#fff,stroke:#333,stroke-width:3px
+    classDef convNode fill:#fafafa,stroke:#555,stroke-width:2px
+    classDef blockNode fill:#f8f8f8,stroke:#555,stroke-width:2px
+    classDef skipNode fill:#fff,stroke:#999,stroke-width:1px,stroke-dasharray: 5 5
+    classDef outputNode fill:#fafafa,stroke:#333,stroke-width:3px
+    classDef noteNode fill:#fff,stroke:#aaa,stroke-width:1px,stroke-dasharray: 3 3
+
+    A["Input Image<br/>224 x 224 x 3"]:::mainNode --> B["Conv 7x7, stride 2<br/>+ Max Pool"]:::convNode
+
+    subgraph RB["Residual Block (repeated N times)"]
+        direction LR
+        C1["Conv 3x3"]:::convNode --> C2["Conv 3x3"]:::convNode
+        skip["identity"]:::skipNode -.-> add
+        C2 --> add["Add"]:::blockNode
+        add --> relu["ReLU"]:::blockNode
+    end
+
+    B --> C1
+    relu --> F["Global Average Pooling"]:::convNode
+    F --> G["Feature Vector<br/>2048-dim"]:::outputNode
+
+    H["Skip connections let gradients<br/>flow directly across layers,<br/>enabling very deep networks"]:::noteNode -.-> add

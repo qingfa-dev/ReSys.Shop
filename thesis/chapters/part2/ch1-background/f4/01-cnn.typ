@@ -32,7 +32,7 @@ ResNet-50, with 25.6 million parameters and 2,048-dimensional embeddings, remain
 Traditional scaling strategies enlarge a network along a single dimension: depth (more layers), width (more channels), or resolution (larger inputs). EfficientNet introduces *compound scaling*, which balances all three dimensions simultaneously using a learned coefficient @tan2019efficientnet. This produces a family of models (B0 through B7) that achieve competitive accuracy with far fewer parameters than conventional scaling.
 
 #figure(
-  image("../../../../figures/chapters/part2/ch1-background/f4-ml-models/ml-01-efficientnet-b0.png", width: 80%),
+  image("../../../../figures/chapters/part2/ch1-background/f4-ml-models/P2S2.1.4_efficientnet-b0.png", width: 80%),
   caption: [EfficientNet-B0 architecture showing the flow from input image to feature vector],
 ) <fig-efficientnet-arch>
 

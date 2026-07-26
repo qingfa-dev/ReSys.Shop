@@ -19,7 +19,7 @@ Under the category-only label scheme, a retrieved product is considered relevant
 #figure(
   caption: [Retrieval Accuracy, Category-Only Ground Truth (3-Fold CV, Mean ± SD)],
   table(
-    columns: 8,
+    columns: (auto,) + (1fr,) * 7,
     align: (left,) + (center,) * 7,
     stroke: 0.5pt,
     table.header(
@@ -42,7 +42,7 @@ Under the category plus colour label scheme, a retrieved product is relevant onl
 #figure(
   caption: [Retrieval Accuracy, Category + Colour Ground Truth (3-Fold CV, Mean ± SD)],
   table(
-    columns: 8,
+    columns: (auto,) + (1fr,) * 7,
     align: (left,) + (center,) * 7,
     stroke: 0.5pt,
     table.header(
@@ -65,7 +65,7 @@ Under the strictest label scheme, a retrieved product must match the query's mas
 #figure(
   caption: [Retrieval Accuracy, Category + Colour + Pattern Ground Truth (3-Fold CV, Mean ± SD)],
   table(
-    columns: 8,
+    columns: (auto,) + (1fr,) * 7,
     align: (left,) + (center,) * 7,
     stroke: 0.5pt,
     table.header(
@@ -86,7 +86,7 @@ The pattern-constrained scheme produces the lowest absolute scores (mAP 0.19--0.
 #figure(
   caption: [Operational Efficiency, All Models (3-Fold CV, Mean ± SD)],
   table(
-    columns: 7,
+    columns: (auto,) + (1fr,) * 6,
     align: (left,) + (center,) * 6,
     stroke: 0.5pt,
     table.header(
@@ -109,7 +109,7 @@ The per-fold results for the primary evaluation scheme (category plus colour) ar
 #figure(
   caption: [Per-Fold Breakdown, Category + Colour Ground Truth],
   table(
-    columns: 5,
+    columns: (auto,) + (1fr,) * 4,
     align: (left,) + (center,) * 4,
     stroke: 0.5pt,
     table.header(
@@ -142,7 +142,7 @@ The 5,000-image subset is stratified across five master categories. The per-cate
 #figure(
   caption: [Dataset Category Distribution],
   table(
-    columns: 4,
+    columns: (auto, auto, auto, 1fr),
     align: (left, center, center, center),
     stroke: 0.5pt,
     table.header(
@@ -188,42 +188,39 @@ All benchmark results reported in Chapter 6 and Appendix A were collected on a s
 #figure(
   caption: [Benchmark Workstation Configuration],
   table(
-    columns: 2,
+    columns: (auto, 1fr),
     align: (left, left),
     stroke: 0.5pt,
     [*Component*], [*Specification*],
-    [GPU], [NVIDIA GeForce RTX 4090 (Ada Lovelace), 24 GB GDDR6X VRAM, 16,384 CUDA cores, 512 Tensor cores, PCIe 4.0 x16],
-    [CPU], [AMD Ryzen 9 7950X (Zen 4), 16 cores / 32 threads, 4.5 GHz base / 5.7 GHz boost, 64 MB L3 cache, TDP 170 W],
-    [RAM], [64 GB DDR5-6000 (2 × 32 GB), dual-channel, CL30],
-    [Storage], [2 TB NVMe M.2 SSD (PCIe 4.0), sequential read 7,000 MB/s, sequential write 5,300 MB/s],
-    [Motherboard], [AM5 socket, PCIe 5.0 support, DDR5 dual-channel],
-    [Power Supply], [1000 W 80+ Gold certified],
+    [CPU], [Intel (11th Gen Core i7-1165G7, 4 cores / 8 threads, 2.80 GHz base / 4.70 GHz boost, 12 MB L3 cache)],
+    [RAM], [16 GB DDR4],
+    [Storage], [512 GB NVMe SSD (KIOXIA KBG40ZNS)],
   ),
   kind: table,
 ) <tbl-appendix-hardware>
 
-The RTX 4090 GPU provides 24 GB of video memory, sufficient to hold all evaluated models in memory simultaneously during batch inference. Tensor core acceleration is used by PyTorch for mixed-precision matrix operations where applicable. All inference timing measurements include data transfer between CPU and GPU memory (host-to-device and device-to-host) in the latency metric.
+All benchmarks were executed on CPU (no GPU acceleration). The Intel i7-1165G7 processor provides sufficient compute throughput for the evaluated models at interactive latencies: EfficientNet-B0 completes inference in 21.6 ms on average, while the transformer-based CLIP models complete in 84--106 ms. PyTorch executed in CPU mode with all model weights held in system memory. All inference timing measurements include preprocessing (resize, normalise) and postprocessing in the reported per-image latency.
 
 == C.2 Software Stack
 
 #figure(
   caption: [Benchmark Software Environment],
   table(
-    columns: 2,
+    columns: (auto, 1fr),
     align: (left, left),
     stroke: 0.5pt,
     [*Component*], [*Version and Details*],
     [Operating System], [Linux (Ubuntu 24.04 LTS, kernel 6.8)],
     [Python], [3.12.x (CPython)],
-    [PyTorch], [2.3.x with CUDA 12.1 backend],
-    [TorchVision], [0.18.x],
-    [Transformers (HuggingFace)], [4.41.x],
-    [OpenCLIP], [2.24.x],
+    [PyTorch], [2.13.0 with CUDA 13.0 backend],
+    [TorchVision], [0.28.0],
+    [Transformers (HuggingFace)], [5.14.1],
+    [OpenCLIP], [3.3.0],
     [Fashion-CLIP], [0.2.x],
-    [NumPy], [1.26.x],
-    [CUDA Toolkit], [12.1],
+    [NumPy], [2.5.1],
+    [CUDA Toolkit], [13.0],
     [cuDNN], [8.9.x],
-    [NVIDIA Driver], [550.x (Linux)],
+    [NVIDIA Driver], [580.173.02 (Linux)],
   ),
   kind: table,
 ) <tbl-appendix-software>
@@ -245,9 +242,9 @@ Despite these settings, exact bitwise reproducibility across different hardware 
 
 Replicating these results on different hardware will produce numerically similar but not bitwise-identical results. The following factors contribute to cross-platform variation:
 
-- *GPU architecture:* Inference latency scales approximately linearly with CUDA core count and memory bandwidth. An RTX 4090 (82.6 TFLOPS FP32) will produce different absolute latency values than an RTX 4060 (15.1 TFLOPS) or a server-grade A100 (19.5 TFLOPS, but higher memory bandwidth). The *relative ranking* of models (EfficientNet-B0 fastest, CLIP-based models slowest) should remain consistent across GPU architectures.
-- *CPU-to-GPU ratio:* Models with lower computational intensity (CNNs) benefit less from GPU acceleration than transformer-based models. On CPU-only systems, the latency gap between EfficientNet-B0 and FashionCLIP will narrow.
-- *Memory capacity:* The 24 GB VRAM of the RTX 4090 exceeds the memory requirements of all individual models. Systems with less VRAM may need to use smaller batch sizes or experience out-of-memory errors.
+- *CPU architecture:* Inference latency is primarily determined by single-core performance and cache size, as the benchmark was executed on CPU without GPU acceleration. A processor with higher IPC (instructions per clock) or AVX-512 support would reduce inference times, particularly for the matrix operations in transformer models. The *relative ranking* of models (EfficientNet-B0 fastest, CLIP-based models slowest) should remain consistent across CPU architectures, though absolute values will vary.
+- *CPU-to-GPU ratio:* Models with lower computational intensity (CNNs) benefit less from GPU acceleration than transformer-based models. On CPU-only systems, the latency gap between EfficientNet-B0 and FashionCLIP will narrow relative to GPU-accelerated deployments.
+- *Memory capacity:* The 16 GB system memory of the development workstation exceeded the memory requirements of all individual models. Systems with less than 16 GB of system memory may experience swapping during concurrent model loading, particularly for the larger CLIP-based models which require over 600 MB each for model weights plus PyTorch runtime overhead.
 - *Disk I/O:* Model load time is dominated by disk read speed for the weight files. An NVMe SSD (as used here) provides faster load times than a SATA SSD or HDD.
 
 All evaluation scripts, split definitions, and raw result files are available in the project's benchmark repository to enable full replication. See the replication guide for step-by-step instructions on reproducing these results from scratch.
