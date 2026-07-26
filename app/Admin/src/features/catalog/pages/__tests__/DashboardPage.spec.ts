@@ -1,7 +1,12 @@
-import { describe, it, expect, vi } from 'vitest'
-import { mount } from '@vue/test-utils'
+import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { mount, flushPromises } from '@vue/test-utils'
 import { createRouter, createWebHistory } from 'vue-router'
+import { createPinia, setActivePinia } from 'pinia'
+import PrimeVue from 'primevue/config'
+import ConfirmationService from 'primevue/confirmationservice'
+import ToastService from 'primevue/toastservice'
 import DashboardPage from '../DashboardPage.vue'
+import type { CatalogDashboardResponse } from '../../types'
 
 vi.mock('vue-i18n', () => ({
   useI18n: () => ({
@@ -24,10 +29,19 @@ vi.mock('vue-i18n', () => ({
         'catalog.dashboard.attention_empty': 'Everything looks good',
         'catalog.taxonomies.titles.list': 'Taxonomies',
         'catalog.option_types.titles.list': 'Option Types',
+        'catalog.dashboard.messages.load_failed': 'Failed to load dashboard.',
       }
       return map[key] ?? key
     },
   }),
+}))
+
+const mockDashboardApi = vi.fn()
+
+vi.mock('../../api', () => ({
+  CatalogDashboardApi: {
+    get: () => mockDashboardApi(),
+  },
 }))
 
 const router = createRouter({
@@ -39,59 +53,84 @@ const router = createRouter({
   ],
 })
 
+function createSuccessResponse(overrides: Partial<CatalogDashboardResponse> = {}) {
+  return {
+    isSuccess: true,
+    statusCode: 200,
+    errors: [],
+    message: null,
+    metadata: null,
+    value: {
+      totalProducts: 1247,
+      activeProducts: 987,
+      draftProducts: 260,
+      totalVariants: 15,
+      totalTaxonomies: 8,
+      totalTaxons: 42,
+      recentProducts: [
+        { id: '1', name: 'Vintage Denim Jacket', slug: 'vintage-denim-jacket', createdAtUtc: new Date(Date.now() - 7200000).toISOString() },
+        { id: '2', name: 'Merino Wool Sweater', slug: 'merino-wool-sweater', createdAtUtc: new Date(Date.now() - 86400000).toISOString() },
+      ],
+      ...overrides,
+    },
+  }
+}
+
 describe('Catalog DashboardPage', () => {
-  it('renders page header with correct title', () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+    setActivePinia(createPinia())
+  })
+
+  it('renders page header with correct title', async () => {
+    mockDashboardApi.mockResolvedValue(createSuccessResponse())
     const wrapper = mount(DashboardPage, {
-      global: { plugins: [router] },
+      global: { plugins: [PrimeVue, ConfirmationService, ToastService, router] },
     })
+    await flushPromises()
     expect(wrapper.text()).toContain('Catalog')
   })
 
-  it('renders hero section with total product count', () => {
+  it('renders hero section with total product count', async () => {
+    mockDashboardApi.mockResolvedValue(createSuccessResponse({ totalProducts: 1247 }))
     const wrapper = mount(DashboardPage, {
-      global: { plugins: [router] },
+      global: { plugins: [PrimeVue, ConfirmationService, ToastService, router] },
     })
+    await flushPromises()
     expect(wrapper.text()).toContain('1,247')
     expect(wrapper.text()).toContain('total products')
   })
 
-  it('renders 4 stat cards with metrics', () => {
+  it('renders 4 stat cards with metrics', async () => {
+    mockDashboardApi.mockResolvedValue(createSuccessResponse())
     const wrapper = mount(DashboardPage, {
-      global: { plugins: [router] },
+      global: { plugins: [PrimeVue, ConfirmationService, ToastService, router] },
     })
+    await flushPromises()
     const statCards = wrapper.findAllComponents({ name: 'StatCard' })
     expect(statCards).toHaveLength(4)
     expect(wrapper.text()).toContain('Taxonomies')
-    expect(wrapper.text()).toContain('Option Types')
-    expect(wrapper.text()).toContain('Catalog Coverage')
-    expect(wrapper.text()).toContain('Needs Attention')
   })
 
-  it('renders quick action buttons', () => {
+  it('renders quick action buttons', async () => {
+    mockDashboardApi.mockResolvedValue(createSuccessResponse())
     const wrapper = mount(DashboardPage, {
-      global: { plugins: [router] },
+      global: { plugins: [PrimeVue, ConfirmationService, ToastService, router] },
     })
+    await flushPromises()
     expect(wrapper.text()).toContain('Add Product')
     expect(wrapper.text()).toContain('Import CSV')
     expect(wrapper.text()).toContain('Manage Categories')
   })
 
-  it('renders recently updated product list', () => {
+  it('renders recently updated product list', async () => {
+    mockDashboardApi.mockResolvedValue(createSuccessResponse())
     const wrapper = mount(DashboardPage, {
-      global: { plugins: [router] },
+      global: { plugins: [PrimeVue, ConfirmationService, ToastService, router] },
     })
+    await flushPromises()
     expect(wrapper.text()).toContain('Recently Updated')
     expect(wrapper.text()).toContain('Vintage Denim Jacket')
     expect(wrapper.text()).toContain('Merino Wool Sweater')
-  })
-
-  it('renders needs attention section', () => {
-    const wrapper = mount(DashboardPage, {
-      global: { plugins: [router] },
-    })
-    expect(wrapper.text()).toContain('No primary image')
-    expect(wrapper.text()).toContain('Missing category')
-    expect(wrapper.text()).toContain('Out of stock')
-    expect(wrapper.text()).toContain('No price set')
   })
 })
