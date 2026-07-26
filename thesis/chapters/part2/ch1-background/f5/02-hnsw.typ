@@ -1,12 +1,15 @@
 === HNSW: Hierarchical Navigable Small World
 
-HNSW is one of the most effective ANN algorithms and the preferred index for production-scale vector search in this project @malkov2018efficient. It builds a multi-layered graph structure where each vector is a node connected to its nearest neighbours.
+HNSW is the preferred index for production-scale vector search @malkov2018efficient. It builds a multi-layered graph where each vector is a node connected to its nearest neighbours.
 
-The graph has multiple layers. The top layers are sparse and connect distant regions of the embedding space, enabling long-range jumps. The bottom layers are dense and refine the search locally. To search, the algorithm starts at a node in the top layer, greedily traverses edges toward the nearest neighbour, descends to the next layer, and repeats. The process converges on the query neighbourhood in logarithmic time: search cost scales with the logarithm of the catalog size rather than the size itself.
+- *Structure.* Multiple layers form a hierarchy. Top layers are sparse and connect distant regions for long-range jumps. Bottom layers are dense and refine the search locally.
+- *Search.* Start at a top-layer node, greedily traverse toward the nearest neighbour, descend one layer, and repeat. Cost scales logarithmically with catalog size.
+- *Recall.* Consistently exceeds 95% at query latencies under 10 ms, sustained to 10 million vectors.
+- *Build cost.* Graph construction is computationally expensive. At tens of thousands of vectors, build time is measured in minutes.
 
-HNSW has two main configuration parameters:
+*Configuration parameters:*
 
-- *M.* The number of connections per node. Higher values improve recall but increase memory usage and build time. The default value of 16 provides a good balance for most use cases.
-- *ef_construction.* How many candidates to consider during index construction. Higher values produce a better index at the cost of longer build time.
+- *M.* Connections per node. Default 16. Higher improves recall at cost of memory and build time.
+- *ef_construction.* Candidates evaluated during index build. Higher produces better index at cost of build time.
 
-HNSW consistently exceeds 95% recall at query latencies under 10 milliseconds, sustained across catalog scales of up to 10 million vectors. Its logarithmic query cost makes it suitable for interactive fashion retrieval at millions of catalog items, where sub-100 ms response time is required.
+HNSW's logarithmic query cost makes it suitable for interactive fashion retrieval at millions of catalog items, where sub-100 ms latency is required.

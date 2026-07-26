@@ -1,6 +1,6 @@
 === Architectural Decision and Trade-offs
 
-Several specialised vector databases exist (Pinecone, Milvus, Weaviate), each optimised for large-scale vector search. pgvector was selected for practical reasons suited to this project's scope.
+Specialised vector databases (Pinecone, Milvus, Weaviate) exist for large-scale search. pgvector was selected for its simplicity and transactional integration.
 
 #figure(
   table(
@@ -8,23 +8,21 @@ Several specialised vector databases exist (Pinecone, Milvus, Weaviate), each op
     stroke: 0.5pt,
     align: (left, center, center),
     [*Feature*], [*Specialised Vector DB*], [*pgvector*],
-    [Setup complexity], [Moderate to high], [Low (PostgreSQL extension)],
-    [Data consistency], [Separate from main database], [Same transaction as product data],
-    [Query language], [Custom API or query language], [Standard SQL],
-    [Cost], [Often paid service (SaaS)], [Free and open source],
+    [Setup], [Moderate to high], [Low (extension only)],
+    [Consistency], [Separate database], [Same transaction as product data],
+    [Query language], [Custom API], [Standard SQL],
+    [Cost], [Often paid service], [Free, open source],
     [Scale limit], [Billions of vectors], [Millions of vectors],
   ),
   caption: [Comparison of pgvector with specialised vector databases],
 )
 
-For a system with thousands to tens of thousands of products, pgvector's simplicity and transactional consistency outweigh the scaling advantages of specialised databases. If the system needed to scale to tens of millions of products, migration to a dedicated vector database would be considered.
+For thousands to tens of thousands of products, pgvector's simplicity outweighs the scaling advantages of specialised databases.
 
-==== Trade-offs Acknowledged
+*Limitations acknowledged:*
 
-Using pgvector has limitations:
+- *Scale.* Performs well for millions of vectors; not designed for billion-vector deployments.
+- *Maturity.* Fewer features than dedicated vector databases.
+- *Distribution.* Does not natively distribute across multiple servers.
 
-- *Scale ceiling.* pgvector performs well for millions of vectors but is not designed for billion-vector deployments.
-- *Less mature.* Fewer features and optimisation options than dedicated vector databases.
-- *Single-node.* pgvector does not natively distribute across multiple servers.
-
-For this project's scope (5,000 products in the evaluation, with a target of tens of thousands in production), these limitations are acceptable. The primary contribution is the architectural integration of vector search within a conventional e-commerce stack, not massive-scale infrastructure.
+For this project's scope (5,000 products in evaluation), these limitations are acceptable. The primary contribution is architectural integration within a conventional e-commerce stack, not massive-scale infrastructure.
