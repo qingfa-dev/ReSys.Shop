@@ -1,6 +1,6 @@
 === .NET Aspire Orchestration
 
-*.NET Aspire* coordinates the multi-container development and deployment environment.
+*.NET Aspire* coordinates the multi-container development and deployment environment @microsoft-aspire.
 
 - *Service discovery.* Components resolve each other by name: the .NET backend reaches the Python sidecar at `http://ml-service`, PostgreSQL at `postgres`, and Redis at `redis`. Configuration is injected via environment variables managed by the Aspire host.
 

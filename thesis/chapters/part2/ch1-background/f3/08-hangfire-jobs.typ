@@ -1,6 +1,6 @@
 === Hangfire Background Jobs
 
-*Hangfire* processes operations that should not block HTTP requests. Jobs are persisted in Redis for resilience across application restarts.
+*Hangfire* processes operations that should not block HTTP requests @hangfire-docs. Jobs are persisted in Redis for resilience across application restarts.
 
 - *Cart expiry.* A recurring job runs daily, removing carts with no activity for seven days. This prevents abandoned carts from accumulating indefinitely.
 

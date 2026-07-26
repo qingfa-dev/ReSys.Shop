@@ -60,7 +60,7 @@ This specialization helps Fashion-CLIP understand:
 Fashion-CLIP inherits the ViT-B/16 architecture, producing 512-dimensional embeddings. The original paper reports a 15-to-20% improvement on fashion retrieval over general CLIP, a result confirmed in the benchmark evaluation presented in Chapter 3.
 
 #figure(
-  image("../../../../figures/chapters/part2/ch1-background/f4-ml-models/P2S2.1.4_fashion-clip.png", width: 80%),
+  image("../../../../figures/chapters/part2/ch1-background/f4-ml-models/P2S2.1.4_fashion-clip.png", height: 60%),
   caption: [Fashion-CLIP dual-tower architecture: image and text towers independently encode their inputs into 512-dimensional embeddings converging in a shared latent space],
 ) <fig-fashion-clip-arch>
 

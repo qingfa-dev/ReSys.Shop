@@ -1,6 +1,6 @@
 === Benchmark Framework
 
-The benchmark framework is a Python 3.12 pipeline for systematic, reproducible evaluation of embedding models on fashion product retrieval. It is separate from the application codebase and produces the experimental results reported in Chapter 3.
+The benchmark framework is a Python 3.12 pipeline for systematic, reproducible evaluation of embedding models on fashion product retrieval @paszke2019pytorch. It is separate from the application codebase and produces the experimental results reported in Chapter 3.
 
 - *Modes.* Three evaluation modes are supported: a one-shot comparison across all configured models, a three-fold cross-validation protocol with stratified category-based splits (the default for thesis results), and a pgvector pipeline mode that measures end-to-end latency including database query and network round-trip time.
 

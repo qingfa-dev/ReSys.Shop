@@ -1,6 +1,0 @@
-flowchart LR
-    A["User uploads\nimage"] --> B["Preprocessing\n(resize 224x224,\nnormalize)"]
-    B --> C["CNN / ViT Model\n(feature extraction)"]
-    C --> D["512-d Embedding\nVector"]
-    D --> E["pgvector ANN Search\n(cosine similarity,\nHNSW index)"]
-    E --> F["Top-K Results\n(ranked by\nsimilarity score)"]
