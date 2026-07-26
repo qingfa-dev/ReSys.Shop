@@ -4,10 +4,10 @@ The C4 model provides a structured approach to describing software architecture 
 
 ==== System Context
 
-The system context diagram positions ReSys.Shop within its environment, showing the human users who interact with the platform and the external systems on which it depends. Figure @fig-c4-context presents this highest-level view.
+The system context diagram positions ReSys.Shop within its environment, showing the human users who interact with the platform and the external systems on which it depends. @fig-c4-context presents this highest-level view.
 
 #figure(
-  image("../../../../images/diagrams/03-c4-context.png", width: 100%),
+  image("../../../../figures/chapters/part2/ch2-design/03-architecture/P2S2.2.3_c4-context.png", width: 100%),
   caption: [System Context diagram: ReSys.Shop as a single system boundary with customer and administrator users on one side and external payment, email, storage, identity, and ML services on the other. The modular monolith internally handles all eight business domains within one boundary.],
 ) <fig-c4-context>
 
@@ -17,10 +17,10 @@ The system depends on five external services. Stripe processes payment intents a
 
 ==== Container
 
-The container diagram decomposes ReSys.Shop into its deployable units, the processes and data stores that together constitute the running system. Figure @fig-c4-container presents this view.
+The container diagram decomposes ReSys.Shop into its deployable units, the processes and data stores that together constitute the running system. @fig-c4-container presents this view.
 
 #figure(
-  image("../../../../images/diagrams/04-c4-container.png", width: 100%),
+  image("../../../../figures/chapters/part2/ch2-design/03-architecture/P2S2.2.3_c4-container.png", width: 100%),
   caption: [Container diagram showing the deployable units of ReSys.Shop: two Vue 3 SPAs, the .NET 10 API backend, the Python ML sidecar, PostgreSQL with pgvector, and Redis. Arrows indicate communication protocols between containers.],
 ) <fig-c4-container>
 
@@ -32,10 +32,10 @@ The communication topology reflects deliberate design constraints. The Vue SPAs 
 
 ==== Component
 
-The component diagram zooms into the API Backend container, revealing its internal structure: the modules, framework services, and cross-cutting concerns that compose the .NET application. Figure @fig-c4-component presents this view.
+The component diagram zooms into the API Backend container, revealing its internal structure: the modules, framework services, and cross-cutting concerns that compose the .NET application. @fig-c4-component presents this view.
 
 #figure(
-  image("../../../../images/diagrams/05-c4-component.png", width: 100%),
+  image("../../../../figures/chapters/part2/ch2-design/03-architecture/P2S2.2.3_c4-component.png", width: 100%),
   caption: [Component diagram of the API Backend showing the Carter endpoint layer, the MediatR pipeline, the feature handlers, and eight supporting infrastructure components. The Python ML Sidecar is shown with its internal three-layer architecture alongside.],
 ) <fig-c4-component>
 
@@ -56,10 +56,10 @@ The Python ML Sidecar follows a three-layer architecture: the FastAPI router han
 
 ==== Deployment
 
-The deployment diagram illustrates how the containers map to physical or virtual infrastructure in a production configuration. Figure @fig-deployment shows the deployment topology.
+The deployment diagram illustrates how the containers map to physical or virtual infrastructure in a production configuration. @fig-deployment shows the deployment topology.
 
 #figure(
-  image("../../../../images/diagrams/10-deployment.png", width: 100%),
+  image("../../../../figures/chapters/part2/ch2-design/03-architecture/P2S2.2.3_deployment.png", width: 100%),
   caption: [Deployment diagram showing containerised services within an Aspire orchestration boundary. The API backend is horizontally scalable; the embedding sidecar is stateless; Redis enables distributed state across API replicas.],
 ) <fig-deployment>
 

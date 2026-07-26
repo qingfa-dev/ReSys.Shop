@@ -1,6 +1,6 @@
 == Retrieval Performance
 
-This section presents the aggregate retrieval accuracy results from the 3-fold cross-validation benchmark. Table @tbl-aggregate displays the primary accuracy metrics for all four evaluated models, sorted by mAP in descending order.
+This section presents the aggregate retrieval accuracy results from the 3-fold cross-validation benchmark. @tbl-aggregate displays the primary accuracy metrics for all four evaluated models, sorted by mAP in descending order.
 
 #figure(
   caption: [Aggregate Retrieval Metrics, 3-Fold Cross-Validation],

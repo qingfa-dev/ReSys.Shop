@@ -2,11 +2,11 @@
 
 ReSys.Shop is built as a service-oriented system with three distinct services. The frontend is implemented in Vue 3 and TypeScript using the Vite build tool. The backend is a .NET 10 modular monolith using ASP.NET Core for HTTP handling, Entity Framework Core for data access, and Carter for minimal API endpoint registration. The machine learning service is a Python FastAPI application running PyTorch models that generates vector embeddings from product images for visual similarity search.
 
-Table @tbl-system-services summarises the three services, their technology stacks, and their primary responsibilities within the platform.
+@tbl-system-services summarises the three services, their technology stacks, and their primary responsibilities within the platform.
 
 #figure(
   table(
-    columns: (auto, auto, 1fr),
+    columns: (auto, auto, auto),
     stroke: 0.5pt,
     align: (center + horizon, left, left),
 
@@ -42,7 +42,7 @@ Table @tbl-system-services summarises the three services, their technology stack
   caption: [System services and their technology stacks. Each service is independently deployable and communicates through well-defined HTTP contracts.],
 ) <tbl-system-services>
 
-The backend is internally organised into eight bounded contexts following the principles of Domain-Driven Design. Each context owns a distinct area of business logic and communicates with other contexts exclusively through MediatR in-process message dispatch, there are no direct namespace references between business modules. Table @tbl-contexts-overview lists each context, its aggregate root, and a representative sample of its domain entities.
+The backend is internally organised into eight bounded contexts following the principles of Domain-Driven Design. Each context owns a distinct area of business logic and communicates with other contexts exclusively through MediatR in-process message dispatch, there are no direct namespace references between business modules. @tbl-contexts-overview lists each context, its aggregate root, and a representative sample of its domain entities.
 
 #figure(
   table(

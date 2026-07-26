@@ -8,14 +8,14 @@ The eight bounded contexts partition the e-commerce domain along business capabi
 
 The integration between contexts follows the *Conformist* pattern: all contexts conform to a shared technical kernel defined in the Shared layer, which provides the `Result<T>` return type, the `ICommand` and `IQuery` marker interfaces, and the `Entity` base class with audit and versioning columns. Communication occurs exclusively through MediatR `ISender`, a context dispatches a query or publishes a notification, and other contexts react without ever importing one another's namespace. This in-process dispatch model eliminates the network latency of inter-service messaging while preserving the logical isolation of the bounded contexts.
 
-Figure @fig-bounded-context-map depicts the eight contexts and the *Published Language*, the shared identifiers and value types, that flow between them.
+@fig-bounded-context-map depicts the eight contexts and the *Published Language*, the shared identifiers and value types, that flow between them.
 
 #figure(
-  image("../../../../images/diagrams/06-bounded-context-map.png", width: 100%),
+  image("../../../../figures/chapters/part2/ch2-design/03-architecture/P2S2.2.3_bounded-context-map.png", width: 100%),
   caption: [Bounded Context Map showing the eight business contexts and the Published Language identifiers exchanged between them. All integration uses in-process MediatR dispatch; no context directly references another context's namespace.],
 ) <fig-bounded-context-map>
 
-Table @tbl-context-responsibilities details each context's business responsibility and the integration data it exposes to the system.
+@tbl-context-responsibilities details each context's business responsibility and the integration data it exposes to the system.
 
 #figure(
   table(
@@ -77,7 +77,7 @@ The four most architecturally significant aggregates are described below.
 
 ==== Ubiquitous Language Glossary
 
-A key practice in DDD is establishing a ubiquitous language, a shared vocabulary used by all team members and reflected directly in the codebase. Table @tbl-ubiquitous-language presents the core terms of the ReSys.Shop domain with their definitions.
+A key practice in DDD is establishing a ubiquitous language, a shared vocabulary used by all team members and reflected directly in the codebase. @tbl-ubiquitous-language presents the core terms of the ReSys.Shop domain with their definitions.
 
 #figure(
   table(
@@ -149,10 +149,10 @@ Two explicit state machines govern the most critical transactional workflows in 
 
 ===== Order Checkout State Machine
 
-The order checkout state machine enforces a forward-only progression through five sequential states: Address, Delivery, Payment, Confirm, and Complete. Each state transition is triggered by a specific user action and validated by the domain entity before being committed. Figure @fig-order-state-machine depicts this lifecycle.
+The order checkout state machine enforces a forward-only progression through five sequential states: Address, Delivery, Payment, Confirm, and Complete. Each state transition is triggered by a specific user action and validated by the domain entity before being committed. @fig-order-state-machine depicts this lifecycle.
 
 #figure(
-  image("../../../../images/diagrams/08-order-state-machine.png", width: 80%),
+  image("../../../../figures/chapters/part2/ch2-design/03-architecture/P2S2.2.3_order-state-machine.png", width: 80%),
   caption: [Order checkout state machine: five sequential states with cancellation available from any pre-confirmation state. The forward-only constraint prevents regressing to earlier checkout stages.],
 ) <fig-order-state-machine>
 
@@ -162,10 +162,10 @@ Once an order reaches the Complete state, it becomes finalised: the order record
 
 ===== Payment Intent State Machine
 
-The payment intent state machine models the full lifecycle of a payment from creation through to terminal completion, reflecting the state transitions of the Stripe payment gateway while maintaining a parallel system-managed state for offline consistency. Figure @fig-payment-state-machine shows all states and transitions.
+The payment intent state machine models the full lifecycle of a payment from creation through to terminal completion, reflecting the state transitions of the Stripe payment gateway while maintaining a parallel system-managed state for offline consistency. @fig-payment-state-machine shows all states and transitions.
 
 #figure(
-  image("../../../../images/diagrams/09-payment-state-machine.png", width: 80%),
+  image("../../../../figures/chapters/part2/ch2-design/03-architecture/P2S2.2.3_payment-state-machine.png", width: 80%),
   caption: [Payment intent lifecycle: the state machine reflects Stripe gateway states while maintaining a parallel system copy for offline operations and Bogus gateway compatibility. Terminal states are Failed, Canceled, and Refunded.],
 ) <fig-payment-state-machine>
 

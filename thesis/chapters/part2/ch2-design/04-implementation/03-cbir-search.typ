@@ -1,9 +1,9 @@
 === CBIR Search Flow
 
-The content-based image retrieval search flow is the primary user-facing capability enabled by the ML embedding pipeline. It spans four system components, the Vue 3 storefront, the .NET API backend, the Python ML sidecar, and PostgreSQL with pgvector, and must complete in under one second to remain viable as a real-time feature. Figure @fig-cbir-sequence depicts the full cross-service interaction.
+The content-based image retrieval search flow is the primary user-facing capability enabled by the ML embedding pipeline. It spans four system components, the Vue 3 storefront, the .NET API backend, the Python ML sidecar, and PostgreSQL with pgvector, and must complete in under one second to remain viable as a real-time feature. @fig-cbir-sequence depicts the full cross-service interaction.
 
 #figure(
-  image("../../../../images/diagrams/12-cbir-search-sequence.png", width: 100%),
+  image("../../../../figures/chapters/part2/ch2-design/02-use-cases/P2S2.2.2_cbir-search-sequence.png", width: 100%),
   caption: [CBIR search sequence: the complete end-to-end flow from customer image upload through embedding generation and vector search to ranked results display, spanning the Vue frontend, .NET API, Python ML sidecar, and PostgreSQL pgvector.],
 ) <fig-cbir-sequence>
 
