@@ -1,6 +1,6 @@
 === IVFFlat: Inverted File with Flat Compression
 
-IVFFlat is a simpler ANN algorithm used during model evaluation. It partitions the embedding space into clusters via *k-means* and stores each vector in its nearest cluster.
+IVFFlat is a simpler ANN algorithm used during model evaluation. It partitions the embedding space into clusters via *k-means* and stores each vector in its nearest cluster @pgvector2023.
 
 - *Search.* Compute distance to all cluster centroids, select the nearest few clusters, and search exhaustively within only those clusters.
 - *Recall.* Moderate: 65 to 72% at sub-10 ms for catalog-scale data, per pgvector documentation @pgvector2023. Recall degrades as the catalog grows because each cluster contains more candidates.
