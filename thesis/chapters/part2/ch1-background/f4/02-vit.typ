@@ -2,7 +2,7 @@
 
 Vision Transformers (ViTs) apply the transformer architecture from natural language processing to images. This section explains how ViTs work and introduces DINOv2, a self-supervised model evaluated in this project.
 
-==== From Text to Images: Patch Embedding
+==== Patch Embedding and Tokenization
 
 Transformers were originally developed for NLP tasks such as translation and text generation. The key innovation was *self-attention*, which allows the model to consider relationships between all parts of the input simultaneously.
 
@@ -20,13 +20,13 @@ In 2020, researchers showed this approach could also work for images @dosovitski
   caption: [Vision Transformer converts an image into patches and uses self-attention to understand relationships between them],
 ) <fig-dinov2-arch>
 
-==== Self-Attention vs. Convolution
+==== Global Context via Self-Attention
 
 Unlike CNNs, which focus on local patterns, self-attention captures relationships across the entire image from the first layer. A CNN processes patches in order and mainly compares nearby regions. A ViT can directly compare any two patches, even if they are far apart.
 
 For fashion, this means a ViT can better understand that the collar of a shirt and the cuffs should match, even though they are on opposite sides of the image. This capability is valuable for garment retrieval, where silhouette and drape matter as much as local texture.
 
-==== DINOv2: Self-Supervised Learning
+==== DINOv2 and Self-Supervised Pre-Training
 
 Most AI models are trained with supervised learning, where humans label images ("this is a dress," "this is a shoe"), and the model learns from those labels. This requires expensive manual annotation.
 
@@ -42,7 +42,7 @@ Most AI models are trained with supervised learning, where humans label images (
 
 DINOv2 produces features that exhibit strong object-level structure: silhouettes, part geometry, and garment boundaries, without being trained on category labels. This makes it adaptable to fashion domains where curated labels are scarce.
 
-==== DINOv2 for Fashion
+==== Structural Fidelity for Fashion Retrieval
 
 DINOv2 is particularly good at capturing *structural fidelity*: the shapes, silhouettes, and proportions of objects. For fashion, this means:
 
@@ -52,7 +52,7 @@ DINOv2 is particularly good at capturing *structural fidelity*: the shapes, silh
 
 This is valuable for users who might want "a dress shaped like this one, but in a different colour."
 
-==== Key Characteristics
+==== DINOv2 Model Specifications
 
 #figure(
   table(
@@ -70,7 +70,7 @@ This is valuable for users who might want "a dress shaped like this one, but in 
   caption: [DINOv2 model specifications evaluated in this project],
 )
 
-==== Trade-offs
+==== Trade-offs and Limitations
 
 Vision Transformers have different trade-offs compared to CNNs:
 
