@@ -4,7 +4,7 @@ The systematic evaluation of eleven embedding models for fashion product retriev
 
 === Dataset
 
-The benchmark uses a controlled subset of the Fashion Product Images Dataset, a publicly available collection of fashion product images from an Indian e-commerce platform. The subset consists of 5,000 catalogue images spanning five product categories: tops (1,500 items), bottoms (1,200 items), footwear (1,000 items), accessories (800 items), and jewellery (500 items). This balanced distribution prevents class imbalance from skewing retrieval metrics, a model that consistently retrieves items from the largest category would appear deceptively accurate under an unbalanced dataset.
+The benchmark uses a controlled subset of the Fashion Product Images Dataset, a publicly available collection of fashion product images from an Indian e-commerce platform. The subset consists of 5,000 catalogue images spanning five master categories: Apparel (2,500 items), Accessories (1,250 items), Footwear (750 items), Personal Care (350 items), and Sporting Goods (150 items). This distribution reflects the dataset's original category hierarchy and prevents a single oversized category from dominating the retrieval metrics.
 
 Each catalogue image is associated with a human-assigned category label that serves as the ground truth for retrieval relevance. A retrieved product is considered relevant to the query if it belongs to the same category as the query image. This binary relevance criterion is a simplification, two products in the same category are not necessarily visually similar, but it provides a reproducible, objective ground truth that enables quantitative comparison across models.
 
@@ -12,7 +12,7 @@ All images are preprocessed uniformly before being passed to any model. Images a
 
 === Models Evaluated
 
-The benchmark evaluates eleven pre-trained embedding models spanning four architectural families. Table @tbl-model-architecture summarises the models grouped by their architecture type.
+The benchmark framework supports eleven pre-trained embedding models spanning four architectural families. Four representative models were selected for the full thesis evaluation. Table @tbl-model-architecture summarises the models grouped by their architecture type.
 
 #figure(
   table(
@@ -29,7 +29,7 @@ The benchmark evaluates eleven pre-trained embedding models spanning four archit
     [Fashion-specific],
     [Fashion-CLIP (512-dimensional), fine-tuned on over 700,000 fashion images with domain-specific vocabulary],
   ),
-  caption: [Eleven embedding models evaluated in the benchmark, grouped by architecture family. All models use pre-trained weights from public model repositories.],
+  caption: [Embedding models supported by the benchmark framework, grouped by architecture family. Four representative models were evaluated in the thesis. All models use pre-trained weights from public model repositories.],
   kind: table,
 ) <tbl-model-architecture>
 
@@ -72,19 +72,20 @@ Each model was evaluated through a standardised 8-step protocol executed identic
 
 Steps 1-8 were repeated for each of the four evaluated models. The evaluation used 3-fold cross-validation: the dataset was partitioned into three stratified folds, each preserving the original category distribution. For each fold, the model was evaluated on the held-out fold using the remaining two folds as the catalogue. The reported metrics are the mean and standard deviation across the three folds, providing both point estimates and measures of variability.
 
+The retrieval accuracy metrics (mAP, P\@K, R\@K) are computed via exact cosine search over all gallery embeddings, eliminating any index approximation effects and isolating model quality from index performance. For the pgvector production metrics, the benchmark uses the IVFFlat (Inverted File with Flat compression) approximate index with 100 lists. IVFFlat was chosen over HNSW at this scale for three reasons. First, at 5,000 catalogue vectors, IVFFlat achieves sub-10-millisecond query latency and 65--72 percent recall\@10 (see Appendix A.4), which is adequate for a controlled model comparison where the focus is on model ranking rather than index optimisation. Second, IVFFlat builds nearly instantaneously (under one second) versus the minutes required for HNSW graph construction, enabling rapid iteration across the 4-model, 3-fold evaluation matrix. Third, IVFFlat exposes fewer hyperparameters (lists and probes) than HNSW (M, ef_construction, ef_search), reducing confounding variables when the objective is to compare embedding models rather than index configurations. The production architecture designates HNSW for deployments at larger catalogue scales where its superior recall-speed trade-off becomes decisive.
+
 === Hardware Environment
 
 All benchmarks were conducted on a standard development workstation to represent a realistic deployment scenario typical of small-to-medium e-commerce operations. Table @tbl-benchmark-hardware summarises the hardware configuration.
 
 #figure(
   table(
-    columns: (1fr, 1fr),
+    columns: (auto, 1fr),
     stroke: 0.5pt,
     align: (left, left),
     [*Component*], [*Specification*],
-    [GPU], [NVIDIA GeForce RTX 4090 (24 GB VRAM)],
-    [CPU], [AMD Ryzen 9 7950X],
-    [RAM], [64 GB DDR5],
+    [CPU], [Intel (11th Gen Core i7-1165G7, 4 cores / 8 threads, 2.80 GHz)],
+    [RAM], [16 GB DDR4],
     [Database], [PostgreSQL 16 with pgvector 0.7.0],
     [Orchestrator], [.NET Aspire (Docker Compose mode)],
   ),
@@ -92,4 +93,4 @@ All benchmarks were conducted on a standard development workstation to represent
   kind: table,
 ) <tbl-benchmark-hardware>
 
-The hardware represents a high-end workstation configuration. Results on different hardware, particularly on CPU-only or low-VRAM environments, will differ, and the reported inference times should be interpreted relative to this baseline. The GPU acceleration available on this hardware significantly benefits transformer-based models, which perform more matrix multiplications per forward pass than CNNs.
+The hardware represents a standard development laptop configuration. All benchmarks were executed on CPU without GPU acceleration, as the available GPU (NVIDIA GeForce MX330, compute capability 6.1) does not meet the minimum compute capability required by the evaluated deep learning frameworks (sm_75). Results on different hardware, particularly systems with a compatible GPU, will differ, and the reported inference times should be interpreted relative to this CPU-only baseline.

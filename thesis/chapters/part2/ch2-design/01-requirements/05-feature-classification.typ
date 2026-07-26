@@ -4,9 +4,9 @@ Not all features of ReSys.Shop carry equal research significance. Seven feature 
 
 #figure(
   table(
-    columns: (auto, auto, 2fr),
+    columns: (1fr, 1fr, 4fr),
     stroke: 0.5pt,
-    align: (left + horizon, center + horizon, left),
+    align: (left + horizon, left + horizon, left),
     inset: 8pt,
 
     table.header([*Feature Area*], [*Classification*], [*Rationale*]),
@@ -39,6 +39,7 @@ Not all features of ReSys.Shop carry equal research significance. Seven feature 
       Security baseline: protects administrative functions and user-specific data, enabling the application to operate in a representative security posture without which the system would be a research prototype rather than a deployable platform.
     ],
   ),
+    kind: table,
   caption: [
     Classification of feature areas into Core Research and Supporting Infrastructure. Core Research features represent the thesis's original contributions; Supporting Infrastructure features provide the realistic e-commerce context necessary for meaningful evaluation.
   ],

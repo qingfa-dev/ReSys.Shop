@@ -4,7 +4,7 @@ The platform serves three categories of actors, each with a distinct role, set o
 
 #figure(
   table(
-    columns: (auto, 1fr, 1fr),
+    columns: (auto, 3fr, 1fr),
     stroke: 0.5pt,
     align: (left + horizon, left, left),
     table.header([*Actor*], [*Role and Responsibilities*], [*Interaction Surface*]),

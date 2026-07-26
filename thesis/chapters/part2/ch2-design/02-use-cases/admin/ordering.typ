@@ -70,7 +70,8 @@
     ],
     [*Related Requirements*], [ORD-FR-04, ORD-FR-05, ORD-FR-06, ORD-FR-07, ORD-FR-09, ORD-FR-13],
   ),
-  caption: [UC-ADM-ORD -- Manage Orders.],
+    kind: table,
+  caption: [Manage Orders.],
 )
 
 ==== UC-ADM-ORD-ITEMS — Manage Order Details
@@ -112,5 +113,6 @@
     ],
     [*Related Requirements*], [ORD-FR-13],
   ),
-  caption: [UC-ADM-ORD-ITEMS -- Manage Order Details.],
+    kind: table,
+  caption: [Manage Order Details.],
 )

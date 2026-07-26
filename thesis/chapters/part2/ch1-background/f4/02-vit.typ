@@ -8,14 +8,16 @@ A ViT divides an image into a grid of fixed-size patches (typically 16 by 16 pix
 
 #figure(
   table(
-    columns: (auto, auto, auto, auto, auto),
+    columns: (auto, auto, auto, auto, 1fr),
     align: center + horizon,
-    table.header([*Family*], [*Model*], [*Parameters*], [*Embedding Dim*], [*Training Method*]),
+    table.header([*Family*], [*Model*], [*Parameters*], [*Embedding\
+Dim*], [*Training Method*]),
     [ViT], [DINOv2 ViT-S/14], [21M], [384], [Self-supervised (142M images)],
     [ViT], [DINOv2 ViT-B/14], [86M], [768], [Self-supervised (142M images)],
     [ViT], [CLIP ViT-B/32], [151M], [512], [Contrastive (400M pairs)],
     [ViT], [CLIP ViT-B/16], [150M], [512], [Contrastive (400M pairs)],
     [ViT], [CLIP ViT-L/14], [428M], [768], [Contrastive (400M pairs)],
   ),
+    kind: table,
   caption: [Vision Transformer models evaluated in this thesis],
 ) <tbl-vit-models>

@@ -8,13 +8,15 @@ The dual-tower design also enables *multimodal queries* unavailable in pure visi
 
 #figure(
   table(
-    columns: (auto, auto, auto, auto),
+    columns: (auto, 1fr, 1fr, auto),
     align: center + horizon,
-    table.header([*Model*], [*Architecture*], [*Training*], [*Domain*]),
+    table.header([*Model*], [*Architecture*], [*Training*], [*Do\
+main*]),
     [CLIP ViT-B/32], [Dual-tower (ViT + text transformer)], [Contrastive (400M image-text pairs)], [General],
     [CLIP ViT-B/16], [Dual-tower (ViT + text transformer)], [Contrastive (400M image-text pairs)], [General],
     [CLIP ViT-L/14], [Dual-tower (ViT + text transformer)], [Contrastive (400M image-text pairs)], [General],
     [Fashion-CLIP], [Dual-tower (ViT + text transformer)], [Contrastive, fine-tuned on 700K fashion images], [Fashion-specific],
   ),
+    kind: table,
   caption: [CLIP variants evaluated in this thesis],
 ) <tbl-clip-models>

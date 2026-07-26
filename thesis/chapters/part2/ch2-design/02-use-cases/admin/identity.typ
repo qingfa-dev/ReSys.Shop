@@ -41,7 +41,8 @@
     ],
     [*Related Requirements*], [IDN-FR-09, IDN-FR-13],
   ),
-  caption: [UC-ADM-USR -- Manage Users.],
+    kind: table,
+  caption: [Manage Users.],
 )
 
 ==== Role and Permission Governance
@@ -108,5 +109,6 @@
     ],
     [*Related Requirements*], [IDN-FR-11, IDN-FR-12],
   ),
-  caption: [UC-ADM-ROL -- Manage Roles and Permissions.],
+    kind: table,
+  caption: [Manage Roles and Permissions.],
 )

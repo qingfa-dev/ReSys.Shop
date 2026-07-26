@@ -51,7 +51,8 @@
     ],
     [*Related Requirements*], [ORD-FR-01, ORD-FR-02, ORD-FR-10],
   ),
-  caption: [UC-STR-CRT -- Manage Cart.],
+    kind: table,
+  caption: [Manage Cart.],
 )
 
 ==== Checkout Flow
@@ -118,7 +119,8 @@
     ],
     [*Related Requirements*], [ORD-FR-04, ORD-FR-05, ORD-FR-08, ORD-FR-11, ORD-FR-12],
   ),
-  caption: [UC-STR-CHK -- Checkout.],
+    kind: table,
+  caption: [Checkout.],
 )
 
 ==== Order History
@@ -169,5 +171,6 @@
     ],
     [*Related Requirements*], [ORD-FR-07, ORD-FR-14],
   ),
-  caption: [UC-STR-OHI -- Order History.],
+    kind: table,
+  caption: [Order History.],
 )

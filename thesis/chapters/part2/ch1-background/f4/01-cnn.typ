@@ -8,13 +8,15 @@ Convolutional neural networks (CNNs) process images through a hierarchy of learn
 
 #figure(
   table(
-    columns: (auto, auto, auto, auto, auto),
+    columns: (auto, auto, auto, auto, 1fr),
     align: center + horizon,
-    table.header([*Family*], [*Model*], [*Parameters*], [*Embedding Dim*], [*Training Data*]),
+    table.header([*Family*], [*Model*], [*Parameters*], [*Embedding\
+Dim*], [*Training Data*]),
     [CNN], [ResNet-50], [25.6M], [2048], [ImageNet (1.2M images)],
     [CNN], [ResNet-101], [44.5M], [2048], [ImageNet (1.2M images)],
     [CNN], [EfficientNet-B0], [5.3M], [1280], [ImageNet (1.2M images)],
     [CNN], [EfficientNet-B4], [19.3M], [1792], [ImageNet (1.2M images)],
   ),
+    kind: table,
   caption: [CNN-based models evaluated in this thesis],
 ) <tbl-cnn-models>

@@ -13,6 +13,7 @@ Several platforms have deployed visual search at production scale.
     [ASOS Style Match], [Fashion-specific accuracy], [Restricted to ASOS catalog only],
     [ViSenze], [API-based, good accuracy], [Paid service with recurring per-query costs],
   ),
+    kind: table,
   caption: [Comparison of commercial visual search products],
 ) <tbl-commercial-comparison>
 
