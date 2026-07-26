@@ -4,6 +4,10 @@ Specialized results, errors, and models for Inference operations.
 from typing import Any, Dict, List, Optional
 
 from embedding.core.constants import Constants
+from embedding.schemas.inferences.export import (  # noqa: F401
+    ModelExportReport,
+    OnnxExportResponse,
+)
 from embedding.schemas.inferences.models import (  # noqa: F401
     EmbeddingRequest,
     EmbeddingResponse,
