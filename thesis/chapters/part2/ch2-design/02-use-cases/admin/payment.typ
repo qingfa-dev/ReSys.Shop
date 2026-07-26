@@ -2,39 +2,23 @@
 
 // Diagram placeholder: Payment Processing use case diagram
 
-*UC-ADM-PAY-01 — Capture payment.*
-*Primary Actor:* Administrator. \
-*Main Flow:* Capture an authorised payment intent to transfer funds from the customer's account. \
-*Postcondition:* Payment captured and funds transferred. Order payment state updated. \
-*Related FR:* PAY-FR-03.
-
-#v(0.5cm)
-*UC-ADM-PAY-02 — Refund payment.*
-*Primary Actor:* Administrator. \
-*Main Flow:* Issue a refund against a captured payment. The refund amount must not exceed the captured amount. \
-*Postcondition:* Refund processed. Funds returned to the customer. Payment state updated. \
-*Related FR:* PAY-FR-03, PAY-FR-05.
-
-#v(0.5cm)
-*UC-ADM-PAY-03 — Void payment.*
-*Primary Actor:* Administrator. \
-*Main Flow:* Void an authorised but un-captured payment, releasing the fund hold without charging the customer. \
-*Postcondition:* Payment voided and fund hold released. Order payment state updated. \
-*Related FR:* PAY-FR-09.
-
-#v(0.5cm)
-*UC-ADM-PAY-04 — View payments.*
-*Primary Actor:* Administrator. \
-*Main Flow:* List payments with filtering and view individual payment detail. \
-*Postcondition:* Payment records displayed. Gateway state and system state shown together. \
-*Related FR:* PAY-FR-07.
+#table(
+  columns: (auto, 1fr, auto, 3fr, 2fr, 3fr),
+  stroke: 0.5pt,
+  [*UC-ID*], [*Use Case*], [*Actor*], [*Goal*], [*Preconditions*], [*Postconditions*],
+  [UC-ADM-PAY-01], [Capture payment], [Admin], [Capture an authorised payment intent to transfer funds from the customer's account.], [Admin is authenticated with payment capture permissions. Payment intent is authorised.], [Payment captured and funds transferred. Order payment state updated.],
+  [UC-ADM-PAY-02], [Refund payment], [Admin], [Issue a refund against a captured payment, not exceeding the captured amount.], [Admin is authenticated with refund permissions. Payment is in captured state.], [Refund processed. Funds returned to the customer. Payment state updated.],
+  [UC-ADM-PAY-03], [Void payment], [Admin], [Void an authorised but un-captured payment, releasing the fund hold.], [Admin is authenticated. Payment is authorised but not captured.], [Payment voided and fund hold released. Order payment state updated.],
+  [UC-ADM-PAY-04], [View payments], [Admin], [List payments with filtering and view individual payment detail.], [Admin is authenticated with payment viewing permissions.], [Payment records displayed. Gateway state and system state shown together.],
+)
 
 ==== Payment Method Configuration
 
 // Diagram placeholder: Payment Method Configuration use case diagram
 
-*UC-ADM-PAY-05 — Manage payment methods.*
-*Primary Actor:* Administrator. \
-*Main Flow:* Create, update, activate, deactivate, or remove payment methods. Configure gateway-specific parameters per method. \
-*Postcondition:* Payment method configuration updated. Active methods available for storefront selection. \
-*Related FR:* PAY-FR-10.
+#table(
+  columns: (auto, 1fr, auto, 3fr, 2fr, 3fr),
+  stroke: 0.5pt,
+  [*UC-ID*], [*Use Case*], [*Actor*], [*Goal*], [*Preconditions*], [*Postconditions*],
+  [UC-ADM-PAY-05], [Manage payment methods], [Admin], [Create, update, activate, deactivate, or remove payment methods with gateway-specific parameters.], [Admin is authenticated with payment method management permissions.], [Payment method configuration updated. Active methods available for storefront selection.],
+)
