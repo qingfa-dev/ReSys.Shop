@@ -45,88 +45,38 @@ actor "System\n(Background)" as SysActor
 rectangle "ReSys.Shop" {
 
   rectangle "Administration" as AdmArea {
-    rectangle "Product Management" as T01 {
-      usecase "Manage Products\n[UC-ADM-PROD]" as UC01
-    }
-    rectangle "Variant and Pricing" as T02 {
-      usecase "Manage Variants\n[UC-ADM-VAR]" as UC02
-    }
-    rectangle "Image and Embedding\nManagement" as T03 {
-      usecase "Manage Images\nand Embeddings\n[UC-ADM-IMG]" as UC03
-    }
-    rectangle "Taxonomy and\nClassification" as T04 {
-      usecase "Manage Taxonomies\nand Classification\n[UC-ADM-TAX]" as UC04
-    }
-    rectangle "Option Type\nConfiguration" as T05 {
-      usecase "Manage Option Types\n[UC-ADM-OPT]" as UC05
-    }
-    rectangle "Order Lifecycle" as T06 {
-      usecase "Manage Orders\n[UC-ADM-ORD]" as UC06
-      usecase "Manage Order\nDetails\n[UC-ADM-ORD-ITEMS]" as UC06b
-    }
-    rectangle "Payment Processing" as T07 {
-      usecase "Manage Payments\n[UC-ADM-PAY]" as UC07
-    }
-    rectangle "Payment Method\nConfiguration" as T08 {
-      usecase "Manage Payment\nMethods\n[UC-ADM-PAY-METHOD]" as UC08
-    }
-    rectangle "Stock Item\nManagement" as T09 {
-      usecase "Manage Stock\n[UC-ADM-STK]" as UC09
-    }
-    rectangle "Stock Location\nManagement" as T10 {
-      usecase "Manage Stock\nLocations\n[UC-ADM-LOC]" as UC10
-    }
-    rectangle "User Management" as T11 {
-      usecase "Manage Users\n[UC-ADM-USR]" as UC11
-    }
-    rectangle "Role and Permission\nGovernance" as T12 {
-      usecase "Manage Roles\nand Permissions\n[UC-ADM-ROL]" as UC12
-    }
-    rectangle "Shipping Method\nConfiguration" as T13 {
-      usecase "Manage Shipping\n[UC-ADM-SHP]" as UC13
-    }
-    rectangle "Reference Data\nManagement" as T14 {
-      usecase "Manage Reference\nData\n[UC-ADM-REF]" as UC14
-    }
+    usecase "Manage Products\n[UC-ADM-PROD]" as UC01
+    usecase "Manage Variants\n[UC-ADM-VAR]" as UC02
+    usecase "Manage Images and\nEmbeddings\n[UC-ADM-IMG]" as UC03
+    usecase "Manage Taxonomies\nand Classification\n[UC-ADM-TAX]" as UC04
+    usecase "Manage Option Types\n[UC-ADM-OPT]" as UC05
+    usecase "Manage Orders\n[UC-ADM-ORD]" as UC06
+    usecase "Manage Order Details\n[UC-ADM-ORD-ITEMS]" as UC06b
+    usecase "Manage Payments\n[UC-ADM-PAY]" as UC07
+    usecase "Manage Payment\nMethods\n[UC-ADM-PAY-METHOD]" as UC08
+    usecase "Manage Stock\n[UC-ADM-STK]" as UC09
+    usecase "Manage Stock\nLocations\n[UC-ADM-LOC]" as UC10
+    usecase "Manage Users\n[UC-ADM-USR]" as UC11
+    usecase "Manage Roles and\nPermissions\n[UC-ADM-ROL]" as UC12
+    usecase "Manage Shipping\n[UC-ADM-SHP]" as UC13
+    usecase "Manage Reference\nData\n[UC-ADM-REF]" as UC14
   }
 
   rectangle "Storefront" as StrArea {
-    rectangle "Catalog Browsing" as T15 {
-      usecase "Browse and Search\nCatalog\n[UC-STR-BRW]" as UC15
-    }
-    rectangle "Search" as T16 {
-      usecase "Visual Search\n[UC-STR-SRC]" as UC16
-    }
-    rectangle "Cart Management" as T17 {
-      usecase "Manage Cart\n[UC-STR-CRT]" as UC17
-    }
-    rectangle "Checkout Flow" as T18 {
-      usecase "Checkout\n[UC-STR-CHK]" as UC18
-    }
-    rectangle "Order History" as T19 {
-      usecase "Order History\n[UC-STR-OHI]" as UC19
-    }
-    rectangle "Payment Processing" as T20 {
-      usecase "Payment Processing\n[UC-STR-PAY]" as UC20
-    }
-    rectangle "Authentication" as T21 {
-      usecase "Authentication\n[UC-STR-AUT]" as UC21
-    }
-    rectangle "Session Management" as T22 {
-      usecase "Session Management\n[UC-STR-SES]" as UC22
-    }
-    rectangle "Profile and\nPreferences" as T23 {
-      usecase "Profile Management\n[UC-STR-PRF]" as UC23
-    }
+    usecase "Browse and Search\nCatalog\n[UC-STR-BRW]" as UC15
+    usecase "Visual Search\n[UC-STR-SRC]" as UC16
+    usecase "Manage Cart\n[UC-STR-CRT]" as UC17
+    usecase "Checkout\n[UC-STR-CHK]" as UC18
+    usecase "Order History\n[UC-STR-OHI]" as UC19
+    usecase "Payment Processing\n[UC-STR-PAY]" as UC20
+    usecase "Authentication\n[UC-STR-AUT]" as UC21
+    usecase "Session Management\n[UC-STR-SES]" as UC22
+    usecase "Profile Management\n[UC-STR-PRF]" as UC23
   }
 
   rectangle "System Services" as SysArea {
-    rectangle "Embedding Operations" as T24 {
-      usecase "Embedding Operations\n[UC-SYS-EMB]" as UC24
-    }
-    rectangle "Background\nMaintenance" as T25 {
-      usecase "System Maintenance\n[UC-SYS-MNT]" as UC25
-    }
+    usecase "Embedding Operations\n[UC-SYS-EMB]" as UC24
+    usecase "System Maintenance\n[UC-SYS-MNT]" as UC25
   }
 }
 
