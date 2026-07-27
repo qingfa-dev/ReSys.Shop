@@ -62,7 +62,7 @@
 
 #figure(
   image(
-    "../../../../figures/chapters/part2/ch2-design/02-use-cases/diagrams/P2S2.2.2_usecase-profile-preferences.png",
+    "../../../../../figures/chapters/part2/ch2-design/02-use-cases/diagrams/P2S2.2.2_usecase-profile-preferences.png",
     width: 100%
   ),
   caption: [Use case diagram for Profile and Preferences (UC-STR-PRF).],

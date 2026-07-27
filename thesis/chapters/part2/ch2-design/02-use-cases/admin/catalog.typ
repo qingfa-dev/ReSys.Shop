@@ -59,7 +59,7 @@
 
 #figure(
   image(
-    "../../../../figures/chapters/part2/ch2-design/02-use-cases/diagrams/P2S2.2.2_usecase-product-management.png",
+    "../../../../../figures/chapters/part2/ch2-design/02-use-cases/diagrams/P2S2.2.2_usecase-product-management.png",
     width: 100%
   ),
   caption: [Use case diagram for Product Management (UC-ADM-PROD).],
@@ -127,7 +127,7 @@
 
 #figure(
   image(
-    "../../../../figures/chapters/part2/ch2-design/02-use-cases/diagrams/P2S2.2.2_usecase-variant-pricing.png",
+    "../../../../../figures/chapters/part2/ch2-design/02-use-cases/diagrams/P2S2.2.2_usecase-variant-pricing.png",
     width: 100%
   ),
   caption: [Use case diagram for Variant and Pricing (UC-ADM-VAR).],
@@ -189,7 +189,7 @@
 
 #figure(
   image(
-    "../../../../figures/chapters/part2/ch2-design/02-use-cases/diagrams/P2S2.2.2_usecase-image-embedding.png",
+    "../../../../../figures/chapters/part2/ch2-design/02-use-cases/diagrams/P2S2.2.2_usecase-image-embedding.png",
     width: 100%
   ),
   caption: [Use case diagram for Image and Embedding Management (UC-ADM-IMG).],
@@ -250,7 +250,7 @@
 
 #figure(
   image(
-    "../../../../figures/chapters/part2/ch2-design/02-use-cases/diagrams/P2S2.2.2_usecase-taxonomy-classification.png",
+    "../../../../../figures/chapters/part2/ch2-design/02-use-cases/diagrams/P2S2.2.2_usecase-taxonomy-classification.png",
     width: 100%
   ),
   caption: [Use case diagram for Taxonomy and Classification (UC-ADM-TAX).],
@@ -303,7 +303,7 @@
 
 #figure(
   image(
-    "../../../../figures/chapters/part2/ch2-design/02-use-cases/diagrams/P2S2.2.2_usecase-option-type-config.png",
+    "../../../../../figures/chapters/part2/ch2-design/02-use-cases/diagrams/P2S2.2.2_usecase-option-type-config.png",
     width: 100%
   ),
   caption: [Use case diagram for Option Type Configuration (UC-ADM-OPT).],

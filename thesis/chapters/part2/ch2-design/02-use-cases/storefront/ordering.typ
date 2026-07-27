@@ -55,7 +55,7 @@
 
 #figure(
   image(
-    "../../../../figures/chapters/part2/ch2-design/02-use-cases/diagrams/P2S2.2.2_usecase-cart-management.png",
+    "../../../../../figures/chapters/part2/ch2-design/02-use-cases/diagrams/P2S2.2.2_usecase-cart-management.png",
     width: 100%
   ),
   caption: [Use case diagram for Cart Management (UC-STR-CRT).],
@@ -129,7 +129,7 @@
 
 #figure(
   image(
-    "../../../../figures/chapters/part2/ch2-design/02-use-cases/diagrams/P2S2.2.2_usecase-checkout-flow.png",
+    "../../../../../figures/chapters/part2/ch2-design/02-use-cases/diagrams/P2S2.2.2_usecase-checkout-flow.png",
     width: 100%
   ),
   caption: [Use case diagram for Checkout Flow (UC-STR-CHK).],
@@ -187,7 +187,7 @@
 
 #figure(
   image(
-    "../../../../figures/chapters/part2/ch2-design/02-use-cases/diagrams/P2S2.2.2_usecase-order-history.png",
+    "../../../../../figures/chapters/part2/ch2-design/02-use-cases/diagrams/P2S2.2.2_usecase-order-history.png",
     width: 100%
   ),
   caption: [Use case diagram for Order History (UC-STR-OHI).],

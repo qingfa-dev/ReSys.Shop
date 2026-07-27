@@ -62,7 +62,7 @@
 
 #figure(
   image(
-    "../../../../figures/chapters/part2/ch2-design/02-use-cases/diagrams/P2S2.2.2_usecase-admin-payment-processing.png",
+    "../../../../../figures/chapters/part2/ch2-design/02-use-cases/diagrams/P2S2.2.2_usecase-admin-payment-processing.png",
     width: 100%
   ),
   caption: [Use case diagram for Payment Processing (UC-ADM-PAY).],
@@ -115,7 +115,7 @@
 
 #figure(
   image(
-    "../../../../figures/chapters/part2/ch2-design/02-use-cases/diagrams/P2S2.2.2_usecase-payment-method-config.png",
+    "../../../../../figures/chapters/part2/ch2-design/02-use-cases/diagrams/P2S2.2.2_usecase-payment-method-config.png",
     width: 100%
   ),
   caption: [Use case diagram for Payment Method Configuration (UC-ADM-PAY-METHOD).],
