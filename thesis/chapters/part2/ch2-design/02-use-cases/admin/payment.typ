@@ -1,6 +1,8 @@
 ==== Payment Processing
 
-==== UC-ADM-PAY: Manage Payments
+// Diagram placeholder: Payment Processing use case diagram
+
+==== UC-ADM-PAY — Manage Payments
 
 #figure(
   table(
@@ -68,7 +70,9 @@
 
 ==== Payment Method Configuration
 
-==== UC-ADM-PAY-METHOD: Manage Payment Methods
+// Diagram placeholder: Payment Method Configuration use case diagram
+
+==== UC-ADM-PAY-METHOD — Manage Payment Methods
 
 #figure(
   table(
