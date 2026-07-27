@@ -51,7 +51,10 @@ public static partial class DatabaseInitializer
                 await DropApplicationSchemasAsync(scope, logger);
             }
 
-            if (runMigrations)
+            // Ensure the pgvector extension exists before applying migrations
+        await EnsureVectorExtensionAsync(scope, logger);
+
+        if (runMigrations)
             {
                 await RunMigrationsAsync(scope, logger);
             }
@@ -106,6 +109,23 @@ public static partial class DatabaseInitializer
         catch { /* table may not exist */ }
 
         Loggers.LogSchemasDropped(logger);
+    }
+
+    private static async Task EnsureVectorExtensionAsync(IServiceScope scope, ILogger logger)
+    {
+        var dbContext = scope.ServiceProvider.GetRequiredService<IApplicationDbContext>();
+        if (dbContext is not DbContext efContext) return;
+
+        try
+        {
+            await efContext.Database.ExecuteSqlRawAsync(
+                "CREATE EXTENSION IF NOT EXISTS vector");
+            Loggers.LogVectorExtensionEnsured(logger);
+        }
+        catch (Exception ex)
+        {
+            Loggers.LogVectorExtensionFailed(logger, ex.Message);
+        }
     }
 
     private static async Task RunMigrationsAsync(IServiceScope scope, ILogger logger)
