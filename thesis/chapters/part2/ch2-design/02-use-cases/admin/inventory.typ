@@ -46,7 +46,7 @@
 
 #figure(
   image(
-    "../../../../figures/chapters/part2/ch2-design/02-use-cases/diagrams/P2S2.2.2_usecase-stock-location-management.png",
+    "../../../../../figures/chapters/part2/ch2-design/02-use-cases/diagrams/P2S2.2.2_usecase-stock-location-management.png",
     width: 100%
   ),
   caption: [Use case diagram for Stock Location Management (UC-ADM-LOC).],
@@ -128,7 +128,7 @@
 
 #figure(
   image(
-    "../../../../figures/chapters/part2/ch2-design/02-use-cases/diagrams/P2S2.2.2_usecase-stock-item-management.png",
+    "../../../../../figures/chapters/part2/ch2-design/02-use-cases/diagrams/P2S2.2.2_usecase-stock-item-management.png",
     width: 100%
   ),
   caption: [Use case diagram for Stock Item Management (UC-ADM-STK).],

@@ -76,7 +76,7 @@
 
 #figure(
   image(
-    "../../../../figures/chapters/part2/ch2-design/02-use-cases/diagrams/P2S2.2.2_usecase-order-lifecycle.png",
+    "../../../../../figures/chapters/part2/ch2-design/02-use-cases/diagrams/P2S2.2.2_usecase-order-lifecycle.png",
     width: 100%
   ),
   caption: [Use case diagram for Order Lifecycle (UC-ADM-ORD, UC-ADM-ORD-ITEMS).],
