@@ -1,0 +1,18 @@
+@startuml usecase-shipping-method
+!include _shared/styles.iuml
+title UC-ADM-SHP: Shipping Method Configuration
+
+actor "Administrator" as Admin
+
+rectangle "Shipping Method Configuration" {
+  usecase "Configure Shipping\nMethods\n[UC-ADM-SHP]" as UC_MAIN
+  usecase "Manage Shipping Methods" as UC_SUB_1
+  usecase "Manage Shipping Rates" as UC_SUB_2
+
+  UC_MAIN ..> UC_SUB_1 : <<include>>
+  UC_MAIN ..> UC_SUB_2 : <<include>>
+}
+
+Admin --> UC_MAIN
+
+@enduml

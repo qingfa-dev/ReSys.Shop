@@ -1,0 +1,13 @@
+@startuml usecase-stock-location-management
+!include _shared/styles.iuml
+title UC-ADM-LOC: Stock Location Management
+
+actor "Administrator" as Admin
+
+rectangle "Stock Location Management" {
+  usecase "Manage Stock Locations\n[UC-ADM-LOC]" as UC_MAIN
+}
+
+Admin --> UC_MAIN
+
+@enduml

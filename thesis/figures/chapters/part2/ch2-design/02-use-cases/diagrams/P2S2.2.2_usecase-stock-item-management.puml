@@ -1,0 +1,24 @@
+@startuml usecase-stock-item-management
+!include _shared/styles.iuml
+title UC-ADM-STK: Stock Item Management
+
+actor "Administrator" as Admin
+
+rectangle "Stock Item Management" {
+  usecase "Manage Stock Items\n[UC-ADM-STK]" as UC_MAIN
+  usecase "Manage Stock Items" as UC_SUB_1
+  usecase "Restock Inventory" as UC_SUB_2
+  usecase "Transfer Stock" as UC_SUB_3
+  usecase "Review Stock Movements" as UC_SUB_4
+  usecase "Monitor Low Stock" as UC_SUB_5
+
+  UC_MAIN ..> UC_SUB_1 : <<include>>
+  UC_MAIN ..> UC_SUB_2 : <<include>>
+  UC_MAIN ..> UC_SUB_3 : <<include>>
+  UC_MAIN ..> UC_SUB_4 : <<include>>
+  UC_MAIN ..> UC_SUB_5 : <<include>>
+}
+
+Admin --> UC_MAIN
+
+@enduml

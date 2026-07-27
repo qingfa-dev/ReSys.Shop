@@ -1,0 +1,13 @@
+@startuml usecase-user-management
+!include _shared/styles.iuml
+title UC-ADM-USR: User Management
+
+actor "Administrator" as Admin
+
+rectangle "User Management" {
+  usecase "Manage Users\n[UC-ADM-USR]" as UC_MAIN
+}
+
+Admin --> UC_MAIN
+
+@enduml
