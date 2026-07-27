@@ -1,10 +1,38 @@
 @startuml usecase-role-permission
 left to right direction
-skinparam padding 8
-skinparam nodesep 40
-skinparam ranksep 40
 
-!include _shared/styles.iuml
+<style>
+  root {
+    fontName "Arial"
+    fontSize 14
+    shadowing false
+  }
+  actor {
+    backgroundColor #FFFFFF
+    borderColor #000000
+    borderThickness 1.5
+    fontColor #000000
+    fontStyle bold
+    fontSize 16
+  }
+  usecase {
+    backgroundColor #FFFFFF
+    borderColor #000000
+    borderThickness 1.5
+    fontColor #000000
+  }
+  rectangle {
+    backgroundColor #FFFFFF
+    borderColor #000000
+    borderThickness 1.5
+    fontStyle bold
+  }
+  arrow {
+    lineColor #000000
+    lineThickness 1.5
+    fontSize 12
+  }
+</style>
 title UC-ADM-ROL: Role and Permission Governance
 
 actor "Administrator" as Admin
