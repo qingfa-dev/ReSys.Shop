@@ -12,15 +12,22 @@ export {}
 /* prettier-ignore */
 declare module 'vue' {
   export interface GlobalComponents {
+    Button: typeof import('primevue/button')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
+    SelectButton: typeof import('primevue/selectbutton')['default']
     Toast: typeof import('primevue/toast')['default']
+  }
+  export interface GlobalDirectives {
+    StyleClass: typeof import('primevue/styleclass')['default']
   }
 }
 
 // For TSX support
 declare global {
+  const Button: typeof import('primevue/button')['default']
   const RouterLink: typeof import('vue-router')['RouterLink']
   const RouterView: typeof import('vue-router')['RouterView']
+  const SelectButton: typeof import('primevue/selectbutton')['default']
   const Toast: typeof import('primevue/toast')['default']
 }

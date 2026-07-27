@@ -1,4 +1,7 @@
+import { readFileSync } from 'node:fs'
 import { fileURLToPath, URL } from 'node:url'
+
+const pkg = JSON.parse(readFileSync(new URL('./package.json', import.meta.url), 'utf-8'))
 
 import tailwind from '@tailwindcss/vite'
 import { PrimeVueResolver } from '@primevue/auto-import-resolver'
@@ -10,6 +13,9 @@ import vueDevTools from 'vite-plugin-vue-devtools'
 
 // https://vite.dev/config/
 export default defineConfig({
+  define: {
+    __APP_VERSION__: JSON.stringify(pkg.version),
+  },
   plugins: [
     vue(),
     vueJsx(),
