@@ -1,6 +1,6 @@
 ==== Profile and Preferences
 
-==== UC-STR-PRF: Profile Management
+==== UC-STR-PRF — Profile Management
 
 #figure(
   table(

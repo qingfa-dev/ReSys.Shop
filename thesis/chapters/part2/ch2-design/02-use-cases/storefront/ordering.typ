@@ -1,6 +1,6 @@
 ==== Cart Management
 
-==== UC-STR-CRT: Manage Cart
+==== UC-STR-CRT — Manage Cart
 
 #figure(
   table(
@@ -63,7 +63,7 @@
 
 ==== Checkout Flow
 
-==== UC-STR-CHK: Checkout
+==== UC-STR-CHK — Checkout
 
 #figure(
   table(
@@ -137,7 +137,7 @@
 
 ==== Order History
 
-==== UC-STR-OHI: Order History
+==== UC-STR-OHI — Order History
 
 #figure(
   table(
