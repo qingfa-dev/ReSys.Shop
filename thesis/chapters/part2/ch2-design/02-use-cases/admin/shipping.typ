@@ -1,6 +1,8 @@
 ==== Shipping Method Configuration
 
-==== UC-ADM-SHP: Manage Shipping
+// Diagram placeholder: Shipping Configuration use case diagram
+
+==== UC-ADM-SHP — Manage Shipping
 
 #figure(
   table(
@@ -60,7 +62,9 @@
 
 ==== Reference Data Management
 
-==== UC-ADM-REF: Manage Reference Data
+// Diagram placeholder: Reference Data use case diagram
+
+==== UC-ADM-REF — Manage Reference Data
 
 #figure(
   table(

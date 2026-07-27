@@ -1,6 +1,8 @@
 ==== Product Management
 
-==== UC-ADM-PROD: Manage Products
+// Diagram placeholder: Product Management
+
+==== UC-ADM-PROD — Manage Products
 
 #figure(
   table(
@@ -65,7 +67,9 @@
 
 ==== Variant and Pricing
 
-==== UC-ADM-VAR: Manage Variants
+// Diagram placeholder: Variant and Pricing use case diagram
+
+==== UC-ADM-VAR — Manage Variants
 
 #figure(
   table(
@@ -131,7 +135,9 @@
 
 ==== Image and Embedding Management
 
-==== UC-ADM-IMG: Manage Images and Embeddings
+// Diagram placeholder: Image and Embedding Management use case diagram
+
+==== UC-ADM-IMG — Manage Images and Embeddings
 
 #figure(
   table(
@@ -191,7 +197,9 @@
 
 ==== Taxonomy and Classification
 
-==== UC-ADM-TAX: Manage Taxonomies and Classification
+// Diagram placeholder: Taxonomy and Classification use case diagram
+
+==== UC-ADM-TAX — Manage Taxonomies and Classification
 
 #figure(
   table(
@@ -250,7 +258,9 @@
 
 ==== Option Type Configuration
 
-==== UC-ADM-OPT: Manage Option Types
+// Diagram placeholder: Option Type Configuration use case diagram
+
+==== UC-ADM-OPT — Manage Option Types
 
 #figure(
   table(

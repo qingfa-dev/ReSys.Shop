@@ -1,6 +1,8 @@
 ==== Stock Location Management
 
-==== UC-ADM-LOC: Manage Stock Locations
+// Diagram placeholder: Stock Location use case diagram
+
+==== UC-ADM-LOC — Manage Stock Locations
 
 #figure(
   table(
@@ -52,7 +54,9 @@
 
 ==== Stock Item Management
 
-==== UC-ADM-STK: Manage Stock
+// Diagram placeholder: Stock Item use case diagram
+
+==== UC-ADM-STK — Manage Stock
 
 #figure(
   table(
