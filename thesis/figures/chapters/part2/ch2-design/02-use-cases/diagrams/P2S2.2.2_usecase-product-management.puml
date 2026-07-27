@@ -1,0 +1,20 @@
+@startuml usecase-product-management
+!include _shared/styles.iuml
+title UC-ADM-PROD: Product Management
+
+actor "Administrator" as Admin
+
+rectangle "Product Management" {
+  usecase "Manage Products\n[UC-ADM-PROD]" as UC_MAIN
+  usecase "Create Product" as UC_SUB_1
+  usecase "Update Product" as UC_SUB_2
+  usecase "Archive Product" as UC_SUB_3
+
+  UC_MAIN ..> UC_SUB_1 : <<include>>
+  UC_MAIN ..> UC_SUB_2 : <<include>>
+  UC_MAIN ..> UC_SUB_3 : <<include>>
+}
+
+Admin --> UC_MAIN
+
+@enduml

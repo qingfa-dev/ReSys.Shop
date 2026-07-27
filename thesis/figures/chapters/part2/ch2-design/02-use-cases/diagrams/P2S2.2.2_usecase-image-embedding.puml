@@ -1,0 +1,20 @@
+@startuml usecase-image-embedding
+!include _shared/styles.iuml
+title UC-ADM-IMG: Image and Embedding Management
+
+actor "Administrator" as Admin
+actor "ML Service" as ML
+
+rectangle "Image and Embedding Management" {
+  usecase "Manage Images\nand Embeddings\n[UC-ADM-IMG]" as UC_MAIN
+  usecase "Upload Images" as UC_SUB_1
+  usecase "Regenerate Embeddings" as UC_SUB_2
+
+  UC_MAIN ..> UC_SUB_1 : <<include>>
+  UC_MAIN ..> UC_SUB_2 : <<include>>
+}
+
+Admin --> UC_MAIN
+ML --> UC_SUB_2
+
+@enduml
