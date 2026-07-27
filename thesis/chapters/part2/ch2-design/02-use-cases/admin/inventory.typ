@@ -1,8 +1,6 @@
 ==== Stock Location Management
 
-// Diagram placeholder: Stock Location use case diagram
-
-==== UC-ADM-LOC — Manage Stock Locations
+==== UC-ADM-LOC: Manage Stock Locations
 
 #figure(
   table(
@@ -44,11 +42,17 @@
   caption: [Manage Stock Locations.],
 )
 
+#figure(
+  image(
+    "../../../../figures/chapters/part2/ch2-design/02-use-cases/diagrams/P2S2.2.2_usecase-stock-location-management.png",
+    width: 100%
+  ),
+  caption: [Use case diagram for Stock Location Management (UC-ADM-LOC).],
+) <fig-uc-adm-loc-d>
+
 ==== Stock Item Management
 
-// Diagram placeholder: Stock Item use case diagram
-
-==== UC-ADM-STK — Manage Stock
+==== UC-ADM-STK: Manage Stock
 
 #figure(
   table(
@@ -117,3 +121,11 @@
     kind: table,
   caption: [Manage Stock.],
 )
+
+#figure(
+  image(
+    "../../../../figures/chapters/part2/ch2-design/02-use-cases/diagrams/P2S2.2.2_usecase-stock-item-management.png",
+    width: 100%
+  ),
+  caption: [Use case diagram for Stock Item Management (UC-ADM-STK).],
+) <fig-uc-adm-stk-d>
