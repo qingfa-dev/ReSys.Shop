@@ -1,0 +1,18 @@
+@startuml usecase-session-management
+!include _shared/styles.iuml
+title UC-STR-SES: Session Management
+
+actor "Customer" as Cust
+
+rectangle "Session Management" {
+  usecase "Session Management\n[UC-STR-SES]" as UC_MAIN
+  usecase "Refresh Session" as UC_REFRESH
+  usecase "Logout" as UC_LOGOUT
+
+  UC_MAIN ..> UC_REFRESH : <<include>>
+  UC_MAIN ..> UC_LOGOUT : <<include>>
+}
+
+Cust --> UC_MAIN
+
+@enduml

@@ -1,0 +1,18 @@
+@startuml usecase-cart-management
+!include _shared/styles.iuml
+title UC-STR-CRT: Cart Management
+
+actor "Customer" as Cust
+
+rectangle "Cart Management" {
+  usecase "Cart Management\n[UC-STR-CRT]" as UC_MAIN
+  usecase "Manage Cart Items" as UC_ITEMS
+  usecase "Associate Cart with Account" as UC_ASSOCIATE
+
+  UC_MAIN ..> UC_ITEMS : <<include>>
+  UC_MAIN ..> UC_ASSOCIATE : <<include>>
+}
+
+Cust --> UC_MAIN
+
+@enduml

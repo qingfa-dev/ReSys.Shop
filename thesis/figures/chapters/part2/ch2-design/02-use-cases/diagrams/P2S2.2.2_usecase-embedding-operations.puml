@@ -1,0 +1,20 @@
+@startuml usecase-embedding-operations
+!include _shared/styles.iuml
+title UC-SYS-EMB: Embedding Operations
+
+actor "System (Background)" as Sys
+actor "ML Service" as ML
+
+rectangle "Embedding Operations" {
+  usecase "Embedding Operations\n[UC-SYS-EMB]" as UC_MAIN
+  usecase "Generate Image\nEmbeddings" as UC_GEN
+  usecase "Regenerate All Embeddings" as UC_REG
+
+  UC_MAIN ..> UC_GEN : <<include>>
+  UC_MAIN ..> UC_REG : <<include>>
+}
+
+Sys --> UC_MAIN
+ML --> UC_GEN
+
+@enduml

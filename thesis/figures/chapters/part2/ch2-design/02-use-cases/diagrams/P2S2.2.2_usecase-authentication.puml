@@ -1,0 +1,29 @@
+@startuml usecase-authentication
+!include _shared/styles.iuml
+title UC-STR-AUT: Authentication
+
+actor "Customer" as Cust
+actor "Email Service" as Email
+actor "Google OAuth" as Google
+
+rectangle "Authentication" {
+  usecase "Authentication\n[UC-STR-AUT]" as UC_MAIN
+  usecase "Register" as UC_REG
+  usecase "Login with Password" as UC_LOGIN
+  usecase "Login with Google" as UC_GOOGLE
+  usecase "Reset Password" as UC_RESET
+  usecase "Change Password" as UC_CHANGE
+
+  UC_MAIN ..> UC_REG : <<include>>
+  UC_MAIN ..> UC_LOGIN : <<include>>
+  UC_MAIN ..> UC_GOOGLE : <<include>>
+  UC_MAIN ..> UC_RESET : <<include>>
+  UC_MAIN ..> UC_CHANGE : <<include>>
+}
+
+Cust --> UC_MAIN
+Email --> UC_REG
+Email --> UC_RESET
+Google --> UC_GOOGLE
+
+@enduml
