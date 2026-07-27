@@ -1,0 +1,20 @@
+@startuml usecase-profile-preferences
+!include _shared/styles.iuml
+title UC-STR-PRF: Profile and Preferences
+
+actor "Customer" as Cust
+
+rectangle "Profile and Preferences" {
+  usecase "Profile and\nPreferences\n[UC-STR-PRF]" as UC_MAIN
+  usecase "Manage Addresses" as UC_ADDR
+  usecase "Manage Wishlists" as UC_WISH
+  usecase "Manage Notification\nPreferences" as UC_NOTIF
+
+  UC_MAIN ..> UC_ADDR : <<include>>
+  UC_MAIN ..> UC_WISH : <<include>>
+  UC_MAIN ..> UC_NOTIF : <<include>>
+}
+
+Cust --> UC_MAIN
+
+@enduml

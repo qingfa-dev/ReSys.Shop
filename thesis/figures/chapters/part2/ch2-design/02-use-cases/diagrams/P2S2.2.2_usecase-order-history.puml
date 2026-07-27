@@ -1,0 +1,20 @@
+@startuml usecase-order-history
+!include _shared/styles.iuml
+title UC-STR-OHI: Order History
+
+actor "Customer" as Cust
+actor "Payment Gateway" as GW
+
+rectangle "Order History" {
+  usecase "Order History\n[UC-STR-OHI]" as UC_MAIN
+  usecase "View Order History" as UC_VIEW
+  usecase "Cancel Order" as UC_CANCEL
+
+  UC_MAIN ..> UC_VIEW : <<include>>
+  UC_MAIN ..> UC_CANCEL : <<include>>
+}
+
+Cust --> UC_MAIN
+GW --> UC_CANCEL
+
+@enduml

@@ -1,0 +1,20 @@
+@startuml usecase-catalog-browsing
+!include _shared/styles.iuml
+title UC-STR-BRW: Catalog Browsing
+
+actor "Customer" as Cust
+
+rectangle "Catalog Browsing" {
+  usecase "Catalog Browsing\n[UC-STR-BRW]" as UC_MAIN
+  usecase "Browse Catalog" as UC_BROWSE
+  usecase "View Product Detail" as UC_DETAIL
+  usecase "Keyword Search" as UC_SEARCH
+
+  UC_MAIN ..> UC_BROWSE : <<include>>
+  UC_MAIN ..> UC_DETAIL : <<include>>
+  UC_MAIN ..> UC_SEARCH : <<include>>
+}
+
+Cust --> UC_MAIN
+
+@enduml

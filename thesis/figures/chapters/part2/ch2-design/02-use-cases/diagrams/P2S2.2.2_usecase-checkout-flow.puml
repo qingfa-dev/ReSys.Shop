@@ -1,0 +1,22 @@
+@startuml usecase-checkout-flow
+!include _shared/styles.iuml
+title UC-STR-CHK: Checkout Flow
+
+actor "Customer" as Cust
+actor "Payment Gateway" as GW
+
+rectangle "Checkout Flow" {
+  usecase "Checkout Flow\n[UC-STR-CHK]" as UC_MAIN
+  usecase "Select Shipping Address" as UC_ADDRESS
+  usecase "Select Shipping Method" as UC_METHOD
+  usecase "Complete Checkout" as UC_COMPLETE
+
+  UC_MAIN ..> UC_ADDRESS : <<include>>
+  UC_MAIN ..> UC_METHOD : <<include>>
+  UC_MAIN ..> UC_COMPLETE : <<include>>
+}
+
+Cust --> UC_MAIN
+GW --> UC_COMPLETE
+
+@enduml

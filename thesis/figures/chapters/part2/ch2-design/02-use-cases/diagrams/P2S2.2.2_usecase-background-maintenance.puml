@@ -1,0 +1,28 @@
+@startuml usecase-background-maintenance
+!include _shared/styles.iuml
+title UC-SYS-MNT: Background Maintenance
+
+actor "System (Background)" as Sys
+actor "ML Service" as ML
+actor "Payment Gateway" as GW
+
+rectangle "Background Maintenance" {
+  usecase "Background\nMaintenance\n[UC-SYS-MNT]" as UC_MAIN
+  usecase "Monitor Service Health" as UC_HEALTH
+  usecase "Expire Abandoned Carts" as UC_CARTS
+  usecase "Release Expired\nReservations" as UC_RES
+  usecase "Process Payment\nWebhooks" as UC_WEB
+  usecase "Maintain Search Index" as UC_INDEX
+
+  UC_MAIN ..> UC_HEALTH : <<include>>
+  UC_MAIN ..> UC_CARTS : <<include>>
+  UC_MAIN ..> UC_RES : <<include>>
+  UC_MAIN ..> UC_WEB : <<include>>
+  UC_MAIN ..> UC_INDEX : <<include>>
+}
+
+Sys --> UC_MAIN
+ML --> UC_INDEX
+GW --> UC_WEB
+
+@enduml

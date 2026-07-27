@@ -1,0 +1,20 @@
+@startuml usecase-stf-payment-processing
+!include _shared/styles.iuml
+title UC-STR-PAY: Payment Processing
+
+actor "Customer" as Cust
+actor "Payment Gateway" as GW
+
+rectangle "Payment Processing" {
+  usecase "Payment Processing\n[UC-STR-PAY]" as UC_MAIN
+  usecase "Create Payment Intent" as UC_INTENT
+  usecase "Confirm Payment" as UC_CONFIRM
+
+  UC_MAIN ..> UC_INTENT : <<include>>
+  UC_MAIN ..> UC_CONFIRM : <<include>>
+}
+
+Cust --> UC_MAIN
+GW --> UC_CONFIRM
+
+@enduml
