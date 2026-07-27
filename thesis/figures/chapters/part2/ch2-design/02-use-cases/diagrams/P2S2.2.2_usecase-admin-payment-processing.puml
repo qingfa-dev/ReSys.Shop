@@ -1,0 +1,25 @@
+@startuml usecase-admin-payment-processing
+!include _shared/styles.iuml
+title UC-ADM-PAY: Payment Processing
+
+actor "Administrator" as Admin
+actor "Payment Gateway" as GW
+
+rectangle "Payment Processing" {
+  usecase "Manage Payments\n[UC-ADM-PAY]" as UC_MAIN
+  usecase "Capture Payment" as UC_SUB_1
+  usecase "Refund Payment" as UC_SUB_2
+  usecase "Void Payment" as UC_SUB_3
+  usecase "View Payments" as UC_SUB_4
+
+  UC_MAIN ..> UC_SUB_1 : <<include>>
+  UC_MAIN ..> UC_SUB_2 : <<include>>
+  UC_MAIN ..> UC_SUB_3 : <<include>>
+  UC_MAIN ..> UC_SUB_4 : <<include>>
+}
+
+Admin --> UC_MAIN
+GW --> UC_SUB_1
+GW --> UC_SUB_2
+
+@enduml

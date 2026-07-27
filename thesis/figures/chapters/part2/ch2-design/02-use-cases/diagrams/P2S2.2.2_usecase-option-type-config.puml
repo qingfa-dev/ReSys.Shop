@@ -1,0 +1,13 @@
+@startuml usecase-option-type-config
+!include _shared/styles.iuml
+title UC-ADM-OPT: Option Type Configuration
+
+actor "Administrator" as Admin
+
+rectangle "Option Type Configuration" {
+  usecase "Manage Option Types\n[UC-ADM-OPT]" as UC_MAIN
+}
+
+Admin --> UC_MAIN
+
+@enduml

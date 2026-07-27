@@ -1,0 +1,31 @@
+@startuml usecase-order-lifecycle
+!include _shared/styles.iuml
+title UC-ADM-ORD / UC-ADM-ORD-ITEMS: Order Lifecycle
+
+actor "Administrator" as Admin
+actor "Payment Gateway" as GW
+
+rectangle "Order Lifecycle" {
+  usecase "Manage Orders\n[UC-ADM-ORD]" as UC_MAIN
+  usecase "View Orders" as UC_SUB_1
+  usecase "Update Order" as UC_SUB_2
+  usecase "Approve Order" as UC_SUB_3
+  usecase "Complete Order" as UC_SUB_4
+  usecase "Cancel Order" as UC_SUB_5
+  usecase "Resume Order" as UC_SUB_6
+
+  usecase "Manage Order Items\n[UC-ADM-ORD-ITEMS]" as UC_ITEM
+
+  UC_MAIN ..> UC_SUB_1 : <<include>>
+  UC_MAIN ..> UC_SUB_2 : <<include>>
+  UC_MAIN ..> UC_SUB_3 : <<include>>
+  UC_MAIN ..> UC_SUB_4 : <<include>>
+  UC_MAIN ..> UC_SUB_5 : <<include>>
+  UC_MAIN ..> UC_SUB_6 : <<include>>
+}
+
+Admin --> UC_MAIN
+Admin --> UC_ITEM
+GW --> UC_SUB_4
+
+@enduml

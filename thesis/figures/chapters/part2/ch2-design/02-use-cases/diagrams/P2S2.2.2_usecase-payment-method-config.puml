@@ -1,0 +1,13 @@
+@startuml usecase-payment-method-config
+!include _shared/styles.iuml
+title UC-ADM-PAY-METHOD: Payment Method Configuration
+
+actor "Administrator" as Admin
+
+rectangle "Payment Method Configuration" {
+  usecase "Manage Payment Methods\n[UC-ADM-PAY-METHOD]" as UC_MAIN
+}
+
+Admin --> UC_MAIN
+
+@enduml

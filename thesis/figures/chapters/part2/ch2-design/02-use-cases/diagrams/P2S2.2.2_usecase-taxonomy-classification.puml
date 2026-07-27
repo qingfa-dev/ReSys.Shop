@@ -1,0 +1,18 @@
+@startuml usecase-taxonomy-classification
+!include _shared/styles.iuml
+title UC-ADM-TAX: Taxonomy and Classification
+
+actor "Administrator" as Admin
+
+rectangle "Taxonomy and Classification" {
+  usecase "Manage Taxonomies\nand Classification\n[UC-ADM-TAX]" as UC_MAIN
+  usecase "Manage Taxonomies" as UC_SUB_1
+  usecase "Classify Products" as UC_SUB_2
+
+  UC_MAIN ..> UC_SUB_1 : <<include>>
+  UC_MAIN ..> UC_SUB_2 : <<include>>
+}
+
+Admin --> UC_MAIN
+
+@enduml
