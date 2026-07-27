@@ -1,8 +1,6 @@
 ==== Cart Management
 
-// Diagram placeholder: Cart Management use case diagram
-
-==== UC-STR-CRT — Manage Cart
+==== UC-STR-CRT: Manage Cart
 
 #figure(
   table(
@@ -55,11 +53,17 @@
   caption: [Manage Cart.],
 )
 
+#figure(
+  image(
+    "../../../../figures/chapters/part2/ch2-design/02-use-cases/diagrams/P2S2.2.2_usecase-cart-management.png",
+    width: 100%
+  ),
+  caption: [Use case diagram for Cart Management (UC-STR-CRT).],
+) <fig-uc-str-crt-d>
+
 ==== Checkout Flow
 
-// Diagram placeholder: Checkout Flow use case diagram
-
-==== UC-STR-CHK — Checkout
+==== UC-STR-CHK: Checkout
 
 #figure(
   table(
@@ -123,11 +127,17 @@
   caption: [Checkout.],
 )
 
+#figure(
+  image(
+    "../../../../figures/chapters/part2/ch2-design/02-use-cases/diagrams/P2S2.2.2_usecase-checkout-flow.png",
+    width: 100%
+  ),
+  caption: [Use case diagram for Checkout Flow (UC-STR-CHK).],
+) <fig-uc-str-chk-d>
+
 ==== Order History
 
-// Diagram placeholder: Order History use case diagram
-
-==== UC-STR-OHI — Order History
+==== UC-STR-OHI: Order History
 
 #figure(
   table(
@@ -174,3 +184,11 @@
     kind: table,
   caption: [Order History.],
 )
+
+#figure(
+  image(
+    "../../../../figures/chapters/part2/ch2-design/02-use-cases/diagrams/P2S2.2.2_usecase-order-history.png",
+    width: 100%
+  ),
+  caption: [Use case diagram for Order History (UC-STR-OHI).],
+) <fig-uc-str-ohi-d>

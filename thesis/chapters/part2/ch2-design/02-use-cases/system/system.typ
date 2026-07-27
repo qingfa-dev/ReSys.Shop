@@ -1,8 +1,6 @@
 ==== Embedding Operations
 
-// Diagram placeholder: Embedding Operations use case diagram
-
-==== UC-SYS-EMB — Embedding Operations
+==== UC-SYS-EMB: Embedding Operations
 
 #figure(
   table(
@@ -59,11 +57,17 @@
   caption: [Embedding Operations.],
 )
 
+#figure(
+  image(
+    "../../../../figures/chapters/part2/ch2-design/02-use-cases/diagrams/P2S2.2.2_usecase-embedding-operations.png",
+    width: 100%
+  ),
+  caption: [Use case diagram for Embedding Operations (UC-SYS-EMB).],
+) <fig-uc-sys-emb-d>
+
 ==== Background Maintenance
 
-// Diagram placeholder: Background Maintenance use case diagram
-
-==== UC-SYS-MNT — System Maintenance
+==== UC-SYS-MNT: System Maintenance
 
 #figure(
   table(
@@ -137,3 +141,11 @@
     kind: table,
   caption: [System Maintenance.],
 )
+
+#figure(
+  image(
+    "../../../../figures/chapters/part2/ch2-design/02-use-cases/diagrams/P2S2.2.2_usecase-background-maintenance.png",
+    width: 100%
+  ),
+  caption: [Use case diagram for Background Maintenance (UC-SYS-MNT).],
+) <fig-uc-sys-mnt-d>
