@@ -1,6 +1,13 @@
 ==== Shipping Method Configuration
 
 // Diagram placeholder: Shipping Configuration use case diagram
+#figure(
+  image(
+    "../../../../../figures/chapters/part2/ch2-design/02-use-cases/diagrams/P2S2.2.2_usecase-shipping-method.png",
+    width: 100%
+  ),
+  caption: [Use case diagram for Shipping Method Configuration (UC-ADM-SHP).],
+) <fig-uc-adm-shp-d>
 
 ==== UC-ADM-SHP — Manage Shipping
 
@@ -52,17 +59,16 @@
   caption: [Manage Shipping.],
 )
 
-#figure(
-  image(
-    "../../../../../figures/chapters/part2/ch2-design/02-use-cases/diagrams/P2S2.2.2_usecase-shipping-method.png",
-    width: 100%
-  ),
-  caption: [Use case diagram for Shipping Method Configuration (UC-ADM-SHP).],
-) <fig-uc-adm-shp-d>
-
 ==== Reference Data Management
 
 // Diagram placeholder: Reference Data use case diagram
+#figure(
+  image(
+    "../../../../../figures/chapters/part2/ch2-design/02-use-cases/diagrams/P2S2.2.2_usecase-reference-data.png",
+    width: 100%
+  ),
+  caption: [Use case diagram for Reference Data Management (UC-ADM-REF).],
+) <fig-uc-adm-ref-d>
 
 ==== UC-ADM-REF — Manage Reference Data
 
@@ -113,11 +119,3 @@
     kind: table,
   caption: [Manage Reference Data.],
 )
-
-#figure(
-  image(
-    "../../../../../figures/chapters/part2/ch2-design/02-use-cases/diagrams/P2S2.2.2_usecase-reference-data.png",
-    width: 100%
-  ),
-  caption: [Use case diagram for Reference Data Management (UC-ADM-REF).],
-) <fig-uc-adm-ref-d>

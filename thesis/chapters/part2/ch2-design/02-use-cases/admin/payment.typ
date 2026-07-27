@@ -1,6 +1,13 @@
 ==== Payment Processing
 
 // Diagram placeholder: Payment Processing use case diagram
+#figure(
+  image(
+    "../../../../../figures/chapters/part2/ch2-design/02-use-cases/diagrams/P2S2.2.2_usecase-admin-payment-processing.png",
+    width: 100%
+  ),
+  caption: [Use case diagram for Payment Processing (UC-ADM-PAY).],
+) <fig-uc-adm-pay-d>
 
 ==== UC-ADM-PAY — Manage Payments
 
@@ -60,17 +67,16 @@
   caption: [Manage Payments.],
 )
 
-#figure(
-  image(
-    "../../../../../figures/chapters/part2/ch2-design/02-use-cases/diagrams/P2S2.2.2_usecase-admin-payment-processing.png",
-    width: 100%
-  ),
-  caption: [Use case diagram for Payment Processing (UC-ADM-PAY).],
-) <fig-uc-adm-pay-d>
-
 ==== Payment Method Configuration
 
 // Diagram placeholder: Payment Method Configuration use case diagram
+#figure(
+  image(
+    "../../../../../figures/chapters/part2/ch2-design/02-use-cases/diagrams/P2S2.2.2_usecase-payment-method-config.png",
+    width: 100%
+  ),
+  caption: [Use case diagram for Payment Method Configuration (UC-ADM-PAY-METHOD).],
+) <fig-uc-adm-paym-d>
 
 ==== UC-ADM-PAY-METHOD — Manage Payment Methods
 
@@ -112,11 +118,3 @@
     kind: table,
   caption: [Manage Payment Methods.],
 )
-
-#figure(
-  image(
-    "../../../../../figures/chapters/part2/ch2-design/02-use-cases/diagrams/P2S2.2.2_usecase-payment-method-config.png",
-    width: 100%
-  ),
-  caption: [Use case diagram for Payment Method Configuration (UC-ADM-PAY-METHOD).],
-) <fig-uc-adm-paym-d>

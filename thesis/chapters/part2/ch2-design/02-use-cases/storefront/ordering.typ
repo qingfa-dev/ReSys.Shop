@@ -1,4 +1,11 @@
 ==== Cart Management
+#figure(
+  image(
+    "../../../../../figures/chapters/part2/ch2-design/02-use-cases/diagrams/P2S2.2.2_usecase-cart-management.png",
+    width: 100%
+  ),
+  caption: [Use case diagram for Cart Management (UC-STR-CRT).],
+) <fig-uc-str-crt-d>
 
 ==== UC-STR-CRT — Manage Cart
 
@@ -53,15 +60,14 @@
   caption: [Manage Cart.],
 )
 
+==== Checkout Flow
 #figure(
   image(
-    "../../../../../figures/chapters/part2/ch2-design/02-use-cases/diagrams/P2S2.2.2_usecase-cart-management.png",
+    "../../../../../figures/chapters/part2/ch2-design/02-use-cases/diagrams/P2S2.2.2_usecase-checkout-flow.png",
     width: 100%
   ),
-  caption: [Use case diagram for Cart Management (UC-STR-CRT).],
-) <fig-uc-str-crt-d>
-
-==== Checkout Flow
+  caption: [Use case diagram for Checkout Flow (UC-STR-CHK).],
+) <fig-uc-str-chk-d>
 
 ==== UC-STR-CHK — Checkout
 
@@ -127,15 +133,14 @@
   caption: [Checkout.],
 )
 
+==== Order History
 #figure(
   image(
-    "../../../../../figures/chapters/part2/ch2-design/02-use-cases/diagrams/P2S2.2.2_usecase-checkout-flow.png",
+    "../../../../../figures/chapters/part2/ch2-design/02-use-cases/diagrams/P2S2.2.2_usecase-order-history.png",
     width: 100%
   ),
-  caption: [Use case diagram for Checkout Flow (UC-STR-CHK).],
-) <fig-uc-str-chk-d>
-
-==== Order History
+  caption: [Use case diagram for Order History (UC-STR-OHI).],
+) <fig-uc-str-ohi-d>
 
 ==== UC-STR-OHI — Order History
 
@@ -184,11 +189,3 @@
     kind: table,
   caption: [Order History.],
 )
-
-#figure(
-  image(
-    "../../../../../figures/chapters/part2/ch2-design/02-use-cases/diagrams/P2S2.2.2_usecase-order-history.png",
-    width: 100%
-  ),
-  caption: [Use case diagram for Order History (UC-STR-OHI).],
-) <fig-uc-str-ohi-d>

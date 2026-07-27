@@ -1,4 +1,11 @@
 ==== Embedding Operations
+#figure(
+  image(
+    "../../../../../figures/chapters/part2/ch2-design/02-use-cases/diagrams/P2S2.2.2_usecase-embedding-operations.png",
+    width: 100%
+  ),
+  caption: [Use case diagram for Embedding Operations (UC-SYS-EMB).],
+) <fig-uc-sys-emb-d>
 
 ==== UC-SYS-EMB — Embedding Operations
 
@@ -57,15 +64,14 @@
   caption: [Embedding Operations.],
 )
 
+==== Background Maintenance
 #figure(
   image(
-    "../../../../../figures/chapters/part2/ch2-design/02-use-cases/diagrams/P2S2.2.2_usecase-embedding-operations.png",
+    "../../../../../figures/chapters/part2/ch2-design/02-use-cases/diagrams/P2S2.2.2_usecase-background-maintenance.png",
     width: 100%
   ),
-  caption: [Use case diagram for Embedding Operations (UC-SYS-EMB).],
-) <fig-uc-sys-emb-d>
-
-==== Background Maintenance
+  caption: [Use case diagram for Background Maintenance (UC-SYS-MNT).],
+) <fig-uc-sys-mnt-d>
 
 ==== UC-SYS-MNT — System Maintenance
 
@@ -141,11 +147,3 @@
     kind: table,
   caption: [System Maintenance.],
 )
-
-#figure(
-  image(
-    "../../../../../figures/chapters/part2/ch2-design/02-use-cases/diagrams/P2S2.2.2_usecase-background-maintenance.png",
-    width: 100%
-  ),
-  caption: [Use case diagram for Background Maintenance (UC-SYS-MNT).],
-) <fig-uc-sys-mnt-d>
