@@ -1,4 +1,9 @@
 @startuml usecase-profile-preferences
+left to right direction
+skinparam padding 8
+skinparam nodesep 40
+skinparam ranksep 40
+
 !include _shared/styles.iuml
 title UC-STR-PRF: Profile and Preferences
 

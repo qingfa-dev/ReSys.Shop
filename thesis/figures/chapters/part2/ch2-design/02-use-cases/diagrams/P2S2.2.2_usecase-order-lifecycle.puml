@@ -1,4 +1,9 @@
 @startuml usecase-order-lifecycle
+left to right direction
+skinparam padding 8
+skinparam nodesep 40
+skinparam ranksep 40
+
 !include _shared/styles.iuml
 title UC-ADM-ORD / UC-ADM-ORD-ITEMS: Order Lifecycle
 

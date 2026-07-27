@@ -1,4 +1,9 @@
 @startuml usecase-user-management
+left to right direction
+skinparam padding 8
+skinparam nodesep 40
+skinparam ranksep 40
+
 !include _shared/styles.iuml
 title UC-ADM-USR: User Management
 
