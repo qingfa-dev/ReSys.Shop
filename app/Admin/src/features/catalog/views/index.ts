@@ -1,0 +1,6 @@
+export { default as ProductsList } from './ProductsList.vue'
+export { default as ProductDetail } from './ProductDetail.vue'
+export { default as TaxonomiesList } from './TaxonomiesList.vue'
+export { default as TaxonomyDetail } from './TaxonomyDetail.vue'
+export { default as OptionTypesList } from './OptionTypesList.vue'
+export { default as OptionTypeDetail } from './OptionTypeDetail.vue'

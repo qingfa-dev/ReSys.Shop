@@ -1,0 +1,8 @@
+export { default as StockItemsList } from './StockItemsList.vue'
+export { default as StockItemDetail } from './StockItemDetail.vue'
+export { default as StockLocationsList } from './StockLocationsList.vue'
+export { default as StockLocationDetail } from './StockLocationDetail.vue'
+export { default as StockReservationsList } from './StockReservationsList.vue'
+export { default as StockTransfersList } from './StockTransfersList.vue'
+export { default as StockTransferDetail } from './StockTransferDetail.vue'
+export { default as StockMovementsList } from './StockMovementsList.vue'
