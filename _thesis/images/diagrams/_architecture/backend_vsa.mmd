@@ -1,0 +1,27 @@
+graph TD
+    %% Styles
+    classDef slice fill:#e6f7ff,stroke:#1890ff,stroke-width:2px;
+    classDef layer fill:#fff7e6,stroke:#fa8c16,stroke-width:2px;
+    classDef db fill:#f6ffed,stroke:#52c41a,stroke-width:2px;
+
+    subgraph "Traditional Layered"
+        L1[Controller Layer]:::layer
+        L2[Service Layer]:::layer
+        L3[Data Access Layer]:::layer
+        L1 --> L2 --> L3
+    end
+
+    subgraph "Vertical Slice Architecture"
+        direction TB
+        subgraph "Feature: Place Order"
+            F1[Request]:::slice --> F2[Handler]:::slice --> F3[Data Access]:::slice
+        end
+        subgraph "Feature: Get Catalog"
+            F4[Request]:::slice --> F5[Handler]:::slice --> F6[Data Access]:::slice
+        end
+    end
+
+    %% Database connections
+    L3 --> DB1[(Database)]:::db
+    F3 --> DB2[(Database)]:::db
+    F6 --> DB2

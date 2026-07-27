@@ -1,0 +1,88 @@
+﻿@startuml uc-0001
+left to right direction
+actor Customer
+rectangle "ReSys.Shop Storefront" {
+    usecase "UC-0001: Visual Search\nby Image Upload" as UC1
+    usecase "UC-0016: Generate\nSearch Vectors" as UC16
+}
+Customer --> UC1
+UC1 ..> UC16 : <<include>>
+@enduml
+
+@startuml uc-0002
+left to right direction
+actor Customer
+rectangle "ReSys.Shop Storefront" {
+    usecase "UC-0002: Perform\nMulti-step Checkout" as UC2
+    usecase "UC-0005: Manage Cart" as UC5
+    usecase "UC-0017: Stock Reservation" as UC17
+}
+Customer --> UC2
+UC2 ..> UC5 : <<precondition>>
+UC2 ..> UC17 : <<include>>
+@enduml
+
+@startuml uc-0003
+left to right direction
+actor Customer
+rectangle "ReSys.Shop Storefront" {
+    usecase "UC-0003: Keyword Search\nand Browsing" as UC3
+    usecase "UC-0011: Taxonomy\nNavigation" as UC11
+}
+Customer --> UC3
+UC3 ..> UC11 : <<use>>
+@enduml
+
+@startuml uc-0004
+left to right direction
+actor Customer
+rectangle "ReSys.Shop Storefront" {
+    usecase "UC-0004: Style-Based\nRecommendations" as UC4
+    usecase "UC-0016: AI Embeddings" as UC16
+}
+Customer --> UC4
+UC4 ..> UC16 : <<use>>
+@enduml
+
+@startuml uc-0005
+left to right direction
+actor Customer
+rectangle "ReSys.Shop Storefront" {
+    usecase "UC-0005: Manage\nShopping Cart" as UC5
+    usecase "UC-0002: Checkout" as UC2
+}
+Customer --> UC5
+UC5 <.. UC2 : <<extends>>
+@enduml
+
+@startuml uc-0006
+left to right direction
+actor Customer
+rectangle "ReSys.Shop Storefront" {
+    usecase "UC-0006: Track\nOrder Status" as UC6
+    usecase "UC-0002: Place Order" as UC2
+}
+Customer --> UC6
+UC6 --> UC2 : <<trace>>
+@enduml
+
+@startuml uc-0007
+left to right direction
+actor Customer
+rectangle "ReSys.Shop Storefront" {
+    usecase "UC-0007: Manage\nAddress Book" as UC7
+    usecase "UC-0002: Checkout" as UC2
+}
+Customer --> UC7
+UC2 ..> UC7 : <<use>>
+@enduml
+
+@startuml uc-0008
+left to right direction
+actor Customer
+rectangle "ReSys.Shop Storefront" {
+    usecase "UC-0008: Update\nProfile Info" as UC8
+}
+Customer --> UC8
+@enduml
+

@@ -1,0 +1,23 @@
+%%{init: {'theme': 'base', 'themeVariables': { 'fontSize': '32px', 'fontFamily': 'arial', 'primaryColor': '#ffffff', 'edgeLabelBackground':'#ffffff', 'tertiaryColor': '#ffffff' }}}%%
+graph TB
+    A[Input Image 224×224×3] --> B[Stem Conv Layer]
+    B --> C[MBConv Blocks]
+    
+    C --> D[Block 1: Depth]
+    D --> E[Block 2: Width]
+    E --> F[Block 3: Resolution]
+    
+    F --> G[Compound Scaling]
+    G --> H[Global Average Pooling]
+    H --> I[Feature Vector 1280-dim]
+    
+    J[Strong Inductive Bias] -.-> C
+    K[Locality + Translation Invariance] -.-> J
+    
+    L[Efficient Feature Capture] -.-> F
+    M[Low/Mid/High-level features] -.-> L
+    
+    N[Production Baseline] -.-> I
+    
+
+    %% Styles Removed for Academic Theme

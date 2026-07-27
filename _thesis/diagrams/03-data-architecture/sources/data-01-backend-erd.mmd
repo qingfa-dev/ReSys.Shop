@@ -1,0 +1,243 @@
+%%{init: {'theme': 'base', 'themeVariables': { 'fontSize': '24px', 'fontFamily': 'arial'}}}%%
+erDiagram
+    %% ============================================
+    %% CATALOG BOUNDED CONTEXT
+    %% ============================================
+    
+    products {
+        uuid id PK
+        string name "NOT NULL"
+        string slug "UNIQUE, NOT NULL"
+        text description "NULL"
+        enum status "draft, active, archived"
+        timestamp created_at "NOT NULL"
+    }
+    
+    variants {
+        uuid id PK
+        uuid product_id FK
+        string sku "UNIQUE"
+        decimal price
+        boolean is_master
+    }
+    
+    product_images {
+        uuid id PK
+        uuid product_id FK
+        string url
+        enum role
+        int position
+    }
+    
+    product_properties {
+        uuid product_id FK
+        uuid property_type_id FK
+        string value
+    }
+    
+    classifications {
+        uuid product_id FK
+        uuid taxon_id FK
+        int position
+    }
+    
+    taxonomies {
+        uuid id PK
+        string name
+        string slug
+    }
+    
+    taxons {
+        uuid id PK
+        uuid taxonomy_id FK
+        uuid parent_id FK
+        string name
+    }
+    
+    property_types {
+        uuid id PK
+        string name
+        string presentation
+    }
+    
+    %% ============================================
+    %% ORDERING BOUNDED CONTEXT
+    %% ============================================
+    
+    orders {
+        uuid id PK
+        string number "UNIQUE"
+        enum state
+        bigint total_cents
+        string user_id FK
+        uuid ship_to_id FK
+        uuid bill_to_id FK
+        timestamp created_at
+    }
+    
+    line_items {
+        uuid id PK
+        uuid order_id FK
+        uuid variant_id FK
+        int quantity
+        bigint price_cents
+    }
+    
+    payments {
+        uuid id PK
+        uuid order_id FK
+        bigint amount_cents
+        enum state
+    }
+    
+    shipments {
+        uuid id PK
+        uuid order_id FK
+        string tracking_number
+        enum state
+    }
+    
+    inventory_units {
+        uuid id PK
+        uuid variant_id FK
+        uuid line_item_id FK
+        uuid stock_item_id FK
+        uuid order_id FK
+        uuid shipment_id FK
+        enum state
+    }
+    
+    order_histories {
+        uuid id PK
+        uuid order_id FK
+        string event
+        timestamp occurred_at
+    }
+    
+    %% ============================================
+    %% INVENTORY BOUNDED CONTEXT
+    %% ============================================
+    
+    stock_items {
+        uuid id PK
+        uuid variant_id FK
+        uuid stock_location_id FK
+        string sku
+        int count_on_hand
+        int count_reserved
+    }
+    
+    stock_locations {
+        uuid id PK
+        string name
+        string code
+        boolean is_active
+    }
+    
+    stock_movements {
+        uuid id PK
+        uuid stock_item_id FK
+        int quantity
+        enum type
+    }
+    
+    stock_transfers {
+        uuid id PK
+        uuid source_id FK
+        uuid dest_id FK
+        int quantity
+        enum status
+    }
+    
+    %% ============================================
+    %% IDENTITY BOUNDED CONTEXT
+    %% ============================================
+    
+    users {
+        string id PK
+        string email
+        string username
+        string password_hash
+    }
+    
+    user_addresses {
+        uuid id PK
+        string user_id FK
+        string street
+        string city
+        string country
+    }
+    
+    roles {
+        string id PK
+        string name
+    }
+    
+    user_roles {
+        string user_id FK
+        string role_id FK
+    }
+    
+    refresh_tokens {
+        uuid id PK
+        string user_id FK
+        string token
+        timestamp expires_at
+    }
+    
+    customer_profiles {
+        string user_id PK
+        decimal loyalty_points
+    }
+    
+    staff_profiles {
+        string user_id PK
+        string employee_id
+        string department
+    }
+    
+    %% ============================================
+    %% ML CONTEXT
+    %% ============================================
+    
+    image_embeddings {
+        uuid id PK
+        uuid product_image_id FK
+        string model_name
+        vector embedding
+    }
+    
+    %% RELATIONSHIPS
+    products ||--o{ variants : "has"
+    products ||--o{ product_images : "has"
+    products ||--o{ product_properties : "has"
+    products ||--o{ classifications : "in"
+    taxonomies ||--o{ taxons : "has"
+    taxons ||--o{ classifications : "groups"
+    property_types ||--o{ product_properties : "defines"
+    
+    orders ||--o{ line_items : "contains"
+    orders ||--o{ payments : "has"
+    orders ||--o{ shipments : "has"
+    orders ||--o{ inventory_units : "reserves"
+    orders ||--o{ order_histories : "tracks"
+    users ||--o{ orders : "places"
+    
+    line_items }|--|| variants : "references"
+    inventory_units }|--|| variants : "tracks"
+    inventory_units }|--|| shipments : "in"
+    
+    stock_locations ||--o{ stock_items : "stores"
+    stock_locations ||--o{ stock_transfers : "from"
+    stock_locations ||--o{ stock_transfers : "to"
+    stock_items ||--|| variants : "tracks"
+    stock_items ||--o{ stock_movements : "history"
+    
+    users ||--o{ user_addresses : "has"
+    users ||--o{ user_roles : "assigned"
+    users ||--o{ refresh_tokens : "has"
+    users ||--|| customer_profiles : "profile"
+    users ||--|| staff_profiles : "profile"
+    roles ||--o{ user_roles : "has"
+    
+    product_images ||--o{ image_embeddings : "vectors"

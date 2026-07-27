@@ -1,0 +1,45 @@
+﻿@startuml uc-0016
+left to right direction
+actor "Background Job" as Sys
+rectangle "ReSys.ML System" {
+    usecase "UC-0016: Generate\nAI Search Vectors" as UC16
+    usecase "UC-0009: Detect Pending" as UC9
+}
+Sys --> UC16
+UC16 ..> UC9 : <<observe>>
+@enduml
+
+@startuml uc-0017
+left to right direction
+actor "Checkout Transaction" as Sys
+rectangle "Inventory Core" {
+    usecase "UC-0017: Automatic\nStock Reservation" as UC17
+    usecase "UC-0012: Check Levels" as UC12
+}
+Sys --> UC17
+UC17 ..> UC12 : <<include>>
+@enduml
+
+@startuml uc-0018
+left to right direction
+actor "Fulfillment Service" as Sys
+rectangle "Logistics Core" {
+    usecase "UC-0018: Fulfillment\nLogic" as UC18
+    usecase "UC-0013: Shipment" as UC13
+}
+Sys --> UC18
+UC18 <.. UC13 : <<invoke>>
+@enduml
+
+@startuml uc-0019
+left to right direction
+actor "Dashboard Loader" as Sys
+rectangle "Analytical Core" {
+    usecase "UC-0019: Low Stock\nIndicators" as UC19
+    usecase "UC-0012: Inventory" as UC12
+}
+Sys --> UC19
+UC19 ..> UC12 : <<query>>
+@enduml
+
+

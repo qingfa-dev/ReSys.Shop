@@ -1,0 +1,51 @@
+@startuml
+!include ../_shared/sequence-styles.iuml
+
+title SQ-0010: Admin Image Upload (Local Storage)
+autonumber
+
+actor "Admin" as Admin <<Content Manager>>
+participant "Admin Portal" as Portal <<UI Layer>>
+participant "API Gateway" as API <<Orchestrator>>
+participant "Shared Volume\n(Local Disk)" as Disk <<File System>>
+database "PostgreSQL" as DB <<Metadata>>
+participant "Mediator\n(In-Process)" as Bus <<Event Bus>>
+
+Admin -> Portal: Select Product Images
+activate Portal
+    Portal -> API: POST /api/admin/products/101/images
+    activate API
+        
+        loop For Each Image
+            API -> API: Validate(Format, Size)
+            
+            ' ─── Step 1: Disk I/O ────────────────────────────
+            API -> Disk: SaveFileAsync(Stream, Path)
+            activate Disk
+                note right of Disk
+                    File.WriteAsync()
+                    Path: /app/uploads/{product_id}/
+                end note
+            Disk --> API: FilePath
+            deactivate Disk
+            
+            ' ─── Step 2: Metadata ────────────────────────────
+            API -> DB: Insert Image Record (Path)
+            activate DB
+            DB --> API: ImageID
+            deactivate DB
+            
+            ' ─── Step 3: Trigger Vectorization ────────────────
+            API -> Bus: Publish(ImageUploaded Event)
+            activate Bus
+            Bus --> API: Ack
+            deactivate Bus
+        end
+        
+        API --> Portal: Upload Success
+    deactivate API
+    
+    Portal --> Admin: Show Images (Processing...)
+deactivate Portal
+
+@enduml

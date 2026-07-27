@@ -1,0 +1,21 @@
+@startuml
+!include ../_shared/styles.iuml
+title UC-0016: Background Embedding
+
+rectangle "System Process" {
+    usecase "New Image Event" as Event
+    usecase "Process Image" as Process
+    usecase "Save Vector" as Save
+}
+
+rectangle "Components" {
+    usecase "ML Service" as ML <<Core>>
+    usecase "Vector DB" as DB <<System>>
+}
+
+Event --> Process
+Process ..> ML : <<include>>
+Process ..> Save : <<include>>
+Save ..> DB : <<include>>
+
+@enduml

@@ -1,0 +1,65 @@
+%%{init: {'theme': 'base', 'themeVariables': { 'fontSize': '20px', 'fontFamily': 'arial'}}}%%
+erDiagram
+    products {
+        uuid id PK
+        string name
+        string slug
+        enum status
+        timestamp created_at
+    }
+    
+    variants {
+        uuid id PK
+        uuid product_id FK
+        string sku
+        decimal price
+        boolean is_master
+    }
+    
+    product_images {
+        uuid id PK
+        uuid product_id FK
+        string url
+        enum role
+        int position
+    }
+    
+    product_properties {
+        uuid product_id FK
+        uuid property_type_id FK
+        string value
+    }
+    
+    classifications {
+        uuid product_id FK
+        uuid taxon_id FK
+        int position
+    }
+    
+    taxonomies {
+        uuid id PK
+        string name
+        string slug
+    }
+    
+    taxons {
+        uuid id PK
+        uuid taxonomy_id FK
+        uuid parent_id FK
+        string name
+    }
+    
+    property_types {
+        uuid id PK
+        string name
+        string presentation
+    }
+
+    products ||--o{ variants : "has"
+    products ||--o{ product_images : "has"
+    products ||--o{ product_properties : "has"
+    products ||--o{ classifications : "in_category"
+    taxonomies ||--o{ taxons : "contains"
+    taxons ||--o{ taxons : "parent_of"
+    taxons ||--o{ classifications : "groups"
+    property_types ||--o{ product_properties : "defines"

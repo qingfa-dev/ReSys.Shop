@@ -1,0 +1,44 @@
+%%{init: {'theme': 'base', 'themeVariables': { 'fontSize': '32px', 'fontFamily': 'arial', 'primaryColor': '#ffffff', 'edgeLabelBackground':'#ffffff', 'tertiaryColor': '#ffffff' }}}%%
+graph TB
+    subgraph FeaturePipeline ["Feature Extraction Pipeline"]
+        A["Product Images"] --> B["EfficientNet-B0<br/>CNN Features"]
+        A --> C["DINOv2<br/>Structural Features"]
+        A --> D["Fashion-CLIP<br/>Semantic Features"]
+        A --> E["CLIP ViT-B/16<br/>General Features"]
+    end
+    
+    B --> F["High-Dimensional Vectors<br/>512-768 dimensions"]
+    C --> F
+    D --> F
+    E --> F
+    
+    F --> G["PostgreSQL + pgvector"]
+    
+    subgraph HNSWStructure ["HNSW Index Structure"]
+        direction TB
+        G --> H["Layer 2<br/>Sparse Long-range Connections"]
+        H --> I["Layer 1<br/>Medium-density Connections"]
+        I --> J["Layer 0<br/>Dense Local Connections<br/>All vectors stored here"]
+        
+        K["Query Vector"] --> H
+        H -.Navigate Down.-> I
+        I -.Refine Search.-> J
+        J --> L["Top-K Nearest Neighbors"]
+    end
+    
+    subgraph Performance ["Search Performance"]
+        L --> M{Use Case}
+        M -->|Visual Similarity| N["EfficientNet/DINOv2<br/>Exact visual match"]
+        M -->|Semantic Search| O["Fashion-CLIP<br/>Concept-based search"]
+        M -->|Recommendation| P["CLIP ViT-B/16<br/>Style discovery"]
+        
+        N --> Q["Results in < 100ms"]
+        O --> Q
+        P --> Q
+    end
+    
+    R["Approximate Nearest Neighbor<br/>Trade accuracy for speed"] -.-> J
+    S["Scalable to 1000s+ items"] -.-> G
+    
+
+    %% Styles Removed for Academic Theme

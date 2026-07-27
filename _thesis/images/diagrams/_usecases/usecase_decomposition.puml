@@ -1,0 +1,79 @@
+﻿@startuml usecase_decomposition
+left to right direction
+skinparam packageStyle rectangle
+
+actor Customer
+actor Admin
+actor "System\n(Automated)" as Sys
+
+package "ReSys.Shop Storefront" {
+    package "Search & Discovery" {
+        usecase "UC-0001: Visual Search" as UC1
+        usecase "UC-0003: Keyword Search" as UC3
+        usecase "UC-0004: Recommendations" as UC4
+    }
+    package "Commerce" {
+        usecase "UC-0002: Checkout" as UC2
+        usecase "UC-0005: Shopping Cart" as UC5
+        usecase "UC-0006: Order Tracking" as UC6
+    }
+    package "Profile" {
+        usecase "UC-0007: Addresses" as UC7
+        usecase "UC-0008: User Profile" as UC8
+    }
+}
+
+package "ReSys.Admin Panel" {
+    package "Catalog Management" {
+        usecase "UC-0009: Image Upload" as UC9
+        usecase "UC-0010: Product Management" as UC10
+        usecase "UC-0011: Taxonomy" as UC11
+    }
+    package "Logistics (ERP)" {
+        usecase "UC-0012: Inventory Monitor" as UC12
+        usecase "UC-0013: Order Fulfillment" as UC13
+        usecase "UC-0021: Stock Audit" as UC21
+    }
+    package "Insights" {
+        usecase "UC-0014: User Activity" as UC14
+        usecase "UC-0015: Sales Analytics" as UC15
+    }
+}
+
+package "ReSys.System Services" {
+    package "AI Background" {
+        usecase "UC-0016: Vector Generation" as UC16
+    }
+    package "Transaction Core" {
+        usecase "UC-0017: Stock Reservation" as UC17
+        usecase "UC-0018: Fulfillment Logic" as UC18
+        usecase "UC-0019: Low Stock Alerts" as UC19
+    }
+}
+
+' Links
+Customer --> UC1
+Customer --> UC3
+Customer --> UC4
+Customer --> UC2
+Customer --> UC5
+Customer --> UC6
+Customer --> UC7
+Customer --> UC8
+
+Admin --> UC9
+Admin --> UC10
+Admin --> UC11
+Admin --> UC12
+Admin --> UC13
+Admin --> UC21
+Admin --> UC14
+Admin --> UC15
+
+Sys --> UC16
+Sys --> UC17
+Sys --> UC18
+Sys --> UC19
+
+@enduml
+

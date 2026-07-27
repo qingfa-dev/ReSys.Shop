@@ -1,0 +1,99 @@
+﻿@startuml uc-0009
+left to right direction
+actor Admin
+usecase "System" as Sys #eee
+
+rectangle "ReSys.Admin Panel" {
+    usecase "UC-0009: Product\nImage Upload" as UC9
+    usecase "UC-0010: Product\nManagement" as UC10
+    usecase "UC-0016: Vector Gen" as UC16
+}
+
+Admin --> UC9
+UC9 <.. UC10 : <<extends>>
+UC9 ..> UC16 : <<trigger>>
+@enduml
+
+@startuml uc-0010
+left to right direction
+actor Admin
+rectangle "ReSys.Admin Panel" {
+    usecase "UC-0010: Product\nManagement" as UC10
+    usecase "UC-0011: Taxonomy" as UC11
+    usecase "UC-0009: Image Upload" as UC9
+}
+Admin --> UC10
+UC10 ..> UC11 : <<include>>
+UC10 ..> UC9 : <<include>>
+@enduml
+
+@startuml uc-0011
+left to right direction
+actor Admin
+rectangle "ReSys.Admin Panel" {
+    usecase "UC-0011: Taxonomy\nManagement" as UC11
+    usecase "UC-0010: Product Management" as UC10
+}
+Admin --> UC11
+UC11 <.. UC10 : <<use>>
+@enduml
+
+@startuml uc-0012
+left to right direction
+actor Admin
+rectangle "ReSys.Admin Panel" {
+    usecase "UC-0012: Monitor\nInventory Levels" as UC12
+    usecase "UC-0019: Low Stock\nIndicators" as UC19
+}
+Admin --> UC12
+UC12 <.. UC19 : <<extend>>
+@enduml
+
+@startuml uc-0021
+left to right direction
+actor Admin
+rectangle "ReSys.Admin Panel" {
+    usecase "UC-0021: Audit\nStock History (ERP)" as UC21
+    usecase "UC-0012: Monitor Inventory" as UC12
+}
+Admin --> UC21
+UC21 ..> UC12 : <<context>>
+@enduml
+
+@startuml uc-0013
+left to right direction
+actor Admin
+rectangle "ReSys.Admin Panel" {
+    usecase "UC-0013: Order\nFulfillment" as UC13
+    usecase "UC-0018: Fulfillment\nLogic" as UC18
+    usecase "UC-0021: Stock Audit" as UC21
+}
+Admin --> UC13
+UC13 ..> UC18 : <<include>>
+UC13 ..> UC21 : <<trigger>>
+@enduml
+
+@startuml uc-0014
+left to right direction
+actor Admin
+rectangle "ReSys.Admin Panel" {
+    usecase "UC-0014: View\nCustomer Activity" as UC14
+    usecase "UC-0008: Profiles" as UC8
+}
+Admin --> UC14
+UC14 ..> UC8 : <<link>>
+@enduml
+
+@startuml uc-0015
+!theme plain
+left to right direction
+actor Admin
+rectangle "ReSys.Admin Panel" {
+    usecase "UC-0015: Sales\nAnalytics" as UC15
+    usecase "UC-0019: Low Stock" as UC19
+}
+Admin --> UC15
+UC15 ..> UC19 : <<include>>
+@enduml
+
+

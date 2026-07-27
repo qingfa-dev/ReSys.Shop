@@ -1,0 +1,27 @@
+%%{init: {'theme': 'base', 'themeVariables': { 'fontSize': '32px', 'fontFamily': 'arial', 'primaryColor': '#ffffff', 'edgeLabelBackground':'#ffffff', 'tertiaryColor': '#ffffff' }}}%%
+graph TB
+    subgraph Host ["ReSys.Api Host"]
+        Prog[Program.cs]
+        Conf[AppConfiguration]
+    end
+
+    subgraph Features ["Feature Modules (Carter)"]
+        Prod[ProductModule]
+        Ord[OrderModule]
+        Cust[CustomerModule]
+        Cart[CartModule]
+        Search[SearchModule]
+    end
+
+    subgraph Middleware ["Pipeline"]
+        Exc[GlobalExceptionHandler]
+        Val[ValidationBehavior]
+        Log[LoggingBehavior]
+    end
+
+    Prog --> Conf
+    Conf --> Middleware
+    Middleware --> Features
+
+
+    %% Styles Removed for Academic Theme

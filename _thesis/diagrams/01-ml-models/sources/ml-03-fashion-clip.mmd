@@ -1,0 +1,37 @@
+%%{init: {'theme': 'base', 'themeVariables': { 'fontSize': '32px', 'fontFamily': 'arial', 'primaryColor': '#ffffff', 'edgeLabelBackground':'#ffffff', 'tertiaryColor': '#ffffff' }}}%%
+graph TB
+    subgraph IT[Image Tower]
+        A[Product Image] --> B[Vision Transformer ViT-B/16]
+        B --> C[Patch Embedding 16×16]
+        C --> D[Transformer Layers 12 blocks]
+        D --> E[Image Projection Head]
+        E --> F[Image Embedding 512-dim]
+    end
+    
+    subgraph TT[Text Tower]
+        G[Text Description] --> H[Tokenization WordPiece/BPE]
+        H --> I[Text Transformer 12 layers]
+        I --> J[Text Projection Head]
+        J --> K[Text Embedding 512-dim]
+    end
+    
+    F --> L[Shared Latent Space]
+    K --> L
+    
+    L --> M[Cosine Similarity]
+    M --> N[Similarity Score -1 to 1]
+    
+    subgraph DF[Domain Fine-tuning]
+        O[700K Fashion Image-Text Pairs] --> P[Contrastive Learning]
+        P --> Q[Fashion-Specific Knowledge]
+    end
+    
+    Q -.Fine-tuned.-> B
+    Q -.Fine-tuned.-> I
+    
+    R[Bridges Semantic Gap] -.-> L
+    S[Style terminology] -.-> R
+    T[Zero-shot Classification] -.-> N
+    
+
+    %% Styles Removed for Academic Theme

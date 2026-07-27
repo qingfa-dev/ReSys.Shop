@@ -1,0 +1,77 @@
+@startwbs
+
+' ═══════════════════════════════════════════════════════════
+' ReSys.Shop Functional Decomposition
+' Tree Structure (Work Breakdown Structure)
+' ═══════════════════════════════════════════════════════════
+
+<style>
+wbsDiagram {
+  BackgroundColor white
+  LineColor #000000
+  FontName "Segoe UI"
+  
+  node {
+    BackgroundColor white
+    BorderColor black
+    FontColor black
+    RoundCorner 0
+  }
+  
+  :depth(0) {
+      BackgroundColor #F8CECC
+      BorderColor #B85450
+      FontSize 16
+      Padding 10
+  }
+  
+  :depth(1) {
+      BackgroundColor #D5E8D4
+      BorderColor #82B366
+      FontSize 14
+      Padding 5
+  }
+  
+  :depth(2) {
+      BackgroundColor #DAE8FC
+      BorderColor #6C8EBF
+      FontSize 12
+  }
+}
+</style>
+
+* ReSys.Shop Ecosystem
+
+** Storefront App
+*** Product Discovery
+**** Keyword Search
+**** Visual Search
+**** Recommendations
+**** Browse Products
+*** Commerce Engine
+**** Shopping Cart
+**** Checkout Flow
+**** Order Tracking
+**** Address Book
+
+** Admin Portal
+*** Catalog Management
+**** Product CRUD
+**** Image Uploads
+**** Taxonomy Management
+*** Operations
+**** Inventory Audit
+**** Order Fulfillment
+**** Sales Analytics
+**** User Management
+
+** Backend Systems
+*** ML Pipeline
+**** Image Embeddings
+**** Vector Indexing
+*** Automation
+**** Stock Reservation
+**** Async Events
+**** Payment Provider
+
+@endwbs

@@ -1,0 +1,17 @@
+@startuml
+!include ../_shared/styles.iuml
+title UC-0007: Address Book
+
+actor "Customer" as Customer
+
+rectangle "Storefront App" {
+    usecase "Manage Addresses" as CRUD
+    usecase "Set Default" as Default
+    usecase "Validate Address" as Validate
+}
+
+Customer --> CRUD
+CRUD ..> Default : <<include>>
+CRUD ..> Validate : <<include>>
+
+@enduml

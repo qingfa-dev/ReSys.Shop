@@ -1,0 +1,61 @@
+@startuml
+!include ../_shared/sequence-styles.iuml
+
+title SQ-0004: Visual Search (Fashion-CLIP)
+autonumber
+
+actor "Customer" as User <<Initiates Search>>
+participant "Storefront\n(Vue.js)" as Frontend <<UI Layer>>
+participant "API Gateway\n(.NET 10)" as API <<Orchestrator>>
+participant "ML Service\n(FastAPI)" as ML <<Core Research>>
+database "PostgreSQL\n(pgvector)" as DB <<Vector Store>>
+
+' ─── Step 1: Image Upload ────────────────────────────────────
+User -> Frontend: Upload Search Image
+activate Frontend
+    Frontend -> Frontend: Validate Image\n(Size < 5MB, Format: JPG/PNG)
+    
+    Frontend -> API: POST /api/search/visual\n(Multipart/Form-Data)
+    activate API
+        
+        ' ─── Step 2: Vectorization ───────────────────────────
+        API -> ML: GenerateEmbedding(ImageStream)
+        activate ML
+            note right of ML
+                **Fashion-CLIP Model**
+                1. Preprocess (Resize 224x224)
+                2. Normalize (ImageNet stats)
+                3. Encoder (ViT-B/16)
+                4. Output: 512-dim Vector
+            end note
+            
+            ML -> ML: Compute Vector
+            ML --> API: Embedding Vector [512]
+        deactivate ML
+        
+        ' ─── Step 3: Similarity Search ───────────────────────
+        API -> DB: Query Similar Products\n(Vector, Limit=10)
+        activate DB
+            note right of DB
+                **HNSW Index Search**
+                SELECT id, name, price, 
+                1 - (embedding <=> $1) as similarity
+                FROM product_images
+                ORDER BY embedding <=> $1
+                LIMIT 10
+            end note
+            
+            DB -> DB: Calculate Cosine Distance
+            DB --> API: Top 10 Products + Scores
+        deactivate DB
+        
+        API -> API: Map to ProductDtos
+        API --> Frontend: SearchResults JSON\n(Products, Latency)
+    deactivate API
+    
+    ' ─── Step 4: Display ─────────────────────────────────────
+    Frontend -> Frontend: Render Product Grid
+    Frontend --> User: Display Similar Items
+deactivate Frontend
+
+@enduml

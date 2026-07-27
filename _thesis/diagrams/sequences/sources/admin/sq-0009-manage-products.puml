@@ -1,0 +1,40 @@
+@startuml
+!include ../_shared/sequence-styles.iuml
+
+title SQ-0009: Manage Products
+autonumber
+
+actor "Admin" as Admin <<Content Manager>>
+participant "Admin API" as API <<Orchestrator>>
+database "PostgreSQL" as DB <<Persistence>>
+
+Admin -> API: Create Product(DTO)
+activate API
+    API -> API: Validate Data
+    API -> DB: Insert Product
+    activate DB
+    DB --> API: ProductID
+    deactivate DB
+    API -> DB: Insert Variants
+    API --> Admin: Created (201)
+deactivate API
+
+Admin -> API: Update Product(ID, DTO)
+activate API
+    API -> DB: Update Fields
+    activate DB
+    DB --> API: Success
+    deactivate DB
+    API --> Admin: Updated (200)
+deactivate API
+
+Admin -> API: Delete Product(ID)
+activate API
+    API -> DB: Soft Delete (is_deleted=true)
+    activate DB
+    DB --> API: Success
+    deactivate DB
+    API --> Admin: Deleted (204)
+deactivate API
+
+@enduml

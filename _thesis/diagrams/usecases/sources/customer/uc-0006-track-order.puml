@@ -1,0 +1,19 @@
+@startuml
+!include ../_shared/styles.iuml
+title UC-0006: Track Order
+
+actor "Customer" as Customer
+
+rectangle "Storefront App" {
+    usecase "View Order History" as History
+    usecase "View Order Details" as Details
+    usecase "Track Shipment" as Track
+    usecase "Download Invoice" as Invoice
+}
+
+Customer --> History
+History ..> Details : <<include>>
+Details <.. Track : <<extend>>
+Details <.. Invoice : <<extend>>
+
+@enduml

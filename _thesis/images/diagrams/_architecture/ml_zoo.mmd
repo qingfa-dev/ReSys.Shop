@@ -1,0 +1,21 @@
+graph TD
+    %% Styles
+    classDef input fill:#f0f0f0,stroke:#333,stroke-width:1px;
+    classDef cnn fill:#fff7e6,stroke:#fa8c16,stroke-width:2px;
+    classDef vit fill:#e6f7ff,stroke:#1890ff,stroke-width:2px;
+    classDef out fill:#f6ffed,stroke:#52c41a,stroke-width:2px;
+
+    I[Input Image]:::input
+
+    subgraph "Model Zoo Strategy"
+        direction TB
+        M1["EfficientNet-B0 <br/> (CNN Baseline)"]:::cnn
+        M2["Fashion-CLIP <br/> (Domain Specific)"]:::vit
+        M3["DINOv2 <br/> (Self-Supervised)"]:::vit
+        M4["Standard CLIP <br/> (General Purpose)"]:::vit
+    end
+
+    I --> M1 --> O1[Benchmark Vector]:::out
+    I --> M2 --> O2[Search Vector]:::out
+    I --> M3 --> O3[Visual Sim Vector]:::out
+    I --> M4 --> O4[Benchmark Vector]:::out

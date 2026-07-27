@@ -1,0 +1,27 @@
+@startuml
+!include ../_shared/styles.iuml
+
+left to right direction
+
+actor "Background\nWorker" as Worker
+actor "PostgreSQL\npgvector" as PgVector
+
+rectangle "ReSys.Shop Backend" {
+  usecase "Update Vector\nIndex" as UC0019
+  usecase "Detect New\nEmbeddings" as UC0019_Detect
+  usecase "Rebuild HNSW\nIndex" as UC0019_Rebuild
+  usecase "Optimize Index\nParameters" as UC0019_Optimize
+  usecase "Validate Index\nIntegrity" as UC0019_Validate
+  usecase "Update Index\nStatistics" as UC0019_Stats
+  
+  UC0019 ..> UC0019_Detect : <<include>>
+  UC0019 ..> UC0019_Rebuild : <<include>>
+  UC0019 ..> UC0019_Validate : <<include>>
+  UC0019 ..> UC0019_Stats : <<include>>
+  
+  UC0019 <.. UC0019_Optimize : <<extend>>
+}
+
+Worker --> UC0019
+PgVector --> UC0019_Rebuild
+@enduml
