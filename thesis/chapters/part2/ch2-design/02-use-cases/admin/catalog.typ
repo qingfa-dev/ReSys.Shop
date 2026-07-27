@@ -1,6 +1,13 @@
 ==== Product Management
 
 // Diagram placeholder: Product Management
+#figure(
+  image(
+    "../../../../../figures/chapters/part2/ch2-design/02-use-cases/diagrams/P2S2.2.2_usecase-product-management.png",
+    width: 100%
+  ),
+  caption: [Use case diagram for Product Management (UC-ADM-PROD).],
+) <fig-uc-adm-prod-d>
 
 ==== UC-ADM-PROD — Manage Products
 
@@ -57,17 +64,16 @@
   caption: [Manage Products.],
 )
 
-#figure(
-  image(
-    "../../../../../figures/chapters/part2/ch2-design/02-use-cases/diagrams/P2S2.2.2_usecase-product-management.png",
-    width: 100%
-  ),
-  caption: [Use case diagram for Product Management (UC-ADM-PROD).],
-) <fig-uc-adm-prod-d>
-
 ==== Variant and Pricing
 
 // Diagram placeholder: Variant and Pricing use case diagram
+#figure(
+  image(
+    "../../../../../figures/chapters/part2/ch2-design/02-use-cases/diagrams/P2S2.2.2_usecase-variant-pricing.png",
+    width: 100%
+  ),
+  caption: [Use case diagram for Variant and Pricing (UC-ADM-VAR).],
+) <fig-uc-adm-var-d>
 
 ==== UC-ADM-VAR — Manage Variants
 
@@ -125,17 +131,16 @@
   caption: [Manage Variants.],
 )
 
-#figure(
-  image(
-    "../../../../../figures/chapters/part2/ch2-design/02-use-cases/diagrams/P2S2.2.2_usecase-variant-pricing.png",
-    width: 100%
-  ),
-  caption: [Use case diagram for Variant and Pricing (UC-ADM-VAR).],
-) <fig-uc-adm-var-d>
-
 ==== Image and Embedding Management
 
 // Diagram placeholder: Image and Embedding Management use case diagram
+#figure(
+  image(
+    "../../../../../figures/chapters/part2/ch2-design/02-use-cases/diagrams/P2S2.2.2_usecase-image-embedding.png",
+    width: 100%
+  ),
+  caption: [Use case diagram for Image and Embedding Management (UC-ADM-IMG).],
+) <fig-uc-adm-img-d>
 
 ==== UC-ADM-IMG — Manage Images and Embeddings
 
@@ -187,17 +192,16 @@
   caption: [Manage Images and Embeddings.],
 )
 
-#figure(
-  image(
-    "../../../../../figures/chapters/part2/ch2-design/02-use-cases/diagrams/P2S2.2.2_usecase-image-embedding.png",
-    width: 100%
-  ),
-  caption: [Use case diagram for Image and Embedding Management (UC-ADM-IMG).],
-) <fig-uc-adm-img-d>
-
 ==== Taxonomy and Classification
 
 // Diagram placeholder: Taxonomy and Classification use case diagram
+#figure(
+  image(
+    "../../../../../figures/chapters/part2/ch2-design/02-use-cases/diagrams/P2S2.2.2_usecase-taxonomy-classification.png",
+    width: 100%
+  ),
+  caption: [Use case diagram for Taxonomy and Classification (UC-ADM-TAX).],
+) <fig-uc-adm-tax-d>
 
 ==== UC-ADM-TAX — Manage Taxonomies and Classification
 
@@ -248,17 +252,16 @@
   caption: [Manage Taxonomies and Classification.],
 )
 
-#figure(
-  image(
-    "../../../../../figures/chapters/part2/ch2-design/02-use-cases/diagrams/P2S2.2.2_usecase-taxonomy-classification.png",
-    width: 100%
-  ),
-  caption: [Use case diagram for Taxonomy and Classification (UC-ADM-TAX).],
-) <fig-uc-adm-tax-d>
-
 ==== Option Type Configuration
 
 // Diagram placeholder: Option Type Configuration use case diagram
+#figure(
+  image(
+    "../../../../../figures/chapters/part2/ch2-design/02-use-cases/diagrams/P2S2.2.2_usecase-option-type-config.png",
+    width: 100%
+  ),
+  caption: [Use case diagram for Option Type Configuration (UC-ADM-OPT).],
+) <fig-uc-adm-opt-d>
 
 ==== UC-ADM-OPT — Manage Option Types
 
@@ -300,11 +303,3 @@
     kind: table,
   caption: [Manage Option Types.],
 )
-
-#figure(
-  image(
-    "../../../../../figures/chapters/part2/ch2-design/02-use-cases/diagrams/P2S2.2.2_usecase-option-type-config.png",
-    width: 100%
-  ),
-  caption: [Use case diagram for Option Type Configuration (UC-ADM-OPT).],
-) <fig-uc-adm-opt-d>

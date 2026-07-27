@@ -1,4 +1,11 @@
 ==== Payment Processing
+#figure(
+  image(
+    "../../../../../figures/chapters/part2/ch2-design/02-use-cases/diagrams/P2S2.2.2_usecase-stf-payment-processing.png",
+    width: 100%
+  ),
+  caption: [Use case diagram for Payment Processing (UC-STR-PAY).],
+) <fig-uc-str-pay-d>
 
 ==== UC-STR-PAY — Payment Processing
 
@@ -52,15 +59,14 @@
   caption: [Payment Processing.],
 )
 
+==== Authentication
 #figure(
   image(
-    "../../../../../figures/chapters/part2/ch2-design/02-use-cases/diagrams/P2S2.2.2_usecase-stf-payment-processing.png",
+    "../../../../../figures/chapters/part2/ch2-design/02-use-cases/diagrams/P2S2.2.2_usecase-authentication.png",
     width: 100%
   ),
-  caption: [Use case diagram for Payment Processing (UC-STR-PAY).],
-) <fig-uc-str-pay-d>
-
-==== Authentication
+  caption: [Use case diagram for Authentication (UC-STR-AUT).],
+) <fig-uc-str-aut-d>
 
 ==== UC-STR-AUT — Authentication
 
@@ -126,15 +132,14 @@
   caption: [Authentication.],
 )
 
+==== Session Management
 #figure(
   image(
-    "../../../../../figures/chapters/part2/ch2-design/02-use-cases/diagrams/P2S2.2.2_usecase-authentication.png",
+    "../../../../../figures/chapters/part2/ch2-design/02-use-cases/diagrams/P2S2.2.2_usecase-session-management.png",
     width: 100%
   ),
-  caption: [Use case diagram for Authentication (UC-STR-AUT).],
-) <fig-uc-str-aut-d>
-
-==== Session Management
+  caption: [Use case diagram for Session Management (UC-STR-SES).],
+) <fig-uc-str-ses-d>
 
 ==== UC-STR-SES — Session Management
 
@@ -184,11 +189,3 @@
     kind: table,
   caption: [Session Management.],
 )
-
-#figure(
-  image(
-    "../../../../../figures/chapters/part2/ch2-design/02-use-cases/diagrams/P2S2.2.2_usecase-session-management.png",
-    width: 100%
-  ),
-  caption: [Use case diagram for Session Management (UC-STR-SES).],
-) <fig-uc-str-ses-d>
