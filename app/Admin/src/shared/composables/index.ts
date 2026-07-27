@@ -1,3 +1,5 @@
 export { usePagedQuery } from './usePagedQuery'
 export type { UsePagedQueryOptions, PagedQueryState } from './usePagedQuery'
 export { useApiErrorHandler } from './useApiErrorHandler'
+export { useLayout } from './useLayout'
+export type { UseLayoutReturn, LayoutConfig, LayoutState } from './useLayout'

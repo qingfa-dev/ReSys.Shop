@@ -24,7 +24,7 @@ export function createApiClient(): AxiosInstance {
   })
 
   _instance.interceptors.request.use(authInterceptor)
-  _instance.interceptors.response.use(camelCaseInterceptor as any, errorInterceptor)
+  _instance.interceptors.response.use(camelCaseInterceptor, errorInterceptor)
 
   return _instance
 }

@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { useLayout } from '@layouts/composables/layout';
+import { useLayout } from '@/shared/composables/useLayout';
 import { computed } from 'vue';
-import AppFooter from './AppFooter.vue';
+import AppFooter from '../ui/AppFooter.vue';
 import AppSidebar from './AppSidebar.vue';
 import AppTopbar from './AppTopbar.vue';
 

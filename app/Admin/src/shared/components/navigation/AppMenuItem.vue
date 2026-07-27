@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { useLayout } from '@layouts/composables/layout';
+import { useLayout } from '@/shared/composables/useLayout';
 import { computed } from 'vue';
 
 const { layoutState, isDesktop } = useLayout();

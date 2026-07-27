@@ -73,21 +73,21 @@ const TOKEN_TO_OPERATOR: Record<string, string> = {
   '!$': FilterOperator.NotEndsWith,
 }
 
-const CASE_SENSITIVE_OPERATORS = new Set([
+const CASE_SENSITIVE_OPERATORS = new Set<string>([
   FilterOperator.EqualCaseSensitive,
   FilterOperator.ContainsCaseSensitive,
   FilterOperator.StartsWithCaseSensitive,
   FilterOperator.EndsWithCaseSensitive,
 ])
 
-const NEGATION_OPERATORS = new Set([
+const NEGATION_OPERATORS = new Set<string>([
   FilterOperator.NotEqual,
   FilterOperator.NotContains,
   FilterOperator.NotStartsWith,
   FilterOperator.NotEndsWith,
 ])
 
-const STRING_ONLY_OPERATORS = new Set([
+const STRING_ONLY_OPERATORS = new Set<string>([
   FilterOperator.Contains,
   FilterOperator.ContainsCaseSensitive,
   FilterOperator.NotContains,
@@ -127,13 +127,13 @@ export function toDslToken(operator: string): string {
 }
 
 export function isCaseSensitiveOperator(operator: string): boolean {
-  return CASE_SENSITIVE_OPERATORS.has(operator as any)
+  return CASE_SENSITIVE_OPERATORS.has(operator)
 }
 
 export function isNegationOperator(operator: string): boolean {
-  return NEGATION_OPERATORS.has(operator as any)
+  return NEGATION_OPERATORS.has(operator)
 }
 
 export function isStringOnlyOperator(operator: string): boolean {
-  return STRING_ONLY_OPERATORS.has(operator as any)
+  return STRING_ONLY_OPERATORS.has(operator)
 }

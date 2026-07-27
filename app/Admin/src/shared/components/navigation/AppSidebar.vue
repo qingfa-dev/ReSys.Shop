@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { useLayout } from '@layouts/composables/layout';
+import { useLayout } from '@/shared/composables/useLayout';
 import { onBeforeUnmount, ref, watch } from 'vue';
 import { useRoute } from 'vue-router';
 import AppMenu from './AppMenu.vue';
