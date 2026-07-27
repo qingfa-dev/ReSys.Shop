@@ -1,6 +1,6 @@
 ==== Payment Processing
 
-==== UC-STR-PAY: Payment Processing
+==== UC-STR-PAY — Payment Processing
 
 #figure(
   table(
@@ -62,7 +62,7 @@
 
 ==== Authentication
 
-==== UC-STR-AUT: Authentication
+==== UC-STR-AUT — Authentication
 
 #figure(
   table(
@@ -136,7 +136,7 @@
 
 ==== Session Management
 
-==== UC-STR-SES: Session Management
+==== UC-STR-SES — Session Management
 
 #figure(
   table(

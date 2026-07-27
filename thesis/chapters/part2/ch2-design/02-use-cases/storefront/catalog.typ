@@ -1,6 +1,6 @@
 ==== Catalog Browsing
 
-==== UC-STR-BRW: Browse and Search Catalog
+==== UC-STR-BRW — Browse and Search Catalog
 
 #figure(
   table(
@@ -70,7 +70,7 @@
 
 ==== Search
 
-==== UC-STR-SRC: Visual Search
+==== UC-STR-SRC — Visual Search
 
 #figure(
   table(

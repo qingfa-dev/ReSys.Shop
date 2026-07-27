@@ -1,6 +1,6 @@
 ==== Embedding Operations
 
-==== UC-SYS-EMB: Embedding Operations
+==== UC-SYS-EMB — Embedding Operations
 
 #figure(
   table(
@@ -67,7 +67,7 @@
 
 ==== Background Maintenance
 
-==== UC-SYS-MNT: System Maintenance
+==== UC-SYS-MNT — System Maintenance
 
 #figure(
   table(
