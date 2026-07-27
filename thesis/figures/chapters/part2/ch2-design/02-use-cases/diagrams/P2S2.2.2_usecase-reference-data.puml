@@ -1,0 +1,18 @@
+@startuml usecase-reference-data
+!include _shared/styles.iuml
+title UC-ADM-REF: Reference Data Management
+
+actor "Administrator" as Admin
+
+rectangle "Reference Data Management" {
+  usecase "Manage Reference\nData\n[UC-ADM-REF]" as UC_MAIN
+  usecase "Manage Countries" as UC_SUB_1
+  usecase "Manage States" as UC_SUB_2
+
+  UC_MAIN ..> UC_SUB_1 : <<include>>
+  UC_MAIN ..> UC_SUB_2 : <<include>>
+}
+
+Admin --> UC_MAIN
+
+@enduml

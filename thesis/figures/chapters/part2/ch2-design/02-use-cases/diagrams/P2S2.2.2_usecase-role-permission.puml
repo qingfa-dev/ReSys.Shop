@@ -1,0 +1,22 @@
+@startuml usecase-role-permission
+!include _shared/styles.iuml
+title UC-ADM-ROL: Role and Permission Governance
+
+actor "Administrator" as Admin
+
+rectangle "Role and Permission Governance" {
+  usecase "Manage Roles and\nPermissions\n[UC-ADM-ROL]" as UC_MAIN
+  usecase "Manage Roles" as UC_SUB_1
+  usecase "Assign User Roles" as UC_SUB_2
+  usecase "Grant Direct Permissions" as UC_SUB_3
+  usecase "View Permissions Catalogue" as UC_SUB_4
+
+  UC_MAIN ..> UC_SUB_1 : <<include>>
+  UC_MAIN ..> UC_SUB_2 : <<include>>
+  UC_MAIN ..> UC_SUB_3 : <<include>>
+  UC_MAIN ..> UC_SUB_4 : <<include>>
+}
+
+Admin --> UC_MAIN
+
+@enduml
