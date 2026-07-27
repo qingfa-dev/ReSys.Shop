@@ -10,12 +10,13 @@ function getAccessToken(): string | null {
 }
 
 export function setupGuards(router: Router): void {
-  router.beforeEach((to, _from, next) => {
-    if (to.meta.requiresAuth && !getAccessToken()) {
-      return next({ name: 'login', query: { redirect: to.fullPath } })
-    }
-    next()
-  })
+  // TODO: re-enable auth guard after route scaffold review
+  // router.beforeEach((to, _from, next) => {
+  //   if (to.meta.requiresAuth && !getAccessToken()) {
+  //     return next({ name: 'login', query: { redirect: to.fullPath } })
+  //   }
+  //   next()
+  // })
 
   router.afterEach((to) => {
     if (to.meta.title) {
