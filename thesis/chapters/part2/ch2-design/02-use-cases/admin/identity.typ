@@ -1,8 +1,6 @@
 ==== User Management
 
-// Diagram placeholder: User Management use case diagram
-
-==== UC-ADM-USR — Manage Users
+==== UC-ADM-USR: Manage Users
 
 #figure(
   table(
@@ -45,11 +43,17 @@
   caption: [Manage Users.],
 )
 
+#figure(
+  image(
+    "../../../../figures/chapters/part2/ch2-design/02-use-cases/diagrams/P2S2.2.2_usecase-user-management.png",
+    width: 100%
+  ),
+  caption: [Use case diagram for User Management (UC-ADM-USR).],
+) <fig-uc-adm-usr-d>
+
 ==== Role and Permission Governance
 
-// Diagram placeholder: Role and Permission use case diagram
-
-==== UC-ADM-ROL — Manage Roles and Permissions
+==== UC-ADM-ROL: Manage Roles and Permissions
 
 #figure(
   table(
@@ -112,3 +116,11 @@
     kind: table,
   caption: [Manage Roles and Permissions.],
 )
+
+#figure(
+  image(
+    "../../../../figures/chapters/part2/ch2-design/02-use-cases/diagrams/P2S2.2.2_usecase-role-permission.png",
+    width: 100%
+  ),
+  caption: [Use case diagram for Role and Permission Governance (UC-ADM-ROL).],
+) <fig-uc-adm-rol-d>
