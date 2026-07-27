@@ -12,13 +12,35 @@ export {}
 /* prettier-ignore */
 declare module 'vue' {
   export interface GlobalComponents {
+    BlockViewer: typeof import('./src/components/BlockViewer.vue')['default']
+    FeaturesWidget: typeof import('./src/components/landing/FeaturesWidget.vue')['default']
+    FloatingConfigurator: typeof import('./src/components/FloatingConfigurator.vue')['default']
+    FooterWidget: typeof import('./src/components/landing/FooterWidget.vue')['default']
+    HeroWidget: typeof import('./src/components/landing/HeroWidget.vue')['default']
+    HighlightsWidget: typeof import('./src/components/landing/HighlightsWidget.vue')['default']
+    NotificationsWidget: typeof import('./src/components/dashboard/NotificationsWidget.vue')['default']
+    PricingWidget: typeof import('./src/components/landing/PricingWidget.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
+    StatsWidget: typeof import('./src/components/dashboard/StatsWidget.vue')['default']
+    Toast: typeof import('primevue/toast')['default']
+    TopbarWidget: typeof import('./src/components/landing/TopbarWidget.vue')['default']
   }
 }
 
 // For TSX support
 declare global {
+  const BlockViewer: typeof import('./src/components/BlockViewer.vue')['default']
+  const FeaturesWidget: typeof import('./src/components/landing/FeaturesWidget.vue')['default']
+  const FloatingConfigurator: typeof import('./src/components/FloatingConfigurator.vue')['default']
+  const FooterWidget: typeof import('./src/components/landing/FooterWidget.vue')['default']
+  const HeroWidget: typeof import('./src/components/landing/HeroWidget.vue')['default']
+  const HighlightsWidget: typeof import('./src/components/landing/HighlightsWidget.vue')['default']
+  const NotificationsWidget: typeof import('./src/components/dashboard/NotificationsWidget.vue')['default']
+  const PricingWidget: typeof import('./src/components/landing/PricingWidget.vue')['default']
   const RouterLink: typeof import('vue-router')['RouterLink']
   const RouterView: typeof import('vue-router')['RouterView']
+  const StatsWidget: typeof import('./src/components/dashboard/StatsWidget.vue')['default']
+  const Toast: typeof import('primevue/toast')['default']
+  const TopbarWidget: typeof import('./src/components/landing/TopbarWidget.vue')['default']
 }
