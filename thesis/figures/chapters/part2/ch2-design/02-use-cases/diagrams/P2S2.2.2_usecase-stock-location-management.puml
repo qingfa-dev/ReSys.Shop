@@ -3,34 +3,34 @@ left to right direction
 
 <style>
   root {
-    fontName "Arial"
-    fontSize 14
-    shadowing false
+    FontName "Arial"
+    FontSize 14
+    Shadowing 0
   }
   actor {
-    backgroundColor #FFFFFF
-    borderColor #000000
-    borderThickness 1.5
-    fontColor #000000
-    fontStyle bold
-    fontSize 16
+    BackGroundColor #FFFFFF
+    LineColor #000000
+    LineThickness 1.5
+    FontColor #000000
+    FontStyle bold
+    FontSize 16
   }
   usecase {
-    backgroundColor #FFFFFF
-    borderColor #000000
-    borderThickness 1.5
-    fontColor #000000
+    BackGroundColor #FFFFFF
+    LineColor #000000
+    LineThickness 1.5
+    FontColor #000000
   }
   rectangle {
-    backgroundColor #FFFFFF
-    borderColor #000000
-    borderThickness 1.5
-    fontStyle bold
+    BackGroundColor #FFFFFF
+    LineColor #000000
+    LineThickness 1.5
+    FontStyle bold
   }
   arrow {
-    lineColor #000000
-    lineThickness 1.5
-    fontSize 12
+    LineColor #000000
+    LineThickness 1.5
+    FontSize 12
   }
 </style>
 title UC-ADM-LOC: Stock Location Management
