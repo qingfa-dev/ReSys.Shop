@@ -1,10 +1,9 @@
 import type { Result } from '@/core/models/result'
 import type { InventoryItem } from '../../types'
+import type { Reservation } from '../../repositories/inventory-item/inventory-item.repository.interface'
 
 export interface IInventoryItemService {
   getInventory(productId: string): Promise<Result<InventoryItem>>
-  getLowStockProducts(threshold?: number): Promise<Result<InventoryItem[]>>
-  updateQuantity(productId: string, quantity: number): Promise<Result<InventoryItem>>
-  reserveStock(productId: string, quantity: number): Promise<Result<InventoryItem>>
-  releaseStock(productId: string, quantity: number): Promise<Result<InventoryItem>>
+  reserveStock(variantId: string, quantity: number): Promise<Result<InventoryItem>>
+  getReservations(): Promise<Result<Reservation[]>>
 }

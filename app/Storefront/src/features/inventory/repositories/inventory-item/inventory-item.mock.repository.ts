@@ -1,5 +1,5 @@
 import type { InventoryItemResponse, StockStatusResponse } from '../../types/response'
-import type { IInventoryItemRepository } from './inventory-item.repository.interface'
+import type { IInventoryItemRepository, Reservation } from './inventory-item.repository.interface'
 import type { Result } from '@/core/models/result'
 
 const initialInventoryItems: InventoryItemResponse[] = [
@@ -16,12 +16,7 @@ export class MockInventoryItemRepository implements IInventoryItemRepository {
     initialInventoryItems.forEach(i => mockInventoryItems.push({ ...i }))
   }
 
-  async getAll(threshold = 10): Promise<Result<InventoryItemResponse[]>> {
-    const lowStockItems = mockInventoryItems.filter(i => i.quantity <= threshold)
-    return { isSuccess: true, isFailure: false, statusCode: 200, data: lowStockItems }
-  }
-
-  async getById<T = InventoryItemResponse>(id: string): Promise<Result<T>> {
+  async getById<T = any>(id: string): Promise<Result<T>> {
     const item = mockInventoryItems.find(i => i.id === id)
     if (!item) {
       return { isSuccess: false, isFailure: true, statusCode: 404, message: 'Inventory item not found' }
@@ -43,18 +38,8 @@ export class MockInventoryItemRepository implements IInventoryItemRepository {
     return { isSuccess: true, isFailure: false, statusCode: 200, data: status }
   }
 
-  async updateQuantity(productId: string, quantity: number): Promise<Result<InventoryItemResponse>> {
-    const item = mockInventoryItems.find(i => i.productId === productId)
-    if (!item) {
-      return { isSuccess: false, isFailure: true, statusCode: 404, message: 'Inventory item not found' }
-    }
-    item.quantity = quantity
-    item.available = quantity - item.reserved
-    return { isSuccess: true, isFailure: false, statusCode: 200, data: item }
-  }
-
-  async reserveStock(productId: string, quantity: number): Promise<Result<InventoryItemResponse>> {
-    const item = mockInventoryItems.find(i => i.productId === productId)
+  async reserveStock(variantId: string, quantity: number, _cartToken: string): Promise<Result<any>> {
+    const item = mockInventoryItems.find(i => i.productId === variantId)
     if (!item || item.available < quantity) {
       return { isSuccess: false, isFailure: true, statusCode: 400, message: 'Insufficient stock' }
     }
@@ -63,14 +48,12 @@ export class MockInventoryItemRepository implements IInventoryItemRepository {
     return { isSuccess: true, isFailure: false, statusCode: 200, data: item }
   }
 
-  async releaseStock(productId: string, quantity: number): Promise<Result<InventoryItemResponse>> {
-    const item = mockInventoryItems.find(i => i.productId === productId)
-    if (!item) {
-      return { isSuccess: false, isFailure: true, statusCode: 404, message: 'Inventory item not found' }
-    }
-    item.reserved = Math.max(0, item.reserved - quantity)
-    item.available = item.quantity - item.reserved
-    return { isSuccess: true, isFailure: false, statusCode: 200, data: item }
+  async getReservations(cartToken: string): Promise<Result<Reservation[]>> {
+    const reservations: Reservation[] = [
+      { id: 'res-1', variantId: 'prod-1', quantity: 2, expiresAt: '2026-07-29T00:00:00Z' },
+      { id: 'res-2', variantId: 'prod-2', quantity: 1, expiresAt: '2026-07-29T00:00:00Z' },
+    ]
+    return { isSuccess: true, isFailure: false, statusCode: 200, data: reservations }
   }
 }
 

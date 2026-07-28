@@ -1,31 +1,22 @@
 import { BaseRepository } from '@/core/repositories'
 import type { Result } from '@/core/models/result'
-import type { InventoryItemResponse, StockStatusResponse } from '../../types/response'
-import type { IInventoryItemRepository } from './inventory-item.repository.interface'
+import type { IInventoryItemRepository, Reservation } from './inventory-item.repository.interface'
 
 export class InventoryItemApiRepository extends BaseRepository implements IInventoryItemRepository {
-  async getAll(threshold = 10): Promise<Result<InventoryItemResponse[]>> {
-    return this.get<InventoryItemResponse[]>('/api/storefront/inventory/low-stock', { filter: `threshold:${threshold}` })
+  async getById<T = any>(id: string): Promise<Result<T>> {
+    return this.get<T>(`/api/storefront/availability/${id}`)
   }
 
-  async getById<T = InventoryItemResponse>(id: string): Promise<Result<T>> {
-    return this.get<T>(`/api/storefront/inventory/${id}`)
+  async getStockStatus(productId: string): Promise<Result<any>> {
+    return this.get<any>(`/api/storefront/availability/${productId}`)
   }
 
-  async getStockStatus(productId: string): Promise<Result<StockStatusResponse>> {
-    return this.get<StockStatusResponse>(`/api/storefront/inventory/${productId}/stock-status`)
+  async reserveStock(variantId: string, quantity: number, cartToken: string): Promise<Result<any>> {
+    return this.post<any>('/api/storefront/cart/reserve', { variantId, quantity, cartToken })
   }
 
-  async updateQuantity(productId: string, quantity: number): Promise<Result<InventoryItemResponse>> {
-    return this.patchPartial<InventoryItemResponse>('/api/storefront/inventory', productId, { quantity })
-  }
-
-  async reserveStock(productId: string, quantity: number): Promise<Result<InventoryItemResponse>> {
-    return this.post<InventoryItemResponse>(`/api/storefront/inventory/${productId}/reserve`, { quantity })
-  }
-
-  async releaseStock(productId: string, quantity: number): Promise<Result<InventoryItemResponse>> {
-    return this.post<InventoryItemResponse>(`/api/storefront/inventory/${productId}/release`, { quantity })
+  async getReservations(cartToken: string): Promise<Result<Reservation[]>> {
+    return this.get<Reservation[]>('/api/storefront/cart/reserve', { filter: `cartToken:${cartToken}` })
   }
 }
 
