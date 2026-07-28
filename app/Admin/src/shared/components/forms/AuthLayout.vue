@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { useId, computed } from 'vue'
 import { useRoute } from 'vue-router'
+import Card from 'primevue/card'
 
 interface Props {
   title?: string
@@ -23,7 +24,7 @@ const displaySubtitle = computed(() => props.subtitle || (route.meta.subtitle as
   <div class="bg-surface-50 dark:bg-surface-950 flex items-center justify-center min-h-screen min-w-[100vw] overflow-hidden">
     <div class="flex flex-col items-center justify-center">
       <div style="border-radius: 56px; padding: 0.3rem; background: linear-gradient(180deg, var(--primary-color) 10%, rgba(33, 150, 243, 0) 30%)">
-        <div class="w-full bg-surface-0 dark:bg-surface-900 py-20 px-8 sm:px-20" style="border-radius: 53px">
+        <Card class="py-20 px-8 sm:px-20" :pt="{ root: { style: 'border-radius: 53px' } }">
           <div class="text-center mb-8">
             <svg viewBox="0 0 54 40" fill="none" xmlns="http://www.w3.org/2000/svg" class="mb-8 w-16 shrink-0 mx-auto">
               <path
@@ -45,7 +46,7 @@ const displaySubtitle = computed(() => props.subtitle || (route.meta.subtitle as
           <slot>
             <router-view />
           </slot>
-        </div>
+        </Card>
       </div>
     </div>
   </div>

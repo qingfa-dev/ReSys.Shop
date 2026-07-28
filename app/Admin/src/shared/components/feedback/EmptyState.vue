@@ -1,16 +1,18 @@
 <script setup lang="ts">
+import { type Component } from 'vue'
 import Card from 'primevue/card'
+import Inbox from '@primeicons/vue/inbox'
 
 interface Props {
   title: string
   description?: string
-  icon?: string
+  icon?: Component
   actionLabel?: string
 }
 
 withDefaults(defineProps<Props>(), {
   description: '',
-  icon: 'pi pi-inbox',
+  icon: () => Inbox,
 })
 
 const emit = defineEmits<{
@@ -20,7 +22,7 @@ const emit = defineEmits<{
 
 <template>
   <Card class="flex flex-col items-center justify-center py-12 gap-4">
-    <i :class="icon" class="text-6xl text-surface-300 dark:text-surface-600" />
+    <component :is="icon" class="text-6xl text-surface-300 dark:text-surface-600" />
     <div class="text-xl font-semibold text-surface-600 dark:text-surface-300">{{ title }}</div>
     <p v-if="description" class="text-muted-color text-center max-w-md">{{ description }}</p>
     <Button v-if="actionLabel" :label="actionLabel" @click="emit('action')" />
