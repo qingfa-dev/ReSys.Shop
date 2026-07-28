@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import { useRouter } from 'vue-router'
-import { useToast } from 'primevue/usetoast'
+import { useNotify } from '@/shared/composables/useNotify'
 import AppMenuItem from './AppMenuItem.vue';
 import { useAuthStore } from '@/features/auth/stores/authStore'
 import { dashboardMenuItems } from '@/features/dashboard/routes'
@@ -27,7 +27,7 @@ interface MenuItem {
 }
 
 const router = useRouter()
-const toast = useToast()
+const notify = useNotify()
 const authStore = useAuthStore()
 
 const model = ref<MenuItem[]>([
@@ -44,7 +44,7 @@ const model = ref<MenuItem[]>([
 
 async function handleLogout() {
   await authStore.logout()
-  toast.add({ severity: 'info', summary: 'Logged out', life: 3000 })
+  notify.info('Logged out')
   router.replace({ name: 'login' })
 }
 </script>

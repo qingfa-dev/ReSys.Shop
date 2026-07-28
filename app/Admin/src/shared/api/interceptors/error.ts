@@ -2,6 +2,7 @@ import axios from 'axios'
 import type { AxiosError } from 'axios'
 import type { ApiError } from '@/shared/types/error'
 import { HttpError } from '../errors'
+import { notifyError } from '../notify'
 
 function extractErrors(
   data: Record<string, unknown> | undefined,
@@ -39,5 +40,10 @@ export async function errorInterceptor(error: unknown): Promise<never> {
 
   const status = error.response?.status ?? 0
   const errors = extractErrors(data, status)
+
+  if (status >= 500) {
+    notifyError(errors[0]?.message ?? `HTTP ${status}`)
+  }
+
   return Promise.reject(new HttpError(status, errors))
 }

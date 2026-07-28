@@ -3,7 +3,7 @@ import { ref, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useForm } from 'vee-validate'
 import { toTypedSchema } from '@vee-validate/zod'
-import { useToast } from 'primevue/usetoast'
+import { useNotify } from '@/shared/composables/useNotify'
 import { resetPasswordSchema } from '../validations/auth'
 import { resetPassword } from '../services/authApi'
 import Button from 'primevue/button'
@@ -13,7 +13,7 @@ import Message from 'primevue/message'
 
 const route = useRoute()
 const router = useRouter()
-const toast = useToast()
+const notify = useNotify()
 
 const { defineField, errors, handleSubmit, setFieldValue } = useForm({
   validationSchema: toTypedSchema(resetPasswordSchema),
@@ -45,7 +45,7 @@ const onSubmit = handleSubmit(async (values) => {
       newPassword: values.newPassword,
     })
     if (result.isSuccess) {
-      toast.add({ severity: 'success', summary: 'Password reset successful', life: 5000 })
+      notify.success('Password reset successful')
       router.push('/auth/login')
     } else {
       formError.value = result.message ?? 'Invalid or expired reset link'

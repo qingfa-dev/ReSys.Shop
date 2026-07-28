@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
-import { useToast } from 'primevue/usetoast'
+import { useNotify } from '@/shared/composables/useNotify'
 import Avatar from 'primevue/avatar'
 import Popover from 'primevue/popover'
 import Button from 'primevue/button'
@@ -9,7 +9,7 @@ import { useAuthStore } from '@/features/auth/stores/authStore'
 
 const authStore = useAuthStore()
 const router = useRouter()
-const toast = useToast()
+const notify = useNotify()
 
 const popover = ref<InstanceType<typeof Popover> | null>(null)
 
@@ -19,7 +19,7 @@ function togglePopover(event: Event) {
 
 async function handleLogout() {
   await authStore.logout()
-  toast.add({ severity: 'info', summary: 'Logged out', life: 3000 })
+  notify.info('Logged out')
   router.replace({ name: 'login' })
 }
 </script>

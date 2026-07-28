@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
-import { useToast } from 'primevue/usetoast'
+import { useNotify } from '@/shared/composables/useNotify'
 import { loginSchema } from '../validations/auth'
 import { useAuthStore } from '../stores/authStore'
 import InputText from 'primevue/inputtext'
@@ -11,7 +11,7 @@ import Button from 'primevue/button'
 
 const router = useRouter()
 const store = useAuthStore()
-const toast = useToast()
+const notify = useNotify()
 
 const credential = ref('')
 const password = ref('')
@@ -36,7 +36,7 @@ async function onSubmit() {
   if (store.isAuthenticated) {
     router.replace('/')
   } else if (store.error) {
-    toast.add({ severity: 'error', summary: 'Login failed', detail: store.error, life: 5000 })
+    notify.error('Login failed', store.error)
   }
 }
 </script>
