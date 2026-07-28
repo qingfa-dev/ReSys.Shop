@@ -38,6 +38,8 @@ const {
   allowedFilterFields: COUNTRY_FILTER_FIELDS,
   allowedSortFields: COUNTRY_SORT_FIELDS,
   allowedSearchFields: COUNTRY_FILTER_FIELDS,
+  defaultSearchFields: COUNTRY_FILTER_FIELDS,
+  defaultSearchMode: 'any',
   defaultSort: ['name'],
   defaultPageSize: 20,
 })

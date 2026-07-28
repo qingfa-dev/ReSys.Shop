@@ -9,6 +9,8 @@ export interface UsePagedQueryOptions {
   defaultFilter?: string
   defaultSort?: string[]
   defaultSearch?: string
+  defaultSearchFields?: string[]
+  defaultSearchMode?: string
   allowedFilterFields?: string[]
   allowedSortFields?: string[]
   allowedSearchFields?: string[]
@@ -26,6 +28,8 @@ export interface PagedQueryState<T> {
   filter: Ref<string>
   sort: Ref<string[]>
   search: Ref<string>
+  searchFields: Ref<string[]>
+  searchMode: Ref<string>
   fetch: () => Promise<PagedResult<T>>
   refresh: () => Promise<PagedResult<T>>
   setPage: (p: number) => void
@@ -51,6 +55,8 @@ export function usePagedQuery<T>(
   const filter = ref(options?.defaultFilter ?? '')
   const sort = ref<string[]>(options?.defaultSort ?? [])
   const search = ref(options?.defaultSearch ?? '')
+  const searchFields = ref<string[]>(options?.defaultSearchFields ?? [])
+  const searchMode = ref(options?.defaultSearchMode ?? '')
 
   const totalPages = computed(() => {
     if (pageSize.value <= 0) return 0
@@ -66,6 +72,8 @@ export function usePagedQuery<T>(
       filter: filter.value || null,
       sort: sort.value.length > 0 ? sort.value : null,
       search: search.value || null,
+      searchFields: searchFields.value.length > 0 ? searchFields.value : null,
+      searchMode: searchMode.value || null,
       pageNumber: page.value,
       pageSize: pageSize.value,
     }
@@ -140,6 +148,8 @@ export function usePagedQuery<T>(
     filter.value = ''
     sort.value = []
     search.value = ''
+    searchFields.value = []
+    searchMode.value = ''
     page.value = 1
     pageSize.value = options?.defaultPageSize ?? 20
     totalCount.value = 0
@@ -162,6 +172,8 @@ export function usePagedQuery<T>(
     filter,
     sort,
     search,
+    searchFields,
+    searchMode,
     fetch,
     refresh,
     setPage,

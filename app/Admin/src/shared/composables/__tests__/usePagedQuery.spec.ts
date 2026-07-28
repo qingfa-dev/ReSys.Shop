@@ -163,6 +163,8 @@ describe('usePagedQuery', () => {
       allowedFilterFields: ['name'],
       allowedSortFields: ['name', 'createdAt'],
       allowedSearchFields: ['name', 'description'],
+      defaultSearchFields: ['name', 'description'],
+      defaultSearchMode: 'any',
       immediate: false,
     })
 
@@ -170,7 +172,12 @@ describe('usePagedQuery', () => {
 
     expect(mockGetPaged).toHaveBeenCalledWith(
       '/api/products',
-      expect.objectContaining({ pageNumber: 1, pageSize: 20 }),
+      expect.objectContaining({
+        pageNumber: 1,
+        pageSize: 20,
+        searchFields: ['name', 'description'],
+        searchMode: 'any',
+      }),
       {
         allowedFilterFields: ['name'],
         allowedSortFields: ['name', 'createdAt'],

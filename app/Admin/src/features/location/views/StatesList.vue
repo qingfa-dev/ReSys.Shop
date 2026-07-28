@@ -35,6 +35,8 @@ const { items, loading, totalCount, page, pageSize, setSearch, setFilter, refres
     allowedFilterFields: STATE_FILTER_FIELDS,
     allowedSortFields: STATE_SORT_FIELDS,
     allowedSearchFields: STATE_FILTER_FIELDS,
+    defaultSearchFields: STATE_FILTER_FIELDS,
+    defaultSearchMode: 'any',
     defaultSort: ['name'],
     defaultPageSize: 20,
   })
