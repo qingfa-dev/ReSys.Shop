@@ -9,7 +9,6 @@ import Button from 'primevue/button'
 import InputText from 'primevue/inputtext'
 import Message from 'primevue/message'
 
-const router = useRouter()
 
 const { defineField, errors, handleSubmit } = useForm({
   validationSchema: toTypedSchema(forgotPasswordSchema),
@@ -40,7 +39,7 @@ const onSubmit = handleSubmit(async (values) => {
     If an account exists with that email, a reset link has been sent.
   </p>
 
-  <form v-else @submit="onSubmit" class="flex flex-col gap-4 w-full md:w-[30rem]">
+  <form v-else @submit="onSubmit" class="flex flex-col gap-4 w-full md:w-120">
     <div class="flex flex-col gap-1">
       <label for="email" class="text-surface-900 dark:text-surface-0 font-medium text-xl">Email</label>
       <InputText id="email" v-model="email" v-bind="emailAttrs" class="w-full" type="email" placeholder="Email address" autocomplete="email" :invalid="!!errors.email" />

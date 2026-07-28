@@ -1,9 +1,11 @@
 <script setup lang="ts">
-import { useId } from 'vue'
+import { useId, computed } from 'vue'
+import { useRoute } from 'vue-router'
 import GradientCard from './GradientCard.vue'
 import FloatingConfigurator from '../ui/FloatingConfigurator.vue'
 
 const maskId = useId()
+const route = useRoute()
 
 interface ResourceLink {
   icon: string
@@ -14,10 +16,10 @@ interface ResourceLink {
 
 interface Props {
   statusCode?: string | number
-  title: string
-  description: string
+  title?: string
+  description?: string
   gradientColor?: string
-  icon: string
+  icon?: string
   iconBgClass?: string
   image?: string
   buttonLabel?: string
@@ -26,13 +28,27 @@ interface Props {
 }
 
 const props = withDefaults(defineProps<Props>(), {
-  statusCode: '',
+  statusCode: undefined,
   gradientColor: 'rgba(64,150,255,0.4)',
   buttonLabel: 'Go to Dashboard',
   buttonTo: '/',
   links: () => [],
   image: '',
+  title: undefined,
+  description: undefined,
+  icon: undefined,
 })
+
+const displayStatusCode = computed(() => props.statusCode ?? (route.meta.statusCode as string | number | undefined))
+const displayTitle = computed(() => props.title || (route.meta.title as string) || 'Error')
+const displayDescription = computed(() => props.description || (route.meta.description as string) || 'An unexpected error occurred.')
+const displayIcon = computed(() => props.icon || (route.meta.icon as string) || 'pi pi-exclamation-circle')
+const displayIconBgClass = computed(() => props.iconBgClass || (route.meta.iconBgClass as string) || 'bg-orange-500')
+const displayImage = computed(() => props.image || (route.meta.image as string) || '')
+const displayButtonLabel = computed(() => props.buttonLabel || (route.meta.buttonLabel as string) || 'Go to Dashboard')
+const displayButtonTo = computed(() => props.buttonTo || (route.meta.buttonTo as string) || '/')
+const displayGradientColor = computed(() => props.gradientColor || (route.meta.gradientColor as string) || 'rgba(64,150,255,0.4)')
+const displayLinks = computed(() => props.links?.length ? props.links : (route.meta.links as ResourceLink[]) || [])
 </script>
 
 <template>
@@ -56,21 +72,21 @@ const props = withDefaults(defineProps<Props>(), {
           />
         </g>
       </svg>
-      <GradientCard :gradient="`linear-gradient(180deg, ${gradientColor} 0%, rgba(64,150,255,0) 100%)`">
-        <div v-if="statusCode" class="text-surface-500 dark:text-surface-200 font-bold text-8xl mb-6 leading-none">{{ statusCode }}</div>
-        <div v-if="image" class="mb-8">
-          <img :src="image" :alt="title" class="w-full max-w-md" />
+      <GradientCard :gradient="`linear-gradient(180deg, ${displayGradientColor} 0%, rgba(64,150,255,0) 100%)`">
+        <div v-if="displayStatusCode" class="text-surface-500 dark:text-surface-200 font-bold text-8xl mb-6 leading-none">{{ displayStatusCode }}</div>
+        <div v-if="displayImage" class="mb-8">
+          <img :src="displayImage" :alt="displayTitle" class="w-full max-w-md" />
         </div>
-        <div :class="['flex justify-center items-center rounded-full mb-8', iconBgClass || 'bg-orange-500']" style="width:3.2rem; height:3.2rem">
-          <i :class="icon" class="text-white text-5xl" />
+        <div :class="['flex justify-center items-center rounded-full mb-8', displayIconBgClass]" style="width:3.2rem; height:3.2rem">
+          <i :class="displayIcon" class="text-white text-5xl" />
         </div>
-        <h1 class="text-surface-900 dark:text-surface-0 font-bold text-4xl lg:text-5xl mb-2">{{ title }}</h1>
-        <span class="text-muted-color font-medium mb-8">{{ description }}</span>
-        <router-link v-if="!links.length" :to="buttonTo" class="mb-8">
-          <Button :label="buttonLabel" />
+        <h1 class="text-surface-900 dark:text-surface-0 font-bold text-4xl lg:text-5xl mb-2">{{ displayTitle }}</h1>
+        <span class="text-muted-color font-medium mb-8">{{ displayDescription }}</span>
+        <router-link v-if="!displayLinks.length" :to="displayButtonTo" class="mb-8">
+          <Button :label="displayButtonLabel" />
         </router-link>
-        <div v-if="links.length" class="w-full sm:w-80 mt-2">
-          <router-link v-for="link in links" :key="link.to" :to="link.to" class="w-full flex items-center py-8 border-b border-surface">
+        <div v-if="displayLinks.length" class="w-full sm:w-80 mt-2">
+          <router-link v-for="link in displayLinks" :key="link.to" :to="link.to" class="w-full flex items-center py-8 border-b border-surface">
             <span class="flex justify-center items-center rounded-full" style="width:2.5rem; height:2.5rem">
               <i :class="link.icon" class="text-xl" />
             </span>

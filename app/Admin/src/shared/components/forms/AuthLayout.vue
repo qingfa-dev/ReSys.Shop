@@ -1,16 +1,24 @@
 <script setup lang="ts">
+import { computed } from 'vue'
+import { useRoute } from 'vue-router'
 import GradientCard from '../feedback/GradientCard.vue'
 
 interface Props {
-  title: string
+  title?: string
   subtitle?: string
   gradient?: string
 }
 
-withDefaults(defineProps<Props>(), {
+const props = withDefaults(defineProps<Props>(), {
+  title: '',
   subtitle: '',
   gradient: 'var(--p-primary-color)',
 })
+
+const route = useRoute()
+
+const displayTitle = computed(() => props.title || (route.meta.title as string) || '')
+const displaySubtitle = computed(() => props.subtitle || (route.meta.subtitle as string) || '')
 </script>
 
 <template>
@@ -21,10 +29,12 @@ withDefaults(defineProps<Props>(), {
       </svg>
       <GradientCard :gradient="`linear-gradient(180deg, ${gradient} 0%, rgba(64,150,255,0) 100%)`">
         <div class="flex flex-col items-center gap-2 mb-8">
-          <h1 class="text-surface-900 dark:text-surface-0 font-bold text-4xl lg:text-5xl">{{ title }}</h1>
-          <span v-if="subtitle" class="text-muted-color font-medium">{{ subtitle }}</span>
+          <h1 class="text-surface-900 dark:text-surface-0 font-bold text-4xl lg:text-5xl">{{ displayTitle }}</h1>
+          <span v-if="displaySubtitle" class="text-muted-color font-medium">{{ displaySubtitle }}</span>
         </div>
-        <slot />
+        <slot>
+          <router-view />
+        </slot>
       </GradientCard>
     </div>
   </div>

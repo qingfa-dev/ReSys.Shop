@@ -59,7 +59,7 @@ const onSubmit = handleSubmit(async (values) => {
 </script>
 
 <template>
-  <form @submit="onSubmit" class="flex flex-col gap-4 w-full md:w-[30rem]">
+  <form @submit="onSubmit" class="flex flex-col gap-4 w-full md:w-120">
     <div class="flex flex-col gap-1">
       <label for="email" class="text-surface-900 dark:text-surface-0 font-medium text-xl">Email</label>
       <InputText id="email" :modelValue="email" disabled class="w-full" />
@@ -78,7 +78,7 @@ const onSubmit = handleSubmit(async (values) => {
 
     <div class="flex flex-col gap-1">
       <label for="newPassword" class="text-surface-900 dark:text-surface-0 font-medium text-xl">New Password</label>
-      <Password id="newPassword" v-model="newPassword" v-bind="newPasswordAttrs" class="w-full" :toggleMask="true" :feedback="false" :invalid="!!errors.newPassword" />
+      <Password id="newPassword" v-model="newPassword" v-bind="newPasswordAttrs" class="w-full" :toggleMask="true" :feedback="false" :invalid="!!errors.newPassword" fluid/>
       <small v-if="errors.newPassword" class="text-red-500">{{ errors.newPassword }}</small>
     </div>
 

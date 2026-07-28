@@ -1,5 +1,7 @@
 import type { RouteRecordRaw } from 'vue-router'
-import { AdminLayout, AuthLayout, ErrorLayout } from '@/app/layouts'
+import AppLayout from '@navigation/AppLayout.vue'
+import AuthLayout from '@forms/AuthLayout.vue'
+import ErrorPageShell from '@feedback/ErrorPageShell.vue'
 import { dashboardRoutes } from '@/features/dashboard/routes'
 import { catalogRoutes } from '@/features/catalog/routes'
 import { identityRoutes } from '@/features/identity/routes'
@@ -14,7 +16,7 @@ import { authRoutes } from '@/features/auth/routes'
 export const routes: RouteRecordRaw[] = [
   {
     path: '/',
-    component: AdminLayout,
+    component: AppLayout,
     meta: { requiresAuth: true },
     children: [
       ...dashboardRoutes,
@@ -35,7 +37,7 @@ export const routes: RouteRecordRaw[] = [
   },
   {
     path: '/:pathMatch(.*)*',
-    component: ErrorLayout,
+    component: ErrorPageShell,
     meta: {
       statusCode: 404,
       title: 'Not Found',
