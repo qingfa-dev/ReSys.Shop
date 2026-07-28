@@ -7,7 +7,7 @@
   caption: [Use case diagram for Profile and Preferences (UC-STR-PRF).],
 ) <fig-uc-str-prf-d>
 
-==== UC-STR-PRF — Profile Management
+==== UC-STR-PRF: Profile Management
 
 #figure(
   table(

@@ -1,6 +1,5 @@
 ==== Product Management
 
-// Diagram placeholder: Product Management
 #figure(
   image(
     "../../../../../figures/chapters/part2/ch2-design/02-use-cases/diagrams/P2S2.2.2_usecase-product-management.png",
@@ -9,7 +8,7 @@
   caption: [Use case diagram for Product Management (UC-ADM-PROD).],
 ) <fig-uc-adm-prod-d>
 
-==== UC-ADM-PROD — Manage Products
+==== UC-ADM-PROD: Manage Products
 
 #figure(
   table(
@@ -66,7 +65,6 @@
 
 ==== Variant and Pricing
 
-// Diagram placeholder: Variant and Pricing use case diagram
 #figure(
   image(
     "../../../../../figures/chapters/part2/ch2-design/02-use-cases/diagrams/P2S2.2.2_usecase-variant-pricing.png",
@@ -75,7 +73,7 @@
   caption: [Use case diagram for Variant and Pricing (UC-ADM-VAR).],
 ) <fig-uc-adm-var-d>
 
-==== UC-ADM-VAR — Manage Variants
+==== UC-ADM-VAR: Manage Variants
 
 #figure(
   table(
@@ -133,7 +131,6 @@
 
 ==== Image and Embedding Management
 
-// Diagram placeholder: Image and Embedding Management use case diagram
 #figure(
   image(
     "../../../../../figures/chapters/part2/ch2-design/02-use-cases/diagrams/P2S2.2.2_usecase-image-embedding.png",
@@ -142,7 +139,7 @@
   caption: [Use case diagram for Image and Embedding Management (UC-ADM-IMG).],
 ) <fig-uc-adm-img-d>
 
-==== UC-ADM-IMG — Manage Images and Embeddings
+==== UC-ADM-IMG: Manage Images and Embeddings
 
 #figure(
   table(
@@ -194,7 +191,6 @@
 
 ==== Taxonomy and Classification
 
-// Diagram placeholder: Taxonomy and Classification use case diagram
 #figure(
   image(
     "../../../../../figures/chapters/part2/ch2-design/02-use-cases/diagrams/P2S2.2.2_usecase-taxonomy-classification.png",
@@ -203,7 +199,7 @@
   caption: [Use case diagram for Taxonomy and Classification (UC-ADM-TAX).],
 ) <fig-uc-adm-tax-d>
 
-==== UC-ADM-TAX — Manage Taxonomies and Classification
+==== UC-ADM-TAX: Manage Taxonomies and Classification
 
 #figure(
   table(
@@ -254,7 +250,6 @@
 
 ==== Option Type Configuration
 
-// Diagram placeholder: Option Type Configuration use case diagram
 #figure(
   image(
     "../../../../../figures/chapters/part2/ch2-design/02-use-cases/diagrams/P2S2.2.2_usecase-option-type-config.png",
@@ -263,7 +258,7 @@
   caption: [Use case diagram for Option Type Configuration (UC-ADM-OPT).],
 ) <fig-uc-adm-opt-d>
 
-==== UC-ADM-OPT — Manage Option Types
+==== UC-ADM-OPT: Manage Option Types
 
 #figure(
   table(

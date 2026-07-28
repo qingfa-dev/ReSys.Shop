@@ -28,13 +28,22 @@ The Ordering domain centres on the Order entity, which has a one-to-many relatio
 
 ==== pgvector Integration
 
-PostgreSQL's pgvector extension enables vector similarity search directly within the relational database, eliminating the need for a separate vector database. The `variant_images` table contains an `embedding` column of type `vector(512)`, a fixed-length array of 512 IEEE 754 single-precision floating-point numbers representing the visual features extracted from the image by the ML sidecar.
+PostgreSQL's *pgvector* extension @pgvector2023 executes vector similarity searches directly within the relational engine. The `variant_images` table stores feature vectors in an `embedding` column defined as `vector(512)`. Two approximate nearest neighbour (ANN) index types support distinct operational profiles:
 
-An HNSW (Hierarchical Navigable Small World) index is created on the embedding column to accelerate approximate nearest-neighbour searches. HNSW provides logarithmic search complexity, enabling sub-10-millisecond queries over tens of thousands of vectors. The index is configured for cosine distance, the recommended distance metric for normalised embeddings from CLIP-family models.
+- *HNSW (Hierarchical Navigable Small World)* @malkov2018efficient: Constructs a multi-layer graph where nodes connect locally and hierarchically.
+  - *Query Speed:* Logarithmic search complexity; under 2 ms on 100 000-vector corpora.
+  - *Build Cost:* Memory-intensive construction, ideal for read-heavy production workloads.
+  - *Recall:* Delivers 95--99 percent recall at standard configurations (`ef_search = 100`).
 
-Vector similarity queries use the cosine distance operator (`<=>`), which computes the angular distance between two vectors. A representative conceptual query pattern is: retrieve all variant images, compute the cosine distance between each stored embedding and the query embedding, order by ascending distance, and return the top results. The system filters results by a configurable minimum similarity threshold, computed as 1 - cosine_distance, defaulting to 0.7, a level at which fashion images typically exhibit perceptible visual similarity.
+- *IVFFlat (Inverted File with Flat Compression):* Partitions vector space into k-means clusters for targeted inverted list searches.
+  - *Query Speed:* Slightly higher latency than HNSW due to cluster probe scans.
+  - *Build Cost:* Rapid index creation with minimal memory overhead, optimal for frequent rebuilds or constrained hardware.
+  - *Recall:* Achieves comparable recall when configured with optimal probes (`lists = sqrt(n)`, `probes = sqrt(lists)`).
 
-Each embedding row includes a `model_name` column identifying which ML model generated the vector. This metadata enables per-model filtered queries: when the system switches the active embedding model, only embeddings from that model's columns participate in similarity search, preventing cross-model vector comparisons that would produce meaningless results. The model name also supports the benchmark evaluation in Chapter 3, where multiple models are compared against the same image corpus.
+The platform defaults to *HNSW* with cosine distance to meet the sub-second CBIR latency target (NFR-01a). *IVFFlat* serves as the fallback for local or GPU-constrained environments prioritising rapid index rebuilds over raw query throughput.
+
+- *Cosine Distance:* Query operator (`<=>`) measures angular distance. Results rank by similarity score `1 - cosine_distance`, filtering against a configurable default threshold of 0.70.
+- *Model Isolation:* Every record includes a `model_name` string (e.g., `"Fashion-CLIP"`). Search queries filter by active model name to enforce strict mathematical alignment across visual embeddings.
 
 ==== Key Design Decisions
 

@@ -7,7 +7,7 @@
   caption: [Use case diagram for Catalog Browsing (UC-STR-BRW).],
 ) <fig-uc-str-brw-d>
 
-==== UC-STR-BRW — Browse and Search Catalog
+==== UC-STR-BRW: Browse and Search Catalog
 
 #figure(
   table(
@@ -76,7 +76,7 @@
   caption: [Use case diagram for Search (UC-STR-SRC).],
 ) <fig-uc-str-src-d>
 
-==== UC-STR-SRC — Visual Search
+==== UC-STR-SRC: Visual Search
 
 #figure(
   table(

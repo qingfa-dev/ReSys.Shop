@@ -1,8 +1,6 @@
 === System Overview
 
-ReSys.Shop is built as a service-oriented system with three distinct services. The frontend is implemented in Vue 3 and TypeScript using the Vite build tool. The backend is a .NET 10 modular monolith using ASP.NET Core for HTTP handling, Entity Framework Core for data access, and Carter for minimal API endpoint registration. The machine learning service is a Python FastAPI application running PyTorch models that generates vector embeddings from product images for visual similarity search.
-
-@tbl-system-services summarises the three services, their technology stacks, and their primary responsibilities within the platform.
+ReSys.Shop comprises three independently deployable *services*: a Vue 3 *TypeScript* frontend, a .NET 10 *ASP.NET Core* backend @microsoft-aspnet-core, and a Python *FastAPI* machine learning sidecar running *PyTorch* @paszke2019pytorch models. @tbl-system-services summarises their technology stacks and responsibilities.
 
 #figure(
   table(
@@ -39,10 +37,10 @@ ReSys.Shop is built as a service-oriented system with three distinct services. T
     ],
   ),
     kind: table,
-  caption: [System services and their technology stacks. Each service is independently deployable and communicates through well-defined HTTP contracts.],
+  caption: [System services and their technology stacks. Each service communicates through well-defined HTTP contracts.],
 ) <tbl-system-services>
 
-The backend is internally organised into eight bounded contexts following the principles of Domain-Driven Design. Each context owns a distinct area of business logic and communicates with other contexts exclusively through MediatR in-process message dispatch, there are no direct namespace references between business modules. @tbl-contexts-overview lists each context, its aggregate root, and a representative sample of its domain entities.
+Internally, the backend is partitioned into eight *bounded contexts* following *Domain-Driven Design* (DDD) principles. Each context owns a dedicated database schema and communicates with others exclusively through *MediatR* in-process dispatch -- there are no direct namespace references between business modules. @tbl-contexts-overview lists each context, its aggregate root, and key domain entities.
 
 #figure(
   table(
@@ -86,7 +84,7 @@ The backend is internally organised into eight bounded contexts following the pr
     ],
   ),
     kind: table,
-  caption: [Bounded contexts with aggregate roots and key domain entities. Each context owns its database schema and communicates with other contexts through MediatR dispatch only.],
+  caption: [Bounded contexts with aggregate roots and key domain entities. Each context owns its database schema and communicates through MediatR dispatch only.],
 ) <tbl-contexts-overview>
 
-The separation of concerns across these eight contexts enables independent evolution of each business domain while the modular monolith deployment model avoids the operational complexity of distributed microservices. The following section details the domain-driven design principles that govern these contexts.
+This federated structure enables independent evolution of each domain while the *modular monolith* deployment model @newman2019monolith avoids the operational overhead of distributed microservices. Domain modelling is detailed in Section 2.3.2.
