@@ -38,7 +38,8 @@ export async function errorInterceptor(error: unknown): Promise<never> {
 
   if (status === 401) {
     const config = error.config as InternalAxiosRequestConfig & { _retry?: boolean }
-    if (config && !config._retry && !config.url?.includes('/sessions/refresh')) {
+    const isAuthEndpoint = config.url?.includes('/login') || config.url?.includes('/sessions/refresh')
+    if (config && !config._retry && !isAuthEndpoint) {
       config._retry = true
       try {
         const newToken = await handleTokenRefresh()

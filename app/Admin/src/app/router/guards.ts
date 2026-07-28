@@ -4,7 +4,7 @@ import { useAuthStore } from '@/features/auth/stores/authStore'
 let isInitialized = false
 
 export function setupGuards(router: Router): void {
-  router.beforeEach(async (to, _from, next) => {
+  router.beforeEach(async (to, _from) => {
     const store = useAuthStore()
 
     if (!isInitialized) {
@@ -14,10 +14,8 @@ export function setupGuards(router: Router): void {
 
     // TODO: re-enable auth guard after route scaffold review
     // if (to.meta.requiresAuth && !store.isAuthenticated) {
-    //   return next({ name: 'login', query: { redirect: to.fullPath } })
+    //   return { name: 'login', query: { redirect: to.fullPath } }
     // }
-
-    next()
   })
 
   router.afterEach((to) => {
