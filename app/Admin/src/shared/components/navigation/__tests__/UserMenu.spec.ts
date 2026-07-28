@@ -31,7 +31,7 @@ function createWrapper(authOverrides = {}) {
           stubActions: false,
           initialState: {
             auth: {
-              user: { userId: 'u1', roles: [], permissions: [], isAuthenticated: true },
+              user: { userId: 'u1', userName: 'User One', email: 'u1@test.com', roles: [], permissions: [], isAuthenticated: true },
               status: 'authenticated',
               isLoggingOut: false,
               ...authOverrides,
@@ -58,9 +58,9 @@ beforeEach(() => {
 })
 
 describe('UserMenu', () => {
-  it('renders avatar and user ID when authenticated', () => {
+  it('renders avatar and user name when authenticated', () => {
     const { wrapper } = createWrapper()
-    expect(wrapper.text()).toContain('u1')
+    expect(wrapper.text()).toContain('User One')
     expect(wrapper.find('.p-avatar').exists()).toBe(true)
   })
 

@@ -42,7 +42,7 @@ function createWrapper(isLoggingOut = false) {
           stubActions: false,
           initialState: {
             auth: {
-              user: { userId: 'u1', roles: [], permissions: [], isAuthenticated: true },
+              user: { userId: 'u1', userName: 'User One', email: 'u1@test.com', roles: [], permissions: [], isAuthenticated: true },
               status: 'authenticated',
               isLoggingOut,
             },

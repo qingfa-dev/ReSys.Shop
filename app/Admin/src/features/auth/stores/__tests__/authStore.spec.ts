@@ -89,7 +89,7 @@ describe('authStore', () => {
   describe('logout', () => {
     it('resets state to idle', async () => {
       const store = useAuthStore()
-      store.$patch({ user: { userId: 'x', roles: [], permissions: [], isAuthenticated: true }, status: 'authenticated' })
+      store.$patch({ user: { userId: 'x', userName: 'Test', email: 'test@test.com', roles: [], permissions: [], isAuthenticated: true }, status: 'authenticated' })
 
       mockLogout.mockResolvedValue({ isSuccess: true })
 
@@ -102,7 +102,7 @@ describe('authStore', () => {
     it('sets isLoggingOut to true during logout and false after', async () => {
       const store = useAuthStore()
 
-      store.user = { userId: 'u1', roles: [], permissions: [], isAuthenticated: true }
+      store.user = { userId: 'u1', userName: 'User1', email: 'u1@test.com', roles: [], permissions: [], isAuthenticated: true }
       store.status = 'authenticated'
 
       const promise = store.logout()
@@ -116,7 +116,7 @@ describe('authStore', () => {
     it('sets isLoggingOut to false even when logout API fails', async () => {
       mockLogout.mockRejectedValueOnce(new Error('Network error'))
       const store = useAuthStore()
-      store.user = { userId: 'u1', roles: [], permissions: [], isAuthenticated: true }
+      store.user = { userId: 'u1', userName: 'User1', email: 'u1@test.com', roles: [], permissions: [], isAuthenticated: true }
       store.status = 'authenticated'
 
       await store.logout()

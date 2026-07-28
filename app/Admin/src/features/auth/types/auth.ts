@@ -28,12 +28,16 @@ export interface TokenPair {
 
 export interface SessionInfo {
   id: string
+  userName: string
+  email: string
   roles: string[]
   permissions: string[]
 }
 
 export interface AuthUser {
   userId: string
+  userName: string
+  email: string
   roles: string[]
   permissions: string[]
   isAuthenticated: boolean

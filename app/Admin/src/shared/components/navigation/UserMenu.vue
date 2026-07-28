@@ -27,14 +27,14 @@ async function handleLogout() {
 <template>
   <div v-if="authStore.isAuthenticated" class="flex align-items-center gap-2">
     <div class="flex align-items-center gap-2 cursor-pointer" @click="togglePopover">
-      <Avatar :label="authStore.currentUser?.userId?.charAt(0)?.toUpperCase() ?? '?'" shape="circle" size="large" />
-      <span class="font-medium text-color hidden md:inline">{{ authStore.currentUser?.userId ?? 'User' }}</span>
+      <Avatar :label="authStore.currentUser?.userName?.charAt(0)?.toUpperCase() ?? '?'" shape="circle" size="large" />
+      <span class="font-medium text-color hidden md:inline">{{ authStore.currentUser?.userName ?? 'User' }}</span>
     </div>
 
     <Popover ref="popover">
       <div class="flex flex-column gap-3" style="min-width: 16rem">
         <div class="flex flex-column gap-1">
-          <span class="text-sm text-color-secondary">{{ authStore.currentUser?.userId }}</span>
+          <span class="text-sm text-color-secondary">{{ authStore.currentUser?.userName }}</span>
         </div>
         <router-link to="/profile" class="flex align-items-center gap-2 p-ripple no-underline text-color p-2 border-round surface-hover">
           <i class="pi pi-user" />
