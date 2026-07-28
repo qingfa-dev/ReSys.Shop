@@ -1,36 +1,64 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
-import LoginForm from '@forms/LoginForm.vue'
 import { loginSchema } from '../validations/auth'
 import { useAuthStore } from '../stores/authStore'
+import InputText from 'primevue/inputtext'
+import Password from 'primevue/password'
+import Checkbox from 'primevue/checkbox'
+import Button from 'primevue/button'
+import Message from 'primevue/message'
 
 const router = useRouter()
 const store = useAuthStore()
 
+const credential = ref('')
+const password = ref('')
+const remember = ref(false)
+
 const isLoading = computed(() => store.status === 'loading')
 const authError = computed(() => store.error)
+const fieldErrors = ref<Record<string, string>>({})
 
-async function onLogin(data: { credential: string; password: string; remember: boolean }) {
-  await store.login(data.credential, data.password)
+async function onSubmit() {
+  fieldErrors.value = {}
+  const result = loginSchema.safeParse({ credential: credential.value, password: password.value })
+  if (!result.success) {
+    const errs: Record<string, string> = {}
+    for (const issue of result.error.issues) {
+      const field = issue.path[0] as string
+      if (!errs[field]) errs[field] = issue.message
+    }
+    fieldErrors.value = errs
+    return
+  }
+  await store.login(result.data.credential, result.data.password)
   if (store.isAuthenticated) {
     router.replace('/')
   }
 }
-
-function onForgotPassword() {
-  router.push('/auth/forgot-password')
-}
 </script>
 
 <template>
-  <LoginForm
-    :validation-schema="loginSchema"
-    :loading="isLoading"
-    :server-error="authError"
-    credential-label="Email or Username"
-    credential-placeholder="Email address"
-    @submit="onLogin"
-    @forgot-password="onForgotPassword"
-  />
+  <div>
+    <label for="email1" class="block text-surface-900 dark:text-surface-0 text-xl font-medium mb-2">Email or Username</label>
+    <InputText id="email1" v-model="credential" type="text" placeholder="Email address" class="w-full md:w-[30rem] mb-8" autocomplete="username" :invalid="!!fieldErrors.credential" />
+    <small v-if="fieldErrors.credential" class="text-red-500 block -mt-6 mb-2">{{ fieldErrors.credential }}</small>
+
+    <label for="password1" class="block text-surface-900 dark:text-surface-0 font-medium text-xl mb-2">Password</label>
+    <Password id="password1" v-model="password" placeholder="Password" :toggleMask="true" class="mb-4" fluid :feedback="false" autocomplete="current-password" :invalid="!!fieldErrors.password" />
+    <small v-if="fieldErrors.password" class="text-red-500 block -mt-2 mb-2">{{ fieldErrors.password }}</small>
+
+    <div class="flex items-center justify-between mt-2 mb-8 gap-8">
+      <div class="flex items-center">
+        <Checkbox v-model="remember" inputId="rememberme1" binary class="mr-2" />
+        <label for="rememberme1">Remember me</label>
+      </div>
+      <span class="font-medium no-underline ml-2 text-right cursor-pointer text-primary" @click="router.push('/auth/forgot-password')">Forgot password?</span>
+    </div>
+
+    <Message v-if="authError" severity="error" :closable="false" class="mb-4">{{ authError }}</Message>
+
+    <Button label="Sign In" class="w-full" :loading="isLoading" @click="onSubmit" />
+  </div>
 </template>
