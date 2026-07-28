@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { useId, computed } from 'vue'
 import { useRoute } from 'vue-router'
-import GradientCard from './GradientCard.vue'
+import GradientCard from '../feedback/GradientCard.vue'
 import FloatingConfigurator from '../ui/FloatingConfigurator.vue'
 
 const maskId = useId()

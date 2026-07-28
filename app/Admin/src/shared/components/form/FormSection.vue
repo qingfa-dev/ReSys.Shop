@@ -16,7 +16,7 @@ withDefaults(defineProps<Props>(), {
     <div>
       <div class="font-semibold text-xl">{{ title }}</div>
       <p v-if="description" class="text-muted-color mt-1">{{ description }}</p>
-  </Card>
+    </div>
     <slot />
-  </div>
+  </Card>
 </template>
