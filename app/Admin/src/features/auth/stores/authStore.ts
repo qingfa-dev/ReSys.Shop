@@ -37,6 +37,8 @@ export const useAuthStore = defineStore('auth', () => {
       if (sessionResult.isSuccess) {
         user.value = {
           userId: sessionResult.value.id,
+          userName: sessionResult.value.userName,
+          email: sessionResult.value.email,
           roles: sessionResult.value.roles,
           permissions: sessionResult.value.permissions,
           isAuthenticated: true,
@@ -78,6 +80,8 @@ export const useAuthStore = defineStore('auth', () => {
       if (sessionResult.isSuccess) {
         user.value = {
           userId: sessionResult.value.id,
+          userName: sessionResult.value.userName,
+          email: sessionResult.value.email,
           roles: sessionResult.value.roles,
           permissions: sessionResult.value.permissions,
           isAuthenticated: true,
@@ -98,6 +102,8 @@ export const useAuthStore = defineStore('auth', () => {
     if (result.isSuccess) {
       user.value = {
         userId: result.value.id,
+        userName: result.value.userName,
+        email: result.value.email,
         roles: result.value.roles,
         permissions: result.value.permissions,
         isAuthenticated: true,

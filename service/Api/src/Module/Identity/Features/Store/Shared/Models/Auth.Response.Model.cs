@@ -11,6 +11,8 @@ public abstract record BaseTokenResponseModel
 public abstract record SessionResponseModel
 {
     public Guid Id { get; init; }
+    public string Email { get; init; } = string.Empty;
+    public string UserName { get; init; } = string.Empty;
     public string[] Roles { get; init; } = [];
     public string[] Permissions { get; init; } = [];
 }
@@ -19,5 +21,4 @@ public abstract record RegisterResponseModel
 {
     public Guid UserId { get; init; }
     public string Email { get; init; } = string.Empty;
-    public string Message { get; init; } = string.Empty;
 }

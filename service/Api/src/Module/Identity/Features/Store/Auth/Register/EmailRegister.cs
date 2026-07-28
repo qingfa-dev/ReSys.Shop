@@ -97,12 +97,13 @@ public static partial class EmailRegister
             // Call: Send verification email to the new user
             await SendEmailVerificationNotificationAsync(user, request.Email, verificationUrl);
 
-            return new Response
+            var response = new Response
             {
                 UserId = user.Id,
                 Email = user.Email ?? string.Empty,
-                Message = UserResult.Success.Registered
             };
+
+            return Result<Response>.Ok(response, UserResult.Success.Registered);
         }
 
         internal static string BuildVerificationPath(Guid userId, string token)

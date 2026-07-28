@@ -49,11 +49,13 @@ public static partial class GetSession
             var response = new Response
             {
                 Id = user.Id,
+                UserName = user.UserName ?? string.Empty,
+                Email = user.Email ?? string.Empty,
                 Roles = roles.ToArray(),
                 Permissions = permissions.IsSuccess ? [.. permissions.Value] : []
             };
 
-            return response;
+            return Result<Response>.Ok(response, UserResult.Success.SessionRetrieved);
         }
     }
 

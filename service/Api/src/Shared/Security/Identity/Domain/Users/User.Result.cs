@@ -33,6 +33,11 @@ public static class UserResult
         public const string AllDevicesLoggedOut = "User logged out from all devices successfully.";
 
         /// <summary>
+        /// [Success]: Session retrieved
+        /// </summary>
+        public const string SessionRetrieved = "User session retrieved successfully.";
+
+        /// <summary>
         /// [Success]: Token refreshed
         /// </summary>
         public const string TokenRefreshed = "Token refreshed successfully.";
