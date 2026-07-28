@@ -4,7 +4,7 @@ import { useForm } from 'vee-validate'
 import { toTypedSchema } from '@vee-validate/zod'
 import type { ZodObject } from 'zod'
 import InputText from 'primevue/inputtext'
-import InputPassword from 'primevue/inputpassword'
+import Password from 'primevue/password'
 import Checkbox from 'primevue/checkbox'
 import Button from 'primevue/button'
 import Message from 'primevue/message'
@@ -58,7 +58,7 @@ const onSubmit = handleSubmit(() => {
 
     <div class="mb-4">
       <label for="password" class="block text-surface-900 dark:text-surface-0 font-medium text-xl mb-2">Password</label>
-      <InputPassword id="password" v-model="password" class="w-full" fluid :toggleMask="true" :feedback="false" placeholder="Password" autocomplete="current-password" :invalid="!!passwordError" />
+      <Password id="password" v-model="password" class="w-full" :toggleMask="true" :feedback="false" placeholder="Password" autocomplete="current-password" :invalid="!!passwordError" />
       <small v-if="passwordError" class="text-red-500">{{ passwordError }}</small>
     </div>
 
