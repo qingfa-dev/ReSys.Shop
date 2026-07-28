@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import AppConfigurator from './AppConfigurator.vue';
+import AppConfigurator from '../layout/AppConfigurator.vue';
 import { useLayout } from '@/shared/composables/useLayout';
 import Moon from '@primeicons/vue/moon'
 import Sun from '@primeicons/vue/sun'

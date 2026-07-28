@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { useLayout } from '@/shared/composables/useLayout';
-import AppConfigurator from '../ui/AppConfigurator.vue';
+import AppConfigurator from './AppConfigurator.vue';
 import UserMenu from './UserMenu.vue';
 import Bars from '@primeicons/vue/bars'
 import Moon from '@primeicons/vue/moon'
