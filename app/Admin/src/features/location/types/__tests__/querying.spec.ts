@@ -75,35 +75,58 @@ describe('toStateQueryParams', () => {
   })
 
   it('builds sort', () => {
-    const result = toStateQueryParams({ sortBy: 'countryName', sortDirection: 'asc' })
-    expect(result.sort).toEqual(['countryName'])
+    const result = toStateQueryParams({ sortBy: 'countryId', sortDirection: 'asc' })
+    expect(result.sort).toEqual(['countryId'])
   })
 })
 
 describe('COUNTRY_FILTER_FIELDS', () => {
   it('contains all expected fields', () => {
-    expect(COUNTRY_FILTER_FIELDS).toContain('name')
-    expect(COUNTRY_FILTER_FIELDS).toContain('isoCode')
-    expect(COUNTRY_FILTER_FIELDS).toContain('isActive')
+    expect(COUNTRY_FILTER_FIELDS).toEqual([
+      'name',
+      'isoCode',
+      'callingCode',
+      'isActive',
+      'statesRequired',
+      'createdAtUtc',
+      'modifiedAtUtc',
+    ])
   })
 })
 
 describe('COUNTRY_SORT_FIELDS', () => {
   it('contains all expected fields', () => {
-    expect(COUNTRY_SORT_FIELDS).toContain('name')
-    expect(COUNTRY_SORT_FIELDS).toContain('createdAtUtc')
-    expect(COUNTRY_SORT_FIELDS).toContain('modifiedAtUtc')
+    expect(COUNTRY_SORT_FIELDS).toEqual([
+      'name',
+      'isoCode',
+      'callingCode',
+      'createdAtUtc',
+      'modifiedAtUtc',
+    ])
   })
 })
 
 describe('STATE_FILTER_FIELDS', () => {
-  it('contains countryId for filtering by parent', () => {
-    expect(STATE_FILTER_FIELDS).toContain('countryId')
+  it('contains all expected fields', () => {
+    expect(STATE_FILTER_FIELDS).toEqual([
+      'name',
+      'abbreviation',
+      'countryId',
+      'isActive',
+      'createdAtUtc',
+      'modifiedAtUtc',
+    ])
   })
 })
 
 describe('STATE_SORT_FIELDS', () => {
-  it('contains countryId for sorting by parent', () => {
-    expect(STATE_SORT_FIELDS).toContain('countryId')
+  it('contains all expected fields', () => {
+    expect(STATE_SORT_FIELDS).toEqual([
+      'name',
+      'abbreviation',
+      'countryId',
+      'createdAtUtc',
+      'modifiedAtUtc',
+    ])
   })
 })
