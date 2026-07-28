@@ -1,5 +1,5 @@
 import type { RouteRecordRaw } from 'vue-router'
-import { AdminLayout, AuthLayout, ErrorLayout } from '@/app/layouts'
+import { AdminLayout, ErrorLayout } from '@/app/layouts'
 import { dashboardRoutes } from '@/features/dashboard/routes'
 import { catalogRoutes } from '@/features/catalog/routes'
 import { identityRoutes } from '@/features/identity/routes'
@@ -30,8 +30,6 @@ export const routes: RouteRecordRaw[] = [
   },
   {
     path: '/auth',
-    component: AuthLayout,
-    props: { title: 'Sign In', subtitle: 'Welcome to ReSys.Shop Admin' },
     children: authRoutes,
   },
   {
