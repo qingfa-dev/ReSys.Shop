@@ -83,6 +83,27 @@ public sealed class SearchingModelTests
         result.Should().Equal(fields.Length > 0 ? fields : defaultFields);
     }
 
+    [Fact(DisplayName = "SearchingModel: ResolveFields falls back to AllowedFields when Fields and defaultFields are empty")]
+    public void ResolveFields_EmptyFieldsEmptyDefaults_WithAllowedFields_ShouldFallBackToAllowedFields()
+    {
+        HashSet<string> allowedFields = new(["Name", "Description"], StringComparer.OrdinalIgnoreCase);
+        SearchModel model = new(new SearchTerm { Value = "hello" }, [], SearchMode.Any, allowedFields);
+
+        IReadOnlyList<string> result = model.ResolveFields([]);
+
+        result.Should().Contain(["Name", "Description"]);
+    }
+
+    [Fact(DisplayName = "SearchingModel: ResolveFields returns empty when all sources are empty")]
+    public void ResolveFields_AllSourcesEmpty_ShouldReturnEmpty()
+    {
+        SearchModel model = new(new SearchTerm { Value = "hello" }, []);
+
+        IReadOnlyList<string> result = model.ResolveFields([]);
+
+        result.Should().BeEmpty();
+    }
+
     [Theory(DisplayName = "SearchingModel: RawInput behavior")]
     [InlineData("hello", "hello")]
     [InlineData(null, null)]
