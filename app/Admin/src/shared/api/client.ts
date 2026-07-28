@@ -1,4 +1,5 @@
 import { getApiClient } from './axios'
+import { STORAGE_KEYS } from '@/shared/constants/storage'
 export { HttpError } from './errors'
 
 export function setBaseUrl(url: string): void {
@@ -7,9 +8,9 @@ export function setBaseUrl(url: string): void {
 
 export function setAuthToken(token: string | null): void {
   if (token) {
-    localStorage.setItem('accessToken', token)
+    localStorage.setItem(STORAGE_KEYS.ACCESS_TOKEN, token)
   } else {
-    localStorage.removeItem('accessToken')
+    localStorage.removeItem(STORAGE_KEYS.ACCESS_TOKEN)
   }
 }
 

@@ -1,7 +1,7 @@
 import axios from 'axios'
 import { STORAGE_KEYS } from '@/shared/constants/storage'
 
-let refreshUrl = '/api/identity/auth/sessions/refresh'
+let refreshUrl = '/api/store/identity/auth/sessions/refresh'
 const rawAxios = axios.create()
 
 let isRefreshing = false

@@ -14,7 +14,7 @@ vi.mock('axios', () => ({
 beforeEach(() => {
   vi.clearAllMocks()
   localStorage.clear()
-  setRefreshUrl('/api/identity/auth/sessions/refresh')
+  setRefreshUrl('/api/store/identity/auth/sessions/refresh')
 })
 
 describe('handleTokenRefresh', () => {
@@ -34,7 +34,7 @@ describe('handleTokenRefresh', () => {
     expect(token).toBe('new-access')
     expect(localStorage.getItem('accessToken')).toBe('new-access')
     expect(localStorage.getItem('refreshToken')).toBe('new-refresh')
-    expect(mockPost).toHaveBeenCalledWith('/api/identity/auth/sessions/refresh', {
+    expect(mockPost).toHaveBeenCalledWith('/api/store/identity/auth/sessions/refresh', {
       refreshToken: 'old-refresh',
     })
   })
