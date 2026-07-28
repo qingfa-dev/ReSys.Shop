@@ -199,3 +199,11 @@
         gap: 0.5rem;
     }
 }
+
+.logout-item {
+    color: var(--red-500);
+
+    &:hover {
+        background-color: var(--surface-hover);
+    }
+}
