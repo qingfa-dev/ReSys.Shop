@@ -13,10 +13,18 @@ export {}
 declare module 'vue' {
   export interface GlobalComponents {
     Button: typeof import('primevue/button')['default']
+    Column: typeof import('primevue/column')['default']
+    DataTable: typeof import('primevue/datatable')['default']
+    IconField: typeof import('primevue/iconfield')['default']
+    InputIcon: typeof import('primevue/inputicon')['default']
+    InputText: typeof import('primevue/inputtext')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
     SelectButton: typeof import('primevue/selectbutton')['default']
+    Tag: typeof import('primevue/tag')['default']
     Toast: typeof import('primevue/toast')['default']
+    ToggleSwitch: typeof import('primevue/toggleswitch')['default']
+    Toolbar: typeof import('primevue/toolbar')['default']
   }
   export interface GlobalDirectives {
     StyleClass: typeof import('primevue/styleclass')['default']
@@ -26,8 +34,16 @@ declare module 'vue' {
 // For TSX support
 declare global {
   const Button: typeof import('primevue/button')['default']
+  const Column: typeof import('primevue/column')['default']
+  const DataTable: typeof import('primevue/datatable')['default']
+  const IconField: typeof import('primevue/iconfield')['default']
+  const InputIcon: typeof import('primevue/inputicon')['default']
+  const InputText: typeof import('primevue/inputtext')['default']
   const RouterLink: typeof import('vue-router')['RouterLink']
   const RouterView: typeof import('vue-router')['RouterView']
   const SelectButton: typeof import('primevue/selectbutton')['default']
+  const Tag: typeof import('primevue/tag')['default']
   const Toast: typeof import('primevue/toast')['default']
+  const ToggleSwitch: typeof import('primevue/toggleswitch')['default']
+  const Toolbar: typeof import('primevue/toolbar')['default']
 }
