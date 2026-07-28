@@ -24,8 +24,7 @@ export async function responseErrorInterceptor(
     try {
       const refreshToken = localStorage.getItem(REFRESH_TOKEN_KEY)
       if (refreshToken) {
-        const baseURL = originalRequest.baseURL || '/api'
-        const { data } = await axios.post<RefreshResponse>(`${baseURL}/identity/auth/refresh`, {
+        const { data } = await axios.post<RefreshResponse>(`/api/store/identity/auth/sessions/refresh`, {
           refreshToken,
         })
 
