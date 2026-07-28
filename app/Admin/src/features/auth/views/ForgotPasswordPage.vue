@@ -9,6 +9,7 @@ import IconField from 'primevue/iconfield'
 import InputIcon from 'primevue/inputicon'
 import Button from 'primevue/button'
 import InputText from 'primevue/inputtext'
+import FloatLabel from 'primevue/floatlabel'
 import Message from 'primevue/message'
 import Envelope from '@primeicons/vue/envelope'
 
@@ -44,17 +45,19 @@ const onSubmit = handleSubmit(async (values) => {
 
   <form v-else @submit="onSubmit" class="flex flex-col gap-4 w-full md:w-120">
     <div class="flex flex-col gap-1">
-      <label for="email" class="text-surface-900 dark:text-surface-0 font-medium text-2xl">Email</label>
-      <IconField class="w-full">
-        <InputIcon> <Envelope /> </InputIcon>
-        <InputText id="email" v-model="email" v-bind="emailAttrs" class="w-full p-4 text-lg" type="email" placeholder="Email address" autocomplete="email" :invalid="!!errors.email" />
-      </IconField>
+      <FloatLabel variant="on">
+        <IconField>
+          <InputIcon> <Envelope /> </InputIcon>
+          <InputText id="email" v-model="email" v-bind="emailAttrs" fluid size="large" type="email" placeholder="Email address" autocomplete="email" :invalid="!!errors.email" />
+        </IconField>
+        <label for="email">Email</label>
+      </FloatLabel>
       <small v-if="errors.email" class="text-red-500">{{ errors.email }}</small>
     </div>
 
     <Message v-if="submitError" severity="error" :closable="false">{{ submitError }}</Message>
 
-    <Button type="submit" label="Send Reset Link" class="w-full p-4 text-lg" :loading="isSubmitting" />
+    <Button type="submit" label="Send Reset Link" fluid size="large" :loading="isSubmitting" />
   </form>
 
   <router-link to="/auth/login" class="text-sm text-primary hover:underline text-center block mt-4">

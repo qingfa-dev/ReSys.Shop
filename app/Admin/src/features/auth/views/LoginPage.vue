@@ -8,6 +8,7 @@ import IconField from 'primevue/iconfield'
 import InputIcon from 'primevue/inputicon'
 import InputText from 'primevue/inputtext'
 import InputPassword from 'primevue/inputpassword'
+import FloatLabel from 'primevue/floatlabel'
 import Checkbox from 'primevue/checkbox'
 import Button from 'primevue/button'
 import User from '@primeicons/vue/user'
@@ -50,50 +51,46 @@ async function onSubmit() {
 
 <template>
   <div>
-    <label for="email1" class="block text-surface-900 dark:text-surface-0 text-2xl font-medium mb-2"
-      >Email or Username</label
-    >
-    <IconField class="w-full md:w-[30rem] mb-8">
-      <InputIcon> <User /> </InputIcon>
-      <InputText
-        id="email1"
-        v-model="credential"
-        type="text"
-        placeholder="Email address"
-        class="w-full p-4 text-lg"
-        autocomplete="username"
-        :invalid="!!fieldErrors.credential"
-      />
-    </IconField>
-    <small v-if="fieldErrors.credential" class="text-red-500 block -mt-6 mb-2">{{
+    <FloatLabel variant="on" class="w-full md:w-[30rem] mb-8">
+      <IconField>
+        <InputIcon> <User /> </InputIcon>
+        <InputText
+          id="email1"
+          v-model="credential"
+          type="text"
+          placeholder="Email address"
+          fluid size="large"
+          autocomplete="username"
+          :invalid="!!fieldErrors.credential"
+        />
+      </IconField>
+      <label for="email1">Email or Username</label>
+    </FloatLabel>
+    <small v-if="fieldErrors.credential" class="text-red-500 block -mt-2 mb-2">{{
       fieldErrors.credential
     }}</small>
 
-    <label
-      for="password1"
-      class="block text-surface-900 dark:text-surface-0 font-medium text-2xl mb-2"
-      >Password</label
-    >
-    <IconField class="mb-4 w-full">
-      <InputIcon> <Lock /> </InputIcon>
-      <InputPassword
-        id="password1"
-        v-model="password"
-        placeholder="Password"
-        :mask="mask"
-        class="w-full"
-        fluid
-        :feedback="false"
-        autocomplete="current-password"
-        :invalid="!!fieldErrors.password"
-        :pt="{ input: { class: 'p-4 text-lg' } }"
-      />
-      <InputIcon class="cursor-pointer" @click="mask = !mask">
-        <Eye v-if="mask" :size="16" />
-        <EyeSlash v-else :size="16" />
-      </InputIcon>
-    </IconField>
-    <small v-if="fieldErrors.password" class="text-red-500 block -mt-2 mb-2">{{
+    <FloatLabel variant="on" class="mb-4 w-full">
+      <IconField>
+        <InputIcon> <Lock /> </InputIcon>
+        <InputPassword
+          id="password1"
+          v-model="password"
+          placeholder="Password"
+          :mask="mask"
+          fluid size="large"
+          :feedback="false"
+          autocomplete="current-password"
+          :invalid="!!fieldErrors.password"
+        />
+        <InputIcon class="cursor-pointer" @click="mask = !mask">
+          <Eye v-if="mask" :size="16" />
+          <EyeSlash v-else :size="16" />
+        </InputIcon>
+      </IconField>
+      <label for="password1">Password</label>
+    </FloatLabel>
+    <small v-if="fieldErrors.password" class="text-red-500 block mt-1 mb-2">{{
       fieldErrors.password
     }}</small>
 
@@ -109,6 +106,6 @@ async function onSubmit() {
       >
     </div>
 
-    <Button label="Sign In" class="w-full p-4 text-lg" :loading="isLoading" @click="onSubmit" />
+    <Button label="Sign In" fluid size="large" :loading="isLoading" @click="onSubmit" />
   </div>
 </template>

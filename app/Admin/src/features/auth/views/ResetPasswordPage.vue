@@ -11,6 +11,7 @@ import InputIcon from 'primevue/inputicon'
 import Button from 'primevue/button'
 import InputText from 'primevue/inputtext'
 import InputPassword from 'primevue/inputpassword'
+import FloatLabel from 'primevue/floatlabel'
 import Message from 'primevue/message'
 import Envelope from '@primeicons/vue/envelope'
 import User from '@primeicons/vue/user'
@@ -70,46 +71,54 @@ const onSubmit = handleSubmit(async (values) => {
 <template>
   <form @submit="onSubmit" class="flex flex-col gap-4 w-full md:w-120">
     <div class="flex flex-col gap-1">
-      <label for="email" class="text-surface-900 dark:text-surface-0 font-medium text-2xl">Email</label>
-      <IconField class="w-full">
-        <InputIcon> <Envelope /> </InputIcon>
-        <InputText id="email" :modelValue="email" disabled class="w-full p-4 text-lg" />
-      </IconField>
+      <FloatLabel variant="on">
+        <IconField>
+          <InputIcon> <Envelope /> </InputIcon>
+          <InputText id="email" :modelValue="email" disabled fluid size="large" />
+        </IconField>
+        <label for="email">Email</label>
+      </FloatLabel>
     </div>
 
     <div class="flex flex-col gap-1">
-      <label for="userId" class="text-surface-900 dark:text-surface-0 font-medium text-2xl">User ID</label>
-      <IconField class="w-full">
-        <InputIcon> <User /> </InputIcon>
-        <InputText id="userId" :modelValue="userId" disabled class="w-full p-4 text-lg" />
-      </IconField>
+      <FloatLabel variant="on">
+        <IconField>
+          <InputIcon> <User /> </InputIcon>
+          <InputText id="userId" :modelValue="userId" disabled fluid size="large" />
+        </IconField>
+        <label for="userId">User ID</label>
+      </FloatLabel>
     </div>
 
     <div class="flex flex-col gap-1">
-      <label for="token" class="text-surface-900 dark:text-surface-0 font-medium text-2xl">Reset Token</label>
-      <IconField class="w-full">
-        <InputIcon> <Key /> </InputIcon>
-        <InputText id="token" v-model="token" v-bind="tokenAttrs" class="w-full p-4 text-lg" :invalid="!!errors.token" />
-      </IconField>
+      <FloatLabel variant="on">
+        <IconField>
+          <InputIcon> <Key /> </InputIcon>
+          <InputText id="token" v-model="token" v-bind="tokenAttrs" fluid size="large" :invalid="!!errors.token" />
+        </IconField>
+        <label for="token">Reset Token</label>
+      </FloatLabel>
       <small v-if="errors.token" class="text-red-500">{{ errors.token }}</small>
     </div>
 
     <div class="flex flex-col gap-1">
-      <label for="newPassword" class="text-surface-900 dark:text-surface-0 font-medium text-2xl">New Password</label>
-      <IconField class="w-full">
-        <InputIcon> <Lock /> </InputIcon>
-        <InputPassword id="newPassword" v-model="newPassword" v-bind="newPasswordAttrs" class="w-full" :mask="mask" :feedback="false" :invalid="!!errors.newPassword" fluid :pt="{ input: { class: 'p-4 text-lg' } }" />
-        <InputIcon class="cursor-pointer" @click="mask = !mask">
-          <Eye v-if="mask" :size="16" />
-          <EyeSlash v-else :size="16" />
-        </InputIcon>
-      </IconField>
+      <FloatLabel variant="on">
+        <IconField>
+          <InputIcon> <Lock /> </InputIcon>
+          <InputPassword id="newPassword" v-model="newPassword" v-bind="newPasswordAttrs" :mask="mask" :feedback="false" :invalid="!!errors.newPassword" fluid size="large" />
+          <InputIcon class="cursor-pointer" @click="mask = !mask">
+            <Eye v-if="mask" :size="16" />
+            <EyeSlash v-else :size="16" />
+          </InputIcon>
+        </IconField>
+        <label for="newPassword">New Password</label>
+      </FloatLabel>
       <small v-if="errors.newPassword" class="text-red-500">{{ errors.newPassword }}</small>
     </div>
 
     <Message v-if="formError" severity="error" :closable="false">{{ formError }}</Message>
 
-    <Button type="submit" label="Reset Password" class="w-full p-4 text-lg" :loading="isSubmitting" />
+    <Button type="submit" label="Reset Password" fluid size="large" :loading="isSubmitting" />
   </form>
 
   <router-link to="/auth/login" class="text-base text-primary hover:underline text-center block mt-4">
