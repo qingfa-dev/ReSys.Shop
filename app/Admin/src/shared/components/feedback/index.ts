@@ -1,5 +1,0 @@
-export { default as NotificationsWidget } from './NotificationsWidget.vue'
-export { default as ConfirmDialog } from './ConfirmDialog.vue'
-export { default as EmptyState } from './EmptyState.vue'
-export { default as ErrorPageShell } from './ErrorPageShell.vue'
-export { default as GradientCard } from './GradientCard.vue'

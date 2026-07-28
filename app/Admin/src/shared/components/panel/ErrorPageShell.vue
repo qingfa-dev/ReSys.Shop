@@ -1,8 +1,6 @@
 <script setup lang="ts">
 import { useId, computed } from 'vue'
 import { useRoute } from 'vue-router'
-import GradientCard from '../feedback/GradientCard.vue'
-import FloatingConfigurator from '../ui/FloatingConfigurator.vue'
 
 const maskId = useId()
 const route = useRoute()
@@ -52,7 +50,6 @@ const displayLinks = computed(() => props.links?.length ? props.links : (route.m
 </script>
 
 <template>
-  <FloatingConfigurator />
   <div class="flex items-center justify-center min-h-screen overflow-hidden">
     <div class="flex flex-col items-center justify-center">
       <svg viewBox="0 0 54 40" fill="none" xmlns="http://www.w3.org/2000/svg" class="mb-8" width="80">
@@ -72,7 +69,8 @@ const displayLinks = computed(() => props.links?.length ? props.links : (route.m
           />
         </g>
       </svg>
-      <GradientCard :gradient="`linear-gradient(180deg, ${displayGradientColor} 0%, rgba(64,150,255,0) 100%)`">
+      <div class="border border-surface-200 dark:border-surface-700 rounded-border" :style="{ borderRadius: '56px', padding: '0.3rem', background: `linear-gradient(180deg, ${displayGradientColor} 0%, rgba(64,150,255,0) 100%)` }">
+        <div class="w-full bg-surface-0 dark:bg-surface-900 py-20 px-8 sm:px-20 flex flex-col items-center" style="border-radius: 53px">
         <div v-if="displayStatusCode" class="text-surface-500 dark:text-surface-200 font-bold text-8xl mb-6 leading-none">{{ displayStatusCode }}</div>
         <div v-if="displayImage" class="mb-8">
           <img :src="displayImage" :alt="displayTitle" class="w-full max-w-md" />
@@ -96,7 +94,8 @@ const displayLinks = computed(() => props.links?.length ? props.links : (route.m
             </span>
           </router-link>
         </div>
-      </GradientCard>
+      </div>
+      </div>
     </div>
   </div>
 </template>
