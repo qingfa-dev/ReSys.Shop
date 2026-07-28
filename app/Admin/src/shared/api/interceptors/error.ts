@@ -1,9 +1,7 @@
 import axios from 'axios'
-import type { AxiosError, InternalAxiosRequestConfig } from 'axios'
+import type { AxiosError } from 'axios'
 import type { ApiError } from '@/shared/types/error'
 import { HttpError } from '../errors'
-import { handleTokenRefresh } from './refresh'
-import { getApiClient } from '../axios'
 
 function extractErrors(
   data: Record<string, unknown> | undefined,
@@ -35,22 +33,6 @@ export async function errorInterceptor(error: unknown): Promise<never> {
 
   const status = error.response?.status ?? 0
   const data = error.response?.data as Record<string, unknown> | undefined
-
-  if (status === 401) {
-    const config = error.config as InternalAxiosRequestConfig & { _retry?: boolean }
-    const isAuthEndpoint = config.url?.includes('/login') || config.url?.includes('/sessions/refresh')
-    if (config && !config._retry && !isAuthEndpoint) {
-      config._retry = true
-      try {
-        const newToken = await handleTokenRefresh()
-        config.headers.Authorization = `Bearer ${newToken}`
-        const response = await getApiClient().request(config)
-        return response as never
-      } catch {
-        return Promise.reject(new HttpError(401, [{ code: 'Unauthorized', message: 'Session expired. Please log in again.', type: 401 }]))
-      }
-    }
-  }
 
   const errors = extractErrors(data, status)
   return Promise.reject(new HttpError(status, errors))

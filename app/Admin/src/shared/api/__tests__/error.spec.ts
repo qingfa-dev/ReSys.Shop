@@ -1,19 +1,6 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { describe, it, expect } from 'vitest'
 import axios from 'axios'
 import { errorInterceptor } from '../interceptors/error'
-
-const { mockRequest, mockRefresh } = vi.hoisted(() => ({
-  mockRequest: vi.fn(),
-  mockRefresh: vi.fn(),
-}))
-
-vi.mock('../axios', () => ({
-  getApiClient: vi.fn(() => ({ request: mockRequest })),
-}))
-
-vi.mock('../interceptors/refresh', () => ({
-  handleTokenRefresh: mockRefresh,
-}))
 
 function axiosError(overrides: Record<string, unknown> = {}) {
   const err = new Error((overrides.message as string) ?? 'Request failed')
@@ -22,10 +9,6 @@ function axiosError(overrides: Record<string, unknown> = {}) {
   ;(err as any).response = overrides.response ?? null
   return err
 }
-
-beforeEach(() => {
-  vi.clearAllMocks()
-})
 
 describe('errorInterceptor', () => {
   it('passes through canceled errors', async () => {
@@ -68,60 +51,16 @@ describe('errorInterceptor', () => {
     })
   })
 
-  it('retries on 401 and returns response on success', async () => {
-    mockRefresh.mockResolvedValue('new-token')
-    mockRequest.mockResolvedValue({ data: 'retried' })
-    const config = { headers: {} as Record<string, string>, url: '/api/products' }
+  it('handles 401 as a normal error', async () => {
     const err = axiosError({
-      config,
-      response: { status: 401, data: null },
-    })
-
-    const result = await errorInterceptor(err)
-    expect(result).toEqual({ data: 'retried' })
-    expect(mockRefresh).toHaveBeenCalledOnce()
-    expect(config.headers.Authorization).toBe('Bearer new-token')
-    expect(mockRequest).toHaveBeenCalledWith(config)
-  })
-
-  it('rejects with HttpError(401) when refresh fails', async () => {
-    mockRefresh.mockRejectedValue(new Error('Refresh failed'))
-    const config = { headers: {} as Record<string, string>, url: '/api/products' }
-    const err = axiosError({
-      config,
+      config: { headers: {}, url: '/api/products' },
       response: { status: 401, data: null },
     })
 
     await expect(errorInterceptor(err)).rejects.toMatchObject({
       statusCode: 401,
-      errors: [{ code: 'Unauthorized' }],
+      errors: [{ code: 'HttpError', message: 'HTTP 401' }],
     })
-  })
-
-  it('does not retry if request already retried', async () => {
-    const config = { headers: {} as Record<string, string>, url: '/api/products', _retry: true }
-    const err = axiosError({
-      config,
-      response: { status: 401, data: null },
-    })
-
-    await expect(errorInterceptor(err)).rejects.toMatchObject({
-      statusCode: 401,
-    })
-    expect(mockRefresh).not.toHaveBeenCalled()
-  })
-
-  it('does not retry for refresh endpoint', async () => {
-    const config = { headers: {} as Record<string, string>, url: '/api/identity/auth/sessions/refresh' }
-    const err = axiosError({
-      config,
-      response: { status: 401, data: null },
-    })
-
-    await expect(errorInterceptor(err)).rejects.toMatchObject({
-      statusCode: 401,
-    })
-    expect(mockRefresh).not.toHaveBeenCalled()
   })
 
   it('handles network error without response', async () => {
