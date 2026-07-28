@@ -1,1 +1,1 @@
-// Barrel exports for auth/validations
+export * from './auth'

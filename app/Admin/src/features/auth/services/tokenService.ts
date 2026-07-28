@@ -1,11 +1,5 @@
 import { STORAGE_KEYS } from '@/shared/constants/storage'
-
-interface TokenPair {
-  accessToken: string
-  accessTokenExpiresIn: number
-  refreshToken: string
-  refreshTokenExpiresIn: number
-}
+import type { TokenPair } from '../types/auth'
 
 export function getAccessToken(): string | null {
   try {

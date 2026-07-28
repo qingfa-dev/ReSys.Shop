@@ -1,1 +1,1 @@
-// Barrel exports for auth/types
+export * from './auth'
