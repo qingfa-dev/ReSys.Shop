@@ -8,7 +8,6 @@ import { useApiErrorHandler } from '@/shared/composables/useApiErrorHandler'
 import { CountryApi } from '../services/countryApi'
 import { countrySchema } from '../validations/country'
 import type { CountryForm } from '../validations/country'
-import type { CountryDetail } from '../types/country'
 
 const route = useRoute()
 const router = useRouter()

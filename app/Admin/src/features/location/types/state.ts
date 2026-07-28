@@ -43,6 +43,7 @@ export const STATE_FILTER_FIELDS = [
 export const STATE_SORT_FIELDS = [
   'name',
   'abbreviation',
+  'isActive',
   'countryId',
   'createdAtUtc',
   'modifiedAtUtc',

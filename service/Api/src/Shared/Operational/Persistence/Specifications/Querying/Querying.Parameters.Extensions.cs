@@ -45,11 +45,15 @@ public static class QueryingParametersExtensions
         Result<SearchModel> searchResult;
         if (!string.IsNullOrWhiteSpace(parameters.Search))
         {
+            // Map: feilds to string list seperated by ','
+            var searchFieldsString = ( parameters.SearchFields is not null && parameters.SearchFields.Length > 0)
+                ? string.Join(',', parameters.SearchFields)
+                : null;
             searchResult = SearchModelExtensions.FromQueryString(
-                parameters.Search,
-                parameters.SearchFields is { Length: > 0 } ? string.Join(",", parameters.SearchFields) : null,
-                parameters.SearchMode,
-                null,
+                search: parameters.Search,
+                searchFields: searchFieldsString,
+                searchingMode: parameters.SearchMode,
+                caseSensitive: null,
                 allowedSearchFields);
         }
         else
