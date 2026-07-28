@@ -1,4 +1,3 @@
-import { transactionApiRepository } from '../../repositories/transaction/transaction.api'
 import { mockTransactionRepository } from '../../repositories/transaction/transaction.mock.repository'
 import type { ITransactionService } from './transaction.service.interface'
 import type { Transaction } from '../../types'
@@ -9,7 +8,7 @@ import { succeed, fail } from '@/core/utils/result-helpers'
 const USE_MOCK = true
 
 export class TransactionService implements ITransactionService {
-  private readonly transactionRepository = USE_MOCK ? mockTransactionRepository : transactionApiRepository
+  private readonly transactionRepository = mockTransactionRepository
 
   async getTransactionsByOrder(orderId: string): Promise<Result<Transaction[]>> {
     const response = await this.transactionRepository.getByOrderId(orderId)

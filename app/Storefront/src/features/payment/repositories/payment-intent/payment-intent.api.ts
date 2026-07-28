@@ -8,8 +8,8 @@ export class PaymentIntentApiRepository extends BaseRepository implements IPayme
     return this.post<PaymentIntentResponse>('/api/storefront/payment/create-intent', { amount, currency })
   }
 
-  async getById<T = PaymentIntentResponse>(id: string): Promise<Result<T>> {
-    return this.get<T>(`/api/storefront/payment/intents/${id}`)
+  async getById<T = PaymentIntentResponse>(_id: string): Promise<Result<T>> {
+    return { isSuccess: false, isFailure: true, statusCode: 501, message: 'Payment intent lookup not available via API' } as Result<T>
   }
 
   async confirm(paymentIntentId: string, paymentMethodId: string): Promise<Result<PaymentIntentResponse>> {
