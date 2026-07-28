@@ -5,9 +5,9 @@ import type { BulkActionRequest, BulkActionResponse } from '../models/bulk-actio
 import type { FileUploadResponse } from '../models/file-upload.model'
 import type { CustomActionResponse } from '../models/custom-action.model'
 import { httpClient } from '@/core/http'
-import type { IRepository } from './irepository'
+import type { IRepository } from './IRepository'
 
-export * from './irepository'
+export * from './IRepository'
 
 export type { Result, PagedResult }
 export type { PagingParams, FilterParams, SearchParams, SortParams }

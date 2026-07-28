@@ -1,0 +1,133 @@
+# PrimeVue
+
+## Guides
+
+- [Auto Import](https://primevue.dev/autoimport): On-demand PrimeVue components with auto imports and tree-shaking.
+- [Install PrimeVue with CDN](https://primevue.dev/cdn): Setting up PrimeVue in a project using CDN.
+- [Configuration](https://primevue.dev/configuration): Application wide configuration for PrimeVue.
+- [Custom Icons](https://primevue.dev/customicons): PrimeVue components can be used with any icon library using the templating features.
+- [Accessibility](https://primevue.dev/guides/accessibility): PrimeVue has WCAG level compliance, refer to the accessibility documentation of each component for detailed information.
+- [Animations](https://primevue.dev/guides/animations): Various PrimeVue Components utilize native CSS animations to provide an enhanced user experience. The default animations are based on the best practices recommended by the usability experts. In case you need to customize the default animations, this documentation covers the entire set of built-in animations.
+- [RTL Support](https://primevue.dev/guides/rtl): Right-to-left direction support of PrimeVue.
+- [Icons](https://primevue.dev/icons): @primeicons/vue is the default icon library of PrimeVue with over 300 icons as standalone Vue components developed by PrimeTek. The library is optional as PrimeVue components can use any icon with templating.
+- [Installation](https://primevue.dev/installation): How to set up PrimeVue in your project. Select your framework to get started.
+- [Install PrimeVue with Laravel](https://primevue.dev/laravel): Setting up PrimeVue in a Laravel project.
+- [LLMs.txt](https://primevue.dev/llms): LLM-optimized documentation endpoints for PrimeVue components.
+- [MCP Server](https://primevue.dev/mcp): Give compatible AI assistants access to PrimeVue component documentation, guides, examples, and API metadata.
+- [Migration](https://primevue.dev/migration/v4): Migration guide to PrimeVue v4.
+- [Migration to v5](https://primevue.dev/migration/v5): Migration guide to PrimeVue v5.
+- [Install PrimeVue with Nuxt](https://primevue.dev/nuxt): Setting up PrimeVue in a Nuxt project.
+- [Pass Through](https://primevue.dev/passthrough): The Pass Through attributes is an API to access the internal DOM Structure of the components.
+- [PrimeVue Plugin](https://primevue.dev/plugin): Add PrimeVue workflow skills and the PrimeVue MCP server to your AI assistant with one installation.
+- [Install PrimeVue with CLT](https://primevue.dev/primeclt): PrimeCLT is a command line utility for Prime UI libraries. It is currently in beta state.
+- [Tailwind CSS](https://primevue.dev/tailwind): Integration between PrimeVue and Tailwind CSS both in styled and unstyled modes.
+- [Styled Mode](https://primevue.dev/theming/styled): Choose from a variety of pre-styled themes or develop your own.
+- [Unstyled Mode](https://primevue.dev/theming/unstyled): Theming PrimeVue with alternative styling approaches.
+- [UI Kit](https://primevue.dev/uikit): Design files for PrimeVue Components.
+- [Install PrimeVue with Vite](https://primevue.dev/vite): Setting up PrimeVue in a Vite project.
+
+## Components
+
+- [Accordion](https://primevue.dev/accordion): Accordion groups a collection of contents in tabs.
+- [AnimateOnScroll](https://primevue.dev/animateonscroll): AnimateOnScroll is used to apply animations to elements when entering or leaving the viewport during scrolling.
+- [AutoComplete](https://primevue.dev/autocomplete): AutoComplete is an input component that provides real-time suggestions when being typed.
+- [Avatar](https://primevue.dev/avatar): Avatar represents people using icons, labels and images.
+- [Badge](https://primevue.dev/badge): Badge is a small status indicator for another element.
+- [BlockUI](https://primevue.dev/blockui): BlockUI can either block other components or the whole page.
+- [Breadcrumb](https://primevue.dev/breadcrumb): Breadcrumb provides contextual information about page hierarchy.
+- [Button](https://primevue.dev/button): Button is an extension to standard button element with icons and theming.
+- [Card](https://primevue.dev/card): Card is a flexible container component.
+- [Carousel](https://primevue.dev/carousel): Carousel is a content slider featuring various customization options.
+- [CascadeSelect](https://primevue.dev/cascadeselect): CascadeSelect displays a nested structure of options.
+- [Chart](https://primevue.dev/chart): Chart components are based on Chart.js, an open source HTML5 based charting library.
+- [Checkbox](https://primevue.dev/checkbox): Checkbox is an extension to standard checkbox element with theming.
+- [Chip](https://primevue.dev/chip): Chip represents entities using icons, labels and images.
+- [ColorPicker](https://primevue.dev/colorpicker): ColorPicker is an input component to select a color.
+- [CommandMenu](https://primevue.dev/commandmenu): CommandMenu is a search-driven command palette component.
+- [Compare](https://primevue.dev/compare): Compare two items side by side with a slider.
+- [ConfirmDialog](https://primevue.dev/confirmdialog): ConfirmDialog is backed by a service utilizing Observables to display confirmation windows easily that can be shared by multiple actions on the same component.
+- [ConfirmPopup](https://primevue.dev/confirmpopup): ConfirmPopup displays a confirmation overlay displayed relatively to its target.
+- [ContextMenu](https://primevue.dev/contextmenu): ContextMenu displays an overlay menu on right click of its target.
+- [DataTable](https://primevue.dev/datatable): DataTable displays data in tabular format.
+- [DataView](https://primevue.dev/dataview): DataView displays data in grid or list layout with pagination and sorting features.
+- [DatePicker](https://primevue.dev/datepicker): DatePicker is a form component to work with dates.
+- [DeferredContent](https://primevue.dev/deferredcontent): DeferredContent postpones the loading the content that is initially not in the viewport until it becomes visible on scroll.
+- [Dialog](https://primevue.dev/dialog): Dialog is a container to display content in an overlay window.
+- [Divider](https://primevue.dev/divider): Divider is used to separate contents.
+- [Dock](https://primevue.dev/dock): Dock is a navigation component consisting of menuitems.
+- [Drawer](https://primevue.dev/drawer): Drawer is a panel component displayed as an overlay at the edges of the screen.
+- [Dynamic Dialog](https://primevue.dev/dynamicdialog): Dialogs can be created dynamically with any component as the content using a DialogService.
+- [Editor](https://primevue.dev/editor): Editor is rich text editor component based on Quill.
+- [Fieldset](https://primevue.dev/fieldset): Fieldset is a grouping component with a content toggle feature.
+- [FileUpload](https://primevue.dev/fileupload): FileUpload is an advanced uploader with dragdrop support, multi file uploads, auto uploading, progress tracking and validations.
+- [FloatLabel](https://primevue.dev/floatlabel): FloatLabel appears on top of the input field when focused.
+- [Fluid](https://primevue.dev/fluid): Fluid is a layout component to make descendant components span full width of their container.
+- [Focus Trap](https://primevue.dev/focustrap): Focus Trap keeps focus within a certain DOM element while tabbing.
+- [Forms](https://primevue.dev/forms): The PrimeVue Forms library provides comprehensive form state management with built-in validation support.
+- [Galleria](https://primevue.dev/galleria): Galleria is a content gallery component.
+- [Gallery](https://primevue.dev/gallery): Gallery is an image viewer with zoom, rotate, flip and download capabilities.
+- [IconField](https://primevue.dev/iconfield): IconField wraps an input and an icon.
+- [IftaLabel](https://primevue.dev/iftalabel): IftaLabel is used to create infield top aligned labels.
+- [Image](https://primevue.dev/image): Displays an image with preview and tranformation options.
+- [ImageCompare](https://primevue.dev/imagecompare): Compare two images side by side with a slider.
+- [Inplace](https://primevue.dev/inplace): Inplace provides an easy to do editing and display at the same time where clicking the output displays the actual content.
+- [InputColor](https://primevue.dev/inputcolor): InputColor is a composable color picker component.
+- [InputGroup](https://primevue.dev/inputgroup): Text, icon, buttons and other content can be grouped next to an input.
+- [InputMask](https://primevue.dev/inputmask): InputMask component is used to enter input in a certain format such as numeric, date, currency and phone.
+- [InputNumber](https://primevue.dev/inputnumber): InputNumber is an input component to provide numerical input.
+- [InputOtp](https://primevue.dev/inputotp): Input Otp is used to enter one time passwords.
+- [InputPassword](https://primevue.dev/inputpassword): InputPassword is an enhanced input for password entry with strength metering, mask toggling, and controlled or uncontrolled usage.
+- [InputTags](https://primevue.dev/inputtags): InputTags is used to enter multiple tags.
+- [InputText](https://primevue.dev/inputtext): InputText is an extension to standard input element with icons and theming.
+- [KeyFilter](https://primevue.dev/keyfilter): KeyFilter is a directive to restrict individual key strokes. In order to restrict the whole input, use InputNumber or InputMask instead.
+- [Knob](https://primevue.dev/knob): Knob is a form component to define number inputs with a dial.
+- [Label](https://primevue.dev/label): Label provides accessible text labels for form controls. Use the for attribute to link the label to a form control by its id.
+- [Listbox](https://primevue.dev/listbox): Listbox is used to select one or more values from a list of items.
+- [Mask](https://primevue.dev/mask): Mask is a directive used to enter input in a certain format such as numeric, date, currency, email and phone.
+- [MegaMenu](https://primevue.dev/megamenu): MegaMenu is navigation component that displays submenus together.
+- [Menu](https://primevue.dev/menu): Menu is a navigation / command component that supports dynamic and static positioning.
+- [Menubar](https://primevue.dev/menubar): Menubar is a horizontal menu component.
+- [Message](https://primevue.dev/message): Message component is used to display inline messages.
+- [MeterGroup](https://primevue.dev/metergroup): MeterGroup displays scalar measurements within a known range.
+- [MultiSelect](https://primevue.dev/multiselect): MultiSelect is used to select multiple items from a collection.
+- [OrderList](https://primevue.dev/orderlist): OrderList is used to sort a collection.
+- [OrganizationChart](https://primevue.dev/organizationchart): OrganizationChart visualizes hierarchical organization data.
+- [Paginator](https://primevue.dev/paginator): Paginator displays data in paged format and provides navigation between pages.
+- [Panel](https://primevue.dev/panel): Panel is a container component with an optional content toggle feature.
+- [PanelMenu](https://primevue.dev/panelmenu): PanelMenu is a hybrid of Accordion and Tree components.
+- [Password](https://primevue.dev/password): Password displays strength indicator for password fields.
+- [PickList](https://primevue.dev/picklist): PickList is used to reorder items between different lists.
+- [Popover](https://primevue.dev/popover): Popover is a container component that can overlay other components on page.
+- [ProgressBar](https://primevue.dev/progressbar): ProgressBar is a process status indicator.
+- [ProgressSpinner](https://primevue.dev/progressspinner): ProgressSpinner is a process status indicator that supports both determinate and indeterminate modes.
+- [RadioButton](https://primevue.dev/radiobutton): RadioButton is an extension to standard radio button element with theming.
+- [Rating](https://primevue.dev/rating): Rating component is a star based selection input.
+- [Ripple](https://primevue.dev/ripple): Ripple directive adds ripple effect to the host element.
+- [ScrollArea](https://primevue.dev/scrollarea): ScrollArea is a cross browser, lightweight and themable alternative to native browser scrollbar.
+- [ScrollPanel](https://primevue.dev/scrollpanel): ScrollPanel is a cross browser, lightweight and skinnable alternative to native browser scrollbar.
+- [ScrollTop](https://primevue.dev/scrolltop): ScrollTop gets displayed after a certain scroll position and used to navigates to the top of the page quickly.
+- [Select](https://primevue.dev/select): Select is used to choose an item from a collection of options.
+- [SelectButton](https://primevue.dev/selectbutton): SelectButton is used to choose single or multiple items from a list using buttons.
+- [Sidebar](https://primevue.dev/sidebar): Sidebar is a compound navigation panel with collapsible icon mode, offcanvas mode, variants and optional overlay.
+- [Skeleton](https://primevue.dev/skeleton): Skeleton is a placeholder to display instead of the actual content.
+- [Slider](https://primevue.dev/slider): Slider is a component to provide input by dragging a handle along a track.
+- [Speed Dial](https://primevue.dev/speeddial): SpeedDial is a floating button with a popup menu.
+- [SplitButton](https://primevue.dev/splitbutton): SplitButton groups a set of commands in an overlay with a default command.
+- [Splitter](https://primevue.dev/splitter): Splitter is utilized to separate and resize panels.
+- [Stepper](https://primevue.dev/stepper): The Stepper component displays a wizard-like workflow by guiding users through the multi-step progression.
+- [StyleClass](https://primevue.dev/styleclass): StyleClass manages CSS classes declaratively to during enter/leave animations or just to toggle classes on an element.
+- [Tabs](https://primevue.dev/tabs): Tabs is a container component to group content with tabs.
+- [Tag](https://primevue.dev/tag): Tag component is used to categorize content.
+- [Terminal](https://primevue.dev/terminal): Terminal is a text-based interface component that emulates a command line experience, enabling users to enter commands and receive responses.
+- [Textarea](https://primevue.dev/textarea): Textarea adds styling and autoResize functionality to standard textarea element.
+- [TieredMenu](https://primevue.dev/tieredmenu): TieredMenu displays submenus in nested overlays.
+- [Timeline](https://primevue.dev/timeline): Timeline visualizes a series of chained events.
+- [Toast](https://primevue.dev/toast): Toast is used to display messages in an overlay.
+- [ToggleButton](https://primevue.dev/togglebutton): ToggleButton is used to select a boolean value using a button.
+- [ToggleSwitch](https://primevue.dev/toggleswitch): ToggleSwitch is used to select a boolean value.
+- [Toolbar](https://primevue.dev/toolbar): Toolbar is a grouping component for buttons and other content.
+- [Tooltip](https://primevue.dev/tooltip): Tooltip directive provides advisory information for a component. Tooltip is integrated within various PrimeVue components.
+- [Tree](https://primevue.dev/tree): Tree is used to display hierarchical data.
+- [TreeSelect](https://primevue.dev/treeselect): TreeSelect is a form component to choose from hierarchical data.
+- [TreeTable](https://primevue.dev/treetable): TreeTable is used to display hierarchical data in tabular format.
+- [VirtualScroller](https://primevue.dev/virtualscroller): VirtualScroller is a performant approach to render large amounts of data efficiently.

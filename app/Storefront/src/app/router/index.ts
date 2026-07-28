@@ -26,12 +26,7 @@ const publicRoutes: RouteRecordRaw[] = [
     component: () => import('@/features/catalog/views/ProductDetailView.vue'),
     meta: { title: 'Product Details', breadcrumb: 'Product' },
   },
-  {
-    path: '/about',
-    name: 'about',
-    component: () => import('@/features/promotions/views/AboutView.vue'),
-    meta: { title: 'About', breadcrumb: 'About Us' },
-  },
+
   {
     path: '/login',
     name: 'login',
@@ -99,10 +94,10 @@ const protectedRoutes: RouteRecordRaw[] = [
         meta: { title: 'Addresses', breadcrumb: 'Addresses' },
       },
       {
-        path: 'settings',
-        name: 'settings',
-        component: () => import('@/features/settings/views/SettingsView.vue'),
-        meta: { title: 'Settings', breadcrumb: 'Settings' },
+        path: 'profile',
+        name: 'profile',
+        component: () => import('@/features/profile/views/ProfileView.vue'),
+        meta: { title: 'Profile', breadcrumb: 'Profile' },
       },
     ],
   },
