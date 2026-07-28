@@ -1,57 +1,104 @@
 === API Design
 
-The ReSys.Shop API exposes a RESTful interface built on Carter minimal APIs and organised around the MediatR CQRS pattern. This section describes the API architecture, the endpoint organisation scheme, and a summary of the key endpoints that define the platform's external contract.
+The ReSys.Shop API exposes a RESTful interface on .NET 10 minimal APIs via *Carter* modules, dispatched through the *MediatR* CQRS pattern @young2010cqrs. The platform registers 257 endpoints across nine business modules (184 admin, 73 storefront).
 
 ==== API Architecture
 
-The API layer acts as a thin orchestration boundary. It contains no business logic; instead, it delegates all processing to the MediatR pipeline. Each request follows a consistent path: the Carter endpoint receives the HTTP request, extracts route and body parameters, constructs a MediatR command or query object, dispatches it through `ISender`, and maps the returned `Result<T>` to an HTTP response. This design keeps endpoints concise, typically six to twelve lines, and concentrates all domain logic in the handler layer, where it is testable without HTTP infrastructure.
+The API host acts as a thin orchestration boundary with zero business logic. Each request follows a standard path:
 
-Carter modules group related endpoints by module and surface. Each module (Catalog, Ordering, Payment, and so on) registers its own `ICarterModule` implementation, which defines the route groups, HTTP methods, and parameter bindings for that module's endpoints. This modular registration avoids a single monolithic route configuration file and enables each bounded context to own its API surface.
+- *Endpoint Reception:* A Carter endpoint receives the HTTP request, extracts parameters, constructs a MediatR command or query, and dispatches via `ISender`.
+- *Pipeline Validation:* FluentValidation behaviors execute before handler processing. Validation failures halt the pipeline and return HTTP 400 with field-level details.
+- *Handler Execution:* Bounded context handlers process requests within domain isolation, operating on application models without HTTP dependencies.
+- *Response Mapping:* Handlers return `Result<T>`. Endpoints map success to HTTP 200, 201, or 204, and domain errors to RFC 7807 Problem Details.
 
-FluentValidation provides input validation through validator classes associated with each command and query. Validators run automatically as part of the MediatR pipeline behaviour, before the handler executes, ensuring that handlers never receive invalid input. Validation failures return standardised `400 Bad Request` responses with field-level error details.
+==== Endpoint Organisation and Route Structure
 
-==== Endpoint Organisation
+Endpoints follow a two-dimensional URL convention: `/api/{module}/{surface}/{resource}`.
 
-Endpoints are organised by two dimensions: the business module that owns the operation, and the surface, Admin or Storefront, that serves as the entry point. The URL pattern follows the convention `/api/{module}/{surface}/{action}`, where module identifies the owning bounded context, surface distinguishes administrative from customer-facing operations, and action names the specific operation.
+- *`module`:* The owning bounded context (`catalog`, `ordering`, `payment`, `inventory`, `identity`, `profile`, `shipping`, `location`).
+- *`surface`:* `storefront` (customer-facing) or `admin` (administrative operations).
+- *`resource`:* The domain resource and sub-action (e.g., `products`, `cart/checkout`, `search-by-image`).
 
-This two-dimensional organisation serves several purposes. It makes the API self-documenting: the URL alone communicates which business area and which user role the endpoint targets. It simplifies authorisation: Admin surface endpoints share a common authorisation policy requiring an administrator role, while Storefront endpoints apply corresponding customer-level policies. And it enables independent versioning: a module can evolve its endpoints without affecting other modules.
+This structure provides self-documenting URLs, surface-level authorisation boundaries (`admin` routes enforce administrator policies globally), and independent module evolution without breaking adjacent contexts.
 
-@tbl-key-endpoints summarises the most architecturally significant endpoints across the platform. These endpoints represent the primary user-facing capabilities, visual search, catalogue browsing, checkout, order history, authentication, and payment, that together define the complete customer and administrator experience.
+==== API Execution Layout
+
+The repository follows the modular monolith pattern: a thin API host, eight bounded context modules, shared building blocks, and a Python ML sidecar.
+
+- *Apps:* `ReSys.Shop.Api` (.NET 10 Carter host), `ReSys.Shop.Store` (Vue 3 storefront), `ReSys.Shop.Admin` (Vue 3 dashboard).
+- *Modules:* Catalog, Ordering, Payment, Inventory, Identity, Profile, Shipping, Location -- each with `Features/`, `Domain/`, and `Persistence/` layers.
+- *BuildingBlocks:* `SharedKernel` (Result, Entity, domain events), `Persistence` (DbContext, interceptors, migrations), `Security` (authorisation policies, JWT).
+- *Sidecar:* `ReSys.Shop.Ml` (Python FastAPI) with `api/` (embedding routes), `core/` (strategy registry), `models/` (Fashion-CLIP, DINOv2, ResNet, CLIP encoders).
+- *Infrastructure:* `tests/` (unit, integration, benchmarks), `AppHost/` (.NET Aspire orchestrator).
+
+==== Full API Endpoint Contract
+
+@tbl-api-contract summarises the API surface verified against the 257 registered Carter endpoints in the codebase.
 
 #figure(
   table(
-    columns: (auto, auto, auto, 1fr),
+    columns: (auto, 2fr, 2fr, auto),
     stroke: 0.5pt,
-    align: (left + horizon, left, center + horizon, left),
+    align: (left + horizon, left, left, center + horizon),
 
-    table.header([*Endpoint*], [*Module*], [*Surface*], [*Description*]),
+    table.header([*Module*], [*Admin Routes*], [*Storefront Routes*], [*N*]),
 
-    [`POST /api/catalog/storefront/search-by-image`], [Catalog], [Storefront], [
-      Accepts an uploaded image file, sends it to the ML sidecar for embedding generation, queries pgvector for the nearest neighbour variant images by cosine similarity, and returns matching products ranked by similarity score with variant thumbnails, pricing, and product URLs.
-    ],
+    [Catalog],
+    [Products CRUD, variants, variant images, option types/values, taxonomies, taxons, taxon rules, classifications, pricing, dashboard],
+    [Product listing/search, product detail by slug, availability, related/similar products, CBIR search-by-image, taxonomy tree, taxon browsing, option types, image display],
+    [77],
 
-    [`GET /api/catalog/storefront/products/{slug}`], [Catalog], [Storefront], [
-      Returns a product with all its published variants, images, option configurations, and taxonomy classifications, identified by its URL slug. Supports guest access for anonymous browsing.
-    ],
+    [Identity],
+    [Users CRUD, user roles/permissions, roles CRUD, role permissions, permissions catalogue],
+    [Password/Google login, register, logout, session refresh, email confirm/change, password change/forgot/reset],
+    [37],
 
-    [`POST /api/ordering/storefront/cart/checkout`], [Ordering], [Storefront], [
-      Advances the cart through the checkout state machine: setting the shipping address, selecting the delivery method, and confirming the order. Each call transitions the checkout state forward one step.
-    ],
+    [Ordering],
+    [Orders CRUD, line items, order status/cancel/complete/approve/resume, shipping/billing address, shipping method, dashboard],
+    [Cart CRUD, cart items add/update/remove, cart associate, empty, checkout, validate, shipping rate, customer orders list/detail/cancel],
+    [34],
 
-    [`GET /api/ordering/storefront/orders/{id}`], [Ordering], [Storefront], [
-      Returns the complete order with line items, payment state, shipment state, and status history. Requires authentication; customers may only access their own orders.
-    ],
+    [Inventory],
+    [Stock locations CRUD, stock items CRUD, bulk adjust/import, restock, low stock, summary, reservations, transfers, movements, dashboard],
+    [Variant availability, cart reserve/release/list],
+    [32],
 
-    [`POST /api/identity/store/auth/login`], [Identity], [Storefront], [
-      Authenticates a user by email and password, returning a JWT access token (fifteen-minute lifetime) and a refresh token for token rotation. Supports Google OAuth as an alternative login method via a related endpoint.
-    ],
+    [Profile],
+    [Profiles CRUD, addresses CRUD],
+    [Profiles, addresses CRUD, notification preferences, wishlists CRUD with items],
+    [26],
 
-    [`POST /api/payment/storefront/payment/create-intent`], [Payment], [Storefront], [
-      Creates a payment intent for the specified order amount and currency, initialising the payment state machine.
-    ],
+    [Location],
+    [Countries CRUD (by ID or ISO code), states CRUD (by ID or ISO code)],
+    [Countries browse, states browse (by ID or ISO code)],
+    [18],
+
+    [Payment],
+    [Payment methods CRUD, activate/deactivate, payments list/detail, capture/void/refund],
+    [Create payment intent, confirm payment, available methods, setup intent, Stripe webhook],
+    [17],
+
+    [Shipping],
+    [Shipping methods CRUD, activate/deactivate, shipping rates CRUD],
+    [Available methods, calculate cost, rates list],
+    [15],
+
+    [Dashboard],
+    [Aggregated metrics: sales, inventory, catalog, activity],
+    [--],
+    [1],
   ),
-    kind: table,
-  caption: [Key API endpoints representing the primary user-facing capabilities of the platform. All endpoints in the Storefront surface serve customer interactions; Admin surface endpoints (not shown) mirror these with full CRUD capabilities on all modules.],
-) <tbl-key-endpoints>
+  kind: table,
+  caption: [ReSys.Shop API endpoint contract. The platform exposes 257 Carter endpoints across nine business modules (184 admin, 73 storefront). Admin routes provide full CRUD with activate/deactivate and sync/assign/revoke patterns. Storefront routes expose read-optimised public surfaces for product discovery, cart, checkout, and account management.],
+) <tbl-api-contract>
 
-The admin surface provides full CRUD operations on all module entities, products, variants, orders, inventory, users, shipping methods, and location data, following the same URL pattern with the Admin surface prefix. These endpoints are excluded from the table to maintain focus on the core platform capabilities, but they follow identical architectural patterns: minimal API route groups, MediatR dispatch, FluentValidation, and permission-based authorisation.
+==== Error Handling and Response Standards
+
+All API endpoints conform to RFC 7807 Problem Details for error responses:
+
+- *HTTP 400:* FluentValidation failures with field-level error mappings.
+- *HTTP 401:* Missing or expired JWT in `Authorization: Bearer` header.
+- *HTTP 403:* Insufficient role or permission scope (e.g., customer accessing admin route).
+- *HTTP 404:* Domain entity or route resolution failure.
+- *HTTP 409:* Optimistic concurrency control failure (e.g., inventory reservation race via PostgreSQL `xmin`).
+- *HTTP 500:* Global exception middleware prevents stack trace leakage while logging full detail to telemetry.

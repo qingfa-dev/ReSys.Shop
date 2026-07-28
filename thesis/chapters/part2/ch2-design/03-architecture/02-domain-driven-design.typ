@@ -1,14 +1,19 @@
 === Domain-Driven Design
 
-The ReSys.Shop platform applies Domain-Driven Design (DDD) to structure its business logic around eight bounded contexts, each with well-defined aggregate roots, domain entities, and invariants. This section presents the context map, the aggregate design with invariants, the ubiquitous language glossary, and the state machines that govern the checkout and payment lifecycles.
+The backend is structured around eight *bounded contexts* following *Domain-Driven Design* (DDD) principles, each with defined aggregate roots, invariants, and a shared ubiquitous language.
+
+- *Bounded Context Map.* Eight contexts, Published Language identifiers, Conformist integration pattern.
+- *Aggregates and Invariants.* Product, Order, PaymentIntent, StockItem: four architecturally significant roots.
+- *Ubiquitous Language.* Core domain terms with precise definitions across contexts.
+- *State Machines.* Order checkout (forward-only), Payment intent lifecycle (parallel system-gateway states).
 
 ==== Bounded Context Map
 
-The eight bounded contexts partition the e-commerce domain along business capability boundaries. Each context owns its data, its domain logic, and its vocabulary, terms that are well-defined within a context may carry different meaning in another. For example, a Variant in the Catalog context is a sellable unit with a SKU and pricing; a LineItem in the Ordering context references that same variant but from the perspective of purchase fulfilment.
+The platform is partitioned into eight *bounded contexts* along business capability boundaries. Each context owns its data, logic, and vocabulary: a *Variant* in Catalog is a sellable unit with SKU and pricing; a *LineItem* in Ordering references the same variant from the purchase perspective.
 
-The integration between contexts follows the *Conformist* pattern: all contexts conform to a shared technical kernel defined in the Shared layer, which provides the `Result<T>` return type, the `ICommand` and `IQuery` marker interfaces, and the `Entity` base class with audit and versioning columns. Communication occurs exclusively through MediatR `ISender`, a context dispatches a query or publishes a notification, and other contexts react without ever importing one another's namespace. This in-process dispatch model eliminates the network latency of inter-service messaging while preserving the logical isolation of the bounded contexts.
+Integration follows the *Conformist* pattern: all contexts share a technical kernel from the Shared layer (`Result<T>`, `ICommand`, `IQuery`, audit base class). Communication uses exclusively *MediatR* `ISender`: a context dispatches a query or notification, and other contexts react without importing one another's namespace. This in-process model preserves logical isolation without inter-service network overhead.
 
-@fig-bounded-context-map depicts the eight contexts and the *Published Language*, the shared identifiers and value types, that flow between them.
+@fig-bounded-context-map depicts the eight contexts and their integration paths. The *Published Language* consists of shared identifiers and value types that flow between them. @tbl-context-responsibilities lists each context's business responsibility and the identifiers it exposes.
 
 #figure(
   image("../../../../figures/chapters/part2/ch2-design/03-architecture/diagrams/P2S2.2.3_bounded-context-map.png", width: 100%),
@@ -26,35 +31,72 @@ The integration between contexts follows the *Conformist* pattern: all contexts 
     table.header([*Context*], [*Business Responsibility*], [*Published Language*]),
 
     [Catalog],
-    [Manages the product lifecycle: creating products with fashion-specific metadata (style code, season, material, department, gender target), defining sellable variants with SKUs and independent pricing, uploading images with automatic embedding generation, and organising products through hierarchical taxonomies.],
+    [
+      - Product lifecycle: create, update, archive with fashion metadata\
+      - Variants with SKUs, barcodes, and independent pricing\
+      - Image uploads triggering automatic embedding generation\
+      - Hierarchical taxonomies for product classification
+    ],
     [ProductId, VariantId, Sku, Price, Slug],
 
     [Ordering],
-    [Orchestrates the customer purchase workflow from cart to completed order. Manages cart with seven-day auto-expiry, forward-only checkout state machine, line items with price snapshots, adjustments, and cancellation at any pre-confirmation stage.],
+    [
+      - Customer purchase workflow: cart to completed order\
+      - Cart with seven-day auto-expiry\
+      - Forward-only checkout state machine\
+      - Line items with price snapshots and adjustments\
+      - Cancellation at any pre-confirmation stage
+    ],
     [OrderId, OrderNumber, Total, Currency, CheckoutState],
 
     [Payment],
-    [Manages payment intent lifecycle, creation, capture, refund, void, across two gateway implementations. Maintains parallel payment state independent of the gateway for offline operations and consistent behaviour across providers.],
+    [
+      - Payment intent lifecycle: create, capture, refund, void\
+      - Two gateway implementations\
+      - Parallel payment state independent of gateway\
+      - Consistent behaviour across providers
+    ],
     [PaymentIntentId, PaymentState, Amount],
 
     [Inventory],
-    [Tracks physical stock quantities per warehouse, manages temporary reservations during active checkouts to prevent overselling, records auditable stock movements through an append-only ledger, and handles inter-warehouse transfers.],
+    [
+      - Physical stock quantities per warehouse\
+      - Temporary reservations during active checkouts\
+      - Append-only ledger for auditable stock movements\
+      - Inter-warehouse transfers
+    ],
     [StockItemId, QuantityOnHand, QuantityReserved],
 
     [Identity],
-    [Provides JWT-based authentication with refresh token rotation and reuse detection, role-based and permission-based authorisation with `domain:category:action` claim format, and guest session management for anonymous browsing.],
+    [
+      - JWT-based authentication with refresh token rotation\
+      - Reuse detection and revocation\
+      - RBAC with `domain:category:action` claim format\
+      - Guest session management
+    ],
     [UserId, Email, PermissionClaim],
 
     [Profile],
-    [Manages user addresses for shipping and billing, wishlists for product bookmarking, and notification preferences controlling email and SMS communication channels.],
+    [
+      - User addresses for shipping and billing\
+      - Wishlists for product bookmarking\
+      - Notification preferences (email, SMS)
+    ],
     [ProfileId, AddressId],
 
     [Shipping],
-    [Configures delivery methods, standard, express, local pickup, and calculates shipping rates by geographic zone using weight- and distance-based calculators.],
+    [
+      - Delivery method configuration\
+      - Shipping rate calculation by geographic zone\
+      - Weight- and distance-based calculators
+    ],
     [ShippingMethodId, Rate],
 
     [Location],
-    [Provides country and state reference data with ISO 3166 codes. This context is read-only reference data shared across Shipping (zone configuration), Profile (address validation), and Ordering (checkout address selection).],
+    [
+      - Country and state reference data with ISO 3166 codes\
+      - Read-only reference shared across Shipping, Profile, Ordering
+    ],
     [CountryId, StateId, IsoCode],
   ),
     kind: table,
@@ -63,17 +105,14 @@ The integration between contexts follows the *Conformist* pattern: all contexts 
 
 ==== Aggregates and Invariants
 
-An aggregate is a cluster of domain objects treated as a single consistency boundary. Each aggregate has a root entity through which all modifications must pass. The root enforces invariants, business rules that must hold true at all times within the aggregate boundary. ReSys.Shop takes a pragmatic approach to DDD: it defines aggregate roots and their invariants explicitly but does not require formal value-object base classes or a dedicated domain-event infrastructure for every operation.
+An *aggregate* is a cluster of domain objects treated as a single consistency boundary. All modifications pass through the aggregate *root* entity, which enforces *invariants*: business rules that must hold true across all operations. ReSys.Shop applies DDD pragmatically: aggregate roots and invariants are explicit, but formal value-object base classes and universal domain events are not mandated.
 
-The four most architecturally significant aggregates are described below.
+Four aggregates anchor the system:
 
-*Product (Catalog aggregate root).* The Product aggregate encapsulates a product family and all its variants, images, option configurations, and taxonomy classifications. A product may have one or more variants; exactly one is designated as the master variant displayed on listing pages. The aggregate enforces the following invariants: every product must have a unique slug for SEO-friendly URL generation; a product that declares options (such as size or colour) must have at least one option type defined; and the master variant must exist among the product's own variants. Variant images contain the `embedding` column, a 512-dimensional float vector generated by the ML sidecar, enabling cosine similarity search against the entire image corpus.
-
-*Order (Ordering aggregate root).* The Order aggregate manages the checkout lifecycle from a nascent cart through to a completed purchase. It aggregates line items, each capturing a price snapshot of the variant at the time of purchase, and optional adjustments for discounts or promotions. The aggregate enforces the invariant that `Total = ItemTotal + AdjustmentTotal + ShipmentTotal`, maintaining financial consistency across all modifications. The checkout state progresses forward only, the address, delivery, payment, and confirmation stages must complete in sequence, and once an order is confirmed (finalised), it becomes immutable except for the cancel transition. This forward-only constraint is encoded in the domain entity itself and validated before every state transition.
-
-*PaymentIntent (Payment aggregate root).* The PaymentIntent aggregate models the lifecycle of a customer's intent to pay. It is created with a specified amount and currency, and transitions through states, Pending, RequiresAction, Processing, Succeeded, Canceled, and Failed, based on gateway interactions. The aggregate tracks payment captures, where each capture debits a portion of the authorised amount. The system enforces the invariant that the sum of all captures must not exceed the original intent amount. A separate payment capture goes through its own state transitions: Succeeded → Captured → Refunded / Voided. The system maintains its own payment state in parallel with the gateway state, enabling consistent behaviour whether using the production Stripe gateway or the development Bogus gateway.
-
-*StockItem (Inventory aggregate root).* The StockItem aggregate tracks the physical availability of a product variant at a specific warehouse location. It maintains two quantities: on-hand (physical count from warehouse operations) and reserved (units held for active checkouts). The aggregate enforces the invariant that `QuantityOnHand ≥ 0`, stock cannot go negative. Backorder support allows sales beyond on-hand quantity up to a configured backorder limit, but the system tracks the deficit separately. Quantity changes are not performed directly on StockItem; instead, they must be recorded as StockMovement entries in an append-only ledger, preserving a complete and auditable history of every stock change, including the quantity before and after, the reason, and the operating user.
+- *Product* (Catalog root). Encapsulates a product family with variants, images, option configurations, and taxonomy classifications. One variant is designated the *master variant* for listing display. Invariants: unique slug for SEO-friendly URLs; master variant must exist among the product's own variants; option types required before variant configuration. Each variant image stores a 512-dimension *embedding vector* generated by the ML sidecar, enabling cosine similarity search.
+- *Order* (Ordering root). Manages the checkout lifecycle from cart to completed purchase, aggregating line items with price snapshots and adjustments. The checkout state machine enforces forward-only progression through Address, Delivery, Payment, Confirm, Complete. Invariants: `Total = ItemTotal + AdjustmentTotal + ShipmentTotal`; confirmed orders are immutable except for cancellation, which releases reserved inventory.
+- *PaymentIntent* (Payment root). Models the lifecycle of a customer's payment authorisation, transitioning through `Pending`, `RequiresAction`, `Processing`, `Succeeded`, `Canceled`, and `Failed` states. Invariants: sum of all captures must not exceed the authorised amount. The system maintains its own payment state in parallel with the gateway, enabling consistent behaviour across the Stripe production gateway and the Bogus development gateway.
+- *StockItem* (Inventory root). Tracks physical availability of a variant at a warehouse location with two counters: on-hand (physical count) and reserved (checkout holds). Invariants: `QuantityOnHand >= 0`; all quantity changes must be recorded as append-only *StockMovement* ledger entries with before/after balances, reason, and operator identity.
 
 ==== Ubiquitous Language Glossary
 

@@ -7,7 +7,7 @@
   caption: [Use case diagram for Payment Processing (UC-STR-PAY).],
 ) <fig-uc-str-pay-d>
 
-==== UC-STR-PAY — Payment Processing
+==== UC-STR-PAY: Payment Processing
 
 #figure(
   table(
@@ -68,7 +68,7 @@
   caption: [Use case diagram for Authentication (UC-STR-AUT).],
 ) <fig-uc-str-aut-d>
 
-==== UC-STR-AUT — Authentication
+==== UC-STR-AUT: Authentication
 
 #figure(
   table(
@@ -141,7 +141,7 @@
   caption: [Use case diagram for Session Management (UC-STR-SES).],
 ) <fig-uc-str-ses-d>
 
-==== UC-STR-SES — Session Management
+==== UC-STR-SES: Session Management
 
 #figure(
   table(

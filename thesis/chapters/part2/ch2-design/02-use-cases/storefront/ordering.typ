@@ -7,7 +7,7 @@
   caption: [Use case diagram for Cart Management (UC-STR-CRT).],
 ) <fig-uc-str-crt-d>
 
-==== UC-STR-CRT — Manage Cart
+==== UC-STR-CRT: Manage Cart
 
 #figure(
   table(
@@ -69,7 +69,7 @@
   caption: [Use case diagram for Checkout Flow (UC-STR-CHK).],
 ) <fig-uc-str-chk-d>
 
-==== UC-STR-CHK — Checkout
+==== UC-STR-CHK: Checkout
 
 #figure(
   table(
@@ -142,7 +142,7 @@
   caption: [Use case diagram for Order History (UC-STR-OHI).],
 ) <fig-uc-str-ohi-d>
 
-==== UC-STR-OHI — Order History
+==== UC-STR-OHI: Order History
 
 #figure(
   table(

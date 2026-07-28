@@ -7,7 +7,7 @@
   caption: [Use case diagram for Embedding Operations (UC-SYS-EMB).],
 ) <fig-uc-sys-emb-d>
 
-==== UC-SYS-EMB — Embedding Operations
+==== UC-SYS-EMB: Embedding Operations
 
 #figure(
   table(
@@ -73,7 +73,7 @@
   caption: [Use case diagram for Background Maintenance (UC-SYS-MNT).],
 ) <fig-uc-sys-mnt-d>
 
-==== UC-SYS-MNT — System Maintenance
+==== UC-SYS-MNT: System Maintenance
 
 #figure(
   table(

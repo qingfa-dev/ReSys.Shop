@@ -1,6 +1,5 @@
 ==== Order Lifecycle
 
-// Diagram placeholder: Order Lifecycle use case diagram
 #figure(
   image(
     "../../../../../figures/chapters/part2/ch2-design/02-use-cases/diagrams/P2S2.2.2_usecase-order-lifecycle.png",
@@ -9,7 +8,7 @@
   caption: [Use case diagram for Order Lifecycle (UC-ADM-ORD, UC-ADM-ORD-ITEMS).],
 ) <fig-uc-adm-ord-d>
 
-==== UC-ADM-ORD — Manage Orders
+==== UC-ADM-ORD: Manage Orders
 
 #figure(
   table(
@@ -81,7 +80,7 @@
   caption: [Manage Orders.],
 )
 
-==== UC-ADM-ORD-ITEMS — Manage Order Details
+==== UC-ADM-ORD-ITEMS: Manage Order Details
 
 #figure(
   table(
