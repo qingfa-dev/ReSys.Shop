@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import PageShell from '@ui/PageShell.vue'
+import { PageShell } from '@panel'
 </script>
 
 <template>
