@@ -29,7 +29,7 @@ export function parseFilterDsl(
 
   const segments = dsl.split(',').map(s => s.trim()).filter(Boolean)
   for (const segment of segments) {
-    const match = segment.match(/^(\w[\w.]*)\s*(!=|>=|<=|==|>|<|\*\~|!\*|\^~|!\^|\$\~|!\$|\*|\^|\$|=|\!)\s*(.+)$/)
+    const match = segment.match(/^(\w[\w.]*)\s*(!=|>=|<=|==|>|<|\*~|!\*|\^~|!\^|\$~|!\$|\*|\^|\$|=|!)\s*(.+)$/)
     if (!match) {
       errors.push(FilterErrors.invalidSyntax(segment))
       continue

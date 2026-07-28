@@ -29,7 +29,7 @@ IResourceBuilder<ProjectResource> api = builder.AddProject<Projects.Api>(Service
     .WithOtlpExporter();
 
 #pragma warning disable ASPIRECERTIFICATES001
-builder.AddViteApp(Application.Admin, "../../../../app/AdminPanel")
+builder.AddViteApp(Application.Admin, "../../../../app/Admin")
     .WithPnpm()
     .WithReference(api)
     .WithHttpsEndpoint(port: 5173, env: "PORT")

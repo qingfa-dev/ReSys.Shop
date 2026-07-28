@@ -51,7 +51,7 @@ async function onSubmit() {
 
 <template>
   <div>
-    <FloatLabel variant="on" class="w-full md:w-[30rem] mb-8">
+    <FloatLabel variant="on" class="w-full md:w-120 mb-8">
       <IconField>
         <InputIcon> <User /> </InputIcon>
         <InputText

@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { ref } from 'vue'
-import { useRouter } from 'vue-router'
 import { useForm } from 'vee-validate'
 import { toTypedSchema } from '@vee-validate/zod'
 import { forgotPasswordSchema } from '../validations/auth'
@@ -12,7 +11,6 @@ import InputText from 'primevue/inputtext'
 import FloatLabel from 'primevue/floatlabel'
 import Message from 'primevue/message'
 import Envelope from '@primeicons/vue/envelope'
-
 
 const { defineField, errors, handleSubmit } = useForm({
   validationSchema: toTypedSchema(forgotPasswordSchema),
@@ -48,7 +46,17 @@ const onSubmit = handleSubmit(async (values) => {
       <FloatLabel variant="on">
         <IconField>
           <InputIcon> <Envelope /> </InputIcon>
-          <InputText id="email" v-model="email" v-bind="emailAttrs" fluid size="large" type="email" placeholder="Email address" autocomplete="email" :invalid="!!errors.email" />
+          <InputText
+            id="email"
+            v-model="email"
+            v-bind="emailAttrs"
+            fluid
+            size="large"
+            type="email"
+            placeholder="Email address"
+            autocomplete="email"
+            :invalid="!!errors.email"
+          />
         </IconField>
         <label for="email">Email</label>
       </FloatLabel>
