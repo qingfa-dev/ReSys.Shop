@@ -36,14 +36,6 @@ export class MockPaymentIntentRepository implements IPaymentIntentRepository {
     intent.status = 'succeeded'
     return { isSuccess: true, isFailure: false, statusCode: 200, data: intent }
   }
-
-  async cancel(paymentIntentId: string): Promise<Result<void>> {
-    const intent = mockPaymentIntents.find(i => i.id === paymentIntentId)
-    if (!intent) {
-      return { isSuccess: false, isFailure: true, statusCode: 404, message: 'Payment intent not found' }
-    }
-    return { isSuccess: true, isFailure: false, statusCode: 200, data: undefined }
-  }
 }
 
 export const mockPaymentIntentRepository = new MockPaymentIntentRepository()

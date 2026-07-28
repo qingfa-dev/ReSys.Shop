@@ -14,7 +14,11 @@ export class ProfileApiRepository extends BaseRepository implements IProfileRepo
   }
 
   async uploadAvatar(userId: string, file: File): Promise<Result<ProfileResponse>> {
-    return this.uploadFile(PROFILE_ENDPOINTS.UPDATE_PROFILE, userId, file, 'avatar')
+    const result = await this.uploadFile(PROFILE_ENDPOINTS.UPDATE_PROFILE, userId, file, 'avatar')
+    if (result.isFailure) {
+      return result as unknown as Result<ProfileResponse>
+    }
+    return this.getProfile(userId)
   }
 }
 
