@@ -31,27 +31,29 @@ const emit = defineEmits<{
 
 <template>
     <Card class="mb-6">
-    <Toolbar class="mb-4">
-      <template #start>
-        <Button :label="newLabel" severity="secondary" class="mr-2" @click="emit('new')">
-          <Plus />
-        </Button>
-        <Button :label="deleteLabel" severity="secondary" :disabled="deleteDisabled" @click="emit('delete')">
-          <Trash />
-        </Button>
+      <template #content>
+        <Toolbar class="mb-4">
+          <template #start>
+            <Button :label="newLabel" severity="secondary" class="mr-2" @click="emit('new')">
+              <Plus />
+            </Button>
+            <Button :label="deleteLabel" severity="secondary" :disabled="deleteDisabled" @click="emit('delete')">
+              <Trash />
+            </Button>
+          </template>
+          <template #end>
+            <Button :label="exportLabel" severity="secondary" @click="emit('export')">
+              <Upload />
+            </Button>
+          </template>
+        </Toolbar>
+        <div class="flex justify-between items-center">
+          <slot name="header-left" />
+          <IconField>
+            <InputIcon> <Search /> </InputIcon>
+            <InputText :placeholder="searchPlaceholder" fluid @update:modelValue="emit('update:search', $event ?? '')" />
+          </IconField>
+        </div>
       </template>
-      <template #end>
-        <Button :label="exportLabel" severity="secondary" @click="emit('export')">
-          <Upload />
-        </Button>
-      </template>
-    </Toolbar>
-    <div class="flex justify-between items-center">
-      <slot name="header-left" />
-      <IconField>
-        <InputIcon> <Search /> </InputIcon>
-        <InputText :placeholder="searchPlaceholder" fluid @update:modelValue="emit('update:search', $event ?? '')" />
-      </IconField>
-    </div>
-  </Card>
+    </Card>
 </template>

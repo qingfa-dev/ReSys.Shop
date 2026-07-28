@@ -22,10 +22,12 @@ const emit = defineEmits<{
 
 <template>
   <Card class="flex flex-col items-center justify-center py-12 gap-4">
-    <component :is="icon" class="text-6xl text-surface-300 dark:text-surface-600" />
-    <div class="text-xl font-semibold text-surface-600 dark:text-surface-300">{{ title }}</div>
-    <p v-if="description" class="text-muted-color text-center max-w-md">{{ description }}</p>
-    <Button v-if="actionLabel" :label="actionLabel" @click="emit('action')" />
-    <slot />
+    <template #content>
+      <component :is="icon" class="text-6xl text-surface-300 dark:text-surface-600" />
+      <div class="text-xl font-semibold text-surface-600 dark:text-surface-300">{{ title }}</div>
+      <p v-if="description" class="text-muted-color text-center max-w-md">{{ description }}</p>
+      <Button v-if="actionLabel" :label="actionLabel" @click="emit('action')" />
+      <slot />
+    </template>
   </Card>
 </template>
