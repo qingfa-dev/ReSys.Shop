@@ -24,26 +24,21 @@ export class ProductApiRepository extends BaseRepository implements IProductRepo
     return this.get<ProductResponse>(`/api/storefront/products/slug/${slug}`)
   }
 
-  async searchProducts(query: string, limit = 10): Promise<PagedResult<ProductResponse>> {
-    return super.getPaged<ProductResponse>(
-      '/api/storefront/products/search',
-      { page: 1, pageSize: limit },
-      undefined,
-      { search: query, searchFields: ['name', 'description'] }
-    )
-  }
-
   async getFeaturedProducts(limit = 8): Promise<PagedResult<ProductResponse>> {
     return super.getPaged<ProductResponse>(
-      '/api/storefront/products/featured',
-      { page: 1, pageSize: limit }
+      this.endpoint,
+      { page: 1, pageSize: limit },
+      { filter: 'featured:true' }
     )
   }
 
   async getNewArrivals(limit = 8): Promise<PagedResult<ProductResponse>> {
     return super.getPaged<ProductResponse>(
-      '/api/storefront/products/new',
-      { page: 1, pageSize: limit }
+      this.endpoint,
+      { page: 1, pageSize: limit },
+      undefined,
+      undefined,
+      { sortBy: 'createdAt', sortOrder: 'desc' }
     )
   }
 }

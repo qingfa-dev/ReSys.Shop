@@ -14,9 +14,6 @@ export class CategoryApiRepository extends BaseRepository implements ICategoryRe
     return super.getById<T>(this.endpoint, id)
   }
 
-  async getBySlug(slug: string): Promise<Result<CategoryResponse>> {
-    return this.get<CategoryResponse>(`/api/storefront/taxons/slug/${slug}`)
-  }
 }
 
 export const categoryApiRepository = new CategoryApiRepository()

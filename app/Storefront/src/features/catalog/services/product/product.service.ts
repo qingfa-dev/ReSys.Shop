@@ -35,7 +35,10 @@ export class ProductService implements IProductService {
   }
 
   async searchProducts(query: string, limit = 10): Promise<Result<Product[]>> {
-    const response = await this.productRepository.searchProducts(query, limit)
+    const response = await this.productRepository.getAll({
+      paging: { page: 1, pageSize: limit },
+      search: { search: query, searchFields: ['name', 'description'] },
+    })
     if (response.isFailure) {
       return fail(response.message ?? 'Search failed', response.statusCode, response.errors)
     }
@@ -43,7 +46,10 @@ export class ProductService implements IProductService {
   }
 
   async getFeaturedProducts(limit = 8): Promise<Result<Product[]>> {
-    const response = await this.productRepository.getFeaturedProducts(limit)
+    const response = await this.productRepository.getAll({
+      paging: { page: 1, pageSize: limit },
+      filter: { filter: JSON.stringify({ featured: 'true' }) },
+    })
     if (response.isFailure) {
       return fail(response.message ?? 'Failed to get featured products', response.statusCode, response.errors)
     }
@@ -51,7 +57,10 @@ export class ProductService implements IProductService {
   }
 
   async getNewArrivals(limit = 8): Promise<Result<Product[]>> {
-    const response = await this.productRepository.getNewArrivals(limit)
+    const response = await this.productRepository.getAll({
+      paging: { page: 1, pageSize: limit },
+      sort: { sortBy: 'createdAt', sortOrder: 'desc' },
+    })
     if (response.isFailure) {
       return fail(response.message ?? 'Failed to get new arrivals', response.statusCode, response.errors)
     }

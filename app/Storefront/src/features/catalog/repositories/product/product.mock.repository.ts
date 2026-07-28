@@ -61,6 +61,12 @@ export class MockProductRepository {
 
     if (params?.filter?.filter) {
       const parsedFilter = JSON.parse(params.filter.filter)
+
+      if ('featured' in parsedFilter) {
+        delete parsedFilter.featured
+        result = result.filter(p => p.compareAtPrice !== undefined && p.compareAtPrice !== null)
+      }
+
       const filters = buildFilters<ProductResponse>(parsedFilter)
       result = filterByOperator(result, filters)
     }

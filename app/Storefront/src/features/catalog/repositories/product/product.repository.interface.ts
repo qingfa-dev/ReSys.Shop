@@ -12,7 +12,5 @@ export interface IProductRepository {
   getAll(params?: ProductQueryParams): Promise<PagedResult<ProductResponse>>
   getById<T = ProductResponse>(id: string): Promise<Result<T>>
   getProductBySlug(slug: string): Promise<Result<ProductResponse>>
-  searchProducts(query: string, limit?: number): Promise<PagedResult<ProductResponse>>
-  getFeaturedProducts(limit?: number): Promise<PagedResult<ProductResponse>>
-  getNewArrivals(limit?: number): Promise<PagedResult<ProductResponse>>
+
 }
