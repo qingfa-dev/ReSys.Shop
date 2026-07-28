@@ -72,11 +72,10 @@ describe('stateSchema', () => {
       countryId: '',
       isActive: true,
     })
-    if (!result.success) {
-      const fields = result.error.issues.map(i => String(i.path[0]))
-      expect(fields).toContain('name')
-      expect(fields).toContain('abbreviation')
-      expect(fields).toContain('countryId')
-    }
+    expect(result.success).toBe(false)
+    const fields = result.error!.issues.map(i => String(i.path[0]))
+    expect(fields).toContain('name')
+    expect(fields).toContain('abbreviation')
+    expect(fields).toContain('countryId')
   })
 })

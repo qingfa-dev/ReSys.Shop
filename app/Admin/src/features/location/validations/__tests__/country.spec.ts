@@ -51,9 +51,8 @@ describe('countryIsoCode', () => {
 
   it('returns correct error message', () => {
     const result = countryIsoCode.safeParse('us')
-    if (!result.success) {
-      expect(result.error!.issues[0]!.message).toBe('ISO code must be 2-3 uppercase letters.')
-    }
+    expect(result.success).toBe(false)
+    expect(result.error!.issues[0]!.message).toBe('ISO code must be 2-3 uppercase letters.')
   })
 })
 
@@ -106,10 +105,9 @@ describe('countrySchema', () => {
       statesRequired: false,
       isActive: true,
     })
-    if (!result.success) {
-      const fields = result.error.issues.map(i => String(i.path[0]))
-      expect(fields).toContain('name')
-      expect(fields).toContain('isoCode')
-    }
+    expect(result.success).toBe(false)
+    const fields = result.error!.issues.map(i => String(i.path[0]))
+    expect(fields).toContain('name')
+    expect(fields).toContain('isoCode')
   })
 })
