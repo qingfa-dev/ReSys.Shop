@@ -8,8 +8,6 @@ public static partial class CreateOptionValue
     {
         public Validator()
         {
-            RuleFor(x => x.OptionTypeId).NotEmpty();
-
             RuleFor(x => x.Request)
                 .ApplyOptionValueParametersRules();
         }

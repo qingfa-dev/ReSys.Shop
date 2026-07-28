@@ -9,7 +9,7 @@ namespace Module.Catalog.Features.Admin.OptionTypes.OptionValues.Update;
 /// </summary>
 public static partial class UpdateOptionValue
 {
-    public sealed record Command(Guid OptionTypeId, Guid Id, Request Request) : ICommand<Response>;
+    public sealed record Command(Guid Id, Request Request) : ICommand<Response>;
 
     public sealed class CommandHandler(
         IApplicationDbContext dbContext,
@@ -26,8 +26,8 @@ public static partial class UpdateOptionValue
         // Contract: pre=command.OptionTypeId!=Guid.Empty && command.Id!=Guid.Empty, post=result!=null, throws=DbUpdateException
         public async Task<Result<Response>> Handle(Command command, CancellationToken cancellationToken)
         {
-            var optionTypeId = command.OptionTypeId;
             var request = command.Request;
+            var optionTypeId = request.OptionTypeId;
 
             // Validate: Parent option type must exist to receive updates
             var optionType = await dbContext.Set<OptionType>().FindAsync([optionTypeId], cancellationToken);

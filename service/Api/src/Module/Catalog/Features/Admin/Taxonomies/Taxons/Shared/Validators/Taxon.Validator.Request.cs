@@ -9,6 +9,10 @@ public static class TaxonValidator
     {
         public ParametersValidator()
         {
+            #region Relationship
+            RuleFor(x => x.TaxonomyId)
+                .ApplyTaxonomyIdRules();
+            #endregion
             #region Properties
             RuleFor(x => x.Name).ApplyNameRules();
             RuleFor(x => x.Presentation).ApplyPresentationRules();

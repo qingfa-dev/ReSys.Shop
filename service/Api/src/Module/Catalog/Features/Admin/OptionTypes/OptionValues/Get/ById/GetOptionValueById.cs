@@ -8,7 +8,7 @@ namespace Module.Catalog.Features.Admin.OptionTypes.OptionValues.Get.ById;
 /// </summary>
 public static partial class GetOptionValueById
 {
-    public sealed record Query(Guid OptionTypeId, Guid Id) : IQuery<Response>;
+    public sealed record Query(Guid Id) : IQuery<Response>;
 
     public sealed class QueryHandler(IApplicationDbContext dbContext)
         : IQueryHandler<Query, Response>
@@ -26,7 +26,7 @@ public static partial class GetOptionValueById
             var entity = await dbContext.Set<OptionValue>()
                 .Include(x => x.OptionType)
                 .AsNoTracking()
-                .FirstOrDefaultAsync(x => x.Id == request.Id && x.OptionTypeId == request.OptionTypeId, cancellationToken);
+                .FirstOrDefaultAsync(x => x.Id == request.Id, cancellationToken);
 
             // Guard: Return not found if the entity does not exist
             if (entity is null)

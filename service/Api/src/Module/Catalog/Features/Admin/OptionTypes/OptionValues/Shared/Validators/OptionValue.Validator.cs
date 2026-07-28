@@ -9,6 +9,7 @@ public static partial class OptionValueValidators
     {
         public OptionValueParametersValidator()
         {
+            RuleFor(x => x.OptionTypeId).ApplyOptionTypeIdRules();
             RuleFor(x => x.Name).ApplyNameRules();
             RuleFor(x => x.Presentation).ApplyPresentationRules();
             RuleFor(x => x.Position).ApplyPositionRules();

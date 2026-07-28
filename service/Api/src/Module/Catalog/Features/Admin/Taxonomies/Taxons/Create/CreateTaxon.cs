@@ -12,7 +12,7 @@ namespace Module.Catalog.Features.Admin.Taxonomies.Taxons.Create;
 /// </summary>
 public static partial class CreateTaxon
 {
-    public sealed record Command(Guid TaxonomyId, Request Request) : ICommand<Response>;
+    public sealed record Command(Request Request) : ICommand<Response>;
 
     public sealed class CommandHandler(
         IApplicationDbContext dbContext,
@@ -30,8 +30,8 @@ public static partial class CreateTaxon
         // Contract: pre=command.TaxonomyId!=Guid.Empty, post=result.Id!=null, throws=DbUpdateException
         public async Task<Result<Response>> Handle(Command command, CancellationToken cancellationToken)
         {
-            var taxonomyId = command.TaxonomyId;
             var request = command.Request;
+            var taxonomyId = request.TaxonomyId;
 
             // Validate: Parent taxonomy must exist to accept new taxons
             var taxonomyExists = await dbContext.Set<Taxonomy>()

@@ -8,7 +8,7 @@ namespace Module.Catalog.Features.Admin.OptionTypes.OptionValues.Get.Paged;
 /// </summary>
 public static partial class GetOptionValuesPaged
 {
-    public record Query(Guid OptionTypeId, Parameters Parameters) : IPagedQuery<Response>;
+    public record Query(Parameters Parameters) : IPagedQuery<Response>;
 
     public sealed class PagedQueryHandler(IApplicationDbContext dbContext)
         : IPagedQueryHandler<Query, Response>
@@ -39,7 +39,6 @@ public static partial class GetOptionValuesPaged
             var pagedResult = await dbContext.Set<OptionValue>()
                 .Include(x => x.OptionType)
                 .AsNoTracking()
-                .Where(x => x.OptionTypeId == request.OptionTypeId)
                 .ApplyQuerying(parametersResult.Value)
                 .ToPagedOrAllAsync(parametersResult.Value, x => x.MapToListItem<Response>(), cancellationToken);
 

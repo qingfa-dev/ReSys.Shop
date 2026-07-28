@@ -89,6 +89,8 @@ public class TaxonMappingTests
         response.Name.Should().Be(taxon.Name);
         response.ParentId.Should().Be(parent.Id);
         response.ParentName.Should().Be(parent.Name);
+        response.TaxonomyId.Should().Be(taxon.TaxonomyId);
+        response.TaxonomyName.Should().Be(taxon.Taxonomy?.Name);
     }
 
     [Fact(DisplayName = "MapToTreeItem: Should map Taxon entity to TaxonTreeItem with children")]

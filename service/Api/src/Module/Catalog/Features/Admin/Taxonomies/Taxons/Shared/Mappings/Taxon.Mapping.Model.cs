@@ -13,6 +13,9 @@ public static partial class TaxonMapping
             Id = entity.Id,
             #region Relationships
             ParentId = entity.ParentId,
+            ParentName = entity.Parent?.Name,
+            TaxonomyId = entity.TaxonomyId,
+            TaxonomyName = entity.Taxonomy?.Name,
             #endregion
             #region Properties
             Name = entity.Name,
@@ -67,6 +70,8 @@ public static partial class TaxonMapping
             #region Relationships
             ParentId = entity.ParentId,
             ParentName = entity.Parent?.Name,
+            TaxonomyId = entity.TaxonomyId,
+            TaxonomyName = entity.Taxonomy?.Name,
             #endregion
             #region Properties
             Name = entity.Name,

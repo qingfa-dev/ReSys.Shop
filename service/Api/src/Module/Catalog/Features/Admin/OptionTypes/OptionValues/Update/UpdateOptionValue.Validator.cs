@@ -8,7 +8,6 @@ public static partial class UpdateOptionValue
     {
         public Validator()
         {
-            RuleFor(x => x.OptionTypeId).NotEmpty();
             RuleFor(x => x.Id).NotEmpty();
 
             RuleFor(x => x.Request)

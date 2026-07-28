@@ -8,4 +8,5 @@ public abstract record OptionValueParameters : INamedParameters, ISortableParame
     public string Name { get; init; } = string.Empty;
     public string? Presentation { get; init; }
     public int Position { get; init; } = 0;
+    public Guid OptionTypeId { get; init; } = Guid.Empty;
 }

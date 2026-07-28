@@ -10,11 +10,6 @@ public record OptionValueListItemResponse : OptionValueParameters, IResponse
     /// </summary>
     public Guid Id { get; init; }
 
-    /// <summary>
-    /// Gets or initializes the unique identifier of the parent option type.
-    /// </summary>
-    public Guid OptionTypeId { get; init; }
-
     /// <summary> 
     /// Gets or initializes the name of the parent option type, included for convenience in responses.
     /// </summary>

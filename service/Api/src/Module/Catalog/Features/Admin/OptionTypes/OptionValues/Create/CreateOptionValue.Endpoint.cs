@@ -9,12 +9,11 @@ public static partial class CreateOptionValue
         public void AddRoutes(IEndpointRouteBuilder app)
         {
             app.MapPost(CatalogFeature.Admin.OptionTypes.OptionValues.Create.Route, async (
-                [FromRoute] Guid optionTypeId,
                 [FromBody] Request request,
                 ISender sender,
                 CancellationToken ct) =>
             {
-                var command = new Command(optionTypeId, request);
+                var command = new Command(request);
                 var result = await sender.Send(command, ct);
                 return result.ToResult();
             })

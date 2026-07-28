@@ -15,7 +15,7 @@ public static partial class UpdateOptionValue
                 ISender sender,
                 CancellationToken ct) =>
             {
-                var command = new Command(optionTypeId, id, request);
+                var command = new Command(id, request);
                 var result = await sender.Send(command, ct);
                 return result.ToResult();
             })

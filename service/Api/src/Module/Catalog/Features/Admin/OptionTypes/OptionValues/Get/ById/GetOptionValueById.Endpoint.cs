@@ -9,12 +9,11 @@ public static partial class GetOptionValueById
         public void AddRoutes(IEndpointRouteBuilder app)
         {
             app.MapGet(CatalogFeature.Admin.OptionTypes.OptionValues.GetById.Route, async (
-                Guid optionTypeId,
                 Guid id,
                 ISender sender,
                 CancellationToken ct) =>
             {
-                var query = new Query(optionTypeId, id);
+                var query = new Query(id);
                 var result = await sender.Send(query, ct);
                 return result.ToResult();
             })

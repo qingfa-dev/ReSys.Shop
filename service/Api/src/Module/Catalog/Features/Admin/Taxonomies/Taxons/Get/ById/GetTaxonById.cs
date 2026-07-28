@@ -9,7 +9,7 @@ namespace Module.Catalog.Features.Admin.Taxonomies.Taxons.Get.ById;
 /// </summary>
 public static partial class GetTaxonById
 {
-    public sealed record Query(Guid TaxonomyId, Guid Id) : IQuery<Response>;
+    public sealed record Query(Guid Id) : IQuery<Response>;
 
     public sealed class QueryHandler(IApplicationDbContext dbContext)
         : IQueryHandler<Query, Response>
@@ -23,16 +23,17 @@ public static partial class GetTaxonById
         // Contract: pre=request!=null, post=result!=null
         public async Task<Result<Response>> Handle(Query request, CancellationToken cancellationToken)
         {
-            // Check: Parent taxonomy must exist before querying its taxon
-            var taxonomyExists = await dbContext.Set<Taxonomy>()
-                .AnyAsync(x => x.Id == request.TaxonomyId, cancellationToken);
-            if (!taxonomyExists)
-                return TaxonomyResult.Errors.NotFound;
 
             // Load: Fetch taxon with parent reference for hierarchy context
             var entity = await dbContext.Set<Taxon>()
+                .Include(x => x.Taxonomy)
                 .Include(x => x.Parent)
-                .FirstOrDefaultAsync(x => x.Id == request.Id && x.TaxonomyId == request.TaxonomyId, cancellationToken);
+                .FirstOrDefaultAsync(x => x.Id == request.Id, cancellationToken);
+
+            // Check: Parent taxonomy must exist
+            var taxonomyExists = entity?.Taxonomy != null;
+            if (!taxonomyExists)
+                return TaxonomyResult.Errors.NotFound;
 
             if (entity is null)
                 return TaxonResult.Errors.NotFound;

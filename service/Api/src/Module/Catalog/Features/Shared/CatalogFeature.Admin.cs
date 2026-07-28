@@ -54,7 +54,7 @@ public static partial class CatalogFeature
 
             public static class OptionValues
             {
-                private const string ValuesBaseRoute = $"{BaseRoute}/{{optionTypeId:guid}}/values";
+                private const string ValuesBaseRoute = $"{BaseRoute}/option-values";
 
                 public static class Create
                 {
@@ -152,7 +152,7 @@ public static partial class CatalogFeature
 
             public static class Taxons
             {
-                public const string TaxonBaseRoute = $"{BaseRoute}/{{taxonomyId:guid}}/taxons";
+                public const string TaxonBaseRoute = $"{BaseRoute}/taxons";
 
                 public static class Create
                 {

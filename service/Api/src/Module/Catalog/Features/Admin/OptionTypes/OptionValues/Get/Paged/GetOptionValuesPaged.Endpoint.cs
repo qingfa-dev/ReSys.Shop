@@ -9,12 +9,11 @@ public static partial class GetOptionValuesPaged
         public void AddRoutes(IEndpointRouteBuilder app)
         {
             app.MapGet(CatalogFeature.Admin.OptionTypes.OptionValues.GetAll.Route, async (
-                Guid optionTypeId,
                 [AsParameters] Parameters parameters,
                 ISender sender,
                 CancellationToken ct) =>
             {
-                var query = new Query(optionTypeId, parameters);
+                var query = new Query(parameters);
                 var result = await sender.Send(query, ct);
                 return result.ToPagedResult();
             })
