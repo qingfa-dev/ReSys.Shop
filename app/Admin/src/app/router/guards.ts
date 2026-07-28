@@ -1,22 +1,24 @@
 import type { Router } from 'vue-router'
-import { STORAGE_KEYS } from '@/shared/constants/storage'
+import { useAuthStore } from '@/features/auth/stores/authStore'
 
-function getAccessToken(): string | null {
-  try {
-    return localStorage.getItem(STORAGE_KEYS.ACCESS_TOKEN)
-  } catch {
-    return null
-  }
-}
+let isInitialized = false
 
 export function setupGuards(router: Router): void {
-  // TODO: re-enable auth guard after route scaffold review
-  // router.beforeEach((to, _from, next) => {
-  //   if (to.meta.requiresAuth && !getAccessToken()) {
-  //     return next({ name: 'login', query: { redirect: to.fullPath } })
-  //   }
-  //   next()
-  // })
+  router.beforeEach(async (to, _from, next) => {
+    const store = useAuthStore()
+
+    if (!isInitialized) {
+      await store.init()
+      isInitialized = true
+    }
+
+    // TODO: re-enable auth guard after route scaffold review
+    // if (to.meta.requiresAuth && !store.isAuthenticated) {
+    //   return next({ name: 'login', query: { redirect: to.fullPath } })
+    // }
+
+    next()
+  })
 
   router.afterEach((to) => {
     if (to.meta.title) {
