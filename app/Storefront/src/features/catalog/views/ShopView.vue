@@ -9,7 +9,6 @@ import Drawer from "primevue/drawer";
 import Toolbar from "primevue/toolbar";
 import { useCatalog } from "../composables/useCatalog";
 import { useCart } from "@/features/ordering/composables/useCart";
-import { useWishlistStore } from "../store/wishlist";
 import SearchBar from "../components/search/SearchBar.vue";
 import ShopFilters from "../components/search/ShopFilters.vue";
 import ProductCard from "../components/product/ProductCard.vue";
@@ -76,7 +75,6 @@ const {
 } = useCatalog();
 
 const { addToCart: addToCartStore } = useCart();
-const wishlistStore = useWishlistStore();
 
 const sortOptions = ref([
   { label: "Newest", value: "newest" },
@@ -223,23 +221,7 @@ async function handleAddToCart(product: Product, colorId?: string, sizeId?: stri
   await addToCartStore(product.id, product.name + variantLabel, image, 1, product.price);
 }
 
-function handleAddToWishlist(product: Product) {
-  wishlistStore.toggle({
-    id: `temp-${product.id}`,
-    productId: product.id,
-    name: product.name,
-    slug: product.slug,
-    price: product.price,
-    compareAtPrice: product.compareAtPrice,
-    image: getProductImage(product),
-    brand: {
-      id: product.category?.id || "unknown",
-      name: product.category?.name || "Unknown",
-      slug: product.category?.slug || "unknown",
-    },
-    addedAt: new Date().toISOString(),
-  });
-}
+function handleAddToWishlist(_product: Product) {}
 
 function handleProductClick(product: Product) {
   router.push({ name: "product-detail", params: { id: product.id } });

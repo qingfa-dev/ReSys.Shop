@@ -20,7 +20,7 @@ export class MockNotificationsRepository implements INotificationsRepository {
     if (index === -1) {
       return { isSuccess: false, isFailure: true, statusCode: 404, message: 'Preference not found' }
     }
-    this.preferences[index] = { ...this.preferences[index], ...updates }
+    this.preferences[index] = { ...this.preferences[index], ...updates } as NotificationPreference
     return { isSuccess: true, isFailure: false, statusCode: 200, data: this.preferences[index] }
   }
 

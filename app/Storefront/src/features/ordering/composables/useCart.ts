@@ -72,10 +72,6 @@ export function useOrder() {
     return await store.checkout(request)
   }
 
-  async function cancelOrder(id: string) {
-    await store.cancelOrder(id)
-  }
-
   return {
     orders,
     currentOrder,
@@ -87,6 +83,5 @@ export function useOrder() {
     loadOrder,
     loadCheckoutData,
     placeOrder,
-    cancelOrder,
   }
 }

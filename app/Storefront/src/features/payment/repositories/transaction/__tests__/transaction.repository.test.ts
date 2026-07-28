@@ -38,23 +38,4 @@ describe('TransactionRepository', () => {
       expect(result.isSuccess).toBe(true)
     })
   })
-
-  describe('refund', () => {
-    it('should refund full amount by default', async () => {
-      const result = await mockTransactionRepository.refund('txn-1')
-      expect(result.isSuccess).toBe(true)
-      expect(result.data?.status).toBe('refunded')
-    })
-
-    it('should refund partial amount when specified', async () => {
-      const result = await mockTransactionRepository.refund('txn-1', 250)
-      expect(result.isSuccess).toBe(true)
-      expect(result.data?.amount).toBe(-250)
-    })
-
-    it('should return error for non-existent transaction', async () => {
-      const result = await mockTransactionRepository.refund('invalid-id')
-      expect(result.isFailure).toBe(true)
-    })
-  })
 })

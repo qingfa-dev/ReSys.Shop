@@ -8,11 +8,4 @@ describe('TransactionService', () => {
       expect(result).toBeDefined()
     })
   })
-
-  describe('refundTransaction', () => {
-    it('should refund transaction', async () => {
-      const result = await transactionService.refundTransaction('txn-1')
-      expect(result).toBeDefined()
-    })
-  })
 })

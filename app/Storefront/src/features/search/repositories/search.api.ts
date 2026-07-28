@@ -9,7 +9,7 @@ export class SearchApiRepository extends BaseRepository implements ISearchReposi
   }
 
   async getSuggestions(query: string): Promise<Result<string[]>> {
-    return this.get<string[]>('/api/storefront/search/suggestions', { q: query })
+    return this.get<string[]>('/api/storefront/search/suggestions', { filter: `q:${query}` })
   }
 }
 
