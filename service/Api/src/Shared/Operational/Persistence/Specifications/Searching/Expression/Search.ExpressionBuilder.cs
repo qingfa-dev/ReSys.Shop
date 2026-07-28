@@ -38,18 +38,17 @@ internal static class SearchExpressionBuilder
             System.Reflection.PropertyInfo? propertyInfo = QueryHelper.GetPropertyCaseInsensitive(typeof(T), field);
             if (propertyInfo is null) continue;
 
-            if (propertyInfo.PropertyType != typeof(string)) continue;
-
             System.Linq.Expressions.MemberExpression property = LinqExpr.Property(parameter, propertyInfo);
             System.Linq.Expressions.Expression propertyValue = property;
 
+            if (propertyInfo.PropertyType != typeof(string))
+            {
+                propertyValue = LinqExpr.Call(propertyValue, nameof(object.ToString), Type.EmptyTypes);
+            }
+
             if (!model.Term.CaseSensitive)
             {
-                System.Linq.Expressions.MethodCallExpression toLowerCall = LinqExpr.Call(
-                    property,
-                    nameof(string.ToLower),
-                    Type.EmptyTypes);
-                propertyValue = toLowerCall;
+                propertyValue = LinqExpr.Call(propertyValue, nameof(string.ToLower), Type.EmptyTypes);
             }
 
             System.Linq.Expressions.MethodCallExpression containsCall = LinqExpr.Call(

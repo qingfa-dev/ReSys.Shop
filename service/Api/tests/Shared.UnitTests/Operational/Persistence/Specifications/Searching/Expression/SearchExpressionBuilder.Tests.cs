@@ -146,22 +146,35 @@ public sealed class SearchExpressionBuilderTests
         Evaluate(lambda, entity).Should().BeTrue();
     }
 
-    [Fact(DisplayName = "Build: Non-string fields are silently skipped")]
-    public void Build_NonStringFields_ShouldSkipAndNotThrow()
+    [Fact(DisplayName = "Build: Non-string fields are converted to string and searched")]
+    public void Build_NonStringFields_ShouldConvertToStringAndSearch()
     {
-        TestEntity entity = new() { Id = Guid.NewGuid(), Name = "hello world" };
-        SearchModel model = new(new SearchTerm { Value = "hello" }, ["Id", "Name"]);
+        Guid id = Guid.NewGuid();
+        string idString = id.ToString().ToLowerInvariant();
+        TestEntity entity = new() { Id = id, Name = "nothing" };
+        SearchModel model = new(new SearchTerm { Value = idString[..8] }, ["Id"]);
 
         Expression<Func<TestEntity, Boolean>> lambda = SearchExpressionBuilder.Build<TestEntity>(model, null);
 
         Evaluate(lambda, entity).Should().BeTrue();
     }
 
-    [Fact(DisplayName = "Build: When all fields are non-string, returns true (no-op)")]
-    public void Build_AllNonStringFields_ShouldReturnTrue()
+    [Fact(DisplayName = "Build: Non-string fields don't match wrong term")]
+    public void Build_NonStringFields_ShouldNotMatchWrongTerm()
     {
         TestEntity entity = new() { Id = Guid.NewGuid() };
-        SearchModel model = new(new SearchTerm { Value = "hello" }, ["Id"]);
+        SearchModel model = new(new SearchTerm { Value = "nonexistent" }, ["Id"]);
+
+        Expression<Func<TestEntity, Boolean>> lambda = SearchExpressionBuilder.Build<TestEntity>(model, null);
+
+        Evaluate(lambda, entity).Should().BeFalse();
+    }
+
+    [Fact(DisplayName = "Build: Mixed string and non-string fields in Any mode")]
+    public void Build_MixedStringAndNonStringFields_ShouldSearchBoth()
+    {
+        TestEntity entity = new() { Id = Guid.NewGuid(), Name = "hello world" };
+        SearchModel model = new(new SearchTerm { Value = "hello" }, ["Id", "Name"]);
 
         Expression<Func<TestEntity, Boolean>> lambda = SearchExpressionBuilder.Build<TestEntity>(model, null);
 
