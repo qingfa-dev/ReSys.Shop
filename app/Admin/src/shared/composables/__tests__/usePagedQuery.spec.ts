@@ -155,4 +155,27 @@ describe('usePagedQuery', () => {
       expect(items.value).toHaveLength(1)
     })
   })
+
+  it('passes allowedSearchFields to getPaged', async () => {
+    mockGetPaged.mockResolvedValue(okResult())
+
+    const { fetch } = usePagedQuery<{ id: string }>('/api/products', {
+      allowedFilterFields: ['name'],
+      allowedSortFields: ['name', 'createdAt'],
+      allowedSearchFields: ['name', 'description'],
+      immediate: false,
+    })
+
+    await fetch()
+
+    expect(mockGetPaged).toHaveBeenCalledWith(
+      '/api/products',
+      expect.objectContaining({ pageNumber: 1, pageSize: 20 }),
+      {
+        allowedFilterFields: ['name'],
+        allowedSortFields: ['name', 'createdAt'],
+        allowedSearchFields: ['name', 'description'],
+      },
+    )
+  })
 })

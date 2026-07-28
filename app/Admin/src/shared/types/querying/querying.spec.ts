@@ -105,4 +105,17 @@ describe('parseAll', () => {
       expect(result.errors[0]!.code).toBe('Sorting.Field.Disallowed')
     }
   })
+
+  it('enforces allowed search fields whitelist', () => {
+    const result = parseAll(
+      { search: 'test', searchFields: ['secret'] },
+      null,
+      null,
+      ['name'],
+    )
+    expect(isFailure(result)).toBe(true)
+    if (isFailure(result)) {
+      expect(result.errors[0]!.code).toBe('Search.Parsing.InvalidJson')
+    }
+  })
 })

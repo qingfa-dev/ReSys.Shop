@@ -127,4 +127,17 @@ describe('getPaged', () => {
     expect(result.errors[0]?.code).toBe('Filter.Field.Disallowed')
     expect(mockGet).not.toHaveBeenCalled()
   })
+
+  it('enforces allowed search fields whitelist', async () => {
+    const result = await getPaged<unknown>('/api/products', {
+      search: 'test',
+      searchFields: ['secret'],
+    }, {
+      allowedSearchFields: ['name'],
+    })
+
+    expect(result.isSuccess).toBe(false)
+    expect(result.errors[0]?.code).toBe('Search.Parsing.InvalidJson')
+    expect(mockGet).not.toHaveBeenCalled()
+  })
 })
