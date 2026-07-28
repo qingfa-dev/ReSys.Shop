@@ -4,6 +4,7 @@ import { computed } from 'vue';
 import AppFooter from './AppFooter.vue';
 import AppSidebar from './AppSidebar.vue';
 import AppTopbar from './AppTopbar.vue';
+import ConfirmDialog from 'primevue/confirmdialog';
 
 const { layoutConfig, layoutState, hideMobileMenu } = useLayout();
 
@@ -30,4 +31,5 @@ const containerClass = computed<Record<string, boolean | undefined>>(() => {
         </div>
         <div class="layout-mask animate-fadein" @click="hideMobileMenu" />
     </div>
+    <ConfirmDialog />
 </template>
