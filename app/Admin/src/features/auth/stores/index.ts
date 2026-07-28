@@ -1,1 +1,1 @@
-// Barrel exports for auth/stores
+export { useAuthStore } from './authStore'
