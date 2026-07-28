@@ -61,33 +61,33 @@ const onSubmit = handleSubmit(async (values) => {
 <template>
   <form @submit="onSubmit" class="flex flex-col gap-4 w-full md:w-120">
     <div class="flex flex-col gap-1">
-      <label for="email" class="text-surface-900 dark:text-surface-0 font-medium text-xl">Email</label>
-      <InputText id="email" :modelValue="email" disabled class="w-full" />
+      <label for="email" class="text-surface-900 dark:text-surface-0 font-medium text-2xl">Email</label>
+      <InputText id="email" :modelValue="email" disabled class="w-full p-4 text-lg" />
     </div>
 
     <div class="flex flex-col gap-1">
-      <label for="userId" class="text-surface-900 dark:text-surface-0 font-medium text-xl">User ID</label>
-      <InputText id="userId" :modelValue="userId" disabled class="w-full" />
+      <label for="userId" class="text-surface-900 dark:text-surface-0 font-medium text-2xl">User ID</label>
+      <InputText id="userId" :modelValue="userId" disabled class="w-full p-4 text-lg" />
     </div>
 
     <div class="flex flex-col gap-1">
-      <label for="token" class="text-surface-900 dark:text-surface-0 font-medium text-xl">Reset Token</label>
-      <InputText id="token" v-model="token" v-bind="tokenAttrs" class="w-full" :invalid="!!errors.token" />
+      <label for="token" class="text-surface-900 dark:text-surface-0 font-medium text-2xl">Reset Token</label>
+      <InputText id="token" v-model="token" v-bind="tokenAttrs" class="w-full p-4 text-lg" :invalid="!!errors.token" />
       <small v-if="errors.token" class="text-red-500">{{ errors.token }}</small>
     </div>
 
     <div class="flex flex-col gap-1">
-      <label for="newPassword" class="text-surface-900 dark:text-surface-0 font-medium text-xl">New Password</label>
-      <Password id="newPassword" v-model="newPassword" v-bind="newPasswordAttrs" class="w-full" :toggleMask="true" :feedback="false" :invalid="!!errors.newPassword" fluid/>
+      <label for="newPassword" class="text-surface-900 dark:text-surface-0 font-medium text-2xl">New Password</label>
+      <Password id="newPassword" v-model="newPassword" v-bind="newPasswordAttrs" class="w-full" :toggleMask="true" :feedback="false" :invalid="!!errors.newPassword" fluid inputClass="p-4 text-lg"/>
       <small v-if="errors.newPassword" class="text-red-500">{{ errors.newPassword }}</small>
     </div>
 
     <Message v-if="formError" severity="error" :closable="false">{{ formError }}</Message>
 
-    <Button type="submit" label="Reset Password" class="w-full" :loading="isSubmitting" />
+    <Button type="submit" label="Reset Password" class="w-full p-4 text-lg" :loading="isSubmitting" />
   </form>
 
-  <router-link to="/auth/login" class="text-sm text-primary hover:underline text-center block mt-4">
+  <router-link to="/auth/login" class="text-base text-primary hover:underline text-center block mt-4">
     &larr; Back to login
   </router-link>
 </template>

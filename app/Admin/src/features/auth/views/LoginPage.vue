@@ -43,12 +43,12 @@ async function onSubmit() {
 
 <template>
   <div>
-    <label for="email1" class="block text-surface-900 dark:text-surface-0 text-xl font-medium mb-2">Email or Username</label>
-    <InputText id="email1" v-model="credential" type="text" placeholder="Email address" class="w-full md:w-[30rem] mb-8" autocomplete="username" :invalid="!!fieldErrors.credential" />
+    <label for="email1" class="block text-surface-900 dark:text-surface-0 text-2xl font-medium mb-2">Email or Username</label>
+    <InputText id="email1" v-model="credential" type="text" placeholder="Email address" class="w-full md:w-[30rem] mb-8 p-4 text-lg" autocomplete="username" :invalid="!!fieldErrors.credential" />
     <small v-if="fieldErrors.credential" class="text-red-500 block -mt-6 mb-2">{{ fieldErrors.credential }}</small>
 
-    <label for="password1" class="block text-surface-900 dark:text-surface-0 font-medium text-xl mb-2">Password</label>
-    <Password id="password1" v-model="password" placeholder="Password" :toggleMask="true" class="mb-4" fluid :feedback="false" autocomplete="current-password" :invalid="!!fieldErrors.password" />
+    <label for="password1" class="block text-surface-900 dark:text-surface-0 font-medium text-2xl mb-2">Password</label>
+    <Password id="password1" v-model="password" placeholder="Password" :toggleMask="true" class="mb-4" fluid :feedback="false" autocomplete="current-password" :invalid="!!fieldErrors.password" inputClass="p-4 text-lg" />
     <small v-if="fieldErrors.password" class="text-red-500 block -mt-2 mb-2">{{ fieldErrors.password }}</small>
 
     <div class="flex items-center justify-between mt-2 mb-8 gap-8">
@@ -59,6 +59,6 @@ async function onSubmit() {
       <span class="font-medium no-underline ml-2 text-right cursor-pointer text-primary" @click="router.push('/auth/forgot-password')">Forgot password?</span>
     </div>
 
-    <Button label="Sign In" class="w-full" :loading="isLoading" @click="onSubmit" />
+    <Button label="Sign In" class="w-full p-4 text-lg" :loading="isLoading" @click="onSubmit" />
   </div>
 </template>

@@ -41,14 +41,14 @@ const onSubmit = handleSubmit(async (values) => {
 
   <form v-else @submit="onSubmit" class="flex flex-col gap-4 w-full md:w-120">
     <div class="flex flex-col gap-1">
-      <label for="email" class="text-surface-900 dark:text-surface-0 font-medium text-xl">Email</label>
-      <InputText id="email" v-model="email" v-bind="emailAttrs" class="w-full" type="email" placeholder="Email address" autocomplete="email" :invalid="!!errors.email" />
+      <label for="email" class="text-surface-900 dark:text-surface-0 font-medium text-2xl">Email</label>
+      <InputText id="email" v-model="email" v-bind="emailAttrs" class="w-full p-4 text-lg" type="email" placeholder="Email address" autocomplete="email" :invalid="!!errors.email" />
       <small v-if="errors.email" class="text-red-500">{{ errors.email }}</small>
     </div>
 
     <Message v-if="submitError" severity="error" :closable="false">{{ submitError }}</Message>
 
-    <Button type="submit" label="Send Reset Link" class="w-full" :loading="isSubmitting" />
+    <Button type="submit" label="Send Reset Link" class="w-full p-4 text-lg" :loading="isSubmitting" />
   </form>
 
   <router-link to="/auth/login" class="text-sm text-primary hover:underline text-center block mt-4">
