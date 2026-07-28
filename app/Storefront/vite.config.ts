@@ -1,7 +1,8 @@
 import { fileURLToPath, URL } from 'node:url'
 
 import tailwind from '@tailwindcss/vite'
-import ui from '@nuxt/ui/vite'
+import Components from 'unplugin-vue-components/vite'
+import { PrimeVueResolver } from '@primevue/auto-import-resolver'
 import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import vueJsx from '@vitejs/plugin-vue-jsx'
@@ -16,13 +17,8 @@ export default defineConfig({
     tailwind(),
     vue(),
     vueJsx(),
-    ui({
-      ui: {
-        colors: {
-          primary: 'amber',
-          neutral: 'zinc',
-        },
-      },
+    Components({
+      resolvers: [PrimeVueResolver()],
     }),
   ],
   resolve: {
