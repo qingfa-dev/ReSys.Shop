@@ -11,6 +11,7 @@ export interface UsePagedQueryOptions {
   defaultSearch?: string
   allowedFilterFields?: string[]
   allowedSortFields?: string[]
+  allowedSearchFields?: string[]
   immediate?: boolean
 }
 
@@ -72,6 +73,7 @@ export function usePagedQuery<T>(
     const result = await getPaged<T>(resolvedUrl, params, {
       allowedFilterFields: options?.allowedFilterFields,
       allowedSortFields: options?.allowedSortFields,
+      allowedSearchFields: options?.allowedSearchFields,
     })
 
     if (result.isSuccess) {

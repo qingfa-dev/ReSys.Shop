@@ -10,7 +10,7 @@ import type { Result } from '../result'
 import { ok, validation } from '../result'
 import { parseFilterDsl } from './parsers'
 import { parseSortString } from './parsers'
-import { parseSearchText } from './parsers'
+import { parseSearchQueryString } from './parsers'
 import { parsePageValues } from './parsers'
 import type { ApiError } from '../error'
 
@@ -59,11 +59,20 @@ export function parseAll(
   const pageResult = parsePageValues(params.pageNumber, params.pageSize, pageBounds)
   if (!pageResult.isSuccess) errors.push(...pageResult.errors)
 
+  const searchResult = parseSearchQueryString(
+    params.search,
+    params.searchFields?.join(',') ?? null,
+    params.searchMode ?? null,
+    null,
+    allowedSearchFields ?? null,
+  )
+  if (!searchResult.isSuccess) errors.push(...searchResult.errors)
+
   if (errors.length > 0) return validation(errors)
 
   return ok({
     filter: filterResult.value,
-    search: parseSearchText(params.search),
+    search: searchResult.value,
     sort: sortResult.value,
     page: pageResult.value,
   })

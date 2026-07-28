@@ -8,6 +8,7 @@ import type { ApiError } from '@/shared/types/error'
 export interface PagedRequestOptions {
   allowedFilterFields?: string[]
   allowedSortFields?: string[]
+  allowedSearchFields?: string[]
   signal?: AbortSignal
 }
 
@@ -32,6 +33,7 @@ export async function getPaged<T>(
     params,
     options?.allowedFilterFields ?? null,
     options?.allowedSortFields ?? null,
+    options?.allowedSearchFields ?? null,
   )
 
   if (!parsed.isSuccess) {
