@@ -9,19 +9,19 @@ export const authRoutes: RouteRecordRaw[] = [
     path: 'login',
     name: 'login',
     component: LoginPage,
-    meta: { title: 'Sign In', requiresAuth: false },
+    meta: { title: 'Sign In', subtitle: 'Welcome to ReSys.Shop', requiresAuth: false },
   },
   {
     path: 'forgot-password',
     name: 'forgot-password',
     component: ForgotPasswordPage,
-    meta: { title: 'Forgot Password', requiresAuth: false },
+    meta: { title: 'Forgot Password', subtitle: 'Enter your email to reset your password', requiresAuth: false },
   },
   {
     path: 'reset-password',
     name: 'reset-password',
     component: ResetPasswordPage,
-    meta: { title: 'Reset Password', requiresAuth: false },
+    meta: { title: 'Set New Password', subtitle: 'Choose a new password for your account', requiresAuth: false },
   },
 ]
 

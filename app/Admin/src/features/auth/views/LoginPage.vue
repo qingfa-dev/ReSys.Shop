@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useRouter } from 'vue-router'
-import AuthLayout from '@forms/AuthLayout.vue'
 import LoginForm from '@forms/LoginForm.vue'
 import { loginSchema } from '../validations/auth'
 import { useAuthStore } from '../stores/authStore'
@@ -25,13 +24,13 @@ function onForgotPassword() {
 </script>
 
 <template>
-    <LoginForm
-      :validation-schema="loginSchema"
-      :loading="isLoading"
-      :server-error="authError"
-      credential-label="Email or Username"
-      credential-placeholder="Email address"
-      @submit="onLogin"
-      @forgot-password="onForgotPassword"
-    />
+  <LoginForm
+    :validation-schema="loginSchema"
+    :loading="isLoading"
+    :server-error="authError"
+    credential-label="Email or Username"
+    credential-placeholder="Email address"
+    @submit="onLogin"
+    @forgot-password="onForgotPassword"
+  />
 </template>
