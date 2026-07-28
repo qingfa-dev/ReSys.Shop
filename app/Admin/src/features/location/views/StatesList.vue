@@ -34,6 +34,7 @@ const { items, loading, totalCount, page, pageSize, setSearch, setFilter, refres
   usePagedQuery<StateListItem>('api/locations/states', {
     allowedFilterFields: STATE_FILTER_FIELDS,
     allowedSortFields: STATE_SORT_FIELDS,
+    allowedSearchFields: STATE_FILTER_FIELDS,
     defaultSort: ['name'],
     defaultPageSize: 20,
   })

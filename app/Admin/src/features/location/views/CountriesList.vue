@@ -37,6 +37,7 @@ const {
 } = usePagedQuery<CountryListItem>('api/locations/countries', {
   allowedFilterFields: COUNTRY_FILTER_FIELDS,
   allowedSortFields: COUNTRY_SORT_FIELDS,
+  allowedSearchFields: COUNTRY_FILTER_FIELDS,
   defaultSort: ['name'],
   defaultPageSize: 20,
 })
