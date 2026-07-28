@@ -22,12 +22,4 @@ describe('UserRepository', () => {
       expect(result.isSuccess).toBe(true)
     })
   })
-
-  describe('enableMFA', () => {
-    it('should enable MFA', async () => {
-      const result = await mockUserRepository.enableMFA('user-1')
-      expect(result.isSuccess).toBe(true)
-      expect(result.data).toBeDefined()
-    })
-  })
 })

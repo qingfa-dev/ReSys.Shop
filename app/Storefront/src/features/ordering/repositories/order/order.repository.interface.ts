@@ -13,5 +13,4 @@ export interface IOrderRepository {
   getAll(params?: OrderQueryParams): Promise<PagedResult<OrderResponse>>
   getById<T = OrderResponse>(id: string): Promise<Result<T>>
   checkout(request: CheckoutRequest): Promise<Result<OrderResponse>>
-  cancelOrder(id: string): Promise<Result<OrderResponse>>
 }

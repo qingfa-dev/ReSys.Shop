@@ -35,10 +35,6 @@ export const IDENTITY_FIELDS = {
     Required: z.boolean(),
     Optional: z.boolean().optional(),
   },
-  mfaEnabled: {
-    Required: z.boolean(),
-    Optional: z.boolean().optional(),
-  },
   createdAt: {
     Required: z.string().datetime(),
     Optional: z.string().datetime().optional(),
@@ -74,7 +70,6 @@ export const UserFields = {
   Avatar: { Optional: IDENTITY_FIELDS.avatar.Optional },
   Role: { Required: IDENTITY_FIELDS.role.Required, Optional: IDENTITY_FIELDS.role.Optional },
   EmailVerified: { Required: IDENTITY_FIELDS.emailVerified.Required, Optional: IDENTITY_FIELDS.emailVerified.Optional },
-  MfaEnabled: { Required: IDENTITY_FIELDS.mfaEnabled.Required, Optional: IDENTITY_FIELDS.mfaEnabled.Optional },
   CreatedAt: { Required: IDENTITY_FIELDS.createdAt.Required, Optional: IDENTITY_FIELDS.createdAt.Optional },
   UpdatedAt: { Required: IDENTITY_FIELDS.updatedAt.Required, Optional: IDENTITY_FIELDS.updatedAt.Optional },
   AccessToken: { Required: IDENTITY_FIELDS.accessToken.Required, Optional: IDENTITY_FIELDS.accessToken.Optional },
@@ -92,7 +87,6 @@ export const UserSchema = z.object({
   avatar: IDENTITY_FIELDS.avatar.Optional,
   role: IDENTITY_FIELDS.role.Required,
   emailVerified: IDENTITY_FIELDS.emailVerified.Required,
-  mfaEnabled: IDENTITY_FIELDS.mfaEnabled.Required,
   createdAt: IDENTITY_FIELDS.createdAt.Required,
   updatedAt: IDENTITY_FIELDS.updatedAt.Required,
 })

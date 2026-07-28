@@ -20,12 +20,6 @@ export interface CancelPaymentResponse {
   reason?: string
 }
 
-export interface RefundTransactionResponse {
-  transaction: TransactionResponse
-  refundedAmount: number
-  refundedAt: string
-}
-
 export interface GetTransactionsResponse {
   transactions: TransactionResponse[]
   totalCount: number

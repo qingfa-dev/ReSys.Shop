@@ -9,7 +9,6 @@ export interface UserResponse {
   avatar?: string
   role: string
   emailVerified: boolean
-  mfaEnabled: boolean
   createdAt: string
   updatedAt: string
 }

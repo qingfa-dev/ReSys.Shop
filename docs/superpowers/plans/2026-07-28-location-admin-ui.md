@@ -155,7 +155,7 @@ export interface StateQuery {
   countryId?: string
   isActive?: boolean
   search?: string
-  sortBy?: 'name' | 'abbreviation' | 'countryName' | 'createdAtUtc' | 'modifiedAtUtc'
+  sortBy?: 'name' | 'abbreviation' | 'countryId' | 'createdAtUtc' | 'modifiedAtUtc'
   sortDirection?: 'asc' | 'desc'
   page?: number
   pageSize?: number

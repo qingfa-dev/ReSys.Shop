@@ -5,11 +5,11 @@ import type { IPaymentMethodRepository } from './payment-method.repository.inter
 
 export class PaymentMethodApiRepository extends BaseRepository implements IPaymentMethodRepository {
   async getAll(): Promise<Result<PaymentMethodResponse[]>> {
-    return this.get<PaymentMethodResponse[]>('/ordering/payment-methods')
+    return this.get<PaymentMethodResponse[]>('/api/storefront/payment/methods')
   }
 
   getById<T = PaymentMethodResponse>(id: string): Promise<Result<T>> {
-    return super.getById<T>('/ordering/payment-methods', id)
+    return super.getById<T>('/api/storefront/payment/methods', id)
   }
 }
 

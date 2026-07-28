@@ -20,7 +20,6 @@ export class MockUserRepository {
         avatar: user.avatar,
         role: user.role,
         emailVerified: user.emailVerified,
-        mfaEnabled: user.mfaEnabled,
         createdAt: user.createdAt,
         updatedAt: user.updatedAt,
       },

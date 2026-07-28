@@ -6,5 +6,4 @@ export interface IPaymentService {
   getPaymentIntent(id: string): Promise<Result<PaymentIntent>>
   confirmPayment(paymentIntentId: string, paymentMethodId: string): Promise<Result<PaymentIntent>>
   getTransactionsByOrder(orderId: string): Promise<Result<Transaction[]>>
-  refundTransaction(transactionId: string, amount?: number): Promise<Result<Transaction>>
 }

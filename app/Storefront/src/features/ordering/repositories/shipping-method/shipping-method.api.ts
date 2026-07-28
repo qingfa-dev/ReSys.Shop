@@ -5,11 +5,11 @@ import type { IShippingMethodRepository } from './shipping-method.repository.int
 
 export class ShippingMethodApiRepository extends BaseRepository implements IShippingMethodRepository {
   async getAll(): Promise<Result<ShippingMethodResponse[]>> {
-    return this.get<ShippingMethodResponse[]>('/ordering/shipping-methods')
+    return this.get<ShippingMethodResponse[]>('/api/storefront/shipping/methods')
   }
 
   getById<T = ShippingMethodResponse>(id: string): Promise<Result<T>> {
-    return super.getById<T>('/ordering/shipping-methods', id)
+    return super.getById<T>('/api/storefront/shipping/methods', id)
   }
 }
 

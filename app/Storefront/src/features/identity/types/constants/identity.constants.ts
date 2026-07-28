@@ -1,13 +1,10 @@
 export const IDENTITY_ENDPOINTS = {
-  LOGIN: '/identity/auth/login',
-  REGISTER: '/identity/auth/register',
-  REFRESH: '/identity/auth/refresh',
-  LOGOUT: '/identity/auth/logout',
-  ME: '/identity/users/me',
-  CHANGE_PASSWORD: '/identity/users/change-password',
-  FORGOT_PASSWORD: '/identity/auth/forgot-password',
-  RESET_PASSWORD: '/identity/auth/reset-password',
-  VERIFY_EMAIL: '/identity/auth/verify-email',
+  LOGIN: '/api/store/identity/auth/login/password',
+  REGISTER: '/api/store/identity/auth/register',
+  LOGOUT: '/api/store/identity/auth/logout',
+  REFRESH: '/api/store/identity/auth/sessions/refresh',
+  FORGOT_PASSWORD: '/api/store/identity/passwords/forgot',
+  CHANGE_PASSWORD: '/api/store/identity/passwords/change',
 } as const
 
 export const USER_ROLES = {

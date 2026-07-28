@@ -20,25 +20,14 @@ export const PaymentIntentSchema = z.object({
 
 export type PaymentIntentSchemaType = z.infer<typeof PaymentIntentSchema>
 
-export const TransactionFields = {
-  Required: {
-    id: z.string(),
-    orderId: z.string(),
-    amount: z.number(),
-    currency: z.string(),
-    status: z.enum(['pending', 'completed', 'failed', 'refunded']),
-    paymentMethod: z.string(),
-    createdAt: z.string(),
-  },
-  Optional: {
-    refundedAt: z.string().optional(),
-    refundAmount: z.number().optional(),
-  },
-} as const
-
 export const TransactionSchema = z.object({
-  ...TransactionFields.Required,
-  ...TransactionFields.Optional,
+  id: z.string(),
+  orderId: z.string(),
+  amount: z.number(),
+  currency: z.string(),
+  status: z.enum(['pending', 'completed', 'failed', 'refunded']),
+  paymentMethod: z.string(),
+  createdAt: z.string(),
 })
 
 export type TransactionSchemaType = z.infer<typeof TransactionSchema>

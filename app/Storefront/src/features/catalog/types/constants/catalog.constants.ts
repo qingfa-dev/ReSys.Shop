@@ -1,9 +1,9 @@
 export const CATALOG_ENDPOINTS = {
-  PRODUCTS: '/catalog/products',
-  PRODUCT: (id: string) => `/catalog/products/${id}`,
-  CATEGORIES: '/catalog/categories',
-  CATEGORY: (id: string) => `/catalog/categories/${id}`,
-  SEARCH: '/catalog/search',
+  PRODUCTS: '/api/storefront/products',
+  PRODUCT: (slug: string) => `/api/storefront/products/${slug}`,
+  CATEGORIES: '/api/storefront/taxonomies',
+  CATEGORY: (id: string) => `/api/storefront/taxonomies/${id}`,
+  SEARCH: '/api/storefront/products?search=',
 } as const
 
 export const PRODUCT_SORT_OPTIONS = {

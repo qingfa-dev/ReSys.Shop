@@ -17,6 +17,10 @@ export class AuthApiRepository extends BaseRepository implements IAuthRepository
     return this.post<void>('/api/store/identity/auth/logout')
   }
 
+  async refresh(refreshToken: string): Promise<Result<AuthResponse>> {
+    return this.post<AuthResponse>('/api/store/identity/auth/sessions/refresh', { refreshToken })
+  }
+
   async requestPasswordReset(email: string): Promise<Result<void>> {
     return this.post<void>('/api/store/identity/passwords/forgot', { email })
   }

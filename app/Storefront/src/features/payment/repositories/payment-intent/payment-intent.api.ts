@@ -9,7 +9,7 @@ export class PaymentIntentApiRepository extends BaseRepository implements IPayme
   }
 
   async getById<T = PaymentIntentResponse>(id: string): Promise<Result<T>> {
-    return this.get<T>(`/api/storefront/payment/create-intent/${id}`)
+    return this.get<T>(`/api/storefront/payment/intents/${id}`)
   }
 
   async confirm(paymentIntentId: string, paymentMethodId: string): Promise<Result<PaymentIntentResponse>> {

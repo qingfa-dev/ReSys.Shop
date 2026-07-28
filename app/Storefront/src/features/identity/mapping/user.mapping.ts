@@ -12,7 +12,6 @@ export function mapResponseToEntity(response: UserResponse): UserEntity {
     avatar: response.avatar,
     role: response.role as UserEntity['role'],
     emailVerified: response.emailVerified,
-    mfaEnabled: response.mfaEnabled,
     createdAt: response.createdAt,
     updatedAt: response.updatedAt,
   }
@@ -35,7 +34,6 @@ export function mapSchemaToEntity(schema: UserSchemaType): UserEntity {
     avatar: schema.avatar,
     role: schema.role as UserEntity['role'],
     emailVerified: schema.emailVerified,
-    mfaEnabled: schema.mfaEnabled,
     createdAt: schema.createdAt,
     updatedAt: schema.updatedAt,
   }
@@ -51,7 +49,6 @@ export function mapEntityToResponse(entity: UserEntity): UserResponse {
     avatar: entity.avatar,
     role: entity.role,
     emailVerified: entity.emailVerified,
-    mfaEnabled: entity.mfaEnabled,
     createdAt: entity.createdAt,
     updatedAt: entity.updatedAt,
   }

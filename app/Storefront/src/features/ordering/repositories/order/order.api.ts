@@ -18,10 +18,6 @@ export class OrderApiRepository extends BaseRepository implements IOrderReposito
   async checkout(request: CheckoutRequest): Promise<Result<OrderResponse>> {
     return this.post<OrderResponse>('/api/storefront/cart/checkout', request)
   }
-
-  async cancelOrder(id: string): Promise<Result<OrderResponse>> {
-    return this.patch<OrderResponse>(`${this.endpoint}/${id}`, { status: 'cancelled' })
-  }
 }
 
 export const orderApiRepository = new OrderApiRepository()

@@ -1,12 +1,11 @@
 export const ORDER_ENDPOINTS = {
   CART: '/api/storefront/cart',
   CART_ITEM: (id: string) => `/api/storefront/cart/items/${id}`,
-  CHECKOUT: '/ordering/checkout',
+  CHECKOUT: '/api/storefront/cart/checkout',
   ORDERS: '/api/storefront/orders',
   ORDER: (id: string) => `/api/storefront/orders/${id}`,
-  ORDER_CANCEL: (id: string) => `/api/storefront/orders/${id}/cancel`,
-  SHIPPING_METHODS: '/ordering/shipping-methods',
-  PAYMENT_METHODS: '/ordering/payment-methods',
+  SHIPPING_METHODS: '/api/storefront/shipping/methods',
+  PAYMENT_METHODS: '/api/storefront/payment/methods',
 } as const
 
 export const ORDER_STATUS = {

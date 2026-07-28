@@ -9,7 +9,7 @@ export class MockAuthRepository {
         isFailure: false,
         statusCode: 200,
         data: {
-          user: { id: 'user-1', email: credentials.email, firstName: 'John', lastName: 'Doe', role: 'customer', emailVerified: true, mfaEnabled: false, createdAt: '2026-01-01', updatedAt: '2026-01-01' },
+          user: { id: 'user-1', email: credentials.email, firstName: 'John', lastName: 'Doe', role: 'customer', emailVerified: true, createdAt: '2026-01-01', updatedAt: '2026-01-01' },
           tokens,
         },
       }
@@ -25,7 +25,7 @@ export class MockAuthRepository {
         isFailure: false,
         statusCode: 201,
         data: {
-          user: { id: `user-${Date.now()}`, email: info.email, firstName: info.firstName, lastName: info.lastName, role: 'customer', emailVerified: false, mfaEnabled: false, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() },
+          user: { id: `user-${Date.now()}`, email: info.email, firstName: info.firstName, lastName: info.lastName, role: 'customer', emailVerified: false, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() },
           tokens,
         },
       }
@@ -35,6 +35,19 @@ export class MockAuthRepository {
 
   async logout(): Promise<{ isSuccess: boolean; isFailure: boolean; statusCode: number }> {
     return { isSuccess: true, isFailure: false, statusCode: 200 }
+  }
+
+  async refresh(_refreshToken: string): Promise<{ isSuccess: boolean; isFailure: boolean; statusCode: number; data?: AuthResponse; message?: string }> {
+    const tokens: AuthTokensResponse = { accessToken: 'mock-access-token-refreshed', refreshToken: 'mock-refresh-token-refreshed', expiresIn: 3600 }
+    return {
+      isSuccess: true,
+      isFailure: false,
+      statusCode: 200,
+      data: {
+        user: { id: 'user-1', email: 'john.doe@example.com', firstName: 'John', lastName: 'Doe', role: 'customer', emailVerified: true, createdAt: '2026-01-01', updatedAt: '2026-01-01' },
+        tokens,
+      },
+    }
   }
 
   async requestPasswordReset(_email: string): Promise<{ isSuccess: boolean; isFailure: boolean; statusCode: number }> {

@@ -210,20 +210,6 @@ export const useOrderStore = defineStore('order', () => {
     }
   }
 
-  async function cancelOrder(id: string) {
-    try {
-      const result = await orderService.cancelOrder(id)
-      if (result.isSuccess && result.data) {
-        currentOrder.value = result.data
-      } else {
-        throw new Error(result.message || 'Failed to cancel order')
-      }
-    } catch (e) {
-      error.value = e instanceof Error ? e.message : 'Failed to cancel order'
-      throw e
-    }
-  }
-
   return {
     orders,
     currentOrder,
@@ -237,6 +223,5 @@ export const useOrderStore = defineStore('order', () => {
     fetchOrder,
     fetchCheckoutData,
     checkout,
-    cancelOrder,
   }
 })

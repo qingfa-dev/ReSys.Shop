@@ -11,10 +11,6 @@ export class TransactionApiRepository extends BaseRepository implements ITransac
   async getById<T = TransactionResponse>(id: string): Promise<Result<T>> {
     return this.get<T>(`/api/storefront/payment/transactions/${id}`)
   }
-
-  async refund(transactionId: string, amount?: number): Promise<Result<TransactionResponse>> {
-    return this.post<TransactionResponse>(`/api/storefront/payment/transactions/${transactionId}/refund`, { amount })
-  }
 }
 
 export const transactionApiRepository = new TransactionApiRepository()
