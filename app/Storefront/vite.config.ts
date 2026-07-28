@@ -10,6 +10,9 @@ import vueJsx from '@vitejs/plugin-vue-jsx'
 const aspireApiUrl = process.env.services__api__https__0 || process.env.services__api__http__0
 
 export default defineConfig({
+  build: {
+    cssMinify: 'esbuild',
+  },
   define: aspireApiUrl ? {
     'import.meta.env.VITE_API_URL': JSON.stringify(aspireApiUrl)
   } : {},
