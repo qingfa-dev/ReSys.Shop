@@ -9,6 +9,7 @@ export const useAuthStore = defineStore('auth', () => {
   const user = ref<AuthUser | null>(null)
   const status = ref<'idle' | 'loading' | 'authenticated' | 'error'>('idle')
   const error = ref<string | null>(null)
+  const isLoggingOut = ref(false)
 
   const isAuthenticated = computed(() => status.value === 'authenticated' && user.value !== null)
 
@@ -52,6 +53,7 @@ export const useAuthStore = defineStore('auth', () => {
   }
 
   async function logout(revokeAll?: boolean): Promise<void> {
+    isLoggingOut.value = true
     try {
       await authApi.logout({ revokeAll })
     } catch {
@@ -62,6 +64,7 @@ export const useAuthStore = defineStore('auth', () => {
     user.value = null
     status.value = 'idle'
     error.value = null
+    isLoggingOut.value = false
   }
 
   async function init(): Promise<void> {
@@ -107,6 +110,7 @@ export const useAuthStore = defineStore('auth', () => {
     user,
     status,
     error,
+    isLoggingOut,
     isAuthenticated,
     currentUser,
     hasRole,

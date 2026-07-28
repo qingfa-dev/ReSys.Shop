@@ -98,5 +98,29 @@ describe('authStore', () => {
       expect(store.status).toBe('idle')
       expect(store.user).toBeNull()
     })
+
+    it('sets isLoggingOut to true during logout and false after', async () => {
+      const store = useAuthStore()
+
+      store.user = { userId: 'u1', roles: [], permissions: [], isAuthenticated: true }
+      store.status = 'authenticated'
+
+      const promise = store.logout()
+      expect(store.isLoggingOut).toBe(true)
+
+      await promise
+      expect(store.isLoggingOut).toBe(false)
+      expect(store.isAuthenticated).toBe(false)
+    })
+
+    it('sets isLoggingOut to false even when logout API fails', async () => {
+      mockLogout.mockRejectedValueOnce(new Error('Network error'))
+      const store = useAuthStore()
+      store.user = { userId: 'u1', roles: [], permissions: [], isAuthenticated: true }
+      store.status = 'authenticated'
+
+      await store.logout()
+      expect(store.isLoggingOut).toBe(false)
+    })
   })
 })
