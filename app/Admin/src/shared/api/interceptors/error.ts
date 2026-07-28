@@ -31,9 +31,13 @@ export async function errorInterceptor(error: unknown): Promise<never> {
     return Promise.reject(new HttpError(0, [{ code: 'Unexpected', message: 'An unexpected error occurred.', type: 0 }]))
   }
 
-  const status = error.response?.status ?? 0
   const data = error.response?.data as Record<string, unknown> | undefined
 
+  if (data && 'isSuccess' in data) {
+    return error.response as never
+  }
+
+  const status = error.response?.status ?? 0
   const errors = extractErrors(data, status)
   return Promise.reject(new HttpError(status, errors))
 }

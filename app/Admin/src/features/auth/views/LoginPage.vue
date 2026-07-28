@@ -1,23 +1,23 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
+import { useToast } from 'primevue/usetoast'
 import { loginSchema } from '../validations/auth'
 import { useAuthStore } from '../stores/authStore'
 import InputText from 'primevue/inputtext'
 import Password from 'primevue/password'
 import Checkbox from 'primevue/checkbox'
 import Button from 'primevue/button'
-import Message from 'primevue/message'
 
 const router = useRouter()
 const store = useAuthStore()
+const toast = useToast()
 
 const credential = ref('')
 const password = ref('')
 const remember = ref(false)
 
 const isLoading = computed(() => store.status === 'loading')
-const authError = computed(() => store.error)
 const fieldErrors = ref<Record<string, string>>({})
 
 async function onSubmit() {
@@ -35,6 +35,8 @@ async function onSubmit() {
   await store.login(result.data.credential, result.data.password)
   if (store.isAuthenticated) {
     router.replace('/')
+  } else if (store.error) {
+    toast.add({ severity: 'error', summary: 'Login failed', detail: store.error, life: 5000 })
   }
 }
 </script>
@@ -56,8 +58,6 @@ async function onSubmit() {
       </div>
       <span class="font-medium no-underline ml-2 text-right cursor-pointer text-primary" @click="router.push('/auth/forgot-password')">Forgot password?</span>
     </div>
-
-    <Message v-if="authError" severity="error" :closable="false" class="mb-4">{{ authError }}</Message>
 
     <Button label="Sign In" class="w-full" :loading="isLoading" @click="onSubmit" />
   </div>
