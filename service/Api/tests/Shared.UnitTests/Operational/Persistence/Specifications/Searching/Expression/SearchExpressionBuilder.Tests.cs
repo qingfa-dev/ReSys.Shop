@@ -12,6 +12,7 @@ public sealed class SearchExpressionBuilderTests
 {
     private sealed class TestEntity
     {
+        public Guid Id { get; set; }
         public String Name { get; set; } = String.Empty;
         public String Description { get; set; } = String.Empty;
         public String Category { get; set; } = String.Empty;
@@ -139,6 +140,28 @@ public sealed class SearchExpressionBuilderTests
     {
         TestEntity entity = new() { Name = "Nothing", Description = "hello", Category = "world" };
         SearchModel model = new(new SearchTerm { Value = "hello" }, ["Name", "Description", "Category"]);
+
+        Expression<Func<TestEntity, Boolean>> lambda = SearchExpressionBuilder.Build<TestEntity>(model, null);
+
+        Evaluate(lambda, entity).Should().BeTrue();
+    }
+
+    [Fact(DisplayName = "Build: Non-string fields are silently skipped")]
+    public void Build_NonStringFields_ShouldSkipAndNotThrow()
+    {
+        TestEntity entity = new() { Id = Guid.NewGuid(), Name = "hello world" };
+        SearchModel model = new(new SearchTerm { Value = "hello" }, ["Id", "Name"]);
+
+        Expression<Func<TestEntity, Boolean>> lambda = SearchExpressionBuilder.Build<TestEntity>(model, null);
+
+        Evaluate(lambda, entity).Should().BeTrue();
+    }
+
+    [Fact(DisplayName = "Build: When all fields are non-string, returns true (no-op)")]
+    public void Build_AllNonStringFields_ShouldReturnTrue()
+    {
+        TestEntity entity = new() { Id = Guid.NewGuid() };
+        SearchModel model = new(new SearchTerm { Value = "hello" }, ["Id"]);
 
         Expression<Func<TestEntity, Boolean>> lambda = SearchExpressionBuilder.Build<TestEntity>(model, null);
 
