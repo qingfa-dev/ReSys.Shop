@@ -1,4 +1,7 @@
 <script setup lang="ts">
+import Times from '@primeicons/vue/times'
+import Check from '@primeicons/vue/check'
+
 interface Props {
   visible: boolean
   message: string
@@ -35,8 +38,12 @@ const emit = defineEmits<{
       <span class="text-surface-600 dark:text-surface-0 text-lg">{{ message }}</span>
     </div>
     <template #footer>
-      <Button :label="cancelLabel" icon="pi pi-times" variant="text" @click="emit('cancel')" />
-      <Button :label="confirmLabel" icon="pi pi-check" @click="emit('confirm')" />
+      <Button :label="cancelLabel" variant="text" @click="emit('cancel')">
+        <Times />
+      </Button>
+      <Button :label="confirmLabel" @click="emit('confirm')">
+        <Check />
+      </Button>
     </template>
   </Dialog>
 </template>

@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import type { DataTableFilterMeta } from 'primevue'
+import FilterSlash from '@primeicons/vue/filter-slash'
+import Search from '@primeicons/vue/search'
 
 interface ColumnDef {
   field: string
@@ -66,9 +68,11 @@ const exportCSV = () => {
   >
     <template #header>
       <div class="flex justify-between items-center">
-        <Button type="button" icon="pi pi-filter-slash" label="Clear" outlined @click="clearFilter" />
+        <Button type="button" label="Clear" outlined @click="clearFilter">
+          <FilterSlash />
+        </Button>
         <IconField>
-          <InputIcon class="pi pi-search" />
+          <InputIcon> <Search /> </InputIcon>
           <InputText v-model="globalFilterValue" placeholder="Search..." fluid @update:modelValue="onGlobalFilterChange" />
         </IconField>
       </div>

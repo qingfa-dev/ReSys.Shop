@@ -46,7 +46,8 @@ async function handleLogout() {
         <Button
           severity="danger"
           variant="text"
-          class="logout-btn w-full justify-content-start"
+          class="logout-btn justify-content-start"
+          fluid
           :disabled="authStore.isLoggingOut"
           @click="handleLogout"
         >
