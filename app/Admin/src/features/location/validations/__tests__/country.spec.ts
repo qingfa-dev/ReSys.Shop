@@ -52,7 +52,7 @@ describe('countryIsoCode', () => {
   it('returns correct error message', () => {
     const result = countryIsoCode.safeParse('us')
     if (!result.success) {
-      expect(result.error.issues[0].message).toBe('ISO code must be 2-3 uppercase letters.')
+      expect(result.error!.issues[0]!.message).toBe('ISO code must be 2-3 uppercase letters.')
     }
   })
 })
