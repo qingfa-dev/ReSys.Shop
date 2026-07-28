@@ -4,17 +4,19 @@
 
 Migrate the legacy shop SPA (`app/legacy/shop/`) into the new Storefront
 (`app/Storefront/`), adapting all API calls to the new `/api/storefront/*` and
-`/api/store/*` endpoints while preserving PrimeVue components, styling, mock
-data layer, and test coverage.
+`/api/store/*` endpoints while preserving every PrimeVue component, every line
+of template markup, every SCSS/CSS style, PrimeVue theme configuration, mock
+data layer, and test coverage. **Zero visual or behavioral changes to any .vue
+component.** Only the data layer (API calls, store logic, repository paths) is
+modified.
 
 ## Approach
 
-**In-place rewrite.** Feature modules are ported one by one from legacy into
-`app/Storefront/src/features/`, keeping the legacy feature-module structure.
-Endpoint paths and auth model are updated per feature. The new Storefront's
-existing `views/`, `stores/`, and `api.ts` are replaced by ported legacy code.
+**In-place rewrite with zero-visual-change rule.** Feature modules are ported one by one from legacy into `app/Storefront/src/features/`, keeping the legacy feature-module structure. Endpoint paths and auth model are updated per feature. The new Storefront's existing `views/`, `stores/`, and `api.ts` are replaced by ported legacy code.
 
 Cart token generated via `crypto.randomUUID()` on first add-to-cart.
+
+**Cardinal rule: preserve every .vue component, PrimeVue template structure, SCSS/CSS class, and PrimeVue theme config as-is.** The migration changes only the data layer (API calls, store logic, repository paths, mock data). Visual output must be pixel-identical to the legacy shop. No component rewrites, no style changes, no template restructuring.
 
 ## Phases
 
@@ -159,6 +161,18 @@ Port legacy `core/` and `app/` into `app/Storefront/src/`.
 - New: `X-Cart-Token` header for guest cart identification (UUID generated
   via `crypto.randomUUID()` on first add-to-cart)
 - Token storage pattern (localStorage key names) stays the same
+
+## Styling Preservation Rules
+
+Every file copy must carry over ALL style concerns verbatim:
+- **PrimeVue theme config** — `main.ts` must import the same PrimeVue theme, preset, and ripple config as legacy
+- **Global SCSS/CSS** — all `@import` statements, asset URLs, and global style files
+- **Component `<style>` blocks** — no edits to scoped styles, CSS class names, or template structure
+- **Component `<template>`** — no restructuring or class renames. The only template changes allowed are removing components that are being dropped entirely (e.g., WishlistButton)
+- **PrimeVue component props** — preserve every `:pt`, `class`, `style`, and slot usage
+- **Icon library** — same icon set and import pattern as legacy
+
+**If a PrimeVue upgrade is needed** (the new Storefront may have a different PrimeVue version), the migration must pin the legacy PrimeVue version in package.json. Do not upgrade PrimeVue as part of this migration.
 
 ## Mock Data Layer
 

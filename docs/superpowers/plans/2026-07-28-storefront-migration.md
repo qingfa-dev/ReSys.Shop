@@ -18,6 +18,9 @@
 - MFA removed from identity
 - Coupon/promotion endpoints removed
 - Build must pass (`vue-tsc --noEmit && vitest run`)
+- **ZERO visual changes to any .vue file.** Every component's `<template>`, `<style>`, PrimeVue props, SCSS classes, and PrimeVue theme config must be copied verbatim. Only `.ts` data-layer files (stores, repositories, services) may be modified. If a file contains both `<template>`/`<style>` and `<script>` sections, edit only the `<script>` — never the template or style.
+- PrimeVue version must match legacy — do not upgrade as part of this migration
+- All global style imports and asset references must be ported identically
 
 ---
 
@@ -51,7 +54,9 @@
 - Delete: `app/Storefront/src/views/` (all 5)
 - Delete: `app/Storefront/src/stores/` (both)
 
-- [ ] **Step 1: Copy core/ files from legacy**
+- [ ] **Step 1: Copy core/ files from legacy verbatim**
+
+Do NOT edit any file during the copy. The `api.ts` edits come in Step 2.
 
 ```bash
 # Copy core infrastructure files
@@ -95,7 +100,9 @@ Also update the refresh endpoint in the interceptor (the `axios.post` call insid
 + const { data } = await axios.post(`${API_BASE_URL}/api/store/identity/auth/sessions/refresh`, {
 ```
 
-- [ ] **Step 3: Copy app/ files from legacy**
+- [ ] **Step 3: Copy app/ files from legacy verbatim**
+
+Layout `.vue` files and components must be copied as-is — no template or style edits.
 
 ```bash
 # Copy router
@@ -132,13 +139,17 @@ server: {
 },
 ```
 
-- [ ] **Step 6: Update main.ts**
+- [ ] **Step 6: Update main.ts — preserve PrimeVue theme exactly**
 
-Port the bootstrap logic from `app/legacy/shop/src/main.ts`:
-- Import PrimeVue + theme + ToastService
+Port the bootstrap logic from `app/legacy/shop/src/main.ts`. The PrimeVue theme preset, plugins, and global style imports must match the legacy version exactly:
+
+- Import PrimeVue + theme + ripple config (copy verbatim from legacy)
+- Import ToastService and any other PrimeVue plugins
 - Import Pinia
 - Import and use router
-- Import global styles
+- Import global styles (SCSS files, asset paths — same relative paths as legacy)
+
+**Do not change the PrimeVue import pattern, theme preset, or plugin registration order.**
 
 - [ ] **Step 7: Update App.vue**
 
@@ -189,11 +200,15 @@ git commit -m "feat(storefront): port core infrastructure, router, layouts from 
 - Consumes: `core/services/api.ts` (Axios client), `core/repositories/BaseRepository`, `core/models/result.ts`
 - Produces: Catalog views, store, components for the router and layout
 
-- [ ] **Step 1: Copy catalog feature from legacy**
+- [ ] **Step 1: Copy catalog feature from legacy verbatim**
 
 ```bash
 cp -r app/legacy/shop/src/features/catalog app/Storefront/src/features/catalog
 ```
+
+- [ ] **Step 1a: Verify no .vue files were modified**
+
+Run `git diff --stat app/Storefront/src/features/catalog/` and confirm only `.ts` files show changes. If any `.vue` file appears in the diff (besides deleting WishlistButton.vue), revert the `.vue` change — templates and styles must be preserved as-is.
 
 - [ ] **Step 2: Remove WishlistButton**
 
@@ -236,11 +251,18 @@ git commit -m "feat(storefront): port catalog module with updated API paths"
 - Create: All files under `app/Storefront/src/features/identity/` from legacy
 - Modify: Auth repository paths, drop MFA
 
-- [ ] **Step 1: Copy identity feature from legacy**
+- [ ] **Step 1: Copy identity feature from legacy verbatim**
 
 ```bash
 cp -r app/legacy/shop/src/features/identity app/Storefront/src/features/identity
 ```
+
+- [ ] **Step 1a: Verify no .vue files modified**
+
+```bash
+git diff --stat app/Storefront/src/features/identity/ | grep '\.vue'
+```
+If any `.vue` file appears in the diff (not related to MFA removal), revert it. Templates and styles are read-only.
 
 - [ ] **Step 2: Drop MFA from auth store**
 
@@ -289,11 +311,18 @@ git commit -m "feat(storefront): port identity module with updated auth paths, d
 - Create: All files under `app/Storefront/src/features/ordering/` from legacy
 - Modify: Cart API paths, add cart token flow, drop coupons, update checkout flow
 
-- [ ] **Step 1: Copy ordering feature from legacy**
+- [ ] **Step 1: Copy ordering feature from legacy verbatim**
 
 ```bash
 cp -r app/legacy/shop/src/features/ordering app/Storefront/src/features/ordering
 ```
+
+- [ ] **Step 1a: Verify no .vue files modified**
+
+```bash
+git diff --stat app/Storefront/src/features/ordering/ | grep '\.vue'
+```
+If any `.vue` appears in the diff, revert it immediately. Only `.ts` store/repository files may be edited.
 
 - [ ] **Step 2: Add cart token generation to cart store**
 
@@ -372,11 +401,18 @@ git commit -m "feat(storefront): port ordering module - cart, orders, checkout w
 - Create: All files under `app/Storefront/src/features/payment/` from legacy
 - Modify: API paths
 
-- [ ] **Step 1: Copy payment feature from legacy**
+- [ ] **Step 1: Copy payment feature from legacy verbatim**
 
 ```bash
 cp -r app/legacy/shop/src/features/payment app/Storefront/src/features/payment
 ```
+
+- [ ] **Step 1a: Verify no .vue files modified**
+
+```bash
+git diff --stat app/Storefront/src/features/payment/ | grep '\.vue'
+```
+If any `.vue` appears, revert it. Only `.ts` files may be edited.
 
 - [ ] **Step 2: Update payment API paths**
 
@@ -413,11 +449,18 @@ git commit -m "feat(storefront): port payment module with updated API paths"
 - Create: All files under `app/Storefront/src/features/shipping/` from legacy
 - Modify: API paths, drop shipment tracking
 
-- [ ] **Step 1: Copy shipping feature from legacy**
+- [ ] **Step 1: Copy shipping feature from legacy verbatim**
 
 ```bash
 cp -r app/legacy/shop/src/features/shipping app/Storefront/src/features/shipping
 ```
+
+- [ ] **Step 1a: Verify no .vue files modified**
+
+```bash
+git diff --stat app/Storefront/src/features/shipping/ | grep '\.vue'
+```
+If any `.vue` appears, revert it.
 
 - [ ] **Step 2: Update shipping API paths**
 
@@ -451,11 +494,18 @@ git commit -m "feat(storefront): port shipping module with updated API paths"
 - Create: All files under `app/Storefront/src/features/locations/` from legacy
 - Modify: API paths from `/locations` to `/api/store/profiles/addresses`, add countries/states
 
-- [ ] **Step 1: Copy locations feature from legacy**
+- [ ] **Step 1: Copy locations feature from legacy verbatim**
 
 ```bash
 cp -r app/legacy/shop/src/features/locations app/Storefront/src/features/locations
 ```
+
+- [ ] **Step 1a: Verify no .vue files modified**
+
+```bash
+git diff --stat app/Storefront/src/features/locations/ | grep '\.vue'
+```
+If any `.vue` appears, revert it.
 
 - [ ] **Step 2: Update address API paths**
 
