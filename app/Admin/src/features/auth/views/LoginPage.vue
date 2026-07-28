@@ -7,9 +7,13 @@ import { useAuthStore } from '../stores/authStore'
 import IconField from 'primevue/iconfield'
 import InputIcon from 'primevue/inputicon'
 import InputText from 'primevue/inputtext'
-import InputPassword from 'primevue/password'
+import InputPassword from 'primevue/inputpassword'
 import Checkbox from 'primevue/checkbox'
 import Button from 'primevue/button'
+import User from '@primeicons/vue/user'
+import Lock from '@primeicons/vue/lock'
+import Eye from '@primeicons/vue/eye'
+import EyeSlash from '@primeicons/vue/eye-slash'
 
 const router = useRouter()
 const store = useAuthStore()
@@ -18,6 +22,7 @@ const notify = useNotify()
 const credential = ref('')
 const password = ref('')
 const remember = ref(false)
+const mask = ref(true)
 
 const isLoading = computed(() => store.status === 'loading')
 const fieldErrors = ref<Record<string, string>>({})
@@ -49,7 +54,7 @@ async function onSubmit() {
       >Email or Username</label
     >
     <IconField class="w-full md:w-[30rem] mb-8">
-      <InputIcon> <i class="pi pi-user" /> </InputIcon>
+      <InputIcon> <User /> </InputIcon>
       <InputText
         id="email1"
         v-model="credential"
@@ -70,19 +75,23 @@ async function onSubmit() {
       >Password</label
     >
     <IconField class="mb-4 w-full">
-      <InputIcon> <i class="pi pi-lock" /> </InputIcon>
+      <InputIcon> <Lock /> </InputIcon>
       <InputPassword
         id="password1"
         v-model="password"
         placeholder="Password"
-        :toggleMask="true"
+        :mask="mask"
         class="w-full"
         fluid
         :feedback="false"
         autocomplete="current-password"
         :invalid="!!fieldErrors.password"
-        inputClass="p-4 text-lg"
+        :pt="{ input: { class: 'p-4 text-lg' } }"
       />
+      <InputIcon class="cursor-pointer" @click="mask = !mask">
+        <Eye v-if="mask" :size="16" />
+        <EyeSlash v-else :size="16" />
+      </InputIcon>
     </IconField>
     <small v-if="fieldErrors.password" class="text-red-500 block -mt-2 mb-2">{{
       fieldErrors.password

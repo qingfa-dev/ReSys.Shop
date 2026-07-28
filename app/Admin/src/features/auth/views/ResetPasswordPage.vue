@@ -10,12 +10,19 @@ import IconField from 'primevue/iconfield'
 import InputIcon from 'primevue/inputicon'
 import Button from 'primevue/button'
 import InputText from 'primevue/inputtext'
-import Password from 'primevue/password'
+import InputPassword from 'primevue/inputpassword'
 import Message from 'primevue/message'
+import Envelope from '@primeicons/vue/envelope'
+import User from '@primeicons/vue/user'
+import Key from '@primeicons/vue/key'
+import Lock from '@primeicons/vue/lock'
+import Eye from '@primeicons/vue/eye'
+import EyeSlash from '@primeicons/vue/eye-slash'
 
 const route = useRoute()
 const router = useRouter()
 const notify = useNotify()
+const mask = ref(true)
 
 const { defineField, errors, handleSubmit, setFieldValue } = useForm({
   validationSchema: toTypedSchema(resetPasswordSchema),
@@ -65,7 +72,7 @@ const onSubmit = handleSubmit(async (values) => {
     <div class="flex flex-col gap-1">
       <label for="email" class="text-surface-900 dark:text-surface-0 font-medium text-2xl">Email</label>
       <IconField class="w-full">
-        <InputIcon> <i class="pi pi-envelope" /> </InputIcon>
+        <InputIcon> <Envelope /> </InputIcon>
         <InputText id="email" :modelValue="email" disabled class="w-full p-4 text-lg" />
       </IconField>
     </div>
@@ -73,7 +80,7 @@ const onSubmit = handleSubmit(async (values) => {
     <div class="flex flex-col gap-1">
       <label for="userId" class="text-surface-900 dark:text-surface-0 font-medium text-2xl">User ID</label>
       <IconField class="w-full">
-        <InputIcon> <i class="pi pi-user" /> </InputIcon>
+        <InputIcon> <User /> </InputIcon>
         <InputText id="userId" :modelValue="userId" disabled class="w-full p-4 text-lg" />
       </IconField>
     </div>
@@ -81,7 +88,7 @@ const onSubmit = handleSubmit(async (values) => {
     <div class="flex flex-col gap-1">
       <label for="token" class="text-surface-900 dark:text-surface-0 font-medium text-2xl">Reset Token</label>
       <IconField class="w-full">
-        <InputIcon> <i class="pi pi-key" /> </InputIcon>
+        <InputIcon> <Key /> </InputIcon>
         <InputText id="token" v-model="token" v-bind="tokenAttrs" class="w-full p-4 text-lg" :invalid="!!errors.token" />
       </IconField>
       <small v-if="errors.token" class="text-red-500">{{ errors.token }}</small>
@@ -90,8 +97,12 @@ const onSubmit = handleSubmit(async (values) => {
     <div class="flex flex-col gap-1">
       <label for="newPassword" class="text-surface-900 dark:text-surface-0 font-medium text-2xl">New Password</label>
       <IconField class="w-full">
-        <InputIcon> <i class="pi pi-lock" /> </InputIcon>
-        <Password id="newPassword" v-model="newPassword" v-bind="newPasswordAttrs" class="w-full" :toggleMask="true" :feedback="false" :invalid="!!errors.newPassword" fluid inputClass="p-4 text-lg" />
+        <InputIcon> <Lock /> </InputIcon>
+        <InputPassword id="newPassword" v-model="newPassword" v-bind="newPasswordAttrs" class="w-full" :mask="mask" :feedback="false" :invalid="!!errors.newPassword" fluid :pt="{ input: { class: 'p-4 text-lg' } }" />
+        <InputIcon class="cursor-pointer" @click="mask = !mask">
+          <Eye v-if="mask" :size="16" />
+          <EyeSlash v-else :size="16" />
+        </InputIcon>
       </IconField>
       <small v-if="errors.newPassword" class="text-red-500">{{ errors.newPassword }}</small>
     </div>

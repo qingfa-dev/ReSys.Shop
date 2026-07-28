@@ -10,6 +10,7 @@ import InputIcon from 'primevue/inputicon'
 import Button from 'primevue/button'
 import InputText from 'primevue/inputtext'
 import Message from 'primevue/message'
+import Envelope from '@primeicons/vue/envelope'
 
 
 const { defineField, errors, handleSubmit } = useForm({
@@ -45,7 +46,7 @@ const onSubmit = handleSubmit(async (values) => {
     <div class="flex flex-col gap-1">
       <label for="email" class="text-surface-900 dark:text-surface-0 font-medium text-2xl">Email</label>
       <IconField class="w-full">
-        <InputIcon> <i class="pi pi-envelope" /> </InputIcon>
+        <InputIcon> <Envelope /> </InputIcon>
         <InputText id="email" v-model="email" v-bind="emailAttrs" class="w-full p-4 text-lg" type="email" placeholder="Email address" autocomplete="email" :invalid="!!errors.email" />
       </IconField>
       <small v-if="errors.email" class="text-red-500">{{ errors.email }}</small>
