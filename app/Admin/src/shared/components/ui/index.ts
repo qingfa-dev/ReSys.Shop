@@ -1,5 +1,3 @@
-export { default as AppConfigurator } from './AppConfigurator.vue'
-export { default as AppFooter } from './AppFooter.vue'
 export { default as BlockViewer } from './BlockViewer.vue'
 export { default as CountryFlag } from './CountryFlag.vue'
 export { default as FeaturesWidget } from './FeaturesWidget.vue'
