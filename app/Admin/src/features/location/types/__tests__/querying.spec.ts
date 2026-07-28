@@ -124,6 +124,7 @@ describe('STATE_SORT_FIELDS', () => {
     expect(STATE_SORT_FIELDS).toEqual([
       'name',
       'abbreviation',
+      'isActive',
       'countryId',
       'createdAtUtc',
       'modifiedAtUtc',

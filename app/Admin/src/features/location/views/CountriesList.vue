@@ -114,7 +114,7 @@ function confirmDelete() {
       :rows="pageSize"
       filter-display="menu"
       data-key="id"
-      :global-filter-fields="['name', 'isoCode', 'callingCode']"
+      :global-filter-fields="COUNTRY_FILTER_FIELDS"
       paginator-template="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
       :rows-per-page-options="[5, 10, 25]"
       current-page-report-template="Showing {first} to {last} of {totalRecords}"
