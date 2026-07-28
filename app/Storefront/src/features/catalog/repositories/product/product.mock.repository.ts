@@ -1,6 +1,6 @@
 import type { ProductResponse, ProductListResponse, ProductSingleResponse } from '../../types/response'
 import type { PagingParams, FilterParams, SearchParams, SortParams } from '@/core/models'
-import { mockProducts, getProductById, getProductBySlug, getFeaturedProducts, getNewArrivals, searchProducts } from '../../data/mock-products.data'
+import { mockProducts, getProductById, getProductBySlug } from '../../data/mock-products.data'
 import { filterByOperator, searchByFields, sortByField, paginateResults, buildFilters, createSearchConfig, createSortConfig } from '@/core/helpers/mock-query.helper'
 
 export interface ProductQueryParams {
@@ -62,12 +62,14 @@ export class MockProductRepository {
     if (params?.filter?.filter) {
       const parsedFilter = JSON.parse(params.filter.filter)
 
+      let filterParams = parsedFilter
       if ('featured' in parsedFilter) {
-        delete parsedFilter.featured
+        const { featured, ...rest } = parsedFilter
+        filterParams = rest
         result = result.filter(p => p.compareAtPrice !== undefined && p.compareAtPrice !== null)
       }
 
-      const filters = buildFilters<ProductResponse>(parsedFilter)
+      const filters = buildFilters<ProductResponse>(filterParams)
       result = filterByOperator(result, filters)
     }
 
@@ -111,54 +113,6 @@ export class MockProductRepository {
       return { isSuccess: false, isFailure: true, statusCode: 404, message: 'Product not found' }
     }
     return { isSuccess: true, isFailure: false, statusCode: 200, data: mapToProductResponse(product) }
-  }
-
-  async searchProducts(query: string, limit = 10): Promise<ProductListResponse> {
-    const results = searchProducts(query, limit).map(mapToProductResponse)
-    return {
-      isSuccess: true,
-      isFailure: false,
-      statusCode: 200,
-      items: results,
-      page: 1,
-      pageSize: limit,
-      totalCount: results.length,
-      totalPages: 1,
-      hasNextPage: false,
-      hasPreviousPage: false,
-    }
-  }
-
-  async getFeaturedProducts(limit = 8): Promise<ProductListResponse> {
-    const featured = getFeaturedProducts().slice(0, limit).map(mapToProductResponse)
-    return {
-      isSuccess: true,
-      isFailure: false,
-      statusCode: 200,
-      items: featured,
-      page: 1,
-      pageSize: limit,
-      totalCount: featured.length,
-      totalPages: 1,
-      hasNextPage: false,
-      hasPreviousPage: false,
-    }
-  }
-
-  async getNewArrivals(limit = 8): Promise<ProductListResponse> {
-    const newArrivals = getNewArrivals(limit).map(mapToProductResponse)
-    return {
-      isSuccess: true,
-      isFailure: false,
-      statusCode: 200,
-      items: newArrivals,
-      page: 1,
-      pageSize: limit,
-      totalCount: newArrivals.length,
-      totalPages: 1,
-      hasNextPage: false,
-      hasPreviousPage: false,
-    }
   }
 
   async getProductsByCategory(categorySlug: string, params?: ProductQueryParams): Promise<ProductListResponse> {

@@ -4,9 +4,6 @@ import type { Transaction } from '../../types'
 import type { Result } from '@/core/models/result'
 import { toTransaction } from '../../mapping'
 import { succeed, fail } from '@/core/utils/result-helpers'
-
-const USE_MOCK = true
-
 export class TransactionService implements ITransactionService {
   private readonly transactionRepository = mockTransactionRepository
 
