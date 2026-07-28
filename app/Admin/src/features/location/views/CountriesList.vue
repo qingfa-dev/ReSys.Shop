@@ -111,6 +111,7 @@ function confirmDelete() {
 
     <DataTable
       ref="dt"
+      v-model:selection="selectedItems"
       :value="items"
       :loading="loading"
       :paginator="true"
@@ -122,6 +123,7 @@ function confirmDelete() {
       :rows-per-page-options="[5, 10, 25]"
       current-page-report-template="Showing {first} to {last} of {totalRecords}"
     >
+      <Column selection-mode="multiple" header-style="width: 3rem" />
       <template #header>
         <div class="flex justify-between items-center">
           <IconField>
