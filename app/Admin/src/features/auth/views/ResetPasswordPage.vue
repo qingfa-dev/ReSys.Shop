@@ -6,7 +6,7 @@ import { toTypedSchema } from '@vee-validate/zod'
 import { useToast } from 'primevue/usetoast'
 import { resetPasswordSchema } from '../validations/auth'
 import { resetPassword } from '../services/authApi'
-import PageShell from '@ui/PageShell.vue'
+import AuthLayout from '@forms/AuthLayout.vue'
 import Button from 'primevue/button'
 import InputText from 'primevue/inputtext'
 import Password from 'primevue/password'
@@ -60,33 +60,37 @@ const onSubmit = handleSubmit(async (values) => {
 </script>
 
 <template>
-  <PageShell title="Set New Password">
-    <form @submit="onSubmit" class="flex flex-col gap-4 max-w-md mx-auto">
-      <div class="flex flex-col gap-2">
-        <label for="email" class="text-sm font-medium">Email</label>
+  <AuthLayout title="Set New Password" subtitle="Choose a new password for your account">
+    <form @submit="onSubmit" class="flex flex-col gap-4 w-full md:w-[30rem]">
+      <div class="flex flex-col gap-1">
+        <label for="email" class="text-surface-900 dark:text-surface-0 font-medium text-xl">Email</label>
         <InputText id="email" :modelValue="email" disabled class="w-full" />
       </div>
 
-      <div class="flex flex-col gap-2">
-        <label for="userId" class="text-sm font-medium">User ID</label>
+      <div class="flex flex-col gap-1">
+        <label for="userId" class="text-surface-900 dark:text-surface-0 font-medium text-xl">User ID</label>
         <InputText id="userId" :modelValue="userId" disabled class="w-full" />
       </div>
 
-      <div class="flex flex-col gap-2">
-        <label for="token" class="text-sm font-medium">Reset Token</label>
+      <div class="flex flex-col gap-1">
+        <label for="token" class="text-surface-900 dark:text-surface-0 font-medium text-xl">Reset Token</label>
         <InputText id="token" v-model="token" v-bind="tokenAttrs" class="w-full" :invalid="!!errors.token" />
         <small v-if="errors.token" class="text-red-500">{{ errors.token }}</small>
       </div>
 
-      <div class="flex flex-col gap-2">
-        <label for="newPassword" class="text-sm font-medium">New Password</label>
-        <Password id="newPassword" v-model="newPassword" v-bind="newPasswordAttrs" class="w-full" :feedback="false" :invalid="!!errors.newPassword" toggleMask />
+      <div class="flex flex-col gap-1">
+        <label for="newPassword" class="text-surface-900 dark:text-surface-0 font-medium text-xl">New Password</label>
+        <Password id="newPassword" v-model="newPassword" v-bind="newPasswordAttrs" class="w-full" :toggleMask="true" :feedback="false" :invalid="!!errors.newPassword" />
         <small v-if="errors.newPassword" class="text-red-500">{{ errors.newPassword }}</small>
       </div>
 
       <Message v-if="formError" severity="error" :closable="false">{{ formError }}</Message>
 
-      <Button type="submit" label="Reset Password" severity="primary" :loading="isSubmitting" />
+      <Button type="submit" label="Reset Password" class="w-full" :loading="isSubmitting" />
     </form>
-  </PageShell>
+
+    <router-link to="/auth/login" class="text-sm text-primary hover:underline text-center block mt-4">
+      &larr; Back to login
+    </router-link>
+  </AuthLayout>
 </template>
