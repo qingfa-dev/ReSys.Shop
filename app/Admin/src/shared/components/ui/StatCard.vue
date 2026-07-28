@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import Card from 'primevue/card'
+
 interface Props {
   label: string
   value: string | number
@@ -15,7 +17,7 @@ withDefaults(defineProps<Props>(), {
 
 <template>
   <div class="col-span-12 lg:col-span-6 xl:col-span-3">
-    <div class="card mb-0">
+    <Card class="mb-0">
       <div class="flex justify-between mb-4">
         <div>
           <span class="block text-muted-color font-medium mb-4">{{ label }}</span>
@@ -27,6 +29,6 @@ withDefaults(defineProps<Props>(), {
       </div>
       <span v-if="subText" class="text-muted-color">{{ subText }}</span>
       <span v-if="trend" class="text-primary font-medium">{{ trend }}</span>
-    </div>
+    </Card>
   </div>
 </template>

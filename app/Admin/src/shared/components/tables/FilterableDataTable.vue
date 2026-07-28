@@ -69,7 +69,7 @@ const exportCSV = () => {
         <Button type="button" icon="pi pi-filter-slash" label="Clear" outlined @click="clearFilter" />
         <IconField>
           <InputIcon class="pi pi-search" />
-          <InputText v-model="globalFilterValue" placeholder="Search..." @update:modelValue="onGlobalFilterChange" />
+          <InputText v-model="globalFilterValue" placeholder="Search..." fluid @update:modelValue="onGlobalFilterChange" />
         </IconField>
       </div>
     </template>

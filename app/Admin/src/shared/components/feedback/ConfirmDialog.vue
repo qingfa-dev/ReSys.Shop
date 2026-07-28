@@ -35,7 +35,7 @@ const emit = defineEmits<{
       <span class="text-surface-600 dark:text-surface-0 text-lg">{{ message }}</span>
     </div>
     <template #footer>
-      <Button :label="cancelLabel" icon="pi pi-times" text @click="emit('cancel')" />
+      <Button :label="cancelLabel" icon="pi pi-times" variant="text" @click="emit('cancel')" />
       <Button :label="confirmLabel" icon="pi pi-check" @click="emit('confirm')" />
     </template>
   </Dialog>

@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import Card from 'primevue/card'
+
 interface Props {
   newLabel?: string
   deleteLabel?: string
@@ -24,7 +26,7 @@ const emit = defineEmits<{
 </script>
 
 <template>
-  <div class="card mb-6">
+    <Card class="mb-6">
     <Toolbar class="mb-4">
       <template #start>
         <Button :label="newLabel" icon="pi pi-plus" severity="secondary" class="mr-2" @click="emit('new')" />
@@ -38,8 +40,8 @@ const emit = defineEmits<{
       <slot name="header-left" />
       <IconField>
         <InputIcon class="pi pi-search" />
-        <InputText :placeholder="searchPlaceholder" @update:modelValue="emit('update:search', $event ?? '')" />
+        <InputText :placeholder="searchPlaceholder" fluid @update:modelValue="emit('update:search', $event ?? '')" />
       </IconField>
     </div>
-  </div>
+  </Card>
 </template>

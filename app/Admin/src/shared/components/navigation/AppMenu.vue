@@ -13,6 +13,7 @@ import { orderingMenuItems } from '@/features/ordering/routes'
 import { paymentMenuItems } from '@/features/payment/routes'
 import { profileMenuItems } from '@/features/profile/routes'
 import { shippingMenuItems } from '@/features/shipping/routes'
+import SignOut from '@primeicons/vue/sign-out'
 
 interface MenuItem {
   separator?: boolean
@@ -60,7 +61,7 @@ async function handleLogout() {
             <a class="logout-item flex align-items-center px-3 py-2 cursor-pointer border-round"
                :class="{ 'pointer-events-none opacity-50': authStore.isLoggingOut }"
                @click="handleLogout">
-                <i class="pi pi-sign-out layout-menuitem-icon"></i>
+                <SignOut class="layout-menuitem-icon" />
                 <span class="layout-menuitem-text">Logout</span>
             </a>
         </li>

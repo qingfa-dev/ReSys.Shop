@@ -2,6 +2,10 @@
 import { useLayout } from '@/shared/composables/useLayout';
 import AppConfigurator from '../ui/AppConfigurator.vue';
 import UserMenu from './UserMenu.vue';
+import Bars from '@primeicons/vue/bars'
+import Moon from '@primeicons/vue/moon'
+import Sun from '@primeicons/vue/sun'
+import Palette from '@primeicons/vue/palette'
 
 const { toggleMenu, toggleDarkMode, isDarkTheme } = useLayout();
 </script>
@@ -10,7 +14,7 @@ const { toggleMenu, toggleDarkMode, isDarkTheme } = useLayout();
     <div class="layout-topbar">
         <div class="layout-topbar-logo-container">
             <button class="layout-menu-button layout-topbar-action" @click="toggleMenu">
-                <i class="pi pi-bars"></i>
+                <Bars />
             </button>
             <router-link to="/" class="layout-topbar-logo">
                 <svg viewBox="0 0 54 40" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -38,7 +42,8 @@ const { toggleMenu, toggleDarkMode, isDarkTheme } = useLayout();
         <div class="layout-topbar-actions">
             <div class="layout-config-menu">
                 <button type="button" class="layout-topbar-action" @click="toggleDarkMode">
-                    <i :class="['pi', { 'pi-moon': isDarkTheme, 'pi-sun': !isDarkTheme }]"></i>
+                    <Moon v-if="isDarkTheme" />
+                    <Sun v-else />
                 </button>
                 <div class="relative">
                     <button
@@ -46,7 +51,7 @@ const { toggleMenu, toggleDarkMode, isDarkTheme } = useLayout();
                         type="button"
                         class="layout-topbar-action layout-topbar-action-highlight"
                     >
-                        <i class="pi pi-palette"></i>
+                        <Palette />
                     </button>
                     <AppConfigurator />
                 </div>
