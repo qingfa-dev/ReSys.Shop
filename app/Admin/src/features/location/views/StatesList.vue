@@ -83,15 +83,28 @@ function confirmDelete() {
     acceptLabel: 'Delete',
     acceptClass: 'p-button-danger',
     accept: async () => {
-      const target = selectedItems.value[0]!
-      const result = await StateApi.deleteState(target.id)
-      if (result.isSuccess) {
-        notify.success('State deleted', `${target.name} has been removed.`)
-      } else {
-        notify.error('Delete failed', result.errors?.[0]?.message ?? 'Could not delete state.')
+      const ids = selectedItems.value.map(i => i.id)
+      const names = selectedItems.value.map(i => i.name)
+      let failed = 0
+      for (const id of ids) {
+        const result = await StateApi.deleteState(id)
+        if (!result.isSuccess) failed++
       }
       selectedItems.value = []
       refresh()
+      if (failed === 0) {
+        notify.success(
+          ids.length > 1 ? 'States deleted' : 'State deleted',
+          ids.length > 1
+            ? `${ids.length} states have been removed.`
+            : `${names[0]} has been removed.`,
+        )
+      } else {
+        notify.error(
+          'Delete failed',
+          `${failed} of ${ids.length} could not be deleted.`,
+        )
+      }
     },
   })
 }
