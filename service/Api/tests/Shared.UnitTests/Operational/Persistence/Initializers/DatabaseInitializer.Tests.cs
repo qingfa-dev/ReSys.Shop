@@ -120,6 +120,12 @@ public class DatabaseInitializerTests
         (ServiceProvider provider, Mock<ILogger> loggerMock) = BuildProviderWithLogger(
             services =>
             {
+                services.AddScoped<IApplicationDbContext>(_ =>
+                {
+                    DbContextOptionsBuilder<TestDbContext> builder = new();
+                    builder.UseInMemoryDatabase(Guid.NewGuid().ToString());
+                    return new TestDbContext(builder.Options);
+                });
                 services.AddScoped<IDataSeeder>(_ => Mock.Of<IDataSeeder>());
             });
 
@@ -139,7 +145,15 @@ public class DatabaseInitializerTests
     public async Task InitializeAsync_WithNoSeeders_ShouldLogAndReturn()
     {
         (ServiceProvider provider, Mock<ILogger> loggerMock) = BuildProviderWithLogger(
-            services => { });
+            services =>
+            {
+                services.AddScoped<IApplicationDbContext>(_ =>
+                {
+                    DbContextOptionsBuilder<TestDbContext> builder = new();
+                    builder.UseInMemoryDatabase(Guid.NewGuid().ToString());
+                    return new TestDbContext(builder.Options);
+                });
+            });
 
         await provider.InitializeDatabaseAsync();
 
@@ -164,6 +178,12 @@ public class DatabaseInitializerTests
 
         ServiceProvider provider = BuildProvider(services =>
         {
+            services.AddScoped<IApplicationDbContext>(_ =>
+            {
+                DbContextOptionsBuilder<TestDbContext> builder = new();
+                builder.UseInMemoryDatabase(Guid.NewGuid().ToString());
+                return new TestDbContext(builder.Options);
+            });
             services.AddScoped<IDataSeeder>(_ => seederMock.Object);
         });
 
@@ -199,6 +219,12 @@ public class DatabaseInitializerTests
 
         ServiceProvider provider = BuildProvider(services =>
         {
+            services.AddScoped<IApplicationDbContext>(_ =>
+            {
+                DbContextOptionsBuilder<TestDbContext> builder = new();
+                builder.UseInMemoryDatabase(Guid.NewGuid().ToString());
+                return new TestDbContext(builder.Options);
+            });
             services.AddScoped<IDataSeeder>(_ => seeder1.Object);
             services.AddScoped<IDataSeeder>(_ => seeder2.Object);
             services.AddScoped<IDataSeeder>(_ => seeder3.Object);
@@ -215,6 +241,12 @@ public class DatabaseInitializerTests
         (ServiceProvider provider, Mock<ILogger> loggerMock) = BuildProviderWithLogger(
             services =>
             {
+                services.AddScoped<IApplicationDbContext>(_ =>
+                {
+                    DbContextOptionsBuilder<TestDbContext> builder = new();
+                    builder.UseInMemoryDatabase(Guid.NewGuid().ToString());
+                    return new TestDbContext(builder.Options);
+                });
                 Mock<IDataSeeder> seederMock = new();
                 seederMock.Setup(s => s.Order).Returns(1);
                 seederMock
@@ -246,6 +278,12 @@ public class DatabaseInitializerTests
 
         ServiceProvider provider = BuildProvider(services =>
         {
+            services.AddScoped<IApplicationDbContext>(_ =>
+            {
+                DbContextOptionsBuilder<TestDbContext> builder = new();
+                builder.UseInMemoryDatabase(Guid.NewGuid().ToString());
+                return new TestDbContext(builder.Options);
+            });
             Mock<IDataSeeder> failingSeeder = new();
             failingSeeder.Setup(s => s.Order).Returns(1);
             failingSeeder
@@ -266,6 +304,12 @@ public class DatabaseInitializerTests
         (ServiceProvider provider, Mock<ILogger> loggerMock) = BuildProviderWithLogger(
             services =>
             {
+                services.AddScoped<IApplicationDbContext>(_ =>
+                {
+                    DbContextOptionsBuilder<TestDbContext> builder = new();
+                    builder.UseInMemoryDatabase(Guid.NewGuid().ToString());
+                    return new TestDbContext(builder.Options);
+                });
                 Mock<IDataSeeder> successSeeder = new();
                 successSeeder.Setup(s => s.Order).Returns(1);
                 successSeeder
@@ -328,6 +372,12 @@ public class DatabaseInitializerTests
         (ServiceProvider provider, Mock<ILogger> loggerMock) = BuildProviderWithLogger(
             services =>
             {
+                services.AddScoped<IApplicationDbContext>(_ =>
+                {
+                    DbContextOptionsBuilder<TestDbContext> builder = new();
+                    builder.UseInMemoryDatabase(Guid.NewGuid().ToString());
+                    return new TestDbContext(builder.Options);
+                });
                 Mock<IDataSeeder> seederMock = new();
                 seederMock.Setup(s => s.Order).Returns(1);
                 services.AddScoped<IDataSeeder>(_ => seederMock.Object);
