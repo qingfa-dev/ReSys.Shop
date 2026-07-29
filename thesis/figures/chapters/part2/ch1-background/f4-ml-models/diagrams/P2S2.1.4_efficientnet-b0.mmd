@@ -1,24 +1,53 @@
-%%{init: {'theme': 'base', 'themeVariables': { 'fontSize': '26px', 'fontFamily': 'arial', 'primaryColor': '#ffffff', 'edgeLabelBackground':'#ffffff', 'tertiaryColor': '#ffffff', 'primaryBorderColor': '#333333', 'lineColor': '#555555' }}}%%
+%%{init: {'theme': 'base', 'themeVariables': { 'fontSize': '28px', 'fontFamily': 'Arial', 'primaryColor': '#ffffff', 'edgeLabelBackground':'#ffffff', 'tertiaryColor': '#ffffff', 'primaryBorderColor': '#333333', 'lineColor': '#555555' }}}%%
 flowchart TB
-    classDef mainNode fill:#fff,stroke:#333,stroke-width:3px
-    classDef convNode fill:#fafafa,stroke:#555,stroke-width:2px
-    classDef blockNode fill:#f8f8f8,stroke:#555,stroke-width:2px
-    classDef scaleNode fill:#fff,stroke:#777,stroke-width:2px,stroke-dasharray: 4 2
-    classDef outputNode fill:#fafafa,stroke:#333,stroke-width:3px
+    classDef mainNode fill:#ffffff,stroke:#333333,stroke-width:2.5px
+    classDef backboneNode fill:#f8f9fa,stroke:#444444,stroke-width:1.5px
+    classDef trainNode fill:#ffffff,stroke:#666666,stroke-width:1.5px,stroke-dasharray: 4 2
+    classDef outputNode fill:#f4f4f4,stroke:#222222,stroke-width:2px
 
-    A["Input Image 224 x 224 x 3"]:::mainNode --> B["Stem Conv 3x3"]:::convNode
+    %% INPUT & STEM STAGE
+    A["Input Image<br/>(224 x 224 x 3)"]:::mainNode --> B["Stem Stage<br/>3x3 Conv, Stride 2<br/>(112 x 112 x 32)"]:::backboneNode
 
-    subgraph MB["MBConv Blocks (x7 stages)"]
-        direction LR
-        C1["Expand + DWConv + SE"]:::blockNode --> C2["... repeated per stage"]:::blockNode
-    end
-
-    B --> C1
-    C2 --> D["Conv 1x1 + Global Pool + Feature 1280-dim"]:::outputNode
-
-    subgraph CS["Compound Scaling"]
+    %% EFFICIENTNET-B0 BACKBONE STAGE (SPLIT INTO TWO LEFT-TO-RIGHT ROWS)
+    subgraph Backbone["EfficientNet-B0 Backbone (7 MBConv Stages)"]
         direction TB
-        S1["Depth: more layers"]:::scaleNode --> S2["Width: more channels"]:::scaleNode --> S3["Resolution: larger input"]:::scaleNode
+        
+        %% ROW 1: STAGES 1 TO 4 (LR)
+        subgraph Row1 ["First Half (Stages 1–4)"]
+            direction LR
+            Stage1["Stage 1: MBConv1 (3x3)<br/>(112 x 112 x 16)"]:::backboneNode --> Stage2["Stage 2: 2x MBConv6 (3x3)<br/>(56 x 56 x 24)"]:::backboneNode
+            Stage2 --> Stage3["Stage 3: 2x MBConv6 (5x5)<br/>(28 x 28 x 40)"]:::backboneNode
+            Stage3 --> Stage4["Stage 4: 3x MBConv6 (3x3)<br/>(14 x 14 x 80)"]:::backboneNode
+        end
+
+        %% ROW 2: STAGES 5 TO 7 + EXPANSION HEAD (LR)
+        subgraph Row2 ["Second Half (Stages 5–7)"]
+            direction LR
+            Stage5["Stage 5: 3x MBConv6 (5x5)<br/>(14 x 14 x 112)"]:::backboneNode --> Stage6["Stage 6: 4x MBConv6 (5x5)<br/>(7 x 7 x 192)"]:::backboneNode
+            Stage6 --> Stage7["Stage 7: MBConv6 (3x3)<br/>(7 x 7 x 320)"]:::backboneNode
+            Stage7 --> ConvHead["1x1 Conv Expansion<br/>(7 x 7 x 1280)"]:::backboneNode
+        end
+
+        %% LINK ROW 1 TO ROW 2
+        Stage4 ==> Stage5
     end
 
-    CS -.balances.-> MB
+    B ==> Stage1
+
+    %% PRE-TRAINING SUBSYSTEM
+    subgraph PT["Supervised / Self-Supervised Pre-training"]
+        direction LR
+        F["ImageNet-1k / Catalog Data"]:::trainNode --> G["Cross-Entropy /<br/>Metric Learning Loss"]:::trainNode
+    end
+    PT -. "Pre-trains Backbone" .-> Backbone
+
+    %% RIGHT-SIDE RETRIEVAL PIPELINE
+    subgraph OutputPipeline ["Feature Extraction & Retrieval Pipeline"]
+        direction LR
+        GAP["Global Average Pooling (GAP)<br/>(Spatial Reduction → 1280-dim)"]:::outputNode --> Proj["Linear Projection Head<br/>(Optional → 256/512-dim)"]:::backboneNode
+        Proj --> Norm["L2 Vector Normalization<br/>(||v||₂ = 1)"]:::backboneNode
+        Norm --> D["K-NN Cosine Similarity Search<br/>(Catalog Retrieval & Recommendations)"]:::outputNode
+    end
+
+    %% CONNECTION FROM EXPANSION HEAD TO RETRIEVAL PIPELINE
+    ConvHead ==> GAP

@@ -1,64 +1,91 @@
 @startuml usecase-order-lifecycle
+
 left to right direction
 
+skinparam shadowing false
+skinparam dpi 180
+
 <style>
-  root {
-    FontName "Arial"
-    FontSize 14
-    Shadowing 0
-  }
-  actor {
-    BackGroundColor #FFFFFF
-    LineColor #000000
-    LineThickness 1.5
-    FontColor #000000
-    FontStyle bold
-    FontSize 16
-  }
-  usecase {
-    BackGroundColor #FFFFFF
-    LineColor #000000
-    LineThickness 1.5
-    FontColor #000000
-  }
-  rectangle {
-    BackGroundColor #FFFFFF
-    LineColor #000000
-    LineThickness 1.5
-    FontStyle bold
-  }
-  arrow {
-    LineColor #000000
-    LineThickness 1.5
-    FontSize 12
-  }
+
+root {
+  FontName "Arial"
+  FontSize 18
+  FontColor #111111
+}
+
+actor {
+  FontName "Arial"
+  FontSize 18
+  FontStyle bold
+  FontColor #111111
+  BackgroundColor #FFFFFF
+  LineColor #222222
+  LineThickness 2
+}
+
+usecase {
+  FontName "Arial"
+  FontSize 17
+  FontColor #111111
+  FontStyle plain
+  BackgroundColor #FFFFFF
+  LineColor #222222
+  LineThickness 2
+  Padding 18
+}
+
+rectangle {
+  FontName "Arial"
+  FontSize 22
+  FontStyle bold
+  FontColor #111111
+  BackgroundColor #F7F9FA
+  LineColor #263238
+  LineThickness 3
+  RoundCorner 12
+  Padding 30
+}
+
+arrow {
+  FontName "Arial"
+  FontSize 15
+  FontColor #111111
+  LineColor #333333
+  LineThickness 2
+}
+
 </style>
-title UC-ADM-ORD / UC-ADM-ORD-ITEMS: Order Lifecycle
+
+title Use Case: UC-ADM-ORD / UC-ADM-ORD-ITEMS\nOrder Lifecycle
 
 actor "Administrator" as Admin
-actor "Payment Gateway" as GW
+actor "Payment Gateway" as Gateway <<system>>
 
-rectangle "Order Lifecycle" {
-  usecase "Manage Orders\n[UC-ADM-ORD]" as UC_MAIN
-  usecase "View Orders" as UC_SUB_1
-  usecase "Update Order" as UC_SUB_2
-  usecase "Approve Order" as UC_SUB_3
-  usecase "Complete Order" as UC_SUB_4
-  usecase "Cancel Order" as UC_SUB_5
-  usecase "Resume Order" as UC_SUB_6
+rectangle "ReSys.Shop\nAdministration Portal" {
 
-  usecase "Manage Order Items\n[UC-ADM-ORD-ITEMS]" as UC_ITEM
+  usecase "Manage Orders\nUC-ADM-ORD" as UC_MAIN
 
-  UC_MAIN ..> UC_SUB_1 : <<include>>
-  UC_MAIN ..> UC_SUB_2 : <<include>>
-  UC_MAIN ..> UC_SUB_3 : <<include>>
-  UC_MAIN ..> UC_SUB_4 : <<include>>
-  UC_MAIN ..> UC_SUB_5 : <<include>>
-  UC_MAIN ..> UC_SUB_6 : <<include>>
+  usecase "View Orders" as UC_VIEW
+  usecase "Update Order" as UC_UPDATE
+  usecase "Approve Order" as UC_APPROVE
+  usecase "Complete Order" as UC_COMPLETE
+  usecase "Cancel Order" as UC_CANCEL
+  usecase "Resume Order" as UC_RESUME
+
+  usecase "Manage Order Items\nUC-ADM-ORD-ITEMS" as UC_ITEMS
+
 }
 
 Admin --> UC_MAIN
-Admin --> UC_ITEM
-GW --> UC_SUB_4
+Admin --> UC_ITEMS
+
+UC_MAIN ..> UC_VIEW : <<include>>
+UC_MAIN ..> UC_UPDATE : <<include>>
+UC_MAIN ..> UC_APPROVE : <<include>>
+UC_MAIN ..> UC_COMPLETE : <<include>>
+UC_MAIN ..> UC_CANCEL : <<include>>
+UC_MAIN ..> UC_RESUME : <<include>>
+
+UC_COMPLETE --> Gateway : <<communicates>>
 
 @enduml

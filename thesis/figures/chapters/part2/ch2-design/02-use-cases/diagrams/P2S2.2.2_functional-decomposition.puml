@@ -1,28 +1,121 @@
-@startwbs
+@startwbs resys-shop-wbs
+
 <style>
+
 wbsDiagram {
-  BackgroundColor transparent;
-  FontSize 18;
+  LineColor #222222
+  LineThickness 2
+  FontName Arial
+  FontSize 28
+  FontColor #000000
+  RoundCorner 8
+  HorizontalPadding 12
+  VerticalPadding 10
+  MaximumWidth 420
 }
+
+node {
+  Padding 12
+  Margin 6
+}
+
+:depth(0) {
+  BackgroundColor #333333
+  FontColor #FFFFFF
+  FontStyle bold
+  LineColor #222222
+  LineThickness 2
+}
+
+:depth(1) {
+  BackgroundColor #E0E0E0
+  FontColor #000000
+  FontStyle bold
+  LineColor #222222
+  LineThickness 2
+}
+
+:depth(2) {
+  BackgroundColor #F0F4F8
+  FontColor #000000
+  FontStyle bold
+  LineColor #333333
+}
+
+:depth(3) {
+  BackgroundColor #FFFFFF
+  FontColor #000000
+  LineColor #555555
+}
+
 </style>
 
-* ReSys.Shop E-commerce Platform
-** Administration
-*** Catalog Management
-*** Order Management
-*** Payment Management
-*** Inventory Management
-*** Identity Management
-*** Shipping Management
-*** Location Management
-** Storefront
-*** Product Discovery
-*** Purchase Flow
-*** Account Management
-** Background Services
-*** Embedding Generation
-*** Cart Expiry
-*** Inventory Reservation
-*** Payment Webhook Processing
-*** Index Optimisation
+* ReSys.Shop Platform
+
+** Administration Portal
+
+*** Catalog Management Subsystem
+**** Product & Variant Management
+**** Image & Asset Management
+**** Taxonomy & Classification Management
+**** Option Type Configuration
+
+*** Order Administration Subsystem
+**** Order Lifecycle Management
+**** Order Item Management
+**** Payment Processing
+**** Fulfillment Management
+
+*** Inventory & Logistics Subsystem
+**** Stock Item Management
+**** Stock Location Management
+**** Inventory Reservation Management
+**** Shipping Method Configuration
+
+*** Identity & Security Subsystem
+**** User Management
+**** Role & Permission Governance
+**** Reference Data Management
+
+** Storefront Applications
+
+*** Product Discovery Subsystem
+**** Catalog Browsing
+**** Product Detail Viewing
+**** Text & Keyword Search
+**** Visual Search & Similar Products
+
+*** Checkout & Sales Subsystem
+**** Cart Management
+**** Checkout Flow
+**** Payment Processing
+**** Order History & Tracking
+
+*** Customer Self-Service Subsystem
+**** Authentication
+**** Session Management
+**** Profile & Preferences
+**** Address Management
+**** Wishlist Management
+**** Notification Preferences
+
+** Platform Background Services
+
+*** Machine Learning & Vector Services
+**** Embedding Processing Service
+**** Catalog Vector Indexing Service
+**** Image Embedding Generation
+**** Vector Index Maintenance
+
+*** Asynchronous Processing Services
+**** Cart Expiration Handler
+**** Inventory Reservation Engine
+**** Payment Webhook Listener
+**** Order Status Processing
+
+*** Platform Monitoring & Maintenance
+**** Service Health Monitoring
+**** Background Job Monitoring
+**** External Service Monitoring
+
 @endwbs

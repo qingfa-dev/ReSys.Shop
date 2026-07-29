@@ -36,7 +36,7 @@ Most AI models are trained with supervised learning, where humans label images (
 )
 
 #figure(
-  image("../../../../figures/chapters/part2/ch1-background/f4-ml-models/diagrams/P2S2.1.4_dinov2.png", height: 50%),
+  image("../../../../figures/chapters/part2/ch1-background/f4-ml-models/diagrams/P2S2.1.4_dinov2.png", width: 80%),
   caption: [DINOv2 architecture: image patches pass through transformer layers with self-attention to produce a feature vector],
 ) <fig-dinov2-arch>
 

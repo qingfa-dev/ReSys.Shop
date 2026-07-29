@@ -3,7 +3,7 @@
 #figure(
   image(
     "../../../../../figures/chapters/part2/ch2-design/02-use-cases/diagrams/P2S2.2.2_usecase-product-management.png",
-    width: 100%
+    width: 80%
   ),
   caption: [Use case diagram for Product Management (UC-ADM-PROD).],
 ) <fig-uc-adm-prod-d>
@@ -253,7 +253,7 @@
 #figure(
   image(
     "../../../../../figures/chapters/part2/ch2-design/02-use-cases/diagrams/P2S2.2.2_usecase-option-type-config.png",
-    width: 100%
+    width: 60%
   ),
   caption: [Use case diagram for Option Type Configuration (UC-ADM-OPT).],
 ) <fig-uc-adm-opt-d>

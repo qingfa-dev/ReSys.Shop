@@ -1,53 +1,77 @@
 @startuml usecase-catalog-browsing
+
 left to right direction
 
+skinparam shadowing false
+skinparam dpi 180
+
 <style>
-  root {
-    FontName "Arial"
-    FontSize 14
-    Shadowing 0
-  }
-  actor {
-    BackGroundColor #FFFFFF
-    LineColor #000000
-    LineThickness 1.5
-    FontColor #000000
-    FontStyle bold
-    FontSize 16
-  }
-  usecase {
-    BackGroundColor #FFFFFF
-    LineColor #000000
-    LineThickness 1.5
-    FontColor #000000
-  }
-  rectangle {
-    BackGroundColor #FFFFFF
-    LineColor #000000
-    LineThickness 1.5
-    FontStyle bold
-  }
-  arrow {
-    LineColor #000000
-    LineThickness 1.5
-    FontSize 12
-  }
-</style>
-title UC-STR-BRW: Catalog Browsing
 
-actor "Customer" as Cust
-
-rectangle "Catalog Browsing" {
-  usecase "Catalog Browsing\n[UC-STR-BRW]" as UC_MAIN
-  usecase "Browse Catalog" as UC_BROWSE
-  usecase "View Product Detail" as UC_DETAIL
-  usecase "Keyword Search" as UC_SEARCH
-
-  UC_MAIN ..> UC_BROWSE : <<include>>
-  UC_MAIN ..> UC_DETAIL : <<include>>
-  UC_MAIN ..> UC_SEARCH : <<include>>
+root {
+  FontName "Arial"
+  FontSize 18
+  FontColor #111111
 }
 
-Cust --> UC_MAIN
+actor {
+  FontName "Arial"
+  FontSize 18
+  FontStyle bold
+  FontColor #111111
+  BackgroundColor #FFFFFF
+  LineColor #222222
+  LineThickness 2
+}
+
+usecase {
+  FontName "Arial"
+  FontSize 17
+  FontColor #111111
+  FontStyle plain
+  BackgroundColor #FFFFFF
+  LineColor #222222
+  LineThickness 2
+  Padding 18
+}
+
+rectangle {
+  FontName "Arial"
+  FontSize 22
+  FontStyle bold
+  FontColor #111111
+  BackgroundColor #F7F9FA
+  LineColor #263238
+  LineThickness 3
+  RoundCorner 12
+  Padding 30
+}
+
+arrow {
+  FontName "Arial"
+  FontSize 15
+  FontColor #111111
+  LineColor #333333
+  LineThickness 2
+}
+
+</style>
+
+title Use Case: UC-STR-BRW\nCatalog Browsing
+
+actor "Customer" as Customer
+
+rectangle "ReSys.Shop\nStorefront Applications" {
+
+  usecase "Browse Catalog\nUC-STR-BRW-BROWSE" as UC_BROWSE
+
+  usecase "View Product Detail\nUC-STR-BRW-DETAIL" as UC_DETAIL
+
+  usecase "Keyword Search\nUC-STR-BRW-SEARCH" as UC_SEARCH
+
+}
+
+Customer --> UC_BROWSE
+Customer --> UC_DETAIL
+Customer --> UC_SEARCH
 
 @enduml

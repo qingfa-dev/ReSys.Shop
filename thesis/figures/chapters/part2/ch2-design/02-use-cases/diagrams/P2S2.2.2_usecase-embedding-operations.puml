@@ -1,53 +1,103 @@
 @startuml usecase-embedding-operations
+
 left to right direction
 
+skinparam shadowing false
+skinparam dpi 180
+
 <style>
-  root {
-    FontName "Arial"
-    FontSize 14
-    Shadowing 0
-  }
-  actor {
-    BackGroundColor #FFFFFF
-    LineColor #000000
-    LineThickness 1.5
-    FontColor #000000
-    FontStyle bold
-    FontSize 16
-  }
-  usecase {
-    BackGroundColor #FFFFFF
-    LineColor #000000
-    LineThickness 1.5
-    FontColor #000000
-  }
-  rectangle {
-    BackGroundColor #FFFFFF
-    LineColor #000000
-    LineThickness 1.5
-    FontStyle bold
-  }
-  arrow {
-    LineColor #000000
-    LineThickness 1.5
-    FontSize 12
-  }
-</style>
-title UC-SYS-EMB: Embedding Operations
 
-actor "System (Background)" as Sys
-actor "ML Service" as ML
-
-rectangle "Embedding Operations" {
-  usecase "Embedding Operations\n[UC-SYS-EMB]" as UC_MAIN
-  usecase "Generate Image\nEmbeddings" as UC_GEN
-  usecase "Regenerate All Embeddings" as UC_REG
-
-  UC_MAIN ..> UC_GEN : <<include>>
-  UC_MAIN ..> UC_REG : <<include>>
+root {
+  FontName "Arial"
+  FontSize 18
+  FontColor #111111
 }
 
-Sys --> UC_MAIN
-ML --> UC_GEN
+actor {
+  FontName "Arial"
+  FontSize 18
+  FontStyle bold
+  FontColor #111111
+  BackgroundColor #FFFFFF
+  LineColor #222222
+  LineThickness 2
+}
+
+usecase {
+  FontName "Arial"
+  FontSize 17
+  FontColor #111111
+  FontStyle plain
+  BackgroundColor #FFFFFF
+  LineColor #222222
+  LineThickness 2
+  Padding 18
+}
+
+rectangle {
+  FontName "Arial"
+  FontSize 22
+  FontStyle bold
+  FontColor #111111
+  BackgroundColor #F7F9FA
+  LineColor #263238
+  LineThickness 3
+  RoundCorner 12
+  Padding 25
+}
+
+arrow {
+  FontName "Arial"
+  FontSize 15
+  FontColor #111111
+  LineColor #333333
+  LineThickness 2
+}
+
+</style>
+
+title Use Case Detail: UC-SYS-EMB\nEmbedding Operations
+
+' ============================================================
+' EXTERNAL ACTORS / SYSTEMS
+' ============================================================
+
+actor "Job Scheduler" as Scheduler <<system>>
+
+actor "External ML\nInference Service" as MLService <<system>>
+
+
+' ============================================================
+' SYSTEM OF INTEREST
+' ============================================================
+
+rectangle "ReSys.Shop\nSystem Processing Services" {
+
+  usecase "Process Vector Embeddings\nUC-SYS-EMB" as UC_MAIN
+
+  usecase "Generate Single Image\nEmbedding\nUC-SYS-EMB-GEN" as UC_GEN
+
+  usecase "Rebuild Catalog\nVector Index\nUC-SYS-EMB-REG" as UC_REG
+
+}
+
+
+' ============================================================
+' ACTOR ASSOCIATIONS
+' ============================================================
+
+Scheduler --> UC_MAIN
+
+UC_GEN --> MLService : <<communicates>>
+
+UC_REG --> MLService : <<communicates>>
+
+
+' ============================================================
+' USE CASE RELATIONSHIPS
+' ============================================================
+
+UC_MAIN ..> UC_GEN : <<include>>
+UC_MAIN ..> UC_REG : <<include>>
 
 @enduml

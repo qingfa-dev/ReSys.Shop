@@ -1,39 +1,37 @@
 === Security Design
 
-The security architecture of ReSys.Shop addresses three layers: authentication, verifying the identity of callers, authorisation, controlling what authenticated callers may do, and hardening, defensive measures against common attack vectors. This section describes each layer in turn.
+The ReSys.Shop security framework operates across three distinct operational layers: authentication, claim-based authorization, and defense-in-depth infrastructure.
 
-==== Authentication
+==== Authentication and Session Management
 
-The platform uses JSON Web Tokens (JWT) for bearer token authentication. Upon successful login, via email and password or Google OAuth, the server issues two tokens: an access token with a fifteen-minute lifetime and a refresh token with a longer lifetime. The access token carries the user's identifier, email, and permission claims in a compact signed payload. All authenticated API requests include the access token in the `Authorization` header as a Bearer token.
+- *Token Pair Generation:* Authenticated users (via email/password or Google OAuth) receive a 15-minute JWT access token and a server-stored refresh token in PostgreSQL.
+- *Single-Use Rotation:* Exchanging an expired access token consumes the current refresh token and issues a new pair.
+- *Breach Detection:* Re-submitting a previously consumed refresh token flags potential token interception, immediately revoking all active refresh tokens for that user ID and forcing full re-authentication.
+- *Anonymous Guest Sessions:* Unauthenticated shoppers receive an HTTP-only cookie tracking an anonymous session ID. Upon login or registration, the guest cart automatically merges with the user's persistent cart.
 
-The refresh token is a long-lived credential stored server-side in the database. When the access token expires, the client presents the refresh token to obtain a new access token and a new refresh token, a pattern known as refresh token rotation. Each refresh token is single-use: upon successful rotation, the consumed token is marked as used and a replacement is issued. If a previously consumed refresh token is presented again, indicating a potential token theft scenario, the system revokes all tokens for that user, forcing re-authentication. This rotation-with-reuse-detection pattern limits the damage window of a compromised refresh token to the interval between rotations.
+==== Dynamic Authorization
 
-Guest users, customers who have not yet authenticated, are assigned a session identifier stored in a browser cookie. This session identifier links their anonymous cart to their browsing context and persists across page navigations. Upon registration or login, the anonymous cart is merged with the authenticated user's cart, preserving the shopping intent built during the guest session.
+- *Surface Isolation:* Role-Based Access Control (RBAC) separates administrative (`admin`) and customer (`storefront`) surfaces. Unprivileged accounts attempting to access `/api/*/admin/*` endpoints receive an immediate `403 Forbidden` response prior to command dispatch.
+- *Granular Permissions:* Operations enforce fine-grained claims formatted as:
 
-==== Authorisation
+$ { "domain" } ":" { "category" } ":" { "action" } $
 
-Authorisation is implemented through two complementary mechanisms: role-based access control (RBAC) for broad category restrictions and permission-based claims for fine-grained control.
+- *Runtime Resolution:* A custom `IAuthorizationPolicyProvider` maps claim strings (e.g., `catalog:products:create`) to policies dynamically. Permission assignments can be modified in the database without triggering application redeployments.
 
-Roles, such as Customer and Administrator, segregate the Admin and Storefront surfaces. An endpoint in the Admin surface requires the Administrator role; a customer presenting valid credentials without that role receives a `403 Forbidden` response. This coarse check prevents unauthorised access to administrative functions at the infrastructure level, before any business logic executes.
+==== System Hardening and Defensive Controls
 
-Permissions use a structured claim format: `{domain}:{category}:{action}`. For example, `catalog:products:create` grants permission to create products in the Catalog domain. A dynamic permission provider, `IAuthorizationPolicyProvider`, resolves these claim strings to ASP.NET Core authorisation policies at runtime, eliminating the need for static policy registration for every endpoint. This dynamic resolution enables permission configuration through the database without redeployment: an administrator may create a new role, assign it a set of permission claims, and those permissions take effect across all authorised endpoints immediately.
+- *Rate Limiting:* Restricts IP traffic to 5 requests/min for authentication, 3 requests/hour for registration, and 30 requests/min for payment processing to mitigate brute-force attacks and abuse.
+- *Security Headers:* Middleware injects `Content-Security-Policy`, `Strict-Transport-Security` (HSTS), `X-Frame-Options` (clickjacking protection), and `X-Content-Type-Options`.
+- *File Upload Controls:* Visual search uploads enforce a 10 MB limit and inspect magic bytes directly to verify valid JPEG, PNG, or WebP image formats, bypassing spoofed client extensions.
+- *Webhook Verification:* Stripe payment webhooks validate the `Stripe-Signature` header against the raw request body using HMAC signature verification before executing state transitions.
 
-==== Security Measures
+=== Chapter Summary
 
-Several defensive measures harden the platform against common web application attack vectors.
+This chapter detailed the complete architectural framework of ReSys.Shop. The sections below summarize the core design decisions and their underlying technical rationale across all six architectural dimensions:
 
-*Rate Limiting.* Authentication endpoints are rate-limited to five requests per minute per IP address to prevent credential brute-forcing. Registration endpoints are limited to three requests per hour per IP address to deter automated account creation. Payment endpoints are limited to thirty requests per minute to maintain availability during high-traffic checkout events.
-
-*Security Headers.* All HTTP responses include security headers configured through ASP.NET Core middleware: Content-Security-Policy restricts script and style sources to the application's own domains, HTTP Strict-Transport-Security enforces HTTPS-only connections for a configurable duration, X-Frame-Options prevents the application from being embedded in iframes to block clickjacking, and X-Content-Type-Options prevents MIME-type sniffing by browsers.
-
-*File Upload Validation.* The visual search and product image upload endpoints enforce strict file validation. Uploaded files undergo magic-byte verification, inspecting the file header bytes rather than trusting the file extension, to confirm they are valid JPEG, PNG, or WebP images. A ten-megabyte size limit prevents resource exhaustion from oversized uploads. Server-side validation repeats the client-side checks, as client-side validation is a convenience that an attacker can bypass.
-
-*Payment Webhook Verification.* The Stripe webhook endpoint, which receives payment event notifications, validates each incoming request using Stripe's signature verification algorithm. The webhook payload is hashed with a shared signing secret; if the computed signature does not match the one provided in the Stripe-Signature header, the request is discarded before any business logic processes it. This verification prevents spoofed webhook payloads from injecting fraudulent payment state into the system.
-
-==== Token Flow
-
-The authentication token lifecycle operates as follows. A client authenticates with email and password, receiving an access token and a refresh token. The access token is short-lived and not stored server-side; it is validated by signature verification and expiration check on each request. When the access token expires, the client sends the refresh token to the refresh endpoint. The server validates the refresh token against the database: if it is valid and has not been used before, the server marks it as consumed, issues a new access token and a new refresh token, and returns both to the client. If the presented refresh token has already been consumed, flagged as used from a previous rotation, the server assumes token theft and revokes all refresh tokens associated with that user, logging the security event. The user must then re-authenticate, which invalidates the compromised token chain and issues fresh credentials. This model provides a self-healing defence against refresh token interception without requiring the user to detect or report the compromise.
-
-=== Summary
-
-This section has presented the architectural design of ReSys.Shop across six dimensions. The service-oriented system architecture separates presentation (Vue 3), business logic (.NET 10), and machine learning (Python sidecar) into independently deployable services. Domain-Driven Design partitions the business domain into eight bounded contexts communicating through MediatR in-process dispatch, with four architecturally significant aggregate roots enforcing explicit invariants. The C4 model describes the system at context, container, and component levels of abstraction, revealing the communication paths between deployable units and the internal composition of the .NET backend. The PostgreSQL database uses per-context schemas, pgvector for vector similarity search, and a set of consistent design decisions, GUIDs, soft deletion, audit columns, applied across all contexts. The API layer follows the URL convention `/api/{module}/{surface}/{action}` with Carter minimal APIs and MediatR CQRS. The security architecture covers JWT authentication with refresh token rotation, permission-based authorisation with dynamic policy resolution, and layered defensive measures against common attack vectors. Together, these architectural decisions provide the foundation on which the implementation described in the following section is built.
+- *Service-Oriented Architecture:* The platform decouples concerns into three independent layers: a Vue 3 SPA presentation tier, a .NET 10 application engine, and a Python 3.12 FastAPI machine learning sidecar. This separation isolates heavy vector inference workloads from core transactional e-commerce workflows.
+- *Domain-Driven Design (DDD):* Business logic is split across eight isolated bounded contexts (`Catalog`, `Ordering`, `Payment`, `Inventory`, `Identity`, `Profile`, `Shipping`, and `Location`). Communication relies on in-process MediatR CQRS dispatch, ensuring zero direct coupling between context databases while maintaining strong aggregate root invariants.
+- *C4 Abstraction Modeling:* The system structure is defined across Context, Container, and Component levels, mapping deployable boundaries, asynchronous queue flows, and internal handler pipelines.
+- *Database Architecture:* PostgreSQL manages both relational and vector data within per-context schemas. The platform uses `pgvector` for similarity queries, UUID primary keys for distributed generation, soft-deletion interceptors for data auditability, and PostgreSQL `xmin` columns for optimistic concurrency control.
+- *RESTful API Contract:* Built on Carter minimal APIs, endpoints follow a uniform `/api/{module}/{surface}/{action}` route pattern. Pre-processor FluentValidation pipelines reject malformed inputs early, returning standard RFC 7807 Problem Details payloads.
+- *Security Architecture:* System access relies on short-lived JWTs paired with refresh token rotation and reuse detection. Dynamic policy providers resolve string-based permissions at runtime, backed by defensive rate-limiting, magic-byte upload validation, and HMAC webhook verification.

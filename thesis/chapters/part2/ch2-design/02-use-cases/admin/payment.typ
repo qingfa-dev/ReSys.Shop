@@ -3,7 +3,7 @@
 #figure(
   image(
     "../../../../../figures/chapters/part2/ch2-design/02-use-cases/diagrams/P2S2.2.2_usecase-admin-payment-processing.png",
-    width: 100%
+    width: 80%
   ),
   caption: [Use case diagram for Payment Processing (UC-ADM-PAY).],
 ) <fig-uc-adm-pay-d>

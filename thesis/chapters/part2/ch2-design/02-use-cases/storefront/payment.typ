@@ -2,7 +2,7 @@
 #figure(
   image(
     "../../../../../figures/chapters/part2/ch2-design/02-use-cases/diagrams/P2S2.2.2_usecase-stf-payment-processing.png",
-    width: 100%
+    width: 70%
   ),
   caption: [Use case diagram for Payment Processing (UC-STR-PAY).],
 ) <fig-uc-str-pay-d>
@@ -63,7 +63,7 @@
 #figure(
   image(
     "../../../../../figures/chapters/part2/ch2-design/02-use-cases/diagrams/P2S2.2.2_usecase-authentication.png",
-    width: 100%
+    width: 70%
   ),
   caption: [Use case diagram for Authentication (UC-STR-AUT).],
 ) <fig-uc-str-aut-d>
@@ -136,7 +136,7 @@
 #figure(
   image(
     "../../../../../figures/chapters/part2/ch2-design/02-use-cases/diagrams/P2S2.2.2_usecase-session-management.png",
-    width: 100%
+    width: 70%
   ),
   caption: [Use case diagram for Session Management (UC-STR-SES).],
 ) <fig-uc-str-ses-d>

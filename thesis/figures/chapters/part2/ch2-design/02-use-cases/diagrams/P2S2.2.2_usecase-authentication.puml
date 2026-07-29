@@ -1,62 +1,89 @@
 @startuml usecase-authentication
+
 left to right direction
 
+skinparam shadowing false
+skinparam dpi 180
+
 <style>
-  root {
-    FontName "Arial"
-    FontSize 14
-    Shadowing 0
-  }
-  actor {
-    BackGroundColor #FFFFFF
-    LineColor #000000
-    LineThickness 1.5
-    FontColor #000000
-    FontStyle bold
-    FontSize 16
-  }
-  usecase {
-    BackGroundColor #FFFFFF
-    LineColor #000000
-    LineThickness 1.5
-    FontColor #000000
-  }
-  rectangle {
-    BackGroundColor #FFFFFF
-    LineColor #000000
-    LineThickness 1.5
-    FontStyle bold
-  }
-  arrow {
-    LineColor #000000
-    LineThickness 1.5
-    FontSize 12
-  }
-</style>
-title UC-STR-AUT: Authentication
 
-actor "Customer" as Cust
-actor "Email Service" as Email
-actor "Google OAuth" as Google
-
-rectangle "Authentication" {
-  usecase "Authentication\n[UC-STR-AUT]" as UC_MAIN
-  usecase "Register" as UC_REG
-  usecase "Login with Password" as UC_LOGIN
-  usecase "Login with Google" as UC_GOOGLE
-  usecase "Reset Password" as UC_RESET
-  usecase "Change Password" as UC_CHANGE
-
-  UC_MAIN ..> UC_REG : <<include>>
-  UC_MAIN ..> UC_LOGIN : <<include>>
-  UC_MAIN ..> UC_GOOGLE : <<include>>
-  UC_MAIN ..> UC_RESET : <<include>>
-  UC_MAIN ..> UC_CHANGE : <<include>>
+root {
+  FontName "Arial"
+  FontSize 18
+  FontColor #111111
 }
 
-Cust --> UC_MAIN
-Email --> UC_REG
-Email --> UC_RESET
-Google --> UC_GOOGLE
+actor {
+  FontName "Arial"
+  FontSize 18
+  FontStyle bold
+  FontColor #111111
+  BackgroundColor #FFFFFF
+  LineColor #222222
+  LineThickness 2
+}
+
+usecase {
+  FontName "Arial"
+  FontSize 17
+  FontColor #111111
+  FontStyle plain
+  BackgroundColor #FFFFFF
+  LineColor #222222
+  LineThickness 2
+  Padding 18
+}
+
+rectangle {
+  FontName "Arial"
+  FontSize 22
+  FontStyle bold
+  FontColor #111111
+  BackgroundColor #F7F9FA
+  LineColor #263238
+  LineThickness 3
+  RoundCorner 12
+  Padding 30
+}
+
+arrow {
+  FontName "Arial"
+  FontSize 15
+  FontColor #111111
+  LineColor #333333
+  LineThickness 2
+}
+
+</style>
+
+title Use Case: UC-STR-AUT\nAuthentication
+
+actor "Customer" as Customer
+actor "Email Service" as Email <<system>>
+actor "Google OAuth" as Google <<system>>
+
+rectangle "ReSys.Shop\nStorefront Applications" {
+
+  usecase "Register\nUC-STR-AUT-REG" as UC_REG
+
+  usecase "Login with Password\nUC-STR-AUT-LOGIN" as UC_LOGIN
+
+  usecase "Login with Google\nUC-STR-AUT-GOOGLE" as UC_GOOGLE
+
+  usecase "Reset Password\nUC-STR-AUT-RESET" as UC_RESET
+
+  usecase "Change Password\nUC-STR-AUT-CHANGE" as UC_CHANGE
+
+}
+
+Customer --> UC_REG
+Customer --> UC_LOGIN
+Customer --> UC_GOOGLE
+Customer --> UC_RESET
+Customer --> UC_CHANGE
+
+UC_REG --> Email : <<communicates>>
+UC_RESET --> Email : <<communicates>>
+UC_GOOGLE --> Google : <<communicates>>
 
 @enduml

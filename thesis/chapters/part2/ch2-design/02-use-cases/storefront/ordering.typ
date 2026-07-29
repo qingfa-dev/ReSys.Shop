@@ -2,7 +2,7 @@
 #figure(
   image(
     "../../../../../figures/chapters/part2/ch2-design/02-use-cases/diagrams/P2S2.2.2_usecase-cart-management.png",
-    width: 100%
+    width: 70%
   ),
   caption: [Use case diagram for Cart Management (UC-STR-CRT).],
 ) <fig-uc-str-crt-d>

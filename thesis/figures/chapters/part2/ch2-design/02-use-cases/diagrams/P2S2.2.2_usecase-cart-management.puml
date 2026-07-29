@@ -1,51 +1,74 @@
 @startuml usecase-cart-management
+
 left to right direction
 
+skinparam shadowing false
+skinparam dpi 180
+
 <style>
-  root {
-    FontName "Arial"
-    FontSize 14
-    Shadowing 0
-  }
-  actor {
-    BackGroundColor #FFFFFF
-    LineColor #000000
-    LineThickness 1.5
-    FontColor #000000
-    FontStyle bold
-    FontSize 16
-  }
-  usecase {
-    BackGroundColor #FFFFFF
-    LineColor #000000
-    LineThickness 1.5
-    FontColor #000000
-  }
-  rectangle {
-    BackGroundColor #FFFFFF
-    LineColor #000000
-    LineThickness 1.5
-    FontStyle bold
-  }
-  arrow {
-    LineColor #000000
-    LineThickness 1.5
-    FontSize 12
-  }
-</style>
-title UC-STR-CRT: Cart Management
 
-actor "Customer" as Cust
-
-rectangle "Cart Management" {
-  usecase "Cart Management\n[UC-STR-CRT]" as UC_MAIN
-  usecase "Manage Cart Items" as UC_ITEMS
-  usecase "Associate Cart with Account" as UC_ASSOCIATE
-
-  UC_MAIN ..> UC_ITEMS : <<include>>
-  UC_MAIN ..> UC_ASSOCIATE : <<include>>
+root {
+  FontName "Arial"
+  FontSize 18
+  FontColor #111111
 }
 
-Cust --> UC_MAIN
+actor {
+  FontName "Arial"
+  FontSize 18
+  FontStyle bold
+  FontColor #111111
+  BackgroundColor #FFFFFF
+  LineColor #222222
+  LineThickness 2
+}
+
+usecase {
+  FontName "Arial"
+  FontSize 17
+  FontColor #111111
+  FontStyle plain
+  BackgroundColor #FFFFFF
+  LineColor #222222
+  LineThickness 2
+  Padding 18
+}
+
+rectangle {
+  FontName "Arial"
+  FontSize 22
+  FontStyle bold
+  FontColor #111111
+  BackgroundColor #F7F9FA
+  LineColor #263238
+  LineThickness 3
+  RoundCorner 12
+  Padding 30
+}
+
+arrow {
+  FontName "Arial"
+  FontSize 15
+  FontColor #111111
+  LineColor #333333
+  LineThickness 2
+}
+
+</style>
+
+title Use Case: UC-STR-CRT\nCart Management
+
+actor "Customer" as Customer
+
+rectangle "ReSys.Shop\nStorefront Applications" {
+
+  usecase "Manage Cart Items\nUC-STR-CRT-ITEMS" as UC_ITEMS
+
+  usecase "Associate Cart with Account\nUC-STR-CRT-ASSOC" as UC_ASSOCIATE
+
+}
+
+Customer --> UC_ITEMS
+Customer --> UC_ASSOCIATE
 
 @enduml

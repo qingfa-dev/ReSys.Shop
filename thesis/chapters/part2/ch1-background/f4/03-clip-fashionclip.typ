@@ -19,7 +19,7 @@ During training, CLIP processed 400 million image-text pairs from the public web
 CLIP has two separate towers:
 
 #figure(
-  image("../../../../figures/chapters/part2/ch1-background/f4-ml-models/diagrams/P2S2.1.4_clip-vit-b16.png", width: 70%),
+  image("../../../../figures/chapters/part2/ch1-background/f4-ml-models/diagrams/P2S2.1.4_clip-vit-b16.png", width: 80%),
   caption: [CLIP ViT-B/16 dual-tower architecture: images and text are converted to vectors in the same embedding space, allowing direct comparison],
 ) <fig-clip-arch>
 

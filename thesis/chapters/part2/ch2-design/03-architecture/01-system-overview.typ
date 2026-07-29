@@ -4,9 +4,9 @@ ReSys.Shop comprises three independently deployable *services*: a Vue 3 *TypeScr
 
 #figure(
   table(
-    columns: (auto, auto, auto),
+    columns: (auto, 1fr, 4fr),
     stroke: 0.5pt,
-    align: (center + horizon, left, left),
+    align: (center, left, left),
 
     table.header([*Service*], [*Technology Stack*], [*Responsibilities*]),
 

@@ -68,7 +68,7 @@
 #figure(
   image(
     "../../../../../figures/chapters/part2/ch2-design/02-use-cases/diagrams/P2S2.2.2_usecase-background-maintenance.png",
-    width: 100%
+    width: 85%
   ),
   caption: [Use case diagram for Background Maintenance (UC-SYS-MNT).],
 ) <fig-uc-sys-mnt-d>
