@@ -1,9 +1,22 @@
 === Vertical Slice Architecture
 
-The .NET backend is organised according to *Vertical Slice Architecture* (VSA), a pattern in which code is grouped by business capability rather than by technical layer. In a traditional layered architecture, all data access classes reside in one project, all business logic in another, and all web controllers in a third. VSA inverts this convention: all code required to fulfil a single feature, the request, the handler, the response, the validator, is co-located within one directory. This organisation makes the system easier to navigate because a developer tracing a feature through the codebase follows a vertical path rather than jumping across four or five horizontal layers.
+The backend implements *Vertical Slice Architecture* (VSA), grouping code by business feature rather than technical layer. Rather than spreading a feature across separated controllers, services, and repositories, VSA co-locates the request model, route definition, handler logic, validation rules, and response DTO within a single feature directory. This layout accelerates development velocity and simplifies maintenance by keeping all context for a feature in one place.
 
-The implementation uses Carter minimal APIs for route registration and MediatR for command and query dispatch. Each bounded context, Catalog, Ordering, Payment, and the remaining five modules, contributes its own `ICarterModule` implementation, which registers all endpoints belonging to that context. Endpoints are thin: they extract parameters from the HTTP request, construct a MediatR command or query object, dispatch it through `ISender`, and map the resulting `Result<T>` to an HTTP status code and JSON body. All business logic, database access, and domain invariant enforcement reside in the handler layer, where they are testable without HTTP infrastructure.
+==== Feature Co-Location and Endpoint Pipeline
 
-FluentValidation ensures that every command and query object is validated before its handler executes. Validation classes live alongside the handlers they protect, keeping the validation rules visible and colocated with the logic they guard. The MediatR pipeline wraps each request with three behaviours, validation, logging, and exception mapping, applied automatically to every handler in the system. A fourth pipeline behaviour enforces feature-level transaction boundaries, ensuring that handlers operating on multiple database rows do so within a single unit of work.
+Features leverage *Carter Minimal APIs* for route discovery and *MediatR* for command/query dispatch. Each of the eight bounded contexts defines an `ICarterModule` to register its HTTP endpoints. Endpoints remain intentionally thin: they parse incoming HTTP requests, construct a MediatR command or query, dispatch it via `ISender`, and map the returned `Result<T>` directly to HTTP responses.
 
-The vertical slice organisation enforces a strict module boundary rule: no bounded context may import another context's namespace. All inter-module communication flows through MediatR's `ISender` interface. A context may dispatch a query to another context or publish a notification that other contexts react to, but it may never reference a class, type, or namespace belonging to another module. This constraint preserves the logical isolation of the bounded contexts, the same isolation that would be enforced by network boundaries in a microservices architecture, while retaining the deployment simplicity of a single process.
+All business rules, database queries, and domain invariants reside exclusively inside feature handlers, making them fully testable isolated from HTTP dependencies. *FluentValidation* classes are co-located with their target requests, validating data models before handler execution via MediatR pipeline behaviors.
+
+==== Cross-Cutting MediatR Pipeline
+
+Every dispatched command and query traverses a central MediatR pipeline that applies cross-cutting concerns uniformly across all features:
+
+- *Validation Behavior:* Intercepts requests, executes co-located FluentValidation rules, and short-circuits with structured validation failures on error.
+- *Logging Behavior:* Captures request execution context, timings, and parameters for diagnostic tracing.
+- *Exception-Mapping Behavior:* Catches unhandled domain exceptions and translates them into predictable API responses.
+- *Transactional Behavior:* Enforces feature-level transaction boundaries, wrapping multi-row operations within an explicit database unit of work.
+
+==== Inter-Module Boundaries
+
+The architecture enforces a strict isolation rule: *no bounded context may directly import another context's namespace*. Inter-module integration relies exclusively on MediatR's `ISender` interface via in-process query dispatch or event notifications. This maintains microservice-like logical isolation and clean domain boundaries while keeping the deployment simplicity of a monolithic executable.
