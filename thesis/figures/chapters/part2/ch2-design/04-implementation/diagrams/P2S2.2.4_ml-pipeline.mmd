@@ -1,6 +1,34 @@
+%%{init: {
+  'theme': 'neutral',
+  'themeVariables': {
+    'fontSize': '28px',
+    'nodePadding': '18',
+    'clusterBkg': '#fafafa'
+  }
+}}%%
 flowchart LR
-    A[".NET Backend\nsends image bytes"] --> B["FastAPI\nvalidate API key"]
-    B --> C["Preprocessing\nresize, normalize,\nto tensor"]
-    C --> D["Model Inference\nforward pass\n(Fashion-CLIP / ResNet / ...)"]
-    D --> E["512-d Vector\n(float array)"]
-    E --> F["Return JSON\nembedding response"]
+    classDef boundary fill:#f9f9f9,stroke:#333,stroke-width:2px;
+    classDef process fill:#e1f5fe,stroke:#0288d1,stroke-width:1.5px;
+    classDef decision fill:#fff3e0,stroke:#f57c00,stroke-width:1.5px;
+    classDef error fill:#ffebee,stroke:#c62828,stroke-width:1.5px;
+    classDef data fill:#e8f5e9,stroke:#388e3c,stroke-width:1.5px;
+
+    Req(["Inbound Request\n(HTTP POST /embeddings)"]):::boundary --> KeyCheck{"Validate Header\nX-API-Key?"}:::decision
+    
+    KeyCheck -- Invalid --> ErrAuth["Return 401 Unauthorized\n(API Key mismatch)"]:::error
+    KeyCheck -- Valid --> PayloadCheck{"Validate Body\nImage bytes present?"}:::decision
+
+    PayloadCheck -- Corrupted/Empty --> ErrBody["Return 422 Unprocessable\n(Invalid payload)"]:::error
+    PayloadCheck -- Valid --> PreProcess
+
+    subgraph Pipeline ["Python ML Sidecar Execution Flow"]
+        PreProcess["1. Image Preprocessing\n- Decode JPEG/PNG bytes\n- Resize to 224x224 px\n- Normalize (ImageNet mean/std)\n- Convert to PyTorch Tensor"]:::process
+        
+        Infer["2. Model Forward Pass\n- Execute Fashion-CLIP / ResNet\n- Extract dense bottleneck features"]:::process
+
+        Norm["3. L2 Normalization\n- Vector unit length normalization\n- Generate 512-d float array"]:::data
+
+        PreProcess --> Infer --> Norm
+    end
+
+    Norm --> Resp(["Return 200 OK JSON\n{'embedding': [0.042, -0.118, ...]}"]):::boundary

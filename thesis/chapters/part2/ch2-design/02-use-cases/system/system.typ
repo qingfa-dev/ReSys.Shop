@@ -64,6 +64,16 @@
   caption: [Embedding Operations.],
 )
 
+The embedding generation process described in the main success scenario follows the pipeline illustrated in @fig-ml-pipeline: an image is authenticated, preprocessed through standardised transforms, passed through the selected model, and the resulting feature vector is serialised alongside performance metadata.
+
+#figure(
+  image(
+    "../../../../../figures/chapters/part2/ch2-design/04-implementation/diagrams/P2S2.2.4_ml-pipeline.png",
+    width: 100%
+  ),
+  caption: [ML embedding pipeline: step-by-step flow from image upload to normalised vector response.],
+) <fig-ml-pipeline>
+
 ==== Background Maintenance
 #figure(
   image(

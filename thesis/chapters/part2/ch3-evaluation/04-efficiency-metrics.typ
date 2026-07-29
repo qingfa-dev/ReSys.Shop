@@ -2,6 +2,8 @@
 
 This section presents the computational resource consumption of each model, quantifying the cost side of the accuracy-efficiency trade-off. @tbl-efficiency summarises the efficiency metrics.
 
+// [SCREENSHOT: benchmark-efficiency-chart.png] Efficiency comparison dashboard: four side-by-side bar charts showing per-model inference latency (ms), throughput (img/s), model load time (ms), and storage footprint (MB) across all four models. Fashion-CLIP and CLIP-generic share the same 3.3 MB storage bar, contrasting with ResNet-50's 13.0 MB.
+
 #figure(
   caption: [Efficiency Metrics, 3-Fold Cross-Validation],
   table(

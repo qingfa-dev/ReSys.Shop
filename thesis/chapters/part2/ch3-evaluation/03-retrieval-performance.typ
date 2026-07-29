@@ -2,6 +2,8 @@
 
 This section presents the aggregate retrieval accuracy results from the 3-fold cross-validation benchmark. @tbl-aggregate displays the primary accuracy metrics for all four evaluated models, sorted by mAP in descending order.
 
+// [SCREENSHOT: benchmark-results-dashboard.png] The benchmark results overview dashboard, showing the aggregated mAP comparison bar chart across all four models with standard deviation error bars, the P@K line chart for K = 5, 10, 20, and the per-fold breakdown table. This Python-generated visualization is produced by the benchmark framework's reporting module.
+
 #figure(
   caption: [Aggregate Retrieval Metrics, 3-Fold Cross-Validation],
   table(

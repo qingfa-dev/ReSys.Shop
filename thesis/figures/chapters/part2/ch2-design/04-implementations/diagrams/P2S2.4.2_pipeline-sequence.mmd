@@ -1,0 +1,58 @@
+%%{init: {
+  'theme': 'neutral',
+  'themeVariables': {
+    'fontSize': '20px',
+    'actorFontSize': '20px',
+    'messageFontSize': '18px',
+    'labelFontSize': '18px',
+    'noteFontSize': '16px'
+  }
+}}%%
+sequenceDiagram
+    actor Client
+    participant Carter as Carter Endpoint
+    participant MediatR as ISender
+    participant Logging as LoggingBehavior
+    participant Validation as ValidationBehavior
+    participant Exception as ExceptionMapping
+    participant Handler as CommandHandler
+
+    Client->>Carter: HTTP Request
+    Carter->>MediatR: sender.Send(command)
+
+    Note over MediatR,Handler: Russian-doll pipeline execution
+
+    MediatR->>Logging: Enter (captures request type)
+    Logging->>Validation: Enter
+    Validation->>Validation: Execute FluentValidation
+
+    alt Validation Fails
+        Validation-->>Logging: Return Error list
+        Logging->>Logging: Log failure
+        Logging-->>MediatR: Failure Result
+        MediatR-->>Carter: Result (errors)
+        Carter-->>Client: HTTP 400 Bad Request
+    else Validation Passes
+        Validation->>Exception: Enter
+        Exception->>Handler: Invoke Handle()
+
+        alt Handler Throws
+            Handler-->>Exception: Unhandled Exception
+            Exception->>Exception: Error.FromException()
+            Exception-->>Validation: Failure Result
+            Validation-->>Logging: Failure Result
+            Logging->>Logging: Log failure
+            Logging-->>MediatR: Failure Result
+            MediatR-->>Carter: Result (errors)
+            Carter-->>Client: HTTP 500
+        else Handler Succeeds
+            Handler-->>Exception: Success Result
+            Exception-->>Validation: Success Result
+            Validation-->>Logging: Success Result
+            Logging->>Logging: Log success
+            Logging-->>MediatR: Success Result
+            MediatR-->>Carter: Result (value)
+            Carter->>Carter: result.ToResult()
+            Carter-->>Client: HTTP 200 OK
+        end
+    end

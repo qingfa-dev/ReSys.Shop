@@ -6,6 +6,8 @@ The preceding two sections presented accuracy and efficiency in isolation. This 
 
 When the four models are compared simultaneously across both accuracy and latency, three distinct clusters emerge. @tbl-comparison presents the combined view.
 
+// [SCREENSHOT: benchmark-tradeoff-scatter.png] Accuracy-vs-latency trade-off scatter plot: mAP on the y-axis versus inference latency (ms) on the x-axis, with each model as a labelled point. Fashion-CLIP occupies the top-right quadrant (high accuracy, moderate latency). EfficientNet-B0 anchors the bottom-left (competitive accuracy, lowest latency). The three accuracy clusters (Fashion-CLIP alone, CLIP-generic + EfficientNet-B0, ResNet-50) are visually separated with shaded regions.
+
 #figure(
   caption: [Combined Accuracy and Efficiency Comparison],
   table(
