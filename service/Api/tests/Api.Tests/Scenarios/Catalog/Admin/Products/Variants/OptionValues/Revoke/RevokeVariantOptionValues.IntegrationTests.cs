@@ -45,11 +45,12 @@ public sealed class RevokeVariantOptionValuesIntegrationTests(ApiFixture fixture
         {
             name = "Red",
             presentation = "Red",
-            position = 1
+            position = 1,
+            optionTypeId = optionType!.Id
         };
 
         HttpResponseMessage optionValueResponse = await Client.PostAsAdminRawAsync(
-            $"/api/catalog/option-types/{optionType!.Id}/values", createOptionValueRequest);
+            "/api/catalog/option-types/option-values", createOptionValueRequest);
         ApiResponse optionValueResult = await optionValueResponse.ReadApiResponseAsync();
         optionValueResult.IsSuccess.Should().BeTrue();
         var optionValue = optionValueResult.DeserializeValue<OptionValueResponse>();

@@ -9,7 +9,6 @@ public static partial class UpdateOptionValue
         public void AddRoutes(IEndpointRouteBuilder app)
         {
             app.MapPut(CatalogFeature.Admin.OptionTypes.OptionValues.Update.Route, async (
-                [FromRoute] Guid optionTypeId,
                 [FromRoute] Guid id,
                 [FromBody] Request request,
                 ISender sender,

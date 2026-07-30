@@ -23,7 +23,7 @@ public sealed class ChangePasswordIntegrationTests(ApiFixture fixture) : Identit
     }
 
     [Fact]
-    public async Task ChangePassword_WithMissingCurrentPassword_Returns422()
+    public async Task ChangePassword_WithMissingCurrentPassword_Returns400()
     {
         (Guid userId, string email, _) = await IdentityTestHelper.CreateTestUserAsync(Client);
 
@@ -38,11 +38,11 @@ public sealed class ChangePasswordIntegrationTests(ApiFixture fixture) : Identit
 
         HttpResponseMessage response = await Client.SendAsync(httpRequest);
 
-        response.StatusCode.Should().Be(HttpStatusCode.UnprocessableEntity);
+        response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
     }
 
     [Fact]
-    public async Task ChangePassword_WithMissingNewPassword_Returns422()
+    public async Task ChangePassword_WithMissingNewPassword_Returns400()
     {
         (Guid userId, string email, _) = await IdentityTestHelper.CreateTestUserAsync(Client);
 
@@ -57,7 +57,7 @@ public sealed class ChangePasswordIntegrationTests(ApiFixture fixture) : Identit
 
         HttpResponseMessage response = await Client.SendAsync(httpRequest);
 
-        response.StatusCode.Should().Be(HttpStatusCode.UnprocessableEntity);
+        response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
     }
 
     [Fact]

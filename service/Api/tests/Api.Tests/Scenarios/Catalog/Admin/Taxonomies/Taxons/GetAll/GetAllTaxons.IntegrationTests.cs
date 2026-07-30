@@ -30,16 +30,17 @@ public sealed class GetAllTaxonsIntegrationTests(ApiFixture fixture) : CatalogIn
         {
             name = "Test Nike",
             slug = "test-nike",
-            presentation = "Test Nike"
+            presentation = "Test Nike",
+            taxonomyId = taxonomy!.Id
         };
 
         HttpResponseMessage createTaxonResponse = await Client.PostAsAdminRawAsync(
-            $"/api/catalog/taxonomies/{taxonomy!.Id}/taxons", taxonRequest);
+            "/api/catalog/taxonomies/taxons", taxonRequest);
         ApiResponse createTaxonResult = await createTaxonResponse.ReadApiResponseAsync();
         createTaxonResult.IsSuccess.Should().BeTrue("the taxon should be created successfully");
 
         HttpResponseMessage response = await Client.GetAsAdminRawAsync(
-            $"/api/catalog/taxonomies/{taxonomy.Id}/taxons");
+            "/api/catalog/taxonomies/taxons");
         PagedResult<TaxonListItemResponse> result = await response.ReadAsPagedResultAsync<TaxonListItemResponse>();
 
         result.IsSuccess.Should().BeTrue();
@@ -48,13 +49,13 @@ public sealed class GetAllTaxonsIntegrationTests(ApiFixture fixture) : CatalogIn
     }
 
     [Fact]
-    public async Task GetAllTaxons_WithNonexistentTaxonomy_ReturnsNotFound()
+    public async Task GetAllTaxons_WithoutSeed_ReturnsEmptyList()
     {
-        Guid nonexistentId = Guid.NewGuid();
-
         HttpResponseMessage response = await Client.GetAsAdminRawAsync(
-            $"/api/catalog/taxonomies/{nonexistentId}/taxons");
+            "/api/catalog/taxonomies/taxons");
+        PagedResult<TaxonListItemResponse> result = await response.ReadAsPagedResultAsync<TaxonListItemResponse>();
 
-        response.StatusCode.Should().Be(HttpStatusCode.NotFound);
+        result.IsSuccess.Should().BeTrue();
+        result.TotalCount.Should().Be(0);
     }
 }

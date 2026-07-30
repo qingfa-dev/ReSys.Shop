@@ -40,12 +40,7 @@ public static partial class DeleteTaxon
             // Validate: Taxon must exist
             if (entity is null)
                 return TaxonResult.Errors.NotFound;
-
-            // Validate: Parent taxonomy must exist
-            var taxonomyExists =  entity.Taxonomy != null;
-            if (!taxonomyExists)
-                return TaxonomyResult.Errors.NotFound;
-
+            
             // Enforce: Cannot delete taxon with active children — orphans the hierarchy
             if (entity.Children.Count != 0)
                 return TaxonResult.Errors.HasChildren;

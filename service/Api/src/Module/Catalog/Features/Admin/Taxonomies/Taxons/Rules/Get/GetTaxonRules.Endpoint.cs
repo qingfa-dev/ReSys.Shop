@@ -9,12 +9,11 @@ public static partial class GetTaxonRules
         public void AddRoutes(IEndpointRouteBuilder app)
         {
             app.MapGet(CatalogFeature.Admin.Taxonomies.Taxons.Rules.GetAll.Route, async (
-                Guid taxonomyId,
                 Guid id,
                 ISender sender,
                 CancellationToken ct) =>
             {
-                var query = new Query(taxonomyId, id);
+                var query = new Query(id);
                 var result = await sender.Send(query, ct);
                 if (!result.IsSuccess)
                     return result.ToResult();

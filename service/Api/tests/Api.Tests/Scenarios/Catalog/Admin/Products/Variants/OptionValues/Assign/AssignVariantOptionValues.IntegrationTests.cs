@@ -44,11 +44,12 @@ public sealed class AssignVariantOptionValuesIntegrationTests(ApiFixture fixture
         {
             name = "Large",
             presentation = "Large",
-            position = 1
+            position = 1,
+            optionTypeId = optionType!.Id
         };
 
         HttpResponseMessage optionValueResponse = await Client.PostAsAdminRawAsync(
-            $"/api/catalog/option-types/{optionType!.Id}/values", createOptionValueRequest);
+            "/api/catalog/option-types/option-values", createOptionValueRequest);
         ApiResponse optionValueResult = await optionValueResponse.ReadApiResponseAsync();
         optionValueResult.IsSuccess.Should().BeTrue();
         var optionValue = optionValueResult.DeserializeValue<OptionValueResponse>();

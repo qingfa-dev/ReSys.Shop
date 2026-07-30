@@ -9,9 +9,6 @@ public static partial class UpdateTaxon
     {
         public Validator()
         {
-            RuleFor(x => x.TaxonomyId)
-                .ApplyTaxonomyIdRules();
-
             RuleFor(x => x.Request)
                 .ApplyTaxonomyParametersRules();
         }

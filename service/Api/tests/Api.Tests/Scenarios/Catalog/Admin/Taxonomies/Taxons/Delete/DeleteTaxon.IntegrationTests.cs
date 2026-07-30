@@ -30,17 +30,18 @@ public sealed class DeleteTaxonIntegrationTests(ApiFixture fixture) : CatalogInt
         {
             name = "Test Nike",
             slug = "test-nike",
-            presentation = "Test Nike"
+            presentation = "Test Nike",
+            taxonomyId = taxonomy!.Id
         };
 
         HttpResponseMessage createResponse = await Client.PostAsAdminRawAsync(
-            $"/api/catalog/taxonomies/{taxonomy!.Id}/taxons", taxonRequest);
+            "/api/catalog/taxonomies/taxons", taxonRequest);
         ApiResponse createResult = await createResponse.ReadApiResponseAsync();
         TaxonDetailResponse? created = createResult.DeserializeValue<TaxonDetailResponse>();
         created.Should().NotBeNull();
 
         HttpResponseMessage deleteResponse = await Client.DeleteAsAdminRawAsync(
-            $"/api/catalog/taxonomies/{taxonomy.Id}/taxons/{created!.Id}");
+            $"/api/catalog/taxonomies/taxons/{created!.Id}");
         ApiResponse result = await deleteResponse.ReadApiResponseAsync();
 
         result.IsSuccess.Should().BeTrue();
@@ -65,7 +66,7 @@ public sealed class DeleteTaxonIntegrationTests(ApiFixture fixture) : CatalogInt
         Guid nonexistentId = Guid.NewGuid();
 
         HttpResponseMessage deleteResponse = await Client.DeleteAsAdminRawAsync(
-            $"/api/catalog/taxonomies/{taxonomy!.Id}/taxons/{nonexistentId}");
+            $"/api/catalog/taxonomies/taxons/{nonexistentId}");
 
         deleteResponse.StatusCode.Should().Be(HttpStatusCode.NotFound);
     }

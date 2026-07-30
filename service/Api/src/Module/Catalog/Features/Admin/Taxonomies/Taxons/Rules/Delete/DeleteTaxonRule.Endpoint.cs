@@ -9,13 +9,12 @@ public static partial class DeleteTaxonRule
         public void AddRoutes(IEndpointRouteBuilder app)
         {
             app.MapDelete(CatalogFeature.Admin.Taxonomies.Taxons.Rules.Delete.Route, async (
-                Guid taxonomyId,
                 Guid id,
                 Guid ruleId,
                 ISender sender,
                 CancellationToken ct) =>
             {
-                var command = new Command(taxonomyId, id, ruleId);
+                var command = new Command(id, ruleId);
                 var result = await sender.Send(command, ct);
                 return result.ToResult();
             })

@@ -7,7 +7,7 @@ namespace Module.Catalog.Features.Admin.Taxonomies.Taxons.Get.Tree;
 
 public static partial class GetTaxonTree
 {
-    public sealed record Query(Guid TaxonomyId) : IQuery<Response>;
+    public sealed record Query() : IQuery<Response>;
 
     /// <summary>Handler for getting the taxon tree.</summary>
     public sealed class QueryHandler(IApplicationDbContext dbContext)
@@ -16,17 +16,11 @@ public static partial class GetTaxonTree
         /// <summary>Gets the taxon tree for a taxonomy.</summary>
         public async Task<Result<Response>> Handle(Query query, CancellationToken cancellationToken)
         {
-            // Check: Taxonomy must exist before loading its tree
-            var taxonomyExists = await dbContext.Set<Taxonomy>()
-                .AnyAsync(x => x.Id == query.TaxonomyId, cancellationToken);
-            if (!taxonomyExists)
-                return TaxonomyResult.Errors.NotFound;
-
-            // Load: Fetch taxonomy with active taxons ordered by nested set position
+            // Load: Fetch all taxons with their taxonomy for tree construction
             var entity = await dbContext.Set<Taxonomy>()
                 .Include(x => x.Taxons.Where(t => !t.IsDeleted)
                     .OrderBy(t => t.Lft))
-                .FirstOrDefaultAsync(x => x.Id == query.TaxonomyId, cancellationToken);
+                .FirstOrDefaultAsync(cancellationToken);
 
             if (entity is null)
                 return TaxonomyResult.Errors.NotFound;

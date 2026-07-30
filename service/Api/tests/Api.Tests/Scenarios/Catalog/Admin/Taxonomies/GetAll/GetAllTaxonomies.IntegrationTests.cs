@@ -44,7 +44,7 @@ public sealed class GetAllTaxonomiesIntegrationTests(ApiFixture fixture) : Catal
         created.Should().NotBeNull();
 
         HttpResponseMessage taxonResponse = await Client.GetAsAdminRawAsync(
-            $"/api/catalog/taxonomies/{created!.Id}/taxons");
+            "/api/catalog/taxonomies/taxons");
         PagedResult<TaxonListItemResponse> taxonResult = await taxonResponse.ReadAsPagedResultAsync<TaxonListItemResponse>();
 
         taxonResult.IsSuccess.Should().BeTrue();

@@ -69,7 +69,7 @@ public class SyncTaxonRulesTests : IDisposable
             ]
         };
 
-        var result = await _handler.Handle(new SyncTaxonRules.Command(taxonomy.Id, taxon.Id, request), TestContext.Current.CancellationToken);
+        var result = await _handler.Handle(new SyncTaxonRules.Command(taxon.Id, request), TestContext.Current.CancellationToken);
 
         result.IsSuccess.Should().BeTrue();
         result.Value.Rules.Should().HaveCount(2);
@@ -105,7 +105,7 @@ public class SyncTaxonRulesTests : IDisposable
             ]
         };
 
-        var result = await _handler.Handle(new SyncTaxonRules.Command(taxonomy.Id, taxon.Id, request), TestContext.Current.CancellationToken);
+        var result = await _handler.Handle(new SyncTaxonRules.Command(taxon.Id, request), TestContext.Current.CancellationToken);
 
         result.IsSuccess.Should().BeTrue();
         result.Value.Rules.Should().HaveCount(1);
@@ -152,7 +152,7 @@ public class SyncTaxonRulesTests : IDisposable
             ]
         };
 
-        var result = await _handler.Handle(new SyncTaxonRules.Command(taxonomy.Id, taxon.Id, request), TestContext.Current.CancellationToken);
+        var result = await _handler.Handle(new SyncTaxonRules.Command(taxon.Id, request), TestContext.Current.CancellationToken);
 
         result.IsSuccess.Should().BeTrue();
         result.Value.Rules.Should().HaveCount(2);
@@ -176,7 +176,7 @@ public class SyncTaxonRulesTests : IDisposable
 
         var request = new SyncTaxonRules.Request { Rules = [] };
 
-        var result = await _handler.Handle(new SyncTaxonRules.Command(taxonomy.Id, taxon.Id, request), TestContext.Current.CancellationToken);
+        var result = await _handler.Handle(new SyncTaxonRules.Command(taxon.Id, request), TestContext.Current.CancellationToken);
 
         result.IsSuccess.Should().BeTrue();
         result.Value.Rules.Should().BeEmpty();
@@ -189,7 +189,7 @@ public class SyncTaxonRulesTests : IDisposable
     public async Task Handle_ShouldReturnFailure_WhenTaxonNotFound()
     {
         var result = await _handler.Handle(
-            new SyncTaxonRules.Command(Guid.NewGuid(), Guid.NewGuid(), new SyncTaxonRules.Request()),
+            new SyncTaxonRules.Command(Guid.NewGuid(), new SyncTaxonRules.Request()),
             TestContext.Current.CancellationToken);
 
         result.IsFailure.Should().BeTrue();
@@ -219,7 +219,7 @@ public class SyncTaxonRulesTests : IDisposable
             ]
         };
 
-        var result = await _handler.Handle(new SyncTaxonRules.Command(taxonomy.Id, taxon.Id, request), TestContext.Current.CancellationToken);
+        var result = await _handler.Handle(new SyncTaxonRules.Command(taxon.Id, request), TestContext.Current.CancellationToken);
 
         result.IsSuccess.Should().BeTrue();
 
@@ -252,38 +252,10 @@ public class SyncTaxonRulesTests : IDisposable
             ]
         };
 
-        var result = await _handler.Handle(new SyncTaxonRules.Command(taxonomy.Id, taxon.Id, request), TestContext.Current.CancellationToken);
+        var result = await _handler.Handle(new SyncTaxonRules.Command(taxon.Id, request), TestContext.Current.CancellationToken);
 
         result.IsSuccess.Should().BeTrue();
     }
 
-    [Fact(DisplayName = "Handler: Should return taxon-not-found when taxon belongs to different taxonomy")]
-    public async Task Handle_ShouldReturnFailure_WhenTaxonIdMismatch()
-    {
-        var taxonomy = TaxonomyMethod.Create("Categories", "Categories", 0).Value;
-        var otherTaxonomy = TaxonomyMethod.Create("Brands", "Brands", 0).Value;
-        var taxon = TaxonMethod.Create(otherTaxonomy.Id, null, "Shirts", "Shirts", null, 0, "shirts", null, null, null, false, null, null, false, null, null).Value;
 
-        _dbContext.Set<Taxonomy>().AddRange(taxonomy, otherTaxonomy);
-        _dbContext.Set<Taxon>().Add(taxon);
-        await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
-
-        var request = new SyncTaxonRules.Request
-        {
-            Rules =
-            [
-                new SyncTaxonRules.SyncItem
-                {
-                    Type = "product_name",
-                    MatchPolicy = "is_equal_to",
-                    Value = "Shirt"
-                }
-            ]
-        };
-
-        var result = await _handler.Handle(new SyncTaxonRules.Command(taxonomy.Id, taxon.Id, request), TestContext.Current.CancellationToken);
-
-        result.IsFailure.Should().BeTrue();
-        result.Errors[0].Code.Should().Be(TaxonResult.Errors.NotFound.Code);
-    }
 }

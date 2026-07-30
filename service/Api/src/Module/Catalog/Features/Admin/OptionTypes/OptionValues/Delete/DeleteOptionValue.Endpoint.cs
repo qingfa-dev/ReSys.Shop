@@ -9,12 +9,11 @@ public static partial class DeleteOptionValue
         public void AddRoutes(IEndpointRouteBuilder app)
         {
             app.MapDelete(CatalogFeature.Admin.OptionTypes.OptionValues.Delete.Route, async (
-                [FromRoute] Guid optionTypeId,
                 [FromRoute] Guid id,
                 ISender sender,
                 CancellationToken ct) =>
             {
-                var command = new Command(optionTypeId, id);
+                var command = new Command(id);
                 var result = await sender.Send(command, ct);
                 return result.ToResult();
             })

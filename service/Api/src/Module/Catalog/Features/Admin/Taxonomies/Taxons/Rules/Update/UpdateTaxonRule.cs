@@ -11,7 +11,7 @@ namespace Module.Catalog.Features.Admin.Taxonomies.Taxons.Rules.Update;
 /// </summary>
 public static partial class UpdateTaxonRule
 {
-    public sealed record Command(Guid TaxonomyId, Guid TaxonId, Guid RuleId, Request Request) : ICommand<Response>;
+    public sealed record Command(Guid TaxonId, Guid RuleId, Request Request) : ICommand<Response>;
 
     public sealed class CommandHandler(
         IApplicationDbContext dbContext,
@@ -29,13 +29,12 @@ public static partial class UpdateTaxonRule
         // Contract: pre=command!=null, post=result!=null
         public async Task<Result<Response>> Handle(Command command, CancellationToken cancellationToken)
         {
-            var taxonomyId = command.TaxonomyId;
             var taxonId = command.TaxonId;
             var ruleId = command.RuleId;
             var request = command.Request;
 
             var taxon = await dbContext.Set<Taxon>()
-                .FirstOrDefaultAsync(x => x.Id == taxonId && x.TaxonomyId == taxonomyId, cancellationToken);
+                .FirstOrDefaultAsync(x => x.Id == taxonId, cancellationToken);
             if (taxon is null)
                 return TaxonResult.Errors.NotFound;
 

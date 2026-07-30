@@ -1,8 +1,15 @@
 using Api.Tests.Infrastructure;
 using Api.Tests.Infrastructure.Auth;
 
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
+
+using Module.Catalog.Domain.OptionTypes;
+using Module.Catalog.Domain.OptionTypes.Values;
 using Module.Catalog.Features.Admin.OptionTypes.OptionValues.Shared.Models;
 using Module.Catalog.Features.Admin.OptionTypes.Shared.Models;
+
+using Shared.Operational.Persistence.Data;
 
 namespace Api.Tests.Scenarios.Catalog.Admin.OptionTypes.OptionValues.GetAll;
 
@@ -11,6 +18,16 @@ public sealed class GetAllOptionValuesIntegrationTests(ApiFixture fixture) : Cat
     [Fact]
     public async Task GetAllOptionValues_ReturnsOptionValues()
     {
+        using (var scope = Fixture.Factory.Services.CreateScope())
+        {
+            var dbContext = scope.ServiceProvider.GetRequiredService<IApplicationDbContext>();
+            var values = await dbContext.Set<OptionValue>().ToListAsync();
+            dbContext.Set<OptionValue>().RemoveRange(values);
+            var types = await dbContext.Set<OptionType>().ToListAsync();
+            dbContext.Set<OptionType>().RemoveRange(types);
+            await dbContext.SaveChangesAsync();
+        }
+
         var createOptionTypeRequest = new
         {
             name = "TestSize",
@@ -30,15 +47,16 @@ public sealed class GetAllOptionValuesIntegrationTests(ApiFixture fixture) : Cat
         var createValueRequest = new
         {
             name = "Small",
-            presentation = "Small"
+            presentation = "Small",
+            optionTypeId = optionTypeId
         };
 
         HttpResponseMessage createValResponse = await Client.PostAsAdminRawAsync(
-            $"/api/catalog/option-types/{optionTypeId}/values", createValueRequest);
+            "/api/catalog/option-types/option-values", createValueRequest);
         createValResponse.IsSuccessStatusCode.Should().BeTrue();
 
         HttpResponseMessage response = await Client.GetAsAdminRawAsync(
-            $"/api/catalog/option-types/{optionTypeId}/values?pageSize=100");
+            "/api/catalog/option-types/option-values?pageSize=100");
         PagedResult<OptionValueListItemResponse> result = await response.ReadAsPagedResultAsync<OptionValueListItemResponse>();
 
         result.IsSuccess.Should().BeTrue();

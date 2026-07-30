@@ -8,7 +8,7 @@ namespace Module.Catalog.Features.Admin.OptionTypes.OptionValues.Delete;
 /// </summary>
 public static partial class DeleteOptionValue
 {
-    public sealed record Command(Guid OptionTypeId, Guid Id) : ICommand;
+    public sealed record Command(Guid Id) : ICommand;
 
     public sealed class CommandHandler(
         IApplicationDbContext dbContext,
@@ -25,19 +25,14 @@ public static partial class DeleteOptionValue
         // Contract: pre=command.OptionTypeId!=Guid.Empty && command.Id!=Guid.Empty, post=result!=null, throws=DbUpdateException
         public async Task<Result> Handle(Command command, CancellationToken cancellationToken)
         {
-            var optionTypeId = command.OptionTypeId;
-
-            // Validate: Parent option type must exist before deleting its child value
-            var typeExists = await dbContext.Set<OptionType>().AnyAsync(x => x.Id == optionTypeId, cancellationToken);
-            if (!typeExists)
-                return OptionTypeResult.Failure.NotFound;
-
             // Load: Fetch the specific option value to delete
             var entity = await dbContext.Set<OptionValue>()
-                .FirstOrDefaultAsync(x => x.Id == command.Id && x.OptionTypeId == optionTypeId, cancellationToken);
+                .FirstOrDefaultAsync(x => x.Id == command.Id, cancellationToken);
 
             if (entity is null)
                 return OptionValueResult.Errors.NotFound;
+
+            var optionTypeId = entity.OptionTypeId;
 
             // Remove: Delete the option value entity
             dbContext.Set<OptionValue>().Remove(entity);

@@ -34,6 +34,6 @@ public class PaymentConfiguration : IEntityTypeConfiguration<PaymentCapture>
 
         builder.HasIndex(x => x.ResponseCode)
             .HasDatabaseName("ix_payment_captures_response_code")
-            .HasFilter("\"ResponseCode\" IS NOT NULL");
+            .HasFilter("response_code IS NOT NULL");
     }
 }

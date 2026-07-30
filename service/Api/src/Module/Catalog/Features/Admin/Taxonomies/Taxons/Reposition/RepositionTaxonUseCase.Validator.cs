@@ -8,7 +8,6 @@ public static partial class RepositionTaxon
     {
         public Validator()
         {
-            RuleFor(x => x.TaxonomyId).ApplyTaxonomyIdRules();
             RuleFor(x => x.Request).NotNull();
             When(x => x.Request is not null, () =>
             {

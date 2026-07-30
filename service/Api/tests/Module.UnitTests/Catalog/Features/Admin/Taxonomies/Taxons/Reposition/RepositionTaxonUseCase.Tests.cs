@@ -63,7 +63,7 @@ public class RepositionTaxonTests : IDisposable
             Position = 10
         };
 
-        var result = await _handler.Handle(new RepositionTaxon.Command(taxonomy.Id, taxon.Id, request), TestContext.Current.CancellationToken);
+        var result = await _handler.Handle(new RepositionTaxon.Command(taxon.Id, request), TestContext.Current.CancellationToken);
 
         result.IsSuccess.Should().BeTrue();
 
@@ -86,20 +86,11 @@ public class RepositionTaxonTests : IDisposable
 
         var request = new RepositionTaxon.Request { ParentId = root.Id, Position = 1 };
 
-        var result = await _handler.Handle(new RepositionTaxon.Command(taxonomy.Id, taxon.Id, request), TestContext.Current.CancellationToken);
+        var result = await _handler.Handle(new RepositionTaxon.Command(taxon.Id, request), TestContext.Current.CancellationToken);
 
         result.IsSuccess.Should().BeTrue();
 
         _hierarchyServiceMock.Verify(x => x.RebuildHierarchyAsync(It.IsAny<Guid>(), It.IsAny<Guid?>(), It.IsAny<CancellationToken>()), Times.Never);
-    }
-
-    [Fact(DisplayName = "Handler: Should return failure when taxonomy not found")]
-    public async Task Handle_ShouldReturnFailure_WhenTaxonomyNotFound()
-    {
-        var result = await _handler.Handle(new RepositionTaxon.Command(Guid.NewGuid(), Guid.NewGuid(), new RepositionTaxon.Request()), TestContext.Current.CancellationToken);
-
-        result.IsFailure.Should().BeTrue();
-        result.Errors[0].Code.Should().Be(TaxonomyResult.Errors.NotFound.Code);
     }
 
     [Fact(DisplayName = "Handler: Should return failure when taxon not found")]
@@ -109,7 +100,7 @@ public class RepositionTaxonTests : IDisposable
         _dbContext.Set<Taxonomy>().Add(taxonomy);
         await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 
-        var result = await _handler.Handle(new RepositionTaxon.Command(taxonomy.Id, Guid.NewGuid(), new RepositionTaxon.Request()), TestContext.Current.CancellationToken);
+        var result = await _handler.Handle(new RepositionTaxon.Command(Guid.NewGuid(), new RepositionTaxon.Request()), TestContext.Current.CancellationToken);
 
         result.IsFailure.Should().BeTrue();
         result.Errors[0].Code.Should().Be(TaxonResult.Errors.NotFound.Code);
@@ -124,7 +115,7 @@ public class RepositionTaxonTests : IDisposable
         _dbContext.Set<Taxon>().Add(root);
         await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 
-        var result = await _handler.Handle(new RepositionTaxon.Command(taxonomy.Id, root.Id, new RepositionTaxon.Request()), TestContext.Current.CancellationToken);
+        var result = await _handler.Handle(new RepositionTaxon.Command(root.Id, new RepositionTaxon.Request()), TestContext.Current.CancellationToken);
 
         result.IsFailure.Should().BeTrue();
         result.Errors[0].Code.Should().Be(TaxonResult.Errors.RootLock.Code);
@@ -145,7 +136,7 @@ public class RepositionTaxonTests : IDisposable
         _hierarchyServiceMock.Setup(x => x.ValidateDescendantAsync(It.IsAny<Guid>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(TaxonResult.Errors.NotFound);
 
-        var result = await _handler.Handle(new RepositionTaxon.Command(taxonomy.Id, taxon.Id, request), TestContext.Current.CancellationToken);
+        var result = await _handler.Handle(new RepositionTaxon.Command(taxon.Id, request), TestContext.Current.CancellationToken);
 
         result.IsFailure.Should().BeTrue();
         result.Errors[0].Code.Should().Be(TaxonResult.Errors.NotFound.Code);
@@ -170,7 +161,7 @@ public class RepositionTaxonTests : IDisposable
         _hierarchyServiceMock.Setup(x => x.ValidateDescendantAsync(It.IsAny<Guid>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(TaxonResult.Errors.ParentTaxonomyMismatch);
 
-        var result = await _handler.Handle(new RepositionTaxon.Command(taxonomy.Id, taxon.Id, request), TestContext.Current.CancellationToken);
+        var result = await _handler.Handle(new RepositionTaxon.Command(taxon.Id, request), TestContext.Current.CancellationToken);
 
         result.IsFailure.Should().BeTrue();
         result.Errors[0].Code.Should().Be(TaxonResult.Errors.ParentTaxonomyMismatch.Code);
@@ -193,7 +184,7 @@ public class RepositionTaxonTests : IDisposable
             Position = 0
         };
 
-        var result = await _handler.Handle(new RepositionTaxon.Command(taxonomy.Id, taxon.Id, request), TestContext.Current.CancellationToken);
+        var result = await _handler.Handle(new RepositionTaxon.Command(taxon.Id, request), TestContext.Current.CancellationToken);
 
         result.IsFailure.Should().BeTrue();
         result.Errors[0].Code.Should().Be(TaxonResult.Errors.SelfParenting.Code);

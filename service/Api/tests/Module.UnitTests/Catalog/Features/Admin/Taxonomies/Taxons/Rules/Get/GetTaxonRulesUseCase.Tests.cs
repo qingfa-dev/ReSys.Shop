@@ -45,7 +45,7 @@ public class GetTaxonRulesTests : IDisposable
         _dbContext.Set<TaxonRule>().AddRange(rule1, rule2);
         await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 
-        var result = await _handler.Handle(new GetTaxonRules.Query(taxonomy.Id, taxon.Id), TestContext.Current.CancellationToken);
+        var result = await _handler.Handle(new GetTaxonRules.Query(taxon.Id), TestContext.Current.CancellationToken);
 
         result.IsSuccess.Should().BeTrue();
         result.Value.Should().HaveCount(2);
@@ -63,7 +63,7 @@ public class GetTaxonRulesTests : IDisposable
         _dbContext.Set<Taxon>().Add(taxon);
         await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 
-        var result = await _handler.Handle(new GetTaxonRules.Query(taxonomy.Id, taxon.Id), TestContext.Current.CancellationToken);
+        var result = await _handler.Handle(new GetTaxonRules.Query(taxon.Id), TestContext.Current.CancellationToken);
 
         result.IsSuccess.Should().BeTrue();
         result.Value.Should().BeEmpty();
@@ -72,7 +72,7 @@ public class GetTaxonRulesTests : IDisposable
     [Fact(DisplayName = "Handler: Should return failure when taxon does not exist")]
     public async Task Handle_ShouldReturnFailure_WhenTaxonNotFound()
     {
-        var result = await _handler.Handle(new GetTaxonRules.Query(Guid.NewGuid(), Guid.NewGuid()), TestContext.Current.CancellationToken);
+        var result = await _handler.Handle(new GetTaxonRules.Query(Guid.NewGuid()), TestContext.Current.CancellationToken);
 
         result.IsFailure.Should().BeTrue();
         result.Errors[0].Code.Should().Be(TaxonResult.Errors.NotFound.Code);
@@ -90,7 +90,7 @@ public class GetTaxonRulesTests : IDisposable
         _dbContext.Set<TaxonRule>().Add(rule);
         await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 
-        var result = await _handler.Handle(new GetTaxonRules.Query(taxonomy.Id, taxon.Id), TestContext.Current.CancellationToken);
+        var result = await _handler.Handle(new GetTaxonRules.Query(taxon.Id), TestContext.Current.CancellationToken);
 
         result.IsSuccess.Should().BeTrue();
         var response = result.Value.Single();

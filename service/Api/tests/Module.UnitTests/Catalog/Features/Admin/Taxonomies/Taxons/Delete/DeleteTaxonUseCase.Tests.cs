@@ -60,7 +60,7 @@ public class DeleteTaxonTests : IDisposable
         _dbContext.Set<Taxon>().AddRange(parent, taxon);
         await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 
-        var result = await _handler.Handle(new DeleteTaxon.Command(taxonomy.Id, taxon.Id), TestContext.Current.CancellationToken);
+        var result = await _handler.Handle(new DeleteTaxon.Command(taxon.Id), TestContext.Current.CancellationToken);
 
         result.IsSuccess.Should().BeTrue();
 
@@ -85,20 +85,11 @@ public class DeleteTaxonTests : IDisposable
         _dbContext.Set<Taxon>().AddRange(parent, taxon);
         await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 
-        var result = await _handler.Handle(new DeleteTaxon.Command(taxonomy.Id, taxon.Id), TestContext.Current.CancellationToken);
+        var result = await _handler.Handle(new DeleteTaxon.Command(taxon.Id), TestContext.Current.CancellationToken);
 
         result.IsSuccess.Should().BeTrue();
 
         _autoClassificationServiceMock.Verify(x => x.RegenerateForTaxonAsync(taxon.Id, It.IsAny<CancellationToken>()), Times.Once);
-    }
-
-    [Fact(DisplayName = "Handler: Should return failure when taxonomy not found")]
-    public async Task Handle_ShouldReturnFailure_WhenTaxonomyNotFound()
-    {
-        var result = await _handler.Handle(new DeleteTaxon.Command(Guid.NewGuid(), Guid.NewGuid()), TestContext.Current.CancellationToken);
-
-        result.IsFailure.Should().BeTrue();
-        result.Errors[0].Code.Should().Be(TaxonomyResult.Errors.NotFound.Code);
     }
 
     [Fact(DisplayName = "Handler: Should return failure when taxon not found")]
@@ -108,7 +99,7 @@ public class DeleteTaxonTests : IDisposable
         _dbContext.Set<Taxonomy>().Add(taxonomy);
         await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 
-        var result = await _handler.Handle(new DeleteTaxon.Command(taxonomy.Id, Guid.NewGuid()), TestContext.Current.CancellationToken);
+        var result = await _handler.Handle(new DeleteTaxon.Command(Guid.NewGuid()), TestContext.Current.CancellationToken);
 
         result.IsFailure.Should().BeTrue();
         result.Errors[0].Code.Should().Be(TaxonResult.Errors.NotFound.Code);
@@ -126,7 +117,7 @@ public class DeleteTaxonTests : IDisposable
         _dbContext.Set<Taxon>().AddRange(parent, taxon, child);
         await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 
-        var result = await _handler.Handle(new DeleteTaxon.Command(taxonomy.Id, taxon.Id), TestContext.Current.CancellationToken);
+        var result = await _handler.Handle(new DeleteTaxon.Command(taxon.Id), TestContext.Current.CancellationToken);
 
         result.IsFailure.Should().BeTrue();
         result.Errors[0].Code.Should().Be(TaxonResult.Errors.HasChildren.Code);

@@ -9,12 +9,11 @@ public static partial class RestoreTaxon
         public void AddRoutes(IEndpointRouteBuilder app)
         {
             app.MapPatch(CatalogFeature.Admin.Taxonomies.Taxons.Restore.Route, async (
-                [FromRoute] Guid taxonomyId,
                 [FromRoute] Guid id,
                 ISender sender,
                 CancellationToken ct) =>
             {
-                var command = new Command(taxonomyId, id);
+                var command = new Command(id);
                 var result = await sender.Send(command, ct);
                 return result.ToResult();
             })

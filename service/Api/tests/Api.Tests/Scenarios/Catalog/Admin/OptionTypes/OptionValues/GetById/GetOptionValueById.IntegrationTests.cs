@@ -31,18 +31,19 @@ public sealed class GetOptionValueByIdIntegrationTests(ApiFixture fixture) : Cat
         var createValueRequest = new
         {
             name = "Matte",
-            presentation = "Matte"
+            presentation = "Matte",
+            optionTypeId = optionType!.Id
         };
 
         HttpResponseMessage createValResponse = await Client.PostAsAdminRawAsync(
-            $"/api/catalog/option-types/{optionType!.Id}/values", createValueRequest);
+            "/api/catalog/option-types/option-values", createValueRequest);
         ApiResponse createValResult = await createValResponse.ReadApiResponseAsync();
         createValResult.IsSuccess.Should().BeTrue();
         OptionValueListItemResponse? created = createValResult.DeserializeValue<OptionValueListItemResponse>();
         created.Should().NotBeNull();
 
         HttpResponseMessage response = await Client.GetAsAdminRawAsync(
-            $"/api/catalog/option-types/{optionType.Id}/values/{created!.Id}");
+            $"/api/catalog/option-types/option-values/{created!.Id}");
         ApiResponse result = await response.ReadApiResponseAsync();
 
         result.IsSuccess.Should().BeTrue();
@@ -60,7 +61,7 @@ public sealed class GetOptionValueByIdIntegrationTests(ApiFixture fixture) : Cat
         Guid nonexistentId = Guid.NewGuid();
 
         HttpResponseMessage response = await Client.GetAsAdminRawAsync(
-            $"/api/catalog/option-types/{optionTypeId}/values/{nonexistentId}");
+            $"/api/catalog/option-types/option-values/{nonexistentId}");
         ApiResponse result = await response.ReadApiResponseAsync();
 
         result.IsSuccess.Should().BeFalse();

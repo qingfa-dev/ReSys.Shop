@@ -52,7 +52,7 @@ public class DeleteTaxonRuleTests : IDisposable
         _dbContext.Set<TaxonRule>().Add(rule);
         await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 
-        var result = await _handler.Handle(new DeleteTaxonRule.Command(taxonomy.Id, taxon.Id, rule.Id), TestContext.Current.CancellationToken);
+        var result = await _handler.Handle(new DeleteTaxonRule.Command(taxon.Id, rule.Id), TestContext.Current.CancellationToken);
 
         result.IsSuccess.Should().BeTrue();
         var deleted = await _dbContext.Set<TaxonRule>().FindAsync([rule.Id], TestContext.Current.CancellationToken);
@@ -73,7 +73,7 @@ public class DeleteTaxonRuleTests : IDisposable
         _dbContext.Set<TaxonRule>().Add(rule);
         await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 
-        var result = await _handler.Handle(new DeleteTaxonRule.Command(taxonomy.Id, taxon.Id, rule.Id), TestContext.Current.CancellationToken);
+        var result = await _handler.Handle(new DeleteTaxonRule.Command(taxon.Id, rule.Id), TestContext.Current.CancellationToken);
 
         result.IsSuccess.Should().BeTrue();
 
@@ -84,7 +84,7 @@ public class DeleteTaxonRuleTests : IDisposable
     public async Task Handle_ShouldReturnFailure_WhenTaxonNotFound()
     {
         var result = await _handler.Handle(
-            new DeleteTaxonRule.Command(Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid()),
+            new DeleteTaxonRule.Command(Guid.NewGuid(), Guid.NewGuid()),
             TestContext.Current.CancellationToken);
 
         result.IsFailure.Should().BeTrue();
@@ -102,7 +102,7 @@ public class DeleteTaxonRuleTests : IDisposable
         await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 
         var result = await _handler.Handle(
-            new DeleteTaxonRule.Command(taxonomy.Id, taxon.Id, Guid.NewGuid()),
+            new DeleteTaxonRule.Command(taxon.Id, Guid.NewGuid()),
             TestContext.Current.CancellationToken);
 
         result.IsFailure.Should().BeTrue();
@@ -124,27 +124,10 @@ public class DeleteTaxonRuleTests : IDisposable
         _autoClassificationMock.Setup(x => x.RegenerateForTaxonAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
             .ThrowsAsync(new InvalidOperationException("Service error"));
 
-        var result = await _handler.Handle(new DeleteTaxonRule.Command(taxonomy.Id, taxon.Id, rule.Id), TestContext.Current.CancellationToken);
+        var result = await _handler.Handle(new DeleteTaxonRule.Command(taxon.Id, rule.Id), TestContext.Current.CancellationToken);
 
         result.IsSuccess.Should().BeTrue();
     }
 
-    [Fact(DisplayName = "Handler: Should return taxon-not-found when taxon belongs to different taxonomy")]
-    public async Task Handle_ShouldReturnFailure_WhenTaxonIdMismatch()
-    {
-        var taxonomy = TaxonomyMethod.Create("Categories", "Categories", 0).Value;
-        var otherTaxonomy = TaxonomyMethod.Create("Brands", "Brands", 0).Value;
-        var taxon = TaxonMethod.Create(otherTaxonomy.Id, null, "Shirts", "Shirts", null, 0, "shirts", null, null, null, false, null, null, false, null, null).Value;
 
-        _dbContext.Set<Taxonomy>().AddRange(taxonomy, otherTaxonomy);
-        _dbContext.Set<Taxon>().Add(taxon);
-        await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
-
-        var result = await _handler.Handle(
-            new DeleteTaxonRule.Command(taxonomy.Id, taxon.Id, Guid.NewGuid()),
-            TestContext.Current.CancellationToken);
-
-        result.IsFailure.Should().BeTrue();
-        result.Errors[0].Code.Should().Be(TaxonResult.Errors.NotFound.Code);
-    }
 }

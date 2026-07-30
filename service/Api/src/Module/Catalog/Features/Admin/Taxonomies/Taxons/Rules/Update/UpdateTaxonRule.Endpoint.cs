@@ -9,14 +9,13 @@ public static partial class UpdateTaxonRule
         public void AddRoutes(IEndpointRouteBuilder app)
         {
             app.MapPut(CatalogFeature.Admin.Taxonomies.Taxons.Rules.Update.Route, async (
-                Guid taxonomyId,
                 Guid id,
                 Guid ruleId,
                 [FromBody] Request request,
                 ISender sender,
                 CancellationToken ct) =>
             {
-                var command = new Command(taxonomyId, id, ruleId, request);
+                var command = new Command(id, ruleId, request);
                 var result = await sender.Send(command, ct);
                 return result.ToResult();
             })

@@ -48,13 +48,13 @@ public static partial class RestoreTaxonomy
                 .FirstOrDefaultAsync(x => x.TaxonomyId == entity.Id && x.ParentId == null, cancellationToken);
             if (rootTaxon != null)
             {
-                await sender.Send(new RestoreTaxon.Command(entity.Id, rootTaxon.Id), cancellationToken);
+                await sender.Send(new RestoreTaxon.Command(rootTaxon.Id), cancellationToken);
             }
 
             // Trigger: Cascade restore to all child taxons
             foreach (var taxon in entity.Taxons.Where(t => t.IsDeleted))
             {
-                await sender.Send(new RestoreTaxon.Command(entity.Id, taxon.Id), cancellationToken);
+                await sender.Send(new RestoreTaxon.Command(taxon.Id), cancellationToken);
             }
 
             return Result.Ok(TaxonomyResult.Success.Restored);

@@ -10,7 +10,7 @@ public sealed class GetProfilesPagedOrAllIntegrationTests(ApiFixture fixture) : 
     public async Task GetProfilesAll_WithoutAuth_Returns401()
     {
         HttpResponseMessage response = await Client.GetAsync(
-            "/api/store/profiles/profiles/all");
+            "/api/profiles/profiles/all");
 
         response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
     }

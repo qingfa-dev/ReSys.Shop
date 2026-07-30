@@ -1,8 +1,15 @@
 using Api.Tests.Infrastructure;
 using Api.Tests.Infrastructure.Auth;
 
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
+
+using Module.Catalog.Domain.Taxonomies;
+using Module.Catalog.Domain.Taxonomies.Taxons;
 using Module.Catalog.Features.Admin.Taxonomies.Shared.Models;
 using Module.Catalog.Features.Admin.Taxonomies.Taxons.Shared.Models;
+
+using Shared.Operational.Persistence.Data;
 
 namespace Api.Tests.Scenarios.Catalog.Admin.Taxonomies.Taxons.GetTree;
 
@@ -11,6 +18,16 @@ public sealed class GetTaxonTreeIntegrationTests(ApiFixture fixture) : CatalogIn
     [Fact]
     public async Task GetTaxonTree_WithNestedTaxons_ReturnsTree()
     {
+        using (var scope = Fixture.Factory.Services.CreateScope())
+        {
+            var dbContext = scope.ServiceProvider.GetRequiredService<IApplicationDbContext>();
+            var taxons = await dbContext.Set<Taxon>().ToListAsync();
+            dbContext.Set<Taxon>().RemoveRange(taxons);
+            var taxonomies = await dbContext.Set<Taxonomy>().ToListAsync();
+            dbContext.Set<Taxonomy>().RemoveRange(taxonomies);
+            await dbContext.SaveChangesAsync();
+        }
+
         var taxonomyRequest = new
         {
             name = "TestCategories",
@@ -28,11 +45,12 @@ public sealed class GetTaxonTreeIntegrationTests(ApiFixture fixture) : CatalogIn
         {
             name = "Electronics",
             slug = "electronics",
-            presentation = "Electronics"
+            presentation = "Electronics",
+            taxonomyId = taxonomy!.Id
         };
 
         HttpResponseMessage rootResponse = await Client.PostAsAdminRawAsync(
-            $"/api/catalog/taxonomies/{taxonomy!.Id}/taxons", rootRequest);
+            "/api/catalog/taxonomies/taxons", rootRequest);
         ApiResponse rootResult = await rootResponse.ReadApiResponseAsync();
         TaxonDetailResponse? root = rootResult.DeserializeValue<TaxonDetailResponse>();
         root.Should().NotBeNull();
@@ -42,20 +60,23 @@ public sealed class GetTaxonTreeIntegrationTests(ApiFixture fixture) : CatalogIn
             name = "Laptops",
             slug = "laptops",
             presentation = "Laptops",
-            parentId = root!.Id
+            parentId = root!.Id,
+            taxonomyId = taxonomy!.Id
         };
 
         await Client.PostAsAdminRawAsync(
-            $"/api/catalog/taxonomies/{taxonomy.Id}/taxons", childRequest);
+            "/api/catalog/taxonomies/taxons", childRequest);
 
         HttpResponseMessage response = await Client.GetAsAdminRawAsync(
-            $"/api/catalog/taxonomies/{taxonomy.Id}/taxons/tree");
+            "/api/catalog/taxonomies/taxons/tree");
         ApiResponse result = await response.ReadApiResponseAsync();
 
         result.IsSuccess.Should().BeTrue();
         TaxonTreeResponse? tree = result.DeserializeValue<TaxonTreeResponse>();
         tree.Should().NotBeNull();
         tree!.Tree.Should().NotBeEmpty();
-        tree.Tree.Should().Contain(i => i.Name == "electronics");
+        var names = tree.Tree.Select(i => i.Name).ToList();
+        tree.Tree.Should().Contain(i => i.Name == "Electronics",
+            $"actual names: [{string.Join(", ", names)}]");
     }
 }

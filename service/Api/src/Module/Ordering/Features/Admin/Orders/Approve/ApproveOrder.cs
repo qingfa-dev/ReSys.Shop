@@ -19,11 +19,13 @@ public static partial class ApproveOrder
             // Contract: pre=command!=null, post=result!=null, throws=DbUpdateException
             // Check: Find the order to approve.
             var order = await dbContext.Set<Order>().FirstOrDefaultAsync(o => o.Id == command.Id, cancellationToken);
-            if (order is null) return (Result<Response>)OrderResult.Errors.NotFound(command.Id);
+            if (order is null) 
+                return OrderResult.Errors.NotFound(command.Id);
 
             var approvedById = Guid.TryParse(currentUser.UserId, out var parsedId) ? parsedId : Guid.Empty;
             var result = order.Approve(approvedById);
-            if (result.IsFailure) return (Result<Response>)result.Errors;
+            if (result.IsFailure) 
+                return result.Errors;
             await dbContext.SaveChangesAsync(cancellationToken);
 
             // Map: Return the approval response with full order detail.

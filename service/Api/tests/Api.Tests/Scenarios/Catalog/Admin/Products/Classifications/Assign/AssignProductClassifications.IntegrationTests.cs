@@ -46,7 +46,7 @@ public sealed class AssignProductClassificationsIntegrationTests(ApiFixture fixt
             taxonomyId = taxonomy!.Id
         };
         HttpResponseMessage createTaxonResponse = await Client.PostAsAdminRawAsync(
-            $"/api/catalog/taxonomies/{taxonomy.Id}/taxons", createTaxonRequest);
+            "/api/catalog/taxonomies/taxons", createTaxonRequest);
         ApiResponse createTaxonResult = await createTaxonResponse.ReadApiResponseAsync();
         createTaxonResult.IsSuccess.Should().BeTrue();
         var taxon = createTaxonResult.DeserializeValue<IdResponse>();

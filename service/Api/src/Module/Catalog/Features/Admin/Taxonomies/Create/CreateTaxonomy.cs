@@ -53,9 +53,10 @@ public static partial class CreateTaxonomy
                 Name = entity.Name,
                 Presentation = entity.Presentation,
                 Slug = ProductMethod.GenerateSlugFromName(entity.Name),
-                Position = 0
+                Position = 0,
+                TaxonomyId = entity.Id,
             };
-            await sender.Send(new CreateTaxon.Command(entity.Id, taxonRequest), cancellationToken);
+            await sender.Send(new CreateTaxon.Command(taxonRequest), cancellationToken);
 
             // Map: Return created response.
             return Result<Response>.Created(

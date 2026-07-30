@@ -85,7 +85,7 @@ public class RestoreTaxonomyTests : IDisposable
         persisted!.IsDeleted.Should().BeFalse();
 
         _senderMock.Verify(x => x.Send(
-            It.Is<RestoreTaxon.Command>(c => c.TaxonomyId == entity.Id && c.Id == root.Id),
+            It.Is<RestoreTaxon.Command>(c => c.Id == root.Id),
             It.IsAny<CancellationToken>()), Times.Once);
     }
 

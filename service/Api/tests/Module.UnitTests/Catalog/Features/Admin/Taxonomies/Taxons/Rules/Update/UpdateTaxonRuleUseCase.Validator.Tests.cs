@@ -13,7 +13,7 @@ public class UpdateTaxonRuleValidatorTests
     [Fact(DisplayName = "Validator: Should pass for valid request")]
     public void Validator_ShouldPass_WhenValid()
     {
-        var command = new UpdateTaxonRule.Command(Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid(), new UpdateTaxonRule.Request
+        var command = new UpdateTaxonRule.Command(Guid.NewGuid(), Guid.NewGuid(), new UpdateTaxonRule.Request
         {
             Type = "product_name",
             MatchPolicy = "is_equal_to",
@@ -28,7 +28,7 @@ public class UpdateTaxonRuleValidatorTests
     [Fact(DisplayName = "Validator: Should fail when Request is null")]
     public void Validator_ShouldFail_WhenRequestNull()
     {
-        var command = new UpdateTaxonRule.Command(Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid(), null!);
+        var command = new UpdateTaxonRule.Command(Guid.NewGuid(), Guid.NewGuid(), null!);
 
         var result = _validator.TestValidate(command);
 
@@ -41,7 +41,7 @@ public class UpdateTaxonRuleValidatorTests
     [InlineData(null)]
     public void Validator_ShouldFail_WhenTypeInvalid(string? type)
     {
-        var command = new UpdateTaxonRule.Command(Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid(), new UpdateTaxonRule.Request
+        var command = new UpdateTaxonRule.Command(Guid.NewGuid(), Guid.NewGuid(), new UpdateTaxonRule.Request
         {
             Type = type!,
             MatchPolicy = "is_equal_to",
@@ -59,7 +59,7 @@ public class UpdateTaxonRuleValidatorTests
     [InlineData(null)]
     public void Validator_ShouldFail_WhenMatchPolicyInvalid(string? policy)
     {
-        var command = new UpdateTaxonRule.Command(Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid(), new UpdateTaxonRule.Request
+        var command = new UpdateTaxonRule.Command(Guid.NewGuid(), Guid.NewGuid(), new UpdateTaxonRule.Request
         {
             Type = "product_name",
             MatchPolicy = policy!,
@@ -77,7 +77,7 @@ public class UpdateTaxonRuleValidatorTests
     [InlineData(null)]
     public void Validator_ShouldFail_WhenValueInvalid(string? value)
     {
-        var command = new UpdateTaxonRule.Command(Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid(), new UpdateTaxonRule.Request
+        var command = new UpdateTaxonRule.Command(Guid.NewGuid(), Guid.NewGuid(), new UpdateTaxonRule.Request
         {
             Type = "product_name",
             MatchPolicy = "is_equal_to",
@@ -94,7 +94,7 @@ public class UpdateTaxonRuleValidatorTests
     {
         var longValue = new string('a', TaxonRuleConstant.Constraints.ValueMaxLength + 1);
 
-        var command = new UpdateTaxonRule.Command(Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid(), new UpdateTaxonRule.Request
+        var command = new UpdateTaxonRule.Command(Guid.NewGuid(), Guid.NewGuid(), new UpdateTaxonRule.Request
         {
             Type = "product_name",
             MatchPolicy = "is_equal_to",
@@ -106,25 +106,10 @@ public class UpdateTaxonRuleValidatorTests
         result.ShouldHaveValidationErrorFor("Request.Value");
     }
 
-    [Fact(DisplayName = "Validator: Should fail when TaxonomyId is empty")]
-    public void Validator_ShouldFail_WhenTaxonomyIdEmpty()
-    {
-        var command = new UpdateTaxonRule.Command(Guid.Empty, Guid.NewGuid(), Guid.NewGuid(), new UpdateTaxonRule.Request
-        {
-            Type = "product_name",
-            MatchPolicy = "is_equal_to",
-            Value = "test"
-        });
-
-        var result = _validator.TestValidate(command);
-
-        result.ShouldHaveValidationErrorFor(x => x.TaxonomyId);
-    }
-
     [Fact(DisplayName = "Validator: Should fail when TaxonId is empty")]
     public void Validator_ShouldFail_WhenTaxonIdEmpty()
     {
-        var command = new UpdateTaxonRule.Command(Guid.NewGuid(), Guid.Empty, Guid.NewGuid(), new UpdateTaxonRule.Request
+        var command = new UpdateTaxonRule.Command(Guid.Empty, Guid.NewGuid(), new UpdateTaxonRule.Request
         {
             Type = "product_name",
             MatchPolicy = "is_equal_to",
@@ -139,7 +124,7 @@ public class UpdateTaxonRuleValidatorTests
     [Fact(DisplayName = "Validator: Should fail when RuleId is empty")]
     public void Validator_ShouldFail_WhenRuleIdEmpty()
     {
-        var command = new UpdateTaxonRule.Command(Guid.NewGuid(), Guid.NewGuid(), Guid.Empty, new UpdateTaxonRule.Request
+        var command = new UpdateTaxonRule.Command(Guid.NewGuid(), Guid.Empty, new UpdateTaxonRule.Request
         {
             Type = "product_name",
             MatchPolicy = "is_equal_to",

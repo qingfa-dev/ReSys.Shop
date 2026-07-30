@@ -61,7 +61,7 @@ public class UpdateTaxonTests : IDisposable
             Position = 1
         };
 
-        var result = await _handler.Handle(new UpdateTaxon.Command(taxonomy.Id, taxon.Id, request), TestContext.Current.CancellationToken);
+        var result = await _handler.Handle(new UpdateTaxon.Command(taxon.Id, request), TestContext.Current.CancellationToken);
 
         result.IsSuccess.Should().BeTrue();
         result.Value.Name.Should().Be("new shirts");
@@ -72,15 +72,6 @@ public class UpdateTaxonTests : IDisposable
         _hierarchyServiceMock.Verify(x => x.RebuildHierarchyAsync(taxonomy.Id, null, It.IsAny<CancellationToken>()), Times.Once);
     }
 
-    [Fact(DisplayName = "Handler: Should return failure when taxonomy not found")]
-    public async Task Handle_ShouldReturnFailure_WhenTaxonomyNotFound()
-    {
-        var result = await _handler.Handle(new UpdateTaxon.Command(Guid.NewGuid(), Guid.NewGuid(), new UpdateTaxon.Request()), TestContext.Current.CancellationToken);
-
-        result.IsFailure.Should().BeTrue();
-        result.Errors[0].Code.Should().Be(TaxonomyResult.Errors.NotFound.Code);
-    }
-
     [Fact(DisplayName = "Handler: Should return failure when taxon not found")]
     public async Task Handle_ShouldReturnFailure_WhenTaxonNotFound()
     {
@@ -88,7 +79,7 @@ public class UpdateTaxonTests : IDisposable
         _dbContext.Set<Taxonomy>().Add(taxonomy);
         await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 
-        var result = await _handler.Handle(new UpdateTaxon.Command(taxonomy.Id, Guid.NewGuid(), new UpdateTaxon.Request()), TestContext.Current.CancellationToken);
+        var result = await _handler.Handle(new UpdateTaxon.Command(Guid.NewGuid(), new UpdateTaxon.Request()), TestContext.Current.CancellationToken);
 
         result.IsFailure.Should().BeTrue();
         result.Errors[0].Code.Should().Be(TaxonResult.Errors.NotFound.Code);
@@ -110,7 +101,7 @@ public class UpdateTaxonTests : IDisposable
             ParentId = other.Id
         };
 
-        var result = await _handler.Handle(new UpdateTaxon.Command(taxonomy.Id, root.Id, request), TestContext.Current.CancellationToken);
+        var result = await _handler.Handle(new UpdateTaxon.Command(root.Id, request), TestContext.Current.CancellationToken);
 
         result.IsFailure.Should().BeTrue();
         result.Errors[0].Code.Should().Be(TaxonResult.Errors.RootLock.Code);
@@ -131,7 +122,7 @@ public class UpdateTaxonTests : IDisposable
             ParentId = taxon.Id
         };
 
-        var result = await _handler.Handle(new UpdateTaxon.Command(taxonomy.Id, taxon.Id, request), TestContext.Current.CancellationToken);
+        var result = await _handler.Handle(new UpdateTaxon.Command(taxon.Id, request), TestContext.Current.CancellationToken);
 
         result.IsFailure.Should().BeTrue();
         result.Errors[0].Code.Should().Be(TaxonResult.Errors.SelfParenting.Code);
@@ -154,7 +145,7 @@ public class UpdateTaxonTests : IDisposable
             Name = "Other"
         };
 
-        var result = await _handler.Handle(new UpdateTaxon.Command(taxonomy.Id, taxon.Id, request), TestContext.Current.CancellationToken);
+        var result = await _handler.Handle(new UpdateTaxon.Command(taxon.Id, request), TestContext.Current.CancellationToken);
 
         result.IsFailure.Should().BeTrue();
         result.Errors[0].Code.Should().Be(TaxonResult.Errors.DuplicateName.Code);
@@ -180,7 +171,7 @@ public class UpdateTaxonTests : IDisposable
             ParentId = other.Id
         };
 
-        var result = await _handler.Handle(new UpdateTaxon.Command(taxonomy.Id, taxon.Id, request), TestContext.Current.CancellationToken);
+        var result = await _handler.Handle(new UpdateTaxon.Command(taxon.Id, request), TestContext.Current.CancellationToken);
 
         result.IsFailure.Should().BeTrue();
         result.Errors[0].Code.Should().Be(TaxonResult.Errors.CircularParenting.Code);

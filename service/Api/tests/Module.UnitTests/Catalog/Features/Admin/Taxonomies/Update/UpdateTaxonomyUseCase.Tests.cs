@@ -159,12 +159,11 @@ public class UpdateTaxonomyTests : IDisposable
             It.IsAny<CancellationToken>()), Times.Never);
 
         _senderMock.Verify(x => x.Send(
-            It.Is<RestoreTaxon.Command>(c => c.TaxonomyId == entity.Id && c.Id == root.Id),
+            It.Is<RestoreTaxon.Command>(c => c.Id == root.Id),
             It.IsAny<CancellationToken>()), Times.Once);
 
         _senderMock.Verify(x => x.Send(
             It.Is<UpdateTaxon.Command>(c =>
-                c.TaxonomyId == entity.Id &&
                 c.Request.Name == "updated" &&
                 c.Request.Presentation == "Updated Display" &&
                 c.Request.Slug == "updated"),
@@ -205,7 +204,6 @@ public class UpdateTaxonomyTests : IDisposable
 
         _senderMock.Verify(x => x.Send(
             It.Is<UpdateTaxon.Command>(c =>
-                c.TaxonomyId == entity.Id &&
                 c.Request.Name == "updated" &&
                 c.Request.Presentation == "Updated" &&
                 c.Request.Slug == "updated"),

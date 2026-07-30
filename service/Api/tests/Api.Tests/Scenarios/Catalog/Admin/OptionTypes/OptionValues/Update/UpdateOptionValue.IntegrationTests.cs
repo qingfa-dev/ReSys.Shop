@@ -31,11 +31,12 @@ public sealed class UpdateOptionValueIntegrationTests(ApiFixture fixture) : Cata
         var createValueRequest = new
         {
             name = "Smooth",
-            presentation = "Smooth"
+            presentation = "Smooth",
+            optionTypeId = optionType!.Id
         };
 
         HttpResponseMessage createValResponse = await Client.PostAsAdminRawAsync(
-            $"/api/catalog/option-types/{optionType!.Id}/values", createValueRequest);
+            "/api/catalog/option-types/option-values", createValueRequest);
         ApiResponse createValResult = await createValResponse.ReadApiResponseAsync();
         createValResult.IsSuccess.Should().BeTrue();
         OptionValueListItemResponse? created = createValResult.DeserializeValue<OptionValueListItemResponse>();
@@ -44,11 +45,12 @@ public sealed class UpdateOptionValueIntegrationTests(ApiFixture fixture) : Cata
         var updateRequest = new
         {
             name = "Rough",
-            presentation = "Rough"
+            presentation = "Rough",
+            optionTypeId = optionType.Id
         };
 
         HttpResponseMessage response = await Client.PutAsAdminRawAsync(
-            $"/api/catalog/option-types/{optionType.Id}/values/{created!.Id}", updateRequest);
+            $"/api/catalog/option-types/option-values/{created!.Id}", updateRequest);
         ApiResponse result = await response.ReadApiResponseAsync();
 
         result.IsSuccess.Should().BeTrue();
@@ -68,11 +70,12 @@ public sealed class UpdateOptionValueIntegrationTests(ApiFixture fixture) : Cata
         var request = new
         {
             name = "Ghost",
-            presentation = "Ghost"
+            presentation = "Ghost",
+            optionTypeId = optionTypeId
         };
 
         HttpResponseMessage response = await Client.PutAsAdminRawAsync(
-            $"/api/catalog/option-types/{optionTypeId}/values/{nonexistentId}", request);
+            $"/api/catalog/option-types/option-values/{nonexistentId}", request);
         ApiResponse result = await response.ReadApiResponseAsync();
 
         result.IsSuccess.Should().BeFalse();

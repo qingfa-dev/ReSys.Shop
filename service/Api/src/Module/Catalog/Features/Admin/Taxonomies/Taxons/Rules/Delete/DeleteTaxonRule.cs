@@ -10,7 +10,7 @@ namespace Module.Catalog.Features.Admin.Taxonomies.Taxons.Rules.Delete;
 /// </summary>
 public static partial class DeleteTaxonRule
 {
-    public sealed record Command(Guid TaxonomyId, Guid TaxonId, Guid RuleId) : ICommand;
+    public sealed record Command(Guid TaxonId, Guid RuleId) : ICommand;
 
     public sealed class CommandHandler(
         IApplicationDbContext dbContext,
@@ -28,12 +28,11 @@ public static partial class DeleteTaxonRule
         // Contract: pre=command!=null, post=result!=null
         public async Task<Result> Handle(Command command, CancellationToken cancellationToken)
         {
-            var taxonomyId = command.TaxonomyId;
             var taxonId = command.TaxonId;
             var ruleId = command.RuleId;
 
             var taxon = await dbContext.Set<Taxon>()
-                .FirstOrDefaultAsync(x => x.Id == taxonId && x.TaxonomyId == taxonomyId, cancellationToken);
+                .FirstOrDefaultAsync(x => x.Id == taxonId, cancellationToken);
             if (taxon is null)
                 return TaxonResult.Errors.NotFound;
 

@@ -9,11 +9,10 @@ public static partial class GetTaxonTree
         public void AddRoutes(IEndpointRouteBuilder app)
         {
             app.MapGet(CatalogFeature.Admin.Taxonomies.Taxons.GetTree.Route, async (
-                [FromRoute] Guid taxonomyId,
                 ISender sender,
                 CancellationToken ct) =>
             {
-                var query = new Query(taxonomyId);
+                var query = new Query();
                 var result = await sender.Send(query, ct);
                 return result.ToResult();
             })

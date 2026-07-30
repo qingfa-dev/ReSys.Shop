@@ -9,13 +9,12 @@ public static partial class SyncTaxonRules
         public void AddRoutes(IEndpointRouteBuilder app)
         {
             app.MapPost(CatalogFeature.Admin.Taxonomies.Taxons.Rules.Sync.Route, async (
-                Guid taxonomyId,
                 Guid id,
                 [FromBody] Request request,
                 ISender sender,
                 CancellationToken ct) =>
             {
-                var command = new Command(taxonomyId, id, request);
+                var command = new Command(id, request);
                 var result = await sender.Send(command, ct);
                 return result.ToResult();
             })

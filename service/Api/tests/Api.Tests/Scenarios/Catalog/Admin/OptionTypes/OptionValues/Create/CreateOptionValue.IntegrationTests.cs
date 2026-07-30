@@ -37,11 +37,12 @@ public sealed class CreateOptionValueIntegrationTests(ApiFixture fixture) : Cata
         var request = new
         {
             name = "Red",
-            presentation = "Red"
+            presentation = "Red",
+            optionTypeId = optionTypeId
         };
 
         HttpResponseMessage response = await Client.PostAsAdminRawAsync(
-            $"/api/catalog/option-types/{optionTypeId}/values", request);
+            "/api/catalog/option-types/option-values", request);
         ApiResponse result = await response.ReadApiResponseAsync();
 
         result.IsSuccess.Should().BeTrue();
@@ -60,11 +61,12 @@ public sealed class CreateOptionValueIntegrationTests(ApiFixture fixture) : Cata
 
         var request = new
         {
-            presentation = "NoName"
+            presentation = "NoName",
+            optionTypeId = optionTypeId
         };
 
         HttpResponseMessage response = await Client.PostAsAdminRawAsync(
-            $"/api/catalog/option-types/{optionTypeId}/values", request);
+            "/api/catalog/option-types/option-values", request);
         ApiResponse result = await response.ReadApiResponseAsync();
 
         result.IsSuccess.Should().BeFalse();
@@ -79,11 +81,12 @@ public sealed class CreateOptionValueIntegrationTests(ApiFixture fixture) : Cata
         var request = new
         {
             name = "Unauthorized Value",
-            presentation = "Unauthorized"
+            presentation = "Unauthorized",
+            optionTypeId = optionTypeId
         };
 
         HttpResponseMessage response = await Client.PostAsJsonAsync(
-            $"/api/catalog/option-types/{optionTypeId}/values", request);
+            "/api/catalog/option-types/option-values", request);
 
         response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
     }

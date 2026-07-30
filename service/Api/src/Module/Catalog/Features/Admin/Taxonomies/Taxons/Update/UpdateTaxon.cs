@@ -12,7 +12,7 @@ namespace Module.Catalog.Features.Admin.Taxonomies.Taxons.Update;
 /// </summary>
 public static partial class UpdateTaxon
 {
-    public sealed record Command(Guid TaxonomyId, Guid Id, Request Request) : ICommand<Response>;
+    public sealed record Command(Guid Id, Request Request) : ICommand<Response>;
 
     public sealed class CommandHandler(
         IApplicationDbContext dbContext,
@@ -30,21 +30,16 @@ public static partial class UpdateTaxon
         // Contract: pre=command.TaxonomyId!=Guid.Empty && command.Id!=Guid.Empty, post=result!=null, throws=DbUpdateException
         public async Task<Result<Response>> Handle(Command command, CancellationToken cancellationToken)
         {
-            var taxonomyId = command.TaxonomyId;
             var id = command.Id;
             var request = command.Request;
 
-            // Validate: Parent taxonomy must exist
-            var taxonomyExists = await dbContext.Set<Taxonomy>()
-                .AnyAsync(x => x.Id == taxonomyId, cancellationToken);
-            if (!taxonomyExists)
-                return TaxonomyResult.Errors.NotFound;
-
             // Load: Fetch the taxon to update
             var entity = await dbContext.Set<Taxon>()
-                .FirstOrDefaultAsync(x => x.Id == id && x.TaxonomyId == taxonomyId, cancellationToken);
+                .FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
             if (entity is null)
                 return TaxonResult.Errors.NotFound;
+
+            var taxonomyId = entity.TaxonomyId;
 
             if (request.ParentId.HasValue && request.ParentId.Value != entity.ParentId)
             {

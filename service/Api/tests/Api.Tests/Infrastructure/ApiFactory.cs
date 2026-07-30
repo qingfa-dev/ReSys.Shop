@@ -23,6 +23,11 @@ public sealed class ApiFactory : WebApplicationFactory<Program>
         _connectionString = connectionString;
     }
 
+    private static readonly string DemoDataPath = Path.GetFullPath(
+        Path.Combine(AppContext.BaseDirectory,
+            "..", "..", "..", "..", "..", "..", "..",
+            "benchmarks", "scripts", "demo-seed", "output"));
+
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {
         builder.UseEnvironment("Testing");
@@ -85,7 +90,10 @@ public sealed class ApiFactory : WebApplicationFactory<Program>
 
                 ["GatewayProviders:SettingsEncryptionKey"] = "integration-test-encryption-key-32+bytes",
                 ["GatewayProviders:stripe:Enabled"] = "true",
-                ["GatewayProviders:stripe:WebhookSecret"] = "whsec_integration_test_secret_32+chars"
+                ["GatewayProviders:stripe:SecretKey"] = "sk_test_integration_secret_key",
+                ["GatewayProviders:stripe:WebhookSecret"] = "whsec_integration_test_secret_32+chars",
+
+                ["Seeders:DemoDataPath"] = DemoDataPath
             });
         });
 

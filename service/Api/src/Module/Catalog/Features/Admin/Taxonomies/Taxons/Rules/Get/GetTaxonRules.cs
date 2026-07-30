@@ -10,7 +10,7 @@ namespace Module.Catalog.Features.Admin.Taxonomies.Taxons.Rules.Get;
 /// </summary>
 public static partial class GetTaxonRules
 {
-    public sealed record Query(Guid TaxonomyId, Guid TaxonId) : IQuery<List<Response>>;
+    public sealed record Query(Guid TaxonId) : IQuery<List<Response>>;
 
     public sealed class QueryHandler(
         IApplicationDbContext dbContext)
@@ -27,7 +27,7 @@ public static partial class GetTaxonRules
         {
             // Check: Parent taxon must exist before retrieving its rules
             var taxonExists = await dbContext.Set<Taxon>()
-                .AnyAsync(x => x.Id == query.TaxonId && x.TaxonomyId == query.TaxonomyId, cancellationToken);
+                .AnyAsync(x => x.Id == query.TaxonId, cancellationToken);
             if (!taxonExists)
                 return TaxonResult.Errors.NotFound;
 
