@@ -4,6 +4,7 @@ const ProductsList = () => import('../views/ProductsList.vue')
 const ProductDetail = () => import('../views/ProductDetail.vue')
 const TaxonomiesList = () => import('../views/TaxonomiesList.vue')
 const TaxonomyDetail = () => import('../views/TaxonomyDetail.vue')
+const TaxonsList = () => import('../views/TaxonsList.vue')
 const OptionTypesList = () => import('../views/OptionTypesList.vue')
 const OptionTypeDetail = () => import('../views/OptionTypeDetail.vue')
 
@@ -35,6 +36,12 @@ export const catalogRoutes: RouteRecordRaw[] = [
     name: 'catalog-taxonomy-detail',
     component: TaxonomyDetail,
     meta: { title: 'Taxonomy Detail' },
+  },
+  {
+    path: 'catalog/taxons',
+    name: 'catalog-taxons',
+    component: TaxonsList,
+    meta: { title: 'Taxons' },
   },
   {
     path: 'catalog/option-types',
