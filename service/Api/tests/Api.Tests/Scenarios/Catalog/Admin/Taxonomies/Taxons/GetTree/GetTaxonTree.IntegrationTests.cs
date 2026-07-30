@@ -68,7 +68,7 @@ public sealed class GetTaxonTreeIntegrationTests(ApiFixture fixture) : CatalogIn
             "/api/catalog/taxonomies/taxons", childRequest);
 
         HttpResponseMessage response = await Client.GetAsAdminRawAsync(
-            "/api/catalog/taxonomies/taxons/tree");
+            $"/api/catalog/taxonomies/taxons/tree?taxonomyId={taxonomy!.Id}");
         ApiResponse result = await response.ReadApiResponseAsync();
 
         result.IsSuccess.Should().BeTrue();

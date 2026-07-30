@@ -52,12 +52,12 @@ async function initEditMode(id: string) {
     router.push('/catalog/taxonomies')
   }
 
-  await loadTree()
+  await loadTree(id)
 }
 
-async function loadTree() {
+async function loadTree(taxonomyId: string) {
   treeLoading.value = true
-  const result = await TaxonApi.getTree()
+  const result = await TaxonApi.getTree(taxonomyId)
   if (result.isSuccess && result.value?.tree) {
     treeNodes.value = result.value.tree
   }

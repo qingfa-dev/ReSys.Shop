@@ -11,7 +11,7 @@ namespace Module.UnitTests.Catalog.Features.Admin.Taxonomies.Taxons.Rules.Get;
 public class GetTaxonRulesTests : IDisposable
 {
     private readonly ApplicationDbContext _dbContext;
-    private readonly GetTaxonRules.QueryHandler _handler;
+    private readonly GetTaxonRules.PagedQueryHandler _handler;
 
     public GetTaxonRulesTests()
     {
@@ -22,7 +22,7 @@ public class GetTaxonRulesTests : IDisposable
         ApplicationDbContext.AdditionalConfigurationsAssemblies = [typeof(Taxon).Assembly];
         _dbContext = new ApplicationDbContext(options);
 
-        _handler = new GetTaxonRules.QueryHandler(_dbContext);
+        _handler = new GetTaxonRules.PagedQueryHandler(_dbContext);
     }
 
     public void Dispose()
@@ -45,12 +45,12 @@ public class GetTaxonRulesTests : IDisposable
         _dbContext.Set<TaxonRule>().AddRange(rule1, rule2);
         await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 
-        var result = await _handler.Handle(new GetTaxonRules.Query(taxon.Id), TestContext.Current.CancellationToken);
+        var result = await _handler.Handle(new GetTaxonRules.Query(taxon.Id, new()), TestContext.Current.CancellationToken);
 
         result.IsSuccess.Should().BeTrue();
-        result.Value.Should().HaveCount(2);
-        result.Value[0].Type.Should().Be("product_name");
-        result.Value[1].Type.Should().Be("product_price");
+        result.Items.Should().HaveCount(2);
+        result.Items.First().Type.Should().Be("product_name");
+        result.Items.Last().Type.Should().Be("product_price");
     }
 
     [Fact(DisplayName = "Handler: Should return empty list when no rules exist")]
@@ -63,18 +63,18 @@ public class GetTaxonRulesTests : IDisposable
         _dbContext.Set<Taxon>().Add(taxon);
         await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 
-        var result = await _handler.Handle(new GetTaxonRules.Query(taxon.Id), TestContext.Current.CancellationToken);
+        var result = await _handler.Handle(new GetTaxonRules.Query(taxon.Id, new()), TestContext.Current.CancellationToken);
 
         result.IsSuccess.Should().BeTrue();
-        result.Value.Should().BeEmpty();
+        result.Items.Should().BeEmpty();
     }
 
     [Fact(DisplayName = "Handler: Should return failure when taxon does not exist")]
     public async Task Handle_ShouldReturnFailure_WhenTaxonNotFound()
     {
-        var result = await _handler.Handle(new GetTaxonRules.Query(Guid.NewGuid()), TestContext.Current.CancellationToken);
+        var result = await _handler.Handle(new GetTaxonRules.Query(Guid.NewGuid(), new()), TestContext.Current.CancellationToken);
 
-        result.IsFailure.Should().BeTrue();
+        result.IsSuccess.Should().BeFalse();
         result.Errors[0].Code.Should().Be(TaxonResult.Errors.NotFound.Code);
     }
 
@@ -90,10 +90,10 @@ public class GetTaxonRulesTests : IDisposable
         _dbContext.Set<TaxonRule>().Add(rule);
         await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 
-        var result = await _handler.Handle(new GetTaxonRules.Query(taxon.Id), TestContext.Current.CancellationToken);
+        var result = await _handler.Handle(new GetTaxonRules.Query(taxon.Id, new()), TestContext.Current.CancellationToken);
 
         result.IsSuccess.Should().BeTrue();
-        var response = result.Value.Single();
+        var response = result.Items.Single();
         response.Id.Should().Be(rule.Id);
         response.TaxonId.Should().Be(taxon.Id);
         response.Type.Should().Be("product_sku");

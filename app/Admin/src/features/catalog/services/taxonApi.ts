@@ -29,8 +29,15 @@ export class TaxonApi {
     return get<Result<TaxonDetail>>(`${TaxonApi.BASE}/${id}`)
   }
 
-  static getTree(): Promise<Result<{ tree: TaxonTreeItem[] }>> {
-    return get<Result<{ tree: TaxonTreeItem[] }>>(`${TaxonApi.BASE}/tree`)
+  static getTree(taxonomyId: string): Promise<Result<{ tree: TaxonTreeItem[] }>> {
+    return get<Result<{ tree: TaxonTreeItem[] }>>(`${TaxonApi.BASE}/tree?taxonomyId=${taxonomyId}`)
+  }
+
+  static getList(taxonomyId: string, query: TaxonQuery): Promise<PagedResult<TaxonListItem>> {
+    return getPaged<TaxonListItem>(`${TaxonApi.BASE}/list?taxonomyId=${taxonomyId}`, toTaxonQueryParams(query), {
+      allowedFilterFields: TAXON_FILTER_FIELDS,
+      allowedSortFields: TAXON_SORT_FIELDS,
+    })
   }
 
   static createTaxon(request: TaxonRequest): Promise<Result<TaxonDetail>> {

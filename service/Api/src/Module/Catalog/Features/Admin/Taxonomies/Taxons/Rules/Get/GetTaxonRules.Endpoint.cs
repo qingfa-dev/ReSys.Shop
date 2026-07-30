@@ -10,14 +10,13 @@ public static partial class GetTaxonRules
         {
             app.MapGet(CatalogFeature.Admin.Taxonomies.Taxons.Rules.GetAll.Route, async (
                 Guid id,
+                [AsParameters] Parameters parameters,
                 ISender sender,
                 CancellationToken ct) =>
             {
-                var query = new Query(id);
+                var query = new Query(id, parameters);
                 var result = await sender.Send(query, ct);
-                if (!result.IsSuccess)
-                    return result.ToResult();
-                return PagedResult<Response>.Ok(result.Value, 1, result.Value.Count, result.Value.Count).ToPagedResult();
+                return result.ToPagedResult();
             })
             .WithName(nameof(GetTaxonRules))
             .WithTags(CatalogFeature.Tags.Taxon)

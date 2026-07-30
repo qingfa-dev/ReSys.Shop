@@ -57,8 +57,11 @@ onMounted(() => {
 })
 
 async function loadTree() {
+  const taxonomyId = route.query.taxonomyId as string | undefined
+  if (!taxonomyId) return
+
   treeLoading.value = true
-  const result = await TaxonApi.getTree()
+  const result = await TaxonApi.getTree(taxonomyId)
   if (result.isSuccess && result.value?.tree) {
     treeData.value = result.value.tree
   }

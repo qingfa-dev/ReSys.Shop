@@ -104,7 +104,7 @@ async function initEditMode(id: string) {
 }
 
 async function loadParents(taxonomyId: string) {
-  const result = await TaxonApi.getTree()
+  const result = await TaxonApi.getTree(taxonomyId)
   if (result.isSuccess && result.value?.tree) {
     const flat: { label: string; value: string }[] = [{ label: '(None — root level)', value: '' }]
     function walk(nodes: any[], depth: number) {

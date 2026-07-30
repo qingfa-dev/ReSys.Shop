@@ -52,10 +52,10 @@ describe('TaxonApi.getTaxon', () => {
 })
 
 describe('TaxonApi.getTree', () => {
-  it('calls GET with tree URL', async () => {
+  it('calls GET with tree URL and taxonomyId', async () => {
     mockGet.mockResolvedValue({ value: { tree: [] }, isSuccess: true, statusCode: 200, message: null, errors: [], metadata: null })
-    await TaxonApi.getTree()
-    expect(mockGet).toHaveBeenCalledWith('api/catalog/taxonomies/taxons/tree')
+    await TaxonApi.getTree('abc-123')
+    expect(mockGet).toHaveBeenCalledWith('api/catalog/taxonomies/taxons/tree?taxonomyId=abc-123')
   })
 })
 

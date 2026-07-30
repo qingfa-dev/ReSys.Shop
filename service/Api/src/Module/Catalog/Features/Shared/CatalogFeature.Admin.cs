@@ -181,8 +181,16 @@ public static partial class CatalogFeature
                 public static class GetTree
                 {
                     public const string Route = $"{TaxonBaseRoute}/tree";
-                    public const string Description = "Retrieve the taxon tree";
+                    public const string Description = "Retrieve the taxon tree for a taxonomy";
                     public const string Summary = "Get taxon tree";
+                    public static PermissionMetadata Permission => CatalogFeatureMetadata.Taxons.List;
+                }
+
+                public static class GetList
+                {
+                    public const string Route = $"{TaxonBaseRoute}/list";
+                    public const string Description = "Retrieve paged taxon list for a taxonomy";
+                    public const string Summary = "Get taxon list";
                     public static PermissionMetadata Permission => CatalogFeatureMetadata.Taxons.List;
                 }
 
