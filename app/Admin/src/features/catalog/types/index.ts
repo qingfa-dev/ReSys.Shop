@@ -20,3 +20,39 @@ export {
   OPTION_VALUE_SORT_FIELDS,
   toOptionValueQueryParams,
 } from './optionValue'
+export type {
+  TaxonomyRequest,
+  TaxonomyListItem,
+  TaxonomyDetail,
+  TaxonomyQuery,
+} from './taxonomy'
+export {
+  TAXONOMY_FILTER_FIELDS,
+  TAXONOMY_SORT_FIELDS,
+  toTaxonomyQueryParams,
+} from './taxonomy'
+export type {
+  TaxonRequest,
+  TaxonListItem,
+  TaxonDetail,
+  TaxonTreeItem,
+  TaxonQuery,
+} from './taxon'
+export {
+  TAXON_FILTER_FIELDS,
+  TAXON_SORT_FIELDS,
+  TAXON_SORT_ORDERS,
+  TAXON_MATCH_POLICIES,
+  toTaxonQueryParams,
+} from './taxon'
+export type {
+  TaxonRuleRequest,
+  TaxonRuleListItem,
+  TaxonRuleDetail,
+  TaxonRuleQuery,
+} from './taxonRule'
+export {
+  TAXON_RULE_TYPES,
+  TAXON_RULE_MATCH_POLICIES,
+  toTaxonRuleQueryParams,
+} from './taxonRule'
