@@ -71,6 +71,7 @@ export const catalogMenuItems = [
     items: [
       { label: 'Products', icon: 'pi pi-fw pi-tag', to: '/catalog/products' },
       { label: 'Taxonomies', icon: 'pi pi-fw pi-sitemap', to: '/catalog/taxonomies' },
+      { label: 'Taxons', icon: 'pi pi-fw pi-list', to: '/catalog/taxons' },
       { label: 'Option Types', icon: 'pi pi-fw pi-sliders-h', to: '/catalog/option-types' },
     ],
   },
