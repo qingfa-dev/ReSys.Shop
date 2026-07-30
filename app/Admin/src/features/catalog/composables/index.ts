@@ -1,1 +1,1 @@
-// Barrel exports for catalog/composables
+export {}

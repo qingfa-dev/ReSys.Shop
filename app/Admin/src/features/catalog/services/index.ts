@@ -1,1 +1,2 @@
-// Barrel exports for catalog/services
+export { OptionTypeApi } from './optionTypeApi'
+export { OptionValueApi } from './optionValueApi'

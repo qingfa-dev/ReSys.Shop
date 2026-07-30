@@ -1,1 +1,1 @@
-// Barrel exports for catalog/stores
+export { useOptionTypeStore } from './optionTypeStore'

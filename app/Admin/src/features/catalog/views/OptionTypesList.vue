@@ -14,9 +14,9 @@ import { PageShell } from '@panel'
 import { useDataTableExport } from '@/shared/composables/useDataTableExport'
 import { usePagedQuery } from '@/shared/composables/usePagedQuery'
 import { useNotify } from '@/shared/composables/useNotify'
-import { OptionTypeApi } from '../option-types/services/optionTypeApi'
-import type { OptionTypeListItem } from '../option-types/types/optionType'
-import { OPTION_TYPE_FILTER_FIELDS, OPTION_TYPE_SORT_FIELDS } from '../option-types/types/optionType'
+import { OptionTypeApi } from '../services/optionTypeApi'
+import type { OptionTypeListItem } from '../types/optionType'
+import { OPTION_TYPE_FILTER_FIELDS, OPTION_TYPE_SORT_FIELDS } from '../types/optionType'
 
 const router = useRouter()
 const confirm = useConfirm()

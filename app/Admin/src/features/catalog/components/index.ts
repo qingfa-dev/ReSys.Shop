@@ -1,1 +1,1 @@
-// Barrel exports for catalog/components
+export { default as OptionValueFormDialog } from './OptionValueFormDialog.vue'
