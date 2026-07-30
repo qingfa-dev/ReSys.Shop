@@ -9,7 +9,8 @@ import TabPanels from 'primevue/tabpanels'
 import TabPanel from 'primevue/tabpanel'
 import PickList from 'primevue/picklist'
 import Card from 'primevue/card'
-import { Form } from '@primevue/forms'
+import Message from 'primevue/message'
+import { Form, FormField } from '@primevue/forms'
 import { zodResolver } from '@primevue/forms/resolvers/zod'
 import type { FormSubmitEvent } from '@primevue/forms'
 import { useNotify } from '@/shared/composables/useNotify'
@@ -257,27 +258,27 @@ function onCancel() {
               <template #content>
                 <div class="flex flex-col gap-6">
                   <div class="font-semibold text-xl">Product Details</div>
-                  <div class="flex flex-col gap-4">
-                    <div class="flex flex-col gap-1">
-                      <label class="text-surface-900 dark:text-surface-0 font-medium">Name <span class="text-red-500">*</span></label>
-                      <InputText name="name" fluid />
-                      <small v-if="$form.name?.invalid" class="text-red-500">{{ $form.name?.errors?.[0]?.message }}</small>
+                    <div class="flex flex-col gap-4">
+                      <FormField v-slot="$field" name="name" class="flex flex-col gap-1">
+                        <label class="text-surface-900 dark:text-surface-0 font-medium">Name <span class="text-red-500">*</span></label>
+                        <InputText fluid />
+                        <Message v-if="$field?.invalid" severity="error" size="small" variant="simple">{{ $field.error?.message }}</Message>
+                      </FormField>
+                      <FormField v-slot="$field" name="slug" class="flex flex-col gap-1">
+                        <label class="text-surface-900 dark:text-surface-0 font-medium">Slug <span class="text-red-500">*</span></label>
+                        <InputText fluid />
+                        <Message v-if="$field?.invalid" severity="error" size="small" variant="simple">{{ $field.error?.message }}</Message>
+                      </FormField>
+                      <FormField v-slot="$field" name="description" class="flex flex-col gap-1">
+                        <label class="text-surface-900 dark:text-surface-0 font-medium">Description</label>
+                        <Textarea fluid rows="4" />
+                        <Message v-if="$field?.invalid" severity="error" size="small" variant="simple">{{ $field.error?.message }}</Message>
+                      </FormField>
+                      <FormField v-if="isEdit" v-slot="$field" name="status" class="flex flex-col gap-1">
+                        <label class="text-surface-900 dark:text-surface-0 font-medium">Status</label>
+                        <Select :options="['Draft', 'Active', 'Archived']" fluid />
+                      </FormField>
                     </div>
-                    <div class="flex flex-col gap-1">
-                      <label class="text-surface-900 dark:text-surface-0 font-medium">Slug <span class="text-red-500">*</span></label>
-                      <InputText name="slug" fluid />
-                      <small v-if="$form.slug?.invalid" class="text-red-500">{{ $form.slug?.errors?.[0]?.message }}</small>
-                    </div>
-                    <div class="flex flex-col gap-1">
-                      <label class="text-surface-900 dark:text-surface-0 font-medium">Description</label>
-                      <Textarea name="description" fluid rows="4" />
-                      <small v-if="$form.description?.invalid" class="text-red-500">{{ $form.description?.errors?.[0]?.message }}</small>
-                    </div>
-                    <div v-if="isEdit" class="flex flex-col gap-1">
-                      <label class="text-surface-900 dark:text-surface-0 font-medium">Status</label>
-                      <Select v-model="form.status" :options="['Draft', 'Active', 'Archived']" fluid />
-                    </div>
-                  </div>
                 </div>
               </template>
             </Card>
@@ -288,23 +289,23 @@ function onCancel() {
               <template #content>
                 <div class="flex flex-col gap-6">
                   <div class="font-semibold text-xl">Search Engine Optimization</div>
-                  <div class="flex flex-col gap-4">
-                    <div class="flex flex-col gap-1">
-                      <label class="text-surface-900 dark:text-surface-0 font-medium">Meta Title</label>
-                      <InputText name="metaTitle" fluid />
-                      <small v-if="$form.metaTitle?.invalid" class="text-red-500">{{ $form.metaTitle?.errors?.[0]?.message }}</small>
+                    <div class="flex flex-col gap-4">
+                      <FormField v-slot="$field" name="metaTitle" class="flex flex-col gap-1">
+                        <label class="text-surface-900 dark:text-surface-0 font-medium">Meta Title</label>
+                        <InputText fluid />
+                        <Message v-if="$field?.invalid" severity="error" size="small" variant="simple">{{ $field.error?.message }}</Message>
+                      </FormField>
+                      <FormField v-slot="$field" name="metaDescription" class="flex flex-col gap-1">
+                        <label class="text-surface-900 dark:text-surface-0 font-medium">Meta Description</label>
+                        <Textarea fluid rows="3" />
+                        <Message v-if="$field?.invalid" severity="error" size="small" variant="simple">{{ $field.error?.message }}</Message>
+                      </FormField>
+                      <FormField v-slot="$field" name="metaKeywords" class="flex flex-col gap-1">
+                        <label class="text-surface-900 dark:text-surface-0 font-medium">Meta Keywords</label>
+                        <InputText fluid />
+                        <Message v-if="$field?.invalid" severity="error" size="small" variant="simple">{{ $field.error?.message }}</Message>
+                      </FormField>
                     </div>
-                    <div class="flex flex-col gap-1">
-                      <label class="text-surface-900 dark:text-surface-0 font-medium">Meta Description</label>
-                      <Textarea name="metaDescription" fluid rows="3" />
-                      <small v-if="$form.metaDescription?.invalid" class="text-red-500">{{ $form.metaDescription?.errors?.[0]?.message }}</small>
-                    </div>
-                    <div class="flex flex-col gap-1">
-                      <label class="text-surface-900 dark:text-surface-0 font-medium">Meta Keywords</label>
-                      <InputText name="metaKeywords" fluid />
-                      <small v-if="$form.metaKeywords?.invalid" class="text-red-500">{{ $form.metaKeywords?.errors?.[0]?.message }}</small>
-                    </div>
-                  </div>
                 </div>
               </template>
             </Card>
@@ -315,43 +316,43 @@ function onCancel() {
               <template #content>
                 <div class="flex flex-col gap-6">
                   <div class="font-semibold text-xl">Fashion Attributes</div>
-                  <div class="grid grid-cols-2 gap-4">
-                    <div class="flex flex-col gap-1">
-                      <label class="text-surface-900 dark:text-surface-0 font-medium">Style Code</label>
-                      <InputText name="styleCode" fluid />
-                      <small v-if="$form.styleCode?.invalid" class="text-red-500">{{ $form.styleCode?.errors?.[0]?.message }}</small>
+                    <div class="grid grid-cols-2 gap-4">
+                      <FormField v-slot="$field" name="styleCode" class="flex flex-col gap-1">
+                        <label class="text-surface-900 dark:text-surface-0 font-medium">Style Code</label>
+                        <InputText fluid />
+                        <Message v-if="$field?.invalid" severity="error" size="small" variant="simple">{{ $field.error?.message }}</Message>
+                      </FormField>
+                      <FormField v-slot="$field" name="seasonName" class="flex flex-col gap-1">
+                        <label class="text-surface-900 dark:text-surface-0 font-medium">Season</label>
+                        <InputText fluid />
+                        <Message v-if="$field?.invalid" severity="error" size="small" variant="simple">{{ $field.error?.message }}</Message>
+                      </FormField>
+                      <FormField v-slot="$field" name="department" class="flex flex-col gap-1">
+                        <label class="text-surface-900 dark:text-surface-0 font-medium">Department</label>
+                        <InputText fluid />
+                        <Message v-if="$field?.invalid" severity="error" size="small" variant="simple">{{ $field.error?.message }}</Message>
+                      </FormField>
+                      <FormField v-slot="$field" name="genderTarget" class="flex flex-col gap-1">
+                        <label class="text-surface-900 dark:text-surface-0 font-medium">Gender Target</label>
+                        <InputText fluid />
+                        <Message v-if="$field?.invalid" severity="error" size="small" variant="simple">{{ $field.error?.message }}</Message>
+                      </FormField>
                     </div>
-                    <div class="flex flex-col gap-1">
-                      <label class="text-surface-900 dark:text-surface-0 font-medium">Season</label>
-                      <InputText name="seasonName" fluid />
-                      <small v-if="$form.seasonName?.invalid" class="text-red-500">{{ $form.seasonName?.errors?.[0]?.message }}</small>
-                    </div>
-                    <div class="flex flex-col gap-1">
-                      <label class="text-surface-900 dark:text-surface-0 font-medium">Department</label>
-                      <InputText name="department" fluid />
-                      <small v-if="$form.department?.invalid" class="text-red-500">{{ $form.department?.errors?.[0]?.message }}</small>
-                    </div>
-                    <div class="flex flex-col gap-1">
-                      <label class="text-surface-900 dark:text-surface-0 font-medium">Gender Target</label>
-                      <InputText name="genderTarget" fluid />
-                      <small v-if="$form.genderTarget?.invalid" class="text-red-500">{{ $form.genderTarget?.errors?.[0]?.message }}</small>
-                    </div>
-                  </div>
-                  <div class="flex flex-col gap-1">
-                    <label class="text-surface-900 dark:text-surface-0 font-medium">Material Composition</label>
-                    <Textarea name="materialComposition" fluid rows="2" />
-                    <small v-if="$form.materialComposition?.invalid" class="text-red-500">{{ $form.materialComposition?.errors?.[0]?.message }}</small>
-                  </div>
-                  <div class="flex flex-col gap-1">
-                    <label class="text-surface-900 dark:text-surface-0 font-medium">Care Instructions</label>
-                    <Textarea name="careInstructions" fluid rows="2" />
-                    <small v-if="$form.careInstructions?.invalid" class="text-red-500">{{ $form.careInstructions?.errors?.[0]?.message }}</small>
-                  </div>
-                  <div class="flex flex-col gap-1">
-                    <label class="text-surface-900 dark:text-surface-0 font-medium">Fit Notes</label>
-                    <Textarea name="fitNotes" fluid rows="2" />
-                    <small v-if="$form.fitNotes?.invalid" class="text-red-500">{{ $form.fitNotes?.errors?.[0]?.message }}</small>
-                  </div>
+                    <FormField v-slot="$field" name="materialComposition" class="flex flex-col gap-1">
+                      <label class="text-surface-900 dark:text-surface-0 font-medium">Material Composition</label>
+                      <Textarea fluid rows="2" />
+                      <Message v-if="$field?.invalid" severity="error" size="small" variant="simple">{{ $field.error?.message }}</Message>
+                    </FormField>
+                    <FormField v-slot="$field" name="careInstructions" class="flex flex-col gap-1">
+                      <label class="text-surface-900 dark:text-surface-0 font-medium">Care Instructions</label>
+                      <Textarea fluid rows="2" />
+                      <Message v-if="$field?.invalid" severity="error" size="small" variant="simple">{{ $field.error?.message }}</Message>
+                    </FormField>
+                    <FormField v-slot="$field" name="fitNotes" class="flex flex-col gap-1">
+                      <label class="text-surface-900 dark:text-surface-0 font-medium">Fit Notes</label>
+                      <Textarea fluid rows="2" />
+                      <Message v-if="$field?.invalid" severity="error" size="small" variant="simple">{{ $field.error?.message }}</Message>
+                    </FormField>
                 </div>
               </template>
             </Card>
@@ -362,20 +363,20 @@ function onCancel() {
               <template #content>
                 <div class="flex flex-col gap-6">
                   <div class="font-semibold text-xl">Availability</div>
-                  <div class="flex flex-col gap-4">
-                    <div class="flex flex-col gap-1">
-                      <label class="text-surface-900 dark:text-surface-0 font-medium">Available On</label>
-                      <InputText name="availableOn" fluid type="date" />
+                    <div class="flex flex-col gap-4">
+                      <FormField v-slot="$field" name="availableOn" class="flex flex-col gap-1">
+                        <label class="text-surface-900 dark:text-surface-0 font-medium">Available On</label>
+                        <InputText fluid type="date" />
+                      </FormField>
+                      <FormField v-slot="$field" name="discontinueOn" class="flex flex-col gap-1">
+                        <label class="text-surface-900 dark:text-surface-0 font-medium">Discontinue On</label>
+                        <InputText fluid type="date" />
+                      </FormField>
+                      <FormField v-slot="$field" name="trackInventory" class="flex flex-col gap-1">
+                        <label class="text-surface-900 dark:text-surface-0 font-medium">Track Inventory</label>
+                        <ToggleSwitch />
+                      </FormField>
                     </div>
-                    <div class="flex flex-col gap-1">
-                      <label class="text-surface-900 dark:text-surface-0 font-medium">Discontinue On</label>
-                      <InputText name="discontinueOn" fluid type="date" />
-                    </div>
-                    <div class="flex flex-col gap-1">
-                      <label class="text-surface-900 dark:text-surface-0 font-medium">Track Inventory</label>
-                      <ToggleSwitch name="trackInventory" />
-                    </div>
-                  </div>
                 </div>
               </template>
             </Card>

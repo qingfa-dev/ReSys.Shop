@@ -2,7 +2,8 @@
 import { ref, computed, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import Card from 'primevue/card'
-import { Form } from '@primevue/forms'
+import Message from 'primevue/message'
+import { Form, FormField } from '@primevue/forms'
 import { zodResolver } from '@primevue/forms/resolvers/zod'
 import type { FormSubmitEvent } from '@primevue/forms'
 import { useNotify } from '@/shared/composables/useNotify'
@@ -11,7 +12,6 @@ import { StateApi } from '../services/stateApi'
 import { useCountryStore } from '../stores/countryStore'
 import { stateSchema } from '../validations/state'
 import type { StateForm } from '../validations/state'
-import Select from 'primevue/select'
 
 const route = useRoute()
 const router = useRouter()
@@ -99,26 +99,26 @@ function onCancel() {
         <div class="flex flex-col gap-6">
           <div class="font-semibold text-xl">State Details</div>
           <Form v-slot="$form" :resolver="stateResolver" :initial-values="form" class="flex flex-col gap-4" @submit="onSubmit">
-            <div class="flex flex-col gap-1">
+            <FormField v-slot="$field" name="name" class="flex flex-col gap-1">
               <label class="text-surface-900 dark:text-surface-0 font-medium">Name <span class="text-red-500">*</span></label>
-              <InputText name="name" fluid />
-              <small v-if="$form.name?.invalid" class="text-red-500">{{ $form.name?.errors?.[0]?.message }}</small>
-            </div>
-            <div class="flex flex-col gap-1">
+              <InputText fluid />
+              <Message v-if="$field?.invalid" severity="error" size="small" variant="simple">{{ $field.error?.message }}</Message>
+            </FormField>
+            <FormField v-slot="$field" name="abbreviation" class="flex flex-col gap-1">
               <label class="text-surface-900 dark:text-surface-0 font-medium">Abbreviation <span class="text-red-500">*</span></label>
-              <InputText name="abbreviation" fluid maxlength="10" />
+              <InputText fluid maxlength="10" />
               <small class="text-muted-color">Short code (e.g. CA, NY, TX)</small>
-              <small v-if="$form.abbreviation?.invalid" class="text-red-500">{{ $form.abbreviation?.errors?.[0]?.message }}</small>
-            </div>
-            <div class="flex flex-col gap-1">
+              <Message v-if="$field?.invalid" severity="error" size="small" variant="simple">{{ $field.error?.message }}</Message>
+            </FormField>
+            <FormField v-slot="$field" name="countryId" class="flex flex-col gap-1">
               <label class="text-surface-900 dark:text-surface-0 font-medium">Country <span class="text-red-500">*</span></label>
-              <Select name="countryId" :options="countryStore.activeCountries" option-label="name" option-value="id" placeholder="Select a country" fluid />
-              <small v-if="$form.countryId?.invalid" class="text-red-500">{{ $form.countryId?.errors?.[0]?.message }}</small>
-            </div>
-            <div class="flex flex-col gap-1">
+              <Select :options="countryStore.activeCountries" option-label="name" option-value="id" placeholder="Select a country" fluid />
+              <Message v-if="$field?.invalid" severity="error" size="small" variant="simple">{{ $field.error?.message }}</Message>
+            </FormField>
+            <FormField v-slot="$field" name="isActive" class="flex flex-col gap-1">
               <label class="text-surface-900 dark:text-surface-0 font-medium">Active</label>
-              <ToggleSwitch name="isActive" />
-            </div>
+              <ToggleSwitch />
+            </FormField>
             <div class="flex justify-end gap-2 pt-4 border-t border-surface">
               <Button label="Save" type="submit" icon="pi pi-check" severity="primary" :loading="loading" />
               <Button label="Cancel" type="button" icon="pi pi-times" severity="secondary" @click="onCancel()" />

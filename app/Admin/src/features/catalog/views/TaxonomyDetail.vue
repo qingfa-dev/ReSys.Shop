@@ -6,7 +6,8 @@ import TreeTable from 'primevue/treetable'
 import Column from 'primevue/column'
 import Plus from '@primeicons/vue/plus'
 import Card from 'primevue/card'
-import { Form } from '@primevue/forms'
+import Message from 'primevue/message'
+import { Form, FormField } from '@primevue/forms'
 import { zodResolver } from '@primevue/forms/resolvers/zod'
 import type { FormSubmitEvent } from '@primevue/forms'
 import { useNotify } from '@/shared/composables/useNotify'
@@ -161,22 +162,22 @@ function confirmDeleteTaxon(node: TaxonTreeItem) {
         <div class="flex flex-col gap-6">
           <div class="font-semibold text-xl">Taxonomy Details</div>
           <Form v-slot="$form" :resolver="taxonomyResolver" :initial-values="form" class="flex flex-col gap-4" @submit="onSubmit">
-            <div class="flex flex-col gap-1">
+            <FormField v-slot="$field" name="name" class="flex flex-col gap-1">
               <label class="text-surface-900 dark:text-surface-0 font-medium">Name <span class="text-red-500">*</span></label>
-              <InputText name="name" fluid />
-              <small v-if="$form.name?.invalid" class="text-red-500">{{ $form.name?.errors?.[0]?.message }}</small>
-            </div>
-            <div class="flex flex-col gap-1">
+              <InputText fluid />
+              <Message v-if="$field?.invalid" severity="error" size="small" variant="simple">{{ $field.error?.message }}</Message>
+            </FormField>
+            <FormField v-slot="$field" name="presentation" class="flex flex-col gap-1">
               <label class="text-surface-900 dark:text-surface-0 font-medium">Presentation <span class="text-red-500">*</span></label>
-              <InputText name="presentation" fluid />
-              <small v-if="$form.presentation?.invalid" class="text-red-500">{{ $form.presentation?.errors?.[0]?.message }}</small>
-            </div>
-            <div class="flex flex-col gap-1">
+              <InputText fluid />
+              <Message v-if="$field?.invalid" severity="error" size="small" variant="simple">{{ $field.error?.message }}</Message>
+            </FormField>
+            <FormField v-slot="$field" name="position" class="flex flex-col gap-1">
               <label class="text-surface-900 dark:text-surface-0 font-medium">Position</label>
-              <InputNumber name="position" fluid :min="-1" />
+              <InputNumber fluid :min="-1" />
               <small class="text-muted-color">Sort order (lower = first)</small>
-              <small v-if="$form.position?.invalid" class="text-red-500">{{ $form.position?.errors?.[0]?.message }}</small>
-            </div>
+              <Message v-if="$field?.invalid" severity="error" size="small" variant="simple">{{ $field.error?.message }}</Message>
+            </FormField>
             <div class="flex justify-end gap-2 pt-4 border-t border-surface">
               <Button label="Save" type="submit" icon="pi pi-check" severity="primary" :loading="saving" />
               <Button label="Cancel" type="button" icon="pi pi-times" severity="secondary" @click="onCancel()" />

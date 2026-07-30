@@ -2,7 +2,8 @@
 import { ref, computed, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import Card from 'primevue/card'
-import { Form } from '@primevue/forms'
+import Message from 'primevue/message'
+import { Form, FormField } from '@primevue/forms'
 import { zodResolver } from '@primevue/forms/resolvers/zod'
 import type { FormSubmitEvent } from '@primevue/forms'
 import { useNotify } from '@/shared/composables/useNotify'
@@ -87,44 +88,41 @@ function onCancel() {
 </script>
 
 <template>
-  <!-- Page shell -->
   <Card>
     <template #content>
       <div class="font-semibold text-xl mb-4">{{ pageTitle }}</div>
       <p v-if="pageDescription" class="text-muted-color mb-4">{{ pageDescription }}</p>
 
-    <!-- Country form -->
     <Card>
       <template #content>
         <div class="flex flex-col gap-6">
           <div class="font-semibold text-xl">Country Details</div>
           <Form v-slot="$form" :resolver="countryResolver" :initial-values="form" class="flex flex-col gap-4" @submit="onSubmit">
-            <div class="flex flex-col gap-1">
+            <FormField v-slot="$field" name="name" class="flex flex-col gap-1">
               <label class="text-surface-900 dark:text-surface-0 font-medium">Name <span class="text-red-500">*</span></label>
-              <InputText name="name" fluid />
-              <small v-if="$form.name?.invalid" class="text-red-500">{{ $form.name?.errors?.[0]?.message }}</small>
-            </div>
-            <div class="flex flex-col gap-1">
+              <InputText fluid />
+              <Message v-if="$field?.invalid" severity="error" size="small" variant="simple">{{ $field.error?.message }}</Message>
+            </FormField>
+            <FormField v-slot="$field" name="isoCode" class="flex flex-col gap-1">
               <label class="text-surface-900 dark:text-surface-0 font-medium">ISO Code <span class="text-red-500">*</span></label>
-              <InputText name="isoCode" fluid maxlength="3" @update:model-value="(v: any) => $form.setFieldValue?.('isoCode', (v ?? '').toUpperCase())" />
+              <InputText fluid maxlength="3" @update:model-value="(v: any) => $field?.setValue?.((v ?? '').toUpperCase())" />
               <small class="text-muted-color">2-3 uppercase letters (e.g. US, VN)</small>
-              <small v-if="$form.isoCode?.invalid" class="text-red-500">{{ $form.isoCode?.errors?.[0]?.message }}</small>
-            </div>
-            <div class="flex flex-col gap-1">
+              <Message v-if="$field?.invalid" severity="error" size="small" variant="simple">{{ $field.error?.message }}</Message>
+            </FormField>
+            <FormField v-slot="$field" name="callingCode" class="flex flex-col gap-1">
               <label class="text-surface-900 dark:text-surface-0 font-medium">Calling Code</label>
-              <InputText name="callingCode" fluid maxlength="10" />
+              <InputText fluid maxlength="10" />
               <small class="text-muted-color">Optional (e.g. +1, +84)</small>
-              <small v-if="$form.callingCode?.invalid" class="text-red-500">{{ $form.callingCode?.errors?.[0]?.message }}</small>
-            </div>
-            <div class="flex flex-col gap-1">
+              <Message v-if="$field?.invalid" severity="error" size="small" variant="simple">{{ $field.error?.message }}</Message>
+            </FormField>
+            <FormField v-slot="$field" name="statesRequired" class="flex flex-col gap-1">
               <label class="text-surface-900 dark:text-surface-0 font-medium">States Required</label>
-              <ToggleSwitch name="statesRequired" />
-            </div>
-            <div class="flex flex-col gap-1">
+              <ToggleSwitch />
+            </FormField>
+            <FormField v-slot="$field" name="isActive" class="flex flex-col gap-1">
               <label class="text-surface-900 dark:text-surface-0 font-medium">Active</label>
-              <ToggleSwitch name="isActive" />
-            </div>
-            <!-- Form actions -->
+              <ToggleSwitch />
+            </FormField>
             <div class="flex justify-end gap-2 pt-4 border-t border-surface">
               <Button label="Save" type="submit" icon="pi pi-check" severity="primary" :loading="loading" />
               <Button label="Cancel" type="button" icon="pi pi-times" severity="secondary" @click="onCancel()" />

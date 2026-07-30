@@ -4,13 +4,13 @@ version: 2.0
 date_created: 2026-07-31
 last_updated: 2026-07-31
 owner: Admin SPA team
-status: In progress
+status: Completed
 tags: [refactor, forms, primevue, zod]
 ---
 
 # Introduction
 
-![Status: In progress](https://img.shields.io/badge/status-In_progress-yellow)
+![Status: Completed](https://img.shields.io/badge/status-Completed-bright_green)
 
 Delete both custom `FormField.vue` and `FormSection.vue`. Replace all form
 sections in 6 detail views with direct `@primevue/forms` `<Form>` + inline

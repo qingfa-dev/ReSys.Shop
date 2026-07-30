@@ -11,7 +11,8 @@ import DataTable from 'primevue/datatable'
 import Column from 'primevue/column'
 import Plus from '@primeicons/vue/plus'
 import Card from 'primevue/card'
-import { Form } from '@primevue/forms'
+import Message from 'primevue/message'
+import { Form, FormField } from '@primevue/forms'
 import { zodResolver } from '@primevue/forms/resolvers/zod'
 import type { FormSubmitEvent } from '@primevue/forms'
 import { useNotify } from '@/shared/composables/useNotify'
@@ -269,42 +270,42 @@ function confirmDeleteRule(rule: TaxonRuleListItem) {
               <template #content>
                 <div class="flex flex-col gap-6">
                   <div class="font-semibold text-xl">General</div>
-                  <div class="flex flex-col gap-4">
-                    <div class="flex flex-col gap-1">
-                      <label class="text-surface-900 dark:text-surface-0 font-medium">Taxonomy <span class="text-red-500">*</span></label>
-                      <Select name="taxonomyId" :options="taxonomyStore.activeTaxonomies" option-label="name" option-value="id" fluid :disabled="!isEdit && !!route.query.taxonomyId" />
-                      <small v-if="$form.taxonomyId?.invalid" class="text-red-500">{{ $form.taxonomyId?.errors?.[0]?.message }}</small>
+                    <div class="flex flex-col gap-4">
+                      <FormField v-slot="$field" name="taxonomyId" class="flex flex-col gap-1">
+                        <label class="text-surface-900 dark:text-surface-0 font-medium">Taxonomy <span class="text-red-500">*</span></label>
+                        <Select :options="taxonomyStore.activeTaxonomies" option-label="name" option-value="id" fluid :disabled="!isEdit && !!route.query.taxonomyId" />
+                        <Message v-if="$field?.invalid" severity="error" size="small" variant="simple">{{ $field.error?.message }}</Message>
+                      </FormField>
+                      <FormField v-slot="$field" name="parentId" class="flex flex-col gap-1">
+                        <label class="text-surface-900 dark:text-surface-0 font-medium">Parent</label>
+                        <Select :options="parentOptions" option-label="label" option-value="value" fluid show-clear />
+                      </FormField>
+                      <FormField v-slot="$field" name="name" class="flex flex-col gap-1">
+                        <label class="text-surface-900 dark:text-surface-0 font-medium">Name <span class="text-red-500">*</span></label>
+                        <InputText fluid />
+                        <Message v-if="$field?.invalid" severity="error" size="small" variant="simple">{{ $field.error?.message }}</Message>
+                      </FormField>
+                      <FormField v-slot="$field" name="presentation" class="flex flex-col gap-1">
+                        <label class="text-surface-900 dark:text-surface-0 font-medium">Presentation <span class="text-red-500">*</span></label>
+                        <InputText fluid />
+                        <Message v-if="$field?.invalid" severity="error" size="small" variant="simple">{{ $field.error?.message }}</Message>
+                      </FormField>
+                      <FormField v-slot="$field" name="slug" class="flex flex-col gap-1">
+                        <label class="text-surface-900 dark:text-surface-0 font-medium">Slug <span class="text-red-500">*</span></label>
+                        <InputText fluid />
+                        <Message v-if="$field?.invalid" severity="error" size="small" variant="simple">{{ $field.error?.message }}</Message>
+                      </FormField>
+                      <FormField v-slot="$field" name="description" class="flex flex-col gap-1">
+                        <label class="text-surface-900 dark:text-surface-0 font-medium">Description</label>
+                        <Textarea fluid rows="3" />
+                        <Message v-if="$field?.invalid" severity="error" size="small" variant="simple">{{ $field.error?.message }}</Message>
+                      </FormField>
+                      <FormField v-slot="$field" name="position" class="flex flex-col gap-1">
+                        <label class="text-surface-900 dark:text-surface-0 font-medium">Position</label>
+                        <InputNumber fluid :min="-1" />
+                        <Message v-if="$field?.invalid" severity="error" size="small" variant="simple">{{ $field.error?.message }}</Message>
+                      </FormField>
                     </div>
-                    <div class="flex flex-col gap-1">
-                      <label class="text-surface-900 dark:text-surface-0 font-medium">Parent</label>
-                      <Select name="parentId" :options="parentOptions" option-label="label" option-value="value" fluid show-clear />
-                    </div>
-                    <div class="flex flex-col gap-1">
-                      <label class="text-surface-900 dark:text-surface-0 font-medium">Name <span class="text-red-500">*</span></label>
-                      <InputText name="name" fluid />
-                      <small v-if="$form.name?.invalid" class="text-red-500">{{ $form.name?.errors?.[0]?.message }}</small>
-                    </div>
-                    <div class="flex flex-col gap-1">
-                      <label class="text-surface-900 dark:text-surface-0 font-medium">Presentation <span class="text-red-500">*</span></label>
-                      <InputText name="presentation" fluid />
-                      <small v-if="$form.presentation?.invalid" class="text-red-500">{{ $form.presentation?.errors?.[0]?.message }}</small>
-                    </div>
-                    <div class="flex flex-col gap-1">
-                      <label class="text-surface-900 dark:text-surface-0 font-medium">Slug <span class="text-red-500">*</span></label>
-                      <InputText name="slug" fluid />
-                      <small v-if="$form.slug?.invalid" class="text-red-500">{{ $form.slug?.errors?.[0]?.message }}</small>
-                    </div>
-                    <div class="flex flex-col gap-1">
-                      <label class="text-surface-900 dark:text-surface-0 font-medium">Description</label>
-                      <Textarea name="description" fluid rows="3" />
-                      <small v-if="$form.description?.invalid" class="text-red-500">{{ $form.description?.errors?.[0]?.message }}</small>
-                    </div>
-                    <div class="flex flex-col gap-1">
-                      <label class="text-surface-900 dark:text-surface-0 font-medium">Position</label>
-                      <InputNumber name="position" fluid :min="-1" />
-                      <small v-if="$form.position?.invalid" class="text-red-500">{{ $form.position?.errors?.[0]?.message }}</small>
-                    </div>
-                  </div>
                 </div>
               </template>
             </Card>
@@ -315,24 +316,24 @@ function confirmDeleteRule(rule: TaxonRuleListItem) {
               <template #content>
                 <div class="flex flex-col gap-6">
                   <div class="font-semibold text-xl">Settings</div>
-                  <div class="flex flex-col gap-4">
-                    <div class="flex flex-col gap-1">
-                      <label class="text-surface-900 dark:text-surface-0 font-medium">Sort Order</label>
-                      <Select name="sortOrder" :options="TAXON_SORT_ORDERS" fluid />
+                    <div class="flex flex-col gap-4">
+                      <FormField v-slot="$field" name="sortOrder" class="flex flex-col gap-1">
+                        <label class="text-surface-900 dark:text-surface-0 font-medium">Sort Order</label>
+                        <Select :options="TAXON_SORT_ORDERS" fluid />
+                      </FormField>
+                      <FormField v-slot="$field" name="hideFromNav" class="flex flex-col gap-1">
+                        <label class="text-surface-900 dark:text-surface-0 font-medium">Hide from Navigation</label>
+                        <ToggleSwitch />
+                      </FormField>
+                      <FormField v-slot="$field" name="automatic" class="flex flex-col gap-1">
+                        <label class="text-surface-900 dark:text-surface-0 font-medium">Automatic Classification</label>
+                        <ToggleSwitch />
+                      </FormField>
+                      <FormField v-slot="$field" name="rulesMatchPolicy" class="flex flex-col gap-1">
+                        <label class="text-surface-900 dark:text-surface-0 font-medium">Rules Match Policy</label>
+                        <Select :options="TAXON_MATCH_POLICIES" fluid />
+                      </FormField>
                     </div>
-                    <div class="flex flex-col gap-1">
-                      <label class="text-surface-900 dark:text-surface-0 font-medium">Hide from Navigation</label>
-                      <ToggleSwitch name="hideFromNav" />
-                    </div>
-                    <div class="flex flex-col gap-1">
-                      <label class="text-surface-900 dark:text-surface-0 font-medium">Automatic Classification</label>
-                      <ToggleSwitch name="automatic" />
-                    </div>
-                    <div class="flex flex-col gap-1">
-                      <label class="text-surface-900 dark:text-surface-0 font-medium">Rules Match Policy</label>
-                      <Select name="rulesMatchPolicy" :options="TAXON_MATCH_POLICIES" fluid />
-                    </div>
-                  </div>
                 </div>
               </template>
             </Card>
@@ -343,23 +344,23 @@ function confirmDeleteRule(rule: TaxonRuleListItem) {
               <template #content>
                 <div class="flex flex-col gap-6">
                   <div class="font-semibold text-xl">SEO</div>
-                  <div class="flex flex-col gap-4">
-                    <div class="flex flex-col gap-1">
-                      <label class="text-surface-900 dark:text-surface-0 font-medium">Meta Title</label>
-                      <InputText name="metaTitle" fluid />
-                      <small v-if="$form.metaTitle?.invalid" class="text-red-500">{{ $form.metaTitle?.errors?.[0]?.message }}</small>
+                    <div class="flex flex-col gap-4">
+                      <FormField v-slot="$field" name="metaTitle" class="flex flex-col gap-1">
+                        <label class="text-surface-900 dark:text-surface-0 font-medium">Meta Title</label>
+                        <InputText fluid />
+                        <Message v-if="$field?.invalid" severity="error" size="small" variant="simple">{{ $field.error?.message }}</Message>
+                      </FormField>
+                      <FormField v-slot="$field" name="metaDescription" class="flex flex-col gap-1">
+                        <label class="text-surface-900 dark:text-surface-0 font-medium">Meta Description</label>
+                        <Textarea fluid rows="3" />
+                        <Message v-if="$field?.invalid" severity="error" size="small" variant="simple">{{ $field.error?.message }}</Message>
+                      </FormField>
+                      <FormField v-slot="$field" name="metaKeywords" class="flex flex-col gap-1">
+                        <label class="text-surface-900 dark:text-surface-0 font-medium">Meta Keywords</label>
+                        <InputText fluid />
+                        <Message v-if="$field?.invalid" severity="error" size="small" variant="simple">{{ $field.error?.message }}</Message>
+                      </FormField>
                     </div>
-                    <div class="flex flex-col gap-1">
-                      <label class="text-surface-900 dark:text-surface-0 font-medium">Meta Description</label>
-                      <Textarea name="metaDescription" fluid rows="3" />
-                      <small v-if="$form.metaDescription?.invalid" class="text-red-500">{{ $form.metaDescription?.errors?.[0]?.message }}</small>
-                    </div>
-                    <div class="flex flex-col gap-1">
-                      <label class="text-surface-900 dark:text-surface-0 font-medium">Meta Keywords</label>
-                      <InputText name="metaKeywords" fluid />
-                      <small v-if="$form.metaKeywords?.invalid" class="text-red-500">{{ $form.metaKeywords?.errors?.[0]?.message }}</small>
-                    </div>
-                  </div>
                 </div>
               </template>
             </Card>
@@ -370,18 +371,18 @@ function confirmDeleteRule(rule: TaxonRuleListItem) {
               <template #content>
                 <div class="flex flex-col gap-6">
                   <div class="font-semibold text-xl">Images</div>
-                  <div class="flex flex-col gap-4">
-                    <div class="flex flex-col gap-1">
-                      <label class="text-surface-900 dark:text-surface-0 font-medium">Image URL</label>
-                      <InputText name="imageUrl" fluid />
-                      <small v-if="$form.imageUrl?.invalid" class="text-red-500">{{ $form.imageUrl?.errors?.[0]?.message }}</small>
+                    <div class="flex flex-col gap-4">
+                      <FormField v-slot="$field" name="imageUrl" class="flex flex-col gap-1">
+                        <label class="text-surface-900 dark:text-surface-0 font-medium">Image URL</label>
+                        <InputText fluid />
+                        <Message v-if="$field?.invalid" severity="error" size="small" variant="simple">{{ $field.error?.message }}</Message>
+                      </FormField>
+                      <FormField v-slot="$field" name="squareImageUrl" class="flex flex-col gap-1">
+                        <label class="text-surface-900 dark:text-surface-0 font-medium">Square Image URL</label>
+                        <InputText fluid />
+                        <Message v-if="$field?.invalid" severity="error" size="small" variant="simple">{{ $field.error?.message }}</Message>
+                      </FormField>
                     </div>
-                    <div class="flex flex-col gap-1">
-                      <label class="text-surface-900 dark:text-surface-0 font-medium">Square Image URL</label>
-                      <InputText name="squareImageUrl" fluid />
-                      <small v-if="$form.squareImageUrl?.invalid" class="text-red-500">{{ $form.squareImageUrl?.errors?.[0]?.message }}</small>
-                    </div>
-                  </div>
                 </div>
               </template>
             </Card>

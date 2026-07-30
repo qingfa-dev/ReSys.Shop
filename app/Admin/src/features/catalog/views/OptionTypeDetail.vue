@@ -11,7 +11,8 @@ import DataTable from 'primevue/datatable'
 import Column from 'primevue/column'
 import Plus from '@primeicons/vue/plus'
 import Card from 'primevue/card'
-import { Form } from '@primevue/forms'
+import Message from 'primevue/message'
+import { Form, FormField } from '@primevue/forms'
 import { zodResolver } from '@primevue/forms/resolvers/zod'
 import type { FormSubmitEvent } from '@primevue/forms'
 import { useNotify } from '@/shared/composables/useNotify'
@@ -207,27 +208,27 @@ function onValueSearch(value: string) {
               <template #content>
                 <div class="flex flex-col gap-6">
                   <div class="font-semibold text-xl">Option Type Details</div>
-                  <div class="flex flex-col gap-4">
-                    <div class="flex flex-col gap-1">
-                      <label class="text-surface-900 dark:text-surface-0 font-medium">Name <span class="text-red-500">*</span></label>
-                      <InputText name="name" fluid />
-                      <small v-if="$form.name?.invalid" class="text-red-500">{{ $form.name?.errors?.[0]?.message }}</small>
+                    <div class="flex flex-col gap-4">
+                      <FormField v-slot="$field" name="name" class="flex flex-col gap-1">
+                        <label class="text-surface-900 dark:text-surface-0 font-medium">Name <span class="text-red-500">*</span></label>
+                        <InputText fluid />
+                        <Message v-if="$field?.invalid" severity="error" size="small" variant="simple">{{ $field.error?.message }}</Message>
+                      </FormField>
+                      <FormField v-slot="$field" name="presentation" class="flex flex-col gap-1">
+                        <label class="text-surface-900 dark:text-surface-0 font-medium">Presentation <span class="text-red-500">*</span></label>
+                        <InputText fluid />
+                        <Message v-if="$field?.invalid" severity="error" size="small" variant="simple">{{ $field.error?.message }}</Message>
+                      </FormField>
+                      <FormField v-slot="$field" name="position" class="flex flex-col gap-1">
+                        <label class="text-surface-900 dark:text-surface-0 font-medium">Position</label>
+                        <InputNumber fluid :min="-1" />
+                        <Message v-if="$field?.invalid" severity="error" size="small" variant="simple">{{ $field.error?.message }}</Message>
+                      </FormField>
+                      <FormField v-slot="$field" name="filterable" class="flex flex-col gap-1">
+                        <label class="text-surface-900 dark:text-surface-0 font-medium">Filterable</label>
+                        <ToggleSwitch />
+                      </FormField>
                     </div>
-                    <div class="flex flex-col gap-1">
-                      <label class="text-surface-900 dark:text-surface-0 font-medium">Presentation <span class="text-red-500">*</span></label>
-                      <InputText name="presentation" fluid />
-                      <small v-if="$form.presentation?.invalid" class="text-red-500">{{ $form.presentation?.errors?.[0]?.message }}</small>
-                    </div>
-                    <div class="flex flex-col gap-1">
-                      <label class="text-surface-900 dark:text-surface-0 font-medium">Position</label>
-                      <InputNumber name="position" fluid :min="-1" />
-                      <small v-if="$form.position?.invalid" class="text-red-500">{{ $form.position?.errors?.[0]?.message }}</small>
-                    </div>
-                    <div class="flex flex-col gap-1">
-                      <label class="text-surface-900 dark:text-surface-0 font-medium">Filterable</label>
-                      <ToggleSwitch name="filterable" />
-                    </div>
-                  </div>
                 </div>
               </template>
             </Card>
