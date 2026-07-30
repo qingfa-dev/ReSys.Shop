@@ -19,6 +19,7 @@
   "dependencies": {
     "@primeicons/vue": "^8.0.0",
     "@primeuix/themes": "^3.0.0",
+    "@primevue/forms": "^5.0.0",
     "@tailwindcss/postcss": "^4.3.3",
     "@vee-validate/zod": "^4.15.1",
     "autoprefixer": "^10.5.4",
