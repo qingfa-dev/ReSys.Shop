@@ -5,6 +5,8 @@ import Message from 'primevue/message'
 import { Form, FormField } from '@primevue/forms'
 import { zodResolver } from '@primevue/forms/resolvers/zod'
 import type { FormSubmitEvent } from '@primevue/forms'
+import Eye from '@primeicons/vue/eye'
+import EyeSlash from '@primeicons/vue/eye-slash'
 import { useNotify } from '@/shared/composables/useNotify'
 import { resetPasswordSchema } from '../validations/auth'
 import { resetPassword } from '../services/authApi'
@@ -22,6 +24,7 @@ const form = ref({
 const resetResolver = zodResolver(resetPasswordSchema)
 const isSubmitting = ref(false)
 const formError = ref<string | null>(null)
+const mask = ref(true)
 
 onMounted(() => {
   const q = route.query as Record<string, string>
@@ -79,7 +82,13 @@ async function onSubmit(event: FormSubmitEvent) {
 
     <FormField v-slot="$field" name="newPassword" class="flex flex-col gap-1">
       <label class="text-surface-900 dark:text-surface-0 font-medium">New Password</label>
-      <InputPassword fluid size="large" :feedback="false" toggleMask />
+      <IconField>
+        <InputPassword :mask="mask" fluid size="large" :feedback="false" />
+        <InputIcon class="cursor-pointer" @click="mask = !mask">
+          <Eye v-if="mask" />
+          <EyeSlash v-else />
+        </InputIcon>
+      </IconField>
       <Message v-if="$field?.invalid" severity="error" size="small" variant="simple">{{ $field.error?.message }}</Message>
     </FormField>
 

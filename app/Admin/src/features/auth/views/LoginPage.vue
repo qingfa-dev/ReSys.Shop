@@ -5,6 +5,8 @@ import Message from 'primevue/message'
 import { Form, FormField } from '@primevue/forms'
 import { zodResolver } from '@primevue/forms/resolvers/zod'
 import type { FormSubmitEvent } from '@primevue/forms'
+import Eye from '@primeicons/vue/eye'
+import EyeSlash from '@primeicons/vue/eye-slash'
 import { useNotify } from '@/shared/composables/useNotify'
 import { loginSchema } from '../validations/auth'
 import { useAuthStore } from '../stores/authStore'
@@ -16,6 +18,7 @@ const notify = useNotify()
 const form = ref({ credential: '', password: '' })
 const loginResolver = zodResolver(loginSchema)
 const isLoading = computed(() => store.status === 'loading')
+const mask = ref(true)
 
 async function onSubmit(event: FormSubmitEvent) {
   if (!event.valid) return
@@ -39,7 +42,13 @@ async function onSubmit(event: FormSubmitEvent) {
       </FormField>
       <FormField v-slot="$field" name="password" class="flex flex-col gap-1">
         <label class="text-surface-900 dark:text-surface-0 font-medium">Password</label>
-        <InputPassword placeholder="Password" fluid size="large" :feedback="false" toggleMask autocomplete="current-password" />
+        <IconField>
+          <InputPassword placeholder="Password" :mask="mask" fluid size="large" :feedback="false" autocomplete="current-password" />
+          <InputIcon class="cursor-pointer" @click="mask = !mask">
+            <Eye v-if="mask" />
+            <EyeSlash v-else />
+          </InputIcon>
+        </IconField>
         <Message v-if="$field?.invalid" severity="error" size="small" variant="simple">{{ $field.error?.message }}</Message>
       </FormField>
       <div class="flex items-center justify-between mt-2 mb-8 gap-8">
