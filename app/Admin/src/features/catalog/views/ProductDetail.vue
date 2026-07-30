@@ -256,17 +256,21 @@ function onCancel() {
 
 <template>
   <div class="flex flex-col h-full p-4">
-    <div class="flex-none flex flex-col gap-4">
+    <div class="flex-none flex justify-between items-start gap-4 mb-4">
       <div>
         <div class="font-semibold text-xl">{{ pageTitle }}</div>
         <p v-if="pageDescription" class="text-muted-color mt-1">{{ pageDescription }}</p>
       </div>
+      <div class="flex items-center gap-2 shrink-0">
+        <Button label="Save" type="submit" icon="pi pi-check" severity="primary" :loading="loading" form="product-form" />
+        <Button label="Cancel" type="button" icon="pi pi-times" severity="secondary" @click="onCancel()" />
+      </div>
     </div>
 
-    <div class="flex-1 min-h-0 overflow-auto mt-4">
+    <div class="flex-1 min-h-0 overflow-auto">
       <Card>
         <template #content>
-          <Form v-slot="$form" :key="String(formLoaded)" :resolver="resolver" :initial-values="form" @submit="onSubmit">
+          <Form id="product-form" v-slot="$form" :key="String(formLoaded)" :resolver="resolver" :initial-values="form" @submit="onSubmit">
             <Tabs v-model:value="activeTab">
               <TabList>
                 <Tab value="0">General</Tab>
@@ -281,9 +285,7 @@ function onCancel() {
                 <TabPanel value="0">
                   <Card>
                     <template #content>
-                      <div class="flex flex-col gap-6">
-                        <div class="font-semibold text-xl">Product Details</div>
-                          <div class="flex flex-col gap-4">
+                      <div class="flex flex-col gap-4">
                             <FormField v-slot="$field" name="name" :resolver="nameResolver" class="flex flex-col gap-1">
                               <label class="text-surface-900 dark:text-surface-0 font-medium">Name <span class="text-red-500">*</span></label>
                               <InputText fluid />
@@ -304,7 +306,6 @@ function onCancel() {
                               <Select :options="['Draft', 'Active', 'Archived']" fluid />
                             </FormField>
                           </div>
-                      </div>
                     </template>
                   </Card>
                 </TabPanel>
@@ -455,10 +456,6 @@ function onCancel() {
               </TabPanels>
             </Tabs>
 
-            <div class="flex justify-end gap-2 pt-4 border-t border-surface sticky bottom-0 bg-surface-card py-3">
-              <Button label="Save" type="submit" icon="pi pi-check" severity="primary" :loading="loading" />
-              <Button label="Cancel" type="button" icon="pi pi-times" severity="secondary" @click="onCancel()" />
-            </div>
           </Form>
         </template>
       </Card>

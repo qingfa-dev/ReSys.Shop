@@ -4,11 +4,6 @@ import { useRouter } from 'vue-router'
 import { useConfirm } from 'primevue/useconfirm'
 import DataTable from 'primevue/datatable'
 import Column from 'primevue/column'
-import Toolbar from 'primevue/toolbar'
-import Plus from '@primeicons/vue/plus'
-import Trash from '@primeicons/vue/trash'
-import Upload from '@primeicons/vue/upload'
-
 import { useDataTableExport } from '@/shared/composables/useDataTableExport'
 import { usePagedQuery } from '@/shared/composables/usePagedQuery'
 import { useNotify } from '@/shared/composables/useNotify'
@@ -110,21 +105,6 @@ function confirmDelete() {
         <div class="font-semibold text-xl">Taxonomies</div>
         <p class="text-muted-color mt-1">Manage product classification taxonomies</p>
       </div>
-      <Toolbar>
-        <template #start>
-          <Button label="New" severity="secondary" class="mr-2" @click="navigateToNew">
-            <Plus />
-          </Button>
-          <Button label="Delete" severity="secondary" :disabled="selectedItems.length === 0" @click="confirmDelete">
-            <Trash />
-          </Button>
-        </template>
-        <template #end>
-          <Button label="Export" severity="secondary" @click="exportCSV">
-            <Upload />
-          </Button>
-        </template>
-      </Toolbar>
     </div>
 
     <div class="flex-1 min-h-0 mt-4">
@@ -147,15 +127,25 @@ function confirmDelete() {
         <Column selection-mode="multiple" header-style="width: 3rem" />
         <template #header>
           <div class="flex justify-between items-center">
-            <IconField>
-              <InputIcon><i class="pi pi-search" /></InputIcon>
-              <InputText
-                :model-value="searchTerm"
-                placeholder="Search taxonomies..."
-                @update:model-value="onSearch($event ?? '')"
-              />
-            </IconField>
-            <Button label="Clear" outlined @click="clearSearch" />
+            <div class="flex items-center gap-2">
+              <FloatLabel variant="on">
+                <IconField>
+                  <InputIcon class="pi pi-search" />
+                  <InputText
+                    :model-value="searchTerm"
+                    placeholder="Search taxonomies..."
+                    @update:model-value="onSearch($event ?? '')"
+                  />
+                </IconField>
+                <label>Search</label>
+              </FloatLabel>
+              <Button label="Clear" outlined @click="clearSearch" />
+            </div>
+            <div class="flex items-center gap-2">
+              <Button label="New Taxonomy" icon="pi pi-plus" severity="primary" @click="navigateToNew" />
+              <Button label="Reload" icon="pi pi-sync" severity="secondary" @click="refresh" />
+              <Button label="Export" icon="pi pi-upload" severity="secondary" @click="exportCSV" />
+            </div>
           </div>
         </template>
         <Column field="name" header="Name" :sortable="true" :filter="true" filter-field="name" />

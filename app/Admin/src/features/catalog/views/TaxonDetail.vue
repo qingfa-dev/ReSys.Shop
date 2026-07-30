@@ -268,17 +268,21 @@ function confirmDeleteRule(rule: TaxonRuleListItem) {
 
 <template>
   <div class="flex flex-col h-full p-4">
-    <div class="flex-none flex flex-col gap-4">
+    <div class="flex-none flex justify-between items-start gap-4 mb-4">
       <div>
         <div class="font-semibold text-xl">{{ pageTitle }}</div>
         <p v-if="pageDescription" class="text-muted-color mt-1">{{ pageDescription }}</p>
       </div>
+      <div class="flex items-center gap-2 shrink-0">
+        <Button label="Save" type="submit" icon="pi pi-check" severity="primary" :loading="loading" form="taxon-form" />
+        <Button label="Cancel" type="button" icon="pi pi-times" severity="secondary" @click="onCancel()" />
+      </div>
     </div>
 
-    <div class="flex-1 min-h-0 overflow-auto mt-4">
+    <div class="flex-1 min-h-0 overflow-auto">
       <Card>
         <template #content>
-          <Form v-slot="$form" :key="String(formLoaded)" :resolver="resolver" :initial-values="form" @submit="onSubmit">
+          <Form id="taxon-form" v-slot="$form" :key="String(formLoaded)" :resolver="resolver" :initial-values="form" @submit="onSubmit">
             <Tabs v-model:value="activeTab">
               <TabList>
                 <Tab value="0">General</Tab>
@@ -292,9 +296,7 @@ function confirmDeleteRule(rule: TaxonRuleListItem) {
                 <TabPanel value="0">
                   <Card>
                     <template #content>
-                      <div class="flex flex-col gap-6">
-                        <div class="font-semibold text-xl">General</div>
-                          <div class="flex flex-col gap-4">
+                      <div class="flex flex-col gap-4">
                             <FormField v-slot="$field" name="taxonomyId" :resolver="taxonomyIdResolver" class="flex flex-col gap-1">
                               <label class="text-surface-900 dark:text-surface-0 font-medium">Taxonomy <span class="text-red-500">*</span></label>
                               <Select :options="taxonomyStore.activeTaxonomies" option-label="name" option-value="id" fluid :disabled="!isEdit && !!route.query.taxonomyId" />
@@ -330,7 +332,6 @@ function confirmDeleteRule(rule: TaxonRuleListItem) {
                               <Message v-if="$field?.invalid" severity="error" size="small" variant="simple">{{ $field.error?.message }}</Message>
                             </FormField>
                           </div>
-                      </div>
                     </template>
                   </Card>
                 </TabPanel>
@@ -338,9 +339,7 @@ function confirmDeleteRule(rule: TaxonRuleListItem) {
                 <TabPanel value="1">
                   <Card>
                     <template #content>
-                      <div class="flex flex-col gap-6">
-                        <div class="font-semibold text-xl">Settings</div>
-                          <div class="flex flex-col gap-4">
+                      <div class="flex flex-col gap-4">
                             <FormField v-slot="$field" name="sortOrder" :resolver="sortOrderResolver" class="flex flex-col gap-1">
                               <label class="text-surface-900 dark:text-surface-0 font-medium">Sort Order</label>
                               <Select :options="TAXON_SORT_ORDERS" fluid />
@@ -358,7 +357,6 @@ function confirmDeleteRule(rule: TaxonRuleListItem) {
                               <Select :options="TAXON_MATCH_POLICIES" fluid />
                             </FormField>
                           </div>
-                      </div>
                     </template>
                   </Card>
                 </TabPanel>
@@ -366,9 +364,7 @@ function confirmDeleteRule(rule: TaxonRuleListItem) {
                 <TabPanel value="2">
                   <Card>
                     <template #content>
-                      <div class="flex flex-col gap-6">
-                        <div class="font-semibold text-xl">SEO</div>
-                          <div class="flex flex-col gap-4">
+                      <div class="flex flex-col gap-4">
                             <FormField v-slot="$field" name="metaTitle" :resolver="metaTitleResolver" class="flex flex-col gap-1">
                               <label class="text-surface-900 dark:text-surface-0 font-medium">Meta Title</label>
                               <InputText fluid />
@@ -385,7 +381,6 @@ function confirmDeleteRule(rule: TaxonRuleListItem) {
                               <Message v-if="$field?.invalid" severity="error" size="small" variant="simple">{{ $field.error?.message }}</Message>
                             </FormField>
                           </div>
-                      </div>
                     </template>
                   </Card>
                 </TabPanel>
@@ -393,9 +388,7 @@ function confirmDeleteRule(rule: TaxonRuleListItem) {
                 <TabPanel value="3">
                   <Card>
                     <template #content>
-                      <div class="flex flex-col gap-6">
-                        <div class="font-semibold text-xl">Images</div>
-                          <div class="flex flex-col gap-4">
+                      <div class="flex flex-col gap-4">
                             <FormField v-slot="$field" name="imageUrl" :resolver="imageUrlResolver" class="flex flex-col gap-1">
                               <label class="text-surface-900 dark:text-surface-0 font-medium">Image URL</label>
                               <InputText fluid />
@@ -407,7 +400,6 @@ function confirmDeleteRule(rule: TaxonRuleListItem) {
                               <Message v-if="$field?.invalid" severity="error" size="small" variant="simple">{{ $field.error?.message }}</Message>
                             </FormField>
                           </div>
-                      </div>
                     </template>
                   </Card>
                 </TabPanel>
@@ -441,10 +433,6 @@ function confirmDeleteRule(rule: TaxonRuleListItem) {
               </TabPanels>
             </Tabs>
 
-            <div class="flex justify-end gap-2 pt-4 border-t border-surface sticky bottom-0 bg-surface-card py-3">
-              <Button label="Save" type="submit" icon="pi pi-check" severity="primary" :loading="loading" />
-              <Button label="Cancel" type="button" icon="pi pi-times" severity="secondary" @click="onCancel()" />
-            </div>
           </Form>
 
           <TaxonRuleFormDialog
