@@ -13,9 +13,11 @@ export {}
 declare module 'vue' {
   export interface GlobalComponents {
     Button: typeof import('primevue/button')['default']
+    Checkbox: typeof import('primevue/checkbox')['default']
     IconField: typeof import('primevue/iconfield')['default']
     InputIcon: typeof import('primevue/inputicon')['default']
     InputNumber: typeof import('primevue/inputnumber')['default']
+    InputPassword: typeof import('primevue/inputpassword')['default']
     InputText: typeof import('primevue/inputtext')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
@@ -34,9 +36,11 @@ declare module 'vue' {
 // For TSX support
 declare global {
   const Button: typeof import('primevue/button')['default']
+  const Checkbox: typeof import('primevue/checkbox')['default']
   const IconField: typeof import('primevue/iconfield')['default']
   const InputIcon: typeof import('primevue/inputicon')['default']
   const InputNumber: typeof import('primevue/inputnumber')['default']
+  const InputPassword: typeof import('primevue/inputpassword')['default']
   const InputText: typeof import('primevue/inputtext')['default']
   const RouterLink: typeof import('vue-router')['RouterLink']
   const RouterView: typeof import('vue-router')['RouterView']

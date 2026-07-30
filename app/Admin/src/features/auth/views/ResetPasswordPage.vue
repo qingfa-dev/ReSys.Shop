@@ -1,58 +1,49 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { useForm } from 'vee-validate'
-import { toTypedSchema } from '@vee-validate/zod'
+import Message from 'primevue/message'
+import { Form, FormField } from '@primevue/forms'
+import { zodResolver } from '@primevue/forms/resolvers/zod'
+import type { FormSubmitEvent } from '@primevue/forms'
 import { useNotify } from '@/shared/composables/useNotify'
 import { resetPasswordSchema } from '../validations/auth'
 import { resetPassword } from '../services/authApi'
-import IconField from 'primevue/iconfield'
-import InputIcon from 'primevue/inputicon'
-import Button from 'primevue/button'
-import InputText from 'primevue/inputtext'
-import InputPassword from 'primevue/inputpassword'
-import FloatLabel from 'primevue/floatlabel'
-import Message from 'primevue/message'
-import Envelope from '@primeicons/vue/envelope'
-import User from '@primeicons/vue/user'
-import Key from '@primeicons/vue/key'
-import Lock from '@primeicons/vue/lock'
-import Eye from '@primeicons/vue/eye'
-import EyeSlash from '@primeicons/vue/eye-slash'
 
 const route = useRoute()
 const router = useRouter()
 const notify = useNotify()
-const mask = ref(true)
 
-const { defineField, errors, handleSubmit, setFieldValue } = useForm({
-  validationSchema: toTypedSchema(resetPasswordSchema),
+const form = ref({
+  email: '',
+  userId: '',
+  token: '',
+  newPassword: '',
 })
-
-const [email] = defineField('email', { validateOnModelUpdate: false })
-const [userId] = defineField('userId', { validateOnModelUpdate: false })
-const [token, tokenAttrs] = defineField('token', { validateOnModelUpdate: false })
-const [newPassword, newPasswordAttrs] = defineField('newPassword', { validateOnModelUpdate: false })
-
+const resetResolver = zodResolver(resetPasswordSchema)
 const isSubmitting = ref(false)
 const formError = ref<string | null>(null)
 
 onMounted(() => {
   const q = route.query as Record<string, string>
-  setFieldValue('email', q.email ?? '')
-  setFieldValue('userId', q.userId ?? '')
-  setFieldValue('token', q.token ?? '')
+  form.value = {
+    email: q.email ?? '',
+    userId: q.userId ?? '',
+    token: q.token ?? '',
+    newPassword: '',
+  }
 })
 
-const onSubmit = handleSubmit(async (values) => {
+async function onSubmit(event: FormSubmitEvent) {
+  if (!event.valid) return
   isSubmitting.value = true
   formError.value = null
   try {
+    const data = event.values as { email: string; userId: string; token: string; newPassword: string }
     const result = await resetPassword({
-      email: values.email,
-      userId: values.userId,
-      token: values.token,
-      newPassword: values.newPassword,
+      email: data.email,
+      userId: data.userId,
+      token: data.token,
+      newPassword: data.newPassword,
     })
     if (result.isSuccess) {
       notify.success('Password reset successful')
@@ -65,61 +56,37 @@ const onSubmit = handleSubmit(async (values) => {
   } finally {
     isSubmitting.value = false
   }
-})
+}
 </script>
 
 <template>
-  <form @submit="onSubmit" class="flex flex-col gap-4 w-full md:w-120">
-    <div class="flex flex-col gap-1">
-      <FloatLabel variant="on">
-        <IconField>
-          <InputIcon> <Envelope /> </InputIcon>
-          <InputText id="email" :modelValue="email" disabled fluid size="large" />
-        </IconField>
-        <label for="email">Email</label>
-      </FloatLabel>
-    </div>
+  <Form v-slot="$form" :resolver="resetResolver" :initial-values="form" class="flex flex-col gap-4 w-full md:w-120" @submit="onSubmit">
+    <FormField v-slot="$field" name="email" class="flex flex-col gap-1">
+      <label class="text-surface-900 dark:text-surface-0 font-medium">Email</label>
+      <InputText type="email" fluid size="large" disabled />
+    </FormField>
 
-    <div class="flex flex-col gap-1">
-      <FloatLabel variant="on">
-        <IconField>
-          <InputIcon> <User /> </InputIcon>
-          <InputText id="userId" :modelValue="userId" disabled fluid size="large" />
-        </IconField>
-        <label for="userId">User ID</label>
-      </FloatLabel>
-    </div>
+    <FormField v-slot="$field" name="userId" class="flex flex-col gap-1">
+      <label class="text-surface-900 dark:text-surface-0 font-medium">User ID</label>
+      <InputText fluid size="large" disabled />
+    </FormField>
 
-    <div class="flex flex-col gap-1">
-      <FloatLabel variant="on">
-        <IconField>
-          <InputIcon> <Key /> </InputIcon>
-          <InputText id="token" v-model="token" v-bind="tokenAttrs" fluid size="large" :invalid="!!errors.token" />
-        </IconField>
-        <label for="token">Reset Token</label>
-      </FloatLabel>
-      <small v-if="errors.token" class="text-red-500">{{ errors.token }}</small>
-    </div>
+    <FormField v-slot="$field" name="token" class="flex flex-col gap-1">
+      <label class="text-surface-900 dark:text-surface-0 font-medium">Reset Token</label>
+      <InputText fluid size="large" />
+      <Message v-if="$field?.invalid" severity="error" size="small" variant="simple">{{ $field.error?.message }}</Message>
+    </FormField>
 
-    <div class="flex flex-col gap-1">
-      <FloatLabel variant="on">
-        <IconField>
-          <InputIcon> <Lock /> </InputIcon>
-          <InputPassword id="newPassword" v-model="newPassword" v-bind="newPasswordAttrs" :mask="mask" :feedback="false" :invalid="!!errors.newPassword" fluid size="large" />
-          <InputIcon class="cursor-pointer" @click="mask = !mask">
-            <Eye v-if="mask" :size="16" />
-            <EyeSlash v-else :size="16" />
-          </InputIcon>
-        </IconField>
-        <label for="newPassword">New Password</label>
-      </FloatLabel>
-      <small v-if="errors.newPassword" class="text-red-500">{{ errors.newPassword }}</small>
-    </div>
+    <FormField v-slot="$field" name="newPassword" class="flex flex-col gap-1">
+      <label class="text-surface-900 dark:text-surface-0 font-medium">New Password</label>
+      <InputPassword fluid size="large" :feedback="false" toggleMask />
+      <Message v-if="$field?.invalid" severity="error" size="small" variant="simple">{{ $field.error?.message }}</Message>
+    </FormField>
 
     <Message v-if="formError" severity="error" :closable="false">{{ formError }}</Message>
 
     <Button type="submit" label="Reset Password" fluid size="large" :loading="isSubmitting" />
-  </form>
+  </Form>
 
   <router-link to="/auth/login" class="text-base text-primary hover:underline text-center block mt-4">
     &larr; Back to login

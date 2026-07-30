@@ -1,39 +1,32 @@
 <script setup lang="ts">
 import { ref } from 'vue'
-import { useForm } from 'vee-validate'
-import { toTypedSchema } from '@vee-validate/zod'
+import Message from 'primevue/message'
+import { Form, FormField } from '@primevue/forms'
+import { zodResolver } from '@primevue/forms/resolvers/zod'
+import type { FormSubmitEvent } from '@primevue/forms'
 import { forgotPasswordSchema } from '../validations/auth'
 import { forgotPassword } from '../services/authApi'
-import IconField from 'primevue/iconfield'
-import InputIcon from 'primevue/inputicon'
-import Button from 'primevue/button'
-import InputText from 'primevue/inputtext'
-import FloatLabel from 'primevue/floatlabel'
-import Message from 'primevue/message'
-import Envelope from '@primeicons/vue/envelope'
 
-const { defineField, errors, handleSubmit } = useForm({
-  validationSchema: toTypedSchema(forgotPasswordSchema),
-})
-
-const [email, emailAttrs] = defineField('email', { validateOnModelUpdate: false })
-
+const form = ref({ email: '' })
+const forgotResolver = zodResolver(forgotPasswordSchema)
 const isSubmitting = ref(false)
 const isSuccess = ref(false)
 const submitError = ref<string | null>(null)
 
-const onSubmit = handleSubmit(async (values) => {
+async function onSubmit(event: FormSubmitEvent) {
+  if (!event.valid) return
   isSubmitting.value = true
   submitError.value = null
   try {
-    await forgotPassword({ email: values.email })
+    const data = event.values as { email: string }
+    await forgotPassword({ email: data.email })
     isSuccess.value = true
   } catch {
     submitError.value = 'Something went wrong. Please try again.'
   } finally {
     isSubmitting.value = false
   }
-})
+}
 </script>
 
 <template>
@@ -41,32 +34,17 @@ const onSubmit = handleSubmit(async (values) => {
     If an account exists with that email, a reset link has been sent.
   </p>
 
-  <form v-else @submit="onSubmit" class="flex flex-col gap-4 w-full md:w-120">
-    <div class="flex flex-col gap-1">
-      <FloatLabel variant="on">
-        <IconField>
-          <InputIcon> <Envelope /> </InputIcon>
-          <InputText
-            id="email"
-            v-model="email"
-            v-bind="emailAttrs"
-            fluid
-            size="large"
-            type="email"
-            placeholder="Email address"
-            autocomplete="email"
-            :invalid="!!errors.email"
-          />
-        </IconField>
-        <label for="email">Email</label>
-      </FloatLabel>
-      <small v-if="errors.email" class="text-red-500">{{ errors.email }}</small>
-    </div>
-
-    <Message v-if="submitError" severity="error" :closable="false">{{ submitError }}</Message>
-
-    <Button type="submit" label="Send Reset Link" fluid size="large" :loading="isSubmitting" />
-  </form>
+  <div v-else>
+    <Form v-slot="$form" :resolver="forgotResolver" :initial-values="form" class="flex flex-col gap-4 w-full md:w-120" @submit="onSubmit">
+      <FormField v-slot="$field" name="email" class="flex flex-col gap-1">
+        <label class="text-surface-900 dark:text-surface-0 font-medium">Email</label>
+        <InputText type="email" placeholder="Email address" fluid size="large" autocomplete="email" />
+        <Message v-if="$field?.invalid" severity="error" size="small" variant="simple">{{ $field.error?.message }}</Message>
+      </FormField>
+      <Message v-if="submitError" severity="error" :closable="false">{{ submitError }}</Message>
+      <Button type="submit" label="Send Reset Link" fluid size="large" :loading="isSubmitting" />
+    </Form>
+  </div>
 
   <router-link to="/auth/login" class="text-sm text-primary hover:underline text-center block mt-4">
     &larr; Back to login
