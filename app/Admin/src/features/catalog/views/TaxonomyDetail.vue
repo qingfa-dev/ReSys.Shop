@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { z } from 'zod'
 import { useConfirm } from 'primevue/useconfirm'
 import TreeTable from 'primevue/treetable'
 import Column from 'primevue/column'
@@ -40,9 +39,9 @@ const form = ref<TaxonomyForm>({
 })
 
 const taxonomyResolver = zodResolver(taxonomySchema)
-const nameResolver = zodResolver(z.object({ name: taxonomyName }))
-const presentationResolver = zodResolver(z.object({ presentation: taxonomyPresentation }))
-const positionResolver = zodResolver(z.object({ position: taxonomyPosition }))
+const nameResolver = zodResolver(taxonomyName)
+const presentationResolver = zodResolver(taxonomyPresentation)
+const positionResolver = zodResolver(taxonomyPosition)
 const saving = ref(false)
 
 const treeNodes = ref<any[]>([])

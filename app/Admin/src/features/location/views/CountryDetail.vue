@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { z } from 'zod'
 import Card from 'primevue/card'
 import Message from 'primevue/message'
 import { Form, FormField } from '@primevue/forms'
@@ -35,9 +34,9 @@ const form = ref<CountryForm>({
 })
 
 const countryResolver = zodResolver(countrySchema)
-const nameResolver = zodResolver(z.object({ name: countryName }))
-const isoCodeResolver = zodResolver(z.object({ isoCode: countryIsoCode }))
-const callingCodeResolver = zodResolver(z.object({ callingCode: countryCallingCode }))
+const nameResolver = zodResolver(countryName)
+const isoCodeResolver = zodResolver(countryIsoCode)
+const callingCodeResolver = zodResolver(countryCallingCode)
 const loading = ref(false)
 
 onMounted(async () => {

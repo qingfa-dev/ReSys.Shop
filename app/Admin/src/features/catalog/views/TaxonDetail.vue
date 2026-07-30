@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { z } from 'zod'
 import { useConfirm } from 'primevue/useconfirm'
 import Tabs from 'primevue/tabs'
 import TabList from 'primevue/tablist'
@@ -45,20 +44,20 @@ const pageDescription = computed(() =>
 const activeTab = ref('0')
 
 const resolver = zodResolver(taxonSchema)
-const taxonomyIdResolver = zodResolver(z.object({ taxonomyId: taxonTaxonomyId }))
-const parentIdResolver = zodResolver(z.object({ parentId: taxonParentId }))
-const nameResolver = zodResolver(z.object({ name: taxonName }))
-const presentationResolver = zodResolver(z.object({ presentation: taxonPresentation }))
-const slugResolver = zodResolver(z.object({ slug: taxonSlug }))
-const descriptionResolver = zodResolver(z.object({ description: taxonDescription }))
-const positionResolver = zodResolver(z.object({ position: taxonPosition }))
-const metaTitleResolver = zodResolver(z.object({ metaTitle: taxonMetaTitle }))
-const metaDescriptionResolver = zodResolver(z.object({ metaDescription: taxonMetaDescription }))
-const metaKeywordsResolver = zodResolver(z.object({ metaKeywords: taxonMetaKeywords }))
-const imageUrlResolver = zodResolver(z.object({ imageUrl: taxonImageUrl }))
-const squareImageUrlResolver = zodResolver(z.object({ squareImageUrl: taxonSquareImageUrl }))
-const sortOrderResolver = zodResolver(z.object({ sortOrder: taxonSortOrder }))
-const rulesMatchPolicyResolver = zodResolver(z.object({ rulesMatchPolicy: taxonRulesMatchPolicy }))
+const taxonomyIdResolver = zodResolver(taxonTaxonomyId)
+const parentIdResolver = zodResolver(taxonParentId)
+const nameResolver = zodResolver(taxonName)
+const presentationResolver = zodResolver(taxonPresentation)
+const slugResolver = zodResolver(taxonSlug)
+const descriptionResolver = zodResolver(taxonDescription)
+const positionResolver = zodResolver(taxonPosition)
+const metaTitleResolver = zodResolver(taxonMetaTitle)
+const metaDescriptionResolver = zodResolver(taxonMetaDescription)
+const metaKeywordsResolver = zodResolver(taxonMetaKeywords)
+const imageUrlResolver = zodResolver(taxonImageUrl)
+const squareImageUrlResolver = zodResolver(taxonSquareImageUrl)
+const sortOrderResolver = zodResolver(taxonSortOrder)
+const rulesMatchPolicyResolver = zodResolver(taxonRulesMatchPolicy)
 
 const form = ref<TaxonForm>({
   taxonomyId: (route.query.taxonomyId as string) || '',

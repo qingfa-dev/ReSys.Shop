@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { z } from 'zod'
 import { useConfirm } from 'primevue/useconfirm'
 import Tabs from 'primevue/tabs'
 import TabList from 'primevue/tablist'
@@ -40,21 +39,21 @@ const pageDescription = computed(() =>
 const activeTab = ref('0')
 
 const resolver = zodResolver(productSchema)
-const nameResolver = zodResolver(z.object({ name: productName }))
-const slugResolver = zodResolver(z.object({ slug: productSlug }))
-const descriptionResolver = zodResolver(z.object({ description: productDescription }))
-const metaTitleResolver = zodResolver(z.object({ metaTitle: productMetaTitle }))
-const metaDescriptionResolver = zodResolver(z.object({ metaDescription: productMetaDescription }))
-const metaKeywordsResolver = zodResolver(z.object({ metaKeywords: productMetaKeywords }))
-const availableOnResolver = zodResolver(z.object({ availableOn: productAvailableOn }))
-const discontinueOnResolver = zodResolver(z.object({ discontinueOn: productDiscontinueOn }))
-const styleCodeResolver = zodResolver(z.object({ styleCode: productStyleCode }))
-const seasonNameResolver = zodResolver(z.object({ seasonName: productSeasonName }))
-const materialCompositionResolver = zodResolver(z.object({ materialComposition: productMaterialComposition }))
-const careInstructionsResolver = zodResolver(z.object({ careInstructions: productCareInstructions }))
-const fitNotesResolver = zodResolver(z.object({ fitNotes: productFitNotes }))
-const departmentResolver = zodResolver(z.object({ department: productDepartment }))
-const genderTargetResolver = zodResolver(z.object({ genderTarget: productGenderTarget }))
+const nameResolver = zodResolver(productName)
+const slugResolver = zodResolver(productSlug)
+const descriptionResolver = zodResolver(productDescription)
+const metaTitleResolver = zodResolver(productMetaTitle)
+const metaDescriptionResolver = zodResolver(productMetaDescription)
+const metaKeywordsResolver = zodResolver(productMetaKeywords)
+const availableOnResolver = zodResolver(productAvailableOn)
+const discontinueOnResolver = zodResolver(productDiscontinueOn)
+const styleCodeResolver = zodResolver(productStyleCode)
+const seasonNameResolver = zodResolver(productSeasonName)
+const materialCompositionResolver = zodResolver(productMaterialComposition)
+const careInstructionsResolver = zodResolver(productCareInstructions)
+const fitNotesResolver = zodResolver(productFitNotes)
+const departmentResolver = zodResolver(productDepartment)
+const genderTargetResolver = zodResolver(productGenderTarget)
 
 const form = ref<ProductForm & { status?: string }>({
   name: '',

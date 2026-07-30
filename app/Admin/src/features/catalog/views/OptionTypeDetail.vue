@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { z } from 'zod'
 import { useConfirm } from 'primevue/useconfirm'
 import Tabs from 'primevue/tabs'
 import TabList from 'primevue/tablist'
@@ -41,9 +40,9 @@ const pageDescription = computed(() =>
 const activeTab = ref('0')
 
 const resolver = zodResolver(optionTypeSchema)
-const nameResolver = zodResolver(z.object({ name: optionTypeName }))
-const presentationResolver = zodResolver(z.object({ presentation: optionTypePresentation }))
-const positionResolver = zodResolver(z.object({ position: optionTypePosition }))
+const nameResolver = zodResolver(optionTypeName)
+const presentationResolver = zodResolver(optionTypePresentation)
+const positionResolver = zodResolver(optionTypePosition)
 
 const form = ref<OptionTypeForm>({
   name: '',
