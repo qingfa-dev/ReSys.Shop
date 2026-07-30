@@ -166,9 +166,6 @@ function confirmDeleteTaxon(node: TaxonTreeItem) {
   <PageShell :title="pageTitle">
     <Breadcrumb :model="breadcrumbs" class="mb-4" />
     <Toolbar class="mb-8">
-      <template #start>
-        <h1 class="text-2xl font-bold">{{ pageTitle }}</h1>
-      </template>
       <template #end>
         <Button label="Save" icon="pi pi-check" severity="primary" @click="onSave()" />
         <Button label="Cancel" icon="pi pi-times" severity="secondary" @click="onCancel()" />
