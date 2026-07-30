@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
+import { z } from 'zod'
 import Card from 'primevue/card'
 import Message from 'primevue/message'
 import { Form, FormField } from '@primevue/forms'
@@ -9,7 +10,7 @@ import type { FormSubmitEvent } from '@primevue/forms'
 import { useNotify } from '@/shared/composables/useNotify'
 import { useApiErrorHandler } from '@/shared/composables/useApiErrorHandler'
 import { CountryApi } from '../services/countryApi'
-import { countrySchema } from '../validations/country'
+import { countrySchema, countryName, countryIsoCode, countryCallingCode } from '../validations/country'
 import type { CountryForm } from '../validations/country'
 
 const route = useRoute()
@@ -34,6 +35,9 @@ const form = ref<CountryForm>({
 })
 
 const countryResolver = zodResolver(countrySchema)
+const nameResolver = zodResolver(z.object({ name: countryName }))
+const isoCodeResolver = zodResolver(z.object({ isoCode: countryIsoCode }))
+const callingCodeResolver = zodResolver(z.object({ callingCode: countryCallingCode }))
 const loading = ref(false)
 
 onMounted(async () => {
@@ -98,18 +102,18 @@ function onCancel() {
         <div class="flex flex-col gap-6">
           <div class="font-semibold text-xl">Country Details</div>
           <Form v-slot="$form" :resolver="countryResolver" :initial-values="form" class="flex flex-col gap-4" @submit="onSubmit">
-            <FormField v-slot="$field" name="name" class="flex flex-col gap-1">
+            <FormField v-slot="$field" name="name" :resolver="nameResolver" class="flex flex-col gap-1">
               <label class="text-surface-900 dark:text-surface-0 font-medium">Name <span class="text-red-500">*</span></label>
               <InputText fluid />
               <Message v-if="$field?.invalid" severity="error" size="small" variant="simple">{{ $field.error?.message }}</Message>
             </FormField>
-            <FormField v-slot="$field" name="isoCode" class="flex flex-col gap-1">
+            <FormField v-slot="$field" name="isoCode" :resolver="isoCodeResolver" class="flex flex-col gap-1">
               <label class="text-surface-900 dark:text-surface-0 font-medium">ISO Code <span class="text-red-500">*</span></label>
               <InputText fluid maxlength="3" @update:model-value="(v: any) => $field?.setValue?.((v ?? '').toUpperCase())" />
               <small class="text-muted-color">2-3 uppercase letters (e.g. US, VN)</small>
               <Message v-if="$field?.invalid" severity="error" size="small" variant="simple">{{ $field.error?.message }}</Message>
             </FormField>
-            <FormField v-slot="$field" name="callingCode" class="flex flex-col gap-1">
+            <FormField v-slot="$field" name="callingCode" :resolver="callingCodeResolver" class="flex flex-col gap-1">
               <label class="text-surface-900 dark:text-surface-0 font-medium">Calling Code</label>
               <InputText fluid maxlength="10" />
               <small class="text-muted-color">Optional (e.g. +1, +84)</small>

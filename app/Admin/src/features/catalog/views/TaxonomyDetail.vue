@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
+import { z } from 'zod'
 import { useConfirm } from 'primevue/useconfirm'
 import TreeTable from 'primevue/treetable'
 import Column from 'primevue/column'
@@ -14,7 +15,7 @@ import { useNotify } from '@/shared/composables/useNotify'
 import { useApiErrorHandler } from '@/shared/composables/useApiErrorHandler'
 import { TaxonomyApi } from '../services/taxonomyApi'
 import { TaxonApi } from '../services/taxonApi'
-import { taxonomySchema } from '../validations/taxonomy'
+import { taxonomySchema, taxonomyName, taxonomyPresentation, taxonomyPosition } from '../validations/taxonomy'
 import type { TaxonomyForm } from '../validations/taxonomy'
 import type { TaxonTreeItem } from '../types/taxon'
 
@@ -39,6 +40,9 @@ const form = ref<TaxonomyForm>({
 })
 
 const taxonomyResolver = zodResolver(taxonomySchema)
+const nameResolver = zodResolver(z.object({ name: taxonomyName }))
+const presentationResolver = zodResolver(z.object({ presentation: taxonomyPresentation }))
+const positionResolver = zodResolver(z.object({ position: taxonomyPosition }))
 const saving = ref(false)
 
 const treeNodes = ref<TaxonTreeItem[]>([])
@@ -162,17 +166,17 @@ function confirmDeleteTaxon(node: TaxonTreeItem) {
         <div class="flex flex-col gap-6">
           <div class="font-semibold text-xl">Taxonomy Details</div>
           <Form v-slot="$form" :resolver="taxonomyResolver" :initial-values="form" class="flex flex-col gap-4" @submit="onSubmit">
-            <FormField v-slot="$field" name="name" class="flex flex-col gap-1">
+            <FormField v-slot="$field" name="name" :resolver="nameResolver" class="flex flex-col gap-1">
               <label class="text-surface-900 dark:text-surface-0 font-medium">Name <span class="text-red-500">*</span></label>
               <InputText fluid />
               <Message v-if="$field?.invalid" severity="error" size="small" variant="simple">{{ $field.error?.message }}</Message>
             </FormField>
-            <FormField v-slot="$field" name="presentation" class="flex flex-col gap-1">
+            <FormField v-slot="$field" name="presentation" :resolver="presentationResolver" class="flex flex-col gap-1">
               <label class="text-surface-900 dark:text-surface-0 font-medium">Presentation <span class="text-red-500">*</span></label>
               <InputText fluid />
               <Message v-if="$field?.invalid" severity="error" size="small" variant="simple">{{ $field.error?.message }}</Message>
             </FormField>
-            <FormField v-slot="$field" name="position" class="flex flex-col gap-1">
+            <FormField v-slot="$field" name="position" :resolver="positionResolver" class="flex flex-col gap-1">
               <label class="text-surface-900 dark:text-surface-0 font-medium">Position</label>
               <InputNumber fluid :min="-1" />
               <small class="text-muted-color">Sort order (lower = first)</small>

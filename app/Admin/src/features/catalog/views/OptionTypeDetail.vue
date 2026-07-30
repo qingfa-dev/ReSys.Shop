@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
+import { z } from 'zod'
 import { useConfirm } from 'primevue/useconfirm'
 import Tabs from 'primevue/tabs'
 import TabList from 'primevue/tablist'
@@ -20,7 +21,7 @@ import { useApiErrorHandler } from '@/shared/composables/useApiErrorHandler'
 import { usePagedQuery } from '@/shared/composables/usePagedQuery'
 import { OptionTypeApi } from '../services/optionTypeApi'
 import { OptionValueApi } from '../services/optionValueApi'
-import { optionTypeSchema } from '../validations/optionType'
+import { optionTypeSchema, optionTypeName, optionTypePresentation, optionTypePosition } from '../validations/optionType'
 import type { OptionTypeForm } from '../validations/optionType'
 import type { OptionValueListItem } from '../types/optionValue'
 import { OPTION_VALUE_FILTER_FIELDS, OPTION_VALUE_SORT_FIELDS } from '../types/optionValue'
@@ -40,6 +41,9 @@ const pageDescription = computed(() =>
 const activeTab = ref('0')
 
 const resolver = zodResolver(optionTypeSchema)
+const nameResolver = zodResolver(z.object({ name: optionTypeName }))
+const presentationResolver = zodResolver(z.object({ presentation: optionTypePresentation }))
+const positionResolver = zodResolver(z.object({ position: optionTypePosition }))
 
 const form = ref<OptionTypeForm>({
   name: '',
@@ -209,17 +213,17 @@ function onValueSearch(value: string) {
                 <div class="flex flex-col gap-6">
                   <div class="font-semibold text-xl">Option Type Details</div>
                     <div class="flex flex-col gap-4">
-                      <FormField v-slot="$field" name="name" class="flex flex-col gap-1">
+                      <FormField v-slot="$field" name="name" :resolver="nameResolver" class="flex flex-col gap-1">
                         <label class="text-surface-900 dark:text-surface-0 font-medium">Name <span class="text-red-500">*</span></label>
                         <InputText fluid />
                         <Message v-if="$field?.invalid" severity="error" size="small" variant="simple">{{ $field.error?.message }}</Message>
                       </FormField>
-                      <FormField v-slot="$field" name="presentation" class="flex flex-col gap-1">
+                      <FormField v-slot="$field" name="presentation" :resolver="presentationResolver" class="flex flex-col gap-1">
                         <label class="text-surface-900 dark:text-surface-0 font-medium">Presentation <span class="text-red-500">*</span></label>
                         <InputText fluid />
                         <Message v-if="$field?.invalid" severity="error" size="small" variant="simple">{{ $field.error?.message }}</Message>
                       </FormField>
-                      <FormField v-slot="$field" name="position" class="flex flex-col gap-1">
+                      <FormField v-slot="$field" name="position" :resolver="positionResolver" class="flex flex-col gap-1">
                         <label class="text-surface-900 dark:text-surface-0 font-medium">Position</label>
                         <InputNumber fluid :min="-1" />
                         <Message v-if="$field?.invalid" severity="error" size="small" variant="simple">{{ $field.error?.message }}</Message>

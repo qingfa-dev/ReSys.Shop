@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
+import { z } from 'zod'
 import { useConfirm } from 'primevue/useconfirm'
 import Tabs from 'primevue/tabs'
 import TabList from 'primevue/tablist'
@@ -20,7 +21,7 @@ import { ProductOptionTypeApi } from '../services/productOptionTypeApi'
 import type { OptionTypeAssignment } from '../services/productOptionTypeApi'
 import { ProductClassificationApi } from '../services/productClassificationApi'
 import type { ClassificationAssignment } from '../services/productClassificationApi'
-import { productSchema } from '../validations/product'
+import { productSchema, productName, productSlug, productDescription, productMetaTitle, productMetaDescription, productMetaKeywords, productAvailableOn, productDiscontinueOn, productStyleCode, productSeasonName, productMaterialComposition, productCareInstructions, productFitNotes, productDepartment, productGenderTarget } from '../validations/product'
 import type { ProductForm } from '../validations/product'
 
 const route = useRoute()
@@ -39,6 +40,21 @@ const pageDescription = computed(() =>
 const activeTab = ref('0')
 
 const resolver = zodResolver(productSchema)
+const nameResolver = zodResolver(z.object({ name: productName }))
+const slugResolver = zodResolver(z.object({ slug: productSlug }))
+const descriptionResolver = zodResolver(z.object({ description: productDescription }))
+const metaTitleResolver = zodResolver(z.object({ metaTitle: productMetaTitle }))
+const metaDescriptionResolver = zodResolver(z.object({ metaDescription: productMetaDescription }))
+const metaKeywordsResolver = zodResolver(z.object({ metaKeywords: productMetaKeywords }))
+const availableOnResolver = zodResolver(z.object({ availableOn: productAvailableOn }))
+const discontinueOnResolver = zodResolver(z.object({ discontinueOn: productDiscontinueOn }))
+const styleCodeResolver = zodResolver(z.object({ styleCode: productStyleCode }))
+const seasonNameResolver = zodResolver(z.object({ seasonName: productSeasonName }))
+const materialCompositionResolver = zodResolver(z.object({ materialComposition: productMaterialComposition }))
+const careInstructionsResolver = zodResolver(z.object({ careInstructions: productCareInstructions }))
+const fitNotesResolver = zodResolver(z.object({ fitNotes: productFitNotes }))
+const departmentResolver = zodResolver(z.object({ department: productDepartment }))
+const genderTargetResolver = zodResolver(z.object({ genderTarget: productGenderTarget }))
 
 const form = ref<ProductForm & { status?: string }>({
   name: '',
@@ -259,17 +275,17 @@ function onCancel() {
                 <div class="flex flex-col gap-6">
                   <div class="font-semibold text-xl">Product Details</div>
                     <div class="flex flex-col gap-4">
-                      <FormField v-slot="$field" name="name" class="flex flex-col gap-1">
+                      <FormField v-slot="$field" name="name" :resolver="nameResolver" class="flex flex-col gap-1">
                         <label class="text-surface-900 dark:text-surface-0 font-medium">Name <span class="text-red-500">*</span></label>
                         <InputText fluid />
                         <Message v-if="$field?.invalid" severity="error" size="small" variant="simple">{{ $field.error?.message }}</Message>
                       </FormField>
-                      <FormField v-slot="$field" name="slug" class="flex flex-col gap-1">
+                      <FormField v-slot="$field" name="slug" :resolver="slugResolver" class="flex flex-col gap-1">
                         <label class="text-surface-900 dark:text-surface-0 font-medium">Slug <span class="text-red-500">*</span></label>
                         <InputText fluid />
                         <Message v-if="$field?.invalid" severity="error" size="small" variant="simple">{{ $field.error?.message }}</Message>
                       </FormField>
-                      <FormField v-slot="$field" name="description" class="flex flex-col gap-1">
+                      <FormField v-slot="$field" name="description" :resolver="descriptionResolver" class="flex flex-col gap-1">
                         <label class="text-surface-900 dark:text-surface-0 font-medium">Description</label>
                         <Textarea fluid rows="4" />
                         <Message v-if="$field?.invalid" severity="error" size="small" variant="simple">{{ $field.error?.message }}</Message>
@@ -290,17 +306,17 @@ function onCancel() {
                 <div class="flex flex-col gap-6">
                   <div class="font-semibold text-xl">Search Engine Optimization</div>
                     <div class="flex flex-col gap-4">
-                      <FormField v-slot="$field" name="metaTitle" class="flex flex-col gap-1">
+                      <FormField v-slot="$field" name="metaTitle" :resolver="metaTitleResolver" class="flex flex-col gap-1">
                         <label class="text-surface-900 dark:text-surface-0 font-medium">Meta Title</label>
                         <InputText fluid />
                         <Message v-if="$field?.invalid" severity="error" size="small" variant="simple">{{ $field.error?.message }}</Message>
                       </FormField>
-                      <FormField v-slot="$field" name="metaDescription" class="flex flex-col gap-1">
+                      <FormField v-slot="$field" name="metaDescription" :resolver="metaDescriptionResolver" class="flex flex-col gap-1">
                         <label class="text-surface-900 dark:text-surface-0 font-medium">Meta Description</label>
                         <Textarea fluid rows="3" />
                         <Message v-if="$field?.invalid" severity="error" size="small" variant="simple">{{ $field.error?.message }}</Message>
                       </FormField>
-                      <FormField v-slot="$field" name="metaKeywords" class="flex flex-col gap-1">
+                      <FormField v-slot="$field" name="metaKeywords" :resolver="metaKeywordsResolver" class="flex flex-col gap-1">
                         <label class="text-surface-900 dark:text-surface-0 font-medium">Meta Keywords</label>
                         <InputText fluid />
                         <Message v-if="$field?.invalid" severity="error" size="small" variant="simple">{{ $field.error?.message }}</Message>
@@ -317,38 +333,38 @@ function onCancel() {
                 <div class="flex flex-col gap-6">
                   <div class="font-semibold text-xl">Fashion Attributes</div>
                     <div class="grid grid-cols-2 gap-4">
-                      <FormField v-slot="$field" name="styleCode" class="flex flex-col gap-1">
+                      <FormField v-slot="$field" name="styleCode" :resolver="styleCodeResolver" class="flex flex-col gap-1">
                         <label class="text-surface-900 dark:text-surface-0 font-medium">Style Code</label>
                         <InputText fluid />
                         <Message v-if="$field?.invalid" severity="error" size="small" variant="simple">{{ $field.error?.message }}</Message>
                       </FormField>
-                      <FormField v-slot="$field" name="seasonName" class="flex flex-col gap-1">
+                      <FormField v-slot="$field" name="seasonName" :resolver="seasonNameResolver" class="flex flex-col gap-1">
                         <label class="text-surface-900 dark:text-surface-0 font-medium">Season</label>
                         <InputText fluid />
                         <Message v-if="$field?.invalid" severity="error" size="small" variant="simple">{{ $field.error?.message }}</Message>
                       </FormField>
-                      <FormField v-slot="$field" name="department" class="flex flex-col gap-1">
+                      <FormField v-slot="$field" name="department" :resolver="departmentResolver" class="flex flex-col gap-1">
                         <label class="text-surface-900 dark:text-surface-0 font-medium">Department</label>
                         <InputText fluid />
                         <Message v-if="$field?.invalid" severity="error" size="small" variant="simple">{{ $field.error?.message }}</Message>
                       </FormField>
-                      <FormField v-slot="$field" name="genderTarget" class="flex flex-col gap-1">
+                      <FormField v-slot="$field" name="genderTarget" :resolver="genderTargetResolver" class="flex flex-col gap-1">
                         <label class="text-surface-900 dark:text-surface-0 font-medium">Gender Target</label>
                         <InputText fluid />
                         <Message v-if="$field?.invalid" severity="error" size="small" variant="simple">{{ $field.error?.message }}</Message>
                       </FormField>
                     </div>
-                    <FormField v-slot="$field" name="materialComposition" class="flex flex-col gap-1">
+                    <FormField v-slot="$field" name="materialComposition" :resolver="materialCompositionResolver" class="flex flex-col gap-1">
                       <label class="text-surface-900 dark:text-surface-0 font-medium">Material Composition</label>
                       <Textarea fluid rows="2" />
                       <Message v-if="$field?.invalid" severity="error" size="small" variant="simple">{{ $field.error?.message }}</Message>
                     </FormField>
-                    <FormField v-slot="$field" name="careInstructions" class="flex flex-col gap-1">
+                    <FormField v-slot="$field" name="careInstructions" :resolver="careInstructionsResolver" class="flex flex-col gap-1">
                       <label class="text-surface-900 dark:text-surface-0 font-medium">Care Instructions</label>
                       <Textarea fluid rows="2" />
                       <Message v-if="$field?.invalid" severity="error" size="small" variant="simple">{{ $field.error?.message }}</Message>
                     </FormField>
-                    <FormField v-slot="$field" name="fitNotes" class="flex flex-col gap-1">
+                    <FormField v-slot="$field" name="fitNotes" :resolver="fitNotesResolver" class="flex flex-col gap-1">
                       <label class="text-surface-900 dark:text-surface-0 font-medium">Fit Notes</label>
                       <Textarea fluid rows="2" />
                       <Message v-if="$field?.invalid" severity="error" size="small" variant="simple">{{ $field.error?.message }}</Message>
@@ -364,11 +380,11 @@ function onCancel() {
                 <div class="flex flex-col gap-6">
                   <div class="font-semibold text-xl">Availability</div>
                     <div class="flex flex-col gap-4">
-                      <FormField v-slot="$field" name="availableOn" class="flex flex-col gap-1">
+                      <FormField v-slot="$field" name="availableOn" :resolver="availableOnResolver" class="flex flex-col gap-1">
                         <label class="text-surface-900 dark:text-surface-0 font-medium">Available On</label>
                         <InputText fluid type="date" />
                       </FormField>
-                      <FormField v-slot="$field" name="discontinueOn" class="flex flex-col gap-1">
+                      <FormField v-slot="$field" name="discontinueOn" :resolver="discontinueOnResolver" class="flex flex-col gap-1">
                         <label class="text-surface-900 dark:text-surface-0 font-medium">Discontinue On</label>
                         <InputText fluid type="date" />
                       </FormField>

@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
+import { z } from 'zod'
 import { useConfirm } from 'primevue/useconfirm'
 import Tabs from 'primevue/tabs'
 import TabList from 'primevue/tablist'
@@ -21,7 +22,7 @@ import { usePagedQuery } from '@/shared/composables/usePagedQuery'
 import { useTaxonomyStore } from '../stores/taxonomyStore'
 import { TaxonApi } from '../services/taxonApi'
 import { TaxonRuleApi } from '../services/taxonRuleApi'
-import { taxonSchema } from '../validations/taxon'
+import { taxonSchema, taxonTaxonomyId, taxonParentId, taxonName, taxonPresentation, taxonSlug, taxonDescription, taxonPosition, taxonMetaTitle, taxonMetaDescription, taxonMetaKeywords, taxonImageUrl, taxonSquareImageUrl, taxonSortOrder, taxonRulesMatchPolicy } from '../validations/taxon'
 import type { TaxonForm } from '../validations/taxon'
 import type { TaxonRuleListItem } from '../types/taxonRule'
 import { TAXON_SORT_ORDERS, TAXON_MATCH_POLICIES } from '../types/taxon'
@@ -44,6 +45,20 @@ const pageDescription = computed(() =>
 const activeTab = ref('0')
 
 const resolver = zodResolver(taxonSchema)
+const taxonomyIdResolver = zodResolver(z.object({ taxonomyId: taxonTaxonomyId }))
+const parentIdResolver = zodResolver(z.object({ parentId: taxonParentId }))
+const nameResolver = zodResolver(z.object({ name: taxonName }))
+const presentationResolver = zodResolver(z.object({ presentation: taxonPresentation }))
+const slugResolver = zodResolver(z.object({ slug: taxonSlug }))
+const descriptionResolver = zodResolver(z.object({ description: taxonDescription }))
+const positionResolver = zodResolver(z.object({ position: taxonPosition }))
+const metaTitleResolver = zodResolver(z.object({ metaTitle: taxonMetaTitle }))
+const metaDescriptionResolver = zodResolver(z.object({ metaDescription: taxonMetaDescription }))
+const metaKeywordsResolver = zodResolver(z.object({ metaKeywords: taxonMetaKeywords }))
+const imageUrlResolver = zodResolver(z.object({ imageUrl: taxonImageUrl }))
+const squareImageUrlResolver = zodResolver(z.object({ squareImageUrl: taxonSquareImageUrl }))
+const sortOrderResolver = zodResolver(z.object({ sortOrder: taxonSortOrder }))
+const rulesMatchPolicyResolver = zodResolver(z.object({ rulesMatchPolicy: taxonRulesMatchPolicy }))
 
 const form = ref<TaxonForm>({
   taxonomyId: (route.query.taxonomyId as string) || '',
@@ -271,36 +286,36 @@ function confirmDeleteRule(rule: TaxonRuleListItem) {
                 <div class="flex flex-col gap-6">
                   <div class="font-semibold text-xl">General</div>
                     <div class="flex flex-col gap-4">
-                      <FormField v-slot="$field" name="taxonomyId" class="flex flex-col gap-1">
+                      <FormField v-slot="$field" name="taxonomyId" :resolver="taxonomyIdResolver" class="flex flex-col gap-1">
                         <label class="text-surface-900 dark:text-surface-0 font-medium">Taxonomy <span class="text-red-500">*</span></label>
                         <Select :options="taxonomyStore.activeTaxonomies" option-label="name" option-value="id" fluid :disabled="!isEdit && !!route.query.taxonomyId" />
                         <Message v-if="$field?.invalid" severity="error" size="small" variant="simple">{{ $field.error?.message }}</Message>
                       </FormField>
-                      <FormField v-slot="$field" name="parentId" class="flex flex-col gap-1">
+                      <FormField v-slot="$field" name="parentId" :resolver="parentIdResolver" class="flex flex-col gap-1">
                         <label class="text-surface-900 dark:text-surface-0 font-medium">Parent</label>
                         <Select :options="parentOptions" option-label="label" option-value="value" fluid show-clear />
                       </FormField>
-                      <FormField v-slot="$field" name="name" class="flex flex-col gap-1">
+                      <FormField v-slot="$field" name="name" :resolver="nameResolver" class="flex flex-col gap-1">
                         <label class="text-surface-900 dark:text-surface-0 font-medium">Name <span class="text-red-500">*</span></label>
                         <InputText fluid />
                         <Message v-if="$field?.invalid" severity="error" size="small" variant="simple">{{ $field.error?.message }}</Message>
                       </FormField>
-                      <FormField v-slot="$field" name="presentation" class="flex flex-col gap-1">
+                      <FormField v-slot="$field" name="presentation" :resolver="presentationResolver" class="flex flex-col gap-1">
                         <label class="text-surface-900 dark:text-surface-0 font-medium">Presentation <span class="text-red-500">*</span></label>
                         <InputText fluid />
                         <Message v-if="$field?.invalid" severity="error" size="small" variant="simple">{{ $field.error?.message }}</Message>
                       </FormField>
-                      <FormField v-slot="$field" name="slug" class="flex flex-col gap-1">
+                      <FormField v-slot="$field" name="slug" :resolver="slugResolver" class="flex flex-col gap-1">
                         <label class="text-surface-900 dark:text-surface-0 font-medium">Slug <span class="text-red-500">*</span></label>
                         <InputText fluid />
                         <Message v-if="$field?.invalid" severity="error" size="small" variant="simple">{{ $field.error?.message }}</Message>
                       </FormField>
-                      <FormField v-slot="$field" name="description" class="flex flex-col gap-1">
+                      <FormField v-slot="$field" name="description" :resolver="descriptionResolver" class="flex flex-col gap-1">
                         <label class="text-surface-900 dark:text-surface-0 font-medium">Description</label>
                         <Textarea fluid rows="3" />
                         <Message v-if="$field?.invalid" severity="error" size="small" variant="simple">{{ $field.error?.message }}</Message>
                       </FormField>
-                      <FormField v-slot="$field" name="position" class="flex flex-col gap-1">
+                      <FormField v-slot="$field" name="position" :resolver="positionResolver" class="flex flex-col gap-1">
                         <label class="text-surface-900 dark:text-surface-0 font-medium">Position</label>
                         <InputNumber fluid :min="-1" />
                         <Message v-if="$field?.invalid" severity="error" size="small" variant="simple">{{ $field.error?.message }}</Message>
@@ -317,7 +332,7 @@ function confirmDeleteRule(rule: TaxonRuleListItem) {
                 <div class="flex flex-col gap-6">
                   <div class="font-semibold text-xl">Settings</div>
                     <div class="flex flex-col gap-4">
-                      <FormField v-slot="$field" name="sortOrder" class="flex flex-col gap-1">
+                      <FormField v-slot="$field" name="sortOrder" :resolver="sortOrderResolver" class="flex flex-col gap-1">
                         <label class="text-surface-900 dark:text-surface-0 font-medium">Sort Order</label>
                         <Select :options="TAXON_SORT_ORDERS" fluid />
                       </FormField>
@@ -329,7 +344,7 @@ function confirmDeleteRule(rule: TaxonRuleListItem) {
                         <label class="text-surface-900 dark:text-surface-0 font-medium">Automatic Classification</label>
                         <ToggleSwitch />
                       </FormField>
-                      <FormField v-slot="$field" name="rulesMatchPolicy" class="flex flex-col gap-1">
+                      <FormField v-slot="$field" name="rulesMatchPolicy" :resolver="rulesMatchPolicyResolver" class="flex flex-col gap-1">
                         <label class="text-surface-900 dark:text-surface-0 font-medium">Rules Match Policy</label>
                         <Select :options="TAXON_MATCH_POLICIES" fluid />
                       </FormField>
@@ -345,17 +360,17 @@ function confirmDeleteRule(rule: TaxonRuleListItem) {
                 <div class="flex flex-col gap-6">
                   <div class="font-semibold text-xl">SEO</div>
                     <div class="flex flex-col gap-4">
-                      <FormField v-slot="$field" name="metaTitle" class="flex flex-col gap-1">
+                      <FormField v-slot="$field" name="metaTitle" :resolver="metaTitleResolver" class="flex flex-col gap-1">
                         <label class="text-surface-900 dark:text-surface-0 font-medium">Meta Title</label>
                         <InputText fluid />
                         <Message v-if="$field?.invalid" severity="error" size="small" variant="simple">{{ $field.error?.message }}</Message>
                       </FormField>
-                      <FormField v-slot="$field" name="metaDescription" class="flex flex-col gap-1">
+                      <FormField v-slot="$field" name="metaDescription" :resolver="metaDescriptionResolver" class="flex flex-col gap-1">
                         <label class="text-surface-900 dark:text-surface-0 font-medium">Meta Description</label>
                         <Textarea fluid rows="3" />
                         <Message v-if="$field?.invalid" severity="error" size="small" variant="simple">{{ $field.error?.message }}</Message>
                       </FormField>
-                      <FormField v-slot="$field" name="metaKeywords" class="flex flex-col gap-1">
+                      <FormField v-slot="$field" name="metaKeywords" :resolver="metaKeywordsResolver" class="flex flex-col gap-1">
                         <label class="text-surface-900 dark:text-surface-0 font-medium">Meta Keywords</label>
                         <InputText fluid />
                         <Message v-if="$field?.invalid" severity="error" size="small" variant="simple">{{ $field.error?.message }}</Message>
@@ -372,12 +387,12 @@ function confirmDeleteRule(rule: TaxonRuleListItem) {
                 <div class="flex flex-col gap-6">
                   <div class="font-semibold text-xl">Images</div>
                     <div class="flex flex-col gap-4">
-                      <FormField v-slot="$field" name="imageUrl" class="flex flex-col gap-1">
+                      <FormField v-slot="$field" name="imageUrl" :resolver="imageUrlResolver" class="flex flex-col gap-1">
                         <label class="text-surface-900 dark:text-surface-0 font-medium">Image URL</label>
                         <InputText fluid />
                         <Message v-if="$field?.invalid" severity="error" size="small" variant="simple">{{ $field.error?.message }}</Message>
                       </FormField>
-                      <FormField v-slot="$field" name="squareImageUrl" class="flex flex-col gap-1">
+                      <FormField v-slot="$field" name="squareImageUrl" :resolver="squareImageUrlResolver" class="flex flex-col gap-1">
                         <label class="text-surface-900 dark:text-surface-0 font-medium">Square Image URL</label>
                         <InputText fluid />
                         <Message v-if="$field?.invalid" severity="error" size="small" variant="simple">{{ $field.error?.message }}</Message>

@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
+import { z } from 'zod'
 import Card from 'primevue/card'
 import Message from 'primevue/message'
 import { Form, FormField } from '@primevue/forms'
@@ -10,7 +11,7 @@ import { useNotify } from '@/shared/composables/useNotify'
 import { useApiErrorHandler } from '@/shared/composables/useApiErrorHandler'
 import { StateApi } from '../services/stateApi'
 import { useCountryStore } from '../stores/countryStore'
-import { stateSchema } from '../validations/state'
+import { stateSchema, stateName, stateAbbreviation, stateCountryId } from '../validations/state'
 import type { StateForm } from '../validations/state'
 
 const route = useRoute()
@@ -35,6 +36,9 @@ const form = ref<StateForm>({
 })
 
 const stateResolver = zodResolver(stateSchema)
+const nameResolver = zodResolver(z.object({ name: stateName }))
+const abbreviationResolver = zodResolver(z.object({ abbreviation: stateAbbreviation }))
+const countryIdResolver = zodResolver(z.object({ countryId: stateCountryId }))
 const loading = ref(false)
 
 onMounted(async () => {
@@ -99,18 +103,18 @@ function onCancel() {
         <div class="flex flex-col gap-6">
           <div class="font-semibold text-xl">State Details</div>
           <Form v-slot="$form" :resolver="stateResolver" :initial-values="form" class="flex flex-col gap-4" @submit="onSubmit">
-            <FormField v-slot="$field" name="name" class="flex flex-col gap-1">
+            <FormField v-slot="$field" name="name" :resolver="nameResolver" class="flex flex-col gap-1">
               <label class="text-surface-900 dark:text-surface-0 font-medium">Name <span class="text-red-500">*</span></label>
               <InputText fluid />
               <Message v-if="$field?.invalid" severity="error" size="small" variant="simple">{{ $field.error?.message }}</Message>
             </FormField>
-            <FormField v-slot="$field" name="abbreviation" class="flex flex-col gap-1">
+            <FormField v-slot="$field" name="abbreviation" :resolver="abbreviationResolver" class="flex flex-col gap-1">
               <label class="text-surface-900 dark:text-surface-0 font-medium">Abbreviation <span class="text-red-500">*</span></label>
               <InputText fluid maxlength="10" />
               <small class="text-muted-color">Short code (e.g. CA, NY, TX)</small>
               <Message v-if="$field?.invalid" severity="error" size="small" variant="simple">{{ $field.error?.message }}</Message>
             </FormField>
-            <FormField v-slot="$field" name="countryId" class="flex flex-col gap-1">
+            <FormField v-slot="$field" name="countryId" :resolver="countryIdResolver" class="flex flex-col gap-1">
               <label class="text-surface-900 dark:text-surface-0 font-medium">Country <span class="text-red-500">*</span></label>
               <Select :options="countryStore.activeCountries" option-label="name" option-value="id" placeholder="Select a country" fluid />
               <Message v-if="$field?.invalid" severity="error" size="small" variant="simple">{{ $field.error?.message }}</Message>
