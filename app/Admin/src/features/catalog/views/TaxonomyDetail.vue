@@ -4,9 +4,6 @@ import { useRoute, useRouter } from 'vue-router'
 import { useConfirm } from 'primevue/useconfirm'
 import TreeTable from 'primevue/treetable'
 import Column from 'primevue/column'
-import Breadcrumb from 'primevue/breadcrumb'
-import Toolbar from 'primevue/toolbar'
-import Card from 'primevue/card'
 import Plus from '@primeicons/vue/plus'
 import { PageShell } from '@panel'
 import { FormSection, FormField } from '@form'
@@ -26,11 +23,11 @@ const { handleResult } = useApiErrorHandler()
 
 const isEdit = computed(() => !!route.params.id && route.params.id !== 'new')
 const pageTitle = computed(() => isEdit.value ? 'Edit Taxonomy' : 'New Taxonomy')
-const breadcrumbs = computed(() => [
-  { label: 'Home', to: '/' },
-  { label: 'Taxonomies', to: '/catalog/taxonomies' },
-  { label: pageTitle.value },
-])
+const pageDescription = computed(() =>
+  isEdit.value
+    ? 'Edit the details of the taxonomy.'
+    : 'Create a new taxonomy by filling out the form below.',
+)
 
 const form = ref<TaxonomyForm>({
   name: '',
@@ -163,41 +160,37 @@ function confirmDeleteTaxon(node: TaxonTreeItem) {
 </script>
 
 <template>
-  <PageShell :title="pageTitle">
-    <Breadcrumb :model="breadcrumbs" class="mb-4" />
-    <Toolbar class="mb-8">
-      <template #end>
-        <Button label="Save" icon="pi pi-check" severity="primary" @click="onSave()" />
-        <Button label="Cancel" icon="pi pi-times" severity="secondary" @click="onCancel()" />
-      </template>
-    </Toolbar>
+  <PageShell :title="pageTitle" :description="pageDescription">
+    <!-- Page actions -->
+    <div class="flex justify-end gap-2 mb-8">
+      <Button label="Save" icon="pi pi-check" severity="primary" @click="onSave()" />
+      <Button label="Cancel" icon="pi pi-times" severity="secondary" @click="onCancel()" />
+    </div>
 
+    <!-- Form section -->
     <FormSection title="Taxonomy Details">
-      <FormField label="Name" :required="true" :invalid="!!fieldErrors.name">
-        <InputText v-model="form.name" fluid class="w-full" />
+      <FormField label="Name" :required="true" :invalid="!!fieldErrors.name" class="mb-4">
+        <InputText v-model="form.name" fluid />
         <small v-if="fieldErrors.name" class="text-red-500">{{ fieldErrors.name }}</small>
       </FormField>
-      <FormField label="Presentation" :required="true" :invalid="!!fieldErrors.presentation">
-        <InputText v-model="form.presentation" fluid class="w-full" />
+      <FormField label="Presentation" :required="true" :invalid="!!fieldErrors.presentation" class="mb-4">
+        <InputText v-model="form.presentation" fluid />
         <small v-if="fieldErrors.presentation" class="text-red-500">{{ fieldErrors.presentation }}</small>
       </FormField>
       <FormField label="Position" :invalid="!!fieldErrors.position" help-text="Sort order (lower = first)">
-        <InputNumber v-model="form.position" fluid :min="-1" class="w-full" />
+        <InputNumber v-model="form.position" fluid :min="-1" />
         <small v-if="fieldErrors.position" class="text-red-500">{{ fieldErrors.position }}</small>
       </FormField>
     </FormSection>
 
-    <Card v-if="isEdit">
-      <template #content>
-        <Toolbar>
-          <template #start>
-            <Button label="Add Taxon" severity="secondary" @click="navigateToCreateTaxon()">
-              <Plus />
-            </Button>
-          </template>
-        </Toolbar>
+    <!-- Child entity: Taxons tree -->
+    <Toolbar v-if="isEdit" class="mb-4">
+      <template #start>
+        <Button label="Add Taxon" severity="secondary" @click="navigateToCreateTaxon()">
+          <Plus />
+        </Button>
       </template>
-    </Card>
+    </Toolbar>
 
     <TreeTable
       v-if="isEdit"

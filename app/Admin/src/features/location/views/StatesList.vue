@@ -2,7 +2,6 @@
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useConfirm } from 'primevue/useconfirm'
-import Card from 'primevue/card'
 import DataTable from 'primevue/datatable'
 import Column from 'primevue/column'
 import Toolbar from 'primevue/toolbar'
@@ -112,9 +111,8 @@ function confirmDelete() {
 
 <template>
   <PageShell title="States" description="Manage states and provinces for countries">
-    <Card>
-      <template #content>
-        <Toolbar>
+    <!-- Toolbar -->
+    <Toolbar class="mb-4">
           <template #start>
             <Button label="New State" severity="secondary" class="mr-2" @click="navigateToNew">
               <Plus />
@@ -129,8 +127,6 @@ function confirmDelete() {
             </Button>
           </template>
         </Toolbar>
-      </template>
-    </Card>
 
     <DataTable
       ref="dt"

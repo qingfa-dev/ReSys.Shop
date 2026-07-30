@@ -2,7 +2,6 @@
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useConfirm } from 'primevue/useconfirm'
-import Card from 'primevue/card'
 import DataTable from 'primevue/datatable'
 import Column from 'primevue/column'
 import Toolbar from 'primevue/toolbar'
@@ -100,26 +99,24 @@ function confirmDelete() {
 
 <template>
   <PageShell title="Products" description="Manage the product catalog">
-    <Card>
-      <template #content>
-        <Toolbar>
-          <template #start>
-            <Button label="New" severity="secondary" class="mr-2" @click="navigateToNew">
-              <Plus />
-            </Button>
-            <Button label="Delete" severity="secondary" :disabled="selectedItems.length === 0" @click="confirmDelete">
-              <Trash />
-            </Button>
-          </template>
-          <template #end>
-            <Button label="Export" severity="secondary" @click="exportCSV">
-              <Upload />
-            </Button>
-          </template>
-        </Toolbar>
+    <!-- Toolbar -->
+    <Toolbar class="mb-4">
+      <template #start>
+        <Button label="New" severity="secondary" class="mr-2" @click="navigateToNew">
+          <Plus />
+        </Button>
+        <Button label="Delete" severity="secondary" :disabled="selectedItems.length === 0" @click="confirmDelete">
+          <Trash />
+        </Button>
       </template>
-    </Card>
+      <template #end>
+        <Button label="Export" severity="secondary" @click="exportCSV">
+          <Upload />
+        </Button>
+      </template>
+    </Toolbar>
 
+    <!-- Data table -->
     <DataTable
       ref="dt"
       v-model:selection="selectedItems"

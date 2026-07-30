@@ -1,8 +1,6 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import Breadcrumb from 'primevue/breadcrumb'
-import Toolbar from 'primevue/toolbar'
 import { PageShell } from '@panel'
 import { FormSection, FormField } from '@form'
 import { useNotify } from '@/shared/composables/useNotify'
@@ -18,11 +16,11 @@ const { handleResult } = useApiErrorHandler()
 
 const isEdit = computed(() => !!route.params.id && route.params.id !== 'new')
 const pageTitle = computed(() => isEdit.value ? 'Edit Country' : 'New Country')
-const breadcrumbs = computed(() => [
-  { label: 'Home', to: '/' },
-  { label: 'Countries', to: '/location/countries' },
-  { label: pageTitle.value },
-])
+const pageDescription = computed(() =>
+  isEdit.value
+    ? 'Edit the details of the country.'
+    : 'Create a new country by filling out the form below.',
+)
 
 const form = ref<CountryForm>({
   name: '',
@@ -102,28 +100,28 @@ function onCancel() {
 </script>
 
 <template>
-  <PageShell :title="pageTitle">
-    <Breadcrumb :model="breadcrumbs" class="mb-4" />
-    <Toolbar class="mb-8">
-      <template #end>
-        <Button label="Save" icon="pi pi-check" severity="primary" @click="onSave()" />
-        <Button label="Cancel" icon="pi pi-times" severity="secondary" @click="onCancel()" />
-      </template>
-    </Toolbar>
+  <PageShell :title="pageTitle" :description="pageDescription">
+    <!-- Page actions -->
+    <div class="flex justify-end gap-2 mb-8">
+      <Button label="Save" icon="pi pi-check" severity="primary" @click="onSave()" />
+      <Button label="Cancel" icon="pi pi-times" severity="secondary" @click="onCancel()" />
+    </div>
+
+    <!-- Form section -->
     <FormSection title="Country Details">
-      <FormField label="Name" :required="true" :invalid="!!fieldErrors.name">
-        <InputText v-model="form.name" fluid class="w-full" />
+      <FormField label="Name" :required="true" :invalid="!!fieldErrors.name" class="mb-4">
+        <InputText v-model="form.name" fluid />
         <small v-if="fieldErrors.name" class="text-red-500">{{ fieldErrors.name }}</small>
       </FormField>
-      <FormField label="ISO Code" :required="true" :invalid="!!fieldErrors.isoCode" help-text="2-3 uppercase letters (e.g. US, VN)">
-        <InputText v-model="form.isoCode" fluid maxlength="3" class="w-full" @update:model-value="(v: string | undefined) => onIsoCodeInput(v)" />
+      <FormField label="ISO Code" :required="true" :invalid="!!fieldErrors.isoCode" help-text="2-3 uppercase letters (e.g. US, VN)" class="mb-4">
+        <InputText v-model="form.isoCode" fluid maxlength="3" @update:model-value="(v: string | undefined) => onIsoCodeInput(v)" />
         <small v-if="fieldErrors.isoCode" class="text-red-500">{{ fieldErrors.isoCode }}</small>
       </FormField>
-      <FormField label="Calling Code" :invalid="!!fieldErrors.callingCode" help-text="Optional (e.g. +1, +84)">
-        <InputText v-model="form.callingCode" fluid maxlength="10" class="w-full" />
+      <FormField label="Calling Code" :invalid="!!fieldErrors.callingCode" help-text="Optional (e.g. +1, +84)" class="mb-4">
+        <InputText v-model="form.callingCode" fluid maxlength="10" />
         <small v-if="fieldErrors.callingCode" class="text-red-500">{{ fieldErrors.callingCode }}</small>
       </FormField>
-      <FormField label="States Required">
+      <FormField label="States Required" class="mb-4">
         <ToggleSwitch v-model="form.statesRequired" />
       </FormField>
       <FormField label="Active">

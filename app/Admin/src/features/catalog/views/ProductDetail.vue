@@ -8,8 +8,6 @@ import Tab from 'primevue/tab'
 import TabPanels from 'primevue/tabpanels'
 import TabPanel from 'primevue/tabpanel'
 import PickList from 'primevue/picklist'
-import Breadcrumb from 'primevue/breadcrumb'
-import Toolbar from 'primevue/toolbar'
 import { PageShell } from '@panel'
 import { FormSection, FormField } from '@form'
 import { useNotify } from '@/shared/composables/useNotify'
@@ -30,11 +28,11 @@ const { handleResult } = useApiErrorHandler()
 
 const isEdit = computed(() => !!route.params.id && route.params.id !== 'new')
 const pageTitle = computed(() => isEdit.value ? 'Edit Product' : 'New Product')
-const breadcrumbs = computed(() => [
-  { label: 'Home', to: '/' },
-  { label: 'Products', to: '/catalog/products' },
-  { label: pageTitle.value },
-])
+const pageDescription = computed(() =>
+  isEdit.value
+    ? 'Edit the details of the product.'
+    : 'Create a new product by filling out the form below.',
+)
 const activeTab = ref('0')
 
 const form = ref<ProductForm & { status?: string }>({
@@ -244,15 +242,14 @@ function onCancel() {
 </script>
 
 <template>
-  <PageShell :title="pageTitle">
-    <Breadcrumb :model="breadcrumbs" class="mb-4" />
-    <Toolbar class="mb-8">
-      <template #end>
-        <Button label="Save" icon="pi pi-check" severity="primary" @click="onSave()" />
-        <Button label="Cancel" icon="pi pi-times" severity="secondary" @click="onCancel()" />
-      </template>
-    </Toolbar>
+  <PageShell :title="pageTitle" :description="pageDescription">
+    <!-- Page actions -->
+    <div class="flex justify-end gap-2 mb-8">
+      <Button label="Save" icon="pi pi-check" severity="primary" @click="onSave()" />
+      <Button label="Cancel" icon="pi pi-times" severity="secondary" @click="onCancel()" />
+    </div>
 
+    <!-- Tabs -->
     <Tabs v-model:value="activeTab">
       <TabList>
         <Tab value="0">General</Tab>
@@ -266,16 +263,17 @@ function onCancel() {
       <TabPanels>
         <TabPanel value="0">
           <FormSection title="Product Details">
-            <FormField label="Name" :required="true" :invalid="!!fieldErrors.name">
-              <InputText v-model="form.name" fluid class="w-full" />
+            <!-- Tab 0: General -->
+            <FormField label="Name" :required="true" :invalid="!!fieldErrors.name" class="mb-4">
+              <InputText v-model="form.name" fluid />
               <small v-if="fieldErrors.name" class="text-red-500">{{ fieldErrors.name }}</small>
             </FormField>
-            <FormField label="Slug" :required="true" :invalid="!!fieldErrors.slug" help-text="Lowercase alphanumeric with hyphens">
-              <InputText v-model="form.slug" fluid class="w-full" />
+            <FormField label="Slug" :required="true" :invalid="!!fieldErrors.slug" help-text="Lowercase alphanumeric with hyphens" class="mb-4">
+              <InputText v-model="form.slug" fluid />
               <small v-if="fieldErrors.slug" class="text-red-500">{{ fieldErrors.slug }}</small>
             </FormField>
-            <FormField label="Description" :invalid="!!fieldErrors.description">
-              <Textarea v-model="form.description" fluid class="w-full" rows="4" />
+            <FormField label="Description" :invalid="!!fieldErrors.description" class="mb-4">
+              <Textarea v-model="form.description" fluid rows="4" />
               <small v-if="fieldErrors.description" class="text-red-500">{{ fieldErrors.description }}</small>
             </FormField>
             <FormField v-if="isEdit" label="Status">
@@ -286,16 +284,17 @@ function onCancel() {
 
         <TabPanel value="1">
           <FormSection title="Search Engine Optimization">
-            <FormField label="Meta Title" :invalid="!!fieldErrors.metaTitle">
-              <InputText v-model="form.metaTitle" fluid class="w-full" />
+            <!-- Tab 1: SEO -->
+            <FormField label="Meta Title" :invalid="!!fieldErrors.metaTitle" class="mb-4">
+              <InputText v-model="form.metaTitle" fluid />
               <small v-if="fieldErrors.metaTitle" class="text-red-500">{{ fieldErrors.metaTitle }}</small>
             </FormField>
-            <FormField label="Meta Description" :invalid="!!fieldErrors.metaDescription">
-              <Textarea v-model="form.metaDescription" fluid class="w-full" rows="3" />
+            <FormField label="Meta Description" :invalid="!!fieldErrors.metaDescription" class="mb-4">
+              <Textarea v-model="form.metaDescription" fluid rows="3" />
               <small v-if="fieldErrors.metaDescription" class="text-red-500">{{ fieldErrors.metaDescription }}</small>
             </FormField>
             <FormField label="Meta Keywords" :invalid="!!fieldErrors.metaKeywords">
-              <InputText v-model="form.metaKeywords" fluid class="w-full" />
+              <InputText v-model="form.metaKeywords" fluid />
               <small v-if="fieldErrors.metaKeywords" class="text-red-500">{{ fieldErrors.metaKeywords }}</small>
             </FormField>
           </FormSection>
@@ -303,6 +302,8 @@ function onCancel() {
 
         <TabPanel value="2">
           <FormSection title="Fashion Attributes">
+            <!-- Tab 2: Fashion -->
+            <!-- 2-col grid fields -->
             <div class="grid grid-cols-2 gap-4">
               <FormField label="Style Code" :invalid="!!fieldErrors.styleCode">
                 <InputText v-model="form.styleCode" fluid />
@@ -321,11 +322,12 @@ function onCancel() {
                 <small v-if="fieldErrors.genderTarget" class="text-red-500">{{ fieldErrors.genderTarget }}</small>
               </FormField>
             </div>
-            <FormField label="Material Composition" :invalid="!!fieldErrors.materialComposition">
+            <!-- Textarea fields -->
+            <FormField label="Material Composition" :invalid="!!fieldErrors.materialComposition" class="mb-4">
               <Textarea v-model="form.materialComposition" fluid rows="2" />
               <small v-if="fieldErrors.materialComposition" class="text-red-500">{{ fieldErrors.materialComposition }}</small>
             </FormField>
-            <FormField label="Care Instructions" :invalid="!!fieldErrors.careInstructions">
+            <FormField label="Care Instructions" :invalid="!!fieldErrors.careInstructions" class="mb-4">
               <Textarea v-model="form.careInstructions" fluid rows="2" />
               <small v-if="fieldErrors.careInstructions" class="text-red-500">{{ fieldErrors.careInstructions }}</small>
             </FormField>
@@ -338,10 +340,11 @@ function onCancel() {
 
         <TabPanel value="3">
           <FormSection title="Availability">
-            <FormField label="Available On">
+            <!-- Tab 3: Timing -->
+            <FormField label="Available On" class="mb-4">
               <InputText v-model="form.availableOn" fluid type="date" />
             </FormField>
-            <FormField label="Discontinue On">
+            <FormField label="Discontinue On" class="mb-4">
               <InputText v-model="form.discontinueOn" fluid type="date" />
             </FormField>
             <FormField label="Track Inventory" help-text="Enable inventory tracking for this product">

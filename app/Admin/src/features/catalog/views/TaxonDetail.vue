@@ -7,11 +7,8 @@ import TabList from 'primevue/tablist'
 import Tab from 'primevue/tab'
 import TabPanels from 'primevue/tabpanels'
 import TabPanel from 'primevue/tabpanel'
-import Card from 'primevue/card'
 import DataTable from 'primevue/datatable'
 import Column from 'primevue/column'
-import Breadcrumb from 'primevue/breadcrumb'
-import Toolbar from 'primevue/toolbar'
 import Plus from '@primeicons/vue/plus'
 import { PageShell } from '@panel'
 import { FormSection, FormField } from '@form'
@@ -36,11 +33,11 @@ const taxonomyStore = useTaxonomyStore()
 
 const isEdit = computed(() => !!route.params.id && route.params.id !== 'new')
 const pageTitle = computed(() => isEdit.value ? 'Edit Taxon' : 'New Taxon')
-const breadcrumbs = computed(() => [
-  { label: 'Home', to: '/' },
-  { label: 'Taxons', to: '/catalog/taxons' },
-  { label: pageTitle.value },
-])
+const pageDescription = computed(() =>
+  isEdit.value
+    ? 'Edit the details of the taxon.'
+    : 'Create a new taxon by filling out the form below.',
+)
 const activeTab = ref('0')
 
 const form = ref<TaxonForm>({
@@ -262,15 +259,14 @@ function confirmDeleteRule(rule: TaxonRuleListItem) {
 </script>
 
 <template>
-  <PageShell :title="pageTitle">
-    <Breadcrumb :model="breadcrumbs" class="mb-4" />
-    <Toolbar class="mb-8">
-      <template #end>
-        <Button label="Save" icon="pi pi-check" severity="primary" @click="onSave()" />
-        <Button label="Cancel" icon="pi pi-times" severity="secondary" @click="onCancel()" />
-      </template>
-    </Toolbar>
+  <PageShell :title="pageTitle" :description="pageDescription">
+    <!-- Page actions -->
+    <div class="flex justify-end gap-2 mb-8">
+      <Button label="Save" icon="pi pi-check" severity="primary" @click="onSave()" />
+      <Button label="Cancel" icon="pi pi-times" severity="secondary" @click="onCancel()" />
+    </div>
 
+    <!-- Tabs -->
     <Tabs v-model:value="activeTab">
       <TabList>
         <Tab value="0">General</Tab>
@@ -282,46 +278,48 @@ function confirmDeleteRule(rule: TaxonRuleListItem) {
 
       <TabPanels>
         <TabPanel value="0">
+          <!-- Tab 0: General -->
           <FormSection title="General">
-            <FormField label="Taxonomy" :required="true" :invalid="!!fieldErrors.taxonomyId">
+            <FormField label="Taxonomy" :required="true" :invalid="!!fieldErrors.taxonomyId" class="mb-4">
               <Select v-model="form.taxonomyId" :options="taxonomyStore.activeTaxonomies" option-label="name" option-value="id" fluid :disabled="!isEdit && !!route.query.taxonomyId" />
               <small v-if="fieldErrors.taxonomyId" class="text-red-500">{{ fieldErrors.taxonomyId }}</small>
             </FormField>
-            <FormField label="Parent" help-text="Leave empty for root-level taxon">
+            <FormField label="Parent" help-text="Leave empty for root-level taxon" class="mb-4">
               <Select v-model="form.parentId" :options="parentOptions" option-label="label" option-value="value" fluid show-clear />
             </FormField>
-            <FormField label="Name" :required="true" :invalid="!!fieldErrors.name">
-              <InputText v-model="form.name" fluid class="w-full" />
+            <FormField label="Name" :required="true" :invalid="!!fieldErrors.name" class="mb-4">
+              <InputText v-model="form.name" fluid />
               <small v-if="fieldErrors.name" class="text-red-500">{{ fieldErrors.name }}</small>
             </FormField>
-            <FormField label="Presentation" :required="true" :invalid="!!fieldErrors.presentation">
-              <InputText v-model="form.presentation" fluid class="w-full" />
+            <FormField label="Presentation" :required="true" :invalid="!!fieldErrors.presentation" class="mb-4">
+              <InputText v-model="form.presentation" fluid />
               <small v-if="fieldErrors.presentation" class="text-red-500">{{ fieldErrors.presentation }}</small>
             </FormField>
-            <FormField label="Slug" :required="true" :invalid="!!fieldErrors.slug" help-text="Lowercase alphanumeric with hyphens (e.g. running-shoes)">
-              <InputText v-model="form.slug" fluid class="w-full" />
+            <FormField label="Slug" :required="true" :invalid="!!fieldErrors.slug" help-text="Lowercase alphanumeric with hyphens (e.g. running-shoes)" class="mb-4">
+              <InputText v-model="form.slug" fluid />
               <small v-if="fieldErrors.slug" class="text-red-500">{{ fieldErrors.slug }}</small>
             </FormField>
-            <FormField label="Description" :invalid="!!fieldErrors.description">
-              <Textarea v-model="form.description" fluid class="w-full" rows="3" />
+            <FormField label="Description" :invalid="!!fieldErrors.description" class="mb-4">
+              <Textarea v-model="form.description" fluid rows="3" />
               <small v-if="fieldErrors.description" class="text-red-500">{{ fieldErrors.description }}</small>
             </FormField>
             <FormField label="Position" :invalid="!!fieldErrors.position" help-text="Sort order">
-              <InputNumber v-model="form.position" fluid :min="-1" class="w-full" />
+              <InputNumber v-model="form.position" fluid :min="-1" />
               <small v-if="fieldErrors.position" class="text-red-500">{{ fieldErrors.position }}</small>
             </FormField>
           </FormSection>
         </TabPanel>
 
         <TabPanel value="1">
+          <!-- Tab 1: Settings -->
           <FormSection title="Settings">
-            <FormField label="Sort Order">
+            <FormField label="Sort Order" class="mb-4">
               <Select v-model="form.sortOrder" :options="TAXON_SORT_ORDERS" fluid />
             </FormField>
-            <FormField label="Hide from Navigation">
+            <FormField label="Hide from Navigation" class="mb-4">
               <ToggleSwitch v-model="form.hideFromNav" />
             </FormField>
-            <FormField label="Automatic Classification" help-text="Use rules to auto-assign products">
+            <FormField label="Automatic Classification" help-text="Use rules to auto-assign products" class="mb-4">
               <ToggleSwitch v-model="form.automatic" />
             </FormField>
             <FormField label="Rules Match Policy" help-text="How multiple rules are combined">
@@ -331,47 +329,46 @@ function confirmDeleteRule(rule: TaxonRuleListItem) {
         </TabPanel>
 
         <TabPanel value="2">
+          <!-- Tab 2: SEO -->
           <FormSection title="SEO">
-            <FormField label="Meta Title" :invalid="!!fieldErrors.metaTitle">
-              <InputText v-model="form.metaTitle" fluid class="w-full" />
+            <FormField label="Meta Title" :invalid="!!fieldErrors.metaTitle" class="mb-4">
+              <InputText v-model="form.metaTitle" fluid />
               <small v-if="fieldErrors.metaTitle" class="text-red-500">{{ fieldErrors.metaTitle }}</small>
             </FormField>
-            <FormField label="Meta Description" :invalid="!!fieldErrors.metaDescription">
-              <Textarea v-model="form.metaDescription" fluid class="w-full" rows="3" />
+            <FormField label="Meta Description" :invalid="!!fieldErrors.metaDescription" class="mb-4">
+              <Textarea v-model="form.metaDescription" fluid rows="3" />
               <small v-if="fieldErrors.metaDescription" class="text-red-500">{{ fieldErrors.metaDescription }}</small>
             </FormField>
             <FormField label="Meta Keywords" :invalid="!!fieldErrors.metaKeywords">
-              <InputText v-model="form.metaKeywords" fluid class="w-full" />
+              <InputText v-model="form.metaKeywords" fluid />
               <small v-if="fieldErrors.metaKeywords" class="text-red-500">{{ fieldErrors.metaKeywords }}</small>
             </FormField>
           </FormSection>
         </TabPanel>
 
         <TabPanel value="3">
+          <!-- Tab 3: Images -->
           <FormSection title="Images">
-            <FormField label="Image URL" :invalid="!!fieldErrors.imageUrl">
-              <InputText v-model="form.imageUrl" fluid class="w-full" />
+            <FormField label="Image URL" :invalid="!!fieldErrors.imageUrl" class="mb-4">
+              <InputText v-model="form.imageUrl" fluid />
               <small v-if="fieldErrors.imageUrl" class="text-red-500">{{ fieldErrors.imageUrl }}</small>
             </FormField>
             <FormField label="Square Image URL" :invalid="!!fieldErrors.squareImageUrl">
-              <InputText v-model="form.squareImageUrl" fluid class="w-full" />
+              <InputText v-model="form.squareImageUrl" fluid />
               <small v-if="fieldErrors.squareImageUrl" class="text-red-500">{{ fieldErrors.squareImageUrl }}</small>
             </FormField>
           </FormSection>
         </TabPanel>
 
         <TabPanel v-if="isEdit" value="4">
-          <Card>
-            <template #content>
-              <Toolbar>
-                <template #start>
-                  <Button label="Add Rule" severity="secondary" @click="openAddRule">
-                    <Plus />
-                  </Button>
-                </template>
-              </Toolbar>
+          <!-- Tab 4: Rules (child entity) -->
+          <Toolbar class="mb-4">
+            <template #start>
+              <Button label="Add Rule" severity="secondary" @click="openAddRule">
+                <Plus />
+              </Button>
             </template>
-          </Card>
+          </Toolbar>
 
           <DataTable :value="rules" :loading="rulesLoading" data-key="id">
             <Column field="type" header="Type" />

@@ -2,7 +2,6 @@
 import { ref, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useConfirm } from 'primevue/useconfirm'
-import Card from 'primevue/card'
 import DataTable from 'primevue/datatable'
 import TreeTable from 'primevue/treetable'
 import Column from 'primevue/column'
@@ -143,33 +142,31 @@ function confirmDelete() {
 
 <template>
   <PageShell title="Taxons" description="Manage product classification taxons">
-    <Card>
-      <template #content>
-        <Toolbar>
-          <template #start>
-            <Button label="New" severity="secondary" class="mr-2" @click="navigateToNew">
-              <Plus />
-            </Button>
-            <Button label="Delete" severity="secondary" :disabled="selectedItems.length === 0" class="mr-2" @click="confirmDelete">
-              <Trash />
-            </Button>
-          </template>
-          <template #end>
-            <Button
-              :label="viewMode === 'table' ? 'Tree' : 'Table'"
-              severity="secondary"
-              class="mr-2"
-              :icon="viewMode === 'table' ? 'pi pi-sitemap' : 'pi pi-list'"
-              @click="toggleViewMode"
-            />
-            <Button v-if="viewMode === 'table'" label="Export" severity="secondary" @click="exportCSV">
-              <Upload />
-            </Button>
-          </template>
-        </Toolbar>
+    <!-- Toolbar -->
+    <Toolbar class="mb-4">
+      <template #start>
+        <Button label="New" severity="secondary" class="mr-2" @click="navigateToNew">
+          <Plus />
+        </Button>
+        <Button label="Delete" severity="secondary" :disabled="selectedItems.length === 0" class="mr-2" @click="confirmDelete">
+          <Trash />
+        </Button>
       </template>
-    </Card>
+      <template #end>
+        <Button
+          :label="viewMode === 'table' ? 'Tree' : 'Table'"
+          severity="secondary"
+          class="mr-2"
+          :icon="viewMode === 'table' ? 'pi pi-sitemap' : 'pi pi-list'"
+          @click="toggleViewMode"
+        />
+        <Button v-if="viewMode === 'table'" label="Export" severity="secondary" @click="exportCSV">
+          <Upload />
+        </Button>
+      </template>
+    </Toolbar>
 
+    <!-- Data table -->
     <DataTable
       v-if="viewMode === 'table'"
       ref="dt"

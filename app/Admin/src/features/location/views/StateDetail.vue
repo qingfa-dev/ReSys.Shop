@@ -1,8 +1,6 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import Breadcrumb from 'primevue/breadcrumb'
-import Toolbar from 'primevue/toolbar'
 import { PageShell } from '@panel'
 import { FormSection, FormField } from '@form'
 import { useNotify } from '@/shared/composables/useNotify'
@@ -20,12 +18,12 @@ const { handleResult } = useApiErrorHandler()
 const countryStore = useCountryStore()
 
 const isEdit = computed(() => !!route.params.id && route.params.id !== 'new')
-const pageTitle = computed(() => isEdit.value ? 'Edit State' : 'New State')
-const breadcrumbs = computed(() => [
-  { label: 'Home', to: '/' },
-  { label: 'States', to: '/location/states' },
-  { label: pageTitle.value },
-])
+const pageTitle = computed(() => (isEdit.value ? 'Edit State' : 'New State'))
+const pageDescription = computed(() =>
+  isEdit.value
+    ? 'Edit the details of the state.'
+    : 'Create a new state by filling out the form below.',
+)
 
 const form = ref<StateForm>({
   name: '',
@@ -100,31 +98,31 @@ function onCancel() {
 </script>
 
 <template>
-  <PageShell :title="pageTitle">
-    <Breadcrumb :model="breadcrumbs" class="mb-4" />
-    <Toolbar class="mb-8">
-      <template #end>
-        <Button label="Save" icon="pi pi-check" severity="primary" @click="onSave()" />
-        <Button label="Cancel" icon="pi pi-times" severity="secondary" @click="onCancel()" />
-      </template>
-    </Toolbar>
+  <PageShell :title="pageTitle" :description="pageDescription">
+    <!-- Page actions -->
+    <div class="flex justify-end gap-2 mb-8">
+      <Button label="Save" icon="pi pi-check" severity="primary" @click="onSave()" />
+      <Button label="Cancel" icon="pi pi-times" severity="secondary" @click="onCancel()" />
+    </div>
+
+    <!-- Form section -->
     <FormSection title="State Details">
-      <FormField label="Name" :required="true" :invalid="!!fieldErrors.name">
-        <InputText v-model="form.name" fluid class="w-full" />
+      <FormField label="Name" :required="true" :invalid="!!fieldErrors.name" class="mb-4">
+        <InputText v-model="form.name" fluid />
         <small v-if="fieldErrors.name" class="text-red-500">{{ fieldErrors.name }}</small>
       </FormField>
-      <FormField label="Abbreviation" :required="true" :invalid="!!fieldErrors.abbreviation" help-text="Short code (e.g. CA, NY, TX)">
-        <InputText v-model="form.abbreviation" fluid maxlength="10" class="w-full" />
+      <FormField label="Abbreviation" :required="true" :invalid="!!fieldErrors.abbreviation" help-text="Short code (e.g. CA, NY, TX)" class="mb-4">
+        <InputText v-model="form.abbreviation" fluid maxlength="10" />
         <small v-if="fieldErrors.abbreviation" class="text-red-500">{{ fieldErrors.abbreviation }}</small>
       </FormField>
-      <FormField label="Country" :required="true" :invalid="!!fieldErrors.countryId">
+      <FormField label="Country" :required="true" :invalid="!!fieldErrors.countryId" class="mb-4">
         <Select
           v-model="form.countryId"
           :options="countryStore.activeCountries"
           option-label="name"
           option-value="id"
           placeholder="Select a country"
-          class="w-full"
+          fluid
         />
         <small v-if="fieldErrors.countryId" class="text-red-500">{{ fieldErrors.countryId }}</small>
       </FormField>
