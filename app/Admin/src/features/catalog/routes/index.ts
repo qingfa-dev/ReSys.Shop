@@ -7,6 +7,7 @@ const TaxonomyDetail = () => import('../views/TaxonomyDetail.vue')
 const TaxonsList = () => import('../views/TaxonsList.vue')
 const OptionTypesList = () => import('../views/OptionTypesList.vue')
 const OptionTypeDetail = () => import('../views/OptionTypeDetail.vue')
+const TaxonDetail = () => import('../views/TaxonDetail.vue')
 
 export const catalogRoutes: RouteRecordRaw[] = [
   {
@@ -54,6 +55,12 @@ export const catalogRoutes: RouteRecordRaw[] = [
     name: 'catalog-option-type-detail',
     component: OptionTypeDetail,
     meta: { title: 'Option Type Detail' },
+  },
+  {
+    path: 'catalog/taxons/:id',
+    name: 'catalog-taxon-detail',
+    component: TaxonDetail,
+    meta: { title: 'Taxon Detail' },
   },
 ]
 
